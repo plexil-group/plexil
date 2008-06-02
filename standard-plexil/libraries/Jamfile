@@ -1,0 +1,10 @@
+SubDir plexil_exec PLEXIL translator libraries ;
+
+if ! $(PLEXIL_READY) {
+
+ANTLR_JAR = [ FDirName $(SUBDIR) antlr.jar ] ;
+
+JavaThirdPartyJar antlr.jar ;
+JavaThirdPartyJar nanoxml.jar ;
+
+} # PLEXIL_READY

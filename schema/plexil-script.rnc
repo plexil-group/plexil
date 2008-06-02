@@ -1,0 +1,90 @@
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+default namespace = ""
+
+start =
+  CommandAck
+  | CommandAbort
+  | InitialState
+  | Param
+  | State
+  | FunctionCall
+  | (notAllowed
+     | element PLEXILScript { InitialState?, Script })
+  | Simultaneous
+  | Command
+  | UpdateAck
+  | Script
+type =
+  attribute type {
+    xsd:NMTOKEN "int-array"
+    | xsd:NMTOKEN "string-array"
+    | xsd:NMTOKEN "real-array"
+    | xsd:NMTOKEN "string"
+    | xsd:NMTOKEN "bool-array"
+    | xsd:NMTOKEN "int"
+    | xsd:NMTOKEN "real"
+    | xsd:NMTOKEN "bool"
+  }
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+Param =
+  notAllowed
+  | element Param { type?, xsd:string }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+CommandAck =
+  notAllowed
+  | element CommandAck { command-type }
+Script =
+  notAllowed
+  | element Script {
+      (State
+       | UpdateAck
+       | Command
+       | FunctionCall
+       | CommandAck
+       | CommandAbort
+       | Simultaneous)*
+    }
+Command =
+  notAllowed
+  | element Command { command-type }
+Simultaneous =
+  notAllowed
+  | element Simultaneous {
+      (State
+       | UpdateAck
+       | FunctionCall
+       | Command
+       | CommandAck
+       | CommandAbort)*
+    }
+FunctionCall =
+  notAllowed
+  | element FunctionCall { command-type }
+\string = xsd:string
+CommandAbort =
+  notAllowed
+  | element CommandAbort { command-type }
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
+PlexilPlanAttributes = 
+  notAllowed
+  | attribute xsi:* { xsd:anyURI }*

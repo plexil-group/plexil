@@ -1,0 +1,92 @@
+//Updated 5/14/08//
+
+=UE Installation=
+
+[[toc]]
+
+==Introduction==
+
+This document is the (wiki) source for the chapter "Installation" in the
+Universal Executive Reference Manual, as well as the contents of the
+file 'universal-exec/README' in the UE distribution.
+
+The 'universal-exec' directory contains the Universal Executive (UE),
+which is an execution system for the PLEXIL language. See the UE and
+PLEXIL reference manuals for more information.
+
+This document contains instructions for installing and building the UE,
+and pointers on version control and code documentation. Some
+familiarity with Unix is assumed.
+
+==Installation==
+
+Your Unix environment should have the following settings to run the UE
+and its related tools conveniently. These settings can be made one time
+by putting them in your shell's login or initialization file.
+
+Examples are given here for both bash and csh, using the relative
+pathname beginning with 'universal-exec' -- you'll need to extend this
+to your full pathname (e.g. /home/fred/projects/universal-exec).
+
+Environment variables (csh):
+
+[[code]]
+  (all platforms)  setenv UE_HOME universal-exec
+  (non-Mac only)   setenv LD_LIBRARY_PATH $UE_HOME/lib:$LD_LIBRARY_PATH
+  (Mac only)       setenv DYLD_LIBRARY_PATH $UE_HOME/lib:$DYLD_LIBRARY_PATH
+  (Mac only)       setenv DYLD_BIND_AT_LAUNCH 1
+[[code]]
+
+Environment variables (bash):
+
+[[code]]
+  (all platforms)  export UE_HOME=universal-exec
+  (non-Mac only)   export LD_LIBRARY_PATH=$UE_HOME/lib:$LD_LIBRARY_PATH
+  (Mac only)       export DYLD_LIBRARY_PATH=$UE_HOME/lib:$DYLD_LIBRARY_PATH
+  (Mac only)       export DYLD_BIND_AT_LAUNCH=1
+[[code]]
+
+The software itself just needs to be built (compiled), and this is
+explained in the following section.
+
+
+==Building the UE==
+
+The 'checkreqs' script in this directory will check for build and
+runtime requirements. Type 'checkreqs' to run it.
+
+The [[GettingStarted]] document lists the third party software packages
+required for the UE.
+
+If Jam is properly installed and in your path, just typing "jam" in this
+directory will build the utility libraries, the executive library, the
+module tests, and the executive runner.
+
+==Version Control==
+
+The PLEXIL distribution is maintained in a
+[[[http://subversion.tigris.org%7CSubversion|http://subversion.tigris.org|Subversion]] (or SVN)] version control
+system. You'll need some knowledge of SVN (which is very similar to
+CVS) to interact with the repository after your initial download of
+PLEXIL. Interactions include updating to newer files, and (eventually,
+for priveleged users) submitting your own changes to PLEXIL.
+
+The 'checksvn' script in this directory will tell you if there are newer
+versions of any files in the SVN repository.
+
+==Documentation==
+
+Documentation for the source code can be generated using the tool
+[[[http://www.stack.nl/%7Edimitri/doxygen%7CDoxygen%5D.|http://www.stack.nl/~dimitri/doxygen|Doxygen].]] The file 'ue.dox' is a
+Doxygen specification file. If you have installed Doxygen,
+documentation for the UE can be generated with the following command.
+
+[[code]]
+  doxygen ue.dox
+[[code]]
+
+The source code documentation is not as complete or thorough as we would
+like, but hopefully it is helpful.
+
+----
+Copyright (c) 2006-2008, Universities Space Research Association (USRA). All rights reserved.

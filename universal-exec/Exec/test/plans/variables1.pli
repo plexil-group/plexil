@@ -1,0 +1,10 @@
+(plexil-plan
+  (label "root"
+    (let ((integer "x"))
+      (sequence
+        (assign (intvar "x") 1)
+        (let ((integer "y")
+              (string "s"))
+          (assign (intvar "x") (+ (intvar "x") 4))
+          (assign (stringvar "s") "foo"))))))
+

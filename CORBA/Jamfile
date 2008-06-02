@@ -1,0 +1,40 @@
+
+SubDir CORBA ;
+
+if ! $(PLEXIL_CORBA_READY) {
+
+PLEXIL_ROOT = [ FDirName $(CORBA) $(DOTDOT) ] ;
+
+HDRS += [ FDirName $(PLEXIL_ROOT) universal-exec Exec ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Exec base ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Exec component ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec TinyXml base ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Utils ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Utils base ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Utils component ]
+        $(ACE_ROOT)
+        $(TAO_ROOT)
+        $(TAO_ROOT)/orbsvcs ;
+
+# reference common library directories
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) universal-exec lib ] 
+                            [ FDirName $(PLEXIL_ROOT) interfaces lib ]
+                            [ FDirName $(CORBA) lib ]
+                            [ FDirName $(ACE_ROOT) lib ]
+             ] ;
+
+Module PlexilCorbaUtils ;
+
+ModuleLibraries PlexilCorbaUtils :
+    ACE TAO TAO_CosNaming
+    TAO_AnyTypeCode # not found on ACE 5.4.6 and earlier
+    TAO_PortableServer
+    [ FVariantName PlexilUtils PlexilTinyXml : $(VARIANTS) ]
+ ;
+
+SubInclude CORBA base ;
+SubInclude CORBA component ;
+
+SubInclude CORBA EventChannelReporter ;
+
+} # PLEXIL_CORBA_READY

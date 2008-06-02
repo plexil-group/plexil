@@ -1,0 +1,9 @@
+
+SubDir interfaces Common component ;
+
+if ! $(PLEXIL_INTFCS_READY) {
+
+ModuleComponent PlexilInterface :
+  DummyAdaptor.cc ;
+
+} # PLEXIL_INTFCS_READY

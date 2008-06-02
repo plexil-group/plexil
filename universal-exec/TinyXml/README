@@ -1,0 +1,3 @@
+This directory contains TinyXML (version 2.2.1), a lightweight XML
+parser used by the UE to read PLEXIL code.  TinyXML is open source
+software.

@@ -1,0 +1,44 @@
+SubDir parser ;
+
+if ! $(PLEXIL_READY) {
+
+JAVA_SRC_DIR = [ FDirName $(SUBDIR) java ] ;
+JAVA_CLASSES_DIR = [ FDirName $(SUBDIR) classes ] ;
+JAVA_JARS_DIR = [ FDirName $(SUBDIR) jars ] ;
+
+JavaJar plexil.jar :
+  plexil.PlexilName
+  plexil.PlexilGlobalDeclaration
+  plexil.PlexilVariableName
+  plexil.PlexilInterfaceVariableName
+  plexil.PlexilLexer
+  plexil.PlexilTreeParser
+  plexil.PlexilParser
+  plexil.PlexilTokenTypes
+  plexil.PlexilTreeParserTokenTypes
+  plexil.PlexilParserState
+  plexil.PlexilNodeContext
+  plexil.PlexilGlobalContext
+  plexil.PlexilASTNode
+  plexil.LiteralASTNode
+  plexil.NodeASTNode
+  plexil.TimeLiteralASTNode
+  plexil.VariableASTNode
+  plexil.ArrayRefASTNode
+  plexil.StringLiteralASTNode
+  plexil.PlexilASTFactory
+  plexil.PlexilXmlStrings
+  plexil.PlexilNameType
+  plexil.PlexilDataType
+  plexil.Parse
+  ;
+
+# Note dependencies on Antlr-generated classes
+Depends PlexilGlobalDeclaration.class : Parse.class PlexilTokenTypes.class ;
+Depends Parse.class : PlexilParser.java PlexilTreeParser.java ;
+Depends PlexilParser.class : Parse.class ;
+
+SubInclude parser antlr ;
+SubInclude parser libraries ;
+
+}

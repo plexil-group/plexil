@@ -1,0 +1,7 @@
+BooleanExpressionTest:
+{
+  Boolean foo, bar = 0, baz[1], bletch[2] = false, blorf[4] = #(true false 1 0);
+  NodeList:
+  Foo: { Assignment: foo = true; }
+  Baz: { Assignment: bar = baz[0]; }
+}

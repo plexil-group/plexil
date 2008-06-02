@@ -1,0 +1,81 @@
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:addPlan]Added plan: 
+UpdateNode{
+ State: (id_202[au](INACTIVE): state(INACTIVE)) (inf)
+}
+
+[PlexilExec:handleConditionsChanged]Node UpdateNode had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'UpdateNode' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'UpdateNode' on the state change queue in position 1
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 1
+[PlexilExec:step][1:0] State change queue: UpdateNode 
+[PlexilExec:lock]Locking node UpdateNode
+[PlexilExec:step][1:0:0] Transitioning node UpdateNode
+[PlexilExec:handleConditionsChanged]Node UpdateNode had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'UpdateNode' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'UpdateNode' on the state change queue in position 2
+[PlexilExec:unlock]Unlocking node UpdateNode
+[PlexilExec:step][1:1] State change queue: UpdateNode 
+[PlexilExec:lock]Locking node UpdateNode
+[PlexilExec:step][1:1:0] Transitioning node UpdateNode
+[PlexilExec:handleNeedsExecution]Storing action for node 'UpdateNode' to be executed.
+[PlexilExec:handleConditionsChanged]Node UpdateNode had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'UpdateNode' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node UpdateNode
+[Test:testOutput]Received update: 
+[Test:testOutput] xValue => 10
+[Test:testOutput] yValue => 0
+[Test:testOutput] realconstant => 3.141
+[PlexilExec:cycle]==>End cycle 1
+[PlexilExec:printPlan]
+UpdateNode{
+ State: (id_202[au](EXECUTING): state(EXECUTING)) (0)
+ StartCondition: (id_219[au](1): boolean)
+ EndCondition: (id_248[au](UNKNOWN): ((id_247[au](UNKNOWN): boolean) && (id_221[au](1): boolean))
+ InvariantCondition: (id_223[au](1): boolean)
+ PreCondition: (id_225[au](1): boolean)
+ PostCondition: (id_227[au](1): boolean)
+ RepeatCondition: (id_229[au](0): boolean)
+ AncestorInvariantCondition: (id_231[au](1): boolean)
+ AncestorEndCondition: (id_233[au](0): boolean)
+ ParentExecutingCondition: (id_235[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_237[au](UNKNOWN): boolean)
+ AbortCompleteCondition: (id_239[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_241[au](0): boolean)
+ ParentFinishedCondition: (id_243[au](0): boolean)
+ x: (id_245[au](10): int)
+ y: (id_246[au](0): boolean)
+}
+
+[Test:testOutput]Sending update ACK UpdateNode
+[PlexilExec:handleConditionsChanged]Node UpdateNode had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'UpdateNode' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'UpdateNode' on the state change queue in position 3
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:step][2:0] State change queue: UpdateNode 
+[PlexilExec:lock]Locking node UpdateNode
+[PlexilExec:step][2:0:0] Transitioning node UpdateNode
+[PlexilExec:handleConditionsChanged]Node UpdateNode had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'UpdateNode' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'UpdateNode' on the state change queue in position 4
+[PlexilExec:unlock]Unlocking node UpdateNode
+[PlexilExec:step][2:1] State change queue: UpdateNode 
+[PlexilExec:lock]Locking node UpdateNode
+[PlexilExec:step][2:1:0] Transitioning node UpdateNode
+[PlexilExec:handleConditionsChanged]Node UpdateNode had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'UpdateNode' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node UpdateNode
+[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:printPlan]
+UpdateNode{
+ State: (id_202[au](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_203[au](SUCCESS):  outcome)
+ x: (id_245[iu](10): int)
+ y: (id_246[iu](0): boolean)
+}
+

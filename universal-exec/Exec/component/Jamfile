@@ -1,0 +1,20 @@
+SubDir plexil_exec Exec component ;
+
+if ! $(PLEXIL_READY) {
+
+ModuleComponent Exec 
+		:
+		Expressions.cc
+		TestExternalInterface.cc
+		ListNodeStateManager.cc
+		LibraryNodeCallStateManager.cc
+                EmptyNodeStateManager.cc
+		VarBindingStateManager.cc
+		ActionNodeStateManager.cc
+		StateManagerInit.cc
+                ParserException.cc
+		PlexilXmlParser.cc
+                ResourceArbiterInterface.cc
+		;
+
+} # PLEXIL_READY

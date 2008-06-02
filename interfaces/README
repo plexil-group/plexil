@@ -1,0 +1,5 @@
+This directory contains code for interfacing the UE with external
+systems.  Build it by typing 'jam'.
+
+The CORBA code that used to live in this directory has been moved to
+../CORBA .

@@ -1,0 +1,12 @@
+SubDir universal_exec TinyXml ;
+
+if ! $(PLEXIL_READY) {
+
+Module PlexilTinyXml ;
+
+SubInclude universal_exec TinyXml base ;
+SubInclude universal_exec TinyXml component ;
+SubInclude universal_exec TinyXml documentation ;
+SubInclude universal_exec TinyXml test ;
+
+} # PLEXIL_READY

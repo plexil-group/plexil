@@ -1,0 +1,20 @@
+Building the parser requires Java 1.4.x or newer, and jam 2.5.
+
+To build the parser, invoke 'jam'.  NOTE: there are many warnings, due
+to circular file dependencies, but the final build should be correct.
+
+The 'plexil' shell script in this directory is a convenience
+utility for running the parser.  Here is the usage message from
+'plexil':
+
+Usage: java plexil.Parse [OPTION]... [FILE]...
+
+  -a, --arguments <filename> Read arguments from filename
+  -d, --debug <filename>     Print debug information to filename
+  -h, --help                 Print this help
+  -o, --output <filename>    Print output to filename
+  -q, --quiet                Parse files quietly
+  -v, --version              Print the version
+
+Examples:
+java plexil.Parse -o filename.plx filename.ple

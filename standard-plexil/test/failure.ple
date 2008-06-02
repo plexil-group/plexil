@@ -1,0 +1,8 @@
+root:
+{
+  EndCondition: foo.failure == INFINITE_LOOP;
+  NodeList:
+  foo:
+  {
+  }
+}

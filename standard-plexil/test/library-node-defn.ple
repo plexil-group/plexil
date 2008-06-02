@@ -1,0 +1,4 @@
+LibTest:
+{
+  In Integer foo;
+}

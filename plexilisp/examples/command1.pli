@@ -1,0 +1,4 @@
+(plexil-plan
+  (command-node "Root"
+    (variables (string "name1" "foo"))
+    (command (concat (stringvar "name1") "bar"))))

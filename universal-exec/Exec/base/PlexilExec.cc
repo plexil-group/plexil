@@ -1,0 +1,669 @@
+/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "PlexilExec.hh"
+#include "Node.hh"
+#include "Expression.hh"
+#include "CoreExpressions.hh"
+#include "ExternalInterface.hh"
+#include "Debug.hh"
+#include "StateCache.hh"
+
+#include <map>
+#include <ext/functional>
+#include <functional>
+#include <time.h>
+
+namespace PLEXIL {
+  bool NodeConflictComparator::operator() (NodeId x, NodeId y) const {
+
+    check_error(x->getType() == Node::ASSIGNMENT());
+    check_error(y->getType() == Node::ASSIGNMENT());
+    return (x->getPriority() < y->getPriority() ? true : false);
+  }
+
+  class RealExecConnector : public ExecConnector {
+  public:
+    RealExecConnector(const PlexilExecId& exec) : m_exec(exec) {}
+    void handleConditionsChanged(const NodeId& node) {m_exec->handleConditionsChanged(node);}
+    void handleNeedsExecution(const NodeId& node) {m_exec->handleNeedsExecution(node);}
+    //const ExpressionId& findVariable(const LabelStr& name) {return m_exec->findVariable(name);}
+    const StateCacheId& getStateCache() {return m_exec->getStateCache();}
+  private:
+    PlexilExecId m_exec;
+  };
+
+  PlexilExec::PlexilExec(const PlexilNodeId& plan)
+    : m_id(this), m_cycleNum(0), m_queuePos(1),
+      m_connector((new RealExecConnector(m_id))->getId()),
+      m_cache((new StateCache())->getId()) {
+    addPlan(plan);
+    //is it really this simple?
+  }
+
+  PlexilExec::PlexilExec()
+    : m_id(this), m_cycleNum(0), m_queuePos(1),
+      m_connector((new RealExecConnector(m_id))->getId()),
+      m_cache((new StateCache())->getId()) {}
+
+  PlexilExec::~PlexilExec() {
+    for(std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
+      delete (Node*) (*it);
+    delete (StateCache*) m_cache;
+    m_id.remove();
+  }
+
+  void PlexilExec::addPlan(const PlexilNodeId& plan, const LabelStr& parent) {
+    //currently parent is ignored!
+    //not actually quiesceing, but causing the new nodes to look at the current known world state
+    m_cache->handleQuiescenceStarted();
+    clock_t time1 = clock();
+    NodeId root = (new Node(plan, m_connector))->getId();
+    check_error(root.isValid());
+    m_plan.push_back(root);
+    root->postInit();
+    debugMsg("PlexilExec:addPlan",
+	     "Added plan: " << std::endl << root->toString());
+    debugMsg("Time", "Time to initialize plan: " << clock() - time1);
+    publishAddPlan(plan, parent);
+    root->checkConditions();
+    m_cache->handleQuiescenceEnded();
+  }
+
+  //as a possible optimization, if we spend a lot of time searching through this list,
+  //it should be faster to search the list backwards.
+  void PlexilExec::handleConditionsChanged(const NodeId node) {
+    check_error(node.isValid());
+    debugMsg("PlexilExec:handleConditionsChanged",
+	     "Node " << node->getNodeId().toString() << " had a relevant condition change.");
+    if(node->getDestState() == StateVariable::UNKNOWN() ||
+       node->getDestState() == StateVariable::NO_STATE()) {
+      debugMsg("PlexilExec:handleConditionsChanged",
+	       "Node '" << node->getNodeId().toString() <<
+	       "' was previously eligible to transition but isn't now.");
+      int idx = inQueue(node);
+      if(idx != -1) {
+	debugMsg("PlexilExec:handleConditionsChanged",
+		 "Removing " << node->getNodeId().toString() <<
+		 " from the state change queue.");
+	m_stateChangeQueue.erase(idx);
+      }
+      else {
+        //	if((node->getType() == Node::ASSIGNMENT() || node->getType() == Node::FUNCTION()) &&
+	if((node->getType() == Node::ASSIGNMENT()) &&
+	   node->getState() != StateVariable::EXECUTING()) {
+	  debugMsg("PlexilExec:handleConditionsChanged",
+		   "Removing node from resource contention.")
+	    removeFromResourceContention(node);
+	}
+      }
+      return;
+    }
+    debugMsg("PlexilExec:handleConditionsChanged",
+	     "Considering node '" << node->getNodeId().toString() << "' for state transition.");
+    if(node->getType() == Node::ASSIGNMENT()) {
+      if(node->getDestState() == StateVariable::EXECUTING()) {
+	//if it's an assignment node and it's eligible to execute
+	//add it to contention consideration
+	debugMsg("PlexilExec:handleConditionsChanged",
+		 "Node '" << node->getNodeId().toString() <<
+		 "' is an assignment node that could be executing.  Adding it to the " <<
+		 "resource contention list ");
+	addToResourceContention(node);
+	//remove it from the state change queue
+	int it = inQueue(node);
+	if(it != -1) {
+	  debugMsg("PlexilExec:handleConditionsChanged",
+		   "Node '" << node->getNodeId().toString() <<
+		   "' is in the state change queue.  Removing it.");
+	  m_stateChangeQueue.erase(it);
+	}
+	return;
+      }
+      else {
+	debugMsg("PlexilExec:handleConditionsChanged",
+		 "Node '" << node->getNodeId().toString() <<
+		 "' is an assignment node that is no longer possibly executing.  " <<
+		 "Removing it from resource contention.");
+	removeFromResourceContention(node);
+      }
+    }
+
+    if(inQueue(node) == -1) {
+      debugMsg("PlexilExec:handleConditionsChanged",
+	       "Placing node '" << node->getNodeId().toString() <<
+	       "' on the state change queue in position " << m_queuePos);
+      m_stateChangeQueue.insert(std::pair<unsigned int, NodeId>(m_queuePos++, node));
+    }
+  }
+
+  void PlexilExec::handleNeedsExecution(const NodeId node) {
+    checkError(node->getState() == StateVariable::EXECUTING(),
+	       "Executive told to handle execution for node '" <<
+	       node->getNodeId().toString() << "', but it's in state '" <<
+	       node->getState().toString() << "'");
+    debugMsg("PlexilExec:handleNeedsExecution",
+	     "Storing action for node '" << node->getNodeId().toString() <<
+	     "' of type '" << node->getType().toString() << 
+             "' to be executed.");
+    if(node->getType() == Node::ASSIGNMENT())
+      m_assignmentsToExecute.push_back(node->getAssignment());
+    else if(node->getType() == Node::COMMAND())
+      m_commandsToExecute.push_back(node->getCommand());
+    else if(node->getType() == Node::UPDATE())
+      m_updatesToExecute.push_back(node->getUpdate());
+    else if(node->getType() == Node::FUNCTION())
+      m_functionCallsToExecute.push_back(node->getFunctionCall());
+  }
+
+  void PlexilExec::removeFromResourceContention(const NodeId node) {
+    check_error(node->getType() == Node::ASSIGNMENT());
+    //this check may be too restrictive, since we'll probably use this method
+    //to remove nodes when they get batch-executed.
+    //check_error(node->getDestState() != NODE::EXECUTING());
+
+    ExpressionId exp = node->getAssignmentVariable();
+
+    check_error(exp.isValid());
+    std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> >::iterator conflict =
+      m_resourceConflicts.find(exp);
+    if(conflict == m_resourceConflicts.end())
+      return;
+
+    std::multiset<NodeId, NodeConflictComparator>& conflictSet = conflict->second;
+    std::multiset<NodeId, NodeConflictComparator>::const_iterator conflictSetIter;
+
+    if((conflictSetIter = conflictSet.find(node)) != conflictSet.end())
+      {
+        size_t count = conflictSet.count(node);
+        //        debugMsg("PlexilExec:removeFromResourceContention", "There are " << count << " similar items in the"
+        //                 << " set.");
+        bool found = false;
+        
+        for (size_t i = 0; !found && (i < count); ++i, ++conflictSetIter)
+          {
+            if (node == *conflictSetIter)
+              found = true;
+          }
+        if (found)
+          {
+            conflictSet.erase(node);
+          }
+      }
+    if(conflictSet.empty())
+      {
+        m_resourceConflicts.erase(exp);
+      }
+  }
+
+  void PlexilExec::addToResourceContention(const NodeId node) {
+    check_error(node->getType() == Node::ASSIGNMENT());
+    check_error(node->getDestState() == StateVariable::EXECUTING());
+
+    ExpressionId exp = node->getAssignmentVariable();
+    check_error(exp.isValid());
+
+    debugMsg("PlexilExec:addToResourceContention",
+	     "Adding node '" << node->getNodeId().toString() << "' to resource contention.");
+    std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> >::iterator resourceIt =
+      m_resourceConflicts.find(exp);
+    if(resourceIt == m_resourceConflicts.end()) {
+      m_resourceConflicts.insert(std::make_pair(exp,
+						std::multiset<NodeId, NodeConflictComparator>()));
+      resourceIt = m_resourceConflicts.find(exp);
+    }
+    std::multiset<NodeId, NodeConflictComparator>& conflictSet = resourceIt->second;
+
+    std::multiset<NodeId, NodeConflictComparator>::iterator conflictSetIter;
+
+    //HACK.  maybe.  maybe not.
+    if((conflictSetIter = conflictSet.find(node)) != conflictSet.end()) {
+
+      // There could be multiple nodes with the same priority,
+      size_t count = conflictSet.count(node);
+      debugMsg("PlexilExec:addToResourceContention", "There are " << count << " similar items in the"
+               << " set.");
+      bool found = false;
+      
+      for (size_t i = 0; !found && (i < count); ++i, ++conflictSetIter)
+        {
+          if (node == *conflictSetIter)
+            found = true;
+        }
+      if (found)
+        {
+          debugMsg("PlexilExec:addToResourceContention",
+                   "Skipping node '" << node->getNodeId().toString() <<
+                   "' because it's already in the set.");
+          return;
+        }
+    }
+    conflictSet.insert(node);
+  }
+
+
+  //interesting test case:  one node assigns to a variable.  another node only executes when the first is executing and also assigns to that variable
+  void PlexilExec::step() {
+    m_cycleNum++;
+    m_cache->handleQuiescenceStarted();
+
+    double quiescenceTime = m_cache->currentTime();
+    debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
+
+    unsigned int stepCount = 0;
+    while(true) {
+      resolveResourceConflicts();
+      if(m_stateChangeQueue.empty())
+	break;
+      std::list<NodeId> transitioningNodes;
+      std::transform(m_stateChangeQueue.begin(), m_stateChangeQueue.end(),
+		     std::back_insert_iterator<std::list<NodeId> >(transitioningNodes),
+		     __gnu_cxx::select2nd<std::map<unsigned int, NodeId>::value_type>());
+      m_stateChangeQueue.clear();
+
+      std::stringstream out;
+      for(std::list<NodeId>::const_iterator it = transitioningNodes.begin();
+	  it != transitioningNodes.end(); ++it) {
+	out << (*it)->getNodeId().toString() << " ";
+      }
+      debugMsg("PlexilExec:step",
+	       "[" << m_cycleNum << ":" << stepCount << "] State change queue: " << out.str());
+
+      unsigned int microStepCount = 0;
+      std::set<NodeId> transitionedNodes;
+
+      //lock the nodes into their current transitioning states
+      for(std::list<NodeId>::iterator it = transitioningNodes.begin();
+	  it != transitioningNodes.end(); ++it) {
+	NodeId node = *it;
+	check_error(node.isValid());
+	debugMsg("PlexilExec:lock",
+		 "Locking node " << node->getNodeId().toString());
+	node->lockConditions();
+      }
+      //transition them
+      for(std::list<NodeId>::iterator it = transitioningNodes.begin();
+	  it != transitioningNodes.end(); ++it) {
+	NodeId node = *it;
+	check_error(node.isValid());
+	checkError(transitionedNodes.find(node) == transitionedNodes.end(),
+		   "Node " << node->getNodeId().toString() <<
+		   " already transitioned in this step.");
+	debugMsg("PlexilExec:step",
+		 "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
+		 "] Transitioning node " << node->getNodeId().toString());
+	LabelStr oldState = node->getState();
+	node->transition(quiescenceTime);
+	publishTransition(oldState, node);
+	transitionedNodes.insert(node);
+	++microStepCount;
+      }
+      //unlock the nodes
+      for(std::list<NodeId>::iterator it = transitioningNodes.begin();
+	  it != transitioningNodes.end(); ++it) {
+	NodeId node = *it;
+	check_error(node.isValid());
+	debugMsg("PlexilExec:unlock",
+		 "Unlocking node " << node->getNodeId().toString());
+	node->unlockConditions();
+      }
+
+      performAssignments();
+      ++stepCount;
+    }
+
+    //     quiescenceLoop(0, 0, quiescenceTime);
+    //     performAssignments();
+    //     quiescenceLoop(0, 0, quiescenceTime);
+
+    std::list<CommandId> commands(m_commandsToExecute.begin(), m_commandsToExecute.end());
+    m_commandsToExecute.clear();
+    ExternalInterface::instance()->batchActions(commands);
+    std::list<UpdateId> updates(m_updatesToExecute.begin(), m_updatesToExecute.end());
+    m_updatesToExecute.clear();
+    ExternalInterface::instance()->updatePlanner(updates);
+
+    std::list<FunctionCallId> functionCalls(m_functionCallsToExecute.begin(), m_functionCallsToExecute.end());
+    m_functionCallsToExecute.clear();
+    //    debugMsg("PlexilExec:cycle", "Need to call the External Interface here in order to execute a function call.");
+    ExternalInterface::instance()->batchActions(functionCalls);
+
+    debugMsg("PlexilExec:cycle", "==>End cycle " << m_cycleNum);
+    for(std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
+      debugMsg("PlexilExec:printPlan", std::endl << (*it)->toString());
+    }
+    m_cache->handleQuiescenceEnded();
+  }
+
+
+  void PlexilExec::quiescenceLoop(const int depth, const unsigned int stop,
+				  const double quiescenceTime) {
+    resolveResourceConflicts();
+    int stepNum = 0;
+    if(!m_stateChangeQueue.empty() && m_stateChangeQueue.rbegin()->first > stop) {
+      unsigned int nextStop = m_stateChangeQueue.rbegin()->first;
+      std::set<NodeId> transitionedNodes;
+      debugMsg("PlexilExec:step",
+	       "[" << m_cycleNum << ":" << depth << "] Starting with stop index " << stop <<
+	       " and state change queue: " << stateChangeQueueStr());
+      std::map<unsigned int, NodeId>::iterator it = m_stateChangeQueue.end();
+      --it;
+
+      while(!m_stateChangeQueue.empty() && it->first > stop) {
+	unsigned int pos = it->first;
+	NodeId node = it->second;
+	check_error(node.isValid());
+	checkError(transitionedNodes.find(it->second) == transitionedNodes.end(),
+		   "Node '" << node->getNodeId().toString() << "' (" << pos <<
+		   ") already transitioned in this loop.");
+	bool emptied = (it == m_stateChangeQueue.begin());
+	if(!emptied)
+	  --it;
+	debugMsg("PlexilExec:step", "Erasing node at position: " << pos);
+	m_stateChangeQueue.erase(pos);
+	debugMsg("PlexilExec:step",
+		 "[" << m_cycleNum << ":" << depth << ":" << stepNum << "]" <<
+		 " Transitioning node '" << node->getNodeId().toString() << "' (" << pos <<
+		 ")");
+	LabelStr oldState = node->getState();
+	node->transition(quiescenceTime);
+	publishTransition(oldState, node);
+	transitionedNodes.insert(node);
+	resolveResourceConflicts();
+	stepNum++;
+	if(emptied)
+	  break;
+      }
+      performAssignments();
+      quiescenceLoop(depth + 1, nextStop, quiescenceTime);
+    }
+  }
+
+  void PlexilExec::performAssignments() 
+  {
+    for(std::list<AssignmentId>::iterator it = m_assignmentsToExecute.begin();
+	it != m_assignmentsToExecute.end(); ++it) 
+    {
+      AssignmentId assn = *it;
+      check_error(assn.isValid());
+      ExpressionId exp = assn->getDest();
+      check_error(exp.isValid());
+      double value = assn->getValue();
+      std::stringstream valueStr;
+      if (LabelStr::isString(value))
+         valueStr << LabelStr(value).toString();
+      else
+         valueStr << value;
+      debugMsg("Test:testOutput", "Assigning '" << assn->getDestName() <<
+               "' (" << exp->toString() << ") to " << valueStr.str());
+      exp->setValue(value);
+      assn->getAck()->setValue(1);
+    }
+    m_assignmentsToExecute.clear();
+  }
+
+  //essential algorithm (given Nodes a and b) :
+  //if conflicts(a, b)
+  // if a.state == EXECUTING
+  //  put b on pending list
+  //  return a
+  // else if b.state == EXECUTING
+  //  put a on pending list
+  //  return b
+  // else if a.priority < b.priority
+  //  put b on pending list
+  //  return a
+  // else if a.priority > b.priority
+  //  put a on pending list
+  //  return b
+  // else
+  //  error
+  void PlexilExec::resolveResourceConflicts() {
+    for(std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> >::iterator it =
+	  m_resourceConflicts.begin();	it != m_resourceConflicts.end(); ++it) {
+      std::multiset<NodeId, NodeConflictComparator>& conflictSet = it->second;
+      checkError(!conflictSet.empty(),
+		 "Resource conflict set for " << it->first->toString() << " is empty.");
+
+      //we only have to look at all the nodes with the highest priority
+      std::multiset<NodeId, NodeConflictComparator>::iterator conflictIt = conflictSet.begin(); 
+      size_t count = conflictSet.count(*conflictIt);
+
+      NodeId nodeToExecute;
+
+      // Look at the destination states of all the nodes with equal priority
+      for (size_t i = 0, conflictCounter=0; i < count; ++i, ++conflictIt)
+        {
+          NodeId node = *conflictIt;
+      
+          check_error(node.isValid());
+          checkError(node->getState() == StateVariable::EXECUTING() ||
+		 node->getDestState() == StateVariable::EXECUTING(),
+		 "Error: node '" << node->getNodeId().toString() <<
+		 " is neither executing nor is it eligible to do so, yet it is in the " <<
+		 "conflict map.");
+
+          // Found one that is scheduled to for execution
+          if (node->getDestState() == StateVariable::EXECUTING())
+            ++conflictCounter;
+
+          // If more than one node is sceduled for execution, we have a resource contention.
+          checkError(conflictCounter < 2,
+                     "Error: node '" << node->getNodeId().toString() << " and the node "
+                     << nodeToExecute->getNodeId().toString() << " are in contention over variable "
+                     << node->getAssignmentVariable()->toString() << " and have equal priority.");
+          nodeToExecute = node;
+        }
+
+      if(nodeToExecute->getDestState() == StateVariable::EXECUTING() && inQueue(nodeToExecute) == -1) {
+	debugMsg("PlexilExec:resolveResourceConflicts",
+		 "Node '" << nodeToExecute->getNodeId().toString() <<
+		 "' has best priority.  Adding it to be executed in position " << m_queuePos);
+	m_stateChangeQueue.insert(std::pair<unsigned int, NodeId>(m_queuePos++, nodeToExecute));
+      }
+      else {
+	condDebugMsg(nodeToExecute->getState() == StateVariable::EXECUTING(),
+		     "PlexilExec:resolveResourceConflicts",
+		     "Node for " << it->first << " already executing.  Nothing to resolve.");
+	condDebugMsg(inQueue(nodeToExecute) != -1,
+		     "PlexilExec:resolveResourceConflicts",
+		     "Node for " << it->first << " already in state change queue.  Nothing " <<
+		     "to resolve.");
+	continue;
+      }
+    }
+  }
+
+//   const ExpressionId& PlexilExec::findVariable(const LabelStr& name) {
+//     debugMsg("PlexilExec:findVariable",
+// 	     "Searching for variable '" << name.toString() << "' in the entire plan.");
+//     for(std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
+//       NodeId node = *it;
+//       check_error(node.isValid());
+//       debugMsg("PlexilExec:findVariable",
+// 	       "Searching for variable in plan tree rooted at " <<
+// 	       node->getNodeId().toString());
+//       const ExpressionId& var = (*it)->findVariable(name, false);
+//       if(var.isId())
+// 	return var;
+//     }
+//     return ExpressionId::noId();
+//   }
+
+  std::string PlexilExec::stateChangeQueueStr() {
+    std::stringstream retval;
+    for(std::map<unsigned int, NodeId>::const_iterator it = m_stateChangeQueue.begin();
+	it != m_stateChangeQueue.end(); ++it) {
+      check_error(it->second.isValid());
+      retval << "(" << it->first << ")'" << it->second->getNodeId().toString() << "' ";
+    }
+    return retval.str();
+  }
+
+  int PlexilExec::inQueue(const NodeId node) const {
+    for(std::map<unsigned int, NodeId>::const_iterator it = m_stateChangeQueue.begin();
+	it != m_stateChangeQueue.end(); ++it)
+      if(it->second == node)
+	return it->first;
+    return -1;
+  }
+
+  void PlexilExec::publishTransition(const LabelStr& prevState, const NodeId& node) {
+    for(std::list<ExecListenerId>::iterator it = m_listeners.begin(); it != m_listeners.end();
+	++it) {
+      ExecListenerId listener = *it;
+      check_error(listener.isValid());
+      (*it)->notifyOfTransition(prevState, node);
+    }
+  }
+
+  void PlexilExec::publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent) 
+  {
+    for (std::list<ExecListenerId>::iterator it = m_listeners.begin();
+	 it != m_listeners.end();
+	 ++it)
+      {
+	ExecListenerId listener = *it;
+	check_error(listener.isValid());
+	(*it)->notifyOfAddPlan(plan, parent);
+      }
+  }
+
+  void PlexilExec::addListener(const ExecListenerId& listener) {
+    check_error(std::find(m_listeners.begin(), m_listeners.end(),
+			  listener) == m_listeners.end());
+    m_listeners.push_back(listener);
+  }
+
+  void PlexilExec::removeListener(const ExecListenerId& listener) {
+    std::list<ExecListenerId>::iterator it =
+      std::find(m_listeners.begin(), m_listeners.end(), listener);
+    check_error(it != m_listeners.end());
+    m_listeners.erase(it);
+  }
+
+
+  ////
+  //// From here to end of file: code to generate events for Procedure
+  //// Display/Tracker.  Probably best to move to other files, and
+  //// refactor as appropriate.
+  ////
+
+  using std::string;
+  using std::stringstream;
+  using std::map;
+  using std::endl;
+
+  static string element (string name,
+			 string c1 = "", string c2 = "", string c3 = "",
+			 string c4 = "", string c5 = "", string c6 = "",
+			 string c7 = "", string c8 = "", string c9 = "")
+  {
+    //
+    // A quick, simple, composable function to generate an XML element
+    // string with up to 9 content elements/strings.
+    //
+    return "<" + name + ">"
+      + c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9
+      + "</" + name + ">" ;
+  }
+
+  template<class T> static string to_string (T x)
+  {
+    //
+    // Hack (?) to obtain string representation of objects.
+    //
+    stringstream s;
+    s << x;
+    return s.str();
+  }
+
+  static string event_id ()
+  {
+    //
+    // Generate a unique ID.
+    //
+    static int id = 0;
+    return to_string<int> (id++);
+  }
+
+  static string binding_element (const map<double, double>& bindings)
+  {
+    //
+    // Returns an XML element for a given set of variable bindings.
+    //
+    stringstream s;
+    for (map<double,double>::const_iterator i = bindings.begin();
+	 i != bindings.end();
+	 i++) {
+      s << element ("binding",
+		    element ("bindingName", (LabelStr ((*i).first)).toString()),
+		    element ("bindingValue", to_string<double> ((*i).second)));
+    }
+    return s.str();
+  }
+
+  void ExecListener::notifyOfTransition (const LabelStr& prevState,
+					 const NodeId& node) const
+  {
+    // Output an XML form for an event of interest to the Procedure
+    // Tracker/Displayer.  Currently uses a debugStream to print to
+    // shell.  Eventually will publish to a Corba event channel.
+
+    // We're interested only in Update nodes.
+    if ("Update" != node->getType().toString()) return;
+
+    bool finished = (StateVariable::FINISHED() == node->getState());
+
+    // We're interested only in Executing or Finished nodes
+    if (!StateVariable::EXECUTING() == node->getState() || !finished) return;
+
+    NodeId parent = node->getParent();
+
+    const map<double, double>& bindings = node->getUpdate()->getPairs();
+
+    string timestamp =
+      to_string<double>
+      ((node->findVariable (LabelStr(node->getState().toString() + ".START")))->getValue());
+
+    debugMsg
+      ("Node:listener", "" << endl <<
+       element ("Event",
+		element ("EventId", event_id()),
+		element ("TimeStamp", timestamp),
+		element ("body",
+			 element ("sender", "UnivExec"),
+			 element ("nodeId", node->getNodeId().toString()),
+			 element ("parentId",
+				  parent ? parent->getNodeId().toString() : "NULL"),
+			 element ("executionStatus", node->getState().toString()),
+			 (finished ? element ("resultStatus",
+					      node->getOutcome().toString()) : ""),
+			 element ("bindingDimension", to_string<int> (bindings.size())),
+			 element ("bindings", binding_element (bindings)),
+			 element ("primitive", "T"))));
+  }
+}

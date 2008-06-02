@@ -1,0 +1,3 @@
+This directory normally contains only this file.  It fills with output
+from running the regression tests.  NOTE: this output is not yet
+automatically removed when 'jam clean' is done in the parent directory.

@@ -1,0 +1,173 @@
+Thu May 15 16:44:09 PDT 2008
+
+TEST PASSED: assign-to-parent-invariant + empty-script
+
+TEST PASSED: array2 + empty-script
+
+TEST PASSED: array5 + empty-script
+
+TEST PASSED: array6 + empty-script
+
+TEST PASSED: array9 + empty-script
+
+TEST PASSED: concat1 + empty-script
+
+TEST PASSED: contention1 + empty-script
+
+TEST PASSED: double-invariant-assignment + empty-script
+
+TEST PASSED: empty1 + empty-script
+
+TEST PASSED: empty2 + empty-script
+
+TEST PASSED: empty3 + empty-script
+
+TEST PASSED: empty4 + empty-script
+
+TEST PASSED: empty-string1 + empty-script
+
+TEST PASSED: failure-type1 + empty-script
+
+TEST PASSED: failure-type2 + empty-script
+
+TEST PASSED: failure-type3 + empty-script
+
+TEST PASSED: failure-type4 + empty-script
+
+TEST PASSED: grandparent-access-plan + empty-script
+
+TEST PASSED: invariant1 + empty-script
+
+TEST PASSED: isKnown1 + empty-script
+
+TEST PASSED: priority1 + empty-script
+
+TEST PASSED: repeat1 + empty-script
+
+TEST PASSED: repeat3 + empty-script
+
+TEST PASSED: repeat4 + empty-script
+
+TEST PASSED: simple-assignment + empty-script
+
+TEST PASSED: skip1 + empty-script
+
+TEST PASSED: skip2 + empty-script
+
+TEST PASSED: test-abs-sqrt-plan + empty-script
+
+TEST PASSED: test-node-name-scope-hack + empty-script
+
+TEST PASSED: test-node-name-scope + empty-script
+
+TEST PASSED: test-repeat-condition + empty-script
+
+TEST PASSED: variables1 + empty-script
+
+TEST PASSED: whitespace1 + empty-script
+
+TEST PASSED: uninitialized-assignment + empty-script
+
+TEST PASSED: contention3 + empty-script
+
+TEST PASSED: contention4 + empty-script
+
+TEST PASSED: array1 + array1-script
+
+TEST PASSED: array3 + array3-script
+
+TEST PASSED: array4 + array4-script
+
+TEST PASSED: array8 + array8-script
+
+TEST PASSED: atomic-assignment + atomic-assignment-script
+
+TEST PASSED: boolean1 + boolean1-script
+
+TEST PASSED: change-lookup-test + change-lookup-test-script
+
+TEST PASSED: command1 + command1-script
+
+TEST PASSED: command2 + command2-script
+
+TEST PASSED: command3 + command3-script
+
+TEST PASSED: command4 + command4-script
+
+TEST PASSED: concat2 + concat2-script
+
+TEST PASSED: conjuncts + conjuncts-script
+
+TEST PASSED: conjuncts1 + conjuncts1-script
+
+TEST PASSED: function-call1 + function-call1-script
+
+TEST PASSED: list-end-condition + list-end-condition-script
+
+TEST PASSED: lookup1 + lookup1-script
+
+TEST PASSED: lookup2 + lookup2-script
+
+TEST PASSED: lookup3 + lookup3-script
+
+TEST PASSED: priority-test + priority-test-script
+
+TEST PASSED: repeat2 + repeat2-script
+
+TEST PASSED: repeat5 + repeat5-script
+
+TEST PASSED: simple-functioncall + simple-functioncall-script
+
+TEST PASSED: site-survey + site-survey-script
+
+TEST PASSED: test-end-condition + test-end-condition-script
+
+TEST PASSED: test-timepoint + test-timepoint-script
+
+TEST PASSED: update-lookup-test-plan + update-lookup-test-script
+
+TEST PASSED: update-test-plan + update-test-script
+
+TEST PASSED: simple-openloop-command-a1 + simple-openloop-command-a1-script
+
+TEST PASSED: simple-openloop-command-a1 + simple-openloop-command-a3-script
+
+TEST PASSED: simple-openloop-command-a3 + simple-openloop-command-a1-script
+
+TEST PASSED: simple-openloop-command-a3 + simple-openloop-command-a3-script
+
+TEST PASSED: simple-openloop-command-nopost + simple-openloop-command-a3-script
+
+TEST PASSED: simple-closedloop-command-a1 + simple-closedloop-command-a1-script
+
+TEST PASSED: simple-closedloop-command-a1 + simple-closedloop-command-a3-script
+
+TEST PASSED: simple-closedloop-command-a3 + simple-closedloop-command-a1-script
+
+TEST PASSED: simple-closedloop-command-a3 + simple-closedloop-command-a3-script
+
+TEST PASSED: simple-closedloop-command-multipleAck + simple-closedloop-command-multipleAck-script
+
+TEST PASSED: resource1 + resource1-script
+
+TEST PASSED: resource1-repeatCond + resource1-repeatCond-script
+
+TEST PASSED: resource2-equalPriority + resource2-equalPriority-script
+
+TEST PASSED: resource3-ackRel + resource3-ackRel-script
+
+TEST PASSED: resource3-denyHP + resource3-denyHP-script
+
+TEST PASSED: resource3-deny2HP + resource3-deny2HP-script
+
+TEST PASSED: resource4-hvm + resource4-hvm-script
+
+TEST PASSED: resource4-hvm-repeatCond + resource4-hvm-repeatCond-script
+
+TEST PASSED: resource-renewable1 + resource-renewable1-script
+
+TEST PASSED: NonUnaryResources + NonUnaryResources-script
+
+TEST PASSED: simple-drive + single-drive-script
+
+TEST PASSED: simple-drive + double-drive-script

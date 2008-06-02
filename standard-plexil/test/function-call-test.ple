@@ -1,0 +1,32 @@
+Function foo();
+Function bar(Integer i);
+Boolean Function baz;
+Real Function bletch(String s);
+
+FunctionCallTest:
+{
+  NodeList:
+
+  NoArgsNoReturnTest:
+  {
+    FunctionCall: foo();
+  }
+
+  OneArgNoReturnTest:
+  {
+    Integer n = 2;
+    FunctionCall: bar(n);
+  }
+
+  NoArgOneReturnTest:
+  {
+    Boolean b;
+    FunctionCall: b = baz();
+  }
+
+  OneArgOneReturnTest:
+  {
+    Real r;
+    FunctionCall: r = bletch("Foo!");
+  }
+}

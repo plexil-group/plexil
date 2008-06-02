@@ -1,0 +1,16 @@
+SubDir universal_exec Utils ;
+
+if ! $(PLEXIL_READY) {
+
+Module PlexilUtils : PlexilTinyXml ;
+
+LINKFLAGS += [ FLibDirFlags [ FDirName $($(_top)) lib ] ] ;
+
+ModuleLibraries PlexilUtils : $(DLOPEN_LIBRARY) ;
+
+SubInclude universal_exec Utils base ;
+SubInclude universal_exec Utils component ;
+SubInclude universal_exec Utils documentation ;
+SubInclude universal_exec Utils test ;
+
+} # PLEXIL_READY

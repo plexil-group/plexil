@@ -1,0 +1,7 @@
+SubDir parser antlr ;
+
+if ! $(PARSER_READY) {
+
+AntlrGrammar Plexil : plexil.g plexil.tree.g : plexil ;
+
+} # PARSER_READY

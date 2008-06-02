@@ -1,0 +1,232 @@
+SubDir universal_exec Exec test ;
+
+if ! $(PLEXIL_READY) {
+  ModuleMain exec-module-tests : module-tests.cc exec-test-module.cc : Exec ;
+  RunModuleMain run-exec-module-tests : exec-module-tests ;
+  LocalDepends tests : run-exec-module-tests ;
+
+  ModuleMain exec-test-runner :
+    exec-test-runner.cc
+    LuvListener.cc
+    ExecTestRunner.cc :
+    Exec ;
+
+#RunTestPlan <dependency target> : <plan> : <script> : <output> : <library> ;
+   rule RunTestPlan {
+    local deptarget = $(1) ;
+    local plan = $(2) ;
+    local script = $(3) ;
+    local output = $(4) ;
+    local library = $(5) ;
+    local arguments = -s scripts/$(script) ;
+    if $(plan) {
+      arguments += -p plans/$(plan) ;
+    }
+   if $(library) {
+    for lib in 
+    $(library) 
+     {
+      arguments += -l plans/$(lib) ;
+     } 
+}
+ 
+ NOCARE $(deptarget) ;
+    RunModuleMain $(deptarget) : exec-test-runner : $(arguments) : : $(output) ;
+  }
+
+#RunTestDiff <dependency target> : <plan> : <script> : <library>
+  rule RunTestDiff {
+    local deptarget = $(1) ;
+    local plan = $(2) ;
+    local script = $(3) ;
+    local library = $(4) ;
+    local planname = "" ;
+    if $(plan) {
+      planname = $(plan) ;
+    }
+    else {
+      planname = NoPlan ;
+    }
+    local outfile = output/RUN_$(planname:S=)_$(script:S=) ;
+    local validfile = valid/RUN_$(planname:S=)_$(script:S=) ;
+    if $(INVALID) {
+      outfile = $(outfile).valid ;
+    }
+    else {
+      outfile = $(outfile).out ;
+      Clean clean : $(outfile) ;
+      Clean clean-outputs : $(outfile) ;
+    }
+    NOCARE $(outfile) ;
+    NOCARE $(deptarget) ;
+    RunTestPlan $(deptarget) : $(plan) : $(script) : $(outfile) : $(library) ;
+
+   validfile = $(validfile).valid ;
+
+  if ( ! $(INVALID) ) && ( $(validfile:D=$(SUBDIR) in [ GLOB $(validfile) ] ) {
+        local temp = "dummy" ;
+      #LocalDepends $(1) :  $(outfile)  $(validfile) ;
+      #NOTFILE $(temp) ;
+      operl  $(1) : $(outfile) $(validfile) ;
+   }
+  }
+
+#RunTestSuccess <dependency target> : <plan> : <script> : <library>
+  rule RunTestSuccess {
+    local deptarget = $(1) ;
+    local plan = $(2) ;
+    local script = $(3) ;
+    local library = $(4) ;
+    local planname = "" ;
+    if $(plan) {
+      planname = $(plan) ;
+    }
+    else {
+      planname = NoPlan ;
+    }
+    local outfile = output/RUN_$(planname:S=)_$(script:S=) ;
+     outfile = $(outfile).out ;
+     Clean clean : $(outfile) ;
+     Clean clean-outputs : $(outfile) ;
+     RunTestPlan $(deptarget) : $(plan) : $(script) : $(outfile) : $(library) ; 
+
+     # LocalDepends $(1) : $(outfile) ;
+      operl $(1) : $(outfile) ;
+  }
+ 
+ ALWAYS run-exec-tests1 ;
+  Depends run-exec-tests1 : run-execution-tests ;
+  
+ ExecuteTargetSO execution-test-shutdown : shutdown-script.sh ;
+  ALWAYS execution-test-shutdown ;
+  Depends execution-test-shutdown : run-exec-tests1 ;
+  Depends run-exec-tests : execution-test-shutdown ;
+  Depends run-exec-module-tests : execution-test-shutdown ;
+
+  ExecuteTargetSO execution-test-setup : setup-script.sh ;
+  ALWAYS execution-test-setup ;
+ Depends run-execution-tests : execution-test-setup ;
+
+   StartRes run-execution-tests ;
+  
+ # run plans that use empty-script.plx
+ # still need to determine whether .valid file is needed or not
+  for plan in
+  assign-to-parent-invariant.plx
+  {
+    RunTestDiff run-execution-tests : $(plan) : empty-script.plx ;
+  }
+ 
+ # run plans that use empty-script.plx
+ # success of root node denotes pass 
+  for plan in
+  array2.plx
+  array5.plx
+  array6.plx
+  array9.plx
+  concat1.plx
+  contention1.plx
+  double-invariant-assignment.plx
+  empty1.plx
+  empty2.plx
+  empty3.plx
+  empty4.plx
+  empty-string1.plx
+  failure-type1.plx
+  failure-type2.plx
+  failure-type3.plx
+  failure-type4.plx
+  grandparent-access-plan.plx
+  invariant1.plx
+  isKnown1.plx
+  priority1.plx
+  repeat1.plx
+  repeat3.plx
+  repeat4.plx
+  simple-assignment.plx
+  skip1.plx 
+  skip2.plx 
+  test-abs-sqrt-plan.plx
+  test-node-name-scope-hack.plx
+  test-node-name-scope.plx 
+  test-repeat-condition.plx
+  variables1.plx
+  whitespace1.plx
+  uninitialized-assignment.plx  
+  contention3.plx
+  contention4.plx
+  {
+    RunTestSuccess run-execution-tests : $(plan) : empty-script.plx ;
+  }
+
+ # run plans using related scripts which follow the naming convention
+ # success of root node denotes pass
+  RunTestSuccess run-execution-tests : array1.plx : array1-script.plx ;
+  RunTestSuccess run-execution-tests : array3.plx : array3-script.plx ;
+  RunTestSuccess run-execution-tests : array4.plx : array4-script.plx ;
+  RunTestSuccess run-execution-tests : array8.plx : array8-script.plx ;
+  RunTestSuccess run-execution-tests : atomic-assignment.plx : atomic-assignment-script.plx ;
+  RunTestSuccess run-execution-tests : boolean1.plx : boolean1-script.plx ;
+  RunTestSuccess run-execution-tests : change-lookup-test.plx : change-lookup-test-script.plx ;
+  RunTestSuccess run-execution-tests : command1.plx : command1-script.plx ; 
+  RunTestSuccess run-execution-tests : command2.plx : command2-script.plx ;    
+  RunTestSuccess run-execution-tests : command3.plx : command3-script.plx ;    
+  RunTestSuccess run-execution-tests : command4.plx : command4-script.plx ;    
+  RunTestSuccess run-execution-tests : concat2.plx  : concat2-script.plx ;
+  RunTestSuccess run-execution-tests : conjuncts.plx : conjuncts-script.plx ;  
+  RunTestSuccess run-execution-tests : conjuncts1.plx : conjuncts1-script.plx ;  
+  RunTestSuccess run-execution-tests : function-call1.plx : function-call1-script.plx ;
+  RunTestSuccess run-execution-tests : list-end-condition.plx : list-end-condition-script.plx ;
+  RunTestSuccess run-execution-tests : lookup1.plx : lookup1-script.plx ;
+  RunTestSuccess run-execution-tests : lookup2.plx : lookup2-script.plx ;
+  RunTestSuccess run-execution-tests : lookup3.plx : lookup3-script.plx ;
+  RunTestSuccess run-execution-tests : priority-test.plx : priority-test-script.plx ;
+  RunTestSuccess run-execution-tests : repeat2.plx : repeat2-script.plx ;
+  RunTestSuccess run-execution-tests : repeat5.plx : repeat5-script.plx ;
+  RunTestSuccess run-execution-tests : simple-functioncall.plx : simple-functioncall-script.plx ;
+  RunTestSuccess run-execution-tests : site-survey.plx : site-survey-script.plx ;
+  RunTestSuccess run-execution-tests : test-end-condition.plx : test-end-condition-script.plx ;
+  RunTestSuccess run-execution-tests : test-timepoint.plx : test-timepoint-script.plx ;
+  RunTestSuccess run-execution-tests : update-lookup-test-plan.plx : update-lookup-test-script.plx ;
+  RunTestSuccess run-execution-tests : update-test-plan.plx : update-test-script.plx ;   # rename to follow convention
+ 
+##command handles tests
+  RunTestDiff run-execution-tests : simple-openloop-command-a1.plx : simple-openloop-command-a1-script.plx ;
+  RunTestDiff run-execution-tests : simple-openloop-command-a1.plx : simple-openloop-command-a3-script.plx ;
+  RunTestDiff run-execution-tests : simple-openloop-command-a3.plx : simple-openloop-command-a1-script.plx ;
+  RunTestDiff run-execution-tests : simple-openloop-command-a3.plx : simple-openloop-command-a3-script.plx ;
+  RunTestDiff run-execution-tests : simple-openloop-command-nopost.plx : simple-openloop-command-a3-script.plx ;
+  RunTestDiff run-execution-tests : simple-closedloop-command-a1.plx : simple-closedloop-command-a1-script.plx ;
+  RunTestDiff run-execution-tests : simple-closedloop-command-a1.plx : simple-closedloop-command-a3-script.plx ;
+  RunTestDiff run-execution-tests : simple-closedloop-command-a3.plx : simple-closedloop-command-a1-script.plx ;
+  RunTestDiff run-execution-tests : simple-closedloop-command-a3.plx : simple-closedloop-command-a3-script.plx ;
+  RunTestDiff run-execution-tests : simple-closedloop-command-multipleAck.plx : simple-closedloop-command-multipleAck-script.plx ;
+
+##resource arbitration tests
+  RunTestDiff run-execution-tests : resource1.plx : resource1-script.plx ;
+  RunTestDiff run-execution-tests : resource1-repeatCond.plx : resource1-repeatCond-script.plx ;
+  RunTestDiff run-execution-tests : resource2-equalPriority.plx : resource2-equalPriority-script.plx ;
+  RunTestDiff run-execution-tests : resource3-ackRel.plx : resource3-ackRel-script.plx ;
+  RunTestDiff run-execution-tests : resource3-denyHP.plx : resource3-denyHP-script.plx ;
+  RunTestDiff run-execution-tests : resource3-deny2HP.plx : resource3-deny2HP-script.plx ;
+  RunTestDiff run-execution-tests : resource4-hvm.plx : resource4-hvm-script.plx ;
+  RunTestDiff run-execution-tests : resource4-hvm-repeatCond.plx : resource4-hvm-repeatCond-script.plx ;
+  RunTestDiff run-execution-tests : resource-renewable1.plx : resource-renewable1-script.plx ;
+  RunTestDiff run-execution-tests : NonUnaryResources.plx : NonUnaryResources-script.plx ;
+
+ # these illustrate bugs and need to be looked at 
+ #RunTestDiff run-execution-tests : lookup-frequency-plan.plx : lookup-frequency-script.plx ;
+ #RunTestDiff run-execution-tests : interface-test-plan.plx : interface-sim-script.plx ;
+  
+ 
+ # these scripts don't follow naming convention
+ # success of root node denotes pass
+  RunTestSuccess run-execution-tests : simple-drive.plx : single-drive-script.plx ;
+  RunTestSuccess run-execution-tests : simple-drive.plx : double-drive-script.plx ;
+ # comparison with .valid file is needed
+ # This test is broken (5/14/08) 
+ # RunTestDiff run-execution-tests : libcall.plx : lib-script.plx : lib1.plx lib2.plx ;
+
+  EndRes run-execution-tests ;
+
+}

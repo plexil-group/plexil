@@ -1,0 +1,11 @@
+
+SubDir CORBA EventChannelReporter base ;
+
+if ! $(PLEXIL_CORBA_READY) {
+
+ModuleCore EventChannelReporter :
+  EventChannelExecListener.cc
+  DefaultEventFilter.cc
+  ;
+
+} # PLEXIL_CORBA_READY

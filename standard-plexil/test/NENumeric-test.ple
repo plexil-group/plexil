@@ -1,0 +1,5 @@
+testNode:
+{
+   Real x ;
+   StartCondition: x != 10.0 ;
+}

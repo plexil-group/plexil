@@ -1,0 +1,5 @@
+(plexil-plan
+  (library-call-node "root"
+    (variables (string "name" "sue"))
+    (call "library5"
+      (alias "x" (stringvar "name")))))

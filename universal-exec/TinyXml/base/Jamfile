@@ -1,0 +1,15 @@
+SubDir universal_exec TinyXml base ;
+
+if ! $(PLEXIL_READY) {
+
+SubDirC++Flags -Wno-unknown-pragmas -Wno-format -DTIXML_USE_STL ;
+
+ModuleCore PlexilTinyXml
+	:
+	tinystr.cpp
+	tinyxml.cpp
+	tinyxmlerror.cpp
+	tinyxmlparser.cpp
+	;
+
+} # PLEXIL_READY

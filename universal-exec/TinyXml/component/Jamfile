@@ -1,0 +1,7 @@
+SubDir universal_exec TinyXml component ;
+
+if ! $(PLEXIL_READY) {
+
+ModuleComponent PlexilTinyXml ;
+
+} # PLEXIL_READY

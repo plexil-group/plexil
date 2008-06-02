@@ -1,0 +1,20 @@
+
+SubDir interfaces ;
+
+if ! $(PLEXIL_INTFCS_READY) {
+
+PLEXIL_ROOT = [ FDirName $(interfaces) $(DOTDOT) ] ;
+
+# point to relevant UE headers
+HDRS += [ FDirName $(PLEXIL_ROOT) universal-exec Exec ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Exec base ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Exec component ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec TinyXml base ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Utils ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Utils base ]
+        [ FDirName $(PLEXIL_ROOT) universal-exec Utils component ]
+        ;
+
+SubInclude interfaces Common ;
+
+} # PLEXIL_INTFCS_READY

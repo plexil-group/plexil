@@ -1,0 +1,11 @@
+SubDir universal_exec Utils test ;
+
+if ! $(PLEXIL_READY) {
+
+#SubDirHdrs $(plexil_exec) ConstraintEngine component ;
+
+ModuleMain utils-module-tests : module-tests.cc util-test-module.cc : PlexilUtils ;
+RunModuleMain run-utils-module-tests : utils-module-tests ;
+LocalDepends tests : run-utils-module-tests ;
+
+} # PLEXIL_READY

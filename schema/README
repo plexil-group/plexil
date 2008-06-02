@@ -1,0 +1,17 @@
+This directory contains the PLEXIL schema and related files:
+
+plexil.xsd (and its equivalent plexil.rnc) are schemas for the latest
+design of PLEXIL.  They are referred to as the "blessed" schema.
+
+supported-plexil.xsd (and its equivalent supported-plexil.rnc) define
+the PLEXIL that is currently implemented by the Universal Executive.
+
+plexil-script.xsd (and its equivalent plexil-script.rnc) are schemas for
+the simulation script.
+
+Makefile and 'rncfix' are used to generate .rnc schemas from .xsd.  This
+process is described within Makefile.
+
+For more information, see:
+
+  http://universalexec.wiki.sourceforge.net/PLEXIL+XML+

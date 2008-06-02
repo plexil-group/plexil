@@ -1,0 +1,28 @@
+
+SubDir CORBA EventChannelReporter ;
+
+if ! $(PLEXIL_CORBA_READY) {
+
+# force the stubs to be generated before the module files are compiled
+Module EventChannelReporter ;
+
+ModuleLibraries EventChannelReporter :
+  ACE TAO
+  TAO_AnyTypeCode # not found on ACE 5.4.6 and earlier
+  TAO_PortableServer
+  TAO_CosNaming
+  TAO_CosEvent TAO_CosEvent_Skel
+  TAO_CosNotification TAO_CosNotification_Skel
+  [ FVariantName Sockets Exec PlexilUtils PlexilTinyXml PlexilCorbaUtils PlexilInterface : $(VARIANTS) ]
+ ;
+
+
+local SUBDIRRESET = ;
+SUBDIRHDRS += [ FDirName $(PLEXIL_ROOT) interfaces Common base ]
+              [ FDirName $(PLEXIL_ROOT) CORBA base ] ;
+
+SubInclude CORBA EventChannelReporter base ;
+SubInclude CORBA EventChannelReporter component ;
+SubInclude CORBA EventChannelReporter test ;
+
+} # PLEXIL_CORBA_READY

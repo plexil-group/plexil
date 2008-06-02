@@ -1,0 +1,32 @@
+Command foo();
+Command bar(Integer i);
+Boolean Command baz;
+Real Command bletch(String s);
+
+CommandTest:
+{
+  NodeList:
+
+  NoArgsNoReturnTest:
+  {
+    Command: foo();
+  }
+
+  OneArgNoReturnTest:
+  {
+    Integer n = 2;
+    Command: bar(n);
+  }
+
+  NoArgOneReturnTest:
+  {
+    Boolean b;
+    Command: b = baz();
+  }
+
+  OneArgOneReturnTest:
+  {
+    Real r;
+    Command: r = bletch("Foo!");
+  }
+}

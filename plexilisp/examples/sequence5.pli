@@ -1,0 +1,8 @@
+(plexil-plan
+ (list-node
+  (variables (integer "foo"))
+  (list
+   (assignment-node
+    (interface (inout (integer "foo")))
+    (assignment (intvar "foo") 1))
+   (empty-node))))

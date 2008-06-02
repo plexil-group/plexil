@@ -1,0 +1,4 @@
+{
+  Integer foo = 0;
+  Assignment: foo = 2;
+}

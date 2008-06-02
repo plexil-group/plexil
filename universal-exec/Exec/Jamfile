@@ -1,0 +1,12 @@
+SubDir universal_exec Exec ;
+
+if ! $(PLEXIL_READY) {
+
+Module Exec : PlexilTinyXml PlexilUtils Sockets ;
+ModuleLibraries Exec : $(DLOPEN_LIBRARY) ;
+
+SubInclude universal_exec Exec base ;
+SubInclude universal_exec Exec component ;
+SubInclude universal_exec Exec test ;
+
+}

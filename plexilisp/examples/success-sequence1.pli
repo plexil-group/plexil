@@ -1,0 +1,4 @@
+(plexil-plan
+ (success-sequence "Root"
+  (empty-node "foo")
+  (empty-node "bar")))

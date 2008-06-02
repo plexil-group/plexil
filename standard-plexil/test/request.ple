@@ -1,0 +1,6 @@
+RequestTest:
+{
+  Integer i = 42;
+  Real x = 3.1415;
+  Request: ParentNode A = 1, B = 2.718, C = i, D = x;
+}

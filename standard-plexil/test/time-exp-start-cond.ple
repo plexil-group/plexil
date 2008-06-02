@@ -1,0 +1,9 @@
+test_translator:
+{
+  NodeList:
+  testNode:
+  {
+   Time now ;
+   StartCondition: now == [12,30] ;
+  }
+}

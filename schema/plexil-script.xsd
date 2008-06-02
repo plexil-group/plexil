@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!-- Schema for UE's simulation script  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+
+  <xsd:element name="PLEXILScript">
+    <xsd:complexType>
+      <xsd:sequence>
+	<xsd:element ref="InitialState" minOccurs="0"/>
+	<xsd:element ref="Script"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="InitialState">
+    <xsd:complexType>
+      <xsd:sequence>
+	<xsd:element ref="State" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Script">
+    <xsd:complexType>
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+          <xsd:element ref="State"/>
+          <xsd:element ref="UpdateAck"/>
+          <xsd:element ref="Command"/>
+          <xsd:element ref="FunctionCall"/>
+          <xsd:element ref="CommandAck"/>
+          <xsd:element ref="CommandAbort"/>
+          <xsd:element ref="Simultaneous"/>
+        </xsd:choice>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Simultaneous">
+    <xsd:complexType>
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+          <xsd:element ref="State" />
+          <xsd:element ref="UpdateAck" />
+          <xsd:element ref="FunctionCall"/>
+          <xsd:element ref="Command" />
+          <xsd:element ref="CommandAck" />
+          <xsd:element ref="CommandAbort" />
+        </xsd:choice>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="State">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="Param" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="Value" type="xsd:string" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute ref="type"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Command" type="command-type"/>
+
+  <xsd:element name="CommandAck" type="command-type"/>
+
+  <xsd:element name="CommandAbort" type="command-type"/>
+
+  <xsd:element name="FunctionCall" type="command-type"/>
+
+  <xsd:element name="Param" >
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string">
+          <xsd:attribute ref="type"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="UpdateAck">
+    <xsd:complexType>
+      <xsd:attribute name="name" type="xsd:string"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="command-type">
+    <xsd:sequence>
+      <xsd:element ref="Param" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="Result" type="xsd:string" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string"/>
+    <xsd:attribute ref="type"/>
+  </xsd:complexType>
+
+  <xsd:attribute name="type">
+    <xsd:simpleType>
+      <xsd:restriction base="xsd:NMTOKEN">
+        <xsd:enumeration value="bool"/>
+        <xsd:enumeration value="real"/>
+        <xsd:enumeration value="int"/>
+        <xsd:enumeration value="string"/>
+        <xsd:enumeration value="bool-array"/>
+        <xsd:enumeration value="real-array"/>
+        <xsd:enumeration value="int-array"/>
+        <xsd:enumeration value="string-array"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+  </xsd:attribute>
+
+</xsd:schema>

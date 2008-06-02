@@ -1,0 +1,4 @@
+(plexil-plan
+ (assignment-node "Root"
+   (variables (integer "x") (string "state-name" "foo"))
+   (assignment (intvar "x") (lookup-now (stringvar "state-name")))))

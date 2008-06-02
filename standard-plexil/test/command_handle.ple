@@ -1,0 +1,9 @@
+root:
+{
+  EndCondition: foo.command_handle == COMMAND_SUCCESS;
+  NodeList:
+  foo:
+  {
+    Command: foo;
+  }
+}

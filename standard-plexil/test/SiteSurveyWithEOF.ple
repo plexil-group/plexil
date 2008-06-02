@@ -1,0 +1,290 @@
+/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+SiteSurveyWithEOF:
+{
+  Integer taskTypeAndId[2];
+  Boolean is_aborted = false;
+  Boolean abort_due_to_exception = false;
+
+  EndCondition: SignalEndOfPlan.state == FINISHED OR SendAbortUpdate.state == FINISHED
+        OR abort_due_to_exception == true;
+
+  NodeList:
+
+  SiteSurveyWrapper:
+  {
+    Boolean is_paused = false;
+
+    EndCondition: taskTypeAndId[0] == 0 OR is_aborted == true OR abort_due_to_exception == true;
+
+    NodeList:
+
+    SiteSurvey:
+    {
+      String task_result_str;
+      Integer cmd_return_val;
+      String cmd_name = "nil";
+
+      RepeatCondition: taskTypeAndId[0] != 0;
+
+      NodeList:
+
+      Loop:
+      {
+         StartCondition: is_paused == false;
+         EndCondition: CheckIfAbortPlan.state == FINISHED;
+
+         NodeList:
+
+         RequestNextWaypt:
+         {
+           Integer ret_val;
+           StartCondition: is_paused == false;
+           PostCondition: ret_val == 0;
+           EndCondition: isKnown(ret_val);
+           Command: ret_val = get_next_inspection_point();
+         }
+
+         SetWaypointRequestFailed:
+         {
+           StartCondition: RequestNextWaypt.outcome == FAILURE;
+
+           Assignment: cmd_name = "get_next_inspection_point";
+         }
+
+         GetAndProcessWaypoint:
+         {
+           String wayptNameAndFrame[2];
+           Real waypt_x;
+           Real waypt_y;
+           Real waypt_z;
+           Real waypt_a;
+           Real waypt_is_directional;
+           Real waypt_tolerance;
+           Real waypt_heading_tolerance;
+           Real waypt_hinted_speed;
+           Real waypt_timeout;
+
+           StartCondition: RequestNextWaypt.state == FINISHED AND is_paused == false;
+           PreCondition: RequestNextWaypt.outcome == SUCCESS;
+           EndCondition: GetNewWaypt.outcome == FAILURE OR DriveAndAcquire.state == FINISHED;
+           InvariantCondition: is_paused == false;
+
+           NodeList:
+
+           GetNewWaypt:
+           {
+             PostCondition: Get_x.outcome == SUCCESS AND Get_y.outcome == SUCCESS AND 
+             GetTaskTypeAndId.outcome == SUCCESS;
+
+             NodeList:
+
+             // String
+             GetNameAndFrame:
+             {
+               Assignment: wayptNameAndFrame = LookupNow(name_and_frame);
+             }
+
+             // Integer
+             GetTaskTypeAndId:
+             {
+               Assignment: taskTypeAndId = LookupNow(task_type_and_id);
+             }
+
+             // Real
+             Get_x:
+             {
+               Assignment: waypt_x = LookupNow(waypoint_x);
+             }
+
+             Get_y:
+             {
+               Assignment: waypt_y = LookupNow(waypoint_y);
+             }
+
+             Get_z:
+             {
+               Assignment: waypt_z = LookupNow(waypoint_z);
+             }
+
+             Get_a:
+             {
+               Assignment: waypt_a = LookupNow(waypoint_a);
+             }
+
+             Get_dir:
+             {
+               Assignment: waypt_is_directional = LookupNow(isDirectional);
+             }
+
+             Get_tolerance:
+             {
+               Assignment: waypt_tolerance = LookupNow(tolerance);
+             }
+
+             Get_heading_tolerance:
+             {
+               Assignment: waypt_heading_tolerance = LookupNow(headingTolerance);
+             }
+
+             Get_hinted_speed:
+             {
+               Assignment: waypt_hinted_speed = LookupNow(hintedSpeed);
+             }
+
+             Get_timeout:
+             {
+               Assignment: waypt_timeout = LookupNow(timeout);
+             }
+           }
+
+           Cmd_Reset1:
+           {
+             Assignment: cmd_return_val = -1000;
+           }
+
+           DriveAndAcquire:
+           {
+             StartCondition: GetNewWaypt.state == FINISHED;
+             PreCondition: GetNewWaypt.outcome == SUCCESS;
+
+             NodeList:
+
+             ProcessWaypoint:
+             {
+               SkipCondition: taskTypeAndId[0] == 0;
+
+               NodeList:
+
+               DriveToWaypoint:
+               {
+                 PostCondition: cmd_return_val == 0;
+                 InvariantCondition: cmd_return_val == -1000 OR cmd_return_val == 0 OR cmd_return_val == 2 OR cmd_return_val == 3;
+                 EndCondition: cmd_return_val != -1000 OR is_aborted == true;
+
+                 Command: cmd_return_val = move_to_waypoint(wayptNameAndFrame[0], wayptNameAndFrame[1], waypt_x, waypt_y, waypt_z,
+                                                            waypt_a, waypt_is_directional, waypt_tolerance,
+                                                            waypt_heading_tolerance, waypt_hinted_speed);
+               }
+
+               SetNameToDrive:
+               {
+                 StartCondition: DriveToWaypoint.state == FINISHED;
+                 Assignment: cmd_name = "drive";
+               }
+
+               WrapperNode:
+               {
+                  StartCondition: SetNameToDrive.state == FINISHED;
+                  PreCondition: DriveToWaypoint.outcome == SUCCESS;
+                  SkipCondition: taskTypeAndId[0] == 1;
+
+                  NodeList:
+
+                  Cmd_Reset2:
+                  {
+                    Assignment: cmd_return_val = -1000;
+                  }
+
+                  TakeSample:
+                  {
+                    StartCondition: Cmd_Reset2.state == FINISHED;
+                    PostCondition: cmd_return_val == 0;
+                    InvariantCondition: cmd_return_val == -1000 OR cmd_return_val == 0 OR cmd_return_val == 2 OR cmd_return_val == 3;
+                    EndCondition: cmd_return_val != -1000 OR is_aborted == true;
+
+                    Command: cmd_return_val = acquire();
+                  }
+
+                  SetNameToAcquire:
+                  {
+                    StartCondition: TakeSample.state == FINISHED;
+                    Assignment: cmd_name = "acquire";
+                  }
+               }
+             }
+           }
+         }
+
+        SetPauseResult:
+        {
+          StartCondition: GetAndProcessWaypoint.state == FINISHED AND is_paused == true;
+          Assignment: cmd_return_val = -3;
+        }
+
+        SendUpdate:
+        {
+          StartCondition: (GetAndProcessWaypoint.state == FINISHED AND is_paused == false) OR
+                          SetWaypointRequestFailed.state == FINISHED OR
+                          SetPauseResult.state == FINISHED;
+          Update: taskId = taskTypeAndId[1], result = cmd_return_val, commandName = cmd_name;
+        } 
+
+        CheckIfAbortPlan:
+        {
+          StartCondition: SendUpdate.state == FINISHED;
+
+          NodeList:
+
+          SetAbort:
+          {
+            SkipCondition: cmd_return_val == -3 OR cmd_return_val == -2 OR cmd_return_val == 0 OR 
+                           cmd_return_val == 2 OR cmd_return_val == 3;
+            Assignment: abort_due_to_exception = true;
+          }
+        }
+      }
+    }
+
+    MonitorPauseSignal:
+    {
+      StartCondition: is_paused != LookupOnChange(plan_paused);
+      RepeatCondition: true;
+      Assignment: is_paused = LookupNow(plan_paused);
+    }
+  }
+
+  SignalEndOfPlan:
+  {
+    StartCondition: SiteSurveyWrapper.state == FINISHED AND MonitorAbortSignal.state == WAITING;
+
+    Update: endOfPlan = true;
+  }
+
+  MonitorAbortSignal:
+  {
+    StartCondition: LookupOnChange(abort_plan) == true;
+
+    Assignment: is_aborted = true;
+  }
+
+  SendAbortUpdate:
+  {
+    StartCondition: MonitorAbortSignal.state == FINISHED;
+    Update: taskId = taskTypeAndId[1], result = -2;
+  }
+}

@@ -1,0 +1,11 @@
+
+SubDir interfaces Common base ;
+
+if ! $(PLEXIL_INTFCS_READY) {
+
+ModuleCore PlexilInterface :
+  AdaptorExecInterface.cc
+  ThreadedExternalInterface.cc
+  InterfaceAdaptor.cc ;
+
+} # PLEXIL_INTFCS_READY

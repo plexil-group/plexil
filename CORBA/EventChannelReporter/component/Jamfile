@@ -1,0 +1,13 @@
+
+SubDir CORBA EventChannelReporter component ;
+
+if ! $(PLEXIL_CORBA_READY) {
+
+ModuleComponent EventChannelReporter :
+  event-support.cc
+  XmlStringEventFormatter.cc
+  StructuredEventFormatter.cc
+  NotificationChannelExecListener.cc
+  ;
+
+} # PLEXIL_CORBA_READY

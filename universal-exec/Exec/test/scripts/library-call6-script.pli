@@ -1,0 +1,5 @@
+(plexil-script
+  (initial-state
+    (state "foo" "string" "mary"
+      (param-string "p1")))
+  (script))

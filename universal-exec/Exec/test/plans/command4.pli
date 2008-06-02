@@ -1,0 +1,11 @@
+(plexil-plan
+  (comment "Tests command with return value")
+  (list-node "Root"
+    (variables (string "result-string"))
+    (list
+      (command-node "StringCommand"
+        (command-with-return (lookup-now "CommandName") (stringvar "result-string"))))))
+
+
+
+        
