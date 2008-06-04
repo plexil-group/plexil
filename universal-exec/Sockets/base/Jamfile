@@ -1,4 +1,4 @@
-SubDir universal_exec Sockets base ;
+SubDir universal-exec Sockets base ;
 
 if ! $(PLEXIL_READY) {
 

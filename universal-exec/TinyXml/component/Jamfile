@@ -1,4 +1,4 @@
-SubDir universal_exec TinyXml component ;
+SubDir universal-exec TinyXml component ;
 
 if ! $(PLEXIL_READY) {
 

@@ -1,4 +1,4 @@
-SubDir universal_exec Exec test ;
+SubDir universal-exec Exec test ;
 
 if ! $(PLEXIL_READY) {
   ModuleMain exec-module-tests : module-tests.cc exec-test-module.cc : Exec ;

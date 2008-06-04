@@ -1,4 +1,4 @@
-SubDir universal_exec Utils test ;
+SubDir universal-exec Utils test ;
 
 if ! $(PLEXIL_READY) {
 

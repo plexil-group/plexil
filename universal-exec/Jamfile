@@ -1,5 +1,5 @@
 # this jamfile courtesy (more or less) of EUROPA2
-SubDir universal_exec ;
+SubDir universal-exec ;
 
 if ! $(PLEXIL_READY) {
 
@@ -29,18 +29,15 @@ Depends run-install-tests : run-tests ;
 
 NOCARE run-all-tests run-tests run-checkin-tests tests ;
 
-SubInclude universal_exec TinyXml ;
-SubInclude universal_exec Sockets ;
-SubInclude universal_exec Utils ;
-SubInclude universal_exec Exec ;
-#SubInclude universal_exec PLEXIL ;
-#SubInclude universal_exec Interfaces ;
-#SubInclude universal_exec SAVH-exec ;
+SubInclude universal-exec TinyXml ;
+SubInclude universal-exec Sockets ;
+SubInclude universal-exec Utils ;
+SubInclude universal-exec Exec ;
 
 RemoveBinaries clean-all ;
 #Depends clean-all : clean clean-nddl-xml clean-system-xml ;
 
-ExecuteSO check-svn-changes : checksvn : $(universal_exec) ;
+ExecuteSO check-svn-changes : checksvn : $(universal-exec) ;
 
 
 } # PLEXIL_READY

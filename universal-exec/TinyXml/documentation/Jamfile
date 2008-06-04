@@ -1,4 +1,4 @@
-SubDir universal_exec TinyXml documentation ;
+SubDir universal-exec TinyXml documentation ;
 
 if ! $(PLEXIL_READY) {
 

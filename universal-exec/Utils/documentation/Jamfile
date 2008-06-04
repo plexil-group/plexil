@@ -1,4 +1,4 @@
-SubDir universal_exec Utils documentation ;
+SubDir universal-exec Utils documentation ;
 
 if ! $(PLEXIL_READY) {
 

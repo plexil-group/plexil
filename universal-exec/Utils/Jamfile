@@ -1,4 +1,4 @@
-SubDir universal_exec Utils ;
+SubDir universal-exec Utils ;
 
 if ! $(PLEXIL_READY) {
 
@@ -8,9 +8,9 @@ LINKFLAGS += [ FLibDirFlags [ FDirName $($(_top)) lib ] ] ;
 
 ModuleLibraries PlexilUtils : $(DLOPEN_LIBRARY) ;
 
-SubInclude universal_exec Utils base ;
-SubInclude universal_exec Utils component ;
-SubInclude universal_exec Utils documentation ;
-SubInclude universal_exec Utils test ;
+SubInclude universal-exec Utils base ;
+SubInclude universal-exec Utils component ;
+SubInclude universal-exec Utils documentation ;
+SubInclude universal-exec Utils test ;
 
 } # PLEXIL_READY
