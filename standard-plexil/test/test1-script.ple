@@ -1,0 +1,22 @@
+
+// testing comments
+
+initial-state {
+  state time           : real = 0.0;
+  // more comments
+  state target_in_view : bool = false;
+  state temperature    : real = 0.0;
+}
+
+script {
+  state time        : real = 1.0;
+  state time        : real = 2.0;
+  command-ack take_navcam;
+  command-ack rover_stop ();  // even more comments
+  state time        : real = 3.0;
+  command-ack turn_on_heater (10.0 : real);
+  state time        : real = 10.0;
+  command-ack rover_drive (10.0 : real, 20.0 : real);
+  state time        : real = 11.0;
+}
+

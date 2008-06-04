@@ -33,10 +33,28 @@ JavaJar plexil.jar :
   plexil.Parse
   ;
 
+JavaJar plexilscript.jar :
+  plexilscript.ParameterAST
+  plexilscript.CommandAckAST
+  plexilscript.StateAST
+  plexilscript.ScriptElementAST
+  plexilscript.ScriptElementCommandAckAST
+  plexilscript.ScriptElementStateAST
+  plexilscript.ScriptAST
+  plexilscript.InitialStateAST
+  plexilscript.PlexilScriptAST
+  plexilscript.PlexilScriptLexer
+  plexilscript.PlexilScriptParser
+  plexilscript.PlexilScriptParserTokenTypes
+  plexilscript.PlexilScriptParse
+  ;
+
 # Note dependencies on Antlr-generated classes
 Depends PlexilGlobalDeclaration.class : Parse.class PlexilTokenTypes.class ;
 Depends Parse.class : PlexilParser.java PlexilTreeParser.java ;
 Depends PlexilParser.class : Parse.class ;
+
+Depends PlexilScriptParse.class : PlexilScriptParser.java ;
 
 SubInclude parser antlr ;
 SubInclude parser libraries ;

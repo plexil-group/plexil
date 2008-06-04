@@ -4,4 +4,6 @@ if ! $(PARSER_READY) {
 
 AntlrGrammar Plexil : plexil.g plexil.tree.g : plexil ;
 
+AntlrGrammar PlexilScript : plexilscript.g : plexilscript ;
+
 } # PARSER_READY
