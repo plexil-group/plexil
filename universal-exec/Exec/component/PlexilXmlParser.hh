@@ -141,6 +141,8 @@ namespace PLEXIL
       throw(ParserException);
     static TiXmlElement* toXml(const PlexilFunctionCallBody* ref)
       throw(ParserException);
+    static TiXmlElement* toXml(const PlexilLibNodeCallBody* ref)
+      throw(ParserException);
     static TiXmlElement* toXml(const PlexilInternalVar* ref)
       throw(ParserException);
     static void toXml(const PlexilStateId& state, TiXmlElement* parent)

@@ -1457,6 +1457,8 @@ namespace PLEXIL
       realBody = toXml((PlexilCommandBody*)body);
     else if (Id<PlexilFunctionCallBody>::convertable(body))
       realBody = toXml((PlexilFunctionCallBody*)body);
+    else if (Id<PlexilLibNodeCallBody>::convertable(body))
+      realBody = toXml((PlexilLibNodeCallBody*)body);
     checkParserException(realBody != NULL, "Unknown body type.");
     retval->InsertEndChild(realBody);
     return retval;
@@ -1577,6 +1579,30 @@ namespace PLEXIL
       retval->InsertEndChild(*it);
 
     toXml(body->state(), retval);
+    return retval;
+  }
+
+  TiXmlElement* PlexilXmlParser::toXml(const PlexilLibNodeCallBody* body)
+    throw(ParserException)
+  {
+    TiXmlElement* retval = element(LIBRARYNODECALL_TAG);
+    retval->InsertEndChild(namedTextElement(NODEID_TAG, body->libNodeName()));
+
+    // format variable aliases
+    for (PlexilAliasMap::const_iterator it = body->aliases().begin();
+	 it != body->aliases().end();
+	 it++)
+      {
+	// double is key to LabelStr of formal param name
+	// expr is actual param
+	const std::pair<double, PlexilExprId>& entry = *it;
+	TiXmlElement* aliasXml = element(ALIAS_TAG);
+	aliasXml->InsertEndChild(namedTextElement(NODE_PARAMETER_TAG, LabelStr(entry.first).toString()));
+	aliasXml->InsertEndChild(toXml(entry.second));
+	retval->InsertEndChild(aliasXml);
+      }
+
+    // linked library node currently ignored
     return retval;
   }
 
