@@ -2,7 +2,7 @@ This directory contains PlexiLisp, an Emacs Lisp based syntax, and XML
 generator, for PLEXIL plans and simulation scripts.  For more
 information see:
 
-  http://universalexec.wiki.sourceforge.net/PlexiLisp
+  http://plexil.wiki.sourceforge.net/PlexiLisp
 
 PlexiLisp uses the 'xmlformat' XML parser (Copyright (c) 2004, 2005,
 Kitebird, LLC.  All rights reserved.).  The license agreement for
