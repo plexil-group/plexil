@@ -41,15 +41,15 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 
 # Unless simulation script file is specified, it defaults to (in order
 # of existence):
-#        PLAN-script.pls
-#        PLAN_script.pls
-#        script-PLAN.pls
-#        script_PLAN.pls
+#        PLAN-script.plx
+#        PLAN_script.plx
+#        script-PLAN.plx
+#        script_PLAN.plx
 # located either in the current directory, or in a 'scripts'
 # subdirectory, where PLAN is the basename of the plan argument.  The
 # plan and script files are schecked for existence (but not the libraries).  If
 # none of these script files exist, the empty script is used:
-#        universal-exec/Exec/test/scripts/empty-script.pls
+#        universal-exec/Exec/test/scripts/empty-script.plx
 
 # Check environment variables and UE executable
 if [ ! $UE_HOME ]
@@ -151,16 +151,16 @@ if [ ! -e $plan ]
 fi
 
 # Default simulation script
-script="$UE_HOME/Exec/test/scripts/empty-script.pls"
+script="$UE_HOME/Exec/test/scripts/empty-script.plx"
 
 # The plan file's extension, used to compute guessed script name.
 ext=".`echo $plan | awk -F. '{print $2}'`"
 
 # Alternate script candidates
-script1=`basename $plan $ext`-script.pls
-script2=`basename $plan $ext`_script.pls
-script3=script-`basename $plan $ext`.pls
-script4=script_`basename $plan $ext`.pls
+script1=`basename $plan $ext`-script.plx
+script2=`basename $plan $ext`_script.plx
+script3=script-`basename $plan $ext`.plx
+script4=script_`basename $plan $ext`.plx
 
 # If no more arguments, or next argument -l, check for candidate scripts.
 # Otherwise, next argument must be script.
