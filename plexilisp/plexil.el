@@ -80,7 +80,7 @@
       (if namespace
           (apply  #'generate-plexil-buffer
                   (list
-                   (if (equal "pl-" namespace) ".plx" ".pls")
+                   (if (equal "pl-" namespace) ".plx" ".plx")
                    (eval
                     (translate-symbols
                      buffer-content
