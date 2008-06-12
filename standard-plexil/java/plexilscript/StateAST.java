@@ -5,20 +5,23 @@
 
 package plexilscript;
 
-public class StateAST {
-    String name;
-    String type;
-    String value;
+import java.util.List;
 
-    public StateAST (String name0, String type0, String value0) {
-	name  = name0;
-	type  = type0;
-	value = value0;
+public class StateAST implements ElementAST {
+    String       name;
+    String       type;
+    List<String> values;
+
+    public StateAST (String name0, String type0, List<String> values0) {
+	name   = name0;
+	type   = type0;
+	values = values0;
     }
 
     public void print () {
 	System.out.printf ("    <State name=\"%s\" type=\"%s\">\n", name, type);
-	System.out.printf ("      <Value>%s</Value>\n", value);
+	for (String v : values)
+	    System.out.printf ("      <Value>%s</Value>\n", v);
 	System.out.printf ("    </State>\n");
     }
 }

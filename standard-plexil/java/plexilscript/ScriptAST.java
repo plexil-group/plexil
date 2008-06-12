@@ -7,16 +7,16 @@ package plexilscript;
 
 import java.util.List;
 
-public class ScriptAST {    
-    List<ScriptElementAST> elements;
+public class ScriptAST implements ElementAST {
+    List<ElementAST> es;
 
-    public ScriptAST (List<ScriptElementAST> elements0) {
-	elements = elements0;
+    public ScriptAST (List<ElementAST> es0) {
+	es = es0;
     }
 
     public void print () {
 	System.out.printf ("  <Script>\n");
-	for (ScriptElementAST e : elements)
+	for (ElementAST e : es)
 	    e.print ();
 	System.out.printf ("  </Script>\n");
     }

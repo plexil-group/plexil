@@ -5,20 +5,19 @@
 
 package plexilscript;
 
-public class PlexilScriptAST {
-    InitialStateAST initialState;
-    ScriptAST       script;
+import java.util.List;
 
-    public PlexilScriptAST (InitialStateAST initialState0,  ScriptAST script0) {
-	initialState = initialState0;
-	script       =  script0;
+public class PlexilScriptAST {
+    List<ElementAST> es;
+
+    public PlexilScriptAST (List<ElementAST> es0) {
+	es = es0;
     }
 
     public void print () {
 	System.out.printf ("<PLEXILScript>\n");
-	initialState.print ();
-	System.out.printf ("\n");
-	script.print ();
+	for (ElementAST e : es)
+	    e.print ();
 	System.out.printf ("</PLEXILScript>\n");
     }
 }

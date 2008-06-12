@@ -1,11 +1,11 @@
 
 //
-// ScriptElementAST
+// ElementAST
 //
 
 package plexilscript;
 
-interface ScriptElementAST {
+interface ElementAST {
     public void print ();
 }
 

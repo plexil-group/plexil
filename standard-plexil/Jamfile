@@ -35,14 +35,17 @@ JavaJar plexil.jar :
 
 JavaJar plexilscript.jar :
   plexilscript.ParameterAST
+  plexilscript.CommandAST
   plexilscript.CommandAckAST
+  plexilscript.CommandAbortAST
+  plexilscript.FunctionCallAST
   plexilscript.StateAST
-  plexilscript.ScriptElementAST
-  plexilscript.ScriptElementCommandAckAST
-  plexilscript.ScriptElementStateAST
+  plexilscript.ElementAST
+  plexilscript.SimultaneousAST
+  plexilscript.UpdateAckAST
   plexilscript.ScriptAST
-  plexilscript.InitialStateAST
   plexilscript.PlexilScriptAST
+  plexilscript.InitialStateAST
   plexilscript.PlexilScriptLexer
   plexilscript.PlexilScriptParser
   plexilscript.PlexilScriptParserTokenTypes

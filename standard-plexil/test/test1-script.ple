@@ -11,12 +11,12 @@ initial-state {
 script {
   state time        : real = 1.0;
   state time        : real = 2.0;
-  command-ack take_navcam;
-  command-ack rover_stop ();  // even more comments
+  command-ack take_navcam () = COMMAND_SUCCESS;
+  command-ack rover_stop () = COMMAND_SUCCESS;  // even more comments
   state time        : real = 3.0;
-  command-ack turn_on_heater (10.0 : real);
+  command-ack turn_on_heater (10.0 : real) = COMMAND_SUCCESS;
   state time        : real = 10.0;
-  command-ack rover_drive (10.0 : real, 20.0 : real);
+  command-ack rover_drive (10.0 : real, 20.0 : real) = COMMAND_SUCCESS;
   state time        : real = 11.0;
 }
 
