@@ -1449,7 +1449,15 @@ libraryCall
    ln:libraryNodeIdRef { lndec = globalContext.getLibraryNode(#ln.getText()); }
    ( aliasSpecs[lndec] )? SEMICOLON! ;
 
-libraryNodeIdRef: n:nodeName { globalContext.isLibraryNodeName(#n.getText()) }? ;
+libraryNodeIdRef:
+  n:nodeName
+ {
+   if (!globalContext.isLibraryNodeName(#n.getText()))
+     throw createSemanticException("Node name \"" + #n.getText()
+                                   + "\" is not a declared library node",
+                                   #n);
+ }
+ ;
 
 aliasSpecs[PlexilGlobalDeclaration decl] :
   LPAREN! ( aliasSpec[decl] ( COMMA! aliasSpec[decl] )* )? RPAREN!
