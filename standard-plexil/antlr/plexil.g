@@ -1446,18 +1446,18 @@ libraryCall
 { PlexilGlobalDeclaration lndec = null; }
  :
   LIBRARY_CALL_KYWD^ COLON!
-   ln:libraryNodeIdRef { lndec = globalContext.getLibraryNode(#ln.getText()); }
+   ln:libraryNodeIdRef
+   { 
+     if (!globalContext.isLibraryNodeName(#ln.getText()))
+       throw createSemanticException("Node name \"" + #ln.getText()
+                                      + "\" is not a declared library node",
+                                      #ln);
+     lndec = globalContext.getLibraryNode(#ln.getText());
+   }
    ( aliasSpecs[lndec] )? SEMICOLON! ;
 
-libraryNodeIdRef:
-  n:nodeName
- {
-   if (!globalContext.isLibraryNodeName(#n.getText()))
-     throw createSemanticException("Node name \"" + #n.getText()
-                                   + "\" is not a declared library node",
-                                   #n);
- }
- ;
+// error checking done at libraryCall above
+libraryNodeIdRef: n:nodeName ;
 
 aliasSpecs[PlexilGlobalDeclaration decl] :
   LPAREN! ( aliasSpec[decl] ( COMMA! aliasSpec[decl] )* )? RPAREN!

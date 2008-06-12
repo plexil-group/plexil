@@ -229,6 +229,13 @@ public class Parse
 	    }
        	PlexilTreeParser treeParser = new PlexilTreeParser(parser.getState());
        	treeParser.plexilPlan(parser.getAST(), xml);
+	if (treeParser.getState().printErrorCount()) 
+	    {
+		// be sure to properly close debug writer if bailing out early
+		if (debugWriter != null)
+		    debugWriter.close();
+		System.exit(1);
+	    }
     }
     
     public static void main(String [] args) throws Exception 

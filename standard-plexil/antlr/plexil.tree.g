@@ -70,6 +70,11 @@ options {
         context = ctxt;
     }
 
+    public PlexilParserState getState() 
+    {
+        return state;
+    }
+
 	protected void copyPosition(IXMLElement object, AST n) throws ClassCastException {
 		if(!(n instanceof PlexilASTNode))
 			throw new ClassCastException("cannot copy position from AST!");
@@ -130,6 +135,19 @@ options {
       }
       return result;
     }
+
+  /*
+    Methods involving state
+  */
+
+  public void reportError(RecognitionException ex)
+  {
+    state.error(ex);
+  }
+  public void reportWarning(RecognitionException ex)
+  {
+    state.warn(ex);
+  }
 
 }
 
@@ -1587,7 +1605,7 @@ nodeNameRef[IXMLElement parent] :
    n:NodeName
    {
      IXMLElement nid = new XMLElement("NodeRef");
-     nid.setContent(n.getText());
+     nid.setContent(#n.getText());
      parent.addChild(nid);
    }
 ;
@@ -1597,9 +1615,12 @@ nodeNameRef[IXMLElement parent] :
 nodeIdRef[IXMLElement parent]
 { IXMLElement nid = new XMLElement("NodeId"); }
  :
-   n:NodeName { state.isNodeName(n.getText()) }?
+   n:NodeName
    {
-     nid.setContent(n.getText());
+     if (!state.isNodeName(#n.getText()))
+       throw createSemanticException("\"" + #n.getText() + "\" is not the name of a known node",
+                                     #n);
+     nid.setContent(#n.getText());
      parent.addChild(nid);
    }
 ;
@@ -1609,9 +1630,12 @@ nodeIdRef[IXMLElement parent]
 nodeRef[IXMLElement parent]
 { IXMLElement nid = new XMLElement("NodeRef"); }
  :
-   n:NodeName { state.isNodeName(n.getText()) }?
+   n:NodeName
    {
-     nid.setContent(n.getText());
+     if (!state.isNodeName(#n.getText()))
+       throw createSemanticException("\"" + #n.getText() + "\" is not the name of a known node",
+                                     #n);
+     nid.setContent(#n.getText());
      parent.addChild(nid);
    }
 ;
@@ -1621,8 +1645,11 @@ nodeRef[IXMLElement parent]
 libraryNodeIdRef[IXMLElement parent]
 { IXMLElement nid = new XMLElement("NodeId"); }
  :
-   n:NodeName { PlexilGlobalContext.getGlobalContext().isLibraryNodeName(n.getText()) }?
+   n:NodeName
    {
+     if (!PlexilGlobalContext.getGlobalContext().isLibraryNodeName(#n.getText()))
+       throw createSemanticException("\"" + #n.getText() + "\" is not the name of a declared library node",
+                                     #n);
      nid.setContent(n.getText());
      parent.addChild(nid);
    }
