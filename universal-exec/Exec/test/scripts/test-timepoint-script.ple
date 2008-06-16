@@ -1,0 +1,11 @@
+
+// test-timepoint
+
+initial-state {
+  state time () = 0 : bool;
+}
+
+script {
+  state time () = 181 : bool;
+}
+

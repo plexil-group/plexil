@@ -1,0 +1,10 @@
+
+// function-call1
+
+initial-state {
+}
+
+script {
+  function-call add (2.5 : real, 2.0 : real) = 4.5 : real;
+}
+
