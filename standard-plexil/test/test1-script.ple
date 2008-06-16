@@ -2,21 +2,24 @@
 // testing comments
 
 initial-state {
-  state time           : real = 0.0;
+  state time ()           = 0.0 : real;
   // more comments
-  state target_in_view : bool = false;
-  state temperature    : real = 0.0;
+  state target_in_view () = false : bool;
+  state temperature ()    = 0.0 : real;
 }
 
 script {
-  state time        : real = 1.0;
-  state time        : real = 2.0;
-  command-ack take_navcam () = COMMAND_SUCCESS;
-  command-ack rover_stop () = COMMAND_SUCCESS;  // even more comments
-  state time        : real = 3.0;
-  command-ack turn_on_heater (10.0 : real) = COMMAND_SUCCESS;
-  state time        : real = 10.0;
-  command-ack rover_drive (10.0 : real, 20.0 : real) = COMMAND_SUCCESS;
-  state time        : real = 11.0;
+  state time () = 1.0 : real ;
+  state time () = 2.0 : real;
+  command-ack take_navcam () = "COMMAND_SUCCESS" : string;
+  command-ack rover_stop  () = "COMMAND_SUCCESS" : string;  // even more comments
+  state time () =  3.0 : real;
+  command-ack turn_on_heater (10.0 : real) = "COMMAND_SUCCESS" : string;
+  state time () = 10.0 : real;
+  state target_in_view () = true : bool;
+  command-ack rover_drive (10.0 : real, 20.0 : real) = "COMMAND_SUCCESS" : string;
+  state time () = 11.0 : real;
 }
+
+
 

@@ -36,10 +36,10 @@ JavaJar plexil.jar :
 JavaJar plexilscript.jar :
   plexilscript.ParameterAST
   plexilscript.CommandAST
-  plexilscript.CommandAckAST
-  plexilscript.CommandAbortAST
-  plexilscript.FunctionCallAST
-  plexilscript.StateAST
+#  plexilscript.CommandAckAST
+#  plexilscript.CommandAbortAST
+#  plexilscript.FunctionCallAST
+#  plexilscript.StateAST
   plexilscript.ElementAST
   plexilscript.SimultaneousAST
   plexilscript.UpdateAckAST

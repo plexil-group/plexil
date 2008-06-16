@@ -62,39 +62,39 @@ script returns [ScriptAST ast = null] :
         { ast = new ScriptAST (es); }
     ;
 
-state returns [StateAST ast = null] :
-        { List<String> vs; }
-        "state" n:ID COLON t:ID EQUALS vs = values SEMI
-        { ast = new StateAST (n.getText(), t.getText(), vs); }
-    ;
-
 updateAck returns [UpdateAckAST ast = null] :
         "update-ack" n:ID SEMI
         { ast = new UpdateAckAST (n.getText()); }
     ;
 
-functionCall returns [FunctionCallAST ast = null] :
-        { List<ParameterAST> ps; List<String> vs; }
-        "function-call" n:ID ps = parameters EQUALS vs = values SEMI
-        { ast = new FunctionCallAST (n.getText(), ps, vs); }
+state returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; String t; List<String> vs; }
+        "state" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
+        { ast = new CommandAST ("State", "Value", n.getText(), ps, t, vs); }
+    ;
+
+functionCall returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; String t; List<String> vs; }
+        "function-call" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
+        { ast = new CommandAST ("FunctionCall", "Result", n.getText(), ps, t, vs); }
     ;
 
 command returns [CommandAST ast = null] :
-        { List<ParameterAST> ps; List<String> vs; }
-        "command" n:ID ps = parameters EQUALS vs = values SEMI
-        { ast = new CommandAST (n.getText(), ps, vs); }
+        { List<ParameterAST> ps; String t; List<String> vs; }
+        "command" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
+        { ast = new CommandAST ("Command", "Result", n.getText(), ps, t, vs); }
     ;
 
-commandAck returns [CommandAckAST ast = null] :
-        { List<ParameterAST> ps; List<String> vs; }
-        "command-ack" n:ID ps = parameters EQUALS vs = values SEMI
-        { ast = new CommandAckAST (n.getText(), ps, vs); }
+commandAck returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; String t; List<String> vs; }
+        "command-ack" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
+        { ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, t, vs); }
     ;
 
-commandAbort returns [CommandAbortAST ast = null] :
-        { List<ParameterAST> ps; List<String> vs; }
-        "command-abort" n:ID ps = parameters EQUALS vs = values SEMI
-        { ast = new CommandAbortAST (n.getText(), ps, vs); }
+commandAbort returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; String t; List<String> vs; }
+        "command-abort" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
+        { ast = new CommandAST ("CommandAbort", "Result", n.getText(), ps, t, vs); }
     ;
 
 parameters returns [List<ParameterAST> ast = null] :
@@ -105,15 +105,34 @@ parameters returns [List<ParameterAST> ast = null] :
     ;
 
 parameter returns [ParameterAST ast = null] :
-        v:ID COLON t:ID
-        { ast = new ParameterAST (v.getText(), t.getText()); }
+        { String v, t; }
+        v = value COLON t = type
+        { ast = new ParameterAST (v, t); }
     ;
 
 values returns [List<String> ast = null] :
-        { ast = new LinkedList<String> (); }
-        (v1:ID { ast.add (v1.getText()); }) |
-        (LPAREN v2:ID { ast.add (v2.getText()); }
-              (COMMA v3:ID { ast.add (v3.getText()); })* RPAREN)
+        { String v; ast = new LinkedList<String> (); }
+        ((v = value { ast.add (v); })
+        | (LPAREN v = value { ast.add (v); }
+                (COMMA v = value { ast.add (v); })* RPAREN))
+    ;
+
+value returns [String ast = null] :
+      "true"   { ast = "true"; }
+    | "false"  { ast = "false"; }
+    | s:STRING { ast = s.getText(); }
+    | n:NUMBER { ast = n.getText(); }
+    ;
+
+type returns [String ast = null] :
+      "int-array"    { ast = "int-array"; }
+    | "string-array" { ast = "string-array"; }
+    | "real-array"   { ast = "real-array"; }
+    | "string"       { ast = "string"; }
+    | "bool-array"   { ast = "bool-array"; }
+    | "int"          { ast = "int"; }
+    | "real"         { ast = "real"; }
+    | "bool"         { ast = "bool"; }
     ;
 
 class PlexilScriptLexer extends Lexer;
@@ -127,7 +146,17 @@ COMMA  : ',';
 COLON  : ':';
 EQUALS : '=';
 
-ID      : ('A'..'Z'|'a'..'z'|'0'..'9'|'_'|'-'|'.'|'\"')+ ;
+
+protected LETTER : 'A'..'Z' | 'a'..'z' ;
+protected DIGIT  : '0'..'9' ;
+
+STRING : '"'! (~'"')* '"'! ;
+NUMBER : ('-')? (DIGIT)+ ('.' (DIGIT)+)? ;
+ID      : LETTER (LETTER|DIGIT|'_'|'-')* ;
 WS      : (' '|'\t'|'\n' { newline(); } |'\r')+ { $setType(Token.SKIP); } ;
 COMMENT : "//" (~'\n')* '\n' { newline(); $setType(Token.SKIP); } ;
+
+// ID      : ('A'..'Z'|'a'..'z'|'0'..'9'|'_'|'-'|'.'|'\"')+ ;
+// WS      : (' '|'\t'|'\n' { newline(); } |'\r')+ { $setType(Token.SKIP); } ;
+// COMMENT : "//" (~'\n')* '\n' { newline(); $setType(Token.SKIP); } ;
 

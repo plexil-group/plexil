@@ -15,10 +15,10 @@ public class SimultaneousAST implements ElementAST {
     }
 
     public void print () {
-	System.out.printf ("  <Simultaneous>\n");
+	System.out.printf ("    <Simultaneous>\n");
 	for (ElementAST e : es)
 	    e.print ();
-	System.out.printf ("  </Simultaneous>\n");
+	System.out.printf ("    </Simultaneous>\n");
     }
 }
 
