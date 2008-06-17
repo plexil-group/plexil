@@ -45,5 +45,11 @@ if [ -z "${MYDIR}" ]; then
 fi
 #echo MYDIR=${MYDIR}
 
-# Assumes pathnames relative to location of THIS SCRIPT FILE
-java -cp ${MYDIR}/jars/plexilscript.jar:${MYDIR}/libraries/antlr.jar plexilscript.PlexilScriptParse
+# Pathnames are relative to location of THIS SCRIPT FILE !
+
+if [ $# != 1 ] ; then
+  echo "Usage: plexilscript foo-script.ple"
+  exit
+fi
+
+java -cp ${MYDIR}/jars/plexilscript.jar:${MYDIR}/libraries/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//%ple/plx}
