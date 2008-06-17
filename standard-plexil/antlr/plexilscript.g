@@ -27,15 +27,21 @@ elements returns [List<ElementAST> ast = null] :
     ;
 
 element returns [ElementAST ast = null] :
-        ast = initialState |
-        ast = script       |
-        ast = state        |
-        ast = updateAck    |
-        ast = command      |
-        ast = functionCall |
-        ast = commandAck   |
-        ast = commandAbort |
-        ast = simultaneous
+      ast = initialState
+    | ast = script      
+    | ast = state       
+    | ast = updateAck   
+    | ast = command     
+    | ast = functionCall
+    | ast = commandAbort
+    | ast = simultaneous
+    | ast = commandAck  
+    | ast = commandAccepted
+    | ast = commandDenied
+    | ast = commandSentToSystem
+    | ast = commandRcvdBySystem
+    | ast = commandSuccess
+    | ast = commandFailed
     ;
 
 initialState returns [InitialStateAST ast = null] :
@@ -85,16 +91,58 @@ command returns [CommandAST ast = null] :
         { ast = new CommandAST ("Command", "Result", n.getText(), ps, t, vs); }
     ;
 
+commandAbort returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; String t; List<String> vs; }
+        "command-abort" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
+        { ast = new CommandAST ("CommandAbort", "Result", n.getText(), ps, t, vs); }
+    ;
+
 commandAck returns [CommandAST ast = null] :
         { List<ParameterAST> ps; String t; List<String> vs; }
         "command-ack" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
         { ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, t, vs); }
     ;
 
-commandAbort returns [CommandAST ast = null] :
-        { List<ParameterAST> ps; String t; List<String> vs; }
-        "command-abort" n:ID ps = parameters EQUALS vs = values COLON t = type SEMI
-        { ast = new CommandAST ("CommandAbort", "Result", n.getText(), ps, t, vs); }
+commandAccepted returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-accepted" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_ACCEPTED");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
+    ;
+
+commandDenied returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-denied" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_DENIED");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
+    ;
+
+commandSentToSystem returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-sent-to-system" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_SENT_TO_SYSTEM");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
+    ;
+
+commandRcvdBySystem returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-rcvd-by-system" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_RCVD_BY_SYSTEM");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
+    ;
+
+commandSuccess returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-success" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_SUCCESS");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
+    ;
+
+commandFailed returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-failed" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_FAILED");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
     ;
 
 parameters returns [List<ParameterAST> ast = null] :
