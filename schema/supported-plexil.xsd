@@ -41,13 +41,69 @@
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
+
   <xsd:element name="GlobalDeclarations">
     <xsd:complexType>
-      <xsd:complexContent>
-        <xsd:restriction base="xsd:anyType"/>
-      </xsd:complexContent>
+      <xsd:choice maxOccurs="unbounded">
+        <xsd:element ref="CommandDeclaration" minOccurs="0"/>
+        <xsd:element ref="StateDeclaration" minOccurs="0"/>
+        <xsd:element ref="FunctionDeclaration" minOccurs="0"/>
+        <xsd:element name="TimeScalingUnitsSubunits" type="xsd:integer" minOccurs="0"/>
+      </xsd:choice>
     </xsd:complexType>
   </xsd:element>
+
+  <xsd:group name="ExternalCallDeclaration">
+    <xsd:sequence>
+      <xsd:element name="Name" type="xsd:NCName"/>
+      <xsd:element ref="Return" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:group>
+
+  <xsd:element name="CommandDeclaration">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:group ref="ExternalCallDeclaration"/>
+          <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="StateDeclaration">
+    <xsd:complexType>
+      <xsd:group ref="ExternalCallDeclaration"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="FunctionDeclaration">
+    <xsd:complexType>
+      <xsd:group ref="ExternalCallDeclaration"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Parameter">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="NCNameOrEmpty">
+          <xsd:attribute name="Type" type="TypeValues" use="required"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Return" nillable="true">
+  <!-- KMD: not sure about the motivation for 'nillable'.  Assuming it
+       is for declaring a void return explicitly. -->
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="NCNameOrEmpty">
+          <xsd:attribute name="Type" type="TypeValues" use="required"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:simpleType name="TypeValues">
     <xsd:restriction base="xsd:NMTOKEN">
       <xsd:enumeration value="Integer"/>
@@ -57,6 +113,7 @@
       <xsd:enumeration value="Array"/>
     </xsd:restriction>
   </xsd:simpleType>
+
   <xsd:simpleType name="NCNameOrEmpty">
     <xsd:union memberTypes="xsd:NCName">
       <xsd:simpleType>
@@ -66,6 +123,7 @@
       </xsd:simpleType>
     </xsd:union>
   </xsd:simpleType>
+
   <xsd:element name="Node">
     <xsd:complexType>
       <xsd:all>
