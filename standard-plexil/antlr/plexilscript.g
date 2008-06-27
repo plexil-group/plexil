@@ -200,7 +200,7 @@ protected DIGIT  : '0'..'9' ;
 
 STRING : '"'! (~'"')* '"'! ;
 NUMBER : ('-')? (DIGIT)+ ('.' (DIGIT)+)? ;
-ID      : LETTER (LETTER|DIGIT|'_'|'-')* ;
+ID      : LETTER (LETTER|DIGIT|'_'|'-'|'.')* ;
 WS      : (' '|'\t'|'\n' { newline(); } |'\r')+ { $setType(Token.SKIP); } ;
 COMMENT : "//" (~'\n')* '\n' { newline(); $setType(Token.SKIP); } ;
 

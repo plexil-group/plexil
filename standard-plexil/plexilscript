@@ -52,4 +52,7 @@ if [ $# != 1 ] ; then
   exit
 fi
 
-java -cp ${MYDIR}/jars/plexilscript.jar:${MYDIR}/libraries/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//%ple/plx}
+# echo "Reading:" $1
+# echo "Writing:" ${1//\.ple/.plx}
+
+java -cp ${MYDIR}/jars/plexilscript.jar:${MYDIR}/libraries/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.ple/.plx}
