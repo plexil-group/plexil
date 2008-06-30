@@ -4,3 +4,16 @@ See http://plexil.sourceforge.net for information about this software,
 including its user manuals.  There is more information in the README
 files found in each subdirectory of this directory.
 
+This distribution is based on SVN revision: [to be filled for prebuilt
+distributions only]
+
+Release Notes
+-------------
+
+0.80
+ - first Sourceforge release
+
+0.81
+ - new syntax and translator (standard-plexil/plexilscript) for
+   simulation scripts
+ - numerous minor fixes and enhancements
