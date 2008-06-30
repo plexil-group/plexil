@@ -1,4 +1,4 @@
-//Updated 5/14/08//
+//Updated 6/30/08//
 
 =UE Installation=
 
@@ -24,14 +24,14 @@ Your Unix environment should have the following settings to run the UE
 and its related tools conveniently. These settings can be made one time
 by putting them in your shell's login or initialization file.
 
-Examples are given here for both bash and csh, using the relative
-pathname beginning with 'universal-exec' -- you'll need to extend this
-to your full pathname (e.g. /home/fred/projects/universal-exec).
+Examples are given here for both bash and csh, using "/home/fred/plexil"
+as the location of your installation -- you'll need to customize this.
 
 Environment variables (csh):
 
 [[code]]
-  (all platforms)  setenv UE_HOME universal-exec
+  (all platforms)  setenv UE_HOME /home/fred/plexil/universal-exec
+  (all platforms)  setenv PATH $UE_HOME/Exec/test:$PATH
   (non-Mac only)   setenv LD_LIBRARY_PATH $UE_HOME/lib:$LD_LIBRARY_PATH
   (Mac only)       setenv DYLD_LIBRARY_PATH $UE_HOME/lib:$DYLD_LIBRARY_PATH
   (Mac only)       setenv DYLD_BIND_AT_LAUNCH 1
@@ -41,6 +41,7 @@ Environment variables (bash):
 
 [[code]]
   (all platforms)  export UE_HOME=universal-exec
+  (all platforms)  export PATH=$UE_HOME/Exec/test:$PATH
   (non-Mac only)   export LD_LIBRARY_PATH=$UE_HOME/lib:$LD_LIBRARY_PATH
   (Mac only)       export DYLD_LIBRARY_PATH=$UE_HOME/lib:$DYLD_LIBRARY_PATH
   (Mac only)       export DYLD_BIND_AT_LAUNCH=1
@@ -65,11 +66,12 @@ module tests, and the executive runner.
 ==Version Control==
 
 The PLEXIL distribution is maintained in a
-[[[http://subversion.tigris.org%7CSubversion|http://subversion.tigris.org|Subversion]] (or SVN)] version control
-system. You'll need some knowledge of SVN (which is very similar to
-CVS) to interact with the repository after your initial download of
-PLEXIL. Interactions include updating to newer files, and (eventually,
-for priveleged users) submitting your own changes to PLEXIL.
+[[[http://subversion.tigris.org%7CSubversion|http://subversion.tigris.org|Subversion]]
+(or SVN)] version control system. You'll need some knowledge of SVN
+(which is very similar to CVS) to interact with the repository after
+your initial download of PLEXIL. Interactions include updating to newer
+files, and (eventually, for priveleged users) submitting your own
+changes to PLEXIL.
 
 The 'checksvn' script in this directory will tell you if there are newer
 versions of any files in the SVN repository.
