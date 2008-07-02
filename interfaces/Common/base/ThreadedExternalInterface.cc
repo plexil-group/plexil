@@ -450,7 +450,6 @@ namespace PLEXIL
   /**
    * @brief Register a frequency lookup on an existing state.
    * @param source The unique key for this lookup.
-   * @param state The state
    * @param key The key for the state.
    * @param lowFreq The most time allowable between updates, or the exec will assume UNKNOWN.
    * @param highFreq The least time allowable between updates.
@@ -1082,10 +1081,9 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Notify of the availability of a changed lookup value.
-   * @param name The name of the state.
-   * @param params The parameters associated with this particular lookup.
-   * @param value The new value of the lookup.
+   * @brief Notify of the availability of new values for a lookup.
+   * @param key The state key for the new values.
+   * @param values The new values.
    */
   void
   ThreadedExternalInterface::handleValueChange(const StateKey& key, 
@@ -1190,8 +1188,8 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive of a new plan.
-   * @param planXml The TinyXML representation of the new plan.
-   * @param parent Label string naming the parent node.
+   * @param planStruct The PlexilNode representation of the new plan.
+   * @param parent The node which is the parent of the new node.
    */
   void
   ThreadedExternalInterface::handleAddPlan(PlexilNodeId planStruct,
@@ -1206,8 +1204,8 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Notify the executive of a new library node.
-   * @param planXml The TinyXML representation of the new node.
+   * @brief Notify the executive of a new plan.
+   * @param planStruct The PlexilNode representation of the new plan.
    */
   void
   ThreadedExternalInterface::handleAddLibrary(PlexilNodeId planStruct)

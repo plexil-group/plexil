@@ -53,7 +53,7 @@ namespace PLEXIL
 
     virtual void unregisterFrequencyLookup(const LookupKey& uniqueId);
 
-    void lookupNow(const StateKey& key,
+    void lookupNow(const StateKey& stateKey,
 		   std::vector<double>& dest);
 
     void sendPlannerUpdate(const NodeId& node,
@@ -72,10 +72,10 @@ namespace PLEXIL
 			     ExpressionId dest,
 			     ExpressionId ack);
 
-    //abort the given command with the given arguments.  store the abort-complete into dest
+    //abort the given command with the given arguments.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name, 
 		     const std::list<double>& args, 
-		     ExpressionId dest);
+		     ExpressionId ack);
     
   private:
     // deliberately unimplemented

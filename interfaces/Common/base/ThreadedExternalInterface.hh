@@ -163,7 +163,6 @@ namespace PLEXIL
     /**
      * @brief Register a frequency lookup on an existing state.
      * @param source The unique key for this lookup.
-     * @param state The state
      * @param key The key for the state.
      * @param lowFreq The most time allowable between updates, or the exec will assume UNKNOWN.
      * @param highFreq The least time allowable between updates.

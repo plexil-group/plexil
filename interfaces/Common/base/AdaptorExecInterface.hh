@@ -208,7 +208,7 @@ namespace PLEXIL
      * @brief Tells the external interface to expect a return value from this command.
      Use handleValueChange() to actually return the value.
      * @param dest The expression whose value will be returned.
-     * @param name The command whose value will be returned.
+     * @param commandName The command whose value will be returned.
      * @param params The parameters associated with this command.
      */
     virtual void registerCommandReturnValue(ExpressionId dest,
@@ -219,7 +219,7 @@ namespace PLEXIL
      * @brief Tells the external interface to expect a return value from this function.
      Use handleValueChange() to actually return the value.
      * @param dest The expression whose value will be returned.
-     * @param name The function whose value will be returned.
+     * @param functionName The function whose value will be returned.
      * @param params The parameters associated with this function.
      */
     virtual void registerFunctionReturnValue(ExpressionId dest,

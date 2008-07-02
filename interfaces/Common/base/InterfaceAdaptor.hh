@@ -105,7 +105,7 @@ namespace PLEXIL
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
 
-    virtual void lookupNow(const StateKey& key,
+    virtual void lookupNow(const StateKey& stateKey,
 			   std::vector<double>& dest);
 
     /**
@@ -158,7 +158,7 @@ namespace PLEXIL
 
     virtual void invokeAbort(const LabelStr& name, 
 			     const std::list<double>& args, 
-			     ExpressionId dest);
+			     ExpressionId ack);
 
     //
     // Methods provided by the base class to facilitate implementations
