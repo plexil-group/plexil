@@ -55,7 +55,7 @@
    @brief If the arguments are equal, print that.
    If they aren't, complain in a way Emacs will recognize as an error
    that includes location information.
-   @note Use only in test programs.  Should not be in this #include file,
+   @note Use only in test programs.  Should not be in this include file,
    but rather in one specific to test programs.
 */
 #define __c__(cmp1, cmp2) { \

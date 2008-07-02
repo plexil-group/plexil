@@ -41,10 +41,11 @@
 #include "Debug.hh"
 
 /**
- * @file NewLabelStr.hh
+ * @file LabelStr.hh
  * @brief Declares the LabelStr class
  * @author Robert Harris based on code by Conor McGann
  * @date November, 2007
+ * @ingroup Utils
  */
 
 namespace PLEXIL
@@ -234,19 +235,14 @@ namespace PLEXIL
          static unsigned int getSize();
 
          /**
-          * @brief Obtain the key for the given string and possibly conducting an insertion into keysFromString.
-          * @param label The string to be added or found in the store of all strings in use.
-          * @return The key value, either created or retrieved.
-          */
-         //static double getKey(const std::string& label);
-
-         /**
-          * @brief Test if the given double valued key is actually a string.
+          * @brief Test if the given double valued key represents a string.
+          * @param key The double to be tested.
           */
          static bool isString(double key);
 
          /**
           * @brief Tests if the given candidate is actually stored already as a LabelStr
+	  * @param candidate The string to be tested.
           */
          static bool isString(const std::string& candidate);
 

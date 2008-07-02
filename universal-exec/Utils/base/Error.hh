@@ -37,10 +37,10 @@
 //  ownership of the software is hereby transferred.  This notice shall
 //  remain on all copies of the software.
 
-//!!Two doxygen comments for each #define depending on another #define is
-//!!  a very bad idea.  There's no way to keep them in sync and no point
-//!!  in doing so if doxygen is not using the C/C++ preprocessor.
-//!!--wedgingt@email.arc.nasa.gov 2004 Oct 5
+// !! Two doxygen comments for each #define depending on another #define is
+// !!   a very bad idea.  There's no way to keep them in sync and no point
+// !!   in doing so if doxygen is not using the C/C++ preprocessor.
+// !! --wedgingt 2004 Oct 5
 
 /**
    @file Error.hh
@@ -54,7 +54,7 @@
    @note This is presently only the "interface for programmers";
    nothing has been tested.
 
-   @note Think of the first section, #ifdef EUROPA_FAST, as the
+   @note Think of the first section, #ifdef PLEXIL_FAST, as the
    "prototypes" and documentation as well as the "production" variant.
 */
 
@@ -152,13 +152,13 @@
  *   Otherwise - in test programs where the condition can always be checked,
  *   no matter how the code was compiled - use assertTrue(), assertFalse(), etc.
  * @note This macro has three flavors:
- * @item check_error(condition) - If the condition is true, do nothing.
+ * @li check_error(condition) - If the condition is true, do nothing.
  *  If false and all errors are being printed, print it with the message.
  *  If false, throw an exception with location information and the message.
- * @item check_error(condition, string) - If the condition is true, do nothing.
+ * @li check_error(condition, string) - If the condition is true, do nothing.
  *  If false and all errors are being printed, print it just before throwing it.
  *  If false, throw an exception with location information and the message.
- * @item check_error(condition, exception) - If the condition is true, do nothing.
+ * @li check_error(condition, exception) - If the condition is true, do nothing.
  *  If false and all errors are being printed, print it just before throwing it.
  *  If false, throw the given exception after adding location information.
  *

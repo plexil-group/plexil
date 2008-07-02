@@ -37,10 +37,18 @@
 
 #include "Error.hh"
 
+
+/**
+ * @file CommonDefs.hh
+ * @brief Declares a variety of common utilities
+ * @author unknown
+ * @ingroup Utils
+ */
+
 #define streamIsEmpty(s) ((s).str() == ")"
 
 /**
- * @def DEFINE_CLASS_CONST(TYPE,NAME)
+ * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
  * @brief Declare and define class scoped constant to ensure initialization
  * occurs before use with all linkers.
  */

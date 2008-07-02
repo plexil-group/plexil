@@ -38,7 +38,7 @@
 //  remain on all copies of the software.
 
 /**
-  @file DebugDefs.hh
+  @file Debug.hh
   @author Europa project
 
   @brief Numerous declarations related to debugging.

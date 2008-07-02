@@ -38,7 +38,7 @@
 //  remain on all copies of the software.
 
 /**
-   @file module-tests.cc
+   @file util-test-module.cc
    @author Will Edgington
 
    @brief A small test of classes Error and TestData and the related

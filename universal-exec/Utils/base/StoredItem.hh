@@ -32,6 +32,7 @@
  * @brief Declares the StoredItem class
  * @author Robert Harris based on code by Conor McGann
  * @date 4 October 2007
+ * @ingroup Utils
  */
 
 #include "Error.hh"
@@ -551,6 +552,7 @@ namespace PLEXIL
           * @param item a pointer to the item to be added the store.
           * This item should be perminently allocated as it's address is
           * used to compute a hash.
+	  * @param copyItem Whether or not to create a copy of the item.
           *
           * @return The key value created.
           */
@@ -621,7 +623,6 @@ namespace PLEXIL
           * of items from a key.
           *
           * @param key The key_t value encoding for the given item
-          * @param item the item for which the key has been encoded.
           * @see s_itemStore, getItem()
           */
 
