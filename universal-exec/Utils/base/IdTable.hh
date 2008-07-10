@@ -43,6 +43,7 @@
 #include <map>
 #include <iostream>
 #include <string>
+#include <stdint.h> // for uintptr_t
 
 /**
  * @file IdTable.hh
@@ -51,6 +52,11 @@
  * @date  July, 2003
  * @see Id, IdManager
 */
+
+// Use these macros instead of explicit type names to help with portability
+#define ID_POINTER_TYPE uintptr_t
+#define ID_KEY_TYPE uintptr_t
+#define ID_SIZE_TYPE uintptr_t
 
 namespace PLEXIL {
 
@@ -66,8 +72,8 @@ namespace PLEXIL {
    */
   class IdTable {
   public:
-    static unsigned int size();
-    static std::map<unsigned int, unsigned int> getCollection();
+    static size_t size();
+    static std::map<ID_POINTER_TYPE, ID_KEY_TYPE> getCollection();
     static IdTable& getInstance();
 
     /**
@@ -76,16 +82,16 @@ namespace PLEXIL {
     static void printTypeCnts(std::ostream& os);
 
     static void output(std::ostream& os);
-    static unsigned int insert(unsigned int id, const char* baseType);
-    static bool allocated(unsigned int id);
-    static unsigned int getKey(unsigned int id);
-    static void remove(unsigned int id);
+    static ID_KEY_TYPE insert(ID_POINTER_TYPE id, const char* baseType);
+    static bool allocated(ID_POINTER_TYPE id);
+    static ID_KEY_TYPE getKey(ID_POINTER_TYPE id);
+    static void remove(ID_POINTER_TYPE id);
 
     ~IdTable(); // deallocating statics requires public access on beos
   private:
     IdTable();
-    std::map<unsigned int, unsigned int> m_collection;
-    std::map<std::string, unsigned int> m_typeCnts;
+    std::map<ID_POINTER_TYPE, ID_KEY_TYPE> m_collection;
+    std::map<std::string, ID_SIZE_TYPE> m_typeCnts;
   };
 }
 

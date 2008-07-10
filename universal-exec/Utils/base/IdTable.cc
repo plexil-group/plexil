@@ -63,50 +63,50 @@ namespace PLEXIL {
   IdTable::~IdTable() {
   }
 
-  unsigned int IdTable::insert(unsigned int id, const char* baseType) {
-    static unsigned int sl_nextId(1);
+  ID_KEY_TYPE IdTable::insert(ID_POINTER_TYPE id, const char* baseType) {
+    static ID_KEY_TYPE sl_nextId(1);
     debugMsg("IdTable:insert", "id,key:" << id << ", " << sl_nextId << ")");
-    std::map<unsigned int, unsigned int>::iterator it = getInstance().m_collection.find(id);
+    std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = getInstance().m_collection.find(id);
     if (it != getInstance().m_collection.end())
       return(0); /* Already in table. */
-    getInstance().m_collection.insert(std::pair<unsigned int, unsigned int>(id, sl_nextId));
-    std::map<std::string, unsigned int>::iterator tCit = getInstance().m_typeCnts.find(baseType);
+    getInstance().m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, sl_nextId));
+    std::map<std::string, ID_SIZE_TYPE>::iterator tCit = getInstance().m_typeCnts.find(baseType);
     if (tCit == getInstance().m_typeCnts.end())
-      getInstance().m_typeCnts.insert(std::pair<std::string, unsigned int>(baseType, 1));
+      getInstance().m_typeCnts.insert(std::pair<std::string, ID_SIZE_TYPE>(baseType, 1));
     else
       tCit->second++;
     return(sl_nextId++);
   }
 
-  bool IdTable::allocated(unsigned int id) {
+  bool IdTable::allocated(ID_POINTER_TYPE id) {
     return(getInstance().m_collection.find(id) != getInstance().m_collection.end());
   }
 
-  unsigned int IdTable::getKey(unsigned int id) {
-    std::map<unsigned int, unsigned int>::iterator it = getInstance().m_collection.find(id);
+  ID_KEY_TYPE IdTable::getKey(ID_POINTER_TYPE id) {
+    std::map<uintptr_t, uintptr_t>::iterator it = getInstance().m_collection.find(id);
     if (it != getInstance().m_collection.end())
       return(it->second);
     else
       return(0);
   }
 
-  void IdTable::remove(unsigned int id) {
-    static unsigned int sl_key;
+  void IdTable::remove(ID_POINTER_TYPE id) {
+    static ID_KEY_TYPE sl_key;
     debugMsg("IdTable:remove", "<" << id << ", " << (sl_key = getInstance().m_collection.find(id)->second) << ">");
     getInstance().m_collection.erase(id);
   }
 
-  unsigned int IdTable::size() {
+  size_t IdTable::size() {
     return(getInstance().m_collection.size());
   }
 
-  std::map<unsigned int, unsigned int> IdTable::getCollection() {
+  std::map<uintptr_t, uintptr_t> IdTable::getCollection() {
     return(getInstance().m_collection);
   }
 
   void IdTable::printTypeCnts(std::ostream& os) {
     os << "Id instances by type: ";
-    for (std::map<std::string, unsigned int>::iterator it = getInstance().m_typeCnts.begin();
+    for (std::map<std::string, uintptr_t>::iterator it = getInstance().m_typeCnts.begin();
          it != getInstance().m_typeCnts.end();
          ++it)
       os << "  " << it->second << "  " << it->first << '\n';
@@ -115,7 +115,7 @@ namespace PLEXIL {
 
   void IdTable::output(std::ostream& os) {
     os << "Id Contents:";
-    for (std::map<unsigned int, unsigned int>::iterator it = getInstance().m_collection.begin();
+    for (std::map<uintptr_t, uintptr_t>::iterator it = getInstance().m_collection.begin();
          it != getInstance().m_collection.end();
          ++it)
       os << " (" << it->first << ", " << it->second << ')';
