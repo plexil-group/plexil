@@ -4,6 +4,7 @@ SubDir interfaces Common base ;
 if ! $(PLEXIL_INTFCS_READY) {
 
 ModuleCore PlexilInterface :
+  ThreadSemaphore.cc
   AdaptorExecInterface.cc
   ThreadedExternalInterface.cc
   InterfaceAdaptor.cc ;
