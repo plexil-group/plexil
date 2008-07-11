@@ -1,0 +1,26 @@
+Root:
+{
+  Integer foo[5] = #(1 2 3);
+  Integer x;
+
+  Real defaults[10] = #(1.3 2.0 3.5);
+  Real y;
+
+  NodeList:
+    One:
+    {
+      Assignment: x = foo[0];
+    }
+    Two:
+    {
+      Assignment: y = defaults[1];
+    }
+    Three:
+    {
+      Assignment: foo[3] = foo[2] + 1;
+    }
+    Four:
+    {
+      Assignment: defaults[3] = defaults[2] - defaults[1];
+    }
+}
