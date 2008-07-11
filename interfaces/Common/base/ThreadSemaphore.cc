@@ -27,6 +27,10 @@
 #include "ThreadSemaphore.hh"
 #include "Error.hh"
 
+#ifdef PLEXIL_USE_POSIX_SEMAPHORES
+#include <errno.h>
+#endif
+
 namespace PLEXIL
 {
 
@@ -46,7 +50,7 @@ namespace PLEXIL
 
   ThreadSemaphore::~ThreadSemaphore()
   {
-    int status = sem_destroy(&m_sem);
+    int status = sem_destroy(&m_posix_sem);
     checkError(status != -1,
 	       "ThreadSemaphore (POSIX) destructor: sem_destroy failed, errno = "
 	       << errno);
@@ -57,7 +61,7 @@ namespace PLEXIL
     int status;
     // If the wait fails due to a signal, ignore the error (EINTR).
     // If the error is not EINTR, stop the thread.
-    while (((status = sem_wait(&m_sem)) == -1) && (errno == EINTR))
+    while (((status = sem_wait(&m_posix_sem)) == -1) && (errno == EINTR))
       continue;
     
     if (status == -1)
@@ -67,7 +71,7 @@ namespace PLEXIL
 
   int ThreadSemaphore::post()
   {
-    int status = sem_post(&m_sem);
+    int status = sem_post(&m_posix_sem);
     if (status == -1)
       return errno;
     else return 0;
