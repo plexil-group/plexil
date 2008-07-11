@@ -1209,7 +1209,7 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:notify", " received external event");
     int status = m_sem.post();
-    checkError(status != 0,
+    checkError(status == 0,
 	       "notifyOfExternalEvent: semaphore post failed, status = "
 	       << status);
     debugMsg("ExternalInterface:notify", " released semaphore");
