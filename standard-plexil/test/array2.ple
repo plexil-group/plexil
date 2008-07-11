@@ -7,20 +7,8 @@ Root:
   Real y;
 
   NodeList:
-    One:
-    {
-      Assignment: x = foo[0];
-    }
-    Two:
-    {
-      Assignment: y = defaults[1];
-    }
-    Three:
-    {
-      Assignment: foo[3] = foo[2] + 1;
-    }
-    Four:
-    {
-      Assignment: defaults[3] = defaults[2] - defaults[1];
-    }
+    { Assignment: x = foo[0]; }
+    { Assignment: y = defaults[1]; }
+    { Assignment: foo[3] = foo[2] + 1; }
+    { Assignment: defaults[3] = defaults[2] - defaults[1]; }
 }
