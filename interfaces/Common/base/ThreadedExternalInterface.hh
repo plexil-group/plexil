@@ -33,9 +33,9 @@
 #include "AdaptorExecInterface.hh"
 #include "PlexilPlan.hh"
 #include "RecursiveThreadMutex.hh"
+#include "ThreadSemaphore.hh"
 #include <queue>
 #include <pthread.h>
-#include <semaphore.h>
 
 namespace PLEXIL 
 {
@@ -705,7 +705,7 @@ namespace PLEXIL
     RecursiveThreadMutex * m_adaptorMutex;
 
     // Semaphore for notifying the Exec of external events
-    sem_t m_sem;
+    ThreadSemaphore m_sem;
 
     static ThreadedExternalInterfaceId s_threadedInterfaceInstance;
 

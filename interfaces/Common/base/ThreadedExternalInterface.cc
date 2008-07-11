@@ -32,6 +32,7 @@
 //
 
 #include "ThreadedExternalInterface.hh"
+
 #include "Debug.hh"
 #include "Error.hh"
 #include "InterfaceAdaptor.hh"
@@ -42,7 +43,6 @@
 #include "StateCache.hh"
 #include "CommandHandle.hh"
 
-#include <errno.h>
 #include <sstream>
 
 namespace PLEXIL
@@ -65,10 +65,6 @@ namespace PLEXIL
       m_adaptorMutex(new RecursiveThreadMutex()),
       m_sem()
   {
-    int status = sem_init(&m_sem, 0, 0);
-    checkError(status != -1,
-	       "ThreadedInternalInterface constructor: sem_init failed, errno = "
-	       << errno);
     // cast from subclass
     m_threadedInterfaceId = (ThreadedExternalInterfaceId)m_adaptorInterfaceId;
   }
@@ -83,12 +79,6 @@ namespace PLEXIL
       {
 	s_threadedInterfaceInstance == ThreadedExternalInterfaceId::noId();
       }
-
-    // *** check if threads are blocking on sem first?
-    int status = sem_destroy(&m_sem);
-    checkError(status != -1,
-	       "ThreadedInternalInterface destructor: sem_destroy failed, errno = "
-	       << errno);
   }
 
   /**
@@ -176,25 +166,20 @@ namespace PLEXIL
 
   /**
    * @brief Suspends the calling thread until another thread has
-            placed a call to notifyOfExternalEvent().  Can return
-	    immediately if sem_wait errors out with something other than EINTR.
-  * @return true if resumed normally, false if wait resulted in an error other than EINTR.
-  */
+   *         placed a call to notifyOfExternalEvent().  Can return
+   *	    immediately if the call to wait() returns an error.
+   * @return true if resumed normally, false if wait resulted in an error.
+   * @note ThreadSemaphore handles case of interrupted wait (errno == EINTR).
+   */
   bool ThreadedExternalInterface::waitForExternalEvent()
   {
     debugMsg("ExternalInterface:wait", " waiting for external event");
-
-    int status;
-    // If the wait fails due to a signal, ignore the error (EINTR).
-    // If the error is not EINTR, stop the thread.
-    while (((status = sem_wait(&m_sem)) == -1) && (errno == EINTR))
-      continue;
-    
-    if (-1 == status)
+    int status = m_sem.wait();
+    if (status != 0)
       {
         checkError(ALWAYS_FAIL,
-                   "waitForExternalEvent: sem_timedwait failed, errno = "
-                   << errno);
+                   "waitForExternalEvent: semaphore wait failed, status = "
+                   << status);
         return false;
       }
     else
@@ -1223,10 +1208,10 @@ namespace PLEXIL
   ThreadedExternalInterface::notifyOfExternalEvent()
   {
     debugMsg("ExternalInterface:notify", " received external event");
-    int status = sem_post(&m_sem);
-    checkError(status != -1,
-	       "notifyOfExternalEvent: sem_post failed, errno = "
-	       << errno);
+    int status = m_sem.post();
+    checkError(status != 0,
+	       "notifyOfExternalEvent: semaphore post failed, status = "
+	       << status);
     debugMsg("ExternalInterface:notify", " released semaphore");
   }
 
