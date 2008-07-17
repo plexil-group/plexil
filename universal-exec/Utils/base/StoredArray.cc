@@ -115,9 +115,7 @@ namespace PLEXIL
    */
   void StoredArray::unregister()
   {
-    std::vector<double>* theArray = &(getItem());
     StoredItem<double, std::vector<double> >::unregister();
-    delete theArray;
   }
 
 }
