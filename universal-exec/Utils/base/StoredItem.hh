@@ -619,10 +619,11 @@ namespace PLEXIL
          }
 
          /**
-          * @brief Constructs an entry in itemStore to allow lookup
-          * of items from a key.
+          * @brief Removes the entry in itemStore associated with the
+	  * given key.
           *
-          * @param key The key_t value encoding for the given item
+          * @param key The key_t value encoding for the given item.
+	  * @return The item associated with the key.
           * @see s_itemStore, getItem()
           */
 
