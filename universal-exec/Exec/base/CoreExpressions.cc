@@ -207,6 +207,8 @@ namespace PLEXIL
     checkError(source.size() <= array.size(),
                "Source array size " << source.size() <<
                ", exceeds target size " << array.size() << ".");
+    debugMsg("ArrayVariable:setValues", 
+             '(' << source.toString() << ')');
       
     // set all the values
       
@@ -222,6 +224,9 @@ namespace PLEXIL
 
     while (index < array.size())
       array[index++] = Expression::UNKNOWN();
+
+    debugMsg("ArrayVariable:setValues", 
+             " result is " << array.toString());
 
     // publish change
 
