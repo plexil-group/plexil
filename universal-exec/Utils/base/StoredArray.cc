@@ -25,6 +25,7 @@
 */
 
 #include "StoredArray.hh"
+#include "LabelStr.hh"
 #include "Debug.hh"
 
 namespace PLEXIL
@@ -56,7 +57,7 @@ namespace PLEXIL
    * initialized to.
    */
    
-  StoredArray::StoredArray(size_t size, std::vector<double>& initValues) :
+  StoredArray::StoredArray(size_t size, const std::vector<double>& initValues) :
     StoredItem<double, std::vector<double> >(new std::vector<double>(size, 0), 
                                              false),
     m_size(size)
@@ -113,9 +114,40 @@ namespace PLEXIL
    * any attempt to reuse the key will result in an error being
    * thrown.
    */
+
   void StoredArray::unregister()
   {
     StoredItem<double, std::vector<double> >::unregister();
+  }
+
+  /**
+   * @brief Generate a printed representation for this stored array.
+   */
+  
+  std::string StoredArray::toString() const
+  {
+    // *** KLUDGE ALERT ***
+    // This is a local copy of the class constant Expression::UNKNOWN()
+    static double MY_UNKNOWN = (std::numeric_limits<double>::has_infinity ?
+                                std::numeric_limits<double>::infinity() :
+                                std::numeric_limits<double>::max());
+    std::stringstream retval;
+    const std::vector<double>& theVector = getItem();
+    retval << "Array: [";
+    for (unsigned i = 0; i < theVector.size(); ++i)
+      {
+        const double value = theVector[i];
+        if (i != 0)
+          retval << ", ";
+        if (value == MY_UNKNOWN)
+          retval << "<unknown>";
+        else if (LabelStr::isString(value))
+          retval << '\"' << LabelStr(value).toString() << '\"';
+        else
+          retval << value;
+      }
+    retval << ']';
+    return retval.str();
   }
 
 }

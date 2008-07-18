@@ -81,7 +81,7 @@ namespace PLEXIL
       * initialized to.
       */
          
-     StoredArray(size_t size, std::vector<double>& initValues);
+     StoredArray(size_t size, const std::vector<double>& initValues);
          
      /** 
       * @brief Construct an array given a key from an existing array.
@@ -166,6 +166,12 @@ namespace PLEXIL
       */
          
      void unregister();
+
+
+     /**
+      * @brief Generate a printed representation for this stored array.
+      */
+     std::string toString() const;
 
    private:
      size_t m_size;
