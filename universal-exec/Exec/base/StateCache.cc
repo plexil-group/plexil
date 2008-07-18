@@ -339,8 +339,12 @@ namespace PLEXIL
       {
          checkError(
             valueIt->second.size() == values.size(),
-            "Received a different number of values than previously.  Expected "
-            << valueIt->second.size() << ", but got " << values.size());
+            "Received a different number of values for state "
+            << toString(stateIt->second.first)
+            << " than previously.  Expected "
+            << valueIt->second.size()
+            << ", but got "
+            << values.size());
          valueIt->second = values;
       }
 
@@ -622,17 +626,16 @@ namespace PLEXIL
       std::stringstream str;
       if (!values.empty())
       {
-         if (LabelStr::isString(values[0]))
-            str << LabelStr(values[0]).toString();
-         else
-            str << values[0];
-         for (std::vector<double>::size_type i = 1; i < values.size(); ++i)
+         for (std::vector<double>::size_type i = 0; i < values.size(); ++i)
          {
-            str << ", ";
-            if (LabelStr::isString(values[0]))
-               str << LabelStr(values[i]).toString();
-            else
-               str << values[i];
+           if (i > 0)
+             str << ", ";
+           if (LabelStr::isString(values[i]))
+             str << LabelStr(values[i]).toString();
+           else if (StoredArray::isItem(values[i]))
+             str << StoredArray(values[i]).toString();
+           else
+             str << values[i];
          }
       }
       return str.str();
