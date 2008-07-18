@@ -128,11 +128,16 @@ namespace PLEXIL
 
     if (value == Expression::UNKNOWN())
       {
-        StoredArray oldArray(m_value);
+        double oldValue = m_value;
         Variable::setValue(value);
 
-        // dispose of old array
-        oldArray.unregister();
+        // dispose of old array if it's not the saved initial value
+        // (needed for Variable::reset())
+        if (oldValue != m_initialValue)
+          {
+            StoredArray oldArray(m_value);
+            oldArray.unregister();
+          }
       }
 
     // if the value of the array is
