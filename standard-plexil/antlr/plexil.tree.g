@@ -1154,12 +1154,15 @@ functionCall[IXMLElement node, IXMLElement nodeBody]
    }
  ;
 
-functionName[IXMLElement parent]
-{ IXMLElement fn = new XMLElement("Name"); }
- :
+// *** will need to be modified to support string expression
+
+functionName[IXMLElement parent] :
    NCName
    {
-     fn.setContent(#functionName.getText());
+     IXMLElement val = new XMLElement("StringValue");
+     val.setContent(#functionName.getText());
+     IXMLElement fn = new XMLElement("Name");
+     fn.addChild(val);
      parent.addChild(fn);
    }
  ;
