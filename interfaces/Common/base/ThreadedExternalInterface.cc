@@ -1294,8 +1294,8 @@ namespace PLEXIL
       }
     else
       debugMsg("ThreadedExternalInterface::releaseResourcesForCommand:",
-               " The expression is neither a valid acknowledgement"
-               << " nor a valid return value. Ignoring.");
+               " The expression is neither an acknowledgement"
+               << " nor a return value for a command. Ignoring.");
 
   }
 
