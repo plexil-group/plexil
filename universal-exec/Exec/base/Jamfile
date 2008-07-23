@@ -1,4 +1,4 @@
-SubDir plexil_exec Exec base ;
+SubDir universal-exec Exec base ;
 
 if ! $(PLEXIL_READY) {
    ModuleCore Exec

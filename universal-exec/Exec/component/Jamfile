@@ -1,4 +1,4 @@
-SubDir plexil_exec Exec component ;
+SubDir universal-exec Exec component ;
 
 if ! $(PLEXIL_READY) {
 
