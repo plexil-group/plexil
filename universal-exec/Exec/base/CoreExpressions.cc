@@ -34,6 +34,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <stdint.h> // for int32_t
 
 namespace PLEXIL 
 {
@@ -313,7 +314,7 @@ namespace PLEXIL
                 switch (m_type)
                   {
                   case INTEGER:
-                    retval << (int)value;
+                    retval << (int32_t) value;
                     break;
                   case REAL:
                     retval << value;
@@ -369,7 +370,7 @@ namespace PLEXIL
       case INTEGER:
         return val == Expression::UNKNOWN() ||
           ((val >= MINUS_INFINITY && val <= PLUS_INFINITY) &&
-           val == (double) (int) val);
+           val == (double) (int32_t) val);
       case REAL:
         return (val >= REAL_MINUS_INFINITY && val <= REAL_PLUS_INFINITY) ||
           val == Expression::UNKNOWN();
@@ -688,14 +689,14 @@ namespace PLEXIL
     else if(m_value == REAL_MINUS_INFINITY)
       retval << "-inf";
     else
-      retval << (int) m_value;
+      retval << (int32_t) m_value;
     return retval.str();
   }
 
   bool IntegerVariable::checkValue(const double val) {
     return val == Expression::UNKNOWN() ||
       ((val >= MINUS_INFINITY && val <= PLUS_INFINITY) &&
-       val == (double) (int) val);  //more cast means more double
+       val == (double) (int32_t) val);  //more cast means more double
   }
 
   ExpressionId& IntegerVariable::ZERO_EXP()

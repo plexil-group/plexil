@@ -61,7 +61,8 @@
 #include <iostream>
 #include <fstream>
 #include <typeinfo>
-#include <math.h>
+//#include <cmath>
+#include <cfloat>
 
 #ifndef PLEXIL_FAST
 #define non_fast_only_assert(T) assertTrue(T)
@@ -637,7 +638,7 @@ private:
   }
 };
 
-#define UNKNOWN __DBL_MAX__
+#define UNKNOWN DBL_MAX
 
 class StoredArrayTests
 {

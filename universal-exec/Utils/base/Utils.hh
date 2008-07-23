@@ -35,13 +35,18 @@
  * @ingroup Utils
  */
 
-#include "Id.hh"
+// both lines below are needed for int32_t, INT32_MAX
+// N.B.: These two lines *must* come before any other #include statements!
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 
 #include <vector>
 #include <set>
 #include <list>
 #include <string>
-#include <cmath>
+#include <cfloat> // for DBL_MAX
+
+#include "Id.hh"
 
 namespace PLEXIL {
 
@@ -69,7 +74,7 @@ namespace PLEXIL {
   /**
    * @brief Utility to produce a string from a double
    */
-  std::string toString(float value);
+  std::string toString(double value);
 
   /**
    * @brief Case insensitive string compare.

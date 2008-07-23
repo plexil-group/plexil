@@ -24,15 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// N.B.: This #include *must* come before any other #include statements!
 #include "Utils.hh"
+
 #include <sstream>
-#include <cfloat> // for FLT_MAX
 
 DEFINE_GLOBAL_CONST(bool, g_alwaysFails, false);
 
 namespace PLEXIL {
 
-  std::string toString(float value) {
+  std::string toString(double value) {
     std::stringstream s;
     s << value;
     return(s.str());
@@ -73,9 +74,14 @@ namespace PLEXIL {
   }
 
 
-  DEFINE_GLOBAL_CONST(int, g_maxInt, (LONG_MAX/8)); /*!< Same as max finite time */
-  DEFINE_GLOBAL_CONST(int, g_infiniteTime, (g_maxInt() + 1));
-  DEFINE_GLOBAL_CONST(int, g_noTime, 0);
+  //
+  // *** BEWARE!! ***
+  // INT_MAX != LONG_MAX on most 64-bit systems!
+  // The integer quantities here are meant to be 32 bit!
+  // 
+  DEFINE_GLOBAL_CONST(int32_t, g_maxInt, (INT32_MAX/8)); /*!< Same as max finite time */
+  DEFINE_GLOBAL_CONST(int32_t, g_infiniteTime, (g_maxInt() + 1));
+  DEFINE_GLOBAL_CONST(int32_t, g_noTime, 0);
   DEFINE_GLOBAL_CONST(double, g_epsilon, 0.00001);
-  DEFINE_GLOBAL_CONST(double, g_maxReal, ((double) FLT_MAX));
+  DEFINE_GLOBAL_CONST(double, g_maxReal, ((double) DBL_MAX));
 }
