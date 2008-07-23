@@ -1,4 +1,4 @@
-if ! $(PARSER_READY)
+if ! $(STANDARD_PLEXIL_READY)
 {
   local SUBDIR = $(parser) ;
   include [ FDirName $(SUBDIR) CommonRules ] ; 
@@ -6,5 +6,5 @@ if ! $(PARSER_READY)
   include [ FDirName $(SUBDIR) JavaRules ] ;
   include [ FDirName $(SUBDIR) AntlrRules ] ;
   include [ FDirName $(SUBDIR) Jamfile ] ;
-  PARSER_READY = TRUE ;
+  STANDARD_PLEXIL_READY = TRUE ;
 }

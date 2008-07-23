@@ -1,9 +1,9 @@
-SubDir parser antlr ;
+SubDir standard-plexil antlr ;
 
-if ! $(PARSER_READY) {
+if ! $(STANDARD_PLEXIL_READY) {
 
 AntlrGrammar Plexil : plexil.g plexil.tree.g : plexil ;
 
 AntlrGrammar PlexilScript : plexilscript.g : plexilscript ;
 
-} # PARSER_READY
+} # STANDARD_PLEXIL_READY

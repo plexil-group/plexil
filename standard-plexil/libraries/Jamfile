@@ -1,10 +1,10 @@
-SubDir plexil_exec PLEXIL translator libraries ;
+SubDir standard-plexil libraries ;
 
-if ! $(PLEXIL_READY) {
+if ! $(STANDARD_PLEXIL_READY) {
 
 ANTLR_JAR = [ FDirName $(SUBDIR) antlr.jar ] ;
 
 JavaThirdPartyJar antlr.jar ;
 JavaThirdPartyJar nanoxml.jar ;
 
-} # PLEXIL_READY
+} # STANDARD_PLEXIL_READY

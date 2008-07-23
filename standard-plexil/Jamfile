@@ -1,6 +1,6 @@
-SubDir parser ;
+SubDir standard-plexil ;
 
-if ! $(PLEXIL_READY) {
+if ! $(STANDARD_PLEXIL_READY) {
 
 JAVA_SRC_DIR = [ FDirName $(SUBDIR) java ] ;
 JAVA_CLASSES_DIR = [ FDirName $(SUBDIR) classes ] ;
@@ -59,7 +59,7 @@ Depends PlexilParser.class : Parse.class ;
 
 Depends PlexilScriptParse.class : PlexilScriptParser.java ;
 
-SubInclude parser antlr ;
-SubInclude parser libraries ;
+SubInclude standard-plexil antlr ;
+SubInclude standard-plexil libraries ;
 
-}
+} # STANDARD_PLEXIL_READY
