@@ -4,8 +4,6 @@ if ! $(PLEXIL_READY) {
 
 Module PlexilUtils : PlexilTinyXml ;
 
-LINKFLAGS += [ FLibDirFlags [ FDirName $($(_top)) lib ] ] ;
-
 ModuleLibraries PlexilUtils : $(DLOPEN_LIBRARY) ;
 
 SubInclude universal-exec Utils base ;

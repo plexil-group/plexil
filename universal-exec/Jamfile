@@ -12,6 +12,9 @@ if SHARED in $(LIBRARIES) {
   }
 }
 
+# This makes sure executables link correctly on Mac OS X
+LINKFLAGS += [ FLibDirFlags [ FDirName $($(_top)) lib ] ] ;
+
 Depends plexil-exec-all : all ;
 
 Module plexil-exec : all  ; #used to have system here
