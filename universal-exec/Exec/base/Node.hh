@@ -104,7 +104,7 @@ namespace PLEXIL {
 
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
-     * @param xml The XML for this node and all of its children.
+     * @param node The PlexilNodeId for this node and all of its children.
      * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
