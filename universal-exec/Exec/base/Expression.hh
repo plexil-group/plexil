@@ -337,7 +337,7 @@ namespace PLEXIL {
 
     /**
      * @brief Constructor.  Creates a variable from XML.
-     * @param xml The PLEXIL XML for this variable.
+     * @param expr The PlexilExprId for this variable.
      * @param node A connection back to the node that created this variable.
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
@@ -392,7 +392,6 @@ namespace PLEXIL {
      * @brief Performs common initialization tasks (number parsing, translation from the
      *        various forms of infinity, etc.) for numeric expressions.
      * @param val The XML representing the value of this variable.
-     * @param type The type of this variable.
      */
     void commonNumericInit(PlexilValue* val);
 
@@ -437,7 +436,7 @@ namespace PLEXIL {
 
     /**
      * @brief Constructor
-     * @param xml The XML for this expression.
+     * @param expr The PlexilExpr for this expression.
      * @param node The scope in which this expression is evaluated.
      */
     Calculable(PlexilExpr* expr, const NodeConnectorId& node);
@@ -465,7 +464,7 @@ namespace PLEXIL {
     /**
      * @brief A utility function for accessing a variable in the current scope or creating
      *        variable for a literal value.
-     * @param xml The XML for the variable or value.
+     * @param expr The PlexilExprId for the variable or value.
      * @param node The node which delimits the scope of the variable search.
      * @param del Set to true if the destination should be garbage collected along with this
      *            expression (i.e. if a new variable had to be allocated.).
@@ -586,7 +585,7 @@ namespace PLEXIL {
      * @brief Creates a new Expression instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the Expression constructor.
+     * @param expr The PlexilExprId to be passed to the Expression constructor.
      * @param node Node for name lookup.
      * @return The Id for the new Expression.  May not be unique.
      */
@@ -598,7 +597,7 @@ namespace PLEXIL {
      * @brief Creates a new Expression instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the Expression constructor.
+     * @param expr The PlexilExprId to be passed to the Expression constructor.
      * @param node Node for name lookup.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
@@ -659,7 +658,7 @@ namespace PLEXIL {
   private:
     /**
      * @brief Instantiates a new Expression of the appropriate type.
-     * @param xml Configuration xml for the instantiated Expression.
+     * @param expr The PlexilExprId for the instantiated Expression.
      * @param node
      * @return The Id for the new Expression.
      */
