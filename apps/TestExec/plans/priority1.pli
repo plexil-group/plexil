@@ -1,0 +1,11 @@
+(plexil-plan
+  (comment "Tests Priority.  Node A should execute before Node B")
+  (list-node "Root"
+    (variables (integer "foo"))
+    (list
+      (assignment-node "A"
+        (priority 1)
+        (assignment (intvar "foo") 1))
+      (assignment-node "B"
+        (priority 2)
+        (assignment (intvar "foo") 2)))))

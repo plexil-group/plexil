@@ -1,0 +1,6 @@
+(plexil-plan
+ (list-node "root"
+  (end-condition (finished "foo"))
+  (list
+   (empty-node "foo"
+    (start-condition true)))))
