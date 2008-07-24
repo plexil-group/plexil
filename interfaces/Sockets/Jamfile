@@ -1,0 +1,9 @@
+SubDir universal-exec Sockets ;
+
+if ! $(PLEXIL_READY) {
+
+Module Sockets ;
+
+SubInclude universal-exec Sockets base ;
+
+} # PLEXIL_READY
