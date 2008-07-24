@@ -1,0 +1,18 @@
+
+# DEBUG ONLY
+Echo In Jamrules ;
+
+rule RemoveBinaries {
+  local target = $(1) ;
+}
+
+actions RemoveBinaries {
+  # '*.output' & '*.gprof' should probably have separate rules and actions, but ...
+  find . \( -name '*.[ao]' -o -name '*.so' -o -name '*_[gop]' -o -name '*_rt' -o -name '*_no' -o -name '*.output' -o -name '*.gprof' \) -exec rm {} \;
+}
+
+{
+  local SUBDIR = $(TestExec) ;
+  include [ FDirName $(SUBDIR) CommonRules ] ;
+  include [ FDirName $(SUBDIR) ModuleRules ] ;
+}
