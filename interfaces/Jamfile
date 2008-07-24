@@ -16,5 +16,7 @@ HDRS += [ FDirName $(PLEXIL_ROOT) universal-exec Exec ]
         ;
 
 SubInclude interfaces Common ;
+SubInclude interfaces Sockets ;
+SubInclude interfaces LuvListener ;
 
 } # PLEXIL_INTFCS_READY

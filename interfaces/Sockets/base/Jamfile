@@ -1,6 +1,6 @@
-SubDir universal-exec Sockets base ;
+SubDir interfaces Sockets base ;
 
-if ! $(PLEXIL_READY) {
+if ! $(PLEXIL_INTFCS_READY) {
 
 SubDirC++Flags -Wno-unknown-pragmas -Wno-format -DTIXML_USE_STL ;
 
@@ -11,4 +11,4 @@ ModuleCore Sockets
         ServerSocket.cpp 
 	;
 
-} # PLEXIL_READY
+} # PLEXIL_INTFCS_READY
