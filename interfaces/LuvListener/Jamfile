@@ -5,11 +5,6 @@ if ! $(PLEXIL_INTFCS_READY) {
 
 Module LuvListener : Sockets ;
 
-# reference common library directories
-# *** unfortunately the references to relative paths only work
-# when executing in this directory!! ***
-LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) lib ] ] ;
-
 ModuleLibraries LuvListener :
   [ FVariantName Exec : $(VARIANTS) ]
   ;
