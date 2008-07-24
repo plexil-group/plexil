@@ -1,0 +1,6 @@
+(plexil-script
+  (initial-state)
+  (script
+    (function-call "add" "real" 4.5
+      (param 2.5 "real")
+      (param 2.0 "real"))))
