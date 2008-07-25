@@ -33,7 +33,6 @@ Depends run-install-tests : run-tests ;
 NOCARE run-all-tests run-tests run-checkin-tests tests ;
 
 SubInclude universal-exec TinyXml ;
-SubInclude universal-exec Sockets ;
 SubInclude universal-exec Utils ;
 SubInclude universal-exec Exec ;
 
