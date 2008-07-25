@@ -1,0 +1,57 @@
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:addPlan]Added plan: 
+Root{
+ State: (id_233[au](INACTIVE): state(INACTIVE)) (inf)
+  AA{
+   State: (id_281[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+  BB{
+   State: (id_328[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+}
+
+[PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'Root' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'Root' on the state change queue in position 1
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 1
+[PlexilExec:step][1:0] State change queue: Root 
+[PlexilExec:lock]Locking node Root
+[PlexilExec:step][1:0:0] Transitioning node Root
+[PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'Root' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'Root' on the state change queue in position 2
+[PlexilExec:unlock]Unlocking node Root
+[PlexilExec:step][1:1] State change queue: Root 
+[PlexilExec:lock]Locking node Root
+[PlexilExec:step][1:1:0] Transitioning node Root
+[PlexilExec:handleConditionsChanged]Node AA had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'AA' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'AA' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'AA' on the state change queue in position 3
+[PlexilExec:handleConditionsChanged]Node BB had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'BB' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'BB' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'BB' on the state change queue in position 4
+[PlexilExec:handleNeedsExecution]Storing action for node 'Root' of type 'NodeList' to be executed.
+[PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'Root' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node Root
+[PlexilExec:step][1:2] State change queue: AA BB 
+[PlexilExec:lock]Locking node AA
+[PlexilExec:lock]Locking node BB
+[PlexilExec:step][1:2:0] Transitioning node AA
+[PlexilExec:handleConditionsChanged]Node AA had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'AA' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'AA' is an assignment node that could be executing.  Adding it to the resource contention list 
+[PlexilExec:addToResourceContention]Adding node 'AA' to resource contention.
+[PlexilExec:step][1:2:1] Transitioning node BB
+[PlexilExec:handleConditionsChanged]Node BB had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'BB' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'BB' is an assignment node that could be executing.  Adding it to the resource contention list 
+[PlexilExec:addToResourceContention]Adding node 'BB' to resource contention.
+[PlexilExec:addToResourceContention]There are 1 similar items in the set.
+[PlexilExec:unlock]Unlocking node AA
+[PlexilExec:unlock]Unlocking node BB

@@ -1,0 +1,560 @@
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:addPlan]Added plan: 
+SimpleTask{
+ State: (id_280[au](INACTIVE): state(INACTIVE)) (inf)
+  PickupObject{
+   State: (id_330[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+  ProcessImage{
+   State: (id_382[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+  TakePicture{
+   State: (id_433[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+}
+
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 1
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 1
+[PlexilExec:step][1:0] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][1:0:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 2
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][1:1] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][1:1:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 3
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 4
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 5
+[PlexilExec:handleNeedsExecution]Storing action for node 'SimpleTask' of type 'NodeList' to be executed.
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][1:2] State change queue: PickupObject ProcessImage TakePicture 
+[PlexilExec:lock]Locking node PickupObject
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node TakePicture
+[PlexilExec:step][1:2:0] Transitioning node PickupObject
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 6
+[PlexilExec:step][1:2:1] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 7
+[PlexilExec:step][1:2:2] Transitioning node TakePicture
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 8
+[PlexilExec:unlock]Unlocking node PickupObject
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node TakePicture
+[PlexilExec:step][1:3] State change queue: PickupObject ProcessImage TakePicture 
+[PlexilExec:lock]Locking node PickupObject
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node TakePicture
+[PlexilExec:step][1:3:0] Transitioning node PickupObject
+[PlexilExec:handleNeedsExecution]Storing action for node 'PickupObject' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
+[PlexilExec:step][1:3:1] Transitioning node ProcessImage
+[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
+[PlexilExec:step][1:3:2] Transitioning node TakePicture
+[PlexilExec:handleNeedsExecution]Storing action for node 'TakePicture' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'TakePicture' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node PickupObject
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node TakePicture
+[Test:testOutput]Executing pickup_object(20) into (id_378[au](-1): int) with ack (id_518[au](UNKNOWN): string)
+[Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 9
+[Test:testOutput]Executing take_picture() into noId with ack (id_609[au](UNKNOWN): string)
+[PlexilExec:cycle]==>End cycle 1
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_280[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_298[au](0): boolean)
+ StartCondition: (id_300[au](1): boolean)
+ EndCondition: (id_485[au](0): childrenFinished(0:3))
+ InvariantCondition: (id_304[au](1): boolean)
+ PreCondition: (id_306[au](1): boolean)
+ PostCondition: (id_308[au](1): boolean)
+ RepeatCondition: (id_310[au](0): boolean)
+ AncestorInvariantCondition: (id_312[au](1): boolean)
+ AncestorEndCondition: (id_314[au](0): boolean)
+ ParentExecutingCondition: (id_316[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_482[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_320[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_322[au](0): boolean)
+ ParentFinishedCondition: (id_324[au](0): boolean)
+ CommandHandleReceivedCondition: (id_326[au](1): boolean)
+ command_handle: (id_283[au](UNKNOWN):  command_handle)
+  PickupObject{
+   State: (id_330[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_348[au](0): boolean)
+   StartCondition: (id_350[au](1): boolean)
+   EndCondition: (id_525[au](0): ((id_521[au](0): interruptibleCommandHandleValues((id_518[au](UNKNOWN): string))) || (id_523[au](0): ((id_519[au](0): isknown((id_518[au](UNKNOWN): string))) && (id_509[au](0): ((id_511[au](10): int) == (id_378[au](-1): int)))))
+   InvariantCondition: (id_354[au](1): boolean)
+   PreCondition: (id_356[au](1): boolean)
+   PostCondition: (id_512[au](UNKNOWN): (id_515[au](UNKNOWN): ((id_333[au](UNKNOWN):  command_handle) == (id_514[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_360[au](0): boolean)
+   AncestorInvariantCondition: (id_492[au](1): (TransparentWrapper(id_488[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_490[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_498[iu](UNKNOWN): (TransparentWrapper(id_494[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_496[iuT]{0}((id_485[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_501[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_368[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_517[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_504[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_507[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_529[au](0): ((id_527[au](0): allCommandHandleValues((id_518[au](UNKNOWN): string))) && (id_376[au](1): boolean))
+   command_handle: (id_333[au](UNKNOWN):  command_handle)
+   returnValue: (id_378[au](-1): int)
+   priority10: (id_379[au](10): int)
+  }
+  ProcessImage{
+   State: (id_382[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_400[au](0): boolean)
+   StartCondition: (id_402[au](1): boolean)
+   EndCondition: (id_574[au](1): ((id_570[au](1): interruptibleCommandHandleValues((id_567[au](COMMAND_DENIED): string))) || (id_572[au](1): ((id_568[au](1): isknown((id_567[au](COMMAND_DENIED): string))) && (id_404[au](1): boolean)))
+   InvariantCondition: (id_406[au](1): boolean)
+   PreCondition: (id_408[au](1): boolean)
+   PostCondition: (id_556[au](0): (id_559[au](0): ((id_385[au](COMMAND_DENIED):  command_handle) == (id_558[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_561[iu](UNKNOWN): (id_564[iu](UNKNOWN): ((id_385[au](COMMAND_DENIED):  command_handle) == (id_563[iu](UNKNOWN):  command_handle))))
+   AncestorInvariantCondition: (id_542[au](1): (TransparentWrapper(id_538[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_540[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_548[iu](UNKNOWN): (TransparentWrapper(id_544[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_546[iuT]{0}((id_485[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_550[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_420[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_566[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_552[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_554[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_578[au](1): ((id_576[au](1): allCommandHandleValues((id_567[au](COMMAND_DENIED): string))) && (id_428[au](1): boolean))
+   command_handle: (id_385[au](COMMAND_DENIED):  command_handle)
+   priority30: (id_430[au](30): int)
+  }
+  TakePicture{
+   State: (id_433[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_451[au](0): boolean)
+   StartCondition: (id_453[au](1): boolean)
+   EndCondition: (id_616[au](0): ((id_612[au](0): interruptibleCommandHandleValues((id_609[au](UNKNOWN): string))) || (id_614[au](0): ((id_610[au](0): isknown((id_609[au](UNKNOWN): string))) && (id_455[au](1): boolean)))
+   InvariantCondition: (id_457[au](1): boolean)
+   PreCondition: (id_459[au](1): boolean)
+   PostCondition: (id_603[au](UNKNOWN): (id_606[au](UNKNOWN): ((id_436[au](UNKNOWN):  command_handle) == (id_605[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_463[au](0): boolean)
+   AncestorInvariantCondition: (id_589[au](1): (TransparentWrapper(id_585[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_587[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_595[iu](UNKNOWN): (TransparentWrapper(id_591[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_593[iuT]{0}((id_485[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_597[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_471[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_608[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_599[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_601[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_620[au](0): ((id_618[au](0): allCommandHandleValues((id_609[au](UNKNOWN): string))) && (id_479[au](1): boolean))
+   command_handle: (id_436[au](UNKNOWN):  command_handle)
+   v_priority: (id_481[au](10): int)
+  }
+}
+
+[Test:testOutput]Sending command ACK pickup_object(20) = (string)COMMAND_SENT_TO_SYSTEM
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:step][2:0] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][2:0:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 10
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:step][2:1] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][2:1:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 11
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:step][2:2] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][2:2:0] Transitioning node ProcessImage
+[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node ProcessImage
+[Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 12
+[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_280[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_298[au](0): boolean)
+ StartCondition: (id_300[au](1): boolean)
+ EndCondition: (id_485[au](0): childrenFinished(0:3))
+ InvariantCondition: (id_304[au](1): boolean)
+ PreCondition: (id_306[au](1): boolean)
+ PostCondition: (id_308[au](1): boolean)
+ RepeatCondition: (id_310[au](0): boolean)
+ AncestorInvariantCondition: (id_312[au](1): boolean)
+ AncestorEndCondition: (id_314[au](0): boolean)
+ ParentExecutingCondition: (id_316[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_482[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_320[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_322[au](0): boolean)
+ ParentFinishedCondition: (id_324[au](0): boolean)
+ CommandHandleReceivedCondition: (id_326[au](1): boolean)
+ command_handle: (id_283[au](UNKNOWN):  command_handle)
+  PickupObject{
+   State: (id_330[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_348[au](0): boolean)
+   StartCondition: (id_350[au](1): boolean)
+   EndCondition: (id_525[au](0): ((id_521[au](0): interruptibleCommandHandleValues((id_518[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_523[au](0): ((id_519[au](1): isknown((id_518[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_509[au](0): ((id_511[au](10): int) == (id_378[au](-1): int)))))
+   InvariantCondition: (id_354[au](1): boolean)
+   PreCondition: (id_356[au](1): boolean)
+   PostCondition: (id_512[au](1): (id_515[au](1): ((id_333[au](COMMAND_SENT_TO_SYSTEM):  command_handle) == (id_514[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_360[au](0): boolean)
+   AncestorInvariantCondition: (id_492[au](1): (TransparentWrapper(id_488[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_490[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_498[iu](UNKNOWN): (TransparentWrapper(id_494[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_496[iuT]{0}((id_485[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_501[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_368[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_517[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_504[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_507[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_529[au](1): ((id_527[au](1): allCommandHandleValues((id_518[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_376[au](1): boolean))
+   command_handle: (id_333[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_378[au](-1): int)
+   priority10: (id_379[au](10): int)
+  }
+  ProcessImage{
+   State: (id_382[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_400[au](0): boolean)
+   StartCondition: (id_402[au](1): boolean)
+   EndCondition: (id_574[au](1): ((id_570[au](1): interruptibleCommandHandleValues((id_567[au](COMMAND_DENIED): string))) || (id_572[au](1): ((id_568[au](1): isknown((id_567[au](COMMAND_DENIED): string))) && (id_404[au](1): boolean)))
+   InvariantCondition: (id_406[au](1): boolean)
+   PreCondition: (id_408[au](1): boolean)
+   PostCondition: (id_556[au](0): (id_559[au](0): ((id_385[au](COMMAND_DENIED):  command_handle) == (id_558[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_561[iu](UNKNOWN): (id_564[iu](UNKNOWN): ((id_385[au](COMMAND_DENIED):  command_handle) == (id_563[iu](UNKNOWN):  command_handle))))
+   AncestorInvariantCondition: (id_542[au](1): (TransparentWrapper(id_538[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_540[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_548[iu](UNKNOWN): (TransparentWrapper(id_544[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_546[iuT]{0}((id_485[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_550[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_420[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_566[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_552[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_554[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_578[au](1): ((id_576[au](1): allCommandHandleValues((id_567[au](COMMAND_DENIED): string))) && (id_428[au](1): boolean))
+   command_handle: (id_385[au](COMMAND_DENIED):  command_handle)
+   priority30: (id_430[au](30): int)
+  }
+  TakePicture{
+   State: (id_433[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_451[au](0): boolean)
+   StartCondition: (id_453[au](1): boolean)
+   EndCondition: (id_616[au](0): ((id_612[au](0): interruptibleCommandHandleValues((id_609[au](UNKNOWN): string))) || (id_614[au](0): ((id_610[au](0): isknown((id_609[au](UNKNOWN): string))) && (id_455[au](1): boolean)))
+   InvariantCondition: (id_457[au](1): boolean)
+   PreCondition: (id_459[au](1): boolean)
+   PostCondition: (id_603[au](UNKNOWN): (id_606[au](UNKNOWN): ((id_436[au](UNKNOWN):  command_handle) == (id_605[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_463[au](0): boolean)
+   AncestorInvariantCondition: (id_589[au](1): (TransparentWrapper(id_585[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_587[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_595[iu](UNKNOWN): (TransparentWrapper(id_591[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_593[iuT]{0}((id_485[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_597[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_471[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_608[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_599[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_601[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_620[au](0): ((id_618[au](0): allCommandHandleValues((id_609[au](UNKNOWN): string))) && (id_479[au](1): boolean))
+   command_handle: (id_436[au](UNKNOWN):  command_handle)
+   v_priority: (id_481[au](10): int)
+  }
+}
+
+[Test:testOutput]Sending command ACK take_picture() = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 13
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 3
+[PlexilExec:step][3:0] State change queue: ProcessImage TakePicture 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node TakePicture
+[PlexilExec:step][3:0:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 14
+[PlexilExec:step][3:0:1] Transitioning node TakePicture
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 15
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node TakePicture
+[PlexilExec:step][3:1] State change queue: ProcessImage TakePicture 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node TakePicture
+[PlexilExec:step][3:1:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 16
+[PlexilExec:step][3:1:1] Transitioning node TakePicture
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'TakePicture' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node TakePicture
+[PlexilExec:step][3:2] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][3:2:0] Transitioning node ProcessImage
+[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node ProcessImage
+[Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 17
+[PlexilExec:cycle]==>End cycle 3
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_280[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_298[au](0): boolean)
+ StartCondition: (id_300[au](1): boolean)
+ EndCondition: (id_485[au](0): childrenFinished(1:3))
+ InvariantCondition: (id_304[au](1): boolean)
+ PreCondition: (id_306[au](1): boolean)
+ PostCondition: (id_308[au](1): boolean)
+ RepeatCondition: (id_310[au](0): boolean)
+ AncestorInvariantCondition: (id_312[au](1): boolean)
+ AncestorEndCondition: (id_314[au](0): boolean)
+ ParentExecutingCondition: (id_316[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_482[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_320[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_322[au](0): boolean)
+ ParentFinishedCondition: (id_324[au](0): boolean)
+ CommandHandleReceivedCondition: (id_326[au](1): boolean)
+ command_handle: (id_283[au](UNKNOWN):  command_handle)
+  PickupObject{
+   State: (id_330[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_348[au](0): boolean)
+   StartCondition: (id_350[au](1): boolean)
+   EndCondition: (id_525[au](0): ((id_521[au](0): interruptibleCommandHandleValues((id_518[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_523[au](0): ((id_519[au](1): isknown((id_518[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_509[au](0): ((id_511[au](10): int) == (id_378[au](-1): int)))))
+   InvariantCondition: (id_354[au](1): boolean)
+   PreCondition: (id_356[au](1): boolean)
+   PostCondition: (id_512[au](1): (id_515[au](1): ((id_333[au](COMMAND_SENT_TO_SYSTEM):  command_handle) == (id_514[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_360[au](0): boolean)
+   AncestorInvariantCondition: (id_492[au](1): (TransparentWrapper(id_488[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_490[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_498[iu](UNKNOWN): (TransparentWrapper(id_494[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_496[iuT]{0}((id_485[au](0): childrenFinished(1:3))))
+   ParentExecutingCondition: (id_501[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_368[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_517[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_504[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_507[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_529[au](1): ((id_527[au](1): allCommandHandleValues((id_518[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_376[au](1): boolean))
+   command_handle: (id_333[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_378[au](-1): int)
+   priority10: (id_379[au](10): int)
+  }
+  ProcessImage{
+   State: (id_382[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_400[au](0): boolean)
+   StartCondition: (id_402[au](1): boolean)
+   EndCondition: (id_574[au](1): ((id_570[au](1): interruptibleCommandHandleValues((id_567[au](COMMAND_DENIED): string))) || (id_572[au](1): ((id_568[au](1): isknown((id_567[au](COMMAND_DENIED): string))) && (id_404[au](1): boolean)))
+   InvariantCondition: (id_406[au](1): boolean)
+   PreCondition: (id_408[au](1): boolean)
+   PostCondition: (id_556[au](0): (id_559[au](0): ((id_385[au](COMMAND_DENIED):  command_handle) == (id_558[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_561[iu](UNKNOWN): (id_564[iu](UNKNOWN): ((id_385[au](COMMAND_DENIED):  command_handle) == (id_563[iu](UNKNOWN):  command_handle))))
+   AncestorInvariantCondition: (id_542[au](1): (TransparentWrapper(id_538[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_540[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_548[iu](UNKNOWN): (TransparentWrapper(id_544[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_546[iuT]{0}((id_485[au](0): childrenFinished(1:3))))
+   ParentExecutingCondition: (id_550[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_420[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_566[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_552[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_554[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_578[au](1): ((id_576[au](1): allCommandHandleValues((id_567[au](COMMAND_DENIED): string))) && (id_428[au](1): boolean))
+   command_handle: (id_385[au](COMMAND_DENIED):  command_handle)
+   priority30: (id_430[au](30): int)
+  }
+  TakePicture{
+   State: (id_433[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_434[au](SUCCESS):  outcome)
+   Command handle: (id_436[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   v_priority: (id_481[au](10): int)
+  }
+}
+
+[Test:testOutput]Sending command result pickup_object(20) = 10
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 18
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 4
+[PlexilExec:step][4:0] State change queue: ProcessImage PickupObject 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node PickupObject
+[PlexilExec:step][4:0:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 19
+[PlexilExec:step][4:0:1] Transitioning node PickupObject
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 20
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node PickupObject
+[PlexilExec:step][4:1] State change queue: ProcessImage PickupObject 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node PickupObject
+[PlexilExec:step][4:1:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 21
+[PlexilExec:step][4:1:1] Transitioning node PickupObject
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node PickupObject
+[PlexilExec:step][4:2] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][4:2:0] Transitioning node ProcessImage
+[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node ProcessImage
+[Test:testOutput]Executing process_image() into noId with ack (id_567[au](UNKNOWN): string)
+[PlexilExec:cycle]==>End cycle 4
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_280[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_298[au](0): boolean)
+ StartCondition: (id_300[au](1): boolean)
+ EndCondition: (id_485[au](0): childrenFinished(2:3))
+ InvariantCondition: (id_304[au](1): boolean)
+ PreCondition: (id_306[au](1): boolean)
+ PostCondition: (id_308[au](1): boolean)
+ RepeatCondition: (id_310[au](0): boolean)
+ AncestorInvariantCondition: (id_312[au](1): boolean)
+ AncestorEndCondition: (id_314[au](0): boolean)
+ ParentExecutingCondition: (id_316[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_482[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_320[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_322[au](0): boolean)
+ ParentFinishedCondition: (id_324[au](0): boolean)
+ CommandHandleReceivedCondition: (id_326[au](1): boolean)
+ command_handle: (id_283[au](UNKNOWN):  command_handle)
+  PickupObject{
+   State: (id_330[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_331[au](SUCCESS):  outcome)
+   Command handle: (id_333[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_378[iu](10): int)
+   priority10: (id_379[au](10): int)
+  }
+  ProcessImage{
+   State: (id_382[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_400[au](0): boolean)
+   StartCondition: (id_402[au](1): boolean)
+   EndCondition: (id_574[au](0): ((id_570[au](0): interruptibleCommandHandleValues((id_567[au](UNKNOWN): string))) || (id_572[au](0): ((id_568[au](0): isknown((id_567[au](UNKNOWN): string))) && (id_404[au](1): boolean)))
+   InvariantCondition: (id_406[au](1): boolean)
+   PreCondition: (id_408[au](1): boolean)
+   PostCondition: (id_556[au](UNKNOWN): (id_559[au](UNKNOWN): ((id_385[au](UNKNOWN):  command_handle) == (id_558[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_561[iu](UNKNOWN): (id_564[iu](UNKNOWN): ((id_385[au](UNKNOWN):  command_handle) == (id_563[iu](UNKNOWN):  command_handle))))
+   AncestorInvariantCondition: (id_542[au](1): (TransparentWrapper(id_538[auT]{1}((id_312[au](1): boolean)) && TransparentWrapper(id_540[auT]{1}((id_304[au](1): boolean)))
+   AncestorEndCondition: (id_548[iu](UNKNOWN): (TransparentWrapper(id_544[iuT]{0}((id_314[au](0): boolean)) || TransparentWrapper(id_546[iuT]{0}((id_485[au](0): childrenFinished(2:3))))
+   ParentExecutingCondition: (id_550[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_500[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_420[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_566[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_552[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_503[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_554[iu](UNKNOWN): ((id_280[au](EXECUTING): state(EXECUTING)) == (id_506[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_578[au](0): ((id_576[au](0): allCommandHandleValues((id_567[au](UNKNOWN): string))) && (id_428[au](1): boolean))
+   command_handle: (id_385[au](UNKNOWN):  command_handle)
+   priority30: (id_430[au](30): int)
+  }
+  TakePicture{
+   State: (id_433[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_434[au](SUCCESS):  outcome)
+   Command handle: (id_436[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   v_priority: (id_481[au](10): int)
+  }
+}
+
+[Test:testOutput]Sending command ACK process_image() = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 22
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 5
+[PlexilExec:step][5:0] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][5:0:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 23
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:step][5:1] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][5:1:0] Transitioning node ProcessImage
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 24
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:step][5:2] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][5:2:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 25
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][5:3] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][5:3:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 26
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][5:4] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][5:4:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:cycle]==>End cycle 5
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_280[au](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_281[au](SUCCESS):  outcome)
+  PickupObject{
+   State: (id_330[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_331[au](SUCCESS):  outcome)
+   Command handle: (id_333[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_378[iu](10): int)
+   priority10: (id_379[au](10): int)
+  }
+  ProcessImage{
+   State: (id_382[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_383[au](SUCCESS):  outcome)
+   Command handle: (id_385[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   priority30: (id_430[au](30): int)
+  }
+  TakePicture{
+   State: (id_433[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_434[au](SUCCESS):  outcome)
+   Command handle: (id_436[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   v_priority: (id_481[au](10): int)
+  }
+}
+

@@ -1,0 +1,266 @@
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:addPlan]Added plan: 
+SimpleTask{
+ State: (id_273[au](INACTIVE): state(INACTIVE)) (inf)
+  C1{
+   State: (id_323[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+  C2{
+   State: (id_375[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+  C3{
+   State: (id_426[au](INACTIVE): state(INACTIVE)) (inf)
+  }
+}
+
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 1
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 1
+[PlexilExec:step][1:0] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][1:0:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 2
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][1:1] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][1:1:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 3
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 4
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 5
+[PlexilExec:handleNeedsExecution]Storing action for node 'SimpleTask' of type 'NodeList' to be executed.
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][1:2] State change queue: C1 C2 C3 
+[PlexilExec:lock]Locking node C1
+[PlexilExec:lock]Locking node C2
+[PlexilExec:lock]Locking node C3
+[PlexilExec:step][1:2:0] Transitioning node C1
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 6
+[PlexilExec:step][1:2:1] Transitioning node C2
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 7
+[PlexilExec:step][1:2:2] Transitioning node C3
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 8
+[PlexilExec:unlock]Unlocking node C1
+[PlexilExec:unlock]Unlocking node C2
+[PlexilExec:unlock]Unlocking node C3
+[PlexilExec:step][1:3] State change queue: C1 C2 C3 
+[PlexilExec:lock]Locking node C1
+[PlexilExec:lock]Locking node C2
+[PlexilExec:lock]Locking node C3
+[PlexilExec:step][1:3:0] Transitioning node C1
+[PlexilExec:handleNeedsExecution]Storing action for node 'C1' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
+[PlexilExec:step][1:3:1] Transitioning node C2
+[PlexilExec:handleNeedsExecution]Storing action for node 'C2' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
+[PlexilExec:step][1:3:2] Transitioning node C3
+[PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node C1
+[PlexilExec:unlock]Unlocking node C2
+[PlexilExec:unlock]Unlocking node C3
+[Test:testOutput]Permission to execute c1 has been denied by the resource arbiter.
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 9
+[Test:testOutput]Executing c2() into noId with ack (id_553[au](UNKNOWN): string)
+[Test:testOutput]Permission to execute c3 has been denied by the resource arbiter.
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 10
+[PlexilExec:cycle]==>End cycle 1
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_273[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_291[au](0): boolean)
+ StartCondition: (id_293[au](1): boolean)
+ EndCondition: (id_477[au](0): childrenFinished(0:3))
+ InvariantCondition: (id_297[au](1): boolean)
+ PreCondition: (id_299[au](1): boolean)
+ PostCondition: (id_301[au](1): boolean)
+ RepeatCondition: (id_303[au](0): boolean)
+ AncestorInvariantCondition: (id_305[au](1): boolean)
+ AncestorEndCondition: (id_307[au](0): boolean)
+ ParentExecutingCondition: (id_309[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_474[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_313[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_315[au](0): boolean)
+ ParentFinishedCondition: (id_317[au](0): boolean)
+ CommandHandleReceivedCondition: (id_319[au](1): boolean)
+ command_handle: (id_276[au](UNKNOWN):  command_handle)
+  C1{
+   State: (id_323[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_341[au](0): boolean)
+   StartCondition: (id_343[au](1): boolean)
+   EndCondition: (id_517[au](1): ((id_513[au](1): interruptibleCommandHandleValues((id_510[au](COMMAND_DENIED): string))) || (id_515[au](0): ((id_511[au](1): isknown((id_510[au](COMMAND_DENIED): string))) && (id_501[au](0): ((id_503[au](10): int) == (id_371[au](-1): int)))))
+   InvariantCondition: (id_347[au](1): boolean)
+   PreCondition: (id_349[au](1): boolean)
+   PostCondition: (id_504[au](0): (id_507[au](0): ((id_326[au](COMMAND_DENIED):  command_handle) == (id_506[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_353[au](0): boolean)
+   AncestorInvariantCondition: (id_484[au](1): (TransparentWrapper(id_480[auT]{1}((id_305[au](1): boolean)) && TransparentWrapper(id_482[auT]{1}((id_297[au](1): boolean)))
+   AncestorEndCondition: (id_490[iu](UNKNOWN): (TransparentWrapper(id_486[iuT]{0}((id_307[au](0): boolean)) || TransparentWrapper(id_488[iuT]{0}((id_477[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_493[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_492[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_361[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_509[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_496[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_495[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_499[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_498[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_521[au](1): ((id_519[au](1): allCommandHandleValues((id_510[au](COMMAND_DENIED): string))) && (id_369[au](1): boolean))
+   command_handle: (id_326[au](COMMAND_DENIED):  command_handle)
+   returnValue: (id_371[au](-1): int)
+   mem_priority: (id_372[au](10): int)
+  }
+  C2{
+   State: (id_375[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_393[au](0): boolean)
+   StartCondition: (id_395[au](1): boolean)
+   EndCondition: (id_560[au](0): ((id_556[au](0): interruptibleCommandHandleValues((id_553[au](UNKNOWN): string))) || (id_558[au](0): ((id_554[au](0): isknown((id_553[au](UNKNOWN): string))) && (id_397[au](1): boolean)))
+   InvariantCondition: (id_399[au](1): boolean)
+   PreCondition: (id_401[au](1): boolean)
+   PostCondition: (id_547[au](UNKNOWN): (id_550[au](UNKNOWN): ((id_378[au](UNKNOWN):  command_handle) == (id_549[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_405[au](0): boolean)
+   AncestorInvariantCondition: (id_533[au](1): (TransparentWrapper(id_529[auT]{1}((id_305[au](1): boolean)) && TransparentWrapper(id_531[auT]{1}((id_297[au](1): boolean)))
+   AncestorEndCondition: (id_539[iu](UNKNOWN): (TransparentWrapper(id_535[iuT]{0}((id_307[au](0): boolean)) || TransparentWrapper(id_537[iuT]{0}((id_477[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_541[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_492[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_413[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_552[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_543[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_495[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_545[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_498[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_564[au](0): ((id_562[au](0): allCommandHandleValues((id_553[au](UNKNOWN): string))) && (id_421[au](1): boolean))
+   command_handle: (id_378[au](UNKNOWN):  command_handle)
+   mem_priority2: (id_423[au](20): int)
+  }
+  C3{
+   State: (id_426[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_444[au](0): boolean)
+   StartCondition: (id_446[au](1): boolean)
+   EndCondition: (id_602[au](1): ((id_598[au](1): interruptibleCommandHandleValues((id_595[au](COMMAND_DENIED): string))) || (id_600[au](1): ((id_596[au](1): isknown((id_595[au](COMMAND_DENIED): string))) && (id_448[au](1): boolean)))
+   InvariantCondition: (id_450[au](1): boolean)
+   PreCondition: (id_452[au](1): boolean)
+   PostCondition: (id_589[au](0): (id_592[au](0): ((id_429[au](COMMAND_DENIED):  command_handle) == (id_591[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_456[au](0): boolean)
+   AncestorInvariantCondition: (id_575[au](1): (TransparentWrapper(id_571[auT]{1}((id_305[au](1): boolean)) && TransparentWrapper(id_573[auT]{1}((id_297[au](1): boolean)))
+   AncestorEndCondition: (id_581[iu](UNKNOWN): (TransparentWrapper(id_577[iuT]{0}((id_307[au](0): boolean)) || TransparentWrapper(id_579[iuT]{0}((id_477[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_583[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_492[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_464[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_594[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_585[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_495[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_587[iu](UNKNOWN): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_498[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_606[au](1): ((id_604[au](1): allCommandHandleValues((id_595[au](COMMAND_DENIED): string))) && (id_472[au](1): boolean))
+   command_handle: (id_429[au](COMMAND_DENIED):  command_handle)
+  }
+}
+
+[Test:testOutput]Sending command ACK c2() = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 11
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:step][2:0] State change queue: C1 C3 C2 
+[PlexilExec:lock]Locking node C1
+[PlexilExec:lock]Locking node C3
+[PlexilExec:lock]Locking node C2
+[PlexilExec:step][2:0:0] Transitioning node C1
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 12
+[PlexilExec:step][2:0:1] Transitioning node C3
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 13
+[PlexilExec:step][2:0:2] Transitioning node C2
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 14
+[PlexilExec:unlock]Unlocking node C1
+[PlexilExec:unlock]Unlocking node C3
+[PlexilExec:unlock]Unlocking node C2
+[PlexilExec:step][2:1] State change queue: C1 C3 C2 
+[PlexilExec:lock]Locking node C1
+[PlexilExec:lock]Locking node C3
+[PlexilExec:lock]Locking node C2
+[PlexilExec:step][2:1:0] Transitioning node C1
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
+[PlexilExec:step][2:1:1] Transitioning node C3
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
+[PlexilExec:step][2:1:2] Transitioning node C2
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 15
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node C1
+[PlexilExec:unlock]Unlocking node C3
+[PlexilExec:unlock]Unlocking node C2
+[PlexilExec:step][2:2] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][2:2:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 16
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][2:3] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][2:3:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 17
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:step][2:4] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][2:4:0] Transitioning node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:printPlan]
+SimpleTask{
+ State: (id_273[au](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_274[au](SUCCESS):  outcome)
+  C1{
+   State: (id_323[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_324[au](FAILURE):  outcome)
+   Failure type: (id_325[au](POST_CONDITION_FAILED):  failure)
+   Command handle: (id_326[au](COMMAND_DENIED):  command_handle)
+   returnValue: (id_371[iu](-1): int)
+   mem_priority: (id_372[au](10): int)
+  }
+  C2{
+   State: (id_375[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_376[au](SUCCESS):  outcome)
+   Command handle: (id_378[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   mem_priority2: (id_423[au](20): int)
+  }
+  C3{
+   State: (id_426[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_427[au](FAILURE):  outcome)
+   Failure type: (id_428[au](POST_CONDITION_FAILED):  failure)
+   Command handle: (id_429[au](COMMAND_DENIED):  command_handle)
+  }
+}
+
