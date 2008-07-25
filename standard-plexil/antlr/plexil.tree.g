@@ -1394,7 +1394,8 @@ isKnownExp[IXMLElement parent]
 { IXMLElement xisKnown = new XMLElement("IsKnown"); parent.addChild(xisKnown); }
  :
         #(IS_KNOWN_KYWD 
-            ( variable[xisKnown]
+            ( arrayReference[xisKnown]
+              | variable[xisKnown]
               | nodeStateVariable[xisKnown]
               | nodeOutcomeVariable[xisKnown]
               | nodeTimepointValue[xisKnown] )

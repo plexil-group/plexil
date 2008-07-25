@@ -1567,7 +1567,13 @@ simpleBoolean :
 isKnownExp :
    IS_KNOWN_KYWD^ 
    LPAREN!
-   ( variable | nodeStateVariable | nodeOutcomeVariable | nodeTimepointValue )
+   ( 
+     ( ncName LBRACKET ) => arrayReference
+     | variable
+     | nodeStateVariable
+     | nodeOutcomeVariable
+     | nodeTimepointValue
+   )
    RPAREN! ;
 
 // numericComparison! : 
