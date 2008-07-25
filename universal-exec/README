@@ -1,4 +1,4 @@
-//Updated 6/30/08//
+//Updated 7/25/08//
 
 =UE Installation=
 
@@ -13,6 +13,15 @@ file 'universal-exec/README' in the UE distribution.
 The 'universal-exec' directory contains the Universal Executive (UE),
 which is an execution system for the PLEXIL language. See the UE and
 PLEXIL reference manuals for more information.
+
+The 'interfaces' directory contains libraries that perform various
+common interfacing tasks.  See [[Interfacing|Interfacing with External Systems]] 
+for more information on using the interface libraries.
+
+The 'apps/TestExec' directory contains the Test Exec application,
+which combines the UE and a simple simulator into a single executable,
+as well as plans, simulation scripts, and utilities for running
+regression tests.
 
 This document contains instructions for installing and building the UE,
 and pointers on version control and code documentation. Some
@@ -30,20 +39,20 @@ as the location of your installation -- you'll need to customize this.
 Environment variables (csh):
 
 [[code]]
-  (all platforms)  setenv UE_HOME /home/fred/plexil/universal-exec
-  (all platforms)  setenv PATH $UE_HOME/Exec/test:$PATH
-  (non-Mac only)   setenv LD_LIBRARY_PATH $UE_HOME/lib:$LD_LIBRARY_PATH
-  (Mac only)       setenv DYLD_LIBRARY_PATH $UE_HOME/lib:$DYLD_LIBRARY_PATH
+  (all platforms)  setenv PLEXIL_ROOT /home/fred/plexil
+  (all platforms)  setenv PATH $PLEXIL_ROOT/apps/test-exec:$PATH
+  (non-Mac only)   setenv LD_LIBRARY_PATH $PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$LD_LIBRARY_PATH
+  (Mac only)       setenv DYLD_LIBRARY_PATH $PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$DYLD_LIBRARY_PATH
   (Mac only)       setenv DYLD_BIND_AT_LAUNCH 1
 [[code]]
 
 Environment variables (bash):
 
 [[code]]
-  (all platforms)  export UE_HOME=universal-exec
-  (all platforms)  export PATH=$UE_HOME/Exec/test:$PATH
-  (non-Mac only)   export LD_LIBRARY_PATH=$UE_HOME/lib:$LD_LIBRARY_PATH
-  (Mac only)       export DYLD_LIBRARY_PATH=$UE_HOME/lib:$DYLD_LIBRARY_PATH
+  (all platforms)  export PLEXIL_ROOT=universal-exec
+  (all platforms)  export PATH=$PLEXIL_ROOT/Exec/test:$PATH
+  (non-Mac only)   export LD_LIBRARY_PATH=$PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$LD_LIBRARY_PATH
+  (Mac only)       export DYLD_LIBRARY_PATH=$PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$DYLD_LIBRARY_PATH
   (Mac only)       export DYLD_BIND_AT_LAUNCH=1
 [[code]]
 
@@ -59,9 +68,15 @@ runtime requirements. Type 'checkreqs' to run it.
 The [[GettingStarted]] document lists the third party software packages
 required for the UE.
 
-If Jam is properly installed and in your path, just typing "jam" in this
-directory will build the utility libraries, the executive library, the
-module tests, and the executive runner.
+If Jam is properly installed and in your path, the following
+instructions will build the UE libraries, the interface libraries, and
+the Test Exec application:
+
+[[code]]
+ jam
+ cd ../interfaces ; jam
+ cd ../apps/TestExec ; jam
+[[code]]
 
 ==Version Control==
 
