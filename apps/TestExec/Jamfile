@@ -47,15 +47,13 @@ ModuleMain test-exec :
   if $(plan) {
     arguments += -p plans/$(plan) ;
   }
- if $(library) {
-  for lib in 
-  $(library) 
-   {
-    arguments += -l plans/$(lib) ;
-   } 
-}
+  if $(library) {
+    for lib in $(library) {
+      arguments += -l plans/$(lib) ;
+    } 
+  }
 
-NOCARE $(deptarget) ;
+  NOCARE $(deptarget) ;
   RunModuleMain $(deptarget) : test-exec : $(arguments) : : $(output) ;
 }
 
@@ -86,14 +84,14 @@ rule RunTestDiff {
   NOCARE $(deptarget) ;
   RunTestPlan $(deptarget) : $(plan) : $(script) : $(outfile) : $(library) ;
 
- validfile = $(validfile).valid ;
+  validfile = $(validfile).valid ;
 
-if ( ! $(INVALID) ) && ( $(validfile:D=$(SUBDIR) in [ GLOB $(validfile) ] ) {
-      local temp = "dummy" ;
+  if ( ! $(INVALID) ) && ( $(validfile:D=$(SUBDIR)) in [ GLOB $(validfile) ] ) {
+    local temp = "dummy" ;
     #LocalDepends $(1) :  $(outfile)  $(validfile) ;
     #NOTFILE $(temp) ;
     operl  $(1) : $(outfile) $(validfile) ;
- }
+  }
 }
 
 #RunTestSuccess <dependency target> : <plan> : <script> : <library>
@@ -126,7 +124,6 @@ ExecuteTargetSO execution-test-shutdown : shutdown-script.sh ;
 ALWAYS execution-test-shutdown ;
 Depends execution-test-shutdown : run-exec-tests1 ;
 Depends run-exec-tests : execution-test-shutdown ;
-Depends run-exec-module-tests : execution-test-shutdown ;
 
 ExecuteTargetSO execution-test-setup : setup-script.sh ;
 ALWAYS execution-test-setup ;
