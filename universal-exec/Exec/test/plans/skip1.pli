@@ -1,3 +1,0 @@
-(plexil-plan
-  (empty-node "Root"
-    (skip-condition true)))

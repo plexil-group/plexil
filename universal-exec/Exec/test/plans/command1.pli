@@ -1,5 +1,0 @@
-(plexil-plan
-  (command-node "Root"
-    (variables (string "CommandName" "foo"))
-    (command (stringvar "CommandName") "")))
-        

@@ -1,7 +1,0 @@
-
-// simple-functioncall
-
-script {
-  function-call testFunction (1.1 : real, 2.1 : real) = 2 : real;
-}
-

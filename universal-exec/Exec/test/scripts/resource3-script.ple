@@ -1,7 +1,0 @@
-
-// resource3
-
-script {
-  command-ack store () = 1 : bool;
-}
-

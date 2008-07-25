@@ -1,7 +1,0 @@
-
-// list-end-condition
-
-script {
-  command-ack test (2.0 : int) = "COMMAND_SUCCESS" : string;
-}
-

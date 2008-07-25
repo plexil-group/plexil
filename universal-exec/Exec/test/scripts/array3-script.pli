@@ -1,9 +1,0 @@
-(plexil-script
-  (script
-    (function-call "get-a1" "int-array" (555 444) (param-string "foo"))
-    (command "get-a2" "string-array" ("hello" "world"))
-    (command-ack "get-a2" "string-array" ("hello" "world"))
-    (command "get-a3" "bool-array" (0 0 0 1))
-    (command-ack "get-a3" "bool-array" (0 0 0 1))))
-
-                   

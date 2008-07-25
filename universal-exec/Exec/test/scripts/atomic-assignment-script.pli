@@ -1,5 +1,0 @@
-(plexil-script
-  (script
-    (command-ack "check" "bool" 1
-      (param 1 "int")
-      (param 0 "int"))))

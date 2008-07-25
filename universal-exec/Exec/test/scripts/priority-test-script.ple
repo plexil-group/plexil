@@ -1,7 +1,0 @@
-
-// priority-test
-
-script {
-  command-ack test (11 : int, 21 : int, 7 : int, 17 : int) = "COMMAND_SUCCESS" : string;
-}
-
