@@ -6,7 +6,7 @@ if ! $(PLEXIL_INTFCS_READY) {
 Module LuvListener : Sockets ;
 
 ModuleLibraries LuvListener :
-  [ FVariantName Exec : $(VARIANTS) ]
+  [ FVariantName PlexilUtils PlexilTinyXml Exec : $(VARIANTS) ]
   ;
 
 SubInclude interfaces LuvListener base ;
