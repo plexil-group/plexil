@@ -1,0 +1,133 @@
+//Updated 7/25/08//
+
+=Basic UE Operation=
+
+[[toc]]
+
+==Introduction==
+
+This document is the (wiki) source for the chapter "Basic UE Operation"
+in the Universal Executive Reference Manual, as well as the contents of
+the file 'apps/TestExec/README' in the UE distribution, which
+contains the following components.
+
+* executables for running the UE in its native simulation mode, as well as for running its internal tests
+* test plans and simulation scripts, a subset of which are part of the regression tests
+* utilities to run regression tests
+
+==Running the Simulator==
+
+The Test Exec has built in a simple plan execution simulator. Given a
+plan file (in PLEXIL XML) and a //script// (also written in XML)
+representing the external world, the plan is executed. More
+information, as well as documentation on simulation scripts, is given
+in the chapter [[Simulating Plan Execution]].
+
+Once the UE is built (see universal-exec/README), the plan execution
+simulator can be run in two different ways.
+
+1. The executable (in this directory) can be run directly with a given plan and script file:
+
+[[code]]
+  test-exec_g_rt [-d debug-file] -p plan -s script [-l library-file]*
+[[code]]
+
+The '-d' option specifies a debug configuration file (described below).
+
+2. A stylized script (also in this directory) provides a more compact interface:
+
+[[code]]
+  run-ue [-s] [-d debug-file] plan [script] [-l library-file]*
+[[code]]
+
+The '-s' option suppresses a leading summary (which is generally
+useful). Note the optional script argument. When omitted, a script file
+corresponding to the plan file based on its name is searched for, and if
+not found, the empty script is used. A script whose filename is the same
+as the plan's filename, but ending with "_script" or "-script", and
+filed either in the same directory or a "scripts" subdirectory, will be
+used if it exists. (The search order is unspecified).
+
+NOTE: these descriptions do not cover all the options possible. The
+[[Luv]] viewer is invoked through additional arguments, described in its
+[[Luv|chapter]].
+
+===Output===
+
+To see meaningful output of plan execution (simulated or with a real
+system), a //debug configuration// file is needed in the directory from
+which you are running the executive. By default, a file named Debug.cfg,
+if it exists, is used. A file with another name can be specified using
+the '-d' option mentioned above.
+
+===Debug configuration file===
+
+The debug configuration file (or debug file for short) is a text
+file. Lines should start with either a comment character ('#') or a
+colon, after which should be the tag. Debugging messages that match any
+of the tags in the file will be printed to stdout at run time. Usually
+the most useful tags to include in the file are:
+
+[[code]]
+  :Node:transition
+  :Node:outcome
+[[code]]
+
+This minimal debug file will show the state transitions and final
+outcomes of every node in the plan. See the file
+'universal-exec/Exec/test/DebugComplete.cfg' for a complete listing of implemented
+debug tags.
+
+===Examples===
+
+Here are a few examples of running the plan execution simulator, all
+reproducible in the current 'apps/TestExec' directory.
+
+[[code]]
+% run-ue plans/site-survey.plx
+
+  Running UE from /home/chucko/plexil
+    Plan:      plans/site-survey.plx
+    Script:    scripts/site-survey-script.pls
+    Libraries:
+
+  [ rest of output omitted ]
+
+% test-exec_g_rt -p plans/site-survey.plx -s scripts/site-survey-script.plx
+
+  [ equivalent to previous ]
+
+% run-ue plans/library-call6.plx -l plans/library6.plx
+
+  Running UE from /home/chucko/plexil
+    Plan:      plans/library-call6.plx
+    Script:    scripts/library-call6-script.pls
+    Libraries: -l plans/library6.plx
+
+  [Node:transition]Transitioning 'root' from INACTIVE to WAITING
+  [Node:transition]Transitioning 'root' from WAITING to EXECUTING
+  [Node:transition]Transitioning 'library6' from INACTIVE to WAITING
+  [Node:transition]Transitioning 'library6' from WAITING to EXECUTING
+  [Node:transition]Transitioning 'library6' from EXECUTING to  ITERATION_ENDED
+  [Node:iterationOutcome]Outcome of 'library6' is SUCCESS
+  [Node:transition]Transitioning 'library6' from ITERATION_ENDED to  FINISHED
+  [Node:outcome]Outcome of 'library6' is SUCCESS
+
+[[code]]
+
+==Running Regression Tests==
+
+These tests insure the the UE is working properly (up to the
+thoroughness of the test suite of course). Assuming the UE and
+interfaces are built (see universal-exec/README), type the following:
+
+[[code]]
+  jam run-exec-tests
+[[code]]
+
+There is somewhat verbose output as the tests run, which can generally
+be ignored. Finally, a summary of test results is printed, with
+instructions on where to look for detailed information.
+
+----
+Copyright (c) 2006-2008, Universities Space Research Association (USRA). All rights reserved.
