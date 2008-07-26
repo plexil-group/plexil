@@ -62,10 +62,10 @@ explained in the following section.
 
 ==Building the UE==
 
-The 'checkreqs' script in this directory will check for build and
+The 'checkreqs' script in the universal-exec directory will check for build and
 runtime requirements. Type 'checkreqs' to run it.
 
-The [[GettingStarted]] document lists the third party software packages
+The [[Getting Started]] document lists the third party software packages
 required for the UE.
 
 If Jam is properly installed and in your path, the following
@@ -80,12 +80,11 @@ the Test Exec application:
 
 ==Version Control==
 
-The PLEXIL distribution is maintained in a
-[[[http://subversion.tigris.org%7CSubversion|http://subversion.tigris.org|Subversion]]
-(or SVN)] version control system. You'll need some knowledge of SVN
+The PLEXIL distribution is maintained in a [[http://subversion.tigris.org/|Subversion]]
+(or SVN) version control system. You'll need some knowledge of SVN
 (which is very similar to CVS) to interact with the repository after
 your initial download of PLEXIL. Interactions include updating to newer
-files, and (eventually, for priveleged users) submitting your own
+files, and (eventually, for privileged users) submitting your own
 changes to PLEXIL.
 
 The 'checksvn' script in this directory will tell you if there are newer
@@ -94,7 +93,7 @@ versions of any files in the SVN repository.
 ==Documentation==
 
 Documentation for the source code can be generated using the tool
-[[[http://www.stack.nl/%7Edimitri/doxygen%7CDoxygen%5D.|http://www.stack.nl/~dimitri/doxygen|Doxygen].]] The file 'ue.dox' is a
+[[http://www.stack.nl/%7Edimitri/doxygen|Doxygen]]. The file 'ue.dox' is a
 Doxygen specification file. If you have installed Doxygen,
 documentation for the UE can be generated with the following command.
 
