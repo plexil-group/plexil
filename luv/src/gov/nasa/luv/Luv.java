@@ -123,8 +123,8 @@ public class Luv extends JFrame
                   define(PROP_FILE_AUTO_LOAD,    PROP_FILE_AUTO_LOAD_DEF);
                   define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
                   define(PROP_FILE_RECENT_PLAN_DIR,
-                         System.getenv("UE_HOME") != null
-                         ? System.getenv("UE_HOME") + "/Exec/test/plans"
+                         System.getenv("PLEXIL_ROOT") != null
+                         ? System.getenv("PLEXIL_ROOT") + "/apps/TestExec/plans"
                          : System.getProperty("user.home"));
                   define(PROP_FILE_UELIB,        PROP_FILE_UELIB_DEF);
 
@@ -307,15 +307,16 @@ public class Luv extends JFrame
 
       public static void runExecTest()
       {
-         String ueHome = System.getenv().get("UE_HOME");
+         String plexilRoot = System.getenv().get("PLEXIL_ROOT");
          System.setProperty("java.library.path", 
                             System.getProperty("java.library.path") +
-                            ":" + ueHome + "/lib");
-         String ueTest = ueHome + "/Exec/test";
+                            ":" + plexilRoot + "universal-exec/lib" +
+			    ":" + plexilRoot + "interfaces/lib");
+         String ueTest = plexilRoot + "/apps/TestExec";
          ExecExec ee = new ExecExec(
-            new File(ueTest + "/exec-test-runner_g_rt"),
+            new File(ueTest + "/test-exec_g_rt"),
             new File(PROP_FILE_UELIB_DEF),
-            //new File(ueHome + "/lib/libExec_g.dylib"),
+            //new File(plexilRoot + "/lib/libExec_g.dylib"),
             new File(ueTest + "/plans/array1.xml"),
             new File(ueTest + "/scripts/array1-script.xml"));
 
