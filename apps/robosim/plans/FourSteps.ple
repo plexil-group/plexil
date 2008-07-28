@@ -1,0 +1,84 @@
+// This is a Plexil plan for the RoboSim application.  It has the robot
+// move one step in each direction.  The plan is successful if and only
+// if the start and end positions of the robot are the same.
+
+FourSteps:
+{
+  Integer StartX, StartY, EndX, EndY;
+  PostCondition: (StartX == EndX) && (StartY == EndY);
+
+  NodeList:
+    GetStartPosition:
+    {
+      Real RobotState[3];
+      NodeList:
+        GetRobotState:
+        { 
+          EndCondition: isKnown(RobotState[0]);
+          Command: RobotState = QueryRobotState();
+        }
+        SetStartX:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: StartX = RobotState[0];
+        }
+        SetStartY:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: StartY = RobotState[1];
+        }
+    }
+    MoveLeft:
+    {
+        Integer result;
+        StartCondition: GetStartPosition.state == FINISHED;
+        EndCondition: isKnown(result);
+        PostCondition: result == 1;
+        Command: result = MoveLeft();
+    }
+    MoveUp:
+    {
+        Integer result;
+        StartCondition: MoveLeft.state == FINISHED;
+        EndCondition: isKnown(result);
+        PostCondition: result == 1;
+        Command: result = MoveUp();
+    }
+    MoveRight:
+    {
+        Integer result;
+        StartCondition: MoveUp.state == FINISHED;
+        EndCondition: isKnown(result);
+        PostCondition: result == 1;
+        Command: result = MoveRight();
+    }
+    MoveDown:
+    {
+        Integer result;
+        StartCondition: MoveRight.state == FINISHED;
+        EndCondition: isKnown(result);
+        PostCondition: result == 1;
+        Command: result = MoveDown();
+    }
+    GetEndPosition:
+    {
+      Real RobotState[3];
+      StartCondition: MoveDown.state == FINISHED;
+      NodeList:
+        GetRobotState:
+        { 
+          EndCondition: isKnown(RobotState[0]);
+          Command: RobotState = QueryRobotState();
+        }
+        SetEndX:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: EndX = RobotState[0];
+        }
+        SetEndY:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: EndY = RobotState[1];
+        }
+    }
+}

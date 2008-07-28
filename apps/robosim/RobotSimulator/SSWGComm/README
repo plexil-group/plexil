@@ -1,0 +1,118 @@
+Preliminary documentation and miscellaneous information
+
+
+
+Abstract: 
+
+SSWGComm is a simple TCP inter-process communication library
+written in C++ with POSIX compliant sockets and thread functions. 
+A central server process, receives and forwards messages (in the form
+of character strings) to the appropriate receiver.
+
+So far the code has been tested successfully on VxWorks 6.3 and Linux
+RH9, WS4, WS5 and MacOS X (Darwin). It should work off the box on any POSIX compliant C++
+compliers. 
+
+
+Compilation:
+----------
+
+make arguments: VXWORKS=1 (for VxWorks) and
+                SHARED=1 for shared library. 
+
+Thus there are four combinations. 
+
+Unix (creates shared and static libraries and four test programs):
+1. make
+2. make SHARED=1
+
+VxWorks (creates shared and static libraries and four RTP test applications):
+3. make VXWORKS=1
+4. make VXWORKS=1 SHARED=1
+
+This will create one static (libsswgcom.a) and one shared object
+library (libsswgcom.so) in <OS>/lib.
+Four binary files that can be used for testing purposes will be
+created in the bin directory.
+
+
+For example, to run ./<OS>/bin/testComm,
+
+On Unix:
+You'll have to set LD_LIBRARY_PATH if you chose the SHARED flag during
+compilation. Otherwise, for static build, run as is.
+
+
+On VxWorks:
+you'll have to create the appropriate Images (VxWorks Image Project +
+ROMFS) with the .vxe files that will be created in the bin
+directory. If you chose the SHARED option, you'll also have to create
+a lib directory and copy over the shared library generated during
+compilation. You'll also have to copy libc.so.1 (See VxWorks6.3 manual
+for details)
+
+
+How to set up a server process
+------------------------------
+
+1. Instantiate the SSWGServer class. Pass an argument for the desired
+output level. See the SSWGServer.hh::SSWGCommOutputLevel for possible
+options.
+2. Call the member function acceptConnections with the appropriate
+   port number as the argument
+See TestServer.cc for details of just use the bin/testServer
+
+
+How to setup a client process
+-----------------------------
+
+1. Your class could be a derived from an abstract class called
+SSWGCallbackHandler. An alternative is to create a new class that is
+derived from the Handler.
+2. Provide an implementation of the pure virtual member function
+receivedMessage(.) 
+3. Create an instance of SSWGClient
+4. Call the member function connectToServer with the client name,
+server's IP address, server's port number and "this" as args in that
+order. If you declared a different handler class, pass the adress of
+that derived class instead of "this".
+5. to send messages, call the member function sendMessage with the
+message and the name of the receiver as the arguments. Obviously, you
+need to also set up another client to see the result.
+See TestClient1.cc for more details.
+
+Client API: 
+
+ Class SSWGClient
+
+ SSWGClient(); //constructor
+ bool connectToServer(const std::string& name, const std::string
+                serverIPAdr, int portNum, SSWGCallbackHandler* callBack);
+ bool sendMessage(const std::string& msg, const std::string& recvName);
+
+
+
+Server API:
+
+ Class SSWGServer
+
+ SSWGServer(int echoMessage) // constructor
+ bool acceptConnection(int portNum);
+
+
+Details about the message content
+---------------------------------
+
+The message itself that is being passed between the clients via the
+server is constructed and extracted by the member function provided in
+the class SSWGMessage.hh. A consolidated message has three fields, the
+sender, receiver and the actual message itself all being character
+strings. There is a delimiter character that separates the three
+fields and in addition, there exist a tag tha marks the beginning of
+the consolidated  message and the end of a consolidated message. An
+appropriate choice for the tags and the delimiter can be made in this
+header file. The default is ":" for the delimiter, "<:>" for the start
+tag and "\r\n" (Carriage return Line feed) for the end tag. Therefore
+the consolidated message looks like this;
+
+<:>SenderName:ReceiverName:Message\r\n

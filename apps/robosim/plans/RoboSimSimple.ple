@@ -1,0 +1,62 @@
+
+Integer Function RandomNumber(Integer, Integer);
+
+RootNode:
+{
+  Integer randNumber=0;
+  NodeList:
+
+  MoveRobot:
+  {
+    RepeatCondition: NodeWrapper.outcome == SUCCESS;
+    NodeList:
+
+    NodeWrapper:
+    {
+      Integer randNumberTmp;
+      PostCondition: MoveLeft.outcome == SUCCESS && QueryEnergySensor.outcome == SUCCESS &&
+                     RandomNumberGeneratorNode.outcome == SUCCESS && 
+                     ResetRandomNumber.outcome == SUCCESS;
+      NodeList:
+
+      MoveLeft:
+      {
+        Real res;
+        EndCondition: isKnown(res);
+        PostCondition: res == 1.0;
+//        Command: res = MoveLeft();
+        Command: res = Move(randNumber);
+      }
+
+      QueryEnergySensor:
+      {
+        Real energy[5];
+        StartCondition: MoveLeft.state == FINISHED;
+        Command: energy = QueryEnergySensor();
+      }
+
+/*
+    LookupEnergy:
+    {
+      Real energylevel[5];
+      StartCondition: QueryEnergySensor.state == FINISHED;
+      Assignment: energylevel = LookupNow(QueryEnergySensor);
+    }
+*/
+
+      RandomNumberGeneratorNode:
+      {
+        StartCondition: QueryEnergySensor.state == FINISHED;
+        EndCondition: isKnown(randNumberTmp);
+
+        FunctionCall: randNumberTmp = RandomNumber(0, 3);
+      }
+
+      ResetRandomNumber:
+      {
+        StartCondition: RandomNumberGeneratorNode.state == FINISHED;
+        Assignment: randNumber = randNumberTmp;
+      }
+    }
+  }
+}

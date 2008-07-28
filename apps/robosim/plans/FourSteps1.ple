@@ -1,0 +1,75 @@
+// This is a Plexil plan for the RoboSim application.  It has the robot
+// move one step in each direction.  The plan is successful if and only
+// if the start and end positions of the robot are the same.
+
+// This plan is like the one in FourSteps.ple, but instead uses the
+// parameterized move() function.
+
+FourSteps:
+{
+  Integer StartX, StartY, EndX, EndY;
+  Integer Index = 0; 
+  PostCondition: (StartX == EndX) && (StartY == EndY);
+
+  NodeList:
+    GetStartPosition:
+    {
+      Real RobotState[3];
+      NodeList:
+        GetRobotState:
+        { 
+          EndCondition: isKnown(RobotState[0]);
+          Command: RobotState = QueryRobotState();
+        }
+        SetStartX:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: StartX = RobotState[0];
+        }
+        SetStartY:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: StartY = RobotState[1];
+        }
+     }
+    MoveLoop:
+    {
+      Integer Directions[4] = #(3 0 1 2);
+      StartCondition: GetStartPosition.state == FINISHED;
+      RepeatCondition: Index < 4;
+      NodeList:
+        Move:
+        {
+            Integer result;
+            EndCondition: isKnown(result);
+            PostCondition: result == 1;
+            Command: result = Move(Directions[Index]);
+        }
+        IncrementDirection:
+        {
+          StartCondition: Move.state == FINISHED;
+          Assignment: Index = Index + 1;
+        }
+    }
+    GetEndPosition:
+    {
+      Real RobotState[3];
+      StartCondition: MoveLoop.state == FINISHED;
+      NodeList:
+        GetRobotState:
+        { 
+          EndCondition: isKnown(RobotState[0]);
+          Command: RobotState = QueryRobotState();
+        }
+        SetEndX:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: EndX = RobotState[0];
+        }
+        SetEndY:
+        {
+          StartCondition: GetRobotState.state == FINISHED;
+          Assignment: EndY = RobotState[1];
+        }
+    }
+}
