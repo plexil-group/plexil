@@ -7,7 +7,7 @@ Module PlexilInterface ;
 
 ModuleLibraries PlexilInterface : 
   $(PTHREADS_LIBRARY) $(SEM_LIBRARY)
-  [ FVariantName Exec PlexilUtils PlexilTinyXml Sockets : $(VARIANTS) ]
+  [ FVariantName Exec PlexilUtils PlexilTinyXml : $(VARIANTS) ]
  ;
 
 SubInclude interfaces Common base ;

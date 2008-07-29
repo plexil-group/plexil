@@ -3,6 +3,12 @@ SubDir interfaces LuvListener ;
 
 if ! $(PLEXIL_INTFCS_READY) {
 
+# reference common library directories
+# *** unfortunately the references to relative paths only work
+# when executing in this directory!! ***
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) interfaces lib ] ]
+             ;
+
 Module LuvListener : Sockets ;
 
 ModuleLibraries LuvListener :
