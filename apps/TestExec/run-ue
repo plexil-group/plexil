@@ -29,7 +29,7 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
                      <plan> [<script>] [-l <library>]*"
 
 # Convenient though stylized script for running exec-test-runner_g_rt.
-# Requires environment variable PLEXIL_ROOT to be set to desired working directory,
+# Requires environment variable PLEXIL_HOME to be set to desired working directory,
 # i.e. the directory containing universal-exec, interfaces, and apps directories.
 # An optional environment variable UE_EXECUTABLE names an alternate executable.
 # Other options:
@@ -53,9 +53,9 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 #        apps/TestExec/scripts/empty-script.plx
 
 # Check environment variables and UE executable
-if [ ! $PLEXIL_ROOT ]
+if [ ! $PLEXIL_HOME ]
   then
-    echo Error: Please set environment variable PLEXIL_ROOT
+    echo Error: Please set environment variable PLEXIL_HOME
     echo to the full pathname of the directory containing universal-exec
     exit 1
 fi
@@ -65,7 +65,7 @@ if [ $UE_EXECUTABLE ]
   then
     prog=$UE_EXECUTABLE
   else
-    prog=$PLEXIL_ROOT/apps/TestExec/test-exec_g_rt
+    prog=$PLEXIL_HOME/apps/TestExec/test-exec_g_rt
 fi
 
 # Make sure executable exists.
@@ -152,7 +152,7 @@ if [ ! -e $plan ]
 fi
 
 # Default simulation script
-script="$PLEXIL_ROOT/apps/TestExec/scripts/empty-script.plx"
+script="$PLEXIL_HOME/apps/TestExec/scripts/empty-script.plx"
 
 # The plan file's extension, used to compute guessed script name.
 ext=".`echo $plan | awk -F. '{print $2}'`"
@@ -214,7 +214,7 @@ fi
 # Print summary if desired
 if [ $summary -eq 1 ] 
   then
-    echo Running UE from $PLEXIL_ROOT
+    echo Running UE from $PLEXIL_HOME
     echo "  Plan:      $plan"
     echo "  Script:    $script"
     echo "  Libraries: $*"
@@ -222,7 +222,7 @@ if [ $summary -eq 1 ]
 fi
 
 # Go for it
-export LD_LIBRARY_PATH=${PLEXIL_ROOT}/universal-exec/lib:${PLEXIL_ROOT}/interfaces/lib
-export DYLD_LIBRARY_PATH=${PLEXIL_ROOT}/universal-exec/lib:${PLEXIL_ROOT}/interfaces/lib
+export LD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib
+export DYLD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib
 export DYLD_BIND_AT_LAUNCH=YES
 $prog -p $plan -s $script -d $debug_file $* $viewer $host $port $block

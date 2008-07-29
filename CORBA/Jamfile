@@ -3,22 +3,22 @@ SubDir CORBA ;
 
 if ! $(PLEXIL_CORBA_READY) {
 
-PLEXIL_ROOT = [ FDirName $(CORBA) $(DOTDOT) ] ;
+PLEXIL_HOME = [ FDirName $(CORBA) $(DOTDOT) ] ;
 
-HDRS += [ FDirName $(PLEXIL_ROOT) universal-exec Exec ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec component ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec TinyXml base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils component ]
+HDRS += [ FDirName $(PLEXIL_HOME) universal-exec Exec ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec component ]
+        [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils component ]
         $(ACE_ROOT)
         $(TAO_ROOT)
         $(TAO_ROOT)/orbsvcs ;
 
 # reference common library directories
-LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) universal-exec lib ] 
-                            [ FDirName $(PLEXIL_ROOT) interfaces lib ]
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] 
+                            [ FDirName $(PLEXIL_HOME) interfaces lib ]
                             [ FDirName $(CORBA) lib ]
                             [ FDirName $(ACE_ROOT) lib ]
              ] ;

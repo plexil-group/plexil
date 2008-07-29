@@ -39,20 +39,20 @@ as the location of your installation -- you'll need to customize this.
 Environment variables (csh):
 
 [[code]]
-  (all platforms)  setenv PLEXIL_ROOT /home/fred/plexil
-  (all platforms)  setenv PATH $PLEXIL_ROOT/apps/test-exec:$PATH
-  (non-Mac only)   setenv LD_LIBRARY_PATH $PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$LD_LIBRARY_PATH
-  (Mac only)       setenv DYLD_LIBRARY_PATH $PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$DYLD_LIBRARY_PATH
+  (all platforms)  setenv PLEXIL_HOME /home/fred/plexil
+  (all platforms)  setenv PATH $PLEXIL_HOME/apps/test-exec:$PATH
+  (non-Mac only)   setenv LD_LIBRARY_PATH $PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$LD_LIBRARY_PATH
+  (Mac only)       setenv DYLD_LIBRARY_PATH $PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$DYLD_LIBRARY_PATH
   (Mac only)       setenv DYLD_BIND_AT_LAUNCH 1
 [[code]]
 
 Environment variables (bash):
 
 [[code]]
-  (all platforms)  export PLEXIL_ROOT=universal-exec
-  (all platforms)  export PATH=$PLEXIL_ROOT/Exec/test:$PATH
-  (non-Mac only)   export LD_LIBRARY_PATH=$PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$LD_LIBRARY_PATH
-  (Mac only)       export DYLD_LIBRARY_PATH=$PLEXIL_ROOT/universal-exec/lib:$PLEXIL_ROOT/interfaces/lib:$DYLD_LIBRARY_PATH
+  (all platforms)  export PLEXIL_HOME=universal-exec
+  (all platforms)  export PATH=$PLEXIL_HOME/Exec/test:$PATH
+  (non-Mac only)   export LD_LIBRARY_PATH=$PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$LD_LIBRARY_PATH
+  (Mac only)       export DYLD_LIBRARY_PATH=$PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$DYLD_LIBRARY_PATH
   (Mac only)       export DYLD_BIND_AT_LAUNCH=1
 [[code]]
 

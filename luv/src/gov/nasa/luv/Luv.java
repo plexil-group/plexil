@@ -123,8 +123,8 @@ public class Luv extends JFrame
                   define(PROP_FILE_AUTO_LOAD,    PROP_FILE_AUTO_LOAD_DEF);
                   define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
                   define(PROP_FILE_RECENT_PLAN_DIR,
-                         System.getenv("PLEXIL_ROOT") != null
-                         ? System.getenv("PLEXIL_ROOT") + "/apps/TestExec/plans"
+                         System.getenv("PLEXIL_HOME") != null
+                         ? System.getenv("PLEXIL_HOME") + "/apps/TestExec/plans"
                          : System.getProperty("user.home"));
                   define(PROP_FILE_UELIB,        PROP_FILE_UELIB_DEF);
 
@@ -307,7 +307,7 @@ public class Luv extends JFrame
 
       public static void runExecTest()
       {
-         String plexilRoot = System.getenv().get("PLEXIL_ROOT");
+         String plexilRoot = System.getenv().get("PLEXIL_HOME");
          System.setProperty("java.library.path", 
                             System.getProperty("java.library.path") +
                             ":" + plexilRoot + "universal-exec/lib" +

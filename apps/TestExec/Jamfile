@@ -5,25 +5,25 @@ SubDir apps TestExec ;
 # which doesn't exist
 include Jamrules ;
 
-PLEXIL_ROOT = [ FDirName $(TestExec) $(DOTDOT) $(DOTDOT) ] ;
+PLEXIL_HOME = [ FDirName $(TestExec) $(DOTDOT) $(DOTDOT) ] ;
 
 # reference common library directories
 # *** unfortunately the references to relative paths only work
 # when executing in this directory!! ***
-LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) universal-exec lib ] ]
-             [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) interfaces lib ] ]
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
+             [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lib ] ]
              ;
 
 # point to relevant UE headers
-HDRS += [ FDirName $(PLEXIL_ROOT) universal-exec TinyXml base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils component ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec component ]
-        [ FDirName $(PLEXIL_ROOT) interfaces Sockets base ]
-        [ FDirName $(PLEXIL_ROOT) interfaces LuvListener base ]
+HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils component ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec component ]
+        [ FDirName $(PLEXIL_HOME) interfaces Sockets base ]
+        [ FDirName $(PLEXIL_HOME) interfaces LuvListener base ]
         ;
 
 Module test-exec ;

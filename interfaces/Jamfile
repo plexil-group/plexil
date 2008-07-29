@@ -3,22 +3,22 @@ SubDir interfaces ;
 
 if ! $(PLEXIL_INTFCS_READY) {
 
-PLEXIL_ROOT = [ FDirName $(interfaces) $(DOTDOT) ] ;
+PLEXIL_HOME = [ FDirName $(interfaces) $(DOTDOT) ] ;
 
 # reference common library directories
 # *** unfortunately the references to relative paths only work
 # when executing in this directory!! ***
-LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_ROOT) universal-exec lib ] ]
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
              ;
 
 # point to relevant UE headers
-HDRS += [ FDirName $(PLEXIL_ROOT) universal-exec Exec ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Exec component ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec TinyXml base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils base ]
-        [ FDirName $(PLEXIL_ROOT) universal-exec Utils component ]
+HDRS += [ FDirName $(PLEXIL_HOME) universal-exec Exec ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec component ]
+        [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils component ]
         ;
 
 SubInclude interfaces Common ;

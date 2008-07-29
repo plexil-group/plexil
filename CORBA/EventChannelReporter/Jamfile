@@ -18,8 +18,8 @@ ModuleLibraries EventChannelReporter :
 
 
 local SUBDIRRESET = ;
-SUBDIRHDRS += [ FDirName $(PLEXIL_ROOT) interfaces Common base ]
-              [ FDirName $(PLEXIL_ROOT) CORBA base ] ;
+SUBDIRHDRS += [ FDirName $(PLEXIL_HOME) interfaces Common base ]
+              [ FDirName $(PLEXIL_HOME) CORBA base ] ;
 
 SubInclude CORBA EventChannelReporter base ;
 SubInclude CORBA EventChannelReporter component ;
