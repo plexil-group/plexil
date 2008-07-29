@@ -1,4 +1,3 @@
-
 Integer Function RandomNumber(Integer, Integer);
 
 RootNode:
@@ -14,35 +13,25 @@ RootNode:
     NodeWrapper:
     {
       Integer randNumberTmp;
-      PostCondition: MoveLeft.outcome == SUCCESS && QueryEnergySensor.outcome == SUCCESS &&
+      PostCondition: Move.outcome == SUCCESS && QueryEnergySensor.outcome == SUCCESS &&
                      RandomNumberGeneratorNode.outcome == SUCCESS && 
                      ResetRandomNumber.outcome == SUCCESS;
       NodeList:
 
-      MoveLeft:
+      Move:
       {
         Real res;
         EndCondition: isKnown(res);
         PostCondition: res == 1.0;
-//        Command: res = MoveLeft();
         Command: res = Move(randNumber);
       }
 
       QueryEnergySensor:
       {
         Real energy[5];
-        StartCondition: MoveLeft.state == FINISHED;
+        StartCondition: Move.state == FINISHED;
         Command: energy = QueryEnergySensor();
       }
-
-/*
-    LookupEnergy:
-    {
-      Real energylevel[5];
-      StartCondition: QueryEnergySensor.state == FINISHED;
-      Assignment: energylevel = LookupNow(QueryEnergySensor);
-    }
-*/
 
       RandomNumberGeneratorNode:
       {

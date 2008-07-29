@@ -46,7 +46,7 @@
                                               <AND>
                                                   <EQInternal>
                                                       <NodeOutcomeVariable>
-                                                          <NodeId>MoveLeft</NodeId>
+                                                          <NodeId>Move</NodeId>
                                                       </NodeOutcomeVariable>
                                                       <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                                                   </EQInternal>
@@ -81,7 +81,7 @@
                                                       <Type>Real</Type>
                                                   </DeclareVariable>
                                               </VariableDeclarations>
-                                              <NodeId>MoveLeft</NodeId>
+                                              <NodeId>Move</NodeId>
                                               <EndCondition>
                                                   <IsKnown>
                                                       <RealVariable>res</RealVariable>
@@ -117,7 +117,7 @@
                                               <StartCondition>
                                                   <EQInternal>
                                                       <NodeStateVariable>
-                                                          <NodeId>MoveLeft</NodeId>
+                                                          <NodeId>Move</NodeId>
                                                       </NodeStateVariable>
                                                       <NodeStateValue>FINISHED</NodeStateValue>
                                                   </EQInternal>
