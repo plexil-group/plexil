@@ -36,9 +36,6 @@
 
 namespace PLEXIL {
 
-  // forward declarations
-  class RecursiveThreadMutex;
-
   class ExecListener {
   public:
     ExecListener() : m_id(this) {}
@@ -104,11 +101,6 @@ namespace PLEXIL {
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
      */
     void step();
-
-    /**
-     * @brief Returns true if inside a call to step(), otherwise false.
-     */
-    bool insideStep() { return m_insideStep; }
 
     /**
      * @brief Adds an ExecListener for publication of node transition events.
@@ -212,9 +204,6 @@ namespace PLEXIL {
 											     Essentially, at each quiescence cycle, the first node in each set that isn't already
 											     in state EXECUTING gets added to the end of the queue. */
     std::list<ExecListenerId> m_listeners;
-
-    RecursiveThreadMutex* m_mutex; /*<! Pointer to a mutex to prevent clobbering self */
-    bool m_insideStep; /*<! True when inside step(), false otherwise */
   };
 }
 

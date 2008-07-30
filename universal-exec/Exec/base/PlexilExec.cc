@@ -31,7 +31,6 @@
 #include "ExternalInterface.hh"
 #include "Debug.hh"
 #include "StateCache.hh"
-#include "RecursiveThreadMutex.hh"
 
 #include <map>
 #include <ext/functional>
@@ -60,9 +59,7 @@ namespace PLEXIL {
   PlexilExec::PlexilExec(const PlexilNodeId& plan)
     : m_id(this), m_cycleNum(0), m_queuePos(1),
       m_connector((new RealExecConnector(m_id))->getId()),
-      m_cache((new StateCache())->getId()),
-      m_mutex(new RecursiveThreadMutex()),
-      m_insideStep(false) {
+      m_cache((new StateCache())->getId()) {
     addPlan(plan);
     //is it really this simple?
   }
@@ -70,23 +67,19 @@ namespace PLEXIL {
   PlexilExec::PlexilExec()
     : m_id(this), m_cycleNum(0), m_queuePos(1),
       m_connector((new RealExecConnector(m_id))->getId()),
-      m_cache((new StateCache())->getId()),
-      m_mutex(new RecursiveThreadMutex()),
-      m_insideStep(false)
+      m_cache((new StateCache())->getId())
   {}
 
   PlexilExec::~PlexilExec() {
     for(std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
     delete (StateCache*) m_cache;
-    delete m_mutex;
     m_id.remove();
   }
 
   void PlexilExec::addPlan(const PlexilNodeId& plan, const LabelStr& parent) {
     //currently parent is ignored!
     //not actually quiesceing, but causing the new nodes to look at the current known world state
-    RTMutexGuard guard(*m_mutex);
     m_cache->handleQuiescenceStarted();
     clock_t time1 = clock();
     NodeId root = (new Node(plan, m_connector))->getId();
@@ -278,8 +271,6 @@ namespace PLEXIL {
     //
     // *** BEGIN CRITICAL SECTION ***
     //
-    RTMutexGuard guard(*m_mutex);
-    m_insideStep = true;
     m_cache->handleQuiescenceStarted();
     m_cycleNum++;
 
@@ -365,7 +356,6 @@ namespace PLEXIL {
       debugMsg("PlexilExec:printPlan", std::endl << (*it)->toString());
     }
     m_cache->handleQuiescenceEnded();
-    m_insideStep = false;
     //
     // *** END CRITICAL SECTION ***
     //
