@@ -511,7 +511,7 @@ namespace PLEXIL
 
     enum QueueEntryType
       {
-	queueEntry_UNINIT,
+	queueEntry_EMPTY,
 	queueEntry_MARK,
 	queueEntry_LOOKUP_VALUES,
 	queueEntry_RETURN_VALUE,
@@ -532,26 +532,23 @@ namespace PLEXIL
       void enqueue(PlexilNodeId newPlan, const LabelStr & parent);
       void enqueue(PlexilNodeId newlibraryNode);
 
-      // if the queue is empty, returns true
-      // if the queue is non-empty, extracts the head into the reference variables
-      //  and returns false
-      // N.B. caller must invoke getEntryType() first to determine which variant to call!
-      bool dequeue(ExpressionId & exp, double & newValue);
-      bool dequeue(StateKey & state, std::vector<double> & newValues);
-      bool dequeue(PlexilNodeId & newPlan, LabelStr & parent);
-      bool dequeue(PlexilNodeId & newLibraryNode);
-
-      // Remove queue head and ignore (presumably a mark)
-      void pop();
-
-      // returns entry type of queue head 
-      QueueEntryType getEntryType() const;
+      /**
+       * @brief Atomically check head of queue and dequeue if appropriate
+       * @return Type of entry dequeued; queueEntry_EMPTY and queueEntry_MARK
+       * indicate nothing of interest was dequeued
+       */
+      QueueEntryType dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
+			     ExpressionId& exp, double& newExpValue,
+			     PlexilNodeId& plan, LabelStr& planParent);
 
       // returns true iff the queue is empty
       bool isEmpty() const;
 
       // inserts a marker expression into the queue
       void mark();
+
+      // Remove queue head and ignore (presumably a mark)
+      void pop();
 
     private:
       // deliberately unimplemented
@@ -701,8 +698,8 @@ namespace PLEXIL
     // Thread in which the Exec runs
     pthread_t m_execThread;
 
-    // this is a pointer so lookups can be const
-    RecursiveThreadMutex * m_adaptorMutex;
+    // Serialize execution in processQueue() to guarantee in-order processing of events
+    RecursiveThreadMutex m_processQueueMutex;
 
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;

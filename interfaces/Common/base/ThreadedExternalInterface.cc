@@ -62,7 +62,7 @@ namespace PLEXIL
       AdaptorExecInterface(),
       m_threadedInterfaceId(),
       m_execThread(),
-      m_adaptorMutex(new RecursiveThreadMutex()),
+      m_processQueueMutex(),
       m_sem()
   {
     // cast from subclass
@@ -148,16 +148,20 @@ namespace PLEXIL
 
   void ThreadedExternalInterface::runInternal()
   {
-    debugMsg("ExternalInterface:runInternal", " Starting the thread loop.");
+    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Starting thread");
     // must step exec once to initialize time
     m_exec->step();
+    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Initial step complete");
     while (this->waitForExternalEvent())
       {
-	if (this->processQueue())
-          m_exec->step();
-        debugMsg("ExternalInterface:runInternal", " Step complete and no events are pending");
+	while (this->processQueue())
+	  {
+	    m_exec->step();
+	    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Step complete");
+	  }
+	debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") No events are pending");
       }
-    debugMsg("ExternalInterface:runInternal", " Ending the thread loop.");
+    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
   }
 
   //
@@ -205,33 +209,45 @@ namespace PLEXIL
   /**
    * @brief Updates the state cache from the items in the queue.
    * @return True if the Exec needs to be stepped, false otherwise.
+   * @note Mutex ensures that only one thread at a time can be emptying the queue
+   * so that events are always processed in order
    */
   bool ThreadedExternalInterface::processQueue()
   {
-    debugMsg("ExternalInterface:processQueue", " entered");
-    if (m_valueQueue.isEmpty())
+    RTMutexGuard guard(m_processQueueMutex);
+    debugMsg("ExternalInterface:processQueue",
+	     " (" << pthread_self() << ") entered");
+
+    // *** TODO:
+    //  - Potential optimization (?): these could be static... or instance
+    StateKey stateKey;
+    std::vector<double> newStateValues;
+    ExpressionId exp;
+    double newExpValue;
+    PlexilNodeId plan;
+    LabelStr parent;
+
+    QueueEntryType typ = m_valueQueue.dequeue(stateKey, newStateValues,
+					      exp, newExpValue,
+					      plan, parent);
+    if (typ == queueEntry_EMPTY)
       {
-        debugMsg("ExternalInterface:processQueue", " queue is empty at entry, returning false");
-        return false;
+	debugMsg("ExternalInterface:processQueue",
+		 " (" << pthread_self() << ") queue empty at entry, returning 0");
+	return false;
       }
 
-    // there is at least one item in the queue
+    // At least one entry in queue
     bool needsStep = false;
-    debugMsg("ExternalInterface:processQueue", " queue is non-empty at entry");
     m_valueQueue.mark(); // in case events come in while we are processing
-    bool isEmpty = m_valueQueue.isEmpty();
-    while (!isEmpty)
+
+    while (typ != queueEntry_EMPTY)
       {
-	QueueEntryType typ = m_valueQueue.getEntryType();
 	switch (typ)
 	  {
 	  case queueEntry_LOOKUP_VALUES:
 	    // State -- update all listeners
 	    {
-	      StateKey stateKey;
-	      std::vector<double> newValues;
-	      m_valueQueue.dequeue(stateKey, newValues);
-
 	      // state for debugging only
 	      State state;
 	      bool stateFound =
@@ -239,15 +255,17 @@ namespace PLEXIL
 	      if (stateFound)
 		{
 		  debugMsg("ExternalInterface:processQueue",
-			   " Handling state change for '"
+			   " (" << pthread_self()
+			   << ") Handling state change for '"
 			   << getText(state)
-			   << "', " << newValues.size()
+			   << "', " << newStateValues.size()
 			   << " new value(s)");
 
-		  if (newValues.size() == 0)
+		  if (newStateValues.size() == 0)
 		    {
 		      debugMsg("ExternalInterface:processQueue",
-			       " Ignoring empty state change vector for '"
+			       "(" << pthread_self()
+			       << ") Ignoring empty state change vector for '"
 			       << getText(state)
 			       << "'");
 		      break;
@@ -256,27 +274,29 @@ namespace PLEXIL
 		  // If this is a time state update message, check if it's stale
 		  if (stateKey == m_exec->getStateCache()->getTimeStateKey())
 		    {
-		      if (newValues[0] <= m_currentTime)
+		      if (newStateValues[0] <= m_currentTime)
 			{
 			  debugMsg("ExternalInterface:processQueue",
-				   " Ignoring stale time update - new value "
-				   << newValues[0] << " is not greater than cached value "
+				   " (" << pthread_self()
+				   << ") Ignoring stale time update - new value "
+				   << newStateValues[0] << " is not greater than cached value "
 				   << m_currentTime);
 			}
 		      else
 			{
 			  debugMsg("ExternalInterface:processQueue",
-				   " setting current time to "
-				   << valueToString(newValues[0]));
-			  m_currentTime = newValues[0];
-			  m_exec->getStateCache()->updateState(stateKey, newValues);
+				   " (" << pthread_self()
+				   << ") setting current time to "
+				   << valueToString(newStateValues[0]));
+			  m_currentTime = newStateValues[0];
+			  m_exec->getStateCache()->updateState(stateKey, newStateValues);
                           needsStep = true;
 			}
 		    }
 		  else
 		    {
 		      // General case, update state cache
-		      m_exec->getStateCache()->updateState(stateKey, newValues);
+		      m_exec->getStateCache()->updateState(stateKey, newStateValues);
                       needsStep = true;
 		    }
 		}
@@ -284,7 +304,8 @@ namespace PLEXIL
 		{
 		  // State not found -- possibly stale update
 		  debugMsg("ExternalInterface:processQueue", 
-			   " ignoring lookup for nonexistent state, key = "
+			   " (" << pthread_self()
+			   << ") ignoring lookup for nonexistent state, key = "
 			   << stateKey);
 		}
 	      break;
@@ -292,54 +313,42 @@ namespace PLEXIL
 
 	  case queueEntry_RETURN_VALUE:
 	    // Expression -- update the expression only
-	    {
-	      ExpressionId exp;
-	      double newValue;
-	      m_valueQueue.dequeue(exp, newValue);
-	      debugMsg("ExternalInterface:processQueue",
-		       " Updating expression " << exp
-		       << ", new value is '" << valueToString(newValue) << "'");
-              this->releaseResourcesAtCommandTermination(exp);
-	      exp->setValue(newValue);
-              needsStep = true;
-	      break;
-	    }
+	    debugMsg("ExternalInterface:processQueue",
+		     " (" << pthread_self()
+		     << ") Updating expression " << exp
+		     << ", new value is '" << valueToString(newExpValue) << "'");
+	    this->releaseResourcesAtCommandTermination(exp);
+	    exp->setValue(newExpValue);
+	    needsStep = true;
+	    break;
 
 	  case queueEntry_PLAN:
 	    // Plan -- add the plan
-	    {
-	      PlexilNodeId plan;
-	      LabelStr parent;
-	      m_valueQueue.dequeue(plan, parent);
+	    debugMsg("ExternalInterface:processQueue",
+		     " (" << pthread_self() << ") Received plan");
+	    // link against known libraries
+	    plan->link(m_libraries);
 
-              // link against known libraries
-              plan->link(m_libraries);
-
-	      // add it
-	      getExec()->addPlan(plan, parent);
-              needsStep = true;
-	      break;
-	    }
+	    // add it
+	    getExec()->addPlan(plan, parent);
+	    needsStep = true;
 	    break;
 
 	  case queueEntry_LIBRARY:
 	    // Library -- add the plan to the library vector
-	    {
-	      PlexilNodeId libNode;
-	      m_valueQueue.dequeue(libNode);
 
-              // *** TODO: check here for duplicates ***
-
-	      // add it
-	      m_libraries.push_back(libNode);
-              // no need to step here
-	      break;
-	    }
+	    debugMsg("ExternalInterface:processQueue",
+		     " (" << pthread_self() << ") Received library");
+	    // *** TODO: check here for duplicates ***
+	    // add it
+	    m_libraries.push_back(plan);
+	    // no need to step here
 	    break;
 
 	  case queueEntry_MARK:
-	    // pop the head of the queue
-	    m_valueQueue.pop();
+	    // *** Should this case cause loop to exit? ***
+	    debugMsg("ExternalInterface:processQueue",
+		     " (" << pthread_self() << ") Received mark");
 	    break;
 
 	  default:
@@ -349,8 +358,13 @@ namespace PLEXIL
 		       << typ);
 	    break;
 	  }
-	isEmpty = m_valueQueue.isEmpty();
+
+	// get next entry
+	typ = m_valueQueue.dequeue(stateKey, newStateValues,
+				   exp, newExpValue,
+				   plan, parent);
       }
+    debugMsg("ExternalInterface:processQueue", " (" << pthread_self() << ") returning " << needsStep);
     return needsStep;
   }
 
@@ -1207,12 +1221,34 @@ namespace PLEXIL
   void
   ThreadedExternalInterface::notifyOfExternalEvent()
   {
-    debugMsg("ExternalInterface:notify", " received external event");
-    int status = m_sem.post();
-    checkError(status == 0,
-	       "notifyOfExternalEvent: semaphore post failed, status = "
-	       << status);
-    debugMsg("ExternalInterface:notify", " released semaphore");
+    debugMsg("ExternalInterface:notify",
+	     " (" << pthread_self() << ") received external event");
+    if (m_exec->insideStep())
+      {
+	// Either called from inside PlexilExec::step(),
+	// therefore no chance of race condition,
+	// or some other thread currently has control,
+	// meaning slight possibility of race condition.
+	// In event of race condition, waiting exec thread will catch the post,
+	// so harmless.
+	int status = m_sem.post();
+	checkError(status == 0,
+		   "notifyOfExternalEvent: semaphore post failed, status = "
+		   << status);
+	debugMsg("ExternalInterface:notify",
+		 " (" << pthread_self() << ") released semaphore");
+      }
+    else
+      {
+	debugMsg("ExternalInterface:notify",
+		 " (" << pthread_self() << ") stepping exec");
+	while (this->processQueue())
+	  {
+	    m_exec->step();
+	    debugMsg("ExternalInterface:notify",
+		     " (" << pthread_self() << ") Step complete");
+	  }
+      }
   }
 
   //
@@ -1347,95 +1383,52 @@ namespace PLEXIL
     m_queue.push(QueueEntry(newLibraryNode, EMPTY_LABEL(), queueEntry_LIBRARY));
   }
 
-  bool ThreadedExternalInterface::ValueQueue::dequeue(ExpressionId & exp,
-						      double & newValue)
+  ThreadedExternalInterface::QueueEntryType
+  ThreadedExternalInterface::ValueQueue::dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
+						 ExpressionId& exp, double& newExpValue,
+						 PlexilNodeId& plan, LabelStr& planParent)
   {
     RTMutexGuard guard(*m_mutex);
-
     if (m_queue.empty())
-      return true;
-
+      return queueEntry_EMPTY;
     QueueEntry e = m_queue.front();
+    switch (e.type)
+      {
+      case queueEntry_MARK: // do nothing
+	break;
+      case queueEntry_LOOKUP_VALUES:
+	stateKey = e.stateKey;
+	newStateValues = e.values;
+	break;
 
-    checkError(e.type == queueEntry_RETURN_VALUE,
-	       "ExternalInterface::dequeue: Not a return value entry");
-    checkError(e.values.size() == 1,
-	       "ExternalInterface::dequeue: Invalid number of values for return value entry");
+      case queueEntry_RETURN_VALUE:
+	checkError(e.values.size() == 1,
+		   "ExternalInterface::dequeue: Invalid number of values for return value entry");
+	exp = e.expression;
+	newExpValue = e.values[0];
+	break;
 
+      case queueEntry_PLAN:
+	planParent = e.parent;
+	// fall thru to library case
+
+      case queueEntry_LIBRARY:
+	plan = e.plan;
+	break;
+
+      default:
+	checkError(ALWAYS_FAIL,
+		   "ExternalInterface::dequeue: Invalid queue entry");
+	break;
+      }
     m_queue.pop();
-    exp = e.expression;
-    newValue = e.values[0];
-    return false;
-  }
-
-  bool ThreadedExternalInterface::ValueQueue::dequeue(StateKey & stateKey,
-						      std::vector<double> & newValues)
-  {
-    RTMutexGuard guard(*m_mutex);
-
-    if (m_queue.empty())
-      return true;
-
-    QueueEntry e = m_queue.front();
-
-    checkError(e.type == queueEntry_LOOKUP_VALUES,
-	       "ExternalInterface::dequeue: Not a lookup value entry");
-
-    m_queue.pop();
-    stateKey = e.stateKey;
-    newValues = e.values;
-    return false;
-  }
-
-  bool ThreadedExternalInterface::ValueQueue::dequeue(PlexilNodeId & newPlan,
-						      LabelStr & parent)
-  {
-    RTMutexGuard guard(*m_mutex);
-
-    if (m_queue.empty())
-      return true;
-
-    QueueEntry e = m_queue.front();
-
-    checkError(e.type == queueEntry_PLAN,
-	       "ExternalInterface::dequeue: Not a plan entry");
- 
-    m_queue.pop();
-    newPlan = e.plan;
-    parent = e.parent;
-    return false;
-  }
-
-  bool ThreadedExternalInterface::ValueQueue::dequeue(PlexilNodeId & newLibraryNode)
-  {
-    RTMutexGuard guard(*m_mutex);
-
-    if (m_queue.empty())
-      return true;
-
-    QueueEntry e = m_queue.front();
-
-    checkError(e.type == queueEntry_LIBRARY,
-	       "ExternalInterface::dequeue: Not a plan entry");
- 
-    m_queue.pop();
-    newLibraryNode = e.plan;
-    return false;
+    return e.type;
   }
 
   void ThreadedExternalInterface::ValueQueue::pop()
   {
-    m_queue.pop();
-  }
-
-  ThreadedExternalInterface::QueueEntryType
-  ThreadedExternalInterface::ValueQueue::getEntryType() const
-  {
     RTMutexGuard guard(*m_mutex);
-    checkError(!m_queue.empty(),
-	       "getEntryType: queue is empty");
-    QueueEntry e = m_queue.front();
-    return e.type;
+    m_queue.pop();
   }
 
   bool ThreadedExternalInterface::ValueQueue::isEmpty() const

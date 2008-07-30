@@ -36,6 +36,9 @@
 
 namespace PLEXIL {
 
+  // forward declarations
+  class RecursiveThreadMutex;
+
   class ExecListener {
   public:
     ExecListener() : m_id(this) {}
@@ -103,6 +106,11 @@ namespace PLEXIL {
     void step();
 
     /**
+     * @brief Returns true if inside a call to step(), otherwise false.
+     */
+    bool insideStep() { return m_insideStep; }
+
+    /**
      * @brief Adds an ExecListener for publication of node transition events.
      */
     void addListener(const ExecListenerId& listener);
@@ -140,7 +148,8 @@ namespace PLEXIL {
 
     /**
      * @brief Resolve conflicts among potentially executing assignment variables (in the future, this will also handle
-     * command conflicts).  The current implementation is wrong.  Assignment nodes that are eligible for execution should
+     * command conflicts). 
+     * @note The current implementation is wrong.  Assignment nodes that are eligible for execution should
      * not be added to the state change queue, and when a macro step begins, the system should take the first non-executing
      * node from each conflict list (the lists are ordered by priority) and add it to the end of the queue.
      */
@@ -203,6 +212,9 @@ namespace PLEXIL {
 											     Essentially, at each quiescence cycle, the first node in each set that isn't already
 											     in state EXECUTING gets added to the end of the queue. */
     std::list<ExecListenerId> m_listeners;
+
+    RecursiveThreadMutex* m_mutex; /*<! Pointer to a mutex to prevent clobbering self */
+    bool m_insideStep; /*<! True when inside step(), false otherwise */
   };
 }
 
