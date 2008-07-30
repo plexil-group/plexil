@@ -99,24 +99,16 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Suspends the calling thread until another thread has
-              placed a call to notifyOfExternalEvent().  Can return
-              immediately if there has been an external event since
-              the previous call.
-     * @return true if resumed normally, false if system error (e.g. termination).
+     * @brief Run the exec until the queue is empty.
+     * @param stepFirst True if the exec should be stepped before checking the queue.
+     * @note Acquires m_execMutex and holds until done.
      */
-    bool waitForExternalEvent();
+    void runExec(bool stepFirst = false);
     
     /**
      * @brief Delete any entries in the queue.
      */
     void resetQueue();
-    
-    /**
-     * @brief Updates the state cache from the items in the queue.
-     * @return True if the exec needs to be stepped, false otherwise.
-     */
-    bool processQueue();
 
     /**
      * @brief Register a change lookup on a new state, expecting values back.
@@ -497,6 +489,22 @@ namespace PLEXIL
      */
     void releaseResourcesAtCommandTermination(ExpressionId ackOrDest);
 
+    /**
+     * @brief Suspends the calling thread until another thread has
+              placed a call to notifyOfExternalEvent().  Can return
+              immediately if there has been an external event since
+              the previous call.
+     * @return true if resumed normally, false if system error (e.g. termination).
+     */
+    bool waitForExternalEvent();
+    
+    /**
+     * @brief Updates the state cache from the items in the queue.
+     * @return True if the exec needs to be stepped, false otherwise.
+     * @note Should only be called with m_execMutex held by the current thread.
+     */
+    bool processQueue();
+
     //
     // Internal types and classes
     //
@@ -698,8 +706,8 @@ namespace PLEXIL
     // Thread in which the Exec runs
     pthread_t m_execThread;
 
-    // Serialize execution in processQueue() to guarantee in-order processing of events
-    RecursiveThreadMutex m_processQueueMutex;
+    // Serialize execution in exec to guarantee in-order processing of events
+    RecursiveThreadMutex m_execMutex;
 
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;

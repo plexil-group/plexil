@@ -62,7 +62,7 @@ namespace PLEXIL
       AdaptorExecInterface(),
       m_threadedInterfaceId(),
       m_execThread(),
-      m_processQueueMutex(),
+      m_execMutex(),
       m_sem()
   {
     // cast from subclass
@@ -148,18 +148,15 @@ namespace PLEXIL
 
   void ThreadedExternalInterface::runInternal()
   {
-    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Starting thread");
+    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Thread started");
+
     // must step exec once to initialize time
-    m_exec->step();
+    this->runExec(true);
     debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Initial step complete");
+
     while (this->waitForExternalEvent())
       {
-	while (this->processQueue())
-	  {
-	    m_exec->step();
-	    debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Step complete");
-	  }
-	debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") No events are pending");
+	this->runExec(false);
       }
     debugMsg("ExternalInterface:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
   }
@@ -167,6 +164,32 @@ namespace PLEXIL
   //
   // API for exec
   //
+
+  /**
+   * @brief Run the exec until the queue is empty.
+   * @param stepFirst True if the exec should be stepped before checking the queue.
+   * @note Acquires m_execMutex and holds until done.  
+   * @note This should be the only method that acquires m_execMutex.
+   */
+
+  void
+  ThreadedExternalInterface::runExec(bool stepFirst)
+  {
+    RTMutexGuard guard(m_execMutex);
+    if (stepFirst)
+      {
+	debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") Stepping exec");
+	m_exec->step();
+	debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") Step complete");
+      }
+    while (this->processQueue())
+      {
+	debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") Stepping exec");
+	m_exec->step();
+	debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") Step complete");
+      }
+    debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") No events are pending");
+  }
 
   /**
    * @brief Suspends the calling thread until another thread has
@@ -209,42 +232,53 @@ namespace PLEXIL
   /**
    * @brief Updates the state cache from the items in the queue.
    * @return True if the Exec needs to be stepped, false otherwise.
-   * @note Mutex ensures that only one thread at a time can be emptying the queue
-   * so that events are always processed in order
+   * @note Should only be called with m_execMutex held by the current thread
    */
   bool ThreadedExternalInterface::processQueue()
   {
-    RTMutexGuard guard(m_processQueueMutex);
     debugMsg("ExternalInterface:processQueue",
 	     " (" << pthread_self() << ") entered");
 
-    // *** TODO:
-    //  - Potential optimization (?): these could be static... or instance
+    // Potential optimization (?): these could be static... or instance
     StateKey stateKey;
     std::vector<double> newStateValues;
     ExpressionId exp;
     double newExpValue;
     PlexilNodeId plan;
     LabelStr parent;
+    QueueEntryType typ;
 
-    QueueEntryType typ = m_valueQueue.dequeue(stateKey, newStateValues,
-					      exp, newExpValue,
-					      plan, parent);
-    if (typ == queueEntry_EMPTY)
+    bool firstTime = true;
+
+    while (true)
       {
+	// get next entry
 	debugMsg("ExternalInterface:processQueue",
-		 " (" << pthread_self() << ") queue empty at entry, returning 0");
-	return false;
-      }
-
-    // At least one entry in queue
-    bool needsStep = false;
-    m_valueQueue.mark(); // in case events come in while we are processing
-
-    while (typ != queueEntry_EMPTY)
-      {
+		 " (" << pthread_self() << ") getting next entry");
+	typ = m_valueQueue.dequeue(stateKey, newStateValues,
+				   exp, newExpValue,
+				   plan, parent);
 	switch (typ)
 	  {
+	  case queueEntry_EMPTY:
+	    if (firstTime)
+	      {
+		debugMsg("ExternalInterface:processQueue",
+			 " (" << pthread_self() << ") queue empty at entry, returning false");
+		return false;
+	      }
+	    debugMsg("ExternalInterface:processQueue",
+		     " (" << pthread_self() << ") reached end of queue without finding mark, returning true");
+	    return true;
+	    break;
+
+	  case queueEntry_MARK:
+	    // Exit loop now, whether or not queue is empty
+	    debugMsg("ExternalInterface:processQueue",
+		     " (" << pthread_self() << ") Received mark, returning true");
+	    return true;
+	    break;
+
 	  case queueEntry_LOOKUP_VALUES:
 	    // State -- update all listeners
 	    {
@@ -290,14 +324,12 @@ namespace PLEXIL
 				   << valueToString(newStateValues[0]));
 			  m_currentTime = newStateValues[0];
 			  m_exec->getStateCache()->updateState(stateKey, newStateValues);
-                          needsStep = true;
 			}
 		    }
 		  else
 		    {
 		      // General case, update state cache
 		      m_exec->getStateCache()->updateState(stateKey, newStateValues);
-                      needsStep = true;
 		    }
 		}
 	      else
@@ -319,7 +351,6 @@ namespace PLEXIL
 		     << ", new value is '" << valueToString(newExpValue) << "'");
 	    this->releaseResourcesAtCommandTermination(exp);
 	    exp->setValue(newExpValue);
-	    needsStep = true;
 	    break;
 
 	  case queueEntry_PLAN:
@@ -331,7 +362,6 @@ namespace PLEXIL
 
 	    // add it
 	    getExec()->addPlan(plan, parent);
-	    needsStep = true;
 	    break;
 
 	  case queueEntry_LIBRARY:
@@ -345,12 +375,6 @@ namespace PLEXIL
 	    // no need to step here
 	    break;
 
-	  case queueEntry_MARK:
-	    // *** Should this case cause loop to exit? ***
-	    debugMsg("ExternalInterface:processQueue",
-		     " (" << pthread_self() << ") Received mark");
-	    break;
-
 	  default:
 	    // error
 	    checkError(ALWAYS_FAIL,
@@ -359,13 +383,8 @@ namespace PLEXIL
 	    break;
 	  }
 
-	// get next entry
-	typ = m_valueQueue.dequeue(stateKey, newStateValues,
-				   exp, newExpValue,
-				   plan, parent);
+	firstTime = false;
       }
-    debugMsg("ExternalInterface:processQueue", " (" << pthread_self() << ") returning " << needsStep);
-    return needsStep;
   }
 
   /**
@@ -1223,14 +1242,19 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:notify",
 	     " (" << pthread_self() << ") received external event");
-    if (m_exec->insideStep())
+    m_valueQueue.mark();
+    if (m_execMutex.isLockedByCurrentThread())
       {
-	// Either called from inside PlexilExec::step(),
-	// therefore no chance of race condition,
-	// or some other thread currently has control,
-	// meaning slight possibility of race condition.
-	// In event of race condition, waiting exec thread will catch the post,
-	// so harmless.
+	// Called from inside runExec(), e.g. from within executeCommand()
+	// runExec() will notice the event at the end of the current step.
+	debugMsg("ExternalInterface:notify",
+		 " (" << pthread_self() << ") inside runExec, ignoring event");
+      }
+    else if (m_execMutex.isLocked())
+      {
+	// Some other thread currently owns the exec.
+	// runExec() could notice, or not.
+	// Post to semaphore to ensure event is not lost.
 	int status = m_sem.post();
 	checkError(status == 0,
 		   "notifyOfExternalEvent: semaphore post failed, status = "
@@ -1240,14 +1264,11 @@ namespace PLEXIL
       }
     else
       {
+	// Exec is idle, so run it
+	// If another thread grabs it first, no worries.
 	debugMsg("ExternalInterface:notify",
-		 " (" << pthread_self() << ") stepping exec");
-	while (this->processQueue())
-	  {
-	    m_exec->step();
-	    debugMsg("ExternalInterface:notify",
-		     " (" << pthread_self() << ") Step complete");
-	  }
+		 " (" << pthread_self() << ") exec was idle, stepping it");
+	this->runExec();
       }
   }
 
@@ -1396,6 +1417,7 @@ namespace PLEXIL
       {
       case queueEntry_MARK: // do nothing
 	break;
+
       case queueEntry_LOOKUP_VALUES:
 	stateKey = e.stateKey;
 	newStateValues = e.values;
