@@ -36,15 +36,49 @@
 
 namespace PLEXIL
 {
+  /**
+   * @brief Implements a portable mutex which supports multiple symmetrical lock/unlock calls by the same thread.
+   */
+
   class RecursiveThreadMutex
   {
   public:
     RecursiveThreadMutex();
 
+    /**
+     * @brief Locks the mutex.  
+     * If the lock is available, sets lock count to 1.
+     * If already locked by this thread, increments the lock count.
+     * If locked by another thread, waits until that thread has unlocked.
+     */
     void lock();
+
+    /**
+     * @brief Unlocks the mutex.
+     * Actually decrements the lock count.  When the count reaches 0, the mutex is unlocked.
+     * If locked by another thread, signals an error.
+     */
     void unlock();
 
+    /**
+     * @brief Returns true if the mutex is locked by any thread.
+     */
+    inline bool isLocked()
+    {
+      return m_lockCount != 0;
+    }
+
+    /**
+     * @brief Returns true if the mutex is locked by the current thread.
+     */
+    inline bool isLockedByCurrentThread()
+    {
+      return pthread_equal(m_lockingThread, pthread_self());
+    }
+    
   private:
+
+    // deliberately unimplemented
     RecursiveThreadMutex( const RecursiveThreadMutex& );
     const RecursiveThreadMutex& operator=( const RecursiveThreadMutex& );
 
