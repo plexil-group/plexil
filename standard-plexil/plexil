@@ -25,7 +25,15 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-. plexil-setup.sh
+# Check environment variables and UE executable
+if [ ! $PLEXIL_HOME ]
+  then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    exit 1
+fi
+
+. $PLEXIL_HOME/bin/plexil-setup.sh
 
 MYDIR=$PLEXIL_HOME/standard-plexil
 
