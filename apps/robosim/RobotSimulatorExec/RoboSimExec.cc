@@ -163,8 +163,7 @@ int main (int argc, char** argv)
    }
 
    // execute plan
-   std::cout << "Stepping the exec" << std::endl;
-   exec->step();
+   std::cout << "Starting the exec" << std::endl;
    _plxl_interface.run();
 
    // clean up
