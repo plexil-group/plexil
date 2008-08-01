@@ -29,6 +29,7 @@ package gov.nasa.luv;
 import java.util.Vector;
 
 import java.lang.Runtime;
+import static java.lang.System.*;
 
 import java.io.File;
 import java.io.InputStream;
@@ -56,9 +57,10 @@ public class ExecExec
        * @param script the script to run against the plan
        */
 
-      public ExecExec(File ue, File ueLib, File plan, File script)
+      public ExecExec(File ue, File ueLib, File debug, File plan, File script, 
+              boolean allowBreaks, boolean allowDebug)
       {
-         this(ue, ueLib, plan, script, null);
+         this(ue, ueLib, debug, plan, script, null, allowBreaks, allowDebug);
       }
 
       /** Construct a UE executor instance.
@@ -70,14 +72,39 @@ public class ExecExec
        */
 
       public ExecExec(File ue, final File ueLib, 
-                      File plan, File script, File[] libraries)
+                      File debug, File plan, File script, File[] libraries, 
+                      boolean allowBreaks, boolean allowDebug)
       {
-         // construct set of arguments which form the exec call
-
          final Vector<String> args = new Vector<String>();
          args.add(ue.toString());
-         args.add("-p"); args.add(plan.toString());
-         args.add("-s"); args.add(script.toString());
+
+         args.add("-v");
+         
+         if (allowBreaks)
+             args.add("-b");
+         
+         if (allowDebug)
+         {
+             args.add("-d"); args.add(debug.toString());
+         }
+         
+         args.add("-p"); 
+         args.add(plan.toString());
+         args.add("-s"); 
+         args.add(script.toString());
+
+         
+         Vector<String> libNames = Luv.getLuv().model.getLibraryNames();
+         
+         if (libNames.size() > 0)
+         {
+             for (String libName : libNames)
+             {
+                 args.add("-l"); 
+                 args.add(libName.toString());
+             }
+         }
+         
          if (libraries != null) 
             for (File library: libraries)
             {
@@ -95,15 +122,14 @@ public class ExecExec
                      {
                         Runtime runtime = Runtime.getRuntime();
                         running = true;
-                        runtime.loadLibrary(ueLib.toString());
-                        ueProcess = runtime
-                           .exec(args.toArray(new String[args.size()]));
-                        ueProcess.waitFor();
+                        //runtime.loadLibrary(ueLib.toString());
+                        ueProcess = runtime.exec(args.toArray(new String[args.size()]));
+                        //ueProcess.waitFor(); //removed this bc it wasnt allowing for breakpoints
                         running = false;
                      }
                      catch (Exception e)
                      {
-                        e.printStackTrace();
+                         out.println(e.getMessage());
                      }
                   }
             };
@@ -123,6 +149,7 @@ public class ExecExec
             
             while (ueProcess == null)
                Thread.sleep(10);
+            
          }
          catch (Exception e)
          {

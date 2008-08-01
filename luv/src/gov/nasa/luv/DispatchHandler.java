@@ -66,8 +66,7 @@ public class DispatchHandler extends DefaultHandler
           registerHandler(new StateUpdateHandler(model));
       }
 
-      /** Add a new handler to the set of available handlers to
-       * dispatch.
+      /** Add a new handler to the set of available handlers to dispatch.
        *
        * @param handler hander to add to the set available handers to dispatch.
        */

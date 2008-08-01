@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
@@ -73,6 +75,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import javax.swing.JCheckBox;
+import javax.swing.JButton;
+import javax.swing.Action;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -119,14 +128,21 @@ public class Luv extends JFrame
 
       Properties properties = new Properties(PROPERTIES_FILE_LOCATION)
          {
-               {
+               {                  
                   define(PROP_FILE_AUTO_LOAD,    PROP_FILE_AUTO_LOAD_DEF);
                   define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
+                  
                   define(PROP_FILE_RECENT_PLAN_DIR,
-                         System.getenv("PLEXIL_HOME") != null
-                         ? System.getenv("PLEXIL_HOME") + "/apps/TestExec/plans"
-                         : System.getProperty("user.home"));
-                  define(PROP_FILE_UELIB,        PROP_FILE_UELIB_DEF);
+                         System.getenv(PROP_PLEXIL_HOME) != null
+                         ? System.getenv(PROP_RECENT_FILES) + "/plans"
+                         : System.getProperty(PROP_RECENT_FILES));
+                  
+                  define(PROP_FILE_RECENT_SCRIPT_DIR,
+                         System.getenv(PROP_PLEXIL_HOME) != null
+                         ? System.getenv(PROP_RECENT_FILES) + "/scripts"
+                         : System.getProperty(PROP_RECENT_FILES));
+
+                  //define(PROP_FILE_UELIB,        PROP_FILE_UELIB_DEF);
 
                   define(PROP_WIN_LOC,  PROP_WIN_LOC_DEF);
                   define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);
@@ -146,6 +162,11 @@ public class Luv extends JFrame
                          PROP_VIEW_HIDE_PLEXILLISP_DEF);
                }
          };
+         
+      public static boolean allowBreaks, allowDebug, pauseAtStart, executedViaLuvViewer = false;
+      public static File debug, plan, script;
+      public static FileWriter emptyScript;
+      public static String planName, scriptName = "";
 
       /** current view */
 
@@ -221,8 +242,13 @@ public class Luv extends JFrame
                               // allow files with correct extention
                               
                               String extension = getExtension(f);
-                              return (extension != null && 
-                                      extension.equals(FILE_EXTENSION));
+                              Boolean correctExtension = false;
+                              if (extension != null)
+                                  if (extension.equals(XML_EXTENSION) || 
+                                      extension.equals(PLX_EXTENSION))
+                                      correctExtension = true;
+                              
+                              return correctExtension;
                            }
 
                            // get file extension
@@ -243,7 +269,7 @@ public class Luv extends JFrame
                            
                            public String getDescription()
                            {
-                              return "XML Files (.xml)";
+                              return "XML Files (.xml) / PLX Files (.plx)";
                            }
                      });
                }
@@ -304,32 +330,91 @@ public class Luv extends JFrame
             e.printStackTrace();
          }
       }
+      
+      /** Locates or Creates the appropriate script file.
+       *
+       * @param scriptName string that represents the script filename
+       * @param planName string that represents the plan filename
+       * @param path string that represents the absolute path to where scripts are located
+       */
 
-      public static void runExecTest()
+      public void findScriptOrCreateEmptyOne(String scriptName, String planName, String path) throws IOException 
       {
-         String plexilRoot = System.getenv().get("PLEXIL_HOME");
-         System.setProperty("java.library.path", 
-                            System.getProperty("java.library.path") +
-                            ":" + plexilRoot + "universal-exec/lib" +
-			    ":" + plexilRoot + "interfaces/lib");
-         String ueTest = plexilRoot + "/apps/TestExec";
-         ExecExec ee = new ExecExec(
-            new File(ueTest + "/test-exec_g_rt"),
-            new File(PROP_FILE_UELIB_DEF),
-            //new File(plexilRoot + "/lib/libExec_g.dylib"),
-            new File(ueTest + "/plans/array1.xml"),
-            new File(ueTest + "/scripts/array1-script.xml"));
+          try 
+          {
+              //PLAN_script.plx
+              String name1 = planName + "_script";
+              script = new File(path + name1);
+              if (!script.canRead())
+              {
+                  //script-PLAN.plx
+                  String name2 = "script-" + planName;
+                  script = new File(path + name2);
+                  if (!script.canRead())
+                  {
+                      //script_PLAN.plx
+                      String name3 = "script_" + planName;
+                      script = new File(path + name3);
+                      if (!script.canRead())
+                      {
+                          script = new File(path + "default-empty-script.plx");
+                          if (!script.canRead())
+                          {
+                              //must create an empty script
+                              scriptName = path + "default-empty-script.plx";
+                              emptyScript = new FileWriter(scriptName);
+                              BufferedWriter out = new BufferedWriter(emptyScript);
+                              out.write(EMPTY_SCRIPT);
+                              out.close();                          
+                              script = new File(scriptName);
+                          }
+                      }
+                  }
+              }
+          }
+          catch (Exception e)
+          {
+            out.println("Error: " + e.getMessage());
+          }    
+      }
+      
+      public void runExecTest() throws IOException
+      {                    
+         File exec = new File(PROP_UE_EXEC);
+        // File lib = new File(PROP_FILE_UELIB_DEF);
 
+         while (model.getPlanName() == null && plan == null)
+             choosePlan();
+    
+         if (model.getPlanName() != null)  
+             plan = new File(model.getPlanName());
+            
+         if (model.getScriptName() != null)
+             script = new File(model.getScriptName());
+         
+         if (script == null || !script.canRead())
+         {      
+             String path = PROP_RECENT_FILES + "/scripts/";
+             String name = plan.getName().replace(".plx", "-script.plx");
+             script = new File(path + name);    
+             
+             if (!script.canRead())
+                 findScriptOrCreateEmptyOne(script.getName(),plan.getName(),path);
+         }
+         
+         model.addScriptName(script.getName());
+         
+         ExecExec ee = new ExecExec(exec, null, null, plan, script, allowBreaks, allowDebug);
+         
          try
          {
             InputStream is = ee.start();
             InputStream es = ee.getErrorStream();
             while (ee.isRunning())
             {
-               StringBuffer buffer = new StringBuffer();
-               while (is.available() > 0)
+              while (is.available() > 0)
                   out.write(is.read());
-               while (es.available() > 0)
+              while (es.available() > 0)
                   err.write(es.read());
             }
             while (is.available() > 0)
@@ -467,7 +552,7 @@ public class Luv extends JFrame
                   }
             });
 
-         // if expected to, autoload most recent plan
+         // if expected to, autoload most recent plan and script
 
          if (properties.getBoolean(PROP_FILE_AUTO_LOAD))
             loadRecentPlan(1);
@@ -477,7 +562,33 @@ public class Luv extends JFrame
          Server s = new Server(properties.getInteger(PROP_NET_SERVER_PORT))
             {
                   @Override public void handleMessage(final String message)
-                  {
+                  {  
+                     
+                    /** Determine if the Luv Viewer should pause before executing. */
+                      
+                      if (pauseAtStart)
+                      {
+                          if (!executedViaLuvViewer)
+                          {
+                              Boolean reset = false;
+                              planPaused = true;
+                              if (model.getProperty(VIEWER_BLOCKS) == null ||
+                                  model.getProperty(VIEWER_BLOCKS).equals(FALSE) ||
+                                  model.getProperty(VIEWER_BLOCKS).equals("false"))
+                              {
+                                  model.setProperty(VIEWER_BLOCKS, TRUE);
+                                  reset = true;
+                              }
+
+                              doesViewerBlock();                          
+
+                              if (reset)
+                                  model.setProperty(VIEWER_BLOCKS, FALSE);
+                          }
+                          pauseAtStart = false;
+                          executedViaLuvViewer = false;
+                      }
+                      
                      // parse the message
                      
                      boolean isPlan = parseXml(new ByteArrayInputStream(
@@ -575,6 +686,7 @@ public class Luv extends JFrame
          JMenu fileMenu = new JMenu("File");
          menuBar.add(fileMenu);
          fileMenu.add(openAction);
+         fileMenu.add(openScriptAction);
          updateRecentMenu();
          fileMenu.add(recentFileMenu);
          fileMenu.add(reloadAction);
@@ -596,7 +708,7 @@ public class Luv extends JFrame
 
          JMenu windowMenu = new JMenu("Window");
          menuBar.add(windowMenu);
-         windowMenu.add(debugWindowAction);
+         windowMenu.add(debugWindowAction);         
 
          // add view panel
 
@@ -697,6 +809,8 @@ public class Luv extends JFrame
 
          execMenu.add(pauseAction);
          execMenu.add(stepAction);
+         execMenu.add(allowBreaksAction);
+         execMenu.add(execAction);
 
           // add break point menu
 
@@ -847,6 +961,11 @@ public class Luv extends JFrame
       public void setTitle()
       {
          String planFile = model.getPlanName();
+         String scriptFile = "";
+         
+         if (script != null)
+             scriptFile = " SCRIPT: " + script.getName();
+         
          if (planFile != null)
          {
             String plan = stripDotXml(new File(planFile).getName());
@@ -855,7 +974,7 @@ public class Luv extends JFrame
             for (String libName: model.getLibraryNames())
                title.append(" + " + stripDotXml(new File(libName).getName()));
             
-            setTitle(title.toString());
+            setTitle("PLAN: " + title.toString() + scriptFile);
          }
       }
 
@@ -1401,6 +1520,44 @@ public class Luv extends JFrame
 
          return success;
       }
+      
+      /**
+       * Select and load a script from the disk.  This operates on
+       * the global model.
+       */
+      
+      public void chooseScript()
+      {
+         try
+         {
+            fileChooser.setCurrentDirectory(
+               new File(properties.getString(PROP_FILE_RECENT_SCRIPT_DIR)));
+            if (fileChooser.showOpenDialog(this) == APPROVE_OPTION)
+            {
+               script = fileChooser.getSelectedFile();
+               properties.set(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
+               loadScript(script);
+            }
+         }
+         catch(Exception e)
+         {
+            e.printStackTrace();
+         }
+      }
+      
+       /**
+       * Load a plexil script from the disk.  This operates on the global
+       * model.
+       *
+       * @paramscript file to load
+       */
+      
+      public void loadScript (File script)
+      {
+         model.addScriptName(script.toString());
+         resetView();
+      }
+
 
       /**
        * Select and load a plexil plan from the disk.  This operates on
@@ -1417,6 +1574,7 @@ public class Luv extends JFrame
             {
                File plan = fileChooser.getSelectedFile();
                properties.set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
+               script = null;
                loadPlan(plan);
             }
          }
@@ -1528,7 +1686,7 @@ public class Luv extends JFrame
                   {
                         public boolean accept(File file)
                         {
-                           return file.getName().endsWith(FILE_EXTENSION);
+                           return file.getName().endsWith(XML_EXTENSION);
                         }
                   });
 
@@ -1552,10 +1710,16 @@ public class Luv extends JFrame
       public void loadRecentPlan(int index)
       {
          String planName = getRecentPlanName(index);
+         String scriptName = getRecentScriptName(index);
          if (planName != null)
+         {
             loadPlan(new File(planName), getRecentLibNames(index, false));
+            if (scriptName != null)
+                script = new File(scriptName);
+            resetView();
+         }
       }
-
+      
       /** Add a file to the recently open files list. */
 
       public void addRecent()
@@ -1672,6 +1836,19 @@ public class Luv extends JFrame
       public String getRecentPlanName(int recentIndex)
       {
          return properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + recentIndex);
+      }
+      
+       /** Given a recent script index, return the associated recent script
+       * filename.
+       *
+       * @param recentIndex the index of the recent script
+       *
+       * @return the name of the recent script, possibly null
+       */
+
+      public String getRecentScriptName(int recentIndex)
+      {
+         return properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + recentIndex);
       }
 
 
@@ -1889,11 +2066,21 @@ public class Luv extends JFrame
       /** Action to open and view a plan. */
 
       LuvAction openAction = new LuvAction(
-         "Open", "Open a plan for viewing.", VK_O, META_MASK)
+         "Open Plan", "Open a plan for viewing.", VK_O, META_MASK)
          {
                public void actionPerformed(ActionEvent e)
                {
                   choosePlan();
+               }
+         };
+      
+      /** Action to load a script for Execution. */
+      LuvAction openScriptAction = new LuvAction(
+         "Open Script", "Open a script for execution.", VK_O, META_MASK)
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  chooseScript();
                }
          };
 
@@ -1911,7 +2098,7 @@ public class Luv extends JFrame
       /** Action to reload a plan. */
 
       LuvAction reloadAction = new LuvAction(
-         "Reload", "Reload current file.", VK_R, META_MASK)
+         "Reload Plan", "Reload current plan file.", VK_R, META_MASK)
          {
                public void actionPerformed(ActionEvent e)
                {
@@ -1930,7 +2117,33 @@ public class Luv extends JFrame
                }
          };
 
-      /** Action to pause a running and blocking plexil plan. */
+      /** Action to allow breakpoints. */
+         
+         LuvAction allowBreaksAction = new LuvAction(
+                 "Allow Breakpoints", "Select this to allow breakpoints.")
+	 {
+             public void actionPerformed(ActionEvent actionEvent)
+             {
+                 allowBreaks = !allowBreaks;
+             }
+	 };
+         
+      /** Action to execute a plexil plan. */
+
+      LuvAction execAction = new LuvAction(
+         "Execute Plan", 
+         "Execute plan currently loaded.")
+         {
+             public void actionPerformed(ActionEvent actionEvent)
+             {
+                try {
+                    executedViaLuvViewer = true;
+                    runExecTest();                    
+                } catch (IOException ex) {
+                    System.err.println("Error: " + ex.getMessage());
+                }
+             }
+      };
 
       LuvAction pauseAction = new LuvAction(
          "Pause/Resume", 
@@ -1942,7 +2155,6 @@ public class Luv extends JFrame
                   planPaused = !planPaused;
                   showStatus((planPaused ? "Pause" : "Resume") + " requested.",
                              Color.BLACK, 1000);
-                  //stepAction.setEnabled(planPaused);
                }
          };
 

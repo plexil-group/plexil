@@ -225,6 +225,18 @@ public class Model extends Properties
          for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).planNameAdded(this, planName);
       }
+      
+      /** Specify the script file name.
+       *
+       * @param scriptName name of script file
+       */
+
+      public void addScriptName(String scriptName)
+      {
+         setProperty(SCRIPT_FILENAME, scriptName);
+         for (int i = 0; i < changeListeners.size(); ++i)
+            changeListeners.get(i).scriptNameAdded(this, scriptName);
+      }
 
       /** Get plan name recorded in this model.
        *
@@ -234,6 +246,16 @@ public class Model extends Properties
       public String getPlanName()
       {
          return getProperty(PLAN_FILENAME);
+      }
+
+      /** Get script name recorded in this model.
+       *
+       * @return name of script, which might be null
+       */
+
+      public String getScriptName()
+      {
+         return getProperty(SCRIPT_FILENAME);
       }
 
       /** Specify a library name.
@@ -718,6 +740,8 @@ public class Model extends Properties
             abstract public void planChanged(Model model);
 
             abstract public void planNameAdded(Model model, String planName);
+            
+            abstract public void scriptNameAdded(Model model, String scriptName);
 
             abstract public void libraryNameAdded(Model model, String libraryName);
       }
@@ -741,6 +765,10 @@ public class Model extends Properties
             }
 
             @Override public void planNameAdded(Model model, String planName)
+            {
+            }
+            
+            @Override public void scriptNameAdded(Model model, String scriptName)
             {
             }
 

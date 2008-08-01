@@ -68,7 +68,9 @@ public abstract class Server
             ServerSocket ss = new ServerSocket(port);
 
             while (true)
+            {
                handleConnection(ss.accept());
+            }
          }
          catch (Exception e)
          {
@@ -104,12 +106,13 @@ public abstract class Server
       {
          try
          {
-            // get the input stream for this socket and setup a message
-            // buffer
+            // get the input stream for this socket and setup a message buffer
             
             InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
             StringBuilder message = new StringBuilder();
+
+            Luv.pauseAtStart = true;
 
             // now just loop forever
 
@@ -123,7 +126,7 @@ public abstract class Server
 
                   int ch = is.read();
                   if (ch == END_OF_MESSAGE)
-                  {
+                  {                  
                      // handle the message
 
                      handleMessage(message.toString());
@@ -133,7 +136,6 @@ public abstract class Server
 
                      if (doesViewerBlock())
                      {
-                        //os.write(MESSAGE_ACKNOWLEDGE.getBytes());
                         os.write(END_OF_MESSAGE);
                      }
                   }
@@ -142,12 +144,12 @@ public abstract class Server
 
                   else
                      message.append((char)ch);
-               }
+               } 
                
                // sleep for a bit while we wait for data to come in
 
                Thread.sleep(100);
-            }
+            }            
          }
          catch (Exception e)
          {

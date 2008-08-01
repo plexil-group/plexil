@@ -303,20 +303,23 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handlePopupEvent(MouseEvent mouseEvent, Luv luv)
       {
-         // identify node under popum menu
+          if (luv.allowBreaks)
+          {
+             // identify node under popup menu
 
-         TreePath tp = tree.getClosestPathForLocation(
-            mouseEvent.getX(), mouseEvent.getY());
+             TreePath tp = tree.getClosestPathForLocation(
+                mouseEvent.getX(), mouseEvent.getY());
 
-         // construct the popup menu
+             // construct the popup menu
 
-         JPopupMenu popup = luv.constructNodePopupMenu(
-            ((Wrapper)tp.getLastPathComponent()).model);
-         
-         // display the popup menu
+             JPopupMenu popup = luv.constructNodePopupMenu(
+                ((Wrapper)tp.getLastPathComponent()).model);
 
-         popup.show(mouseEvent.getComponent(),
-                    mouseEvent.getX(), mouseEvent.getY());
+             // display the popup menu
+
+             popup.show(mouseEvent.getComponent(),
+                        mouseEvent.getX(), mouseEvent.getY());
+          }
       }
 
 

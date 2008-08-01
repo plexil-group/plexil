@@ -51,10 +51,9 @@ public class Constants
 
       //public static final int BUFFER_SIZE = 32768;
 
-      /** properties file */
-
+      /** properties file */      
       public static final String PROPERTIES_FILE_LOCATION =
-         System.getProperty("user.home") + 
+         System.getenv("PLEXIL_HOME") + 
          System.getProperty("file.separator") + ".luv";
 
       /** icon constants */
@@ -106,6 +105,10 @@ public class Constants
       public static final int STATE_COL_NUM        = 1;
       public static final int OUTCOME_COL_NUM      = 2;
       public static final int FAILURE_TYPE_COL_NUM = 3;
+      
+      // Empty script default contents
+      
+      public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
 
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
@@ -222,10 +225,8 @@ public class Constants
 
       // model color tags
 
-      public static final String MODEL_ENABLED_BREAKPOINTS =
-         "model.breakpoint.enabled";
-      public static final String MODEL_DISABLED_BREAKPOINTS =
-         "model.breakpoint.disabled";
+      public static final String MODEL_ENABLED_BREAKPOINTS = "model.breakpoint.enabled";
+      public static final String MODEL_DISABLED_BREAKPOINTS = "model.breakpoint.disabled";
 
       public static Color lookupColor(String value)
       {
@@ -236,20 +237,18 @@ public class Constants
 
       public static final String    PROP_FILE_AUTO_LOAD = "file.autoload";
       public static final boolean   PROP_FILE_AUTO_LOAD_DEF = true;
-      public static final String    PROP_FILE_RECENT_PLAN_BASE = 
-         "file.recent-plan-";
-      public static final String    PROP_FILE_RECENT_PLAN_DIR = 
-         "file.recent-plan-directory";
-      public static final String    PROP_FILE_RECENT_LIB_BASE  = 
-         "file.recent-lib-";
-      public static final String    PROP_FILE_RECENT_LIB_DIR = 
-         "file.recent-library-directory";
-      public static final String    PROP_FILE_RECENT_TEST_DIR = 
-         "file.recent-test-directory";
+      public static final String    PROP_JAVA_LIB_PATH = "java.library.path";
+      public static final String    PROP_FILE_RECENT_PLAN_BASE = "file.recent-plan-";
+      public static final String    PROP_FILE_RECENT_SCRIPT_BASE = "file.recent-script-";
+      public static final String    PROP_FILE_RECENT_PLAN_DIR = "file.recent-plan-directory";
+      public static final String    PROP_FILE_RECENT_SCRIPT_DIR = "file.recent-script-directory";
+      public static final String    PROP_FILE_RECENT_LIB_BASE  = "file.recent-lib-";
+      public static final String    PROP_FILE_RECENT_LIB_DIR = "file.recent-library-directory";
+      public static final String    PROP_FILE_RECENT_TEST_DIR = "file.recent-test-directory";
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
       public static final int       PROP_FILE_RECENT_COUNT_DEF = 10;
-      public static final String    PROP_FILE_UELIB        = "file.uelib-name";
-      public static final String    PROP_FILE_UELIB_DEF    = "Exec_g";
+      //public static final String    PROP_FILE_UELIB        = "file.uelib-name";
+      //public static final String    PROP_FILE_UELIB_DEF    = "libExec_g";
 
       public static final String    PROP_WIN_LOC        = "window.location";
       public static final Point     PROP_WIN_LOC_DEF    = new Point(0, 0);
@@ -278,13 +277,26 @@ public class Constants
       public static final String    PROP_TTV_COL_WIDTH_BASE   = "treetable.colwidth-";
       public static final String    PROP_TTV_TEXT_TYPES    = "treetable.text-types";
 
-      public static final String    PROP_VIEW_HIDE_PLEXILLISP  = 
-         "view.hide-plexilisp";
+      public static final String    PROP_VIEW_HIDE_PLEXILLISP  = "view.hide-plexilisp";
       public static final boolean   PROP_VIEW_HIDE_PLEXILLISP_DEF  = false;
+
+      public static final String    PROP_PLEXIL_HOME = "PLEXIL_HOME";
+      
+      public static final String    PROP_UE_EXEC =        
+              System.getenv(PROP_PLEXIL_HOME) + 
+              System.getProperty("file.separator") + "apps" + 
+              System.getProperty("file.separator") + "TestExec" + 
+              System.getProperty("file.separator") + "test-exec_g_rt";
+      
+      public static final String    PROP_RECENT_FILES =   
+              System.getenv(PROP_PLEXIL_HOME) + 
+              System.getProperty("file.separator") + "apps" + 
+              System.getProperty("file.separator") + "TestExec";
 
       // file
 
-      public static final String FILE_EXTENSION = "xml";
+      public static final String XML_EXTENSION = "xml";
+      public static final String PLX_EXTENSION = "plx";
 
       // boolean constat values
 
@@ -305,6 +317,7 @@ public class Constants
       // plan tags
 
       public static final String PLEXIL_PLAN       = "PlexilPlan";
+      public static final String PLEXIL_SCRIPT     = "PlexilScript";
       public static final String LIBRARY           = "Library";
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
       public static final String NODE_PATH_ELEMENT = "NodePathElement";
@@ -313,6 +326,7 @@ public class Constants
 
       public static final String PLAN_INFO     = "PlanInfo";
       public static final String PLAN_FILENAME = "PlanFilename";
+      public static final String SCRIPT_FILENAME = "ScriptFilename";
       public static final String LIBRARY_FILENAME = "LibraryFilename";
       public static final String LIBRARY_COUNT = "LibraryCount";
       public static final String VIEWER_BLOCKS = "ViewerBlocks";
@@ -532,10 +546,12 @@ public class Constants
 
          VIEWER_BLOCKS,
          PLAN_FILENAME,
+         SCRIPT_FILENAME,
          LIBRARY_FILENAME,
          LIBRARY_COUNT,
 
          PLEXIL_PLAN,
+         PLEXIL_SCRIPT,
          LIBRARY,
 
          NODETYPE_ATTR,
