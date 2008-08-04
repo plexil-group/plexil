@@ -38,7 +38,7 @@
  * maintenance of any nuclear facility.
  */
 
-package src.treetable;
+package treetable;
 
 import java.io.File;
 import java.util.Date;

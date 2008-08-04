@@ -38,7 +38,7 @@
  * maintenance of any nuclear facility.
  */
 
-package src.treetable;
+package treetable;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.JTree;

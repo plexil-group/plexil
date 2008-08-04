@@ -38,7 +38,7 @@
  * maintenance of any nuclear facility.
  */
 
-package src.treetable;
+package treetable;
 
 /**
  * An implementation of MergeSort, needs to be subclassed to provide a 

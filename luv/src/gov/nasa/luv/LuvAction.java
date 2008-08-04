@@ -24,14 +24,14 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package src.gov.nasa.luv;
+package gov.nasa.luv;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 
-import static src.gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.Constants.*;
 
 /**
  * LuvAction is derived from AbstractAction and provides a

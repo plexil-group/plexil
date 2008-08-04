@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package src.gov.nasa.luv;
+package gov.nasa.luv;
 
 /** A filter to apply to a model. */
 

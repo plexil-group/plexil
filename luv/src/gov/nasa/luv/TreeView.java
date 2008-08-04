@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package src.gov.nasa.luv;
+package gov.nasa.luv;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
@@ -42,7 +42,7 @@ import java.awt.event.ActionEvent;
 
 import java.util.HashMap;
 
-import static src.gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.Constants.*;
 import static java.awt.event.KeyEvent.*;
 
 public class TreeView extends JPanel implements View

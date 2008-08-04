@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package src.gov.nasa.luv;
+package gov.nasa.luv;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -35,7 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import static src.gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.Constants.*;
 
 /**
  * This is an extention of the stock Properties class which provides

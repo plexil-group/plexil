@@ -24,14 +24,14 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package src.gov.nasa.luv;
+package gov.nasa.luv;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static src.gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.Constants.*;
 
 /** Functions as a server for plan event data clients (UEs). */
 

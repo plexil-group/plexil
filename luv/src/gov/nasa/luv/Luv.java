@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package src.gov.nasa.luv;
+package gov.nasa.luv;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,7 +90,7 @@ import java.io.ByteArrayInputStream;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import static src.gov.nasa.luv.Constants.*;
+import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
