@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package gov.nasa.luv;
+package src.gov.nasa.luv;
 
 import javax.swing.JTree;
 import javax.swing.JTable;
@@ -57,14 +57,12 @@ import java.util.HashMap;
 import java.util.Enumeration;
 
 
-import treetable.JTreeTable;
-import treetable.TreeTableModel;
-import treetable.AbstractTreeTableModel;
+import src.treetable.JTreeTable;
+import src.treetable.TreeTableModel;
+import src.treetable.AbstractTreeTableModel;
 
-import static gov.nasa.luv.Constants.*;
+import static src.gov.nasa.luv.Constants.*;
 import static java.awt.event.KeyEvent.*;
-
-import treetable.JTreeTable;
 
 public class TreeTableView extends JTreeTable implements View
 {

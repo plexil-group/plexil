@@ -38,7 +38,7 @@
  * maintenance of any nuclear facility.
  */
 
-package treetable;
+package src.treetable;
 
 import java.awt.Component;
 import java.awt.event.*;

@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package gov.nasa.luv;
+package src.gov.nasa.luv;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,7 +90,7 @@ import java.io.ByteArrayInputStream;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import static gov.nasa.luv.Constants.*;
+import static src.gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
@@ -163,7 +163,8 @@ public class Luv extends JFrame
                }
          };
          
-      public static boolean allowBreaks, allowDebug, pauseAtStart, executedViaLuvViewer = false;
+      public static boolean allowDebug, pauseAtStart, isExecuting, executedViaLuvViewer = false;
+      public static boolean allowBreaks = true;
       public static File debug, plan, script;
       public static FileWriter emptyScript;
       public static String planName, scriptName = "";
@@ -207,7 +208,7 @@ public class Luv extends JFrame
 
       /** recent file menu */
 
-      JMenu recentFileMenu = new JMenu("Recent Files");
+      JMenu recentPlanMenu = new JMenu("Recent Plans");
 
       /** the execution control menu */
 
@@ -556,6 +557,8 @@ public class Luv extends JFrame
 
          if (properties.getBoolean(PROP_FILE_AUTO_LOAD))
             loadRecentPlan(1);
+            
+         allowBreaksAction.actionPerformed(null);
 
          // start the server listening for events
 
@@ -688,17 +691,19 @@ public class Luv extends JFrame
          fileMenu.add(openAction);
          fileMenu.add(openScriptAction);
          updateRecentMenu();
-         fileMenu.add(recentFileMenu);
+         fileMenu.add(recentPlanMenu);
          fileMenu.add(reloadAction);
-         fileMenu.add(testAction);
+         //fileMenu.add(testAction);
          fileMenu.add(new JSeparator());
          fileMenu.add(exitAction);
 
-         // create and update exec menu
+         // create and update Run menu
 
-         execMenu = new JMenu("Exec");
+         execMenu = new JMenu("Run");
          menuBar.add(execMenu);
          updateExecMenu();
+         
+         
 
          // add veiw menue
 
@@ -811,6 +816,7 @@ public class Luv extends JFrame
          execMenu.add(stepAction);
          execMenu.add(allowBreaksAction);
          execMenu.add(execAction);
+         
 
           // add break point menu
 
@@ -1881,16 +1887,16 @@ public class Luv extends JFrame
 
       public void updateRecentMenu()
       {
-         recentFileMenu.removeAll();
+         recentPlanMenu.removeAll();
          int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
          for (int i = 0; i < count; ++i)
             if (getRecentPlanName(i + 1) != null)
-               recentFileMenu.add(
+               recentPlanMenu.add(
                   new LoadRecentAction(i + 1, '1' + i, META_MASK));
 
          // this menu is only enabled when there are items in it
          
-         recentFileMenu.setEnabled(recentFileMenu.getMenuComponentCount() > 0);
+         recentPlanMenu.setEnabled(recentPlanMenu.getMenuComponentCount() > 0);
       }      
 
       /** A status message, with some text, a message color, and an
@@ -2119,12 +2125,16 @@ public class Luv extends JFrame
 
       /** Action to allow breakpoints. */
          
-         LuvAction allowBreaksAction = new LuvAction(
-                 "Allow Breakpoints", "Select this to allow breakpoints.")
+      LuvAction allowBreaksAction = new LuvAction(
+         "Enable Breakpoints", "Select this to allow breakpoints.", VK_F2)
 	 {
              public void actionPerformed(ActionEvent actionEvent)
              {
                  allowBreaks = !allowBreaks;
+                 if (allowBreaks)
+                     showStatus("Breaking ENabled.", Color.GREEN.darker());
+                 else
+                     showStatus("Breaking DISabled (Pressing F2 toggles breaking ability)", Color.RED);
              }
 	 };
          
@@ -2132,11 +2142,13 @@ public class Luv extends JFrame
 
       LuvAction execAction = new LuvAction(
          "Execute Plan", 
-         "Execute plan currently loaded.")
+         "Execute plan currently loaded.",
+         VK_F1)
          {
              public void actionPerformed(ActionEvent actionEvent)
              {
                 try {
+                    showStatus("Executing...", Color.GREEN.darker(), 1000);
                     executedViaLuvViewer = true;
                     runExecTest();                    
                 } catch (IOException ex) {
@@ -2146,12 +2158,12 @@ public class Luv extends JFrame
       };
 
       LuvAction pauseAction = new LuvAction(
-         "Pause/Resume", 
+         "Pause or Resume plan", 
          "Pause or resume an executing plan, if it is blocking.",
          VK_SPACE)
          {
                public void actionPerformed(ActionEvent e)
-               {
+               {            
                   planPaused = !planPaused;
                   showStatus((planPaused ? "Pause" : "Resume") + " requested.",
                              Color.BLACK, 1000);
@@ -2165,10 +2177,6 @@ public class Luv extends JFrame
          "Step a plan, pausing it if is not paused.",
          VK_ENTER)
          {
-               {
-                  //setEnabled(planPaused);
-               }
-
                public void actionPerformed(ActionEvent e)
                {
                   if (!planPaused)

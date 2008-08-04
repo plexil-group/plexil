@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package gov.nasa.luv;
+package src.gov.nasa.luv;
 
 import java.util.Vector;
 
@@ -46,7 +46,7 @@ import java.awt.event.ActionEvent;
 import static java.awt.event.KeyEvent.*;
 import static java.awt.GridBagConstraints.*;
 
-import static gov.nasa.luv.Constants.*;
+import static src.gov.nasa.luv.Constants.*;
 
 /** A Window for displaying informaion about a given node. */
 

@@ -24,9 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package gov.nasa.luv;
+package src.gov.nasa.luv;
 
-//import static gov.nasa.luv.Constants.*;
+import static src.gov.nasa.luv.Constants.*;
 
 import java.util.Vector;
 

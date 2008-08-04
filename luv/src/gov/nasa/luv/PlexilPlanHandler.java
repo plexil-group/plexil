@@ -24,13 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package gov.nasa.luv;
+package src.gov.nasa.luv;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import java.util.Stack;
 
-import static gov.nasa.luv.Constants.*;
+import static src.gov.nasa.luv.Constants.*;
 
 import static java.lang.System.out;
 

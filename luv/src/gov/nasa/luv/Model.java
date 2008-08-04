@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package gov.nasa.luv;
+package src.gov.nasa.luv;
 
 import java.util.Vector;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.awt.geom.Point2D;
 import java.util.Map.Entry;
 
-import static gov.nasa.luv.Constants.*;
+import static src.gov.nasa.luv.Constants.*;
 
 /**
  * The model of a Plexil plan.
