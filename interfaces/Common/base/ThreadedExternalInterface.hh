@@ -99,6 +99,13 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Select whether the exec runs opportunistically or only in background thread.
+     * @param bkgndOnly True if background only, false if opportunistic.
+     * @note Default is opportunistic.
+     */
+    void setRunExecInBkgndOnly(bool bkgndOnly);
+
+    /**
      * @brief Run the exec until the queue is empty.
      * @param stepFirst True if the exec should be stepped before checking the queue.
      * @note Acquires m_execMutex and holds until done.
@@ -674,6 +681,8 @@ namespace PLEXIL
     //
     // Private member variables
     //
+    bool m_runExecInBkgndOnly;
+
     ThreadedExternalInterfaceId m_threadedInterfaceId;
 
     ValueQueue m_valueQueue;

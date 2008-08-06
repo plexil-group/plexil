@@ -60,6 +60,7 @@ namespace PLEXIL
   ThreadedExternalInterface::ThreadedExternalInterface()
     : ExternalInterface(),
       AdaptorExecInterface(),
+      m_runExecInBkgndOnly(false),
       m_threadedInterfaceId(),
       m_execThread(),
       m_execMutex(),
@@ -99,6 +100,16 @@ namespace PLEXIL
   ThreadedExternalInterfaceId ThreadedExternalInterface::getId()
   {
     return m_threadedInterfaceId;
+  }
+
+  /**
+   * @brief Select whether the exec runs opportunistically or only in background thread.
+   * @param bkgndOnly True if background only, false if opportunistic.
+   * @note Default is opportunistic.
+   */
+  void ThreadedExternalInterface::setRunExecInBkgndOnly(bool bkgndOnly)
+  {
+    m_runExecInBkgndOnly = bkgndOnly;
   }
 
   //
@@ -1250,7 +1261,7 @@ namespace PLEXIL
 	debugMsg("ExternalInterface:notify",
 		 " (" << pthread_self() << ") inside runExec, ignoring event");
       }
-    else if (m_execMutex.isLocked())
+    else if (m_runExecInBkgndOnly || m_execMutex.isLocked())
       {
 	// Some other thread currently owns the exec.
 	// runExec() could notice, or not.
