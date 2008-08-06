@@ -28,7 +28,6 @@ package gov.nasa.luv;
 
 import java.util.Vector;
 
-import java.lang.Runtime;
 import static java.lang.System.*;
 
 import java.io.File;
@@ -38,6 +37,10 @@ import java.io.InputStream;
 
 public class ExecExec
 {
+      /** Vector holds command line argument */
+          
+      final Vector<String> args = new Vector<String>();
+          
       /** ue process */
 
       Process ueProcess;
@@ -57,10 +60,9 @@ public class ExecExec
        * @param script the script to run against the plan
        */
 
-      public ExecExec(File ue, File ueLib, File debug, File plan, File script, 
-              boolean allowBreaks, boolean allowDebug)
+      public ExecExec(File ue, File plan, File script, File ueLib, File debug)
       {
-         this(ue, ueLib, debug, plan, script, null, allowBreaks, allowDebug);
+         this(ue, plan, script, ueLib, debug, null);
       }
 
       /** Construct a UE executor instance.
@@ -71,68 +73,32 @@ public class ExecExec
        * @param libraries libraries to load, may be null
        */
 
-      public ExecExec(File ue, final File ueLib, 
-                      File debug, File plan, File script, File[] libraries, 
-                      boolean allowBreaks, boolean allowDebug)
+      public ExecExec(File ue, File plan, File script, final File ueLib, File debug, File[] libraries)
       {
-         final Vector<String> args = new Vector<String>();
-         args.add(ue.toString());
-
-         args.add("-v");
-         
-         if (allowBreaks)
-             args.add("-b");
-         
-         if (allowDebug)
-         {
-             args.add("-d"); args.add(debug.toString());
-         }
-         
-         args.add("-p"); 
-         args.add(plan.toString());
-         args.add("-s"); 
-         args.add(script.toString());
-
-         
-         Vector<String> libNames = Luv.getLuv().model.getLibraryNames();
-         
-         if (libNames.size() > 0)
-         {
-             for (String libName : libNames)
-             {
-                 args.add("-l"); 
-                 args.add(libName.toString());
-             }
-         }
-         
-         if (libraries != null) 
-            for (File library: libraries)
-            {
-               args.add("-l"); 
-               args.add(library.toString());
-            }
-         
-         // create a new thread for the ue process
-
-         runThread = new Thread()
-            {
-                  public void run()
+          // populate Vector with command line arguments
+          
+          setArgs(ue, plan, script, debug, libraries);
+          
+          // create a new thread for the ue process
+          
+          runThread = new Thread()
+          {
+            @Override
+              public void run()
+              {
+                  try
                   {
-                     try
-                     {
-                        Runtime runtime = Runtime.getRuntime();
-                        running = true;
-                        //runtime.loadLibrary(ueLib.toString());
-                        ueProcess = runtime.exec(args.toArray(new String[args.size()]));
-                        //ueProcess.waitFor(); //removed this bc it wasnt allowing for breakpoints
-                        running = false;
-                     }
-                     catch (Exception e)
-                     {
-                         out.println(e.getMessage());
-                     }
+                      Runtime runtime = Runtime.getRuntime();
+                      running = true;
+                      ueProcess = runtime.exec(args.toArray(new String[args.size()]));
+                      running = false;
                   }
-            };
+                  catch (Exception e)
+                  {
+                      out.println(e.getMessage());
+                  }
+              }
+          };
       }
 
       /** Start running the UE. */
@@ -193,5 +159,47 @@ public class ExecExec
       public boolean isRunning()
       {
          return running;
+      }
+      
+      public void setArgs (File ue, File plan, File script, File debug, File[] libraries)
+      {
+          args.add(ue.toString());
+          
+          args.add("-v");
+          
+          if (Luv.allowBreaks)
+              args.add("-b");
+          
+          if (Luv.allowDebug)
+          {
+              args.add("-d"); 
+              args.add(debug.toString());
+          }
+          
+          args.add("-p");
+          args.add(plan.toString());
+          
+          args.add("-s");
+          args.add(script.toString());
+          
+          Vector<String> libNames = Luv.getLuv().model.getLibraryNames();
+          
+          if (libNames.size() > 0)
+          {
+              for (String libName : libNames)
+              {
+                  args.add("-l");
+                  args.add(libName.toString());
+              }
+          }
+          
+          if (libraries != null)
+          {
+              for (File library: libraries)
+              {
+                  args.add("-l");
+                  args.add(library.toString());
+              }  
+          }
       }
 }

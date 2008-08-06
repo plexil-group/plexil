@@ -26,16 +26,19 @@
 
 package gov.nasa.luv;
 
+import gov.nasa.luv.Luv.LinkCanceledException;
+import java.io.ByteArrayInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.awt.Color;
 
 import static gov.nasa.luv.Constants.*;
 
 /** Functions as a server for plan event data clients (UEs). */
 
-public abstract class Server
+public class Server       
 {
       /** Construct a server which listens on a given port.
        *
@@ -128,7 +131,7 @@ public abstract class Server
                   int ch = is.read();
                   if (ch == END_OF_MESSAGE)
                   {                  
-                     // handle the message
+                     // handle the message                       
 
                      handleMessage(message.toString());
                      message = new StringBuilder();
@@ -157,8 +160,103 @@ public abstract class Server
             e.printStackTrace();
          }
       }
+      
+      public void handleMessage(final String message)
+      {  
 
-      public abstract void handleMessage(final String message);
+        /** Determine if the Luv Viewer should pause before executing. */
 
-      public abstract boolean doesViewerBlock();
+          if (Luv.pauseAtStart)
+          {
+              if (!Luv.executedViaLuvViewer)
+              {
+                  Boolean reset = false;
+                  Luv.getLuv().planPaused = true;
+                  if (Luv.getLuv().model.getProperty(VIEWER_BLOCKS) == null ||
+                      Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals(FALSE) ||
+                      Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals("false"))
+                  {
+                      Luv.getLuv().model.setProperty(VIEWER_BLOCKS, TRUE);
+                      reset = true;
+                  }
+
+                  doesViewerBlock();                          
+
+                  if (reset)
+                      Luv.getLuv().model.setProperty(VIEWER_BLOCKS, FALSE);
+              }
+              Luv.pauseAtStart = false;
+              Luv.executedViaLuvViewer = false;
+          }
+
+         // parse the message
+
+         boolean isPlan = Luv.getLuv().parseXml(new ByteArrayInputStream(
+                                      message.getBytes()), Luv.getLuv().model);
+
+         // if this is a plan (or possibly a library)
+
+         if (isPlan)
+         {
+            // if this is a library, store this in set of libraries
+
+            if (Luv.getLuv().outstandingLibraryCount > 0)
+            {
+               Luv.getLuv().libraries.add(Luv.getLuv().model.removeChild(NODE));
+               --Luv.getLuv().outstandingLibraryCount;
+            }
+
+            // otherwise it's a plan, link that plan and
+            // libraries and show the new plan
+
+            else
+            {
+               try
+               {
+                  Luv.getLuv().link(Luv.getLuv().model, Luv.getLuv().libraries);
+               }
+               catch (LinkCanceledException lce) {}
+               Luv.getLuv().resetView();
+               Luv.getLuv().libraries.clear();
+            }
+         }
+      }
+
+      public boolean doesViewerBlock()
+      {
+         String blocksStr = Luv.getLuv().model.getProperty(VIEWER_BLOCKS);
+         boolean blocks = blocksStr != null 
+            ? Boolean.valueOf(blocksStr)
+            : false;
+
+         if (blocks && Luv.getLuv().planPaused && !Luv.getLuv().planStep) 
+         {
+            Luv.statusBar.showStatus((Luv.breakPointHandler.breakPoint == null
+                        ? "Plan execution paused."
+                        : Luv.breakPointHandler.breakPoint.getReason()) +
+               "  Hit " + 
+               Luv.getLuv().pauseAction.getAcceleratorDescription() +
+               " to resume, or " + 
+               Luv.getLuv().stepAction.getAcceleratorDescription() +
+               " to step.",
+               Color.RED);
+            Luv.breakPointHandler.breakPoint = null;
+
+            while (Luv.getLuv().planPaused && !Luv.getLuv().planStep)
+            {
+               try
+               {
+                  Thread.sleep(50);
+               }
+               catch (Exception e)
+               {
+                  e.printStackTrace();
+               }
+            }
+         }
+
+         Luv.getLuv().planStep = false;
+
+         return blocks;
+      }
 }

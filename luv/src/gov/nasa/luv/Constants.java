@@ -90,7 +90,7 @@ public class Constants
          
          public void add(String tag, String iconName)
          {
-            put(tag, Luv.loadImage(iconName));
+            put(tag, StatusBar.loadImage(iconName));
          }
       };
 

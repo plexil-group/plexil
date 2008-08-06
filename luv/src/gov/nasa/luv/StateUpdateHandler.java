@@ -86,6 +86,8 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
+             if (current.isRoot() && state.equals(FINISHED))
+                 Luv.isExecuting = false;
             current.setProperty(MODEL_STATE, state);
             current.setProperty(MODEL_OUTCOME, outcome);
             current.setProperty(MODEL_FAILURE_TYPE, failureType);

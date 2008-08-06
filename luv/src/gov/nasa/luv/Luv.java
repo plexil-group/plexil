@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import static gov.nasa.luv.Constants.*;
+import gov.nasa.luv.Exec;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -48,15 +50,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JPopupMenu;
 import javax.swing.JDesktopPane;
 import javax.swing.ToolTipManager;
-
 import java.util.Set;
 import java.util.Map;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.LinkedList;
-
 import java.net.Socket;
-
 import java.awt.Toolkit;
 import java.awt.Container;
 import java.awt.Color;
@@ -73,7 +72,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
@@ -81,22 +79,14 @@ import java.io.IOException;
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.Action;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.ByteArrayInputStream;
-
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import static gov.nasa.luv.Constants.*;
-
 import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
-import static java.awt.event.InputEvent.CTRL_MASK;
-import static java.awt.event.InputEvent.META_MASK;
-import static java.awt.event.InputEvent.SHIFT_MASK;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.*;
 
@@ -105,7 +95,14 @@ import static javax.swing.JFileChooser.*;
  */
 
 public class Luv extends JFrame
-{
+{           
+      public static boolean allowBreaks, allowDebug, pauseAtStart, executedViaLuvViewer, isExecuting = false;
+      public static File debug, plan, script;
+      public FileHandler fh = new FileHandler();
+      public Exec ex = new Exec();
+      public static StatusBar statusBar = new StatusBar();
+      public static BreakPointHandler breakPointHandler = new BreakPointHandler();
+      
       /** the current model being displayed */
 
       final Model model = new Model("dummy")
@@ -122,60 +119,13 @@ public class Luv extends JFrame
                }
          };
 
-
-
       /** persistant properties for this application */
 
-      Properties properties = new Properties(PROPERTIES_FILE_LOCATION)
-         {
-               {                  
-                  define(PROP_FILE_AUTO_LOAD,    PROP_FILE_AUTO_LOAD_DEF);
-                  define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
-                  
-                  define(PROP_FILE_RECENT_PLAN_DIR,
-                         System.getenv(PROP_PLEXIL_HOME) != null
-                         ? System.getenv(PROP_RECENT_FILES) + "/plans"
-                         : System.getProperty(PROP_RECENT_FILES));
-                  
-                  define(PROP_FILE_RECENT_SCRIPT_DIR,
-                         System.getenv(PROP_PLEXIL_HOME) != null
-                         ? System.getenv(PROP_RECENT_FILES) + "/scripts"
-                         : System.getProperty(PROP_RECENT_FILES));
-
-                  //define(PROP_FILE_UELIB,        PROP_FILE_UELIB_DEF);
-
-                  define(PROP_WIN_LOC,  PROP_WIN_LOC_DEF);
-                  define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);
-                  define(PROP_WIN_BCLR, PROP_WIN_BCLR_DEF);
-
-                  define(PROP_DBWIN_LOC,     PROP_DBWIN_LOC_DEF);
-                  define(PROP_DBWIN_SIZE,    PROP_DBWIN_SIZE_DEF);
-                  define(PROP_DBWIN_VISIBLE, PROP_DBWIN_VISIBLE_DEF);
-
-                  define(PROP_TOOLTIP_DISMISS, PROP_TOOLTIP_DISMISS_DEF);
-
-                  define(PROP_NET_SERVER_PORT,  PROP_NET_SERVER_PORT_DEF);
-                  define(PROP_NET_RECENT_HOST,  PROP_NET_RECENT_HOST_DEF);
-                  define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
-
-                  define(PROP_VIEW_HIDE_PLEXILLISP, 
-                         PROP_VIEW_HIDE_PLEXILLISP_DEF);
-               }
-         };
-         
-      public static boolean allowDebug, pauseAtStart, isExecuting, executedViaLuvViewer = false;
-      public static boolean allowBreaks = true;
-      public static File debug, plan, script;
-      public static FileWriter emptyScript;
-      public static String planName, scriptName = "";
+      Properties properties = new Properties(PROPERTIES_FILE_LOCATION);
 
       /** current view */
 
       View currentView;
-
-      /** queue of status messages */
-
-      LinkedList<StatusMessage> statusMessageQ = new LinkedList<StatusMessage>();
 
       /** count of specifed libraries not yet loaded */
 
@@ -184,19 +134,6 @@ public class Luv extends JFrame
       /** set of active libraries */
 
       Vector<Model> libraries = new Vector<Model>();
-
-      /** if break has occured, the causal break point object */
-
-      IBreakPoint breakPoint = null;
-
-      /** a collect of all breakpoints */
-
-      HashMap<IBreakPoint, ModelPath> breakPoints = 
-         new HashMap<IBreakPoint, ModelPath>();
-
-      /** breakpoints not found in this plan */
-
-      Vector<IBreakPoint> unfoundBreakPoints = new Vector<IBreakPoint>();
 
       /** is the plan current paused */
 
@@ -222,69 +159,6 @@ public class Luv extends JFrame
       
       DebugWindow debugWindow;
 
-      /** file chooser object */
-      
-      JFileChooser fileChooser = new JFileChooser()
-         {
-               {
-                  /** XML file fliter */
-                  
-                  addChoosableFileFilter(new FileFilter()
-                     {
-                           // accept file?
-                           
-                           public boolean accept(File f) 
-                           {
-                              // allow browse directories
-                              
-                              if (f.isDirectory())
-                                 return true;
-                              
-                              // allow files with correct extention
-                              
-                              String extension = getExtension(f);
-                              Boolean correctExtension = false;
-                              if (extension != null)
-                                  if (extension.equals(XML_EXTENSION) || 
-                                      extension.equals(PLX_EXTENSION))
-                                      correctExtension = true;
-                              
-                              return correctExtension;
-                           }
-
-                           // get file extension
-                           
-                           public String getExtension(File f)
-                           {
-                              String ext = null;
-                              String s = f.getName();
-                              int i = s.lastIndexOf('.');
-                              
-                              if (i > 0 && i < s.length() - 1)
-                                 ext = s.substring(i+1).toLowerCase();
-                              
-                              return ext;
-                           }
-
-                           // return descriton
-                           
-                           public String getDescription()
-                           {
-                              return "XML Files (.xml) / PLX Files (.plx)";
-                           }
-                     });
-               }
-         };
-
-      /** directory chooser object */
-      
-      JFileChooser dirChooser = new JFileChooser()
-         {
-               {
-                  setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-               }
-         };
-
       /** Panel in which different views are placed. */
 
       JPanel viewPanel = new JPanel();
@@ -303,140 +177,16 @@ public class Luv extends JFrame
 
       public static void main(String[] args)
       {
-         //runExecTest();
-         runApp();
-         //runServerTest();
+         runLuvViewer();
       }
 
-      public static void runServerTest()
-      {
-         try
-         {
-            Socket ss = new Socket("127.0.0.1", 9787);
-            ss.sendUrgentData(99);
-            try
-            {
-               out.println("start sleep.");
-               Thread.sleep(5000);
-               out.println("stop sleep.");
-            }
-            catch (Exception e)
-            {
-               e.printStackTrace();
-            }
-            out.println("test");
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-      
-      /** Locates or Creates the appropriate script file.
-       *
-       * @param scriptName string that represents the script filename
-       * @param planName string that represents the plan filename
-       * @param path string that represents the absolute path to where scripts are located
-       */
-
-      public void findScriptOrCreateEmptyOne(String scriptName, String planName, String path) throws IOException 
-      {
-          try 
-          {
-              //PLAN_script.plx
-              String name1 = planName + "_script";
-              script = new File(path + name1);
-              if (!script.canRead())
-              {
-                  //script-PLAN.plx
-                  String name2 = "script-" + planName;
-                  script = new File(path + name2);
-                  if (!script.canRead())
-                  {
-                      //script_PLAN.plx
-                      String name3 = "script_" + planName;
-                      script = new File(path + name3);
-                      if (!script.canRead())
-                      {
-                          script = new File(path + "default-empty-script.plx");
-                          if (!script.canRead())
-                          {
-                              //must create an empty script
-                              scriptName = path + "default-empty-script.plx";
-                              emptyScript = new FileWriter(scriptName);
-                              BufferedWriter out = new BufferedWriter(emptyScript);
-                              out.write(EMPTY_SCRIPT);
-                              out.close();                          
-                              script = new File(scriptName);
-                          }
-                      }
-                  }
-              }
-          }
-          catch (Exception e)
-          {
-            out.println("Error: " + e.getMessage());
-          }    
-      }
-      
-      public void runExecTest() throws IOException
-      {                    
-         File exec = new File(PROP_UE_EXEC);
-        // File lib = new File(PROP_FILE_UELIB_DEF);
-
-         while (model.getPlanName() == null && plan == null)
-             choosePlan();
-    
-         if (model.getPlanName() != null)  
-             plan = new File(model.getPlanName());
-            
-         if (model.getScriptName() != null)
-             script = new File(model.getScriptName());
-         
-         if (script == null || !script.canRead())
-         {      
-             String path = PROP_RECENT_FILES + "/scripts/";
-             String name = plan.getName().replace(".plx", "-script.plx");
-             script = new File(path + name);    
-             
-             if (!script.canRead())
-                 findScriptOrCreateEmptyOne(script.getName(),plan.getName(),path);
-         }
-         
-         model.addScriptName(script.getName());
-         
-         ExecExec ee = new ExecExec(exec, null, null, plan, script, allowBreaks, allowDebug);
-         
-         try
-         {
-            InputStream is = ee.start();
-            InputStream es = ee.getErrorStream();
-            while (ee.isRunning())
-            {
-              while (is.available() > 0)
-                  out.write(is.read());
-              while (es.available() > 0)
-                  err.write(es.read());
-            }
-            while (is.available() > 0)
-               out.write(is.read());
-            while (es.available() > 0)
-               err.write(es.read());
-            out.flush();
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-      public static void runApp()
+      public static void runLuvViewer()
       {
          // if we're on a mac, us mac style menus
          
          System.setProperty("apple.laf.useScreenMenuBar", "true");
 
-         // give me some luv
+         // create instance of Luv
          
          try
          {
@@ -462,30 +212,6 @@ public class Luv extends JFrame
 
          ToolTipManager.sharedInstance().setDismissDelay(
             properties.getInteger(PROP_TOOLTIP_DISMISS));
-         
-         // expirentmenting with captureing key events
-
-//          KeyListener kl = new KeyListener()
-//             {
-//                   public void keyPressed(KeyEvent e)
-//                   {
-//                      System.out.println("press: " + e);
-//                   }
-//                   public void keyReleased(KeyEvent e)
-//                   {
-//                      System.out.println("release: " + e);
-//                   }
-//                   public void keyTyped(KeyEvent e)
-//                   {
-//                      System.out.println("type: " + e);
-//                   }
-//             };
-
-
-//          getRootPane().addKeyListener(kl);
-//          getGlassPane().addKeyListener(kl);
-//          getLayeredPane().addKeyListener(kl);
-//          addKeyListener(kl);
 
          // app exits when frame is closed
 
@@ -556,113 +282,13 @@ public class Luv extends JFrame
          // if expected to, autoload most recent plan and script
 
          if (properties.getBoolean(PROP_FILE_AUTO_LOAD))
-            loadRecentPlan(1);
+            fh.loadRecentPlan(1);
             
          allowBreaksAction.actionPerformed(null);
 
          // start the server listening for events
-
-         Server s = new Server(properties.getInteger(PROP_NET_SERVER_PORT))
-            {
-                  @Override public void handleMessage(final String message)
-                  {  
-                     
-                    /** Determine if the Luv Viewer should pause before executing. */
-                      
-                      if (pauseAtStart)
-                      {
-                          if (!executedViaLuvViewer)
-                          {
-                              Boolean reset = false;
-                              planPaused = true;
-                              if (model.getProperty(VIEWER_BLOCKS) == null ||
-                                  model.getProperty(VIEWER_BLOCKS).equals(FALSE) ||
-                                  model.getProperty(VIEWER_BLOCKS).equals("false"))
-                              {
-                                  model.setProperty(VIEWER_BLOCKS, TRUE);
-                                  reset = true;
-                              }
-
-                              doesViewerBlock();                          
-
-                              if (reset)
-                                  model.setProperty(VIEWER_BLOCKS, FALSE);
-                          }
-                          pauseAtStart = false;
-                          executedViaLuvViewer = false;
-                      }
-                      
-                     // parse the message
-                     
-                     boolean isPlan = parseXml(new ByteArrayInputStream(
-                                                  message.getBytes()), model);
-
-                     // if this is a plan (or possibly a library)
-
-                     if (isPlan)
-                     {
-                        // if this is a library, store this in set of libraries
-               
-                        if (outstandingLibraryCount > 0)
-                        {
-                           libraries.add(model.removeChild(NODE));
-                           --outstandingLibraryCount;
-                        }
-                        
-                        // otherwise it's a plan, link that plan and
-                        // libraries and show the new plan
-                        
-                        else
-                        {
-                           try
-                           {
-                              link(model, libraries);
-                           }
-                           catch (LinkCanceledException lce) {}
-                           resetView();
-                           libraries.clear();
-                        }
-                     }
-                  }
-                  
-                  @Override public boolean doesViewerBlock()
-                  {
-                     String blocksStr = model.getProperty(VIEWER_BLOCKS);
-                     boolean blocks = blocksStr != null 
-                        ? Boolean.valueOf(blocksStr)
-                        : false;
-                     
-                     if (blocks && planPaused && !planStep) 
-                     {
-                        showStatus((breakPoint == null
-                                    ? "Plan execution paused."
-                                    : breakPoint.getReason()) +
-                           "  Hit " + 
-                           pauseAction.getAcceleratorDescription() +
-                           " to resume, or " + 
-                           stepAction.getAcceleratorDescription() +
-                           " to step.",
-                           Color.RED);
-                        breakPoint = null;
-                        
-                        while (planPaused && !planStep)
-                        {
-                           try
-                           {
-                              Thread.sleep(50);
-                           }
-                           catch (Exception e)
-                           {
-                              e.printStackTrace();
-                           }
-                        }
-                     }
-
-                     planStep = false;
-
-                     return blocks;
-                  }
-            };
+         
+         Server s = new Server(properties.getInteger(PROP_NET_SERVER_PORT));
       }
 
       /**
@@ -693,19 +319,16 @@ public class Luv extends JFrame
          updateRecentMenu();
          fileMenu.add(recentPlanMenu);
          fileMenu.add(reloadAction);
-         //fileMenu.add(testAction);
          fileMenu.add(new JSeparator());
          fileMenu.add(exitAction);
 
-         // create and update Run menu
+         // create and update run menu
 
          execMenu = new JMenu("Run");
          menuBar.add(execMenu);
          updateExecMenu();
          
-         
-
-         // add veiw menue
+         // add view menu
 
          menuBar.add(viewMenu);
 
@@ -721,85 +344,10 @@ public class Luv extends JFrame
 
          // create the status bar
 
-         final JLabel statusBar = new JLabel(" ");
-         statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));
-         frame.add(statusBar, SOUTH);
-         startStatusBarThread(statusBar);
-      }
-
-      /** Creates and returns the status bar thread.
-       *
-       * @param statusBar the status bar to create the thread around
-       */
-
-      public void startStatusBarThread(final JLabel statusBar)
-      {
-         new Thread()
-         {
-               @Override public void run()
-               {
-                  try
-                  {
-                     StatusMessage lastMessage = null;
-                     
-                     while (true)
-                     {
-                        if (!statusMessageQ.isEmpty())
-                        {
-                           // kill any preceeding auto clear thread
-
-                           if (lastMessage != null)
-                              lastMessage.abortAutoClear = true;
-
-                           // get the message
-
-                           final StatusMessage message = 
-                              statusMessageQ.removeFirst();
-                           lastMessage = message.autoClearTime > 0 
-                              ? message
-                              : null;
-
-                           // show the message
-
-                           statusBar.setForeground(message.color);
-                           statusBar.setText(message.message);
-                           if (message.message != 
-                               StatusMessage.BLANK_MESSAGE.message)
-                              out.println("STATUS: " + message.message);
-
-                           // if auto clear requestd start a thread for that
-
-                           if (message.autoClearTime > 0)
-                              new Thread()
-                              {
-                                    @Override public void run()
-                                    {
-                                       try
-                                       {
-                                          sleep(message.autoClearTime);
-                                          if (!message.abortAutoClear)
-                                             statusBar.setText(
-                                                StatusMessage.BLANK_MESSAGE.message);
-                                       }
-                                       catch (Exception e)
-                                       {
-                                          e.printStackTrace();
-                                       }
-                                    }
-                              }.start();
-                        }
-
-                        // wait a bit then check for the next message
-
-                        sleep(50);
-
-                     }
-                  }
-                  catch (Exception e)
-                  {
-                  }
-               }
-         }.start();
+         final JLabel status = new JLabel(" ");
+         status.setBorder(new EmptyBorder(2, 2, 2, 2));
+         frame.add(status, SOUTH);
+         statusBar.startStatusBar(status);
       }
 
       /** Update the state of the exec menu */
@@ -820,7 +368,7 @@ public class Luv extends JFrame
 
           // add break point menu
 
-         if (breakPoints.size() > 0)
+         if (breakPointHandler.breakPoints.size() > 0)
          {
             execMenu.add(new JSeparator());
             
@@ -829,7 +377,7 @@ public class Luv extends JFrame
             
             // add all the break points
 
-            for (final IBreakPoint breakPoint: breakPoints.keySet())
+            for (final IBreakPoint breakPoint: breakPointHandler.breakPoints.keySet())
             {
                String actionStr = breakPoint.isEnabled() ? "Disable" : "Enable";
                LuvAction action = new LuvAction(
@@ -847,7 +395,7 @@ public class Luv extends JFrame
                
                breakMenu.add(action);
 
-               if (unfoundBreakPoints.contains(breakPoint))
+               if (breakPointHandler.unfoundBreakPoints.contains(breakPoint))
                   action.setEnabled(false);
             }
 
@@ -874,8 +422,8 @@ public class Luv extends JFrame
 
          // map all the breakpoints into the new model
 
-         unfoundBreakPoints.clear();
-         for (Map.Entry<IBreakPoint, ModelPath> pair: breakPoints.entrySet())
+         breakPointHandler.unfoundBreakPoints.clear();
+         for (Map.Entry<IBreakPoint, ModelPath> pair: breakPointHandler.breakPoints.entrySet())
          {
             IBreakPoint breakPoint = pair.getKey();
             ModelPath path = pair.getValue();
@@ -886,7 +434,7 @@ public class Luv extends JFrame
                breakPoint.setModel(target);
             }
             else
-               unfoundBreakPoints.add(breakPoint);
+               breakPointHandler.unfoundBreakPoints.add(breakPoint);
          }
 
          // update the exec menu
@@ -966,8 +514,13 @@ public class Luv extends JFrame
 
       public void setTitle()
       {
-         String planFile = model.getPlanName();
-         String scriptFile = "";
+          String planFile = "";
+          String scriptFile = "";
+          
+          if (plan == null)
+              planFile = model.getPlanName();
+          else
+              planFile = plan.getName();
          
          if (script != null)
              scriptFile = " SCRIPT: " + script.getName();
@@ -1008,34 +561,6 @@ public class Luv extends JFrame
          return properties.getProperty(key);
       }
 
-      /**
-       * Read plexil plan from disk and create an internal model.
-       *
-       * @param model model to read plan into
-       * @param file file containing plan
-       *
-       */
-
-      public void readPlan(Model model, File file)
-      {
-         showStatus("Loading "  + file);
-         try
-         {
-            parseXml(new FileInputStream(file), model);
-         }
-         catch(Exception e)
-         {
-            JOptionPane.showMessageDialog(
-               this,
-               "Error loading plan: " + file.getName() + 
-               "  See debug window for details.",
-               "Parse Error",
-               JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-         }
-         clearStatus();
-      }
-
       /** Construct a node popup menu on the fly given the it is
        * associated with.
        *
@@ -1061,7 +586,7 @@ public class Luv extends JFrame
             {
                   public void actionPerformed(ActionEvent e)
                   {
-                     createChangeBreakpoint(model);
+                     breakPointHandler.createChangeBreakpoint(model);
                   }
             });
          
@@ -1081,7 +606,7 @@ public class Luv extends JFrame
                {
                      public void actionPerformed(ActionEvent e)
                      {
-                        createTargetPropertyValueBreakpoint(
+                        breakPointHandler.createTargetPropertyValueBreakpoint(
                            model, name + " state", MODEL_STATE, state);
                      }
                });
@@ -1102,7 +627,7 @@ public class Luv extends JFrame
                {
                      public void actionPerformed(ActionEvent e)
                      {
-                        createTargetPropertyValueBreakpoint(
+                        breakPointHandler.createTargetPropertyValueBreakpoint(
                            model, name + " outcome", MODEL_OUTCOME, outcome);
                      }
                }); 
@@ -1124,7 +649,7 @@ public class Luv extends JFrame
                {
                      public void actionPerformed(ActionEvent e)
                      {
-                        createTargetPropertyValueBreakpoint(
+                        breakPointHandler.createTargetPropertyValueBreakpoint(
                            model, name + " failure type", 
                            MODEL_FAILURE_TYPE, failureType);
                      }
@@ -1132,26 +657,26 @@ public class Luv extends JFrame
 
          // get the break points for this model
          
-         final Vector<IBreakPoint> breakPoints = getBreakPoints(model);
+         final Vector<IBreakPoint> IbreakPoints = breakPointHandler.getBreakPoints(model);
 
          // if we got any add enabele/disabel & remove item for each one
 
-         if (breakPoints.size() > 0)
+         if (IbreakPoints.size() > 0)
          {
             // add the breakpoints
 
             popup.add(new JSeparator());
-            for (final IBreakPoint breakPoint: breakPoints)
+            for (final IBreakPoint IbreakPoint: IbreakPoints)
             {
-               String action = breakPoint.isEnabled() ? "Disable" : "Enable";
+               String action = IbreakPoint.isEnabled() ? "Disable" : "Enable";
                popup.add(new LuvAction(
-                            action + " " + breakPoint,
+                            action + " " + IbreakPoint,
                             action + " the breakpoint " + 
-                            breakPoint + ".")
+                            IbreakPoint + ".")
                   {
                         public void actionPerformed(ActionEvent e)
                         {
-                           breakPoint.setEnabled(!breakPoint.isEnabled());
+                           IbreakPoint.setEnabled(!IbreakPoint.isEnabled());
                            refreshView();
                         }
                   }); 
@@ -1160,16 +685,16 @@ public class Luv extends JFrame
             // add the breakpoints
 
             popup.add(new JSeparator());
-            for (final IBreakPoint breakPoint: breakPoints)
+            for (final IBreakPoint IbreakPoint: IbreakPoints)
             {
                popup.add(new LuvAction(
-                            "Remove " + breakPoint,
+                            "Remove " + IbreakPoint,
                             "Permanently remove the breakpoint " + 
-                            breakPoint + ".")
+                            IbreakPoint + ".")
                   {
                         public void actionPerformed(ActionEvent e)
                         {
-                           removeBreakPoint(breakPoint);
+                           breakPointHandler.removeBreakPoint(IbreakPoint);
                         }
                   }); 
             }
@@ -1177,7 +702,7 @@ public class Luv extends JFrame
 
          // if there is more then one break point add a remove all item
 
-         if (breakPoints.size() > 1)
+         if (IbreakPoints.size() > 1)
          {
             // add the remove all action
             
@@ -1188,8 +713,8 @@ public class Luv extends JFrame
                {
                      public void actionPerformed(ActionEvent e)
                      {
-                        for (final IBreakPoint breakPoint: breakPoints)
-                           removeBreakPoint(breakPoint);
+                        for (final IBreakPoint IbreakPoint: IbreakPoints)
+                           breakPointHandler.removeBreakPoint(IbreakPoint);
                         
                         updateExecMenu();
                      }
@@ -1201,192 +726,6 @@ public class Luv extends JFrame
          return popup;
       }
 
-      /** Return all the breakpoints for a given model. */
-
-      public Vector<IBreakPoint> getBreakPoints(Model model)
-      {
-         Vector<IBreakPoint> bps = new Vector<IBreakPoint>();
-         for (IBreakPoint breakPoint: breakPoints.keySet())
-            if (model == breakPoint.getModel())
-               bps.add(breakPoint);
-         return bps;
-      }
-      
-      /** An abstract breakpoint which supplies the breaking action in
-       * the event that a breakpoint is signaled.  Derrived classes are
-       * expected to provide the conditions underwich the break is
-       * eligable to fire. */
-
-      public abstract class LuvBreakPoint extends AbstractBreakPoint
-      {
-            /** Old value, use to test for changes */
-
-            String oldValue = "";
-
-            /** Targe model property to watch. */
-            
-            String targetProperty;
-
-            /** storage for reason for current break point occurrance. */
-
-            String reason = "NO break has occurred yet. This should NEVER be seen!";
-
-            /** Construct a Luv specific break point. 
-             *
-             * @param model the model on which the break point operates
-             */
-            
-            public LuvBreakPoint(Model model, String targetProperty)
-            {
-               super(model);
-               this.targetProperty = targetProperty;
-               oldValue = model.getProperty(targetProperty);
-               addBreakPoint(this, model);
-            }
-            
-            /** {@inheritDoc} */
-            
-            public void onBreak()
-            {
-               planPaused = true;
-               breakPoint = this;
-               oldValue = model.getProperty(targetProperty);
-            }
-
-            /** {@inheritDoc} */
-            
-            public String getReason()
-            {
-               return reason;
-            }
-
-            /** {@inheritDoc} */
-
-            public void setModel(Model model)
-            {
-               super.setModel(model);
-               if (targetProperty != null)
-                  oldValue = model.getProperty(targetProperty);
-            }
-      };
-
-      /** Add breakpoint to grand list of breakpoints.
-       *
-       * @param breakPoint breakpoint to add
-       * @param model model breakpoint is associated with
-       */
-
-      public void addBreakPoint(IBreakPoint breakPoint, Model model)
-      {
-         ModelPath mp = new ModelPath(model);
-         breakPoints.put(breakPoint, mp);
-
-         showStatus("Added break on " + breakPoint, 5000l);
-         refreshView();
-      }
-
-      /** Remove breakpoint from grand list of breakpoints.
-       *
-       * @param breakPoint breakpoint to remove
-       */
-
-      public void removeBreakPoint(IBreakPoint breakPoint)
-      {
-         breakPoint.unregister();
-         breakPoints.remove(breakPoint);
-         showStatus("Removed break on " + breakPoint, 5000l);
-         refreshView();
-      }
-
-      /** Remove all breakpoints from grand list of breakpoints. */
-
-      public void removeAllBreakPoints()
-      {
-         for (IBreakPoint breakPoint: breakPoints.keySet())
-            breakPoint.unregister();
-         breakPoints.clear();
-
-         showStatus("Removed all breakponts.", 5000l);
-         refreshView();
-      }
-      
-      /** Create a breakpoint which fires when the model state
-       * changes.
-       *
-       * @param model the model to watch for state changes
-       */
-      
-      public IBreakPoint createChangeBreakpoint(Model model)
-      {
-         return new LuvBreakPoint(model, MODEL_STATE)
-            {
-                  public boolean isBreak()
-                  {
-                     return !model.getProperty(MODEL_STATE).equals(oldValue);
-                  }
-                  
-                  public void onBreak()
-                  {
-                     reason = model.getProperty(MODEL_NAME) + 
-                        " changed from " + oldValue +
-                        " to " + model.getProperty(MODEL_STATE) + ".";
-                     oldValue = model.getProperty(MODEL_STATE);
-                     super.onBreak();
-                  }
-
-                  public String toString()
-                  {
-                     return model.getProperty(MODEL_NAME) +
-                        " state changed";
-                  }
-         };
-      }
-
-      /** Create a breakpoint which fires when the model state
-       * changes to a specifed state.
-       *
-       * @param model the model to watch for state changes
-       * @param propertyTitle printed name of property
-       * @param targetProperty property to watch for break
-       * @param targetValue value to watch for break
-       */
-      
-      public IBreakPoint createTargetPropertyValueBreakpoint(
-         Model model, final String propertyTitle, 
-         final String targetProperty, final String targetValue)
-      {
-         return new LuvBreakPoint(model, targetProperty)
-            {
-                  public boolean isBreak()
-                  {
-                     String newValue = model.getProperty(targetProperty);
-                     if (newValue != null && 
-                         !newValue.equals(oldValue) && 
-                         newValue.equals(targetValue))
-                     {
-                        return true;
-                     }
-                     else 
-                        oldValue = newValue;
-                     
-                     return false;
-                  }
-                  
-                  public void onBreak()
-                  {
-                     reason = propertyTitle + " changed to " + 
-                        model.getProperty(targetProperty) + ".";
-                     oldValue = model.getProperty(targetProperty);
-                     super.onBreak();
-                  }
-
-                  public String toString()
-                  {
-                     return propertyTitle + " changed to " + targetValue;
-                  }
-         };
-      }
-
       /** Parse a given XML message string.
        *
        * @param input source of xml to parse
@@ -1394,7 +733,7 @@ public class Luv extends JFrame
        *
        * @return returns true if the xml was in the form of a plan
        */
-
+      
       public boolean parseXml(InputStream input, Model model)
       {
          boolean isPlan = false;
@@ -1494,7 +833,7 @@ public class Luv extends JFrame
                      // try to load the library and retry the link
 
                      case 0:
-                        chooseLibrary();
+                        fh.chooseLibrary();
                         break;
                         
                         // if the user doesn't want to find this library
@@ -1527,205 +866,6 @@ public class Luv extends JFrame
          return success;
       }
       
-      /**
-       * Select and load a script from the disk.  This operates on
-       * the global model.
-       */
-      
-      public void chooseScript()
-      {
-         try
-         {
-            fileChooser.setCurrentDirectory(
-               new File(properties.getString(PROP_FILE_RECENT_SCRIPT_DIR)));
-            if (fileChooser.showOpenDialog(this) == APPROVE_OPTION)
-            {
-               script = fileChooser.getSelectedFile();
-               properties.set(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-               loadScript(script);
-            }
-         }
-         catch(Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-      
-       /**
-       * Load a plexil script from the disk.  This operates on the global
-       * model.
-       *
-       * @paramscript file to load
-       */
-      
-      public void loadScript (File script)
-      {
-         model.addScriptName(script.toString());
-         resetView();
-      }
-
-
-      /**
-       * Select and load a plexil plan from the disk.  This operates on
-       * the global model.
-       */
-      
-      public void choosePlan()
-      {
-         try
-         {
-            fileChooser.setCurrentDirectory(
-               new File(properties.getString(PROP_FILE_RECENT_PLAN_DIR)));
-            if (fileChooser.showOpenDialog(this) == APPROVE_OPTION)
-            {
-               File plan = fileChooser.getSelectedFile();
-               properties.set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
-               script = null;
-               loadPlan(plan);
-            }
-         }
-         catch(Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-      /**
-       * Load a plexil plan from the disk.  This operates on the global
-       * model.
-       *
-       * @param plan the plan file to load
-       */
-      
-      public void loadPlan(File plan)
-      {
-         loadPlan(plan, null);
-      }
-
-      /**
-       * Load a plexil plan from the disk.  This operates on the global
-       * model.
-       *
-       * @param plan the plan file to load
-       * @param libraryNames names of library file the plan to load
-       */
-      
-      public void loadPlan(File plan, Vector<String> libraryNames)
-      {
-         model.clear();
-         model.addPlanName(plan.toString());
-         model.setProperty(VIEWER_BLOCKS, FALSE);
-         
-         readPlan(model, plan);
-         if (libraryNames != null)
-            for (String libraryName: libraryNames)
-               loadLibrary(new File(libraryName));
-         try
-         {
-            link(model, libraries);
-         }
-         catch (LinkCanceledException lce) {}
-         resetView();
-         addRecent();
-         outstandingLibraryCount = 0;
-         libraries.clear();
-      }
-
-      /**
-       * Select and load a plexil library from the disk.  The library is
-       * added to the set of global libraries.
-       */
-      
-      public void chooseLibrary()
-      {
-         try
-         {
-            String recent = properties.getString(PROP_FILE_RECENT_LIB_DIR);
-            if (recent == null)
-               recent = properties.getString(PROP_FILE_RECENT_PLAN_DIR);
-            fileChooser.setCurrentDirectory(new File(recent));
-            if (fileChooser.showOpenDialog(this) == APPROVE_OPTION)
-            {
-               File library = fileChooser.getSelectedFile();
-               properties.set(PROP_FILE_RECENT_LIB_DIR, library.getParent());
-               loadLibrary(library);
-            }
-         }
-         catch(Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-      /**
-       * Load a plexil library from the disk.  The library is added to
-       * the set of global libraries.
-       */
-      
-      public void loadLibrary(File libraryFile)
-      {
-         model.addLibraryName(libraryFile.toString());
-         Model library = new Model("a library");
-         readPlan(library, libraryFile);
-         libraries.add(library.findChild(NODE));
-      }
-
-      /**
-       * Read all plans in a dirctory for testing purposes.
-       */
-      
-      public void test()
-      {
-         try
-         {
-            String recent = properties.getString(PROP_FILE_RECENT_TEST_DIR);
-            if (recent == null)
-               recent = properties.getString(PROP_FILE_RECENT_PLAN_DIR);
-
-            dirChooser.setCurrentDirectory(
-               new File(new File(recent).getParent()));
-            if (dirChooser.showOpenDialog(this) == APPROVE_OPTION)
-            {
-               File dir = dirChooser.getSelectedFile();
-               properties.set(PROP_FILE_RECENT_TEST_DIR, dir.toString());
-               File[] tests = dir.listFiles(new java.io.FileFilter()
-                  {
-                        public boolean accept(File file)
-                        {
-                           return file.getName().endsWith(XML_EXTENSION);
-                        }
-                  });
-
-               for (File file: tests)
-               {
-                  readPlan(new Model("Test Model"), file);
-               }
-            }
-         }
-         catch(Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-      /** Load a recently loaded plan.
-       *
-       * @param index index of recently loaded plan
-       */
-
-      public void loadRecentPlan(int index)
-      {
-         String planName = getRecentPlanName(index);
-         String scriptName = getRecentScriptName(index);
-         if (planName != null)
-         {
-            loadPlan(new File(planName), getRecentLibNames(index, false));
-            if (scriptName != null)
-                script = new File(scriptName);
-            resetView();
-         }
-      }
-      
       /** Add a file to the recently open files list. */
 
       public void addRecent()
@@ -1743,13 +883,13 @@ public class Luv extends JFrame
             {
                // get (and remove) the old library names at this index
 
-               Vector<String> tmpLibs = getRecentLibNames(i, true);
+               Vector<String> tmpLibs = fh.getRecentLibNames(i, true);
 
                // replace them with these library names
 
                int libIndex = 1;
                for (String library: libraries)
-                  setRecentLibName(i, libIndex++, library);
+                  fh.setRecentLibName(i, libIndex++, library);
                libraries = tmpLibs;
 
                
@@ -1770,94 +910,7 @@ public class Luv extends JFrame
 
          updateRecentMenu();
       }
-
-      /** Get a list of library names associated with a recently loaded plan.
-       *
-       * @param recentIndex the index of the recent plan these libraries
-       * were loaded with
-       * @param remove remove names as they are collected
-       *
-       * @return a vector of library names, which might be empty
-       */
-
-      public Vector<String> getRecentLibNames(int recentIndex, boolean remove)
-      {
-         Vector<String> libNames = new Vector<String>();
-         int libIndex = 1;
-
-         String libName;
-         while ((libName = getRecentLibName(
-                    recentIndex, libIndex++, remove)) != null)
-            libNames.add(libName);
-
-         return libNames;
-      }
-
-      /** Given a recent plan index and library index return the
-       * associated recent library filename.
-       *
-       * @param recentIndex the index of the recent plan this library
-       * was loaded with
-       * @param libIndex the index of the particular library
-       * @param remove remove name as it is collected
-       *
-       * @return the name of the library, which may be null
-       */
-
-      public String getRecentLibName(int recentIndex, int libIndex, 
-                                     boolean remove)
-      {
-         String name = PROP_FILE_RECENT_LIB_BASE + recentIndex + "-" + libIndex;
-         String prop = properties.getProperty(name);
-         if (remove)
-            properties.remove(name);
-         return prop;
-      }
-
-
-      /** Given a recent plan index and library index, set that library name.
-       *
-       * @param recentIndex the index of the recent plan this library
-       * was loaded with
-       * @param libIndex the index of the particular library
-       * @param libName name of this library
-       *
-       * @return the old value of this property
-       */
-
-      public String setRecentLibName(int recentIndex, int libIndex, String libName)
-      {
-         String name = PROP_FILE_RECENT_LIB_BASE + recentIndex + "-" + libIndex;
-         return (String)properties.setProperty(name, libName);
-      }
-
-      /** Given a recent plan index, return the associated recent plan
-       * filename.
-       *
-       * @param recentIndex the index of the recent plan
-       *
-       * @return the name of the recent plan, possibly null
-       */
-
-      public String getRecentPlanName(int recentIndex)
-      {
-         return properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + recentIndex);
-      }
       
-       /** Given a recent script index, return the associated recent script
-       * filename.
-       *
-       * @param recentIndex the index of the recent script
-       *
-       * @return the name of the recent script, possibly null
-       */
-
-      public String getRecentScriptName(int recentIndex)
-      {
-         return properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + recentIndex);
-      }
-
-
       /** Given a recent plan index, the description used for the recent
        * menu item tooltip. 
        *
@@ -1868,10 +921,10 @@ public class Luv extends JFrame
 
       public String getRecentMenuDescription(int recentIndex)
       {
-         File plan = new File(getRecentPlanName(recentIndex));
+         File plan = new File(fh.getRecentPlanName(recentIndex));
          StringBuffer description = new StringBuffer("Load " + plan.getName());
 
-         for (String libName: getRecentLibNames(recentIndex, false))
+         for (String libName: fh.getRecentLibNames(recentIndex, false))
             description.append(" + " + new File(libName).getName());
          
          description.append(".");
@@ -1890,7 +943,7 @@ public class Luv extends JFrame
          recentPlanMenu.removeAll();
          int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
          for (int i = 0; i < count; ++i)
-            if (getRecentPlanName(i + 1) != null)
+            if (fh.getRecentPlanName(i + 1) != null)
                recentPlanMenu.add(
                   new LoadRecentAction(i + 1, '1' + i, META_MASK));
 
@@ -1898,89 +951,6 @@ public class Luv extends JFrame
          
          recentPlanMenu.setEnabled(recentPlanMenu.getMenuComponentCount() > 0);
       }      
-
-      /** A status message, with some text, a message color, and an
-       * optional auto clear time. */
-
-      public static class StatusMessage
-      {
-            public static final StatusMessage BLANK_MESSAGE = 
-               new StatusMessage(" ", Color.BLACK, 0);
-
-            boolean abortAutoClear = false;
-            long    autoClearTime = 0;
-            Color   color = Color.BLACK;
-            String  message;
-
-            public StatusMessage(String message, Color color, long autoClearTime)
-            {
-               this.message = message;
-               this.color = color;
-               this.autoClearTime = autoClearTime;
-            }
-      }
-            
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       */
-        
-      public void showStatus(String message)
-      {
-         showStatus(message, Color.BLACK, 0);
-      }
-
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       * @param autoClearTime milliseconds to wait before clearing the
-       * message, a value <= 0 will be left until some other action
-       * clears or overwrites this message
-       */
-        
-      public void showStatus(String message, long autoClearTime)
-      {
-         showStatus(message, Color.BLACK, autoClearTime);
-      }
-
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       * @param color the color of the mesage
-       */
-        
-      public void showStatus(String message, Color color)
-      {
-         showStatus(message, color, 0);
-      }
-
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       * @param color the color of the mesage
-       * @param autoClearTime milliseconds to wait before clearing the
-       * message, a value <= 0 will be left until some other action
-       * clears or overwrites this message
-       */
-        
-      public void showStatus(String message, Color color, final long autoClearTime)
-      {
-         statusMessageQ.add(new StatusMessage(message, color, autoClearTime));
-      }
-
-      /** Clear the status bar. */
-
-      public void clearStatus()
-      {
-         statusMessageQ.add(StatusMessage.BLANK_MESSAGE);
-      }
-
-      static public ImageIcon loadImage(String name)
-      {
-         return new ImageIcon(
-            Toolkit.getDefaultToolkit()
-            .getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
-      }
 
       /**
        * Exit this program.
@@ -1991,13 +961,13 @@ public class Luv extends JFrame
          System.exit(0);
       }
 
-      /** Exception used to signal that the user cancled a link. */
+      /** Exception used to signal that the user canceled a link. */
 
       public class LinkCanceledException extends Exception
       {
             LinkCanceledException(String nodeId)
             {
-               super("Link cancled at node: " + nodeId);
+               super("Link canceled at node: " + nodeId);
             }
       }
 
@@ -2050,7 +1020,7 @@ public class Luv extends JFrame
 
             public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
             {
-               super(getRecentPlanName(recentIndex),
+               super(fh.getRecentPlanName(recentIndex),
                      getRecentMenuDescription(recentIndex),
                      keyCode, 
                      modifiers);
@@ -2065,7 +1035,7 @@ public class Luv extends JFrame
 
             public void actionPerformed(ActionEvent e)
             {
-               loadRecentPlan(recentIndex);
+               fh.loadRecentPlan(recentIndex);
             }
       }
 
@@ -2076,7 +1046,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  choosePlan();
+                  fh.choosePlan();
                }
          };
       
@@ -2086,18 +1056,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  chooseScript();
-               }
-         };
-
-      /** Action to test all plans in a directory. */
-
-      LuvAction testAction = new LuvAction(
-         "Test", "Load all plans in a directory testing purposes.", VK_T, META_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  test();
+                  fh.chooseScript();
                }
          };
 
@@ -2108,7 +1067,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  loadRecentPlan(1);
+                  fh.loadRecentPlan(1);
                }
          };
 
@@ -2132,9 +1091,9 @@ public class Luv extends JFrame
              {
                  allowBreaks = !allowBreaks;
                  if (allowBreaks)
-                     showStatus("Breaking ENabled.", Color.GREEN.darker());
+                     statusBar.showStatus("Breaking ENabled.", Color.GREEN.darker());
                  else
-                     showStatus("Breaking DISabled (Pressing F2 toggles breaking ability)", Color.RED);
+                     statusBar.showStatus("Breaking DISabled (Pressing F2 toggles breaking ability)", Color.RED);
              }
 	 };
          
@@ -2148,9 +1107,12 @@ public class Luv extends JFrame
              public void actionPerformed(ActionEvent actionEvent)
              {
                 try {
-                    showStatus("Executing...", Color.GREEN.darker(), 1000);
-                    executedViaLuvViewer = true;
-                    runExecTest();                    
+                    if (!planPaused && !isExecuting)
+                    {
+                        executedViaLuvViewer = true;
+                        statusBar.showStatus("Executing...", Color.GREEN.darker(), 1000);
+                        ex.runExec();
+                    }
                 } catch (IOException ex) {
                     System.err.println("Error: " + ex.getMessage());
                 }
@@ -2163,10 +1125,12 @@ public class Luv extends JFrame
          VK_SPACE)
          {
                public void actionPerformed(ActionEvent e)
-               {            
-                  planPaused = !planPaused;
-                  showStatus((planPaused ? "Pause" : "Resume") + " requested.",
-                             Color.BLACK, 1000);
+               {  
+                   if (allowBreaks)
+                   {
+                       planPaused = !planPaused;
+                       statusBar.showStatus((planPaused ? "Pause" : "Resume") + " requested.", Color.BLACK, 1000);
+                   }
                }
          };
 
@@ -2182,12 +1146,12 @@ public class Luv extends JFrame
                   if (!planPaused)
                   {
                      planPaused = true;
-                     showStatus("Step requested.", Color.BLACK, 1000);
+                     statusBar.showStatus("Step requested.", Color.BLACK, 1000);
                   }
                   else
                   {
                      planStep = true;
-                     showStatus("Step plan.", Color.BLACK, 1000);
+                     statusBar.showStatus("Step plan.", Color.BLACK, 1000);
                   }
                }
          };
@@ -2234,7 +1198,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  for (IBreakPoint bp: breakPoints.keySet())
+                  for (IBreakPoint bp: breakPointHandler.breakPoints.keySet())
                      bp.setEnabled(true);
                   refreshView();
                }
@@ -2249,7 +1213,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  for (IBreakPoint bp: breakPoints.keySet())
+                  for (IBreakPoint bp: breakPointHandler.breakPoints.keySet())
                      bp.setEnabled(false);
                   refreshView();
                }
@@ -2263,7 +1227,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  removeAllBreakPoints();
+                  breakPointHandler.removeAllBreakPoints();
                }
          };
 
@@ -2274,7 +1238,24 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  exit();
+                   Object[] options = 
+                     {
+                        "Yes",
+                        "No",
+                     };
+                   
+                   int exitLuv = JOptionPane.showOptionDialog(
+                           theLuv,
+                     "Are you sure you want to exit?",
+                     "Exit Luv Viewer",
+                     JOptionPane.YES_NO_CANCEL_OPTION,
+                     JOptionPane.WARNING_MESSAGE,
+                     null,
+                     options,
+                     options[0]);
+                   
+                   if (exitLuv == 0)
+                       exit();
                }
          };
 }

@@ -49,8 +49,7 @@ public class Properties extends java.util.Properties
       File file;
 
       /** 
-       * Constrcut a properties object, reading properties if they
-       * exist.
+       * Construct a properties object, reading properties if they exist.
        *
        * @param filename name of properties file to read.
        */
@@ -61,7 +60,31 @@ public class Properties extends java.util.Properties
          {
             file = new File(filename);
             if (file.exists())
-               load(new FileInputStream(file));
+               load(new FileInputStream(file));                
+            
+            define(PROP_FILE_AUTO_LOAD,    PROP_FILE_AUTO_LOAD_DEF);
+            define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
+            define(PROP_WIN_LOC,  PROP_WIN_LOC_DEF);
+            define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);
+            define(PROP_WIN_BCLR, PROP_WIN_BCLR_DEF);
+            define(PROP_DBWIN_LOC,     PROP_DBWIN_LOC_DEF);
+            define(PROP_DBWIN_SIZE,    PROP_DBWIN_SIZE_DEF);
+            define(PROP_DBWIN_VISIBLE, PROP_DBWIN_VISIBLE_DEF);
+            define(PROP_TOOLTIP_DISMISS, PROP_TOOLTIP_DISMISS_DEF);
+            define(PROP_NET_SERVER_PORT,  PROP_NET_SERVER_PORT_DEF);
+            define(PROP_NET_RECENT_HOST,  PROP_NET_RECENT_HOST_DEF);
+            define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
+            define(PROP_VIEW_HIDE_PLEXILLISP, PROP_VIEW_HIDE_PLEXILLISP_DEF);
+
+            define(PROP_FILE_RECENT_PLAN_DIR,
+                 System.getenv(PROP_PLEXIL_HOME) != null
+                 ? System.getenv(PROP_RECENT_FILES) + "/plans"
+                 : System.getProperty(PROP_RECENT_FILES));
+
+            define(PROP_FILE_RECENT_SCRIPT_DIR,
+                 System.getenv(PROP_PLEXIL_HOME) != null
+                 ? System.getenv(PROP_RECENT_FILES) + "/scripts"
+                 : System.getProperty(PROP_RECENT_FILES));
          }
          catch (Exception e)
          {

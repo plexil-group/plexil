@@ -191,8 +191,7 @@ public class TreeTableView extends JTreeTable implements View
                         ? Constants.getIcon(model.getProperty(NODETYPE_ATTR))
                         : null);
                      
-                     Vector<IBreakPoint> breakPoints = Luv.getLuv()
-                        .getBreakPoints(model);
+                     Vector<IBreakPoint> breakPoints = Luv.breakPointHandler.getBreakPoints(model);
                      if (breakPoints.size() > 0)
                      {
                         setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
@@ -241,7 +240,7 @@ public class TreeTableView extends JTreeTable implements View
             Model model = ((Wrapper)path.getLastPathComponent()).model;
             toolTip.append("<b>NAME</b> " + model.getProperty(MODEL_NAME));
             toolTip.append("<br><b>TYPE</b> " + model.getProperty(MODEL_TYPE));
-            for (IBreakPoint bp: Luv.getLuv().getBreakPoints(model))
+            for (IBreakPoint bp: Luv.breakPointHandler.getBreakPoints(model))
             {
                if (bp.isEnabled())
                   toolTip
