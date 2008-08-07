@@ -61,9 +61,10 @@ public class Luv
       public static BreakPointHandler   breakPointHandler = new BreakPointHandler();
       public static LuvViewerHandler    luvViewerHandler = new LuvViewerHandler();
       public static LibraryHandler      libraryHandler = new LibraryHandler();
+      public static NodePopupMenuHandler nodePopupMenuHandler = new NodePopupMenuHandler();
       public static ActionHandler       actionHandler;
       
-      public static NodePopupMenuHandler       nodePopupMenuHandler = new NodePopupMenuHandler();
+      
       
       /** the current model being displayed */
 
