@@ -29,38 +29,24 @@ package gov.nasa.luv;
 import javax.swing.JTree;
 import javax.swing.JTable;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.JPopupMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JMenu;
 
 import java.awt.Color;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
 import java.util.Vector;
-import java.util.HashMap;
 import java.util.Enumeration;
-
 
 import treetable.JTreeTable;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
-
 import static gov.nasa.luv.Constants.*;
 import static java.awt.event.KeyEvent.*;
 
@@ -103,12 +89,13 @@ public class TreeTableView extends JTreeTable implements View
 
          addMouseListener(new MouseAdapter()
             {
+            @Override
                   public void mousePressed(MouseEvent e)
                   {
                      if (e.isPopupTrigger())
                         handlePopupEvent(e, luv);
                      else if (e.getClickCount() == 1)
-                        handleClickEvent(e, luv);
+                        ;//handleClickEvent(e, luv);
                   }
             });
          
@@ -133,6 +120,7 @@ public class TreeTableView extends JTreeTable implements View
 
             setPreferredColumnWidths(lastView.getColumnWidths());
          }
+         
          lastView = this;
 
          // setup the column coloring logic
@@ -141,6 +129,7 @@ public class TreeTableView extends JTreeTable implements View
             TreeModel.cTypes[STATE_COL_NUM], 
             new DefaultTableCellRenderer()
             {
+            @Override
                   public Component getTableCellRendererComponent(
                      JTable table, 
                      Object value, 
@@ -172,6 +161,7 @@ public class TreeTableView extends JTreeTable implements View
 
          tree.setCellRenderer(new DefaultTreeCellRenderer()
             {
+            @Override
                   public Component getTreeCellRendererComponent(
                      JTree tree,
                      Object value,
@@ -191,11 +181,11 @@ public class TreeTableView extends JTreeTable implements View
                         ? Constants.getIcon(model.getProperty(NODETYPE_ATTR))
                         : null);
                      
-                     Vector<IBreakPoint> breakPoints = Luv.breakPointHandler.getBreakPoints(model);
+                     Vector<BreakPoint> breakPoints = Luv.breakPointHandler.getBreakPoints(model);
                      if (breakPoints.size() > 0)
                      {
                         setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
-                        for (IBreakPoint breakPoint: breakPoints)
+                        for (BreakPoint breakPoint: breakPoints)
                            if (breakPoint.isEnabled())
                               setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
                      }
@@ -208,21 +198,6 @@ public class TreeTableView extends JTreeTable implements View
                      return component;
                   }
             });
-
-//          // watch the table
-
-//          TableModel tm = getModel();
-//          tm.addTableModelListener(new TableModelListener()
-//             {
-//                   public void tableChanged(TableModelEvent e)
-//                   {
-//                      System.out.println("type: " + e.getType() + 
-//                                         " fr: " + e.getFirstRow() +
-//                                         " lr: " + e.getLastRow() +
-//                                         " co: " + e.getColumn()
-//                         );
-//                   }
-//             });
       }
 
       /** Get the tool tip text. 
@@ -240,7 +215,7 @@ public class TreeTableView extends JTreeTable implements View
             Model model = ((Wrapper)path.getLastPathComponent()).model;
             toolTip.append("<b>NAME</b> " + model.getProperty(MODEL_NAME));
             toolTip.append("<br><b>TYPE</b> " + model.getProperty(MODEL_TYPE));
-            for (IBreakPoint bp: Luv.breakPointHandler.getBreakPoints(model))
+            for (BreakPoint bp: Luv.breakPointHandler.getBreakPoints(model))
             {
                if (bp.isEnabled())
                   toolTip
@@ -300,7 +275,7 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handlePopupEvent(MouseEvent mouseEvent, Luv luv)
       {
-          if (luv.allowBreaks)
+          if (Luv.allowBreaks)
           {
              // identify node under popup menu
 
@@ -309,7 +284,7 @@ public class TreeTableView extends JTreeTable implements View
 
              // construct the popup menu
 
-             JPopupMenu popup = luv.constructNodePopupMenu(
+             JPopupMenu popup = Luv.nodePopupMenuHandler.constructNodePopupMenu(
                 ((Wrapper)tp.getLastPathComponent()).model);
 
              // display the popup menu
@@ -330,7 +305,7 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handleClickEvent(MouseEvent mouseEvent, Luv luv)
       {
-         // identify node under popum menu
+         // identify node under popup menu
 
          TreePath tp = tree.getClosestPathForLocation(
             mouseEvent.getX(), mouseEvent.getY());
@@ -339,7 +314,7 @@ public class TreeTableView extends JTreeTable implements View
          
          if (nodeInfoWindow == null)
             nodeInfoWindow = new NodeInfoWindow(
-               luv, ((Wrapper)tp.getLastPathComponent()).model);
+               Luv.luvViewerHandler, ((Wrapper)tp.getLastPathComponent()).model);
          else
             nodeInfoWindow.setModel(
                ((Wrapper)tp.getLastPathComponent()).model);
@@ -466,6 +441,7 @@ public class TreeTableView extends JTreeTable implements View
 
                model.addChangeListener(new Model.ChangeAdapter()
                   {
+                @Override
                         public void propertyChange(Model model, String property)
                         {
                             ((AbstractTableModel)view.getModel())
@@ -485,6 +461,7 @@ public class TreeTableView extends JTreeTable implements View
                Wrapper.view = view;
             }
 
+        @Override
             public String toString()
             {
                return showTextTypes
@@ -563,6 +540,7 @@ public class TreeTableView extends JTreeTable implements View
                return ((Wrapper)node).getChild(i);
             }
 
+        @Override
             public boolean isLeaf(Object node)
             {
                return ((Wrapper)node).getChildCount() == 0;
@@ -578,6 +556,7 @@ public class TreeTableView extends JTreeTable implements View
                return cNames[column];
             }
             
+        @Override
             public Class getColumnClass(int column) 
             {
                return cTypes[column];

@@ -49,8 +49,6 @@ public class Constants
       public static final int    END_OF_MESSAGE = 4;
       public static final String MESSAGE_ACKNOWLEDGE = "<acknowledge/>";
 
-      //public static final int BUFFER_SIZE = 32768;
-
       /** properties file */      
       public static final String PROPERTIES_FILE_LOCATION =
          System.getenv("PLEXIL_HOME") + 
@@ -90,7 +88,7 @@ public class Constants
          
          public void add(String tag, String iconName)
          {
-            put(tag, StatusBar.loadImage(iconName));
+            put(tag, StatusBarHandler.loadImage(iconName));
          }
       };
 
@@ -156,10 +154,8 @@ public class Constants
       public static final String INFINITE_LOOP = "INFINITE_LOOP";
       public static final String PRE_CONDITION_FALSE = "PRE_CONDITION_FALSE";
       public static final String POST_CONDITION_FALSE = "POST_CONDITION_FALSE";
-      public static final String INVARIANT_CONDITION_FALSE =
-         "INVARIANT_CONDITION_FALSE";
-      public static final String ANCESTOR_INVARIANT_CONDITION_FALSE =
-         "ANCESTOR_INVARIANT_CONDITION_FALSE";
+      public static final String INVARIANT_CONDITION_FALSE = "INVARIANT_CONDITION_FALSE";
+      public static final String ANCESTOR_INVARIANT_CONDITION_FALSE = "ANCESTOR_INVARIANT_CONDITION_FALSE";
       public static final String PARENT_FAILED = "PARENT_FAILED";
 
 
@@ -247,8 +243,8 @@ public class Constants
       public static final String    PROP_FILE_RECENT_TEST_DIR = "file.recent-test-directory";
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
       public static final int       PROP_FILE_RECENT_COUNT_DEF = 10;
-      //public static final String    PROP_FILE_UELIB        = "file.uelib-name";
-      //public static final String    PROP_FILE_UELIB_DEF    = "libExec_g";
+      
+      public static final String    PROP_MAC_MENU_STYLE = "apple.laf.useScreenMenuBar";
 
       public static final String    PROP_WIN_LOC        = "window.location";
       public static final Point     PROP_WIN_LOC_DEF    = new Point(0, 0);
@@ -281,24 +277,76 @@ public class Constants
       public static final boolean   PROP_VIEW_HIDE_PLEXILLISP_DEF  = false;
 
       public static final String    PROP_PLEXIL_HOME = "PLEXIL_HOME";
+      public static final String    PROP_USER_HOME = "user.home";
+      public static final String    PROP_FILE_SEPARATOR = "file.separator";
       
       public static final String    PROP_UE_EXEC =        
               System.getenv(PROP_PLEXIL_HOME) + 
-              System.getProperty("file.separator") + "apps" + 
-              System.getProperty("file.separator") + "TestExec" + 
-              System.getProperty("file.separator") + "test-exec_g_rt";
+              System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
+              System.getProperty(PROP_FILE_SEPARATOR) + "TestExec" + 
+              System.getProperty(PROP_FILE_SEPARATOR) + "test-exec_g_rt";
       
       public static final String    PROP_RECENT_FILES =   
               System.getenv(PROP_PLEXIL_HOME) + 
-              System.getProperty("file.separator") + "apps" + 
-              System.getProperty("file.separator") + "TestExec";
+              System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
+              System.getProperty(PROP_FILE_SEPARATOR) + "TestExec";
+      
+      public static final String    PROP_LOG_FILE =
+      	    System.getProperty(PROP_USER_HOME) + 
+            System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";
 
       // file
 
       public static final String XML_EXTENSION = "xml";
       public static final String PLX_EXTENSION = "plx";
+      
+      // miscellaneous constants
+      
+      public static final String ROOT = "root";
+      public static final String DUMMY = "dummy";
+      public static final String RECENT_PLANS = "Recent Plans";
+      public static final String VIEW = "View";
+      public static final String DEBUG_WINDOW = "Debug Window";
+      public static final String FILE = "File";
+      public static final String RUN = "Run";
+      public static final String BLANK = " ";
+      public static final String ENABLE = "Enable";
+      public static final String DISABLE = "Disable";
+      
+      public static final String FONT = "Monospaced";
+      
+      public static final String NODE_POPUP_MENU = "Node Popup Menu";
+      
+      public static final String CLEAR_SCREEN = "Clear Screen";
+      
+      public static final String DEFAULT_TITLE = "Welcome to Luv Viewer";
+      public static final String SCRIPT_TITLE = " SCRIPT: ";
+      public static final String PLAN_TITLE = "PLAN: ";
+      
+      public static final String PAUSE_OR_RESUME_PLAN = "Pause or Resume plan";
+      public static final String STEP = "Step";
+      public static final String BREAKING_ENABLED = "Breaking Enabled";
+      public static final String BREAKING_DISABLED = "Breaking Disabled";
+      public static final String BREAK_POINTS = "Break Points";
+      public static final String EXECUTE_PLAN = "Execute Plan";
+      
+      public static final int PAUSE_RESUME_MENU_ITEM = 0;
+      public static final int STEP_MENU_ITEM = 1;
+      public static final int BREAK_MENU_ITEM = 2;
+      public static final int EXECUTE_MENU_ITEM = 3;
+      
+      public static final String YES = "Yes";
+      public static final String NO = "No";
+      public static final String EXIT = "Exit";
+      public static final String PAUSE = "Pause";
+      public static final String RESUME = "Resume";
+      
+      public static final String OPEN_PLAN = "Open Plan";
+      public static final String OPEN_SCRIPT = "Open Script";
+      public static final String RELOAD_PLAN = "Reload Plan";
+      public static final String SHOW_DEBUG = "Show Debug";
 
-      // boolean constat values
+      // boolean constant values
 
       public static final String TRUE = "TRUE";
       public static final String FALSE = "FALSE";

@@ -29,7 +29,7 @@ package gov.nasa.luv;
 /** An abstract break point that provides some basic enablement
  * functionality, and model storage. */
 
-public abstract class AbstractBreakPoint implements IBreakPoint
+public abstract class AbstractBreakPoint implements BreakPoint
 {
       /** enabeld state of this breakpoint */
 

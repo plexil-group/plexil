@@ -35,7 +35,7 @@ import java.io.InputStream;
 
 /** Used to run an instance of the Universal Executive. */
 
-public class ExecExec
+public class Execution
 {
       /** Vector holds command line argument */
           
@@ -60,7 +60,7 @@ public class ExecExec
        * @param script the script to run against the plan
        */
 
-      public ExecExec(File ue, File plan, File script, File ueLib, File debug)
+      public Execution(File ue, File plan, File script, File ueLib, File debug)
       {
          this(ue, plan, script, ueLib, debug, null);
       }
@@ -73,7 +73,7 @@ public class ExecExec
        * @param libraries libraries to load, may be null
        */
 
-      public ExecExec(File ue, File plan, File script, final File ueLib, File debug, File[] libraries)
+      public Execution(File ue, File plan, File script, final File ueLib, File debug, File[] libraries)
       {
           // populate Vector with command line arguments
           

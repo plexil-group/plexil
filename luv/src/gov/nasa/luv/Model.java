@@ -190,7 +190,7 @@ public class Model extends Properties
 
       public boolean isRoot()
       {
-          return parent.type.equals("dummy");
+          return parent.type.equals(DUMMY);
       }
 
       /** Get the parent node to this node. 

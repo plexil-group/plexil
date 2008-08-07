@@ -26,13 +26,11 @@
 
 package gov.nasa.luv;
 
-import gov.nasa.luv.Luv.LinkCanceledException;
 import java.io.ByteArrayInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.awt.Color;
 
 import static gov.nasa.luv.Constants.*;
 
@@ -51,6 +49,7 @@ public class Server
 
          new Thread()
          {
+            @Override
                public void run()
                {
                   accept(port);
@@ -92,6 +91,7 @@ public class Server
       {
          new Thread()
          {
+            @Override
                public void run()
                {
                   dispatchInput(s);
@@ -115,9 +115,6 @@ public class Server
             OutputStream os = s.getOutputStream();
             StringBuilder message = new StringBuilder();
 
-            Luv.pauseAtStart = true;
-            Luv.isExecuting = true;
-
             // now just loop forever
 
             while (true)
@@ -138,7 +135,7 @@ public class Server
                      
                      // if the viewer is should block, do so after message handled
 
-                     if (doesViewerBlock())
+                     if (Luv.breakPointHandler.doesViewerBlock())
                      {
                         os.write(END_OF_MESSAGE);
                      }
@@ -164,45 +161,27 @@ public class Server
       public void handleMessage(final String message)
       {  
 
-        /** Determine if the Luv Viewer should pause before executing. */
+        // Determine if the Luv Viewer should pause before executing
 
-          if (Luv.pauseAtStart)
-          {
-              if (!Luv.executedViaLuvViewer)
-              {
-                  Boolean reset = false;
-                  Luv.getLuv().planPaused = true;
-                  if (Luv.getLuv().model.getProperty(VIEWER_BLOCKS) == null ||
-                      Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals(FALSE) ||
-                      Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals("false"))
-                  {
-                      Luv.getLuv().model.setProperty(VIEWER_BLOCKS, TRUE);
-                      reset = true;
-                  }
-
-                  doesViewerBlock();                          
-
-                  if (reset)
-                      Luv.getLuv().model.setProperty(VIEWER_BLOCKS, FALSE);
-              }
-              Luv.pauseAtStart = false;
-              Luv.executedViaLuvViewer = false;
-          }
+          Luv.breakPointHandler.pauseAtStart();
 
          // parse the message
 
-         boolean isPlan = Luv.getLuv().parseXml(new ByteArrayInputStream(
+         boolean isPlan = Luv.fileHandler.parseXml(new ByteArrayInputStream(
                                       message.getBytes()), Luv.getLuv().model);
 
          // if this is a plan (or possibly a library)
 
          if (isPlan)
          {
+            Luv.pauseAtStart = true;
+            Luv.isExecuting = true;
+            
             // if this is a library, store this in set of libraries
 
             if (Luv.getLuv().outstandingLibraryCount > 0)
             {
-               Luv.getLuv().libraries.add(Luv.getLuv().model.removeChild(NODE));
+               Luv.libraryHandler.libraries.add(Luv.getLuv().model.removeChild(NODE));
                --Luv.getLuv().outstandingLibraryCount;
             }
 
@@ -213,50 +192,12 @@ public class Server
             {
                try
                {
-                  Luv.getLuv().link(Luv.getLuv().model, Luv.getLuv().libraries);
+                  Luv.libraryHandler.link(Luv.getLuv().model, Luv.libraryHandler.libraries);
                }
                catch (LinkCanceledException lce) {}
-               Luv.getLuv().resetView();
-               Luv.getLuv().libraries.clear();
+               Luv.luvViewerHandler.resetView();
+               Luv.libraryHandler.libraries.clear();
             }
          }
-      }
-
-      public boolean doesViewerBlock()
-      {
-         String blocksStr = Luv.getLuv().model.getProperty(VIEWER_BLOCKS);
-         boolean blocks = blocksStr != null 
-            ? Boolean.valueOf(blocksStr)
-            : false;
-
-         if (blocks && Luv.getLuv().planPaused && !Luv.getLuv().planStep) 
-         {
-            Luv.statusBar.showStatus((Luv.breakPointHandler.breakPoint == null
-                        ? "Plan execution paused."
-                        : Luv.breakPointHandler.breakPoint.getReason()) +
-               "  Hit " + 
-               Luv.getLuv().pauseAction.getAcceleratorDescription() +
-               " to resume, or " + 
-               Luv.getLuv().stepAction.getAcceleratorDescription() +
-               " to step.",
-               Color.RED);
-            Luv.breakPointHandler.breakPoint = null;
-
-            while (Luv.getLuv().planPaused && !Luv.getLuv().planStep)
-            {
-               try
-               {
-                  Thread.sleep(50);
-               }
-               catch (Exception e)
-               {
-                  e.printStackTrace();
-               }
-            }
-         }
-
-         Luv.getLuv().planStep = false;
-
-         return blocks;
       }
 }
