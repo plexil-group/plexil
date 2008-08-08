@@ -120,6 +120,8 @@ public class LuvViewerHandler extends JFrame
           constructPanel();  
           constructStatusBar();
           
+          setTitle();
+          
           // set tooltip display time
 
           ToolTipManager.sharedInstance().setDismissDelay(Luv.getLuv().properties.getInteger(PROP_TOOLTIP_DISMISS));
@@ -382,28 +384,24 @@ public class LuvViewerHandler extends JFrame
 
       public void setTitle()
       {
-          if (Luv.executedViaLuvViewer) 
+          if (Luv.getLuv().properties.getProperty(PLAN_FILENAME) != null)
           {
               String planFile = BLANK;
               String scriptFile = BLANK;
+              
+              planFile = Luv.getLuv().properties.getProperty(PLAN_FILENAME);
+              
+              if (Luv.script != null)
+                  scriptFile = SCRIPT_TITLE + Luv.script.getName();
+              if (planFile != null)
+              {
+                  String plan = Luv.fileHandler.stripDotXml(new File(planFile).getName());
+                  StringBuffer title = new StringBuffer(plan);
 
-              if (Luv.plan == null)
-                  planFile = Luv.getLuv().model.getPlanName();
-              else
-                  planFile = Luv.plan.getName();
+                  for (String libName: Luv.getLuv().model.getLibraryNames())
+                      title.append(" + " + Luv.fileHandler.stripDotXml(new File(libName).getName()));
 
-             if (Luv.script != null)
-                 scriptFile = SCRIPT_TITLE + Luv.script.getName();
-
-             if (planFile != null)
-             {
-                String plan = Luv.fileHandler.stripDotXml(new File(planFile).getName());
-                StringBuffer title = new StringBuffer(plan);
-
-                for (String libName: Luv.getLuv().model.getLibraryNames())
-                   title.append(" + " + Luv.fileHandler.stripDotXml(new File(libName).getName()));
-
-                setTitle(PLAN_TITLE + title.toString() + scriptFile);
+                  setTitle(PLAN_TITLE + title.toString() + scriptFile);
              }
           }
           else
@@ -451,9 +449,6 @@ public class LuvViewerHandler extends JFrame
                for (String library: libraries)
                   Luv.fileHandler.setRecentLibName(i, libIndex++, library);
                libraries = tmpLibs;
-
-               
-               //for (String lib: libraries
 
                filename = (String)Luv.getLuv().properties
                   .setProperty(PROP_FILE_RECENT_PLAN_BASE + i, filename);

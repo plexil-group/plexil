@@ -76,15 +76,9 @@ public class Properties extends java.util.Properties
             define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
             define(PROP_VIEW_HIDE_PLEXILLISP, PROP_VIEW_HIDE_PLEXILLISP_DEF);
 
-            define(PROP_FILE_RECENT_PLAN_DIR,
-                 System.getenv(PROP_PLEXIL_HOME) != null
-                 ? System.getenv(PROP_RECENT_FILES) + "/plans"
-                 : System.getProperty(PROP_RECENT_FILES));
+            define(PROP_FILE_RECENT_PLAN_DIR, getProperty(PROP_FILE_RECENT_PLAN_BASE + PROP_RECENT_FILE, UNKNOWN));
 
-            define(PROP_FILE_RECENT_SCRIPT_DIR,
-                 System.getenv(PROP_PLEXIL_HOME) != null
-                 ? System.getenv(PROP_RECENT_FILES) + "/scripts"
-                 : System.getProperty(PROP_RECENT_FILES));
+            define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, UNKNOWN));
          }
          catch (Exception e)
          {

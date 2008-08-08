@@ -49,8 +49,7 @@ public class Model extends Properties
 
       /** property change listners registered for this model */ 
 
-      private Vector<ChangeListener> changeListeners = 
-         new Vector<ChangeListener>();
+      private Vector<ChangeListener> changeListeners = new Vector<ChangeListener>();
 
       /** parent of this node */
 
@@ -222,6 +221,7 @@ public class Model extends Properties
       public void addPlanName(String planName)
       {
          setProperty(PLAN_FILENAME, planName);
+         Luv.getLuv().properties.setProperty(PLAN_FILENAME, planName);
          for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).planNameAdded(this, planName);
       }

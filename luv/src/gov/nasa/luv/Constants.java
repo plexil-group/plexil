@@ -247,9 +247,9 @@ public class Constants
       public static final String    PROP_MAC_MENU_STYLE = "apple.laf.useScreenMenuBar";
 
       public static final String    PROP_WIN_LOC        = "window.location";
-      public static final Point     PROP_WIN_LOC_DEF    = new Point(0, 0);
+      public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 50);
       public static final String    PROP_WIN_SIZE       = "window.size";
-      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(400, 600);
+      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 600);
       public static final String    PROP_WIN_BCLR       = "window.background";
       public static final Color     PROP_WIN_BCLR_DEF   = Color.WHITE;
 
@@ -294,6 +294,8 @@ public class Constants
       public static final String    PROP_LOG_FILE =
       	    System.getProperty(PROP_USER_HOME) + 
             System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";
+      
+      public static final int PROP_RECENT_FILE = 1;
 
       // file
 
@@ -322,6 +324,8 @@ public class Constants
       public static final String DEFAULT_TITLE = "Welcome to Luv Viewer";
       public static final String SCRIPT_TITLE = " SCRIPT: ";
       public static final String PLAN_TITLE = "PLAN: ";
+      
+      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
       
       public static final String PAUSE_OR_RESUME_PLAN = "Pause or Resume plan";
       public static final String STEP = "Step";

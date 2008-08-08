@@ -129,7 +129,7 @@ public class FileHandler
        * @param path string that represents the absolute path to where scripts are located
        */
 
-      public File findScriptOrCreateEmptyOne(String scriptName, String planName, String path) throws IOException 
+      public File searchScript(String scriptName, String planName, String path) throws IOException 
       {
           try 
           {
@@ -150,17 +150,7 @@ public class FileHandler
                       Luv.script = new File(path + name3);
                       if (!Luv.script.canRead())
                       {
-                          Luv.script = new File(path + "default-empty-script.plx");
-                          if (!Luv.script.canRead())
-                          {
-                              //must create an empty script
-                              scriptName = path + "default-empty-script.plx";
-                              FileWriter emptyScript = new FileWriter(scriptName);
-                              BufferedWriter out = new BufferedWriter(emptyScript);
-                              out.write(EMPTY_SCRIPT);
-                              out.close();                          
-                              Luv.script = new File(scriptName);
-                          }
+                          return null;
                       }
                   }
               }
@@ -200,7 +190,7 @@ public class FileHandler
          }
          Luv.statusBarHandler.clearStatus();
       }
-
+      
       /** Parse a given XML message string.
        *
        * @param input source of xml to parse
@@ -252,9 +242,12 @@ public class FileHandler
                new File(Luv.getLuv().properties.getString(PROP_FILE_RECENT_SCRIPT_DIR)));
             if (fileChooser.showOpenDialog(Luv.luvViewerHandler) == APPROVE_OPTION)
             {
-               Luv.script = fileChooser.getSelectedFile();
-               Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_DIR, Luv.script.getParent());
-               loadScript(Luv.script);
+               File script = fileChooser.getSelectedFile();
+               Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
+               Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, script.toString());
+               Luv.getLuv().model.addScriptName(script.toString());              
+               Luv.script = script;
+               Luv.luvViewerHandler.resetView();
             }
          }
          catch(Exception e)
@@ -262,21 +255,7 @@ public class FileHandler
             e.printStackTrace();
          }
       }
-      
-       /**
-       * Load a plexil script from the disk.  This operates on the global
-       * model.
-       *
-       * @paramscript file to load
-       */
-      
-      public void loadScript (File script)
-      {
-         Luv.getLuv().model.addScriptName(script.toString());
-         Luv.luvViewerHandler.resetView();
-      }
-
-
+         
       /**
        * Select and load a plexil plan from the disk.  This operates on the global model.
        */
@@ -285,6 +264,7 @@ public class FileHandler
       {
          try
          {
+             Luv.isExecuting = false;
             fileChooser.setCurrentDirectory(
                new File(Luv.getLuv().properties.getString(PROP_FILE_RECENT_PLAN_DIR)));
             if (fileChooser.showOpenDialog(Luv.luvViewerHandler) == APPROVE_OPTION)
@@ -388,6 +368,7 @@ public class FileHandler
 
       public void loadRecentPlan(int index)
       {
+         Luv.isExecuting = false;
          String planName = getRecentPlanName(index);
          String scriptName = getRecentScriptName(index);
          if (planName != null)
@@ -489,5 +470,19 @@ public class FileHandler
       public String stripDotXml(String filename)
       {
          return filename.split(".xml")[0];
+      }
+      
+      public void createEmptyScript(String path) throws IOException 
+      {
+          JOptionPane.showMessageDialog(Luv.luvViewerHandler, "Unable to locate a script for this plan. \n\nAn empty script has been created for you:\n\n"
+                  + Luv.getLuv().properties.getProperty(PROP_FILE_RECENT_PLAN_DIR) + 
+                  System.getProperty(PROP_FILE_SEPARATOR) + DEFAULT_SCRIPT_NAME);
+          String scriptName = path + DEFAULT_SCRIPT_NAME;
+          FileWriter emptyScript = new FileWriter(scriptName);
+          BufferedWriter out = new BufferedWriter(emptyScript);
+          out.write(EMPTY_SCRIPT);
+          out.close();                          
+          Luv.script = new File(scriptName);
+          Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, Luv.script.getAbsolutePath());
       }
 }

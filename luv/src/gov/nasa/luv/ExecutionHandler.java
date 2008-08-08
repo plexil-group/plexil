@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.swing.JOptionPane;
 import static java.lang.System.*;
 
 public class ExecutionHandler {
@@ -70,33 +71,81 @@ public class ExecutionHandler {
     }
 
     public File getPlan() 
-    {        
-        while (Luv.getLuv().model.getPlanName() == null && Luv.plan == null)
+    {    
+        if (Luv.fileHandler.getRecentPlanName(PROP_RECENT_FILE) == null)
+        {
+            JOptionPane.showMessageDialog(Luv.luvViewerHandler, "Please select a plan.");
             Luv.fileHandler.choosePlan();
+        }              
         
-        if (Luv.getLuv().model.getPlanName() != null)
-            Luv.plan = new File(Luv.getLuv().model.getPlanName());
+        Luv.plan = new File(Luv.fileHandler.getRecentPlanName(PROP_RECENT_FILE));
+        
+        while (!Luv.plan.canRead())
+            Luv.fileHandler.choosePlan();
 
         return Luv.plan;  
     }
 
     public File getScript() throws IOException 
-    {
-        if (Luv.getLuv().model.getScriptName() != null)
-            Luv.script = new File(Luv.getLuv().model.getScriptName());
+    { 
+        String path = "";
+        String name = "";
+                
+        if (Luv.script == null)
+        {
+            // first check plan directory for script
+            
+            path = Luv.getLuv().properties.getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+            File testPath = new File(path);
+            
+            if (testPath.exists())
+            {             
+                path = path + System.getProperty(PROP_FILE_SEPARATOR);
+            
+                name =  Luv.plan.getName().replace(".plx", "-script.plx");
 
-        if (Luv.script == null || !Luv.script.canRead())
-        {      
-            String path = PROP_RECENT_FILES + "/scripts/";
-            String name =  Luv.plan.getName().replace(".plx", "-script.plx");
-            Luv.script = new File(path + name);    
+                Luv.script = new File(path + name);
 
-            if (!Luv.script.canRead())
-                Luv.script = Luv.fileHandler.findScriptOrCreateEmptyOne(Luv.script.getName(), Luv.plan.getName(),path);
+                if (!Luv.script.canRead())
+                {
+                    Luv.script = Luv.fileHandler.searchScript(name, Luv.plan.getName(), path);
+
+                    if (Luv.script == null)
+                    {
+                        // if no script in plan directory, look for script directory
+                        
+                        path = Luv.getLuv().properties.getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+                        path = path + System.getProperty(PROP_FILE_SEPARATOR);
+                        path = path.replace("/plans/", "/scripts/");
+                        
+                        name =  Luv.plan.getName().replace(".plx", "-script.plx");
+
+                        Luv.script = new File(path + name);
+
+                        if (!Luv.script.canRead())
+                        {
+                            Luv.script = Luv.fileHandler.searchScript(name, Luv.plan.getName(), path);
+
+                            if (Luv.script == null)
+                            {
+                                // if no script anywhere, create an empty script
+
+                                path = Luv.getLuv().properties.getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+                                path = path + System.getProperty(PROP_FILE_SEPARATOR);
+                                Luv.fileHandler.createEmptyScript(path);
+                            }
+                        }
+                    }
+                }
+            } 
         }
 
-        Luv.getLuv().model.addScriptName(Luv.script.getName());  
+        if (Luv.script != null)
+        {
+            Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_DIR, Luv.script.getParent());
+            Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, Luv.script.toString());
+        }
 
-        return Luv.script;
+        return Luv.script;  
     }
 }
