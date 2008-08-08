@@ -182,7 +182,7 @@ public class ActionHandler
          {
                public void actionPerformed(ActionEvent e)
                {  
-                   if (Luv.allowBreaks)
+                   if (Luv.allowBreaks && Luv.isExecuting)
                    {
                        if (Luv.resetAllowBreaks)
                            Luv.allowBreaks = false;
