@@ -32,6 +32,7 @@ import java.awt.Dimension;
 import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Vector;
+import java.awt.Image;
 
 /**
  * This class is the repository for all constants for the Luv
@@ -59,6 +60,8 @@ public class Constants
       public static final String    ICONS_DIR = 
          "resources" + System.getProperty("file.separator") +
          "icons" +  System.getProperty("file.separator");
+      
+      
 
       // node icon file names
 
@@ -301,6 +304,8 @@ public class Constants
 
       public static final String XML_EXTENSION = "xml";
       public static final String PLX_EXTENSION = "plx";
+      
+      public static final String DEBUG_LOG_FILE = "debug.log";
       
       // miscellaneous constants
       

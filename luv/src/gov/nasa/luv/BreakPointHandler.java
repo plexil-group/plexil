@@ -192,7 +192,7 @@ public class BreakPointHandler
             ? Boolean.valueOf(blocksStr)
             : false;
 
-         if (blocks && Luv.getLuv().planPaused && !Luv.getLuv().planStep) 
+         if (blocks && Luv.planPaused && !Luv.planStep) 
          {
             Luv.statusBarHandler.showStatus((Luv.breakPointHandler.breakPoint == null
                         ? "Plan execution paused."
@@ -205,7 +205,7 @@ public class BreakPointHandler
                Color.RED);
             Luv.breakPointHandler.breakPoint = null;
 
-            while (Luv.getLuv().planPaused && !Luv.getLuv().planStep)
+            while (Luv.planPaused && !Luv.planStep)
             {
                try
                {
@@ -218,7 +218,7 @@ public class BreakPointHandler
             }
          }
 
-         Luv.getLuv().planStep = false;
+         Luv.planStep = false;
 
          return blocks;
       }
@@ -228,30 +228,18 @@ public class BreakPointHandler
           if (Luv.pauseAtStart)
           {
               if (!Luv.executedViaLuvViewer)
-              {
-                  Boolean reset = false;
+              {               
+                  Luv.planPaused = true;
                   
-                  if (!Luv.allowBreaks)
+                  if (Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals("false"))
                   {
-                      Luv.resetAllowBreaks = true;
-                      Luv.allowBreaks = true;
-                  }
-                  
-                  Luv.getLuv().planPaused = true;
-                  if (Luv.getLuv().model.getProperty(VIEWER_BLOCKS) == null ||
-                      Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals(FALSE) ||
-                      Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals("false"))
-                  {
-                      if (!Luv.allowBreaks)
-                          Luv.actionHandler.allowBreaksAction.actionPerformed(null);
-                      Luv.getLuv().model.setProperty(VIEWER_BLOCKS, TRUE);
-                      reset = true;
+                      Luv.planPaused = false;
+                      Luv.allowBreaks = false;
+                      Luv.actionHandler.allowBreaksAction.actionPerformed(null);
                   }
 
                   Luv.breakPointHandler.doesViewerBlock();                          
 
-                  if (reset)
-                      Luv.getLuv().model.setProperty(VIEWER_BLOCKS, FALSE);
               }
               Luv.pauseAtStart = false;
           }          

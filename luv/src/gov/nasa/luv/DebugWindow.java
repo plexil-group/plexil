@@ -43,10 +43,13 @@ public class DebugWindow extends JFrame
       private JButton clearAll;
       private JPanel debugPanel;
       private JToolBar toolBar;
+     // private FileWriter debugLogFile = new FileWriter(DEBUG_LOG_FILE);
+     // private BufferedWriter out = new BufferedWriter(debugLogFile);
+       
 
       /** Construct a DebugWindow object. */
 
-      public DebugWindow(final JFrame owner)
+      public DebugWindow(final JFrame owner) throws IOException
       {
          initComponents();
          
@@ -124,6 +127,16 @@ public class DebugWindow extends JFrame
          
          debugArea.append(str);
          debugArea.setCaretPosition(debugArea.getText().length());
+         
+        /* try{
+
+            out.write(str);     
+            //Close the output stream
+            out.close();
+            
+         }catch (Exception e){ //Catch exception if any
+              System.err.println("Error: " + e.getMessage());
+         }*/
       }
 
       // a simple search and replace

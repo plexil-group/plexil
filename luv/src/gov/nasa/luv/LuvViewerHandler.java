@@ -28,6 +28,7 @@ package gov.nasa.luv;
 
 import static gov.nasa.luv.Constants.*;
 
+import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -49,11 +50,12 @@ import java.io.File;
 import static java.awt.BorderLayout.*;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.*;
+import javax.swing.ImageIcon;
 
 public class LuvViewerHandler extends JFrame 
 {
       Container frame;
-            
+      
       JMenuBar menuBar;
       
       JMenu fileMenu;
@@ -72,7 +74,7 @@ public class LuvViewerHandler extends JFrame
       
       public LuvViewerHandler() {}
       
-      public void startConstructing()
+      public void startConstructing() throws IOException
       {
           constructGUI();
           
@@ -132,7 +134,7 @@ public class LuvViewerHandler extends JFrame
           setPreferredSize(Luv.getLuv().properties.getDimension(PROP_WIN_SIZE)); 
       }
       
-      public void constructDebugWindow()
+      public void constructDebugWindow() throws IOException
       {
           // create the debug window
           
@@ -384,7 +386,7 @@ public class LuvViewerHandler extends JFrame
 
       public void setTitle()
       {
-          if (Luv.getLuv().properties.getProperty(PLAN_FILENAME) != null)
+         /* if (Luv.getLuv().properties.getProperty(PLAN_FILENAME) != null)
           {
               String planFile = BLANK;
               String scriptFile = BLANK;
@@ -404,7 +406,7 @@ public class LuvViewerHandler extends JFrame
                   setTitle(PLAN_TITLE + title.toString() + scriptFile);
              }
           }
-          else
+          else*/
               setTitle(DEFAULT_TITLE);
       }
       
