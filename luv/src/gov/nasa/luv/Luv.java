@@ -28,6 +28,7 @@ package gov.nasa.luv;
 
 import static gov.nasa.luv.Constants.*;
 import java.io.File;
+import java.io.IOException;
 import static java.lang.System.*;
 
 /**
@@ -121,7 +122,7 @@ public class Luv
          }
       }
       
-      public Luv()
+      public Luv() throws IOException
       {
          // record instance of self
 
