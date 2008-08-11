@@ -1,108 +1,11 @@
-//Updated 7/25/08//
+This directory contains the Universal Executive (UE), which is an
+execution system for the PLEXIL language. See the UE reference manual
+for detailed information:
 
-=UE Installation=
+  http://plexil.wiki.sourceforge.net/UE+Reference+Manual
 
-[[toc]]
+Installation and build instructions are found in this chapter:
 
-==Introduction==
+  http://plexil.wiki.sourceforge.net/UE+Installation
 
-This document is the (wiki) source for the chapter "Installation" in the
-Universal Executive Reference Manual, as well as the contents of the
-file 'universal-exec/README' in the UE distribution.
-
-The 'universal-exec' directory contains the Universal Executive (UE),
-which is an execution system for the PLEXIL language. See the UE and
-PLEXIL reference manuals for more information.
-
-The 'interfaces' directory contains libraries that perform various
-common interfacing tasks.  See [[Interfacing|Interfacing with External Systems]] 
-for more information on using the interface libraries.
-
-The 'apps/TestExec' directory contains the Test Exec application,
-which combines the UE and a simple simulator into a single executable,
-as well as plans, simulation scripts, and utilities for running
-regression tests.
-
-This document contains instructions for installing and building the UE,
-and pointers on version control and code documentation. Some
-familiarity with Unix is assumed.
-
-==Installation==
-
-Your Unix environment should have the following settings to run the UE
-and its related tools conveniently. These settings can be made one time
-by putting them in your shell's login or initialization file.
-
-Examples are given here for both bash and csh, using "/home/fred/plexil"
-as the location of your installation -- you'll need to customize this.
-
-Environment variables (csh):
-
-[[code]]
-  (all platforms)  setenv PLEXIL_HOME /home/fred/plexil
-  (all platforms)  setenv PATH $PLEXIL_HOME/apps/test-exec:$PATH
-  (non-Mac only)   setenv LD_LIBRARY_PATH $PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$LD_LIBRARY_PATH
-  (Mac only)       setenv DYLD_LIBRARY_PATH $PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$DYLD_LIBRARY_PATH
-  (Mac only)       setenv DYLD_BIND_AT_LAUNCH 1
-[[code]]
-
-Environment variables (bash):
-
-[[code]]
-  (all platforms)  export PLEXIL_HOME=universal-exec
-  (all platforms)  export PATH=$PLEXIL_HOME/Exec/test:$PATH
-  (non-Mac only)   export LD_LIBRARY_PATH=$PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$LD_LIBRARY_PATH
-  (Mac only)       export DYLD_LIBRARY_PATH=$PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib:$DYLD_LIBRARY_PATH
-  (Mac only)       export DYLD_BIND_AT_LAUNCH=1
-[[code]]
-
-The software itself just needs to be built (compiled), and this is
-explained in the following section.
-
-
-==Building the UE==
-
-The 'checkreqs' script in the universal-exec directory will check for build and
-runtime requirements. Type 'checkreqs' to run it.
-
-The [[Getting Started]] document lists the third party software packages
-required for the UE.
-
-If Jam is properly installed and in your path, the following
-instructions will build the UE libraries, the interface libraries, and
-the Test Exec application:
-
-[[code]]
- jam
- cd ../interfaces ; jam
- cd ../apps/TestExec ; jam
-[[code]]
-
-==Version Control==
-
-The PLEXIL distribution is maintained in a [[http://subversion.tigris.org/|Subversion]]
-(or SVN) version control system. You'll need some knowledge of SVN
-(which is very similar to CVS) to interact with the repository after
-your initial download of PLEXIL. Interactions include updating to newer
-files, and (eventually, for privileged users) submitting your own
-changes to PLEXIL.
-
-The 'checksvn' script in this directory will tell you if there are newer
-versions of any files in the SVN repository.
-
-==Documentation==
-
-Documentation for the source code can be generated using the tool
-[[http://www.stack.nl/%7Edimitri/doxygen|Doxygen]]. The file 'ue.dox' is a
-Doxygen specification file. If you have installed Doxygen,
-documentation for the UE can be generated with the following command.
-
-[[code]]
-  doxygen ue.dox
-[[code]]
-
-The source code documentation is not as complete or thorough as we would
-like, but hopefully it is helpful.
-
-----
-Copyright (c) 2006-2008, Universities Space Research Association (USRA). All rights reserved.
+This manual is included in PDF format in PLEXIL distributions.
