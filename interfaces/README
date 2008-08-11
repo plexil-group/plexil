@@ -1,5 +1,8 @@
-This directory contains code for interfacing the UE with external
-systems.  Build it by typing 'jam'.
+This directory contains libraries that perform various common
+interfacing tasks.  See [[Interfacing|Interfacing with External Systems]] 
+for more information on using the interface libraries.
+
+Build this module by typing 'jam'.
 
 The CORBA code that used to live in this directory has been moved to
 ../CORBA .
