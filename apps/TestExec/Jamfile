@@ -161,7 +161,6 @@ failure-type4.plx
 grandparent-access-plan.plx
 invariant1.plx
 isKnown1.plx
-priority1.plx
 repeat1.plx
 repeat3.plx
 repeat4.plx
@@ -176,7 +175,6 @@ variables1.plx
 whitespace1.plx
 uninitialized-assignment.plx  
 contention3.plx
-contention4.plx
 {
   RunTestSuccess run-execution-tests : $(plan) : empty-script.plx ;
 }
@@ -198,11 +196,9 @@ RunTestSuccess run-execution-tests : concat2.plx  : concat2-script.plx ;
 RunTestSuccess run-execution-tests : conjuncts.plx : conjuncts-script.plx ;  
 RunTestSuccess run-execution-tests : conjuncts1.plx : conjuncts1-script.plx ;  
 RunTestSuccess run-execution-tests : function-call1.plx : function-call1-script.plx ;
-RunTestSuccess run-execution-tests : list-end-condition.plx : list-end-condition-script.plx ;
 RunTestSuccess run-execution-tests : lookup1.plx : lookup1-script.plx ;
 RunTestSuccess run-execution-tests : lookup2.plx : lookup2-script.plx ;
 RunTestSuccess run-execution-tests : lookup3.plx : lookup3-script.plx ;
-RunTestSuccess run-execution-tests : priority-test.plx : priority-test-script.plx ;
 RunTestSuccess run-execution-tests : repeat2.plx : repeat2-script.plx ;
 RunTestSuccess run-execution-tests : repeat5.plx : repeat5-script.plx ;
 RunTestSuccess run-execution-tests : simple-functioncall.plx : simple-functioncall-script.plx ;
