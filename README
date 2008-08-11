@@ -14,6 +14,29 @@ Release Notes
  - first Sourceforge release
 
 0.81
- - new syntax and translator (standard-plexil/plexilscript) for
-   simulation scripts
+ - new syntax and translator for simulation scripts
+   (standard-plexil/plexilscript)
  - numerous minor fixes and enhancements
+
+0.82
+ - refactored universal-exec/Exec/test,
+   creating new 'bin' and 'apps' directories
+ - slightly simplified installation
+ - added RoboSim example application and plans
+ - reduced response time to external world events
+ - support for 64-bit architectures
+ - numerous minor fixes and enhancements
+
+0.83
+ - critical bug fix for event processing
+ - the Node Priority clause has been deprecated.  It had semantic
+   issues, and is not used in any known PLEXIL applications.  Multiple
+   assignments to the same variable occuring simultaneously results in a
+   runtime error.  At this stage, the Priority clause has only been
+   removed from documentation and tests.  It is still implemented, as an
+   undocumented and unsupported feature.  It may someday be removed from
+   the implementation without notice.  A better solution may be designed.
+ - more documentation regarding concurrency in list nodes
+ - added PLEXIL workshop presentations
+ - significant revision of several UE reference manual chapters
+ - PDF manuals now included in distribution
