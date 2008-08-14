@@ -26,8 +26,6 @@
 
 package gov.nasa.luv;
 
-import static gov.nasa.luv.Constants.*;
-
 import java.io.*;
 import javax.swing.*;
 import java.awt.*;
@@ -36,33 +34,72 @@ import javax.swing.text.*;
 
 public class DebugWindow extends JFrame
 {
-      // swing elements variable declaration
+      // swing elements Variables declaration
 
-      private JTextArea debugArea;
-      private JScrollPane debugScrollPane;
-      private JButton clearAll;
-      private JPanel debugPanel;
-      private JToolBar toolBar;
-     // private FileWriter debugLogFile = new FileWriter(DEBUG_LOG_FILE);
-     // private BufferedWriter out = new BufferedWriter(debugLogFile);
-       
+      private javax.swing.JTextArea debugArea;
+      private javax.swing.JScrollPane debugScrollPane;
+      private javax.swing.JButton clearAll;
+      private javax.swing.JPanel outer;
+      private javax.swing.JToolBar toolBar;
 
       /** Construct a DebugWindow object. */
 
-      public DebugWindow(final JFrame owner) throws IOException
+      public DebugWindow(final JFrame owner)
       {
          initComponents();
-         
-         // construct an output stream that directs all text into the the debug text area      
-         // construct a print stream that uses the directed output stream
 
-         DualOutputStream dos = new DualOutputStream(null);
+         // when this frame get's focus, barrow the menu bar from parent
+         
+         addWindowFocusListener(new WindowAdapter()
+            {
+                  public void windowGainedFocus(WindowEvent e)
+                  {
+                     JMenuBar mb = owner.getJMenuBar();
+                     if (mb != null) setJMenuBar(mb);
+                  }
+            });
+         
+         // set font
+         
+         debugArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+         
+         // construct an output stream that directs all text into the 
+         // the debug text area
+         
+         // construct a print stream that uses the directed output stream
+         
+         String logFilename = getLogFilename();
+         DualOutputStream dos = new DualOutputStream(null); //logFilename);
          PrintStream ps = new PrintStream(dos);
          
          // redirect all system output into the debug text area
          
          System.setErr(ps);
          System.setOut(ps);
+      }
+
+      // append a string to the debug window
+      
+      public void append(String str)
+      {
+         String eol = "\n";
+         
+         str = replaceAll(str, "\n\r", eol);
+         str = replaceAll(str, "\r\n", eol);
+         str = replaceAll(str, "\r", eol);
+         
+         debugArea.append(str);
+         debugArea.setCaretPosition(debugArea.getText().length());
+      }
+
+      // a simple search and replace
+
+      public static String replaceAll(String str, String oldTxt, String newTxt)
+      {
+         int idx = 0;
+         while ((idx = str.indexOf(oldTxt)) != -1)
+            str = str.substring(0, idx) + newTxt + str.substring(idx + oldTxt.length());
+         return str;
       }
       
       // clear the debugging window of all text
@@ -79,76 +116,8 @@ public class DebugWindow extends JFrame
          }
       }
       
-      /** This method is called from within the constructor to
-       * initialize the form.
-       */
-
-      private void initComponents() 
-      {
-         debugPanel = new JPanel();
-         debugScrollPane = new JScrollPane();
-         debugArea = new JTextArea();
-         toolBar = new JToolBar();                    
-         clearAll = new JButton(clearAction);
-
-         debugPanel.setLayout(new java.awt.BorderLayout());
-         debugPanel.add(debugScrollPane, java.awt.BorderLayout.CENTER);
-         getContentPane().add(debugPanel, java.awt.BorderLayout.CENTER);
-         
-         debugArea.setEditable(false);
-         debugArea.setFont(new Font(FONT, Font.PLAIN, 12));
-         debugScrollPane.setViewportView(debugArea);
-          
-         toolBar.setFloatable(false);        
-         toolBar.add(clearAll);         
-         getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
-         
-         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-         setBounds((screenSize.width-500)/2, (screenSize.height-300)/2, 500, 300);
-      }
-      
-      Action clearAction = new AbstractAction(CLEAR_SCREEN)
-      {
-          public void actionPerformed(ActionEvent actionEvent)
-          {
-              clearDebugArea();
-          }
-      };
-      
-            // append a string to the debug window
-      
-      public void append(String str)
-      {
-         String eol = "\n";
-         
-         str = replaceAll(str, "\n\r", eol);
-         str = replaceAll(str, "\r\n", eol);
-         str = replaceAll(str, "\r", eol);
-         
-         debugArea.append(str);
-         debugArea.setCaretPosition(debugArea.getText().length());
-         
-        /* try{
-
-            out.write(str);     
-            //Close the output stream
-            out.close();
-            
-         }catch (Exception e){ //Catch exception if any
-              System.err.println("Error: " + e.getMessage());
-         }*/
-      }
-
-      // a simple search and replace
-
-      public static String replaceAll(String str, String oldTxt, String newTxt)
-      {
-         int idx = 0;
-         while ((idx = str.indexOf(oldTxt)) != -1)
-            str = str.substring(0, idx) + newTxt + str.substring(idx + oldTxt.length());
-         return str;
-      }
-      // an output streem which forks data out to a file and to the debugging window
+      // an output streem which forks data out to a file and to the
+      // debugging window
 
       public class DualOutputStream extends OutputStream
       {
@@ -169,7 +138,6 @@ public class DebugWindow extends JFrame
                }
             }
             
-        @Override
             public void write(byte[] b) 
                throws IOException
             {
@@ -177,7 +145,6 @@ public class DebugWindow extends JFrame
                   this.logStream.write(b);
                append(new String(b));
             }
-        @Override
             public void write(byte[] b, int off, int len) 
                throws IOException
             {
@@ -194,4 +161,55 @@ public class DebugWindow extends JFrame
                append(new String(ba));
             }
       }
+      
+      private String getLogFilename()
+      {
+         String logFilename =
+	    System.getProperty("user.home") + 
+            System.getProperty("file.separator") +
+               "luv.log";
+         return logFilename;
+      }
+      
+      /** This method is called from within the constructor to
+       * initialize the form.
+       */
+
+      private void initComponents() 
+      {
+         outer = new javax.swing.JPanel();
+         debugScrollPane = new javax.swing.JScrollPane();
+         debugArea = new javax.swing.JTextArea();
+         toolBar = new javax.swing.JToolBar();
+         Action clearAction = 
+	    new AbstractAction("Clear Output")
+	    {
+                  public void actionPerformed(ActionEvent actionEvent)
+                  {
+                     clearDebugArea();
+                  }
+	    };
+         clearAll = new JButton(clearAction);
+         
+         //setTitle("Debug Window");
+
+         outer.setLayout(new java.awt.BorderLayout());
+         
+         debugArea.setEditable(false);
+         debugScrollPane.setViewportView(debugArea);
+         
+         outer.add(debugScrollPane, java.awt.BorderLayout.CENTER);
+         
+         getContentPane().add(outer, java.awt.BorderLayout.CENTER);
+         
+         toolBar.setFloatable(false);
+         
+         toolBar.add(clearAll);
+         
+         getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
+         
+         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+         setBounds((screenSize.width-500)/2, (screenSize.height-300)/2, 500, 300);
+      }
+      
 }

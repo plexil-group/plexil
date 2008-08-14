@@ -26,8 +26,11 @@
 
 package gov.nasa.luv;
 
+import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.JPanel;
+import javax.swing.ImageIcon;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;

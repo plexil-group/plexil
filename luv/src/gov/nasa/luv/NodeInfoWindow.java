@@ -58,7 +58,8 @@ class NodeInfoWindow extends JFrame
 
       /** model listeners */
 
-      Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
+      Vector<Model.ChangeListener> modelListeners = 
+         new Vector<Model.ChangeListener>();
 
       /** Constructs and displays a NodeInfoWindow object. */
       
@@ -110,6 +111,7 @@ class NodeInfoWindow extends JFrame
          GridBagLayout gridBag = new GridBagLayout();
          GridBagConstraints c = new GridBagConstraints();
          setLayout(gridBag);
+         //setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
          // add node type icon
 

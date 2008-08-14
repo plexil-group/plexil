@@ -51,7 +51,7 @@ public class Constants
 
       /** properties file */      
       public static final String PROPERTIES_FILE_LOCATION =
-         System.getenv("PLEXIL_HOME") + 
+         System.getProperty("user.home") + 
          System.getProperty("file.separator") + ".luv";
 
       /** icon constants */
@@ -90,7 +90,7 @@ public class Constants
          
          public void add(String tag, String iconName)
          {
-            put(tag, StatusBarHandler.loadImage(iconName));
+            put(tag, Luv.loadImage(iconName));
          }
       };
 
@@ -191,7 +191,7 @@ public class Constants
             // node state
 
             put(INACTIVE,        Color.LIGHT_GRAY);
-            put(WAITING,         Color.YELLOW.darker()); //new Color(204, 204, 0));
+            put(WAITING,         Color.YELLOW.darker()); 
             put(EXECUTING,       Color.GREEN.darker());
             put(FINISHING,       new Color(128, 128, 255));
             put(FINISHED,        Color.GRAY);
@@ -333,11 +333,19 @@ public class Constants
       
       public static final String PAUSE_OR_RESUME_PLAN = "Pause or Resume plan";
       public static final String STEP = "Step";
-      public static final String BREAKING_ENABLED = "Breaking Enabled";
-      public static final String BREAKING_DISABLED = "Breaking Disabled";
+      public static final String BREAKING_ENABLED = "Enable Breaks";
+      public static final String BREAKING_DISABLED = "Disable Breaks";
       public static final String BREAK_POINTS = "Break Points";
       public static final String EXECUTE_PLAN = "Execute Plan";
+ 
+      //File menu
+      public static final int OPEN_PLAN_MENU_ITEM = 0;
+      public static final int OPEN_SCRIPT_MENU_ITEM = 1;
+      public static final int OPEN_RECENT_MENU_ITEM = 2;
+      public static final int RELOAD_MENU_ITEM = 3;
+      public static final int EXIT_MENU_ITEM = 4;    
       
+      //Run menu
       public static final int PAUSE_RESUME_MENU_ITEM = 0;
       public static final int STEP_MENU_ITEM = 1;
       public static final int BREAK_MENU_ITEM = 2;

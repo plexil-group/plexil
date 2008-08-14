@@ -28,7 +28,9 @@ package gov.nasa.luv;
 
 import java.util.Vector;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Properties;
+import java.awt.geom.Point2D;
 import java.util.Map.Entry;
 
 import static gov.nasa.luv.Constants.*;
@@ -47,7 +49,8 @@ public class Model extends Properties
 
       /** property change listners registered for this model */ 
 
-      private Vector<ChangeListener> changeListeners = new Vector<ChangeListener>();
+      private Vector<ChangeListener> changeListeners = 
+         new Vector<ChangeListener>();
 
       /** parent of this node */
 
@@ -187,7 +190,7 @@ public class Model extends Properties
 
       public boolean isRoot()
       {
-          return (parent == null);
+         return (parent == null || parent.getType().equals("dummy"));
       }
 
       /** Get the parent node to this node. 
@@ -219,7 +222,6 @@ public class Model extends Properties
       public void addPlanName(String planName)
       {
          setProperty(PLAN_FILENAME, planName);
-         Luv.getLuv().properties.setProperty(PLAN_FILENAME, planName);
          for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).planNameAdded(this, planName);
       }
@@ -347,8 +349,6 @@ public class Model extends Properties
 
       public Model findChild(String property, String value)
       {
-          if (this.getProperty(property).equals(value))
-              return this;
          for (Model child: children)
          {
             String prop = child.getProperty(property);
@@ -540,8 +540,8 @@ public class Model extends Properties
 
                model.setProperty(MODEL_NAME, model.getProperty(NODE_ID));
                model.setProperty(MODEL_TYPE, type);
-               model.setProperty(MODEL_OUTCOME, UNKNOWN);
-               model.setProperty(MODEL_STATE, INACTIVE);
+               model.setProperty(MODEL_OUTCOME, "UNKNOWN");
+               model.setProperty(MODEL_STATE, "INACTIVE");
 
                // if this is a library node, get the library node name
 

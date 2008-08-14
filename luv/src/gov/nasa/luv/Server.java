@@ -26,7 +26,6 @@
 
 package gov.nasa.luv;
 
-import java.io.ByteArrayInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.InputStream;
@@ -36,7 +35,7 @@ import static gov.nasa.luv.Constants.*;
 
 /** Functions as a server for plan event data clients (UEs). */
 
-public class Server       
+public abstract class Server
 {
       /** Construct a server which listens on a given port.
        *
@@ -49,7 +48,6 @@ public class Server
 
          new Thread()
          {
-            @Override
                public void run()
                {
                   accept(port);
@@ -91,7 +89,6 @@ public class Server
       {
          new Thread()
          {
-            @Override
                public void run()
                {
                   dispatchInput(s);
@@ -128,14 +125,14 @@ public class Server
                   int ch = is.read();
                   if (ch == END_OF_MESSAGE)
                   {                  
-                     // handle the message                       
+                     // handle the message
 
                      handleMessage(message.toString());
                      message = new StringBuilder();
                      
                      // if the viewer is should block, do so after message handled
 
-                     if (Luv.breakPointHandler.doesViewerBlock())
+                     if (doesViewerBlock())
                      {
                         os.write(END_OF_MESSAGE);
                      }
@@ -157,47 +154,8 @@ public class Server
             e.printStackTrace();
          }
       }
-      
-      public void handleMessage(final String message)
-      {  
 
-        // Determine if the Luv Viewer should pause before executing
+      public abstract void handleMessage(final String message);
 
-          Luv.breakPointHandler.pauseAtStart();
-
-         // parse the message
-
-         boolean isPlan = Luv.fileHandler.parseXml(new ByteArrayInputStream(
-                                      message.getBytes()), Luv.getLuv().model);
-
-         // if this is a plan (or possibly a library)
-
-         if (isPlan)
-         {
-            Luv.pauseAtStart = true;
-            Luv.isExecuting = true;
-            
-            // if this is a library, store this in set of libraries
-
-            if (Luv.getLuv().outstandingLibraryCount > 0)
-            {
-               //Luv.libraryHandler.libraries.add(Luv.getLuv().model.removeChild(NODE));
-               --Luv.getLuv().outstandingLibraryCount;
-            }
-
-            // otherwise it's a plan, link that plan and
-            // libraries and show the new plan
-
-            else
-            {
-               try
-               {
-                  Luv.libraryHandler.link(Luv.getLuv().model, Luv.libraryHandler.libraries);
-               }
-               catch (LinkCanceledException lce) {}
-               Luv.luvViewerHandler.resetView();
-               Luv.libraryHandler.libraries.clear();
-            }
-         }
-      }
+      public abstract boolean doesViewerBlock();
 }

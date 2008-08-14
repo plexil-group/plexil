@@ -26,7 +26,7 @@
 
 package gov.nasa.luv;
 
-import static gov.nasa.luv.Constants.*;
+//import static gov.nasa.luv.Constants.*;
 
 import java.util.Vector;
 

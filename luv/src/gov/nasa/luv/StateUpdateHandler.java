@@ -60,7 +60,12 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
          if (localName.equals(NODE_ID))
          {
              if (current.findChild(MODEL_NAME, text) != null)
-                 current = current.findChild(MODEL_NAME, text);
+                current = current.findChild(MODEL_NAME, text);
+             else if (current.getProperty(MODEL_LIBRARY_CALL_ID) != null &&
+                      current.getProperty(MODEL_LIBRARY_CALL_ID).equals(text))
+                 ; // current stays the same
+             else
+                 ;
          }
 
          // if this is the node state, record the state
@@ -76,18 +81,18 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
          // if this is the node failure type, record the failure type
 
          else if (localName.equals(NODE_FAILURE_TYPE))
-            failureType = text;         
+            failureType = text;
+         
 
          // if this is the node state update, update the node state
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
-             // finished execution ?
-
              if (current.isRoot() && state.equals(FINISHED))
              {
                  Luv.isExecuting = false;
                  Luv.executedViaLuvViewer = false;
+                 Luv.getLuv().showStatus("Execution complete");
              }
              
             current.setProperty(MODEL_STATE, state);

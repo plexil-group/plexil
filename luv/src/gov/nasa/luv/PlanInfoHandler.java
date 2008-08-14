@@ -62,17 +62,17 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
 
          // if this is a the plan filename set that property in model
 
-         if (localName.equals(PLAN_FILENAME))
+         if (localName == PLAN_FILENAME)
             model.addPlanName(text);
 
          // if this is a the plan filename set that property in model
 
-         if (localName.equals(LIBRARY_FILENAME))
+         if (localName == LIBRARY_FILENAME)
             model.addLibraryName(text);
 
          // if this is a the plan filename set that property in model
 
-         else if (localName.equals(VIEWER_BLOCKS))
+         else if (localName == VIEWER_BLOCKS)
             model.setProperty(VIEWER_BLOCKS, text);
       }
 }
