@@ -930,8 +930,11 @@ public class Luv extends JFrame
       public void resetView()
       {
          // create a new instance of the view
-
-         setView(new TreeTableView("", this, model));
+          
+          if (model.getChildren().size() < 1)
+              ; //do not setView
+          else
+              setView(new TreeTableView("", this, model));
 
          // map all the breakpoints into the new model
 
@@ -1759,7 +1762,10 @@ public class Luv extends JFrame
                 if (lib.exists())
                     loadLibrary(new File(libraryName));
                 else
+                {
                     unfoundLibrary(libraryName);
+                    breakOut = true;
+                }
             }
          try
          {
