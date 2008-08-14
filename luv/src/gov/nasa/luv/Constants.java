@@ -32,7 +32,6 @@ import java.awt.Dimension;
 import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Vector;
-import java.awt.Image;
 
 /**
  * This class is the repository for all constants for the Luv

@@ -88,7 +88,7 @@ public class LibraryHandler
                      // try to load the library and retry the link
 
                      case 0:
-                        Luv.getLuv().fileHandler.chooseLibrary();
+                        Luv.fileHandler.chooseLibrary();
                         break;
                         
                         // if the user doesn't want to find this library

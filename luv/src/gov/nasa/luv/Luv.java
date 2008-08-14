@@ -56,13 +56,13 @@ public class Luv
       public static File plan; 
       public static File script;
       
-      public static FileHandler         fileHandler = new FileHandler();
-      public static ExecutionHandler    executionHandler = new ExecutionHandler();
-      public static StatusBarHandler    statusBarHandler = new StatusBarHandler();
-      public static BreakPointHandler   breakPointHandler = new BreakPointHandler();
-      public static LuvViewerHandler    luvViewerHandler = new LuvViewerHandler();
-      public static LibraryHandler      libraryHandler = new LibraryHandler();
-      public static NodePopupMenuHandler nodePopupMenuHandler = new NodePopupMenuHandler();
+      public static FileHandler         fileHandler;
+      public static ExecutionHandler    executionHandler;
+      public static StatusBarHandler    statusBarHandler;
+      public static BreakPointHandler   breakPointHandler;
+      public static LuvViewerHandler    luvViewerHandler;
+      public static LibraryHandler      libraryHandler;
+      public static NodePopupMenuHandler nodePopupMenuHandler;
       public static ActionHandler       actionHandler;
       
       
@@ -128,6 +128,13 @@ public class Luv
 
          theLuv = this;
          
+         fileHandler = new FileHandler();
+         executionHandler = new ExecutionHandler();
+         statusBarHandler = new StatusBarHandler();
+         breakPointHandler = new BreakPointHandler();
+         luvViewerHandler = new LuvViewerHandler();
+         libraryHandler = new LibraryHandler();
+         nodePopupMenuHandler = new NodePopupMenuHandler();         
          actionHandler = new ActionHandler();
 
          // construct the GUI
@@ -147,8 +154,8 @@ public class Luv
 
          // if expected to, autoload most recent plan and script
 
-         if (properties.getBoolean(PROP_FILE_AUTO_LOAD))
-            fileHandler.loadRecentPlan(1);
+        // if (properties.getBoolean(PROP_FILE_AUTO_LOAD))
+           // fileHandler.loadRecentPlan(1);
             
          actionHandler.allowBreaksAction.actionPerformed(null);
 

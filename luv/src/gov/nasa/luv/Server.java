@@ -181,7 +181,7 @@ public class Server
 
             if (Luv.getLuv().outstandingLibraryCount > 0)
             {
-               Luv.libraryHandler.libraries.add(Luv.getLuv().model.removeChild(NODE));
+               //Luv.libraryHandler.libraries.add(Luv.getLuv().model.removeChild(NODE));
                --Luv.getLuv().outstandingLibraryCount;
             }
 

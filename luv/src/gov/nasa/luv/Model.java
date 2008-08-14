@@ -28,9 +28,7 @@ package gov.nasa.luv;
 
 import java.util.Vector;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Properties;
-import java.awt.geom.Point2D;
 import java.util.Map.Entry;
 
 import static gov.nasa.luv.Constants.*;
@@ -189,7 +187,7 @@ public class Model extends Properties
 
       public boolean isRoot()
       {
-          return parent.type.equals(DUMMY);
+          return (parent == null);
       }
 
       /** Get the parent node to this node. 
@@ -349,6 +347,8 @@ public class Model extends Properties
 
       public Model findChild(String property, String value)
       {
+          if (this.getProperty(property).equals(value))
+              return this;
          for (Model child: children)
          {
             String prop = child.getProperty(property);
@@ -540,8 +540,8 @@ public class Model extends Properties
 
                model.setProperty(MODEL_NAME, model.getProperty(NODE_ID));
                model.setProperty(MODEL_TYPE, type);
-               model.setProperty(MODEL_OUTCOME, "UNKNOWN");
-               model.setProperty(MODEL_STATE, "INACTIVE");
+               model.setProperty(MODEL_OUTCOME, UNKNOWN);
+               model.setProperty(MODEL_STATE, INACTIVE);
 
                // if this is a library node, get the library node name
 

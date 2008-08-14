@@ -60,9 +60,8 @@ public class Properties extends java.util.Properties
          {
             file = new File(filename);
             if (file.exists())
-               load(new FileInputStream(file));                
+               load(new FileInputStream(file));
             
-            define(PROP_FILE_AUTO_LOAD,    PROP_FILE_AUTO_LOAD_DEF);
             define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
             define(PROP_WIN_LOC,  PROP_WIN_LOC_DEF);
             define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);

@@ -247,7 +247,7 @@ public class FileHandler
                Luv.getLuv().properties.set(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, script.toString());
                Luv.getLuv().model.addScriptName(script.toString());              
                Luv.script = script;
-               Luv.luvViewerHandler.resetView();
+               //Luv.luvViewerHandler.resetView();
             }
          }
          catch(Exception e)
@@ -265,8 +265,9 @@ public class FileHandler
          try
          {
              Luv.isExecuting = false;
-            fileChooser.setCurrentDirectory(
-               new File(Luv.getLuv().properties.getString(PROP_FILE_RECENT_PLAN_DIR)));
+             
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().properties.getString(PROP_FILE_RECENT_PLAN_DIR)));
+            
             if (fileChooser.showOpenDialog(Luv.luvViewerHandler) == APPROVE_OPTION)
             {
                File plan = fileChooser.getSelectedFile();
@@ -308,14 +309,17 @@ public class FileHandler
          Luv.getLuv().model.setProperty(VIEWER_BLOCKS, FALSE);
          
          readPlan(Luv.getLuv().model, plan);
+         
          if (libraryNames != null)
             for (String libraryName: libraryNames)
                loadLibrary(new File(libraryName));
+            
          try
          {
             Luv.libraryHandler.link(Luv.getLuv().model, libraries);
          }
          catch (LinkCanceledException lce) {}
+            
          Luv.luvViewerHandler.resetView();
          Luv.luvViewerHandler.addRecent();
          outstandingLibraryCount = 0;

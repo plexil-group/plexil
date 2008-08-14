@@ -141,20 +141,15 @@ public class ActionHandler
              {
                  Luv.allowBreaks = !Luv.allowBreaks;
                  
-                 if (Luv.getLuv().model.getProperty(VIEWER_BLOCKS).equals("false"))
-                     ;
+                 if (Luv.allowBreaks)
+                 {
+                     Luv.luvViewerHandler.runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_ENABLED);
+                     Luv.statusBarHandler.showStatus(BREAKING_ENABLED, Color.GREEN.darker());
+                 }
                  else
                  {
-                     if (Luv.allowBreaks)
-                     {
-                         Luv.luvViewerHandler.runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_ENABLED);
-                         Luv.statusBarHandler.showStatus(BREAKING_ENABLED, Color.GREEN.darker());
-                     }
-                     else
-                     {
-                         Luv.luvViewerHandler.runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_DISABLED);
-                         Luv.statusBarHandler.showStatus(BREAKING_DISABLED, Color.RED);
-                     }
+                     Luv.luvViewerHandler.runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_DISABLED);
+                     Luv.statusBarHandler.showStatus(BREAKING_DISABLED, Color.RED);
                  }
              }
 	 };

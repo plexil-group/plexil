@@ -26,16 +26,10 @@
 
 package gov.nasa.luv;
 
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
-
-import java.util.Stack;
 import java.util.HashMap;
 import java.util.Map;
 
 import static gov.nasa.luv.Constants.*;
-
-import static java.lang.System.out;
 
 public class StateUpdateHandler extends AbstractDispatchableHandler
 {
@@ -64,7 +58,10 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
          // if this is the id of a path element, move down model tree
 
          if (localName.equals(NODE_ID))
-            current = current.findChild(MODEL_NAME, text);
+         {
+             if (current.findChild(MODEL_NAME, text) != null)
+                 current = current.findChild(MODEL_NAME, text);
+         }
 
          // if this is the node state, record the state
 
@@ -79,19 +76,20 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
          // if this is the node failure type, record the failure type
 
          else if (localName.equals(NODE_FAILURE_TYPE))
-            failureType = text;
-         
+            failureType = text;         
 
          // if this is the node state update, update the node state
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
-             // finished execution
+             // finished execution ?
+
              if (current.isRoot() && state.equals(FINISHED))
              {
                  Luv.isExecuting = false;
                  Luv.executedViaLuvViewer = false;
              }
+             
             current.setProperty(MODEL_STATE, state);
             current.setProperty(MODEL_OUTCOME, outcome);
             current.setProperty(MODEL_FAILURE_TYPE, failureType);
