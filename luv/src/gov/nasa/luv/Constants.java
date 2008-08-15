@@ -255,7 +255,7 @@ public class Constants
       public static final String    PROP_WIN_LOC        = "window.location";
       public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 50);
       public static final String    PROP_WIN_SIZE       = "window.size";
-      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 650);
+      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 600);
       public static final String    PROP_WIN_BCLR       = "window.background";
       public static final Color     PROP_WIN_BCLR_DEF   = Color.WHITE;
 
