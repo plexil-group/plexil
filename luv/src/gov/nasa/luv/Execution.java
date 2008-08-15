@@ -111,7 +111,7 @@ public class Execution
             
             runThread.start();
 
-            // wait until we have an active proces object 
+            // wait until we have an active process object 
             
             while (ueProcess == null)
                Thread.sleep(10);

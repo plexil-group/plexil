@@ -36,12 +36,14 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
+
 import javax.swing.ImageIcon;
+//import java.awt.SplashScreen;
+import java.awt.Graphics2D;
+
 import javax.swing.border.EmptyBorder;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
-
-import java.util.Date;
 
 import java.util.Map;
 import java.util.Vector;
@@ -65,7 +67,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 
-import java.util.Iterator;
 import org.xml.sax.*;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -145,6 +146,8 @@ public class Luv extends JFrame
       public static File debug; 
       public static File plan; 
       public static File script;
+
+      private static SplashScreen screen;
 
       /** current view */
 
@@ -275,6 +278,13 @@ public class Luv extends JFrame
 
       public static void main(String[] args)
       {
+         // splash screen
+         
+         //ImageIcon myImage = new ImageIcon(gov.nasa.luv.Luv.class.getResource("/resources/icons/LuvIcon.gif"));
+         //screen = new SplashScreen(myImage);
+         //screen.setLocationRelativeTo(null);
+         //screen.setScreenVisible(true);
+         
          runApp();
       }
       
@@ -346,6 +356,7 @@ public class Luv extends JFrame
              }
         }
       }
+     
       
       
     public File getPlan() 
@@ -716,6 +727,10 @@ public class Luv extends JFrame
                      return blocks;
                   }
             };
+    
+            // clear splash screen
+            
+            screen.setScreenVisible(false);
       }
 
       /**
@@ -724,14 +739,21 @@ public class Luv extends JFrame
        *
        * @param frame the container in witch to place items.
        */
-
+  
       public void constructFrame(Container frame)
       {
          // set layout and background color
 
          setLayout(new BorderLayout());
          setBackground(properties.getColor(PROP_WIN_BCLR));
-
+         
+         // splash screen
+         
+         // start icon
+         
+         JLabel startLogo = new JLabel(getIcon(START_LOGO));
+         viewPanel.add(startLogo);
+         
          // create a menu bar
 
          JMenuBar menuBar = new JMenuBar();
@@ -2168,6 +2190,10 @@ public class Luv extends JFrame
 
       static public ImageIcon loadImage(String name)
       {
+          ImageIcon icon2 = new ImageIcon();
+          
+          //icon = Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource(ICONS_DIR + name));
+          
          return new ImageIcon(
             Toolkit.getDefaultToolkit()
             .getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
@@ -2188,7 +2214,7 @@ public class Luv extends JFrame
       {
             LinkCanceledException(String nodeId)
             {
-               super("Link cancled at node: " + nodeId);
+               super("Link canceled at node: " + nodeId);
             }
       }
 

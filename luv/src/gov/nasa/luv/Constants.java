@@ -64,6 +64,8 @@ public class Constants
 
       // node icon file names
 
+      public static final String    SPLASH_SCREEN_ICO = "LuvIcon.gif";
+      public static final String    START_SCREEN_ICO  = "LuvIcon6.gif";
       public static final String    NODELIST_ICO_NAME = "nodelist_node.gif";
       public static final String    COMMAND_ICO_NAME  = "command_node.gif";
       public static final String    ASSN_ICO_NAME     = "assignment_node.gif";
@@ -86,6 +88,8 @@ public class Constants
             add(UPDATE,          UPDATE_ICO_NAME);
             add(REQ,             REQUEST_ICO_NAME);
             add(LIBRARYNODECALL, LIBCALL_ICO_NAME);
+            add(SPLASH_LOGO,      SPLASH_SCREEN_ICO);
+            add(START_LOGO,      START_SCREEN_ICO);
          }
          
          public void add(String tag, String iconName)
@@ -251,7 +255,7 @@ public class Constants
       public static final String    PROP_WIN_LOC        = "window.location";
       public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 50);
       public static final String    PROP_WIN_SIZE       = "window.size";
-      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 500);
+      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 650);
       public static final String    PROP_WIN_BCLR       = "window.background";
       public static final Color     PROP_WIN_BCLR_DEF   = Color.WHITE;
 
@@ -324,6 +328,9 @@ public class Constants
       public static final String NODE_POPUP_MENU = "Node Popup Menu";
       
       public static final String CLEAR_SCREEN = "Clear Screen";
+      
+      public static final String START_LOGO = "Clear Screen";
+      public static final String SPLASH_LOGO = "Splash Screen";
       
       public static final String DEFAULT_TITLE = "Welcome to Luv Viewer";
       public static final String SCRIPT_TITLE = " SCRIPT: ";
@@ -444,7 +451,8 @@ public class Constants
       public static final String DISPLAY_UPDATE_NODE_TYPE   = "";
 
       // tags adapted from UE code
-      
+
+      public static final String SPLASH_PAGE ="SplashPage";
       public static final String NODE = "Node";
       public static final String NODE_ID = "NodeId";
       public static final String PRIORITY = "Priority";
