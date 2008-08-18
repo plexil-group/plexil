@@ -255,7 +255,7 @@ public class Constants
       public static final String    PROP_WIN_LOC        = "window.location";
       public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 50);
       public static final String    PROP_WIN_SIZE       = "window.size";
-      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 600);
+      public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 650);
       public static final String    PROP_WIN_BCLR       = "window.background";
       public static final Color     PROP_WIN_BCLR_DEF   = Color.WHITE;
 
@@ -368,6 +368,7 @@ public class Constants
       public static final String OPEN_SCRIPT = "Open Script";
       public static final String RELOAD_PLAN = "Reload Plan";
       public static final String SHOW_DEBUG = "Show Debug";
+      public static final String SHOW_SHELL_DEBUG = "Show Shell Debug Info";
 
       // boolean constant values
 
@@ -382,6 +383,8 @@ public class Constants
       public static final String MODEL_OUTCOME      = "ModelOutcome";
       public static final String MODEL_FAILURE_TYPE = "ModelFailureType";
       public static final String MODEL_LIBRARY_CALL_ID = "ModelLibraryCallId";
+      
+      public static final String MODEL_VAR_NAME = "ModelVariableName";
 
       /////////////////////////// XML tags /////////////////////////
 
@@ -472,6 +475,7 @@ public class Constants
       public static final String EMPTY = "Empty";
       public static final String BODY = "NodeBody";
       public static final String RHS = "RHS";
+      public static final String NUMERIC_RHS = "NumericRHS";
       public static final String NODELIST = "NodeList";
       public static final String LIBRARYNODECALL = "LibraryNodeCall";
       public static final String ALIAS = "Alias";
@@ -586,6 +590,9 @@ public class Constants
       public static final String NODE_FAILURE_VAL = NODE_FAILURE + VAL;
       public static final String NODE_STATE_VAL = NODE_STATE + VAL;
       public static final String NODE_TIMEPOINT_VAL = NODE_TIMEPOINT + VAL;
+      public static final String ASSN_VAL = ASSN + VAL;
+      
+      public static final String ASSN_NAME = "AssignmentName";
 
       /** tags for XML nodes which expand to children */
 
@@ -632,10 +639,11 @@ public class Constants
          NODELIST,
 //          COMMAND_NAME,
 //          FUNCCALL_NAME,
-//          NAME,
-//          TYPE,
+          NAME,
+          TYPE,
 //          MAXSIZE,
 //          INDEX,
+//         ASSN_NAME,
 
 //          // states
 
@@ -644,10 +652,11 @@ public class Constants
          
 //          // values
 
-//          INT_VAL,
-//          REAL_VAL,
-//          STRING_VAL,
-//          BOOL_VAL,
+//            ASSN_VAL,
+          INT_VAL,
+          REAL_VAL,
+          STRING_VAL,
+          BOOL_VAL,
 //          TIME_VAL,
 //          BLOB_VAL,
 //          NODE_OUTCOME_VAL,
@@ -658,7 +667,7 @@ public class Constants
 //          PERMISSIONS,
 //          INTERFACE,
 //          VAR_DECLS,
-//          DECL_VAR,
+          DECL_VAR,
 //          IN,
 //          INOUT,
 //          VAR,

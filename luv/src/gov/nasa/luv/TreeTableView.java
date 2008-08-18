@@ -243,6 +243,12 @@ public class TreeTableView extends JTreeTable implements View
             Model model = ((Wrapper)path.getLastPathComponent()).model;
             toolTip.append("<b>NAME</b> " + model.getProperty(MODEL_NAME));
             toolTip.append("<br><b>TYPE</b> " + model.getProperty(MODEL_TYPE));
+            
+            if (!model.declVarMap.isEmpty())
+            {
+                toolTip.append("<br><b>LOCAL VARIABLES</b><br>" + model.declVarMap.values());
+            }
+            
             for (BreakPoint bp: Luv.getLuv().getBreakPoints(model))
             {
                if (bp.isEnabled())

@@ -30,6 +30,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import java.util.Stack;
 
+import java.util.Vector;
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.out;
@@ -61,6 +62,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       public void startElement(String uri, String localName, 
                                String qName, Attributes attributes)
       {
+          
          if (showXmlTags)
          {
             out.println(indent + localName);
@@ -96,12 +98,24 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                   out.println(indent + attributes.getQName(i) +
                               " = " + attributes.getValue(i));
             }
+            
          }
 
          // else if its not a property the we can ignore it
          
          else if (!Model.isProperty(localName))
             node = null;
+         
+         else if (Model.isProperty(localName))
+         {     
+             if (localName.equals(NAME) || localName.equals(TYPE) || localName.equals(INT_VAL))
+             {
+                 if (node == null)
+                     findFirstNonNullNode().addLocalVariableName(localName, null);
+                 else
+                     node.addLocalVariableName(localName, null);
+             }
+         }
 
          // push new node onto the stack
 
@@ -110,6 +124,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
       /** Handle end of an XML element. */
 
+    @Override
       public void endElement(String uri, String localName, String qName)
       {
          // get the current node, which may be null indicating that it
@@ -120,8 +135,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          // get tweener text and put it in it's place
 
          String text = getTweenerText();
+         
          if (text != null)
          {
+            if (node == null)
+                findFirstNonNullNode().addLocalVariableName(localName, text);
             if (node != null)
                node.setProperty(localName, text);
             if (showXmlTags)
@@ -152,4 +170,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       {
          model.planChanged();
       }
+      
+      public Model findFirstNonNullNode()
+      {
+            int i = stack.size() - 1;
+            while (stack.elementAt(i) == null)
+               i--; 
+            return stack.elementAt(i);
+      } 
 }

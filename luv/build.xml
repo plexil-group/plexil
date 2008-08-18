@@ -31,6 +31,7 @@
 
   <!-- derived build variables -->
 
+  <property name = "target"             value = "1.5"/>
   <property name = "source-dir"         value = "src"/>
   <property name = "doc-dir"            value = "doc"/>
   <property name = "build-dir"          value = "build"/>
@@ -120,7 +121,8 @@
   <target name = "compile" 
           depends = "init" 
           description = "compile java files">
-    <javac srcdir = "${source-dir}"
+    <javac target = "${target}"
+           srcdir = "${source-dir}"
            destdir = "${build-dir}"
            includes = "${compile-includes}"
            excludes = "${compile-excludes}"

@@ -84,6 +84,8 @@ public class Model extends Properties
          new DeclareArrayTailor(DECL_ARRAY),
          new ArrayElementTailor(ARRAYELEMENT),
       };
+      
+      public HashMap<String, String> declVarMap = new HashMap<String, String>();
 
       /** Table of model tailors to customize them as needed. */
 
@@ -163,6 +165,11 @@ public class Model extends Properties
          assert isChildType(child.type);
          children.add(child);
          child.setParent(this);
+      }
+      
+      public void addLocalVariableName(String name, String value)
+      {
+          declVarMap.put(name, value);
       }
 
       /** Add a parent node to this node. 

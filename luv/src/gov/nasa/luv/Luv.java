@@ -36,11 +36,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
-
 import javax.swing.ImageIcon;
-//import java.awt.SplashScreen;
-import java.awt.Graphics2D;
-
 import javax.swing.border.EmptyBorder;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
@@ -196,6 +192,8 @@ public class Luv extends JFrame
       /** debugging window text */
       
       DebugWindow debugWindow;
+      
+      ShellDebugWindow shellDebugWindow;
 
       /** file chooser object */
       
@@ -585,8 +583,17 @@ public class Luv extends JFrame
          debugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
          debugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
          debugWindow.pack();
+         
+         // create the shell debug window
+         
+         shellDebugWindow = new ShellDebugWindow(this);
+         
+         // set size and location off frame
 
-
+         shellDebugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
+         shellDebugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
+         shellDebugWindow.pack();
+         
          // when this frame get's focus, get it's menu bar back from the debug window
 
          addWindowFocusListener(new WindowAdapter()
@@ -638,15 +645,31 @@ public class Luv extends JFrame
                       
                       if (pauseAtStart)
                       {
+                          
                           if (!executedViaLuvViewer)
-                          {               
+                          {  
+                              runMenu.setEnabled(true);
+                              runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
+                              runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
+                              
+                              if (!allowBreaks)
+                              {
+                                  isExecuting = false;
+                                  allowBreaksAction.actionPerformed(null);
+                                  isExecuting = true;
+                              }
+                              
+                              allowBreaks = true;
                               planPaused = true;
-
+                              
                               if (model.getProperty(VIEWER_BLOCKS).equals("false"))
                               {
                                   planPaused = false;
                                   allowBreaks = false;
                                   allowBreaksAction.actionPerformed(null);
+                                  runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_ENABLED);
+                                  runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+                                  runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
                               }
 
                               doesViewerBlock();                          
@@ -730,7 +753,7 @@ public class Luv extends JFrame
     
             // clear splash screen
             
-            screen.setScreenVisible(false);
+            //screen.setScreenVisible(false);
       }
 
       /**
@@ -785,7 +808,8 @@ public class Luv extends JFrame
 
          JMenu windowMenu = new JMenu("Debug Window");
          menuBar.add(windowMenu);
-         windowMenu.add(debugWindowAction);         
+         windowMenu.add(debugWindowAction);   
+         //windowMenu.add(shellDebugWindowAction);
 
          // add view panel
 
@@ -1742,6 +1766,11 @@ public class Luv extends JFrame
                loadPlan(plan);
                firstRun = false;
             }
+            
+            fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
+            fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+            viewMenu.setEnabled(true);
+            runMenu.setEnabled(true);
          }
          catch(Exception e)
          {
@@ -2283,6 +2312,10 @@ public class Luv extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                loadRecentPlan(recentIndex);
+               fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
+               fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+               viewMenu.setEnabled(true);
+               runMenu.setEnabled(true);
             }
       }
 
@@ -2292,10 +2325,6 @@ public class Luv extends JFrame
                public void actionPerformed(ActionEvent e)
                {
                   choosePlan();
-                  fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-                  fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-                  viewMenu.setEnabled(true);
-                  runMenu.setEnabled(true);
                }
          };
          
@@ -2404,10 +2433,21 @@ public class Luv extends JFrame
                }
          };
 
+      /** Action to show the shell debugging window. */
+
+      LuvAction shellDebugWindowAction = new LuvAction(
+         SHOW_SHELL_DEBUG, "Show information normally displayed in shell prompt.", VK_S, META_MASK)
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  shellDebugWindow.setVisible(!shellDebugWindow.isVisible());
+               }
+         };
+         
       /** Action to allow breakpoints. */
          
       LuvAction allowBreaksAction = new LuvAction(
-         BREAKING_ENABLED, "Select this to allow breakpoints.", VK_F2)
+         BREAKING_DISABLED, "Select this to allow breakpoints.", VK_F2)
 	 {
              public void actionPerformed(ActionEvent actionEvent)
              {
