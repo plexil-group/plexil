@@ -42,6 +42,8 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       String indent = "";
       String indentIncrement = "  ";
       boolean showXmlTags = false;
+      public static boolean recordLocalVariables = false;
+      public static int count = 0;
 
       Stack<Model> stack = new Stack<Model>();
       
@@ -106,15 +108,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          else if (!Model.isProperty(localName))
             node = null;
          
-         else if (Model.isProperty(localName))
-         {     
-             if (localName.equals(NAME) || localName.equals(TYPE) || localName.equals(INT_VAL))
-             {
-                 if (node == null)
-                     findFirstNonNullNode().addLocalVariableName(localName, null);
-                 else
-                     node.addLocalVariableName(localName, null);
-             }
+         if (localName.equals(DECL_VAR))
+         {
+             recordLocalVariables = true;
          }
 
          // push new node onto the stack
@@ -136,10 +132,32 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
          String text = getTweenerText();
          
+         if (localName.equals(DECL_VAR))
+         {
+             if (count == 2)
+                 findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
+                 
+             recordLocalVariables = false;
+             count = 0;
+         }
+         
          if (text != null)
          {
-            if (node == null)
-                findFirstNonNullNode().addLocalVariableName(localName, text);
+             if (recordLocalVariables)
+             {
+                 if (node == null)
+                 {
+                     if (localName.equals(NAME))
+                         ++count;
+                     if (localName.equals(TYPE))
+                         ++count;
+                     if (localName.equals(INT_VAL) || localName.equals(REAL_VAL) || localName.equals(BOOL_VAL) || localName.equals(STRING_VAL))
+                         ++count;
+                         
+                     findFirstNonNullNode().addLocalVariableName(localName, text);
+                 }
+             }
+            
             if (node != null)
                node.setProperty(localName, text);
             if (showXmlTags)

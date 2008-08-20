@@ -52,11 +52,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Enumeration;
 
 
+import java.util.Iterator;
+import java.util.List;
 import treetable.JTreeTable;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
@@ -243,10 +247,23 @@ public class TreeTableView extends JTreeTable implements View
             Model model = ((Wrapper)path.getLastPathComponent()).model;
             toolTip.append("<b>NAME</b> " + model.getProperty(MODEL_NAME));
             toolTip.append("<br><b>TYPE</b> " + model.getProperty(MODEL_TYPE));
+
             
             if (!model.declVarMap.isEmpty())
-            {
-                toolTip.append("<br><b>LOCAL VARIABLES</b><br>" + model.declVarMap.values());
+            {  
+                
+                ArrayList names = model.declVarMap.get(NAME);
+                ArrayList types = model.declVarMap.get(TYPE);
+                ArrayList values = model.declVarMap.get(VAL);
+                
+                toolTip.append("<br><b>LOCAL VARIABLES</b>");
+                
+                for (int i = 0; i < types.size(); i++)
+                {
+                    toolTip.append("<br>" + types.get(i) + " " + names.get(i));
+                    if (!values.get(i).equals("nvl"))
+                        toolTip.append(" = " + values.get(i));
+                }                
             }
             
             for (BreakPoint bp: Luv.getLuv().getBreakPoints(model))

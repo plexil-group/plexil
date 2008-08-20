@@ -91,7 +91,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
              if (current.isRoot() && state.equals(FINISHED))
              {
                  Luv.isExecuting = false;
-                 Luv.executedViaLuvViewer = false;
+                 Luv.executionComplete = true;
                  Luv.getLuv().showStatus("Execution complete");
              }
              

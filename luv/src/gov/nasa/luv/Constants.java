@@ -340,8 +340,8 @@ public class Constants
       
       public static final String PAUSE_OR_RESUME_PLAN = "Pause or Resume plan";
       public static final String STEP = "Step";
-      public static final String BREAKING_ENABLED = "Enable Breaks";
-      public static final String BREAKING_DISABLED = "Disable Breaks";
+      public static final String ENABLE_BREAKS = "Enable Breaks";
+      public static final String DISABLE_BREAKS = "Disable Breaks";
       public static final String BREAK_POINTS = "Break Points";
       public static final String EXECUTE_PLAN = "Execute Plan";
  

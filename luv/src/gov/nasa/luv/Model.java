@@ -26,11 +26,10 @@
 
 package gov.nasa.luv;
 
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Properties;
-import java.awt.geom.Point2D;
 import java.util.Map.Entry;
 
 import static gov.nasa.luv.Constants.*;
@@ -85,7 +84,11 @@ public class Model extends Properties
          new ArrayElementTailor(ARRAYELEMENT),
       };
       
-      public HashMap<String, String> declVarMap = new HashMap<String, String>();
+      public HashMap<String, ArrayList> declVarMap = new HashMap<String, ArrayList>();
+      
+      public ArrayList<String> declNameVarList = new ArrayList<String>();
+      public ArrayList<String> declTypeVarList = new ArrayList<String>();
+      public ArrayList<String> declValueVarList = new ArrayList<String>();
 
       /** Table of model tailors to customize them as needed. */
 
@@ -169,7 +172,23 @@ public class Model extends Properties
       
       public void addLocalVariableName(String name, String value)
       {
-          declVarMap.put(name, value);
+          if (value == null)
+              ;
+          else if (name.equals(NAME))
+          {
+              declNameVarList.add(value);
+              declVarMap.put(name, declNameVarList);              
+          }
+          else if (name.equals(TYPE))
+          {
+              declTypeVarList.add(value);
+              declVarMap.put(name, declTypeVarList); 
+          }
+          else
+          {
+              declValueVarList.add(value); 
+              declVarMap.put(VAL, declValueVarList); 
+          }
       }
 
       /** Add a parent node to this node. 

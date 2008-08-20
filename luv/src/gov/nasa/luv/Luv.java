@@ -130,6 +130,7 @@ public class Luv extends JFrame
       public static boolean firstRun = true;
       public static boolean dontLoadScriptAgain = false;
       public static boolean breakOut = false;
+      public static boolean executionComplete = false;
       
       /** is the plan current paused */
 
@@ -503,8 +504,7 @@ public class Luv extends JFrame
       {
           showStatus("Reseting Luv session", 1000);
           plan = null;
-          script = null;
-          resetAllowBreaks = false; 
+          script = null; 
           allowBreaks = false;
           allowDebug = false;
           pauseAtStart = false;
@@ -545,6 +545,10 @@ public class Luv extends JFrame
          // construct the frame
          
          constructFrame(getContentPane());
+         
+         // luv will be in this state only when you first start it (minimal options available)
+         
+         startState();
 
          // set tooltip display time
 
@@ -631,52 +635,13 @@ public class Luv extends JFrame
             //loadRecentPlan(1);
             
          setTitle();
-         
-         //allowBreaksAction.actionPerformed(null);
 
          // start the server listening for events
 
          Server s = new Server(properties.getInteger(PROP_NET_SERVER_PORT))
             {
                   @Override public void handleMessage(final String message) 
-                  {  
-                     
-                    /** Determine if the Luv Viewer should pause before executing. */
-                      
-                      if (pauseAtStart)
-                      {
-                          
-                          if (!executedViaLuvViewer)
-                          {  
-                              runMenu.setEnabled(true);
-                              runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
-                              runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
-                              
-                              if (!allowBreaks)
-                              {
-                                  isExecuting = false;
-                                  allowBreaksAction.actionPerformed(null);
-                                  isExecuting = true;
-                              }
-                              
-                              allowBreaks = true;
-                              planPaused = true;
-                              
-                              if (model.getProperty(VIEWER_BLOCKS).equals("false"))
-                              {
-                                  planPaused = false;
-                                  allowBreaks = false;
-                                  allowBreaksAction.actionPerformed(null);
-                                  runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_ENABLED);
-                                  runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
-                                  runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
-                              }
-
-                              doesViewerBlock();                          
-
-                          }
-                          pauseAtStart = false;
-                      }
+                  {                
                       
                      // parse the message
                      
@@ -686,8 +651,7 @@ public class Luv extends JFrame
 
                      if (isPlan)
                      {
-                         pauseAtStart = true;
-                         isExecuting = true;
+                        isExecuting = true;
             
                         // if this is a library, store this in set of libraries
                
@@ -699,16 +663,28 @@ public class Luv extends JFrame
                         
                         // otherwise it's a plan, link that plan and libraries and show the new plan
                         
-                      //  else
-                      //  {
-                           try
-                           {
-                              link(model, libraries);
-                           }
-                           catch (LinkCanceledException lce) {}
-                           resetView();
-                           libraries.clear();
-                        //}
+                        try
+                        {
+                           link(model, libraries);
+                        }
+                        catch (LinkCanceledException lce) {}
+                        
+                        resetView();
+                        libraries.clear();
+                        
+                                             
+                         // Determine if the Luv Viewer should pause before executing. 
+
+                          if (!executedViaLuvViewer && model.getProperty(VIEWER_BLOCKS) != null)
+                          {
+                              if (model.getProperty(VIEWER_BLOCKS).equals("true"))
+                              {
+                                  planPaused = true; 
+                                  if (!allowBreaks)
+                                      allowBreaksAction.actionPerformed(null);
+                                  doesViewerBlock();
+                              }                       
+                          }
                      }
                   }
                   
@@ -822,10 +798,27 @@ public class Luv extends JFrame
          frame.add(statusBar, SOUTH);
          startStatusBarThread(statusBar);
           
+         
+      }
+      
+      public void startState()
+      {
          fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
          fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+         
          runMenu.setEnabled(false);
+         
          viewMenu.setEnabled(false);
+      }
+      
+      public void readyState()
+      {
+          fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
+          fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+          
+          runMenu.setEnabled(true);
+          
+          viewMenu.setEnabled(true);
       }
 
       /** Creates and returns the status bar thread.
@@ -912,7 +905,6 @@ public class Luv extends JFrame
          runMenu.removeAll();
 
          // add pause and step
-
          
          runMenu.add(pauseAction);
          runMenu.add(stepAction);
@@ -920,8 +912,9 @@ public class Luv extends JFrame
          if (!allowBreaks)
          {
              runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
-             runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);             
+             runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
          }
+         
          runMenu.add(allowBreaksAction);
          runMenu.add(execAction);
 
@@ -2312,10 +2305,7 @@ public class Luv extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                loadRecentPlan(recentIndex);
-               fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-               fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-               viewMenu.setEnabled(true);
-               runMenu.setEnabled(true);
+               readyState();
             }
       }
 
@@ -2325,6 +2315,7 @@ public class Luv extends JFrame
                public void actionPerformed(ActionEvent e)
                {
                   choosePlan();
+                  readyState();
                }
          };
          
@@ -2418,7 +2409,21 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                  loadRecentPlan(1);
+                   if (executedViaLuvViewer)
+                   {
+                      loadRecentPlan(1);
+                      readyState();
+                   }
+                   else
+                   {
+                        JOptionPane.showMessageDialog(
+                           theLuv,
+                           "Error reloading plan. The Luv Viewer cannot store a plan that was loaded by command prompt.\n" +
+                           "You must load the plan via the Luv Viewer in order to reload.",
+                           "Reload Error",
+                           JOptionPane.ERROR_MESSAGE);
+                        showStatus("Unable to reload plan that was loaded by command prompt.", 1000);
+                   }
                }
          };
 
@@ -2447,9 +2452,9 @@ public class Luv extends JFrame
       /** Action to allow breakpoints. */
          
       LuvAction allowBreaksAction = new LuvAction(
-         BREAKING_DISABLED, "Select this to allow breakpoints.", VK_F2)
+         "Test", "Select this to allow breakpoints.", VK_F2)
 	 {
-             public void actionPerformed(ActionEvent actionEvent)
+             public void actionPerformed(ActionEvent e)
              {
                  if (!isExecuting)
                  {
@@ -2457,17 +2462,17 @@ public class Luv extends JFrame
 
                      if (allowBreaks)
                      {
-                         runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_DISABLED);
+                         runMenu.getItem(BREAK_MENU_ITEM).setText(DISABLE_BREAKS);
                          runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
                          runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
-                         showStatus(BREAKING_ENABLED, Color.GREEN.darker(), 1000);
+                         showStatus(ENABLE_BREAKS, Color.GREEN.darker(), 1000);
                      }
                      else
                      {
-                         runMenu.getItem(BREAK_MENU_ITEM).setText(BREAKING_ENABLED);
+                         runMenu.getItem(BREAK_MENU_ITEM).setText(ENABLE_BREAKS);
                          runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
                          runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
-                         showStatus(BREAKING_DISABLED, Color.RED, 1000);
+                         showStatus(DISABLE_BREAKS, Color.RED, 1000);
                      }
                  }
              }
@@ -2480,7 +2485,7 @@ public class Luv extends JFrame
          "Execute plan currently loaded.",
          VK_F1)
          {
-             public void actionPerformed(ActionEvent actionEvent)
+             public void actionPerformed(ActionEvent e)
              {
                 try {
                     if (!planPaused && !isExecuting)
@@ -2504,8 +2509,6 @@ public class Luv extends JFrame
                {  
                    if (allowBreaks && isExecuting)
                    {
-                       if (resetAllowBreaks)
-                           allowBreaks = false;
                        planPaused = !planPaused;
                        showStatus((planPaused ? PAUSE : RESUME) + " requested.", Color.BLACK, 1000);
                    }
