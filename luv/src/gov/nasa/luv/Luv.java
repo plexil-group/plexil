@@ -26,11 +26,18 @@
 
 package gov.nasa.luv;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JButton;
 import javax.swing.JSeparator;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -39,28 +46,46 @@ import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JPopupMenu;
+import javax.swing.JDesktopPane;
 import javax.swing.ToolTipManager;
 
+import java.util.Set;
 import java.util.Map;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import java.net.Socket;
+
 import java.awt.Toolkit;
 import java.awt.Container;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.SplashScreen;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.awt.event.WindowAdapter;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import javax.swing.JCheckBox;
+import javax.swing.JButton;
+import javax.swing.Action;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.ByteArrayInputStream;
 
 import org.xml.sax.*;
@@ -70,6 +95,9 @@ import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
+import static java.awt.event.InputEvent.CTRL_MASK;
+import static java.awt.event.InputEvent.META_MASK;
+import static java.awt.event.InputEvent.SHIFT_MASK;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.*;
 
@@ -115,9 +143,9 @@ public class Luv extends JFrame
                     define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
                     define(PROP_VIEW_HIDE_PLEXILLISP, PROP_VIEW_HIDE_PLEXILLISP_DEF);
 
-                    define(PROP_FILE_RECENT_PLAN_DIR, getProperty(PROP_FILE_RECENT_PLAN_BASE + PROP_RECENT_FILE, UNKNOWN));
+                    define(PROP_FILE_RECENT_PLAN_DIR, getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
 
-                    define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, UNKNOWN));
+                    define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
                }
          };
          
@@ -194,7 +222,7 @@ public class Luv extends JFrame
       
       DebugWindow debugWindow;
       
-      ShellDebugWindow shellDebugWindow;
+      //ShellDebugWindow shellDebugWindow;
 
       /** file chooser object */
       
@@ -360,14 +388,14 @@ public class Luv extends JFrame
       
     public File getPlan() 
     {    
-        if (firstRun || getRecentPlanName(PROP_RECENT_FILE) == null)
+        if (firstRun || getRecentPlanName(1) == null)
         {
             firstRun = false;
             JOptionPane.showMessageDialog(theLuv, "Please select a plan.");
             choosePlan();
         }              
         
-        plan = new File(getRecentPlanName(PROP_RECENT_FILE));
+        plan = new File(getRecentPlanName(1));
         
         while (!plan.canRead())
         {
@@ -491,7 +519,7 @@ public class Luv extends JFrame
              stopExecution();
          }
      }
-      
+
       public void stopExecution()
       {
           dontLoadScriptAgain = true;
@@ -590,13 +618,13 @@ public class Luv extends JFrame
          
          // create the shell debug window
          
-         shellDebugWindow = new ShellDebugWindow(this);
+         //shellDebugWindow = new ShellDebugWindow(this);
          
          // set size and location off frame
 
-         shellDebugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
-         shellDebugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
-         shellDebugWindow.pack();
+         //shellDebugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
+         //shellDebugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
+         //shellDebugWindow.pack();
          
          // when this frame get's focus, get it's menu bar back from the debug window
 
@@ -798,6 +826,10 @@ public class Luv extends JFrame
          frame.add(statusBar, SOUTH);
          startStatusBarThread(statusBar);
           
+        // fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
+        // fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+         //runMenu.setEnabled(false);
+        // viewMenu.setEnabled(false);
          
       }
       
@@ -2309,8 +2341,10 @@ public class Luv extends JFrame
             }
       }
 
+      /** Action to open and view a plan. */
+
       LuvAction openAction = new LuvAction(
-         OPEN_PLAN, "Open a plan for viewing.", VK_O, META_MASK)
+         "Open Plan", "Open a plan for viewing.", VK_O, META_MASK)
          {
                public void actionPerformed(ActionEvent e)
                {
@@ -2318,81 +2352,9 @@ public class Luv extends JFrame
                   readyState();
                }
          };
-         
-      /** Action to exit the program. */
-
-      LuvAction exitAction = new LuvAction(
-         EXIT, "Terminate this program.", VK_ESCAPE)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                   Object[] options = 
-                     {
-                        YES,
-                        NO,
-                     };
-                   
-                   int exitLuv = JOptionPane.showOptionDialog(
-                           theLuv,
-                     "Are you sure you want to exit?",
-                     "Exit Luv Viewer",
-                     JOptionPane.YES_NO_CANCEL_OPTION,
-                     JOptionPane.WARNING_MESSAGE,
-                     null,
-                     options,
-                     options[0]);
-                   
-                   if (exitLuv == 0)
-                       exit();
-               }
-         };
-        
-
-      /** Action to disable all breakpoints. */
-
-      LuvAction disableBreakpointsAction = new LuvAction(
-         "Disable All Break Points", 
-         "Disable every breakpoint in the system.",
-         VK_B, META_MASK | SHIFT_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  for (BreakPoint bp: breakPoints.keySet())
-                     bp.setEnabled(false);
-                  refreshView();
-               }
-         };
-
-      /** Action to remove all breakpoints. */
-
-      LuvAction removeAllBreakpointsAction = new LuvAction(
-         "Remove All Break Points", 
-         "Permanently remove all breakpoint from the system.")
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  removeAllBreakPoints();
-               }
-         };
-         
-
-      /** Action to enable all breakpoints. */
-
-      LuvAction enableBreakpointsAction = new LuvAction(
-         "Enable All Break Points", 
-         "Enable every breakpoint in the system.",
-         VK_B, META_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  for (BreakPoint bp: breakPoints.keySet())
-                     bp.setEnabled(true);
-                  refreshView();
-               }
-         };
-         
       
       /** Action to load a script for Execution. */
+         
       LuvAction openScriptAction = new LuvAction(
          OPEN_SCRIPT, "Open a script for execution.", VK_O, META_MASK)
          {
@@ -2437,22 +2399,20 @@ public class Luv extends JFrame
                   debugWindow.setVisible(!debugWindow.isVisible());
                }
          };
-
-      /** Action to show the shell debugging window. */
-
+         
       LuvAction shellDebugWindowAction = new LuvAction(
          SHOW_SHELL_DEBUG, "Show information normally displayed in shell prompt.", VK_S, META_MASK)
          {
                public void actionPerformed(ActionEvent e)
                {
-                  shellDebugWindow.setVisible(!shellDebugWindow.isVisible());
+                 // shellDebugWindow.setVisible(!shellDebugWindow.isVisible());
                }
          };
          
       /** Action to allow breakpoints. */
          
       LuvAction allowBreaksAction = new LuvAction(
-         "Test", "Select this to allow breakpoints.", VK_F2)
+         ENABLE_BREAKS, "Select this to allow breakpoints.", VK_F2)
 	 {
              public void actionPerformed(ActionEvent e)
              {
@@ -2500,7 +2460,7 @@ public class Luv extends JFrame
              }
       };
 
-      LuvAction pauseAction = new LuvAction(
+     LuvAction pauseAction = new LuvAction(
          PAUSE_OR_RESUME_PLAN, 
          "Pause or resume an executing plan, if it is blocking.",
          VK_SPACE)
@@ -2565,6 +2525,77 @@ public class Luv extends JFrame
                {
                   filter.setEnabled(!filter.isEnabled());
                   properties.set(PROP_VIEW_HIDE_PLEXILLISP, filter.isEnabled());
+               }
+         };
+
+      /** Action to disable all breakpoints. */
+
+      LuvAction disableBreakpointsAction = new LuvAction(
+         "Disable All Break Points", 
+         "Disable every breakpoint in the system.",
+         VK_B, META_MASK | SHIFT_MASK)
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  for (BreakPoint bp: breakPoints.keySet())
+                     bp.setEnabled(false);
+                  refreshView();
+               }
+         };
+
+      /** Action to remove all breakpoints. */
+
+      LuvAction removeAllBreakpointsAction = new LuvAction(
+         "Remove All Break Points", 
+         "Permanently remove all breakpoint from the system.")
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  removeAllBreakPoints();
+               }
+         };
+         
+
+      /** Action to enable all breakpoints. */
+
+      LuvAction enableBreakpointsAction = new LuvAction(
+         "Enable All Break Points", 
+         "Enable every breakpoint in the system.",
+         VK_B, META_MASK)
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  for (BreakPoint bp: breakPoints.keySet())
+                     bp.setEnabled(true);
+                  refreshView();
+               }
+         };
+
+      /** Action to exit the program. */
+
+      LuvAction exitAction = new LuvAction(
+         EXIT, "Terminate this program.", VK_ESCAPE)
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                   Object[] options = 
+                     {
+                        YES,
+                        NO,
+                     };
+                   
+                   int exitLuv = JOptionPane.showOptionDialog(
+                           theLuv,
+                     "Are you sure you want to exit?",
+                     "Exit Luv Viewer",
+                     JOptionPane.YES_NO_CANCEL_OPTION,
+                     JOptionPane.WARNING_MESSAGE,
+                     null,
+                     options,
+                     options[0]);
+                   
+                   if (exitLuv == 0)
+                       exit();
                }
          };
 }

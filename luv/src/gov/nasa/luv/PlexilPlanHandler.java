@@ -107,11 +107,6 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
          else if (!Model.isProperty(localName))
             node = null;
-         
-         if (localName.equals(DECL_VAR))
-         {
-             recordLocalVariables = true;
-         }
 
          // push new node onto the stack
 
@@ -143,6 +138,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
          if (text != null)
          {
+            if (node == null)
+               findFirstNonNullNode().addLocalVariableName(localName, text);
+            
              if (recordLocalVariables)
              {
                  if (node == null)
