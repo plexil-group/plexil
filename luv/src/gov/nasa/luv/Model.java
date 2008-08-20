@@ -216,7 +216,7 @@ public class Model extends Properties
 
       public boolean isRoot()
       {
-         return parent == null;
+         return parent == null; 
       }
 
       /** Get the parent node to this node. 

@@ -946,8 +946,14 @@ public class Luv extends JFrame
              runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
              runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
          }
-         
+
+         if (allowBreaks)
+             allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
+         else
+             allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
+             
          runMenu.add(allowBreaksAction);
+         
          runMenu.add(execAction);
 
           // add break point menu
@@ -2412,7 +2418,7 @@ public class Luv extends JFrame
       /** Action to allow breakpoints. */
          
       LuvAction allowBreaksAction = new LuvAction(
-         ENABLE_BREAKS, "Select this to allow breakpoints.", VK_F2)
+         allowBreaks ? DISABLE_BREAKS : ENABLE_BREAKS, "Select this to allow breakpoints.", VK_F2)
 	 {
              public void actionPerformed(ActionEvent e)
              {
@@ -2451,7 +2457,7 @@ public class Luv extends JFrame
                     if (!planPaused && !isExecuting)
                     {
                         executedViaLuvViewer = true;
-                        showStatus("Preparing to execute...", 1000);
+                        showStatus("Preparing to execute...");
                         runExec();
                     }
                 } catch (IOException ex) {

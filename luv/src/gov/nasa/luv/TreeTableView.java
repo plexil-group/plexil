@@ -256,14 +256,17 @@ public class TreeTableView extends JTreeTable implements View
                 ArrayList types = model.declVarMap.get(TYPE);
                 ArrayList values = model.declVarMap.get(VAL);
                 
-                toolTip.append("<br><b>LOCAL VARIABLES</b>");
-                
-                for (int i = 0; i < types.size(); i++)
-                {
-                    toolTip.append("<br>" + types.get(i) + " " + names.get(i));
-                    if (!values.get(i).equals("nvl"))
-                        toolTip.append(" = " + values.get(i));
-                }                
+                if (names != null && types != null && values != null)
+                {               
+                    toolTip.append("<br><b>LOCAL VARIABLES</b>");
+
+                    for (int i = 0; i < types.size(); i++)
+                    {
+                        toolTip.append("<br>" + types.get(i) + " " + names.get(i));
+                        if (!values.get(i).equals("nvl"))
+                            toolTip.append(" = " + values.get(i));
+                    } 
+                }
             }
             
             for (BreakPoint bp: Luv.getLuv().getBreakPoints(model))

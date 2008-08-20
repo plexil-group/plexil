@@ -88,11 +88,11 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
-             if (current.isRoot() && state.equals(FINISHED))
+             if (current.getParent().getType().equals("dummy") && state.equals(FINISHED))
              {
                  Luv.isExecuting = false;
                  Luv.executionComplete = true;
-                 Luv.getLuv().showStatus("Execution complete");
+                 Luv.getLuv().showStatus("Execution complete (ROOT node in FINISHED state)");
              }
              
             current.setProperty(MODEL_STATE, state);

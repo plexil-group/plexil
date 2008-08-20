@@ -37,6 +37,10 @@ import static gov.nasa.luv.Constants.*;
 
 public abstract class Server
 {
+    private static int count = 0;
+    private static int count2 = 0;
+    
+    
       /** Construct a server which listens on a given port.
        *
        * @param port port on witch this server listens. 
@@ -121,6 +125,8 @@ public abstract class Server
                while (is.available() > 0)
                {
                   // if we see the end of message char, dispatch message
+                   ++count;
+                   count2 = 0;
 
                   int ch = is.read();
                   if (ch == END_OF_MESSAGE)
@@ -145,8 +151,23 @@ public abstract class Server
                } 
                
                // sleep for a bit while we wait for data to come in
+               if (count == 0 && count2 < 250)
+               {
+                   ++count2;
+               }
+               
+               if (count2 == 250 && !Luv.executionComplete)
+               {
+                   Luv.isExecuting = false;
+                   Luv.executionComplete = true;
+                   Luv.getLuv().showStatus("Execution complete (No more activity detected)");
+                   count2 = 251;
+               }
+                  
 
                Thread.sleep(100);
+               
+               count = 0;
             }            
          }
          catch (Exception e)

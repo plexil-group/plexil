@@ -42,7 +42,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       String indent = "";
       String indentIncrement = "  ";
       boolean showXmlTags = false;
-      public static boolean recordLocalVariables = false;
+      public static boolean recordDeclareVariables, nameExists, typeExists, valueExists = false;
       public static int count = 0;
 
       Stack<Model> stack = new Stack<Model>();
@@ -106,8 +106,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          // else if its not a property the we can ignore it
          
          else if (!Model.isProperty(localName))
-            node = null;
-
+            node = null;   
+         
+         if (localName.equals(DECL_VAR))
+             recordDeclareVariables = true;
+         
          // push new node onto the stack
 
          stack.push(node);
@@ -129,28 +132,26 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
          if (localName.equals(DECL_VAR))
          {
-             if (count == 2)
+             if (nameExists && typeExists && !valueExists)
                  findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
-                 
-             recordLocalVariables = false;
+             
+             recordDeclareVariables = nameExists = typeExists = valueExists = false;
+             
              count = 0;
          }
          
          if (text != null)
          {
-            if (node == null)
-               findFirstNonNullNode().addLocalVariableName(localName, text);
-            
-             if (recordLocalVariables)
+             if (recordDeclareVariables)
              {
                  if (node == null)
                  {
                      if (localName.equals(NAME))
-                         ++count;
+                         nameExists = true;
                      if (localName.equals(TYPE))
-                         ++count;
+                         typeExists = true;
                      if (localName.equals(INT_VAL) || localName.equals(REAL_VAL) || localName.equals(BOOL_VAL) || localName.equals(STRING_VAL))
-                         ++count;
+                         valueExists = true;
                          
                      findFirstNonNullNode().addLocalVariableName(localName, text);
                  }
