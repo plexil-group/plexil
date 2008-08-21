@@ -700,20 +700,36 @@ public class Luv extends JFrame
                         resetView();
                         libraries.clear();
                         
-                                             
-                         // Determine if the Luv Viewer should pause before executing. 
-
-                          if (!executedViaLuvViewer && model.getProperty(VIEWER_BLOCKS) != null)
-                          {
-                              if (model.getProperty(VIEWER_BLOCKS).equals("true"))
-                              {
-                                  planPaused = true; 
-                                  if (!allowBreaks)
-                                      allowBreaksAction.actionPerformed(null);
-                                  doesViewerBlock();
-                              }                       
-                          }
+                        pauseAtStart = true;
                      }
+                     
+                     // Determine if the Luv Viewer should pause before executing. 
+
+                      if (pauseAtStart && !executedViaLuvViewer && model.getProperty(VIEWER_BLOCKS) != null)
+                      {
+                          
+                          if (model.getProperty(VIEWER_BLOCKS).equals("true"))
+                          {
+                              isExecuting = false;                              
+                              planPaused = true; 
+                              
+                              if (!allowBreaks)
+                              {
+                                  allowBreaksAction.actionPerformed(null);
+                              }
+                              
+                              
+                              
+                              readyState();
+                              
+                              isExecuting = true;
+                             
+                              doesViewerBlock();
+                          } 
+   
+                          
+                          pauseAtStart = false;
+                      }
                   }
                   
                   @Override public boolean doesViewerBlock()
@@ -845,6 +861,10 @@ public class Luv extends JFrame
       
       public void readyState()
       {
+          executedViaLuvViewer = false;
+          isExecuting = false;
+          executionComplete = false;
+      
           fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
           fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
           

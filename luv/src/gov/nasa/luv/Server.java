@@ -154,12 +154,14 @@ public abstract class Server
                if (count == 0 && count2 < 250)
                {
                    ++count2;
+                   //Luv.getLuv().showStatus("Count: " + count2);
                }
                
                if (count2 == 250 && !Luv.executionComplete)
                {
                    Luv.isExecuting = false;
                    Luv.executionComplete = true;
+                   Luv.executedViaLuvViewer = false;
                    Luv.getLuv().showStatus("Execution complete (No more activity detected)");
                    count2 = 251;
                }

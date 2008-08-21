@@ -92,6 +92,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
              {
                  Luv.isExecuting = false;
                  Luv.executionComplete = true;
+                 Luv.executedViaLuvViewer = false;
                  Luv.getLuv().showStatus("Execution complete (ROOT node in FINISHED state)");
              }
              
