@@ -7,6 +7,7 @@ ModuleCore PlexilInterface :
   ThreadSemaphore.cc
   AdaptorExecInterface.cc
   ThreadedExternalInterface.cc
-  InterfaceAdaptor.cc ;
+  InterfaceAdaptor.cc
+  AdaptorFactory.cc ;
 
 } # PLEXIL_INTFCS_READY

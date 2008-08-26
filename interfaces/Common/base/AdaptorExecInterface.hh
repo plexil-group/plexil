@@ -31,7 +31,8 @@
 #include "LabelStr.hh"
 #include "ParserException.hh"
 
-#include "tinyxml.h"
+// forward references w/o namespace
+class TiXmlElement;
 
 namespace PLEXIL
 {

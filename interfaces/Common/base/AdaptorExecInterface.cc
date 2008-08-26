@@ -28,6 +28,7 @@
 
 #include "Debug.hh"
 #include "Expression.hh"
+#include "tinyxml.h"
 #include <iomanip>
 #include <sstream>
 

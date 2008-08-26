@@ -37,6 +37,9 @@
 #include <queue>
 #include <pthread.h>
 
+// Forward reference in global namespace
+class TiXmlElement;
+
 namespace PLEXIL 
 {
 

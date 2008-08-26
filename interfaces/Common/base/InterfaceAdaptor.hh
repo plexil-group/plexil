@@ -34,6 +34,9 @@
 #include <set>
 #include <vector>
 
+// forward references without namespace
+class TiXmlElement;
+
 namespace PLEXIL
 {
   // forward references
@@ -53,7 +56,21 @@ namespace PLEXIL
   {
 
   public:
+    /**
+     * @brief Default constructor.
+     */
     InterfaceAdaptor();
+
+    /**
+     * @brief Constructor from configuration XML.
+     * @param xml A const pointer to the TiXmlElement describing this adaptor
+     * @note The instance maintains a shared pointer to the TiXmlElement.
+     */
+    InterfaceAdaptor(const TiXmlElement* xml);
+
+    /**
+     * @brief Destructor.
+     */
     virtual ~InterfaceAdaptor();
 
     /**
@@ -186,6 +203,14 @@ namespace PLEXIL
       return m_id;
     }
 
+    /**
+     * @brief Get the configuration XML for this instance.
+     */
+    const TiXmlElement* getXml()
+    {
+      return m_xml;
+    }
+
   protected:
 
     //
@@ -219,6 +244,8 @@ namespace PLEXIL
     // Deliberately unimplemented
     InterfaceAdaptor(const InterfaceAdaptor &);
     InterfaceAdaptor & operator=(const InterfaceAdaptor &);
+
+    const TiXmlElement* m_xml;
 
     InterfaceAdaptorId m_id;
 

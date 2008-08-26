@@ -36,7 +36,14 @@
 namespace PLEXIL
 {
   InterfaceAdaptor::InterfaceAdaptor()
-    : m_id(this)
+    : m_xml(NULL),
+      m_id(this)
+  {
+  }
+
+  InterfaceAdaptor::InterfaceAdaptor(const TiXmlElement* xml)
+    : m_xml(xml),
+      m_id(this)
   {
   }
 
