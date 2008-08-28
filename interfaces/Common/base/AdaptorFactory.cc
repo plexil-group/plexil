@@ -63,8 +63,8 @@ namespace PLEXIL
                                  bool& wasCreated)
   {
     std::map<double, AdaptorFactory*>::const_iterator it = factoryMap().find(name);
-    checkError(it != factoryMap().end(),
-               "Error: No adaptor factory registered for name '" << name.toString() << "'.");
+    assertTrueMsg(it != factoryMap().end(),
+		  "Error: No adaptor factory registered for name '" << name.toString() << "'.");
     InterfaceAdaptorId retval = it->second->create(xml, wasCreated);
     debugMsg("AdaptorFactory:createInstance", " Created " << name.toString());
     return retval;
@@ -95,11 +95,11 @@ namespace PLEXIL
    */
   void AdaptorFactory::registerFactory(const LabelStr& name, AdaptorFactory* factory)
   {
-    check_error(factory != NULL);
-    checkError(factoryMap().find(name) == factoryMap().end(),
-               "Error:  Attempted to register an adaptor factory for name \""
-               << name.toString() <<
-               "\" twice.");
+    assertTrue(factory != NULL);
+    assertTrueMsg(factoryMap().find(name) == factoryMap().end(),
+		  "Error:  Attempted to register an adaptor factory for name \""
+		  << name.toString() <<
+		  "\" twice.");
     factoryMap()[name] = factory;
     debugMsg("AdaptorFactory:registerFactory",
              " Registered adaptor factory for name '" << name.toString() << "'");
