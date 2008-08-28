@@ -12,6 +12,7 @@ ModuleCore PlexilUtils
 	TestData.cc
 	XMLUtils.cc
 	Utils.cc
+	ThreadMutex.cc
 	RecursiveThreadMutex.cc
 	;
 
