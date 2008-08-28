@@ -56,13 +56,13 @@ namespace PLEXIL
 					      const StateKey& stateKey,
 					      const std::vector<double>& tolerances)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::registerChangeLookup: default method called!");
   }
 
   void InterfaceAdaptor::unregisterChangeLookup(const LookupKey& uniqueId)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::unregisterChangeLookup: default method called!");
   }
 
@@ -71,21 +71,21 @@ namespace PLEXIL
 						 double lowFrequency, 
 						 double highFrequency)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::registerFrequencyLookup: default method called!");
   }
 
 
   void InterfaceAdaptor::unregisterFrequencyLookup(const LookupKey& uniqueId)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::registerFrequencyLookup: default method called!");
   }
 
   void InterfaceAdaptor::lookupNow(const StateKey& key,
 				   std::vector<double>& dest)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::lookupNow: default method called!");
   }
 
@@ -93,7 +93,7 @@ namespace PLEXIL
 					   const std::map<double, double>& valuePairs,
 					   const ExpressionId ack)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::updatePlanner: default method called!");
   }
 
@@ -104,7 +104,7 @@ namespace PLEXIL
 					ExpressionId dest,
 					ExpressionId ack)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::executeCommand: default method called!");
   }
 
@@ -115,7 +115,7 @@ namespace PLEXIL
 					     ExpressionId dest,
 					     ExpressionId ack)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::executeCommand: default method called!");
   }
 
@@ -125,7 +125,7 @@ namespace PLEXIL
 				     const std::list<double>& args, 
 				     ExpressionId dest)
   {
-    checkError(ALWAYS_FAIL,
+    assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdaptor::invokeAbort: default method called!");
   }
 
