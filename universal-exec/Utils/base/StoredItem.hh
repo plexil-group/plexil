@@ -37,7 +37,7 @@
 
 #include "Error.hh"
 #include "Debug.hh"
-#include "RecursiveThreadMutex.hh"
+#include "ThreadMutex.hh"
 #include <limits>
 #include <map>
 #include <stack>
@@ -97,7 +97,7 @@ namespace PLEXIL
          {
             // make key generation thread safe
 
-            RTMutexGuard guard(getMutex());
+            ThreadMutexGuard guard(getMutex());
 
             // this provides a way of returning a key reference without
             // stack allocation or warnings
@@ -119,7 +119,7 @@ namespace PLEXIL
             else
 #endif
             {
-               checkError(availableKeys() > 0, "Key space exhausted.");
+               assertTrue(availableKeys() > 0, "Key space exhausted.");
                sl_key = counter();
                counter() += increment();
             }
@@ -167,6 +167,9 @@ namespace PLEXIL
          static inline void unregister(key_t& key)
          {
 #ifdef STORED_ITEM_REUSE_KEYS
+            // make key generation thread safe
+
+            ThreadMutexGuard guard(getMutex());
             keyPool().push(key);
 #endif           
          }
@@ -260,9 +263,9 @@ namespace PLEXIL
           * @brief The mutex for thread safing.
           */
          
-         static inline RecursiveThreadMutex& getMutex()
+         static inline ThreadMutex& getMutex()
          {
-            static RecursiveThreadMutex sl_mutex;
+            static ThreadMutex sl_mutex;
             return sl_mutex;
          }
 
