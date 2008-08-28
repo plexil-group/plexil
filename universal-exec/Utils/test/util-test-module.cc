@@ -718,7 +718,7 @@ class StoredArrayTests
             StoredArray sa(width, i);
 
 #ifdef STORED_ITEM_REUSE_KEYS
-            checkError(KeySource<double>::availableKeys() == availableKeys - 1,
+            assertTrue(KeySource<double>::availableKeys() == availableKeys - 1,
                    "availableKeys count mismatch");
 #endif           
             if ((i + 1) % updateSize == 0)
@@ -729,7 +729,7 @@ class StoredArrayTests
             sa.unregister();
 
 #ifdef STORED_ITEM_REUSE_KEYS
-            checkError(KeySource<double>::availableKeys() == availableKeys,
+            assertTrue(KeySource<double>::availableKeys() == availableKeys,
                    "availableKeys count mismatch");
 #endif
          }
@@ -804,12 +804,12 @@ class StoredArrayTests
                   (i + 1) << "\r" << std::flush;
             
             StoredArray sa(keys[i]);
-            checkError(
+            assertTrue(
                (StoredItem<double, std::vector<double> >::isItem(keys[i])),
-               "item key missmatch");
+               "item key mismatch");
             
             for (unsigned j = 0; j < sa.size(); ++j)
-               checkError(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
+               assertTrueMsg(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
          }
          std::cout << std::endl;
          stopTime(start);
