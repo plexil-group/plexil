@@ -43,17 +43,17 @@ namespace PLEXIL
   ThreadSemaphore::ThreadSemaphore()
   {
     int status = sem_init(&m_posix_sem, 0, 0);
-    checkError(status != -1,
-	       "ThreadSemaphore (POSIX) constructor: sem_init failed, errno = "
-	       << errno);
+    assertTrueMsg(status != -1,
+		  "ThreadSemaphore (POSIX) constructor: sem_init failed, errno = "
+		  << errno);
   }
 
   ThreadSemaphore::~ThreadSemaphore()
   {
     int status = sem_destroy(&m_posix_sem);
-    checkError(status != -1,
-	       "ThreadSemaphore (POSIX) destructor: sem_destroy failed, errno = "
-	       << errno);
+    assertTrueMsg(status != -1,
+		  "ThreadSemaphore (POSIX) destructor: sem_destroy failed, errno = "
+		  << errno);
   }
 
   int ThreadSemaphore::wait()
@@ -93,9 +93,9 @@ namespace PLEXIL
 		       &m_mach_sem,
 		       SYNC_POLICY_FIFO,
 		       0);
-    checkError(status == KERN_SUCCESS,
-	       "ThreadSemaphore (MACH) constructor: semaphore_create failed, status = "
-	       << status);
+    assertTrueMsg(status == KERN_SUCCESS,
+		  "ThreadSemaphore (MACH) constructor: semaphore_create failed, status = "
+		  << status);
   }
 
   ThreadSemaphore::~ThreadSemaphore()
@@ -103,9 +103,9 @@ namespace PLEXIL
     kern_return_t status = 
       semaphore_destroy(m_mach_owning_task,
 			m_mach_sem);
-    checkError(status == KERN_SUCCESS,
-	       "ThreadSemaphore (MACH) destructor: semaphore_destroy failed, status = "
-	       << status);
+    assertTrueMsg(status == KERN_SUCCESS,
+		  "ThreadSemaphore (MACH) destructor: semaphore_destroy failed, status = "
+		  << status);
   }
 
   int ThreadSemaphore::wait()
