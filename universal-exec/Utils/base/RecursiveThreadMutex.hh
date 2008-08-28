@@ -43,7 +43,15 @@ namespace PLEXIL
   class RecursiveThreadMutex
   {
   public:
+    /**
+     * @brief Default constructor.
+     */
     RecursiveThreadMutex();
+
+    /**
+     * @brief Destructor.
+     */
+    ~RecursiveThreadMutex();
 
     /**
      * @brief Locks the mutex.  
@@ -62,14 +70,16 @@ namespace PLEXIL
 
     /**
      * @brief Returns true if the mutex is locked by any thread.
+     * @note Slight chance of race condition between check of lock status and locking thread.
      */
     inline bool isLocked()
     {
-      return m_lockCount != 0;
+      return !pthread_equal(m_lockingThread, (pthread_t) 0);
     }
 
     /**
      * @brief Returns true if the mutex is locked by the current thread.
+     * @note Slight chance of race condition between check of lock status and locking thread.
      */
     inline bool isLockedByCurrentThread()
     {
