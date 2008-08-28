@@ -98,12 +98,38 @@
     return(sl_lblStr); \
   }
 
+/**
+ * @def assertTrue
+ * @brief Test a condition and create an error if false.
+ * @param cond Expression that yields a true/false result.
+ * @param optarg Optional arguments to Error.
+ */
 #define assertTrue(cond, optarg...) { \
   if (!(cond)) { \
     Error(#cond, ##optarg, __FILE__, __LINE__).handleAssert(); \
   } \
 }
 
+/**
+ * @def assertTrueMsg
+ * @brief Test a condition and create an error if false.
+ * @param cond Expression that yields a true/false result.
+ * @param msg Anything suitable as the right-hand side of <<.
+ */
+#define assertTrueMsg(cond, msg) { \
+  if (!(cond)) { \
+    std::stringstream sstr; \
+    sstr << msg; \
+    Error(#cond, sstr.str(), __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
+/**
+ * @def assertFalse
+ * @brief Test a condition and create an error if true.
+ * @param cond Expression that yields a true/false result.
+ * @param optarg Optional arguments to Error.
+ */
 #define assertFalse(cond, optarg...) { \
   if (cond) { \
     Error(#cond, ##optarg, __FILE__, __LINE__).handleAssert(); \
