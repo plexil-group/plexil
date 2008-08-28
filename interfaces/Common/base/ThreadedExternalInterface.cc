@@ -124,7 +124,7 @@ namespace PLEXIL
 				 NULL,
 				 execTopLevel,
 				 this);
-    checkError(success == 0,
+    assertTrue(success == 0,
 	       "ThreadedExternalInterface::run: unable to spawn exec thread!");
     debugMsg("ExternalInterface:run", " Top level thread running");
   }
@@ -215,9 +215,9 @@ namespace PLEXIL
     int status = m_sem.wait();
     if (status != 0)
       {
-        checkError(ALWAYS_FAIL,
-                   "waitForExternalEvent: semaphore wait failed, status = "
-                   << status);
+        assertTrueMsg(ALWAYS_FAIL,
+		      "waitForExternalEvent: semaphore wait failed, status = "
+		      << status);
         return false;
       }
     else
@@ -441,9 +441,9 @@ namespace PLEXIL
     const LabelStr& stateName(state.first);
 
     InterfaceAdaptorId adaptor = getLookupInterface(stateName);
-    checkError(!adaptor.isNoId(),
-	       "registerChangeLookup: No interface adaptor found for lookup '"
-	       << stateName.toString() << "'");
+    assertTrueMsg(!adaptor.isNoId(),
+		  "registerChangeLookup: No interface adaptor found for lookup '"
+		  << stateName.toString() << "'");
 
     m_lookupAdaptorMap.insert(std::pair<LookupKey, InterfaceAdaptorId>(source, adaptor));
     // for convenience of adaptor implementors
@@ -495,9 +495,9 @@ namespace PLEXIL
     const LabelStr& stateName(state.first);
 
     InterfaceAdaptorId adaptor = getLookupInterface(stateName);
-    checkError(!adaptor.isNoId(),
-	       "registerFrequencyLookup: No interface adaptor found for lookup '"
-	       << stateName.toString() << "'");
+    assertTrueMsg(!adaptor.isNoId(),
+		  "registerFrequencyLookup: No interface adaptor found for lookup '"
+		  << stateName.toString() << "'");
 
     m_lookupAdaptorMap.insert(std::pair<LookupKey, InterfaceAdaptorId>(source, adaptor));
     // for convenience of adaptor implementors
@@ -521,9 +521,9 @@ namespace PLEXIL
     const LabelStr& stateName(state.first);
     debugMsg("ExternalInterface:lookupNow", " of '" << stateName.toString() << "'");
     InterfaceAdaptorId adaptor = getLookupInterface(stateName);
-    checkError(!adaptor.isNoId(),
-	       "lookupNow: No interface adaptor found for lookup '"
-	       << stateName.toString() << "'");
+    assertTrueMsg(!adaptor.isNoId(),
+		  "lookupNow: No interface adaptor found for lookup '"
+		  << stateName.toString() << "'");
 
     adaptor->lookupNow(key, dest);
     // update internal idea of time if required
@@ -580,9 +580,9 @@ namespace PLEXIL
       }
 
     InterfaceAdaptorId adaptor = (*it).second;
-    checkError(!adaptor.isNoId(),
-	       "unregisterChangeLookup: Internal Error: No interface adaptor found for lookup key '"
-	       << dest << "'");
+    assertTrueMsg(!adaptor.isNoId(),
+		  "unregisterChangeLookup: Internal Error: No interface adaptor found for lookup key '"
+		  << dest << "'");
 
     adaptor->unregisterChangeLookup(dest);
     adaptor->unregisterAsynchLookup(dest);
@@ -604,9 +604,9 @@ namespace PLEXIL
       }
 
     InterfaceAdaptorId adaptor = (*it).second;
-    checkError(!adaptor.isNoId(),
-	       "unregisterFrequencyLookup: Internal Error: No interface adaptor found for lookup key '"
-	       << dest << "'");
+    assertTrueMsg(!adaptor.isNoId(),
+		  "unregisterFrequencyLookup: Internal Error: No interface adaptor found for lookup key '"
+		  << dest << "'");
 
     adaptor->unregisterFrequencyLookup(dest);
     adaptor->unregisterAsynchLookup(dest);
@@ -620,6 +620,8 @@ namespace PLEXIL
   {
     if (commands.empty())
       return;
+
+    debugMsg("ThreadedExternalInterface:batchActions", " entered");
 
     bool commandRejected = false;
     std::set<CommandId> acceptCmds;
@@ -636,8 +638,8 @@ namespace PLEXIL
 
         if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end()))
           {
-            debugMsg("ThreadedExternalInterface:batchActions ", 
-                     "Permission to execute " << cmd->getName().toString()
+            debugMsg("ThreadedExternalInterface:batchActions", 
+                     " Permission to execute " << cmd->getName().toString()
                      << " has been granted by the resource arbiter (if one exists).");
             // Maintain a <acks, cmdId> map of commands
             m_ackToCmdMap[cmd->getAck()] = cmd;
@@ -665,6 +667,8 @@ namespace PLEXIL
 
     if (commandRejected)
       this->notifyOfExternalEvent();
+
+    debugMsg("ThreadedExternalInterface:batchActions", " exited");
   }
 
   // this batches the set of function calls from quiescence completion.
@@ -723,8 +727,8 @@ namespace PLEXIL
 					    ExpressionId ack)
   {
     InterfaceAdaptorId intf = getCommandInterface(name);
-    checkError(!intf.isNoId(),
-	       "executeCommand: null interface adaptor for command " << name.toString());
+    assertTrueMsg(!intf.isNoId(),
+		  "executeCommand: null interface adaptor for command " << name.toString());
     intf->executeCommand(name, args, dest, ack);
   }
 
@@ -750,8 +754,8 @@ namespace PLEXIL
 						 ExpressionId ack)
   {
     InterfaceAdaptorId intf = getFunctionInterface(name);
-    checkError(!intf.isNoId(),
-	       "executeFunctionCall: null interface adaptor for function " << name.toString());
+    assertTrueMsg(!intf.isNoId(),
+		  "executeFunctionCall: null interface adaptor for function " << name.toString());
     intf->executeFunctionCall(name, args, dest, ack);
   }
 
@@ -762,8 +766,8 @@ namespace PLEXIL
 					 ExpressionId dest)
   {
     InterfaceAdaptorId intf = getCommandInterface(name);
-    checkError(!intf.isNoId(),
-	       "invokeAbort: null interface adaptor for command " << name.toString());
+    assertTrueMsg(!intf.isNoId(),
+		  "invokeAbort: null interface adaptor for command " << name.toString());
     intf->invokeAbort(name, args, dest);
   }
 
@@ -1147,7 +1151,7 @@ namespace PLEXIL
 							const LabelStr & name,
 							const std::list<double> & params)
   {
-    checkError(ALWAYS_FAIL, "registerCommandReturnValue not yet implemented!");
+    assertTrue(ALWAYS_FAIL, "registerCommandReturnValue not yet implemented!");
   }
 
   /**
@@ -1162,7 +1166,7 @@ namespace PLEXIL
 							 const LabelStr & name,
 							 const std::list<double> & params)
   {
-    checkError(ALWAYS_FAIL, "registerFunctionReturnValue not yet implemented!");
+    assertTrue(ALWAYS_FAIL, "registerFunctionReturnValue not yet implemented!");
   }
 
   /**
@@ -1173,7 +1177,7 @@ namespace PLEXIL
   void
   ThreadedExternalInterface::unregisterCommandReturnValue(ExpressionId dest)
   {
-    checkError(ALWAYS_FAIL, "unregisterCommandReturnValue not yet implemented!");
+    assertTrue(ALWAYS_FAIL, "unregisterCommandReturnValue not yet implemented!");
   }
 
   /**
@@ -1184,7 +1188,7 @@ namespace PLEXIL
   void
   ThreadedExternalInterface::unregisterFunctionReturnValue(ExpressionId dest)
   {
-    checkError(ALWAYS_FAIL, "unregisterFunctionReturnValue not yet implemented!");
+    assertTrue(ALWAYS_FAIL, "unregisterFunctionReturnValue not yet implemented!");
   }
 
   /**
@@ -1267,9 +1271,9 @@ namespace PLEXIL
 	// runExec() could notice, or not.
 	// Post to semaphore to ensure event is not lost.
 	int status = m_sem.post();
-	checkError(status == 0,
-		   "notifyOfExternalEvent: semaphore post failed, status = "
-		   << status);
+	assertTrueMsg(status == 0,
+		      "notifyOfExternalEvent: semaphore post failed, status = "
+		      << status);
 	debugMsg("ExternalInterface:notify",
 		 " (" << pthread_self() << ") released semaphore");
       }
@@ -1379,7 +1383,7 @@ namespace PLEXIL
   
   ThreadedExternalInterface::ValueQueue::ValueQueue()
     : m_queue(),
-      m_mutex(new RecursiveThreadMutex())
+      m_mutex(new ThreadMutex())
   {
   }
 
@@ -1391,27 +1395,27 @@ namespace PLEXIL
   void ThreadedExternalInterface::ValueQueue::enqueue(const ExpressionId & exp,
 						      double newValue)
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(exp, newValue));
   }
 
   void ThreadedExternalInterface::ValueQueue::enqueue(const StateKey& key, 
 						      const std::vector<double> & newValues)
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(key, newValues));
   }
 
   void ThreadedExternalInterface::ValueQueue::enqueue(PlexilNodeId newPlan,
 						      const LabelStr & parent)
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(newPlan, parent, queueEntry_PLAN));
   }
 
   void ThreadedExternalInterface::ValueQueue::enqueue(PlexilNodeId newLibraryNode)
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(newLibraryNode, EMPTY_LABEL(), queueEntry_LIBRARY));
   }
 
@@ -1420,7 +1424,7 @@ namespace PLEXIL
 						 ExpressionId& exp, double& newExpValue,
 						 PlexilNodeId& plan, LabelStr& planParent)
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     if (m_queue.empty())
       return queueEntry_EMPTY;
     QueueEntry e = m_queue.front();
@@ -1450,7 +1454,7 @@ namespace PLEXIL
 	break;
 
       default:
-	checkError(ALWAYS_FAIL,
+	assertTrue(ALWAYS_FAIL,
 		   "ExternalInterface::dequeue: Invalid queue entry");
 	break;
       }
@@ -1460,19 +1464,19 @@ namespace PLEXIL
 
   void ThreadedExternalInterface::ValueQueue::pop()
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     m_queue.pop();
   }
 
   bool ThreadedExternalInterface::ValueQueue::isEmpty() const
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     return m_queue.empty();
   }
     
   void ThreadedExternalInterface::ValueQueue::mark()
   {
-    RTMutexGuard guard(*m_mutex);
+    ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(queueEntry_MARK));
   }
 

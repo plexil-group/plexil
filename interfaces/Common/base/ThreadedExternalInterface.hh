@@ -33,6 +33,7 @@
 #include "AdaptorExecInterface.hh"
 #include "PlexilPlan.hh"
 #include "RecursiveThreadMutex.hh"
+#include "ThreadMutex.hh"
 #include "ThreadSemaphore.hh"
 #include <queue>
 #include <pthread.h>
@@ -631,7 +632,7 @@ namespace PLEXIL
 	    parent(),
 	    type(typ)
 	{
-          checkError((typ == queueEntry_PLAN) || (typ == queueEntry_LIBRARY),
+          assertTrue((typ == queueEntry_PLAN) || (typ == queueEntry_LIBRARY),
                      "QueueEntry constructor: invalid entry type for plan or library");
 	}
 
@@ -660,7 +661,7 @@ namespace PLEXIL
       std::queue<QueueEntry> m_queue;
 
       // pointer so isEmpty() can be const
-      RecursiveThreadMutex * m_mutex;
+      ThreadMutex * m_mutex;
 
     };
 
@@ -674,12 +675,6 @@ namespace PLEXIL
 
     bool expressionToState(const ExpressionId & exp, State & key) const;
     bool updateStateListener(const ExpressionId & dest, double value);
-
-
-    //
-    // Private static methods
-    //
-
 
     //
     // Private member variables
