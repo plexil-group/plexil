@@ -28,12 +28,18 @@
 -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  <xsd:attribute name="FileName" type="xsd:string"/>
+  <xsd:attribute name="LineNo" type="xsd:integer"/>
+  <xsd:attribute name="ColNo" type="xsd:integer"/>
   <xsd:element name="PlexilPlan">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="GlobalDeclarations" minOccurs="0"/>
         <xsd:element ref="Node"/>
       </xsd:sequence>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -153,6 +159,9 @@
           </xsd:restriction>
         </xsd:simpleType>
       </xsd:attribute>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
     </xsd:complexType>
   </xsd:element>
   <xsd:element name="NodeId" type="xsd:NCName"/>
