@@ -102,6 +102,10 @@ namespace PLEXIL
   const std::string NODETYPE_ATTR("NodeType");
   const std::string DIR_ATTR("dir");
 
+  const std::string FILENAME_ATTR("FileName");
+  const std::string LINENO_ATTR("LineNo");
+  const std::string COLNO_ATTR("ColNo");
+
   const std::string PARENT_VAL("parent");
   const std::string CHILD_VAL("child");
   const std::string SIBLING_VAL("sibling");
@@ -111,124 +115,102 @@ namespace PLEXIL
   std::map<std::string, PlexilExprParser*> PlexilXmlParser::s_exprParsers;
   std::map<std::string, PlexilBodyParser*> PlexilXmlParser::s_bodyParsers;
 
-  class PlexilOutcomeVarParser : public PlexilExprParser
+  PlexilNodeRefId PlexilInternalVarParser::parseNodeReference(const TiXmlElement* xml)
+  {
+    TiXmlElement* child = xml->FirstChildElement(NODEID_TAG);
+    //if we have an old-style node reference, we have to do a lot of work!
+    if (child != NULL)
+      return
+        PlexilXmlParser::getNodeRef(child->FirstChild()->Value(),
+                                    PlexilXmlParser::getNodeParent(xml));
+    else if ((child = xml->FirstChildElement(NODEREF_TAG)) != NULL)
+      return PlexilXmlParser::parseNodeRef(child);
+    else
+      {
+        checkParserException(ALWAYS_FAIL,
+                             "Internal variable reference lacks "
+                             << NODEID_TAG << " or "
+                             << NODEREF_TAG << " tag");
+        return PlexilNodeRefId::noId();
+      }
+  }
+
+  class PlexilOutcomeVarParser : public PlexilInternalVarParser
   {
   public:
-    PlexilOutcomeVarParser() : PlexilExprParser()
+    PlexilOutcomeVarParser() : PlexilInternalVarParser()
     {}
     PlexilExprId parse(const TiXmlElement* xml)
       throw(ParserException)
     {
-      PlexilNodeRefId ref;
-
-      //if we have an old-style node reference, we have to do a lot of work!
-
-      if (xml->FirstChildElement(NODEID_TAG) != NULL)
-	ref =
-	  PlexilXmlParser::getNodeRef(xml->FirstChildElement(NODEID_TAG)->FirstChild()->Value(),
-				      PlexilXmlParser::getNodeParent(xml));
-      else
-	ref = PlexilXmlParser::parseNodeRef(xml->FirstChildElement(NODEREF_TAG));
       PlexilOutcomeVar* retval = new PlexilOutcomeVar();
-      retval->setRef(ref);
+      retval->setRef(parseNodeReference(xml));
       return retval->getId();
     }
   };
 
-  class PlexilFailureVarParser : public PlexilExprParser
+  class PlexilFailureVarParser : public PlexilInternalVarParser
   {
   public:
-    PlexilFailureVarParser() : PlexilExprParser()
+    PlexilFailureVarParser() : PlexilInternalVarParser()
     {}
     PlexilExprId parse(const TiXmlElement* xml)
       throw(ParserException)
     {
-      PlexilNodeRefId ref;
-
-      //if we have an old-style node reference, we have to do a lot of work!
-
-      if (xml->FirstChildElement(NODEID_TAG) != NULL)
-	ref =
-	  PlexilXmlParser::getNodeRef(xml->FirstChildElement(NODEID_TAG)->FirstChild()->Value(),
-				      PlexilXmlParser::getNodeParent(xml));
-      else
-	ref = PlexilXmlParser::parseNodeRef(xml->FirstChildElement(NODEREF_TAG));
       PlexilFailureVar* retval = new PlexilFailureVar();
-      retval->setRef(ref);
+      retval->setRef(parseNodeReference(xml));
       return retval->getId();
     }
   };
 
-  class PlexilStateVarParser : public PlexilExprParser
+  class PlexilStateVarParser : public PlexilInternalVarParser
   {
   public:
-    PlexilStateVarParser(): PlexilExprParser()
+    PlexilStateVarParser() : PlexilInternalVarParser()
     {}
     PlexilExprId parse(const TiXmlElement* xml)
       throw(ParserException)
     {
-      PlexilNodeRefId ref;
-      //if we have an old-style node reference, we have to do a lot of work!
-      if (xml->FirstChildElement(NODEID_TAG) != NULL)
-	ref =
-	  PlexilXmlParser::getNodeRef(xml->FirstChildElement(NODEID_TAG)->FirstChild()->Value(),
-				      PlexilXmlParser::getNodeParent(xml));
-      else
-	ref = PlexilXmlParser::parseNodeRef(xml->FirstChildElement(NODEREF_TAG));
       PlexilStateVar* retval = new PlexilStateVar();
-      retval->setRef(ref);
+      retval->setRef(parseNodeReference(xml));
       return retval->getId();
     }
   };
 
-  class PlexilCommandHandleVarParser : public PlexilExprParser
+  class PlexilCommandHandleVarParser : public PlexilInternalVarParser
   {
   public:
-    PlexilCommandHandleVarParser(): PlexilExprParser()
+    PlexilCommandHandleVarParser(): PlexilInternalVarParser()
     {}
     PlexilExprId parse(const TiXmlElement* xml)
       throw(ParserException)
     {
-      PlexilNodeRefId ref;
-      //if we have an old-style node reference, we have to do a lot of work!
-      if (xml->FirstChildElement(NODEID_TAG) != NULL)
-	ref =
-	  PlexilXmlParser::getNodeRef(xml->FirstChildElement(NODEID_TAG)->FirstChild()->Value(),
-				      PlexilXmlParser::getNodeParent(xml));
-      else
-	ref = PlexilXmlParser::parseNodeRef(xml->FirstChildElement(NODEREF_TAG));
       PlexilCommandHandleVar* retval = new PlexilCommandHandleVar();
-      retval->setRef(ref);
+      retval->setRef(parseNodeReference(xml));
       return retval->getId();
     }
   };
 
-  class PlexilTimepointVarParser : public PlexilExprParser
+  class PlexilTimepointVarParser : public PlexilInternalVarParser
   {
   public:
-    PlexilTimepointVarParser(): PlexilExprParser()
+    PlexilTimepointVarParser(): PlexilInternalVarParser()
     {}
     PlexilExprId parse(const TiXmlElement* xml)
       throw(ParserException)
     {
-      PlexilNodeRefId ref = PlexilNodeRefId::noId();
-      //if we have an old-style node reference, we have to do a lot of work!
-      if (xml->FirstChildElement(NODEID_TAG) != NULL)
-	ref =
-	  PlexilXmlParser::getNodeRef(xml->FirstChildElement(NODEID_TAG)->FirstChild()->Value(),
-				      PlexilXmlParser::getNodeParent(xml));
-      else
-	ref = PlexilXmlParser::parseNodeRef(xml->FirstChildElement(NODEREF_TAG));
       PlexilTimepointVar* retval = new PlexilTimepointVar();
-      retval->setRef(ref);
+      retval->setRef(parseNodeReference(xml));
 
       TiXmlElement* state = xml->FirstChildElement(STATEVAL_TAG);
-      check_error(state != NULL);
+      checkParserException(state != NULL,
+                           "Timepoint missing " << STATEVAL_TAG << " tag");
       checkNotEmpty(state);
       retval->setState(state->FirstChild()->Value());
 
       TiXmlElement* point = xml->FirstChildElement(TIMEPOINT_TAG);
-      check_error(point != NULL);
+      checkParserException(point != NULL,
+                           "Timepoint missing " << TIMEPOINT_TAG << " tag");
       checkNotEmpty(point);
       retval->setTimepoint(point->FirstChild()->Value());
 
@@ -737,7 +719,10 @@ namespace PLEXIL
     else
       m_root = initXml(str);
     checkParserException(m_root != NULL, "No node root in " << str);
-    return parse();
+    PlexilNodeId result = parse();
+    if (result->fileName().empty() && isFile)
+      result->setFileName(str);
+    return result;
   }
 
   PlexilNodeId PlexilXmlParser::parse(TiXmlElement* xml)
@@ -784,6 +769,19 @@ namespace PLEXIL
       
       checkAttr(NODETYPE_ATTR, xml);
       retval->setNodeType(xml->Attribute(NODETYPE_ATTR));
+
+      // file name, line, col optional
+      const char* fname = xml->Attribute(FILENAME_ATTR);
+      if (fname != NULL)
+        retval->setFileName(fname);
+      int line = 0;
+      xml->Attribute(LINENO_ATTR, &line);
+      if (line != 0)
+        retval->setLineNo(line);
+      int col = 0;
+      xml->Attribute(COLNO_ATTR, &col);
+      if (col != 0)
+        retval->setColNo(col);
       
       // priority optional
 
@@ -1348,7 +1346,18 @@ namespace PLEXIL
     throw(ParserException)
   {
     TiXmlElement* retval = new TiXmlElement(NODE_TAG);
-    retval->SetAttribute(NODETYPE_ATTR, node->nodeType());
+    retval->SetAttribute(NODETYPE_ATTR, node->nodeTypeString());
+    const std::string & filename = node->fileName();
+    if (!filename.empty())
+      retval->SetAttribute(FILENAME_ATTR, filename);
+
+    int lineno = node->lineNo();
+    if (lineno != 0)
+      retval->SetAttribute(LINENO_ATTR, lineno);
+
+    int col = node->colNo();
+    if (col != 0)
+      retval->SetAttribute(COLNO_ATTR, col);
 
     retval->InsertEndChild(namedTextElement(NODEID_TAG, node->nodeId()));
     retval->InsertEndChild(namedTextElement(PERMISSIONS_TAG, node->permissions()));
@@ -1414,13 +1423,32 @@ namespace PLEXIL
     TiXmlElement* varName = namedTextElement(var->type() + VAR_TAG, var->name());
     retval->InsertEndChild(varName);
     retval->InsertEndChild(toXml(var->value()->getId()));
+
+    int lineno = var->lineNo();
+    if (lineno != 0)
+      retval->SetAttribute(LINENO_ATTR, lineno);
+
+    int col = var->colNo();
+    if (col != 0)
+      retval->SetAttribute(COLNO_ATTR, col);
+
     return retval;
   }
 
   TiXmlElement* PlexilXmlParser::toXml(const PlexilExprId& expr)
     throw(ParserException)
   {
-    return toXml(expr.operator->());
+    TiXmlElement* result = toXml(expr.operator->());
+
+    int lineno = expr->lineNo();
+    if (lineno != 0)
+      result->SetAttribute(LINENO_ATTR, lineno);
+
+    int col = expr->colNo();
+    if (col != 0)
+      result->SetAttribute(COLNO_ATTR, col);
+
+    return result;
   }
 
   TiXmlElement* PlexilXmlParser::toXml(const PlexilExpr* expr)
@@ -1461,6 +1489,15 @@ namespace PLEXIL
       realBody = toXml((PlexilLibNodeCallBody*)body);
     checkParserException(realBody != NULL, "Unknown body type.");
     retval->InsertEndChild(realBody);
+
+    int lineno = body->lineNo();
+    if (lineno != 0)
+      retval->SetAttribute(LINENO_ATTR, lineno);
+
+    int col = body->colNo();
+    if (col != 0)
+      retval->SetAttribute(COLNO_ATTR, col);
+
     return retval;
   }
 
@@ -1504,7 +1541,7 @@ namespace PLEXIL
       retval = toXml((PlexilChangeLookup*)lookup);
     else if (Id<PlexilFrequencyLookup>::convertable(lookup->getId()))
       retval = toXml((PlexilFrequencyLookup*)lookup);
-    check_error(retval != NULL, "Unknown lookup type.");
+    checkParserException(retval != NULL, "Unknown lookup type.");
     toXml(lookup->state(), retval);
     return retval;
   }
@@ -1722,6 +1759,14 @@ namespace PLEXIL
     else
       retval = element(NODEREF_TAG);
     retval->SetAttribute(DIR_ATTR, dir);
+
+    int lineno = ref->lineNo();
+    if (lineno != 0)
+      retval->SetAttribute(LINENO_ATTR, lineno);
+
+    int col = ref->colNo();
+    if (col != 0)
+      retval->SetAttribute(COLNO_ATTR, col);
     return retval;
   }
 

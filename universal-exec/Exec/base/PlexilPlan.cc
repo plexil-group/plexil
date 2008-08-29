@@ -33,6 +33,69 @@
 
 namespace PLEXIL {
 
+  PlexilNodeType PlexilParser::parseNodeType(const std::string & typeName)
+  {
+    if (typeName == LIST())
+      return NodeType_NodeList;
+    else if (typeName == COMMAND())
+      return NodeType_Command;
+    else if (typeName == ASSIGNMENT())
+      return NodeType_Assignment;
+    else if (typeName == FUNCTION())
+      return NodeType_FunctionCall;
+    else if (typeName == UPDATE())
+      return NodeType_Update;
+    else if (typeName == REQUEST())
+      return NodeType_Request;
+    else if (typeName == EMPTY())
+      return NodeType_Empty;
+    else if (typeName == LIBRARYNODECALL())
+      return NodeType_LibraryNodeCall;
+    
+    checkError(ALWAYS_FAIL,
+               "No node type named \"" << typeName << '\"');
+    return NodeType_error;
+  }
+
+  const std::string& PlexilParser::nodeTypeString(PlexilNodeType nodeType)
+  {
+    static const std::string errorReturn("Unknown Node Type");
+    switch (nodeType)
+      {
+      case NodeType_NodeList:
+        return PlexilParser::LIST();
+        break;
+      case NodeType_Command:
+        return PlexilParser::COMMAND();
+        break;
+      case NodeType_Assignment:
+        return PlexilParser::ASSIGNMENT();
+        break;
+      case NodeType_FunctionCall:
+        return PlexilParser::FUNCTION();
+        break;
+      case NodeType_Update:
+        return PlexilParser::UPDATE();
+        break;
+      case NodeType_Request:
+        return PlexilParser::REQUEST();
+        break;
+      case NodeType_Empty:
+        return PlexilParser::EMPTY();
+        break;
+      case NodeType_LibraryNodeCall:
+        return PlexilParser::LIBRARYNODECALL();
+        break;
+
+        // fall thru case
+      default:
+        checkError(ALWAYS_FAIL,
+                   "Invalid node type " << nodeType);
+        break;
+      }
+    return errorReturn;
+  }
+
    const VarType STRING_TYPE("String");
 
    // convert plexil varible type (which is basically a string) to a
@@ -71,7 +134,10 @@ namespace PLEXIL {
       return m_nameExpr->name();
    }
    
-  PlexilNode::PlexilNode() : m_id(this), m_priority(WORST_PRIORITY) {}
+  PlexilNode::PlexilNode()
+    : m_priority(WORST_PRIORITY),
+      m_id(this)
+  {}
 
   PlexilNode::~PlexilNode() {
     m_id.remove();
@@ -218,7 +284,7 @@ namespace PLEXIL {
    {
          // if this is a library node call, find matching node in libraries
 
-      if (nodeType() == Node::LIBRARYNODECALL().toString())
+      if (nodeType() == NodeType_LibraryNodeCall)
       {
          Id<PlexilLibNodeCallBody> & body = (Id<PlexilLibNodeCallBody> &)m_nodeBody;
 
@@ -266,7 +332,7 @@ namespace PLEXIL {
       }
          // if this is a list node, recurse into it's children
       
-      else if (nodeType() == Node::LIST().toString())
+      else if (nodeType() == NodeType_NodeList)
       {
          Id<PlexilListBody> & body = (Id<PlexilListBody> &)m_nodeBody;
          

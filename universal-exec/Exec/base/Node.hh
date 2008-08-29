@@ -102,6 +102,8 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, REQUEST, "Request");
     DECLARE_STATIC_CLASS_CONST(LabelStr, EMPTY, "Empty");
 
+    static const LabelStr& nodeTypeToLabelStr(PlexilNodeType nodeType);
+
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.

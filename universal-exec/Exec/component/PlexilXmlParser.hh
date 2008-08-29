@@ -52,6 +52,21 @@ namespace PLEXIL
   typedef PlexilElementParser<PlexilNodeBody> PlexilBodyParser;
   typedef PlexilElementParser<PlexilExpr> PlexilExprParser;
 
+  /**
+   * @brief A variation of PlexilExprParser that supports parsing internal variable references.
+   */
+  class PlexilInternalVarParser : public PlexilExprParser
+  {
+  public:
+    PlexilNodeRefId parseNodeReference(const TiXmlElement* xml);
+    PlexilInternalVarParser()
+    {}
+    virtual ~PlexilInternalVarParser()
+    {}
+  };
+
+
+
   class PlexilXmlParser : public PlexilParser
   {
   public:

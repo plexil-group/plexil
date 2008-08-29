@@ -93,6 +93,46 @@ namespace PLEXIL {
     NodeId m_node;
   };
 
+  const LabelStr& 
+  Node::nodeTypeToLabelStr(PlexilNodeType nodeType)
+  {
+    switch(nodeType)
+      {
+      case NodeType_NodeList:
+        return LIST();
+        break;
+      case NodeType_Command:
+        return COMMAND();
+        break;
+      case NodeType_Assignment:
+        return ASSIGNMENT();
+        break;
+      case NodeType_FunctionCall:
+        return FUNCTION();
+        break;
+      case NodeType_Update:
+        return UPDATE();
+        break;
+      case NodeType_Request:
+        return REQUEST();
+        break;
+      case NodeType_Empty:
+        return EMPTY();
+        break;
+      case NodeType_LibraryNodeCall:
+        return LIBRARYNODECALL();
+        break;
+
+        // fall thru case
+      default:
+        checkError(ALWAYS_FAIL,
+                   "Invalid node type " << nodeType);
+        break;
+      }
+    return EMPTY_LABEL();
+  }
+
+
   unsigned int Node::anonynode = 0;
 
   Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
@@ -105,7 +145,7 @@ namespace PLEXIL {
 
      m_priority = node->priority();
 
-     m_nodeType = node->nodeType();
+     m_nodeType = nodeTypeToLabelStr(node->nodeType());
 
      debugMsg("Node:node", "Creating node '" << m_nodeId.toString() << "'");
      commonInit();
