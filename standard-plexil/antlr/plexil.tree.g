@@ -158,9 +158,12 @@ options {
 plexilPlan[IXMLElement plexilPlan] :
    #(PLEXIL (globalDeclarations[plexilPlan])?  (node[plexilPlan])* )
    {
-     plexilPlan.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-     // *** subject to change! ***
-     plexilPlan.setAttribute("xsi:noNamespaceSchemaLocation", "plexil.xsd");
+     plexilPlan.setAttribute("xmlns:xsi",
+                             "http://www.w3.org/2001/XMLSchema-instance");
+     plexilPlan.setAttribute("xsi:noNamespaceSchemaLocation",
+                             "http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd");
+     plexilPlan.setAttribute("FileName", 
+                             ((PlexilASTNode) #plexilPlan).getFilename());
    }
  ;
 
@@ -328,6 +331,11 @@ node[IXMLElement parent]
           (nodeBody[xnode, xmlResourceList])?      // consume it here
           )
   {
+    // get file,, line, col # from token
+    xnode.setAttribute("FileName", ((NodeASTNode) #n).getFilename());
+    xnode.setAttribute("LineNo", (new Integer(#n.getLine())).toString());
+    xnode.setAttribute("ColNo", (new Integer(#n.getColumn())).toString());
+
     // Add all variable declarations to node
     Vector localVars = new Vector();
     Vector inVars = new Vector();

@@ -402,7 +402,9 @@ tokens
 plexilPlan :
         (declarations)?
         (node) EOF!
-    { #plexilPlan = #(#[PLEXIL, "PLEXIL"], #plexilPlan) ; }
+    { #plexilPlan = #(#[PLEXIL, "PLEXIL"], #plexilPlan) ;
+      ((PlexilASTNode) #plexilPlan).setFilename(state.getFile().toString());
+    }
     ;
 
 declarations : (declaration)+
@@ -571,6 +573,10 @@ node
        lbrace:LBRACE!
        {
          #node = #(#[NODE, "NODE"], #node);
+         ((PlexilASTNode) #node).setLine(#lbrace.getLine());
+         ((PlexilASTNode) #node).setColumn(#lbrace.getColumn());
+         ((PlexilASTNode) #node).setFilename(state.getFile().toString());
+
          if (#myId == null)
            {
              // create default node name & AST
