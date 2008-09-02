@@ -36,28 +36,17 @@ public class DebugWindow extends JFrame
 {
       // swing elements Variables declaration
 
-      private javax.swing.JTextArea debugArea;
-      private javax.swing.JScrollPane debugScrollPane;
-      private javax.swing.JButton clearAll;
-      private javax.swing.JPanel outer;
-      private javax.swing.JToolBar toolBar;
+      private JTextArea     debugArea;
+      private JScrollPane   debugScrollPane;
+      private JButton       clearAll;
+      private JPanel        outer;
+      private JToolBar      toolBar;
 
       /** Construct a DebugWindow object. */
 
       public DebugWindow(final JFrame owner)
       {
          initComponents();
-
-         // when this frame get's focus, barrow the menu bar from parent
-         
-         addWindowFocusListener(new WindowAdapter()
-            {
-                  public void windowGainedFocus(WindowEvent e)
-                  {
-                     JMenuBar mb = owner.getJMenuBar();
-                     if (mb != null) setJMenuBar(mb);
-                  }
-            });
          
          // set font
          
@@ -210,6 +199,5 @@ public class DebugWindow extends JFrame
          
          java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
          setBounds((screenSize.width-500)/2, (screenSize.height-300)/2, 500, 300);
-      }
-      
+      }      
 }

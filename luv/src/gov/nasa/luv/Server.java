@@ -31,15 +31,26 @@ import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.util.Date;
+
 import static gov.nasa.luv.Constants.*;
 
 /** Functions as a server for plan event data clients (UEs). */
 
 public abstract class Server
 {
-    private static int count = 0;
-    private static int count2 = 0;
     
+    Long newTime, oldTime, timePassed = null;
+    Date date;
+    int activity, minutesPassed = 0;
+    int oneMinute = 60000;
+    boolean startCountingTime = false;
+    boolean haltExecution = false;
+    
+    public void setHaltExecution(boolean halt)
+    {
+        haltExecution = halt;
+    }
     
       /** Construct a server which listens on a given port.
        *
@@ -115,6 +126,8 @@ public abstract class Server
             InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
             StringBuilder message = new StringBuilder();
+            
+            haltExecution = false;
 
             // now just loop forever
 
@@ -122,11 +135,13 @@ public abstract class Server
             {
                // if there is input, grab it up
 
-               while (is.available() > 0)
+               while (is.available() > 0 && !haltExecution)
                {
+                   ++activity;
+                   startCountingTime = true;
+                   minutesPassed = 0;
+                   
                   // if we see the end of message char, dispatch message
-                   ++count;
-                   count2 = 0;
 
                   int ch = is.read();
                   if (ch == END_OF_MESSAGE)
@@ -150,32 +165,50 @@ public abstract class Server
                      message.append((char)ch);
                } 
                
-               // sleep for a bit while we wait for data to come in
-               if (count == 0 && count2 < 250)
+               if (haltExecution)
                {
-                   ++count2;
-                   //Luv.getLuv().showStatus("Count: " + count2);
+                   haltExecution = true;
+                  // is = s.getInputStream();
                }
                
-               if (count2 == 250 && !Luv.executionComplete)
-               {
-                   Luv.isExecuting = false;
-                   Luv.executionComplete = true;
-                   Luv.executedViaLuvViewer = false;
-                   Luv.getLuv().showStatus("Execution complete (No more activity detected)");
-                   count2 = 251;
-               }
+               if (activity == 0)
+                   trackTimeOfInactivity();
+               
+               activity = 0;
                   
-
                Thread.sleep(100);
-               
-               count = 0;
+
             }            
          }
          catch (Exception e)
          {
             e.printStackTrace();
          }
+      }
+      
+      public void trackTimeOfInactivity()
+      {
+          date = new Date();
+                   
+           newTime = date.getTime();
+
+           if (startCountingTime)
+           {
+               oldTime = newTime;
+               startCountingTime = false;
+           }
+
+           if (oldTime != null)
+           {
+               timePassed = newTime - oldTime;
+
+               if (timePassed > oneMinute)
+               {
+                   ++minutesPassed;
+                   Luv.getLuv().getStatusMessageHandler().showStatus("Time elapsed with no activity: " + minutesPassed + " minute(s) and counting...");   
+                   oldTime = newTime;
+               }
+           }
       }
 
       public abstract void handleMessage(final String message);

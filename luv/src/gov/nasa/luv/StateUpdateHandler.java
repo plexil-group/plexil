@@ -81,24 +81,33 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
          // if this is the node failure type, record the failure type
 
          else if (localName.equals(NODE_FAILURE_TYPE))
-            failureType = text;
-         
+            failureType = text;        
 
          // if this is the node state update, update the node state
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
-             if (current.getParent().getType().equals("dummy") && state.equals(FINISHED))
+             if (state.equals(FINISHED))
              {
-                 Luv.isExecuting = false;
-                 Luv.executionComplete = true;
-                 Luv.executedViaLuvViewer = false;
-                 Luv.getLuv().showStatus("Execution complete (ROOT node in FINISHED state)");
+                 if (current.getParent() != null)
+                 {
+                     if (current.getParent().getType().equals("dummy"))
+                     {
+                        Luv.getLuv().setLuvViewerState(END_STATE);
+                        Luv.getLuv().getStatusMessageHandler().showStatus("ROOT node reached FINISHED state");
+                     }
+                 }
+                 else if (current.isRoot())
+                 {
+                    Luv.getLuv().setLuvViewerState(END_STATE);
+                    Luv.getLuv().getStatusMessageHandler().showStatus("ROOT node reached FINISHED state");
+                 }
              }
              
             current.setProperty(MODEL_STATE, state);
             current.setProperty(MODEL_OUTCOME, outcome);
             current.setProperty(MODEL_FAILURE_TYPE, failureType);
+            
             for (Map.Entry<String, String> condition: conditions.entrySet())
                current.setProperty(condition.getKey(), condition.getValue());
          }

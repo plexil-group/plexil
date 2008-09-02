@@ -29,39 +29,22 @@ package gov.nasa.luv;
 import javax.swing.JTree;
 import javax.swing.JTable;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.JPopupMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JMenu;
 
 import java.awt.Color;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Vector;
-import java.util.HashMap;
 import java.util.Enumeration;
 
-
-import java.util.Iterator;
-import java.util.List;
-import treetable.JTreeTable;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
 
@@ -76,6 +59,12 @@ public class TreeTableView extends JTreeTable implements View
        * needed to set expansion state of the items in the new tree */
 
       private static TreeTableView lastView;
+      
+      private static NodeInfoWindow nodeInfoWindow;
+      
+      private static ConditionsWindow conditionsWindow;
+      
+      private static ArrayList<String> path = new ArrayList<String>();
 
       /** swing tree object */
 
@@ -96,7 +85,7 @@ public class TreeTableView extends JTreeTable implements View
        * @param model model this view is viewing
        */
 
-      public TreeTableView(String name, final Luv luv, Model model)
+      public TreeTableView(String name, Model model)
       {
          super(new TreeModel(new Wrapper(model.findChild(NODE))));
          setRowColors(TREE_TABLE_ROW_COLORS);
@@ -109,12 +98,13 @@ public class TreeTableView extends JTreeTable implements View
 
          addMouseListener(new MouseAdapter()
             {
+            @Override
                   public void mousePressed(MouseEvent e)
                   {
                      if (e.isPopupTrigger())
-                        handlePopupEvent(e, luv);
-                     else if (e.getClickCount() == 1)
-                        handleClickEvent(e, luv);
+                        handlePopupEvent(e);
+                     else if (e.getClickCount() == 2)
+                        handleClickEvent(e);
                   }
             });
          
@@ -197,8 +187,7 @@ public class TreeTableView extends JTreeTable implements View
                         ? Constants.getIcon(model.getProperty(NODETYPE_ATTR))
                         : null);
                      
-                     Vector<BreakPoint> breakPoints = Luv.getLuv()
-                        .getBreakPoints(model);
+                     Vector<BreakPoint> breakPoints = Luv.getLuv().getLuvBreakPointHandler().getBreakPoints(model);
                      if (breakPoints.size() > 0)
                      {
                         setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
@@ -215,21 +204,6 @@ public class TreeTableView extends JTreeTable implements View
                      return component;
                   }
             });
-
-//          // watch the table
-
-//          TableModel tm = getModel();
-//          tm.addTableModelListener(new TableModelListener()
-//             {
-//                   public void tableChanged(TableModelEvent e)
-//                   {
-//                      System.out.println("type: " + e.getType() + 
-//                                         " fr: " + e.getFirstRow() +
-//                                         " lr: " + e.getLastRow() +
-//                                         " co: " + e.getColumn()
-//                         );
-//                   }
-//             });
       }
 
       /** Get the tool tip text. 
@@ -269,7 +243,7 @@ public class TreeTableView extends JTreeTable implements View
                 }
             }
             
-            for (BreakPoint bp: Luv.getLuv().getBreakPoints(model))
+            for (BreakPoint bp: Luv.getLuv().getLuvBreakPointHandler().getBreakPoints(model))
             {
                if (bp.isEnabled())
                   toolTip
@@ -327,9 +301,9 @@ public class TreeTableView extends JTreeTable implements View
        * @param luv current active luv
        */
 
-      public void handlePopupEvent(MouseEvent mouseEvent, Luv luv)
+      public void handlePopupEvent(MouseEvent mouseEvent)
       {
-          if (Luv.allowBreaks)
+          if (Luv.getLuv().getBoolean(ALLOW_BREAKS))
           {
              // identify node under popup menu
 
@@ -338,8 +312,7 @@ public class TreeTableView extends JTreeTable implements View
 
              // construct the popup menu
 
-             JPopupMenu popup = luv.constructNodePopupMenu(
-                ((Wrapper)tp.getLastPathComponent()).model);
+             JPopupMenu popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(((Wrapper)tp.getLastPathComponent()).model);
 
              // display the popup menu
 
@@ -347,7 +320,11 @@ public class TreeTableView extends JTreeTable implements View
                         mouseEvent.getX(), mouseEvent.getY());
           }
       }
-
+      
+      public ArrayList<String> getPathToInfoWindowNode()
+      {
+          return path;
+      }
 
       /** Handle popup menu event.
        *
@@ -355,23 +332,57 @@ public class TreeTableView extends JTreeTable implements View
        * @param luv current active luv
        */
 
-      NodeInfoWindow nodeInfoWindow;
-
-      public void handleClickEvent(MouseEvent mouseEvent, Luv luv)
+      public void handleClickEvent(MouseEvent mouseEvent)
       {
-         // identify node under popum menu
+         // identify node under popup menu
 
-         TreePath tp = tree.getClosestPathForLocation(
-            mouseEvent.getX(), mouseEvent.getY());
-
+         TreePath tp = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+         
+         // save pop up node window information 
+         
+         savePopUpWindowNodeInfo(tp);
+         
          // construct the popup menu
          
-         if (nodeInfoWindow == null)
-            nodeInfoWindow = new NodeInfoWindow(
-               luv, ((Wrapper)tp.getLastPathComponent()).model);
+      /*   if (nodeInfoWindow == null)
+            nodeInfoWindow = new NodeInfoWindow(Luv.getLuv(), ((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
          else
-            nodeInfoWindow.setModel(
-               ((Wrapper)tp.getLastPathComponent()).model);
+            nodeInfoWindow.setModel(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));*/
+         
+         ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
+      }
+      
+      public void savePopUpWindowNodeInfo(TreePath tp)
+      {
+         Model node = ((Wrapper)tp.getLastPathComponent()).model;
+         path.clear();
+         path.add(node.getProperty(MODEL_NAME));
+
+         do
+         {
+             path.add(node.getParent().getProperty(MODEL_NAME));
+             node = node.getParent();
+         } while (!node.isRoot());
+      }
+      
+      public String getNodeInfoWindowNodeName()
+      {
+          return nodeInfoWindow.getTitle();
+      }
+      
+      public boolean isNodeInfoWindowOpen()
+      {
+          return ConditionsWindow.isConditionsWindowOpen(); 
+      }
+      
+      public void resetNodeInfoWindow(Model model, String name)
+      {
+          ConditionsWindow.resetGUI(model, name);
+      }
+      
+      public void closeNodeInfoWindow()
+      {
+          ConditionsWindow.closeConditonsWindow();
       }
 
       /** Focus has been disabled for this view.  This way the view

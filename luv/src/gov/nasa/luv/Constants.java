@@ -29,6 +29,7 @@ package gov.nasa.luv;
 import java.awt.Point;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Vector;
@@ -94,7 +95,7 @@ public class Constants
          
          public void add(String tag, String iconName)
          {
-            put(tag, Luv.loadImage(iconName));
+            put(tag, loadImage(iconName));
          }
       };
 
@@ -346,17 +347,69 @@ public class Constants
       public static final String EXECUTE_PLAN = "Execute Plan";
  
       //File menu
-      public static final int OPEN_PLAN_MENU_ITEM = 0;
-      public static final int OPEN_SCRIPT_MENU_ITEM = 1;
-      public static final int OPEN_RECENT_MENU_ITEM = 2;
-      public static final int RELOAD_MENU_ITEM = 3;
-      public static final int EXIT_MENU_ITEM = 4;    
+      public static final int OPEN_PLAN_MENU_ITEM           = 0;
+      public static final int OPEN_SCRIPT_MENU_ITEM         = 1;
+      public static final int OPEN_RECENT_MENU_ITEM         = 2;
+      public static final int RELOAD_MENU_ITEM              = 3;
+      public static final int EXIT_MENU_ITEM                = 5;    // 5 is used because there is a separator element that is the 4th indexed element
       
-      //Run menu
-      public static final int PAUSE_RESUME_MENU_ITEM = 0;
-      public static final int STEP_MENU_ITEM = 1;
-      public static final int BREAK_MENU_ITEM = 2;
-      public static final int EXECUTE_MENU_ITEM = 3;
+      // run menu
+      public static final int PAUSE_RESUME_MENU_ITEM        = 0;
+      public static final int STEP_MENU_ITEM                = 1;
+      public static final int BREAK_MENU_ITEM               = 2;
+      public static final int EXECUTE_MENU_ITEM             = 3;
+      
+      // view menu
+              
+      public static final int EXPAND_MENU_ITEM              = 0;
+      public static final int COLLAPSE_MENU_ITEM            = 1;
+      public static final int TOGGLE_TEXT_TYPES_MENU_ITEM   = 2;
+      public static final int TOGGLE_LISP_NODES_MENU_ITEM   = 3;
+      
+      // debug menu
+      
+      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
+      public static final int SHOW_CMD_DEBUG_MENU_ITEM      = 1;
+      
+      // file types 
+      
+      public static final int PLAN                          = 0;
+      public static final int SCRIPT                        = 1;
+      public static final int DEBUG                         = 2;
+      
+      // menus
+      
+      public static final int FILE_MENU                     = 0;
+      public static final int RECENT_FILE_MENU              = 1;
+      public static final int RUN_MENU                      = 2;
+      public static final int VIEW_MENU                     = 3;
+      public static final int WINDOW_MENU                   = 4;
+      
+      // luv boolean variables
+      
+      public static final int ALLOW_BREAKS                  = 0;
+      public static final int EXEC_VIA_LUV                  = 1;
+      public static final int EXEC_VIA_CMD_PRMPT            = 2;
+      public static final int IS_EXECUTING                  = 3;
+      public static final int AT_START_SCREEN               = 4;
+      public static final int DONT_LOAD_SCRIPT_AGAIN        = 5;
+      public static final int STOP_SRCH_LIBS                = 6;
+      public static final int OPEN_PLN_VIA_LUV              = 7;
+      public static final int PLAN_PAUSED                   = 8;
+      public static final int PLAN_STEP                     = 9;
+      
+      // Luv Viewer States
+      
+      public static final int NULL_STATE                    = 0;
+      public static final int START_STATE                   = 1;
+      public static final int READY_STATE                   = 2;
+      public static final int EXECUTION_STATE               = 3;
+      public static final int LUV_VIEWER_EXECUTION_STATE    = 4;
+      public static final int CMD_PROMPT_EXECUTION_STATE    = 5;
+      public static final int PAUSED_STATE                  = 6;
+      public static final int DISABLED_BREAKING_STATE       = 7;
+      public static final int ENABLED_BREAKING_STATE        = 8;
+      public static final int END_STATE                     = 9;
       
       public static final String YES = "Yes";
       public static final String NO = "No";
@@ -367,8 +420,10 @@ public class Constants
       public static final String OPEN_PLAN = "Open Plan";
       public static final String OPEN_SCRIPT = "Open Script";
       public static final String RELOAD_PLAN = "Reload Plan";
-      public static final String SHOW_DEBUG = "Show Debug";
-      public static final String SHOW_SHELL_DEBUG = "Show Shell Debug Info";
+      public static final String SHOW_LUV_VIEWER_DEBUG_WINDOW = "Show Luv Viewer Debug Window";
+      public static final String HIDE_LUV_VIEWER_DEBUG_WINDOW = "Hide Luv Viewer Debug Window";
+      public static final String SHOW_CMD_PROMPT_DEBUG_WINDOW = "Show Command Prompt Debug Window";
+      public static final String HIDE_CMD_PROMPT_DEBUG_WINDOW = "Hide Command Prompt Debug Window";
 
       // boolean constant values
 
@@ -407,6 +462,7 @@ public class Constants
       
       // condition tags
 
+      public static final String CONDITION = "Condition";
       public static final String SKIP_CONDITION = "SkipCondition";
       public static final String START_CONDITION = "StartCondition";
       public static final String END_CONDITION = "EndCondition";
@@ -422,6 +478,62 @@ public class Constants
       public static final String ABORT_COMPLETE = "AbortCompleteCondition";
       public static final String PARENT_WAITING_CONDITION = "ParentWaitingCondition";
       public static final String COMMAND_HANDLE_RECEIVED_CONDITION = "CommandHandleReceivedCondition";
+
+      public static final int SKIP_CONDITION_NUM                    = 0;
+      public static final int START_CONDITION_NUM                   = 1;
+      public static final int END_CONDITION_NUM                     = 2;
+      public static final int INVARIANT_CONDITION_NUM               = 3;
+      public static final int PRE_CONDITION_NUM                     = 4;
+      public static final int POST_CONDITION_NUM                    = 5;
+      public static final int REPEAT_CONDITION_NUM                  = 6;
+      public static final int ANCESTOR_INVARIANT_CONDITION_NUM      = 7;
+      public static final int ANCESTOR_END_CONDITION_NUM            = 8;
+      public static final int PARENT_EXECUTING_CONDITION_NUM        = 9;
+      public static final int PARENT_FINISHED_CONDITION_NUM         = 10;
+      public static final int CHILDREN_WAITING_OR_FINISHED_NUM      = 11;
+      public static final int ABORT_COMPLETE_NUM                    = 12;
+      public static final int PARENT_WAITING_CONDITION_NUM          = 13;
+      public static final int COMMAND_HANDLE_RECEIVED_CONDITION_NUM = 14;
+      
+      public static int getConditionNum(String condition)
+      {
+          if (condition.equals(SKIP_CONDITION))                         return SKIP_CONDITION_NUM;    
+          else if (condition.equals(START_CONDITION))                   return START_CONDITION_NUM;                
+          else if (condition.equals(END_CONDITION))                     return END_CONDITION_NUM;   
+          else if (condition.equals(INVARIANT_CONDITION))               return INVARIANT_CONDITION_NUM; 
+          else if (condition.equals(PRE_CONDITION))                     return PRE_CONDITION_NUM; 
+          else if (condition.equals(POST_CONDITION))                    return POST_CONDITION_NUM;
+          else if (condition.equals(REPEAT_CONDITION))                  return REPEAT_CONDITION_NUM;
+          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return ANCESTOR_INVARIANT_CONDITION_NUM;
+          else if (condition.equals(ANCESTOR_END_CONDITION))            return ANCESTOR_END_CONDITION_NUM;           
+          else if (condition.equals(PARENT_EXECUTING_CONDITION))        return PARENT_EXECUTING_CONDITION_NUM;   
+          else if (condition.equals(PARENT_FINISHED_CONDITION))         return PARENT_FINISHED_CONDITION_NUM;       
+          else if (condition.equals(CHILDREN_WAITING_OR_FINISHED))      return CHILDREN_WAITING_OR_FINISHED_NUM;
+          else if (condition.equals(ABORT_COMPLETE))                    return ABORT_COMPLETE_NUM;                  
+          else if (condition.equals(PARENT_WAITING_CONDITION))          return PARENT_WAITING_CONDITION_NUM;        
+          else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return COMMAND_HANDLE_RECEIVED_CONDITION_NUM;
+          else                                                          return -1; //error
+      }
+      
+      public static String getConditionName(String condition)
+      {
+          if (condition.equals(SKIP_CONDITION))                         return "Skip";    
+          else if (condition.equals(START_CONDITION))                   return "Start";                
+          else if (condition.equals(END_CONDITION))                     return "End";   
+          else if (condition.equals(INVARIANT_CONDITION))               return "Invariant"; 
+          else if (condition.equals(PRE_CONDITION))                     return "Pre"; 
+          else if (condition.equals(POST_CONDITION))                    return "Post";
+          else if (condition.equals(REPEAT_CONDITION))                  return "Repeat";
+          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return "Ancestor Invariant";
+          else if (condition.equals(ANCESTOR_END_CONDITION))            return "Ancestor End";           
+          else if (condition.equals(PARENT_EXECUTING_CONDITION))        return "Parent Executing";   
+          else if (condition.equals(PARENT_FINISHED_CONDITION))         return "Parent Finished";       
+          else if (condition.equals(CHILDREN_WAITING_OR_FINISHED))      return "Children Waiting or Finished";
+          else if (condition.equals(ABORT_COMPLETE))                    return "Abort Complete";                  
+          else if (condition.equals(PARENT_WAITING_CONDITION))          return "Parent Waiting";        
+          else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return "Command Handle Received";
+          else                                                          return ""; //error
+      }
 
       // the set of all condtions
 
@@ -766,4 +878,11 @@ public class Constants
 //          NODE_STATE_VAL,
 //          NODE_TIMEPOINT_VAL,
       };
+      
+      static public ImageIcon loadImage(String name)
+      {         
+         return new ImageIcon(
+            Toolkit.getDefaultToolkit()
+            .getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
+      }
 }

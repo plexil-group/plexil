@@ -26,19 +26,14 @@
 
 package gov.nasa.luv;
 
+import java.awt.Color;
 import java.util.Vector;
 
 import javax.swing.JLabel;
-import javax.swing.JWindow;
 import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.BoxLayout;
 
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -58,15 +53,18 @@ class NodeInfoWindow extends JFrame
 
       /** model listeners */
 
-      Vector<Model.ChangeListener> modelListeners = 
-         new Vector<Model.ChangeListener>();
+      Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
 
       /** Constructs and displays a NodeInfoWindow object. */
       
-      public NodeInfoWindow(Frame parent, Model model)
+      public NodeInfoWindow(Frame parent, Model model, String name)
       {
-         setModel(model);
-         setVisible(true);
+         setModel(model, name);
+      }
+      
+      public Model getModel()
+      {
+          return model;
       }
 
       /** Set the model for this window. 
@@ -74,8 +72,12 @@ class NodeInfoWindow extends JFrame
        * @param model the model that will be shown in this window.
        */
 
-      public void setModel(Model model)
+      public void setModel(Model model, String name)
       {
+          // set title
+          
+          this.setTitle(name);
+          
          // remove old model listeners
 
          for (Model.ChangeListener listener: modelListeners)
@@ -85,23 +87,17 @@ class NodeInfoWindow extends JFrame
          // record new model
 
          this.model = model;
-         
-         // get the current size of the window
-
-         Dimension size = getContentPane().getSize();
 
          // reconstruct window with new model
 
          getContentPane().removeAll();
          constructWindow();
 
-         // prep window for re-display
-
-         if (isVisible())
-            getContentPane().setPreferredSize(size);
-         else
-            repaint();
+         // re-display
+         
+         repaint();
          pack();
+         setVisible(true);
       }
       
       /** Construct element of this window. */
@@ -109,69 +105,108 @@ class NodeInfoWindow extends JFrame
       public void constructWindow()
       {
          GridBagLayout gridBag = new GridBagLayout();
-         GridBagConstraints c = new GridBagConstraints();
+         final GridBagConstraints c = new GridBagConstraints();
          setLayout(gridBag);
-         //setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-
-         // add node type icon
-
-         JLabel icon = new JLabel(getIcon(model.getProperty(NODETYPE_ATTR)));
-         c.anchor = FIRST_LINE_START;
-         c.weighty = 1;
-         c.weightx = 0;
-         c.gridx = 0;
-         c.gridy = 0;
-         add(icon, c);
          
-         JLabel name = new JLabel(model.getProperty(MODEL_NAME));
-         name.setFont(name.getFont().deriveFont(30f).deriveFont(Font.BOLD));
-         c.anchor = FIRST_LINE_START;
-         c.weightx = 1;
-         c.gridx = 1;
-         c.gridheight = 2;
-         c.gridwidth = 2;
-         add(name, c);
-         
-         // add colums for each of condtions
+         // add columns for each of conditions
 
          c.gridheight = 1;
          c.gridy++;
-         for (final String condition: ALL_CONDITIONS)
+         
+         if (model.conditionMap.isEmpty())
          {
-            // updae to next line
-
-            c.gridy++;
-
-            // add condition label
-
-            c.gridx = 1;
-            c.anchor = LINE_END;
-            final JLabel label = new JLabel(condition + ":  ");
-            label.setFont(label.getFont().deriveFont(20f).deriveFont(Font.BOLD));
-            add(label, c);
-
-            // add condition value
-
-            c.gridx = 3;
-            c.anchor = LINE_START;
-            final JLabel value = new JLabel("value");
-            add(value, c);
-
-            // add model listener
-
-            model.addChangeListener(new Model.ChangeAdapter()
-               {
-                     @Override 
-                     public void propertyChange(Model model, String property)
-                     {
-                        if (property.equals(condition))
-                        {
-                           value.setText(model.getProperty(condition));
-                           value.repaint();
-                        }
-                     }
-               });
+             c.gridy++;
+             c.gridy++;
+             add(new JLabel("No conditions for this node"), c);
          }
+         else
+         {               
+             for (final String condition: ALL_CONDITIONS)
+             {                           
+                // update to next line
+
+                c.gridy++;
+
+                // add condition value
+
+                c.gridx = 3;
+                c.anchor = LINE_START;
+                final JLabel value = new JLabel(UNKNOWN);
+                value.setText(getConditionElements(condition));
+                if (!value.getText().equals(UNKNOWN))
+                {
+                    value.setForeground(Color.GRAY);
+                    add(value, c);
+                }
+
+                // add condition label
+
+                c.gridx = 1;
+                c.anchor = LINE_START;
+                final JLabel label = new JLabel(getConditionName(condition) + " Condition:  ");               
+                if (!value.getText().equals(UNKNOWN))
+                {
+                    label.setFont(label.getFont().deriveFont(15f).deriveFont(Font.BOLD));
+                    label.setForeground(Color.GRAY);
+                    add(label, c);   
+                }
+                
+                // add result label
+                
+                c.gridx = 2;
+                c.anchor = LINE_START;
+                final JLabel status = new JLabel("< Condition Status >         ");
+                if (!value.getText().equals(UNKNOWN))
+                {
+                    status.setForeground(Color.GRAY);
+                    add(status, c);
+                }
+
+                // add model listener
+
+                model.addChangeListener(new Model.ChangeAdapter()
+                   {
+                         @Override 
+                         public void propertyChange(Model model, String property)
+                         {
+                            if (property.equals(condition))
+                            {                               
+                               if (!value.getText().equals(UNKNOWN))
+                               {
+                                   c.gridx = 4;
+                                   c.anchor = LINE_START;
+                                   status.setText("              " + model.getProperty(condition) + "              ");
+                                   status.setForeground(Color.BLUE.darker());
+                                   status.repaint();
+                               }
+                            }
+                         }
+                   });
+             }
+         }
+      }
+      
+      public String getConditionElements(String condition)
+      {
+            String conditionValue = "";
+            int conditionNum = getConditionNum(condition);
+          
+            if (model.conditionMap.get(conditionNum) != null)
+            {
+                for (int i = 0; i < model.conditionMap.get(conditionNum).size(); i++)
+                {
+                    String var = model.conditionMap.get(conditionNum).get(i).toString();  
+                    conditionValue += " " + var;
+                    if (i + 1 >= model.conditionMap.get(conditionNum).size())
+                        if (conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("&&") ||
+                            conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("||") ||
+                            conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("^ ") ||
+                            conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("! "))
+                            conditionValue = conditionValue.substring(0, (conditionValue.length() - 2));
+                }
+                return conditionValue;
+            }  
+            return UNKNOWN;
       }
 
       /** Action to close this window. */

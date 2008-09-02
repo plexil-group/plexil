@@ -84,11 +84,32 @@ public class Model extends Properties
          new ArrayElementTailor(ARRAYELEMENT),
       };
       
+      // local variable holders
+      
       public HashMap<String, ArrayList> declVarMap = new HashMap<String, ArrayList>();
       
       public ArrayList<String> declNameVarList = new ArrayList<String>();
       public ArrayList<String> declTypeVarList = new ArrayList<String>();
       public ArrayList<String> declValueVarList = new ArrayList<String>();
+      
+      // condition info holders
+      
+      public HashMap<Integer, ArrayList> conditionMap = new HashMap<Integer, ArrayList>();      
+      public ArrayList<String> skipConditionList = new ArrayList<String>();
+      public ArrayList<String> startConditionList = new ArrayList<String>();                
+      public ArrayList<String> endConditionList = new ArrayList<String>();   
+      public ArrayList<String> invariantConditionList = new ArrayList<String>(); 
+      public ArrayList<String> preConditionList = new ArrayList<String>(); 
+      public ArrayList<String> postConditionList = new ArrayList<String>();
+      public ArrayList<String> repeatConditionList = new ArrayList<String>();
+      public ArrayList<String> ancInvConditionList = new ArrayList<String>();
+      public ArrayList<String> ancEndConditionList = new ArrayList<String>();           
+      public ArrayList<String> parentExecConditionList = new ArrayList<String>();   
+      public ArrayList<String> parentFinConditionList = new ArrayList<String>();       
+      public ArrayList<String> childWaitConditionList = new ArrayList<String>();
+      public ArrayList<String> abortCompConditionList = new ArrayList<String>();                  
+      public ArrayList<String> parentWaitConditionList = new ArrayList<String>();        
+      public ArrayList<String> cmdHandRecdConditionList = new ArrayList<String>();
 
       /** Table of model tailors to customize them as needed. */
 
@@ -168,6 +189,41 @@ public class Model extends Properties
          assert isChildType(child.type);
          children.add(child);
          child.setParent(this);
+      }
+      
+      public void addConditionInfo(int condition, String value)
+      {             
+          if (value == null)
+              ;
+          else
+          {  
+              ArrayList<String> list = getConditionList(condition);          
+              list.add(value);         
+              conditionMap.put(condition, list);
+          }
+      }
+      
+      public ArrayList<String> getConditionList(int condition)
+      { 
+          switch (condition)
+          {
+              case SKIP_CONDITION_NUM:                    return skipConditionList;    
+              case START_CONDITION_NUM:                   return startConditionList;                
+              case END_CONDITION_NUM:                     return endConditionList;   
+              case INVARIANT_CONDITION_NUM:               return invariantConditionList; 
+              case PRE_CONDITION_NUM:                     return preConditionList; 
+              case POST_CONDITION_NUM:                    return postConditionList;
+              case REPEAT_CONDITION_NUM:                  return repeatConditionList;
+              case ANCESTOR_INVARIANT_CONDITION_NUM:      return ancInvConditionList;
+              case ANCESTOR_END_CONDITION_NUM:            return ancEndConditionList;           
+              case PARENT_EXECUTING_CONDITION_NUM:        return parentExecConditionList;   
+              case PARENT_FINISHED_CONDITION_NUM:         return parentFinConditionList;       
+              case CHILDREN_WAITING_OR_FINISHED_NUM:      return childWaitConditionList;
+              case ABORT_COMPLETE_NUM:                    return abortCompConditionList;                  
+              case PARENT_WAITING_CONDITION_NUM:          return parentWaitConditionList;        
+              case COMMAND_HANDLE_RECEIVED_CONDITION_NUM: return cmdHandRecdConditionList;
+              default:                                    return null; //error                 
+          }
       }
       
       public void addLocalVariableName(String name, String value)
@@ -349,6 +405,18 @@ public class Model extends Properties
       public int getChildCount()
       {
          return children.size();
+      }
+      
+      public Model findChildByName(String name)
+      {
+          for (Model child: children)
+          {
+              if (child.getProperty(MODEL_NAME).equals(name))
+              {
+                  return child;
+              }
+          }
+          return null;
       }
 
       /** Find all children of a given type. 
@@ -747,14 +815,7 @@ public class Model extends Properties
          changeListeners.remove(listener);
       }
 
-      /** Add breakpoint to this model. The breakpoint is only tested
-       * when the model detects a change.
-       *
-       * @param breakPoint the specific breakpoint for this model.
-       */
-
-      /** A listener which is signaled when a the model is changed in
-       * some way.
+      /** A listener which is signaled when a the model is changed in some way.
        */
 
       public abstract static class ChangeListener

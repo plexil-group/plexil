@@ -39,11 +39,22 @@ import static java.lang.System.out;
 
 public class PlexilPlanHandler extends AbstractDispatchableHandler
 {
-      String indent = "";
-      String indentIncrement = "  ";
-      boolean showXmlTags = false;
-      public static boolean recordDeclareVariables, nameExists, typeExists, valueExists = false;
-      public static int count = 0;
+      private String indent = "";
+      private String indentIncrement = "  ";
+      private boolean showXmlTags = false;
+      private static boolean recordDeclareVariables, nameExists, typeExists, valueExists = false;
+      private static boolean recordCondition, haveCondVal, haveCondVar, conditionValuePlaced = false;
+      private static int condition = -1;
+      private static String conditionValue = "";
+      private static String conditionVariable = "";
+      private static String conditionElement = "";
+      
+      private static boolean addOR = false;
+      private static boolean addAND = false;
+      private static boolean addXOR = false;
+      private static boolean addNOT = false;
+      
+      private static boolean isKnown, lookUpChange, lookUpFreq, lookUpNow = false;
 
       Stack<Model> stack = new Stack<Model>();
       
@@ -111,6 +122,37 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          if (localName.equals(DECL_VAR))
              recordDeclareVariables = true;
          
+         if (localName.contains(CONDITION))
+         {
+             condition = getConditionNum(localName);
+             recordCondition = true;
+             conditionValuePlaced = false;
+         }
+         
+         if (localName.equals(OR) && recordCondition)
+             addOR = true;
+         
+         if (localName.equals(AND) && recordCondition)
+             addAND = true;
+         
+         if (localName.equals(XOR) && recordCondition)
+             addXOR = true;
+         
+         if (localName.equals(NOT) && recordCondition)
+             addNOT = true;
+         
+         if (localName.equals(LOOKUPCHANGE))
+             lookUpChange = true;
+         
+         if (localName.equals(LOOKUPFREQ))
+             lookUpFreq = true;
+         
+         if (localName.equals(LOOKUPNOW))
+             lookUpNow = true;
+         
+         if (localName.equals(IS_KNOWN))
+             isKnown = true;
+         
          // push new node onto the stack
 
          stack.push(node);
@@ -130,14 +172,45 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
          String text = getTweenerText();
          
+         if (localName.contains(CONDITION))
+         {
+             recordCondition = false;
+             if (!conditionValuePlaced)
+             {
+                 if (isKnown)
+                 {
+                     conditionValue += " is known";
+                     isKnown = false;
+                 }
+                 
+                 findFirstNonNullNode().addConditionInfo(condition, conditionVariable + conditionValue);
+                 haveCondVal = false;                         
+                 haveCondVar = false;
+                 conditionValuePlaced = true;
+                 conditionValue = "";
+                 conditionVariable = "";
+                 conditionElement = "";
+             }
+         }
+         
+         if (localName.equals(OR))
+             addOR = false;
+         
+         if (localName.equals(AND))
+             addAND = false;
+         
+         if (localName.equals(XOR))
+             addXOR = false;
+         
+         if (localName.equals(NOT))
+             addNOT = false;
+         
          if (localName.equals(DECL_VAR))
          {
              if (nameExists && typeExists && !valueExists)
                  findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
              
              recordDeclareVariables = nameExists = typeExists = valueExists = false;
-             
-             count = 0;
          }
          
          if (text != null)
@@ -154,6 +227,66 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                          valueExists = true;
                          
                      findFirstNonNullNode().addLocalVariableName(localName, text);
+                 }
+             }
+             
+             if (recordCondition)
+             {
+                 if (node == null)
+                 {                  
+                     if (localName.contains(VAL))
+                     {
+                         if (haveCondVal)
+                         {
+                             if (lookUpChange)
+                             {
+                                 conditionValue += " == " + LOOKUPCHANGE + "(" + text + ")";
+                                 lookUpChange = false;
+                             }
+                             else if (lookUpNow)
+                             {
+                                 conditionValue += " == " + LOOKUPNOW + "(" + text + ")";
+                                 lookUpNow = false;
+                             }
+                             else if (lookUpFreq)
+                             {
+                                 conditionValue += " == " + LOOKUPFREQ + "(" + text + ")";
+                                 lookUpFreq = false;
+                             }
+                         }
+                         else
+                         {
+                             haveCondVal = true;
+                             conditionValue = text;
+                         }                        
+                     }
+                     if (localName.contains(VAR) || localName.equals(NODE_ID) || localName.equals(NODEREF))
+                     {
+                         haveCondVar = true;
+                         conditionVariable = text;
+                     }
+                     if (haveCondVal && haveCondVar)
+                     {
+                         haveCondVal = false;                         
+                         haveCondVar = false;                        
+                         conditionValuePlaced = true;
+                         conditionElement = conditionVariable + " == " + conditionValue;                        
+                     
+                         if (addOR)
+                             findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ||");
+                         else if (addAND)
+                             findFirstNonNullNode().addConditionInfo(condition, conditionElement + " &&");
+                         else if (addXOR)
+                             findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ^ ");
+                         else if (addNOT)
+                             findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ! ");
+                         else
+                             findFirstNonNullNode().addConditionInfo(condition, conditionElement);  
+                         
+                         conditionValue = "";
+                         conditionVariable = "";
+                         conditionElement = "";
+                     }
                  }
              }
             

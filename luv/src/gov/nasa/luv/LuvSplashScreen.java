@@ -26,8 +26,59 @@
 
 package gov.nasa.luv;
 
-import java.util.Vector;
+import javax.swing.*;
+import java.awt.*;
 
-public class Views extends Vector<View>
+public class LuvSplashScreen extends JWindow 
 {
+     // splash screen variables
+    
+     private BorderLayout borderLayout1 = new BorderLayout();
+     private JLabel imageLabel = new JLabel();
+     private ImageIcon imageIcon;
+     private static ImageIcon luvLogo = new ImageIcon(gov.nasa.luv.Luv.class.getResource("/resources/icons/LuvIcon.gif"));
+     private static LuvSplashScreen splashScreen = new LuvSplashScreen(luvLogo);
+     
+     public LuvSplashScreen(ImageIcon imageIcon) 
+     {
+         this.imageIcon = imageIcon;
+         try {
+             jbInit();
+         }
+         catch(Exception ex) 
+         {
+             ex.printStackTrace();
+         }
+     }
+     
+     void jbInit() throws Exception 
+     {
+         imageLabel.setIcon(imageIcon);
+         this.getContentPane().setLayout(borderLayout1);
+         this.getContentPane().add(imageLabel, BorderLayout.CENTER);
+         this.pack();
+     }
+
+     public void setScreenVisible(boolean b)
+     {
+         final boolean boo = b;
+         SwingUtilities.invokeLater(new Runnable() 
+         {
+             public void run() 
+             {
+                 setVisible(boo);
+             }
+         });
+     }     
+           
+      public static void enableSplashScreen(boolean splash)
+      {
+          if (splash)
+          {
+              splashScreen.setLocationRelativeTo(null);
+              splashScreen.setScreenVisible(true);
+          }
+          else
+              splashScreen.setScreenVisible(false);
+      }
 }
