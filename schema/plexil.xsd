@@ -51,6 +51,7 @@
         <xsd:element ref="CommandDeclaration" minOccurs="0"/>
         <xsd:element ref="StateDeclaration" minOccurs="0"/>
         <xsd:element ref="FunctionDeclaration" minOccurs="0"/>
+        <xsd:element ref="LibraryNodeDeclaration" minOccurs="0"/>
         <xsd:element name="TimeScalingUnitsSubunits" type="xsd:integer" minOccurs="0"/>
       </xsd:choice>
     </xsd:complexType>
@@ -82,6 +83,15 @@
   <xsd:element name="FunctionDeclaration">
     <xsd:complexType>
       <xsd:group ref="ExternalCallDeclaration"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="LibraryNodeDeclaration">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="Name" type="xsd:NCName"/>
+        <xsd:element name="Interface"/>
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 
