@@ -1,4 +1,8 @@
 (plexil-plan
+  (declarations
+    (command-declaration "drive" (parameter "real"))
+    (command-declaration "takeSample")
+    (state-declaration "At" (return "boolean") (parameter "string")))
  (list-node "SimpleDrive"
    (end-condition (finished "TakeSample"))
    (postcondition (successful "TakeSample"))

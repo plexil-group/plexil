@@ -53,7 +53,7 @@
 ;;;   opt(X)      = X + nil
 ;;;   ...the rest should be intuitive
 
-(defconst *plexilisp-location* (getenv "PLEXILISP_HOME"))
+(defconst *plexilisp-location* (format "%s/plexilisp" (getenv "PLEXIL_HOME")))
 
 (defconst *plexilisp-version* "2.0.5")
 
@@ -309,7 +309,8 @@
  "It assumes a basic understanding of the PLEXIL language. "
  "Each construct in Plexilisp has at least two aliases "
  "(e.g. {{CommandNode}} and {{command-node}}).  You may use whichever you prefer, "
- "or mix and match them.")
+ "or mix and match them.\n\n"
+ "[[toc]]")
 
 (insert-plexil-heading
  "== PLEXIL Plan =="
@@ -318,9 +319,78 @@
 (pdefine pl (PlexilPlan plexil-plan) (form &rest forms) 0 ; list(xml) -> xml
   ("The top level form for a plan.  "
    "A Plexilisp file must contain exactly one of these, and nothing else.  "
-   "A {{PlexilPlan}} form must contain exactly one form, which constitutes "
-   "the plan's root node.  Additional forms can only be {{Comment}}'s.")
+   "A {{PlexilPlan}} form must contain forms in the following order. "
+   "The first (optional) can be a {{GlobalDeclarations}}. "
+   "The second (required) is the plan's root node. "
+   "Additional forms can only be {{Comment}}'s.")
   (xml "PlexilPlan" (cons form forms)))
+
+(insert-plexil-heading
+ "=== Global Declarations ==="
+ "")
+
+(pdefine pl (GlobalDeclarations global-declarations Declarations declarations)
+            (&rest decls) 0
+  ;; list(xml) -> xml
+  "The plan's global declarations."
+  (xml "GlobalDeclarations" decls))
+
+(pdefine pl (LibraryNodeDeclaration library-node-declaration)
+         (name &rest interface-declarations) 0
+  ;; string * list(xml) -> xml
+  ("Declare a library node (call).  Following the name may be any number of "
+   "interface declarations, which are either {{In}} or {{InOut}} forms.")
+  (xml "LibraryNodeDeclaration"
+       (list (xml "Name" name)
+             (xml "Interface" interface-declarations))))
+
+(pdefine pl (StateDeclaration state-declaration)
+            (name &rest returns-then-parameters) 0
+  ;; string * list(xml) -> xml
+  ("Declare a state (lookup).  Following the name should be zero or more Return "
+   "forms, then zero or more Parameter forms.  They cannot be intermixed.")
+  (plexil-external-call-declaration "StateDeclaration" name
+                                    returns-then-parameters))
+
+(pdefine pl (FunctionDeclaration function-declaration)
+            (name &rest returns-then-parameters) 0
+  ;; string * list(xml) -> xml
+  ("Declare a function call.  Following the name should be zero or more Return "
+   "forms, then zero or more Parameter forms.  They cannot be intermixed.")
+  (plexil-external-call-declaration "FunctionDeclaration" name
+                                    returns-then-parameters))
+
+(pdefine pl (CommandDeclaration command-declaration)
+            (name &rest returns-then-parameters-then-resource-list) 0
+  ;; string * list(xml) -> xml
+  ("Declare a command.  Following the name should be zero or more Return "
+   "forms, then zero or more Parameter forms, then an optional ResourceList "
+   "form.  They cannot be intermixed.")
+  (plexil-external-call-declaration "CommandDeclaration" name
+                                    returns-then-parameters-then-resource-list))
+
+(pdefine pl (Return return) (type) 1
+  ;; string -> xml
+  ("Specify a return type.  Argument must be one of 'string', 'integer', "
+   "'array', 'boolean', 'real' (case doesn't matter).")
+  (plexil-type-declaration "Return" type))
+
+(pdefine pl (Parameter parameter) (type) 1
+  ;; string -> xml
+  ("Specify a parameter type.  Argument must be one of 'string', 'integer', "
+   "'array', 'boolean', 'real' (case doesn't matter).")
+  (plexil-type-declaration "Parameter" type))
+
+(defun plexil-type-declaration (name type)
+  ;; string * string -> xml
+  "Constructs a Return or Parameter element."
+  (xml name nil (list (cons "Type" (capitalize type)))))
+
+(defun plexil-external-call-declaration (type name args)
+  ;; string * string * list(xml) -> xml
+  "Declaration of command, function call, or state"
+  (xml type
+       (cons (xml "Name" name) args)))
 
 (insert-plexil-heading
  "=== Nodes and Node Types ==="
@@ -664,7 +734,8 @@
  "They must be created explicitly with these forms.")
 
 (pdefine pl (Interface interface) (&rest decls) 0      ; list(xml) -> xml
-  "The Node's interface."
+  ("The Node's interface.  This must contain only {{In}} and {{InOut}} forms. "
+   "They can be intermixed.")
   (xml "Interface" decls))
 
 (pdefine pl (In in) (&rest vars) 0              ; list(xml) -> xml
@@ -1290,6 +1361,7 @@
   "A comment for the node. (The sentences will be concatenated.)"
   (xml "Comment" (apply (function concat) sentences)))
 
+;;; NOTE: deprecated!
 (pdefine pl (Priority priority) (n) 1                 ; natural-number -> xml
   "The node's priority (an integer)."
   (xml "Priority" n))

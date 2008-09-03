@@ -1,4 +1,6 @@
 (plexil-plan
+  (declarations
+    (library-node-declaration "library5" (in (string "x"))))
   (library-call-node "root"
     (variables (string "name" "sue"))
     (call "library5"
