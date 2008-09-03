@@ -40,3 +40,7 @@ Release Notes
  - added PLEXIL workshop presentations
  - significant revision of several UE reference manual chapters
  - PDF manuals now included in distribution
+
+0.84
+ - added global declarations (for static plan checking) to schemas and
+   Plexilisp
