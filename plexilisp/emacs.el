@@ -23,24 +23,31 @@
 ;;; TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-;;; Add the following, modified as instructed under NOTE, to your .emacs
-;;; file to use Plexilisp
-
 (defun init-plexilisp ()
   (interactive)
-  ;;
-  ;; NOTE: Change the value of 'plexildir' below to wherever you've
-  ;; placed your 'plexilisp' directory.  DO NOT use the tilde symbol (~).
-  ;;
-  (let* ((plexildir "/Users/mdalal/plexil/plexilisp")
+  (let* ((plexildir (format "%s/plexilisp" (getenv "PLEXIL_HOME")))
          (source-file (format "%s/plexil.el" plexildir))
          (compiled-file (format "%s/plexil.el" plexildir))
          (max-specpdl-size 2700))
-    (setenv "PLEXILISP_HOME" plexildir)
+    ;; Improve this -- it unnecessarily recompiles.
     (byte-compile-file source-file)
     (if (file-exists-p compiled-file)
         (load-file compiled-file)
       (load-file source-file))))
 
-(init-plexilisp)
+(if (null (getenv "PLEXIL_HOME"))
+    ;; Sometimes, Emacs doesn't see the environment variables defined by the user.
+    ;; I haven't yet figured out why.
+    (message (concat "Error: PLEXIL_HOME undefined in Emacs. "
+                     "Try defining it in your .emacs file. "
+                     "See your plexil/plexilisp/emacs.el for instructions. "))
+  (init-plexilisp))
+
+;;; If you got the error message in the form above, put the following in
+;;; your .emacs file, just before the line that loads this file:
+;;;     (setenv "PLEXIL_HOME" "/home/fred/plexil")
+;;; replacing the pathname appropriately -- it should be that of your
+;;; 'plexil' installation directory.  Do not use the '~' character.
+
+
+
