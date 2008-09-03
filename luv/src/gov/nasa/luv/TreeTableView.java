@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Enumeration;
 
+import javax.swing.JMenu;
+import javax.swing.JSeparator;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
 
@@ -59,10 +61,6 @@ public class TreeTableView extends JTreeTable implements View
        * needed to set expansion state of the items in the new tree */
 
       private static TreeTableView lastView;
-      
-      private static NodeInfoWindow nodeInfoWindow;
-      
-      private static ConditionsWindow conditionsWindow;
       
       private static ArrayList<String> path = new ArrayList<String>();
 
@@ -103,8 +101,11 @@ public class TreeTableView extends JTreeTable implements View
                   {
                      if (e.isPopupTrigger())
                         handlePopupEvent(e);
-                     else if (e.getClickCount() == 2)
-                        handleClickEvent(e);
+                     else if (e.getClickCount() == 1)
+                     {
+                         if (Luv.getLuv().getBoolean(SHOW_CONDITIONS))
+                             handleClickEvent(e);
+                     }
                   }
             });
          
@@ -303,21 +304,21 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handlePopupEvent(MouseEvent mouseEvent)
       {
+          JPopupMenu popup = new JPopupMenu();
+                  
           if (Luv.getLuv().getBoolean(ALLOW_BREAKS))
           {
              // identify node under popup menu
 
-             TreePath tp = tree.getClosestPathForLocation(
-                mouseEvent.getX(), mouseEvent.getY());
+             TreePath tp = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
 
              // construct the popup menu
 
-             JPopupMenu popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(((Wrapper)tp.getLastPathComponent()).model);
+             popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(((Wrapper)tp.getLastPathComponent()).model);
 
              // display the popup menu
 
-             popup.show(mouseEvent.getComponent(),
-                        mouseEvent.getX(), mouseEvent.getY());
+             popup.show(mouseEvent.getComponent(),mouseEvent.getX(), mouseEvent.getY());
           }
       }
       
@@ -344,11 +345,6 @@ public class TreeTableView extends JTreeTable implements View
          
          // construct the popup menu
          
-      /*   if (nodeInfoWindow == null)
-            nodeInfoWindow = new NodeInfoWindow(Luv.getLuv(), ((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
-         else
-            nodeInfoWindow.setModel(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));*/
-         
          ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
       }
       
@@ -363,11 +359,6 @@ public class TreeTableView extends JTreeTable implements View
              path.add(node.getParent().getProperty(MODEL_NAME));
              node = node.getParent();
          } while (!node.isRoot());
-      }
-      
-      public String getNodeInfoWindowNodeName()
-      {
-          return nodeInfoWindow.getTitle();
       }
       
       public boolean isNodeInfoWindowOpen()

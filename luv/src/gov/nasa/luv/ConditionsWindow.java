@@ -28,29 +28,16 @@
 
 package gov.nasa.luv;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-
-import java.awt.Color;
-import java.util.Vector;
-
-import javax.swing.JLabel;
 import javax.swing.JFrame;
 
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Color;
 
-import javax.swing.table.TableColumn;
-import static java.awt.event.KeyEvent.*;
-import static java.awt.GridBagConstraints.*;
+import java.util.Vector;
 
 import static gov.nasa.luv.Constants.*;
 
@@ -75,8 +62,8 @@ public class ConditionsWindow extends JPanel
         this.model = model;
 
         String[] columnNames = {"Conditions",
-                                "Status",
-                                "Element(s)"};
+                                "Value",
+                                "Expression"};
         
         rows = model.conditionMap.size();
         int row = 0;
@@ -86,7 +73,7 @@ public class ConditionsWindow extends JPanel
         for (final String condition: ALL_CONDITIONS)
         {
             final String element = getConditionElements(condition);
-            status = INACTIVE;
+            status = UNKNOWN;
             
             if (!element.equals(UNKNOWN))
             {
@@ -98,8 +85,7 @@ public class ConditionsWindow extends JPanel
                 col = 0;
                 ++row;
             }
-                
-            
+                         
             // add model listener
 
                 this.model.addChangeListener(new Model.ChangeAdapter()
@@ -112,6 +98,13 @@ public class ConditionsWindow extends JPanel
                                if (!element.equals(UNKNOWN))
                                {
                                    status = model.getProperty(condition);
+                                   if (status.equals("0"))
+                                       status = FALSE;
+                                   else if (status.equals("1"))
+                                       status = TRUE;
+                                   else if (status.equals("inf"))
+                                       status = FALSE;
+                                   
                                    for (int i = 0; i < rows; i++)
                                    {
                                        if (condition.equals(info[i][0]))
@@ -128,9 +121,6 @@ public class ConditionsWindow extends JPanel
                    });
         }
         
-        
-
-        
         table = new JTable(info, columnNames);
         
         // Disable auto resizing
@@ -141,14 +131,13 @@ public class ConditionsWindow extends JPanel
 
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(500);
+        table.getColumnModel().getColumn(2).setPreferredWidth(1000);
         
-        table.setPreferredScrollableViewportSize(new Dimension(800, 300));
+        table.setPreferredScrollableViewportSize(new Dimension(1300, 300));
 
         table.setShowGrid(false);
 
         table.setGridColor(Color.GRAY);
-        //table.setFillsViewportHeight(true);
 
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
@@ -157,28 +146,20 @@ public class ConditionsWindow extends JPanel
         add(scrollPane);
     }
     
+    public static ConditionsWindow getCurrentWindow()
+    {
+        return conditionsPane;
+    }
+    
     public String getConditionElements(String condition)
-      {
-            String conditionValue = "";
-            int conditionNum = getConditionNum(condition);
-          
-            if (model.conditionMap.get(conditionNum) != null)
-            {
-                for (int i = 0; i < model.conditionMap.get(conditionNum).size(); i++)
-                {
-                    String var = model.conditionMap.get(conditionNum).get(i).toString();  
-                    conditionValue += " " + var;
-                    if (i + 1 >= model.conditionMap.get(conditionNum).size())
-                        if (conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("&&") ||
-                            conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("||") ||
-                            conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("^ ") ||
-                            conditionValue.substring(conditionValue.length() - 2, conditionValue.length()).equals("! "))
-                            conditionValue = conditionValue.substring(0, (conditionValue.length() - 2));
-                }
-                return conditionValue;
-            }  
-            return UNKNOWN;
-      }
+    {
+        int conditionNum = getConditionNum(condition);
+        
+        if (model.conditionMap.get(conditionNum) != null)
+            return model.conditionMap.get(conditionNum);
+        
+        return UNKNOWN;
+    }
     
     public static boolean isConditionsWindowOpen()
     {
@@ -201,8 +182,9 @@ public class ConditionsWindow extends JPanel
     public static void createAndShowGUI(Model model, String nodeName) 
     {       
         //Create and set up the window.
+        if (frame != null)
+            frame.setVisible(false);
         frame = new JFrame(nodeName);
-        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Create and set up the content pane.
         conditionsPane = new ConditionsWindow(model);

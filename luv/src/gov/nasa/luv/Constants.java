@@ -367,9 +367,10 @@ public class Constants
       public static final int TOGGLE_LISP_NODES_MENU_ITEM   = 3;
       
       // debug menu
-      
-      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
-      public static final int SHOW_CMD_DEBUG_MENU_ITEM      = 1;
+     
+      public static final int SHOW_CONDITIONS_MENU_ITEM     = 0;
+      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 1;
+      public static final int SHOW_CMD_DEBUG_MENU_ITEM      = 2;
       
       // file types 
       
@@ -397,6 +398,7 @@ public class Constants
       public static final int OPEN_PLN_VIA_LUV              = 7;
       public static final int PLAN_PAUSED                   = 8;
       public static final int PLAN_STEP                     = 9;
+      public static final int SHOW_CONDITIONS               = 10;
       
       // Luv Viewer States
       

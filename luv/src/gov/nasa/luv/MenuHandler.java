@@ -80,13 +80,10 @@ public class MenuHandler extends JFrame
       private JMenu recentFileMenu  = new JMenu("Recent Files");
       private JMenu runMenu         = new JMenu("Run");   
       private JMenu viewMenu        = new JMenu("View");
-      private JMenu windowMenu      = new JMenu("Window"); 
+      private JMenu windowMenu      = new JMenu("Windows"); 
       
       public void createMenuBar(JMenuBar menuBar)
-      {
-         //JMenuBar menuBar = new JMenuBar();
-         //setJMenuBar(menuBar);
-         
+      {       
          // create file menu
          
          menuBar.add(fileMenu);
@@ -110,6 +107,7 @@ public class MenuHandler extends JFrame
          // show window menu
  
          menuBar.add(windowMenu);
+         windowMenu.add(Luv.getLuv().conditionsAction);
          windowMenu.add(Luv.getLuv().luvDebugWindowAction);   
          //windowMenu.add(commandPromptDebugWindowAction);
       }
