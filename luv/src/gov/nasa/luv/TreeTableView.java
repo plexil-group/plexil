@@ -236,7 +236,7 @@ public class TreeTableView extends JTreeTable implements View
 
                     for (int i = 0; i < types.size(); i++)
                     {
-                        toolTip.append("<br>" + types.get(i) + " " + names.get(i));
+                        toolTip.append("<br>" + types.get(i) + " <b>" + names.get(i) + "</b>");
                         if (!values.get(i).equals("nvl"))
                             toolTip.append(" = " + values.get(i));
                     } 

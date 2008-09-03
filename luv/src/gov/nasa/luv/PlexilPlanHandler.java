@@ -26,11 +26,9 @@
 
 package gov.nasa.luv;
 
-import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import java.util.Stack;
 
-import java.util.Vector;
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.out;
@@ -44,6 +42,8 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       private boolean showXmlTags = false;
       private static boolean recordDeclareVariables, nameExists, typeExists, valueExists = false;
       private static boolean recordCondition, haveCondVal, haveCondVar, conditionValuePlaced = false;
+      private static boolean recordDeclareArrayVariables, arrayNameExists, arrayTypeExists, arrayValueExists = false;
+      private static boolean recordArrayElement = false;
       private static int condition = -1;
       private static String conditionValue = "";
       private static String conditionVariable = "";
@@ -122,6 +122,37 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          if (localName.equals(DECL_VAR))
              recordDeclareVariables = true;
          
+         if (localName.equals(ARRAYELEMENT))
+         {
+             if (haveCondVar && !haveCondVal)
+             {
+                 haveCondVal = false;                         
+                 haveCondVar = false;                        
+                 conditionValuePlaced = true;
+                         
+                 conditionElement = conditionVariable;
+                     
+                 if (addOR)
+                     findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ||");
+                 else if (addAND)
+                     findFirstNonNullNode().addConditionInfo(condition, conditionElement + " &&");
+                 else if (addXOR)
+                     findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ^ ");
+                 else if (addNOT)
+                     findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ! ");
+                 else
+                     findFirstNonNullNode().addConditionInfo(condition, conditionElement);
+                 
+                 conditionValue = "";
+                 conditionVariable = "";
+                 conditionElement = "";
+             }
+             recordArrayElement = true;                 
+         }            
+         
+         if (localName.equals(DECL_ARRAY))
+             recordDeclareArrayVariables = true;
+         
          if (localName.contains(CONDITION))
          {
              condition = getConditionNum(localName);
@@ -182,8 +213,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      conditionValue += " is known";
                      isKnown = false;
                  }
+                 else
+                     conditionValue = "";
                  
-                 findFirstNonNullNode().addConditionInfo(condition, conditionVariable + conditionValue);
                  haveCondVal = false;                         
                  haveCondVar = false;
                  conditionValuePlaced = true;
@@ -205,6 +237,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          if (localName.equals(NOT))
              addNOT = false;
          
+         if (localName.equals(IS_KNOWN))
+             isKnown = false;
+         
          if (localName.equals(DECL_VAR))
          {
              if (nameExists && typeExists && !valueExists)
@@ -213,8 +248,38 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
              recordDeclareVariables = nameExists = typeExists = valueExists = false;
          }
          
+         if (localName.equals(DECL_ARRAY))
+         {  
+             if (arrayNameExists && arrayTypeExists && !arrayValueExists)
+                 findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
+             else
+                 findFirstNonNullNode().removeLastComma();
+                 
+             recordDeclareArrayVariables = arrayNameExists = arrayTypeExists = arrayValueExists = false;                      
+         }
+         
          if (text != null)
          {
+             if (recordDeclareArrayVariables)
+             {
+                 if (node == null)
+                 {
+                     
+                     if (localName.equals(NAME))
+                         arrayNameExists = true;
+                     if (localName.equals(TYPE))
+                         arrayTypeExists = true;
+                     if (localName.contains(VAL))
+                     {
+                         text += ", ";
+                         localName = ARRAY_VAL;
+                         arrayValueExists = true;
+                     }
+                         
+                     findFirstNonNullNode().addLocalVariableName(localName, text);
+                 }
+             }
+             
              if (recordDeclareVariables)
              {
                  if (node == null)
@@ -236,7 +301,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  {                  
                      if (localName.contains(VAL))
                      {
-                         if (haveCondVal)
+                         if (haveCondVal && !recordArrayElement)
                          {
                              if (lookUpChange)
                              {
@@ -253,8 +318,13 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                                  conditionValue += " == " + LOOKUPFREQ + "(" + text + ")";
                                  lookUpFreq = false;
                              }
+                             else
+                             {
+                                 haveCondVal = true;
+                                 conditionValue = text;
+                             }
                          }
-                         else
+                         else if (!recordArrayElement)
                          {
                              haveCondVal = true;
                              conditionValue = text;
@@ -265,12 +335,38 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                          haveCondVar = true;
                          conditionVariable = text;
                      }
+                     if (recordArrayElement)
+                     {
+                         if (localName.equals(NAME))
+                             conditionVariable = text;
+                         if (localName.equals(INT_VAL) && !haveCondVar)
+                         {
+                             conditionVariable += "[" + text + "]";
+                             haveCondVal = false;
+                             haveCondVar = true;
+                             if (isKnown)
+                             {
+                                 conditionVariable += " is known";
+                                 haveCondVal = true;
+                                 recordArrayElement = false;
+                             }
+                         }
+                         else if (localName.contains(VAL))
+                         {
+                             conditionValue = text;
+                             recordArrayElement = false;
+                             haveCondVal = true;
+                         }
+                     }
                      if (haveCondVal && haveCondVar)
                      {
                          haveCondVal = false;                         
                          haveCondVar = false;                        
                          conditionValuePlaced = true;
-                         conditionElement = conditionVariable + " == " + conditionValue;                        
+                         if (!conditionValue.equals(""))
+                             conditionElement = conditionVariable + " == " + conditionValue; 
+                         else
+                             conditionElement = conditionVariable;
                      
                          if (addOR)
                              findFirstNonNullNode().addConditionInfo(condition, conditionElement + " ||");

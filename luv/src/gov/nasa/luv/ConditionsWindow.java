@@ -68,34 +68,6 @@ public class ConditionsWindow extends JPanel
     
     Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
     
-    public ConditionsWindow() 
-    {
-        super(new GridLayout(1,0));
-
-        String[] columnNames = {"Conditions",
-                                "Status",
-                                "Element(s)"};
-
-        Object[][] data = {
-            {"Mary", "Campione", "Snowboarding"},
-            {"Alison", "Huml", "Rowing"},
-            {"Mary", "Campione", "Snowboarding"},
-            {"Mary", "Campione", "Snowboarding"},
-            {"Mary", "Campione", "Snowboarding"},
-            {"Mary", "Campione", "Snowboarding"}
-        };
-
-        final JTable table = new JTable(data, columnNames);
-        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        table.setFillsViewportHeight(true);
-
-        //Create the scroll pane and add the table to it.
-        JScrollPane scrollPane = new JScrollPane(table);
-
-        //Add the scroll pane to this panel.
-        add(scrollPane);
-    }
-    
     public ConditionsWindow(Model model) 
     {       
         super(new GridLayout(1,0));
@@ -176,7 +148,7 @@ public class ConditionsWindow extends JPanel
         table.setShowGrid(false);
 
         table.setGridColor(Color.GRAY);
-        table.setFillsViewportHeight(true);
+        //table.setFillsViewportHeight(true);
 
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);

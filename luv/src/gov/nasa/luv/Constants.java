@@ -614,6 +614,7 @@ public class Constants
       public static final String REQ = "Request";
       public static final String PAIR = "Pair";
       public static final String COND = "Condition";
+      public static final String ARRAY_VAL = "ArrayValue";
 
       // operators (adapted from UE code)
 
@@ -753,8 +754,8 @@ public class Constants
 //          FUNCCALL_NAME,
           NAME,
           TYPE,
-//          MAXSIZE,
-//          INDEX,
+          MAXSIZE,
+          INDEX,
 //         ASSN_NAME,
 
 //          // states
@@ -780,6 +781,7 @@ public class Constants
 //          INTERFACE,
 //          VAR_DECLS,
           DECL_VAR,
+          DECL_ARRAY,
 //          IN,
 //          INOUT,
 //          VAR,
@@ -847,7 +849,7 @@ public class Constants
 //          BLOB,
 //          ARRAY,
 //          DECL_ARRAY,
-//          ARRAYELEMENT,
+          ARRAYELEMENT,
 //          STRING,
 //          TIME,
 

@@ -240,10 +240,41 @@ public class Model extends Properties
               declTypeVarList.add(value);
               declVarMap.put(name, declTypeVarList); 
           }
+          else if (name.equals(MAXSIZE))
+          {
+              int i = declNameVarList.size();
+              String newValue = declNameVarList.get(i-1) + "[" + value + "]";
+              declNameVarList.set(i-1, newValue);
+          }
+          else if (name.equals(ARRAY_VAL))
+          {
+              if (declNameVarList.size() == declValueVarList.size())
+              {
+                  int i = declValueVarList.size();
+                  String newValue = declValueVarList.get(i-1) + value;
+                  declValueVarList.set(i-1, newValue);              
+              }
+              else
+                  declValueVarList.add(value);
+              
+              declVarMap.put(name, declValueVarList);
+          }
           else
           {
               declValueVarList.add(value); 
               declVarMap.put(VAL, declValueVarList); 
+          }
+      }
+      
+      public void removeLastComma()
+      {
+          if (!declValueVarList.isEmpty())
+          {
+              int i = declValueVarList.size();
+              String lastValue = declValueVarList.get(i-1);
+              lastValue = lastValue.substring(0, lastValue.length() - 2);
+              declValueVarList.set(i-1, lastValue);
+              declVarMap.put(ARRAY_VAL, declValueVarList);
           }
       }
 
