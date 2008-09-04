@@ -178,7 +178,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
          if (localName.equals(AND))
          {
-             if (conditionElement.isEmpty())
+             if (conditionElement.equals(""))
              {
                  int i = equationHolder.size();
                  String replace = equationHolder.get(i-1);
