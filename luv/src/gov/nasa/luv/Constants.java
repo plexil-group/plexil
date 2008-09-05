@@ -345,6 +345,7 @@ public class Constants
       public static final String DISABLE_BREAKS = "Disable Breaks";
       public static final String BREAK_POINTS = "Break Points";
       public static final String EXECUTE_PLAN = "Execute Plan";
+      public static final String STOP_EXECUTION = "Stop Execution";
  
       //File menu
       public static final int OPEN_PLAN_MENU_ITEM           = 0;
@@ -399,6 +400,7 @@ public class Constants
       public static final int PLAN_PAUSED                   = 8;
       public static final int PLAN_STEP                     = 9;
       public static final int SHOW_CONDITIONS               = 10;
+      public static final int STOPPED_EXECUTION             = 11;
       
       // Luv Viewer States
       

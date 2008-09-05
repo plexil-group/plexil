@@ -182,7 +182,7 @@ public class ExecutionViaLuvViewerHandler
       
       public void runExec() throws IOException
       {                    
-        File ue = new File(PROP_UE_EXEC);         
+        File ue = new File(PROP_UE_EXEC);
         Luv.getLuv().getFileHandler().setCurrentFile(PLAN);
         Luv.getLuv().setBoolean(DONT_LOAD_SCRIPT_AGAIN, false);
         Luv.getLuv().getFileHandler().setCurrentFile(SCRIPT);

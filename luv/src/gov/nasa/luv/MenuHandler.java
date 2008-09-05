@@ -29,49 +29,13 @@ package gov.nasa.luv;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
 import javax.swing.JSeparator;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.JScrollPane;
-import javax.swing.JOptionPane;
-import javax.swing.ImageIcon;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JPopupMenu;
-import javax.swing.ToolTipManager;
-
-import java.util.Map;
 import java.util.Vector;
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import java.awt.Toolkit;
-import java.awt.Container;
-import java.awt.Color;
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import static gov.nasa.luv.Constants.*;
-import static gov.nasa.luv.LuvSplashScreen.*;
-
-import static java.lang.System.*;
-import static java.awt.BorderLayout.*;
 import static java.awt.event.KeyEvent.*;
-import static javax.swing.JFileChooser.*;
 
 public class MenuHandler extends JFrame
 {
@@ -210,15 +174,22 @@ public class MenuHandler extends JFrame
              runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
              runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
          }
-
+         
+         if (Luv.getLuv().getBoolean(STOPPED_EXECUTION))
+             runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+         
          if (Luv.getLuv().getBoolean(ALLOW_BREAKS))
              Luv.getLuv().allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
          else
              Luv.getLuv().allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
-             
-         runMenu.add(Luv.getLuv().allowBreaksAction);
-         
+
+         runMenu.add(Luv.getLuv().allowBreaksAction);     
          runMenu.add(Luv.getLuv().execAction);
+         
+         if (!Luv.getLuv().getBoolean(IS_EXECUTING))
+             runMenu.getItem(BREAK_MENU_ITEM).setEnabled(true);
+         else
+             runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
 
           // add break point menu
 

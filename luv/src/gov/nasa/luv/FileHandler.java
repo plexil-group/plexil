@@ -414,7 +414,8 @@ public class FileHandler
       
       public void loadScript (File script)
       {
-         Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + script, 50);
+         if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION))
+             Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + script, 50);
          Luv.getLuv().getModel().addScriptName(script.toString());
       }
       
@@ -482,7 +483,8 @@ public class FileHandler
          String scriptName = getRecentScriptName(index);
          if (planName != null)
          {
-            Luv.getLuv().getStatusMessageHandler().showStatus("Reloading " + planName);
+            if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION))
+                 Luv.getLuv().getStatusMessageHandler().showStatus("Reloading " + planName);
             loadPlan(new File(planName), Luv.getLuv().getLibraryHandler().getRecentLibNames(index, false));
             if (scriptName != null && !scriptName.equals(UNKNOWN))
             {
@@ -526,7 +528,8 @@ public class FileHandler
 
       public void readPlan(Model model, File file)
       {
-         Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + file);
+         if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION))
+             Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + file);
          try
          {
             parseXml(new FileInputStream(file), model);

@@ -45,8 +45,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Enumeration;
 
-import javax.swing.JMenu;
-import javax.swing.JSeparator;
+import javax.swing.JOptionPane;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
 
@@ -101,7 +100,7 @@ public class TreeTableView extends JTreeTable implements View
                   {
                      if (e.isPopupTrigger())
                         handlePopupEvent(e);
-                     else if (e.getClickCount() == 1)
+                     else if (e.getClickCount() == 2)
                      {
                          if (Luv.getLuv().getBoolean(SHOW_CONDITIONS))
                              handleClickEvent(e);
@@ -345,7 +344,10 @@ public class TreeTableView extends JTreeTable implements View
          
          // construct the popup menu
          
-         ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
+         if (!((Wrapper)tp.getLastPathComponent()).model.conditionMap.isEmpty())
+             ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
+         else
+             JOptionPane.showMessageDialog(Luv.getLuv(),"No conditions exists for this node");
       }
       
       public void savePopUpWindowNodeInfo(TreePath tp)

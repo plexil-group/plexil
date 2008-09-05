@@ -165,17 +165,11 @@ public abstract class Server
                      message.append((char)ch);
                } 
                
-               if (haltExecution)
-               {
-                   haltExecution = true;
-                  // is = s.getInputStream();
-               }
-               
                if (activity == 0)
                    trackTimeOfInactivity();
                
                activity = 0;
-                  
+                                 
                Thread.sleep(100);
 
             }            
@@ -205,6 +199,7 @@ public abstract class Server
                if (timePassed > oneMinute)
                {
                    ++minutesPassed;
+                   Luv.getLuv().setLuvViewerState(END_STATE);
                    Luv.getLuv().getStatusMessageHandler().showStatus("Time elapsed with no activity: " + minutesPassed + " minute(s) and counting...");   
                    oldTime = newTime;
                }

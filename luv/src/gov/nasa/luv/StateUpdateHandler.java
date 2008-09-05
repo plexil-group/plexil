@@ -87,7 +87,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
-             if (state.equals(FINISHED))
+             if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION) && state.equals(FINISHED))
              {
                  if (current.getParent() != null)
                  {

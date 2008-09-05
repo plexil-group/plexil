@@ -82,8 +82,6 @@ public class ViewHandler
       public void setView(Container view)
       {
          // handle view properties
-         if (Luv.getLuv().getBoolean(IS_EXECUTING))
-              Luv.getLuv().getStatusMessageHandler().showStatus("Executing...", Color.GREEN.darker(), 1000);
 
          if (currentView != null)
             setViewProperties(Luv.getLuv().getProperties());
