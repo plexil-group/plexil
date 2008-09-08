@@ -45,12 +45,6 @@ public abstract class Server
     int activity, minutesPassed = 0;
     int oneMinute = 60000;
     boolean startCountingTime = false;
-    boolean haltExecution = false;
-    
-    public void setHaltExecution(boolean halt)
-    {
-        haltExecution = halt;
-    }
     
       /** Construct a server which listens on a given port.
        *
@@ -126,8 +120,6 @@ public abstract class Server
             InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
             StringBuilder message = new StringBuilder();
-            
-            haltExecution = false;
 
             // now just loop forever
 
@@ -135,7 +127,7 @@ public abstract class Server
             {
                // if there is input, grab it up
 
-               while (is.available() > 0 && !haltExecution)
+               while (is.available() > 0)
                {
                    ++activity;
                    startCountingTime = true;
@@ -148,7 +140,7 @@ public abstract class Server
                   {                  
                      // handle the message
 
-                     handleMessage(message.toString());
+                     handleMessage(message.toString());                 
                      message = new StringBuilder();
                      
                      // if the viewer is should block, do so after message handled

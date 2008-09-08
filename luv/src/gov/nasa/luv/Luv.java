@@ -86,8 +86,7 @@ public class Luv extends JFrame
       private static MenuHandler                  menuHandler                   = new MenuHandler();                 // handles all menu operations
       private static LibraryHandler               libraryHandler                = new LibraryHandler();              // handles all library operations
       
-      private DebugWindow luvViewerDebugWindow;         
-      private ShellDebugWindow cmdPrmptDebugWindow;    
+      private DebugWindow luvViewerDebugWindow;    
       
       Server s;
       
@@ -189,7 +188,6 @@ public class Luv extends JFrame
                      properties.set(PROP_DBWIN_SIZE, luvViewerDebugWindow.getSize());
                      properties.set(PROP_DBWIN_VISIBLE, luvViewerDebugWindow.isVisible());
                      luvViewerDebugWindow.setVisible(false);
-                     //cmdPrmptDebugWindow.setVisible(false);
                      viewHandler.setViewProperties(properties);
                   }
             });
@@ -218,10 +216,7 @@ public class Luv extends JFrame
                      if (isPlan)
                      {
                         if(!executedViaLuvViewer)
-                        {
                             setLuvViewerState(CMD_PROMPT_EXECUTION_STATE);
-                            //execAction.putValue(NAME, STOP_EXECUTION);
-                        }
                         
                         viewHandler.resetView();
                         
@@ -344,6 +339,9 @@ public class Luv extends JFrame
               case PLAN_STEP:
                   planStep = value;
                   break;
+              case STOPPED_EXECUTION:
+                  stopExecution = value;
+                  break;
               default:
                  ; //error
           }
@@ -431,44 +429,74 @@ public class Luv extends JFrame
           // set only certain luv viewer variables
           
           stepToStart = 0;
-          
-          //executedViaLuvViewer = false;
-          //executedViaCommandPrompt = false;
           planPaused = false;
           planStep = false;
           atStartScreen = false;
           stopSearchForMissingLibs = false;           
-  
-          // set certain menu items
-
-          menuHandler.getMenu(FILE_MENU).getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
-          menuHandler.getMenu(FILE_MENU).getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-          menuHandler.getMenu(FILE_MENU).getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
-          menuHandler.getMenu(FILE_MENU).getItem(RELOAD_MENU_ITEM).setEnabled(true);
-          menuHandler.getMenu(FILE_MENU).getItem(EXIT_MENU_ITEM).setEnabled(true);
-          menuHandler.getMenu(FILE_MENU).setEnabled(true);
  
-          if (allowBreaks)
+          if (executedViaCommandPrompt)
           {
-              if (isExecuting)
-                  menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
-              else
-                  menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
-              menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(true);
-          }
-          else
-          {
-              menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
-              menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(false);
-          }
+              menuHandler.getMenu(FILE_MENU).getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
+              menuHandler.getMenu(FILE_MENU).getItem(RELOAD_MENU_ITEM).setEnabled(false);
+              menuHandler.getMenu(FILE_MENU).getItem(EXIT_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).setEnabled(true);
           
-          if (isExecuting)
+              if (allowBreaks)
+              {
+                  if (isExecuting)
+                  {
+                      menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
+                      menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(true);
+                  }
+                  else
+                  {
+                      menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+                      menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(false);
+                  }
+              }
+              else
+              {
+                  menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+                  menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(false);
+              }
+
               menuHandler.getMenu(RUN_MENU).getItem(BREAK_MENU_ITEM).setEnabled(false);
+              menuHandler.getMenu(RUN_MENU).getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+              menuHandler.getMenu(RUN_MENU).setEnabled(true);
+          }
           else
-              menuHandler.getMenu(RUN_MENU).getItem(BREAK_MENU_ITEM).setEnabled(true);
-              
-          menuHandler.getMenu(RUN_MENU).getItem(EXECUTE_MENU_ITEM).setEnabled(true);
-          menuHandler.getMenu(RUN_MENU).setEnabled(true);
+          {
+              menuHandler.getMenu(FILE_MENU).getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
+              menuHandler.getMenu(FILE_MENU).getItem(RELOAD_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).getItem(EXIT_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(FILE_MENU).setEnabled(true);
+          
+              if (allowBreaks)
+              {
+                  if (isExecuting)
+                      menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
+                  else
+                      menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+                  menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(true);
+              }
+              else
+              {
+                  menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+                  menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(false);
+              }
+
+              if (isExecuting)
+                  menuHandler.getMenu(RUN_MENU).getItem(BREAK_MENU_ITEM).setEnabled(false);
+              else
+                  menuHandler.getMenu(RUN_MENU).getItem(BREAK_MENU_ITEM).setEnabled(true);
+
+              menuHandler.getMenu(RUN_MENU).getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+              menuHandler.getMenu(RUN_MENU).setEnabled(true);
+          }
 
           if (menuHandler.getMenu(VIEW_MENU).getMenuComponentCount() > 0)
           {
@@ -551,7 +579,7 @@ public class Luv extends JFrame
       public void endState()
       {
           isExecuting = false;
-          execAction.putValue(NAME, EXECUTE_PLAN);
+          executedViaLuvViewer = false;
           readyState();
       }
       
@@ -669,17 +697,6 @@ public class Luv extends JFrame
             }
          });
          
-         // create the command prompt debug window
-         
-         //cmdPrmptDebugWindow = new cmdPrmptDebugWindow(this);
-         //cmdPrmptDebugWindow.setTitle("Command Prompt Debug Window");
-         
-         // set size and location off frame
-
-         //cmdPrmptDebugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
-         //cmdPrmptDebugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
-         //cmdPrmptDebugWindow.pack();
-         
          // when this frame get's focus, get it's menu bar back from the debug window
 
          addWindowFocusListener(new WindowAdapter()
@@ -742,13 +759,14 @@ public class Luv extends JFrame
                   openedPlanViaLuvViewer = true;
                   isExecuting = false;
                   executedViaCommandPrompt = false;
+                  setLuvViewerState(READY_STATE);
                }
          };
       
       /** Action to load a script for Execution. */
          
       LuvAction openScriptAction = new LuvAction(
-         OPEN_SCRIPT, "Open a script for execution.", VK_O, META_MASK)
+         OPEN_SCRIPT, "Open a script for execution.", VK_S, META_MASK)
          {
                public void actionPerformed(ActionEvent e)
                {
@@ -801,21 +819,6 @@ public class Luv extends JFrame
                }
          };
          
-      LuvAction commandPromptDebugWindowAction = new LuvAction(
-         SHOW_CMD_PROMPT_DEBUG_WINDOW, "Show window with command prompt debug text.", VK_P, META_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                   cmdPrmptDebugWindow.setVisible(!cmdPrmptDebugWindow.isVisible());
-                   
-                   if (cmdPrmptDebugWindow.isVisible())
-                       commandPromptDebugWindowAction.putValue(NAME, HIDE_CMD_PROMPT_DEBUG_WINDOW);
-                   else
-                       commandPromptDebugWindowAction.putValue(NAME, SHOW_CMD_PROMPT_DEBUG_WINDOW);
-                   
-               }
-         };
-         
       /** Action to allow breakpoints. */
          
       LuvAction allowBreaksAction = new LuvAction(
@@ -851,44 +854,12 @@ public class Luv extends JFrame
                 try {
                     
                     if (!isExecuting && !executedViaCommandPrompt)
-                    {                        
+                    {    
                         setLuvViewerState(LUV_VIEWER_EXECUTION_STATE);
                         executionViaLuvViewerHandler.runExec();
-                        execAction.putValue(NAME, STOP_EXECUTION);
-                    }
-                    else if (isExecuting && !executedViaCommandPrompt)
-                    {
-                        statusMessageHandler.showStatus("Execution stopped.", Color.RED, 1000);
-                        stopExecution = true;
-                        s.setHaltExecution(true);           
-                        execAction.putValue(NAME, EXECUTE_PLAN);
-                        isExecuting = false;                                       
-                        fileHandler.loadPlan(fileHandler.getCurrentFile(PLAN));                  
-                        reloadAction.actionPerformed(e);
-                        stopExecution = false;
-                    }
-                    else if (isExecuting && executedViaCommandPrompt)
-                    {
-                      /*  statusMessageHandler.showStatus("Execution stopped.", Color.RED, 1000);
-                        stopExecution = true;
-                        s.setHaltExecution(true);
-                        execAction.putValue(NAME, EXECUTE_PLAN);
-                        isExecuting = false;
-                        
-                        menuHandler.getMenu(FILE_MENU).getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
-                        menuHandler.getMenu(FILE_MENU).getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-                        menuHandler.getMenu(FILE_MENU).getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
-                        menuHandler.getMenu(FILE_MENU).getItem(RELOAD_MENU_ITEM).setEnabled(false);
-                        menuHandler.getMenu(FILE_MENU).getItem(EXIT_MENU_ITEM).setEnabled(true);
-                        menuHandler.getMenu(FILE_MENU).setEnabled(true);
-
-                        menuHandler.getMenu(RUN_MENU).getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
-                        menuHandler.getMenu(RUN_MENU).getItem(STEP_MENU_ITEM).setEnabled(false);
-                        menuHandler.getMenu(RUN_MENU).getItem(BREAK_MENU_ITEM).setEnabled(false);
                         menuHandler.getMenu(RUN_MENU).getItem(EXECUTE_MENU_ITEM).setEnabled(false);
-                        menuHandler.getMenu(RUN_MENU).setEnabled(false);*/
                     }
-     
+    
                 } catch (IOException ex) {
                     System.err.println("Error: " + ex.getMessage());
                 }

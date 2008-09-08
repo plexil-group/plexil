@@ -40,11 +40,11 @@ import static java.awt.event.KeyEvent.*;
 public class MenuHandler extends JFrame
 {
     
-      private JMenu fileMenu        = new JMenu("File");  
-      private JMenu recentFileMenu  = new JMenu("Recent Files");
-      private JMenu runMenu         = new JMenu("Run");   
-      private JMenu viewMenu        = new JMenu("View");
-      private JMenu windowMenu      = new JMenu("Windows"); 
+      private JMenu fileMenu                = new JMenu("File");  
+      private JMenu recentFileMenu          = new JMenu("Recent Files");
+      private JMenu runMenu                 = new JMenu("Run");   
+      private JMenu viewMenu                = new JMenu("View");
+      private JMenu windowMenu              = new JMenu("Windows");
       
       public void createMenuBar(JMenuBar menuBar)
       {       
@@ -72,8 +72,7 @@ public class MenuHandler extends JFrame
  
          menuBar.add(windowMenu);
          windowMenu.add(Luv.getLuv().conditionsAction);
-         windowMenu.add(Luv.getLuv().luvDebugWindowAction);   
-         //windowMenu.add(commandPromptDebugWindowAction);
+         windowMenu.add(Luv.getLuv().luvDebugWindowAction);
       }
       
       public JMenu getMenu(int menu)
@@ -187,9 +186,15 @@ public class MenuHandler extends JFrame
          runMenu.add(Luv.getLuv().execAction);
          
          if (!Luv.getLuv().getBoolean(IS_EXECUTING))
+         {
              runMenu.getItem(BREAK_MENU_ITEM).setEnabled(true);
+             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+         }
          else
+         {
              runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+         }
 
           // add break point menu
 
@@ -259,7 +264,7 @@ public class MenuHandler extends JFrame
          updateRecentMenu();
       }
       
-            /** Update the recently loaded files menu. */
+      /** Update the recently loaded files menu. */
 
       public void updateRecentMenu()
       {

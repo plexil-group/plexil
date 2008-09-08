@@ -76,7 +76,7 @@ public class DebugWindow extends JFrame
          str = replaceAll(str, "\n\r", eol);
          str = replaceAll(str, "\r\n", eol);
          str = replaceAll(str, "\r", eol);
-         
+
          debugArea.append(str);
          debugArea.setCaretPosition(debugArea.getText().length());
       }

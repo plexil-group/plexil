@@ -39,6 +39,7 @@ import java.util.Vector;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 
 import static gov.nasa.luv.Constants.*;
@@ -583,5 +584,20 @@ public class FileHandler
          }
 
          return isPlan;
+      }
+      
+      public void loadEmptyPlan() throws IOException
+      {
+          String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+          path = path + System.getProperty(PROP_FILE_SEPARATOR);
+          String planName = path + "EmptyPlan.plx";
+          FileWriter empty = new FileWriter(planName);
+          BufferedWriter out = new BufferedWriter(empty);
+          out.write(EMPTY_PLAN);
+          out.close();                          
+          File emptyPlan = new File(planName);
+          Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, plan.getAbsolutePath());
+          
+          loadPlan(emptyPlan); 
       }
 }

@@ -114,7 +114,9 @@ public class Constants
       // Empty script default contents
       
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
-
+       
+      public static final String EMPTY_PLAN = "<PlexilPlan xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"plexil.xsd\"><Node NodeType=\"Empty\"><NodeId>EMPTY</NodeId></Node></PlexilPlan>";
+       
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";

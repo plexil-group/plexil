@@ -94,16 +94,13 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
                      if (current.getParent().getType().equals("dummy"))
                      {
                         Luv.getLuv().setLuvViewerState(END_STATE);
-                        Luv.getLuv().getStatusMessageHandler().showStatus("ROOT node reached FINISHED state");
                      }
                  }
                  else if (current.isRoot())
                  {
                     Luv.getLuv().setLuvViewerState(END_STATE);
-                    Luv.getLuv().getStatusMessageHandler().showStatus("ROOT node reached FINISHED state");
                  }
              }
-             
             current.setProperty(MODEL_STATE, state);
             current.setProperty(MODEL_OUTCOME, outcome);
             current.setProperty(MODEL_FAILURE_TYPE, failureType);

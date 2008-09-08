@@ -345,9 +345,9 @@ public class TreeTableView extends JTreeTable implements View
          // construct the popup menu
          
          if (!((Wrapper)tp.getLastPathComponent()).model.conditionMap.isEmpty())
-             ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME));
+             ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME) + " Conditions");
          else
-             JOptionPane.showMessageDialog(Luv.getLuv(),"No conditions exists for this node");
+             Luv.getLuv().getStatusMessageHandler().showStatus("No conditions specified for " + ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME), Color.BLACK, 1000);
       }
       
       public void savePopUpWindowNodeInfo(TreePath tp)
@@ -427,7 +427,7 @@ public class TreeTableView extends JTreeTable implements View
             columns.nextElement().setPreferredWidth(width);
       }
 
-      /** If the preveouse view was the same plan, then set the expanded
+      /** If the previous view was the same plan, then set the expanded
        * state of the new tree to that of the old tree.
        *
        * @param t1  original tree
@@ -503,7 +503,6 @@ public class TreeTableView extends JTreeTable implements View
                         {
                             ((AbstractTableModel)view.getModel())
                                .fireTableDataChanged();
-                            // view.repaint();
                         }
                   });
 

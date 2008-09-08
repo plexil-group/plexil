@@ -40,6 +40,7 @@
 
 package treetable;
 
+import java.awt.event.MouseEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
@@ -67,11 +68,12 @@ public class TreeTableModelAdapter extends AbstractTableModel
     public TreeTableModelAdapter(TreeTableModel<Object> treeTableModel, JTree tree) {
         this.tree = tree;
         this.treeTableModel = treeTableModel;
+        tree.setToggleClickCount(5);
 
 	tree.addTreeExpansionListener(new TreeExpansionListener() {
 	    // Don't use fireTableRowsInserted() here; 
 	    // the selection model would get  updated twice. 
-	    public void treeExpanded(TreeExpansionEvent event) {  
+	    public void treeExpanded(TreeExpansionEvent event) {
 	      fireTableDataChanged(); 
 	    }
             public void treeCollapsed(TreeExpansionEvent event) {  
