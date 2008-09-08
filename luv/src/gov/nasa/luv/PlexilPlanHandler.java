@@ -113,39 +113,45 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          // else if its not a property the we can ignore it
          
          else if (!Model.isProperty(localName))
-            node = null;   
+            node = null;
          
-         if (localName.equals(DECL_VAR))
-             recordDeclareVariables = true;
+         // store variable and conditon info before executing
+         // skip this 
          
-         if (localName.equals(ARRAYELEMENT))
+         if (!Luv.getLuv().getBoolean(IS_EXECUTING))
          {
-             recordArrayElement = true;
-         }                                       
-         
-         if (localName.equals(DECL_ARRAY))
-             recordDeclareArrayVariables = true;
-         
-         if (localName.contains(CONDITION))
-         {
-             condition = getConditionNum(localName);
-             recordCondition = true;
+             if (localName.equals(DECL_VAR))
+                 recordDeclareVariables = true;
+
+             if (localName.equals(ARRAYELEMENT))
+             {
+                 recordArrayElement = true;
+             }                                       
+
+             if (localName.equals(DECL_ARRAY))
+                 recordDeclareArrayVariables = true;
+
+             if (localName.contains(CONDITION))
+             {
+                 condition = getConditionNum(localName);
+                 recordCondition = true;
+             }
+
+             if (localName.equals(NOT) && recordCondition)
+             {
+                 addNOT = true;
+                 conditionElement += "!(";
+             }
+
+             if (localName.equals(LOOKUPCHANGE))
+                 lookUpChange = true;
+
+             if (localName.equals(LOOKUPFREQ))
+                 lookUpFreq = true;
+
+             if (localName.equals(LOOKUPNOW))
+                 lookUpNow = true;    
          }
-         
-         if (localName.equals(NOT) && recordCondition)
-         {
-             addNOT = true;
-             conditionElement += "!(";
-         }
-         
-         if (localName.equals(LOOKUPCHANGE))
-             lookUpChange = true;
-         
-         if (localName.equals(LOOKUPFREQ))
-             lookUpFreq = true;
-         
-         if (localName.equals(LOOKUPNOW))
-             lookUpNow = true;       
          
          // push new node onto the stack
 
@@ -165,194 +171,224 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          // get tweener text and put it in it's place
 
          String text = getTweenerText();
-         
-         if (localName.contains(CONDITION))
-         {  
-             findFirstNonNullNode().addConditionInfo(condition, equationHolder);
-             equationHolder.clear();
-             recordCondition = false;
-         }
-         
-         if (localName.equals(NOT))
-             addNOT = false;
-         
-         if (localName.equals(AND))
+    
+         if (!Luv.getLuv().getBoolean(IS_EXECUTING))
          {
-             if (conditionElement.equals(""))
+             if (localName.contains(CONDITION))
+             {  
+                 findFirstNonNullNode().addConditionInfo(condition, equationHolder);
+                 equationHolder.clear();
+                 recordCondition = false;
+             }
+
+             if (localName.equals(NOT))
+                 addNOT = false;
+
+             if (localName.equals(AND))
              {
-                 int i = equationHolder.size();
-                 if (!equationHolder.isEmpty())
+                 if (conditionElement.equals(""))
                  {
-                     String replace = equationHolder.get(i-1);
-                     equationHolder.set(i-1, " && " + replace);
+                     int i = equationHolder.size();
+                     if (!equationHolder.isEmpty())
+                     {
+                         String replace = equationHolder.get(i-1);
+                         equationHolder.set(i-1, " && " + replace);
+                     }
+                 }
+                 else
+                     conditionElement = " && " + conditionElement;
+             }
+
+             if (localName.equals(OR))
+             {
+                 for (int i = equationHolder.size(); i > 1; i--)
+                 {
+                     String replace = equationHolder.get(i-1); 
+                     if (!replace.startsWith(" && ") && !replace.startsWith(" || "))
+                         equationHolder.set(i-1, " || " + replace);
                  }
              }
-             else
-                 conditionElement = " && " + conditionElement;
-         }
-         
-         if (localName.equals(OR))
-         {
-             for (int i = equationHolder.size(); i > 1; i--)
-             {
-                 String replace = equationHolder.get(i-1); 
-                 if (!replace.startsWith(" && ") && !replace.startsWith(" || "))
-                     equationHolder.set(i-1, " || " + replace);
-             }
-         }
-                
-         if (localName.equals(LOOKUPCHANGE))
-             lookUpChange = false;
-         
-         if (localName.equals(LOOKUPFREQ))
-             lookUpFreq = false;
-         
-         if (localName.equals(LOOKUPNOW))
-             lookUpNow = false;
-         
-         if (localName.equals(IS_KNOWN))
-             conditionElement += " is known";                    
-         
-         if (localName.equals(DECL_VAR))
-         {
-             if (nameExists && typeExists && !valueExists)
-                 findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
-             
-             recordDeclareVariables = nameExists = typeExists = valueExists = false;
-         }
-         
-         if (localName.equals(DECL_ARRAY))
-         {  
-             if (arrayNameExists && arrayTypeExists && !arrayValueExists)
-                 findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
-             else
-                 findFirstNonNullNode().removeLastComma();
-                 
-             recordDeclareArrayVariables = arrayNameExists = arrayTypeExists = arrayValueExists = false;                      
-         }
-         
-         if (text != null)
-         {
-             if (recordDeclareVariables && node == null)
-             {
-                 if (localName.equals(NAME))
-                     nameExists = true;
-                 if (localName.equals(TYPE))
-                     typeExists = true;
-                 if (localName.equals(INT_VAL) || localName.equals(REAL_VAL) || localName.equals(BOOL_VAL) || localName.equals(STRING_VAL))
-                     valueExists = true;
 
-                 findFirstNonNullNode().addLocalVariableName(localName, text);
-             }
-             
-             if (recordDeclareArrayVariables && node == null)
-             {                     
-                 if (localName.equals(NAME))
-                     arrayNameExists = true;
-                 if (localName.equals(TYPE))
-                     arrayTypeExists = true;
-                 if (localName.contains(VAL))
-                 {
-                     text += ", ";
-                     localName = ARRAY_VAL;
-                     arrayValueExists = true;
-                 }
+             if (localName.equals(LOOKUPCHANGE))
+                 lookUpChange = false;
 
-                 findFirstNonNullNode().addLocalVariableName(localName, text);
+             if (localName.equals(LOOKUPFREQ))
+                 lookUpFreq = false;
+
+             if (localName.equals(LOOKUPNOW))
+                 lookUpNow = false;
+
+             if (localName.equals(IS_KNOWN))
+                 conditionElement += " is known";                    
+
+             if (localName.equals(DECL_VAR))
+             {
+                 if (nameExists && typeExists && !valueExists)
+                     findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
+
+                 recordDeclareVariables = nameExists = typeExists = valueExists = false;
              }
-             
-             if (recordCondition && node == null)
-             {   
-                 if (recordArrayElement)
+
+             if (localName.equals(DECL_ARRAY))
+             {  
+                 if (arrayNameExists && arrayTypeExists && !arrayValueExists)
+                     findFirstNonNullNode().addLocalVariableName(VAL, "nvl");
+                 else
+                     findFirstNonNullNode().removeLastComma();
+
+                 recordDeclareArrayVariables = arrayNameExists = arrayTypeExists = arrayValueExists = false;                      
+             }
+
+             if (text != null)
+             {
+                 if (recordDeclareVariables && node == null)
                  {
                      if (localName.equals(NAME))
-                         conditionElement += text;
-                     else if (localName.equals(INT_VAL) && !haveCondVar)
+                         nameExists = true;
+                     if (localName.equals(TYPE))
+                         typeExists = true;
+                     if (localName.equals(INT_VAL) || localName.equals(REAL_VAL) || localName.equals(BOOL_VAL) || localName.equals(STRING_VAL))
+                         valueExists = true;
+
+                     findFirstNonNullNode().addLocalVariableName(localName, text);
+                 }
+
+                 if (recordDeclareArrayVariables && node == null)
+                 {                     
+                     if (localName.equals(NAME))
+                         arrayNameExists = true;
+                     if (localName.equals(TYPE))
+                         arrayTypeExists = true;
+                     if (localName.contains(VAL))
                      {
-                         conditionElement += "[" + text + "]";
-                         haveCondVar = true;
-                         haveCondVal = false;
+                         text += ", ";
+                         localName = ARRAY_VAL;
+                         arrayValueExists = true;
+                     }
+
+                     findFirstNonNullNode().addLocalVariableName(localName, text);
+                 }
+
+                 if (recordCondition && node == null)
+                 {   
+                     if (recordArrayElement)
+                     {
+                         if (localName.equals(NAME))
+                             conditionElement += text;
+                         else if (localName.equals(INT_VAL) && !haveCondVar)
+                         {
+                             conditionElement += "[" + text + "]";
+                             haveCondVar = true;
+                             haveCondVal = false;
+                         }
+                         else if (localName.contains(VAL))
+                         {
+                             recordArrayElement = false;
+                             haveCondVal = true;
+                             conditionElement += " == " + text;                      
+                         }
+                         else
+                         {
+                             recordArrayElement = false;
+                             haveCondVal = false;
+                             haveCondVar = true;
+                             equationHolder.add(conditionElement);
+                             conditionElement = text;
+                         }
                      }
                      else if (localName.contains(VAL))
                      {
-                         recordArrayElement = false;
-                         haveCondVal = true;
-                         conditionElement += " == " + text;                      
+                         if (lookUpChange)
+                         {
+                             conditionElement += LOOKUPCHANGE + "(" + text + ", ";
+                         }
+                         else if (lookUpNow)
+                         {
+                             conditionElement += LOOKUPNOW + "(" + text + ")";
+                             haveCondVar = true;
+                         }
+                         else if (lookUpFreq)
+                         {
+                             conditionElement += LOOKUPFREQ + "(" + text + ")";
+                             haveCondVar = true;
+                         }
+                         else
+                         {
+                             haveCondVal = true;
+                             conditionElement += " == " + text;
+                         }                      
                      }
-                     else
+                     else if (localName.contains(VAR) || localName.equals(NODE_ID) || localName.equals(NODEREF) && !recordArrayElement)
                      {
-                         recordArrayElement = false;
-                         haveCondVal = false;
                          haveCondVar = true;
+                         conditionElement += text;
+                         if (lookUpChange)
+                             conditionElement += ")";
+                     }
+
+                     if (haveCondVal && haveCondVar)
+                     {
+                         haveCondVal = false;                         
+                         haveCondVar = false;
+
+                         if (addNOT)
+                             conditionElement += ")";
+
                          equationHolder.add(conditionElement);
-                         conditionElement = text;
+                         conditionElement = "";
                      }
                  }
-                 else if (localName.contains(VAL))
-                 {
-                     if (lookUpChange)
-                     {
-                         conditionElement += LOOKUPCHANGE + "(" + text + ", ";
-                     }
-                     else if (lookUpNow)
-                     {
-                         conditionElement += LOOKUPNOW + "(" + text + ")";
-                         haveCondVar = true;
-                     }
-                     else if (lookUpFreq)
-                     {
-                         conditionElement += LOOKUPFREQ + "(" + text + ")";
-                         haveCondVar = true;
-                     }
-                     else
-                     {
-                         haveCondVal = true;
-                         conditionElement += " == " + text;
-                     }                      
-                 }
-                 else if (localName.contains(VAR) || localName.equals(NODE_ID) || localName.equals(NODEREF) && !recordArrayElement)
-                 {
-                     haveCondVar = true;
-                     conditionElement += text;
-                     if (lookUpChange)
-                         conditionElement += ")";
-                 }
-                 
-                 if (haveCondVal && haveCondVar)
-                 {
-                     haveCondVal = false;                         
-                     haveCondVar = false;
-                     
-                     if (addNOT)
-                         conditionElement += ")";
-                     
-                     equationHolder.add(conditionElement);
-                     conditionElement = "";
-                 }
+
+                if (node != null)
+                   node.setProperty(localName, text);
+                if (showXmlTags)
+                   out.println(indent + text);
              }
-            
-            if (node != null)
-               node.setProperty(localName, text);
-            if (showXmlTags)
-               out.println(indent + text);
+
+             // if showing tag data, print that
+
+             if (showXmlTags)
+             {
+                indent = indent.substring(0, indent.length() - indentIncrement.length());
+                out.println(indent + localName);
+             }
+
+             // if this node shold be tailor, do that
+
+             if (node != null && localName.equals(node.getType()))
+                node.tailor();
+
+             // pop the node off the stack
+
+             stack.pop();
          }
-
-         // if showing tag data, print that
-
-         if (showXmlTags)
+         else
          {
-            indent = indent.substring(0, indent.length() - indentIncrement.length());
-            out.println(indent + localName);
+             if (text != null)
+             {
+                if (node != null)
+                   node.setProperty(localName, text);
+                if (showXmlTags)
+                   out.println(indent + text);
+             }
+
+             // if showing tag data, print that
+
+             if (showXmlTags)
+             {
+                indent = indent.substring(0, indent.length() - indentIncrement.length());
+                out.println(indent + localName);
+             }
+
+             // if this node shold be tailor, do that
+
+             if (node != null && localName.equals(node.getType()))
+                node.tailor();
+
+             // pop the node off the stack
+
+             stack.pop();
          }
-         
-         // if this node shold be tailor, do that
-
-         if (node != null && localName.equals(node.getType()))
-            node.tailor();
-
-         // pop the node off the stack
-
-         stack.pop();
       }
 
       /** Handel end of document event. */

@@ -371,7 +371,8 @@ public class Constants
       
       // debug menu
 
-      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
+      public static final int SHOW_CONDITION_MENU_ITEM      = 0;
+      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 1;
       
       // file types 
       

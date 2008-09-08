@@ -74,6 +74,7 @@ public class Luv extends JFrame
       private static boolean openedPlanViaLuvViewer      = false;        // is current instance of luv executing a plan that was opened via the viewer itself?
       private static boolean planPaused                  = false;        // is instance of luv currently paused?    
       private static boolean planStep                    = false;        // is instance of luv currently stepping?
+      private static boolean showConditions              = false;
       
       // handler instances
       
@@ -369,6 +370,8 @@ public class Luv extends JFrame
                   return planPaused;    
               case PLAN_STEP:
                   return planStep;
+              case SHOW_CONDITIONS:
+                  return showConditions;
               default:
                   return false; //error 
           }
@@ -410,6 +413,7 @@ public class Luv extends JFrame
           menuHandler.getMenu(FILE_MENU).getItem(EXIT_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(FILE_MENU).setEnabled(true);
           
+          menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_CONDITION_MENU_ITEM).setEnabled(false);
           menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(WINDOW_MENU).setEnabled(true);
       }
@@ -498,7 +502,8 @@ public class Luv extends JFrame
           }
           else
               menuHandler.getMenu(VIEW_MENU).setEnabled(false);
-          
+     
+          menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_CONDITION_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(WINDOW_MENU).setEnabled(true);
       }
@@ -974,6 +979,24 @@ public class Luv extends JFrame
                    if (exitLuv == 0)
                    {                 
                        exit();
+                   }
+               }
+         };
+         
+         LuvAction conditionsAction = new LuvAction(
+         "Enable Conditions Window", "Allow conditions window to open.", VK_C, META_MASK)
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                   showConditions = !showConditions;
+                   
+                   if (showConditions)
+                       conditionsAction.putValue(NAME, "Disable Conditions Window");
+                   else
+                   {
+                       conditionsAction.putValue(NAME, "Enable Conditions Window"); 
+                       if (ConditionsWindow.isConditionsWindowOpen())
+                           ConditionsWindow.closeConditonsWindow();
                    }
                }
          };

@@ -71,6 +71,7 @@ public class MenuHandler extends JFrame
          // show window menu
  
          menuBar.add(windowMenu);
+         windowMenu.add(Luv.getLuv().conditionsAction);
          windowMenu.add(Luv.getLuv().luvDebugWindowAction);
       }
       
