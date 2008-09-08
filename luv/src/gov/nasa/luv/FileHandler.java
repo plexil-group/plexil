@@ -30,7 +30,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.JOptionPane;import org.xml.sax.InputSource;
+import javax.swing.JOptionPane;
+import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -143,10 +144,13 @@ public class FileHandler
           {
               case PLAN:
                   plan = getPlan();
+                  break;
               case SCRIPT:
                   script = getScript();
+                  break;
               case DEBUG:
                   debug = null;
+                  break;
               default:
                   ; //error
           }
@@ -158,10 +162,13 @@ public class FileHandler
           {
               case PLAN:
                   plan = null;
+                  break;
               case SCRIPT:
                   script = null;
+                  break;
               case DEBUG:
                   debug = null;
+                  break;
               default:
                   ; //error
           }
@@ -178,12 +185,6 @@ public class FileHandler
         }              
         
         plan = new File(getRecentPlanName(1));
-        
-        while (!plan.canRead())
-        {
-            JOptionPane.showMessageDialog(Luv.getLuv(), "Please select a plan.");
-            choosePlan();
-        }
 
         return plan;  
     }
@@ -484,8 +485,6 @@ public class FileHandler
          String scriptName = getRecentScriptName(index);
          if (planName != null)
          {
-            if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION))
-                 Luv.getLuv().getStatusMessageHandler().showStatus("Reloading " + planName);
             loadPlan(new File(planName), Luv.getLuv().getLibraryHandler().getRecentLibNames(index, false));
             if (scriptName != null && !scriptName.equals(UNKNOWN))
             {
@@ -529,8 +528,7 @@ public class FileHandler
 
       public void readPlan(Model model, File file)
       {
-         if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION))
-             Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + file);
+         Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + file);
          try
          {
             parseXml(new FileInputStream(file), model);
@@ -584,20 +582,5 @@ public class FileHandler
          }
 
          return isPlan;
-      }
-      
-      public void loadEmptyPlan() throws IOException
-      {
-          String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
-          path = path + System.getProperty(PROP_FILE_SEPARATOR);
-          String planName = path + "EmptyPlan.plx";
-          FileWriter empty = new FileWriter(planName);
-          BufferedWriter out = new BufferedWriter(empty);
-          out.write(EMPTY_PLAN);
-          out.close();                          
-          File emptyPlan = new File(planName);
-          Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + PROP_RECENT_FILE, plan.getAbsolutePath());
-          
-          loadPlan(emptyPlan); 
       }
 }

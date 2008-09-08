@@ -370,10 +370,8 @@ public class Constants
       public static final int TOGGLE_LISP_NODES_MENU_ITEM   = 3;
       
       // debug menu
-     
-      public static final int SHOW_CONDITIONS_MENU_ITEM     = 0;
-      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 1;
-      public static final int SHOW_CMD_DEBUG_MENU_ITEM      = 2;
+
+      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
       
       // file types 
       
@@ -428,8 +426,6 @@ public class Constants
       public static final String RELOAD_PLAN = "Reload Plan";
       public static final String SHOW_LUV_VIEWER_DEBUG_WINDOW = "Show Luv Viewer Debug Window";
       public static final String HIDE_LUV_VIEWER_DEBUG_WINDOW = "Hide Luv Viewer Debug Window";
-      public static final String SHOW_CMD_PROMPT_DEBUG_WINDOW = "Show Command Prompt Debug Window";
-      public static final String HIDE_CMD_PROMPT_DEBUG_WINDOW = "Hide Command Prompt Debug Window";
 
       // boolean constant values
 

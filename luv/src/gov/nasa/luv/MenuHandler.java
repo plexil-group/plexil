@@ -71,7 +71,6 @@ public class MenuHandler extends JFrame
          // show window menu
  
          menuBar.add(windowMenu);
-         windowMenu.add(Luv.getLuv().conditionsAction);
          windowMenu.add(Luv.getLuv().luvDebugWindowAction);
       }
       
@@ -150,8 +149,6 @@ public class MenuHandler extends JFrame
           
           // disable window menu
           
-          if (windowMenu.getItemCount() > 0)
-              windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(false);
           windowMenu.setEnabled(false);
       }
       

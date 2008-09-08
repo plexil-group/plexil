@@ -60,6 +60,8 @@ public class Luv extends JFrame
 {
       // variables
     
+      private static String lastAction = "Start";
+    
       private static int stepToStart                     = 0;            // if using step option at beginning
     
       private static boolean allowBreaks                 = false;        // is current instance of luv have breaks enabled?
@@ -72,9 +74,6 @@ public class Luv extends JFrame
       private static boolean openedPlanViaLuvViewer      = false;        // is current instance of luv executing a plan that was opened via the viewer itself?
       private static boolean planPaused                  = false;        // is instance of luv currently paused?    
       private static boolean planStep                    = false;        // is instance of luv currently stepping?
-      private static boolean showConditions              = false;     
-      private static boolean stopExecution               = false;
-      private static boolean resetBreaks                 = false;
       
       // handler instances
       
@@ -339,9 +338,6 @@ public class Luv extends JFrame
               case PLAN_STEP:
                   planStep = value;
                   break;
-              case STOPPED_EXECUTION:
-                  stopExecution = value;
-                  break;
               default:
                  ; //error
           }
@@ -373,10 +369,6 @@ public class Luv extends JFrame
                   return planPaused;    
               case PLAN_STEP:
                   return planStep;
-              case SHOW_CONDITIONS:
-                  return showConditions;
-              case STOPPED_EXECUTION:
-                  return stopExecution;
               default:
                   return false; //error 
           }
@@ -397,7 +389,6 @@ public class Luv extends JFrame
           openedPlanViaLuvViewer = false;
           executedViaCommandPrompt = false;
           planPaused = false;
-          //planStep = false;
           
           model.clear();  
           
@@ -419,7 +410,6 @@ public class Luv extends JFrame
           menuHandler.getMenu(FILE_MENU).getItem(EXIT_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(FILE_MENU).setEnabled(true);
           
-          menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_CONDITIONS_MENU_ITEM).setEnabled(false);
           menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(WINDOW_MENU).setEnabled(true);
       }
@@ -508,8 +498,7 @@ public class Luv extends JFrame
           }
           else
               menuHandler.getMenu(VIEW_MENU).setEnabled(false);
-
-          menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_CONDITIONS_MENU_ITEM).setEnabled(true);
+          
           menuHandler.getMenu(WINDOW_MENU).getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
           menuHandler.getMenu(WINDOW_MENU).setEnabled(true);
       }
@@ -517,7 +506,6 @@ public class Luv extends JFrame
       public void executionState()
       {
           isExecuting = true;
-          stopExecution = false;
           
           readyState();
           
@@ -760,6 +748,7 @@ public class Luv extends JFrame
                   isExecuting = false;
                   executedViaCommandPrompt = false;
                   setLuvViewerState(READY_STATE);
+                  lastAction = "Opened Plan";
                }
          };
       
@@ -783,10 +772,14 @@ public class Luv extends JFrame
                {
                    if (executedViaLuvViewer || openedPlanViaLuvViewer)
                    {
+                      openedPlanViaLuvViewer = true;
+                      isExecuting = false;
+                      executedViaCommandPrompt = false;
                       setLuvViewerState(READY_STATE);
                       fileHandler.loadRecentPlan(1);
                       if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
                             refreshPopUpNodeWindow();
+                      lastAction = "Reloaded Plan";
                    }
                    else
                    {
@@ -854,10 +847,13 @@ public class Luv extends JFrame
                 try {
                     
                     if (!isExecuting && !executedViaCommandPrompt)
-                    {    
+                    {   
+                        if (lastAction.equals("Executed Plan Via Luv"))
+                            reloadAction.actionPerformed(e);
                         setLuvViewerState(LUV_VIEWER_EXECUTION_STATE);
                         executionViaLuvViewerHandler.runExec();
                         menuHandler.getMenu(RUN_MENU).getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+                        lastAction = "Executed Plan Via Luv";
                     }
     
                 } catch (IOException ex) {
@@ -978,23 +974,6 @@ public class Luv extends JFrame
                    if (exitLuv == 0)
                    {                 
                        exit();
-                   }
-               }
-         };
-         
-      LuvAction conditionsAction = new LuvAction(
-         "Enable Conditions Window", "Allow conditions window to open.", VK_C, META_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                   showConditions = !showConditions;
-                   
-                   if (showConditions)
-                       conditionsAction.putValue(NAME, "Disable Conditions Window");
-                   else
-                   {
-                       conditionsAction.putValue(NAME, "Enable Conditions Window");  
-                       ConditionsWindow.closeConditonsWindow();
                    }
                }
          };
