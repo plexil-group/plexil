@@ -12,13 +12,19 @@ else
 	OPENGL_LIBS += -lGL -lGLU -lglut
 endif
 
-LIBS += -lpthread ../SSWGComm/Unix/lib/libsswgcomm.a
 
 BIN_DIR   = bin
 LIB_DIR   = lib
 OBJ_DIR   = objs
-
 LIB_NAME = robosim
+
+LIBS = -lpthread 
+
+ifdef SHARED
+ LIBS += -L../SSWGComm/Unix/lib -lsswgcomm
+else
+ LIBS += ../SSWGComm/Unix/lib/libsswgcomm.a
+endif
 
 CXX	= g++
 OBJ_EXT = .o
@@ -30,9 +36,9 @@ ifdef SHARED
  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
 else
  LIB_EXT = .a
- ROBOSIM_LIBS += $(LIB_DIR)/$(LIB_TARGET)
 endif
 
+ROBOSIM_LIBS += $(LIB_DIR)/$(LIB_TARGET)
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 ROBOSIM_TARGET = robotSimulator
 TESTEXEC_TARGET = testExec

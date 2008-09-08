@@ -8,7 +8,13 @@ INCLUDES += -I$(PLEXIL_HOME)/universal-exec/TinyXml/base -I$(PLEXIL_HOME)/univer
 
 LIB_DIRS += -L$(PLEXIL_HOME)/universal-exec/lib  -L$(PLEXIL_HOME)/interfaces/lib 
 
-LIBS += -lpthread $(ROBOSIM_HOME)/SSWGComm/Unix/lib/libsswgcomm.a  -lLuvListener_g -lPlexilInterface_g -lPlexilUtils_g -lPlexilTinyXml_g -lSockets_g -lExec_g
+LIBS += -lpthread -lLuvListener_g -lPlexilInterface_g -lPlexilUtils_g -lPlexilTinyXml_g -lSockets_g -lExec_g
+
+ifdef SHARED
+ LIBS += -L$(ROBOSIM_HOME)/SSWGComm/Unix/lib/ -lsswgcomm
+else
+ LIBS += $(ROBOSIM_HOME)/SSWGComm/Unix/lib/libsswgcomm.a
+endif
 
 BIN_DIR   = bin
 LIB_DIR   = lib
