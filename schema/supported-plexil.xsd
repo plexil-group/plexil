@@ -178,25 +178,26 @@
     </xsd:complexType>
   </xsd:element>
   <xsd:element name="NodeId" type="xsd:NCName"/>
-  <xsd:attribute name="dir">
-    <xsd:simpleType>
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="parent"/>
-        <xsd:enumeration value="sibling"/>
-        <xsd:enumeration value="child"/>
-        <xsd:enumeration value="self"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-  </xsd:attribute>
+
   <xsd:element name="NodeRef">
     <xsd:complexType>
       <xsd:simpleContent>
         <xsd:extension base="NCNameOrEmpty">
-          <xsd:attribute ref="dir"/>
+          <xsd:attribute name="dir">
+            <xsd:simpleType>
+              <xsd:restriction base="xsd:NMTOKEN">
+                <xsd:enumeration value="parent"/>
+                <xsd:enumeration value="sibling"/>
+                <xsd:enumeration value="child"/>
+                <xsd:enumeration value="self"/>
+              </xsd:restriction>
+            </xsd:simpleType>
+          </xsd:attribute>
         </xsd:extension>
       </xsd:simpleContent>
     </xsd:complexType>
   </xsd:element>
+
   <xsd:element name="NodeBody">
     <xsd:complexType>
       <xsd:choice>
