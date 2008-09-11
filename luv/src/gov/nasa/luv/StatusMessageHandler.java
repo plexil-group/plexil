@@ -26,24 +26,40 @@
 
 package gov.nasa.luv;
 
-import javax.swing.JLabel;
-import java.util.LinkedList;
 import java.awt.Color;
+import java.util.LinkedList;
+import javax.swing.JLabel;
 
 import static java.lang.System.*;
 
 public class StatusMessageHandler
-{
-    private LinkedList<StatusMessage> statusMessageQ = new LinkedList<StatusMessage>();         // queue of status messages
+{    
+    private LinkedList<StatusMessageHandler> StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();         // queue of status messages
+    
+    public static final StatusMessageHandler BLANK_MESSAGE = new StatusMessageHandler(" ", Color.BLACK, 0);
+
+    boolean abortAutoClear = false;
+    long    autoClearTime = 0;
+    Color   color = Color.BLACK;
+    String  message;
+
+    public StatusMessageHandler() {}
+    
+    public StatusMessageHandler(String message, Color color, long autoClearTime)
+    {
+       this.message = message;
+       this.color = color;
+       this.autoClearTime = autoClearTime;
+    }   
     
     public void clearStatusMessageQ()
     {
-        statusMessageQ = new LinkedList<StatusMessage>();
+        StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
     }
     
-    public LinkedList getStatusMessageQ()
+    public LinkedList getStatusMessageHandlerQ()
     {
-        return statusMessageQ;
+        return StatusMessageHandlerQ;
     }
     
     /** Creates and returns the status bar thread.
@@ -59,11 +75,11 @@ public class StatusMessageHandler
                {
                   try
                   {
-                     StatusMessage lastMessage = null;
+                     StatusMessageHandler lastMessage = null;
                      
                      while (true)
                      {
-                        if (!statusMessageQ.isEmpty())
+                        if (!StatusMessageHandlerQ.isEmpty())
                         {
                            // kill any preceeding auto clear thread
 
@@ -72,8 +88,8 @@ public class StatusMessageHandler
 
                            // get the message
 
-                           final StatusMessage message = 
-                              statusMessageQ.removeFirst();
+                           final StatusMessageHandler message = 
+                              StatusMessageHandlerQ.removeFirst();
                            lastMessage = message.autoClearTime > 0 
                               ? message
                               : null;
@@ -82,7 +98,7 @@ public class StatusMessageHandler
 
                            statusBar.setForeground(message.color);
                            statusBar.setText(message.message);
-                           if (!message.message.equals(StatusMessage.BLANK_MESSAGE.message))
+                           if (!message.message.equals(StatusMessageHandler.BLANK_MESSAGE.message))
                               out.println("STATUS: " + message.message);
 
                            // if auto clear requestd start a thread for that
@@ -97,7 +113,7 @@ public class StatusMessageHandler
                                           sleep(message.autoClearTime);
                                           if (!message.abortAutoClear)
                                              statusBar.setText(
-                                                StatusMessage.BLANK_MESSAGE.message);
+                                                StatusMessageHandler.BLANK_MESSAGE.message);
                                        }
                                        catch (Exception e)
                                        {
@@ -165,14 +181,13 @@ public class StatusMessageHandler
         
       public void showStatus(String message, Color color, final long autoClearTime)
       {
-         statusMessageQ.add(new StatusMessage(message, color, autoClearTime));
+         StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
       }
 
       /** Clear the status bar. */
 
       public void clearStatus()
       {
-         statusMessageQ.add(StatusMessage.BLANK_MESSAGE);
+         StatusMessageHandlerQ.add(StatusMessageHandler.BLANK_MESSAGE);
       }
-
 }

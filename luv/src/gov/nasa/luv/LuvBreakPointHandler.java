@@ -26,6 +26,7 @@
 
 package gov.nasa.luv;
 
+import java.awt.Color;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
 import javax.swing.JPopupMenu;
@@ -43,11 +44,10 @@ public class LuvBreakPointHandler
     
       // breakpoint variables
       
-      private BreakPoint breakPoint = null;                              // if break has occured, the causal break point object
-      private HashMap<BreakPoint, ModelPath> breakPointMap 
-              = new HashMap<BreakPoint, ModelPath>();                    // collection of all breakpoints
-      private Vector<BreakPoint> unfoundBreakPoints 
-              = new Vector<BreakPoint>();                                // breakpoints not found in current plan   
+      private BreakPoint breakPoint = null;                                                         // if break has occured, the causal break point object
+      private HashMap<BreakPoint, ModelPath> breakPointMap = new HashMap<BreakPoint, ModelPath>();  // collection of all breakpoints
+      private Vector<BreakPoint> unfoundBreakPoints = new Vector<BreakPoint>();                     // breakpoints not found in current plan   
+      private Vector<String> breakPointList = new Vector<String>();                                 // list of breakpoints to check for repeats
       
       public void setBreakPoint(BreakPoint bp)
       {
@@ -93,10 +93,18 @@ public class LuvBreakPointHandler
       public void addBreakPoint(BreakPoint breakPoint, Model model)
       {
          ModelPath mp = new ModelPath(model);
-         breakPointMap.put(breakPoint, mp);
+         
+         if (!breakPointList.contains(breakPoint + mp.toString()))
+         {
+             breakPointList.add(breakPoint + mp.toString());
 
-         Luv.getLuv().getStatusMessageHandler().showStatus("Added break on " + breakPoint, 5000l);
-         Luv.getLuv().getViewHandler().refreshView();
+             breakPointMap.put(breakPoint, mp);
+
+             Luv.getLuv().getStatusMessageHandler().showStatus("Added break on " + breakPoint, 5000l);
+             Luv.getLuv().getViewHandler().refreshView();
+         }
+         else
+             Luv.getLuv().getStatusMessageHandler().showStatus("\"" + breakPoint + "\" breakpoint has already been added.", Color.RED, 5000l);
       }
 
       /** Remove breakpoint from grand list of breakpoints.
@@ -354,8 +362,6 @@ public class LuvBreakPointHandler
                      {
                         for (final BreakPoint bp3: bps)
                            removeBreakPoint(bp3);
-                        
-                        Luv.getLuv().getMenuHandler().updateRunMenu();
                      }
                });
          }
@@ -374,49 +380,6 @@ public class LuvBreakPointHandler
             if (model == bp.getModel())
                bps.add(bp);
          return bps;
-      }
-      
-      public void addBreakMenu()
-      {
-            Luv.getLuv().getMenuHandler().getMenu(RUN_MENU).add(new JSeparator());
-            
-            JMenu breakMenu = new JMenu("Break Points");
-            Luv.getLuv().getMenuHandler().getMenu(RUN_MENU).add(breakMenu);
-            
-            // add all the break points
-
-            for (final BreakPoint bp: breakPointMap.keySet())
-            {
-               String actionStr = bp.isEnabled() ? "Disable" : "Enable";
-               LuvAction action = new LuvAction(
-                  actionStr + " " + bp,
-                  actionStr + " the breakpoint " + 
-                  bp + ".")
-                  {
-                        public void actionPerformed(ActionEvent e)
-                        {
-                           bp.setEnabled(!bp.isEnabled());
-                           Luv.getLuv().getMenuHandler().updateRunMenu();
-                           Luv.getLuv().getViewHandler().refreshView();
-                        }
-                  };
-               
-               breakMenu.add(action);
-
-               if (unfoundBreakPoints.contains(bp))
-                  action.setEnabled(false);
-            }
-
-            // add enabled disable all items
-
-            breakMenu.add(new JSeparator());
-            breakMenu.add(enableBreakpointsAction);
-            breakMenu.add(disableBreakpointsAction);
-
-            // add enabled remove all items
-
-            breakMenu.add(new JSeparator());
-            breakMenu.add(removeAllBreakpointsAction);
       }
       
       /******************************* Actions ********************************/

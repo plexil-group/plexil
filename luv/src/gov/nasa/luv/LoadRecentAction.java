@@ -48,7 +48,7 @@ public class LoadRecentAction extends LuvAction
     public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
     {
        super(Luv.getLuv().getFileHandler().getRecentPlanName(recentIndex),
-             Luv.getLuv().getMenuHandler().getRecentMenuDescription(recentIndex),
+             Luv.getLuv().getRecentMenuDescription(recentIndex),
              keyCode, 
              modifiers);
        this.recentIndex = recentIndex;
@@ -63,6 +63,8 @@ public class LoadRecentAction extends LuvAction
     public void actionPerformed(ActionEvent e)
     {
        Luv.getLuv().getFileHandler().loadRecentPlan(recentIndex);
-       Luv.getLuv().setLuvViewerState(READY_STATE);   
+       Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
+       Luv.getLuv().setBoolean(EXEC_VIA_CMD_PRMPT, false); 
+       Luv.getLuv().setLuvViewerState(READY_STATE);        
     }
 }

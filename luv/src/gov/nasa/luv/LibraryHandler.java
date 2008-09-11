@@ -141,62 +141,7 @@ public class LibraryHandler
                    // if we didn't make the link, ask user for library
 
                    if (retry)
-                   {
-                      // option
-
-                      Object[] options = 
-                         {
-                            "I will locate library",
-                            "Do not load this library",
-                            "Cancel plan loading",
-                         };
-
-                      // show the options
-
-                      Luv.getLuv().getStatusMessageHandler().showStatus("Unable to locate the \"" + callName + "\" library\n\n", 1000);
-                      int result = JOptionPane.showOptionDialog(
-                         Luv.getLuv(),
-                         "Unable to locate the \"" + callName + "\" library.\n\n" +
-                         "What do you want to do?\n\n",
-                         "Load the library?",
-                         JOptionPane.YES_NO_CANCEL_OPTION,
-                         JOptionPane.WARNING_MESSAGE,
-                         null,
-                         options,
-                         options[0]);
-
-                      // process the results
-
-                      switch (result)
-                      {
-                         // try to load the library and retry the link
-
-                         case 0:
-                            chooseLibrary();
-                            break;
-
-                            // if the user doesn't want to find this library
-                            // go on with link but don't retry to like this
-                            // one
-
-                         case 1:
-                             Luv.getLuv().getViewHandler().resetView();
-                             Luv.getLuv().getMenuHandler().addRecent();
-                             libraries.clear();
-                             retry = false;
-                             Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                             break;
-
-                         // if the user doesn't want to load any libraries,
-                         // halt the link operation now
-
-                         case 2:
-                             Luv.getLuv().setLuvViewerState(START_STATE);
-                             retry = false;
-                             Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                             break;
-                      }
-                   }
+                       retry = unfoundLibrary(callName);
                 }
                 while (retry);           
             }
@@ -263,7 +208,7 @@ public class LibraryHandler
          libraries.add(library.findChild(NODE));
       }
       
-      public void unfoundLibrary(String callName)
+      public boolean unfoundLibrary(String callName)
       {
           boolean retry = true;
           do
@@ -304,6 +249,7 @@ public class LibraryHandler
 
                      case 0:
                         chooseLibrary();
+                        retry = false;
                         break;
 
                         // if the user doesn't want to find this library
@@ -312,7 +258,7 @@ public class LibraryHandler
 
                      case 1:
                          Luv.getLuv().getViewHandler().resetView();
-                         Luv.getLuv().getMenuHandler().addRecent();
+                         Luv.getLuv().addFileToRecentFileList();
                          libraries.clear();
                          retry = false;
                          Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
@@ -329,6 +275,8 @@ public class LibraryHandler
                   }
                }
             } while (retry); 
+          
+          return retry;
       }
       
       /** Get a list of library names associated with a recently loaded plan.

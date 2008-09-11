@@ -394,12 +394,13 @@ public class FileHandler
       
       // Select and load a plexil plan from the disk.  This operates on the global model.
       
-      public void choosePlan()
+      public int choosePlan()
       {
+         int option = -1;
          try
          {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR)));
-            int option = fileChooser.showOpenDialog(Luv.getLuv());
+            option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option)
             {
@@ -419,12 +420,14 @@ public class FileHandler
                     break;
                 case ERROR_OPTION:
                     break;
-            }
+            }           
          }
          catch(Exception e)
          {
             e.printStackTrace();
          }
+         
+         return option;
       }
       
       /**
@@ -489,7 +492,7 @@ public class FileHandler
          if(!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
          {
              Luv.getLuv().getViewHandler().resetView();
-             Luv.getLuv().getMenuHandler().addRecent();
+             Luv.getLuv().addFileToRecentFileList();
              Luv.getLuv().getLibraryHandler().clearLibraries();
          }
          

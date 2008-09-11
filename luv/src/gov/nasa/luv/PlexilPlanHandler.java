@@ -366,8 +366,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
              // pop the node off the stack
 
-             stack.pop();
-         
+             stack.pop();        
       }
 
       /** Handel end of document event. */

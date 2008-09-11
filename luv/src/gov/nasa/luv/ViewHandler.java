@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import java.awt.Container;
-import java.awt.Color;
 import java.awt.BorderLayout;
 
 import java.util.Map;
@@ -70,7 +69,6 @@ public class ViewHandler
       public void refreshView()
       {
          ((Container)currentView).repaint();
-         Luv.getLuv().getMenuHandler().updateRunMenu();
       }
 
       /**
@@ -98,15 +96,15 @@ public class ViewHandler
 
          // insert the view menu items
 
-         Luv.getLuv().getMenuHandler().removeAllFromMenu(VIEW_MENU); 
+         Luv.getLuv().removeAllFromMenu(VIEW_MENU); 
          for(LuvAction action: currentView.getViewActions())
-            Luv.getLuv().getMenuHandler().getMenu(VIEW_MENU).add(action);
-         Luv.getLuv().getMenuHandler().getMenu(VIEW_MENU).add(Luv.getLuv().showHidePrlNodes);
+            Luv.getLuv().getMenu(VIEW_MENU).add(action);
+         Luv.getLuv().getMenu(VIEW_MENU).add(Luv.getLuv().showHidePrlNodes);
 
 
          // enable that menu if we actally have menu items
          
-         Luv.getLuv().getMenuHandler().getMenu(VIEW_MENU).setEnabled(Luv.getLuv().getMenuHandler().getMenu(VIEW_MENU).getMenuComponentCount() > 0);
+         Luv.getLuv().getMenu(VIEW_MENU).setEnabled(Luv.getLuv().getMenu(VIEW_MENU).getMenuComponentCount() > 0);
          Luv.getLuv().setLocation(Luv.getLuv().getLocation());
 
          // size everything
@@ -151,10 +149,6 @@ public class ViewHandler
             else
                Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().add(breakPoint);
          }
-
-         // update the run menu
-
-         Luv.getLuv().getMenuHandler().updateRunMenu();
       }
 
 }
