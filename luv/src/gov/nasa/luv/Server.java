@@ -115,6 +115,7 @@ public abstract class Server
       {
          try
          {
+             
             // get the input stream for this socket and setup a message buffer
             
             InputStream is = s.getInputStream();
@@ -140,8 +141,8 @@ public abstract class Server
                   {                  
                      // handle the message
 
-                     handleMessage(message.toString());                 
-                     message = new StringBuilder();
+                      handleMessage(message.toString());
+                      message = new StringBuilder();
                      
                      // if the viewer is should block, do so after message handled
 
@@ -191,7 +192,6 @@ public abstract class Server
                if (timePassed > oneMinute)
                {
                    ++minutesPassed;
-                   //Luv.getLuv().setLuvViewerState(END_STATE);
                    Luv.getLuv().getStatusMessageHandler().showStatus("Time elapsed with no activity: " + minutesPassed + " minute(s) and counting...");   
                    oldTime = newTime;
                }

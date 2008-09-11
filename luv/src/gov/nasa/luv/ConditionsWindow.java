@@ -48,7 +48,7 @@ public class ConditionsWindow extends JPanel
     static String status;
     static JFrame frame;
     static ConditionsWindow conditionsPane;
-    int rows = 0;
+    int rows = 1000;
     int columns = 3;
     String info[][];
     JTable table;
@@ -65,10 +65,10 @@ public class ConditionsWindow extends JPanel
                                 "Value",
                                 "Expression"};
         
-        rows = model.conditionMap.size();
         int row = 0;
         int col = 0;
         info = new String[rows][columns];
+        String str = "";
         
         for (final String condition: ALL_CONDITIONS)
         {
@@ -80,8 +80,39 @@ public class ConditionsWindow extends JPanel
                 info[row][col] = condition; 
                 ++col;
                 info[row][col] = status;
-                ++col;
-                info[row][col] = element;
+                ++col;     
+                
+                String ands[] = element.split(" AND ");
+                
+                for (int i = 0; i < ands.length; i++)
+                {
+                    if (i > 0)
+                        str = "AND " + ands[i];
+                    else
+                        str = ands[i];
+                    
+                    String ors[] = str.split(" OR ");
+                    
+                    if (ors.length > 1)
+                    {
+                        for (int j = 0; j < ors.length; j++)
+                        {
+                            if (j > 0)
+                                str = "OR " + ors[j];
+                            else 
+                                str = ors[j];
+                            
+                            info[row][2] = str;
+                            row++;
+                        }
+                    }
+                    else
+                    {      
+                        info[row][2] = str;
+                        row++;
+                    }
+                }
+                
                 col = 0;
                 ++row;
             }
@@ -131,9 +162,9 @@ public class ConditionsWindow extends JPanel
 
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(1000);
+        table.getColumnModel().getColumn(2).setPreferredWidth(500);
         
-        table.setPreferredScrollableViewportSize(new Dimension(1300, 300));
+        table.setPreferredScrollableViewportSize(new Dimension(800, 300));
 
         table.setShowGrid(false);
 

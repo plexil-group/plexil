@@ -71,7 +71,6 @@ public class MenuHandler extends JFrame
          // show window menu
  
          menuBar.add(windowMenu);
-         windowMenu.add(Luv.getLuv().conditionsAction);
          windowMenu.add(Luv.getLuv().luvDebugWindowAction);
       }
       
@@ -184,15 +183,14 @@ public class MenuHandler extends JFrame
          runMenu.add(Luv.getLuv().execAction);
          
          if (!Luv.getLuv().getBoolean(IS_EXECUTING))
-         {
              runMenu.getItem(BREAK_MENU_ITEM).setEnabled(true);
-             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
-         }
          else
-         {
              runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+
+         if (!Luv.getLuv().getBoolean(EXEC_VIA_CMD_PRMPT))
+             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+         else
              runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
-         }
 
           // add break point menu
 

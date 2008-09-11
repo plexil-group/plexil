@@ -41,6 +41,18 @@ public class LibraryHandler
       private Vector<Model> libraries = new Vector<Model>();        
       private Vector<String> callNameList = new Vector<String>(); 
       
+      public String getLibraryNames()
+      {
+          String libraryNames = "";
+              
+          for (int i = 0; i < callNameList.size(); i++)
+          {
+              libraryNames += " -l " + callNameList.elementAt(i) + ".plx";
+          }
+          
+          return libraryNames;          
+      }
+      
       public void clearCallNameList()
       {
           callNameList.clear();

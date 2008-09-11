@@ -118,8 +118,6 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          // store variable and conditon info before executing
          // skip this 
          
-         if (!Luv.getLuv().getBoolean(IS_EXECUTING))
-         {
              if (localName.equals(DECL_VAR))
                  recordDeclareVariables = true;
 
@@ -151,7 +149,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
              if (localName.equals(LOOKUPNOW))
                  lookUpNow = true;    
-         }
+         
          
          // push new node onto the stack
 
@@ -172,8 +170,6 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
          String text = getTweenerText();
     
-         if (!Luv.getLuv().getBoolean(IS_EXECUTING))
-         {
              if (localName.contains(CONDITION))
              {  
                  findFirstNonNullNode().addConditionInfo(condition, equationHolder);
@@ -192,11 +188,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      if (!equationHolder.isEmpty())
                      {
                          String replace = equationHolder.get(i-1);
-                         equationHolder.set(i-1, " && " + replace);
+                         equationHolder.set(i-1, " AND " + replace);
                      }
                  }
                  else
-                     conditionElement = " && " + conditionElement;
+                     conditionElement = " AND " + conditionElement;
              }
 
              if (localName.equals(OR))
@@ -204,8 +200,8 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  for (int i = equationHolder.size(); i > 1; i--)
                  {
                      String replace = equationHolder.get(i-1); 
-                     if (!replace.startsWith(" && ") && !replace.startsWith(" || "))
-                         equationHolder.set(i-1, " || " + replace);
+                     if (!replace.startsWith(" AND ") && !replace.startsWith(" OR "))
+                         equationHolder.set(i-1, " OR " + replace);
                  }
              }
 
@@ -219,7 +215,17 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  lookUpNow = false;
 
              if (localName.equals(IS_KNOWN))
-                 conditionElement += " is known";                    
+             {
+                 conditionElement += " is known";  
+                 haveCondVal = false;                         
+                 haveCondVar = false;
+
+                 if (addNOT)
+                     conditionElement += ")";
+
+                 equationHolder.add(conditionElement);
+                 conditionElement = "";
+             }
 
              if (localName.equals(DECL_VAR))
              {
@@ -361,34 +367,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
              // pop the node off the stack
 
              stack.pop();
-         }
-         else
-         {
-             if (text != null)
-             {
-                if (node != null)
-                   node.setProperty(localName, text);
-                if (showXmlTags)
-                   out.println(indent + text);
-             }
-
-             // if showing tag data, print that
-
-             if (showXmlTags)
-             {
-                indent = indent.substring(0, indent.length() - indentIncrement.length());
-                out.println(indent + localName);
-             }
-
-             // if this node shold be tailor, do that
-
-             if (node != null && localName.equals(node.getType()))
-                node.tailor();
-
-             // pop the node off the stack
-
-             stack.pop();
-         }
+         
       }
 
       /** Handel end of document event. */

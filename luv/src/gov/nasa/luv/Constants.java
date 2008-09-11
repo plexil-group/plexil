@@ -293,7 +293,7 @@ public class Constants
               System.getenv(PROP_PLEXIL_HOME) + 
               System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
               System.getProperty(PROP_FILE_SEPARATOR) + "TestExec" + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "test-exec_g_rt";
+              System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
       
       public static final String    PROP_RECENT_FILES =   
               System.getenv(PROP_PLEXIL_HOME) + 
@@ -371,8 +371,7 @@ public class Constants
       
       // debug menu
 
-      public static final int SHOW_CONDITION_MENU_ITEM      = 0;
-      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 1;
+      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
       
       // file types 
       
@@ -400,8 +399,7 @@ public class Constants
       public static final int OPEN_PLN_VIA_LUV              = 7;
       public static final int PLAN_PAUSED                   = 8;
       public static final int PLAN_STEP                     = 9;
-      public static final int SHOW_CONDITIONS               = 10;
-      public static final int STOPPED_EXECUTION             = 11;
+      public static final int STOPPED_EXECUTION             = 10;
       
       // Luv Viewer States
       
@@ -414,7 +412,6 @@ public class Constants
       public static final int PAUSED_STATE                  = 6;
       public static final int DISABLED_BREAKING_STATE       = 7;
       public static final int ENABLED_BREAKING_STATE        = 8;
-      public static final int END_STATE                     = 9;
       
       public static final String YES = "Yes";
       public static final String NO = "No";

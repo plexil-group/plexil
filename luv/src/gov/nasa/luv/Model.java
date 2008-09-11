@@ -48,8 +48,7 @@ public class Model extends Properties
 
       /** property change listners registered for this model */ 
 
-      private Vector<ChangeListener> changeListeners = 
-         new Vector<ChangeListener>();
+      private Vector<ChangeListener> changeListeners = new Vector<ChangeListener>();
 
       /** parent of this node */
 
@@ -146,7 +145,7 @@ public class Model extends Properties
          return type;
       }
 
-      /** Signel that a new plan has been installed under this model. */
+      /** Signal that a new plan has been installed under this model. */
 
       public void planChanged()
       {

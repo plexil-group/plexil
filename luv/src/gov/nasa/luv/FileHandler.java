@@ -136,6 +136,25 @@ public class FileHandler
           }
       }
       
+      public void setEmptyPlan() throws IOException
+      {
+          String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+          path = path + System.getProperty(PROP_FILE_SEPARATOR);
+          String planName = path + "emptyPlan";
+          FileWriter emptyPlan = new FileWriter(planName);
+          BufferedWriter out = new BufferedWriter(emptyPlan);
+          out.write(EMPTY_PLAN);
+          out.close();
+          plan = new File(planName);
+          
+          String scriptName = path + DEFAULT_SCRIPT_NAME;
+          FileWriter emptyScript = new FileWriter(scriptName);
+          BufferedWriter out2 = new BufferedWriter(emptyScript);
+          out2.write(EMPTY_SCRIPT);
+          out2.close();                          
+          script = new File(scriptName);
+      }
+      
             // return current instance of either the plan, script or debug file
          
       public void setCurrentFile(int type) throws IOException

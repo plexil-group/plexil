@@ -33,44 +33,19 @@ import static gov.nasa.luv.Constants.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 /** Used to run an instance of the Universal Executive. */
 
 public class ExecutionViaLuvViewerHandler
 {
-      /** Vector holds command line argument */
-          
-      final Vector<String> args = new Vector<String>();
-          
-      /** ue process */
-
-      Process ueProcess;
-      
-      /** thred in which ue process is started */
-
+      ExecutionViaLuvViewerHandler ee;   
+      Runtime runtime;
       Thread runThread;
-
-      /** indicates if ue is running */
-
-      boolean running = false;
       
       ExecutionViaLuvViewerHandler() {}
 
-      /** Construct a UE executor instance.
-       *
-       * @param ue the path the universal executive plan runner
-       * @param plan the path to the plan to be executed
-       * @param script the script to run against the plan
-       * @param libraries libraries to load, may be null
-       */
-
-      public ExecutionViaLuvViewerHandler(File ue, File plan, File script)
-      {
-          // populate Vector with command line arguments
-          
-          setArgs(ue, plan, script);
-          
+      public ExecutionViaLuvViewerHandler(final String command)
+      {        
           // create a new thread for the ue process
           
           runThread = new Thread()
@@ -80,10 +55,8 @@ public class ExecutionViaLuvViewerHandler
               {
                   try
                   {
-                      Runtime runtime = Runtime.getRuntime();
-                      running = true;
-                      ueProcess = runtime.exec(args.toArray(new String[args.size()]));
-                      running = false;
+                      runtime = Runtime.getRuntime();
+                      runtime.exec(command);
                   }
                   catch (Exception e)
                   {
@@ -95,126 +68,26 @@ public class ExecutionViaLuvViewerHandler
 
       /** Start running the UE. */
 
-      public InputStream start()
+      public void start()
       {
          try
-         {
-            // start the ue
-            
-            runThread.start();
-
-            // wait until we have an active process object 
-            
-            while (ueProcess == null)
-               Thread.sleep(10);
-            
+         {    
+            runThread.start();          
          }
          catch (Exception e)
          {
             e.printStackTrace();
          }
-         
-         // then return the input stream for the process
-
-         return ueProcess.getInputStream();
-      }
-
-      /** Get the input stream for the ue process.
-       *
-       * @return the stream to witch the ue process send its output
-       */
-
-      public InputStream getInputStream()
-      {
-         return ueProcess != null 
-            ? ueProcess.getInputStream()
-            : null;
-      }
-
-      /** Get the error stream for the ue process.
-       *
-       * @return the stream to witch the ue process send its errors
-       */
-
-      public InputStream getErrorStream()
-      {
-         return ueProcess != null 
-            ? ueProcess.getErrorStream()
-            : null;
-      }
-
-      /** Check to see if the UE is still running.
-       *
-       * @return true if the ue is still running, false if not
-       */
-
-      public boolean isRunning()
-      {
-         return running;
       }
       
-      public void setArgs (File ue, File plan, File script)
+      public void runExec(String command) throws IOException
       {
-          args.add(ue.toString());
-          
-          args.add("-v");
-          
-          if (Luv.getLuv().getBoolean(ALLOW_BREAKS))
-              args.add("-b");
-          
-          args.add("-p");
-          args.add(plan.toString());
-          
-          args.add("-s");
-          args.add(script.toString());
-          
-          Vector<String> libNames = Luv.getLuv().getModel().getLibraryNames();
-          
-          if (libNames.size() > 0)
-          {
-              for (String libName : libNames)
-              {
-                  args.add("-l");
-                  args.add(libName.toString());
-              }
-          }
+          ee = new ExecutionViaLuvViewerHandler(command);
+          ee.start();
       }
       
-      public void runExec() throws IOException
-      {                    
-        File ue = new File(PROP_UE_EXEC);
-        Luv.getLuv().getFileHandler().setCurrentFile(PLAN);
-        Luv.getLuv().setBoolean(DONT_LOAD_SCRIPT_AGAIN, false);
-        Luv.getLuv().getFileHandler().setCurrentFile(SCRIPT);
-
-        if (Luv.getLuv().getFileHandler().getCurrentFile(PLAN) != null && 
-            Luv.getLuv().getFileHandler().getCurrentFile(SCRIPT) != null)
-        {
-            ExecutionViaLuvViewerHandler ee = new ExecutionViaLuvViewerHandler(ue, 
-                                                                               Luv.getLuv().getFileHandler().getCurrentFile(PLAN), 
-                                                                               Luv.getLuv().getFileHandler().getCurrentFile(SCRIPT));
-
-             try
-             {
-                InputStream is = ee.start();
-                InputStream es = ee.getErrorStream();
-                while (ee.isRunning())
-                {
-                  while (is.available() > 0)
-                      out.write(is.read());
-                  while (es.available() > 0)
-                      err.write(es.read());
-                }
-                while (is.available() > 0)
-                   out.write(is.read());
-                while (es.available() > 0)
-                   err.write(es.read());
-                out.flush();
-             }
-             catch (Exception e)
-             {
-                e.printStackTrace();
-             }
-        }
+      public void killUEProcess() throws IOException
+      {
+          ee.runtime.exec("pkill -n test-exec_g_rt");
       }
 }

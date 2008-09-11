@@ -101,10 +101,7 @@ public class TreeTableView extends JTreeTable implements View
                      if (e.isPopupTrigger())
                         handlePopupEvent(e);
                      else if (e.getClickCount() == 2)
-                     {
-                         if (Luv.getLuv().getBoolean(SHOW_CONDITIONS))
-                             handleClickEvent(e);
-                     }
+                         handleClickEvent(e);
                   }
             });
          
