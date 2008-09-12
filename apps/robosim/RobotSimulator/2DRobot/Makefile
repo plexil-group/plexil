@@ -8,7 +8,7 @@ else
 		LIBS = -L/usr/lib64 
 	endif
 #	X_LIBS = -Xi -Xmu
-	X_LIBS = -L/usr/X11R6/lib -lXi -lXmu
+	X_LIBS = -L/usr/lib -L/usr/X11R6/lib -lXi -lXmu
 	OPENGL_LIBS += -lGL -lGLU -lglut
 endif
 
