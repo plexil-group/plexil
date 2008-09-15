@@ -412,6 +412,8 @@ public class Luv extends JFrame
       {
           // set only certain luv viewer variables
           
+          statusMessageHandler.showStatus("", 1000);
+          
           stepToStart = 0;
           planPaused = false;
           planStep = false;

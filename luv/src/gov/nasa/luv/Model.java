@@ -60,28 +60,7 @@ public class Model extends Properties
 
       /** An array of model tailors to customize those which need it. */
 
-      private Tailor[] tailors = 
-      {
-         new NodeTailor(),
-         new NameFromProperty(NODE_OUTCOME_VAR, NODE_ID),
-         new NameFromProperty(NODE_STATE_VAR, NODE_ID),
-         new NameFromKeyProperty(STATE_VAL),
-         new NameFromKeyProperty(STATE_NAME),
-         new NameFromKeyProperty(INT_VAL),
-         new NameFromKeyProperty(REAL_VAL),
-         new NameFromKeyProperty(STRING_VAL),
-         new BooleanFromKeyProperty(BOOL_VAL),
-         new NameFromKeyProperty(TIME_VAL),
-         new NameFromKeyProperty(BLOB_VAL),
-         new NameFromKeyProperty(NODE_OUTCOME_VAL),
-         new NameFromKeyProperty(NODE_FAILURE_VAL),
-         new NameFromKeyProperty(NODE_STATE_VAL),
-         new NameFromProperty(NODE_TIMEPOINT_VAL, NODE_ID),
-         new CommandTailor(COMMAND, COMMAND_NAME),
-         new DeclareTailor(DECL_VAR),
-         new DeclareArrayTailor(DECL_ARRAY),
-         new ArrayElementTailor(ARRAYELEMENT),
-      };
+      private NodeTailor nodeTailor = new NodeTailor();
       
       // local variable holders
       
@@ -93,15 +72,14 @@ public class Model extends Properties
       
       // condition info holders
       
-      public HashMap<Integer, String> conditionMap = new HashMap<Integer, String>();
+      public HashMap<Integer, ArrayList> conditionMap = new HashMap<Integer, ArrayList>();
 
       /** Table of model tailors to customize them as needed. */
 
-      private HashMap<String, Tailor> makerMap = new HashMap<String, Tailor>()
+      private HashMap<String, NodeTailor> makerMap = new HashMap<String, NodeTailor>()
       {
          {
-            for (Tailor tailor: tailors)
-               put(tailor.getKey(), tailor);
+            put(nodeTailor.getKey(), nodeTailor);
          }
       };
 
@@ -176,36 +154,39 @@ public class Model extends Properties
       }
       
       public void addConditionInfo(int condition, ArrayList<String> equationHolder)
-      {             
+      { 
           if (!equationHolder.isEmpty())
-          {   
-              String elements = "";
-              for (int i = 0; i < equationHolder.size(); i++)
-                  elements += equationHolder.get(i);
-              
-              conditionMap.put(condition, elements);
-          }
+              conditionMap.put(condition, equationHolder);
       }
       
       public void addLocalVariableName(String name, String value)
       {
           if (value == null)
               ;
-          else if (name.equals(NAME))
-          {
+          else if (name.contains(VAR))
+          {      
+              if (name.equals(INT_VAR))
+                  declTypeVarList.add(INT);
+              else if (name.equals(BOOL_VAR))
+                  declTypeVarList.add(BOOL);
+              else if (name.equals(STRING_VAR))
+                  declTypeVarList.add(STRING);
+              else if (name.equals(REAL_VAR))
+                  declTypeVarList.add(REAL);
+              
+              declVarMap.put(TYPE, declTypeVarList); 
+              
               declNameVarList.add(value);
-              declVarMap.put(name, declNameVarList);              
-          }
-          else if (name.equals(TYPE))
-          {
-              declTypeVarList.add(value);
-              declVarMap.put(name, declTypeVarList); 
+              declVarMap.put(NAME, declNameVarList);              
           }
           else if (name.equals(MAXSIZE))
           {
-              int i = declNameVarList.size();
-              String newValue = declNameVarList.get(i-1) + "[" + value + "]";
-              declNameVarList.set(i-1, newValue);
+              if (!declNameVarList.isEmpty())
+              {
+                  int i = declNameVarList.size();
+                  String newValue = declNameVarList.get(i-1) + "[" + value + "]";
+                  declNameVarList.set(i-1, newValue);
+              }
           }
           else if (name.equals(ARRAY_VAL))
           {
@@ -545,58 +526,17 @@ public class Model extends Properties
 
       public void tailor()
       {
-         Tailor tailor = makerMap.get(type);
+         NodeTailor tailor = makerMap.get(type);
          if (tailor != null)
             tailor.tailor(this);
       }
 
-      /**
-       * Base class from which model tailors are derrived.
-       */
+      // Tailor a node
 
-      public static abstract class Tailor
+      public static class NodeTailor
       {
-            String key;
-
-            public Tailor(String key)
-            {
-               this.key = key;
-            }
-
-            String getKey()
-            {
-               return key;
-            }
-            
-            abstract void tailor(Model model);
-      }
-
-      /**
-       * Map a property into the model name.
-       */
-
-      public static class NameFromProperty extends Tailor
-      {
-            String propertyName;
-
-            public NameFromProperty(String key, String propertyName)
-            {
-               super(key);
-               this.propertyName = propertyName;
-            }
-
-            void tailor(Model model)
-            {
-               model.setProperty(MODEL_NAME, model.getProperty(propertyName));
-            }
-      }
-
-      /**
-       * Talor a "node" node;
-       */
-
-      public static class NodeTailor extends Tailor
-      {
+          String key;
+          
             static HashMap<String, String> typeLut = new HashMap<String, String>()
             {
                {
@@ -614,7 +554,12 @@ public class Model extends Properties
 
             public NodeTailor()
             {
-               super(NODE);
+               this.key = NODE;
+            }
+            
+            String getKey()
+            {
+               return key;
             }
             
             void tailor(Model model)
@@ -644,143 +589,6 @@ public class Model extends Properties
                   model.setProperty(MODEL_LIBRARY_CALL_ID,
                                     libcall.getProperty(NODE_ID));
                }
-            }
-      };
-      
-      /**
-       * Map model type property into the model name.
-       */
-
-      public static class NameFromKeyProperty extends NameFromProperty
-      {
-            public NameFromKeyProperty(String key)
-            {
-               super(key, key);
-            }
-      }
-
-      /**
-       * Collects and converts a boolean value. 
-       */
-
-      public static class BooleanProperty extends NameFromProperty
-      {
-            public BooleanProperty(String key, String propertyName)
-            {
-               super(key, propertyName);
-            }
-
-            void tailor(Model model)
-            {
-               String value = model.getProperty(propertyName);
-               if (value.equals("0"))
-                  value = TRUE;
-               else if (value.equals("1"))
-                  value = FALSE;
-               model.setProperty(MODEL_NAME, value.toUpperCase());
-            }
-      }
-
-      /**
-       * Collects and converts a boolean value. 
-       */
-
-      public static class BooleanFromKeyProperty extends BooleanProperty
-      {
-            public BooleanFromKeyProperty(String key)
-            {
-               super(key, key);
-            }
-      }
-
-      /**
-       * Tailor a command node.
-       */
-
-      public static class CommandTailor extends NameFromProperty
-      {
-            public CommandTailor(String key, String propertyName)
-            {
-               super(key, propertyName);
-            }
-
-            void tailor(Model model)
-            {
-               StringBuffer name = new StringBuffer(
-                  "Command: " + model.getProperty(propertyName) + "(");
-
-
-               name.append(")");
-               model.setProperty(MODEL_NAME, name.toString());
-            }
-      };
-
-      /**
-       * Tailor a variable declaration.
-       */
-
-      public static class DeclareTailor extends Tailor
-      {
-            public DeclareTailor(String key)
-            {
-               super(key);
-            }
-
-            void tailor(Model model)
-            {
-               String name =  model.getProperty(TYPE) +
-                  " " + model.getProperty(NAME);
-               model.setProperty(MODEL_NAME, name);
-            }
-      };
-
-      /**
-       * Tailor an array variable declaration.
-       */
-
-      public static class DeclareArrayTailor extends Tailor
-      {
-            public DeclareArrayTailor(String key)
-            {
-               super(key);
-            }
-
-            void tailor(Model model)
-            {
-               String name = 
-                  model.getProperty(TYPE) + "[" + 
-                  model.getProperty(MAXSIZE) + "] " +
-                  model.getProperty(NAME);
-               model.setProperty(MODEL_NAME, name);
-            }
-      };
-
-      /**
-       * Tailor an array element declaration.
-       */
-
-      public static class ArrayElementTailor extends Tailor
-      {
-            public ArrayElementTailor(String key)
-            {
-               super(key);
-            }
-
-            void tailor(Model model)
-            {
-               Model index = model.findChild(INT_VAL);
-               String indexStr;
-               if (index != null)
-                  indexStr = index.getProperty(INT_VAL);
-               else 
-                  indexStr = model.findChild(INT_VAR).getProperty(INT_VAR);
-
-               String name = 
-                  model.findChild(STRING_VAL).getProperty(STRING_VAL) + "[" + 
-                  indexStr + "] ";
-               model.removeChild(STRING_VAL);
-               model.removeChild(INT_VAL);
-               model.setProperty(MODEL_NAME, name);
             }
       };
 

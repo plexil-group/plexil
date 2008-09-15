@@ -37,6 +37,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Color;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import static gov.nasa.luv.Constants.*;
@@ -68,50 +69,42 @@ public class ConditionsWindow extends JPanel
         int row = 0;
         int col = 0;
         info = new String[rows][columns];
-        String str = "";
         
         for (final String condition: ALL_CONDITIONS)
         {
-            final String element = getConditionElements(condition);
-            status = UNKNOWN;
+            final ArrayList<String> elements = getConditionElements(condition);           
             
-            if (!element.equals(UNKNOWN))
+            if (elements != null)
             {
                 info[row][col] = condition; 
                 ++col;
-                info[row][col] = status;
+                info[row][col] = UNKNOWN;
                 ++col;     
-                
-                String ands[] = element.split(" AND ");
-                
-                for (int i = 0; i < ands.length; i++)
+  
+                if (elements.size() > 1)
                 {
-                    if (i > 0)
-                        str = "AND " + ands[i];
-                    else
-                        str = ands[i];
+                    int count = 0;
                     
-                    String ors[] = str.split(" OR ");
-                    
-                    if (ors.length > 1)
+                    for (int i = 0; i < elements.size(); i++)
                     {
-                        for (int j = 0; j < ors.length; j++)
-                        {
-                            if (j > 0)
-                                str = "OR " + ors[j];
-                            else 
-                                str = ors[j];
+                        // place 2 elements and then jump to next line
+ 
+                        if (count == 0)
+                            info[row][2] = elements.get(i) + " ";
+                        else
+                            info[row][2] += elements.get(i) + " ";
+                        
+                        count++;
                             
-                            info[row][2] = str;
+                        if (count == 2)
+                        {
                             row++;
+                            count = 0;
                         }
                     }
-                    else
-                    {      
-                        info[row][2] = str;
-                        row++;
-                    }
                 }
+                else if (elements.size() == 1)
+                    info[row][2] = elements.get(0);
                 
                 col = 0;
                 ++row;
@@ -126,7 +119,7 @@ public class ConditionsWindow extends JPanel
                          {
                             if (property.equals(condition))
                             {                               
-                               if (!element.equals(UNKNOWN))
+                               if (elements != null)
                                {
                                    status = model.getProperty(condition);
                                    if (status.equals("0"))
@@ -182,14 +175,14 @@ public class ConditionsWindow extends JPanel
         return conditionsPane;
     }
     
-    public String getConditionElements(String condition)
+    public ArrayList<String> getConditionElements(String condition)
     {
         int conditionNum = getConditionNum(condition);
         
         if (model.conditionMap.get(conditionNum) != null)
             return model.conditionMap.get(conditionNum);
         
-        return UNKNOWN;
+        return null;
     }
     
     public static boolean isConditionsWindowOpen()

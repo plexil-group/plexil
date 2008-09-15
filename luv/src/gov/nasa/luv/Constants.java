@@ -599,6 +599,7 @@ public class Constants
       public static final String NAME = "Name";
       public static final String INDEX = "Index";
       public static final String ARGS = "Arguments";
+      public static final String LOOKUP = "Lookup";
       public static final String LOOKUPNOW = "LookupNow";
       public static final String LOOKUPCHANGE = "LookupOnChange";
       public static final String LOOKUPFREQ = "LookupWithFrequency";
@@ -676,20 +677,22 @@ public class Constants
       public static final String NODE_FAILURE_TYPE = "NodeFailureType";
       public static final String NODE_STATE        = "NodeState";
       public static final String NODE_TIMEPOINT    = "NodeTimepoint";
+      public static final String NODE_CMD_HANDLE   = "NodeCommandHandle";
 
       // variable references
 
-      public static final String INT_VAR = INT + VAR;
-      public static final String REAL_VAR = REAL + VAR;
-      public static final String ARRAY_VAR = ARRAY + VAR;
-      public static final String STRING_VAR = STRING + VAR;
-      public static final String BOOL_VAR = BOOL + VAR;
-      public static final String TIME_VAR = TIME + VAR;
-      public static final String BLOB_VAR = BLOB + VAR;
-      public static final String NODE_OUTCOME_VAR = NODE_OUTCOME + VAR;
-      public static final String NODE_FAILURE_VAR = NODE_FAILURE + VAR;
-      public static final String NODE_STATE_VAR = NODE_STATE + VAR;
-      public static final String NODE_TIMEPOINT_VAR = NODE_TIMEPOINT + VAR;
+      public static final String INT_VAR                = INT + VAR;
+      public static final String REAL_VAR               = REAL + VAR;
+      public static final String ARRAY_VAR              = ARRAY + VAR;
+      public static final String STRING_VAR             = STRING + VAR;
+      public static final String BOOL_VAR               = BOOL + VAR;
+      public static final String TIME_VAR               = TIME + VAR;
+      public static final String BLOB_VAR               = BLOB + VAR;
+      public static final String NODE_OUTCOME_VAR       = NODE_OUTCOME + VAR;
+      public static final String NODE_FAILURE_VAR       = NODE_FAILURE + VAR;
+      public static final String NODE_STATE_VAR         = NODE_STATE + VAR;
+      public static final String NODE_TIMEPOINT_VAR     = NODE_TIMEPOINT + VAR;
+      public static final String NODE_CMD_HANDLE_VAR    = NODE_CMD_HANDLE + VAR;
 
       // values
 
