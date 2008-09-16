@@ -40,7 +40,7 @@ import java.util.Vector;
  */
 
 public class Constants
-{
+{    
       /** indicates that no accelerator key is used */
 
       public static final int    NO_ACCELERATOR = Integer.MIN_VALUE;
@@ -534,6 +534,52 @@ public class Constants
           else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return "Command Handle Received";
           else                                                          return ""; //error
       }
+      
+      public static int getTagName(String name)
+      {
+          if (name.equals(NODE_OUTCOME_VAR))                            return NODE_OUTCOME_NUM;    
+          else if (name.equals(NODE_FAILURE_VAR))                       return NODE_FAILURE_NUM;                
+          else if (name.equals(NODE_STATE_VAR))                         return NODE_STATE_NUM;   
+          else if (name.equals(NODE_TIMEPOINT_VAR))                     return NODE_TIMEPOINT_NUM; 
+          else if (name.equals(NODE_CMD_HANDLE_VAR))                    return NODE_CMD_HANDLE_NUM; 
+          else if (name.equals(TIME_VAL))                               return TIME_NUM;
+          else if (name.equals(LT))                                     return LT_NUM;
+          else if (name.equals(GT))                                     return GT_NUM;
+          else if (name.equals(LE))                                     return LE_NUM;           
+          else if (name.equals(GE))                                     return GE_NUM;   
+          else if (name.equals(IS_KNOWN))                               return IS_KNOWN_NUM;       
+          else if (name.contains(LOOKUP))                               return LOOKUP_NUM;
+          else if (name.contains(EQ))                                   return EQ_NUM;                  
+          else if (name.contains(NE))                                   return NE_NUM;        
+          else if (name.equals(ARRAYELEMENT))                           return ARRAYELEMENT_NUM;
+          else if (name.equals(NOT))                                    return NOT_NUM;
+          else if (name.equals(AND))                                    return AND_NUM;
+          else if (name.equals(OR))                                     return OR_NUM;
+          else if (name.contains(CONDITION))                            return CONDITION_NUM;
+          else if (name.equals(TOLERANCE))                              return TOLERANCE_NUM;
+          else                                                          return -1; //error
+      }
+      
+      public static final int NODE_OUTCOME_NUM = 0;    
+      public static final int NODE_FAILURE_NUM = 1;                
+      public static final int NODE_STATE_NUM = 2;   
+      public static final int NODE_TIMEPOINT_NUM = 3; 
+      public static final int NODE_CMD_HANDLE_NUM = 4; 
+      public static final int TIME_NUM = 5;
+      public static final int LT_NUM = 6;
+      public static final int GT_NUM = 7;
+      public static final int LE_NUM = 8;           
+      public static final int GE_NUM = 9;   
+      public static final int IS_KNOWN_NUM = 10;       
+      public static final int LOOKUP_NUM = 11;
+      public static final int EQ_NUM = 12;                  
+      public static final int NE_NUM = 13;        
+      public static final int ARRAYELEMENT_NUM = 14;
+      public static final int NOT_NUM = 15;
+      public static final int AND_NUM = 16;
+      public static final int OR_NUM = 17;
+      public static final int CONDITION_NUM = 18;
+      public static final int TOLERANCE_NUM = 19;
 
       // the set of all condtions
 

@@ -64,11 +64,16 @@ public class Model extends Properties
       
       // local variable holders
       
-      public HashMap<String, ArrayList> declVarMap = new HashMap<String, ArrayList>();
-      
+      public HashMap<String, ArrayList> declVarMap = new HashMap<String, ArrayList>();      
       public ArrayList<String> declNameVarList = new ArrayList<String>();
       public ArrayList<String> declTypeVarList = new ArrayList<String>();
       public ArrayList<String> declValueVarList = new ArrayList<String>();
+      
+      // update variable holders
+      
+      public HashMap<String, ArrayList> updateVarMap = new HashMap<String, ArrayList>();
+      public ArrayList<String> updateNameVarList = new ArrayList<String>();
+      public ArrayList<String> updateValueVarList = new ArrayList<String>();
       
       // condition info holders
       
@@ -159,7 +164,7 @@ public class Model extends Properties
               conditionMap.put(condition, equationHolder);
       }
       
-      public void addLocalVariableName(String name, String value)
+      public void recordVariableDeclarations(String name, String value)
       {
           if (value == null)
               ;
@@ -178,6 +183,16 @@ public class Model extends Properties
               
               declNameVarList.add(value);
               declVarMap.put(NAME, declNameVarList);              
+          }
+          else if (name.equals(TYPE))
+          {
+              declTypeVarList.add(value);              
+              declVarMap.put(TYPE, declTypeVarList);
+          }
+          else if (name.equals(NAME))
+          {
+              declNameVarList.add(value);
+              declVarMap.put(NAME, declNameVarList);
           }
           else if (name.equals(MAXSIZE))
           {
@@ -208,16 +223,35 @@ public class Model extends Properties
           }
       }
       
-      public void removeLastComma()
+      public void setUpdateVariableMap(String key, String value)
       {
-          if (!declValueVarList.isEmpty())
+          if (key.equals(NAME))
           {
-              int i = declValueVarList.size();
-              String lastValue = declValueVarList.get(i-1);
-              lastValue = lastValue.substring(0, lastValue.length() - 2);
-              declValueVarList.set(i-1, lastValue);
-              declVarMap.put(ARRAY_VAL, declValueVarList);
+              updateNameVarList.add(value);
+              updateVarMap.put(key, updateNameVarList);
           }
+          else if (key.equals(VAL))
+          {
+              updateValueVarList.add(value);
+              updateVarMap.put(key, updateValueVarList);
+          }
+      }
+      
+      public String getVariableValue(String value)
+      {
+          int index = declNameVarList.indexOf(value);
+          if (index == -1)
+          {
+              index = this.getParent().declNameVarList.indexOf(value);
+              if (index == -1)
+              {
+                  return "error";
+              }
+              else 
+                  return this.getParent().declValueVarList.get(index);
+          }
+          else
+              return declValueVarList.get(index);
       }
 
       /** Add a parent node to this node. 
@@ -535,6 +569,7 @@ public class Model extends Properties
 
       public static class NodeTailor
       {
+          
           String key;
           
             static HashMap<String, String> typeLut = new HashMap<String, String>()

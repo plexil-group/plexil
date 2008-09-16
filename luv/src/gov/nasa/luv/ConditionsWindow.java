@@ -53,6 +53,7 @@ public class ConditionsWindow extends JPanel
     int columns = 3;
     String info[][];
     JTable table;
+    ArrayList elements; 
     
     Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
     
@@ -72,7 +73,7 @@ public class ConditionsWindow extends JPanel
         
         for (final String condition: ALL_CONDITIONS)
         {
-            final ArrayList<String> elements = getConditionElements(condition);           
+            elements = model.conditionMap.get(condition);          
             
             if (elements != null)
             {
@@ -104,7 +105,7 @@ public class ConditionsWindow extends JPanel
                     }
                 }
                 else if (elements.size() == 1)
-                    info[row][2] = elements.get(0);
+                    info[row][2] = (String)elements.get(0);
                 
                 col = 0;
                 ++row;
@@ -173,16 +174,6 @@ public class ConditionsWindow extends JPanel
     public static ConditionsWindow getCurrentWindow()
     {
         return conditionsPane;
-    }
-    
-    public ArrayList<String> getConditionElements(String condition)
-    {
-        int conditionNum = getConditionNum(condition);
-        
-        if (model.conditionMap.get(conditionNum) != null)
-            return model.conditionMap.get(conditionNum);
-        
-        return null;
     }
     
     public static boolean isConditionsWindowOpen()

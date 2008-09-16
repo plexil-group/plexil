@@ -41,14 +41,18 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       private String indent = "";
       private String indentIncrement = "  ";
       private boolean showXmlTags = false;
-      private static boolean recordDeclareVariables = false;
-      private static boolean recordCondition = false;      
-      private static boolean recordEQ, recordNE, recordArray, lookupChange, lonelyValue, recordTime, tolerance, lookupNow, lonelyVariable = false;
-      private static String save = "";
-  
+
+      private static boolean recordDeclareVariables = false;  
+      
+      private static boolean recordAssignments, recordRHS = false;
+      private static ArrayList<String> operatorHolder = new ArrayList<String>();
+      private static String variableToUpdate = "";
+      
+      private static boolean recordCondition, recordEQ, recordNE, recordArray, lookupChange, lonelyValue, recordTime, tolerance, lookupNow, lonelyVariable = false;
+      private static String save = "";  
       private static String conditionEquation = "";
       private static ArrayList<String> equationHolder = new ArrayList<String>();
-      private static ArrayList<String> lookupArguments = new ArrayList<String>();
+      private static ArrayList<String> lookupArguments = new ArrayList<String>();      
 
       Stack<Model> stack = new Stack<Model>();
       
@@ -117,74 +121,25 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
          if (localName.equals(VAR_DECLS))
              recordDeclareVariables = true;
-         
-         if (localName.equals(TOLERANCE))
-             tolerance = true;             
-         
-         if (localName.contains(CONDITION))
+         else if (localName.equals(ASSN))
+         {
+             recordAssignments = true;
+             operatorHolder = new ArrayList<String>();
+         }
+         else if (localName.contains(RHS))
+             recordRHS = true;
+         else if (localName.contains(CONDITION))
          {
              recordCondition = true;     
              recordEQ = recordNE = recordArray = lookupChange = lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow = false;
              save = conditionEquation = "";
              equationHolder.clear();
              lookupArguments.clear();
-         }
-         
-         if (localName.contains(EQ) || localName.contains(NE))
-         {
-             equationHolder.add("PlaceHolder");
-             
-             if (localName.contains(EQ))
-                 recordEQ = true;
-             else
-                 recordNE = true;
          }     
          
-         if (localName.equals(TIME_VAL))
-         {
-             if (recordEQ)
-                 conditionEquation += " == [";  
-             else
-                 conditionEquation += " != [";
-             
-             recordTime = true;
-         }
+         if (recordCondition)
+             recordStartConditionInfo(localName);
          
-         if (localName.equals(ARRAYELEMENT))
-         {            
-             recordArray = true;
-             
-             if (!recordEQ)
-                 equationHolder.add("PlaceHolder");
-         }         
-         
-         if (localName.equals(NOT))
-             conditionEquation = "!(";
-         
-         if (localName.contains(LOOKUP) && recordCondition)
-         {
-             if (conditionEquation.length() > 0 && !conditionEquation.equals("!("))
-             {
-                 if (recordEQ)
-                     conditionEquation += " == ";
-                 else
-                     conditionEquation += " != ";
-             }
-             
-             if (localName.contains(LOOKUPNOW))
-             {
-                conditionEquation += LOOKUPNOW;
-                lookupNow = true;
-             }
-             else if (localName.equals(LOOKUPCHANGE)) 
-             {
-                conditionEquation += LOOKUPCHANGE;
-                lookupChange = true;
-             }            
-   
-             lookupArguments = new ArrayList<String>();
-             conditionEquation += "(";
-         }
          
          // push new node onto the stack
 
@@ -207,293 +162,61 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
          if (localName.equals(VAR_DECLS))
              recordDeclareVariables = false;
-         
-         if (localName.equals(NODE_OUTCOME_VAR)) 
-             conditionEquation += ".outcome";
-         if (localName.equals(NODE_FAILURE_VAR))
-             conditionEquation += ".failure";
-         if (localName.equals(NODE_STATE_VAR))
-             conditionEquation += ".state";
-         if (localName.equals(NODE_TIMEPOINT_VAR))
-             conditionEquation += ".timepoint";
-         if (localName.equals(NODE_CMD_HANDLE_VAR))
-             conditionEquation += ".command_handle";
-         
-         if (localName.equals(TIME_VAL))
+         else if (localName.equals(ASSN))
+             recordAssignments = false;
+         else if (localName.contains(RHS))
          {
-             conditionEquation += "]";  
-             conditionEquation = conditionEquation.replace("[, ", "[");
-             equationHolder.add(conditionEquation);
-             conditionEquation = "";          
-             recordTime = false;
-         }
-         
-         if (localName.equals(LT))
-         {
-             if (!equationHolder.isEmpty())
-             {
-                 int lastIndex = equationHolder.size() - 1;
-                 String replace = equationHolder.get(lastIndex) + " < " + conditionEquation;
-                 equationHolder.set(lastIndex,replace);
-                 conditionEquation = "";
-             }
-         }
-         
-         if (localName.equals(GT))
-         {
-             if (!equationHolder.isEmpty())
-             {
-                 int lastIndex = equationHolder.size() - 1;
-                 String replace = equationHolder.get(lastIndex) + " >= " + conditionEquation;
-                 equationHolder.set(lastIndex,replace);
-                 conditionEquation = "";
-             }
-         }
-         
-         if (localName.equals(LE))
-         {
-             if (!equationHolder.isEmpty())
-             {
-                 int lastIndex = equationHolder.size() - 1;
-                 String replace = equationHolder.get(lastIndex) + " <= " + conditionEquation;
-                 equationHolder.set(lastIndex,replace);
-                 conditionEquation = "";
-             }
-         }
-         
-         if (localName.equals(GE))
-         {
-             if (!equationHolder.isEmpty())
-             {
-                 int lastIndex = equationHolder.size() - 1;
-                 String replace = equationHolder.get(lastIndex) + " >= " + conditionEquation;
-                 equationHolder.set(lastIndex,replace);
-                 conditionEquation = "";
-             }
-         }
-         
-         if (localName.equals(IS_KNOWN))
-         {
-             if (!equationHolder.isEmpty())
-             {
-                 int lastIndex = equationHolder.size() - 1;
-                 String replace = equationHolder.get(lastIndex) + " is known";
-                 equationHolder.set(lastIndex,replace);
-             }
+             recordRHS = false;
+             String update = operatorHolder.get(0);
+             if (findFirstNonNullNode().declNameVarList.contains(variableToUpdate))
+                 findFirstNonNullNode().setUpdateVariableMap(VAL, update);
              else
-             {
-                 conditionEquation += " is known";
-                 equationHolder.add(conditionEquation);
-                 conditionEquation = "";
-             }
+                 findFirstNonNullNode().getParent().setUpdateVariableMap(VAL, update);
          }
-         
-         if (localName.contains(LOOKUP) && recordCondition)
+         else if (localName.equals(MUL))
          {
-             String args = "";
-             if (lookupArguments.size() > 1)
-             {
-                 if (lookupNow)
-                 {
-                     args = lookupArguments.get(0);
-                     args += "(" + lookupArguments.get(1) + ")";
-                 }
-                 else if (lookupChange)
-                 {
-                     if (!tolerance)
-                     {
-                         args = lookupArguments.get(1);
-                         args += "," + lookupArguments.get(0);
-                     }
-                     else
-                     {
-                         args = lookupArguments.get(0);
-                         args += "," + lookupArguments.get(1);
-                         tolerance = false;
-                     }
-                 }
-             }
-             else if (lookupArguments.size() == 1)
-                 args = lookupArguments.get(0);
-             
-             conditionEquation += args + ")";
-             
-             equationHolder.add(conditionEquation);
-             conditionEquation = "";
-             lookupArguments.clear();
-             
-             lookupChange = false;
-             lookupNow = false;
+             float num1 = Float.parseFloat(operatorHolder.get(operatorHolder.size() - 1));
+             float num2 = Float.parseFloat(operatorHolder.get(operatorHolder.size() - 2));
+             float result = num1 * num2;
+             String update = String.valueOf(result);
+             operatorHolder.remove(operatorHolder.size() - 1);
+             operatorHolder.remove(operatorHolder.size() - 1);
+             operatorHolder.add(update);
          }
          
-         if (localName.contains(EQ) || localName.contains(NE) || (localName.equals(ARRAYELEMENT) && !recordEQ))
-         {
-             if (conditionEquation.length() > 0)
-             {
-                 if (lonelyValue || lonelyVariable)
-                 {
-                     if (!equationHolder.isEmpty())
-                     {
-                         int lastIndex = equationHolder.size() - 1;
-
-                         if (localName.contains(EQ))
-                             conditionEquation = " == " + conditionEquation;
-                         else if (localName.contains(NE))
-                             conditionEquation = " != " + conditionEquation;
-
-                         String replace = equationHolder.get(lastIndex) + conditionEquation;
-                         equationHolder.set(lastIndex,replace);
-                     }
-                     lonelyValue = lonelyVariable = false;
-                 }
-                 else           
-                     equationHolder.add(conditionEquation);
-
-                 conditionEquation = "";
-             }
-                              
-             if (localName.contains(EQ))
-                 recordEQ = false;
-             else if (localName.contains(NE))
-                 recordNE = false;
-         }
-         
-          if (localName.equals(NOT))
-          {
-             if (!equationHolder.isEmpty())
-             {
-                 int lastIndex = equationHolder.size() - 1;
-                 String replace = equationHolder.get(lastIndex) + ")";
-                 equationHolder.set(lastIndex,replace);
-             }
-             else
-             {
-                 conditionEquation += ")";
-                 equationHolder.add(conditionEquation);
-                 conditionEquation = "";
-             }
-          }
-         
-         if (localName.equals(AND) || localName.equals(OR))
-         {
-             for (int i = equationHolder.size() - 1; i >= 0; i--)
-             {
-                 if (equationHolder.get(i).equals("PlaceHolder"))
-                 {
-                     equationHolder.set(i, localName);
-                     break;
-                 }
-             }
-             
-             save = localName;
-         }
-         
-         if (localName.contains(CONDITION))
-         {
-             recordCondition = false;
-             int condition = -1;
-             
-             for (int i = 0; i < ALL_CONDITIONS.length; i++)
-             {
-                 if (localName.equals(ALL_CONDITIONS[i]))
-                 {
-                         condition = i;
-                         break;
-                 }
-             } 
-             
-             if (equationHolder.size() > 1)
-                 equationHolder.remove(0);
-             
-             if (equationHolder.contains("PlaceHolder"))
-             {
-                 for (int i = equationHolder.size() - 1; i >= 0; i--)
-                 {
-                     if (equationHolder.get(i).equals("PlaceHolder"))
-                     {
-                         equationHolder.set(i, save);
-                     }
-                 }
-             }
-             
-             findFirstNonNullNode().addConditionInfo(condition, equationHolder);
-             
-             equationHolder = new ArrayList<String>();
-         }
+         if (recordCondition)
+             recordEndConditionInfo(localName);
 
          if (text != null)
          {
              if (recordDeclareVariables)
-                findFirstNonNullNode().addLocalVariableName(localName, text);
+                findFirstNonNullNode().recordVariableDeclarations(localName, text);
+             
+             if (recordAssignments)
+             {
+                 if (localName.contains(VAR) && !recordRHS)
+                 {
+                     variableToUpdate = text;
+                     if (findFirstNonNullNode().declNameVarList.contains(text))
+                         findFirstNonNullNode().setUpdateVariableMap(NAME, text);
+                     else
+                         findFirstNonNullNode().getParent().setUpdateVariableMap(NAME, text);                      
+                 }
+                 else
+                 {
+                     if (localName.contains(VAR))
+                         text = findFirstNonNullNode().getVariableValue(text);
+                     
+                     operatorHolder.add(text);
+                 }
+             }
              
              if (recordCondition)
-             {
-                 if (localName.contains(VAR) || localName.equals(NAME) || localName.equals(NODEREF) || localName.equals(NODE_ID))
-                 {
-                     lonelyValue = false;
-                     
-                     if (lookupChange || lookupNow)
-                         lookupArguments.add(text);
-                     else
-                     {
-                         if (conditionEquation.length() == 0)
-                         {
-                             lonelyVariable = true;
-                             conditionEquation += text;
-                         }
-                         else if (conditionEquation.equals("!("))
-                             conditionEquation += text;
-                         else
-                         {
-                             if (recordEQ)
-                                 conditionEquation += " == " + text;
-                             else
-                                 conditionEquation += " != " + text;
-                             
-                             lonelyVariable = false;
-                         }
-                     }
-                 }
-                 else if (localName.equals(STRING_VAL))
-                 {
-                     lonelyVariable = false;
-                     if (lookupChange || lookupNow)
-                     {
-                         text = "\"" + text + "\"";
-                         lookupArguments.add(text);
-                     }
-                     else
-                         conditionEquation += " == \"" + text + "\"";
-                 }
-                 else if (localName.contains(VAL))
-                 {
-                     lonelyVariable = false;
-                     if (recordArray)
-                     {
-                         conditionEquation += "[" + text + "]";
-                         recordArray = false;
-                     }
-                     else if (conditionEquation.length() > 0 && !recordTime)
-                     {
-                         if (recordNE)
-                             conditionEquation += " != " + text;
-                         else
-                             conditionEquation += " == " + text;
-                     }
-                     else if (recordTime)
-                     {
-                         conditionEquation += ", " + text;
-                     }
-                     else
-                     {
-                         lonelyValue = true;
-                         conditionEquation = text;
-                     }
-                 }                     
-             }
+                recordMiddleConditionInfo(localName, text);
 
              if (node != null)
                 node.setProperty(localName, text);
+             
              if (showXmlTags)
                 out.println(indent + text);
          }
@@ -532,4 +255,317 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                i--; 
             return stack.elementAt(i);
       } 
+      
+      public void recordStartConditionInfo(String localName)
+      { 
+         int name = getTagName(localName);
+         
+         switch (name)
+         {
+             case TOLERANCE_NUM: tolerance = true; break;
+             case EQ_NUM: 
+                 equationHolder.add("PlaceHolder");
+                 recordEQ = true;
+                 break;
+             case NE_NUM:
+                 equationHolder.add("PlaceHolder");
+                 recordNE = true;
+                 break;
+             case TIME_NUM:
+                 if (recordEQ)
+                     conditionEquation += " == [";  
+                 else
+                     conditionEquation += " != [";
+                 recordTime = true;
+                 break;
+             case ARRAYELEMENT_NUM:
+                 recordArray = true;             
+                 if (!recordEQ)
+                     equationHolder.add("PlaceHolder");
+                 break;
+             case NOT_NUM: conditionEquation = "!("; break;
+             case LOOKUP_NUM:
+                 if (conditionEquation.length() > 0 && !conditionEquation.equals("!("))
+                 {
+                     if (recordEQ)
+                         conditionEquation += " == ";
+                     else
+                         conditionEquation += " != ";
+                 }
+
+                 if (localName.contains(LOOKUPNOW))
+                 {
+                    conditionEquation += LOOKUPNOW;
+                    lookupNow = true;
+                 }
+                 else if (localName.equals(LOOKUPCHANGE)) 
+                 {
+                    conditionEquation += LOOKUPCHANGE;
+                    lookupChange = true;
+                 }            
+
+                 lookupArguments = new ArrayList<String>();
+                 conditionEquation += "(";
+                 break;                
+         }        
+      }
+      
+      public void recordMiddleConditionInfo(String localName, String text)
+      {
+             if (localName.contains(VAR) || localName.equals(NAME) || localName.equals(NODEREF) || localName.equals(NODE_ID))
+             {
+                 lonelyValue = false;
+
+                 if (lookupChange || lookupNow)
+                     lookupArguments.add(text);
+                 else
+                 {
+                     if (conditionEquation.length() == 0)
+                     {
+                         lonelyVariable = true;
+                         conditionEquation += text;
+                     }
+                     else if (conditionEquation.equals("!("))
+                         conditionEquation += text;
+                     else
+                     {
+                         if (recordEQ)
+                             conditionEquation += " == " + text;
+                         else
+                             conditionEquation += " != " + text;
+
+                         lonelyVariable = false;
+                     }
+                 }
+             }
+             else if (localName.equals(STRING_VAL))
+             {
+                 lonelyVariable = false;
+                 if (lookupChange || lookupNow)
+                 {
+                     text = "\"" + text + "\"";
+                     lookupArguments.add(text);
+                 }
+                 else
+                     conditionEquation += " == \"" + text + "\"";
+             }
+             else if (localName.contains(VAL))
+             {
+                 lonelyVariable = false;
+                 if (recordArray)
+                 {
+                     conditionEquation += "[" + text + "]";
+                     recordArray = false;
+                 }
+                 else if (conditionEquation.length() > 0 && !recordTime)
+                 {
+                     if (recordNE)
+                         conditionEquation += " != " + text;
+                     else
+                         conditionEquation += " == " + text;
+                 }
+                 else if (recordTime)
+                 {
+                     conditionEquation += ", " + text;
+                 }
+                 else
+                 {
+                     lonelyValue = true;
+                     conditionEquation = text;
+                 }
+             } 
+      }
+      
+      public void recordEndConditionInfo(String localName)
+      {
+          
+         int name = getTagName(localName);
+         
+         switch (name)
+         {
+             case NODE_OUTCOME_NUM:     conditionEquation += ".outcome"; break;
+             case NODE_FAILURE_NUM:     conditionEquation += ".failure"; break;               
+             case NODE_STATE_NUM:       conditionEquation += ".state"; break;   
+             case NODE_TIMEPOINT_NUM:   conditionEquation += ".timepoint"; break; 
+             case NODE_CMD_HANDLE_NUM:  conditionEquation += ".command_handle"; break; 
+             case TIME_NUM: 
+                 conditionEquation += "]";  
+                 conditionEquation = conditionEquation.replace("[, ", "[");
+                 equationHolder.add(conditionEquation);
+                 conditionEquation = "";          
+                 recordTime = false;
+                 break;
+             case LT_NUM:
+             case GT_NUM:
+             case LE_NUM:        
+             case GE_NUM:  
+                 if (!equationHolder.isEmpty())
+                 {
+                     String update = "";
+                     switch (name)
+                     {
+                         case LT_NUM: update = " < "; break;
+                         case GT_NUM: update = " > "; break;
+                         case LE_NUM: update = " <= "; break;
+                         case GE_NUM: update = " >= "; break;
+                     }
+                     
+                     update += conditionEquation;                     
+                     updateEquation(update);
+                 }
+                 break;   
+             case IS_KNOWN_NUM: 
+                 if (!equationHolder.isEmpty())
+                 {
+                     updateEquation(" is known");
+                 }
+                 else
+                 {
+                     conditionEquation += " is known";
+                     equationHolder.add(conditionEquation);
+                     conditionEquation = "";
+                 }
+                 break;       
+             case LOOKUP_NUM:
+                 String args = "";
+                 if (lookupArguments.size() > 1)
+                 {
+                     if (lookupNow)
+                     {
+                         args = lookupArguments.get(0);
+                         args += "(" + lookupArguments.get(1) + ")";
+                     }
+                     else if (lookupChange)
+                     {
+                         if (!tolerance)
+                         {
+                             args = lookupArguments.get(1);
+                             args += "," + lookupArguments.get(0);
+                         }
+                         else
+                         {
+                             args = lookupArguments.get(0);
+                             args += "," + lookupArguments.get(1);
+                             tolerance = false;
+                         }
+                     }
+                 }
+                 else if (lookupArguments.size() == 1)
+                     args = lookupArguments.get(0);
+
+                 conditionEquation += args + ")";
+
+                 equationHolder.add(conditionEquation);
+                 conditionEquation = "";
+                 lookupArguments.clear();
+
+                 lookupChange = false;
+                 lookupNow = false;
+                 break;
+             case EQ_NUM:                  
+             case NE_NUM:
+                 recordEquation(localName);
+                 break;
+             case ARRAYELEMENT_NUM:
+                 if (!recordEQ)
+                     recordEquation(localName);
+                 break;
+             case NOT_NUM: 
+                 if (!equationHolder.isEmpty())
+                 {
+                     updateEquation(")");
+                 }
+                 else
+                 {
+                     conditionEquation += ")";
+                     equationHolder.add(conditionEquation);
+                     conditionEquation = "";
+                 }
+                 break;
+             case AND_NUM:
+             case OR_NUM: 
+                 for (int i = equationHolder.size() - 1; i >= 0; i--)
+                 {
+                     if (equationHolder.get(i).equals("PlaceHolder"))
+                     {
+                         equationHolder.set(i, localName);
+                         break;
+                     }
+                 }
+
+                 save = localName;
+                 break;
+             case CONDITION_NUM: 
+                 recordCondition = false;
+                 int condition = -1;
+
+                 for (int i = 0; i < ALL_CONDITIONS.length; i++)
+                 {
+                     if (localName.equals(ALL_CONDITIONS[i]))
+                     {
+                             condition = i;
+                             break;
+                     }
+                 } 
+
+                 if (equationHolder.size() > 1)
+                     equationHolder.remove(0);
+
+                 if (equationHolder.contains("PlaceHolder"))
+                 {
+                     for (int i = equationHolder.size() - 1; i >= 0; i--)
+                     {
+                         if (equationHolder.get(i).equals("PlaceHolder"))
+                         {
+                             equationHolder.set(i, save);
+                         }
+                     }
+                 }
+
+                 findFirstNonNullNode().addConditionInfo(condition, equationHolder);
+
+                 equationHolder = new ArrayList<String>();
+                 break;
+         }
+      }  
+      
+      public void recordEquation(String localName)
+      {
+          if (conditionEquation.length() > 0)
+             {
+                 if (lonelyValue || lonelyVariable)
+                 {
+                     if (!equationHolder.isEmpty())
+                     {
+                         int lastIndex = equationHolder.size() - 1;
+
+                         if (localName.contains(EQ))
+                             conditionEquation = " == " + conditionEquation;
+                         else if (localName.contains(NE))
+                             conditionEquation = " != " + conditionEquation;
+
+                         String replace = equationHolder.get(lastIndex) + conditionEquation;
+                         equationHolder.set(lastIndex,replace);
+                     }
+                     lonelyValue = lonelyVariable = false;
+                 }
+                 else           
+                     equationHolder.add(conditionEquation);
+
+                 conditionEquation = "";
+             }
+                              
+             if (localName.contains(EQ))
+                 recordEQ = false;
+             else if (localName.contains(NE))
+                 recordNE = false;
+      }
+      
+      public void updateEquation(String update)
+      {
+          int lastIndex = equationHolder.size() - 1;
+          String replace = equationHolder.get(lastIndex) + update;
+          equationHolder.set(lastIndex,replace);
+          conditionEquation = "";
+      }
 }
