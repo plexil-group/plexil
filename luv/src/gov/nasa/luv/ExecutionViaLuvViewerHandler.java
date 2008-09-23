@@ -29,9 +29,6 @@ package gov.nasa.luv;
 import java.util.Vector;
 
 import static java.lang.System.*;
-import static gov.nasa.luv.Constants.*;
-
-import java.io.File;
 import java.io.IOException;
 
 /** Used to run an instance of the Universal Executive. */

@@ -30,8 +30,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import static gov.nasa.luv.Constants.*;
-
 import javax.swing.JOptionPane;
 
 import java.util.HashMap;

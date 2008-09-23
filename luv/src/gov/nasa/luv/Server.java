@@ -192,7 +192,7 @@ public abstract class Server
                if (timePassed > oneMinute)
                {
                    ++minutesPassed;
-                   Luv.getLuv().getStatusMessageHandler().showStatus("Time elapsed with no activity: " + minutesPassed + " minute(s) and counting...");   
+                  // Luv.getLuv().getStatusMessageHandler().showStatus("Time elapsed with no activity: " + minutesPassed + " minute(s) and counting...");   
                    oldTime = newTime;
                }
            }

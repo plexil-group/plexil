@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import javax.swing.JLabel;
 
 import static java.lang.System.*;
+import static gov.nasa.luv.Constants.*;
 
 public class StatusMessageHandler
 {    
@@ -78,7 +79,8 @@ public class StatusMessageHandler
                      StatusMessageHandler lastMessage = null;
                      
                      while (true)
-                     {
+                     {                       
+                        
                         if (!StatusMessageHandlerQ.isEmpty())
                         {
                            // kill any preceeding auto clear thread
@@ -94,12 +96,16 @@ public class StatusMessageHandler
                               ? message
                               : null;
 
-                           // show the message
+                           // print to debug window only pertinent messages
 
                            statusBar.setForeground(message.color);
                            statusBar.setText(message.message);
-                           if (!message.message.equals(StatusMessageHandler.BLANK_MESSAGE.message))
-                              out.println("STATUS: " + message.message);
+
+                           if (!message.message.contains("Currently processing:") &&
+                               !message.message.equals(StatusMessageHandler.BLANK_MESSAGE.message))
+                           {                  
+                               out.println("STATUS: " + message.message);
+                           }
 
                            // if auto clear requestd start a thread for that
 
@@ -181,7 +187,8 @@ public class StatusMessageHandler
         
       public void showStatus(String message, Color color, final long autoClearTime)
       {
-         StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
+          if (message.length() > 0)
+              StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
       }
 
       /** Clear the status bar. */

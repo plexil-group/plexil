@@ -229,7 +229,7 @@ public class LibraryHandler
 
                   // show the options
 
-                  Luv.getLuv().getStatusMessageHandler().showStatus("Unable to locate the \"" + callName + "\" library\n\n", 1000);
+                  Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library\n\n", 1000);
                   int result = JOptionPane.showOptionDialog(
                      Luv.getLuv(),
                      "Unable to locate the \"" + callName + "\" library.\n\n" +

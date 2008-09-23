@@ -94,17 +94,17 @@ public class LuvBreakPointHandler
       {
          ModelPath mp = new ModelPath(model);
          
-         if (!breakPointList.contains(breakPoint + mp.toString()))
+         if (!breakPointList.contains(breakPoint.toString()))
          {
-             breakPointList.add(breakPoint + mp.toString());
+             breakPointList.add(breakPoint.toString());
 
              breakPointMap.put(breakPoint, mp);
 
-             Luv.getLuv().getStatusMessageHandler().showStatus("Added break on " + breakPoint, 5000l);
+             Luv.getLuv().showStatus("Added break on " + breakPoint, 5000l);
              Luv.getLuv().getViewHandler().refreshView();
          }
          else
-             Luv.getLuv().getStatusMessageHandler().showStatus("\"" + breakPoint + "\" breakpoint has already been added.", Color.RED, 5000l);
+             Luv.getLuv().showStatus("\"" + breakPoint + "\" breakpoint has already been added.", Color.RED, 5000l);
       }
 
       /** Remove breakpoint from grand list of breakpoints.
@@ -116,7 +116,8 @@ public class LuvBreakPointHandler
       {
          breakPoint.unregister();
          breakPointMap.remove(breakPoint);
-         Luv.getLuv().getStatusMessageHandler().showStatus("Removed break on " + breakPoint, 5000l);
+         breakPointList.remove(breakPoint.toString());
+         Luv.getLuv().showStatus("Removed break on " + breakPoint, 5000l);
          Luv.getLuv().getViewHandler().refreshView();
       }
 
@@ -128,7 +129,7 @@ public class LuvBreakPointHandler
             bp.unregister();
          breakPointMap.clear();
 
-         Luv.getLuv().getStatusMessageHandler().showStatus("Removed all breakponts.", 5000l);
+         Luv.getLuv().showStatus("Removed all breakponts.", 5000l);
          Luv.getLuv().getViewHandler().refreshView();
       }
       

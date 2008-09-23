@@ -324,7 +324,7 @@ public class FileHandler
             "Cancel plan execution"
          };
          
-         Luv.getLuv().getStatusMessageHandler().showStatus("Unable to locate a script for this plan", 1000);
+         Luv.getLuv().showStatus("Unable to locate a script for this plan", 1000);
 
          int findScript = JOptionPane.showOptionDialog(
                Luv.getLuv(),
@@ -438,9 +438,11 @@ public class FileHandler
       
       public void loadScript (File script)
       {
-         if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION))
-             Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + script, 50);
-         Luv.getLuv().getModel().addScriptName(script.toString());
+         if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION) && script != null)
+             Luv.getLuv().showStatus("Loading "  + script, 50);
+         
+         if (script != null)
+             Luv.getLuv().getModel().addScriptName(script.toString());
       }
       
             /**
@@ -550,7 +552,7 @@ public class FileHandler
 
       public void readPlan(Model model, File file)
       {
-         Luv.getLuv().getStatusMessageHandler().showStatus("Loading "  + file);
+         Luv.getLuv().showStatus("Loading "  + file);
          try
          {
             parseXml(new FileInputStream(file), model);
@@ -565,7 +567,7 @@ public class FileHandler
                JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
          }
-         Luv.getLuv().getStatusMessageHandler().clearStatus();
+         Luv.getLuv().clearStatus();
       }
 
       /** Parse a given XML message string.

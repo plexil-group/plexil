@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Enumeration;
 
-import javax.swing.JOptionPane;
+import java.util.HashMap;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
 
@@ -65,15 +65,15 @@ public class TreeTableView extends JTreeTable implements View
 
       /** swing tree object */
 
-      JTree tree;
+      private JTree tree;
 
       /** root of tree */
 
-      Wrapper root;
+      private Wrapper root;
 
       /** show or hid node types */
 
-      static boolean showTextTypes = false;
+      private static boolean showTextTypes = false;
 
       /** Construct a tree view. 
        *
@@ -134,6 +134,7 @@ public class TreeTableView extends JTreeTable implements View
             TreeModel.cTypes[STATE_COL_NUM], 
             new DefaultTableCellRenderer()
             {
+            @Override
                   public Component getTableCellRendererComponent(
                      JTable table, 
                      Object value, 
@@ -166,7 +167,7 @@ public class TreeTableView extends JTreeTable implements View
          tree.setCellRenderer(new DefaultTreeCellRenderer()
             {
                   public Component getTreeCellRendererComponent(
-                     JTree tree,
+                     JTree newTree,
                      Object value,
                      boolean isSelected,
                      boolean expanded,
@@ -175,7 +176,7 @@ public class TreeTableView extends JTreeTable implements View
                      boolean hasFocus) 
                   {
                      Component component = super.getTreeCellRendererComponent(
-                        tree, value, isSelected, expanded, leaf, row, hasFocus);
+                        newTree, value, isSelected, expanded, leaf, row, hasFocus);
                      
                      Model model = ((Wrapper)value).model;
 
@@ -203,56 +204,61 @@ public class TreeTableView extends JTreeTable implements View
             });
       }
 
-      /** Get the tool tip text. 
+      /** Display node information from under tool tip
        * 
-       * @return tooltip text for elmement in tree
+       * @return tooltip text for element in tree
        */
 
       @Override public String getToolTipText(MouseEvent event)
       {
-         StringBuffer toolTip = new StringBuffer();
-         TreePath path = tree.getPathForLocation(event.getX(), event.getY());
-         if (path != null)
-         {
-            toolTip.append("<html>");
-            Model model = ((Wrapper)path.getLastPathComponent()).model;
-            toolTip.append("<b>NAME</b> " + model.getProperty(MODEL_NAME));
-            toolTip.append("<br><b>TYPE</b> " + model.getProperty(MODEL_TYPE));
+          StringBuffer   toolTip     = new StringBuffer();
+          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());          
+          
+          if (nodePath != null)
+          {    
+              Model          node        = ((Wrapper)nodePath.getLastPathComponent()).model;
+              String         nodeName    = node.getProperty(NODE_ID);
+          
+              toolTip.append("<html>");         
+              toolTip.append("<b>NAME</b> " + nodeName);
+              toolTip.append("<br><b>TYPE</b> " + node.getProperty(MODEL_TYPE));
 
-            
-            if (!model.declVarMap.isEmpty())
-            {  
+              if (!displayNodeVariables(toolTip, nodePath, node, nodeName))
+                  toolTip.append("<br>No local variables for this node");
+          }
+          
+          return toolTip.length() > 0 ? toolTip.toString() : null;
+      }
+      
+      public boolean displayNodeVariables(StringBuffer toolTip, TreePath nodePath, Model node, String nodeName)
+      {
+         boolean valid = true;
+         HashMap<String,ArrayList>   nodeVariables = Luv.getLuv().getVariableHandler().getVariableMap().get(nodeName);
                 
-                ArrayList names = model.declVarMap.get(NAME);
-                ArrayList types = model.declVarMap.get(TYPE);
-                ArrayList values = model.declVarMap.get(VAL);
-                
-                if (names != null && types != null && values != null)
-                {               
-                    toolTip.append("<br><b>LOCAL VARIABLES</b>");
+         if (nodeVariables != null && !nodeVariables.isEmpty())
+         {                  
+             ArrayList names     = nodeVariables.get(NAME);
+             ArrayList types     = nodeVariables.get(TYPE);
+             ArrayList values    = nodeVariables.get(VAL);
 
-                    for (int i = 0; i < types.size(); i++)
-                    {
-                        toolTip.append("<br>" + types.get(i) + " <b>" + names.get(i) + "</b>");
-                        if (!values.get(i).equals(UNKNOWN))
-                            toolTip.append(" = " + values.get(i));
-                    } 
-                }
-            }
-            
-            for (BreakPoint bp: Luv.getLuv().getLuvBreakPointHandler().getBreakPoints(model))
-            {
-               if (bp.isEnabled())
-                  toolTip
-                     .append("<br><font COLOR=\"#FF0000\"><b>ENABLED</b></font> ");
-               else
-                  toolTip
-                     .append("<br><font COLOR=\"#FF8040\"><b>DISABLED</b></font> ");
-               toolTip.append(bp.toString());
-            }
-            toolTip.append("</html>");
+             if (names != null && types != null && values != null)
+             {               
+                 toolTip.append("<br><b>LOCAL VARIABLES</b>");
+
+                 for (int i = 0; i < types.size(); i++)
+                 {
+                     toolTip.append("<br>" + types.get(i) + " <b>" + names.get(i) + "</b>");
+                     if (!values.get(i).equals(UNKNOWN))
+                         toolTip.append(" = " + values.get(i));
+                 } 
+             }
+             else 
+                 valid = false;
          }
-         return toolTip.length() > 0 ? toolTip.toString() : null;
+         else
+             valid = false;
+         
+         return valid;
       }
 
       /** Ensure that this views properties are propertly reflected in
@@ -300,17 +306,15 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handlePopupEvent(MouseEvent mouseEvent)
       {
-          JPopupMenu popup = new JPopupMenu();
-                  
           if (Luv.getLuv().getBoolean(ALLOW_BREAKS))
-          {
-             // identify node under popup menu
-
-             TreePath tp = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+          {          
+             TreePath   nodePath  = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+             Model      node      = ((Wrapper)nodePath.getLastPathComponent()).model;
+             JPopupMenu popup = new JPopupMenu();
 
              // construct the popup menu
 
-             popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(((Wrapper)tp.getLastPathComponent()).model);
+             popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(node);
 
              // display the popup menu
 
@@ -331,25 +335,35 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handleClickEvent(MouseEvent mouseEvent)
       {
-         // identify node under popup menu
-
-         TreePath tp = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+         TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+         Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
+         String     nodeName    = node.getProperty(NODE_ID);
          
          // save pop up node window information 
          
-         savePopUpWindowNodeInfo(tp);
+         savePopUpWindowNodeInfo(node, nodePath); 
          
-         // construct the popup menu
+         // create conditons window if possible
          
-         if (!((Wrapper)tp.getLastPathComponent()).model.conditionMap.isEmpty())
-             ConditionsWindow.createAndShowGUI(((Wrapper)tp.getLastPathComponent()).model, ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME) + " Conditions");
-         else
-             Luv.getLuv().getStatusMessageHandler().showStatus("No conditions specified for " + ((Wrapper)tp.getLastPathComponent()).model.getProperty(MODEL_NAME), Color.BLACK, 1000);
+         if (!openConditionsWindow(node, nodeName))
+             Luv.getLuv().showStatus("No conditions specified for " + nodeName, Color.BLACK, 1000);
+             
       }
       
-      public void savePopUpWindowNodeInfo(TreePath tp)
+      public boolean openConditionsWindow(Model node, String nodeName)
       {
-         Model node = ((Wrapper)tp.getLastPathComponent()).model;
+          boolean valid = true;         
+          
+          if (node.conditionMap != null && !node.conditionMap.isEmpty())
+              ConditionsWindow.createAndShowGUI(node, nodeName + " Conditions");
+          else
+              valid = false;             
+          
+          return valid;
+      }
+      
+      public void savePopUpWindowNodeInfo(Model node, TreePath tp)
+      {
          path.clear();
          path.add(node.getProperty(MODEL_NAME));
 
@@ -357,7 +371,8 @@ public class TreeTableView extends JTreeTable implements View
          {
              path.add(node.getParent().getProperty(MODEL_NAME));
              node = node.getParent();
-         } while (!node.isRoot());
+         } 
+         while (!node.isRoot());
       }
       
       public boolean isNodeInfoWindowOpen()

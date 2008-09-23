@@ -26,6 +26,7 @@
 
 package gov.nasa.luv;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +61,9 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
          if (localName.equals(NODE_ID))
          {
              if (current.findChild(MODEL_NAME, text) != null)
+             {
                 current = current.findChild(MODEL_NAME, text);
+             }
              else if (current.getProperty(MODEL_LIBRARY_CALL_ID) != null &&
                       current.getProperty(MODEL_LIBRARY_CALL_ID).equals(text))
                  ; // current stays the same
@@ -87,6 +90,9 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
          else if (localName.equals(NODE_STATE_UPDATE))
          {
+            if (current.getProperty(NODE_ID) != null)
+                Luv.getLuv().showStatus("Currently processing:      \"" + current.getProperty(NODE_ID) + "\"", Color.GRAY, 1000);
+             
             if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION) && state.equals(FINISHED))
             {
                 if (current.getParent() != null)
@@ -96,6 +102,11 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
                     else if (current.isRoot())
                        Luv.getLuv().setLuvViewerState(READY_STATE);
                 }
+            }
+            
+            if (state.equals(FINISHED))
+            {
+                Luv.getLuv().getVariableHandler().applyUpdates(current.getProperty(NODE_ID));
             }
              
             current.setProperty(MODEL_STATE, state);

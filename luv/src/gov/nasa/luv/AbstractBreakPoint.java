@@ -31,7 +31,7 @@ package gov.nasa.luv;
 
 public abstract class AbstractBreakPoint implements BreakPoint
 {
-      /** enabeld state of this breakpoint */
+      /** enabeld state of this breakpoint jsdhcb */
 
       boolean enabled = true;
 
