@@ -73,6 +73,7 @@ public class Model extends Properties
       
       public HashMap<String, ArrayList> updateVarMap = new HashMap<String, ArrayList>();
       public ArrayList<String> updateNameVarList = new ArrayList<String>();
+      public ArrayList<String> updateLocaleVarList = new ArrayList<String>();
       public ArrayList<String> updateValueVarList = new ArrayList<String>();
       
       // condition info holders
@@ -230,6 +231,11 @@ public class Model extends Properties
               updateNameVarList.add(value);
               updateVarMap.put(key, updateNameVarList);
           }
+          else if (key.equals("Locale"))
+          {
+              updateLocaleVarList.add(value);
+              updateVarMap.put(key, updateLocaleVarList);
+          }
           else if (key.equals(VAL))
           {
               updateValueVarList.add(value);
@@ -237,21 +243,54 @@ public class Model extends Properties
           }
       }
       
-      public String getVariableValue(String value)
+      public String getVariableValue(Model node, String value)
       {
-          int index = declNameVarList.indexOf(value);
-          if (index == -1)
+          if (node != null)
           {
-              index = this.getParent().declNameVarList.indexOf(value);
+              int index = node.declNameVarList.indexOf(value);
               if (index == -1)
               {
-                  return "error";
+                  return getVariableValue(node.getParent(), value);
               }
-              else 
-                  return this.getParent().declValueVarList.get(index);
+              else
+                  return node.declValueVarList.get(index);
           }
           else
-              return declValueVarList.get(index);
+              return "error";
+      }
+      
+      public String getArrayElementValue(Model node, String arrayName, int index)
+      {
+          if (node.declNameVarList.isEmpty())
+              return getArrayElementValue(node.getParent(), arrayName, index);
+          else
+          {
+              int element = -1;
+              for (int i = 0; i < node.declNameVarList.size(); i++)
+              {
+                  if (node.declNameVarList.get(i).length() >= arrayName.length() + 1 &&
+                      node.declNameVarList.get(i).substring(0, arrayName.length() + 1).equals(arrayName + "["))
+                  {
+                      element = i;
+                      break;
+                  }
+              }
+              if (element != -1 && element < node.declValueVarList.size())
+              {
+                  String holder[] = node.declValueVarList.get(element).split(",");
+                  if (holder.length != 0 &&
+                      holder.length > index &&
+                      !holder[index].equals("{}"))
+                  {
+                      String value = holder[index];
+                      value = value.replace("{", "");
+                      value = value.replace("}", "");
+                      return value;
+                  }
+              }
+          }
+          
+          return UNKNOWN;
       }
 
       /** Add a parent node to this node. 

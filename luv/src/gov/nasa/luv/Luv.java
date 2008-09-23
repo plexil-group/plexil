@@ -86,7 +86,6 @@ public class Luv extends JFrame
       private static LibraryHandler               libraryHandler                = new LibraryHandler();              // handles all library operations
       private static VariableHandler              variableHandler;              // saves node's variable information
       private static ConditionHandler             conditionHandler;             // saves node's condition information
-      private static CommandHandler               commandHandler;               // saves node's command information
       
       private JMenu fileMenu                = new JMenu("File");  
       private JMenu recentFileMenu          = new JMenu("Recent Files");
@@ -226,7 +225,6 @@ public class Luv extends JFrame
                             setLuvViewerState(CMD_PROMPT_EXECUTION_STATE);
                             variableHandler = new VariableHandler((Model) model.clone());
                             conditionHandler = new ConditionHandler((Model) model.clone());
-                            commandHandler = new CommandHandler((Model) model.clone());
                         }
 
                         viewHandler.resetView();
@@ -310,8 +308,6 @@ public class Luv extends JFrame
       public VariableHandler        getVariableHandler()        { return variableHandler; }         // get current variable handler
       
       public ConditionHandler       getConditionHandler()       { return conditionHandler; }        // get current condition handler
-      
-      public CommandHandler         getCommandHandler()         { return commandHandler; }          // get current command handler
       
       public Model                  getModel()                  { return model; }                   // get current model being displayed
       
@@ -409,7 +405,6 @@ public class Luv extends JFrame
           model.clear();  
           variableHandler = new VariableHandler((Model) model.clone());
           conditionHandler = new ConditionHandler((Model) model.clone());
-          commandHandler = new CommandHandler((Model) model.clone());
           
           fileHandler.clearCurrentFile(PLAN); 
           fileHandler.clearCurrentFile(SCRIPT); 
@@ -977,7 +972,6 @@ public class Luv extends JFrame
                       setLuvViewerState(READY_STATE);
                       variableHandler = new VariableHandler((Model) model.clone());
                       conditionHandler = new ConditionHandler((Model) model.clone());
-                      commandHandler = new CommandHandler((Model) model.clone());
                   }
                }
          };
@@ -1006,7 +1000,6 @@ public class Luv extends JFrame
                       fileHandler.loadRecentPlan(1);
                       variableHandler = new VariableHandler((Model) model.clone());
                       conditionHandler = new ConditionHandler((Model) model.clone());
-                      commandHandler = new CommandHandler((Model) model.clone());
                       if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
                             refreshPopUpNodeWindow();
                    }
