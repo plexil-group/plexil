@@ -1081,6 +1081,7 @@ public class Luv extends JFrame
                     {                       
                         executionViaLuvViewerHandler.killUEProcess();
                         stopExecution = true;
+                        executedViaLuvViewer = true;
                         setLuvViewerState(START_STATE);
                     }
                     
