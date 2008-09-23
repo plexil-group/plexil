@@ -46,7 +46,7 @@ public class ConditionsWindow extends JPanel
 {
     
     Model model;
-    static String status;
+    static String status = UNKNOWN;
     static JFrame frame;
     static ConditionsWindow conditionsPane;
     int rows = 1000;
@@ -57,11 +57,13 @@ public class ConditionsWindow extends JPanel
     
     Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
     
-    public ConditionsWindow(Model model) 
+    public ConditionsWindow(Model model, String save) 
     {       
         super(new GridLayout(1,0));
         
         this.model = model;
+        
+        status = save;
 
         String[] columnNames = {"Conditions",
                                 "Value",
@@ -73,14 +75,14 @@ public class ConditionsWindow extends JPanel
         
         for (final String condition: ALL_CONDITIONS)
         {
-            elements = model.conditionMap.get(condition);          
+            elements = Luv.getLuv().getConditionHandler().nodeConditions.get(model.getProperty(NODE_ID)).get(getConditionNum(condition));            
             
             if (elements != null)
             {
                 info[row][col] = condition; 
                 ++col;
                 info[row][col] = UNKNOWN;
-                ++col;     
+                ++col;
   
                 if (elements.size() > 1)
                 {
@@ -113,37 +115,31 @@ public class ConditionsWindow extends JPanel
                          
             // add model listener
 
-                this.model.addChangeListener(new Model.ChangeAdapter()
-                   {
-                         @Override 
-                         public void propertyChange(Model model, String property)
-                         {
-                            if (property.equals(condition))
-                            {                               
-                               if (elements != null)
-                               {
-                                   status = model.getProperty(condition);
-                                   if (status.equals("0"))
-                                       status = FALSE;
-                                   else if (status.equals("1"))
-                                       status = TRUE;
-                                   else if (status.equals("inf"))
-                                       status = FALSE;
-                                   
-                                   for (int i = 0; i < rows; i++)
-                                   {
-                                       if (condition.equals(info[i][0]))
-                                       {
-                                           info[i][1] = status;
-                                           table.setValueAt(status, i, 1);
-                                           table.repaint();
-                                           break;
-                                       }
-                                   }
-                               }
+            this.model.addChangeListener(new Model.ChangeAdapter()
+               {
+                     @Override 
+                     public void propertyChange(Model model, String property)
+                     {
+                        if (property.equals(condition))
+                        {
+                            if (model.getProperty(condition).equals("0"))
+                                status = FALSE;
+                            else if (model.getProperty(condition).equals("1"))
+                                status = TRUE;
+
+                            for (int i = 0; i < rows; i++)
+                            {
+                                if (condition.equals(info[i][0]))
+                                {
+                                    info[i][1] = status;
+                                    table.setValueAt(status, i, 1);
+                                    table.repaint();
+                                    break;
+                                }
                             }
                          }
-                   });
+                     }
+               });
         }
         
         table = new JTable(info, columnNames);
@@ -156,9 +152,9 @@ public class ConditionsWindow extends JPanel
 
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(500);
+        table.getColumnModel().getColumn(2).setPreferredWidth(600);
         
-        table.setPreferredScrollableViewportSize(new Dimension(800, 300));
+        table.setPreferredScrollableViewportSize(new Dimension(900, 300));
 
         table.setShowGrid(false);
 
@@ -189,25 +185,17 @@ public class ConditionsWindow extends JPanel
         frame.setVisible(false);
     }
 
-    /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event-dispatching thread.
-     */
     public static void createAndShowGUI(Model model, String nodeName) 
     {       
-        //Create and set up the window.
         if (frame != null)
             frame.setVisible(false);
         frame = new JFrame(nodeName);
 
-        //Create and set up the content pane.
-        conditionsPane = new ConditionsWindow(model);
-        conditionsPane.setOpaque(true); //content panes must be opaque
+        conditionsPane = new ConditionsWindow(model, status);
+        conditionsPane.setOpaque(true);
         frame.setContentPane(conditionsPane);
         frame.setBounds(20, 20, 1200, 500);
 
-        //Display the window.
         frame.pack();
         frame.setVisible(true);
     }
@@ -216,13 +204,10 @@ public class ConditionsWindow extends JPanel
     {
         frame.setTitle(nodeName);
         
-        status = INACTIVE;
-        
-        conditionsPane = new ConditionsWindow(model);
-        conditionsPane.setOpaque(true); //content panes must be opaque
+        conditionsPane = new ConditionsWindow(model, status);
+        conditionsPane.setOpaque(true); 
         frame.setContentPane(conditionsPane);
 
-        //Display the window.
         frame.pack();
         frame.setVisible(true);
     }
