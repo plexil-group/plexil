@@ -225,6 +225,12 @@ public class Constants
 
             put(MODEL_ENABLED_BREAKPOINTS,          Color.RED);
             put(MODEL_DISABLED_BREAKPOINTS,         Color.ORANGE);
+            
+            // condition value colors
+            
+            put(FALSE,        Color.RED);
+            put(TRUE,         Color.GREEN);
+            put("inf",        Color.YELLOW.darker());
          }
       };
 
@@ -354,7 +360,7 @@ public class Constants
       public static final int OPEN_SCRIPT_MENU_ITEM         = 1;
       public static final int OPEN_RECENT_MENU_ITEM         = 2;
       public static final int RELOAD_MENU_ITEM              = 3;
-      public static final int EXIT_MENU_ITEM                = 5;    // 5 is used because there is a separator element that is the 4th indexed element
+      public static final int EXIT_MENU_ITEM                = 5;    
       
       // run menu
       public static final int PAUSE_RESUME_MENU_ITEM        = 0;
@@ -412,6 +418,7 @@ public class Constants
       public static final int PAUSED_STATE                  = 6;
       public static final int DISABLED_BREAKING_STATE       = 7;
       public static final int ENABLED_BREAKING_STATE        = 8;
+      public static final int KILL_STATE                    = 9;
       
       public static final String YES = "Yes";
       public static final String NO = "No";
@@ -557,6 +564,7 @@ public class Constants
           else if (name.equals(OR))                                     return OR_NUM;
           else if (name.contains(CONDITION))                            return CONDITION_NUM;
           else if (name.equals(TOLERANCE))                              return TOLERANCE_NUM;
+          else if (name.equals(NODE_TIMEPOINT_VAL))                     return NODE_TIMEPOINT_VAL_NUM;
           else                                                          return -1; //error
       }
       
@@ -580,6 +588,7 @@ public class Constants
       public static final int OR_NUM = 17;
       public static final int CONDITION_NUM = 18;
       public static final int TOLERANCE_NUM = 19;
+      public static final int NODE_TIMEPOINT_VAL_NUM = 20;
 
       // the set of all condtions
 
@@ -755,6 +764,16 @@ public class Constants
       public static final String ASSN_VAL = ASSN + VAL;
       
       public static final String ASSN_NAME = "AssignmentName";
+      
+      public static final String COMMAND_NODE = "command-node";
+      
+      public static final String[] CONDITION_VALUES = 
+      {
+         UNKNOWN,
+         TRUE,
+         FALSE,
+         "inf",
+      };
 
       /** tags for XML nodes which expand to children */
 
