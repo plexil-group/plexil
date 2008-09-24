@@ -38,6 +38,7 @@ import java.awt.GridLayout;
 import java.awt.Color;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import static gov.nasa.luv.Constants.*;
@@ -45,17 +46,20 @@ import static gov.nasa.luv.Constants.*;
 public class ConditionsWindow extends JPanel 
 {
     
-    Model model;
-    static String status = UNKNOWN;
-    static JFrame frame;
-    static ConditionsWindow conditionsPane;
-    int rows = 1000;
-    int columns = 3;
-    String info[][];
-    JTable table;
-    ArrayList elements; 
+    private Model model;
+    private static String status = UNKNOWN;
+    private static JFrame frame;
+    private static ConditionsWindow conditionsPane;
+    private int rows = 1000;
+    private int columns = 3;
+    private String info[][];
+    private JTable table;     
     
-    Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
+    private String nodeName;
+    private HashMap nodeConditions;
+    private ArrayList elements;
+    
+    private Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
     
     public ConditionsWindow(Model model, String save) 
     {       
@@ -73,73 +77,79 @@ public class ConditionsWindow extends JPanel
         int col = 0;
         info = new String[rows][columns];
         
-        for (final String condition: ALL_CONDITIONS)
+        nodeName = model.getProperty(NODE_ID);
+        nodeConditions = Luv.getLuv().getConditionHandler().nodeConditions.get(nodeName);
+        
+        if (nodeConditions != null)
         {
-            elements = Luv.getLuv().getConditionHandler().nodeConditions.get(model.getProperty(NODE_ID)).get(getConditionNum(condition));            
-            
-            if (elements != null)
+            for (final String condition: ALL_CONDITIONS)
             {
-                info[row][col] = condition; 
-                ++col;
-                info[row][col] = UNKNOWN;
-                ++col;
-  
-                if (elements.size() > 1)
+                elements = (ArrayList) nodeConditions.get(getConditionNum(condition));            
+
+                if (elements != null)
                 {
-                    int count = 0;
-                    
-                    for (int i = 0; i < elements.size(); i++)
+                    info[row][col] = condition; 
+                    ++col;
+                    info[row][col] = UNKNOWN;
+                    ++col;
+
+                    if (elements.size() > 1)
                     {
-                        // place 2 elements and then jump to next line
- 
-                        if (count == 0)
-                            info[row][2] = elements.get(i) + " ";
-                        else
-                            info[row][2] += elements.get(i) + " ";
-                        
-                        count++;
-                            
-                        if (count == 2)
+                        int count = 0;
+
+                        for (int i = 0; i < elements.size(); i++)
                         {
-                            row++;
-                            count = 0;
+                            // place 2 elements and then jump to next line
+
+                            if (count == 0)
+                                info[row][2] = elements.get(i) + " ";
+                            else
+                                info[row][2] += elements.get(i) + " ";
+
+                            count++;
+
+                            if (count == 2)
+                            {
+                                row++;
+                                count = 0;
+                            }
                         }
                     }
+                    else if (elements.size() == 1)
+                        info[row][2] = (String)elements.get(0);
+
+                    col = 0;
+                    ++row;
                 }
-                else if (elements.size() == 1)
-                    info[row][2] = (String)elements.get(0);
-                
-                col = 0;
-                ++row;
-            }
-                         
-            // add model listener
 
-            this.model.addChangeListener(new Model.ChangeAdapter()
-               {
-                     @Override 
-                     public void propertyChange(Model model, String property)
-                     {
-                        if (property.equals(condition))
-                        {
-                            if (model.getProperty(condition).equals("0"))
-                                status = FALSE;
-                            else if (model.getProperty(condition).equals("1"))
-                                status = TRUE;
+                // add model listener
 
-                            for (int i = 0; i < rows; i++)
+                this.model.addChangeListener(new Model.ChangeAdapter()
+                   {
+                         @Override 
+                         public void propertyChange(Model model, String property)
+                         {
+                            if (property.equals(condition))
                             {
-                                if (condition.equals(info[i][0]))
+                                if (model.getProperty(condition).equals("0"))
+                                    status = FALSE;
+                                else if (model.getProperty(condition).equals("1"))
+                                    status = TRUE;
+
+                                for (int i = 0; i < rows; i++)
                                 {
-                                    info[i][1] = status;
-                                    table.setValueAt(status, i, 1);
-                                    table.repaint();
-                                    break;
+                                    if (condition.equals(info[i][0]))
+                                    {
+                                        info[i][1] = status;
+                                        table.setValueAt(status, i, 1);
+                                        table.repaint();
+                                        break;
+                                    }
                                 }
-                            }
+                             }
                          }
-                     }
-               });
+                   });
+            }
         }
         
         table = new JTable(info, columnNames);
