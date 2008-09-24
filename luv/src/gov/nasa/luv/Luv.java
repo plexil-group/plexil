@@ -522,7 +522,7 @@ public class Luv extends JFrame
               runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
           } 
           
-          statusMessageHandler.showStatus("Executing...", Color.GREEN.darker());
+          statusMessageHandler.showStatus("Executing...", Color.GREEN.darker(), 1000);
       }
       
       public void pausedState()
