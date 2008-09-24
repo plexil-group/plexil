@@ -57,10 +57,6 @@ public class Model extends Properties
       /** children of this node */
 
       private Vector<Model> children = new Vector<Model>();
-
-      /** An array of model tailors to customize those which need it. */
-
-      private NodeTailor nodeTailor = new NodeTailor();
       
       // local variable holders
       
@@ -79,15 +75,19 @@ public class Model extends Properties
       // condition info holders
       
       public HashMap<Integer, ArrayList> conditionMap = new HashMap<Integer, ArrayList>();
-
-      /** Table of model tailors to customize them as needed. */
-
-      private HashMap<String, NodeTailor> makerMap = new HashMap<String, NodeTailor>()
-      {
-         {
-            put(nodeTailor.getKey(), nodeTailor);
-         }
-      };
+      
+      static HashMap<String, String> typeLut = new HashMap<String, String>()
+        {
+           {
+              put(NODELIST,        "node-list");
+              put(COMMAND,         "command-node");
+              put(ASSN,            "assignment-node");
+              put(EMPTY,           "empty-node");
+              put(FUNCCALL,        "function-call-node");
+              put(UPDATE,          "update-node");
+              put(LIBRARYNODECALL, "library-node");
+           }
+        };
 
       /** Construct a Model.
        *
@@ -154,7 +154,7 @@ public class Model extends Properties
 
       public void addChild(Model child)
       {
-         assert isChildType(child.type);
+         assert isNode(child.type);
          children.add(child);
          child.setParent(this);
       }
@@ -545,12 +545,9 @@ public class Model extends Properties
          return result;
       } 
 
-      public static boolean isChildType(String type)
+      public static boolean isNode(String type)
       {
-         for (String childTag: CHILD_TAGS)
-            if (childTag.equalsIgnoreCase(type))
-               return true;
-         return false;
+         return type.equals(NODE);
       }
 
       public static boolean isProperty(String tag)
@@ -591,81 +588,21 @@ public class Model extends Properties
             s.append("]");
          }
          return s.toString();
-      }
-      
-      /** 
-       * Tailor this model based on it's type.
-       */
-
-      public void tailor()
-      {
-         NodeTailor tailor = makerMap.get(type);
-         if (tailor != null)
-            tailor.tailor(this);
-      }
-
-      // Tailor a node
-
-      public static class NodeTailor
-      {
-          
-          String key;
-          
-            static HashMap<String, String> typeLut = new HashMap<String, String>()
-            {
-               {
-                  put(NODELIST,        "node-list");
-                  put(COMMAND,         "command-node");
-                  put(ASSN,            "assignment-node");
-                  put(EMPTY,           "empty-node");
-                  put(FUNCCALL,        "function-call-node");
-                  put(UPDATE,          "update-node");
-                  put(LIBRARYNODECALL, "library-node");
-               }
-            };
-
-            String propertyName;
-
-            public NodeTailor()
-            {
-               this.key = NODE;
-            }
+      }                        
             
-            String getKey()
-            {
-               return key;
-            }
+      void setMainAttributesOfNode()
+      {
+         String rawType = this.getProperty(NODETYPE_ATTR);
+         String polishedtype = rawType != null ? typeLut.get(rawType) : null;
+         if (polishedtype == null)
+            polishedtype = rawType;
+
+         this.setProperty(MODEL_NAME, this.getProperty(NODE_ID));
+         this.setProperty(MODEL_TYPE, polishedtype);
+         this.setProperty(MODEL_OUTCOME, "UNKNOWN");
+         this.setProperty(MODEL_STATE, "INACTIVE");
+      }
             
-            void tailor(Model model)
-            {
-               String rawType = model.getProperty(NODETYPE_ATTR);
-               String type = rawType != null ? typeLut.get(rawType) : null;
-               if (type == null)
-                  type = rawType;
-
-               model.setProperty(MODEL_NAME, model.getProperty(NODE_ID));
-               model.setProperty(MODEL_TYPE, type);
-               model.setProperty(MODEL_OUTCOME, "UNKNOWN");
-               model.setProperty(MODEL_STATE, "INACTIVE");
-
-               // if this is a library node, get the library node name
-
-               if (model.getProperty(NODETYPE_ATTR).equals(LIBRARYNODECALL))
-               {
-                  // find and remove the library call sub structure
-                  
-                  Model libcall = model.removeChild(LIBRARYNODECALL);
-                  
-                  // extract the node id from the removed lib call
-                  // structure and stick it in those node under our own
-                  // name
-                  
-                  model.setProperty(MODEL_LIBRARY_CALL_ID,
-                                    libcall.getProperty(NODE_ID));
-               }
-            }
-      };
-
       /** Add a property change listener to this model. 
        *
        * @param listener the listener which will be added to the set of

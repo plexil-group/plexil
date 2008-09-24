@@ -26,8 +26,6 @@
 
 package gov.nasa.luv;
 
-import java.util.Vector;
-
 import static java.lang.System.*;
 import java.io.IOException;
 
@@ -85,6 +83,6 @@ public class ExecutionViaLuvViewerHandler
       
       public void killUEProcess() throws IOException
       {
-          ee.runtime.exec("pkill -n test-exec_g_rt");
+          ee.runtime.exec("kill -n test-exec_g_rt");
       }
 }

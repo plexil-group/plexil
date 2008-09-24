@@ -32,16 +32,10 @@ import java.util.Stack;
 
 import static gov.nasa.luv.Constants.*;
 
-import static java.lang.System.out;
-
 /** SAX PlexilPlan XML handler */
 
 public class PlexilPlanHandler extends AbstractDispatchableHandler
 {
-      private String indent = "";
-      private String indentIncrement = "  ";
-      private boolean showXmlTags = false;
-
       private static boolean recordDeclareVariables, valueExists, recordArrayInitValues = false;  
       private static String arrayValues = "";
       
@@ -56,8 +50,10 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       private static String conditionEquation = "";
       private static ArrayList<String> equationHolder = new ArrayList<String>();
       private static ArrayList<String> lookupArguments = new ArrayList<String>(); 
+      
+      private static boolean recordLibraryNames = false;
 
-      Stack<Model> stack = new Stack<Model>();
+      private Stack<Model> stack = new Stack<Model>();
       
       public PlexilPlanHandler(Model model)
       {
@@ -73,25 +69,19 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
       /** Handle start of an XML element. */
 
-      public void startElement(String uri, String localName, 
+      public void startElement(String uri, String tagName, 
                                String qName, Attributes attributes)
       {
           
-         if (showXmlTags)
-         {
-            out.println(indent + localName);
-            indent = indent + indentIncrement;
-         }
-
          // get the current node in the stack
          
          Model node = stack.peek();
 
          // if this SHOULD be a child node, make that happen
 
-         if (Model.isChildType(localName))
+         if (Model.isNode(tagName))
          {
-            Model child = new Model(localName);
+            Model child = new Model(tagName);
 
             // if there is a parent, add child to it
 
@@ -108,56 +98,20 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             {
                child.setProperty(attributes.getQName(i),
                                 attributes.getValue(i));
-               if (showXmlTags)
-                  out.println(indent + attributes.getQName(i) +
-                              " = " + attributes.getValue(i));
             }
             
          }
 
          // else if its not a property the we can ignore it
          
-         else if (!Model.isProperty(localName))
+         else if (!Model.isProperty(tagName))
             node = null;
          
-         // store variable and conditon info before executing
-
-             if (localName.equals(VAR_DECLS))
-             {
-                 recordDeclareVariables = true;
-                 valueExists = false;
-             }
-             else if (localName.equals(ARRAYELEMENT) && recordAssignments)
-             {
-                 recordArrayElement = true;
-             }
-             else if (localName.equals(DECL_ARRAY))
-             {
-                 recordArrayInitValues = true;
-                 arrayValues = "{";
-             }
-             else if (localName.equals(ASSN))
-             {
-                 recordAssignments = true;
-                 operatorHolder = new ArrayList<String>();
-             }
-             else if (localName.contains(RHS))
-                 recordRHS = true;
-             else if (localName.contains(CONDITION))
-             {
-                 recordCondition = true;     
-                 recordEQ = recordNE = recordArray = lookupChange = lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow = false;
-                 save = conditionEquation = "";
-                 equationHolder.clear();
-                 lookupArguments.clear();
-             }  
-             else if (localName.equals(NODE_TIMEPOINT_VAL))
-                 recordNodeTimepoint = true;
+         // check if tagName indicates that we will need to store variable 
+         // and conditon info before executing
          
-
-             if (recordCondition)
-                 recordStartConditionInfo(localName);       
-         
+         catchStartTag(tagName);
+        
          // push new node onto the stack
 
          stack.push(node);
@@ -166,155 +120,34 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       /** Handle end of an XML element. */
 
     @Override
-      public void endElement(String uri, String localName, String qName)
+      public void endElement(String uri, String tagName, String qName)
       {
-         // get the current node, which may be null indicating that it
-         // is to be ignored
-
-         Model node = stack.peek();
-
+         Model topNode = stack.peek();
+         Model nodeToUpdate = getNodeToUpdate();         
+        
+         // check if tagName indicates that we are finishing storage of info
+         // about a certain variable or condition
+         
+         catchEndTag(nodeToUpdate, tagName);
+         
          // get tweener text and put it in it's place
 
          String text = getTweenerText();
          
-         if (localName.equals(VAR_DECLS))
-         {
-             recordDeclareVariables = false;
-         }
-         else if (localName.equals(DECL_ARRAY))
-         {
-             valueExists = false;
-             recordArrayInitValues = false;
-             arrayValues += "}";
-             arrayValues = arrayValues.replace("{,", "{");
-             findFirstNonNullNode().recordVariableDeclarations(VAL, arrayValues);
-         }   
-         else if (localName.equals(ARRAYELEMENT))
-         {
-             recordArrayElement = false;
-         }
-         else if (localName.equals(DECL_VAR))
-         {
-             if (!valueExists)
-                 findFirstNonNullNode().recordVariableDeclarations(VAL, UNKNOWN);
-             valueExists = false;
-         }
-         else if (localName.equals(ASSN))
-         {
-             recordAssignments = false;
-             operatorHolder.clear();
-         }
-         else if (localName.contains(RHS))
-         {
-             recordRHS = false;
-             String update = operatorHolder.get(0);
-             findFirstNonNullNode().setUpdateVariableMap(VAL, update);
-         }
-         else if (localName.equals(ADD) ||
-                  localName.equals(SUB) ||
-                  localName.equals(MUL) ||
-                  localName.equals(DIV))
+         // assign info (text) to the appropriate variable or condition
+         
+         assignTweenerText(nodeToUpdate, tagName, text);
+ 
+         // assign model name to the appropriate model
+         
+         if (topNode != null && text != null)
+             topNode.setProperty(tagName, text);
 
-         {
-             if (recordDeclareVariables || recordAssignments)
-             {                     
-                 calculateValue(localName);
-             }
-             else if (recordCondition)
-             {
-                 if (localName.equals(ADD))
-                     localName = "+";
-                 if (localName.equals(SUB))
-                     localName = "-";
-                 if (localName.equals(MUL))
-                     localName = "*";
-                 if (localName.equals(DIV))
-                     localName = "/";
-                 conditionEquation = conditionEquation.replace("PlaceHolder", localName);
-             }
-         }
+         // if node, assign the main attributes for display in luv viewer
+         // name, type, state and outcome
 
-         if (recordCondition)
-             recordEndConditionInfo(localName);
-
-         if (text != null)
-         {
-             if (recordDeclareVariables)
-             {
-                 if (localName.contains(VAL) && !recordArrayInitValues)
-                 {
-                     valueExists = true;
-                     findFirstNonNullNode().recordVariableDeclarations(localName, text);
-                 }
-                 else if (localName.contains(VAL) && recordArrayInitValues)
-                 {
-                     arrayValues += "," + text;
-                 }
-                 else
-                     findFirstNonNullNode().recordVariableDeclarations(localName, text);
-             }
-
-             if (recordAssignments)
-             {
-                 if (localName.contains(VAR) && !recordRHS)
-                 {
-                     findFirstNonNullNode().setUpdateVariableMap(NAME, text);
-
-                     findVariableOwner(findFirstNonNullNode(), text);
-
-                     findFirstNonNullNode().setUpdateVariableMap("Locale", owner);
-                 }
-                 else if (recordArrayElement)
-                 {
-                     if (localName.equals(NAME))
-                     {
-                         arrayName = text;
-                     }
-                     else if (!recordRHS)
-                     {
-                         arrayName += "[" + text + "]";
-
-                         findFirstNonNullNode().setUpdateVariableMap(NAME, arrayName);
-
-                         findVariableOwner(findFirstNonNullNode(), text);
-
-                         findFirstNonNullNode().setUpdateVariableMap("Locale", owner);
-                     }
-                     else 
-                     {
-                         operatorHolder.add(findFirstNonNullNode().getArrayElementValue(findFirstNonNullNode(), arrayName, Integer.parseInt(text)));
-                     }
-                 }
-                 else
-                 {
-                     operatorHolder.add(text);
-                 }
-             }
-
-             if (recordCondition)
-                recordMiddleConditionInfo(localName, text);
-
-             if (node != null)
-                node.setProperty(localName, text);
-             
-             if (showXmlTags)
-                out.println(indent + text);
-         }
-         else if (localName.equals(NODEREF))
-             conditionEquation += findFirstNonNullNode().getProperty(NODE_ID);
-
-         // if showing tag data, print that
-
-         if (showXmlTags)
-         {
-            indent = indent.substring(0, indent.length() - indentIncrement.length());
-            out.println(indent + localName);
-         }
-
-         // if this node shold be tailor, do that
-
-         if (node != null && localName.equals(node.getType()))
-            node.tailor();
+         if (topNode != null && tagName.equals(topNode.getType()))
+            topNode.setMainAttributesOfNode();
 
          // pop the node off the stack
 
@@ -328,6 +161,189 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          model.planChanged();
       }
       
+      public void catchStartTag(String tagName)
+      {
+         if (tagName.equals(VAR_DECLS))
+         {
+             recordDeclareVariables = true;
+             valueExists = false;
+         }
+         else if (tagName.equals(LIBRARYNODECALL))
+         {
+             recordLibraryNames = true;
+         }
+         else if (tagName.equals(ARRAYELEMENT) && recordAssignments)
+         {
+             recordArrayElement = true;
+         }
+         else if (tagName.equals(DECL_ARRAY))
+         {
+             recordArrayInitValues = true;
+             arrayValues = "{";
+         }
+         else if (tagName.equals(ASSN))
+         {
+             recordAssignments = true;
+             operatorHolder = new ArrayList<String>();
+         }
+         else if (tagName.contains(RHS))
+             recordRHS = true;
+         else if (tagName.contains(CONDITION))
+         {
+             recordCondition = true;     
+             recordEQ = recordNE = recordArray = lookupChange = lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow = false;
+             save = conditionEquation = "";
+             equationHolder.clear();
+             lookupArguments.clear();
+         }  
+         else if (tagName.equals(NODE_TIMEPOINT_VAL))
+             recordNodeTimepoint = true;
+
+
+         if (recordCondition)
+             recordStartConditionInfo(tagName);
+      }
+      
+      public void assignTweenerText(Model nodeToUpdate, String tagName, String text)
+      {
+         if (text != null)
+         {           
+             if (recordDeclareVariables)
+             {
+                 if (tagName.contains(VAL) && !recordArrayInitValues)
+                 {
+                     valueExists = true;
+                     nodeToUpdate.recordVariableDeclarations(tagName, text);
+                 }
+                 else if (tagName.contains(VAL) && recordArrayInitValues)
+                 {
+                     arrayValues += "," + text;
+                 }
+                 else
+                     nodeToUpdate.recordVariableDeclarations(tagName, text);
+             }             
+
+             if (recordAssignments)
+             {
+                 if (tagName.contains(VAR) && !recordRHS)
+                 {
+                     nodeToUpdate.setUpdateVariableMap(NAME, text);
+                     findVariableOwner(nodeToUpdate, text);
+                     nodeToUpdate.setUpdateVariableMap("Locale", owner);
+                 }
+                 else if (recordArrayElement)
+                 {
+                     if (tagName.equals(NAME))
+                         arrayName = text;                    
+                     else if (!recordRHS)
+                     {
+                         arrayName += "[" + text + "]";
+
+                         nodeToUpdate.setUpdateVariableMap(NAME, arrayName);
+                         findVariableOwner(nodeToUpdate, text);
+                         nodeToUpdate.setUpdateVariableMap("Locale", owner);
+                     }
+                     else
+                         operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, Integer.parseInt(text)));
+                 }
+                 else
+                     operatorHolder.add(text);
+             }
+             
+             if (recordLibraryNames)
+             {
+                 if (!Luv.getLuv().getLibraryNames().containsKey(text))
+                 {
+                     String fullPath = Luv.getLuv().getFileHandler().getLibrary(text);
+                     
+                     if (fullPath == null)
+                     {
+                         Luv.getLuv().addLibraryName(text, text);
+                     }
+                     else
+                     {
+                         Luv.getLuv().addLibraryName(text, fullPath);
+                     }
+                 }
+
+                 recordLibraryNames = false;
+             }
+
+             if (recordCondition)
+                recordMiddleConditionInfo(tagName, text);
+             
+         }
+         else if (tagName.equals(NODEREF))
+             conditionEquation += nodeToUpdate.getProperty(NODE_ID);
+      }
+      
+      public void catchEndTag(Model nodeToUpdate, String tagName)
+      {        
+         if (tagName.equals(VAR_DECLS))
+         {
+             recordDeclareVariables = false;
+         }
+         else if (tagName.equals(DECL_ARRAY))
+         {
+             valueExists = false;
+             recordArrayInitValues = false;
+             arrayValues += "}";
+             arrayValues = arrayValues.replace("{,", "{");
+             
+             if (arrayValues.equals("{}"))
+                 nodeToUpdate.recordVariableDeclarations(VAL, UNKNOWN);                 
+             else
+                 nodeToUpdate.recordVariableDeclarations(VAL, arrayValues);
+         }   
+         else if (tagName.equals(ARRAYELEMENT))
+         {
+             recordArrayElement = false;
+         }
+         else if (tagName.equals(DECL_VAR))
+         {
+             if (!valueExists)
+                 nodeToUpdate.recordVariableDeclarations(VAL, UNKNOWN);
+             valueExists = false;
+         }
+         else if (tagName.equals(ASSN))
+         {
+             recordAssignments = false;
+             operatorHolder.clear();
+         }
+         else if (tagName.contains(RHS))
+         {
+             recordRHS = false;
+             String update = operatorHolder.get(0);
+             nodeToUpdate.setUpdateVariableMap(VAL, update);
+         }
+         else if (tagName.equals(ADD) ||
+                  tagName.equals(SUB) ||
+                  tagName.equals(MUL) ||
+                  tagName.equals(DIV))
+
+         {
+             if (recordDeclareVariables || recordAssignments)
+             {                     
+                 addOperatorToEquation(tagName);
+             }
+             else if (recordCondition)
+             {
+                 if (tagName.equals(ADD))
+                     tagName = "+";
+                 if (tagName.equals(SUB))
+                     tagName = "-";
+                 if (tagName.equals(MUL))
+                     tagName = "*";
+                 if (tagName.equals(DIV))
+                     tagName = "/";
+                 conditionEquation = conditionEquation.replace("PlaceHolder", tagName);
+             }
+         }
+
+         if (recordCondition)
+             recordEndConditionInfo(tagName);
+      }
+      
       public void findVariableOwner(Model node, String text)
       {
             if (node != null && node.declNameVarList.contains(text))                        
@@ -336,7 +352,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                 findVariableOwner(node.getParent(), text);
       }
       
-      public Model findFirstNonNullNode()
+      public Model getNodeToUpdate()
       {
             int i = stack.size() - 1;
             while (stack.elementAt(i) == null)
@@ -344,9 +360,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             return stack.elementAt(i);
       } 
       
-      public void recordStartConditionInfo(String localName)
+      public void recordStartConditionInfo(String tagName)
       { 
-         int name = getTagName(localName);
+         int name = getTagName(tagName);
          
          switch (name)
          {
@@ -381,12 +397,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                          conditionEquation += " != ";
                  }
 
-                 if (localName.contains(LOOKUPNOW))
+                 if (tagName.contains(LOOKUPNOW))
                  {
                     conditionEquation += LOOKUPNOW;
                     lookupNow = true;
                  }
-                 else if (localName.equals(LOOKUPCHANGE)) 
+                 else if (tagName.equals(LOOKUPCHANGE)) 
                  {
                     conditionEquation += LOOKUPCHANGE;
                     lookupChange = true;
@@ -398,9 +414,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          }        
       }
       
-      public void recordMiddleConditionInfo(String localName, String text)
+      public void recordMiddleConditionInfo(String tagName, String text)
       {
-             if (localName.contains(VAR) || localName.equals(NAME) || localName.equals(NODEREF) || localName.equals(NODE_ID) || localName.equals(STATE_NAME))
+             if (tagName.contains(VAR) || tagName.equals(NAME) || tagName.equals(NODEREF) || tagName.equals(NODE_ID) || tagName.equals(STATE_NAME))
              {
                  lonelyValue = false;
                  
@@ -426,7 +442,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      }
                  }
              }
-             else if (localName.equals(STRING_VAL))
+             else if (tagName.equals(STRING_VAL))
              {
                  lonelyVariable = false;
                  if (lookupChange || lookupNow)
@@ -437,7 +453,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  else
                      conditionEquation += " == \"" + text + "\"";
              }
-             else if (localName.contains(VAL))
+             else if (tagName.contains(VAL))
              {
                  lonelyVariable = false;
                  
@@ -474,17 +490,17 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      conditionEquation = text;
                  }
              } 
-             else if (localName.equals(TIMEPOINT))
+             else if (tagName.equals(TIMEPOINT))
              {
                  lonelyVariable = true;
                  conditionEquation += "." + text;
              }                
       }
       
-      public void recordEndConditionInfo(String localName)
+      public void recordEndConditionInfo(String tagName)
       {
           
-         int name = getTagName(localName);
+         int name = getTagName(tagName);
          
          switch (name)
          {
@@ -570,11 +586,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  break;
              case EQ_NUM:                  
              case NE_NUM:
-                 recordEquation(localName);
+                 recordEquation(tagName);
                  break;
              case ARRAYELEMENT_NUM:
                  if (!recordEQ)
-                     recordEquation(localName);
+                     recordEquation(tagName);
                  break;
              case NOT_NUM: 
                  if (!equationHolder.isEmpty())
@@ -594,12 +610,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  {
                      if (equationHolder.get(i).equals("PlaceHolder"))
                      {
-                         equationHolder.set(i, localName);
+                         equationHolder.set(i, tagName);
                          break;
                      }
                  }
 
-                 save = localName;
+                 save = tagName;
                  break;
              case CONDITION_NUM: 
                  recordCondition = false;
@@ -607,12 +623,18 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
                  for (int i = 0; i < ALL_CONDITIONS.length; i++)
                  {
-                     if (localName.equals(ALL_CONDITIONS[i]))
+                     if (tagName.equals(ALL_CONDITIONS[i]))
                      {
                              condition = i;
                              break;
                      }
                  } 
+                 
+                 if (conditionEquation.length() > 0)
+                 {
+                     equationHolder.add(conditionEquation);
+                     conditionEquation = "";
+                 }
 
                  if (equationHolder.size() > 1)
                  {
@@ -631,7 +653,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      }
                  }
 
-                 findFirstNonNullNode().addConditionInfo(condition, equationHolder);
+                 getNodeToUpdate().addConditionInfo(condition, equationHolder);
 
                  equationHolder = new ArrayList<String>();
                  break;
@@ -641,7 +663,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          }        
       }  
       
-      public void recordEquation(String localName)
+      public void recordEquation(String tagName)
       {
           if (conditionEquation.length() > 0)
              {
@@ -651,9 +673,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      {
                          int lastIndex = equationHolder.size() - 1;
 
-                         if (localName.contains(EQ))
+                         if (tagName.contains(EQ))
                              conditionEquation = " == " + conditionEquation;
-                         else if (localName.contains(NE))
+                         else if (tagName.contains(NE))
                              conditionEquation = " != " + conditionEquation;
 
                          String replace = equationHolder.get(lastIndex) + conditionEquation;
@@ -667,9 +689,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  conditionEquation = "";
              }
                               
-             if (localName.contains(EQ))
+             if (tagName.contains(EQ))
                  recordEQ = false;
-             else if (localName.contains(NE))
+             else if (tagName.contains(NE))
                  recordNE = false;
       }
       
@@ -681,7 +703,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
           conditionEquation = "";
       }
       
-      public void calculateValue(String operator)
+      public void addOperatorToEquation(String operator)
       {
           String update = "";
           

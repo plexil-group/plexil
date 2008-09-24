@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import javax.swing.JLabel;
 
 import static java.lang.System.*;
-import static gov.nasa.luv.Constants.*;
 
 public class StatusMessageHandler
 {    
@@ -101,8 +100,7 @@ public class StatusMessageHandler
                            statusBar.setForeground(message.color);
                            statusBar.setText(message.message);
 
-                           if (!message.message.contains("Currently processing:") &&
-                               !message.message.equals(StatusMessageHandler.BLANK_MESSAGE.message))
+                           if (!message.message.equals(StatusMessageHandler.BLANK_MESSAGE.message))
                            {                  
                                out.println("STATUS: " + message.message);
                            }

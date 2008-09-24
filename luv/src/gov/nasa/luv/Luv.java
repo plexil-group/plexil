@@ -44,6 +44,8 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
@@ -83,7 +85,6 @@ public class Luv extends JFrame
       private static LuvBreakPointHandler         luvBreakPointHandler          = new LuvBreakPointHandler();        // handles all break points
       private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer itself
       private static ViewHandler                  viewHandler                   = new ViewHandler();                 // handles all file operations
-      private static LibraryHandler               libraryHandler                = new LibraryHandler();              // handles all library operations
       private static VariableHandler              variableHandler;              // saves node's variable information
       private static ConditionHandler             conditionHandler;             // saves node's condition information
       
@@ -92,6 +93,8 @@ public class Luv extends JFrame
       private JMenu runMenu                 = new JMenu("Run");   
       private JMenu viewMenu                = new JMenu("View");
       private JMenu windowMenu              = new JMenu("Windows");
+      
+      private HashMap<String, String> libraryNames = new HashMap<String, String>();
       
       private DebugWindow luvViewerDebugWindow;   
       
@@ -298,8 +301,6 @@ public class Luv extends JFrame
       }
       
       public ViewHandler            getViewHandler()            { return viewHandler; }             // get current view handler
-      
-      public LibraryHandler         getLibraryHandler()         { return libraryHandler; }          // get current library handler
 
       public FileHandler            getFileHandler()            { return fileHandler; }             // get current file handler
       
@@ -412,7 +413,6 @@ public class Luv extends JFrame
 
           viewHandler.clearCurrentView();
           statusMessageHandler.clearStatusMessageQ();
-          libraryHandler.resetLibraryInfo();
           luvBreakPointHandler.clearBreakPoint();
           luvBreakPointHandler.clearBreakPointMap();
           luvBreakPointHandler.clearUnfoundBreakPoints();
@@ -807,9 +807,6 @@ public class Luv extends JFrame
       {
          File recentPlan = new File(Luv.getLuv().getFileHandler().getRecentPlanName(recentIndex));
          StringBuffer description = new StringBuffer("Load " + recentPlan.getName());
-
-         for (String libName: Luv.getLuv().getLibraryHandler().getRecentLibNames(recentIndex, false))
-            description.append(" + " + new File(libName).getName());
          
          description.append(".");
          return description.toString();
@@ -822,7 +819,6 @@ public class Luv extends JFrame
          // put newest file at the top of the list
 
          String current = Luv.getLuv().getModel().getPlanName();
-         Vector<String> libraries = Luv.getLuv().getModel().getLibraryNames();
 
          String filename = current;
          int count = Luv.getLuv().getProperties().getInteger(PROP_FILE_RECENT_COUNT);
@@ -830,16 +826,6 @@ public class Luv extends JFrame
          {
             if (filename != null)
             {
-               // get (and remove) the old library names at this index
-
-               Vector<String> tmpLibs = Luv.getLuv().getLibraryHandler().getRecentLibNames(i, true);
-
-               // replace them with these library names
-
-               int libIndex = 1;
-               for (String library: libraries)
-                  Luv.getLuv().getLibraryHandler().setRecentLibName(i, libIndex++, library);
-               libraries = tmpLibs;
 
                filename = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_PLAN_BASE + i, filename);
 
@@ -935,23 +921,36 @@ public class Luv extends JFrame
           if (fileHandler.getScript() != null)
           {
               command += " " +  fileHandler.getScript().getAbsolutePath();
-
-              Vector<String> libNames = libraryHandler.getRecentLibNames(1, false);
-
-              if (libNames.size() > 0)
-              {
-                  for (String libName : libNames)
-                  {
-                      command += " -l ";
-                      command += libName.toString();
-                  }
-              }
-
-              return command;
           }
           else
               return "no script";
-      }      
+          
+          if (libraryNames.size() > 0)
+          {
+              for (String libName : libraryNames.values())
+              {
+                  command += " -l ";
+                  command += libName.toString();
+              }
+          }
+
+          return command;
+      }   
+      
+      public void addLibraryName(String name, String path)
+      {
+          libraryNames.put(name, path);
+      }
+      
+      public HashMap<String, String> getLibraryNames()
+      {
+          return libraryNames;
+      }
+      
+      public void clearLibraryNames()
+      {
+          libraryNames.clear();
+      }
       
       
       

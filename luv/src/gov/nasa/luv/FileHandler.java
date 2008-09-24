@@ -208,6 +208,29 @@ public class FileHandler
         return plan;  
     }
     
+    // find the libraries needed
+    
+    public String getLibrary(String library) 
+    {      
+        String path = "";
+                
+        path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+        File testPath = new File(path + System.getProperty("file.separator") + library + ".plx");
+            
+        if (!testPath.exists())
+        {  
+            path = unfoundLibrary(library);
+        }
+        else
+        {
+            path = testPath.getAbsolutePath();
+            Luv.getLuv().showStatus("Loading " + path);
+        }
+        
+        return path;  
+    }
+
+    
     // find the appropriate script to be executed
 
     public File getScript() throws IOException 
@@ -470,37 +493,18 @@ public class FileHandler
          Luv.getLuv().getModel().clear();
          Luv.getLuv().getModel().addPlanName(plan.toString());
          Luv.getLuv().getModel().setProperty(VIEWER_BLOCKS, FALSE);
-         Luv.getLuv().getLibraryHandler().clearCallNameList();
          
          readPlan(Luv.getLuv().getModel(), plan);
-         
-         if (libraryNames != null)
-         {
-            for (String libraryName: libraryNames)
-            {
-                File lib = new File(libraryName);
-                if (lib.exists())
-                    Luv.getLuv().getLibraryHandler().loadLibrary(new File(libraryName));
-                else
-                {
-                    Luv.getLuv().getLibraryHandler().unfoundLibrary(libraryName);
-                    Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                }
-            }
-         }
-            
-         Luv.getLuv().getLibraryHandler().linkLibraries(Luv.getLuv().getModel());
+
             
          if(!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
          {
              Luv.getLuv().getViewHandler().resetView();
              Luv.getLuv().addFileToRecentFileList();
-             Luv.getLuv().getLibraryHandler().clearLibraries();
          }
          
       }
-      
-      
+            
       // Load a recently loaded plan
 
       public void loadRecentPlan(int index)
@@ -509,7 +513,7 @@ public class FileHandler
          String scriptName = getRecentScriptName(index);
          if (planName != null)
          {
-            loadPlan(new File(planName), Luv.getLuv().getLibraryHandler().getRecentLibNames(index, false));
+            loadPlan(new File(planName));
             if (scriptName != null && !scriptName.equals(UNKNOWN))
             {
                 script = new File(scriptName);
@@ -606,5 +610,105 @@ public class FileHandler
          }
 
          return isPlan;
+      }
+      
+      public String unfoundLibrary(String callName)
+      {
+          boolean retry = true;
+          String fullName = "";
+          
+          do
+          {
+
+               // if we didn't make the link, ask user for library
+
+               if (retry)
+               {
+                  // option
+
+                  Object[] options = 
+                     {
+                        "I will locate library",
+                        "Do not load this library",
+                        "Cancel plan loading",
+                     };
+
+                  // show the options
+
+                  Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library\n\n", 1000);
+                  int result = JOptionPane.showOptionDialog(
+                     Luv.getLuv(),
+                     "Unable to locate the \"" + callName + "\" library.\n\n" +
+                     "What do you want to do?\n\n",
+                     "Load the library?",
+                     JOptionPane.YES_NO_CANCEL_OPTION,
+                     JOptionPane.WARNING_MESSAGE,
+                     null,
+                     options,
+                     options[0]);
+
+                  // process the results
+
+                  switch (result)
+                  {
+                     // try to load the library and retry the link
+
+                     case 0:
+                        fullName = chooseLibrary();
+                        retry = false;
+                        break;
+
+                        // if the user doesn't want to find this library
+                        // go on with link but don't retry to like this
+                        // one
+
+                     case 1:
+                         Luv.getLuv().getViewHandler().resetView();
+                         Luv.getLuv().addFileToRecentFileList();
+                         retry = false;
+                         Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
+                         break;
+
+                     // if the user doesn't want to load any libraries,
+                     // halt the link operation now
+
+                     case 2:
+                         Luv.getLuv().setLuvViewerState(START_STATE);
+                         retry = false;
+                         Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
+                         break;
+                  }
+               }
+            } while (retry); 
+          
+          return fullName;
+      }
+      
+      /**
+       * Select and load a plexil library from the disk.  The library is
+       * added to the set of global libraries.
+       */
+      
+      public String chooseLibrary()
+      {
+         try
+         {
+            String recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_LIB_DIR);
+            if (recent == null)
+               recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR);
+            Luv.getLuv().getFileHandler().fileChooser.setCurrentDirectory(new File(recent));
+            if (Luv.getLuv().getFileHandler().fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION)
+            {
+               File library = Luv.getLuv().getFileHandler().fileChooser.getSelectedFile();
+               Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, library.getParent());
+               return library.getAbsolutePath();
+            }
+         }
+         catch(Exception e)
+         {
+            e.printStackTrace();
+         }
+         
+         return null;
       }
 }
