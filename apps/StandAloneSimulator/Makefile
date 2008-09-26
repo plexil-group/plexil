@@ -11,7 +11,6 @@ CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 INCLUDES = -I$(ACE_ROOT)
 ifdef SHARED
  LIB_EXT = .so
- ROBOSIMLIB +=  -L$(LIB_DIR) -l$(LIB_NAME)
  SHARED_OBJ_FLAGS += -fpic
  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
 else
@@ -31,8 +30,11 @@ LIB_OBJECTS = $(OBJ_DIR)/SimulatorScriptReader$(OBJ_EXT) \
 # Rules to build the targets
 
 all : $(LIB_DIR)/$(LIB_TARGET)
+ifdef SHARED
+	(cd RoboSimSimulator; make SHARED=1)
+else
 	(cd RoboSimSimulator; make)
-
+endif
 
 ifdef SHARED
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
