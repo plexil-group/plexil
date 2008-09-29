@@ -44,9 +44,7 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
 import static gov.nasa.luv.Constants.*;
@@ -241,7 +239,7 @@ public class Luv extends JFrame
                         {
                             if (model.getProperty(VIEWER_BLOCKS).equals("true"))
                             {
-                                setLuvViewerState(PAUSED_STATE);  
+                                setLuvViewerState(PAUSED_STATE); 
                                 runMenu.setEnabled(true);
                                 doesViewerBlock();
                             }
@@ -527,6 +525,7 @@ public class Luv extends JFrame
       
       public void pausedState()
       {
+          allowBreaks = true;
           isExecuting = true;
           planPaused = true;
           planStep = false;
@@ -584,6 +583,7 @@ public class Luv extends JFrame
                   executedViaCommandPrompt = true; 
                   openedPlanViaLuvViewer = false;      
                   fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+                  runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
                   break;
               case PAUSED_STATE:
                   pausedState();
