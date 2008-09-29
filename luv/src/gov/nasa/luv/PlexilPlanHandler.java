@@ -244,7 +244,20 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                          nodeToUpdate.setUpdateVariableMap("Locale", owner);
                      }
                      else
-                         operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, Integer.parseInt(text)));
+                     {
+                         Integer index = Integer.getInteger(text);
+                         
+                         if (index == null)
+                         {
+                             String textValue = nodeToUpdate.getVariableValue(nodeToUpdate, text);
+                             if (textValue.equals("error"))
+                                 ;  // error resolving what index of the array is
+                             else
+                                 operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, Integer.parseInt(textValue)));
+                         }
+                         else
+                             operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, index));
+                     }
                  }
                  else
                      operatorHolder.add(text);

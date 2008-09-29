@@ -219,7 +219,17 @@ public class FileHandler
             
         if (!testPath.exists())
         {  
-            path = unfoundLibrary(library);
+            testPath = new File(path + System.getProperty("file.separator") + library + ".xml");
+            
+            if (!testPath.exists())
+            {
+                path = unfoundLibrary(library);
+            }
+            else
+            {
+                path = testPath.getAbsolutePath();
+                Luv.getLuv().showStatus("Loading " + path);
+            }
         }
         else
         {
