@@ -248,6 +248,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                          Integer index = Integer.getInteger(text);
                          
                          if (index == null)
+                             index = Integer.parseInt(text);
+                         
+                         if (index == null)
                          {
                              String textValue = nodeToUpdate.getVariableValue(nodeToUpdate, text);
                              if (textValue.equals("error"))

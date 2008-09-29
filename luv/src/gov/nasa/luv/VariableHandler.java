@@ -105,43 +105,46 @@ public class VariableHandler
                     temp = temp.substring(1, temp.length() - 1);
                     int start2 = nodeDeclVariables.get(nodeToUpdate).get(NAME).get(index).toString().indexOf('[') + 1;
                     int end2 = nodeDeclVariables.get(nodeToUpdate).get(NAME).get(index).toString().indexOf(']');
-                    int oldArraySize = Integer.parseInt(nodeDeclVariables.get(nodeToUpdate).get(NAME).get(index).toString().substring(start2, end2));
-                    String[] array = temp.split(",");
-                    int newArraySize = array.length;
-                    
-                    if (element < oldArraySize)
+                    if (start2 != -1 && end2 != -1)
                     {
-                        if (element < newArraySize)
+                        int oldArraySize = Integer.parseInt(nodeDeclVariables.get(nodeToUpdate).get(NAME).get(index).toString().substring(start2, end2));
+                        String[] array = temp.split(",");
+                        int newArraySize = array.length;
+
+                        if (element < oldArraySize)
                         {
-                            array[element] = newValue;
-                        }
-                        else
-                        {
-                            String newArray = "";
-                            int extra = 0;
-                            for (int i = 0; i < newArraySize; i++)
+                            if (element < newArraySize)
                             {
-                                newArray += array[i] + ",";
-                                extra = i;
+                                array[element] = newValue;
                             }
-                            if (extra + 1 == element)
-                                newArray += newValue;
                             else
                             {
-                                do
+                                String newArray = "";
+                                int extra = 0;
+                                for (int i = 0; i < newArraySize; i++)
                                 {
-                                    extra++;
-                                    newArray += ",";
-                                    
-                                } while (extra != element);
-                                
-                                newArray += newValue;                                
+                                    newArray += array[i] + ",";
+                                    extra = i;
+                                }
+                                if (extra + 1 == element)
+                                    newArray += newValue;
+                                else
+                                {
+                                    do
+                                    {
+                                        extra++;
+                                        newArray += ",";
+
+                                    } while (extra != element);
+
+                                    newArray += newValue;                                
+                                }
+                                newArray = "{" + newArray + "}";
+                                newValue = newArray;
                             }
-                            newArray = "{" + newArray + "}";
-                            newValue = newArray;
-                        }
-                    }                   
-                    nodeDeclVariables.get(nodeToUpdate).get(VAL).set(index, newValue);
+                        }                   
+                        nodeDeclVariables.get(nodeToUpdate).get(VAL).set(index, newValue);
+                    }
                 }
             }
             else
@@ -258,6 +261,7 @@ public class VariableHandler
   {
       StringTokenizer tokens = new StringTokenizer(postfix);
       Stack result = new Stack();
+      String temp = "";
       float num1 = (float)0.0;
       float num2 = (float)0.0;
       float num3 = (float)0.0;
@@ -269,8 +273,13 @@ public class VariableHandler
           
           if (element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/"))
           {
+              if (result.peek().equals(UNKNOWN))
+                 return UNKNOWN;
               num1 = Float.parseFloat((String)result.pop());
-              num2 = Float.parseFloat((String)result.pop());
+              
+              if (result.peek().equals(UNKNOWN))
+                 return UNKNOWN;
+              num2 = Float.parseFloat((String)result.pop());                           
               
               if (element.equals("+"))
                   num3 = num2 + num1;
