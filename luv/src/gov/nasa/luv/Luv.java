@@ -451,7 +451,7 @@ public class Luv extends JFrame
           stopSearchForMissingLibs = false; 
           isExecuting = false;
           stopExecution = false;        
-          executedViaLuvViewer = false;         
+          executedViaLuvViewer = false;
   
           // set certain menu items
           
@@ -969,6 +969,9 @@ public class Luv extends JFrame
                       openedPlanViaLuvViewer = true;
                       executedViaCommandPrompt = false;
                       setLuvViewerState(READY_STATE);
+                      luvBreakPointHandler.clearBreakPoint();
+                      luvBreakPointHandler.clearBreakPointMap();
+                      luvBreakPointHandler.clearUnfoundBreakPoints();
                       variableHandler = new VariableHandler((Model) model.clone());
                       conditionHandler = new ConditionHandler((Model) model.clone());
                   }
@@ -995,12 +998,12 @@ public class Luv extends JFrame
                {
                    if (executedViaLuvViewer || openedPlanViaLuvViewer)
                    {
-                      setLuvViewerState(READY_STATE);
-                      fileHandler.loadRecentPlan(1);
+                      setLuvViewerState(READY_STATE);                
                       variableHandler = new VariableHandler((Model) model.clone());
                       conditionHandler = new ConditionHandler((Model) model.clone());
                       if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
                             refreshPopUpNodeWindow();
+                      fileHandler.loadRecentPlan(1);
                    }
                    else
                    {

@@ -77,6 +77,7 @@ public class LuvBreakPointHandler
       public void clearBreakPointMap()
       {
           breakPointMap = new HashMap<BreakPoint, ModelPath>();
+          breakPointList = new Vector<String>();
       }
             
       public void clearUnfoundBreakPoints()
