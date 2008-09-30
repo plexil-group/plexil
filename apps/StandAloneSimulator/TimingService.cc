@@ -30,7 +30,15 @@
 static void* reactorEventLoop(void* arg)
 {
   std::cout << "Starting reactor event loop for the local timing service." << std::endl;
-  ACE_Reactor::instance()->run_reactor_event_loop();
+  ACE_Reactor::instance()->owner(ACE_Thread::self());
+  int result = ACE_Reactor::instance()->run_reactor_event_loop();
+  if (result == -1)
+    {
+      std::cout << "Error while running reactor event loop" << std::endl;
+      ACE_ERROR((LM_ERROR, ACE_TEXT ("(%t) %p\n"), ACE_TEXT ("Error")));
+      perror(" ");
+    }
+
   return NULL;
 }
 
@@ -55,7 +63,7 @@ void TimingService::setTimer(timeval time)
   gettimeofday(&currTime, NULL);
   time.tv_sec -= currTime.tv_sec;
   time.tv_usec -= currTime.tv_usec;
-  std::cout << "TimingService:setTimer. Setting timer" << std::endl;
+  std::cout << "TimingService:setTimer. Setting timer for " << time.tv_sec << std::endl;
   ACE_Reactor::instance()->schedule_timer(this, 0, ACE_Time_Value(time));
 }
 
