@@ -60,11 +60,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          super(PLEXIL_PLAN, model);
          stack.push(model);
       }
-
+      
       /** Handle start of an XML document */
 
       public void startDocument()
       {
+          resetFlags();
       }
 
       /** Handle start of an XML element. */
@@ -221,9 +222,8 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                  }
                  else
                      nodeToUpdate.recordVariableDeclarations(tagName, text);
-             }             
-
-             if (recordAssignments)
+             }
+             else if (recordAssignments)
              {
                  if (tagName.contains(VAR) && !recordRHS)
                  {
@@ -245,28 +245,29 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      }
                      else
                      {
-                         Integer index = Integer.getInteger(text);
-                         
-                         if (index == null)
-                             index = Integer.parseInt(text);
-                         
-                         if (index == null)
+                         if (tagName.equals(INT_VAL))
+                         {
+                             Integer index = Integer.getInteger(text);
+
+                             if (index == null)
+                                 index = Integer.parseInt(text);
+                             
+                              operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, index));
+                         }
+                         else if (tagName.equals(INT_VAR))
                          {
                              String textValue = nodeToUpdate.getVariableValue(nodeToUpdate, text);
                              if (textValue.equals("error"))
                                  ;  // error resolving what index of the array is
                              else
                                  operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, Integer.parseInt(textValue)));
-                         }
-                         else
-                             operatorHolder.add(nodeToUpdate.getArrayElementValue(nodeToUpdate, arrayName, index));
+                         }                
                      }
                  }
                  else
                      operatorHolder.add(text);
              }
-             
-             if (recordLibraryNames)
+             else if (recordLibraryNames)
              {
                  if (!Luv.getLuv().getLibraryNames().containsKey(text))
                  {
@@ -749,5 +750,38 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
           }
        
           operatorHolder.add(update);
+      }
+      
+      public void resetFlags()
+      {
+          recordDeclareVariables = false; 
+          valueExists = false; 
+          recordArrayInitValues = false;  
+          arrayValues = "";
+
+          recordAssignments = false; 
+          recordRHS = false; 
+          recordArrayElement = false;
+          operatorHolder = new ArrayList<String>();
+          owner = "";
+          arrayName = "";
+
+          recordCondition = false; 
+          recordEQ = false; 
+          recordNE = false; 
+          recordArray = false; 
+          lookupChange = false; 
+          lonelyValue = false; 
+          recordTime = false; 
+          tolerance = false; 
+          lookupNow = false; 
+          lonelyVariable = false; 
+          recordNodeTimepoint = false;
+          save = "";  
+          conditionEquation = "";
+          equationHolder = new ArrayList<String>();
+          lookupArguments = new ArrayList<String>(); 
+
+          recordLibraryNames = false;
       }
 }

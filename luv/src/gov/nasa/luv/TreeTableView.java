@@ -545,6 +545,12 @@ public class TreeTableView extends JTreeTable implements View
             {
                String n1 = model.getProperty(MODEL_NAME);
                String n2 = other.model.getProperty(MODEL_NAME);
+               
+               if (n1 == null)
+                   return false;
+               
+               if (n2 == null)
+                   return false;
 
                return n1.equals(n2);
             }
