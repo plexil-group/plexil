@@ -92,12 +92,18 @@ namespace PLEXIL
   const std::string INT_TAG("Integer");
   const std::string REAL_TAG("Real");
   const std::string BOOL_TAG("Boolean");
-  const std::string BLOB_TAG("String");
-  const std::string ARRAY_TAG("Array");
-  const std::string DECL_ARRAY_TAG("DeclareArray");
-  const std::string ARRAYELEMENT_TAG("ArrayElement");
+  const std::string BLOB_TAG("BLOB");
   const std::string STRING_TAG("String");
   const std::string TIME_TAG("Time");
+  const std::string ARRAY_TAG("Array");
+
+  const std::string NODE_OUTCOME_TAG("NodeOutcome");
+  const std::string NODE_FAILURE_TAG("NodeFailure");
+  const std::string NODE_STATE_TAG("NodeState");
+  const std::string NODE_COMMAND_HANDLE_TAG("NodeCommandHandle");
+
+  const std::string DECL_ARRAY_TAG("DeclareArray");
+  const std::string ARRAYELEMENT_TAG("ArrayElement");
 
   const std::string NODETYPE_ATTR("NodeType");
   const std::string DIR_ATTR("dir");
@@ -362,7 +368,7 @@ namespace PLEXIL
 	value = xml->FirstChild()->Value();
 
       // return new value
-      return (new PlexilValue(PlexilXmlParser::toType(type), value))->getId();
+      return (new PlexilValue(PlexilXmlParser::parseValueType(type), value))->getId();
     }
   };
 
@@ -382,7 +388,7 @@ namespace PLEXIL
       if ((varStart = strstr(xml->Value(), VAR_TAG.c_str())) != xml->Value())
 	{
 	  std::string type(xml->Value(), varStart - xml->Value());
-	  retval->setType(type);
+	  retval->setType(PlexilParser::parseValueType(type));
 	}
       return retval->getId();
     }
@@ -428,9 +434,10 @@ namespace PLEXIL
 	  std::string::size_type pos = tag.find(RHS_TAG);
 	  if (pos != std::string::npos)
 	    {
+	      // *** N.B. Used to try to get expression type info here,
+	      // but that info is ambiguous and not used at present.
+	      // So ignore it.
 	      rhs = child;
-	      VarType type = PlexilXmlParser::toType(tag.substr(0, pos));
-	      retval->setType(type);
 	      break;
 	    }
 	}
@@ -604,13 +611,13 @@ namespace PLEXIL
     s_exprParsers.insert(std::make_pair(TIME_TAG + VAR_TAG, varRef));
     s_exprParsers.insert(std::make_pair(BLOB_TAG + VAR_TAG, varRef));
 
-    s_exprParsers.insert(std::make_pair("NodeOutcome" + VAR_TAG,
+    s_exprParsers.insert(std::make_pair(NODE_OUTCOME_TAG + VAR_TAG,
 					new PlexilOutcomeVarParser()));
-    s_exprParsers.insert(std::make_pair("NodeFailure" + VAR_TAG,
+    s_exprParsers.insert(std::make_pair(NODE_FAILURE_TAG + VAR_TAG,
 					new PlexilFailureVarParser()));
-    s_exprParsers.insert(std::make_pair("NodeState" + VAR_TAG,
+    s_exprParsers.insert(std::make_pair(NODE_STATE_TAG + VAR_TAG,
 					new PlexilStateVarParser()));
-    s_exprParsers.insert(std::make_pair("NodeCommandHandle" + VAR_TAG,
+    s_exprParsers.insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAR_TAG,
 					new PlexilCommandHandleVarParser()));
     s_exprParsers.insert(std::make_pair("NodeTimepoint" + VAL_TAG,
 					new PlexilTimepointVarParser()));
@@ -622,10 +629,10 @@ namespace PLEXIL
     s_exprParsers.insert(std::make_pair(BOOL_TAG + VAL_TAG, val));
     s_exprParsers.insert(std::make_pair(TIME_TAG + VAL_TAG, val));
     s_exprParsers.insert(std::make_pair(BLOB_TAG + VAL_TAG, val));
-    s_exprParsers.insert(std::make_pair("NodeOutcome" + VAL_TAG, val));
-    s_exprParsers.insert(std::make_pair("NodeFailure" + VAL_TAG, val));
-    s_exprParsers.insert(std::make_pair("NodeState" + VAL_TAG, val));
-    s_exprParsers.insert(std::make_pair("NodeCommandHandle" + VAL_TAG, val));
+    s_exprParsers.insert(std::make_pair(NODE_OUTCOME_TAG + VAL_TAG, val));
+    s_exprParsers.insert(std::make_pair(NODE_FAILURE_TAG + VAL_TAG, val));
+    s_exprParsers.insert(std::make_pair(NODE_STATE_TAG + VAL_TAG, val));
+    s_exprParsers.insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAL_TAG, val));
     s_exprParsers.insert(std::make_pair(LOOKUPNOW_TAG, new PlexilLookupNowParser()));
     s_exprParsers.insert(std::make_pair(LOOKUPCHANGE_TAG, new PlexilChangeLookupParser()));
     s_exprParsers.insert(std::make_pair(LOOKUPFREQ_TAG, new PlexilFrequencyLookupParser()));
@@ -948,7 +955,7 @@ namespace PLEXIL
       if (testTag(DECL_VAR_TAG, decl))
          return parseAtomicOrStringDeclaration(decl);
       
-      // else its a deprecated varible declairation xml syntax
+      // else its a deprecated variable declaration xml syntax
       
       return parseDepricatedDeclaration(decl);
    }
@@ -1007,9 +1014,9 @@ namespace PLEXIL
 	while ((child = child->NextSiblingElement()) != NULL);
       }
 
-    // add varaible to retruned variable set
+    // add variable to returned variable set
       
-    return new PlexilArrayVar(name, type, maxSize, initVals);
+    return new PlexilArrayVar(name, PlexilParser::parseValueType(type), maxSize, initVals);
   }
 
    // parse an atomic or string declaration
@@ -1046,12 +1053,12 @@ namespace PLEXIL
                               "Initial value of " << type << " variable \'" <<
                               name << "\' of incorrect type \'" << 
                               initValType << "\'");
-         return new PlexilVar(name, type, child->FirstChild()->Value());
+         return new PlexilVar(name, PlexilParser::parseValueType(type), child->FirstChild()->Value());
       }
       
-      // otherwise create varible with the value unknown
+      // otherwise create variable with the value unknown
       
-      return new PlexilVar(name, type);
+      return new PlexilVar(name, PlexilParser::parseValueType(type));
    }
    
   // parse a depricated declaration
@@ -1062,7 +1069,7 @@ namespace PLEXIL
   {
     checkTagPart(DECL_TAG, decl);
     std::string tag(decl->Value());
-    VarType type = toType(tag.substr(DECL_TAG.size()));
+    PlexilType type = parseValueType(tag.substr(DECL_TAG.size()));
     std::string name;
     std::string value;
             
@@ -1203,11 +1210,6 @@ namespace PLEXIL
 	retval->setName(ref->FirstChild()->Value());
       }
     return retval;
-  }
-
-  VarType PlexilXmlParser::toType(const std::string& typeStr)
-  {
-    return typeStr;
   }
 
   void PlexilXmlParser::getNameOrValue(const TiXmlElement* xml, 
@@ -1416,13 +1418,43 @@ namespace PLEXIL
     return retval;
   }
 
+  // *** add support for array vars ***
+
   TiXmlElement* PlexilXmlParser::toXml(const PlexilVarId& var)
     throw(ParserException)
   {
-    TiXmlElement* retval = element(std::string(DECL_TAG) + var->type());
-    TiXmlElement* varName = namedTextElement(var->type() + VAR_TAG, var->name());
-    retval->InsertEndChild(varName);
-    retval->InsertEndChild(toXml(var->value()->getId()));
+    TiXmlElement* retval =
+      element(std::string(var->isArray() ? DECL_ARRAY_TAG : DECL_VAR_TAG));
+    TiXmlElement* name = namedTextElement(NAME_TAG, var->name());
+    retval->InsertEndChild(name);
+    TiXmlElement* type = namedTextElement(TYPE_TAG, PlexilParser::valueTypeString(var->type()));
+    retval->InsertEndChild(type);
+
+    if (var->isArray())
+      {
+	const PlexilArrayVarId& arrayVar = (const PlexilArrayVarId&) var;
+	// max size
+	TiXmlElement* max = namedNumberElement(MAXSIZE_TAG, arrayVar->maxSize());
+	retval->InsertEndChild(max);
+
+	// initial values
+	TiXmlElement* vals = element(INITIALVAL_TAG);
+	std::string valueTag = PlexilParser::valueTypeString(arrayVar->type()) + VAL_TAG;
+	const std::vector<std::string>& values =
+	  ((PlexilArrayValue *) arrayVar->value())->values();
+	for (std::vector<std::string>::const_iterator it = values.begin();
+	     it != values.end();
+	     it++)
+	  {
+	    vals->InsertEndChild(namedTextElement(valueTag, *it));
+	  }
+	retval->InsertEndChild(vals);
+      }
+    else
+      {
+	// initial value
+	retval->InsertEndChild(toXml(var->value()->getId()));
+      }
 
     int lineno = var->lineNo();
     if (lineno != 0)
@@ -1506,7 +1538,7 @@ namespace PLEXIL
   {
     if (Id<PlexilInternalVar>::convertable(ref->getId()))
       return PlexilXmlParser::toXml((PlexilInternalVar*) ref);
-    return namedTextElement((ref->typed() ? ref->type() + VAR_TAG : VAR_TAG),
+    return namedTextElement((ref->typed() ? PlexilParser::valueTypeString(ref->type()) + VAR_TAG : VAR_TAG),
 			    ref->name());
   }
 
@@ -1549,7 +1581,7 @@ namespace PLEXIL
   TiXmlElement* PlexilXmlParser::toXml(const PlexilValue* val)
     throw(ParserException)
   {
-    return namedTextElement(val->type() + VAL_TAG, val->value());
+    return namedTextElement(PlexilParser::valueTypeString(val->type()) + VAL_TAG, val->value());
   }
 
   TiXmlElement* PlexilXmlParser::toXml(const PlexilListBody* body)

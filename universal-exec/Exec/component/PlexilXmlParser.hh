@@ -85,7 +85,6 @@ namespace PLEXIL
 
     static PlexilExprId parseExpr(const TiXmlElement* xml)
       throw(ParserException);
-    static VarType toType(const std::string& typeStr);
     static PlexilNodeId parseNode(const TiXmlElement* node)
       throw(ParserException);
     static PlexilInterfaceId parseDepricatedInterface(const TiXmlElement* intf)
