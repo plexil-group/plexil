@@ -93,11 +93,29 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
     DECLARE_STATIC_CLASS_CONST(std::string, LIBRARYNODECALL, "LibraryNodeCall");
 
+    // value types
+    DECLARE_STATIC_CLASS_CONST(std::string, INTEGER_STR, "Integer");
+    DECLARE_STATIC_CLASS_CONST(std::string, REAL_STR, "Real");
+    DECLARE_STATIC_CLASS_CONST(std::string, BOOL_STR, "Boolean");
+    DECLARE_STATIC_CLASS_CONST(std::string, BLOB_STR, "BLOB");
+    DECLARE_STATIC_CLASS_CONST(std::string, ARRAY_STR, "Array");
+    DECLARE_STATIC_CLASS_CONST(std::string, STRING_STR, "String");
+    DECLARE_STATIC_CLASS_CONST(std::string, TIME_STR, "Time");
+    DECLARE_STATIC_CLASS_CONST(std::string, NODE_STATE_STR, "NodeState");
+    DECLARE_STATIC_CLASS_CONST(std::string, NODE_OUTCOME_STR, "NodeOutcome");
+    DECLARE_STATIC_CLASS_CONST(std::string, NODE_FAILURE_STR, "NodeFailure");
+    DECLARE_STATIC_CLASS_CONST(std::string, NODE_COMMAND_HANDLE_STR, "NodeCommandHandle");
+
+    DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
+
     virtual PlexilNodeId parse() = 0;
     virtual ~PlexilParser() {}
     
     static PlexilNodeType parseNodeType(const std::string & typeName);
     static const std::string& nodeTypeString(PlexilNodeType nodeType);
+
+    static PlexilType parseValueType(const std::string& typeStr);
+    static const std::string& valueTypeString(const PlexilType& type);
   };
 
   class PlexilNode 
@@ -209,31 +227,26 @@ namespace PLEXIL {
     std::vector<PlexilExprId> m_subExprs;
   };
 
-   class VarType : public std::string
-   {
-      public:
-         VarType(const char * type) : std::string(type) {}
-         VarType(const std::string& type) : std::string(type) {}
-         VarType() : std::string("unknown") {}
-         PlexilType plexilType() const;
-   };
-
    class PlexilVarRef : public PlexilExpr
    {
-      public:
-         PlexilVarRef() : PlexilExpr(), m_typed(false),
-                          m_defaultValue(PlexilExprId::noId()) {}
+   public:
+     PlexilVarRef() :
+       PlexilExpr(),
+       m_typed(false),
+       m_type(PLEXIL::UNKNOWN),
+       m_defaultValue(PlexilExprId::noId())
+     {}
+
          bool typed() const {return m_typed;}
-         const VarType& type() const {return m_type;}
+         const PlexilType& type() const {return m_type;}
          const PlexilExprId& defaultValue() const {return m_defaultValue;}
          
          void setDefaultValue(const PlexilExprId& defaultValue)
          {m_defaultValue = defaultValue;}
-         void setType(const std::string& type) {setType(VarType(type));}
-         void setType(const VarType& type) {m_type = type; m_typed = true;}
+         void setType(const PlexilType& type) {m_type = type; m_typed = true;}
       private:
          bool m_typed;
-         VarType m_type;
+         PlexilType m_type;
          PlexilExprId m_defaultValue;
    };
 
@@ -328,18 +341,18 @@ namespace PLEXIL {
 
   class PlexilValue : public PlexilExpr {
   public:
-    PlexilValue(const VarType& type, const std::string& value = "UNKNOWN");
-    const VarType& type() const {return m_type;}
+    PlexilValue(const PlexilType& type, const std::string& value = "UNKNOWN");
+    const PlexilType& type() const {return m_type;}
     const std::string& value() const {return m_value;}
   private:
-    VarType m_type;
+    PlexilType m_type;
     std::string m_value;
   };
 
    class PlexilArrayValue : public PlexilValue
    {
       public:
-         PlexilArrayValue(const VarType& type, unsigned maxSize,
+         PlexilArrayValue(const PlexilType& type, unsigned maxSize,
                           const std::vector<std::string>& values);
          const std::vector<std::string>& values() const {return m_values;}
          unsigned maxSize() const {return m_maxSize;}
@@ -350,14 +363,17 @@ namespace PLEXIL {
 
   class PlexilVar {
   public:
-    PlexilVar(const std::string& name, const VarType& type,
+    PlexilVar(const std::string& name, const PlexilType& type,
 	      const std::string& value = "UNKNOWN");
-    PlexilVar(const std::string& name, const VarType& type,
+    PlexilVar(const std::string& name, const PlexilType& type,
 	      PlexilValue* value);
     virtual ~PlexilVar();
+
+    virtual bool isArray() const {return false;}
+
     const PlexilVarId& getId() const {return m_id;}
     const std::string& name() const {return m_name;}
-    const VarType& type() const {return value()->type();}
+    const PlexilType& type() const {return m_type;}
     PlexilValue* value() const {return m_value;}
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
@@ -367,24 +383,25 @@ namespace PLEXIL {
   private:
     int m_lineNo;
     int m_colNo;
+    PlexilType m_type;
     PlexilVarId m_id;
     std::string m_name;
     PlexilValue* m_value;
   };
   
-   class PlexilArrayVar : public PlexilVar
-   {
-      public:
-         PlexilArrayVar(const std::string& name, 
-                        const VarType& type, 
-                        const unsigned maxSize, 
-                        std::vector<std::string>& values);
-         ~PlexilArrayVar();
-         const VarType& type() const {return m_type;}
-         //const std::vector<PlexilValue*>& values() const {return m_values;}
-      private:
-         VarType m_type;
-         unsigned m_maxSize;
+   class PlexilArrayVar : public PlexilVar {
+   public:
+     PlexilArrayVar(const std::string& name, 
+		    const PlexilType& type, 
+		    const unsigned maxSize, 
+		    std::vector<std::string>& values);
+     ~PlexilArrayVar();
+
+     virtual bool isArray() const {return true;}
+     virtual unsigned maxSize() const {return m_maxSize;}
+
+   private:
+     unsigned m_maxSize;
    };
   
   class PlexilNodeBody {
@@ -416,15 +433,19 @@ namespace PLEXIL {
   //rhs may need to end up being a list!
   class PlexilAssignmentBody : public PlexilActionBody {
   public:
-    PlexilAssignmentBody() : PlexilActionBody() {}
+    PlexilAssignmentBody()
+      : PlexilActionBody(),
+	m_type(PLEXIL::UNKNOWN)
+    {}
+
     const PlexilExprId& RHS() const {return m_rhs;}
-    const VarType& type() const {return m_type;}
+    const PlexilType& type() const {return m_type;}
 
     void setRHS(const PlexilExprId& rhs) {m_rhs = rhs;}
-    void setType(VarType& type) {m_type = type;}
+    void setType(const PlexilType& type) {m_type = type;}
   private:
     PlexilExprId m_rhs;
-    VarType m_type;
+    PlexilType m_type;
   };
 
   class PlexilCommandBody : public PlexilActionBody {
@@ -519,6 +540,7 @@ namespace PLEXIL {
     void setState(const std::string& state) {m_state = state;}
     void setTimepoint(const std::string& timepoint) {m_timepoint = timepoint;}
   private:
+    // *** Both of these should be represented by enums.
     std::string m_state;
     std::string m_timepoint;
   };

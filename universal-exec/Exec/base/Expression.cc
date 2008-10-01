@@ -233,21 +233,21 @@ namespace PLEXIL {
       m_initialValue = m_value = Expression::UNKNOWN();
     else if(val->value() == "INF" || val->value() == "Inf" ||
 	    val->value() == "inf") {
-      if(val->type() == "Integer")
+      if(val->type() == INTEGER)
 	m_initialValue = m_value = PLUS_INFINITY;
       else
 	m_initialValue = m_value = REAL_PLUS_INFINITY;
     }
     else if(val->value() == "-INF" || val->value() == "-Inf" ||
 	    val->value() == "-inf") {
-      if(val->type() == "Integer")
+      if(val->type() == INTEGER)
 	m_initialValue = m_value == MINUS_INFINITY;
       else
 	m_initialValue = m_value = REAL_MINUS_INFINITY;
     }
-    else if(val->type() == "Boolean" && val->value() == "true")
+    else if(val->type() == BOOLEAN && val->value() == "true")
 	m_initialValue = m_value = true;
-    else if(val->type() == "Boolean" && val->value() == "false")
+    else if(val->type() == BOOLEAN && val->value() == "false")
       m_initialValue = m_value = false;
     else {
       std::stringstream str;
@@ -255,7 +255,7 @@ namespace PLEXIL {
       double value;
       str >> value;
       m_initialValue = m_value = value;
-      checkError(checkValue(m_value), "Invalid " << val->type() << " '" << m_value << "'");
+      checkError(checkValue(m_value), "Invalid " << PlexilParser::valueTypeString(val->type()) << " '" << m_value << "'");
     }
   }
 
@@ -502,12 +502,13 @@ namespace PLEXIL {
                                                   const NodeConnectorId& node,
                                                   bool& wasCreated)
    {
-      // if this is a varible ref, look it up
+      // if this is a variable ref, look it up
       
       if (Id<PlexilVarRef>::convertable(expr)) 
       {
          checkError(node.isValid(), "Need a valid Node argument to find a Variable");
-         ExpressionId retval = node->findVariable(expr);         checkError(retval.isValid(), "Unable to find variable '" << expr->name() << "'");
+         ExpressionId retval = node->findVariable(expr);         
+	 checkError(retval.isValid(), "Unable to find variable '" << expr->name() << "'");
          wasCreated = false;
          return retval;
       }

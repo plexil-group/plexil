@@ -68,7 +68,7 @@ namespace PLEXIL
     PlexilArrayValue* arrayValue = (PlexilArrayValue*)expr;
 
     // init the local type and array
-    m_type = arrayValue->type().plexilType();
+    m_type = arrayValue->type();
     m_maxSize = arrayValue->maxSize();
     StoredArray array(m_maxSize, Expression::UNKNOWN());
     setValue(array.getKey());
@@ -575,8 +575,8 @@ namespace PLEXIL
     : Variable(expr, node, isConst) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
-    checkError(val->type() == "String",
-	       "Expected a String value.  Got " << val->type());
+    checkError(val->type() == PLEXIL::STRING,
+	       "Expected a String value.  Got " << PlexilParser::valueTypeString(val->type()));
 
     m_initialValue = m_value = (double)LabelStr(val->value());
   }
@@ -787,8 +787,8 @@ namespace PLEXIL
 			       const bool isConst) : Variable(expr, node, isConst) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
-    checkError(val->type() == "NodeState",
-	       "Expected NodeState value.  Found '" << val->type() << "'");
+    checkError(val->type() == PLEXIL::NODE_STATE,
+	       "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
@@ -882,8 +882,8 @@ namespace PLEXIL
 				   const bool isConst) : Variable(expr, node, isConst) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
-    checkError(val->type() == "NodeOutcome",
-	       "Expected NodeOutcome value.  Found " << val->type() << ".");
+    checkError(val->type() == PLEXIL::NODE_OUTCOME,
+	       "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
@@ -914,8 +914,8 @@ namespace PLEXIL
 				   const bool isConst) : Variable(expr, node, isConst) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
-    checkError(val->type() == "NodeFailure",
-	       "Expected NodeFailure value.  Found " << val->type() << ".");
+    checkError(val->type() == PLEXIL::FAILURE_TYPE,
+	       "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
@@ -944,8 +944,8 @@ namespace PLEXIL
                                                const bool isConst) : Variable(expr, node, isConst) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
-    checkError(val->type() == "NodeCommandHandle",
-	       "Expected NodeCommandHandle value.  Found " << val->type() << ".");
+    checkError(val->type() == PLEXIL::COMMAND_HANDLE,
+	       "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
