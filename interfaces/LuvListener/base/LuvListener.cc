@@ -254,6 +254,7 @@ namespace PLEXIL
    {
       std::ostringstream buffer;
       buffer << xml;
+      debugMsg("LuvListener:sendMessage", " sending:\n" << buffer.str());
       sendMessage(buffer.str());
    }
 
