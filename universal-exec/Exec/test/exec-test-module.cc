@@ -100,7 +100,7 @@ public:
   }
 private:
   static bool testBasicAllocation() {
-    PlexilValue data("foo");
+    PlexilValue data(PLEXIL::INTEGER);
     data.setName("foo");
     ExpressionId exp = ExpressionFactory::createInstance(LabelStr("AllocationExpression"),
 							 data.getId());
@@ -115,7 +115,7 @@ private:
     return true;
   }
   static bool testPublication() {
-    PlexilValue data("foo");
+    PlexilValue data(PLEXIL::INTEGER);
     data.setName("foo");
     ExpressionId exp =
       ExpressionFactory::createInstance(LabelStr("AllocationExpression"), data.getId());
@@ -1026,12 +1026,12 @@ private:
 
     PlexilState state2;
     state2.setName("test2");
-    PlexilValue high("String", "high");
+    PlexilValue high(PLEXIL::STRING, "high");
     state2.addArg(high.getId());
 
     PlexilState state3;
     state3.setName("test2");
-    PlexilValue low("String", "low");
+    PlexilValue low(PLEXIL::STRING, "low");
     state3.addArg(low.getId());
 
     PlexilLookupNow test1;
@@ -1067,7 +1067,7 @@ private:
 
     PlexilState state2;
     state2.setName("changeWithToleranceTest");
-    PlexilValue tolerance("Real", "0.5");
+    PlexilValue tolerance(PLEXIL::REAL, "0.5");
     PlexilChangeLookup test2;
     test2.setState(state2.getId());
     test2.addTolerance(tolerance.getId());
