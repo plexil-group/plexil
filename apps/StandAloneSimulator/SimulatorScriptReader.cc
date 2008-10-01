@@ -114,10 +114,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName)
 
           std::istringstream responseStringStream( inLine );
           
-          timeval timeDelay;
-          timeDelay.tv_sec = static_cast<long>(delay);
-          timeDelay.tv_usec = 
-            static_cast<long>((delay - static_cast<double>(timeDelay.tv_sec)) * 1000000.0);
+          timeval timeDelay = m_Simulator->convertDoubleToTimeVal(delay);
 
           ResponseBase* response = 
             m_Simulator->getResponseFactory()->parse(commandName, timeDelay,

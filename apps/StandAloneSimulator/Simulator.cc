@@ -34,7 +34,7 @@
 
 bool operator< (const timeval& t1, const timeval& t2)
 {
-  return (CONVERT_TIMESPEC_TO_DOUBLE(t1) < CONVERT_TIMESPEC_TO_DOUBLE(t1)) ?
+  return (CONVERT_TIMEVAL_TO_DOUBLE(t1) < CONVERT_TIMEVAL_TO_DOUBLE(t2)) ?
     true : false;
 }
 
@@ -95,19 +95,28 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
   respMsg->id = uniqueId;
   timeval currTime;
   gettimeofday(&currTime, NULL);
+  std::cout << "Simulator::scheduleResponseForMessage. Current time: " 
+            << currTime.tv_sec << std::endl;
   currTime.tv_sec += tDelay.tv_sec;
   currTime.tv_usec += tDelay.tv_usec;
 
-  //  std::cout << "tDelay: " << tDelay.tv_sec << std::endl;
+  std::cout << "tDelay: " << tDelay.tv_sec << std::endl;
   MutexGuard mg(&m_TimerMutex);
   if ((tDelay.tv_sec != 0) || (tDelay.tv_usec != 0))
     {
+      std::cout << "Simulator::scheduleResponseForMessage. Need to schedule a timer for: " 
+                << currTime.tv_sec << std::endl;
       // Check if the new time already exists in the map
       if(m_TimeToResp.find(currTime) == m_TimeToResp.end())
         {
           // Schedule timer
           std::cout << "Simulator::scheduleResponseForMessage. Scheduling a timer" << std::endl;
           m_TimingService.setTimer(currTime);
+        }
+      else
+        {
+          std::cout << "A wakeup call had already been scheduled for that time. Ignoring." 
+                    << std::endl;
         }
       m_TimeToResp.insert(std::pair<timeval, ResponseMessage*>(currTime, respMsg));
     }
@@ -133,3 +142,13 @@ void Simulator::handleWakeUp()
       m_TimeToResp.erase(iter);
     }
 }
+
+timeval Simulator::convertDoubleToTimeVal(double timeD)
+{
+  timeval time;
+  time.tv_sec = static_cast<long>(timeD);
+  time.tv_usec = static_cast<long>((timeD - static_cast<double>(time.tv_sec)) / ONE_MILLIONTH);
+  
+  return time;
+}
+

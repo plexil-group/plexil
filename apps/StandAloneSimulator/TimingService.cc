@@ -61,10 +61,20 @@ void TimingService::setTimer(timeval time)
 {
   timeval currTime;
   gettimeofday(&currTime, NULL);
-  time.tv_sec -= currTime.tv_sec;
-  time.tv_usec -= currTime.tv_usec;
-  std::cout << "TimingService:setTimer. Setting timer for " << time.tv_sec << std::endl;
-  ACE_Reactor::instance()->schedule_timer(this, 0, ACE_Time_Value(time));
+  double currTimeD = CONVERT_TIMEVAL_TO_DOUBLE(currTime);
+  //  std::cout << "TimingService::setTimer. Current time: (" 
+  //            << currTime.tv_sec << ", "  << currTime.tv_usec << ")" 
+  //            << ", double: " << currTimeD << std::endl;
+
+  double timeD = CONVERT_TIMEVAL_TO_DOUBLE(time);
+  //  std::cout << "TimingService::setTimer. time: " 
+  //            << time.tv_sec << ", " << time.tv_usec << ")" 
+  //            << ", double " << timeD << std::endl;
+
+  timeval deltaTime = m_Simulator->convertDoubleToTimeVal(timeD - currTimeD);
+  std::cout << "TimingService:setTimer. Setting timer for a delta of: " 
+            << deltaTime.tv_sec << "(secs) " << deltaTime.tv_usec << "(usec)." << std::endl;
+  ACE_Reactor::instance()->schedule_timer(this, 0, ACE_Time_Value(deltaTime));
 }
 
 int TimingService::handle_timeout(const ACE_Time_Value& tv, const void* timer_data_as_void)

@@ -35,9 +35,9 @@ class ResponseMessage;
 class ResponseFactory;
 class CommRelayBase;
 
-#define CONVERT_TIMESPEC_TO_DOUBLE(t) static_cast<double>(t.tv_sec) + \
-                                      static_cast<double>(t.tv_usec) / 1000000.0
-
+#define ONE_MILLIONTH 0.000001
+#define CONVERT_TIMEVAL_TO_DOUBLE(t) static_cast<double>(t.tv_sec) + \
+  (static_cast<double>(t.tv_usec)) * ONE_MILLIONTH
 
 class Simulator
 {
@@ -53,6 +53,9 @@ public:
   ResponseFactory* getResponseFactory() const {return m_ResponseFactory;}
   
   void scheduleResponseForCommand(const std::string& command, int uniqueId);
+
+  timeval convertDoubleToTimeVal(double timeD);
+
 private:
   Simulator(){};
   void sendResponse(const ResponseMessage* respMsg);
