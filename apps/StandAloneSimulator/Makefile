@@ -36,6 +36,8 @@ else
 	(cd RoboSimSimulator; make)
 endif
 
+simcore : $(LIB_DIR)/$(LIB_TARGET)
+
 ifdef SHARED
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
 	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
