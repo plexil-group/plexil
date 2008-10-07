@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Enumeration;
 
-import java.util.HashMap;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
 
@@ -222,43 +221,9 @@ public class TreeTableView extends JTreeTable implements View
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
               toolTip.append("<br><b>TYPE</b> " + node.getProperty(MODEL_TYPE));
-
-              if (!displayNodeVariables(toolTip, nodePath, node, nodeName))
-                  toolTip.append("<br>No local variables for this node");
           }
           
           return toolTip.length() > 0 ? toolTip.toString() : null;
-      }
-      
-      public boolean displayNodeVariables(StringBuffer toolTip, TreePath nodePath, Model node, String nodeName)
-      {
-         boolean valid = true;
-         HashMap<String,ArrayList>   nodeVariables = Luv.getLuv().getVariableHandler().getVariableMap().get(nodeName);
-                
-         if (nodeVariables != null && !nodeVariables.isEmpty())
-         {                  
-             ArrayList names     = nodeVariables.get(NAME);
-             ArrayList types     = nodeVariables.get(TYPE);
-             ArrayList values    = nodeVariables.get(VAL);
-
-             if (names != null && types != null && values != null)
-             {               
-                 toolTip.append("<br><b>LOCAL VARIABLES</b>");
-
-                 for (int i = 0; i < types.size(); i++)
-                 {
-                     toolTip.append("<br>" + types.get(i) + " <b>" + names.get(i) + "</b>");
-                     if (!values.get(i).equals(UNKNOWN))
-                         toolTip.append(" = " + values.get(i));
-                 } 
-             }
-             else 
-                 valid = false;
-         }
-         else
-             valid = false;
-         
-         return valid;
       }
 
       /** Ensure that this views properties are propertly reflected in

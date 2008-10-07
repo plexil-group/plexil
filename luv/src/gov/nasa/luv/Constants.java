@@ -89,7 +89,6 @@ public class Constants
             add(UPDATE,          UPDATE_ICO_NAME);
             add(REQ,             REQUEST_ICO_NAME);
             add(LIBRARYNODECALL, LIBCALL_ICO_NAME);
-            add(SPLASH_LOGO,      SPLASH_SCREEN_ICO);
             add(START_LOGO,      START_SCREEN_ICO);
          }
          
@@ -309,41 +308,15 @@ public class Constants
       public static final String    PROP_LOG_FILE =
       	    System.getProperty(PROP_USER_HOME) + 
             System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";
-      
-      public static final int PROP_RECENT_FILE = 1;
 
       // file
 
       public static final String XML_EXTENSION = "xml";
       public static final String PLX_EXTENSION = "plx";
       
-      public static final String DEBUG_LOG_FILE = "debug.log";
-      
       // miscellaneous constants
       
-      public static final String ROOT = "root";
-      public static final String DUMMY = "dummy";
-      public static final String RECENT_PLANS = "Recent Plans";
-      public static final String VIEW = "View";
-      public static final String DEBUG_WINDOW = "Debug Window";
-      public static final String FILE = "File";
-      public static final String RUN = "Run";
-      public static final String BLANK = " ";
-      public static final String ENABLE = "Enable";
-      public static final String DISABLE = "Disable";
-      
-      public static final String FONT = "Monospaced";
-      
-      public static final String NODE_POPUP_MENU = "Node Popup Menu";
-      
-      public static final String CLEAR_SCREEN = "Clear Screen";
-      
       public static final String START_LOGO = "Clear Screen";
-      public static final String SPLASH_LOGO = "Splash Screen";
-      
-      public static final String DEFAULT_TITLE = "Welcome to Luv Viewer";
-      public static final String SCRIPT_TITLE = " SCRIPT: ";
-      public static final String PLAN_TITLE = "PLAN: ";
       
       public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
       
@@ -419,18 +392,6 @@ public class Constants
       public static final int DISABLED_BREAKING_STATE       = 7;
       public static final int ENABLED_BREAKING_STATE        = 8;
       public static final int KILL_STATE                    = 9;
-      
-      public static final String YES = "Yes";
-      public static final String NO = "No";
-      public static final String EXIT = "Exit";
-      public static final String PAUSE = "Pause";
-      public static final String RESUME = "Resume";
-      
-      public static final String OPEN_PLAN = "Open Plan";
-      public static final String OPEN_SCRIPT = "Open Script";
-      public static final String RELOAD_PLAN = "Reload Plan";
-      public static final String SHOW_LUV_VIEWER_DEBUG_WINDOW = "Show Luv Viewer Debug Window";
-      public static final String HIDE_LUV_VIEWER_DEBUG_WINDOW = "Hide Luv Viewer Debug Window";
 
       // boolean constant values
 
@@ -542,6 +503,29 @@ public class Constants
           else                                                          return ""; //error
       }
       
+      public static String getConditionNameFromNumber(int condition)
+      {
+          switch(condition)
+          {
+              case SKIP_CONDITION_NUM:                          return "Skip";
+              case START_CONDITION_NUM:                         return "Start"; 
+              case END_CONDITION_NUM:                           return "End";  
+              case INVARIANT_CONDITION_NUM:                     return "Invariant"; 
+              case PRE_CONDITION_NUM:                           return "Pre"; 
+              case POST_CONDITION_NUM:                          return "Post";
+              case REPEAT_CONDITION_NUM:                        return "Repeat";
+              case ANCESTOR_INVARIANT_CONDITION_NUM:            return "Ancestor Invariant";
+              case ANCESTOR_END_CONDITION_NUM:                  return "Ancestor End";   
+              case PARENT_EXECUTING_CONDITION_NUM:              return "Parent Executing";  
+              case PARENT_FINISHED_CONDITION_NUM:               return "Parent Finished";  
+              case CHILDREN_WAITING_OR_FINISHED_NUM:            return "Children Waiting or Finished";
+              case ABORT_COMPLETE_NUM:                          return "Abort Complete";  
+              case PARENT_WAITING_CONDITION_NUM:                return "Parent Waiting";    
+              case COMMAND_HANDLE_RECEIVED_CONDITION_NUM:       return "Command Handle Received";
+              default:                                          return "error";
+          }
+      }
+      
       public static int getTagName(String name)
       {
           if (name.equals(NODE_OUTCOME_VAR))                            return NODE_OUTCOME_NUM;    
@@ -622,7 +606,6 @@ public class Constants
 
       // tags adapted from UE code
 
-      public static final String SPLASH_PAGE ="SplashPage";
       public static final String NODE = "Node";
       public static final String NODE_ID = "NodeId";
       public static final String PRIORITY = "Priority";
@@ -780,17 +763,7 @@ public class Constants
       public static final String[] CHILD_TAGS =
       {
          NODE,
-         LIBRARYNODECALL,
-//          COMMAND,
-
-         // conditions
-         
-//          PRE_COND,
-//          START_COND,
-//          INVARIANT_COND,
-//          END_COND,
-//          POST_COND,
-//          REPEAT_COND,
+         LIBRARYNODECALL
       };
 
       /** tags for XML nodes which become properties */
@@ -818,135 +791,18 @@ public class Constants
          NODE_ID,
          BODY,
          NODELIST,
-//          COMMAND_NAME,
-//          FUNCCALL_NAME,
           NAME,
           TYPE,
           MAXSIZE,
           INDEX,
-//         ASSN_NAME,
-
-//          // states
-
-//          STATE_VAL,
-//          STATE_NAME,
-         
-//          // values
-
-//            ASSN_VAL,
           INT_VAL,
           REAL_VAL,
           STRING_VAL,
           BOOL_VAL,
-//          TIME_VAL,
-//          BLOB_VAL,
-//          NODE_OUTCOME_VAL,
-//          NODE_FAILURE_VAL,
-//          NODE_STATE_VAL,
-//          NODE_TIMEPOINT_VAL,
-//          PRIORITY,
-//          PERMISSIONS,
-//          INTERFACE,
-//          VAR_DECLS,
           DECL_VAR,
           DECL_ARRAY,
-//          IN,
-//          INOUT,
-//          VAR,
-//          DECL,
-//          VAL,
-//          INITIALVAL,
-//          ASSN,
-//          RHS,
-//          LIBRARYNODECALL,
-//          ALIAS,
-//          NODE_PARAMETER,
-//          COMMAND,
-//          FUNCCALL,
-//          ARGS,
-//          LOOKUPNOW,
-//          LOOKUPCHANGE,
-//          LOOKUPFREQ,
-//          FREQ,
-//          HIGH,
-//          LOW,
-//          TOLERANCE,
-//          NODEREF,
-//          STATE_VAL,
-//          STATE_NAME,
-//          TIMEPOINT,
-//          UPDATE,
-//          REQ,
-//          PAIR,
-//          COND,
+          ARRAYELEMENT
 
-//          // operators
-
-//          AND,
-//          OR,
-//          XOR,
-//          NOT,
-//          CONCAT,
-//          IS_KNOWN,
-//          EQ,
-//          EQ_NUMERIC,
-//          EQ_STRING,
-//          EQ_BOOLEAN,
-//          EQ_INTERNAL,
-//          NE,
-//          NE_NUMERIC,
-//          NE_STRING,
-//          NE_BOOLEAN,
-//          NE_INTERNAL,
-//          LT,
-//          LE,
-//          GT,
-//          GE,
-//          ADD,
-//          SUB,
-//          MUL,
-//          DIV,
-//          SQRT,
-//          ABS,
-
-//          // types
-
-//          INT,
-//          REAL,
-//          BOOL,
-//          BLOB,
-//          ARRAY,
-//          DECL_ARRAY,
-          ARRAYELEMENT,
-//          STRING,
-//          TIME,
-
-//          // variable references
-
-//          INT_VAR,
-//          REAL_VAR,
-//          ARRAY_VAR,
-//          STRING_VAR,
-//          BOOL_VAR,
-//          TIME_VAR,
-//          BLOB_VAR,
-//          NODE_OUTCOME_VAR,
-//          NODE_FAILURE_VAR,
-//          NODE_STATE_VAR,
-//          NODE_TIMEPOINT_VAR,
-
-//          // values
-
-//          INT_VAL,
-//          REAL_VAL,
-//          STRING_VAL,
-//          BOOL_VAL,
-//          TIME_VAL,
-//          BLOB_VAL,
-//          NODE_OUTCOME_VAL,
-//          NODE_FAILURE_VAL,
-//          NODE_STATE_VAL,
-//          NODE_TIMEPOINT_VAL,
       };
       
       static public ImageIcon loadImage(String name)

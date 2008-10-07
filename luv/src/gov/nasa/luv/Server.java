@@ -31,21 +31,12 @@ import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.util.Date;
-
 import static gov.nasa.luv.Constants.*;
 
 /** Functions as a server for plan event data clients (UEs). */
 
 public abstract class Server
-{
-    
-    Long newTime, oldTime, timePassed = null;
-    Date date;
-    int activity, minutesPassed = 0;
-    int oneMinute = 60000;
-    boolean startCountingTime = false;
-    
+{   
       /** Construct a server which listens on a given port.
        *
        * @param port port on witch this server listens. 
@@ -129,11 +120,7 @@ public abstract class Server
                // if there is input, grab it up
 
                while (is.available() > 0)
-               {
-                   ++activity;
-                   startCountingTime = true;
-                   minutesPassed = 0;
-                   
+               {                 
                   // if we see the end of message char, dispatch message
 
                   int ch = is.read();
@@ -157,45 +144,15 @@ public abstract class Server
                   else
                      message.append((char)ch);
                } 
-               
-               if (activity == 0)
-                   trackTimeOfInactivity();
-               
-               activity = 0;
                                  
                Thread.sleep(100);
 
-            }            
+            }
          }
          catch (Exception e)
          {
             e.printStackTrace();
          }
-      }
-      
-      public void trackTimeOfInactivity()
-      {
-          date = new Date();
-                   
-           newTime = date.getTime();
-
-           if (startCountingTime)
-           {
-               oldTime = newTime;
-               startCountingTime = false;
-           }
-
-           if (oldTime != null)
-           {
-               timePassed = newTime - oldTime;
-
-               if (timePassed > oneMinute)
-               {
-                   ++minutesPassed;
-                  // Luv.getLuv().getStatusMessageHandler().showStatus("Time elapsed with no activity: " + minutesPassed + " minute(s) and counting...");   
-                   oldTime = newTime;
-               }
-           }
       }
 
       public abstract void handleMessage(final String message);

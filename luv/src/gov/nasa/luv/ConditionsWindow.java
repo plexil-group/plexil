@@ -39,7 +39,6 @@ import java.awt.Color;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
 
 import static gov.nasa.luv.Constants.*;
 
@@ -55,11 +54,9 @@ public class ConditionsWindow extends JPanel
     private String info[][];
     private JTable table;     
     
-    private String nodeName;
+    private String nodePath;
     private HashMap nodeConditions;
     private ArrayList elements;
-    
-    private Vector<Model.ChangeListener> modelListeners = new Vector<Model.ChangeListener>();
     
     public ConditionsWindow(Model model, String save) 
     {       
@@ -77,8 +74,8 @@ public class ConditionsWindow extends JPanel
         int col = 0;
         info = new String[rows][columns];
         
-        nodeName = model.getProperty(NODE_ID);
-        nodeConditions = Luv.getLuv().getConditionHandler().nodeConditions.get(nodeName);
+        nodePath = model.getPath();
+        nodeConditions = Luv.getLuv().getConditionHandler().nodeConditions.get(nodePath);
         
         if (nodeConditions != null)
         {
@@ -90,7 +87,7 @@ public class ConditionsWindow extends JPanel
                 {
                     info[row][col] = condition; 
                     ++col;
-                    info[row][col] = UNKNOWN;
+                    info[row][col] = getConditionValue(condition);                    
                     ++col;
 
                     if (elements.size() > 1)
@@ -131,17 +128,12 @@ public class ConditionsWindow extends JPanel
                          {
                             if (property.equals(condition))
                             {
-                                if (model.getProperty(condition).equals("0"))
-                                    status = FALSE;
-                                else if (model.getProperty(condition).equals("1"))
-                                    status = TRUE;
-
                                 for (int i = 0; i < rows; i++)
                                 {
                                     if (condition.equals(info[i][0]))
                                     {
-                                        info[i][1] = status;
-                                        table.setValueAt(status, i, 1);
+                                        info[i][1] = getConditionValue(condition);
+                                        table.setValueAt(getConditionValue(condition), i, 1);
                                         table.repaint();
                                         break;
                                     }
@@ -175,6 +167,22 @@ public class ConditionsWindow extends JPanel
 
         //Add the scroll pane to this panel.
         add(scrollPane);
+    }
+    
+    public String getConditionValue(String condition)
+    {
+        if (model.getProperty(condition) == null)
+            status = UNKNOWN;
+        else if (model.getProperty(condition).equals("0"))
+            status = FALSE;
+        else if (model.getProperty(condition).equals("1"))
+            status = TRUE;
+        else if (model.getProperty(condition).equals("inf"))
+            status = "inf";
+        else
+            status = model.getProperty(condition);
+        
+        return status;
     }
     
     public static ConditionsWindow getCurrentWindow()

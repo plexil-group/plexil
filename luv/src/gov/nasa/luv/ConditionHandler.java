@@ -26,6 +26,9 @@
 
 package gov.nasa.luv;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,24 +38,82 @@ public class ConditionHandler
 {
     Model model;
     
+    FileOutputStream out; // declare a file output object
+    PrintStream p;
+    
     public HashMap<String, HashMap<Integer, ArrayList>> nodeConditions = new HashMap<String, HashMap<Integer, ArrayList>>();
     
     public ConditionHandler(Model model)
     {
         this.model = model;
-        saveCondiitonInfo(this.model);
+        saveConditionInfo(this.model);
     }
     
-    public void saveCondiitonInfo(Model node)
+    public void saveConditionInfo(Model node)
     {
         if(!node.conditionMap.isEmpty())
-            nodeConditions.put(node.getProperty(NODE_ID), node.conditionMap);
+            nodeConditions.put(node.getPath(), node.conditionMap);
          
         for (int i = 0; i < node.getChildCount(); i++)
         {
             if (!node.getChild(i).conditionMap.isEmpty())
-                nodeConditions.put(node.getChild(i).getProperty(NODE_ID), node.getChild(i).conditionMap);
-            saveCondiitonInfo(node.getChild(i));
+                nodeConditions.put(node.getChild(i).getPath(), node.getChild(i).conditionMap);
+            saveConditionInfo(node.getChild(i));
         }
+    }
+    
+    public void openConditionsFile(Model node) throws FileNotFoundException
+    {
+        out = new FileOutputStream(node.getPlanName() + "-conditions.txt");
+
+        // Connect print stream to the output stream
+        p = new PrintStream(out);
+    }
+    
+    public void outputAllCondititons(Model node)
+    {
+        String nodePath = node.getPath();         
+    
+        if (nodePath != null)
+        {
+            p.println();
+            p.println(nodePath + ":");
+
+            if (!node.conditionMap.isEmpty())
+            {
+                
+                Object[] array = nodeConditions.get(nodePath).keySet().toArray();
+                
+                for (int j = 0; j < array.length; j++)
+                {
+                    p.println("\t" + getConditionNameFromNumber((Integer) array[j]) + "Condition:");
+                    ArrayList array2 = nodeConditions.get(nodePath).get(array[j]);
+                    
+                    for (int g = 0; g < array2.size(); g++)
+                        p.println("\t\t" + array2.get(g));
+                }
+            }
+            else
+                p.println("\tNo conditons for this node.");   
+            
+            for (int i = 0; i < node.getChildCount(); i++)
+            {
+                outputAllCondititons(node.getChild(i));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < node.getChildCount(); i++)
+            {
+                outputAllCondititons(node.getChild(i));
+            }
+        }
+        
+        
+    }
+    
+    public void closeConditionFile()
+    {
+        p.close();
     }
 }

@@ -45,6 +45,8 @@ public class Model extends Properties
        * are stored in properties and children. */
 
       private String type = "<type undefined>";
+      
+      private String path = "";
 
       /** property change listners registered for this model */ 
 
@@ -97,6 +99,25 @@ public class Model extends Properties
       public Model(String type)
       {
          this.type = type;
+      }
+      
+      public void setPath()
+      {
+          Model node = this;
+          
+          while (node.getParent() != null && !node.getParent().isRoot())
+          {
+              path += "--->" + node.getParent().getProperty(NODE_ID);
+              node = node.getParent();
+          }
+          
+          path = this.getProperty(NODE_ID) + path;
+      }
+      
+      
+      public String getPath()
+      {
+          return path;
       }
 
       /** Clone a model.
@@ -245,8 +266,22 @@ public class Model extends Properties
       
       public String getVariableValue(Model node, String value)
       {
+          int check = 0;
+          String checkValue = "";        
+          
           if (node != null)
           {
+              for (int i = 0; i < node.declNameVarList.size(); i++)
+              {
+                  if (node.declNameVarList.get(i).contains("["))
+                  {
+                      check = node.declNameVarList.get(i).indexOf("[");
+                      checkValue = node.declNameVarList.get(i).substring(0, check);
+                      if (checkValue.equals(value))
+                          return node.declValueVarList.get(i);
+                  }
+              }
+              
               int index = node.declNameVarList.indexOf(value);
               if (index == -1)
               {

@@ -27,7 +27,6 @@
 package gov.nasa.luv;
 
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
 
 /** Dispatchable XML parsers will be derrived from this class. */
 

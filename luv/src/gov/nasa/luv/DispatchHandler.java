@@ -120,10 +120,47 @@ public class DispatchHandler extends DefaultHandler
 
       /** Dispatch the characters action. */
       
+    @SuppressWarnings("static-access")
       public void characters(char[] ch, int start, int length)
          throws SAXException
       {
-         currentHandler.characters(ch, start, length);
+          String test = "";
+          if (ch.length > 1)
+          {
+              if (start + length < ch.length)
+              {
+                  test = test.valueOf(ch, start + length, 1);
+                  if (test.equals("&"))
+                  {
+                      test = test.valueOf(ch, start + length, 6);
+                      if (test.equals("&#x1d;") || test.equals("&#x1D;") || test.equals("&#x04;"))
+                      {
+                          ch[start + length] = '&';
+                          ch[start + length + 1] = 'a';
+                          ch[start + length + 2] = 'm';
+                          ch[start + length + 3] = 'p';
+                          ch[start + length + 4] = ';';
+                          ch[start + length + 5] = ch[start + length - 1];
+                      }
+                      else 
+                      {
+                          test = test.valueOf(ch, start + length, 5);
+                          if (test.equals("&#x4;") || test.equals("&#x0;"))
+                          {
+                              ch[start + length] = '&';
+                              ch[start + length + 1] = 'a';
+                              ch[start + length + 2] = 'm';
+                              ch[start + length + 3] = 'p';
+                              ch[start + length + 4] = ';';
+                          }
+                      }
+                  }
+              }
+          }
+          else if (ch[0] == '&')
+              ch[0] = ' ';
+          
+          currentHandler.characters(ch, start, length);
       }
       
       /** Dispatch the endElement action. */
