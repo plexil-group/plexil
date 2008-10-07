@@ -211,8 +211,6 @@ public class Luv extends JFrame
             {
                   @Override public void handleMessage(final String message) 
                   {        
-                     if(!executedViaLuvViewer)
-                        openedPlanViaLuvViewer = false;
                       
                      // parse the message
                      
@@ -975,7 +973,7 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
-                   if (executedViaLuvViewer || openedPlanViaLuvViewer)
+                   if (openedPlanViaLuvViewer)
                    {
                       setLuvViewerState(READY_STATE);     
                       conditionHandler = new ConditionHandler((Model) model.clone());
