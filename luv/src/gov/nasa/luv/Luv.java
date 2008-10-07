@@ -940,17 +940,6 @@ public class Luv extends JFrame
                       luvBreakPointHandler.clearBreakPointMap();
                       luvBreakPointHandler.clearUnfoundBreakPoints();
                       conditionHandler = new ConditionHandler((Model) model.clone());
-                      
-                      try 
-                      {
-                          conditionHandler.openConditionsFile(model);
-                          conditionHandler.outputAllCondititons(model);
-                          conditionHandler.closeConditionFile();
-                      } 
-                      catch (FileNotFoundException ex) 
-                      {
-                          Logger.getLogger(Luv.class.getName()).log(Level.SEVERE, null, ex);
-                      }
                   }
                }
          };

@@ -26,12 +26,17 @@
 
 package gov.nasa.luv;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import static gov.nasa.luv.Constants.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Functions as a server for plan event data clients (UEs). */
 
@@ -91,8 +96,13 @@ public abstract class Server
          {
                public void run()
                {
-                  dispatchInput(s);
+                try {
+                    dispatchInput(s);
+                } catch (IOException ex) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
                }
+                
          }.start();
       }
 
@@ -102,57 +112,32 @@ public abstract class Server
        * @param s socket from witch input issues forth
        */
 
-      public void dispatchInput(Socket s)
+      public void dispatchInput(Socket s) throws IOException 
       {
-         try
-         {
              
             // get the input stream for this socket and setup a message buffer
             
             InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
             StringBuilder message = new StringBuilder();
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));           
+            
+            boolean blocking = Luv.getLuv().getBoolean(ALLOW_BREAKS);
+            
+            String input = reader.readLine();
 
-            // now just loop forever
+            String[] array = input.split("\u0004");
 
-            while (true)
+            String plan = array[1];
+            handleMessage(plan);
+
+            for (int i = 2; i < array.length; i++)
             {
-               // if there is input, grab it up
-
-               while (is.available() > 0)
-               {                 
-                  // if we see the end of message char, dispatch message
-
-                  int ch = is.read();
-                  if (ch == END_OF_MESSAGE)
-                  {                  
-                     // handle the message
-
-                      handleMessage(message.toString());
-                      message = new StringBuilder();
-                     
-                     // if the viewer is should block, do so after message handled
-
-                     if (doesViewerBlock())
-                     {
-                        os.write(END_OF_MESSAGE);
-                     }
-                  }
-
-                  // otherwise append char to message
-
-                  else
-                     message.append((char)ch);
-               } 
-                                 
-               Thread.sleep(100);
-
+               String update = array[i];
+               handleMessage(update);
             }
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-         }
+
       }
 
       public abstract void handleMessage(final String message);

@@ -130,9 +130,11 @@ public class DispatchHandler extends DefaultHandler
               if (start + length < ch.length)
               {
                   test = test.valueOf(ch, start + length, 1);
+                  
                   if (test.equals("&"))
                   {
                       test = test.valueOf(ch, start + length, 6);
+                      
                       if (test.equals("&#x1d;") || test.equals("&#x1D;") || test.equals("&#x04;"))
                       {
                           ch[start + length] = '&';
