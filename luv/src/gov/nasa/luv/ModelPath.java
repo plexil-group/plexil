@@ -96,7 +96,7 @@ public class ModelPath
       /** Find the model indicated by the path in the tree. 
        *
        * @param root root node of model tree
-       * @return the idicated model in the tree, or null if it does not
+       * @return the indicated model in the tree, or null if it does not
        * exist
        */
 
