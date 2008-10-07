@@ -42,6 +42,8 @@ namespace PLEXIL {
     virtual ~ExecListener() { m_id.remove(); }
     virtual void notifyOfTransition(const LabelStr& prevState, const NodeId& node) const = 0;
     virtual void notifyOfAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const = 0;
+    // *** Temporarily provide default method untill all apps updated.
+    virtual void notifyOfAddLibrary(const PlexilNodeId& libNode) const /* = 0; */ {}
     const ExecListenerId& getId() const { return m_id; }
 
     //not sure if anybody wants this
@@ -82,13 +84,14 @@ namespace PLEXIL {
   public:
     /**
      * @brief Constructor.  Instantiates the entire plan from parsed XML.
-     * @param plan The XML for the plan.
+     * @param plan The intermediate representation of the plan.
      */
-    PlexilExec(const PlexilNodeId& plan);
+    PlexilExec(PlexilNodeId& plan);
 
+    /**
+     * @brief Default constructor.
+     */
     PlexilExec();
-
-    void addPlan(const PlexilNodeId& plan, const LabelStr& parent = EMPTY_LABEL());
 
     /**
      * @brief Destructor.  Kills the plan dead.
@@ -96,6 +99,21 @@ namespace PLEXIL {
     ~PlexilExec();
 
     const PlexilExecId& getId() const {return m_id;}
+
+    /**
+     * @brief Add a library node.
+     * @param libNode The intermediate representation of the library node.
+     */
+    void addLibraryNode(const PlexilNodeId& libNode);
+
+    /**
+     * @brief Add the plan under the node named by the parent.
+     * @param plan The intermediate representation of the plan.
+     * @param parent The name of the node under which to insert this plan.
+     * @note If the plan references any library nodes, they are linked in.
+     * @note Currently parent is ignored.
+     */
+    void addPlan(PlexilNodeId& plan, const LabelStr& parent = EMPTY_LABEL());
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -186,6 +204,7 @@ namespace PLEXIL {
 
     inline void publishTransition(const LabelStr& oldState, const NodeId& node);
     void publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent);
+    void publishAddLibrary(const PlexilNodeId& libNode);
 
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
@@ -204,6 +223,7 @@ namespace PLEXIL {
 											     Essentially, at each quiescence cycle, the first node in each set that isn't already
 											     in state EXECUTING gets added to the end of the queue. */
     std::list<ExecListenerId> m_listeners;
+    std::vector<PlexilNodeId> m_libraries;
   };
 }
 

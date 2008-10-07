@@ -56,11 +56,11 @@ namespace PLEXIL {
     PlexilExecId m_exec;
   };
 
-  PlexilExec::PlexilExec(const PlexilNodeId& plan)
+  PlexilExec::PlexilExec(PlexilNodeId& plan)
     : m_id(this), m_cycleNum(0), m_queuePos(1),
       m_connector((new RealExecConnector(m_id))->getId()),
       m_cache((new StateCache())->getId()) {
-    addPlan(plan);
+    addPlan(plan, EMPTY_LABEL());
     //is it really this simple?
   }
 
@@ -77,11 +77,28 @@ namespace PLEXIL {
     m_id.remove();
   }
 
-  void PlexilExec::addPlan(const PlexilNodeId& plan, const LabelStr& parent) {
+  // Add a new library node
+
+  // *** To do:
+  //  - check node name for duplicates, replace old?
+
+  void PlexilExec::addLibraryNode(const PlexilNodeId& libNode) {
+    checkError(!libNode->nodeId().empty(),
+	       "Library node must have non-null node ID");
+    m_libraries.push_back(libNode);
+    debugMsg("PlexilExec:addLibrary",
+	     "Added library node " << libNode->nodeId());
+    publishAddLibrary(libNode);
+  }
+
+  // Add a plan
+
+  void PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) {
     //currently parent is ignored!
     //not actually quiesceing, but causing the new nodes to look at the current known world state
     m_cache->handleQuiescenceStarted();
     clock_t time1 = clock();
+    plan->link(m_libraries);
     NodeId root = (new Node(plan, m_connector))->getId();
     check_error(root.isValid());
     m_plan.push_back(root);
@@ -541,6 +558,18 @@ namespace PLEXIL {
       check_error(listener.isValid());
       (*it)->notifyOfTransition(prevState, node);
     }
+  }
+
+  void PlexilExec::publishAddLibrary(const PlexilNodeId& libNode) 
+  {
+    for (std::list<ExecListenerId>::iterator it = m_listeners.begin();
+	 it != m_listeners.end();
+	 ++it)
+      {
+	ExecListenerId listener = *it;
+	check_error(listener.isValid());
+	(*it)->notifyOfAddLibrary(libNode);
+      }
   }
 
   void PlexilExec::publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent) 
