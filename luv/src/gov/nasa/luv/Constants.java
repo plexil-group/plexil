@@ -414,6 +414,7 @@ public class Constants
       // plan tags
 
       public static final String PLEXIL_PLAN       = "PlexilPlan";
+      public static final String PLEXIL_LIBRARY    = "PlexilLibrary";
       public static final String PLEXIL_SCRIPT     = "PlexilScript";
       public static final String LIBRARY           = "Library";
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
@@ -699,6 +700,9 @@ public class Constants
       // attributes
 
       public static final String NODETYPE_ATTR = "NodeType";
+    public static final String FILENAME_ATTR = "FileName";
+    public static final String LINENO_ATTR = "LineNo";
+    public static final String COLNO_ATTR = "ColNo";
       public static final String DIR_ATTR = "dir";
 
       // values
