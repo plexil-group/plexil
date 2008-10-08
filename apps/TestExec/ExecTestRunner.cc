@@ -112,32 +112,6 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
    initializeExpressions();
    initializeStateManagers();
 
-   // if specified on command line, load libraries
-
-   std::vector<PlexilNodeId> libraries;
-   for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
-              libraryName != libraryNames.end(); ++libraryName)
-   {
-      TiXmlDocument libraryXml(*libraryName);
-      if (!libraryXml.LoadFile())
-      {
-         std::cout << "Error parsing library '"
-                   << *libraryName << "': "
-                   << libraryXml.ErrorDesc()
-                   << " line "
-                   << libraryXml.ErrorRow()
-                   << " column "
-                   << libraryXml.ErrorCol()
-                   << std::endl;
-         return -1;
-      }
-
-      PlexilXmlParser parser;
-      libraries.push_back(
-         parser.parse(libraryXml.FirstChildElement("PlexilPlan")
-                      ->FirstChildElement("Node")));
-   }
-
    // create the exec
 
    TestExternalInterface intf;
@@ -170,6 +144,30 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       }
    }
 
+   // if specified on command line, load libraries
+
+   for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
+              libraryName != libraryNames.end(); ++libraryName)
+   {
+      TiXmlDocument libraryXml(*libraryName);
+      if (!libraryXml.LoadFile())
+      {
+         std::cout << "Error parsing library '"
+                   << *libraryName << "': "
+                   << libraryXml.ErrorDesc()
+                   << " line "
+                   << libraryXml.ErrorRow()
+                   << " column "
+                   << libraryXml.ErrorCol()
+                   << std::endl;
+         return -1;
+      }
+
+      PlexilXmlParser parser;
+      exec->addLibraryNode(parser.parse(libraryXml.FirstChildElement("PlexilPlan")
+					->FirstChildElement("Node")));
+   }
+
    if (planName != "error")
    {
       TiXmlDocument plan(planName);
@@ -189,7 +187,6 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       PlexilNodeId root =
          parser.parse(plan.FirstChildElement("PlexilPlan")
                       ->FirstChildElement("Node"));
-      root->link(libraries);
       exec->addPlan(root);
    }
 
