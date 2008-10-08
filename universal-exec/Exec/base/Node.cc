@@ -949,7 +949,7 @@ namespace PLEXIL {
           
 		// construct variable with default value
 		m_variablesByName[varLabel] = 
-		  ExpressionFactory::createInstance((*var)->type() + "Value",
+		  ExpressionFactory::createInstance(PlexilParser::valueTypeString((*var)->type()) + "Value",
 						    defaultValue->getId(),
 						    m_connector);
 	      }
