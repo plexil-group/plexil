@@ -788,6 +788,7 @@ public class Constants
          LIBRARY_COUNT,
 
          PLEXIL_PLAN,
+         PLEXIL_LIBRARY,
          PLEXIL_SCRIPT,
          LIBRARY,
 
