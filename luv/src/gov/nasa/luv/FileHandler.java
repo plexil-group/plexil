@@ -42,6 +42,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.HashMap;
 import static gov.nasa.luv.Constants.*;
 import static java.lang.System.*;
 import static javax.swing.JFileChooser.*;
@@ -211,9 +212,8 @@ public class FileHandler
     
     public String getLibrary(String library) 
     {      
-        String path = "";
-                
-        path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+        String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR, UNKNOWN);
+        
         File testPath = new File(path + System.getProperty("file.separator") + library + ".plx");
             
         if (!testPath.exists())
@@ -222,9 +222,31 @@ public class FileHandler
             
             if (!testPath.exists())
             {
-                path = unfoundLibrary(library);
-                String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
-                Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_PLAN_DIR, newHomePath);
+                path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+        
+                testPath = new File(path + System.getProperty("file.separator") + library + ".plx");
+                
+                if (!testPath.exists())
+                {  
+                    testPath = new File(path + System.getProperty("file.separator") + library + ".xml");
+
+                    if (!testPath.exists())
+                    {
+                        path = unfoundLibrary(library);
+                        String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
+                        Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
+                    }
+                    else
+                    {
+                        path = testPath.getAbsolutePath();
+                        Luv.getLuv().showStatus("Loading " + path);
+                    }
+                }
+                else
+                {
+                    path = testPath.getAbsolutePath();
+                    Luv.getLuv().showStatus("Loading " + path);
+                }
             }
             else
             {
@@ -480,18 +502,6 @@ public class FileHandler
              Luv.getLuv().getModel().addScriptName(script.toString());
       }
       
-            /**
-       * Load a plexil plan from the disk.  This operates on the global
-       * model.
-       *
-       * @param plan the plan file to load
-       */
-      
-      public void loadPlan(File plan)
-      {
-         loadPlan(plan, null);
-      }
-
       /**
        * Load a plexil plan from the disk.  This operates on the global
        * model.
@@ -500,14 +510,13 @@ public class FileHandler
        * @param libraryNames names of library file the plan to load
        */
       
-      public void loadPlan(File plan, Vector<String> libraryNames) 
+      public void loadPlan(File plan) 
       {
          Luv.getLuv().getModel().clear();
          Luv.getLuv().getModel().addPlanName(plan.toString());
          Luv.getLuv().getModel().setProperty(VIEWER_BLOCKS, FALSE);
          
          readPlan(Luv.getLuv().getModel(), plan);
-
             
          if(!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
          {
@@ -523,6 +532,8 @@ public class FileHandler
       {
          String planName = getRecentPlanName(index);
          String scriptName = getRecentScriptName(index);
+         HashMap<String, String> libraryNames = new HashMap<String, String>(Luv.getLuv().getLibraryNames());
+         
          if (planName != null)
          {
             loadPlan(new File(planName));
@@ -537,6 +548,14 @@ public class FileHandler
             else
             {
                 script = null;
+            }
+            
+            Luv.getLuv().clearLibraryNames();
+            
+            for (String libName : libraryNames.keySet())
+            {
+                String path = getLibrary(libName);
+                Luv.getLuv().addLibraryName(libName, path);
             }
             
             Luv.getLuv().getViewHandler().resetView();
@@ -708,7 +727,9 @@ public class FileHandler
             String recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_LIB_DIR);
             if (recent == null)
                recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR);
+            
             Luv.getLuv().getFileHandler().fileChooser.setCurrentDirectory(new File(recent));
+            
             if (Luv.getLuv().getFileHandler().fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION)
             {
                File library = Luv.getLuv().getFileHandler().fileChooser.getSelectedFile();

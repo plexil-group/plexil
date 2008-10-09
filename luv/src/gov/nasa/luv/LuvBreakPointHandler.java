@@ -129,8 +129,6 @@ public class LuvBreakPointHandler
          for (BreakPoint bp: breakPointMap.keySet())
             bp.unregister();
          breakPointMap.clear();
-
-         Luv.getLuv().showStatus("Removed all breakponts.", 5000l);
          Luv.getLuv().getViewHandler().refreshView();
       }
       

@@ -378,8 +378,7 @@ public class Luv extends JFrame
           isExecuting = false;   
           atStartScreen = true;
           dontLoadScriptAgain = false;
-          stopSearchForMissingLibs = false;
-          openedPlanViaLuvViewer = false;     
+          stopSearchForMissingLibs = false;     
           executedViaLuvViewer = false;
           planPaused = false;
           
@@ -420,8 +419,6 @@ public class Luv extends JFrame
       public void readyState()
       {
           // set only certain luv viewer variables
-          
-          statusMessageHandler.showStatus("", 1000);
           
           stepToStart = 0;
           planPaused = false;
@@ -500,8 +497,6 @@ public class Luv extends JFrame
               fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
               runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
           } 
-          
-          statusMessageHandler.showStatus("Executing...", Color.GREEN.darker(), 1000);
       }
       
       public void pausedState()
@@ -524,8 +519,6 @@ public class Luv extends JFrame
           runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
           runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
           allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
-          
-          statusMessageHandler.showStatus(DISABLE_BREAKS, Color.RED, 1000);
       }
       
       public void enabledBreakingState()
@@ -534,8 +527,6 @@ public class Luv extends JFrame
           
           runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
           allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
-          
-          statusMessageHandler.showStatus(ENABLE_BREAKS, Color.GREEN.darker(), 1000);
       }
       
       public void setLuvViewerState(int state)

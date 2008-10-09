@@ -26,17 +26,13 @@
 
 package gov.nasa.luv;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import static gov.nasa.luv.Constants.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Functions as a server for plan event data clients (UEs). */
 
@@ -96,13 +92,15 @@ public abstract class Server
          {
                public void run()
                {
-                try {
-                    dispatchInput(s);
-                } catch (IOException ex) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                    try 
+                    {
+                        dispatchInput(s);
+                    }
+                    catch (IOException ex) 
+                    {
+                        System.out.println(ex);
+                    }
                }
-                
          }.start();
       }
 
@@ -112,34 +110,47 @@ public abstract class Server
        * @param s socket from witch input issues forth
        */
 
-      public void dispatchInput(Socket s) throws IOException 
-      {
-             
-            // get the input stream for this socket and setup a message buffer
-            
-            InputStream is = s.getInputStream();
-            OutputStream os = s.getOutputStream();
-            StringBuilder message = new StringBuilder();
-            
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));           
-            
-            boolean blocking = Luv.getLuv().getBoolean(ALLOW_BREAKS);
-            
-            String input = reader.readLine();
-
-            String[] array = input.split("\u0004");
-
-            String plan = array[1];
-            handleMessage(plan);
-
-            for (int i = 2; i < array.length; i++)
-            {
-               String update = array[i];
-               handleMessage(update);
-            }
-
+      public void dispatchInput(Socket s) throws IOException
+      {            
+          // get the input stream for this socket and setup a message buffer
+          InputStream is = s.getInputStream();
+          OutputStream os = s.getOutputStream();
+          
+          StringBuilder fullMessage = null;
+          int numOfBytesRead = 0;
+          int numOfBytesThatCouldbeRead = 0;
+          
+          while (true) 
+          {
+              if ((numOfBytesThatCouldbeRead = is.available()) > 0)
+              {  
+                 byte[] partialMessage = new byte[numOfBytesThatCouldbeRead];
+                 numOfBytesRead = is.read(partialMessage);
+                 
+                 if (fullMessage == null)
+                    fullMessage = new StringBuilder(numOfBytesRead);
+                 for (int i = 0; i < numOfBytesRead; i++)
+                 {
+                     if (partialMessage[i] == END_OF_MESSAGE)
+                     {
+                         handleMessage(fullMessage.toString());    
+                         if (i == (numOfBytesRead - 1))
+                             fullMessage = null;
+                         else
+                             fullMessage = new StringBuilder(numOfBytesRead - i - 1);
+                         
+                         if (doesViewerBlock())
+                         {
+                            os.write(END_OF_MESSAGE);
+                         }
+                     }
+                     else
+                         fullMessage.append((char)partialMessage[i]);
+                 }
+              }                             
+          } 
       }
-
+      
       public abstract void handleMessage(final String message);
 
       public abstract boolean doesViewerBlock();

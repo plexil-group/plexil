@@ -48,6 +48,8 @@ public class DispatchHandler extends DefaultHandler
       /** The currently selected handler */
       
       AbstractDispatchableHandler currentHandler;
+      
+      public DispatchHandler(){};
             
       /** Construct a dispatch handler witch operats on the provided
        * model.
