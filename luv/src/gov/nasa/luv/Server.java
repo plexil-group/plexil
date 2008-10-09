@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static gov.nasa.luv.Constants.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Functions as a server for plan event data clients (UEs). */
 
@@ -95,6 +97,10 @@ public abstract class Server
                     try 
                     {
                         dispatchInput(s);
+                    } 
+                    catch (InterruptedException ex) 
+                    {
+                        System.out.println(ex);
                     }
                     catch (IOException ex) 
                     {
@@ -109,8 +115,8 @@ public abstract class Server
        *
        * @param s socket from witch input issues forth
        */
-
-      public void dispatchInput(Socket s) throws IOException
+      
+      public void dispatchInput(Socket s) throws IOException, InterruptedException
       {            
           // get the input stream for this socket and setup a message buffer
           InputStream is = s.getInputStream();
@@ -122,8 +128,9 @@ public abstract class Server
           
           while (true) 
           {
-              if ((numOfBytesThatCouldbeRead = is.available()) > 0)
+              while (is.available() > 0)
               {  
+                 numOfBytesThatCouldbeRead = is.available();
                  byte[] partialMessage = new byte[numOfBytesThatCouldbeRead];
                  numOfBytesRead = is.read(partialMessage);
                  
@@ -147,7 +154,9 @@ public abstract class Server
                      else
                          fullMessage.append((char)partialMessage[i]);
                  }
-              }                             
+              } 
+              
+              Thread.sleep(100);
           } 
       }
       
