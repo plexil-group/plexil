@@ -26,6 +26,7 @@
 
 package gov.nasa.luv;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -100,11 +101,11 @@ public abstract class Server
                     } 
                     catch (InterruptedException ex) 
                     {
-                        System.out.println(ex);
+                        System.out.println("Error: " + ex);
                     }
                     catch (IOException ex) 
                     {
-                        System.out.println(ex);
+                        System.out.println("Error: " + ex);
                     }
                }
          }.start();
@@ -124,15 +125,11 @@ public abstract class Server
           
           StringBuilder fullMessage = null;
           int numOfBytesRead = 0;
-          int numOfBytesThatCouldbeRead = 0;
-          
-          while (true) 
-          {
-              while (is.available() > 0)
+          byte[] partialMessage = new byte[30000];
+
+
+              while ((numOfBytesRead = is.read(partialMessage)) != -1)
               {  
-                 numOfBytesThatCouldbeRead = is.available();
-                 byte[] partialMessage = new byte[numOfBytesThatCouldbeRead];
-                 numOfBytesRead = is.read(partialMessage);
                  
                  if (fullMessage == null)
                     fullMessage = new StringBuilder(numOfBytesRead);
@@ -155,9 +152,11 @@ public abstract class Server
                          fullMessage.append((char)partialMessage[i]);
                  }
               } 
-              
-              Thread.sleep(100);
-          } 
+
+          
+          Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);
+          Luv.getLuv().showStatus("Execution complete", Color.GREEN.darker());
+          Luv.getLuv().setLuvViewerState(READY_STATE);
       }
       
       public abstract void handleMessage(final String message);

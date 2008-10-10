@@ -26,7 +26,10 @@
 
 package gov.nasa.luv;
 
+import java.lang.Exception;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import java.util.Stack;
 
@@ -127,9 +130,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
          String text = getTweenerText();
          
-         // assign info (text) to the appropriate condition
-         
-         assignTweenerText(nodeToUpdate, tagName, text);
+         assignTweenerText(nodeToUpdate, tagName, text); 
           
          // assign model name and path to the appropriate model 
          
@@ -177,7 +178,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
              recordStartConditionInfo(tagName);
       }
       
-      public void assignTweenerText(Model nodeToUpdate, String tagName, String text)
+      public void assignTweenerText(Model nodeToUpdate, String tagName, String text) 
       {
          if (text != null)
          {           
@@ -189,7 +190,8 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      
                      if (fullPath == null)
                      {
-                         Luv.getLuv().addLibraryName(text, text);
+                         if (!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
+                             Luv.getLuv().addLibraryName(text, text);
                      }
                      else
                      {

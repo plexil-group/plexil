@@ -34,9 +34,6 @@ import javax.swing.JOptionPane;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import java.util.Vector;
-
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -136,26 +133,7 @@ public class FileHandler
           }
       }
       
-      public void setEmptyPlan() throws IOException
-      {
-          String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
-          path = path + System.getProperty(PROP_FILE_SEPARATOR);
-          String planName = path + "emptyPlan";
-          FileWriter emptyPlan = new FileWriter(planName);
-          BufferedWriter out = new BufferedWriter(emptyPlan);
-          out.write(EMPTY_PLAN);
-          out.close();
-          plan = new File(planName);
-          
-          String scriptName = path + DEFAULT_SCRIPT_NAME;
-          FileWriter emptyScript = new FileWriter(scriptName);
-          BufferedWriter out2 = new BufferedWriter(emptyScript);
-          out2.write(EMPTY_SCRIPT);
-          out2.close();                          
-          script = new File(scriptName);
-      }
-      
-            // return current instance of either the plan, script or debug file
+      // return current instance of either the plan, script or debug file
          
       public void setCurrentFile(int type) throws IOException
       {
@@ -232,33 +210,21 @@ public class FileHandler
 
                     if (!testPath.exists())
                     {
-                        path = unfoundLibrary(library);
-                        String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
-                        Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
-                    }
-                    else
-                    {
-                        path = testPath.getAbsolutePath();
-                        Luv.getLuv().showStatus("Loading " + path);
+                        testPath = new File(unfoundLibrary(library));
                     }
                 }
-                else
-                {
-                    path = testPath.getAbsolutePath();
-                    Luv.getLuv().showStatus("Loading " + path);
-                }
-            }
-            else
-            {
-                path = testPath.getAbsolutePath();
-                Luv.getLuv().showStatus("Loading " + path);
             }
         }
-        else
+   
+        if (testPath.exists())
         {
             path = testPath.getAbsolutePath();
-            Luv.getLuv().showStatus("Loading " + path);
+            Luv.getLuv().showStatus("Loading " + path, 1000);
+            String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
+            Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
         }
+        else
+            path = null;
         
         return path;  
     }
@@ -299,7 +265,8 @@ public class FileHandler
                         
                         path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
                         path = path + System.getProperty(PROP_FILE_SEPARATOR);
-                        path = path.replace("/plans/", "/scripts/");
+                        path = path.substring(0, path.lastIndexOf("/"));                       
+                        path = path + System.getProperty(PROP_FILE_SEPARATOR) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR);
                         
                         if (plan.getName().contains(".xml"))
                             name =  plan.getName().replace(".xml", "-script.xml");
@@ -310,15 +277,25 @@ public class FileHandler
 
                         if (!script.canRead())
                         {
-                            script = searchForScript(name, plan.getName(), path);
-
-                            if (script == null)
+                            if (name.contains(".xml"))
+                                name = name.replaceAll(".xml", ".plx");
+                            else
+                                name = name.replaceAll(".plx", ".xml");
+                            
+                            script = new File(path + name);
+                            
+                            if (!script.canRead())
                             {
-                                // if no script anywhere, create an empty script
+                                script = searchForScript(name, plan.getName(), path);
 
-                                path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
-                                path = path + System.getProperty(PROP_FILE_SEPARATOR);
-                                createEmptyScript(path);
+                                if (script == null)
+                                {
+                                    // if no script anywhere, create an empty script
+
+                                    path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+                                    path = path + System.getProperty(PROP_FILE_SEPARATOR);
+                                    createEmptyScript(path);
+                                }
                             }
                         }
                     }
@@ -420,7 +397,7 @@ public class FileHandler
       {
          try
          {
-            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_SCRIPT_DIR)));
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR)));
             int option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option)
@@ -463,6 +440,7 @@ public class FileHandler
                 case APPROVE_OPTION:
                     plan = fileChooser.getSelectedFile();
                     Luv.getLuv().getProperties().set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
+                    Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, plan.getParent());
                     Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
                     script = null;
                     Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN);
@@ -495,6 +473,7 @@ public class FileHandler
       
       public void loadScript (File script)
       {
+          
          if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION) && script != null)
              Luv.getLuv().showStatus("Loading "  + script, 50);
          
@@ -515,7 +494,7 @@ public class FileHandler
          Luv.getLuv().getModel().clear();
          Luv.getLuv().getModel().addPlanName(plan.toString());
          Luv.getLuv().getModel().setProperty(VIEWER_BLOCKS, FALSE);
-         
+     
          readPlan(Luv.getLuv().getModel(), plan);
             
          if(!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
@@ -555,6 +534,8 @@ public class FileHandler
             for (String libName : libraryNames.keySet())
             {
                 String path = getLibrary(libName);
+                if (path == null)
+                    break;
                 Luv.getLuv().addLibraryName(libName, path);
             }
             
@@ -661,12 +642,12 @@ public class FileHandler
                      {
                         "I will locate library",
                         "Do not load this library",
-                        "Cancel plan loading",
+                        "Cancel loading plan"
                      };
 
                   // show the options
 
-                  Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library\n\n", 1000);
+                  Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
                   int result = JOptionPane.showOptionDialog(
                      Luv.getLuv(),
                      "Unable to locate the \"" + callName + "\" library.\n\n" +
@@ -706,8 +687,9 @@ public class FileHandler
                      case 2:
                          Luv.getLuv().setLuvViewerState(START_STATE);
                          retry = false;
+                         Luv.getLuv().setBoolean(CANCEL_PLAN_LOADING, true);
                          Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                         break;
+                         throw(new Error("Canceled loading plan"));
                   }
                }
             } while (retry); 

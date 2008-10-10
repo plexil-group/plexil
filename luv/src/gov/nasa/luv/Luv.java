@@ -26,9 +26,6 @@
 
 package gov.nasa.luv;
 
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
@@ -76,6 +73,7 @@ public class Luv extends JFrame
       private static boolean planPaused                  = false;        // is instance of luv currently paused?    
       private static boolean planStep                    = false;        // is instance of luv currently stepping? 
       private static boolean stopExecution               = false;
+      private static boolean cancelPlanLoading           = false;
       
       // handler instances
       
@@ -87,7 +85,7 @@ public class Luv extends JFrame
       private static ConditionHandler             conditionHandler;             // saves node's condition information
       
       private JMenu fileMenu                = new JMenu("File");  
-      private JMenu recentFileMenu          = new JMenu("Recent Files");
+      private JMenu recentFileMenu          = new JMenu("Recent Runs");
       private JMenu runMenu                 = new JMenu("Run");   
       private JMenu viewMenu                = new JMenu("View");
       private JMenu windowMenu              = new JMenu("Windows");
@@ -180,6 +178,10 @@ public class Luv extends JFrame
          // construct the frame
          
          constructFrame(getContentPane());    
+         
+         // create title
+         
+         setTitle();
          
          // luv will be in this state only when you first start it (minimal options available)
          
@@ -328,6 +330,9 @@ public class Luv extends JFrame
               case PLAN_STEP:
                   planStep = value;
                   break;
+              case CANCEL_PLAN_LOADING:
+                  cancelPlanLoading = value;
+                  break;
               default:
                  ; //error
           }
@@ -361,6 +366,8 @@ public class Luv extends JFrame
                   return planStep;
               case STOPPED_EXECUTION:
                   return stopExecution;
+              case CANCEL_PLAN_LOADING:
+                  return cancelPlanLoading;
               default:
                   return false; //error 
           }
@@ -381,6 +388,7 @@ public class Luv extends JFrame
           stopSearchForMissingLibs = false;     
           executedViaLuvViewer = false;
           planPaused = false;
+          cancelPlanLoading = false;
           
           model.clear();  
           conditionHandler = new ConditionHandler((Model) model.clone());
@@ -411,7 +419,7 @@ public class Luv extends JFrame
           
           if (stopExecution && !executedViaCommandPrompt)
           {
-              statusMessageHandler.showStatus("Stopped execution.", Color.RED);
+              showStatus("Stopped execution.", Color.RED);
               fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
           }
       }
@@ -428,6 +436,7 @@ public class Luv extends JFrame
           isExecuting = false;
           stopExecution = false;        
           executedViaLuvViewer = false;
+          cancelPlanLoading = false;
   
           // set certain menu items
           
@@ -922,11 +931,12 @@ public class Luv extends JFrame
          {
                public void actionPerformed(ActionEvent e)
                {
+                  clearLibraryNames();
                   int option = fileHandler.choosePlan();  
                   if (option != CANCEL_OPTION)
                   {
                       executedViaCommandPrompt = false;
-                      setLuvViewerState(READY_STATE);
+                      setLuvViewerState(READY_STATE);                     
                       luvBreakPointHandler.clearBreakPoint();
                       luvBreakPointHandler.clearBreakPointMap();
                       luvBreakPointHandler.clearUnfoundBreakPoints();

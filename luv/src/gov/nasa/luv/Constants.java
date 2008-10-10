@@ -114,8 +114,6 @@ public class Constants
       
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
        
-      public static final String EMPTY_PLAN = "<PlexilPlan xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"plexil.xsd\"><Node NodeType=\"Empty\"><NodeId>EMPTY</NodeId></Node></PlexilPlan>";
-       
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
@@ -296,8 +294,7 @@ public class Constants
       
       public static final String    PROP_UE_EXEC =        
               System.getenv(PROP_PLEXIL_HOME) + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "TestExec" + 
+              System.getProperty(PROP_FILE_SEPARATOR) + "bin" +  
               System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
       
       public static final String    PROP_RECENT_FILES =   
@@ -327,8 +324,10 @@ public class Constants
       public static final String BREAK_POINTS = "Break Points";
       public static final String EXECUTE_PLAN = "Execute Plan";
       public static final String STOP_EXECUTION = "Stop Execution";
+      
  
-      //File menu
+      // file menu
+      
       public static final int OPEN_PLAN_MENU_ITEM           = 0;
       public static final int OPEN_SCRIPT_MENU_ITEM         = 1;
       public static final int OPEN_RECENT_MENU_ITEM         = 2;
@@ -336,13 +335,14 @@ public class Constants
       public static final int EXIT_MENU_ITEM                = 5;    
       
       // run menu
+      
       public static final int PAUSE_RESUME_MENU_ITEM        = 0;
       public static final int STEP_MENU_ITEM                = 1;
       public static final int BREAK_MENU_ITEM               = 2;
       public static final int EXECUTE_MENU_ITEM             = 3;
       
       // view menu
-              
+      
       public static final int EXPAND_MENU_ITEM              = 0;
       public static final int COLLAPSE_MENU_ITEM            = 1;
       public static final int TOGGLE_TEXT_TYPES_MENU_ITEM   = 2;
@@ -379,6 +379,7 @@ public class Constants
       public static final int PLAN_PAUSED                   = 8;
       public static final int PLAN_STEP                     = 9;
       public static final int STOPPED_EXECUTION             = 10;
+      public static final int CANCEL_PLAN_LOADING           = 11;
       
       // Luv Viewer States
       
@@ -414,8 +415,8 @@ public class Constants
       // plan tags
 
       public static final String PLEXIL_PLAN       = "PlexilPlan";
-      public static final String PLEXIL_LIBRARY    = "PlexilLibrary";
       public static final String PLEXIL_SCRIPT     = "PlexilScript";
+      public static final String PLEXIL_LIBRARY    = "PlexilLibrary";
       public static final String LIBRARY           = "Library";
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
       public static final String NODE_PATH_ELEMENT = "NodePathElement";
@@ -700,9 +701,6 @@ public class Constants
       // attributes
 
       public static final String NODETYPE_ATTR = "NodeType";
-    public static final String FILENAME_ATTR = "FileName";
-    public static final String LINENO_ATTR = "LineNo";
-    public static final String COLNO_ATTR = "ColNo";
       public static final String DIR_ATTR = "dir";
 
       // values
@@ -796,18 +794,17 @@ public class Constants
          NODE_ID,
          BODY,
          NODELIST,
-          NAME,
-          TYPE,
-          MAXSIZE,
-          INDEX,
-          INT_VAL,
-          REAL_VAL,
-          STRING_VAL,
-          BOOL_VAL,
-          DECL_VAR,
-          DECL_ARRAY,
-          ARRAYELEMENT
-
+         NAME,
+         TYPE,
+         MAXSIZE,
+         INDEX,
+         INT_VAL,
+         REAL_VAL,
+         STRING_VAL,
+         BOOL_VAL,
+         DECL_VAR,
+         DECL_ARRAY,
+         ARRAYELEMENT
       };
       
       static public ImageIcon loadImage(String name)

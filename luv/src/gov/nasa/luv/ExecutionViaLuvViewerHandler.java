@@ -26,8 +26,11 @@
 
 package gov.nasa.luv;
 
+import java.awt.Color;
 import static java.lang.System.*;
 import java.io.IOException;
+import java.io.InputStream;
+import javax.swing.JOptionPane;
 
 /** Used to run an instance of the Universal Executive. */
 
@@ -51,12 +54,45 @@ public class ExecutionViaLuvViewerHandler
                   try
                   {
                       runtime = Runtime.getRuntime();
-                      runtime.exec(command);
+                      Process p = runtime.exec(command);
+                      InputStream err = p.getErrorStream();
+                      InputStream in = p.getInputStream();
+                      
+                      Thread.sleep(100);
+                      
+                      if (in.available() > 0)
+                      {
+                          byte[] inputBuffer = new byte[1024];
+                          int num2 = in.read(inputBuffer);
+                          System.out.println("\nINPUT: " + new String(inputBuffer).substring(0, num2)); 
+                      }
+                      
+                      if (err.available() > 0)
+                      {
+                          byte[] errorBuffer = new byte[1024];
+                          int num = err.read(errorBuffer);
+                          System.out.println("ERROR: " + new String(errorBuffer).substring(0, num));  
+                          System.out.println("HINT: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n");
+                          Luv.getLuv().execAction.actionPerformed(null); // stop execution
+                          
+                          JOptionPane.showMessageDialog(
+                           Luv.getLuv(),
+                           "Error executing plan. Please see Debug Window.\n",
+                           "Execution Error",
+                           JOptionPane.ERROR_MESSAGE);                      
+                      }
+
                   }
-                  catch (Exception e)
+                  catch(Exception e)
                   {
-                      out.println(e.getMessage());
-                  }
+                     JOptionPane.showMessageDialog(
+                        Luv.getLuv(),
+                        "Error Executing command: " + command + 
+                        "  See debug window for details.",
+                        "Execution Error",
+                        JOptionPane.ERROR_MESSAGE);
+                     e.printStackTrace();
+                 }
               }
           };
       }
