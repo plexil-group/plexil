@@ -8,7 +8,7 @@ endif
 
 SRC_DIR   = .
 
-LIBS = -lpthread  -L$(ACE_ROOT)/lib -lACE
+LIBS = -lpthread
 
 ifdef SHARED
  LIBS += -L$(STANDALONE_SIMULATOR_HOME)/lib -lstandalonesimulator \
@@ -25,7 +25,7 @@ OBJ_DIR   = objs
 CXX     = g++
 OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
-INCLUDES = -I$(STANDALONE_SIMULATOR_HOME) -I$(ACE_ROOT)  -I$(SSWGCOMM_HOME)
+INCLUDES = -I$(STANDALONE_SIMULATOR_HOME) -I$(SSWGCOMM_HOME)
 
 ifdef SHARED
  LIB_EXT = .so

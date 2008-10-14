@@ -8,7 +8,6 @@ LIB_NAME = standalonesimulator
 CXX     = g++
 OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
-INCLUDES = -I$(ACE_ROOT)
 ifdef SHARED
  LIB_EXT = .so
  SHARED_OBJ_FLAGS += -fpic

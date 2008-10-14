@@ -34,14 +34,33 @@
 
 bool operator< (const timeval& t1, const timeval& t2)
 {
-  return (CONVERT_TIMEVAL_TO_DOUBLE(t1) < CONVERT_TIMEVAL_TO_DOUBLE(t2)) ?
-    true : false;
+  return ((t1.tv_sec < t2.tv_sec) || 
+          ((t1.tv_sec == t2.tv_sec) && (t1.tv_usec < t2.tv_usec))) ? true : false;
 }
+
+timeval operator+ (const timeval& t1, const timeval& t2)
+{
+  timeval time;
+  long usecL = t1.tv_usec + t2.tv_usec;
+  double usecD = (static_cast<double>(usecL)) * ONE_MILLIONTH;
+  
+  time.tv_sec = t1.tv_sec + t2.tv_sec;
+  if (usecD > 1.0)
+    {
+      time.tv_sec += 1;
+      time.tv_usec = static_cast<long>((usecD - 1.0) / ONE_MILLIONTH);
+    }
+  else
+    time.tv_usec = static_cast<long>((usecD) / ONE_MILLIONTH);
+
+  return time;
+}
+
 
 Simulator::Simulator(ResponseFactory* respFactory, 
                      CommRelayBase* commRelay) : 
   m_ResponseFactory(respFactory), m_CommRelay(commRelay),
-  m_TimingService(TimingService(this)), m_SimulatorScriptReader(this)
+  m_TimingService(this), m_SimulatorScriptReader(this), m_TimerScheduled(false)
 {
   m_CommRelay->registerSimulator(this);
   pthread_mutex_init(&m_TimerMutex, NULL);
@@ -97,34 +116,38 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
   gettimeofday(&currTime, NULL);
   std::cout << "Simulator::scheduleResponseForMessage. Current time: " 
             << currTime.tv_sec << std::endl;
-  currTime.tv_sec += tDelay.tv_sec;
-  currTime.tv_usec += tDelay.tv_usec;
+  
+  timeval time = currTime + tDelay;
 
-  std::cout << "tDelay: " << tDelay.tv_sec << std::endl;
-  MutexGuard mg(&m_TimerMutex);
-  if ((tDelay.tv_sec != 0) || (tDelay.tv_usec != 0))
+  std::cout << "tDelay: " << tDelay.tv_sec << ", time: " << time.tv_sec << std::endl;
+
+  {
+    MutexGuard mg(&m_TimerMutex);
+    m_TimeToResp.insert(std::pair<timeval, ResponseMessage*>(time, respMsg));
+  }
+
+  scheduleNextResponse(time);
+}
+
+void Simulator::scheduleNextResponse(timeval time)
+{
+  bool immediateResp = false;
+
+  if((!m_TimerScheduled) || (time < m_TimerScheduledTime))
     {
-      std::cout << "Simulator::scheduleResponseForMessage. Need to schedule a timer for: " 
-                << currTime.tv_sec << std::endl;
-      // Check if the new time already exists in the map
-      if(m_TimeToResp.find(currTime) == m_TimeToResp.end())
-        {
-          // Schedule timer
-          std::cout << "Simulator::scheduleResponseForMessage. Scheduling a timer" << std::endl;
-          m_TimingService.setTimer(currTime);
-        }
-      else
-        {
-          std::cout << "A wakeup call had already been scheduled for that time. Ignoring." 
-                    << std::endl;
-        }
-      m_TimeToResp.insert(std::pair<timeval, ResponseMessage*>(currTime, respMsg));
+      // Schedule timer
+      // std::cout << "Simulator::scheduleResponseForMessage. Scheduling a timer" << std::endl;
+      immediateResp = m_TimingService.setTimer(time);
+      m_TimerScheduled = true;
+      m_TimerScheduledTime = time;
     }
   else
     {
-      // send a response right away.
-      m_CommRelay->sendResponse(respMsg);
+      std::cout << "A wakeup call had already been scheduled for an earlier time." 
+                << std::endl;
     }
+  
+  if (immediateResp) handleWakeUp();
 }
 
 void Simulator::handleWakeUp()
@@ -132,7 +155,7 @@ void Simulator::handleWakeUp()
   MutexGuard mg(&m_TimerMutex);
   std::cout << "Simulator::handleWakeUp" << std::endl;
   int count = m_TimeToResp.count(m_TimeToResp.begin()->first);
-  //  std::cout << "count: " << count << std::endl;
+  std::cout << "count in the timer list map: " << count << std::endl;
   for (std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
        count > 0; ++iter, --count)
     {
@@ -141,6 +164,15 @@ void Simulator::handleWakeUp()
       delete respMsg;
       m_TimeToResp.erase(iter);
     }
+
+  m_TimerScheduled = false;
+  
+  if (m_TimeToResp.size() > 0)
+    {
+      std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
+      scheduleNextResponse(iter->first);
+    }
+
 }
 
 timeval Simulator::convertDoubleToTimeVal(double timeD)
@@ -151,4 +183,3 @@ timeval Simulator::convertDoubleToTimeVal(double timeD)
   
   return time;
 }
-

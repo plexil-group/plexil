@@ -30,14 +30,12 @@
 #include "TimingService.hh"
 #include "SimulatorScriptReader.hh"
 
+#define ONE_MILLIONTH 0.000001
+
 class ResponseMessageManager;
 class ResponseMessage;
 class ResponseFactory;
 class CommRelayBase;
-
-#define ONE_MILLIONTH 0.000001
-#define CONVERT_TIMEVAL_TO_DOUBLE(t) static_cast<double>(t.tv_sec) + \
-  (static_cast<double>(t.tv_usec)) * ONE_MILLIONTH
 
 class Simulator
 {
@@ -59,7 +57,7 @@ public:
 private:
   Simulator(){};
   void sendResponse(const ResponseMessage* respMsg);
-  
+  void scheduleNextResponse(timeval time);
   
   std::map<const std::string, ResponseMessageManager*> m_CmdToRespMgr;
   std::multimap<timeval, ResponseMessage*> m_TimeToResp;
@@ -68,6 +66,8 @@ private:
   CommRelayBase* m_CommRelay;
   TimingService m_TimingService;
   SimulatorScriptReader m_SimulatorScriptReader;
+  bool m_TimerScheduled;
+  timeval m_TimerScheduledTime;
   pthread_mutex_t m_TimerMutex;
 };
 

@@ -28,6 +28,7 @@
 #include "SSWGCommRelay.hh"
 
 #include <assert.h>
+#include <signal.h>
 
 bool done=false;
 
