@@ -254,7 +254,7 @@ public class Constants
       public static final String    PROP_FILE_RECENT_LIB_DIR = "file.recent-library-directory";
       public static final String    PROP_FILE_RECENT_TEST_DIR = "file.recent-test-directory";
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
-      public static final int       PROP_FILE_RECENT_COUNT_DEF = 10;
+      public static final int       PROP_FILE_RECENT_COUNT_DEF = 9;
       
       public static final String    PROP_MAC_MENU_STYLE = "apple.laf.useScreenMenuBar";
 
@@ -393,6 +393,7 @@ public class Constants
       public static final int DISABLED_BREAKING_STATE       = 7;
       public static final int ENABLED_BREAKING_STATE        = 8;
       public static final int KILL_STATE                    = 9;
+      public static final int FINISHED_EXECUTION_STATE      = 10;
 
       // boolean constant values
 

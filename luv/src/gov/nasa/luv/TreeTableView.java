@@ -332,12 +332,12 @@ public class TreeTableView extends JTreeTable implements View
          path.clear();
          path.add(node.getProperty(MODEL_NAME));
 
-         do
+         while (!node.isRoot())
          {
              path.add(node.getParent().getProperty(MODEL_NAME));
              node = node.getParent();
          } 
-         while (!node.isRoot());
+         
       }
       
       public boolean isNodeInfoWindowOpen()

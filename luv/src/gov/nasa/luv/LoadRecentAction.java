@@ -28,6 +28,8 @@ package gov.nasa.luv;
 
 import java.awt.event.ActionEvent;
 
+import java.io.IOException;
+import javax.swing.JOptionPane;
 import static gov.nasa.luv.Constants.*;
 
 /** Action to load a recent plan. */
@@ -62,7 +64,32 @@ public class LoadRecentAction extends LuvAction
 
     public void actionPerformed(ActionEvent e)
     {
-       Luv.getLuv().getFileHandler().loadRecentPlan(recentIndex);
+       if (Luv.getLuv().getBoolean(IS_EXECUTING))
+       {
+           try 
+           {
+               Luv.getLuv().stopExecution();
+               JOptionPane.showMessageDialog(Luv.getLuv(), "Stopping execution and loading a recent plan", "Stopping Execution", JOptionPane.INFORMATION_MESSAGE);
+           }
+           catch (IOException ex) 
+           {
+               JOptionPane.showMessageDialog(Luv.getLuv(), "Error loading recent plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+               System.err.println("Error: " + ex.getMessage());
+           }
+       }
+        
+       
+       
+       try 
+       {
+           Luv.getLuv().getFileHandler().loadRecentPlan(recentIndex);
+       } 
+       catch (IOException ex) 
+       {
+          JOptionPane.showMessageDialog(Luv.getLuv(), "Error loading recent plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+          System.err.println("Error: " + ex.getMessage());
+       }
+       
        Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
        Luv.getLuv().setBoolean(EXEC_VIA_CMD_PRMPT, false); 
        Luv.getLuv().setLuvViewerState(READY_STATE);        

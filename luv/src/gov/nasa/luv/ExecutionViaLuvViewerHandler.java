@@ -27,10 +27,11 @@
 package gov.nasa.luv;
 
 import java.awt.Color;
-import static java.lang.System.*;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.swing.JOptionPane;
+
+import static gov.nasa.luv.Constants.*;
 
 /** Used to run an instance of the Universal Executive. */
 
@@ -64,33 +65,37 @@ public class ExecutionViaLuvViewerHandler
                       {
                           byte[] inputBuffer = new byte[1024];
                           int num2 = in.read(inputBuffer);
-                          System.out.println("\nINPUT: " + new String(inputBuffer).substring(0, num2)); 
+                          String message = new String(inputBuffer).substring(0, num2 - 1);
+                          System.out.println("\n  " + message + "\n"); 
+                          if (message.contains("Error"))
+                          {
+                              Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
+                              Luv.getLuv().setLuvViewerState(START_STATE);
+                              Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
+                              JOptionPane.showMessageDialog(Luv.getLuv(), "Error reported by the Universal Executive. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+                          }
                       }
                       
                       if (err.available() > 0)
                       {
                           byte[] errorBuffer = new byte[1024];
                           int num = err.read(errorBuffer);
-                          System.out.println("ERROR: " + new String(errorBuffer).substring(0, num));  
-                          System.out.println("HINT: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n");
+                          System.out.println("Error: " + new String(errorBuffer).substring(0, num));  
+                          System.out.println("Hint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n");
                           Luv.getLuv().execAction.actionPerformed(null); // stop execution
-                          
-                          JOptionPane.showMessageDialog(
-                           Luv.getLuv(),
-                           "Error executing plan. Please see Debug Window.\n",
-                           "Execution Error",
-                           JOptionPane.ERROR_MESSAGE);                      
+                          Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
+                          Luv.getLuv().setLuvViewerState(START_STATE);
+                          Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
+                          JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.\nHint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n", "Error", JOptionPane.ERROR_MESSAGE);                      
                       }
 
                   }
                   catch(Exception e)
                   {
-                     JOptionPane.showMessageDialog(
-                        Luv.getLuv(),
-                        "Error Executing command: " + command + 
-                        "  See debug window for details.",
-                        "Execution Error",
-                        JOptionPane.ERROR_MESSAGE);
+                     Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
+                     Luv.getLuv().setLuvViewerState(START_STATE);
+                     Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
+                     JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
                      e.printStackTrace();
                  }
               }
@@ -107,6 +112,7 @@ public class ExecutionViaLuvViewerHandler
          }
          catch (Exception e)
          {
+            JOptionPane.showMessageDialog(Luv.getLuv(), "Error starting the Universal Executive. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
          }
       }

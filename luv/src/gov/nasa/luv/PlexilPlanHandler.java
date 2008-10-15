@@ -26,13 +26,14 @@
 
 package gov.nasa.luv;
 
-import java.lang.Exception;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import java.util.Stack;
 
+import javax.swing.JOptionPane;
 import static gov.nasa.luv.Constants.*;
 
 /** SAX PlexilPlan XML handler */
@@ -130,7 +131,15 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
          String text = getTweenerText();
          
-         assignTweenerText(nodeToUpdate, tagName, text); 
+         try 
+         {
+             assignTweenerText(nodeToUpdate, tagName, text);
+         } 
+         catch (InterruptedIOException ex) 
+         {
+              JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating library. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+              System.err.println("Error: " + ex.getMessage());
+         }
           
          // assign model name and path to the appropriate model 
          
@@ -160,9 +169,10 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
       
       public void catchStartTag(String tagName)
       {
-         if (tagName.equals(LIBRARYNODECALL) && Luv.getLuv().getBoolean(OPEN_PLN_VIA_LUV))
+         if (tagName.equals(LIBRARYNODECALL))
          {
-             recordLibraryNames = true;
+             if (Luv.getLuv().getBoolean(OPEN_PLN_VIA_LUV))
+                 recordLibraryNames = true;
          }
          else if (tagName.contains(CONDITION))
          {
@@ -178,7 +188,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
              recordStartConditionInfo(tagName);
       }
       
-      public void assignTweenerText(Model nodeToUpdate, String tagName, String text) 
+      public void assignTweenerText(Model nodeToUpdate, String tagName, String text) throws InterruptedIOException 
       {
          if (text != null)
          {           
@@ -190,8 +200,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                      
                      if (fullPath == null)
                      {
-                         if (!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
-                             Luv.getLuv().addLibraryName(text, text);
+                         Luv.getLuv().addLibraryName(text, text);
                      }
                      else
                      {
@@ -579,6 +588,18 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                              conditionEquation = " == " + conditionEquation;
                          else if (tagName.contains(NE))
                              conditionEquation = " != " + conditionEquation;
+                         else if (tagName.equals(LT))
+                             conditionEquation = " < " + conditionEquation;
+                         else if (tagName.equals(GT))
+                             conditionEquation = " > " + conditionEquation;
+                         else if (tagName.equals(LE))
+                             conditionEquation = " <= " + conditionEquation;
+                         else if (tagName.equals(GE))
+                             conditionEquation = " >= " + conditionEquation;
+                         else
+                         {
+                             JOptionPane.showMessageDialog(Luv.getLuv(), "Error parsing condition element <" + tagName + "> in node: " + getNodeToUpdate().getPath(), "Error", JOptionPane.ERROR_MESSAGE);
+                         }
 
                          String replace = equationHolder.get(lastIndex) + conditionEquation;
                          equationHolder.set(lastIndex,replace);

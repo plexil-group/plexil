@@ -74,8 +74,7 @@ public class ConditionsWindow extends JPanel
         int col = 0;
         info = new String[rows][columns];
         
-        nodePath = model.getPath();
-        nodeConditions = Luv.getLuv().getConditionHandler().nodeConditions.get(nodePath);
+        nodeConditions = model.conditionMap;
         
         if (nodeConditions != null)
         {

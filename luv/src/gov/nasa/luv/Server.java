@@ -33,9 +33,8 @@ import java.net.Socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.swing.JOptionPane;
 import static gov.nasa.luv.Constants.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Functions as a server for plan event data clients (UEs). */
 
@@ -98,13 +97,10 @@ public abstract class Server
                     try 
                     {
                         dispatchInput(s);
-                    } 
-                    catch (InterruptedException ex) 
-                    {
-                        System.out.println("Error: " + ex);
                     }
                     catch (IOException ex) 
                     {
+                        JOptionPane.showMessageDialog(Luv.getLuv(), "Error handling socket connection. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
                         System.out.println("Error: " + ex);
                     }
                }
@@ -117,46 +113,51 @@ public abstract class Server
        * @param s socket from witch input issues forth
        */
       
-      public void dispatchInput(Socket s) throws IOException, InterruptedException
+      public void dispatchInput(Socket s) throws IOException
       {            
           // get the input stream for this socket and setup a message buffer
           InputStream is = s.getInputStream();
           OutputStream os = s.getOutputStream();
-          
+          boolean resetFileMenu = true;                   
           StringBuilder fullMessage = null;
           int numOfBytesRead = 0;
           byte[] partialMessage = new byte[30000];
 
+          while ((numOfBytesRead = is.read(partialMessage)) != -1 && !Luv.getLuv().getBoolean(STOPPED_EXECUTION))
+          {  
+             if (resetFileMenu && Luv.getLuv().getBoolean(EXEC_VIA_LUV))
+             {
+                 Luv.getLuv().setLuvViewerState(LUV_VIEWER_EXECUTION_STATE);
+                 resetFileMenu = false;
+             }
 
-              while ((numOfBytesRead = is.read(partialMessage)) != -1)
-              {  
-                 
-                 if (fullMessage == null)
-                    fullMessage = new StringBuilder(numOfBytesRead);
-                 for (int i = 0; i < numOfBytesRead; i++)
+             if (fullMessage == null)
+                fullMessage = new StringBuilder(numOfBytesRead);
+
+             for (int i = 0; i < numOfBytesRead && !Luv.getLuv().getBoolean(STOPPED_EXECUTION); i++)
+             {
+                 if (partialMessage[i] == END_OF_MESSAGE)
                  {
-                     if (partialMessage[i] == END_OF_MESSAGE)
-                     {
-                         handleMessage(fullMessage.toString());    
-                         if (i == (numOfBytesRead - 1))
-                             fullMessage = null;
-                         else
-                             fullMessage = new StringBuilder(numOfBytesRead - i - 1);
-                         
-                         if (doesViewerBlock())
-                         {
-                            os.write(END_OF_MESSAGE);
-                         }
-                     }
+                     handleMessage(fullMessage.toString());    
+                     if (i == (numOfBytesRead - 1))
+                         fullMessage = null;
                      else
-                         fullMessage.append((char)partialMessage[i]);
-                 }
-              } 
+                         fullMessage = new StringBuilder(numOfBytesRead - i - 1);
 
+                     if (doesViewerBlock())
+                     {
+                        os.write(END_OF_MESSAGE);
+                     }
+                 }
+                 else
+                     fullMessage.append((char)partialMessage[i]);
+             }
+          } 
+
+          Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
+          Luv.getLuv().setLuvViewerState(FINISHED_EXECUTION_STATE);
+          Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
           
-          Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);
-          Luv.getLuv().showStatus("Execution complete", Color.GREEN.darker());
-          Luv.getLuv().setLuvViewerState(READY_STATE);
       }
       
       public abstract void handleMessage(final String message);

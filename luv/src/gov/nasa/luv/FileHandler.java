@@ -39,7 +39,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 
-import java.util.HashMap;
+import java.io.InterruptedIOException;
+import java.io.InterruptedIOException;
 import static gov.nasa.luv.Constants.*;
 import static java.lang.System.*;
 import static javax.swing.JFileChooser.*;
@@ -188,7 +189,7 @@ public class FileHandler
     
     // find the libraries needed
     
-    public String getLibrary(String library) 
+    public String getLibrary(String library) throws InterruptedIOException 
     {      
         String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR, UNKNOWN);
         
@@ -256,7 +257,7 @@ public class FileHandler
                 script = new File(path + name);
 
                 if (!script.canRead())
-                {
+                {                  
                     script = searchForScript(name, plan.getName(), path);
 
                     if (script == null)
@@ -304,12 +305,6 @@ public class FileHandler
             if (!Luv.getLuv().getBoolean(DONT_LOAD_SCRIPT_AGAIN))
                 loadScript(script);
         }
-
-        if (script != null)
-        {
-            Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-            Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + 1, script.toString());
-        }
         
         return script;  
     }
@@ -321,28 +316,56 @@ public class FileHandler
               planName = planName.substring(0, planName.indexOf('.'));
               
               //PLAN_script.plx
-              String name1 = planName + "_script.plx";
-              script = new File(path + name1);
+              String name = planName + "_script.plx";
+              script = new File(path + name);
               if (!script.canRead())
               {
                   //script-PLAN.plx
-                  String name2 = "script-" + planName + ".plx";
-                  script = new File(path + name2);
+                  name = "script-" + planName + ".plx";
+                  script = new File(path + name);
                   if (!script.canRead())
                   {
                       //script_PLAN.plx
-                      String name3 = "script_" + planName + ".plx";
-                      script = new File(path + name3);
+                      name = "script_" + planName + ".plx";
+                      script = new File(path + name);
                       if (!script.canRead())
                       {
-                          return null;
+                          name = planName + "_script.xml";
+                          script = new File(path + name);
+                          if (!script.canRead())
+                          {
+                              //script-PLAN.plx
+                              name = "script-" + planName + ".xml";
+                              script = new File(path + name);
+                              if (!script.canRead())
+                              {
+                                  //script_PLAN.plx
+                                  name = "script_" + planName + ".xml";
+                                  script = new File(path + name);
+                                  if (!script.canRead())
+                                  {
+                                      name = planName + "-script.xml";
+                                      script = new File(path + name);
+                                      if (!script.canRead())
+                                      {
+                                          name = planName + "-script.plx";
+                                          script = new File(path + name);
+                                          if (!script.canRead())
+                                          {
+                                              return null;
+                                          }
+                                      }
+                                  }
+                              }
+                          }
                       }
                   }
               }
           }
           catch (Exception e)
           {
-            out.println("Error: " + e.getMessage());
+              JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating script. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+              out.println("Error: " + e.getMessage());
           } 
           
           return script;
@@ -357,8 +380,6 @@ public class FileHandler
             "Cancel plan execution"
          };
          
-         Luv.getLuv().showStatus("Unable to locate a script for this plan", 1000);
-
          int findScript = JOptionPane.showOptionDialog(
                Luv.getLuv(),
          "Unable to locate a script for this plan. \n\nDo you want to use the following default empty script?\n\n"
@@ -378,7 +399,6 @@ public class FileHandler
               out.write(EMPTY_SCRIPT);
               out.close();                          
               script = new File(scriptName);
-              Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + 1, script.getAbsolutePath());
          }
          else if (findScript == 1)
          {
@@ -391,14 +411,16 @@ public class FileHandler
          }
      }
          
-       // Select and load a script from the disk.  This operates on the global model.
+      // Select and load a script from the disk.  This operates on the global model.
       
-      public void chooseScript()
+      public int chooseScript()
       {
+         int option = -1;
+         
          try
          {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR)));
-            int option = fileChooser.showOpenDialog(Luv.getLuv());
+            option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option)
             {
@@ -406,23 +428,26 @@ public class FileHandler
                 {
                    script = fileChooser.getSelectedFile();
                    Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-                   Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + 1, script.toString());               
+                   Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE, script.toString());               
                    loadScript(script);
                    break;
                 }
                 case CANCEL_OPTION:
                 {
-                    Luv.getLuv().setLuvViewerState(READY_STATE); 
                     break;
                 }
                 case ERROR_OPTION:
                     break;
             }
+            
+            
          }
          catch(Exception e)
          {
             e.printStackTrace();
          }
+         
+         return option;
       }
       
       // Select and load a plexil plan from the disk.  This operates on the global model.
@@ -438,15 +463,15 @@ public class FileHandler
             switch (option)
             {
                 case APPROVE_OPTION:
+                    Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
                     plan = fileChooser.getSelectedFile();
                     Luv.getLuv().getProperties().set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
                     Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, plan.getParent());
                     Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
                     script = null;
-                    Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN);
-                    Luv.getLuv().setLuvViewerState(READY_STATE);
-                    Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
-                    loadPlan(plan);
+                    script = getScript();
+                    loadPlan(plan);                   
+                    Luv.getLuv().setLuvViewerState(READY_STATE);                   
                     break;
                 case CANCEL_OPTION:
                     if (Luv.getLuv().getBoolean(AT_START_SCREEN))
@@ -471,14 +496,13 @@ public class FileHandler
        * @paramscript file to load
        */
       
-      public void loadScript (File script)
-      {
-          
-         if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION) && script != null)
-             Luv.getLuv().showStatus("Loading "  + script, 50);
-         
+      public void loadScript(File script)
+      {          
          if (script != null)
+         {
+             Luv.getLuv().showStatus("Loading "  + script, 50);
              Luv.getLuv().getModel().addScriptName(script.toString());
+         }
       }
       
       /**
@@ -500,49 +524,61 @@ public class FileHandler
          if(!Luv.getLuv().getBoolean(STOP_SRCH_LIBS))
          {
              Luv.getLuv().getViewHandler().resetView();
-             Luv.getLuv().addFileToRecentFileList();
          }
          
       }
             
       // Load a recently loaded plan
 
-      public void loadRecentPlan(int index)
+      public void loadRecentPlan(int index) throws IOException
       {
+         Luv.getLuv().clearLibraryNames();
+         Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
          String planName = getRecentPlanName(index);
          String scriptName = getRecentScriptName(index);
-         HashMap<String, String> libraryNames = new HashMap<String, String>(Luv.getLuv().getLibraryNames());
          
          if (planName != null)
          {
-            loadPlan(new File(planName));
+            plan = new File(planName);
+            loadPlan(plan);
             if (scriptName != null && !scriptName.equals(UNKNOWN))
             {
                 script = new File(scriptName);
                 if (script.exists())
                     loadScript(script);
                 else
+                {
                     script = null;
+                    script = getScript();
+                }                 
             }
             else
             {
                 script = null;
-            }
-            
-            Luv.getLuv().clearLibraryNames();
-            
-            for (String libName : libraryNames.keySet())
-            {
-                String path = getLibrary(libName);
-                if (path == null)
-                    break;
-                Luv.getLuv().addLibraryName(libName, path);
+                script = getScript();
             }
             
             Luv.getLuv().getViewHandler().resetView();
             Luv.getLuv().setLuvViewerState(READY_STATE);
          }
-      }      
+      }    
+      
+      public void loadRecentPlan(File p) throws IOException
+      {
+         Luv.getLuv().clearLibraryNames();
+         Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
+         
+         if (p != null)
+         {
+            plan = p;
+            loadPlan(plan);
+            String scriptName = getRecentScriptName(1);
+            script = getScript();
+            
+            Luv.getLuv().getViewHandler().resetView();
+            Luv.getLuv().setLuvViewerState(READY_STATE);
+         }
+      }
       
       // Given a recent plan index, return the associated recent plan filename.
 
@@ -611,6 +647,10 @@ public class FileHandler
 
             isPlan = dh.getHandler() instanceof PlexilPlanHandler;
          }
+         catch (InterruptedIOException ie)
+         {
+             Luv.getLuv().showStatus("Canceled loading plan"); 
+         }
          catch (Exception e)
          {
             JOptionPane.showMessageDialog(
@@ -624,7 +664,7 @@ public class FileHandler
          return isPlan;
       }
       
-      public String unfoundLibrary(String callName)
+      public String unfoundLibrary(String callName) throws InterruptedIOException
       {
           boolean retry = true;
           String fullName = "";
@@ -641,7 +681,6 @@ public class FileHandler
                   Object[] options = 
                      {
                         "I will locate library",
-                        "Do not load this library",
                         "Cancel loading plan"
                      };
 
@@ -670,26 +709,15 @@ public class FileHandler
                         retry = false;
                         break;
 
-                        // if the user doesn't want to find this library
-                        // go on with link but don't retry to like this
-                        // one
-
-                     case 1:
-                         Luv.getLuv().getViewHandler().resetView();
-                         Luv.getLuv().addFileToRecentFileList();
-                         retry = false;
-                         Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                         break;
-
                      // if the user doesn't want to load any libraries,
                      // halt the link operation now
 
-                     case 2:
+                     case 1:
                          Luv.getLuv().setLuvViewerState(START_STATE);
                          retry = false;
                          Luv.getLuv().setBoolean(CANCEL_PLAN_LOADING, true);
                          Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                         throw(new Error("Canceled loading plan"));
+                         throw new InterruptedIOException("Canceled loading plan"); 
                   }
                }
             } while (retry); 
