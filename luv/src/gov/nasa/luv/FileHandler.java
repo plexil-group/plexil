@@ -377,7 +377,7 @@ public class FileHandler
          {
             "Yes, use empty script",
             "No, I will locate Script",
-            "Cancel plan execution"
+            "Cancel loading script"
          };
          
          int findScript = JOptionPane.showOptionDialog(
@@ -681,7 +681,7 @@ public class FileHandler
                   Object[] options = 
                      {
                         "I will locate library",
-                        "Cancel loading plan"
+                        "Cancel loading library"
                      };
 
                   // show the options
@@ -713,11 +713,11 @@ public class FileHandler
                      // halt the link operation now
 
                      case 1:
-                         Luv.getLuv().setLuvViewerState(START_STATE);
                          retry = false;
                          Luv.getLuv().setBoolean(CANCEL_PLAN_LOADING, true);
                          Luv.getLuv().setBoolean(STOP_SRCH_LIBS, true);
-                         throw new InterruptedIOException("Canceled loading plan"); 
+                         JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating library. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+                         System.err.println("Error: Did not load library, so plan will not execute.");  
                   }
                }
             } while (retry); 

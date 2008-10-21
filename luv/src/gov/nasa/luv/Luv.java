@@ -387,7 +387,6 @@ public class Luv extends JFrame
           stopSearchForMissingLibs = false;     
           executedViaLuvViewer = false;
           planPaused = false;
-          cancelPlanLoading = false;
           
           model.clear();  
           conditionHandler = new ConditionHandler((Model) model.clone());
@@ -404,18 +403,10 @@ public class Luv extends JFrame
           
           // reset all menu items
           
-          if (executedViaCommandPrompt)
-          {       
-              fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
-          }
-          else
-          {
-              fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-          }
-          
           fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
           fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
           fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
+          fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
           fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
           fileMenu.setEnabled(true);
           
@@ -444,7 +435,6 @@ public class Luv extends JFrame
           isExecuting = false;
           stopExecution = false;        
           executedViaLuvViewer = false;
-          cancelPlanLoading = false;
   
           // set certain menu items
           
@@ -1080,12 +1070,17 @@ public class Luv extends JFrame
                   int option = fileHandler.choosePlan();  
                   if (option != CANCEL_OPTION)
                   {
-                      executedViaCommandPrompt = false;                    
-                      setLuvViewerState(READY_STATE);                     
-                      luvBreakPointHandler.clearBreakPoint();
-                      luvBreakPointHandler.clearBreakPointMap();
-                      luvBreakPointHandler.clearUnfoundBreakPoints();
-                      conditionHandler = new ConditionHandler((Model) model.clone());
+                      if (!cancelPlanLoading)
+                      {
+                          executedViaCommandPrompt = false;
+                          setLuvViewerState(READY_STATE);                     
+                          luvBreakPointHandler.clearBreakPoint();
+                          luvBreakPointHandler.clearBreakPointMap();
+                          luvBreakPointHandler.clearUnfoundBreakPoints();
+                          conditionHandler = new ConditionHandler((Model) model.clone());
+                      }
+                      else
+                          setLuvViewerState(START_STATE);
                   }
                }
          };
