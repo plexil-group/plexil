@@ -188,7 +188,6 @@ public class Luv extends JFrame
 	    if (openedPlanViaLuvViewer) {
 		luvViewerExecutionState();
 		addRunToRecentRunList();  // save plan and script to recent run list
-		openedPlanViaLuvViewer = false;
 	    }
 	    else {
 		cmdPromptExecutionState();
@@ -578,6 +577,16 @@ public class Luv extends JFrame
 	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
     }
       
+          
+    public void stopExecution() throws IOException
+    {
+    System.out.println("stopExecution()");
+	executionViaLuvViewerHandler.killUEProcess();
+	pauseAction.actionPerformed(null);
+	stopExecution = true;
+	executedViaLuvViewer = true;
+    }
+    
     public void pausedState()
     {
 	System.out.println("pausedState()");
@@ -986,14 +995,6 @@ public class Luv extends JFrame
 	libraryNames.clear();
     }
       
-    public void stopExecution() throws IOException
-    {
-	executionViaLuvViewerHandler.killUEProcess();
-	pauseAction.actionPerformed(null);
-	stopExecution = true;
-	executedViaLuvViewer = true;
-    }
-      
       
     /***************** List of Actions ********************/
 
@@ -1209,7 +1210,7 @@ public class Luv extends JFrame
     LuvAction pauseAction = 
 	new LuvAction(PAUSE_OR_RESUME_PLAN, 
 		      "Pause or resume an executing plan, if it is blocking.",
-		      VK_SPACE)
+		      VK_ENTER)
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {  
@@ -1234,7 +1235,7 @@ public class Luv extends JFrame
     LuvAction stepAction = 
 	new LuvAction(STEP, 
 		      "Step a plan, pausing it if is not paused.",
-		      VK_ENTER)
+		      VK_SPACE)
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
