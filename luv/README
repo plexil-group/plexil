@@ -1,0 +1,22 @@
+This directory contains the Lightweight UE Viewer (LUV).  For more
+information see:
+ 
+  http://plexil.wiki.sourceforge.net/Luv
+
+Building requires Apache 'ant'.  To build, assuming 'ant' is in your
+path:
+
+ > ant
+
+To build a single jar file, which will be saved as luv.jar in this
+directory:
+
+ > ant jar
+
+To run:
+
+ > ant run
+
+To clean:
+
+ > ant clean
