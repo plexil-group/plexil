@@ -38,18 +38,9 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
 {
       /** Make me a handler. */
 
-      public PlanInfoHandler(Model model)
+      public PlanInfoHandler()
       {
-         super(PLAN_INFO, model);
-      }
-
-      /** Handle start of an XML document */
-
-      @Override public void startDocument()
-      {
-         // the model should be empty
-
-         model.clear();
+         super();
       }
 
       /** Handle end of an XML element. */
@@ -57,22 +48,14 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
       @Override public void endElement(String uri, String localName, String qName)
       {
          // get text between tags
-
          String text = getTweenerText();
 
-         // if this is a the plan filename set that property in model
-
-         if (localName == PLAN_FILENAME)
-            model.addPlanName(text);
-
-         // if this is a the plan filename set that property in model
-
-         if (localName == LIBRARY_FILENAME)
-            model.addLibraryName(text);
-
-         // if this is a the plan filename set that property in model
-
-         else if (localName == VIEWER_BLOCKS)
-            model.setProperty(VIEWER_BLOCKS, text);
+         // if this is blocking status, set that property in model
+         if (localName == VIEWER_BLOCKS) {
+	     Luv.getLuv().setExecBlocks(Boolean.valueOf(text));
+	     // tell viewer to get ready
+	     Luv.getLuv().readyState();
+	     Luv.getLuv().setIsExecuting(true);
+	 }
       }
 }

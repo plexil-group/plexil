@@ -271,7 +271,7 @@ public class TreeTableView extends JTreeTable implements View
 
       public void handlePopupEvent(MouseEvent mouseEvent)
       {
-          if (Luv.getLuv().getBoolean(ALLOW_BREAKS))
+          if (Luv.getLuv().breaksAllowed())
           {          
              TreePath   nodePath  = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
              Model      node      = ((Wrapper)nodePath.getLastPathComponent()).model;

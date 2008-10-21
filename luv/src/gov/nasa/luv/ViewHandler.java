@@ -96,15 +96,15 @@ public class ViewHandler
 
          // insert the view menu items
 
-         Luv.getLuv().removeAllFromMenu(VIEW_MENU); 
+         Luv.getLuv().getViewMenu().removeAll(); 
          for(LuvAction action: currentView.getViewActions())
-            Luv.getLuv().getMenu(VIEW_MENU).add(action);
-         Luv.getLuv().getMenu(VIEW_MENU).add(Luv.getLuv().showHidePrlNodes);
+            Luv.getLuv().getViewMenu().add(action);
+         Luv.getLuv().getViewMenu().add(Luv.getLuv().showHidePrlNodes);
 
 
-         // enable that menu if we actally have menu items
+         // enable that menu if we actually have menu items
          
-         Luv.getLuv().getMenu(VIEW_MENU).setEnabled(Luv.getLuv().getMenu(VIEW_MENU).getMenuComponentCount() > 0);
+         Luv.getLuv().getViewMenu().setEnabled(Luv.getLuv().getViewMenu().getMenuComponentCount() > 0);
          Luv.getLuv().setLocation(Luv.getLuv().getLocation());
 
          // size everything
@@ -127,10 +127,10 @@ public class ViewHandler
       {
          // create a new instance of the view
           
-          if (Luv.getLuv().getModel().getChildren().size() < 1)
+          if (Model.getRoot().getChildren().size() < 1)
               ; //do not setView
           else
-              setView(new TreeTableView("", Luv.getLuv().getModel()));
+              setView(new TreeTableView("", Model.getRoot()));
 
          // map all the breakpoints into the new model
 
@@ -141,7 +141,7 @@ public class ViewHandler
             BreakPoint breakPoint = pair.getKey();
             ModelPath path = pair.getValue();
 
-            Model target = path.find(Luv.getLuv().getModel());
+            Model target = path.find(Model.getRoot());
             if (target != null)
             {
                breakPoint.setModel(target);

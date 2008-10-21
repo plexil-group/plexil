@@ -34,6 +34,8 @@ import javax.swing.JOptionPane;
 
 import java.util.HashMap;
 
+import static gov.nasa.luv.Constants.*;
+
 /** Dispatches XML messages to the correct handler from the set of
  * provided handlers in the handler map.
  */
@@ -48,35 +50,39 @@ public class DispatchHandler extends DefaultHandler
       /** The currently selected handler */
       
       AbstractDispatchableHandler currentHandler;
-      
-      public DispatchHandler(){};
             
-      /** Construct a dispatch handler witch operats on the provided
+      /** Construct a dispatch handler which operates on the provided
        * model.
        *
        * @param model model which will be operated on
        */
       
-      public DispatchHandler(Model model)
+      public DispatchHandler()
       {
-         // add each type of handler the the table of possible handlers
+         // add each type of handler to the table of possible handlers
 
-          registerHandler(new PlanInfoHandler(model));
-          registerHandler(new PlexilPlanHandler(model));
-          registerHandler(new StateUpdateHandler(model));
+          registerHandler(PLAN_INFO, new PlanInfoHandler());
+          registerHandler(NODE_STATE_UPDATE, new StateUpdateHandler());
+
+	  // Use same handler for plans & libraries
+	  AbstractDispatchableHandler planHandler = new PlexilPlanHandler();
+          registerHandler(PLEXIL_PLAN, planHandler);
+          registerHandler(PLEXIL_LIBRARY, planHandler);
       }
 
       /** Add a new handler to the set of available handlers to dispatch.
        *
-       * @param handler hander to add to the set available handers to dispatch.
+       * @param key the tag for which this handler is invoked
+       * @param handler handler to add to the set available handers to dispatch.
        */
 
-      public static void registerHandler(AbstractDispatchableHandler handler)
+      public static void registerHandler(String key,
+					 AbstractDispatchableHandler handler)
       {
-         handlerMap.put(handler.getKey(), handler);
+         handlerMap.put(key, handler);
       }
 
-      /** Handel start of document event. */
+      /** Handle start of document event. */
 
       public void startDocument()
       {
@@ -181,16 +187,6 @@ public class DispatchHandler extends DefaultHandler
          throws SAXException
       {
          currentHandler.endDocument();
-      }
-
-      /** Model accesor which returns the model from selected handler.
-       *
-       * @return the model from the selected hander
-       */
-
-      public Model getModel()
-      {
-         return currentHandler.getModel();
       }
 
       /** Get the selected handler.

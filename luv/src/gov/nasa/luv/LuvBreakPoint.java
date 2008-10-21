@@ -31,7 +31,7 @@ import static gov.nasa.luv.Constants.*;
 /** An abstract breakpoint which supplies the breaking action in
 * the event that a breakpoint is signaled.  Derrived classes are
 * expected to provide the conditions underwich the break is
-* eligable to fire. */
+* eligible to fire. */
 
 public abstract class LuvBreakPoint extends AbstractBreakPoint
 {
@@ -64,7 +64,7 @@ public abstract class LuvBreakPoint extends AbstractBreakPoint
 
     public void onBreak()
     {
-       Luv.getLuv().setBoolean(PLAN_PAUSED, true);
+       Luv.getLuv().pausedState();
        Luv.getLuv().getLuvBreakPointHandler().setBreakPoint(this);
        oldValue = model.getProperty(targetProperty);
     }

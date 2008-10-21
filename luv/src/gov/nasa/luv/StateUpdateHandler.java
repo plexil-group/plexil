@@ -40,11 +40,11 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
       String outcome;
       String failureType;
       HashMap<String, String> conditions = new HashMap<String, String>();
-      
-      public StateUpdateHandler(Model model)
+
+      public StateUpdateHandler()
       {
-         super(NODE_STATE_UPDATE, model);
-         current = model;
+         super();
+         current = Model.getRoot();
       }
 
       /** Handle end of an XML element. */
@@ -57,10 +57,10 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
          // if this is the id of a path element, move down model tree
 
-         if (localName.equals(NODE_ID))
-         {
-             if (current.findChild(MODEL_NAME, text) != null)
+         if (localName.equals(NODE_ID)) {
+             if (current.findChild(MODEL_NAME, text) != null) {
                 current = current.findChild(MODEL_NAME, text);
+	     }
          }
 
          // if this is the node state, record the state
@@ -80,19 +80,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
          // if this is the node state update, update the node state
 
-         else if (localName.equals(NODE_STATE_UPDATE))
-         {
-            if (!Luv.getLuv().getBoolean(STOPPED_EXECUTION) && state.equals(FINISHED))
-            {
-                if (current.getParent() != null)
-                {
-                    if (current.getParent().getType().equals("dummy"))
-                       Luv.getLuv().setLuvViewerState(READY_STATE);
-                    else if (current.isRoot())
-                       Luv.getLuv().setLuvViewerState(READY_STATE);
-                }
-            }
-             
+         else if (localName.equals(NODE_STATE_UPDATE)) {
             current.setProperty(MODEL_STATE, state);
             current.setProperty(MODEL_OUTCOME, outcome);
             current.setProperty(MODEL_FAILURE_TYPE, failureType);
@@ -108,4 +96,13 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
                if (localName.equals(condition))
                   conditions.put(condition, text);
       }
+
+    // Handle the end of the state update document.
+    public void endDocument()
+    {
+	// pause if single stepping
+	if (Luv.getLuv().getPlanStep()) {
+	    Luv.getLuv().pausedState();
+	}
+    }
 }

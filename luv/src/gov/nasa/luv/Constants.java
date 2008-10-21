@@ -114,6 +114,8 @@ public class Constants
       
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
        
+      public static final String EMPTY_PLAN = "<PlexilPlan xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"plexil.xsd\"><Node NodeType=\"Empty\"><NodeId>EMPTY</NodeId></Node></PlexilPlan>";
+       
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
@@ -254,7 +256,7 @@ public class Constants
       public static final String    PROP_FILE_RECENT_LIB_DIR = "file.recent-library-directory";
       public static final String    PROP_FILE_RECENT_TEST_DIR = "file.recent-test-directory";
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
-      public static final int       PROP_FILE_RECENT_COUNT_DEF = 9;
+      public static final int       PROP_FILE_RECENT_COUNT_DEF = 10;
       
       public static final String    PROP_MAC_MENU_STYLE = "apple.laf.useScreenMenuBar";
 
@@ -294,7 +296,8 @@ public class Constants
       
       public static final String    PROP_UE_EXEC =        
               System.getenv(PROP_PLEXIL_HOME) + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "bin" +  
+              System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
+              System.getProperty(PROP_FILE_SEPARATOR) + "TestExec" + 
               System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
       
       public static final String    PROP_RECENT_FILES =   
@@ -324,10 +327,8 @@ public class Constants
       public static final String BREAK_POINTS = "Break Points";
       public static final String EXECUTE_PLAN = "Execute Plan";
       public static final String STOP_EXECUTION = "Stop Execution";
-      
  
-      // file menu
-      
+      //File menu
       public static final int OPEN_PLAN_MENU_ITEM           = 0;
       public static final int OPEN_SCRIPT_MENU_ITEM         = 1;
       public static final int OPEN_RECENT_MENU_ITEM         = 2;
@@ -335,14 +336,13 @@ public class Constants
       public static final int EXIT_MENU_ITEM                = 5;    
       
       // run menu
-      
       public static final int PAUSE_RESUME_MENU_ITEM        = 0;
       public static final int STEP_MENU_ITEM                = 1;
       public static final int BREAK_MENU_ITEM               = 2;
       public static final int EXECUTE_MENU_ITEM             = 3;
       
       // view menu
-      
+              
       public static final int EXPAND_MENU_ITEM              = 0;
       public static final int COLLAPSE_MENU_ITEM            = 1;
       public static final int TOGGLE_TEXT_TYPES_MENU_ITEM   = 2;
@@ -357,43 +357,6 @@ public class Constants
       public static final int PLAN                          = 0;
       public static final int SCRIPT                        = 1;
       public static final int DEBUG                         = 2;
-      
-      // menus
-      
-      public static final int FILE_MENU                     = 0;
-      public static final int RECENT_FILE_MENU              = 1;
-      public static final int RUN_MENU                      = 2;
-      public static final int VIEW_MENU                     = 3;
-      public static final int WINDOW_MENU                   = 4;
-      
-      // luv boolean variables
-      
-      public static final int ALLOW_BREAKS                  = 0;
-      public static final int EXEC_VIA_LUV                  = 1;
-      public static final int EXEC_VIA_CMD_PRMPT            = 2;
-      public static final int IS_EXECUTING                  = 3;
-      public static final int AT_START_SCREEN               = 4;
-      public static final int DONT_LOAD_SCRIPT_AGAIN        = 5;
-      public static final int STOP_SRCH_LIBS                = 6;
-      public static final int OPEN_PLN_VIA_LUV              = 7;
-      public static final int PLAN_PAUSED                   = 8;
-      public static final int PLAN_STEP                     = 9;
-      public static final int STOPPED_EXECUTION             = 10;
-      public static final int CANCEL_PLAN_LOADING           = 11;
-      
-      // Luv Viewer States
-      
-      public static final int NULL_STATE                    = 0;
-      public static final int START_STATE                   = 1;
-      public static final int READY_STATE                   = 2;
-      public static final int EXECUTION_STATE               = 3;
-      public static final int LUV_VIEWER_EXECUTION_STATE    = 4;
-      public static final int CMD_PROMPT_EXECUTION_STATE    = 5;
-      public static final int PAUSED_STATE                  = 6;
-      public static final int DISABLED_BREAKING_STATE       = 7;
-      public static final int ENABLED_BREAKING_STATE        = 8;
-      public static final int KILL_STATE                    = 9;
-      public static final int FINISHED_EXECUTION_STATE      = 10;
 
       // boolean constant values
 
@@ -416,8 +379,8 @@ public class Constants
       // plan tags
 
       public static final String PLEXIL_PLAN       = "PlexilPlan";
-      public static final String PLEXIL_SCRIPT     = "PlexilScript";
       public static final String PLEXIL_LIBRARY    = "PlexilLibrary";
+      public static final String PLEXIL_SCRIPT     = "PlexilScript";
       public static final String LIBRARY           = "Library";
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
       public static final String NODE_PATH_ELEMENT = "NodePathElement";
@@ -702,6 +665,9 @@ public class Constants
       // attributes
 
       public static final String NODETYPE_ATTR = "NodeType";
+    public static final String FILENAME_ATTR = "FileName";
+    public static final String LINENO_ATTR = "LineNo";
+    public static final String COLNO_ATTR = "ColNo";
       public static final String DIR_ATTR = "dir";
 
       // values
@@ -795,17 +761,18 @@ public class Constants
          NODE_ID,
          BODY,
          NODELIST,
-         NAME,
-         TYPE,
-         MAXSIZE,
-         INDEX,
-         INT_VAL,
-         REAL_VAL,
-         STRING_VAL,
-         BOOL_VAL,
-         DECL_VAR,
-         DECL_ARRAY,
-         ARRAYELEMENT
+          NAME,
+          TYPE,
+          MAXSIZE,
+          INDEX,
+          INT_VAL,
+          REAL_VAL,
+          STRING_VAL,
+          BOOL_VAL,
+          DECL_VAR,
+          DECL_ARRAY,
+          ARRAYELEMENT
+
       };
       
       static public ImageIcon loadImage(String name)

@@ -35,25 +35,13 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
       /** buffer which holds text between xml tags */
 
       StringBuffer tweenerBuffer;
-
-      /** model which this handler will operate on */
-      
-      Model model;
-
-      /** the key used to identify this handler */
-
-      String key;
       
       /** Construct an AbstractDispatchableHandler.
-       *
-       * @param model model which this handler will operate on
-       * @param key   key used to distpatch this handler 
        */
 
-      public AbstractDispatchableHandler(String key, Model model)
+      public AbstractDispatchableHandler()
       {
-         this.key = key;
-         this.model = model;
+	  super();
       }
 
       /** Handle data between element tags.
@@ -75,10 +63,10 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
       
       /** Get collected text that appears in between XML tags.  The text
        * has had any leading and trailing white space trimmmed off.
-       * This is distructive action and clears the buffer which holds
+       * This is destructive action and clears the buffer which holds
        * this text, calling it again immediatly will always return null.
        *
-       * @return the colled text or null of no such text existed
+       * @return the collected text or null of no such text existed
        */
 
       public String getTweenerText()
@@ -101,23 +89,4 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
          return text;
       }
 
-      /** Return key used to distpatch this handler.
-       *
-       * @return The key used to identify this handler
-       */
-
-      public String getKey()
-      {
-         return key;
-      }
-
-      /** Accessor for model.
-       *
-       * @return current model
-       */
-
-      public Model getModel()
-      {
-         return model;
-      }
 }

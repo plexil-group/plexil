@@ -60,6 +60,9 @@ public class ExecutionViaLuvViewerHandler
                       InputStream in = p.getInputStream();
                       
                       Thread.sleep(100);
+
+		      // *** Problem: Need to wait for process completion
+		      // *** and simultaneously monitor stdout, stderr
                       
                       if (in.available() > 0)
                       {
@@ -69,8 +72,8 @@ public class ExecutionViaLuvViewerHandler
                           System.out.println("\n  " + message + "\n"); 
                           if (message.contains("Error"))
                           {
-                              Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
-                              Luv.getLuv().setLuvViewerState(START_STATE);
+                              Luv.getLuv().setStopExecution(true);    
+                              Luv.getLuv().startState();
                               Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
                               JOptionPane.showMessageDialog(Luv.getLuv(), "Error reported by the Universal Executive. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
                           }
@@ -83,8 +86,8 @@ public class ExecutionViaLuvViewerHandler
                           System.out.println("Error: " + new String(errorBuffer).substring(0, num));  
                           System.out.println("Hint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n");
                           Luv.getLuv().execAction.actionPerformed(null); // stop execution
-                          Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
-                          Luv.getLuv().setLuvViewerState(START_STATE);
+                          Luv.getLuv().setStopExecution(true);    
+                          Luv.getLuv().startState();
                           Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
                           JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.\nHint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n", "Error", JOptionPane.ERROR_MESSAGE);                      
                       }
@@ -92,8 +95,8 @@ public class ExecutionViaLuvViewerHandler
                   }
                   catch(Exception e)
                   {
-                     Luv.getLuv().setBoolean(STOPPED_EXECUTION, true);    
-                     Luv.getLuv().setLuvViewerState(START_STATE);
+                     Luv.getLuv().setStopExecution(true);    
+                     Luv.getLuv().startState();
                      Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
                      JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
                      e.printStackTrace();

@@ -40,7 +40,7 @@ import static gov.nasa.luv.Constants.*;
 
 public class Model extends Properties
 {
-      /** the type (usuall the XML tag) which identifies what kind of
+      /** the type (usually the XML tag) which identifies what kind of
        * thing this model represents.  All other features of the model
        * are stored in properties and children. */
 
@@ -48,7 +48,7 @@ public class Model extends Properties
       
       private String path = "";
 
-      /** property change listners registered for this model */ 
+      /** property change listeners registered for this model */ 
 
       private Vector<ChangeListener> changeListeners = new Vector<ChangeListener>();
 
@@ -76,6 +76,8 @@ public class Model extends Properties
               put(LIBRARYNODECALL, "library-node");
            }
         };
+
+    private static Model TheRootModel = null;
 
       /** Construct a Model.
        *
@@ -106,7 +108,16 @@ public class Model extends Properties
           return path;
       }
 
-      /** Clone a model.
+    public static Model getRoot()
+    {
+	if (TheRootModel == null) {
+	    TheRootModel = new Model("dummy");
+	    TheRootModel.setProperty(MODEL_NAME, "root");
+	}
+	return TheRootModel;
+    }
+
+    /** Clone a model.
        *
        * @return the clone of this model
        */
@@ -161,9 +172,9 @@ public class Model extends Properties
 
       public void addChild(Model child)
       {
-         assert isNode(child.type);
-         children.add(child);
-         child.setParent(this);
+	  assert child.isNode();
+	  children.add(child);
+	  child.setParent(this);
       }
       
       public void addConditionInfo(int condition, ArrayList<String> equationHolder)
@@ -197,7 +208,7 @@ public class Model extends Properties
 
       public boolean isRoot()
       {
-         return parent == null; 
+         return parent == getRoot(); 
       }
 
       /** Get the parent node to this node. 
@@ -228,7 +239,7 @@ public class Model extends Properties
 
       public void addPlanName(String planName)
       {
-         setProperty(PLAN_FILENAME, planName);
+         setProperty(FILENAME_ATTR, planName);
          for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).planNameAdded(this, planName);
       }
@@ -252,7 +263,7 @@ public class Model extends Properties
 
       public String getPlanName()
       {
-         return getProperty(PLAN_FILENAME);
+         return getProperty(FILENAME_ATTR);
       }
 
       /** Get script name recorded in this model.
@@ -424,18 +435,9 @@ public class Model extends Properties
          return result;
       } 
 
-      public static boolean isNode(String type)
+      public boolean isNode()
       {
          return type.equals(NODE);
-      }
-
-      public static boolean isProperty(String tag)
-      {
-         for (String propertyTag: PROPERTY_TAGS)
-            if (propertyTag.equalsIgnoreCase(tag))
-               return true;
-         
-         return false;
       }
 
       public String toString()

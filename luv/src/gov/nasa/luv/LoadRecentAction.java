@@ -64,7 +64,7 @@ public class LoadRecentAction extends LuvAction
 
     public void actionPerformed(ActionEvent e)
     {
-       if (Luv.getLuv().getBoolean(IS_EXECUTING))
+       if (Luv.getLuv().getIsExecuting())
        {
            try 
            {
@@ -90,8 +90,8 @@ public class LoadRecentAction extends LuvAction
           System.err.println("Error: " + ex.getMessage());
        }
        
-       Luv.getLuv().setBoolean(OPEN_PLN_VIA_LUV, true);
-       Luv.getLuv().setBoolean(EXEC_VIA_CMD_PRMPT, false); 
-       Luv.getLuv().setLuvViewerState(READY_STATE);        
+       Luv.getLuv().setOpenedPlanViaLuvViewer(true);
+       Luv.getLuv().setExecutedViaCommandPrompt(false); 
+       Luv.getLuv().readyState();        
     }
 }
