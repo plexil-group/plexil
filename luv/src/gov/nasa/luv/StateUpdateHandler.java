@@ -33,73 +33,76 @@ import static gov.nasa.luv.Constants.*;
 
 public class StateUpdateHandler extends AbstractDispatchableHandler
 {
-      StringBuffer buffer;
+    StringBuffer buffer;
 
-      Model current;
-      String state;
-      String outcome;
-      String failureType;
-      HashMap<String, String> conditions = new HashMap<String, String>();
+    Model current;
+    String state;
+    String outcome;
+    String failureType;
+    HashMap<String, String> conditions = new HashMap<String, String>();
 
-      public StateUpdateHandler()
-      {
-         super();
-         current = Model.getRoot();
-      }
+    public StateUpdateHandler()
+    {
+	super();
+	current = Model.getRoot();
+    }
 
-      /** Handle end of an XML element. */
+    /** Handle end of an XML element. */
 
-      public void endElement(String uri, String localName, String qName)
-      {
-         // get text between tags
+    public void endElement(String uri, String localName, String qName)
+    {
+	// get text between tags
 
-         String text = getTweenerText();
+	String text = getTweenerText();
 
-         // if this is the id of a path element, move down model tree
+	// if this is the id of a path element, move down model tree
 
-         if (localName.equals(NODE_ID)) {
-             if (current.findChild(MODEL_NAME, text) != null) {
+	if (localName.equals(NODE_ID)) {
+	    if (current.findChild(MODEL_NAME, text) != null) {
                 current = current.findChild(MODEL_NAME, text);
-	     }
-         }
+	    }
+	}
 
-         // if this is the node state, record the state
+	// if this is the node state, record the state
 
-         else if (localName.equals(NODE_STATE))
+	else if (localName.equals(NODE_STATE))
             state = text;
 
-         // if this is the node outcome, record the outcome
+	// if this is the node outcome, record the outcome
 
-         else if (localName.equals(NODE_OUTCOME))
+	else if (localName.equals(NODE_OUTCOME))
             outcome = text;
 
-         // if this is the node failure type, record the failure type
+	// if this is the node failure type, record the failure type
 
-         else if (localName.equals(NODE_FAILURE_TYPE))
+	else if (localName.equals(NODE_FAILURE_TYPE))
             failureType = text;        
 
-         // if this is the node state update, update the node state
+	// if this is the node state update, update the node state
 
-         else if (localName.equals(NODE_STATE_UPDATE)) {
+	else if (localName.equals(NODE_STATE_UPDATE)) {
             current.setProperty(MODEL_STATE, state);
             current.setProperty(MODEL_OUTCOME, outcome);
             current.setProperty(MODEL_FAILURE_TYPE, failureType);
             
             for (Map.Entry<String, String> condition: conditions.entrySet())
-               current.setProperty(condition.getKey(), condition.getValue());
-         }
+		current.setProperty(condition.getKey(), condition.getValue());
+	}
 
-         // if this is one of the conditions, record it
+	// if this is one of the conditions, record it
          
-         else 
+	else 
             for (String condition: ALL_CONDITIONS)
-               if (localName.equals(condition))
-                  conditions.put(condition, text);
-      }
+		if (localName.equals(condition))
+		    conditions.put(condition, text);
+    }
 
     // Handle the end of the state update document.
     public void endDocument()
     {
+	// Reset to root of model
+	current = Model.getRoot();
+
 	// pause if single stepping
 	if (Luv.getLuv().getPlanStep()) {
 	    Luv.getLuv().pausedState();
