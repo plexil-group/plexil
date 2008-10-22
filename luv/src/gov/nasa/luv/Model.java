@@ -27,6 +27,7 @@
 package gov.nasa.luv;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Properties;
@@ -47,6 +48,8 @@ public class Model extends Properties
       private String type = "<type undefined>";
       
       private String path = "";
+
+    private String modelName = "";
 
       /** property change listeners registered for this model */ 
 
@@ -93,13 +96,13 @@ public class Model extends Properties
       {
           Model node = this;
           
-          while (node.getParent() != null && !node.getParent().isRoot())
+          while (node.parent != null && !node.parent.isRoot())
           {
-              path += "--->" + node.getParent().getProperty(NODE_ID);
-              node = node.getParent();
+              path += "--->" + node.parent.modelName;
+              node = node.parent;
           }
           
-          path = this.getProperty(NODE_ID) + path;
+          path = modelName + path;
       }
       
       
@@ -108,11 +111,21 @@ public class Model extends Properties
           return path;
       }
 
+    public String getModelName()
+    {
+	return modelName;
+    }
+
+    public void setModelName(String name)
+    {
+	modelName = name;
+    }
+
     public static Model getRoot()
     {
 	if (TheRootModel == null) {
 	    TheRootModel = new Model("dummy");
-	    TheRootModel.setProperty(MODEL_NAME, "root");
+	    TheRootModel.setModelName("_The_Root_Model_");
 	}
 	return TheRootModel;
     }
@@ -121,6 +134,8 @@ public class Model extends Properties
        *
        * @return the clone of this model
        */
+
+    // *** Is this complete?!? ***
 
       public Object clone()
       {
@@ -136,6 +151,46 @@ public class Model extends Properties
          
          return clone;
       }
+
+    // Model-to-model comparison
+
+    public boolean equivalent(Model other)
+    {
+	if (other == null)
+	    return false;
+	if (other == this)
+	    return true;
+	if (!modelName.equals(other.modelName))
+	    return false;
+	if (!type.equals(other.type))
+	    return false;
+	if (!path.equals(other.path))
+	    return false;
+	if (!super.equals(other)) // compare properties
+	    return false;
+	if (!childrenEquivalent(other))
+	    return false;
+	return true;
+    }
+
+    private boolean childrenEquivalent(Model other)
+    {
+	if (children.isEmpty()) {
+	    if (other.children.isEmpty())
+		return true;
+	    else
+		return false;
+	}
+	else if (other.children.isEmpty())
+	    return false;
+	else if (children.size() != other.children.size())
+	    return false;
+	for (int i = 0; i < children.size(); i++) {
+	    if (!children.get(i).equivalent(other.children.get(i)))
+		return false;
+	}
+	return true;
+    }
 
       /** Accesor for model type.
        *
@@ -173,6 +228,7 @@ public class Model extends Properties
       public void addChild(Model child)
       {
 	  assert child.isNode();
+
 	  children.add(child);
 	  child.setParent(this);
       }
@@ -188,17 +244,9 @@ public class Model extends Properties
        * @param parent node of which this is a child
        */
 
-      public void setParent(Model parent)
+      public void setParent(Model newParent)
       {
-         this.parent = parent;
-      }
-
-      /** Clear parent node of this node.  This makes this node a root
-       * node. */
-
-      public void clearParent()
-      {
-         this.parent = null;
+         parent = newParent;
       }
 
       /** Test if a given model is the root of a tree.
@@ -329,7 +377,7 @@ public class Model extends Properties
       public void removeChildren()
       {
          for (Model child: children)
-            child.clearParent();
+            child.parent = null;
          children.clear();
       }
      
@@ -346,12 +394,8 @@ public class Model extends Properties
       public Model findChildByName(String name)
       {
           for (Model child: children)
-          {
-              if (child.getProperty(MODEL_NAME).equals(name))
-              {
+              if (child.modelName.equals(name))
                   return child;
-              }
-          }
           return null;
       }
 
@@ -393,21 +437,30 @@ public class Model extends Properties
          for (Model child: children)
             if (child.type.equalsIgnoreCase(type))
             {
-               child.clearParent();
-               children.remove(child);
+               removeChild(child);
                return child;
             }
          return null;
       }
 
 
-      public void removeChild(Model child)
+      public boolean removeChild(Model child)
       {
-         children.remove(child);
-         child.setParent(null);
+	  // Can't use Vector.remove(Object) because it uses equals(),
+	  // and two models are often equal without being identical!
+	  boolean removed = false;
+	  for (Iterator<Model> it = children.iterator(); it.hasNext(); ) {
+	      if (it.next() == child) {
+		  it.remove();
+		  child.parent = null;
+		  removed = true;
+		  break;
+	      }
+	  }
+	  return removed;
       }
 
-      /** Test of two models have the same name. 
+      /** Test whether two models have the same name. 
        *
        * @param other the model to test names with this one
        * @return true if this and the other model have the same name
@@ -415,7 +468,7 @@ public class Model extends Properties
 
       public boolean hasSameName(Model other)
       {
-         return getProperty(MODEL_NAME).equals(other.getProperty(MODEL_NAME));
+         return modelName.equals(other.modelName);
       }
 
       public Object setProperty(String key, String value)
@@ -428,9 +481,10 @@ public class Model extends Properties
 
          Object result = super.setProperty(key, value);
 
-         if (value != result && value.equals(result) == false)
+         if (value != result && value.equals(result) == false) {
             for (ChangeListener cl: changeListeners)
                cl.propertyChange(this, key);
+	 }
          
          return result;
       } 
@@ -447,7 +501,7 @@ public class Model extends Properties
 
       public String display()
       {
-         String name = getProperty(MODEL_NAME);
+         String name = getModelName();
          if (name == null)
             name = type;
          StringBuffer s = new StringBuffer(name);
@@ -473,15 +527,15 @@ public class Model extends Properties
             
       void setMainAttributesOfNode()
       {
-         String rawType = this.getProperty(NODETYPE_ATTR);
+         String rawType = getProperty(NODETYPE_ATTR);
          String polishedtype = rawType != null ? typeLut.get(rawType) : null;
          if (polishedtype == null)
             polishedtype = rawType;
 
-         this.setProperty(MODEL_NAME, this.getProperty(NODE_ID));
-         this.setProperty(MODEL_TYPE, polishedtype);
-         this.setProperty(MODEL_OUTCOME, "UNKNOWN");
-         this.setProperty(MODEL_STATE, "INACTIVE");
+         modelName = getProperty(NODE_ID);
+         setProperty(MODEL_TYPE, polishedtype);
+         setProperty(MODEL_OUTCOME, "UNKNOWN");
+         setProperty(MODEL_STATE, "INACTIVE");
       }
             
       /** Add a property change listener to this model. 
@@ -525,33 +579,32 @@ public class Model extends Properties
             abstract public void libraryNameAdded(Model model, String libraryName);
       }
 
-      /** An adapter which is signaled when a the model is changed in
-       * some way.
+      /** An adapter which is signaled when the model is changed in some way.
        */
 
       public static class ChangeAdapter extends ChangeListener
       {
-            @Override public void propertyChange(Model model, String property)
+            public void propertyChange(Model model, String property)
             {
             }
 
-            @Override public void planCleared(Model model)
+            public void planCleared(Model model)
             {
             }
 
-            @Override public void planChanged(Model model)
+            public void planChanged(Model model)
             {
             }
 
-            @Override public void planNameAdded(Model model, String planName)
+            public void planNameAdded(Model model, String planName)
             {
             }
             
-            @Override public void scriptNameAdded(Model model, String scriptName)
+            public void scriptNameAdded(Model model, String scriptName)
             {
             }
 
-            @Override public void libraryNameAdded(Model model, String libraryName)
+            public void libraryNameAdded(Model model, String libraryName)
             {
             }
       }

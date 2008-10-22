@@ -58,8 +58,9 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 	// if this is the id of a path element, move down model tree
 
 	if (localName.equals(NODE_ID)) {
-	    if (current.findChild(MODEL_NAME, text) != null) {
-                current = current.findChild(MODEL_NAME, text);
+	    Model candidate;
+	    if ((candidate = current.findChildByName(text)) != null) {
+                current = candidate;
 	    }
 	}
 

@@ -32,7 +32,7 @@ import java.util.Enumeration;
 import static gov.nasa.luv.Constants.*;
 
 
-/** A path from the root node of a model tree to a given model emement
+/** A path from the root node of a model tree to a given model element
  * in that tree. */
 
 public class ModelPath
@@ -40,10 +40,6 @@ public class ModelPath
       /** Place to store the model path. */
 
       private Vector<String> path = new Vector<String>();
-      
-      /** The model propert to form this path from */
-      
-      String property;
 
       /** Construct a model path from a given model element
        *
@@ -52,17 +48,6 @@ public class ModelPath
       
       public ModelPath(Model model)
       {
-         this(model, MODEL_NAME);
-      }
-      
-      /** Construct a model path from a given model element
-       *
-       * @param model the model to create the path to.
-       */
-      
-      public ModelPath(Model model, String property)
-      {
-         this.property = property;
          establishPath(model);
       }
 
@@ -71,11 +56,11 @@ public class ModelPath
       private void establishPath(Model model)
       {
          if (model.isRoot())
-            path.add(model.getProperty(property));
+            path.add(model.getModelName());
          else
          {
             establishPath(model.getParent());
-            path.add(model.getProperty(property));
+            path.add(model.getModelName());
          }
       }
 
@@ -113,7 +98,7 @@ public class ModelPath
 
          for (String element: path)
          {
-            current = current.findChild(property, element);
+            current = current.findChildByName(element);
 
             // if no matching node was found, the search failed
 

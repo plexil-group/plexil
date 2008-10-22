@@ -39,7 +39,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.JOptionPane;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import static gov.nasa.luv.Constants.*;
@@ -476,9 +475,6 @@ public class FileHandler
     {
 	Model.getRoot().addPlanName(plan.toString());
 	readPlan(plan);
-	if(!Luv.getLuv().getStopSearchForMissingLibs()) {
-	    Luv.getLuv().getViewHandler().resetView();
-	}
     }
             
     // Load a recently loaded plan
@@ -507,8 +503,7 @@ public class FileHandler
                 script = null;
                 script = getScript();
             }
-            
-            Luv.getLuv().getViewHandler().resetView();
+
 	    Luv.getLuv().readyState();
 	}
     }      
@@ -525,7 +520,6 @@ public class FileHandler
             String scriptName = getRecentScriptName(1);
             script = getScript();
             
-            Luv.getLuv().getViewHandler().resetView();
             Luv.getLuv().readyState();
          }
       }
@@ -551,11 +545,12 @@ public class FileHandler
      *
      */
 
-    public void readPlan(File file)
+    public Model readPlan(File file)
     {
+	Model result = null;
 	Luv.getLuv().showStatus("Loading plan "  + file);
 	try {
-            parseXml(new FileInputStream(file));
+            result = parseXml(new FileInputStream(file));
 	}
 	catch(Exception e) {
             JOptionPane.showMessageDialog(
@@ -567,28 +562,31 @@ public class FileHandler
             e.printStackTrace();
 	}
 	Luv.getLuv().clearStatus();
+	return result;
     }
 
-    /** Parse a given XML message string.
+    /** Parse a plan from an XML stream
      *
      * @param input source of xml to parse
      *
-     * @return returns true if the xml was in the form of a plan
+     * @return returns top level node or null
      */
 
-    public boolean parseXml(InputStream input)
+    public Model parseXml(InputStream input)
     {
+	PlexilPlanHandler ch = new PlexilPlanHandler();
 	try {
             InputSource is = new InputSource(input);
             XMLReader parser = XMLReaderFactory.createXMLReader();
-            ContentHandler ch = new PlexilPlanHandler();
             parser.setContentHandler(ch);
+	    try {
             parser.parse(is);
          }
          catch (InterruptedIOException ie)
          {
              Luv.getLuv().showStatus("Canceled loading plan"); 
          }
+	}
          catch (Exception e)
          {
             JOptionPane.showMessageDialog(
@@ -597,9 +595,9 @@ public class FileHandler
 					  "Parse Error",
 					  JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-	    return false;
+	    return null;
 	}
-	return true;
+	return ch.getPlan();
     }
       
       public String unfoundLibrary(String callName) throws InterruptedIOException

@@ -149,7 +149,7 @@ public class LuvBreakPointHandler
                   
                   public void onBreak()
                   {
-                     reason = model.getProperty(MODEL_NAME) + 
+                     reason = model.getModelName() + 
                         " changed from " + oldValue +
                         " to " + model.getProperty(MODEL_STATE) + ".";
                      oldValue = model.getProperty(MODEL_STATE);
@@ -158,7 +158,7 @@ public class LuvBreakPointHandler
 
                   public String toString()
                   {
-                     return model.getProperty(MODEL_NAME) +
+                     return model.getModelName() +
                         " state changed";
                   }
          };
@@ -219,7 +219,7 @@ public class LuvBreakPointHandler
       {
          // get the model name
 
-         final String name = model.getProperty(MODEL_NAME);
+         final String name = model.getModelName();
 
          // construct the node popup menu
          

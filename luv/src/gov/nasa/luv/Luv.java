@@ -180,9 +180,29 @@ public class Luv extends JFrame
     // Called from PlexilPlanHandler::endElement(),
     // which will be invoked by both Luv (directly)
     // and the exec (via the Luv listener stream)
-    public void handleNewPlan()
+    public void handleNewPlan(Model plan)
     {
+	// *** link libraries here ?? ***
+
+	// check if plan is a duplicate
+	// *** N.B. This depends on the fact that new plans are always added at the end
+	Model other = Model.getRoot().findChildByName(plan.getModelName());
+	if (plan == other) {
+	    // it's really new
+	}
+	else if (plan.equivalent(other)) {
+	    // it's a duplicate, ignore
+	    Model.getRoot().removeChild(plan);
+	    plan = other;
+	}
+	else {
+	    // it has same name as original, new one supersedes
+	    Model.getRoot().removeChild(other);
+	}
+
 	Model.getRoot().planChanged();
+
+	viewHandler.focusView(plan);
 
 	if (isExecuting) {
 	    if (openedPlanViaLuvViewer) {
@@ -194,8 +214,6 @@ public class Luv extends JFrame
 		conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
 	    }
 	}
-
-	viewHandler.resetView();
                         
 	if (TreeTableView.getCurrent().isNodeInfoWindowOpen())
 	    refreshPopUpNodeWindow();
@@ -209,7 +227,7 @@ public class Luv extends JFrame
     }
 
     // Called from PlexilPlanHandler::endElement()
-    public void handleNewLibrary()
+    public void handleNewLibrary(Model library)
     {
 	Model.getRoot().planChanged();
 
@@ -369,7 +387,7 @@ public class Luv extends JFrame
 
     public void startState()
     {
-	System.out.println("startState()");
+	//System.out.println("startState()");
 
 	// reset all luv viewer variables
           
@@ -427,7 +445,7 @@ public class Luv extends JFrame
       
     public void readyState()
     {
-	System.out.println("readyState()");
+	//System.out.println("readyState()");
 
 	// set only certain luv viewer variables
           
@@ -482,7 +500,7 @@ public class Luv extends JFrame
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
-	System.out.println("finishedExecutionState()");
+	//System.out.println("finishedExecutionState()");
 
 	// set only certain luv viewer variables
           
@@ -531,7 +549,7 @@ public class Luv extends JFrame
       
     public void preExecutionState()
     {
-	System.out.println("preExecutionState()");
+	//System.out.println("preExecutionState()");
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
@@ -544,7 +562,7 @@ public class Luv extends JFrame
       
     public void executionState()
     {
-	System.out.println("executionState()");
+	//System.out.println("executionState()");
 	isExecuting = true;
 	stopExecution = false;
           
@@ -560,7 +578,7 @@ public class Luv extends JFrame
 
     public void luvViewerExecutionState()
     {
-	System.out.println("luvViewerExecutionState()");
+	//System.out.println("luvViewerExecutionState()");
 	executionState();
 	execAction.putValue(NAME, STOP_EXECUTION);
 	executedViaLuvViewer = true;
@@ -569,7 +587,7 @@ public class Luv extends JFrame
 
     public void cmdPromptExecutionState()
     {
-	System.out.println("cmdPromptExecutionState()");
+	//System.out.println("cmdPromptExecutionState()");
 	executionState();
 	executedViaCommandPrompt = true; 
 	openedPlanViaLuvViewer = false;      
@@ -580,7 +598,7 @@ public class Luv extends JFrame
           
     public void stopExecution() throws IOException
     {
-        System.out.println("stopExecution()");
+	//System.out.println("stopExecution()");
         
 	executionViaLuvViewerHandler.killUEProcess();
 	stopExecution = true;
@@ -589,7 +607,7 @@ public class Luv extends JFrame
     
     public void pausedState()
     {
-	System.out.println("pausedState()");
+	//System.out.println("pausedState()");
 
 	allowBreaks = true;
 	planPaused = true;
@@ -602,7 +620,7 @@ public class Luv extends JFrame
       
     public void stepState()
     {
-	System.out.println("stepState()");
+	//System.out.println("stepState()");
 	allowBreaks = true;
 	isExecuting = true;
 	planPaused = false;
@@ -619,7 +637,7 @@ public class Luv extends JFrame
       
     public void disabledBreakingState()
     {
-	System.out.println("disabledBreakingState()");
+	//System.out.println("disabledBreakingState()");
 	allowBreaks = false;
 	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
@@ -628,7 +646,7 @@ public class Luv extends JFrame
       
     public void enabledBreakingState()
     {
-	System.out.println("enabledBreakingState()");
+	//System.out.println("enabledBreakingState()");
 	allowBreaks = true;
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
 	updateBlockingMenuItems();
@@ -671,7 +689,7 @@ public class Luv extends JFrame
 	}
 
 	if (node != null)
-	    TreeTableView.getCurrent().resetNodeInfoWindow(node, node.getProperty(MODEL_NAME));
+	    TreeTableView.getCurrent().resetNodeInfoWindow(node, node.getModelName());
 	else
 	    TreeTableView.getCurrent().closeNodeInfoWindow();
     }
@@ -840,6 +858,8 @@ public class Luv extends JFrame
 
 	for (int i = 1; i <= count && planName != null; ++i) {
 	    if (planName != null) {
+
+		// *** possibility of error saving null script name ***
 
 		planName = (String)properties.setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
 		scriptName = (String)properties.setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
@@ -1264,8 +1284,7 @@ public class Luv extends JFrame
 	{
 	    RegexModelFilter filter = 
 		new RegexModelFilter(properties.getBoolean(PROP_VIEW_HIDE_PLEXILLISP),
-				     "^plexilisp_.*", 
-				     MODEL_NAME);
+				     "^plexilisp_.*");
 
 	    {
 		filter.addListener(

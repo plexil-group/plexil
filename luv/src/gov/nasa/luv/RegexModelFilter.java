@@ -34,31 +34,24 @@ public class RegexModelFilter extends AbstractModelFilter
       
       String regex;
 
-      /** the filters regular expression */
-      
-      String property;
-
-      /** Constrcuts an regular expression model filter for a particular
-       * property of a model.
+      /** Constructs an regular expression model filter for a model name.
        *
        * @param enabled set enabled stat of this filter
        * @param regex the regular expression which when matched filters
        * the given model
-       * @param property the property to base the filtering on
        */
 
-      public RegexModelFilter(boolean enabled, String regex, String property)
+      public RegexModelFilter(boolean enabled, String regex)
       {
          super(enabled);
          this.regex = regex;
-         this.property = property;
       }
 
       /** {@inheritDoc} */
 
       public boolean isFiltered(Model model)
       {
-         String value = model.getProperty(property);
+         String value = model.getModelName();
          if (value == null)
             return false;
          

@@ -77,13 +77,12 @@ public class TreeTableView extends JTreeTable implements View
       /** Construct a tree view. 
        *
        * @param name the name of the view
-       * @param luv containing luv application
        * @param model model this view is viewing
        */
 
       public TreeTableView(String name, Model model)
       {
-         super(new TreeModel(new Wrapper(model.findChild(NODE))));
+         super(new TreeModel(new Wrapper(model)));
          setRowColors(TREE_TABLE_ROW_COLORS);
 
          tree = getTree();
@@ -216,7 +215,7 @@ public class TreeTableView extends JTreeTable implements View
           if (nodePath != null)
           {    
               Model          node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-              String         nodeName    = node.getProperty(NODE_ID);
+              String         nodeName    = node.getModelName();
           
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
@@ -302,7 +301,7 @@ public class TreeTableView extends JTreeTable implements View
       {
          TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
          Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-         String     nodeName    = node.getProperty(NODE_ID);
+         String     nodeName    = node.getModelName();
          
          // save pop up node window information 
          
@@ -330,11 +329,11 @@ public class TreeTableView extends JTreeTable implements View
       public void savePopUpWindowNodeInfo(Model node, TreePath tp)
       {
          path.clear();
-         path.add(node.getProperty(MODEL_NAME));
+         path.add(node.getModelName());
 
          while (!node.isRoot())
          {
-             path.add(node.getParent().getProperty(MODEL_NAME));
+             path.add(node.getParent().getModelName());
              node = node.getParent();
          } 
          
@@ -483,9 +482,10 @@ public class TreeTableView extends JTreeTable implements View
                         }
                   });
 
-               for (Model child: model.getChildren())
+               for (Model child: model.getChildren()) {
                   if (!AbstractModelFilter.isModelFiltered(child))
                      children.add(new Wrapper(child));
+	       }
             }
 
 
@@ -497,8 +497,8 @@ public class TreeTableView extends JTreeTable implements View
             public String toString()
             {
                return showTextTypes
-                     ? model.getProperty(MODEL_TYPE) + " " + model.getProperty(MODEL_NAME)
-                     : model.getProperty(MODEL_NAME);
+                     ? model.getProperty(MODEL_TYPE) + " " + model.getModelName()
+                     : model.getModelName();
             }
 
             public Model getModel()
@@ -508,8 +508,8 @@ public class TreeTableView extends JTreeTable implements View
 
             public boolean equals(Wrapper other)
             {
-               String n1 = model.getProperty(MODEL_NAME);
-               String n2 = other.model.getProperty(MODEL_NAME);
+               String n1 = model.getModelName();
+               String n2 = other.model.getModelName();
                
                if (n1 == null)
                    return false;

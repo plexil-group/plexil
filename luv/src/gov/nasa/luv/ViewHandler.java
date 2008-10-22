@@ -40,115 +40,130 @@ import static java.awt.BorderLayout.*;
 public class ViewHandler 
 {
     
-      private View currentView = null;                                   // current view
+    private View currentView = null;                                   // current view
+    private Model currentModel = null;                                  // plan for current view
 
-      private JPanel viewPanel = new JPanel();                           // Panel in which different views are placed.
+    private JPanel viewPanel = new JPanel();                           // Panel in which different views are placed.
 
-      public void clearCurrentView()
-      {
-          currentView = null;
-      }
+    public void clearCurrentView()
+    {
+	currentModel = null;
+	currentView = null;
+    }
 
-      public View getCurrentView()
-      {
-          return currentView;
-      }
+    public View getCurrentView()
+    {
+	return currentView;
+    }
 
-      public JPanel getViewPanel()
-      {
-          return viewPanel;
-      }
+    public Model getCurrentModel()
+    {
+	return currentModel;
+    }
 
-      public void setViewProperties(Properties properties)
-      {
-          currentView.setViewProperties(properties);
-      }
+    public JPanel getViewPanel()
+    {
+	return viewPanel;
+    }
 
-      /** Refresh the current view */
+    public void setViewProperties(Properties properties)
+    {
+	currentView.setViewProperties(properties);
+    }
 
-      public void refreshView()
-      {
-         ((Container)currentView).repaint();
-      }
+    /** Refresh the current view */
 
-      /**
-       * Sets the current view. 
-       *
-       * @param view view to display
-       */
+    public void refreshView()
+    {
+	((Container)currentView).repaint();
+    }
 
-      public void setView(Container view)
-      {
-         // handle view properties
+    /**
+     * Sets the current view. 
+     *
+     * @param view view to display
+     */
 
-         if (currentView != null)
+    public void setView(Container view)
+    {
+	// handle view properties
+
+	if (currentView != null)
             setViewProperties(Luv.getLuv().getProperties());
-         currentView = ((View)view);
-         currentView.getViewProperties(Luv.getLuv().getProperties());
+	currentView = ((View)view);
+	currentView.getViewProperties(Luv.getLuv().getProperties());
 
-         // clear out the view panel and put the new view in there
+	// clear out the view panel and put the new view in there
 
-         viewPanel.removeAll();
-         viewPanel.setLayout(new BorderLayout());
-         JScrollPane sp = new JScrollPane(view);
-         sp.setBackground(Luv.getLuv().getProperties().getColor(PROP_WIN_BCLR));
-         viewPanel.add(sp, CENTER);
+	viewPanel.removeAll();
+	viewPanel.setLayout(new BorderLayout());
+	JScrollPane sp = new JScrollPane(view);
+	sp.setBackground(Luv.getLuv().getProperties().getColor(PROP_WIN_BCLR));
+	viewPanel.add(sp, CENTER);
 
-         // insert the view menu items
+	// insert the view menu items
 
-         Luv.getLuv().getViewMenu().removeAll(); 
-         for(LuvAction action: currentView.getViewActions())
+	Luv.getLuv().getViewMenu().removeAll(); 
+	for(LuvAction action: currentView.getViewActions())
             Luv.getLuv().getViewMenu().add(action);
-         Luv.getLuv().getViewMenu().add(Luv.getLuv().showHidePrlNodes);
+	Luv.getLuv().getViewMenu().add(Luv.getLuv().showHidePrlNodes);
 
 
-         // enable that menu if we actually have menu items
+	// enable that menu if we actually have menu items
          
-         Luv.getLuv().getViewMenu().setEnabled(Luv.getLuv().getViewMenu().getMenuComponentCount() > 0);
-         Luv.getLuv().setLocation(Luv.getLuv().getLocation());
+	Luv.getLuv().getViewMenu().setEnabled(Luv.getLuv().getViewMenu().getMenuComponentCount() > 0);
+	Luv.getLuv().setLocation(Luv.getLuv().getLocation());
 
-         // size everything
+	// size everything
 
-         Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
+	Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
 
-         // set the frame title
+	// set the frame title
          
-         Luv.getLuv().setTitle();
+	Luv.getLuv().setTitle();
 
-         // show the new view
+	// show the new view
 
-         Luv.getLuv().pack();
-         Luv.getLuv().repaint();
-      }
+	Luv.getLuv().pack();
+	Luv.getLuv().repaint();
+    }
       
-      /** Reset the current view to refect the changes in the world. */
+    /** Reset the current view to reflect the changes in the world. */
 
-      public void resetView()
-      {
-         // create a new instance of the view
-          
-          if (Model.getRoot().getChildren().size() < 1)
-              ; //do not setView
-          else
-              setView(new TreeTableView("", Model.getRoot()));
+    public void resetView()
+    {
+	focusView(currentModel);
+    }
+    
+    public void focusView(Model model)
+    {
+	// create a new instance of the view only if necessary
+	if (model == null) {
+	    // do not setView
+	}
+	else if (model == currentModel) {
+	    // no change required
+	}
+	else {
+	    currentModel = model;
+	    setView(new TreeTableView("", model));
 
-         // map all the breakpoints into the new model
+	    // map all the breakpoints into the new model
 
-         Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().clear();
+	    Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().clear();
          
-         for (Map.Entry<BreakPoint, ModelPath> pair: Luv.getLuv().getLuvBreakPointHandler().getBreakPointMap().entrySet())
-         {
-            BreakPoint breakPoint = pair.getKey();
-            ModelPath path = pair.getValue();
+	    for (Map.Entry<BreakPoint, ModelPath> pair: Luv.getLuv().getLuvBreakPointHandler().getBreakPointMap().entrySet()) {
+		BreakPoint breakPoint = pair.getKey();
+		ModelPath path = pair.getValue();
 
-            Model target = path.find(Model.getRoot());
-            if (target != null)
-            {
-               breakPoint.setModel(target);
-            }
-            else
-               Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().add(breakPoint);
-         }
-      }
+		Model target = path.find(model);
+		if (target != null) {
+			breakPoint.setModel(target);
+		    }
+		else
+		    Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().add(breakPoint);
+	    }
+	}
+    }
 
 }

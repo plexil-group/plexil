@@ -1,162 +1,171 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ /* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-package gov.nasa.luv;
+ package gov.nasa.luv;
 
-import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.xml.sax.Attributes;
-import java.util.Stack;
+ import java.io.InterruptedIOException;
+ import java.util.ArrayList;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
+ import org.xml.sax.Attributes;
+ import java.util.Stack;
 
-import javax.swing.JOptionPane;
-import static gov.nasa.luv.Constants.*;
+ import javax.swing.JOptionPane;
+ import static gov.nasa.luv.Constants.*;
 
-/** SAX PlexilPlan XML handler */
+ /** SAX PlexilPlan XML handler */
 
-public class PlexilPlanHandler extends AbstractDispatchableHandler
-{
-    private boolean 
-	recordCondition = false, 
-	recordEQ = false, 
-	recordNE = false, 
-	recordArray = false, 
-	lookupChange = false, 
-	lonelyValue = false, 
-	recordTime = false, 
-	tolerance = false,
-	lookupNow = false,
-	lonelyVariable = false,
-	recordNodeTimepoint = false,
-	lessThan = false,
-	greaterThan = false,
-	lessThanEqual = false,
-	greaterThanEqual = false;
-    private String save = "";  
-    private String conditionEquation = "";
-    private ArrayList<String> equationHolder = new ArrayList<String>();
-    private ArrayList<String> lookupArguments = new ArrayList<String>(); 
-      
-    private boolean recordLibraryNames = false;
+ public class PlexilPlanHandler extends AbstractDispatchableHandler
+ {
+     private boolean 
+	 recordCondition = false, 
+	 recordEQ = false, 
+	 recordNE = false, 
+	 recordArray = false, 
+	 lookupChange = false, 
+	 lonelyValue = false, 
+	 recordTime = false, 
+	 tolerance = false,
+	 lookupNow = false,
+	 lonelyVariable = false,
+	 recordNodeTimepoint = false,
+	 lessThan = false,
+	 greaterThan = false,
+	 lessThanEqual = false,
+	 greaterThanEqual = false;
+     private String save = "";  
+     private String conditionEquation = "";
+     private ArrayList<String> equationHolder = new ArrayList<String>();
+     private ArrayList<String> lookupArguments = new ArrayList<String>(); 
 
-    private Stack<Model> stack = new Stack<Model>();
+     private boolean recordLibraryNames = false;
 
-    public PlexilPlanHandler()
-    {
-	super();
-	stack.push(Model.getRoot());
-    }
-      
-    /** Handle start of an XML document */
+     private Stack<Model> stack = new Stack<Model>();
 
-    public void startDocument()
-    {
-	resetFlags();
-    }
+     private Model topLevelNode = null;
 
-    /** Handle start of an XML element. */
+     public PlexilPlanHandler()
+     {
+	 super();
+	 stack.push(Model.getRoot());
+     }
 
-    public void startElement(String uri, String tagName, 
-			     String qName, Attributes attributes)
-    {
-	// get the current node in the stack
-         
-	Model node = stack.peek();
+     /** Handle start of an XML document */
 
-	// if this SHOULD be a child node, make that happen
+     public void startDocument()
+     {
+	 resetFlags();
+     }
 
-	if (tagName.equals(NODE)) {
-	    Model child = new Model(tagName);
+     /** Handle start of an XML element. */
 
-	    // if there is a parent, add child to it
+     public void startElement(String uri, String tagName, 
+			      String qName, Attributes attributes)
+     {
+	 // get the current node in the stack
 
-	    if (node != null)
-		node.addChild(child);
+	 Model node = stack.peek();
 
-	    // this child is now the current node
-            
-	    node = child;
+	 // if this SHOULD be a child node, make that happen
 
-	    // add attributes for this child
+	 if (tagName.equals(NODE)) {
+	     Model child = new Model(tagName);
 
-	    for (int i = 0; i < attributes.getLength(); ++i) {
-		child.setProperty(attributes.getQName(i),
-				  attributes.getValue(i));
-	    }
-            
-	}
+	     // if there is a parent, add child to it
+	     // *** There should ALWAYS be a parent!
+	     node.addChild(child);
 
-	// if it's not a property we can ignore it
-         
-	else if (!isProperty(tagName))
-	    node = null;
-         
-	// check if tagName indicates that we will need to store variable 
-	// and condition info before executing
-         
-	catchStartTag(tagName);
-        
-	// push new node onto the stack
+	     // if the parent is the root node, save this as a (the?) top level node
+	     if (node.isRoot()) {
+		 topLevelNode = child;
+	     }
 
-	stack.push(node);
-    }
+	     // this child is now the current node
 
-    /** Handle end of an XML element. */
+	     node = child;
 
-    @Override
-	public void endElement(String uri, String tagName, String qName)
-    {
-	Model topNode = stack.peek();
-	Model nodeToUpdate = getNodeToUpdate();         
-        
-	// check if tagName indicates that we are finishing storage of info
-	// about a certain variable or condition
-         
-	catchEndTag(nodeToUpdate, tagName);
-         
-	// get tweener text and put it in its place
+	     // add attributes for this child
 
-	String text = getTweenerText();
-         
-	try 
-	    {
-		assignTweenerText(nodeToUpdate, tagName, text);
-	    } 
-	catch (InterruptedIOException ex) 
-	    {
-		JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating library. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
-		System.err.println("Error: " + ex.getMessage());
-	    }
- 
-	// assign model name and path to the appropriate model
-         
-	if (topNode != null && text != null) {
-	    topNode.setProperty(tagName, text);
-	    topNode.setPath();
+	     for (int i = 0; i < attributes.getLength(); ++i) {
+		 child.setProperty(attributes.getQName(i),
+				   attributes.getValue(i));
+	     }
+
+	 }
+
+	 // if it's not a property we can ignore it
+
+	 else if (!isProperty(tagName)) {
+	     node = null;
+	 }
+
+	 // check if tagName indicates that we will need to store variable 
+	 // and condition info before executing
+
+	 catchStartTag(tagName);
+
+	 // push new node onto the stack
+
+	 stack.push(node);
+     }
+
+     /** Handle end of an XML element. */
+
+     public void endElement(String uri, String tagName, String qName)
+     {
+	 Model topNode = stack.peek();
+	 Model nodeToUpdate = getNodeToUpdate();         
+
+	 // check if tagName indicates that we are finishing storage of info
+	 // about a certain variable or condition
+
+	 catchEndTag(nodeToUpdate, tagName);
+
+	 // get tweener text and put it in its place
+
+	 String text = getTweenerText();
+
+	 try 
+	     {
+		 assignTweenerText(nodeToUpdate, tagName, text);
+	     } 
+	 catch (InterruptedIOException ex) 
+	     {
+		 JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating library. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+		 System.err.println("Error: " + ex.getMessage());
+	     }
+
+	 // assign model name and path to the appropriate model
+
+	 if (topNode != null && text != null) {
+	     topNode.setProperty(tagName, text);
+	     if (tagName == NODE_ID) {
+		 topNode.setModelName(text);
+		 topNode.setPath();
+	     }
 	}
 
 	// if node, assign the main attributes for display in luv viewer
@@ -171,10 +180,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
 	// Make sure Luv instance is notified if this was plan or library
 	if (tagName.equals(PLEXIL_PLAN))
-	    Luv.getLuv().handleNewPlan();
+	    Luv.getLuv().handleNewPlan(topLevelNode);
 	else if (tagName.equals(PLEXIL_LIBRARY))
-	    Luv.getLuv().handleNewLibrary();
-	 
+	    Luv.getLuv().handleNewLibrary(topLevelNode);
     }
 
     /** Handle end of document event. */
@@ -648,6 +656,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 	conditionEquation = "";
     }
 
+    public Model getPlan()
+    {
+	return topLevelNode;
+    }
+
     public void resetFlags()
     {
 	recordCondition = false; 
@@ -681,5 +694,6 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          
 	return false;
     }
+
 
 }
