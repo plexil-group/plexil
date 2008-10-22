@@ -34,7 +34,7 @@
 class GenericResponse : public ResponseBase
 {
 public:
-  GenericResponse(timeval delay) 
+  GenericResponse(timeval delay, std::string value) 
     : ResponseBase(delay)
   {
 
@@ -46,10 +46,11 @@ public:
   {
     std::cout << "Creating a generic response." << std::endl;
 
-    return new ResponseMessage(0, "0");
+    return new ResponseMessage(0, m_Value);
   }
 
 private:
+  std::string m_Value;
 };
 
 #endif //GENERIC_RESPONSE_HH

@@ -25,6 +25,7 @@
 */
 #include "ResponseFactory.hh"
 #include "GenericResponse.hh"
+#include <assert.h>
 
 ResponseFactory::ResponseFactory()
 {
@@ -37,5 +38,15 @@ ResponseFactory::~ResponseFactory()
 ResponseBase* ResponseFactory::parse(const std::string& cmdName, timeval tDelay,
                                      std::istringstream& inStr)
 {
-  return new GenericResponse(tDelay);
+  std::string returnValue;
+  if (parseType<std::string>(inStr, returnValue))
+    {
+      return new GenericResponse(tDelay, returnValue);
+    }
+  else
+    {
+      std::cerr << "ResponseFactory::parse: Error in parsing the generic response string: " 
+                << inStr << std::endl;
+      assert(0);
+    }
 }
