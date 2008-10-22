@@ -50,6 +50,7 @@ public class FileHandler
     
     // file variables
       
+    private static File debug = null;                                  // debug file user wants to use when executing via command prompt
     private static File plan = null;                                   // current plexil plan  
     private static File script = null;                                 // current plexil script
       
@@ -116,32 +117,39 @@ public class FileHandler
 	    }
 	};
          
-   // return current instance of either the plan
-        
-    public File getPlan()
+    // return current instance of either the plan, script or debug file
+         
+    public File getCurrentFile(int file)
     {
-        return plan;
+	switch (file)
+	    {
+	    case PLAN:
+		return plan;
+	    case SCRIPT:
+		return script;
+	    case DEBUG:
+		return debug;
+	    default:
+		return null; //error
+	    }
     }
-    
-    // return current instance of either the script
-        
-    public File getScript() throws IOException
+      
+    public void clearCurrentFile(int type)
     {
-        return (script = findScript());
-    }
-    
-    // clear current instance of plan
-    
-    public void clearPlan()
-    {
-        plan = null;
-    }
-    
-    // clear current instance of plan
-    
-    public void clearScript()
-    {
-        script = null;
+	switch (type)
+	    {
+	    case PLAN:
+		plan = null;
+		break;
+	    case SCRIPT:
+		script = null;
+		break;
+	    case DEBUG:
+		debug = null;
+		break;
+	    default:
+		; //error
+	    }
     }
     
     // find the libraries needed
@@ -188,7 +196,7 @@ public class FileHandler
     
     // find the appropriate script to be executed
 
-    public File findScript() throws IOException 
+    public File getScript() throws IOException 
     {      
         String path = "";
         String name = "";

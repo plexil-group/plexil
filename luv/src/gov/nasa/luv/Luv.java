@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
@@ -40,6 +42,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
 
 import java.io.File;
 import java.util.HashMap;
@@ -177,7 +180,7 @@ public class Luv extends JFrame
     // Called from PlexilPlanHandler::endElement(),
     // which will be invoked by both Luv (directly)
     // and the exec (via the Luv listener stream)
-    public void handleNewPlan(Model plan) throws IOException
+    public void handleNewPlan(Model plan)
     {
 	// *** link libraries here ?? ***
 
@@ -384,7 +387,7 @@ public class Luv extends JFrame
 
     public void startState()
     {
-	System.out.println("startState()");
+	//System.out.println("startState()");
 
 	// reset all luv viewer variables
           
@@ -404,8 +407,9 @@ public class Luv extends JFrame
 	Model.getRoot().clear();  
 	conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
           
-	fileHandler.clearPlan(); 
-	fileHandler.clearScript(); 
+	fileHandler.clearCurrentFile(PLAN); 
+	fileHandler.clearCurrentFile(SCRIPT); 
+	fileHandler.clearCurrentFile(DEBUG);
 
 	viewHandler.clearCurrentView();
 	statusMessageHandler.clearStatusMessageQ();
@@ -415,10 +419,16 @@ public class Luv extends JFrame
           
 	// reset all menu items
           
+	if (executedViaCommandPrompt) {       
+	    fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+	}
+	else {
+	    fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+	}
+          
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
-        fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
 	fileMenu.setEnabled(true);
           
@@ -435,7 +445,7 @@ public class Luv extends JFrame
       
     public void readyState()
     {
-	System.out.println("readyState()");
+	//System.out.println("readyState()");
 
 	// set only certain luv viewer variables
           
@@ -448,8 +458,10 @@ public class Luv extends JFrame
 	executedViaLuvViewer = false;
 	cancelPlanLoading = false;
   
-	// set certain menu items          
-	
+	// set certain menu items
+          
+	execAction.putValue(NAME, EXECUTE_PLAN);
+
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
@@ -458,9 +470,16 @@ public class Luv extends JFrame
 	fileMenu.setEnabled(true);
  
 	updateBlockingMenuItems();
-   
-        execAction.putValue(NAME, EXECUTE_PLAN);
-        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+
+	if (executedViaCommandPrompt) {       
+	    fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+	    runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+	}
+	else {
+	    fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+	    runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+	}
+
 	runMenu.setEnabled(true);
 
 	if (viewMenu.getMenuComponentCount() > 0) {
@@ -477,10 +496,11 @@ public class Luv extends JFrame
 	windowMenu.setEnabled(true);
     }
 
+
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
-	System.out.println("finishedExecutionState()");
+	//System.out.println("finishedExecutionState()");
 
 	// set only certain luv viewer variables
           
@@ -491,23 +511,21 @@ public class Luv extends JFrame
 	isExecuting = false;
 	stopExecution = false;        
 	executedViaLuvViewer = false;
+	executedViaCommandPrompt = false;
 	cancelPlanLoading = false;
   
-	// set certain menu items         	
+	// set certain menu items
+          
+	execAction.putValue(NAME, EXECUTE_PLAN);
 
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);  
-        if (executedViaCommandPrompt)
-            fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
-        else
-            fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
+	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
 	fileMenu.setEnabled(true);
  
 	updateBlockingMenuItems();
-        
-        execAction.putValue(NAME, EXECUTE_PLAN);
 	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
 	runMenu.setEnabled(true);
 
@@ -526,12 +544,12 @@ public class Luv extends JFrame
 	windowMenu.setEnabled(true);
 
 	showStatus("Execution complete.", Color.BLACK);
+
     }
       
-    private void preExecutionState()
+    public void preExecutionState()
     {
-	System.out.println("preExecutionState()");
-        
+	//System.out.println("preExecutionState()");
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
@@ -542,74 +560,54 @@ public class Luv extends JFrame
 	showStatus("Preparing to execute...", Color.lightGray);
     }
       
-    private void executionState()
+    public void executionState()
     {
-	System.out.println("executionState()");
-        
+	//System.out.println("executionState()");
 	isExecuting = true;
 	stopExecution = false;
-        
-        updateBlockingMenuItems();        
           
-	showStatus("Executing...", Color.GREEN.darker());	
+	showStatus("Executing...", Color.GREEN.darker());
+          
+	updateBlockingMenuItems();
+
+	if (executedViaCommandPrompt) {
+	    fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+	    runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+	} 
     }
 
-    private void luvViewerExecutionState()
+    public void luvViewerExecutionState()
     {
-	System.out.println("luvViewerExecutionState()");
-        
+	//System.out.println("luvViewerExecutionState()");
 	executionState();
-        
-        execAction.putValue(NAME, STOP_EXECUTION);
-	
+	execAction.putValue(NAME, STOP_EXECUTION);
 	executedViaLuvViewer = true;
-        executedViaCommandPrompt = false;
 	openedPlanViaLuvViewer = true;
     }
 
-    private void cmdPromptExecutionState()
+    public void cmdPromptExecutionState()
     {
-	System.out.println("cmdPromptExecutionState()");
-        
+	//System.out.println("cmdPromptExecutionState()");
 	executionState();
-        
 	executedViaCommandPrompt = true; 
-        executedViaLuvViewer = false;
-	openedPlanViaLuvViewer = false;   
-        
-        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+	openedPlanViaLuvViewer = false;      
+	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
     }
-    
-    private void openPlanViaLuvViewerState()
+      
+          
+    public void stopExecution() throws IOException
     {
-        System.out.println("openPlanViaLuvViewerState()");
+	//System.out.println("stopExecution()");
         
-        openedPlanViaLuvViewer = true;
-        executedViaCommandPrompt = false; 
-        
-        reloadPlanState();
-        
-        luvBreakPointHandler.clearBreakPoint();
-        luvBreakPointHandler.clearBreakPointMap();
-        luvBreakPointHandler.clearUnfoundBreakPoints();                  
-    }
-    
-    private void reloadPlanState()
-    {
-        System.out.println("reloadPlanState()");
-        
-        clearLibraryNames();
-	readyState();
-        
-        conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
-        
-        if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
-            refreshPopUpNodeWindow();
+	executionViaLuvViewerHandler.killUEProcess();
+	stopExecution = true;
+	executedViaLuvViewer = true;
     }
     
     public void pausedState()
     {
-	System.out.println("pausedState()");
+	//System.out.println("pausedState()");
 
 	allowBreaks = true;
 	planPaused = true;
@@ -620,10 +618,9 @@ public class Luv extends JFrame
 	runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
     }
       
-    private void stepState()
+    public void stepState()
     {
-	System.out.println("stepState()");
-        
+	//System.out.println("stepState()");
 	allowBreaks = true;
 	isExecuting = true;
 	planPaused = false;
@@ -638,27 +635,20 @@ public class Luv extends JFrame
     // Sub-states
     //
       
-    private void disabledBreakingState()
+    public void disabledBreakingState()
     {
-	System.out.println("disabledBreakingState()");
-        
+	//System.out.println("disabledBreakingState()");
 	allowBreaks = false;
-        
 	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
-        
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
-        
 	updateBlockingMenuItems();
     }
       
-    private void enabledBreakingState()
+    public void enabledBreakingState()
     {
-	System.out.println("enabledBreakingState()");
-        
+	//System.out.println("enabledBreakingState()");
 	allowBreaks = true;
-        
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
-        
 	updateBlockingMenuItems();
     }
 
@@ -763,26 +753,26 @@ public class Luv extends JFrame
 	setVisible(true);
     }
       
-    private void createMenuBar(JMenuBar menuBar)
+    public void createMenuBar(JMenuBar menuBar)
     {       
 	// create file menu
          
 	menuBar.add(fileMenu);
-	fileMenu.add(openAction);
-	fileMenu.add(openScriptAction);
+	fileMenu.add(Luv.getLuv().openAction);
+	fileMenu.add(Luv.getLuv().openScriptAction);
 	updateRecentMenu();
 	fileMenu.add(recentRunMenu);
-	fileMenu.add(reloadAction);
+	fileMenu.add(Luv.getLuv().reloadAction);
 	fileMenu.add(new JSeparator());
-	fileMenu.add(exitAction);
+	fileMenu.add(Luv.getLuv().exitAction);
 
 	// create and update exec menu
          
 	menuBar.add(runMenu);
-	runMenu.add(pauseAction);
-	runMenu.add(stepAction);
-	runMenu.add(allowBreaksAction);
-	runMenu.add(execAction);
+	runMenu.add(Luv.getLuv().pauseAction);
+	runMenu.add(Luv.getLuv().stepAction);
+	runMenu.add(Luv.getLuv().allowBreaksAction);
+	runMenu.add(Luv.getLuv().execAction);
 
 	// add view menu
 
@@ -791,37 +781,12 @@ public class Luv extends JFrame
 	// show window menu
  
 	menuBar.add(windowMenu);
-	windowMenu.add(luvDebugWindowAction);
+	windowMenu.add(Luv.getLuv().luvDebugWindowAction);
     }
       
-    // this is called from the ViewHandler
-    public void setLuvViewMenu()
+    public JMenu getViewMenu()
     {
-         // insert the view menu items
-
-         viewMenu.removeAll(); 
-         for(LuvAction action: viewHandler.getCurrentView().getViewActions())
-            viewMenu.add(action);
-         viewMenu.add(showHidePrlNodes);
-
-
-         // enable that menu if we actually have menu items
-         
-         viewMenu.setEnabled(viewMenu.getMenuComponentCount() > 0);
-         setLocation(getLocation());
-
-         // size everything
-
-         setPreferredSize(getSize());
-
-         // set the frame title
-         
-         setTitle();
-
-         // show the new view
-
-         pack();
-         repaint();
+	return viewMenu;
     }
       
     public void disableAllMenus()
@@ -876,47 +841,44 @@ public class Luv extends JFrame
       
     // Add a file to the recently opened file list. 
 
-    private void addRunToRecentRunList() throws IOException
+    public void addRunToRecentRunList()
     {
 	// put newest file at the top of the list
           
-	File plan = fileHandler.getPlan();
-	File script = fileHandler.getScript();
+	File plan = fileHandler.getCurrentFile(PLAN);
+	File script = fileHandler.getCurrentFile(SCRIPT);
 
-        // only store the run if both files are valid - could be invalid if 
-        // executed from terminal instead of the viewer itself
-        if (plan != null && script != null)
-        {
-            String currentPlan = plan.getAbsolutePath();
-            String currentScript = script.getAbsolutePath();
+	String currentPlan = plan.getAbsolutePath();
+	String currentScript = script.getAbsolutePath();
 
-            String planName = currentPlan;
-            String scriptName = currentScript;
+	String planName = currentPlan;
+	String scriptName = currentScript;
+         
+	int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
 
-            int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
+	for (int i = 1; i <= count && planName != null; ++i) {
+	    if (planName != null) {
 
-            for (int i = 1; i <= count && planName != null; ++i) {
-                if (planName != null) {
+		// *** possibility of error saving null script name ***
 
-                    planName = (String)properties.setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
-                    scriptName = (String)properties.setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
-                    // if this run already existed in the list, we can stop
-                    // it already appears at the top
+		planName = (String)properties.setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
+		scriptName = (String)properties.setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
+		// if this run already existed in the list, we can stop
+		// it already appears at the top
 
-                    if (planName != null && planName.equals(currentPlan))
-                        break;
-                }
-            }
+		if (planName != null && planName.equals(currentPlan))
+		    break;
+	    }
+	}
 
-            // update the recent menu
+	// update the recent menu
 
-            updateRecentMenu();
-        }
+	updateRecentMenu();
     }
       
     /** Update the recently loaded files menu. */
 
-    private void updateRecentMenu()
+    public void updateRecentMenu()
     {
 	recentRunMenu.removeAll();
 	int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
@@ -936,7 +898,7 @@ public class Luv extends JFrame
       
     // set title of the luv viewer
 
-    private void setTitle()
+    public void setTitle()
     {          
 	setTitle("Luv Viewer");
     }
@@ -987,68 +949,53 @@ public class Luv extends JFrame
 	System.exit(0); 
     }
       
-    private String getCommandLine() throws IOException
+    public String getCommandLine() throws IOException
     {
-        // is command valid?
-        boolean valid = true;
-        
-        // UE command       
-	String command = PROP_UE_EXEC;
-        
-        // instruct UE to use Luv
-        command += " -v";
+	String command = PROP_UE_EXEC + " -v";
 
-        // allow breaks?
-        command += allowBreaks ? command += " -b" : "";	                   
+	if (allowBreaks)
+	    command += " -b";                
           
-	// does plan still exist?          
-	if (fileHandler.getPlan().exists())
-	{
-            command += " " + fileHandler.getPlan(); 
-        }
-        else
-        {
-            valid = false;
-            command = "Error: " + fileHandler.getPlan() + " does not exist.";
-        }
-        
-        // if plan exists, get script (user may not have loaded it yet)            
-        if (valid && fileHandler.getScript() != null)
-        {
-            if (fileHandler.getScript().exists())
-            {
-                command += " " +  fileHandler.getScript();
-            }
-            else
-            {
-                valid = false;
-                command = "Error: " + fileHandler.getScript() + " does not exist.";
-            }
-        }
-        else
-        {
-            valid = false;
-            command = "Error: script does not exist.";
-        }
-        
-        // if plan and script exist, are there libraries to add?
-        if (valid && libraryNames.size() > 0)
-        {
-            for (String libName : libraryNames.values())
-            {
-                // double check that library still exists
-                if (new File(libName).exists())
-                {
-                    command += " -l ";
-                    command += libName.toString();
-                }
-                else
-                {
-                    command = "Error: " + libName + " does not exist.";
-                    break;
-                }
-            }
-        }
+	// double check that plan still exists
+          
+	if (new File(Model.getRoot().getPlanName()).exists())
+	    {
+		command += " " +  Model.getRoot().getPlanName(); 
+              
+		if (fileHandler.getScript() != null)
+		    {
+			// double check that script still exists
+                  
+			if (new File(fileHandler.getScript().getAbsolutePath()).exists())
+			    {
+				command += " " +  fileHandler.getScript().getAbsolutePath();
+			    }
+			else
+			    command = "Error: " + fileHandler.getScript().getAbsolutePath() + " does not exist.";
+		    }
+		else
+		    command = "Error: script does not exist.";
+
+		if (libraryNames.size() > 0)
+		    {
+			for (String libName : libraryNames.values())
+			    {
+				// double check that library still exists
+				if (new File(libName).exists())
+				    {
+					command += " -l ";
+					command += libName.toString();
+				    }
+				else
+				    {
+					command = "Error: " + libName + " does not exist.";
+					break;
+				    }
+			    }
+		    }
+	    }
+	else
+	    command = "Error: " + Model.getRoot().getPlanName() + " does not exist.";
 
 	return command;
     }
@@ -1067,15 +1014,6 @@ public class Luv extends JFrame
     {
 	libraryNames.clear();
     }
-    
-    public void stopExecution() throws IOException
-    {
-        System.out.println("stopExecution()");
-        
-	executionViaLuvViewerHandler.killUEProcess();
-	stopExecution = true;
-	executedViaLuvViewer = true;
-    }
       
       
     /***************** List of Actions ********************/
@@ -1091,30 +1029,32 @@ public class Luv extends JFrame
 	    public void actionPerformed(ActionEvent e)
 	    {
 		// Loading done in the file handler at present
-                
+                clearLibraryNames();
 		int option = fileHandler.choosePlan();
 
 		if (option == APPROVE_OPTION) {
-		    // is the user trying to reload while a plan is already executing?
+		    // Do these things only if we loaded a plan
 		    if (isExecuting) {
 			try {
 			    stopExecution();
-			    JOptionPane.showMessageDialog(theLuv, 
-                                                          "Stopping execution and opening a new plan", 
-                                                          "Stopping Execution", 
-                                                          JOptionPane.INFORMATION_MESSAGE);
+			    JOptionPane.showMessageDialog(theLuv, "Stopping execution and opening a new plan", "Stopping Execution", JOptionPane.INFORMATION_MESSAGE);
 			}
 			catch (IOException ex) {
-			    JOptionPane.showMessageDialog(theLuv, 
-                                                          "Error stopping execution. Please see Debug Window.", 
-                                                          "Error", 
-                                                          JOptionPane.ERROR_MESSAGE);
+			    JOptionPane.showMessageDialog(theLuv, "Error stopping execution. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
 			    System.err.println("Error: " + ex.getMessage());
 			}
 		    }
-                    
-                    openPlanViaLuvViewerState();
-		}               
+
+		    // *** Some of this needs to happen before loading ***
+		    openedPlanViaLuvViewer = true;
+		    executedViaCommandPrompt = false;
+		    readyState();
+		    fileHandler.loadPlan(fileHandler.getCurrentFile(PLAN));
+		    luvBreakPointHandler.clearBreakPoint();
+		    luvBreakPointHandler.clearBreakPointMap();
+		    luvBreakPointHandler.clearUnfoundBreakPoints();
+		    conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
+		}
 	    }
 	};
       
@@ -1130,7 +1070,6 @@ public class Luv extends JFrame
 	    {
 		int option = fileHandler.chooseScript();
 		if (option == APPROVE_OPTION) {
-                    // is the user trying to open a script while a plan is already executing?
 		    if (isExecuting) {
 			try {
 			    stopExecution();
@@ -1161,7 +1100,6 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
-                // is the user trying to reload while a plan is already executing?
 		if (isExecuting) {
 		    try {
 			stopExecution();
@@ -1179,16 +1117,18 @@ public class Luv extends JFrame
 		    }
 		}
 
-                // make sure the user is reloading a plan that was opened through the viewer itself and not the terminal
 		if (openedPlanViaLuvViewer) {
-                    
-                    reloadPlanState();
+                    clearLibraryNames();
+		    readyState();                
+		    conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
+		    if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
+			refreshPopUpNodeWindow();
 
 		    try {
-			if (fileHandler.getPlan() == null)
+			if (fileHandler.getCurrentFile(PLAN) == null)
 			    fileHandler.loadRecentPlan(1);
 			else
-			    fileHandler.loadPlan(fileHandler.getPlan());
+			    fileHandler.loadPlan(fileHandler.getCurrentFile(PLAN));
 		    } 
 		    catch (IOException ex) {
 			JOptionPane.showMessageDialog(theLuv,
@@ -1200,10 +1140,11 @@ public class Luv extends JFrame
 		}
 		else {
 		    JOptionPane.showMessageDialog(theLuv,
-						  "Error: Cannot reload a plan that was originally loaded by command prompt.",
+						  "Error reloading plan. The Luv Viewer cannot store a plan that was loaded by command prompt.\n" +
+						  "You must load the plan via the Luv Viewer in order to reload.",
 						  "Reload Error",
 						  JOptionPane.ERROR_MESSAGE);
-		    statusMessageHandler.showStatus("Error: Cannot reload a plan that was originally loaded by command prompt.", 1000);
+		    statusMessageHandler.showStatus("Unable to reload plan that was loaded by command prompt.", 1000);
 		}
 	    }
 	};
@@ -1261,28 +1202,16 @@ public class Luv extends JFrame
                 try {
 
                     if (!isExecuting) {
-                        if (!executedViaCommandPrompt) {
-                            executedViaLuvViewer = true;
-                            preExecutionState();
-                            String command = getCommandLine();
-                            if (!command.contains("Error")) {
-                                executionViaLuvViewerHandler.runExec(command);
-                            }
-                            else {
-                                JOptionPane.showMessageDialog(theLuv, 
-                                                              command, 
-                                                              "Error", 
-                                                              JOptionPane.ERROR_MESSAGE);
-                                showStatus("Stopped execution", Color.lightGray, 1000);
-                                readyState();
-                            }
-                        }
+                        executedViaLuvViewer = true;
+                        preExecutionState();
+                        String command = getCommandLine();
+                        if (!command.contains("Error")) {
+                            executionViaLuvViewerHandler.runExec(command);
+			}
                         else {
-                            JOptionPane.showMessageDialog(theLuv,
-						          "Error: Cannot execute a plan that was originally executed by command prompt.",
-						          "Execution Error",
-						          JOptionPane.ERROR_MESSAGE);
-                            statusMessageHandler.showStatus("Error: Cannot execute a plan that was originally executed by command prompt.", 1000);
+                            JOptionPane.showMessageDialog(theLuv, command, "Error", JOptionPane.ERROR_MESSAGE);
+                            showStatus("Stopped execution", Color.lightGray, 1000);
+                            readyState();
                         }
                     }
                     else {                       
@@ -1404,4 +1333,3 @@ public class Luv extends JFrame
 	    }
 	};
 }
-

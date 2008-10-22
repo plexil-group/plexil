@@ -101,9 +101,31 @@ public class ViewHandler
 	sp.setBackground(Luv.getLuv().getProperties().getColor(PROP_WIN_BCLR));
 	viewPanel.add(sp, CENTER);
 
-	// reset Luv view nenu
+	// insert the view menu items
+
+	Luv.getLuv().getViewMenu().removeAll(); 
+	for(LuvAction action: currentView.getViewActions())
+            Luv.getLuv().getViewMenu().add(action);
+	Luv.getLuv().getViewMenu().add(Luv.getLuv().showHidePrlNodes);
+
+
+	// enable that menu if we actually have menu items
          
-         Luv.getLuv().setLuvViewMenu();
+	Luv.getLuv().getViewMenu().setEnabled(Luv.getLuv().getViewMenu().getMenuComponentCount() > 0);
+	Luv.getLuv().setLocation(Luv.getLuv().getLocation());
+
+	// size everything
+
+	Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
+
+	// set the frame title
+         
+	Luv.getLuv().setTitle();
+
+	// show the new view
+
+	Luv.getLuv().pack();
+	Luv.getLuv().repaint();
     }
       
     /** Reset the current view to reflect the changes in the world. */
