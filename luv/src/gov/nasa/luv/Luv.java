@@ -580,9 +580,9 @@ public class Luv extends JFrame
           
     public void stopExecution() throws IOException
     {
-    System.out.println("stopExecution()");
+        System.out.println("stopExecution()");
+        
 	executionViaLuvViewerHandler.killUEProcess();
-	pauseAction.actionPerformed(null);
 	stopExecution = true;
 	executedViaLuvViewer = true;
     }
@@ -1009,6 +1009,7 @@ public class Luv extends JFrame
 	    public void actionPerformed(ActionEvent e)
 	    {
 		// Loading done in the file handler at present
+                clearLibraryNames();
 		int option = fileHandler.choosePlan();
 
 		if (option == APPROVE_OPTION) {
@@ -1097,6 +1098,7 @@ public class Luv extends JFrame
 		}
 
 		if (openedPlanViaLuvViewer) {
+                    clearLibraryNames();
 		    readyState();                
 		    conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
 		    if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
