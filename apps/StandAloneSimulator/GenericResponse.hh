@@ -35,7 +35,7 @@ class GenericResponse : public ResponseBase
 {
 public:
   GenericResponse(timeval delay, std::string value) 
-    : ResponseBase(delay)
+    : ResponseBase(delay), m_Value(value)
   {
 
   }
