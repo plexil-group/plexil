@@ -180,10 +180,16 @@
 
 	// Make sure Luv instance is notified if this was plan or library
 	if (tagName.equals(PLEXIL_PLAN))
-	    Luv.getLuv().handleNewPlan(topLevelNode);
+        {
+            try {
+                Luv.getLuv().handleNewPlan(topLevelNode);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(Luv.getLuv(), "Error encountered. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+		System.err.println("Error: " + ex.getMessage());
+            }
+        }
 	else if (tagName.equals(PLEXIL_LIBRARY))
 	    Luv.getLuv().handleNewLibrary(topLevelNode);
-    }
 
     /** Handle end of document event. */
 
