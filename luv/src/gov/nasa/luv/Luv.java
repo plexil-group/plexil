@@ -26,13 +26,13 @@
 
 package gov.nasa.luv;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.JMenu;
+import javax.swing.JSeparator;
 
 import java.awt.Container;
 import java.awt.Color;
@@ -42,12 +42,10 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
-
 import java.io.File;
+
 import java.util.HashMap;
-import javax.swing.JMenu;
-import javax.swing.JSeparator;
+
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
@@ -410,7 +408,7 @@ public class Luv extends JFrame
 	atStartScreen = true;
 	dontLoadScriptAgain = false;
 	stopSearchForMissingLibs = false;
-	openedPlanViaLuvViewer = false;         
+	//openedPlanViaLuvViewer = false;         
 	executedViaLuvViewer = false;
 	planPaused = false;
 	cancelPlanLoading = false;
@@ -1127,35 +1125,23 @@ public class Luv extends JFrame
 			System.err.println("Error: " + ex.getMessage());
 		    }
 		}
-
-		if (openedPlanViaLuvViewer) {
+                if (openedPlanViaLuvViewer) {
                     clearLibraryNames();
 		    readyState();                
 		    conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
+                    
 		    if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
 			refreshPopUpNodeWindow();
+                    
+                    fileHandler.loadPlan(new File(currentPlan.getPlanName()));
 
-		    try {
-			if (fileHandler.getPlanFile() == null)
-			    fileHandler.loadRecentPlan(1);
-			else
-			    fileHandler.loadPlan(fileHandler.getPlanFile());
-		    } 
-		    catch (IOException ex) {
-			JOptionPane.showMessageDialog(theLuv,
-						      "Error reloading plan. Please see Debug Window.",
-						      "Error",
-						      JOptionPane.ERROR_MESSAGE);
-			System.err.println("Error: " + ex.getMessage());
-		    }
 		}
 		else {
 		    JOptionPane.showMessageDialog(theLuv,
-						  "Error reloading plan. The Luv Viewer cannot store a plan that was loaded by command prompt.\n" +
-						  "You must load the plan via the Luv Viewer in order to reload.",
+						  "Error: cannot reload a plan originally loaded by command prompt.",
 						  "Reload Error",
 						  JOptionPane.ERROR_MESSAGE);
-		    statusMessageHandler.showStatus("Unable to reload plan that was loaded by command prompt.", 1000);
+		    statusMessageHandler.showStatus("Error: cannot reload a plan originally loaded by command prompt.", 1000);
 		}
 	    }
 	};

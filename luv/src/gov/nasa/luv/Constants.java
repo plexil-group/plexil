@@ -256,12 +256,12 @@ public class Constants
       public static final String    PROP_FILE_RECENT_LIB_DIR = "file.recent-library-directory";
       public static final String    PROP_FILE_RECENT_TEST_DIR = "file.recent-test-directory";
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
-      public static final int       PROP_FILE_RECENT_COUNT_DEF = 10;
+      public static final int       PROP_FILE_RECENT_COUNT_DEF = 9;
       
       public static final String    PROP_MAC_MENU_STYLE = "apple.laf.useScreenMenuBar";
 
       public static final String    PROP_WIN_LOC        = "window.location";
-      public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 50);
+      public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 100);
       public static final String    PROP_WIN_SIZE       = "window.size";
       public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 650);
       public static final String    PROP_WIN_BCLR       = "window.background";
@@ -271,7 +271,7 @@ public class Constants
       public static final int       PROP_TOOLTIP_DISMISS_DEF  = 60000;
 
       public static final String    PROP_DBWIN_LOC        = "dbwindow.location";
-      public static final Point     PROP_DBWIN_LOC_DEF    = new Point(50, 50);
+      public static final Point     PROP_DBWIN_LOC_DEF    = new Point(50, 750);
       public static final String    PROP_DBWIN_SIZE       = "dbwindow.size";
       public static final Dimension PROP_DBWIN_SIZE_DEF   = new Dimension(1200, 300);
       public static final String    PROP_DBWIN_VISIBLE    = "dbwindow.visible";
