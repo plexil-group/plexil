@@ -246,6 +246,12 @@ public class Luv extends JFrame
     {
 	return planPaused && !planStep;
     }
+    
+    private void stopBlock()
+    {
+	planPaused = false;
+        planStep = true;
+    }
 
     public void blockViewer()
     {
@@ -396,7 +402,7 @@ public class Luv extends JFrame
 
     public void startState()
     {
-	//System.out.println("startState()");
+	System.out.println("startState()");
 
 	// reset all luv viewer variables
           
@@ -407,8 +413,7 @@ public class Luv extends JFrame
 	isExecuting = false;   
 	atStartScreen = true;
 	dontLoadScriptAgain = false;
-	stopSearchForMissingLibs = false;
-	//openedPlanViaLuvViewer = false;         
+	stopSearchForMissingLibs = false;        
 	executedViaLuvViewer = false;
 	planPaused = false;
 	cancelPlanLoading = false;
@@ -454,7 +459,7 @@ public class Luv extends JFrame
       
     public void readyState()
     {
-	//System.out.println("readyState()");
+	System.out.println("readyState()");
 
 	// set only certain luv viewer variables
           
@@ -509,7 +514,7 @@ public class Luv extends JFrame
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
-	//System.out.println("finishedExecutionState()");
+        System.out.println("finishedExecutionState()");
 
 	// set only certain luv viewer variables
           
@@ -558,7 +563,7 @@ public class Luv extends JFrame
       
     public void preExecutionState()
     {
-	//System.out.println("preExecutionState()");
+	System.out.println("preExecutionState()");
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
@@ -571,7 +576,7 @@ public class Luv extends JFrame
       
     public void executionState()
     {
-	//System.out.println("executionState()");
+	System.out.println("executionState()");
 	isExecuting = true;
 	stopExecution = false;
           
@@ -587,7 +592,7 @@ public class Luv extends JFrame
 
     public void luvViewerExecutionState()
     {
-	//System.out.println("luvViewerExecutionState()");
+	System.out.println("luvViewerExecutionState()");
 	executionState();
 	execAction.putValue(NAME, STOP_EXECUTION);
 	executedViaLuvViewer = true;
@@ -596,7 +601,7 @@ public class Luv extends JFrame
 
     public void cmdPromptExecutionState()
     {
-	//System.out.println("cmdPromptExecutionState()");
+	System.out.println("cmdPromptExecutionState()");
 	executionState();
 	executedViaCommandPrompt = true; 
 	openedPlanViaLuvViewer = false;      
@@ -607,16 +612,16 @@ public class Luv extends JFrame
           
     public void stopExecution() throws IOException
     {
-	//System.out.println("stopExecution()");
+	System.out.println("stopExecution()");      
         
 	executionViaLuvViewerHandler.killUEProcess();
+        stopBlock();
 	stopExecution = true;
-	executedViaLuvViewer = true;
     }
     
     public void pausedState()
     {
-	//System.out.println("pausedState()");
+	System.out.println("pausedState()");
 
 	allowBreaks = true;
 	planPaused = true;
@@ -629,7 +634,7 @@ public class Luv extends JFrame
       
     public void stepState()
     {
-	//System.out.println("stepState()");
+	System.out.println("stepState()");
 	allowBreaks = true;
 	isExecuting = true;
 	planPaused = false;
@@ -646,7 +651,7 @@ public class Luv extends JFrame
       
     public void disabledBreakingState()
     {
-	//System.out.println("disabledBreakingState()");
+	System.out.println("disabledBreakingState()");
 	allowBreaks = false;
 	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
@@ -655,7 +660,7 @@ public class Luv extends JFrame
       
     public void enabledBreakingState()
     {
-	//System.out.println("enabledBreakingState()");
+	System.out.println("enabledBreakingState()");
 	allowBreaks = true;
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
 	updateBlockingMenuItems();
@@ -665,6 +670,7 @@ public class Luv extends JFrame
 
     private void updateBlockingMenuItems()
     {
+        System.out.println("updateBlockingMenuItems()");
 	// Pause/resume not useful if exec isn't listening
 	if (isExecuting) {
 	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
@@ -960,16 +966,22 @@ public class Luv extends JFrame
       
     public String getCommandLine() throws IOException
     {
+        File plan = null;
 	String command = PROP_UE_EXEC + " -v";
 
 	if (allowBreaks)
 	    command += " -b";                
           
 	// double check that plan still exists
+        
+        if (currentPlan.getPlanName() == null)
+            plan = fileHandler.getPlanFile();
+        else
+            plan = new File(currentPlan.getPlanName());
           
-	if (new File(currentPlan.getPlanName()).exists())
+	if (plan.exists())
 	    {
-		command += " " +  currentPlan.getPlanName(); 
+		command += " " +  plan; 
               
 		if (fileHandler.getScript() != null)
 		    {
@@ -1004,7 +1016,7 @@ public class Luv extends JFrame
 		    }
 	    }
 	else
-	    command = "Error: " + currentPlan.getPlanName() + " does not exist.";
+	    command = "Error: " + plan + " does not exist.";
 
 	return command;
     }
@@ -1132,8 +1144,11 @@ public class Luv extends JFrame
                     
 		    if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
 			refreshPopUpNodeWindow();
-                    
-                    fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+             
+                    if (currentPlan.getPlanName() == null)
+                        fileHandler.loadPlan(fileHandler.getPlanFile());
+                    else
+                        fileHandler.loadPlan(new File(currentPlan.getPlanName()));
 
 		}
 		else {
