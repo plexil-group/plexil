@@ -351,12 +351,6 @@ public class Constants
       // debug menu
 
       public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
-      
-      // file types 
-      
-      public static final int PLAN                          = 0;
-      public static final int SCRIPT                        = 1;
-      public static final int DEBUG                         = 2;
 
       // boolean constant values
 

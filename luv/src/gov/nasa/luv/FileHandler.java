@@ -118,38 +118,37 @@ public class FileHandler
 	};
          
     // return current instance of either the plan, script or debug file
-         
-    public File getCurrentFile(int file)
+
+    public File getPlanFile()
     {
-	switch (file)
-	    {
-	    case PLAN:
-		return plan;
-	    case SCRIPT:
-		return script;
-	    case DEBUG:
-		return debug;
-	    default:
-		return null; //error
-	    }
+	return plan;
     }
-      
-    public void clearCurrentFile(int type)
+
+    public File getScriptFile()
     {
-	switch (type)
-	    {
-	    case PLAN:
-		plan = null;
-		break;
-	    case SCRIPT:
-		script = null;
-		break;
-	    case DEBUG:
-		debug = null;
-		break;
-	    default:
-		; //error
-	    }
+	return script;
+    }
+
+    public File getDebugFile()
+    {
+	return debug;
+    }
+
+    // clear current files
+
+    public void clearPlanFile()
+    {
+	plan = null;
+    }
+
+    public void clearScriptFile()
+    {
+	script = null;
+    }
+
+    public void clearDebugFile()
+    {
+	debug = null;
     }
     
     // find the libraries needed
@@ -437,7 +436,7 @@ public class FileHandler
     }
       
     /**
-     * Load a plexil script from the disk.  This operates on the global model.
+     * Load a plexil script from the disk.
      *
      * @param script file to load
      */
@@ -447,7 +446,7 @@ public class FileHandler
 	if (script != null)
 	    {
 		Luv.getLuv().showStatus("Loading script "  + script, 50);
-		Model.getRoot().addScriptName(script.toString());
+		Luv.getLuv().getCurrentPlan().addScriptName(script.toString());
 	    }
     }
 
@@ -473,8 +472,8 @@ public class FileHandler
       
     public void loadPlan(File plan, Vector<String> libraryNames) 
     {
-	Model.getRoot().addPlanName(plan.toString());
-	readPlan(plan);
+	Model newPlan = readPlan(plan);
+	newPlan.addPlanName(plan.toString());
     }
             
     // Load a recently loaded plan

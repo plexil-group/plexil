@@ -123,6 +123,10 @@ public class Luv extends JFrame
 		define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
 	    }
 	};
+    
+    // the current model
+
+    private Model currentPlan = null;
 
     // entry point for this program
 
@@ -200,9 +204,11 @@ public class Luv extends JFrame
 	    Model.getRoot().removeChild(other);
 	}
 
-	Model.getRoot().planChanged();
-
-	viewHandler.focusView(plan);
+	if (plan != currentPlan) {
+	    currentPlan = plan;
+	    Model.getRoot().planChanged();
+	    viewHandler.focusView(plan);
+	}
 
 	if (isExecuting) {
 	    if (openedPlanViaLuvViewer) {
@@ -279,12 +285,17 @@ public class Luv extends JFrame
     public ConditionHandler       getConditionHandler()       { return conditionHandler; }        // get current condition handler
       
     public Properties             getProperties()             { return properties; }              // get persistent properties for luv viewer
-      
+    
     public static Luv             getLuv()                    { return theLuv; }                  // get current active instance of luv viewer
       
     //
-    // Accessors for local luv boolean variables
+    // Accessors for local luv variables
     //
+
+    public Model getCurrentPlan()
+    {
+	return currentPlan;
+    }
 
     public boolean getExecBlocks()
     {
@@ -407,9 +418,9 @@ public class Luv extends JFrame
 	Model.getRoot().clear();  
 	conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
           
-	fileHandler.clearCurrentFile(PLAN); 
-	fileHandler.clearCurrentFile(SCRIPT); 
-	fileHandler.clearCurrentFile(DEBUG);
+	fileHandler.clearPlanFile(); 
+	fileHandler.clearScriptFile(); 
+	fileHandler.clearDebugFile();
 
 	viewHandler.clearCurrentView();
 	statusMessageHandler.clearStatusMessageQ();
@@ -845,8 +856,8 @@ public class Luv extends JFrame
     {
 	// put newest file at the top of the list
           
-	File plan = fileHandler.getCurrentFile(PLAN);
-	File script = fileHandler.getCurrentFile(SCRIPT);
+	File plan = fileHandler.getPlanFile();
+	File script = fileHandler.getScriptFile();
 
 	String currentPlan = plan.getAbsolutePath();
 	String currentScript = script.getAbsolutePath();
@@ -958,9 +969,9 @@ public class Luv extends JFrame
           
 	// double check that plan still exists
           
-	if (new File(Model.getRoot().getPlanName()).exists())
+	if (new File(currentPlan.getPlanName()).exists())
 	    {
-		command += " " +  Model.getRoot().getPlanName(); 
+		command += " " +  currentPlan.getPlanName(); 
               
 		if (fileHandler.getScript() != null)
 		    {
@@ -995,7 +1006,7 @@ public class Luv extends JFrame
 		    }
 	    }
 	else
-	    command = "Error: " + Model.getRoot().getPlanName() + " does not exist.";
+	    command = "Error: " + currentPlan.getPlanName() + " does not exist.";
 
 	return command;
     }
@@ -1049,7 +1060,7 @@ public class Luv extends JFrame
 		    openedPlanViaLuvViewer = true;
 		    executedViaCommandPrompt = false;
 		    readyState();
-		    fileHandler.loadPlan(fileHandler.getCurrentFile(PLAN));
+		    fileHandler.loadPlan(fileHandler.getPlanFile());
 		    luvBreakPointHandler.clearBreakPoint();
 		    luvBreakPointHandler.clearBreakPointMap();
 		    luvBreakPointHandler.clearUnfoundBreakPoints();
@@ -1125,10 +1136,10 @@ public class Luv extends JFrame
 			refreshPopUpNodeWindow();
 
 		    try {
-			if (fileHandler.getCurrentFile(PLAN) == null)
+			if (fileHandler.getPlanFile() == null)
 			    fileHandler.loadRecentPlan(1);
 			else
-			    fileHandler.loadPlan(fileHandler.getCurrentFile(PLAN));
+			    fileHandler.loadPlan(fileHandler.getPlanFile());
 		    } 
 		    catch (IOException ex) {
 			JOptionPane.showMessageDialog(theLuv,
