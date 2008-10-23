@@ -70,7 +70,7 @@ public class ConditionHandler
         p = new PrintStream(out);
     }
     
-    public void outputAllCondititons(Model node)
+    public void outputAllConditions(Model node)
     {
         String nodePath = node.getPath();         
     
@@ -94,18 +94,18 @@ public class ConditionHandler
                 }
             }
             else
-                p.println("\tNo conditons for this node.");   
+                p.println("\tNo conditions for this node.");   
             
             for (int i = 0; i < node.getChildCount(); i++)
             {
-                outputAllCondititons(node.getChild(i));
+                outputAllConditions(node.getChild(i));
             }
         }
         else
         {
             for (int i = 0; i < node.getChildCount(); i++)
             {
-                outputAllCondititons(node.getChild(i));
+                outputAllConditions(node.getChild(i));
             }
         }
         
