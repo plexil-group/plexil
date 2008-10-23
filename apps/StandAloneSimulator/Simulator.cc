@@ -136,8 +136,9 @@ void Simulator::scheduleNextResponse(timeval time)
   if((!m_TimerScheduled) || (time < m_TimerScheduledTime))
     {
       // Schedule timer
-      // std::cout << "Simulator::scheduleResponseForMessage. Scheduling a timer" << std::endl;
+      std::cout << "Simulator::scheduleResponseForMessage. Scheduling a timer" << std::endl;
       immediateResp = m_TimingService.setTimer(time);
+      if (immediateResp) std::cout << "Immediate response required." << std::endl;
       m_TimerScheduled = true;
       m_TimerScheduledTime = time;
     }
@@ -152,26 +153,35 @@ void Simulator::scheduleNextResponse(timeval time)
 
 void Simulator::handleWakeUp()
 {
-  MutexGuard mg(&m_TimerMutex);
   std::cout << "Simulator::handleWakeUp" << std::endl;
-  int count = m_TimeToResp.count(m_TimeToResp.begin()->first);
-  std::cout << "count in the timer list map: " << count << std::endl;
-  for (std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
-       count > 0; ++iter, --count)
-    {
-      ResponseMessage* respMsg = iter->second;
-      m_CommRelay->sendResponse(respMsg);
-      delete respMsg;
-      m_TimeToResp.erase(iter);
-    }
+  bool scheduleTimer=false;
+  timeval time;
+    
+  {
+    MutexGuard mg(&m_TimerMutex);
+    int count = m_TimeToResp.count(m_TimeToResp.begin()->first);
+    //std::cout << "count in the timer list map: " << count 
+    //	      << ", total size: " << m_TimeToResp.size() << std::endl;
+    for (std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
+	 count > 0; ++iter, --count)
+      {
+	ResponseMessage* respMsg = iter->second;
+	m_CommRelay->sendResponse(respMsg);
+	std::cout << "Sent response." << std::endl;
+	delete respMsg;
+	m_TimeToResp.erase(iter);
+      }
+    
+    m_TimerScheduled = false;
+    if (m_TimeToResp.size() > 0)
+      {
+	std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
+	time = iter->first;
+	scheduleTimer = true;
+      }
+  }
 
-  m_TimerScheduled = false;
-  
-  if (m_TimeToResp.size() > 0)
-    {
-      std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
-      scheduleNextResponse(iter->first);
-    }
+  if (scheduleTimer) scheduleNextResponse(time);
 
 }
 
