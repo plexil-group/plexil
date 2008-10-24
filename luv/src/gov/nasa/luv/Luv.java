@@ -395,7 +395,6 @@ public class Luv extends JFrame
 	cancelPlanLoading = value;
     }
 
-
     //
     // State transitions
     //
@@ -415,6 +414,7 @@ public class Luv extends JFrame
 	dontLoadScriptAgain = false;
 	stopSearchForMissingLibs = false;        
 	executedViaLuvViewer = false;
+        openedPlanViaLuvViewer = false;
 	planPaused = false;
 	cancelPlanLoading = false;
           
@@ -470,6 +470,7 @@ public class Luv extends JFrame
 	isExecuting = false;
 	stopExecution = false;        
 	executedViaLuvViewer = false;
+        openedPlanViaLuvViewer = false;
 	cancelPlanLoading = false;
   
 	// set certain menu items
@@ -604,7 +605,13 @@ public class Luv extends JFrame
 	System.out.println("cmdPromptExecutionState()");
 	executionState();
 	executedViaCommandPrompt = true; 
-	openedPlanViaLuvViewer = false;      
+	openedPlanViaLuvViewer = false;   
+        
+        if (execBlocks)
+            enabledBreakingState();
+        else
+            disabledBreakingState();
+            
 	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
 	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
     }
