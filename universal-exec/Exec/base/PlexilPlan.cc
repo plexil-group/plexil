@@ -173,7 +173,9 @@ namespace PLEXIL {
   }
    
   PlexilNode::PlexilNode()
-    : m_priority(WORST_PRIORITY),
+    : m_lineNo(0),
+      m_colNo(0),
+      m_priority(WORST_PRIORITY),
       m_id(this)
   {}
 

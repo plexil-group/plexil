@@ -206,7 +206,7 @@ namespace PLEXIL {
 
   class PlexilExpr {
   public:
-    PlexilExpr() : m_id(this) {}
+    PlexilExpr() : m_lineNo(0), m_colNo(0), m_id(this) {}
     virtual ~PlexilExpr() {m_id.remove();}
     const PlexilExprId& getId() const {return m_id;}
     const std::string& name() const {return m_name;}
@@ -277,7 +277,7 @@ namespace PLEXIL {
 
   class PlexilState {
   public:
-    PlexilState() : m_id(this) {}
+    PlexilState() : m_lineNo(0), m_colNo(0), m_id(this) {}
    ~PlexilState() {m_id.remove(); m_nameExpr.remove();}
     const PlexilStateId& getId() const {return m_id;}
     const std::vector<PlexilExprId>& args() const {return m_args;}
@@ -406,7 +406,7 @@ namespace PLEXIL {
   
   class PlexilNodeBody {
   public:
-    PlexilNodeBody() : m_id(this) {}
+    PlexilNodeBody() : m_lineNo(0), m_colNo(0), m_id(this) {}
     virtual ~PlexilNodeBody() {m_id.remove();}
     const PlexilNodeBodyId& getId() const {return m_id;}
     int lineNo() const {return m_lineNo;}
@@ -480,7 +480,7 @@ namespace PLEXIL {
       SIBLING,
       NO_DIR
     };
-    PlexilNodeRef() :  m_id(this), m_dir(NO_DIR) {}
+    PlexilNodeRef() :  m_lineNo(0), m_colNo(0), m_id(this), m_dir(NO_DIR) {}
     ~PlexilNodeRef() {m_id.remove();}
     const PlexilNodeRefId& getId() const {return m_id;}
     const Direction& dir() const {return m_dir;}
@@ -551,7 +551,7 @@ namespace PLEXIL {
 
   class PlexilUpdate {
   public:
-    PlexilUpdate() : m_id(this) {}
+    PlexilUpdate() : m_lineNo(0), m_colNo(0), m_id(this) {}
     ~PlexilUpdate() {m_id.remove();}
     const PlexilUpdateId& getId() const {return m_id;}
     const std::vector<std::pair<std::string, PlexilExprId> >& pairs() const {return m_map;}
