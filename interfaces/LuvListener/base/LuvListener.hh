@@ -77,6 +77,7 @@ namespace PLEXIL
                                  const NodeId& node) const;
          void notifyOfAddPlan(const PlexilNodeId& plan, 
                               const LabelStr& parent) const;
+         void notifyOfAddLibrary(const PlexilNodeId& plan) const;
 
          TiXmlNode& constructNodePath(TiXmlNode& path,
                                       const NodeId& node) const;

@@ -52,6 +52,7 @@
 #define FALSE_STR             "false"
 #define PLAN_INFO_STR         "PlanInfo"
 #define PLEXIL_PLAN_STR       "PlexilPlan"
+#define PLEXIL_LIBRARY_STR    "PlexilLibrary"
 #define VIEWER_BLOCKS_STR     "ViewerBlocks"
 
 #define NODE_ID_STR           "NodeId"
@@ -61,7 +62,7 @@
 #define NODE_STATE_STR        "NodeState"
 #define NODE_OUTCOME_STR      "NodeOutcome"
 #define NODE_FAILURE_TYPE_STR "NodeFailureType"
-#define CONDITIONS_STR         "Conditions"
+#define CONDITIONS_STR        "Conditions"
 
 namespace PLEXIL 
 {
@@ -202,9 +203,27 @@ namespace PLEXIL
 
       sendPlanInfo();
 
-      // create a wrapper plexil plan and stick the plan in it
+      // create a plexil wrapper plan and stick the plan in it
 
       TiXmlElement planXml(PLEXIL_PLAN_STR);
+      planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
+
+      // send plan to viewer
+      
+      sendMessage(planXml);
+   }
+   
+   // handle add library event
+
+   void LuvListener::notifyOfAddLibrary(const PlexilNodeId& plan) const
+   {
+      // send an empty plan info
+
+      sendPlanInfo();
+
+      // create a library wrapper and stick the plan in it
+
+      TiXmlElement planXml(PLEXIL_LIBRARY_STR);
       planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
 
       // send plan to viewer
@@ -239,9 +258,7 @@ namespace PLEXIL
       {
          LabelStr name(*conditionName);
          TiXmlElement condition(name.toString());
-         std::stringstream strBuf;
-         strBuf << node->getCondition(name)->getValue();
-         condition.InsertEndChild(TiXmlText(strBuf.str()));
+         condition.InsertEndChild(TiXmlText(node->getCondition(name)->valueString()));
          conditions.InsertEndChild(condition);
       }
 
