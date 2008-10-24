@@ -181,12 +181,28 @@ public class Model extends Properties
     private boolean propertiesEquivalent(Model other)
     {
 	Set<Object> myKeys = keySet();
-	if (!myKeys.equals(other.keySet()))
+	if (!myKeys.equals(other.keySet())) {
+	    // *** debug only ***
+	    System.out.println("Models differ in properties");
+	    System.out.print(" this has keys: ");
+	    for (Iterator<Object> keyit = myKeys.iterator(); keyit.hasNext(); ) {
+		System.out.print(keyit.next() + " ");
+	    }
+	    System.out.println("");
+	    System.out.print(" other has keys: ");
+	    for (Iterator<Object> keyit = other.keySet().iterator(); keyit.hasNext(); ) {
+		System.out.print(keyit.next() + " ");
+	    }
+	    System.out.println("");
 	    return false;
+	}
 	for (Iterator<Object> keyit = myKeys.iterator(); keyit.hasNext(); ) {
 	    Object key = keyit.next();
-	    if (!get(key).equals(other.get(key)))
+	    if (!get(key).equals(other.get(key))) {
+		// *** debug only ***
+		System.out.println("Models differ in values for property " + key);
 		return false;
+	    }
 	}
 	return true;
     }
