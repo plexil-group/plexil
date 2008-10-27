@@ -339,7 +339,7 @@ public class TreeTableView extends JTreeTable implements View
          
       }
       
-      public boolean isNodeInfoWindowOpen()
+      public boolean isConditionsWindowOpen()
       {
           return ConditionsWindow.isConditionsWindowOpen(); 
       }

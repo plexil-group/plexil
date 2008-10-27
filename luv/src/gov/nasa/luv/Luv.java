@@ -26,8 +26,6 @@
 
 package gov.nasa.luv;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
@@ -212,8 +210,9 @@ public class Luv extends JFrame
             conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
 	}
                         
-	if (TreeTableView.getCurrent().isNodeInfoWindowOpen())
-	    refreshPopUpNodeWindow();
+	if(TreeTableView.getCurrent() != null && 
+           TreeTableView.getCurrent().isConditionsWindowOpen())
+            refreshPopUpNodeWindow();
                         
 	// Determine if the Luv Viewer should pause before executing. 
                                                   
@@ -230,20 +229,11 @@ public class Luv extends JFrame
 
 	// This causes tree to be displayed
 	// viewHandler.resetView();
-                        
-	if (TreeTableView.getCurrent().isNodeInfoWindowOpen())
-	    refreshPopUpNodeWindow();
     }
 
     public boolean shouldBlock()
     {
 	return planPaused && !planStep;
-    }
-    
-    private void stopBlock()
-    {
-	planPaused = false;
-        planStep = true;
     }
 
     public void blockViewer()
@@ -425,7 +415,6 @@ public class Luv extends JFrame
 	planStep = false;
 	atStartScreen = false;
 	stopSearchForMissingLibs = false; 
-	isExecuting = false;
 	stopExecution = false;      
   
 	// set certain menu items
@@ -441,7 +430,11 @@ public class Luv extends JFrame
  
 	updateBlockingMenuItems();
 
-	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+        if (isExecuting)
+            runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+        else
+            runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+            
 	runMenu.setEnabled(true);
 
 	if (viewMenu.getMenuComponentCount() > 0) {
@@ -509,6 +502,7 @@ public class Luv extends JFrame
     public void preExecutionState()
     {
 	System.out.println("preExecutionState()");
+        
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
@@ -529,6 +523,13 @@ public class Luv extends JFrame
         
         execAction.putValue(NAME, STOP_EXECUTION);
         
+        fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
+	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
+	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
+	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+        
+        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+        
         if (execBlocks || allowBreaks)
             enabledBreakingState();
         else
@@ -541,8 +542,9 @@ public class Luv extends JFrame
     {
 	System.out.println("stopExecution()");      
         
-	executionViaLuvViewerHandler.killUEProcess();
-        stopBlock();
+        planPaused = false;
+        planStep = false;
+	executionViaLuvViewerHandler.killUEProcess();       
 	stopExecution = true;
     }
     
@@ -599,6 +601,7 @@ public class Luv extends JFrame
     {
         System.out.println("updateBlockingMenuItems()");
 	// Pause/resume not useful if exec isn't listening
+            
 	if (isExecuting) {
 	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
 	    if (execBlocks) {
@@ -917,49 +920,59 @@ public class Luv extends JFrame
           
 	// double check that plan still exists
         
-        if (currentPlan.getPlanName() == null)
-            plan = fileHandler.getPlanFile();
-        else
-            plan = new File(currentPlan.getPlanName());
-          
-	if (plan.exists())
-	    {
-		command += " " +  plan; 
-              
-		if (fileHandler.getScript() != null)
-		    {
-			// double check that script still exists
-                  
-			if (new File(fileHandler.getScript().getAbsolutePath()).exists())
-			    {
-				command += " " +  fileHandler.getScript().getAbsolutePath();
-			    }
-			else
-			    command = "Error: " + fileHandler.getScript().getAbsolutePath() + " does not exist.";
-		    }
-		else
-		    command = "Error: script does not exist.";
+        if (currentPlan != null)
+        {       
+            if (currentPlan.getPlanName() == null)
+                plan = fileHandler.getPlanFile();
+            else
+                plan = new File(currentPlan.getPlanName());
 
-		if (libraryNames.size() > 0)
-		    {
-			for (String libName : libraryNames.values())
-			    {
-				// double check that library still exists
-				if (new File(libName).exists())
-				    {
-					command += " -l ";
-					command += libName.toString();
-				    }
-				else
-				    {
-					command = "Error: " + libName + " does not exist.";
-					break;
-				    }
-			    }
-		    }
-	    }
-	else
-	    command = "Error: " + plan + " does not exist.";
+            if (plan != null)
+            {
+                if (plan.exists())
+                    {
+                        command += " " +  plan; 
+
+                        if (fileHandler.getScript() != null)
+                            {
+                                // double check that script still exists
+
+                                if (new File(fileHandler.getScript().getAbsolutePath()).exists())
+                                    {
+                                        command += " " +  fileHandler.getScript().getAbsolutePath();
+                                    }
+                                else
+                                    command = "Error: " + fileHandler.getScript().getAbsolutePath() + " does not exist.";
+                            }
+                        else
+                            command = "Error: script does not exist.";
+
+                        if (libraryNames.size() > 0)
+                            {
+                                for (String libName : libraryNames.values())
+                                    {
+                                        // double check that library still exists
+                                        if (new File(libName).exists())
+                                            {
+                                                command += " -l ";
+                                                command += libName.toString();
+                                            }
+                                        else
+                                            {
+                                                command = "Error: " + libName + " does not exist.";
+                                                break;
+                                            }
+                                    }
+                            }
+                    }
+                else
+                    command = "Error: " + plan + " does not exist.";
+            }
+            else
+                command = "Error: trying to execute a NULL plan";
+        }
+        else
+            command = "Error: trying to execute a NULL plan";
 
 	return command;
     }
@@ -1083,13 +1096,36 @@ public class Luv extends JFrame
                 readyState();                
                 conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
 
-                if(TreeTableView.getCurrent().isNodeInfoWindowOpen())
+                if(TreeTableView.getCurrent() != null && 
+                   TreeTableView.getCurrent().isConditionsWindowOpen())
                     refreshPopUpNodeWindow();
 
-                if (currentPlan.getPlanName() == null)
-                    fileHandler.loadPlan(fileHandler.getPlanFile());
+                if (currentPlan != null)
+                {
+                    if (currentPlan.getPlanName() == null)
+                    {
+                        if (fileHandler.getPlanFile() != null)
+                            fileHandler.loadPlan(fileHandler.getPlanFile());
+                        else
+                        {
+                            JOptionPane.showMessageDialog(theLuv,
+                                                          "Error: cannot reload a NULL plan",
+                                                          "Error",
+                                                          JOptionPane.ERROR_MESSAGE);
+                            System.err.println("Error: cannot reload a NULL plan");
+                        }
+                    }
+                    else
+                        fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+                }
                 else
-                    fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+                {
+                    JOptionPane.showMessageDialog(theLuv,
+                                                  "Error: cannot reload a NULL plan",
+                                                  "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
+                    System.err.println("Error: cannot reload a NULL plan");
+                }
 
 	    }
 	};

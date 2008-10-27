@@ -128,6 +128,6 @@ public class ExecutionViaLuvViewerHandler
       
       public void killUEProcess() throws IOException
       {
-          ee.runtime.exec("kill test-exec_g_rt");
+          Runtime.getRuntime().exec("kill test-exec_g_rt");
       }
 }
