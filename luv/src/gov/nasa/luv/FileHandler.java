@@ -410,7 +410,6 @@ public class FileHandler
             
             switch (option) {
 	    case APPROVE_OPTION:
-		Luv.getLuv().setOpenedPlanViaLuvViewer(true);
 		plan = fileChooser.getSelectedFile();
 		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
 		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, plan.getParent());
@@ -481,7 +480,6 @@ public class FileHandler
     public void loadRecentPlan(int index) throws IOException
     {
 	Luv.getLuv().clearLibraryNames();
-	Luv.getLuv().setOpenedPlanViaLuvViewer(true);
 	String planName = getRecentPlanName(index);
 	String scriptName = getRecentScriptName(index);
          
@@ -510,13 +508,11 @@ public class FileHandler
       public void loadRecentPlan(File p) throws IOException
       {
          Luv.getLuv().clearLibraryNames();
-         Luv.getLuv().setOpenedPlanViaLuvViewer(true);
          
          if (p != null)
          {
             plan = p;
             loadPlan(plan);
-            String scriptName = getRecentScriptName(1);
             script = getScript();
             
             Luv.getLuv().readyState();

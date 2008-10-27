@@ -89,9 +89,7 @@ public class LoadRecentAction extends LuvAction
           JOptionPane.showMessageDialog(Luv.getLuv(), "Error loading recent plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
           System.err.println("Error: " + ex.getMessage());
        }
-       
-       Luv.getLuv().setOpenedPlanViaLuvViewer(true);
-       Luv.getLuv().setExecutedViaCommandPrompt(false); 
+
        Luv.getLuv().readyState();        
     }
 }

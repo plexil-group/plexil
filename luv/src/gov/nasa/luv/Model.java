@@ -28,7 +28,6 @@ package gov.nasa.luv;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Properties;
@@ -51,10 +50,6 @@ public class Model extends Properties
       private String path = "";
 
     private String modelName = "";
-
-    private String planFileName = null;
-
-    private String scriptFileName = null;
 
       /** property change listeners registered for this model */ 
 
@@ -171,39 +166,10 @@ public class Model extends Properties
 	    return false;
 	if (!path.equals(other.path))
 	    return false;
-	if (!propertiesEquivalent(other))
+	if (!super.equals(other)) // compare properties
 	    return false;
 	if (!childrenEquivalent(other))
 	    return false;
-	return true;
-    }
-
-    private boolean propertiesEquivalent(Model other)
-    {
-	Set<Object> myKeys = keySet();
-	if (!myKeys.equals(other.keySet())) {
-	    // *** debug only ***
-	    System.out.println("Models differ in properties");
-	    System.out.print(" this has keys: ");
-	    for (Iterator<Object> keyit = myKeys.iterator(); keyit.hasNext(); ) {
-		System.out.print(keyit.next() + " ");
-	    }
-	    System.out.println("");
-	    System.out.print(" other has keys: ");
-	    for (Iterator<Object> keyit = other.keySet().iterator(); keyit.hasNext(); ) {
-		System.out.print(keyit.next() + " ");
-	    }
-	    System.out.println("");
-	    return false;
-	}
-	for (Iterator<Object> keyit = myKeys.iterator(); keyit.hasNext(); ) {
-	    Object key = keyit.next();
-	    if (!get(key).equals(other.get(key))) {
-		// *** debug only ***
-		System.out.println("Models differ in values for property " + key);
-		return false;
-	    }
-	}
 	return true;
     }
 
@@ -321,9 +287,9 @@ public class Model extends Properties
 
       public void addPlanName(String planName)
       {
-	  planFileName = planName;
-	  for (int i = 0; i < changeListeners.size(); ++i)
-	      changeListeners.get(i).planNameAdded(this, planName);
+         setProperty(FILENAME_ATTR, planName);
+         for (int i = 0; i < changeListeners.size(); ++i)
+            changeListeners.get(i).planNameAdded(this, planName);
       }
       
       /** Specify the script file name.
@@ -333,9 +299,9 @@ public class Model extends Properties
 
       public void addScriptName(String scriptName)
       {
-	  scriptFileName = scriptName;
-	  for (int i = 0; i < changeListeners.size(); ++i)
-	      changeListeners.get(i).scriptNameAdded(this, scriptName);
+         setProperty(SCRIPT_FILENAME, scriptName);
+         for (int i = 0; i < changeListeners.size(); ++i)
+            changeListeners.get(i).scriptNameAdded(this, scriptName);
       }
 
       /** Get plan name recorded in this model.
@@ -345,7 +311,7 @@ public class Model extends Properties
 
       public String getPlanName()
       {
-         return planFileName;
+         return getProperty(FILENAME_ATTR);
       }
 
       /** Get script name recorded in this model.
@@ -355,7 +321,7 @@ public class Model extends Properties
 
       public String getScriptName()
       {
-         return scriptFileName;
+         return getProperty(SCRIPT_FILENAME);
       }
 
       /** Specify a library name.
