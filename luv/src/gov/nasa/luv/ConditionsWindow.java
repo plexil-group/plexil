@@ -54,7 +54,6 @@ public class ConditionsWindow extends JPanel
     private String info[][];
     private JTable table;     
     
-    private String nodePath;
     private HashMap nodeConditions;
     private ArrayList elements;
     

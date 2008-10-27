@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
@@ -70,7 +72,6 @@ public class Luv extends JFrame
     private static boolean planPaused                  = false;        // is instance of luv currently paused?    
     private static boolean planStep                    = false;        // is instance of luv currently stepping? 
     private static boolean stopExecution               = false;
-    private static boolean cancelPlanLoading           = false;
       
     // handler instances
       
@@ -89,7 +90,7 @@ public class Luv extends JFrame
       
     private HashMap<String, String> libraryNames = new HashMap<String, String>();
       
-    private DebugWindow luvViewerDebugWindow;   
+    private DebugWindow luvViewerDebugWindow; 
       
     SocketServer s;
       
@@ -362,11 +363,6 @@ public class Luv extends JFrame
 	return allowBreaks;
     }
 
-    public void setCancelPlanLoading(boolean value)
-    {
-	cancelPlanLoading = value;
-    }
-
     //
     // State transitions
     //
@@ -386,7 +382,6 @@ public class Luv extends JFrame
 	dontLoadScriptAgain = false;
 	stopSearchForMissingLibs = false;   
 	planPaused = false;
-	cancelPlanLoading = false;
           
 	Model.getRoot().clear();  
 	conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
@@ -431,8 +426,7 @@ public class Luv extends JFrame
 	atStartScreen = false;
 	stopSearchForMissingLibs = false; 
 	isExecuting = false;
-	stopExecution = false;        
-	cancelPlanLoading = false;
+	stopExecution = false;      
   
 	// set certain menu items
           
@@ -478,7 +472,6 @@ public class Luv extends JFrame
 	stopSearchForMissingLibs = false; 
 	isExecuting = false;
 	stopExecution = false;
-	cancelPlanLoading = false;
   
 	// set certain menu items
           
@@ -679,7 +672,7 @@ public class Luv extends JFrame
 	// create the debug window
          
 	luvViewerDebugWindow = new DebugWindow(this);
-	luvViewerDebugWindow.setTitle("Luv Viewer Debug Window");
+	luvViewerDebugWindow.setTitle("Luv Viewer Debug Window");                
 
 	// set size and location off frame
 
@@ -695,7 +688,7 @@ public class Luv extends JFrame
 		    luvDebugWindowAction.actionPerformed(null);   
 		}
 	    });
-         
+                
 	// make the frame visible
          
 	pack();
@@ -731,6 +724,7 @@ public class Luv extends JFrame
  
 	menuBar.add(windowMenu);
 	windowMenu.add(Luv.getLuv().luvDebugWindowAction);
+        windowMenu.add(Luv.getLuv().aboutWindowAction);
     }
       
     public JMenu getViewMenu()
@@ -1116,6 +1110,42 @@ public class Luv extends JFrame
 		    luvDebugWindowAction.putValue(NAME, "Hide Luv Viewer Debug Window");
 		else
 		    luvDebugWindowAction.putValue(NAME, "Show Luv Viewer Debug Window");
+	    }
+	};
+        
+    /** Action to show the About Luv Viewer window. */
+        
+    LuvAction aboutWindowAction = 
+        new LuvAction("About Luv Viewer Window",
+		      "Show window with luv viewer about information.",
+		      VK_A, 
+		      META_MASK)
+	{
+	    public void actionPerformed(ActionEvent e)
+	    {
+                if (AboutWindow.isAboutWindowOpen())
+                {
+                    AboutWindow.closeAboutWindow();
+                }
+                else
+                {
+                    try 
+                    {
+                        AboutWindow.openAboutWindow();
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(theLuv,
+						      "Error opening About Window. Please see Debug Window.",
+						      "Error",
+						      JOptionPane.ERROR_MESSAGE);
+                        System.err.println("Error: " + ex.getMessage());
+                    } catch (InterruptedException ex) {
+                        JOptionPane.showMessageDialog(theLuv,
+						      "Error opening About Window. Please see Debug Window.",
+						      "Error",
+						      JOptionPane.ERROR_MESSAGE);
+                        System.err.println("Error: " + ex.getMessage());
+                    }
+                }
 	    }
 	};
          

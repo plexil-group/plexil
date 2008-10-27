@@ -179,8 +179,6 @@ public class DebugWindow extends JFrame
                   }
 	    };
          clearAll = new JButton(clearAction);
-         
-         //setTitle("Debug Window");
 
          outer.setLayout(new java.awt.BorderLayout());
          

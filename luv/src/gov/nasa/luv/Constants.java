@@ -63,9 +63,9 @@ public class Constants
       
       
 
-      // node icon file names
+      /// node icon file names
 
-      public static final String    SPLASH_SCREEN_ICO = "LuvIcon.gif";
+      public static final String    ABOUT_SCREEN_ICO = "LuvIcon.gif";
       public static final String    START_SCREEN_ICO  = "LuvIcon6.gif";
       public static final String    NODELIST_ICO_NAME = "nodelist_node.gif";
       public static final String    COMMAND_ICO_NAME  = "command_node.gif";
@@ -90,6 +90,7 @@ public class Constants
             add(REQ,             REQUEST_ICO_NAME);
             add(LIBRARYNODECALL, LIBCALL_ICO_NAME);
             add(START_LOGO,      START_SCREEN_ICO);
+            add(ABOUT_LOGO,      ABOUT_SCREEN_ICO);
          }
          
          public void add(String tag, String iconName)
@@ -318,6 +319,8 @@ public class Constants
       
       public static final String START_LOGO = "Clear Screen";
       
+      public static final String ABOUT_LOGO = "About Logo";
+      
       public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
       
       public static final String PAUSE_OR_RESUME_PLAN = "Pause or Resume plan";
@@ -351,6 +354,7 @@ public class Constants
       // debug menu
 
       public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
+      public static final int SHOW_LUV_ABOUT_MENU_ITEM      = 1;
 
       // boolean constant values
 

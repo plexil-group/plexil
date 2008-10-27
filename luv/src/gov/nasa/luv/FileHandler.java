@@ -335,7 +335,7 @@ public class FileHandler
 		"Cancel plan execution"
 	    };
          
-	int findScript = 
+	int option = 
 	    JOptionPane.showOptionDialog(Luv.getLuv(),
 					 "Unable to locate a script for this plan. \n\nDo you want to use the following default empty script?\n\n"
 					 + Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR)
@@ -348,22 +348,25 @@ public class FileHandler
 					 null,
 					 options,
 					 options[0]);
-
-	if (findScript == 0) {
-	    String scriptName = path + DEFAULT_SCRIPT_NAME;
-	    FileWriter emptyScript = new FileWriter(scriptName);
-	    BufferedWriter out = new BufferedWriter(emptyScript);
-	    out.write(EMPTY_SCRIPT);
-	    out.close();                          
-	    script = new File(scriptName);
-	}
-	else if (findScript == 1) {
-	    Luv.getLuv().setDontLoadScriptAgain(true);
-	    chooseScript();
-	}
-	else if (findScript == 2) {
-	    Luv.getLuv().readyState();
-	}
+        
+        switch (option)
+        {
+            case 0:
+                String scriptName = path + DEFAULT_SCRIPT_NAME;
+                FileWriter emptyScript = new FileWriter(scriptName);
+                BufferedWriter out = new BufferedWriter(emptyScript);
+                out.write(EMPTY_SCRIPT);
+                out.close();                          
+                script = new File(scriptName);
+                break;
+            case 1:
+                Luv.getLuv().setDontLoadScriptAgain(true);
+                chooseScript();
+                break;
+            case 2:
+                Luv.getLuv().readyState();
+                break;                    
+        }
     }
          
     // Select and load a script from the disk.  This operates on the global model.
@@ -384,12 +387,6 @@ public class FileHandler
 		    loadScript(script);
 		    break;
                 }
-	    case CANCEL_OPTION:
-                {
-                    break;
-                }
-	    case ERROR_OPTION:
-		break;
             }
 	}
 	catch(Exception e) {
@@ -415,15 +412,6 @@ public class FileHandler
 		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, plan.getParent());
 		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
 		script = null;
-		break;
-
-	    case CANCEL_OPTION:
-		// *** why is this action necessary?? ***
-		if (Luv.getLuv().isAtStartScreen())
-		    Luv.getLuv().startState();
-		break;
-
-	    case ERROR_OPTION:
 		break;
             }           
 	}
@@ -644,7 +632,6 @@ public class FileHandler
 		    case 1:
 			Luv.getLuv().startState();
 			retry = false;
-			Luv.getLuv().setCancelPlanLoading(true);
 			Luv.getLuv().setStopSearchForMissingLibs(true);
 			break;
 		    }
