@@ -26,13 +26,7 @@
 
 package gov.nasa.luv;
 
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
-import java.util.Stack;
-
 import static gov.nasa.luv.Constants.*;
-
-import static java.lang.System.out;
 
 public class PlanInfoHandler extends AbstractDispatchableHandler
 {
@@ -51,11 +45,11 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
          String text = getTweenerText();
 
          // if this is blocking status, set that property in model
-         if (localName == VIEWER_BLOCKS) {
-	     Luv.getLuv().setExecBlocks(Boolean.valueOf(text));
+         if (localName.equals(VIEWER_BLOCKS)) {
+             Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
 	     // tell viewer to get ready
-	     Luv.getLuv().readyState();
-	     Luv.getLuv().setIsExecuting(true);
+             Luv.getLuv().setIsExecuting(true);
+	     Luv.getLuv().readyState();	     
 	 }
       }
 }

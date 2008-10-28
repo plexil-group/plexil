@@ -193,7 +193,7 @@
     {
 	if (tagName.equals(LIBRARYNODECALL))
 	    {
-		if (!Luv.getLuv().getStopSearchForMissingLibs())
+		if (!Luv.getLuv().getFileHandler().getStopSearchForMissingLibs())
 		    recordLibraryNames = true;
 	    }
 	else if (tagName.contains(CONDITION))

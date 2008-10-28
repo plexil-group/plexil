@@ -119,7 +119,7 @@ public class LuvSocketWrangler
 		break;
 	    }
 
-	    if (Luv.getLuv().getExecBlocks()) {
+	    if (Luv.getLuv().breaksAllowed()) {
 		if (Luv.getLuv().shouldBlock())
 		    Luv.getLuv().blockViewer();
 

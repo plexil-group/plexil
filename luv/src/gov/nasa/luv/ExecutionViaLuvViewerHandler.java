@@ -71,8 +71,7 @@ public class ExecutionViaLuvViewerHandler
                           String message = new String(inputBuffer).substring(0, num2 - 1);
                           System.out.println("\n  " + message + "\n"); 
                           if (message.contains("Error"))
-                          {
-                              Luv.getLuv().setStopExecution(true);    
+                          {  
                               Luv.getLuv().startState();
                               Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
                               JOptionPane.showMessageDialog(Luv.getLuv(), "Error reported by the Universal Executive. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -85,8 +84,7 @@ public class ExecutionViaLuvViewerHandler
                           int num = err.read(errorBuffer);
                           System.out.println("Error: " + new String(errorBuffer).substring(0, num));  
                           System.out.println("Hint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n");
-                          Luv.getLuv().execAction.actionPerformed(null); // stop execution
-                          Luv.getLuv().setStopExecution(true);    
+                          Luv.getLuv().execAction.actionPerformed(null); // stop execution 
                           Luv.getLuv().startState();
                           Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
                           JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.\nHint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n", "Error", JOptionPane.ERROR_MESSAGE);                      
@@ -95,7 +93,6 @@ public class ExecutionViaLuvViewerHandler
                   }
                   catch(Exception e)
                   {
-                     Luv.getLuv().setStopExecution(true);    
                      Luv.getLuv().startState();
                      Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
                      JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);

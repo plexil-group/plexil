@@ -286,7 +286,7 @@ public class TreeTableView extends JTreeTable implements View
           }
       }
       
-      public ArrayList<String> getPathToInfoWindowNode()
+      public ArrayList<String> getPathToNode()
       {
           return path;
       }
@@ -303,18 +303,18 @@ public class TreeTableView extends JTreeTable implements View
          Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
          String     nodeName    = node.getModelName();
          
-         // save pop up node window information 
+         // save condition window information 
          
-         savePopUpWindowNodeInfo(node, nodePath); 
+         saveConditionWindow(node, nodePath); 
          
          // create conditons window if possible
          
-         if (!openConditionsWindow(node, nodeName))
+         if (!openConditionWindow(node, nodeName))
              Luv.getLuv().showStatus("No conditions specified for " + nodeName, Color.BLACK, 1000);
              
       }
       
-      public boolean openConditionsWindow(Model node, String nodeName)
+      public boolean openConditionWindow(Model node, String nodeName)
       {
           boolean valid = true;         
           
@@ -326,7 +326,7 @@ public class TreeTableView extends JTreeTable implements View
           return valid;
       }
       
-      public void savePopUpWindowNodeInfo(Model node, TreePath tp)
+      public void saveConditionWindow(Model node, TreePath tp)
       {
          path.clear();
          path.add(node.getModelName());
@@ -339,17 +339,17 @@ public class TreeTableView extends JTreeTable implements View
          
       }
       
-      public boolean isConditionsWindowOpen()
+      public boolean isConditionWindowOpen()
       {
           return ConditionsWindow.isConditionsWindowOpen(); 
       }
       
-      public void resetNodeInfoWindow(Model model, String name)
+      public void resetConditionWindow(Model model, String name)
       {
           ConditionsWindow.resetGUI(model, name);
       }
       
-      public void closeNodeInfoWindow()
+      public void closeConditionWindow()
       {
           ConditionsWindow.closeConditonsWindow();
       }

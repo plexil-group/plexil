@@ -50,9 +50,11 @@ public class FileHandler
     
     // file variables
       
-    private static File debug = null;                                  // debug file user wants to use when executing via command prompt
     private static File plan = null;                                   // current plexil plan  
     private static File script = null;                                 // current plexil script
+    
+    private static boolean dontLoadScriptAgain         = false;        // is script already loaded? if so, do not waste time loading it again
+    private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries
       
     // file chooser object 
       
@@ -128,10 +130,15 @@ public class FileHandler
     {
 	return script;
     }
-
-    public File getDebugFile()
+    
+    public boolean getStopSearchForMissingLibs()
     {
-	return debug;
+        return stopSearchForMissingLibs;
+    }
+    
+    public void setStopSearchForMissingLibs(boolean value)
+    {
+        stopSearchForMissingLibs = value;
     }
 
     // clear current files
@@ -144,11 +151,6 @@ public class FileHandler
     public void clearScriptFile()
     {
 	script = null;
-    }
-
-    public void clearDebugFile()
-    {
-	debug = null;
     }
     
     // find the libraries needed
@@ -258,7 +260,7 @@ public class FileHandler
                     }
                 }
             }
-            if (!Luv.getLuv().getDontLoadScriptAgain())
+            if (!dontLoadScriptAgain)
                 loadScript(script);
         }
         
@@ -360,7 +362,7 @@ public class FileHandler
                 script = new File(scriptName);
                 break;
             case 1:
-                Luv.getLuv().setDontLoadScriptAgain(true);
+                dontLoadScriptAgain = true;
                 chooseScript();
                 break;
             case 2:
@@ -632,7 +634,7 @@ public class FileHandler
 		    case 1:
 			Luv.getLuv().startState();
 			retry = false;
-			Luv.getLuv().setStopSearchForMissingLibs(true);
+			stopSearchForMissingLibs = true;
 			break;
 		    }
 		}

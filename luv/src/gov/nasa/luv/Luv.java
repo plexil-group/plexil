@@ -60,16 +60,11 @@ import static javax.swing.JFileChooser.*;
 public class Luv extends JFrame
 {
     // variables
-    
+
     private static boolean allowBreaks                 = false;        // is current instance of luv have breaks enabled?
-    private static boolean execBlocks                  = false;        // does current exec instance block after every step?
-    private static boolean isExecuting                 = false;        // is instance of luv currently executing?   
-    private static boolean atStartScreen               = true;         // is current instance of luv only just started with no plan loaded?
-    private static boolean dontLoadScriptAgain         = false;        // is script already loaded? if so, do not waste time loading it again
-    private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries 
     private static boolean planPaused                  = false;        // is instance of luv currently paused?    
-    private static boolean planStep                    = false;        // is instance of luv currently stepping? 
-    private static boolean stopExecution               = false;
+    private static boolean planStep                    = false;        // is instance of luv currently stepping?    
+    private static boolean isExecuting                 = false;        // is instance of luv currently executing?          
       
     // handler instances
       
@@ -211,12 +206,12 @@ public class Luv extends JFrame
 	}
                         
 	if(TreeTableView.getCurrent() != null && 
-           TreeTableView.getCurrent().isConditionsWindowOpen())
-            refreshPopUpNodeWindow();
+           TreeTableView.getCurrent().isConditionWindowOpen())
+            refreshConditionWindow();
                         
 	// Determine if the Luv Viewer should pause before executing. 
                                                   
-	if (isExecuting && execBlocks) {
+	if (isExecuting && allowBreaks) {
 	    pausedState(); 
 	    runMenu.setEnabled(true);
 	}
@@ -284,39 +279,6 @@ public class Luv extends JFrame
 	return currentPlan;
     }
 
-    public boolean getExecBlocks()
-    {
-	return execBlocks;
-    }
-
-    //* Sets the member variable and updates the menu state.
-
-    public void setExecBlocks(boolean value)
-    {
-	execBlocks = value;
-	updateBlockingMenuItems();
-    }
-
-    public boolean getStopSearchForMissingLibs()
-    {
-	return stopSearchForMissingLibs;
-    }
-
-    public void setStopSearchForMissingLibs(boolean value)
-    {
-	stopSearchForMissingLibs = value;
-    }
-
-    public boolean getDontLoadScriptAgain()
-    {
-	return dontLoadScriptAgain;
-    }
-
-    public void setDontLoadScriptAgain(boolean value)
-    {
-	dontLoadScriptAgain = value;
-    }
-
     public boolean getPlanStep()
     {
 	return planStep;
@@ -333,24 +295,15 @@ public class Luv extends JFrame
 	updateBlockingMenuItems();
     }
 
-    public boolean isAtStartScreen()
-    {
-	return atStartScreen;
-    }
-
-    public boolean stoppedExecution()
-    {
-	return stopExecution;
-    }
-
-    public void setStopExecution(boolean value)
-    {
-	stopExecution = value;
-    }
-
     public boolean breaksAllowed()
     {
 	return allowBreaks;
+    }
+    
+    public void setBreaksAllowed(boolean value)
+    {
+	allowBreaks = value;
+	updateBlockingMenuItems();
     }
 
     //
@@ -366,11 +319,7 @@ public class Luv extends JFrame
 	disableAllMenus();
           
 	allowBreaks = false;
-	execBlocks = false;
-	isExecuting = false;   
-	atStartScreen = true;
-	dontLoadScriptAgain = false;
-	stopSearchForMissingLibs = false;   
+	isExecuting = false;     
 	planPaused = false;
           
 	Model.getRoot().clear();  
@@ -378,7 +327,6 @@ public class Luv extends JFrame
           
 	fileHandler.clearPlanFile(); 
 	fileHandler.clearScriptFile(); 
-	fileHandler.clearDebugFile();
 
 	viewHandler.clearCurrentView();
 	statusMessageHandler.clearStatusMessageQ();
@@ -387,10 +335,11 @@ public class Luv extends JFrame
 	luvBreakPointHandler.clearUnfoundBreakPoints();
           
 	// reset all menu items
-        fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);         
+                 
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
+        fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
 	fileMenu.setEnabled(true);
           
@@ -399,10 +348,6 @@ public class Luv extends JFrame
           
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
-          
-	if (stopExecution) { 
-	    fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-	}
     }
       
     public void readyState()
@@ -413,10 +358,8 @@ public class Luv extends JFrame
           
 	planPaused = false;
 	planStep = false;
-	atStartScreen = false;
-	stopSearchForMissingLibs = false; 
-	stopExecution = false;      
-  
+	fileHandler.setStopSearchForMissingLibs(false); 
+        
 	// set certain menu items
           
 	execAction.putValue(NAME, EXECUTE_PLAN);
@@ -460,11 +403,10 @@ public class Luv extends JFrame
 	// set only certain luv viewer variables
           
 	planPaused = false;
-	planStep = false;
-	atStartScreen = false;
-	stopSearchForMissingLibs = false; 
+	planStep = false;	 
 	isExecuting = false;
-	stopExecution = false;
+        
+        fileHandler.setStopSearchForMissingLibs(false);
   
 	// set certain menu items
           
@@ -517,7 +459,6 @@ public class Luv extends JFrame
     {
 	System.out.println("executionState()");
 	isExecuting = true;
-	stopExecution = false;
           
 	showStatus("Executing...", Color.GREEN.darker());
         
@@ -530,7 +471,7 @@ public class Luv extends JFrame
         
         runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
         
-        if (execBlocks || allowBreaks)
+        if (allowBreaks) 
             enabledBreakingState();
         else
             disabledBreakingState();
@@ -544,8 +485,7 @@ public class Luv extends JFrame
         
         planPaused = false;
         planStep = false;
-	executionViaLuvViewerHandler.killUEProcess();       
-	stopExecution = true;
+	executionViaLuvViewerHandler.killUEProcess();
     }
     
     public void pausedState()
@@ -604,7 +544,7 @@ public class Luv extends JFrame
             
 	if (isExecuting) {
 	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
-	    if (execBlocks) {
+	    if (allowBreaks) {
 		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(allowBreaks);
 		runMenu.getItem(STEP_MENU_ITEM).setEnabled(allowBreaks);
 	    }
@@ -621,12 +561,12 @@ public class Luv extends JFrame
     }
 
       
-    public void refreshPopUpNodeWindow()
+    public void refreshConditionWindow()
     {
 	Model node = Model.getRoot();
 
-	for (int i = TreeTableView.getCurrent().getPathToInfoWindowNode().size() - 2; i >= 0; i--) {
-	    String name = TreeTableView.getCurrent().getPathToInfoWindowNode().get(i);
+	for (int i = TreeTableView.getCurrent().getPathToNode().size() - 2; i >= 0; i--) {
+	    String name = TreeTableView.getCurrent().getPathToNode().get(i);
 	    if (node != null)
 		node = node.findChildByName(name);
 	    else 
@@ -634,9 +574,9 @@ public class Luv extends JFrame
 	}
 
 	if (node != null)
-	    TreeTableView.getCurrent().resetNodeInfoWindow(node, node.getModelName());
+	    TreeTableView.getCurrent().resetConditionWindow(node, node.getModelName());
 	else
-	    TreeTableView.getCurrent().closeNodeInfoWindow();
+	    TreeTableView.getCurrent().closeConditionWindow();
     }
 
     // place all visible elements into the container in the main frame of the application.
@@ -1097,8 +1037,8 @@ public class Luv extends JFrame
                 conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
 
                 if(TreeTableView.getCurrent() != null && 
-                   TreeTableView.getCurrent().isConditionsWindowOpen())
-                    refreshPopUpNodeWindow();
+                   TreeTableView.getCurrent().isConditionWindowOpen())
+                    refreshConditionWindow();
 
                 if (currentPlan != null)
                 {
@@ -1199,9 +1139,11 @@ public class Luv extends JFrame
 
 		    if (allowBreaks) {
 			enabledBreakingState();
+                        statusMessageHandler.showStatus("Enabled breaks", Color.GREEN.darker(), 1000);
 		    }
 		    else {
 			disabledBreakingState();
+                        statusMessageHandler.showStatus("Disabled breaks", Color.RED, 1000);
 		    }
 		}
 	    }
