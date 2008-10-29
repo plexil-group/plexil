@@ -125,6 +125,6 @@ public class ExecutionViaLuvViewerHandler
       
       public void killUEProcess() throws IOException
       {
-          Runtime.getRuntime().exec("kill test-exec_g_rt");
+          Runtime.getRuntime().exec("killall test-exec_g_rt");
       }
 }

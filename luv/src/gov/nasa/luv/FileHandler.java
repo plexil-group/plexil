@@ -204,8 +204,14 @@ public class FileHandler
                 
         if (script == null) {
             // first check plan directory for script
+       
+            path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_DIR, UNKNOWN);
             
-            path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+            if (path.equals(UNKNOWN))
+            {
+                path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+            }
+            
             File testPath = new File(path);
             
             if (testPath.exists()) {             
@@ -377,7 +383,7 @@ public class FileHandler
     {
 	int option = -1;
 	try {
-            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR)));
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_SCRIPT_DIR)));
             option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option) {
@@ -411,7 +417,6 @@ public class FileHandler
 	    case APPROVE_OPTION:
 		plan = fileChooser.getSelectedFile();
 		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
-		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, plan.getParent());
 		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
 		script = null;
 		break;

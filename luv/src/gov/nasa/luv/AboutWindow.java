@@ -61,7 +61,7 @@ public class AboutWindow extends JPanel
         
         JTextArea infoArea = new JTextArea();
         
-        String productVersion  = "Product:\tLuv Viewer version 1.0\n";
+        String productVersion  = "Product:\tLuv Viewer version " + LUV_VERSION_NUM + "\n";
         String website         = "Website:\thttp://plexil.wiki.sourceforge.net/Luv\n";        
         String javaVersion     = "Java:\t" + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n";
         String systemVersion   = "System:\t" + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n";

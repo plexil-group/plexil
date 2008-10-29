@@ -41,6 +41,9 @@ import java.util.Vector;
 
 public class Constants
 {    
+      // Luv Viewer version
+      public static final String LUV_VERSION_NUM = "0.8.1";
+      
       /** indicates that no accelerator key is used */
 
       public static final int    NO_ACCELERATOR = Integer.MIN_VALUE;
@@ -262,7 +265,7 @@ public class Constants
       public static final String    PROP_MAC_MENU_STYLE = "apple.laf.useScreenMenuBar";
 
       public static final String    PROP_WIN_LOC        = "window.location";
-      public static final Point     PROP_WIN_LOC_DEF    = new Point(50, 100);
+      public static final Point     PROP_WIN_LOC_DEF    = new Point(100, 100);
       public static final String    PROP_WIN_SIZE       = "window.size";
       public static final Dimension PROP_WIN_SIZE_DEF   = new Dimension(1200, 650);
       public static final String    PROP_WIN_BCLR       = "window.background";
@@ -272,7 +275,7 @@ public class Constants
       public static final int       PROP_TOOLTIP_DISMISS_DEF  = 60000;
 
       public static final String    PROP_DBWIN_LOC        = "dbwindow.location";
-      public static final Point     PROP_DBWIN_LOC_DEF    = new Point(50, 750);
+      public static final Point     PROP_DBWIN_LOC_DEF    = new Point(100, 750);
       public static final String    PROP_DBWIN_SIZE       = "dbwindow.size";
       public static final Dimension PROP_DBWIN_SIZE_DEF   = new Dimension(1200, 300);
       public static final String    PROP_DBWIN_VISIBLE    = "dbwindow.visible";
