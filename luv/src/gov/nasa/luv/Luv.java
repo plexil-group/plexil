@@ -41,8 +41,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
+import java.io.InterruptedIOException;
 
 import java.util.HashMap;
 
@@ -80,8 +81,6 @@ public class Luv extends JFrame
     private JMenu runMenu                 = new JMenu("Run");   
     private JMenu viewMenu                = new JMenu("View");
     private JMenu windowMenu              = new JMenu("Windows");
-      
-    private HashMap<String, String> libraryNames = new HashMap<String, String>();
       
     private DebugWindow luvViewerDebugWindow; 
       
@@ -887,23 +886,34 @@ public class Luv extends JFrame
                         else
                             command = "Error: script does not exist.";
 
-                        if (libraryNames.size() > 0)
-                            {
-                                for (String libName : libraryNames.values())
-                                    {
-                                        // double check that library still exists
-                                        if (new File(libName).exists())
-                                            {
-                                                command += " -l ";
-                                                command += libName.toString();
-                                            }
-                                        else
-                                            {
-                                                command = "Error: " + libName + " does not exist.";
-                                                break;
-                                            }
-                                    }
-                            }
+			if (!currentPlan.getMissingLibraries().isEmpty()) {
+			    // try to find libraries
+			    for (String libName : currentPlan.getMissingLibraries()) {
+				Model lib = findLibraryNode(libName, true);
+				if (lib == null) {
+				    command = "Error: library \"" + libName + "\" not found.";
+				    break;
+				}
+				else {
+				    currentPlan.addLibraryName(lib.getPlanName());
+				    currentPlan.missingLibraryFound(libName);
+				}
+			    }
+			}
+
+                        if (!currentPlan.getLibraryNames().isEmpty()) {
+			    for (String libFile : currentPlan.getLibraryNames()) {
+				// double check that library still exists
+				if (new File(libFile).exists()) {
+				    command += " -l ";
+				    command += libFile;
+				}
+				else {
+				    command = "Error: library file " + libFile + " does not exist.";
+				    break;
+				}
+			    }
+			}
                     }
                 else
                     command = "Error: " + plan + " does not exist.";
@@ -916,20 +926,28 @@ public class Luv extends JFrame
 
 	return command;
     }
-      
-    public void addLibraryName(String name, String path)
+
+    public Model findLibraryNode(String name, boolean askUser)
     {
-	libraryNames.put(name, path);
-    }
-      
-    public HashMap<String, String> getLibraryNames()
-    {
-	return libraryNames;
-    }
-      
-    public void clearLibraryNames()
-    {
-	libraryNames.clear();
+	Model result = Model.getRoot().findChildByName(name);
+
+	if (result == null) {
+	    if (askUser) {
+		// Prompt user for a file containing the missing library,
+		// and (try to) load it
+		String libPath = null;
+		try {
+		    libPath = fileHandler.getLibrary(name);
+		}
+		catch (InterruptedIOException e) {
+		}
+
+		if (libPath != null) {
+		    result = Model.getRoot().findChildByName(name);
+		}
+	    }
+	}
+	return result;
     }
       
       
@@ -946,7 +964,6 @@ public class Luv extends JFrame
 	    public void actionPerformed(ActionEvent e)
 	    {
 		// Loading done in the file handler at present
-                clearLibraryNames();
 		int option = fileHandler.choosePlan();
 
 		if (option == APPROVE_OPTION) {
@@ -1032,7 +1049,6 @@ public class Luv extends JFrame
 		    }
 		}
 
-                clearLibraryNames();
                 readyState();                
                 conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
 

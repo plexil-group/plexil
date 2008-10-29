@@ -391,8 +391,6 @@ public class Constants
       public static final String PLAN_INFO     = "PlanInfo";
       public static final String PLAN_FILENAME = "PlanFilename";
       public static final String SCRIPT_FILENAME = "ScriptFilename";
-      public static final String LIBRARY_FILENAME = "LibraryFilename";
-      public static final String LIBRARY_COUNT = "LibraryCount";
       public static final String VIEWER_BLOCKS = "ViewerBlocks";
       
       // condition tags
@@ -750,8 +748,6 @@ public class Constants
          VIEWER_BLOCKS,
          PLAN_FILENAME,
          SCRIPT_FILENAME,
-         LIBRARY_FILENAME,
-         LIBRARY_COUNT,
 
          PLEXIL_PLAN,
          PLEXIL_LIBRARY,

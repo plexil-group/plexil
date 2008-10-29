@@ -59,7 +59,7 @@
      private ArrayList<String> equationHolder = new ArrayList<String>();
      private ArrayList<String> lookupArguments = new ArrayList<String>(); 
 
-     private boolean recordLibraryNames = false;
+     private boolean libraryNodeCall = false;
 
      private Stack<Model> stack = new Stack<Model>();
 
@@ -193,8 +193,7 @@
     {
 	if (tagName.equals(LIBRARYNODECALL))
 	    {
-		if (!Luv.getLuv().getFileHandler().getStopSearchForMissingLibs())
-		    recordLibraryNames = true;
+		libraryNodeCall = true;
 	    }
 	else if (tagName.contains(CONDITION))
 	    {
@@ -210,33 +209,33 @@
 	    recordStartConditionInfo(tagName);
     }
       
-    public void assignTweenerText(Model nodeToUpdate, String tagName, String text) throws InterruptedIOException 
+    public void assignTweenerText(Model nodeToUpdate, String tagName, String text) 
+	throws InterruptedIOException
     {
-	if (text != null)
-	    {           
-		if (recordLibraryNames)
-		    {
-			if (!Luv.getLuv().getLibraryNames().containsKey(text))
-			    {
-				String fullPath = Luv.getLuv().getFileHandler().getLibrary(text);
-                     
-				if (fullPath == null)
-				    {
-					Luv.getLuv().addLibraryName(text, text);
-				    }
-				else
-				    {
-					Luv.getLuv().addLibraryName(text, fullPath);
-				    }
-			    }
-
-			recordLibraryNames = false;
-		    }
-
-		if (recordCondition)
-		    recordMiddleConditionInfo(tagName, text);
-             
+	if (text != null) {
+	    if (libraryNodeCall) {
+		Model library = 
+		    Luv.getLuv().findLibraryNode(text,
+						 !Luv.getLuv().getFileHandler().getStopSearchForMissingLibs());
+		if (library == null) {
+		    topLevelNode.addMissingLibrary(text);
+		}
+		else {
+		    topLevelNode.addLibraryName(library.getPlanName());
+		    // Inherit the libraries called by this one
+		    for (String libfile: library.getLibraryNames())
+			topLevelNode.addLibraryName(libfile);
+		    for (String libnode: library.getMissingLibraries())
+			topLevelNode.addMissingLibrary(libnode);
+		    nodeToUpdate.addChild((Model) library.clone());
+		}
+		libraryNodeCall = false;
 	    }
+
+	    if (recordCondition)
+		recordMiddleConditionInfo(tagName, text);
+             
+	}
 	else if (tagName.equals(NODEREF))
 	    conditionEquation += nodeToUpdate.getProperty(NODE_ID);
     }
@@ -681,7 +680,7 @@
 	equationHolder = new ArrayList<String>();
 	lookupArguments = new ArrayList<String>(); 
 
-	recordLibraryNames = false;
+	libraryNodeCall = false;
     }
 
     public static boolean isProperty(String tag)

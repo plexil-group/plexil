@@ -169,22 +169,25 @@ public class FileHandler
         
                 testPath = new File(path + System.getProperty("file.separator") + library + ".plx");
                 
-                if (!testPath.exists())
-                {  
+                if (!testPath.exists()) {  
                     testPath = new File(path + System.getProperty("file.separator") + library + ".xml");
 
-                    if (!testPath.exists())
-                    {
-                        testPath = new File(unfoundLibrary(library));
+                    if (!testPath.exists()) {
+			path = unfoundLibrary(library);
+			if (path == null)
+			    testPath = null;
+			else
+			    testPath = new File(path);
                     }
                 }
             }
         }
    
-        if (testPath.exists())
-        {
+        if (testPath != null && testPath.exists()) {
             path = testPath.getAbsolutePath();
             Luv.getLuv().showStatus("Loading library " + path, 1000);
+	    // load the library file
+	    loadPlan(testPath);
             String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
             Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
         }
@@ -453,19 +456,6 @@ public class FileHandler
       
     public void loadPlan(File plan)
     {
-	loadPlan(plan, null);
-    }
-
-    /**
-     * Load a plexil plan from the disk.  This operates on the global
-     * model.
-     *
-     * @param plan the plan file to load
-     * @param libraryNames names of library file the plan to load
-     */
-      
-    public void loadPlan(File plan, Vector<String> libraryNames) 
-    {
 	Model newPlan = readPlan(plan);
 	newPlan.addPlanName(plan.toString());
     }
@@ -474,7 +464,6 @@ public class FileHandler
 
     public void loadRecentPlan(int index) throws IOException
     {
-	Luv.getLuv().clearLibraryNames();
 	String planName = getRecentPlanName(index);
 	String scriptName = getRecentScriptName(index);
          
@@ -502,8 +491,6 @@ public class FileHandler
       
       public void loadRecentPlan(File p) throws IOException
       {
-         Luv.getLuv().clearLibraryNames();
-         
          if (p != null)
          {
             plan = p;
@@ -556,10 +543,9 @@ public class FileHandler
     }
 
     /** Parse a plan from an XML stream
-     *
      * @param input source of xml to parse
-     *
      * @return returns top level node or null
+     * @note Is reentrant to support loading of libraries during plan loading.
      */
 
     public Model parseXml(InputStream input)
@@ -590,38 +576,36 @@ public class FileHandler
 	return ch.getPlan();
     }
       
-      public String unfoundLibrary(String callName) throws InterruptedIOException
-      {
-          boolean retry = true;
-          String fullName = "";
+    public String unfoundLibrary(String callName) throws InterruptedIOException
+    {
+	boolean retry = true;
+	String fullName = "";
           
-	do
-	    {
-
+	do {
 		// if we didn't make the link, ask user for library
 
 		if (retry) {
 		    // option
 
-                  Object[] options = 
-                     {
-                        "I will locate library",
-                        "Cancel loading plan"
-                     };
+		    Object[] options = 
+			{
+			    "I will locate library",
+			    "Cancel loading plan"
+			};
 
 		    // show the options
 
-                  Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
-                  int result = JOptionPane.showOptionDialog(
-                     Luv.getLuv(),
-                     "Unable to locate the \"" + callName + "\" library.\n\n" +
-                     "What do you want to do?\n\n",
-                     "Load the library?",
-                     JOptionPane.YES_NO_CANCEL_OPTION,
-                     JOptionPane.WARNING_MESSAGE,
-                     null,
-                     options,
-                     options[0]);
+		    Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
+		    int result = JOptionPane.showOptionDialog(
+							      Luv.getLuv(),
+							      "Unable to locate the \"" + callName + "\" library.\n\n" +
+							      "What do you want to do?\n\n",
+							      "Load the library?",
+							      JOptionPane.YES_NO_CANCEL_OPTION,
+							      JOptionPane.WARNING_MESSAGE,
+							      null,
+							      options,
+							      options[0]);
 
 		    // process the results
 
