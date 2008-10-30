@@ -29,7 +29,7 @@
 #include <iostream>
 
 ResponseMessageManager::ResponseMessageManager(const std::string& id)
-  : m_Identifier(id), m_Counter(0)
+  : m_Identifier(id), m_Counter(1)
 {
 }
 
