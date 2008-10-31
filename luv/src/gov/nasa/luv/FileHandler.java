@@ -33,7 +33,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.Vector;
+import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JOptionPane;
@@ -48,13 +48,21 @@ import static javax.swing.JFileChooser.*;
 public class FileHandler 
 {
     
-    // file variables
-      
     private static File plan = null;                                   // current plexil plan  
     private static File script = null;                                 // current plexil script
     
     private static boolean dontLoadScriptAgain         = false;        // is script already loaded? if so, do not waste time loading it again
     private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries
+    private static boolean loadingLibrary              = false;        
+    
+    // directory chooser object 
+      
+    JFileChooser dirChooser = new JFileChooser()
+	{
+	    {
+		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    }
+	};
       
     // file chooser object 
       
@@ -110,25 +118,30 @@ public class FileHandler
 	    }
 	};
 
-    // directory chooser object 
-      
-    JFileChooser dirChooser = new JFileChooser()
-	{
-	    {
-		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	    }
-	};
-         
-    // return current instance of either the plan, script or debug file
-
     public File getPlanFile()
     {
 	return plan;
+    }
+ 
+    // return 
+    private String getPlanNameSansExtension()
+    {
+        return plan.getName().substring(0, plan.getName().indexOf('.'));  
     }
 
     public File getScriptFile()
     {
 	return script;
+    }   
+
+    public String getRecentPlanName(int recentIndex)
+    {
+	return Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_BASE + recentIndex);
+    }
+
+    public String getRecentScriptName(int recentIndex)
+    {
+	return Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + recentIndex);
     }
     
     public boolean getStopSearchForMissingLibs()
@@ -140,8 +153,6 @@ public class FileHandler
     {
         stopSearchForMissingLibs = value;
     }
-
-    // clear current files
 
     public void clearPlanFile()
     {
@@ -155,22 +166,22 @@ public class FileHandler
     
     // find the libraries needed
     
-    public String getLibrary(String library) throws InterruptedIOException 
+    public String searchForLibrary(String library) throws InterruptedIOException 
     {      
-        String path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR, UNKNOWN);
+        String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
         
-        File testPath = new File(path + System.getProperty("file.separator") + library + ".plx");
+        File testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".plx");
             
         if (!testPath.exists()) {  
-            testPath = new File(path + System.getProperty("file.separator") + library + ".xml");
+            testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".xml");
             
             if (!testPath.exists()) {
-                path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+                path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
         
-                testPath = new File(path + System.getProperty("file.separator") + library + ".plx");
+                testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".plx");
                 
                 if (!testPath.exists()) {  
-                    testPath = new File(path + System.getProperty("file.separator") + library + ".xml");
+                    testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".xml");
 
                     if (!testPath.exists()) {
 			path = unfoundLibrary(library);
@@ -186,198 +197,49 @@ public class FileHandler
         if (testPath != null && testPath.exists()) {
             path = testPath.getAbsolutePath();
             Luv.getLuv().showStatus("Loading library " + path, 1000);
-	    // load the library file
+            loadingLibrary = true;
 	    loadPlan(testPath);
+            loadingLibrary = false;
             String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
-            Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
         }
         else
             path = null;
         
         return path;  
     }
-
     
     // find the appropriate script to be executed
 
-    public File getScript() throws IOException 
-    {      
-        String path = "";
-        String name = "";
-                
-        if (script == null) {
-            // first check plan directory for script
-       
-            path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_DIR, UNKNOWN);
-            
-            if (path.equals(UNKNOWN))
+    public File searchForScript() throws IOException 
+    {
+        String directory = ""; 
+        ArrayList<String> listOfDirectories = generateListOfDirectories();
+
+        // if user did not specify script, look for it 
+        
+        for (int i = 0; i < listOfDirectories.size() && script == null; i++) 
+        {
+            directory = listOfDirectories.get(i);
+
+            if (new File(directory).exists())
             {
-                path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
+                script = tryScriptNameVariations(plan.getName(), directory);
             }
-            
-            File testPath = new File(path);
-            
-            if (testPath.exists()) {             
-                path = path + System.getProperty(PROP_FILE_SEPARATOR);
-                
-                if (plan.getName().contains(".xml"))
-                    name = plan.getName().replace(".xml", "-script.xml");
-                else
-                    name = plan.getName().replace(".plx", "-script.plx");
-
-                script = new File(path + name);
-
-                if (!script.canRead()) {
-                    script = searchForScript(name, plan.getName(), path);
-
-                    if (script == null) {
-                        // if no script in plan directory, look for script directory
-                        
-                        path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
-                        path = path + System.getProperty(PROP_FILE_SEPARATOR);
-                        path = path.substring(0, path.lastIndexOf("/"));                       
-                        path = path + System.getProperty(PROP_FILE_SEPARATOR) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR);
-                        
-                        if (plan.getName().contains(".xml"))
-                            name =  plan.getName().replace(".xml", "-script.xml");
-                        else
-                            name =  plan.getName().replace(".plx", "-script.plx");
-
-                        script = new File(path + name);
-
-                        if (!script.canRead()) {
-                            if (name.contains(".xml"))
-                                name = name.replaceAll(".xml", ".plx");
-                            else
-                                name = name.replaceAll(".plx", ".xml");
-                            
-                            script = new File(path + name);
-                            
-                            if (!script.canRead()) {
-                                script = searchForScript(name, plan.getName(), path);
-
-                                if (script == null)
-                                {
-                                    // if no script anywhere, create an empty script
-
-                                    path = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR, UNKNOWN);
-                                    path = path + System.getProperty(PROP_FILE_SEPARATOR);
-                                    createEmptyScript(path);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (!dontLoadScriptAgain)
-                loadScript(script);
         }
+        
+        // if cannot find script, create empty script and prompt user
+
+        if (script == null)
+        {
+            directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR);
+            createEmptyScript(directory);
+        }
+
+        if (!dontLoadScriptAgain)
+            loadScript(script);      
         
         return script;  
-    }
-    
-    public File searchForScript(String scriptName, String planName, String path) throws IOException 
-    {
-	try {
-	    planName = planName.substring(0, planName.indexOf('.'));
-              
-              //PLAN_script.plx
-              String name = planName + "_script.plx";
-              script = new File(path + name);
-              if (!script.canRead())
-              {
-                  //script-PLAN.plx
-                  name = "script-" + planName + ".plx";
-                  script = new File(path + name);
-                  if (!script.canRead())
-                  {
-                      //script_PLAN.plx
-                      name = "script_" + planName + ".plx";
-                      script = new File(path + name);
-                      if (!script.canRead())
-                      {
-                          name = planName + "_script.xml";
-                          script = new File(path + name);
-                          if (!script.canRead())
-                          {
-                              //script-PLAN.plx
-                              name = "script-" + planName + ".xml";
-                              script = new File(path + name);
-                              if (!script.canRead())
-                              {
-                                  //script_PLAN.plx
-                                  name = "script_" + planName + ".xml";
-                                  script = new File(path + name);
-                                  if (!script.canRead())
-                                  {
-                                      name = planName + "-script.xml";
-                                      script = new File(path + name);
-                                      if (!script.canRead())
-                                      {
-                                          name = planName + "-script.plx";
-                                          script = new File(path + name);
-                                          if (!script.canRead())
-                                          {
-                                              return null;
-                                          }
-                                      }
-                                  }
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-          catch (Exception e)
-          {
-              JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating script. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
-              out.println("Error: " + e.getMessage());
-	} 
-          
-	return script;
-    }
-    
-    public void createEmptyScript(String path) throws IOException 
-    {
-	Object[] options = 
-	    {
-		"Yes, use empty script",
-		"No, I will locate Script",
-		"Cancel plan execution"
-	    };
-         
-	int option = 
-	    JOptionPane.showOptionDialog(Luv.getLuv(),
-					 "Unable to locate a script for this plan. \n\nDo you want to use the following default empty script?\n\n"
-					 + Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_DIR)
-					 + System.getProperty(PROP_FILE_SEPARATOR)
-					 + DEFAULT_SCRIPT_NAME
-					 + "\n\n",
-					 "Default Script Option",
-					 JOptionPane.YES_NO_CANCEL_OPTION,
-					 JOptionPane.WARNING_MESSAGE,
-					 null,
-					 options,
-					 options[0]);
-        
-        switch (option)
-        {
-            case 0:
-                String scriptName = path + DEFAULT_SCRIPT_NAME;
-                FileWriter emptyScript = new FileWriter(scriptName);
-                BufferedWriter out = new BufferedWriter(emptyScript);
-                out.write(EMPTY_SCRIPT);
-                out.close();                          
-                script = new File(scriptName);
-                break;
-            case 1:
-                dontLoadScriptAgain = true;
-                chooseScript();
-                break;
-            case 2:
-                Luv.getLuv().readyState();
-                break;                    
-        }
     }
          
     // Select and load a script from the disk.  This operates on the global model.
@@ -393,8 +255,8 @@ public class FileHandler
 	    case APPROVE_OPTION:
                 {
 		    script = fileChooser.getSelectedFile();
-		    Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-		    Luv.getLuv().getProperties().set(PROP_FILE_RECENT_SCRIPT_BASE, script.toString());               
+		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
+		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString());               
 		    loadScript(script);
 		    break;
                 }
@@ -419,8 +281,8 @@ public class FileHandler
             switch (option) {
 	    case APPROVE_OPTION:
 		plan = fileChooser.getSelectedFile();
-		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
-		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
+		Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
+		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
 		script = null;
 		break;
             }           
@@ -431,6 +293,34 @@ public class FileHandler
          
 	return option;
     }
+    
+          
+    /**
+     * Select and load a plexil library from the disk.  The library is
+     * added to the set of global libraries.
+     */
+      
+    public String chooseLibrary()
+    {
+	try {
+            String recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_LIB_DIR);
+            if (recent == null)
+		recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR);
+            
+            Luv.getLuv().getFileHandler().fileChooser.setCurrentDirectory(new File(recent));
+
+            if (Luv.getLuv().getFileHandler().fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION) {
+		File library = Luv.getLuv().getFileHandler().fileChooser.getSelectedFile();
+		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
+		return library.getAbsolutePath();
+            }
+	}
+	catch(Exception e) {
+            e.printStackTrace();
+	}
+         
+	return null;
+    }
       
     /**
      * Load a plexil script from the disk.
@@ -438,13 +328,13 @@ public class FileHandler
      * @param script file to load
      */
       
-    public void loadScript(File script)
+    private void loadScript(File script)
     {          
 	if (script != null)
-	    {
-		Luv.getLuv().showStatus("Loading script "  + script, 50);
-		Luv.getLuv().getCurrentPlan().addScriptName(script.toString());
-	    }
+        {
+            Luv.getLuv().showStatus("Loading script "  + script, 50);
+            Luv.getLuv().getCurrentPlan().addScriptName(script.toString());
+        }
     }
 
     /**
@@ -477,12 +367,12 @@ public class FileHandler
                 else
 		    {
 			script = null;
-			script = getScript();
+			script = searchForScript();
 		    }                 
             }
             else {
                 script = null;
-                script = getScript();
+                script = searchForScript();
             }
 
 	    Luv.getLuv().readyState();
@@ -495,25 +385,11 @@ public class FileHandler
          {
             plan = p;
             loadPlan(plan);
-            script = getScript();
+            script = searchForScript();
             
             Luv.getLuv().readyState();
          }
       }
-      
-      // Given a recent plan index, return the associated recent plan filename.
-
-    public String getRecentPlanName(int recentIndex)
-    {
-	return Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + recentIndex);
-    }
-      
-    // Given a recent script index, return the associated recent script filename
-
-    public String getRecentScriptName(int recentIndex)
-    {
-	return Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + recentIndex);
-    }
       
     /**
      * Read plexil plan from disk and create an internal model.
@@ -522,10 +398,13 @@ public class FileHandler
      *
      */
 
-    public Model readPlan(File file)
+    private Model readPlan(File file)
     {
 	Model result = null;
-	Luv.getLuv().showStatus("Loading plan "  + file);
+        
+        if (!loadingLibrary)
+            Luv.getLuv().showStatus("Loading plan "  + file);
+        
 	try {
             result = parseXml(new FileInputStream(file));
 	}
@@ -548,7 +427,7 @@ public class FileHandler
      * @note Is reentrant to support loading of libraries during plan loading.
      */
 
-    public Model parseXml(InputStream input)
+    private Model parseXml(InputStream input)
     {
 	PlexilPlanHandler ch = new PlexilPlanHandler();
 	try {
@@ -576,7 +455,7 @@ public class FileHandler
 	return ch.getPlan();
     }
       
-    public String unfoundLibrary(String callName) throws InterruptedIOException
+    private String unfoundLibrary(String callName) throws InterruptedIOException
     {
 	boolean retry = true;
 	String fullName = "";
@@ -631,32 +510,114 @@ public class FileHandler
 	while (retry); 
           
 	return fullName;
-    }
-      
-    /**
-     * Select and load a plexil library from the disk.  The library is
-     * added to the set of global libraries.
-     */
-      
-    public String chooseLibrary()
+    }  
+        
+    private File tryScriptNameVariations(String planName, String path) throws IOException 
     {
-	try {
-            String recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_LIB_DIR);
-            if (recent == null)
-		recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR);
+	try 
+        {
+	    planName = getPlanNameSansExtension();  
             
-            Luv.getLuv().getFileHandler().fileChooser.setCurrentDirectory(new File(recent));
-
-            if (Luv.getLuv().getFileHandler().fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION) {
-		File library = Luv.getLuv().getFileHandler().fileChooser.getSelectedFile();
-		Luv.getLuv().getProperties().set(PROP_FILE_RECENT_LIB_DIR, library.getParent());
-		return library.getAbsolutePath();
+            ArrayList<String> listOfScriptNames = generateListOfScriptNames(planName, path);
+            
+            for (String scriptName : listOfScriptNames)
+            {
+                if (new File(scriptName).exists())
+                {
+                    return new File(scriptName);
+                }
             }
-	}
-	catch(Exception e) {
-            e.printStackTrace();
-	}
+            
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating script. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+            out.println("Error: " + e.getMessage());
+	} 
+          
+	return script;
+    }
+  
+    // generate a list of possible script names if user didn't not specify one
+    
+    private ArrayList<String> generateListOfScriptNames(String planName, String path)
+    {
+        ArrayList<String> listOfScriptNames = new ArrayList<String>();
+        
+        listOfScriptNames.add(path + planName + "_script.plx");
+        listOfScriptNames.add(path + planName + "-script.plx");
+        listOfScriptNames.add(path + "script-" + planName + ".plx");
+        listOfScriptNames.add(path + "script_" + planName + ".plx");
+        listOfScriptNames.add(path + planName + "_script.xml");
+        listOfScriptNames.add(path + planName + "-script.xml");
+        listOfScriptNames.add(path + "script-" + planName + ".xml");
+        listOfScriptNames.add(path + "script_" + planName + ".xml");
+       
+        return listOfScriptNames;
+    }
+    
+    // generate a list of possible directories to search for script
+    
+    private ArrayList<String> generateListOfDirectories()
+    {
+        ArrayList<String> listOfDirectories = new ArrayList<String>();
+        
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR) + System.getProperty(PROP_FILE_SEPARATOR));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "script" + System.getProperty(PROP_FILE_SEPARATOR));
+        
+        String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+        path += path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty(PROP_FILE_SEPARATOR);
+        listOfDirectories.add(path);
+        
+        path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+        path += path.substring(0, path.lastIndexOf('/') + 1) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR);
+        listOfDirectories.add(path);      
+       
+        return listOfDirectories;
+    }
+    
+    private void createEmptyScript(String path) throws IOException 
+    {
+	Object[] options = 
+	    {
+		"Yes, use empty script",
+		"No, I will locate Script",
+		"Cancel plan execution"
+	    };
          
-	return null;
+	int option = 
+	    JOptionPane.showOptionDialog(Luv.getLuv(),
+					 "Unable to locate a script for this plan. \n\nDo you want to use the following default empty script?\n\n"
+					 + Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)
+					 + System.getProperty(PROP_FILE_SEPARATOR)
+					 + DEFAULT_SCRIPT_NAME
+					 + "\n\n",
+					 "Default Script Option",
+					 JOptionPane.YES_NO_CANCEL_OPTION,
+					 JOptionPane.WARNING_MESSAGE,
+					 null,
+					 options,
+					 options[0]);
+        
+        switch (option)
+        {
+            case 0:
+                String scriptName = path + DEFAULT_SCRIPT_NAME;
+                FileWriter emptyScript = new FileWriter(scriptName);
+                BufferedWriter out = new BufferedWriter(emptyScript);
+                out.write(EMPTY_SCRIPT);
+                out.close();                          
+                script = new File(scriptName);
+                break;
+            case 1:
+                dontLoadScriptAgain = true;
+                chooseScript();
+                break;
+            case 2:
+                Luv.getLuv().readyState();
+                break;                    
+        }
     }
 }

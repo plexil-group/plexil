@@ -45,8 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
-import java.util.HashMap;
-
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
@@ -193,9 +191,9 @@ public class Luv extends JFrame
 	}
 
 	if (plan != currentPlan) {
-	    currentPlan = plan;
+            currentPlan = plan;
 	    Model.getRoot().planChanged();
-	    viewHandler.focusView(plan);
+            viewHandler.focusView(currentPlan);
 	}
 
         if (isExecuting) {
@@ -220,9 +218,6 @@ public class Luv extends JFrame
     public void handleNewLibrary(Model library)
     {
 	Model.getRoot().planChanged();
-
-	// This causes tree to be displayed
-	// viewHandler.resetView();
     }
 
     public boolean shouldBlock()
@@ -234,14 +229,14 @@ public class Luv extends JFrame
     {
 	if (shouldBlock()) {
 	    statusMessageHandler.showStatus((luvBreakPointHandler.getBreakPoint() == null
-					     ? "Plan execution paused."
-					     : luvBreakPointHandler.getBreakPoint().getReason()) +
-					    "  Hit " + 
+					     ? "Stopped at beginning of plan"
+					     : "Stopped at " + luvBreakPointHandler.getBreakPoint()) +
+					    " - " + 
 					    pauseAction.getAcceleratorDescription() +
 					    " to resume, or " + 
 					    stepAction.getAcceleratorDescription() +
 					    " to step.",
-					    Color.RED);
+					    Color.GRAY);
 
 	    luvBreakPointHandler.clearBreakPoint();
                         
@@ -311,7 +306,7 @@ public class Luv extends JFrame
 
     public void startState()
     {
-	System.out.println("startState()");
+	//System.out.println("startState()");
 
 	// reset all luv viewer variables
           
@@ -351,7 +346,7 @@ public class Luv extends JFrame
       
     public void readyState()
     {
-	System.out.println("readyState()");
+	//System.out.println("readyState()");
 
 	// set only certain luv viewer variables
           
@@ -397,7 +392,7 @@ public class Luv extends JFrame
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
-        System.out.println("finishedExecutionState()");
+        //System.out.println("finishedExecutionState()");
 
 	// set only certain luv viewer variables
           
@@ -436,13 +431,13 @@ public class Luv extends JFrame
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
 
-	showStatus("Execution complete.", Color.BLACK);
+	showStatus("Execution complete.", Color.BLUE);
 
     }
       
     public void preExecutionState()
     {
-	System.out.println("preExecutionState()");
+	//System.out.println("preExecutionState()");
         
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
@@ -456,7 +451,7 @@ public class Luv extends JFrame
       
     public void executionState()
     {
-	System.out.println("executionState()");
+	//System.out.println("executionState()");
 	isExecuting = true;
           
 	showStatus("Executing...", Color.GREEN.darker());
@@ -480,7 +475,7 @@ public class Luv extends JFrame
           
     public void stopExecution() throws IOException
     {
-	System.out.println("stopExecution()");      
+	//System.out.println("stopExecution()");      
         
         planPaused = false;
         planStep = false;
@@ -489,7 +484,7 @@ public class Luv extends JFrame
     
     public void pausedState()
     {
-	System.out.println("pausedState()");
+	//System.out.println("pausedState()");
 
 	allowBreaks = true;
 	planPaused = true;
@@ -502,7 +497,7 @@ public class Luv extends JFrame
       
     public void stepState()
     {
-	System.out.println("stepState()");
+	//System.out.println("stepState()");
 	allowBreaks = true;
 	isExecuting = true;
 	planPaused = false;
@@ -519,7 +514,7 @@ public class Luv extends JFrame
       
     public void disabledBreakingState()
     {
-	System.out.println("disabledBreakingState()");
+	//System.out.println("disabledBreakingState()");
 	allowBreaks = false;
 	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
@@ -528,7 +523,7 @@ public class Luv extends JFrame
       
     public void enabledBreakingState()
     {
-	System.out.println("enabledBreakingState()");
+	//System.out.println("enabledBreakingState()");
 	allowBreaks = true;
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
 	updateBlockingMenuItems();
@@ -538,7 +533,7 @@ public class Luv extends JFrame
 
     private void updateBlockingMenuItems()
     {
-        System.out.println("updateBlockingMenuItems()");
+        //System.out.println("updateBlockingMenuItems()");
 	// Pause/resume not useful if exec isn't listening
             
 	if (isExecuting) {
@@ -787,7 +782,8 @@ public class Luv extends JFrame
 	}
 	else {
 	    for (int i = 0; i < count; ++i)
-		if (fileHandler.getRecentPlanName(i + 1) != null)
+		if ( fileHandler.getRecentPlanName(i + 1) != null &&
+                    !fileHandler.getRecentPlanName(i + 1).equals(UNKNOWN))
 		    recentRunMenu.add(new LoadRecentAction(i + 1, '1' + i, META_MASK));
 	}
 
@@ -814,7 +810,7 @@ public class Luv extends JFrame
 
     public String getProperty(String key)
     {
-	return properties.getProperty(key);
+	return properties.getProperty(key, UNKNOWN);
     }
       
     public void showStatus(String message)
@@ -872,17 +868,10 @@ public class Luv extends JFrame
                     {
                         command += " " +  plan; 
 
-                        if (fileHandler.getScript() != null)
-                            {
-                                // double check that script still exists
-
-                                if (new File(fileHandler.getScript().getAbsolutePath()).exists())
-                                    {
-                                        command += " " +  fileHandler.getScript().getAbsolutePath();
-                                    }
-                                else
-                                    command = "Error: " + fileHandler.getScript().getAbsolutePath() + " does not exist.";
-                            }
+                        if (fileHandler.searchForScript() != null)
+                        {
+                            command += " " +  fileHandler.getScriptFile().getAbsolutePath();
+                        }
                         else
                             command = "Error: script does not exist.";
 
@@ -937,7 +926,7 @@ public class Luv extends JFrame
 		// and (try to) load it
 		String libPath = null;
 		try {
-		    libPath = fileHandler.getLibrary(name);
+		    libPath = fileHandler.searchForLibrary(name);
 		}
 		catch (InterruptedIOException e) {
 		}
@@ -995,7 +984,7 @@ public class Luv extends JFrame
     LuvAction openScriptAction = 
 	new LuvAction("Open Script", 
 		      "Open a script for execution.", 
-		      VK_S, 
+		      VK_E, 
 		      META_MASK)
 	{
 	    public void actionPerformed(ActionEvent e)

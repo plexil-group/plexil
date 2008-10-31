@@ -158,8 +158,7 @@ public class LuvBreakPointHandler
 
                   public String toString()
                   {
-                     return model.getModelName() +
-                        " state changed";
+                     return model.getModelName();
                   }
          };
       }

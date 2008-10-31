@@ -72,7 +72,7 @@ public class ModelPath
          for (String element: path)
          {
             buf.append(element);
-            buf.append(path.lastElement() == element ? "" : ":");
+            buf.append(path.lastElement().equals(element) ? "" : ":");
          }
 
          return buf.toString();
@@ -85,33 +85,28 @@ public class ModelPath
        * exist
        */
 
-      public Model find(Model root)
+      public Model find(Model plan)
       {
          // attach dummy as root of root
 
-         Model oldParent = root.getParent();
-         Model dummy = new Model("dummy");
-         dummy.addChild(root);
-         Model current = dummy;
+         Model current = plan.getParent();
          
          // work down the path
 
          for (String element: path)
          {
-            current = current.findChildByName(element);
+             // skip top node
+             
+             if (!element.equals("_The_Root_Model_"))
+             {
+                current = current.findChildByName(element);
 
-            // if no matching node was found, the search failed
+                // if no matching node was found, the search failed
 
-            if (current == null)
-               break;
+                if (current == null)
+                   break;
+             }
          }
-
-         // remove dummy as root of root
-         
-         dummy.removeChild(root);
-         root.setParent(oldParent);
-
-         // return the matching node or null if not found
          
          return current;
       }
