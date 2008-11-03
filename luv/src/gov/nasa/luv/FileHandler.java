@@ -47,10 +47,6 @@ import static javax.swing.JFileChooser.*;
 
 public class FileHandler 
 {
-    
-    private static File plan = null;                                   // current plexil plan  
-    private static File script = null;                                 // current plexil script
-    
     private static boolean dontLoadScriptAgain         = false;        // is script already loaded? if so, do not waste time loading it again
     private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries
     private static boolean loadingLibrary              = false;        
@@ -117,21 +113,10 @@ public class FileHandler
 		    });
 	    }
 	};
-
-    public File getPlanFile()
-    {
-	return plan;
-    }
  
-    // return 
-    private String getPlanNameSansExtension()
+    private String getFileNameSansExtension(String name)
     {
-        return plan.getName().substring(0, plan.getName().indexOf('.'));  
-    }
-
-    public File getScriptFile()
-    {
-	return script;
+        return name.substring(0, name.indexOf('.'));  
     }
     
     public boolean getStopSearchForMissingLibs()
@@ -142,16 +127,6 @@ public class FileHandler
     public void setStopSearchForMissingLibs(boolean value)
     {
         stopSearchForMissingLibs = value;
-    }
-
-    public void clearPlanFile()
-    {
-	plan = null;
-    }
-
-    public void clearScriptFile()
-    {
-	script = null;
     }
     
     // find the libraries needed
@@ -203,6 +178,7 @@ public class FileHandler
 
     public File searchForScript() throws IOException 
     {
+        File script = null;
         String directory = ""; 
         ArrayList<String> listOfDirectories = generateListOfDirectories();
 
@@ -214,7 +190,10 @@ public class FileHandler
 
             if (new File(directory).exists())
             {
-                script = tryScriptNameVariations(plan.getName(), directory);
+                if (Luv.getLuv().getCurrentPlan() != null)
+                    script = tryScriptNameVariations(Luv.getLuv().getCurrentPlan().getPlanNameSansPath(), directory);
+                else
+                    return null;
             }
         }
         
@@ -244,9 +223,9 @@ public class FileHandler
             switch (option) {
 	    case APPROVE_OPTION:
                 {
-		    script = fileChooser.getSelectedFile();
+		    File script = fileChooser.getSelectedFile();
 		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString());               
+		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
 		    loadScript(script);
 		    break;
                 }
@@ -270,10 +249,10 @@ public class FileHandler
             
             switch (option) {
 	    case APPROVE_OPTION:
-		plan = fileChooser.getSelectedFile();
-		Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
+		File plan = fileChooser.getSelectedFile();
+                Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
 		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
-		script = null;
+                loadPlan(plan);		
 		break;
             }           
 	}
@@ -282,8 +261,7 @@ public class FileHandler
 	}
          
 	return option;
-    }
-    
+    }  
           
     /**
      * Select and load a plexil library from the disk.  The library is
@@ -336,19 +314,23 @@ public class FileHandler
       
     public void loadPlan(File plan)
     {
-	Model newPlan = readPlan(plan);
-	newPlan.addPlanName(plan.toString());
+        if (plan != null)
+        {
+            readPlan(plan);
+            Luv.getLuv().getCurrentPlan().addPlanName(plan.toString());
+        }
     }
             
     // Load a recently loaded plan
 
     public void loadRecentPlan(int index) throws IOException
     {
+        File script = null;
 	String planName = Luv.getLuv().getRecentPlanName(index);
 	String scriptName = Luv.getLuv().getRecentScriptName(index);
          
 	if (planName != null) {
-            plan = new File(planName);
+            File plan = new File(planName);
             loadPlan(plan);
             if (scriptName != null && !scriptName.equals(UNKNOWN)) {
                 script = new File(scriptName);
@@ -356,30 +338,16 @@ public class FileHandler
                     loadScript(script);
                 else
 		    {
-			script = null;
 			script = searchForScript();
 		    }                 
             }
             else {
-                script = null;
                 script = searchForScript();
             }
 
 	    Luv.getLuv().readyState();
 	}
-    }      
-      
-      public void loadRecentPlan(File p) throws IOException
-      {
-         if (p != null)
-         {
-            plan = p;
-            loadPlan(plan);
-            script = searchForScript();
-            
-            Luv.getLuv().readyState();
-         }
-      }
+    }   
       
     /**
      * Read plexil plan from disk and create an internal model.
@@ -506,7 +474,7 @@ public class FileHandler
     {
 	try 
         {
-	    planName = getPlanNameSansExtension();  
+	    planName = getFileNameSansExtension(planName);  
             
             ArrayList<String> listOfScriptNames = generateListOfScriptNames(planName, path);
             
@@ -525,7 +493,7 @@ public class FileHandler
             out.println("Error: " + e.getMessage());
 	} 
           
-	return script;
+	return null;
     }
   
     // generate a list of possible script names if user didn't not specify one
@@ -599,7 +567,7 @@ public class FileHandler
                 BufferedWriter out = new BufferedWriter(emptyScript);
                 out.write(EMPTY_SCRIPT);
                 out.close();                          
-                script = new File(scriptName);
+                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
                 break;
             case 1:
                 dontLoadScriptAgain = true;

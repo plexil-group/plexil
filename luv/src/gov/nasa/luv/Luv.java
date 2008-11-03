@@ -305,8 +305,6 @@ public class Luv extends JFrame
 
     public void startState()
     {
-	// reset all luv viewer variables
-          
 	disableAllMenus();
           
 	allowBreaks = false;
@@ -316,9 +314,6 @@ public class Luv extends JFrame
 	Model.getRoot().clear();  
 	conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
           
-	fileHandler.clearPlanFile(); 
-	fileHandler.clearScriptFile(); 
-
 	viewHandler.clearCurrentView();
 	statusMessageHandler.clearStatusMessageQ();
 	luvBreakPointHandler.clearBreakPoint();
@@ -853,73 +848,62 @@ public class Luv extends JFrame
 	System.exit(0); 
     }
       
-    private String getCommandLine() throws IOException
+    private String createCommandLine() throws IOException
     {
-        File plan = null;
-	String command = PROP_UE_EXEC + " -v";
+        String command = PROP_UE_EXEC + " -v";
 
 	if (allowBreaks)
 	    command += " -b";                
-          
-	// double check that plan still exists
+  
+        // get plan
         
-        if (currentPlan != null)
-        {       
-            if (currentPlan.getPlanName() == null)
-                plan = fileHandler.getPlanFile();
-            else
-                plan = new File(currentPlan.getPlanName());
-
-            if (plan != null)
+	if (currentPlan != null && currentPlan.getPlanName() != null)
+        {
+            if (new File(currentPlan.getPlanName()).exists())
             {
-                if (plan.exists())
-                    {
-                        command += " " +  plan; 
-
-                        if (fileHandler.searchForScript() != null)
-                        {
-                            command += " " +  fileHandler.getScriptFile().getAbsolutePath();
-                        }
-                        else
-                            command = "Error: script does not exist.";
-
-			if (!currentPlan.getMissingLibraries().isEmpty()) {
-			    // try to find libraries
-			    for (String libName : currentPlan.getMissingLibraries()) {
-				Model lib = findLibraryNode(libName, true);
-				if (lib == null) {
-				    command = "Error: library \"" + libName + "\" not found.";
-				    break;
-				}
-				else {
-				    currentPlan.addLibraryName(lib.getPlanName());
-				    currentPlan.missingLibraryFound(libName);
-				}
-			    }
-			}
-
-                        if (!currentPlan.getLibraryNames().isEmpty()) {
-			    for (String libFile : currentPlan.getLibraryNames()) {
-				// double check that library still exists
-				if (new File(libFile).exists()) {
-				    command += " -l ";
-				    command += libFile;
-				}
-				else {
-				    command = "Error: library file " + libFile + " does not exist.";
-				    break;
-				}
-			    }
-			}
-                    }
-                else
-                    command = "Error: " + plan + " does not exist.";
+                command += " " + currentPlan.getPlanName(); 
             }
-            else
-                command = "Error: trying to execute a NULL plan";
         }
         else
-            command = "Error: trying to execute a NULL plan";
+            return "Error: unable to identify plan.";
+        
+        // get script
+        
+        if (fileHandler.searchForScript() != null)
+        {
+            command += " " + currentPlan.getScriptName();
+        }
+        else
+            return "Error: unable to identify script.";
+             
+        // get libraries
+
+        if (!currentPlan.getMissingLibraries().isEmpty()) {
+            // try to find libraries
+            for (String libName : currentPlan.getMissingLibraries()) {
+                Model lib = findLibraryNode(libName, true);
+                if (lib == null) {
+                    return "Error: library \"" + libName + "\" not found.";
+                }
+                else {
+                    currentPlan.addLibraryName(lib.getPlanName());
+                    currentPlan.missingLibraryFound(libName);
+                }
+            }
+        }
+
+        if (!currentPlan.getLibraryNames().isEmpty()) {
+            for (String libFile : currentPlan.getLibraryNames()) {
+                // double check that library still exists
+                if (new File(libFile).exists()) {
+                    command += " -l ";
+                    command += libFile;
+                }
+                else {
+                    return "Error: library file " + libFile + " does not exist.";
+                }
+            }
+        }       
 
 	return command;
     }
@@ -976,14 +960,10 @@ public class Luv extends JFrame
 			}
 		    }
 
-		    // *** Some of this needs to happen before loading ***
-		                       
-                    
-                    if(TreeTableView.getCurrent() != null &&
+		    if(TreeTableView.getCurrent() != null &&
                        TreeTableView.getCurrent().isConditionWindowOpen())
                         TreeTableView.getCurrent().closeConditionWindow(); 
                     
-		    fileHandler.loadPlan(fileHandler.getPlanFile());
 		    luvBreakPointHandler.clearBreakPoint();
 		    luvBreakPointHandler.clearBreakPointMap();
 		    luvBreakPointHandler.clearUnfoundBreakPoints();
@@ -1062,24 +1042,9 @@ public class Luv extends JFrame
                    TreeTableView.getCurrent().isConditionWindowOpen())
                     refreshConditionWindow();
 
-                if (currentPlan != null)
+                if (currentPlan != null && currentPlan.getPlanName().length() > 0)
                 {
-                    if (currentPlan.getPlanName() == null)
-                    {
-                        if (fileHandler.getPlanFile() != null)
-                            fileHandler.loadPlan(fileHandler.getPlanFile());
-                        else
-                        {
-                            JOptionPane.showMessageDialog(theLuv,
-                                                          "Error: cannot reload a NULL plan",
-                                                          "Error",
-                                                          JOptionPane.ERROR_MESSAGE);
-                            System.err.println("Error: cannot reload a NULL plan");
-                        }
-                    }
-                    else
-                        fileHandler.loadPlan(new File(currentPlan.getPlanName()));
-                    
+                    fileHandler.loadPlan(new File(currentPlan.getPlanName())); 
                     readyState(); 
                 }
                 else
@@ -1186,7 +1151,7 @@ public class Luv extends JFrame
 
                     if (!isExecuting) {
                         preExecutionState();
-                        String command = getCommandLine();
+                        String command = createCommandLine();
                         if (!command.contains("Error")) {
                             executionViaLuvViewerHandler.runExec(command);
 			}
