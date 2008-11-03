@@ -30,7 +30,6 @@ import java.awt.event.ActionEvent;
 
 import java.io.IOException;
 import javax.swing.JOptionPane;
-import static gov.nasa.luv.Constants.*;
 
 /** Action to load a recent plan. */
 
@@ -49,7 +48,7 @@ public class LoadRecentAction extends LuvAction
 
     public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
     {
-       super(Luv.getLuv().getFileHandler().getRecentPlanName(recentIndex),
+       super(Luv.getLuv().getRecentPlanName(recentIndex),
              Luv.getLuv().getRecentMenuDescription(recentIndex),
              keyCode, 
              modifiers);
@@ -77,11 +76,13 @@ public class LoadRecentAction extends LuvAction
                System.err.println("Error: " + ex.getMessage());
            }
        }
-        
-       
-       
+     
        try 
        {
+           if(TreeTableView.getCurrent() != null &&
+              TreeTableView.getCurrent().isConditionWindowOpen())
+                TreeTableView.getCurrent().closeConditionWindow();
+           
            Luv.getLuv().getFileHandler().loadRecentPlan(recentIndex);
        } 
        catch (IOException ex) 

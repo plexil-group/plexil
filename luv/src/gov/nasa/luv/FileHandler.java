@@ -132,16 +132,6 @@ public class FileHandler
     public File getScriptFile()
     {
 	return script;
-    }   
-
-    public String getRecentPlanName(int recentIndex)
-    {
-	return Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_BASE + recentIndex);
-    }
-
-    public String getRecentScriptName(int recentIndex)
-    {
-	return Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + recentIndex);
     }
     
     public boolean getStopSearchForMissingLibs()
@@ -354,8 +344,8 @@ public class FileHandler
 
     public void loadRecentPlan(int index) throws IOException
     {
-	String planName = getRecentPlanName(index);
-	String scriptName = getRecentScriptName(index);
+	String planName = Luv.getLuv().getRecentPlanName(index);
+	String scriptName = Luv.getLuv().getRecentScriptName(index);
          
 	if (planName != null) {
             plan = new File(planName);

@@ -49,9 +49,13 @@ public class Model extends Properties
 
     private String type = "<type undefined>";
       
-    private String path = "";
+    private String pathToNode = "";
 
     private String modelName = "";
+    
+    private String planName = "";
+    
+    private String scriptName = "";
 
     private LinkedHashSet<String> libraryFiles = new LinkedHashSet<String>();
 
@@ -98,28 +102,54 @@ public class Model extends Properties
 	this.type = type;
     }
       
-    public void setPath()
+    public void setPathToNode()
     {
 	Model node = this;
           
 	while (node.parent != null && !node.parent.isRoot())
 	    {
-		path += "--->" + node.parent.modelName;
+		pathToNode += "--->" + node.parent.modelName;
 		node = node.parent;
 	    }
           
-	path = modelName + path;
+	pathToNode = modelName + pathToNode;
     }
       
       
-    public String getPath()
+    public String getPathToNode()
     {
-	return path;
+	return pathToNode;
     }
 
     public String getModelName()
     {
 	return modelName;
+    }
+    
+    public String getPlanName()
+    {
+        return planName;
+    }
+
+    public String getScriptName()
+    {
+        return scriptName;
+    }
+    
+    public String getPlanNameSansPath()
+    {
+        if (!planName.equals(""))
+            return planName.substring(planName.lastIndexOf("/") + 1, planName.length());
+        else
+            return planName;
+    }
+
+    public String getScriptNameSansPath()
+    {
+        if (!scriptName.equals(""))
+            return scriptName.substring(scriptName.lastIndexOf("/") + 1, scriptName.length());
+        else
+            return scriptName;
     }
 
     public void setModelName(String name)
@@ -170,7 +200,7 @@ public class Model extends Properties
 	    return false;
 	if (!type.equals(other.type))
 	    return false;
-	if (!path.equals(other.path))
+	if (!pathToNode.equals(other.pathToNode))
 	    return false;
 	if (!super.equals(other)) // compare properties
 	    return false;
@@ -294,7 +324,7 @@ public class Model extends Properties
 
     public void addPlanName(String planName)
     {
-	setProperty(FILENAME_ATTR, planName);
+        this.planName = planName;
 	for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).planNameAdded(this, planName);
     }
@@ -306,29 +336,9 @@ public class Model extends Properties
 
     public void addScriptName(String scriptName)
     {
-	setProperty(SCRIPT_FILENAME, scriptName);
+        this.scriptName = scriptName;
 	for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).scriptNameAdded(this, scriptName);
-    }
-
-    /** Get plan name recorded in this model.
-     *
-     * @return name of plan, which might be null
-     */
-
-    public String getPlanName()
-    {
-	return getProperty(FILENAME_ATTR);
-    }
-
-    /** Get script name recorded in this model.
-     *
-     * @return name of script, which might be null
-     */
-
-    public String getScriptName()
-    {
-	return getProperty(SCRIPT_FILENAME);
     }
 
     /** Specify a library name.

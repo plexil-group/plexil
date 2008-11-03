@@ -162,7 +162,7 @@
 	     topNode.setProperty(tagName, text);
 	     if (tagName == NODE_ID) {
 		 topNode.setModelName(text);
-		 topNode.setPath();
+		 topNode.setPathToNode();
 	     }
 	}
 

@@ -52,12 +52,12 @@ public class ConditionHandler
     public void saveConditionInfo(Model node)
     {
         if(!node.conditionMap.isEmpty())
-            nodeConditions.put(node.getPath(), node.conditionMap);
+            nodeConditions.put(node.getPathToNode(), node.conditionMap);
          
         for (int i = 0; i < node.getChildCount(); i++)
         {
             if (!node.getChild(i).conditionMap.isEmpty())
-                nodeConditions.put(node.getChild(i).getPath(), node.getChild(i).conditionMap);
+                nodeConditions.put(node.getChild(i).getPathToNode(), node.getChild(i).conditionMap);
             saveConditionInfo(node.getChild(i));
         }
     }
@@ -72,7 +72,7 @@ public class ConditionHandler
     
     public void outputAllConditions(Model node)
     {
-        String nodePath = node.getPath();         
+        String nodePath = node.getPathToNode();         
     
         if (nodePath != null)
         {

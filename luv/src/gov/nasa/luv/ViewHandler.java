@@ -118,10 +118,6 @@ public class ViewHandler
 
 	Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
 
-	// set the frame title
-         
-	Luv.getLuv().setTitle();
-
 	// show the new view
 
 	Luv.getLuv().pack();
