@@ -257,8 +257,6 @@ public class Luv extends JFrame
       
     public LuvBreakPointHandler   getLuvBreakPointHandler()   { return luvBreakPointHandler; }    // get current breakpoint handler
       
-    public ConditionHandler       getConditionHandler()       { return conditionHandler; }        // get current condition handler
-      
     public Properties             getProperties()             { return properties; }              // get persistent properties for luv viewer
     
     public static Luv             getLuv()                    { return theLuv; }                  // get current active instance of luv viewer
@@ -316,9 +314,7 @@ public class Luv extends JFrame
           
 	viewHandler.clearCurrentView();
 	statusMessageHandler.clearStatusMessageQ();
-	luvBreakPointHandler.clearBreakPoint();
-	luvBreakPointHandler.clearBreakPointMap();
-	luvBreakPointHandler.clearUnfoundBreakPoints();
+        luvBreakPointHandler.removeAllBreakPoints();
           
 	// reset all menu items
                  
@@ -380,13 +376,10 @@ public class Luv extends JFrame
 	windowMenu.setEnabled(true);
     }
 
-
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
-        //System.out.println("finishedExecutionState()");
-
-	// set only certain luv viewer variables
+        // set only certain luv viewer variables
           
 	planPaused = false;
 	planStep = false;	 
@@ -429,8 +422,6 @@ public class Luv extends JFrame
       
     public void preExecutionState()
     {
-	//System.out.println("preExecutionState()");
-        
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
@@ -443,7 +434,6 @@ public class Luv extends JFrame
       
     public void executionState()
     {
-	//System.out.println("executionState()");
 	isExecuting = true;
           
 	showStatus("Executing...", Color.GREEN.darker());
@@ -467,17 +457,37 @@ public class Luv extends JFrame
           
     public void stopExecution() throws IOException
     {
-	//System.out.println("stopExecution()");      
-        
-        planPaused = false;
+	planPaused = false;
         planStep = false;
 	executionViaLuvViewerHandler.killUEProcess();
     }
     
+    public void openPlanState()
+    {
+        luvBreakPointHandler.removeAllBreakPoints();
+
+        if (TreeTableView.getCurrent() != null &&
+            TreeTableView.getCurrent().isConditionWindowOpen())
+            TreeTableView.getCurrent().closeConditionWindow();                
+
+        conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
+
+        readyState();
+    }
+    
+    private void reloadPlanState()
+    {
+        if (TreeTableView.getCurrent() != null && 
+            TreeTableView.getCurrent().isConditionWindowOpen())
+            refreshConditionWindow();
+        
+        conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
+
+        readyState();
+    }
+    
     public void pausedState()
     {
-	//System.out.println("pausedState()");
-
 	allowBreaks = true;
 	planPaused = true;
 	planStep = false;
@@ -489,7 +499,6 @@ public class Luv extends JFrame
       
     public void stepState()
     {
-	//System.out.println("stepState()");
 	allowBreaks = true;
 	isExecuting = true;
 	planPaused = false;
@@ -506,7 +515,6 @@ public class Luv extends JFrame
       
     public void disabledBreakingState()
     {
-	//System.out.println("disabledBreakingState()");
 	allowBreaks = false;
 	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
@@ -515,7 +523,6 @@ public class Luv extends JFrame
       
     public void enabledBreakingState()
     {
-	//System.out.println("enabledBreakingState()");
 	allowBreaks = true;
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
 	updateBlockingMenuItems();
@@ -525,8 +532,7 @@ public class Luv extends JFrame
 
     private void updateBlockingMenuItems()
     {
-        //System.out.println("updateBlockingMenuItems()");
-	// Pause/resume not useful if exec isn't listening
+        // Pause/resume not useful if exec isn't listening
             
 	if (isExecuting) {
 	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
@@ -633,7 +639,7 @@ public class Luv extends JFrame
 	// create file menu
          
 	menuBar.add(fileMenu);
-	fileMenu.add(Luv.getLuv().openAction);
+	fileMenu.add(Luv.getLuv().openPlanAction);
 	fileMenu.add(Luv.getLuv().openScriptAction);
 	updateRecentMenu();
 	fileMenu.add(recentRunMenu);
@@ -727,7 +733,8 @@ public class Luv extends JFrame
         String currPlan = planName;
         String currScript = scriptName;
         
-        if (planName != null && scriptName != null)
+        if (planName != null && scriptName != null &&
+            !planName.equals("") && !scriptName.equals(""))
         {
             int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
 
@@ -857,7 +864,9 @@ public class Luv extends JFrame
   
         // get plan
         
-	if (currentPlan != null && currentPlan.getPlanName() != null)
+	if (currentPlan != null && 
+            currentPlan.getPlanName() != null &&
+            !currentPlan.getPlanName().equals(""))
         {
             if (new File(currentPlan.getPlanName()).exists())
             {
@@ -908,22 +917,21 @@ public class Luv extends JFrame
 	return command;
     }
 
-    public Model findLibraryNode(String name, boolean askUser)
+    public Model findLibraryNode(String name, boolean askUser) throws InterruptedIOException
     {
 	Model result = Model.getRoot().findChildByName(name);
 
 	if (result == null) {
 	    if (askUser) {
-		// Prompt user for a file containing the missing library,
-		// and (try to) load it
-		String libPath = null;
+		// Prompt user for a file containing the missing library, and (try to) load it
+		File library = null;
 		try {
-		    libPath = fileHandler.searchForLibrary(name);
+		    library = fileHandler.searchForLibrary(name);
 		}
 		catch (InterruptedIOException e) {
 		}
 
-		if (libPath != null) {
+		if (library != null) {
 		    result = Model.getRoot().findChildByName(name);
 		}
 	    }
@@ -936,14 +944,14 @@ public class Luv extends JFrame
 
     /** Action to open and view a plan. */
 
-    LuvAction openAction = 
+    LuvAction openPlanAction = 
 	new LuvAction("Open Plan",
 		      "Open a plan for viewing.",
 		      VK_O, 
 		      META_MASK)
 	{
 	    public void actionPerformed(ActionEvent e)
-	    {
+	    {                   
 		// Loading done in the file handler at present
 		int option = fileHandler.choosePlan();
 
@@ -958,18 +966,9 @@ public class Luv extends JFrame
 			    JOptionPane.showMessageDialog(theLuv, "Error stopping execution. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
 			    System.err.println("Error: " + ex.getMessage());
 			}
-		    }
-
-		    if(TreeTableView.getCurrent() != null &&
-                       TreeTableView.getCurrent().isConditionWindowOpen())
-                        TreeTableView.getCurrent().closeConditionWindow(); 
+		    } 
                     
-		    luvBreakPointHandler.clearBreakPoint();
-		    luvBreakPointHandler.clearBreakPointMap();
-		    luvBreakPointHandler.clearUnfoundBreakPoints();
-		    conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
-                    
-                    readyState();
+                    openPlanState();
 		}
 	    }
 	};
@@ -1033,27 +1032,21 @@ public class Luv extends JFrame
 						      JOptionPane.ERROR_MESSAGE);
 			System.err.println("Error: " + ex.getMessage());
 		    }
-		}
-
-                               
-                conditionHandler = new ConditionHandler((Model) Model.getRoot().clone());
-
-                if(TreeTableView.getCurrent() != null && 
-                   TreeTableView.getCurrent().isConditionWindowOpen())
-                    refreshConditionWindow();
+		}               
 
                 if (currentPlan != null && currentPlan.getPlanName().length() > 0)
-                {
+                {                  
                     fileHandler.loadPlan(new File(currentPlan.getPlanName())); 
-                    readyState(); 
+                    
+                    reloadPlanState(); 
                 }
                 else
                 {
                     JOptionPane.showMessageDialog(theLuv,
-                                                  "Error: cannot reload a NULL plan",
+                                                  "Error: unable to identify plan.",
                                                   "Error",
                                                   JOptionPane.ERROR_MESSAGE);
-                    System.err.println("Error: cannot reload a NULL plan");
+                    System.err.println("Error: unable to identify plan.");
                 }
 
 	    }

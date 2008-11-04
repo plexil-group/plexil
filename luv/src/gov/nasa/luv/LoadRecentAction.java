@@ -79,18 +79,14 @@ public class LoadRecentAction extends LuvAction
      
        try 
        {
-           if(TreeTableView.getCurrent() != null &&
-              TreeTableView.getCurrent().isConditionWindowOpen())
-                TreeTableView.getCurrent().closeConditionWindow();
-           
            Luv.getLuv().getFileHandler().loadRecentPlan(recentIndex);
+           
+           Luv.getLuv().openPlanState();
        } 
        catch (IOException ex) 
        {
           JOptionPane.showMessageDialog(Luv.getLuv(), "Error loading recent plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
           System.err.println("Error: " + ex.getMessage());
-       }
-
-       Luv.getLuv().readyState();        
+       }        
     }
 }

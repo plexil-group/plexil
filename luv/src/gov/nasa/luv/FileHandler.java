@@ -49,7 +49,6 @@ public class FileHandler
 {
     private static boolean dontLoadScriptAgain         = false;        // is script already loaded? if so, do not waste time loading it again
     private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries
-    private static boolean loadingLibrary              = false;        
     
     // directory chooser object 
       
@@ -131,47 +130,45 @@ public class FileHandler
     
     // find the libraries needed
     
-    public String searchForLibrary(String library) throws InterruptedIOException 
+    public File searchForLibrary(String libraryName) throws InterruptedIOException 
     {      
-        String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
+        String directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
         
-        File testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".plx");
+        File library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".plx");
             
-        if (!testPath.exists()) {  
-            testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".xml");
+        if (!library.exists()) {  
+            library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".xml");
             
-            if (!testPath.exists()) {
-                path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+            if (!library.exists()) {
+                directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
         
-                testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".plx");
+                library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".plx");
                 
-                if (!testPath.exists()) {  
-                    testPath = new File(path + System.getProperty(PROP_FILE_SEPARATOR) + library + ".xml");
+                if (!library.exists()) {  
+                    library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".xml");
 
-                    if (!testPath.exists()) {
-			path = unfoundLibrary(library);
-			if (path == null)
-			    testPath = null;
+                    if (!library.exists()) {
+			directory = unfoundLibrary(libraryName);
+			if (directory == null)
+			    library = null;
 			else
-			    testPath = new File(path);
+			    library = new File(directory);
                     }
                 }
             }
         }
    
-        if (testPath != null && testPath.exists()) {
-            path = testPath.getAbsolutePath();
-            Luv.getLuv().showStatus("Loading library " + path, 1000);
-            loadingLibrary = true;
-	    loadPlan(testPath);
-            loadingLibrary = false;
-            String newHomePath = path.substring(0, path.lastIndexOf("/", path.length() - 1));
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, newHomePath);
+        if (library != null && library.exists()) 
+        {
+            directory = library.getAbsolutePath();
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_BASE, library.toString());
+	    loadPlan(library);
         }
         else
-            path = null;
+            library = null;
         
-        return path;  
+        return library;  
     }
     
     // find the appropriate script to be executed
@@ -206,7 +203,11 @@ public class FileHandler
         }
 
         if (!dontLoadScriptAgain)
-            loadScript(script);      
+        {
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
+            loadScript(script);   
+        }
         
         return script;  
     }
@@ -217,7 +218,7 @@ public class FileHandler
     {
 	int option = -1;
 	try {
-            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_SCRIPT_DIR)));
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR)));
             option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option) {
@@ -244,7 +245,7 @@ public class FileHandler
     {
 	int option = -1;
 	try {
-            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR)));
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)));
             option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option) {
@@ -271,14 +272,14 @@ public class FileHandler
     public String chooseLibrary()
     {
 	try {
-            String recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_LIB_DIR);
+            String recent = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
             if (recent == null)
-		recent = Luv.getLuv().getProperties().getString(PROP_FILE_RECENT_PLAN_DIR);
+		recent = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
             
-            Luv.getLuv().getFileHandler().fileChooser.setCurrentDirectory(new File(recent));
+            fileChooser.setCurrentDirectory(new File(recent));
 
-            if (Luv.getLuv().getFileHandler().fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION) {
-		File library = Luv.getLuv().getFileHandler().fileChooser.getSelectedFile();
+            if (fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION) {
+		File library = fileChooser.getSelectedFile();
 		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
 		return library.getAbsolutePath();
             }
@@ -360,8 +361,7 @@ public class FileHandler
     {
 	Model result = null;
         
-        if (!loadingLibrary)
-            Luv.getLuv().showStatus("Loading plan "  + file);
+        Luv.getLuv().showStatus("Loading "  + file);
         
 	try {
             result = parseXml(new FileInputStream(file));
@@ -369,7 +369,7 @@ public class FileHandler
 	catch(Exception e) {
             JOptionPane.showMessageDialog(
 					  Luv.getLuv(),
-					  "Error loading plan: " + file.getName() + 
+					  "Error loading: " + file.getName() + 
 					  "  See debug window for details.",
 					  "Parse Error",
 					  JOptionPane.ERROR_MESSAGE);
@@ -468,7 +468,7 @@ public class FileHandler
 	while (retry); 
           
 	return fullName;
-    }  
+    } 
         
     private File tryScriptNameVariations(String planName, String path) throws IOException 
     {
@@ -519,13 +519,17 @@ public class FileHandler
     private ArrayList<String> generateListOfDirectories()
     {
         ArrayList<String> listOfDirectories = new ArrayList<String>();
-        
+  
         listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR) + System.getProperty(PROP_FILE_SEPARATOR));
         listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR));
         listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR));
         listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "script" + System.getProperty(PROP_FILE_SEPARATOR));
         
         String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+        path += path.substring(0, path.lastIndexOf('/') + 1);
+        listOfDirectories.add(path);
+        
+        path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
         path += path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty(PROP_FILE_SEPARATOR);
         listOfDirectories.add(path);
         

@@ -26,8 +26,6 @@
 
 package gov.nasa.luv;
 
-import static gov.nasa.luv.Constants.*;
-
 /** An abstract breakpoint which supplies the breaking action in
 * the event that a breakpoint is signaled.  Derrived classes are
 * expected to provide the conditions underwich the break is

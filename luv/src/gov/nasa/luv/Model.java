@@ -202,7 +202,7 @@ public class Model extends Properties
 	    return false;
 	if (!pathToNode.equals(other.pathToNode))
 	    return false;
-	if (!super.equals(other)) // compare properties
+        if (!super.equals(other)) // compare properties
 	    return false;
 	if (!childrenEquivalent(other))
 	    return false;
@@ -471,7 +471,6 @@ public class Model extends Properties
 	return null;
     }
 
-
     public boolean removeChild(Model child)
     {
 	// Can't use Vector.remove(Object) because it uses equals(),
@@ -486,17 +485,6 @@ public class Model extends Properties
 	    }
 	}
 	return removed;
-    }
-
-    /** Test whether two models have the same name. 
-     *
-     * @param other the model to test names with this one
-     * @return true if this and the other model have the same name
-     */
-
-    public boolean hasSameName(Model other)
-    {
-	return modelName.equals(other.modelName);
     }
 
     public Object setProperty(String key, String value)
@@ -524,11 +512,6 @@ public class Model extends Properties
 
     public String toString()
     {
-	return display();
-    }
-
-    public String display()
-    {
 	String name = getModelName();
 	if (name == null)
             name = type;
@@ -540,20 +523,21 @@ public class Model extends Properties
 	s.append(")");
          
 	if (children.size() > 0)
-	    {
-		s.append("[");
-		for (Model child: children)
-		    {
-			s.append(child.toString());
-			if (child != children.lastElement())
-			    s.append(", ");
-		    }
-		s.append("]");
-	    }
+        {
+            s.append("[");
+            for (Model child: children)
+                {
+                    s.append(child.toString());
+                    if (child != children.lastElement())
+                        s.append(", ");
+                }
+            s.append("]");
+        }
+        
 	return s.toString();
-    }                        
+    }                       
             
-    void setMainAttributesOfNode()
+    public void setMainAttributesOfNode()
     {
 	String rawType = getProperty(NODETYPE_ATTR);
 	String polishedtype = rawType != null ? typeLut.get(rawType) : null;
@@ -562,8 +546,8 @@ public class Model extends Properties
 
 	modelName = getProperty(NODE_ID);
 	setProperty(MODEL_TYPE, polishedtype);
-	setProperty(MODEL_OUTCOME, "UNKNOWN");
-	setProperty(MODEL_STATE, "INACTIVE");
+	setProperty(MODEL_OUTCOME, UNKNOWN);
+	setProperty(MODEL_STATE, INACTIVE);
     }
             
     /** Add a property change listener to this model. 
@@ -612,28 +596,16 @@ public class Model extends Properties
 
     public static class ChangeAdapter extends ChangeListener
     {
-	public void propertyChange(Model model, String property)
-	{
-	}
+	public void propertyChange(Model model, String property){}
 
-	public void planCleared(Model model)
-	{
-	}
+	public void planCleared(Model model){}
 
-	public void planChanged(Model model)
-	{
-	}
+	public void planChanged(Model model){}
 
-	public void planNameAdded(Model model, String planName)
-	{
-	}
+	public void planNameAdded(Model model, String planName){}
             
-	public void scriptNameAdded(Model model, String scriptName)
-	{
-	}
+	public void scriptNameAdded(Model model, String scriptName){}
 
-	public void libraryNameAdded(Model model, String libraryName)
-	{
-	}
+	public void libraryNameAdded(Model model, String libraryName){}
     }
 }

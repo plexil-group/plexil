@@ -38,11 +38,9 @@ import static java.awt.BorderLayout.*;
 
 
 public class ViewHandler 
-{
-    
+{   
     private View currentView = null;                                   // current view
-    private Model currentModel = null;                                  // plan for current view
-
+    private Model currentModel = null;                                 // plan for current view
     private JPanel viewPanel = new JPanel();                           // Panel in which different views are placed.
 
     public void clearCurrentView()
@@ -75,7 +73,8 @@ public class ViewHandler
 
     public void refreshView()
     {
-	((Container)currentView).repaint();
+        if (currentView != null)
+            ((Container)currentView).repaint();
     }
 
     /**

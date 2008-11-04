@@ -44,10 +44,10 @@ public class LuvBreakPointHandler
     
       // breakpoint variables
       
-      private BreakPoint breakPoint = null;                                                         // if break has occured, the causal break point object
-      private HashMap<BreakPoint, ModelPath> breakPointMap = new HashMap<BreakPoint, ModelPath>();  // collection of all breakpoints
-      private Vector<BreakPoint> unfoundBreakPoints = new Vector<BreakPoint>();                     // breakpoints not found in current plan   
-      private Vector<String> breakPointList = new Vector<String>();                                 // list of breakpoints to check for repeats
+      private BreakPoint                        breakPoint = null;                                     // if break has occured, the causal break point object
+      private HashMap<BreakPoint, ModelPath>    breakPointMap = new HashMap<BreakPoint, ModelPath>();  // collection of all breakpoints
+      private Vector<BreakPoint>                unfoundBreakPoints = new Vector<BreakPoint>();         // breakpoints not found in current plan   
+      private Vector<String>                    breakPointList = new Vector<String>();                 // list of breakpoints to check for repeats
       
       public void setBreakPoint(BreakPoint bp)
       {
@@ -72,17 +72,6 @@ public class LuvBreakPointHandler
       public void clearBreakPoint()
       {
           breakPoint = null;
-      }
-    
-      public void clearBreakPointMap()
-      {
-          breakPointMap = new HashMap<BreakPoint, ModelPath>();
-          breakPointList = new Vector<String>();
-      }
-            
-      public void clearUnfoundBreakPoints()
-      {
-          unfoundBreakPoints = new Vector<BreakPoint>();
       }
       
       /** Add breakpoint to grand list of breakpoints.
@@ -129,6 +118,9 @@ public class LuvBreakPointHandler
          for (BreakPoint bp: breakPointMap.keySet())
             bp.unregister();
          breakPointMap.clear();
+         breakPointList.clear();
+         unfoundBreakPoints.clear();
+         breakPoint = null;
          Luv.getLuv().getViewHandler().refreshView();
       }
       
