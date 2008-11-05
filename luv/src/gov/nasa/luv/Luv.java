@@ -350,12 +350,17 @@ public class Luv extends JFrame
 	fileMenu.setEnabled(true);
  
 	updateBlockingMenuItems();
-
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+        
         if (isExecuting)
             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
         else
             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
-            
+       
 	runMenu.setEnabled(true);
 
 	if (viewMenu.getMenuComponentCount() > 0) {
@@ -395,7 +400,14 @@ public class Luv extends JFrame
 	fileMenu.setEnabled(true);
  
 	updateBlockingMenuItems();
-	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);   
+        
+        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);      
+        
 	runMenu.setEnabled(true);
 
 	if (viewMenu.getMenuComponentCount() > 0)
@@ -412,7 +424,7 @@ public class Luv extends JFrame
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
 
-	showStatus("Execution complete.", Color.BLUE);
+	showStatus("Execution stopped.", Color.BLUE);
 
     }
       
@@ -424,8 +436,9 @@ public class Luv extends JFrame
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);	
+        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
           
 	showStatus("Preparing to execute...", Color.lightGray);
     }
@@ -441,7 +454,12 @@ public class Luv extends JFrame
         fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);     
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
         
         runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
         
@@ -453,7 +471,7 @@ public class Luv extends JFrame
 	updateBlockingMenuItems();
     }     
           
-    public void stopExecution() throws IOException
+    public void stopExecutionState() throws IOException
     {
         showStatus("Canceling execution...", Color.lightGray);
         
@@ -495,6 +513,11 @@ public class Luv extends JFrame
 	// *** modify these? see updateBlockingMenuItems()
 	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
 	runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
     }
       
     public void stepState()
@@ -507,6 +530,11 @@ public class Luv extends JFrame
 	// *** modify these? see updateBlockingMenuItems()
 	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
 	runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
     }
 
     //
@@ -519,6 +547,7 @@ public class Luv extends JFrame
 	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
 	updateBlockingMenuItems();
+        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
     }
       
     public void enabledBreakingState()
@@ -526,6 +555,11 @@ public class Luv extends JFrame
 	allowBreaks = true;
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
 	updateBlockingMenuItems();
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
     }
 
     //* Modify the state of certain menu items based on whether the exec is running and whether it blocks.
@@ -573,6 +607,11 @@ public class Luv extends JFrame
             else
                 TreeTableView.getCurrent().closeConditionWindow();
         }
+    }
+    
+    public void enableRemoveBreaksMenuItem(boolean value)
+    {
+        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(value);
     }
 
     // place all visible elements into the container in the main frame of the application.
@@ -653,7 +692,9 @@ public class Luv extends JFrame
 	runMenu.add(theLuv.pauseAction);
 	runMenu.add(theLuv.stepAction);
 	runMenu.add(theLuv.allowBreaksAction);
-	runMenu.add(theLuv.execAction);
+	runMenu.add(theLuv.removeAllBreaksAction);
+        runMenu.add(new JSeparator());      
+        runMenu.add(theLuv.execAction);
 
 	// add view menu
 
@@ -686,8 +727,9 @@ public class Luv extends JFrame
         
 	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
 	runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);         
+	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);	
+        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);  
 	runMenu.setEnabled(false);
  
 	// disable all view menu elements if there are any
@@ -1008,7 +1050,7 @@ public class Luv extends JFrame
 		    // Do these things only if we loaded a plan
 		    if (isExecuting) {
 			try {
-			    stopExecution();
+			    stopExecutionState();
 			    JOptionPane.showMessageDialog(theLuv, 
                                                           "Stopping execution and opening a new plan", 
                                                           "Stopping Execution", 
@@ -1042,7 +1084,7 @@ public class Luv extends JFrame
 		if (option == APPROVE_OPTION) {
 		    if (isExecuting) {
 			try {
-			    stopExecution();
+			    stopExecutionState();
 			    JOptionPane.showMessageDialog(theLuv,
 							  "Stopping execution and opening script",
 							  "Stopping Execution",
@@ -1074,7 +1116,7 @@ public class Luv extends JFrame
 	    {
 		if (isExecuting) {
 		    try {
-			stopExecution();
+			stopExecutionState();
 			JOptionPane.showMessageDialog(theLuv,
 						      "Stopping execution and reloading plan",
 						      "Stopping Execution",
@@ -1113,7 +1155,7 @@ public class Luv extends JFrame
     LuvAction luvDebugWindowAction = 
 	new LuvAction("Show Luv Viewer Debug Window",
 		      "Show window with luv viewer debug text.",
-		      VK_L, 
+		      VK_D, 
 		      META_MASK)
 	{
 	    public void actionPerformed(ActionEvent e)
@@ -1131,9 +1173,7 @@ public class Luv extends JFrame
         
     LuvAction aboutWindowAction = 
         new LuvAction("About Luv Viewer Window",
-		      "Show window with luv viewer about information.",
-		      VK_A, 
-		      META_MASK)
+		      "Show window with luv viewer about information.")
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
@@ -1168,7 +1208,7 @@ public class Luv extends JFrame
     LuvAction allowBreaksAction =
 	new LuvAction(ENABLE_BREAKS,
 		      "Select this to allow breakpoints.",
-		      VK_F2)
+		      VK_F11)
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
@@ -1186,13 +1226,26 @@ public class Luv extends JFrame
 		}
 	    }
 	};
+        
+        /** Action to allow breakpoints. */
+         
+    LuvAction removeAllBreaksAction =
+	new LuvAction("Remove All Breakpoints",
+		      "Remove all breakpoints from this plan.")
+	{
+	    public void actionPerformed(ActionEvent e)
+	    {
+		luvBreakPointHandler.removeAllBreakPoints();
+                statusMessageHandler.showStatus("All breakpoints have been removed", 1000);
+	    }
+	};
          
     /** Action to execute a plexil plan. */
 
     LuvAction execAction = 
 	new LuvAction(EXECUTE_PLAN, 
 		      "Execute currently loaded plan.",
-		      VK_F1)
+		      VK_F12)
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
@@ -1211,7 +1264,7 @@ public class Luv extends JFrame
                         }
                     }
                     else {                       
-                        stopExecution();
+                        stopExecutionState();
                     }
                     
                 } 

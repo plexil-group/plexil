@@ -57,8 +57,7 @@ public class DebugWindow extends JFrame
          
          // construct a print stream that uses the directed output stream
          
-         String logFilename = getLogFilename();
-         DualOutputStream dos = new DualOutputStream(null); //logFilename);
+         DualOutputStream dos = new DualOutputStream(null); 
          PrintStream ps = new PrintStream(dos);
          
          // redirect all system output into the debug text area

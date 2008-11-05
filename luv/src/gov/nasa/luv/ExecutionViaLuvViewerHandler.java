@@ -27,9 +27,15 @@
 package gov.nasa.luv;
 
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.swing.JOptionPane;
+
+import java.sql.*;
+import java.io.*;
+import java.util.*;
+
 
 import static gov.nasa.luv.Constants.*;
 
@@ -37,11 +43,11 @@ import static gov.nasa.luv.Constants.*;
 
 public class ExecutionViaLuvViewerHandler
 {
-      ExecutionViaLuvViewerHandler ee;   
-      Runtime runtime;
-      Thread runThread;
+      private ExecutionViaLuvViewerHandler ee;   
+      private Runtime runtime;
+      private Thread runThread;
       
-      ExecutionViaLuvViewerHandler() {}
+      public ExecutionViaLuvViewerHandler() {}
 
       public ExecutionViaLuvViewerHandler(final String command)
       {        
@@ -56,47 +62,47 @@ public class ExecutionViaLuvViewerHandler
                   {
                       runtime = Runtime.getRuntime();
                       Process p = runtime.exec(command);
-                      InputStream err = p.getErrorStream();
-                      InputStream in = p.getInputStream();
                       
-                      Thread.sleep(100);
-
-		      // *** Problem: Need to wait for process completion
-		      // *** and simultaneously monitor stdout, stderr
+                      BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                      BufferedReader err = new BufferedReader(new InputStreamReader(p.getErrorStream()));                    
+                      String line;
+                      String isMessage = "";
+                      String errMessage = "";
                       
-                      if (in.available() > 0)
+                       // display standard output from process (may contain an error message from UE)
+                      while ((line = is.readLine()) != null)
                       {
-                          byte[] inputBuffer = new byte[1024];
-                          int num2 = in.read(inputBuffer);
-                          String message = new String(inputBuffer).substring(0, num2 - 1);
-                          System.out.println("\n  " + message + "\n"); 
-                          if (message.contains("Error"))
-                          {  
-                              Luv.getLuv().startState();
-                              Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
-                              JOptionPane.showMessageDialog(Luv.getLuv(), "Error reported by the Universal Executive. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+                          if (line.contains("Error"))
+                          {
+                              JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                                            "Error reported by the Universal Executive. Please see Debug Window.", 
+                                                            "Error", 
+                                                            JOptionPane.ERROR_MESSAGE);
                           }
+                          
+                          isMessage += "\n" + line;
                       }
                       
-                      if (err.available() > 0)
-                      {
-                          byte[] errorBuffer = new byte[1024];
-                          int num = err.read(errorBuffer);
-                          System.out.println("Error: " + new String(errorBuffer).substring(0, num));  
-                          System.out.println("Hint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n");
-                          Luv.getLuv().execAction.actionPerformed(null); // stop execution 
-                          Luv.getLuv().startState();
-                          Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
-                          JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.\nHint: \tAre the script and library files valid?\n\tHave you updated 'universal-exec' or 'apps/TestExec' lately and not rebuilt them?\n", "Error", JOptionPane.ERROR_MESSAGE);                      
+                      System.out.println(isMessage);
+                      
+                      // display standard error message from process if any
+                      while ((line = err.readLine()) != null)
+                      {                                     
+                          errMessage += line + "\n";
                       }
-
+                      
+                      if (!errMessage.equals(""))
+                          System.out.println("\n" + errMessage);
                   }
                   catch(Exception e)
                   {
-                     Luv.getLuv().startState();
-                     Luv.getLuv().showStatus("Execution stopped", Color.GREEN.darker(), 1000);
-                     JOptionPane.showMessageDialog(Luv.getLuv(), "Error executing plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+                     JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                                   "Error executing plan. Please see Debug Window.", 
+                                                   "Error", 
+                                                   JOptionPane.ERROR_MESSAGE);
                      e.printStackTrace();
+                     
+                     Luv.getLuv().finishedExecutionState();
                  }
               }
           };
@@ -104,7 +110,7 @@ public class ExecutionViaLuvViewerHandler
 
       /** Start running the UE. */
 
-      public void start()
+      private void start()
       {
          try
          {    
@@ -112,7 +118,10 @@ public class ExecutionViaLuvViewerHandler
          }
          catch (Exception e)
          {
-            JOptionPane.showMessageDialog(Luv.getLuv(), "Error starting the Universal Executive. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          "Error starting the Universal Executive. Please see Debug Window.", 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
          }
       }
@@ -125,6 +134,22 @@ public class ExecutionViaLuvViewerHandler
       
       public void killUEProcess() throws IOException
       {
-          Runtime.getRuntime().exec("killall test-exec_g_rt");
+          String kill_ue = "killall " + TEST_EXEC;
+            
+          try 
+          {
+              Runtime.getRuntime().exec(kill_ue);
+          }
+          catch (IOException e) 
+          {
+              JOptionPane.showMessageDialog(Luv.getLuv(),
+		                            "Error: unable to kill " + TEST_EXEC + " process. Please see Debug Window.",
+                                            "Error", 
+			                    JOptionPane.ERROR_MESSAGE);
+                
+              System.err.println("Error: Failed using the following command:\n\n   " + kill_ue.toString() + "\n\n" + e.getMessage());
+                
+              Luv.getLuv().finishedExecutionState();
+            }
       }
 }

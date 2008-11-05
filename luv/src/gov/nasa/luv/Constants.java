@@ -298,6 +298,8 @@ public class Constants
       public static final String    PROP_USER_HOME = "user.home";
       public static final String    PROP_FILE_SEPARATOR = "file.separator";
       
+      public static final String    TEST_EXEC = "test-exec_g_rt";
+      
       public static final String    PROP_UE_EXEC =        
               System.getenv(PROP_PLEXIL_HOME) + 
               System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
@@ -344,8 +346,9 @@ public class Constants
       // run menu
       public static final int PAUSE_RESUME_MENU_ITEM        = 0;
       public static final int STEP_MENU_ITEM                = 1;
-      public static final int BREAK_MENU_ITEM               = 2;
-      public static final int EXECUTE_MENU_ITEM             = 3;
+      public static final int BREAK_MENU_ITEM               = 2;      
+      public static final int REMOVE_BREAKS_MENU_ITEM       = 3;
+      public static final int EXECUTE_MENU_ITEM             = 5;
       
       // view menu
               

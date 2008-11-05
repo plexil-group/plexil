@@ -67,7 +67,7 @@ public class LoadRecentAction extends LuvAction
        {
            try 
            {
-               Luv.getLuv().stopExecution();
+               Luv.getLuv().stopExecutionState();
                JOptionPane.showMessageDialog(Luv.getLuv(), 
                                              "Stopping execution and loading a recent plan", 
                                              "Stopping Execution", 

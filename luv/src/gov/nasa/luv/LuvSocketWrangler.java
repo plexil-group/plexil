@@ -107,7 +107,7 @@ public class LuvSocketWrangler
 		}
 		    
 		Luv.getLuv().finishedExecutionState();
-		// System.out.println("Connection closed by Exec");
+                
 		break;
 	    }
 	    catch (Exception e) {
@@ -115,7 +115,18 @@ public class LuvSocketWrangler
 					      "Error parsing XML message.  See debug window for details.",
 					      "Parse Error",
 					      JOptionPane.ERROR_MESSAGE);
+                
+                System.err.println("Error: Lost connection to server process. " +
+                        "Typically caused when a client was disconnected because " +
+                        "the user canceled plan execution while the client " +
+                        "is stll receiving a message from the Universal Executive " +
+                        "and not enough buffer space was reserved for the unsent " +
+                        "portion of the message.");
+                        
 		e.printStackTrace();
+                
+                Luv.getLuv().finishedExecutionState();
+                
 		break;
 	    }
 
