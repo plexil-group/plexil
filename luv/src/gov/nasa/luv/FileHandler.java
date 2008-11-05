@@ -47,7 +47,7 @@ import static javax.swing.JFileChooser.*;
 
 public class FileHandler 
 {
-    private static boolean dontLoadScriptAgain         = false;        // is script already loaded? if so, do not waste time loading it again
+    private static boolean doNotLoadScript             = false;        // is script already loaded? if so, do not waste time loading it again
     private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries
     
     // directory chooser object 
@@ -199,10 +199,10 @@ public class FileHandler
         if (script == null)
         {
             directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR);
-            createEmptyScript(directory);
+            script = createEmptyScript(directory);
         }
 
-        if (!dontLoadScriptAgain)
+        if (!doNotLoadScript)
         {
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
@@ -252,6 +252,7 @@ public class FileHandler
 	    case APPROVE_OPTION:
 		File plan = fileChooser.getSelectedFile();
                 Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
+                Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
 		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
                 loadPlan(plan);		
 		break;
@@ -297,12 +298,13 @@ public class FileHandler
      * @param script file to load
      */
       
-    private void loadScript(File script)
+    public void loadScript(File script)
     {          
 	if (script != null)
         {
             Luv.getLuv().showStatus("Loading script "  + script, 50);
-            Luv.getLuv().getCurrentPlan().addScriptName(script.toString());
+            if (Luv.getLuv().getCurrentPlan() != null)
+                Luv.getLuv().getCurrentPlan().addScriptName(script.toString());
         }
     }
 
@@ -322,27 +324,30 @@ public class FileHandler
         }
     }
             
-    // Load a recently loaded plan
+    // Load a recently loaded run
 
-    public void loadRecentPlan(int index) throws IOException
+    public void loadRecentRun(int index) throws IOException
     {
         File script = null;
-	String planName = Luv.getLuv().getRecentPlanName(index);
-	String scriptName = Luv.getLuv().getRecentScriptName(index);
+	String planName = Luv.getLuv().getRecentPlan(index);
+	String scriptName = Luv.getLuv().getRecentScript(index);
          
-	if (planName != null) {
+	if (planName != null) 
+        {
             File plan = new File(planName);
             loadPlan(plan);
-            if (scriptName != null && !scriptName.equals(UNKNOWN)) {
+            
+            if (scriptName != null && !scriptName.equals(UNKNOWN)) 
+            {
                 script = new File(scriptName);
+                
                 if (script.exists())
                     loadScript(script);
                 else
-		    {
-			script = searchForScript();
-		    }                 
+                    script = searchForScript();                
             }
-            else {
+            else 
+            {
                 script = searchForScript();
             }
 
@@ -392,24 +397,17 @@ public class FileHandler
             InputSource is = new InputSource(input);
             XMLReader parser = XMLReaderFactory.createXMLReader();
             parser.setContentHandler(ch);
-	    try {
-            parser.parse(is);
-         }
-         catch (InterruptedIOException ie)
-         {
-             Luv.getLuv().showStatus("Canceled loading plan"); 
-         }
+            parser.parse(is);          
 	}
-         catch (Exception e)
-         {
-            JOptionPane.showMessageDialog(
-					  Luv.getLuv(),
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(Luv.getLuv(),
 					  "Error parsing XML message.  See debug window for details.",
 					  "Parse Error",
 					  JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
 	    return null;
 	}
+        
 	return ch.getPlan();
     }
       
@@ -422,7 +420,6 @@ public class FileHandler
 		// if we didn't make the link, ask user for library
 
 		if (retry) {
-		    // option
 
 		    Object[] options = 
 			{
@@ -489,7 +486,10 @@ public class FileHandler
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating script. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          "Error locating script. Please see Debug Window.", 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
             out.println("Error: " + e.getMessage());
 	} 
           
@@ -540,7 +540,7 @@ public class FileHandler
         return listOfDirectories;
     }
     
-    private void createEmptyScript(String path) throws IOException 
+    private File createEmptyScript(String path) throws IOException 
     {
 	Object[] options = 
 	    {
@@ -572,14 +572,18 @@ public class FileHandler
                 out.write(EMPTY_SCRIPT);
                 out.close();                          
                 Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
-                break;
+                return new File(scriptName);
             case 1:
-                dontLoadScriptAgain = true;
+                doNotLoadScript = true;
                 chooseScript();
-                break;
+                return null;
             case 2:
+                doNotLoadScript = true;
                 Luv.getLuv().readyState();
-                break;                    
+                return null;                    
         }
+        
+        
+        return null;
     }
 }

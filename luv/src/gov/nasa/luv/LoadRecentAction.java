@@ -48,7 +48,7 @@ public class LoadRecentAction extends LuvAction
 
     public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
     {
-       super(Luv.getLuv().getRecentPlanName(recentIndex),
+       super(Luv.getLuv().getRecentPlanName(recentIndex) + " + " + Luv.getLuv().getRecentScriptName(recentIndex),
              Luv.getLuv().getRecentMenuDescription(recentIndex),
              keyCode, 
              modifiers);
@@ -68,24 +68,33 @@ public class LoadRecentAction extends LuvAction
            try 
            {
                Luv.getLuv().stopExecution();
-               JOptionPane.showMessageDialog(Luv.getLuv(), "Stopping execution and loading a recent plan", "Stopping Execution", JOptionPane.INFORMATION_MESSAGE);
+               JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                             "Stopping execution and loading a recent plan", 
+                                             "Stopping Execution", 
+                                             JOptionPane.INFORMATION_MESSAGE);
            }
            catch (IOException ex) 
            {
-               JOptionPane.showMessageDialog(Luv.getLuv(), "Error loading recent plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+               JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                             "Error loading recent plan. Please see Debug Window.", 
+                                             "Error", 
+                                             JOptionPane.ERROR_MESSAGE);
                System.err.println("Error: " + ex.getMessage());
            }
        }
      
        try 
        {
-           Luv.getLuv().getFileHandler().loadRecentPlan(recentIndex);
+           Luv.getLuv().getFileHandler().loadRecentRun(recentIndex);
            
            Luv.getLuv().openPlanState();
        } 
        catch (IOException ex) 
        {
-          JOptionPane.showMessageDialog(Luv.getLuv(), "Error loading recent plan. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                        "Error loading recent plan. Please see Debug Window.", 
+                                        "Error", 
+                                        JOptionPane.ERROR_MESSAGE);
           System.err.println("Error: " + ex.getMessage());
        }        
     }

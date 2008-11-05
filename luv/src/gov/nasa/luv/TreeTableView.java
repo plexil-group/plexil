@@ -346,7 +346,7 @@ public class TreeTableView extends JTreeTable implements View
       
       public void resetConditionWindow(Model model, String name)
       {
-          ConditionsWindow.resetGUI(model, name);
+          ConditionsWindow.resetGUI(model, name + " Conditions");
       }
       
       public void closeConditionWindow()

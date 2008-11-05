@@ -47,15 +47,15 @@ public class Model extends Properties
      * thing this model represents.  All other features of the model
      * are stored in properties and children. */
 
-    private String type = "<type undefined>";
+    private String type = UNKNOWN;
       
-    private String pathToNode = "";
+    private String pathToNode = UNKNOWN;
 
-    private String modelName = "";
+    private String modelName = UNKNOWN;
     
-    private String planName = "";
+    private String planName = UNKNOWN;
     
-    private String scriptName = "";
+    private String scriptName = UNKNOWN;
 
     private LinkedHashSet<String> libraryFiles = new LinkedHashSet<String>();
 
@@ -105,12 +105,14 @@ public class Model extends Properties
     public void setPathToNode()
     {
 	Model node = this;
+        
+        pathToNode = "";
           
 	while (node.parent != null && !node.parent.isRoot())
-	    {
-		pathToNode += "--->" + node.parent.modelName;
-		node = node.parent;
-	    }
+        {
+            pathToNode += "--->" + node.parent.modelName;
+            node = node.parent;
+        }
           
 	pathToNode = modelName + pathToNode;
     }
@@ -138,7 +140,7 @@ public class Model extends Properties
     
     public String getPlanNameSansPath()
     {
-        if (!planName.equals(""))
+        if (!planName.equals(UNKNOWN))
             return planName.substring(planName.lastIndexOf("/") + 1, planName.length());
         else
             return planName;
@@ -146,7 +148,7 @@ public class Model extends Properties
 
     public String getScriptNameSansPath()
     {
-        if (!scriptName.equals(""))
+        if (!scriptName.equals(UNKNOWN))
             return scriptName.substring(scriptName.lastIndexOf("/") + 1, scriptName.length());
         else
             return scriptName;
@@ -202,8 +204,8 @@ public class Model extends Properties
 	    return false;
 	if (!pathToNode.equals(other.pathToNode))
 	    return false;
-        if (!super.equals(other)) // compare properties
-	    return false;
+        //if (!super.equals(other)) // compare properties
+	    //return false;
 	if (!childrenEquivalent(other))
 	    return false;
 	return true;
@@ -535,7 +537,16 @@ public class Model extends Properties
         }
         
 	return s.toString();
-    }                       
+    }   
+    
+    public void resetMainAttributesOfAllNodes()
+    {
+        this.setMainAttributesOfNode();
+        for (Model child : this.getChildren())
+        {
+            child.resetMainAttributesOfAllNodes();
+        }
+    }
             
     public void setMainAttributesOfNode()
     {
