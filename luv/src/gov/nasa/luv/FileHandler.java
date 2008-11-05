@@ -222,14 +222,12 @@ public class FileHandler
             option = fileChooser.showOpenDialog(Luv.getLuv());
             
             switch (option) {
-	    case APPROVE_OPTION:
-                {
-		    File script = fileChooser.getSelectedFile();
-		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-		    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
-		    loadScript(script);
-		    break;
-                }
+                case APPROVE_OPTION:
+                    File script = fileChooser.getSelectedFile();
+                    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
+                    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
+                    loadScript(script);
+                    break;
             }
 	}
 	catch(Exception e) {
@@ -575,8 +573,10 @@ public class FileHandler
                 return new File(scriptName);
             case 1:
                 doNotLoadScript = true;
-                chooseScript();
-                return null;
+                if (chooseScript() == APPROVE_OPTION)
+                    return new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_BASE));
+                else
+                    return null;
             case 2:
                 doNotLoadScript = true;
                 Luv.getLuv().readyState();
