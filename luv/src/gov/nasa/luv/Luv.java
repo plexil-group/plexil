@@ -764,6 +764,7 @@ public class Luv extends JFrame
         
         String planName = currentPlan.getPlanName();
         String scriptName = currentPlan.getScriptName();
+        String libDirectory = properties.getProperty(PROP_FILE_RECENT_LIB_DIR);
         
         String currPlan = planName;
         String currScript = scriptName;
@@ -779,6 +780,7 @@ public class Luv extends JFrame
                 {
                     planName = (String)properties.setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
                     scriptName = (String)properties.setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
+                    libDirectory = (String)properties.setProperty(PROP_FILE_RECENT_LIB_DIR + i, libDirectory);
                     
                     // if this run already existed in the list, we can stop
 
