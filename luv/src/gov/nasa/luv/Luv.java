@@ -469,6 +469,8 @@ public class Luv extends JFrame
         luvBreakPointHandler.removeAllBreakPoints();
         
         currentPlan.resetMainAttributesOfAllNodes();
+        
+        currentPlan.addScriptName(UNKNOWN);
 
         if (TreeTableView.getCurrent() != null &&
             TreeTableView.getCurrent().isConditionWindowOpen())
