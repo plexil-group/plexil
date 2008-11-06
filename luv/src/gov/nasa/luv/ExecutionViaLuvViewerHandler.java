@@ -86,6 +86,8 @@ public class ExecutionViaLuvViewerHandler
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
+            
+            Luv.getLuv().finishedExecutionState();
          }
       }
       
@@ -133,6 +135,8 @@ public class ExecutionViaLuvViewerHandler
                                                 "Error reported by the Universal Executive. Please see Debug Window.", 
                                                 "Error", 
                                                 JOptionPane.ERROR_MESSAGE);
+                  
+                  Luv.getLuv().finishedExecutionState();
               }
 
               isMessage += "\n" + line;
@@ -155,6 +159,8 @@ public class ExecutionViaLuvViewerHandler
                                             JOptionPane.ERROR_MESSAGE);
 
               System.out.println("\n" + errMessage);
+              
+              Luv.getLuv().finishedExecutionState();
           }
       }
 }
