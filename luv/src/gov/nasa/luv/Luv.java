@@ -380,6 +380,8 @@ public class Luv extends JFrame
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
+        //this.setVisible(true); // this brings the main window to the front in case you have other windows open
+        
         // set only certain luv viewer variables
           
 	planPaused = false;
@@ -607,6 +609,8 @@ public class Luv extends JFrame
             else
                 TreeTableView.getCurrent().closeConditionWindow();
         }
+        
+        this.setVisible(true); // this brings the main Luv window to the front in case you have other windows open
     }
     
     public void enableRemoveBreaksMenuItem(boolean value)
