@@ -1208,7 +1208,7 @@ public class Luv extends JFrame
     LuvAction allowBreaksAction =
 	new LuvAction(ENABLE_BREAKS,
 		      "Select this to allow breakpoints.",
-		      VK_F11)
+		      VK_F5)
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
@@ -1245,7 +1245,7 @@ public class Luv extends JFrame
     LuvAction execAction = 
 	new LuvAction(EXECUTE_PLAN, 
 		      "Execute currently loaded plan.",
-		      VK_F12)
+		      VK_F6)
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
