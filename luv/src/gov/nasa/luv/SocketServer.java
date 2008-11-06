@@ -31,6 +31,7 @@ import java.net.Socket;
 
 import gov.nasa.luv.SocketWranglerFactory;
 import gov.nasa.luv.SocketWrangler;
+import javax.swing.JOptionPane;
 
 /** Functions as a server for data streams over a TCP socket.
  * For each incoming connection, accepts the socket,
@@ -78,6 +79,11 @@ public class SocketServer
 	    }
 	}
 	catch (Exception e) {
+            JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          "Error handling connection to server. Please see Debug Window.", 
+                                          "Error", 
+                                           JOptionPane.ERROR_MESSAGE);
+            
 	    e.printStackTrace();
 	}
     }

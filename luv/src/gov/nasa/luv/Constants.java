@@ -298,6 +298,8 @@ public class Constants
       public static final String    PROP_USER_HOME = "user.home";
       public static final String    PROP_FILE_SEPARATOR = "file.separator";
       
+      public static final String    UE_TERMINATE_EXEC_MESSAGE = "Terminated              $prog -p $plan -s $script -d $debug_file $* $viewer $host $port $block";
+      
       public static final String    TEST_EXEC = "test-exec_g_rt";
       
       public static final String    PROP_UE_EXEC =        

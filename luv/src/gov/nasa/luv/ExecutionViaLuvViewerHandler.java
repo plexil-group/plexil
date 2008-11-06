@@ -91,7 +91,8 @@ public class ExecutionViaLuvViewerHandler
                           errMessage += line + "\n";
                       }
                       
-                      if (!errMessage.equals(""))
+                      if (!errMessage.equals("") &&
+                          !errMessage.contains(UE_TERMINATE_EXEC_MESSAGE))
                       {
                           JOptionPane.showMessageDialog(Luv.getLuv(), 
                                                         "Error reported by the Universal Executive. Please see Debug Window.", 
