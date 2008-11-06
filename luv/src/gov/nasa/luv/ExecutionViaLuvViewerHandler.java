@@ -26,16 +26,8 @@
 
 package gov.nasa.luv;
 
-import java.awt.Color;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.swing.JOptionPane;
-
-import java.sql.*;
 import java.io.*;
-import java.util.*;
-
+import javax.swing.JOptionPane;
 
 import static gov.nasa.luv.Constants.*;
 
@@ -61,46 +53,9 @@ public class ExecutionViaLuvViewerHandler
                   try
                   {
                       runtime = Runtime.getRuntime();
-                      Process p = runtime.exec(command);
+                      Process ue_process = runtime.exec(command);
                       
-                      BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                      BufferedReader err = new BufferedReader(new InputStreamReader(p.getErrorStream()));                    
-                      String line;
-                      String isMessage = "";
-                      String errMessage = "";
-                      
-                       // display standard output from process (may contain an error message from UE)
-                      while ((line = is.readLine()) != null)
-                      {
-                          if (line.contains("Error"))
-                          {
-                              JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                                            "Error reported by the Universal Executive. Please see Debug Window.", 
-                                                            "Error", 
-                                                            JOptionPane.ERROR_MESSAGE);
-                          }
-                          
-                          isMessage += "\n" + line;
-                      }
-                      
-                      System.out.println(isMessage);
-                      
-                      // display standard error message from process if any
-                      while ((line = err.readLine()) != null)
-                      {                                     
-                          errMessage += line + "\n";
-                      }
-                      
-                      if (!errMessage.equals("") &&
-                          !errMessage.contains(UE_TERMINATE_EXEC_MESSAGE))
-                      {
-                          JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                                        "Error reported by the Universal Executive. Please see Debug Window.", 
-                                                        "Error", 
-                                                        JOptionPane.ERROR_MESSAGE);
-                          
-                          System.out.println("\n" + errMessage);
-                      }
+                      displayProcessMessagesToDebugWindow(ue_process);                                          
                   }
                   catch(Exception e)
                   {
@@ -159,5 +114,47 @@ public class ExecutionViaLuvViewerHandler
                 
               Luv.getLuv().finishedExecutionState();
             }
+      }
+      
+      private void displayProcessMessagesToDebugWindow(Process ue_process) throws IOException
+      {
+          BufferedReader is = new BufferedReader(new InputStreamReader(ue_process.getInputStream()));
+          BufferedReader err = new BufferedReader(new InputStreamReader(ue_process.getErrorStream()));                    
+          String line;
+          String isMessage = "";
+          String errMessage = "";
+
+           // display standard output from process (may contain an error message from UE)
+          while ((line = is.readLine()) != null)
+          {
+              if (line.contains("Error"))
+              {
+                  JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                                "Error reported by the Universal Executive. Please see Debug Window.", 
+                                                "Error", 
+                                                JOptionPane.ERROR_MESSAGE);
+              }
+
+              isMessage += "\n" + line;
+          }
+
+          System.out.println(isMessage);
+
+          // display standard error message from process if any
+          while ((line = err.readLine()) != null)
+          {                                     
+              errMessage += line + "\n";
+          }
+
+          if (!errMessage.equals("") &&
+              !errMessage.contains(UE_TERMINATE_EXEC_MESSAGE))
+          {
+              JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                            "Error reported by the Universal Executive. Please see Debug Window.", 
+                                            "Error", 
+                                            JOptionPane.ERROR_MESSAGE);
+
+              System.out.println("\n" + errMessage);
+          }
       }
 }

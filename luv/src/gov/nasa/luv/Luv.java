@@ -72,6 +72,8 @@ public class Luv extends JFrame
     private static LuvBreakPointHandler         luvBreakPointHandler          = new LuvBreakPointHandler();        // handles all break points
     private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer and not a terminal
     private static ViewHandler                  viewHandler                   = new ViewHandler();                 // handles all file operations
+    
+    // Luv Viewer Menus
       
     private JMenu fileMenu                = new JMenu("File");  
     private JMenu recentRunMenu           = new JMenu("Recent Runs");
@@ -142,17 +144,9 @@ public class Luv extends JFrame
 
 	theLuv = this;
 
-	// app exits when frame is closed
-
-	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 	// construct the frame
          
-	constructFrame(getContentPane());    
-         
-	// create title
-         
-	setTitle();
+	constructFrame(getContentPane());   
          
          // luv will be in this state only when you first start it (minimal options available)
          
@@ -165,46 +159,52 @@ public class Luv extends JFrame
 
     }
 
-
     // Called from PlexilPlanHandler::endElement(),
     // which will be invoked by both Luv (directly)
     // and the exec (via the Luv listener stream)
     public void handleNewPlan(Model plan)
     {
-	// check if plan is a duplicate
 	// *** N.B. This depends on the fact that new plans are always added at the end
 	Model other = Model.getRoot().findChildByName(plan.getModelName());
-	if (plan == other) {
-	    // it's really new
+        
+	if (plan == other) 
+        {
+	    // brand new 'plan' loaded
 	}
-	else if (plan.equivalent(other)) {
-	    // it's a duplicate, ignore
+	else if (plan.equivalent(other)) 
+        {
+	    // same 'plan' loaded, so use 'other' previous plan
+            
 	    Model.getRoot().removeChild(plan);
 	    plan = other;
 	}
-	else {
-	    // it has same name as original, new one supersedes
+	else 
+        {
+	    // new 'plan' has same root name as 'other' previous plan, but new 'plan' supersedes
+            
 	    Model.getRoot().removeChild(other);
 	}
 
-	if (!plan.equivalent(currentPlan)) {
+	if (plan != currentPlan) 
+        {           
             currentPlan = plan;
-	    Model.getRoot().planChanged();            
+	    Model.getRoot().planChanged();
             viewHandler.focusView(currentPlan);
 	}
-        
-        setTitle();
 
-        if (isExecuting) {
+        if (isExecuting) 
+        {
             executionState();
-            addRunToRecentRunList();  // save plan and script to recent run list
+            addRunToRecentRunList();
 	}
                         
 	refreshConditionWindow();
+        setTitle();
                         
 	// Determine if the Luv Viewer should pause before executing. 
                                                   
-	if (isExecuting && allowBreaks) {
+	if (isExecuting && allowBreaks) 
+        {
 	    pausedState(); 
 	    runMenu.setEnabled(true);
 	}
@@ -351,11 +351,6 @@ public class Luv extends JFrame
  
 	updateBlockingMenuItems();
         
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
-        
         if (isExecuting)
             runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
         else
@@ -380,14 +375,11 @@ public class Luv extends JFrame
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {
-        //this.setVisible(true); // this brings the main window to the front in case you have other windows open
-        
         // set only certain luv viewer variables
           
 	planPaused = false;
 	planStep = false;	 
-	isExecuting = false;
-        
+	isExecuting = false;        
         fileHandler.setStopSearchForMissingLibs(false);
   
 	// set certain menu items
@@ -401,12 +393,7 @@ public class Luv extends JFrame
 	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
 	fileMenu.setEnabled(true);
  
-	updateBlockingMenuItems();
-        
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);   
+	updateBlockingMenuItems();  
         
         runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);      
         
@@ -458,11 +445,6 @@ public class Luv extends JFrame
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);     
         
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
-        
         runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
         
         if (allowBreaks) 
@@ -508,35 +490,18 @@ public class Luv extends JFrame
     
     public void pausedState()
     {
-	allowBreaks = true;
-	planPaused = true;
+ 	planPaused = true;
 	planStep = false;
           
-	// *** modify these? see updateBlockingMenuItems()
-	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
-	runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
-        
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+	updateBlockingMenuItems();
     }
       
     public void stepState()
     {
-	allowBreaks = true;
-	isExecuting = true;
 	planPaused = false;
 	planStep = true;
           
-	// *** modify these? see updateBlockingMenuItems()
-	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
-	runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
-        
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+	updateBlockingMenuItems();
     }
 
     //
@@ -546,22 +511,19 @@ public class Luv extends JFrame
     public void disabledBreakingState()
     {
 	allowBreaks = false;
-	luvBreakPointHandler.removeAllBreakpointsAction.actionPerformed(null);
+        
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
-	updateBlockingMenuItems();
-        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+        
+	updateBlockingMenuItems();        
     }
       
     public void enabledBreakingState()
     {
 	allowBreaks = true;
-	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
-	updateBlockingMenuItems();
         
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
+        
+	updateBlockingMenuItems();
     }
 
     //* Modify the state of certain menu items based on whether the exec is running and whether it blocks.
@@ -573,8 +535,8 @@ public class Luv extends JFrame
 	if (isExecuting) {
 	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
 	    if (allowBreaks) {
-		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(allowBreaks);
-		runMenu.getItem(STEP_MENU_ITEM).setEnabled(allowBreaks);
+		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
+		runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
 	    }
 	    else {
 		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
@@ -586,6 +548,11 @@ public class Luv extends JFrame
 	    runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
 	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(true);
 	}
+        
+        if (luvBreakPointHandler.breakpointsExist())
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+        else
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
     }
 
       
@@ -622,6 +589,10 @@ public class Luv extends JFrame
   
     public void constructFrame(Container frame)
     {
+        // app exits when frame is closed
+        
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
 	// set layout and background color
 
 	setLayout(new BorderLayout());
@@ -670,6 +641,8 @@ public class Luv extends JFrame
 		    luvDebugWindowAction.actionPerformed(null);   
 		}
 	    });
+            
+        setTitle();
                 
 	// make the frame visible
          
