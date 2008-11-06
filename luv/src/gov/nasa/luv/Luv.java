@@ -231,7 +231,7 @@ public class Luv extends JFrame
 					    pauseAction.getAcceleratorDescription() +
 					    " to resume, or " + 
 					    stepAction.getAcceleratorDescription() +
-					    " to step.",
+					    " to step",
 					    Color.GRAY);
 
 	    luvBreakPointHandler.clearBreakPoint();
@@ -413,7 +413,7 @@ public class Luv extends JFrame
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
 
-	showStatus("Execution stopped.", Color.BLUE);
+	showStatus("Execution stopped", Color.BLUE);
 
     }
       
@@ -479,7 +479,20 @@ public class Luv extends JFrame
         readyState();
     }
     
-    private void reloadPlanState()
+    public void loadRecentRunState()
+    {
+        luvBreakPointHandler.removeAllBreakPoints();
+        
+        currentPlan.resetMainAttributesOfAllNodes();
+
+        if (TreeTableView.getCurrent() != null &&
+            TreeTableView.getCurrent().isConditionWindowOpen())
+            TreeTableView.getCurrent().closeConditionWindow();                
+
+        readyState();
+    }
+    
+    public void reloadPlanState()
     {
         currentPlan.resetMainAttributesOfAllNodes();
         
@@ -1267,7 +1280,7 @@ public class Luv extends JFrame
 		if (isExecuting) {
 		    planPaused = !planPaused;
 
-		    statusMessageHandler.showStatus((planPaused ? "Pause" : "Resume") + " requested.", 
+		    statusMessageHandler.showStatus((planPaused ? "Pause" : "Resume") + " requested", 
 						    Color.BLACK, 
 						    1000);
 
@@ -1292,11 +1305,11 @@ public class Luv extends JFrame
 		if (isExecuting) {
 		    if (!planPaused) {
 			pausedState();
-			statusMessageHandler.showStatus("Pause requested.", Color.BLACK, 1000);
+			statusMessageHandler.showStatus("Pause requested", Color.BLACK, 1000);
 		    }
 		    else {
 			stepState();
-			statusMessageHandler.showStatus("Step plan.", Color.BLACK, 1000);
+			statusMessageHandler.showStatus("Step plan", Color.BLACK, 1000);
 		    }
 		}                     
 	    }

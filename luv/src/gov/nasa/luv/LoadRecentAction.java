@@ -87,7 +87,7 @@ public class LoadRecentAction extends LuvAction
        {
            Luv.getLuv().getFileHandler().loadRecentRun(recentIndex);
            
-           Luv.getLuv().openPlanState();
+           Luv.getLuv().loadRecentRunState();
        } 
        catch (IOException ex) 
        {

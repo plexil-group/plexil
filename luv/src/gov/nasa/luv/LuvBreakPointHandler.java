@@ -101,7 +101,7 @@ public class LuvBreakPointHandler
              Luv.getLuv().getViewHandler().refreshView();       
          }
          else
-             Luv.getLuv().showStatus("\"" + breakPoint + "\" breakpoint has already been added.", Color.RED, 5000l);
+             Luv.getLuv().showStatus("\"" + breakPoint + "\" breakpoint has already been added", Color.RED, 5000l);
       }
 
       /** Remove breakpoint from grand list of breakpoints.
