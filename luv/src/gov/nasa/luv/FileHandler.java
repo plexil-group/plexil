@@ -524,15 +524,15 @@ public class FileHandler
         listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "script" + System.getProperty(PROP_FILE_SEPARATOR));
         
         String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
-        path += path.substring(0, path.lastIndexOf('/') + 1);
+        path = path.substring(0, path.lastIndexOf('/') + 1);
         listOfDirectories.add(path);
         
         path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
-        path += path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty(PROP_FILE_SEPARATOR);
+        path = path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty(PROP_FILE_SEPARATOR);
         listOfDirectories.add(path);
         
         path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
-        path += path.substring(0, path.lastIndexOf('/') + 1) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR);
+        path = path.substring(0, path.lastIndexOf('/') + 1) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR);
         listOfDirectories.add(path);      
        
         return listOfDirectories;
