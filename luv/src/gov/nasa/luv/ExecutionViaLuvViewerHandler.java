@@ -92,7 +92,14 @@ public class ExecutionViaLuvViewerHandler
                       }
                       
                       if (!errMessage.equals(""))
+                      {
+                          JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                                        "Error reported by the Universal Executive. Please see Debug Window.", 
+                                                        "Error", 
+                                                        JOptionPane.ERROR_MESSAGE);
+                          
                           System.out.println("\n" + errMessage);
+                      }
                   }
                   catch(Exception e)
                   {
