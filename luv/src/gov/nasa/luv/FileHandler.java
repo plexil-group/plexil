@@ -219,7 +219,7 @@ public class FileHandler
 	int option = -1;
 	try {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR)));
-            option = fileChooser.showOpenDialog(Luv.getLuv());
+            option = fileChooser.showDialog(dirChooser, "Open Script");
             
             switch (option) {
                 case APPROVE_OPTION:
@@ -244,16 +244,16 @@ public class FileHandler
 	int option = -1;
 	try {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)));
-            option = fileChooser.showOpenDialog(Luv.getLuv());
+            option = fileChooser.showDialog(dirChooser, "Open Plan");
             
             switch (option) {
-	    case APPROVE_OPTION:
-		File plan = fileChooser.getSelectedFile();
-                Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
-                Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
-		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
-                loadPlan(plan);		
-		break;
+                case APPROVE_OPTION:
+                    File plan = fileChooser.getSelectedFile();
+                    Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
+                    Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
+                    Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
+                    loadPlan(plan);		
+                    break;
             }           
 	}
 	catch(Exception e) {
@@ -277,7 +277,7 @@ public class FileHandler
             
             fileChooser.setCurrentDirectory(new File(recent));
 
-            if (fileChooser.showOpenDialog(Luv.getLuv()) == APPROVE_OPTION) {
+            if (fileChooser.showDialog(dirChooser, "Open Library") == APPROVE_OPTION) {
 		File library = fileChooser.getSelectedFile();
 		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
 		return library.getAbsolutePath();
