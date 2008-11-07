@@ -41,8 +41,6 @@ import java.util.Vector;
 
 public class Constants
 {    
-      // Luv Viewer version
-      public static final String LUV_VERSION_NUM = "0.8.1";
       
       /** indicates that no accelerator key is used */
 
@@ -68,7 +66,7 @@ public class Constants
 
       /// node icon file names
 
-      public static final String    ABOUT_SCREEN_ICO = "LuvIcon.gif";
+      public static final String    ABOUT_SCREEN_ICO  = "LuvIcon.gif";
       public static final String    START_SCREEN_ICO  = "LuvIcon6.gif";
       public static final String    NODELIST_ICO_NAME = "nodelist_node.gif";
       public static final String    COMMAND_ICO_NAME  = "command_node.gif";

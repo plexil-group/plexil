@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
+import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
@@ -1023,6 +1024,24 @@ public class Luv extends JFrame
 	}
 	return result;
     }
+    
+    public void openAboutWindow()
+    {   
+        String info = 
+                "Product:   Luv Viewer Version 1.0 beta 4\n" + 
+                "Website:   http://plexil.wiki.sourceforge.net/Luv\n" + 
+                "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" + 
+                "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
+                "Userdir:    " + System.getProperty("user.dir") + "\n";
+        
+        ImageIcon icon = getIcon(ABOUT_LOGO);
+        
+        JOptionPane.showMessageDialog(Luv.getLuv(),
+						  info,
+						  "About Luv Viewer", 
+                                                  JOptionPane.INFORMATION_MESSAGE,
+                                                  icon);
+    }
       
       
     /***************** List of Actions ********************/
@@ -1171,29 +1190,7 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
-                if (AboutWindow.isAboutWindowOpen())
-                {
-                    AboutWindow.closeAboutWindow();
-                }
-                else
-                {
-                    try 
-                    {
-                        AboutWindow.openAboutWindow();
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(theLuv,
-						      "Error opening About Window. Please see Debug Window.",
-						      "Error",
-						      JOptionPane.ERROR_MESSAGE);
-                        System.err.println("Error: " + ex.getMessage());
-                    } catch (InterruptedException ex) {
-                        JOptionPane.showMessageDialog(theLuv,
-						      "Error opening About Window. Please see Debug Window.",
-						      "Error",
-						      JOptionPane.ERROR_MESSAGE);
-                        System.err.println("Error: " + ex.getMessage());
-                    }
-                }
+                openAboutWindow();
 	    }
 	};
          
