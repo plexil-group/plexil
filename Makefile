@@ -2,6 +2,10 @@
 
 default: all
 
+corba: 
+	$(MAKE) all
+	@ cd CORBA; jam
+
 all:
 	@ cd universal-exec; jam
 	@ cd luv; ant jar
