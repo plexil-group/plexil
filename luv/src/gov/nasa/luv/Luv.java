@@ -45,6 +45,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Vector;
 import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
 
@@ -535,7 +538,18 @@ public class Luv extends JFrame
         
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
         
-	updateBlockingMenuItems();        
+        setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
+        
+        Set<BreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
+        
+        for (BreakPoint bp : breakPoints)
+        {
+            bp.setEnabled(allowBreaks);
+        }
+        
+        viewHandler.refreshView();
+        
+	updateBlockingMenuItems();
     }
       
     public void enabledBreakingState()
@@ -543,6 +557,17 @@ public class Luv extends JFrame
 	allowBreaks = true;
         
 	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
+        
+        setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
+        
+        Set<BreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
+        
+        for (BreakPoint bp : breakPoints)
+        {
+            bp.setEnabled(allowBreaks);
+        }
+        
+        viewHandler.refreshView();
         
 	updateBlockingMenuItems();
     }

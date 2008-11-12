@@ -309,7 +309,7 @@ public class LuvBreakPointHandler
          
          final Vector<BreakPoint> bps = getBreakPoints(model);
 
-         // if we got any add enabele/disabel & remove item for each one
+         // if we got any add enable/disable & remove item for each one
 
          if (bps.size() > 0)
          {
@@ -389,7 +389,7 @@ public class LuvBreakPointHandler
       
       /** Action to enable all breakpoints. */
 
-      LuvAction enableBreakpointsAction = new LuvAction(
+    /*  LuvAction enableBreakpointsAction = new LuvAction(
          "Enable All Break Points", 
          "Enable every breakpoint in the system.",
          VK_B, META_MASK)
@@ -404,7 +404,7 @@ public class LuvBreakPointHandler
          
       /** Action to disable all breakpoints. */
 
-      LuvAction disableBreakpointsAction = new LuvAction(
+     /* LuvAction disableBreakpointsAction = new LuvAction(
          "Disable All Break Points", 
          "Disable every breakpoint in the system.",
          VK_B, META_MASK | SHIFT_MASK)
@@ -419,7 +419,7 @@ public class LuvBreakPointHandler
 
       /** Action to remove all breakpoints. */
 
-      LuvAction removeAllBreakpointsAction = new LuvAction(
+     /* LuvAction removeAllBreakpointsAction = new LuvAction(
          "Remove All Break Points", 
          "Permanently remove all breakpoint from the system.")
          {
@@ -427,5 +427,5 @@ public class LuvBreakPointHandler
                {
                   removeAllBreakPoints();
                }
-         };
+         };*/
 }
