@@ -33,11 +33,11 @@ import javax.swing.JPopupMenu;
 
 import java.util.Vector;
 import java.util.HashMap;
+import java.util.Map;
 
 import java.awt.event.ActionEvent;
 
 import static gov.nasa.luv.Constants.*;
-import static java.awt.event.KeyEvent.*;
 
 public class LuvBreakPointHandler 
 {
@@ -165,6 +165,27 @@ public class LuvBreakPointHandler
                      return model.getModelName();
                   }
          };
+      }
+      
+      // map all the breakpoints into the new model
+      
+      public void mapBreakPointsToNewModel(Model model)
+      {
+	    getUnfoundBreakPoints().clear();
+         
+	    for (Map.Entry<BreakPoint, ModelPath> pair: getBreakPointMap().entrySet()) 
+            {
+		BreakPoint bp = pair.getKey();
+		ModelPath path = pair.getValue();
+
+		Model target = path.find(model);
+		if (target != null)
+                {
+                    bp.setModel(target);
+		}
+		else
+		    getUnfoundBreakPoints().add(bp);
+	    }
       }
 
       /** Create a breakpoint which fires when the model state
@@ -384,48 +405,4 @@ public class LuvBreakPointHandler
                bps.add(bp);
          return bps;
       }
-      
-      /******************************* Actions ********************************/
-      
-      /** Action to enable all breakpoints. */
-
-    /*  LuvAction enableBreakpointsAction = new LuvAction(
-         "Enable All Break Points", 
-         "Enable every breakpoint in the system.",
-         VK_B, META_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  for (BreakPoint bp: breakPointMap.keySet())
-                     bp.setEnabled(true);
-                  Luv.getLuv().getViewHandler().refreshView();
-               }
-         };
-         
-      /** Action to disable all breakpoints. */
-
-     /* LuvAction disableBreakpointsAction = new LuvAction(
-         "Disable All Break Points", 
-         "Disable every breakpoint in the system.",
-         VK_B, META_MASK | SHIFT_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  for (BreakPoint bp: breakPointMap.keySet())
-                     bp.setEnabled(false);
-                  Luv.getLuv().getViewHandler().refreshView();
-               }
-         };
-
-      /** Action to remove all breakpoints. */
-
-     /* LuvAction removeAllBreakpointsAction = new LuvAction(
-         "Remove All Break Points", 
-         "Permanently remove all breakpoint from the system.")
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  removeAllBreakPoints();
-               }
-         };*/
 }

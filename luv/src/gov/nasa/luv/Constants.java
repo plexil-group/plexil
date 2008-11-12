@@ -330,7 +330,8 @@ public class Constants
       public static final String EXECUTE_PLAN = "Execute Plan";
       public static final String STOP_EXECUTION = "Stop Execution";
  
-      //File menu
+      // file menu
+      
       public static final int OPEN_PLAN_MENU_ITEM           = 0;
       public static final int OPEN_SCRIPT_MENU_ITEM         = 1;
       public static final int OPEN_RECENT_MENU_ITEM         = 2;
@@ -338,6 +339,7 @@ public class Constants
       public static final int EXIT_MENU_ITEM                = 5;    
       
       // run menu
+      
       public static final int PAUSE_RESUME_MENU_ITEM        = 0;
       public static final int STEP_MENU_ITEM                = 1;
       public static final int BREAK_MENU_ITEM               = 2;      
@@ -348,8 +350,7 @@ public class Constants
               
       public static final int EXPAND_MENU_ITEM              = 0;
       public static final int COLLAPSE_MENU_ITEM            = 1;
-      public static final int TOGGLE_TEXT_TYPES_MENU_ITEM   = 2;
-      public static final int TOGGLE_LISP_NODES_MENU_ITEM   = 3;
+      public static final int TOGGLE_LISP_NODES_MENU_ITEM   = 2;
       
       // debug menu
 

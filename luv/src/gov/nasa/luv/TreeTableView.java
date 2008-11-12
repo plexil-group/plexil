@@ -650,7 +650,6 @@ public class TreeTableView extends JTreeTable implements View
             {
                expandAll,
                collapseAll,
-               showNodeType,
             };
          return actions;
       }
@@ -674,20 +673,6 @@ public class TreeTableView extends JTreeTable implements View
                public void actionPerformed(ActionEvent e)
                {
                   collapseAllNodes();
-               }
-         };
-
-      /** Action to fully collapse tree. */
-
-      LuvAction showNodeType = new LuvAction(
-         "Toggle Node Text Types", "Show node types as icons or text.",
-         VK_N, META_MASK)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                  showTextTypes = !showTextTypes;
-                  tree.setLargeModel(true);
-                  repaint();
                }
          };
 }

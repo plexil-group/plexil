@@ -133,31 +133,19 @@ public class ViewHandler
     public void focusView(Model model)
     {
 	// create a new instance of the view only if necessary
-	if (model == null) {
+	if (model == null) 
+        {
 	    // do not setView
 	}
-	else if (model == currentModel) {
+	else if (model == currentModel) 
+        {
 	    // no change required
 	}
-	else {
+	else 
+        {
 	    currentModel = model;
 	    setView(new TreeTableView("", model));
-
-	    // map all the breakpoints into the new model
-
-	    Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().clear();
-         
-	    for (Map.Entry<BreakPoint, ModelPath> pair: Luv.getLuv().getLuvBreakPointHandler().getBreakPointMap().entrySet()) {
-		BreakPoint breakPoint = pair.getKey();
-		ModelPath path = pair.getValue();
-
-		Model target = path.find(model);
-		if (target != null) {
-			breakPoint.setModel(target);
-		    }
-		else
-		    Luv.getLuv().getLuvBreakPointHandler().getUnfoundBreakPoints().add(breakPoint);
-	    }
+            Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
 	}
     }
 

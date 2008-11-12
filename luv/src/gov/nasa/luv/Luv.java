@@ -45,9 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
-import java.util.HashMap;
 import java.util.Set;
-import java.util.Vector;
 import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
 
@@ -76,7 +74,7 @@ public class Luv extends JFrame
     private static LuvBreakPointHandler         luvBreakPointHandler          = new LuvBreakPointHandler();        // handles all break points
     private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer and not a terminal
     private static ViewHandler                  viewHandler                   = new ViewHandler();                
-    private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();             
+    private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();
     
     // Luv Viewer Menus
       
@@ -118,7 +116,7 @@ public class Luv extends JFrame
     
     // the current model
 
-    private Model currentPlan = null;
+    private Model currentPlan = new Model("dummy");
 
     // entry point for this program
 
@@ -148,6 +146,11 @@ public class Luv extends JFrame
 	// record instance of self
 
 	theLuv = this;
+
+        // this allows for the view menu to populate even if no plan is loaded
+        // otherwise its oddly empty
+        
+        viewHandler.focusView(currentPlan);
 
 	// construct the frame
          
@@ -330,6 +333,10 @@ public class Luv extends JFrame
           
 	updateBlockingMenuItems();
 	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
+        runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+        runMenu.setEnabled(true);
+        
+        viewMenu.setEnabled(true);
           
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
@@ -370,7 +377,6 @@ public class Luv extends JFrame
 	if (viewMenu.getMenuComponentCount() > 0) {
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
 	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-	    viewMenu.getItem(TOGGLE_TEXT_TYPES_MENU_ITEM).setEnabled(true);
 	    viewMenu.getItem(TOGGLE_LISP_NODES_MENU_ITEM).setEnabled(true); 
 	    viewMenu.setEnabled(true);
 	}
@@ -412,7 +418,6 @@ public class Luv extends JFrame
 	    {
 		viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
 		viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-		viewMenu.getItem(TOGGLE_TEXT_TYPES_MENU_ITEM).setEnabled(true);
 		viewMenu.getItem(TOGGLE_LISP_NODES_MENU_ITEM).setEnabled(true); 
 		viewMenu.setEnabled(true);
 	    }
@@ -757,10 +762,10 @@ public class Luv extends JFrame
  
 	// disable all view menu elements if there are any
 
-	if (viewMenu.getMenuComponentCount() > 0) {
+	if (viewMenu.getMenuComponentCount() > 0) 
+        {
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(false);
 	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
-	    viewMenu.getItem(TOGGLE_TEXT_TYPES_MENU_ITEM).setEnabled(false);
 	    viewMenu.getItem(TOGGLE_LISP_NODES_MENU_ITEM).setEnabled(false);              
 	}
 	viewMenu.setEnabled(false);
