@@ -26,6 +26,8 @@
 #ifndef RESPONSE_MESSAGE_HH
 #define RESPONSE_MESSAGE_HH
 
+#include <string>
+
 class ResponseMessage
 {
 public:
