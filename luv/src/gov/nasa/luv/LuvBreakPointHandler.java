@@ -332,7 +332,7 @@ public class LuvBreakPointHandler
 
          // if we got any add enable/disable & remove item for each one
 
-         if (bps.size() > 0)
+         if (bps.size() > 0 && !Luv.getLuv().getIsExecuting())
          {
             // add the breakpoints
 

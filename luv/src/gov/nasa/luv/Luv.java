@@ -577,33 +577,38 @@ public class Luv extends JFrame
 	updateBlockingMenuItems();
     }
 
-    //* Modify the state of certain menu items based on whether the exec is running and whether it blocks.
+    // Modify the state of certain menu items based on whether the exec is running and whether it blocks.
 
     private void updateBlockingMenuItems()
     {
         // Pause/resume not useful if exec isn't listening
             
-	if (isExecuting) {
-	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
-	    if (allowBreaks) {
+	if (isExecuting) 
+        {            
+	    if (allowBreaks) 
+            {
 		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(true);
 		runMenu.getItem(STEP_MENU_ITEM).setEnabled(true);
 	    }
-	    else {
+	    else 
+            {
 		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
 		runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
 	    }
+            runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
 	}
-	else {
+	else 
+        {
 	    runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
 	    runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
-	    runMenu.getItem(BREAK_MENU_ITEM).setEnabled(true);
-	}
-        
-        if (luvBreakPointHandler.breakpointsExist())
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
-        else
-            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+            runMenu.getItem(BREAK_MENU_ITEM).setEnabled(true);
+            
+            if (luvBreakPointHandler.breakpointsExist())
+                runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(true);
+            else
+                runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+	}      
     }
 
       
@@ -1286,14 +1291,17 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
-		if (!isExecuting) {
+		if (!isExecuting) 
+                {
 		    allowBreaks = !allowBreaks;
 
-		    if (allowBreaks) {
+		    if (allowBreaks) 
+                    {
 			enabledBreakingState();
                         statusMessageHandler.showStatus("Enabled breaks", Color.GREEN.darker(), 1000);
 		    }
-		    else {
+		    else 
+                    {
 			disabledBreakingState();
                         statusMessageHandler.showStatus("Disabled breaks", Color.RED, 1000);
 		    }
