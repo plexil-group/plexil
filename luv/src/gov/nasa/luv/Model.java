@@ -203,11 +203,25 @@ public class Model extends Properties
 	if (!type.equals(other.type))
 	    return false;
 	if (!pathToNode.equals(other.pathToNode))
-	    return false;
+	    return false;        
         //if (!super.equals(other)) // compare properties
 	    //return false;
 	if (!childrenEquivalent(other))
-	    return false;
+	    return false;        
+        if (libraryFiles.size() != other.libraryFiles.size())
+            return false;
+        else
+        {
+            Iterator itr1 = libraryFiles.iterator();
+            Iterator itr2 = other.libraryFiles.iterator();
+            
+            while(itr1.hasNext() && itr2.hasNext())
+            {
+                if (!itr1.next().equals(itr2.next()))
+                    return false;
+            }
+        }
+        
 	return true;
     }
 
@@ -350,9 +364,11 @@ public class Model extends Properties
 
     public void addLibraryName(String libraryName)
     {
-	libraryFiles.add(libraryName);
-	for (int i = 0; i < changeListeners.size(); ++i)
-            changeListeners.get(i).libraryNameAdded(this, libraryName);
+	if (libraryFiles.add(libraryName))
+        {
+            for (int i = 0; i < changeListeners.size(); ++i)
+                changeListeners.get(i).libraryNameAdded(this, libraryName);
+        }
     }
 
     /** Get a list of library names recorded in this model.
@@ -559,6 +575,22 @@ public class Model extends Properties
 	setProperty(MODEL_TYPE, polishedtype);
 	setProperty(MODEL_OUTCOME, UNKNOWN);
 	setProperty(MODEL_STATE, INACTIVE);
+        
+        setProperty(SKIP_CONDITION, UNKNOWN);                     
+        setProperty(START_CONDITION, UNKNOWN);               
+        setProperty(END_CONDITION, UNKNOWN); 
+        setProperty(INVARIANT_CONDITION, UNKNOWN); 
+        setProperty(PRE_CONDITION, UNKNOWN); 
+        setProperty(POST_CONDITION, UNKNOWN); 
+        setProperty(REPEAT_CONDITION, UNKNOWN); 
+        setProperty(ANCESTOR_INVARIANT_CONDITION, UNKNOWN); 
+        setProperty(ANCESTOR_END_CONDITION, UNKNOWN);        
+        setProperty(PARENT_EXECUTING_CONDITION, UNKNOWN);    
+        setProperty(PARENT_FINISHED_CONDITION, UNKNOWN);    
+        setProperty(CHILDREN_WAITING_OR_FINISHED, UNKNOWN); 
+        setProperty(ABORT_COMPLETE, UNKNOWN);           
+        setProperty(PARENT_WAITING_CONDITION, UNKNOWN);         
+        setProperty(COMMAND_HANDLE_RECEIVED_CONDITION, UNKNOWN); 
     }
             
     /** Add a property change listener to this model. 

@@ -29,10 +29,6 @@ package gov.nasa.luv;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import gov.nasa.luv.SocketWranglerFactory;
-import gov.nasa.luv.SocketWrangler;
-import javax.swing.JOptionPane;
-
 /** Functions as a server for data streams over a TCP socket.
  * For each incoming connection, accepts the socket,
  * and hands it off to a new instance of a SocketWrangler
@@ -71,20 +67,18 @@ public class SocketServer
 
     public void accept(int port)
     {
-	try {
+	try 
+        {
 	    ServerSocket ss = new ServerSocket(port);
 
-	    while (true) {
+	    while (true) 
+            {
 		handleConnection(ss.accept());
 	    }
 	}
-	catch (Exception e) {
-            JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                          "Error handling connection to server. Please see Debug Window.", 
-                                          "Error", 
-                                           JOptionPane.ERROR_MESSAGE);
-            
-	    e.printStackTrace();
+	catch (Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error handling connection to server");
 	}
     }
 

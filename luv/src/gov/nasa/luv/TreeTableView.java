@@ -319,7 +319,7 @@ public class TreeTableView extends JTreeTable implements View
           boolean valid = true;         
           
           if (node.conditionMap != null && !node.conditionMap.isEmpty())
-              ConditionsWindow.createAndShowGUI(node, nodeName + " Conditions");
+              Luv.getLuv().getConditionsWindow().createAndShowGUI(node, nodeName + " Conditions");
           else
               valid = false;             
           
@@ -341,17 +341,17 @@ public class TreeTableView extends JTreeTable implements View
       
       public boolean isConditionWindowOpen()
       {
-          return ConditionsWindow.isConditionsWindowOpen(); 
+          return Luv.getLuv().getConditionsWindow().isConditionsWindowOpen(); 
       }
       
       public void resetConditionWindow(Model model, String name)
       {
-          ConditionsWindow.resetGUI(model, name + " Conditions");
+          Luv.getLuv().getConditionsWindow().resetGUI(model, name + " Conditions");
       }
       
       public void closeConditionWindow()
       {
-          ConditionsWindow.closeConditonsWindow();
+          Luv.getLuv().getConditionsWindow().closeConditonsWindow();
       }
 
       /** Focus has been disabled for this view.  This way the view

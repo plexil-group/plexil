@@ -72,7 +72,8 @@ public class Luv extends JFrame
     private static StatusMessageHandler         statusMessageHandler          = new StatusMessageHandler();        // handles all status messages
     private static LuvBreakPointHandler         luvBreakPointHandler          = new LuvBreakPointHandler();        // handles all break points
     private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer and not a terminal
-    private static ViewHandler                  viewHandler                   = new ViewHandler();                 // handles all file operations
+    private static ViewHandler                  viewHandler                   = new ViewHandler();                
+    private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();             
     
     // Luv Viewer Menus
       
@@ -186,7 +187,7 @@ public class Luv extends JFrame
 	    Model.getRoot().removeChild(other);
 	}
 
-	if (plan != currentPlan) 
+	if (!plan.equivalent(currentPlan))
         {           
             currentPlan = plan;
 	    Model.getRoot().planChanged();
@@ -250,6 +251,8 @@ public class Luv extends JFrame
     }
       
     public ViewHandler            getViewHandler()            { return viewHandler; }             // get current view handler
+    
+    public ConditionsWindow       getConditionsWindow()       { return conditionsWindow; }        // get current conditions window
 
     public FileHandler            getFileHandler()            { return fileHandler; }             // get current file handler
       
@@ -339,6 +342,8 @@ public class Luv extends JFrame
         
         setTitle();
         
+        luvBreakPointHandler.clearBreakPoint();
+        
 	// set certain menu items
           
 	execAction.putValue(NAME, EXECUTE_PLAN);
@@ -375,7 +380,7 @@ public class Luv extends JFrame
 
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
-    {
+    {        
         // set only certain luv viewer variables
           
 	planPaused = false;
@@ -435,7 +440,7 @@ public class Luv extends JFrame
       
     public void executionState()
     {
-	isExecuting = true;
+        isExecuting = true;
           
 	showStatus("Executing...", Color.GREEN.darker());
         
@@ -458,11 +463,13 @@ public class Luv extends JFrame
           
     public void stopExecutionState() throws IOException
     {
+        executionViaLuvViewerHandler.killUEProcess();
+        
         showStatus("Canceling execution...", Color.lightGray);
         
 	planPaused = false;
         planStep = false;
-	executionViaLuvViewerHandler.killUEProcess();
+	
     }
     
     public void openPlanState()
@@ -497,9 +504,7 @@ public class Luv extends JFrame
     {
         currentPlan.resetMainAttributesOfAllNodes();
         
-        if (TreeTableView.getCurrent() != null && 
-            TreeTableView.getCurrent().isConditionWindowOpen())
-            refreshConditionWindow();
+        refreshConditionWindow();
 
         readyState();
     }
@@ -956,6 +961,10 @@ public class Luv extends JFrame
             {
                 command += " " + currentPlan.getScriptName(); 
             }
+            else if (fileHandler.searchForScript() != null)
+            {
+                command += " " + currentPlan.getScriptName();
+            }
             else
                 return "Error: unable to identify script.";
         }
@@ -997,27 +1006,61 @@ public class Luv extends JFrame
 
 	return command;
     }
+    
+    public void displayErrorMessage(Exception e, String errorMessage)
+    {
+        if (e != null)
+        {
+            JOptionPane.showMessageDialog(theLuv, 
+                                          errorMessage + ". Please see Debug Window.", 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
+
+            System.err.println("Error: " + e.getMessage());
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(theLuv, 
+                                          errorMessage, 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
+
+            System.err.println(errorMessage);
+        }
+        
+        finishedExecutionState();
+    }
+    
+    public void displayInfoMessage(String infoMessage)
+    {
+        JOptionPane.showMessageDialog(theLuv,
+                                      infoMessage,
+                                      "Stopping Execution",
+                                      JOptionPane.INFORMATION_MESSAGE);
+    }
 
     public Model findLibraryNode(String name, boolean askUser) throws InterruptedIOException
     {
 	Model result = Model.getRoot().findChildByName(name);
 
-	if (result == null) {
-	    if (askUser) {
+	if (result == null ||
+            !(new File(result.getPlanName()).exists())) 
+        {
+	    if (askUser) 
+            {
 		// Prompt user for a file containing the missing library, and (try to) load it
 		File library = null;
-		try {
+		try 
+                {
 		    library = fileHandler.searchForLibrary(name);
 		}
-		catch (InterruptedIOException e) {
-                    JOptionPane.showMessageDialog(theLuv, 
-                                                  "Error finding library node. Please see Debug Window.", 
-                                                  "Error", 
-                                                  JOptionPane.ERROR_MESSAGE);
-			    System.err.println("Error: " + e.getMessage());
+		catch (InterruptedIOException e) 
+                {
+                    displayErrorMessage(e, "Error finding library node");
 		}
 
-		if (library != null) {
+		if (library != null) 
+                {
 		    result = Model.getRoot().findChildByName(name);
 		}
 	    }
@@ -1036,11 +1079,11 @@ public class Luv extends JFrame
         
         ImageIcon icon = getIcon(ABOUT_LOGO);
         
-        JOptionPane.showMessageDialog(Luv.getLuv(),
-						  info,
-						  "About Luv Viewer", 
-                                                  JOptionPane.INFORMATION_MESSAGE,
-                                                  icon);
+        JOptionPane.showMessageDialog(theLuv,
+				      info,
+                                      "About Luv Viewer",
+                                      JOptionPane.INFORMATION_MESSAGE,
+                                      icon);
     }
       
       
@@ -1059,22 +1102,19 @@ public class Luv extends JFrame
 		// Loading done in the file handler at present
 		int option = fileHandler.choosePlan();
 
-		if (option == APPROVE_OPTION) {
+		if (option == APPROVE_OPTION) 
+                {
 		    // Do these things only if we loaded a plan
-		    if (isExecuting) {
-			try {
+		    if (isExecuting) 
+                    {
+			try 
+                        {
 			    stopExecutionState();
-			    JOptionPane.showMessageDialog(theLuv, 
-                                                          "Stopping execution and opening a new plan", 
-                                                          "Stopping Execution", 
-                                                          JOptionPane.INFORMATION_MESSAGE);
+                            displayInfoMessage("Stopping execution and opening a new plan");
 			}
-			catch (IOException ex) {
-			    JOptionPane.showMessageDialog(theLuv, 
-                                                          "Error stopping execution. Please see Debug Window.", 
-                                                          "Error", 
-                                                          JOptionPane.ERROR_MESSAGE);
-			    System.err.println("Error: " + ex.getMessage());
+			catch (IOException ex) 
+                        {
+                            displayErrorMessage(ex, "Error stopping execution");
 			}
 		    } 
                     
@@ -1094,21 +1134,18 @@ public class Luv extends JFrame
 	    public void actionPerformed(ActionEvent e)
 	    {
 		int option = fileHandler.chooseScript();
-		if (option == APPROVE_OPTION) {
-		    if (isExecuting) {
-			try {
+		if (option == APPROVE_OPTION) 
+                {
+		    if (isExecuting) 
+                    {                     
+			try 
+                        {
 			    stopExecutionState();
-			    JOptionPane.showMessageDialog(theLuv,
-							  "Stopping execution and opening script",
-							  "Stopping Execution",
-							  JOptionPane.INFORMATION_MESSAGE);
+                            displayInfoMessage("Stopping execution and opening a new script");
 			}
-			catch (IOException ex) {                       
-			    JOptionPane.showMessageDialog(theLuv,
-							  "Error stopping execution. Please see Debug Window.",
-							  "Error",
-							  JOptionPane.ERROR_MESSAGE);
-			    System.err.println("Error: " + ex.getMessage());
+			catch (IOException ex) 
+                        {                       
+			    displayErrorMessage(ex, "Error stopping execution");
 			}
 		    }
                     
@@ -1125,39 +1162,55 @@ public class Luv extends JFrame
 		      VK_R, 
 		      META_MASK)
 	{
-	    public void actionPerformed(ActionEvent e)
+	    public void actionPerformed(ActionEvent e) 
 	    {
-		if (isExecuting) {
-		    try {
+		if (isExecuting) 
+                {
+		    try 
+                    {
 			stopExecutionState();
-			JOptionPane.showMessageDialog(theLuv,
-						      "Stopping execution and reloading plan",
-						      "Stopping Execution",
-						      JOptionPane.INFORMATION_MESSAGE);
+                        displayInfoMessage("Stopping execution and reloading plan");
 		    }
-		    catch (IOException ex) {
-			JOptionPane.showMessageDialog(theLuv,
-						      "Error reloading plan. Please see Debug Window.",
-						      "Error",
-						      JOptionPane.ERROR_MESSAGE);
-			System.err.println("Error: " + ex.getMessage());
+		    catch (IOException ex) 
+                    {
+                        displayErrorMessage(ex, "Error reloading plan");
 		    }
 		}               
 
                 if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN))
-                {                  
+                {   
+                    // reload plan
+                    
                     fileHandler.loadPlan(new File(currentPlan.getPlanName()));
-                    if (!currentPlan.getScriptName().equals(UNKNOWN))
-                        fileHandler.loadScript(new File(currentPlan.getScriptName()));
+    
+                    try 
+                    {
+                        // reload script if possible
+                        
+                        if (currentPlan != null &&
+                            currentPlan.getScriptName() != null &&
+                            !currentPlan.getScriptName().equals(UNKNOWN))
+                        {
+                            if (new File(currentPlan.getScriptName()).exists())
+                            {
+                                fileHandler.loadScript(new File(currentPlan.getScriptName())); 
+                            }
+                            else
+                                fileHandler.searchForScript(); 
+                        }
+                        else 
+                            fileHandler.searchForScript();
+                    }
+                    catch (IOException ex)
+                    {
+                        displayErrorMessage(ex, "Error: unable to identify script.");
+                    }
+                    
                     reloadPlanState(); 
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(theLuv,
-                                                  "Error: unable to identify plan.",
-                                                  "Error",
-                                                  JOptionPane.ERROR_MESSAGE);
-                    System.err.println("Error: unable to identify plan.");
+                    displayErrorMessage(null, "Error: unable to identify plan.");
                 }
 
 	    }
@@ -1240,31 +1293,33 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e)
 	    {
-                try {
+                try 
+                {
 
-                    if (!isExecuting) {
+                    if (!isExecuting) 
+                    {
                         preExecutionState();
                         String command = createCommandLine();
-                        if (!command.contains("Error")) {                           
+                        if (!command.contains("Error")) 
+                        {                           
                             executionViaLuvViewerHandler.runExec(command);
 			}
-                        else {
-                            JOptionPane.showMessageDialog(theLuv, command, "Error", JOptionPane.ERROR_MESSAGE);
+                        else 
+                        {
+                            displayErrorMessage(null, command);
                             showStatus("Stopped execution", Color.lightGray, 1000);
                             readyState();
                         }
                     }
-                    else {                       
+                    else 
+                    {                       
                         stopExecutionState();
                     }
                     
                 } 
-		catch (IOException ex) {
-                    JOptionPane.showMessageDialog(theLuv,
-						  "Error executing plan. Please see Debug Window.",
-						  "Error", 
-						  JOptionPane.ERROR_MESSAGE);
-                    System.err.println("Error: " + ex.getMessage());
+		catch (IOException ex) 
+                {
+                    displayErrorMessage(ex, "Error executing plan");
                 }
 	    }
 	};

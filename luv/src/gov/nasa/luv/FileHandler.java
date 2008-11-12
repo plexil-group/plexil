@@ -42,7 +42,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import static gov.nasa.luv.Constants.*;
-import static java.lang.System.*;
 import static javax.swing.JFileChooser.*;
 
 public class FileHandler 
@@ -217,21 +216,22 @@ public class FileHandler
     public int chooseScript()
     {
 	int option = -1;
-	try {
+	try 
+        {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR)));
-            option = fileChooser.showDialog(dirChooser, "Open Script");
             
-            switch (option) {
-                case APPROVE_OPTION:
+            if (fileChooser.showDialog(dirChooser, "Open Script") == APPROVE_OPTION)
+            {
                     File script = fileChooser.getSelectedFile();
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
                     loadScript(script);
-                    break;
+                    return APPROVE_OPTION;
             }
 	}
-	catch(Exception e) {
-            e.printStackTrace();
+	catch(Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error choosing script");
 	}
          
 	return option;
@@ -241,26 +241,28 @@ public class FileHandler
       
     public int choosePlan()
     {
-	int option = -1;
-	try {
+	try 
+        {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)));
-            option = fileChooser.showDialog(dirChooser, "Open Plan");
             
-            switch (option) {
-                case APPROVE_OPTION:
+            if (fileChooser.showDialog(dirChooser, "Open Plan") == APPROVE_OPTION)
+            {
                     File plan = fileChooser.getSelectedFile();
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
-                    loadPlan(plan);		
-                    break;
-            }           
+                    loadPlan(plan);
+                    return APPROVE_OPTION;
+            }  
+            else
+                return -1;
 	}
-	catch(Exception e) {
-            e.printStackTrace();
+	catch(Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error choosing plan");
 	}
          
-	return option;
+	return -1;
     }  
           
     /**
@@ -270,21 +272,24 @@ public class FileHandler
       
     public String chooseLibrary()
     {
-	try {
+	try 
+        {
             String recent = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
             if (recent == null)
 		recent = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
             
             fileChooser.setCurrentDirectory(new File(recent));
 
-            if (fileChooser.showDialog(dirChooser, "Open Library") == APPROVE_OPTION) {
+            if (fileChooser.showDialog(dirChooser, "Open Library") == APPROVE_OPTION) 
+            {
 		File library = fileChooser.getSelectedFile();
 		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
 		return library.getAbsolutePath();
             }
 	}
-	catch(Exception e) {
-            e.printStackTrace();
+	catch(Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error choosing library");
 	}
          
 	return null;
@@ -300,9 +305,9 @@ public class FileHandler
     {          
 	if (script != null)
         {
-            Luv.getLuv().showStatus("Loading script "  + script, 50);
+            Luv.getLuv().showStatus("Loading script "  + script, 1000);
             if (Luv.getLuv().getCurrentPlan() != null)
-                Luv.getLuv().getCurrentPlan().addScriptName(script.toString());
+                Luv.getLuv().getCurrentPlan().addScriptName(script.getAbsolutePath());
         }
     }
 
@@ -348,8 +353,6 @@ public class FileHandler
             {
                 script = searchForScript();
             }
-
-	    Luv.getLuv().readyState();
 	}
     }   
       
@@ -364,21 +367,17 @@ public class FileHandler
     {
 	Model result = null;
         
-        Luv.getLuv().showStatus("Loading "  + file);
+        Luv.getLuv().showStatus("Loading "  + file, 1000);
         
-	try {
+	try 
+        {
             result = parseXml(new FileInputStream(file));
 	}
-	catch(Exception e) {
-            JOptionPane.showMessageDialog(
-					  Luv.getLuv(),
-					  "Error loading: " + file.getName() + 
-					  "  See debug window for details.",
-					  "Parse Error",
-					  JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+	catch(Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error loading: " + file.getName());
 	}
-	Luv.getLuv().clearStatus();
+        
 	return result;
     }
 
@@ -391,18 +390,16 @@ public class FileHandler
     private Model parseXml(InputStream input)
     {
 	PlexilPlanHandler ch = new PlexilPlanHandler();
-	try {
+	try 
+        {
             InputSource is = new InputSource(input);
             XMLReader parser = XMLReaderFactory.createXMLReader();
             parser.setContentHandler(ch);
             parser.parse(is);          
 	}
-        catch (Exception e) {
-            JOptionPane.showMessageDialog(Luv.getLuv(),
-					  "Error parsing XML message.  See debug window for details.",
-					  "Parse Error",
-					  JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+        catch (Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error parsing XML message");
 	    return null;
 	}
         
@@ -428,8 +425,7 @@ public class FileHandler
 		    // show the options
 
 		    Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
-		    int result = JOptionPane.showOptionDialog(
-							      Luv.getLuv(),
+		    int result = JOptionPane.showOptionDialog(Luv.getLuv(),
 							      "Unable to locate the \"" + callName + "\" library.\n\n" +
 							      "What do you want to do?\n\n",
 							      "Load the library?",
@@ -484,11 +480,7 @@ public class FileHandler
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                          "Error locating script. Please see Debug Window.", 
-                                          "Error", 
-                                          JOptionPane.ERROR_MESSAGE);
-            out.println("Error: " + e.getMessage());
+            Luv.getLuv().displayErrorMessage(e, "Error locating script");
 	} 
           
 	return null;

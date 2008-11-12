@@ -31,8 +31,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.EOFException;
 
-import javax.swing.JOptionPane;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -58,11 +56,7 @@ public class LuvSocketWrangler
 	    os = s.getOutputStream();
 	}
 	catch (Exception e) {
-	    JOptionPane.showMessageDialog(Luv.getLuv(),
-					  "Error initializing socket.  See debug window for details.",
-					  "Internal Error",
-					  JOptionPane.ERROR_MESSAGE);
-	    e.printStackTrace();
+            Luv.getLuv().displayErrorMessage(e, "Error initializing socket");
 	    return;
 	}
 
@@ -71,15 +65,13 @@ public class LuvSocketWrangler
 	
 	// set up an XML reader
 	XMLReader parser;
-	try {
+	try 
+        {
 	    parser = XMLReaderFactory.createXMLReader();
 	}
-	catch (Exception e) {
-	    JOptionPane.showMessageDialog(Luv.getLuv(),
-					  "Error initializing XML reader.  See debug window for details.",
-					  "Internal Error",
-					  JOptionPane.ERROR_MESSAGE);
-	    e.printStackTrace();
+	catch (Exception e) 
+        {
+            Luv.getLuv().displayErrorMessage(e, "Error initializing XML reader");
 	    return;
 	}
 
@@ -94,36 +86,31 @@ public class LuvSocketWrangler
 	    }
 	    // The stream wrapper signals an EOFException when the wrapped stream hits EOF.
 	    // This would be a good place to notify viewer that execution is complete.
-	    catch (EOFException e) {
-		try {
+	    catch (EOFException e) 
+            {
+		try 
+                {
 		    socketIn.close();
 		}
-		catch (Exception f) {
-		    JOptionPane.showMessageDialog(Luv.getLuv(),
-						  "Error closing Exec input stream.  See debug window for details.",
-						  "Internal Error",
-						  JOptionPane.ERROR_MESSAGE);
-		    f.printStackTrace();
+		catch (Exception f) 
+                {
+                    Luv.getLuv().displayErrorMessage(f, "Error closing Universal Executive input stream");
 		}
 		    
 		Luv.getLuv().finishedExecutionState();
                 
 		break;
 	    }
-	    catch (Exception e) {
+	    catch (Exception e) 
+            {
                 
                 /* Dont need to notify the user of this error usually???
                  * 
                  * Error: Lost connection to server process. Typically caused when a client was disconnected because 
-                   the user canceled plan execution while the client is stll receiving a message from the Universal 
-                   Executive and not enough buffer space was reserved for the unsent portion of the message.
-                 
-		JOptionPane.showMessageDialog(Luv.getLuv(),
-					      "Error parsing XML message.  See debug window for details.",
-					      "Parse Error",
-					      JOptionPane.ERROR_MESSAGE);
-                        
-		e.printStackTrace();
+                 * the user canceled plan execution while the client is stll receiving a message from the Universal 
+                 * Executive and not enough buffer space was reserved for the unsent portion of the message.
+                 * 
+                 * Luv.getLuv().displayErrorMessage(e, "Error parsing XML message");
                  */
                 
                 Luv.getLuv().finishedExecutionState();
@@ -139,12 +126,9 @@ public class LuvSocketWrangler
 		try {
 		    os.write(END_OF_MESSAGE);
 		}
-		catch (Exception e) {
-		    JOptionPane.showMessageDialog(Luv.getLuv(),
-						  "Error acknowledging message from Exec.  See debug window for details.",
-						  "Internal Error",
-						  JOptionPane.ERROR_MESSAGE);
-		    e.printStackTrace();
+		catch (Exception e) 
+                {
+                    Luv.getLuv().displayErrorMessage(e, "Error acknowledging message from the Universal Executive");
 		    break;
 		}
 	    }

@@ -31,7 +31,6 @@
  import org.xml.sax.Attributes;
  import java.util.Stack;
 
- import javax.swing.JOptionPane;
  import static gov.nasa.luv.Constants.*;
 
  /** SAX PlexilPlan XML handler */
@@ -147,20 +146,21 @@
 	 String text = getTweenerText();
 
 	 try 
-	     {
-		 assignTweenerText(nodeToUpdate, tagName, text);
-	     } 
+         {
+             assignTweenerText(nodeToUpdate, tagName, text);
+         } 
 	 catch (InterruptedIOException ex) 
-	     {
-		 JOptionPane.showMessageDialog(Luv.getLuv(), "Error locating library. Please see Debug Window.", "Error", JOptionPane.ERROR_MESSAGE);
-		 System.err.println("Error: " + ex.getMessage());
-	     }
+         {
+             Luv.getLuv().displayErrorMessage(ex, "Error locating library");
+         }
 
 	 // assign model name and path to the appropriate model
 
-	 if (topNode != null && text != null) {
+	 if (topNode != null && text != null) 
+         {
 	     topNode.setProperty(tagName, text);
-	     if (tagName == NODE_ID) {
+	     if (tagName.equals(NODE_ID)) 
+             {
 		 topNode.setModelName(text);
 		 topNode.setPathToNode();
 	     }
@@ -192,18 +192,18 @@
     public void catchStartTag(String tagName)
     {
 	if (tagName.equals(LIBRARYNODECALL))
-	    {
-		libraryNodeCall = true;
-	    }
+        {
+            libraryNodeCall = true;
+        }
 	else if (tagName.contains(CONDITION))
-	    {
-		recordCondition = true;     
-		recordEQ = recordNE = recordArray = lookupChange = lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow = false;
-		lessThan = greaterThan = lessThanEqual = greaterThanEqual = false;
-		save = conditionEquation = "";
-		equationHolder.clear();
-		lookupArguments.clear();
-	    }  
+        {
+            recordCondition = true;     
+            recordEQ = recordNE = recordArray = lookupChange = lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow = false;
+            lessThan = greaterThan = lessThanEqual = greaterThanEqual = false;
+            save = conditionEquation = "";
+            equationHolder.clear();
+            lookupArguments.clear();
+        }  
 
 	if (recordCondition)
 	    recordStartConditionInfo(tagName);

@@ -226,12 +226,6 @@ public class Constants
 
             put(MODEL_ENABLED_BREAKPOINTS,          Color.RED);
             put(MODEL_DISABLED_BREAKPOINTS,         Color.ORANGE);
-            
-            // condition value colors
-            
-            put(FALSE,        Color.RED);
-            put(TRUE,         Color.GREEN);
-            put("inf",        Color.YELLOW.darker());
          }
       };
 

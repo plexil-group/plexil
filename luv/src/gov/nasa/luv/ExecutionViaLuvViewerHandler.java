@@ -27,7 +27,6 @@
 package gov.nasa.luv;
 
 import java.io.*;
-import javax.swing.JOptionPane;
 
 import static gov.nasa.luv.Constants.*;
 
@@ -59,14 +58,8 @@ public class ExecutionViaLuvViewerHandler
                   }
                   catch(Exception e)
                   {
-                     JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                                   "Error executing plan. Please see Debug Window.", 
-                                                   "Error", 
-                                                   JOptionPane.ERROR_MESSAGE);
-                     e.printStackTrace();
-                     
-                     Luv.getLuv().finishedExecutionState();
-                 }
+                      Luv.getLuv().displayErrorMessage(e, "Error executing plan");
+                  }
               }
           };
       }
@@ -81,13 +74,7 @@ public class ExecutionViaLuvViewerHandler
          }
          catch (Exception e)
          {
-            JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                          "Error starting the Universal Executive. Please see Debug Window.", 
-                                          "Error", 
-                                          JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            
-            Luv.getLuv().finishedExecutionState();
+             Luv.getLuv().displayErrorMessage(e, "Error starting the Universal Executive");
          }
       }
       
@@ -107,15 +94,8 @@ public class ExecutionViaLuvViewerHandler
           }
           catch (IOException e) 
           {
-              JOptionPane.showMessageDialog(Luv.getLuv(),
-		                            "Error: unable to kill " + TEST_EXEC + " process. Please see Debug Window.",
-                                            "Error", 
-			                    JOptionPane.ERROR_MESSAGE);
-                
-              System.err.println("Error: Failed using the following command:\n\n   " + kill_ue.toString() + "\n\n" + e.getMessage());
-                
-              Luv.getLuv().finishedExecutionState();
-            }
+              Luv.getLuv().displayErrorMessage(e, "Error: unable to kill " + TEST_EXEC + " process");
+          }
       }
       
       private void displayProcessMessagesToDebugWindow(Process ue_process) throws IOException
@@ -131,12 +111,7 @@ public class ExecutionViaLuvViewerHandler
           {
               if (line.contains("Error"))
               {
-                  JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                                "Error reported by the Universal Executive. Please see Debug Window.", 
-                                                "Error", 
-                                                JOptionPane.ERROR_MESSAGE);
-                  
-                  Luv.getLuv().finishedExecutionState();
+                  Luv.getLuv().displayErrorMessage(null, "Error reported by the Universal Executive");
               }
 
               isMessage += "\n" + line;
@@ -153,14 +128,9 @@ public class ExecutionViaLuvViewerHandler
           if (!errMessage.equals("") &&
               !errMessage.contains(UE_TERMINATE_EXEC_MESSAGE))
           {
-              JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                            "Error reported by the Universal Executive. Please see Debug Window.", 
-                                            "Error", 
-                                            JOptionPane.ERROR_MESSAGE);
+              Luv.getLuv().displayErrorMessage(null, "Error reported by the Universal Executive");
 
               System.out.println("\n" + errMessage);
-              
-              Luv.getLuv().finishedExecutionState();
           }
       }
 }

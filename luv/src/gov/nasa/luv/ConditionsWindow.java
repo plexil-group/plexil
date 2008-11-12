@@ -46,9 +46,9 @@ public class ConditionsWindow extends JPanel
 {
     
     private Model model;
-    private static String status = UNKNOWN;
-    private static JFrame frame;
-    private static ConditionsWindow conditionsPane;
+    private String status = UNKNOWN;
+    private JFrame frame;
+    private ConditionsWindow conditionsPane;
     private int rows = 1000;
     private int columns = 3;
     private String info[][];
@@ -57,13 +57,13 @@ public class ConditionsWindow extends JPanel
     private HashMap nodeConditions;
     private ArrayList elements;
     
-    public ConditionsWindow(Model model, String save) 
+    public ConditionsWindow() {}
+    
+    public ConditionsWindow(Model model) 
     {       
         super(new GridLayout(1,0));
         
         this.model = model;
-        
-        status = save;
 
         String[] columnNames = {"Conditions",
                                 "Value",
@@ -167,7 +167,7 @@ public class ConditionsWindow extends JPanel
         add(scrollPane);
     }
     
-    public String getConditionValue(String condition)
+    private String getConditionValue(String condition)
     {
         if (model.getProperty(condition) == null)
             status = UNKNOWN;
@@ -183,12 +183,12 @@ public class ConditionsWindow extends JPanel
         return status;
     }
     
-    public static ConditionsWindow getCurrentWindow()
+    public ConditionsWindow getCurrentWindow()
     {
         return conditionsPane;
     }
     
-    public static boolean isConditionsWindowOpen()
+    public boolean isConditionsWindowOpen()
     {
         if (frame != null)
             return frame.isVisible();
@@ -196,18 +196,18 @@ public class ConditionsWindow extends JPanel
             return false;
     }
     
-    public static void closeConditonsWindow()
+    public void closeConditonsWindow()
     {
         frame.setVisible(false);
     }
 
-    public static void createAndShowGUI(Model model, String nodeName) 
+    public void createAndShowGUI(Model model, String nodeName) 
     {       
         if (frame != null)
             frame.setVisible(false);
         frame = new JFrame(nodeName);
 
-        conditionsPane = new ConditionsWindow(model, status);
+        conditionsPane = new ConditionsWindow(model);
         conditionsPane.setOpaque(true);
         frame.setContentPane(conditionsPane);
         frame.setBounds(20, 20, 1200, 500);
@@ -216,11 +216,11 @@ public class ConditionsWindow extends JPanel
         frame.setVisible(true);
     }
     
-    public static void resetGUI(Model model, String nodeName)
+    public void resetGUI(Model model, String nodeName)
     {
         frame.setTitle(nodeName);
         
-        conditionsPane = new ConditionsWindow(model, status);
+        conditionsPane = new ConditionsWindow(model);
         conditionsPane.setOpaque(true); 
         frame.setContentPane(conditionsPane);
 

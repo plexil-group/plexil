@@ -30,8 +30,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import javax.swing.JOptionPane;
-
 import java.util.HashMap;
 
 import static gov.nasa.luv.Constants.*;
@@ -106,12 +104,8 @@ public class DispatchHandler extends DefaultHandler
             
             if (currentHandler == null)
             {
-               JOptionPane.showMessageDialog(
-                  null,
-                  "Unhandled XML tag: <" + localName + ">." +
-                  "  See debug window for details.",
-                  "Parse Error",
-                  JOptionPane.ERROR_MESSAGE);
+               Luv.getLuv().displayErrorMessage(null, "Unhandled XML tag: <" + localName + ">");
+
                throw(new Error("Unhandled XML tag: <" + localName + ">."));
             }
             

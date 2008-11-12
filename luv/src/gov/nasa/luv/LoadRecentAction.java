@@ -29,7 +29,6 @@ package gov.nasa.luv;
 import java.awt.event.ActionEvent;
 
 import java.io.IOException;
-import javax.swing.JOptionPane;
 
 /** Action to load a recent plan. */
 
@@ -68,18 +67,11 @@ public class LoadRecentAction extends LuvAction
            try 
            {
                Luv.getLuv().stopExecutionState();
-               JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                             "Stopping execution and loading a recent plan", 
-                                             "Stopping Execution", 
-                                             JOptionPane.INFORMATION_MESSAGE);
+               Luv.getLuv().displayInfoMessage("Stopping execution and loading a recent plan");
            }
            catch (IOException ex) 
            {
-               JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                             "Error loading recent plan. Please see Debug Window.", 
-                                             "Error", 
-                                             JOptionPane.ERROR_MESSAGE);
-               System.err.println("Error: " + ex.getMessage());
+               Luv.getLuv().displayErrorMessage(ex, "Error loading recent plan");              
            }
        }
      
@@ -91,11 +83,7 @@ public class LoadRecentAction extends LuvAction
        } 
        catch (IOException ex) 
        {
-          JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                        "Error loading recent plan. Please see Debug Window.", 
-                                        "Error", 
-                                        JOptionPane.ERROR_MESSAGE);
-          System.err.println("Error: " + ex.getMessage());
+          Luv.getLuv().displayErrorMessage(ex, "Error loading recent plan");
        }        
     }
 }
