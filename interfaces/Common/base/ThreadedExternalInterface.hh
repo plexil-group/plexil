@@ -485,8 +485,6 @@ namespace PLEXIL
     static void * execTopLevel(void * this_as_void_ptr);
     void runInternal();
 
-    std::vector<PlexilNodeId> m_libraries;
-
   private:
 
     // Deliberately unimplemented

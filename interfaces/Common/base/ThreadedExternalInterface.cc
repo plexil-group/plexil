@@ -368,21 +368,16 @@ namespace PLEXIL
 	    // Plan -- add the plan
 	    debugMsg("ExternalInterface:processQueue",
 		     " (" << pthread_self() << ") Received plan");
-	    // link against known libraries
-	    plan->link(m_libraries);
-
-	    // add it
 	    getExec()->addPlan(plan, parent);
 	    break;
 
 	  case queueEntry_LIBRARY:
-	    // Library -- add the plan to the library vector
+	    // Library -- add the library
 
 	    debugMsg("ExternalInterface:processQueue",
 		     " (" << pthread_self() << ") Received library");
 	    // *** TODO: check here for duplicates ***
-	    // add it
-	    m_libraries.push_back(plan);
+            getExec()->addLibraryNode(plan);
 	    // no need to step here
 	    break;
 
@@ -1229,10 +1224,6 @@ namespace PLEXIL
 					   const LabelStr& parent)
   {
     debugMsg("ExternalInterface:handleAddPlan", " entered");
-
-    // link against known libraries
-    planStruct->link(m_libraries);
-
     m_valueQueue.enqueue(planStruct, parent);
   }
 
