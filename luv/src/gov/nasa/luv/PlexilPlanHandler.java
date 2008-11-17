@@ -85,6 +85,20 @@
 	 // get the current node in the stack
 
 	 Model node = stack.peek();
+         
+         // if loaded a script instead of plan
+         
+         if (tagName.equals("PLEXILScript"))
+         {
+            try 
+            {
+                throw new Exception();
+            } 
+            catch (Exception ex) 
+            {
+                Luv.getLuv().displayErrorMessage(null, "ERROR: loaded script instead of plan");
+            }
+         }
 
 	 // if this SHOULD be a child node, make that happen
 
@@ -151,7 +165,7 @@
          } 
 	 catch (InterruptedIOException ex) 
          {
-             Luv.getLuv().displayErrorMessage(ex, "Error locating library");
+             Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while locating library");
          }
 
 	 // assign model name and path to the appropriate model

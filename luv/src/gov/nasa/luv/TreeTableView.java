@@ -189,7 +189,9 @@ public class TreeTableView extends JTreeTable implements View
                         setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
                         for (BreakPoint breakPoint: breakPoints)
                            if (breakPoint.isEnabled())
+                           {
                               setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
+                           }
                      }
                      
                      setBackgroundNonSelectionColor(
@@ -219,7 +221,9 @@ public class TreeTableView extends JTreeTable implements View
           
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
-              toolTip.append("<br><b>TYPE</b> " + node.getProperty(MODEL_TYPE));
+              toolTip.append("<br><b>TYPE</b>  " + node.getProperty(MODEL_TYPE));
+              toolTip.append("<br><hr>");
+              toolTip.append("Double-Click on node to view condition information");       
           }
           
           return toolTip.length() > 0 ? toolTip.toString() : null;

@@ -71,7 +71,7 @@ public class LoadRecentAction extends LuvAction
            }
            catch (IOException ex) 
            {
-               Luv.getLuv().displayErrorMessage(ex, "Error loading recent plan");              
+               Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");              
            }
        }
      
@@ -83,7 +83,7 @@ public class LoadRecentAction extends LuvAction
        } 
        catch (IOException ex) 
        {
-          Luv.getLuv().displayErrorMessage(ex, "Error loading recent plan");
+          Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");
        }        
     }
 }

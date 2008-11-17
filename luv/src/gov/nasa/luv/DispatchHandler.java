@@ -104,9 +104,9 @@ public class DispatchHandler extends DefaultHandler
             
             if (currentHandler == null)
             {
-               Luv.getLuv().displayErrorMessage(null, "Unhandled XML tag: <" + localName + ">");
+               Luv.getLuv().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
 
-               throw(new Error("Unhandled XML tag: <" + localName + ">."));
+               throw(new Error("ERROR: unhandled XML tag: <" + localName + ">."));
             }
             
             // signal start of document (because we didn't know who to

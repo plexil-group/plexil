@@ -58,7 +58,7 @@ public class ExecutionViaLuvViewerHandler
                   }
                   catch(Exception e)
                   {
-                      Luv.getLuv().displayErrorMessage(e, "Error executing plan");
+                      Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while executing plan");
                   }
               }
           };
@@ -74,7 +74,7 @@ public class ExecutionViaLuvViewerHandler
          }
          catch (Exception e)
          {
-             Luv.getLuv().displayErrorMessage(e, "Error starting the Universal Executive");
+             Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while starting the Universal Executive");
          }
       }
       
@@ -94,7 +94,7 @@ public class ExecutionViaLuvViewerHandler
           }
           catch (IOException e) 
           {
-              Luv.getLuv().displayErrorMessage(e, "Error: unable to kill " + TEST_EXEC + " process");
+              Luv.getLuv().displayErrorMessage(e, "ERROR: unable to kill " + TEST_EXEC + " process");
           }
       }
       
@@ -111,7 +111,7 @@ public class ExecutionViaLuvViewerHandler
           {
               if (line.contains("Error"))
               {
-                  Luv.getLuv().displayErrorMessage(null, "Error reported by the Universal Executive");
+                  Luv.getLuv().displayErrorMessage(null, "ERROR: error reported by the Universal Executive");
               }
 
               isMessage += "\n" + line;
@@ -128,7 +128,7 @@ public class ExecutionViaLuvViewerHandler
           if (!errMessage.equals("") &&
               !errMessage.contains(UE_TERMINATE_EXEC_MESSAGE))
           {
-              Luv.getLuv().displayErrorMessage(null, "Error reported by the Universal Executive");
+              Luv.getLuv().displayErrorMessage(null, "ERROR: error reported by the Universal Executive");
 
               System.out.println("\n" + errMessage);
           }

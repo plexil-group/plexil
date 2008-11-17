@@ -56,7 +56,7 @@ public class LuvSocketWrangler
 	    os = s.getOutputStream();
 	}
 	catch (Exception e) {
-            Luv.getLuv().displayErrorMessage(e, "Error initializing socket");
+            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while initializing socket");
 	    return;
 	}
 
@@ -71,7 +71,7 @@ public class LuvSocketWrangler
 	}
 	catch (Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "Error initializing XML reader");
+            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while initializing XML reader");
 	    return;
 	}
 
@@ -94,7 +94,7 @@ public class LuvSocketWrangler
 		}
 		catch (Exception f) 
                 {
-                    Luv.getLuv().displayErrorMessage(f, "Error closing Universal Executive input stream");
+                    Luv.getLuv().displayErrorMessage(f, "ERROR: exception occurred while closing Universal Executive input stream");
 		}
 		    
 		Luv.getLuv().finishedExecutionState();
@@ -110,7 +110,7 @@ public class LuvSocketWrangler
                  * the user canceled plan execution while the client is stll receiving a message from the Universal 
                  * Executive and not enough buffer space was reserved for the unsent portion of the message.
                  * 
-                 * Luv.getLuv().displayErrorMessage(e, "Error parsing XML message");
+                 * Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");
                  */
                 
                 Luv.getLuv().finishedExecutionState();
@@ -128,7 +128,7 @@ public class LuvSocketWrangler
 		}
 		catch (Exception e) 
                 {
-                    Luv.getLuv().displayErrorMessage(e, "Error acknowledging message from the Universal Executive");
+                    Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while acknowledging message from the Universal Executive");
 		    break;
 		}
 	    }

@@ -80,13 +80,13 @@ public class Model extends Properties
     static HashMap<String, String> typeLut = new HashMap<String, String>()
     {
 	{
-	    put(NODELIST,        "node-list");
-	    put(COMMAND,         "command-node");
-	    put(ASSN,            "assignment-node");
-	    put(EMPTY,           "empty-node");
-	    put(FUNCCALL,        "function-call-node");
-	    put(UPDATE,          "update-node");
-	    put(LIBRARYNODECALL, "library-node");
+	    put(NODELIST,        "List Node");
+	    put(COMMAND,         "Command Node");
+	    put(ASSN,            "Assignment Node");
+	    put(EMPTY,           "Empty Node");
+	    put(FUNCCALL,        "Function Call Node");
+	    put(UPDATE,          "Update Node");
+	    put(LIBRARYNODECALL, "Library Node");
 	}
     };
 
@@ -508,10 +508,10 @@ public class Model extends Properties
     public Object setProperty(String key, String value)
     {
 	if (value == null)
-	    {
-		System.err.println("key: " + key);
-		System.err.println("type: " + type);
-	    }
+        {
+            Luv.getLuv().displayErrorMessage(null, "ERROR: error occured while setting model property " +
+                    "(key: " + key + ", type: " + type + ", value: NULL)");        
+        }
 
 	Object result = super.setProperty(key, value);
 

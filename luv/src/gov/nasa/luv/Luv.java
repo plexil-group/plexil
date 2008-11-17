@@ -38,6 +38,7 @@ import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 
@@ -47,6 +48,7 @@ import java.io.InterruptedIOException;
 
 import java.util.Set;
 import javax.swing.ImageIcon;
+import javax.swing.ListSelectionModel;
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
@@ -240,7 +242,27 @@ public class Luv extends JFrame
 					    " to resume, or " + 
 					    stepAction.getAcceleratorDescription() +
 					    " to step",
-					    Color.GRAY);
+					    Color.RED);
+ 
+            //TreeTableView.getCurrent().handleClickEvent(new MouseEvent(theLuv,0,0,0,0,72,0,false,0));
+            
+            //TreeTableView.getCurrent().setSelectionBackground(Color.RED);
+            //TreeTableView.getCurrent().setEditingRow(0);
+            //TreeTableView.getCurrent().setRowSelectionAllowed(true);
+            //TreeTableView.getCurrent().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+
+            
+
+   /* source - the Component that originated the event
+    id - the integer that identifies the event
+    when - a long int that gives the time the event occurred
+    modifiers - the modifier keys down during event (e.g. shift, ctrl, alt, meta) Either extended _DOWN_MASK or old _MASK modifiers should be used, but both models should not be mixed in one event. Use of the extended modifiers is preferred.
+    x - the horizontal x coordinate for the mouse location
+    y - the vertical y coordinate for the mouse location
+    clickCount - the number of mouse clicks associated with event
+    popupTrigger - a boolean, true if this event is a trigger for a popup menu
+    button - which of the mouse buttons has changed state. NOBUTTON, BUTTON1, BUTTON2 or BUTTON3. */
 
 	    luvBreakPointHandler.clearBreakPoint();
                         
@@ -913,8 +935,14 @@ public class Luv extends JFrame
             
             setTitle(title);
         }
+        else if (isExecuting)
+        {
+            setTitle("Luv Viewer  -  Remote Execution");
+        }
         else
+        {
             setTitle("Luv Viewer");
+        }
     }
 
     // set a program wide property
@@ -981,10 +1009,10 @@ public class Luv extends JFrame
                 command += " " + currentPlan.getPlanName(); 
             }
             else
-                return "Error: unable to identify plan.";
+                return "ERROR: unable to identify plan.";
         }
         else
-            return "Error: unable to identify plan.";
+            return "ERROR: unable to identify plan.";
         
         // get script
         
@@ -1001,14 +1029,14 @@ public class Luv extends JFrame
                 command += " " + currentPlan.getScriptName();
             }
             else
-                return "Error: unable to identify script.";
+                return "ERROR: unable to identify script.";
         }
         else if (fileHandler.searchForScript() != null)
         {
             command += " " + currentPlan.getScriptName();
         }
         else
-            return "Error: unable to identify script.";
+            return "ERROR: unable to identify script.";
              
         // get libraries
 
@@ -1017,7 +1045,7 @@ public class Luv extends JFrame
             for (String libName : currentPlan.getMissingLibraries()) {
                 Model lib = findLibraryNode(libName, true);
                 if (lib == null) {
-                    return "Error: library \"" + libName + "\" not found.";
+                    return "ERROR: library \"" + libName + "\" not found.";
                 }
                 else {
                     currentPlan.addLibraryName(lib.getPlanName());
@@ -1034,7 +1062,7 @@ public class Luv extends JFrame
                     command += libFile;
                 }
                 else {
-                    return "Error: library file " + libFile + " does not exist.";
+                    return "ERROR: library file " + libFile + " does not exist.";
                 }
             }
         }       
@@ -1051,7 +1079,7 @@ public class Luv extends JFrame
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
 
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("ERROR: " + e.getMessage());
         }
         else
         {
@@ -1091,7 +1119,7 @@ public class Luv extends JFrame
 		}
 		catch (InterruptedIOException e) 
                 {
-                    displayErrorMessage(e, "Error finding library node");
+                    displayErrorMessage(e, "ERROR: exception occurred while finding library node");
 		}
 
 		if (library != null) 
@@ -1149,7 +1177,7 @@ public class Luv extends JFrame
 			}
 			catch (IOException ex) 
                         {
-                            displayErrorMessage(ex, "Error stopping execution");
+                            displayErrorMessage(ex, "ERROR: exception occurred while stopping execution");
 			}
 		    } 
                     
@@ -1180,7 +1208,7 @@ public class Luv extends JFrame
 			}
 			catch (IOException ex) 
                         {                       
-			    displayErrorMessage(ex, "Error stopping execution");
+			    displayErrorMessage(ex, "ERROR: exception occurred while stopping execution");
 			}
 		    }
                     
@@ -1208,7 +1236,7 @@ public class Luv extends JFrame
 		    }
 		    catch (IOException ex) 
                     {
-                        displayErrorMessage(ex, "Error reloading plan");
+                        displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
 		    }
 		}               
 
@@ -1238,14 +1266,14 @@ public class Luv extends JFrame
                     }
                     catch (IOException ex)
                     {
-                        displayErrorMessage(ex, "Error: unable to identify script.");
+                        displayErrorMessage(ex, "ERROR: unable to identify script.");
                     }
                     
                     reloadPlanState(); 
                 }
                 else
                 {
-                    displayErrorMessage(null, "Error: unable to identify plan.");
+                    displayErrorMessage(null, "ERROR: unable to identify plan.");
                 }
 
 	    }
@@ -1338,7 +1366,7 @@ public class Luv extends JFrame
                     {
                         preExecutionState();
                         String command = createCommandLine();
-                        if (!command.contains("Error")) 
+                        if (!command.contains("ERROR")) 
                         {                           
                             executionViaLuvViewerHandler.runExec(command);
 			}
@@ -1357,7 +1385,7 @@ public class Luv extends JFrame
                 } 
 		catch (IOException ex) 
                 {
-                    displayErrorMessage(ex, "Error executing plan");
+                    displayErrorMessage(ex, "ERROR: exception occurred while executing plan");
                 }
 	    }
 	};
