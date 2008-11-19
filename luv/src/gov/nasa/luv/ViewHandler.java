@@ -32,7 +32,6 @@ import javax.swing.JScrollPane;
 import java.awt.Container;
 import java.awt.BorderLayout;
 
-import java.util.Map;
 import static gov.nasa.luv.Constants.*;
 import static java.awt.BorderLayout.*;
 

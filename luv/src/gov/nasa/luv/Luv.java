@@ -38,7 +38,6 @@ import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 
@@ -48,7 +47,6 @@ import java.io.InterruptedIOException;
 
 import java.util.Set;
 import javax.swing.ImageIcon;
-import javax.swing.ListSelectionModel;
 import static gov.nasa.luv.Constants.*;
 
 import static java.lang.System.*;
@@ -67,7 +65,8 @@ public class Luv extends JFrame
     private static boolean allowBreaks                 = false;        // does instance of luv have breaks enabled?
     private static boolean planPaused                  = false;        // is instance of luv currently paused?    
     private static boolean planStep                    = false;        // is instance of luv currently stepping?    
-    private static boolean isExecuting                 = false;        // is instance of luv currently executing?          
+    private static boolean isExecuting                 = false;        // is instance of luv currently executing? 
+    private static boolean highlightRow                = false;
       
     // handler instances
       
@@ -230,10 +229,16 @@ public class Luv extends JFrame
     {
 	return planPaused && !planStep;
     }
+    
+    public boolean shouldHighlight()
+    {
+        return highlightRow;
+    }
 
     public void blockViewer()
     {
-	if (shouldBlock()) {
+	if (shouldBlock()) 
+        {
 	    statusMessageHandler.showStatus((luvBreakPointHandler.getBreakPoint() == null
 					     ? "Stopped at beginning of plan"
 					     : "Stopped at " + luvBreakPointHandler.getBreakPoint()) +
@@ -242,39 +247,33 @@ public class Luv extends JFrame
 					    " to resume, or " + 
 					    stepAction.getAcceleratorDescription() +
 					    " to step",
-					    Color.RED);
- 
-            //TreeTableView.getCurrent().handleClickEvent(new MouseEvent(theLuv,0,0,0,0,72,0,false,0));
-            
-            //TreeTableView.getCurrent().setSelectionBackground(Color.RED);
-            //TreeTableView.getCurrent().setEditingRow(0);
-            //TreeTableView.getCurrent().setRowSelectionAllowed(true);
-            //TreeTableView.getCurrent().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-
-            
-
-   /* source - the Component that originated the event
-    id - the integer that identifies the event
-    when - a long int that gives the time the event occurred
-    modifiers - the modifier keys down during event (e.g. shift, ctrl, alt, meta) Either extended _DOWN_MASK or old _MASK modifiers should be used, but both models should not be mixed in one event. Use of the extended modifiers is preferred.
-    x - the horizontal x coordinate for the mouse location
-    y - the vertical y coordinate for the mouse location
-    clickCount - the number of mouse clicks associated with event
-    popupTrigger - a boolean, true if this event is a trigger for a popup menu
-    button - which of the mouse buttons has changed state. NOBUTTON, BUTTON1, BUTTON2 or BUTTON3. */
+					    Color.RED); 
+           
+            if (luvBreakPointHandler.getBreakPoint() != null)
+            {
+                String nodeName = luvBreakPointHandler.getBreakPointNodeName();
+                currentPlan.resetRowNumber();
+                currentPlan.addTotalNumberOfRows(currentPlan);
+                int row = currentPlan.getRowNumberOfNode(currentPlan, nodeName);
+                TreeTableView.getCurrent().highlightBreakingRow(row);
+            }
 
 	    luvBreakPointHandler.clearBreakPoint();
                         
 	    // wait here for user action
-	    while (shouldBlock()) {
-		try {
+	    while (shouldBlock()) 
+            {
+		try 
+                {    
 		    Thread.sleep(50);
 		}
-		catch (Exception e) {
+		catch (Exception e) 
+                {
 		    e.printStackTrace();
 		}
 	    }
+            
+            highlightRow = false;
 	}
     }
       
@@ -418,6 +417,8 @@ public class Luv extends JFrame
 	planStep = false;	 
 	isExecuting = false;        
         fileHandler.setStopSearchForMissingLibs(false);
+        
+        TreeTableView.getCurrent().unHighlightBreakingRow();
   
 	// set certain menu items
           

@@ -59,6 +59,11 @@ public class LuvBreakPointHandler
           return breakPoint;
       }
       
+      public String getBreakPointNodeName()
+      {
+          return breakPoint.getModel().getModelName();
+      }
+      
       public HashMap<BreakPoint, ModelPath> getBreakPointMap()
       {
           return breakPointMap;

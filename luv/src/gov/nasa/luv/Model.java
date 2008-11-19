@@ -56,6 +56,12 @@ public class Model extends Properties
     private String planName = UNKNOWN;
     
     private String scriptName = UNKNOWN;
+    
+    private int row = 0;
+    
+    private int totalRows = 0;
+    
+    private boolean rowFound = false;
 
     private LinkedHashSet<String> libraryFiles = new LinkedHashSet<String>();
 
@@ -116,7 +122,44 @@ public class Model extends Properties
           
 	pathToNode = modelName + pathToNode;
     }
-      
+    
+    public void addTotalNumberOfRows(Model model)
+    {
+        totalRows++;
+        
+        for (int i = 0; i < model.getChildCount(); i++)
+        {
+            addTotalNumberOfRows(model.getChild(i));
+        }
+    }
+    
+    public int getRowNumberOfNode(Model node, String nodeName)
+    { 
+        if (node.getModelName().equals(nodeName))
+        {
+            row++;
+            rowFound = true;
+        }
+        else if (!rowFound)
+        { 
+            row++;
+            for (int i = 0; i < node.getChildCount(); i++)
+            {
+                getRowNumberOfNode(node.getChild(i), nodeName);
+            }
+        }
+ 
+        if (row == totalRows && !rowFound)
+            return -1;
+        else
+            return row;
+    }
+    
+    public void resetRowNumber()
+    {
+        row = 0;
+        rowFound = false;
+    }
       
     public String getPathToNode()
     {
@@ -470,11 +513,12 @@ public class Model extends Properties
     public Model findChild(String property, String value)
     {
 	for (Model child: children)
-	    {
-		String prop = child.getProperty(property);
-		if (prop != null && prop.equals(value))
-		    return child;
-	    }
+        {
+            String prop = child.getProperty(property);
+            if (prop != null && prop.equals(value))
+                return child;
+        }
+        
 	return null;
     }
 

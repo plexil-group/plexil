@@ -73,6 +73,8 @@ public class TreeTableView extends JTreeTable implements View
       /** show or hid node types */
 
       private static boolean showTextTypes = false;
+      
+      private static int currentBreakingRow = -1;
 
       /** Construct a tree view. 
        *
@@ -132,7 +134,7 @@ public class TreeTableView extends JTreeTable implements View
             TreeModel.cTypes[STATE_COL_NUM], 
             new DefaultTableCellRenderer()
             {
-            @Override
+            //@Override
                   public Component getTableCellRendererComponent(
                      JTable table, 
                      Object value, 
@@ -150,12 +152,8 @@ public class TreeTableView extends JTreeTable implements View
                                    ? color
                                    : Color.BLACK);
                      
-                     
-                     setBackground(
-                        isSelected
-                        ? table.getSelectionBackground()
-                        : getRowColor(row));
-                     
+                     setBackground(isSelected ? table.getSelectionBackground() : getRowColor(row));  
+
                      return component;
                   }
             });
@@ -198,10 +196,35 @@ public class TreeTableView extends JTreeTable implements View
                         isSelected
                         ? table.getSelectionBackground()
                         : getRowColor(row));
-
+                     
                      return component;
                   }
             });
+      }
+      
+      public boolean highlightBreakingRow(int row)
+      {
+          boolean valid = true;
+          
+          if (row > 0)
+          {
+              currentBreakingRow = row - 1;
+              tree.setSelectionRow(currentBreakingRow);
+              lastView.setSelectionBackground(Color.PINK);
+          }
+          else
+              valid = false;
+          
+          return valid;
+      }
+      
+      public void unHighlightBreakingRow()
+      {
+          if (currentBreakingRow >= 0)
+          {
+              lastView.setSelectionBackground(getRowColor(currentBreakingRow));
+              tree.setSelectionRow(-1);
+          }
       }
 
       /** Display node information from under tool tip
@@ -212,7 +235,8 @@ public class TreeTableView extends JTreeTable implements View
       @Override public String getToolTipText(MouseEvent event)
       {
           StringBuffer   toolTip     = new StringBuffer();
-          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());          
+          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());    
+          
           
           if (nodePath != null)
           {    
@@ -223,7 +247,8 @@ public class TreeTableView extends JTreeTable implements View
               toolTip.append("<b>NAME</b> " + nodeName);
               toolTip.append("<br><b>TYPE</b>  " + node.getProperty(MODEL_TYPE));
               toolTip.append("<br><hr>");
-              toolTip.append("Double-Click on node to view condition information");       
+              toolTip.append("<b>Double-Click</b> on node to view condition information");    
+              toolTip.append("<br><b>Right-Click</b> on node to set breakpoints");
           }
           
           return toolTip.length() > 0 ? toolTip.toString() : null;

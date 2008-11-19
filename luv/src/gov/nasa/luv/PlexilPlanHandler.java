@@ -102,7 +102,8 @@
 
 	 // if this SHOULD be a child node, make that happen
 
-	 if (tagName.equals(NODE)) {
+	 if (tagName.equals(NODE)) 
+         {
 	     Model child = new Model(tagName);
 
 	     // if there is a parent, add child to it
@@ -110,7 +111,8 @@
 	     node.addChild(child);
 
 	     // if the parent is the root node, save this as a (the?) top level node
-	     if (node.isRoot()) {
+	     if (node.isRoot()) 
+             {
 		 topLevelNode = child;
 	     }
 
@@ -120,7 +122,8 @@
 
 	     // add attributes for this child
 
-	     for (int i = 0; i < attributes.getLength(); ++i) {
+	     for (int i = 0; i < attributes.getLength(); ++i) 
+             {
 		 child.setProperty(attributes.getQName(i),
 				   attributes.getValue(i));
 	     }
@@ -129,7 +132,8 @@
 
 	 // if it's not a property we can ignore it
 
-	 else if (!isProperty(tagName)) {
+	 else if (!isProperty(tagName)) 
+         {
 	     node = null;
 	 }
 
