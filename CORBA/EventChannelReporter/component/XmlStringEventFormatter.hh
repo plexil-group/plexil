@@ -44,16 +44,23 @@ namespace PLEXIL
     virtual CORBA::Any_ptr formatPlan(const PlexilNodeId& plan,
 				      const LabelStr& parent) const;
 
+  protected:
+
+    // API for derived classes
+    
+    virtual const std::string
+    transitionXmlString(const LabelStr& prevState, const NodeId& node) const;
+
+    virtual const std::string
+    planXmlString(const PlexilNodeId& plan, const LabelStr& parent) const;
+
+    // Shared helper method to be used by derived classes
+    static const std::string binding_element(const std::map<double, double>& bindings);
+
   private:
     // unimplemented 
     XmlStringEventFormatter(const XmlStringEventFormatter &);
     XmlStringEventFormatter & operator=(const XmlStringEventFormatter &);
-
-    static const std::string
-    transitionXmlString(const LabelStr& prevState, const NodeId& node);
-
-    static const std::string
-    planXmlString(const PlexilNodeId& plan, const LabelStr& parent);
 
   };
 

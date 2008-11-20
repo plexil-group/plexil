@@ -55,11 +55,12 @@ namespace PLEXIL
   XmlStringEventFormatter::formatTransition(const LabelStr& prevState,
 					    const NodeId& node) const
   {
-    CORBA::Any_ptr pushAny = new CORBA::Any();
-    const std::string xmlString = transitionXmlString(prevState, node);
+    const std::string xmlString = 
+      this->transitionXmlString(prevState, node);
     debugMsg("ExecListener:pushTransitionToChannel",
 	     " data being pushed to event channel: "
 	     << xmlString.c_str());
+    CORBA::Any_ptr pushAny = new CORBA::Any();
     (*pushAny) <<= xmlString.c_str();
     return pushAny;
   }
@@ -68,7 +69,8 @@ namespace PLEXIL
   XmlStringEventFormatter::formatPlan(const PlexilNodeId& plan,
 				      const LabelStr& parent) const
   {
-    const std::string xmlString = planXmlString(plan, parent);
+    const std::string xmlString = 
+      this->planXmlString(plan, parent);
     debugMsg("ExecListener:pushAddPlanToChannel",
 	     " data being pushed to event channel: "
 	     << xmlString.c_str());
@@ -84,7 +86,10 @@ namespace PLEXIL
   // Thanks to Mike Dalal for the roots of this code
   //
 
-  const std::string binding_element (const std::map<double, double>& bindings)
+  // Static helper method shared with derived classes
+
+  const std::string
+  XmlStringEventFormatter::binding_element(const std::map<double, double>& bindings)
   {
     //
     // Returns an XML element for a given set of variable bindings.
@@ -100,10 +105,10 @@ namespace PLEXIL
     return s.str();
   }
 
-  // Static helper method
+  // Default method
   const std::string 
   XmlStringEventFormatter::transitionXmlString(const LabelStr& prevState,
-					       const NodeId& node)
+					       const NodeId& node) const
   {
     // Output as integer for now
     std::string timestamp = 
@@ -170,9 +175,10 @@ namespace PLEXIL
     return el;
   }
 
-  // static helper method
+  // Default method
   const std::string
-  XmlStringEventFormatter::planXmlString(const PlexilNodeId& plan, const LabelStr& parent)
+  XmlStringEventFormatter::planXmlString(const PlexilNodeId& plan, 
+                                         const LabelStr& parent) const
   {
     std::ostringstream planStream;
     {
