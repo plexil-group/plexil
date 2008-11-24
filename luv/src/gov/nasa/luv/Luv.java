@@ -76,6 +76,8 @@ public class Luv extends JFrame
     private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer and not a terminal
     private static ViewHandler                  viewHandler                   = new ViewHandler();                
     private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();
+    private static VariablesWindow              variablesWindow               = new VariablesWindow();
+    private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
     
     // Luv Viewer Menus
       
@@ -132,10 +134,12 @@ public class Luv extends JFrame
          
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
          
-	try {
+	try 
+        {
             new Luv();
 	}
-	catch (Exception e) {
+	catch (Exception e) 
+        {
             e.printStackTrace();
 	}
     }
@@ -179,6 +183,7 @@ public class Luv extends JFrame
 	if (plan == other) 
         {
 	    // brand new 'plan' loaded
+            closeNodeInfoWindow();
 	}
 	else if (plan.equivalent(other)) 
         {
@@ -207,7 +212,7 @@ public class Luv extends JFrame
             addRunToRecentRunList();
 	}
                         
-	refreshConditionWindow();
+	refreshNodeInfoTabbedWindow();
         setTitle();
                         
 	// Determine if the Luv Viewer should pause before executing. 
@@ -280,6 +285,10 @@ public class Luv extends JFrame
     public ViewHandler            getViewHandler()            { return viewHandler; }             // get current view handler
     
     public ConditionsWindow       getConditionsWindow()       { return conditionsWindow; }        // get current conditions window
+    
+    public VariablesWindow        getVariablesWindow()        { return variablesWindow; }         // get current variables window
+    
+    public NodeInfoTabbedWindow   getNodeInfoTabbedWindow()   { return nodeInfoTabbedWindow; }    // get current NodeInfoTabbedWindow
 
     public FileHandler            getFileHandler()            { return fileHandler; }             // get current file handler
       
@@ -511,9 +520,7 @@ public class Luv extends JFrame
         
         currentPlan.addScriptName(UNKNOWN);
 
-        if (TreeTableView.getCurrent() != null &&
-            TreeTableView.getCurrent().isConditionWindowOpen())
-            TreeTableView.getCurrent().closeConditionWindow();                
+        closeNodeInfoWindow();                
 
         readyState();
     }
@@ -524,9 +531,7 @@ public class Luv extends JFrame
         
         currentPlan.resetMainAttributesOfAllNodes();
 
-        if (TreeTableView.getCurrent() != null &&
-            TreeTableView.getCurrent().isConditionWindowOpen())
-            TreeTableView.getCurrent().closeConditionWindow();                
+        closeNodeInfoWindow();                
 
         readyState();
     }
@@ -535,7 +540,7 @@ public class Luv extends JFrame
     {
         currentPlan.resetMainAttributesOfAllNodes();
         
-        refreshConditionWindow();
+        refreshNodeInfoTabbedWindow();
 
         readyState();
     }
@@ -635,10 +640,10 @@ public class Luv extends JFrame
     }
 
       
-    public void refreshConditionWindow()
+    public void refreshNodeInfoTabbedWindow()
     {
         if(TreeTableView.getCurrent() != null && 
-           TreeTableView.getCurrent().isConditionWindowOpen())
+           TreeTableView.getCurrent().isNodeInfoTabbedWindowOpen())
         {
             Model node = Model.getRoot();
 
@@ -651,12 +656,20 @@ public class Luv extends JFrame
             }
 
             if (node != null)
-                TreeTableView.getCurrent().resetConditionWindow(node, node.getModelName());
-            else
-                TreeTableView.getCurrent().closeConditionWindow();
+            {
+                conditionsWindow.createConditionTab(node);
+                variablesWindow.createVariableTab(node); 
+            }
         }
         
         this.setVisible(true); // this brings the main Luv window to the front in case you have other windows open
+    }
+    
+    private void closeNodeInfoWindow()
+    {
+        if (TreeTableView.getCurrent() != null &&
+            TreeTableView.getCurrent().isNodeInfoTabbedWindowOpen())
+            TreeTableView.getCurrent().closeNodeInfoTabbedWindow();
     }
     
     public void enableRemoveBreaksMenuItem(boolean value)

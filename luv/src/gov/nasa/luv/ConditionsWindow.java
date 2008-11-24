@@ -31,7 +31,6 @@ package gov.nasa.luv;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JFrame;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -47,7 +46,6 @@ public class ConditionsWindow extends JPanel
     
     private Model model;
     private String status = UNKNOWN;
-    private JFrame frame;
     private ConditionsWindow conditionsPane;
     private int rows = 1000;
     private int columns = 3;
@@ -73,7 +71,7 @@ public class ConditionsWindow extends JPanel
         int col = 0;
         info = new String[rows][columns];
         
-        nodeConditions = model.conditionMap;
+        nodeConditions = model.getConditionMap();
         
         if (nodeConditions != null)
         {
@@ -183,48 +181,14 @@ public class ConditionsWindow extends JPanel
         return status;
     }
     
-    public ConditionsWindow getCurrentWindow()
+    public ConditionsWindow getCurrentConditionsTab()
     {
         return conditionsPane;
     }
-    
-    public boolean isConditionsWindowOpen()
-    {
-        if (frame != null)
-            return frame.isVisible();
-        else 
-            return false;
-    }
-    
-    public void closeConditonsWindow()
-    {
-        frame.setVisible(false);
-    }
 
-    public void createAndShowGUI(Model model, String nodeName) 
+    public void createConditionTab(Model model) 
     {       
-        if (frame != null)
-            frame.setVisible(false);
-        frame = new JFrame(nodeName);
-
         conditionsPane = new ConditionsWindow(model);
         conditionsPane.setOpaque(true);
-        frame.setContentPane(conditionsPane);
-        frame.setBounds(20, 20, 1200, 500);
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-    
-    public void resetGUI(Model model, String nodeName)
-    {
-        frame.setTitle(nodeName);
-        
-        conditionsPane = new ConditionsWindow(model);
-        conditionsPane.setOpaque(true); 
-        frame.setContentPane(conditionsPane);
-
-        frame.pack();
-        frame.setVisible(true);
     }
 }

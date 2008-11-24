@@ -336,23 +336,19 @@ public class TreeTableView extends JTreeTable implements View
          
          saveConditionWindow(node, nodePath); 
          
-         // create conditons window if possible
-         
-         if (!openConditionWindow(node, nodeName))
-             Luv.getLuv().showStatus("No conditions specified for " + nodeName, Color.BLACK, 1000);
+         // create information window if node has any additional data to show
+
+         if (node.hasConditions() || node.hasVariables())
+         {
+             Luv.getLuv().getConditionsWindow().createConditionTab(node);
+             Luv.getLuv().getVariablesWindow().createVariableTab(node);         
+             Luv.getLuv().getNodeInfoTabbedWindow().createAndShowGUI(node, nodeName);
+         }
+         else
+         {
+             Luv.getLuv().showStatus("No additional information is available for " + node.getModelName(), 5000);
+         }
              
-      }
-      
-      public boolean openConditionWindow(Model node, String nodeName)
-      {
-          boolean valid = true;         
-          
-          if (node.conditionMap != null && !node.conditionMap.isEmpty())
-              Luv.getLuv().getConditionsWindow().createAndShowGUI(node, nodeName + " Conditions");
-          else
-              valid = false;             
-          
-          return valid;
       }
       
       public void saveConditionWindow(Model node, TreePath tp)
@@ -368,19 +364,14 @@ public class TreeTableView extends JTreeTable implements View
          
       }
       
-      public boolean isConditionWindowOpen()
+      public boolean isNodeInfoTabbedWindowOpen()
       {
-          return Luv.getLuv().getConditionsWindow().isConditionsWindowOpen(); 
+          return Luv.getLuv().getNodeInfoTabbedWindow().isNodeInfoTabbedWindowOpen();
       }
       
-      public void resetConditionWindow(Model model, String name)
+      public void closeNodeInfoTabbedWindow()
       {
-          Luv.getLuv().getConditionsWindow().resetGUI(model, name + " Conditions");
-      }
-      
-      public void closeConditionWindow()
-      {
-          Luv.getLuv().getConditionsWindow().closeConditonsWindow();
+          Luv.getLuv().getNodeInfoTabbedWindow().closeNodeInfoTabbedWindow();
       }
 
       /** Focus has been disabled for this view.  This way the view

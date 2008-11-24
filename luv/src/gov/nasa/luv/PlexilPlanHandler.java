@@ -37,11 +37,17 @@
 
  public class PlexilPlanHandler extends AbstractDispatchableHandler
  {
+     private boolean recordVariable = true;
+     private String variableHolder = VAR + ":";  // : is used as a place holder in between variable elements, (see Model.java addVariableinfo())
+     
+     private boolean recordArray = true;
+     private String arrayHolder = ARRAY + ":";
+            
      private boolean 
 	 recordCondition = false, 
 	 recordEQ = false, 
 	 recordNE = false, 
-	 recordArray = false, 
+	 recordConditionArray = false, 
 	 lookupChange = false, 
 	 lonelyValue = false, 
 	 recordTime = false, 
@@ -152,7 +158,7 @@
      public void endElement(String uri, String tagName, String qName)
      {
 	 Model topNode = stack.peek();
-	 Model nodeToUpdate = getNodeToUpdate();         
+	 Model nodeToUpdate = getNodeToUpdate();    
 
 	 // check if tagName indicates that we are finishing storage of info
 	 // about a certain variable or condition
@@ -216,12 +222,23 @@
 	else if (tagName.contains(CONDITION))
         {
             recordCondition = true;     
-            recordEQ = recordNE = recordArray = lookupChange = lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow = false;
+            recordEQ = recordNE = recordConditionArray = lookupChange = 
+            lonelyValue = lonelyVariable = recordTime = tolerance = lookupNow =
             lessThan = greaterThan = lessThanEqual = greaterThanEqual = false;
             save = conditionEquation = "";
             equationHolder.clear();
             lookupArguments.clear();
-        }  
+        } 
+        else if (tagName.equals(DECL_VAR))
+        {
+            recordVariable = true;
+            variableHolder =  VAR + ":";  // : is used as a place holder in between variable elements, (see Model.java addVariableinfo())
+        }
+        else if (tagName.equals(DECL_ARRAY))
+        {
+            recordArray = true;
+            arrayHolder =  ARRAY + ":";
+        }
 
 	if (recordCondition)
 	    recordStartConditionInfo(tagName);
@@ -252,6 +269,12 @@
 
 	    if (recordCondition)
 		recordMiddleConditionInfo(tagName, text);
+            
+            if (recordVariable)
+                variableHolder += text + ":";   // : is used as a place holder in between variable elements, (see Model.java addVariableinfo())
+            
+            if (recordArray)
+                arrayHolder += text + ":";
              
 	}
 	else if (tagName.equals(NODEREF))
@@ -261,23 +284,29 @@
     public void catchEndTag(Model nodeToUpdate, String tagName)
     {        
 	if (recordCondition)
-	    {
-		if (tagName.equals(ADD)) {
-		    tagName = "+";
-		}
-		if (tagName.equals(SUB)) {
-		    tagName = "-";
-		}
-		if (tagName.equals(MUL)) {
-		    tagName = "*";
-		}
-		if (tagName.equals(DIV)) {
-		    tagName = "/";
-		}
-		conditionEquation = conditionEquation.replace("PlaceHolder", tagName);
+        {
+            if (tagName.equals(ADD)) {
+                tagName = "+";
+            }
+            if (tagName.equals(SUB)) {
+                tagName = "-";
+            }
+            if (tagName.equals(MUL)) {
+                tagName = "*";
+            }
+            if (tagName.equals(DIV)) {
+                tagName = "/";
+            }
+            conditionEquation = conditionEquation.replace("PlaceHolder", tagName);
 
-		recordEndConditionInfo(tagName);
-	    }
+            recordEndConditionInfo(tagName);
+        }
+        
+        if (tagName.contains(DECL_VAR) && recordVariable)
+            nodeToUpdate.addVariableInfo(variableHolder);
+        
+        if (tagName.contains(DECL_ARRAY) && recordArray)
+            nodeToUpdate.addVariableInfo(arrayHolder);
     }
       
     public Model getNodeToUpdate()
@@ -325,31 +354,36 @@
 		recordTime = true;
 		break;
 	    case ARRAYELEMENT_NUM:
-		recordArray = true;             
+		recordConditionArray = true;             
 		if (!recordEQ)
 		    equationHolder.add("PlaceHolder");
 		break;
 	    case NOT_NUM: conditionEquation = "!("; break;
 	    case LOOKUP_NUM:
 		if (conditionEquation.length() > 0 && !conditionEquation.equals("!("))
-		    {
-			if (recordEQ)
-			    conditionEquation += " == ";
-			else
-			    conditionEquation += " != ";
-		    }
+                {
+                    if (recordEQ)
+                        conditionEquation += " == ";
+                    else
+                        conditionEquation += " != ";
+                }
 
 		if (tagName.contains(LOOKUPNOW))
-		    {
-			conditionEquation += LOOKUPNOW;
-			lookupNow = true;
-		    }
+                {
+                    conditionEquation += LOOKUPNOW;
+                    lookupNow = true;
+                }
 		else if (tagName.equals(LOOKUPCHANGE)) 
-		    {
-			conditionEquation += LOOKUPCHANGE;
-			lookupChange = true;
-		    }            
-
+                {
+                    conditionEquation += LOOKUPCHANGE;
+                    lookupChange = true;
+                }   
+                else if (tagName.equals(LOOKUPFREQ))
+                {
+                    conditionEquation += LOOKUPFREQ;
+                    lookupChange = true;
+                } 
+                
 		lookupArguments = new ArrayList<String>();
 		conditionEquation += "(";
 		break;                
@@ -416,10 +450,10 @@
 			lonelyVariable = true;
 			conditionEquation += "." + text;
 		    }
-		else if (recordArray)
+		else if (recordConditionArray)
 		    {
 			conditionEquation += "[" + text + "]";
-			recordArray = false;
+			recordConditionArray = false;
 		    }
 		else if (conditionEquation.length() > 0 && !recordTime)
 		    {
@@ -678,10 +712,15 @@
 
     public void resetFlags()
     {
+        recordVariable = false;
+        variableHolder =VAR + ":";  // : is used as a place holder in between variable elements, (see Model.java addVariableinfo())
+        recordArray = false;
+        arrayHolder = ARRAY + ":";
+        
 	recordCondition = false; 
 	recordEQ = false; 
 	recordNE = false; 
-	recordArray = false; 
+	recordConditionArray = false; 
 	lookupChange = false; 
 	lonelyValue = false; 
 	recordTime = false; 

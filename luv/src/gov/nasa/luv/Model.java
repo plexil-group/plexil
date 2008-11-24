@@ -81,7 +81,9 @@ public class Model extends Properties
       
     // condition info holders
 
-    public HashMap<Integer, ArrayList> conditionMap = new HashMap<Integer, ArrayList>();
+    private HashMap<Integer, ArrayList> conditionMap = new HashMap<Integer, ArrayList>();
+    
+    private ArrayList<String> variableList = new ArrayList<String>();
       
     static HashMap<String, String> typeLut = new HashMap<String, String>()
     {
@@ -106,6 +108,26 @@ public class Model extends Properties
     public Model(String type)
     {
 	this.type = type;
+    }
+    
+    public HashMap<Integer, ArrayList> getConditionMap()
+    {
+        return conditionMap;
+    }
+    
+    public ArrayList<String> getVariableList()
+    {
+        return variableList;
+    }
+    
+    public boolean hasVariables()
+    {
+        return !variableList.isEmpty();
+    }
+    
+    public boolean hasConditions()
+    {
+        return !conditionMap.isEmpty();
     }
       
     public void setPathToNode()
@@ -332,6 +354,61 @@ public class Model extends Properties
     { 
 	if (!equationHolder.isEmpty())
 	    conditionMap.put(condition, equationHolder);
+    }
+    
+    public void addVariableInfo(String variable)
+    { 
+        String formattedVariable = formatVariable(variable);
+  
+        if (!formattedVariable.equals(""))
+            variableList.add(formattedVariable);
+    }
+ 
+    // determine if the variable for this node is singular or an array
+    // and teh format it appropriately for display purposes
+    private String formatVariable(String variable)
+    {
+        String formattedVariable = "COULD NOT IDENTIFY VARIABLE";
+        String array[] = variable.split(":");      // : is used as a place holder in between variable elements
+        
+        if (array.length > 0)
+        {
+            if (array[0].equals(VAR))
+            {
+                if (array.length == 3)
+                {
+                    formattedVariable = array[2] + " " + array[1];
+                }
+                else if (array.length == 4)
+                {
+                    formattedVariable = array[2] + " " + array[1] + " = " + array[3];
+                }
+            }
+            else if (array[0].equals(ARRAY))
+            {
+                if (array.length == 3)
+                    ;
+                else if (array.length == 4)
+                {
+                    formattedVariable = array[2] + " " +  array[1] + "[" + array[3] + "]";
+                }
+                else if (array.length > 4)
+                {
+                    formattedVariable = array[2] + " " +  array[1] + "[" + array[3] + "] = {";
+                    
+                    for (int i = 4; i < array.length; i++)
+                    {
+                        formattedVariable += array[i];
+                        if (i + 1 < array.length)
+                            formattedVariable += ",";
+                    }
+                    
+                    formattedVariable += "}";
+                }
+            }
+        }
+        
+        return formattedVariable;
     }
 
     /** Add a parent node to this node. 
