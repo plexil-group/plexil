@@ -42,9 +42,8 @@ Release Notes
  - PDF manuals now included in distribution
 
 0.84
+ - new component: a standalone simulator for PLEXIL.
  - added global declarations (for static plan checking) to schemas and
    Plexilisp
- - New: Standalone Simulator
  - additional workshop slides
  - easier setup for Plexilisp
-
