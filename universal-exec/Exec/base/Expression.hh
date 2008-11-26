@@ -228,6 +228,13 @@ namespace PLEXIL {
      */
     void ignoreCachedValue() {m_ignoreCachedValue = true;}
 
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @param exp The changed subexpression.
+     * @note The default method does nothing.
+     */
+    virtual void handleChange(const ExpressionId& exp) {}
+
   protected:
 
     /**
@@ -399,7 +406,6 @@ namespace PLEXIL {
     double m_initialValue; /*<! The initial value of the expression */
   };
 
-  class Calculable;
   /**
    *  A class for notifying expressions of changes in sub-expressions.
    */
@@ -419,7 +425,7 @@ namespace PLEXIL {
     void notifyValueChanged(const ExpressionId& exp);
 
   private:
-    Calculable* m_exp; /*<! The destination expression for notifications. */
+    Expression* m_exp; /*<! The destination expression for notifications. */
   };
 
 
@@ -490,6 +496,8 @@ namespace PLEXIL {
     /**
      * @brief A method for subclasses to handle the change of a subexpression's value.
      * @param exp The subexpression whose value has changed.
+     * @note The default method is a no-op.
+     * @note As of 25 Nov 2008, there appear to be no other implementations of this method.
      */
     virtual void handleSubexpressionChange(const ExpressionId& exp) {}
 
