@@ -8,7 +8,7 @@ all:
 	@ cd standard-plexil; jam
 	@ cd interfaces; jam
 	@ cd apps; make
-	@ cd checker; ant
+	@ cd checker; ant jar
 	@ echo Done.
 
 clean:
