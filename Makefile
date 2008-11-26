@@ -8,6 +8,7 @@ all:
 	@ cd standard-plexil; jam
 	@ cd interfaces; jam
 	@ cd apps; make
+	@ cd checker; ant
 	@ echo Done.
 
 clean:
@@ -16,6 +17,7 @@ clean:
 	@ cd standard-plexil; jam clean
 	@ cd interfaces; jam clean
 	@ cd apps; make clean
+	@ cd checker; ant clean
 	@ echo Done.
 
 # The following targets apply only when the UE is being used with an
