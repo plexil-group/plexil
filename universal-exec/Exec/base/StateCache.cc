@@ -100,8 +100,7 @@ namespace PLEXIL
       {
          condDebugMsg(newState, "StateCache:lookupNow",
                       "New state, so performing external lookup.");
-         condDebugMsg(m_states.find(key)->second.second < m_quiescenceCount,
-                      "StateCache:lookupNow",
+         condDebugMsg(!newState, "StateCache:lookupNow",
                       "Out-of-date state, so performing external lookup.");
 
          Cache::LookupId lookup = (new Cache::ChangeLookup(source, dest, key,
