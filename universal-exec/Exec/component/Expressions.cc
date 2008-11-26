@@ -37,83 +37,92 @@
 
 namespace PLEXIL {
 
+  // *** To do:
+  //  - implement multiple return values from lookups
+
   Lookup::Lookup(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Variable(false), m_cache(node->getExec()->getStateCache()) 
+    : Variable(false), 
+      m_cache(node->getExec()->getStateCache()),
+      m_dest(1, m_id),
+      m_state(Expression::UNKNOWN(),
+              std::vector<double>(((PlexilLookup*)expr)->state()->args().size(),
+                                  Expression::UNKNOWN())),
+      m_listener(m_id)
   {
      checkError(Id<PlexilLookup>::convertable(expr), "Expected a lookup.");
      PlexilLookup* lookup = (PlexilLookup*) expr;
      PlexilState* state = lookup->state();
      
-        // create the correct form of the expression for this name
+     // create the correct form of the expression for this name
+     m_stateNameExpr = 
+       ExpressionFactory::createInstance(state->nameExpr()->name(), 
+                                         state->nameExpr(), node);
 
-     m_stateNameExpr = ExpressionFactory::createInstance(
-        state->nameExpr()->name(), state->nameExpr(), node);
-
-        // handle argument lookup
-
+     // handle argument lookup
      getArguments(state->args(), node);
   }
 
-   Lookup::Lookup(const StateCacheId& cache, const LabelStr& stateName,
-		 std::list<ExpressionId>& params)
-      : Variable(false), m_cache(cache), //m_stateName(stateName), 
-        m_params(params)
-   {
-   }
-   
-   Lookup::Lookup(const StateCacheId& cache, const LabelStr& stateName,
-                  std::list<double>& params)
-      : Variable(false), m_cache(cache)
-   {
-      for(std::list<double>::const_iterator it = params.begin(); it != params.end(); ++it) 
-      {
-         ExpressionId expr = (new Variable(*it, true))->getId();
-         m_params.push_back(expr);
-         m_garbage.insert(expr);
-      }
-   }
-
   Lookup::~Lookup() 
   {
-    for(std::set<ExpressionId>::iterator it = m_garbage.begin(); 
-        it != m_garbage.end(); ++it)
-    {
-       delete (Expression*) (*it);
-    }
-    m_stateNameExpr.remove(); //delete (Expression*)&(*m_stateNameExpr);
+    // disconnect listeners
+    m_stateNameExpr->removeListener(m_listener.getId());
+    for (std::vector<ExpressionId>::iterator it = m_params.begin(); 
+         it != m_params.end();
+         ++it)
+      (*it)->removeListener(m_listener.getId());
+
+    // safe to delete anything in the garbage
+    for (std::vector<ExpressionId>::iterator it = m_garbage.begin(); 
+         it != m_garbage.end();
+         ++it)
+      delete (*it).operator->();
+
+    // N.B. Can't delete state name expression because it may be shared
+    // (e.g. variable references)
+    m_stateNameExpr.remove();
   }
 
   void Lookup::getArguments(const std::vector<PlexilExprId>& args,
-			    const NodeConnectorId& node) {
-    for(std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) {
-      if(Id<PlexilVarRef>::convertable(*it))
-	m_params.push_back(node->findVariable((PlexilVarRef*)*it));
-      else {
-	ExpressionId param = ExpressionFactory::createInstance((*it)->name(), *it, node);
-	check_error(param.isValid());
+			    const NodeConnectorId& node) 
+  {
+    for (std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) 
+      {
+        ExpressionId param;
+        if (Id<PlexilVarRef>::convertable(*it))
+          {
+            param = node->findVariable((PlexilVarRef*)*it);
+          }
+        else 
+          {
+            param = ExpressionFactory::createInstance((*it)->name(), *it, node);
+            check_error(param.isValid());
+            m_garbage.push_back(param);
+          }
 	m_params.push_back(param);
-	m_garbage.insert(param);
+        param->addListener(m_listener.getId());
       }
-    }
   }
 
-  void Lookup::handleActivate(const bool changed) {
-    if(!changed)
+  void Lookup::handleActivate(const bool changed) 
+  {
+    if (!changed)
       return;
-    for(std::list<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it) {
+    for (std::vector<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it)
+      {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       expr->activate();
     }
     check_error(m_stateNameExpr.isValid());
     m_stateNameExpr->activate();
+    updateState();
     registerLookup();
   }
 
   void Lookup::handleDeactivate(const bool changed) {
     if(!changed)
       return;
-    for(std::list<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it) {
+    for(std::vector<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       expr->deactivate();
@@ -122,26 +131,55 @@ namespace PLEXIL {
     unregisterLookup();
   }
 
-  void Lookup::registerLookup() {
-    std::vector<double> args;
-    for(std::list<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      checkError(expr->isActive(),
-		 "Can't register a lookup with an inactive parameter: " << toString());
-      args.push_back((*it)->getValue());
-    }
+  void Lookup::updateState()
+  {
     checkError(m_stateNameExpr->isActive(),
-               "Can't register a lookup with an inactive name state expression: " << toString());
-    Expressions dest(1, m_id);
-    State state(m_stateNameExpr->getValue(), args);
-    handleRegistration(dest, state);
+               "Can't update state for lookup with an inactive name state expression: " << toString());
+    m_state.first = m_stateNameExpr->getValue();
+    std::vector<ExpressionId>::const_iterator it = m_params.begin();
+    std::vector<double>::iterator sit = m_state.second.begin();
+    while (it != m_params.end() && sit != m_state.second.end())
+      {
+        ExpressionId expr = *it;
+        check_error(expr.isValid());
+        checkError(expr->isActive(),
+                   "Can't update state for lookup with an inactive parameter: " << toString());
+        (*sit) = ((*it)->getValue());
+        it++;
+        sit++;
+      }
+  }
+
+  bool Lookup::isStateCurrent() const
+  {
+    checkError(m_stateNameExpr->isActive(),
+               "Can't compare state to lookup with an inactive name state expression: " << toString());
+    if (m_state.first != m_stateNameExpr->getValue())
+      return false;
+    std::vector<ExpressionId>::const_iterator it = m_params.begin();
+    std::vector<double>::const_iterator sit = m_state.second.begin();
+    while (it != m_params.end() && sit != m_state.second.end())
+      {
+        ExpressionId expr = *it;
+        check_error(expr.isValid());
+        checkError(expr->isActive(),
+                   "Can't compare state to lookup with an inactive parameter: " << toString());
+        if ((*it)->getValue() != *sit)
+          return false;
+        it++;
+        sit++;
+      }
+    return true;
+  }
+
+  void Lookup::registerLookup() 
+  {
+    handleRegistration();
   }
    
   void Lookup::unregisterLookup() {
     handleUnregistration();
   }
-
 
   // *** this should be extended to use the global declarations
 
@@ -150,13 +188,34 @@ namespace PLEXIL {
     return PLEXIL::UNKNOWN;
   }
 
+
   LookupNow::LookupNow(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Lookup(expr, node) {
+    : Lookup(expr, node) 
+  {
     checkError(Id<PlexilLookupNow>::convertable(expr), "Expected LookupNow.");
   }
 
-  void LookupNow::handleRegistration(Expressions& dest, State& state) {
-     m_cache->lookupNow(m_id, dest, state);
+  void LookupNow::handleChange(const ExpressionId& exp)
+  {
+    // need to notify state cache if cached lookup is no longer valid
+    if (!isStateCurrent())
+      {
+        const State oldState(m_state);
+        updateState();
+        handleRegistrationChange(oldState);
+      }
+  }
+
+  void LookupNow::handleRegistration() 
+  {
+     m_cache->lookupNow(m_id, m_dest, m_state);
+  }
+
+  // Simply reinvokes StateCache::lookupNow().
+
+  void LookupNow::handleRegistrationChange(const State& oldState)
+  {
+    m_cache->lookupNow(m_id, m_dest, m_state);
   }
 
   void LookupNow::handleUnregistration() {}
@@ -165,44 +224,53 @@ namespace PLEXIL {
     std::stringstream retval;
     retval << Expression::toString();
     retval << "LookupNow(" << m_stateNameExpr->getValue() << "(";
-    for(std::list<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
+    for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
       retval << ", " << (*it)->toString();
     retval << ")))";
     return retval.str();
   }
 
   LookupOnChange::LookupOnChange(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Lookup(expr, node) {
+    : Lookup(expr, node)
+  {
     checkError(Id<PlexilChangeLookup>::convertable(expr), "Expected LookupOnChange");
     PlexilChangeLookup* lookup = (PlexilChangeLookup*) expr;
 
     if(lookup->tolerances().empty())
       m_tolerance = RealVariable::ZERO_EXP();
-    else {
-      if(Id<PlexilVarRef>::convertable(lookup->tolerances()[0]))
-	m_tolerance = node->findVariable((PlexilVarRef*)lookup->tolerances()[0]);
-      else {
-	m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
-							lookup->tolerances()[0]);
-	m_garbage.insert(m_tolerance);
+    else 
+      {
+        if(Id<PlexilVarRef>::convertable(lookup->tolerances()[0]))
+          m_tolerance = node->findVariable((PlexilVarRef*)lookup->tolerances()[0]);
+        else
+          {
+            m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
+                                                            lookup->tolerances()[0]);
+            m_garbage.push_back(m_tolerance);
+          }
+        m_tolerance->addListener(m_listener.getId());
       }
-    }
+  }
+
+  LookupOnChange::~LookupOnChange()
+  {
+    m_tolerance->removeListener(m_listener.getId());
   }
 
   std::string LookupOnChange::toString() const {
     std::stringstream retval;
     retval << Expression::toString();
     retval << "LookupOnChange(" << m_stateNameExpr->getValue() << "(";
-    for(std::list<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
+    for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
 	++it)
       retval << ", " << (*it)->toString();
     retval << "), " << m_tolerance->toString() << "))";
     return retval.str();
   }
 
-  void LookupOnChange::handleRegistration(Expressions& dest, State& state) {
+  void LookupOnChange::handleRegistration() {
     m_tolerance->activate();
-    m_cache->registerChangeLookup(m_id, dest, state, std::vector<double>(1, m_tolerance->getValue()));
+    m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
   }
 
   void LookupOnChange::handleUnregistration() {
@@ -210,59 +278,118 @@ namespace PLEXIL {
     m_cache->unregisterChangeLookup(m_id);
   }
 
+  void LookupOnChange::handleChange(const ExpressionId& exp)
+  {
+    // need to notify state cache if cached lookup is no longer valid
+    if (isStateCurrent() && exp != m_tolerance)
+      return;
+    const State oldState(m_state);
+    updateState();
+    handleRegistrationChange(oldState);
+  }
+
+  // *** To do:
+  //  - optimize by adding specific method for this case to StateCache class
+
+  void LookupOnChange::handleRegistrationChange(const State& oldState)
+  {
+    m_cache->unregisterChangeLookup(m_id);
+    m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
+  }
+
   LookupWithFrequency::LookupWithFrequency(const PlexilExprId& expr,
 					   const NodeConnectorId& node)
-    : Lookup(expr, node) {
+    : Lookup(expr, node)
+  {
     checkError(Id<PlexilFrequencyLookup>::convertable(expr), "Expected LookupWithFrequency");
     PlexilFrequencyLookup* lookup = (PlexilFrequencyLookup*) expr;
     
     checkError(lookup->lowFreq().isValid(),
 	       "Need at least a low frequency.");
 
-    if(Id<PlexilVarRef>::convertable(lookup->lowFreq()))
+    if (Id<PlexilVarRef>::convertable(lookup->lowFreq()))
       m_lowFrequency = node->findVariable((PlexilVarRef*)lookup);
-    else {
-      m_lowFrequency = ExpressionFactory::createInstance(lookup->lowFreq()->name(),
-							 lookup->lowFreq());
-      m_garbage.insert(m_lowFrequency);
-    }
+    else 
+      {
+        m_lowFrequency = ExpressionFactory::createInstance(lookup->lowFreq()->name(),
+                                                           lookup->lowFreq());
+        m_garbage.push_back(m_lowFrequency);
+      }
+    m_lowFrequency->addListener(m_listener.getId());
 
     if(lookup->highFreq().isValid()) 
       m_highFrequency = m_lowFrequency;
-    else {
-      if(Id<PlexilVarRef>::convertable(lookup->highFreq()))
-	m_highFrequency = node->findVariable((PlexilVarRef*)lookup);
-      else {
-	m_highFrequency = ExpressionFactory::createInstance(lookup->highFreq()->name(),
-							   lookup->highFreq());
-	m_garbage.insert(m_highFrequency);
+    else 
+      {
+        if (Id<PlexilVarRef>::convertable(lookup->highFreq()))
+          m_highFrequency = node->findVariable((PlexilVarRef*)lookup);
+        else 
+          {
+            m_highFrequency = ExpressionFactory::createInstance(lookup->highFreq()->name(),
+                                                                lookup->highFreq());
+            m_garbage.push_back(m_highFrequency);
+          }
+        m_highFrequency->addListener(m_listener.getId());
       }
-    }
     checkError(m_highFrequency.isValid(), "No high frequency specified in LookupWithFrequency.");
     checkError(m_lowFrequency.isValid(), "No low frequency specified in LookupWithFrequency.");
+  }
+
+  LookupWithFrequency::~LookupWithFrequency()
+  {
+    m_lowFrequency->removeListener(m_listener.getId());
+    m_highFrequency->removeListener(m_listener.getId());
   }
 
   std::string LookupWithFrequency::toString() const {
     std::stringstream retval;
     retval << Expression::toString();
     retval << "LookupWithFrequency(" << m_stateNameExpr->getValue() << "(";
-    for(std::list<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
+    for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
 	++it)
       retval << ", " << (*it)->toString();
     retval << "), " << m_lowFrequency->toString() << ", " << m_highFrequency->toString() << "))";
     return retval.str();
   }
 
-  void LookupWithFrequency::handleRegistration(Expressions& dest, State& state) {
+  void LookupWithFrequency::handleRegistration() 
+  {
     m_highFrequency->activate();
     m_lowFrequency->activate();
-    m_cache->registerFrequencyLookup(m_id, dest, state, m_lowFrequency->getValue(), m_highFrequency->getValue());
+    m_cache->registerFrequencyLookup(m_id, 
+                                     m_dest,
+                                     m_state, 
+                                     m_lowFrequency->getValue(), 
+                                     m_highFrequency->getValue());
   }
 
   void LookupWithFrequency::handleUnregistration() {
     m_highFrequency->deactivate();
     m_lowFrequency->deactivate();
     m_cache->unregisterFrequencyLookup(m_id);
+  }
+
+  void LookupWithFrequency::handleChange(const ExpressionId& exp)
+  {
+    // need to notify state cache if cached lookup is no longer valid
+    if (isStateCurrent() && exp != m_lowFrequency && exp != m_highFrequency)
+      return;
+    const State oldState(m_state);
+    updateState();
+    handleRegistrationChange(oldState);
+  }
+
+  // *** To do:
+  //  - optimize by adding specific method for this case to StateCache class
+
+  void LookupWithFrequency::handleRegistrationChange(const State& oldState)
+  {
+    m_cache->unregisterFrequencyLookup(m_id);
+    m_cache->registerFrequencyLookup(m_id, 
+                                     m_dest,
+                                     m_state, 
+                                     m_lowFrequency->getValue(), 
+                                     m_highFrequency->getValue());
   }
 
   AbsoluteValue::AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node)

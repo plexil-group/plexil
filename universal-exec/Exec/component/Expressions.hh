@@ -39,10 +39,6 @@ namespace PLEXIL {
   class Lookup : public Variable {
   public:
     Lookup(const PlexilExprId& expr, const NodeConnectorId& node);
-    Lookup(const StateCacheId& cache, const LabelStr& stateName,
-	   std::list<ExpressionId>& params);
-    Lookup(const StateCacheId& cache, const LabelStr& stateName,
-	   std::list<double>& params);
     virtual ~Lookup();
 
     /**
@@ -52,51 +48,136 @@ namespace PLEXIL {
      */
     virtual PlexilType getValueType() const;
 
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @param exp The changed subexpression.
+     */
+    virtual void handleChange(const ExpressionId& exp) = 0;
+
   protected:
-    void getArguments(const std::vector<PlexilExprId>& args, const NodeConnectorId& node);
-    bool checkValue(const double value){return true;}
+    /**
+     * @brief Check subexpression values to see if m_state is still current.
+     * @return true if state is current, false if changed since last updated.
+     */
+    bool isStateCurrent() const;
+
+    /**
+     * @brief Update m_state to match current values of the subexpressions.
+     */
+    void updateState();
+
+    /**
+     * @brief Check to make sure a value is appropriate for this expression.
+     * @note The current method simply returns true.
+     * @note In a future enhancement, this should validate against global declarations.
+     */
+    bool checkValue(const double value)
+    { 
+      return true;
+    }
+
+    /**
+     * @brief Handle the activation of the expression.
+     * @param changed True if the call to activate actually caused a change from inactive to
+     *                active.
+     */
     void handleActivate(const bool changed); //registers
+
+    /**
+     * @brief Handle the deactivation of the expression
+     * @param changed True if the call to deactivate actually caused a change from active to
+     *                inactive.
+     */
     void handleDeactivate(const bool changed); //unregisters
+
     void registerLookup();
     void unregisterLookup();
-    virtual void handleRegistration(Expressions& dest, State& state) = 0;
+
+    virtual void handleRegistration() = 0;
     virtual void handleUnregistration() = 0;
 
     StateCacheId m_cache;
     ExpressionId m_stateNameExpr;
-    std::list<ExpressionId> m_params;
-    std::set<ExpressionId> m_garbage;
+    std::vector<ExpressionId> m_params;
+    std::vector<ExpressionId> m_garbage;
+    Expressions m_dest;
+    State m_state;
+    SubexpressionListener m_listener;
+
+  private:
+    // Deliberately unimplemented
+    Lookup();
+    Lookup(const Lookup&);
+    Lookup& operator=(const Lookup&);
+
+    void getArguments(const std::vector<PlexilExprId>& args, const NodeConnectorId& node);
   };
 
   class LookupNow : public Lookup {
   public:
     LookupNow(const PlexilExprId& expr, const NodeConnectorId& node);
     std::string toString() const;
+ 
+    void handleChange(const ExpressionId& exp);
+
   protected:
+
   private:
-    void handleRegistration(Expressions& dest, State& state);
+    // Deliberately unimplemented
+    LookupNow();
+    LookupNow(const LookupNow&);
+    LookupNow& operator=(const LookupNow&);
+
+    void handleRegistration();
+    void handleRegistrationChange(const State& oldState);
     void handleUnregistration();
   };
 
   class LookupOnChange : public Lookup {
   public:
     LookupOnChange(const PlexilExprId& expr, const NodeConnectorId& node);
+    virtual ~LookupOnChange();
+
     std::string toString() const;
+ 
+    void handleChange(const ExpressionId& exp);
+
   protected:
+
   private:
-    void handleRegistration(Expressions& dest, State& state);
+    // Deliberately unimplemented
+    LookupOnChange();
+    LookupOnChange(const LookupOnChange&);
+    LookupOnChange& operator=(const LookupOnChange&);
+
+    void handleRegistration();
+    void handleRegistrationChange(const State& oldState);
     void handleUnregistration();
+
     ExpressionId m_tolerance;
   };
 
   class LookupWithFrequency : public Lookup {
   public:
     LookupWithFrequency(const PlexilExprId& expr, const NodeConnectorId& node);
+    virtual ~LookupWithFrequency();
+
     std::string toString() const;
+
+    void handleChange(const ExpressionId& exp);
+
   protected:
+
   private:
-    void handleRegistration(Expressions& dest, State& state);
+    // Deliberately unimplemented
+    LookupWithFrequency();
+    LookupWithFrequency(const LookupWithFrequency&);
+    LookupWithFrequency& operator=(const LookupWithFrequency&);
+
+    void handleRegistration();
+    void handleRegistrationChange(const State& oldState);
     void handleUnregistration();
+
     ExpressionId m_lowFrequency;
     ExpressionId m_highFrequency;
   };
