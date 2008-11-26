@@ -2,10 +2,6 @@
 
 default: all
 
-corba: 
-	$(MAKE) all
-	@ cd CORBA; jam
-
 all:
 	@ cd universal-exec; jam
 	@ cd luv; ant jar
@@ -21,3 +17,15 @@ clean:
 	@ cd interfaces; jam clean
 	@ cd apps; make clean
 	@ echo Done.
+
+# The following targets apply only when the UE is being used with an
+# ACE/TAO Corba installation.
+
+corba: 
+	$(MAKE) all
+	@ cd CORBA; jam
+
+corba-clean: 
+	$(MAKE) clean
+	@ cd CORBA; jam clean
+
