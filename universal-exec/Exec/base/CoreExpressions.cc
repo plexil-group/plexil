@@ -444,33 +444,6 @@ namespace PLEXIL
       }
   }
 
-//   double ArrayElement::recalculate()
-//   {
-//     // etablish name and index of array
-
-//     LabelStr name = LabelStr(m_a->getValue());
-//     unsigned index = (unsigned)m_b->getValue();
-
-//     // find the array
-
-//     PlexilVarRef arrayRef;
-//     arrayRef.setName(name.toString());
-//     ExpressionId arrayExpr = m_node->findVariable(&arrayRef);
-//     checkError(ArrayVariableId::convertable(arrayExpr),
-//                "Expected Array Variable but found: " << 
-//                arrayExpr->toString());
-
-//     // add a listener
-
-//     arrayExpr->addListener(m_listener.getId());
-
-//     // get array elemeent value
-
-//     ArrayVariable* array = (ArrayVariable*)arrayExpr;
-//     double value = array->lookupValue(index);
-//     return value;
-//   }
-
   // confirm that new value to assign is valid
 
   bool ArrayElement::checkValue(const double val)
