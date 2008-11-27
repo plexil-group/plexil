@@ -57,6 +57,7 @@ namespace PLEXIL {
      m_stateNameExpr = 
        ExpressionFactory::createInstance(state->nameExpr()->name(), 
                                          state->nameExpr(), node);
+     m_stateNameExpr->addListener(m_listener.getId());
 
      // handle argument lookup
      getArguments(state->args(), node);
@@ -100,6 +101,8 @@ namespace PLEXIL {
           }
 	m_params.push_back(param);
         param->addListener(m_listener.getId());
+	debugMsg("Lookup:getArguments",
+		 " " << toString() << " added listener for " << param->toString());
       }
   }
 
@@ -107,6 +110,9 @@ namespace PLEXIL {
   {
     if (!changed)
       return;
+
+    debugMsg("Lookup:handleActivate", " for " << toString());
+
     for (std::vector<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it)
       {
       ExpressionId expr = *it;
@@ -117,18 +123,24 @@ namespace PLEXIL {
     m_stateNameExpr->activate();
     updateState();
     registerLookup();
+    // Safe to activate once lookup is registered
+    m_listener.activate();
   }
 
   void Lookup::handleDeactivate(const bool changed) {
     if(!changed)
       return;
+
+    debugMsg("Lookup:handleDeactivate", " for " << toString());
+
+    m_listener.deactivate();
+    unregisterLookup();
     for(std::vector<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       expr->deactivate();
     }
     m_stateNameExpr->deactivate();
-    unregisterLookup();
   }
 
   void Lookup::updateState()
@@ -200,6 +212,8 @@ namespace PLEXIL {
     // need to notify state cache if cached lookup is no longer valid
     if (!isStateCurrent())
       {
+	debugMsg("LookupNow:handleChange",
+		 " state changed, updating state cache");
         const State oldState(m_state);
         updateState();
         handleRegistrationChange(oldState);
@@ -208,7 +222,7 @@ namespace PLEXIL {
 
   void LookupNow::handleRegistration() 
   {
-     m_cache->lookupNow(m_id, m_dest, m_state);
+    m_cache->lookupNow(m_id, m_dest, m_state);
   }
 
   // Simply reinvokes StateCache::lookupNow().
@@ -218,7 +232,9 @@ namespace PLEXIL {
     m_cache->lookupNow(m_id, m_dest, m_state);
   }
 
-  void LookupNow::handleUnregistration() {}
+  void LookupNow::handleUnregistration() 
+  {
+  }
 
   std::string LookupNow::toString() const {
     std::stringstream retval;
@@ -283,6 +299,8 @@ namespace PLEXIL {
     // need to notify state cache if cached lookup is no longer valid
     if (isStateCurrent() && exp != m_tolerance)
       return;
+    debugMsg("LookupOnChange:handleChange",
+	     " state changed, updating state cache");
     const State oldState(m_state);
     updateState();
     handleRegistrationChange(oldState);
