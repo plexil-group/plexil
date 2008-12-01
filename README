@@ -43,7 +43,10 @@ Release Notes
 
 0.84
  - new component: a standalone simulator for PLEXIL.
+ - new component: static checker for PLEXIL.
  - added global declarations (for static plan checking) to schemas and
    Plexilisp
  - additional workshop slides
  - easier setup for Plexilisp
+ - misc bug fixes and enhancements
+
