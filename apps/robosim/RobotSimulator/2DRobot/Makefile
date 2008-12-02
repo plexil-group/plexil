@@ -1,6 +1,7 @@
 SRC_DIR   = .
 
-ifeq ($(OSTYPE),darwin)
+#ifeq ($(OSTYPE),darwin)
+ifeq ($(findstring darwin, $(OSTYPE)), darwin)
 	DEFINES = -DDarwin
 	OPENGL_LIBS = -framework OpenGL -framework GLUT
 else
