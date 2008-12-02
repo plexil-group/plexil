@@ -97,7 +97,7 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:dummy", " executeCommand called");
     AdaptorExecInterface::instance()->handleValueChange(ack,
-							BooleanVariable::TRUE());
+							CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     AdaptorExecInterface::instance()->notifyOfExternalEvent();
   }
 
