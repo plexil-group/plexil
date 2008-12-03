@@ -42,7 +42,18 @@ SimulatorScriptReader::~SimulatorScriptReader()
 {
 }
 
-bool SimulatorScriptReader::readScript(const std::string& fName)
+bool SimulatorScriptReader::readCommandScript(const std::string& fName)
+{
+  return readScript(fName);
+}
+
+bool SimulatorScriptReader::readTelemetryScript(const std::string& fName)
+{
+  return readScript(fName, true);
+}
+
+bool SimulatorScriptReader::readScript(const std::string& fName,
+                                       bool telemetry)
 {
   std::ifstream inputFile( fName.c_str());
   
@@ -56,6 +67,12 @@ bool SimulatorScriptReader::readScript(const std::string& fName)
 
   const int MAX_INPUT_LINE_LENGTH = 1024;
   
+  //1st line for a given message
+  std::string commandName;
+  long commandIndex=0;
+  double delay;
+  int numOfResponses;
+
   while ( !inputFile.eof() ) 
     {
       char inLine[MAX_INPUT_LINE_LENGTH];
@@ -76,18 +93,21 @@ bool SimulatorScriptReader::readScript(const std::string& fName)
           return true;
         } 
       
-      //1st line for a given message
-      std::string commandName;
-      long commandIndex;
-      double delay;
-      int numOfResponses;
-      
       std::istringstream inputStringStream( inLine );
       
       inputStringStream >> commandName;
-      inputStringStream >> commandIndex;
-      inputStringStream >> numOfResponses;
-      inputStringStream >> delay;
+
+      if (telemetry)
+        {
+          inputStringStream >> delay;
+          ++commandIndex;
+        }
+      else
+        {
+          inputStringStream >> commandIndex;
+          inputStringStream >> numOfResponses;
+          inputStringStream >> delay;
+        }
 
       ResponseMessageManager* responseMessageManager = 
         m_Simulator->getResponseMessageManager(commandName);
@@ -99,7 +119,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName)
           m_Simulator->registerResponseMessageManager(responseMessageManager);
         }
 
-      if( numOfResponses > 0 )
+      if( telemetry || (numOfResponses > 0 ))
         {
           inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
           lineCount++;
@@ -123,6 +143,11 @@ bool SimulatorScriptReader::readScript(const std::string& fName)
           if(response != 0)
             {
               responseMessageManager->addResponse(commandIndex, response);
+            }
+
+          if (telemetry)
+            {
+              m_Simulator->scheduleResponseForTelemetry(commandName);
             }
         }
       else

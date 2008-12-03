@@ -47,17 +47,22 @@ public:
   ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
   void registerResponseMessageManager(ResponseMessageManager* msgMgr);
   void handleWakeUp();
-  bool readScript(const std::string& fName);
+  bool readScript(const std::string& fName,
+                  const std::string& fNameTelemetry = "NULL");
   ResponseFactory* getResponseFactory() const {return m_ResponseFactory;}
   
   void scheduleResponseForCommand(const std::string& command, int uniqueId);
-
+  void scheduleResponseForTelemetry(const std::string& state);
+  
   timeval convertDoubleToTimeVal(double timeD);
 
 private:
   Simulator(){};
   void sendResponse(const ResponseMessage* respMsg);
   void scheduleNextResponse(timeval time);
+  bool constructNextResponse(const std::string& command, int uniqueId,
+                             timeval& time);
+
   
   std::map<const std::string, ResponseMessageManager*> m_CmdToRespMgr;
   std::multimap<timeval, ResponseMessage*> m_TimeToResp;

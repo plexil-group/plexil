@@ -35,9 +35,12 @@ class SimulatorScriptReader
 public:
   SimulatorScriptReader(Simulator* simulator=NULL);
   ~SimulatorScriptReader();
-  bool readScript(const std::string& fName);
+  bool readCommandScript(const std::string& fName);
+  bool readTelemetryScript(const std::string& fName);
 
 private:
+  bool readScript(const std::string& fName, bool telemetry=false);
+
   Simulator* m_Simulator;
 };
 

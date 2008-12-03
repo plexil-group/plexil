@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   SSWGCommRelay sswgRelay("RobotYellow");
   Simulator simulator(&respFactory, &sswgRelay);
 
-  simulator.readScript("Test.script");
+  simulator.readScript("Test.script", "Telemetry.script");
 
   struct sigaction sa;
   sigemptyset (&sa.sa_mask);

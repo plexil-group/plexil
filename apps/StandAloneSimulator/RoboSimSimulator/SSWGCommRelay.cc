@@ -57,9 +57,13 @@ void SSWGCommRelay::receivedMessage (const std::string& sender,
 
 void SSWGCommRelay::sendResponse(const ResponseMessage* respMsg)
 {
-  std::cout << "Sending message: " << respMsg->contents
+  std::cout << "SSWGCommRelay::sendResponse Sending message: " << respMsg->contents
             << std::endl;
-  
+  timeval currTime;
+  gettimeofday(&currTime, NULL);
+  std::cout << "Simulator::sendResponse. Current time: " 
+            << currTime.tv_sec << std::endl;
+
   if (m_Connected) 
     m_SSWGClient.sendMessage(m_UniqueIdToCommand[respMsg->id] + "," + respMsg->contents, 
                              m_UniqueIdToSender[respMsg->id]);

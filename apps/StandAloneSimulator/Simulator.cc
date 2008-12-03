@@ -78,9 +78,13 @@ Simulator::~Simulator()
   pthread_mutex_destroy(&m_TimerMutex);
 }
 
-bool Simulator::readScript(const std::string& fName)
+bool Simulator::readScript(const std::string& fName,
+                           const std::string& fNameTelemetry)
 {
-  return m_SimulatorScriptReader.readScript(fName);
+  bool status = m_SimulatorScriptReader.readCommandScript(fName);
+  if (fNameTelemetry != "NULL") 
+    status &= m_SimulatorScriptReader.readTelemetryScript(fNameTelemetry);
+  return status;
 }
 
 ResponseMessageManager* Simulator::getResponseMessageManager(const std::string& cmdName) const
@@ -99,14 +103,33 @@ void Simulator::registerResponseMessageManager(ResponseMessageManager* msgMgr)
 void Simulator::scheduleResponseForCommand(const std::string& command,
                                            int uniqueId)
 {
+  timeval time;
+  std::cout << "Simulator::scheduleResponseForCommand for command: " << command 
+            << std::endl;
+  bool valid = constructNextResponse(command, uniqueId, time);
+  if (valid) scheduleNextResponse(time);
+}
+
+void Simulator::scheduleResponseForTelemetry(const std::string& state)
+{
+  timeval time;
+  std::cout << "Simulator::scheduleResponseForCommand for telemetry: " << state 
+            << std::endl;
+  bool valid = constructNextResponse(state, INT_MAX, time);
+  if (valid) scheduleNextResponse(time);
+}
+
+bool Simulator::constructNextResponse(const std::string& command,
+                                      int uniqueId, timeval& time)
+{
   std::map<const std::string, ResponseMessageManager*>::iterator iter;
 
   if ((iter = m_CmdToRespMgr.find(command)) == m_CmdToRespMgr.end())
     {
-      std::cerr << "Simulator::scheduleResponseForMessage. The received command: "
+      std::cerr << "Simulator::constructNextResponse. The received command: "
                 << command << " does not "
                 << "have a registered response manager. Ignoring it." << std::endl;
-      return;
+      return false;
     }
   ResponseMessageManager* msgMgr = iter->second;
   timeval tDelay;
@@ -114,10 +137,10 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
   respMsg->id = uniqueId;
   timeval currTime;
   gettimeofday(&currTime, NULL);
-  std::cout << "Simulator::scheduleResponseForMessage. Current time: " 
+  std::cout << "Simulator::constructNextResponse. Current time: " 
             << currTime.tv_sec << std::endl;
   
-  timeval time = currTime + tDelay;
+  time = currTime + tDelay;
 
   std::cout << "tDelay: " << tDelay.tv_sec << ", time: " << time.tv_sec << std::endl;
 
@@ -125,10 +148,14 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
     MutexGuard mg(&m_TimerMutex);
     m_TimeToResp.insert(std::pair<timeval, ResponseMessage*>(time, respMsg));
   }
-
-  scheduleNextResponse(time);
+  
+  return true;
 }
 
+/*
+  By passing the time as argument we can avoid yet another mutex lock in this
+  function.
+ */
 void Simulator::scheduleNextResponse(timeval time)
 {
   bool immediateResp = false;
@@ -167,7 +194,7 @@ void Simulator::handleWakeUp()
       {
 	ResponseMessage* respMsg = iter->second;
 	m_CommRelay->sendResponse(respMsg);
-	std::cout << "Sent response." << std::endl;
+	std::cout << "Simulator::handleWakeUp. Sent response." << std::endl;
 	delete respMsg;
 	m_TimeToResp.erase(iter);
       }
@@ -182,7 +209,6 @@ void Simulator::handleWakeUp()
   }
 
   if (scheduleTimer) scheduleNextResponse(time);
-
 }
 
 timeval Simulator::convertDoubleToTimeVal(double timeD)

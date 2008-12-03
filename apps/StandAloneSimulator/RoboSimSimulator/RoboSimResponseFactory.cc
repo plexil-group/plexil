@@ -25,6 +25,7 @@
 */
 #include "RoboSimResponseFactory.hh"
 #include "RoboSimResponse.hh"
+#include "GenericResponse.hh"
 
 RoboSimResponseFactory::RoboSimResponseFactory()
 {
@@ -60,7 +61,22 @@ ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval 
       if (i == NUMBER_OF_ENERGY_LEVEL_READINGS)
         return new QueryEnergyLevelResponse(tDelay, energyLevel);
     }
-  
-  // Should not reach the end unless to parse the input string
-  return NULL;
+  else if (cmdName == "RobotState")
+    {
+      const int NUMBER_OF_STATE_READINGS=3;
+      std::vector<double> state(NUMBER_OF_STATE_READINGS, 0.0);
+      int i;
+      for (i = 0; i < NUMBER_OF_STATE_READINGS; ++i)
+        {
+          double eLevel;
+          if (parseType<double>(inStr, eLevel))
+            state[i] = eLevel;
+          else
+            break;
+        }
+      if (i == NUMBER_OF_STATE_READINGS)
+        return new RobotStateResponse(tDelay, state);
+    }
+  else
+    return new GenericResponse(tDelay, "0");
 }

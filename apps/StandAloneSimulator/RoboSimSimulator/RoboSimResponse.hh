@@ -79,4 +79,29 @@ private:
   const std::vector<double> m_EnergyLevel;
 };
 
+class RobotStateResponse : public ResponseBase
+{
+public:
+  RobotStateResponse(timeval delay, const std::vector<double> state) 
+    : ResponseBase(delay), m_State(state) {}
+
+  ~RobotStateResponse(){}
+
+  virtual ResponseMessage* createResponseMessage()
+  {
+    std::ostringstream str;
+    for(unsigned int i = 0; i < m_State.size(); ++i)
+      {
+        str << m_State[i];
+        if (i < (m_State.size() - 1))
+          str << ",";
+      }
+      
+    return new ResponseMessage(-1, str.str());
+  }
+
+private:
+  const std::vector<double> m_State;
+};
+
 #endif //ROBOSIM_RESPONSE_HH
