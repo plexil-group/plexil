@@ -349,7 +349,7 @@
 	    case TIME_NUM:
 		if (recordEQ)
 		    conditionEquation += " == [";  
-		else
+		else if (recordNE)
 		    conditionEquation += " != [";
 		recordTime = true;
 		break;
@@ -364,7 +364,7 @@
                 {
                     if (recordEQ)
                         conditionEquation += " == ";
-                    else
+                    else if (recordNE)
                         conditionEquation += " != ";
                 }
 
@@ -411,7 +411,7 @@
 			    {
 				if (recordEQ)
 				    conditionEquation += " == " + text;
-				else
+				else if (recordNE)
 				    conditionEquation += " != " + text;
 
 				lonelyVariable = false;
@@ -430,12 +430,22 @@
 		    {
 			int last = equationHolder.size() - 1;
 			conditionEquation = equationHolder.get(last);
-			conditionEquation += " == \"" + text + "\"";
+                        
+                        if (recordEQ)
+                            conditionEquation += " == \"" + text + "\"";
+                        else if (recordNE)
+                            conditionEquation += " != \"" + text + "\"";
+                        
 			equationHolder.set(last, conditionEquation);
 			conditionEquation = "";
 		    }
 		else
-		    conditionEquation += " == \"" + text + "\"";
+                {
+		    if (recordEQ)
+                        conditionEquation += " == \"" + text + "\"";
+                    else if (recordNE)
+                        conditionEquation += " != \"" + text + "\"";
+                }
 	    }
 	else if (tagName.contains(VAL))
 	    {
