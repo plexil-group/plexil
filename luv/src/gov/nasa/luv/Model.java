@@ -56,12 +56,16 @@ public class Model extends Properties
     private String planName = UNKNOWN;
     
     private String scriptName = UNKNOWN;
+
+    private String libraryName = null;
     
     private int row = 0;
     
     private int totalRows = 0;
     
     private boolean rowFound = false;
+
+    private boolean unresolvedLibraryCall = false;
 
     private LinkedHashSet<String> libraryFiles = new LinkedHashSet<String>();
 
@@ -441,6 +445,19 @@ public class Model extends Properties
 	return parent;
     }
 
+    /** Get the top level ancestor of this node. 
+     * @return the top level ancestor of this node (possibly itself) or null if it is a root node
+     */
+
+    public Model getTopLevelNode()
+    {
+	if (this == getRoot())
+	    return null;
+	if (parent == getRoot())
+	    return this;
+	return parent.getTopLevelNode(); 
+    }
+
     /** Clear node of all children and properties. */
 
     public void clear()
@@ -502,7 +519,7 @@ public class Model extends Properties
     }
 
 
-    //* Notify that a library was not found.
+    //* Notify top level node that a library was not found.
     //  @param nodeName The name of the missing library node.
 
     public void addMissingLibrary(String nodeName)
@@ -514,16 +531,103 @@ public class Model extends Properties
     //  @param nodeName The name of the formerly missing library node.
     //  @return true if the node name was marked missing, false otherwise.
 
-    public boolean missingLibraryFound(String nodeName) 
+    private boolean missingLibraryFound(String nodeName) 
     {
 	return missingLibraryNodes.remove(nodeName);
     }
 
     //* Get names of library nodes missing from this model.
     //  @return Vector of node names
+
     public Set<String> getMissingLibraries()
     {
 	return missingLibraryNodes;
+    }
+
+    //* Set name of the library node referenced by this call.
+
+    public void setLibraryName(String libname)
+    {
+	libraryName = libname;
+    }
+    
+    //* Get the name of the library node referenced by this call.
+    //  @return Library node name as a String
+
+    public String getLibraryName()
+    {
+	return libraryName;
+    }
+
+    //* Set the unresolved-library-call flag
+    //  @param val The new value of the flag
+
+    public void setUnresolvedLibraryCall(boolean val)
+    {
+	unresolvedLibraryCall = val;
+    }
+
+    //* Get the unresolved-library-call flag
+    //  @return The boolean value of the flag
+
+    public boolean getUnresolvedLibraryCall()
+    {
+	return unresolvedLibraryCall;
+    }
+
+    //* Link the given library into this node and make the appropriate annotations in the top level node.
+    //  @param library The library node
+    //  @return true if the library satisfied an unresolved call, false otherwise.
+    //  @note
+
+    public boolean linkLibrary(Model library)
+    {
+	boolean result = linkLibraryInternal(library);
+	if (result) {
+	    Model topLevelNode = getTopLevelNode();
+	    if (topLevelNode != null) {
+		topLevelNode.addLibraryName(library.planName);
+		missingLibraryFound(library.modelName);
+
+		// Inherit the libraries called by this one
+		for (String libfile: library.libraryFiles)
+		    topLevelNode.addLibraryName(libfile);
+		for (String libnode: library.missingLibraryNodes)
+		    topLevelNode.addMissingLibrary(libnode);
+	    }
+	}
+	return result;
+    }
+
+    //* Link the given library into this node.
+    //  @param library The library node
+    //  @return true if the library satisfied an unresolved call, false otherwise.
+
+    private boolean linkLibraryInternal(Model library)
+    {
+	boolean result = linkLibraryLocal(library);
+	if (!result) {
+	    for (Model child : children) {
+		result = result || child.linkLibraryInternal(library);
+	    }
+	}
+	return result;
+    }
+
+    //* Link the given library into this library call node.
+    //  @param library The library node
+    //  @return true if the library satisfied an unresolved call, false otherwise.
+
+    private boolean linkLibraryLocal(Model library)
+    {
+	if (type.equals(NODE)
+	    && getProperty(NODETYPE_ATTR).equals(LIBRARYNODECALL)
+	    && libraryName.equals(library.modelName)) {
+	    addChild((Model) library.clone());
+	    unresolvedLibraryCall = false;
+	    return true;
+	}
+	return false;
     }
 
     /** Join all data from the two models together.
@@ -559,7 +663,7 @@ public class Model extends Properties
       
     public Model findChildByName(String name)
     {
-	for (Model child: children)
+	for (Model child : children)
 	    if (child.modelName.equals(name))
 		return child;
 	return null;

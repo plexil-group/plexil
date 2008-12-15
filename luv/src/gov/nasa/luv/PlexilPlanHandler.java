@@ -58,7 +58,8 @@
 	 lessThan = false,
 	 greaterThan = false,
 	 lessThanEqual = false,
-	 greaterThanEqual = false;
+	 greaterThanEqual = false,
+	 loadingLibrary = false;
      private String save = "";  
      private String conditionEquation = "";
      private ArrayList<String> equationHolder = new ArrayList<String>();
@@ -134,6 +135,12 @@
 				   attributes.getValue(i));
 	     }
 
+	 }
+
+	 // starting to load a library def'n?
+
+	 else if (tagName.equals(PLEXIL_LIBRARY)) {
+	     loadingLibrary = true;
 	 }
 
 	 // if it's not a property we can ignore it
@@ -249,20 +256,16 @@
     {
 	if (text != null) {
 	    if (libraryNodeCall) {
-		Model library = 
-		    Luv.getLuv().findLibraryNode(text,
-						 !Luv.getLuv().getFileHandler().getStopSearchForMissingLibs());
+		nodeToUpdate.setLibraryName(text);
+		nodeToUpdate.setUnresolvedLibraryCall(true);
+		boolean askAboutMissingLibs = 
+		    !loadingLibrary && !Luv.getLuv().getFileHandler().getStopSearchForMissingLibs();
+		Model library = Luv.getLuv().findLibraryNode(text, askAboutMissingLibs);
 		if (library == null) {
 		    topLevelNode.addMissingLibrary(text);
 		}
 		else {
-		    topLevelNode.addLibraryName(library.getPlanName());
-		    // Inherit the libraries called by this one
-		    for (String libfile: library.getLibraryNames())
-			topLevelNode.addLibraryName(libfile);
-		    for (String libnode: library.getMissingLibraries())
-			topLevelNode.addMissingLibrary(libnode);
-		    nodeToUpdate.addChild((Model) library.clone());
+		    nodeToUpdate.linkLibrary(library);
 		}
 		libraryNodeCall = false;
 	    }
@@ -742,6 +745,7 @@
 	greaterThan = false; 
 	lessThanEqual = false;
 	greaterThanEqual = false;
+	loadingLibrary = false;
 	save = "";  
 	conditionEquation = "";
 	equationHolder = new ArrayList<String>();

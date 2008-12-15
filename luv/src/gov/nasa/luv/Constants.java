@@ -748,7 +748,6 @@ public class Constants
          SCRIPT_FILENAME,
 
          PLEXIL_PLAN,
-         PLEXIL_LIBRARY,
          PLEXIL_SCRIPT,
          LIBRARY,
 

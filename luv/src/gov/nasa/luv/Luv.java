@@ -188,14 +188,12 @@ public class Luv extends JFrame
 	else if (plan.equivalent(other)) 
         {
 	    // same 'plan' loaded, so use 'other' previous plan
-            
 	    Model.getRoot().removeChild(plan);
 	    plan = other;
 	}
 	else 
         {
 	    // new 'plan' has same root name as 'other' previous plan, but new 'plan' supersedes
-            
 	    Model.getRoot().removeChild(other);
 	}
 
@@ -211,9 +209,10 @@ public class Luv extends JFrame
             executionState();
             addRunToRecentRunList();
 	}
-                        
+
 	refreshNodeInfoTabbedWindow();
         setTitle();
+	showStatus("Plan \"" + plan.getModelName() + "\" loaded");
                         
 	// Determine if the Luv Viewer should pause before executing. 
                                                   
@@ -227,6 +226,15 @@ public class Luv extends JFrame
     // Called from PlexilPlanHandler::endElement()
     public void handleNewLibrary(Model library)
     {
+	// See if this library was referenced before it was defined
+	for (Model child : Model.getRoot().getChildren()) {
+	    if (child.getMissingLibraries().contains(library.getModelName())) {
+		// link in the new library
+		child.linkLibrary(library);
+	    }
+	}
+	
+	showStatus("Library \"" + library.getModelName() + "\" loaded");
 	Model.getRoot().planChanged();
     }
 
@@ -1062,8 +1070,7 @@ public class Luv extends JFrame
                     return "ERROR: library \"" + libName + "\" not found.";
                 }
                 else {
-                    currentPlan.addLibraryName(lib.getPlanName());
-                    currentPlan.missingLibraryFound(libName);
+		    currentPlan.linkLibrary(lib);
                 }
             }
         }
@@ -1120,24 +1127,18 @@ public class Luv extends JFrame
     {
 	Model result = Model.getRoot().findChildByName(name);
 
-	if (result == null ||
-            !(new File(result.getPlanName()).exists())) 
-        {
-	    if (askUser) 
-            {
+	if (result == null) {
+	    if (askUser) {
 		// Prompt user for a file containing the missing library, and (try to) load it
 		File library = null;
-		try 
-                {
+		try {
 		    library = fileHandler.searchForLibrary(name);
 		}
-		catch (InterruptedIOException e) 
-                {
+		catch (InterruptedIOException e) {
                     displayErrorMessage(e, "ERROR: exception occurred while finding library node");
 		}
 
-		if (library != null) 
-                {
+		if (library != null) {
 		    result = Model.getRoot().findChildByName(name);
 		}
 	    }
