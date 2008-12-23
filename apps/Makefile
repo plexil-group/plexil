@@ -1,6 +1,10 @@
+# A simple Makefile for building the Plexil apps.
+
+# NOTE: robosim is excluded because it requires Open GL.  Build it
+# separately if you want it.
+
 default:
 	@ cd TestExec; jam
-	@ cd robosim; $(MAKE)
 	@ cd StandAloneSimulator; $(MAKE)
 
 clean:
