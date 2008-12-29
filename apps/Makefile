@@ -5,9 +5,8 @@
 
 default:
 	@ cd TestExec; jam
-	@ cd StandAloneSimulator; $(MAKE)
+	@ cd StandAloneSimulator; $(MAKE) simcore SHARED=1
 
 clean:
 	@ cd TestExec; jam clean
-	@ cd robosim; $(MAKE) clean
 	@ cd StandAloneSimulator; $(MAKE) clean
