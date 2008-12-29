@@ -199,7 +199,7 @@ public class Constants
             // node state
 
             put(INACTIVE,        Color.LIGHT_GRAY);
-            put(WAITING,         Color.YELLOW.darker()); 
+            put(WAITING,         Color.RED); 
             put(EXECUTING,       Color.GREEN.darker());
             put(FINISHING,       new Color(128, 128, 255));
             put(FINISHED,        Color.GRAY);
