@@ -37,6 +37,7 @@ import javax.swing.JSeparator;
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
@@ -67,6 +68,10 @@ public class Luv extends JFrame
     private static boolean planStep                    = false;        // is instance of luv currently stepping?    
     private static boolean isExecuting                 = false;        // is instance of luv currently executing? 
     private static boolean highlightRow                = false;
+    
+    private boolean newPlan                            = false;
+    private String regex                               = "";
+    private RegexModelFilter regexFilter = new RegexModelFilter(true, "");
       
     // handler instances
       
@@ -78,6 +83,7 @@ public class Luv extends JFrame
     private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();
     private static VariablesWindow              variablesWindow               = new VariablesWindow();
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
+    private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
     
     // Luv Viewer Menus
       
@@ -89,7 +95,7 @@ public class Luv extends JFrame
       
     private DebugWindow luvViewerDebugWindow; 
       
-    SocketServer s;
+    private SocketServer s;
       
     // current working instance of luv
       
@@ -111,7 +117,6 @@ public class Luv extends JFrame
 		define(PROP_NET_SERVER_PORT,  PROP_NET_SERVER_PORT_DEF);
 		define(PROP_NET_RECENT_HOST,  PROP_NET_RECENT_HOST_DEF);
 		define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
-		define(PROP_VIEW_HIDE_PLEXILLISP, PROP_VIEW_HIDE_PLEXILLISP_DEF);
 		define(PROP_FILE_RECENT_PLAN_DIR, getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
 		define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
 	    }
@@ -185,7 +190,7 @@ public class Luv extends JFrame
 	    // brand new 'plan' loaded
             closeNodeInfoWindow();
 	}
-	else if (plan.equivalent(other)) 
+	else if (plan.equivalent(other) && !newPlan) 
         {
 	    // same 'plan' loaded, so use 'other' previous plan
 	    Model.getRoot().removeChild(plan);
@@ -197,7 +202,7 @@ public class Luv extends JFrame
 	    Model.getRoot().removeChild(other);
 	}
 
-	if (!plan.equivalent(currentPlan))
+	if (!plan.equivalent(currentPlan) || newPlan)
         {           
             currentPlan = plan;
 	    Model.getRoot().planChanged();
@@ -220,7 +225,7 @@ public class Luv extends JFrame
         {
 	    pausedState(); 
 	    runMenu.setEnabled(true);
-	}
+        }
     }
 
     // Called from PlexilPlanHandler::endElement()
@@ -297,6 +302,8 @@ public class Luv extends JFrame
     public VariablesWindow        getVariablesWindow()        { return variablesWindow; }         // get current variables window
     
     public NodeInfoTabbedWindow   getNodeInfoTabbedWindow()   { return nodeInfoTabbedWindow; }    // get current NodeInfoTabbedWindow
+    
+    public HideOrShowWindow       getHideOrShowWindow()       { return hideOrShowWindow; }        // get current hideOrShowWindow
 
     public FileHandler            getFileHandler()            { return fileHandler; }             // get current file handler
       
@@ -329,6 +336,11 @@ public class Luv extends JFrame
     {
 	isExecuting = value;
 	updateBlockingMenuItems();
+    }
+    
+    public void setNewPlan(boolean value)
+    {
+        newPlan = value;
     }
 
     public boolean breaksAllowed()
@@ -415,7 +427,7 @@ public class Luv extends JFrame
 	if (viewMenu.getMenuComponentCount() > 0) {
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
 	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-	    viewMenu.getItem(TOGGLE_LISP_NODES_MENU_ITEM).setEnabled(true); 
+	    viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true);
 	    viewMenu.setEnabled(true);
 	}
 	else
@@ -458,7 +470,7 @@ public class Luv extends JFrame
 	    {
 		viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
 		viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-		viewMenu.getItem(TOGGLE_LISP_NODES_MENU_ITEM).setEnabled(true); 
+		viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true); 
 		viewMenu.setEnabled(true);
 	    }
 	else
@@ -669,8 +681,6 @@ public class Luv extends JFrame
                 variablesWindow.createVariableTab(node); 
             }
         }
-        
-        this.setVisible(true); // this brings the main Luv window to the front in case you have other windows open
     }
     
     private void closeNodeInfoWindow()
@@ -741,6 +751,10 @@ public class Luv extends JFrame
 		    luvDebugWindowAction.actionPerformed(null);   
 		}
 	    });
+            
+        // create Hide Or Show Window
+            
+        hideOrShowWindow.createHideOrShowWindow();        
             
         setTitle();
                 
@@ -815,7 +829,7 @@ public class Luv extends JFrame
         {
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(false);
 	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
-	    viewMenu.getItem(TOGGLE_LISP_NODES_MENU_ITEM).setEnabled(false);              
+	    viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(false);  
 	}
 	viewMenu.setEnabled(false);
           
@@ -1012,6 +1026,29 @@ public class Luv extends JFrame
     { 
 	System.exit(0); 
     }
+    
+    public void refreshPlan()
+    {
+        newPlan = true;
+        fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+        newPlan = false;
+        reloadPlanState();
+        TreeTableView.getCurrent().expandAll.actionPerformed(null);
+    }
+    
+    public void addRegex(String regex)
+    {
+        this.regex = regex;
+        regexFilter.addRegex(this.regex);
+        refreshPlan();
+    }
+    
+    public void removeRegex(String regex)
+    {
+        this.regex = regex;
+        regexFilter.removeRegex(this.regex);
+        refreshPlan();
+    }     
       
     private String createCommandLine() throws IOException
     {
@@ -1176,12 +1213,16 @@ public class Luv extends JFrame
 		      META_MASK)
 	{
 	    public void actionPerformed(ActionEvent e)
-	    {                   
+	    {  
+                newPlan = true;
+                
 		// Loading done in the file handler at present
 		int option = fileHandler.choosePlan();
 
 		if (option == APPROVE_OPTION) 
                 {
+                    
+                    
 		    // Do these things only if we loaded a plan
 		    if (isExecuting) 
                     {
@@ -1198,6 +1239,8 @@ public class Luv extends JFrame
                     
                     openPlanState();
 		}
+                
+                newPlan = false;
 	    }
 	};
       
@@ -1242,6 +1285,8 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e) 
 	    {
+                newPlan = true;
+                
 		if (isExecuting) 
                 {
 		    try 
@@ -1291,6 +1336,7 @@ public class Luv extends JFrame
                     displayErrorMessage(null, "ERROR: unable to identify plan.");
                 }
 
+                newPlan = false;
 	    }
 	};
 
@@ -1449,35 +1495,20 @@ public class Luv extends JFrame
 		}                     
 	    }
 	};
- 
-    /** Action show node types in different ways. */
+        
+        /** Action to hide or show nodes. */
       
-    LuvAction showHidePrlNodes = 
-	new LuvAction("Toggle Plexil Lisp Nodes", 
-		      "Show or hide nodes that start with \"plexillisp_\".",
-		      VK_P, 
+    LuvAction hideOrShowNodes = 
+	new LuvAction("Hide/Show Nodes...", 
+		      "Hide or Show specific nodes by full or partial name.",
+                      VK_H, 
 		      META_MASK)
-	{
-	    RegexModelFilter filter = 
-		new RegexModelFilter(properties.getBoolean(PROP_VIEW_HIDE_PLEXILLISP),
-				     "^plexilisp_.*");
-
+	{            
+            public void actionPerformed(ActionEvent e)
 	    {
-		filter.addListener(
-				   new AbstractModelFilter.Listener()
-				   {
-				       @Override public void filterChanged(AbstractModelFilter filter) 
-				       {
-					   viewHandler.resetView();
-				       }
-				   });
-	    }
-
-	    public void actionPerformed(ActionEvent e)
-	    {
-		filter.setEnabled(!filter.isEnabled());
-		properties.set(PROP_VIEW_HIDE_PLEXILLISP, filter.isEnabled());
-	    }
+                hideOrShowWindow.makeVisible();
+            }
+    
 	};
 
     /** Action to exit the program. */

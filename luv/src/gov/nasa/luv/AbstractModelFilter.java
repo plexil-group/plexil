@@ -26,8 +26,6 @@
 
 package gov.nasa.luv;
 
-//import static gov.nasa.luv.Constants.*;
-
 import java.util.Vector;
 
 /** A filter to apply to a model. */

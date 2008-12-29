@@ -104,7 +104,7 @@ public class ViewHandler
 	Luv.getLuv().getViewMenu().removeAll(); 
 	for(LuvAction action: currentView.getViewActions())
             Luv.getLuv().getViewMenu().add(action);
-	Luv.getLuv().getViewMenu().add(Luv.getLuv().showHidePrlNodes);
+        Luv.getLuv().getViewMenu().add(Luv.getLuv().hideOrShowNodes);
 
 
 	// enable that menu if we actually have menu items

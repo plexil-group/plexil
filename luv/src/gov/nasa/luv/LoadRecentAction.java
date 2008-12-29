@@ -62,8 +62,10 @@ public class LoadRecentAction extends LuvAction
 
     public void actionPerformed(ActionEvent e)
     {
-       if (Luv.getLuv().getIsExecuting())
-       {
+        Luv.getLuv().setNewPlan(true);
+        
+        if (Luv.getLuv().getIsExecuting())
+        {
            try 
            {
                Luv.getLuv().stopExecutionState();
@@ -73,17 +75,19 @@ public class LoadRecentAction extends LuvAction
            {
                Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");              
            }
-       }
+        }
      
-       try 
-       {
-           Luv.getLuv().getFileHandler().loadRecentRun(recentIndex);
+        try 
+        {
+            Luv.getLuv().getFileHandler().loadRecentRun(recentIndex);
            
-           Luv.getLuv().loadRecentRunState();
-       } 
-       catch (IOException ex) 
-       {
-          Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");
-       }        
+            Luv.getLuv().loadRecentRunState();
+        } 
+        catch (IOException ex) 
+        {
+            Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");
+        } 
+        
+        Luv.getLuv().setNewPlan(false);        
     }
 }

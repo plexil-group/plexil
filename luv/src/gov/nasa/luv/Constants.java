@@ -350,7 +350,7 @@ public class Constants
               
       public static final int EXPAND_MENU_ITEM              = 0;
       public static final int COLLAPSE_MENU_ITEM            = 1;
-      public static final int TOGGLE_LISP_NODES_MENU_ITEM   = 2;
+      public static final int HIDE_OR_SHOW_NODES_MENU_ITEM  = 2;
       
       // debug menu
 

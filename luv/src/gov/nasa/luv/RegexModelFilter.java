@@ -26,36 +26,62 @@
 
 package gov.nasa.luv;
 
+import java.util.ArrayList;
+
 /** A filter to apply to a model. */
 
 public class RegexModelFilter extends AbstractModelFilter
 {
-      /** the filters regular expression */
-      
-      String regex;
+    /** the filters regular expression */
+    
+    ArrayList<String> listOfRegex = new ArrayList<String>();
 
-      /** Constructs an regular expression model filter for a model name.
-       *
-       * @param enabled set enabled stat of this filter
-       * @param regex the regular expression which when matched filters
-       * the given model
-       */
+    /** Constructs an regular expression model filter for a model name.
+    *
+    * @param enabled set enabled stat of this filter
+    * @param regex the regular expression which when matched filters
+    * the given model
+    */
 
-      public RegexModelFilter(boolean enabled, String regex)
-      {
-         super(enabled);
-         this.regex = regex;
-      }
+    public RegexModelFilter(boolean enabled, String regex)
+    {
+        super(enabled);
+        listOfRegex.add(regex); 
+    }
 
-      /** {@inheritDoc} */
+    /** {@inheritDoc} */
 
-      public boolean isFiltered(Model model)
-      {
-         String value = model.getModelName();
-         if (value == null)
+    public boolean isFiltered(Model model)
+    {
+        String value = model.getModelName();
+        
+        if (value == null)
             return false;
-         
-         return value.matches(regex);
-      }
+        else
+        {
+            for (String regex : listOfRegex)
+            {
+                if (value.matches(regex))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void addRegex(String regex)
+    {
+        listOfRegex.add(regex); 
+    }
+    
+    public boolean removeRegex(String regex)
+    {
+        return listOfRegex.remove(regex);
+    }
+    
+    public Object[] getRegexList()
+    {
+        return listOfRegex.toArray();
+    }
 }
 

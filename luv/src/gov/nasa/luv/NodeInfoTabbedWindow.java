@@ -122,6 +122,7 @@ public class NodeInfoTabbedWindow extends JPanel
         frame.add(new NodeInfoTabbedWindow(node, nodeName), BorderLayout.CENTER);
         
         //Display the window.
+        frame.setLocationRelativeTo(Luv.getLuv());
         frame.pack();
         frame.setVisible(true);
     }
