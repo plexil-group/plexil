@@ -37,7 +37,6 @@ import javax.swing.JSeparator;
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
@@ -1033,7 +1032,7 @@ public class Luv extends JFrame
         fileHandler.loadPlan(new File(currentPlan.getPlanName()));
         newPlan = false;
         reloadPlanState();
-        TreeTableView.getCurrent().expandAll.actionPerformed(null);
+        TreeTableView.getCurrent().expandAllNodes();
     }
     
     public void addRegex(String regex)
@@ -1507,8 +1506,7 @@ public class Luv extends JFrame
             public void actionPerformed(ActionEvent e)
 	    {
                 hideOrShowWindow.makeVisible();
-            }
-    
+            }   
 	};
 
     /** Action to exit the program. */

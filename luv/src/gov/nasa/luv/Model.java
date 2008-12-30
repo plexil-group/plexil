@@ -668,6 +668,130 @@ public class Model extends Properties
 		return child;
 	return null;
     }
+    
+    private boolean nodeEqualsRegex(String name)
+    {
+        boolean foundName = false;
+        
+        if (this.modelName.equals(name))
+        {
+            foundName = true;
+        }
+        else
+        {
+            for (Model child: children)
+            {
+                if (foundName)
+                    break;
+                
+                foundName = child.nodeEqualsRegex(name);               
+            }
+        }
+        
+	return foundName;
+    }
+    
+    private boolean nodeStartsWithRegex(String name)
+    {
+        boolean foundName = false;
+        
+        if (this.modelName.startsWith(name))
+        {
+            foundName = true;
+        }
+        else
+        {
+            for (Model child: children)
+            {
+                if (foundName)
+                    break;
+                
+                foundName = child.nodeStartsWithRegex(name);               
+            }
+        }
+        
+	return foundName;
+    }
+    
+    private boolean nodeContainsRegex(String name)
+    {
+        boolean foundName = false;
+        
+        if (this.modelName.contains(name))
+        {
+            foundName = true;
+        }
+        else
+        {
+            for (Model child: children)
+            {
+                if (foundName)
+                    break;
+                
+                foundName = child.nodeContainsRegex(name);               
+            }
+        }
+        
+	return foundName;
+    }
+    
+    private boolean nodeEndsWithRegex(String name)
+    {
+        boolean foundName = false;
+        
+        if (this.modelName.endsWith(name))
+        {
+            foundName = true;
+        }
+        else
+        {
+            for (Model child: children)
+            {
+                if (foundName)
+                    break;
+                
+                foundName = child.nodeEndsWithRegex(name);               
+            }
+        }
+        
+	return foundName;
+    }
+    
+    public boolean nodesMatchRegex(String regex)
+    {
+        boolean foundName = false;
+        String strippedRegex = "";
+        
+        if (regex.endsWith("*"))
+        {
+            //*regex* --> regex
+            if (regex.startsWith("*"))
+            {
+                strippedRegex = regex.substring(1, regex.length() - 1);
+                foundName = nodeContainsRegex(strippedRegex);
+            }
+            //regex* --> regex
+            else
+            {
+                strippedRegex = regex.substring(0, regex.length() - 1);                
+                foundName = nodeStartsWithRegex(strippedRegex);
+            }
+        }
+        //*regex --> regex
+        else if (regex.startsWith("*"))
+        {
+            strippedRegex = regex.substring(1, regex.length());
+            foundName = nodeEndsWithRegex(strippedRegex);
+        }
+        //regex --> regex
+        else
+        {
+            strippedRegex = regex;
+            foundName = nodeEqualsRegex(strippedRegex);
+        }
+        
+        return foundName;
+    }
 
     /** Find all children of a given type. 
      *

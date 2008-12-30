@@ -82,9 +82,18 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         showButton = new JButton(showString);
         showButton.setActionCommand(showString);
         showButton.addActionListener(new ShowListener());
+        showButton.setEnabled(false);      
 
         textField = new JTextField("[Type node name here]", 10);
-        textField.addActionListener(hideListener);
+        textField.setForeground(Color.lightGray);
+        textField.addActionListener(hideListener); 
+        
+        textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                textField.setText("");
+            }
+        });
+        
         textField.getDocument().addDocumentListener(hideListener);
 
         //Create a panel that uses BoxLayout.
@@ -112,10 +121,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             //there's a valid selection
             //so go ahead and remove whatever's selected.
             int index = list.getSelectedIndex();
-            String regex = (String) listModel.remove(index);
-            String formattedRegex = formatRegex(regex);
-            Luv.getLuv().removeRegex(formattedRegex);
-
             int size = listModel.getSize();
 
             if (size == 0) 
@@ -125,6 +130,11 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             } 
             else 
             { 
+                showButton.setEnabled(true);
+                String regex = (String) listModel.remove(index);
+                String formattedRegex = formatRegex(regex);
+                Luv.getLuv().removeRegex(formattedRegex);
+            
                 //Select an index.
                 if (index == listModel.getSize()) 
                 {
@@ -139,7 +149,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     }
 
     //This listener is shared by the text field and the hide button.
-    class HideListener implements ActionListener, DocumentListener 
+    class HideListener implements ActionListener, DocumentListener
     {
         private boolean alreadyEnabled = false;
         private JButton button;
@@ -152,12 +162,25 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         // Required by ActionListener.
         public void actionPerformed(ActionEvent e) 
         {
-            String regex = textField.getText();
-
+            String regex = textField.getText();            
+            
             // User didn't type in a unique name...
             if (regex.equals("") || alreadyInList(regex)) 
             {
-                Toolkit.getDefaultToolkit().beep();
+                JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          regex + " has already been entered", 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
+                textField.requestFocusInWindow();
+                textField.selectAll();
+                return;
+            }
+            else if (!Luv.getLuv().getCurrentPlan().nodesMatchRegex(regex))
+            {
+                JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          "No node names match " + regex, 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
                 textField.requestFocusInWindow();
                 textField.selectAll();
                 return;
@@ -204,6 +227,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         //Required by DocumentListener.
         public void insertUpdate(DocumentEvent e) 
         {
+            textField.setForeground(Color.BLACK);
             enableButton();
         }
 
@@ -248,22 +272,26 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
         if (regex.endsWith("*"))
         {
+            //*regex* --> .*regex.*
             if (regex.startsWith("*"))
             {
                 formattedRegex = regex.substring(1, regex.length() - 1);
                 formattedRegex = ".*" + formattedRegex + ".*";
             }
+            //regex* --> ^regex.*
             else
             {
                 formattedRegex = regex.substring(0, regex.length() - 1);
                 formattedRegex = "^" + formattedRegex + ".*";
             }
         }
+        //*regex --> .*regex
         else if (regex.startsWith("*"))
         {
             formattedRegex = regex.substring(1, regex.length());
             formattedRegex = ".*" + formattedRegex;
         }
+        //regex --> regex
         else
             formattedRegex = regex;
 
