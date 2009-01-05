@@ -28,6 +28,8 @@ package gov.nasa.luv;
 
 import java.util.ArrayList;
 
+import static gov.nasa.luv.Constants.*;
+
 /** A filter to apply to a model. */
 
 public class RegexModelFilter extends AbstractModelFilter
@@ -71,7 +73,7 @@ public class RegexModelFilter extends AbstractModelFilter
 
     public void addRegex(String regex)
     {
-        listOfRegex.add(regex); 
+        listOfRegex.add(regex);        
     }
     
     public boolean removeRegex(String regex)

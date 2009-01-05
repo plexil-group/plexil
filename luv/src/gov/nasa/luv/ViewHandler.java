@@ -147,5 +147,11 @@ public class ViewHandler
             Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
 	}
     }
-
+    
+    public void refreshRegexView(Model model)
+    {
+        currentModel = model;
+	setView(new TreeTableView("", model));
+        Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
+    }
 }

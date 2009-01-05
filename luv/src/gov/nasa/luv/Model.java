@@ -46,6 +46,8 @@ public class Model extends Properties
     /** the type (usually the XML tag) which identifies what kind of
      * thing this model represents.  All other features of the model
      * are stored in properties and children. */
+    
+    private int row_number = -1;
 
     private String type = UNKNOWN;
       
@@ -58,12 +60,6 @@ public class Model extends Properties
     private String scriptName = UNKNOWN;
 
     private String libraryName = null;
-    
-    private int row = 0;
-    
-    private int totalRows = 0;
-    
-    private boolean rowFound = false;
 
     private boolean unresolvedLibraryCall = false;
 
@@ -108,10 +104,16 @@ public class Model extends Properties
      *
      * @param type string representation of the of object this is modeling
      */
-
+    
     public Model(String type)
     {
 	this.type = type;
+    }
+    
+    public Model(String type, int row)
+    {
+	this.type = type;
+        this.row_number = row;
     }
     
     public HashMap<Integer, ArrayList> getConditionMap()
@@ -133,6 +135,11 @@ public class Model extends Properties
     {
         return !conditionMap.isEmpty();
     }
+    
+    public boolean hasCondition(String condition)
+    {
+        return conditionMap.containsKey(getConditionNum(condition));
+    }
       
     public void setPathToNode()
     {
@@ -147,44 +154,6 @@ public class Model extends Properties
         }
           
 	pathToNode = modelName + pathToNode;
-    }
-    
-    public void addTotalNumberOfRows(Model model)
-    {
-        totalRows++;
-        
-        for (int i = 0; i < model.getChildCount(); i++)
-        {
-            addTotalNumberOfRows(model.getChild(i));
-        }
-    }
-    
-    public int getRowNumberOfNode(Model node, String nodeName)
-    { 
-        if (node.getModelName().equals(nodeName))
-        {
-            row++;
-            rowFound = true;
-        }
-        else if (!rowFound)
-        { 
-            row++;
-            for (int i = 0; i < node.getChildCount(); i++)
-            {
-                getRowNumberOfNode(node.getChild(i), nodeName);
-            }
-        }
- 
-        if (row == totalRows && !rowFound)
-            return -1;
-        else
-            return row;
-    }
-    
-    public void resetRowNumber()
-    {
-        row = 0;
-        rowFound = false;
     }
       
     public String getPathToNode()
@@ -221,6 +190,16 @@ public class Model extends Properties
             return scriptName.substring(scriptName.lastIndexOf("/") + 1, scriptName.length());
         else
             return scriptName;
+    }
+    
+    public int getRowNumber()
+    {
+        return row_number;
+    }
+    
+    public void setRowNumber(int row)
+    {
+        this.row_number = row;
     }
 
     public void setModelName(String name)
@@ -665,6 +644,14 @@ public class Model extends Properties
     {
 	for (Model child : children)
 	    if (child.modelName.equals(name))
+		return child;
+	return null;
+    }
+    
+    public Model findChildByRowNumber(int row)
+    {
+        for (Model child : children)
+	    if (child.row_number == row)
 		return child;
 	return null;
     }

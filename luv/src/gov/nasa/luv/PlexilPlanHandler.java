@@ -37,6 +37,7 @@
 
  public class PlexilPlanHandler extends AbstractDispatchableHandler
  {
+     private int row_number = 0;
      private boolean recordVariable = true;
      private String variableHolder = VAR + ":";  // : is used as a place holder in between variable elements, (see Model.java addVariableinfo())
      
@@ -97,21 +98,14 @@
          
          if (tagName.equals("PLEXILScript"))
          {
-            try 
-            {
-                throw new Exception();
-            } 
-            catch (Exception ex) 
-            {
-                Luv.getLuv().displayErrorMessage(null, "ERROR: loaded script instead of plan");
-            }
+            Luv.getLuv().displayErrorMessage(null, "ERROR: loaded script instead of plan");
          }
 
 	 // if this SHOULD be a child node, make that happen
 
 	 if (tagName.equals(NODE)) 
          {
-	     Model child = new Model(tagName);
+	     Model child = new Model(tagName, row_number++);
 
 	     // if there is a parent, add child to it
 	     // *** There should ALWAYS be a parent!
@@ -265,6 +259,7 @@
 		    topLevelNode.addMissingLibrary(text);
 		}
 		else {
+                    library.setRowNumber(row_number++);
 		    nodeToUpdate.linkLibrary(library);
 		}
 		libraryNodeCall = false;

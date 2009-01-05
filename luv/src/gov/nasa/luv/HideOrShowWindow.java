@@ -31,6 +31,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import static gov.nasa.luv.Constants.*;
+
 public class HideOrShowWindow extends JPanel implements ListSelectionListener
 {
     private JFrame frame;
@@ -46,17 +48,26 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     private JPanel buttonPane;
     private HideListener hideListener;
 
-    public HideOrShowWindow() 
+    public HideOrShowWindow(String regexList) 
     {
-        super(new BorderLayout());
+        super(new BorderLayout());            
 
         listModel = new DefaultListModel();
+        if (!regexList.equals(UNKNOWN) && !regexList.equals(""))
+        {
+            String [] array = regexList.split(", ");
+            for (int i = 0; i < array.length; i++)
+            {
+                listModel.insertElementAt(array[i], i);
+            }
+        }
         
         String instructionText = "<html>\n" +
                 "Type the full or partial name of the nodes you want to hide." +
                 "<br>Use (<b>*</b>) wildcard as a prefix and/or suffix to select multiple nodes." +
                 "<br>" + 
                 "<br>For example:" +
+                "<br>Type <b>Child</b> to hide node <b>Child</b> only" +
                 "<br>Type <b>Child*</b> to hide nodes Child<b>1</b>, Child<b>2</b>, and Child<b>3</b>" +
                 "<br>Type <b>*Child</b> to hide nodes <b>a</b>Child, <b>b</b>Child, and <b>c</b>Child" +
                 "<br>Type <b>*Child*</b> to hide nodes <b>a</b>Child<b>1</b>, <b>b</b>Child<b>2</b>, and <b>c</b>Child<b>3</b>";
@@ -70,9 +81,11 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setSelectedIndex(0);
         list.addListSelectionListener(this);
-        list.setVisibleRowCount(5);
-        JScrollPane listScrollPane = new JScrollPane(list);
+        list.setVisibleRowCount(5);   
+        JScrollPane listScrollPane = new JScrollPane(list);  
+        listScrollPane.setPreferredSize(new Dimension(250, 80));
 
+        
         hideButton = new JButton(hideString);
         hideListener = new HideListener(hideButton);
         hideButton.setActionCommand(hideString);
@@ -82,7 +95,11 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         showButton = new JButton(showString);
         showButton.setActionCommand(showString);
         showButton.addActionListener(new ShowListener());
-        showButton.setEnabled(false);      
+        
+        if (listModel.isEmpty())
+            showButton.setEnabled(false);      
+        else
+            showButton.setEnabled(true);
 
         textField = new JTextField("[Type node name here]", 10);
         textField.setForeground(Color.lightGray);
@@ -110,7 +127,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
         add(instructionsPane, BorderLayout.NORTH);
         add(listScrollPane, BorderLayout.CENTER);
-        add(buttonPane, BorderLayout.PAGE_END);       
+        add(buttonPane, BorderLayout.PAGE_END);     
     }
 
     class ShowListener implements ActionListener 
@@ -132,8 +149,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             { 
                 showButton.setEnabled(true);
                 String regex = (String) listModel.remove(index);
-                String formattedRegex = formatRegex(regex);
-                Luv.getLuv().removeRegex(formattedRegex);
+                Luv.getLuv().removeRegex(regex);
             
                 //Select an index.
                 if (index == listModel.getSize()) 
@@ -175,20 +191,9 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                 textField.selectAll();
                 return;
             }
-            else if (!Luv.getLuv().getCurrentPlan().nodesMatchRegex(regex))
-            {
-                JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                          "No node names match " + regex, 
-                                          "Error", 
-                                          JOptionPane.ERROR_MESSAGE);
-                textField.requestFocusInWindow();
-                textField.selectAll();
-                return;
-            }
             else
             {
-                String formattedRegex = formatRegex(regex);
-                Luv.getLuv().addRegex(formattedRegex);
+                Luv.getLuv().addRegex(regex);
             }               
 
             int index = list.getSelectedIndex(); //get selected index
@@ -204,8 +209,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             }
 
             listModel.insertElementAt(textField.getText(), index);
-            //If we just wanted to add to the end, we'd do this:
-            //listModel.addElement(employeeName.getText());
 
             //Reset the text field.
             textField.requestFocusInWindow();
@@ -227,7 +230,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         //Required by DocumentListener.
         public void insertUpdate(DocumentEvent e) 
         {
-            textField.setForeground(Color.BLACK);
+            textField.setForeground(Color.BLACK);            
             enableButton();
         }
 
@@ -265,38 +268,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             return false;
         }
     }
-    
-    private String formatRegex(String regex)
-    {  
-        String formattedRegex = "";
-
-        if (regex.endsWith("*"))
-        {
-            //*regex* --> .*regex.*
-            if (regex.startsWith("*"))
-            {
-                formattedRegex = regex.substring(1, regex.length() - 1);
-                formattedRegex = ".*" + formattedRegex + ".*";
-            }
-            //regex* --> ^regex.*
-            else
-            {
-                formattedRegex = regex.substring(0, regex.length() - 1);
-                formattedRegex = "^" + formattedRegex + ".*";
-            }
-        }
-        //*regex --> .*regex
-        else if (regex.startsWith("*"))
-        {
-            formattedRegex = regex.substring(1, regex.length());
-            formattedRegex = ".*" + formattedRegex;
-        }
-        //regex --> regex
-        else
-            formattedRegex = regex;
-
-        return formattedRegex;
-    }
 
     //This method is required by ListSelectionListener.
     public void valueChanged(ListSelectionEvent e) 
@@ -322,11 +293,11 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         frame.setVisible(true);
     }
 
-    public void createHideOrShowWindow() 
+    public void createHideOrShowWindow(String regexList) 
     {
         frame = new JFrame("Hide/Show Nodes");
 
-        frame.add(new HideOrShowWindow(), BorderLayout.CENTER);
+        frame.add(new HideOrShowWindow(regexList), BorderLayout.CENTER);
 
         frame.setLocationRelativeTo(Luv.getLuv());
         frame.pack();  

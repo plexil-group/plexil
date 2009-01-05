@@ -30,6 +30,7 @@ import java.awt.Point;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Vector;
@@ -283,8 +284,7 @@ public class Constants
       public static final String    PROP_TTV_COL_WIDTH_BASE   = "treetable.colwidth-";
       public static final String    PROP_TTV_TEXT_TYPES    = "treetable.text-types";
 
-      public static final String    PROP_VIEW_HIDE_PLEXILLISP  = "view.hide-plexilisp";
-      public static final boolean   PROP_VIEW_HIDE_PLEXILLISP_DEF  = false;
+      public static final String    PROP_HIDE_SHOW_LIST  = "hide.show.list";
 
       public static final String    PROP_PLEXIL_HOME = "PLEXIL_HOME";
       public static final String    PROP_USER_HOME = "user.home";
@@ -470,21 +470,21 @@ public class Constants
       {
           switch(condition)
           {
-              case SKIP_CONDITION_NUM:                          return "Skip";
-              case START_CONDITION_NUM:                         return "Start"; 
-              case END_CONDITION_NUM:                           return "End";  
-              case INVARIANT_CONDITION_NUM:                     return "Invariant"; 
-              case PRE_CONDITION_NUM:                           return "Pre"; 
-              case POST_CONDITION_NUM:                          return "Post";
-              case REPEAT_CONDITION_NUM:                        return "Repeat";
-              case ANCESTOR_INVARIANT_CONDITION_NUM:            return "Ancestor Invariant";
-              case ANCESTOR_END_CONDITION_NUM:                  return "Ancestor End";   
-              case PARENT_EXECUTING_CONDITION_NUM:              return "Parent Executing";  
-              case PARENT_FINISHED_CONDITION_NUM:               return "Parent Finished";  
-              case CHILDREN_WAITING_OR_FINISHED_NUM:            return "Children Waiting or Finished";
-              case ABORT_COMPLETE_NUM:                          return "Abort Complete";  
-              case PARENT_WAITING_CONDITION_NUM:                return "Parent Waiting";    
-              case COMMAND_HANDLE_RECEIVED_CONDITION_NUM:       return "Command Handle Received";
+              case SKIP_CONDITION_NUM:                          return SKIP_CONDITION;
+              case START_CONDITION_NUM:                         return START_CONDITION; 
+              case END_CONDITION_NUM:                           return END_CONDITION;  
+              case INVARIANT_CONDITION_NUM:                     return INVARIANT_CONDITION; 
+              case PRE_CONDITION_NUM:                           return PRE_CONDITION; 
+              case POST_CONDITION_NUM:                          return PRE_CONDITION;
+              case REPEAT_CONDITION_NUM:                        return POST_CONDITION;
+              case ANCESTOR_INVARIANT_CONDITION_NUM:            return REPEAT_CONDITION;
+              case ANCESTOR_END_CONDITION_NUM:                  return ANCESTOR_END_CONDITION;   
+              case PARENT_EXECUTING_CONDITION_NUM:              return PARENT_EXECUTING_CONDITION;  
+              case PARENT_FINISHED_CONDITION_NUM:               return PARENT_FINISHED_CONDITION;  
+              case CHILDREN_WAITING_OR_FINISHED_NUM:            return CHILDREN_WAITING_OR_FINISHED;
+              case ABORT_COMPLETE_NUM:                          return ABORT_COMPLETE;  
+              case PARENT_WAITING_CONDITION_NUM:                return PARENT_WAITING_CONDITION;    
+              case COMMAND_HANDLE_RECEIVED_CONDITION_NUM:       return COMMAND_HANDLE_RECEIVED_CONDITION;
               default:                                          return "error";
           }
       }
@@ -557,6 +557,18 @@ public class Constants
          PARENT_WAITING_CONDITION,
          COMMAND_HANDLE_RECEIVED_CONDITION,
       };
+      
+      public static int getPropertyNum(String property)
+      {
+        if (property.equals(MODEL_STATE))
+            return 1;
+        else if (property.equals(MODEL_OUTCOME))
+            return 2;
+        else if (property.equals(MODEL_FAILURE_TYPE))
+            return 3;
+        else
+            return -1;
+      }
 
       // displayed node types
 

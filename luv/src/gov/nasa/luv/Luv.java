@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
+import java.util.ArrayList;
 import java.util.Set;
 import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
@@ -69,7 +70,6 @@ public class Luv extends JFrame
     private static boolean highlightRow                = false;
     
     private boolean newPlan                            = false;
-    private String regex                               = "";
     private RegexModelFilter regexFilter = new RegexModelFilter(true, "");
       
     // handler instances
@@ -82,7 +82,7 @@ public class Luv extends JFrame
     private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();
     private static VariablesWindow              variablesWindow               = new VariablesWindow();
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
-    private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
+    private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow(UNKNOWN);
     
     // Luv Viewer Menus
       
@@ -118,6 +118,8 @@ public class Luv extends JFrame
 		define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
 		define(PROP_FILE_RECENT_PLAN_DIR, getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
 		define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
+                
+                define(PROP_HIDE_SHOW_LIST, getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_HIDE_SHOW_LIST));
 	    }
 	};
     
@@ -256,7 +258,7 @@ public class Luv extends JFrame
     {
 	if (shouldBlock()) 
         {
-	    statusMessageHandler.showStatus((luvBreakPointHandler.getBreakPoint() == null
+            statusMessageHandler.showStatus((luvBreakPointHandler.getBreakPoint() == null
 					     ? "Stopped at beginning of plan"
 					     : "Stopped at " + luvBreakPointHandler.getBreakPoint()) +
 					    " - " + 
@@ -268,10 +270,7 @@ public class Luv extends JFrame
            
             if (luvBreakPointHandler.getBreakPoint() != null)
             {
-                String nodeName = luvBreakPointHandler.getBreakPointNodeName();
-                currentPlan.resetRowNumber();
-                currentPlan.addTotalNumberOfRows(currentPlan);
-                int row = currentPlan.getRowNumberOfNode(currentPlan, nodeName);
+                int row = luvBreakPointHandler.getBreakPointNodeRow();
                 TreeTableView.getCurrent().highlightBreakingRow(row);
             }
 
@@ -381,7 +380,7 @@ public class Luv extends JFrame
 	fileMenu.setEnabled(true);
           
 	updateBlockingMenuItems();
-	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
+	allowBreaksAction.putValue(NAME, "Enable Breaks");
         runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
         runMenu.setEnabled(true);
         
@@ -405,7 +404,7 @@ public class Luv extends JFrame
         
 	// set certain menu items
           
-	execAction.putValue(NAME, EXECUTE_PLAN);
+	execAction.putValue(NAME, "Execute Plan");
 
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
@@ -438,7 +437,8 @@ public class Luv extends JFrame
 
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
-    {        
+    {  
+        //System.out.println("STOP: " + System.currentTimeMillis());
         // set only certain luv viewer variables
           
 	planPaused = false;
@@ -450,7 +450,7 @@ public class Luv extends JFrame
   
 	// set certain menu items
           
-	execAction.putValue(NAME, EXECUTE_PLAN);
+	execAction.putValue(NAME, "Execute Plan");
 
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
@@ -503,7 +503,7 @@ public class Luv extends JFrame
           
 	showStatus("Executing...", Color.GREEN.darker());
         
-        execAction.putValue(NAME, STOP_EXECUTION);
+        execAction.putValue(NAME, "Stop Execution");
         
         fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
@@ -588,7 +588,7 @@ public class Luv extends JFrame
     {
 	allowBreaks = false;
         
-	allowBreaksAction.putValue(NAME, ENABLE_BREAKS);
+	allowBreaksAction.putValue(NAME, "Enable Breaks");
         
         setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
         
@@ -608,7 +608,7 @@ public class Luv extends JFrame
     {
 	allowBreaks = true;
         
-	allowBreaksAction.putValue(NAME, DISABLE_BREAKS);
+	allowBreaksAction.putValue(NAME, "Disable Breaks");
         
         setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
         
@@ -753,7 +753,8 @@ public class Luv extends JFrame
             
         // create Hide Or Show Window
             
-        hideOrShowWindow.createHideOrShowWindow();        
+        hideOrShowWindow.createHideOrShowWindow(properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN));      
+        updateRegexList();
             
         setTitle();
                 
@@ -986,6 +987,11 @@ public class Luv extends JFrame
     {
 	properties.setProperty(key, value);
     }
+    
+    public void setProperty(String key, ArrayList<String> value)
+    {
+	properties.define(key, value);
+    }
 
     // get a program wide property
 
@@ -1026,28 +1032,92 @@ public class Luv extends JFrame
 	System.exit(0); 
     }
     
-    public void refreshPlan()
+    public void refreshRegexView()
     {
-        newPlan = true;
-        fileHandler.loadPlan(new File(currentPlan.getPlanName()));
-        newPlan = false;
-        reloadPlanState();
-        TreeTableView.getCurrent().expandAllNodes();
+        viewHandler.refreshRegexView(currentPlan);
     }
     
     public void addRegex(String regex)
     {
-        this.regex = regex;
-        regexFilter.addRegex(this.regex);
-        refreshPlan();
+        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
+        if (list.equals(UNKNOWN) || list.equals(""))
+            list = regex;
+        else
+            list += ", " + regex;
+        properties.setProperty(PROP_HIDE_SHOW_LIST, list);
+
+        regexFilter.addRegex(formatRegex(regex));
+        
+        if (viewHandler.getCurrentView() != null)
+            refreshRegexView();
     }
     
     public void removeRegex(String regex)
     {
-        this.regex = regex;
-        regexFilter.removeRegex(this.regex);
-        refreshPlan();
-    }     
+        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
+        if (!list.equals(UNKNOWN))
+        {
+            String [] array = list.split(", ");
+            list = "";
+            for (int i = 0; i < array.length; i++)
+            {
+                if (!array[i].equals(regex))
+                    list = array[i] + ", ";
+            }
+        }
+        properties.setProperty(PROP_HIDE_SHOW_LIST, list);
+        
+        regexFilter.removeRegex(formatRegex(regex));
+        
+        if (viewHandler.getCurrentView() != null)
+            refreshRegexView();
+    }
+    
+    private void updateRegexList()
+    {
+        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);
+        
+        if (!list.equals(UNKNOWN))
+        {
+            String [] array = list.split(", ");
+            for (int i = 0; i < array.length; i++)
+            {
+                regexFilter.addRegex(formatRegex(array[i]));
+            }
+        }
+    }
+    
+    private String formatRegex(String regex)
+    {  
+        String formattedRegex = "";
+
+        if (regex.endsWith("*"))
+        {
+            //*regex* --> .*regex.*
+            if (regex.startsWith("*"))
+            {
+                formattedRegex = regex.substring(1, regex.length() - 1);
+                formattedRegex = ".*" + formattedRegex + ".*";
+            }
+            //regex* --> ^regex.*
+            else
+            {
+                formattedRegex = regex.substring(0, regex.length() - 1);
+                formattedRegex = "^" + formattedRegex + ".*";
+            }
+        }
+        //*regex --> .*regex
+        else if (regex.startsWith("*"))
+        {
+            formattedRegex = regex.substring(1, regex.length());
+            formattedRegex = ".*" + formattedRegex;
+        }
+        //regex --> regex
+        else
+            formattedRegex = regex;
+
+        return formattedRegex;
+    }
       
     private String createCommandLine() throws IOException
     {
@@ -1373,7 +1443,7 @@ public class Luv extends JFrame
     /** Action to allow breakpoints. */
          
     LuvAction allowBreaksAction =
-	new LuvAction(ENABLE_BREAKS,
+	new LuvAction("Enable Breaks",
 		      "Select this to allow breakpoints.",
 		      VK_F5)
 	{
@@ -1413,7 +1483,7 @@ public class Luv extends JFrame
     /** Action to execute a plexil plan. */
 
     LuvAction execAction = 
-	new LuvAction(EXECUTE_PLAN, 
+	new LuvAction("Execute Plan", 
 		      "Execute currently loaded plan.",
 		      VK_F6)
 	{
@@ -1421,7 +1491,7 @@ public class Luv extends JFrame
 	    {
                 try 
                 {
-
+                    //System.out.println("START: " + System.currentTimeMillis());
                     if (!isExecuting) 
                     {
                         preExecutionState();
@@ -1451,7 +1521,7 @@ public class Luv extends JFrame
 	};
 
     LuvAction pauseAction = 
-	new LuvAction(PAUSE_OR_RESUME_PLAN, 
+	new LuvAction("Pause/Resume plan", 
 		      "Pause or resume an executing plan, if it is blocking.",
 		      VK_ENTER)
 	{
@@ -1476,7 +1546,7 @@ public class Luv extends JFrame
     /** Action to step a paused plexil plan. */
 
     LuvAction stepAction = 
-	new LuvAction(STEP, 
+	new LuvAction("Step", 
 		      "Step a plan, pausing it if is not paused.",
 		      VK_SPACE)
 	{

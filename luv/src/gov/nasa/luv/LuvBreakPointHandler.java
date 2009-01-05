@@ -45,7 +45,7 @@ public class LuvBreakPointHandler
       // breakpoint variables
       
       private BreakPoint                        breakPoint = null;                                     // if break has occured, the causal break point object
-      private HashMap<BreakPoint, ModelPath>    breakPointMap = new HashMap<BreakPoint, ModelPath>();  // collection of all breakpoints
+      private HashMap<BreakPoint, Integer>    breakPointMap = new HashMap<BreakPoint, Integer>();  // collection of all breakpoints
       private Vector<BreakPoint>                unfoundBreakPoints = new Vector<BreakPoint>();         // breakpoints not found in current plan   
       private Vector<String>                    breakPointList = new Vector<String>();                 // list of breakpoints to check for repeats
       
@@ -59,12 +59,12 @@ public class LuvBreakPointHandler
           return breakPoint;
       }
       
-      public String getBreakPointNodeName()
+      public int getBreakPointNodeRow()
       {
-          return breakPoint.getModel().getModelName();
+          return breakPoint.getModel().getRowNumber();
       }
       
-      public HashMap<BreakPoint, ModelPath> getBreakPointMap()
+      public HashMap<BreakPoint, Integer> getBreakPointMap()
       {
           return breakPointMap;
       }
@@ -92,13 +92,14 @@ public class LuvBreakPointHandler
 
       public void addBreakPoint(BreakPoint breakPoint, Model model)
       {
-         ModelPath mp = new ModelPath(model);
+         //ModelPath mp = new ModelPath(model);
          
          if (!breakPointList.contains(breakPoint.toString()))
          {
              breakPointList.add(breakPoint.toString());
 
-             breakPointMap.put(breakPoint, mp);
+             //breakPointMap.put(breakPoint, mp);
+             breakPointMap.put(breakPoint, model.getRowNumber());
              
              Luv.getLuv().enableRemoveBreaksMenuItem(true);
 
@@ -174,7 +175,7 @@ public class LuvBreakPointHandler
       
       // map all the breakpoints into the new model
       
-      public void mapBreakPointsToNewModel(Model model)
+      /*public void mapBreakPointsToNewModel(Model model)
       {
 	    getUnfoundBreakPoints().clear();
          
@@ -185,6 +186,28 @@ public class LuvBreakPointHandler
 
 		Model target = path.find(model);
 		if (target != null)
+                {
+                    bp.setModel(target);
+		}
+		else
+		    getUnfoundBreakPoints().add(bp);
+	    }
+      }*/
+      
+      // map all the breakpoints into the new model
+      
+      public void mapBreakPointsToNewModel(Model model)
+      {
+	    getUnfoundBreakPoints().clear();
+         
+	    for (Map.Entry<BreakPoint, Integer> pair: getBreakPointMap().entrySet()) 
+            {
+		BreakPoint bp = pair.getKey();
+		int row_number = pair.getValue();
+
+		Model target = model.findChildByRowNumber(row_number);
+
+                if (target != null)
                 {
                     bp.setModel(target);
 		}

@@ -81,18 +81,30 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
 	// if this is the node state update, update the node state
 
-	else if (localName.equals(NODE_STATE_UPDATE)) {
-            current.setProperty(MODEL_STATE, state);
-            current.setProperty(MODEL_OUTCOME, outcome);
-            current.setProperty(MODEL_FAILURE_TYPE, failureType);
+	else if (localName.equals(NODE_STATE_UPDATE)) 
+        {
+            if (!current.getProperty(MODEL_STATE, UNKNOWN).equals(state))
+                current.setProperty(MODEL_STATE, state);
             
-            for (Map.Entry<String, String> condition: conditions.entrySet())
-		current.setProperty(condition.getKey(), condition.getValue());
+            if (!outcome.equals(UNKNOWN) || !current.getProperty(MODEL_OUTCOME, UNKNOWN).equals(UNKNOWN))
+                current.setProperty(MODEL_OUTCOME, outcome);
+            
+            if (!failureType.equals(UNKNOWN) || !current.getProperty(MODEL_FAILURE_TYPE, UNKNOWN).equals(UNKNOWN))
+                current.setProperty(MODEL_FAILURE_TYPE, failureType);
+          
+            if (current.hasConditions())
+            {
+                for (Map.Entry<String, String> condition: conditions.entrySet())
+                {
+                    if (current.hasCondition(condition.getKey()))
+                        current.setProperty(condition.getKey(), condition.getValue());
+                }
+            }
 	}
 
 	// if this is one of the conditions, record it
          
-	else 
+	else
             for (String condition: ALL_CONDITIONS)
 		if (localName.equals(condition))
 		    conditions.put(condition, text);

@@ -206,9 +206,9 @@ public class TreeTableView extends JTreeTable implements View
       {
           boolean valid = true;
           
-          if (row > 0)
+          if (row > -1)
           {
-              currentBreakingRow = row - 1;
+              currentBreakingRow = row;
               tree.setSelectionRow(currentBreakingRow);
               lastView.setSelectionBackground(Color.PINK);
           }
@@ -497,8 +497,7 @@ public class TreeTableView extends JTreeTable implements View
                   {
                         public void propertyChange(Model model, String property)
                         {
-                            ((AbstractTableModel)view.getModel())
-                               .fireTableDataChanged();
+                            ((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property));
                         }
                   });
 
@@ -507,7 +506,6 @@ public class TreeTableView extends JTreeTable implements View
                      children.add(new Wrapper(child));
 	       }
             }
-
 
             public static void setView(TreeTableView view)
             {
@@ -655,7 +653,7 @@ public class TreeTableView extends JTreeTable implements View
 
       public void collapseAllNodes()
       {
-         for (int i = 0; i < tree.getRowCount(); i++)
+         for (int i = tree.getRowCount() - 1; i >= 0; i--) 
             tree.collapseRow(i);
       }
 

@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import java.util.ArrayList;
 import static gov.nasa.luv.Constants.*;
 
 /**
@@ -228,6 +229,13 @@ public class Properties extends java.util.Properties
             if (stringValue == null)
                set(name, defaultValue);
       }
+      
+      public void define(String name, ArrayList<String> defaultValue)
+      {
+            String stringValue = getProperty(name);
+            if (stringValue == null)
+               set(name, defaultValue);
+      }
 
       /**
        * Set a int property.  If the property does not exist, it will be
@@ -341,6 +349,21 @@ public class Properties extends java.util.Properties
                      (int)value.getY()     + ", " +
                      (int)value.getWidth() + ", " +
                      (int)value.getHeight());
+      }
+      
+      public void set(String name, ArrayList<String> value)
+      {
+         String list = "";
+          
+         for (int i = 0; i < value.size(); i++)
+         {
+            list += value.get(i) + ", ";
+         }
+  
+         if (!list.equals(""))
+            list = list.substring(0, list.length() - 2);
+         
+         setProperty(name, list);
       }
 
       /**
