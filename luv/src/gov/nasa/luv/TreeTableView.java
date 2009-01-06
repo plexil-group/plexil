@@ -501,9 +501,20 @@ public class TreeTableView extends JTreeTable implements View
                         }
                   });
 
-               for (Model child: model.getChildren()) {
+               addNodesToTree(model);
+               
+            }
+            
+            private void addNodesToTree(Model model)
+            {
+               for (Model child: model.getChildren()) 
+               {
                   if (!AbstractModelFilter.isModelFiltered(child))
                      children.add(new Wrapper(child));
+                  else
+                  {
+                      addNodesToTree(child);
+                  }
 	       }
             }
 
