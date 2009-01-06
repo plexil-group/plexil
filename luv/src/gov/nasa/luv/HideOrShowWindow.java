@@ -107,7 +107,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         
         textField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
-                textField.setText("");
+                if (textField.getText().equals("[Type node name here]"))
+                    textField.setText("");
             }
         });
         
@@ -217,7 +218,9 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             //Select the new item and make it visible.
             list.setSelectedIndex(index);
             list.ensureIndexIsVisible(index);
-        }      
+        }   
+        
+        
 
         //This method tests for string equality. You could certainly
         //get more sophisticated about the algorithm.  For example,
@@ -268,7 +271,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             return false;
         }
     }
-
+    
     //This method is required by ListSelectionListener.
     public void valueChanged(ListSelectionEvent e) 
     {
