@@ -30,7 +30,6 @@ import java.awt.Point;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Vector;
@@ -104,6 +103,28 @@ public class Constants
       public static ImageIcon getIcon(String tag)
       {
          return iconLut.get(tag);
+      }
+      
+      public static String getHideCheckBoxDescription(String nodeType)
+      {
+         String nodeName = "";
+         
+         if (nodeType.equals(NODELIST_ICO_NAME))
+              nodeName = NODELIST;
+         else if (nodeType.equals(COMMAND_ICO_NAME))
+              nodeName = COMMAND;
+         else if (nodeType.equals(ASSN_ICO_NAME))
+              nodeName = ASSN;
+         else if (nodeType.equals(EMPTY_ICO_NAME))
+              nodeName = EMPTY;
+         else if (nodeType.equals(FUNCALL_ICO_NAME))
+              nodeName = FUNCCALL;
+         else if (nodeType.equals(UPDATE_ICO_NAME))
+              nodeName = UPDATE;
+         else if (nodeType.equals(LIBCALL_ICO_NAME))
+              nodeName = LIBRARYNODECALL;            
+              
+         return "<html><table cellpadding=0><tr><td><img src=file:" + ICONS_DIR + nodeType + "/></td><td width=" + 3 + "><td>Show " + nodeName + " Nodes</td></tr></table></html>";
       }
 
       // table view constants

@@ -45,22 +45,25 @@ public class RegexModelFilter extends AbstractModelFilter
     * the given model
     */
 
-    public RegexModelFilter(boolean enabled, String regex)
+    public RegexModelFilter(boolean enabled)
     {
         super(enabled);
-        listOfRegex.add(regex); 
     }
 
     /** {@inheritDoc} */
 
     public boolean isFiltered(Model model)
     {
+        String type = model.getProperty(NODETYPE_ATTR, UNKNOWN);
         String value = model.getModelName();
         
-        if (value == null)
+        if (value == null && type.equals(UNKNOWN))
             return false;
         else
         {
+            if (Luv.getLuv().getProperty(type).equals("HIDE"))
+                return true;
+            
             for (String regex : listOfRegex)
             {
                 if (value.matches(regex))

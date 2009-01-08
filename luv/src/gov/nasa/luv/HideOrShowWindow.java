@@ -36,32 +36,37 @@ import static gov.nasa.luv.Constants.*;
 public class HideOrShowWindow extends JPanel implements ListSelectionListener
 {
     private JFrame frame;
+    private JLabel instructions;    
     private JList list;
-    private DefaultListModel listModel;
-
-    private static final String hideString = "Hide";
-    private static final String showString = "Show";
-    private JButton showButton;
-    private JButton hideButton;
+    private DefaultListModel listModel; 
     private JTextField textField;
-    private JLabel instructions;
-    private JPanel buttonPane;
-    private HideListener hideListener;
+    private JButton showButton;
+    private JButton hideButton;        
+    private JScrollPane listScrollPane;    
+    private HideListener hideListener;   
+    private JPanel instructionsPane;
+    private Box buttonPane;
+    private JPanel checkBoxList;
+    
+    public HideOrShowWindow() {}
 
     public HideOrShowWindow(String regexList) 
     {
-        super(new BorderLayout());            
-
-        listModel = new DefaultListModel();
-        if (!regexList.equals(UNKNOWN) && !regexList.equals(""))
-        {
-            String [] array = regexList.split(", ");
-            for (int i = 0; i < array.length; i++)
-            {
-                listModel.insertElementAt(array[i], i);
-            }
-        }
+        super(new BorderLayout());  
         
+        createIntructionSection();
+        createScrollListSection(regexList);
+        createHideShowButtonSection();  
+        createCheckBoxList(); 
+             
+        add(instructionsPane, BorderLayout.NORTH);
+        add(listScrollPane, BorderLayout.WEST);
+        add(checkBoxList, BorderLayout.EAST);
+        add(buttonPane, BorderLayout.SOUTH);
+    }
+    
+    private void createIntructionSection()
+    {     
         String instructionText = "<html>\n" +
                 "Type the full or partial name of the nodes you want to hide." +
                 "<br>Use (<b>*</b>) wildcard as a prefix and/or suffix to select multiple nodes." +
@@ -74,28 +79,41 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         
         instructions = new JLabel(instructionText);
         instructions.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        JPanel instructionsPane = new JPanel();
+        instructionsPane = new JPanel();
         instructionsPane.add(instructions);
-
+    }
+    
+    private void createScrollListSection(String regexList)
+    {
+        listModel = new DefaultListModel();
+        if (!regexList.equals(UNKNOWN) && !regexList.equals(""))
+        {
+            String [] array = regexList.split(", ");
+            for (int i = 0; i < array.length; i++)
+            {
+                listModel.insertElementAt(array[i], i);
+            }
+        }
         list = new JList(listModel);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setSelectedIndex(0);
         list.addListSelectionListener(this);
         list.setVisibleRowCount(5);   
-        JScrollPane listScrollPane = new JScrollPane(list);  
-        listScrollPane.setPreferredSize(new Dimension(250, 80));
-
-        
-        hideButton = new JButton(hideString);
+        listScrollPane = new JScrollPane(list);  
+        listScrollPane.setPreferredSize(new Dimension(300, 80));
+    }
+    
+    private void createHideShowButtonSection()
+    {
+        hideButton = new JButton("Hide");
         hideListener = new HideListener(hideButton);
-        hideButton.setActionCommand(hideString);
+        hideButton.setActionCommand("Hide");
         hideButton.addActionListener(hideListener);
         hideButton.setEnabled(false);      
 
-        showButton = new JButton(showString);
-        showButton.setActionCommand(showString);
-        showButton.addActionListener(new ShowListener());
-        
+        showButton = new JButton("Show");
+        showButton.setActionCommand("Show");
+        showButton.addActionListener(new ShowListener());       
         if (listModel.isEmpty())
             showButton.setEnabled(false);      
         else
@@ -103,32 +121,127 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
         textField = new JTextField("[Type node name here]", 10);
         textField.setForeground(Color.lightGray);
-        textField.addActionListener(hideListener); 
-        
+        textField.addActionListener(hideListener);         
         textField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (textField.getText().equals("[Type node name here]"))
                     textField.setText("");
             }
-        });
+        });        
+        textField.getDocument().addDocumentListener(hideListener);  
         
-        textField.getDocument().addDocumentListener(hideListener);
-
-        //Create a panel that uses BoxLayout.
-        buttonPane = new JPanel();
-        buttonPane.setLayout(new BoxLayout(buttonPane,
-                                           BoxLayout.LINE_AXIS));
+        buttonPane = Box.createHorizontalBox();
+        buttonPane.add(Box.createHorizontalGlue());
         buttonPane.add(showButton);
         buttonPane.add(Box.createHorizontalStrut(5));
         buttonPane.add(new JSeparator(SwingConstants.VERTICAL));
         buttonPane.add(Box.createHorizontalStrut(5));
         buttonPane.add(textField);
         buttonPane.add(hideButton);
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+    }
+    
+    private void createCheckBoxList()
+    {
+        checkBoxList = new JPanel();
+        checkBoxList.setLayout(new BoxLayout(checkBoxList, BoxLayout.Y_AXIS));
+        
+        final JCheckBox assnBox = new JCheckBox(getHideCheckBoxDescription(ASSN_ICO_NAME), isBoxChecked(ASSN));
+        final JCheckBox cmdBox = new JCheckBox(getHideCheckBoxDescription(COMMAND_ICO_NAME), isBoxChecked(COMMAND)); 
+        final JCheckBox updateBox = new JCheckBox(getHideCheckBoxDescription(UPDATE_ICO_NAME), isBoxChecked(UPDATE)); 
+        final JCheckBox emptyBox = new JCheckBox(getHideCheckBoxDescription(EMPTY_ICO_NAME), isBoxChecked(EMPTY)); 
+        final JCheckBox funcBox = new JCheckBox(getHideCheckBoxDescription(FUNCALL_ICO_NAME), isBoxChecked(FUNCCALL));
+        final JCheckBox listBox = new JCheckBox(getHideCheckBoxDescription(NODELIST_ICO_NAME), isBoxChecked(NODELIST)); 
+        final JCheckBox libBox = new JCheckBox(getHideCheckBoxDescription(LIBCALL_ICO_NAME), isBoxChecked(LIBRARYNODECALL));
+        
+        assnBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        cmdBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        updateBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        emptyBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        funcBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        listBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+  
+        checkBoxList.add(listBox);
+        checkBoxList.add(assnBox); 
+        checkBoxList.add(cmdBox); 
+        checkBoxList.add(emptyBox);
+        checkBoxList.add(funcBox);
+        checkBoxList.add(libBox);
+        checkBoxList.add(updateBox); 
 
-        add(instructionsPane, BorderLayout.NORTH);
-        add(listScrollPane, BorderLayout.CENTER);
-        add(buttonPane, BorderLayout.PAGE_END);     
+        assnBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!assnBox.isSelected())
+                    Luv.getLuv().setProperty(ASSN, "HIDE");
+                else
+                    Luv.getLuv().setProperty(ASSN, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+        cmdBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!cmdBox.isSelected())
+                    Luv.getLuv().setProperty(COMMAND, "HIDE");
+                else
+                    Luv.getLuv().setProperty(COMMAND, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+        updateBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!updateBox.isSelected())
+                    Luv.getLuv().setProperty(UPDATE, "HIDE");
+                else
+                    Luv.getLuv().setProperty(UPDATE, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+        emptyBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!emptyBox.isSelected())
+                    Luv.getLuv().setProperty(EMPTY, "HIDE");
+                else
+                    Luv.getLuv().setProperty(EMPTY, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+        funcBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!funcBox.isSelected())
+                    Luv.getLuv().setProperty(FUNCCALL, "HIDE");
+                else
+                    Luv.getLuv().setProperty(FUNCCALL, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+        listBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!listBox.isSelected())
+                    Luv.getLuv().setProperty(NODELIST, "HIDE");
+                else
+                    Luv.getLuv().setProperty(NODELIST, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+        libBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!libBox.isSelected())
+                    Luv.getLuv().setProperty(LIBRARYNODECALL, "HIDE");
+                else
+                    Luv.getLuv().setProperty(LIBRARYNODECALL, "SHOW");
+                Luv.getLuv().refreshRegexView();
+            }
+        });
+    }
+
+    private boolean isBoxChecked(String type)
+    {
+        if (Luv.getLuv().getProperty(type).equals("SHOW"))
+            return true;
+        else if (Luv.getLuv().getProperty(type).equals(UNKNOWN))
+            return true;
+        else
+            return false;
     }
 
     class ShowListener implements ActionListener 

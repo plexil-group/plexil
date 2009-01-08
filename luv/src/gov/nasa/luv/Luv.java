@@ -70,7 +70,7 @@ public class Luv extends JFrame
     private static boolean highlightRow                = false;
     
     private boolean newPlan                            = false;
-    private RegexModelFilter regexFilter = new RegexModelFilter(true, "");
+    private RegexModelFilter regexFilter = new RegexModelFilter(true);
       
     // handler instances
       
@@ -82,7 +82,7 @@ public class Luv extends JFrame
     private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();
     private static VariablesWindow              variablesWindow               = new VariablesWindow();
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
-    private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow(UNKNOWN);
+    private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
     
     // Luv Viewer Menus
       
@@ -1040,6 +1040,7 @@ public class Luv extends JFrame
     public void addRegex(String regex)
     {
         String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
+        
         if (list.equals(UNKNOWN) || list.equals(""))
             list = regex;
         else
@@ -1054,15 +1055,16 @@ public class Luv extends JFrame
     
     public void removeRegex(String regex)
     {
-        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
+        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);     
+        
         if (!list.equals(UNKNOWN))
         {
             String [] array = list.split(", ");
             list = "";
             for (int i = 0; i < array.length; i++)
             {
-                if (!array[i].equals(regex))
-                    list = array[i] + ", ";
+                if (!array[i].equals(regex) && !array[i].equals(""))
+                    list += array[i] + ", ";
             }
         }
         properties.setProperty(PROP_HIDE_SHOW_LIST, list);
@@ -1075,11 +1077,11 @@ public class Luv extends JFrame
     
     private void updateRegexList()
     {
-        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);
+        String namelist = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);
         
-        if (!list.equals(UNKNOWN))
+        if (!namelist.equals(UNKNOWN))
         {
-            String [] array = list.split(", ");
+            String [] array = namelist.split(", ");
             for (int i = 0; i < array.length; i++)
             {
                 regexFilter.addRegex(formatRegex(array[i]));
