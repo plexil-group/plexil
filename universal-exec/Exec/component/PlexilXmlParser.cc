@@ -838,14 +838,22 @@ namespace PLEXIL
       // node body optional
       
       TiXmlElement* bodyXml = xml->FirstChildElement(BODY_TAG);
-      if (bodyXml != NULL)
-      {
-         TiXmlElement* realBodyXml = bodyXml->FirstChildElement();
-         if (realBodyXml != NULL)
-         {
-            retval->setBody(parseBody(realBodyXml));
-         }
-      }
+      if (bodyXml == NULL)
+	{
+	  checkParserException(retval->nodeType() == NodeType_Empty,
+			       "Node id " << retval->nodeId()
+			       << " of type "
+			       << retval->nodeTypeString()
+			       << " has no NodeBody element");
+	}
+      else
+	{
+	  TiXmlElement* realBodyXml = bodyXml->FirstChildElement();
+	  if (realBodyXml != NULL)
+	    {
+	      retval->setBody(parseBody(realBodyXml));
+	    }
+	}
       
       return retval;
    }
