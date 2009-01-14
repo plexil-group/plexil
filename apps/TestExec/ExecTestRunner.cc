@@ -152,7 +152,7 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       TiXmlDocument libraryXml(*libraryName);
       if (!libraryXml.LoadFile())
       {
-         std::cout << "Error parsing library '"
+         std::cout << "XML error parsing library '"
                    << *libraryName << "': "
                    << libraryXml.ErrorDesc()
                    << " line "
@@ -164,8 +164,21 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       }
 
       PlexilXmlParser parser;
-      exec->addLibraryNode(parser.parse(libraryXml.FirstChildElement("PlexilPlan")
-					->FirstChildElement("Node")));
+      PlexilNodeId libnode;
+      try
+	{
+	  libnode = 
+	    parser.parse(libraryXml.FirstChildElement("PlexilPlan")->FirstChildElement("Node"));
+	}
+      catch (ParserException& e)
+	{
+	  std::cout << "XML error parsing library '"
+		    << *libraryName << "': \n"
+		    << e.what()
+		    << std::endl;
+	  return -1;
+	}
+      exec->addLibraryNode(libnode);
    }
 
    if (planName != "error")
@@ -173,7 +186,7 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       TiXmlDocument plan(planName);
       if (!plan.LoadFile())
       {
-         std::cout << "Error parsing plan '"
+         std::cout << "XML error parsing plan '"
                    << planName << "': " 
                    << plan.ErrorDesc()
                    << " line "
@@ -184,9 +197,20 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
          return -1;
       }
       PlexilXmlParser parser;
-      PlexilNodeId root =
-         parser.parse(plan.FirstChildElement("PlexilPlan")
-                      ->FirstChildElement("Node"));
+      PlexilNodeId root;
+      try 
+	{
+	  root = 
+	    parser.parse(plan.FirstChildElement("PlexilPlan") ->FirstChildElement("Node"));
+	}
+      catch (ParserException& e)
+	{
+	  std::cout << "XML error parsing plan '"
+		    << planName << "': \n"
+		    << e.what()
+		    << std::endl;
+	  return -1;
+	}
       exec->addPlan(root);
    }
 
