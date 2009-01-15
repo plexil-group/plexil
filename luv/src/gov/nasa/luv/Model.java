@@ -35,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import java.util.Stack;
 import static gov.nasa.luv.Constants.*;
 
 /**
@@ -50,8 +51,6 @@ public class Model extends Properties
     private int row_number = -1;
 
     private String type = UNKNOWN;
-      
-    private String pathToNode = UNKNOWN;
 
     private String modelName = UNKNOWN;
     
@@ -78,12 +77,14 @@ public class Model extends Properties
     /** children of this node */
 
     private Vector<Model> children = new Vector<Model>();
+    
+    /** data structures to hold node condition, variable and action info **/
       
-    // condition info holders
-
     private HashMap<Integer, ArrayList> conditionMap = new HashMap<Integer, ArrayList>();
     
-    private ArrayList<String> variableList = new ArrayList<String>();
+    private ArrayList<Stack<String>> variableList = new ArrayList<Stack<String>>();
+    
+    private ArrayList<String> actionList = new ArrayList<String>();
       
     static HashMap<String, String> typeLut = new HashMap<String, String>()
     {
@@ -121,14 +122,24 @@ public class Model extends Properties
         return conditionMap;
     }
     
-    public ArrayList<String> getVariableList()
+    public ArrayList<Stack<String>> getVariableList()
     {
         return variableList;
+    }
+    
+    public ArrayList<String> getActionList()
+    {
+        return actionList;
     }
     
     public boolean hasVariables()
     {
         return !variableList.isEmpty();
+    }
+    
+    public boolean hasAction()
+    {
+        return !actionList.isEmpty();
     }
     
     public boolean hasConditions()
@@ -139,26 +150,6 @@ public class Model extends Properties
     public boolean hasCondition(String condition)
     {
         return conditionMap.containsKey(getConditionNum(condition));
-    }
-      
-    public void setPathToNode()
-    {
-	Model node = this;
-        
-        pathToNode = "";
-          
-	while (node.parent != null && !node.parent.isRoot())
-        {
-            pathToNode += "--->" + node.parent.modelName;
-            node = node.parent;
-        }
-          
-	pathToNode = modelName + pathToNode;
-    }
-      
-    public String getPathToNode()
-    {
-	return pathToNode;
     }
 
     public String getModelName()
@@ -209,7 +200,8 @@ public class Model extends Properties
 
     public static Model getRoot()
     {
-	if (TheRootModel == null) {
+	if (TheRootModel == null) 
+        {
 	    TheRootModel = new Model("dummy");
 	    TheRootModel.setModelName("_The_Root_Model_");
 	}
@@ -249,9 +241,7 @@ public class Model extends Properties
 	if (!modelName.equals(other.modelName))
 	    return false;
 	if (!type.equals(other.type))
-	    return false;
-	if (!pathToNode.equals(other.pathToNode))
-	    return false;        
+	    return false;       
         //if (!super.equals(other)) // compare properties
 	    //return false;
 	if (!childrenEquivalent(other))
@@ -333,65 +323,92 @@ public class Model extends Properties
 	child.setParent(this);
     }
       
-    public void addConditionInfo(int condition, ArrayList<String> equationHolder)
+    public void addConditionInfo(int condition, String conditionEquation)
     { 
-	if (!equationHolder.isEmpty())
-	    conditionMap.put(condition, equationHolder);
+        ArrayList<String> equationHolder = formatCondition(conditionEquation);
+
+        conditionMap.put(condition, equationHolder);
     }
     
-    public void addVariableInfo(String variable)
+    public void addVariableInfo(Stack variable)
     { 
-        String formattedVariable = formatVariable(variable);
-  
-        if (!formattedVariable.equals(""))
-            variableList.add(formattedVariable);
-    }
- 
-    // determine if the variable for this node is singular or an array
-    // and teh format it appropriately for display purposes
-    private String formatVariable(String variable)
-    {
-        String formattedVariable = "COULD NOT IDENTIFY VARIABLE";
-        String array[] = variable.split(":");      // : is used as a place holder in between variable elements
+        Stack<String> copyVariable = new Stack<String>();
         
-        if (array.length > 0)
+        Object[] obj = variable.toArray();
+        
+        for (int i = 0; i < obj.length; i++)
         {
-            if (array[0].equals(VAR))
+            copyVariable.push((String) obj[i]);
+        }
+        
+        variableList.add(copyVariable);
+    }
+    
+    public void addActionInfo(String action)
+    { 
+        String formattedAction = formatAction(action);
+  
+        actionList.add(formattedAction);
+    }
+    
+    private ArrayList<String> formatCondition(String condition)
+    {
+        String tempCondition = "";
+        ArrayList<String> formattedCondition = new ArrayList<String>();
+        
+        if (condition != null)
+        {
+            if (condition.contains("_Separator_"))
             {
-                if (array.length == 3)
+                String array[] = condition.split("_Separator_"); 
+
+                for (int i = 0; i < array.length; i++)
                 {
-                    formattedVariable = array[2] + " " + array[1];
-                }
-                else if (array.length == 4)
-                {
-                    formattedVariable = array[2] + " " + array[1] + " = " + array[3];
-                }
-            }
-            else if (array[0].equals(ARRAY))
-            {
-                if (array.length == 3)
-                    ;
-                else if (array.length == 4)
-                {
-                    formattedVariable = array[2] + " " +  array[1] + "[" + array[3] + "]";
-                }
-                else if (array.length > 4)
-                {
-                    formattedVariable = array[2] + " " +  array[1] + "[" + array[3] + "] = {";
-                    
-                    for (int i = 4; i < array.length; i++)
+                    tempCondition += array[i] + " ";
+
+                    if (array[i].equals("||") || array[i].equals("&&"))
                     {
-                        formattedVariable += array[i];
-                        if (i + 1 < array.length)
-                            formattedVariable += ",";
+                        formattedCondition.add(tempCondition);
+                        tempCondition = "";
                     }
-                    
-                    formattedVariable += "}";
                 }
+
+                if (!tempCondition.equals(""))
+                    formattedCondition.add(tempCondition);
+            }
+            else if (!condition.equals(""))
+            {
+                formattedCondition.add(condition);
+            }
+        }  
+        else
+        {
+            formattedCondition.add("COULD NOT IDENTIFY CONDITION");
+        }         
+        
+        return formattedCondition;
+    }
+    
+    private String formatAction(String expression)
+    {
+        String formattedExpression = "COULD NOT IDENTIFY ACTION";
+  
+        if (expression != null && expression.contains("_Separator_"))
+        {
+            String array[] = expression.split("_Separator_");      
+
+            if (array.length > 0)
+            {
+                formattedExpression = "";
+                    
+                for (int i = 0; i < array.length; i++)
+                {
+                    formattedExpression += array[i] + " ";
+                }                    
             }
         }
         
-        return formattedVariable;
+        return formattedExpression;
     }
 
     /** Add a parent node to this node. 
@@ -894,6 +911,7 @@ public class Model extends Properties
     public void resetMainAttributesOfAllNodes()
     {
         this.setMainAttributesOfNode();
+        
         for (Model child : this.getChildren())
         {
             child.resetMainAttributesOfAllNodes();

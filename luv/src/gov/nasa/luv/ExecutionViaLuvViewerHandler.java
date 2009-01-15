@@ -106,7 +106,7 @@ public class ExecutionViaLuvViewerHandler
           String isMessage = "";
           String errMessage = "";
 
-           // display standard output from process (may contain an error message from UE)
+          // display standard output from process (may contain an error message from UE)
           while ((line = is.readLine()) != null)
           {
               if (line.contains("Error"))

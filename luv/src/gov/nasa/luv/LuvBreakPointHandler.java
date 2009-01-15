@@ -45,7 +45,7 @@ public class LuvBreakPointHandler
       // breakpoint variables
       
       private BreakPoint                        breakPoint = null;                                     // if break has occured, the causal break point object
-      private HashMap<BreakPoint, Integer>    breakPointMap = new HashMap<BreakPoint, Integer>();  // collection of all breakpoints
+      private HashMap<BreakPoint, Integer>      breakPointMap = new HashMap<BreakPoint, Integer>();  // collection of all breakpoints
       private Vector<BreakPoint>                unfoundBreakPoints = new Vector<BreakPoint>();         // breakpoints not found in current plan   
       private Vector<String>                    breakPointList = new Vector<String>();                 // list of breakpoints to check for repeats
       

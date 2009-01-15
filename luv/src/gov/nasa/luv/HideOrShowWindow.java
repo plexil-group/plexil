@@ -46,7 +46,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     private HideListener hideListener;   
     private JPanel instructionsPane;
     private Box buttonPane;
-    private JPanel checkBoxList;
+    private Box checkBoxList;
     
     public HideOrShowWindow() {}
 
@@ -67,8 +67,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     
     private void createIntructionSection()
     {     
-        String instructionText = "<html>\n" +
-                "Type the full or partial name of the nodes you want to hide." +
+        String instructionText = "<html>Type the full or partial name of the nodes you want to hide." +
                 "<br>Use (<b>*</b>) wildcard as a prefix and/or suffix to select multiple nodes." +
                 "<br>" + 
                 "<br>For example:" +
@@ -142,16 +141,21 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     
     private void createCheckBoxList()
     {
-        checkBoxList = new JPanel();
-        checkBoxList.setLayout(new BoxLayout(checkBoxList, BoxLayout.Y_AXIS));
+        checkBoxList = Box.createHorizontalBox();
         
-        final JCheckBox assnBox = new JCheckBox(getHideCheckBoxDescription(ASSN_ICO_NAME), isBoxChecked(ASSN));
-        final JCheckBox cmdBox = new JCheckBox(getHideCheckBoxDescription(COMMAND_ICO_NAME), isBoxChecked(COMMAND)); 
-        final JCheckBox updateBox = new JCheckBox(getHideCheckBoxDescription(UPDATE_ICO_NAME), isBoxChecked(UPDATE)); 
-        final JCheckBox emptyBox = new JCheckBox(getHideCheckBoxDescription(EMPTY_ICO_NAME), isBoxChecked(EMPTY)); 
-        final JCheckBox funcBox = new JCheckBox(getHideCheckBoxDescription(FUNCALL_ICO_NAME), isBoxChecked(FUNCCALL));
-        final JCheckBox listBox = new JCheckBox(getHideCheckBoxDescription(NODELIST_ICO_NAME), isBoxChecked(NODELIST)); 
-        final JCheckBox libBox = new JCheckBox(getHideCheckBoxDescription(LIBCALL_ICO_NAME), isBoxChecked(LIBRARYNODECALL));
+        JPanel iconSide = new JPanel();
+        iconSide.setLayout(new GridLayout(7,1));
+        
+        JPanel checkBoxSide = new JPanel();
+        checkBoxSide.setLayout(new GridLayout(7,1));
+        
+        final JCheckBox assnBox = new JCheckBox("Show " + ASSN + " Nodes", isBoxChecked(ASSN));
+        final JCheckBox cmdBox = new JCheckBox("Show " + COMMAND + " Nodes", isBoxChecked(COMMAND)); 
+        final JCheckBox updateBox = new JCheckBox("Show " + UPDATE + " Nodes", isBoxChecked(UPDATE)); 
+        final JCheckBox emptyBox = new JCheckBox("Show " + EMPTY + " Nodes", isBoxChecked(EMPTY)); 
+        final JCheckBox funcBox = new JCheckBox("Show " + FUNCCALL + " Nodes", isBoxChecked(FUNCCALL));
+        final JCheckBox listBox = new JCheckBox("Show " + NODELIST + " Nodes", isBoxChecked(NODELIST)); 
+        final JCheckBox libBox = new JCheckBox("Show " + LIBRARYNODECALL + " Nodes", isBoxChecked(LIBRARYNODECALL));
         
         assnBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         cmdBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -159,15 +163,25 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         emptyBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         funcBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         listBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
-  
-        checkBoxList.add(listBox);
-        checkBoxList.add(assnBox); 
-        checkBoxList.add(cmdBox); 
-        checkBoxList.add(emptyBox);
-        checkBoxList.add(funcBox);
-        checkBoxList.add(libBox);
-        checkBoxList.add(updateBox); 
+        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12));        
+   
+        iconSide.add(new JLabel(getIcon(NODELIST), JLabel.LEADING));
+        checkBoxSide.add(listBox);
+        iconSide.add(new JLabel(getIcon(ASSN), JLabel.LEFT));
+        checkBoxSide.add(assnBox); 
+        iconSide.add(new JLabel(getIcon(COMMAND), JLabel.LEFT));
+        checkBoxSide.add(cmdBox); 
+        iconSide.add(new JLabel(getIcon(EMPTY), JLabel.LEFT));
+        checkBoxSide.add(emptyBox);
+        iconSide.add(new JLabel(getIcon(FUNCCALL), JLabel.LEFT));
+        checkBoxSide.add(funcBox);
+        iconSide.add(new JLabel(getIcon(LIBRARYNODECALL), JLabel.LEFT));
+        checkBoxSide.add(libBox);
+        iconSide.add(new JLabel(getIcon(UPDATE), JLabel.LEFT));
+        checkBoxSide.add(updateBox); 
+        
+        checkBoxList.add(iconSide);
+        checkBoxList.add(checkBoxSide);
 
         assnBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -331,9 +345,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             //Select the new item and make it visible.
             list.setSelectedIndex(index);
             list.ensureIndexIsVisible(index);
-        }   
-        
-        
+        }         
 
         //This method tests for string equality. You could certainly
         //get more sophisticated about the algorithm.  For example,
@@ -390,7 +402,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     {
         if (e.getValueIsAdjusting() == false) 
         {
-
             if (list.getSelectedIndex() == -1) 
             {           
                 //No selection, disable show button.

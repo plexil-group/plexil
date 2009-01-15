@@ -104,28 +104,6 @@ public class Constants
       {
          return iconLut.get(tag);
       }
-      
-      public static String getHideCheckBoxDescription(String nodeType)
-      {
-         String nodeName = "";
-         
-         if (nodeType.equals(NODELIST_ICO_NAME))
-              nodeName = NODELIST;
-         else if (nodeType.equals(COMMAND_ICO_NAME))
-              nodeName = COMMAND;
-         else if (nodeType.equals(ASSN_ICO_NAME))
-              nodeName = ASSN;
-         else if (nodeType.equals(EMPTY_ICO_NAME))
-              nodeName = EMPTY;
-         else if (nodeType.equals(FUNCALL_ICO_NAME))
-              nodeName = FUNCCALL;
-         else if (nodeType.equals(UPDATE_ICO_NAME))
-              nodeName = UPDATE;
-         else if (nodeType.equals(LIBCALL_ICO_NAME))
-              nodeName = LIBRARYNODECALL;            
-              
-         return "<html><table cellpadding=0><tr><td><img src=file:" + ICONS_DIR + nodeType + "/></td><td width=" + 3 + "><td>Show " + nodeName + " Nodes</td></tr></table></html>";
-      }
 
       // table view constants
 
@@ -134,12 +112,6 @@ public class Constants
       public static final int OUTCOME_COL_NUM      = 2;
       public static final int FAILURE_TYPE_COL_NUM = 3;
       
-      // Empty script default contents
-      
-      public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
-       
-      public static final String EMPTY_PLAN = "<PlexilPlan xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"plexil.xsd\"><Node NodeType=\"Empty\"><NodeId>EMPTY</NodeId></Node></PlexilPlan>";
-       
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
@@ -305,11 +277,12 @@ public class Constants
       public static final String    PROP_TTV_COL_WIDTH_BASE   = "treetable.colwidth-";
       public static final String    PROP_TTV_TEXT_TYPES    = "treetable.text-types";
 
-      public static final String    PROP_HIDE_SHOW_LIST  = "hide.show.list";
-
       public static final String    PROP_PLEXIL_HOME = "PLEXIL_HOME";
       public static final String    PROP_USER_HOME = "user.home";
       public static final String    PROP_FILE_SEPARATOR = "file.separator";
+      
+      public static final String    PROP_HIDE_SHOW_LIST = "hide.show.list";
+      public static final String    PROP_SEARCH_LIST = "search.list";
       
       public static final String    UE_TERMINATE_EXEC_MESSAGE = "Terminated              $prog -p $plan -s $script -d $debug_file $* $viewer $host $port $block";
       
@@ -337,19 +310,10 @@ public class Constants
       
       // miscellaneous constants
       
-      public static final String START_LOGO = "Clear Screen";
-      
-      public static final String ABOUT_LOGO = "About Logo";
-      
-      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
-      
-      public static final String PAUSE_OR_RESUME_PLAN = "Pause or Resume plan";
-      public static final String STEP = "Step";
-      public static final String ENABLE_BREAKS = "Enable Breaks";
-      public static final String DISABLE_BREAKS = "Disable Breaks";
-      public static final String BREAK_POINTS = "Break Points";
-      public static final String EXECUTE_PLAN = "Execute Plan";
-      public static final String STOP_EXECUTION = "Stop Execution";
+      public static final String START_LOGO = "Clear Screen";      
+      public static final String ABOUT_LOGO = "About Logo";      
+      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";      
+      public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
  
       // file menu
       
@@ -372,6 +336,7 @@ public class Constants
       public static final int EXPAND_MENU_ITEM              = 0;
       public static final int COLLAPSE_MENU_ITEM            = 1;
       public static final int HIDE_OR_SHOW_NODES_MENU_ITEM  = 2;
+      public static final int FIND_MENU_ITEM                = 3;
       
       // debug menu
 
@@ -392,7 +357,17 @@ public class Constants
       public static final String MODEL_FAILURE_TYPE = "ModelFailureType";
       public static final String MODEL_LIBRARY_CALL_ID = "ModelLibraryCallId";
       
-      public static final String MODEL_VAR_NAME = "ModelVariableName";
+      public static int getPropertyNum(String property)
+      {
+        if (property.equals(MODEL_STATE))
+            return 1;
+        else if (property.equals(MODEL_OUTCOME))
+            return 2;
+        else if (property.equals(MODEL_FAILURE_TYPE))
+            return 3;
+        else
+            return -1;
+      }
 
       /////////////////////////// XML tags /////////////////////////
 
@@ -400,7 +375,7 @@ public class Constants
 
       public static final String PLEXIL_PLAN       = "PlexilPlan";
       public static final String PLEXIL_LIBRARY    = "PlexilLibrary";
-      public static final String PLEXIL_SCRIPT     = "PlexilScript";
+      public static final String PLEXIL_SCRIPT     = "PLEXILScript";
       public static final String LIBRARY           = "Library";
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
       public static final String NODE_PATH_ELEMENT = "NodePathElement";
@@ -431,132 +406,25 @@ public class Constants
       public static final String PARENT_WAITING_CONDITION = "ParentWaitingCondition";
       public static final String COMMAND_HANDLE_RECEIVED_CONDITION = "CommandHandleReceivedCondition";
 
-      public static final int SKIP_CONDITION_NUM                    = 0;
-      public static final int START_CONDITION_NUM                   = 1;
-      public static final int END_CONDITION_NUM                     = 2;
-      public static final int INVARIANT_CONDITION_NUM               = 3;
-      public static final int PRE_CONDITION_NUM                     = 4;
-      public static final int POST_CONDITION_NUM                    = 5;
-      public static final int REPEAT_CONDITION_NUM                  = 6;
-      public static final int ANCESTOR_INVARIANT_CONDITION_NUM      = 7;
-      public static final int ANCESTOR_END_CONDITION_NUM            = 8;
-      public static final int PARENT_EXECUTING_CONDITION_NUM        = 9;
-      public static final int PARENT_FINISHED_CONDITION_NUM         = 10;
-      public static final int CHILDREN_WAITING_OR_FINISHED_NUM      = 11;
-      public static final int ABORT_COMPLETE_NUM                    = 12;
-      public static final int PARENT_WAITING_CONDITION_NUM          = 13;
-      public static final int COMMAND_HANDLE_RECEIVED_CONDITION_NUM = 14;
-      
       public static int getConditionNum(String condition)
       {
-          if (condition.equals(SKIP_CONDITION))                         return SKIP_CONDITION_NUM;    
-          else if (condition.equals(START_CONDITION))                   return START_CONDITION_NUM;                
-          else if (condition.equals(END_CONDITION))                     return END_CONDITION_NUM;   
-          else if (condition.equals(INVARIANT_CONDITION))               return INVARIANT_CONDITION_NUM; 
-          else if (condition.equals(PRE_CONDITION))                     return PRE_CONDITION_NUM; 
-          else if (condition.equals(POST_CONDITION))                    return POST_CONDITION_NUM;
-          else if (condition.equals(REPEAT_CONDITION))                  return REPEAT_CONDITION_NUM;
-          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return ANCESTOR_INVARIANT_CONDITION_NUM;
-          else if (condition.equals(ANCESTOR_END_CONDITION))            return ANCESTOR_END_CONDITION_NUM;           
-          else if (condition.equals(PARENT_EXECUTING_CONDITION))        return PARENT_EXECUTING_CONDITION_NUM;   
-          else if (condition.equals(PARENT_FINISHED_CONDITION))         return PARENT_FINISHED_CONDITION_NUM;       
-          else if (condition.equals(CHILDREN_WAITING_OR_FINISHED))      return CHILDREN_WAITING_OR_FINISHED_NUM;
-          else if (condition.equals(ABORT_COMPLETE))                    return ABORT_COMPLETE_NUM;                  
-          else if (condition.equals(PARENT_WAITING_CONDITION))          return PARENT_WAITING_CONDITION_NUM;        
-          else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return COMMAND_HANDLE_RECEIVED_CONDITION_NUM;
+          if (condition.equals(SKIP_CONDITION))                         return 0;    
+          else if (condition.equals(START_CONDITION))                   return 1;                
+          else if (condition.equals(END_CONDITION))                     return 2;   
+          else if (condition.equals(INVARIANT_CONDITION))               return 3; 
+          else if (condition.equals(PRE_CONDITION))                     return 4; 
+          else if (condition.equals(POST_CONDITION))                    return 5;
+          else if (condition.equals(REPEAT_CONDITION))                  return 6;
+          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return 7;
+          else if (condition.equals(ANCESTOR_END_CONDITION))            return 8;           
+          else if (condition.equals(PARENT_EXECUTING_CONDITION))        return 9;   
+          else if (condition.equals(PARENT_FINISHED_CONDITION))         return 10;       
+          else if (condition.equals(CHILDREN_WAITING_OR_FINISHED))      return 11;
+          else if (condition.equals(ABORT_COMPLETE))                    return 12;                  
+          else if (condition.equals(PARENT_WAITING_CONDITION))          return 13;        
+          else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return 14;
           else                                                          return -1; //error
       }
-      
-      public static String getConditionName(String condition)
-      {
-          if (condition.equals(SKIP_CONDITION))                         return "Skip";    
-          else if (condition.equals(START_CONDITION))                   return "Start";                
-          else if (condition.equals(END_CONDITION))                     return "End";   
-          else if (condition.equals(INVARIANT_CONDITION))               return "Invariant"; 
-          else if (condition.equals(PRE_CONDITION))                     return "Pre"; 
-          else if (condition.equals(POST_CONDITION))                    return "Post";
-          else if (condition.equals(REPEAT_CONDITION))                  return "Repeat";
-          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return "Ancestor Invariant";
-          else if (condition.equals(ANCESTOR_END_CONDITION))            return "Ancestor End";           
-          else if (condition.equals(PARENT_EXECUTING_CONDITION))        return "Parent Executing";   
-          else if (condition.equals(PARENT_FINISHED_CONDITION))         return "Parent Finished";       
-          else if (condition.equals(CHILDREN_WAITING_OR_FINISHED))      return "Children Waiting or Finished";
-          else if (condition.equals(ABORT_COMPLETE))                    return "Abort Complete";                  
-          else if (condition.equals(PARENT_WAITING_CONDITION))          return "Parent Waiting";        
-          else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return "Command Handle Received";
-          else                                                          return ""; //error
-      }
-      
-      public static String getConditionNameFromNumber(int condition)
-      {
-          switch(condition)
-          {
-              case SKIP_CONDITION_NUM:                          return SKIP_CONDITION;
-              case START_CONDITION_NUM:                         return START_CONDITION; 
-              case END_CONDITION_NUM:                           return END_CONDITION;  
-              case INVARIANT_CONDITION_NUM:                     return INVARIANT_CONDITION; 
-              case PRE_CONDITION_NUM:                           return PRE_CONDITION; 
-              case POST_CONDITION_NUM:                          return PRE_CONDITION;
-              case REPEAT_CONDITION_NUM:                        return POST_CONDITION;
-              case ANCESTOR_INVARIANT_CONDITION_NUM:            return REPEAT_CONDITION;
-              case ANCESTOR_END_CONDITION_NUM:                  return ANCESTOR_END_CONDITION;   
-              case PARENT_EXECUTING_CONDITION_NUM:              return PARENT_EXECUTING_CONDITION;  
-              case PARENT_FINISHED_CONDITION_NUM:               return PARENT_FINISHED_CONDITION;  
-              case CHILDREN_WAITING_OR_FINISHED_NUM:            return CHILDREN_WAITING_OR_FINISHED;
-              case ABORT_COMPLETE_NUM:                          return ABORT_COMPLETE;  
-              case PARENT_WAITING_CONDITION_NUM:                return PARENT_WAITING_CONDITION;    
-              case COMMAND_HANDLE_RECEIVED_CONDITION_NUM:       return COMMAND_HANDLE_RECEIVED_CONDITION;
-              default:                                          return "error";
-          }
-      }
-      
-      public static int getTagName(String name)
-      {
-          if (name.equals(NODE_OUTCOME_VAR))                            return NODE_OUTCOME_NUM;    
-          else if (name.equals(NODE_FAILURE_VAR))                       return NODE_FAILURE_NUM;                
-          else if (name.equals(NODE_STATE_VAR))                         return NODE_STATE_NUM;   
-          else if (name.equals(NODE_TIMEPOINT_VAR))                     return NODE_TIMEPOINT_NUM; 
-          else if (name.equals(NODE_CMD_HANDLE_VAR))                    return NODE_CMD_HANDLE_NUM; 
-          else if (name.equals(TIME_VAL))                               return TIME_NUM;
-          else if (name.equals(LT))                                     return LT_NUM;
-          else if (name.equals(GT))                                     return GT_NUM;
-          else if (name.equals(LE))                                     return LE_NUM;           
-          else if (name.equals(GE))                                     return GE_NUM;   
-          else if (name.equals(IS_KNOWN))                               return IS_KNOWN_NUM;       
-          else if (name.contains(LOOKUP))                               return LOOKUP_NUM;
-          else if (name.contains(EQ))                                   return EQ_NUM;                  
-          else if (name.contains(NE))                                   return NE_NUM;        
-          else if (name.equals(ARRAYELEMENT))                           return ARRAYELEMENT_NUM;
-          else if (name.equals(NOT))                                    return NOT_NUM;
-          else if (name.equals(AND))                                    return AND_NUM;
-          else if (name.equals(OR))                                     return OR_NUM;
-          else if (name.contains(CONDITION))                            return CONDITION_NUM;
-          else if (name.equals(TOLERANCE))                              return TOLERANCE_NUM;
-          else if (name.equals(NODE_TIMEPOINT_VAL))                     return NODE_TIMEPOINT_VAL_NUM;
-          else                                                          return -1; //error
-      }
-      
-      public static final int NODE_OUTCOME_NUM = 0;    
-      public static final int NODE_FAILURE_NUM = 1;                
-      public static final int NODE_STATE_NUM = 2;   
-      public static final int NODE_TIMEPOINT_NUM = 3; 
-      public static final int NODE_CMD_HANDLE_NUM = 4; 
-      public static final int TIME_NUM = 5;
-      public static final int LT_NUM = 6;
-      public static final int GT_NUM = 7;
-      public static final int LE_NUM = 8;           
-      public static final int GE_NUM = 9;   
-      public static final int IS_KNOWN_NUM = 10;       
-      public static final int LOOKUP_NUM = 11;
-      public static final int EQ_NUM = 12;                  
-      public static final int NE_NUM = 13;        
-      public static final int ARRAYELEMENT_NUM = 14;
-      public static final int NOT_NUM = 15;
-      public static final int AND_NUM = 16;
-      public static final int OR_NUM = 17;
-      public static final int CONDITION_NUM = 18;
-      public static final int TOLERANCE_NUM = 19;
-      public static final int NODE_TIMEPOINT_VAL_NUM = 20;
 
       // the set of all condtions
 
@@ -578,27 +446,6 @@ public class Constants
          PARENT_WAITING_CONDITION,
          COMMAND_HANDLE_RECEIVED_CONDITION,
       };
-      
-      public static int getPropertyNum(String property)
-      {
-        if (property.equals(MODEL_STATE))
-            return 1;
-        else if (property.equals(MODEL_OUTCOME))
-            return 2;
-        else if (property.equals(MODEL_FAILURE_TYPE))
-            return 3;
-        else
-            return -1;
-      }
-
-      // displayed node types
-
-      public static final String DISPLAY_LIST_NODE_TYPE   = "";
-      public static final String DISPLAY_COMMAND_NODE_TYPE   = "";
-      public static final String DISPLAY_ASSIGNMENT_NODE_TYPE   = "";
-      public static final String DISPLAY_EMPTY_NODE_TYPE   = "";
-      public static final String DISPLAY_FUNCTIONCALL_NODE_TYPE   = "";
-      public static final String DISPLAY_UPDATE_NODE_TYPE   = "";
 
       // tags adapted from UE code
 
@@ -622,14 +469,17 @@ public class Constants
       public static final String BODY = "NodeBody";
       public static final String RHS = "RHS";
       public static final String NUMERIC_RHS = "NumericRHS";
+      public static final String STRING_RHS = "StringRHS";
+      public static final String BOOLEAN_RHS = "BooleanRHS";
+      public static final String LOOKUP_RHS = "LookupRHS";
+      public static final String ARRAY_RHS = "ArrayRHS";
+      public static final String TIME_RHS = "TimeRHS";
       public static final String NODELIST = "NodeList";
       public static final String LIBRARYNODECALL = "LibraryNodeCall";
       public static final String ALIAS = "Alias";
       public static final String NODE_PARAMETER = "NodeParameter";
       public static final String COMMAND = "Command";
-      public static final String COMMAND_NAME = "CommandName";
       public static final String FUNCCALL = "FunctionCall";
-      public static final String FUNCCALL_NAME = "FunctionName";
       public static final String NAME = "Name";
       public static final String INDEX = "Index";
       public static final String ARGS = "Arguments";
@@ -642,7 +492,6 @@ public class Constants
       public static final String LOW = "Low";
       public static final String TOLERANCE = "Tolerance";
       public static final String NODEREF = "NodeRef";
-      public static final String STATE_VAL = "NodeStateValue";
       public static final String STATE_NAME = "StateName";
       public static final String TIMEPOINT = "Timepoint";
       public static final String UPDATE = "Update";
@@ -650,6 +499,13 @@ public class Constants
       public static final String PAIR = "Pair";
       public static final String COND = "Condition";
       public static final String ARRAY_VAL = "ArrayValue";
+      public static final String RESOURCE_LIST = "ResourceList";
+      public static final String RESOURCE = "Resource";
+      public static final String RESOURCE_NAME = "ResourceName";
+      public static final String RESOURCE_PRIORITY = "ResourcePriority";
+      public static final String RESOURCE_LOWER_BOUND = "ResourceLowerBound";
+      public static final String RESOURCE_UPPER_BOUND = "ResourceUpperBound"; 
+      public static final String RESOURCE_RELEASE_AT_TERM = "ResourceReleaseAtTermination";
 
       // operators (adapted from UE code)
 
@@ -685,19 +541,18 @@ public class Constants
       public static final String INT = "Integer";
       public static final String REAL = "Real";
       public static final String BOOL = "Boolean";
-      public static final String BLOB = "String";
+      public static final String STRING = "String";
       public static final String ARRAY = "Array";
       public static final String DECL_ARRAY = "DeclareArray";
       public static final String ARRAYELEMENT = "ArrayElement";
-      public static final String STRING = "String";
       public static final String TIME = "Time";
 
       // attributes
 
       public static final String NODETYPE_ATTR = "NodeType";
-    public static final String FILENAME_ATTR = "FileName";
-    public static final String LINENO_ATTR = "LineNo";
-    public static final String COLNO_ATTR = "ColNo";
+      public static final String FILENAME_ATTR = "FileName";
+      public static final String LINENO_ATTR = "LineNo";
+      public static final String COLNO_ATTR = "ColNo";
       public static final String DIR_ATTR = "dir";
 
       // values
@@ -724,7 +579,6 @@ public class Constants
       public static final String STRING_VAR             = STRING + VAR;
       public static final String BOOL_VAR               = BOOL + VAR;
       public static final String TIME_VAR               = TIME + VAR;
-      public static final String BLOB_VAR               = BLOB + VAR;
       public static final String NODE_OUTCOME_VAR       = NODE_OUTCOME + VAR;
       public static final String NODE_FAILURE_VAR       = NODE_FAILURE + VAR;
       public static final String NODE_STATE_VAR         = NODE_STATE + VAR;
@@ -738,24 +592,12 @@ public class Constants
       public static final String STRING_VAL = STRING + VAL;
       public static final String BOOL_VAL = BOOL + VAL;
       public static final String TIME_VAL = TIME + VAL;
-      public static final String BLOB_VAL = BLOB + VAL;
       public static final String NODE_OUTCOME_VAL = NODE_OUTCOME + VAL;
       public static final String NODE_FAILURE_VAL = NODE_FAILURE + VAL;
       public static final String NODE_STATE_VAL = NODE_STATE + VAL;
       public static final String NODE_TIMEPOINT_VAL = NODE_TIMEPOINT + VAL;
-      public static final String ASSN_VAL = ASSN + VAL;
-      
-      public static final String ASSN_NAME = "AssignmentName";
-      
-      public static final String COMMAND_NODE = "command-node";
-      
-      public static final String[] CONDITION_VALUES = 
-      {
-         UNKNOWN,
-         TRUE,
-         FALSE,
-         "inf",
-      };
+      public static final String NODE_CMD_HANDLE_VAL = NODE_CMD_HANDLE + VAL;
+      public static final String ASSN_VAL = ASSN + VAL;          
 
       /** tags for XML nodes which expand to children */
 
@@ -764,7 +606,7 @@ public class Constants
          NODE,
          LIBRARYNODECALL
       };
-
+      
       /** tags for XML nodes which become properties */
 
       public static final String[] PROPERTY_TAGS = 
@@ -788,18 +630,94 @@ public class Constants
          NODE_ID,
          BODY,
          NODELIST,
-          NAME,
-          TYPE,
-          MAXSIZE,
-          INDEX,
-          INT_VAL,
-          REAL_VAL,
-          STRING_VAL,
-          BOOL_VAL,
-          DECL_VAR,
-          DECL_ARRAY,
-          ARRAYELEMENT
-
+         NAME,
+         TYPE,
+         MAXSIZE,
+         INDEX,
+         INT_VAL,
+         REAL_VAL,
+         STRING_VAL,
+         BOOL_VAL,
+         DECL_VAR,
+         DECL_ARRAY,
+         ARRAYELEMENT
+      };    
+      
+      /** tags for XML properties of nodes */
+          
+      public static final String[] NODE_STATE_TAGS =
+      {
+          NODE_OUTCOME_VAL, 
+          NODE_FAILURE_VAL, 
+          NODE_STATE_VAL,  
+          NODE_CMD_HANDLE_VAL,
+      };
+    
+      public static final String[] RETURN_TAGS =
+      {
+          RHS,
+          NUMERIC_RHS, 
+          STRING_RHS, 
+          TIME_RHS,
+          BOOLEAN_RHS,
+          LOOKUP_RHS,
+          ARRAY_RHS,
+      };
+    
+      public static final String[] RESOURCE_TAGS =
+      {
+          RESOURCE_NAME,
+          RESOURCE_PRIORITY, 
+          RESOURCE_LOWER_BOUND, 
+          RESOURCE_UPPER_BOUND,
+          RESOURCE_RELEASE_AT_TERM,
+      };
+    
+      public static final String[] MATH_TAGS =
+      {
+          ADD,
+          SUB, 
+          MUL, 
+          DIV,
+      };
+    
+      public static final String[] LOOKUP_TAGS =
+      {
+          LOOKUPNOW,
+          LOOKUPCHANGE, 
+          LOOKUPFREQ,
+      };
+    
+      public static final String[] COMPARISON_TAGS =
+      {
+          LT,
+          GT,
+          LE,
+          GE, 
+          EQ, 
+          EQ_NUMERIC,
+          EQ_STRING, 
+          EQ_BOOLEAN,
+          EQ_INTERNAL,
+          NE,
+          NE_NUMERIC,
+          NE_STRING,
+          NE_BOOLEAN, 
+          NE_INTERNAL,
+      };
+      
+      public static final String[] ACTION_TAGS = 
+      {
+         ASSN,
+         COMMAND,
+         FUNCCALL,
+         UPDATE,
+      };
+      
+      public static final String[] VARIABLE_DECL_TAGS =
+      {
+	 DECL_VAR,
+         DECL_ARRAY,
       };
       
       static public ImageIcon loadImage(String name)

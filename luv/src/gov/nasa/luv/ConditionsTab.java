@@ -41,23 +41,23 @@ import java.util.HashMap;
 
 import static gov.nasa.luv.Constants.*;
 
-public class ConditionsWindow extends JPanel 
+public class ConditionsTab extends JPanel 
 {
     
     private Model model;
     private String status = UNKNOWN;
-    private ConditionsWindow conditionsPane;
+    private ConditionsTab conditionsPane;
     private int rows = 1000;
     private int columns = 3;
     private String info[][];
     private JTable table;     
     
-    private HashMap nodeConditions;
+    private HashMap<Integer, ArrayList> nodeConditions;
     private ArrayList elements;
     
-    public ConditionsWindow() {}
+    public ConditionsTab() {}
     
-    public ConditionsWindow(Model model) 
+    public ConditionsTab(Model model) 
     {       
         super(new GridLayout(1,0));
         
@@ -77,42 +77,23 @@ public class ConditionsWindow extends JPanel
         {
             for (final String condition: ALL_CONDITIONS)
             {
-                elements = (ArrayList) nodeConditions.get(getConditionNum(condition));            
+                elements = nodeConditions.get(getConditionNum(condition));            
 
-                if (elements != null)
+                if (elements != null && !elements.isEmpty())
                 {
                     info[row][col] = condition; 
                     ++col;
                     info[row][col] = getConditionValue(condition);                    
                     ++col;
 
-                    if (elements.size() > 1)
+                    for (int i = 0; i < elements.size(); i++)
                     {
-                        int count = 0;
-
-                        for (int i = 0; i < elements.size(); i++)
-                        {
-                            // place 2 elements and then jump to next line
-
-                            if (count == 0)
-                                info[row][2] = elements.get(i) + " ";
-                            else
-                                info[row][2] += elements.get(i) + " ";
-
-                            count++;
-
-                            if (count == 2)
-                            {
-                                row++;
-                                count = 0;
-                            }
-                        }
+                        info[row][2] = (String) elements.get(i);
+                        ++row;
                     }
-                    else if (elements.size() == 1)
-                        info[row][2] = (String)elements.get(0);
-
-                    col = 0;
+                   
                     ++row;
+                    col = 0;
                 }
 
                 // add model listener
@@ -144,7 +125,7 @@ public class ConditionsWindow extends JPanel
         
         // Disable auto resizing
         
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
     
         // Set the first visible column to 100 pixels wide
 
@@ -181,14 +162,14 @@ public class ConditionsWindow extends JPanel
         return status;
     }
     
-    public ConditionsWindow getCurrentConditionsTab()
+    public ConditionsTab getCurrentConditionsTab()
     {
         return conditionsPane;
     }
 
     public void createConditionTab(Model model) 
     {       
-        conditionsPane = new ConditionsWindow(model);
+        conditionsPane = new ConditionsTab(model);
         conditionsPane.setOpaque(true);
     }
 }

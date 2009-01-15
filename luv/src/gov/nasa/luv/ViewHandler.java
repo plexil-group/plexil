@@ -102,10 +102,8 @@ public class ViewHandler
 	// insert the view menu items
 
 	Luv.getLuv().getViewMenu().removeAll(); 
-	for(LuvAction action: currentView.getViewActions())
+	for (LuvAction action: currentView.getViewActions())
             Luv.getLuv().getViewMenu().add(action);
-        Luv.getLuv().getViewMenu().add(Luv.getLuv().hideOrShowNodes);
-
 
 	// enable that menu if we actually have menu items
          
@@ -141,7 +139,7 @@ public class ViewHandler
 	    // no change required
 	}
 	else 
-        {
+        {       
 	    currentModel = model;
 	    setView(new TreeTableView("", model));
             Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);

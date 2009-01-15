@@ -38,30 +38,33 @@ import java.awt.Color;
 
 import java.util.ArrayList;
 
+import java.util.Stack;
+
 import static gov.nasa.luv.Constants.*;
 
-public class VariablesWindow extends JPanel 
+public class VariablesTab extends JPanel 
 {
     
     private Model model;
-    private VariablesWindow variablesPane;
+    private VariablesTab variablesPane;
     private int rows = 1000;
-    private int columns = 3;
+    private int columns = 4;
     private String info[][];
     private JTable table;   
     
-    private ArrayList<String> nodeVariables;
+    private ArrayList<Stack<String>> variableList;
     
-    public VariablesWindow() {}
+    public VariablesTab() {}
     
-    public VariablesWindow(Model model) 
+    public VariablesTab(Model model) 
     {       
         super(new GridLayout(1,0));
         
         this.model = model;
 
-        String[] columnNames = {"Type",
+        String[] columnNames = {"In/InOut",
                                 "Name",
+                                "Type",
                                 "Initial Value ONLY - (UE does not currently provide updated values to LUV)",
         };
         
@@ -69,19 +72,46 @@ public class VariablesWindow extends JPanel
         int col = 0;
         info = new String[rows][columns];
         
-        nodeVariables = model.getVariableList();
+        variableList = model.getVariableList();
         
-        for (String variable : nodeVariables)
+        for (Stack<String> original : variableList)
         {
-            if (variable != null)
-            {
-                String type = extractTypeFromVariable(variable);
-                String name = extractNameFromVariable(variable);
-                String value = extractValueFromVariable(variable);
+            Stack<String> copy = new Stack<String>();
+        
+            Object[] obj = original.toArray();
 
-                info[row][col] = type; 
+            for (int i = 0; i < obj.length; i++)
+            {
+                copy.push((String) obj[i]);
+            }
+
+            if (copy != null)
+            {
+                String value;
+                String type;
+                String name;
+                String in_inout;
+                    
+                if (copy.size() == 4)
+                {
+                    value = (String) copy.pop();
+                    type = (String) copy.pop();
+                    name = (String) copy.pop();
+                    in_inout = (String) copy.pop(); 
+                }
+                else
+                {
+                    value = UNKNOWN;
+                    type = UNKNOWN;
+                    name = UNKNOWN;
+                    in_inout = UNKNOWN;
+                }
+                
+                info[row][col] = in_inout; 
                 col++;
                 info[row][col] = name; 
+                col++;
+                info[row][col] = type; 
                 col++;
                 info[row][col] = value; 
                 
@@ -94,13 +124,14 @@ public class VariablesWindow extends JPanel
         
         // Disable auto resizing
         
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
     
         // Set the first visible column to 100 pixels wide
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(70);
-        table.getColumnModel().getColumn(1).setPreferredWidth(230);
-        table.getColumnModel().getColumn(2).setPreferredWidth(600);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
+        table.getColumnModel().getColumn(3).setPreferredWidth(550);
         
         table.setPreferredScrollableViewportSize(new Dimension(900, 300));
 
@@ -115,54 +146,14 @@ public class VariablesWindow extends JPanel
         add(scrollPane);
     }
     
-    private String extractTypeFromVariable(String variable)
-    {
-        String type = UNKNOWN;
-        
-        String array[] = variable.split(" ");
-        
-        if (array != null &&
-            array.length > 0)
-            type = array[0];
-        
-        return type;
-    }
-    
-    private String extractNameFromVariable(String variable)
-    {
-        String name = UNKNOWN;
-        
-        String array[] = variable.split(" ");
-        
-        if (array != null &&
-            array.length > 0)
-            name = array[1];
-                    
-        return name;
-    }
-    
-    private String extractValueFromVariable(String variable)
-    {
-        String value = UNKNOWN;   
-        
-        if (variable.contains("=") &&
-            variable.indexOf("=") != -1 &&
-            (variable.indexOf("=") + 2) < variable.length())
-        {
-            value = variable.substring(variable.indexOf("=") + 2, variable.length());
-        }
-        
-        return value;
-    }
-    
-    public VariablesWindow getCurrentVariablesTab()
+    public VariablesTab getCurrentVariablesTab()
     {
         return variablesPane;
     }
 
     public void createVariableTab(Model model) 
     {       
-        variablesPane = new VariablesWindow(model);
+        variablesPane = new VariablesTab(model);
         variablesPane.setOpaque(true);
     }
 }

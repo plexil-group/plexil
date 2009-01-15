@@ -37,6 +37,7 @@ import javax.swing.JPopupMenu;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
@@ -45,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Enumeration;
 
+import java.util.Stack;
+import javax.swing.text.Position;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
 
@@ -75,6 +78,8 @@ public class TreeTableView extends JTreeTable implements View
       private static boolean showTextTypes = false;
       
       private static int currentBreakingRow = -1;
+      
+      private static int row = -1;
 
       /** Construct a tree view. 
        *
@@ -202,7 +207,18 @@ public class TreeTableView extends JTreeTable implements View
             });
       }
       
-      public boolean highlightBreakingRow(int row)
+      public boolean selectRow(int row)
+      {
+          if (row > -1)
+          {
+              tree.setSelectionRow(row);
+              return true;
+          }
+          else
+              return false;
+      }
+      
+      public boolean highlightRow(int row)
       {
           boolean valid = true;
           
@@ -218,7 +234,7 @@ public class TreeTableView extends JTreeTable implements View
           return valid;
       }
       
-      public void unHighlightBreakingRow()
+      public void unHighlightRow()
       {
           if (currentBreakingRow >= 0)
           {
@@ -330,7 +346,6 @@ public class TreeTableView extends JTreeTable implements View
       {
          TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
          Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-         String     nodeName    = node.getModelName();
          
          // save condition window information 
          
@@ -338,11 +353,12 @@ public class TreeTableView extends JTreeTable implements View
          
          // create information window if node has any additional data to show
 
-         if (node.hasConditions() || node.hasVariables())
+         if (node.hasConditions() || node.hasVariables() || node.hasAction())
          {
-             Luv.getLuv().getConditionsWindow().createConditionTab(node);
-             Luv.getLuv().getVariablesWindow().createVariableTab(node);         
-             Luv.getLuv().getNodeInfoTabbedWindow().createAndShowGUI(node, nodeName);
+             Luv.getLuv().getConditionsTab().createConditionTab(node);
+             Luv.getLuv().getVariablesTab().createVariableTab(node);  
+             Luv.getLuv().getActionTab().createActionTab(node);
+             Luv.getLuv().getNodeInfoTabbedWindow().createAndShowGUI(node);
          }
          else
          {
@@ -482,7 +498,7 @@ public class TreeTableView extends JTreeTable implements View
        */
 
       public static class Wrapper
-      {
+      {            
             int row;
             int col;
             Model model;
@@ -500,22 +516,23 @@ public class TreeTableView extends JTreeTable implements View
                             ((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property));
                         }
                   });
-
-               addNodesToTree(model);
-               
+                
+               addNodesToTree(model); 
             }
             
             private void addNodesToTree(Model model)
             {
-               for (Model child: model.getChildren()) 
-               {
-                  if (!AbstractModelFilter.isModelFiltered(child))
-                     children.add(new Wrapper(child));
-                  else
-                  {
-                      addNodesToTree(child);
-                  }
-	       }
+                for (Model child: model.getChildren()) 
+                {
+                    if (!AbstractModelFilter.isModelFiltered(child))
+                    {
+                        children.add(new Wrapper(child));
+                    }
+                    else
+                    {
+                        addNodesToTree(child);
+                    }
+                }
             }
 
             public static void setView(TreeTableView view)
@@ -609,7 +626,7 @@ public class TreeTableView extends JTreeTable implements View
 
             public boolean isLeaf(Object node)
             {
-               return ((Wrapper)node).getChildCount() == 0;
+                return ((Wrapper)node).getChildCount() == 0;
             }
             
             public int getColumnCount() 
@@ -650,8 +667,59 @@ public class TreeTableView extends JTreeTable implements View
 
       public View getView()
       {
-         return this;
+          return this;
       }
+      
+      public void restartSearch()
+      {
+          row = 0;
+          tree.clearSelection();
+      }
+      
+      public int findAndShowNode(Stack<String> node_path)
+      {
+          TreePath test = null;
+          while (!node_path.empty())
+          {
+              if (tree.getRowCount() > row + 1)
+              {
+                  String validate = node_path.peek();
+                  test = tree.getNextMatch(node_path.pop(), row + 1, Position.Bias.Forward); 
+
+                  if (node_path.empty() && !test.toString().endsWith(validate + "]"))
+                  {
+                      node_path.push(validate);
+                  }
+                      
+                  if (!node_path.empty())
+                      tree.expandPath(test);  
+              }
+              else
+                  test = tree.getNextMatch(node_path.pop(), 0, Position.Bias.Forward);
+              
+
+              row = tree.getRowForPath(test);
+          } 
+          
+          if (test != null)
+          {
+              selectRow(row);
+              scrollToRow(row);
+          }
+          
+          return row;
+      }
+      
+      public void scrollToRow(int row)
+      {
+          this.scrollRectToVisible(
+                  new Rectangle(Luv.getLuv().getWidth(),
+                  this.getRowHeight() * (row + 3),
+                  Luv.getLuv().getWidth(),
+                  this.getRowHeight()));
+      }
+              
+      
       /** Expand all nodes. */
 
       public void expandAllNodes()
@@ -679,6 +747,8 @@ public class TreeTableView extends JTreeTable implements View
             {
                expandAll,
                collapseAll,
+               Luv.getLuv().hideOrShowNodes,
+               Luv.getLuv().findNode,
             };
          return actions;
       }
@@ -689,8 +759,9 @@ public class TreeTableView extends JTreeTable implements View
          "Expand All", "Expand all tree nodes.", VK_EQUALS)
          {
                public void actionPerformed(ActionEvent e)
-               {
-                  expandAllNodes();
+               {                   
+                   expandAllNodes();
+                   Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
                }
          };
 
@@ -701,7 +772,8 @@ public class TreeTableView extends JTreeTable implements View
          {
                public void actionPerformed(ActionEvent e)
                {
-                  collapseAllNodes();
+                   collapseAllNodes();
+                   Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
                }
          };
 }

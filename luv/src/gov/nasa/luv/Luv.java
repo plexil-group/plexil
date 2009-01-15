@@ -70,7 +70,9 @@ public class Luv extends JFrame
     private static boolean highlightRow                = false;
     
     private boolean newPlan                            = false;
-    private RegexModelFilter regexFilter = new RegexModelFilter(true);
+    private RegexModelFilter regexFilter               = new RegexModelFilter(true);
+    
+    private double runTime = 0;
       
     // handler instances
       
@@ -79,10 +81,12 @@ public class Luv extends JFrame
     private static LuvBreakPointHandler         luvBreakPointHandler          = new LuvBreakPointHandler();        // handles all break points
     private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer and not a terminal
     private static ViewHandler                  viewHandler                   = new ViewHandler();                
-    private static ConditionsWindow             conditionsWindow              = new ConditionsWindow();
-    private static VariablesWindow              variablesWindow               = new VariablesWindow();
+    private static ConditionsTab                conditionsTab                 = new ConditionsTab();
+    private static VariablesTab                 variablesTab                  = new VariablesTab();
+    private static ActionTab                    actionTab                     = new ActionTab();
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
     private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
+    
     
     // Luv Viewer Menus
       
@@ -120,6 +124,7 @@ public class Luv extends JFrame
 		define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
                 
                 define(PROP_HIDE_SHOW_LIST, getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_HIDE_SHOW_LIST));
+                define(PROP_SEARCH_LIST, getProperty(PROP_SEARCH_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_SEARCH_LIST));
 	    }
 	};
     
@@ -210,12 +215,15 @@ public class Luv extends JFrame
             viewHandler.focusView(currentPlan);
 	}
 
-        if (isExecuting) 
+        preExecutionState();
+        
+        if (isExecuting)
         {
+            runTime = System.currentTimeMillis();
             executionState();
             addRunToRecentRunList();
-	}
-
+        }
+        
 	refreshNodeInfoTabbedWindow();
         setTitle();
 	showStatus("Plan \"" + plan.getModelName() + "\" loaded");
@@ -271,7 +279,7 @@ public class Luv extends JFrame
             if (luvBreakPointHandler.getBreakPoint() != null)
             {
                 int row = luvBreakPointHandler.getBreakPointNodeRow();
-                TreeTableView.getCurrent().highlightBreakingRow(row);
+                TreeTableView.getCurrent().highlightRow(row);
             }
 
 	    luvBreakPointHandler.clearBreakPoint();
@@ -295,9 +303,11 @@ public class Luv extends JFrame
       
     public ViewHandler            getViewHandler()            { return viewHandler; }             // get current view handler
     
-    public ConditionsWindow       getConditionsWindow()       { return conditionsWindow; }        // get current conditions window
+    public ConditionsTab          getConditionsTab()          { return conditionsTab; }           // get current conditions tab
     
-    public VariablesWindow        getVariablesWindow()        { return variablesWindow; }         // get current variables window
+    public VariablesTab           getVariablesTab()           { return variablesTab; }            // get current variables tab
+    
+    public ActionTab              getActionTab()              { return actionTab; }               // get current action tab
     
     public NodeInfoTabbedWindow   getNodeInfoTabbedWindow()   { return nodeInfoTabbedWindow; }    // get current NodeInfoTabbedWindow
     
@@ -426,6 +436,7 @@ public class Luv extends JFrame
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
 	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
 	    viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true);
+            viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
 	    viewMenu.setEnabled(true);
 	}
 	else
@@ -438,7 +449,8 @@ public class Luv extends JFrame
     //* Called when we receive EOF on the LuvListener stream. 
     public void finishedExecutionState()
     {  
-        //System.out.println("STOP: " + System.currentTimeMillis());
+        runTime = System.currentTimeMillis() - runTime;
+        
         // set only certain luv viewer variables
           
 	planPaused = false;
@@ -446,7 +458,7 @@ public class Luv extends JFrame
 	isExecuting = false;        
         fileHandler.setStopSearchForMissingLibs(false);
         
-        TreeTableView.getCurrent().unHighlightBreakingRow();
+        TreeTableView.getCurrent().unHighlightRow();
   
 	// set certain menu items
           
@@ -470,6 +482,7 @@ public class Luv extends JFrame
 		viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
 		viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
 		viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true); 
+                viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
 		viewMenu.setEnabled(true);
 	    }
 	else
@@ -478,8 +491,7 @@ public class Luv extends JFrame
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
 
-	showStatus("Execution stopped", Color.BLUE);
-
+	showStatus("Execution stopped...", Color.BLUE);
     }
       
     public void preExecutionState()
@@ -676,8 +688,9 @@ public class Luv extends JFrame
 
             if (node != null)
             {
-                conditionsWindow.createConditionTab(node);
-                variablesWindow.createVariableTab(node); 
+                conditionsTab.createConditionTab(node);
+                variablesTab.createVariableTab(node); 
+                actionTab.createActionTab(node); 
             }
         }
     }
@@ -830,6 +843,7 @@ public class Luv extends JFrame
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(false);
 	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
 	    viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(false);  
+            viewMenu.getItem(FIND_MENU_ITEM).setEnabled(false);
 	}
 	viewMenu.setEnabled(false);
           
@@ -1034,7 +1048,32 @@ public class Luv extends JFrame
     
     public void refreshRegexView()
     {
-        viewHandler.refreshRegexView(currentPlan);
+        viewHandler.refreshRegexView(currentPlan);        
+    }
+    
+    public void addSearchWord(String searchWord)
+    {
+        String list = properties.getProperty(PROP_SEARCH_LIST, UNKNOWN);
+        
+        if (!list.equals(UNKNOWN))
+        {
+            String [] array = list.split(", ");
+            list = searchWord;
+            for (int i = 0; i < array.length; i++)
+            {
+                if (i < 10 && !array[i].equals(searchWord) && !array[i].equals(""))
+                    list += ", " + array[i];
+            }
+        }
+        else
+            list = searchWord;
+        
+        properties.setProperty(PROP_SEARCH_LIST, list);
+    }
+    
+    public String getSearchList()
+    {
+        return properties.getProperty(PROP_SEARCH_LIST, UNKNOWN);
     }
     
     public void addRegex(String regex)
@@ -1045,6 +1084,7 @@ public class Luv extends JFrame
             list = regex;
         else
             list += ", " + regex;
+        
         properties.setProperty(PROP_HIDE_SHOW_LIST, list);
 
         regexFilter.addRegex(formatRegex(regex));
@@ -1120,7 +1160,7 @@ public class Luv extends JFrame
 
         return formattedRegex;
     }
-      
+    
     private String createCommandLine() throws IOException
     {
         String command = PROP_UE_EXEC + " -v";
@@ -1220,7 +1260,7 @@ public class Luv extends JFrame
             System.err.println(errorMessage);
         }
         
-        finishedExecutionState();
+        //finishedExecutionState();
     }
     
     public void displayInfoMessage(String infoMessage)
@@ -1270,8 +1310,7 @@ public class Luv extends JFrame
                                       "About Luv Viewer",
                                       JOptionPane.INFORMATION_MESSAGE,
                                       icon);
-    }
-      
+    }     
       
     /***************** List of Actions ********************/
 
@@ -1493,10 +1532,8 @@ public class Luv extends JFrame
 	    {
                 try 
                 {
-                    //System.out.println("START: " + System.currentTimeMillis());
                     if (!isExecuting) 
                     {
-                        preExecutionState();
                         String command = createCommandLine();
                         if (!command.contains("ERROR")) 
                         {                           
@@ -1512,8 +1549,7 @@ public class Luv extends JFrame
                     else 
                     {                       
                         stopExecutionState();
-                    }
-                    
+                    }                    
                 } 
 		catch (IOException ex) 
                 {
@@ -1567,7 +1603,7 @@ public class Luv extends JFrame
 	    }
 	};
         
-        /** Action to hide or show nodes. */
+    /** Action to hide or show nodes. */
       
     LuvAction hideOrShowNodes = 
 	new LuvAction("Hide/Show Nodes...", 
@@ -1578,6 +1614,20 @@ public class Luv extends JFrame
             public void actionPerformed(ActionEvent e)
 	    {
                 hideOrShowWindow.makeVisible();
+            }   
+	};
+        
+    /** Action to for a node by name nodes. */
+      
+    LuvAction findNode = 
+	new LuvAction("Find...", 
+		      "Find node by name.",
+                      VK_F, 
+		      META_MASK)
+	{            
+            public void actionPerformed(ActionEvent e)
+	    {
+                FindWindow.makeVisible(properties.getProperty(PROP_SEARCH_LIST, UNKNOWN));
             }   
 	};
 

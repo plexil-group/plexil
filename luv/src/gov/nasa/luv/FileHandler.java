@@ -51,7 +51,7 @@ public class FileHandler
     
     // directory chooser object 
       
-    JFileChooser dirChooser = new JFileChooser()
+    private JFileChooser dirChooser = new JFileChooser()
 	{
 	    {
 		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -60,10 +60,10 @@ public class FileHandler
       
     // file chooser object 
       
-    JFileChooser fileChooser = new JFileChooser()
+    private JFileChooser fileChooser = new JFileChooser()
 	{
 	    {
-		/** XML file filter */
+		// XML file filter 
                   
 		addChoosableFileFilter(new FileFilter()
 		    {
@@ -111,6 +111,8 @@ public class FileHandler
 		    });
 	    }
 	};
+    
+    public FileHandler() {}
  
     private String getFileNameSansExtension(String name)
     {
