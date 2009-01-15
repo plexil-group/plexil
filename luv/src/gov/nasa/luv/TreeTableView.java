@@ -80,6 +80,7 @@ public class TreeTableView extends JTreeTable implements View
       private static int currentBreakingRow = -1;
       
       private static int row = -1;
+      private static int lastRow = -1;
 
       /** Construct a tree view. 
        *
@@ -672,7 +673,7 @@ public class TreeTableView extends JTreeTable implements View
       
       public void restartSearch()
       {
-          row = 0;
+          row = lastRow = -1;
           tree.clearSelection();
       }
       
@@ -690,16 +691,19 @@ public class TreeTableView extends JTreeTable implements View
                   {
                       node_path.push(validate);
                   }
+                  
+                  row = tree.getRowForPath(test);    
                       
                   if (!node_path.empty())
-                      tree.expandPath(test);  
+                      tree.expandPath(test); 
+                  else if (row == lastRow)
+                      node_path.push(validate);
               }
               else
-                  test = tree.getNextMatch(node_path.pop(), 0, Position.Bias.Forward);
-              
-
-              row = tree.getRowForPath(test);
+                  test = tree.getNextMatch(node_path.pop(), 0, Position.Bias.Forward);                          
           } 
+          
+          lastRow = tree.getRowForPath(test);
           
           if (test != null)
           {
