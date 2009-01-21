@@ -219,20 +219,18 @@ public class TreeTableView extends JTreeTable implements View
               return false;
       }
       
-      public boolean highlightRow(int row)
+      public void highlightRow(Model node)
       {
-          boolean valid = true;
-          
-          if (row > -1)
+          restartSearch();
+          int highlight = findNode(node.getPath(node));    
+
+          if (highlight > -1)
           {
-              currentBreakingRow = row;
+              currentBreakingRow = highlight;
               tree.setSelectionRow(currentBreakingRow);
               lastView.setSelectionBackground(Color.PINK);
+              scrollToRow(currentBreakingRow);
           }
-          else
-              valid = false;
-          
-          return valid;
       }
       
       public void unHighlightRow()
@@ -319,7 +317,7 @@ public class TreeTableView extends JTreeTable implements View
           if (Luv.getLuv().breaksAllowed())
           {          
              TreePath   nodePath  = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-             Model      node      = ((Wrapper)nodePath.getLastPathComponent()).model;
+             Model      node = ((Wrapper)nodePath.getLastPathComponent()).model;
              JPopupMenu popup = new JPopupMenu();
 
              // construct the popup menu
@@ -502,6 +500,7 @@ public class TreeTableView extends JTreeTable implements View
       {            
             int row;
             int col;
+            String highlight = "HIGHLIGHT";
             Model model;
             Vector<Wrapper> children = new Vector<Wrapper>();
             static TreeTableView view;
@@ -514,7 +513,7 @@ public class TreeTableView extends JTreeTable implements View
                   {
                         public void propertyChange(Model model, String property)
                         {
-                            ((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property));
+                            ((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property)); 
                         }
                   });
                 
@@ -677,7 +676,14 @@ public class TreeTableView extends JTreeTable implements View
           tree.clearSelection();
       }
       
-      public int findAndShowNode(Stack<String> node_path)
+      public void showNode(Stack<String> node_path)
+      {
+          findNode(node_path);
+          selectRow(row);
+          scrollToRow(row);
+      }
+      
+      private int findNode(Stack<String> node_path)
       {
           TreePath test = null;
           while (!node_path.empty())
@@ -704,12 +710,6 @@ public class TreeTableView extends JTreeTable implements View
           } 
           
           lastRow = tree.getRowForPath(test);
-          
-          if (test != null)
-          {
-              selectRow(row);
-              scrollToRow(row);
-          }
           
           return row;
       }

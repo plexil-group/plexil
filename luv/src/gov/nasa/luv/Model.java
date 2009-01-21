@@ -61,6 +61,10 @@ public class Model extends Properties
     private String libraryName = null;
 
     private boolean unresolvedLibraryCall = false;
+    
+    private static boolean found = false;
+    
+    private Model foundChild = null;
 
     private LinkedHashSet<String> libraryFiles = new LinkedHashSet<String>();
 
@@ -196,6 +200,21 @@ public class Model extends Properties
     public void setModelName(String name)
     {
 	modelName = name;
+    }
+    
+    public Stack<String> getPath(Model node)
+    {
+        Stack<String> node_path = new Stack<String>();
+        while (!node.isRoot())
+        {
+            if (!AbstractModelFilter.isModelFiltered(node))
+            {
+                node_path.push(node.getModelName());
+            }
+            
+            node = node.getParent();
+        }
+        return node_path;
     }
 
     public static Model getRoot()
@@ -668,9 +687,25 @@ public class Model extends Properties
     public Model findChildByRowNumber(int row)
     {
         for (Model child : children)
-	    if (child.row_number == row)
-		return child;
-	return null;
+        {
+            if (!found)
+            {
+                if (child.row_number == row)
+                {
+                    foundChild = child;
+                    found = true;
+                }
+                else
+                    foundChild = child.findChildByRowNumber(row);
+            }
+        }        
+        
+	return foundChild;
+    }
+    
+    public void resetFoundChildFlag()
+    {
+        found = false;
     }
     
     private boolean nodeEqualsRegex(String name)

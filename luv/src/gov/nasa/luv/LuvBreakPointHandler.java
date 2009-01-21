@@ -59,11 +59,6 @@ public class LuvBreakPointHandler
           return breakPoint;
       }
       
-      public int getBreakPointNodeRow()
-      {
-          return breakPoint.getModel().getRowNumber();
-      }
-      
       public HashMap<BreakPoint, Integer> getBreakPointMap()
       {
           return breakPointMap;
@@ -92,13 +87,10 @@ public class LuvBreakPointHandler
 
       public void addBreakPoint(BreakPoint breakPoint, Model model)
       {
-         //ModelPath mp = new ModelPath(model);
-         
-         if (!breakPointList.contains(breakPoint.toString()))
+         if (!breakPointList.contains(breakPoint.toString() + " " + model.getRowNumber()))
          {
-             breakPointList.add(breakPoint.toString());
+             breakPointList.add(breakPoint.toString() + " " + model.getRowNumber());
 
-             //breakPointMap.put(breakPoint, mp);
              breakPointMap.put(breakPoint, model.getRowNumber());
              
              Luv.getLuv().enableRemoveBreaksMenuItem(true);
@@ -175,27 +167,6 @@ public class LuvBreakPointHandler
       
       // map all the breakpoints into the new model
       
-      /*public void mapBreakPointsToNewModel(Model model)
-      {
-	    getUnfoundBreakPoints().clear();
-         
-	    for (Map.Entry<BreakPoint, ModelPath> pair: getBreakPointMap().entrySet()) 
-            {
-		BreakPoint bp = pair.getKey();
-		ModelPath path = pair.getValue();
-
-		Model target = path.find(model);
-		if (target != null)
-                {
-                    bp.setModel(target);
-		}
-		else
-		    getUnfoundBreakPoints().add(bp);
-	    }
-      }*/
-      
-      // map all the breakpoints into the new model
-      
       public void mapBreakPointsToNewModel(Model model)
       {
 	    getUnfoundBreakPoints().clear();
@@ -206,6 +177,7 @@ public class LuvBreakPointHandler
 		int row_number = pair.getValue();
 
 		Model target = model.findChildByRowNumber(row_number);
+                model.resetFoundChildFlag();
 
                 if (target != null)
                 {

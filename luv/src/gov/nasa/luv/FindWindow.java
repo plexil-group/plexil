@@ -176,7 +176,7 @@ public class FindWindow extends JPanel implements KeyListener
             node_path.push((String) obj[i]);
         }
             
-        TreeTableView.getCurrent().findAndShowNode(node_path);        
+        TreeTableView.getCurrent().showNode(node_path);        
         message_to_user.setText(getMessage());
         next++;
     }
@@ -203,7 +203,7 @@ public class FindWindow extends JPanel implements KeyListener
        {
            if (model.getModelName().equals(text))
             {
-                Stack<String> node_path = getPath(model);    
+                Stack<String> node_path = model.getPath(model);    
                 foundMatch = true;
                 foundNodes.add(node_path);                    
             }
@@ -215,28 +215,13 @@ public class FindWindow extends JPanel implements KeyListener
             {
                 if (child.getModelName().equals(text))
                 {
-                    Stack<String> node_path = getPath(child);    
+                    Stack<String> node_path = child.getPath(child);    
                     foundMatch = true;
                     foundNodes.add(node_path);                    
                 }
             }
             searchPlan(child, text);       
        }
-    }
-    
-    private Stack<String> getPath(Model node)
-    {
-        Stack<String> node_path = new Stack<String>();
-        while (!node.isRoot())
-        {
-            if (!AbstractModelFilter.isModelFiltered(node))
-            {
-                node_path.push(node.getModelName());
-            }
-            
-            node = node.getParent();
-        }
-        return node_path;
     }
 
     private String getMessage() 

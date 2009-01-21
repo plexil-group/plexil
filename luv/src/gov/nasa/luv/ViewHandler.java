@@ -130,17 +130,13 @@ public class ViewHandler
     public void focusView(Model model)
     {
 	// create a new instance of the view only if necessary
-	if (model == null) 
-        {
-	    // do not setView
-	}
-	else if (model == currentModel) 
+	if (model == null || model == currentModel) 
         {
 	    // no change required
 	}
 	else 
-        {       
-	    currentModel = model;
+        { 
+            currentModel = model;
 	    setView(new TreeTableView("", model));
             Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
 	}
@@ -149,7 +145,7 @@ public class ViewHandler
     public void refreshRegexView(Model model)
     {
         currentModel = model;
-	setView(new TreeTableView("", model));
+        setView(new TreeTableView("", model));
         Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
     }
 }

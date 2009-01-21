@@ -47,6 +47,7 @@ import java.io.InterruptedIOException;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Stack;
 import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
 
@@ -67,7 +68,6 @@ public class Luv extends JFrame
     private static boolean planPaused                  = false;        // is instance of luv currently paused?    
     private static boolean planStep                    = false;        // is instance of luv currently stepping?    
     private static boolean isExecuting                 = false;        // is instance of luv currently executing? 
-    private static boolean highlightRow                = false;
     
     private boolean newPlan                            = false;
     private RegexModelFilter regexFilter               = new RegexModelFilter(true);
@@ -209,7 +209,8 @@ public class Luv extends JFrame
 	}
 
 	if (!plan.equivalent(currentPlan) || newPlan)
-        {           
+        {    
+            luvBreakPointHandler.removeAllBreakPoints();
             currentPlan = plan;
 	    Model.getRoot().planChanged();
             viewHandler.focusView(currentPlan);
@@ -256,11 +257,6 @@ public class Luv extends JFrame
     {
 	return planPaused && !planStep;
     }
-    
-    public boolean shouldHighlight()
-    {
-        return highlightRow;
-    }
 
     public void blockViewer()
     {
@@ -278,8 +274,7 @@ public class Luv extends JFrame
            
             if (luvBreakPointHandler.getBreakPoint() != null)
             {
-                int row = luvBreakPointHandler.getBreakPointNodeRow();
-                TreeTableView.getCurrent().highlightRow(row);
+                TreeTableView.getCurrent().highlightRow(luvBreakPointHandler.getBreakPoint().getModel());
             }
 
 	    luvBreakPointHandler.clearBreakPoint();
@@ -297,7 +292,7 @@ public class Luv extends JFrame
 		}
 	    }
             
-            highlightRow = false;
+            TreeTableView.getCurrent().unHighlightRow();
 	}
     }
       
@@ -457,8 +452,6 @@ public class Luv extends JFrame
 	planStep = false;	 
 	isExecuting = false;        
         fileHandler.setStopSearchForMissingLibs(false);
-        
-        TreeTableView.getCurrent().unHighlightRow();
   
 	// set certain menu items
           
@@ -478,20 +471,20 @@ public class Luv extends JFrame
 	runMenu.setEnabled(true);
 
 	if (viewMenu.getMenuComponentCount() > 0)
-	    {
-		viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
-		viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-		viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true); 
-                viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
-		viewMenu.setEnabled(true);
-	    }
+        {
+            viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
+            viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
+            viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true); 
+            viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
+            viewMenu.setEnabled(true);
+        }
 	else
 	    viewMenu.setEnabled(false);
 
 	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
 	windowMenu.setEnabled(true);
 
-	showStatus("Execution stopped...", Color.BLUE);
+	showStatus("Execution stopped", Color.BLUE);
     }
       
     public void preExecutionState()
@@ -505,8 +498,6 @@ public class Luv extends JFrame
 	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);	
         runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
         runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
-          
-	showStatus("Preparing to execute...", Color.lightGray);
     }
       
     public void executionState()
@@ -535,8 +526,6 @@ public class Luv extends JFrame
     public void stopExecutionState() throws IOException
     {
         executionViaLuvViewerHandler.killUEProcess();
-        
-        showStatus("Canceling execution...", Color.lightGray);
         
 	planPaused = false;
         planStep = false;
@@ -704,7 +693,8 @@ public class Luv extends JFrame
     
     public void enableRemoveBreaksMenuItem(boolean value)
     {
-        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(value);
+        if (runMenu.getComponents().length > 0)
+            runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(value);
     }
 
     // place all visible elements into the container in the main frame of the application.
@@ -1275,7 +1265,7 @@ public class Luv extends JFrame
     {
 	Model result = Model.getRoot().findChildByName(name);
 
-	if (result == null) {
+	if (result == null || result.getPlanName().equals(UNKNOWN)) {
 	    if (askUser) {
 		// Prompt user for a file containing the missing library, and (try to) load it
 		File library = null;

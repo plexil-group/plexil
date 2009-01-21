@@ -163,9 +163,9 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         emptyBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         funcBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         listBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12));        
+        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12)); 
    
-        iconSide.add(new JLabel(getIcon(NODELIST), JLabel.LEADING));
+        iconSide.add(new JLabel(getIcon(NODELIST), JLabel.LEFT));
         checkBoxSide.add(listBox);
         iconSide.add(new JLabel(getIcon(ASSN), JLabel.LEFT));
         checkBoxSide.add(assnBox); 
