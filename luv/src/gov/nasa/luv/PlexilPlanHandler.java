@@ -189,8 +189,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         // Make sure Luv instance is notified if this was plan or library
         if (tagName.equals(PLEXIL_PLAN))
             Luv.getLuv().handleNewPlan(topLevelNode);
-        else if (tagName.equals(PLEXIL_LIBRARY))
-            Luv.getLuv().handleNewLibrary(topLevelNode);
+        // NOT BEING USED CURRENTLY - need more info from UE first
+       // else if (tagName.equals(PLEXIL_LIBRARY))
+         //   Luv.getLuv().handleNewLibrary(topLevelNode);
     }
 
     /** Handle end of document event. */
@@ -203,7 +204,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     {
         if (tagName.equals(LIBRARYNODECALL))
         {
-            libraryNodeCall = true;
+            libraryNodeCall = true;  
             nodeInfoHolder.clear();
         }
         else if (isCondition(tagName) || isAction(tagName) || isVariableDeclaration(tagName))
@@ -223,7 +224,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                 currentNode().setLibraryName(text);
                 currentNode().setUnresolvedLibraryCall(true);
                 boolean askAboutMissingLibs = !loadingLibrary && !Luv.getLuv().getFileHandler().getStopSearchForMissingLibs();
-                Model library = Luv.getLuv().findLibraryNode(text, askAboutMissingLibs);
+                Model library = Luv.getLuv().findLibraryNode(text, askAboutMissingLibs); 
 
                 if (library == null) 
                 {

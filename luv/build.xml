@@ -120,10 +120,7 @@
   <target name = "compile" 
           depends = "init" 
           description = "compile java files">
-    <javac 
-           target ="1.5"
-           source ="1.5"
-           srcdir = "${source-dir}"
+    <javac srcdir = "${source-dir}"
            destdir = "${build-dir}"
            includes = "${compile-includes}"
            excludes = "${compile-excludes}"

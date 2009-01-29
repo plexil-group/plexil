@@ -32,6 +32,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.text.*;
 
+import static gov.nasa.luv.Constants.*;
+
 public class DebugWindow extends JFrame
 {
       // swing elements Variables declaration
@@ -194,7 +196,6 @@ public class DebugWindow extends JFrame
          
          getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
          
-         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-         setBounds((screenSize.width-500)/2, (screenSize.height-300)/2, 500, 300);
+         setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
       }      
 }

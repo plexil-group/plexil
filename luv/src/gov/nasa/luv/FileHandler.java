@@ -163,9 +163,9 @@ public class FileHandler
         {
             directory = library.getAbsolutePath();
             Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_BASE, library.toString());
-            Luv.getLuv().showStatus("Loading library "  + library, 1000);
-	    loadPlan(library);
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_BASE, library.toString());         
+            loadPlan(library);
+            Luv.getLuv().showStatus("Library \"" + library.toString() + "\" loaded");
         }
         else
             library = null;
@@ -208,7 +208,8 @@ public class FileHandler
         {
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
-            loadScript(script);   
+            loadScript(script);  
+            Luv.getLuv().showStatus("Script \"" + script.toString() + "\" loaded");
         }
         
         return script;  
@@ -254,8 +255,8 @@ public class FileHandler
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
-                    Luv.getLuv().showStatus("Loading plan "  + plan, 1000);
                     loadPlan(plan);
+                    Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded");
                     return APPROVE_OPTION;
             }  
             else
@@ -309,7 +310,6 @@ public class FileHandler
     {          
 	if (script != null)
         {
-            Luv.getLuv().showStatus("Loading script "  + script, 1000);
             if (Luv.getLuv().getCurrentPlan() != null)
                 Luv.getLuv().getCurrentPlan().addScriptName(script.getAbsolutePath());
         }
@@ -325,8 +325,8 @@ public class FileHandler
     public void loadPlan(File plan)
     {
         if (plan != null)
-        {
-            readPlan(plan);
+        {           
+            readPlan(plan); 
             Luv.getLuv().getCurrentPlan().addPlanName(plan.toString());
         }
     }
@@ -343,6 +343,7 @@ public class FileHandler
         {
             File plan = new File(planName);
             loadPlan(plan);
+            Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded");
             
             if (scriptName != null && !scriptName.equals(UNKNOWN)) 
             {

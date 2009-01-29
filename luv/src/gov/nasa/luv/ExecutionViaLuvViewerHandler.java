@@ -103,8 +103,6 @@ public class ExecutionViaLuvViewerHandler
           BufferedReader is = new BufferedReader(new InputStreamReader(ue_process.getInputStream()));
           BufferedReader err = new BufferedReader(new InputStreamReader(ue_process.getErrorStream()));                    
           String line;
-          String isMessage = "";
-          String errMessage = "";
 
           // display standard output from process (may contain an error message from UE)
           while ((line = is.readLine()) != null)
@@ -114,23 +112,14 @@ public class ExecutionViaLuvViewerHandler
                   Luv.getLuv().displayErrorMessage(null, "ERROR: error reported by the Universal Executive");
               }
 
-              isMessage += "\n" + line;
+              System.out.println(line);             
           }
-
-          System.out.println(isMessage);
 
           // display standard error message from process if any
           while ((line = err.readLine()) != null)
-          {                                     
-              errMessage += line + "\n";
-          }
-
-          if (!errMessage.equals("") &&
-              !errMessage.contains(UE_TERMINATE_EXEC_MESSAGE))
-          {
+          {    
               Luv.getLuv().displayErrorMessage(null, "ERROR: error reported by the Universal Executive");
-
-              System.out.println("\n" + errMessage);
+              System.out.println(line);
           }
       }
 }

@@ -498,9 +498,6 @@ public class TreeTableView extends JTreeTable implements View
 
       public static class Wrapper
       {            
-            int row;
-            int col;
-            String highlight = "HIGHLIGHT";
             Model model;
             Vector<Wrapper> children = new Vector<Wrapper>();
             static TreeTableView view;
@@ -676,11 +673,12 @@ public class TreeTableView extends JTreeTable implements View
           tree.clearSelection();
       }
       
-      public void showNode(Stack<String> node_path)
+      public int showNode(Stack<String> node_path)
       {
           findNode(node_path);
           selectRow(row);
           scrollToRow(row);
+          return row;
       }
       
       private int findNode(Stack<String> node_path)
@@ -716,9 +714,16 @@ public class TreeTableView extends JTreeTable implements View
       
       public void scrollToRow(int row)
       {
+          double height = this.getCurrent().getVisibleRect().getHeight();
+          
+          if (height > this.getRowHeight() * (row))
+              row = row - 3;
+          else
+              row = row + 3;
+          
           this.scrollRectToVisible(
                   new Rectangle(Luv.getLuv().getWidth(),
-                  this.getRowHeight() * (row + 3),
+                  this.getRowHeight() * (row),
                   Luv.getLuv().getWidth(),
                   this.getRowHeight()));
       }

@@ -155,6 +155,11 @@ public class Model extends Properties
     {
         return conditionMap.containsKey(getConditionNum(condition));
     }
+    
+    public int getRowNumber()
+    {
+        return row_number;
+    }
 
     public String getModelName()
     {
@@ -185,16 +190,6 @@ public class Model extends Properties
             return scriptName.substring(scriptName.lastIndexOf("/") + 1, scriptName.length());
         else
             return scriptName;
-    }
-    
-    public int getRowNumber()
-    {
-        return row_number;
-    }
-    
-    public void setRowNumber(int row)
-    {
-        this.row_number = row;
     }
 
     public void setModelName(String name)

@@ -260,12 +260,30 @@ public class Constants
       public static final String    PROP_TOOLTIP_DISMISS      = "tootip.dismiss"; 
       public static final int       PROP_TOOLTIP_DISMISS_DEF  = 60000;
 
-      public static final String    PROP_DBWIN_LOC        = "dbwindow.location";
-      public static final Point     PROP_DBWIN_LOC_DEF    = new Point(100, 750);
-      public static final String    PROP_DBWIN_SIZE       = "dbwindow.size";
-      public static final Dimension PROP_DBWIN_SIZE_DEF   = new Dimension(1200, 300);
-      public static final String    PROP_DBWIN_VISIBLE    = "dbwindow.visible";
-      public static final boolean   PROP_DBWIN_VISIBLE_DEF= false;
+      public static final String    PROP_DBWIN_LOC            = "dbwindow.location";
+      public static final Point     PROP_DBWIN_LOC_DEF        = new Point(300, 300);
+      public static final String    PROP_DBWIN_SIZE           = "dbwindow.size";
+      public static final Dimension PROP_DBWIN_SIZE_DEF       = new Dimension(1200, 300);
+      
+      public static final String    PROP_NODEINFOWIN_LOC      = "niwindow.location";
+      public static final Point     PROP_NODEINFOWIN_LOC_DEF   = new Point(300, 300);
+      public static final String    PROP_NODEINFOWIN_SIZE     = "niwindow.size";
+      public static final Dimension PROP_NODEINFOWIN_SIZE_DEF = new Dimension(900, 300);
+      
+      public static final String    PROP_FINDWIN_LOC          = "fwindow.location";
+      public static final Point     PROP_FINDWIN_LOC_DEF       = new Point(300, 300);
+      public static final String    PROP_FINDWIN_SIZE         = "fwindow.size";
+      public static final Dimension PROP_FINDWIN_SIZE_DEF     = new Dimension(300, 50);
+      
+      public static final String    PROP_HIDESHOWWIN_LOC      = "hswindow.location";
+      public static final Point     PROP_HIDESHOWWIN_LOC_DEF   = new Point(300, 300);
+      public static final String    PROP_HIDESHOWWIN_SIZE     = "hswindow.size";
+      public static final Dimension PROP_HIDESHOWWIN_SIZE_DEF = new Dimension(300, 300);
+      
+      public static final String    PROP_CFGWIN_LOC           = "cfgwindow.location";
+      public static final Point     PROP_CFGWIN_LOC_DEF        = new Point(300, 300);
+      public static final String    PROP_CFGWIN_SIZE          = "cfgwindow.size";
+      public static final Dimension PROP_CFGWIN_SIZE_DEF      = new Dimension(900, 700);
 
       public static final String    PROP_NET_AUTO_CONNECT     = "net.autoconnect";
       public static final boolean   PROP_NET_AUTO_CONNECT_DEF = true;
@@ -284,24 +302,22 @@ public class Constants
       public static final String    PROP_HIDE_SHOW_LIST = "hide.show.list";
       public static final String    PROP_SEARCH_LIST = "search.list";
       
-      public static final String    UE_TERMINATE_EXEC_MESSAGE = "Terminated              $prog -p $plan -s $script -d $debug_file $* $viewer $host $port $block";
-      
       public static final String    TEST_EXEC = "test-exec_g_rt";
       
       public static final String    PROP_UE_EXEC =        
-              System.getenv(PROP_PLEXIL_HOME) + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "TestExec" + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
+            System.getenv(PROP_PLEXIL_HOME) + 
+            System.getProperty(PROP_FILE_SEPARATOR) + "bin" + 
+            System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
       
       public static final String    PROP_RECENT_FILES =   
-              System.getenv(PROP_PLEXIL_HOME) + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "apps" + 
-              System.getProperty(PROP_FILE_SEPARATOR) + "TestExec";
+            System.getenv(PROP_PLEXIL_HOME);
       
       public static final String    PROP_LOG_FILE =
       	    System.getProperty(PROP_USER_HOME) + 
             System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";
+      
+      public static final String    DEBUG_FLAG_DAT_FILE = "DebugFlags.dat";
+      public static final String    DEBUG_CFG_FILE = "Debug.cfg";
 
       // file
 

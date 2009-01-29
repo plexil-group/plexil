@@ -110,7 +110,7 @@ public class FindWindow extends JPanel implements KeyListener
         regularFont = message_to_user.getFont().deriveFont(Font.PLAIN, 12.0f);
         italicFont = regularFont.deriveFont(Font.ITALIC);
         
-        message_to_user.setText(getMessage());
+        message_to_user.setText(getMessage(-1));
         message_to_user.setFont(italicFont);
 
         panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
@@ -148,13 +148,12 @@ public class FindWindow extends JPanel implements KeyListener
         
         if (foundMatch)
         {
-            TreeTableView.getCurrent().scrollToRow(0);
             showUserNextNode();
             message_to_user.setFont(regularFont);
         }
         else
         {
-            message_to_user.setText(getMessage());
+            message_to_user.setText(getMessage(-1));
             message_to_user.setFont(italicFont);
         }  
     }
@@ -176,8 +175,8 @@ public class FindWindow extends JPanel implements KeyListener
             node_path.push((String) obj[i]);
         }
             
-        TreeTableView.getCurrent().showNode(node_path);        
-        message_to_user.setText(getMessage());
+        int currentRow = TreeTableView.getCurrent().showNode(node_path);        
+        message_to_user.setText(getMessage(currentRow));
         next++;
     }
     
@@ -224,10 +223,9 @@ public class FindWindow extends JPanel implements KeyListener
        }
     }
 
-    private String getMessage() 
+    private String getMessage(int row) 
     {
         StringBuffer sb = new StringBuffer();
-        
         if (!searchSet) return "No search set";
         
         String name = (String) searchListHolder.getSelectedItem(); 
@@ -235,7 +233,7 @@ public class FindWindow extends JPanel implements KeyListener
         if (!foundMatch)
         {
             sb.append("<html><p align=center>");
-            sb.append("No matching nodes were found for " + name);
+            sb.append("No matching nodes were found for <b>" + name + "</b>");
             sb.append("</p></html>");
         }   
         else
@@ -244,11 +242,17 @@ public class FindWindow extends JPanel implements KeyListener
             sb.append(foundNodes.size());
             if (foundNodes.size() > 1)
             {
-                sb.append(" matches found for " + name);
+                sb.append(" matches found for <b>" + name + "</b>");
             }
             else 
             {
-                sb.append(" match found for " + name);
+                sb.append(" match found for <b>" + name + "</b>");
+            }
+            
+            if (row != -1)
+            {
+                row++;
+                sb.append("</p>Row: " + row);
             }
             sb.append("</p></html>");
         }
@@ -281,7 +285,8 @@ public class FindWindow extends JPanel implements KeyListener
             frame.setTitle("Find Node in " + Luv.getLuv().getCurrentPlan().getPlanNameSansPath());
      
         frame.add(new FindWindow(list));
-        frame.setLocationRelativeTo(Luv.getLuv());
+        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_FINDWIN_SIZE));
+        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_FINDWIN_LOC));
         frame.pack();
         
         if (searchList != null)

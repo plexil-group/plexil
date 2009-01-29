@@ -426,7 +426,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
         frame.add(new HideOrShowWindow(regexList), BorderLayout.CENTER);
 
-        frame.setLocationRelativeTo(Luv.getLuv());
+        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_HIDESHOWWIN_SIZE));
+        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_HIDESHOWWIN_LOC));
         frame.pack();  
     }
 }

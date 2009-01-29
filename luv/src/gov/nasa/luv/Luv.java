@@ -26,6 +26,9 @@
 
 package gov.nasa.luv;
 
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
@@ -37,6 +40,8 @@ import javax.swing.JSeparator;
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
@@ -47,7 +52,6 @@ import java.io.InterruptedIOException;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.Stack;
 import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
 
@@ -86,6 +90,8 @@ public class Luv extends JFrame
     private static ActionTab                    actionTab                     = new ActionTab();
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
     private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
+    private static DebugDataFileProcessor       debugDataFileProcessor        = new DebugDataFileProcessor();
+    private static DebugCFGWindow               debugCFGWindow         = new DebugCFGWindow();
     
     
     // Luv Viewer Menus
@@ -115,7 +121,16 @@ public class Luv extends JFrame
 		define(PROP_WIN_BCLR, PROP_WIN_BCLR_DEF);
 		define(PROP_DBWIN_LOC,     PROP_DBWIN_LOC_DEF);
 		define(PROP_DBWIN_SIZE,    PROP_DBWIN_SIZE_DEF);
-		define(PROP_DBWIN_VISIBLE, PROP_DBWIN_VISIBLE_DEF);
+                
+                define(PROP_NODEINFOWIN_LOC,     PROP_NODEINFOWIN_LOC_DEF);
+		define(PROP_NODEINFOWIN_SIZE,    PROP_NODEINFOWIN_SIZE_DEF);
+                define(PROP_FINDWIN_LOC,     PROP_FINDWIN_LOC_DEF);
+		define(PROP_FINDWIN_SIZE,    PROP_FINDWIN_SIZE_DEF);
+                define(PROP_HIDESHOWWIN_LOC,     PROP_HIDESHOWWIN_LOC_DEF);
+		define(PROP_HIDESHOWWIN_SIZE,    PROP_HIDESHOWWIN_SIZE_DEF);
+                define(PROP_CFGWIN_LOC,     PROP_CFGWIN_LOC_DEF);
+                define(PROP_CFGWIN_SIZE,    PROP_CFGWIN_SIZE_DEF);
+                
 		define(PROP_TOOLTIP_DISMISS, PROP_TOOLTIP_DISMISS_DEF);
 		define(PROP_NET_SERVER_PORT,  PROP_NET_SERVER_PORT_DEF);
 		define(PROP_NET_RECENT_HOST,  PROP_NET_RECENT_HOST_DEF);
@@ -223,11 +238,10 @@ public class Luv extends JFrame
             runTime = System.currentTimeMillis();
             executionState();
             addRunToRecentRunList();
-        }
+        }       
         
 	refreshNodeInfoTabbedWindow();
         setTitle();
-	showStatus("Plan \"" + plan.getModelName() + "\" loaded");
                         
 	// Determine if the Luv Viewer should pause before executing. 
                                                   
@@ -238,8 +252,9 @@ public class Luv extends JFrame
         }
     }
 
+    // NOT BEING USED CURRENTLY - need more info from UE
     // Called from PlexilPlanHandler::endElement()
-    public void handleNewLibrary(Model library)
+    /*public void handleNewLibrary(Model library)
     {
 	// See if this library was referenced before it was defined
 	for (Model child : Model.getRoot().getChildren()) {
@@ -249,9 +264,8 @@ public class Luv extends JFrame
 	    }
 	}
 	
-	showStatus("Library \"" + library.getModelName() + "\" loaded");
 	Model.getRoot().planChanged();
-    }
+    }*/
 
     public boolean shouldBlock()
     {
@@ -313,6 +327,10 @@ public class Luv extends JFrame
     public LuvBreakPointHandler   getLuvBreakPointHandler()   { return luvBreakPointHandler; }    // get current breakpoint handler
       
     public Properties             getProperties()             { return properties; }              // get persistent properties for luv viewer
+    
+    public DebugDataFileProcessor getDebugDataFileProcessor() { return debugDataFileProcessor; }
+    
+    public DebugCFGWindow         getDebugCFGWindow()         { return debugCFGWindow; }
     
     public static Luv             getLuv()                    { return theLuv; }                  // get current active instance of luv viewer
       
@@ -798,6 +816,7 @@ public class Luv extends JFrame
  
 	menuBar.add(windowMenu);
 	windowMenu.add(theLuv.luvDebugWindowAction);
+        windowMenu.add(theLuv.createDebugCFGFileAction);
         windowMenu.add(theLuv.aboutWindowAction);
     }
       
@@ -1405,6 +1424,7 @@ public class Luv extends JFrame
                     // reload plan
                     
                     fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+                    Luv.getLuv().showStatus("Plan \"" + currentPlan.getPlanName() + "\" loaded");
     
                     try 
                     {
@@ -1618,6 +1638,28 @@ public class Luv extends JFrame
             public void actionPerformed(ActionEvent e)
 	    {
                 FindWindow.makeVisible(properties.getProperty(PROP_SEARCH_LIST, UNKNOWN));
+            }   
+	};
+        
+    /** Action to for a node by name nodes. */
+      
+    LuvAction createDebugCFGFileAction = 
+	new LuvAction("Create Debug.cfg File", 
+		      "Create Debug.cfg File.",
+                      VK_D, 
+		      META_MASK)
+	{            
+            public void actionPerformed(ActionEvent e)
+	    {
+                try 
+                {
+                    debugDataFileProcessor.run();
+                    debugCFGWindow.openWindow();
+                } 
+                catch (FileNotFoundException ex) 
+                {
+                    Logger.getLogger(Luv.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }   
 	};
 
