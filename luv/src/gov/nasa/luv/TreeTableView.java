@@ -250,7 +250,8 @@ public class TreeTableView extends JTreeTable implements View
       @Override public String getToolTipText(MouseEvent event)
       {
           StringBuffer   toolTip     = new StringBuffer();
-          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());    
+          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());
+          int row = tree.getRowForLocation(event.getX(), event.getY()) + 1;
           
           
           if (nodePath != null)
@@ -261,6 +262,7 @@ public class TreeTableView extends JTreeTable implements View
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
               toolTip.append("<br><b>TYPE</b>  " + node.getProperty(MODEL_TYPE));
+              toolTip.append("<br><b>ROW</b>  " + row);
               toolTip.append("<br><hr>");
               toolTip.append("<b>Double-Click</b> on node to view condition information");    
               toolTip.append("<br><b>Right-Click</b> on node to set breakpoints");
