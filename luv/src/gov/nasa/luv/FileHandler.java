@@ -567,7 +567,6 @@ public class FileHandler
                 Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
                 return new File(scriptName);
             case 1:
-                doNotLoadScript = true;
                 if (chooseScript() == APPROVE_OPTION)
                     return new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_BASE));
                 else

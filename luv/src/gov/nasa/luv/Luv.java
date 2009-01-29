@@ -40,8 +40,6 @@ import javax.swing.JSeparator;
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
@@ -74,6 +72,7 @@ public class Luv extends JFrame
     private static boolean isExecuting                 = false;        // is instance of luv currently executing? 
     
     private boolean newPlan                            = false;
+    private boolean shouldHighlight                    = true;
     private RegexModelFilter regexFilter               = new RegexModelFilter(true);
     
     private double runTime = 0;
@@ -90,8 +89,6 @@ public class Luv extends JFrame
     private static ActionTab                    actionTab                     = new ActionTab();
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
     private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
-    private static DebugDataFileProcessor       debugDataFileProcessor        = new DebugDataFileProcessor();
-    private static DebugCFGWindow               debugCFGWindow         = new DebugCFGWindow();
     
     
     // Luv Viewer Menus
@@ -103,6 +100,8 @@ public class Luv extends JFrame
     private JMenu windowMenu              = new JMenu("Windows");
       
     private DebugWindow luvViewerDebugWindow; 
+    private DebugDataFileProcessor              debugDataFileProcessor        = new DebugDataFileProcessor();    
+    private DebugCFGWindow                      debugCFGWindow                = new DebugCFGWindow();    
       
     private SocketServer s;
       
@@ -286,7 +285,7 @@ public class Luv extends JFrame
 					    " to step",
 					    Color.RED); 
            
-            if (luvBreakPointHandler.getBreakPoint() != null)
+            if (luvBreakPointHandler.getBreakPoint() != null && shouldHighlight)
             {
                 TreeTableView.getCurrent().highlightRow(luvBreakPointHandler.getBreakPoint().getModel());
             }
@@ -307,6 +306,7 @@ public class Luv extends JFrame
 	    }
             
             TreeTableView.getCurrent().unHighlightRow();
+            shouldHighlight = true;
 	}
     }
       
@@ -329,8 +329,6 @@ public class Luv extends JFrame
     public Properties             getProperties()             { return properties; }              // get persistent properties for luv viewer
     
     public DebugDataFileProcessor getDebugDataFileProcessor() { return debugDataFileProcessor; }
-    
-    public DebugCFGWindow         getDebugCFGWindow()         { return debugCFGWindow; }
     
     public static Luv             getLuv()                    { return theLuv; }                  // get current active instance of luv viewer
       
@@ -507,6 +505,7 @@ public class Luv extends JFrame
       
     public void preExecutionState()
     {
+        shouldHighlight = false;
         currentPlan.resetMainAttributesOfAllNodes();
         
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
@@ -611,7 +610,7 @@ public class Luv extends JFrame
         
         setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
         
-        Set<BreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
+        Set<LuvBreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
         
         for (BreakPoint bp : breakPoints)
         {
@@ -631,11 +630,12 @@ public class Luv extends JFrame
         
         setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
         
-        Set<BreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
+        Set<LuvBreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
         
-        for (BreakPoint bp : breakPoints)
+        for (LuvBreakPoint bp : breakPoints)
         {
-            bp.setEnabled(allowBreaks);
+            if (!bp.getReserveBreakStatus())
+                bp.setEnabled(allowBreaks);
         }
         
         viewHandler.refreshView();
@@ -757,11 +757,18 @@ public class Luv extends JFrame
 	luvViewerDebugWindow = new DebugWindow(this);
 	luvViewerDebugWindow.setTitle("Luv Viewer Debug Window");                
 
-	// set size and location off frame
+	// set size and location of debug window
 
 	luvViewerDebugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
 	luvViewerDebugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
 	luvViewerDebugWindow.pack();
+        
+        hideOrShowWindow.setLocation(properties.getPoint(PROP_HIDESHOWWIN_LOC));
+        hideOrShowWindow.setPreferredSize(properties.getDimension(PROP_HIDESHOWWIN_SIZE));
+    
+        debugCFGWindow.setLocation(properties.getPoint(PROP_CFGWIN_LOC));
+        debugCFGWindow.setPreferredSize(properties.getDimension(PROP_CFGWIN_SIZE));
+	debugCFGWindow.pack();
          
          // reset "Show/Hide debug window" menu item when closing window
          

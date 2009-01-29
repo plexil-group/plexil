@@ -261,7 +261,7 @@ public class Constants
       public static final int       PROP_TOOLTIP_DISMISS_DEF  = 60000;
 
       public static final String    PROP_DBWIN_LOC            = "dbwindow.location";
-      public static final Point     PROP_DBWIN_LOC_DEF        = new Point(300, 300);
+      public static final Point     PROP_DBWIN_LOC_DEF        = new Point(100, 750);
       public static final String    PROP_DBWIN_SIZE           = "dbwindow.size";
       public static final Dimension PROP_DBWIN_SIZE_DEF       = new Dimension(1200, 300);
       
@@ -271,9 +271,9 @@ public class Constants
       public static final Dimension PROP_NODEINFOWIN_SIZE_DEF = new Dimension(900, 300);
       
       public static final String    PROP_FINDWIN_LOC          = "fwindow.location";
-      public static final Point     PROP_FINDWIN_LOC_DEF       = new Point(300, 300);
+      public static final Point     PROP_FINDWIN_LOC_DEF       = new Point(500, 300);
       public static final String    PROP_FINDWIN_SIZE         = "fwindow.size";
-      public static final Dimension PROP_FINDWIN_SIZE_DEF     = new Dimension(300, 50);
+      public static final Dimension PROP_FINDWIN_SIZE_DEF     = new Dimension(400, 100);
       
       public static final String    PROP_HIDESHOWWIN_LOC      = "hswindow.location";
       public static final Point     PROP_HIDESHOWWIN_LOC_DEF   = new Point(300, 300);

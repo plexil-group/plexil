@@ -44,12 +44,12 @@ public class LuvBreakPointHandler
     
       // breakpoint variables
       
-      private BreakPoint                        breakPoint = null;                                     // if break has occured, the causal break point object
-      private HashMap<BreakPoint, Integer>      breakPointMap = new HashMap<BreakPoint, Integer>();  // collection of all breakpoints
-      private Vector<BreakPoint>                unfoundBreakPoints = new Vector<BreakPoint>();         // breakpoints not found in current plan   
+      private LuvBreakPoint                        breakPoint = null;                                     // if break has occured, the causal break point object
+      private HashMap<LuvBreakPoint, Integer>      breakPointMap = new HashMap<LuvBreakPoint, Integer>();  // collection of all breakpoints
+      private Vector<LuvBreakPoint>                unfoundBreakPoints = new Vector<LuvBreakPoint>();         // breakpoints not found in current plan   
       private Vector<String>                    breakPointList = new Vector<String>();                 // list of breakpoints to check for repeats
       
-      public void setBreakPoint(BreakPoint bp)
+      public void setBreakPoint(LuvBreakPoint bp)
       {
           breakPoint = bp;
       }
@@ -59,12 +59,12 @@ public class LuvBreakPointHandler
           return breakPoint;
       }
       
-      public HashMap<BreakPoint, Integer> getBreakPointMap()
+      public HashMap<LuvBreakPoint, Integer> getBreakPointMap()
       {
           return breakPointMap;
       }
       
-      public Vector<BreakPoint> getUnfoundBreakPoints()
+      public Vector<LuvBreakPoint> getUnfoundBreakPoints()
       {
           return unfoundBreakPoints;
       }
@@ -77,7 +77,7 @@ public class LuvBreakPointHandler
       public boolean breakpointsExist()
       {
           return !breakPointList.isEmpty();
-      }
+      }     
       
       /** Add breakpoint to grand list of breakpoints.
        *
@@ -85,7 +85,7 @@ public class LuvBreakPointHandler
        * @param model model breakpoint is associated with
        */
 
-      public void addBreakPoint(BreakPoint breakPoint, Model model)
+      public void addBreakPoint(LuvBreakPoint breakPoint, Model model)
       {
          if (!breakPointList.contains(breakPoint.toString() + " " + model.getRowNumber()))
          {
@@ -171,9 +171,9 @@ public class LuvBreakPointHandler
       {
 	    getUnfoundBreakPoints().clear();
          
-	    for (Map.Entry<BreakPoint, Integer> pair: getBreakPointMap().entrySet()) 
+	    for (Map.Entry<LuvBreakPoint, Integer> pair: getBreakPointMap().entrySet()) 
             {
-		BreakPoint bp = pair.getKey();
+		LuvBreakPoint bp = pair.getKey();
 		int row_number = pair.getValue();
 
 		Model target = model.findChildByRowNumber(row_number);
@@ -328,7 +328,7 @@ public class LuvBreakPointHandler
 
          // get the break points for this model
          
-         final Vector<BreakPoint> bps = getBreakPoints(model);
+         final Vector<LuvBreakPoint> bps = getBreakPoints(model);
 
          // if we got any add enable/disable & remove item for each one
 
@@ -337,7 +337,7 @@ public class LuvBreakPointHandler
             // add the breakpoints
 
             popup.add(new JSeparator());
-            for (final BreakPoint bp: bps)
+            for (final LuvBreakPoint bp: bps)
             {
                String action = bp.isEnabled() ? "Disable" : "Enable";
                popup.add(new LuvAction(
@@ -348,6 +348,8 @@ public class LuvBreakPointHandler
                         public void actionPerformed(ActionEvent e)
                         {
                            bp.setEnabled(!bp.isEnabled());
+                           if (!bp.isEnabled())
+                               bp.reserveBreakStatus(true);
                            Luv.getLuv().getViewHandler().refreshView();
                         }
                   }); 
@@ -397,10 +399,10 @@ public class LuvBreakPointHandler
 
       /** Return all the breakpoints for a given model. */
 
-      public Vector<BreakPoint> getBreakPoints(Model model)
+      public Vector<LuvBreakPoint> getBreakPoints(Model model)
       {
-         Vector<BreakPoint> bps = new Vector<BreakPoint>();
-         for (BreakPoint bp: breakPointMap.keySet())
+         Vector<LuvBreakPoint> bps = new Vector<LuvBreakPoint>();
+         for (LuvBreakPoint bp: breakPointMap.keySet())
             if (model == bp.getModel())
                bps.add(bp);
          return bps;

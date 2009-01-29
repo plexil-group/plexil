@@ -35,10 +35,10 @@ import static gov.nasa.luv.Constants.*;
 
 public class DebugDataFileProcessor 
 {
-    HashMap<String, String> lines = new HashMap<String, String>();
-    int countFirstTier = 0;
-    int countSecondTier = 0;
-    int countThirdTier = 0;
+    private HashMap<String, String> lines = new HashMap<String, String>();
+    private int countFirstTier = 0;
+    private int countSecondTier = 0;
+    private int countThirdTier = 0;
     
     private void processDebugFlags() throws FileNotFoundException 
     {

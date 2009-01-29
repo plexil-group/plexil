@@ -252,7 +252,8 @@ public class FindWindow extends JPanel implements KeyListener
             if (row != -1)
             {
                 row++;
-                sb.append("</p>Row: " + row);
+                int match = next + 1;
+                sb.append("</p>Match: " + match + " Row: " + row);
             }
             sb.append("</p></html>");
         }
@@ -285,8 +286,10 @@ public class FindWindow extends JPanel implements KeyListener
             frame.setTitle("Find Node in " + Luv.getLuv().getCurrentPlan().getPlanNameSansPath());
      
         frame.add(new FindWindow(list));
-        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_FINDWIN_SIZE));
+        
+        frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_FINDWIN_SIZE));
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_FINDWIN_LOC));
+        
         frame.pack();
         
         if (searchList != null)

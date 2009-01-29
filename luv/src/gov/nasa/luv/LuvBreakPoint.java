@@ -33,6 +33,8 @@ package gov.nasa.luv;
 
 public abstract class LuvBreakPoint extends AbstractBreakPoint
 {
+    private boolean breakStatus = false;
+    
     /** Old value, use to test for changes */
 
     String oldValue = "";
@@ -81,5 +83,15 @@ public abstract class LuvBreakPoint extends AbstractBreakPoint
        super.setModel(model);
        if (targetProperty != null)
           oldValue = model.getProperty(targetProperty);
+    }
+    
+    public void reserveBreakStatus(boolean value)
+    {
+        breakStatus = value;
+    }
+
+    public boolean getReserveBreakStatus()
+    {
+        return breakStatus;
     }
 }

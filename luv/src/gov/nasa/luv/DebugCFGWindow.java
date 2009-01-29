@@ -31,7 +31,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -81,7 +80,7 @@ public class DebugCFGWindow extends JFrame
     {
         super(title);
         
-        assignLinesToCheckNodes();    
+        assignLinesToCheckNodes(); 
         JTree tree = new JTree(nodes[0]);
         tree.setCellRenderer(new CheckRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -298,12 +297,14 @@ public class DebugCFGWindow extends JFrame
         {
             public void windowClosing(WindowEvent e) 
             {
+                // clear holder of check nodes when close window
                 ;
             }
         });
         
-        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
+        frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+        frame.pack();
         frame.setVisible(true);
     }
 }

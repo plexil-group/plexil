@@ -37,6 +37,7 @@
   <property name = "icons"              value = "${resources}/icons"/>
   <property name = "samples"            value = "${resources}/samples"/>
   <property name = "jar-name"           value = "${app-name}.jar"/>
+  <property name = "debug-cfg-name"     value = "Debug.cfg"/>
   <property name = "app-dir"            value = "${app-title}.app"/>
   <property name = "dmg-dir"            value = "disk-image"/>
   <property name = "dmg-name"           value = "${app-name}.dmg"/>
@@ -64,6 +65,7 @@
     <delete file = "${zip-name}"/>
     <delete file = "${build-env-dmg}"/>
     <delete file = "${build-env-zip}"/>
+    <delete file = "${debug-cfg-name}"/>
   </target>
 
   <!-- compile java doc -->
