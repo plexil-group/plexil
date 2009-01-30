@@ -113,7 +113,7 @@ int main (int argc, char** argv)
    _plxl_interface.resetQueue();
    
    RoboSimInterfaceAdaptor* _plxl_adaptor = 
-     new RoboSimInterfaceAdaptor("RoboSimExec", ipAddress, portNumber);
+     new RoboSimInterfaceAdaptor(_plxl_interface, "RoboSimExec", ipAddress, portNumber);
 
    _plxl_interface.setDefaultInterface(_plxl_adaptor->getId());
 

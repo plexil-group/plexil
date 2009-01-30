@@ -33,9 +33,12 @@
 #include "AdaptorExecInterface.hh"
 
 
-RoboSimInterfaceAdaptor::RoboSimInterfaceAdaptor(const std::string& _name,
+RoboSimInterfaceAdaptor::RoboSimInterfaceAdaptor(PLEXIL::AdaptorExecInterface& execInterface,
+						 const std::string& _name,
                                                  const std::string& ipAddress, 
-                                                 int portNumber) : m_Name(_name)
+                                                 int portNumber)
+  : InterfaceAdaptor(execInterface),
+    m_Name(_name)
 {
   m_Connected = m_SSWGClient.connectToServer(m_Name, ipAddress, portNumber, this);
   if (!m_Connected) std::cerr << "The executive is unable to connect to the "
@@ -116,10 +119,10 @@ void RoboSimInterfaceAdaptor::executeCommand(const PLEXIL::LabelStr& name,
       m_SSWGClient.sendMessage(nStr, "RobotYellow");
     }
 
-  PLEXIL::AdaptorExecInterface::instance()->handleValueChange
+  m_execInterface.handleValueChange
     (ack, (!m_Connected || failed) ? PLEXIL::CommandHandleVariable::COMMAND_FAILED() :
      PLEXIL::CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
-  PLEXIL::AdaptorExecInterface::instance()->notifyOfExternalEvent();
+  m_execInterface.notifyOfExternalEvent();
 }
 
 void RoboSimInterfaceAdaptor::executeFunctionCall(const PLEXIL::LabelStr& name,
@@ -139,10 +142,10 @@ void RoboSimInterfaceAdaptor::executeFunctionCall(const PLEXIL::LabelStr& name,
                               (static_cast<double>(rand()) / 
                                static_cast<double>(RAND_MAX))) + 0.5);
   
-  PLEXIL::AdaptorExecInterface::instance()->handleValueChange
+  m_execInterface.handleValueChange
     (ack, PLEXIL::BooleanVariable::TRUE());
-  PLEXIL::AdaptorExecInterface::instance()->handleValueChange (dest, res);
-  PLEXIL::AdaptorExecInterface::instance()->notifyOfExternalEvent();
+  m_execInterface.handleValueChange (dest, res);
+  m_execInterface.notifyOfExternalEvent();
 }
 
 void RoboSimInterfaceAdaptor::receivedMessage (const std::string& sender,
@@ -160,12 +163,12 @@ void RoboSimInterfaceAdaptor::receivedMessage (const std::string& sender,
         {
           // return as an array
           PLEXIL::StoredArray retArray(retValues.size(), retValues);
-          PLEXIL::AdaptorExecInterface::instance()->handleValueChange
+          m_execInterface.handleValueChange
             (m_CommandMapIter->second, retArray.getKey());
         }
       else
         {
-          PLEXIL::AdaptorExecInterface::instance()->handleValueChange
+          m_execInterface.handleValueChange
             (m_CommandMapIter->second, retValues[0]);
         }
       m_CommandMap.erase(m_CommandMapIter);
@@ -177,7 +180,7 @@ void RoboSimInterfaceAdaptor::receivedMessage (const std::string& sender,
       return;
     }
   
-  PLEXIL::AdaptorExecInterface::instance()->notifyOfExternalEvent();
+  m_execInterface.notifyOfExternalEvent();
 }
 
 std::vector<double>

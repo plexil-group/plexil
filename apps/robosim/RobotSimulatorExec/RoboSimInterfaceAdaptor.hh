@@ -37,8 +37,10 @@
 class RoboSimInterfaceAdaptor : public PLEXIL::InterfaceAdaptor, public SSWGCallbackHandler
 {
 public:
-  RoboSimInterfaceAdaptor(const std::string& _name = "RoboSimExec",
-                          const std::string& ipAddress = "127.0.0.1", int portNumber=6164);
+  RoboSimInterfaceAdaptor(PLEXIL::AdaptorExecInterface& execInterface,
+			  const std::string& _name = "RoboSimExec",
+                          const std::string& ipAddress = "127.0.0.1", 
+			  int portNumber=6164);
   ~RoboSimInterfaceAdaptor();
   
   virtual void lookupNow(const PLEXIL::StateKey& stateKey,
