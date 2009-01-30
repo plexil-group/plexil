@@ -222,6 +222,14 @@ namespace PLEXIL
       return m_xml;
     }
 
+    /**
+     * @brief Get the AdaptorExecInterface for this instance.
+     */
+    AdaptorExecInterface& getExecInterface()
+    {
+      return m_execInterface;
+    }
+
   protected:
 
     //
