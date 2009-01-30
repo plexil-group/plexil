@@ -33,6 +33,11 @@
 
 namespace PLEXIL
 {
+  DummyAdaptor::DummyAdaptor()
+    : InterfaceAdaptor()
+  {
+  }
+
   DummyAdaptor::DummyAdaptor(AdaptorExecInterface& execInterface)
     : InterfaceAdaptor(execInterface)
   {

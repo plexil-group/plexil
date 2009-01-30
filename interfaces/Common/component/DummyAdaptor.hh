@@ -37,6 +37,10 @@ namespace PLEXIL
   class DummyAdaptor : public InterfaceAdaptor
   {
   public:
+    /*!
+      \brief Default constructor (DEPRECATED)
+    */
+    DummyAdaptor();
     DummyAdaptor(AdaptorExecInterface& execInterface);
     ~DummyAdaptor();
 
@@ -79,7 +83,6 @@ namespace PLEXIL
     
   private:
     // deliberately unimplemented
-    DummyAdaptor();
     DummyAdaptor(const DummyAdaptor &);
     DummyAdaptor& operator=(const DummyAdaptor &);
 
