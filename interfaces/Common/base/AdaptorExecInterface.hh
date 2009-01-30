@@ -58,6 +58,7 @@ namespace PLEXIL
   {
   public:
 
+    // *** DEPRECATED ***
     static AdaptorExecInterfaceId instance();
 
     //

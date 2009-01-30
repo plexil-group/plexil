@@ -37,7 +37,7 @@ namespace PLEXIL
   class DummyAdaptor : public InterfaceAdaptor
   {
   public:
-    DummyAdaptor();
+    DummyAdaptor(AdaptorExecInterface& execInterface);
     ~DummyAdaptor();
 
     virtual void registerChangeLookup(const LookupKey& uniqueId,
@@ -79,6 +79,7 @@ namespace PLEXIL
     
   private:
     // deliberately unimplemented
+    DummyAdaptor();
     DummyAdaptor(const DummyAdaptor &);
     DummyAdaptor& operator=(const DummyAdaptor &);
 

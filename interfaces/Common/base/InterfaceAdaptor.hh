@@ -48,6 +48,8 @@ namespace PLEXIL
 
   class LabelStr;
 
+  class AdaptorExecInterface;
+
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
             to other systems. See also classes ExternalInterface and AdaptorExecInterface.
@@ -58,15 +60,24 @@ namespace PLEXIL
   public:
     /**
      * @brief Default constructor.
+     * @note Deprecated; a future version will require a reference to the
+     *       parent AdaptorExecInterface instance.
      */
     InterfaceAdaptor();
+
+    /**
+     * @brief Constructor.
+     * @param execInterface A reference to the AdaptorExecInterface which owns this adaptor.
+     */
+    InterfaceAdaptor(AdaptorExecInterface& execInterface);
 
     /**
      * @brief Constructor from configuration XML.
      * @param xml A const pointer to the TiXmlElement describing this adaptor
      * @note The instance maintains a shared pointer to the TiXmlElement.
      */
-    InterfaceAdaptor(const TiXmlElement* xml);
+    InterfaceAdaptor(AdaptorExecInterface& execInterface, 
+		     const TiXmlElement* xml);
 
     /**
      * @brief Destructor.
@@ -238,6 +249,8 @@ namespace PLEXIL
      * @return True if the key was found, false otherwise.
      */
     bool getStateKey(const State& state, StateKey& stateKey);
+
+    AdaptorExecInterface& m_execInterface;
 
   private:
 

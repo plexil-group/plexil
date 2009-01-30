@@ -35,14 +35,25 @@
 
 namespace PLEXIL
 {
+  // *** DEPRECATED -- TEMPORARY ***
   InterfaceAdaptor::InterfaceAdaptor()
-    : m_xml(NULL),
+    : m_execInterface(*AdaptorExecInterface::instance()),
+      m_xml(NULL),
       m_id(this)
   {
   }
 
-  InterfaceAdaptor::InterfaceAdaptor(const TiXmlElement* xml)
-    : m_xml(xml),
+  InterfaceAdaptor::InterfaceAdaptor(AdaptorExecInterface& execInterface)
+    : m_execInterface(execInterface),
+      m_xml(NULL),
+      m_id(this)
+  {
+  }
+
+  InterfaceAdaptor::InterfaceAdaptor(AdaptorExecInterface& execInterface, 
+				     const TiXmlElement* xml)
+    : m_execInterface(execInterface),
+      m_xml(xml),
       m_id(this)
   {
   }
@@ -205,13 +216,13 @@ namespace PLEXIL
   bool 
   InterfaceAdaptor::getState(const StateKey& key, State& state)
   {
-    return AdaptorExecInterface::instance()->getStateCache()->stateForKey(key, state);
+    return m_execInterface.getStateCache()->stateForKey(key, state);
   }
 
   bool
   InterfaceAdaptor::getStateKey(const State& state, StateKey& key)
   {
-    return !AdaptorExecInterface::instance()->getStateCache()->keyForState(state, key);
+    return !m_execInterface.getStateCache()->keyForState(state, key);
   }
 
 }
