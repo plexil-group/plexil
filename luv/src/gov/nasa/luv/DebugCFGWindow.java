@@ -30,14 +30,19 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -66,46 +71,187 @@ import javax.swing.tree.TreeSelectionModel;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
 
+import java.util.Scanner;
+import javax.swing.JOptionPane;
 import static gov.nasa.luv.Constants.*;
 
 
-public class DebugCFGWindow extends JFrame 
+public class DebugCFGWindow extends JFrame implements ItemListener
 {
     private static DebugCFGWindow frame;
+    private JFrame infoWindow = new JFrame("Info");
+    private JTree main_tree;
     private CheckNode[] nodes;
+    private JCheckBox enableMessages;
+    private JTextArea textArea;
             
     public DebugCFGWindow() {}
     
-    public DebugCFGWindow(String title) 
+    public DebugCFGWindow(String title) throws FileNotFoundException 
     {
         super(title);
         
+        // info section
+        JLabel shortMessage = new JLabel();
+        shortMessage.setText(getHowToMessage());
+        shortMessage.setFont(shortMessage.getFont().deriveFont(Font.PLAIN, 12.0f));
+        
+        enableMessages = new JCheckBox("Enable Debug Messages");
+        enableMessages.addItemListener(this);
+        if (isCFGFileEnabled())
+            enableMessages.setSelected(true);
+        else
+            enableMessages.setSelected(false);
+        
+        JPanel topSection = new JPanel();
+        topSection.setLayout(new BoxLayout(topSection, BoxLayout.PAGE_AXIS));
+        topSection.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        topSection.add(shortMessage);
+        topSection.add(enableMessages);
+    
+        // check box tree
         assignLinesToCheckNodes(); 
-        JTree tree = new JTree(nodes[0]);
-        tree.setCellRenderer(new CheckRenderer());
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.putClientProperty("JTree.lineStyle", "Angled");
-        tree.addMouseListener(new NodeSelectionListener(tree));       
-        JScrollPane checkBoxList = new JScrollPane(tree);
+        main_tree = new JTree(nodes[0]);
+        main_tree.setCellRenderer(new CheckRenderer());
+        main_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        main_tree.addMouseListener(new NodeSelectionListener(main_tree));       
+        JScrollPane checkBoxList = new JScrollPane(main_tree);
+        checkBoxList.setPreferredSize(new Dimension(450, 50));
 
-        JTextArea textArea = new JTextArea(7,10);       
+        // debug.cfg preview
+        textArea = new JTextArea();  
+        textArea.setPreferredSize(new Dimension(435, 50));
+        setPreviewOfCFGFile();
+        textArea.setEditable(false);
         JScrollPane textPanel = new JScrollPane(textArea);
         
-        JButton cancelButton = new JButton("Close");        
-        cancelButton.addActionListener(new ButtonActionListener(nodes[0], textArea));
+        // buttons
+        JButton exitButton = new JButton("Exit");        
+        exitButton.addActionListener(new ButtonActionListener(nodes[0]));
+        JButton infoButton = new JButton("Info");        
+        infoButton.addActionListener(new ButtonActionListener(nodes[0]));
+        JButton clearButton = new JButton("Clear CFG file");        
+        clearButton.addActionListener(new ButtonActionListener(nodes[0]));
         JButton createCFGButton = new JButton("Create CFG file");        
-        createCFGButton.addActionListener(new ButtonActionListener(nodes[0], textArea));        
+        createCFGButton.addActionListener(new ButtonActionListener(nodes[0])); 
+        
+        // file location message
+        JLabel locationMessage = new JLabel();
+        locationMessage.setText(getFileLocationMessage());
+        locationMessage.setFont(locationMessage.getFont().deriveFont(Font.PLAIN, 12.0f));
+   
+        // Panel to hold buttons and file location message
         JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));       
+        buttonPane.add(locationMessage);
         buttonPane.add(Box.createHorizontalGlue());
-        buttonPane.add(cancelButton);
-        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPane.add(exitButton);
+        buttonPane.add(Box.createHorizontalStrut(3));
+        buttonPane.add(infoButton);
+        buttonPane.add(Box.createHorizontalStrut(3));
+        buttonPane.add(clearButton);
+        buttonPane.add(Box.createHorizontalStrut(3));        
         buttonPane.add(createCFGButton);
+        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
         
-        getContentPane().add(checkBoxList,    BorderLayout.NORTH);
-        getContentPane().add(textPanel,    BorderLayout.CENTER);
+        getContentPane().add(topSection,    BorderLayout.NORTH);
+        getContentPane().add(checkBoxList,    BorderLayout.WEST);
+        getContentPane().add(textPanel,    BorderLayout.EAST);
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
+    }
+    
+    private String getInfoMessage() 
+    {
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("<html><p align=left>"); 
+        sb.append("<br><b>How Does the Debug Configuration File Tool Work?</b></br>");
+        sb.append("<hr>");
+        sb.append("<br>This tool creates a <b>Debug Configuration File</b> in synchronization with the checked</br>");
+        sb.append("<br><b>Debug Tags</b> in the check box tree. The check box tree represents every possible</br>");
+        sb.append("<br>Debug Tag that can be listed in the Debug Configuration File. Each element in the</br>");
+        sb.append("<br>check box tree represents a single Debug Tag.</br>");
+        sb.append("<br></br>");
+        
+        sb.append("<br><b>What is a Debug Tag?</b></br>");
+        sb.append("<hr>");
+        sb.append("<br>During the execution of a plan, Debug Tags trigger debugging messages to be sent</br>");
+        sb.append("<br>from the Universal Executive. For example, the following Debug Tags would tell the</b>");
+        sb.append("<br>the UE to send messages for the state transitions and the final outcomes of every node:</br>");
+        sb.append("<br></br>");
+        sb.append("<pre>:Node:transition");
+        sb.append("<br>:Node:outcome</pre>");
+        
+        sb.append("<br><u>Depending on the level of the tag you select, different messages will be sent</u></br>");
+        sb.append("<br></br>");
+        sb.append("<br>The following is a bottom level tag or child tag, which will trigger messages matching</br>");
+        sb.append("<br>only this Debug Tag:</br>");
+        sb.append("<pre>:Expression:activate</pre>");        
+        sb.append("<br>The following is a mid level tag or parent tag, which will trigger messages matching</br>");
+        sb.append("<br>this Debug Tag and all the children of this Debug Tag:</br>");
+        sb.append("<pre>:Expression:</pre>");         
+        sb.append("<br>The following is also a top level tag or parent tag but notice that it does not have a</br>");
+        sb.append("<br>colon(:) at the end. Without the (:) this tag will trigger messages matching this Debug</br>");
+        sb.append("<br>Tag and ANY Debug Tag starting with <i>Expression</i>:</br>");
+        sb.append("<pre>:Expression</pre>"); 
+        
+        sb.append("<br><u>Important to Note</u></br>");
+        sb.append("<br></br>");
+        sb.append("<br>If parent tag is selected, only the parent tag appears in the debug file since printing</br>");
+        sb.append("<br>the child tags would be redundant.</br>");
+        sb.append("<br></br>");
+        sb.append("<br>The more Debug Tags that are enabled, the slower your plan will run.</br>");
+        sb.append("<br></br>");
+        
+        sb.append("<br><b>What Is The Debug Configuration File?</b></br>");
+        sb.append("<hr>");
+        sb.append("<br>The Debug Configuration File (Debug.cfg) is a text file. Debug.cfg contains lines</br>");
+        sb.append("<br>starting with either a comment character ('#') or a colon (':') followed by a Debug</br>");
+        sb.append("<br>Tag. Debugging messages matching any of the Debug Tags are printed to the Debug</br>"); 
+        sb.append("<br>Window at run time. The following are example Debugging messages:</br>");
+        sb.append("<br></br>");
+        sb.append("<pre>[Node:transition]Transitioning 'root' from INACTIVE to WAITING");
+        sb.append("<br>[Node:transition]Transitioning 'root' from WAITING to EXECUTING");
+        sb.append("<br>[Node:transition]Transitioning 'library6' from INACTIVE to WAITING");
+        sb.append("<br>[Node:transition]Transitioning 'library6' from WAITING to EXECUTING");
+        sb.append("<br>[Node:transition]Transitioning 'library6' from EXECUTING to ITERATION_ENDED");
+        sb.append("<br>[Node:iterationOutcome]Outcome of 'library6' is SUCCESS");
+        sb.append("<br>[Node:transition]Transitioning 'library6' from ITERATION_ENDED to FINISHED");
+        sb.append("<br>[Node:outcome]Outcome of 'library6' is SUCCESS</pre>");
+        sb.append("</p></html>");
+        
+        return sb.toString();
+    }
+    
+    private String getHowToMessage() 
+    {
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("<html><p align=left>"); 
+        sb.append("<br><u>Steps for Creating and Customizing a Debug Configuration File</u></br>");
+        sb.append("<br></br>");
+        sb.append("<br><b>Step 1:</b> Check desired Debug Tags</br>");
+        sb.append("<br><b>Step 2:</b> Press Create CFG file button</br>");
+        sb.append("<br><b>Step 3:</b> Confirm preview is correct</br>");
+        sb.append("<br><b>Step 4:</b> Exit or Clear CFG file and start over</br>");
+        sb.append("<br></br>");  
+        sb.append("<br>If debug messages are disabled, the debug tags will be commented out in debug file.</br>");
+        sb.append("<br></br>");
+        sb.append("</p></html>");
+        
+        return sb.toString();
+    }
+    
+    private String getFileLocationMessage() 
+    {
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("<html><p align=left>");      
+        sb.append("Debug CFG file location: " + DEBUG_CFG_FILE);
+        sb.append("</p></html>");
+        
+        return sb.toString();
     }
     
     private void assignLinesToCheckNodes()
@@ -146,8 +292,8 @@ public class DebugCFGWindow extends JFrame
             }
         }
     } 
-
-    class NodeSelectionListener extends MouseAdapter 
+    
+    public class NodeSelectionListener extends MouseAdapter 
     {
         JTree tree;
 
@@ -155,7 +301,7 @@ public class DebugCFGWindow extends JFrame
         {
             this.tree = tree;
         }
-
+        
         public void mouseClicked(MouseEvent e) 
         {
             int x = e.getX();
@@ -167,13 +313,7 @@ public class DebugCFGWindow extends JFrame
             {
                 CheckNode node = (CheckNode)path.getLastPathComponent();
                 boolean isSelected = ! (node.isSelected());
-                node.setSelected(isSelected);
-                
-                if (isSelected)
-                    tree.expandPath(path);
-                else
-                    tree.collapsePath(path);                 
-                
+                node.setSelected(isSelected);                                
                 
                 ((DefaultTreeModel) tree.getModel()).nodeChanged(node);
 
@@ -189,24 +329,60 @@ public class DebugCFGWindow extends JFrame
     class ButtonActionListener implements ActionListener 
     {
         CheckNode root;
-        
-        JTextArea textArea;
 
-        ButtonActionListener(final CheckNode root, final JTextArea textArea) 
+        ButtonActionListener(final CheckNode root) 
         {
             this.root = root;
-            this.textArea = textArea;
         }
 
         public void actionPerformed(ActionEvent ev) 
         {
-            if (ev.getActionCommand().equals("Close"))
+            if (ev.getActionCommand().equals("Exit"))
             {
                 frame.setVisible(false);
             }
+            else if (ev.getActionCommand().equals("Info"))
+            {
+                if (infoWindow != null && infoWindow.isVisible())
+                    infoWindow.setVisible(false);
+                
+                JLabel info = new JLabel();
+                info.setText(getInfoMessage());
+                info.setFont(info.getFont().deriveFont(Font.PLAIN, 12.0f));
+                
+                JPanel panel = new JPanel();
+                panel.add(info);
+                
+                infoWindow.add(panel);
+                infoWindow.pack();
+                infoWindow.setVisible(true);
+            }
+            else if (ev.getActionCommand().equals("Clear CFG file"))
+            {
+                // verify that the user wants to clear CFG file
+                Object[] options =  { "Yes", "No" };
+                   
+		int clear = 
+		    JOptionPane.showOptionDialog(Luv.getLuv(),
+						 "Are you sure you want to clear the Debug CFG file?",
+						 "Clear CFG file",
+						 JOptionPane.YES_NO_CANCEL_OPTION,
+						 JOptionPane.WARNING_MESSAGE,
+						 null,
+						 options,
+						 options[0]);
+                   
+		if (clear == 0) 
+                {
+                    // clear text preview area
+                    textArea.setText(null);
+                    // write 'nothing' to file (i.e. clear CFG file)
+                    writeToDebugCFGFile(textArea);
+                }
+            }
             else if (ev.getActionCommand().equals("Create CFG file"))
             {
-                textArea.setText(null);
+                textArea.setText("");
                 ArrayList<String> parentSelected = new ArrayList<String>();
                 Enumeration e = root.breadthFirstEnumeration();
 
@@ -224,6 +400,9 @@ public class DebugCFGWindow extends JFrame
 
                     if (node.isSelected() && !parentSelected(nodePath, parentSelected)) 
                     {
+                        if (!frame.isCFGFileEnabled()) 
+                            textArea.append("#");                           
+
                         textArea.append(node.toString() + "\n");
                         parentSelected.add(node.toString());
                     }
@@ -275,23 +454,116 @@ public class DebugCFGWindow extends JFrame
             }
             catch (Exception e)
             {
-                System.err.println ("Error writing to file");
+                Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while writing to " + DEBUG_CFG_FILE);
             }
         }   
-    }   
-
-    public void openWindow() 
+    } 
+    
+    public void enableDebugMessages(boolean enable) throws FileNotFoundException
     {
-        try 
+        if (new File(DEBUG_CFG_FILE).exists())
         {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        } 
-        catch (Exception evt) {}
-        
+            Scanner scanner = new Scanner(new File(DEBUG_CFG_FILE));  
+            ArrayList<String> commented_lines = new ArrayList<String>();
+            boolean enableFlag = true;
+
+            try 
+            {
+                while (scanner.hasNextLine())
+                {               
+                    String line = scanner.nextLine().trim(); 
+                    if (!line.equals(""))
+                    {
+                        if (enable)
+                        {
+                            commented_lines.add(line.replace("#", ""));
+                        }
+                        else
+                        {
+                            commented_lines.add("#" + line);  
+                        }
+                    }
+                }  
+
+                if (!commented_lines.isEmpty())
+                {
+                    FileOutputStream out = new FileOutputStream(DEBUG_CFG_FILE);
+                    PrintStream p = new PrintStream( out );
+
+                    for (String line : commented_lines)
+                    {
+                        p.println(line);
+                    }
+
+                    p.close();
+                }
+            }
+            catch (Exception e)
+            {
+                Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while enabling/disabling " + DEBUG_CFG_FILE);
+            }
+            finally 
+            {
+                scanner.close();
+            }
+        }
+    }
+    
+    private boolean isCFGFileEnabled()
+    {
+        return enableMessages.isSelected();
+    }
+    
+    private void setPreviewOfCFGFile() throws FileNotFoundException
+    {
+        if (new File(DEBUG_CFG_FILE).exists())
+        {
+            try
+            {
+                Scanner scanner = new Scanner(new File(DEBUG_CFG_FILE));  
+                ArrayList<String> lines = new ArrayList<String>();
+
+                try 
+                {
+                    while (scanner.hasNextLine())
+                    {               
+                        String line = scanner.nextLine().trim(); 
+                        lines.add(line);                                 
+                    }  
+
+                    if (!lines.isEmpty())
+                    {
+                        textArea.setText("");
+                        for (String line : lines)
+                        {
+                            textArea.append(line + "\n");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while getting preview of " + DEBUG_CFG_FILE);
+                }
+                finally 
+                {
+                    scanner.close();
+                }
+            }
+            catch (FileNotFoundException ex)
+            {
+                Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
+            }  
+        }
+        else
+            textArea.setText("");
+    }
+
+    public void openWindow() throws FileNotFoundException 
+    {
         if (frame != null && frame.isVisible())
             frame.setVisible(false);
 
-        frame = new DebugCFGWindow("Create Debug.cfg File");
+        frame = new DebugCFGWindow("Create Debug Configuration File");
         
         frame.addWindowListener(new WindowAdapter() 
         {
@@ -306,6 +578,21 @@ public class DebugCFGWindow extends JFrame
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public void itemStateChanged(ItemEvent e) 
+    {
+        boolean enable = enableMessages.isSelected();
+        
+        try 
+        {
+            frame.enableDebugMessages(enable);
+            frame.setPreviewOfCFGFile();
+        } 
+        catch (FileNotFoundException ex) 
+        {
+            Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
+        }
     }
 }
 class CheckRenderer extends JPanel implements TreeCellRenderer 
@@ -343,13 +630,6 @@ class CheckRenderer extends JPanel implements TreeCellRenderer
         label.setText(stringValue);
         label.setSelected(isSelected);
         label.setFocus(hasFocus);
-
-        if (leaf) 
-            label.setIcon(UIManager.getIcon("Tree.leafIcon"));
-        else if (expanded) 
-            label.setIcon(UIManager.getIcon("Tree.openIcon"));
-        else 
-            label.setIcon(UIManager.getIcon("Tree.closedIcon"));
 
         return this;
     }

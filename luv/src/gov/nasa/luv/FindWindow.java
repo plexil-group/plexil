@@ -110,7 +110,7 @@ public class FindWindow extends JPanel implements KeyListener
         regularFont = message_to_user.getFont().deriveFont(Font.PLAIN, 12.0f);
         italicFont = regularFont.deriveFont(Font.ITALIC);
         
-        message_to_user.setText(getMessage(-1));
+        message_to_user.setText(getMessage());
         message_to_user.setFont(italicFont);
 
         panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
@@ -144,7 +144,8 @@ public class FindWindow extends JPanel implements KeyListener
     {
         String text = searchListEditor.getText(); 
 
-        newSearch(text);
+        if (!text.equals(previousSearch))
+            newSearch(text);
         
         if (foundMatch)
         {
@@ -153,7 +154,7 @@ public class FindWindow extends JPanel implements KeyListener
         }
         else
         {
-            message_to_user.setText(getMessage(-1));
+            message_to_user.setText(getMessage());
             message_to_user.setFont(italicFont);
         }  
     }
@@ -174,26 +175,23 @@ public class FindWindow extends JPanel implements KeyListener
         {
             node_path.push((String) obj[i]);
         }
-            
-        int currentRow = TreeTableView.getCurrent().showNode(node_path);        
-        message_to_user.setText(getMessage(currentRow));
+     
+        TreeTableView.getCurrent().showNode(node_path, next);        
+        message_to_user.setText(getMessage());
         next++;
     }
     
     private void newSearch(String text)
     {
-        if (!text.equals(previousSearch))
-        {
-            Luv.getLuv().addSearchWord(text);
-            leftHalf.remove(entryPanel);
-            leftHalf.add(createEntryField(Luv.getLuv().getSearchList()));
-            foundNodes.clear();
-            next = 0;
-            TreeTableView.getCurrent().restartSearch();
-            previousSearch = text;  
-            foundMatch = false;
-            searchPlan(Luv.getLuv().getCurrentPlan(), text);
-        }
+        Luv.getLuv().addSearchWord(text);
+        leftHalf.remove(entryPanel);
+        leftHalf.add(createEntryField(Luv.getLuv().getSearchList()));
+        foundNodes.clear();
+        next = 0;
+        TreeTableView.getCurrent().restartSearch();
+        previousSearch = text;  
+        foundMatch = false;
+        searchPlan(Luv.getLuv().getCurrentPlan(), text);       
     }
     
     private void searchPlan(Model model, String text)
@@ -202,7 +200,7 @@ public class FindWindow extends JPanel implements KeyListener
        {
            if (model.getModelName().equals(text))
             {
-                Stack<String> node_path = model.getPath(model);    
+                Stack<String> node_path = model.getPath(model); 
                 foundMatch = true;
                 foundNodes.add(node_path);                    
             }
@@ -223,7 +221,7 @@ public class FindWindow extends JPanel implements KeyListener
        }
     }
 
-    private String getMessage(int row) 
+    private String getMessage() 
     {
         StringBuffer sb = new StringBuffer();
         if (!searchSet) return "No search set";
@@ -232,29 +230,25 @@ public class FindWindow extends JPanel implements KeyListener
         
         if (!foundMatch)
         {
-            sb.append("<html><p align=center>");
+            sb.append("<html><p align=left>");
             sb.append("No matching nodes were found for <b>" + name + "</b>");
             sb.append("</p></html>");
         }   
         else
         {
-            sb.append("<html><p align=center>");
-            sb.append(foundNodes.size());
+            sb.append("<html><p align=left>");
+            sb.append("<b>" + foundNodes.size() + "</b>");
             if (foundNodes.size() > 1)
             {
                 sb.append(" matches found for <b>" + name + "</b>");
+                int match = next + 1;
+                sb.append("<br>Match: " + match + "</br>");
             }
             else 
             {
                 sb.append(" match found for <b>" + name + "</b>");
-            }
+            }         
             
-            if (row != -1)
-            {
-                row++;
-                int match = next + 1;
-                sb.append("</p>Match: " + match + " Row: " + row);
-            }
             sb.append("</p></html>");
         }
 

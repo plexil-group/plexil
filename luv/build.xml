@@ -65,7 +65,6 @@
     <delete file = "${zip-name}"/>
     <delete file = "${build-env-dmg}"/>
     <delete file = "${build-env-zip}"/>
-    <delete file = "${debug-cfg-name}"/>
   </target>
 
   <!-- compile java doc -->

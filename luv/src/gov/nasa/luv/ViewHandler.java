@@ -26,17 +26,18 @@
 
 package gov.nasa.luv;
 
+import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import java.awt.Container;
 import java.awt.BorderLayout;
 
+import java.awt.event.ComponentListener;
 import static gov.nasa.luv.Constants.*;
 import static java.awt.BorderLayout.*;
 
-
-public class ViewHandler 
+public class ViewHandler implements ComponentListener
 {   
     private View currentView = null;                                   // current view
     private Model currentModel = null;                                 // plan for current view
@@ -98,6 +99,7 @@ public class ViewHandler
 	JScrollPane sp = new JScrollPane(view);
 	sp.setBackground(Luv.getLuv().getProperties().getColor(PROP_WIN_BCLR));
 	viewPanel.add(sp, CENTER);
+        viewPanel.addComponentListener(this);
 
 	// insert the view menu items
 
@@ -118,6 +120,22 @@ public class ViewHandler
 
 	Luv.getLuv().pack();
 	Luv.getLuv().repaint();
+    }
+    
+    public void componentResized(ComponentEvent e) {
+        TreeTableView.getCurrent().setPreferredColumnWidths();
+    }
+
+    public void componentMoved(ComponentEvent e) {
+        ;
+    }
+
+    public void componentShown(ComponentEvent e) {
+        ;
+    }
+
+    public void componentHidden(ComponentEvent e) {
+        ;
     }
       
     /** Reset the current view to reflect the changes in the world. */

@@ -192,7 +192,7 @@ public class JTreeTable extends JTable
             }
       }
 
-      public JTree getTree()
+      public TreeTableCellRenderer getTree()
       {
          return tree;
       }

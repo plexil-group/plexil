@@ -90,6 +90,10 @@ public class Luv extends JFrame
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
     private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
     
+    private DebugWindow                         luvViewerDebugWindow; 
+    private DebugDataFileProcessor              debugDataFileProcessor        = new DebugDataFileProcessor();    
+    private DebugCFGWindow                      debugCFGWindow                = new DebugCFGWindow(); 
+    
     
     // Luv Viewer Menus
       
@@ -97,11 +101,7 @@ public class Luv extends JFrame
     private JMenu recentRunMenu           = new JMenu("Recent Runs");
     private JMenu runMenu                 = new JMenu("Run");   
     private JMenu viewMenu                = new JMenu("View");
-    private JMenu windowMenu              = new JMenu("Windows");
-      
-    private DebugWindow luvViewerDebugWindow; 
-    private DebugDataFileProcessor              debugDataFileProcessor        = new DebugDataFileProcessor();    
-    private DebugCFGWindow                      debugCFGWindow                = new DebugCFGWindow();    
+    private JMenu debugMenu               = new JMenu("Debug");             
       
     private SocketServer s;
       
@@ -406,9 +406,8 @@ public class Luv extends JFrame
         runMenu.setEnabled(true);
         
         viewMenu.setEnabled(true);
-          
-	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
-	windowMenu.setEnabled(true);
+        
+        debugMenu.setEnabled(true);
     }
       
     public void readyState()
@@ -452,9 +451,8 @@ public class Luv extends JFrame
 	}
 	else
 	    viewMenu.setEnabled(false);
-
-	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
-	windowMenu.setEnabled(true);
+        
+        debugMenu.setEnabled(true);
     }
 
     //* Called when we receive EOF on the LuvListener stream. 
@@ -496,9 +494,8 @@ public class Luv extends JFrame
         }
 	else
 	    viewMenu.setEnabled(false);
-
-	windowMenu.getItem(SHOW_LUV_DEBUG_MENU_ITEM).setEnabled(true);
-	windowMenu.setEnabled(true);
+        
+        debugMenu.setEnabled(true);
 
 	showStatus("Execution stopped", Color.BLUE);
     }
@@ -755,7 +752,7 @@ public class Luv extends JFrame
 	// create the debug window
          
 	luvViewerDebugWindow = new DebugWindow(this);
-	luvViewerDebugWindow.setTitle("Luv Viewer Debug Window");                
+	luvViewerDebugWindow.setTitle("Debug Window");                
 
 	// set size and location of debug window
 
@@ -818,13 +815,13 @@ public class Luv extends JFrame
 	// add view menu
 
 	menuBar.add(viewMenu);
-
-	// show window menu
- 
-	menuBar.add(windowMenu);
-	windowMenu.add(theLuv.luvDebugWindowAction);
-        windowMenu.add(theLuv.createDebugCFGFileAction);
-        windowMenu.add(theLuv.aboutWindowAction);
+        
+        // add debug menu
+        
+        menuBar.add(debugMenu);
+        debugMenu.add(theLuv.luvDebugWindowAction);
+        debugMenu.add(theLuv.createDebugCFGFileAction);
+        debugMenu.add(theLuv.aboutWindowAction);
     }
       
     public JMenu getViewMenu()
@@ -862,10 +859,8 @@ public class Luv extends JFrame
             viewMenu.getItem(FIND_MENU_ITEM).setEnabled(false);
 	}
 	viewMenu.setEnabled(false);
-          
-	// disable window menu
-          
-	windowMenu.setEnabled(false);
+        
+        debugMenu.setEnabled(false);
     }
       
     /** Given a recent plan index, the description used for the recent menu item tooltip. 
@@ -1341,6 +1336,7 @@ public class Luv extends JFrame
 	    public void actionPerformed(ActionEvent e)
 	    {  
                 newPlan = true;
+                PlexilPlanHandler.resetRowNumber();
                 
 		// Loading done in the file handler at present
 		int option = fileHandler.choosePlan();
@@ -1412,6 +1408,7 @@ public class Luv extends JFrame
 	    public void actionPerformed(ActionEvent e) 
 	    {
                 newPlan = true;
+                PlexilPlanHandler.resetRowNumber();
                 
 		if (isExecuting) 
                 {
@@ -1429,7 +1426,6 @@ public class Luv extends JFrame
                 if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN))
                 {   
                     // reload plan
-                    
                     fileHandler.loadPlan(new File(currentPlan.getPlanName()));
                     Luv.getLuv().showStatus("Plan \"" + currentPlan.getPlanName() + "\" loaded");
     
@@ -1470,8 +1466,8 @@ public class Luv extends JFrame
     /** Action to show the debugging window. */
 
     LuvAction luvDebugWindowAction = 
-	new LuvAction("Show Luv Viewer Debug Window",
-		      "Show window with luv viewer debug text.",
+	new LuvAction("Show Debug Window",
+		      "Show window with status and debugging information.",
 		      VK_D, 
 		      META_MASK)
 	{
@@ -1480,9 +1476,9 @@ public class Luv extends JFrame
 		luvViewerDebugWindow.setVisible(!luvViewerDebugWindow.isVisible());
                    
 		if (luvViewerDebugWindow.isVisible())
-		    luvDebugWindowAction.putValue(NAME, "Hide Luv Viewer Debug Window");
+		    luvDebugWindowAction.putValue(NAME, "Hide Debug Window");
 		else
-		    luvDebugWindowAction.putValue(NAME, "Show Luv Viewer Debug Window");
+		    luvDebugWindowAction.putValue(NAME, "Show Debug Window");
 	    }
 	};
         
@@ -1502,7 +1498,7 @@ public class Luv extends JFrame
          
     LuvAction allowBreaksAction =
 	new LuvAction("Enable Breaks",
-		      "Select this to allow breakpoints.",
+		      "Select this to enable or disable breakpoints.",
 		      VK_F5)
 	{
 	    public void actionPerformed(ActionEvent e)
@@ -1651,9 +1647,9 @@ public class Luv extends JFrame
     /** Action to for a node by name nodes. */
       
     LuvAction createDebugCFGFileAction = 
-	new LuvAction("Create Debug.cfg File", 
-		      "Create Debug.cfg File.",
-                      VK_D, 
+	new LuvAction("Create Debug Configuration File...", 
+		      "Create and Customize a debug configuration file.",
+                      VK_G, 
 		      META_MASK)
 	{            
             public void actionPerformed(ActionEvent e)

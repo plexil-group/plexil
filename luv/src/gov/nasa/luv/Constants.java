@@ -40,31 +40,30 @@ import java.util.Vector;
  */
 
 public class Constants
-{    
+{        
+      public static final String    PROP_FILE_SEPARATOR = "file.separator";
       
       /** indicates that no accelerator key is used */
 
-      public static final int    NO_ACCELERATOR = Integer.MIN_VALUE;
+      public static final int       NO_ACCELERATOR = Integer.MIN_VALUE;
 
       /** end of message marker */
       
-      public static final int    END_OF_MESSAGE = 4;
-      public static final String MESSAGE_ACKNOWLEDGE = "<acknowledge/>";
+      public static final int       END_OF_MESSAGE = 4;
+      public static final String    MESSAGE_ACKNOWLEDGE = "<acknowledge/>";
+      
+      public static final String    PROP_USER_HOME = "user.home";
 
       /** properties file */      
-      public static final String PROPERTIES_FILE_LOCATION =
-         System.getProperty("user.home") + 
-         System.getProperty("file.separator") + ".luv";
-
-      /** icon constants */
-
-      public static final String    ICONS_DIR = 
-         "resources" + System.getProperty("file.separator") +
-         "icons" +  System.getProperty("file.separator");
+      public static final String    PROPERTIES_FILE_LOCATION = System.getProperty(PROP_USER_HOME) + System.getProperty(PROP_FILE_SEPARATOR) + ".luv";
       
+      public static final String    PROP_PLEXIL_HOME = "PLEXIL_HOME";
       
-
-      /// node icon file names
+      public static final String    LUV_HOME = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) + "luv" + System.getProperty(PROP_FILE_SEPARATOR);
+      
+      public static final String    ICONS_DIR = "resources" + System.getProperty(PROP_FILE_SEPARATOR) + "icons" + System.getProperty(PROP_FILE_SEPARATOR);
+      
+      // node icon file names
 
       public static final String    ABOUT_SCREEN_ICO  = "LuvIcon.gif";
       public static final String    START_SCREEN_ICO  = "LuvIcon6.gif";
@@ -104,18 +103,37 @@ public class Constants
       {
          return iconLut.get(tag);
       }
+      
+      static public ImageIcon loadImage(String name)
+      {         
+         return new ImageIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
+      }
 
       // table view constants
 
-      public static final int NAME_COL_NUM         = 0;
-      public static final int STATE_COL_NUM        = 1;
-      public static final int OUTCOME_COL_NUM      = 2;
-      public static final int FAILURE_TYPE_COL_NUM = 3;
+      public static final int ROW_COL_NUM          = 0;
+      public static final int NAME_COL_NUM         = 1;
+      public static final int STATE_COL_NUM        = 2;
+      public static final int OUTCOME_COL_NUM      = 3;
+      public static final int FAILURE_TYPE_COL_NUM = 4;
       
+      public static final String ROW_COL_NAME          = "";
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
-      public static final String FAILURE_TYPE_COL_NAME = "Failure Type";
+      public static final String FAILURE_TYPE_COL_NAME = "Failure Type";      
+      
+      public static int getPropertyNum(String property)
+      {
+        if (property.equals(MODEL_STATE))
+            return 2;
+        else if (property.equals(MODEL_OUTCOME))
+            return 3;
+        else if (property.equals(MODEL_FAILURE_TYPE))
+            return 4;
+        else
+            return -1;
+      }
 
       // node states
 
@@ -292,32 +310,21 @@ public class Constants
       public static final String    PROP_NET_SERVER_PORT      = "net.server.port";
       public static final int       PROP_NET_SERVER_PORT_DEF  = 9787;
 
-      public static final String    PROP_TTV_COL_WIDTH_BASE   = "treetable.colwidth-";
       public static final String    PROP_TTV_TEXT_TYPES    = "treetable.text-types";
-
-      public static final String    PROP_PLEXIL_HOME = "PLEXIL_HOME";
-      public static final String    PROP_USER_HOME = "user.home";
-      public static final String    PROP_FILE_SEPARATOR = "file.separator";
       
       public static final String    PROP_HIDE_SHOW_LIST = "hide.show.list";
       public static final String    PROP_SEARCH_LIST = "search.list";
       
       public static final String    TEST_EXEC = "test-exec_g_rt";
       
-      public static final String    PROP_UE_EXEC =        
-            System.getenv(PROP_PLEXIL_HOME) + 
-            System.getProperty(PROP_FILE_SEPARATOR) + "bin" + 
-            System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
+      public static final String    PROP_UE_EXEC = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) + "bin" + System.getProperty(PROP_FILE_SEPARATOR) + "run-ue";
       
-      public static final String    PROP_RECENT_FILES =   
-            System.getenv(PROP_PLEXIL_HOME);
+      public static final String    PROP_RECENT_FILES = System.getenv(PROP_PLEXIL_HOME);
       
-      public static final String    PROP_LOG_FILE =
-      	    System.getProperty(PROP_USER_HOME) + 
-            System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";
+      public static final String    PROP_LOG_FILE = System.getProperty(PROP_USER_HOME) + System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";      
       
-      public static final String    DEBUG_FLAG_DAT_FILE = "DebugFlags.dat";
-      public static final String    DEBUG_CFG_FILE = "Debug.cfg";
+      public static final String    DEBUG_FLAG_DAT_FILE = LUV_HOME + "resources" + System.getProperty(PROP_FILE_SEPARATOR) + "DebugFlags.dat";
+      public static final String    DEBUG_CFG_FILE = LUV_HOME + "Debug.cfg";
 
       // file
 
@@ -373,17 +380,7 @@ public class Constants
       public static final String MODEL_FAILURE_TYPE = "ModelFailureType";
       public static final String MODEL_LIBRARY_CALL_ID = "ModelLibraryCallId";
       
-      public static int getPropertyNum(String property)
-      {
-        if (property.equals(MODEL_STATE))
-            return 1;
-        else if (property.equals(MODEL_OUTCOME))
-            return 2;
-        else if (property.equals(MODEL_FAILURE_TYPE))
-            return 3;
-        else
-            return -1;
-      }
+      
 
       /////////////////////////// XML tags /////////////////////////
 
@@ -734,12 +731,5 @@ public class Constants
       {
 	 DECL_VAR,
          DECL_ARRAY,
-      };
-      
-      static public ImageIcon loadImage(String name)
-      {         
-         return new ImageIcon(
-            Toolkit.getDefaultToolkit()
-            .getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
-      }
+      };     
 }

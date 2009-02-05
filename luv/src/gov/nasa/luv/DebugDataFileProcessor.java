@@ -42,20 +42,26 @@ public class DebugDataFileProcessor
     
     private void processDebugFlags() throws FileNotFoundException 
     {
-        Scanner scanner = new Scanner(new File(DEBUG_FLAG_DAT_FILE));
-        
-        try 
+        try
         {
-            while (scanner.hasNextLine())
-            {               
-                String line = scanner.nextLine().trim();                
-                assignTiersToLines(line);
-            }             
+            Scanner scanner = new Scanner(new File(DEBUG_FLAG_DAT_FILE));
+            try 
+            {
+                while (scanner.hasNextLine())
+                {               
+                    String line = scanner.nextLine().trim();                
+                    assignTiersToLines(line);
+                }             
+            }
+            finally 
+            {
+                scanner.close();
+            }
         }
-        finally 
+        catch (FileNotFoundException ex)
         {
-            scanner.close();
-        }
+            Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_FLAG_DAT_FILE + " not found");
+        }         
     }
     
     private void assignTiersToLines(String line)

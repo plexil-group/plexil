@@ -36,7 +36,7 @@ import static gov.nasa.luv.Constants.*;
 
 public class PlexilPlanHandler extends AbstractDispatchableHandler
 {
-    private int row_number = 0;
+    private static int row_number = 0;
     
     // marker for formatting condition and local variable information
     private final String SEPARATOR = "_Separator_";
@@ -70,6 +70,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         topLevelNode = null;
 
         nodeHolder.push(Model.getRoot());
+    }
+    
+    public static void resetRowNumber()
+    {
+        row_number = 0;
     }
 
     /** Handle start of an XML document */
@@ -232,6 +237,8 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                 }
                 else 
                 {
+                    if (library.getRowNumber() != row_number - 1)
+                        library.setRowNumber(row_number++);
                     currentNode().linkLibrary(library);
                 }
 

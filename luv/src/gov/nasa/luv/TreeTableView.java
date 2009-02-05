@@ -67,7 +67,7 @@ public class TreeTableView extends JTreeTable implements View
 
       /** swing tree object */
 
-      private JTree tree;
+      //private JTree tree;
 
       /** root of tree */
 
@@ -91,9 +91,10 @@ public class TreeTableView extends JTreeTable implements View
       public TreeTableView(String name, Model model)
       {
          super(new TreeModel(new Wrapper(model)));
+         setAutoResizeMode(AUTO_RESIZE_OFF);
          setRowColors(TREE_TABLE_ROW_COLORS);
 
-         tree = getTree();
+         tree = getTree();    
 
          final JTable table = this;
 
@@ -130,7 +131,7 @@ public class TreeTableView extends JTreeTable implements View
 
             // set the column widths to the old view
 
-            setPreferredColumnWidths(lastView.getColumnWidths());
+            setPreferredColumnWidths();
          }
          lastView = this;
 
@@ -140,7 +141,6 @@ public class TreeTableView extends JTreeTable implements View
             TreeModel.cTypes[STATE_COL_NUM], 
             new DefaultTableCellRenderer()
             {
-            //@Override
                   public Component getTableCellRendererComponent(
                      JTable table, 
                      Object value, 
@@ -159,6 +159,27 @@ public class TreeTableView extends JTreeTable implements View
                                    : Color.BLACK);
                      
                      setBackground(isSelected ? table.getSelectionBackground() : getRowColor(row));  
+
+                     return component;
+                  }
+            });
+            
+            setDefaultRenderer(
+            TreeModel.cTypes[ROW_COL_NUM], 
+            new DefaultTableCellRenderer()
+            {
+                  public Component getTableCellRendererComponent(
+                     JTable table, 
+                     Object value, 
+                     boolean isSelected, 
+                     boolean hasFocus, 
+                     int row, 
+                     int column)
+                  {
+                     Component component = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                     
+                     setForeground(Color.lightGray);
 
                      return component;
                   }
@@ -250,9 +271,7 @@ public class TreeTableView extends JTreeTable implements View
       @Override public String getToolTipText(MouseEvent event)
       {
           StringBuffer   toolTip     = new StringBuffer();
-          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());
-          int row = tree.getRowForLocation(event.getX(), event.getY()) + 1;
-          
+          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());       
           
           if (nodePath != null)
           {    
@@ -262,7 +281,6 @@ public class TreeTableView extends JTreeTable implements View
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
               toolTip.append("<br><b>TYPE</b>  " + node.getProperty(MODEL_TYPE));
-              toolTip.append("<br><b>ROW</b>  " + row);
               toolTip.append("<br><hr>");
               toolTip.append("<b>Double-Click</b> on node to view condition information");    
               toolTip.append("<br><b>Right-Click</b> on node to set breakpoints");
@@ -281,13 +299,7 @@ public class TreeTableView extends JTreeTable implements View
       {
          // handle column widths 
 
-         int i = 1;
-
-         Vector<Integer> widths = new Vector<Integer>();
-         while (properties.exists(PROP_TTV_COL_WIDTH_BASE + i))
-            widths.add(properties.getInteger(PROP_TTV_COL_WIDTH_BASE + i++));
-         
-         setPreferredColumnWidths(widths);
+         setPreferredColumnWidths();
 
          // handle text/icon node types
 
@@ -301,10 +313,6 @@ public class TreeTableView extends JTreeTable implements View
 
       public void setViewProperties(Properties properties)
       {
-         int i = 1;
-         for (int width: getColumnWidths())
-            properties.set(PROP_TTV_COL_WIDTH_BASE + i++, width);
-
          properties.set(PROP_TTV_TEXT_TYPES, showTextTypes);
       }
 
@@ -433,11 +441,27 @@ public class TreeTableView extends JTreeTable implements View
        * @param widths a vector containing the column widths
        */
 
-      public void setPreferredColumnWidths(Vector<Integer> widths)
+      public void setPreferredColumnWidths()
       {
-         Enumeration<TableColumn> columns = getColumnModel().getColumns();
-         for (int width: widths)
-            columns.nextElement().setPreferredWidth(width);
+          int row_col = 40;
+          int status_col = 130;
+          int outcome_col = 70;
+          int fail_col = 230;
+          int name_col = Luv.getLuv().getRootPane().getWidth() - (row_col + status_col + outcome_col + fail_col);
+          
+          Vector<Integer> widths = new Vector<Integer>();
+          widths.add(row_col);
+          widths.add(name_col);
+          widths.add(status_col);
+          widths.add(outcome_col);
+          widths.add(fail_col);
+          
+          Enumeration<TableColumn> columns = getColumnModel().getColumns();
+          
+          for (int width : widths)
+          {
+              columns.nextElement().setPreferredWidth(width);          
+          }
       }
 
       /** If the previous view was the same plan, then set the expanded
@@ -588,20 +612,24 @@ public class TreeTableView extends JTreeTable implements View
             
             static String[]  cNames = 
             {
+               ROW_COL_NAME,
                NAME_COL_NAME,
                STATE_COL_NAME,
                OUTCOME_COL_NAME,
                FAILURE_TYPE_COL_NAME,
+               
             };
             
             // column types
 
             static Class[]  cTypes = 
             {
+               Integer.class,
                TreeTableModel.class,
                String.class, 
                String.class, 
                String.class, 
+               
             };
 
             public TreeModel(Wrapper model)
@@ -646,6 +674,10 @@ public class TreeTableView extends JTreeTable implements View
             public Object getValueAt(Object node, int column) 
             {
                Model model = ((Wrapper)node).getModel();
+               
+               if (column == ROW_COL_NUM)
+                  return model.getRowNumber() + 1;
+               
                if (column == NAME_COL_NUM)
                   return null;
 
@@ -675,11 +707,14 @@ public class TreeTableView extends JTreeTable implements View
           tree.clearSelection();
       }
       
-      public int showNode(Stack<String> node_path)
+      public int showNode(Stack<String> node_path, int next)
       {
           findNode(node_path);
           selectRow(row);
-          scrollToRow(row);
+          if (next == 0)
+            scrollToRow(0);
+          else
+            scrollToRow(row);
           return row;
       }
       
@@ -716,20 +751,13 @@ public class TreeTableView extends JTreeTable implements View
       
       public void scrollToRow(int row)
       {
-          double height = this.getCurrent().getVisibleRect().getHeight();
+          tree.getAutoscrolls();
+          int width = Luv.getLuv().getRootPane().getWidth();
+          int height = Luv.getLuv().getRootPane().getHeight();
+          int start = this.getRowHeight() * (row - 3);
           
-          if (height > this.getRowHeight() * (row))
-              row = row - 3;
-          else
-              row = row + 3;
-          
-          this.scrollRectToVisible(
-                  new Rectangle(Luv.getLuv().getWidth(),
-                  this.getRowHeight() * (row),
-                  Luv.getLuv().getWidth(),
-                  this.getRowHeight()));
-      }
-              
+          scrollRectToVisible(new Rectangle(0, start, width, height));
+      }              
       
       /** Expand all nodes. */
 

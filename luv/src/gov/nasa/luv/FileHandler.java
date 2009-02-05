@@ -325,7 +325,7 @@ public class FileHandler
     public void loadPlan(File plan)
     {
         if (plan != null)
-        {           
+        {      
             readPlan(plan); 
             Luv.getLuv().getCurrentPlan().addPlanName(plan.toString());
         }

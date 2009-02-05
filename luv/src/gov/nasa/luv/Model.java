@@ -160,6 +160,11 @@ public class Model extends Properties
     {
         return row_number;
     }
+    
+    public void setRowNumber(int row)
+    {
+        row_number = row;      
+    }
 
     public String getModelName()
     {
