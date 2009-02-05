@@ -465,7 +465,6 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         {
             Scanner scanner = new Scanner(new File(DEBUG_CFG_FILE));  
             ArrayList<String> commented_lines = new ArrayList<String>();
-            boolean enableFlag = true;
 
             try 
             {

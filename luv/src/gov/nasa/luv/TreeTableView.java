@@ -180,6 +180,7 @@ public class TreeTableView extends JTreeTable implements View
                         table, value, isSelected, hasFocus, row, column);
                      
                      setForeground(Color.lightGray);
+                     setBackground(isSelected ? table.getSelectionBackground() : getRowColor(row)); 
 
                      return component;
                   }
