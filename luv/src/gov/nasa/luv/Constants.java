@@ -111,13 +111,13 @@ public class Constants
 
       // table view constants
 
-      public static final int ROW_COL_NUM          = 0;
-      public static final int NAME_COL_NUM         = 1;
-      public static final int STATE_COL_NUM        = 2;
-      public static final int OUTCOME_COL_NUM      = 3;
-      public static final int FAILURE_TYPE_COL_NUM = 4;
+     // public static final int ROW_COL_NUM          = 0;
+      public static final int NAME_COL_NUM         = 0;
+      public static final int STATE_COL_NUM        = 1;
+      public static final int OUTCOME_COL_NUM      = 2;
+      public static final int FAILURE_TYPE_COL_NUM = 3;
       
-      public static final String ROW_COL_NAME          = "";
+      //public static final String ROW_COL_NAME          = "";
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
@@ -126,13 +126,22 @@ public class Constants
       public static int getPropertyNum(String property)
       {
         if (property.equals(MODEL_STATE))
+            return 1;
+        else if (property.equals(MODEL_OUTCOME))
+            return 2;
+        else if (property.equals(MODEL_FAILURE_TYPE))
+            return 3;
+        else
+            return -1;
+          /*
+        if (property.equals(MODEL_STATE))
             return 2;
         else if (property.equals(MODEL_OUTCOME))
             return 3;
         else if (property.equals(MODEL_FAILURE_TYPE))
             return 4;
         else
-            return -1;
+            return -1;*/
       }
 
       // node states

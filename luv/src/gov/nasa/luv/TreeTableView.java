@@ -164,7 +164,7 @@ public class TreeTableView extends JTreeTable implements View
                   }
             });
             
-            setDefaultRenderer(
+          /*  setDefaultRenderer(
             TreeModel.cTypes[ROW_COL_NUM], 
             new DefaultTableCellRenderer()
             {
@@ -184,7 +184,7 @@ public class TreeTableView extends JTreeTable implements View
 
                      return component;
                   }
-            });
+            });*/
 
          // set cell renderer to customize icons
 
@@ -444,14 +444,14 @@ public class TreeTableView extends JTreeTable implements View
 
       public void setPreferredColumnWidths()
       {
-          int row_col = 40;
+          //int row_col = 40;
           int status_col = 130;
           int outcome_col = 70;
           int fail_col = 230;
-          int name_col = Luv.getLuv().getRootPane().getWidth() - (row_col + status_col + outcome_col + fail_col);
+          int name_col = Luv.getLuv().getRootPane().getWidth() - (status_col + outcome_col + fail_col);
           
           Vector<Integer> widths = new Vector<Integer>();
-          widths.add(row_col);
+          //widths.add(row_col);
           widths.add(name_col);
           widths.add(status_col);
           widths.add(outcome_col);
@@ -613,7 +613,7 @@ public class TreeTableView extends JTreeTable implements View
             
             static String[]  cNames = 
             {
-               ROW_COL_NAME,
+              // ROW_COL_NAME,
                NAME_COL_NAME,
                STATE_COL_NAME,
                OUTCOME_COL_NAME,
@@ -625,7 +625,7 @@ public class TreeTableView extends JTreeTable implements View
 
             static Class[]  cTypes = 
             {
-               Integer.class,
+               //Integer.class,
                TreeTableModel.class,
                String.class, 
                String.class, 
@@ -676,8 +676,8 @@ public class TreeTableView extends JTreeTable implements View
             {
                Model model = ((Wrapper)node).getModel();
                
-               if (column == ROW_COL_NUM)
-                  return model.getRowNumber() + 1;
+              // if (column == ROW_COL_NUM)
+                 // return model.getRowNumber() + 1;
                
                if (column == NAME_COL_NUM)
                   return null;
