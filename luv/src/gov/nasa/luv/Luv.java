@@ -459,6 +459,7 @@ public class Luv extends JFrame
     public void finishedExecutionState()
     {  
         runTime = System.currentTimeMillis() - runTime;
+        showStatus("Runtime: " + runTime, Color.BLUE);
         
         // set only certain luv viewer variables
           

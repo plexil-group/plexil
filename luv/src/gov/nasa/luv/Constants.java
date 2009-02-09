@@ -111,13 +111,18 @@ public class Constants
 
       // table view constants
 
-     // public static final int ROW_COL_NUM          = 0;
+      /*public static final int ROW_COL_NUM          = 0;
+      public static final int NAME_COL_NUM         = 1;
+      public static final int STATE_COL_NUM        = 2;
+      public static final int OUTCOME_COL_NUM      = 3;
+      public static final int FAILURE_TYPE_COL_NUM = 4;*/
+      
       public static final int NAME_COL_NUM         = 0;
       public static final int STATE_COL_NUM        = 1;
       public static final int OUTCOME_COL_NUM      = 2;
       public static final int FAILURE_TYPE_COL_NUM = 3;
       
-      //public static final String ROW_COL_NAME          = "";
+    //  public static final String ROW_COL_NAME          = "";
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
@@ -133,8 +138,8 @@ public class Constants
             return 3;
         else
             return -1;
-          /*
-        if (property.equals(MODEL_STATE))
+          
+     /*   if (property.equals(MODEL_STATE))
             return 2;
         else if (property.equals(MODEL_OUTCOME))
             return 3;
@@ -332,13 +337,14 @@ public class Constants
       
       public static final String    PROP_LOG_FILE = System.getProperty(PROP_USER_HOME) + System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";      
       
-      public static final String    DEBUG_FLAG_DAT_FILE = LUV_HOME + "resources" + System.getProperty(PROP_FILE_SEPARATOR) + "DebugFlags.dat";
-      public static final String    DEBUG_CFG_FILE = LUV_HOME + "Debug.cfg";
+      public static final String    DEBUG_FLAG_DAT_FILE = "resources" + System.getProperty(PROP_FILE_SEPARATOR) + "DebugFlags.dat";
+      public static final String    DEBUG_CFG_FILE = "Debug.cfg";
 
       // file
 
       public static final String XML_EXTENSION = "xml";
       public static final String PLX_EXTENSION = "plx";
+      public static final String PLS_EXTENSION = "pls";
       
       // miscellaneous constants
       

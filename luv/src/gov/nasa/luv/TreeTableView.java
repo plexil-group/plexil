@@ -67,7 +67,7 @@ public class TreeTableView extends JTreeTable implements View
 
       /** swing tree object */
 
-      //private JTree tree;
+      private JTree tree;
 
       /** root of tree */
 
@@ -94,7 +94,7 @@ public class TreeTableView extends JTreeTable implements View
          setAutoResizeMode(AUTO_RESIZE_OFF);
          setRowColors(TREE_TABLE_ROW_COLORS);
 
-         tree = getTree();    
+         tree = getTree();   
 
          final JTable table = this;
 
@@ -164,7 +164,7 @@ public class TreeTableView extends JTreeTable implements View
                   }
             });
             
-          /*  setDefaultRenderer(
+      /*      setDefaultRenderer(
             TreeModel.cTypes[ROW_COL_NUM], 
             new DefaultTableCellRenderer()
             {
@@ -451,7 +451,7 @@ public class TreeTableView extends JTreeTable implements View
           int name_col = Luv.getLuv().getRootPane().getWidth() - (status_col + outcome_col + fail_col);
           
           Vector<Integer> widths = new Vector<Integer>();
-          //widths.add(row_col);
+        //  widths.add(row_col);
           widths.add(name_col);
           widths.add(status_col);
           widths.add(outcome_col);
@@ -528,6 +528,7 @@ public class TreeTableView extends JTreeTable implements View
             Model model;
             Vector<Wrapper> children = new Vector<Wrapper>();
             static TreeTableView view;
+            static int changed_row;                
 
             public Wrapper(Model model)
             {
@@ -536,12 +537,34 @@ public class TreeTableView extends JTreeTable implements View
                model.addChangeListener(new Model.ChangeAdapter()
                   {
                         public void propertyChange(Model model, String property)
-                        {
-                            ((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property)); 
+                        {     
+                            changed_row = getChangedRow(model.getPath(model));
+                            
+                            if (changed_row != -1)
+                                ((AbstractTableModel)view.getModel()).fireTableCellUpdated(changed_row, getPropertyNum(property));
+                            //((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property));
                         }
                   });
                 
                addNodesToTree(model); 
+            }
+            
+            
+            
+            private int getChangedRow(Stack<String> node_path)
+            {               
+                TreePath test = null;
+                JTree t = view.getTree();
+                int r = -1;
+                
+                while (!node_path.empty())
+                {
+                    test = t.getNextMatch(node_path.pop(), r + 1, Position.Bias.Forward); 
+
+                    r = t.getRowForPath(test);                          
+                }
+
+                return r;
             }
             
             private void addNodesToTree(Model model)
@@ -606,14 +629,13 @@ public class TreeTableView extends JTreeTable implements View
             }
       }
 
-      public static class TreeModel 
-         extends AbstractTreeTableModel<Object> 
+      public static class TreeModel extends AbstractTreeTableModel<Object> 
       {
             // column names
             
             static String[]  cNames = 
             {
-              // ROW_COL_NAME,
+             //  ROW_COL_NAME,
                NAME_COL_NAME,
                STATE_COL_NAME,
                OUTCOME_COL_NAME,
@@ -625,7 +647,7 @@ public class TreeTableView extends JTreeTable implements View
 
             static Class[]  cTypes = 
             {
-               //Integer.class,
+             //  Integer.class,
                TreeTableModel.class,
                String.class, 
                String.class, 
@@ -677,7 +699,7 @@ public class TreeTableView extends JTreeTable implements View
                Model model = ((Wrapper)node).getModel();
                
               // if (column == ROW_COL_NUM)
-                 // return model.getRowNumber() + 1;
+                //  return model.getRowNumber() + 1;
                
                if (column == NAME_COL_NUM)
                   return null;

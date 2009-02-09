@@ -82,7 +82,8 @@ public class FileHandler
 			    Boolean correctExtension = false;
 			    if (extension != null)
 				if (extension.equals(XML_EXTENSION) || 
-				    extension.equals(PLX_EXTENSION))
+				    extension.equals(PLX_EXTENSION) ||
+                                    extension.equals(PLS_EXTENSION))
 				    correctExtension = true;
                               
 			    return correctExtension;
@@ -106,7 +107,7 @@ public class FileHandler
                            
 			public String getDescription()
 			{
-			    return "XML Files (.xml) / PLX Files (.plx)";
+			    return "XML Files / PLX Files / PLS Files";
 			}
 		    });
 	    }

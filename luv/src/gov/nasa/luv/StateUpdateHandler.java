@@ -33,13 +33,11 @@ import static gov.nasa.luv.Constants.*;
 
 public class StateUpdateHandler extends AbstractDispatchableHandler
 {
-    StringBuffer buffer;
-
-    Model current;
-    String state;
-    String outcome;
-    String failureType;
-    HashMap<String, String> conditions = new HashMap<String, String>();
+    private Model current;
+    private String state;
+    private String outcome;
+    private String failureType;
+    private HashMap<String, String> conditions = new HashMap<String, String>();
 
     public StateUpdateHandler()
     {
@@ -59,7 +57,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
 	if (localName.equals(NODE_ID)) {
 	    Model candidate;
-	    if ((candidate = current.findChildByName(text)) != null) {
+            if ((candidate = current.findChildByName(text)) != null) {
                 current = candidate;
 	    }
 	}

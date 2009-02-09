@@ -90,25 +90,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
     public DebugCFGWindow(String title) throws FileNotFoundException 
     {
         super(title);
-        
-        // info section
-        JLabel shortMessage = new JLabel();
-        shortMessage.setText(getHowToMessage());
-        shortMessage.setFont(shortMessage.getFont().deriveFont(Font.PLAIN, 12.0f));
-        
-        enableMessages = new JCheckBox("Enable Debug Messages");
-        enableMessages.addItemListener(this);
-        if (isCFGFileEnabled())
-            enableMessages.setSelected(true);
-        else
-            enableMessages.setSelected(false);
-        
-        JPanel topSection = new JPanel();
-        topSection.setLayout(new BoxLayout(topSection, BoxLayout.PAGE_AXIS));
-        topSection.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        topSection.add(shortMessage);
-        topSection.add(enableMessages);
-    
+
         // check box tree
         assignLinesToCheckNodes(); 
         main_tree = new JTree(nodes[0]);
@@ -124,6 +106,24 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         setPreviewOfCFGFile();
         textArea.setEditable(false);
         JScrollPane textPanel = new JScrollPane(textArea);
+        
+        // info section
+        JLabel shortMessage = new JLabel();
+        shortMessage.setText(getHowToMessage());
+        shortMessage.setFont(shortMessage.getFont().deriveFont(Font.PLAIN, 12.0f));
+        
+        enableMessages = new JCheckBox("Enable Debug Messages");
+        enableMessages.addItemListener(this);
+        if (textArea.getText().startsWith("#"))
+            enableMessages.setSelected(true);
+        else
+            enableMessages.setSelected(false);
+        
+        JPanel topSection = new JPanel();
+        topSection.setLayout(new BoxLayout(topSection, BoxLayout.PAGE_AXIS));
+        topSection.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        topSection.add(shortMessage);
+        topSection.add(enableMessages);
         
         // buttons
         JButton exitButton = new JButton("Exit");        
