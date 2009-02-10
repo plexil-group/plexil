@@ -27,6 +27,7 @@
 package gov.nasa.luv;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.JLabel;
 
@@ -37,6 +38,7 @@ public class StatusMessageHandler
     private LinkedList<StatusMessageHandler> StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();         // queue of status messages
     
     public static final StatusMessageHandler BLANK_MESSAGE = new StatusMessageHandler(" ", Color.BLACK, 0);
+    private static JLabel statusBar;
 
     boolean abortAutoClear = false;
     long    autoClearTime = 0;
@@ -69,6 +71,9 @@ public class StatusMessageHandler
 
       public void startStatusBarThread(final JLabel statusBar)
       {
+         this.statusBar = statusBar;
+         statusBar.setFont(statusBar.getFont().deriveFont(Font.PLAIN, 12.0f));
+          
          new Thread()
          {
                @Override public void run()
@@ -138,6 +143,13 @@ public class StatusMessageHandler
                   }
                }
          }.start();
+      }
+      
+      // message to status bar only, not debug window
+      public void showStatusOnly(String message)
+      {
+          statusBar.setForeground((color.BLACK));
+          statusBar.setText(message);
       }
     
      /** Add message to status bar.

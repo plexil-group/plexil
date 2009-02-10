@@ -239,7 +239,6 @@ public class Luv extends JFrame
             addRunToRecentRunList();
         }       
         
-	refreshNodeInfoTabbedWindow();
         setTitle();
                         
 	// Determine if the Luv Viewer should pause before executing. 
@@ -418,6 +417,8 @@ public class Luv extends JFrame
 	planStep = false;
 	fileHandler.setStopSearchForMissingLibs(false); 
         
+        PlexilPlanHandler.resetRowNumber();
+        
         setTitle();
         
         luvBreakPointHandler.clearBreakPoint();
@@ -459,7 +460,7 @@ public class Luv extends JFrame
     public void finishedExecutionState()
     {  
         runTime = System.currentTimeMillis() - runTime;
-        showStatus("Runtime: " + runTime, Color.BLUE);
+        showStatus("Runtime: " + runTime + " ms", Color.BLUE);
         
         // set only certain luv viewer variables
           
@@ -574,8 +575,6 @@ public class Luv extends JFrame
     public void reloadPlanState()
     {
         currentPlan.resetMainAttributesOfAllNodes();
-        
-        refreshNodeInfoTabbedWindow();
 
         readyState();
     }
@@ -673,31 +672,6 @@ public class Luv extends JFrame
             else
                 runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
 	}      
-    }
-
-      
-    public void refreshNodeInfoTabbedWindow()
-    {
-        if(TreeTableView.getCurrent() != null && 
-           TreeTableView.getCurrent().isNodeInfoTabbedWindowOpen())
-        {
-            Model node = Model.getRoot();
-
-            for (int i = TreeTableView.getCurrent().getPathToNode().size() - 2; i >= 0; i--) {
-                String name = TreeTableView.getCurrent().getPathToNode().get(i);
-                if (node != null)
-                    node = node.findChildByName(name);
-                else 
-                    break;
-            }
-
-            if (node != null)
-            {
-                conditionsTab.createConditionTab(node);
-                variablesTab.createVariableTab(node); 
-                actionTab.createActionTab(node); 
-            }
-        }
     }
     
     private void closeNodeInfoWindow()
@@ -1024,6 +998,11 @@ public class Luv extends JFrame
     public String getProperty(String key)
     {
 	return properties.getProperty(key, UNKNOWN);
+    }
+    
+    public void showStatusOnly(String message)
+    {
+	statusMessageHandler.showStatusOnly(message);           
     }
       
     public void showStatus(String message)
@@ -1408,10 +1387,7 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e) 
 	    {
-                newPlan = true;
-                PlexilPlanHandler.resetRowNumber();
-                
-		if (isExecuting) 
+                if (isExecuting) 
                 {
 		    try 
                     {
@@ -1422,45 +1398,9 @@ public class Luv extends JFrame
                     {
                         displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
 		    }
-		}               
-
-                if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN))
-                {   
-                    // reload plan
-                    fileHandler.loadPlan(new File(currentPlan.getPlanName()));
-                    Luv.getLuv().showStatus("Plan \"" + currentPlan.getPlanName() + "\" loaded");
-    
-                    try 
-                    {
-                        // reload script if possible
-                        
-                        if (currentPlan != null &&
-                            currentPlan.getScriptName() != null &&
-                            !currentPlan.getScriptName().equals(UNKNOWN))
-                        {
-                            if (new File(currentPlan.getScriptName()).exists())
-                            {
-                                fileHandler.loadScript(new File(currentPlan.getScriptName())); 
-                            }
-                            else
-                                fileHandler.searchForScript(); 
-                        }
-                        else 
-                            fileHandler.searchForScript();
-                    }
-                    catch (IOException ex)
-                    {
-                        displayErrorMessage(ex, "ERROR: unable to identify script.");
-                    }
-                    
-                    reloadPlanState(); 
-                }
-                else
-                {
-                    displayErrorMessage(null, "ERROR: unable to identify plan.");
-                }
-
-                newPlan = false;
+		} 
+                
+                reloadPlanState(); 
 	    }
 	};
 

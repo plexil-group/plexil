@@ -166,7 +166,7 @@ public class FileHandler
             Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
             Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_BASE, library.toString());         
             loadPlan(library);
-            Luv.getLuv().showStatus("Library \"" + library.toString() + "\" loaded");
+            Luv.getLuv().showStatus("Library \"" + library.toString() + "\" loaded", 1000);
         }
         else
             library = null;
@@ -210,7 +210,7 @@ public class FileHandler
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
             loadScript(script);  
-            Luv.getLuv().showStatus("Script \"" + script.toString() + "\" loaded");
+            Luv.getLuv().showStatus("Script \"" + script.toString() + "\" loaded", 1000);
         }
         
         return script;  
@@ -257,7 +257,7 @@ public class FileHandler
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
                     loadPlan(plan);
-                    Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded");
+                    Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
                     return APPROVE_OPTION;
             }  
             else
@@ -344,7 +344,7 @@ public class FileHandler
         {
             File plan = new File(planName);
             loadPlan(plan);
-            Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded");
+            Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
             
             if (scriptName != null && !scriptName.equals(UNKNOWN)) 
             {
@@ -500,6 +500,10 @@ public class FileHandler
         listOfScriptNames.add(path + planName + "-script.plx");
         listOfScriptNames.add(path + "script-" + planName + ".plx");
         listOfScriptNames.add(path + "script_" + planName + ".plx");
+        listOfScriptNames.add(path + planName + "_script.pls");
+        listOfScriptNames.add(path + planName + "-script.pls");
+        listOfScriptNames.add(path + "script-" + planName + ".pls");
+        listOfScriptNames.add(path + "script_" + planName + ".pls");
         listOfScriptNames.add(path + planName + "_script.xml");
         listOfScriptNames.add(path + planName + "-script.xml");
         listOfScriptNames.add(path + "script-" + planName + ".xml");

@@ -237,8 +237,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                 }
                 else 
                 {
-                    if (library.getRowNumber() != row_number - 1)
-                        library.setRowNumber(row_number++);
+                    row_number = currentNode().getRowNumber();
+                    library.setRowNumber(++row_number);
+                    row_number++;
                     currentNode().linkLibrary(library);
                 }
 

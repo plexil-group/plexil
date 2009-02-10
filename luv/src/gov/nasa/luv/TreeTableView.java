@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import javax.swing.JTree;
 import javax.swing.JTable;
 import javax.swing.tree.TreePath;
@@ -39,6 +41,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
@@ -62,8 +66,6 @@ public class TreeTableView extends JTreeTable implements View
        * needed to set expansion state of the items in the new tree */
 
       private static TreeTableView lastView;
-      
-      private static ArrayList<String> path = new ArrayList<String>();
 
       /** swing tree object */
 
@@ -91,7 +93,6 @@ public class TreeTableView extends JTreeTable implements View
       public TreeTableView(String name, Model model)
       {
          super(new TreeModel(new Wrapper(model)));
-         setAutoResizeMode(AUTO_RESIZE_OFF);
          setRowColors(TREE_TABLE_ROW_COLORS);
 
          tree = getTree();   
@@ -104,14 +105,16 @@ public class TreeTableView extends JTreeTable implements View
             {
             @Override
                   public void mousePressed(MouseEvent e)
-                  {
+                  {                    
                      if (e.isPopupTrigger())
                         handlePopupEvent(e);
                      else if (e.getClickCount() == 2)
-                         handleClickEvent(e);
+                        handleClickEvent(e);
+                     
+                     showRowInStatusBar(e);
                   }
-            });
-         
+            });         
+           
          root = (Wrapper)tree.getModel().getRoot();
          Wrapper.setView(this);
 
@@ -227,7 +230,7 @@ public class TreeTableView extends JTreeTable implements View
                      
                      return component;
                   }
-            });
+            }); 
       }
       
       public boolean selectRow(int row)
@@ -272,12 +275,13 @@ public class TreeTableView extends JTreeTable implements View
       @Override public String getToolTipText(MouseEvent event)
       {
           StringBuffer   toolTip     = new StringBuffer();
-          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());       
+          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());    
           
           if (nodePath != null)
           {    
               Model          node        = ((Wrapper)nodePath.getLastPathComponent()).model;
               String         nodeName    = node.getModelName();
+              int            row         = node.getRowNumber() + 1;
           
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
@@ -316,6 +320,22 @@ public class TreeTableView extends JTreeTable implements View
       {
          properties.set(PROP_TTV_TEXT_TYPES, showTextTypes);
       }
+      
+      private void showRowInStatusBar(MouseEvent mouseEvent)
+      {
+          TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+          Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
+          
+          int visible_row = tree.getRowForPath(nodePath);
+          int node_number = node.getRowNumber();
+          
+          tree.setSelectionRow(visible_row);
+          
+          node_number++;
+          visible_row++;
+           
+          Luv.getLuv().showStatusOnly("Row: " + visible_row + " Node: " + node_number);  
+      }
 
       /** Handle popup menu event.
        *
@@ -327,9 +347,9 @@ public class TreeTableView extends JTreeTable implements View
       {
           if (Luv.getLuv().breaksAllowed())
           {          
-             TreePath   nodePath  = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-             Model      node = ((Wrapper)nodePath.getLastPathComponent()).model;
-             JPopupMenu popup = new JPopupMenu();
+             TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+             Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
+             JPopupMenu popup       = new JPopupMenu();
 
              // construct the popup menu
 
@@ -339,11 +359,6 @@ public class TreeTableView extends JTreeTable implements View
 
              popup.show(mouseEvent.getComponent(),mouseEvent.getX(), mouseEvent.getY());
           }
-      }
-      
-      public ArrayList<String> getPathToNode()
-      {
-          return path;
       }
 
       /** Handle popup menu event.
@@ -356,10 +371,6 @@ public class TreeTableView extends JTreeTable implements View
       {
          TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
          Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-         
-         // save condition window information 
-         
-         saveConditionWindow(node, nodePath); 
          
          // create information window if node has any additional data to show
 
@@ -375,19 +386,6 @@ public class TreeTableView extends JTreeTable implements View
              Luv.getLuv().showStatus("No additional information is available for " + node.getModelName(), 5000);
          }
              
-      }
-      
-      public void saveConditionWindow(Model node, TreePath tp)
-      {
-         path.clear();
-         path.add(node.getModelName());
-
-         while (!node.isRoot())
-         {
-             path.add(node.getParent().getModelName());
-             node = node.getParent();
-         } 
-         
       }
       
       public boolean isNodeInfoTabbedWindowOpen()
@@ -538,11 +536,14 @@ public class TreeTableView extends JTreeTable implements View
                   {
                         public void propertyChange(Model model, String property)
                         {     
-                            changed_row = getChangedRow(model.getPath(model));
+                            /*changed_row = getChangedRow(model.getPath(model));
                             
                             if (changed_row != -1)
-                                ((AbstractTableModel)view.getModel()).fireTableCellUpdated(changed_row, getPropertyNum(property));
+                                ((AbstractTableModel)view.getModel()).fireTableCellUpdated(changed_row, getPropertyNum(property));*/
+                            
                             //((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property));
+                            
+                            ((AbstractTableModel)view.getModel()).fireTableDataChanged();
                         }
                   });
                 
@@ -837,5 +838,5 @@ public class TreeTableView extends JTreeTable implements View
                    collapseAllNodes();
                    Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
                }
-         };
+         }; 
 }
