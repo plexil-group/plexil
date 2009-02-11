@@ -96,7 +96,7 @@
           <NodeId>DECEL</NodeId>
         </Node>
         <Node NodeType="Empty" >
-          <NodeId>RESUME</NodeId>
+          <NodeId>RESUME2</NodeId>
         </Node>
         <Node NodeType="NodeList" >
           <NodeId>control-speed-automatically</NodeId>

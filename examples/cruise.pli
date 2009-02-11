@@ -35,7 +35,7 @@
         ;; target-speed = target-speed - .5
         ;; decrease throttle until target speed reached
         )
-      (empty-node "RESUME"
+      (empty-node "RESUME2"
         ;; engaged = true
         )
       ;;
