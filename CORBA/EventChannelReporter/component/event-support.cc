@@ -30,10 +30,16 @@
 #include "LabelStr.hh"
 #include <string>
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
-using namespace std;
+using std::string;
+using std::ostringstream;
 
+  //
+  // A quick, simple, composable function to generate an XML element
+  // string with up to 9 content elements/strings.
+  //
 string element (const string& name,
                 const string& c1,
                 const string& c2,
@@ -45,10 +51,12 @@ string element (const string& name,
                 const string& c8,
                 const string& c9)
 {
-  //
-  // A quick, simple, composable function to generate an XML element
-  // string with up to 9 content elements/strings.
-  //
+  // optimization for empty element
+  if (c1.empty() && c2.empty() && c3.empty()
+      && c4.empty() && c5.empty() && c6.empty()
+      && c7.empty() && c8.empty() && c9.empty())
+    return "<" + name + "/>";
+
   return "<" + name + ">"
     + c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 + c9
     + "</" + name + ">" ;
