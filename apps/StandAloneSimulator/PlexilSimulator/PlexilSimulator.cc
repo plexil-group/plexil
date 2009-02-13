@@ -23,25 +23,40 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef RESPONSE_MESSAGE_HH
-#define RESPONSE_MESSAGE_HH
+#include "Simulator.hh"
+#include "PlexilCommRelay.hh"
+#include "PlexilSimResponseFactory.hh"
 
-#include <string>
+#include <assert.h>
+#include <signal.h>
 
-enum {MSG_COMMAND=0, MSG_TELEMETRY};
+bool done=false;
 
-class ResponseMessage
+void SIGINT_handler (int signum)
 {
-public:
-  ResponseMessage(int _id=-1, const std::string& _contents="",
-                  const std::string& _name="", int _type=MSG_COMMAND)
-    : id(_id), contents(_contents), name(_name), messageType(_type) {}
-  virtual ~ResponseMessage(){}
+  assert (signum == SIGINT);
+  std::cout << "In SIGINT_handler. The simulator has been terminated." << std::endl;
 
-  int id;
-  std::string contents;
-  std::string name;
-  int messageType;
-};
+  done = true;
+}
 
-#endif // RESPONSE_MESSAGE_HH
+int main(int argc, char** argv)
+{
+
+  PlexilSimResponseFactory respFactory;
+  PlexilCommRelay plexilRelay("RobotYellow");
+  Simulator simulator(&respFactory, &plexilRelay);
+  simulator.readScript("Test.script", "Telemetry.script");
+
+
+  struct sigaction sa;
+  sigemptyset (&sa.sa_mask);
+  sa.sa_flags = 0;
+  //Register the handler for SIGINT.
+  sa.sa_handler = SIGINT_handler;
+  sigaction (SIGINT, &sa, 0);
+
+  while(!done){;}
+
+  return 0;
+}

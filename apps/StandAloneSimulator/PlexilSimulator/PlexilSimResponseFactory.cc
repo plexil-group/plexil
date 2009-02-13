@@ -23,25 +23,33 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef RESPONSE_MESSAGE_HH
-#define RESPONSE_MESSAGE_HH
+#include "PlexilSimResponseFactory.hh"
+#include "PlexilSimResponse.hh"
+#include "GenericResponse.hh"
 
-#include <string>
-
-enum {MSG_COMMAND=0, MSG_TELEMETRY};
-
-class ResponseMessage
+PlexilSimResponseFactory::PlexilSimResponseFactory()
 {
-public:
-  ResponseMessage(int _id=-1, const std::string& _contents="",
-                  const std::string& _name="", int _type=MSG_COMMAND)
-    : id(_id), contents(_contents), name(_name), messageType(_type) {}
-  virtual ~ResponseMessage(){}
+}
 
-  int id;
-  std::string contents;
-  std::string name;
-  int messageType;
-};
+PlexilSimResponseFactory::~PlexilSimResponseFactory()
+{
+}
 
-#endif // RESPONSE_MESSAGE_HH
+ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeval tDelay,
+                                            std::istringstream& inStr)
+{
+  if (cmdName == "drive")
+    {
+      int returnValue;
+      if (parseType<int>(inStr, returnValue))
+        return new MoveResponse(tDelay, returnValue);
+    }
+  else if (cmdName == "foo")
+    {
+      int returnValue;
+      if (parseType<int>(inStr, returnValue))
+        return new foo(tDelay, returnValue);
+    }
+  else
+    return new GenericResponse(tDelay, "0");
+}

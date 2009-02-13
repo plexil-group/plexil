@@ -23,57 +23,36 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef SIMULATOR_HH
-#define SIMULATOR_HH
+#ifndef PLEXIL_COMM_RELAY_HH
+#define PLEXIL_COMM_RELAY_HH
 
+#include "CommRelayBase.hh"
 #include <map>
-#include "TimingService.hh"
-#include "SimulatorScriptReader.hh"
+#include <string>
+#include <pthread.h>
 
-#define ONE_MILLIONTH 0.000001
+class ClientSocket;
 
-class ResponseMessageManager;
-class ResponseMessage;
-class ResponseFactory;
-class CommRelayBase;
-
-class Simulator
+class PlexilCommRelay : public CommRelayBase
 {
 public:
-  Simulator(ResponseFactory* respFactory, 
-            CommRelayBase* commRelay);
-  ~Simulator();
-
-  ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
-  void registerResponseMessageManager(ResponseMessageManager* msgMgr);
-  void handleWakeUp();
-  bool readScript(const std::string& fName,
-                  const std::string& fNameTelemetry = "NULL");
-  ResponseFactory* getResponseFactory() const {return m_ResponseFactory;}
-  
-  void scheduleResponseForCommand(const std::string& command, int uniqueId);
-  void scheduleResponseForTelemetry(const std::string& state);
-  
-  timeval convertDoubleToTimeVal(double timeD);
+  PlexilCommRelay(const std::string& _host = "localhost", int sendingPort=6166,
+                  int listeningPort=6165);
+  ~PlexilCommRelay();
+  virtual void receivedMessage (const std::string& msg);
+  virtual void sendResponse(const ResponseMessage* respMsg);
+  void connectToUniversalExec();
+  ClientSocket* getClientSocket() const {return m_ClientSocket;}
+  int getListeningPortNumber() const {return m_ListeningPort;}
+  int getSendingPortNumber() const {return m_SendingPort;}
 
 private:
-  Simulator(){};
-  void sendResponse(const ResponseMessage* respMsg);
-  void scheduleNextResponse(timeval time);
-  bool constructNextResponse(const std::string& command, int uniqueId,
-                             timeval& time, int type);
 
-  
-  std::map<const std::string, ResponseMessageManager*> m_CmdToRespMgr;
-  std::multimap<timeval, ResponseMessage*> m_TimeToResp;
-
-  ResponseFactory* m_ResponseFactory;
-  CommRelayBase* m_CommRelay;
-  TimingService m_TimingService;
-  SimulatorScriptReader m_SimulatorScriptReader;
-  bool m_TimerScheduled;
-  timeval m_TimerScheduledTime;
-  pthread_mutex_t m_TimerMutex;
+  pthread_t m_ThreadId;
+  ClientSocket* m_ClientSocket;
+  const std::string m_HostName;
+  int m_SendingPort;
+  int m_ListeningPort;
 };
 
-#endif // SIMULATOR_HH
+#endif // SSWG_COMM_RELAY_HH

@@ -106,7 +106,7 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
   timeval time;
   std::cout << "Simulator::scheduleResponseForCommand for command: " << command 
             << std::endl;
-  bool valid = constructNextResponse(command, uniqueId, time);
+  bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
   if (valid) scheduleNextResponse(time);
 }
 
@@ -115,12 +115,13 @@ void Simulator::scheduleResponseForTelemetry(const std::string& state)
   timeval time;
   std::cout << "Simulator::scheduleResponseForCommand for telemetry: " << state 
             << std::endl;
-  bool valid = constructNextResponse(state, INT_MAX, time);
+  bool valid = constructNextResponse(state, INT_MAX, time, MSG_TELEMETRY);
   if (valid) scheduleNextResponse(time);
 }
 
 bool Simulator::constructNextResponse(const std::string& command,
-                                      int uniqueId, timeval& time)
+                                      int uniqueId, timeval& time,
+                                      int type)
 {
   std::map<const std::string, ResponseMessageManager*>::iterator iter;
 
@@ -135,6 +136,8 @@ bool Simulator::constructNextResponse(const std::string& command,
   timeval tDelay;
   ResponseMessage* respMsg = msgMgr->getResponseMessages(tDelay);
   respMsg->id = uniqueId;
+  respMsg->name = command;
+  respMsg->messageType = type;
   timeval currTime;
   gettimeofday(&currTime, NULL);
   std::cout << "Simulator::constructNextResponse. Current time: " 

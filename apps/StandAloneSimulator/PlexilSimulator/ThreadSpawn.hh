@@ -23,25 +23,17 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef RESPONSE_MESSAGE_HH
-#define RESPONSE_MESSAGE_HH
 
-#include <string>
+#ifndef THREAD_SPAWN_HEADER
+#define THREAD_SPAWN_HEADER
 
-enum {MSG_COMMAND=0, MSG_TELEMETRY};
 
-class ResponseMessage
-{
-public:
-  ResponseMessage(int _id=-1, const std::string& _contents="",
-                  const std::string& _name="", int _type=MSG_COMMAND)
-    : id(_id), contents(_contents), name(_name), messageType(_type) {}
-  virtual ~ResponseMessage(){}
+#include <pthread.h>
 
-  int id;
-  std::string contents;
-  std::string name;
-  int messageType;
-};
 
-#endif // RESPONSE_MESSAGE_HH
+#define THREAD_FUNC_PTR void* (*)(void*)
+
+bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id);
+
+
+#endif // THREAD_SPAWN_HEADER
