@@ -1,0 +1,30 @@
+(plexil-plan
+  (list-node "Root"
+    (variables
+      (int-array "a1" 10)
+      (string-array "a2" 10)
+      (boolean-array "a3" 500))
+    (postcondition
+      (and (successful "One")
+           (successful "Two")
+           (successful "Three")))
+    (list
+      (function-call-node "One"
+        (postcondition (= (array-element "a1" 0) 555))
+        (function-call-with-result (arrayvar "a1") "get-a1" "foo"))
+      (command-node "Two"
+        (postcondition (= (array-element "a2" 0) "hello"))
+        (command-with-return "get-a2" (arrayvar "a2")))
+      (command-node "Three"
+        (postcondition (array-element "a3" 3))
+        (command-with-return "get-a3" (arrayvar "a3"))))))
+
+
+
+                                   
+          
+          
+
+              
+              
+    

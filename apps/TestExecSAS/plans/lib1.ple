@@ -1,0 +1,18 @@
+LibraryNode LibTest1(In Boolean lb, In Integer li, In Real lr, In String ls); //, In Time lt, In BLOB lbl);
+LibraryNode LibTest2(In Real y, In Real z);
+
+LibTest1:
+{
+   In Boolean lb;
+   In Integer li;
+   In Real    lr;
+   In String  ls;
+      //In Time    lt;
+      //In BLOB    lbl;
+
+  NodeList:
+
+      // call command foo()
+
+  FooCall1: {Command: foo(lb, li, lr, ls);}
+}
