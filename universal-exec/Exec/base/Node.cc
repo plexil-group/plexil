@@ -1039,7 +1039,7 @@ namespace PLEXIL {
             
             const PlexilVarRef* iVar = libInterface->findVar(paramName.toString());
             
-            // be sure it exits in interface
+            // be sure it exists in interface
             
             checkError(iVar != NULL,
                        "Variable '" << paramName.toString()
@@ -1089,8 +1089,14 @@ namespace PLEXIL {
          else if (Id<PlexilValue>::convertable(alias->second))
          {
             Id<PlexilValue> value = (Id<PlexilValue>)alias->second;
-            ExpressionId varId = ExpressionFactory::
-               createInstance(value->name(), value->getId(), m_connector);
+            debugMsg("Node:createLibraryNode",
+                     " Constructing variable for " << value->name()
+                     << " literal with value " << value->value() 
+                     << " as library node interface variable " << LabelStr(paramName).c_str());
+            ExpressionId varId = 
+              ExpressionFactory::createInstance(value->name(),
+                                                value->getId(),
+                                                m_connector);
             m_variablesByName[paramName] = varId;
          }
          else
@@ -1323,11 +1329,11 @@ namespace PLEXIL {
 
   const ExpressionId& Node::findVariable(const LabelStr& name) {
     debugMsg("Node:findVariable",
-	     "Searching for variable '" << name.toString() << " in node " <<
+	     " Searching for variable \"" << name.toString() << "\" in node " <<
 	     m_nodeId.toString());
     std::map<double, ExpressionId>::const_iterator it = m_variablesByName.find(name);
     checkError(it != m_variablesByName.end(),
-	       "No variable named '" << name.toString() << "' in node " <<
+	       "No variable named \"" << name.toString() << "\" in node " <<
 	       m_nodeId.toString());
     return (it == m_variablesByName.end() ? ExpressionId::noId() : it->second);
   }
@@ -1335,8 +1341,8 @@ namespace PLEXIL {
    const ExpressionId& Node::findVariable(const PlexilVarRef* ref) 
    {
       debugMsg("Node:findVariable",
-               "Searching for variable '" << ref->name() << 
-               " in node " << m_nodeId.toString());
+               " Searching for variable reference \"" << ref->name() << 
+               "\" in node " << m_nodeId.toString());
       
       if(Id<PlexilInternalVar>::convertable(ref->getId())) 
       {
@@ -1400,6 +1406,8 @@ namespace PLEXIL {
          }
          else
             name = var->name();
+         debugMsg("Node:findVariable", 
+                  " Found internal variable \"" << name << "\"");
          return node->getInternalVariable(LabelStr(name));
       }
       else 
@@ -1410,9 +1418,14 @@ namespace PLEXIL {
          checkError(it != m_variablesByName.end(),
                     "Can't find variable " << ref->name() << 
                     " in node " << m_nodeId.toString());
-         return (it == m_variablesByName.end() 
-                 ? ExpressionId::noId() 
-                 : it->second);
+         if (it == m_variablesByName.end())
+           {
+             debugMsg("Node:findVariable", " not found, returning noId()");
+             return ExpressionId::noId();
+           }
+         debugMsg("Node:findVariable",
+                  " Returning regular variable " << it->second->toString());
+         return it->second;
       }
       return ExpressionId::noId();
   }
