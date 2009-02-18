@@ -209,7 +209,7 @@ namespace PLEXIL
             if (destState != StateVariable::FINISHING())
                deactivatePair(node, Node::INVARIANT_CONDITION());
             deactivatePair(node, Node::END_CONDITION());
-
+            deactivateExecutable(node);
          }
 
          void transitionTo(NodeId& node, const LabelStr& destState)

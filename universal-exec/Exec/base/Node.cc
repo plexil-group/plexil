@@ -158,7 +158,7 @@ namespace PLEXIL {
 
      getVarsFromInterface(node->interface());
 
-        // inherit all varibles from parten which
+        // inherit all variables from parten which
         // do not already appear in this node 
 
      getVarsFromParent();
@@ -990,12 +990,12 @@ namespace PLEXIL {
       if (libInterface.isId() == false)
       {
          checkError(body->aliases().size() == 0,
-                    "Varible aliases in '" << getNodeId().toString() <<
+                    "Variable aliases in '" << getNodeId().toString() <<
                     "' do not match interface in '" << 
                     libNode->nodeId() << "'");
       }
       
-      // otherwise check varibles in interface
+      // otherwise check variables in interface
 
       else
       {
@@ -1144,7 +1144,7 @@ namespace PLEXIL {
       {
          LabelStr parentVarName(parentVar->first);
 
-            // if the varible does not exist locally, add it
+            // if the variable does not exist locally, add it
             // otherwise ignore it, locals mask
 
          if (m_variablesByName.find(parentVarName) == m_variablesByName.end())
@@ -1174,7 +1174,7 @@ namespace PLEXIL {
                     "' in parent of node '" << m_nodeId.toString() <<
                     "' not a variable.");
          
-         // if varaible presenet in the In interface, it is constant
+         // if variable present in the In interface, it is constant
          
          if (m_node->interface()->findInVar(*it))
             ((Id<Variable>)expr)->setConst();
@@ -1199,7 +1199,7 @@ namespace PLEXIL {
   void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
     for(std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it)
     {
-       // get the vairaible name
+       // get the variable name
 
        LabelStr name((*it)->name());
 
@@ -1579,6 +1579,13 @@ namespace PLEXIL {
 
   void Node::execute() {
     debugMsg("Node:execute", "Executing node " << m_nodeId.toString());
+    // activate local variables
+    for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
+         vit != m_localVariables.end();
+         vit++)
+      {
+        (*vit)->activate();
+      }
     m_exec->handleNeedsExecution(m_id);
   }
 
@@ -1669,10 +1676,13 @@ namespace PLEXIL {
       m_update->deactivate();
     else if(getType() == Node::FUNCTION() && m_functionCall.isValid())
       m_functionCall->deactivate();
-    else {
-      debugMsg("Warning",
-	       "No deactivateExecutable for node type " << getType().toString() << " yet.");
-    }
+    // deactivate local variables
+    for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
+         vit != m_localVariables.end();
+         vit++)
+      {
+        (*vit)->deactivate();
+      }
   }
 
   std::string Node::toString(const unsigned int indent) {
