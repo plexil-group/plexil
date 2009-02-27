@@ -1,7 +1,7 @@
 default:
-	( cd RobotSimulator; make; )
-	( cd RobotSimulatorExec; make; )
+	$(MAKE) -C RobotSimulator
+	$(MAKE) -C RobotSimulatorExec
 
 clean:
-	@ ( cd RobotSimulator; make clean; )
-	@ ( cd RobotSimulatorExec; make clean; )
+	@ $(MAKE) -C RobotSimulator $@
+	@ $(MAKE) -C RobotSimulatorExec $@
