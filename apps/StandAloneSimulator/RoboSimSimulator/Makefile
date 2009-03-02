@@ -3,19 +3,23 @@ ifndef SSWGCOMM_HOME
 endif
 
 ifndef STANDALONE_SIMULATOR_HOME
-	STANDALONE_SIMULATOR_HOME = $(PLEXIL_HOME)/apps/StandAloneSimulator
+	STANDALONE_SIMULATOR_HOME = ..
 endif
 
 SRC_DIR   = .
 
 LIBS = -lpthread
 
+OSTYPE   ?= $(shell uname -s)
+MACHTYPE ?= $(shell uname -p)
+OS_ARCH  = $(OSTYPE)-$(MACHTYPE)
+
 ifdef SHARED
  LIBS += -L$(STANDALONE_SIMULATOR_HOME)/lib -lstandalonesimulator \
-	 -L$(SSWGCOMM_HOME)/Unix/lib -lsswgcomm
+	 -L$(SSWGCOMM_HOME)/$(OS_ARCH)/lib -lsswgcomm
 else
   LIBS += $(STANDALONE_SIMULATOR_HOME)/lib/libstandalonesimulator.a \
-	 $(SSWGCOMM_HOME)/Unix/lib/libsswgcomm.a 
+	 $(SSWGCOMM_HOME)/$(OS_ARCH)/lib/libsswgcomm.a 
 endif
 
 BIN_DIR   = bin
@@ -30,7 +34,11 @@ INCLUDES = -I$(STANDALONE_SIMULATOR_HOME) -I$(SSWGCOMM_HOME)
 ifdef SHARED
  LIB_EXT = .so
  SHARED_OBJ_FLAGS += -fpic
- SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+ ifeq ($(findstring Darwin, $(OSTYPE)), Darwin)
+  SHARED_LIB_FLAGS += -dynamiclib -Wl
+ else
+  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+ endif
 else
  LIB_EXT = .a
 endif
@@ -55,7 +63,7 @@ all : $(LIB_DIR)/$(LIB_TARGET) $(BIN_DIR)/$(ROBOSIMSIMULATOR_TARGET)
 
 ifdef SHARED
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS) $(LIBS)
 else
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
 	$(AR) ruc $@ $(LIB_OBJECTS)

@@ -10,10 +10,14 @@ LIB_DIRS += -L$(PLEXIL_HOME)/universal-exec/lib  -L$(PLEXIL_HOME)/interfaces/lib
 
 LIBS += -lpthread -lLuvListener_g -lPlexilInterface_g -lPlexilUtils_g -lPlexilTinyXml_g -lSockets_g -lExec_g
 
+OSTYPE   ?= $(shell uname -s)
+MACHTYPE ?= $(shell uname -p)
+OS_ARCH = $(OSTYPE)-$(MACHTYPE)
+
 ifdef SHARED
- LIBS += -L$(ROBOSIM_HOME)/SSWGComm/Unix/lib/ -lsswgcomm
+ LIBS += -L$(ROBOSIM_HOME)/SSWGComm/$(OS_ARCH)/lib/ -lsswgcomm
 else
- LIBS += $(ROBOSIM_HOME)/SSWGComm/Unix/lib/libsswgcomm.a
+ LIBS += $(ROBOSIM_HOME)/SSWGComm/$(OS_ARCH)/lib/libsswgcomm.a
 endif
 
 BIN_DIR   = bin

@@ -1,9 +1,12 @@
 SRC_DIR   = .
 
-#ifeq ($(OSTYPE),darwin)
-ifeq ($(findstring darwin, $(OSTYPE)), darwin)
+OSTYPE   ?= $(shell uname -s)
+MACHTYPE ?= $(shell uname -p)
+OS_ARCH = $(OSTYPE)-$(MACHTYPE)
+
+ifeq ($(findstring Darwin, $(OSTYPE)), Darwin)
 	DEFINES = -DDarwin
-	OPENGL_LIBS = -framework OpenGL -framework GLUT
+	OPENGL_LIBS += -framework OpenGL -framework GLUT
 else
 	ifeq ($(MACHTYPE),x86_64)
 		LIBS = -L/usr/lib64 
@@ -22,9 +25,9 @@ LIB_NAME = robosim
 LIBS = -lpthread 
 
 ifdef SHARED
- LIBS += -L../SSWGComm/Unix/lib -lsswgcomm
+ LIBS += -L../SSWGComm/$(OS_ARCH)/lib -lsswgcomm
 else
- LIBS += ../SSWGComm/Unix/lib/libsswgcomm.a
+ LIBS += ../SSWGComm/$(OS_ARCH)/lib/libsswgcomm.a
 endif
 
 CXX	= g++
@@ -34,7 +37,11 @@ ifdef SHARED
  LIB_EXT = .so
  ROBOSIMLIB +=  -L$(LIB_DIR) -l$(LIB_NAME)
  SHARED_OBJ_FLAGS += -fpic
- SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+ ifeq ($(findstring Darwin, $(OSTYPE)), Darwin)
+  SHARED_LIB_FLAGS += -dynamiclib -Wl
+ else
+  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+ endif
 else
  LIB_EXT = .a
 endif
@@ -63,7 +70,7 @@ all : $(LIB_DIR)/$(LIB_TARGET) $(BIN_DIR)/$(ROBOSIM_TARGET) $(BIN_DIR)/$(TESTEXE
 
 ifdef SHARED
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(DEFINES) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS) $(LIBS) $(OPENGL_LIBS)
 else
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
 	$(AR) ruc $@ $(LIB_OBJECTS)

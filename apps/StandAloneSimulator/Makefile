@@ -5,13 +5,20 @@ OBJ_DIR   = objs
 
 LIB_NAME = standalonesimulator
 
+OSTYPE   ?= $(shell uname -s)
+MACHTYPE ?= $(shell uname -p)
+
 CXX     = g++
 OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 ifdef SHARED
  LIB_EXT = .so
  SHARED_OBJ_FLAGS += -fpic
- SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+ ifeq ($(findstring Darwin, $(OSTYPE)), Darwin)
+  SHARED_LIB_FLAGS += -dynamiclib -Wl
+ else
+  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+ endif
 else
  LIB_EXT = .a
 endif
@@ -29,11 +36,7 @@ LIB_OBJECTS = $(OBJ_DIR)/SimulatorScriptReader$(OBJ_EXT) \
 # Rules to build the targets
 
 all : $(LIB_DIR)/$(LIB_TARGET)
-ifdef SHARED
-	(cd RoboSimSimulator; make SHARED=1)
-else
-	(cd RoboSimSimulator; make)
-endif
+	$(MAKE) -C RoboSimSimulator
 
 simcore : $(LIB_DIR)/$(LIB_TARGET)
 
@@ -63,4 +66,4 @@ $(LIB_DIR) :
 clean:
 	@ -rm -rf $(OBJ_DIR)
 	@ -rm -rf $(LIB_DIR)
-	(cd RoboSimSimulator; make clean)
+	@ $(MAKE) -C RoboSimSimulator $@

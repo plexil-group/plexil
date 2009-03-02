@@ -1,14 +1,17 @@
 SRC_DIR   = .
 
 ifdef VXWORKS
-  OS = VxWorks
+  OSTYPE = VxWorks
+  OS_ARCH = $(OSTYPE)
 else
-  OS = Unix
+  OSTYPE   = $(shell uname -s)
+  MACHTYPE = $(shell uname -p)
+  OS_ARCH = $(OSTYPE)-$(MACHTYPE)
 endif
 
-BIN_DIR   = $(OS)/bin
-LIB_DIR   = $(OS)/lib
-OBJ_DIR   = $(OS)/objs
+BIN_DIR   = $(OS_ARCH)/bin
+LIB_DIR   = $(OS_ARCH)/lib
+OBJ_DIR   = $(OS_ARCH)/objs
 
 LIB_NAME = sswgcomm
 
@@ -35,19 +38,25 @@ ifdef VXWORKS
    SSWGLIB += $(LIB_DIR)/$(LIB_TARGET)
  endif
 else
+  # not VxWorks
   CXX	= g++
   OBJ_EXT = .o
-  CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated -lpthread
+  CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
   DEFINES  += -DUNIX
  ifdef SHARED
   LIB_EXT = .so
   SSWGLIB +=  -L$(LIB_DIR) -l$(LIB_NAME)
   SHARED_OBJ_FLAGS += -fpic
-  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+  ifeq ($(findstring Darwin, $(OS)), Darwin)
+   SHARED_LIB_FLAGS += -dynamiclib -Wl
+  else
+   SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+  endif
  else
   LIB_EXT = .a
   SSWGLIB += $(LIB_DIR)/$(LIB_TARGET)
  endif
+ LIBS += -lpthread
 endif
 
 APP_TARGET = testComm$(BIN_EXT)
@@ -127,7 +136,7 @@ clean :
 	@ -rm -rf $(OBJ_DIR)
 	@ -rm -rf $(LIB_DIR)
 	@ -rm -rf $(BIN_DIR)
-	@ -rm -rf Unix
+	@ -rm -rf $(OS_ARCH)
 	@ -rm -rf VxWorks
 
 
