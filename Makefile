@@ -7,17 +7,17 @@ all:
 	@ cd luv; ant jar
 	@ cd standard-plexil; jam
 	@ cd interfaces; jam
-	@ cd apps; make
+	@ $(MAKE) -C apps
 	@ cd checker; ant jar
 	@ echo Done.
 
 clean:
-	@ cd universal-exec; jam clean
-	@ cd luv; ant clean
-	@ cd standard-plexil; jam clean
-	@ cd interfaces; jam clean
-	@ cd apps; make clean
-	@ cd checker; ant clean
+	@ cd universal-exec; jam $@
+	@ cd luv; ant $@
+	@ cd standard-plexil; jam $@
+	@ cd interfaces; jam $@
+	@ $(MAKE) -C apps $@
+	@ cd checker; ant $@
 	@ echo Done.
 
 # The following targets apply only when the UE is being used with an
