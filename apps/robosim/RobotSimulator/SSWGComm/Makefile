@@ -4,8 +4,8 @@ ifdef VXWORKS
   OSTYPE = VxWorks
   OS_ARCH = $(OSTYPE)
 else
-  OSTYPE   = $(shell uname -s)
-  MACHTYPE = $(shell uname -p)
+  OSTYPE   ?= $(shell uname -s)
+  MACHTYPE ?= $(shell uname -p)
   OS_ARCH = $(OSTYPE)-$(MACHTYPE)
 endif
 
