@@ -547,6 +547,7 @@ public class Constants
       public static final String EQ_NUMERIC = "EQNumeric";
       public static final String EQ_STRING = "EQString";
       public static final String EQ_BOOLEAN = "EQBoolean";
+      public static final String EQ_TIME ="EQTime";
       public static final String EQ_INTERNAL = "EQInternal";
       public static final String NE = "NE";
       public static final String NE_NUMERIC = "NENumeric";
@@ -726,6 +727,7 @@ public class Constants
           EQ_NUMERIC,
           EQ_STRING, 
           EQ_BOOLEAN,
+          EQ_TIME,
           EQ_INTERNAL,
           NE,
           NE_NUMERIC,

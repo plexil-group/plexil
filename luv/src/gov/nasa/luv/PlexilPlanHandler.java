@@ -699,6 +699,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             tag.equals(EQ_NUMERIC) || 
             tag.equals(EQ_STRING) || 
             tag.equals(EQ_BOOLEAN) ||
+            tag.equals(EQ_TIME) ||
             tag.equals(EQ_INTERNAL))       
                                                         return "==";
         else if (tag.equals(NE) ||

@@ -1323,9 +1323,7 @@ public class Luv extends JFrame
 
 		if (option == APPROVE_OPTION) 
                 {
-                    
-                    
-		    // Do these things only if we loaded a plan
+ 		    // Do these things only if we loaded a plan
 		    if (isExecuting) 
                     {
 			try 
@@ -1387,6 +1385,9 @@ public class Luv extends JFrame
 	{
 	    public void actionPerformed(ActionEvent e) 
 	    {
+                newPlan = true;
+                PlexilPlanHandler.resetRowNumber();
+                
                 if (isExecuting) 
                 {
 		    try 
@@ -1398,9 +1399,20 @@ public class Luv extends JFrame
                     {
                         displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
 		    }
-		} 
-                
-                reloadPlanState(); 
+		}                             
+          
+                File plan = new File(currentPlan.getPlanName());
+                if (plan.exists())
+                {
+                    fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+                    openPlanState(); 
+                }
+                else
+                {
+                    displayErrorMessage(null, "ERROR: trying to reload and unknown plan. Are you trying to reload a plan you originally executed remotely?");
+                    reloadPlanState();
+                }
+                newPlan = false;
 	    }
 	};
 
