@@ -58,9 +58,6 @@ namespace PLEXIL
   {
   public:
 
-    // *** DEPRECATED ***
-    static AdaptorExecInterfaceId instance();
-
     //
     // API to interface adaptors
     //
@@ -319,7 +316,9 @@ namespace PLEXIL
 
   private:
 
-    static AdaptorExecInterfaceId s_instance;
+    // Deliberately unimplemented
+    AdaptorExecInterface(const AdaptorExecInterface&);
+    AdaptorExecInterface& operator=(const AdaptorExecInterface&);
 
   };
 

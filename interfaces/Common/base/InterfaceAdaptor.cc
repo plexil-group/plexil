@@ -35,14 +35,6 @@
 
 namespace PLEXIL
 {
-  // *** DEPRECATED -- TEMPORARY ***
-  InterfaceAdaptor::InterfaceAdaptor()
-    : m_execInterface(*AdaptorExecInterface::instance()),
-      m_xml(NULL),
-      m_id(this)
-  {
-  }
-
   InterfaceAdaptor::InterfaceAdaptor(AdaptorExecInterface& execInterface)
     : m_execInterface(execInterface),
       m_xml(NULL),

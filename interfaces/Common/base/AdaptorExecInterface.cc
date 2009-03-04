@@ -34,13 +34,6 @@
 
 namespace PLEXIL
 {
-  AdaptorExecInterfaceId AdaptorExecInterface::s_instance =
-  AdaptorExecInterfaceId::noId();
-  
-  AdaptorExecInterfaceId AdaptorExecInterface::instance()
-  {
-    return s_instance;
-  }
 
   /**
    * @brief Default constructor method.
@@ -48,8 +41,6 @@ namespace PLEXIL
   AdaptorExecInterface::AdaptorExecInterface()
     : m_adaptorInterfaceId(this)
   {
-    if (s_instance.isNoId())
-      s_instance = m_adaptorInterfaceId;
   }
 
   /**
@@ -57,10 +48,6 @@ namespace PLEXIL
    */
   AdaptorExecInterface::~AdaptorExecInterface()
   {
-    if (s_instance == m_adaptorInterfaceId)
-      {
-	s_instance = AdaptorExecInterfaceId::noId();
-      }
     m_adaptorInterfaceId.remove();
   }
 

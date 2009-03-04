@@ -59,13 +59,6 @@ namespace PLEXIL
 
   public:
     /**
-     * @brief Default constructor.
-     * @note Deprecated; a future version will require a reference to the
-     *       parent AdaptorExecInterface instance.
-     */
-    InterfaceAdaptor();
-
-    /**
      * @brief Constructor.
      * @param execInterface A reference to the AdaptorExecInterface which owns this adaptor.
      */
@@ -263,6 +256,7 @@ namespace PLEXIL
   private:
 
     // Deliberately unimplemented
+    InterfaceAdaptor();
     InterfaceAdaptor(const InterfaceAdaptor &);
     InterfaceAdaptor & operator=(const InterfaceAdaptor &);
 
