@@ -71,6 +71,7 @@ namespace PLEXIL
 
     /**
      * @brief Accessor to singleton.
+     * @note Deprecated - to be removed in the near future.
      */
     static ThreadedExternalInterfaceId instance();
 
@@ -717,6 +718,7 @@ namespace PLEXIL
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;
 
+    // *** DEPRECATED - to be removed in the near future ***
     static ThreadedExternalInterfaceId s_threadedInterfaceInstance;
 
   };
