@@ -116,6 +116,7 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
 
    TestExternalInterface intf;
    PlexilExecId exec = (new PlexilExec())->getId();
+   intf.setExec(exec);
 
    // if a luv view is to be attached
 
@@ -219,7 +220,6 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
 
    // load script
 
-   ExternalInterface::instance()->setExec(exec);
    TiXmlDocument script(scriptName);
    if (!script.LoadFile())
    {

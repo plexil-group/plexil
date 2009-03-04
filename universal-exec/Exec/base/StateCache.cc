@@ -113,9 +113,9 @@ namespace PLEXIL
          // quiescence, perform the request and update the state
 
          if (newState)
-            ExternalInterface::instance()->lookupNow(state, key, values);
+            getExternalInterface()->lookupNow(state, key, values);
          else
-            ExternalInterface::instance()->lookupNow(key, values);
+            getExternalInterface()->lookupNow(key, values);
 
          internalStateUpdate(key, values);
 
@@ -180,13 +180,13 @@ namespace PLEXIL
                       "Out-of-date state, so performing external lookup.");
 
          std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
-         ExternalInterface::instance()->registerChangeLookup(
+         getExternalInterface()->registerChangeLookup(
             (LookupKey) source, state, key, tolerances, values);
          internalStateUpdate(key, values);
       }
       else
       {
-         ExternalInterface::instance()->registerChangeLookup((LookupKey) source,
+         getExternalInterface()->registerChangeLookup((LookupKey) source,
                                                              key, tolerances);
          std::map<StateKey, std::vector<double> >::iterator currentValues =
             m_values.find(key);
@@ -223,7 +223,7 @@ namespace PLEXIL
                       "Out-of-date state, so performing external lookup.");
          std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
 
-         ExternalInterface::instance()->registerFrequencyLookup((LookupKey) source, state, key, lowFreq, highFreq, values);
+         getExternalInterface()->registerFrequencyLookup((LookupKey) source, state, key, lowFreq, highFreq, values);
          internalStateUpdate(key, values);
       }
       else
@@ -240,7 +240,7 @@ namespace PLEXIL
             (*destIt)->setValue(*valueIt);
          }
          ((Cache::FrequencyLookup*)lookup)->lastTime = currentTime();
-         ExternalInterface::instance()->registerFrequencyLookup((LookupKey) source, key, lowFreq, highFreq);
+         getExternalInterface()->registerFrequencyLookup((LookupKey) source, key, lowFreq, highFreq);
       }
    }
 
@@ -266,14 +266,14 @@ namespace PLEXIL
    {
       check_error(m_inQuiescence, "Lookup outside of quiescence!");
       internalUnregisterLookup(source);
-      ExternalInterface::instance()->unregisterChangeLookup((LookupKey) source);
+      getExternalInterface()->unregisterChangeLookup((LookupKey) source);
    }
 
    void StateCache::unregisterFrequencyLookup(const ExpressionId& source)
    {
       check_error(m_inQuiescence, "Lookup outside of quiescence!");
       internalUnregisterLookup(source);
-      ExternalInterface::instance()->unregisterFrequencyLookup((LookupKey)source);
+      getExternalInterface()->unregisterFrequencyLookup((LookupKey)source);
    }
 
    void StateCache::updateState(const State& state, const std::vector<double>& values)
@@ -546,9 +546,9 @@ namespace PLEXIL
 
       std::vector<double> time(1, 0);
       if (firstTimeQuery)
-         ExternalInterface::instance()->lookupNow(timeIt->second.first, m_timeState, time);
+         getExternalInterface()->lookupNow(timeIt->second.first, m_timeState, time);
       else
-         ExternalInterface::instance()->lookupNow(m_timeState, time);
+         getExternalInterface()->lookupNow(m_timeState, time);
 
       timeIt->second.second = m_quiescenceCount;
 
@@ -575,7 +575,7 @@ namespace PLEXIL
       if (!m_inQuiescence)
       {
          std::vector<double> time(1, 0);
-         ExternalInterface::instance()->lookupNow(m_timeState, time);
+         getExternalInterface()->lookupNow(m_timeState, time);
          checkError(m_values.find(m_timeState)->second[0] <= time[0], "Time has regressed from " << m_values.find(m_timeState)->second[0] << " to " << time[0]);
          internalStateUpdate(m_timeState, time);
       }

@@ -70,8 +70,16 @@
 namespace PLEXIL {
   class ExternalInterface {
   public:
+    // *** DEPRECATED - TO BE REMOVED ***
     static ExternalInterfaceId instance();
     
+    /**
+     * @brief Return the ID of this instance.
+     */
+    inline ExternalInterfaceId& getId()
+    {
+      return m_id;
+    }
 
     /**
      * @brief Register a change lookup on a new state, expecting values back.
@@ -166,7 +174,7 @@ namespace PLEXIL {
     virtual void addPlan(const TiXmlElement& plan, const LabelStr& parent = EMPTY_LABEL())
       throw(ParserException);
     virtual void addPlan(PlexilNode* node, const LabelStr& parent = EMPTY_LABEL());
-    void setExec(const PlexilExecId exec) {m_exec = exec;}
+    void setExec(const PlexilExecId exec);
 
     virtual double currentTime();
     virtual ~ExternalInterface();
@@ -180,6 +188,8 @@ namespace PLEXIL {
 
   private:
     ExternalInterfaceId m_id;
+
+    // *** DEPRECATED - TO BE REMOVED ***
     static ExternalInterfaceId s_instance;
   };
 }

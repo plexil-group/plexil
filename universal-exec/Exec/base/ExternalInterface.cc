@@ -25,6 +25,7 @@
 */
 
 #include "ExternalInterface.hh"
+#include "PlexilExec.hh"
 
 namespace PLEXIL {
 
@@ -36,12 +37,20 @@ namespace PLEXIL {
   }
 
   ExternalInterface::ExternalInterface() : m_id(this) {
-    s_instance = m_id;
+    if (s_instance.isNoId())
+      s_instance = m_id;
   }
 
   ExternalInterface::~ExternalInterface() {
+    if (s_instance == m_id)
+      s_instance = ExternalInterfaceId::noId();
     m_id.remove();
-    s_instance = ExternalInterfaceId::noId();
+  }
+
+  void ExternalInterface::setExec(const PlexilExecId exec)
+  {
+    m_exec = exec;
+    m_exec->setExternalInterface(m_id);
   }
   
   void ExternalInterface::registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances, 

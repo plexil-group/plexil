@@ -34,7 +34,11 @@
 #include <list>
 #include <set>
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
+  // Forward references
+  class ExternalInterface;
+  typedef Id<ExternalInterface> ExternalInterfaceId;
 
   class ExecListener {
   public:
@@ -64,6 +68,7 @@ namespace PLEXIL {
     virtual void handleNeedsExecution(const NodeId& node) = 0;
     //virtual const ExpressionId& findVariable(const LabelStr& name) = 0;
     virtual const StateCacheId& getStateCache() = 0;
+    virtual const ExternalInterfaceId& getExternalInterface() = 0;
   protected:
   private:
     ExecConnectorId m_id;
@@ -99,6 +104,20 @@ namespace PLEXIL {
     ~PlexilExec();
 
     const PlexilExecId& getId() const {return m_id;}
+
+    /**
+     * @brief Set the ExternalInterface instance used by this Exec.
+     * @param id The Id of the ExternalInterface instance.
+     */
+    void setExternalInterface(ExternalInterfaceId& id);
+
+    /**
+     * @brief Return the ExternalInterface instance used by this Exec.
+     */
+    inline ExternalInterfaceId& getExternalInterface()
+    {
+      return m_interface;
+    }
 
     /**
      * @brief Add a library node.
@@ -210,6 +229,7 @@ namespace PLEXIL {
     unsigned int m_cycleNum, m_queuePos;
     ExecConnectorId m_connector;
     StateCacheId m_cache;
+    ExternalInterfaceId m_interface;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     //std::list<NodeId> m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
     std::map<unsigned int, NodeId> m_stateChangeQueue;
@@ -218,10 +238,10 @@ namespace PLEXIL {
     std::list<UpdateId> m_updatesToExecute;
     std::list<FunctionCallId> m_functionCallsToExecute;
     std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
-											     The nodes in the sets are assignment nodes which can assign values to the variable.
-											     The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
-											     Essentially, at each quiescence cycle, the first node in each set that isn't already
-											     in state EXECUTING gets added to the end of the queue. */
+                                                                                                  The nodes in the sets are assignment nodes which can assign values to the variable.
+                                                                                                  The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
+                                                                                                  Essentially, at each quiescence cycle, the first node in each set that isn't already
+                                                                                                  in state EXECUTING gets added to the end of the queue. */
     std::list<ExecListenerId> m_listeners;
     std::vector<PlexilNodeId> m_libraries;
   };

@@ -1624,9 +1624,9 @@ namespace PLEXIL {
   void Node::abort() {
     debugMsg("Node:abort", "Aborting node " << m_nodeId.toString());
     if(getType() == Node::COMMAND() && m_command.isValid())
-      ExternalInterface::instance()->invokeAbort(m_command->getName(),
-						 m_command->getArgValues(),
-						 m_conditionsByName[ABORT_COMPLETE()]);
+      m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
+                                                  m_command->getArgValues(),
+                                                  m_conditionsByName[ABORT_COMPLETE()]);
     else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
       m_assignment->getDest()->setValue(Expression::UNKNOWN());
     else {

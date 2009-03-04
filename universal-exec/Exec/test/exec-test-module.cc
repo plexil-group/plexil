@@ -25,6 +25,7 @@
 */
 
 #include "exec-test-module.hh"
+#include "ExecDefs.hh"
 #include "TestSupport.hh"
 #include "XMLUtils.hh"
 #include "Expression.hh"
@@ -894,14 +895,36 @@ private:
 
 };
 
-class TestInterface : public ExternalInterface {
+class TestInterface : public ExternalInterface 
+{
 public:
-  TestInterface() : ExternalInterface(), m_listener(*this) {m_listener.activate();}
-  ~TestInterface() {
+  static Id<TestInterface>& instance()
+  {
+    return s_instanceTestInterface;
+  }
+
+  TestInterface()
+    : ExternalInterface(),
+      m_listener(*this) 
+  {
+    s_instanceTestInterface = (Id<TestInterface>) this->getId();
+    m_listener.activate();
+  }
+
+  ~TestInterface() 
+  {
+    if (s_instanceTestInterface == this->getId())
+      s_instanceTestInterface = Id<TestInterface>::noId();
+
     for(std::set<ExpressionId>::iterator it = m_exprs.begin(); it != m_exprs.end(); ++it)
       (*it)->removeListener(m_listener.getId());
   }
-  void setCache(const StateCacheId& cache) {m_cache = cache;}
+
+  void setCache(const StateCacheId& cache) 
+  {
+    m_cache = cache;
+  }
+
   void lookupNow(const State& state, const StateKey& key, std::vector<double>& dest) {
     m_states.insert(std::make_pair(key, state));
     if(state.first == LabelStr("test1")) {
@@ -916,18 +939,19 @@ public:
 	dest[0] = -1.0;
     }
   }
+
   void lookupNow(const StateKey& key, std::vector<double>& dest) {
     lookupNow(m_states[key], key, dest);
   }
 
   void registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances,
-				    std::vector<double>& dest) {
+                            std::vector<double>& dest) {
     m_states.insert(std::make_pair(key, state));
     dest[0] = m_changingExprs[state.first]->getValue();
-//     m_listeningExprs.insert(std::make_pair(m_changingExprs[state.first], (ExpressionId) source));
-//     m_tolerances.insert(std::make_pair((ExpressionId) source, tolerances[0]));
-//     m_cachedValues.insert(std::make_pair((ExpressionId) source, m_changingExprs[state.first]->getValue()));
-//     ((
+    //     m_listeningExprs.insert(std::make_pair(m_changingExprs[state.first], (ExpressionId) source));
+    //     m_tolerances.insert(std::make_pair((ExpressionId) source, tolerances[0]));
+    //     m_cachedValues.insert(std::make_pair((ExpressionId) source, m_changingExprs[state.first]->getValue()));
+    //     ((
   }
   void registerChangeLookup(const LookupKey& source, const StateKey& key, const std::vector<double>& tolerances) {
     std::vector<double> fakeDest(1, 0);
@@ -950,13 +974,14 @@ public:
     m_changingExprs.erase(name);
     m_exprsToStateName.erase(expr);
   }
+
 protected:
   friend class ChangeListener;
 
   void internalExecuteCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest) {}
   void internalInvokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest) {}
   void notifyValueChanged(ExpressionId expression)
- {
+  {
     std::vector<double> values(1, expression->getValue());
     std::multimap<ExpressionId, double>::const_iterator it = m_exprsToStateName.find(expression);
     while(it != m_exprsToStateName.end() && it->first == expression) {
@@ -965,6 +990,7 @@ protected:
       ++it;
     }
   }
+
 private:
   class ChangeListener : public ExpressionListener {
   public:
@@ -974,6 +1000,9 @@ private:
   private:
     TestInterface& m_intf;
   };
+
+  static Id<TestInterface> s_instanceTestInterface;
+
   std::set<ExpressionId> m_exprs;
   std::map<double, ExpressionId> m_changingExprs; //map of names to expressions being watched
   std::multimap<ExpressionId, double> m_exprsToStateName; //make of watched expressions to their state names
@@ -985,15 +1014,27 @@ private:
   StateCacheId m_cache;
 };
 
+Id<TestInterface> TestInterface::s_instanceTestInterface = Id<TestInterface>::noId();
+
 class LookupTestExecConnector : public ExecConnector {
 public:
-  LookupTestExecConnector() : ExecConnector() {}
+  LookupTestExecConnector() : ExecConnector() 
+  {
+    m_cache.setExternalInterface(TestInterface::instance()->getId()); // static_cast didn't work here, grumble
+  }
+
   void handleConditionsChanged(const NodeId& node) {}
   void handleNeedsExecution(const NodeId& node) {}
   const ExpressionId& findVariable(const LabelStr& name) {return ExpressionId::noId();}
   const StateCacheId& getStateCache() {return m_cache.getId();}
+  const ExternalInterfaceId& getExternalInterface() 
+  {
+    return TestInterface::instance()->getId(); // static_cast didn't work here, grumble
+  }
+
 private:
   StateCache m_cache;
+  
 };
 
 class LookupTestNodeConnector : public NodeConnector {
@@ -1020,7 +1061,7 @@ public:
 private:
   static bool lookupNow() {
     LookupTestNodeConnector node;
-    ((TestInterface*) ExternalInterface::instance())->setCache(node.getExec()->getStateCache());
+    TestInterface::instance()->setCache(node.getExec()->getStateCache());
     PlexilState state1;
     state1.setName("test1");
 
@@ -1075,11 +1116,11 @@ private:
 
     RealVariable watchVar(0.0);
     watchVar.activate();
-    ((TestInterface*)ExternalInterface::instance())->watch(LabelStr("changeTest"), watchVar.getId());
-    ((TestInterface*)ExternalInterface::instance())->watch(LabelStr("changeWithToleranceTest"), watchVar.getId());
+    TestInterface::instance()->watch(LabelStr("changeTest"), watchVar.getId());
+    TestInterface::instance()->watch(LabelStr("changeWithToleranceTest"), watchVar.getId());
 
     LookupTestNodeConnector node;
-    ((TestInterface*) ExternalInterface::instance())->setCache(node.getExec()->getStateCache());
+    TestInterface::instance()->setCache(node.getExec()->getStateCache());
     LookupOnChange l1(test1.getId(), node.getId());
     LookupOnChange l2(test2.getId(), node.getId());
 
@@ -1113,8 +1154,8 @@ private:
     assertTrue(l1.getValue() == Expression::UNKNOWN());
     assertTrue(l2.getValue() == 1.1);
 
-    ((TestInterface*)ExternalInterface::instance())->unwatch(LabelStr("changeTest"), watchVar.getId());
-    ((TestInterface*)ExternalInterface::instance())->unwatch(LabelStr("changeWithToleranceTest"), watchVar.getId());
+    TestInterface::instance()->unwatch(LabelStr("changeTest"), watchVar.getId());
+    TestInterface::instance()->unwatch(LabelStr("changeWithToleranceTest"), watchVar.getId());
 
     return true;
   }
@@ -1177,6 +1218,7 @@ public:
   void handleNeedsExecution(const NodeId& node) {assertTrue(node->getState() == StateVariable::EXECUTING()); m_executed = true;}
   const ExpressionId& findVariable(const LabelStr& name) {return ExpressionId::noId();}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
+  const ExternalInterfaceId& getExternalInterface() {return ExternalInterfaceId::noId();}
   bool executed() {return m_executed;}
 private:
   bool m_executed;
@@ -2297,6 +2339,7 @@ private:
   static bool testLookupNow() {
     CacheTestInterface iface;
     StateCache cache;
+    cache.setExternalInterface(iface.getId());
 
     IntegerVariable destVar;
     destVar.activate();
@@ -2335,6 +2378,7 @@ private:
   static bool testChangeLookup() {
     CacheTestInterface iface;
     StateCache cache;
+    cache.setExternalInterface(iface.getId());
 
     IntegerVariable destVar1, destVar2;
     destVar1.activate();
@@ -2388,6 +2432,7 @@ private:
   static bool testFrequencyLookup() {
     CacheTestInterface iface;
     StateCache cache;
+    cache.setExternalInterface(iface.getId());
 
     IntegerVariable destVar1, destVar2;
     destVar1.activate();

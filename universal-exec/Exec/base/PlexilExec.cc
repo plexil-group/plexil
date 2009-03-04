@@ -45,13 +45,39 @@ namespace PLEXIL {
     return (x->getPriority() < y->getPriority() ? true : false);
   }
 
-  class RealExecConnector : public ExecConnector {
+  class RealExecConnector : public ExecConnector 
+  {
   public:
-    RealExecConnector(const PlexilExecId& exec) : m_exec(exec) {}
-    void handleConditionsChanged(const NodeId& node) {m_exec->handleConditionsChanged(node);}
-    void handleNeedsExecution(const NodeId& node) {m_exec->handleNeedsExecution(node);}
+    RealExecConnector(const PlexilExecId& exec) 
+      : m_exec(exec)
+    {}
+
+    //
+    // Methods simply forward to real PlexilExec
+    //
+
+    void handleConditionsChanged(const NodeId& node) 
+    {
+      m_exec->handleConditionsChanged(node);
+    }
+
+    void handleNeedsExecution(const NodeId& node) 
+    {
+      m_exec->handleNeedsExecution(node);
+    }
+    
     //const ExpressionId& findVariable(const LabelStr& name) {return m_exec->findVariable(name);}
-    const StateCacheId& getStateCache() {return m_exec->getStateCache();}
+
+    const StateCacheId& getStateCache() 
+    {
+      return m_exec->getStateCache();
+    }
+
+    const ExternalInterfaceId& getExternalInterface() 
+    { 
+      return m_exec->getExternalInterface(); 
+    }
+
   private:
     PlexilExecId m_exec;
   };
@@ -75,6 +101,16 @@ namespace PLEXIL {
       delete (Node*) (*it);
     delete (StateCache*) m_cache;
     m_id.remove();
+  }
+
+  /**
+   * @brief Set the ExternalInterface instance used by this Exec.
+   * @param id The Id of the ExternalInterface instance.
+   */
+  void PlexilExec::setExternalInterface(ExternalInterfaceId& id)
+  {
+    m_interface = id;
+    m_cache->setExternalInterface(id);
   }
 
   // Add a new library node
@@ -358,15 +394,15 @@ namespace PLEXIL {
 
     std::list<CommandId> commands(m_commandsToExecute.begin(), m_commandsToExecute.end());
     m_commandsToExecute.clear();
-    ExternalInterface::instance()->batchActions(commands);
+    getExternalInterface()->batchActions(commands);
 
     std::list<UpdateId> updates(m_updatesToExecute.begin(), m_updatesToExecute.end());
     m_updatesToExecute.clear();
-    ExternalInterface::instance()->updatePlanner(updates);
+    getExternalInterface()->updatePlanner(updates);
 
     std::list<FunctionCallId> functionCalls(m_functionCallsToExecute.begin(), m_functionCallsToExecute.end());
     m_functionCallsToExecute.clear();
-    ExternalInterface::instance()->batchActions(functionCalls);
+    getExternalInterface()->batchActions(functionCalls);
 
     debugMsg("PlexilExec:cycle", "==>End cycle " << m_cycleNum);
     for(std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
