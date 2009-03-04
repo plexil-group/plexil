@@ -135,6 +135,8 @@ int main(int argc, char** argv)
 
   TestExternalInterface intf;
   PlexilExecId exec;
+  intf.setExec(exec);
+
   if (planName != "error")
     {
       TiXmlDocument plan(planName);
@@ -197,7 +199,6 @@ int main(int argc, char** argv)
 
   // load script
 
-  ExternalInterface::instance()->setExec(exec);
   TiXmlDocument script(scriptName);
   if (!script.LoadFile())
     {
