@@ -14,7 +14,7 @@ CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 ifdef SHARED
  LIB_EXT = .so
  SHARED_OBJ_FLAGS += -fpic
- ifeq ($(findstring Darwin, $(OSTYPE)), Darwin)
+ ifeq ($(findstring darwin, $(OSTYPE)), darwin)
   SHARED_LIB_FLAGS += -dynamiclib -Wl
  else
   SHARED_LIB_FLAGS += -z combreloc -shared -Wl
