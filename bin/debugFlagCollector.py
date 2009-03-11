@@ -203,6 +203,9 @@ def delete_temp_files():
 valid_plexil_home = check_env_variables()
 
 if valid_plexil_home:
+    os.remove(DEBUG_DEFINITIONS)
+    os.remove(COMPLETE_DEBUG)
+
     print "\nSearching for debug messages in .cc, .cpp, .hh and .h files...\n\n"
     locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="ebugMsg(")
     locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="ebugMsg(")
