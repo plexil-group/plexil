@@ -28,17 +28,14 @@ package gov.nasa.luv;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import static gov.nasa.luv.Constants.*;
 
 public class DebugDataFileProcessor 
 {
-    private HashMap<String, String> lines = new HashMap<String, String>();
-    private int countFirstTier = 0;
-    private int countSecondTier = 0;
-    private int countThirdTier = 0;
+    public ArrayList<String> list = new ArrayList<String>();
     
     private void processDebugFlags() throws FileNotFoundException 
     {
@@ -49,8 +46,9 @@ public class DebugDataFileProcessor
             {
                 while (scanner.hasNextLine())
                 {               
-                    String line = scanner.nextLine().trim();                
-                    assignTiersToLines(line);
+                    String line = scanner.nextLine().trim();  
+                    if (line.startsWith("#:"))
+                        list.add(line.substring(1, line.length()));
                 }             
             }
             finally 
@@ -60,68 +58,9 @@ public class DebugDataFileProcessor
         }
         catch (FileNotFoundException ex)
         {
-            Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_FLAG_DAT_FILE + " not found");
+            Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_FLAG_DAT_FILE + 
+                    " not found.\nYou need to run the python script: " + PYTHON_SCRIPT + " and try again");
         }         
-    }
-    
-    private void assignTiersToLines(String line)
-    {
-        String[] array = line.split(":");
-        
-        if (array.length == 2 && !line.endsWith(":"))   
-        {
-            lines.put("A" + countFirstTier, line);
-            countFirstTier++; 
-            countSecondTier = 0;
-        }
-        else if (array.length == 2)   
-        {
-            if (noParent("A", array[1]))
-            {
-                lines.put("A" + countFirstTier, line);
-                countFirstTier++;
-                countSecondTier = 0;
-            }
-            else
-            {
-                lines.put("A" + (countFirstTier-1) + "B" + countSecondTier, line);
-                countSecondTier++;
-                countThirdTier = 0;
-            }
-        }
-        else if (array.length == 3)                      
-        {
-            if (noParent("A" + (countFirstTier-1) + "B", array[1]))
-            {
-                lines.put("A" + (countFirstTier-1) + "B" + countSecondTier, line);
-                countSecondTier++;
-                countThirdTier = 0;
-            }
-            else
-            {
-                lines.put("A" + (countFirstTier-1) + "B" + (countSecondTier-1) + "C" + countThirdTier, line);
-                countThirdTier++;
-            }
-        }
-    }
-    
-    private boolean noParent(String parent, String word)
-    {
-        word = ":" + word + ":";
-        
-        for (int i = 0; i < lines.size(); i++)
-        {
-            String test = lines.get(parent + i);
-            if (test != null && word.startsWith(test))
-                return false;
-        }
-        
-        return true;
-    }
-    
-    public HashMap<String, String> getLines()
-    {
-        return lines;
     }
        
     public void run() throws FileNotFoundException

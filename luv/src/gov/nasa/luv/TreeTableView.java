@@ -26,8 +26,6 @@
 
 package gov.nasa.luv;
 
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
 import javax.swing.JTree;
 import javax.swing.JTable;
 import javax.swing.tree.TreePath;
@@ -41,12 +39,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
-import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Enumeration;
 
@@ -105,7 +100,7 @@ public class TreeTableView extends JTreeTable implements View
             {
             @Override
                   public void mousePressed(MouseEvent e)
-                  {                    
+                  {   
                      if (e.isPopupTrigger())
                         handlePopupEvent(e);
                      else if (e.getClickCount() == 2)
@@ -252,7 +247,7 @@ public class TreeTableView extends JTreeTable implements View
           if (highlight > -1)
           {
               currentBreakingRow = highlight;
-              tree.setSelectionRow(currentBreakingRow);
+              tree.setSelectionRow(currentBreakingRow);      
               lastView.setSelectionBackground(Color.PINK);
               scrollToRow(currentBreakingRow);
           }
@@ -281,7 +276,6 @@ public class TreeTableView extends JTreeTable implements View
           {    
               Model          node        = ((Wrapper)nodePath.getLastPathComponent()).model;
               String         nodeName    = node.getModelName();
-              int            row         = node.getRowNumber() + 1;
           
               toolTip.append("<html>");         
               toolTip.append("<b>NAME</b> " + nodeName);
@@ -735,10 +729,7 @@ public class TreeTableView extends JTreeTable implements View
       {
           findNode(node_path);
           selectRow(row);
-          if (next == 0)
-            scrollToRow(0);
-          else
-            scrollToRow(row);
+          scrollToRow(row);
           return row;
       }
       

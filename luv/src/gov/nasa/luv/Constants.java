@@ -337,7 +337,15 @@ public class Constants
       
       public static final String    PROP_LOG_FILE = System.getProperty(PROP_USER_HOME) + System.getProperty(PROP_FILE_SEPARATOR) + "luv.log";      
       
-      public static final String    DEBUG_FLAG_DAT_FILE = "resources" + System.getProperty(PROP_FILE_SEPARATOR) + "DebugFlags.dat";
+      public static final String    PYTHON_SCRIPT = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "bin" + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "debugFlagCollector.py";
+      
+      public static final String    DEBUG_FLAG_DAT_FILE = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "universal-exec" + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "Utils" + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "test" + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "CompleteDebugFlags.cfg";
       public static final String    DEBUG_CFG_FILE = "Debug.cfg";
 
       // file

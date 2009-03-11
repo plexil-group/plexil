@@ -26,7 +26,6 @@
   <!-- any extra resources which may be neaded by the application -->
 
   <fileset dir = "." id = "resources">
-    <include name = "${resources}/DebugFlags.dat"/>
     <include name = "${resources}/icons/*.gif"/>
   </fileset>
 

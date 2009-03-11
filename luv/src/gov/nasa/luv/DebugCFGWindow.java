@@ -256,42 +256,17 @@ public class DebugCFGWindow extends JFrame implements ItemListener
     
     private void assignLinesToCheckNodes()
     {
-        HashMap<String, String> lines = Luv.getLuv().getDebugDataFileProcessor().getLines();
+        ArrayList<String> lines = Luv.getLuv().getDebugDataFileProcessor().list;
         nodes = new CheckNode[lines.size() + 1];
 
         // root node
-        nodes[0] = new CheckNode("Check All");       
-        
-        // first tier == A
-        for (int a = 0; a < lines.size(); a++)
+        nodes[0] = new CheckNode("Check All"); 
+        for (int a = 1; a < lines.size(); a++)
         {
-            if (lines.containsKey("A" + a))
-            {
-                nodes[a + 1] = new CheckNode(lines.get("A" + a));
-                nodes[0].add(nodes[a + 1]);
-
-                // second tier == AB
-                for (int b = 0; b < lines.size(); b++)
-                {
-                    if (lines.containsKey("A" + a + "B" + b))  
-                    {
-                        nodes[a + b + 2] = new CheckNode(lines.get("A" + a + "B" + b));
-                        nodes[a + 1].add(nodes[a + b + 2]);
-
-                        // third tier == ABC  
-                        for (int c = 0; c < lines.size(); c++)
-                        {
-                            if (lines.containsKey("A" + a + "B" + b + "C" + c))  
-                            {
-                                nodes[a + b + c + 3] = new CheckNode(lines.get("A" + a + "B" + b + "C" + c));
-                                nodes[a + b + 2].add(nodes[a + b + c + 3]);     
-                            }
-                        }
-                    }
-                }
-            }
+            nodes[a] = new CheckNode(lines.get(a));
+            nodes[0].add(nodes[a]);
         }
-    } 
+    }
     
     public class NodeSelectionListener extends MouseAdapter 
     {
@@ -585,8 +560,11 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         
         try 
         {
-            frame.enableDebugMessages(enable);
-            frame.setPreviewOfCFGFile();
+            if (frame != null)
+            {
+                frame.enableDebugMessages(enable);
+                frame.setPreviewOfCFGFile();
+            }
         } 
         catch (FileNotFoundException ex) 
         {
