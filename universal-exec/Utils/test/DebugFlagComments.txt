@@ -1,0 +1,570 @@
+MSG=:AdaptorFactory:createInstance
+COMMENT=Notification that a new InterfaceAdaptor instance with the type associated with the name and the given configuration XML was created.
+
+MSG=:AdaptorFactory:registerFactory
+COMMENT=Notification that an AdaptorFactory with the specific name was registered.
+
+MSG=:AllChildrenFinished:decrement
+COMMENT=?
+
+MSG=:AllChildrenFinished:increment
+COMMENT=?
+
+MSG=:AllChildrenFinished:recalculate
+COMMENT=?
+
+MSG=:ArrayElement:ArrayElement
+COMMENT=Notification that this is an array element and displays the name of that array.
+
+MSG=:ArrayVariable:handleElementChanged
+COMMENT=Notification of the handling of a changed element in an array and displays the ID of that element.
+
+MSG=:ArrayVariable:publishElementChanged
+COMMENT=Notification of the publishing of a changed element in an array and displaying the ID of that element.
+
+MSG=:ArrayVariable:setValues
+COMMENT=Notification of the setting of all values for an array and displaying those values.
+
+MSG=:CorbaHelper:initializePOA
+COMMENT=Notification of the initializing of the POA, activation of the POA manager or the spawning of the ORB event loop thread.
+
+MSG=:ExecListener:formatTransition
+COMMENT=Notification of adding or expecting a specific amount of additional elements to a node.
+
+MSG=:ExecListener:notifyOfAddPlan
+COMMENT=Notification that the adding of plans the Event Filter rejected have been ignored.
+
+MSG=:ExecListener:notifyOfTransition
+COMMENT=Notification that state transitions the Event Filter rejected have been ignored.
+
+MSG=:ExecListener:pushAddPlanToChannel
+COMMENT=Warning: breaks with strings! Notification of adding plan to event channel. 
+
+MSG=:ExecListener:pushTransitionToChannel
+COMMENT=Warning: breaks with strings! Notification of adding state transition to event channel and the result or type added. 
+
+MSG=:ExecListener
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of successfully narrowing reference to event channel. 
+COMMENT=Notification of which event channel was found.
+COMMENT=Notification that the event channel obtained a push-consumer proxy.
+COMMENT=Notification of a state transition for a node.
+COMMENT=Notification that there is no event filter thus notifying on all events.
+COMMENT=Notification of adding plan for parent.
+COMMENT=Notification that there is no event filter thus notifying on all events.
+COMMENT=Notification of which service event channel was found.
+COMMENT=Notification of request for ANY_EVENT proxy push consumer.
+COMMENT=Notification of request for STRUCTURED_EVENT proxy push consumer.
+COMMENT=Notification that since there is no structured formatter, a narrowed reference to (any) proxy push consumer was successful.
+COMMENT=Notification that a narrowed reference to a structured proxy push consumer was successful.
+COMMENT=Notification that an event channel was destroyed and so now connected to UNstructured proxy push consumer.
+COMMENT=Notification of connection to UNstructured proxy push consumer.
+COMMENT=Warning: Already connected to push-consumer proxy.
+COMMENT=Notification of narrowed reference to notification service event channel was successful.
+
+MSG=:Expression:activate
+COMMENT=Notification that a specific expression is activating.
+
+MSG=:Expression:deactivate
+COMMENT=Notification that a specific expression is deactivating.
+
+MSG=:ExpressionFactory:createInstance 
+COMMENT=Notification that an instance of an expression factory was created.
+
+MSG=:ExpressionFactory:registerFactory
+COMMENT=Notification that a specific expression factory was registered.
+
+MSG=:ExternalInterface:dummy
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that the executeCommand() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the executeFunctionCall() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the invokeAbort() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the registerChangeLookup() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the unregisterChangeLookup() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the registerFrequencyLookup() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the unregisterFrequencyLookup() function was called within DummyAdaptor.cc.
+COMMENT=Notification that the lookupNow() function was called within DummyAdaptor.cc and return UNKNOWN.
+COMMENT=Notification that the sendPlannerUpdate() function was called within DummyAdaptor.cc.
+COMMENT=Notification of the fake acknowledgment of node updates (wintin DummyAdaptor.cc).
+
+MSG=:ExternalInterface:getCommandInterface
+COMMENT=Notification of the interface adaptor in effect for this command, whether specifically registered or default. May return NoId().
+
+MSG=:ExternalInterface:getFunctionInterface
+COMMENT=Notification of the interface adaptor in effect for this function, whether specifically registered or default. May return NoId().
+
+MSG=:ExternalInterface:getLookupInterface
+COMMENT=Notification of the interface adaptor in effect for lookups with this state name, whether specifically registered or default. May return NoId().
+
+MSG=:ExternalInterface:getPlannerUpdateInterface
+COMMENT=Notification of the interface adaptor in effect for planner updates, whether specifically registered or default. May return NoId().
+
+MSG=:ExternalInterface:handleAddLibrary
+COMMENT=Notification of the executive of a new PlexilNode representation of a plan (library).
+
+MSG=:ExternalInterface:handleAddPlan(XML)
+COMMENT=Notification of the executive of a new TinyXML representation of a plan.
+
+MSG=:ExternalInterface:handleAddPlan
+COMMENT=Notification of the executive of a new PlexilNode representation of a plan.
+
+MSG=:ExternalInterface:handleValueChange
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of the availability of new values for a lookup.
+COMMENT=Notification of the availability of (e.g.) a command return or acknowledgement.
+
+MSG=:ExternalInterface:lookupNow
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of an immediate lookup on a new state.
+COMMENT=Notification of ignoring stale time update - new time value is not greater than cached time value.
+COMMENT=Notification of setting current time.
+COMMENT=Notification of lookup on a new state is complete.
+
+MSG=:ExternalInterface:notify
+COMMENT=Notification that the executive ) received external event, ) is inside runExec - ignoring event, ) released semaphore or ) exec was idle - stepping it.
+
+MSG=:ExternalInterface:processQueue
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that pthread_self() was entered.
+COMMENT=Notification that pthread_self() was getting next entry.
+COMMENT=Notification that pthread_self() queue empty at entry, returning false.
+COMMENT=Notification that pthread_self() reached end of queue without finding mark, returning true.
+COMMENT=Notification that pthread_self() received mark, returning true.
+COMMENT=Notification that pthread_self() is handling state change for new value(s).
+COMMENT=Notification that pthread_self() is ignoring empty state change vector for a specific state.
+COMMENT=Notification that pthread_self() is ignoring stale time update - new value is not greater than cached value.
+COMMENT=Notification that pthread_self() is setting current time.
+COMMENT=Notification that pthread_self() is ignoring lookup for nonexistent state.
+COMMENT=Notification that pthread_self() is updating expression to a new value.
+COMMENT=Notification that pthread_self() received plan.
+COMMENT=Notification that pthread_self() received library.
+
+MSG=:ExternalInterface:registerCommandInterface
+COMMENT=Notification of the registering of the given interface adaptor for this command, returns true if successful, returns false if adaptor already registered.
+
+MSG=:ExternalInterface:registerFunctionInterface
+COMMENT=Notification of the registering of the given interface adaptor for this function, returns true if successful, returns false if adaptor already registered.
+
+MSG=:ExternalInterface:registerLookupInterface
+COMMENT=Notification of the registering of the given interface adaptor for lookups to this state, returns true if successful, returns false if adaptor already registered.
+
+MSG=:ExternalInterface:registerPlannerUpdateInterface
+COMMENT=Notification of the registering of the given interface adaptor for planner updates, returns true if successful, returns false if adaptor already registered.
+
+MSG=:ExternalInterface:resetQueue
+COMMENT=Notification that enetered resetQueue() function in ThreadedExternalInterface.cc to delete any entries in the queue.
+ 
+MSG=:ExternalInterface:runExec
+COMMENT=Notification in ThreadedExternalInterface.cc/runExec of Stepping exec, Step complete or No events are pending.
+
+MSG=:ExternalInterface:runInternal
+COMMENT=Notification in ThreadedExternalInterface.cc/runInternal of Thread started, Initial step complete or Ending the thread loop.
+
+MSG=:ExternalInterface:run
+COMMENT=Notification in ThreadedExternalInterface.cc/run of Spawning top level thread or Top level thread running.
+
+MSG=:ExternalInterface:setDefaultInterface
+COMMENT=Notification of registering the given interface adaptor as the default for all lookups and commands which do not have a specific adaptor, returns true if successful, fails and returns false if default adaptor already registered.
+
+
+MSG=:ExternalInterface:stop
+COMMENT=Notification in ThreadedExternalInterface.cc/stop of Halting top level thread or Top level thread halted.
+
+MSG=:ExternalInterface:stringToValue
+COMMENT=Notification of a static utility function within AdaptorExecInterface.cc showing a string to be either a raw value, a long, an invalid integer, a double, an invalid double, a null pointer or empty.
+ 
+MSG=:ExternalInterface:unregisterChangeLookup
+COMMENT=Notification that the Change Lookup has been informed that a lookup should no longer receive updates.
+
+MSG=:ExternalInterface:unregisterCommandInterface
+COMMENT=Notification of retracting registration of the previous interface adaptor for a specific command.
+
+MSG=:ExternalInterface:unregisterFrequencyLookup
+COMMENT=Notification that the Frequency Lookup has been informed that a lookup should no longer receive updates.
+
+MSG=:ExternalInterface:unregisterFunctionInterface
+COMMENT=Notification of retracting registration of the previous interface adaptor for a specific function.
+
+MSG=:ExternalInterface:unregisterLookupInterface
+COMMENT=Notification of retracting registration of the previous interface adaptor for a specific lookup.
+
+MSG=:ExternalInterface:unregisterPlannerUpdateInterface
+COMMENT=Notification of retracting registration of the previous interface adaptor for planner updates.
+
+MSG=:ExternalInterface:unsetDefaultInterface
+COMMENT=Notification of retracting registration of the previous default interface adaptor.
+
+MSG=:ExternalInterface:updatePlanner
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that no planner interface was defined, not sending planner updates.
+COMMENT=Notification of sending planner update for specific node.
+
+MSG=:ExternalInterface:wait
+COMMENT=Notification of suspension of the calling thread until another thread has placed a call to notifyOfExternalEvent(), or acquired semaphore, processing external event(s).
+
+MSG=:IdTable:insert
+COMMENT=Notification of insertion into IdTable.
+
+MSG=:IdTable:remove
+COMMENT=Notification of removal from IdTable.
+
+MSG=:InterfaceAdaptor:registerAsynchLookup
+COMMENT=Notification of registering AsynchLookuup by adding new state with specific key or adding new destination for old state.
+
+MSG=:InterfaceAdaptor:unregisterAsynchLookup
+COMMENT=Notification of unregistering AsynchLookuup by unique ID, deleting last lookup for specific state, deleting lookup for state with remaining lookups or Unique ID was not found so unregistering failed.
+
+MSG=:InternalCondition:InternalCondition
+COMMENT=?
+
+MSG=:Lookup:getArguments
+COMMENT=Notification of added listener for Expression Factory.
+
+MSG=:Lookup:handleActivate
+COMMENT=?
+
+MSG=:Lookup:handleDeactivate
+COMMENT=?
+
+MSG=:LookupNow:handleChange
+COMMENT=Notification of state changed for LookupNow, updating state cache; need to notify state cache if cached lookup is no longer valid.
+
+MSG=:LookupOnChange:handleChange
+COMMENT=Notification of state changed for LookupOnChange, updating state cache; need to notify state cache if cached lookup is no longer valid.
+
+MSG=:LuvListener:sendMessage
+COMMENT=Notification of message being to LUV.
+ 
+MSG=:NameServiceHelper:nameServiceBind
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that unable to find or construct parent naming context.
+COMMENT=Notification that name is already bound, will attempt rebinding.
+COMMENT=Notification that attempting to bind to invalid name.
+COMMENT=Notification that name was bound successfully.
+COMMENT=Notification that attempting to resolve naming context.
+COMMENT=Notification that NOM was resolved so trying to narrow to naming context.
+COMMENT=Notification that parent name already bound to a non-context object.
+COMMENT=Notification that naming context was successfully narrowed.
+COMMENT=Notification attempt to create missing context. 
+COMMENT=Notification of invalid name exception. 
+COMMENT=Notification that name is already bound.
+COMMENT=Notification that naming context was successfully created.
+COMMENT=Notification that there was an invalid name exception. 
+
+MSG=:NameServiceHelper:queryNamingService
+COMMENT=Notification of naming service query.
+
+MSG=:Node:abort
+COMMENT=Notification of node abort.
+
+MSG=:Node:activatePair
+COMMENT=Notification of condition/listener pair activation in node.
+
+MSG=:Node:checkConditions
+COMMENT=Notification of checking condition change or (possible) transition for a node.
+
+MSG=:Node:cleanUpConds
+COMMENT=Notification of node cleanup, such as removing variable listener, condition listener, assignment, command or update.
+
+MSG=:Node:cleanUpVars
+COMMENT=Notification of node cleanup by removing variables.
+
+MSG=:Node:conditionChange
+COMMENT=Notification that condition may have changed value in node.
+
+MSG=:Node:createCommand
+COMMENT=Notification of creating specific command for node.
+
+MSG=:Node:createDeclaredVars
+COMMENT=Notification of creating specific variable for node.
+
+MSG=:Node:createFunctionCall
+COMMENT=Notification of creating specific function call for node.
+
+MSG=:Node:createLibraryNode
+COMMENT=Notification of constructing a literal variable with a value as a library node interface variable.
+
+MSG=:Node:createUpdate
+COMMENT=Notification of creating specific update for node.
+
+MSG=:Node:deactivatePair
+COMMENT=Notification of condition/listener pair deactivation in node.
+
+MSG=:Node:execute
+COMMENT=Notification of node execution.
+
+MSG=:Node:findVariable
+COMMENT=Notification of searching for variable in node, internal variable found, internal variable not found or returning regular variable.  
+
+MSG=:Node:getDestState
+COMMENT=Notification that gives a destination state from a current state and some explanation of why the destination state is what it is - NOTE: This tag will frequently produce output like "Destination: BROKEN Shouldn't get here" This is an error in the message, not the executive, and should be ignored.
+
+MSG=:Node:getVarsFromInterface
+COMMENT=Notification of getting interface variables for node.
+
+MSG=:Node:getVarsFromParent
+COMMENT=Notification of import variables from parent to node.
+
+MSG=:Node:iterationOutcome
+COMMENT=Notification of iteration outcome of a node.
+
+MSG=:Node:lockConditions
+COMMENT=Notification of lock conditions in a node.
+
+MSG=:Node:node
+COMMENT=Notification of creating a node, child nodes, library node call, internal variable with value for node, internal variables or timepoint variables.
+
+MSG=:Node:outcome
+COMMENT=Notification of the outcome of every node when it finishes.
+
+MSG=:Node:pairActive
+COMMENT=Notification of condition/listener pair in node is inactive.
+
+MSG=:Node:postInit
+COMMENT=Notification of creating conditions for node, command for node, assignment for node, update for node, function call for node.
+
+MSG=:Node:reset
+COMMENT=Notification of resetting node outcome and failure type.
+
+MSG=:Node:times
+COMMENT=Notification of setting end or start time of node.
+
+MSG=:Node:transition
+COMMENT=Notification of the node, current state, and destination state for node transition.
+
+MSG=:Node:unlockConditions
+COMMENT=Notification of conditions unlocking in node.
+
+MSG=:NodeStateManager:addStateComputer
+COMMENT=Notification of replacing state computer for state or adding new state computer for state.
+
+MSG=:NodeStateManager:addTransitionHandler
+COMMENT=Notification of replacing transition handler for state or adding new transition handler for state.
+
+MSG=:NodeStateManager:transition
+COMMENT=Notification of node current state transitioning to a new state.
+
+MSG=:PlexilExec:addLibrary
+COMMENT=Notification of adding a new library node.
+
+MSG=:PlexilExec:addPlan
+COMMENT=Notification of adding a new plan.
+
+MSG=:PlexilExec:addToResourceContention
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of adding node to resource contention.
+COMMENT=Notification that there are a specific number of similar items in the set.
+COMMENT=Notification of skipping a node becaus eit is already in the set.
+
+MSG=:PlexilExec:cycle
+COMMENT=Notification of the start cycle or end cycle.
+
+MSG=:PlexilExec:findVariable
+COMMENT=Notification of searching for variable in the entire plan or searching for variable in plan tree rooted at a certain node.
+
+MSG=:PlexilExec:handleConditionsChanged
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that a node had a relevant condition change.
+COMMENT=Notification that a node was previously eligible to transition but isn't now.
+COMMENT=Notification of removing a node from the state change queue.
+COMMENT=Notification of removing node from resource contention.
+COMMENT=Notification of considering a node for state transition.
+COMMENT=Notification that a node is an assignment node that could be executing and adding it to the resource contention list.
+COMMENT=Notification that a node is in the state change queue and removing it.
+COMMENT=Notification that a node is an assignment node that is no longer possibly executing and removing it from resource contention.
+COMMENT=Notification of placing a node on the state change queue in a certain position.
+ 
+MSG=:PlexilExec:handleNeedsExecution
+COMMENT=Notification for storing an action for a specific node of a specific type to be executed.
+
+MSG=:PlexilExec:lock
+COMMENT=Notification of locking a specific node.
+ 
+MSG=:PlexilExec:printPlan
+COMMENT=Notification the state of the plan at the end of each quiescence cycle.
+
+MSG=:PlexilExec:removeFromResourceContention
+COMMENT=Notification that there are a specific number of similar items in the set.
+
+MSG=:PlexilExec:resolveResourceConflicts
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that a node has best priority and adding it to be executed in a specific position.
+COMMENT=Notification that a node is already executing and so nothing to resolve.
+COMMENT=Notification that a node is already in state change queue and so nothing to resolve.
+
+MSG=:PlexilExec:step
+COMMENT=Notification that gives information about the current quiescence cycle, such as the start of a macro step, the state change queue before and after each micro step, and which nodes are being transitioned.
+ 
+MSG=:PlexilExec:unlock
+COMMENT=Notification of unlocking a specific node.
+
+MSG=:PlexilXml:parsePairs
+COMMENT=Notification of a specific parsed pair.
+
+MSG=:PlexilXmlParser:getNodeRef
+COMMENT=Notification of found node self, parent, sibling or child by a specific name.
+
+MSG=:RecursiveThreadMutex:lock
+COMMENT=Notification of re-locking from thread with a specific count, locking from thread or thread acquired mutex.
+
+MSG=:RecursiveThreadMutex:unlock
+COMMENT=Notification of unlocking from thread with specific count or released by thread.
+
+MSG=:ResourceArbiterInterface:printAcceptedCommands
+COMMENT=Notification of accepted command using certain resources.
+
+MSG=:ResourceArbiterInterface:printLockedResources
+COMMENT=?
+
+MSG=:ResourceArbiterInterface:printResourceCommandMap
+COMMENT=?
+
+MSG=:ResourceArbiterInterface:printSortedCommands
+COMMENT=?
+
+MSG=:ResourceArbiterInterface:readResourceHeirarchy
+COMMENT=Notifcation that file does not exist and no resources read.
+
+MSG=:ResourceArbiterInterface:releaseResourcesForCommand
+COMMENT=Notification of the remaining locked resources after releasing for specific command.
+
+MSG=:RoboSimInterfaceAdaptor
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that executeCommand was received.
+COMMENT=Notification that the specified move direction is not valid and the command will fail.
+COMMENT=Notification that functionCall was received.
+COMMENT=Notification that a message was received back.
+COMMENT=Notification that an unsolicited reply for a specific command name was received and ignored.
+COMMENT=Notification of extraction of the following values for a specific command name and return value size.
+COMMENT=Notification of return values.
+COMMENT=Notification that LookupNow was received.
+COMMENT=Notification that state not available.
+ 
+MSG=:StateCache:keyForState
+COMMENT=Notification of allocating a key for state or that there is already a key for state.
+
+MSG=:StateCache:lookupNow
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of new state so performing external lookup.
+COMMENT=Notification of out-of-date state so performing external lookup.
+COMMENT=Notification that already have up-to-date values for state, so using current values.
+COMMENT=Notification of looking up value for state.
+
+MSG=:StateCache:registerChangeLookup
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of registering change lookup for state with tolerances.
+COMMENT=Notification of new state, so performing external lookup.
+COMMENT=Notification of out-of-date state, so performing external lookup.
+COMMENT=Notification that already have up-to-date values for state, so using current values.
+ 
+MSG=:StateCache:registerFrequencyLookup
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification of registering frequency lookup for state.
+COMMENT=Notification of new state, so performing external lookup.
+COMMENT=Notification of out-of-date state, so performing external lookup.
+ 
+MSG=:StateCache:registerFrequency
+COMMENT=Notification that already have up-to-date values for state, so using current values.
+
+MSG=:StateCache:updateState
+COMMENT=Could produce any of the following notifications:
+COMMENT=Notification that received an update but nobody cares.
+COMMENT=Notification that there are no values for state so storing a bunch of UNKNOWNs.
+COMMENT=Notification of updating state with specific values.
+COMMENT=Notification that state is time state and checking to see if there are timed-out frequency lookups.
+COMMENT=Notification that lookup has timed out and Current time, ast update and low frequency values presented. 
+COMMENT=Notification that lookup has not timed out and Current time, ast update and low frequency values presented. 
+COMMENT=Notification of seeing if change lookup needs updating from previous values to current values.
+COMMENT=Notification of updating because the previous value is UNKNOWN and the new value is not.
+COMMENT=Notification of updating because the difference between old value and new value is greater than or equal to the tolerance.
+COMMENT=Notification of not updating and all changes are within the tolerance.
+COMMENT=Notification of updating change lookup from previous values current values.
+COMMENT=Notification of seeing if frequency lookup needs updating from previous time to current time.
+COMMENT=Notification that update is too late so setting to UNKNOWN.
+COMMENT=Notification that ot updating since the time of the last update and current time differ by less than the high frequency.
+COMMENT=Notification of updating frequency lookup.
+
+MSG=:Test:testOutput
+COMMENT=Notification about what the test external interface is doing, information about lookups, commands, state updates from the script, etc.
+ 
+MSG=:Tests
+COMMENT=Notification of loading specific XML element.
+ 
+MSG=:ThreadedExternalInterface::releaseResourcesForCommand:
+COMMENT=Notification that the expression is neither an acknowledgement nor a return value for a command and so ignoring it.
+ 
+MSG=:ThreadedExternalInterface::setResourceArbiterInterface
+COMMENT=Notification of setting resource arbiter interface.
+  
+MSG=:ThreadedExternalInterface:batchActions
+COMMENT=Notifaction that batchActions were entered, permission to execute has been granted by the resource arbiter (if one exists), permission to execute has been denied by the resource arbiter or batchActions were exited.
+ 
+MSG=:ThreadedExternalInterface:releaseResourcesAtCommandTermination
+COMMENT=Notification that the expression that was received is a valid acknowledgement for a specific command.
+  
+MSG=:ThreadedExternalInterface:releaseResourcesForCommand
+COMMENT=Notification that the expression that was received is a valid return value for a specific command.
+ 
+MSG=:ThreadedExternalInterface:setResourceArbiterInterface
+COMMENT=Notification of an attempt to overwrite resource arbiter interface.
+ 
+MSG=:ThreadedExternalInterface:unsetResourceArbiterInterface
+COMMENT=Notification of removing resource arbiter interface.
+
+MSG=:Time
+COMMENT=Notification of time spent in execution or time to initialize plan.
+
+MSG=:TransparentWrapper:TransparentWrapper
+COMMENT=Notification of construct.ion of transparent wrapper
+
+MSG=:TransparentWrapper:checkValue
+COMMENT=Notification of checking value.
+
+MSG=:TransparentWrapper:handleChange
+COMMENT=Notification of changing from wrapped value to an expression.
+
+MSG=:TransparentWrapper:setValue
+COMMENT=Notification of setting value.
+
+MSG=:UnitTest:actionExecutingTransition
+COMMENT=Notification of testing node type with ancestor invariant, invariant, end and post values.
+
+MSG=:UnitTest:bindingExecutingTransition
+COMMENT=Notification of testing type with parent waiting, invariant, end and post values.
+
+MSG=:UnitTest:finishedTransition
+COMMENT=Notification of testing node type with parent waiting values or with abort complete and failure type values.
+
+MSG=:UnitTest:inactiveDestTest
+COMMENT=Notification of parent finished, parent executing and destination state.
+
+MSG=:UnitTest:iterationEndedTransition
+COMMENT=Notification of testing node type with ancestor invariant, ancestor end and repeat values.
+
+MSG=:UnitTest:listExecutingTransition
+COMMENT=Notification of testing with ancestor invariant, invariant end and post values.
+
+MSG=:UnitTest:listFailingTrans
+COMMENT=Notification of testing with children waiting or finished values and failure type.
+ 
+MSG=:UnitTest:listFinishingDest
+COMMENT=Notification of testing with ancestor invariant, invariant, children waiting or finished, post and destination state values.
+
+MSG=:UnitTest:listFinishingTrans
+COMMENT=Notification of testing with ancestor invariant, invariant, children waiting or finished, and post values.
+
+MSG=:UnitTest:waitingDestTest: Destination
+COMMENT=Notification of destination state.
+
+MSG=:UnitTest:waitingTransition
+COMMENT=Notifiaction of testing node type with ancestor invariant, ancestor end, skip, start and pre values.
+
+MSG=:Update:fixValues
+COMMENT=Notification of fixing pair values.
+
+MSG=:Warning
+COMMENT=Could produce any of the following warnings:
+COMMENT=Warning that invalid command id in node.
+COMMENT=Warning that invalid assignment id in node.
+COMMENT=Warning that no abort for node type yet.
+COMMENT=Warning that no deactivateExecutable for node type yet.
