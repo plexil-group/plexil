@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# The purpose of this script is to collect information specific to your
+# system and output it to a text file 'userinfo-(currentdate).txt'.
+# If you experience problems during installation, execution, etc.,
+# this system specific information should be forwarded to:
+#
+# plexil-support@sourceforge.net
+#
+# so the Plexil group can be better equiped to help resolve your issue.
+ 
+/bin/rm -f $PLEXIL_HOME/bin/userinfo*
+
+output=$PLEXIL_HOME/bin/userinfo-$(date +%m-%d-%Y).txt
+
+echo "# This file was created by the env-info script located in PLEXIL_HOME/bin.
+# If you have experienced a problem during installation, execution, etc., 
+# please email this file to:
+#
+# plexil-support@sourceforge.net
+#
+# so the Plexil group can be better equiped to help resolve your issue." > $output
+
+echo "" >> $output
+echo `date`>> $output
+echo "" >> $output
+
+echo "ENVIRONMENT VARIABLES" >> $output 
+echo "--------------------------------" >> $output
+
+# collect PLEXIL_HOME definition
+echo "PLEXIL_HOME =" $PLEXIL_HOME >> $output
+
+# collect PLEXIL_HOME definition
+echo "LD_LIBRARY_PATH =" $LD_LIBRARY_PATH >> $output
+
+# collect WHICH JAVA definition
+JAVA=`which java`
+echo "WHICH JAVA =" $JAVA >> $output
+
+# collect PATH definition
+echo "PATH =" $PATH >> $output
+echo "" >> $output
+
+# if used SVN, collect revision info
+echo "SVN INFO" >> $output
+echo "--------------------------------" >> $output
+svn info $PLEXIL_HOME >> $output
+
+# collect OS version
+echo "OS VERSION" >> $output  
+echo "--------------------------------" >> $output
+uname -a >> $output
+echo "" >> $output
+
+# collect shell version
+echo "SHELL VERSION" >> $output
+echo "--------------------------------" >> $output
+ps >> $output
+echo "" >> $output
+
+# collect Java compiler version
+echo "JAVA VERSION" >> $output
+echo "--------------------------------" >> $output
+java -version 2>> $output
+echo "" >> $output
+
+# collect Java compiler version
+echo "GCC VERSION" >> $output
+echo "--------------------------------" >> $output
+gcc --version >> $output
+
+# try running UE with test plan
+echo "TEST RUN OF UE" >> $output
+echo "--------------------------------" >> $output
+run-ue $PLEXIL_HOME/examples/cruise.plx $PLEXIL_HOME/examples/cruise-script.plx >> $output
+
+
+
+
+
+
