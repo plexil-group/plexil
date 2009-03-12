@@ -341,12 +341,14 @@ public class Constants
                                                           "bin" + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "debugFlagCollector.py";
       
-      public static final String    DEBUG_FLAG_DAT_FILE = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) +
+      public static final String    COMPLETE_FLAG_LIST = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "universal-exec" + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "Utils" + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "test" + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "CompleteDebugFlags.cfg";
-      public static final String    DEBUG_CFG_FILE = "Debug.cfg";
+      public static final String    DEBUG_CFG_FILE = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "luv" + System.getProperty(PROP_FILE_SEPARATOR) +
+                                                          "Debug.cfg";
 
       // file
 

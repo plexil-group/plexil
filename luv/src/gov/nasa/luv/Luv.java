@@ -90,8 +90,7 @@ public class Luv extends JFrame
     private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
     private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
     
-    private DebugWindow                         luvViewerDebugWindow; 
-    private DebugDataFileProcessor              debugDataFileProcessor        = new DebugDataFileProcessor();    
+    private DebugWindow                         luvViewerDebugWindow;     
     private DebugCFGWindow                      debugCFGWindow                = new DebugCFGWindow(); 
     
     
@@ -326,8 +325,6 @@ public class Luv extends JFrame
     public LuvBreakPointHandler   getLuvBreakPointHandler()   { return luvBreakPointHandler; }    // get current breakpoint handler
       
     public Properties             getProperties()             { return properties; }              // get persistent properties for luv viewer
-    
-    public DebugDataFileProcessor getDebugDataFileProcessor() { return debugDataFileProcessor; }
     
     public static Luv             getLuv()                    { return theLuv; }                  // get current active instance of luv viewer
       
@@ -1609,8 +1606,7 @@ public class Luv extends JFrame
 	    {
                 try 
                 {
-                    debugDataFileProcessor.run();
-                    debugCFGWindow.openWindow();
+                    debugCFGWindow.run();
                 } 
                 catch (FileNotFoundException ex) 
                 {
