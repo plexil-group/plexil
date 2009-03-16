@@ -36,7 +36,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import java.util.ArrayList;
-import static gov.nasa.luv.Constants.*;
 
 /**
  * This is an extention of the stock Properties class which provides
@@ -260,7 +259,7 @@ public class Properties extends java.util.Properties
 
       public void set(String name, boolean value)
       {
-         setProperty(name, value ? TRUE : FALSE);
+         setProperty(name, value ? "TRUE" : "FALSE");
       }
 
       /**

@@ -1402,6 +1402,7 @@ public class Luv extends JFrame
                 if (plan.exists())
                 {
                     fileHandler.loadPlan(new File(currentPlan.getPlanName()));
+                    Luv.getLuv().showStatus("Plan \"" + currentPlan.getPlanName() + "\" loaded", 1000);
                     openPlanState(); 
                 }
                 else

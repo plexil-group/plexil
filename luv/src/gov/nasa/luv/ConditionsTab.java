@@ -151,9 +151,9 @@ public class ConditionsTab extends JPanel
         if (model.getProperty(condition) == null)
             status = UNKNOWN;
         else if (model.getProperty(condition).equals("0"))
-            status = FALSE;
+            status = "FALSE";
         else if (model.getProperty(condition).equals("1"))
-            status = TRUE;
+            status = "TRUE";
         else if (model.getProperty(condition).equals("inf"))
             status = "inf";
         else

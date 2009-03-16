@@ -161,28 +161,6 @@ public class TreeTableView extends JTreeTable implements View
                      return component;
                   }
             });
-            
-      /*      setDefaultRenderer(
-            TreeModel.cTypes[ROW_COL_NUM], 
-            new DefaultTableCellRenderer()
-            {
-                  public Component getTableCellRendererComponent(
-                     JTable table, 
-                     Object value, 
-                     boolean isSelected, 
-                     boolean hasFocus, 
-                     int row, 
-                     int column)
-                  {
-                     Component component = super.getTableCellRendererComponent(
-                        table, value, isSelected, hasFocus, row, column);
-                     
-                     setForeground(Color.lightGray);
-                     setBackground(isSelected ? table.getSelectionBackground() : getRowColor(row)); 
-
-                     return component;
-                  }
-            });*/
 
          // set cell renderer to customize icons
 
@@ -436,14 +414,12 @@ public class TreeTableView extends JTreeTable implements View
 
       public void setPreferredColumnWidths()
       {
-          //int row_col = 40;
           int status_col = 130;
           int outcome_col = 70;
           int fail_col = 230;
           int name_col = Luv.getLuv().getRootPane().getWidth() - (status_col + outcome_col + fail_col);
           
           Vector<Integer> widths = new Vector<Integer>();
-        //  widths.add(row_col);
           widths.add(name_col);
           widths.add(status_col);
           widths.add(outcome_col);
@@ -472,10 +448,8 @@ public class TreeTableView extends JTreeTable implements View
       {
          // get the tree nodes for the paths
 
-         Wrapper w1 =
-            (Wrapper)tp1.getLastPathComponent();
-         Wrapper w2 =
-            (Wrapper)tp2.getLastPathComponent();
+         Wrapper w1 = (Wrapper)tp1.getLastPathComponent();
+         Wrapper w2 = (Wrapper)tp2.getLastPathComponent();
 
          // if the child count differs, then we should stop right here,
          // the two trees are differnt
@@ -530,13 +504,6 @@ public class TreeTableView extends JTreeTable implements View
                   {
                         public void propertyChange(Model model, String property)
                         {     
-                            /*changed_row = getChangedRow(model.getPath(model));
-                            
-                            if (changed_row != -1)
-                                ((AbstractTableModel)view.getModel()).fireTableCellUpdated(changed_row, getPropertyNum(property));*/
-                            
-                            //((AbstractTableModel)view.getModel()).fireTableCellUpdated(model.getRowNumber(), getPropertyNum(property));
-                            
                             ((AbstractTableModel)view.getModel()).fireTableDataChanged();
                         }
                   });
@@ -630,7 +597,6 @@ public class TreeTableView extends JTreeTable implements View
             
             static String[]  cNames = 
             {
-             //  ROW_COL_NAME,
                NAME_COL_NAME,
                STATE_COL_NAME,
                OUTCOME_COL_NAME,
@@ -642,7 +608,6 @@ public class TreeTableView extends JTreeTable implements View
 
             static Class[]  cTypes = 
             {
-             //  Integer.class,
                TreeTableModel.class,
                String.class, 
                String.class, 
@@ -692,9 +657,6 @@ public class TreeTableView extends JTreeTable implements View
             public Object getValueAt(Object node, int column) 
             {
                Model model = ((Wrapper)node).getModel();
-               
-              // if (column == ROW_COL_NUM)
-                //  return model.getRowNumber() + 1;
                
                if (column == NAME_COL_NUM)
                   return null;

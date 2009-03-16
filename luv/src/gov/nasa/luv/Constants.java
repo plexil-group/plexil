@@ -109,20 +109,11 @@ public class Constants
          return new ImageIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
       }
 
-      // table view constants
-
-      /*public static final int ROW_COL_NUM          = 0;
-      public static final int NAME_COL_NUM         = 1;
-      public static final int STATE_COL_NUM        = 2;
-      public static final int OUTCOME_COL_NUM      = 3;
-      public static final int FAILURE_TYPE_COL_NUM = 4;*/
-      
       public static final int NAME_COL_NUM         = 0;
       public static final int STATE_COL_NUM        = 1;
       public static final int OUTCOME_COL_NUM      = 2;
       public static final int FAILURE_TYPE_COL_NUM = 3;
       
-    //  public static final String ROW_COL_NAME          = "";
       public static final String NAME_COL_NAME         = "Name";
       public static final String STATE_COL_NAME        = "State";
       public static final String OUTCOME_COL_NAME      = "Outcome";
@@ -138,15 +129,6 @@ public class Constants
             return 3;
         else
             return -1;
-          
-     /*   if (property.equals(MODEL_STATE))
-            return 2;
-        else if (property.equals(MODEL_OUTCOME))
-            return 3;
-        else if (property.equals(MODEL_FAILURE_TYPE))
-            return 4;
-        else
-            return -1;*/
       }
 
       // node states
@@ -385,16 +367,6 @@ public class Constants
       public static final int COLLAPSE_MENU_ITEM            = 1;
       public static final int HIDE_OR_SHOW_NODES_MENU_ITEM  = 2;
       public static final int FIND_MENU_ITEM                = 3;
-      
-      // debug menu
-
-      public static final int SHOW_LUV_DEBUG_MENU_ITEM      = 0;
-      public static final int SHOW_LUV_ABOUT_MENU_ITEM      = 1;
-
-      // boolean constant values
-
-      public static final String TRUE = "TRUE";
-      public static final String FALSE = "FALSE";
 
       // model property tags
 
@@ -404,8 +376,6 @@ public class Constants
       public static final String MODEL_OUTCOME      = "ModelOutcome";
       public static final String MODEL_FAILURE_TYPE = "ModelFailureType";
       public static final String MODEL_LIBRARY_CALL_ID = "ModelLibraryCallId";
-      
-      
 
       /////////////////////////// XML tags /////////////////////////
 
