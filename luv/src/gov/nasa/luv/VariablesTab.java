@@ -151,7 +151,7 @@ public class VariablesTab extends JPanel
         return variablesPane;
     }
 
-    public void createVariableTab(Model model) 
+    public void open(Model model) 
     {       
         variablesPane = new VariablesTab(model);
         variablesPane.setOpaque(true);

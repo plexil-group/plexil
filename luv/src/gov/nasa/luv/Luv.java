@@ -26,36 +26,19 @@
 
 package gov.nasa.luv;
 
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
-
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-
 import java.util.ArrayList;
-import java.util.Set;
-import javax.swing.ImageIcon;
 import static gov.nasa.luv.Constants.*;
-
 import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
-import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.*;
 
 /**
@@ -64,53 +47,82 @@ import static javax.swing.JFileChooser.*;
 
 public class Luv extends JFrame
 {
-    // variables
+    private static boolean allowBreaks;     
+    private static boolean planPaused;         
+    private static boolean planStep;           
+    private static boolean isExecuting;         
+    private boolean newPlan;
+    private boolean shouldHighlight;        
+    private static FileHandler fileHandler;
+    private static StatusMessageHandler statusMessageHandler; 
+    private static LuvBreakPointHandler luvBreakPointHandler; 
+    private static ExecutionHandler executionHandler;
+    private static ViewHandler viewHandler;   
+    private static LuvStateHandler luvStateHandler;
+    private static NodeInfoWindow nodeInfoWindow;
+    private static ConditionsTab conditionsTab;
+    private static VariablesTab variablesTab;
+    private static ActionTab actionTab;   
+    private static HideOrShowWindow hideOrShowWindow;
+    private DebugWindow debugWindow;     
+    private DebugCFGWindow debugCFGWindow; 
+    private RegexModelFilter regexFilter;   
+    private JMenu fileMenu;  
+    private JMenu recentRunMenu;
+    private JMenu runMenu;   
+    private JMenu viewMenu;
+    private JMenu debugMenu; 
+   
+    private Model currentPlan; // the current model/plan    
+    private SocketServer s; // server listening for events     
+    private static Luv theLuv; // current working instance of luv        
+    private Properties properties; // persistent properties for luv viewer
+    
+    public static void main(String[] args)
+    {
+	runApp();
+    }
+      
+    public static void runApp()
+    {
+	// if we're on a mac, use mac style menus
+         
+	System.setProperty("apple.laf.useScreenMenuBar", "true");
+         
+	try 
+        {
+            new Luv();
+	}
+	catch (Exception e) 
+        {
+            e.printStackTrace();
+	}
+    }
+      
+    // constructor
+      
+    public Luv()
+    {
+	init();
 
-    private static boolean allowBreaks                 = false;        // does instance of luv have breaks enabled?
-    private static boolean planPaused                  = false;        // is instance of luv currently paused?    
-    private static boolean planStep                    = false;        // is instance of luv currently stepping?    
-    private static boolean isExecuting                 = false;        // is instance of luv currently executing? 
-    
-    private boolean newPlan                            = false;
-    private boolean shouldHighlight                    = true;
-    private RegexModelFilter regexFilter               = new RegexModelFilter(true);
-    
-    private double runTime = 0;
-      
-    // handler instances
-      
-    private static FileHandler                  fileHandler                   = new FileHandler();                 // handles all file operations
-    private static StatusMessageHandler         statusMessageHandler          = new StatusMessageHandler();        // handles all status messages
-    private static LuvBreakPointHandler         luvBreakPointHandler          = new LuvBreakPointHandler();        // handles all break points
-    private static ExecutionViaLuvViewerHandler executionViaLuvViewerHandler  = new ExecutionViaLuvViewerHandler();// handles when user executes plan via Luv Viewer and not a terminal
-    private static ViewHandler                  viewHandler                   = new ViewHandler();                
-    private static ConditionsTab                conditionsTab                 = new ConditionsTab();
-    private static VariablesTab                 variablesTab                  = new VariablesTab();
-    private static ActionTab                    actionTab                     = new ActionTab();
-    private static NodeInfoTabbedWindow         nodeInfoTabbedWindow          = new NodeInfoTabbedWindow();
-    private static HideOrShowWindow             hideOrShowWindow              = new HideOrShowWindow();
-    
-    private DebugWindow                         luvViewerDebugWindow;     
-    private DebugCFGWindow                      debugCFGWindow                = new DebugCFGWindow(); 
-    
-    
-    // Luv Viewer Menus
-      
-    private JMenu fileMenu                = new JMenu("File");  
-    private JMenu recentRunMenu           = new JMenu("Recent Runs");
-    private JMenu runMenu                 = new JMenu("Run");   
-    private JMenu viewMenu                = new JMenu("View");
-    private JMenu debugMenu               = new JMenu("Debug");             
-      
-    private SocketServer s;
-      
-    // current working instance of luv
-      
-    private static Luv theLuv;         
+        viewHandler.focusView(currentPlan);
 
-    // persistent properties for luv viewer 
+	constructFrame(getContentPane());   
+         
+        luvStateHandler.startState();
 
-    private Properties properties = new Properties(PROPERTIES_FILE_LOCATION)
+	s = new SocketServer(properties.getInteger(PROP_NET_SERVER_PORT),
+			     new LuvSocketWranglerFactory());
+
+    }
+    
+    public void init()
+    {
+        theLuv = this;
+        
+        currentPlan = new Model("dummy");
+        
+        properties = new Properties(PROPERTIES_FILE_LOCATION)
 	{
 	    {    
 		define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
@@ -133,67 +145,84 @@ public class Luv extends JFrame
 		define(PROP_NET_SERVER_PORT,  PROP_NET_SERVER_PORT_DEF);
 		define(PROP_NET_RECENT_HOST,  PROP_NET_RECENT_HOST_DEF);
 		define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
-		define(PROP_FILE_RECENT_PLAN_DIR, getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
-		define(PROP_FILE_RECENT_SCRIPT_DIR, getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
+		define(PROP_FILE_RECENT_PLAN_DIR, 
+                        getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
+		define(PROP_FILE_RECENT_SCRIPT_DIR, 
+                        getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
                 
-                define(PROP_HIDE_SHOW_LIST, getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_HIDE_SHOW_LIST));
-                define(PROP_SEARCH_LIST, getProperty(PROP_SEARCH_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_SEARCH_LIST));
+                define(PROP_HIDE_SHOW_LIST, 
+                        getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals
+                        (UNKNOWN) ? "" : getProperty(PROP_HIDE_SHOW_LIST));
+                define(PROP_SEARCH_LIST, 
+                        getProperty(PROP_SEARCH_LIST, UNKNOWN).equals
+                        (UNKNOWN) ? "" : getProperty(PROP_SEARCH_LIST));
 	    }
 	};
-    
-    // the current model
-
-    private Model currentPlan = new Model("dummy");
-
-    // entry point for this program
-
-    public static void main(String[] args)
-    {
-	runApp();
-    }
-      
-    public static void runApp()
-    {
-	// if we're on a mac, use mac style menus
-         
-	System.setProperty("apple.laf.useScreenMenuBar", "true");
-         
-	try 
-        {
-            new Luv();
-	}
-	catch (Exception e) 
-        {
-            e.printStackTrace();
-	}
-    }
-      
-    // constructor for luv viewer
-      
-    public Luv()
-    {
-	// record instance of self
-
-	theLuv = this;
-
-        // this allows for the view menu to populate even if no plan is loaded
-        // otherwise its oddly empty
         
-        viewHandler.focusView(currentPlan);
-
-	// construct the frame
+        allowBreaks = false;
+        planPaused = false;
+        planStep = false;
+        isExecuting = false;
+        newPlan = false;
+        shouldHighlight = true;    
+        fileHandler = new FileHandler();
+        statusMessageHandler = new StatusMessageHandler();
+        luvBreakPointHandler = new LuvBreakPointHandler();
+        executionHandler = new ExecutionHandler();
+        luvStateHandler = new LuvStateHandler();
+        viewHandler = new ViewHandler();      
+        nodeInfoWindow = new NodeInfoWindow();
+        conditionsTab = new ConditionsTab();
+        variablesTab = new VariablesTab();
+        actionTab = new ActionTab();
+        hideOrShowWindow = new HideOrShowWindow();
+        debugWindow = new DebugWindow(this);  
+            
+        debugCFGWindow = new DebugCFGWindow();     
+        regexFilter = new RegexModelFilter(true);     
+        fileMenu = new JMenu("File");
+        recentRunMenu = new JMenu("Recent Runs");
+        runMenu = new JMenu("Run");   
+        viewMenu = new JMenu("View");
+        debugMenu = new JMenu("Debug");
+    }
+    
+    private void constructFrame(Container frame)
+    {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);      
+	setLayout(new BorderLayout());
+	setBackground(properties.getColor(PROP_WIN_BCLR));
          
-	constructFrame(getContentPane());   
+	// add view panel with start logo
          
-         // luv will be in this state only when you first start it (minimal options available)
+	JLabel startLogo = new JLabel(getIcon(START_LOGO));
+	viewHandler.getViewPanel().add(startLogo);
+	frame.add(viewHandler.getViewPanel(), CENTER);
          
-	startState();
+	// create a menu bar
 
-	// start the server listening for events
+	JMenuBar menuBar = new JMenuBar();
+	setJMenuBar(menuBar);        
+	createMenuBar(menuBar);
+         
+	// create the status bar
 
-	s = new SocketServer(properties.getInteger(PROP_NET_SERVER_PORT),
-			     new LuvSocketWranglerFactory());
+	final JLabel statusBar = new JLabel(" ");
+	statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));
+	frame.add(statusBar, SOUTH);
+	statusMessageHandler.startStatusBarThread(statusBar);       
+         
+	// set size and location of frame
 
+	setLocation(properties.getPoint(PROP_WIN_LOC));
+	setPreferredSize(properties.getDimension(PROP_WIN_SIZE));
+        
+        hideOrShowWindow.init(properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN));  
+        regexFilter.updateRegexList();
+            
+        setTitle();    
+	pack();
+	setVisible(true);
     }
 
     // Called from PlexilPlanHandler::endElement(),
@@ -201,13 +230,13 @@ public class Luv extends JFrame
     // and the exec (via the Luv listener stream)
     public void handleNewPlan(Model plan)
     {
-	// *** N.B. This depends on the fact that new plans are always added at the end
+	// *** N.B. This depends on that new plans are always added at the end
 	Model other = Model.getRoot().findChildByName(plan.getModelName());
         
 	if (plan == other) 
         {
 	    // brand new 'plan' loaded
-            closeNodeInfoWindow();
+            nodeInfoWindow.closeNodeInfoWindow();
 	}
 	else if (plan.equivalent(other) && !newPlan) 
         {
@@ -217,7 +246,8 @@ public class Luv extends JFrame
 	}
 	else 
         {
-	    // new 'plan' has same root name as 'other' previous plan, but new 'plan' supersedes
+	    // new 'plan' has same root name as 'other' previous plan, 
+            // but new 'plan' supersedes
 	    Model.getRoot().removeChild(other);
 	}
 
@@ -229,13 +259,12 @@ public class Luv extends JFrame
             viewHandler.focusView(currentPlan);
 	}
 
-        preExecutionState();
+        luvStateHandler.preExecutionState();
         
         if (isExecuting)
         {
-            runTime = System.currentTimeMillis();
-            executionState();
-            addRunToRecentRunList();
+            luvStateHandler.executionState();
+            LoadRecentAction.addRunToRecentRunList();
         }       
         
         setTitle();
@@ -244,7 +273,7 @@ public class Luv extends JFrame
                                                   
 	if (isExecuting && allowBreaks) 
         {
-	    pausedState(); 
+	    luvStateHandler.pausedState(); 
 	    runMenu.setEnabled(true);
         }
     }
@@ -264,22 +293,17 @@ public class Luv extends JFrame
 	Model.getRoot().planChanged();
     }*/
 
-    public boolean shouldBlock()
-    {
-	return planPaused && !planStep;
-    }
-
     public void blockViewer()
     {
 	if (shouldBlock()) 
         {
             statusMessageHandler.showStatus((luvBreakPointHandler.getBreakPoint() == null
-					     ? "Stopped at beginning of plan"
+					     ? "Stopped"
 					     : "Stopped at " + luvBreakPointHandler.getBreakPoint()) +
 					    " - " + 
-					    pauseAction.getAcceleratorDescription() +
+					    LuvActionHandler.pauseAction.getAcceleratorDescription() +
 					    " to resume, or " + 
-					    stepAction.getAcceleratorDescription() +
+					    LuvActionHandler.stepAction.getAcceleratorDescription() +
 					    " to step",
 					    Color.RED); 
            
@@ -308,49 +332,56 @@ public class Luv extends JFrame
 	}
     }
       
-    public ViewHandler            getViewHandler()            { return viewHandler; }             // get current view handler
+    // accessors for local luv variables
     
-    public ConditionsTab          getConditionsTab()          { return conditionsTab; }           // get current conditions tab
+    public static Luv             getLuv()                    { return theLuv; }                   
+    public ViewHandler            getViewHandler()            { return viewHandler; }           
+    public FileHandler            getFileHandler()            { return fileHandler; }              
+    public ExecutionHandler       getExecutionHandler()       { return executionHandler; }  
+    public LuvBreakPointHandler   getLuvBreakPointHandler()   { return luvBreakPointHandler; }    
+    public StatusMessageHandler   getStatusMessageHandler()   { return statusMessageHandler; } 
+    public LuvStateHandler        getLuvStateHandler()        { return luvStateHandler; }
+    public HideOrShowWindow       getHideOrShowWindow()       { return hideOrShowWindow; } 
+    public NodeInfoWindow         getNodeInfoWindow()         { return nodeInfoWindow; } 
+    public ConditionsTab          getConditionsTab()          { return conditionsTab; }              
+    public VariablesTab           getVariablesTab()           { return variablesTab; }               
+    public ActionTab              getActionTab()              { return actionTab; }
+    public DebugWindow            getDebugWindow()            { return debugWindow; }
+    public DebugCFGWindow         getDebugCFGWindow()         { return debugCFGWindow; }     
+    public RegexModelFilter       getRegexModelFilter()       { return regexFilter; }         
+    public Properties             getProperties()             { return properties; }             
+    public Model                  getCurrentPlan()            { return currentPlan; }    
+    public JMenu                  getViewMenu()               { return viewMenu; }   
+    public JMenu                  getFileMenu()               { return fileMenu; }   
+    public JMenu                  getRunMenu()                { return runMenu; }  
+    public JMenu                  getDebugMenu()              { return debugMenu; }  
+    public JMenu                  getRecentRunMenu()          { return recentRunMenu; }   
+    public boolean                getPlanStep()               { return planStep; }  
+    public boolean                getPlanPaused()             { return planPaused; }
+    public boolean                getIsExecuting()            { return isExecuting; }  
+    public boolean                breaksAllowed()             { return allowBreaks; }
     
-    public VariablesTab           getVariablesTab()           { return variablesTab; }            // get current variables tab
-    
-    public ActionTab              getActionTab()              { return actionTab; }               // get current action tab
-    
-    public NodeInfoTabbedWindow   getNodeInfoTabbedWindow()   { return nodeInfoTabbedWindow; }    // get current NodeInfoTabbedWindow
-    
-    public HideOrShowWindow       getHideOrShowWindow()       { return hideOrShowWindow; }        // get current hideOrShowWindow
-
-    public FileHandler            getFileHandler()            { return fileHandler; }             // get current file handler
-      
-    public LuvBreakPointHandler   getLuvBreakPointHandler()   { return luvBreakPointHandler; }    // get current breakpoint handler
-      
-    public Properties             getProperties()             { return properties; }              // get persistent properties for luv viewer
-    
-    public static Luv             getLuv()                    { return theLuv; }                  // get current active instance of luv viewer
-      
-    //
-    // Accessors for local luv variables
-    //
-
-    public Model getCurrentPlan()
-    {
-	return currentPlan;
+    public boolean                shouldBlock()               
+    { 
+        return planPaused && !planStep; 
     }
-
-    public boolean getPlanStep()
-    {
-	return planStep;
-    }
-
-    public boolean getIsExecuting()
-    {
-	return isExecuting;
-    }
-
-    public void setIsExecuting(boolean value)
+    
+    // mutators for local luv variables
+    
+    public void setIsExecuting(boolean value) 
     {
 	isExecuting = value;
 	updateBlockingMenuItems();
+    }
+    
+    public void setIsPaused(boolean value)
+    {
+        planPaused = value;
+    }
+    
+    public void setIsStepped(boolean value)
+    {
+        planStep = value;
     }
     
     public void setNewPlan(boolean value)
@@ -358,288 +389,21 @@ public class Luv extends JFrame
         newPlan = value;
     }
 
-    public boolean breaksAllowed()
-    {
-	return allowBreaks;
-    }
-    
     public void setBreaksAllowed(boolean value)
     {
 	allowBreaks = value;
 	updateBlockingMenuItems();
     }
-
-    //
-    // State transitions
-    //
-
-    public void startState()
-    {
-	disableAllMenus();
-          
-	allowBreaks = false;
-	isExecuting = false;     
-	planPaused = false;
-          
-	Model.getRoot().clear();  
-          
-	viewHandler.clearCurrentView();
-	statusMessageHandler.clearStatusMessageQ();
-        luvBreakPointHandler.removeAllBreakPoints();
-          
-	// reset all menu items
-                 
-	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
-        fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
-	fileMenu.setEnabled(true);
-          
-	updateBlockingMenuItems();
-	allowBreaksAction.putValue(NAME, "Enable Breaks");
-        runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
-        runMenu.setEnabled(true);
-        
-        viewMenu.setEnabled(true);
-        
-        debugMenu.setEnabled(true);
-    }
-      
-    public void readyState()
-    {
-	// set only certain luv viewer variables
-          
-	planPaused = false;
-	planStep = false;
-	fileHandler.setStopSearchForMissingLibs(false); 
-        
-        PlexilPlanHandler.resetRowNumber();
-        
-        setTitle();
-        
-        luvBreakPointHandler.clearBreakPoint();
-        
-	// set certain menu items
-          
-	execAction.putValue(NAME, "Execute Plan");
-
-	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
-	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
-	fileMenu.setEnabled(true);
- 
-	updateBlockingMenuItems();
-        
-        if (isExecuting)
-            runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
-        else
-            runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
-       
-	runMenu.setEnabled(true);
-
-	if (viewMenu.getMenuComponentCount() > 0) {
-	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
-	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-	    viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true);
-            viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
-	    viewMenu.setEnabled(true);
-	}
-	else
-	    viewMenu.setEnabled(false);
-        
-        debugMenu.setEnabled(true);
-    }
-
-    //* Called when we receive EOF on the LuvListener stream. 
-    public void finishedExecutionState()
-    {  
-        runTime = System.currentTimeMillis() - runTime;
-        showStatus("Runtime: " + runTime + " ms", Color.BLUE);
-        
-        // set only certain luv viewer variables
-          
-	planPaused = false;
-	planStep = false;	 
-	isExecuting = false;        
-        fileHandler.setStopSearchForMissingLibs(false);
-  
-	// set certain menu items
-          
-	execAction.putValue(NAME, "Execute Plan");
-
-	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);          
-	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
-	fileMenu.setEnabled(true);
- 
-	updateBlockingMenuItems();  
-        
-        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);      
-        
-	runMenu.setEnabled(true);
-
-	if (viewMenu.getMenuComponentCount() > 0)
-        {
-            viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
-            viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
-            viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true); 
-            viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
-            viewMenu.setEnabled(true);
-        }
-	else
-	    viewMenu.setEnabled(false);
-        
-        debugMenu.setEnabled(true);
-
-	showStatus("Execution stopped", Color.BLUE);
-    }
-      
-    public void preExecutionState()
-    {
-        shouldHighlight = false;
-        currentPlan.resetMainAttributesOfAllNodes();
-        
-	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);	
-        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
-        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
-    }
-      
-    public void executionState()
-    {
-        isExecuting = true;
-          
-	showStatus("Executing...", Color.GREEN.darker());
-        
-        execAction.putValue(NAME, "Stop Execution");
-        
-        fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
-	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);     
-        
-        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
-        
-        if (allowBreaks) 
-            enabledBreakingState();
-        else
-            disabledBreakingState();
-          
-	updateBlockingMenuItems();
-    }     
-          
-    public void stopExecutionState() throws IOException
-    {
-        executionViaLuvViewerHandler.killUEProcess();
-        
-	planPaused = false;
-        planStep = false;
-	
-    }
     
-    public void openPlanState()
+    public void setShouldHighlight(boolean value)
     {
-        luvBreakPointHandler.removeAllBreakPoints();
-        
-        currentPlan.resetMainAttributesOfAllNodes();
-        
-        currentPlan.addScriptName(UNKNOWN);
-
-        closeNodeInfoWindow();                
-
-        readyState();
-    }
-    
-    public void loadRecentRunState()
-    {
-        luvBreakPointHandler.removeAllBreakPoints();
-        
-        currentPlan.resetMainAttributesOfAllNodes();
-
-        closeNodeInfoWindow();                
-
-        readyState();
-    }
-    
-    public void reloadPlanState()
-    {
-        currentPlan.resetMainAttributesOfAllNodes();
-
-        readyState();
-    }
-    
-    public void pausedState()
-    {
- 	planPaused = true;
-	planStep = false;
-          
-	updateBlockingMenuItems();
-    }
-      
-    public void stepState()
-    {
-	planPaused = false;
-	planStep = true;
-          
-	updateBlockingMenuItems();
+        shouldHighlight = value;
     }
 
-    //
-    // Sub-states
-    //
-      
-    public void disabledBreakingState()
-    {
-	allowBreaks = false;
-        
-	allowBreaksAction.putValue(NAME, "Enable Breaks");
-        
-        setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
-        
-        Set<LuvBreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
-        
-        for (BreakPoint bp : breakPoints)
-        {
-            bp.setEnabled(allowBreaks);
-        }
-        
-        viewHandler.refreshView();
-        
-	updateBlockingMenuItems();
-    }
-      
-    public void enabledBreakingState()
-    {
-	allowBreaks = true;
-        
-	allowBreaksAction.putValue(NAME, "Disable Breaks");
-        
-        setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
-        
-        Set<LuvBreakPoint> breakPoints = luvBreakPointHandler.getBreakPointMap().keySet();
-        
-        for (LuvBreakPoint bp : breakPoints)
-        {
-            if (!bp.getReserveBreakStatus())
-                bp.setEnabled(allowBreaks);
-        }
-        
-        viewHandler.refreshView();
-        
-	updateBlockingMenuItems();
-    }
+    // Modify the state of certain menu items based on whether the exec 
+    // is running and whether it blocks.
 
-    // Modify the state of certain menu items based on whether the exec is running and whether it blocks.
-
-    private void updateBlockingMenuItems()
+    public void updateBlockingMenuItems()
     {
         // Pause/resume not useful if exec isn't listening
             
@@ -671,140 +435,41 @@ public class Luv extends JFrame
 	}      
     }
     
-    private void closeNodeInfoWindow()
-    {
-        if (TreeTableView.getCurrent() != null &&
-            TreeTableView.getCurrent().isNodeInfoTabbedWindowOpen())
-            TreeTableView.getCurrent().closeNodeInfoTabbedWindow();
-    }
-    
     public void enableRemoveBreaksMenuItem(boolean value)
     {
         if (runMenu.getComponents().length > 0)
             runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(value);
     }
 
-    // place all visible elements into the container in the main frame of the application.
-  
-    public void constructFrame(Container frame)
-    {
-        // app exits when frame is closed
-        
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-	// set layout and background color
-
-	setLayout(new BorderLayout());
-	setBackground(properties.getColor(PROP_WIN_BCLR));
-         
-	// add view panel with start logo
-         
-	JLabel startLogo = new JLabel(getIcon(START_LOGO));
-	viewHandler.getViewPanel().add(startLogo);
-	frame.add(viewHandler.getViewPanel(), CENTER);
-         
-	// create a menu bar
-
-	JMenuBar menuBar = new JMenuBar();
-	setJMenuBar(menuBar);        
-	createMenuBar(menuBar);
-         
-	// create the status bar
-
-	final JLabel statusBar = new JLabel(" ");
-	statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));
-	frame.add(statusBar, SOUTH);
-	statusMessageHandler.startStatusBarThread(statusBar);       
-         
-	// set size and location of frame
-
-	setLocation(properties.getPoint(PROP_WIN_LOC));
-	setPreferredSize(properties.getDimension(PROP_WIN_SIZE));
-
-	// create the debug window
-         
-	luvViewerDebugWindow = new DebugWindow(this);
-	luvViewerDebugWindow.setTitle("Debug Window");                
-
-	// set size and location of debug window
-
-	luvViewerDebugWindow.setLocation(properties.getPoint(PROP_DBWIN_LOC));
-	luvViewerDebugWindow.setPreferredSize(properties.getDimension(PROP_DBWIN_SIZE));
-	luvViewerDebugWindow.pack();
-        
-        hideOrShowWindow.setLocation(properties.getPoint(PROP_HIDESHOWWIN_LOC));
-        hideOrShowWindow.setPreferredSize(properties.getDimension(PROP_HIDESHOWWIN_SIZE));
-    
-        debugCFGWindow.setLocation(properties.getPoint(PROP_CFGWIN_LOC));
-        debugCFGWindow.setPreferredSize(properties.getDimension(PROP_CFGWIN_SIZE));
-	debugCFGWindow.pack();
-         
-         // reset "Show/Hide debug window" menu item when closing window
-         
-	luvViewerDebugWindow.addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent winEvt) {
-		    // Perhaps ask user if they want to save any unsaved files first.
-		    luvDebugWindowAction.actionPerformed(null);   
-		}
-	    });
-            
-        // create Hide Or Show Window
-            
-        hideOrShowWindow.createHideOrShowWindow(properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN));      
-        updateRegexList();
-            
-        setTitle();
-                
-	// make the frame visible
-         
-	pack();
-	setVisible(true);
-    }
-      
     public void createMenuBar(JMenuBar menuBar)
     {       
-	// create file menu
-         
 	menuBar.add(fileMenu);
-	fileMenu.add(theLuv.openPlanAction);
-	fileMenu.add(theLuv.openScriptAction);
-	updateRecentMenu();
+	fileMenu.add(LuvActionHandler.openPlanAction);
+	fileMenu.add(LuvActionHandler.openScriptAction);
+	LoadRecentAction.updateRecentMenu();
 	fileMenu.add(recentRunMenu);
-	fileMenu.add(theLuv.reloadAction);
+	fileMenu.add(LuvActionHandler.reloadAction);
 	fileMenu.add(new JSeparator());
-	fileMenu.add(theLuv.exitAction);
+	fileMenu.add(LuvActionHandler.exitAction);
 
-	// create and update exec menu
-         
 	menuBar.add(runMenu);
-	runMenu.add(theLuv.pauseAction);
-	runMenu.add(theLuv.stepAction);
-	runMenu.add(theLuv.allowBreaksAction);
-	runMenu.add(theLuv.removeAllBreaksAction);
+	runMenu.add(LuvActionHandler.pauseAction);
+	runMenu.add(LuvActionHandler.stepAction);
+	runMenu.add(LuvActionHandler.allowBreaksAction);
+	runMenu.add(LuvActionHandler.removeAllBreaksAction);
         runMenu.add(new JSeparator());      
-        runMenu.add(theLuv.execAction);
-
-	// add view menu
+        runMenu.add(LuvActionHandler.execAction);
 
 	menuBar.add(viewMenu);
         
-        // add debug menu
-        
         menuBar.add(debugMenu);
-        debugMenu.add(theLuv.luvDebugWindowAction);
-        debugMenu.add(theLuv.createDebugCFGFileAction);
-        debugMenu.add(theLuv.aboutWindowAction);
-    }
-      
-    public JMenu getViewMenu()
-    {
-	return viewMenu;
+        debugMenu.add(LuvActionHandler.luvDebugWindowAction);
+        debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
+        debugMenu.add(LuvActionHandler.aboutWindowAction);
     }
       
     public void disableAllMenus()
     {
-	// disable all file menu elements
-        
 	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
 	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
@@ -812,8 +477,6 @@ public class Luv extends JFrame
 	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(false);
 	fileMenu.setEnabled(false);
           
-	// disable all run menu elements
-        
 	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
 	runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
 	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);	
@@ -821,8 +484,6 @@ public class Luv extends JFrame
         runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);  
 	runMenu.setEnabled(false);
  
-	// disable all view menu elements if there are any
-
 	if (viewMenu.getMenuComponentCount() > 0) 
         {
 	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(false);
@@ -835,129 +496,9 @@ public class Luv extends JFrame
         debugMenu.setEnabled(false);
     }
       
-    /** Given a recent plan index, the description used for the recent menu item tooltip. 
-     *
-     * @param recentIndex the index of the recent plan
-     *
-     * @return the description of what gets loaded
-     */
-
-    public String getRecentMenuDescription(int index)
-    {
-        String plan = properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + index);
-        String script = properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index);
-	
-	String description = "Load " + plan + " + " + script;
-
-	return description;
-    }
-      
-    // Add a file to the recently opened file list. 
-
-    private void addRunToRecentRunList()
-    {
-	// put newest file at the top of the list
-        
-        String planName = currentPlan.getPlanName();
-        String scriptName = currentPlan.getScriptName();
-        String libDirectory = properties.getProperty(PROP_FILE_RECENT_LIB_DIR);
-        
-        String currPlan = planName;
-        String currScript = scriptName;
-        
-        if (planName != null && scriptName != null &&
-            !planName.equals(UNKNOWN) && !scriptName.equals(UNKNOWN))
-        {
-            int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
-
-            for (int i = 1; i <= count && planName != null; ++i) 
-            {
-                if (planName != null) 
-                {
-                    planName = (String)properties.setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
-                    scriptName = (String)properties.setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
-                    libDirectory = (String)properties.setProperty(PROP_FILE_RECENT_LIB_DIR + i, libDirectory);
-                    
-                    // if this run already existed in the list, we can stop
-
-                    if (planName != null && planName.equals(currPlan) &&
-                        scriptName != null && scriptName.equals(currScript))
-                        break;
-                }
-            }
-
-            // update the recent menu
-
-            updateRecentMenu();
-        }
-    }
-    
-    public String getRecentPlanName(int index)
-    {
-        File recentPlan = new File(UNKNOWN);
-        
-        if (properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + index) != null)
-            recentPlan = new File(properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + index));  
-        
-        return recentPlan.getName();
-    }
-    
-    public String getRecentScriptName(int index)
-    {
-        File recentScript = new File(UNKNOWN);
-        
-        if (properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index) != null)
-            recentScript = new File(properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index));  
-        
-        return recentScript.getName();
-    }
-    
-    public String getRecentPlan(int index)
-    {
-        String recentPlan = UNKNOWN;
-        
-        if (properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + index) != null)
-            recentPlan = properties.getProperty(PROP_FILE_RECENT_PLAN_BASE + index);  
-        
-        return recentPlan;
-    }
-    
-    public String getRecentScript(int index)
-    {
-        String recentScript = UNKNOWN;
-        
-        if (properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index) != null)
-            recentScript = properties.getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index);  
-        
-        return recentScript;
-    }
-      
-    /** Update the recently loaded files menu. */
-
-    private void updateRecentMenu()
-    {
-	recentRunMenu.removeAll();
-	int count = properties.getInteger(PROP_FILE_RECENT_COUNT);
-        
-	if (getRecentPlanName(1) == null ||
-            getRecentPlanName(1).equals(UNKNOWN)) {
-	    recentRunMenu.add("No recent runs");
-	}
-	else {
-	    for (int i = 0; i < count; ++i)
-		if ( getRecentPlanName(i + 1) != null &&
-                    !getRecentPlanName(i + 1).equals(UNKNOWN))
-		    recentRunMenu.add(new LoadRecentAction(i + 1, '1' + i, META_MASK));
-	}
-
-	// this menu is only enabled when there are items in it
-         
-	recentRunMenu.setEnabled(recentRunMenu.getMenuComponentCount() > 0);
-    }
-      
     // set title of the luv viewer
 
-    private void setTitle()
+    public void setTitle()
     {  
         if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN))
         {
@@ -996,652 +537,4 @@ public class Luv extends JFrame
     {
 	return properties.getProperty(key, UNKNOWN);
     }
-    
-    public void showStatusOnly(String message)
-    {
-	statusMessageHandler.showStatusOnly(message);           
-    }
-      
-    public void showStatus(String message)
-    {
-	statusMessageHandler.showStatus(message);           
-    }
-      
-    public void showStatus(String message, Color color)
-    {
-	statusMessageHandler.showStatus(message, color);
-    }
-      
-    public void showStatus(String message, long autoClearTime)
-    {
-	statusMessageHandler.showStatus(message, autoClearTime);
-    }
-      
-    public void showStatus(String message, Color color, long autoClearTime)
-    {
-	statusMessageHandler.showStatus(message, color, autoClearTime);
-    }
-      
-    public void clearStatus()
-    {
-	statusMessageHandler.clearStatus();
-    }
-
-    // exit this program.
-
-    private void exit()
-    { 
-	System.exit(0); 
-    }
-    
-    public void refreshRegexView()
-    {
-        viewHandler.refreshRegexView(currentPlan);        
-    }
-    
-    public void addSearchWord(String searchWord)
-    {
-        String list = properties.getProperty(PROP_SEARCH_LIST, UNKNOWN);
-        
-        if (!list.equals(UNKNOWN))
-        {
-            String [] array = list.split(", ");
-            list = searchWord;
-            for (int i = 0; i < array.length; i++)
-            {
-                if (i < 10 && !array[i].equals(searchWord) && !array[i].equals(""))
-                    list += ", " + array[i];
-            }
-        }
-        else
-            list = searchWord;
-        
-        properties.setProperty(PROP_SEARCH_LIST, list);
-    }
-    
-    public String getSearchList()
-    {
-        return properties.getProperty(PROP_SEARCH_LIST, UNKNOWN);
-    }
-    
-    public void addRegex(String regex)
-    {
-        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
-        
-        if (list.equals(UNKNOWN) || list.equals(""))
-            list = regex;
-        else
-            list += ", " + regex;
-        
-        properties.setProperty(PROP_HIDE_SHOW_LIST, list);
-
-        regexFilter.addRegex(formatRegex(regex));
-        
-        if (viewHandler.getCurrentView() != null)
-            refreshRegexView();
-    }
-    
-    public void removeRegex(String regex)
-    {
-        String list = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);     
-        
-        if (!list.equals(UNKNOWN))
-        {
-            String [] array = list.split(", ");
-            list = "";
-            for (int i = 0; i < array.length; i++)
-            {
-                if (!array[i].equals(regex) && !array[i].equals(""))
-                    list += array[i] + ", ";
-            }
-        }
-        properties.setProperty(PROP_HIDE_SHOW_LIST, list);
-        
-        regexFilter.removeRegex(formatRegex(regex));
-        
-        if (viewHandler.getCurrentView() != null)
-            refreshRegexView();
-    }
-    
-    private void updateRegexList()
-    {
-        String namelist = properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);
-        
-        if (!namelist.equals(UNKNOWN))
-        {
-            String [] array = namelist.split(", ");
-            for (int i = 0; i < array.length; i++)
-            {
-                regexFilter.addRegex(formatRegex(array[i]));
-            }
-        }
-    }
-    
-    private String formatRegex(String regex)
-    {  
-        String formattedRegex = "";
-
-        if (regex.endsWith("*"))
-        {
-            //*regex* --> .*regex.*
-            if (regex.startsWith("*"))
-            {
-                formattedRegex = regex.substring(1, regex.length() - 1);
-                formattedRegex = ".*" + formattedRegex + ".*";
-            }
-            //regex* --> ^regex.*
-            else
-            {
-                formattedRegex = regex.substring(0, regex.length() - 1);
-                formattedRegex = "^" + formattedRegex + ".*";
-            }
-        }
-        //*regex --> .*regex
-        else if (regex.startsWith("*"))
-        {
-            formattedRegex = regex.substring(1, regex.length());
-            formattedRegex = ".*" + formattedRegex;
-        }
-        //regex --> regex
-        else
-            formattedRegex = regex;
-
-        return formattedRegex;
-    }
-    
-    private String createCommandLine() throws IOException
-    {
-        String command = PROP_UE_EXEC + " -v";
-
-	if (allowBreaks)
-	    command += " -b";                
-  
-        // get plan
-        
-	if (currentPlan != null && 
-            currentPlan.getPlanName() != null &&
-            !currentPlan.getPlanName().equals(UNKNOWN))
-        {
-            if (new File(currentPlan.getPlanName()).exists())
-            {
-                command += " " + currentPlan.getPlanName(); 
-            }
-            else
-                return "ERROR: unable to identify plan.";
-        }
-        else
-            return "ERROR: unable to identify plan.";
-        
-        // get script
-        
-        if (currentPlan != null &&
-            currentPlan.getScriptName() != null &&
-            !currentPlan.getScriptName().equals(UNKNOWN))
-        {
-            if (new File(currentPlan.getScriptName()).exists())
-            {
-                command += " " + currentPlan.getScriptName(); 
-            }
-            else if (fileHandler.searchForScript() != null)
-            {
-                command += " " + currentPlan.getScriptName();
-            }
-            else
-                return "ERROR: unable to identify script.";
-        }
-        else if (fileHandler.searchForScript() != null)
-        {
-            command += " " + currentPlan.getScriptName();
-        }
-        else
-            return "ERROR: unable to identify script.";
-             
-        // get libraries
-
-        if (!currentPlan.getMissingLibraries().isEmpty()) {
-            // try to find libraries
-            for (String libName : currentPlan.getMissingLibraries()) {
-                Model lib = findLibraryNode(libName, true);
-                if (lib == null) {
-                    return "ERROR: library \"" + libName + "\" not found.";
-                }
-                else {
-		    currentPlan.linkLibrary(lib);
-                }
-            }
-        }
-
-        if (!currentPlan.getLibraryNames().isEmpty()) {
-            for (String libFile : currentPlan.getLibraryNames()) {
-                // double check that library still exists
-                if (new File(libFile).exists()) {
-                    command += " -l ";
-                    command += libFile;
-                }
-                else {
-                    return "ERROR: library file " + libFile + " does not exist.";
-                }
-            }
-        }       
-
-	return command;
-    }
-    
-    public void displayErrorMessage(Exception e, String errorMessage)
-    {
-        if (e != null)
-        {
-            JOptionPane.showMessageDialog(theLuv, 
-                                          errorMessage + ". Please see Debug Window.", 
-                                          "Error", 
-                                          JOptionPane.ERROR_MESSAGE);
-
-            System.err.println("ERROR: " + e.getMessage());
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(theLuv, 
-                                          errorMessage, 
-                                          "Error", 
-                                          JOptionPane.ERROR_MESSAGE);
-
-            System.err.println(errorMessage);
-        }
-        
-        //finishedExecutionState();
-    }
-    
-    public void displayInfoMessage(String infoMessage)
-    {
-        JOptionPane.showMessageDialog(theLuv,
-                                      infoMessage,
-                                      "Stopping Execution",
-                                      JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public Model findLibraryNode(String name, boolean askUser) throws InterruptedIOException
-    {
-	Model result = Model.getRoot().findChildByName(name);
-
-	if (result == null || result.getPlanName().equals(UNKNOWN)) {
-	    if (askUser) {
-		// Prompt user for a file containing the missing library, and (try to) load it
-		File library = null;
-		try {
-		    library = fileHandler.searchForLibrary(name);
-		}
-		catch (InterruptedIOException e) {
-                    displayErrorMessage(e, "ERROR: exception occurred while finding library node");
-		}
-
-		if (library != null) {
-		    result = Model.getRoot().findChildByName(name);
-		}
-	    }
-	}
-	return result;
-    }
-    
-    public void openAboutWindow()
-    {   
-        String info = 
-                "Product:   Luv Viewer Version 1.0 beta 4 (c) 2008 NASA Ames Research Center\n" + 
-                "Website:   http://plexil.wiki.sourceforge.net/Luv\n" + 
-                "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" + 
-                "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
-                "Userdir:    " + System.getProperty("user.dir") + "\n";
-        
-        ImageIcon icon = getIcon(ABOUT_LOGO);
-        
-        JOptionPane.showMessageDialog(theLuv,
-				      info,
-                                      "About Luv Viewer",
-                                      JOptionPane.INFORMATION_MESSAGE,
-                                      icon);
-    }     
-      
-    /***************** List of Actions ********************/
-
-    /** Action to open and view a plan. */
-
-    LuvAction openPlanAction = 
-	new LuvAction("Open Plan",
-		      "Open a plexil plan file.",
-		      VK_O, 
-		      META_MASK)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {  
-                newPlan = true;
-                PlexilPlanHandler.resetRowNumber();
-                
-		// Loading done in the file handler at present
-		int option = fileHandler.choosePlan();
-
-		if (option == APPROVE_OPTION) 
-                {
- 		    // Do these things only if we loaded a plan
-		    if (isExecuting) 
-                    {
-			try 
-                        {
-			    stopExecutionState();
-                            displayInfoMessage("Stopping execution and opening a new plan");
-			}
-			catch (IOException ex) 
-                        {
-                            displayErrorMessage(ex, "ERROR: exception occurred while stopping execution");
-			}
-		    } 
-                    
-                    openPlanState();
-		}
-                
-                newPlan = false;
-	    }
-	};
-      
-    /** Action to load a script for Execution. */
-         
-    LuvAction openScriptAction = 
-	new LuvAction("Open Script", 
-		      "Open a plexil script file.", 
-		      VK_E, 
-		      META_MASK)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-		int option = fileHandler.chooseScript();
-		if (option == APPROVE_OPTION) 
-                {
-		    if (isExecuting) 
-                    {                     
-			try 
-                        {
-			    stopExecutionState();
-                            displayInfoMessage("Stopping execution and opening a new script");
-			}
-			catch (IOException ex) 
-                        {                       
-			    displayErrorMessage(ex, "ERROR: exception occurred while stopping execution");
-			}
-		    }
-                    
-                    readyState();
-		}
-	    }
-	};
-
-    /** Action to reload a plan. */
-
-    LuvAction reloadAction = 
-	new LuvAction("Reload",
-		      "Reload currently loaded files.",
-		      VK_R, 
-		      META_MASK)
-	{
-	    public void actionPerformed(ActionEvent e) 
-	    {
-                newPlan = true;
-                PlexilPlanHandler.resetRowNumber();
-                
-                if (isExecuting) 
-                {
-		    try 
-                    {
-			stopExecutionState();
-                        displayInfoMessage("Stopping execution and reloading plan");
-		    }
-		    catch (IOException ex) 
-                    {
-                        displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
-		    }
-		}                             
-          
-                File plan = new File(currentPlan.getPlanName());
-                if (plan.exists())
-                {
-                    fileHandler.loadPlan(new File(currentPlan.getPlanName()));
-                    Luv.getLuv().showStatus("Plan \"" + currentPlan.getPlanName() + "\" loaded", 1000);
-                    openPlanState(); 
-                }
-                else
-                {
-                    displayErrorMessage(null, "ERROR: trying to reload and unknown plan. Are you trying to reload a plan you originally executed remotely?");
-                    reloadPlanState();
-                }
-                newPlan = false;
-	    }
-	};
-
-    /** Action to show the debugging window. */
-
-    LuvAction luvDebugWindowAction = 
-	new LuvAction("Show Debug Window",
-		      "Show window with status and debugging information.",
-		      VK_D, 
-		      META_MASK)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-		luvViewerDebugWindow.setVisible(!luvViewerDebugWindow.isVisible());
-                   
-		if (luvViewerDebugWindow.isVisible())
-		    luvDebugWindowAction.putValue(NAME, "Hide Debug Window");
-		else
-		    luvDebugWindowAction.putValue(NAME, "Show Debug Window");
-	    }
-	};
-        
-    /** Action to show the About Luv Viewer window. */
-        
-    LuvAction aboutWindowAction = 
-        new LuvAction("About Luv Viewer Window",
-		      "Show window with luv viewer about information.")
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-                openAboutWindow();
-	    }
-	};
-         
-    /** Action to allow breakpoints. */
-         
-    LuvAction allowBreaksAction =
-	new LuvAction("Enable Breaks",
-		      "Select this to enable or disable breakpoints.",
-		      VK_F5)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-		if (!isExecuting) 
-                {
-		    allowBreaks = !allowBreaks;
-
-		    if (allowBreaks) 
-                    {
-			enabledBreakingState();
-                        statusMessageHandler.showStatus("Enabled breaks", Color.GREEN.darker(), 1000);
-		    }
-		    else 
-                    {
-			disabledBreakingState();
-                        statusMessageHandler.showStatus("Disabled breaks", Color.RED, 1000);
-		    }
-		}
-	    }
-	};
-        
-        /** Action to allow breakpoints. */
-         
-    LuvAction removeAllBreaksAction =
-	new LuvAction("Remove All Breakpoints",
-		      "Remove all breakpoints from this plan.")
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-		luvBreakPointHandler.removeAllBreakPoints();
-                statusMessageHandler.showStatus("All breakpoints have been removed", 1000);
-	    }
-	};
-         
-    /** Action to execute a plexil plan. */
-
-    LuvAction execAction = 
-	new LuvAction("Execute Plan", 
-		      "Execute currently loaded plan.",
-		      VK_F6)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-                try 
-                {
-                    if (!isExecuting) 
-                    {
-                        String command = createCommandLine();
-                        if (!command.contains("ERROR")) 
-                        {                           
-                            executionViaLuvViewerHandler.runExec(command);
-			}
-                        else 
-                        {
-                            displayErrorMessage(null, command);
-                            showStatus("Stopped execution", Color.lightGray, 1000);
-                            readyState();
-                        }
-                    }
-                    else 
-                    {                       
-                        stopExecutionState();
-                    }                    
-                } 
-		catch (IOException ex) 
-                {
-                    displayErrorMessage(ex, "ERROR: exception occurred while executing plan");
-                }
-	    }
-	};
-
-    LuvAction pauseAction = 
-	new LuvAction("Pause/Resume plan", 
-		      "Pause or resume an executing plan, if it is blocking.",
-		      VK_ENTER)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {  
-		if (isExecuting) {
-		    planPaused = !planPaused;
-
-		    statusMessageHandler.showStatus((planPaused ? "Pause" : "Resume") + " requested", 
-						    Color.BLACK, 
-						    1000);
-
-		    if (planPaused)
-			pausedState();
-		    else
-			executionState();
-                         
-		}
-	    }
-	};
-
-    /** Action to step a paused plexil plan. */
-
-    LuvAction stepAction = 
-	new LuvAction("Step", 
-		      "Step a plan, pausing it if is not paused.",
-		      VK_SPACE)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-		if (isExecuting) {
-		    if (!planPaused) {
-			pausedState();
-			statusMessageHandler.showStatus("Pause requested", Color.BLACK, 1000);
-		    }
-		    else {
-			stepState();
-			statusMessageHandler.showStatus("Step plan", Color.BLACK, 1000);
-		    }
-		}                     
-	    }
-	};
-        
-    /** Action to hide or show nodes. */
-      
-    LuvAction hideOrShowNodes = 
-	new LuvAction("Hide/Show Nodes...", 
-		      "Hide or Show specific nodes by full or partial name.",
-                      VK_H, 
-		      META_MASK)
-	{            
-            public void actionPerformed(ActionEvent e)
-	    {
-                hideOrShowWindow.makeVisible();
-            }   
-	};
-        
-    /** Action to for a node by name nodes. */
-      
-    LuvAction findNode = 
-	new LuvAction("Find...", 
-		      "Find node by name.",
-                      VK_F, 
-		      META_MASK)
-	{            
-            public void actionPerformed(ActionEvent e)
-	    {
-                FindWindow.makeVisible(properties.getProperty(PROP_SEARCH_LIST, UNKNOWN));
-            }   
-	};
-        
-    /** Action to for a node by name nodes. */
-      
-    LuvAction createDebugCFGFileAction = 
-	new LuvAction("Create Debug Configuration File...", 
-		      "Create and Customize a debug configuration file.",
-                      VK_G, 
-		      META_MASK)
-	{            
-            public void actionPerformed(ActionEvent e)
-	    {
-                try 
-                {
-                    debugCFGWindow.run();
-                } 
-                catch (FileNotFoundException ex) 
-                {
-                    Logger.getLogger(Luv.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }   
-	};
-
-    /** Action to exit the program. */
-
-    LuvAction exitAction = 
-	new LuvAction("Exit", "Terminate this program.", VK_ESCAPE)
-	{
-	    public void actionPerformed(ActionEvent e)
-	    {
-		Object[] options = 
-		    {
-                        "Yes",
-                        "No",
-		    };
-                   
-		int exitLuv = 
-		    JOptionPane.showOptionDialog(theLuv,
-						 "Are you sure you want to exit?",
-						 "Exit Luv Viewer",
-						 JOptionPane.YES_NO_CANCEL_OPTION,
-						 JOptionPane.WARNING_MESSAGE,
-						 null,
-						 options,
-						 options[0]);
-                   
-		if (exitLuv == 0) {                 
-		    exit();
-		}
-	    }
-	};
 }

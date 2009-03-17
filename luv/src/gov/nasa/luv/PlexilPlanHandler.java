@@ -95,7 +95,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
         if (tagName.equals(PLEXIL_SCRIPT))
         {
-            Luv.getLuv().displayErrorMessage(null, "ERROR: loaded script instead of plan");           
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: loaded script instead of plan");           
         }
 
         // if this SHOULD be a child node, make that happen
@@ -165,7 +165,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         } 
         catch (InterruptedIOException ex) 
         {
-            Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while locating library");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while locating library");
         }
 
         // catch condition, local variable and action information
@@ -229,7 +229,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
                 currentNode().setLibraryName(text);
                 currentNode().setUnresolvedLibraryCall(true);
                 boolean askAboutMissingLibs = !loadingLibrary && !Luv.getLuv().getFileHandler().getStopSearchForMissingLibs();
-                Model library = Luv.getLuv().findLibraryNode(text, askAboutMissingLibs); 
+                Model library = Luv.getLuv().getCurrentPlan().findLibraryNode(text, askAboutMissingLibs); 
 
                 if (library == null) 
                 {

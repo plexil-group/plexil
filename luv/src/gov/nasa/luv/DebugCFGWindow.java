@@ -62,7 +62,12 @@ public class DebugCFGWindow extends JFrame implements ItemListener
     private JCheckBox enableDebugCFGFile;  
     private JTextArea preview;    
             
-    public DebugCFGWindow() {}
+    public DebugCFGWindow() 
+    {
+        setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+        setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
+	pack();
+    }
     
     public DebugCFGWindow(String title) throws FileNotFoundException 
     {
@@ -105,7 +110,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         }
         catch (FileNotFoundException ex)
         {
-            Luv.getLuv().displayErrorMessage(ex, "ERROR: " + COMPLETE_FLAG_LIST + 
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: " + COMPLETE_FLAG_LIST + 
                     " not found.\nYou need to run the python script: " + PYTHON_SCRIPT + " and try again");
         }  
   
@@ -219,7 +224,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
                 }
                 catch (Exception e)
                 {
-                    Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while getting preview of " + DEBUG_CFG_FILE);
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while getting preview of " + DEBUG_CFG_FILE);
                 }
                 finally 
                 {
@@ -228,7 +233,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             }
             catch (FileNotFoundException ex)
             {
-                Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
             }  
         }
         else
@@ -444,7 +449,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             }
             catch (Exception e)
             {
-                Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while writing to " + DEBUG_CFG_FILE);
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while writing to " + DEBUG_CFG_FILE);
             }
         }   
     } 
@@ -489,7 +494,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             }
             catch (Exception e)
             {
-                Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while enabling/disabling " + DEBUG_CFG_FILE);
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while enabling/disabling " + DEBUG_CFG_FILE);
             }
             finally 
             {
@@ -498,7 +503,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         }
     }
 
-    public void run() throws FileNotFoundException 
+    public void open() throws FileNotFoundException 
     {
         if (frame != null && frame.isVisible())
             frame.setVisible(false);
@@ -525,7 +530,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         } 
         catch (FileNotFoundException ex) 
         {
-            Luv.getLuv().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
         }
     }
 }

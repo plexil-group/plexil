@@ -95,11 +95,11 @@ public class LuvBreakPointHandler
              
              Luv.getLuv().enableRemoveBreaksMenuItem(true);
 
-             Luv.getLuv().showStatus("Added break on " + breakPoint, 5000l);
+             Luv.getLuv().getStatusMessageHandler().showStatus("Added break on " + breakPoint, 5000l);
              Luv.getLuv().getViewHandler().refreshView();       
          }
          else
-             Luv.getLuv().showStatus("\"" + breakPoint + "\" breakpoint has already been added", Color.RED, 5000l);
+             Luv.getLuv().getStatusMessageHandler().showStatus("\"" + breakPoint + "\" breakpoint has already been added", Color.RED, 5000l);
       }
 
       /** Remove breakpoint from grand list of breakpoints.
@@ -116,7 +116,7 @@ public class LuvBreakPointHandler
          if (!breakpointsExist())
              Luv.getLuv().enableRemoveBreaksMenuItem(false);
          
-         Luv.getLuv().showStatus("Removed break on " + breakPoint, 5000l);
+         Luv.getLuv().getStatusMessageHandler().showStatus("Removed break on " + breakPoint, 5000l);
          Luv.getLuv().getViewHandler().refreshView();
       }
 

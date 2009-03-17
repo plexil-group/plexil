@@ -24,10 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
 package gov.nasa.luv;
-
 
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
@@ -39,14 +36,14 @@ import java.awt.GridLayout;
 
 import static gov.nasa.luv.Constants.*;
 
-public class NodeInfoTabbedWindow extends JPanel
+public class NodeInfoWindow extends JPanel
 {
     private JTabbedPane tabbedPane;
     private JFrame frame;
             
-    public NodeInfoTabbedWindow(){}
+    public NodeInfoWindow(){}
     
-    public NodeInfoTabbedWindow(Model node) 
+    public NodeInfoWindow(Model node) 
     {
         super(new GridLayout(1, 1));
         
@@ -63,12 +60,12 @@ public class NodeInfoTabbedWindow extends JPanel
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     
-    public JTabbedPane getCurrentNodeInfoTabbedWindow()
+    public JTabbedPane getCurrentNodeInfoWindow()
     {
         return tabbedPane;
     }
     
-    public boolean isNodeInfoTabbedWindowOpen()
+    public boolean isNodeInfoWindowOpen()
     {
         if (frame != null)
             return frame.isVisible();
@@ -76,9 +73,10 @@ public class NodeInfoTabbedWindow extends JPanel
             return false;
     }
     
-    public void closeNodeInfoTabbedWindow()
+    public void closeNodeInfoWindow()
     {
-        frame.setVisible(false);
+        if (frame != null)
+            frame.setVisible(false);
     }
     
     private void addConditionsTab(Model node)
@@ -111,18 +109,13 @@ public class NodeInfoTabbedWindow extends JPanel
         }
     }
     
-    /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from
-     * the event dispatch thread.
-     */
-    public void createAndShowGUI(Model node) 
+    public void open(Model node) 
     {
         //Create and set up the window.
         frame = new JFrame(node.getModelName() + " Information Window");
         
         //Add content to the window.
-        frame.add(new NodeInfoTabbedWindow(node), BorderLayout.CENTER);
+        frame.add(new NodeInfoWindow(node), BorderLayout.CENTER);
         
         frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_NODEINFOWIN_SIZE));
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_NODEINFOWIN_LOC));

@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import java.io.File;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -573,6 +575,29 @@ public class Model extends Properties
     {
 	return libraryName;
     }
+    
+    public Model findLibraryNode(String name, boolean askUser) throws InterruptedIOException
+    {
+	Model result = TheRootModel.findChildByName(name);
+
+	if (result == null || result.getPlanName().equals(UNKNOWN)) {
+	    if (askUser) {
+		// Prompt user for a file containing the missing library, and (try to) load it
+		File library = null;
+		try {
+		    library = Luv.getLuv().getFileHandler().searchForLibrary(name);
+		}
+		catch (InterruptedIOException e) {
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while finding library node");
+		}
+
+		if (library != null) {
+		    result = TheRootModel.findChildByName(name);
+		}
+	    }
+	}
+	return result;
+    }
 
     //* Set the unresolved-library-call flag
     //  @param val The new value of the flag
@@ -897,7 +922,7 @@ public class Model extends Properties
     {
 	if (value == null)
         {
-            Luv.getLuv().displayErrorMessage(null, "ERROR: error occured while setting model property " +
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error occured while setting model property " +
                     "(key: " + key + ", type: " + type + ", value: NULL)");        
         }
 

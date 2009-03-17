@@ -166,7 +166,7 @@ public class FileHandler
             Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
             Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_BASE, library.toString());         
             loadPlan(library);
-            Luv.getLuv().showStatus("Library \"" + library.toString() + "\" loaded", 1000);
+            Luv.getLuv().getStatusMessageHandler().showStatus("Library \"" + library.toString() + "\" loaded", 1000);
         }
         else
             library = null;
@@ -210,7 +210,7 @@ public class FileHandler
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
             Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
             loadScript(script);  
-            Luv.getLuv().showStatus("Script \"" + script.toString() + "\" loaded", 1000);
+            Luv.getLuv().getStatusMessageHandler().showStatus("Script \"" + script.toString() + "\" loaded", 1000);
         }
         
         return script;  
@@ -236,7 +236,7 @@ public class FileHandler
 	}
 	catch(Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while choosing script");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while choosing script");
 	}
          
 	return option;
@@ -257,7 +257,7 @@ public class FileHandler
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
                     loadPlan(plan);
-                    Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
+                    Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
                     return APPROVE_OPTION;
             }  
             else
@@ -265,7 +265,7 @@ public class FileHandler
 	}
 	catch(Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while choosing plan");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while choosing plan");
 	}
          
 	return -1;
@@ -295,7 +295,7 @@ public class FileHandler
 	}
 	catch(Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while choosing library");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while choosing library");
 	}
          
 	return null;
@@ -337,14 +337,14 @@ public class FileHandler
     public void loadRecentRun(int index) throws IOException
     {
         File script = null;
-	String planName = Luv.getLuv().getRecentPlan(index);
-	String scriptName = Luv.getLuv().getRecentScript(index);
+	String planName = LoadRecentAction.getRecentPlan(index);
+	String scriptName = LoadRecentAction.getRecentScript(index);
          
 	if (planName != null) 
         {
             File plan = new File(planName);
             loadPlan(plan);
-            Luv.getLuv().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
+            Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
             
             if (scriptName != null && !scriptName.equals(UNKNOWN)) 
             {
@@ -379,7 +379,7 @@ public class FileHandler
 	}
 	catch(Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while loading: " + file.getName());
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while loading: " + file.getName());
 	}
         
 	return result;
@@ -403,7 +403,7 @@ public class FileHandler
 	}
         catch (Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");
 	    return null;
 	}
         
@@ -428,7 +428,7 @@ public class FileHandler
 
 		    // show the options
 
-		    Luv.getLuv().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
+		    Luv.getLuv().getStatusMessageHandler().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
 		    int result = JOptionPane.showOptionDialog(Luv.getLuv(),
 							      "Unable to locate the \"" + callName + "\" library.\n\n" +
 							      "What do you want to do?\n\n",
@@ -453,7 +453,7 @@ public class FileHandler
 			// halt the link operation now
 
 		    case 1:
-			Luv.getLuv().startState();
+			Luv.getLuv().getLuvStateHandler().startState();
 			retry = false;
 			stopSearchForMissingLibs = true;
 			break;
@@ -484,7 +484,7 @@ public class FileHandler
         }
         catch (Exception e)
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while locating script");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while locating script");
 	} 
           
 	return null;
@@ -578,7 +578,7 @@ public class FileHandler
                     return null;
             case 2:
                 doNotLoadScript = true;
-                Luv.getLuv().readyState();
+                Luv.getLuv().getLuvStateHandler().readyState();
                 return null;                    
         }
         

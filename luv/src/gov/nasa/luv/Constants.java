@@ -280,22 +280,22 @@ public class Constants
       public static final Dimension PROP_DBWIN_SIZE_DEF       = new Dimension(1200, 300);
       
       public static final String    PROP_NODEINFOWIN_LOC      = "niwindow.location";
-      public static final Point     PROP_NODEINFOWIN_LOC_DEF   = new Point(300, 300);
+      public static final Point     PROP_NODEINFOWIN_LOC_DEF  = new Point(300, 300);
       public static final String    PROP_NODEINFOWIN_SIZE     = "niwindow.size";
       public static final Dimension PROP_NODEINFOWIN_SIZE_DEF = new Dimension(900, 300);
       
       public static final String    PROP_FINDWIN_LOC          = "fwindow.location";
-      public static final Point     PROP_FINDWIN_LOC_DEF       = new Point(500, 300);
+      public static final Point     PROP_FINDWIN_LOC_DEF      = new Point(500, 300);
       public static final String    PROP_FINDWIN_SIZE         = "fwindow.size";
       public static final Dimension PROP_FINDWIN_SIZE_DEF     = new Dimension(400, 100);
       
       public static final String    PROP_HIDESHOWWIN_LOC      = "hswindow.location";
-      public static final Point     PROP_HIDESHOWWIN_LOC_DEF   = new Point(300, 300);
+      public static final Point     PROP_HIDESHOWWIN_LOC_DEF  = new Point(300, 300);
       public static final String    PROP_HIDESHOWWIN_SIZE     = "hswindow.size";
-      public static final Dimension PROP_HIDESHOWWIN_SIZE_DEF = new Dimension(300, 300);
+      public static final Dimension PROP_HIDESHOWWIN_SIZE_DEF = new Dimension(900, 700);
       
       public static final String    PROP_CFGWIN_LOC           = "cfgwindow.location";
-      public static final Point     PROP_CFGWIN_LOC_DEF        = new Point(300, 300);
+      public static final Point     PROP_CFGWIN_LOC_DEF       = new Point(300, 300);
       public static final String    PROP_CFGWIN_SIZE          = "cfgwindow.size";
       public static final Dimension PROP_CFGWIN_SIZE_DEF      = new Dimension(900, 700);
 

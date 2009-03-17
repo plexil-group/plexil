@@ -197,5 +197,15 @@ public class DebugWindow extends JFrame
          getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
          
          setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
+         
+         setTitle("Debug Window");                
+         setLocation(Luv.getLuv().getProperties().getPoint(PROP_DBWIN_LOC));
+	 pack();
+         addWindowListener(new WindowAdapter() {
+		public void windowClosing(WindowEvent winEvt) {
+		    // Perhaps ask user if they want to save any unsaved files first.
+		    LuvActionHandler.luvDebugWindowAction.actionPerformed(null);   
+		}
+	    });
       }      
 }

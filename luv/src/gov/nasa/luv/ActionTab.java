@@ -102,7 +102,7 @@ public class ActionTab extends JPanel
         return actionPane;
     }
 
-    public void createActionTab(Model model) 
+    public void open(Model model) 
     {       
         actionPane = new ActionTab(model);
         actionPane.setOpaque(true);

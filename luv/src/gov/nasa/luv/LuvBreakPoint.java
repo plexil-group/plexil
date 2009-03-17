@@ -64,7 +64,7 @@ public abstract class LuvBreakPoint extends AbstractBreakPoint
 
     public void onBreak()
     {
-       Luv.getLuv().pausedState();
+       Luv.getLuv().getLuvStateHandler().pausedState();
        Luv.getLuv().getLuvBreakPointHandler().setBreakPoint(this);
        oldValue = model.getProperty(targetProperty);
     }

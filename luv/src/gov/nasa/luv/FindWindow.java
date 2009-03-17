@@ -235,9 +235,9 @@ public class FindWindow extends JPanel implements KeyListener
             }
         }
         
-        Luv.getLuv().addSearchWord(text);
+        addSearchWord(text);
         leftHalf.remove(entryPanel);
-        leftHalf.add(createEntryField(Luv.getLuv().getSearchList()));
+        leftHalf.add(createEntryField(getSearchList()));
         foundNodes.clear();
         next = 0;
         TreeTableView.getCurrent().restartSearch();
@@ -245,6 +245,31 @@ public class FindWindow extends JPanel implements KeyListener
         foundMatch = false;
      
         findMatch(Luv.getLuv().getCurrentPlan(), search, both, startsWith, endsWith);
+    }
+    
+    private void addSearchWord(String searchWord)
+    {
+        String list = Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN);
+        
+        if (!list.equals(UNKNOWN))
+        {
+            String [] array = list.split(", ");
+            list = searchWord;
+            for (int i = 0; i < array.length; i++)
+            {
+                if (i < 10 && !array[i].equals(searchWord) && !array[i].equals(""))
+                    list += ", " + array[i];
+            }
+        }
+        else
+            list = searchWord;
+        
+        Luv.getLuv().getProperties().setProperty(PROP_SEARCH_LIST, list);
+    }
+    
+    private String getSearchList()
+    {
+        return Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN);
     }
     
     private void showUserNextNode()
@@ -303,7 +328,7 @@ public class FindWindow extends JPanel implements KeyListener
        }
     }
     
-    public static void makeVisible(String list)
+    public static void open(String list)
     {
         if (frame != null && frame.isVisible())
             frame.setVisible(false);

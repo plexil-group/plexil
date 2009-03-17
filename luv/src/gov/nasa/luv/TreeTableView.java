@@ -306,7 +306,7 @@ public class TreeTableView extends JTreeTable implements View
           node_number++;
           visible_row++;
            
-          Luv.getLuv().showStatusOnly("Row: " + visible_row + " Node: " + node_number);  
+          Luv.getLuv().getStatusMessageHandler().showStatus("Row: " + visible_row + " Node: " + node_number);  
       }
 
       /** Handle popup menu event.
@@ -348,26 +348,16 @@ public class TreeTableView extends JTreeTable implements View
 
          if (node.hasConditions() || node.hasVariables() || node.hasAction())
          {
-             Luv.getLuv().getConditionsTab().createConditionTab(node);
-             Luv.getLuv().getVariablesTab().createVariableTab(node);  
-             Luv.getLuv().getActionTab().createActionTab(node);
-             Luv.getLuv().getNodeInfoTabbedWindow().createAndShowGUI(node);
+             Luv.getLuv().getConditionsTab().open(node);
+             Luv.getLuv().getVariablesTab().open(node);  
+             Luv.getLuv().getActionTab().open(node);
+             Luv.getLuv().getNodeInfoWindow().open(node);
          }
          else
          {
-             Luv.getLuv().showStatus("No additional information is available for " + node.getModelName(), 5000);
+             Luv.getLuv().getStatusMessageHandler().showStatus("No additional information is available for " + node.getModelName(), 5000);
          }
              
-      }
-      
-      public boolean isNodeInfoTabbedWindowOpen()
-      {
-          return Luv.getLuv().getNodeInfoTabbedWindow().isNodeInfoTabbedWindowOpen();
-      }
-      
-      public void closeNodeInfoTabbedWindow()
-      {
-          Luv.getLuv().getNodeInfoTabbedWindow().closeNodeInfoTabbedWindow();
       }
 
       /** Focus has been disabled for this view.  This way the view
@@ -761,35 +751,11 @@ public class TreeTableView extends JTreeTable implements View
       {
          LuvAction[] actions =
             {
-               expandAll,
-               collapseAll,
-               Luv.getLuv().hideOrShowNodes,
-               Luv.getLuv().findNode,
+               LuvActionHandler.expandAll,
+               LuvActionHandler.collapseAll,
+               LuvActionHandler.hideOrShowNodes,
+               LuvActionHandler.findNode,
             };
          return actions;
       }
-      
-      /** Action to fully expand tree. */
-
-      LuvAction expandAll = new LuvAction(
-         "Expand All", "Expand all tree nodes.", VK_EQUALS)
-         {
-               public void actionPerformed(ActionEvent e)
-               {                   
-                   expandAllNodes();
-                   Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
-               }
-         };
-
-      /** Action to fully collapse tree. */
-
-      LuvAction collapseAll = new LuvAction(
-         "Collapse All", "Collapse all tree nodes.", VK_MINUS)
-         {
-               public void actionPerformed(ActionEvent e)
-               {
-                   collapseAllNodes();
-                   Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
-               }
-         }; 
 }

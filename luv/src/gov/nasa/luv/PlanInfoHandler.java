@@ -49,7 +49,7 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
              Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
 	     // tell viewer to get ready
              Luv.getLuv().setIsExecuting(true);
-	     Luv.getLuv().readyState();	     
+	     Luv.getLuv().getLuvStateHandler().readyState();	     
 	 }
       }
 }

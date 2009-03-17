@@ -74,19 +74,94 @@ public class RegexModelFilter extends AbstractModelFilter
         return false;
     }
 
+    public void refreshRegexView()
+    {
+        Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());        
+    }
+    
     public void addRegex(String regex)
     {
-        listOfRegex.add(regex);        
+        String list = Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
+        
+        if (list.equals(UNKNOWN) || list.equals(""))
+            list = regex;
+        else
+            list += ", " + regex;
+        
+        Luv.getLuv().getProperties().setProperty(PROP_HIDE_SHOW_LIST, list);
+
+        listOfRegex.add(formatRegex(regex));
+        
+        if (Luv.getLuv().getViewHandler().getCurrentView() != null)
+            refreshRegexView();
     }
     
-    public boolean removeRegex(String regex)
+    public void removeRegex(String regex)
     {
-        return listOfRegex.remove(regex);
+        String list = Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);     
+        
+        if (!list.equals(UNKNOWN))
+        {
+            String [] array = list.split(", ");
+            list = "";
+            for (int i = 0; i < array.length; i++)
+            {
+                if (!array[i].equals(regex) && !array[i].equals(""))
+                    list += array[i] + ", ";
+            }
+        }
+        Luv.getLuv().getProperties().setProperty(PROP_HIDE_SHOW_LIST, list);
+        
+        listOfRegex.remove(formatRegex(regex));
+        
+        if (Luv.getLuv().getViewHandler().getCurrentView() != null)
+            refreshRegexView();
     }
     
-    public Object[] getRegexList()
+    public void updateRegexList()
     {
-        return listOfRegex.toArray();
+        String namelist = Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);
+        
+        if (!namelist.equals(UNKNOWN) && !namelist.equals(""))
+        {
+            String [] array = namelist.split(", ");
+            for (int i = 0; i < array.length; i++)
+            {
+                listOfRegex.add(formatRegex(array[i]));
+            }
+        }
+    }
+    
+    private String formatRegex(String regex)
+    {  
+        String formattedRegex = "";
+
+        if (regex.endsWith("*"))
+        {
+            //*regex* --> .*regex.*
+            if (regex.startsWith("*"))
+            {
+                formattedRegex = regex.substring(1, regex.length() - 1);
+                formattedRegex = ".*" + formattedRegex + ".*";
+            }
+            //regex* --> ^regex.*
+            else
+            {
+                formattedRegex = regex.substring(0, regex.length() - 1);
+                formattedRegex = "^" + formattedRegex + ".*";
+            }
+        }
+        //*regex --> .*regex
+        else if (regex.startsWith("*"))
+        {
+            formattedRegex = regex.substring(1, regex.length());
+            formattedRegex = ".*" + formattedRegex;
+        }
+        //regex --> regex
+        else
+            formattedRegex = regex;
+
+        return formattedRegex;
     }
 }
 

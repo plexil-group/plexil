@@ -60,7 +60,7 @@ public class DispatchHandler extends DefaultHandler
          // add each type of handler to the table of possible handlers
 
           registerHandler(PLAN_INFO, new PlanInfoHandler());
-          registerHandler(NODE_STATE_UPDATE, new StateUpdateHandler());
+          registerHandler(NODE_STATE_UPDATE, new NodeStateUpdateHandler());
 
 	  // Use same handler for plans & libraries
 	  AbstractDispatchableHandler planHandler = new PlexilPlanHandler();
@@ -104,7 +104,7 @@ public class DispatchHandler extends DefaultHandler
             
             if (currentHandler == null)
             {
-               Luv.getLuv().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
+               Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
 
                throw(new Error("ERROR: unhandled XML tag: <" + localName + ">."));
             }

@@ -167,7 +167,7 @@ public class ConditionsTab extends JPanel
         return conditionsPane;
     }
 
-    public void createConditionTab(Model model) 
+    public void open(Model model) 
     {       
         conditionsPane = new ConditionsTab(model);
         conditionsPane.setOpaque(true);

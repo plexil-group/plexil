@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.JLabel;
 
+import javax.swing.JOptionPane;
 import static java.lang.System.*;
 
 public class StatusMessageHandler
@@ -199,6 +200,36 @@ public class StatusMessageHandler
       {
           if (message.length() > 0)
               StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
+      }
+      
+      public void displayErrorMessage(Exception e, String errorMessage)
+      {
+          if (e != null)
+          {
+              JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                            errorMessage + ". Please see Debug Window.", 
+                                            "Error", 
+                                            JOptionPane.ERROR_MESSAGE);
+  
+              System.err.println("ERROR: " + e.getMessage());
+          }
+          else
+          {
+              JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                            errorMessage, 
+                                            "Error", 
+                                            JOptionPane.ERROR_MESSAGE);
+
+              System.err.println(errorMessage);
+          }
+      }
+    
+      public void displayInfoMessage(String infoMessage)
+      {
+          JOptionPane.showMessageDialog(Luv.getLuv(),
+                                        infoMessage,
+                                        "Stopping Execution",
+                                        JOptionPane.INFORMATION_MESSAGE);
       }
 
       /** Clear the status bar. */

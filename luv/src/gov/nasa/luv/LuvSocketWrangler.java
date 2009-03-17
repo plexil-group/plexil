@@ -56,7 +56,7 @@ public class LuvSocketWrangler
 	    os = s.getOutputStream();
 	}
 	catch (Exception e) {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while initializing socket");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while initializing socket");
 	    return;
 	}
 
@@ -71,7 +71,7 @@ public class LuvSocketWrangler
 	}
 	catch (Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while initializing XML reader");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while initializing XML reader");
 	    return;
 	}
 
@@ -94,10 +94,10 @@ public class LuvSocketWrangler
 		}
 		catch (Exception f) 
                 {
-                    Luv.getLuv().displayErrorMessage(f, "ERROR: exception occurred while closing Universal Executive input stream");
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(f, "ERROR: exception occurred while closing Universal Executive input stream");
 		}
 		    
-		Luv.getLuv().finishedExecutionState();
+		Luv.getLuv().getLuvStateHandler().finishedExecutionState();
                 
 		break;
 	    }
@@ -113,7 +113,7 @@ public class LuvSocketWrangler
                  * Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while parsing XML message");
                  */
                 
-                Luv.getLuv().finishedExecutionState();
+                Luv.getLuv().getLuvStateHandler().finishedExecutionState();
                 
 		break;
 	    }
@@ -128,7 +128,7 @@ public class LuvSocketWrangler
 		}
 		catch (Exception e) 
                 {
-                    Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while acknowledging message from the Universal Executive");
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while acknowledging message from the Universal Executive");
 		    break;
 		}
 	    }

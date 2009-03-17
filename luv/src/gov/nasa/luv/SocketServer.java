@@ -78,7 +78,7 @@ public class SocketServer
 	}
 	catch (Exception e) 
         {
-            Luv.getLuv().displayErrorMessage(e, "ERROR: exception occurred while handling connection to server");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while handling connection to server");
 	}
     }
 

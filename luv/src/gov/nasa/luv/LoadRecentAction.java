@@ -27,8 +27,10 @@
 package gov.nasa.luv;
 
 import java.awt.event.ActionEvent;
-
+import static java.awt.event.KeyEvent.*;
 import java.io.IOException;
+
+import static gov.nasa.luv.Constants.*;
 
 /** Action to load a recent plan. */
 
@@ -47,11 +49,112 @@ public class LoadRecentAction extends LuvAction
 
     public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
     {
-       super(Luv.getLuv().getRecentPlanName(recentIndex) + " + " + Luv.getLuv().getRecentScriptName(recentIndex),
-             Luv.getLuv().getRecentMenuDescription(recentIndex),
+       super(getRecentPlan(recentIndex) + " + " + getRecentScript(recentIndex),
+             getRecentMenuDescription(recentIndex),
              keyCode, 
              modifiers);
        this.recentIndex = recentIndex;
+    }
+    
+    public static String getRecentPlan(int index)
+    {
+        String recentPlan = UNKNOWN;
+        
+        if (Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index) != null)
+            recentPlan = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index);  
+        
+        return recentPlan;
+    }
+    
+    public static String getRecentScript(int index)
+    {
+        String recentScript = UNKNOWN;
+        
+        if (Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index) != null)
+            recentScript = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index);  
+        
+        return recentScript;
+    }
+    
+    /** Given a recent plan index, the description used for the recent menu item tooltip. 
+     *
+     * @param recentIndex the index of the recent plan
+     *
+     * @return the description of what gets loaded
+     */
+
+    private static String getRecentMenuDescription(int index)
+    {
+        String plan = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index);
+        String script = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index);
+	
+	String description = "Load " + plan + " + " + script;
+
+	return description;
+    }
+      
+    // Add a file to the recently opened file list. 
+
+    public static void addRunToRecentRunList()
+    {
+	// put newest file at the top of the list
+        
+        String planName = Luv.getLuv().getCurrentPlan().getPlanName();
+        String scriptName = Luv.getLuv().getCurrentPlan().getScriptName();
+        String libDirectory = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR);
+        
+        String currPlan = planName;
+        String currScript = scriptName;
+        
+        if (planName != null && scriptName != null &&
+            !planName.equals(UNKNOWN) && !scriptName.equals(UNKNOWN))
+        {
+            int count = Luv.getLuv().getProperties().getInteger(PROP_FILE_RECENT_COUNT);
+
+            for (int i = 1; i <= count && planName != null; ++i) 
+            {
+                if (planName != null) 
+                {
+                    planName = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
+                    scriptName = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
+                    libDirectory = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR + i, libDirectory);
+                    
+                    // if this run already existed in the list, we can stop
+
+                    if (planName != null && planName.equals(currPlan) &&
+                        scriptName != null && scriptName.equals(currScript))
+                        break;
+                }
+            }
+
+            // update the recent menu
+
+            updateRecentMenu();
+        }
+    }
+      
+    /** Update the recently loaded files menu. */
+
+    public static void updateRecentMenu()
+    {
+	Luv.getLuv().getRecentRunMenu().removeAll();
+	int count = Luv.getLuv().getProperties().getInteger(PROP_FILE_RECENT_COUNT);
+        
+	if (getRecentPlan(1) == null ||
+            getRecentPlan(1).equals(UNKNOWN)) {
+	    Luv.getLuv().getRecentRunMenu().add("No recent runs");
+	}
+	else {
+	    for (int i = 0; i < count; ++i)
+		if ( getRecentPlan(i + 1) != null && !getRecentPlan(i + 1).equals(UNKNOWN))
+                {
+		    Luv.getLuv().getRecentRunMenu().add(new LoadRecentAction(i + 1, '1' + i, META_MASK));
+                }
+	}
+
+	// this menu is only enabled when there are items in it
+         
+	Luv.getLuv().getRecentRunMenu().setEnabled(Luv.getLuv().getRecentRunMenu().getMenuComponentCount() > 0);
     }
 
     /**
@@ -68,12 +171,12 @@ public class LoadRecentAction extends LuvAction
         {
            try 
            {
-               Luv.getLuv().stopExecutionState();
-               Luv.getLuv().displayInfoMessage("Stopping execution and loading a recent plan");
+               Luv.getLuv().getLuvStateHandler().stopExecutionState();
+               Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Stopping execution and loading a recent plan");
            }
            catch (IOException ex) 
            {
-               Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");              
+               Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");              
            }
         }
      
@@ -81,11 +184,11 @@ public class LoadRecentAction extends LuvAction
         {
             Luv.getLuv().getFileHandler().loadRecentRun(recentIndex);
            
-            Luv.getLuv().loadRecentRunState();
+            Luv.getLuv().getLuvStateHandler().loadRecentRunState();
         } 
         catch (IOException ex) 
         {
-            Luv.getLuv().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while loading recent plan");
         } 
         
         Luv.getLuv().setNewPlan(false);        

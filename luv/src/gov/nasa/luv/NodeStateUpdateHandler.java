@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static gov.nasa.luv.Constants.*;
 
-public class StateUpdateHandler extends AbstractDispatchableHandler
+public class NodeStateUpdateHandler extends AbstractDispatchableHandler
 {
     private Model current;
     private String state;
@@ -39,7 +39,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
     private String failureType;
     private HashMap<String, String> conditions = new HashMap<String, String>();
 
-    public StateUpdateHandler()
+    public NodeStateUpdateHandler()
     {
 	super();
 	current = Model.getRoot();
@@ -116,7 +116,7 @@ public class StateUpdateHandler extends AbstractDispatchableHandler
 
 	// pause if single stepping
 	if (Luv.getLuv().getPlanStep()) {
-	    Luv.getLuv().pausedState();
+	    Luv.getLuv().getLuvStateHandler().pausedState();
 	}
     }
 }
