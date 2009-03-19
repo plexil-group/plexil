@@ -13,11 +13,12 @@ OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 ifdef SHARED
  LIB_EXT = .so
- SHARED_OBJ_FLAGS += -fpic
  ifeq ($(findstring darwin, $(OSTYPE)), darwin)
   SHARED_LIB_FLAGS += -dynamiclib -Wl
+  SHARED_OBJ_FLAGS += -fPIC
  else
   SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+  SHARED_OBJ_FLAGS += -fpic
  endif
 else
  LIB_EXT = .a
