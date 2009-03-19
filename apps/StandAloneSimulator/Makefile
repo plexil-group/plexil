@@ -5,7 +5,8 @@ OBJ_DIR   = objs
 
 LIB_NAME = standalonesimulator
 
-OSTYPE   ?= $(shell uname -s)
+#OSTYPE ?= $(shell uname -s)
+OSTYPE = $(shell uname -s 2>/dev/null | tr [:lower:] [:upper:])
 MACHTYPE ?= $(shell uname -p)
 
 CXX     = g++
@@ -13,7 +14,7 @@ OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 ifdef SHARED
  LIB_EXT = .so
- ifeq ($(findstring darwin, $(OSTYPE)), darwin)
+ ifeq ($(findstring DARWIN, $(OSTYPE)), DARWIN)
   SHARED_LIB_FLAGS += -dynamiclib -Wl
   SHARED_OBJ_FLAGS += -fPIC
  else
