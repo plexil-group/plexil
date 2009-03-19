@@ -153,9 +153,9 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         enableDebugCFGFile.addItemListener(this);
         this.preview.getText().startsWith("#");
         if (preview.getText().startsWith("#"))
-            enableDebugCFGFile.setSelected(true);
-        else
             enableDebugCFGFile.setSelected(false);
+        else
+            enableDebugCFGFile.setSelected(true);
         
         topSection = new JPanel();
         topSection.setLayout(new BoxLayout(topSection, BoxLayout.PAGE_AXIS));
