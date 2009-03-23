@@ -45,7 +45,8 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
          String text = getTweenerText();
 
          // if this is blocking status, set that property in model
-         if (localName.equals(VIEWER_BLOCKS)) {
+         if (localName.equals(VIEWER_BLOCKS)) 
+         {
              Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
 	     // tell viewer to get ready
              Luv.getLuv().setIsExecuting(true);

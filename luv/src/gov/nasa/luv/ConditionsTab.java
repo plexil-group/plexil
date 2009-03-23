@@ -24,36 +24,25 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
 package gov.nasa.luv;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Color;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import static gov.nasa.luv.Constants.*;
 
 public class ConditionsTab extends JPanel 
 {
-    
-    private Model model;
-    private String status = UNKNOWN;
     private ConditionsTab conditionsPane;
-    private int rows = 1000;
-    private int columns = 3;
-    private String info[][];
+    private Model model;    
+    private int rows;    
+    private String info[][];    
     private JTable table;     
-    
-    private HashMap<Integer, ArrayList> nodeConditions;
-    private ArrayList elements;
     
     public ConditionsTab() {}
     
@@ -62,22 +51,21 @@ public class ConditionsTab extends JPanel
         super(new GridLayout(1,0));
         
         this.model = model;
-
+        rows = 1000;
+        info = new String[rows][3];
+        
         String[] columnNames = {"Conditions",
                                 "Value",
-                                "Expression"};
-        
+                                "Expression"};             
+                
+        HashMap<Integer, ArrayList> nodeConditions = model.getConditionMap();
         int row = 0;
         int col = 0;
-        info = new String[rows][columns];
-        
-        nodeConditions = model.getConditionMap();
-        
         if (nodeConditions != null)
         {
             for (final String condition: ALL_CONDITIONS)
             {
-                elements = nodeConditions.get(getConditionNum(condition));            
+                ArrayList elements = nodeConditions.get(getConditionNum(condition));            
 
                 if (elements != null && !elements.isEmpty())
                 {
@@ -97,7 +85,6 @@ public class ConditionsTab extends JPanel
                 }
 
                 // add model listener
-
                 this.model.addChangeListener(new Model.ChangeAdapter()
                    {
                          @Override 
@@ -122,44 +109,68 @@ public class ConditionsTab extends JPanel
         }
         
         table = new JTable(info, columnNames);
-        
-        // Disable auto resizing
-        
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-    
-        // Set the first visible column to 100 pixels wide
-
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(600);
-        
+        table.getColumnModel().getColumn(2).setPreferredWidth(600);        
         table.setPreferredScrollableViewportSize(new Dimension(900, 300));
-
         table.setShowGrid(false);
-
         table.setGridColor(Color.GRAY);
-
-        //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
 
-        //Add the scroll pane to this panel.
         add(scrollPane);
     }
     
     private String getConditionValue(String condition)
     {
         if (model.getProperty(condition) == null)
-            status = UNKNOWN;
+            return UNKNOWN;
         else if (model.getProperty(condition).equals("0"))
-            status = "FALSE";
+            return "FALSE";
         else if (model.getProperty(condition).equals("1"))
-            status = "TRUE";
+            return "TRUE";
         else if (model.getProperty(condition).equals("inf"))
-            status = "inf";
+            return "inf";
         else
-            status = model.getProperty(condition);
+            return model.getProperty(condition);
+    }
+    
+    public static ArrayList<String> formatCondition(String condition)
+    {
+        String tempCondition = "";
+        ArrayList<String> formattedCondition = new ArrayList<String>();
         
-        return status;
+        if (condition != null)
+        {
+            if (condition.contains(SEPARATOR))
+            {
+                String array[] = condition.split(SEPARATOR); 
+
+                for (int i = 0; i < array.length; i++)
+                {
+                    tempCondition += array[i] + " ";
+
+                    if (array[i].equals("||") || array[i].equals("&&"))
+                    {
+                        formattedCondition.add(tempCondition);
+                        tempCondition = "";
+                    }
+                }
+
+                if (!tempCondition.equals(""))
+                    formattedCondition.add(tempCondition);
+            }
+            else if (!condition.equals(""))
+            {
+                formattedCondition.add(condition);
+            }
+        }  
+        else
+        {
+            formattedCondition.add("COULD NOT IDENTIFY CONDITION");
+        }         
+        
+        return formattedCondition;
     }
     
     public ConditionsTab getCurrentConditionsTab()

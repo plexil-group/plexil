@@ -331,6 +331,9 @@ public class Constants
       public static final String    DEBUG_CFG_FILE = System.getenv(PROP_PLEXIL_HOME) + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "luv" + System.getProperty(PROP_FILE_SEPARATOR) +
                                                           "Debug.cfg";
+      
+      // marker for formatting condition and local variable information
+      public static final String SEPARATOR = "_Separator_";
 
       // file
 
@@ -579,6 +582,21 @@ public class Constants
       public static final String NODE_STATE        = "NodeState";
       public static final String NODE_TIMEPOINT    = "NodeTimepoint";
       public static final String NODE_CMD_HANDLE   = "NodeCommandHandle";
+      
+      // data strucure holding possible node types
+      
+      public static HashMap<String, String> NODE_TYPES = new HashMap<String, String>()
+      {
+	  {
+	      put(NODELIST,        "List Node");
+	      put(COMMAND,         "Command Node");
+	      put(ASSN,            "Assignment Node");
+	      put(EMPTY,           "Empty Node");
+	      put(FUNCCALL,        "Function Call Node");
+	      put(UPDATE,          "Update Node");
+	      put(LIBRARYNODECALL, "Library Node");
+	  }
+      };
 
       // variable references
 

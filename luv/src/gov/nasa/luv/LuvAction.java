@@ -29,8 +29,6 @@ package gov.nasa.luv;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
-
 import static gov.nasa.luv.Constants.*;
 
 /**
@@ -98,19 +96,10 @@ public abstract class LuvAction extends AbstractAction
       public String getAcceleratorDescription()
       {
          // if there is no accelerator indicate this
-
          if (accelerator == null)
             return "<no key>";
 
-         //   KeyEvent.getKeyText(accelerator.getKeyCode());
-         //   KeyEvent.getKeyModifiersText(accelerator.getModifiers());
-         //
-         // this is NOT being used because it sometimes returns single
-         // character unicode glitzyness which doesn't always do the
-         // right thing
-
          // get and clean up the key name
-
          String key = accelerator.toString();
          key = key.replaceAll("pressed", "").trim();
          key = key.replaceAll("  ", " ");

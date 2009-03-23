@@ -28,7 +28,6 @@ package gov.nasa.luv;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import static gov.nasa.luv.Constants.*;
 
 public class NodeStateUpdateHandler extends AbstractDispatchableHandler
@@ -37,48 +36,44 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
     private String state;
     private String outcome;
     private String failureType;
-    private HashMap<String, String> conditions = new HashMap<String, String>();
+    private HashMap<String, String> conditions;
 
     public NodeStateUpdateHandler()
     {
 	super();
 	current = Model.getRoot();
+        conditions = new HashMap<String, String>();
     }
 
-    /** Handle end of an XML element. */
-
+    // handle end of an XML element
     public void endElement(String uri, String localName, String qName)
     {
 	// get text between tags
-
 	String text = getTweenerText();
 
 	// if this is the id of a path element, move down model tree
-
-	if (localName.equals(NODE_ID)) {
+	if (localName.equals(NODE_ID)) 
+        {
 	    Model candidate;
-            if ((candidate = current.findChildByName(text)) != null) {
+            if ((candidate = current.findChildByName(text)) != null) 
+            {
                 current = candidate;
 	    }
 	}
 
 	// if this is the node state, record the state
-
 	else if (localName.equals(NODE_STATE))
             state = text;
 
 	// if this is the node outcome, record the outcome
-
 	else if (localName.equals(NODE_OUTCOME))
             outcome = text;
 
 	// if this is the node failure type, record the failure type
-
 	else if (localName.equals(NODE_FAILURE_TYPE))
             failureType = text;        
 
 	// if this is the node state update, update the node state
-
 	else if (localName.equals(NODE_STATE_UPDATE)) 
         {
             if (!current.getProperty(MODEL_STATE, UNKNOWN).equals(state))
@@ -100,12 +95,13 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
             }
 	}
 
-	// if this is one of the conditions, record it
-         
+	// if this is one of the conditions, record it      
 	else
+        {
             for (String condition: ALL_CONDITIONS)
 		if (localName.equals(condition))
 		    conditions.put(condition, text);
+        }
     }
 
     // Handle the end of the state update document.
@@ -115,7 +111,8 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
 	current = Model.getRoot();
 
 	// pause if single stepping
-	if (Luv.getLuv().getPlanStep()) {
+	if (Luv.getLuv().getPlanStep()) 
+        {
 	    Luv.getLuv().getLuvStateHandler().pausedState();
 	}
     }

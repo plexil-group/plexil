@@ -34,59 +34,34 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.JPopupMenu;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
-
 import java.util.Vector;
 import java.util.Enumeration;
-
 import java.util.Stack;
 import javax.swing.text.Position;
 import treetable.TreeTableModel;
 import treetable.AbstractTreeTableModel;
-
 import static gov.nasa.luv.Constants.*;
-import static java.awt.event.KeyEvent.*;
-
 import treetable.JTreeTable;
 
-public class TreeTableView extends JTreeTable implements View
+public class TreeTableView extends JTreeTable 
 {
-      /** This is the most recent tree view created stored in case it's
-       * needed to set expansion state of the items in the new tree */
-
-      private static TreeTableView lastView;
-
-      /** swing tree object */
-
-      private JTree tree;
-
-      /** root of tree */
-
-      private Wrapper root;
-
-      /** show or hid node types */
-
-      private static boolean showTextTypes = false;
-      
-      private static int currentBreakingRow = -1;
-      
-      private static int row = -1;
-      private static int lastRow = -1;
-
-      /** Construct a tree view. 
-       *
-       * @param name the name of the view
-       * @param model model this view is viewing
-       */
-
-      public TreeTableView(String name, Model model)
-      {
+    // most recent tree view created stored in case it's needed to set 
+    // expansion state of the items in the new tree
+    private static TreeTableView currentView;
+    private JTree tree;
+    // root of tree
+    private Wrapper root;
+    private static int currentBreakingRow = -1;
+    private static int row = -1;
+    private static int lastRow = -1;
+    
+    public TreeTableView(String name, Model model)
+    {
          super(new TreeModel(new Wrapper(model)));
          setRowColors(TREE_TABLE_ROW_COLORS);
 
@@ -95,7 +70,6 @@ public class TreeTableView extends JTreeTable implements View
          final JTable table = this;
 
          // add mouse listener which puts up pop-up menus
-
          addMouseListener(new MouseAdapter()
             {
             @Override
@@ -114,27 +88,23 @@ public class TreeTableView extends JTreeTable implements View
          Wrapper.setView(this);
 
          // manage handles
-
          tree.setShowsRootHandles(true);
 
          // if there is an old version of this view
-
-         if (lastView != null)
+         if (currentView != null)
          {
-            // regain the expand stat from the old view
-
+            // regain the expanded state from the old view
             regainExpandedState(
                tree, new TreePath(root),
-               lastView.tree, new TreePath(lastView.root));
+               currentView.tree, new TreePath(currentView.root));
 
             // set the column widths to the old view
-
             setPreferredColumnWidths();
          }
-         lastView = this;
+         
+         currentView = this;
 
          // setup the column coloring logic
-
          setDefaultRenderer(
             TreeModel.cTypes[STATE_COL_NUM], 
             new DefaultTableCellRenderer()
@@ -163,7 +133,6 @@ public class TreeTableView extends JTreeTable implements View
             });
 
          // set cell renderer to customize icons
-
          tree.setCellRenderer(new DefaultTreeCellRenderer()
             {
                   public Component getTreeCellRendererComponent(
@@ -180,10 +149,7 @@ public class TreeTableView extends JTreeTable implements View
                      
                      Model model = ((Wrapper)value).model;
 
-                     setIcon(
-                        !showTextTypes 
-                        ? Constants.getIcon(model.getProperty(NODETYPE_ATTR))
-                        : null);
+                     setIcon(Constants.getIcon(model.getProperty(NODETYPE_ATTR)));
                      
                      Vector<LuvBreakPoint> breakPoints = Luv.getLuv().getLuvBreakPointHandler().getBreakPoints(model);
                      if (breakPoints.size() > 0)
@@ -204,282 +170,261 @@ public class TreeTableView extends JTreeTable implements View
                      return component;
                   }
             }); 
-      }
-      
-      public boolean selectRow(int row)
-      {
-          if (row > -1)
-          {
-              tree.setSelectionRow(row);
-              return true;
-          }
-          else
-              return false;
-      }
-      
-      public void highlightRow(Model node)
-      {
-          restartSearch();
-          int highlight = findNode(node.getPath(node));    
-
-          if (highlight > -1)
-          {
-              currentBreakingRow = highlight;
-              tree.setSelectionRow(currentBreakingRow);      
-              lastView.setSelectionBackground(Color.PINK);
-              scrollToRow(currentBreakingRow);
-          }
-      }
-      
-      public void unHighlightRow()
-      {
-          if (currentBreakingRow >= 0)
-          {
-              lastView.setSelectionBackground(getRowColor(currentBreakingRow));
-              tree.setSelectionRow(-1);
-          }
-      }
-
-      /** Display node information from under tool tip
-       * 
-       * @return tooltip text for element in tree
-       */
-
-      @Override public String getToolTipText(MouseEvent event)
-      {
-          StringBuffer   toolTip     = new StringBuffer();
-          TreePath       nodePath    = tree.getPathForLocation(event.getX(), event.getY());    
+    }
+    
+    // get the current tree table view if it exists.
+    public static TreeTableView getCurrent()
+    {
+        return currentView;
+    }
+    
+    // display node information from under tool tip
+    @Override public String getToolTipText(MouseEvent event)
+    {
+        StringBuffer toolTip  = new StringBuffer();
+        TreePath nodePath = tree.getPathForLocation(event.getX(), event.getY());    
           
-          if (nodePath != null)
-          {    
-              Model          node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-              String         nodeName    = node.getModelName();
+        if (nodePath != null)
+        {    
+            Model node = ((Wrapper)nodePath.getLastPathComponent()).model;
+            String nodeName = node.getModelName();
           
-              toolTip.append("<html>");         
-              toolTip.append("<b>NAME</b> " + nodeName);
-              toolTip.append("<br><b>TYPE</b>  " + node.getProperty(MODEL_TYPE));
-              toolTip.append("<br><hr>");
-              toolTip.append("<b>Double-Click</b> on node to view condition information");    
-              toolTip.append("<br><b>Right-Click</b> on node to set breakpoints");
-          }
+            toolTip.append("<html>");         
+            toolTip.append("<b>NAME</b> " + nodeName);
+            toolTip.append("<br><b>TYPE</b>  " + node.getProperty(MODEL_TYPE));
+            toolTip.append("<br><hr>");
+            toolTip.append("<b>Double-Click</b> on node to view condition information");    
+            toolTip.append("<br><b>Right-Click</b> on node to set breakpoints");
+        }
           
-          return toolTip.length() > 0 ? toolTip.toString() : null;
-      }
+        return toolTip.length() > 0 ? toolTip.toString() : null;
+    }
 
-      /** Ensure that this views properties are propertly reflected in
-       * the luv properties.
-       *
-       * @param properties the luv properties
-       */
-
-      public void getViewProperties(Properties properties)
-      {
-         // handle column widths 
-
-         setPreferredColumnWidths();
-
-         // handle text/icon node types
-
-         showTextTypes = properties.getBoolean(PROP_TTV_TEXT_TYPES);
-      }
-
-      /** Allow this view to extract properties from the luv properties.
-       *
-       * @param properties the luv properties
-       */
-
-      public void setViewProperties(Properties properties)
-      {
-         properties.set(PROP_TTV_TEXT_TYPES, showTextTypes);
-      }
-      
-      private void showRowInStatusBar(MouseEvent mouseEvent)
-      {
-          TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-          Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-          
-          int visible_row = tree.getRowForPath(nodePath);
-          int node_number = node.getRowNumber();
-          
-          tree.setSelectionRow(visible_row);
-          
-          node_number++;
-          visible_row++;
+    // handle a user right click or control click. triggers breakpoint options
+    public void handlePopupEvent(MouseEvent mouseEvent)
+    {
+        if (Luv.getLuv().breaksAllowed())
+        {          
+           TreePath nodePath = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+           Model node = ((Wrapper)nodePath.getLastPathComponent()).model;
+           JPopupMenu popup = new JPopupMenu();
            
-          Luv.getLuv().getStatusMessageHandler().showStatus("Row: " + visible_row + " Node: " + node_number);  
-      }
+           popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(node);
+           popup.show(mouseEvent.getComponent(),mouseEvent.getX(), mouseEvent.getY());
+        }
+    }
 
-      /** Handle popup menu event.
-       *
-       * @param mouseEvent event which triggered popup menu
-       * @param luv current active luv
-       */
-
-      public void handlePopupEvent(MouseEvent mouseEvent)
-      {
-          if (Luv.getLuv().breaksAllowed())
-          {          
-             TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-             Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
-             JPopupMenu popup       = new JPopupMenu();
-
-             // construct the popup menu
-
-             popup = Luv.getLuv().getLuvBreakPointHandler().constructNodePopupBreakPointMenu(node);
-
-             // display the popup menu
-
-             popup.show(mouseEvent.getComponent(),mouseEvent.getX(), mouseEvent.getY());
-          }
-      }
-
-      /** Handle popup menu event.
-       *
-       * @param mouseEvent event which triggered popup menu
-       * @param luv current active luv
-       */
-
-      public void handleClickEvent(MouseEvent mouseEvent)
-      {
-         TreePath   nodePath    = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-         Model      node        = ((Wrapper)nodePath.getLastPathComponent()).model;
+    // handle a user double click on a node. triggers node info window
+    public void handleClickEvent(MouseEvent mouseEvent)
+    {
+       TreePath nodePath = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+       Model node = ((Wrapper)nodePath.getLastPathComponent()).model;
          
-         // create information window if node has any additional data to show
+       if (node.hasConditions() || node.hasVariables() || node.hasAction())
+       {
+           Luv.getLuv().getConditionsTab().open(node);
+           Luv.getLuv().getVariablesTab().open(node);  
+           Luv.getLuv().getActionTab().open(node);
+           Luv.getLuv().getNodeInfoWindow().open(node);
+       }
+       else
+       {
+           Luv.getLuv().getStatusMessageHandler().showStatus("No additional information is available for " + node.getModelName(), 5000);
+       }          
+    }
 
-         if (node.hasConditions() || node.hasVariables() || node.hasAction())
-         {
-             Luv.getLuv().getConditionsTab().open(node);
-             Luv.getLuv().getVariablesTab().open(node);  
-             Luv.getLuv().getActionTab().open(node);
-             Luv.getLuv().getNodeInfoWindow().open(node);
-         }
-         else
-         {
-             Luv.getLuv().getStatusMessageHandler().showStatus("No additional information is available for " + node.getModelName(), 5000);
-         }
-             
-      }
-
-      /** Focus has been disabled for this view.  This way the view
-       * doesn't grab up all the key events that it shouldn't.  This is
-       * not the best way to acheive this goal.
-       *
-       * @return good old false, nothing beats false
-       */
+    /** Focus has been disabled for this view.  This way the view
+     * doesn't grab up all the key events that it shouldn't.  This is
+     * not the best way to acheive this goal.
+     *
+     * @return good old false, nothing beats false
+     */
       
-      @Override public boolean isFocusable()
-      {
-         return false;
-      }
+    @Override public boolean isFocusable()
+    {
+       return false;
+    }
+    
+    public void setPreferredColumnWidths()
+    {
+        if (getColumnModel().getColumnCount() == 4)
+        {
+            int state_col = 130;
+            int outcome_col = 70;
+            int failure_col = 230;
+            int name_col = Luv.getLuv().getRootPane().getWidth() - 
+                    (state_col + outcome_col + failure_col);
 
-      /** Get the current tree table view if it exists.
-       *
-       * @return current tree table view, or null if it does not exist
-       */
+            Enumeration<TableColumn> columns = getColumnModel().getColumns();
+            columns.nextElement().setPreferredWidth(name_col);   
+            columns.nextElement().setPreferredWidth(state_col);
+            columns.nextElement().setPreferredWidth(outcome_col);
+            columns.nextElement().setPreferredWidth(failure_col);
+        }
+        else
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, 
+                    "Error: Invalid number of columns in viewer." );
+    }
 
-      public static TreeTableView getCurrent()
-      {
-         return lastView;
-      }
+    // if the previous view was the same plan, then set the expanded state 
+    // of the new tree to that of the old tree.
+    public boolean regainExpandedState(JTree t1, TreePath tp1, JTree t2, TreePath tp2)
+    {
+        // get the tree nodes for the paths
+        Wrapper w1 = (Wrapper)tp1.getLastPathComponent();
+        Wrapper w2 = (Wrapper)tp2.getLastPathComponent();
 
-      /** Get the current column widths.
-       *
-       * @return a vector containing the column widths
-       */
+        // if the child count differs, then we should stop right here,
+        // the two trees are different
+        if (w1.getChildCount() != w2.getChildCount())
+           return false;
 
-      public Vector<Integer> getColumnWidths()
-      {
-         Vector<Integer> widths = new Vector<Integer>();
+        // if the names differ, then we should stop right here, the two
+        // trees are different
+        if (!w1.equals(w2))
+           return false;
 
-         Enumeration<TableColumn> columns = getColumnModel().getColumns();
-         while (columns.hasMoreElements())
-            widths.add(columns.nextElement().getWidth());
-         return widths;
-      }
-
-      /** Set Preferred the current column widths.
-       *
-       * @param widths a vector containing the column widths
-       */
-
-      public void setPreferredColumnWidths()
-      {
-          int status_col = 130;
-          int outcome_col = 70;
-          int fail_col = 230;
-          int name_col = Luv.getLuv().getRootPane().getWidth() - (status_col + outcome_col + fail_col);
-          
-          Vector<Integer> widths = new Vector<Integer>();
-          widths.add(name_col);
-          widths.add(status_col);
-          widths.add(outcome_col);
-          widths.add(fail_col);
-          
-          Enumeration<TableColumn> columns = getColumnModel().getColumns();
-          
-          for (int width : widths)
-          {
-              columns.nextElement().setPreferredWidth(width);          
-          }
-      }
-
-      /** If the previous view was the same plan, then set the expanded
-       * state of the new tree to that of the old tree.
-       *
-       * @param t1  original tree
-       * @param tp1 current path in original tree
-       * @param t2  new tree
-       * @param tp2 current path in new tree
-       * @return true if the two plans are the same
-       */
-      
-      public boolean regainExpandedState(JTree t1, TreePath tp1, 
-                                         JTree t2, TreePath tp2)
-      {
-         // get the tree nodes for the paths
-
-         Wrapper w1 = (Wrapper)tp1.getLastPathComponent();
-         Wrapper w2 = (Wrapper)tp2.getLastPathComponent();
-
-         // if the child count differs, then we should stop right here,
-         // the two trees are differnt
-
-          if (w1.getChildCount() != w2.getChildCount())
-             return false;
-
-          // if the names differ, then we should stop right here, the two
-          // trees are differnt
-
-          if (!w1.equals(w2))
-             return false;
-
-          // traverse down the tree
-
-         for (int i = 0; i < w1.getChildCount(); ++i)
-         {
-            if (!regainExpandedState(
-                   t1, tp1.pathByAddingChild(w1.getChild(i)),
-                   t2, tp2.pathByAddingChild(w2.getChild(i))))
-               return false;
-         }
+        // traverse down the tree
+        for (int i = 0; i < w1.getChildCount(); ++i)
+        {
+           if (!regainExpandedState(
+                  t1, tp1.pathByAddingChild(w1.getChild(i)),
+                  t2, tp2.pathByAddingChild(w2.getChild(i))))
+              return false;
+        }
          
-         // set the expanded state on the new tree to mach the old tree
-
-         if (t2.isExpanded(tp2))
+        // set the expanded state on the new tree to mach the old tree
+        if (t2.isExpanded(tp2))
             t1.expandPath(tp1);
-         else
+        else
             t1.collapsePath(tp1);
 
-         // return true, both trees are the same thus far
+        // return true, both trees are the same thus far
+        return true;
+    }
+    
+    public void highlightRow(Model node)
+    {
+        restartSearch();
+        int highlight = findNode(node.pathToNode(node));    
 
-         return true;
-      }
+        if (highlight > -1)
+        {
+            currentBreakingRow = highlight;
+            tree.setSelectionRow(currentBreakingRow);      
+            currentView.setSelectionBackground(Color.PINK);
+            scrollToRow(currentBreakingRow);
+        }
+    }
+      
+    public void unHighlightRow()
+    {
+        if (currentBreakingRow >= 0)
+        {
+            currentView.setSelectionBackground(getRowColor(currentBreakingRow));
+            tree.setSelectionRow(-1);
+        }
+    }
+    
+    private void showRowInStatusBar(MouseEvent mouseEvent)
+    {
+        TreePath nodePath = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+        Model node = ((Wrapper)nodePath.getLastPathComponent()).model;
+          
+        int visible_row = tree.getRowForPath(nodePath);
+        int node_number = node.getRowNumber();
+          
+        tree.setSelectionRow(visible_row);
+          
+        node_number++;
+        visible_row++;
+           
+        Luv.getLuv().getStatusMessageHandler().showStatusOnBarOnly("Row: " + visible_row + " Node: " + node_number);  
+    }
+    
+    public void restartSearch()
+    {
+        row = lastRow = -1;
+        tree.clearSelection();
+    }
+      
+    public int showNode(Stack<String> node_path, int next)
+    {
+        findNode(node_path);
+        selectRow(row);
+        scrollToRow(row);
+        return row;
+    }
+      
+    private int findNode(Stack<String> node_path)
+    {
+        TreePath test = null;
+        while (!node_path.empty())
+        {
+            if (tree.getRowCount() > row + 1)
+            {
+                String validate = node_path.peek();
+                test = tree.getNextMatch(node_path.pop(), row + 1, Position.Bias.Forward); 
 
-      /** This class wraps a model object and provides a naming and
-       * equivelency testing services. 
-       */
+                if (node_path.empty() && !test.toString().endsWith(validate + "]"))
+                {
+                    node_path.push(validate);
+                }
+                  
+                row = tree.getRowForPath(test);    
+                      
+                if (!node_path.empty())
+                    tree.expandPath(test); 
+                else if (row == lastRow)
+                    node_path.push(validate);
+            }
+            else
+                test = tree.getNextMatch(node_path.pop(), 0, Position.Bias.Forward);                          
+        } 
+          
+        lastRow = tree.getRowForPath(test);
+         
+        return row;
+    }
+    
+    public boolean selectRow(int row)
+    {
+        if (row > -1)
+        {
+            tree.setSelectionRow(row);
+            return true;
+        }
+        
+        return false;
+    }
+      
+    public void scrollToRow(int row)
+    {
+        tree.getAutoscrolls();
+        int width = Luv.getLuv().getRootPane().getWidth();
+        int height = Luv.getLuv().getRootPane().getHeight();
+        int start = this.getRowHeight() * (row - 3);
+          
+        scrollRectToVisible(new Rectangle(0, start, width, height));
+    }
+    
+    public void expandAllNodes()
+    {
+        for (int i = 0; i < tree.getRowCount(); i++)
+            tree.expandRow(i);
+    }
+    
+    public void collapseAllNodes()
+    {
+        for (int i = tree.getRowCount() - 1; i >= 0; i--)
+            tree.collapseRow(i);
+    }
 
-      public static class Wrapper
+    /** This class wraps a model object and provides a naming and
+     * equivelency testing services. 
+    */
+
+    public static class Wrapper
       {            
             Model model;
             Vector<Wrapper> children = new Vector<Wrapper>();
@@ -500,25 +445,7 @@ public class TreeTableView extends JTreeTable implements View
                 
                addNodesToTree(model); 
             }
-            
-            
-            
-            private int getChangedRow(Stack<String> node_path)
-            {               
-                TreePath test = null;
-                JTree t = view.getTree();
-                int r = -1;
-                
-                while (!node_path.empty())
-                {
-                    test = t.getNextMatch(node_path.pop(), r + 1, Position.Bias.Forward); 
 
-                    r = t.getRowForPath(test);                          
-                }
-
-                return r;
-            }
-            
             private void addNodesToTree(Model model)
             {
                 for (Model child: model.getChildren()) 
@@ -541,9 +468,7 @@ public class TreeTableView extends JTreeTable implements View
 
             public String toString()
             {
-               return showTextTypes
-                     ? model.getProperty(MODEL_TYPE) + " " + model.getModelName()
-                     : model.getModelName();
+               return model.getModelName();
             }
 
             public Model getModel()
@@ -581,28 +506,24 @@ public class TreeTableView extends JTreeTable implements View
             }
       }
 
-      public static class TreeModel extends AbstractTreeTableModel<Object> 
+    public static class TreeModel extends AbstractTreeTableModel<Object> 
       {
-            // column names
-            
+            // column names          
             static String[]  cNames = 
             {
                NAME_COL_NAME,
                STATE_COL_NAME,
                OUTCOME_COL_NAME,
-               FAILURE_TYPE_COL_NAME,
-               
+               FAILURE_TYPE_COL_NAME,            
             };
             
             // column types
-
             static Class[]  cTypes = 
             {
                TreeTableModel.class,
                String.class, 
                String.class, 
-               String.class, 
-               
+               String.class,                
             };
 
             public TreeModel(Wrapper model)
@@ -610,10 +531,6 @@ public class TreeTableView extends JTreeTable implements View
                super(model);
             }
 
-            //
-            //  The TreeTableNode interface. 
-            //
-            
             public int getChildCount(Object node) 
             { 
                return ((Wrapper)node).getChildCount();
@@ -662,100 +579,5 @@ public class TreeTableView extends JTreeTable implements View
 
                return "<blank>";
             }
-      }
-
-      /** get this view */
-
-      public View getView()
-      {
-          return this;
-      }
-      
-      public void restartSearch()
-      {
-          row = lastRow = -1;
-          tree.clearSelection();
-      }
-      
-      public int showNode(Stack<String> node_path, int next)
-      {
-          findNode(node_path);
-          selectRow(row);
-          scrollToRow(row);
-          return row;
-      }
-      
-      private int findNode(Stack<String> node_path)
-      {
-          TreePath test = null;
-          while (!node_path.empty())
-          {
-              if (tree.getRowCount() > row + 1)
-              {
-                  String validate = node_path.peek();
-                  test = tree.getNextMatch(node_path.pop(), row + 1, Position.Bias.Forward); 
-
-                  if (node_path.empty() && !test.toString().endsWith(validate + "]"))
-                  {
-                      node_path.push(validate);
-                  }
-                  
-                  row = tree.getRowForPath(test);    
-                      
-                  if (!node_path.empty())
-                      tree.expandPath(test); 
-                  else if (row == lastRow)
-                      node_path.push(validate);
-              }
-              else
-                  test = tree.getNextMatch(node_path.pop(), 0, Position.Bias.Forward);                          
-          } 
-          
-          lastRow = tree.getRowForPath(test);
-          
-          return row;
-      }
-      
-      public void scrollToRow(int row)
-      {
-          tree.getAutoscrolls();
-          int width = Luv.getLuv().getRootPane().getWidth();
-          int height = Luv.getLuv().getRootPane().getHeight();
-          int start = this.getRowHeight() * (row - 3);
-          
-          scrollRectToVisible(new Rectangle(0, start, width, height));
-      }              
-      
-      /** Expand all nodes. */
-
-      public void expandAllNodes()
-      {
-         for (int i = 0; i < tree.getRowCount(); i++)
-            tree.expandRow(i);
-      }
-
-      /** Collapse all nodes. */
-
-      public void collapseAllNodes()
-      {
-         for (int i = tree.getRowCount() - 1; i >= 0; i--) 
-            tree.collapseRow(i);
-      }
-
-      /** Return an array of specalized actions for this view.
-       *
-       * @return an array of specalized actions for this view.
-       */
-
-      public LuvAction[] getViewActions()
-      {
-         LuvAction[] actions =
-            {
-               LuvActionHandler.expandAll,
-               LuvActionHandler.collapseAll,
-               LuvActionHandler.hideOrShowNodes,
-               LuvActionHandler.findNode,
-            };
-         return actions;
       }
 }

@@ -24,31 +24,20 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
 package gov.nasa.luv;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Color;
-
 import java.util.ArrayList;
+import static gov.nasa.luv.Constants.*;
 
 public class ActionTab extends JPanel 
-{
-    
-    private Model model;
+{    
     private ActionTab actionPane;
-    private int rows = 1000;
-    private int columns = 1;
-    private String info[][];
-    private JTable table;   
-    
-    private ArrayList<String> actionList;
     
     public ActionTab() {}
     
@@ -56,45 +45,53 @@ public class ActionTab extends JPanel
     {       
         super(new GridLayout(1,0));
         
-        this.model = model;
-
-        String[] columnNames = {"Expression",
-        };
+        // for now there is only one column since the UE does not transmit a
+        // resulting value to LUV yet.
+        String[] columnNames = {"Expression",};       
+        String[][] info = new String[1000][1];  
         
+        ArrayList<String> actionList = model.getActionList();     
         int row = 0;
-        int col = 0;
-        info = new String[rows][columns];
-        
-        actionList = model.getActionList();
-        
         for (String action : actionList)
         {
             if (action != null)
             {
-                info[row][col] = action; 
+                info[row][0] = action; 
                 ++row;
             }
         }
         
-        table = new JTable(info, columnNames);
-        
-        // Disable auto resizing
-        
+        JTable table = new JTable(info, columnNames);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-    
         table.getColumnModel().getColumn(0).setPreferredWidth(900);
-        
         table.setPreferredScrollableViewportSize(new Dimension(900, 300));
-
         table.setShowGrid(false);
-
         table.setGridColor(Color.GRAY);
-
-        //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
 
-        //Add the scroll pane to this panel.
         add(scrollPane);
+    }
+    
+    public static String formatAction(String expression)
+    {
+        String formattedExpression = "COULD NOT IDENTIFY ACTION";
+  
+        if (expression != null && expression.contains(SEPARATOR))
+        {
+            String array[] = expression.split(SEPARATOR);      
+
+            if (array.length > 0)
+            {
+                formattedExpression = "";
+                    
+                for (int i = 0; i < array.length; i++)
+                {
+                    formattedExpression += array[i] + " ";
+                }                    
+            }
+        }
+        
+        return formattedExpression;
     }
     
     public ActionTab getCurrentActionTab()

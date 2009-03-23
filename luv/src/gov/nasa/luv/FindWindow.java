@@ -34,33 +34,37 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Stack;
-
 import javax.swing.*;
-
 import static gov.nasa.luv.Constants.*;
 
 public class FindWindow extends JPanel implements KeyListener
 {
     private static JFrame       frame;  
     private static JComboBox    searchListHolder;
-    private static String []    searchList; 
-    
+    private static String []    searchList;     
     private JPanel              leftHalf;
     private Box                 entryPanel;    
     private JLabel              message_to_user; 
     private Font                regularFont, italicFont;  
-    private JTextField          searchListEditor;    
-       
-    private boolean             searchSet = false;
-    private boolean             foundMatch = false;              
-    private ArrayList<Stack>    foundNodes = new ArrayList<Stack>();
-    private String              previousSearch = "";
-    private int                 next = 0;
+    private JTextField          searchListEditor;           
+    private boolean             searchSet;
+    private boolean             foundMatch;              
+    private ArrayList<Stack>    foundNodes;
+    private String              previousSearch;
+    private int                 next;
     
     public FindWindow() {}
 
     public FindWindow(String list) 
     {
+        searchSet = false;
+        foundMatch = false;
+        foundNodes = new ArrayList<Stack>();
+        previousSearch = "";
+        next = 0;
+        regularFont = new Font("Dialog", Font.PLAIN, 12);
+        italicFont = regularFont.deriveFont(Font.ITALIC);
+    
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         add(createEntryField(list));
@@ -123,10 +127,7 @@ public class FindWindow extends JPanel implements KeyListener
         message_to_user = new JLabel();
         message_to_user.setHorizontalAlignment(JLabel.CENTER);
         
-        regularFont = message_to_user.getFont().deriveFont(Font.PLAIN, 12.0f);
-        italicFont = regularFont.deriveFont(Font.ITALIC);
-        
-        message_to_user.setText(getMessage());
+        message_to_user.setText(getMessageToUser());
         message_to_user.setFont(italicFont);
 
         panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
@@ -137,7 +138,7 @@ public class FindWindow extends JPanel implements KeyListener
         return panel;
     }
     
-    private String getMessage() 
+    private String getMessageToUser() 
     {
         StringBuffer sb = new StringBuffer();
         if (!searchSet) return "No search set";
@@ -171,25 +172,6 @@ public class FindWindow extends JPanel implements KeyListener
         return sb.toString();
     }
     
-    public void keyTyped(KeyEvent e) 
-    {
-    }
-
-    public void keyPressed(KeyEvent e) 
-    {
-        if (e.getKeyCode() == (KeyEvent.VK_ENTER) && !searchListEditor.getText().equals(""))
-        {
-            searchSet = true; 
-            lookForNode();
-            searchListHolder.requestFocusInWindow();
-            searchListEditor.selectAll();
-        }
-    }
-
-    public void keyReleased(KeyEvent e) 
-    {
-    }
-
     private void lookForNode() 
     {
         String text = searchListEditor.getText(); 
@@ -204,7 +186,7 @@ public class FindWindow extends JPanel implements KeyListener
         }
         else
         {
-            message_to_user.setText(getMessage());
+            message_to_user.setText(getMessageToUser());
             message_to_user.setFont(italicFont);
         }  
     }
@@ -235,19 +217,19 @@ public class FindWindow extends JPanel implements KeyListener
             }
         }
         
-        addSearchWord(text);
+        saveSearchWord(text);
         leftHalf.remove(entryPanel);
-        leftHalf.add(createEntryField(getSearchList()));
+        leftHalf.add(createEntryField(Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN)));
         foundNodes.clear();
         next = 0;
         TreeTableView.getCurrent().restartSearch();
         previousSearch = text;  
         foundMatch = false;
      
-        findMatch(Luv.getLuv().getCurrentPlan(), search, both, startsWith, endsWith);
+        findMatchInModel(Luv.getLuv().getCurrentPlan(), search, both, startsWith, endsWith);
     }
     
-    private void addSearchWord(String searchWord)
+    private void saveSearchWord(String searchWord)
     {
         String list = Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN);
         
@@ -265,11 +247,6 @@ public class FindWindow extends JPanel implements KeyListener
             list = searchWord;
         
         Luv.getLuv().getProperties().setProperty(PROP_SEARCH_LIST, list);
-    }
-    
-    private String getSearchList()
-    {
-        return Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN);
     }
     
     private void showUserNextNode()
@@ -290,11 +267,11 @@ public class FindWindow extends JPanel implements KeyListener
         }
      
         TreeTableView.getCurrent().showNode(node_path, next);        
-        message_to_user.setText(getMessage());
+        message_to_user.setText(getMessageToUser());
         next++;
     }
     
-    private void findMatch(Model model, String search, boolean both, boolean startsWith, boolean endsWith)
+    private void findMatchInModel(Model model, String search, boolean both, boolean startsWith, boolean endsWith)
     {
        if (model.isRoot() || model.getParent().isRoot())
        {
@@ -303,7 +280,7 @@ public class FindWindow extends JPanel implements KeyListener
                (endsWith    && model.getModelName().endsWith(search))     ||
                (model.getModelName().equals(search)))
            {
-               Stack<String> node_path = model.getPath(model); 
+               Stack<String> node_path = model.pathToNode(model); 
                foundMatch = true;
                foundNodes.add(node_path);
            }
@@ -318,14 +295,33 @@ public class FindWindow extends JPanel implements KeyListener
                     (endsWith    && child.getModelName().endsWith(search))     ||
                     (child.getModelName().equals(search)))
                 {
-                    Stack<String> node_path = child.getPath(child);    
+                    Stack<String> node_path = child.pathToNode(child);    
                     foundMatch = true;
                     foundNodes.add(node_path);                    
                 }
             }
             
-            findMatch(child, search, both, startsWith, endsWith);       
+            findMatchInModel(child, search, both, startsWith, endsWith);       
        }
+    }
+    
+    public void keyTyped(KeyEvent e) 
+    {
+    }
+
+    public void keyPressed(KeyEvent e) 
+    {
+        if (e.getKeyCode() == (KeyEvent.VK_ENTER) && !searchListEditor.getText().equals(""))
+        {
+            searchSet = true; 
+            lookForNode();
+            searchListHolder.requestFocusInWindow();
+            searchListEditor.selectAll();
+        }
+    }
+
+    public void keyReleased(KeyEvent e) 
+    {
     }
     
     public static void open(String list)
@@ -333,8 +329,8 @@ public class FindWindow extends JPanel implements KeyListener
         if (frame != null && frame.isVisible())
             frame.setVisible(false);
         frame = new JFrame("Find Node");
-        if (!Luv.getLuv().getCurrentPlan().getPlanNameSansPath().equals(UNKNOWN))
-            frame.setTitle("Find Node in " + Luv.getLuv().getCurrentPlan().getPlanNameSansPath());
+        if (!Luv.getLuv().getCurrentPlan().getPlanName().equals(UNKNOWN))
+            frame.setTitle("Find Node in " + Luv.getLuv().getCurrentPlan().getPlanName());
      
         frame.add(new FindWindow(list));
         

@@ -29,9 +29,7 @@ package gov.nasa.luv;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-
 import java.util.HashMap;
-
 import static gov.nasa.luv.Constants.*;
 
 /** Dispatches XML messages to the correct handler from the set of
@@ -57,8 +55,7 @@ public class DispatchHandler extends DefaultHandler
       
       public DispatchHandler()
       {
-         // add each type of handler to the table of possible handlers
-
+          // add each type of handler to the table of possible handlers
           registerHandler(PLAN_INFO, new PlanInfoHandler());
           registerHandler(NODE_STATE_UPDATE, new NodeStateUpdateHandler());
 

@@ -28,26 +28,25 @@ package gov.nasa.luv;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
 import java.awt.Container;
 import java.awt.BorderLayout;
-
 import static gov.nasa.luv.Constants.*;
 import static java.awt.BorderLayout.*;
 
 public class ViewHandler
 {   
-    private View currentView = null;                                   // current view
-    private Model currentModel = null;                                 // plan for current view
-    private JPanel viewPanel = new JPanel();                           // Panel in which different views are placed.
-
-    public void clearCurrentView()
+    private TreeTableView currentView;   // current view
+    private Model currentModel; // plan for current view
+    private JPanel viewPanel;   // Panel in which different views are placed
+    
+    public ViewHandler()
     {
-	currentModel = null;
-	currentView = null;
+        currentView = null;
+        currentModel = null;
+        viewPanel = new JPanel();
     }
 
-    public View getCurrentView()
+    public TreeTableView getCurrentView()
     {
 	return currentView;
     }
@@ -62,71 +61,39 @@ public class ViewHandler
 	return viewPanel;
     }
 
-    public void setViewProperties(Properties properties)
+    public void clearCurrentView()
     {
-	currentView.setViewProperties(properties);
+	currentModel = null;
+	currentView = null;
     }
 
-    /** Refresh the current view */
-
-    public void refreshView()
+    // sets the current view 
+    private void setView(Container view)
     {
-        if (currentView != null)
-            ((Container)currentView).repaint();
-    }
-
-    /**
-     * Sets the current view. 
-     *
-     * @param view view to display
-     */
-
-    public void setView(Container view)
-    {
-	// handle view properties
-
-	if (currentView != null)
-            setViewProperties(Luv.getLuv().getProperties());
-	currentView = ((View)view);
-	currentView.getViewProperties(Luv.getLuv().getProperties());
+	currentView = ((TreeTableView)view);
 
 	// clear out the view panel and put the new view in there
-
 	viewPanel.removeAll();
 	viewPanel.setLayout(new BorderLayout());
 	JScrollPane sp = new JScrollPane(view);
 	sp.setBackground(Luv.getLuv().getProperties().getColor(PROP_WIN_BCLR));
 	viewPanel.add(sp, CENTER);
 
-	// insert the view menu items
-
-	Luv.getLuv().getViewMenu().removeAll(); 
-	for (LuvAction action: currentView.getViewActions())
-            Luv.getLuv().getViewMenu().add(action);
-
-	// enable that menu if we actually have menu items
-         
-	Luv.getLuv().getViewMenu().setEnabled(Luv.getLuv().getViewMenu().getMenuComponentCount() > 0);
 	Luv.getLuv().setLocation(Luv.getLuv().getLocation());
-
-	// size everything
-
-	Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
-
-	// show the new view
+        Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
 
 	Luv.getLuv().pack();
 	Luv.getLuv().repaint();
     }
-      
-    /** Reset the current view to reflect the changes in the world. */
-
-    public void resetView()
+    
+    // refresh the current view
+    public void refreshView()
     {
-	focusView(currentModel);
+        if (currentView != null)
+            ((Container)currentView).repaint();
     }
     
-    public void focusView(Model model)
+    public void showModelInViewer(Model model)
     {
 	// create a new instance of the view only if necessary
 	if (model == null || model == currentModel) 

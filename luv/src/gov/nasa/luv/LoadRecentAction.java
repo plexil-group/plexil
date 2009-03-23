@@ -29,24 +29,16 @@ package gov.nasa.luv;
 import java.awt.event.ActionEvent;
 import static java.awt.event.KeyEvent.*;
 import java.io.IOException;
-
 import static gov.nasa.luv.Constants.*;
 
 /** Action to load a recent plan. */
 
 public class LoadRecentAction extends LuvAction
 {
-    /** File to switch to open when action is performed. */
-
+    // fFile to switch to open when action is performed
     int recentIndex;
 
-    /** Construct a file action.
-     *
-     * @param recentIndex index of recent file to load
-     * @param keyCode identifies shortcut key for this action
-     * @param modifiers modifiers for shortcut (SHIFT, META, etc.)
-     */
-
+    // construct a file action
     public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
     {
        super(getRecentPlan(recentIndex) + " + " + getRecentScript(recentIndex),
@@ -76,13 +68,7 @@ public class LoadRecentAction extends LuvAction
         return recentScript;
     }
     
-    /** Given a recent plan index, the description used for the recent menu item tooltip. 
-     *
-     * @param recentIndex the index of the recent plan
-     *
-     * @return the description of what gets loaded
-     */
-
+    // given a recent plan index, the description used for the recent menu item tooltip
     private static String getRecentMenuDescription(int index)
     {
         String plan = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index);
@@ -93,16 +79,13 @@ public class LoadRecentAction extends LuvAction
 	return description;
     }
       
-    // Add a file to the recently opened file list. 
-
+    // add a file to the recently opened file list. 
     public static void addRunToRecentRunList()
     {
-	// put newest file at the top of the list
-        
-        String planName = Luv.getLuv().getCurrentPlan().getPlanName();
-        String scriptName = Luv.getLuv().getCurrentPlan().getScriptName();
-        String libDirectory = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR);
-        
+	// put newest file at the top of the list   
+        String planName = Luv.getLuv().getCurrentPlan().getAbsolutePlanName();
+        String scriptName = Luv.getLuv().getCurrentPlan().getAbsoluteScriptName();
+        String libDirectory = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR);      
         String currPlan = planName;
         String currScript = scriptName;
         
@@ -120,49 +103,43 @@ public class LoadRecentAction extends LuvAction
                     libDirectory = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR + i, libDirectory);
                     
                     // if this run already existed in the list, we can stop
-
                     if (planName != null && planName.equals(currPlan) &&
                         scriptName != null && scriptName.equals(currScript))
                         break;
                 }
             }
 
-            // update the recent menu
-
             updateRecentMenu();
         }
     }
       
-    /** Update the recently loaded files menu. */
-
+    // update the recently loaded files menu.
     public static void updateRecentMenu()
     {
 	Luv.getLuv().getRecentRunMenu().removeAll();
 	int count = Luv.getLuv().getProperties().getInteger(PROP_FILE_RECENT_COUNT);
         
 	if (getRecentPlan(1) == null ||
-            getRecentPlan(1).equals(UNKNOWN)) {
+            getRecentPlan(1).equals(UNKNOWN)) 
+        {
 	    Luv.getLuv().getRecentRunMenu().add("No recent runs");
 	}
-	else {
+	else 
+        {
 	    for (int i = 0; i < count; ++i)
+            {
 		if ( getRecentPlan(i + 1) != null && !getRecentPlan(i + 1).equals(UNKNOWN))
                 {
 		    Luv.getLuv().getRecentRunMenu().add(new LoadRecentAction(i + 1, '1' + i, META_MASK));
                 }
+            }
 	}
 
 	// this menu is only enabled when there are items in it
-         
 	Luv.getLuv().getRecentRunMenu().setEnabled(Luv.getLuv().getRecentRunMenu().getMenuComponentCount() > 0);
     }
 
-    /**
-     * Called when user wishes to make visible this type of file.
-     *
-     * @param  e action event 
-     */
-
+    // called when user wishes to make visible this type of file.
     public void actionPerformed(ActionEvent e)
     {
         Luv.getLuv().setNewPlan(true);

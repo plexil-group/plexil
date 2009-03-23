@@ -24,35 +24,25 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
 package gov.nasa.luv;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Color;
-
 import java.util.ArrayList;
-
 import java.util.Stack;
-
 import static gov.nasa.luv.Constants.*;
 
 public class VariablesTab extends JPanel 
-{
-    
-    private Model model;
+{ 
     private VariablesTab variablesPane;
-    private int rows = 1000;
-    private int columns = 4;
+    private Model model;   
+    private int rows;
     private String info[][];
     private JTable table;   
-    
-    private ArrayList<Stack<String>> variableList;
     
     public VariablesTab() {}
     
@@ -61,19 +51,18 @@ public class VariablesTab extends JPanel
         super(new GridLayout(1,0));
         
         this.model = model;
+        rows = 1000;
+        info = new String[rows][4];
 
         String[] columnNames = {"In/InOut",
                                 "Name",
                                 "Type",
                                 "Initial Value ONLY - (UE does not currently provide updated values to LUV)",
         };
-        
+    
+        ArrayList<Stack<String>> variableList = model.getVariableList();
         int row = 0;
         int col = 0;
-        info = new String[rows][columns];
-        
-        variableList = model.getVariableList();
-        
         for (Stack<String> original : variableList)
         {
             Stack<String> copy = new Stack<String>();
@@ -121,28 +110,16 @@ public class VariablesTab extends JPanel
         }
         
         table = new JTable(info, columnNames);
-        
-        // Disable auto resizing
-        
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-    
-        // Set the first visible column to 100 pixels wide
-
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(550);
-        
         table.setPreferredScrollableViewportSize(new Dimension(900, 300));
-
         table.setShowGrid(false);
-
         table.setGridColor(Color.GRAY);
-
-        //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
 
-        //Add the scroll pane to this panel.
         add(scrollPane);
     }
     

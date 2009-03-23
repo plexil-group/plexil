@@ -33,7 +33,6 @@ import javax.swing.JComponent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-
 import static gov.nasa.luv.Constants.*;
 
 public class NodeInfoWindow extends JPanel
@@ -53,10 +52,9 @@ public class NodeInfoWindow extends JPanel
         addVariablesTab(node);
         addNodeTypeTab(node, node.getProperty(NODETYPE_ATTR));
         
-        //Add the tabbed pane to this panel.
         add(tabbedPane);
         
-        //The following line enables to use scrolling tabs.
+        // enables scrolling tabs
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     
@@ -69,8 +67,8 @@ public class NodeInfoWindow extends JPanel
     {
         if (frame != null)
             return frame.isVisible();
-        else 
-            return false;
+        
+        return false;
     }
     
     public void closeNodeInfoWindow()
@@ -111,16 +109,12 @@ public class NodeInfoWindow extends JPanel
     
     public void open(Model node) 
     {
-        //Create and set up the window.
         frame = new JFrame(node.getModelName() + " Information Window");
         
-        //Add content to the window.
         frame.add(new NodeInfoWindow(node), BorderLayout.CENTER);
-        
         frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_NODEINFOWIN_SIZE));
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_NODEINFOWIN_LOC));
         
-        //Display the window.
         frame.pack();
         frame.setVisible(true);
     }

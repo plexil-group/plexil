@@ -27,27 +27,19 @@
 package gov.nasa.luv;
 
 import java.util.ArrayList;
-
 import static gov.nasa.luv.Constants.*;
 
 /** A filter to apply to a model. */
 
 public class RegexModelFilter extends AbstractModelFilter
 {
-    /** the filters regular expression */
-    
-    ArrayList<String> listOfRegex = new ArrayList<String>();
-
-    /** Constructs an regular expression model filter for a model name.
-    *
-    * @param enabled set enabled stat of this filter
-    * @param regex the regular expression which when matched filters
-    * the given model
-    */
+    // list of elements to filter from view    
+    ArrayList<String> listOfRegex;
 
     public RegexModelFilter(boolean enabled)
     {
         super(enabled);
+        listOfRegex = new ArrayList<String>();
     }
 
     /** {@inheritDoc} */

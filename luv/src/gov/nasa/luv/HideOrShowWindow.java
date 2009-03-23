@@ -36,25 +36,20 @@ import static gov.nasa.luv.Constants.*;
 public class HideOrShowWindow extends JPanel implements ListSelectionListener
 {
     private JFrame frame;
-    private JLabel instructions;    
+    private JPanel instructionsPane;
+    private JScrollPane listScrollPane;
+    private Box checkBoxList;
+    private Box buttonPane;
     private JList list;
     private DefaultListModel listModel; 
     private JTextField textField;
-    private JButton showButton;
-    private JButton hideButton;        
-    private JScrollPane listScrollPane;    
-    private HideListener hideListener;   
-    private JPanel instructionsPane;
-    private Box buttonPane;
-    private Box checkBoxList;
+    private JButton showButton;          
     
     public HideOrShowWindow() {}
     
     public HideOrShowWindow(String regexList) 
     {
         super(new BorderLayout());
-        
-        frame = new JFrame("Hide/Show Nodes");
         
         createIntructionSection();
         createScrollListSection(regexList);
@@ -65,10 +60,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         add(listScrollPane, BorderLayout.WEST);
         add(checkBoxList, BorderLayout.EAST);
         add(buttonPane, BorderLayout.SOUTH);
-              
-        frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_HIDESHOWWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_HIDESHOWWIN_LOC));
-        frame.pack();
     }
     
     private void createIntructionSection()
@@ -82,7 +73,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                 "<br>Type <b>*Child</b> to hide nodes <b>a</b>Child, <b>b</b>Child, and <b>c</b>Child" +
                 "<br>Type <b>*Child*</b> to hide nodes <b>a</b>Child<b>1</b>, <b>b</b>Child<b>2</b>, and <b>c</b>Child<b>3</b>";
         
-        instructions = new JLabel(instructionText);
+        JLabel instructions = new JLabel(instructionText);
         instructions.setFont(new Font("Monospaced", Font.PLAIN, 12));
         instructionsPane = new JPanel();
         instructionsPane.add(instructions);
@@ -110,8 +101,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     
     private void createHideShowButtonSection()
     {
-        hideButton = new JButton("Hide");
-        hideListener = new HideListener(hideButton);
+        JButton hideButton = new JButton("Hide");
+        HideListener hideListener = new HideListener(hideButton);
         hideButton.setActionCommand("Hide");
         hideButton.addActionListener(hideListener);
         hideButton.setEnabled(false);      
@@ -309,7 +300,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             this.button = button;
         }
 
-        // Required by ActionListener.
+        // required by ActionListener.
         public void actionPerformed(ActionEvent e) 
         {
             String regex = textField.getText();            
@@ -361,20 +352,20 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             return listModel.contains(name);
         }
 
-        //Required by DocumentListener.
+        // required by DocumentListener.
         public void insertUpdate(DocumentEvent e) 
         {
             textField.setForeground(Color.BLACK);            
             enableButton();
         }
 
-        //Required by DocumentListener.
+        // required by DocumentListener.
         public void removeUpdate(DocumentEvent e) 
         {
             handleEmptyTextField(e);
         }
 
-        //Required by DocumentListener.
+        // required by DocumentListener.
         public void changedUpdate(DocumentEvent e) 
         {
             if (!handleEmptyTextField(e)) 
@@ -403,7 +394,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         }
     }
     
-    //This method is required by ListSelectionListener.
+    // required by ListSelectionListener.
     public void valueChanged(ListSelectionEvent e) 
     {
         if (e.getValueIsAdjusting() == false) 
@@ -423,17 +414,18 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     
     public void open()
     {
-        frame.setVisible(true);
-    }
-    
-    public void init(String regexList) 
-    {
-        frame = new JFrame("Hide/Show Nodes");
+        if (frame == null)
+        {
+            frame = new JFrame("Hide/Show Nodes");
 
-        frame.add(new HideOrShowWindow(regexList), BorderLayout.CENTER);
+            frame.add(new HideOrShowWindow(Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN)), BorderLayout.CENTER);
+            frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_HIDESHOWWIN_SIZE));
+            frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_HIDESHOWWIN_LOC));
 
-        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_HIDESHOWWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_HIDESHOWWIN_LOC));
-        frame.pack();  
+            frame.pack();
+            frame.setVisible(true);
+        }
+        else if (!frame.isVisible())
+            frame.setVisible(true);
     }
 }

@@ -25,9 +25,7 @@
 */
 
 package gov.nasa.luv;
-
 import java.io.*;
-
 import static gov.nasa.luv.Constants.*;
 
 /** Used to run an instance of the Universal Executive. */
@@ -105,12 +103,12 @@ public class ExecutionHandler
         // get plan
         
 	  if (currentPlan != null && 
-              currentPlan.getPlanName() != null &&
-              !currentPlan.getPlanName().equals(UNKNOWN))
+              currentPlan.getAbsolutePlanName() != null &&
+              !currentPlan.getAbsolutePlanName().equals(UNKNOWN))
           {
-              if (new File(currentPlan.getPlanName()).exists())
+              if (new File(currentPlan.getAbsolutePlanName()).exists())
               {
-                  command += " " + currentPlan.getPlanName(); 
+                  command += " " + currentPlan.getAbsolutePlanName(); 
               }
               else
                   return "ERROR: unable to identify plan.";
@@ -121,23 +119,23 @@ public class ExecutionHandler
           // get script
         
           if (currentPlan != null &&
-              currentPlan.getScriptName() != null &&
-              !currentPlan.getScriptName().equals(UNKNOWN))
+              currentPlan.getAbsoluteScriptName() != null &&
+              !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
           {
-              if (new File(currentPlan.getScriptName()).exists())
+              if (new File(currentPlan.getAbsoluteScriptName()).exists())
               {
-                  command += " " + currentPlan.getScriptName(); 
+                  command += " " + currentPlan.getAbsoluteScriptName(); 
               }
               else if (Luv.getLuv().getFileHandler().searchForScript() != null)
               {
-                  command += " " + currentPlan.getScriptName();
+                  command += " " + currentPlan.getAbsoluteScriptName();
               }
               else
                   return "ERROR: unable to identify script.";
           }
           else if (Luv.getLuv().getFileHandler().searchForScript() != null)
           {
-              command += " " + currentPlan.getScriptName();
+              command += " " + currentPlan.getAbsoluteScriptName();
           }
           else
               return "ERROR: unable to identify script.";

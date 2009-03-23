@@ -29,46 +29,37 @@ package gov.nasa.luv;
 import java.io.InterruptedIOException;
 import org.xml.sax.Attributes;
 import java.util.Stack;
-
 import static gov.nasa.luv.Constants.*;
 
  /** SAX PlexilPlan XML handler */
 
 public class PlexilPlanHandler extends AbstractDispatchableHandler
 {
-    private static int row_number = 0;
-    
-    // marker for formatting condition and local variable information
-    private final String SEPARATOR = "_Separator_";
-
-    // variables and flags for collecting condition, local variable and action information
+    private static int row_number;   
+    // variables and flags for collecting condition, local variable 
+    // and action information
     private Stack<String> nodeInfoHolder;
     private boolean recordIN;
     private boolean recordINOUT;
     private boolean properName;
-
     // flags for library information
     private boolean libraryNodeCall;
     private boolean loadingLibrary;
-
     private Stack<Model> nodeHolder;
-
     private Model topLevelNode;              
 
     public PlexilPlanHandler()
     {
         super();
-
+        
+        row_number = 0;
         nodeInfoHolder = new Stack<String>();    
         recordIN = recordINOUT = false;
         properName = false; 
-
         libraryNodeCall = false;
         loadingLibrary = false;
-
         nodeHolder = new Stack<Model>();
         topLevelNode = null;
-
         nodeHolder.push(Model.getRoot());
     }
     
@@ -77,29 +68,25 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         row_number = 0;
     }
 
-    /** Handle start of an XML document */
-
+    // handle start of an XML document
     public void startDocument()
     {
     }
 
-    /** Handle start of an XML element. */
+    // handle start of an XML element
 
     public void startElement(String uri, String tagName, String qName, Attributes attributes)
     {    
         // get the current node in the stack
-
         Model node = nodeHolder.peek();
 
         // error if loaded a script instead of plan
-
         if (tagName.equals(PLEXIL_SCRIPT))
         {
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: loaded script instead of plan");           
         }
 
         // if this SHOULD be a child node, make that happen
-
         if (tagName.equals(NODE)) 
         {
             Model child = new Model(tagName, row_number++);
@@ -115,11 +102,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             }
 
             // this child is now the current node
-
             node = child;
 
             // add attributes for this child
-
             for (int i = 0; i < attributes.getLength(); ++i) 
             {
                 child.setProperty(attributes.getQName(i), attributes.getValue(i));
@@ -127,29 +112,25 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         }
 
         // starting to load a library def'n?
-
         else if (tagName.equals(PLEXIL_LIBRARY)) 
         {  
             loadingLibrary = true;
         }
 
         // if it's not a property we can ignore it
-
         else if (!isProperty(tagName)) 
         {
             node = null;
         }
 
         // catch condition, local variable and action information
-
         catchStartTag(tagName);
 
         // push new node onto the stack
-
         nodeHolder.push(node);
     }
 
-    /** Handle end of an XML element. */
+    // handle end of an XML element
 
     public void endElement(String uri, String tagName, String qName)
     {
@@ -169,11 +150,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         }
 
         // catch condition, local variable and action information
-
         catchEndTag(tagName);
 
         // assign model name and path to the appropriate model
-
         if (topNode != null && text != null) 
         {
             topNode.setProperty(tagName, text);
@@ -199,7 +178,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          //   Luv.getLuv().handleNewLibrary(topLevelNode);
     }
 
-    /** Handle end of document event. */
+    // handle end of document event
 
     public void endDocument()
     {       

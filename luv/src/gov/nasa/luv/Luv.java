@@ -47,12 +47,15 @@ import static javax.swing.JFileChooser.*;
 
 public class Luv extends JFrame
 {
+    // boolean variables to help determine Luv state
     private static boolean allowBreaks;     
     private static boolean planPaused;         
     private static boolean planStep;           
     private static boolean isExecuting;         
     private boolean newPlan;
-    private boolean shouldHighlight;        
+    private boolean shouldHighlight;      
+    
+    // class instances to manage Luv features
     private static FileHandler fileHandler;
     private static StatusMessageHandler statusMessageHandler; 
     private static LuvBreakPointHandler luvBreakPointHandler; 
@@ -67,6 +70,8 @@ public class Luv extends JFrame
     private DebugWindow debugWindow;     
     private DebugCFGWindow debugCFGWindow; 
     private RegexModelFilter regexFilter;   
+    
+    // Luv menus
     private JMenu fileMenu;  
     private JMenu recentRunMenu;
     private JMenu runMenu;   
@@ -85,8 +90,7 @@ public class Luv extends JFrame
       
     public static void runApp()
     {
-	// if we're on a mac, use mac style menus
-         
+	// if we're on a mac, use mac style menus         
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
          
 	try 
@@ -99,13 +103,12 @@ public class Luv extends JFrame
 	}
     }
       
-    // constructor
-      
+    // constructor      
     public Luv()
     {
 	init();
 
-        viewHandler.focusView(currentPlan);
+        viewHandler.showModelInViewer(currentPlan);
 
 	constructFrame(getContentPane());   
          
@@ -193,31 +196,25 @@ public class Luv extends JFrame
 	setLayout(new BorderLayout());
 	setBackground(properties.getColor(PROP_WIN_BCLR));
          
-	// add view panel with start logo
-         
+	// add view panel with start logo         
 	JLabel startLogo = new JLabel(getIcon(START_LOGO));
 	viewHandler.getViewPanel().add(startLogo);
 	frame.add(viewHandler.getViewPanel(), CENTER);
          
 	// create a menu bar
-
 	JMenuBar menuBar = new JMenuBar();
 	setJMenuBar(menuBar);        
 	createMenuBar(menuBar);
          
 	// create the status bar
-
 	final JLabel statusBar = new JLabel(" ");
 	statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));
 	frame.add(statusBar, SOUTH);
 	statusMessageHandler.startStatusBarThread(statusBar);       
          
-	// set size and location of frame
-
 	setLocation(properties.getPoint(PROP_WIN_LOC));
 	setPreferredSize(properties.getDimension(PROP_WIN_SIZE));
         
-        hideOrShowWindow.init(properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN));  
         regexFilter.updateRegexList();
             
         setTitle();    
@@ -256,7 +253,7 @@ public class Luv extends JFrame
             luvBreakPointHandler.removeAllBreakPoints();
             currentPlan = plan;
 	    Model.getRoot().planChanged();
-            viewHandler.focusView(currentPlan);
+            viewHandler.showModelInViewer(currentPlan);
 	}
 
         luvStateHandler.preExecutionState();
@@ -269,8 +266,7 @@ public class Luv extends JFrame
         
         setTitle();
                         
-	// Determine if the Luv Viewer should pause before executing. 
-                                                  
+	// Determine if the Luv Viewer should pause before executing.                                                
 	if (isExecuting && allowBreaks) 
         {
 	    luvStateHandler.pausedState(); 
@@ -332,8 +328,7 @@ public class Luv extends JFrame
 	}
     }
       
-    // accessors for local luv variables
-    
+    // accessors for local luv variables  
     public static Luv             getLuv()                    { return theLuv; }                   
     public ViewHandler            getViewHandler()            { return viewHandler; }           
     public FileHandler            getFileHandler()            { return fileHandler; }              
@@ -366,8 +361,7 @@ public class Luv extends JFrame
         return planPaused && !planStep; 
     }
     
-    // mutators for local luv variables
-    
+    // mutators for local luv variables    
     public void setIsExecuting(boolean value) 
     {
 	isExecuting = value;
@@ -402,11 +396,9 @@ public class Luv extends JFrame
 
     // Modify the state of certain menu items based on whether the exec 
     // is running and whether it blocks.
-
     public void updateBlockingMenuItems()
     {
-        // Pause/resume not useful if exec isn't listening
-            
+        // Pause/resume not useful if exec isn't listening            
 	if (isExecuting) 
         {            
 	    if (allowBreaks) 
@@ -460,9 +452,13 @@ public class Luv extends JFrame
         runMenu.add(new JSeparator());      
         runMenu.add(LuvActionHandler.execAction);
 
-	menuBar.add(viewMenu);
-        
-        menuBar.add(debugMenu);
+        menuBar.add(viewMenu);
+        viewMenu.add(LuvActionHandler.expandAll);
+        viewMenu.add(LuvActionHandler.collapseAll);
+        viewMenu.add(LuvActionHandler.hideOrShowNodes);
+        viewMenu.add(LuvActionHandler.findNode);
+
+	menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
         debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
         debugMenu.add(LuvActionHandler.aboutWindowAction);
@@ -497,15 +493,14 @@ public class Luv extends JFrame
     }
       
     // set title of the luv viewer
-
     public void setTitle()
     {  
         if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN))
         {
-            String title = "Luv Viewer  -  " + currentPlan.getPlanNameSansPath();
+            String title = "Luv Viewer  -  " + currentPlan.getPlanName();
             
             if (!currentPlan.getScriptName().equals(UNKNOWN))
-                title += " + " + currentPlan.getScriptNameSansPath();
+                title += " + " + currentPlan.getScriptName();
             
             setTitle(title);
         }
@@ -520,7 +515,6 @@ public class Luv extends JFrame
     }
 
     // set a program wide property
-
     public void setProperty(String key, String value)
     {
 	properties.setProperty(key, value);
@@ -532,7 +526,6 @@ public class Luv extends JFrame
     }
 
     // get a program wide property
-
     public String getProperty(String key)
     {
 	return properties.getProperty(key, UNKNOWN);

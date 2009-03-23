@@ -40,44 +40,51 @@ import javax.swing.JOptionPane;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
 import static gov.nasa.luv.Constants.*;
 import static javax.swing.JFileChooser.*;
 
 public class FileHandler 
 {
-    private static boolean doNotLoadScript             = false;        // is script already loaded? if so, do not waste time loading it again
-    private static boolean stopSearchForMissingLibs    = false;        // is library found? if so, stop searching for missing libraries
+    // is script already loaded? if so, do not waste time loading it again
+    private static boolean doNotLoadScript;        
+    // is library found? if so, stop searching for missing libraries
+    private static boolean stopSearchForMissingLibs;           
+    // directory chooser object       
+    private JFileChooser dirChooser;      
+    // file chooser object       
+    private JFileChooser fileChooser;
     
-    // directory chooser object 
-      
-    private JFileChooser dirChooser = new JFileChooser()
+    public FileHandler() 
+    {
+        init();
+    }
+    
+    private void init()
+    {
+        doNotLoadScript = false;
+        stopSearchForMissingLibs  = false; 
+        
+        dirChooser = new JFileChooser()
 	{
 	    {
 		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    }
 	};
-      
-    // file chooser object 
-      
-    private JFileChooser fileChooser = new JFileChooser()
+        
+        fileChooser = new JFileChooser()
 	{
 	    {
-		// XML file filter 
-                  
+		// XML file filter                  
 		addChoosableFileFilter(new FileFilter()
 		    {
-			// accept file?
-                           
+			// accept file?                          
 			public boolean accept(File f) 
 			{
-			    // allow browse directories
-                              
+			    // allow browse directories                             
 			    if (f.isDirectory())
 				return true;
                               
-			    // allow files with correct extention
-                              
+			    // allow files with correct extention                              
 			    String extension = getExtension(f);
 			    Boolean correctExtension = false;
 			    if (extension != null)
@@ -89,8 +96,7 @@ public class FileHandler
 			    return correctExtension;
 			}
 
-			// get file extension
-                           
+			// get file extension                        
 			public String getExtension(File f)
 			{
 			    String ext = null;
@@ -103,8 +109,7 @@ public class FileHandler
 			    return ext;
 			}
 
-			// return descriton
-                           
+			// return descriton                          
 			public String getDescription()
 			{
 			    return "XML Files / PLX Files / PLS Files";
@@ -112,8 +117,7 @@ public class FileHandler
 		    });
 	    }
 	};
-    
-    public FileHandler() {}
+    }
  
     private String getFileNameSansExtension(String name)
     {
@@ -130,8 +134,7 @@ public class FileHandler
         stopSearchForMissingLibs = value;
     }
     
-    // find the libraries needed
-    
+    // find the libraries needed    
     public File searchForLibrary(String libraryName) throws InterruptedIOException 
     {      
         String directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
@@ -175,15 +178,13 @@ public class FileHandler
     }
     
     // find the appropriate script to be executed
-
     public File searchForScript() throws IOException 
     {
         File script = null;
         String directory = ""; 
         ArrayList<String> listOfDirectories = generateListOfDirectories();
 
-        // if user did not specify script, look for it 
-        
+        // if user did not specify script, look for it        
         for (int i = 0; i < listOfDirectories.size() && script == null; i++) 
         {
             directory = listOfDirectories.get(i);
@@ -191,14 +192,13 @@ public class FileHandler
             if (new File(directory).exists())
             {
                 if (Luv.getLuv().getCurrentPlan() != null)
-                    script = tryScriptNameVariations(Luv.getLuv().getCurrentPlan().getPlanNameSansPath(), directory);
+                    script = tryScriptNameVariations(Luv.getLuv().getCurrentPlan().getPlanName(), directory);
                 else
                     return null;
             }
         }
         
         // if cannot find script, create empty script and prompt user
-
         if (script == null)
         {
             directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR);
@@ -216,8 +216,7 @@ public class FileHandler
         return script;  
     }
          
-    // Select and load a script from the disk.  This operates on the global model.
-      
+    // select and load a script from the disk.  This operates on the global model.     
     public int chooseScript()
     {
 	int option = -1;
@@ -242,8 +241,7 @@ public class FileHandler
 	return option;
     }
       
-    // Select and load a plexil plan from the disk.  This operates on the global model.
-      
+    // select and load a plexil plan from the disk.  This operates on the global model.      
     public int choosePlan()
     {
 	try 
@@ -271,11 +269,7 @@ public class FileHandler
 	return -1;
     }  
           
-    /**
-     * Select and load a plexil library from the disk.  The library is
-     * added to the set of global libraries.
-     */
-      
+    // select and load a script from the disk. This operates on the global model.       
     public String chooseLibrary()
     {
 	try 
@@ -301,12 +295,7 @@ public class FileHandler
 	return null;
     }
       
-    /**
-     * Load a plexil script from the disk.
-     *
-     * @param script file to load
-     */
-      
+    // load a plexil script from the disk.
     public void loadScript(File script)
     {          
 	if (script != null)
@@ -316,13 +305,7 @@ public class FileHandler
         }
     }
 
-    /**
-     * Load a plexil plan from the disk.  This operates on the global
-     * model.
-     *
-     * @param plan the plan file to load
-     */
-      
+    // load a plexil plan from the disk.  This operates on the global model.
     public void loadPlan(File plan)
     {
         if (plan != null)
@@ -332,8 +315,7 @@ public class FileHandler
         }
     }
             
-    // Load a recently loaded run
-
+    // load a recently loaded run
     public void loadRecentRun(int index) throws IOException
     {
         File script = null;
@@ -362,13 +344,7 @@ public class FileHandler
 	}
     }   
       
-    /**
-     * Read plexil plan from disk and create an internal model.
-     *
-     * @param file file containing plan
-     *
-     */
-
+    // read plexil plan from disk and create an internal model.
     private Model readPlan(File file)
     {
 	Model result = null;
@@ -385,12 +361,7 @@ public class FileHandler
 	return result;
     }
 
-    /** Parse a plan from an XML stream
-     * @param input source of xml to parse
-     * @return returns top level node or null
-     * @note Is reentrant to support loading of libraries during plan loading.
-     */
-
+    // parse a plan from an XML stream
     private Model parseXml(InputStream input)
     {
 	PlexilPlanHandler ch = new PlexilPlanHandler();
@@ -417,7 +388,6 @@ public class FileHandler
           
 	do {
 		// if we didn't make the link, ask user for library
-
 		if (retry) {
 
 		    Object[] options = 
@@ -427,7 +397,6 @@ public class FileHandler
 			};
 
 		    // show the options
-
 		    Luv.getLuv().getStatusMessageHandler().showStatus("Unable to locate the \"" + callName + "\" library", 1000);
 		    int result = JOptionPane.showOptionDialog(Luv.getLuv(),
 							      "Unable to locate the \"" + callName + "\" library.\n\n" +
@@ -440,10 +409,8 @@ public class FileHandler
 							      options[0]);
 
 		    // process the results
-
 		    switch (result) {
 			// try to load the library and retry the link
-
 		    case 0:
                         fullName = chooseLibrary();
                         retry = false;
@@ -451,7 +418,6 @@ public class FileHandler
 
 			// if the user doesn't want to load any libraries,
 			// halt the link operation now
-
 		    case 1:
 			Luv.getLuv().getLuvStateHandler().startState();
 			retry = false;
@@ -490,8 +456,7 @@ public class FileHandler
 	return null;
     }
   
-    // generate a list of possible script names if user didn't not specify one
-    
+    // generate a list of possible script names if user didn't not specify one    
     private ArrayList<String> generateListOfScriptNames(String planName, String path)
     {
         ArrayList<String> listOfScriptNames = new ArrayList<String>();
@@ -512,8 +477,7 @@ public class FileHandler
         return listOfScriptNames;
     }
     
-    // generate a list of possible directories to search for script
-    
+    // generate a list of possible directories to search for script   
     private ArrayList<String> generateListOfDirectories()
     {
         ArrayList<String> listOfDirectories = new ArrayList<String>();

@@ -33,7 +33,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.*;
-
 import java.io.PrintStream;
 import java.io.FileOutputStream;
 import java.io.File;
@@ -41,23 +40,19 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
-
 import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
-
 import static gov.nasa.luv.Constants.*;
 
 public class DebugCFGWindow extends JFrame implements ItemListener
 {
-    private static DebugCFGWindow frame;
-        
+    private static DebugCFGWindow frame;        
     private JPanel topSection;  
     private JScrollPane checkBoxList;
     private JScrollPane previewArea; 
-    private JPanel buttonPane;
-    
+    private JPanel buttonPane;    
     private CheckNode[] nodes;
     private JCheckBox enableDebugCFGFile;  
     private JTextArea preview;    
@@ -110,8 +105,10 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         }
         catch (FileNotFoundException ex)
         {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: " + COMPLETE_FLAG_LIST + 
-                    " not found.\nYou need to run the python script: " + PYTHON_SCRIPT + " and try again");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, 
+                    "ERROR: " + COMPLETE_FLAG_LIST + 
+                    " not found.\nYou need to run the python script: " + 
+                    PYTHON_SCRIPT + " and try again");
         }  
   
         // attach each flag to a check box
@@ -128,7 +125,8 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         // place check boxes into check box tree
         main_tree = new JTree(nodes[0]);
         main_tree.setCellRenderer(new CheckRenderer());
-        main_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        main_tree.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
         main_tree.addMouseListener(new NodeSelectionListener(main_tree));       
         checkBoxList = new JScrollPane(main_tree);
         checkBoxList.setPreferredSize(new Dimension(450, 50));
@@ -178,7 +176,8 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         // file location message
         JLabel locationMessage = new JLabel();
         locationMessage.setText("Debug CFG file location: " + DEBUG_CFG_FILE);
-        locationMessage.setFont(locationMessage.getFont().deriveFont(Font.PLAIN, 12.0f));
+        locationMessage.setFont(locationMessage.getFont().deriveFont(
+                Font.PLAIN, 12.0f));
    
         // Panel to hold buttons and file location message
         buttonPane = new JPanel();
@@ -224,7 +223,9 @@ public class DebugCFGWindow extends JFrame implements ItemListener
                 }
                 catch (Exception e)
                 {
-                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while getting preview of " + DEBUG_CFG_FILE);
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, 
+                            "ERROR: exception occurred while getting preview of " 
+                            + DEBUG_CFG_FILE);
                 }
                 finally 
                 {
@@ -233,7 +234,8 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             }
             catch (FileNotFoundException ex)
             {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex,
+                        "ERROR: " + DEBUG_CFG_FILE + " not found");
             }  
         }
         else

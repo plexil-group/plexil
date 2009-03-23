@@ -30,30 +30,35 @@ import java.awt.Color;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
 import javax.swing.JPopupMenu;
-
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.awt.event.ActionEvent;
-
 import static gov.nasa.luv.Constants.*;
 
 public class LuvBreakPointHandler 
-{
-    
-      // breakpoint variables
+{    
+      // if break has occured, the causal break point object     
+      private LuvBreakPoint breakPoint;    
       
-      private LuvBreakPoint                        breakPoint = null;                                     // if break has occured, the causal break point object
-      private HashMap<LuvBreakPoint, Integer>      breakPointMap = new HashMap<LuvBreakPoint, Integer>();  // collection of all breakpoints
-      private Vector<LuvBreakPoint>                unfoundBreakPoints = new Vector<LuvBreakPoint>();         // breakpoints not found in current plan   
-      private Vector<String>                    breakPointList = new Vector<String>();                 // list of breakpoints to check for repeats
+      // collection of all breakpoints
+      private HashMap<LuvBreakPoint, Integer> breakPointMap;  
       
-      public void setBreakPoint(LuvBreakPoint bp)
+      // breakpoints not found in current plan
+      private Vector<LuvBreakPoint> unfoundBreakPoints;      
+      
+      // list of breakpoints to check for repeats
+      private Vector<String> breakPointList; 
+      
+      public LuvBreakPointHandler()
       {
-          breakPoint = bp;
+          breakPoint = null;
+          breakPointMap = new HashMap<LuvBreakPoint, Integer>();
+          unfoundBreakPoints = new Vector<LuvBreakPoint>();
+          breakPointList = new Vector<String>();
       }
       
+      // accessors for LuvBreakPointHandler
       public BreakPoint getBreakPoint()
       {
           return breakPoint;
@@ -69,44 +74,44 @@ public class LuvBreakPointHandler
           return unfoundBreakPoints;
       }
       
+      public boolean breakpointsExist()
+      {
+          return !breakPointList.isEmpty();
+      }
+      
+      public void setBreakPoint(LuvBreakPoint bp)
+      {
+          breakPoint = bp;
+      }
+
       public void clearBreakPoint()
       {
           breakPoint = null;
       }
-      
-      public boolean breakpointsExist()
-      {
-          return !breakPointList.isEmpty();
-      }     
-      
-      /** Add breakpoint to grand list of breakpoints.
-       *
-       * @param breakPoint breakpoint to add
-       * @param model model breakpoint is associated with
-       */
 
+      // add breakpoint to grand list of breakpoints
       public void addBreakPoint(LuvBreakPoint breakPoint, Model model)
       {
-         if (!breakPointList.contains(breakPoint.toString() + " " + model.getRowNumber()))
+         if (!breakPointList.contains(breakPoint.toString() + " " 
+                 + model.getRowNumber()))
          {
-             breakPointList.add(breakPoint.toString() + " " + model.getRowNumber());
+             breakPointList.add(breakPoint.toString() + " "
+                     + model.getRowNumber());
 
              breakPointMap.put(breakPoint, model.getRowNumber());
              
              Luv.getLuv().enableRemoveBreaksMenuItem(true);
 
-             Luv.getLuv().getStatusMessageHandler().showStatus("Added break on " + breakPoint, 5000l);
+             Luv.getLuv().getStatusMessageHandler().showStatus("Added break on " 
+                     + breakPoint, 5000l);
              Luv.getLuv().getViewHandler().refreshView();       
          }
          else
-             Luv.getLuv().getStatusMessageHandler().showStatus("\"" + breakPoint + "\" breakpoint has already been added", Color.RED, 5000l);
+             Luv.getLuv().getStatusMessageHandler().showStatus("\"" + breakPoint 
+                     + "\" breakpoint has already been added", Color.RED, 5000l);
       }
 
-      /** Remove breakpoint from grand list of breakpoints.
-       *
-       * @param breakPoint breakpoint to remove
-       */
-
+      // remove breakpoint from grand list of breakpoints
       public void removeBreakPoint(BreakPoint breakPoint)
       {
          breakPoint.unregister();
@@ -116,12 +121,12 @@ public class LuvBreakPointHandler
          if (!breakpointsExist())
              Luv.getLuv().enableRemoveBreaksMenuItem(false);
          
-         Luv.getLuv().getStatusMessageHandler().showStatus("Removed break on " + breakPoint, 5000l);
+         Luv.getLuv().getStatusMessageHandler().showStatus("Removed break on " 
+                 + breakPoint, 5000l);
          Luv.getLuv().getViewHandler().refreshView();
       }
 
-      /** Remove all breakpoints from grand list of breakpoints. */
-
+      // remove all breakpoints from grand list of breakpoints
       public void removeAllBreakPoints()
       {
          for (BreakPoint bp: breakPointMap.keySet())
@@ -134,12 +139,7 @@ public class LuvBreakPointHandler
          Luv.getLuv().getViewHandler().refreshView();
       }
       
-      /** Create a breakpoint which fires when the model state
-       * changes.
-       *
-       * @param model the model to watch for state changes
-       */
-      
+      // create a breakpoint which fires when the model state changes
       public BreakPoint createChangeBreakpoint(Model model)
       {
          return new LuvBreakPoint(model, MODEL_STATE)
@@ -165,8 +165,7 @@ public class LuvBreakPointHandler
          };
       }
       
-      // map all the breakpoints into the new model
-      
+      // map all the breakpoints into the new model      
       public void mapBreakPointsToNewModel(Model model)
       {
 	    getUnfoundBreakPoints().clear();
@@ -188,15 +187,8 @@ public class LuvBreakPointHandler
 	    }
       }
 
-      /** Create a breakpoint which fires when the model state
-       * changes to a specifed state.
-       *
-       * @param model the model to watch for state changes
-       * @param propertyTitle printed name of property
-       * @param targetProperty property to watch for break
-       * @param targetValue value to watch for break
-       */
-      
+      // create a breakpoint which fires when the model state changes 
+      // to a specifed state.
       public BreakPoint createTargetPropertyValueBreakpoint(
          Model model, final String propertyTitle, 
          final String targetProperty, final String targetValue)
@@ -233,24 +225,19 @@ public class LuvBreakPointHandler
          };
       }
       
-      /** Construct a node popup menu on the fly given the it is associated with.
-       *
-       * @param model model that this popup is about
-       * @return the freshly constructed popup menue
-       */
-
+      // construct a node popup menu on the fly given the it is associated with
       public JPopupMenu constructNodePopupBreakPointMenu(final Model model)
       {
          // get the model name
-
          final String name = model.getModelName();
 
-         // construct the node popup menu
-         
+         // construct the node popup menu         
          JPopupMenu popup = new JPopupMenu("Node Popup Menu");
+         
+         // get the break points for this model       
+         final Vector<LuvBreakPoint> bps = getBreakPoints(model);
 
          // add node state change breakpoint
-
          popup.add(new LuvAction(
                       "Add Break Point for " + name + " State Change",
                       "Add a break point any time " + name + " changes state.")
@@ -262,7 +249,6 @@ public class LuvBreakPointHandler
             });
          
          // add target state break points menu
-
          JMenu stateMenu = new JMenu(
             "Add Break Point for " + name + " State");
          stateMenu.setToolTipText(
@@ -283,7 +269,6 @@ public class LuvBreakPointHandler
                });
 
          // add target outcome break points menu
-
          JMenu outcomeMenu = new JMenu(
             "Add Break Point for " + name + " Outcome");
          outcomeMenu.setToolTipText(
@@ -304,7 +289,6 @@ public class LuvBreakPointHandler
                }); 
 
          // add target failure type break points menu
-
          JMenu failureTypeMenu = new JMenu(
             "Add Break Point for " + name + " Failure Type");
          failureTypeMenu.setToolTipText(
@@ -326,16 +310,10 @@ public class LuvBreakPointHandler
                      }
                }); 
 
-         // get the break points for this model
-         
-         final Vector<LuvBreakPoint> bps = getBreakPoints(model);
-
          // if we got any add enable/disable & remove item for each one
-
          if (bps.size() > 0 && !Luv.getLuv().getIsExecuting())
          {
             // add the breakpoints
-
             popup.add(new JSeparator());
             for (final LuvBreakPoint bp: bps)
             {
@@ -356,7 +334,6 @@ public class LuvBreakPointHandler
             }
 
             // add the breakpoints
-
             popup.add(new JSeparator());
             for (final BreakPoint bp2: bps)
             {
@@ -374,11 +351,9 @@ public class LuvBreakPointHandler
          }
 
          // if there is more then one break point add a remove all item
-
          if (bps.size() > 1)
          {
-            // add the remove all action
-            
+            // add the remove all action           
             popup.add(new JSeparator());
             popup.add(new LuvAction(
                          "Remove All Break Points From " + name,
@@ -393,12 +368,10 @@ public class LuvBreakPointHandler
          }
 
          // return our freshly created popup menu
-
          return popup;
       }
 
-      /** Return all the breakpoints for a given model. */
-
+      // return all the breakpoints for a given model
       public Vector<LuvBreakPoint> getBreakPoints(Model model)
       {
          Vector<LuvBreakPoint> bps = new Vector<LuvBreakPoint>();

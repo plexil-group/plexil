@@ -30,34 +30,43 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.JLabel;
-
 import javax.swing.JOptionPane;
 import static java.lang.System.*;
 
 public class StatusMessageHandler
-{    
-    private LinkedList<StatusMessageHandler> StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();         // queue of status messages
+{   
     
-    public static final StatusMessageHandler BLANK_MESSAGE = new StatusMessageHandler(" ", Color.BLACK, 0);
+    private static final StatusMessageHandler BLANK_MESSAGE = 
+            new StatusMessageHandler(" ", Color.BLACK, 0);
     private static JLabel statusBar;
+    
+    // queue of status messages
+    private LinkedList<StatusMessageHandler> StatusMessageHandlerQ;                     
+    private boolean abortAutoClear;
+    private long autoClearTime;
+    private Color color;
+    private String message;
 
-    boolean abortAutoClear = false;
-    long    autoClearTime = 0;
-    Color   color = Color.BLACK;
-    String  message;
-
-    public StatusMessageHandler() {}
+    public StatusMessageHandler() 
+    {
+        StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        autoClearTime = 0;
+        color = Color.BLACK;
+        abortAutoClear = false;
+    }
     
     public StatusMessageHandler(String message, Color color, long autoClearTime)
     {
-       this.message = message;
-       this.color = color;
-       this.autoClearTime = autoClearTime;
+        StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        this.message = message;
+        this.color = color;
+        this.autoClearTime = autoClearTime;
+        abortAutoClear = false;
     }   
     
     public void clearStatusMessageQ()
     {
-        StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        StatusMessageHandlerQ.clear();
     }
     
     public LinkedList getStatusMessageHandlerQ()
@@ -65,13 +74,9 @@ public class StatusMessageHandler
         return StatusMessageHandlerQ;
     }
     
-    /** Creates and returns the status bar thread.
-       *
-       * @param statusBar the status bar to create the thread around
-       */
-
-      public void startStatusBarThread(final JLabel statusBar)
-      {
+    // creates and returns the status bar thread.
+    public void startStatusBarThread(final JLabel statusBar)
+    {
          this.statusBar = statusBar;
          statusBar.setFont(statusBar.getFont().deriveFont(Font.PLAIN, 12.0f));
           
@@ -89,12 +94,10 @@ public class StatusMessageHandler
                         if (!StatusMessageHandlerQ.isEmpty())
                         {
                            // kill any preceeding auto clear thread
-
                            if (lastMessage != null)
                               lastMessage.abortAutoClear = true;
 
                            // get the message
-
                            final StatusMessageHandler message = 
                               StatusMessageHandlerQ.removeFirst();
                            lastMessage = message.autoClearTime > 0 
@@ -102,17 +105,15 @@ public class StatusMessageHandler
                               : null;
 
                            // print to debug window only pertinent messages
-
                            statusBar.setForeground(message.color);
                            statusBar.setText(message.message);
 
-                           if (!message.message.equals(StatusMessageHandler.BLANK_MESSAGE.message))
+                           if (!message.message.equals(BLANK_MESSAGE.message))
                            {                  
                                out.println("STATUS: " + message.message);
                            }
 
                            // if auto clear requestd start a thread for that
-
                            if (message.autoClearTime > 0)
                               new Thread()
                               {
@@ -122,8 +123,7 @@ public class StatusMessageHandler
                                        {
                                           sleep(message.autoClearTime);
                                           if (!message.abortAutoClear)
-                                             statusBar.setText(
-                                                StatusMessageHandler.BLANK_MESSAGE.message);
+                                             statusBar.setText(BLANK_MESSAGE.message);
                                        }
                                        catch (Exception e)
                                        {
@@ -134,7 +134,6 @@ public class StatusMessageHandler
                         }
 
                         // wait a bit then check for the next message
-
                         sleep(50);
 
                      }
@@ -144,98 +143,73 @@ public class StatusMessageHandler
                   }
                }
          }.start();
-      }
-      
-      // message to status bar only, not debug window
-      public void showStatusOnly(String message)
-      {
-          statusBar.setForeground((color.BLACK));
-          statusBar.setText(message);
-      }
+    }
     
-     /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       */
-        
-      public void showStatus(String message)
-      {
+    // message to status bar only, not debug window
+    public void showStatusOnBarOnly(String message)
+    {
+        statusBar.setForeground((Color.BLACK));
+        statusBar.setText(message);
+    }
+    
+    // add message to status bar (with message only)
+    public void showStatus(String message)
+    {
          showStatus(message, Color.BLACK, 0);
-      }
+    }
 
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       * @param autoClearTime milliseconds to wait before clearing the
-       * message, a value <= 0 will be left until some other action
-       * clears or overwrites this message
-       */
-        
-      public void showStatus(String message, long autoClearTime)
-      {
-         showStatus(message, Color.BLACK, autoClearTime);
-      }
+    // add message to status bar (with message and time)
+    public void showStatus(String message, long autoClearTime)
+    {
+        showStatus(message, Color.BLACK, autoClearTime);
+    }
 
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       * @param color the color of the mesage
-       */
-        
-      public void showStatus(String message, Color color)
-      {
-         showStatus(message, color, 0);
-      }
+    // add message to status bar (with message and color)
+    public void showStatus(String message, Color color)
+    {
+       showStatus(message, color, 0);
+    }
 
-      /** Add message to status bar.
-       *
-       * @param message message to add to status bar
-       * @param color the color of the mesage
-       * @param autoClearTime milliseconds to wait before clearing the
-       * message, a value <= 0 will be left until some other action
-       * clears or overwrites this message
-       */
-        
-      public void showStatus(String message, Color color, final long autoClearTime)
-      {
-          if (message.length() > 0)
-              StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
-      }
+    // add message to status bar (with message, color and time)
+    public void showStatus(String message, Color color, final long autoClearTime)
+    {
+        if (message.length() > 0)
+            StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
+    }
       
-      public void displayErrorMessage(Exception e, String errorMessage)
-      {
-          if (e != null)
-          {
-              JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                            errorMessage + ". Please see Debug Window.", 
-                                            "Error", 
-                                            JOptionPane.ERROR_MESSAGE);
+    public void displayErrorMessage(Exception e, String errorMessage)
+    {
+        if (e != null)
+        {
+            JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          errorMessage + ". Please see Debug Window.", 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
   
-              System.err.println("ERROR: " + e.getMessage());
-          }
-          else
-          {
-              JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                            errorMessage, 
-                                            "Error", 
-                                            JOptionPane.ERROR_MESSAGE);
+            System.err.println("ERROR: " + e.getMessage());
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(Luv.getLuv(), 
+                                          errorMessage, 
+                                          "Error", 
+                                          JOptionPane.ERROR_MESSAGE);
 
-              System.err.println(errorMessage);
-          }
-      }
+            System.err.println(errorMessage);
+        }
+    }
     
-      public void displayInfoMessage(String infoMessage)
-      {
-          JOptionPane.showMessageDialog(Luv.getLuv(),
-                                        infoMessage,
-                                        "Stopping Execution",
-                                        JOptionPane.INFORMATION_MESSAGE);
-      }
+    public void displayInfoMessage(String infoMessage)
+    {
+        JOptionPane.showMessageDialog(Luv.getLuv(),
+                                      infoMessage,
+                                      "Stopping Execution",
+                                      JOptionPane.INFORMATION_MESSAGE);
+    }
 
-      /** Clear the status bar. */
-
-      public void clearStatus()
-      {
-         StatusMessageHandlerQ.add(StatusMessageHandler.BLANK_MESSAGE);
-      }
+    // clear the status bar
+    public void clearStatus()
+    {
+        StatusMessageHandlerQ.add(BLANK_MESSAGE);
+    }
 }

@@ -30,11 +30,9 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
 import java.util.ArrayList;
 
 /**
@@ -44,16 +42,8 @@ import java.util.ArrayList;
 
 public class Properties extends java.util.Properties
 {
-      /** file for persistant storage of properties */
-
+      // file for persistant storage of properties 
       File file;
-
-      /** 
-       * Constrcut a properties object, reading properties if they
-       * exist.
-       *
-       * @param filename name of properties file to read.
-       */
 
       public Properties(String filename)
       {

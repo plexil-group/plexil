@@ -31,45 +31,75 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.text.*;
-
 import static gov.nasa.luv.Constants.*;
 
 public class DebugWindow extends JFrame
 {
-      // swing elements Variables declaration
-
       private JTextArea     debugArea;
       private JScrollPane   debugScrollPane;
       private JButton       clearAll;
       private JPanel        outer;
       private JToolBar      toolBar;
 
-      /** Construct a DebugWindow object. */
-
       public DebugWindow(final JFrame owner)
       {
-         initComponents();
+         init();
          
-         // set font
+         addWindowListener(new WindowAdapter() {
+		public void windowClosing(WindowEvent winEvt) {
+		    // Perhaps ask user if they want to save any unsaved files first.
+		    LuvActionHandler.luvDebugWindowAction.actionPerformed(null);   
+		}
+	    });
          
-         debugArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-         
-         // construct an output stream that directs all text into the 
-         // the debug text area
-         
-         // construct a print stream that uses the directed output stream
-         
+         // output stream to direct all text into the the debug text area
          DualOutputStream dos = new DualOutputStream(null); 
+         
+         // print stream that uses the directed output stream
          PrintStream ps = new PrintStream(dos);
          
          // redirect all system output into the debug text area
-         
          System.setErr(ps);
          System.setOut(ps);
       }
+      
+      private void init() 
+      {
+         debugArea = new javax.swing.JTextArea();
+         debugArea.setEditable(false);
+         debugArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+         
+         Action clearAction = 
+	    new AbstractAction("Clear Output")
+	    {
+                  public void actionPerformed(ActionEvent actionEvent)
+                  {
+                     clearDebugArea();
+                  }
+	    };
+            
+         clearAll = new JButton(clearAction);
+         toolBar = new javax.swing.JToolBar();
+         toolBar.setFloatable(false);      
+         toolBar.add(clearAll);
+
+         debugScrollPane = new javax.swing.JScrollPane();
+         debugScrollPane.setViewportView(debugArea);
+         
+         outer = new javax.swing.JPanel();
+         outer.setLayout(new java.awt.BorderLayout());
+         outer.add(debugScrollPane, java.awt.BorderLayout.CENTER);
+         
+         getContentPane().add(outer, java.awt.BorderLayout.CENTER);
+         getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
+         
+         setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
+         setTitle("Debug Window");                
+         setLocation(Luv.getLuv().getProperties().getPoint(PROP_DBWIN_LOC));
+	 pack();
+      }
 
       // append a string to the debug window
-      
       public void append(String str)
       {
          String eol = "\n";
@@ -83,7 +113,6 @@ public class DebugWindow extends JFrame
       }
 
       // a simple search and replace
-
       public static String replaceAll(String str, String oldTxt, String newTxt)
       {
          int idx = 0;
@@ -93,7 +122,6 @@ public class DebugWindow extends JFrame
       }
       
       // clear the debugging window of all text
-      
       private void clearDebugArea ()
       {
          try 
@@ -106,13 +134,10 @@ public class DebugWindow extends JFrame
          }
       }
       
-      // an output streem which forks data out to a file and to the
-      // debugging window
-
+      // output stream to fork data out to a file and to the debugging window
       public class DualOutputStream extends OutputStream
       {
-            //send output to both debug window and log file
-
+            // send output to both debug window and log file
             FileOutputStream logStream;
             
             public DualOutputStream (String logFilename)
@@ -154,58 +179,6 @@ public class DebugWindow extends JFrame
       
       private String getLogFilename()
       {
-         String logFilename =
-	    System.getProperty("user.home") + 
-            System.getProperty("file.separator") +
-               "luv.log";
-         return logFilename;
-      }
-      
-      /** This method is called from within the constructor to
-       * initialize the form.
-       */
-
-      private void initComponents() 
-      {
-         outer = new javax.swing.JPanel();
-         debugScrollPane = new javax.swing.JScrollPane();
-         debugArea = new javax.swing.JTextArea();
-         toolBar = new javax.swing.JToolBar();
-         Action clearAction = 
-	    new AbstractAction("Clear Output")
-	    {
-                  public void actionPerformed(ActionEvent actionEvent)
-                  {
-                     clearDebugArea();
-                  }
-	    };
-         clearAll = new JButton(clearAction);
-
-         outer.setLayout(new java.awt.BorderLayout());
-         
-         debugArea.setEditable(false);
-         debugScrollPane.setViewportView(debugArea);
-         
-         outer.add(debugScrollPane, java.awt.BorderLayout.CENTER);
-         
-         getContentPane().add(outer, java.awt.BorderLayout.CENTER);
-         
-         toolBar.setFloatable(false);
-         
-         toolBar.add(clearAll);
-         
-         getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
-         
-         setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
-         
-         setTitle("Debug Window");                
-         setLocation(Luv.getLuv().getProperties().getPoint(PROP_DBWIN_LOC));
-	 pack();
-         addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent winEvt) {
-		    // Perhaps ask user if they want to save any unsaved files first.
-		    LuvActionHandler.luvDebugWindowAction.actionPerformed(null);   
-		}
-	    });
-      }      
+         return PROP_LOG_FILE;
+      }    
 }

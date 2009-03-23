@@ -31,6 +31,11 @@ import java.io.IOException;
 import java.util.Set;
 import static gov.nasa.luv.Constants.*;
 
+/**
+ * LuvStateHandler manages Luv states, basically, enabling or disabling Luv
+ * menu items based on whether Luv just started, is executing, is paused, etc.
+ */
+
 public class LuvStateHandler 
 {
     public LuvStateHandler() {}
