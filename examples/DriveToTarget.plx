@@ -1,5 +1,5 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
-      <Node NodeType="NodeList">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="DriveToTarget.ple">
+      <Node NodeType="NodeList" FileName="DriveToTarget.ple" LineNo="28" ColNo="1">
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>drive_done</Name>
@@ -19,7 +19,7 @@
           <NodeId>DriveToTarget</NodeId>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="Command">
+                  <Node NodeType="Command" FileName="DriveToTarget.ple" LineNo="33" ColNo="5">
                       <NodeId>Drive</NodeId>
                       <NodeBody>
                           <Command>
@@ -32,7 +32,7 @@
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="NodeList">
+                  <Node NodeType="NodeList" FileName="DriveToTarget.ple" LineNo="38" ColNo="5">
                       <NodeId>StopForTimeout</NodeId>
                       <StartCondition>
                           <GE>
@@ -46,7 +46,7 @@
                       </StartCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node NodeType="Command" FileName="DriveToTarget.ple" LineNo="42" ColNo="9">
                                   <NodeId>Stop</NodeId>
                                   <NodeBody>
                                       <Command>
@@ -56,7 +56,7 @@
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node NodeType="Assignment" FileName="DriveToTarget.ple" LineNo="46" ColNo="9">
                                   <NodeId>SetTimeoutFlag</NodeId>
                                   <NodeBody>
                                       <Assignment>
@@ -70,7 +70,7 @@
                           </NodeList>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="NodeList">
+                  <Node NodeType="NodeList" FileName="DriveToTarget.ple" LineNo="52" ColNo="5">
                       <NodeId>StopForTarget</NodeId>
                       <StartCondition>
                           <LookupOnChange>
@@ -84,7 +84,7 @@
                       </SkipCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node NodeType="Command" FileName="DriveToTarget.ple" LineNo="57" ColNo="9">
                                   <NodeId>Stop</NodeId>
                                   <NodeBody>
                                       <Command>
@@ -94,7 +94,7 @@
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node NodeType="Assignment" FileName="DriveToTarget.ple" LineNo="61" ColNo="9">
                                   <NodeId>SetDriveFlag</NodeId>
                                   <NodeBody>
                                       <Assignment>
@@ -108,7 +108,7 @@
                           </NodeList>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node NodeType="Command" FileName="DriveToTarget.ple" LineNo="67" ColNo="5">
                       <NodeId>TakeNavcam</NodeId>
                       <StartCondition>
                           <BooleanVariable>timeout</BooleanVariable>
@@ -124,7 +124,7 @@
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node NodeType="Command" FileName="DriveToTarget.ple" LineNo="74" ColNo="5">
                       <NodeId>TakePancam</NodeId>
                       <StartCondition>
                           <BooleanVariable>drive_done</BooleanVariable>
@@ -140,7 +140,7 @@
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node NodeType="Command" FileName="DriveToTarget.ple" LineNo="81" ColNo="5">
                       <NodeId>Heater</NodeId>
                       <SkipCondition>
                           <BooleanVariable>timeout</BooleanVariable>

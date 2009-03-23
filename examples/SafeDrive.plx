@@ -1,5 +1,5 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
-      <Node NodeType="NodeList">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="SafeDrive.ple">
+      <Node NodeType="NodeList" FileName="SafeDrive.ple" LineNo="28" ColNo="1">
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>pictures</Name>
@@ -25,7 +25,7 @@
           </EndCondition>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="NodeList">
+                  <Node NodeType="NodeList" FileName="SafeDrive.ple" LineNo="33" ColNo="5">
                       <NodeId>Loop</NodeId>
                       <RepeatCondition>
                           <NOT>
@@ -38,7 +38,7 @@
                       </RepeatCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="38" ColNo="9">
                                   <NodeId>OneMeter</NodeId>
                                   <NodeBody>
                                       <Command>
@@ -51,7 +51,7 @@
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Command">
+                              <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="43" ColNo="9">
                                   <NodeId>TakePic</NodeId>
                                   <StartCondition>
                                       <AND>
@@ -75,7 +75,7 @@
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node NodeType="Assignment" FileName="SafeDrive.ple" LineNo="49" ColNo="9">
                                   <NodeId>Counter</NodeId>
                                   <StartCondition>
                                       <EQInternal>
