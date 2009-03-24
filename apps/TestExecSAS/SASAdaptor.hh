@@ -11,8 +11,9 @@ class ServerSocket;
 
 class SASAdaptor : public PLEXIL::InterfaceAdaptor
 {
+
 public:
-  SASAdaptor(const std::string& host="localhost", int sendingPort=6165,
+  SASAdaptor(PLEXIL::AdaptorExecInterface& execInterface, const std::string& host="localhost", int sendingPort=6165,
                       int receivingPort=6166);
   virtual ~SASAdaptor();
 

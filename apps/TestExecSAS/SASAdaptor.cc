@@ -44,8 +44,8 @@ void spawnThreadForEachClient(void* args)
 
 
 
-SASAdaptor::SASAdaptor(const std::string& host, int sendingPort,
-                       int receivingPort) : InterfaceAdaptor(), m_ListeningPort(receivingPort)
+SASAdaptor::SASAdaptor(PLEXIL::AdaptorExecInterface& execInterface, const std::string& host, int sendingPort,
+                       int receivingPort) : InterfaceAdaptor(execInterface), m_ListeningPort(receivingPort)
 {
   try 
     {
@@ -95,9 +95,9 @@ void SASAdaptor::executeCommand(const PLEXIL::LabelStr& name,
       *m_ClientSocket << cmdName.toString();
     }
 
-  PLEXIL::AdaptorExecInterface::instance()->handleValueChange
+  m_execInterface.handleValueChange
     (ack, PLEXIL::CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
-  PLEXIL::AdaptorExecInterface::instance()->notifyOfExternalEvent();
+  m_execInterface.notifyOfExternalEvent();
 
   m_CommandToExpIdMap[cmdName.toString()] = dest;
 }
@@ -154,11 +154,10 @@ void SASAdaptor::readMessage(const std::string& msg)
       if ((iter = m_CommandToExpIdMap.find(name)) != m_CommandToExpIdMap.end())
         {
           //PLEXIL::LabelStr(value).getKey()
-          PLEXIL::AdaptorExecInterface::instance()->handleValueChange(iter->second,
-                                                                      value);
+          m_execInterface.handleValueChange(iter->second, value);
           m_CommandToExpIdMap.erase(iter);
         }
-      PLEXIL::AdaptorExecInterface::instance()->notifyOfExternalEvent();
+      m_execInterface.notifyOfExternalEvent();
     }
   else if (msgType == 1)
     {

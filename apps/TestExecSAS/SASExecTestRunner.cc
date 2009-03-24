@@ -108,7 +108,7 @@ int SASExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
    initializeExpressions();
    initializeStateManagers();
 
-   SASAdaptor sasAdaptor;
+   SASAdaptor sasAdaptor(threadedInterface);
    threadedInterface.setDefaultInterface(sasAdaptor.getId());
 
    // create the exec
