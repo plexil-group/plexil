@@ -402,7 +402,7 @@ public class LuvActionHandler
                public void actionPerformed(ActionEvent e)
                {                   
                    TreeTableView.getCurrent().expandAllNodes();
-                   Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
+                   Luv.getLuv().getViewHandler().refreshRegexView();
                }
          };
 
@@ -414,7 +414,7 @@ public class LuvActionHandler
                public void actionPerformed(ActionEvent e)
                {
                    TreeTableView.getCurrent().collapseAllNodes();
-                   Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());
+                   Luv.getLuv().getViewHandler().refreshRegexView();
                }
          };
 }

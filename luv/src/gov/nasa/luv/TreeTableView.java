@@ -313,7 +313,6 @@ public class TreeTableView extends JTreeTable
             currentBreakingRow = highlight;
             tree.setSelectionRow(currentBreakingRow);      
             currentView.setSelectionBackground(Color.PINK);
-            scrollToRow(currentBreakingRow);
         }
     }
       

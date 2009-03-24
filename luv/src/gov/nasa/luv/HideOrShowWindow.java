@@ -186,7 +186,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(ASSN, "HIDE");
                 else
                     Luv.getLuv().setProperty(ASSN, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         cmdBox.addActionListener(new ActionListener(){
@@ -195,7 +195,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(COMMAND, "HIDE");
                 else
                     Luv.getLuv().setProperty(COMMAND, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         updateBox.addActionListener(new ActionListener(){
@@ -204,7 +204,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(UPDATE, "HIDE");
                 else
                     Luv.getLuv().setProperty(UPDATE, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         emptyBox.addActionListener(new ActionListener(){
@@ -213,7 +213,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(EMPTY, "HIDE");
                 else
                     Luv.getLuv().setProperty(EMPTY, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         funcBox.addActionListener(new ActionListener(){
@@ -222,7 +222,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(FUNCCALL, "HIDE");
                 else
                     Luv.getLuv().setProperty(FUNCCALL, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         listBox.addActionListener(new ActionListener(){
@@ -231,7 +231,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(NODELIST, "HIDE");
                 else
                     Luv.getLuv().setProperty(NODELIST, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         libBox.addActionListener(new ActionListener(){
@@ -240,7 +240,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(LIBRARYNODECALL, "HIDE");
                 else
                     Luv.getLuv().setProperty(LIBRARYNODECALL, "SHOW");
-                Luv.getLuv().getRegexModelFilter().refreshRegexView();
+                Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
     }

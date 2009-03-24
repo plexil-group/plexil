@@ -65,11 +65,6 @@ public class RegexModelFilter extends AbstractModelFilter
 
         return false;
     }
-
-    public void refreshRegexView()
-    {
-        Luv.getLuv().getViewHandler().refreshRegexView(Luv.getLuv().getCurrentPlan());        
-    }
     
     public void addRegex(String regex)
     {
@@ -84,8 +79,7 @@ public class RegexModelFilter extends AbstractModelFilter
 
         listOfRegex.add(formatRegex(regex));
         
-        if (Luv.getLuv().getViewHandler().getCurrentView() != null)
-            refreshRegexView();
+        Luv.getLuv().getViewHandler().refreshRegexView();  
     }
     
     public void removeRegex(String regex)
@@ -106,8 +100,7 @@ public class RegexModelFilter extends AbstractModelFilter
         
         listOfRegex.remove(formatRegex(regex));
         
-        if (Luv.getLuv().getViewHandler().getCurrentView() != null)
-            refreshRegexView();
+        Luv.getLuv().getViewHandler().refreshRegexView();  
     }
     
     public void updateRegexList()

@@ -108,10 +108,10 @@ public class ViewHandler
 	}
     }
     
-    public void refreshRegexView(Model model)
+    public void refreshRegexView()
     {
-        currentModel = model;
-        setView(new TreeTableView("", model));
+        currentModel = Luv.getLuv().getCurrentPlan();
+        setView(new TreeTableView("", Luv.getLuv().getCurrentPlan()));
         Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
     }
 }
