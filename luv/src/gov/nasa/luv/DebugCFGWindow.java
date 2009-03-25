@@ -391,7 +391,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             sb.append("<hr>");
             sb.append("<br>During the execution of a plan, Debug Tags trigger debugging messages to be sent</br>");
             sb.append("<br>from the Universal Executive. For example, the following Debug Tags would tell the</b>");
-            sb.append("<br>the UE to send messages for the state transitions and the final outcomes of every node:</br>");
+            sb.append("<br>UE to send messages for the state transitions and the final outcomes of every node:</br>");
             sb.append("<br></br>");
             sb.append("<pre>:Node:transition");
             sb.append("<br>:Node:outcome</pre>");
