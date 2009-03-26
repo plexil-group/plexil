@@ -12,7 +12,10 @@ PLEXIL_HOME = [ FDirName $(TestExecSAS) $(DOTDOT) $(DOTDOT) ] ;
 # when executing in this directory!! ***
 LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lib ] ]
-             ;
+             [ FLibDirFlags [ FDirName /home/bvk/Packages/lcm-0.2.1/lib ] ] 
+             [ FLibDirFlags [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm structs lib ] ]
+             [ FLibDirFlags [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm ] ] ;
+
 
 # point to relevant UE headers
 HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
@@ -26,18 +29,22 @@ HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
         [ FDirName $(PLEXIL_HOME) interfaces LuvListener base ]
         [ FDirName $(PLEXIL_HOME) interfaces Sockets base ]
         [ FDirName $(PLEXIL_HOME) interfaces Common base ]
+        [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm structs include ]
+        [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm ]
+        [ FDirName /home/bvk/Packages/lcm-0.2.1 ]
         ;
 
 Module sas-test-exec ;
 
 ModuleLibraries sas-test-exec :
-  [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets LuvListener PlexilInterface : $(VARIANTS) ] ;
+  [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets LuvListener PlexilInterface : $(VARIANTS) ] 
+  [ FVariantName lcm ComStructs lcmUtils : CUSTOM ] ;
+
 
 ModuleMain sas-test-exec :
   sas-exec-test-runner.cc
   SASExecTestRunner.cc
   SASAdaptor.cc
-  ThreadSpawn.cc
   ;
 
 #RunTestPlan <dependency target> : <plan> : <script> : <output> : <library> ;

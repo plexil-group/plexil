@@ -1,0 +1,6 @@
+struct telemetryDouble
+{
+  string state;
+  int32_t number;
+  double values[number];
+}

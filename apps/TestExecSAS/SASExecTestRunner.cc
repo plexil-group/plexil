@@ -188,7 +188,7 @@ int SASExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
    }
 
    std::cout << "Kicking off the exec." << std::endl;
-   sleep(3);
+   sleep(5);
    // kick off the exec.
    threadedInterface.run();
 

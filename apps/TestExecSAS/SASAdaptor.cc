@@ -10,52 +10,35 @@
 #include <CoreExpressions.hh>
 #include <AdaptorExecInterface.hh>
 #include <StateCache.hh>
-#include "ClientSocket.h"
-#include "ServerSocket.h"
 #include "ThreadSpawn.hh"
+#include "driveCommand.h"
+#include "LcmBaseImplSASExec.hh"
 
-// C wrapper to call a C++ method. Used while spawning a thread.
 void spawnThreadForEachClient(void* args)
 {
-  
-  std::cout << "Spawing the listening loop." << std::endl;
-  SASAdaptor* server = static_cast<SASAdaptor*>(args);
 
-  bool done = false;
-  ServerSocket ss(server->getListeningPortNumber());
-  if (ss.accept(ss))
+  std::cout << "Spawning the listening loop." << std::endl;
+  SASAdaptor* server = static_cast<SASAdaptor*>(args);
+  
+  while (1)
     {
-      while(!done)
-        {
-          std::string msg;
-          try
-            {
-              ss >> msg;
-              server->readMessage(msg);
-            }
-          catch (SocketException se)
-            {
-              done = true;
-              std::cout << "spawnThreadForEachClient: " << se.description() << std::endl;
-            }
-        }
+      lcm_handle(server->getLCM());
+      usleep(500000);
     }
 }
 
-
-
-SASAdaptor::SASAdaptor(PLEXIL::AdaptorExecInterface& execInterface, const std::string& host, int sendingPort,
-                       int receivingPort) : InterfaceAdaptor(execInterface), m_ListeningPort(receivingPort)
+SASAdaptor::SASAdaptor(PLEXIL::AdaptorExecInterface& execInterface) : 
+  InterfaceAdaptor(execInterface), m_lcm(NULL)
 {
-  try 
+  m_lcm = lcm_create("udpm://");
+  m_lcmSASExec = new LcmBaseImplSASExec(m_lcm, this);
+  if (!m_lcm) 
     {
-      m_ClientSocket = new ClientSocket(host, sendingPort);
+      debugMsg("SASAdaptor:SASAdaptor", "Unable to create lcm.");
     }
-  catch (SocketException se)
+  else
     {
-      m_ClientSocket = NULL;
-      std::cout << "SASAdaptor::SASAdaptor(): Setting up client(sender): " 
-                << se.description() << std::endl;
+      debugMsg("SASAdaptor:SASAdaptor", "Successfully created lcm.");
     }
 
   if (threadSpawn((THREAD_FUNC_PTR)spawnThreadForEachClient, (void *)this,
@@ -67,11 +50,13 @@ SASAdaptor::SASAdaptor(PLEXIL::AdaptorExecInterface& execInterface, const std::s
     {
       ;
     }
+
 }
 
 SASAdaptor::~SASAdaptor()
 {
-  delete m_ClientSocket;
+  delete m_lcmSASExec;
+  lcm_destroy(m_lcm);
   std::cout << "Cancelling thread ...";
   pthread_cancel(m_ThreadId);
   pthread_join(m_ThreadId, NULL);
@@ -86,13 +71,16 @@ void SASAdaptor::executeCommand(const PLEXIL::LabelStr& name,
 {
   const PLEXIL::LabelStr& cmdName = name;
   
-  if (m_ClientSocket != NULL) 
+  if (m_lcm != NULL)
     {
       debugMsg("SASAdaptor:executeCommand", 
                "Sending the following command to the stand alone simulator: "
                << cmdName.toString());
-
-      *m_ClientSocket << cmdName.toString();
+      driveCommand_publish(m_lcm, "DRIVECOMMAND", NULL);
+    }
+  else
+    {
+      debugMsg("SASAdaptor:executeCommand", "m_lcm is NULL. Unable to post command.");
     }
 
   m_execInterface.handleValueChange
@@ -114,7 +102,7 @@ void SASAdaptor::lookupNow(const PLEXIL::StateKey& stateKey,
   double returnValue = 0.0;
   dest.resize(1);
   
-  std::map<std::string, int>::iterator iter;
+  std::map<std::string, std::vector<double> >::iterator iter;
   if (n == "time")
     {
       returnValue = 0.0;
@@ -124,46 +112,36 @@ void SASAdaptor::lookupNow(const PLEXIL::StateKey& stateKey,
     {
 
       debugMsg("SASAdaptor:lookupNow", "Found a cached state");
-      dest[0] = iter->second;
+      assert(dest.size() == iter->second.size());
+      dest = iter->second;
       m_StateToValueMap.erase(iter);
     }
 }
 
-void SASAdaptor::readMessage(const std::string& msg)
+void SASAdaptor::postCommandResponse(const std::string& cmd,
+                                     float value)
 {
-  debugMsg("SASAdaptor:readMessage", 
-           "Got the following response from the stand alone simulator: " << msg);
-
-  int msgType;
-  char name[256];
-  float value;
-  // parse the msg;
-  sscanf(msg.c_str(),"%d %s %f", &msgType, name, &value);
-
-  std::cout << "msgType: " << msgType << ", name: " << name
-            << ", value: " << value << std::endl;
+  std::map<std::string, PLEXIL::ExpressionId>::iterator iter;
   
-  // determine of the msg is command response or telemetry
-  // if command response look up the expression id and post
-  // else if telemetry, create a <state_name, value> pair.
-
-  if (msgType == 0)
+  if ((iter = m_CommandToExpIdMap.find(cmd)) != m_CommandToExpIdMap.end())
     {
-      std::map<std::string, PLEXIL::ExpressionId>::iterator iter;
-
-      if ((iter = m_CommandToExpIdMap.find(name)) != m_CommandToExpIdMap.end())
-        {
-          //PLEXIL::LabelStr(value).getKey()
-          m_execInterface.handleValueChange(iter->second, value);
-          m_CommandToExpIdMap.erase(iter);
-        }
-      m_execInterface.notifyOfExternalEvent();
+      //PLEXIL::LabelStr(value).getKey()
+      m_execInterface.handleValueChange(iter->second, value);
+      m_CommandToExpIdMap.erase(iter);
     }
-  else if (msgType == 1)
-    {
-      m_StateToValueMap[name] = static_cast<int>(value);
-    }
-
+  m_execInterface.notifyOfExternalEvent();
 }
+
+void SASAdaptor::postTelemetryState(const std::string& state, int numOfValues,
+                                    const double* values)
+{
+  std::vector<double> vect;
+  for (int i = 0; i < numOfValues; ++i)
+    vect.push_back(values[i]);
+
+  m_StateToValueMap[state] = vect;
+}
+
+
 
 
