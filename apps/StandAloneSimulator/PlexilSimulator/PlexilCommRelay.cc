@@ -29,8 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include "ThreadSpawn.hh"
-#include <ServerSocket.h>
-#include <ClientSocket.h>
+#include "LcmBaseImpl.hh"
 
 // C wrapper to call a C++ method. Used while spawning a thread.
 void spawnThreadForEachClient(void* args)
@@ -39,83 +38,44 @@ void spawnThreadForEachClient(void* args)
   std::cout << "Spawning the listening loop." << std::endl;
   PlexilCommRelay* server = static_cast<PlexilCommRelay*>(args);
 
-  // Now we know that the universal exec is up, we can try and connect
-  // to its listening port.
-
-  bool done = false;
-  ServerSocket ss(server->getListeningPortNumber());
-  if (ss.accept(ss))
+  while (1)
     {
-      while(!done)
-        {
-          std::string msg;
-          try
-            {
-              ss >> msg;
-              server->receivedMessage(msg);
-            }
-          catch (SocketException se)
-            {
-              done = true;
-              std::cout << "spawnThreadForEachClient: " << se.description() << std::endl;
-            }
-        }
+      lcm_handle(server->getLCM());
+      usleep(500000);
     }
 }
 
-PlexilCommRelay::PlexilCommRelay(const std::string& _host,
-                                 int sendingPort, int listeningPort)
-  : CommRelayBase(_host), m_ClientSocket(NULL), m_HostName(_host), m_SendingPort(sendingPort), 
-    m_ListeningPort(listeningPort)
+PlexilCommRelay::PlexilCommRelay(const std::string& _host)
+  : CommRelayBase(_host), m_lcm(NULL)
 {
+  m_lcm = lcm_create("udpm://");
+  m_lcmBaseImpl = new LcmBaseImpl(m_lcm, this);
   if (threadSpawn((THREAD_FUNC_PTR)spawnThreadForEachClient, (void *)this,
                   m_ThreadId) != true)
     {
       std::cout << "Error spawning thread for the receiving socket." << std::endl;
     }
-
-  // Try connecting to the listening port universal exec. It may fail if the exec is still not
-  // up. We will try again after the exec sends a message.
-  //  this->connectToUniversalExec();
 }
 
 PlexilCommRelay::~PlexilCommRelay()
 {
+  delete m_lcmBaseImpl;
+  lcm_destroy(m_lcm);
   std::cout << "Cancelling thread ...";
   pthread_cancel(m_ThreadId);
   pthread_join(m_ThreadId, NULL);
   std::cout << "done" << std::endl;
 }
 
-void PlexilCommRelay::connectToUniversalExec()
-{
-  std::cout << "Trying to connect to the client socket" << std::endl;
-  try 
-    {
-      m_ClientSocket = new ClientSocket(m_HostName, m_SendingPort);
-      std::cout << "Succeeded in connecting to the sending socket." << std::endl;
-    }
-  catch (SocketException se)
-    {
-      m_ClientSocket = NULL;
-      std::cout << "PlexilCommRelay::connectToUniversalExec(): Setting up client(sender): " 
-                << se.description() << std::endl;
-    }
-}
-
 void PlexilCommRelay::receivedMessage (const std::string& msg)
 {
   std::cout << "\n\nPlexilCommRelay:: got something: " << msg << std::endl;
   
-  //if (m_ClientSocket) *m_ClientSocket << "Here is your response.";
   m_Simulator->scheduleResponseForCommand(msg, 0);
 }
 
 void PlexilCommRelay::sendResponse(const ResponseMessage* respMsg)
 {
-  // See if a listener is up.
-  if (getClientSocket() == NULL)
-    connectToUniversalExec();
   
   std::cout << "PlexilCommRelay::sendResponse Sending message: " << respMsg->contents
             << std::endl;
@@ -123,11 +83,6 @@ void PlexilCommRelay::sendResponse(const ResponseMessage* respMsg)
   gettimeofday(&currTime, NULL);
   std::cout << "PlexilCommRelay::sendResponse. Current time: " 
             << currTime.tv_sec << std::endl;
-
-  std::ostringstream str;
-  str << respMsg->messageType;
   
-  std::string retValue = str.str() + " " + respMsg->name + " " + respMsg->contents;
-  if (m_ClientSocket != NULL) *m_ClientSocket << retValue;
-
+  m_lcmBaseImpl->sendMessage(respMsg->name, respMsg->contents);
 }

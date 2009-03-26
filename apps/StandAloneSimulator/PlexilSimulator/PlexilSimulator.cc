@@ -44,9 +44,11 @@ int main(int argc, char** argv)
 {
 
   PlexilSimResponseFactory respFactory;
+  
   PlexilCommRelay plexilRelay("RobotYellow");
   Simulator simulator(&respFactory, &plexilRelay);
   simulator.readScript("Test.script", "Telemetry.script");
+  //  simulator.readScript("Test.script", "NULL");
 
 
   struct sigaction sa;

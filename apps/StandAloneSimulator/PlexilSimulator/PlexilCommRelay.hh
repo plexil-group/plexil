@@ -30,29 +30,24 @@
 #include <map>
 #include <string>
 #include <pthread.h>
+#include <lcm/lcm.h>
 
-class ClientSocket;
+class LcmBaseImpl;
 
 class PlexilCommRelay : public CommRelayBase
 {
 public:
-  PlexilCommRelay(const std::string& _host = "localhost", int sendingPort=6166,
-                  int listeningPort=6165);
+  PlexilCommRelay(const std::string& _host);
   ~PlexilCommRelay();
-  virtual void receivedMessage (const std::string& msg);
+  void receivedMessage (const std::string& msg);
   virtual void sendResponse(const ResponseMessage* respMsg);
-  void connectToUniversalExec();
-  ClientSocket* getClientSocket() const {return m_ClientSocket;}
-  int getListeningPortNumber() const {return m_ListeningPort;}
-  int getSendingPortNumber() const {return m_SendingPort;}
+  lcm_t* getLCM() {return m_lcm;}
 
 private:
-
+  
+  lcm_t *m_lcm;
+  LcmBaseImpl *m_lcmBaseImpl;
   pthread_t m_ThreadId;
-  ClientSocket* m_ClientSocket;
-  const std::string m_HostName;
-  int m_SendingPort;
-  int m_ListeningPort;
 };
 
 #endif // SSWG_COMM_RELAY_HH
