@@ -887,48 +887,10 @@
   </xsd:element>
   <xsd:group name="Lookup">
     <xsd:choice>
-      <xsd:element ref="LookupWithFrequency"/>
       <xsd:element ref="LookupOnChange"/>
       <xsd:element ref="LookupNow"/>
     </xsd:choice>
   </xsd:group>
-  <xsd:element name="LookupWithFrequency">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:choice>
-          <xsd:element ref="Name"/>
-<!-- for backw compatibility -->
-          <xsd:element name="StateName" type="xsd:string"/>
-        </xsd:choice>
-        <xsd:element ref="Frequency"/>
-        <xsd:element ref="Arguments" minOccurs="0"/>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
-  <xsd:element name="Frequency">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="Low"/>
-        <xsd:element ref="High" minOccurs="0"/>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
-  <xsd:element name="Low">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="RealValue"/>
-        <xsd:element ref="RealVariable"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
-  <xsd:element name="High">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="RealValue"/>
-        <xsd:element ref="RealVariable"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
   <xsd:element name="LookupOnChange">
     <xsd:complexType>
       <xsd:sequence>

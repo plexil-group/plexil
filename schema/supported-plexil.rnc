@@ -6,7 +6,6 @@ start =
   | FunctionDeclaration
   | InOut
   | NodeBody
-  | LookupWithFrequency
   | BooleanVariable
   | InvariantCondition
   | EQInternal
@@ -32,7 +31,6 @@ start =
   | ArrayElement
   | DeclareArray
   | RepeatCondition
-  | High
   | LE
   | Arguments
   | NEInternal
@@ -47,11 +45,9 @@ start =
   | Alias
   | NENumeric
   | Request
-  | Frequency
   | Timepoint
   | CommandDeclaration
   | NEBoolean
-  | Low
   | LookupRHS
   | LookupNow
   | LookupOnChange
@@ -113,14 +109,6 @@ Interface =
   notAllowed
   | element Interface { In? & InOut? }
 NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
-LookupOnChange =
-  notAllowed
-  | element LookupOnChange {
-      (Name
-       | element StateName { \string }),
-      Tolerance?,
-      Arguments?
-    }
 ADD =
   notAllowed
   | element ADD {
@@ -174,6 +162,7 @@ Return =
       },
       NCNameOrEmpty
     }
+nonNegativeInteger = xsd:nonNegativeInteger
 ArrayRHS =
   notAllowed
   | element ArrayRHS {
@@ -312,12 +301,12 @@ NodeStateValue =
       | xsd:NMTOKEN "FAILING"
       | xsd:NMTOKEN "FINISHING"
     }
-LookupWithFrequency =
+LookupOnChange =
   notAllowed
-  | element LookupWithFrequency {
+  | element LookupOnChange {
       (Name
        | element StateName { \string }),
-      Frequency,
+      Tolerance?,
       Arguments?
     }
 DeclaredVariable =
@@ -328,7 +317,6 @@ DeclaredVariable =
   | (notAllowed
      | element ArrayVariable { NCName })
   | ArrayElement
-\string = xsd:string
 NodeFailureValue =
   notAllowed
   | element NodeFailureValue {
@@ -337,22 +325,26 @@ NodeFailureValue =
       | xsd:NMTOKEN "PRE_CONDITION_FAILED"
       | xsd:NMTOKEN "PARENT_FAILED"
     }
+Tolerance =
+  notAllowed
+  | element Tolerance { RealValue | RealVariable }
 NEString =
   notAllowed
   | element NEString { StringExpression, StringExpression }
 NodeFailureVariable =
   notAllowed
   | element NodeFailureVariable { NodeRef | NodeId }
-Lookup = LookupWithFrequency | LookupOnChange | LookupNow
+NCName = xsd:NCName
+Lookup = LookupOnChange | LookupNow
 DIV =
   notAllowed
   | element DIV { NumericExpression, NumericExpression }
+\string = xsd:string
 NodeTimepointValue =
   notAllowed
   | element NodeTimepointValue {
       (NodeRef | NodeId), NodeStateValue, Timepoint
     }
-NCName = xsd:NCName
 GT =
   notAllowed
   | element GT { NumericExpression, NumericExpression }
@@ -462,15 +454,9 @@ Resource =
       & element ResourceUpperBound { NumericExpression }?
       & element ResourceReleaseAtTermination { BooleanExpression }?
     }
-Frequency =
-  notAllowed
-  | element Frequency { Low, High? }
 EQBoolean =
   notAllowed
   | element EQBoolean { BooleanExpression, BooleanExpression }
-Tolerance =
-  notAllowed
-  | element Tolerance { RealValue | RealVariable }
 ResourceList =
   notAllowed
   | element ResourceList { Resource* }
@@ -510,10 +496,6 @@ LookupNow =
 StringVariable =
   notAllowed
   | element StringVariable { NCName }
-Low =
-  notAllowed
-  | element Low { RealValue | RealVariable }
-nonNegativeInteger = xsd:nonNegativeInteger
 Value = IntegerValue | RealValue | BooleanValue | StringValue
 LibraryNodeDeclaration =
   notAllowed
@@ -603,9 +585,6 @@ LookupRHS =
 StateDeclaration =
   notAllowed
   | element StateDeclaration { ExternalCallDeclaration }
-High =
-  notAllowed
-  | element High { RealValue | RealVariable }
 StartCondition =
   notAllowed
   | element StartCondition { BooleanExpression }
