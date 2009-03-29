@@ -1,0 +1,218 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- A highly contrived plan that uses many of the extended Plexil constructs. -->
+  <GlobalDeclarations>
+    <CommandDeclaration><Name>depress_accelerator</Name></CommandDeclaration>
+    <CommandDeclaration><Name>depress_clutch</Name></CommandDeclaration>
+    <CommandDeclaration><Name>turn_key</Name></CommandDeclaration>
+    <CommandDeclaration><Name>push_start</Name></CommandDeclaration>
+    <CommandDeclaration><Name>turn_on_wipers</Name></CommandDeclaration>
+    <CommandDeclaration><Name>turn_on_lights</Name></CommandDeclaration>
+    <CommandDeclaration><Name>select_radio</Name></CommandDeclaration>
+    <CommandDeclaration><Name>select_CD</Name></CommandDeclaration>
+    <CommandDeclaration><Name>drive_a_bit</Name></CommandDeclaration>
+    <StateDeclaration><Name>car_started</Name></StateDeclaration>
+    <StateDeclaration><Name>raining</Name></StateDeclaration>
+    <StateDeclaration><Name>no_passengers</Name></StateDeclaration>
+    <StateDeclaration><Name>at_school</Name></StateDeclaration>
+  </GlobalDeclarations>
+  <SuccessSequence FileName= "DriveToSchool.ple" LineNo= "12" ColNo= "2">
+    <NodeId>DriveToSchool</NodeId>
+    <Try FileName= "DriveToSchool.ple" LineNo= "23" ColNo= "2">
+      <!-- First start the car, trying a few methods... -->
+      <NodeId>StartCar</NodeId>
+      <!-- The first trial is an elaborate sequence for key starting... -->
+      <Sequence FileName= "DriveToSchool.ple" LineNo= "45" ColNo= "2">
+        <NodeId>KeyStart</NodeId>
+        <PostCondition>
+          <LookupNow>
+            <Name><StringValue>car_started</StringValue></Name>
+          </LookupNow>
+        </PostCondition>
+        <For FileName= "DriveToSchool.ple" LineNo= "60" ColNo= "2">
+           <NodeId>PrimeAccelerator</NodeId>
+           <Comment>Assume cold day with carbuerated engine!</Comment>
+           <LoopVariable>
+             <DeclareVariable>
+               <Name>count</Name>
+               <Type>Integer</Type>
+               <InitialValue><IntegerValue>0</IntegerValue></InitialValue>
+             </DeclareVariable>
+          </LoopVariable>
+          <Condition>
+            <LT>
+              <IntegerVariable>count</IntegerVariable>
+              <IntegerValue>3</IntegerValue>
+            </LT>
+          </Condition>
+          <LoopVariableUpdate>
+            <ADD>
+              <IntegerVariable>count</IntegerVariable>
+              <IntegerValue>1</IntegerValue>
+            </ADD>
+          </LoopVariableUpdate>
+          <Actions>
+            <Node NodeType= "Command" FileName= "DriveToSchool.ple" LineNo= "80" ColNo= "2">
+              <NodeId>PressAccelerator</NodeId>
+              <NodeBody>
+                <Command>
+                  <Name><StringValue>depress_accelerator</StringValue></Name>
+                </Command>
+              </NodeBody>
+            </Node>
+          </Actions>
+        </For>
+        <Node NodeType= "Command">
+          <NodeId>DepressClutch</NodeId>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>depress_clutch</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+        <Node NodeType= "Command">
+          <NodeId>TurnKey</NodeId>
+          <!-- Ends when either the car is started, or more than 5
+               seconds have passed. -->
+          <EndCondition>
+            <OR>
+              <LookupOnChange>
+                <Name><StringValue>car_started</StringValue></Name>
+              </LookupOnChange>
+              <GT>
+                <LookupOnChange>
+                  <Name><StringValue>time</StringValue></Name>
+                </LookupOnChange>
+                <ADD>
+                  <NodeTimepointValue>
+                    <NodeId>TurnKey</NodeId>
+                    <NodeStateValue>EXECUTING</NodeStateValue>
+                    <Timepoint>START</Timepoint>
+                  </NodeTimepointValue>
+                  <IntegerValue>5</IntegerValue>
+                </ADD>
+              </GT>
+            </OR>
+          </EndCondition>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>turn_key</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+      </Sequence>
+
+      <!-- The second and final trial is the old-fashioned push start. -->
+      <Node NodeType= "Command">
+        <NodeId>PushStart</NodeId>
+        <PostCondition>
+          <LookupNow>
+            <Name><StringValue>car_started</StringValue></Name>
+          </LookupNow>
+        </PostCondition>
+        <NodeBody>
+          <Command>
+            <Name><StringValue>push_start</StringValue></Name>
+          </Command>
+        </NodeBody>
+      </Node>
+    </Try>
+
+    <!-- Turn on lights and wipers if it is raining. -->
+    <If FileName= "DriveToSchool.ple" LineNo= "100" ColNo= "2">
+      <NodeId>HandleRain</NodeId>
+      <Condition>
+        <LookupNow>
+          <Name><StringValue>raining</StringValue></Name>
+        </LookupNow>
+      </Condition>
+      <Then>
+        <Node NodeType= "Command">
+          <NodeId>Wipers</NodeId>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>turn_on_wipers</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+        <Node NodeType= "Command">
+          <NodeId>Lights</NodeId>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>turn_on_lights</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+      </Then>
+    </If>
+
+    <!-- Play radio or CD depending on whether there are passengers. -->
+    <If FileName= "DriveToSchool.ple" LineNo= "123" ColNo= "2">
+      <NodeId>SelectStation</NodeId>
+      <Condition>
+        <LookupNow>
+          <Name><StringValue>no_passengers</StringValue></Name>
+        </LookupNow>
+      </Condition>
+      <Then>
+        <Node NodeType= "Command">
+          <NodeId>Radio</NodeId>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>select_radio</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+      </Then>
+      <Else>
+        <Node NodeType= "Command">
+          <NodeId>CD</NodeId>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>select_CD</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+      </Else>
+    </If>
+
+    <!-- A highly simplified driving task, which illustrates a While loop. -->
+    <While FileName= "DriveToSchool.ple" LineNo= "182" ColNo= "2">
+      <NodeId>DriveUntilAtSchool</NodeId>
+      <Condition>
+        <NOT>
+          <LookupNow>
+            <Name><StringValue>at_school</StringValue></Name>
+          </LookupNow>
+        </NOT>
+      </Condition>
+        <Node NodeType= "Command">
+          <NodeId>DriveABit</NodeId>
+          <EndCondition>
+            <OR>
+              <LookupOnChange>
+                <Name><StringValue>at_school</StringValue></Name>
+              </LookupOnChange>
+              <GT>
+                <LookupOnChange>
+                  <Name><StringValue>time</StringValue></Name>
+                </LookupOnChange>
+                <ADD>
+                  <NodeTimepointValue>
+                    <NodeId>DriveABit</NodeId>
+                    <NodeStateValue>EXECUTING</NodeStateValue>
+                    <Timepoint>START</Timepoint>
+                  </NodeTimepointValue>
+                  <IntegerValue>5</IntegerValue>
+                </ADD>
+              </GT>
+            </OR>
+          </EndCondition>
+          <NodeBody>
+            <Command>
+              <Name><StringValue>drive_a_bit</StringValue></Name>
+            </Command>
+          </NodeBody>
+        </Node>
+    </While>
+  </SuccessSequence>
+</PlexilPlan>
