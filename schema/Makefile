@@ -1,4 +1,5 @@
-# This Makefile was originally created by Jeff Kowing of JSC (email below).
+# This Makefile was originally created by Jeff Kowing
+# (jeffrey.d.kowing@nasa.gov)
 #
 # Modifications:
 #
@@ -53,16 +54,18 @@
 # $ mv PLEXIL_schema.rnc PLEXIL_schema.rnc.in
 # $ rncfix PLEXIL_schema.rnc.in PLEXIL_schema.rnc 
 #
-# -- jeff kowing <jeffrey.d.kowing@nasa.gov>
 #------------------------------------------------------------------------------
 
 # My bone head script to fix up the generated RELAX-NG Compact schema.
 RNCFIX := ./rncfix
 
-SCHEMA_XSD :=   $(wildcard *.xsd)
+SCHEMA_XSD =   plexil.xsd supported-plexil.xsd \
+	       core-plexil.xsd safe-plexil.xsd extended-plexil.xsd	
 SCHEMA_RNG =    $(SCHEMA_XSD:.xsd=.rng)
 SCHEMA_RNC =    $(SCHEMA_XSD:.xsd=.rnc)
 SCHEMA_RNC_IN = $(SCHEMA_XSD:.xsd=.rnc.in)
+
+default: all
 
 all: $(SCHEMA_RNC) 
 

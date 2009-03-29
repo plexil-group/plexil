@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tr="extended-plexil-translator">
+   <Node NodeType="NodeList">
+      <NodeId>Try_d1e3</NodeId>
+      <PostCondition>
+         <AND>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>One</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Two</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </AND>
+      </PostCondition>
+      <EndCondition>
+         <OR>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>One</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>Two</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+         </OR>
+      </EndCondition>
+      <NodeBody>
+         <NodeList>
+            <Node NodeType="Empty">
+               <NodeId>One</NodeId>
+            </Node>
+            <Node NodeType="Empty">
+               <NodeId>Two</NodeId>
+               <StartCondition>
+                  <AND>
+                     <EQInternal>
+                        <NodeStateVariable>
+                           <NodeId>One</NodeId>
+                        </NodeStateVariable>
+                        <NodeStateValue>FINISHED</NodeStateValue>
+                     </EQInternal>
+                  </AND>
+               </StartCondition>
+            </Node>
+         </NodeList>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

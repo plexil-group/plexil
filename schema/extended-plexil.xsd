@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+     This schema extends Core PLEXIL with syntactic sugar: convenient forms 
+     that are translated into Core PLEXIL for execution.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  <xsd:include schemaLocation='core-plexil.xsd'/>
+
+  <!-- We extend Action and BooleanExpression to include the forms in
+       this file.  -->
+
+  <xsd:redefine schemaLocation='plexil-base.xsd'>
+    <xsd:group name="Action">
+      <xsd:choice>
+        <xsd:element ref="Node"/>
+        <xsd:element ref="Sequence"/>
+        <xsd:element ref="SuccessSequence"/>
+        <xsd:element ref="Try"/>
+        <xsd:element ref="If"/>
+        <xsd:element ref="While"/>
+        <xsd:element ref="For"/>
+      </xsd:choice>
+    </xsd:group>
+  </xsd:redefine>
+
+  <xsd:redefine schemaLocation='plexil-base.xsd'>
+    <xsd:group name="BooleanExpression">
+      <xsd:choice>
+        <xsd:element ref="OR"/>
+        <xsd:element ref="XOR"/>
+        <xsd:element ref="AND"/>
+        <xsd:element ref="NOT"/>
+        <xsd:element ref="IsKnown"/>
+        <xsd:element ref="GT"/>
+        <xsd:element ref="GE"/>
+        <xsd:element ref="LT"/>
+        <xsd:element ref="LE"/>
+        <xsd:element ref="EQBoolean"/>
+        <xsd:element ref="EQNumeric"/>
+        <xsd:element ref="EQInternal"/>
+        <xsd:element ref="EQString"/>
+        <xsd:element ref="NEBoolean"/>
+        <xsd:element ref="NENumeric"/>
+        <xsd:element ref="NEInternal"/>
+        <xsd:element ref="NEString"/>
+        <xsd:element ref="BooleanVariable"/>
+        <xsd:element ref="BooleanValue"/>
+        <xsd:group ref="Lookup"/>
+        <xsd:element ref="ArrayElement"/>
+        <xsd:element ref="NodeFinished"/>
+        <xsd:element ref="NodeIterationEnded"/>
+        <xsd:element ref="NodeExecuting"/>
+        <xsd:element ref="NodeWaiting"/>
+        <xsd:element ref="NodeInactive"/>
+        <xsd:element ref="NodeSucceeded"/>
+        <xsd:element ref="NodeFailed"/>
+        <xsd:element ref="NodeSkipped"/>
+        <xsd:element ref="NodeInvariantFailed"/>
+        <xsd:element ref="NodePreconditionFailed"/>
+        <xsd:element ref="NodeParentFailed"/>
+      </xsd:choice>
+    </xsd:group>
+  </xsd:redefine>
+
+  <!-- Sequence forms -->
+
+  <xsd:group name="SequenceType">
+    <xsd:sequence>
+      <xsd:all>
+        <xsd:element ref="NodeId" minOccurs="0"/>
+        <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
+        <xsd:element ref="StartCondition" minOccurs="0"/>
+        <xsd:element ref="RepeatCondition" minOccurs="0"/>
+        <xsd:element ref="PreCondition" minOccurs="0"/>
+        <xsd:element ref="PostCondition" minOccurs="0"/>
+        <xsd:element ref="InvariantCondition" minOccurs="0"/>
+        <xsd:element ref="EndCondition" minOccurs="0"/>
+        <xsd:element ref="SkipCondition" minOccurs="0"/>
+        <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
+        <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
+        <xsd:element ref="Interface" minOccurs="0"/>
+        <xsd:element ref="VariableDeclarations" minOccurs="0"/>
+      </xsd:all>
+      <xsd:group ref="Action" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:group>
+
+  <!-- A simple sequence: each action is executed in turn. -->
+  <xsd:element name="Sequence">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:group ref="SequenceType"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Each action in the sequence is performed in turn, until one of
+       them fails; the rest are ignored.  The sequence succeeds if and
+       only if all its actions succeed. -->
+  <xsd:element name="SuccessSequence">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:group ref="SequenceType"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Each action in the sequence is performed in turn, until one of
+       them succeeds; the rest are ignored.  This sequence fails if and
+       only if all its actions fail. -->
+  <xsd:element name="Try">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:group ref="SequenceType"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
+
+
+  <!-- Conditionals and loops -->
+
+  <!-- A classic if-then-else with optional else. -->
+  <xsd:element name="If">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:sequence>
+        <xsd:all>
+          <xsd:element ref="NodeId" minOccurs="0"/>
+          <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
+          <xsd:element ref="StartCondition" minOccurs="0"/>
+          <xsd:element ref="RepeatCondition" minOccurs="0"/>
+          <xsd:element ref="PreCondition" minOccurs="0"/>
+          <xsd:element ref="PostCondition" minOccurs="0"/>
+          <xsd:element ref="InvariantCondition" minOccurs="0"/>
+          <xsd:element ref="EndCondition" minOccurs="0"/>
+          <xsd:element ref="SkipCondition" minOccurs="0"/>
+          <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
+          <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
+          <xsd:element ref="Interface" minOccurs="0"/>
+          <xsd:element ref="VariableDeclarations" minOccurs="0"/>
+        </xsd:all>
+        <xsd:element name="Condition">
+          <xsd:complexType>
+            <xsd:group ref="BooleanExpression"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="Then">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:group ref="Action" maxOccurs="unbounded"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="Else" minOccurs="0">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:group ref="Action" maxOccurs="unbounded"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- A classic while loop -->
+  <xsd:element name="While">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:sequence>
+        <xsd:all>
+          <xsd:element ref="NodeId" minOccurs="0"/>
+          <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
+          <xsd:element ref="StartCondition" minOccurs="0"/>
+          <xsd:element ref="RepeatCondition" minOccurs="0"/>
+          <xsd:element ref="PreCondition" minOccurs="0"/>
+          <xsd:element ref="PostCondition" minOccurs="0"/>
+          <xsd:element ref="InvariantCondition" minOccurs="0"/>
+          <xsd:element ref="EndCondition" minOccurs="0"/>
+          <xsd:element ref="SkipCondition" minOccurs="0"/>
+          <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
+          <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
+          <xsd:element ref="Interface" minOccurs="0"/>
+          <xsd:element ref="VariableDeclarations" minOccurs="0"/>
+        </xsd:all>
+        <xsd:element name="Condition">
+          <xsd:complexType>
+            <xsd:group ref="BooleanExpression"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:group ref="Action" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+<!-- A For loop.  First a variable is declared (it must be numeric).
+     Next is a boolean expression that determines when to keep the loop
+     going.  Next is a numeric expression used to update the variable
+     (it is typically a function of the variable).  Finally, actions
+     to execute. -->
+  <xsd:element name="For">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:sequence>
+        <xsd:all>
+          <xsd:element ref="NodeId" minOccurs="0"/>
+          <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
+          <xsd:element ref="StartCondition" minOccurs="0"/>
+          <xsd:element ref="RepeatCondition" minOccurs="0"/>
+          <xsd:element ref="PreCondition" minOccurs="0"/>
+          <xsd:element ref="PostCondition" minOccurs="0"/>
+          <xsd:element ref="InvariantCondition" minOccurs="0"/>
+          <xsd:element ref="EndCondition" minOccurs="0"/>
+          <xsd:element ref="SkipCondition" minOccurs="0"/>
+          <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
+          <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
+          <xsd:element ref="Interface" minOccurs="0"/>
+          <xsd:element ref="VariableDeclarations" minOccurs="0"/>
+        </xsd:all>
+        <xsd:element name= "LoopVariable">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:element ref="DeclareVariable"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name= "Condition">
+          <xsd:complexType>
+            <xsd:group ref="BooleanExpression"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name= "LoopVariableUpdate">
+          <xsd:complexType>
+            <xsd:group ref="NumericExpression"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name= "Actions">
+          <xsd:complexType>
+            <xsd:group ref="Action" maxOccurs= "unbounded"/>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+
+  <!-- Node Predicates -->
+
+  <xsd:element name="NodeFinished" type="xsd:NCName"/>
+  <xsd:element name="NodeIterationEnded" type="xsd:NCName"/>
+  <xsd:element name="NodeExecuting" type="xsd:NCName"/>
+  <xsd:element name="NodeWaiting" type="xsd:NCName"/>
+  <xsd:element name="NodeInactive" type="xsd:NCName"/>
+  <xsd:element name="NodeSucceeded" type="xsd:NCName"/>
+  <xsd:element name="NodeFailed" type="xsd:NCName"/>
+  <xsd:element name="NodeSkipped" type="xsd:NCName"/>
+  <xsd:element name="NodeInvariantFailed" type="xsd:NCName"/>
+  <xsd:element name="NodePreconditionFailed" type="xsd:NCName"/>
+  <xsd:element name="NodePostconditionFailed" type="xsd:NCName"/>
+  <xsd:element name="NodeParentFailed" type="xsd:NCName"/>
+
+</xsd:schema>
