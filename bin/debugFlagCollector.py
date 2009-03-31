@@ -209,10 +209,27 @@ if valid_plexil_home:
         os.remove(COMPLETE_DEBUG)
 
     print "\nSearching for debug messages in .cc, .cpp, .hh and .h files...\n\n"
-    locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="ebugMsg(")
-    locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="ebugMsg(")
-    locate_debug_msgs(FILE_TYPE="*.hh", PATTERN="ebugMsg(")
-    locate_debug_msgs(FILE_TYPE="*.h", PATTERN="ebugMsg(")
+    
+    locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="debugMsg(")
+    locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="debugMsg(")
+    locate_debug_msgs(FILE_TYPE="*.hh", PATTERN="debugMsg(")
+    locate_debug_msgs(FILE_TYPE="*.ch", PATTERN="debugMsg(")
+    
+    locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="condDebugMsg(")
+    locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="condDebugMsg(")
+    locate_debug_msgs(FILE_TYPE="*.hh", PATTERN="condDebugMsg(")
+    locate_debug_msgs(FILE_TYPE="*.ch", PATTERN="condDebugMsg(")
+    
+    locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="debugStmt(")
+    locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="debugStmt(")
+    locate_debug_msgs(FILE_TYPE="*.hh", PATTERN="debugStmt(")
+    locate_debug_msgs(FILE_TYPE="*.ch", PATTERN="debugStmt(")
+    
+    locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="condDebugStmt(")
+    locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="condDebugStmt(")
+    locate_debug_msgs(FILE_TYPE="*.hh", PATTERN="condDebugStmt(")
+    locate_debug_msgs(FILE_TYPE="*.ch", PATTERN="condDebugStmt(")
+
     extract_tags()
     sort_tags_alphabetically()
     remove_duplicate_flags()
