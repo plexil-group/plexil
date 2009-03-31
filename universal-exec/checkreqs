@@ -15,10 +15,9 @@ MINGCC_J=3
 MINGCC_K=3
 GCCPATH="/usr/local/beta/gcc-3.3.3/bin"
 BADGCC=0
-JAVAVERSTR="Minimum Java version required is 1.4.2"
+JAVAVERSTR="Minimum Java version required is 1.5"
 MINJAVA_I=1
-MINJAVA_J=4
-MINJAVA_K=2
+MINJAVA_J=5
 JAVAPATH="/usr/local/jdk1.5.0/bin"
 BADJAVA=0
 BADPATH=0
@@ -109,12 +108,11 @@ then
 fi
 
 #Check for minimum Java version
-JAVAVER=`java -version 2>&1 | egrep 'java version .[0-9]\.[0-9]+\.[0-9]+' | cut -d"\"" -f2`
+JAVAVER=`java -version 2>&1 | egrep 'java version .[0-9]\.[0-9]' | cut -d"\"" -f2`
 if [ -n "$JAVAVER" ]
 then
   i=`echo $JAVAVER | cut -d. -f1`
   j=`echo $JAVAVER | cut -d. -f2`
-  k=`echo $JAVAVER | cut -d. -f3`
 # ignore version info after the "_" as in 1.4.2_05
   k=`echo $k | cut -d_ -f1`
   if [ $i -lt $MINJAVA_I ]
@@ -123,12 +121,7 @@ then
   else
     if [ $i -le $MINJAVA_I -a $j -lt $MINJAVA_J ]
     then
-      BADJAVA=1 
-    else
-      if [ $i -le $MINJAVA_I -a $j -le $MINJAVA_J -a $k -lt $MINJAVA_K ]
-      then
-        BADJAVA=1 
-      fi
+      BADJAVA=1    
     fi
   fi
   if [ $BADJAVA -eq 1 ]
@@ -209,11 +202,6 @@ then
   BADOSTYPE=0
 fi
 
-if [ $OSTYPE = solaris ]
-then
-  BADOSTYPE=0
-fi
-
 if [ $OSTYPE = linux ]
 then
   BADOSTYPE=0
@@ -225,15 +213,6 @@ then
  echo "            Known values are darwin, solaris, and linux." 
 else 
  echo "  OSTYPE is set to " $OSTYPE
-fi
-
-
-if [ -z "$JAVA_HOME" ]
-then
-  echo "JAVA_HOME environment variable missing or not set"
-  BADJH=1
-else
-  echo "  JAVA_HOME is set to " $JAVA_HOME
 fi
 
 #check load library
