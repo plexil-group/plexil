@@ -10,12 +10,16 @@
      update PLEXIL manual (pending Sourceforge support)
      incorporate into run-ue (?)
      revisit node outcome checks
+     add checks for all node states?
+     add all node failure types to transition diagrams
      
      Implementation:
      use copy-of in local variables
-     can this be abstracted? "Node|Sequence|SuccessSequence|Try|If|While|For"
+     can this be abstracted? "Node|Sequence|UncheckedSequence|Try|If|While|For"
 -->
 
+<xsl:variable name="pattern"
+              select="Node|Sequence|UncheckedSequence|Try|If|While|For"/>
 
 <!-- Entry point -->
 <xsl:template match= "PlexilPlan">
@@ -24,7 +28,7 @@
     <xsl:copy-of select= "GlobalDeclarations"/>
     <!-- 1 expected -->
     <xsl:apply-templates
-        select= "Node|Sequence|SuccessSequence|Try|If|While|For"/>
+        select= "Node|Sequence|UncheckedSequence|Try|If|While|For"/>
   </PlexilPlan>
 </xsl:template>
 
@@ -85,7 +89,7 @@
 <xsl:template name= "ordered-start-condition">
   <xsl:choose>
     <xsl:when test= "preceding-sibling::Node|preceding-sibling::Sequence|
-                     preceding-sibling::SuccessSequence|preceding-sibling::If|
+                     preceding-sibling::UncheckedSequence|preceding-sibling::If|
                      preceding-sibling::While|preceding-sibling::For|
                      preceding-sibling::Try">
       <StartCondition>
@@ -116,14 +120,14 @@
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match= "Sequence">
+<xsl:template match= "UncheckedSequence">
   <Node NodeType="NodeList">
     <xsl:call-template name= "translate-nose-clauses"/>
     <xsl:call-template name= "sequence-body"/>
   </Node>
 </xsl:template>
 
-<xsl:template match= "Sequence" mode= "ordered">
+<xsl:template match= "UncheckedSequence" mode= "ordered">
   <Node NodeType="NodeList">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
@@ -135,14 +139,14 @@
 <xsl:template name= "sequence-body">
   <NodeBody>
     <NodeList>
-      <xsl:apply-templates select= "Node|Sequence|SuccessSequence|Try|If|While|For"
+      <xsl:apply-templates select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
                            mode= "ordered"/>
     </NodeList>
   </NodeBody>
 </xsl:template>
 
 
-<xsl:template match= "SuccessSequence">
+<xsl:template match= "Sequence">
   <Node NodeType="NodeList">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "success-invariant" select= "'true'"/>
@@ -151,7 +155,7 @@
   </Node>
 </xsl:template>
 
-<xsl:template match= "SuccessSequence" mode= "ordered">
+<xsl:template match= "Sequence" mode= "ordered">
   <Node NodeType="NodeList">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
@@ -334,7 +338,7 @@
               <NodeBody>
                 <NodeList>
                   <xsl:apply-templates
-                      select= "Node|Sequence|SuccessSequence|Try|If|While|For"/>
+                      select= "Node|Sequence|UncheckedSequence|Try|If|While|For"/>
                 </NodeList>
               </NodeBody>
             </Node>
@@ -492,7 +496,7 @@
           <xsl:apply-templates select= "PostCondition/*"/>
           <OR>
             <xsl:apply-templates
-                select= "Node|Sequence|SuccessSequence|Try|If|While|For"
+                select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
                 mode= "success-check"/>
           </OR>
         </AND>
@@ -510,7 +514,7 @@
           <NOT>
             <OR>
               <xsl:apply-templates
-                  select= "Node|Sequence|SuccessSequence|Try|If|While|For"
+                  select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
                   mode= "failure-check"/>
             </OR>
           </NOT>
@@ -527,7 +531,7 @@
         <OR>
           <xsl:apply-templates select= "EndCondition/*"/>
           <xsl:apply-templates
-              select= "Node|Sequence|SuccessSequence|Try|If|While|For"
+              select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
               mode= "success-check"/>
         </OR>
       </EndCondition>
@@ -547,7 +551,7 @@
   </xsl:element>
 </xsl:template>
 
-<xsl:template match= "Node|Sequence|SuccessSequence|Try|If|While|For"
+<xsl:template match= "Node|Sequence|UncheckedSequence|Try|If|While|For"
               mode= "failure-check">
   <xsl:choose>
     <xsl:when test= "NodeId">
@@ -563,7 +567,7 @@
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match= "Node|Sequence|SuccessSequence|Try|If|While|For"
+<xsl:template match= "Node|Sequence|UncheckedSequence|Try|If|While|For"
               mode= "success-check">
   <xsl:choose>
     <xsl:when test= "NodeId">

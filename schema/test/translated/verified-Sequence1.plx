@@ -12,6 +12,26 @@
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
+      <InvariantCondition>
+         <AND>
+            <NOT>
+               <OR>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeId>One</NodeId>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeId>Two</NodeId>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+               </OR>
+            </NOT>
+         </AND>
+      </InvariantCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Assignment">

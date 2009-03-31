@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList">
-      <NodeId>Sequence_d1e3</NodeId>
+      <NodeId>UncheckedSequence_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>foo</Name>
@@ -12,26 +12,6 @@
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
-      <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>One</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Two</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
-      </InvariantCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Assignment">

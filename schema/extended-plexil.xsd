@@ -43,7 +43,7 @@
       <xsd:choice>
         <xsd:element ref="Node"/>
         <xsd:element ref="Sequence"/>
-        <xsd:element ref="SuccessSequence"/>
+        <xsd:element ref="UncheckedSequence"/>
         <xsd:element ref="Try"/>
         <xsd:element ref="If"/>
         <xsd:element ref="While"/>
@@ -114,7 +114,9 @@
     </xsd:sequence>
   </xsd:group>
 
-  <!-- A simple sequence: each action is executed in turn. -->
+  <!-- Each action in the sequence is performed in the given order.  If
+       one fails, the Sequence form terminates with failure.
+  -->
   <xsd:element name="Sequence">
     <xsd:complexType>
       <xsd:attribute ref="FileName"/>
@@ -126,10 +128,9 @@
     </xsd:complexType>
   </xsd:element>
 
-  <!-- Each action in the sequence is performed in turn, until one of
-       them fails; the rest are ignored.  The sequence succeeds if and
-       only if all its actions succeed. -->
-  <xsd:element name="SuccessSequence">
+<!-- Like Sequence, except the actions are not checked for success.
+     They will all be executed -->
+  <xsd:element name="UncheckedSequence">
     <xsd:complexType>
       <xsd:attribute ref="FileName"/>
       <xsd:attribute ref="LineNo"/>
@@ -141,7 +142,7 @@
   </xsd:element>
 
   <!-- Each action in the sequence is performed in turn, until one of
-       them succeeds; the rest are ignored.  This sequence fails if and
+       them succeeds; the rest are ignored.  The Try form fails if and
        only if all its actions fail. -->
   <xsd:element name="Try">
     <xsd:complexType>
