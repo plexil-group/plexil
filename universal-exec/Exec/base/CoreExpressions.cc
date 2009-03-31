@@ -1077,45 +1077,38 @@ namespace PLEXIL
 
   double Conjunction::recalculate()
   {
-    // make a new list for values
+    // result is assumed to be true. from this point
+    // the result may only be demoted to UNKNOWN or false
      
-    std::list<double> values;
+    double result = BooleanVariable::TRUE();
+    double value = 0;
      
     // compute and store values for all subexpressions
      
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
-        double value = (*child)->getValue();
-        values.push_back(value);
+        value = (*child)->getValue();
         
-        // validate values (you look ma'valouse!)
+        // validate values 
          
         checkError(checkValue(value), "Invalid conjunction value: " << value);
-      }
-    // result is assumed to be true. from this point
-    // the result may only be demoted to UNKNOWN or false
-     
-    double result = BooleanVariable::TRUE();
-     
-    // inspect values of all subexpressions
-     
-    for (std::list<double>::iterator value = values.begin();
-         value != values.end(); ++value)
-      {
+	
         // if the value is false, the expression is false, we're done
         
-        if (*value == BooleanVariable::FALSE())
-          {
+        if (value == BooleanVariable::FALSE())
+          {	    
             result = BooleanVariable::FALSE();
             break;
           }
+	  
         // if the value is unknown, the expression might be
         // unknown, but we need to keep looking
         
-        if (*value == BooleanVariable::UNKNOWN())
+        if (value == BooleanVariable::UNKNOWN())
           result = BooleanVariable::UNKNOWN();
       }
+    
     // return the result
      
     return result;
@@ -1147,45 +1140,38 @@ namespace PLEXIL
   
   double Disjunction::recalculate()
   {
-    // make a new list for values
+    // result is assumed to be false. from this point
+    // the result may only be demoted to UNKNOWN or true
       
-    std::list<double> values;
+    double result = BooleanVariable::FALSE();
+    double value = 0;
       
     // compute and store values for all subexpressions
       
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
-        double value = (*child)->getValue();
-        values.push_back(value);
+        value = (*child)->getValue();
          
-        // validate values (your and important part of things!)
+        // validate values 
          
-        checkError(checkValue(value), "Invalid distjunct value: " << value);
-      }
-    // result is assumed to be false. from this point
-    // the result may only be demoted to UNKNOWN or true
-      
-    double result = BooleanVariable::FALSE();
-      
-    // inspect values of all subexpressions
-      
-    for (std::list<double>::iterator value = values.begin();
-         value != values.end(); ++value)
-      {
+        checkError(checkValue(value), "Invalid disjunction value: " << value);
+	
         // if the value is true, the expression is true, we're done
          
-        if (*value == BooleanVariable::TRUE())
+        if (value == BooleanVariable::TRUE())
           {
             result = BooleanVariable::TRUE();
             break;
           }
+	  
         // if the value is unknown, the expression might be
         // unknown, but we need to keep looking
          
-        if (*value == BooleanVariable::UNKNOWN())
+        if (value == BooleanVariable::UNKNOWN())
           result = BooleanVariable::UNKNOWN();
       }
+    
     // return the result
       
     return result;
