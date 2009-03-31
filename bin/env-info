@@ -13,13 +13,15 @@
 
 output=$PLEXIL_HOME/bin/userinfo-$(date +%m-%d-%Y).txt
 
+echo "Creating file containing info about your system here: $output"
+
 echo "# This file was created by the env-info script located in PLEXIL_HOME/bin.
 # If you have experienced a problem during installation, execution, etc., 
 # please email this file to:
 #
 # plexil-support@sourceforge.net
 #
-# so the Plexil group can be better equiped to help resolve your issue." > $output
+# so the Plexil group can be better equipped to help resolve your issue." > $output
 
 echo "" >> $output
 echo `date`>> $output
