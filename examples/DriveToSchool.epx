@@ -15,13 +15,13 @@
     <StateDeclaration><Name>no_passengers</Name></StateDeclaration>
     <StateDeclaration><Name>at_school</Name></StateDeclaration>
   </GlobalDeclarations>
-  <SuccessSequence FileName= "DriveToSchool.ple" LineNo= "12" ColNo= "2">
+  <Sequence FileName= "DriveToSchool.ple" LineNo= "12" ColNo= "2">
     <NodeId>DriveToSchool</NodeId>
     <Try FileName= "DriveToSchool.ple" LineNo= "23" ColNo= "2">
       <!-- First start the car, trying a few methods... -->
       <NodeId>StartCar</NodeId>
       <!-- The first trial is an elaborate sequence for key starting... -->
-      <Sequence FileName= "DriveToSchool.ple" LineNo= "45" ColNo= "2">
+      <UncheckedSequence FileName= "DriveToSchool.ple" LineNo= "45" ColNo= "2">
         <NodeId>KeyStart</NodeId>
         <PostCondition>
           <LookupNow>
@@ -99,7 +99,7 @@
             </Command>
           </NodeBody>
         </Node>
-      </Sequence>
+      </UncheckedSequence>
 
       <!-- The second and final trial is the old-fashioned push start. -->
       <Node NodeType= "Command">
@@ -214,5 +214,5 @@
           </NodeBody>
         </Node>
     </While>
-  </SuccessSequence>
+  </Sequence>
 </PlexilPlan>
