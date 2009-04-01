@@ -86,6 +86,7 @@
         <xsd:element ref="NodeSkipped"/>
         <xsd:element ref="NodeInvariantFailed"/>
         <xsd:element ref="NodePreconditionFailed"/>
+        <xsd:element ref="NodePostconditionFailed"/>
         <xsd:element ref="NodeParentFailed"/>
       </xsd:choice>
     </xsd:group>

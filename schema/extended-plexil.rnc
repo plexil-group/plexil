@@ -80,8 +80,7 @@ start =
   | Assignment
   | Arguments
   | Try
-  | (notAllowed
-     | element NodePostconditionFailed { NCName })
+  | NodePostconditionFailed
   | NodeInactive
   | PostCondition
   | NodeRef
@@ -353,24 +352,6 @@ NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
 RealVariable =
   notAllowed
   | element RealVariable { NCName }
-SequenceType =
-  (NodeId?
-   & (notAllowed
-      | element Comment { \string })?
-   & StartCondition?
-   & RepeatCondition?
-   & PreCondition?
-   & PostCondition?
-   & InvariantCondition?
-   & EndCondition?
-   & SkipCondition?
-   & (notAllowed
-      | element Priority { nonNegativeInteger })?
-   & (notAllowed
-      | element Permissions { \string })?
-   & Interface?
-   & VariableDeclarations?),
-  Action+
 In =
   notAllowed
   | element In { DeclareVariable+ }
@@ -470,6 +451,17 @@ For =
 LE =
   notAllowed
   | element LE { NumericExpression, NumericExpression }
+NodeRef =
+  notAllowed
+  | element NodeRef {
+      attribute dir {
+        xsd:NMTOKEN "child"
+        | xsd:NMTOKEN "self"
+        | xsd:NMTOKEN "sibling"
+        | xsd:NMTOKEN "parent"
+      }?,
+      NCNameOrEmpty
+    }
 BooleanExpression =
   OR
   | XOR
@@ -502,18 +494,8 @@ BooleanExpression =
   | NodeSkipped
   | NodeInvariantFailed
   | NodePreconditionFailed
+  | NodePostconditionFailed
   | NodeParentFailed
-NodeRef =
-  notAllowed
-  | element NodeRef {
-      attribute dir {
-        xsd:NMTOKEN "child"
-        | xsd:NMTOKEN "self"
-        | xsd:NMTOKEN "sibling"
-        | xsd:NMTOKEN "parent"
-      }?,
-      NCNameOrEmpty
-    }
 Sequence =
   notAllowed
   | element Sequence { SequenceType, ColNo?, LineNo?, FileName? }
@@ -544,13 +526,13 @@ Parameter =
 Try =
   notAllowed
   | element Try { SequenceType, ColNo?, LineNo?, FileName? }
-NodeParentFailed =
-  notAllowed
-  | element NodeParentFailed { NCName }
 NodeState = NodeStateVariable | NodeStateValue
 Update =
   notAllowed
   | element Update { Pair* }
+NodePostconditionFailed =
+  notAllowed
+  | element NodePostconditionFailed { NCName }
 EndCondition =
   notAllowed
   | element EndCondition { BooleanExpression }
@@ -705,6 +687,9 @@ NodeFailureValue =
       | xsd:NMTOKEN "PRE_CONDITION_FAILED"
       | xsd:NMTOKEN "PARENT_FAILED"
     }
+NodeParentFailed =
+  notAllowed
+  | element NodeParentFailed { NCName }
 StringVariable =
   notAllowed
   | element StringVariable { NCName }
@@ -727,6 +712,24 @@ DeclareArray =
       }?
     }
 ColNo = attribute ColNo { xsd:integer }
+SequenceType =
+  (NodeId?
+   & (notAllowed
+      | element Comment { \string })?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & SkipCondition?
+   & (notAllowed
+      | element Priority { nonNegativeInteger })?
+   & (notAllowed
+      | element Permissions { \string })?
+   & Interface?
+   & VariableDeclarations?),
+  Action+
 DeclareVariable =
   notAllowed
   | element DeclareVariable {
