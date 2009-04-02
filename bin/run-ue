@@ -51,7 +51,7 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 # none of these script files exist, the empty script is used:
 #        universal-exec/Exec/test/scripts/empty-script.plx
 
-. plexil-setup.sh
+. $PLEXIL_HOME/bin/plexil-setup.sh
 
 # Determine executable
 if [ $UE_EXECUTABLE ]
@@ -61,7 +61,7 @@ if [ $UE_EXECUTABLE ]
     prog=$PLEXIL_HOME/apps/TestExec/test-exec_g_rt
 fi
 
-plexil-check-prog $prog
+$PLEXIL_HOME/bin/plexil-check-prog $prog
 
 # Check for summary suppression
 if [ '-s' = $1 ]
