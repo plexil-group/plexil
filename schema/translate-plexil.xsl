@@ -8,18 +8,15 @@
 
 <!-- To Do
      update PLEXIL manual (pending Sourceforge support)
-     incorporate into run-ue (?)
      revisit node outcome checks
+     incorporate into run-ue (?)
+
      add checks for all node states?
      add all node failure types to transition diagrams
      
      Implementation:
      use copy-of in local variables
-     can this be abstracted? "Node|Sequence|UncheckedSequence|Try|If|While|For"
 -->
-
-<xsl:variable name="pattern"
-              select="Node|Sequence|UncheckedSequence|Try|If|While|For"/>
 
 <!-- Entry point -->
 <xsl:template match= "PlexilPlan">
@@ -655,31 +652,50 @@
 </xsl:template>
 
 <xsl:template match= "NodeSucceeded">
-  <xsl:call-template name= "node-succeeded"/>
+  <AND>
+    <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-succeeded"/>
+  </AND>
 </xsl:template>
 
 <xsl:template match= "NodeFailed">
-  <xsl:call-template name= "node-failed"/>
+  <AND>
+    <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-failed"/>
+  </AND>
 </xsl:template>
 
 <xsl:template match= "NodeSkipped">
+  <!-- NOTE: implies that node is in state FINISHED. -->
   <xsl:call-template name= "node-skipped"/>
 </xsl:template>
 
 <xsl:template match= "NodeInvariantFailed">
-  <xsl:call-template name= "node-invariant-failed"/>
+  <AND>
+    <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-invariant-failed"/>
+  </AND>
 </xsl:template>
 
 <xsl:template match= "NodePreconditionFailed">
-  <xsl:call-template name= "node-precondition-failed"/>
+  <AND>
+    <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-precondition-failed"/>
+  </AND>
 </xsl:template>
 
 <xsl:template match= "NodePostconditionFailed">
-  <xsl:call-template name= "node-postcondition-failed"/>
+  <AND>
+    <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-postcondition-failed"/>
+  </AND>
 </xsl:template>
 
 <xsl:template match= "NodeParentFailed">
-  <xsl:call-template name= "node-parent-failed"/>
+  <AND>
+    <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-parent-failed"/>
+  </AND>
 </xsl:template>
 
 <xsl:template name= "node-finished">
