@@ -50,9 +50,6 @@
         <xsd:element ref="For"/>
       </xsd:choice>
     </xsd:group>
-  </xsd:redefine>
-
-  <xsd:redefine schemaLocation='plexil-base.xsd'>
     <xsd:group name="BooleanExpression">
       <xsd:choice>
         <xsd:element ref="OR"/>

@@ -217,18 +217,21 @@
       </xsd:choice>
     </xsd:complexType>
   </xsd:element>
+
   <xsd:element name="NodeList">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="Node" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
+
   <xsd:element name="StartCondition">
     <xsd:complexType>
       <xsd:group ref="BooleanExpression"/>
     </xsd:complexType>
   </xsd:element>
+
   <xsd:element name="RepeatCondition">
     <xsd:complexType>
       <xsd:group ref="BooleanExpression"/>

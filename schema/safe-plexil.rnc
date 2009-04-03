@@ -82,7 +82,7 @@ start =
   | NodeList
   | (notAllowed
      | element PlexilPlan {
-         ColNo?, LineNo?, FileName?, GlobalDeclarations?, Node
+         ColNo?, LineNo?, FileName?, GlobalDeclarations?, Action
        })
   | NodeStateValue
   | NOT
@@ -310,10 +310,10 @@ Update =
   notAllowed
   | element Update { Pair* }
 Lookup = LookupOnChange | LookupNow
-NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
 NodeStateVariable =
   notAllowed
   | element NodeStateVariable { NodeRef | NodeId }
+NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
 ADD =
   notAllowed
   | element ADD {
@@ -456,7 +456,7 @@ Alias =
     }
 NodeList =
   notAllowed
-  | element NodeList { Node* }
+  | element NodeList { Action* }
 MUL =
   notAllowed
   | element MUL {
@@ -547,6 +547,7 @@ Pair =
       element Name { NCName },
       (Value | DeclaredVariable | LookupNow)
     }
+Action = Node
 FileName = attribute FileName { xsd:string }
 EQString =
   notAllowed

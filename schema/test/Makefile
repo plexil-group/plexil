@@ -1,4 +1,5 @@
-# Translates Extended PLEXIL files into Core PLEXIL.
+# Translates Extended PLEXIL test files into Core PLEXIL, placing the
+# output in the 'translated' subdirectory.
 
 SHELL = /bin/sh
 
