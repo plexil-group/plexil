@@ -1,3 +1,0 @@
-(plexil-plan
- (success-sequence
-  (empty-node "foo")))
