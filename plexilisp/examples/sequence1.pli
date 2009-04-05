@@ -1,5 +1,5 @@
 (plexil-plan
- (try "fred"
-      (empty-node "bar")
-      (empty-node "foo")))
+ (unchecked-sequence
+   (empty-node "bar")
+   (empty-node "foo")))
 

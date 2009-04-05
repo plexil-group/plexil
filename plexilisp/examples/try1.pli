@@ -1,5 +1,5 @@
 (plexil-plan
  (comment "Only node 'foo' should execute")
- (try "Root"
+ (try
   (empty-node "foo")
   (empty-node "bar")))

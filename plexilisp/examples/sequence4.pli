@@ -1,4 +1,4 @@
 (plexil-plan
- (sequence
+ (unchecked-sequence
   (if (= 2 2) (empty-node "foo"))
   (if (= 3 3) (empty-node "bar"))))
