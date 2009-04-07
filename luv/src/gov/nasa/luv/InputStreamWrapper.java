@@ -32,26 +32,34 @@ import java.io.EOFException;
 
 import static gov.nasa.luv.Constants.END_OF_MESSAGE;
 
-//* An input stream that simulates end of file
-//  when it reaches an END_OF_MESSAGE marker.
-public class InputStreamWrapper
-    extends InputStream
+/**
+ * The InputStreamWrapper class provides methods for processing an input stream
+ * and simulates end of file when it reaches an END_OF_MESSAGE marker.
+ */ 
+
+public class InputStreamWrapper extends InputStream
 {
-    //* the stream being wrapped
+    // the stream being wrapped
     private InputStream str;
 
-    //* true if str has reached EOF, false otherwise
+    // true if str has reached EOF, false otherwise
     // @note when true, buffer will be empty
     private boolean strEOF;
 
-    //* local buffer
+    // local buffer
     private byte[] buffer;
     private int bufferRead;
     private int bufferWrite;
 
-    //* tracks max bytes used in buffer
+    // tracks max bytes used in buffer
     private int highWaterMark;
 
+    /**
+     * Constructs an InputStreamWrapper with the specified InputStream. 
+     * 
+     * @param s the input stream on which the InputStreamWrapper operates
+     */
+    
     InputStreamWrapper(InputStream s)
     {
 	str = s;
@@ -66,7 +74,7 @@ public class InputStreamWrapper
     // Buffer management
     //
 
-    //* Return # of bytes currently in buffer before END_OF_MESSAGE.
+    // Return # of bytes currently in buffer before END_OF_MESSAGE.
     private int locallyAvailable()
     {
 	int i = bufferRead;
@@ -75,7 +83,7 @@ public class InputStreamWrapper
 	return i - bufferRead;
     }
 
-    //* Gets data from the wrapped stream into the buffer, blocking if necessary.
+    // Gets data from the wrapped stream into the buffer, blocking if necessary.
     //  Sets strEOF = true when it reaches EOF on the wrapped stream.
     // @note Call only when buffer is empty.
     private void fillBuffer() throws IOException
@@ -105,11 +113,19 @@ public class InputStreamWrapper
     // Public InputStream API
     //
 
-    //* does nothing because we need to preserve state across calls to XMLReader.parse()
+    /**
+     * This method does nothing in order to preserve state across calls 
+     * to XMLReader.parse().
+     */ 
     public void close() throws IOException
     {
     }
 
+    /**
+     * Returns the integer amount of what avaible to read in the buffer.
+     * @return the integer amount of what avaible to read in the buffer.
+     * @throws java.io.IOException
+     */
     public int available() throws IOException
     {
 	int locally = locallyAvailable();
@@ -130,7 +146,11 @@ public class InputStreamWrapper
 	return locally; // can return 0!
     }
 
-    //* Throws java.io.EOFException if it encounters EOF from the wrapped stream
+    /**
+     * Reads the buffer.
+     * @return an EOF indicator or the next integer in the buffer
+     * @throws java.io.IOException
+     */
     public int read() throws IOException
     {
 	if (bufferRead == bufferWrite)
@@ -147,13 +167,25 @@ public class InputStreamWrapper
 	return result;
     }
 
-    //* Throws java.io.EOFException if it encounters EOF from the wrapped stream
+    /**
+     * Returns the result of the read(byte[] b, int off, int len) method.
+     * @param b
+     * @return the result of the read(byte[] b, int off, int len) method
+     * @throws java.io.IOException
+     */
     public int read(byte[] b) throws IOException
     {
 	return read(b, 0, b.length);
     }
 
-    //* Throws java.io.EOFException if it encounters EOF from the wrapped stream
+    /**
+     * Reads the buffer.
+     * @param b buffer
+     * @param off offset
+     * @param len length
+     * @return an EOF indicator or the next index
+     * @throws java.io.IOException
+     */
     public int read(byte[] b, int off, int len) throws IOException
     {
 	if (bufferRead == bufferWrite)
@@ -179,5 +211,4 @@ public class InputStreamWrapper
 	}
 	return i;
     }
-
 }

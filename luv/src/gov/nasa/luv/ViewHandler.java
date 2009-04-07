@@ -33,12 +33,20 @@ import java.awt.BorderLayout;
 import static gov.nasa.luv.Constants.*;
 import static java.awt.BorderLayout.*;
 
+/**
+ * The ViewHandler class provides methods to set and refresh the TreeTableView of the 
+ * Plexil Model in the Luv application.
+ */
+
 public class ViewHandler
 {   
     private TreeTableView currentView;   // current view
     private Model currentModel; // plan for current view
     private JPanel viewPanel;   // Panel in which different views are placed
     
+    /**
+     * Constructs a ViewHandler.
+     */
     public ViewHandler()
     {
         currentView = null;
@@ -46,28 +54,50 @@ public class ViewHandler
         viewPanel = new JPanel();
     }
 
+    /**
+     * Returns the current TreeTableView of the Plexil Model.
+     * 
+     * @return the current TreeTableView of the Plexil Model
+     */
     public TreeTableView getCurrentView()
     {
 	return currentView;
     }
 
+    /**
+     * Returns the current Plexil Model.
+     * 
+     * @return the current Plexil Model
+     */
     public Model getCurrentModel()
     {
 	return currentModel;
     }
 
+    /**
+     * Returns the JPanel holding the TreeTableView of the Plexil Model.
+     * 
+     * @return the JPanel holding the TreeTableView of the Plexil Model
+     */
     public JPanel getViewPanel()
     {
 	return viewPanel;
     }
 
+    /**
+     * Clears the current view of the Plexil Model.
+     */
     public void clearCurrentView()
     {
 	currentModel = null;
 	currentView = null;
     }
 
-    // sets the current view 
+    /**
+     * Sets the current view to the specified Container.
+     * 
+     * @param view the specified Container
+     */
     private void setView(Container view)
     {
 	currentView = ((TreeTableView)view);
@@ -86,13 +116,20 @@ public class ViewHandler
 	Luv.getLuv().repaint();
     }
     
-    // refresh the current view
+    /**
+     * Refreshes the current view of the Plexil Model.
+     */
     public void refreshView()
     {
         if (currentView != null)
             ((Container)currentView).repaint();
     }
     
+    /**
+     * Displays the specified Plexil Model in the viewer.
+     * 
+     * @param model the Plexil Model
+     */
     public void showModelInViewer(Model model)
     {
 	// create a new instance of the view only if necessary
@@ -103,15 +140,18 @@ public class ViewHandler
 	else 
         { 
             currentModel = model;
-	    setView(new TreeTableView("", model));
+	    setView(new TreeTableView(model));
             Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
 	}
     }
     
+    /**
+     * Refreshes the view of the Plexil Model when new filters are added.
+     */
     public void refreshRegexView()
     {
         currentModel = Luv.getLuv().getCurrentPlan();
-        setView(new TreeTableView("", Luv.getLuv().getCurrentPlan()));
+        setView(new TreeTableView(Luv.getLuv().getCurrentPlan()));
         Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
     }
 }

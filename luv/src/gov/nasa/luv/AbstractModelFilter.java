@@ -28,7 +28,10 @@ package gov.nasa.luv;
 
 import java.util.Vector;
 
-/** A filter to apply to a model. */
+/** 
+ * The AbstractModelFilter class is an abstract class that provides methods for
+ * filtering a Plexil Model. 
+ */
 
 public abstract class AbstractModelFilter
 {
@@ -45,9 +48,11 @@ public abstract class AbstractModelFilter
       
       private boolean enabled;
       
-      /** Constrcuts an abstract model filter.
+      /** 
+       * Constructs an AbstractModelFilter with the specified flag to enable
+       * or disable filtering.
        *
-       * @param enabled set enabled stat of this filter
+       * @param enabled set enabled state of this filter
        */
       
       public AbstractModelFilter(boolean enabled)
@@ -56,9 +61,10 @@ public abstract class AbstractModelFilter
          addFilter(this);
       }
       
-      /** Enable or disable this filter. 
+      /** 
+       * Specifies whether or not to enable or disable this filter. 
        *
-       * @param enabled set enabled stat of this filter
+       * @param enabled set enabled state of this filter
        */
       
       public void setEnabled(boolean enabled)
@@ -68,7 +74,8 @@ public abstract class AbstractModelFilter
             listener.filterChanged(this);
       }
 
-      /** Add listener to set of active listeners.
+      /** 
+       * Adds the specified listener to set of active listeners.
        *
        * @param listener listener to add
        */
@@ -78,7 +85,8 @@ public abstract class AbstractModelFilter
          listeners.add(listener);
       }
       
-      /** Remove listener to set of active listeners.
+      /** 
+       * Removes the specified listener to set of active listeners.
        *
        * @param listener listener to remove
        */
@@ -88,7 +96,8 @@ public abstract class AbstractModelFilter
          listeners.remove(listener);
       }
       
-      /** Add filter to set of active filters.
+      /** 
+       * Adds the specified filter to set of active filters.
        *
        * @param filter filter to add
        */
@@ -98,7 +107,8 @@ public abstract class AbstractModelFilter
          filters.add(filter);
       }
       
-      /** Remove filter to set of active filters.
+      /** 
+       * Removes the specified filter to set of active filters.
        *
        * @param filter filter to remove
        */
@@ -108,9 +118,10 @@ public abstract class AbstractModelFilter
          filters.remove(filter);
       }
 
-      /** Get enabled state of this filter.
+      /** 
+       * Tells whether the state of this filter is enabled.
        *
-       * @return enabled state of this filter.
+       * @return enabled state of this filter
        */
       
       public boolean isEnabled()
@@ -118,11 +129,13 @@ public abstract class AbstractModelFilter
          return enabled;
       }
       
-      /** Tests a model model against all filters.
+      /** 
+       * Determines if the specified Plexil Model is filtered by any of the filters
+       * in the set of all filters.
        *
        * @param model model to test
        * 
-       * @return true if the model is filtered
+       * @return filtered state of the Plexil Model
        */
 
       public static boolean isModelFiltered(Model model)
@@ -134,20 +147,25 @@ public abstract class AbstractModelFilter
          return false;
       }
       
-      /** Estabilish if this model is filtered.
+      /**
+       * Tells whether the specified Plexil Model is filtered.
        * 
-       * @param model model to identify as filtered or not
+       * @param model model to test
        *
-       * @return true if this model is filtered
+       * @return filtered state of the Plexil Model
        */
       
       public abstract boolean isFiltered(Model model);
       
-      /** Listener to handle filter change events */
+      /** 
+       * The Listener class is an abstract class that provides methods for 
+       * handling filter change events.
+       */
 
       public static abstract class Listener
       {
-            /** Handle filter change event.
+            /** 
+             * Handles filter change event.
              *
              * @param filter enabled filter
              */
@@ -155,7 +173,10 @@ public abstract class AbstractModelFilter
             public abstract void filterChanged(AbstractModelFilter filter);
       }
 
-      /** Adapter for filter change listener */
+      /** 
+       * The Adapter class is an abstract class that provides methods for
+       * for a filter change listener.
+       */
 
       public static class Adapter extends Listener
       {

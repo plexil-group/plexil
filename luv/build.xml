@@ -121,11 +121,13 @@
   <target name = "compile" 
           depends = "init" 
           description = "compile java files">
-    <javac srcdir = "${source-dir}"
+    <javac debug="on"
+	   includeJavaRuntime="false"
+	   includeAntRuntime="false"
+           srcdir = "${source-dir}"
            destdir = "${build-dir}"
            includes = "${compile-includes}"
-           excludes = "${compile-excludes}"
-           debug = "true">
+           excludes = "${compile-excludes}">
       <compilerarg value = "-Xlint:deprecation"/>
       <compilerarg value = "-Xlint:unchecked"/>
       <classpath>

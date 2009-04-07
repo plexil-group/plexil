@@ -30,8 +30,12 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
 import static gov.nasa.luv.Constants.*;
+
+/** 
+ * The HideOrShowWindow class is an interface for the user to identify the nodes 
+ * to hide, by name or node type.
+ */
 
 public class HideOrShowWindow extends JPanel implements ListSelectionListener
 {
@@ -47,6 +51,12 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     
     public HideOrShowWindow() {}
     
+    /**
+     * Constructs a HideOrShowWindow with the specified list of saved elements
+     * that are currently hidden.
+     * 
+     * @param regexList the list of currently hidden elements and clan be empty
+     */
     public HideOrShowWindow(String regexList) 
     {
         super(new BorderLayout());
@@ -255,13 +265,20 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             return false;
     }
 
+    /**
+     * The ShowListener class provides a listener for when the user presses the 
+     * "Show" button which activates the actionPerformed() method that will 
+     * un-hide the element the user had selected from the list of hidden elements.
+     */
     class ShowListener implements ActionListener 
     {
+        /**
+         * Reveals the elements in the list of hidden elements the user selected.
+         * 
+         * @param e the ActionEvent that represents when the user pressed the "Show" button
+         */
         public void actionPerformed(ActionEvent e) 
         {
-            //This method can be called only if
-            //there's a valid selection
-            //so go ahead and remove whatever's selected.
             int index = list.getSelectedIndex();
             int size = listModel.getSize();
 
@@ -289,18 +306,31 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         }
     }
 
-    //This listener is shared by the text field and the hide button.
+    /**
+     * The HideListener class is a listener shared by the text field and the 
+     * hide button and listens for when the user pressed the "Hide" button.
+     */
     class HideListener implements ActionListener, DocumentListener
     {
         private boolean alreadyEnabled = false;
         private JButton button;
 
+        /**
+         * Constructs a HideListener with the specified button.
+         * 
+         * @param button the "Hide" button
+         */
         public HideListener(JButton button) 
         {
             this.button = button;
         }
 
-        // required by ActionListener.
+        /**
+         * Hides the element the user typed into the text field.
+         * 
+         * @param e the ActionEvent that represents when the user pressed the 
+         * "Hide" button
+         */
         public void actionPerformed(ActionEvent e) 
         {
             String regex = textField.getText();            
@@ -344,28 +374,30 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             list.ensureIndexIsVisible(index);
         }         
 
-        //This method tests for string equality. You could certainly
-        //get more sophisticated about the algorithm.  For example,
-        //you might want to ignore white space and capitalization.
+        /**
+         * Tests for whether the specified string is already in the hidden list.
+         * @param name the string the user entered to be hidden
+         * @return whether or not the string is already present
+         */
         protected boolean alreadyInList(String name) 
         {
             return listModel.contains(name);
         }
 
-        // required by DocumentListener.
+        /** Required by DocumentListener. */
         public void insertUpdate(DocumentEvent e) 
         {
             textField.setForeground(Color.BLACK);            
             enableButton();
         }
 
-        // required by DocumentListener.
+        /** Required by DocumentListener. */
         public void removeUpdate(DocumentEvent e) 
         {
             handleEmptyTextField(e);
         }
 
-        // required by DocumentListener.
+        /** Required by DocumentListener. */
         public void changedUpdate(DocumentEvent e) 
         {
             if (!handleEmptyTextField(e)) 
@@ -394,7 +426,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         }
     }
     
-    // required by ListSelectionListener.
+    /** Required by ListSelectionListener. */ 
     public void valueChanged(ListSelectionEvent e) 
     {
         if (e.getValueIsAdjusting() == false) 
@@ -412,6 +444,9 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         }
     }
     
+    /**
+     * Creates an instance of a HideOrShowWindow.  
+     */
     public void open()
     {
         if (frame == null)

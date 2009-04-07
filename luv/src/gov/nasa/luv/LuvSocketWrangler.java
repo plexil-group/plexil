@@ -37,15 +37,21 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import static gov.nasa.luv.Constants.END_OF_MESSAGE;
 
-/** Represents one client connection to the LUV server. */
+/** 
+ * The LuvSocketWrangler class represents one client connection to the 
+ * Luv server. 
+ */
 
-public class LuvSocketWrangler
-    implements SocketWrangler
+public class LuvSocketWrangler implements SocketWrangler
 {
     LuvSocketWrangler()
     {
     }
 
+    /**
+     * Wrangles the connection to the Luv server with the specified socket.
+     * @param s the Socket to gather the input stream from
+     */
     public void wrangle(Socket s)
     {
 	// get the input stream for this socket

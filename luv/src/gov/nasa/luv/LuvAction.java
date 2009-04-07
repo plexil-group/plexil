@@ -32,8 +32,7 @@ import javax.swing.KeyStroke;
 import static gov.nasa.luv.Constants.*;
 
 /**
- * LuvAction is derived from AbstractAction and provides a
- * standard class from which to subclass Luv actions.
+ * The LuvAction class provides a standard class from which to subclass Luv actions.
  */
 
 public abstract class LuvAction extends AbstractAction
@@ -41,7 +40,7 @@ public abstract class LuvAction extends AbstractAction
       KeyStroke accelerator;
 
       /**
-       * Create a LuvAction with a given name, shortcut key and
+       * Constructs a LuvAction with a given name, shortcut key and
        * description.  This version assumes no accelerator key.
        *
        * @param name        name of this action
@@ -54,7 +53,7 @@ public abstract class LuvAction extends AbstractAction
       }
 
       /**
-       * Create a LuvAction with a given name, shortcut key and
+       * Constructs a LuvAction with a given name, shortcut key and
        * description.  This version assumes no key modifiers for
        * shortcut.
        *
@@ -69,7 +68,7 @@ public abstract class LuvAction extends AbstractAction
       }
       
       /**
-       * Create a LuvAction with a given name, shortcut key
+       * Constructs a LuvAction with a given name, shortcut key
        * and description.
        *
        * @param name        name of this action
@@ -88,7 +87,7 @@ public abstract class LuvAction extends AbstractAction
                      KeyStroke.getKeyStroke(keyCode, modifiers));
       }
 
-      /** Get text name of the accelerator key for this action. 
+      /** Gets text name of the accelerator key for this action. 
        *
        * @return some random description of the accelerator key
        */
@@ -108,7 +107,7 @@ public abstract class LuvAction extends AbstractAction
       }
 
       /**
-       * Called when the given action is to be executed.  This
+       * Called when the given action is to be executed. This
        * function must be implemented by the subclass.
        *
        * @param  e action event 

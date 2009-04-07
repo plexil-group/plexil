@@ -36,15 +36,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import static gov.nasa.luv.Constants.*;
 
+/** 
+ * The ConditionsTab class provides methods for displaying Plexil Model condition 
+ * information.
+ */
+
 public class ConditionsTab extends JPanel 
 {
-    private ConditionsTab conditionsPane;
+    private static ConditionsTab conditionsPane;
     private Model model;    
     private int rows;    
     private String info[][];    
     private JTable table;     
     
     public ConditionsTab() {}
+    
+    /** 
+     * Constructs a ConditionsTab with the specified Plexil Model.
+     *
+     * @param model Plexil Model on which the ConditionsTab represents
+     */
     
     public ConditionsTab(Model model) 
     {       
@@ -119,7 +130,15 @@ public class ConditionsTab extends JPanel
         JScrollPane scrollPane = new JScrollPane(table);
 
         add(scrollPane);
+        setOpaque(true);
     }
+    
+    /** 
+     * Returns the value of the specific condition expression.   
+     *
+     * @param condition the specific condition
+     * @return the value the condition expression evaluates to (TRUE, FALSE or inf)
+     */
     
     private String getConditionValue(String condition)
     {
@@ -134,6 +153,14 @@ public class ConditionsTab extends JPanel
         else
             return model.getProperty(condition);
     }
+    
+    /** 
+     * Rewrites the condition information into standard Plexil syntax for
+     * better user readability.
+     *
+     * @param condition the condition expression before it has been rewritten
+     * @return the value the formatted condition expression
+     */
     
     public static ArrayList<String> formatCondition(String condition)
     {
@@ -173,14 +200,25 @@ public class ConditionsTab extends JPanel
         return formattedCondition;
     }
     
-    public ConditionsTab getCurrentConditionsTab()
+    /** 
+     * Returns the current instance of the ConditionsTab. 
+     *
+     * @return the current instance of the ConditionsTab
+     */
+    
+    public static ConditionsTab getCurrentConditionsTab()
     {
         return conditionsPane;
     }
+    
+     /** 
+     * Creates an instance of a ConditionsTab with the specified Plexil Model. 
+     *
+     * @param model the model on which to create an ConditionsTab
+     */
 
-    public void open(Model model) 
+    public static void open(Model model) 
     {       
         conditionsPane = new ConditionsTab(model);
-        conditionsPane.setOpaque(true);
     }
 }

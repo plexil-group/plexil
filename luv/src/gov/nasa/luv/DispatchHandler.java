@@ -32,8 +32,9 @@ import org.xml.sax.SAXException;
 import java.util.HashMap;
 import static gov.nasa.luv.Constants.*;
 
-/** Dispatches XML messages to the correct handler from the set of
- * provided handlers in the handler map.
+/** 
+ * The DispatchHandler class dispatches XML messages to the correct handler from 
+ * the set of provided handlers in the handler map.
  */
 
 public class DispatchHandler extends DefaultHandler
@@ -47,10 +48,9 @@ public class DispatchHandler extends DefaultHandler
       
       AbstractDispatchableHandler currentHandler;
             
-      /** Construct a dispatch handler which operates on the provided
+      /** 
+       * Constructs a dispatch handler which operates on the provided
        * model.
-       *
-       * @param model model which will be operated on
        */
       
       public DispatchHandler()
@@ -65,7 +65,8 @@ public class DispatchHandler extends DefaultHandler
           registerHandler(PLEXIL_LIBRARY, planHandler);
       }
 
-      /** Add a new handler to the set of available handlers to dispatch.
+      /** 
+       * Adds a new handler to the set of available handlers to dispatch.
        *
        * @param key the tag for which this handler is invoked
        * @param handler handler to add to the set available handers to dispatch.
@@ -77,7 +78,7 @@ public class DispatchHandler extends DefaultHandler
          handlerMap.put(key, handler);
       }
 
-      /** Handle start of document event. */
+      /** Handles the start of a document event. */
 
       public void startDocument()
       {
@@ -86,8 +87,9 @@ public class DispatchHandler extends DefaultHandler
          currentHandler = null;
       }
 
-      /** Establish the current handler then dispatch events to that
-       * hander. */
+      /** 
+       * Establishes the current handler then dispatch events to that handler. 
+       */
 
       public void startElement(String uri, String localName, 
                                String qName, Attributes attributes) 
@@ -117,7 +119,7 @@ public class DispatchHandler extends DefaultHandler
          currentHandler.startElement(uri, localName, qName, attributes);
       }
 
-      /** Dispatch the characters action. */
+      /** Dispatches the characters action. */
       
     @SuppressWarnings("static-access")
       public void characters(char[] ch, int start, int length)
@@ -164,7 +166,7 @@ public class DispatchHandler extends DefaultHandler
           currentHandler.characters(ch, start, length);
       }
       
-      /** Dispatch the endElement action. */
+      /** Dispatches the endElement action. */
       
       public void endElement(String uri, String localName, String qName)
          throws SAXException
@@ -172,7 +174,7 @@ public class DispatchHandler extends DefaultHandler
          currentHandler.endElement(uri, localName, qName);
       }
 
-      /** Dispatch end of document event. */
+      /** Dispatches end of document event. */
 
       public void endDocument()
          throws SAXException
@@ -180,7 +182,7 @@ public class DispatchHandler extends DefaultHandler
          currentHandler.endDocument();
       }
 
-      /** Get the selected handler.
+      /** Gets the selected handler.
        *
        * @return the handler selected to parse last message
        */

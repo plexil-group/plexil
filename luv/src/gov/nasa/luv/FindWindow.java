@@ -37,6 +37,11 @@ import java.util.Stack;
 import javax.swing.*;
 import static gov.nasa.luv.Constants.*;
 
+/** 
+ * The FindWindow class is an interface for the user to search for nodes within
+ * the tree that match, by name, the complete or partial input string. 
+ */
+
 public class FindWindow extends JPanel implements KeyListener
 {
     private static JFrame       frame;  
@@ -54,6 +59,12 @@ public class FindWindow extends JPanel implements KeyListener
     private int                 next;
     
     public FindWindow() {}
+    
+    /** 
+     * Constructs a FindWindow with the specified list of previous searches. 
+     *
+     * @param list the list of previous search strings and can be empty
+     */
 
     public FindWindow(String list) 
     {
@@ -266,7 +277,7 @@ public class FindWindow extends JPanel implements KeyListener
             node_path.push((String) obj[i]);
         }
      
-        TreeTableView.getCurrent().showNode(node_path, next);        
+        TreeTableView.getCurrent().showNode(node_path);        
         message_to_user.setText(getMessageToUser());
         next++;
     }
@@ -305,9 +316,13 @@ public class FindWindow extends JPanel implements KeyListener
        }
     }
     
+    /** { @inheritDoc } */
+    
     public void keyTyped(KeyEvent e) 
     {
     }
+    
+    /** { @inheritDoc } */
 
     public void keyPressed(KeyEvent e) 
     {
@@ -319,10 +334,18 @@ public class FindWindow extends JPanel implements KeyListener
             searchListEditor.selectAll();
         }
     }
+    
+    /** { @inheritDoc } */
 
     public void keyReleased(KeyEvent e) 
     {
     }
+    
+    /** 
+     * Creates an instance of a FindWindow.  
+     *
+     *  @param list the list of previous search strings
+     */
     
     public static void open(String list)
     {

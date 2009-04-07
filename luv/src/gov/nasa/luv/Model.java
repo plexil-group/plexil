@@ -40,15 +40,11 @@ import java.util.Stack;
 import static gov.nasa.luv.Constants.*;
 
 /**
- * The model of a Plexil plan.
+ * The Model class represents a model of a Plexil Plan.
  */
 
 public class Model extends Properties
 {
-    /** the type (usually the XML tag) which identifies what kind of
-     * thing this model represents.  All other features of the model
-     * are stored in properties and children. */
-    
     private static Model TheRootModel;
     private static boolean found;   
     private Model foundChild;    
@@ -68,11 +64,27 @@ public class Model extends Properties
     private Vector<Model> children;
     private Vector<ChangeListener> changeListeners;
     
+    /**
+     * Constructs a Plexil Model with the specified type (usually the XML tag) 
+     * which identifies what kind of thing this model represents.  All other 
+     * features of the model are stored in properties and children.
+     * 
+     * @param type the type of model or node this Model is
+     */
     public Model(String type)
     {
         this(type, -1);
     }
     
+    /**
+     * Constructs a Plexil Model with the specified type (usually the XML tag) 
+     * which identifies what kind of thing this model represents and the row
+     * number this Model lies on in the Luv application viewer. All other 
+     * features of the model are stored in properties and children.
+     * 
+     * @param type the type of model or node this Model is
+     * @param row the row number this Model is on in the viewer
+     */
     public Model(String type, int row)
     {
 	this.type = type;
@@ -98,26 +110,63 @@ public class Model extends Properties
         actionList = new ArrayList<String>();
     }
     
+    /** Returns the type of this Plexil Model/node.
+     *  @return the type of this Plexil Model/node */
     public String                       getType()                   { return type; }
+    /** Returns the row number of this Plexil Model/node.
+     *  @return the row number of this Plexil Model/node */
     public int                          getRowNumber()              { return row_number; }
+    /** Returns the name of this Plexil Model/node.
+     *  @return the name of this Plexil Model/node */
     public String                       getModelName()              { return modelName; }
+    /** Returns the Model parent of this Plexil Model/node.
+     *  @return the Model parent of this Plexil Model/node */
     public Model                        getParent()                 { return parent; }    
+    /** Returns the Vector of Model children of this Plexil Model/node.
+     *  @return the Vector of Model children of this Plexil Model/node */
     public Vector<Model>                getChildren()               { return children; }
+    /** Returns the full path of the Plexil Plan of this Plexil Model/node.
+     *  @return the full path of the Plexil Plan of this Plexil Model/node */
     public String                       getAbsolutePlanName()       { return planName; }
+    /** Returns the full path of the Plexil Script of this Plexil Model/node.
+     *  @return the full path of the Plexil Script of this Plexil Model/node */
     public String                       getAbsoluteScriptName()     { return scriptName; }
+    /** Returns the HashMap of Conditions for this Plexil Model/node.
+     *  @return the HashMap of Conditions for this Plexil Model/node */
     public HashMap<Integer, ArrayList>  getConditionMap()           { return conditionMap; }
+    /** Returns the ArrayList of local variables for this Plexil Model/node.
+     *  @return the ArrayList of local variables for this Plexil Model/node */
     public ArrayList<Stack<String>>     getVariableList()           { return variableList; }
+    /** Returns the ArrayList of actions for this Plexil Model/node.
+     *  @return the ArrayList of actions for this Plexil Model/node */
     public ArrayList<String>            getActionList()             { return actionList; }
+    /** Returns whether this Plexil Model/node has an unresolved library call.
+     *  @return whether this Plexil Model/node has an unresolved library call */
     public boolean                      getUnresolvedLibraryCall()  { return unresolvedLibraryCall; }
+    /** Returns the Library Name for this Plexil Model/node.
+     *  @return the Library Name for this Plexil Model/node */
     public String                       getLibraryName()            { return libraryName; }
+    /** Returns the Set of Library Names for this Plexil Model/node.
+     *  @return the Set of Library Names for this Plexil Model/node */
     public Set<String>                  getLibraryNames()           { return libraryFiles; }
+    /** Returns the Set of missing Libraries for this Plexil Model/node.
+     *  @return the Set of missing Libraries for this Plexil Model/node */
     public Set<String>                  getMissingLibraries()       { return missingLibraryNodes; }
     
+    /**
+     * Returns the specified Model child for this Model.
+     * @param i the index of the child for this Model
+     * @return the Model child of this model
+     */
     public Model getChild(int i)
     {
 	return children.get(i);
     }
     
+    /**
+     * Returns the Plexil Plan name without the path.
+     * @return the Plexil Plan name
+     */
     public String getPlanName()
     {
         if (!planName.equals(UNKNOWN))
@@ -126,7 +175,11 @@ public class Model extends Properties
         else
             return planName;
     }
-
+    
+    /**
+     * Returns the Plexil Script name without the path.
+     * @return the Plexil Script name
+     */
     public String getScriptName()
     {
         if (!scriptName.equals(UNKNOWN))
@@ -136,6 +189,10 @@ public class Model extends Properties
             return scriptName;
     }
     
+    /**
+     * Returns the top node or root of this Plexil Model.
+     * @return the root Model
+     */
     public static Model getRoot()
     {
 	if (TheRootModel == null) 
@@ -147,61 +204,111 @@ public class Model extends Properties
 	return TheRootModel;
     }
     
+    /**
+     * Returns whether or not this Model has local variables.
+     * @return whether or not this Model has local variables
+     */
     public boolean hasVariables()
     {
         return !variableList.isEmpty();
     }
     
+    /**
+     * Returns whether or not this Model has actions.
+     * @return whether or not this Model has actions
+     */
     public boolean hasAction()
     {
         return !actionList.isEmpty();
     }
     
+    /**
+     * Returns whether or not this Model has conditions.
+     * @return whether or not this Model has conditions
+     */
     public boolean hasConditions()
     {
         return !conditionMap.isEmpty();
     }
     
+    /**
+     * Returns whether or not this Model has the specified condition.
+     * @return whether or not this Model has the specified condition
+     */
     public boolean hasCondition(String condition)
     {
         return conditionMap.containsKey(getConditionNum(condition));
     }
     
+    /**
+     * Returns whether or not this Model is the root Model.
+     * @return whether or not this Model is the root Model
+     */
     public boolean isRoot()
     {
 	return this == getRoot(); 
     }
     
+    /**
+     * Returns whether or not this Model's type is a Node.
+     * @return whether or not this Model's type is a Node
+     */
     public boolean isNode()
     {
 	return type.equals(NODE);
     }
 
+    /**
+     * Sets specified the row number for this Model.
+     * @param row the row number for this Model
+     */
     public void setRowNumber(int row)
     {
         row_number = row;      
     }
 
+    /**
+     * Sets the specified name for this Model.
+     * @param name the name for this Model
+     */
     public void setModelName(String name)
     {
 	modelName = name;
     }
     
+    /**
+     * Sets the specified Model as this Model's parent.
+     * @param newParent the parent Model of this Model
+     */
     public void setParent(Model newParent)
     {
 	parent = newParent;
     }
     
+    /**
+     * Sets whether this Model has an unresolved library call with this specified boolean value.
+     * @param val the  boolean value to set whether or not this Model has an unresolved library call
+     */
     public void setUnresolvedLibraryCall(boolean val)
     {
 	unresolvedLibraryCall = val;
     }
     
+    /**
+     * Sets the specified string for the library name of this Model.
+     * @param libname the library name for this Model
+     */
     public void setLibraryName(String libname)
     {
 	libraryName = libname;
     }
     
+    /**
+     * Sets the specified property value with key to this Model.
+     * @param key the key to the specified value
+     * @param value the value of a property for this Model
+     * @return an object result
+     */
     public Object setProperty(String key, String value)
     {
 	if (value == null)
@@ -221,11 +328,19 @@ public class Model extends Properties
 	return result;
     }
     
+    /**
+     * Resets the flag indicating that the child of this Model was either found or not.
+     */
     public void resetFoundChildFlag()
     {
         found = false;
     }
     
+    /**
+     * Adds the specified condition and condition equation to the ArrayList of conditions for this Model.
+     * @param condition the condition type to add
+     * @param conditionEquation the equation of the condition to add
+     */
     public void addConditionInfo(int condition, String conditionEquation)
     { 
         ArrayList<String> equationHolder = 
@@ -234,6 +349,10 @@ public class Model extends Properties
         conditionMap.put(condition, equationHolder);
     }
     
+    /**
+     * Adds the specified local variable to the Stack of variables for this Model.
+     * @param variable the local variable to add to this Model's Stack of local variables
+     */
     public void addVariableInfo(Stack variable)
     { 
         Stack<String> copyVariable = new Stack<String>();
@@ -248,6 +367,10 @@ public class Model extends Properties
         variableList.add(copyVariable);
     }
     
+    /**
+     * Adds the specified action to the ArrayList of actions for this Model.
+     * @param action  the action to add
+     */
     public void addActionInfo(String action)
     { 
         String formattedAction = ActionTab.formatAction(action);
@@ -255,7 +378,10 @@ public class Model extends Properties
         actionList.add(formattedAction);
     }
 
-    // specify the plan file name
+    /**
+     * Specifies the Plexil Plan name for this Model.
+     * @param planName the Plexil Plan name
+     */
     public void addPlanName(String planName)
     {
         this.planName = planName;
@@ -263,7 +389,10 @@ public class Model extends Properties
             changeListeners.get(i).planNameAdded(this, planName);
     }
       
-    // specify the script file name.
+    /**
+     * Specifies the Plexil Script name for this Model.
+     * @param scriptName the Plexil Plan name
+     */
     public void addScriptName(String scriptName)
     {
         this.scriptName = scriptName;
@@ -271,7 +400,10 @@ public class Model extends Properties
             changeListeners.get(i).scriptNameAdded(this, scriptName);
     }
 
-    // specify a library name
+    /**
+     * Specifies the Plexil Library name for this Model.
+     * @param scriptName the Plexil Library name
+     */
     public void addLibraryName(String libraryName)
     {
 	if (libraryFiles.add(libraryName))
@@ -281,19 +413,32 @@ public class Model extends Properties
         }
     }
 
-    // notify top level node that a library was not found
+    /**
+     * Notifies the top level node that a library was not found and adds the
+     * library to the list of missing libraries.
+     * 
+     * @param nodeName the name of the missing library
+     */
     public void addMissingLibrary(String nodeName)
     {
 	missingLibraryNodes.add(nodeName);
     }
 
-    // notify that a missing library has been found
+    /**
+     * Notifies the top level node that a library was found and removes the
+     * library from the list of missing libraries.
+     * 
+     * @param nodeName the name of the found library
+     */
     private boolean missingLibraryFound(String nodeName) 
     {
 	return missingLibraryNodes.remove(nodeName);
     }
     
-    // create and add a child to this model.
+    /**
+     * Creates and adds the specified Model child to this Model.
+     * @param child the model child
+     */
     public void addChild(Model child)
     {
 	assert child.isNode();
@@ -302,6 +447,11 @@ public class Model extends Properties
 	child.setParent(this);
     }
     
+    /**
+     * Removes the specified Model child from this Model.
+     * @param child the Model child
+     * @return whether or the child was removed
+     */
     public boolean removeChild(Model child)
     {
 	// Can't use Vector.remove(Object) because it uses equals(),
@@ -318,7 +468,9 @@ public class Model extends Properties
 	return removed;
     }
     
-    // clear node of all children and properties
+    /**
+     * Clears this Model of all children and properties.
+     */
     public void removeChildren()
     {
 	for (Model child: children)
@@ -326,7 +478,10 @@ public class Model extends Properties
 	children.clear();
     }
     
-    // return the top level ancestor of this node. 
+    /**
+     * Return the top level ancestor of this Model. 
+     * @return the top level ancestor
+     */
     public Model topLevelNode()
     {
 	if (this == getRoot())
@@ -336,6 +491,11 @@ public class Model extends Properties
 	return parent.topLevelNode(); 
     }
 
+    /**
+     * Returns the Node pathway starting from the specified Model to the root Model.
+     * @param node the model to return the pathway for
+     * @return the pathway
+     */
     public Stack<String> pathToNode(Model node)
     {
         Stack<String> node_path = new Stack<String>();
@@ -351,7 +511,11 @@ public class Model extends Properties
         return node_path;
     }
     
-    // model-to-model comparison
+    /**
+     * Compares this Model with the specified Model to see if they are the same.
+     * @param other the model to compare with
+     * @return whether or not these two Models are equivalent
+     */
     public boolean equivalent(Model other)
     {
 	if (other == null)
@@ -381,6 +545,11 @@ public class Model extends Properties
 	return true;
     }
 
+    /**
+     * Compares this Model's children with the specified Model's children to see if they are the same.
+     * @param other the model to compare with
+     * @return whether or not these two Model's children are equivalent
+     */
     private boolean childrenEquivalent(Model other)
     {
 	if (children.isEmpty()) 
@@ -403,13 +572,20 @@ public class Model extends Properties
 	return true;
     }
 
-    // signal that a new plan has been installed under this model
+    /**
+     * Signal that a new Plexil Plan has been installed under this Model.
+     */
     public void planChanged()
     {
 	for (int i = 0; i < changeListeners.size(); ++i)
             changeListeners.get(i).planChanged(this);
     }
     
+    /**
+     * Returns the Model that matches with the specified name.
+     * @param name the name to match the Model to
+     * @return the matching Model
+     */
     public Model findChildByName(String name)
     {
 	for (Model child : children)
@@ -418,6 +594,11 @@ public class Model extends Properties
 	return null;
     }
     
+    /**
+     * Returns the Model that matches with the specified row number.
+     * @param row the row number to match the Model to
+     * @return the matching Model
+     */
     public Model findChildByRowNumber(int row)
     {
         for (Model child : children)
@@ -437,6 +618,14 @@ public class Model extends Properties
 	return foundChild;
     }
 
+    /**
+     * Locates the Library node with the specified name based on whether the user
+     * allows it.
+     * @param name the name of the missing library
+     * @param askUser flags whether or not the user wants Luv to search for the library
+     * @return the located Library
+     * @throws java.io.InterruptedIOException
+     */
     public Model findLibraryNode(String name, boolean askUser) 
             throws InterruptedIOException
     {
@@ -463,11 +652,12 @@ public class Model extends Properties
 	return result;
     }
 
-    //* Link the given library into this node and make the appropriate annotations in the top level node.
-    //  @param library The library node
-    //  @return true if the library satisfied an unresolved call, false otherwise.
-    //  @note
-
+    /**
+     * Links the specified library into this Model and makes the appropriate 
+     * annotations in the top level Model.
+     * @param library the library for this Model
+     * @return whether or not the library was linked
+     */
     public boolean linkLibrary(Model library)
     {
 	boolean result = linkLibraryInternal(library);
@@ -488,10 +678,11 @@ public class Model extends Properties
 	return result;
     }
 
-    //* Link the given library into this node.
-    //  @param library The library node
-    //  @return true if the library satisfied an unresolved call, false otherwise.
-
+    /**
+     * Links the specified library into this Model.
+     * @param library the library for this Model
+     * @return true if the library satisfied an unresolved call, false otherwise.
+     */
     private boolean linkLibraryInternal(Model library)
     {
 	boolean result = linkLibraryLocal(library);
@@ -504,10 +695,11 @@ public class Model extends Properties
 	return result;
     }
 
-    //* Link the given library into this library call node.
-    //  @param library The library node
-    //  @return true if the library satisfied an unresolved call, false otherwise.
-
+    /**
+     * Links the specified library into this library call Model.
+     * @param library the library for this Model
+     * @return true if the library satisfied an unresolved call, false otherwise.
+     */
     private boolean linkLibraryLocal(Model library)
     {
 	if (type.equals(NODE)
@@ -521,6 +713,7 @@ public class Model extends Properties
 	return false;
     }
     
+    /** { @inheritDoc } */
     public String toString()
     {
 	String name = getModelName();
@@ -548,6 +741,10 @@ public class Model extends Properties
 	return s.toString();
     }   
     
+    /**
+     * Resets all the properties of this Model and the Model's children properties 
+     * to the beginning values (pre-execution).
+     */
     public void resetMainAttributesOfAllNodes()
     {
         this.setMainAttributesOfNode();
@@ -557,7 +754,10 @@ public class Model extends Properties
             child.resetMainAttributesOfAllNodes();
         }
     }
-            
+         
+    /**
+     * Resets all the properties of this Model to the beginning values (pre-execution).
+     */
     public void setMainAttributesOfNode()
     {
 	String rawType = getProperty(NODETYPE_ATTR);
@@ -587,19 +787,28 @@ public class Model extends Properties
         setProperty(COMMAND_HANDLE_RECEIVED_CONDITION, UNKNOWN); 
     }
             
-    // add a property change listener to this model. 
+    /**
+     * Adds a property change listener to this Model. 
+     * @param listener the property change listener
+     */
     public void addChangeListener(ChangeListener listener)
     {
 	changeListeners.add(listener);
     }
 
-    // remove a property change listener frome this model. 
+    /**
+     * Removes a property change listener to this Model. 
+     * @param listener the property change listener
+     */
     public void removeChangeListener(ChangeListener listener)
     {
 	changeListeners.remove(listener);
     }
 
-    // listener which is signaled when a the model is changed in some way
+    /**
+     * The ChangeListener is an abstract class that is signaled when the Plexil Model 
+     * is changed in some way.
+     */
     public abstract static class ChangeListener
     {
 	abstract public void propertyChange(Model model, String property);
@@ -615,9 +824,9 @@ public class Model extends Properties
 	abstract public void libraryNameAdded(Model model, String libraryName);
     }
 
-    /** An adapter which is signaled when the model is changed in some way.
+    /**
+     * The ChangeAdapter class is signaled when the Plexil Model is changed in some way.
      */
-
     public static class ChangeAdapter extends ChangeListener
     {
 	public void propertyChange(Model model, String property){}

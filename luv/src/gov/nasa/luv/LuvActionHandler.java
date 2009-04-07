@@ -38,14 +38,15 @@ import static javax.swing.JFileChooser.*;
 import static gov.nasa.luv.Constants.*;
 
 /**
- * LuvActionHandler manages features that are found in Luv menus
+ * The LuvActionHandler class manages features that are found in the 
+ * Luv application menus.
  */
 
 public class LuvActionHandler 
 {
     /** Action to open and view a plan. */
 
-    static LuvAction openPlanAction = 
+    public static LuvAction openPlanAction = 
 	new LuvAction("Open Plan",
 		      "Open a plexil plan file.",
 		      VK_O, 
@@ -84,7 +85,7 @@ public class LuvActionHandler
       
     /** Action to load a script for Execution. */
          
-    static LuvAction openScriptAction = 
+    public static LuvAction openScriptAction = 
 	new LuvAction("Open Script", 
 		      "Open a plexil script file.", 
 		      VK_E, 
@@ -115,7 +116,7 @@ public class LuvActionHandler
 
     /** Action to reload a plan. */
 
-    static LuvAction reloadAction = 
+    public static LuvAction reloadAction = 
 	new LuvAction("Reload",
 		      "Reload currently loaded files.",
 		      VK_R, 
@@ -157,7 +158,7 @@ public class LuvActionHandler
 
     /** Action to show the debugging window. */
 
-    static LuvAction luvDebugWindowAction = 
+    public static LuvAction luvDebugWindowAction = 
 	new LuvAction("Show Debug Window",
 		      "Show window with status and debugging information.",
 		      VK_D, 
@@ -176,7 +177,7 @@ public class LuvActionHandler
         
     /** Action to show the About Luv Viewer window. */
         
-    static LuvAction aboutWindowAction = 
+    public static LuvAction aboutWindowAction = 
         new LuvAction("About Luv Viewer Window",
 		      "Show window with luv viewer about information.")
 	{
@@ -201,7 +202,7 @@ public class LuvActionHandler
          
     /** Action to allow breakpoints. */
          
-    static LuvAction allowBreaksAction =
+    public static LuvAction allowBreaksAction =
 	new LuvAction("Enable Breaks",
 		      "Select this to enable or disable breakpoints.",
 		      VK_F5)
@@ -226,9 +227,9 @@ public class LuvActionHandler
 	    }
 	};
         
-        /** Action to allow breakpoints. */
+    /** Action to remove all breakpoints. */
          
-    static LuvAction removeAllBreaksAction =
+    public static LuvAction removeAllBreaksAction =
 	new LuvAction("Remove All Breakpoints",
 		      "Remove all breakpoints from this plan.")
 	{
@@ -239,9 +240,9 @@ public class LuvActionHandler
 	    }
 	};
          
-    /** Action to execute a plexil plan. */
+    /** Action to execute a plexil plan via the Luv application versus remotely. */
 
-    static LuvAction execAction = 
+    public static LuvAction execAction = 
 	new LuvAction("Execute Plan", 
 		      "Execute currently loaded plan.",
 		      VK_F6)
@@ -270,7 +271,9 @@ public class LuvActionHandler
 	    }
 	};
 
-    static LuvAction pauseAction = 
+    /** Action to Pause or Resume a currently executing Plexil Plan. */
+        
+    public static LuvAction pauseAction = 
 	new LuvAction("Pause/Resume plan", 
 		      "Pause or resume an executing plan, if it is blocking.",
 		      VK_ENTER)
@@ -293,9 +296,9 @@ public class LuvActionHandler
 	    }
 	};
 
-    /** Action to step a paused plexil plan. */
+    /** Action to step a paused Plexil Plan. */
 
-    static LuvAction stepAction = 
+    public static LuvAction stepAction = 
 	new LuvAction("Step", 
 		      "Step a plan, pausing it if is not paused.",
 		      VK_SPACE)
@@ -315,9 +318,9 @@ public class LuvActionHandler
 	    }
 	};
         
-    /** Action to hide or show nodes. */
+    /** Action to open a Hide or Show Nodes window. */
       
-    static LuvAction hideOrShowNodes = 
+    public static LuvAction hideOrShowNodes = 
 	new LuvAction("Hide/Show Nodes...", 
 		      "Hide or Show specific nodes by full or partial name.",
                       VK_H, 
@@ -329,9 +332,9 @@ public class LuvActionHandler
             }   
 	};
         
-    /** Action to for a node by name nodes. */
+    /** Action to open a Find Node window. */
       
-    static LuvAction findNode = 
+    public static LuvAction findNode = 
 	new LuvAction("Find...", 
 		      "Find node by name.",
                       VK_F, 
@@ -343,9 +346,9 @@ public class LuvActionHandler
             }   
 	};
         
-    /** Action to for a node by name nodes. */
+    /** Action to open the create a debug configuration file window. */
       
-    static LuvAction createDebugCFGFileAction = 
+    public static LuvAction createDebugCFGFileAction = 
 	new LuvAction("Create Debug Configuration File...", 
 		      "Create and Customize a debug configuration file.",
                       VK_G, 
@@ -366,7 +369,7 @@ public class LuvActionHandler
 
     /** Action to exit the program. */
 
-    static LuvAction exitAction = 
+    public static LuvAction exitAction = 
 	new LuvAction("Exit", "Terminate this program.", VK_ESCAPE)
 	{
 	    public void actionPerformed(ActionEvent e)
@@ -396,7 +399,7 @@ public class LuvActionHandler
         
         /** Action to fully expand tree. */
 
-      static LuvAction expandAll = new LuvAction(
+      public static LuvAction expandAll = new LuvAction(
          "Expand All", "Expand all tree nodes.", VK_EQUALS)
          {
                public void actionPerformed(ActionEvent e)
@@ -408,7 +411,7 @@ public class LuvActionHandler
 
       /** Action to fully collapse tree. */
 
-      static LuvAction collapseAll = new LuvAction(
+      public static LuvAction collapseAll = new LuvAction(
          "Collapse All", "Collapse all tree nodes.", VK_MINUS)
          {
                public void actionPerformed(ActionEvent e)

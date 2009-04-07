@@ -28,17 +28,25 @@ package gov.nasa.luv;
 
 import static gov.nasa.luv.Constants.*;
 
+/**
+ * The PlanInfoHandler class handles the Plexil Plan Info section within a XML Plexil Plan file.
+ */
+
 public class PlanInfoHandler extends AbstractDispatchableHandler
 {
-      /** Make me a handler. */
-
+      /** Constructs a PlanInfoHandler. */
       public PlanInfoHandler()
       {
          super();
       }
 
-      /** Handle end of an XML element. */
-
+      /**
+       * Handles the end of an XML element.
+       * 
+       * @param uri N/A
+       * @param localName the name of the XML tag
+       * @param qName N/A
+       */
       @Override public void endElement(String uri, String localName, String qName)
       {
          // get text between tags

@@ -26,12 +26,14 @@
 
 package gov.nasa.luv;
 
-/** An abstract break point that provides some basic enablement
- * functionality, and model storage. */
+/**
+ * The AbstractBreakPoint class is an abstract class that provides methods for 
+ * enablement, functionality and Plexil Model storage.
+ */
 
 public abstract class AbstractBreakPoint implements BreakPoint
 {
-      /** enabeld state of this breakpoint jsdhcb */
+      /** enabled state of this breakpoint jsdhcb */
 
       boolean enabled = true;
 
@@ -43,9 +45,10 @@ public abstract class AbstractBreakPoint implements BreakPoint
 
       Model.ChangeListener listener;
 
-      /** Construct an abstract break point. 
+      /** 
+       * Constructs an AbstractBreakPoint with the specified Plexil Model. 
        *
-       * @param model the model on which the break point operates
+       * @param model the Plexil Model on which the break point operates
        */
 
       public AbstractBreakPoint(Model model)

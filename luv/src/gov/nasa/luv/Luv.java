@@ -42,7 +42,8 @@ import static java.awt.BorderLayout.*;
 import static javax.swing.JFileChooser.*;
 
 /**
- * The containing frame for the Lightweight UE Viewer.
+ * The Luv class is the starting point of the Luv application and creates a 
+ * containing frame for the Lightweight Universal Executive Viewer.
  */
 
 public class Luv extends JFrame
@@ -62,10 +63,6 @@ public class Luv extends JFrame
     private static ExecutionHandler executionHandler;
     private static ViewHandler viewHandler;   
     private static LuvStateHandler luvStateHandler;
-    private static NodeInfoWindow nodeInfoWindow;
-    private static ConditionsTab conditionsTab;
-    private static VariablesTab variablesTab;
-    private static ActionTab actionTab;   
     private static HideOrShowWindow hideOrShowWindow;
     private DebugWindow debugWindow;     
     private DebugCFGWindow debugCFGWindow; 
@@ -83,12 +80,16 @@ public class Luv extends JFrame
     private static Luv theLuv; // current working instance of luv        
     private Properties properties; // persistent properties for luv viewer
     
+    /** Entry point for the Luv application. */
+     
     public static void main(String[] args)
     {
 	runApp();
     }
+    
+    /** Creates a new instance of the Luv application. */
       
-    public static void runApp()
+    private static void runApp()
     {
 	// if we're on a mac, use mac style menus         
 	System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -103,7 +104,13 @@ public class Luv extends JFrame
 	}
     }
       
-    // constructor      
+    /** 
+     * Constructs Luv and initializes the many features of the Luv application
+     * such as creating the main viewing window, putting Luv in a 'start state'
+     * and initializing a SocketServer to start listening for events from the 
+     * Universal Executive.
+     */
+          
     public Luv()
     {
 	init();
@@ -119,7 +126,7 @@ public class Luv extends JFrame
 
     }
     
-    public void init()
+    private void init()
     {
         theLuv = this;
         
@@ -144,10 +151,7 @@ public class Luv extends JFrame
                 define(PROP_CFGWIN_LOC,     PROP_CFGWIN_LOC_DEF);
                 define(PROP_CFGWIN_SIZE,    PROP_CFGWIN_SIZE_DEF);
                 
-		define(PROP_TOOLTIP_DISMISS, PROP_TOOLTIP_DISMISS_DEF);
 		define(PROP_NET_SERVER_PORT,  PROP_NET_SERVER_PORT_DEF);
-		define(PROP_NET_RECENT_HOST,  PROP_NET_RECENT_HOST_DEF);
-		define(PROP_NET_AUTO_CONNECT, PROP_NET_AUTO_CONNECT_DEF);
 		define(PROP_FILE_RECENT_PLAN_DIR, 
                         getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
 		define(PROP_FILE_RECENT_SCRIPT_DIR, 
@@ -173,13 +177,9 @@ public class Luv extends JFrame
         luvBreakPointHandler = new LuvBreakPointHandler();
         executionHandler = new ExecutionHandler();
         luvStateHandler = new LuvStateHandler();
-        viewHandler = new ViewHandler();      
-        nodeInfoWindow = new NodeInfoWindow();
-        conditionsTab = new ConditionsTab();
-        variablesTab = new VariablesTab();
-        actionTab = new ActionTab();
+        viewHandler = new ViewHandler();  
         hideOrShowWindow = new HideOrShowWindow();
-        debugWindow = new DebugWindow(this);  
+        debugWindow = new DebugWindow();  
             
         debugCFGWindow = new DebugCFGWindow();     
         regexFilter = new RegexModelFilter(true);     
@@ -211,6 +211,18 @@ public class Luv extends JFrame
 	statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));
 	frame.add(statusBar, SOUTH);
 	statusMessageHandler.startStatusBarThread(statusBar);       
+        
+        // save preferred window sizes when Luv application closes
+         Runtime.getRuntime().addShutdownHook(new Thread()
+            {
+                  public void run()
+                  {
+                     properties.set(PROP_WIN_LOC, getLocation());
+                     properties.set(PROP_WIN_SIZE, getSize());
+                     properties.set(PROP_DBWIN_LOC, debugWindow.getLocation());
+                     properties.set(PROP_DBWIN_SIZE, debugWindow.getSize());
+                  }
+            });
          
 	setLocation(properties.getPoint(PROP_WIN_LOC));
 	setPreferredSize(properties.getDimension(PROP_WIN_SIZE));
@@ -222,9 +234,13 @@ public class Luv extends JFrame
 	setVisible(true);
     }
 
-    // Called from PlexilPlanHandler::endElement(),
-    // which will be invoked by both Luv (directly)
-    // and the exec (via the Luv listener stream)
+    /** Handles the Plexil plan being loaded into the Luv application. 
+     *  Called from PlexilPlanHandler.endElement(), which will be invoked 
+     *  by both Luv (directly) and the Universal Executive (via the Luv listener stream).
+     *
+     * @param plan the Plexil plan to be loaded into the Luv application
+     */
+     
     public void handleNewPlan(Model plan)
     {
 	// *** N.B. This depends on that new plans are always added at the end
@@ -233,7 +249,7 @@ public class Luv extends JFrame
 	if (plan == other) 
         {
 	    // brand new 'plan' loaded
-            nodeInfoWindow.closeNodeInfoWindow();
+            NodeInfoWindow.closeNodeInfoWindow();
 	}
 	else if (plan.equivalent(other) && !newPlan) 
         {
@@ -288,15 +304,16 @@ public class Luv extends JFrame
 	
 	Model.getRoot().planChanged();
     }*/
-
+    
+    /** 
+     * Pauses the execution of the Plexil plan by the Universal Executive
+     * when directed to by the user. 
+     */
     public void blockViewer()
     {
 	if (shouldBlock()) 
         {
-            statusMessageHandler.showStatus((luvBreakPointHandler.getBreakPoint() == null
-					     ? "Stopped"
-					     : "Stopped at " + luvBreakPointHandler.getBreakPoint()) +
-					    " - " + 
+            statusMessageHandler.showStatus("Plan execution is paused. " + 
 					    LuvActionHandler.pauseAction.getAcceleratorDescription() +
 					    " to resume, or " + 
 					    LuvActionHandler.stepAction.getAcceleratorDescription() +
@@ -327,75 +344,144 @@ public class Luv extends JFrame
             shouldHighlight = true;
 	}
     }
-      
-    // accessors for local luv variables  
-    public static Luv             getLuv()                    { return theLuv; }                   
-    public ViewHandler            getViewHandler()            { return viewHandler; }           
-    public FileHandler            getFileHandler()            { return fileHandler; }              
-    public ExecutionHandler       getExecutionHandler()       { return executionHandler; }  
-    public LuvBreakPointHandler   getLuvBreakPointHandler()   { return luvBreakPointHandler; }    
-    public StatusMessageHandler   getStatusMessageHandler()   { return statusMessageHandler; } 
-    public LuvStateHandler        getLuvStateHandler()        { return luvStateHandler; }
-    public HideOrShowWindow       getHideOrShowWindow()       { return hideOrShowWindow; } 
-    public NodeInfoWindow         getNodeInfoWindow()         { return nodeInfoWindow; } 
-    public ConditionsTab          getConditionsTab()          { return conditionsTab; }              
-    public VariablesTab           getVariablesTab()           { return variablesTab; }               
-    public ActionTab              getActionTab()              { return actionTab; }
-    public DebugWindow            getDebugWindow()            { return debugWindow; }
-    public DebugCFGWindow         getDebugCFGWindow()         { return debugCFGWindow; }     
-    public RegexModelFilter       getRegexModelFilter()       { return regexFilter; }         
-    public Properties             getProperties()             { return properties; }             
-    public Model                  getCurrentPlan()            { return currentPlan; }    
-    public JMenu                  getViewMenu()               { return viewMenu; }   
-    public JMenu                  getFileMenu()               { return fileMenu; }   
-    public JMenu                  getRunMenu()                { return runMenu; }  
-    public JMenu                  getDebugMenu()              { return debugMenu; }  
-    public JMenu                  getRecentRunMenu()          { return recentRunMenu; }   
-    public boolean                getPlanStep()               { return planStep; }  
-    public boolean                getPlanPaused()             { return planPaused; }
-    public boolean                getIsExecuting()            { return isExecuting; }  
-    public boolean                breaksAllowed()             { return allowBreaks; }
+ 
+    /** Returns the current instance of the Luv application. 
+     *  @return the current instance of the Luv application */
+    public static Luv getLuv() { return theLuv; }    
+    /** Returns the current instance of the Luv ViewHandler. 
+     *  @return the current instance of the Luv ViewHandler */               
+    public ViewHandler getViewHandler() { return viewHandler; }  
+    /** Returns the current instance of the Luv FileHandler. 
+     *  @return the current instance of the Luv FileHandler */           
+    public FileHandler getFileHandler() { return fileHandler; }  
+    /** Returns the current instance of the Luv ExecutionHandler. 
+     *  @return the current instance of the Luv ExecutionHandler */              
+    public ExecutionHandler getExecutionHandler() { return executionHandler; }  
+    /** Returns the current instance of the Luv LuvBreakPointHandler. 
+     *  @return the current instance of the Luv LuvBreakPointHandler */  
+    public LuvBreakPointHandler getLuvBreakPointHandler() { return luvBreakPointHandler; }    
+    /** Returns the current instance of the Luv StatusMessageHandler. 
+     *  @return the current instance of the Luv StatusMessageHandler */  
+    public StatusMessageHandler getStatusMessageHandler() { return statusMessageHandler; } 
+    /** Returns the current instance of the Luv LuvStateHandler. 
+     *  @return the current instance of the Luv LuvStateHandler */  
+    public LuvStateHandler getLuvStateHandler() { return luvStateHandler; }
+    /** Returns the current instance of the Luv HideOrShowWindow. 
+     *  @return the current instance of the Luv HideOrShowWindow */  
+    public HideOrShowWindow getHideOrShowWindow() { return hideOrShowWindow; } 
+    /** Returns the current instance of the Luv DebugWindow. 
+     *  @return the current instance of the Luv DebugWindow */
+    public DebugWindow getDebugWindow() { return debugWindow; }
+    /** Returns the current instance of the Luv DebugCFGWindow. 
+     *  @return the current instance of the Luv DebugCFGWindow */
+    public DebugCFGWindow getDebugCFGWindow() { return debugCFGWindow; }     
+    /** Returns the current instance of the Luv RegexModelFilter. 
+     *  @return the current instance of the Luv RegexModelFilter */
+    public RegexModelFilter getRegexModelFilter() { return regexFilter; }         
+    /** Returns the current instance of the Luv Properties. 
+     *  @return the current instance of the Luv Properties */
+    public Properties getProperties() { return properties; }             
+    /** Returns the current instance of the Luv Model. 
+     *  @return the current instance of the Luv Model */
+    public Model getCurrentPlan() { return currentPlan; }  
+    /** Returns the current instance of the Luv viewMenu. 
+     *  @return the current instance of the Luv viewMenu */  
+    public JMenu getViewMenu() { return viewMenu; }   
+    /** Returns the current instance of the Luv fileMenu. 
+     *  @return the current instance of the Luv fileMenu */
+    public JMenu getFileMenu() { return fileMenu; }   
+    /** Returns the current instance of the Luv runMenu. 
+     *  @return the current instance of the Luv runMenu */
+    public JMenu getRunMenu() { return runMenu; }  
+    /** Returns the current instance of the Luv debugMenu. 
+     *  @return the current instance of the Luv debugMenu */
+    public JMenu getDebugMenu() { return debugMenu; }  
+    /** Returns the current instance of the Luv recentRunMenu. 
+     *  @return the current instance of the Luv recentRunMenu */
+    public JMenu getRecentRunMenu() { return recentRunMenu; }   
+    /** Returns whether the current Plexil plan is stepping. 
+     *  @return the current instance of planStep */
+    public boolean getPlanStep() { return planStep; }  
+    /** Returns whether the current Plexil plan is paused. 
+     *  @return the current instance of planPaused */
+    public boolean getPlanPaused() { return planPaused; }
+    /** Returns whether the current Plexil plan is executing. 
+     *  @return the current instance of isExecuting */
+    public boolean getIsExecuting() { return isExecuting; }  
+    /** Returns whether Luv currently allows breaks. 
+     *  @return the current instance of allowBreaks */
+    public boolean breaksAllowed() { return allowBreaks; }
     
-    public boolean                shouldBlock()               
+    /** Returns whether the currently executing Plexil plan should pause. 
+     *  @return the whether the flag for pausing a plan is set and the flag 
+     *  for stepping a plan is not set */
+    public boolean shouldBlock()               
     { 
         return planPaused && !planStep; 
     }
     
-    // mutators for local luv variables    
+    /** Sets the flag that indicates whether or not the current Plexil plan is 
+     *  executing. Updates items under the Run menu accordingly.
+     *  @param value sets the flag that indicates whether the current Plexil 
+     *  plan is executing or not
+     */    
     public void setIsExecuting(boolean value) 
     {
 	isExecuting = value;
 	updateBlockingMenuItems();
     }
     
+    /** Sets the flag that indicates whether or not the current Plexil plan is 
+     *  paused. 
+     *  @param value sets the flag that indicates whether the current Plexil 
+     *  plan is paused or not
+     */
     public void setIsPaused(boolean value)
     {
         planPaused = value;
     }
     
+    /** Sets the flag that indicates whether or not the current Plexil plan is 
+     *  stepping. 
+     *  @param value sets the flag that indicates whether the current Plexil 
+     *  plan is stepping or not
+     */
     public void setIsStepped(boolean value)
     {
         planStep = value;
     }
     
+    /** Sets the flag that indicates whether a new Plexil plan has been loaded. 
+     *  @param value sets the flag that indicates whether there is a new Plexil 
+     *  plan
+     */
     public void setNewPlan(boolean value)
     {
         newPlan = value;
     }
 
+    /** Sets the flag that indicates whether the Luv application is currently
+     *  allowing breaks. Updates items under the Run menu accordingly.
+     *  @param value sets the flag that indicates whether breaks are allowed
+     */
     public void setBreaksAllowed(boolean value)
     {
 	allowBreaks = value;
 	updateBlockingMenuItems();
     }
     
+    /** Sets the flag that indicates whether the Luv application should 
+     *  highlist rows in pink in the model tree.
+     *  @param value sets the flag that indicates whether rows can be highlighted
+     */
     public void setShouldHighlight(boolean value)
     {
         shouldHighlight = value;
     }
 
-    // Modify the state of certain menu items based on whether the exec 
-    // is running and whether it blocks.
+    /** Modifies the state of certain menu items based on whether the Universal 
+     *  Executive is running and whether it blocks.
+     * */
     public void updateBlockingMenuItems()
     {
         // Pause/resume not useful if exec isn't listening            
@@ -427,13 +513,16 @@ public class Luv extends JFrame
 	}      
     }
     
+    /** Enables or Disables the Remove Breaks menu item.
+     *  @param value to enable or disable the Remove Breaks menu item
+     * */
     public void enableRemoveBreaksMenuItem(boolean value)
     {
         if (runMenu.getComponents().length > 0)
             runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(value);
     }
 
-    public void createMenuBar(JMenuBar menuBar)
+    private void createMenuBar(JMenuBar menuBar)
     {       
 	menuBar.add(fileMenu);
 	fileMenu.add(LuvActionHandler.openPlanAction);
@@ -464,35 +553,7 @@ public class Luv extends JFrame
         debugMenu.add(LuvActionHandler.aboutWindowAction);
     }
       
-    public void disableAllMenus()
-    {
-	fileMenu.getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
-	fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(false);
-	fileMenu.setEnabled(false);
-          
-	runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
-	runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);	
-        runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
-        runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);  
-	runMenu.setEnabled(false);
- 
-	if (viewMenu.getMenuComponentCount() > 0) 
-        {
-	    viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(false);
-	    viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
-	    viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(false);  
-            viewMenu.getItem(FIND_MENU_ITEM).setEnabled(false);
-	}
-	viewMenu.setEnabled(false);
-        
-        debugMenu.setEnabled(false);
-    }
-      
-    // set title of the luv viewer
+    /** Sets the title of the Luv application. */
     public void setTitle()
     {  
         if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN))
@@ -514,18 +575,31 @@ public class Luv extends JFrame
         }
     }
 
-    // set a program wide property
+    /** Sets a program wide property 
+     *  
+     *  @param key
+     *  @param value
+     */
     public void setProperty(String key, String value)
     {
 	properties.setProperty(key, value);
     }
     
+    /** Sets a program wide property 
+     * 
+     *  @param key
+     *  @param value
+     */
     public void setProperty(String key, ArrayList<String> value)
     {
 	properties.define(key, value);
     }
 
-    // get a program wide property
+    /** Returns a program wide property
+     * 
+     *  @param key
+     *  @return the program wide property
+     */
     public String getProperty(String key)
     {
 	return properties.getProperty(key, UNKNOWN);

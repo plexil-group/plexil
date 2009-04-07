@@ -31,14 +31,24 @@ import static java.awt.event.KeyEvent.*;
 import java.io.IOException;
 import static gov.nasa.luv.Constants.*;
 
-/** Action to load a recent plan. */
+/**
+ * The LoadRecentAction class provides methods for loading a recently run Plexil 
+ * Plan amongst a saved list of plans. 
+ */
 
 public class LoadRecentAction extends LuvAction
 {
-    // fFile to switch to open when action is performed
-    int recentIndex;
+    // file to switch to open when action is performed
+    private int recentIndex;
 
-    // construct a file action
+    /**
+     * Constructs a LoadRecentAction with the specified index of the plan
+     * the user wishes to load.
+     * 
+     * @param recentIndex index of the plan to load
+     * @param keyCode if user uses a keycode to load plan
+     * @param modifiers if the user uses a modifier to load the plan
+     */
     public LoadRecentAction(int recentIndex, int keyCode, int modifiers)
     {
        super(getRecentPlan(recentIndex) + " + " + getRecentScript(recentIndex),
@@ -48,6 +58,12 @@ public class LoadRecentAction extends LuvAction
        this.recentIndex = recentIndex;
     }
     
+    /**
+     * Gets the Plexil Plan with the specified index.
+     * 
+     * @param index indicates which Plexil Plan the user wants to load
+     * @return the Plexil Plan to load
+     */
     public static String getRecentPlan(int index)
     {
         String recentPlan = UNKNOWN;
@@ -58,6 +74,12 @@ public class LoadRecentAction extends LuvAction
         return recentPlan;
     }
     
+    /**
+     * Gets the Plexil Script with the specified index.
+     * 
+     * @param index indicates which Plexil Script the user wants to load
+     * @return the Plexil Script to load
+     */
     public static String getRecentScript(int index)
     {
         String recentScript = UNKNOWN;
@@ -79,7 +101,9 @@ public class LoadRecentAction extends LuvAction
 	return description;
     }
       
-    // add a file to the recently opened file list. 
+    /**
+     * Adds a file to the recent loaded Plexil Plan list. 
+     */
     public static void addRunToRecentRunList()
     {
 	// put newest file at the top of the list   
@@ -113,7 +137,9 @@ public class LoadRecentAction extends LuvAction
         }
     }
       
-    // update the recently loaded files menu.
+    /**
+     * Updates the recently loaded file menu.
+     */
     public static void updateRecentMenu()
     {
 	Luv.getLuv().getRecentRunMenu().removeAll();
@@ -139,7 +165,10 @@ public class LoadRecentAction extends LuvAction
 	Luv.getLuv().getRecentRunMenu().setEnabled(Luv.getLuv().getRecentRunMenu().getMenuComponentCount() > 0);
     }
 
-    // called when user wishes to make visible this type of file.
+    /**
+     * Loads the selected Plexil Plan from the recently loaded Plexil Plan list.
+     * @param e
+     */
     public void actionPerformed(ActionEvent e)
     {
         Luv.getLuv().setNewPlan(true);

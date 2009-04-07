@@ -26,12 +26,11 @@
 
 package gov.nasa.luv;
 
-import gov.nasa.luv.SocketWrangler;
-import gov.nasa.luv.SocketWranglerFactory;
-import gov.nasa.luv.LuvSocketWrangler;
+/**
+ * The LuvSocketWranglerFactory creates a LuvSocketWrangler.
+ */
 
-public class LuvSocketWranglerFactory
-    implements SocketWranglerFactory
+public class LuvSocketWranglerFactory implements SocketWranglerFactory
 {
     LuvSocketWranglerFactory()
     {

@@ -35,35 +35,46 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import static gov.nasa.luv.Constants.*;
 
+/** 
+ * Teh NodeInfoWindow class holds the ConditionsTab, VariablesTab and ActionTab 
+ * Plexil Model might contain. 
+ */
+
 public class NodeInfoWindow extends JPanel
 {
-    private JTabbedPane tabbedPane;
-    private JFrame frame;
+    private static  JTabbedPane tabbedPane;
+    private static JFrame frame;
             
     public NodeInfoWindow(){}
     
-    public NodeInfoWindow(Model node) 
+    /** 
+     * Constructs a NodeInfoWindow with the specified Plexil Model. 
+     *
+     * @param model the Plexil Model on which the NodeInfoWindow displays information
+     */
+    
+    public NodeInfoWindow(Model model) 
     {
         super(new GridLayout(1, 1));
         
         tabbedPane = new JTabbedPane();
 
-        addConditionsTab(node);
-        addVariablesTab(node);
-        addNodeTypeTab(node, node.getProperty(NODETYPE_ATTR));
+        addConditionsTab(model);
+        addVariablesTab(model);
+        addActionTab(model, model.getProperty(NODETYPE_ATTR));
         
         add(tabbedPane);
-        
-        // enables scrolling tabs
+
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     
-    public JTabbedPane getCurrentNodeInfoWindow()
-    {
-        return tabbedPane;
-    }
+    /** 
+     * Returns whether the current instance of the NodeInfoWindow is open.
+     *
+     * @return whether the current instance of the NodeInfoWindow is open
+     */
     
-    public boolean isNodeInfoWindowOpen()
+    public static boolean isNodeInfoWindowOpen()
     {
         if (frame != null)
             return frame.isVisible();
@@ -71,47 +82,76 @@ public class NodeInfoWindow extends JPanel
         return false;
     }
     
-    public void closeNodeInfoWindow()
+    /** 
+     * Closes the current instance of the NodeInfoWindow.
+     */
+    
+    public static void closeNodeInfoWindow()
     {
         if (frame != null)
             frame.setVisible(false);
     }
     
-    private void addConditionsTab(Model node)
+    /** 
+     * Adds a ConditionsTab to this NodeInfoWindow for the specified Plexil Model. 
+     *
+     * @param model the Plexil Model on which the NodeInfoWindow gathers condition information
+     */
+    
+    private void addConditionsTab(Model model)
     {
-        if (node.hasConditions())
+        if (model.hasConditions())
         {
-           JComponent panel = Luv.getLuv().getConditionsTab().getCurrentConditionsTab();
+           JComponent panel = ConditionsTab.getCurrentConditionsTab();
            panel.setPreferredSize(new Dimension(900, 300));
            tabbedPane.addTab("Conditions", null , panel, "Displays node conditions");
         }  
     }
     
-    private void addVariablesTab(Model node)
+    /** 
+     * Adds a VariablesTab to this NodeInfoWindow for the specified Plexil Model. 
+     *
+     * @param model the Plexil Model on which the NodeInfoWindow gathers local variable information
+     */
+    
+    private void addVariablesTab(Model model)
     {
-        if (node.hasVariables())
+        if (model.hasVariables())
         {
-           JComponent panel = Luv.getLuv().getVariablesTab().getCurrentVariablesTab();
+           JComponent panel = VariablesTab.getCurrentVariablesTab();
            panel.setPreferredSize(new Dimension(900, 300));
            tabbedPane.addTab("Variables", null , panel, "Displays node local variables");
         }
     }
+    
+    /** 
+     * Adds a ActionTab to this NodeInfoWindow for the specified Plexil Model and action type. 
+     *
+     * @param model the Plexil Model on which the NodeInfoWindow gathers action information
+     * @param actioType the type of action this Plexil Model represents
+     */
         
-    private void addNodeTypeTab(Model node, String nodeType)
+    private void addActionTab(Model model, String actionType)
     {
-        if (node.hasAction())
+        if (model.hasAction())
         {
-           JComponent panel = Luv.getLuv().getActionTab().getCurrentActionTab();
+           JComponent panel = ActionTab.getCurrentActionTab();
            panel.setPreferredSize(new Dimension(900, 300));
-           tabbedPane.addTab(nodeType, null , panel, "Displays action node expression");
+           tabbedPane.addTab(actionType, null , panel, "Displays action node expression");
         }
     }
     
-    public void open(Model node) 
+    /** 
+     * Creates an instance of an NodeInfoWindow for the specified Plexil Model. 
+     *
+     * @param model the model on which to create a NodeInfoWindow
+     */
+    
+    public static void open(Model model) 
     {
-        frame = new JFrame(node.getModelName() + " Information Window");
+        frame = new JFrame(model.getModelName() + " Information Window");
         
-        frame.add(new NodeInfoWindow(node), BorderLayout.CENTER);
+        frame.add(new NodeInfoWindow(model), BorderLayout.CENTER);
         frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_NODEINFOWIN_SIZE));
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_NODEINFOWIN_LOC));
         

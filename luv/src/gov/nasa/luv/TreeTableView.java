@@ -48,6 +48,11 @@ import treetable.AbstractTreeTableModel;
 import static gov.nasa.luv.Constants.*;
 import treetable.JTreeTable;
 
+/**
+ * The TreeTableView class provides methods and sub classes to create a tree
+ * representation of the Plexil Model.
+ */
+
 public class TreeTableView extends JTreeTable 
 {
     // most recent tree view created stored in case it's needed to set 
@@ -60,7 +65,12 @@ public class TreeTableView extends JTreeTable
     private static int row = -1;
     private static int lastRow = -1;
     
-    public TreeTableView(String name, Model model)
+    /**
+     * Constructs a TreeTableView representation for the specified Plexil Model.
+     * 
+     * @param model the Plexil Model
+     */
+    public TreeTableView(Model model)
     {
          super(new TreeModel(new Wrapper(model)));
          setRowColors(TREE_TABLE_ROW_COLORS);
@@ -172,13 +182,22 @@ public class TreeTableView extends JTreeTable
             }); 
     }
     
-    // get the current tree table view if it exists.
+    /**
+     * Returns the current TreeTableView.
+     * 
+     * @return the current TreeTableView
+     */
     public static TreeTableView getCurrent()
     {
         return currentView;
     }
     
-    // display node information from under tool tip
+    /**
+     * Display node information from under tool tip for the specified event.
+     * 
+     * @param event represents the Node under the tool tip
+     * @return string representation of the tool tip or null
+     */
     @Override public String getToolTipText(MouseEvent event)
     {
         StringBuffer toolTip  = new StringBuffer();
@@ -200,7 +219,12 @@ public class TreeTableView extends JTreeTable
         return toolTip.length() > 0 ? toolTip.toString() : null;
     }
 
-    // handle a user right click or control click. triggers breakpoint options
+    /**
+     * Handles a right or control click and triggers breakpoint options
+     * for the specified MouseEvent.
+     * 
+     * @param mouseEvent the right or control click event
+     */
     public void handlePopupEvent(MouseEvent mouseEvent)
     {
         if (Luv.getLuv().breaksAllowed())
@@ -214,7 +238,12 @@ public class TreeTableView extends JTreeTable
         }
     }
 
-    // handle a user double click on a node. triggers node info window
+    /**
+     * Handles a double click and triggers a NodeInfoWindow to open
+     * for the specified MouseEvent.
+     * 
+     * @param mouseEvent the double click event
+     */
     public void handleClickEvent(MouseEvent mouseEvent)
     {
        TreePath nodePath = tree.getClosestPathForLocation(mouseEvent.getX(), mouseEvent.getY());
@@ -222,10 +251,10 @@ public class TreeTableView extends JTreeTable
          
        if (node.hasConditions() || node.hasVariables() || node.hasAction())
        {
-           Luv.getLuv().getConditionsTab().open(node);
-           Luv.getLuv().getVariablesTab().open(node);  
-           Luv.getLuv().getActionTab().open(node);
-           Luv.getLuv().getNodeInfoWindow().open(node);
+           ConditionsTab.open(node);
+           VariablesTab.open(node);
+           ActionTab.open(node);
+           NodeInfoWindow.open(node);
        }
        else
        {
@@ -233,11 +262,12 @@ public class TreeTableView extends JTreeTable
        }          
     }
 
-    /** Focus has been disabled for this view.  This way the view
+    /** 
+     * Focus has been disabled for this view.  This way the view
      * doesn't grab up all the key events that it shouldn't.  This is
      * not the best way to acheive this goal.
      *
-     * @return good old false, nothing beats false
+     * @return false
      */
       
     @Override public boolean isFocusable()
@@ -245,7 +275,7 @@ public class TreeTableView extends JTreeTable
        return false;
     }
     
-    public void setPreferredColumnWidths()
+    private void setPreferredColumnWidths()
     {
         if (getColumnModel().getColumnCount() == 4)
         {
@@ -266,8 +296,16 @@ public class TreeTableView extends JTreeTable
                     "Error: Invalid number of columns in viewer." );
     }
 
-    // if the previous view was the same plan, then set the expanded state 
-    // of the new tree to that of the old tree.
+    /**
+     * Handles situations where if the previous view was the same plan, it sets 
+     * the expanded state of the new tree to that of the old tree.
+     * 
+     * @param t1 first tree
+     * @param tp1 first tree path
+     * @param t2 second tree
+     * @param tp2 second tree path
+     * @return false if different views
+     */
     public boolean regainExpandedState(JTree t1, TreePath tp1, JTree t2, TreePath tp2)
     {
         // get the tree nodes for the paths
@@ -303,6 +341,15 @@ public class TreeTableView extends JTreeTable
         return true;
     }
     
+    /**
+     * Highlights the row that a breakpoint is stopped at. Not the best way to do
+     * this. It selects the row and then sets the selection background to pink.
+     * This causes problems if the user manually selects a row in the tree view
+     * while the plan is executing because then that selected row will turn pink
+     * even though its not a break point.
+     * 
+     * @param node the node at which the breakpoint is stopped at
+     */
     public void highlightRow(Model node)
     {
         restartSearch();
@@ -316,6 +363,9 @@ public class TreeTableView extends JTreeTable
         }
     }
       
+    /**
+     * Unhighlights the current breaking row.
+     */
     public void unHighlightRow()
     {
         if (currentBreakingRow >= 0)
@@ -341,13 +391,22 @@ public class TreeTableView extends JTreeTable
         Luv.getLuv().getStatusMessageHandler().showStatusOnBarOnly("Row: " + visible_row + " Node: " + node_number);  
     }
     
+    /**
+     * Restarts the search through the tree to the beginning of the tree.
+     */
     public void restartSearch()
     {
         row = lastRow = -1;
         tree.clearSelection();
     }
-      
-    public int showNode(Stack<String> node_path, int next)
+    
+    /**
+     * Scrolls to and selects the Node from the specified Node path.
+     * 
+     * @param node_path the path to the node starting from the root node
+     * @return the row that is currently being shown
+     */
+    public int showNode(Stack<String> node_path)
     {
         findNode(node_path);
         selectRow(row);
@@ -386,6 +445,12 @@ public class TreeTableView extends JTreeTable
         return row;
     }
     
+    /**
+     * Selects the specified row in the TreeTableView of the Plexil Model.
+     * 
+     * @param row the row to select
+     * @return whether or not the row was found
+     */
     public boolean selectRow(int row)
     {
         if (row > -1)
@@ -397,6 +462,11 @@ public class TreeTableView extends JTreeTable
         return false;
     }
       
+    /**
+     * Scrolls to the specified row in the TreeTableView of the Plexil Model.
+     * 
+     * @param row the row to scroll to
+     */
     public void scrollToRow(int row)
     {
         tree.getAutoscrolls();
@@ -407,22 +477,28 @@ public class TreeTableView extends JTreeTable
         scrollRectToVisible(new Rectangle(0, start, width, height));
     }
     
+    /**
+     * Expands all the nodes of this TreeTableView.
+     */
     public void expandAllNodes()
     {
         for (int i = 0; i < tree.getRowCount(); i++)
             tree.expandRow(i);
     }
     
+    /**
+     * Collapses all the node of this TreeTableView.
+     */
     public void collapseAllNodes()
     {
         for (int i = tree.getRowCount() - 1; i >= 0; i--)
             tree.collapseRow(i);
     }
 
-    /** This class wraps a model object and provides a naming and
+    /**
+     * The Wrapper class wraps a Plexil Model object and provides naming and
      * equivelency testing services. 
-    */
-
+     */
     public static class Wrapper
       {            
             Model model;
@@ -430,6 +506,11 @@ public class TreeTableView extends JTreeTable
             static TreeTableView view;
             static int changed_row;                
 
+            /**
+             * Constructs a Wrapper with the specified Model.
+             * 
+             * @param model the model to wrap
+             */
             public Wrapper(Model model)
             {
                this.model = model;
@@ -460,21 +541,42 @@ public class TreeTableView extends JTreeTable
                 }
             }
 
+            /**
+             * Sets this Wrapper's view to the specified TreeTableView.
+             * 
+             * @param view the TreeTableView
+             */
             public static void setView(TreeTableView view)
             {
                Wrapper.view = view;
             }
 
+            /**
+             * Returns the name of the Model.
+             * 
+             * @return the name of the Model
+             */
             public String toString()
             {
                return model.getModelName();
             }
 
+            /**
+             * Returns the Model.
+             * 
+             * @return the Model
+             */
             public Model getModel()
             {
                return model;
             }
 
+            /**
+             * Tests whether the specified Wrapper is equivalent to this Wrapper.
+             * 
+             * @param other the other Wrapper to test with
+             * @return whether the specified Wrapper is equivalent to this Wrapper
+             */
             public boolean equals(Wrapper other)
             {
                String n1 = model.getModelName();
@@ -489,22 +591,43 @@ public class TreeTableView extends JTreeTable
                return n1.equals(n2);
             }
 
+            /**
+             * Returns the Vector of Wrapper children for this Wrapper.
+             * 
+             * @return the Vector of Wrapper children
+             */
             public Vector<Wrapper> getChildren()
             {
                return children;
             }
 
+            /**
+             * Returns the number of Wrapper children for this Wrapper.
+             * 
+             * @return the number of Wrapper children
+             */
             public int getChildCount()
             {
                return children.size();
             }
 
+            /**
+             * Returns the specified Wrapper child for this Wrapper.
+             * 
+             * @param i the index of a Wrapper child
+             * @return the Wrapper child
+             */
             public Wrapper getChild(int i)
             {
                return children.get(i);
             }
       }
 
+    /**
+     * The TreeModel class provides methods for what to title the columns
+     * and what types are displayed in each column of the TreeTableView and
+     * returns values stored in the columns.
+     */
     public static class TreeModel extends AbstractTreeTableModel<Object> 
       {
             // column names          

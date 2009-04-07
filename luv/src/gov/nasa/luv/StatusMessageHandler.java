@@ -33,9 +33,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import static java.lang.System.*;
 
+/**
+ * The StatusMessageHandler class provides methods to display status messages 
+ * to the status bar at the bottom of the Luv application and to the Debug Window.
+ */
+
 public class StatusMessageHandler
 {   
-    
     private static final StatusMessageHandler BLANK_MESSAGE = 
             new StatusMessageHandler(" ", Color.BLACK, 0);
     private static JLabel statusBar;
@@ -47,6 +51,9 @@ public class StatusMessageHandler
     private Color color;
     private String message;
 
+    /**
+     * Constructs a StatusMessageHandler.
+     */
     public StatusMessageHandler() 
     {
         StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
@@ -55,6 +62,14 @@ public class StatusMessageHandler
         abortAutoClear = false;
     }
     
+    /**
+     * Constructs a StatusMessageHandler with the specified message, color and 
+     * amount of time it will be displayed.
+     * 
+     * @param message the message displayed
+     * @param color the color the message will be displayed in
+     * @param autoClearTime the amount of time message will be displayed
+     */
     public StatusMessageHandler(String message, Color color, long autoClearTime)
     {
         StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
@@ -64,17 +79,29 @@ public class StatusMessageHandler
         abortAutoClear = false;
     }   
     
+    /**
+     * Clears the Queue of messages.
+     */
     public void clearStatusMessageQ()
     {
         StatusMessageHandlerQ.clear();
     }
     
+    /**
+     * Returns the queue of status messages.
+     * 
+     * @return the queue of status messages
+     */
     public LinkedList getStatusMessageHandlerQ()
     {
         return StatusMessageHandlerQ;
     }
     
-    // creates and returns the status bar thread.
+    /**
+     * Creates and returns the status bar thread.
+     * 
+     * @param statusBar the status bar thread
+     */
     public void startStatusBarThread(final JLabel statusBar)
     {
          this.statusBar = statusBar;
@@ -145,38 +172,73 @@ public class StatusMessageHandler
          }.start();
     }
     
-    // message to status bar only, not debug window
+    /**
+     * Displays the specified message to the status bar and not the Debug Window.
+     * 
+     * @param message the message to be displayed
+     */
     public void showStatusOnBarOnly(String message)
     {
         statusBar.setForeground((Color.BLACK));
         statusBar.setText(message);
     }
     
-    // add message to status bar (with message only)
+    /**
+     * Adds the specified message to status bar and debug Window with default
+     * color and time. (Color and time only apply to status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     */
     public void showStatus(String message)
     {
          showStatus(message, Color.BLACK, 0);
     }
 
-    // add message to status bar (with message and time)
+    /**
+     * Adds the specified message and time to status bar and debug Window with default
+     * color. (Color and time only apply to status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     * @param autoClearTime the amount of time the message will display
+     */
     public void showStatus(String message, long autoClearTime)
     {
         showStatus(message, Color.BLACK, autoClearTime);
     }
 
-    // add message to status bar (with message and color)
+    /**
+     * Adds the specified message and color to status bar and debug Window with default
+     * time. (Color and time only apply to status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     * @param color the color the message will display in the status bar
+     */
     public void showStatus(String message, Color color)
     {
        showStatus(message, color, 0);
     }
 
-    // add message to status bar (with message, color and time)
+    /**
+     * Adds the specified message, color and time to status bar and debug Window.
+     * (Color and time only apply to status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     * @param color the color the message will display in the status bar
+     * @param autoClearTime the amount of time the message will display
+     */
     public void showStatus(String message, Color color, final long autoClearTime)
     {
         if (message.length() > 0)
             StatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
     }
       
+    /**
+     * Displays a consistantly formatted error message in a Dialog Box and 
+     * again to the Debug Window.
+     * 
+     * @param e the exception that triggered the error message, can be null
+     * @param errorMessage the message to be displayed with the error
+     */
     public void displayErrorMessage(Exception e, String errorMessage)
     {
         if (e != null)
@@ -199,6 +261,11 @@ public class StatusMessageHandler
         }
     }
     
+    /**
+     * Displays a consistantly formatted errinformationor message in a Dialog Box.
+     * 
+     * @param infoMessage the message to be displayed 
+     */
     public void displayInfoMessage(String infoMessage)
     {
         JOptionPane.showMessageDialog(Luv.getLuv(),
@@ -207,7 +274,9 @@ public class StatusMessageHandler
                                       JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // clear the status bar
+    /**
+     * Clears the status bar.
+     */
     public void clearStatus()
     {
         StatusMessageHandlerQ.add(BLANK_MESSAGE);

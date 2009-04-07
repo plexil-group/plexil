@@ -31,7 +31,11 @@ import org.xml.sax.Attributes;
 import java.util.Stack;
 import static gov.nasa.luv.Constants.*;
 
- /** SAX PlexilPlan XML handler */
+ /** 
+  * The PlexilPlanHandler class provide methods for processing and translating a
+  * SAX Plexil Plan written in XML. It Collects condition, local variable and
+  * action information to be available for display in the Luv applcaition.
+  */
 
 public class PlexilPlanHandler extends AbstractDispatchableHandler
 {
@@ -48,6 +52,9 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     private Stack<Model> nodeHolder;
     private Model topLevelNode;              
 
+    /**
+     * Constructs a PlexilPlanHandler.
+     */
     public PlexilPlanHandler()
     {
         super();
@@ -63,18 +70,29 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         nodeHolder.push(Model.getRoot());
     }
     
+    /**
+     * Resets row number to zero which indicates that a new Plexil Plan or Library
+     * is being processed.
+     */
     public static void resetRowNumber()
     {
         row_number = 0;
     }
 
-    // handle start of an XML document
+    /** { @inheritDoc } */
     public void startDocument()
     {
     }
 
-    // handle start of an XML element
-
+    /**
+     * Handles the start of an XML element. Watches for XML tags that might represent
+     * whether or not it is for a Plexil Model Node or Library or a property of a Plexil Model Node.
+     * 
+     * @param uri
+     * @param tagName
+     * @param qName
+     * @param attributes
+     */
     public void startElement(String uri, String tagName, String qName, Attributes attributes)
     {    
         // get the current node in the stack
@@ -130,8 +148,14 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         nodeHolder.push(node);
     }
 
-    // handle end of an XML element
-
+    /**
+     * Handles the end of an XML element. Gathers the text in between the start
+     * and end tag that could be for conditions, local variables or actions.
+     * 
+     * @param uri
+     * @param tagName
+     * @param qName
+     */
     public void endElement(String uri, String tagName, String qName)
     {
         Model topNode = nodeHolder.peek();
@@ -178,12 +202,16 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          //   Luv.getLuv().handleNewLibrary(topLevelNode);
     }
 
-    // handle end of document event
-
+    /** { @inheritDoc } */
     public void endDocument()
     {       
     }
 
+    /**
+     * If the start tag refers to a library, condition, local variable or action
+     * this class will know how to store any following information. 
+     * @param tagName the definition of an XML tag
+     */
     private void catchStartTag(String tagName)
     {
         if (tagName.equals(LIBRARYNODECALL))
@@ -199,6 +227,14 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         recordStartTag(tagName);
     }
 
+    /**
+     * If the specified text is not null, it will store the text appropriately
+     * based on what kinf XML tag it belongs to.
+     * 
+     * @param tagName the type of XML tag
+     * @param text the text in between the start and end XML tags
+     * @throws java.io.InterruptedIOException
+     */
     private void catchTweenerText(String tagName, String text) throws InterruptedIOException
     {
         if (text != null) 
@@ -235,11 +271,22 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         }
     }
 
+    /**
+     * Waits for and stores the end XML tag.
+     * 
+     * @param tagName the XML tag
+     */
     private void catchEndTag(String tagName)
     {  
         recordEndTag(tagName);
     }
 
+    /**
+     * Based on the specfied start XML tag, if it refers to condition, local variable 
+     * or action information - it will be stored appropriately.
+     * 
+     * @param tagName the XML tag
+     */
     private void recordStartTag(String tagName)
     {
         if (tagName.equals(ARGS) || tagName.equals(AND) || tagName.equals(OR) || tagName.equals(CONCAT))
@@ -275,6 +322,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         }       
     }
 
+    /**
+     * Based on the specfied XML end tag, if it refers to condition, local variable 
+     * or action information - it will be stored appropriately.
+     * 
+     * @param tagName the XML tag
+     */
     private void recordEndTag(String tagName)
     {
         // complete condition info is ready to be saved to node
@@ -433,6 +486,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         }
     } 
     
+    /**
+     * Sends the completed condition information to the current Plexil Model and
+     * clears the holder for any future information.
+     * 
+     * @param tagName the XML tag that indicates the end of the condition information was reached
+     */
     private void saveConditionInfoToNode(String tagName)
     {
         if (!nodeInfoHolder.isEmpty() && nodeInfoHolder.size() == 1)
@@ -444,6 +503,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         nodeInfoHolder.clear();
     }
     
+    /**
+     * Sends the completed action information to the current Plexil Model and
+     * clears the holder for any future information.
+     * 
+     * @param tagName the XML tag that indicates the end of the action information was reached
+     */
     private void saveActionInfoToNode(String tagName)
     {
         if (tagName.equals(RESOURCE))
@@ -509,6 +574,12 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         nodeInfoHolder.clear();
     }
     
+    /**
+     * Sends the completed local variable information to the current Plexil Model and
+     * clears the holder for any future information.
+     * 
+     * @param tagName the XML tag that indicates the end of the local variable information was reached
+     */
     private void saveLocalVariableInfoToNode()
     {
         if (!nodeInfoHolder.isEmpty())
@@ -553,6 +624,10 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         nodeInfoHolder.clear();
     }
 
+    /**
+     * Returns the current Model being processed.
+     * @return the current Model
+     */
     private Model currentNode()
     {
         int i = nodeHolder.size() - 1;
@@ -561,6 +636,10 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         return nodeHolder.elementAt(i);
     } 
 
+    /**
+     * Returns the top level node.
+     * @return the top level node
+     */
     public Model getPlan()
     {
         return topLevelNode;

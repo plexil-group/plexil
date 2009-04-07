@@ -28,7 +28,7 @@ package gov.nasa.luv;
 import java.io.*;
 import static gov.nasa.luv.Constants.*;
 
-/** Used to run an instance of the Universal Executive. */
+/** The ExecutionHandler class runs an instance of the Universal Executive. */
 
 public class ExecutionHandler
 {
@@ -37,6 +37,11 @@ public class ExecutionHandler
       private Thread runThread;
       
       public ExecutionHandler() {}
+      
+    /** Construct an ExecutionHandler. 
+     *
+     * @param command the command that executes the Universal Exective
+     */
 
       public ExecutionHandler(final String command)
       {        
@@ -75,6 +80,11 @@ public class ExecutionHandler
              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while starting the Universal Executive");
          }
       }
+      
+    /** Creates an instance of an ExecutionHandler.
+     * 
+     *  @return whether an instance of an ExecutionHandler was created
+     */
  
       public boolean runExec() throws IOException
       {
@@ -92,10 +102,15 @@ public class ExecutionHandler
           return false;
       }
       
+    /** Creates the command to execute the Universal Executive.
+     * 
+     *  @return the command to execute the Universal Executive or an error message if the command could not be created.
+     */
+      
       private String createCommandLine() throws IOException
       {
           Model currentPlan = Luv.getLuv().getCurrentPlan();
-          String command = PROP_UE_EXEC + " -v";
+          String command = UE_EXEC + " -v";
 
 	  if (Luv.getLuv().breaksAllowed())
 	      command += " -b";                
@@ -176,6 +191,8 @@ public class ExecutionHandler
 
 	  return command;
       }
+      
+    /** Kills the currently running instance of the Universal Executive. */
       
       public void killUEProcess() throws IOException
       {

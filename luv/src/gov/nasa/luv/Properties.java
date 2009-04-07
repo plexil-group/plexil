@@ -36,15 +36,20 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 /**
- * This is an extention of the stock Properties class which provides
+ * The Properties class is an extention of the stock Properties class which provides
  * automatic property persistance.
  */
 
 public class Properties extends java.util.Properties
 {
       // file for persistant storage of properties 
-      File file;
+      private File file;
 
+      /**
+       * Constructs a Properties with specified fiel name.
+       * 
+       * @param filename the file for persistant storage of properties 
+       */
       public Properties(String filename)
       {
          try
@@ -66,7 +71,6 @@ public class Properties extends java.util.Properties
        * @param name  the name of the property
        * @param value the string value of the property
        */
-
       public Object setProperty(String name, String value)
       {
          Object oldValue = super.setProperty(name, value);
@@ -92,14 +96,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a int property.  If the property does not exist, it will be
+       * Defines a int property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, int defaultValue)
       {
             String stringValue = getProperty(name);
@@ -108,14 +111,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a boolean property.  If the property does not exist, it will be
+       * Defines a boolean property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, boolean defaultValue)
       {
             String stringValue = getProperty(name);
@@ -124,14 +126,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a double property.  If the property does not exist, it will be
+       * Defines a double property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, double defaultValue)
       {
             String stringValue = getProperty(name);
@@ -140,14 +141,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a String property.  If the property does not exist, it will be
+       * Defines a String property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, String defaultValue)
       {
             String stringValue = getProperty(name);
@@ -156,14 +156,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a Color property.  If the property does not exist, it will be
+       * Defines a Color property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, Color defaultValue)
       {
             String stringValue = getProperty(name);
@@ -172,14 +171,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a Point property.  If the property does not exist, it will be
+       * Defines a Point property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, Point defaultValue)
       {
             String stringValue = getProperty(name);
@@ -188,14 +186,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a Dimension property.  If the property does not exist, it will be
+       * Defines a Dimension property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, Dimension defaultValue)
       {
             String stringValue = getProperty(name);
@@ -204,14 +201,13 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Define a Rectangle property.  If the property does not exist, it will be
+       * Defines a Rectangle property.  If the property does not exist, it will be
        * created with the specified default value.
        *
        * @param name         the name of the property
        * @param defaultValue the value that this property will take, if
        * it does not already appear in the properties list.
        */
-
       public void define(String name, Rectangle defaultValue)
       {
             String stringValue = getProperty(name);
@@ -227,65 +223,60 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Set a int property.  If the property does not exist, it will be
+       * Sets a int property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, int value)
       {
          setProperty(name, "" + value);
       }
 
       /**
-       * Set a boolean property.  If the property does not exist, it will be
+       * Sets a boolean property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, boolean value)
       {
          setProperty(name, value ? "TRUE" : "FALSE");
       }
 
       /**
-       * Set a double property.  If the property does not exist, it will be
+       * Sets a double property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, double value)
       {
          setProperty(name, "" + value);
       }
 
       /**
-       * Set a String property.  If the property does not exist, it will be
+       * Sets a String property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, String value)
       {
          setProperty(name, value);
       }
 
       /**
-       * Set a Color property.  If the property does not exist, it will be
+       * Sets a Color property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, Color value)
       {
          setProperty(name, 
@@ -296,13 +287,12 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Set a Point property.  If the property does not exist, it will be
+       * Sets a Point property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, Point value)
       {
          setProperty(name, 
@@ -311,26 +301,24 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Set a Dimension property.  If the property does not exist, it will be
+       * Sets a Dimension property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, Dimension value)
       {
          setProperty(name, (int)value.getWidth() + ", " + (int)value.getHeight());
       }
 
       /**
-       * Set a Rectangle property.  If the property does not exist, it will be
+       * Sets a Rectangle property.  If the property does not exist, it will be
        * created with the specified value.
        *
        * @param name  the name of the property
        * @param value the value that this property will take
        */
-
       public void set(String name, Rectangle value)
       {
          setProperty(name, 
@@ -356,60 +344,55 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Get an integer propery value.
+       * Gets an integer property value.
        *
-       * @return the integer value of propery if it exists, otherwise it
+       * @return the integer value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public int getInteger(String name)
       {
          return Integer.valueOf(getProperty(name));
       }
 
       /**
-       * Get an boolean propery value.
+       * Gets a boolean property value.
        *
-       * @return the boolean value of propery if it exists, otherwise it
+       * @return the boolean value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public boolean getBoolean(String name)
       {
          return Boolean.valueOf(getProperty(name));
       }
 
       /**
-       * Get a double propery value.
+       * Gets a double property value.
        *
-       * @return the double value of propery if it exists, otherwise it
+       * @return the double value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public double getDouble(String name)
       {
          return Double.valueOf(getProperty(name));
       }
 
       /**
-       * Get an String propery value.
+       * Gets a String property value.
        *
-       * @return the String value of propery if it exists, otherwise it
+       * @return the String value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public String getString(String name)
       {
          return getProperty(name);
       }
 
       /**
-       * Get a Color propery value.
+       * Gets a Color property value.
        *
-       * @return the Color value of propery if it exists, otherwise it
+       * @return the Color value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public Color getColor(String name)
       {
          String[] values = getProperty(name).split(",");
@@ -421,12 +404,11 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Get a Point propery value.
+       * Gets a Point property value.
        *
-       * @return the Point value of propery if it exists, otherwise it
+       * @return the Point value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public Point getPoint(String name)
       {
          String[] values = getProperty(name).split(",");
@@ -436,12 +418,11 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Get a Dimension propery value.
+       * Gets a Dimension property value.
        *
-       * @return the Dimension value of propery if it exists, otherwise it
+       * @return the Dimension value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public Dimension getDimension(String name)
       {
          String[] values = getProperty(name).split(",");
@@ -451,12 +432,11 @@ public class Properties extends java.util.Properties
       }
 
       /**
-       * Get a Rectangle propery value.
+       * Gets a Rectangle property value.
        *
-       * @return the Rectangle value of propery if it exists, otherwise it
+       * @return the Rectangle value of property if it exists, otherwise it
        * throws an exception.
        */
-
       public Rectangle getRectangle(String name)
       {
          String[] values = getProperty(name).split(",");

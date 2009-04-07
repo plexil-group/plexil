@@ -30,6 +30,11 @@ import java.util.HashMap;
 import java.util.Map;
 import static gov.nasa.luv.Constants.*;
 
+/**
+ * The NodeStateUpdateHandler class provides mothods for handling when the 
+ * Plexil Plan is executing and sending updates to properties of the Plexil Model.
+ */
+
 public class NodeStateUpdateHandler extends AbstractDispatchableHandler
 {
     private Model current;
@@ -38,6 +43,9 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
     private String failureType;
     private HashMap<String, String> conditions;
 
+    /**
+     * Constructs a NodeStateUpdateHandler.
+     */
     public NodeStateUpdateHandler()
     {
 	super();
@@ -45,7 +53,12 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
         conditions = new HashMap<String, String>();
     }
 
-    // handle end of an XML element
+    /**
+     * Handle end of an XML element or an update to an element in the Plexil Plan.
+     * @param uri N/A
+     * @param localName the name of the XML tag
+     * @param qName N/A
+     */
     public void endElement(String uri, String localName, String qName)
     {
 	// get text between tags
@@ -104,7 +117,9 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
         }
     }
 
-    // Handle the end of the state update document.
+    /**
+     * Handles the end of the state update document.
+     */
     public void endDocument()
     {
 	// Reset to root of model

@@ -43,6 +43,12 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import static gov.nasa.luv.Constants.*;
 import static javax.swing.JFileChooser.*;
 
+/**
+ * 
+ * The FileHandler class handles the searching, opening and loading of Plexil 
+ * plans, scripts and libraries.
+ */
+
 public class FileHandler 
 {
     // is script already loaded? if so, do not waste time loading it again
@@ -54,6 +60,9 @@ public class FileHandler
     // file chooser object       
     private JFileChooser fileChooser;
     
+    /**
+     * Constructs a FileHandler.
+     */
     public FileHandler() 
     {
         init();
@@ -88,10 +97,11 @@ public class FileHandler
 			    String extension = getExtension(f);
 			    Boolean correctExtension = false;
 			    if (extension != null)
-				if (extension.equals(XML_EXTENSION) || 
-				    extension.equals(PLX_EXTENSION) ||
-                                    extension.equals(PLS_EXTENSION))
-				    correctExtension = true;
+                            {
+                                for (String ext: FILE_EXTENSIONS)
+                                    if (extension.equals(ext))
+                                        correctExtension = true;
+                            }
                               
 			    return correctExtension;
 			}
@@ -118,39 +128,48 @@ public class FileHandler
 	    }
 	};
     }
- 
-    private String getFileNameSansExtension(String name)
-    {
-        return name.substring(0, name.indexOf('.'));  
-    }
     
+    /**
+     * Returns whether or not Luv should stop searching for missing Plexil libraries.
+     * @return whether or not Luv should stop searching for missing Plexil libraries
+     */
+ 
     public boolean getStopSearchForMissingLibs()
     {
         return stopSearchForMissingLibs;
     }
     
+    /**
+     * Sets whether or not Luv should stop searching for missing Plexil libraries.
+     * @param value sets whether or not Luv should stop searching for missing Plexil libraries
+     */
     public void setStopSearchForMissingLibs(boolean value)
     {
         stopSearchForMissingLibs = value;
     }
     
-    // find the libraries needed    
+    /** Finds the Plexil library needed.
+     * 
+     * @param libraryName the name of the Plexil library to search for
+     * @return Plexil library or null if not found
+     * @throws java.io.InterruptedIOException
+     */
     public File searchForLibrary(String libraryName) throws InterruptedIOException 
     {      
         String directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
         
-        File library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".plx");
+        File library = new File(directory + System.getProperty("file.separator") + libraryName + ".plx");
             
         if (!library.exists()) {  
-            library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".xml");
+            library = new File(directory + System.getProperty("file.separator") + libraryName + ".xml");
             
             if (!library.exists()) {
                 directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
         
-                library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".plx");
+                library = new File(directory + System.getProperty("file.separator") + libraryName + ".plx");
                 
                 if (!library.exists()) {  
-                    library = new File(directory + System.getProperty(PROP_FILE_SEPARATOR) + libraryName + ".xml");
+                    library = new File(directory + System.getProperty("file.separator") + libraryName + ".xml");
 
                     if (!library.exists()) {
 			directory = unfoundLibrary(libraryName);
@@ -177,7 +196,11 @@ public class FileHandler
         return library;  
     }
     
-    // find the appropriate script to be executed
+    /** Finds the Plexil script needed.
+     * 
+     * @return the Plexil script or null if not found
+     * @throws java.io.IOException
+     */
     public File searchForScript() throws IOException 
     {
         File script = null;
@@ -201,7 +224,7 @@ public class FileHandler
         // if cannot find script, create empty script and prompt user
         if (script == null)
         {
-            directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR);
+            directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator");
             script = createEmptyScript(directory);
         }
 
@@ -216,7 +239,10 @@ public class FileHandler
         return script;  
     }
          
-    // select and load a script from the disk.  This operates on the global model.     
+    /** Selects and loads a Plexil script from the disk. This operates on the global model.    
+     * 
+     * @return the choice type (APPROVE_OPTION, etc.) the user made
+     */ 
     public int chooseScript()
     {
 	int option = -1;
@@ -241,7 +267,10 @@ public class FileHandler
 	return option;
     }
       
-    // select and load a plexil plan from the disk.  This operates on the global model.      
+    /** Selects and loads a Plexil plan from the disk. This operates on the global model.  
+     * 
+     * @return the choice type (APPROVE_OPTION, etc.) the user made
+     */    
     public int choosePlan()
     {
 	try 
@@ -269,7 +298,10 @@ public class FileHandler
 	return -1;
     }  
           
-    // select and load a script from the disk. This operates on the global model.       
+    /** Selects and loads a Plexl library from the disk. This operates on the global model.
+     * 
+     * @return the Plexil library path or null if not found
+     */       
     public String chooseLibrary()
     {
 	try 
@@ -295,7 +327,10 @@ public class FileHandler
 	return null;
     }
       
-    // load a plexil script from the disk.
+    /** Loads a Plexil script from the disk.
+     * 
+     * @param script the Plexil script to be loaded
+     */
     public void loadScript(File script)
     {          
 	if (script != null)
@@ -305,7 +340,10 @@ public class FileHandler
         }
     }
 
-    // load a plexil plan from the disk.  This operates on the global model.
+    /** Loads a Plexil plan from the disk. This operates on the global model.
+     * 
+     * @param plan the Plexil plan to be loaded
+     */
     public void loadPlan(File plan)
     {
         if (plan != null)
@@ -315,7 +353,11 @@ public class FileHandler
         }
     }
             
-    // load a recently loaded run
+    /** Loads a recently loaded Plexil plan, script and (if any) supporting libraries.
+     * 
+     * @param index the item in the list of previous Plexil plans
+     * @throws java.io.IOException
+     */
     public void loadRecentRun(int index) throws IOException
     {
         File script = null;
@@ -435,7 +477,7 @@ public class FileHandler
     {
 	try 
         {
-	    planName = getFileNameSansExtension(planName);  
+	    planName = planName.substring(0, planName.indexOf('.')); 
             
             ArrayList<String> listOfScriptNames = generateListOfScriptNames(planName, path);
             
@@ -482,21 +524,21 @@ public class FileHandler
     {
         ArrayList<String> listOfDirectories = new ArrayList<String>();
   
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR) + System.getProperty(PROP_FILE_SEPARATOR));
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR));
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR));
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty(PROP_FILE_SEPARATOR) + "script" + System.getProperty(PROP_FILE_SEPARATOR));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR) + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator") + "scripts" + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator") + "script" + System.getProperty("file.separator"));
         
         String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
         path = path.substring(0, path.lastIndexOf('/') + 1);
         listOfDirectories.add(path);
         
         path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
-        path = path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty(PROP_FILE_SEPARATOR);
+        path = path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty("file.separator");
         listOfDirectories.add(path);
         
         path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
-        path = path.substring(0, path.lastIndexOf('/') + 1) + "scripts" + System.getProperty(PROP_FILE_SEPARATOR);
+        path = path.substring(0, path.lastIndexOf('/') + 1) + "scripts" + System.getProperty("file.separator");
         listOfDirectories.add(path);      
        
         return listOfDirectories;
@@ -515,7 +557,7 @@ public class FileHandler
 	    JOptionPane.showOptionDialog(Luv.getLuv(),
 					 "Unable to locate a script for this plan. \n\nDo you want to use the following default empty script?\n\n"
 					 + Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)
-					 + System.getProperty(PROP_FILE_SEPARATOR)
+					 + System.getProperty("file.separator")
 					 + DEFAULT_SCRIPT_NAME
 					 + "\n\n",
 					 "Default Script Option",

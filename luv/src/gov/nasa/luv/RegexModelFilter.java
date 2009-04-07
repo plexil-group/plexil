@@ -29,13 +29,21 @@ package gov.nasa.luv;
 import java.util.ArrayList;
 import static gov.nasa.luv.Constants.*;
 
-/** A filter to apply to a model. */
+/** 
+ * The RegexModelFilter class provides methods to fileter a Plexil Model.
+ */
 
 public class RegexModelFilter extends AbstractModelFilter
 {
     // list of elements to filter from view    
-    ArrayList<String> listOfRegex;
+    private ArrayList<String> listOfRegex;
 
+    /**
+     * Constructs a RegexModelFilter with the specified value to 
+     * enable or disable the filtering.
+     * 
+     * @param enabled the value that either enables or disables the filtering
+     */
     public RegexModelFilter(boolean enabled)
     {
         super(enabled);
@@ -43,7 +51,6 @@ public class RegexModelFilter extends AbstractModelFilter
     }
 
     /** {@inheritDoc} */
-
     public boolean isFiltered(Model model)
     {
         String type = model.getProperty(NODETYPE_ATTR, UNKNOWN);
@@ -66,6 +73,11 @@ public class RegexModelFilter extends AbstractModelFilter
         return false;
     }
     
+    /**
+     * Adds the specified element to filter the Plexil Model with.
+     * 
+     * @param regex the new element to be filtered
+     */
     public void addRegex(String regex)
     {
         String list = Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);      
@@ -82,6 +94,11 @@ public class RegexModelFilter extends AbstractModelFilter
         Luv.getLuv().getViewHandler().refreshRegexView();  
     }
     
+    /**
+     * Removes the specified filtering element from the Plexil Model.
+     * 
+     * @param regex the element to be removed
+     */
     public void removeRegex(String regex)
     {
         String list = Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);     
@@ -103,6 +120,11 @@ public class RegexModelFilter extends AbstractModelFilter
         Luv.getLuv().getViewHandler().refreshRegexView();  
     }
     
+    /**
+     * Updates the list of elements that filter the Model, which occurs when
+     * the Luv application is opened and looks to the saved list of regex
+     * in the Luv properties file.
+     */
     public void updateRegexList()
     {
         String namelist = Luv.getLuv().getProperties().getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN);

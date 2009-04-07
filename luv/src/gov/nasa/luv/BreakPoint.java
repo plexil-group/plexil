@@ -26,59 +26,68 @@
 
 package gov.nasa.luv;
 
-/** An interface to support breakpoints in the plan. */
+/**
+ * The BreakPoint interface provides methods for supporting breakpoints in 
+ * the Plexil Plan. 
+ */
 
 public interface BreakPoint
 {
-      /** Test if conditions are correct for a break to occur.  This
-       * expected to only be called when state of the unerlying system
-       * has chane.
+      /** 
+       * Tests if conditions are correct for a break to occur. This
+       * expected to only be called when state of the underlying system
+       * has changed.
        *
        * @return true if a break should occur
        */
 
       public boolean isBreak();
 
-      /** Signal that a break has occurred. */
+      /** Signals that a break has occurred. */
 
       public void onBreak();
 
-      /** Set enabled state of this breakpoint.
+      /** 
+       * Sets enabled state of this breakpoint.
        *
        * @param enabled true if this breakpoint is enabled
        */
 
       public void setEnabled(boolean enabled);
 
-      /** Get enabled state of this breakpoint.
+      /** 
+       * Gets enabled state of this breakpoint.
        *
        * @return true if break point is enabled
        */
 
       public boolean isEnabled();
 
-      /** Return the reason that this break occurred. 
+      /** 
+       * Returns the reason the break occurred. 
        *
        * @return the reason the break occurred
        */
 
       public String getReason();
 
-      /** Set the break point model.
+      /**
+       * Sets the specified break point model.
        * 
        * @param model the model to test for breaks
        */
 
       public void setModel(Model model);
 
-      /** Get the break point model.
+      /** 
+       * Gets the break point model.
        * 
        * @return the model to test for breaks
        */
 
       public Model getModel();
 
-      /** Disconnect breakpoint from any world events. */
+      /** Disconnects breakpoint from any world events. */
 
       public void unregister();
  }

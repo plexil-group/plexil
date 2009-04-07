@@ -46,6 +46,11 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 import static gov.nasa.luv.Constants.*;
 
+/** 
+ * The DebugCFGWindow class is an interface for the user to create a 
+ * Debug Configuratoin File. 
+ */
+
 public class DebugCFGWindow extends JFrame implements ItemListener
 {
     private static DebugCFGWindow frame;        
@@ -63,6 +68,11 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
 	pack();
     }
+    
+    /** Construct an DebugCFGWindow. 
+     *
+     * @param title the title of this DebugCFGWindow
+     */
     
     public DebugCFGWindow(String title) throws FileNotFoundException 
     {
@@ -456,6 +466,11 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         }   
     } 
     
+    /** Enables or Disables the debug configuration file.  
+     *
+     *  @param enable indicates whether or not to enable the debug configuration file
+     */
+    
     public void enableDebugMessages(boolean enable) throws FileNotFoundException
     {
         if (new File(DEBUG_CFG_FILE).exists())
@@ -504,6 +519,8 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             }
         }
     }
+    
+    /** Creates an instance of a DebugCFGWindow.  */
 
     public void open() throws FileNotFoundException 
     {
@@ -517,6 +534,8 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         frame.pack();
         frame.setVisible(true);
     }
+    
+    /** { @inheritDoc } */
 
     public void itemStateChanged(ItemEvent e) 
     {

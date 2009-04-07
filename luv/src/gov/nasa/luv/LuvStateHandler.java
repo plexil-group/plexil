@@ -32,7 +32,7 @@ import java.util.Set;
 import static gov.nasa.luv.Constants.*;
 
 /**
- * LuvStateHandler manages Luv states, basically, enabling or disabling Luv
+ * The LuvStateHandler class manages Luv states, basically, enabling or disabling Luv
  * menu items based on whether Luv just started, is executing, is paused, etc.
  */
 
@@ -40,9 +40,13 @@ public class LuvStateHandler
 {
     public LuvStateHandler() {}
     
+    /**
+     * Sets the Luv application to a Start State, this occurs as when the 
+     * Luv application opens for the first time.
+     */
     public void startState()
     {
-	Luv.getLuv().disableAllMenus();
+	disableAllMenus();
           
 	Luv.getLuv().setBreaksAllowed(false);
 	Luv.getLuv().setIsExecuting(false);     
@@ -73,6 +77,9 @@ public class LuvStateHandler
         Luv.getLuv().getDebugMenu().setEnabled(true);
     }
       
+    /**
+     * Sets the Luv application to a Ready State.
+     */
     public void readyState()
     {
 	// set only certain luv viewer variables
@@ -120,7 +127,10 @@ public class LuvStateHandler
         Luv.getLuv().getDebugMenu().setEnabled(true);
     }
 
-    // Called when we receive EOF on the LuvListener stream. 
+    /**
+     * Sets the Luv application to a Finished Execution State and occurs when 
+     * EOF on the LuvListener stream is received.
+     */
     public void finishedExecutionState()
     {  
         Luv.getLuv().setIsExecuting(false);
@@ -161,6 +171,10 @@ public class LuvStateHandler
 	Luv.getLuv().getStatusMessageHandler().showStatus("Execution stopped", Color.BLUE);
     }
       
+    /**
+     * Sets the Luv application to a Pre Execution State and occurs just before
+     * the loaded Plexil Plan is about to execute.
+     */
     public void preExecutionState()
     {
         Luv.getLuv().setShouldHighlight(false);
@@ -175,6 +189,10 @@ public class LuvStateHandler
         Luv.getLuv().getRunMenu().getItem(EXECUTE_MENU_ITEM).setEnabled(false);
     }
       
+    /**
+     * Sets the Luv application to an Execution State and occurs while
+     * the loaded Plexil Plan is executing.
+     */
     public void executionState()
     {
         Luv.getLuv().setIsExecuting(true);
@@ -197,7 +215,11 @@ public class LuvStateHandler
           
 	Luv.getLuv().updateBlockingMenuItems();
     }     
-          
+        
+    /**
+     * Sets the Luv application to a Stopped Execution State and occurs when the
+     * user manually stops the execution of a Plexil Plan.
+     */
     public void stopExecutionState() throws IOException
     {
         Luv.getLuv().getExecutionHandler().killUEProcess();
@@ -207,6 +229,10 @@ public class LuvStateHandler
 	
     }
     
+    /**
+     * Sets the Luv application to an Open Plan State and occurs when a new Plexil Plan
+     * is newly opened in the Luv application.
+     */
     public void openPlanState()
     {
         Luv.getLuv().getLuvBreakPointHandler().removeAllBreakPoints();
@@ -215,22 +241,31 @@ public class LuvStateHandler
         
         Luv.getLuv().getCurrentPlan().addScriptName(UNKNOWN);
 
-        Luv.getLuv().getNodeInfoWindow().closeNodeInfoWindow();                
+        NodeInfoWindow.closeNodeInfoWindow();                
 
         readyState();
     }
     
+    /**
+     * Sets the Luv application to an Load Recent Run State and occurs when a reccently 
+     * loaded Plexil Plan is newly opened in the Luv application from the 
+     * recently run menu.
+     */
     public void loadRecentRunState()
     {
         Luv.getLuv().getLuvBreakPointHandler().removeAllBreakPoints();
         
         Luv.getLuv().getCurrentPlan().resetMainAttributesOfAllNodes();
 
-        Luv.getLuv().getNodeInfoWindow().closeNodeInfoWindow();                
+        NodeInfoWindow.closeNodeInfoWindow();                
 
         readyState();
     }
     
+    /**
+     * Sets the Luv application to an Reload Plan State and occurs when a currently 
+     * loaded Plexil Plan is refreshed in the Luv application.
+     */
     public void reloadPlanState()
     {
         Luv.getLuv().getCurrentPlan().resetMainAttributesOfAllNodes();
@@ -238,6 +273,11 @@ public class LuvStateHandler
         readyState();
     }
     
+    /**
+     * Sets the Luv application to an Paused State and occurs when the Luv application
+     * has breaks enabled and is at the beginning of executing a Plexil Plan or the
+     * user manually pauses a currently running Plexil Plan.
+     */
     public void pausedState()
     {
         Luv.getLuv().setIsPaused(true);
@@ -246,6 +286,10 @@ public class LuvStateHandler
 	Luv.getLuv().updateBlockingMenuItems();
     }
       
+    /**
+     * Sets the Luv application to an Step State and occurs when the Luv application
+     * has breaks enabled and the user manually steps through a currently running Plexil Plan.
+     */
     public void stepState()
     {
         Luv.getLuv().setIsPaused(false);
@@ -258,6 +302,10 @@ public class LuvStateHandler
     // Sub-states
     //
       
+    /**
+     * Sets the Luv application to an Disabled Breaking State and occurs when 
+     * the Luv application has breaks disabled.
+     */
     public void disabledBreakingState()
     {
         Luv.getLuv().setBreaksAllowed(false);
@@ -278,6 +326,10 @@ public class LuvStateHandler
 	Luv.getLuv().updateBlockingMenuItems();
     }
       
+    /**
+     * Sets the Luv application to an Enabled Breaking State and occurs when 
+     * the Luv application has breaks enabled.
+     */
     public void enabledBreakingState()
     {
 	Luv.getLuv().setBreaksAllowed(true);
@@ -297,5 +349,34 @@ public class LuvStateHandler
         Luv.getLuv().getViewHandler().refreshView();
         
 	Luv.getLuv().updateBlockingMenuItems();
+    }
+    
+    
+    private void disableAllMenus()
+    {
+	Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getFileMenu().getItem(EXIT_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getFileMenu().setEnabled(false);
+          
+	Luv.getLuv().getRunMenu().getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getRunMenu().getItem(STEP_MENU_ITEM).setEnabled(false);
+	Luv.getLuv().getRunMenu().getItem(BREAK_MENU_ITEM).setEnabled(false);	
+        Luv.getLuv().getRunMenu().getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+        Luv.getLuv().getRunMenu().getItem(EXECUTE_MENU_ITEM).setEnabled(false);  
+	Luv.getLuv().getRunMenu().setEnabled(false);
+ 
+	if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) 
+        {
+	    Luv.getLuv().getViewMenu().getItem(EXPAND_MENU_ITEM).setEnabled(false);
+	    Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
+	    Luv.getLuv().getViewMenu().getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(false);  
+            Luv.getLuv().getViewMenu().getItem(FIND_MENU_ITEM).setEnabled(false);
+	}
+	Luv.getLuv().getViewMenu().setEnabled(false);
+        
+        Luv.getLuv().getDebugMenu().setEnabled(false);
     }
 }

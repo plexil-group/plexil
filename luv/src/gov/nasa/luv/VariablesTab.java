@@ -36,15 +36,28 @@ import java.util.ArrayList;
 import java.util.Stack;
 import static gov.nasa.luv.Constants.*;
 
+/** 
+ * The VariablesTab class provides methods for displaying a Plexil Model's local 
+ * variable information. However, currently, Luv is only aware of the initial
+ * value of a Plexil Model's local variable. Plexil Model's local variable value 
+ * updates need to be provided from the Universal Executive.
+ */
+
 public class VariablesTab extends JPanel 
 { 
-    private VariablesTab variablesPane;
+    private static VariablesTab variablesPane;
     private Model model;   
     private int rows;
     private String info[][];
     private JTable table;   
     
     public VariablesTab() {}
+    
+    /** 
+     * Constructs a VariablesTab with the specified Plexil Model.
+     *
+     * @param model model on which the VariablesTab represents
+     */
     
     public VariablesTab(Model model) 
     {       
@@ -121,16 +134,28 @@ public class VariablesTab extends JPanel
         JScrollPane scrollPane = new JScrollPane(table);
 
         add(scrollPane);
+        setOpaque(true);
     }
     
-    public VariablesTab getCurrentVariablesTab()
+    /** 
+     * Returns the current instance of the VariablesTab. 
+     *
+     * @return the current instance of the VariablesTab
+     */
+    
+    public static VariablesTab getCurrentVariablesTab()
     {
         return variablesPane;
     }
+    
+    /** 
+     * Creates an instance of a VariablesTab with the specified model. 
+     *
+     * @param model the model on which to create an VariablesTab
+     */
 
-    public void open(Model model) 
+    public static void open(Model model) 
     {       
         variablesPane = new VariablesTab(model);
-        variablesPane.setOpaque(true);
     }
 }

@@ -33,6 +33,11 @@ import java.awt.event.*;
 import javax.swing.text.*;
 import static gov.nasa.luv.Constants.*;
 
+/**
+ * The DebugWindow class displays debug and status information in a 
+ * separate window.
+ */
+
 public class DebugWindow extends JFrame
 {
       private JTextArea     debugArea;
@@ -41,7 +46,10 @@ public class DebugWindow extends JFrame
       private JPanel        outer;
       private JToolBar      toolBar;
 
-      public DebugWindow(final JFrame owner)
+      /**
+       * Constructs a DebugWindow
+       */
+      public DebugWindow()
       {
          init();
          
@@ -100,7 +108,7 @@ public class DebugWindow extends JFrame
       }
 
       // append a string to the debug window
-      public void append(String str)
+      private void append(String str)
       {
          String eol = "\n";
          
@@ -113,7 +121,7 @@ public class DebugWindow extends JFrame
       }
 
       // a simple search and replace
-      public static String replaceAll(String str, String oldTxt, String newTxt)
+      private static String replaceAll(String str, String oldTxt, String newTxt)
       {
          int idx = 0;
          while ((idx = str.indexOf(oldTxt)) != -1)
@@ -122,7 +130,7 @@ public class DebugWindow extends JFrame
       }
       
       // clear the debugging window of all text
-      private void clearDebugArea ()
+      private void clearDebugArea()
       {
          try 
          {
@@ -134,12 +142,19 @@ public class DebugWindow extends JFrame
          }
       }
       
-      // output stream to fork data out to a file and to the debugging window
+      /**
+       * The DualOutputStream class creates an output stream to fork data out 
+       * to a file (the Debug Log File) and to the debugging window.
+       */
       public class DualOutputStream extends OutputStream
       {
             // send output to both debug window and log file
             FileOutputStream logStream;
             
+            /**
+             * Constructs a DualOutputStream with the specified debug log file name.
+             * @param logFilename name of the debug log file that is output to
+             */
             public DualOutputStream (String logFilename)
             {
                super();
@@ -175,10 +190,5 @@ public class DebugWindow extends JFrame
                byte[] ba = {(byte)b}; 
                append(new String(ba));
             }
-      }
-      
-      private String getLogFilename()
-      {
-         return PROP_LOG_FILE;
-      }    
+      }   
 }

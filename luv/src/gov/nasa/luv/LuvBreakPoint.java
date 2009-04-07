@@ -26,32 +26,32 @@
 
 package gov.nasa.luv;
 
-/** An abstract breakpoint which supplies the breaking action in
-* the event that a breakpoint is signaled.  Derrived classes are
-* expected to provide the conditions underwich the break is
-* eligible to fire. */
+/** 
+ * The LuvBreakPoint class is an abstract class that provides methods for 
+ * breaking action in the event that a breakpoint is signaled.  Derived classes 
+ * are expected to provide the conditions underwich the break is eligible to fire. 
+ */
 
 public abstract class LuvBreakPoint extends AbstractBreakPoint
 {
     private boolean breakStatus = false;
     
-    /** Old value, use to test for changes */
+    /** Old value, use to test for changes. */
+    public String oldValue = "";
 
-    String oldValue = "";
+    /** Target model property to watch. */
+    private String targetProperty;
 
-    /** Targe model property to watch. */
+    /** Storage for reason for current break point occurrance. */
+    public String reason = "NO break has occurred yet. This should NEVER be seen!";
 
-    String targetProperty;
-
-    /** storage for reason for current break point occurrance. */
-
-    String reason = "NO break has occurred yet. This should NEVER be seen!";
-
-    /** Construct a Luv specific break point. 
+    /** 
+     * Constructs a Luv specific break point with the specified Plexil model
+     * and target property.
      *
      * @param model the model on which the break point operates
+     * @param targetProperty the model property on whgich to watch for
      */
-
     public LuvBreakPoint(Model model, String targetProperty)
     {
        super(model);

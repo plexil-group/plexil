@@ -35,12 +35,21 @@ import java.awt.Color;
 import java.util.ArrayList;
 import static gov.nasa.luv.Constants.*;
 
+/** 
+ * The ActionTab class provides methods for displaying Plexil Model Actions, 
+ * such as, Assignment, Command, FunctionCall, LibraryCall or Update. 
+ */
+
 public class ActionTab extends JPanel 
 {    
-    private ActionTab actionPane;
+    private static ActionTab actionPane;
     
-    public ActionTab() {}
-    
+    /** 
+     * Constructs an ActionTab with the specified Plexil Model.
+     *
+     * @param model Plexil Model on which the ActionTab represents
+     */
+       
     public ActionTab(Model model) 
     {       
         super(new GridLayout(1,0));
@@ -70,8 +79,15 @@ public class ActionTab extends JPanel
         JScrollPane scrollPane = new JScrollPane(table);
 
         add(scrollPane);
+        setOpaque(true);
     }
     
+    /** Rewrites the action information into standard Plexil syntax for
+     *  better user readability.   
+     *
+     * @param expression action information before it has been rewritten
+     */
+     
     public static String formatAction(String expression)
     {
         String formattedExpression = "COULD NOT IDENTIFY ACTION";
@@ -94,14 +110,25 @@ public class ActionTab extends JPanel
         return formattedExpression;
     }
     
-    public ActionTab getCurrentActionTab()
+    /** 
+     * Returns the current instance of the ActionTab. 
+     *
+     * @return the current instance of the ActionTab
+     */
+    
+    public static ActionTab getCurrentActionTab()
     {
         return actionPane;
     }
+    
+    /** 
+     * Creates an instance of an ActionTab with the specified Plexil Model. 
+     *
+     * @param model the model on which to create an ActionTab
+     */
 
-    public void open(Model model) 
+    public static void open(Model model) 
     {       
         actionPane = new ActionTab(model);
-        actionPane.setOpaque(true);
     }
 }

@@ -36,6 +36,11 @@ import java.util.Map;
 import java.awt.event.ActionEvent;
 import static gov.nasa.luv.Constants.*;
 
+/**
+ * The LuvBreakPointHandler class provides methods to handle breakpoints set
+ * on a Plexil Plan loaded in the Luv application.
+ */
+
 public class LuvBreakPointHandler 
 {    
       // if break has occured, the causal break point object     
@@ -50,6 +55,9 @@ public class LuvBreakPointHandler
       // list of breakpoints to check for repeats
       private Vector<String> breakPointList; 
       
+      /**
+       * Constructs a LuvBreakPointHandler.
+       */
       public LuvBreakPointHandler()
       {
           breakPoint = null;
@@ -58,38 +66,64 @@ public class LuvBreakPointHandler
           breakPointList = new Vector<String>();
       }
       
-      // accessors for LuvBreakPointHandler
+      /**
+       * Returns the LuvBreakPoint.
+       * @return the LuvBreakPoint
+       */
       public BreakPoint getBreakPoint()
       {
           return breakPoint;
       }
       
+      /**
+       * Returns the HashMap of all LuvBreakPoints and matching row number.
+       * @return the HashMap of all LuvBreakPoints and matching row number
+       */
       public HashMap<LuvBreakPoint, Integer> getBreakPointMap()
       {
           return breakPointMap;
       }
       
+      /**
+       * Returns the Vector of all the LuvBreakPoints not found in current Plexil Plan.
+       * @return the Vector of all the LuvBreakPoints not found in current Plexil Plan
+       */
       public Vector<LuvBreakPoint> getUnfoundBreakPoints()
       {
           return unfoundBreakPoints;
       }
       
+      /**
+       * Returns whether or not LuvBreakPoints exist in the current Plexil Plan.
+       * @return whether or not LuvBreakPoints exist in the current Plexil Plan
+       */
       public boolean breakpointsExist()
       {
           return !breakPointList.isEmpty();
       }
       
+      /**
+       * Sets the specified LuvBreakPoint in the current Plexil Plan.
+       * @param bp the LuvBreakPoint to be set
+       */
       public void setBreakPoint(LuvBreakPoint bp)
       {
           breakPoint = bp;
       }
 
+      /**
+       * Clears the LuvBreakPoint.
+       */
       public void clearBreakPoint()
       {
           breakPoint = null;
       }
 
-      // add breakpoint to grand list of breakpoints
+      /**
+       * Adds the specified LuvBreakPoint to the full list of LuvBreakPoints.
+       * @param breakPoint the LuvBreakPoint to be added
+       * @param model the model on which the LuvBreakPoint was added
+       */
       public void addBreakPoint(LuvBreakPoint breakPoint, Model model)
       {
          if (!breakPointList.contains(breakPoint.toString() + " " 
@@ -111,22 +145,24 @@ public class LuvBreakPointHandler
                      + "\" breakpoint has already been added", Color.RED, 5000l);
       }
 
-      // remove breakpoint from grand list of breakpoints
-      public void removeBreakPoint(BreakPoint breakPoint)
+      /**
+       * Removes the specified LuvBreakPoint from the full list of LuvBreakPoints.
+       * @param breakPoint
+       */
+      public void removeBreakPoint(BreakPoint breakPoint, Model model)
       {
          breakPoint.unregister();
          breakPointMap.remove(breakPoint);
-         breakPointList.remove(breakPoint.toString());
-         
-         if (!breakpointsExist())
-             Luv.getLuv().enableRemoveBreaksMenuItem(false);
+         breakPointList.remove(breakPoint.toString() + " " + model.getRowNumber());
          
          Luv.getLuv().getStatusMessageHandler().showStatus("Removed break on " 
                  + breakPoint, 5000l);
          Luv.getLuv().getViewHandler().refreshView();
       }
 
-      // remove all breakpoints from grand list of breakpoints
+      /**
+       * Removes all the LuvBreakPoints.
+       */
       public void removeAllBreakPoints()
       {
          for (BreakPoint bp: breakPointMap.keySet())
@@ -139,7 +175,12 @@ public class LuvBreakPointHandler
          Luv.getLuv().getViewHandler().refreshView();
       }
       
-      // create a breakpoint which fires when the model state changes
+      /**
+       * Creates a LuvBreakPoint which fires when the specified model state changes at all.
+       * 
+       * @param model the model on which the LuvBreakPoint fires
+       * @return the LuvBreakPoint
+       */
       public BreakPoint createChangeBreakpoint(Model model)
       {
          return new LuvBreakPoint(model, MODEL_STATE)
@@ -165,7 +206,10 @@ public class LuvBreakPointHandler
          };
       }
       
-      // map all the breakpoints into the new model      
+      /**
+       * Maps all the current LuvBreakPoints to the new specified Plexil model.
+       * @param model the new Plexil model the current LuvBreakPoints will be mapped to
+       */
       public void mapBreakPointsToNewModel(Model model)
       {
 	    getUnfoundBreakPoints().clear();
@@ -187,8 +231,15 @@ public class LuvBreakPointHandler
 	    }
       }
 
-      // create a breakpoint which fires when the model state changes 
-      // to a specifed state.
+      /**
+       * Creates a LuvBreakPoint which fires when the model state changes to a specified state.
+       * 
+       * @param model the model on which the LuvBreakPoint fires
+       * @param propertyTitle the name of the the previous model state
+       * @param targetProperty the name of the current model state
+       * @param targetValue the name of the target model state the LuvBreakPoint will fire upon
+       * @return the LuvBreakPoint
+       */
       public BreakPoint createTargetPropertyValueBreakpoint(
          Model model, final String propertyTitle, 
          final String targetProperty, final String targetValue)
@@ -225,7 +276,13 @@ public class LuvBreakPointHandler
          };
       }
       
-      // construct a node popup menu on the fly given the it is associated with
+      /**
+       * Construct a node popup menu when the user right-clicks on the specified 
+       * Plexil model/node.
+       * 
+       * @param model the Plexil model the user wants to set a LuvBreakPoint on
+       * @return the pop up menu
+       */
       public JPopupMenu constructNodePopupBreakPointMenu(final Model model)
       {
          // get the model name
@@ -344,7 +401,7 @@ public class LuvBreakPointHandler
                   {
                         public void actionPerformed(ActionEvent e)
                         {
-                           removeBreakPoint(bp2);
+                           removeBreakPoint(bp2, model);
                         }
                   }); 
             }
@@ -362,16 +419,22 @@ public class LuvBreakPointHandler
                      public void actionPerformed(ActionEvent e)
                      {
                         for (final BreakPoint bp3: bps)
-                           removeBreakPoint(bp3);
+                           removeBreakPoint(bp3, model);
                      }
                });
          }
+               
+         Luv.getLuv().updateBlockingMenuItems();        
 
          // return our freshly created popup menu
          return popup;
       }
 
-      // return all the breakpoints for a given model
+      /**
+       * Returns all the LuvBreakPoints for the specified Plexil model.
+       * @param model the Plexil model that contains the current LuvBreakPoints
+       * @return the Vector of LuvBreakPoints
+       */
       public Vector<LuvBreakPoint> getBreakPoints(Model model)
       {
          Vector<LuvBreakPoint> bps = new Vector<LuvBreakPoint>();

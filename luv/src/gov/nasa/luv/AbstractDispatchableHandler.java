@@ -28,7 +28,10 @@ package gov.nasa.luv;
 
 import org.xml.sax.helpers.DefaultHandler;
 
-/** Dispatchable XML parsers will be derrived from this class. */
+/**
+ * The AbstractDispatchableHandler class is an abstract class where Dispatchable 
+ * XML parsers will be derived. 
+ */
 
 public abstract class AbstractDispatchableHandler extends DefaultHandler
 {
@@ -36,7 +39,9 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
 
       StringBuffer tweenerBuffer;
       
-      /** Construct an AbstractDispatchableHandler.
+      /**
+       * Constructs an AbstractDispatchableHandler by calling the parent 
+       * DefaultHandler class default constructor. 
        */
 
       public AbstractDispatchableHandler()
@@ -44,7 +49,7 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
 	  super();
       }
 
-      /** Handle data between element tags.
+      /** Handles data between XML element tags.
        *
        * @param ch character buffer
        * @param start index of start of data characters in buffer
@@ -61,12 +66,14 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
          }
       }
       
-      /** Get collected text that appears in between XML tags.  The text
-       * has had any leading and trailing white space trimmmed off.
-       * This is destructive action and clears the buffer which holds
-       * this text, calling it again immediatly will always return null.
+      /** 
+       * Collects text between XML element tags and trims any leading or 
+       * trailing white space.
+       * 
+       * This is a destructive action and clears the buffer which holds
+       * the text. Calling it again immediatly will always return null.
        *
-       * @return the collected text or null of no such text existed
+       * @return the collected text or null if no such text exists
        */
 
       public String getTweenerText()

@@ -28,7 +28,16 @@ package gov.nasa.luv;
 
 import java.net.Socket;
 
+/** 
+ * The SocketWrangler interface wrangles sockets.
+ */
+
 public interface SocketWrangler
 {
+    /**
+     * Wrangles the specified Socket.
+     * 
+     * @param s the socket to wrangle
+     */
     public void wrangle(Socket s);
 }

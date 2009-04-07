@@ -29,22 +29,22 @@ package gov.nasa.luv;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-/** Functions as a server for data streams over a TCP socket.
- * For each incoming connection, accepts the socket,
- * and hands it off to a new instance of a SocketWrangler
- * as specified by a SocketWranglerFactory.
+/** 
+ * The SocketServer class functions as a server for data streams over a TCP socket.
+ * For each incoming connection, accepts the socket, and hands it off to a new 
+ * instance of a SocketWrangler as specified by a SocketWranglerFactory.
  */
 
 public class SocketServer
 {
     public SocketWranglerFactory wranglerFactory;
 
-    /** Construct a server which listens on a given port.
+    /** 
+     * Constructs a server which listens on the specified port.
      *
      * @param port port on which this server listens. 
      * @param factory An instance of SocketWranglerFactory to create socket wranglers.
      */
-
     public SocketServer(final int port, SocketWranglerFactory factory)
     {
 	wranglerFactory = factory;
@@ -59,12 +59,12 @@ public class SocketServer
 	}.start();
     }
 
-    /** Wait for client to connect on a given port.  This method
+    /**
+     * Waits for client to connect on a given port.  This method
      * blocks indefinitely and spins off threads for each connection.
      *
      * @param port port on which this server listens.
      */
-
     public void accept(int port)
     {
 	try 
@@ -82,7 +82,8 @@ public class SocketServer
 	}
     }
 
-    /** Handle a new connection being opened by a remote system.  This
+    /** 
+     * Handles a new connection being opened by a remote system.  This
      * method spins off a thread which dispatches incomming data.
      * Override this method to catch new connection events.
      *
