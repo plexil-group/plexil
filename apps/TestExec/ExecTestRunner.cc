@@ -237,7 +237,16 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
    // execute plan
 
    clock_t time = clock();
-   intf.run(*(script.FirstChildElement("PLEXILScript")));
+   TiXmlElement* scriptElement = script.FirstChildElement("PLEXILScript");
+   if (scriptElement == 0)
+     {
+       std::cout << "Error: File '"
+                 << scriptName
+                 << "' is not a valid PLEXIL simulator script"
+                 << std::endl;
+       return -1;
+     }
+   intf.run(*scriptElement);
    debugMsg("Time", "Time spent in execution: " << clock() - time);
 
    // clean up
