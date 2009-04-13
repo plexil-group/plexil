@@ -362,7 +362,6 @@ public class Constants
          "xml",
          "plx",
          "pls",
-         "epx",
       };
       
       /** Represents an empty Plexil script. */ 
