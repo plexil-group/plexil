@@ -2,7 +2,7 @@ This directory contains libraries that perform various common
 interfacing tasks.  See [[Interfacing|Interfacing with External Systems]] 
 for more information on using the interface libraries.
 
-Build this module by typing 'jam'.
+Build this module by typing './build.sh'.
 
 The CORBA code that used to live in this directory has been moved to
 ../CORBA .
