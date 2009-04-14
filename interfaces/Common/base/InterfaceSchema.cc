@@ -24,49 +24,42 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CommonDefs.hh"
-#include <string>
-#include <vector>
+#include "InterfaceSchema.hh"
 
 namespace PLEXIL
 {
 
   /**
-   * @brief This class provides utilities related to the generic interface XML schema.
+   * Extract comma separated arguments from a character string.
+   * @return pointer to vector of strings
+   * @note Caller is responsible for disposing of the vector.
    */
 
-  class InterfaceSchema
+  std::vector<std::string> * 
+  InterfaceSchema::parseCommaSeparatedArgs(const char * argString)
   {
-  public:
+    static const char * whitespace = " \t\n";
+    std::vector<std::string> * result = new std::vector<std::string>();
+    const char * next = argString;
+    while ((next != NULL) && (strlen(next) > 0))
+      {
+	// skip leading whitespace
+	unsigned int offset = strspn(next, whitespace);
+	if (offset == strlen(next))
+	  break; // at end of string
+	next += offset;
 
-    //
-    // XML tags
-    //
+	// look for comma or end of string
+	const char * comma = strchr(next, ',');
+	unsigned int len = 
+	  (comma == NULL) ? strlen(next) : comma - next;
 
-    DECLARE_STATIC_CLASS_CONST(char*, ADAPTOR_TAG, "Adaptor");
-    DECLARE_STATIC_CLASS_CONST(char*, COMMAND_NAMES_TAG, "CommandNames");
-    DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_ADAPTOR_TAG, "DefaultAdaptor");
-    DECLARE_STATIC_CLASS_CONST(char*, FUNCTION_NAMES_TAG, "FunctionNames");
-    DECLARE_STATIC_CLASS_CONST(char*, INTERFACES_TAG, "Interfaces");
-    DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TAG, "Listener");
-    DECLARE_STATIC_CLASS_CONST(char*, LOOKUP_NAMES_TAG, "LookupNames");
-    DECLARE_STATIC_CLASS_CONST(char*, PLANNER_UPDATE_TAG, "PlannerUpdate");
+	// construct result string
+	result->push_back(std::string(next, len));
+	next =
+	  (comma == NULL) ? NULL : comma + 1;
+      }
+    return result;
+  }
 
-    //
-    // Attributes
-    //
-
-    DECLARE_STATIC_CLASS_CONST(char*, ADAPTOR_TYPE_ATTR, "AdaptorType");
-    DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TYPE_ATTR, "ListenerType");
-
-
-    /**
-     * Extract comma separated arguments from a character string.
-     * @return pointer to vector of strings
-     * @note Caller is responsible for disposing of the vector.
-     */
-
-    static std::vector<std::string> * parseCommaSeparatedArgs(const char * argString);
-
-  };
 }
