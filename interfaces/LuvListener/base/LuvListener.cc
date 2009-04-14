@@ -37,7 +37,7 @@
 #include "Node.hh"
 
 #include "CommonDefs.hh"
-#include "ExecDefs.hh"
+#include "PlexilExec.hh"
 #include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
 #include "LabelStr.hh"
@@ -66,32 +66,32 @@
 
 namespace PLEXIL 
 {
-   LuvServer::LuvServer(const int port, const bool block, PlexilExecId exec)  
-      : m_port(port), m_block(block), m_exec(exec)
-   {
-      // create the thread which listens for connections
+  LuvServer::LuvServer(const int port, const bool block, PlexilExecId exec)  
+    : m_port(port), m_block(block), m_exec(exec)
+  {
+    // create the thread which listens for connections
 
-      if (pthread_create(&m_thread, NULL, handleConnection, (void*)this) != 0)
-         throw SocketException("Could not create listen thread.");
-   }
+    if (pthread_create(&m_thread, NULL, handleConnection, (void*)this) != 0)
+      throw SocketException("Could not create listen thread.");
+  }
 
-   void* handleConnection(void* ptr)
-   {
-      LuvServer* luvServer = (LuvServer*)ptr;
+  void* handleConnection(void* ptr)
+  {
+    LuvServer* luvServer = (LuvServer*)ptr;
       
-      // run forever
+    // run forever
       
-      while (true)
+    while (true)
       {
-         // create a waiting socket
-         SHOW("new socket");
-         ServerSocket ss(luvServer->getPort());
-         SHOW(luvServer->getPort());
+        // create a waiting socket
+        SHOW("new socket");
+        ServerSocket ss(luvServer->getPort());
+        SHOW(luvServer->getPort());
 
-         // if we've got a connection
+        // if we've got a connection
 
-         if (ss.accept(ss))
-         {
+        if (ss.accept(ss))
+          {
             SHOW("connection");
 
             // create a listener and attach it to the exec
@@ -101,238 +101,304 @@ namespace PLEXIL
 
             // wait for the connection to go down
 
-//             while (ss.isOpen())
-//             {
-//                std::cout << "." << std::flush;
-//                usleep(VULTURE_DELAY);
-//             }
+            //             while (ss.isOpen())
+            //             {
+            //                std::cout << "." << std::flush;
+            //                usleep(VULTURE_DELAY);
+            //             }
 
             SHOW("loop");
-         }
+          }
       }
 
-      return ptr;
-   }
+    return ptr;
+  }
 
-   // create a listener given a host and port
 
-   LuvListener::LuvListener(const std::string& host, 
-                            const int port, 
-                            const bool block):
+  // create a listener given configuration XML
+
+  LuvListener::LuvListener(const TiXmlElement* xml)
+    : ExecListener(xml),
+      m_socket(NULL),
+      m_block(false)
+  {
+    // parse XML to find host and port
+    // *** NYI ***
+
+  }
+
+  // create a listener given a host and port
+
+  LuvListener::LuvListener(const std::string& host, 
+                           const int port, 
+                           const bool block)
+    : ExecListener(),
+      m_socket(NULL),
       m_block(block)
-   {
-      m_socket = new ClientSocket(host, port);
-   }
+  {
+    m_socket = new ClientSocket(host, port);
+  }
 
-   // create a listener given a socket
+  // create a listener given a socket
 
-   LuvListener::LuvListener(Socket* socket, const bool block):
+  LuvListener::LuvListener(Socket* socket, const bool block)
+    : ExecListener(),
+      m_socket(socket),
       m_block(block)
-   {
-      m_socket = socket;
-   }
+  {
+  }
 
-   LuvListener::~LuvListener()
-   {
-      delete m_socket;
-   }
+  LuvListener::~LuvListener()
+  {
+    delete m_socket;
+  }
 
-   // handle node state transition event
+  /**
+   * @brief Perform listener-specific initialization.
+   * @note Dummy for now.
+   */
+  void LuvListener::initialize()
+  {
+  }
 
-   void LuvListener::sendPlanInfo() const
-   {
-      TiXmlElement planInfo(PLAN_INFO_STR);
-      TiXmlElement block(VIEWER_BLOCKS_STR);
-      block.InsertEndChild(TiXmlText(m_block ? TRUE_STR : FALSE_STR));
-      planInfo.InsertEndChild(block);
-      sendMessage(planInfo);
-   }
+  /**
+   * @brief Perform listener-specific startup.
+   * @note Dummy for now.
+   */
+  void LuvListener::start()
+  {
+  }
 
-   // handle node state transition event
+  /**
+   * @brief Perform listener-specific actions to stop.
+   * @note Dummy for now.
+   */
+  void LuvListener::stop()
+  {
+  }
 
-   void LuvListener::notifyOfTransition(const LabelStr& prevState, 
-                                        const NodeId& node) const
-   {
-      // create update 
+  /**
+   * @brief Perform listener-specific actions to reset to initialized state.
+   * @note Dummy for now.
+   */
+  void LuvListener::reset()
+  {
+  }
 
-      TiXmlElement nodeStateUpdate(NODE_STATE_UPDATE_STR);
+  /**
+   * @brief Perform listener-specific actions to shut down.
+   * @note Dummy for now.
+   */
+  void LuvListener::shutdown()
+  {
+  }
 
-      // add state
+  // handle node state transition event
 
-      TiXmlElement state(NODE_STATE_STR);
-      state.InsertEndChild(TiXmlText(node->getState().c_str()));
-      nodeStateUpdate.InsertEndChild(state);
+  void LuvListener::sendPlanInfo() const
+  {
+    TiXmlElement planInfo(PLAN_INFO_STR);
+    TiXmlElement block(VIEWER_BLOCKS_STR);
+    block.InsertEndChild(TiXmlText(m_block ? TRUE_STR : FALSE_STR));
+    planInfo.InsertEndChild(block);
+    sendMessage(planInfo);
+  }
 
-      // add outcome
+  // handle node state transition event
 
-      TiXmlElement outcome(NODE_OUTCOME_STR);
-      outcome.InsertEndChild(TiXmlText(node->getOutcome().c_str()));
-      nodeStateUpdate.InsertEndChild(outcome);
+  void LuvListener::notifyOfTransition(const LabelStr& prevState, 
+                                       const NodeId& node) const
+  {
+    // create update 
 
-      // add failure type
+    TiXmlElement nodeStateUpdate(NODE_STATE_UPDATE_STR);
 
-      TiXmlElement failureType(NODE_FAILURE_TYPE_STR);
-      failureType.InsertEndChild(TiXmlText(node->getFailureType().c_str()));
-      nodeStateUpdate.InsertEndChild(failureType);
+    // add state
+
+    TiXmlElement state(NODE_STATE_STR);
+    state.InsertEndChild(TiXmlText(node->getState().c_str()));
+    nodeStateUpdate.InsertEndChild(state);
+
+    // add outcome
+
+    TiXmlElement outcome(NODE_OUTCOME_STR);
+    outcome.InsertEndChild(TiXmlText(node->getOutcome().c_str()));
+    nodeStateUpdate.InsertEndChild(outcome);
+
+    // add failure type
+
+    TiXmlElement failureType(NODE_FAILURE_TYPE_STR);
+    failureType.InsertEndChild(TiXmlText(node->getFailureType().c_str()));
+    nodeStateUpdate.InsertEndChild(failureType);
       
-      // add the condition states
+    // add the condition states
       
-      TiXmlElement conditions(CONDITIONS_STR);
-      nodeStateUpdate.InsertEndChild(constructConditions(conditions, node));
+    TiXmlElement conditions(CONDITIONS_STR);
+    nodeStateUpdate.InsertEndChild(constructConditions(conditions, node));
 
 
-      // add the path
+    // add the path
       
-      TiXmlElement path(NODE_PATH_STR);
-      constructNodePath(path, node);
-      nodeStateUpdate.InsertEndChild(path);
+    TiXmlElement path(NODE_PATH_STR);
+    constructNodePath(path, node);
+    nodeStateUpdate.InsertEndChild(path);
 
-      // send it off
+    // send it off
       
-      std::ostringstream buffer;
-      buffer << nodeStateUpdate;
-      sendMessage(nodeStateUpdate);
-   }
+    std::ostringstream buffer;
+    buffer << nodeStateUpdate;
+    sendMessage(nodeStateUpdate);
+  }
    
-   // handle add plan event
+  // handle add plan event
 
-   void LuvListener::notifyOfAddPlan(const PlexilNodeId& plan,
-                                     const LabelStr& parent) const
-   {
-      // send an empty plan info
+  void LuvListener::notifyOfAddPlan(const PlexilNodeId& plan,
+                                    const LabelStr& parent) const
+  {
+    // send an empty plan info
 
-      sendPlanInfo();
+    sendPlanInfo();
 
-      // create a plexil wrapper plan and stick the plan in it
+    // create a plexil wrapper plan and stick the plan in it
 
-      TiXmlElement planXml(PLEXIL_PLAN_STR);
-      planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
+    TiXmlElement planXml(PLEXIL_PLAN_STR);
+    planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
 
-      // send plan to viewer
+    // send plan to viewer
       
-      sendMessage(planXml);
-   }
+    sendMessage(planXml);
+  }
    
-   // handle add library event
+  // handle add library event
 
-   void LuvListener::notifyOfAddLibrary(const PlexilNodeId& plan) const
-   {
-      // send an empty plan info
+  void LuvListener::notifyOfAddLibrary(const PlexilNodeId& plan) const
+  {
+    // send an empty plan info
 
-      sendPlanInfo();
+    sendPlanInfo();
 
-      // create a library wrapper and stick the plan in it
+    // create a library wrapper and stick the plan in it
 
-      TiXmlElement planXml(PLEXIL_LIBRARY_STR);
-      planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
+    TiXmlElement planXml(PLEXIL_LIBRARY_STR);
+    planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
 
-      // send plan to viewer
+    // send plan to viewer
       
-      sendMessage(planXml);
-   }
-   
-   // given a node id establish the path from the root to that node
-   
-   TiXmlNode& LuvListener::constructNodePath(TiXmlNode& path, 
-                                             const NodeId& node) const
-   {
-      if (node->getParent().isId())
-         constructNodePath(path, node->getParent());
-      
-      TiXmlElement nodeId(NODE_ID_STR);
-      nodeId.InsertEndChild(TiXmlText(node->getNodeId().toString()));
-      path.InsertEndChild(nodeId);
+    sendMessage(planXml);
+  }
 
-      return path;
-   }
+
+  //
+  // Static member functions
+  //
    
-   // given a node id establish the state of the conditions for this node
+  // given a node id establish the path from the root to that node
    
-   TiXmlNode& LuvListener::constructConditions(TiXmlNode& conditions,
-                                               const NodeId& node) const
-   {
-      const std::set<double>& allConditions = node->ALL_CONDITIONS();
-      for (std::set<double>::const_iterator 
-              conditionName = allConditions.begin();
-           conditionName != allConditions.end(); ++conditionName)
+  TiXmlNode& LuvListener::constructNodePath(TiXmlNode& path, 
+                                            const NodeId& node)
+  {
+    if (node->getParent().isId())
+      constructNodePath(path, node->getParent());
+      
+    TiXmlElement nodeId(NODE_ID_STR);
+    nodeId.InsertEndChild(TiXmlText(node->getNodeId().toString()));
+    path.InsertEndChild(nodeId);
+
+    return path;
+  }
+   
+  // given a node id establish the state of the conditions for this node
+   
+  TiXmlNode& LuvListener::constructConditions(TiXmlNode& conditions,
+                                              const NodeId& node)
+  {
+    const std::set<double>& allConditions = node->ALL_CONDITIONS();
+    for (std::set<double>::const_iterator 
+           conditionName = allConditions.begin();
+         conditionName != allConditions.end(); ++conditionName)
       {
-         LabelStr name(*conditionName);
-         TiXmlElement condition(name.toString());
-         condition.InsertEndChild(TiXmlText(node->getCondition(name)->valueString()));
-         conditions.InsertEndChild(condition);
+        LabelStr name(*conditionName);
+        TiXmlElement condition(name.toString());
+        condition.InsertEndChild(TiXmlText(node->getCondition(name)->valueString()));
+        conditions.InsertEndChild(condition);
       }
 
-      return conditions;
-   }
+    return conditions;
+  }
 
-   // send a message to luv
 
-   void LuvListener::sendMessage(const TiXmlNode& xml) const
-   {
-      std::ostringstream buffer;
-      buffer << xml;
-      debugMsg("LuvListener:sendMessage", " sending:\n" << buffer.str());
-      sendMessage(buffer.str());
-   }
+  //
+  // Internal helper methods
+  //
 
-   // send a string message to luv
+  // send a message to luv
 
-   void LuvListener::sendMessage(const std::string& message) const
-   {
-      *m_socket << message << LUV_END_OF_MESSAGE;
-      waitForAcknowledge();
-   }
+  void LuvListener::sendMessage(const TiXmlNode& xml) const
+  {
+    std::ostringstream buffer;
+    buffer << xml;
+    debugMsg("LuvListener:sendMessage", " sending:\n" << buffer.str());
+    sendMessage(buffer.str());
+  }
 
-   // send a stream with a tag wrapped around it
+  // send a string message to luv
+
+  void LuvListener::sendMessage(const std::string& message) const
+  {
+    *m_socket << message << LUV_END_OF_MESSAGE;
+    waitForAcknowledge();
+  }
+
+  // send a stream with a tag wrapped around it
    
-   void LuvListener::sendTaggedStream(std::istream& stream, 
-                                      const std::string& tag) const
-   {
-      char buffer[256];
+  void LuvListener::sendTaggedStream(std::istream& stream, 
+                                     const std::string& tag) const
+  {
+    char buffer[256];
 
-      *m_socket << "<" << tag << ">";
-      do
+    *m_socket << "<" << tag << ">";
+    do
       {
-         stream.read(buffer, sizeof(buffer));
-         m_socket->send(buffer, stream.gcount());
+        stream.read(buffer, sizeof(buffer));
+        m_socket->send(buffer, stream.gcount());
       }
-      while (!stream.eof());
-      *m_socket << "</" << tag << ">";
+    while (!stream.eof());
+    *m_socket << "</" << tag << ">";
 
-      *m_socket << LUV_END_OF_MESSAGE;
-      waitForAcknowledge();
-   }
+    *m_socket << LUV_END_OF_MESSAGE;
+    waitForAcknowledge();
+  }
 
-   // send the contents of an istream to luv
+  // send the contents of an istream to luv
 
-   void LuvListener::sendStream(std::istream& stream) const
-   {
-      char buffer[256];
+  void LuvListener::sendStream(std::istream& stream) const
+  {
+    char buffer[256];
 
-      do
+    do
       {
-         stream.read(buffer, sizeof(buffer));
-         m_socket->send(buffer, stream.gcount());
+        stream.read(buffer, sizeof(buffer));
+        m_socket->send(buffer, stream.gcount());
       }
-      while (!stream.eof());
+    while (!stream.eof());
       
-      *m_socket << LUV_END_OF_MESSAGE;
-      waitForAcknowledge();
-   }
+    *m_socket << LUV_END_OF_MESSAGE;
+    waitForAcknowledge();
+  }
 
-   // wait for luv to send back an acknowledgement
+  // wait for luv to send back an acknowledgement
 
-   void LuvListener::waitForAcknowledge() const
-   {
-      if (m_block)
+  void LuvListener::waitForAcknowledge() const
+  {
+    if (m_block)
       {
-         std::string buffer;
+        std::string buffer;
          
-         do
-         {
+        do
+          {
             *m_socket >> buffer;
-         }
-         while (buffer[0] != LUV_END_OF_MESSAGE);
+          }
+        while (buffer[0] != LUV_END_OF_MESSAGE);
       }
-   }
+  }
 }

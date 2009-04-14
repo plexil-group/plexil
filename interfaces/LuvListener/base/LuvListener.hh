@@ -27,9 +27,8 @@
 #ifndef _H_LuvListener
 #define _H_LuvListener
 
-#include "ExecDefs.hh"
+#include "ExecListener.hh"
 #include "PlexilPlan.hh"
-#include "PlexilExec.hh"
 #include "LabelStr.hh"
 #include "ClientSocket.h"
 #include "ServerSocket.h"
@@ -66,34 +65,102 @@ namespace PLEXIL
 
    class LuvListener : public ExecListener
    {
-      public:
+   public:
 
-         LuvListener(Socket* socket, const bool block = false);
-         LuvListener(const std::string& host, const int port, 
-                     const bool block = false);
-         ~LuvListener();
+     LuvListener(const TiXmlElement* xml);
+     LuvListener(const std::string& host, const int port, 
+                 const bool block = false);
+     LuvListener(Socket* socket, const bool block = false);
 
-         void notifyOfTransition(const LabelStr& prevState, 
-                                 const NodeId& node) const;
-         void notifyOfAddPlan(const PlexilNodeId& plan, 
-                              const LabelStr& parent) const;
-         void notifyOfAddLibrary(const PlexilNodeId& plan) const;
+     ~LuvListener();
 
-         TiXmlNode& constructNodePath(TiXmlNode& path,
-                                      const NodeId& node) const;
-         TiXmlNode& constructConditions(TiXmlNode& conditions,
-                                  const NodeId& node) const;
-         void sendPlanInfo() const;
-         void sendMessage(const TiXmlNode& xml) const;
-         void sendMessage(const std::string& message) const;
-         void sendTaggedStream(std::istream& stream, 
-                               const std::string& tag) const;
-         void sendStream(std::istream& stream) const;
-         void waitForAcknowledge() const;
+     /**
+      * @brief Perform listener-specific initialization.
+      */
+     virtual void initialize();
 
-      private:
-         Socket* m_socket;
-         bool    m_block;
+     /**
+      * @brief Perform listener-specific startup.
+      */
+     virtual void start();
+
+     /**
+      * @brief Perform listener-specific actions to stop.
+      */
+     virtual void stop();
+
+     /**
+      * @brief Perform listener-specific actions to reset to initialized state.
+      */
+     virtual void reset();
+
+     /**
+      * @brief Perform listener-specific actions to shut down.
+      */
+     virtual void shutdown();
+
+    /**
+     * @brief Notify that a node has changed state.
+     * @param prevState The old state.
+     * @param node The node that has transitioned.
+     * @note The current state is accessible via the node.
+     */
+     void notifyOfTransition(const LabelStr& prevState, 
+                             const NodeId& node) const;
+
+    /**
+     * @brief Notify that a plan has been received by the Exec.
+     * @param plan The intermediate representation of the plan.
+     * @param parent The name of the parent node under which this plan will be inserted.
+     */
+     void notifyOfAddPlan(const PlexilNodeId& plan, 
+                          const LabelStr& parent) const;
+
+    /**
+     * @brief Notify that a library node has been received by the Exec.
+     * @param libNode The intermediate representation of the plan.
+     * @note The default method is deprecated and will go away in a future release.
+     */
+     void notifyOfAddLibrary(const PlexilNodeId& plan) const;
+
+   protected:
+
+     //
+     // Static helper methods
+     //
+
+     static TiXmlNode& constructNodePath(TiXmlNode& path,
+                                         const NodeId& node);
+     static TiXmlNode& constructConditions(TiXmlNode& conditions,
+                                           const NodeId& node);
+
+     //
+     // Internal methods
+     //
+
+     void sendPlanInfo() const;
+     void sendMessage(const TiXmlNode& xml) const;
+     void sendMessage(const std::string& message) const;
+     void waitForAcknowledge() const;
+
+     // *** these don't seem to be used anywhere ***
+     void sendTaggedStream(std::istream& stream, 
+                           const std::string& tag) const;
+     void sendStream(std::istream& stream) const;
+
+   private:
+     //
+     // Deliberately unimplemented
+     //
+     LuvListener();
+     LuvListener(const LuvListener&);
+     LuvListener& operator=(const LuvListener&);
+
+     //
+     // Member variables
+     //
+     Socket* m_socket;
+     bool    m_block;
    };
 }
 
