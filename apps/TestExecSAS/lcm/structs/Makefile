@@ -3,7 +3,7 @@ STRUCTS = driveCommand driveResponse telemetryDouble
 CXX = g++
 
 ifndef LCM_PATH
-	LCM_PATH = /home/bvk/Packages/lcm-0.2.1
+	LCM_PATH = $(PLEXIL_HOME)/interfaces/lcm-0.2.1
 endif
 
 LCMGEN := $(LCM_PATH)/bin/lcm-gen
