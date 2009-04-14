@@ -40,21 +40,7 @@ namespace PLEXIL
   class ExternalInterface;
   typedef Id<ExternalInterface> ExternalInterfaceId;
 
-  class ExecListener {
-  public:
-    ExecListener() : m_id(this) {}
-    virtual ~ExecListener() { m_id.remove(); }
-    virtual void notifyOfTransition(const LabelStr& prevState, const NodeId& node) const = 0;
-    virtual void notifyOfAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const = 0;
-    // *** Temporarily provide default method untill all apps updated.
-    virtual void notifyOfAddLibrary(const PlexilNodeId& libNode) const /* = 0; */ {}
-    const ExecListenerId& getId() const { return m_id; }
-
-    //not sure if anybody wants this
-    //void notifyOfConditionChange(const NodeId& node, const LabelStr& condition, const bool value) {}
-  private:
-    ExecListenerId m_id;
-  };
+  // *** ExecListener now has its own file ***
 
   /**
    * @brief Class for managing the messages from nodes to the executive.  Primarily to facilitate testing.

@@ -25,6 +25,7 @@
 */
 
 #include "PlexilExec.hh"
+#include "ExecListener.hh"
 #include "Node.hh"
 #include "Expression.hh"
 #include "CoreExpressions.hh"
