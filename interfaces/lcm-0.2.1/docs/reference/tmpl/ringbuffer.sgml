@@ -1,0 +1,82 @@
+<!-- ##### SECTION Title ##### -->
+ringbuffer
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### TYPEDEF lcm_ringbuf_t ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION lcm_ringbuf_new ##### -->
+<para>
+
+</para>
+
+@ring_size: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_ringbuf_free ##### -->
+<para>
+
+</para>
+
+@ring: 
+
+
+<!-- ##### FUNCTION lcm_ringbuf_alloc ##### -->
+<para>
+
+</para>
+
+@ring: 
+@len: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_ringbuf_shrink_last ##### -->
+<para>
+
+</para>
+
+@ring: 
+@buf: 
+@len: 
+
+
+<!-- ##### FUNCTION lcm_ringbuf_available ##### -->
+<para>
+
+</para>
+
+@ring: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_ringbuf_dealloc ##### -->
+<para>
+
+</para>
+
+@ring: 
+@buf: 
+
+
