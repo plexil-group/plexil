@@ -69,3 +69,4 @@ clean:
 	@ -rm -rf $(OBJ_DIR)
 	@ -rm -rf $(LIB_DIR)
 	@ $(MAKE) -C RoboSimSimulator $@
+	@ $(MAKE) -C PlexilSimulator $@
