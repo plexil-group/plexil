@@ -6,7 +6,6 @@
 default:
 	@ ( cd TestExec; jam )
 	@ $(MAKE) -C StandAloneSimulator simcore SHARED=1
-	@ $(MAKE) -C StandAloneSimulator/PlexilSimulator
 
 clean:
 	@ ( cd TestExec; jam $@ )
