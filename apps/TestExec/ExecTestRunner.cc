@@ -25,6 +25,7 @@
 */
 
 #include "PlexilExec.hh"
+#include "ExecListener.hh"
 #include "TestExternalInterface.hh"
 #include "tinyxml.h"
 #include "SocketException.h"
