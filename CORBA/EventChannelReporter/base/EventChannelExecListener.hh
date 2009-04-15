@@ -27,7 +27,7 @@
 #ifndef EC_EXEC_LISTENER_H
 #define EC_EXEC_LISTENER_H
 
-#include "PlexilExec.hh" // for ExecListener
+#include "ExecListener.hh" // for ExecListener
 #include "orbsvcs/CosEventChannelAdminC.h" 
 #include "orbsvcs/CosEventCommS.h" 
 
