@@ -58,6 +58,11 @@ namespace PLEXIL
   {
 
   public:
+
+    //
+    // Class constants
+    //
+
     /**
      * @brief Constructor.
      * @param execInterface A reference to the AdaptorExecInterface which owns this adaptor.
@@ -76,6 +81,59 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~InterfaceAdaptor();
+
+    //
+    // API to ExecApplication
+    //
+
+    /**
+     * @brief Initializes the adaptor, possibly using its configuration data.
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool initialize();
+
+    /**
+     * @brief Starts the adaptor, possibly using its configuration data.  
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool start();
+
+    /**
+     * @brief Suspend the adaptor.
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool suspend();
+
+    /**
+     * @brief Resumes the adaptor, possibly using its configuration data.
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool resume();
+
+    /**
+     * @brief Stops the adaptor.  
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool stop();
+
+    /**
+     * @brief Resets the adaptor.  
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool reset();
+
+    /**
+     * @brief Shuts down the adaptor, releasing any of its resources.
+     * @return true if successful, false otherwise.
+     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     */
+    virtual bool shutdown();
 
     /**
      * @brief Register one LookupOnChange.
@@ -200,6 +258,13 @@ namespace PLEXIL
     void unregisterAsynchLookup(const LookupKey& uniqueId);
 
     /**
+     * @brief Register this adaptor based on its XML configuration data.
+     * @note The adaptor is presumed to be fully initialized and working at the time of this call.
+     * @note This is a default method; adaptors are free to override it.
+     */
+    virtual void registerAdaptor();
+
+    /**
      * @brief Get the ID of this instance.
      */
     InterfaceAdaptorId getId()
@@ -224,6 +289,10 @@ namespace PLEXIL
     }
 
   protected:
+
+    //
+    // API which all subclasses must implement
+    //
 
     //
     // Methods provided by the base class to facilitate implementations
@@ -260,12 +329,15 @@ namespace PLEXIL
     InterfaceAdaptor(const InterfaceAdaptor &);
     InterfaceAdaptor & operator=(const InterfaceAdaptor &);
 
+    //
+    // Member variables
+    //
+
     const TiXmlElement* m_xml;
 
     InterfaceAdaptorId m_id;
 
     std::map<StateKey, std::set<LookupKey> > m_asynchLookups;
-
   };
 
   typedef Id<InterfaceAdaptor> InterfaceAdaptorId;

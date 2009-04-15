@@ -26,6 +26,7 @@
 
 #include "AdaptorFactory.hh"
 #include "InterfaceAdaptor.hh"
+#include "AdaptorExecInterface.hh"
 #include "tinyxml.h"
 
 namespace PLEXIL
@@ -40,10 +41,11 @@ namespace PLEXIL
 
   InterfaceAdaptorId 
   AdaptorFactory::createInstance(const LabelStr& name,
-                                 const TiXmlElement* xml)
+                                 const TiXmlElement* xml,
+                                 AdaptorExecInterface& execInterface)
   {
     bool dummy;
-    return createInstance(name, xml, dummy);
+    return createInstance(name, xml, execInterface, dummy);
   }
 
 
@@ -60,12 +62,13 @@ namespace PLEXIL
   InterfaceAdaptorId 
   AdaptorFactory::createInstance(const LabelStr& name,
                                  const TiXmlElement* xml,
+                                 AdaptorExecInterface& execInterface,
                                  bool& wasCreated)
   {
     std::map<double, AdaptorFactory*>::const_iterator it = factoryMap().find(name);
     assertTrueMsg(it != factoryMap().end(),
 		  "Error: No adaptor factory registered for name '" << name.toString() << "'.");
-    InterfaceAdaptorId retval = it->second->create(xml, wasCreated);
+    InterfaceAdaptorId retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("AdaptorFactory:createInstance", " Created " << name.toString());
     return retval;
   }

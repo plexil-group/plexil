@@ -27,7 +27,6 @@
 //
 // *** TO DO ***
 //  - Deal with ExecListeners as we do adaptors
-//  - Find right place to load initial libraries & plans
 //
 
 #include "ExecApplication.hh"
@@ -35,6 +34,7 @@
 #include "AdaptorFactory.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
 #include "Expressions.hh"
 #include "InterfaceAdaptor.hh"
@@ -57,8 +57,18 @@ namespace PLEXIL
 
   ExecApplication::~ExecApplication()
   {
-    // unregister and delete adaptors
-    // *** NYI ***
+    // delete references to adaptors
+    m_adaptors.clear();
+
+    // unregister and delete listeners
+    std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+    while (it != m_listeners.end())
+      {
+        InterfaceAdaptorId ia = *it;
+        it = m_listeners.erase(it);
+        m_exec->removeListener(ia);
+        delete (InterfaceAdaptor*) ia;
+      }
 
     delete (ThreadedExternalInterface*) m_interface;
     delete (PlexilExec*) m_exec;
@@ -88,8 +98,9 @@ namespace PLEXIL
     constructInterfaces(configXml);
 
     // Initialize them
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         it != m_adaptors.end();
+    m_interface->initialize();
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+         it != m_listeners.end();
          it++)
       {
         (*it)->initialize();
@@ -109,8 +120,9 @@ namespace PLEXIL
       return false;
 
     // Start 'em up!
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         it != m_adaptors.end();
+    m_interface->startInterface();
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+         it != m_listeners.end();
          it++)
       {
         (*it)->start();
@@ -130,11 +142,8 @@ namespace PLEXIL
     if (m_state != APP_INTERFACES_STARTED)
       return false;
 
-    // Start the Exec
-
     // Start the event listener thread
     m_interface->spawnExecThread();
-
     
     m_state = APP_RUNNING;
     return true;
@@ -149,11 +158,8 @@ namespace PLEXIL
     if (m_state != APP_RUNNING)
       return false;
 
-    // Suspend the Exec
-    // *** NYI ***
-
-    // Suspend the interfaces
-    // *** NYI ***
+    // Suspend the Exec and interfaces
+    m_interface->suspend();
     
     m_state = APP_SUSPENDED;
     return true;
@@ -169,10 +175,7 @@ namespace PLEXIL
       return false;
 
     // Resume the interfaces
-    // *** NYI ***
-
-    // Resume the Exec
-    // *** NYI ***
+    m_interface->resume();
     
     m_state = APP_RUNNING;
     return true;
@@ -188,12 +191,12 @@ namespace PLEXIL
         && m_state != APP_SUSPENDED)
       return false;
 
-    // Stop the Exec
-    // *** NYI ***
+    // Stop the Exec and interfaces
+    m_interface->stop();
 
-    // Stop interfaces
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         it != m_adaptors.end();
+    // Stop listeners
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+         it != m_listeners.end();
          it++)
       {
         (*it)->stop();
@@ -212,6 +215,15 @@ namespace PLEXIL
   {
     if (m_state != APP_STOPPED)
       return false;
+
+    // Reset interfaces
+    m_interface->reset();
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         it++)
+      {
+        (*it)->reset();
+      }
 
     // Reset the Exec
     // *** NYI ***
@@ -240,6 +252,12 @@ namespace PLEXIL
       {
         (*it)->shutdown();
       }
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         it++)
+      {
+        (*it)->shutdown();
+      }
     
     m_state = APP_SHUTDOWN;
     return true;
@@ -256,7 +274,7 @@ namespace PLEXIL
     if (configXml != 0)
       {
         const char* elementType = configXml->Value();
-        checkError(strcmp(elementType, INTERFACES_TAG) == 0,
+        checkError(strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0,
                    "constructInterfaces: invalid configuration XML: \n"
                    << *configXml);
         // Walk the children of the configuration XML element
@@ -265,12 +283,14 @@ namespace PLEXIL
         while (element != 0)
           {
             const char* elementType = element->Value();
-            if (strcmp(elementType, ADAPTOR_TAG) == 0)
+            if (strcmp(elementType, InterfaceSchema::ADAPTOR_TAG()) == 0)
               {
                 // Get the kind of adaptor to make
-                const char* adaptorType = element->Attribute(ADAPTOR_TYPE_ATTR);
+                const char* adaptorType = 
+                  element->Attribute(InterfaceSchema::ADAPTOR_TYPE_ATTR());
                 checkError(adaptorType != 0,
-                           "constructInterfaces: no " << ADAPTOR_TYPE_ATTR
+                           "constructInterfaces: no "
+                           << InterfaceSchema::ADAPTOR_TYPE_ATTR()
                            << " attribute for adaptor XML:\n"
                            << *element);
                 
@@ -284,12 +304,14 @@ namespace PLEXIL
                            << adaptorType);
                 m_adaptors.insert(adaptor);
               }
-            else if (strcmp(elementType, LISTENER_TAG) == 0)
+            else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
               {
                 // Get the kind of listener to make
-                const char* listenerType = element->Attribute(LISTENER_TYPE_ATTR);
+                const char* listenerType =
+                  element->Attribute(InterfaceSchema::LISTENER_TYPE_ATTR());
                 checkError(listenerType != 0,
-                           "constructInterfaces: no " << LISTENER_TYPE_ATTR
+                           "constructInterfaces: no "
+                           << InterfaceSchema::LISTENER_TYPE_ATTR()
                            << " attribute for listener XML:\n"
                            << *element);
 

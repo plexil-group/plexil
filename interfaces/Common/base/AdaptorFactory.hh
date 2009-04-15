@@ -43,6 +43,8 @@ namespace PLEXIL
   class InterfaceAdaptor;
   typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
 
+  class AdaptorExecInterface;
+
   /**
    * @brief Factory class for InterfaceAdaptor instances.
    */
@@ -59,7 +61,8 @@ namespace PLEXIL
      */
 
     static InterfaceAdaptorId createInstance(const LabelStr& name, 
-                                             const TiXmlElement* xml);
+                                             const TiXmlElement* xml,
+                                             AdaptorExecInterface& execInterface);
 
     /**
      * @brief Creates a new InterfaceAdaptor instance with the type associated with the name and
@@ -73,6 +76,7 @@ namespace PLEXIL
 
     static InterfaceAdaptorId createInstance(const LabelStr& name,
                                              const TiXmlElement* xml,
+                                             AdaptorExecInterface& execInterface,
                                              bool& wasCreated);
 
     /**
@@ -101,6 +105,7 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdaptor.
      */
     virtual InterfaceAdaptorId create(const TiXmlElement* xml,
+                                      AdaptorExecInterface& execInterface,
                                       bool& wasCreated) const = 0;
 
     AdaptorFactory(const LabelStr& name)
@@ -150,9 +155,11 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdaptor.
      */
 
-    InterfaceAdaptorId create(const TiXmlElement* xml, bool& wasCreated) const
+    InterfaceAdaptorId create(const TiXmlElement* xml,
+                              AdaptorExecInterface& execInterface,
+                              bool& wasCreated) const
     {
-      InterfaceAdaptorId result = (new AdaptorType(xml))->getId();
+      InterfaceAdaptorId result = (new AdaptorType(xml, execInterface))->getId();
       wasCreated = true;
       return result;
     }
@@ -180,12 +187,14 @@ namespace PLEXIL
      * @return The Id for the singleton InterfaceAdaptor.
      */
 
-    InterfaceAdaptorId create(const TiXmlElement* xml, bool& wasCreated) const
+    InterfaceAdaptorId create(const TiXmlElement* xml,
+                              AdaptorExecInterface& execInterface,
+                              bool& wasCreated) const
     {
       static InterfaceAdaptorId sl_instance = InterfaceAdaptorId::noId();
       if (sl_instance.isNoId())
         {
-          sl_instance = (new AdaptorType(xml))->getId();
+          sl_instance = (new AdaptorType(xml, execInterface))->getId();
           wasCreated = true;
         }
       else
