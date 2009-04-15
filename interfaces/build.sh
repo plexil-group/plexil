@@ -29,5 +29,5 @@ jam clean
 jam
 
 cd lcm-0.2.1
-configure --prefix=$PWD
+./configure --prefix=$PWD
 make
