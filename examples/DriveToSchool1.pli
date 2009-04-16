@@ -32,22 +32,21 @@
           (Action "Radio" (Command "select_radio"))
           (Action "CD" (Command "select_CD"))))
 
+      (Comment "Drive, dealing with rain if necessary at any time.")
       (Concurrently
-       (Comment "Drive, dealing with rain if necessary at any time.")
+        (Action "HandleRain"
+          (If (LookupNow "raining")
+            (Concurrently
+              (Action "Wipers" (Command "turn_on_wipers"))
+              (Action "Lights" (Command "turn_on_lights")))))
 
-       (Action "HandleRain"
-         (If (LookupNow "raining")
-           (Concurrently
-             (Action "Wipers" (Command "turn_on_wipers"))
-             (Action "Lights" (Command "turn_on_lights")))))
-
-       (Action "DriveUntilAtSchool"
-         (Comment "A highly simplified driving task, "
-                  "which illustrates a While loop.")
-         (While (Not (LookupNow "at_school"))
-           (Action "DriveABit"
-             (EndCondition
-               (Or (LookupOnChange "at_school")
-                   (> (LookupOnChange "time")
-                      (+ 5 (StartTime "DriveABit")))))
-             (Command "drive_a_bit")))))))
+        (Action "DriveUntilAtSchool"
+          (Comment "A highly simplified driving task, "
+            "which illustrates a While loop.")
+          (While (Not (LookupNow "at_school"))
+            (Action "DriveABit"
+              (EndCondition
+                (Or (LookupOnChange "at_school")
+                    (> (LookupOnChange "time")
+                        (+ 5 (StartTime "DriveABit")))))
+              (Command "drive_a_bit")))))))

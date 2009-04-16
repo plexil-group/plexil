@@ -433,7 +433,6 @@
                </StartCondition>
                <NodeBody>
                   <NodeList>
-
                      <Node NodeType="NodeList">
                         <NodeId>HandleRain</NodeId>
                         <NodeBody>

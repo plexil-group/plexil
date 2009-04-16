@@ -212,11 +212,11 @@
         </NodeList>
       </NodeBody>
     </Node>
+<!-- Drive, dealing with rain if necessary at any time. -->
     <Node NodeType="NodeList" >
       <NodeId>plexilisp_Concurrently_11</NodeId>
       <NodeBody>
         <NodeList>
-<!-- Drive, dealing with rain if necessary at any time. -->
           <Node NodeType="NodeList" >
             <NodeId>HandleRain</NodeId>
             <NodeBody>
