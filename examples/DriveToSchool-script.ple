@@ -19,14 +19,16 @@ script {
   command-success turn_key ();
   state car_started () = true : bool;
 
-  // Handle rain
-  command-success turn_on_wipers ();
-  command-success turn_on_lights ();
-
   // Choose radio
   command-success select_radio ();
 
   // Drive until school reached
+
+  // Handle rain
+  command-success turn_on_wipers ();
+  command-success turn_on_lights ();
+
+
   command-success drive_a_bit ();
   command-success drive_a_bit ();
   command-success drive_a_bit ();

@@ -35,13 +35,13 @@
     <State name="car_started" type="bool">
       <Value>true</Value>
     </State>
+    <CommandAck name="select_radio" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
     <CommandAck name="turn_on_wipers" type="string">
       <Result>COMMAND_SUCCESS</Result>
     </CommandAck>
     <CommandAck name="turn_on_lights" type="string">
-      <Result>COMMAND_SUCCESS</Result>
-    </CommandAck>
-    <CommandAck name="select_radio" type="string">
       <Result>COMMAND_SUCCESS</Result>
     </CommandAck>
     <CommandAck name="drive_a_bit" type="string">

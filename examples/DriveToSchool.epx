@@ -117,34 +117,6 @@
       </Node>
     </Try>
 
-    <!-- Turn on lights and wipers if it is raining. -->
-    <If FileName= "DriveToSchool.ple" LineNo= "100" ColNo= "2">
-      <NodeId>HandleRain</NodeId>
-      <Condition>
-        <LookupNow>
-          <Name><StringValue>raining</StringValue></Name>
-        </LookupNow>
-      </Condition>
-      <Then>
-        <Node NodeType= "Command">
-          <NodeId>Wipers</NodeId>
-          <NodeBody>
-            <Command>
-              <Name><StringValue>turn_on_wipers</StringValue></Name>
-            </Command>
-          </NodeBody>
-        </Node>
-        <Node NodeType= "Command">
-          <NodeId>Lights</NodeId>
-          <NodeBody>
-            <Command>
-              <Name><StringValue>turn_on_lights</StringValue></Name>
-            </Command>
-          </NodeBody>
-        </Node>
-      </Then>
-    </If>
-
     <!-- Play radio or CD depending on whether there are passengers. -->
     <If FileName= "DriveToSchool.ple" LineNo= "123" ColNo= "2">
       <NodeId>SelectStation</NodeId>
@@ -185,34 +157,64 @@
           </LookupNow>
         </NOT>
       </Condition>
-        <Node NodeType= "Command">
-          <NodeId>DriveABit</NodeId>
-          <EndCondition>
-            <OR>
+
+      <!-- Turn on lights and wipers if it is raining. -->
+      <If FileName= "DriveToSchool.ple" LineNo= "100" ColNo= "2">
+        <NodeId>HandleRain</NodeId>
+        <Condition>
+          <LookupNow>
+            <Name><StringValue>raining</StringValue></Name>
+          </LookupNow>
+        </Condition>
+        <Then>
+          <Node NodeType= "Command">
+            <NodeId>Wipers</NodeId>
+            <NodeBody>
+              <Command>
+                <Name><StringValue>turn_on_wipers</StringValue></Name>
+              </Command>
+            </NodeBody>
+          </Node>
+          <Node NodeType= "Command">
+            <NodeId>Lights</NodeId>
+            <NodeBody>
+              <Command>
+                <Name><StringValue>turn_on_lights</StringValue></Name>
+              </Command>
+            </NodeBody>
+          </Node>
+        </Then>
+      </If>
+
+
+      <Node NodeType= "Command">
+        <NodeId>DriveABit</NodeId>
+        <EndCondition>
+          <OR>
+            <LookupOnChange>
+              <Name><StringValue>at_school</StringValue></Name>
+            </LookupOnChange>
+            <GT>
               <LookupOnChange>
-                <Name><StringValue>at_school</StringValue></Name>
+                <Name><StringValue>time</StringValue></Name>
               </LookupOnChange>
-              <GT>
-                <LookupOnChange>
-                  <Name><StringValue>time</StringValue></Name>
-                </LookupOnChange>
-                <ADD>
-                  <NodeTimepointValue>
-                    <NodeId>DriveABit</NodeId>
-                    <NodeStateValue>EXECUTING</NodeStateValue>
-                    <Timepoint>START</Timepoint>
-                  </NodeTimepointValue>
-                  <IntegerValue>5</IntegerValue>
-                </ADD>
-              </GT>
-            </OR>
-          </EndCondition>
-          <NodeBody>
-            <Command>
-              <Name><StringValue>drive_a_bit</StringValue></Name>
-            </Command>
-          </NodeBody>
-        </Node>
+              <ADD>
+                <NodeTimepointValue>
+                  <NodeId>DriveABit</NodeId>
+                  <NodeStateValue>EXECUTING</NodeStateValue>
+                  <Timepoint>START</Timepoint>
+                </NodeTimepointValue>
+                <IntegerValue>5</IntegerValue>
+              </ADD>
+            </GT>
+          </OR>
+        </EndCondition>
+        <NodeBody>
+          <Command>
+            <Name><StringValue>drive_a_bit</StringValue></Name>
+          </Command>
+        </NodeBody>
+      </Node>
     </While>
   </Sequence>
 </PlexilPlan>

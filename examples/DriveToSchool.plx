@@ -56,12 +56,6 @@
                   </EQInternal>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>HandleRain</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
                         <NodeId>SelectStation</NodeId>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
@@ -293,102 +287,6 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" FileName="DriveToSchool.ple" LineNo="100" ColNo="2">
-               <NodeId>HandleRain</NodeId>
-               <VariableDeclarations>
-                  <DeclareVariable>
-                     <Name>ep2cp_test</Name>
-                     <Type>Boolean</Type>
-                  </DeclareVariable>
-               </VariableDeclarations>
-               <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>StartCar</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
-               </StartCondition>
-               <NodeBody>
-                  <NodeList>
-                     <Node NodeType="Assignment">
-                        <NodeId>ep2cp_IfSetup</NodeId>
-                        <NodeBody>
-                           <Assignment>
-                              <BooleanVariable>ep2cp_test</BooleanVariable>
-                              <BooleanRHS>
-                                 <LookupNow>
-                                    <Name>
-                                       <StringValue>raining</StringValue>
-                                    </Name>
-                                 </LookupNow>
-                              </BooleanRHS>
-                           </Assignment>
-                        </NodeBody>
-                     </Node>
-                     <Node NodeType="NodeList">
-                        <NodeId>ep2cp_IfBody</NodeId>
-                        <StartCondition>
-                           <EQInternal>
-                              <NodeStateVariable>
-                                 <NodeId>ep2cp_IfSetup</NodeId>
-                              </NodeStateVariable>
-                              <NodeStateValue>FINISHED</NodeStateValue>
-                           </EQInternal>
-                        </StartCondition>
-                        <EndCondition>
-                           <OR>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_IfTrueCase</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                              <NOT>
-                                 <BooleanVariable>ep2cp_test</BooleanVariable>
-                              </NOT>
-                           </OR>
-                        </EndCondition>
-                        <NodeBody>
-                           <NodeList>
-                              <Node NodeType="NodeList">
-                                 <NodeId>ep2cp_IfTrueCase</NodeId>
-                                 <StartCondition>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </StartCondition>
-                                 <NodeBody>
-                                    <NodeList>
-                                       <Node NodeType="Command">
-                                          <NodeId>Wipers</NodeId>
-                                          <NodeBody>
-                                             <Command>
-                                                <Name>
-                                                   <StringValue>turn_on_wipers</StringValue>
-                                                </Name>
-                                             </Command>
-                                          </NodeBody>
-                                       </Node>
-                                       <Node NodeType="Command">
-                                          <NodeId>Lights</NodeId>
-                                          <NodeBody>
-                                             <Command>
-                                                <Name>
-                                                   <StringValue>turn_on_lights</StringValue>
-                                                </Name>
-                                             </Command>
-                                          </NodeBody>
-                                       </Node>
-                                    </NodeList>
-                                 </NodeBody>
-                              </Node>
-                           </NodeList>
-                        </NodeBody>
-                     </Node>
-                  </NodeList>
-               </NodeBody>
-            </Node>
             <Node NodeType="NodeList" FileName="DriveToSchool.ple" LineNo="123" ColNo="2">
                <NodeId>SelectStation</NodeId>
                <VariableDeclarations>
@@ -401,7 +299,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>HandleRain</NodeId>
+                           <NodeId>StartCar</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
@@ -540,6 +438,92 @@
                                  </RepeatCondition>
                                  <NodeBody>
                                     <NodeList>
+                                       <Node NodeType="NodeList" FileName="DriveToSchool.ple" LineNo="100" ColNo="2">
+                                          <NodeId>HandleRain</NodeId>
+                                          <VariableDeclarations>
+                                             <DeclareVariable>
+                                                <Name>ep2cp_test</Name>
+                                                <Type>Boolean</Type>
+                                             </DeclareVariable>
+                                          </VariableDeclarations>
+                                          <NodeBody>
+                                             <NodeList>
+                                                <Node NodeType="Assignment">
+                                                   <NodeId>ep2cp_IfSetup</NodeId>
+                                                   <NodeBody>
+                                                      <Assignment>
+                                                         <BooleanVariable>ep2cp_test</BooleanVariable>
+                                                         <BooleanRHS>
+                                                            <LookupNow>
+                                                               <Name>
+                                                                  <StringValue>raining</StringValue>
+                                                               </Name>
+                                                            </LookupNow>
+                                                         </BooleanRHS>
+                                                      </Assignment>
+                                                   </NodeBody>
+                                                </Node>
+                                                <Node NodeType="NodeList">
+                                                   <NodeId>ep2cp_IfBody</NodeId>
+                                                   <StartCondition>
+                                                      <EQInternal>
+                                                         <NodeStateVariable>
+                                                            <NodeId>ep2cp_IfSetup</NodeId>
+                                                         </NodeStateVariable>
+                                                         <NodeStateValue>FINISHED</NodeStateValue>
+                                                      </EQInternal>
+                                                   </StartCondition>
+                                                   <EndCondition>
+                                                      <OR>
+                                                         <EQInternal>
+                                                            <NodeStateVariable>
+                                                               <NodeId>ep2cp_IfTrueCase</NodeId>
+                                                            </NodeStateVariable>
+                                                            <NodeStateValue>FINISHED</NodeStateValue>
+                                                         </EQInternal>
+                                                         <NOT>
+                                                            <BooleanVariable>ep2cp_test</BooleanVariable>
+                                                         </NOT>
+                                                      </OR>
+                                                   </EndCondition>
+                                                   <NodeBody>
+                                                      <NodeList>
+                                                         <Node NodeType="NodeList">
+                                                            <NodeId>ep2cp_IfTrueCase</NodeId>
+                                                            <StartCondition>
+                                                               <BooleanVariable>ep2cp_test</BooleanVariable>
+                                                            </StartCondition>
+                                                            <NodeBody>
+                                                               <NodeList>
+                                                                  <Node NodeType="Command">
+                                                                     <NodeId>Wipers</NodeId>
+                                                                     <NodeBody>
+                                                                        <Command>
+                                                                           <Name>
+                                                                              <StringValue>turn_on_wipers</StringValue>
+                                                                           </Name>
+                                                                        </Command>
+                                                                     </NodeBody>
+                                                                  </Node>
+                                                                  <Node NodeType="Command">
+                                                                     <NodeId>Lights</NodeId>
+                                                                     <NodeBody>
+                                                                        <Command>
+                                                                           <Name>
+                                                                              <StringValue>turn_on_lights</StringValue>
+                                                                           </Name>
+                                                                        </Command>
+                                                                     </NodeBody>
+                                                                  </Node>
+                                                               </NodeList>
+                                                            </NodeBody>
+                                                         </Node>
+                                                      </NodeList>
+                                                   </NodeBody>
+                                                </Node>
+                                             </NodeList>
+                                          </NodeBody>
+                                       </Node>
                                        <Node NodeType="Command">
                                           <NodeId>DriveABit</NodeId>
                                           <EndCondition>
