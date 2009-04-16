@@ -1,5 +1,5 @@
 (plexil-plan
- (unchecked-sequence
+ (sequence "Root"
    (empty-node "bar")
    (empty-node "foo")))
 

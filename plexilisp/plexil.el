@@ -57,11 +57,24 @@
 (defconst *plexilisp-location* (format "%s/plexilisp" *plexil-home*))
 (defconst *bin-location* (format "%s/bin" *plexil-home*))
 
-(defconst *plexilisp-version* "3.0")
+(defconst *plexilisp-version* "3.1")
 
 (defvar *node-id-number*) ; supports repeatable, unique node ID's
 (defconst *plexil-script-prefix* "ps-")
 (defconst *plexil-plan-prefix* "pl-")
+
+;;; These support the 'Action' macro.  They are lists of names (symbols)
+;;; of Plexilisp constructs, automatically generated when this file is
+;;; evaluated.
+(defvar *node-types*) 
+(defvar *node-body-types*)
+
+(defun node-type? (x) (member x *node-types*))
+(defun node-body-type? (x) (member x *node-body-types*))
+
+(eval-when (load compile eval)
+  (setq *node-types* nil)
+  (setq *node-body-types* nil))
 
 ;;; User interface
 
@@ -295,8 +308,8 @@
 
 ;;; Plexilisp defining form
 
-(defmacro pdefine (namespace names arglist indent doc body)
-  ;; symbol * list(symbol) * list(symbol) * any * string * any -> ()
+(defmacro pdefine (namespace names arglist indent type doc body)
+  ;; symbol * list(symbol) * list(symbol) * any * opt(symbol) * string * any -> ()
   ;;
   ;; Allows 2-4 differently named definitions of the same function, and
   ;; provides automatic generation of the Plexilisp reference manual.
@@ -305,9 +318,15 @@
   (defun plexil-qualify (a b)
     (intern (concat (symbol-name a) "-" (symbol-name b))))
   `(progn
-     (mapc (lambda (name) (put name 'plexilisp-indent-function ',indent))
+     (mapc (lambda (name)
+             (put name 'plexilisp-indent-function ',indent)
+             (cond
+              ((eq ',type 'node)
+               (pushnew (plexil-qualify ',namespace name) *node-types*))
+              ((eq ',type 'node-body)
+               (pushnew (plexil-qualify ',namespace name) *node-body-types*))))
            ',names)
-     ;; ! This is a hack, but I haven't found a way to generalize this
+     ;; ! This is a hack, but I haven't found a way to generalize it.
      ;; to any number of names.
      (defun ,(plexil-qualify namespace (car names)) ,arglist ,body)
      (defun ,(plexil-qualify namespace (cadr names)) ,arglist ,body)
@@ -321,8 +340,8 @@
 
 ;;;  This is a macro version of the above.
 
-(defmacro pdefine-syntax (namespace names arglist indent doc body)
-  ;; symbol * list(symbol) * list(symbol) * string * any -> ()
+(defmacro pdefine-syntax (namespace names arglist indent type doc body)
+  ;; symbol * list(symbol) * list(symbol) * any * opt(symbol) * string * any -> ()
   ;;
   ;; Allows 2-4 differently named definitions of the same macro, and
   ;; provides automatic generation of the Plexilisp reference manual.
@@ -331,9 +350,15 @@
   (defun plexil-qualify (a b)
     (intern (concat (symbol-name a) "-" (symbol-name b))))
   `(progn
-     (mapc (lambda (name) (put name 'plexilisp-indent-function ',indent))
+     (mapc (lambda (name)
+             (put name 'plexilisp-indent-function ',indent)
+             (cond
+              ((eq ',type 'node)
+               (pushnew (plexil-qualify ',namespace name) *node-types*))
+              ((eq ',type 'node-body)
+               (pushnew (plexil-qualify ',namespace name) *node-body-types*))))
            ',names)
-     ;; ! This is a hack, but I haven't found a way to generalize this
+     ;; ! This is a hack, but I haven't found a way to generalize it.
      ;; to any number of names.
      (defmacro ,(plexil-qualify namespace (car names)) ,arglist ,body)
      (defmacro ,(plexil-qualify namespace (cadr names)) ,arglist ,body)
@@ -365,7 +390,7 @@
  "== PLEXIL Plan =="
  "This section describes the forms (constructs) that comprise PLEXIL plans.")
                         
-(pdefine pl (PlexilPlan plexil-plan) (form &rest forms) 0 ; list(xml) -> xml
+(pdefine pl (PlexilPlan plexil-plan) (form &rest forms) 0 nil ; list(xml) -> xml
   ("The top level form for a plan.  "
    "A Plexilisp file must contain exactly one of these, and nothing else.  "
    "A {{PlexilPlan}} form must contain forms in the following order. "
@@ -379,13 +404,13 @@
  "")
 
 (pdefine pl (GlobalDeclarations global-declarations Declarations declarations)
-            (&rest decls) 0
+            (&rest decls) 0 nil
   ;; list(xml) -> xml
   "The plan's global declarations."
   (xml "GlobalDeclarations" decls))
 
 (pdefine pl (LibraryNodeDeclaration library-node-declaration)
-         (name &rest interface-declarations) 0
+         (name &rest interface-declarations) 0 nil
   ;; string * list(xml) -> xml
   ("Declare a library node (call).  Following the name may be any number of "
    "interface declarations, which are either {{In}} or {{InOut}} forms.")
@@ -394,7 +419,7 @@
              (xml "Interface" interface-declarations))))
 
 (pdefine pl (StateDeclaration state-declaration)
-            (name &rest returns-then-parameters) 0
+            (name &rest returns-then-parameters) 0 nil
   ;; string * list(xml) -> xml
   ("Declare a state (lookup).  Following the name should be zero or more Return "
    "forms, then zero or more Parameter forms.  They cannot be intermixed.")
@@ -402,7 +427,7 @@
                                     returns-then-parameters))
 
 (pdefine pl (FunctionDeclaration function-declaration)
-            (name &rest returns-then-parameters) 0
+            (name &rest returns-then-parameters) 0 nil
   ;; string * list(xml) -> xml
   ("Declare a function call.  Following the name should be zero or more Return "
    "forms, then zero or more Parameter forms.  They cannot be intermixed.")
@@ -410,7 +435,7 @@
                                     returns-then-parameters))
 
 (pdefine pl (CommandDeclaration command-declaration)
-            (name &rest returns-then-parameters-then-resource-list) 0
+            (name &rest returns-then-parameters-then-resource-list) 0 nil
   ;; string * list(xml) -> xml
   ("Declare a command.  Following the name should be zero or more Return "
    "forms, then zero or more Parameter forms, then an optional ResourceList "
@@ -418,13 +443,13 @@
   (plexil-external-call-declaration "CommandDeclaration" name
                                     returns-then-parameters-then-resource-list))
 
-(pdefine pl (Return return) (type) 1
+(pdefine pl (Return return) (type) 1 nil
   ;; string -> xml
   ("Specify a return type.  Argument must be one of 'string', 'integer', "
    "'array', 'boolean', 'real' (case doesn't matter).")
   (plexil-type-declaration "Return" type))
 
-(pdefine pl (Parameter parameter) (type) 1
+(pdefine pl (Parameter parameter) (type) 1 nil
   ;; string -> xml
   ("Specify a parameter type.  Argument must be one of 'string', 'integer', "
    "'array', 'boolean', 'real' (case doesn't matter).")
@@ -450,23 +475,23 @@
  "(e.g. {{(command ...)}}).  These forms must be compatible "
  "(more specifics in each entry below)")
 
-(pdefine pl (ListNode list-node) (&optional name &rest node-clauses) 1
+(pdefine pl (ListNode list-node) (&optional name &rest node-clauses) 1 node
   ;; string * list(xml) -> xml
   "Defines a List Node.  Must contain a {{List}} form." 
   (plexil-node name node-clauses "NodeList"))
 
-(pdefine pl (List list) (&rest nodes) 0            ; list(xml) -> xml
+(pdefine pl (List list) (&rest nodes) 0 node-body       ; list(xml) -> xml
   "Required inside a {{ListNode}}, this form wraps its list of nodes."
   (xml "NodeBody"
        (xml "NodeList" nodes)))
 
-(pdefine pl (CommandNode command-node) (&optional name &rest clauses) 1
+(pdefine pl (CommandNode command-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
   ("Defines a Command Node.  Must contain either a {{Command}} or "
    "{{CommandWithReturn}} form.")
   (plexil-node name clauses "Command"))
 
-(pdefine pl (Command command) (command-name &rest args) 1
+(pdefine pl (Command command) (command-name &rest args) 1 node-body
   ;; (string + xml) * list(xml) -> xml         
   ("Required inside a {{CommandNode}}, this form calls the specified command. "
    "command-name may be any string "
@@ -478,7 +503,7 @@
       (plexil-command command-name nil nil args))))
 
 (pdefine pl (CommandWithReturn command-with-return) (command-name var &rest args)
-         1
+         1 node-body
   ;; (string + xml) * list(xml) -> xml
   ("This is just like {{Command}} above, but a value returned from the command "
    "is assigned to the given variable, which must be declared in this node or "
@@ -492,29 +517,29 @@
   (if (> (length args) 0)
       (xml-assoc-element "ResourceList" (first args))))
 
-(pdefine pl (UpdateNode update-node) (&optional name &rest clauses) 1
+(pdefine pl (UpdateNode update-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
   "Defines an Update Node.  Must contain an {{Update}} form."
   (plexil-node name clauses "Update"))
 
-(pdefine pl (Update update) (&rest pairs) 0          ; list(xml) -> xml
+(pdefine pl (Update update) (&rest pairs) 0 node-body     ; list(xml) -> xml
   ("Required inside an {{UpdateNode}}, this form defines the plan update."
    "It must contain one or more {{Pair}} forms.")
   (plexil-node-body (xml "Update" pairs)))
 
-(pdefine pl (Pair pair) (name value) 2             ; string * any -> xml
+(pdefine pl (Pair pair) (name value) 2 nil            ; string * any -> xml
   ("Required inside an {{Update}}, this form defines a name/value pair."
    "The {{name}} must be a string and the {{value}} may be any PLEXIL type.")
   (xml "Pair" (list (xml "Name" name) (infer-type value))))
 
 
 (pdefine pl (FunctionCallNode function-call-node) (&optional name &rest clauses)
-         1
+         1 node
   ;; string * list(xml) -> xml
   "Defines a Function Call Node.  Must contain a {{FunctionCall}} form."
   (plexil-node name clauses "FunctionCall"))
 
-(pdefine pl (FunctionCall function-call) (function-name &rest args) 0
+(pdefine pl (FunctionCall function-call) (function-name &rest args) 0 node-body
   ;; string * list(xml) -> xml
   ("Valid inside a {{FunctionCallNode}}, this form calls the named function "
    "with the given arguments.")
@@ -524,7 +549,7 @@
                 (if args (list (xml "Arguments" (mapcar #'infer-type args))))))))
 
 (pdefine pl (FunctionCallWithResult function-call-with-result)
-         (var function-name &rest args) 0
+         (var function-name &rest args) 0 node-body
   ;; xml * string * list(xml) -> xml
   ("Valid inside a {{FunctionCallNode}}, this form calls the named function "
    "with the given arguments, and assigns the return value to //var//, which "
@@ -535,23 +560,23 @@
                 (list (xml "FunctionName" function-name))
                 (if args (list (xml "Arguments" (mapcar #'infer-type args))))))))
 
-(pdefine pl (RequestNode request-node) (&optional name &rest clauses) 1
+(pdefine pl (RequestNode request-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
   "Defines a Request Node.  Must contain a {{Request}} form."
   (plexil-node name clauses "Request"))
 
-(pdefine pl (Request request) (nodeid &rest pairs) 1
+(pdefine pl (Request request) (nodeid &rest pairs) 1 node-body
   ;; opt(string) * list(xml) -> xml
   "Required inside a {{RequestNode}}, this form defines the plan request."
   (xml "Request"
        (append (if nodeid (list (xml "NodeId" nodeid))) pairs)))
 
-(pdefine pl (AssignmentNode assignment-node) (&optional name &rest clauses) 1
+(pdefine pl (AssignmentNode assignment-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
   "Defines an Assignment Node.  Must contain an {{Assignment}} form."
   (plexil-node name clauses "Assignment"))
 
-(pdefine pl (Assignment assignment) (var val) 2
+(pdefine pl (Assignment assignment) (var val) 2 node-body
   ;; xml * (xml + int + bool + string) -> xml
   ("Required inside an {{AssignmentNode}}, this form assigns a value (any PLEXIL "
    "type) to a variable that must be declared in this node or one of its "
@@ -584,27 +609,27 @@
                   (if args (list (xml "Arguments"
                                       (mapcar #'infer-type args)))))))))
 
-(pdefine pl (LibraryCallNode library-call-node)
-         (&optional name &rest node-clauses) 1
+(pdefine pl (LibraryCallNode library-call-node) 
+         (&optional name &rest node-clauses) 1 node
   ;; string * list(xml) -> xml
   "A Library Call Node.  Must contain exactly one {{call}} form."
   (plexil-node name node-clauses "LibraryNodeCall"))
 
-(pdefine pl (Call call) (nodeid &rest aliases) 1
+(pdefine pl (Call call) (nodeid &rest aliases) 1 node-body
   ;; string * list(xml) -> xml
   "A call to a library node."
   (xml "NodeBody"
        (xml "LibraryNodeCall"
             (cons (xml "NodeId" nodeid) aliases))))
 
-(pdefine pl (Alias alias) (parameter value) 2
+(pdefine pl (Alias alias) (parameter value) 2 nil
   ;; ncName * (xml + literal) -> xml
   ("In a library node call, this pairs a parameter of the node with "
    "a value.  The parameter is an ncName, and the value must be either "
    "a literal or declared variable.")
   (xml "Alias" (list (xml "NodeParameter" parameter) (infer-type value))))
 
-(pdefine pl (EmptyNode empty-node) (&optional name &rest clauses) 1
+(pdefine pl (EmptyNode empty-node) (&optional name &rest clauses) 1 node
   ;; opt(string + xml) * list(xml) -> xml
   "An Empty Node."
   (plexil-node name clauses "Empty"))
@@ -630,19 +655,19 @@
 (defun pl-variables (&rest decls))
 
 (pdefine pl (VariableDeclarations variable-declarations Variables variables)
-         (&rest decls) 0
+         (&rest decls) 0 nil
   ;; list(xml) -> xml
   ("The node's variable declarations.  Must contain one or more of the "
    "declaration forms that follow.")
   (xml "VariableDeclarations" decls))
 
 (pdefine pl (DeclareVariables declare-variables Let let)
-         (&rest decls) 0
+         (&rest decls) 0 nil
   ;; list(xml) -> xml
   "More synonyms for the VariableDeclarations form."
   (xml "VariableDeclarations" decls))
 
-(pdefine pl (Integer integer) (name &optional val) 2  ; string * opt(int) -> xml
+(pdefine pl (Integer integer) (name &optional val) 2 nil ; string * opt(int) -> xml
   "Declare an integer variable, with optional initial value."
   (xml "DeclareVariable"
        (cons (xml "Name" name)
@@ -650,7 +675,7 @@
                    (if val
                        (list (xml "InitialValue" (xml "IntegerValue" val))))))))
 
-(pdefine pl (Real real) (name &optional val) 2     ; string * opt(real) -> xml
+(pdefine pl (Real real) (name &optional val) 2 nil    ; string * opt(real) -> xml
   "Declare a real variable, with optional initial value." 
   (xml "DeclareVariable"
        (cons (xml "Name" name)
@@ -658,7 +683,7 @@
                    (if val
                        (list (xml "InitialValue" (xml "RealValue" val))))))))
 
-(pdefine pl (Boolean boolean) (name &optional val) 2 ; string * opt(bool) -> xml
+(pdefine pl (Boolean boolean) (name &optional val) 2 nil ; string * opt(bool) -> xml
   "Declare a boolean variable, with optional initial value." 
   (xml "DeclareVariable"
        (cons (xml "Name" name)
@@ -666,7 +691,7 @@
                    (if val
                        (list (xml "InitialValue" (xml "BooleanValue" val))))))))
 
-(pdefine pl (String string) (name &optional val) 2  ; string * opt(string) -> xml
+(pdefine pl (String string) (name &optional val) 2 nil ; string * opt(string) -> xml
   "Declare a string variable, with optional initial value." 
   (xml "DeclareVariable"
        (cons (xml "Name" name)
@@ -674,22 +699,22 @@
                    (if val
                        (list (xml "InitialValue" (xml "StringValue" val))))))))
 
-(pdefine pl (IntArray int-array) (name size &rest values) 2
+(pdefine pl (IntArray int-array) (name size &rest values) 2 nil
          ;; string * int * list(int + xml) -> xml
   "Declare an integer array with given name, size, and initial values."
   (plexil-array name "Integer" size values))
 
-(pdefine pl (StringArray string-array) (name size &rest values) 2
+(pdefine pl (StringArray string-array) (name size &rest values) 2 nil
          ;; string * int * list(string + xml) -> xml
   "Declare a string array with given name, size, and initial values."
   (plexil-array name "String" size values))
 
-(pdefine pl (BooleanArray boolean-array) (name size &rest values) 2
+(pdefine pl (BooleanArray boolean-array) (name size &rest values) 2 nil
          ;; string * int * list(bool + xml) -> xml
   "Declare a boolean array with given name, size, and initial values."
   (plexil-array name "Boolean" size values))
 
-(pdefine pl (RealArray real-array) (name size &rest values) 2
+(pdefine pl (RealArray real-array) (name size &rest values) 2 nil
          ;; string * int * list(real + xml) -> xml
   "Declare a real number array with given name, size, and initial values."
   (plexil-array name "Real" size values))
@@ -711,39 +736,39 @@
 
 (insert-plexil-heading "=== Node Conditions ===")
 
-(pdefine pl (Postcondition postcondition) (exp) 0
+(pdefine pl (Postcondition postcondition) (exp) 0 nil
   ""         
   (xml "PostCondition" (infer-type exp)))
 
-(pdefine pl (PostCondition post-condition) (exp) 0
+(pdefine pl (PostCondition post-condition) (exp) 0 nil
   ""
   (xml "PostCondition" (infer-type exp)))
 
-(pdefine pl (EndCondition end-condition) (exp) 0
+(pdefine pl (EndCondition end-condition) (exp) 0 nil
   ""
   (xml "EndCondition" (infer-type exp)))
 
-(pdefine pl (SkipCondition skip-condition) (exp) 0
+(pdefine pl (SkipCondition skip-condition) (exp) 0 nil
   ""
   (xml "SkipCondition" (infer-type exp)))
 
-(pdefine pl (Precondition precondition) (exp) 0
+(pdefine pl (Precondition precondition) (exp) 0 nil
   ""
   (xml "PreCondition" (infer-type exp)))
 
-(pdefine pl (PreCondition pre-condition) (exp) 0
+(pdefine pl (PreCondition pre-condition) (exp) 0 nil
   ""
   (xml "PreCondition" (infer-type exp)))
 
-(pdefine pl (RepeatCondition repeat-condition) (exp) 0
+(pdefine pl (RepeatCondition repeat-condition) (exp) 0 nil
   ""
   (xml "RepeatCondition" (infer-type exp)))
 
-(pdefine pl (StartCondition start-condition) (exp) 0
+(pdefine pl (StartCondition start-condition) (exp) 0 nil
   ""
   (xml "StartCondition" (infer-type exp)))
 
-(pdefine pl (InvariantCondition invariant-condition) (exp) 0
+(pdefine pl (InvariantCondition invariant-condition) (exp) 0 nil
   ""
   (xml "InvariantCondition" (infer-type exp)))
 
@@ -755,27 +780,27 @@
  "specifies the name of the variable as a string.  The variable is assumed "
  "to be legally declared.")
 
-(pdefine pl (BooleanVariable boolvar) (name) 1                ; string -> xml
+(pdefine pl (BooleanVariable boolvar) (name) 1 nil               ; string -> xml
   ""
   (xml "BooleanVariable" name nil 'boolean))
 
-(pdefine pl (IntegerVariable intvar) (name) 1                ; string -> xml
+(pdefine pl (IntegerVariable intvar) (name) 1 nil               ; string -> xml
   ""
   (xml "IntegerVariable" name nil 'integer))
 
-(pdefine pl (RealVariable realvar) (name) 2               ; string -> xml
+(pdefine pl (RealVariable realvar) (name) 2 nil              ; string -> xml
   ""
   (xml "RealVariable" name nil 'real))
 
-(pdefine pl (StringVariable stringvar) (name) 1             ; string -> xml
+(pdefine pl (StringVariable stringvar) (name) 1 nil            ; string -> xml
   ""
   (xml "StringVariable" name nil 'string))
 
-(pdefine pl (ArrayVariable arrayvar) (name) 1             ; string -> xml
+(pdefine pl (ArrayVariable arrayvar) (name) 1 nil             ; string -> xml
   ""
   (xml "ArrayVariable" name nil 'string))
 
-(pdefine pl (ArrayElement array-element) (name index) 2
+(pdefine pl (ArrayElement array-element) (name index) 2 nil
          ;; (string + xml) * (int + xml) -> xml
   ("Reference a single array element by index (beginning with 0).  "
    "Name and index can be string and numeric expressions, respectively.")
@@ -788,17 +813,17 @@
  "Plexilisp does not automatically generate any {{Interface}} declarations. "
  "They must be created explicitly with these forms.")
 
-(pdefine pl (Interface interface) (&rest decls) 0      ; list(xml) -> xml
+(pdefine pl (Interface interface) (&rest decls) 0 nil     ; list(xml) -> xml
   ("The Node's interface.  This must contain only {{In}} and {{InOut}} forms. "
    "They can be intermixed.")
   (xml "Interface" decls))
 
-(pdefine pl (In in) (&rest vars) 0              ; list(xml) -> xml
+(pdefine pl (In in) (&rest vars) 0 nil             ; list(xml) -> xml
   ("Declare input variables.  Your must use the variable declaration "
    "forms defined above.")
   (xml "In" vars))
 
-(pdefine pl (InOut inout) (&rest vars) 1           ; list(xml) -> xml
+(pdefine pl (InOut inout) (&rest vars) 1 nil          ; list(xml) -> xml
   ("Declare input/ouput variables.  Your must use the variable declaration "
    "forms defined above.")
   (xml "InOut" vars))
@@ -810,11 +835,11 @@
  "These return true or false.")
                        
 
-(pdefine pl (= eq) (x y) 2
+(pdefine pl (= eq) (x y) 2 nil
   ""
   (pl-comparison "EQ" x y))
 
-(pdefine pl (!= ne) (x y) 2
+(pdefine pl (!= ne) (x y) 2 nil
   ""
   (pl-comparison "NE" x y))
 
@@ -834,19 +859,19 @@
 
 (insert-plexil-heading "The following work with all numeric types.")
 
-(pdefine pl (> gt)  (x y) 2
+(pdefine pl (> gt)  (x y) 2 nil
   ""
   (plexil-numeric-comparison "GT" x y))
 
-(pdefine pl (>= ge) (x y) 2
+(pdefine pl (>= ge) (x y) 2 nil
   ""
   (plexil-numeric-comparison "GE" x y))
 
-(pdefine pl (< lt)  (x y) 2
+(pdefine pl (< lt)  (x y) 2 nil
   ""
   (plexil-numeric-comparison "LT" x y))
 
-(pdefine pl (<= le) (x y) 2
+(pdefine pl (<= le) (x y) 2 nil
   ""
   (plexil-numeric-comparison "LE" x y))
 
@@ -862,17 +887,17 @@
  "=== Logical Connectives ==="
  "These return true, false, or unknown.")
 
-(pdefine pl (Or or) (&rest disjuncts) 0         ; list(xml) -> xml
+(pdefine pl (Or or) (&rest disjuncts) 0  nil        ; list(xml) -> xml
   "Permits 0 or more disjuncts. {{(Or)}} = {{false}}."
   (let ((evaled (mapcar #'infer-type disjuncts)))
     (xml "OR" evaled nil 'boolean)))
 
-(pdefine pl (And and) (&rest conjuncts) 0        ; list(xml) -> xml
+(pdefine pl (And and) (&rest conjuncts) 0 nil       ; list(xml) -> xml
   "Permits 0 or more conjuncts. {{(And)}} = {{true}}."
   (let ((evaled (mapcar #'infer-type conjuncts)))
     (xml "AND" evaled nil 'boolean)))
 
-(pdefine pl (Not not) (x) 1                      ; xml -> xml
+(pdefine pl (Not not) (x) 1  nil                     ; xml -> xml
   ""
   
   (xml "NOT" (infer-type x) nil 'boolean))
@@ -881,27 +906,27 @@
  "=== Numeric Operators ==="
  "These should be self-explanatory.  They work with integer or real values.")
 
-(pdefine pl (+ add) (x y) 2
+(pdefine pl (+ add) (x y) 2 nil
   ""
   (plexil-binary-numop "ADD" x y))
 
-(pdefine pl (- sub) (x y) 2
+(pdefine pl (- sub) (x y) 2 nil
   ""
   (plexil-binary-numop "SUB" x y))
 
-(pdefine pl (* mul) (x y) 2
+(pdefine pl (* mul) (x y) 2 nil
   ""
   (plexil-binary-numop "MUL" x y))
 
-(pdefine pl (/ div) (x y) 2
+(pdefine pl (/ div) (x y) 2 nil
   ""
   (plexil-binary-numop "DIV" x y))
 
-(pdefine pl (Abs abs) (x) 2
+(pdefine pl (Abs abs) (x) 2 nil
   ""
   (plexil-unary-numop "ABS" x))
 
-(pdefine pl (Sqrt sqrt) (x) 2
+(pdefine pl (Sqrt sqrt) (x) 2 nil
   ""
   (plexil-unary-numop "SQRT" x))
 
@@ -926,7 +951,7 @@
  "Also, the //state// may be specified by any kind of string expression "
  "(literal, variable, concatentation, or even another lookup).")
 
-(pdefine pl (LookupNow lookup-now) (state &rest args) 1
+(pdefine pl (LookupNow lookup-now) (state &rest args) 1 nil
   ;; (string + xml) * list(xml) -> xml
   "Queries for the value of the given state with given arguments."
   (let ((state-name (plexil-normalize-string-expression state)))
@@ -935,15 +960,15 @@
                                                  (mapcar #'infer-type args)))))
          nil 'any)))
 
-(pdefine pl (LookupOnChange lookup-on-change) (state &rest args) 1
+(pdefine pl (LookupOnChange lookup-on-change) (state &rest args) 1 nil
   ;; (string + xml) * list(xml) -> xml
   ("Subscribes for updates of the given state with given arguments."
    "Uses default tolerance value.")
   (let ((state-name (plexil-normalize-string-expression state)))
     (plexil-lookup-on-change state-name args)))
 
-(pdefine pl (LookupOnChangeWithTolerance lookup-on-change-with-tolerance) 
-  (state tolerance &rest args) 2
+(pdefine pl (LookupOnChangeWithTolerance lookup-on-change-with-tolerance)
+  (state tolerance &rest args) 2 nil
   ;; (string + xml) * xml * list(xml) -> xml
   "Like the above, but uses the specified tolerance."
   (let ((state-name (plexil-normalize-string-expression state)))
@@ -969,15 +994,15 @@
  "types of literals.  For example, 5.5 would be a real, 5 would be an integer, "
  "\"foo\" a string, {{true}} and {{false}} a boolean.")
 
-(pdefine pl (IntegerValue intval) (val) 1                ; string -> xml
+(pdefine pl (IntegerValue intval) (val) 1 nil                ; string -> xml
   ""
   (xml "IntegerValue" val nil 'integer))
 
-(pdefine pl (RealValue realval) (val) 1               ; string -> xml
+(pdefine pl (RealValue realval) (val) 1 nil               ; string -> xml
   ""
   (xml "RealValue" val nil 'real))
 
-(pdefine pl (BooleanValue boolval)  (val) 1
+(pdefine pl (BooleanValue boolval)  (val) 1 nil
   ;; string | symbol | int -> xml
   ;; valid arguments are 0, 1
   ;; need to test if these will work: true, false, "true", "false"
@@ -986,7 +1011,7 @@
   "instead of this form.")
   (xml "BooleanValue" val nil 'boolean))
 
-(pdefine pl (StringValue stringval) (str &rest strs) 1
+(pdefine pl (StringValue stringval) (str &rest strs) 1 nil
   ;; string * list(string) -> xml
   ("Concatenates its arguments into one string.  For long strings, "
    "this makes your file more readable.")
@@ -1001,68 +1026,68 @@
 
 ;;; All have type:  string -> xml
 
-(pdefine pl (Finished finished isFinished is-finished) (id) 1
+(pdefine pl (Finished finished isFinished is-finished) (id) 1 nil
   "Is the given action in state FINISHED?"
   (xml "NodeFinished" id))
 
 (pdefine pl (IterationEnded iteration-ended
-             isIterationEnded is-iteration-ended) (id) 1       
+             isIterationEnded is-iteration-ended) (id) 1 nil
   "Is the given node in state ITERATION_ENDED?"
   (xml "NodeIterationEnded" id))
 
-(pdefine pl (Executing executing isExecuting is-executing) (id) 1      
+(pdefine pl (Executing executing isExecuting is-executing) (id) 1 nil
   "Is the given action in state EXECUTING?"
   (xml "NodeExecuting" id))
 
-(pdefine pl (Waiting waiting isWaiting is-waiting) (id) 1
+(pdefine pl (Waiting waiting isWaiting is-waiting) (id) 1 nil
   "Is the given action in state WAITING?"
   (xml "NodeWaiting" id))
 
-(pdefine pl (Inactive inactive isInactive is-inactive) (id) 1
+(pdefine pl (Inactive inactive isInactive is-inactive) (id) 1 nil
   "Is the given action in state INACTIVE?"
   (xml "NodeInactive" id))
 
-(pdefine pl (Successful successful isSuccessful is-successful) (id) 1
+(pdefine pl (Successful successful isSuccessful is-successful) (id) 1 nil
  "Did the given action finish successfully?"
   (xml "NodeSucceeded" id))
 
-(pdefine pl (Failed failed isFailed is-failed) (id) 1
+(pdefine pl (Failed failed isFailed is-failed) (id) 1 nil
   "Did the given action fail?"
   (xml "NodeFailed" id))
 
-(pdefine pl (Skipped skipped isSkipped is-skipped) (id) 1
+(pdefine pl (Skipped skipped isSkipped is-skipped) (id) 1 nil
   "Was the given action skipped?"
   (xml "NodeSkipped" id))
 
-(pdefine pl (InvariantFailed invariant-failed) (id) 1
+(pdefine pl (InvariantFailed invariant-failed) (id) 1 nil
   "Did the invariant condition of the given action fail?"
   (xml "NodeInvariantFailed" id))
 
 (pdefine pl (PostConditionFailed
              PostconditionFailed
              postcondition-failed
-             post-condition-failed) (id) 1
+             post-condition-failed) (id) 1 nil
   "Did the postcondition of the given action fail?"
   (xml "NodePostconditionFailed" id))
 
 (pdefine pl (PreConditionFailed
              PreconditionFailed
              precondition-failed
-             pre-condition-failed) (id) 1
+             pre-condition-failed) (id) 1 nil
   "Did the precondition of the given action fail?"
   (xml "NodePreconditionFailed" id))
 
-(pdefine pl (ParentFailed parent-failed) (id) 1
+(pdefine pl (ParentFailed parent-failed) (id) 1 nil
   "Did the parent of the given action fail?"
   (xml "NodeParentFailed" id))
-
 
 (insert-plexil-heading
  "=== Conditionals and Loops ==="
  "These are high level syntax extensions of PLEXIL (syntactic sugar).  "
  "They expand into node structures. ")
 
-(pdefine pl (If if) (condition then-part &optional else-part) 1
+
+(pdefine pl (If if) (condition then-part &optional else-part) 1 node
   ("If-then-else.  The {{then-part}} and {{else-part}} may be nodes or other "
    "actions.  The {{else-part}} is optional.")
   (xml "If"
@@ -1071,14 +1096,15 @@
         (xml "Then" then-part)
         (if else-part (xml "Else" else-part)))))
 
-(pdefine pl (While while) (condition form) 1
+(pdefine pl (While while) (condition form) 1 node
   "While loop."
   (xml "While"
        (list
         (xml "Condition" (infer-type condition))
         form)))
 
-(pdefine-syntax pl (for For) (declaration condition update form &rest forms) 1
+(pdefine-syntax pl (for For)
+                (declaration condition update form &rest forms) 1 node
   ("For Loop.  The declaration should look like a variable declaration. i.e "
    "{{(type name [init])}}, where {{type}} must be either {{integer}} or {{real}} "
    "and the initial value {{init}} is optional (though generally useful).  "
@@ -1094,21 +1120,40 @@
          (xml "LoopVariableUpdate" ,update)
          (xml "Actions" (cons ,form (mapcar #'eval ',forms))))))
 
-(pdefine pl (UncheckedSequence unchecked-sequence) (&rest forms) 1
-  "Each action starts after the previous finishes."
-  (xml "UncheckedSequence" forms))
 
-(pdefine pl (Sequence sequence) (&rest forms) 1
+(pdefine pl (Sequence sequence)
+         (&optional name-or-first-form &rest forms) 1 node
   ("Each action starts after the previous succeeds.  "
    "If an action fails, the sequence terminates immediately with failure.")
-  (xml "Sequence" forms))
+  (plexil-build-sequence name-or-first-form forms "Sequence"))
 
-(pdefine pl (Try try) (&rest forms) 1
+(pdefine pl (UncheckedSequence unchecked-sequence) 
+         (&optional name-or-first-form &rest forms) 1 node
+  "Each action starts after the previous finishes, regardless of success or failure."
+  (plexil-build-sequence name-or-first-form forms "UncheckedSequence"))
+
+(pdefine pl (Try try) (&optional name-or-first-form &rest forms) 1 node
   ("Executes actions sequentially, stopping after the an action succeeds.  "
    "Fails if and only if no action succeeds.")
-  (xml "Try" forms))
+  (plexil-build-sequence name-or-first-form forms "Try"))
 
-(pdefine pl (Concurrently concurrently) (form &rest forms) 0
+(defun plexil-build-sequence (name-or-first-form forms construct)
+  ;; (string | xml) * list(xml) * string -> xml
+  (let (the-name first-form rest-forms)
+    (cond ((stringp name-or-first-form)
+           (setq the-name name-or-first-form)
+           (setq first-form (car forms))
+           (setq rest-forms (cdr forms)))
+          ((xml? name-or-first-form)
+           (setq first-form name-or-first-form)
+           (setq rest-forms forms))
+          (t (error "%s must have at least one action!" construct)))
+    (xml construct
+         (append
+          (if the-name (list (xml "NodeId" the-name)))
+          (cons first-form rest-forms)))))
+
+(pdefine pl (Concurrently concurrently) (form &rest forms) 0 node
   "Executes forms concurrently.  Just an anonymous List node."
   (pl-list-node (plexil-unique-node-id "plexilisp_Concurrently")
    (apply
@@ -1119,16 +1164,52 @@
  "=== Special Purpose Nodes ==="
  "These forms expand into nodes that perform convenient functions.")
 
-(pdefine pl (Nothing nothing) ()  0 
-  "A form that does nothing.  This becomes an anonymous empty node."
+(pdefine-syntax pl (Action action) (name &rest forms) 1 node
+  ;; string * list(xml) -> xml
+  ("Specifies any kind of action.  The specified forms can include any node "
+   "clauses (except NodeId, which is given by {{name}}, as well as any number "
+   "of actions.  The actions form the body of the generated List Node.")
+  (let ((nodes (filter (lambda (x) (node-type? (car x))) forms))
+        (node-bodies (filter (lambda (x) (node-body-type? (car x))) forms))
+        (clauses (filter (lambda (x)
+                           (and (not (node-type? (car x)))
+                                (not (node-body-type? (car x)))))
+                         forms)))
+    (if (not (or nodes node-bodies))
+        (append '(pl-empty-node) `(,name) `,clauses)
+      (append '(pl-list-node)
+              `(,name)
+              `,clauses
+              (list
+               `(apply #'pl-list
+                       (append
+                        (mapcar #'plexil-eval-node ',nodes)
+                        (mapcar #'plexil-eval-node-body ',node-bodies))))))))
+
+(defun plexil-eval-node (node)  ; list -> xml
+  (eval node))
+
+(defun plexil-eval-node-body (body)  ; list -> xml
+  ;; Crude: could do something data-directed
+  (let ((type (car body)))
+    (cond
+     ((member type '(pl-command pl-Command))
+      (funcall #'pl-command-node (eval body)))
+     ((member type '(pl-assignment pl-Assignment))
+      (funcall #'pl-assignment-node (eval body)))
+     ((member type '(pl-update pl-Update))
+      (funcall #'pl-update-node (eval body)))
+     ((member type '(pl-library-call pl-LibraryCall))
+      (funcall #'pl-library-call-node (eval body)))
+     ((member type '(pl-FunctionCall pl-function-call))
+      (funcall #'pl-function-call-node (eval body)))
+     (t (error "Unknown action: %s" body)))))
+
+(pdefine pl (Nothing nothing) ()  0 node
+  "An action that does nothing.  This becomes an anonymous empty node."
   (pl-empty-node))
 
-(pdefine pl (Assign assign) (var exp) 2 ; xml * xml -> xml
-  "Assign variable to an expression.  This is a barebones Assignment node."
-  (pl-assignment-node
-   (pl-assignment var exp)))
-
-(pdefine pl (When when) (condition form &rest forms) 1
+(pdefine pl (When when) (condition form &rest forms) 1 node
   ;; xml * xml * list(xml) -> xml
   ("Executes actions (concurrently) when condition becomes true.  "
    "This is essentially a //monitor//.")
@@ -1136,7 +1217,7 @@
    (pl-start-condition condition)
    (apply #'pl-list (cons form forms))))
 
-(pdefine-syntax pl (let Let) (vars form &rest forms) 1
+(pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
   ("Declares variables that are lexically scoped to the enclosing forms, "
    "similar to LET in Lisp.")
   `(pl-list-node
@@ -1148,12 +1229,12 @@
  "=== Resource Clauses ==="
  "")
 
-(pdefine pl (ResourceList resource-list Resources resources) (&rest resources) 0
+(pdefine pl (ResourceList resource-list Resources resources) (&rest resources) 0 nil
   ;; list(xml) -> xml
   "List of Resource specifications."
   (xml "ResourceList" resources))
 
-(pdefine pl (Resource resource) (name priority &rest clauses) 0
+(pdefine pl (Resource resource) (name priority &rest clauses) 0 nil
   ;; (xml + string) * (xml + int) * list(xml) -> xml
   ("A Resource specification.  Name and priority are required. "
    "The remaining clauses can be {{ResourceUpperBound}} or {{ResourceLowerBound}}")
@@ -1163,12 +1244,12 @@
              (cons (xml "ResourcePriority" (infer-type priority))
                    clauses)))))
 
-(pdefine pl (ResourceUpperBound resource-upper-bound) (x) 0
+(pdefine pl (ResourceUpperBound resource-upper-bound) (x) 0 nil
   ;; (xml + real) -> xml
   "A resource upper bound."
   (xml "ResourceUpperBound" (infer-type x)))
 
-(pdefine pl (ResourceLowerBound resource-lower-bound) (x) 0
+(pdefine pl (ResourceLowerBound resource-lower-bound) (x) 0 nil
   ;; (xml + real) -> xml
   "A resource lower bound."
   (xml "ResourceLowerBound" (infer-type x)))
@@ -1178,20 +1259,16 @@
  "=== Miscellaneous Node Clauses ==="
  "")
 
-(pdefine pl (NodeComment node-comment) (&rest sentences) 1 ; list(string) -> xml
+(pdefine pl (NodeComment node-comment) (&rest sentences) 1 nil  
+  ;; list(string) -> xml
   "A comment for the node. (The sentences will be concatenated.)"
   (xml "Comment" (apply (function concat) sentences)))
 
-;;; NOTE: deprecated!
-(pdefine pl (Priority priority) (n) 1                 ; natural-number -> xml
-  "The node's priority (an integer)."
-  (xml "Priority" n))
-
-(pdefine pl (Permissions permissions) (p) 1              ; string -> xml
+(pdefine pl (Permissions permissions) (p) 1 nil             ; string -> xml
   "The node's permissions."
   (xml "Permissions" p))
 
-(pdefine pl (Comment comment) (&rest sentences) 1    ; list(string) -> xml
+(pdefine pl (Comment comment) (&rest sentences) 1 nil   ; list(string) -> xml
   ;; XML comments
   ("This creates a comment in the XML, and may occur in any number within "
    "a node.  It is useful for commenting your plan in a way that will "
@@ -1202,7 +1279,7 @@
  "=== Miscellaneous Expressions ==="
  "")
 
-(pdefine pl (Concat concat) (&rest exprs) 0
+(pdefine pl (Concat concat) (&rest exprs) 0 nil
   ;; StringExpression * StringExpression * list(StringExpression) -> xml
   ("A string expression is either a string literal, StringValue expression, "
    "string variable, lookup, or another Concat expression.  The Concat form "
@@ -1213,8 +1290,8 @@
        (mapcar #'infer-type exprs)
        nil 'string))
 
-(pdefine pl (TimepointValue timepoint-value) 
-  (nodeid node-state-value timepoint) 1
+(pdefine pl (TimepointValue timepoint-value)
+         (nodeid node-state-value timepoint) 1 nil
   ;; string * string * string -> xml
   ("Returns the amount of time since the specified state of the specified node "
    "has either started or ended.  {{node-state-value must be one of INACTIVE, "
@@ -1226,19 +1303,19 @@
              (xml "Timepoint" timepoint))
        nil 'time))
 
-(pdefine pl (StartTime start-time) (nodeid) 1  ; string -> xml
+(pdefine pl (StartTime start-time) (nodeid) 1 nil ; string -> xml
   "Time when given node started executing."
   (pl-timepoint-value nodeid "EXECUTING" "START"))
 
-(pdefine pl (NodeState node-state) (nodeid) 1
+(pdefine pl (NodeState node-state) (nodeid) 1 nil
   "Specifies the state of the node with the given ID."
   (xml "NodeStateVariable" (xml "NodeId" nodeid)))
 
-(pdefine pl (NodeOutcome node-outcome) (nodeid) 1
+(pdefine pl (NodeOutcome node-outcome) (nodeid) 1 nil
   "Specifies the outcome of the node with the given ID."
   (xml "NodeOutcomeVariable" (xml "NodeId" nodeid)))
 
-(pdefine pl (isKnown IsKnown is-known) (v) 1 ; xml -> xml
+(pdefine pl (isKnown IsKnown is-known) (v) 1 nil ; xml -> xml
   ("Returns true or false depending on whether the value of the given declared "
    "variable, node state variable, node outcome variable, or node timepoint "
    "value is known.")
@@ -1252,17 +1329,17 @@
  "This section describes the forms (constructs) that comprise simulation ."
  "scripts, which are used to test plans with the Universal Executive.")
 
-(pdefine ps (PlexilScript plexil-script) (&rest forms) 0      ; list(xml) -> xml
+(pdefine ps (PlexilScript plexil-script) (&rest forms) 0 nil     ; list(xml) -> xml
   ("The top level form for a script. "
    "A script must contain exactly one of these, and nothing else.")
   (xml "PLEXILScript" forms))
 
-(pdefine ps (InitialState initial-state) (&rest forms) 0  ; list(xml) -> xml
+(pdefine ps (InitialState initial-state) (&rest forms) 0 nil ; list(xml) -> xml
   ("Defines the initial state section of the script, which is optional. "
    "It consists of {{State}} forms.")
   (xml "InitialState" forms))
 
-(pdefine ps (Script script) (&rest forms) 0         ; list(xml) -> xml
+(pdefine ps (Script script) (&rest forms) 0 nil        ; list(xml) -> xml
   ("Defines the \"script\" section of the script, which is required. "
    "It consists of any of the following forms.")
   (xml "Script" forms))
@@ -1274,7 +1351,7 @@
  "or result is an array.  Its elements must all be of the same type.  For boolean "
  "arrays, you must use 0 and 1 for true and false, respectively.")
 
-(pdefine-syntax ps (State state) (name type value &rest params) 3
+(pdefine-syntax ps (State state) (name type value &rest params) 3 nil
   ;; string * string * any * list(xml) -> xml
   "Sets the state of given name and type and parameters to the given value(s)."
   `(let ((actual-value (plexil-handle-boolean ',value)))
@@ -1292,7 +1369,7 @@
       (cadr x)
     x))
 
-(pdefine-syntax ps (CommandAck command-ack) (name type result &rest params) 3
+(pdefine-syntax ps (CommandAck command-ack) (name type result &rest params) 3 nil
   ("Acknowledges the named command with given parameters, "
    "returning the given result(s) of given type.  IMPORTANT NOTE: "
    "An acknowledgment should return only 0 or 1 (false or true). "
@@ -1301,17 +1378,17 @@
    "following two forms before this one.")
   `(plexil-command-form "CommandAck" ,name ,type ',result ',params))
 
-(pdefine-syntax ps (Command command) (name type result &rest params) 3
+(pdefine-syntax ps (Command command) (name type result &rest params) 3 nil
   ("Simulates the completion of the named command with given parameters "
    "returning the given result(s) of given type.")
   `(plexil-command-form "Command" ,name ,type ',result ',params))
 
-(pdefine-syntax ps (CommandAbort command-abort) (name type result &rest params) 3
+(pdefine-syntax ps (CommandAbort command-abort) (name type result &rest params) 3 nil
   ("Simulates the abort of the named command with given parameters "
    "returning the given result(s) of given type.")
   `(plexil-command-form "CommandAbort" ,name ,type ',result ',params))
 
-(pdefine-syntax ps (FunctionCall function-call) (name type result &rest params) 3
+(pdefine-syntax ps (FunctionCall function-call) (name type result &rest params) 3 nil
   ("Simulates the completion of the named function with given parameters "
    "returning the given result(s) of given type.")
   `(plexil-command-form "FunctionCall" ,name ,type ',result ',params))
@@ -1323,24 +1400,24 @@
                             (if (consp result) result (list result))))
        (list (cons "name" name) (cons "type" type))))
 
-(pdefine ps (Param param) (value &optional type) 1  ; any * opt(string) -> xml
+(pdefine ps (Param param) (value &optional type) 1 nil ; any * opt(string) -> xml
   "Defines a parameter //value//, with optional type."
   (xml "Param" value (if type (list (cons "type" type)))))
 
-(pdefine ps (ParamString param-string) (str &rest strs) 1
+(pdefine ps (ParamString param-string) (str &rest strs) 1 nil
   ;; string * list(strings) -> xml
   "Like the above, but useful for long strings (they are concatenated)."
   (ps-param (concat str (apply #'concat strs)) "string"))
 
-(pdefine ps (UpdateAck update-ack) (name) 1            ; string -> xml
+(pdefine ps (UpdateAck update-ack) (name) 1 nil           ; string -> xml
   "Acknowledges a plan update."
   (xml "UpdateAck" nil (list (cons "name" name))))
 
-(pdefine ps (Simultaneous simultaneous) (&rest forms) 0   ; list(xml) -> xml
+(pdefine ps (Simultaneous simultaneous) (&rest forms) 0 nil  ; list(xml) -> xml
   "Wraps script actions that should occur simultaneously."
   (xml "Simultaneous" forms))
 
-(pdefine ps (Comment comment) (&rest sentences) 1    ; list(string) -> xml
+(pdefine ps (Comment comment) (&rest sentences) 1 nil   ; list(string) -> xml
   ;; XML comments
   ("This creates a comment in the XML, and may occur in any number within "
    "a script.  It is useful for commenting your script in a way that will "
@@ -1352,7 +1429,7 @@
  "This section describes various shortcuts for simulation scripts.  "
  "They each expand into some combination of the forms in the previous section.")
 
-(pdefine-syntax ps (CommandSuccess command-success) (name &rest params) 1
+(pdefine-syntax ps (CommandSuccess command-success) (name &rest params) 1 nil
   ("Sends a COMMAND_SUCCESS handle for the given command invocation. "
    "NOTE: If your plan is awaiting a return value from the command itself, "
    "you must return this (using the {{Command}} form) //before// "
@@ -1517,6 +1594,11 @@
 
 (defun remove-nil (&rest elts)   ; list -> list
   (remove nil elts))
+
+(defun filter (pred x)
+  (if x
+      (cond ((funcall pred (car x)) (cons (car x) (filter pred (cdr x))))
+            (t (filter pred (cdr x))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
