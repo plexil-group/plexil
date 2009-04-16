@@ -1,0 +1,47 @@
+
+SubDir app-framework ;
+
+if ! $(PLEXIL_APP_FWORK_READY) {
+
+PLEXIL_HOME = [ FDirName $(app-framework) $(DOTDOT) ] ;
+
+# reference common library directories
+# *** unfortunately the references to relative paths only work
+# when executing in this directory!! ***
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
+             ;
+
+# point to relevant UE headers
+HDRS += [ FDirName $(PLEXIL_HOME) universal-exec Exec ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Exec component ]
+        [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils base ]
+        [ FDirName $(PLEXIL_HOME) universal-exec Utils component ]
+        ;
+
+Module PlexilAppFramework ;
+
+ModuleLibraries PlexilAppFramework : 
+  $(PTHREADS_LIBRARY)
+  $(SEM_LIBRARY)
+  [ FVariantName Exec PlexilUtils PlexilTinyXml : $(VARIANTS) ]
+ ;
+
+ModuleCore PlexilAppFramework :
+  ThreadSemaphore.cc
+  InterfaceSchema.cc
+  AdaptorExecInterface.cc
+  InterfaceAdaptor.cc
+  InterfaceManager.cc
+  AdaptorFactory.cc
+  ExecListenerFactory.cc
+  ExecApplication.cc
+ ;
+
+ModuleComponent PlexilAppFramework :
+  DummyAdaptor.cc  
+ ;
+
+} # PLEXIL_APP_FWORK_READY
