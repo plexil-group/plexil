@@ -149,7 +149,7 @@ public class LuvActionHandler
                 }
                 else
                 {
-                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: trying to reload and unknown plan. Are you trying to reload a plan you originally executed remotely?");
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: trying to reload an UNKNOWN plan");
                     Luv.getLuv().getLuvStateHandler().reloadPlanState();
                 }
                 Luv.getLuv().setNewPlan(false);

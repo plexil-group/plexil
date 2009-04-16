@@ -52,7 +52,6 @@ public interface BreakPoint
        *
        * @param enabled true if this breakpoint is enabled
        */
-
       public void setEnabled(boolean enabled);
 
       /** 

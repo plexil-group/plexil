@@ -309,6 +309,10 @@ public class Properties extends java.util.Properties
        */
       public void set(String name, Dimension value)
       {
+          // due to and unresolved bug in Java where the height of JFrame objects 
+          // getSize() method drops 3 integers every time the application closes, 
+          // so adding it back here
+         value.height = value.height + 3;
          setProperty(name, (int)value.getWidth() + ", " + (int)value.getHeight());
       }
 

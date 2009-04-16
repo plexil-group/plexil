@@ -402,7 +402,7 @@ public class Model extends Properties
 
     /**
      * Specifies the Plexil Library name for this Model.
-     * @param scriptName the Plexil Library name
+     * @param libraryName the Plexil Library name
      */
     public void addLibraryName(String libraryName)
     {
@@ -479,7 +479,7 @@ public class Model extends Properties
     }
     
     /**
-     * Return the top level ancestor of this Model. 
+     * Returns the top level ancestor of this Model. 
      * @return the top level ancestor
      */
     public Model topLevelNode()
@@ -573,7 +573,7 @@ public class Model extends Properties
     }
 
     /**
-     * Signal that a new Plexil Plan has been installed under this Model.
+     * Signals that a new Plexil Plan has been installed under this Model.
      */
     public void planChanged()
     {
@@ -713,7 +713,7 @@ public class Model extends Properties
 	return false;
     }
     
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
     public String toString()
     {
 	String name = getModelName();

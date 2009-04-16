@@ -316,13 +316,13 @@ public class FindWindow extends JPanel implements KeyListener
        }
     }
     
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
     
     public void keyTyped(KeyEvent e) 
     {
     }
     
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
 
     public void keyPressed(KeyEvent e) 
     {
@@ -335,7 +335,7 @@ public class FindWindow extends JPanel implements KeyListener
         }
     }
     
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
 
     public void keyReleased(KeyEvent e) 
     {

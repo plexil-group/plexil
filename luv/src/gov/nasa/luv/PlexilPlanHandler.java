@@ -79,7 +79,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         row_number = 0;
     }
 
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
     public void startDocument()
     {
     }
@@ -202,7 +202,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
          //   Luv.getLuv().handleNewLibrary(topLevelNode);
     }
 
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
     public void endDocument()
     {       
     }

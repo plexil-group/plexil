@@ -53,21 +53,17 @@ import static gov.nasa.luv.Constants.*;
 
 public class DebugCFGWindow extends JFrame implements ItemListener
 {
-    private static DebugCFGWindow frame;        
+    private static DebugCFGWindow frame;    
+    private static boolean error;
     private JPanel topSection;  
     private JScrollPane checkBoxList;
     private JScrollPane previewArea; 
     private JPanel buttonPane;    
     private CheckNode[] nodes;
     private JCheckBox enableDebugCFGFile;  
-    private JTextArea preview;    
+    private JTextArea preview;        
             
-    public DebugCFGWindow() 
-    {
-        setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
-        setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
-	pack();
-    }
+    public DebugCFGWindow() {}
     
     /** Construct an DebugCFGWindow. 
      *
@@ -77,23 +73,27 @@ public class DebugCFGWindow extends JFrame implements ItemListener
     public DebugCFGWindow(String title) throws FileNotFoundException 
     {
         super(title);
+        error = false;
+        createCheckList();
         
-        createCheckList();     
-        createPreviewArea();       
-        createTopSection();        
-        createButtons();
+        if (!error)
+        {
+            createPreviewArea();       
+            createTopSection();        
+            createButtons();
 
-        getContentPane().add(topSection, BorderLayout.NORTH);
-        getContentPane().add(checkBoxList, BorderLayout.WEST);
-        getContentPane().add(previewArea, BorderLayout.EAST);
-        getContentPane().add(buttonPane, BorderLayout.SOUTH);
+            getContentPane().add(topSection, BorderLayout.NORTH);
+            getContentPane().add(checkBoxList, BorderLayout.WEST);
+            getContentPane().add(previewArea, BorderLayout.EAST);
+            getContentPane().add(buttonPane, BorderLayout.SOUTH);
+        }    
     }
     
     private void createCheckList() throws FileNotFoundException 
     {
         ArrayList<String> list = new ArrayList<String>();  
         JTree main_tree;    
-        
+                
         // first gather debug flags from complete debug list
         try
         {
@@ -119,6 +119,8 @@ public class DebugCFGWindow extends JFrame implements ItemListener
                     "ERROR: " + COMPLETE_FLAG_LIST + 
                     " not found.\nYou need to run the python script: " + 
                     PYTHON_SCRIPT + " and try again");
+            
+            error = true;
         }  
   
         // attach each flag to a check box
@@ -159,7 +161,7 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         
         enableDebugCFGFile = new JCheckBox("Enable Debug Messages");
         enableDebugCFGFile.addItemListener(this);
-        this.preview.getText().startsWith("#");
+
         if (preview.getText().startsWith("#"))
             enableDebugCFGFile.setSelected(false);
         else
@@ -249,7 +251,10 @@ public class DebugCFGWindow extends JFrame implements ItemListener
             }  
         }
         else
-            preview.setText("");
+        {
+            if (preview != null)
+                preview.setText("");
+        }
     }
     
     private String getTopMessage() 
@@ -529,13 +534,16 @@ public class DebugCFGWindow extends JFrame implements ItemListener
 
         frame = new DebugCFGWindow("Create Debug Configuration File");
         
-        frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
-        frame.pack();
-        frame.setVisible(true);
+        if (!error)
+        {       
+            frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
+            frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+            frame.pack();
+            frame.setVisible(true);
+        }
     }
     
-    /** { @inheritDoc } */
+    /** {@inheritDoc} */
 
     public void itemStateChanged(ItemEvent e) 
     {

@@ -122,7 +122,7 @@ public class FileHandler
 			// return descriton                          
 			public String getDescription()
 			{
-			    return "XML Files / PLX Files / PLS Files";
+			    return "XML / PLX / PLS";
 			}
 		    });
 	    }

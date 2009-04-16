@@ -63,7 +63,6 @@ public class LuvStateHandler
 	Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM).setEnabled(true);
 	Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(true);
 	Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(true);
-        Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(true);
 	Luv.getLuv().getFileMenu().getItem(EXIT_MENU_ITEM).setEnabled(true);
 	Luv.getLuv().getFileMenu().setEnabled(true);
           

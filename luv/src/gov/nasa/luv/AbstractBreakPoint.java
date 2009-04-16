@@ -50,27 +50,27 @@ public abstract class AbstractBreakPoint implements BreakPoint
        *
        * @param model the Plexil Model on which the break point operates
        */
-
+      
       public AbstractBreakPoint(Model model)
       {
          setModel(model);
       }
 
-      /** { @inheritDoc } */
-
+      /** {@inheritDoc} */
+      
       public void setEnabled(boolean enabled)
       {
          this.enabled = enabled;
       }
 
-      /** { @inheritDoc } */
+      /** {@inheritDoc} */
 
       public boolean isEnabled()
       {
          return enabled;
       }
 
-      /** { @inheritDoc } */
+      /** {@inheritDoc} */
 
       public void unregister()
       {
@@ -80,7 +80,7 @@ public abstract class AbstractBreakPoint implements BreakPoint
             model.removeChangeListener(listener);
       }
 
-      /** { @inheritDoc } */
+      /** {@inheritDoc} */
 
       public void setModel(Model model)
       {
@@ -105,7 +105,7 @@ public abstract class AbstractBreakPoint implements BreakPoint
          this.model = model;
       }
 
-      /** { @inheritDoc } */
+      /** {@inheritDoc} */
 
       public Model getModel()
       {

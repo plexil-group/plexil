@@ -26,8 +26,9 @@
 
 package gov.nasa.luv;
 
-/*
- * The SocketWranglerFactory interface provides a factory for SocketWranglers.
+/**
+ * The SocketWranglerFactory interface creates SocketWranglers.
+ * 
  */
 
 public interface SocketWranglerFactory

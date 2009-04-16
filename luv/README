@@ -20,3 +20,7 @@ To run:
 To clean:
 
  > ant clean
+
+To generate Javadoc:
+
+ > ant doc

@@ -244,11 +244,11 @@ public class StatusMessageHandler
         if (e != null)
         {
             JOptionPane.showMessageDialog(Luv.getLuv(), 
-                                          errorMessage + ". Please see Debug Window.", 
+                                          errorMessage + ".\nPlease see Debug Window.", 
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
   
-            System.err.println("ERROR: " + e.getMessage());
+            System.out.println(errorMessage + "\n" + e.getMessage());
         }
         else
         {
@@ -257,7 +257,7 @@ public class StatusMessageHandler
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
 
-            System.err.println(errorMessage);
+            System.out.println(errorMessage);
         }
     }
     
@@ -272,6 +272,7 @@ public class StatusMessageHandler
                                       infoMessage,
                                       "Stopping Execution",
                                       JOptionPane.INFORMATION_MESSAGE);
+        System.out.println("INFO: " + infoMessage);
     }
 
     /**
