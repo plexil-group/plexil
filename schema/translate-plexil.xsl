@@ -7,16 +7,19 @@
 <xsl:output method="xml" indent="yes"/>
 
 <!-- To Do
-     update PLEXIL manual (pending Sourceforge support)
-     revisit node outcome checks
      incorporate into run-ue (?)
 
      add checks for all node states?
      add all node failure types to transition diagrams
      
      Implementation:
+     copy comments (hard)
      use copy-of in local variables
 -->
+
+<xsl:key name= "action"
+         match= "Node|Sequence|UncheckedSequence|Try|If|While|For"
+         use= "."/>
 
 <!-- Entry point -->
 <xsl:template match= "PlexilPlan">
@@ -24,8 +27,7 @@
     <!-- 0 or 1 expected -->
     <xsl:copy-of select= "GlobalDeclarations"/>
     <!-- 1 expected -->
-    <xsl:apply-templates
-        select= "Node|Sequence|UncheckedSequence|Try|If|While|For"/>
+    <xsl:apply-templates select= "key('action', *)"/>
   </PlexilPlan>
 </xsl:template>
 
@@ -136,8 +138,7 @@
 <xsl:template name= "sequence-body">
   <NodeBody>
     <NodeList>
-      <xsl:apply-templates select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
-                           mode= "ordered"/>
+      <xsl:apply-templates select= "key('action', *)" mode= "ordered"/>
     </NodeList>
   </NodeBody>
 </xsl:template>
@@ -334,8 +335,7 @@
               </RepeatCondition>
               <NodeBody>
                 <NodeList>
-                  <xsl:apply-templates
-                      select= "Node|Sequence|UncheckedSequence|Try|If|While|For"/>
+                  <xsl:apply-templates select= "key('action', *)"/>
                 </NodeList>
               </NodeBody>
             </Node>
@@ -493,8 +493,7 @@
           <xsl:apply-templates select= "PostCondition/*"/>
           <OR>
             <xsl:apply-templates
-                select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
-                mode= "success-check"/>
+                select= "key('action', *)" mode= "success-check"/>
           </OR>
         </AND>
       </PostCondition>
@@ -511,8 +510,7 @@
           <NOT>
             <OR>
               <xsl:apply-templates
-                  select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
-                  mode= "failure-check"/>
+                  select= "key('action', *)" mode= "failure-check"/>
             </OR>
           </NOT>
         </AND>
@@ -528,8 +526,7 @@
         <OR>
           <xsl:apply-templates select= "EndCondition/*"/>
           <xsl:apply-templates
-              select= "Node|Sequence|UncheckedSequence|Try|If|While|For"
-              mode= "success-check"/>
+              select= "key('action', *)" mode= "success-check"/>
         </OR>
       </EndCondition>
     </xsl:when>
