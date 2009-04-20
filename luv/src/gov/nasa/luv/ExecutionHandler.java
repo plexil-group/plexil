@@ -89,6 +89,7 @@ public class ExecutionHandler
       public boolean runExec() throws IOException
       {
           String command = createCommandLine();
+          System.out.println(command);
           
           if (!command.contains("ERROR")) 
           {   
@@ -113,9 +114,11 @@ public class ExecutionHandler
           String command = UE_EXEC + " -v";
 
 	  if (Luv.getLuv().breaksAllowed())
-	      command += " -b";                
+	      command += " -b"; 
+          
+          command += " -d " + DEBUG_CFG_FILE;
   
-        // get plan
+          // get plan
         
 	  if (currentPlan != null && 
               currentPlan.getAbsolutePlanName() != null &&

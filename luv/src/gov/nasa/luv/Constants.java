@@ -127,27 +127,49 @@ public class Constants
       
       /** Represents the "test executive" for PLEXIL. */ 
       public static final String    TEST_EXEC = "test-exec_g_rt";
+      
       /** Represents the script for running the "test executive" for PLEXIL. */ 
-      public static final String    UE_EXEC = System.getenv("PLEXIL_HOME") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "run-ue";
+      public static final String    UE_EXEC = System.getenv("PLEXIL_HOME") + 
+                                              System.getProperty("file.separator") + 
+                                              "bin" + 
+                                              System.getProperty("file.separator") + 
+                                              "run-ue";
+      
       /** Represents the Luv application debug log file. Note this file is not referenced yet in the DebugWindow class. */ 
-      public static final String    DEBUG_LOG_FILE = System.getProperty("user.home") + System.getProperty("file.separator") + "luv.log";      
+      public static final String    DEBUG_LOG_FILE = System.getProperty("user.home") + 
+                                                     System.getProperty("file.separator") + 
+                                                     "luv.log";      
+      
       /** Represents the python script that is used to create a complete list of debug flag list. */ 
-      public static final String    PYTHON_SCRIPT = System.getenv("PLEXIL_HOME") + System.getProperty("file.separator") +
-                                                          "bin" + System.getProperty("file.separator") +
-                                                          "debugFlagCollector.py";
+      public static final String    PYTHON_SCRIPT = System.getenv("PLEXIL_HOME") + 
+                                                    System.getProperty("file.separator") +
+                                                    "bin" + 
+                                                    System.getProperty("file.separator") +
+                                                    "debugFlagCollector.py";
+      
       /** Represents the complete list of debug flags. */ 
-      public static final String    COMPLETE_FLAG_LIST = System.getenv("PLEXIL_HOME") + System.getProperty("file.separator") +
-                                                          "universal-exec" + System.getProperty("file.separator") +
-                                                          "Utils" + System.getProperty("file.separator") +
-                                                          "test" + System.getProperty("file.separator") +
-                                                          "CompleteDebugFlags.cfg";
+      public static final String    COMPLETE_FLAG_LIST = System.getenv("PLEXIL_HOME") + 
+                                                         System.getProperty("file.separator") +
+                                                         "universal-exec" + 
+                                                         System.getProperty("file.separator") +
+                                                         "Utils" + 
+                                                         System.getProperty("file.separator") +
+                                                         "test" + 
+                                                         System.getProperty("file.separator") +
+                                                         "CompleteDebugFlags.cfg";
+      
       /** Represents the user defined list of debug flags. */
-      public static final String    DEBUG_CFG_FILE = System.getenv("PLEXIL_HOME") + System.getProperty("file.separator") +
-                                                          "luv" + System.getProperty("file.separator") +
-                                                          "Debug.cfg";
+      public static final String    DEBUG_CFG_FILE = System.getenv("PLEXIL_HOME") + 
+                                                     System.getProperty("file.separator") +
+                                                     "luv" + 
+                                                     System.getProperty("file.separator") +
+                                                     "Debug.cfg";
 
       /** Represents the location of the Plexil node icon files. */
-      public static final String    ICONS_DIR = "resources" + System.getProperty("file.separator") + "icons" + System.getProperty("file.separator");
+      public static final String    ICONS_DIR = "resources" + 
+                                                System.getProperty("file.separator") + 
+                                                "icons" + 
+                                                System.getProperty("file.separator");
       
       /** Plexil node icon file names */
       public static final String    ABOUT_SCREEN_ICO  = "LuvIcon.gif";

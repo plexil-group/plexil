@@ -55,12 +55,12 @@ public class DebugCFGWindow extends JFrame implements ItemListener
 {
     private static DebugCFGWindow frame;    
     private static boolean error;
+    private JCheckBox enableDebugCFGFile;
     private JPanel topSection;  
     private JScrollPane checkBoxList;
     private JScrollPane previewArea; 
     private JPanel buttonPane;    
-    private CheckNode[] nodes;
-    private JCheckBox enableDebugCFGFile;  
+    private CheckNode[] nodes;     
     private JTextArea preview;        
             
     public DebugCFGWindow() {}
@@ -207,49 +207,51 @@ public class DebugCFGWindow extends JFrame implements ItemListener
         buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
     }
     
-    private void setPreviewOfCFGFile() throws FileNotFoundException
+    private ArrayList<String> readInDebugCFGFile() throws FileNotFoundException
     {
+        ArrayList<String> lines = new ArrayList<String>();
+        
         if (new File(DEBUG_CFG_FILE).exists())
         {
-            try
+            Scanner scanner = new Scanner(new File(DEBUG_CFG_FILE));  
+            
+            try 
             {
-                Scanner scanner = new Scanner(new File(DEBUG_CFG_FILE));  
-                ArrayList<String> lines = new ArrayList<String>();
-
-                try 
-                {
-                    while (scanner.hasNextLine())
-                    {               
-                        String line = scanner.nextLine().trim(); 
-                        lines.add(line);                                 
-                    }  
-
-                    if (!lines.isEmpty())
-                    {
-                        preview.setText("");
-                        for (String line : lines)
-                        {
-                            preview.append(line + "\n");
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, 
-                            "ERROR: exception occurred while getting preview of " 
-                            + DEBUG_CFG_FILE);
-                }
-                finally 
-                {
-                    scanner.close();
-                }
+                String line;
+                
+                while (scanner.hasNextLine())
+                {               
+                    line = scanner.nextLine().trim(); 
+                    lines.add(line);                                 
+                }                
             }
-            catch (FileNotFoundException ex)
+            catch (Exception e)
             {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex,
-                        "ERROR: " + DEBUG_CFG_FILE + " not found");
-            }  
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, 
+                        "ERROR: exception occurred while reading " + DEBUG_CFG_FILE);
+            }
+            finally 
+            {
+                scanner.close();
+            } 
         }
+        
+        return lines;
+    }
+    
+    private void setPreviewOfCFGFile() throws FileNotFoundException
+    {
+        ArrayList<String> lines = new ArrayList<String>();
+        lines = readInDebugCFGFile();
+        
+        if (!lines.isEmpty())
+        {
+            preview.setText("");
+            for (String line : lines)
+            {
+                preview.append(line + "\n");
+            }
+        }                
         else
         {
             if (preview != null)
