@@ -42,6 +42,8 @@ namespace PLEXIL
   typedef Id<PlexilNode> PlexilNodeId;
   class ExecListener;
   typedef Id<ExecListener> ExecListenerId;
+  class ExecListenerFilter;
+  typedef Id<ExecListenerFilter> ExecListenerFilterId;
 
   /**
    * @brief An abstract base class for notifying external agents about exec state changes.
@@ -66,38 +68,8 @@ namespace PLEXIL
     virtual ~ExecListener();
 
     //
-    // API to be implemented by derived classes
+    // API to Exec
     //
-
-    /**
-     * @brief Perform listener-specific initialization.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    virtual void initialize() {}
-
-    /**
-     * @brief Perform listener-specific startup.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    virtual void start() {}
-
-    /**
-     * @brief Perform listener-specific actions to stop.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    virtual void stop() {}
-
-    /**
-     * @brief Perform listener-specific actions to reset to initialized state.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    virtual void reset() {}
-
-    /**
-     * @brief Perform listener-specific actions to shut down.
-     * @note Default method provided as a convenience for backward compatibility.
-     */
-    virtual void shutdown() {}
 
     /**
      * @brief Notify that a node has changed state.
@@ -105,24 +77,67 @@ namespace PLEXIL
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      */
-    virtual void notifyOfTransition(const LabelStr& prevState, const NodeId& node) const = 0;
+    virtual void notifyOfTransition(const LabelStr& prevState, 
+                                    const NodeId& node) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the parent node under which this plan will be inserted.
      */
-    virtual void notifyOfAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const = 0;
+    virtual void notifyOfAddPlan(const PlexilNodeId& plan, 
+                                 const LabelStr& parent) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
-     * @note The default method is deprecated and will go away in a future release.
      */
-    virtual void notifyOfAddLibrary(const PlexilNodeId& libNode) const /* = 0 */ ;
+    virtual void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
 
     //not sure if anybody wants this
-    //void notifyOfConditionChange(const NodeId& node, const LabelStr& condition, const bool value) {}
+    //virtual void notifyOfConditionChange(const NodeId& node,
+    //                                     const LabelStr& condition,
+    //                                     const bool value) const;
+
+
+    //
+    // API to be implemented by derived classes
+    //
+
+    /**
+     * @brief Perform listener-specific initialization.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool initialize();
+
+    /**
+     * @brief Perform listener-specific startup.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool start();
+
+    /**
+     * @brief Perform listener-specific actions to stop.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool stop();
+
+    /**
+     * @brief Perform listener-specific actions to reset to initialized state.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool reset();
+
+    /**
+     * @brief Perform listener-specific actions to shut down.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool shutdown();
 
     /**
      * @brief Get the ID of this instance.
@@ -142,16 +157,50 @@ namespace PLEXIL
       return m_xml; 
     }
 
+    /**
+     * @brief Set the filter of this instance.
+     * @param fltr Smart pointer to the filter.
+     */
+    void setFilter(ExecListenerFilterId fltr);
+
   protected:
 
     //
-    // Member variables for use by subclasses
+    // API to be implemented by subclasses
     //
 
     /**
-     * @brief The configuration XML used at construction time.
+     * @brief Notify that a node has changed state.
+     * @param prevState The old state.
+     * @param node The node that has transitioned.
+     * @note The current state is accessible via the node.
+     * @note The default method does nothing.
      */
-    const TiXmlElement* m_xml;
+    virtual void implementNotifyNodeTransition(const LabelStr& prevState,
+                                               const NodeId& node) const
+    {
+    }
+
+    /**
+     * @brief Notify that a plan has been received by the Exec.
+     * @param plan The intermediate representation of the plan.
+     * @param parent The name of the parent node under which this plan will be inserted.
+     * @note The default method does nothing.
+     */
+    virtual void implementNotifyAddPlan(const PlexilNodeId& plan, 
+                                        const LabelStr& parent) const
+    {
+    }
+
+    /**
+     * @brief Notify that a library node has been received by the Exec.
+     * @param libNode The intermediate representation of the plan.
+     * @note The default method does nothing.
+     */
+    virtual void implementNotifyAddLibrary(const PlexilNodeId& libNode) const
+    {
+    }
+    
 
   private:
 
@@ -159,7 +208,86 @@ namespace PLEXIL
      * @brief The ID of this instance.
      */
     ExecListenerId m_id;
+
+    /**
+     * @brief The configuration XML used at construction time.
+     */
+    const TiXmlElement* m_xml;
+
+    /**
+     * @brief The ID of this instance's filter.
+     */
+    ExecListenerFilterId m_filter;
+    
   };
+
+  //* Abstract base class for defining transition event filters
+  class ExecListenerFilter
+  {
+  public:
+    /**
+     * @brief Constructor.
+     */
+    ExecListenerFilter(TiXmlElement* xml);
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~ExecListenerFilter();
+
+    /**
+     * @brief Determine whether this node transition event should be reported.
+     * @param prevState The LabelStr naming the node's previous state.
+     * @param node Smart pointer to the node that changed state.
+     * @return true to notify on this event, false to ignore it.
+     * @note The default method simply returns true.
+     */
+    virtual bool reportNodeTransition(const LabelStr& prevState, 
+                                      const NodeId& node);
+
+    /**
+     * @brief Determine whether this AddPlan event should be reported.
+     * @param plan Smart pointer to the plan's intermediate representation.
+     * @param parent The LabelStr naming the new plan's parent node.
+     * @return true to notify on this event, false to ignore it.
+     * @note The default method simply returns true.
+     */
+    virtual bool reportAddPlan(const PlexilNodeId& plan,
+			       const LabelStr& parent);
+
+    /**
+     * @brief Determine whether this AddLibraryNode event should be reported.
+     * @param plan Smart pointer to the library's intermediate representation.
+     * @return true to notify on this event, false to ignore it.
+     * @note The default method simply returns true.
+     */
+    virtual bool reportAddLibrary(const PlexilNodeId& plan);
+
+    inline const ExecListenerFilterId getId() const
+    {
+      return m_id;
+    }
+
+    inline const TiXmlElement* getXml() const
+    {
+      return m_xml;
+    }
+
+  private:
+    //
+    // Deliberately unimplemented
+    //
+    ExecListenerFilter();
+    ExecListenerFilter(const ExecListenerFilter &);
+    ExecListenerFilter& operator=(const ExecListenerFilter &);
+
+    //
+    // Member variables
+    //
+    ExecListenerFilterId m_id;
+    const TiXmlElement* m_xml;
+  };
+
 }
 
 #endif // _H_ExecListener
