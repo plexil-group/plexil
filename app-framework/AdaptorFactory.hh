@@ -165,49 +165,7 @@ namespace PLEXIL
     }
   };
 
-  template<class AdaptorType>
-  class SingletonAdaptorFactory : public AdaptorFactory
-  {
-  public:
-    SingletonAdaptorFactory(const LabelStr& name)
-      : AdaptorFactory(name) 
-    {}
-
-  private:
-    // Deliberately unimplemented
-    SingletonAdaptorFactory();
-    SingletonAdaptorFactory(const SingletonAdaptorFactory&);
-    SingletonAdaptorFactory& operator=(const SingletonAdaptorFactory&);
-
-    /**
-     * @brief Instantiates an InterfaceAdaptor of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the singleton InterfaceAdaptor.
-     */
-
-    InterfaceAdaptorId create(const TiXmlElement* xml,
-                              AdaptorExecInterface& execInterface,
-                              bool& wasCreated) const
-    {
-      static InterfaceAdaptorId sl_instance = InterfaceAdaptorId::noId();
-      if (sl_instance.isNoId())
-        {
-          sl_instance = (new AdaptorType(execInterface, xml))->getId();
-          wasCreated = true;
-        }
-      else
-        {
-          wasCreated = false;
-        }
-      return sl_instance;
-    }
-  };
-
 #define REGISTER_ADAPTOR(CLASS,NAME) {new PLEXIL::ConcreteAdaptorFactory<CLASS>(#NAME);}
-
-#define REGISTER_SINGLETON_ADAPTOR(CLASS,NAME) {new PLEXIL::SingletonAdaptorFactory<CLASS>(#NAME);}
 
 } // namespace PLEXIL
 
