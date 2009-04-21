@@ -37,7 +37,7 @@ class ServerSocket : public Socket
 {
   public:
    
-   ServerSocket ( int port );
+   ServerSocket ( uint16_t port );
    ServerSocket (){};
    virtual ~ServerSocket();
    

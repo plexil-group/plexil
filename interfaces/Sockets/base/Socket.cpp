@@ -106,7 +106,7 @@ const Socket& Socket::operator >> (std::string& s) const
    return *this;
 }
 
-bool Socket::bind (const int port)
+bool Socket::bind (const uint16_t port)
 {
    
    if (! is_valid())
@@ -227,7 +227,7 @@ int Socket::recv (std::string& s) const
 //    return ret_val == 0;
 //}
 
-bool Socket::connect (const std::string host, const int port)
+bool Socket::connect (const std::string host, const uint16_t port)
 {
    if (! is_valid()) return false;
    

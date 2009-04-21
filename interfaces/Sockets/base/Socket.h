@@ -63,12 +63,12 @@ class Socket
 
   // Server initialization
   bool create();
-  bool bind ( const int port );
+  bool bind ( const uint16_t port );
   bool listen() const;
   virtual bool accept ( Socket& ) const;
 
   // Client initialization
-  bool connect ( const std::string host, const int port );
+  bool connect ( const std::string host, const uint16_t port );
 
   // Data Transimission
   bool send ( const std::string ) const;

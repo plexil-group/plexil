@@ -30,7 +30,7 @@
 #include "SocketException.h"
 
 
-ClientSocket::ClientSocket ( std::string host, int port )
+ClientSocket::ClientSocket ( std::string host, uint16_t port )
 {
    if ( ! Socket::create() )
    {

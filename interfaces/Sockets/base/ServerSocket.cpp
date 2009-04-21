@@ -30,7 +30,7 @@
 #include "SocketException.h"
 
 
-ServerSocket::ServerSocket (int port)
+ServerSocket::ServerSocket (uint16_t port)
 {
    if (! Socket::create())
    {

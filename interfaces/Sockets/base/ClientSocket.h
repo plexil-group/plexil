@@ -36,7 +36,7 @@ class ClientSocket : public Socket
 {
   public:
    
-   ClientSocket ( std::string host, int port );
+   ClientSocket ( std::string host, uint16_t port );
    virtual ~ClientSocket(){};
    
    bool send (char* msg, size_t size ) const;
