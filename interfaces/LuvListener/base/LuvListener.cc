@@ -153,46 +153,6 @@ namespace PLEXIL
     delete m_socket;
   }
 
-  /**
-   * @brief Perform listener-specific initialization.
-   * @note Dummy for now.
-   */
-  void LuvListener::initialize()
-  {
-  }
-
-  /**
-   * @brief Perform listener-specific startup.
-   * @note Dummy for now.
-   */
-  void LuvListener::start()
-  {
-  }
-
-  /**
-   * @brief Perform listener-specific actions to stop.
-   * @note Dummy for now.
-   */
-  void LuvListener::stop()
-  {
-  }
-
-  /**
-   * @brief Perform listener-specific actions to reset to initialized state.
-   * @note Dummy for now.
-   */
-  void LuvListener::reset()
-  {
-  }
-
-  /**
-   * @brief Perform listener-specific actions to shut down.
-   * @note Dummy for now.
-   */
-  void LuvListener::shutdown()
-  {
-  }
-
   // handle node state transition event
 
   void LuvListener::sendPlanInfo() const

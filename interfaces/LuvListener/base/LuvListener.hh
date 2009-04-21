@@ -74,31 +74,6 @@ namespace PLEXIL
 
      ~LuvListener();
 
-     /**
-      * @brief Perform listener-specific initialization.
-      */
-     virtual void initialize();
-
-     /**
-      * @brief Perform listener-specific startup.
-      */
-     virtual void start();
-
-     /**
-      * @brief Perform listener-specific actions to stop.
-      */
-     virtual void stop();
-
-     /**
-      * @brief Perform listener-specific actions to reset to initialized state.
-      */
-     virtual void reset();
-
-     /**
-      * @brief Perform listener-specific actions to shut down.
-      */
-     virtual void shutdown();
-
     /**
      * @brief Notify that a node has changed state.
      * @param prevState The old state.
