@@ -9,9 +9,9 @@ actions RemoveBinaries {
 }
 
 {
-  local SUBDIR = $(interfaces) ;
+  local SUBDIR = $(app-framework) ;
   include [ FDirName $(SUBDIR) CommonRules ] ;
   include [ FDirName $(SUBDIR) ModuleRules ] ;
   include [ FDirName $(SUBDIR) Jamfile ] ;
-  PLEXIL_INTFCS_READY = TRUE ;
+  PLEXIL_APP_FWORK_READY = TRUE ;
 }
