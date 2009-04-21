@@ -19,6 +19,7 @@ HDRS += [ FDirName $(PLEXIL_HOME) universal-exec Exec ]
         [ FDirName $(PLEXIL_HOME) universal-exec Utils ]
         [ FDirName $(PLEXIL_HOME) universal-exec Utils base ]
         [ FDirName $(PLEXIL_HOME) universal-exec Utils component ]
+        [ FDirName $(PLEXIL_HOME) interfaces Sockets base ]
         ;
 
 Module PlexilAppFramework ;
@@ -42,6 +43,7 @@ ModuleCore PlexilAppFramework :
 
 ModuleComponent PlexilAppFramework :
   DummyAdaptor.cc  
+  NewLuvListener.cc
  ;
 
 } # PLEXIL_APP_FWORK_READY
