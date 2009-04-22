@@ -42,6 +42,7 @@
 #include "ExecListenerFactory.hh"
 #include "InterfaceAdaptor.hh"
 #include "InterfaceSchema.hh"
+#include "NewLuvListener.hh"
 #include "ResourceArbiterInterface.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
@@ -56,8 +57,6 @@
 
 namespace PLEXIL
 {
-
-  #define ONE_SECOND 1
 
   /**
    * @brief Default constructor.
@@ -83,9 +82,8 @@ namespace PLEXIL
   {
     // Every application has access to the dummy adaptor
     REGISTER_ADAPTOR(DummyAdaptor, "Dummy");
-    // Every application should have access to the LUV Listener,
-    // but it's in a separate library
-    //REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+    // Every application should have access to the LUV Listener
+    REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
   }
 
   /**
@@ -249,6 +247,9 @@ namespace PLEXIL
         while (element != 0)
           {
             const char* elementType = element->Value();
+            // *** TO DO ***
+            // generalize adaptor factories to add support for (e.g.) ActorAdaptor
+            // w/o requiring knowledge of (e.g.) PlexilGenericActor
             if (strcmp(elementType, InterfaceSchema::ADAPTOR_TAG()) == 0)
               {
                 // Get the kind of adaptor to make
@@ -270,6 +271,9 @@ namespace PLEXIL
                            << adaptorType);
                 m_adaptors.insert(adaptor);
               }
+            // *** TO DO ***
+            // generalize listener factories to add support for (e.g.) ActorListener
+            // w/o requiring knowledge of (e.g.) PlexilGenericActor
             else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
               {
                 // Get the kind of listener to make
