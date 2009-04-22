@@ -30,12 +30,16 @@
 
 namespace PLEXIL
 {
+  //
+  // ExecListenerFactory
+  //
+
   /**
    * @brief Creates a new ExecListener instance with the type associated with the name and
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListener constructor.
-   * @return The Id for the new ExecListener.  May not be unique.
+   * @return The Id for the new ExecListener.
    */
 
   ExecListenerId 
@@ -86,6 +90,65 @@ namespace PLEXIL
       }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFactory:registerFactory",
+             " Registered exec listener factory for name '" << name.toString() << "'");
+  }
+
+  /**
+   * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
+   *        the given configuration XML.
+   * @param name The registered name for the factory.
+   * @param xml The configuration XML to be passed to the ExecListenerFilter constructor.
+   * @return The Id for the new ExecListenerFilter.
+   */
+
+  ExecListenerFilterId 
+  ExecListenerFilterFactory::createInstance(const LabelStr& name,
+                                            const TiXmlElement* xml)
+  {
+    std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name);
+    assertTrueMsg(it != factoryMap().end(),
+		  "Error: No exec listener factory registered for name '" << name.toString() << "'.");
+    ExecListenerFilterId retval = it->second->create(xml);
+    debugMsg("ExecListenerFilterFactory:createInstance", " Created " << name.toString());
+    return retval;
+  }
+
+  std::map<double, ExecListenerFilterFactory*>& ExecListenerFilterFactory::factoryMap() 
+  {
+    static std::map<double, ExecListenerFilterFactory*> sl_map;
+    return sl_map;
+  }
+
+  /**
+   * @brief Deallocate all factories
+   */
+  void ExecListenerFilterFactory::purge()
+  {
+    for (std::map<double, ExecListenerFilterFactory*>::iterator it = factoryMap().begin();
+         it != factoryMap().end();
+         ++it)
+      delete it->second;
+    factoryMap().clear();
+  }
+
+  /**
+   * @brief Registers an ExecListenerFilterFactory with the specific name.
+   * @param name The name by which the Exec Listener shall be known.
+   * @param factory The ExecListenerFilterFactory instance.
+   */
+  void ExecListenerFilterFactory::registerFactory(const LabelStr& name, ExecListenerFilterFactory* factory)
+  {
+    assertTrue(factory != NULL);
+    if (factoryMap().find(name) != factoryMap().end())
+      {
+        warn("Attempted to register an exec listener factory for name \""
+             << name.toString()
+             << "\" twice, ignoring.");
+        delete factory;
+        return;
+      }
+    factoryMap()[name] = factory;
+    debugMsg("ExecListenerFilterFactory:registerFactory",
              " Registered exec listener factory for name '" << name.toString() << "'");
   }
 
