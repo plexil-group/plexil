@@ -30,6 +30,7 @@
 #include "Id.hh"
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
+#include "PlexilXmlParser.hh"
 #include "RecursiveThreadMutex.hh"
 #include "ThreadSemaphore.hh"
 
@@ -39,7 +40,8 @@
 
 #include <pthread.h>
 
-// Forward reference in global namespace
+// Forward references in global namespace
+class TiXmlDocument;
 class TiXmlElement;
 
 namespace PLEXIL
@@ -89,12 +91,17 @@ namespace PLEXIL
       return m_exec.getId();
     }
 
-    inline InterfaceManagerId getInterfaceManager()
+    inline InterfaceManagerId getInterfaceManager() const
     {
       return m_interface.getInterfaceManagerId();
     }
 
-    inline ApplicationState getApplicationState()
+    inline const PlexilXmlParser& getParser() const
+    {
+      return m_parser;
+    }
+
+    inline const ApplicationState& getApplicationState() const
     {
       return m_state;
     }
@@ -155,6 +162,18 @@ namespace PLEXIL
      each batch of lookup and command return data.
     */
     void notifyExec();
+
+    /**
+     * @brief Add a library as an XML document.
+     * @return true if successful, false otherwise.
+     */
+    bool addLibrary(TiXmlDocument* libXml);
+
+    /**
+     * @brief Add a plan as an XML document.
+     * @return true if successful, false otherwise.
+     */
+    bool addPlan(TiXmlDocument* planXml);
 
   protected:
 
@@ -227,6 +246,7 @@ namespace PLEXIL
 
     PlexilExec m_exec;
     InterfaceManager m_interface;
+    PlexilXmlParser m_parser;
 
     //
     // Synchronization and mutual exclusion
