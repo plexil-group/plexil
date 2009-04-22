@@ -31,12 +31,9 @@
 
 #include "ExecApplication.hh"
 
-#include "AdaptorFactory.hh"
 #include "Debug.hh"
-#include "DummyAdaptor.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
-#include "ExecListenerFactory.hh"
 #include "Expressions.hh"
 #include "InterfaceAdaptor.hh"
 #include "InterfaceManager.hh"
@@ -52,6 +49,7 @@ namespace PLEXIL
     : m_id(this),
       m_exec(),
       m_interface(*this),
+      m_parser(),
       m_execThread(),
       m_execMutex(),
       m_sem(),
@@ -255,6 +253,47 @@ namespace PLEXIL
     return true;
   }
 
+  /**
+   * @brief Add a library as an XML document.
+   * @return true if successful, false otherwise.
+   */
+  bool ExecApplication::addLibrary(TiXmlDocument * libraryXml)
+  {
+    // grab the library itself from the document
+    TiXmlElement* plexilXml = libraryXml->FirstChildElement("PlexilPlan");
+    assertTrue(plexilXml != 0,
+               "ExecApplication::addLibrary: Not a valid Plexil XML library");
+
+    // parse XML into node structure
+    PlexilNodeId root =
+      m_parser.parse(plexilXml->FirstChildElement("Node"));
+
+    m_interface.handleAddLibrary(root);
+    debugMsg("ExecApplication:addLibrary", " Library added, stepping exec");
+    m_interface.notifyOfExternalEvent();
+    return true;
+  }
+
+  /**
+   * @brief Add a plan as an XML document.
+   * @return true if successful, false otherwise.
+   */
+  bool ExecApplication::addPlan(TiXmlDocument * planXml)
+  {
+    // grab the plan itself from the document
+    TiXmlElement* plexilXml = planXml->FirstChildElement("PlexilPlan");
+    assertTrue(plexilXml != 0,
+               "ExecApplication::addPlan: Not a valid Plexil XML plan");
+
+    // parse XML into node structure
+    PlexilNodeId root =
+      m_parser.parse(plexilXml->FirstChildElement("Node"));
+
+    m_interface.handleAddPlan(root, EMPTY_LABEL());
+    debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
+    m_interface.notifyOfExternalEvent();
+    return true;
+  }
 
   /**
    * @brief Spawns a thread which runs the exec's top level loop.
