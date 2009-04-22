@@ -115,16 +115,12 @@ namespace PLEXIL
   }
 
 
-  // create a listener given configuration XML
-
-  LuvListener::LuvListener(const TiXmlElement* xml)
-    : ExecListener(xml),
+  // create a listener
+  LuvListener::LuvListener()
+    : ExecListener(),
       m_socket(NULL),
       m_block(false)
   {
-    // parse XML to find host and port
-    // *** NYI ***
-
   }
 
   // create a listener given a host and port

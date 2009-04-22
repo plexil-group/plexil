@@ -67,7 +67,7 @@ namespace PLEXIL
    {
    public:
 
-     LuvListener(const TiXmlElement* xml);
+     LuvListener();
      LuvListener(const std::string& host, const int port, 
                  const bool block = false);
      LuvListener(Socket* socket, const bool block = false);
@@ -127,7 +127,6 @@ namespace PLEXIL
      //
      // Deliberately unimplemented
      //
-     LuvListener();
      LuvListener(const LuvListener&);
      LuvListener& operator=(const LuvListener&);
 
