@@ -477,6 +477,7 @@ namespace PLEXIL {
 	debugMsg("Test:testOutput", "Assigning '" << assn->getDestName() <<
 		 "' (" << exp->toString() << ") to " << valueStr.str());
 	exp->setValue(value);
+        publishAssignment(exp, assn->getDestName(), value);
 	assn->getAck()->setValue(1);
       }
     m_assignmentsToExecute.clear();
@@ -618,6 +619,20 @@ namespace PLEXIL {
 	ExecListenerId listener = *it;
 	check_error(listener.isValid());
 	(*it)->notifyOfAddPlan(plan, parent);
+      }
+  }
+
+  void PlexilExec::publishAssignment(const ExpressionId & dest,
+                                     const std::string& destName,
+                                     const double& value)
+  {
+    for (std::list<ExecListenerId>::iterator it = m_listeners.begin();
+	 it != m_listeners.end();
+	 ++it)
+      {
+	ExecListenerId listener = *it;
+	check_error(listener.isValid());
+	(*it)->notifyOfAssignment(dest, destName, value);
       }
   }
 

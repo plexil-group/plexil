@@ -210,6 +210,9 @@ namespace PLEXIL
     inline void publishTransition(const LabelStr& oldState, const NodeId& node);
     void publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent);
     void publishAddLibrary(const PlexilNodeId& libNode);
+    void publishAssignment(const ExpressionId & dest,
+                           const std::string& destName,
+                           const double& value);
 
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;

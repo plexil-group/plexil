@@ -30,9 +30,6 @@
 #include "Id.hh"
 #include "LabelStr.hh"
 
-// Forward reference w/o namespace
-class TiXmlElement;
-
 namespace PLEXIL
 {
   // Forward references
@@ -44,6 +41,8 @@ namespace PLEXIL
   typedef Id<ExecListener> ExecListenerId;
   class ExecListenerFilter;
   typedef Id<ExecListenerFilter> ExecListenerFilterId;
+  class Expression;
+  typedef Id<Expression> ExpressionId;
 
   /**
    * @brief An abstract base class for notifying external agents about exec state changes.
@@ -56,11 +55,6 @@ namespace PLEXIL
      * @brief Default constructor.
      */
     ExecListener();
-
-    /**
-     * @brief Constructor from configuration XML.
-     */
-    ExecListener(const TiXmlElement* xml);
 
     /**
      * @brief Destructor.
@@ -99,6 +93,15 @@ namespace PLEXIL
     //                                     const LabelStr& condition,
     //                                     const bool value) const;
 
+    /**
+     * @brief Notify that a variable assignment has been performed.
+     * @param dest The Expression being assigned to.
+     * @param destName A string naming the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+    virtual void notifyOfAssignment(const ExpressionId & dest,
+                                    const std::string& destName,
+                                    const double& value) const;
 
     //
     // API to be implemented by derived classes
@@ -149,15 +152,6 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Get the configuration XML of this instance.
-     * @return A pointer to the XML element.
-     */
-    inline const TiXmlElement* getXml() const
-    { 
-      return m_xml; 
-    }
-
-    /**
      * @brief Set the filter of this instance.
      * @param fltr Smart pointer to the filter.
      */
@@ -200,6 +194,18 @@ namespace PLEXIL
     virtual void implementNotifyAddLibrary(const PlexilNodeId& libNode) const
     {
     }
+
+    /**
+     * @brief Notify that a variable assignment has been performed.
+     * @param dest The Expression being assigned to.
+     * @param destName A string naming the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+    virtual void implementNotifyAssignment(const ExpressionId & dest,
+                                           const std::string& destName,
+                                           const double& value) const
+    {
+    }
     
 
   private:
@@ -208,11 +214,6 @@ namespace PLEXIL
      * @brief The ID of this instance.
      */
     ExecListenerId m_id;
-
-    /**
-     * @brief The configuration XML used at construction time.
-     */
-    const TiXmlElement* m_xml;
 
     /**
      * @brief The ID of this instance's filter.
@@ -228,7 +229,7 @@ namespace PLEXIL
     /**
      * @brief Constructor.
      */
-    ExecListenerFilter(TiXmlElement* xml);
+    ExecListenerFilter();
 
     /**
      * @brief Destructor.
@@ -263,21 +264,25 @@ namespace PLEXIL
      */
     virtual bool reportAddLibrary(const PlexilNodeId& plan);
 
+    /**
+     * @brief Determine whether this variable assignment should be reported.
+     * @param dest The Expression being assigned to.
+     * @param destName A string naming the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+    virtual bool reportAssignment(const ExpressionId & dest,
+                                  const std::string& destName,
+                                  const double& value) const;
+
     inline const ExecListenerFilterId getId() const
     {
       return m_id;
-    }
-
-    inline const TiXmlElement* getXml() const
-    {
-      return m_xml;
     }
 
   private:
     //
     // Deliberately unimplemented
     //
-    ExecListenerFilter();
     ExecListenerFilter(const ExecListenerFilter &);
     ExecListenerFilter& operator=(const ExecListenerFilter &);
 
@@ -285,7 +290,6 @@ namespace PLEXIL
     // Member variables
     //
     ExecListenerFilterId m_id;
-    const TiXmlElement* m_xml;
   };
 
 }

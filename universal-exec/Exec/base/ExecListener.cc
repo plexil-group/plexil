@@ -25,7 +25,7 @@
 */
 
 #include "ExecListener.hh"
-#include "tinyxml.h"
+#include "Expression.hh"
 
 namespace PLEXIL
 {
@@ -35,17 +35,6 @@ namespace PLEXIL
    */
   ExecListener::ExecListener()
     : m_id(this), 
-      m_xml(NULL),
-      m_filter()
-  {
-  }
-
-  /**
-   * @brief Constructor from configuration XML.
-   */
-  ExecListener::ExecListener(const TiXmlElement* xml)
-    : m_id(this),
-      m_xml(xml),
       m_filter()
   {
   }
@@ -97,6 +86,22 @@ namespace PLEXIL
     if (m_filter.isNoId()
         || m_filter->reportAddLibrary(libNode))
       this->implementNotifyAddLibrary(libNode);
+  }
+
+    /**
+     * @brief Notify that a variable assignment has been performed.
+     * @param dest The Expression being assigned to.
+     * @param destName A LabelStr that names the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+  void
+  ExecListener::notifyOfAssignment(const ExpressionId & dest,
+                                   const std::string& destName,
+                                   const double& value) const
+  {
+    if (m_filter.isNoId()
+        || m_filter->reportAssignment(dest, destName, value))
+      this->implementNotifyAssignment(dest, destName, value);
   }
 
   /**
@@ -165,9 +170,8 @@ namespace PLEXIL
   /**
    * @brief Constructor.
    */
-  ExecListenerFilter::ExecListenerFilter(TiXmlElement* xml)
-    : m_id(this),
-      m_xml(xml)
+  ExecListenerFilter::ExecListenerFilter()
+    : m_id(this)
   {
   }
 
@@ -215,6 +219,20 @@ namespace PLEXIL
    */
   bool 
   ExecListenerFilter::reportAddLibrary(const PlexilNodeId& plan)
+  {
+    return true;
+  }
+
+    /**
+     * @brief Determine whether this variable assignment should be reported.
+     * @param dest The Expression being assigned to.
+     * @param destName A LabelStr that names the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+  bool 
+  ExecListenerFilter::reportAssignment(const ExpressionId & dest,
+                                       const std::string& destName,
+                                       const double& value) const
   {
     return true;
   }
