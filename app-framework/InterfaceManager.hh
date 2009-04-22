@@ -80,6 +80,14 @@ namespace PLEXIL
       return m_interfaceManagerId;
     }
 
+    /**
+     * @brief Get parent application.
+     */
+    inline ExecApplication& getApplication() const
+    {
+      return m_application;
+    }
+
     //
     // API for ExecApplication
     //
