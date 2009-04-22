@@ -28,7 +28,7 @@
 #define _H_NewLuvListener
 
 #include "CommonDefs.hh"
-#include "ExecListener.hh"
+#include "ManagedExecListener.hh"
 #include "PlexilPlan.hh"
 #include "LabelStr.hh"
 #include "tinyxml.h"
@@ -42,7 +42,7 @@ class TiXmlElement;
 
 namespace PLEXIL 
 {
-  class NewLuvListener : public ExecListener
+  class NewLuvListener : public ManagedExecListener
   {
   public:
     //

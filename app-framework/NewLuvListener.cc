@@ -50,7 +50,7 @@ namespace PLEXIL
   // create a listener given configuration XML
 
   NewLuvListener::NewLuvListener(const TiXmlElement* xml)
-    : ExecListener(xml),
+    : ManagedExecListener(xml),
       m_socket(NULL),
       m_hostname(NULL),
       m_port(0),
