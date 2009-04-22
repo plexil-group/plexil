@@ -35,6 +35,7 @@ ModuleCore PlexilAppFramework :
   InterfaceSchema.cc
   AdaptorExecInterface.cc
   InterfaceAdaptor.cc
+  ManagedExecListener.cc
   InterfaceManager.cc
   AdaptorFactory.cc
   ExecListenerFactory.cc
