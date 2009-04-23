@@ -31,51 +31,64 @@ echo "ENVIRONMENT VARIABLES" >> $output
 echo "--------------------------------" >> $output
 
 # collect PLEXIL_HOME definition
-echo "PLEXIL_HOME =" $PLEXIL_HOME >> $output
+echo "PLEXIL_HOME =" $PLEXIL_HOME >> $output | tee >> $output 
 
-# collect PLEXIL_HOME definition
-echo "LD_LIBRARY_PATH =" $LD_LIBRARY_PATH >> $output
+# collect LD_LIBRARY_PATH or DYLD_LIBRARY_PATH definition
+echo "LD_LIBRARY_PATH =" $LD_LIBRARY_PATH >> $output | tee >> $output 
+echo "DYLD_LIBRARY_PATH =" $DYLD_LIBRARY_PATH >> $output | tee >> $output 
 
 # collect WHICH JAVA definition
 JAVA=`which java`
-echo "WHICH JAVA =" $JAVA >> $output
+echo "WHICH JAVA =" $JAVA >> $output | tee >> $output 
 
 # collect PATH definition
-echo "PATH =" $PATH >> $output
+echo "PATH =" $PATH >> $output | tee >> $output 
 echo "" >> $output
 
 # if used SVN, collect revision info
 echo "SVN INFO" >> $output
 echo "--------------------------------" >> $output
-svn info $PLEXIL_HOME >> $output
+svn info $PLEXIL_HOME >> $output | tee >> $output 
 
 # collect OS version
 echo "OS VERSION" >> $output  
 echo "--------------------------------" >> $output
-uname -a >> $output
+uname -a >> $output | tee >> $output 
 echo "" >> $output
 
 # collect shell version
 echo "SHELL VERSION" >> $output
 echo "--------------------------------" >> $output
-ps >> $output
+ps >> $output | tee >> $output 
 echo "" >> $output
 
 # collect Java compiler version
 echo "JAVA VERSION" >> $output
 echo "--------------------------------" >> $output
-java -version 2>> $output
+java -version 2>> $output | tee >> $output 
 echo "" >> $output
 
 # collect Java compiler version
 echo "GCC VERSION" >> $output
 echo "--------------------------------" >> $output
-gcc --version >> $output
+gcc --version >> $output | tee >> $output 
+
+# collect Jam version
+echo "ANT VERSION" >> $output
+echo "--------------------------------" >> $output
+ant -version 2>&1 1 >> $output | tee >> $output 
+
+# collect Jam version
+echo "" >> $output
+echo "JAM VERSION" >> $output
+echo "--------------------------------" >> $output
+jam -v >> $output | tee >> $output 
 
 # try running UE with test plan
+echo "" >> $output
 echo "TEST RUN OF UE" >> $output
 echo "--------------------------------" >> $output
-run-ue $PLEXIL_HOME/examples/cruise.plx $PLEXIL_HOME/examples/cruise-script.plx >> $output
+run-ue $PLEXIL_HOME/examples/cruise.plx $PLEXIL_HOME/examples/cruise-script.plx >> $output | tee >> $output 
 
 
 
