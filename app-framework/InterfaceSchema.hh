@@ -43,9 +43,9 @@ namespace PLEXIL
     // XML tags
     //
 
-    DECLARE_STATIC_CLASS_CONST(char*, ADAPTOR_TAG, "Adaptor");
+    DECLARE_STATIC_CLASS_CONST(char*, ADAPTER_TAG, "Adapter");
     DECLARE_STATIC_CLASS_CONST(char*, COMMAND_NAMES_TAG, "CommandNames");
-    DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_ADAPTOR_TAG, "DefaultAdaptor");
+    DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_ADAPTER_TAG, "DefaultAdapter");
     DECLARE_STATIC_CLASS_CONST(char*, FILTER_TAG, "Filter");
     DECLARE_STATIC_CLASS_CONST(char*, FUNCTION_NAMES_TAG, "FunctionNames");
     DECLARE_STATIC_CLASS_CONST(char*, INTERFACES_TAG, "Interfaces");
@@ -57,7 +57,7 @@ namespace PLEXIL
     // Attributes
     //
 
-    DECLARE_STATIC_CLASS_CONST(char*, ADAPTOR_TYPE_ATTR, "AdaptorType");
+    DECLARE_STATIC_CLASS_CONST(char*, ADAPTER_TYPE_ATTR, "AdapterType");
     DECLARE_STATIC_CLASS_CONST(char*, FILTER_TYPE_ATTR, "FilterType");
     DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TYPE_ATTR, "ListenerType");
 

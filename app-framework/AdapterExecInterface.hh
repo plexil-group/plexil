@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_AdaptorExecInterface
-#define _H_AdaptorExecInterface
+#ifndef _H_AdapterExecInterface
+#define _H_AdapterExecInterface
 
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
@@ -37,11 +37,11 @@ class TiXmlElement;
 namespace PLEXIL
 {
   // forward references
-  class AdaptorExecInterface;
-  typedef Id<AdaptorExecInterface> AdaptorExecInterfaceId;
+  class AdapterExecInterface;
+  typedef Id<AdapterExecInterface> AdapterExecInterfaceId;
 
-  class InterfaceAdaptor;
-  typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
+  class InterfaceAdapter;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
@@ -50,131 +50,131 @@ namespace PLEXIL
   typedef Id<PlexilNode> PlexilNodeId;
 
   /**
-   * @brief An abstract base class representing the executive interface from the interface adaptor's point of view.
+   * @brief An abstract base class representing the executive interface from the interface adapter's point of view.
             Implements the Singleton design pattern.
    */
 
-  class AdaptorExecInterface
+  class AdapterExecInterface
   {
   public:
 
     //
-    // API to interface adaptors
+    // API to interface adapters
     //
 
     /**
-     * @brief Register the given interface adaptor based on its configuration XML.  
-     * @param adaptor The interface adaptor to handle this command.
+     * @brief Register the given interface adapter based on its configuration XML.  
+     * @param adapter The interface adapter to handle this command.
      */
 
-    virtual void defaultRegisterAdaptor(InterfaceAdaptorId adaptor) = 0;
+    virtual void defaultRegisterAdapter(InterfaceAdapterId adapter) = 0;
 
     /**
-     * @brief Register the given interface adaptor for this command.  
+     * @brief Register the given interface adapter for this command.  
               Returns true if successful.  Fails and returns false 
-              iff the command name already has an adaptor registered.
-     * @param commandName The command to map to this adaptor.
-     * @param intf The interface adaptor to handle this command.
-     * @return True if successful, false if there is already an adaptor registered for this command.
+              iff the command name already has an adapter registered.
+     * @param commandName The command to map to this adapter.
+     * @param intf The interface adapter to handle this command.
+     * @return True if successful, false if there is already an adapter registered for this command.
      */
     virtual bool registerCommandInterface(const LabelStr & commandName,
-					  InterfaceAdaptorId intf) = 0;
+					  InterfaceAdapterId intf) = 0;
 
     /**
-     * @brief Register the given interface adaptor for this function.  
+     * @brief Register the given interface adapter for this function.  
               Returns true if successful.  Fails and returns false 
-              iff the function name already has an adaptor registered.
-     * @param functionName The function to map to this adaptor.
-     * @param intf The interface adaptor to handle this function.
-     * @return True if successful, false if there is already an adaptor registered for this function.
+              iff the function name already has an adapter registered.
+     * @param functionName The function to map to this adapter.
+     * @param intf The interface adapter to handle this function.
+     * @return True if successful, false if there is already an adapter registered for this function.
      */
     virtual bool registerFunctionInterface(const LabelStr & functionName,
-					   InterfaceAdaptorId intf) = 0;
+					   InterfaceAdapterId intf) = 0;
 
     /**
-     * @brief Register the given interface adaptor for lookups to this state.
+     * @brief Register the given interface adapter for lookups to this state.
               Returns true if successful.  Fails and returns false 
-              iff the state name already has an adaptor registered.
-     * @param stateName The name of the state to map to this adaptor.
-     * @param intf The interface adaptor to handle this lookup.
-     * @return True if successful, false if there is already an adaptor registered for this state name.
+              iff the state name already has an adapter registered.
+     * @param stateName The name of the state to map to this adapter.
+     * @param intf The interface adapter to handle this lookup.
+     * @return True if successful, false if there is already an adapter registered for this state name.
      */
     virtual bool registerLookupInterface(const LabelStr & stateName,
-					 InterfaceAdaptorId intf) = 0;
+					 InterfaceAdapterId intf) = 0;
 
     /**
-     * @brief Register the given interface adaptor for planner updates.
+     * @brief Register the given interface adapter for planner updates.
               Returns true if successful.  Fails and returns false 
-              iff an adaptor is already registered.
-     * @param intf The interface adaptor to handle planner updates.
-     * @return True if successful, false if there is already an adaptor registered for planner updates.
+              iff an adapter is already registered.
+     * @param intf The interface adapter to handle planner updates.
+     * @return True if successful, false if there is already an adapter registered for planner updates.
      */
-    virtual bool registerPlannerUpdateInterface(InterfaceAdaptorId intf) = 0;
+    virtual bool registerPlannerUpdateInterface(InterfaceAdapterId intf) = 0;
 
     /**
-     * @brief Register the given interface adaptor as the default.
+     * @brief Register the given interface adapter as the default.
               This interface will be used for all lookups, commands, 
-              and functions which do not have a specific adaptor.  
+              and functions which do not have a specific adapter.  
               Returns true if successful.
-	      Fails and returns false if there is already a default adaptor registered.
-     * @param intf The interface adaptor to use as the default.
-     * @return True if successful, false if there is already a default adaptor registered.
+	      Fails and returns false if there is already a default adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
      */
-    virtual bool setDefaultInterface(InterfaceAdaptorId intf) = 0;
+    virtual bool setDefaultInterface(InterfaceAdapterId intf) = 0;
 
     /**
-     * @brief Retract registration of the previous interface adaptor for this command.  
+     * @brief Retract registration of the previous interface adapter for this command.  
      * @param commandName The command.
      */
     virtual void unregisterCommandInterface(const LabelStr & commandName) = 0;
 
     /**
-     * @brief Retract registration of the previous interface adaptor for this function.  
+     * @brief Retract registration of the previous interface adapter for this function.  
      * @param functionName The function.
      */
     virtual void unregisterFunctionInterface(const LabelStr & functionName) = 0;
 
     /**
-     * @brief Retract registration of the previous interface adaptor for this state.
+     * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
     virtual void unregisterLookupInterface(const LabelStr & stateName) = 0;
 
     /**
-     * @brief Retract registration of the previous interface adaptor for planner updates.
+     * @brief Retract registration of the previous interface adapter for planner updates.
      */
     virtual void unregisterPlannerUpdateInterface() = 0;
 
     /**
-     * @brief Retract registration of the previous default interface adaptor.
+     * @brief Retract registration of the previous default interface adapter.
      */
     virtual void unsetDefaultInterface() = 0;
 
     /**
-     * @brief Return the interface adaptor in effect for this command, whether 
+     * @brief Return the interface adapter in effect for this command, whether 
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    virtual InterfaceAdaptorId getCommandInterface(const LabelStr & commandName) = 0;
+    virtual InterfaceAdapterId getCommandInterface(const LabelStr & commandName) = 0;
 
     /**
-     * @brief Return the interface adaptor in effect for this function, whether 
+     * @brief Return the interface adapter in effect for this function, whether 
      specifically registered or default. May return NoId().
      * @param functionName The function.
      */
-    virtual InterfaceAdaptorId getFunctionInterface(const LabelStr & functionName) = 0;
+    virtual InterfaceAdapterId getFunctionInterface(const LabelStr & functionName) = 0;
 
     /**
-     * @brief Return the interface adaptor in effect for lookups with this state name,
+     * @brief Return the interface adapter in effect for lookups with this state name,
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    virtual InterfaceAdaptorId getLookupInterface(const LabelStr & stateName) = 0;
+    virtual InterfaceAdapterId getLookupInterface(const LabelStr & stateName) = 0;
 
     /**
-     * @brief Return the current default interface adaptor. May return NoId().
+     * @brief Return the current default interface adapter. May return NoId().
      */
-    virtual InterfaceAdaptorId getDefaultInterface() = 0;
+    virtual InterfaceAdapterId getDefaultInterface() = 0;
 
     /**
      * @brief Register the given resource arbiter interface for all commands
@@ -312,23 +312,23 @@ namespace PLEXIL
     /**
      * @brief Default constructor method.
      */
-    AdaptorExecInterface();
+    AdapterExecInterface();
 
     /**
      * @brief Destructor method.
      */
-    virtual ~AdaptorExecInterface();
+    virtual ~AdapterExecInterface();
 
-    AdaptorExecInterfaceId m_adaptorInterfaceId;
+    AdapterExecInterfaceId m_adapterInterfaceId;
 
   private:
 
     // Deliberately unimplemented
-    AdaptorExecInterface(const AdaptorExecInterface&);
-    AdaptorExecInterface& operator=(const AdaptorExecInterface&);
+    AdapterExecInterface(const AdapterExecInterface&);
+    AdapterExecInterface& operator=(const AdapterExecInterface&);
 
   };
 
 }
 
-#endif // _H_AdaptorExecInterface
+#endif // _H_AdapterExecInterface

@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "AdaptorExecInterface.hh"
+#include "AdapterExecInterface.hh"
 
 #include "Debug.hh"
 #include "Expression.hh"
@@ -38,24 +38,24 @@ namespace PLEXIL
   /**
    * @brief Default constructor method.
    */
-  AdaptorExecInterface::AdaptorExecInterface()
-    : m_adaptorInterfaceId(this)
+  AdapterExecInterface::AdapterExecInterface()
+    : m_adapterInterfaceId(this)
   {
   }
 
   /**
    * @brief Destructor method.
    */
-  AdaptorExecInterface::~AdaptorExecInterface()
+  AdapterExecInterface::~AdapterExecInterface()
   {
-    m_adaptorInterfaceId.remove();
+    m_adapterInterfaceId.remove();
   }
 
   //
   // Static utility functions
   //
     
-  std::string AdaptorExecInterface::valueToString(double val)
+  std::string AdapterExecInterface::valueToString(double val)
   {
     if (LabelStr::isString(val))
       {
@@ -69,7 +69,7 @@ namespace PLEXIL
     return tmp.str();
   }
 
-  double AdaptorExecInterface::stringToValue(const char * rawValue)
+  double AdapterExecInterface::stringToValue(const char * rawValue)
   {
     // null / empty check first
     if (rawValue == 0)
@@ -119,7 +119,7 @@ namespace PLEXIL
     return (double) labelResult;
   }
 
-  std::string AdaptorExecInterface::getText(const State& c) 
+  std::string AdapterExecInterface::getText(const State& c) 
   {
     std::stringstream retval;
     retval << LabelStr(c.first).toString() << "(";

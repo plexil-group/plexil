@@ -30,7 +30,7 @@
 #include "ExecDefs.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
-#include "AdaptorExecInterface.hh"
+#include "AdapterExecInterface.hh"
 #include "PlexilPlan.hh"
 
 // STL
@@ -47,8 +47,8 @@ namespace PLEXIL
   // Forward references
   class ExecApplication;
 
-  class InterfaceAdaptor;
-  typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
+  class InterfaceAdapter;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   class InterfaceManager;
   typedef Id<InterfaceManager> InterfaceManagerId;
@@ -58,7 +58,7 @@ namespace PLEXIL
 
   class InterfaceManager :
     public ExternalInterface,
-    public AdaptorExecInterface
+    public AdapterExecInterface
   {
   public:
 
@@ -93,25 +93,25 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Constructs interface adaptors from the provided XML.
+     * @brief Constructs interface adapters from the provided XML.
      * @param configXml The XML element used for interface configuration.
      */
     void constructInterfaces(const TiXmlElement * configXml);
 
     /**
-     * @brief Add an externally constructed interface adaptor.
-     * @param The adaptor ID.
+     * @brief Add an externally constructed interface adapter.
+     * @param The adapter ID.
      */
-    void addInterfaceAdaptor(const InterfaceAdaptorId& adaptor);
+    void addInterfaceAdapter(const InterfaceAdapterId& adapter);
 
     /**
-     * @brief Performs basic initialization of the interface and all adaptors.
+     * @brief Performs basic initialization of the interface and all adapters.
      * @return true if successful, false otherwise.
      */
     virtual bool initialize();
 
     /**
-     * @brief Prepares the interface and adaptors for execution.
+     * @brief Prepares the interface and adapters for execution.
      * @return true if successful, false otherwise.
      */
     virtual bool start();
@@ -251,121 +251,121 @@ namespace PLEXIL
 
 
     //
-    // API to interface adaptors
+    // API to interface adapters
     //
 
     /**
-     * @brief Register the given interface adaptor based on its configuration XML.  
-     * @param adaptor The interface adaptor to handle this command.
+     * @brief Register the given interface adapter based on its configuration XML.  
+     * @param adapter The interface adapter to handle this command.
      */
 
-    virtual void defaultRegisterAdaptor(InterfaceAdaptorId adaptor);
+    virtual void defaultRegisterAdapter(InterfaceAdapterId adapter);
 
     /**
-     * @brief Register the given interface adaptor for this command.  
+     * @brief Register the given interface adapter for this command.  
      Returns true if successful.  Fails and returns false 
-     iff the command name already has an adaptor registered.
-     * @param commandName The command to map to this adaptor.
-     * @param intf The interface adaptor to handle this command.
+     iff the command name already has an adapter registered.
+     * @param commandName The command to map to this adapter.
+     * @param intf The interface adapter to handle this command.
      */
     bool registerCommandInterface(const LabelStr & commandName,
-				  InterfaceAdaptorId intf);
+				  InterfaceAdapterId intf);
 
     /**
-     * @brief Register the given interface adaptor for this function.  
+     * @brief Register the given interface adapter for this function.  
               Returns true if successful.  Fails and returns false 
-              iff the function name already has an adaptor registered.
-     * @param functionName The function to map to this adaptor.
-     * @param intf The interface adaptor to handle this function.
+              iff the function name already has an adapter registered.
+     * @param functionName The function to map to this adapter.
+     * @param intf The interface adapter to handle this function.
      */
     bool registerFunctionInterface(const LabelStr & functionName,
-				   InterfaceAdaptorId intf);
+				   InterfaceAdapterId intf);
 
     /**
-     * @brief Register the given interface adaptor for lookups to this state.
+     * @brief Register the given interface adapter for lookups to this state.
      Returns true if successful.  Fails and returns false 
-     if the state name already has an adaptor registered.
-     * @param stateName The name of the state to map to this adaptor.
-     * @param intf The interface adaptor to handle this lookup.
+     if the state name already has an adapter registered.
+     * @param stateName The name of the state to map to this adapter.
+     * @param intf The interface adapter to handle this lookup.
      */
     bool registerLookupInterface(const LabelStr & stateName,
-				 InterfaceAdaptorId intf);
+				 InterfaceAdapterId intf);
 
     /**
-     * @brief Register the given interface adaptor for planner updates.
+     * @brief Register the given interface adapter for planner updates.
               Returns true if successful.  Fails and returns false 
-              iff an adaptor is already registered.
-     * @param intf The interface adaptor to handle planner updates.
+              iff an adapter is already registered.
+     * @param intf The interface adapter to handle planner updates.
      */
-    bool registerPlannerUpdateInterface(InterfaceAdaptorId intf);
+    bool registerPlannerUpdateInterface(InterfaceAdapterId intf);
 
     /**
-     * @brief Register the given interface adaptor as the default for all lookups and commands
-     which do not have a specific adaptor.  Returns true if successful.
-     Fails and returns false if there is already a default adaptor registered.
-     * @param intf The interface adaptor to use as the default.
+     * @brief Register the given interface adapter as the default for all lookups and commands
+     which do not have a specific adapter.  Returns true if successful.
+     Fails and returns false if there is already a default adapter registered.
+     * @param intf The interface adapter to use as the default.
      */
-    bool setDefaultInterface(InterfaceAdaptorId intf);
+    bool setDefaultInterface(InterfaceAdapterId intf);
 
     /**
-     * @brief Retract registration of the previous interface adaptor for this command.  
+     * @brief Retract registration of the previous interface adapter for this command.  
      * @param commandName The command.
      */
     void unregisterCommandInterface(const LabelStr & commandName);
 
     /**
-     * @brief Retract registration of the previous interface adaptor for this function.  
+     * @brief Retract registration of the previous interface adapter for this function.  
      * @param functionName The function.
      */
     void unregisterFunctionInterface(const LabelStr & functionName);
 
     /**
-     * @brief Retract registration of the previous interface adaptor for this state.
+     * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
     void unregisterLookupInterface(const LabelStr & stateName);
 
     /**
-     * @brief Retract registration of the previous interface adaptor for planner updates.
+     * @brief Retract registration of the previous interface adapter for planner updates.
      */
     void unregisterPlannerUpdateInterface();
 
     /**
-     * @brief Retract registration of the previous default interface adaptor.
+     * @brief Retract registration of the previous default interface adapter.
      */
     void unsetDefaultInterface();
 
     /**
-     * @brief Return the interface adaptor in effect for this command, whether 
+     * @brief Return the interface adapter in effect for this command, whether 
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    InterfaceAdaptorId getCommandInterface(const LabelStr & commandName);
+    InterfaceAdapterId getCommandInterface(const LabelStr & commandName);
 
     /**
-     * @brief Return the interface adaptor in effect for this function, whether 
+     * @brief Return the interface adapter in effect for this function, whether 
      specifically registered or default. May return NoId().
      * @param functionName The function.
      */
-    InterfaceAdaptorId getFunctionInterface(const LabelStr & functionName);
+    InterfaceAdapterId getFunctionInterface(const LabelStr & functionName);
 
     /**
-     * @brief Return the interface adaptor in effect for lookups with this state name,
+     * @brief Return the interface adapter in effect for lookups with this state name,
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    InterfaceAdaptorId getLookupInterface(const LabelStr & stateName);
+    InterfaceAdapterId getLookupInterface(const LabelStr & stateName);
 
     /**
-     * @brief Return the interface adaptor in effect for planner updates,
+     * @brief Return the interface adapter in effect for planner updates,
               whether specifically registered or default. May return NoId().
      */
-    InterfaceAdaptorId getPlannerUpdateInterface();
+    InterfaceAdapterId getPlannerUpdateInterface();
 
     /**
-     * @brief Return the current default interface adaptor. May return NoId().
+     * @brief Return the current default interface adapter. May return NoId().
      */
-    InterfaceAdaptorId getDefaultInterface();
+    InterfaceAdapterId getDefaultInterface();
 
     /**
      * @brief Register the given resource arbiter interface for all commands
@@ -522,14 +522,14 @@ namespace PLEXIL
 			     ExpressionId ack);
 
     /**
-     * @brief Removes the adaptor and deletes it iff nothing refers to it.
+     * @brief Removes the adapter and deletes it iff nothing refers to it.
      */
-    void deleteIfUnknown(InterfaceAdaptorId intf);
+    void deleteIfUnknown(InterfaceAdapterId intf);
 
     /**
-     * @brief Clears the interface adaptor registry.
+     * @brief Clears the interface adapter registry.
      */
-    void clearAdaptorRegistry();
+    void clearAdapterRegistry();
 
   private:
 
@@ -721,24 +721,24 @@ namespace PLEXIL
     // All listeners
     std::vector<ExecListenerId> m_listeners;
 
-    // All adaptors
-    std::set<InterfaceAdaptorId> m_adaptors;
+    // All adapters
+    std::set<InterfaceAdapterId> m_adapters;
 
     // Defaults
-    InterfaceAdaptorId m_defaultInterface;
-    InterfaceAdaptorId m_plannerUpdateInterface;
+    InterfaceAdapterId m_defaultInterface;
+    InterfaceAdapterId m_plannerUpdateInterface;
 
     // The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;
 
     // Maps by lookup key
-    typedef std::map<LookupKey, InterfaceAdaptorId> LookupAdaptorMap;
-    LookupAdaptorMap m_lookupAdaptorMap;
+    typedef std::map<LookupKey, InterfaceAdapterId> LookupAdapterMap;
+    LookupAdapterMap m_lookupAdapterMap;
 
     // Maps by command/function
 
-    // Interface adaptor maps
-    typedef std::map<double, InterfaceAdaptorId> InterfaceMap;
+    // Interface adapter maps
+    typedef std::map<double, InterfaceAdapterId> InterfaceMap;
     InterfaceMap m_lookupMap;
     InterfaceMap m_commandMap;
     InterfaceMap m_functionMap;

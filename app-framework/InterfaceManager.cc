@@ -33,14 +33,14 @@
 
 #include "InterfaceManager.hh"
 
-#include "AdaptorFactory.hh"
+#include "AdapterFactory.hh"
 #include "Debug.hh"
-#include "DummyAdaptor.hh"
+#include "DummyAdapter.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
-#include "InterfaceAdaptor.hh"
+#include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "NewLuvListener.hh"
 #include "ResourceArbiterInterface.hh"
@@ -63,16 +63,16 @@ namespace PLEXIL
    */
   InterfaceManager::InterfaceManager(ExecApplication & app)
     : ExternalInterface(),
-      AdaptorExecInterface(),
-      m_interfaceManagerId((InterfaceManagerId)m_adaptorInterfaceId),
+      AdapterExecInterface(),
+      m_interfaceManagerId((InterfaceManagerId)m_adapterInterfaceId),
       m_application(app),
       m_valueQueue(),
       m_listeners(),
-      m_adaptors(),
+      m_adapters(),
       m_defaultInterface(),
       m_plannerUpdateInterface(),
       m_raInterface(),
-      m_lookupAdaptorMap(),
+      m_lookupAdapterMap(),
       m_lookupMap(),
       m_commandMap(),
       m_functionMap(),
@@ -80,8 +80,8 @@ namespace PLEXIL
       m_destToCmdMap(),
       m_currentTime(std::numeric_limits<double>::min())
   {
-    // Every application has access to the dummy adaptor
-    REGISTER_ADAPTOR(DummyAdaptor, "Dummy");
+    // Every application has access to the dummy adapter
+    REGISTER_ADAPTER(DummyAdapter, "Dummy");
     // Every application should have access to the LUV Listener
     REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
   }
@@ -91,8 +91,8 @@ namespace PLEXIL
    */
   InterfaceManager::~InterfaceManager()
   {
-    // clear adaptor registry if not already done
-    clearAdaptorRegistry();
+    // clear adapter registry if not already done
+    clearAdapterRegistry();
 
     // unregister and delete listeners
     std::vector<ExecListenerId>::iterator lit = m_listeners.begin();
@@ -104,15 +104,15 @@ namespace PLEXIL
         delete (ExecListener*) l;
       }
 
-    // unregister and delete adaptors
+    // unregister and delete adapters
     // *** kludge for buggy std::set template ***
-    std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-    while (it != m_adaptors.end())
+    std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+    while (it != m_adapters.end())
       {
-        InterfaceAdaptorId ia = *it;
-        m_adaptors.erase(it);     // these two lines should be:
-        it = m_adaptors.begin();  // it = m_adaptors.erase(it)
-        delete (InterfaceAdaptor*) ia;
+        InterfaceAdapterId ia = *it;
+        m_adapters.erase(it);     // these two lines should be:
+        it = m_adapters.begin();  // it = m_adapters.erase(it)
+        delete (InterfaceAdapter*) ia;
       }
   }
 
@@ -121,15 +121,15 @@ namespace PLEXIL
   //
 
   /**
-   * @brief Register this adaptor based on its XML configuration data.
-   * @note The adaptor is presumed to be fully initialized and working at the time of this call.
+   * @brief Register this adapter based on its XML configuration data.
+   * @note The adapter is presumed to be fully initialized and working at the time of this call.
    * @note TODO: strategy for handling redundant registrations
    */
-  void InterfaceManager::defaultRegisterAdaptor(InterfaceAdaptorId adaptor)
+  void InterfaceManager::defaultRegisterAdapter(InterfaceAdapterId adapter)
   {
     // Walk the children of the configuration XML element
-    // and register the adaptor according to the data found there
-    TiXmlElement* element = adaptor->getXml()->FirstChildElement();
+    // and register the adapter according to the data found there
+    TiXmlElement* element = adapter->getXml()->FirstChildElement();
     while (element != 0)
       {
         const char* elementType = element->Value();
@@ -140,26 +140,26 @@ namespace PLEXIL
         if (firstChild == 0)
           text = firstChild->ToText();
 
-        if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTOR_TAG()) == 0)
+        if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0)
           {
-            setDefaultInterface(adaptor);
+            setDefaultInterface(adapter);
             // warn if children found
             if (text != 0)
               {
                 warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::DEFAULT_ADAPTOR_TAG()
+                     << InterfaceSchema::DEFAULT_ADAPTER_TAG()
                      << " ignored");
               }
             else if (firstChild != 0)
               {
                 warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::DEFAULT_ADAPTOR_TAG()
+                     << InterfaceSchema::DEFAULT_ADAPTER_TAG()
                      << " ignored");
               }
           }
         else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0)
           {
-            registerPlannerUpdateInterface(adaptor);
+            registerPlannerUpdateInterface(adapter);
             // warn if children found
             if (text != 0)
               {
@@ -177,7 +177,7 @@ namespace PLEXIL
         else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0)
           {
             checkError(text != 0,
-                       "registerAdaptor: Invalid configuration XML: "
+                       "registerAdapter: Invalid configuration XML: "
                        << InterfaceSchema::COMMAND_NAMES_TAG()
                        << " requires one or more comma-separated command names");
             std::vector<std::string> * cmdNames =
@@ -186,14 +186,14 @@ namespace PLEXIL
                 it != cmdNames->end();
                 it++)
               {
-                registerCommandInterface(LabelStr(*it), adaptor);
+                registerCommandInterface(LabelStr(*it), adapter);
               }
             delete cmdNames;
           }
         else if (strcmp(elementType, InterfaceSchema::FUNCTION_NAMES_TAG()) == 0)
           {
             checkError(text != 0,
-                       "registerAdaptor: Invalid configuration XML: "
+                       "registerAdapter: Invalid configuration XML: "
                        << InterfaceSchema::FUNCTION_NAMES_TAG()
                        << " requires one or more comma-separated function names");
             std::vector<std::string> * fnNames =
@@ -202,14 +202,14 @@ namespace PLEXIL
                 it != fnNames->end();
                 it++)
               {
-                registerFunctionInterface(LabelStr(*it), adaptor);
+                registerFunctionInterface(LabelStr(*it), adapter);
               }
             delete fnNames;
           }
         else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0)
           {
             checkError(text != 0,
-                       "registerAdaptor: Invalid configuration XML: "
+                       "registerAdapter: Invalid configuration XML: "
                        << InterfaceSchema::LOOKUP_NAMES_TAG()
                        << " requires one or more comma-separated lookup names");
             std::vector<std::string> * lookupNames =
@@ -218,23 +218,23 @@ namespace PLEXIL
                 it != lookupNames->end();
                 it++)
               {
-                registerLookupInterface(LabelStr(*it), adaptor);
+                registerLookupInterface(LabelStr(*it), adapter);
               }
             delete lookupNames;
           }
-        // ignore other tags, they're for adaptor's use
+        // ignore other tags, they're for adapter's use
         
         element = element->NextSiblingElement();
       }
   }
 
   /**
-   * @brief Constructs interface adaptors from the provided XML.
+   * @brief Constructs interface adapters from the provided XML.
    * @param configXml The XML element used for interface configuration.
    */
   void InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
   {
-    debugMsg("InterfaceManager:constructInterfaces", " constructing interface adaptors");
+    debugMsg("InterfaceManager:constructInterfaces", " constructing interface adapters");
     if (configXml != 0)
       {
         const char* elementType = configXml->Value();
@@ -242,34 +242,34 @@ namespace PLEXIL
                    "constructInterfaces: invalid configuration XML: \n"
                    << *configXml);
         // Walk the children of the configuration XML element
-        // and register the adaptor according to the data found there
+        // and register the adapter according to the data found there
         TiXmlElement* element = configXml->FirstChildElement();
         while (element != 0)
           {
             const char* elementType = element->Value();
             // *** TO DO ***
-            // generalize adaptor factories to add support for (e.g.) ActorAdaptor
+            // generalize adapter factories to add support for (e.g.) ActorAdapter
             // w/o requiring knowledge of (e.g.) PlexilGenericActor
-            if (strcmp(elementType, InterfaceSchema::ADAPTOR_TAG()) == 0)
+            if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
               {
-                // Get the kind of adaptor to make
-                const char* adaptorType = 
-                  element->Attribute(InterfaceSchema::ADAPTOR_TYPE_ATTR());
-                checkError(adaptorType != 0,
+                // Get the kind of adapter to make
+                const char* adapterType = 
+                  element->Attribute(InterfaceSchema::ADAPTER_TYPE_ATTR());
+                checkError(adapterType != 0,
                            "constructInterfaces: no "
-                           << InterfaceSchema::ADAPTOR_TYPE_ATTR()
-                           << " attribute for adaptor XML:\n"
+                           << InterfaceSchema::ADAPTER_TYPE_ATTR()
+                           << " attribute for adapter XML:\n"
                            << *element);
                 
-                // Construct the adaptor
-                InterfaceAdaptorId adaptor = 
-                  AdaptorFactory::createInstance(LabelStr(adaptorType),
+                // Construct the adapter
+                InterfaceAdapterId adapter = 
+                  AdapterFactory::createInstance(LabelStr(adapterType),
                                                  element,
-                                                 *((AdaptorExecInterface*)this));
-                checkError(adaptor.isNoId(),
-                           "constructInterfaces: failed to construct adaptor of type "
-                           << adaptorType);
-                m_adaptors.insert(adaptor);
+                                                 *((AdapterExecInterface*)this));
+                checkError(adapter.isNoId(),
+                           "constructInterfaces: failed to construct adapter of type "
+                           << adapterType);
+                m_adapters.insert(adapter);
               }
             // *** TO DO ***
             // generalize listener factories to add support for (e.g.) ActorListener
@@ -310,25 +310,25 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Add an externally constructed interface adaptor.
-   * @param The adaptor ID.
+   * @brief Add an externally constructed interface adapter.
+   * @param The adapter ID.
    */
-  void InterfaceManager::addInterfaceAdaptor(const InterfaceAdaptorId& adaptor)
+  void InterfaceManager::addInterfaceAdapter(const InterfaceAdapterId& adapter)
   {
-    if (m_adaptors.find(adaptor) != m_adaptors.end())
-      m_adaptors.insert(adaptor);
+    if (m_adapters.find(adapter) != m_adapters.end())
+      m_adapters.insert(adapter);
   }
 
   /**
-   * @brief Performs basic initialization of the interface and all adaptors.
+   * @brief Performs basic initialization of the interface and all adapters.
    * @return true if successful, false otherwise.
    */
   bool InterfaceManager::initialize()
   {
-    debugMsg("InterfaceManager:initialize", " initializing interface adaptors");
+    debugMsg("InterfaceManager:initialize", " initializing interface adapters");
     bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
          it++)
       success = (*it)->initialize();
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
@@ -339,15 +339,15 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Prepares the interface and adaptors for execution.
+   * @brief Prepares the interface and adapters for execution.
    * @return true if successful, false otherwise.
    */
   bool InterfaceManager::start()
   {
-    debugMsg("InterfaceManager:startInterface", " starting interface adaptors");
+    debugMsg("InterfaceManager:startInterface", " starting interface adapters");
     bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
          it++)
       success = (*it)->start();
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
@@ -366,10 +366,10 @@ namespace PLEXIL
    */
   bool InterfaceManager::stop()
   {
-    // halt adaptors
+    // halt adapters
     bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
          it++)
       success = (*it)->stop();
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
@@ -388,12 +388,12 @@ namespace PLEXIL
     // reset queue etc. to freshly initialized state
     // *** NYI ***
 
-    // clear adaptor registry
-    clearAdaptorRegistry();
+    // clear adapter registry
+    clearAdapterRegistry();
 
     bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
          it++)
       success = (*it)->reset();
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
@@ -409,12 +409,12 @@ namespace PLEXIL
    */
   bool InterfaceManager::shutdown()
   {
-    // clear adaptor registry
-    clearAdaptorRegistry();
+    // clear adapter registry
+    clearAdapterRegistry();
 
     bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
          it++)
       success = (*it)->shutdown();
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
@@ -646,15 +646,15 @@ namespace PLEXIL
     m_exec->getStateCache()->stateForKey(key, state);
     const LabelStr& stateName(state.first);
 
-    InterfaceAdaptorId adaptor = getLookupInterface(stateName);
-    assertTrueMsg(!adaptor.isNoId(),
-		  "registerChangeLookup: No interface adaptor found for lookup '"
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+		  "registerChangeLookup: No interface adapter found for lookup '"
 		  << stateName.toString() << "'");
 
-    m_lookupAdaptorMap.insert(std::pair<LookupKey, InterfaceAdaptorId>(source, adaptor));
-    // for convenience of adaptor implementors
-    adaptor->registerAsynchLookup(source, key);
-    adaptor->registerChangeLookup(source, key, tolerances);
+    m_lookupAdapterMap.insert(std::pair<LookupKey, InterfaceAdapterId>(source, adapter));
+    // for convenience of adapter implementors
+    adapter->registerAsynchLookup(source, key);
+    adapter->registerChangeLookup(source, key, tolerances);
   }
 
   /**
@@ -700,15 +700,15 @@ namespace PLEXIL
     m_exec->getStateCache()->stateForKey(key, state);
     const LabelStr& stateName(state.first);
 
-    InterfaceAdaptorId adaptor = getLookupInterface(stateName);
-    assertTrueMsg(!adaptor.isNoId(),
-		  "registerFrequencyLookup: No interface adaptor found for lookup '"
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+		  "registerFrequencyLookup: No interface adapter found for lookup '"
 		  << stateName.toString() << "'");
 
-    m_lookupAdaptorMap.insert(std::pair<LookupKey, InterfaceAdaptorId>(source, adaptor));
-    // for convenience of adaptor implementors
-    adaptor->registerAsynchLookup(source, key);
-    adaptor->registerFrequencyLookup(source, key, lowFreq, highFreq);
+    m_lookupAdapterMap.insert(std::pair<LookupKey, InterfaceAdapterId>(source, adapter));
+    // for convenience of adapter implementors
+    adapter->registerAsynchLookup(source, key);
+    adapter->registerFrequencyLookup(source, key, lowFreq, highFreq);
   }
 
   /**
@@ -726,12 +726,12 @@ namespace PLEXIL
   {
     const LabelStr& stateName(state.first);
     debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "'");
-    InterfaceAdaptorId adaptor = getLookupInterface(stateName);
-    assertTrueMsg(!adaptor.isNoId(),
-		  "lookupNow: No interface adaptor found for lookup '"
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+		  "lookupNow: No interface adapter found for lookup '"
 		  << stateName.toString() << "'");
 
-    adaptor->lookupNow(key, dest);
+    adapter->lookupNow(key, dest);
     // update internal idea of time if required
     if (key == m_exec->getStateCache()->getTimeStateKey())
       {
@@ -777,22 +777,22 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterChangeLookup(const LookupKey& dest)
   {
-    LookupAdaptorMap::iterator it = m_lookupAdaptorMap.find(dest);
-    if (it == m_lookupAdaptorMap.end())
+    LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
+    if (it == m_lookupAdapterMap.end())
       {
 	debugMsg("InterfaceManager:unregisterChangeLookup", 
 		 " no lookup found for key " << dest);
 	return;
       }
 
-    InterfaceAdaptorId adaptor = (*it).second;
-    assertTrueMsg(!adaptor.isNoId(),
-		  "unregisterChangeLookup: Internal Error: No interface adaptor found for lookup key '"
+    InterfaceAdapterId adapter = (*it).second;
+    assertTrueMsg(!adapter.isNoId(),
+		  "unregisterChangeLookup: Internal Error: No interface adapter found for lookup key '"
 		  << dest << "'");
 
-    adaptor->unregisterChangeLookup(dest);
-    adaptor->unregisterAsynchLookup(dest);
-    m_lookupAdaptorMap.erase(dest);
+    adapter->unregisterChangeLookup(dest);
+    adapter->unregisterAsynchLookup(dest);
+    m_lookupAdapterMap.erase(dest);
   }
 
   /**
@@ -801,22 +801,22 @@ namespace PLEXIL
   void 
   InterfaceManager::unregisterFrequencyLookup(const LookupKey& dest)
   {
-    LookupAdaptorMap::iterator it = m_lookupAdaptorMap.find(dest);
-    if (it == m_lookupAdaptorMap.end())
+    LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
+    if (it == m_lookupAdapterMap.end())
       {
 	debugMsg("InterfaceManager:unregisterFrequencyLookup", 
 		 " no lookup found for key " << dest);
 	return;
       }
 
-    InterfaceAdaptorId adaptor = (*it).second;
-    assertTrueMsg(!adaptor.isNoId(),
-		  "unregisterFrequencyLookup: Internal Error: No interface adaptor found for lookup key '"
+    InterfaceAdapterId adapter = (*it).second;
+    assertTrueMsg(!adapter.isNoId(),
+		  "unregisterFrequencyLookup: Internal Error: No interface adapter found for lookup key '"
 		  << dest << "'");
 
-    adaptor->unregisterFrequencyLookup(dest);
-    adaptor->unregisterAsynchLookup(dest);
-    m_lookupAdaptorMap.erase(dest);
+    adapter->unregisterFrequencyLookup(dest);
+    adapter->unregisterAsynchLookup(dest);
+    m_lookupAdapterMap.erase(dest);
   }
 
   // this batches the set of commands from quiescence completion.
@@ -900,7 +900,7 @@ namespace PLEXIL
   void
   InterfaceManager::updatePlanner(std::list<UpdateId>& updates)
   {
-    InterfaceAdaptorId intf = this->getPlannerUpdateInterface();
+    InterfaceAdapterId intf = this->getPlannerUpdateInterface();
     if (intf.isNoId())
       {
 	debugMsg("InterfaceManager:updatePlanner",
@@ -922,7 +922,7 @@ namespace PLEXIL
   }
 
   // executes a command with the given arguments by looking up the command name 
-  // and passing the information to the appropriate interface adaptor
+  // and passing the information to the appropriate interface adapter
 
   // *** To do:
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
@@ -932,9 +932,9 @@ namespace PLEXIL
 					    ExpressionId dest,
 					    ExpressionId ack)
   {
-    InterfaceAdaptorId intf = getCommandInterface(name);
+    InterfaceAdapterId intf = getCommandInterface(name);
     assertTrueMsg(!intf.isNoId(),
-		  "executeCommand: null interface adaptor for command " << name.toString());
+		  "executeCommand: null interface adapter for command " << name.toString());
     intf->executeCommand(name, args, dest, ack);
   }
 
@@ -949,7 +949,7 @@ namespace PLEXIL
   }
 
   // executes a function call with the given arguments by looking up the name 
-  // and passing the information to the appropriate interface adaptor
+  // and passing the information to the appropriate interface adapter
 
   // *** To do:
   //  - bookkeeping (i.e. tracking active calls), mostly for invokeAbort() below
@@ -959,9 +959,9 @@ namespace PLEXIL
 						 ExpressionId dest,
 						 ExpressionId ack)
   {
-    InterfaceAdaptorId intf = getFunctionInterface(name);
+    InterfaceAdapterId intf = getFunctionInterface(name);
     assertTrueMsg(!intf.isNoId(),
-		  "executeFunctionCall: null interface adaptor for function " << name.toString());
+		  "executeFunctionCall: null interface adapter for function " << name.toString());
     intf->executeFunctionCall(name, args, dest, ack);
   }
 
@@ -971,9 +971,9 @@ namespace PLEXIL
 					 const std::list<double>& args,
 					 ExpressionId dest)
   {
-    InterfaceAdaptorId intf = getCommandInterface(name);
+    InterfaceAdapterId intf = getCommandInterface(name);
     assertTrueMsg(!intf.isNoId(),
-		  "invokeAbort: null interface adaptor for command " << name.toString());
+		  "invokeAbort: null interface adapter for command " << name.toString());
     intf->invokeAbort(name, args, dest);
   }
 
@@ -986,19 +986,19 @@ namespace PLEXIL
 
 
   //
-  // API to interface adaptors
+  // API to interface adapters
   //
 
   /**
-   * @brief Register the given interface adaptor for this command.  
+   * @brief Register the given interface adapter for this command.  
    Returns true if successful.  Fails and returns false 
-   iff the command name already has an adaptor registered.
-   * @param commandName The command to map to this adaptor.
-   * @param intf The interface adaptor to handle this command.
+   iff the command name already has an adapter registered.
+   * @param commandName The command to map to this adapter.
+   * @param intf The interface adapter to handle this command.
    */
   bool
   InterfaceManager::registerCommandInterface(const LabelStr & commandName,
-						      InterfaceAdaptorId intf)
+						      InterfaceAdapterId intf)
   {
     double commandNameKey = commandName.getKey();
     InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
@@ -1007,8 +1007,8 @@ namespace PLEXIL
 	// Not found, OK to add
 	debugMsg("InterfaceManager:registerCommandInterface",
 		 " registering interface for command '" << commandName.toString() << "'");
-	m_commandMap.insert(std::pair<double, InterfaceAdaptorId>(commandNameKey, intf)) ;
-        m_adaptors.insert(intf);
+	m_commandMap.insert(std::pair<double, InterfaceAdapterId>(commandNameKey, intf)) ;
+        m_adapters.insert(intf);
 	return true;
       }
     else
@@ -1020,15 +1020,15 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register the given interface adaptor for this function.  
+   * @brief Register the given interface adapter for this function.  
             Returns true if successful.  Fails and returns false 
-            iff the function name already has an adaptor registered.
-   * @param functionName The function to map to this adaptor.
-   * @param intf The interface adaptor to handle this function.
+            iff the function name already has an adapter registered.
+   * @param functionName The function to map to this adapter.
+   * @param intf The interface adapter to handle this function.
    */
   bool
   InterfaceManager::registerFunctionInterface(const LabelStr & functionName,
-						       InterfaceAdaptorId intf)
+						       InterfaceAdapterId intf)
   {
     double functionNameKey = functionName.getKey();
     InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
@@ -1037,8 +1037,8 @@ namespace PLEXIL
 	// Not found, OK to add
 	debugMsg("InterfaceManager:registerFunctionInterface",
 		 " registering interface for function '" << functionName.toString() << "'");
-	m_functionMap.insert(std::pair<double, InterfaceAdaptorId>(functionNameKey, intf)) ;
-        m_adaptors.insert(intf);
+	m_functionMap.insert(std::pair<double, InterfaceAdapterId>(functionNameKey, intf)) ;
+        m_adapters.insert(intf);
 	return true;
       }
     else
@@ -1050,15 +1050,15 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register the given interface adaptor for lookups to this state.
+   * @brief Register the given interface adapter for lookups to this state.
    Returns true if successful.  Fails and returns false 
-   if the state name already has an adaptor registered.
-   * @param stateName The name of the state to map to this adaptor.
-   * @param intf The interface adaptor to handle this lookup.
+   if the state name already has an adapter registered.
+   * @param stateName The name of the state to map to this adapter.
+   * @param intf The interface adapter to handle this lookup.
    */
   bool 
   InterfaceManager::registerLookupInterface(const LabelStr & stateName,
-						     InterfaceAdaptorId intf)
+						     InterfaceAdapterId intf)
   {
     double stateNameKey = stateName.getKey();
     InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
@@ -1067,8 +1067,8 @@ namespace PLEXIL
 	// Not found, OK to add
 	debugMsg("InterfaceManager:registerLookupInterface",
 		 " registering interface for lookup '" << stateName.toString() << "'");
-	m_lookupMap.insert(std::pair<double, InterfaceAdaptorId>(stateNameKey, intf)) ;
-        m_adaptors.insert(intf);
+	m_lookupMap.insert(std::pair<double, InterfaceAdapterId>(stateNameKey, intf)) ;
+        m_adapters.insert(intf);
 	return true;
       }
     else
@@ -1080,13 +1080,13 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register the given interface adaptor for planner updates.
+   * @brief Register the given interface adapter for planner updates.
             Returns true if successful.  Fails and returns false 
-	    iff an adaptor is already registered.
-   * @param intf The interface adaptor to handle planner updates.
+	    iff an adapter is already registered.
+   * @param intf The interface adapter to handle planner updates.
    */
   bool
-  InterfaceManager::registerPlannerUpdateInterface(InterfaceAdaptorId intf)
+  InterfaceManager::registerPlannerUpdateInterface(InterfaceAdapterId intf)
   {
     if (!m_plannerUpdateInterface.isNoId())
       {      
@@ -1097,27 +1097,27 @@ namespace PLEXIL
     debugMsg("InterfaceManager:registerPlannerUpdateInterface",
 	     " registering planner update interface"); 
     m_plannerUpdateInterface = intf;
-    m_adaptors.insert(intf);
+    m_adapters.insert(intf);
     return true;
   }
 
   /**
-   * @brief Register the given interface adaptor as the default for all lookups and commands
-   which do not have a specific adaptor.  Returns true if successful.
-   Fails and returns false if there is already a default adaptor registered.
-   * @param intf The interface adaptor to use as the default.
+   * @brief Register the given interface adapter as the default for all lookups and commands
+   which do not have a specific adapter.  Returns true if successful.
+   Fails and returns false if there is already a default adapter registered.
+   * @param intf The interface adapter to use as the default.
    */
   bool 
-  InterfaceManager::setDefaultInterface(InterfaceAdaptorId intf)
+  InterfaceManager::setDefaultInterface(InterfaceAdapterId intf)
   {
     if (!m_defaultInterface.isNoId())
       {
 	debugMsg("InterfaceManager:setDefaultInterface",
-		 " attempt to overwrite default interface adaptor " << m_defaultInterface);
+		 " attempt to overwrite default interface adapter " << m_defaultInterface);
 	return false;
       }
     m_defaultInterface = intf;
-    m_adaptors.insert(intf);
+    m_adapters.insert(intf);
     debugMsg("InterfaceManager:setDefaultInterface",
 	     " setting default interface " << intf);
     return true;
@@ -1125,16 +1125,16 @@ namespace PLEXIL
 
 
   /**
-   * @brief Removes the adaptor and deletes it iff nothing refers to it.
+   * @brief Removes the adapter and deletes it iff nothing refers to it.
    */
-  void InterfaceManager::deleteIfUnknown(InterfaceAdaptorId intf)
+  void InterfaceManager::deleteIfUnknown(InterfaceAdapterId intf)
   {
     // Check the easy places first
     if (intf == m_defaultInterface
         || intf == m_plannerUpdateInterface)
       return;
 
-    // See if the adaptor is in any of the tables
+    // See if the adapter is in any of the tables
     InterfaceMap::iterator it = m_lookupMap.begin();
     for (; it != m_lookupMap.end(); it++)
       if (it->second == intf)
@@ -1149,25 +1149,25 @@ namespace PLEXIL
         return;
 
     // Not found, remove it and destroy it
-    m_adaptors.erase(intf);
+    m_adapters.erase(intf);
     intf.release();
   }
 
   /**
-   * @brief Clears the interface adaptor registry.
+   * @brief Clears the interface adapter registry.
    */
-  void InterfaceManager::clearAdaptorRegistry()
+  void InterfaceManager::clearAdapterRegistry()
   {
-    m_lookupAdaptorMap.clear();
+    m_lookupAdapterMap.clear();
     m_lookupMap.clear();
     m_commandMap.clear();
     m_functionMap.clear();
-    m_plannerUpdateInterface = InterfaceAdaptorId::noId();
-    m_defaultInterface = InterfaceAdaptorId::noId();
+    m_plannerUpdateInterface = InterfaceAdapterId::noId();
+    m_defaultInterface = InterfaceAdapterId::noId();
   }
 
   /**
-   * @brief Retract registration of the previous interface adaptor for this command.  
+   * @brief Retract registration of the previous interface adapter for this command.  
    * @param commandName The command.
    */
   void
@@ -1179,14 +1179,14 @@ namespace PLEXIL
       {
 	debugMsg("InterfaceManager:unregisterCommandInterface",
 		 " removing interface for command '" << commandName.toString() << "'");
-        InterfaceAdaptorId intf = it->second;
+        InterfaceAdapterId intf = it->second;
 	m_commandMap.erase(it);
         deleteIfUnknown(intf);
       }
   }
 
   /**
-   * @brief Retract registration of the previous interface adaptor for this function.  
+   * @brief Retract registration of the previous interface adapter for this function.  
    * @param functionName The function.
    */
   void
@@ -1198,14 +1198,14 @@ namespace PLEXIL
       {
 	debugMsg("InterfaceManager:unregisterFunctionInterface",
 		 " removing interface for function '" << functionName.toString() << "'");
-        InterfaceAdaptorId intf = it->second;
+        InterfaceAdapterId intf = it->second;
 	m_functionMap.erase(it);
         deleteIfUnknown(intf);
       }
   }
 
   /**
-   * @brief Retract registration of the previous interface adaptor for this state.
+   * @brief Retract registration of the previous interface adapter for this state.
    * @param stateName The state name.
    */
   void
@@ -1217,44 +1217,44 @@ namespace PLEXIL
       {
 	debugMsg("InterfaceManager:unregisterLookupInterface",
 		 " removing interface for lookup '" << stateName.toString() << "'");
-        InterfaceAdaptorId intf = it->second;
+        InterfaceAdapterId intf = it->second;
 	m_lookupMap.erase(it);
         deleteIfUnknown(intf);
       }
   }
 
   /**
-   * @brief Retract registration of the previous interface adaptor for planner updates.
+   * @brief Retract registration of the previous interface adapter for planner updates.
    */
   void
   InterfaceManager::unregisterPlannerUpdateInterface()
   {
     debugMsg("InterfaceManager:unregisterPlannerUpdateInterface",
 	     " removing planner update interface");
-    InterfaceAdaptorId intf = m_plannerUpdateInterface;
-    m_plannerUpdateInterface = InterfaceAdaptorId::noId();
+    InterfaceAdapterId intf = m_plannerUpdateInterface;
+    m_plannerUpdateInterface = InterfaceAdapterId::noId();
     deleteIfUnknown(intf);
   }
 
   /**
-   * @brief Retract registration of the previous default interface adaptor.
+   * @brief Retract registration of the previous default interface adapter.
    */
   void
   InterfaceManager::unsetDefaultInterface()
   {
     debugMsg("InterfaceManager:unsetDefaultInterface",
 	     " removing default interface");
-    InterfaceAdaptorId intf = m_defaultInterface;
-    m_defaultInterface = InterfaceAdaptorId::noId();
+    InterfaceAdapterId intf = m_defaultInterface;
+    m_defaultInterface = InterfaceAdapterId::noId();
     deleteIfUnknown(intf);
   }
 
   /**
-   * @brief Return the interface adaptor in effect for this command, whether 
+   * @brief Return the interface adapter in effect for this command, whether 
    specifically registered or default. May return NoId().
    * @param commandName The command.
    */
-  InterfaceAdaptorId
+  InterfaceAdapterId
   InterfaceManager::getCommandInterface(const LabelStr & commandName)
   {
     double commandNameKey = commandName.getKey();
@@ -1273,11 +1273,11 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Return the interface adaptor in effect for this function, whether 
+   * @brief Return the interface adapter in effect for this function, whether 
    specifically registered or default. May return NoId().
    * @param functionName The function.
    */
-  InterfaceAdaptorId
+  InterfaceAdapterId
   InterfaceManager::getFunctionInterface(const LabelStr & functionName)
   {
     double functionNameKey = functionName.getKey();
@@ -1296,11 +1296,11 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Return the interface adaptor in effect for lookups with this state name,
+   * @brief Return the interface adapter in effect for lookups with this state name,
    whether specifically registered or default. May return NoId().
    * @param stateName The state.
    */
-  InterfaceAdaptorId
+  InterfaceAdapterId
   InterfaceManager::getLookupInterface(const LabelStr & stateName)
   {
     double stateNameKey = stateName.getKey();
@@ -1319,19 +1319,19 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Return the current default interface adaptor. May return NoId().
+   * @brief Return the current default interface adapter. May return NoId().
    */
-  InterfaceAdaptorId 
+  InterfaceAdapterId 
   InterfaceManager::getDefaultInterface()
   {
     return m_defaultInterface;
   }
 
   /**
-   * @brief Return the interface adaptor in effect for planner updates,
+   * @brief Return the interface adapter in effect for planner updates,
             whether specifically registered or default. May return NoId().
   */
-  InterfaceAdaptorId
+  InterfaceAdapterId
   InterfaceManager::getPlannerUpdateInterface()
   {
     if (m_plannerUpdateInterface.isNoId())

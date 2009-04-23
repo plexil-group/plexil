@@ -24,25 +24,25 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "AdaptorFactory.hh"
-#include "InterfaceAdaptor.hh"
-#include "AdaptorExecInterface.hh"
+#include "AdapterFactory.hh"
+#include "InterfaceAdapter.hh"
+#include "AdapterExecInterface.hh"
 #include "tinyxml.h"
 
 namespace PLEXIL
 {
   /**
-   * @brief Creates a new InterfaceAdaptor instance with the type associated with the name and
+   * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
    *        the given configuration XML.
    * @param name The registered name for the factory.
-   * @param xml The configuration XML to be passed to the InterfaceAdaptor constructor.
-   * @return The Id for the new InterfaceAdaptor.  May not be unique.
+   * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+   * @return The Id for the new InterfaceAdapter.  May not be unique.
    */
 
-  InterfaceAdaptorId 
-  AdaptorFactory::createInstance(const LabelStr& name,
+  InterfaceAdapterId 
+  AdapterFactory::createInstance(const LabelStr& name,
                                  const TiXmlElement* xml,
-                                 AdaptorExecInterface& execInterface)
+                                 AdapterExecInterface& execInterface)
   {
     bool dummy;
     return createInstance(name, xml, execInterface, dummy);
@@ -50,41 +50,41 @@ namespace PLEXIL
 
 
   /**
-   * @brief Creates a new InterfaceAdaptor instance with the type associated with the name and
+   * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
    *        the given configuration XML.
    * @param name The registered name for the factory.
-   * @param xml The configuration XML to be passed to the InterfaceAdaptor constructor.
+   * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
    * @param wasCreated Reference to a boolean variable;
    *                   variable will be set to true if new object created, false otherwise.
-   * @return The Id for the new InterfaceAdaptor.  If wasCreated is set to false, is not unique.
+   * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
    */
 
-  InterfaceAdaptorId 
-  AdaptorFactory::createInstance(const LabelStr& name,
+  InterfaceAdapterId 
+  AdapterFactory::createInstance(const LabelStr& name,
                                  const TiXmlElement* xml,
-                                 AdaptorExecInterface& execInterface,
+                                 AdapterExecInterface& execInterface,
                                  bool& wasCreated)
   {
-    std::map<double, AdaptorFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<double, AdapterFactory*>::const_iterator it = factoryMap().find(name);
     assertTrueMsg(it != factoryMap().end(),
-		  "Error: No adaptor factory registered for name '" << name.toString() << "'.");
-    InterfaceAdaptorId retval = it->second->create(xml, execInterface, wasCreated);
-    debugMsg("AdaptorFactory:createInstance", " Created " << name.toString());
+		  "Error: No adapter factory registered for name '" << name.toString() << "'.");
+    InterfaceAdapterId retval = it->second->create(xml, execInterface, wasCreated);
+    debugMsg("AdapterFactory:createInstance", " Created " << name.toString());
     return retval;
   }
 
-  std::map<double, AdaptorFactory*>& AdaptorFactory::factoryMap() 
+  std::map<double, AdapterFactory*>& AdapterFactory::factoryMap() 
   {
-    static std::map<double, AdaptorFactory*> sl_map;
+    static std::map<double, AdapterFactory*> sl_map;
     return sl_map;
   }
 
   /**
    * @brief Deallocate all factories
    */
-  void AdaptorFactory::purge()
+  void AdapterFactory::purge()
   {
-    for (std::map<double, AdaptorFactory*>::iterator it = factoryMap().begin();
+    for (std::map<double, AdapterFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -92,24 +92,24 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Registers an AdaptorFactory with the specific name.
-   * @param name The name by which the Adaptor shall be known.
-   * @param factory The AdaptorFactory instance.
+   * @brief Registers an AdapterFactory with the specific name.
+   * @param name The name by which the Adapter shall be known.
+   * @param factory The AdapterFactory instance.
    */
-  void AdaptorFactory::registerFactory(const LabelStr& name, AdaptorFactory* factory)
+  void AdapterFactory::registerFactory(const LabelStr& name, AdapterFactory* factory)
   {
     assertTrue(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end())
       {
-	warn("Attempted to register an adaptor factory for name \""
+	warn("Attempted to register an adapter factory for name \""
              << name.toString()
              << "\" twice, ignoring.");
         delete factory;
         return;
       }
     factoryMap()[name] = factory;
-    debugMsg("AdaptorFactory:registerFactory",
-             " Registered adaptor factory for name '" << name.toString() << "'");
+    debugMsg("AdapterFactory:registerFactory",
+             " Registered adapter factory for name '" << name.toString() << "'");
   }
 
 }

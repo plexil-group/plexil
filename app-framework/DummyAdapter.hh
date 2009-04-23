@@ -24,10 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DUMMY_ADAPTOR_H
-#define DUMMY_ADAPTOR_H
+#ifndef DUMMY_ADAPTER_H
+#define DUMMY_ADAPTER_H
 
-#include "InterfaceAdaptor.hh"
+#include "InterfaceAdapter.hh"
 
 //
 // Forward references w/o namespace
@@ -38,32 +38,57 @@ class TiXmlElement;
 namespace PLEXIL
 {
   /*!
-    \brief A dummy InterfaceAdaptor for testing purposes
+    \brief A dummy InterfaceAdapter for testing purposes
   */
-  class DummyAdaptor : public InterfaceAdaptor
+  class DummyAdapter : public InterfaceAdapter
   {
   public:
 
     /**
      * @brief Base constructor.
      */
-    DummyAdaptor(AdaptorExecInterface& execInterface);
+    DummyAdapter(AdapterExecInterface& execInterface);
 
     /**
      * @brief Constructor w/ configuration XML.
      */
-    DummyAdaptor(AdaptorExecInterface& execInterface,
+    DummyAdapter(AdapterExecInterface& execInterface,
                  const TiXmlElement* xml);
 
     /**
      * @brief Destructor.
      */
-    ~DummyAdaptor();
+    ~DummyAdapter();
 
     /**
-     * @brief Initialize and register the adaptor.
+     * @brief Initialize and register the adapter, possibly using its configuration data.
+     * @return true if successful, false otherwise.
      */
     bool initialize();
+
+    /**
+     * @brief Starts the adapter, possibly using its configuration data.  
+     * @return true if successful, false otherwise.
+     */
+    bool start();
+
+    /**
+     * @brief Stops the adapter.  
+     * @return true if successful, false otherwise.
+     */
+    bool stop();
+
+    /**
+     * @brief Resets the adapter.  
+     * @return true if successful, false otherwise.
+     */
+    bool reset();
+
+    /**
+     * @brief Shuts down the adapter, releasing any of its resources.
+     * @return true if successful, false otherwise.
+     */
+    bool shutdown();
 
     virtual void registerChangeLookup(const LookupKey& uniqueId,
 				      const StateKey& stateKey,
@@ -104,12 +129,12 @@ namespace PLEXIL
     
   private:
     // deliberately unimplemented
-    DummyAdaptor();
-    DummyAdaptor(const DummyAdaptor &);
-    DummyAdaptor& operator=(const DummyAdaptor &);
+    DummyAdapter();
+    DummyAdapter(const DummyAdapter &);
+    DummyAdapter& operator=(const DummyAdapter &);
 
   };
 
 }
 
-#endif // DUMMY_ADAPTOR_H
+#endif // DUMMY_ADAPTER_H

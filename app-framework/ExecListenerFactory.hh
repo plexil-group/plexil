@@ -77,14 +77,14 @@ namespace PLEXIL
 
     /**
      * @brief Registers an ExecListenerFactory with the specific name.
-     * @param name The name by which the Adaptor shall be known.
+     * @param name The name by which the listener shall be known.
      * @param factory The ExecListenerFactory instance.
      */
     static void registerFactory(const LabelStr& name, ExecListenerFactory* factory);
 
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
+     * @param xml The configuration XML for the instantiated listener.
      * @return The Id for the new ExecListener.
      */
     virtual ExecListenerId create(const TiXmlElement* xml) const = 0;
@@ -112,7 +112,7 @@ namespace PLEXIL
   };
 
   /**
-   * @brief Concrete factory class, templated for each Adaptor type.
+   * @brief Concrete factory class, templated for each listener type.
    */
   template<class ListenerType>
   class ConcreteExecListenerFactory : public ExecListenerFactory 
@@ -130,7 +130,7 @@ namespace PLEXIL
 
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
+     * @param xml The configuration XML for the instantiated listener.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new ExecListener.
@@ -175,14 +175,14 @@ namespace PLEXIL
 
     /**
      * @brief Registers an ExecListenerFilterFactory with the specific name.
-     * @param name The name by which the Adaptor shall be known.
+     * @param name The name by which the filter shall be known.
      * @param factory The ExecListenerFilterFactory instance.
      */
     static void registerFactory(const LabelStr& name, ExecListenerFilterFactory* factory);
 
     /**
      * @brief Instantiates a new ExecListenerFilter of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
+     * @param xml The configuration XML for the instantiated filter
      * @return The Id for the new ExecListenerFilter.
      */
     virtual ExecListenerFilterId create(const TiXmlElement* xml) const = 0;
@@ -210,7 +210,7 @@ namespace PLEXIL
   };
 
   /**
-   * @brief Concrete factory class, templated for each Adaptor type.
+   * @brief Concrete factory class, templated for each filter type.
    */
   template<class FilterType>
   class ConcreteExecListenerFilterFactory : public ExecListenerFilterFactory 
@@ -228,7 +228,7 @@ namespace PLEXIL
 
     /**
      * @brief Instantiates a new ExecListenerFilter of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
+     * @param xml The configuration XML for the instantiated filter.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new ExecListenerFilter.

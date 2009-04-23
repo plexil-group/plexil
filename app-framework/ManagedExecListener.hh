@@ -58,6 +58,45 @@ namespace PLEXIL
       return m_xml; 
     }
 
+    //
+    // API to be implemented by derived classes
+    //
+
+    /**
+     * @brief Perform listener-specific initialization.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool initialize() = 0;
+
+    /**
+     * @brief Perform listener-specific startup.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool start() = 0;
+
+    /**
+     * @brief Perform listener-specific actions to stop.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool stop() = 0;
+
+    /**
+     * @brief Perform listener-specific actions to reset to initialized state.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool reset() = 0;
+
+    /**
+     * @brief Perform listener-specific actions to shut down.
+     * @return true if successful, false otherwise.
+     * @note Default method provided as a convenience for backward compatibility.
+     */
+    virtual bool shutdown() = 0;
+
   private:
     //
     // Deliberately unimplemented

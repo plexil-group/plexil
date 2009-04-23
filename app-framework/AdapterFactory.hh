@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ADAPTOR_FACTORY_H
-#define ADAPTOR_FACTORY_H
+#ifndef ADAPTER_FACTORY_H
+#define ADAPTER_FACTORY_H
 
 #include "Id.hh"
 #include "LabelStr.hh"
@@ -40,43 +40,43 @@ namespace PLEXIL
   // Forward declarations
   //
 
-  class InterfaceAdaptor;
-  typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
+  class InterfaceAdapter;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
-  class AdaptorExecInterface;
+  class AdapterExecInterface;
 
   /**
-   * @brief Factory class for InterfaceAdaptor instances.
+   * @brief Factory class for InterfaceAdapter instances.
    */
-  class AdaptorFactory 
+  class AdapterFactory 
   {
   public:
 
     /**
-     * @brief Creates a new InterfaceAdaptor instance with the type associated with the name and
+     * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the InterfaceAdaptor constructor.
-     * @return The Id for the new InterfaceAdaptor.  May not be unique.
+     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+     * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
-    static InterfaceAdaptorId createInstance(const LabelStr& name, 
+    static InterfaceAdapterId createInstance(const LabelStr& name, 
                                              const TiXmlElement* xml,
-                                             AdaptorExecInterface& execInterface);
+                                             AdapterExecInterface& execInterface);
 
     /**
-     * @brief Creates a new InterfaceAdaptor instance with the type associated with the name and
+     * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the InterfaceAdaptor constructor.
+     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new InterfaceAdaptor.  If wasCreated is set to false, is not unique.
+     * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
      */
 
-    static InterfaceAdaptorId createInstance(const LabelStr& name,
+    static InterfaceAdapterId createInstance(const LabelStr& name,
                                              const TiXmlElement* xml,
-                                             AdaptorExecInterface& execInterface,
+                                             AdapterExecInterface& execInterface,
                                              bool& wasCreated);
 
     /**
@@ -87,28 +87,28 @@ namespace PLEXIL
     const LabelStr& getName() const {return m_name;}
 
   protected:
-    virtual ~AdaptorFactory()
+    virtual ~AdapterFactory()
     {}
 
     /**
-     * @brief Registers an AdaptorFactory with the specific name.
-     * @param name The name by which the Adaptor shall be known.
-     * @param factory The AdaptorFactory instance.
+     * @brief Registers an AdapterFactory with the specific name.
+     * @param name The name by which the Adapter shall be known.
+     * @param factory The AdapterFactory instance.
      */
-    static void registerFactory(const LabelStr& name, AdaptorFactory* factory);
+    static void registerFactory(const LabelStr& name, AdapterFactory* factory);
 
     /**
-     * @brief Instantiates a new InterfaceAdaptor of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
+     * @brief Instantiates a new InterfaceAdapter of the appropriate type.
+     * @param xml The configuration XML for the instantiated Adapter.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new InterfaceAdaptor.
+     * @return The Id for the new InterfaceAdapter.
      */
-    virtual InterfaceAdaptorId create(const TiXmlElement* xml,
-                                      AdaptorExecInterface& execInterface,
+    virtual InterfaceAdapterId create(const TiXmlElement* xml,
+                                      AdapterExecInterface& execInterface,
                                       bool& wasCreated) const = 0;
 
-    AdaptorFactory(const LabelStr& name)
+    AdapterFactory(const LabelStr& name)
       : m_name(name)
     {
       registerFactory(m_name, this);
@@ -116,57 +116,57 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    AdaptorFactory();
-    AdaptorFactory(const AdaptorFactory&);
-    AdaptorFactory& operator=(const AdaptorFactory&);
+    AdapterFactory();
+    AdapterFactory(const AdapterFactory&);
+    AdapterFactory& operator=(const AdapterFactory&);
 
     /**
-     * @brief The map from names (LabelStr/double) to concrete AdaptorFactory instances.
+     * @brief The map from names (LabelStr/double) to concrete AdapterFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<double, AdaptorFactory*>& factoryMap();
+    static std::map<double, AdapterFactory*>& factoryMap();
 
     const LabelStr m_name; /*!< Name used for lookup */
   };
 
   /**
-   * @brief Concrete factory class, templated for each Adaptor type.
+   * @brief Concrete factory class, templated for each Adapter type.
    */
-  template<class AdaptorType>
-  class ConcreteAdaptorFactory : public AdaptorFactory 
+  template<class AdapterType>
+  class ConcreteAdapterFactory : public AdapterFactory 
   {
   public:
-    ConcreteAdaptorFactory(const LabelStr& name)
-      : AdaptorFactory(name) 
+    ConcreteAdapterFactory(const LabelStr& name)
+      : AdapterFactory(name) 
     {}
 
   private:
     // Deliberately unimplemented
-    ConcreteAdaptorFactory();
-    ConcreteAdaptorFactory(const ConcreteAdaptorFactory&);
-    ConcreteAdaptorFactory& operator=(const ConcreteAdaptorFactory&);
+    ConcreteAdapterFactory();
+    ConcreteAdapterFactory(const ConcreteAdapterFactory&);
+    ConcreteAdapterFactory& operator=(const ConcreteAdapterFactory&);
 
     /**
-     * @brief Instantiates a new InterfaceAdaptor of the appropriate type.
-     * @param xml The configuration XML for the instantiated Adaptor.
+     * @brief Instantiates a new InterfaceAdapter of the appropriate type.
+     * @param xml The configuration XML for the instantiated Adapter.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new InterfaceAdaptor.
+     * @return The Id for the new InterfaceAdapter.
      */
 
-    InterfaceAdaptorId create(const TiXmlElement* xml,
-                              AdaptorExecInterface& execInterface,
+    InterfaceAdapterId create(const TiXmlElement* xml,
+                              AdapterExecInterface& execInterface,
                               bool& wasCreated) const
     {
-      InterfaceAdaptorId result = (new AdaptorType(execInterface, xml))->getId();
+      InterfaceAdapterId result = (new AdapterType(execInterface, xml))->getId();
       wasCreated = true;
       return result;
     }
   };
 
-#define REGISTER_ADAPTOR(CLASS,NAME) {new PLEXIL::ConcreteAdaptorFactory<CLASS>(#NAME);}
+#define REGISTER_ADAPTER(CLASS,NAME) {new PLEXIL::ConcreteAdapterFactory<CLASS>(#NAME);}
 
 } // namespace PLEXIL
 
-#endif // ADAPTOR_FACTORY_H
+#endif // ADAPTER_FACTORY_H

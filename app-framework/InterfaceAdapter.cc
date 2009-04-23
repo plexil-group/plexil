@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "InterfaceAdaptor.hh"
-#include "AdaptorExecInterface.hh"
+#include "InterfaceAdapter.hh"
+#include "AdapterExecInterface.hh"
 #include "ExecDefs.hh"
 #include "Expression.hh"
 #include "LabelStr.hh"
@@ -41,14 +41,14 @@ namespace PLEXIL
   // Constructors
   //
 
-  InterfaceAdaptor::InterfaceAdaptor(AdaptorExecInterface& execInterface)
+  InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface)
     : m_execInterface(execInterface),
       m_xml(NULL),
       m_id(this)
   {
   }
 
-  InterfaceAdaptor::InterfaceAdaptor(AdaptorExecInterface& execInterface, 
+  InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface, 
 				     const TiXmlElement* xml)
     : m_execInterface(execInterface),
       m_xml(xml),
@@ -60,137 +60,91 @@ namespace PLEXIL
   // Destructor
   //
 
-  InterfaceAdaptor::~InterfaceAdaptor()
+  InterfaceAdapter::~InterfaceAdapter()
   {
     m_id.remove();
   }
 
 
   //
-  // Default adaptor methods
+  // Default methods for InterfaceManager API
   //
 
-  /**
-   * @brief Initializes the adaptor, possibly using its configuration data.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::initialize()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Starts the adaptor, possibly using its configuration data.  
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::start()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Stops the adaptor.  
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::stop()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Resets the adaptor.  
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::reset()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Shuts down the adaptor, releasing any of its resources.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::shutdown()
-  {
-    return true;
-  }
-
-
-  void InterfaceAdaptor::registerChangeLookup(const LookupKey& uniqueId,
+  void InterfaceAdapter::registerChangeLookup(const LookupKey& uniqueId,
 					      const StateKey& stateKey,
 					      const std::vector<double>& tolerances)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::registerChangeLookup: default method called!");
+	       "InterfaceAdapter::registerChangeLookup: default method called!");
   }
 
-  void InterfaceAdaptor::unregisterChangeLookup(const LookupKey& uniqueId)
+  void InterfaceAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::unregisterChangeLookup: default method called!");
+	       "InterfaceAdapter::unregisterChangeLookup: default method called!");
   }
 
-  void InterfaceAdaptor::registerFrequencyLookup(const LookupKey& uniqueId,
+  void InterfaceAdapter::registerFrequencyLookup(const LookupKey& uniqueId,
 						 const StateKey& stateKey,
 						 double lowFrequency, 
 						 double highFrequency)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::registerFrequencyLookup: default method called!");
+	       "InterfaceAdapter::registerFrequencyLookup: default method called!");
   }
 
 
-  void InterfaceAdaptor::unregisterFrequencyLookup(const LookupKey& uniqueId)
+  void InterfaceAdapter::unregisterFrequencyLookup(const LookupKey& uniqueId)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::registerFrequencyLookup: default method called!");
+	       "InterfaceAdapter::registerFrequencyLookup: default method called!");
   }
 
-  void InterfaceAdaptor::lookupNow(const StateKey& key,
+  void InterfaceAdapter::lookupNow(const StateKey& key,
 				   std::vector<double>& dest)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::lookupNow: default method called!");
+	       "InterfaceAdapter::lookupNow: default method called!");
   }
 
-  void InterfaceAdaptor::sendPlannerUpdate(const NodeId& node,
+  void InterfaceAdapter::sendPlannerUpdate(const NodeId& node,
 					   const std::map<double, double>& valuePairs,
 					   const ExpressionId ack)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::updatePlanner: default method called!");
+	       "InterfaceAdapter::updatePlanner: default method called!");
   }
 
 
   // executes a command with the given arguments
-  void InterfaceAdaptor::executeCommand(const LabelStr& name,
+  void InterfaceAdapter::executeCommand(const LabelStr& name,
 					const std::list<double>& args,
 					ExpressionId dest,
 					ExpressionId ack)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::executeCommand: default method called!");
+	       "InterfaceAdapter::executeCommand: default method called!");
   }
 
 
   // executes a function call with the given arguments
-  void InterfaceAdaptor::executeFunctionCall(const LabelStr& name,
+  void InterfaceAdapter::executeFunctionCall(const LabelStr& name,
 					     const std::list<double>& args,
 					     ExpressionId dest,
 					     ExpressionId ack)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::executeCommand: default method called!");
+	       "InterfaceAdapter::executeCommand: default method called!");
   }
 
 
   //abort the given command with the given arguments.  store the abort-complete into dest
-  void InterfaceAdaptor::invokeAbort(const LabelStr& name, 
+  void InterfaceAdapter::invokeAbort(const LabelStr& name, 
 				     const std::list<double>& args, 
 				     ExpressionId dest)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdaptor::invokeAbort: default method called!");
+	       "InterfaceAdapter::invokeAbort: default method called!");
   }
 
   //
@@ -198,29 +152,29 @@ namespace PLEXIL
   //
 
   void
-  InterfaceAdaptor::registerAsynchLookup(const LookupKey& uniqueId,
+  InterfaceAdapter::registerAsynchLookup(const LookupKey& uniqueId,
 					 const StateKey& key)
   {
     std::map<StateKey, std::set<LookupKey> >::iterator it =
       m_asynchLookups.find(key);
     if (it == m_asynchLookups.end())
       {
-	debugMsg("InterfaceAdaptor:registerAsynchLookup", " adding new state with key " << key);
+	debugMsg("InterfaceAdapter:registerAsynchLookup", " adding new state with key " << key);
 	std::set<LookupKey> theSet;
 	theSet.insert(uniqueId);
 	m_asynchLookups.insert(std::pair<StateKey, std::set<LookupKey> >(key, theSet));
       }
     else
       {
-	debugMsg("InterfaceAdaptor:registerAsynchLookup", " adding new destination for old state");
+	debugMsg("InterfaceAdapter:registerAsynchLookup", " adding new destination for old state");
 	(*it).second.insert(uniqueId);
       }
   }
 
   void
-  InterfaceAdaptor::unregisterAsynchLookup(const LookupKey& uniqueId)
+  InterfaceAdapter::unregisterAsynchLookup(const LookupKey& uniqueId)
   {
-    debugMsg("InterfaceAdaptor:unregisterAsynchLookup",
+    debugMsg("InterfaceAdapter:unregisterAsynchLookup",
 	     " for unique ID '" << uniqueId);
     std::map<StateKey, std::set<LookupKey> >::iterator tableIt =
       m_asynchLookups.begin();
@@ -235,14 +189,14 @@ namespace PLEXIL
 
 	      {
 		// delete entry from table
-		debugMsg("InterfaceAdaptor:unregisterAsynchLookup",
+		debugMsg("InterfaceAdapter:unregisterAsynchLookup",
 			 " deleting last lookup for state " << tableIt->first);
 		m_asynchLookups.erase(tableIt);
 	      }
 	    else
 	      {
 		// delete unique ID from entry
-		debugMsg("InterfaceAdaptor:unregisterAsynchLookup",
+		debugMsg("InterfaceAdapter:unregisterAsynchLookup",
 			 " deleting lookup for state with remaining lookups");
 		theSet.erase(setIt);
 	      }
@@ -250,42 +204,42 @@ namespace PLEXIL
 	  }
       }
     // Warn, don't barf.
-    debugMsg("InterfaceAdaptor:unregisterAsynchLookup",
+    debugMsg("InterfaceAdapter:unregisterAsynchLookup",
 	     " Unique ID '" << uniqueId << "' not found.");
   }
     
   std::map<StateKey, std::set<LookupKey> >::const_iterator 
-  InterfaceAdaptor::getAsynchLookupsBegin()
+  InterfaceAdapter::getAsynchLookupsBegin()
   {
     return m_asynchLookups.begin();
   }
   
   std::map<StateKey, std::set<LookupKey> >::const_iterator
-  InterfaceAdaptor::getAsynchLookupsEnd()
+  InterfaceAdapter::getAsynchLookupsEnd()
   {
     return m_asynchLookups.end();
   }
 
   bool 
-  InterfaceAdaptor::getState(const StateKey& key, State& state)
+  InterfaceAdapter::getState(const StateKey& key, State& state)
   {
     return m_execInterface.getStateCache()->stateForKey(key, state);
   }
 
   bool
-  InterfaceAdaptor::getStateKey(const State& state, StateKey& key)
+  InterfaceAdapter::getStateKey(const State& state, StateKey& key)
   {
     return !m_execInterface.getStateCache()->keyForState(state, key);
   }
 
   /**
-   * @brief Register this adaptor based on its XML configuration data.
-   * @note The adaptor is presumed to be fully initialized and working at the time of this call.
-   * @note This is a default method; adaptors are free to override it.
+   * @brief Register this adapter based on its XML configuration data.
+   * @note The adapter is presumed to be fully initialized and working at the time of this call.
+   * @note This is a default method; adapters are free to override it.
    */
-  void InterfaceAdaptor::registerAdaptor()
+  void InterfaceAdapter::registerAdapter()
   {
-    m_execInterface.defaultRegisterAdaptor(m_id);
+    m_execInterface.defaultRegisterAdapter(m_id);
   }
 
 

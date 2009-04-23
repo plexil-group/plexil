@@ -24,11 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DummyAdaptor.hh"
+#include "DummyAdapter.hh"
 
 #include "Debug.hh"
 #include "CoreExpressions.hh"
-#include "AdaptorExecInterface.hh"
+#include "AdapterExecInterface.hh"
 #include "Node.hh"
 
 namespace PLEXIL
@@ -36,50 +36,86 @@ namespace PLEXIL
   /**
    * @brief Base constructor.
    */
-  DummyAdaptor::DummyAdaptor(AdaptorExecInterface& execInterface)
-    : InterfaceAdaptor(execInterface)
+  DummyAdapter::DummyAdapter(AdapterExecInterface& execInterface)
+    : InterfaceAdapter(execInterface)
   {
   }
 
   /**
    * @brief Constructor w/ configuration XML.
    */
-  DummyAdaptor::DummyAdaptor(AdaptorExecInterface& execInterface,
+  DummyAdapter::DummyAdapter(AdapterExecInterface& execInterface,
                              const TiXmlElement* xml)
-    : InterfaceAdaptor(execInterface, xml)
+    : InterfaceAdapter(execInterface, xml)
   {
   }
 
   /**
    * @brief Destructor.
    */
-  DummyAdaptor::~DummyAdaptor()
+  DummyAdapter::~DummyAdapter()
   {
   }
 
   /**
-   * @brief Initialize and register the dummy adaptor.
+   * @brief Initialize and register the dummy adapter.
    */
-  bool DummyAdaptor::initialize()
+  bool DummyAdapter::initialize()
   {
-    this->registerAdaptor();
+    this->registerAdapter();
+    return true;
+  }
+
+  /**
+   * @brief Starts the adaptor, possibly using its configuration data.  
+   * @return true if successful, false otherwise.
+   */
+  bool DummyAdapter::start()
+  {
+    return true;
+  }
+
+  /**
+   * @brief Stops the adaptor.  
+   * @return true if successful, false otherwise.
+   */
+  bool DummyAdapter::stop()
+  {
+    return true;
+  }
+
+  /**
+   * @brief Resets the adaptor.  
+   * @return true if successful, false otherwise.
+   */
+  bool DummyAdapter::reset()
+  {
+    return true;
+  }
+
+  /**
+   * @brief Shuts down the adaptor, releasing any of its resources.
+   * @return true if successful, false otherwise.
+   */
+  bool DummyAdapter::shutdown()
+  {
     return true;
   }
 
 
-  void DummyAdaptor::registerChangeLookup(const LookupKey& uniqueId,
+  void DummyAdapter::registerChangeLookup(const LookupKey& uniqueId,
 					  const StateKey& stateKey,
 					  const std::vector<double>& tolerances)
   {
     debugMsg("ExternalInterface:dummy", " registerChangeLookup called");
   }
 
-  void DummyAdaptor::unregisterChangeLookup(const LookupKey& uniqueId)
+  void DummyAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
   {
     debugMsg("ExternalInterface:dummy", " unregisterChangeLookup called");
   }
 
-  void DummyAdaptor::registerFrequencyLookup(const LookupKey& uniqueId,
+  void DummyAdapter::registerFrequencyLookup(const LookupKey& uniqueId,
 					     const StateKey& stateKey,
 					     double lowFrequency, 
 					     double highFrequency)
@@ -87,19 +123,19 @@ namespace PLEXIL
     debugMsg("ExternalInterface:dummy", " registerFrequencyLookup called");
   }
 
-  void DummyAdaptor::unregisterFrequencyLookup(const LookupKey& uniqueId)
+  void DummyAdapter::unregisterFrequencyLookup(const LookupKey& uniqueId)
   {
     debugMsg("ExternalInterface:dummy", " unregisterFrequencyLookup called");
   }
 
-  void DummyAdaptor::lookupNow(const StateKey& key,
+  void DummyAdapter::lookupNow(const StateKey& key,
 			       std::vector<double>& dest)
   {
     debugMsg("ExternalInterface:dummy", " lookupNow called; returning UNKNOWN");
     dest[0] = Expression::UNKNOWN();
   }
 
-  void DummyAdaptor::sendPlannerUpdate(const NodeId& node,
+  void DummyAdapter::sendPlannerUpdate(const NodeId& node,
 				       const std::map<double, double>& valuePairs,
 				       ExpressionId ack)
   {
@@ -115,7 +151,7 @@ namespace PLEXIL
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdaptor::executeCommand(const LabelStr& name,
+  void DummyAdapter::executeCommand(const LabelStr& name,
 				    const std::list<double>& args,
 				    ExpressionId dest,
 				    ExpressionId ack)
@@ -126,7 +162,7 @@ namespace PLEXIL
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdaptor::executeFunctionCall(const LabelStr& name,
+  void DummyAdapter::executeFunctionCall(const LabelStr& name,
 					 const std::list<double>& args,
 					 ExpressionId dest,
 					 ExpressionId ack)
@@ -138,7 +174,7 @@ namespace PLEXIL
   }
 
   //abort the given command with the given arguments.  store the abort-complete into dest
-  void DummyAdaptor::invokeAbort(const LabelStr& name, 
+  void DummyAdapter::invokeAbort(const LabelStr& name, 
 				 const std::list<double>& args, 
 				 ExpressionId dest)
   {

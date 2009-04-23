@@ -33,17 +33,17 @@ ModuleLibraries PlexilAppFramework :
 ModuleCore PlexilAppFramework :
   ThreadSemaphore.cc
   InterfaceSchema.cc
-  AdaptorExecInterface.cc
-  InterfaceAdaptor.cc
+  AdapterExecInterface.cc
+  InterfaceAdapter.cc
   ManagedExecListener.cc
   InterfaceManager.cc
-  AdaptorFactory.cc
+  AdapterFactory.cc
   ExecListenerFactory.cc
   ExecApplication.cc
  ;
 
 ModuleComponent PlexilAppFramework :
-  DummyAdaptor.cc  
+  DummyAdapter.cc  
   NewLuvListener.cc
  ;
 

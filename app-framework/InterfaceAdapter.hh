@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef INTERFACE_ADAPTOR_H
-#define INTERFACE_ADAPTOR_H
+#ifndef INTERFACE_ADAPTER_H
+#define INTERFACE_ADAPTER_H
 
 #include "Id.hh"
 #include "ExecDefs.hh"
@@ -40,21 +40,21 @@ class TiXmlElement;
 namespace PLEXIL
 {
   // forward references
-  class InterfaceAdaptor;
-  typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
+  class InterfaceAdapter;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   class Expression;
   typedef Id<Expression> ExpressionId;
 
   class LabelStr;
 
-  class AdaptorExecInterface;
+  class AdapterExecInterface;
 
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
-            to other systems. See also classes ExternalInterface and AdaptorExecInterface.
+            to other systems. See also classes ExternalInterface and AdapterExecInterface.
   */
-  class InterfaceAdaptor
+  class InterfaceAdapter
   {
 
   public:
@@ -65,62 +65,59 @@ namespace PLEXIL
 
     /**
      * @brief Constructor.
-     * @param execInterface Reference to the parent AdaptorExecInterface object.
+     * @param execInterface Reference to the parent AdapterExecInterface object.
      */
-    InterfaceAdaptor(AdaptorExecInterface& execInterface);
+    InterfaceAdapter(AdapterExecInterface& execInterface);
 
     /**
      * @brief Constructor from configuration XML.
-     * @param execInterface Reference to the parent AdaptorExecInterface object.
-     * @param xml A const pointer to the TiXmlElement describing this adaptor
+     * @param execInterface Reference to the parent AdapterExecInterface object.
+     * @param xml A const pointer to the TiXmlElement describing this adapter
      * @note The instance maintains a shared pointer to the TiXmlElement.
      */
-    InterfaceAdaptor(AdaptorExecInterface& execInterface, 
+    InterfaceAdapter(AdapterExecInterface& execInterface, 
 		     const TiXmlElement * xml);
 
     /**
      * @brief Destructor.
      */
-    virtual ~InterfaceAdaptor();
+    virtual ~InterfaceAdapter();
 
     //
     // API to ExecApplication
     //
 
     /**
-     * @brief Initializes the adaptor, possibly using its configuration data.
+     * @brief Initializes the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
-     * @note Adaptors should provide their own methods.  The default method simply returns true.
      */
-    virtual bool initialize();
+    virtual bool initialize() = 0;
 
     /**
-     * @brief Starts the adaptor, possibly using its configuration data.  
+     * @brief Starts the adapter, possibly using its configuration data.  
      * @return true if successful, false otherwise.
-     * @note Adaptors should provide their own methods.  The default method simply returns true.
      */
-    virtual bool start();
+    virtual bool start() = 0;
 
     /**
-     * @brief Stops the adaptor.  
+     * @brief Stops the adapter.  
      * @return true if successful, false otherwise.
-     * @note Adaptors should provide their own methods.  The default method simply returns true.
      */
-    virtual bool stop();
+    virtual bool stop() = 0;
 
     /**
-     * @brief Resets the adaptor.  
+     * @brief Resets the adapter.  
      * @return true if successful, false otherwise.
-     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     * @note Adapters should provide their own methods.  The default method simply returns true.
      */
-    virtual bool reset();
+    virtual bool reset() = 0;
 
     /**
-     * @brief Shuts down the adaptor, releasing any of its resources.
+     * @brief Shuts down the adapter, releasing any of its resources.
      * @return true if successful, false otherwise.
-     * @note Adaptors should provide their own methods.  The default method simply returns true.
+     * @note Adapters should provide their own methods.  The default method simply returns true.
      */
-    virtual bool shutdown();
+    virtual bool shutdown() = 0;
 
     /**
      * @brief Register one LookupOnChange.
@@ -245,16 +242,16 @@ namespace PLEXIL
     void unregisterAsynchLookup(const LookupKey& uniqueId);
 
     /**
-     * @brief Register this adaptor based on its XML configuration data.
-     * @note The adaptor is presumed to be fully initialized and working at the time of this call.
-     * @note This is a default method; adaptors are free to override it.
+     * @brief Register this adapter based on its XML configuration data.
+     * @note The adapter is presumed to be fully initialized and working at the time of this call.
+     * @note This is a default method; adapters are free to override it.
      */
-    virtual void registerAdaptor();
+    virtual void registerAdapter();
 
     /**
      * @brief Get the ID of this instance.
      */
-    InterfaceAdaptorId getId()
+    InterfaceAdapterId getId()
     {
       return m_id;
     }
@@ -268,9 +265,9 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Get the AdaptorExecInterface for this instance.
+     * @brief Get the AdapterExecInterface for this instance.
      */
-    AdaptorExecInterface& getExecInterface()
+    AdapterExecInterface& getExecInterface()
     {
       return m_execInterface;
     }
@@ -307,14 +304,14 @@ namespace PLEXIL
      */
     bool getStateKey(const State& state, StateKey& stateKey);
 
-    AdaptorExecInterface& m_execInterface;
+    AdapterExecInterface& m_execInterface;
 
   private:
 
     // Deliberately unimplemented
-    InterfaceAdaptor();
-    InterfaceAdaptor(const InterfaceAdaptor &);
-    InterfaceAdaptor & operator=(const InterfaceAdaptor &);
+    InterfaceAdapter();
+    InterfaceAdapter(const InterfaceAdapter &);
+    InterfaceAdapter & operator=(const InterfaceAdapter &);
 
     //
     // Member variables
@@ -322,12 +319,12 @@ namespace PLEXIL
 
     const TiXmlElement * m_xml;
 
-    InterfaceAdaptorId m_id;
+    InterfaceAdapterId m_id;
 
     std::map<StateKey, std::set<LookupKey> > m_asynchLookups;
   };
 
-  typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 }
 
-#endif // INTERFACE_ADAPTOR_H
+#endif // INTERFACE_ADAPTER_H

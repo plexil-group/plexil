@@ -35,7 +35,7 @@
 #include "Error.hh"
 #include "ExecListener.hh"
 #include "Expressions.hh"
-#include "InterfaceAdaptor.hh"
+#include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "PlexilExec.hh"
@@ -69,7 +69,7 @@ namespace PLEXIL
    * @brief Initialize all internal data structures and interfaces.
    * @param configXml Configuration data to use.
    * @return true if successful, false otherwise.
-   * @note The caller must ensure that all adaptor and listener factories
+   * @note The caller must ensure that all adapter and listener factories
    *       have been created and registered before this call.
    */
   bool ExecApplication::initialize(const TiXmlElement * configXml)

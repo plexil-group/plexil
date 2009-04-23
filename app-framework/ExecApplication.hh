@@ -48,8 +48,8 @@ namespace PLEXIL
 {
 
   // forward references
-  class InterfaceAdaptor;
-  typedef Id<InterfaceAdaptor> InterfaceAdaptorId;
+  class InterfaceAdapter;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   class ExecApplication;
   typedef Id<ExecApplication> ExecApplicationId;
@@ -110,7 +110,7 @@ namespace PLEXIL
      * @brief Initialize all internal data structures and interfaces.
      * @param configXml Configuration data to use.
      * @return true if successful, false otherwise.
-     * @note The caller must ensure that all adaptor and listener factories
+     * @note The caller must ensure that all adapter and listener factories
      *       have been created and registered before this call.
      */
     virtual bool initialize(const TiXmlElement * configXml);
@@ -161,25 +161,19 @@ namespace PLEXIL
      * @brief Notify the executive that it should run one cycle.  This should be sent after
      each batch of lookup and command return data.
     */
-    void notifyExec();
+    virtual void notifyExec();
 
     /**
      * @brief Add a library as an XML document.
      * @return true if successful, false otherwise.
      */
-    bool addLibrary(TiXmlDocument* libXml);
+    virtual bool addLibrary(TiXmlDocument* libXml);
 
     /**
      * @brief Add a plan as an XML document.
      * @return true if successful, false otherwise.
      */
-    bool addPlan(TiXmlDocument* planXml);
-
-  protected:
-
-    //
-    // Exec top level
-    //
+    virtual bool addPlan(TiXmlDocument* planXml);
 
     /**
      * @brief Select whether the exec runs opportunistically or only in background thread.
@@ -187,6 +181,12 @@ namespace PLEXIL
      * @note Default is opportunistic.
      */
     void setRunExecInBkgndOnly(bool bkgndOnly);
+
+  protected:
+
+    //
+    // Exec top level
+    //
 
     /**
      * @brief Start the exec thread
