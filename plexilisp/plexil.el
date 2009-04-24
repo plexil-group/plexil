@@ -67,14 +67,12 @@
 ;;; of Plexilisp constructs, automatically generated when this file is
 ;;; evaluated.
 (defvar *node-types*) 
+(setq *node-types* nil)
 (defvar *node-body-types*)
-
+(setq *node-body-types* nil)
 (defun node-type? (x) (member x *node-types*))
 (defun node-body-type? (x) (member x *node-body-types*))
 
-(eval-when (load compile eval)
-  (setq *node-types* nil)
-  (setq *node-body-types* nil))
 
 ;;; User interface
 
@@ -322,9 +320,9 @@
              (put name 'plexilisp-indent-function ',indent)
              (cond
               ((eq ',type 'node)
-               (pushnew (plexil-qualify ',namespace name) *node-types*))
+               (push (plexil-qualify ',namespace name) *node-types*))
               ((eq ',type 'node-body)
-               (pushnew (plexil-qualify ',namespace name) *node-body-types*))))
+               (push (plexil-qualify ',namespace name) *node-body-types*))))
            ',names)
      ;; ! This is a hack, but I haven't found a way to generalize it.
      ;; to any number of names.
@@ -354,9 +352,9 @@
              (put name 'plexilisp-indent-function ',indent)
              (cond
               ((eq ',type 'node)
-               (pushnew (plexil-qualify ',namespace name) *node-types*))
+               (push (plexil-qualify ',namespace name) *node-types*))
               ((eq ',type 'node-body)
-               (pushnew (plexil-qualify ',namespace name) *node-body-types*))))
+               (push (plexil-qualify ',namespace name) *node-body-types*))))
            ',names)
      ;; ! This is a hack, but I haven't found a way to generalize it.
      ;; to any number of names.
