@@ -50,8 +50,10 @@ namespace PLEXIL
   typedef Id<PlexilNode> PlexilNodeId;
 
   /**
-   * @brief An abstract base class representing the executive interface from the interface adapter's point of view.
-            Implements the Singleton design pattern.
+   * @brief An abstract base class representing the InterfaceManager API
+   *        from the interface adapter's point of view.
+   * @note This class exists so that InterfaceAdapter and its derived classes
+   *       need not be aware of the implementation details of InterfaceManager.
    */
 
   class AdapterExecInterface

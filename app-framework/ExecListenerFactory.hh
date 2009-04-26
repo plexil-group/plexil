@@ -47,6 +47,7 @@ namespace PLEXIL
 
   /**
    * @brief Factory class for ExecListener instances.
+   *        Implements the AbstractFactory design pattern.
    */
   class ExecListenerFactory 
   {
@@ -131,8 +132,6 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
      * @param xml The configuration XML for the instantiated listener.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new ExecListener.
      */
 
@@ -145,6 +144,7 @@ namespace PLEXIL
 
   /**
    * @brief Factory class for ExecListenerFilter instances.
+   *        Implements the AbstractFactory design pattern.
    */
   class ExecListenerFilterFactory 
   {
@@ -229,8 +229,6 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new ExecListenerFilter of the appropriate type.
      * @param xml The configuration XML for the instantiated filter.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new ExecListenerFilter.
      */
 

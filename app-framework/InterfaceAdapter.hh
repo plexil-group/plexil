@@ -52,8 +52,9 @@ namespace PLEXIL
 
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
-            to other systems. See also classes ExternalInterface and AdapterExecInterface.
-  */
+   *        to other systems.
+   * @see InterfaceManager, AdapterExecInterface
+   */
   class InterfaceAdapter
   {
 

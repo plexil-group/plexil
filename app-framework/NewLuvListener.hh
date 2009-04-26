@@ -42,7 +42,12 @@ class TiXmlElement;
 
 namespace PLEXIL 
 {
-  class NewLuvListener : public ManagedExecListener
+  /**
+   * @brief A variant of the LuvListener class for use with InterfaceManager.
+   * @see Class LuvListener
+   */
+  class NewLuvListener :
+    public ManagedExecListener
   {
   public:
     //
@@ -124,7 +129,7 @@ namespace PLEXIL
      * @param libNode The intermediate representation of the plan.
      * @note The default method is deprecated and will go away in a future release.
      */
-    void notifyOfAddLibrary(const PlexilNodeId& plan) const;
+    void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
 
   protected:
 

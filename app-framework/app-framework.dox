@@ -229,7 +229,7 @@ DISTRIBUTE_GROUP_DOC   = NO
 # The TAB_SIZE tag can be used to set the number of spaces in a tab. 
 # Doxygen uses this value to replace tabs by spaces in code fragments.
 
-TAB_SIZE               = 6
+TAB_SIZE               = 8
 
 # The GENERATE_TODOLIST tag can be used to enable (YES) or 
 # disable (NO) the todo list. This list is created by putting \todo 
@@ -253,7 +253,7 @@ GENERATE_BUGLIST       = YES
 # disable (NO) the deprecated list. This list is created by putting 
 # \deprecated commands in the documentation.
 
-GENERATE_DEPRECATEDLIST= NO
+GENERATE_DEPRECATEDLIST= YES
 
 # This tag can be used to specify a number of aliases that acts 
 # as commands in the documentation. An alias has the form "name=value". 

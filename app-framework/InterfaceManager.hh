@@ -56,6 +56,16 @@ namespace PLEXIL
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
 
+  /**
+   * @brief A concrete derived class implementing the APIs of the
+   *        ExternalInterface and AdapterExecInterface classes.
+   * @details The InterfaceManager class is responsible for keeping track
+   *          of all the external interfaces used by the PlexilExec.  It
+   *          maintains a queue of messages for the Exec to process.  Interface
+   *          instantiation, initialization, startup, stopping, shutdown, and
+   *          deallocation are all handled by the InterfaceManager instance.
+   * @note Supersedes the old ThreadedExternalInterface class.
+   */
   class InterfaceManager :
     public ExternalInterface,
     public AdapterExecInterface
@@ -64,8 +74,9 @@ namespace PLEXIL
 
     /**
      * @brief Constructor.
+     * @param app The ExecApplication instance to which this object belongs.
      */
-    InterfaceManager(ExecApplication &);
+    InterfaceManager(ExecApplication & app);
 
     /**
      * @brief Destructor.
@@ -100,7 +111,7 @@ namespace PLEXIL
 
     /**
      * @brief Add an externally constructed interface adapter.
-     * @param The adapter ID.
+     * @param adapter The adapter ID.
      */
     void addInterfaceAdapter(const InterfaceAdapterId& adapter);
 
@@ -417,7 +428,7 @@ namespace PLEXIL
      * @brief Tells the external interface to expect a return value from this function.
      Use handleValueChange() to actually return the value.
      * @param dest The expression whose value will be returned.
-     * @param name The function whose value will be returned.
+     * @param functionName The function whose value will be returned.
      * @param params The parameters associated with this function.
      */
     void registerFunctionReturnValue(ExpressionId dest,
@@ -552,11 +563,10 @@ namespace PLEXIL
     //
     // Value queue
     //
-    // The value queue is where deferred data (i.e. LookupOnChange, 
-    // LookupWithFrequency, command return values) are stored until the 
-    // exec thread has a chance to look at them.
-    //
 
+    /**
+     * @brief Represents the type of a ValueQueue::QueueEntry instance.
+     */
     enum QueueEntryType
       {
 	queueEntry_EMPTY,
@@ -568,6 +578,11 @@ namespace PLEXIL
 	queueEntry_ERROR
       };
 
+    /**
+     * @brief A private internal class where the InterfaceManager temporarily
+     *        stores the results of asynchronous operations on the world outside
+     *        the Exec.
+     */
     class ValueQueue
     {
     public:
@@ -615,9 +630,16 @@ namespace PLEXIL
 				 NULL_STATE_KEY,
 				 State(0.0, std::vector<double>()));
 
+      /**
+       * @brief Represents one entry in a ValueQueue.  
+       *        A private class internal to ValueQueue.
+       */
       class QueueEntry
       {
       public:
+        /*
+         * @brief Constructor for a QueueEntry representing a function or command return value.
+         */
 	QueueEntry(const ExpressionId & exp,
 		   double val)
 	  : expression(exp),
@@ -629,6 +651,9 @@ namespace PLEXIL
 	{
 	}
 
+        /*
+         * @brief Constructor for a QueueEntry representing a single LookupOnChange return value.
+         */
 	QueueEntry(const StateKey & st,
 		   double val)
 	  : expression(),
@@ -640,6 +665,10 @@ namespace PLEXIL
 	{
 	}
 
+        /*
+         * @brief Constructor for a QueueEntry representing multiple return values
+         *        for a LookupOnChange.
+         */
 	QueueEntry(const StateKey& st,
 		   const std::vector<double> vals)
 	  : expression(),
@@ -651,6 +680,10 @@ namespace PLEXIL
 	{
 	}
 
+        /*
+         * @brief Constructor for a QueueEntry representing an external command
+         *        to add a new plan or library node.
+         */
 	QueueEntry(PlexilNodeId newPlan, 
 		   const LabelStr& parent,
                    const QueueEntryType typ)
@@ -665,6 +698,9 @@ namespace PLEXIL
                      "QueueEntry constructor: invalid entry type for plan or library");
 	}
 
+        /*
+         * @brief Constructor for an empty QueueEntry of an arbitrary QueueEntryType.
+         */
 	QueueEntry(QueueEntryType typ)
 	  : expression(),
 	    stateKey(),
@@ -675,6 +711,9 @@ namespace PLEXIL
 	{
 	}
 
+        /*
+         * @brief Destructor.
+         */
 	~QueueEntry()
 	{
 	}
@@ -687,9 +726,13 @@ namespace PLEXIL
 	QueueEntryType type;
       };
 
+      /** The actual queue data structure. */
       std::queue<QueueEntry> m_queue;
 
-      // pointer so isEmpty() can be const
+      /** 
+       * @brief Pointer to a mutex to prevent collisions between threads.
+       * @note Implemented as a pointer so isEmpty() can be const.
+       */
       ThreadMutex * m_mutex;
 
     };
@@ -709,26 +752,28 @@ namespace PLEXIL
     // Private member variables
     //
 
-    // ID as an interface manager
+    //* ID as an interface manager
     InterfaceManagerId m_interfaceManagerId;
 
-    // parent object
+    //* Parent object
     ExecApplication& m_application;
 
-    // The queue
+    //* The queue
     ValueQueue m_valueQueue;
 
-    // All listeners
+    //* Vector of all known ExecListener instances
     std::vector<ExecListenerId> m_listeners;
 
-    // All adapters
+    //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapterId> m_adapters;
 
-    // Defaults
+    //* Default InterfaceAdapter
     InterfaceAdapterId m_defaultInterface;
+
+    //* InterfaceAdapter to use for PlannerUpdate nodes
     InterfaceAdapterId m_plannerUpdateInterface;
 
-    // The resource arbiter
+    //* The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;
 
     // Maps by lookup key
@@ -745,7 +790,7 @@ namespace PLEXIL
     std::map<ExpressionId, CommandId> m_ackToCmdMap;
     std::map<ExpressionId, CommandId> m_destToCmdMap;
 
-    // The all-important "latest time" cache
+    //* Holds the most recent idea of the current time
     double m_currentTime;
 
   };

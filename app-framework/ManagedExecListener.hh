@@ -34,6 +34,11 @@ class TiXmlElement;
 
 namespace PLEXIL
 {
+  /**
+   * @brief An abstract base class, derived from ExecListener, which supports
+   *        automatic management by the InterfaceManager class.
+   * @see Class ExecListener
+   */
   class ManagedExecListener :
     public ExecListener
   {
@@ -65,35 +70,30 @@ namespace PLEXIL
     /**
      * @brief Perform listener-specific initialization.
      * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
      */
     virtual bool initialize() = 0;
 
     /**
      * @brief Perform listener-specific startup.
      * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
      */
     virtual bool start() = 0;
 
     /**
      * @brief Perform listener-specific actions to stop.
      * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
      */
     virtual bool stop() = 0;
 
     /**
      * @brief Perform listener-specific actions to reset to initialized state.
      * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
      */
     virtual bool reset() = 0;
 
     /**
      * @brief Perform listener-specific actions to shut down.
      * @return true if successful, false otherwise.
-     * @note Default method provided as a convenience for backward compatibility.
      */
     virtual bool shutdown() = 0;
 
@@ -115,6 +115,11 @@ namespace PLEXIL
     const TiXmlElement* m_xml;
   };
 
+  /**
+   * @brief An abstract base class, derived from ExecListenerFilter, which allows
+   *        automatic instantiation from configuration data by ManagedExecListener.
+   * @see Class ExecListenerFilter
+   */
   class ManagedExecListenerFilter :
     public ExecListenerFilter
   {

@@ -46,7 +46,8 @@ namespace PLEXIL
   class AdapterExecInterface;
 
   /**
-   * @brief Factory class for InterfaceAdapter instances.
+   * @brief Factory class for InterfaceAdapter instances.  
+   *        Implements the AbstractFactory design pattern.
    */
   class AdapterFactory 
   {
@@ -57,6 +58,7 @@ namespace PLEXIL
      *        the given configuration XML.
      * @param name The registered name for the factory.
      * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+     * @param execInterface Reference to the parent InterfaceManager instance.
      * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
@@ -69,6 +71,7 @@ namespace PLEXIL
      *        the given configuration XML.
      * @param name The registered name for the factory.
      * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+     * @param execInterface Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
@@ -100,6 +103,7 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new InterfaceAdapter of the appropriate type.
      * @param xml The configuration XML for the instantiated Adapter.
+     * @param execInterface Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new InterfaceAdapter.
@@ -150,6 +154,7 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new InterfaceAdapter of the appropriate type.
      * @param xml The configuration XML for the instantiated Adapter.
+     * @param execInterface Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new InterfaceAdapter.

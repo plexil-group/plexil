@@ -195,7 +195,7 @@ namespace PLEXIL
 
     /**
      * @brief Exec top level loop for use with pthread_create
-     * @param A pointer to the ExecApplication instance as a void *
+     * @param this_as_void_ptr A pointer to the ExecApplication instance as a void *
      */
     static void * execTopLevel(void * this_as_void_ptr);
 
