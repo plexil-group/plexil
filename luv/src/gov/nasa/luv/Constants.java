@@ -124,12 +124,15 @@ public class Constants
       public static final Dimension PROP_CFGWIN_SIZE_DEF      = new Dimension(900, 700);
       
       //////////// Various constant info used within this program /////////////
+
+      /** Represents the "PLEXIL_HOME" environment variable. */
+      public static final String    PLEXIL_HOME = System.getenv("PLEXIL_HOME");
       
       /** Represents the "test executive" for PLEXIL. */ 
       public static final String    TEST_EXEC = "test-exec_g_rt";
       
       /** Represents the script for running the "test executive" for PLEXIL. */ 
-      public static final String    UE_EXEC = System.getenv("PLEXIL_HOME") + 
+      public static final String    UE_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
@@ -141,14 +144,14 @@ public class Constants
                                                      "luv.log";      
       
       /** Represents the python script that is used to create a complete list of debug flag list. */ 
-      public static final String    PYTHON_SCRIPT = System.getenv("PLEXIL_HOME") + 
+      public static final String    PYTHON_SCRIPT = PLEXIL_HOME +
                                                     System.getProperty("file.separator") +
                                                     "bin" + 
                                                     System.getProperty("file.separator") +
                                                     "debugFlagCollector.py";
       
       /** Represents the complete list of debug flags. */ 
-      public static final String    COMPLETE_FLAG_LIST = System.getenv("PLEXIL_HOME") + 
+      public static final String    COMPLETE_FLAG_LIST = PLEXIL_HOME +
                                                          System.getProperty("file.separator") +
                                                          "universal-exec" + 
                                                          System.getProperty("file.separator") +
@@ -159,7 +162,7 @@ public class Constants
                                                          "CompleteDebugFlags.cfg";
       
       /** Represents the user defined list of debug flags. */
-      public static final String    DEBUG_CFG_FILE = System.getenv("PLEXIL_HOME") + 
+      public static final String    DEBUG_CFG_FILE = PLEXIL_HOME +
                                                      System.getProperty("file.separator") +
                                                      "luv" + 
                                                      System.getProperty("file.separator") +
