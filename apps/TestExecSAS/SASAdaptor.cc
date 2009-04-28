@@ -1,6 +1,7 @@
 #include "SASAdaptor.hh"
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 #include <Expression.hh>
 #include <PlexilExec.hh>
@@ -114,9 +115,58 @@ void SASAdaptor::lookupNow(const PLEXIL::StateKey& stateKey,
       debugMsg("SASAdaptor:lookupNow", "Found a cached state");
       assert(dest.size() == iter->second.size());
       dest = iter->second;
-      m_StateToValueMap.erase(iter);
+
+      //      if (m_StateToChangeLookupMap.find(n) == m_StateToChangeLookupMap.end())
+      //  m_StateToValueMap.erase(iter);
     }
 }
+
+void SASAdaptor::registerChangeLookup(const PLEXIL::LookupKey& uniqueId,
+                                      const PLEXIL::StateKey& stateKey,
+                                      const std::vector<double>& tolerances)
+{
+  PLEXIL::State state;
+  this->getState(stateKey, state);
+  const PLEXIL::LabelStr& name = state.first;
+  std::string n = name.toString();
+
+  debugMsg("SASAdaptor:registerChangeLookup", "In change look up for " << n);
+  // keep track of all states that need change lookup
+
+  std::map<std::string, ChangeLookupStruct>::iterator iter;
+
+  if ((iter = m_StateToChangeLookupMap.find(n)) == m_StateToChangeLookupMap.end())
+    {
+      debugMsg("SASAdaptor:registerChangeLookup", "The state " << n 
+               << " has not already been registered for change lookup. Processing the new request");
+
+      std::map<std::string, std::vector<double> >::iterator iter2;
+      if ((iter2 = m_StateToValueMap.find(n)) != m_StateToValueMap.end())
+        {
+          debugMsg("SASAdaptor:registerChangeLookup", "The newly registered state " << n 
+               << " has a known telemetry value. Storing it.");
+          
+          m_StateToChangeLookupMap.insert(std::pair<std::string, 
+                                          ChangeLookupStruct>(n, ChangeLookupStruct(stateKey, 
+                                                                                    iter2->second, 
+                                                                                    tolerances)));
+        }
+      else
+        debugMsg("SASAdaptor:registerChangeLookup", "The newly registered state " << n 
+                 << " does not have a known telemetry value yet.");
+    }
+  else
+    {
+      debugMsg("SASAdaptor:registerChangeLookup", "The state " << n 
+               << " has already been registered for change lookup. Ignoring the new request");
+    }
+}
+
+void SASAdaptor::unregisterChangeLookup(const PLEXIL::LookupKey& uniqueId)
+{
+  debugMsg("SASAdaptor:unregisterChangeLookup", "In unregister change look up");
+}
+
 
 void SASAdaptor::postCommandResponse(const std::string& cmd,
                                      float value)
@@ -132,14 +182,50 @@ void SASAdaptor::postCommandResponse(const std::string& cmd,
   m_execInterface.notifyOfExternalEvent();
 }
 
-void SASAdaptor::postTelemetryState(const std::string& state, int numOfValues,
+void SASAdaptor::postTelemetryState(const std::string& state, unsigned int numOfValues,
                                     const double* values)
 {
+  debugMsg("SASAdaptor::postTelemetryState", "Received telemetry for " << state);
   std::vector<double> vect;
-  for (int i = 0; i < numOfValues; ++i)
+  for (unsigned int i = 0; i < numOfValues; ++i)
     vect.push_back(values[i]);
 
   m_StateToValueMap[state] = vect;
+  bool changed = false;
+
+  std::map<std::string, ChangeLookupStruct>::iterator iter;
+  if ((iter = m_StateToChangeLookupMap.find(state)) != m_StateToChangeLookupMap.end())
+    {
+      debugMsg("SASAdaptor:postTelemetryState", "The state " << state 
+               << " has received a new telemetry value.");
+      const std::vector<double>& prev = iter->second.getPreviousValues();
+
+      const std::vector<double>& tolerance = iter->second.getToleranceValues();
+
+      if (prev.size() != 0)
+        {
+          // Check if values have changed
+          assertTrueMsg((numOfValues == prev.size()),
+                        "SASAdaptor:postTelemetryState: Posted telemetry for state " << state 
+                        << " is not the same length as expected");
+
+          for (unsigned int i = 0; (i < numOfValues) && !changed; ++i)
+            {
+              std::cout << "prev: " << prev[i] << ", values: " << values[i] << ", tolerance: " << tolerance[i] << std::endl;
+              if (fabs(prev[i] - values[i]) >= tolerance[i])
+                changed = true;
+            }
+
+          iter->second.setPreviousValues(vect);
+
+        }
+    }
+  //  std::cout << "heren : changed: " << changed << std::endl;
+  if (changed)
+    {
+      m_execInterface.handleValueChange(iter->second.getStateKey(), vect);
+      m_execInterface.notifyOfExternalEvent();
+    }
 }
 
 
