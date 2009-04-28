@@ -5,7 +5,7 @@
 
 default:
 	@ ( cd TestExec; jam )
-	@ $(MAKE) -C StandAloneSimulator simcore SHARED=1
+	@ $(MAKE) -C StandAloneSimulator simcore
 
 clean:
 	@ ( cd TestExec; jam $@ )
