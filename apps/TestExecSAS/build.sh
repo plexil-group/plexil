@@ -26,7 +26,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (cd lcm; make)
-(cd ../StandAloneSimulator/PlexilSimulator; make)
+#(cd ../StandAloneSimulator/PlexilSimulator; make)
 
 jam clean
 jam

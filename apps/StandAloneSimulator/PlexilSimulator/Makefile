@@ -19,11 +19,24 @@ CXX     = g++
 OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 INCLUDES = -I$(STANDALONE_SIMULATOR_HOME) -I$(PLEXIL_HOME)/apps/TestExecSAS/lcm/structs/include \
-	   -I/home/bvk/Packages/lcm-0.2.1/include -I$(PLEXIL_HOME)/apps/TestExecSAS/lcm 
+	   -I$(PLEXIL_HOME)/interfaces/lcm-0.2.1/include -I$(PLEXIL_HOME)/apps/TestExecSAS/lcm 
+
+ifndef LCM_PATH
+	LCM_PATH = $(PLEXIL_HOME)/interfaces/lcm-0.2.1
+endif
 
  LIB_EXT = .so
- SHARED_OBJ_FLAGS += -fPIC
- SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+
+OSTYPE = $(shell uname -s 2>/dev/null | tr [:lower:] [:upper:])
+ ifeq ($(findstring DARWIN, $(OSTYPE)), DARWIN)
+  LIB_EXT = .dylib
+  SHARED_LIB_FLAGS += -dynamiclib -Wl
+  SHARED_OBJ_FLAGS += -fPIC
+ else
+  LIB_EXT = .so
+  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
+  SHARED_OBJ_FLAGS += -fpic
+ endif
 
 PLEXILSIMULATOR_LIBS += $(LIB_DIR)/$(LIB_TARGET)
 
@@ -44,7 +57,7 @@ PLEXILSIMULATOR_OBJECTS = $(OBJ_DIR)/PlexilSimulator$(OBJ_EXT)
 all : $(LIB_DIR)/$(LIB_TARGET) $(BIN_DIR)/$(PLEXILSIMULATOR_TARGET)
 
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS) $(LIBS)
 
 $(BIN_DIR)/$(PLEXILSIMULATOR_TARGET) : $(BIN_DIR) $(PLEXILSIMULATOR_OBJECTS) $(LIB_OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $(PLEXILSIMULATOR_OBJECTS) $(PLEXILSIMULATOR_LIBS) $(LIBS)

@@ -12,7 +12,9 @@ MACHTYPE ?= $(shell uname -p)
 CXX     = g++
 OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
-ifdef SHARED
+ifdef NOT_SHARED
+ LIB_EXT = .a
+else
  LIB_EXT = .so
  ifeq ($(findstring DARWIN, $(OSTYPE)), DARWIN)
   SHARED_LIB_FLAGS += -dynamiclib -Wl
@@ -21,8 +23,6 @@ ifdef SHARED
   SHARED_LIB_FLAGS += -z combreloc -shared -Wl
   SHARED_OBJ_FLAGS += -fpic
  endif
-else
- LIB_EXT = .a
 endif
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
@@ -42,12 +42,12 @@ all : $(LIB_DIR)/$(LIB_TARGET)
 
 simcore : $(LIB_DIR)/$(LIB_TARGET)
 
-ifdef SHARED
-$(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
-else
+ifdef NOT_SHARED
 $(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
 	$(AR) ruc $@ $(LIB_OBJECTS)
+else
+$(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
 endif
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
