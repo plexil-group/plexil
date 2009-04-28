@@ -30,4 +30,4 @@ jam
 
 cd lcm-0.2.1
 ./configure --without-java --prefix=$PWD
-make 
+make install
