@@ -50,6 +50,14 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeva
       if (parseType<int>(inStr, returnValue))
         return new foo(tDelay, returnValue);
     }
+  else if (cmdName == "some_state")
+    {
+      double returnValue;
+      if (parseType<double>(inStr, returnValue))
+        {
+          return new someState(tDelay, returnValue);
+        }
+    }
   else
     return new GenericResponse(tDelay, "0");
 }

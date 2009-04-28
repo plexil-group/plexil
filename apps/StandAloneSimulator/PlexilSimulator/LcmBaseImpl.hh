@@ -51,12 +51,12 @@ public:
         data.retValue=atoi(contents.c_str());
         driveResponse_publish(m_lcm, "DRIVERESPONSE", &data);
       }
-    else if (name == "foo")
+    else if ((name == "foo") || (name == "some_state"))
       {
         telemetryDouble data;
         double values[1];
         values[0] = static_cast<double>(atoi(contents.c_str()));
-        data.state = "foo";
+        data.state = const_cast<char *>(name.c_str());
         data.number = 1;
         data.values = values;
         telemetryDouble_publish(m_lcm, "TELEMETRYDOUBLE", &data);
