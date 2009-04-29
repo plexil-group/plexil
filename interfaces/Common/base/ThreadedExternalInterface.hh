@@ -59,22 +59,6 @@ namespace PLEXIL
     public AdaptorExecInterface
   {
   public:
-
-    //
-    // Class constants
-    //
-
-    enum InterfaceState
-      {
-        INTERFACE_UNINITED,
-        INTERFACE_INITED,
-        INTERFACE_STARTED,
-        INTERFACE_RUNNING,
-        INTERFACE_SUSPENDED,
-        INTERFACE_STOPPED,
-        INTERFACE_SHUTDOWN
-      };
-
     /**
      * @brief Default constructor.
      */
@@ -92,78 +76,28 @@ namespace PLEXIL
     static ThreadedExternalInterfaceId instance();
 
     /**
-     * @brief Get internal ID pointer.
+     * @brief Accessor to internal ID pointer.
      */
-    inline const ThreadedExternalInterfaceId& getId() const
-    {
-      return m_threadedInterfaceId;
-    }
-
-    /**
-     * @brief Get interface state.
-     */
-    inline const InterfaceState& getInterfaceState() const
-    {
-      return m_state;
-    }
+    ThreadedExternalInterfaceId getId();
 
     //
     // Top-level loop
     //
 
     /**
-     * @brief Performs basic initialization of the interface and all adaptors.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool initialize();
-
-    /**
-     * @brief Prepares the interface and adaptors for execution.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool startInterface();
-
-    /**
      * @brief Spawns a thread which runs the exec's top level loop, and waits for the thread to terminate.
-     * @return true if successful, false otherwise.
      */
-    virtual bool run();
+    void run();
 
     /**
      * @brief Spawns a thread which runs the exec's top level loop.
-     * @return true if successful, false otherwise.
      */
-    bool spawnExecThread();
+    void spawnExecThread();
 
     /**
-     * @brief Temporarily halts the exec's top level loop.
-     * @return true if successful, false otherwise.
+     * @brief Tells the exec's top level loop to exit.
      */
-    virtual bool suspend();
-
-    /**
-     * @brief Resumes the exec's top level loop.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool resume();
-
-    /**
-     * @brief Tells the exec's top level loop to exit and halts all interfaces.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool stop();
-
-    /**
-     * @brief Resets the interface prior to restarting.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool reset();
-
-    /**
-     * @brief Shuts down the interface.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool shutdown();
+    void stop();
 
     //
     // API for exec
@@ -291,13 +225,6 @@ namespace PLEXIL
     //
     // API to interface adaptors
     //
-
-    /**
-     * @brief Register the given interface adaptor based on its configuration XML.  
-     * @param adaptor The interface adaptor to handle this command.
-     */
-
-    virtual void defaultRegisterAdaptor(InterfaceAdaptorId adaptor);
 
     /**
      * @brief Register the given interface adaptor for this command.  
@@ -559,11 +486,6 @@ namespace PLEXIL
     static void * execTopLevel(void * this_as_void_ptr);
     void runInternal();
 
-    /**
-     * @brief Removes the adaptor and deletes it iff nothing refers to it.
-     */
-    void deleteIfUnknown(InterfaceAdaptorId intf);
-
   private:
 
     // Deliberately unimplemented
@@ -775,7 +697,6 @@ namespace PLEXIL
     InterfaceMap m_functionMap;
     InterfaceAdaptorId m_plannerUpdateInterface;
     InterfaceAdaptorId m_defaultInterface;
-    std::set<InterfaceAdaptorId> m_adaptors;
     
     ResourceArbiterInterfaceId m_raInterface;
     std::map<ExpressionId, CommandId> m_ackToCmdMap;
@@ -799,8 +720,6 @@ namespace PLEXIL
 
     // *** DEPRECATED - to be removed in the near future ***
     static ThreadedExternalInterfaceId s_threadedInterfaceInstance;
-
-    InterfaceState m_state;
 
   };
 

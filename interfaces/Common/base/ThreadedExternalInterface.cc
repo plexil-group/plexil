@@ -33,11 +33,9 @@
 
 #include "ThreadedExternalInterface.hh"
 
-#include "AdaptorFactory.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "InterfaceAdaptor.hh"
-#include "InterfaceSchema.hh"
 #include "ResourceArbiterInterface.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
@@ -66,8 +64,7 @@ namespace PLEXIL
       m_threadedInterfaceId(),
       m_execThread(),
       m_execMutex(),
-      m_sem(),
-      m_state(INTERFACE_UNINITED)
+      m_sem()
   {
     // cast from subclass
     m_threadedInterfaceId = (ThreadedExternalInterfaceId)m_adaptorInterfaceId;
@@ -98,6 +95,14 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Accessor to internal ID pointer.
+   */
+  ThreadedExternalInterfaceId ThreadedExternalInterface::getId()
+  {
+    return m_threadedInterfaceId;
+  }
+
+  /**
    * @brief Select whether the exec runs opportunistically or only in background thread.
    * @param bkgndOnly True if background only, false if opportunistic.
    * @note Default is opportunistic.
@@ -111,304 +116,28 @@ namespace PLEXIL
   // Top-level loop
   //
 
-  /**
-   * @brief Register this adaptor based on its XML configuration data.
-   * @note The adaptor is presumed to be fully initialized and working at the time of this call.
-   * @note TODO: strategy for handling redundant registrations
-   */
-  void ThreadedExternalInterface::defaultRegisterAdaptor(InterfaceAdaptorId adaptor)
-  {
-    // Walk the children of the configuration XML element
-    // and register the adaptor according to the data found there
-    TiXmlElement* element = adaptor->getXml()->FirstChildElement();
-    while (element != 0)
-      {
-        const char* elementType = element->Value();
-        // look for text as the only child of this element
-        // to use below
-        TiXmlNode* firstChild = element->FirstChild();
-        TiXmlText* text = 0;
-        if (firstChild == 0)
-          text = firstChild->ToText();
-
-        if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTOR_TAG()) == 0)
-          {
-            setDefaultInterface(adaptor);
-            // warn if children found
-            if (text != 0)
-              {
-                warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::DEFAULT_ADAPTOR_TAG()
-                     << " ignored");
-              }
-            else if (firstChild != 0)
-              {
-                warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::DEFAULT_ADAPTOR_TAG()
-                     << " ignored");
-              }
-          }
-        else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0)
-          {
-            registerPlannerUpdateInterface(adaptor);
-            // warn if children found
-            if (text != 0)
-              {
-                warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::PLANNER_UPDATE_TAG()
-                     << " ignored");
-              }
-            else if (firstChild != 0)
-              {
-                warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::PLANNER_UPDATE_TAG()
-                     << " ignored");
-              }
-          }
-        else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0)
-          {
-            checkError(text != 0,
-                       "registerAdaptor: Invalid configuration XML: "
-                       << InterfaceSchema::COMMAND_NAMES_TAG()
-                       << " requires one or more comma-separated command names");
-            std::vector<std::string> * cmdNames =
-              InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-            for(std::vector<std::string>::const_iterator it = cmdNames->begin();
-                it != cmdNames->end();
-                it++)
-              {
-                registerCommandInterface(LabelStr(*it), adaptor);
-              }
-            delete cmdNames;
-          }
-        else if (strcmp(elementType, InterfaceSchema::FUNCTION_NAMES_TAG()) == 0)
-          {
-            checkError(text != 0,
-                       "registerAdaptor: Invalid configuration XML: "
-                       << InterfaceSchema::FUNCTION_NAMES_TAG()
-                       << " requires one or more comma-separated function names");
-            std::vector<std::string> * fnNames =
-              InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-            for(std::vector<std::string>::const_iterator it = fnNames->begin();
-                it != fnNames->end();
-                it++)
-              {
-                registerFunctionInterface(LabelStr(*it), adaptor);
-              }
-            delete fnNames;
-          }
-        else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0)
-          {
-            checkError(text != 0,
-                       "registerAdaptor: Invalid configuration XML: "
-                       << InterfaceSchema::LOOKUP_NAMES_TAG()
-                       << " requires one or more comma-separated lookup names");
-            std::vector<std::string> * lookupNames =
-              InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-            for(std::vector<std::string>::const_iterator it = lookupNames->begin();
-                it != lookupNames->end();
-                it++)
-              {
-                registerLookupInterface(LabelStr(*it), adaptor);
-              }
-            delete lookupNames;
-          }
-        // ignore other tags, they're for adaptor's use
-        
-        element = element->NextSiblingElement();
-      }
-  }
-
-  /**
-   * @brief Performs basic initialization of the interface and all adaptors.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::initialize()
-  {
-    if (m_state != INTERFACE_UNINITED)
-      {
-        debugMsg("ExternalInterface:initialize", " called from invalid interface state");
-        return false;
-      }
-
-    debugMsg("ExternalInterface:initialize", " initializing interface adaptors");
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success = (*it)->initialize();
-
-    if (success)
-      {
-        debugMsg("ExternalInterface:initialize", " done.");
-        m_state = INTERFACE_INITED;
-      }
-    else
-      {
-        debugMsg("ExternalInterface:initialize", " failed.");
-      }
-    return success;
-  }
-
-  /**
-   * @brief Prepares the interface and adaptors for execution.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::startInterface()
-  {
-    if (m_state != INTERFACE_INITED)
-      {
-        debugMsg("ExternalInterface:startInterface", " called from invalid interface state");
-        return false;
-      }
-
-    debugMsg("ExternalInterface:startInterface", " starting interface adaptors");
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success = (*it)->start();
-    if (success)
-      {
-        debugMsg("ExternalInterface:startInterface", " done.");
-        m_state = INTERFACE_STARTED;
-      }
-    else
-      {
-        debugMsg("ExternalInterface:startInterface", " failed.");
-      }
-    return success;
-  }
-
-  /**
-   * @brief Spawns a thread which runs the exec's top level loop, and waits for the thread to terminate.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::run()
-  {
-    if (m_state != INTERFACE_STARTED)
-      {
-        debugMsg("ExternalInterface:run", " interfaces not started, cannot run exec");
-        return false;
-      }
-
-    bool result = spawnExecThread();
-    if (!result)
-      return result;
-
-    // Wait for exec thread here
-    result = pthread_join(m_execThread, NULL);
-    return result;
-  }
-
-  /**
-   * @brief Spawns a thread which runs the exec's top level loop.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::spawnExecThread()
+  void ThreadedExternalInterface::spawnExecThread()
   {
     checkError(m_exec.isValid(), "Attempted to run without an executive.");
-    assertTrue(m_state != INTERFACE_STARTED,
-               "ExternalInterface::run: interfaces not started");
     debugMsg("ExternalInterface:run", " Spawning top level thread");
     int success = pthread_create(&m_execThread,
 				 NULL,
 				 execTopLevel,
 				 this);
     assertTrue(success == 0,
-	       "ExternalInterface::run: unable to spawn exec thread!");
+	       "ThreadedExternalInterface::run: unable to spawn exec thread!");
     debugMsg("ExternalInterface:run", " Top level thread running");
-    m_state = INTERFACE_RUNNING;
-    return success == 0;
   }
 
-
-  /**
-   * @brief Temporarily halts the exec's top level loop.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::suspend()
+  void ThreadedExternalInterface::run()
   {
-    if (m_state != INTERFACE_RUNNING)
-      {
-        debugMsg("ExternalInterface:suspend", " exec not running, can't suspend");
-        return false;
-      }
-
-    // suspend exec thread
-    // *** NYI ***
-
-
-    debugMsg("ExternalInterface:suspend", " suspending interface adaptors");
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success == (*it)->suspend();
-    if (success)
-      {
-        m_state = INTERFACE_SUSPENDED;
-        debugMsg("ExternalInterface:suspend", " done.");
-      }
-    else
-      {
-        debugMsg("ExternalInterface:suspend", " failed.");
-      }
-    return success;
+    spawnExecThread();
+    // Wait for exec thread here
+    pthread_join(m_execThread, NULL);
   }
 
-  /**
-   * @brief Resumes the exec's top level loop.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::resume()
+  void ThreadedExternalInterface::stop()
   {
-    if (m_state != INTERFACE_SUSPENDED)
-      {
-        debugMsg("ExternalInterface:suspend", " exec not suspended, can't resume");
-        return false;
-      }
-
-    debugMsg("ExternalInterface:resume", " resuming interface adaptors");
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success = (*it)->resume();
-
-    if (!success)
-      {
-        debugMsg("ExternalInterface:resume", " failed resuming interface adaptors");
-        return false;
-      }
-
-    // resume exec thread
-    // *** NYI ***
-
-    if (success)
-      {
-        debugMsg("ExternalInterface:resume", " done.");
-        m_state = INTERFACE_RUNNING;
-      }
-    else
-      {
-        debugMsg("ExternalInterface:resume", " failed resuming exec thread");
-      }
-    return success;
-  }
-
-  /**
-   * @brief Tells the exec's top level loop to exit and halts all interfaces.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::stop()
-  {
-    if (m_state != INTERFACE_SUSPENDED)
-      {
-        debugMsg("ExternalInterface:stop", " exec not running or suspended, can't stop");
-        return false;
-      }
-
     debugMsg("ExternalInterface:stop", " Halting top level thread");
     int dummy;
 
@@ -416,107 +145,10 @@ namespace PLEXIL
     // does not quit on EINTR.
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &dummy);
 
-    int status = pthread_cancel(m_execThread);
-    if (status != 0)
-      {
-        debugMsg("ExternalInterface:stop",
-                 " pthread_cancel() failed, error = " << status);
-        return false;
-      }
+    pthread_cancel(m_execThread);
     sleep(1);
-    status = pthread_join(m_execThread, NULL);
-    if (status != 0)
-      {
-        debugMsg("ExternalInterface:stop", 
-                 " pthread_join() failed, error = " << status);
-        return false;
-      }
+    pthread_join(m_execThread, NULL);
     debugMsg("ExternalInterface:stop", " Top level thread halted");
-
-    // halt adaptors
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success = (*it)->stop();
-
-    if (success)
-      {
-        debugMsg("ExternalInterface:stop", " Interface halted");
-        m_state = INTERFACE_STOPPED;
-      }
-    else
-      {
-        debugMsg("ExternalInterface:stop", " Unable to stop interface");
-      }
-    return success;
-  }
-
-  /**
-   * @brief Resets the interface prior to restarting.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::reset()
-  {
-    if (m_state != INTERFACE_STOPPED)
-      {
-        debugMsg("ExternalInterface:reset", " exec not stopped, can't reset");
-        return false;
-      }
-
-    // reset queue etc. to freshly initialized state
-    // *** NYI ***
-
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success = (*it)->reset();
-
-    if (success)
-      {
-        debugMsg("ExternalInterface:reset", " succeeded");
-        m_state = INTERFACE_INITED;
-      }
-    else
-      {
-        debugMsg("ExternalInterface:reset", " failed");
-      }
-    return success;
-  }
-
-  /**
-   * @brief Shuts down the interface.
-   * @return true if successful, false otherwise.
-   */
-  bool ThreadedExternalInterface::shutdown()
-  {
-    if (m_state != INTERFACE_STOPPED)
-      {
-        debugMsg("ExternalInterface:shutdown", " exec not stopped, can't shut down");
-        return false;
-      }
-
-    bool success = true;
-    for (std::set<InterfaceAdaptorId>::iterator it = m_adaptors.begin();
-         success && it != m_adaptors.end();
-         it++)
-      success = (*it)->shutdown();
-
-    // Clean up
-    // *** NYI ***
-
-    if (success)
-      {
-        debugMsg("ExternalInterface:shutdown", " done.");
-        m_state = INTERFACE_SHUTDOWN;
-      }
-    else
-      {
-        debugMsg("ExternalInterface:shutdown", " done.");
-      }
-
-    return success;
   }
 
   void * ThreadedExternalInterface::execTopLevel(void * this_as_void_ptr)
@@ -566,8 +198,6 @@ namespace PLEXIL
 	debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") Stepping exec");
 	m_exec->step();
 	debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") Step complete");
-        // give an opportunity to cancel thread here
-        pthread_testcancel();
       }
     debugMsg("ExternalInterface:runExec", " (" << pthread_self() << ") No events are pending");
   }
@@ -620,8 +250,7 @@ namespace PLEXIL
     debugMsg("ExternalInterface:processQueue",
 	     " (" << pthread_self() << ") entered");
 
-    // Potential optimization (?): these could be member variables
-    // Can't use static as that would cause collisions between multiple instances
+    // Potential optimization (?): these could be static... or instance
     StateKey stateKey;
     std::vector<double> newStateValues;
     ExpressionId exp;
@@ -640,8 +269,6 @@ namespace PLEXIL
 	typ = m_valueQueue.dequeue(stateKey, newStateValues,
 				   exp, newExpValue,
 				   plan, parent);
-        // opportunity to cancel thread here
-        pthread_testcancel();
 	switch (typ)
 	  {
 	  case queueEntry_EMPTY:
@@ -763,9 +390,6 @@ namespace PLEXIL
 	  }
 
 	firstTime = false;
-
-        // Allow an opportunity to quit here
-        pthread_testcancel();
       }
   }
 
@@ -992,7 +616,7 @@ namespace PLEXIL
     if (commands.empty())
       return;
 
-    debugMsg("ExternalInterface:batchActions", " entered");
+    debugMsg("ThreadedExternalInterface:batchActions", " entered");
 
     bool commandRejected = false;
     std::set<CommandId> acceptCmds;
@@ -1009,7 +633,7 @@ namespace PLEXIL
 
         if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end()))
           {
-            debugMsg("ExternalInterface:batchActions", 
+            debugMsg("ThreadedExternalInterface:batchActions", 
                      " Permission to execute " << cmd->getName().toString()
                      << " has been granted by the resource arbiter (if one exists).");
             // Maintain a <acks, cmdId> map of commands
@@ -1025,7 +649,7 @@ namespace PLEXIL
         else
           {
             commandRejected = true;
-            debugMsg("ExternalInterface:batchActions ", 
+            debugMsg("ThreadedExternalInterface:batchActions ", 
                      "Permission to execute " << cmd->getName().toString()
                      << " has been denied by the resource arbiter.");
             
@@ -1039,7 +663,7 @@ namespace PLEXIL
     if (commandRejected)
       this->notifyOfExternalEvent();
 
-    debugMsg("ExternalInterface:batchActions", " exited");
+    debugMsg("ThreadedExternalInterface:batchActions", " exited");
   }
 
   // this batches the set of function calls from quiescence completion.
@@ -1173,7 +797,6 @@ namespace PLEXIL
 	debugMsg("ExternalInterface:registerCommandInterface",
 		 " registering interface for command '" << commandName.toString() << "'");
 	m_commandMap.insert(std::pair<double, InterfaceAdaptorId>(commandNameKey, intf)) ;
-        m_adaptors.insert(intf);
 	return true;
       }
     else
@@ -1203,7 +826,6 @@ namespace PLEXIL
 	debugMsg("ExternalInterface:registerFunctionInterface",
 		 " registering interface for function '" << functionName.toString() << "'");
 	m_functionMap.insert(std::pair<double, InterfaceAdaptorId>(functionNameKey, intf)) ;
-        m_adaptors.insert(intf);
 	return true;
       }
     else
@@ -1233,7 +855,6 @@ namespace PLEXIL
 	debugMsg("ExternalInterface:registerLookupInterface",
 		 " registering interface for lookup '" << stateName.toString() << "'");
 	m_lookupMap.insert(std::pair<double, InterfaceAdaptorId>(stateNameKey, intf)) ;
-        m_adaptors.insert(intf);
 	return true;
       }
     else
@@ -1262,7 +883,6 @@ namespace PLEXIL
     debugMsg("ExternalInterface:registerPlannerUpdateInterface",
 	     " registering planner update interface"); 
     m_plannerUpdateInterface = intf;
-    m_adaptors.insert(intf);
     return true;
   }
 
@@ -1282,40 +902,9 @@ namespace PLEXIL
 	return false;
       }
     m_defaultInterface = intf;
-    m_adaptors.insert(intf);
     debugMsg("ExternalInterface:setDefaultInterface",
 	     " setting default interface " << intf);
     return true;
-  }
-
-
-  /**
-   * @brief Removes the adaptor and deletes it iff nothing refers to it.
-   */
-  void ThreadedExternalInterface::deleteIfUnknown(InterfaceAdaptorId intf)
-  {
-    // Check the easy places first
-    if (intf == m_defaultInterface
-        || intf == m_plannerUpdateInterface)
-      return;
-
-    // See if the adaptor is in any of the tables
-    InterfaceMap::iterator it = m_lookupMap.begin();
-    for (; it != m_lookupMap.end(); it++)
-      if (it->second == intf)
-        return;
-    it = m_commandMap.begin();
-    for (; it != m_commandMap.end(); it++)
-      if (it->second == intf)
-        return;
-    it = m_functionMap.begin();
-    for (; it != m_functionMap.end(); it++)
-      if (it->second == intf)
-        return;
-
-    // Not found, remove it and destroy it
-    m_adaptors.erase(intf);
-    intf.release();
   }
 
   /**
@@ -1331,9 +920,7 @@ namespace PLEXIL
       {
 	debugMsg("ExternalInterface:unregisterCommandInterface",
 		 " removing interface for command '" << commandName.toString() << "'");
-        InterfaceAdaptorId intf = it->second;
 	m_commandMap.erase(it);
-        deleteIfUnknown(intf);
       }
   }
 
@@ -1350,9 +937,7 @@ namespace PLEXIL
       {
 	debugMsg("ExternalInterface:unregisterFunctionInterface",
 		 " removing interface for function '" << functionName.toString() << "'");
-        InterfaceAdaptorId intf = it->second;
 	m_functionMap.erase(it);
-        deleteIfUnknown(intf);
       }
   }
 
@@ -1369,9 +954,7 @@ namespace PLEXIL
       {
 	debugMsg("ExternalInterface:unregisterLookupInterface",
 		 " removing interface for lookup '" << stateName.toString() << "'");
-        InterfaceAdaptorId intf = it->second;
 	m_lookupMap.erase(it);
-        deleteIfUnknown(intf);
       }
   }
 
@@ -1383,9 +966,7 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:unregisterPlannerUpdateInterface",
 	     " removing planner update interface");
-    InterfaceAdaptorId intf = m_plannerUpdateInterface;
     m_plannerUpdateInterface = InterfaceAdaptorId::noId();
-    deleteIfUnknown(intf);
   }
 
   /**
@@ -1396,9 +977,7 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:unsetDefaultInterface",
 	     " removing default interface");
-    InterfaceAdaptorId intf = m_defaultInterface;
     m_defaultInterface = InterfaceAdaptorId::noId();
-    deleteIfUnknown(intf);
   }
 
   /**
@@ -1508,12 +1087,12 @@ namespace PLEXIL
   {
     if (m_raInterface.isId())
       {
-	debugMsg("ExternalInterface:setResourceArbiterInterface",
+	debugMsg("ThreadedExternalInterface:setResourceArbiterInterface",
 		 " attempt to overwrite resource arbiter interface " << m_raInterface);
 	return false;
       }
     m_raInterface = raIntf;
-    debugMsg("ExternalInterface::setResourceArbiterInterface",
+    debugMsg("ThreadedExternalInterface::setResourceArbiterInterface",
 	     " setting resource arbiter interface " << raIntf);
     return true;
   }
@@ -1524,7 +1103,7 @@ namespace PLEXIL
   void 
   ThreadedExternalInterface::unsetResourceArbiterInterface()
   {
-    debugMsg("ExternalInterface:unsetResourceArbiterInterface",
+    debugMsg("ThreadedExternalInterface:unsetResourceArbiterInterface",
 	     " removing resource arbiter interface");
     m_raInterface = ResourceArbiterInterfaceId::noId();
   }
@@ -1746,7 +1325,7 @@ namespace PLEXIL
     if ((iter = m_ackToCmdMap.find(ackOrDest)) != m_ackToCmdMap.end())
       {
         CommandId cmdId = iter->second;
-        debugMsg("ExternalInterface:releaseResourcesAtCommandTermination",
+        debugMsg("ThreadedExternalInterface:releaseResourcesAtCommandTermination",
                  " The expression that was received is a valid acknowledgement"
                  << " for the command: " << cmdId->getName().toString());
         
@@ -1763,7 +1342,7 @@ namespace PLEXIL
     else if ((iter = m_destToCmdMap.find(ackOrDest)) != m_destToCmdMap.end())
       {
         CommandId cmdId = iter->second;
-        debugMsg("ExternalInterface:releaseResourcesForCommand",
+        debugMsg("ThreadedExternalInterface:releaseResourcesForCommand",
                  " The expression that was received is a valid return value"
                  << " for the command: " << cmdId->getName().toString());
 
@@ -1777,7 +1356,7 @@ namespace PLEXIL
         m_destToCmdMap.erase(iter);
       }
     else
-      debugMsg("ExternalInterface::releaseResourcesForCommand:",
+      debugMsg("ThreadedExternalInterface::releaseResourcesForCommand:",
                " The expression is neither an acknowledgement"
                << " nor a return value for a command. Ignoring.");
 

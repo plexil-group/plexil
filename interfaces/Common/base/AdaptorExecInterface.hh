@@ -63,13 +63,6 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Register the given interface adaptor based on its configuration XML.  
-     * @param adaptor The interface adaptor to handle this command.
-     */
-
-    virtual void defaultRegisterAdaptor(InterfaceAdaptorId adaptor) = 0;
-
-    /**
      * @brief Register the given interface adaptor for this command.  
               Returns true if successful.  Fails and returns false 
               iff the command name already has an adaptor registered.

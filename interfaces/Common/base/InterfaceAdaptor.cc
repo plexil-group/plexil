@@ -32,15 +32,9 @@
 #include "StateCache.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "tinyxml.h"
 
 namespace PLEXIL
 {
-
-  //
-  // Constructors
-  //
-
   InterfaceAdaptor::InterfaceAdaptor(AdaptorExecInterface& execInterface)
     : m_execInterface(execInterface),
       m_xml(NULL),
@@ -56,83 +50,10 @@ namespace PLEXIL
   {
   }
 
-  //
-  // Destructor
-  //
-
   InterfaceAdaptor::~InterfaceAdaptor()
   {
     m_id.remove();
   }
-
-
-  //
-  // Default adaptor methods
-  //
-
-  /**
-   * @brief Initializes the adaptor, possibly using its configuration data.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::initialize()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Starts the adaptor, possibly using its configuration data.  
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::start()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Suspend the adaptor.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::suspend()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Resumes the adaptor, possibly using its configuration data.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::resume()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Stops the adaptor.  
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::stop()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Resets the adaptor.  
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::reset()
-  {
-    return true;
-  }
-
-  /**
-   * @brief Shuts down the adaptor, releasing any of its resources.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceAdaptor::shutdown()
-  {
-    return true;
-  }
-
 
   void InterfaceAdaptor::registerChangeLookup(const LookupKey& uniqueId,
 					      const StateKey& stateKey,
@@ -295,17 +216,5 @@ namespace PLEXIL
   {
     return !m_execInterface.getStateCache()->keyForState(state, key);
   }
-
-  /**
-   * @brief Register this adaptor based on its XML configuration data.
-   * @note The adaptor is presumed to be fully initialized and working at the time of this call.
-   * @note This is a default method; adaptors are free to override it.
-   */
-  void InterfaceAdaptor::registerAdaptor()
-  {
-    m_execInterface.defaultRegisterAdaptor(m_id);
-  }
-
-
 
 }
