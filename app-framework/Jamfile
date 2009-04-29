@@ -9,6 +9,7 @@ PLEXIL_HOME = [ FDirName $(app-framework) $(DOTDOT) ] ;
 # *** unfortunately the references to relative paths only work
 # when executing in this directory!! ***
 LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
+             [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lib ] ]
              ;
 
 # point to relevant UE headers
@@ -28,6 +29,7 @@ ModuleLibraries PlexilAppFramework :
   $(PTHREADS_LIBRARY)
   $(SEM_LIBRARY)
   [ FVariantName Exec PlexilUtils PlexilTinyXml : $(VARIANTS) ]
+  [ FVariantName Sockets : $(VARIANTS) ]
  ;
 
 ModuleCore PlexilAppFramework :
