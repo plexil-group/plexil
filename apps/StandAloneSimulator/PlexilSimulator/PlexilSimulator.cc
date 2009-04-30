@@ -53,7 +53,10 @@ int main(int argc, char** argv)
       else if (strcmp(argv[i], "-t") == 0)
         telemetryScriptName= argv[++i];
       else if (strcmp(argv[i], "-h") == 0)
-        std::cout << usage << std::endl;
+        {
+          std::cout << usage << std::endl;
+          return 0;
+        }
       else
       {
          std::cout << "Unknown option '" 

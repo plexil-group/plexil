@@ -86,7 +86,7 @@ public:
         // contents string
         telemetryDouble data;
         double values[1];
-        values[0] = static_cast<double>(atoi(contents.c_str()));
+        values[0] = static_cast<double>(atof(contents.c_str()));
         data.state = const_cast<char *>(name.c_str());
         data.number = 1;
         data.values = values;
