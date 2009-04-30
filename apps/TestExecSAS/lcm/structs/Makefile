@@ -1,4 +1,4 @@
-STRUCTS = driveCommand driveResponse telemetryDouble
+STRUCTS = driveCommand driveResponse telemetryDouble genericCommand genericResponse
 
 CXX = g++
 

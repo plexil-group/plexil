@@ -104,7 +104,7 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
                                            int uniqueId)
 {
   timeval time;
-  std::cout << "Simulator::scheduleResponseForCommand for command: " << command 
+  std::cout << "Simulator::scheduleResponseForCommand for : " << command 
             << std::endl;
   bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
   if (valid) scheduleNextResponse(time);
@@ -113,9 +113,10 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
 void Simulator::scheduleResponseForTelemetry(const std::string& state)
 {
   timeval time;
-  std::cout << "Simulator::scheduleResponseForCommand for telemetry: " << state 
+  std::cout << "Simulator::scheduleResponseForTelemetry for : " << state 
             << std::endl;
   bool valid = constructNextResponse(state, INT_MAX, time, MSG_TELEMETRY);
+
   if (valid) scheduleNextResponse(time);
 }
 

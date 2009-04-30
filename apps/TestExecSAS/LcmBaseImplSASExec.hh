@@ -3,6 +3,7 @@
 
 #include <driveResponse.h>
 #include <telemetryDouble.h>
+#include <genericResponse.h>
 #include "SASAdaptor.hh"
 
 
@@ -11,7 +12,17 @@ driveResponse_handler (const lcm_recv_buf_t *rbuf, const char * channel,
                        const driveResponse * msg, void * user)
 {
   SASAdaptor* server = static_cast<SASAdaptor*>(user);
+  printf("Received a drive response\n");
   server->postCommandResponse("drive", msg->retValue);
+}
+
+static void
+genericResponse_handler (const lcm_recv_buf_t *rbuf, const char * channel, 
+                         const genericResponse * msg, void * user)
+{
+  SASAdaptor* server = static_cast<SASAdaptor*>(user);
+  printf("Received a generic response\n");
+  server->postCommandResponse(msg->name, msg->retValue[0]);
 }
 
 static void
@@ -43,6 +54,8 @@ public:
   {
     driveRespSub = driveResponse_subscribe(m_lcm, "DRIVERESPONSE", 
                                            &driveResponse_handler, m_sasAdaptor);
+    genericRespSub = genericResponse_subscribe(m_lcm, "GENERICRESPONSE", 
+                                               &genericResponse_handler, m_sasAdaptor);
     telDouble = telemetryDouble_subscribe(m_lcm, "TELEMETRYDOUBLE",
                                           &telemetryDouble_handler, m_sasAdaptor);
   }
@@ -50,6 +63,7 @@ public:
   void unsubscribeFromMessages()
   {
     driveResponse_unsubscribe(m_lcm, driveRespSub);
+    genericResponse_unsubscribe(m_lcm, genericRespSub);
     telemetryDouble_unsubscribe(m_lcm, telDouble);
   }
 
@@ -57,6 +71,7 @@ private:
   lcm_t *m_lcm;
   SASAdaptor *m_sasAdaptor;
   driveResponse_subscription_t *driveRespSub;
+  genericResponse_subscription_t *genericRespSub;
   telemetryDouble_subscription_t *telDouble;
 };
 

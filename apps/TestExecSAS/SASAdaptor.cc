@@ -13,6 +13,7 @@
 #include <StateCache.hh>
 #include "ThreadSpawn.hh"
 #include "driveCommand.h"
+#include "genericCommand.h"
 #include "LcmBaseImplSASExec.hh"
 
 void spawnThreadForEachClient(void* args)
@@ -77,7 +78,10 @@ void SASAdaptor::executeCommand(const PLEXIL::LabelStr& name,
       debugMsg("SASAdaptor:executeCommand", 
                "Sending the following command to the stand alone simulator: "
                << cmdName.toString());
-      driveCommand_publish(m_lcm, "DRIVECOMMAND", NULL);
+      genericCommand data;
+      data.name = const_cast<char *>(cmdName.toString().c_str());
+      //      driveCommand_publish(m_lcm, "DRIVECOMMAND", NULL);
+      genericCommand_publish(m_lcm, "GENERICCOMMAND", &data);
     }
   else
     {
@@ -171,6 +175,7 @@ void SASAdaptor::unregisterChangeLookup(const PLEXIL::LookupKey& uniqueId)
 void SASAdaptor::postCommandResponse(const std::string& cmd,
                                      float value)
 {
+  debugMsg("SASAdaptor:postCommandResponse", "Received a reponse for " << cmd);
   std::map<std::string, PLEXIL::ExpressionId>::iterator iter;
   
   if ((iter = m_CommandToExpIdMap.find(cmd)) != m_CommandToExpIdMap.end())

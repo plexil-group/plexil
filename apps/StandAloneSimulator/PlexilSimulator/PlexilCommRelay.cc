@@ -78,11 +78,11 @@ void PlexilCommRelay::sendResponse(const ResponseMessage* respMsg)
 {
   
   std::cout << "PlexilCommRelay::sendResponse Sending message: " << respMsg->contents
-            << std::endl;
+            << " of type " << respMsg->messageType << std::endl;
   timeval currTime;
   gettimeofday(&currTime, NULL);
   std::cout << "PlexilCommRelay::sendResponse. Current time: " 
             << currTime.tv_sec << std::endl;
   
-  m_lcmBaseImpl->sendMessage(respMsg->name, respMsg->contents);
+  m_lcmBaseImpl->sendMessage(respMsg->name, respMsg->contents, respMsg->messageType);
 }

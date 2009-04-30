@@ -100,7 +100,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
       if (telemetry)
         {
           inputStringStream >> delay;
-          ++commandIndex;
+          //          ++commandIndex;
         }
       else
         {
@@ -114,10 +114,16 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
       
       if( 0 == responseMessageManager )
         {
+          std::cout << "Creating a message manager for " << commandName 
+                    << ", telemetry? " << telemetry << std::endl;
           responseMessageManager = new ResponseMessageManager(commandName);
 	  
           m_Simulator->registerResponseMessageManager(responseMessageManager);
+
+          if (telemetry) commandIndex = 1;
         }
+      else if (telemetry) ++commandIndex;
+
 
       if( telemetry || (numOfResponses > 0 ))
         {
@@ -140,6 +146,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
             m_Simulator->getResponseFactory()->parse(commandName, timeDelay,
                                                      responseStringStream);
           
+          std::cout << "Command Index: " << commandIndex << std::endl;
           if(response != 0)
             {
               responseMessageManager->addResponse(commandIndex, response);
