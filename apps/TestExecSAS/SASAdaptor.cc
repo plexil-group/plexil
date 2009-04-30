@@ -216,18 +216,30 @@ void SASAdaptor::postTelemetryState(const std::string& state, unsigned int numOf
 
           for (unsigned int i = 0; (i < numOfValues) && !changed; ++i)
             {
-              std::cout << "prev: " << prev[i] << ", values: " << values[i] << ", tolerance: " << tolerance[i] << std::endl;
+              debugMsg("SASAdaptor:postTelemetryState", 
+                       "prev: " << prev[i] << ", values: " << values[i] 
+                       << ", tolerance: " << tolerance[i]);
               if (fabs(prev[i] - values[i]) >= tolerance[i])
                 changed = true;
             }
 
           iter->second.setPreviousValues(vect);
-
         }
+      else
+        debugMsg("SASAdaptor:postTelemetryState", "Not a known previous value to compute a change.");
     }
-  //  std::cout << "heren : changed: " << changed << std::endl;
+
   if (changed)
     {
+      /*
+      PLEXIL::State state;
+      this->getState(iter->second.getStateKey(), state);
+      const PLEXIL::LabelStr& name = state.first;
+      std::string n = name.toString();
+      debugMsg("SASAdaptor::postTelemetryState", "The state " << n << " has changed. Posting value");
+      */
+
+      debugMsg("SASAdaptor::postTelemetryState", "The state has changed. Posting value");
       m_execInterface.handleValueChange(iter->second.getStateKey(), vect);
       m_execInterface.notifyOfExternalEvent();
     }

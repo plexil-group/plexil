@@ -30,7 +30,7 @@ struct ChangeLookupStruct
   const std::vector<double>& getPreviousValues() const {return prevValues;}
   const std::vector<double>& getToleranceValues() const {return tolerances;}
 
-  const PLEXIL::StateKey& stateKey;
+  const PLEXIL::StateKey stateKey;
   std::vector<double> prevValues;
   const std::vector<double> tolerances;
 
