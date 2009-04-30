@@ -77,8 +77,8 @@ void PlexilCommRelay::receivedMessage (const std::string& msg)
 void PlexilCommRelay::sendResponse(const ResponseMessage* respMsg)
 {
   
-  std::cout << "PlexilCommRelay::sendResponse Sending message: " << respMsg->contents
-            << " of type " << respMsg->messageType << std::endl;
+  std::cout << "\nPlexilCommRelay::sendResponse Sending message: " << respMsg->contents
+            << " of type " << respMsg->messageType << " for: " << respMsg->name << std::endl;
   timeval currTime;
   gettimeofday(&currTime, NULL);
   std::cout << "PlexilCommRelay::sendResponse. Current time: " 

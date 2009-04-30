@@ -75,26 +75,4 @@ private:
   const int m_ReturnValue;
 };
 
-
-class someState : public ResponseBase
-{
-public:
-  someState(timeval delay, const double returnValue)
-    : ResponseBase(delay), m_ReturnValue(returnValue) {}
-
-  ~someState(){}
-
-  virtual ResponseMessage* createResponseMessage()
-  {
-
-    std::ostringstream str;
-    str << m_ReturnValue;
-    std::cout << "Creating a someState message: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str());
-  }
-
-private:
-  const double m_ReturnValue;
-};
-
 #endif //ROBOSIM_RESPONSE_HH

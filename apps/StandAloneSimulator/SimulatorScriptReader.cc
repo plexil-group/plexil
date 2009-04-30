@@ -109,6 +109,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
           inputStringStream >> delay;
         }
 
+      std::cout << "\nRead a new line for: " << commandName << std::endl;
       ResponseMessageManager* responseMessageManager = 
         m_Simulator->getResponseMessageManager(commandName);
       

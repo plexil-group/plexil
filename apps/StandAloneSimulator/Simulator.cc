@@ -81,7 +81,9 @@ Simulator::~Simulator()
 bool Simulator::readScript(const std::string& fName,
                            const std::string& fNameTelemetry)
 {
-  bool status = m_SimulatorScriptReader.readCommandScript(fName);
+  bool status = true;
+  if (fName != "NULL")
+    status &= m_SimulatorScriptReader.readCommandScript(fName);
   if (fNameTelemetry != "NULL") 
     status &= m_SimulatorScriptReader.readTelemetryScript(fNameTelemetry);
   return status;

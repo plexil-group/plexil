@@ -34,8 +34,8 @@
 class GenericResponse : public ResponseBase
 {
 public:
-  GenericResponse(timeval delay, std::string value) 
-    : ResponseBase(delay), m_Value(value)
+  GenericResponse(timeval delay, double value) 
+    : ResponseBase(delay), m_ReturnValue(value)
   {
 
   }
@@ -44,13 +44,15 @@ public:
 
   virtual ResponseMessage* createResponseMessage()
   {
-    std::cout << "Creating a generic response." << std::endl;
-
-    return new ResponseMessage(0, m_Value);
+    std::ostringstream str;
+    str << m_ReturnValue;
+    std::cout << "Creating a generic response with a return (type double) value of: " 
+              << str.str() << std::endl;
+    return new ResponseMessage(-1, str.str());
   }
 
 private:
-  std::string m_Value;
+  double m_ReturnValue;
 };
 
 #endif //GENERIC_RESPONSE_HH

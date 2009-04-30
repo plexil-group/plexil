@@ -52,7 +52,7 @@ int SASExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
    int         luvPort    = 9100;
    bool        luvBlock   = false;
    std::string usage(
-      "Usage: exec-test-runner -s <script> -p <plan> [-l <library>]* [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
+      "Usage: sas-exec-test-runner -s <script> -p <plan> [-l <library>]* [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
 
    // if not enough parameters, print usage
 

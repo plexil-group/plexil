@@ -42,14 +42,37 @@ void SIGINT_handler (int signum)
 
 int main(int argc, char** argv)
 {
+  std::string commandScriptName("NULL");
+  std::string telemetryScriptName("NULL");
+  std::string usage("Usage: plexilSimulator -c <command-script> -t <telemetry-script>");
+
+   for (int i = 1; i < argc; ++i)
+   {
+      if (strcmp(argv[i], "-c") == 0)
+        commandScriptName = argv[++i];
+      else if (strcmp(argv[i], "-t") == 0)
+        telemetryScriptName= argv[++i];
+      else if (strcmp(argv[i], "-h") == 0)
+        std::cout << usage << std::endl;
+      else
+      {
+         std::cout << "Unknown option '" 
+                   << argv[i] 
+                   << "'.  " 
+                   << usage 
+                   << std::endl;
+         return -1;
+      }
+   }
+
+   std::cout << "Running the simulator with command script: " << commandScriptName
+             << " and telemetry script: " << telemetryScriptName << std::endl;
 
   PlexilSimResponseFactory respFactory;
   
   PlexilCommRelay plexilRelay("RobotYellow");
   Simulator simulator(&respFactory, &plexilRelay);
-  simulator.readScript("Test.script", "Telemetry.script");
-  //  simulator.readScript("Test.script", "NULL");
-
+  simulator.readScript(commandScriptName, telemetryScriptName);
 
   struct sigaction sa;
   sigemptyset (&sa.sa_mask);
