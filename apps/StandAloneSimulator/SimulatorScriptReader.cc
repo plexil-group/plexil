@@ -99,6 +99,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
 
       if (telemetry)
         {
+          numOfResponses = 1;
           inputStringStream >> delay;
           //          ++commandIndex;
         }
@@ -126,41 +127,41 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
       else if (telemetry) ++commandIndex;
 
 
-      if( telemetry || (numOfResponses > 0 ))
+      inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
+      lineCount++;
+      
+      if( inputFile.eof())
         {
-          inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
-          lineCount++;
-	  
-          if( inputFile.eof())
-            {
-              std::cerr << "Error: response line missing in script-file " << fName 
-                        << " expecting one at line " << lineCount << std::endl;
-              
-              return false;
-            }
-
-          std::istringstream responseStringStream( inLine );
+          std::cerr << "Error: response line missing in script-file " << fName 
+                    << " expecting one at line " << lineCount << std::endl;
           
-          timeval timeDelay = m_Simulator->convertDoubleToTimeVal(delay);
-
-          ResponseBase* response = 
-            m_Simulator->getResponseFactory()->parse(commandName, timeDelay,
-                                                     responseStringStream);
-          
-          std::cout << "Command Index: " << commandIndex << std::endl;
-          if(response != 0)
-            {
-              responseMessageManager->addResponse(commandIndex, response);
-            }
-
-          if (telemetry)
-            {
-              m_Simulator->scheduleResponseForTelemetry(commandName);
-            }
+          return false;
+        }
+      
+      std::istringstream responseStringStream( inLine );
+      
+      timeval timeDelay = m_Simulator->convertDoubleToTimeVal(delay);
+      
+      ResponseBase* response = 
+        m_Simulator->getResponseFactory()->parse(commandName, timeDelay,
+                                                 responseStringStream);
+      
+      std::cout << "Command Index: " << commandIndex << std::endl;
+      if(response != 0)
+        {
+          response->setNumberOfResponses(numOfResponses);
+          responseMessageManager->addResponse(commandIndex, response);
         }
       else
         {
-          ;
+          std::cout << "ERROR: No response structure was specified for "
+                    << commandName << std::endl;
+          return false;
+        }
+      
+      if (telemetry)
+        {
+          m_Simulator->scheduleResponseForTelemetry(commandName);
         }
     }
   

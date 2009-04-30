@@ -110,6 +110,7 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
             << std::endl;
   bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
   if (valid) scheduleNextResponse(time);
+  else std::cout << "Not a command that needs a response." << std::endl;
 }
 
 void Simulator::scheduleResponseForTelemetry(const std::string& state)
@@ -138,6 +139,7 @@ bool Simulator::constructNextResponse(const std::string& command,
   ResponseMessageManager* msgMgr = iter->second;
   timeval tDelay;
   ResponseMessage* respMsg = msgMgr->getResponseMessages(tDelay);
+  if (respMsg == NULL) return false;
   respMsg->id = uniqueId;
   respMsg->name = command;
   respMsg->messageType = type;
@@ -186,7 +188,7 @@ void Simulator::scheduleNextResponse(timeval time)
 
 void Simulator::handleWakeUp()
 {
-  std::cout << "Simulator::handleWakeUp" << std::endl;
+  std::cout << "\nSimulator::handleWakeUp" << std::endl;
   bool scheduleTimer=false;
   timeval time;
     

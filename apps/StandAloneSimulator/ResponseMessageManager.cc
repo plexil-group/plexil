@@ -80,8 +80,13 @@ ResponseMessage* ResponseMessageManager::getResponseMessages(timeval& tDelay)
 
   std::cout << "ResponseMessageManager:getResponseMessages: " << m_Identifier
             << ", count: " << m_Counter << std::endl;
-  tDelay = respBase->getDelay();
   ++m_Counter;
 
-  return respBase->createResponseMessage();
+  if(respBase->getNumberOfResponses() > 0)
+    {
+      tDelay = respBase->getDelay();
+      return respBase->createResponseMessage();
+    }
+  else
+    return NULL;
 }
