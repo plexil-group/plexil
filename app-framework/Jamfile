@@ -49,4 +49,6 @@ ModuleComponent PlexilAppFramework :
   NewLuvListener.cc
  ;
 
+SubInclude app-framework test ; 
+
 } # PLEXIL_APP_FWORK_READY

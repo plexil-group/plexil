@@ -1,0 +1,17 @@
+
+SubDir app-framework test ;
+
+if ! $(PLEXIL_APP_FWORK_READY) {
+
+LINKFLAGS += [ FLibDirFlags [ FDirName $(app-framework) lib ] ] ;
+
+HDRS += [ FDirName $(app-framework) ] ;
+
+Module appFrameworkTest : PlexilAppFramework ;
+
+ModuleLibraries appFrameworkTest :
+ [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets PlexilAppFramework : $(VARIANTS) ] ;
+
+ModuleMain appFrameworkTest : testMain.cc ;
+
+} # PLEXIL_APP_FWORK_READY
