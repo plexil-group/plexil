@@ -68,29 +68,48 @@ public:
         driveResponse_publish(m_lcm, "DRIVERESPONSE", &data);
        */
 
-        // TODO handle contents of length > 1. Will need to parse the 
-        // contents string
+        std::vector<double> retData;
+        double values[retData.size()];
+        bool status = ResponseMessage::extractMessageContents(contents, retData);
+        if (status)
+          {
+            for (int i = 0; i < retData.size(); ++i)
+              {
+                values[i] = retData[i];
+              }
 
-        genericResponse data;
-        double retValue[1];
-        retValue[0] = atof(contents.c_str());
-        data.name = const_cast<char *>(name.c_str());
-        data.number = 1;
-        data.retValue = retValue;
-        printf("Publishing generic response for: %s\n", data.name);
-        genericResponse_publish(m_lcm, "GENERICRESPONSE", &data);
+            genericResponse data;
+            data.name = const_cast<char *>(name.c_str());
+            data.number = retData.size();
+            data.retValue = values;
+            printf("Publishing generic response for: %s\n", data.name);
+            genericResponse_publish(m_lcm, "GENERICRESPONSE", &data);
+          }
+        else
+          std::cerr << "ERROR: Could not parse the response message to be sent for command: " 
+                    << name << std::endl;
       }
     else if (type == MSG_TELEMETRY)
       {
-        // TODO handle contents of length > 1. Will need to parse the 
-        // contents string
-        telemetryDouble data;
-        double values[1];
-        values[0] = static_cast<double>(atof(contents.c_str()));
-        data.state = const_cast<char *>(name.c_str());
-        data.number = 1;
-        data.values = values;
-        telemetryDouble_publish(m_lcm, "TELEMETRYDOUBLE", &data);
+        std::vector<double> retData;
+        double values[retData.size()];
+        bool status = ResponseMessage::extractMessageContents(contents, retData);
+        if (status)
+          {
+            for (int i = 0; i < retData.size(); ++i)
+              {
+                values[i] = retData[i];
+              }
+            
+            telemetryDouble data;
+            data.state = const_cast<char *>(name.c_str());
+            data.number = retData.size();
+            data.values = values;
+            telemetryDouble_publish(m_lcm, "TELEMETRYDOUBLE", &data);
+          }
+        else
+          std::cerr << "ERROR: Could not parse the telemetry message to be sent for state: " 
+                    << name << std::endl;
       }
   }
 

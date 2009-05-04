@@ -53,17 +53,23 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeva
   else
     {
       // No customization present. See if the default version can be used.
-      double returnValue;
-      if (parseType<double>(inStr, returnValue))
+      
+      std::vector<double> returnValue;
+      while (inStr.peek() != -1)
         {
-          return new GenericResponse(tDelay, returnValue);
+          double retVal;
+          if (parseType<double>(inStr, retVal))
+            {
+              returnValue.push_back(retVal);
+            }
+          else
+            {
+              std::cout << "Error: The return value structure neither matches "
+                        << " any customization nor the generic structure."
+                        << std::endl;
+              return NULL;
+            }
         }
-      else
-        {
-          std::cout << "Error: The return value structure neither matches "
-                    << " nor the customization nor the generic structure"
-                    << std::endl;
-          return NULL;
-        }
+      return new GenericResponse(tDelay, returnValue);
     }
 }

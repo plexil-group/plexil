@@ -30,8 +30,7 @@ LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 LIB_OBJECTS = $(OBJ_DIR)/SimulatorScriptReader$(OBJ_EXT) \
 	      $(OBJ_DIR)/Simulator$(OBJ_EXT) \
 	      $(OBJ_DIR)/ResponseMessageManager$(OBJ_EXT) \
-	      $(OBJ_DIR)/TimingService$(OBJ_EXT) \
-	      $(OBJ_DIR)/ResponseFactory$(OBJ_EXT)
+	      $(OBJ_DIR)/TimingService$(OBJ_EXT)
 
 
 ############################

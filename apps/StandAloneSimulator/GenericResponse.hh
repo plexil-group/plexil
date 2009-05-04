@@ -28,13 +28,14 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include "ResponseBase.hh"
 #include "ResponseMessage.hh"
 
 class GenericResponse : public ResponseBase
 {
 public:
-  GenericResponse(timeval delay, double value) 
+  GenericResponse(timeval delay, const std::vector<double>& value) 
     : ResponseBase(delay), m_ReturnValue(value)
   {
 
@@ -44,15 +45,23 @@ public:
 
   virtual ResponseMessage* createResponseMessage()
   {
-    std::ostringstream str;
-    str << m_ReturnValue;
-    std::cout << "Creating a generic response with a return (type double) value of: " 
-              << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str());
+    std::string vectToString;
+    for (unsigned int i = 0; i < m_ReturnValue.size(); ++i)
+      {
+        std::ostringstream str;
+        str << m_ReturnValue[i];
+        vectToString += str.str();
+        if (i != (m_ReturnValue.size()-1))
+          vectToString += " ";
+      }
+    vectToString += '\n';
+    std::cout << "Creating a generic response with a return value of: " 
+              << vectToString;
+    return new ResponseMessage(-1, vectToString);
   }
 
 private:
-  double m_ReturnValue;
+  std::vector<double> m_ReturnValue;
 };
 
 #endif //GENERIC_RESPONSE_HH

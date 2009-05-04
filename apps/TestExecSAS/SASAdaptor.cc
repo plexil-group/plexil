@@ -12,13 +12,11 @@
 #include <AdaptorExecInterface.hh>
 #include <StateCache.hh>
 #include "ThreadSpawn.hh"
-#include "driveCommand.h"
 #include "genericCommand.h"
 #include "LcmBaseImplSASExec.hh"
 
 void spawnThreadForEachClient(void* args)
 {
-
   std::cout << "Spawning the listening loop." << std::endl;
   SASAdaptor* server = static_cast<SASAdaptor*>(args);
   
@@ -52,7 +50,6 @@ SASAdaptor::SASAdaptor(PLEXIL::AdaptorExecInterface& execInterface) :
     {
       ;
     }
-
 }
 
 SASAdaptor::~SASAdaptor()
@@ -62,8 +59,9 @@ SASAdaptor::~SASAdaptor()
   std::cout << "Cancelling thread ...";
   pthread_cancel(m_ThreadId);
   pthread_join(m_ThreadId, NULL);
-  std::cout << "done" << std::endl;
 
+  //TODO: clean up all the caches commands and states in maps.
+  std::cout << "done" << std::endl;
 }
 
 void SASAdaptor::executeCommand(const PLEXIL::LabelStr& name,
@@ -135,7 +133,6 @@ void SASAdaptor::registerChangeLookup(const PLEXIL::LookupKey& uniqueId,
   std::string n = name.toString();
 
   debugMsg("SASAdaptor:registerChangeLookup", "In change look up for " << n);
-  // keep track of all states that need change lookup
 
   std::map<std::string, ChangeLookupStruct>::iterator iter;
 
@@ -169,11 +166,11 @@ void SASAdaptor::registerChangeLookup(const PLEXIL::LookupKey& uniqueId,
 void SASAdaptor::unregisterChangeLookup(const PLEXIL::LookupKey& uniqueId)
 {
   debugMsg("SASAdaptor:unregisterChangeLookup", "In unregister change look up");
+  // TODO: What exactly needs to be done here?
 }
 
 
-void SASAdaptor::postCommandResponse(const std::string& cmd,
-                                     float value)
+void SASAdaptor::postCommandResponse(const std::string& cmd, float value)
 {
   debugMsg("SASAdaptor:postCommandResponse", "Received a reponse for " << cmd);
   std::map<std::string, PLEXIL::ExpressionId>::iterator iter;
@@ -202,7 +199,7 @@ void SASAdaptor::postTelemetryState(const std::string& state, unsigned int numOf
   if ((iter = m_StateToChangeLookupMap.find(state)) != m_StateToChangeLookupMap.end())
     {
       debugMsg("SASAdaptor:postTelemetryState", "The state " << state 
-               << " has received a new telemetry value.");
+               << " has received a new telemetry value. Checking against the previous value.");
       const std::vector<double>& prev = iter->second.getPreviousValues();
 
       const std::vector<double>& tolerance = iter->second.getToleranceValues();
@@ -231,14 +228,6 @@ void SASAdaptor::postTelemetryState(const std::string& state, unsigned int numOf
 
   if (changed)
     {
-      /*
-      PLEXIL::State state;
-      this->getState(iter->second.getStateKey(), state);
-      const PLEXIL::LabelStr& name = state.first;
-      std::string n = name.toString();
-      debugMsg("SASAdaptor::postTelemetryState", "The state " << n << " has changed. Posting value");
-      */
-
       debugMsg("SASAdaptor::postTelemetryState", "The state has changed. Posting value");
       m_execInterface.handleValueChange(iter->second.getStateKey(), vect);
       m_execInterface.notifyOfExternalEvent();

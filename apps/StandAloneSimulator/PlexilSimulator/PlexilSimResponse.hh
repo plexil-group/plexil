@@ -47,7 +47,7 @@ public:
     std::ostringstream str;
     str << m_ReturnValue;
     std::cout << "Creating a Move response: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str());
+    return new ResponseMessage(-1, str.str()+'\n');
   }
 
 private:
@@ -68,7 +68,7 @@ public:
     std::ostringstream str;
     str << m_ReturnValue;
     std::cout << "Creating a foo message: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str());
+    return new ResponseMessage(-1, str.str()+'\n');
   }
 
 private:

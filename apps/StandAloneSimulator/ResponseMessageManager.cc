@@ -74,7 +74,7 @@ ResponseMessage* ResponseMessageManager::getResponseMessages(timeval& tDelay)
   else
     {
       std::cout << "ResponseMessageManager:getResponseMessages: " 
-                << "Using a specific occurance." << std::endl;
+                << "Using a specific occurrance." << std::endl;
       respBase = iter->second;
     }
 
