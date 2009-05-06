@@ -30,7 +30,11 @@
 //
 
 
+#include "Debug.hh"
 #include "ExecApplication.hh"
+#include "InterfaceSchema.hh"
+#include "tinyxml.h"
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -116,10 +120,148 @@ int main(int argc, char** argv)
         }
     }
 
+  // get debug file, if provided
+  if (debugFilename != NULL)
+    {
+      std::ifstream debugConfig(debugFilename);
+      if (debugConfig.good())
+        {
+          std::cout << "Reading debug configuration from "
+                    << debugFilename
+                    << std::endl;
+          DebugMessage::readConfigFile(debugConfig);
+        }
+    }
+
+  // get configuration file, if provided
+  TiXmlDocument* configDoc = NULL;
+  if (configFilename != NULL)
+    {
+      std::cout << "Reading interface configuration from "
+                << configFilename
+                << std::endl;
+      configDoc = new TiXmlDocument(configFilename);
+      if (!configDoc->LoadFile())
+        {
+          std::cout << "ERROR: unable to load configuration file "
+                    << configFilename
+                    << ":\n "
+                    << configDoc->ErrorDesc()
+                    << std::endl;
+          return -1;
+        }
+    }
+
+  // get Interfaces element
+  TiXmlElement* configElt = NULL;
+  if (configDoc != NULL)
+    configElt = configDoc->FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+
+  // construct the application
+  PLEXIL::ExecApplication app;
+
+  // initialize it
+  if (!app.initialize(configElt))
+    {
+      std::cout << "ERROR: unable to initialize application"
+                << std::endl;
+      return -1;
+    }
+
+  // start interfaces
+  if (!app.startInterfaces())
+    {
+      std::cout << "ERROR: unable to start interfaces"
+                << std::endl;
+      return -1;
+    }
+
+  // start exec
+  if (!app.run())
+    {
+      std::cout << "ERROR: unable to run exec"
+                << std::endl;
+      return -1;
+    }
+
+  // add libraries
+  std::vector<const char*>::const_iterator libiter = libraryNames.begin();
+  while (libiter != libraryNames.end())
+    {
+      const char* libFilename = *libiter;
+      std::cout << "Reading library node from file "
+                << libFilename
+                << std::endl;
+      TiXmlDocument* libDoc = new TiXmlDocument(libFilename);
+      if (!libDoc->LoadFile())
+        {
+          std::cout << "ERROR: unable to load library XML from file "
+                    << libFilename
+                    << ":\n "
+                    << libDoc->ErrorDesc()
+                    << std::endl;
+          delete libDoc;
+          return -1;
+        }
+      if (!app.addLibrary(libDoc))
+        {
+          std::cout << "ERROR: unable to add library "
+                    << libFilename
+                    << std::endl;
+          delete libDoc;
+          return -1;
+        }
+      delete libDoc;
+      libiter++;
+    }
+  
+
+  // add plan
   if (planFilename == NULL)
     {
       std::cout << "ERROR: no plan file specified\n";
       usage(argv[0]);
+      return -1;
+    }
+  
+  TiXmlDocument* planDoc = new TiXmlDocument(planFilename);
+  if (!planDoc->LoadFile())
+    {
+      std::cout << "ERROR: unable to load plan XML from file "
+                << planFilename
+                << ":\n "
+                << planDoc->ErrorDesc()
+                << std::endl;
+      delete planDoc;
+      return -1;
+    }
+  if (!app.addPlan(planDoc))
+    {
+      std::cout << "ERROR: unable to add plan "
+                << planFilename
+                << std::endl;
+      delete planDoc;
+      return -1;
+    }
+  delete planDoc;
+
+
+  // wait til exec quiescent (NYI)
+
+  
+  // stop exec
+  if (!app.stop())
+    {
+      std::cout << "ERROR: unable to stop application"
+                << std::endl;
+      return -1;
+    }
+
+  // shut down exec
+  if (!app.shutdown())
+    {
+      std::cout << "ERROR: unable to shut down application"
+                << std::endl;
       return -1;
     }
 
