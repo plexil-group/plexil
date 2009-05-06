@@ -28,6 +28,7 @@ rule Module {
   LINK_LIBRARIES on $(module) = $(NEEDSHARES) ;
   LINK_MODULES on $(module) = $(modules:G=module) ;
   LOCATE_OBJECTS on $(module) = [ FDirName $(SUBDIR) [ ObjectsSubdirName $(VARIANTS) ] ] ;
+  # See also setting of LOCATE_TARGET in rule ModulePart
   LOCATE_SHARED on $(module) = [ FDirName $($(_top)) lib ] ;
   INCLUDES on $(module) += $(SUBDIR) ;
   INCLUDES on $(module) += [ FDirName $(SUBDIR) base ] ;
@@ -450,7 +451,7 @@ rule ModulePart {
           Exit ModulePart unknown library type: $(library) ;
         }
         if $(library) = SHARED {
-          local LOCATE_TARGET = [ FDirName $($(_top)) lib ] ;
+          local LOCATE_TARGET = [ on $(module) return $(LOCATE_SHARED) ] ;
           LINKFLAGS on $(libname) = $(LINKFLAGS)
                                     $(LINKER_PASSTHROUGH_FLAG)$(LIBRARY_PATH_SEARCH_FLAG)$(LOCATE_TARGET) ;
           LINKLIBS on $(libname) = $(LINKLIBS) ;
@@ -476,6 +477,7 @@ rule ModulePart {
           }
         }
         if $(library) = STATIC {
+          local LOCATE_TARGET = [ on $(module) return $(LOCATE_SHARED) ] ;
           if $(variant) in $(VARIANTS) {
             ModuleStaticLibraryFromObjects $(libname) : $(outputs) ;
           } else {
