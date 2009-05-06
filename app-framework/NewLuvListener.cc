@@ -26,6 +26,7 @@
 
 #include "NewLuvListener.hh"
 #include "ClientSocket.h"
+#include "SocketException.h"
 #include "tinyxml.h"
 
 #include "Expression.hh"
@@ -66,7 +67,6 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific initialization.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
    */
   bool NewLuvListener::initialize()
   {
@@ -75,7 +75,7 @@ namespace PLEXIL
     m_hostname = xml->Attribute(LUV_HOSTNAME_ATTR());
     if (m_hostname == NULL)
       {
-        debugMsg("NewLuvListener:initialize",
+        debugMsg("LuvListener:initialize",
                  " no " << LUV_HOSTNAME_ATTR()
                  << " attribute found, using default host " << LUV_DEFAULT_HOSTNAME());
         m_hostname = LUV_DEFAULT_HOSTNAME();
@@ -84,7 +84,7 @@ namespace PLEXIL
     const char* dummy = xml->Attribute(LUV_PORT_ATTR(), &rawPort);
     if (dummy == NULL)
       {
-        debugMsg("NewLuvListener:initialize",
+        debugMsg("LuvListener:initialize",
                  " no " << LUV_PORT_ATTR()
                  << " attribute found, using default port " << LUV_DEFAULT_PORT());
         m_port = LUV_DEFAULT_PORT();
@@ -99,7 +99,7 @@ namespace PLEXIL
     dummy = xml->Attribute(LUV_BLOCKING_ATTR());
     if (dummy == NULL)
       {
-        debugMsg("NewLuvListener:initialize",
+        debugMsg("LuvListener:initialize",
                  " no " << LUV_BLOCKING_ATTR()
                  << " attribute found, using default \"false\"");
         m_block = false;
@@ -118,18 +118,25 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific startup.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
    */
   bool NewLuvListener::start() 
   { 
-    m_socket = new ClientSocket(std::string(m_hostname), m_port);
+    try
+      {
+        m_socket = new ClientSocket(std::string(m_hostname), m_port);
+      }
+    catch (const SocketException &e)
+      {
+        debugMsg("LuvListener:start",
+                 " socket error: " << e.description());
+        return false;
+      }
     return true; 
   }
 
   /**
    * @brief Perform listener-specific actions to stop.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
    */
   bool NewLuvListener::stop() 
   {
@@ -139,7 +146,6 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific actions to reset to initialized state.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
    */
   bool NewLuvListener::reset() 
   {
@@ -151,7 +157,6 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific actions to shut down.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
    */
   bool NewLuvListener::shutdown() 
   { 
@@ -304,7 +309,7 @@ namespace PLEXIL
   {
     std::ostringstream buffer;
     buffer << xml;
-    debugMsg("NewLuvListener:sendMessage", " sending:\n" << buffer.str());
+    debugMsg("LuvListener:sendMessage", " sending:\n" << buffer.str());
     sendMessage(buffer.str());
   }
 
