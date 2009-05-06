@@ -161,6 +161,7 @@ int main(int argc, char** argv)
   PLEXIL::ExecApplication app;
 
   // initialize it
+  std::cout << "Initializing application" << std::endl;
   if (!app.initialize(configElt))
     {
       std::cout << "ERROR: unable to initialize application"
@@ -169,6 +170,7 @@ int main(int argc, char** argv)
     }
 
   // start interfaces
+  std::cout << "Starting interfaces" << std::endl;
   if (!app.startInterfaces())
     {
       std::cout << "ERROR: unable to start interfaces"
@@ -177,6 +179,7 @@ int main(int argc, char** argv)
     }
 
   // start exec
+  std::cout << "Starting exec" << std::endl;
   if (!app.run())
     {
       std::cout << "ERROR: unable to run exec"
@@ -224,6 +227,7 @@ int main(int argc, char** argv)
       return -1;
     }
   
+  std::cout << "Reading plan from " << planFilename << std::endl;
   TiXmlDocument* planDoc = new TiXmlDocument(planFilename);
   if (!planDoc->LoadFile())
     {
@@ -235,6 +239,8 @@ int main(int argc, char** argv)
       delete planDoc;
       return -1;
     }
+
+  std::cout << "Executing plan" << std::endl;
   if (!app.addPlan(planDoc))
     {
       std::cout << "ERROR: unable to add plan "
@@ -245,10 +251,10 @@ int main(int argc, char** argv)
     }
   delete planDoc;
 
-
   // wait til exec quiescent (NYI)
+  app.waitForPlanFinished();
+  std::cout << "Plan finished, stopping application" << std::endl;
 
-  
   // stop exec
   if (!app.stop())
     {
@@ -258,12 +264,15 @@ int main(int argc, char** argv)
     }
 
   // shut down exec
+  std::cout << "Shutting down..." << std::flush;
   if (!app.shutdown())
     {
       std::cout << "ERROR: unable to shut down application"
                 << std::endl;
       return -1;
     }
+
+  std::cout << " shutdown complete, exiting." << std::endl;
 
   return 0;
 }
