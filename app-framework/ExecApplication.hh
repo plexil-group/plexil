@@ -176,6 +176,11 @@ namespace PLEXIL
     virtual bool addPlan(TiXmlDocument* planXml);
 
     /**
+     * @brief Suspend the current thread until the plan finishes executing.
+     */
+    virtual void waitForPlanFinished();
+
+    /**
      * @brief Select whether the exec runs opportunistically or only in background thread.
      * @param bkgndOnly True if background only, false if opportunistic.
      * @note Default is opportunistic.

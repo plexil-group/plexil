@@ -394,6 +394,24 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Suspend the current thread until the plan finishes executing.
+   */
+  void
+  ExecApplication::waitForPlanFinished()
+  {
+    // Should never happen, but just in case...
+    assertTrueMsg(!m_execMutex.isLockedByCurrentThread(),
+                  "waitForPlanFinished: called from inside exec!");
+    bool finished = false;
+    while (!finished)
+      {
+        // grab the exec and find out if it's finished yet
+        RTMutexGuard guard(m_execMutex);
+        finished = m_exec.allPlansFinished();
+      }
+  }
+
+  /**
    * @brief Notify the executive that it should run one cycle.  
             This should be sent after each batch of lookup, command
             return, and function return data.
