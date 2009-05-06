@@ -56,7 +56,7 @@ namespace PLEXIL
 		  << errno);
   }
 
-  int ThreadSemaphore::wait()
+  bool ThreadSemaphore::wait()
   {
     int status;
     // If the wait fails due to a signal, ignore the error (EINTR).
@@ -64,9 +64,9 @@ namespace PLEXIL
     while (((status = sem_wait(&m_posix_sem)) == -1) && (errno == EINTR))
       continue;
     
-    if (status == -1)
-      return errno;
-    else return 0;
+    assertTrueMsg(status != -1,
+		  "ThreadSemaphore::wait: sem_wait failed, errno = " << errno);
+    return true;
   }
 
   int ThreadSemaphore::post()
@@ -108,10 +108,16 @@ namespace PLEXIL
 		  << status);
   }
 
-  int ThreadSemaphore::wait()
+  bool ThreadSemaphore::wait()
   {
     kern_return_t status = semaphore_wait(m_mach_sem);
-    return status;
+    if (status == KERN_SUCCESS)
+      return true;
+    assertTrueMsg(status == KERN_ABORTED,
+		  "ThreadSemaphore::wait: semaphore_wait failed, status = "
+		  << status);
+    // thread was canceled
+    return false;
   }
 
   int ThreadSemaphore::post()

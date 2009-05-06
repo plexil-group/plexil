@@ -82,10 +82,11 @@ namespace PLEXIL
 
     /**
        @brief Causes the thread to block until post() is called on the semaphore.
-       @return 0 if successful, error number otherwise.
-       @note Error number is platform dependent.
+       @return True if successful, false if aborted (thread canceled).
+       @note In some environments, the call can be benignly aborted without the thread
+             actually being canceled.  If this is the case, the method ignores the abort.
     */
-    int wait();
+    bool wait();
 
     /**
        @brief Causes the semaphore to unblock a thread currently waiting on it.
