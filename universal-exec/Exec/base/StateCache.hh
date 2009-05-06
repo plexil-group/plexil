@@ -222,6 +222,15 @@ namespace PLEXIL
     void handleQuiescenceEnded();
          
     /**
+     * @brief Check whether we are in a quiescence cycle.
+     * @return true if in quiescence cycle, false otherwise.
+     */
+    bool inQuiescence() const
+    {
+      return m_inQuiescence; 
+    }
+         
+    /**
      * @brief Get the cache's current notion of the time.
      * @return The time.
      */
