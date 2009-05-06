@@ -1,0 +1,6 @@
+<Interfaces>
+ <Adapter AdapterType="Dummy">
+  <DefaultAdapter/>
+ </Adapter>
+ <Listener ListenerType="LuvListener"/>
+</Interfaces>
