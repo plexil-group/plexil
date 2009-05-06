@@ -247,6 +247,8 @@ namespace PLEXIL
         while (element != 0)
           {
             const char* elementType = element->Value();
+            debugMsg("InterfaceManager:constructInterfaces",
+                     " found tag " << elementType);
             // *** TO DO ***
             // generalize adapter factories to add support for (e.g.) ActorAdapter
             // w/o requiring knowledge of (e.g.) PlexilGenericActor
@@ -266,7 +268,7 @@ namespace PLEXIL
                   AdapterFactory::createInstance(LabelStr(adapterType),
                                                  element,
                                                  *((AdapterExecInterface*)this));
-                checkError(adapter.isNoId(),
+                checkError(adapter.isId(),
                            "constructInterfaces: failed to construct adapter of type "
                            << adapterType);
                 m_adapters.insert(adapter);
@@ -289,7 +291,7 @@ namespace PLEXIL
                 ExecListenerId listener = 
                   ExecListenerFactory::createInstance(LabelStr(listenerType),
                                                       element);
-                checkError(listener.isNoId(),
+                checkError(listener.isId(),
                            "constructInterfaces: failed to construct listener of type "
                            << listenerType);
                 m_exec->addListener(listener);
