@@ -294,7 +294,6 @@ namespace PLEXIL
                 checkError(listener.isId(),
                            "constructInterfaces: failed to construct listener of type "
                            << listenerType);
-                m_exec->addListener(listener);
                 m_listeners.push_back(listener);
               }
             else
