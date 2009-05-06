@@ -259,6 +259,9 @@ namespace PLEXIL
    */
   bool ExecApplication::addLibrary(TiXmlDocument * libraryXml)
   {
+    if (m_state != APP_RUNNING)
+      return false;
+
     // grab the library itself from the document
     TiXmlElement* plexilXml = libraryXml->FirstChildElement("PlexilPlan");
     assertTrue(plexilXml != 0,
@@ -280,6 +283,9 @@ namespace PLEXIL
    */
   bool ExecApplication::addPlan(TiXmlDocument * planXml)
   {
+    if (m_state != APP_RUNNING)
+      return false;
+
     // grab the plan itself from the document
     TiXmlElement* plexilXml = planXml->FirstChildElement("PlexilPlan");
     assertTrue(plexilXml != 0,
