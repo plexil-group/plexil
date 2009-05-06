@@ -148,6 +148,31 @@ namespace PLEXIL {
     m_cache->handleQuiescenceEnded();
   }
 
+  /**
+   * @brief Queries whether all plans are finished.
+   * @return true if all finished, false otherwise.
+   */
+  bool PlexilExec::allPlansFinished() const
+  {
+    // If we're in a quiescence cycle, presume some plan is active.
+    if (m_cache->inQuiescence())
+      return false;
+
+    bool result = false; // return value in the event no plan has been received
+
+    for (std::list<NodeId>::const_iterator planit = m_plan.begin();
+         planit != m_plan.end();
+         planit++)
+      {
+        NodeId root = *planit;
+        if (root->getState() == StateVariable::FINISHED())
+          result = true;
+        else
+          return false; // some node is not finished
+      }
+    return result;
+  }
+
   //as a possible optimization, if we spend a lot of time searching through this list,
   //it should be faster to search the list backwards.
   void PlexilExec::handleConditionsChanged(const NodeId node) {

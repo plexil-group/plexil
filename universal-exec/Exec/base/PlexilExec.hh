@@ -140,6 +140,12 @@ namespace PLEXIL
      */
     StateCacheId& getStateCache() {return m_cache;}
 
+    /**
+     * @brief Queries whether all plans are finished.
+     * @return true if all finished, false otherwise.
+     */
+    bool allPlansFinished() const;
+
   protected:
     friend class RealExecConnector;
     /**
