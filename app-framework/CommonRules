@@ -241,8 +241,11 @@ rule LocalDepends
 
 rule LinkSharedLibraries
 {
-#	Echo LinkSharedLibraries $(<) . $(>) . [ on $(<) return $(NEEDSHARES) ] ;
-	# make library dependencies of target
+    if $(TRACE_MODULE) = TRUE {
+	Echo LinkSharedLibraries $(<) . $(>) . [ on $(<) return $(NEEDSHARES) ] ;
+    }
+
+    # make library dependencies of target
     # set NEEDSHARES variable used by 'actions Link'
 
     local _t = [ FAppendSuffix $(<) : $(SUFEXE) ] ;
@@ -252,6 +255,10 @@ rule LinkSharedLibraries
 
 rule LinkSharedLibrariesNoDeps
 {
+    if $(TRACE_MODULE) = TRUE {
+	Echo LinkSharedLibrariesNoDeps $(<) . $(>) . [ on $(<) return $(NEEDSHARES) ] ;
+    }
+
     # set NEEDSHARES variable used by 'actions Link'
 
     local _t = [ FAppendSuffix $(<) : $(SUFEXE) ] ;
