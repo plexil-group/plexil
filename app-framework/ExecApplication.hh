@@ -220,9 +220,8 @@ namespace PLEXIL
     /**
      * @brief Suspends the calling thread until another thread has
      *         placed a call to notifyOfExternalEvent().  Can return
-     *	    immediately if the call to wait() returns an error.
-     * @return true if resumed normally, false if wait resulted in an error.
-     * @note ThreadSemaphore handles case of interrupted wait (errno == EINTR).
+     *         immediately if the calling thread is canceled.
+     * @return true if resumed normally, false if thread was canceled.
      */
     bool waitForExternalEvent();
 

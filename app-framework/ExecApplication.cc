@@ -373,24 +373,16 @@ namespace PLEXIL
    *         placed a call to notifyOfExternalEvent().  Can return
    *	    immediately if the call to wait() returns an error.
    * @return true if resumed normally, false if wait resulted in an error.
-   * @note ThreadSemaphore handles case of interrupted wait (errno == EINTR).
    */
   bool ExecApplication::waitForExternalEvent()
   {
     debugMsg("ExecApplication:wait", " waiting for external event");
-    int status = m_sem.wait();
-    if (status != 0)
-      {
-        assertTrueMsg(ALWAYS_FAIL,
-		      "waitForExternalEvent: semaphore wait failed, status = "
-		      << status);
-        return false;
-      }
-    else
+    bool status = m_sem.wait();
+    if (status)
       {
         debugMsg("ExecApplication:wait", " acquired semaphore, processing external event(s)");
-        return true;
       }
+    return status;
   }
 
   /**
