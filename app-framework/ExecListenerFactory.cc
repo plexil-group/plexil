@@ -46,11 +46,11 @@ namespace PLEXIL
   ExecListenerFactory::createInstance(const LabelStr& name,
                                       const TiXmlElement* xml)
   {
-    std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name.getKey());
     assertTrueMsg(it != factoryMap().end(),
-		  "Error: No exec listener factory registered for name '" << name.toString() << "'.");
+		  "Error: No exec listener factory registered for name \"" << name.c_str() << "\".");
     ExecListenerId retval = it->second->create(xml);
-    debugMsg("ExecListenerFactory:createInstance", " Created " << name.toString());
+    debugMsg("ExecListenerFactory:createInstance", " Created Exec listener " << name.c_str());
     return retval;
   }
 
@@ -80,17 +80,17 @@ namespace PLEXIL
   void ExecListenerFactory::registerFactory(const LabelStr& name, ExecListenerFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name) != factoryMap().end())
+    if (factoryMap().find(name.getKey()) != factoryMap().end())
       {
         warn("Attempted to register an exec listener factory for name \""
-             << name.toString()
+             << name.c_str()
              << "\" twice, ignoring.");
         delete factory;
         return;
       }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFactory:registerFactory",
-             " Registered exec listener factory for name '" << name.toString() << "'");
+             " Registered exec listener factory for name \"" << name.c_str() << "\"");
   }
 
   /**
@@ -105,11 +105,13 @@ namespace PLEXIL
   ExecListenerFilterFactory::createInstance(const LabelStr& name,
                                             const TiXmlElement* xml)
   {
-    std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name.getKey());
     assertTrueMsg(it != factoryMap().end(),
-		  "Error: No exec listener factory registered for name '" << name.toString() << "'.");
+		  "Error: No exec listener filter factory registered for name \""
+                  << name.c_str() << "\".");
     ExecListenerFilterId retval = it->second->create(xml);
-    debugMsg("ExecListenerFilterFactory:createInstance", " Created " << name.toString());
+    debugMsg("ExecListenerFilterFactory:createInstance",
+             " Created Exec listener filter " << name.c_str());
     return retval;
   }
 
@@ -139,17 +141,17 @@ namespace PLEXIL
   void ExecListenerFilterFactory::registerFactory(const LabelStr& name, ExecListenerFilterFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name) != factoryMap().end())
+    if (factoryMap().find(name.getKey()) != factoryMap().end())
       {
-        warn("Attempted to register an exec listener factory for name \""
-             << name.toString()
+        warn("Attempted to register an exec listener filter factory for name \""
+             << name.c_str()
              << "\" twice, ignoring.");
         delete factory;
         return;
       }
-    factoryMap()[name] = factory;
+    factoryMap()[name.getKey()] = factory;
     debugMsg("ExecListenerFilterFactory:registerFactory",
-             " Registered exec listener factory for name '" << name.toString() << "'");
+             " Registered exec listener filter factory for name \"" << name.c_str() << "\"");
   }
 
 }

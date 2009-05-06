@@ -65,11 +65,11 @@ namespace PLEXIL
                                  AdapterExecInterface& execInterface,
                                  bool& wasCreated)
   {
-    std::map<double, AdapterFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<double, AdapterFactory*>::const_iterator it = factoryMap().find(name.getKey());
     assertTrueMsg(it != factoryMap().end(),
-		  "Error: No adapter factory registered for name '" << name.toString() << "'.");
+		  "Error: No adapter factory registered for name \"" << name.c_str() << "\".");
     InterfaceAdapterId retval = it->second->create(xml, execInterface, wasCreated);
-    debugMsg("AdapterFactory:createInstance", " Created " << name.toString());
+    debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
     return retval;
   }
 
@@ -99,17 +99,17 @@ namespace PLEXIL
   void AdapterFactory::registerFactory(const LabelStr& name, AdapterFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name) != factoryMap().end())
+    if (factoryMap().find(name.getKey()) != factoryMap().end())
       {
 	warn("Attempted to register an adapter factory for name \""
-             << name.toString()
+             << name.c_str()
              << "\" twice, ignoring.");
         delete factory;
         return;
       }
-    factoryMap()[name] = factory;
+    factoryMap()[name.getKey()] = factory;
     debugMsg("AdapterFactory:registerFactory",
-             " Registered adapter factory for name '" << name.toString() << "'");
+             " Registered adapter factory for name \"" << name.c_str() << "\"");
   }
 
 }
