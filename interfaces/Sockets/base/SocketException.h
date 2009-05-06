@@ -38,7 +38,8 @@ class SocketException
   SocketException ( std::string s ) : m_s ( s ) {};
   ~SocketException (){};
 
-  std::string description() { return m_s; }
+  const std::string & description() const
+    { return m_s; }
 
  private:
 
