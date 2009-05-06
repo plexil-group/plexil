@@ -642,6 +642,10 @@ actions together SharedArchive bind NEEDLIBS
 
 rule SharedLibraryFromObjects
 {
+        if $(TRACE_MODULE) = TRUE {
+          Echo SharedLibraryFromObjects $(<) . $(>) . $(3) . $(4) ;
+        }
+
 	local _i _l _s ;
 	local suppress_global_dependencies = $(3) ;
 	local nogrist = $(4) ;
@@ -677,6 +681,9 @@ rule SharedLibraryFromObjects
 
 	if ! $(_l:D)
 	{
+            if $(TRACE_MODULE) = TRUE {
+              Echo MakeLocate $(_l) $(_l)($(_s:BS)) . $(LOCATE_TARGET) ;
+            }
 	    MakeLocate $(_l) $(_l)($(_s:BS)) : $(LOCATE_TARGET) ;
 	}
 

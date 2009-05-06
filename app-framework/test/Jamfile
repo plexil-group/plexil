@@ -3,15 +3,13 @@ SubDir app-framework test ;
 
 if ! $(PLEXIL_APP_FWORK_READY) {
 
-LINKFLAGS += [ FLibDirFlags [ FDirName $(app-framework) lib ] ] ;
-
 HDRS += [ FDirName $(app-framework) ] ;
 
-Module appFrameworkTest : PlexilAppFramework ;
+Module appFrameworkTest ;
 
 ModuleLibraries appFrameworkTest :
- [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets PlexilAppFramework : $(VARIANTS) ] ;
+ [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets : $(VARIANTS) ] ;
 
-ModuleMain appFrameworkTest : testMain.cc ;
+ModuleMain appFrameworkTest : testMain.cc : PlexilAppFramework ;
 
 } # PLEXIL_APP_FWORK_READY
