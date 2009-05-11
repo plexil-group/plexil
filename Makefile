@@ -3,7 +3,6 @@
 default: all
 
 all:
-	@ cd universal-exec; ./checkreqs
 	@ cd universal-exec; jam
 	@ cd luv; ant jar
 	@ cd standard-plexil; jam
