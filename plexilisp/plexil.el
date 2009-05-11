@@ -1191,7 +1191,10 @@
   ;; Crude: could do something data-directed
   (let ((type (car body)))
     (cond
-     ((member type '(pl-command pl-Command))
+     ((member type '(pl-command
+                     pl-Command
+                     pl-CommandWithReturn
+                     pl-command-with-return))
       (funcall #'pl-command-node (eval body)))
      ((member type '(pl-assignment pl-Assignment))
       (funcall #'pl-assignment-node (eval body)))
