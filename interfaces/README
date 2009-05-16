@@ -1,8 +1,18 @@
 This directory contains libraries that perform various common
-interfacing tasks.  See [[Interfacing|Interfacing with External Systems]] 
-for more information on using the interface libraries.
+interfacing tasks.  
 
-Build this module by typing './build.sh'.
+It includes the open source package LCM (Lightweight Communication and
+Marshalling, http://lcm.googlecode.com/) which is at present used
+exclusively for interfacing the UE with the Standalone Simulator.  LCM
+has insallation prerequisites which we have found typically
+pre-installed on Linux systems, but not in Mac OS.  See the UE Reference
+Manual for more information.
+
+To build this directory without LCM, type 'make'.
+
+To build this directory with LCM, type 'make all'.
+
+See Makefile for more options.
 
 The CORBA code that used to live in this directory has been moved to
-../CORBA .
+../CORBA.
