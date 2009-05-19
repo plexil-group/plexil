@@ -36,7 +36,6 @@
  */
 
 #include "Error.hh"
-#include "Debug.hh"
 #include "ThreadMutex.hh"
 #include <limits>
 #include <map>
@@ -93,16 +92,13 @@ namespace PLEXIL
           * @brief Returns the next available key.
           */
 
-         inline static const key_t& next()
+         inline static const key_t next()
          {
             // make key generation thread safe
 
             ThreadMutexGuard guard(getMutex());
 
-            // this provides a way of returning a key reference without
-            // stack allocation or warnings
-
-            static key_t sl_key;
+            key_t sl_key;
 
 #ifdef STORED_ITEM_REUSE_KEYS
 
@@ -164,7 +160,7 @@ namespace PLEXIL
           * @param key Key which will be unregistered.
           */
 
-         static inline void unregister(key_t& key)
+         inline static void unregister(key_t& key)
          {
 #ifdef STORED_ITEM_REUSE_KEYS
             // make key generation thread safe
@@ -263,7 +259,7 @@ namespace PLEXIL
           * @brief The mutex for thread safing.
           */
          
-         static inline ThreadMutex& getMutex()
+         inline static ThreadMutex& getMutex()
          {
             static ThreadMutex sl_mutex;
             return sl_mutex;
@@ -371,7 +367,7 @@ namespace PLEXIL
 
          StoredItem()
          {
-            m_key = getKey(&empty(), false);
+            m_key = ensureKey(&empty(), false);
          }
 
          /**
@@ -385,7 +381,7 @@ namespace PLEXIL
 
          StoredItem(item_t& item)
          {
-            m_key = getKey(&item, true);
+            m_key = ensureKey(&item, true);
          }
 
          /**
@@ -404,7 +400,7 @@ namespace PLEXIL
 
          StoredItem(item_t* item, bool copyItem)
          {
-            m_key = getKey(item, copyItem);
+            m_key = ensureKey(item, copyItem);
          }
 
          /**
@@ -420,7 +416,7 @@ namespace PLEXIL
           */
          StoredItem(key_t key) : m_key(key)
          {
-            checkError(isItem(m_key), "Invalid key " << key << " provided.");
+            assertTrueMsg(isKey(m_key), "Invalid key " << key << " provided.");
          }
 
          /**
@@ -437,12 +433,12 @@ namespace PLEXIL
          }
 
          /**
-          * @brief Return the canoncial empty item.
+          * @brief Return the canonical empty item.
           *
           * @return A static empty item.
           */
 
-         inline static item_t& empty()
+         static item_t& empty()
          {
             static item_t sl_empty;
             
@@ -450,7 +446,7 @@ namespace PLEXIL
          }
 
          /**
-          * @brief This object returns it's key.
+          * @brief Cast operator to get the key for this object.
           *
           * @return The key to this item.
           */
@@ -510,7 +506,7 @@ namespace PLEXIL
          /**
           * @brief Test if the given key_t valued key maps to an item.
           */
-         static bool isItem(key_t key)
+         static bool isKey(key_t key)
          {
             return(itemStore().find(key) != itemStore().end());
          }
@@ -560,13 +556,15 @@ namespace PLEXIL
           * @return The key value created.
           */
 
-         static key_t getKey(item_t* item, bool copyItem)
+         static key_t ensureKey(item_t* item, bool copyItem)
          {
             // if item is already in the system, return it's key
 
             keyIterator_t ki = keyStore().find(item);
             if (ki != keyStore().end())
-               return ki->second;
+	      {
+		return ki->second;
+	      }
             
             // allocate a key for this item
 
@@ -593,7 +591,7 @@ namespace PLEXIL
 
          static void unregister(key_t& key)
          {
-            checkError(isItem(key), "Invalid key " << key << " provided.");
+            assertTrueMsg(isKey(key), "Invalid key " << key << " provided.");
             delete handleRemoval(key);
             KeySource<key_t>::unregister(key);
             key = KeySource<key_t>::unassigned();
