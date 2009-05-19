@@ -350,7 +350,7 @@ namespace PLEXIL
   {
     if (val == Expression::UNKNOWN())
       return true;
-    if (StoredArray::isItem(val))
+    if (StoredArray::isKey(val))
       {
         StoredArray valArray(val);
         if (valArray.size() <= m_maxSize)

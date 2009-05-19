@@ -744,7 +744,7 @@ class StoredArrayTests
             if ((i + 1) % updateSize == 0)
                std::cout << "testing StoredArray: " 
                     << (i + 1) << "\r" << std::flush;
-            assert(!StoredArray::isItem(keys[i]));
+            assert(!StoredArray::isKey(keys[i]));
          }
          std::cout << std::endl;
          stopTime(start);
@@ -805,7 +805,7 @@ class StoredArrayTests
             
             StoredArray sa(keys[i]);
             assertTrue(
-               (StoredItem<double, std::vector<double> >::isItem(keys[i])),
+               (StoredItem<double, std::vector<double> >::isKey(keys[i])),
                "item key mismatch");
             
             for (unsigned j = 0; j < sa.size(); ++j)

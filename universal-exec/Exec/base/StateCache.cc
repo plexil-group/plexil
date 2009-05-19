@@ -631,7 +631,7 @@ namespace PLEXIL
              str << ", ";
            if (LabelStr::isString(values[i]))
              str << LabelStr(values[i]).toString();
-           else if (StoredArray::isItem(values[i]))
+           else if (StoredArray::isKey(values[i]))
              str << StoredArray(values[i]).toString();
            else
              str << values[i];
