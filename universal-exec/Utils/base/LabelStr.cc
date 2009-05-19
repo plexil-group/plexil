@@ -93,7 +93,7 @@ namespace PLEXIL
    LabelStr::LabelStr(double key):
       StoredString(key)
    {
-      check_error(isItem(key), "Invalid key provided.");
+      check_error(isKey(key), "Invalid key provided.");
 
 #ifndef PLEXIL_FAST
       m_chars = toString().c_str();
@@ -147,7 +147,7 @@ namespace PLEXIL
 
    bool LabelStr::isString(double key)
    {
-      return StoredString::isItem(key);
+      return StoredString::isKey(key);
    }
 
    bool LabelStr::isString(const std::string& candidate)
