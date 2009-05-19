@@ -27,9 +27,30 @@
 #include "StoredArray.hh"
 #include "LabelStr.hh"
 #include "Debug.hh"
+#include "Error.hh"
 
 namespace PLEXIL
 {
+  /**
+   * @brief Default constructor.
+   */
+         
+  StoredArray::StoredArray()
+    : StoredItem<double, ArrayStorage>()
+  {
+  }
+         
+  /** 
+   * @brief Copy constructor.
+   *
+   * @param other The existing StoredArray instance.
+   */
+  
+  StoredArray::StoredArray(const StoredArray& other)
+    : StoredItem<double, ArrayStorage>(other)
+  {
+  }
+
   /** 
    * @brief Construct a new array of a given size and with all
    * elements initialized to the provided value.
@@ -41,12 +62,12 @@ namespace PLEXIL
    * initialized to.
    */
    
-  StoredArray::StoredArray(size_t size, double initValue) :
-    StoredItem<double, std::vector<double> >(new std::vector<double>(size, initValue), 
-                                             false),
-    m_size(size)
+  StoredArray::StoredArray(size_t size, const double& initValue) :
+    StoredItem<double, ArrayStorage>(new ArrayStorage(size, initValue),
+				     false)
   {
   }
+
   /** 
    * @brief Construct a new array of a given size and initial values.
    *
@@ -57,13 +78,25 @@ namespace PLEXIL
    * initialized to.
    */
    
-  StoredArray::StoredArray(size_t size, const std::vector<double>& initValues) :
-    StoredItem<double, std::vector<double> >(new std::vector<double>(size, 0), 
-                                             false),
-    m_size(size)
+  StoredArray::StoredArray(size_t size, const std::vector<double>& initValues) 
+    : StoredItem<double, ArrayStorage>(new ArrayStorage(size, 0), false)
   {
+    assertTrueMsg(initValues.size() <= size,
+		  "StoredArray constructor: initial vector is larger than specified size");
     for (unsigned i = 0; i < initValues.size(); ++i)
-      (*this)[i] = initValues[i];
+      getArray()[i] = initValues[i];
+  }
+
+  /** 
+   * @brief Construct a new array directly from a vector of initial values.
+   *
+   * @param initValues The values the elements in the array will be
+   * initialized to.
+   */
+         
+  StoredArray::StoredArray(const std::vector<double>& initValues)
+    : StoredItem<double, ArrayStorage>(new ArrayStorage(initValues.size(), initValues), false)
+  {
   }
 
   /** 
@@ -72,11 +105,42 @@ namespace PLEXIL
    * @param key The key of the already existing array.
    */
    
-  StoredArray::StoredArray(double key) :
-    StoredItem<double, std::vector<double> >(key),
-    m_size(getItem().size())
+  StoredArray::StoredArray(const double key)
+    : StoredItem<double, ArrayStorage>(key)
   {
   }
+
+  /** 
+   * @brief Get the actual array.
+   *
+   * @return A reference to the array.
+   */
+  std::vector<double>& StoredArray::getArray()
+  {
+    return this->getItem().array;
+  }
+
+  /** 
+   * @brief Get the actual array.
+   *
+   * @return A reference to the array.
+   */
+  const std::vector<double>& StoredArray::getConstArray() const
+  {
+    return this->getItem().array;
+  }
+         
+  /**
+   * @brief Return the size of this array.
+   *
+   * @return The size of this array.
+   */
+         
+  size_t StoredArray::size() const
+  {
+    return this->getItem().size;
+  }
+
   /**
    * @brief Operator for accessing elements in this array.
    *
@@ -85,9 +149,34 @@ namespace PLEXIL
    
   double& StoredArray::operator[] (size_t index)
   {
-    checkError(index < m_size, "Array index value " << index << 
-               " out of bounds of size " << m_size);
-    return getItem()[index];
+    assertTrueMsg(index < size(), 
+		  "Array index value " << index << 
+		  " is equal to or larger than size " << size());
+    return getArray()[index];
+  }
+         
+  /**
+   * @brief Return key which can be used to access this array at a
+   * later time.
+   *
+   * @brief Access key of this array.
+   */
+         
+  const double StoredArray::getKey() const
+  {
+    return StoredItem<double, ArrayStorage>::getKey();
+  }
+
+  /**
+   * @brief Return true if key value is valid.
+   *
+   * @param key candidate key
+   * @return true if valid key
+   */
+
+  bool StoredArray::isKey(double key)
+  {
+    return StoredItem<double, ArrayStorage>::isKey(key);
   }
 
   /**
@@ -98,9 +187,10 @@ namespace PLEXIL
    
   const double& StoredArray::at(const size_t index) const
   {
-    checkError(index < m_size, "Array index value " << index << 
-               " out of bounds of size " << m_size);
-    return getItem().at(index);
+    assertTrueMsg(index < size(), 
+		  "Array index value " << index << 
+		  " is equal to or larger than size " << size());
+    return getConstArray().at(index);
   }
 
 
@@ -117,7 +207,7 @@ namespace PLEXIL
 
   void StoredArray::unregister()
   {
-    StoredItem<double, std::vector<double> >::unregister();
+    StoredItem<double, ArrayStorage>::unregister();
   }
 
   /**
@@ -132,8 +222,9 @@ namespace PLEXIL
                                 std::numeric_limits<double>::infinity() :
                                 std::numeric_limits<double>::max());
     std::stringstream retval;
-    const std::vector<double>& theVector = getItem();
+
     retval << "Array: [";
+    const std::vector<double>& theVector = getConstArray();
     for (unsigned i = 0; i < theVector.size(); ++i)
       {
         const double value = theVector[i];
