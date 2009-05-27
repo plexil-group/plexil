@@ -1,6 +1,12 @@
 if ! $(JavaRules_INCLUDED) {
 JavaRules_INCLUDED = TRUE ;
 
+# for testing
+#JAVAFLAGS += -Xlint -source 1.5 ;
+
+# for reals
+#JAVAFLAGS += -source 1.5 ;
+
 rule JavaJarArgs
 {
   local jar = $(1) ;
@@ -38,6 +44,7 @@ rule JavaJar
 
   LocalDepends lib : $(jar) ;
   MakeLocate $(jar) : $(JAVA_JARS_DIR) ;
+  JavaClassPath $(JAVA_CLASSES_DIR) ;
   local java_class ;
   for java_class in $(java_classes) {
     local classname = [ MATCH "^\\.(.*)" : $(java_class:S) ] ;
@@ -85,7 +92,7 @@ rule JavaCompile
 
 actions JavaCompile
 {
-  #echo "ECHOING" $(CLASSPATH);
+#  echo "ECHOING" $(CLASSPATH);
   "$(JAVAC)" $(JAVAFLAGS) -sourcepath $(JAVA_SRC_DIR) -classpath $(CLASSPATH) -d $(JAVA_CLASSES_DIR) $(2) ;
 }
 
