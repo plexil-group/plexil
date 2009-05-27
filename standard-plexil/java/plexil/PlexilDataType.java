@@ -31,8 +31,6 @@
 
 package plexil;
 
-import java.util.Enumeration;
-
 public final class PlexilDataType
 {
     private String m_id;
@@ -99,33 +97,6 @@ public final class PlexilDataType
 	    }
 	s_last = this;
     }
-
-    private class PlexilDataTypeEnumeration
-	implements Enumeration
-    {
-	private PlexilDataType curr;
-	public PlexilDataTypeEnumeration()
-	{
-	    curr = s_first;
-	}
-	public boolean hasMoreElements()
-	{
-	    return curr != null;
-	}
-	public Object nextElement()
-	{
-	    PlexilDataType c = curr;
-	    curr = curr.next();
-	    return c;
-	}
-    }
-
-//     public static Enumeration elements()
-//     {
-// 	// Compiles, but doesn't work. 
-// 	// Execution complains "non-static var 'this' referenced from static context" ???
-// 	return new PlexilDataType.PlexilDataTypeEnumeration();
-//     }
 
     public static PlexilDataType findByName(String typeName)
     {

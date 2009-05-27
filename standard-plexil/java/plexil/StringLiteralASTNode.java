@@ -27,7 +27,6 @@
 package plexil;
 
 import net.n3.nanoxml.*;
-import antlr.collections.AST;
 
 // 
 // A specialized AST node that does code generation for string literals.

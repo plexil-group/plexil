@@ -26,8 +26,6 @@
 
 package plexil;
 
-import plexil.PlexilTokenTypes;
-
 import antlr.ASTFactory;
 import antlr.collections.AST;
 

@@ -28,18 +28,9 @@
 
 package plexil;
 
-import java.io.File;
-import java.util.Stack;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Vector;
-import java.util.Collections;
-import antlr.RecognitionException;
-import antlr.CommonAST;
-import antlr.Token;
 import antlr.collections.AST;
-import antlr.SemanticException;
 import net.n3.nanoxml.IXMLElement;
 
 import plexil.PlexilVariableName;

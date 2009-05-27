@@ -28,10 +28,7 @@
 
 package plexil;
 
-import plexil.PlexilName;
 import plexil.PlexilDataType;
-
-import net.n3.nanoxml.*;
 
 //
 // A specialization of PlexilVariableName to support interface variables.
