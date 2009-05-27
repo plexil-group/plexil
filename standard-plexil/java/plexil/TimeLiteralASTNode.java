@@ -35,6 +35,9 @@ import antlr.collections.AST;
 
 public class TimeLiteralASTNode extends PlexilASTNode
 {
+    // Needed for serializable
+    private static final long serialVersionUID = -7020666605370929931L;
+
     public TimeLiteralASTNode() 
     {
 	super();

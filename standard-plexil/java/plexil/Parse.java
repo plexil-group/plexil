@@ -80,9 +80,9 @@ public class Parse
         System.out.println("java plexil.Parse -o filename.plx filename.ple");
     }
   
-    private static java.util.Vector getArgs(java.lang.String[] args) 
+    private static Vector<String> getArgs(String[] args) 
     {
-        java.util.Vector arguments = new java.util.Vector();
+        Vector<String> arguments = new Vector<String>();
         for (int i = 0 ; i < args.length ; i++) 
 	    {
 		if (!args[i].equals("-a") && !args[i].equals("--arguments")) 
@@ -105,7 +105,7 @@ public class Parse
 				BufferedReader buf = new BufferedReader(fis);
 				while (true) 
 				    {
-					java.lang.String line = buf.readLine();
+					String line = buf.readLine();
 					if (line == null) 
 					    {
 						break;
@@ -242,19 +242,19 @@ public class Parse
     {
         try
 	    {
-		java.util.Vector arguments = getArgs(args);
+		Vector<String> arguments = getArgs(args);
 		if (arguments.isEmpty()) 
 		    {
 			printUsage();
 			exit(0);
 		    }
 		File output = null;
-		Iterator itr = arguments.iterator();
+		Iterator<String> itr = arguments.iterator();
 		boolean filename = false;
 		String argument = null;
 		while (itr.hasNext()) 
 		    {
-			argument = (String) itr.next();
+			argument = itr.next();
 			if (argument.length() == 0) continue;
 			if (argument.charAt(0) != '-') 
 			    {

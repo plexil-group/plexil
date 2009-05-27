@@ -34,6 +34,9 @@ import net.n3.nanoxml.*;
 
 public class StringLiteralASTNode extends LiteralASTNode
 {
+    // Needed for serializable
+    private static final long serialVersionUID = -8806474295262342033L;
+
     public StringLiteralASTNode()
     {
 	super();

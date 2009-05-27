@@ -45,13 +45,13 @@ import plexil.PlexilTokenTypes;
 public class PlexilGlobalDeclaration extends PlexilName
 {
     protected PlexilNameType declarationType;
-    protected Vector paramSpecs;
-    protected Vector returnSpecs;
+    protected Vector<PlexilVariableName> paramSpecs;
+    protected Vector<PlexilVariableName> returnSpecs;
 
     public PlexilGlobalDeclaration(String myName,
 				   PlexilNameType declType,
-				   Vector parms,
-				   Vector returns)
+				   Vector<PlexilVariableName> parms,
+				   Vector<PlexilVariableName> returns)
     {
 	super(myName, declType);
 	declarationType = declType;
@@ -82,7 +82,7 @@ public class PlexilGlobalDeclaration extends PlexilName
 	paramSpecs = null;
 	if (parmAST != null)
 	    {
-		paramSpecs = new Vector();
+		paramSpecs = new Vector<PlexilVariableName>();
 		AST parm = parmAST.getFirstChild();
 		int parmIdx = 1;
 		while (parm != null)
@@ -124,7 +124,7 @@ public class PlexilGlobalDeclaration extends PlexilName
 	returnSpecs = null;
 	if (returnAST != null)
 	    {
-		returnSpecs = new Vector();
+		returnSpecs = new Vector<PlexilVariableName>();
 		AST retn = returnAST.getFirstChild();
 		int retnIdx = 1;
 		while (retn != null)
@@ -159,54 +159,54 @@ public class PlexilGlobalDeclaration extends PlexilName
     {
 	if (returnSpecs == null)
 	    return null;
-	return (PlexilDataType) returnSpecs.firstElement();
+	return returnSpecs.firstElement().getVariableType();
     }
 
     // returns vector of return types, or null
-    public Vector getReturnTypes()
+    public Vector<PlexilDataType> getReturnTypes()
     {
 	if (returnSpecs == null)
 	    return null;
-	Vector result = new Vector();
-	Iterator e = returnSpecs.iterator();
+	Vector<PlexilDataType> result = new Vector<PlexilDataType>();
+	Iterator<PlexilVariableName> e = returnSpecs.iterator();
 	while (e.hasNext())
-	    result.add((PlexilDataType) ((PlexilVariableName) e.next()).getVariableType());
+	    result.add(e.next().getVariableType());
 	return result;
     }
 
     // returns vector of return variables, or null
-    public Vector getReturnVariables()
+    public Vector<PlexilVariableName> getReturnVariables()
     {
 	if (returnSpecs == null)
 	    return null;
-	Vector result = new Vector();
-	Iterator e = returnSpecs.iterator();
+	Vector<PlexilVariableName> result = new Vector<PlexilVariableName>();
+	Iterator<PlexilVariableName> e = returnSpecs.iterator();
 	while (e.hasNext())
-	    result.add((PlexilVariableName) e.next());
+	    result.add(e.next());
 	return result;
     }
 
     // returns vector of parameter types, or null
-    public Vector getParameterTypes()
+    public Vector<PlexilDataType> getParameterTypes()
     {
 	if (returnSpecs == null)
 	    return null;
-	Vector result = new Vector();
-	Iterator e = paramSpecs.iterator();
+	Vector<PlexilDataType> result = new Vector<PlexilDataType>();
+	Iterator<PlexilVariableName> e = paramSpecs.iterator();
 	while (e.hasNext())
-	    result.add((PlexilDataType) ((PlexilVariableName) e.next()).getVariableType());
+	    result.add(e.next().getVariableType());
 	return result;
     }
 
     // returns vector of parameter variables, or null
-    public Vector getParameterVariables()
+    public Vector<PlexilVariableName> getParameterVariables()
     {
 	if (paramSpecs == null)
 	    return null;
-	Vector result = new Vector();
-	Iterator e = paramSpecs.iterator();
+	Vector<PlexilVariableName> result = new Vector<PlexilVariableName>();
+	Iterator<PlexilVariableName> e = paramSpecs.iterator();
 	while (e.hasNext())
-	    result.add((PlexilDataType) ((PlexilVariableName) e.next()).getVariableType());
+	    result.add(e.next());
 	return result;
     }
 
@@ -215,10 +215,10 @@ public class PlexilGlobalDeclaration extends PlexilName
     {
 	if (paramSpecs == null)
 	    return null;
-	Iterator e = paramSpecs.iterator();
+	Iterator<PlexilVariableName> e = paramSpecs.iterator();
 	while (e.hasNext())
 	    {
-		PlexilVariableName candidate = (PlexilVariableName) e.next();
+		PlexilVariableName candidate = e.next();
 		if (name.equals(candidate.getName()))
 		    return candidate;
 	    }
@@ -241,18 +241,18 @@ public class PlexilGlobalDeclaration extends PlexilName
 	result.addChild(nameXml);
 	// return(s)
 	if (returnSpecs != null)
-	    for (Iterator returnIt = returnSpecs.iterator(); returnIt.hasNext(); )
+	    for (Iterator<PlexilVariableName> returnIt = returnSpecs.iterator(); returnIt.hasNext(); )
 		{
-		    PlexilVariableName returnSpec = (PlexilVariableName) returnIt.next();
+		    PlexilVariableName returnSpec = returnIt.next();
 		    IXMLElement returnXml = returnSpec.makeGlobalDeclarationElement("Return");
 		    result.addChild(returnXml);
 		}
 
 	// param(s)
 	if (paramSpecs != null)
-	    for (Iterator paramIt = paramSpecs.iterator(); paramIt.hasNext(); )
+	    for (Iterator<PlexilVariableName> paramIt = paramSpecs.iterator(); paramIt.hasNext(); )
 		{
-		    PlexilVariableName paramSpec = (PlexilVariableName) paramIt.next();
+		    PlexilVariableName paramSpec = paramIt.next();
 		    IXMLElement paramXml = paramSpec.makeGlobalDeclarationElement("Parameter");
 		    result.addChild(paramXml);
 		}

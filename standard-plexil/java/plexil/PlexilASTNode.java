@@ -31,6 +31,8 @@ import net.n3.nanoxml.*;
 
 public class PlexilASTNode extends antlr.CommonAST
 {
+    // Needed for serializable
+    private static final long serialVersionUID = -5891094434092392884L;
     private String filename = "";
     private int line = -1;
     private int column = -1;

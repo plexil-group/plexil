@@ -62,9 +62,8 @@ public class PlexilParserState implements PlexilTokenTypes
     private int anonymousContext = 0;
     protected int errors = 0;
     protected int warnings = 0;
-    protected Map nodeNames = new HashMap();
-    protected Map symbols = new HashMap();
-    protected Stack file = new Stack();
+    protected Map<String,PlexilNodeContext> nodeNames = new HashMap<String,PlexilNodeContext>();
+    protected Stack<File> fileStack = new Stack<File>();
 
     public PlexilParserState(PlexilParserState state)
     {
@@ -74,17 +73,17 @@ public class PlexilParserState implements PlexilTokenTypes
 
     public void pushFile(File file)
     {
-	this.file.push(file);
+	fileStack.push(file);
     }
 
     public File popFile()
     {
-	return (File)file.pop();
+	return fileStack.pop();
     }
 
     public File getFile()
     {
-	return (File)file.peek();
+	return fileStack.peek();
     }
 
     public PlexilParserState()
@@ -94,8 +93,7 @@ public class PlexilParserState implements PlexilTokenTypes
     public void putAll(PlexilParserState state)
     {
 	nodeNames.putAll(state.nodeNames);
-	symbols.putAll(state.symbols);
-	file.addAll(state.file);
+	fileStack.addAll(state.fileStack);
 	errors += state.errors;
 	warnings += state.warnings;
     }
@@ -164,7 +162,7 @@ public class PlexilParserState implements PlexilTokenTypes
 	toRet.append("Anonymous Context: ").append(anonymousContext).append("\n");
 	// sort and print the names (values of the nodeNames map) by name alpha
 	toRet.append("Node Names: \n");
-	List sortedNames = new ArrayList(nodeNames.keySet()); 
+	List<String> sortedNames = new ArrayList<String>(nodeNames.keySet()); 
 	Collections.sort(sortedNames);
 	for (int i = 0; i < sortedNames.size(); i++)
 	    toRet.append("  ").append(nodeNames.get(sortedNames.get(i))).append("\n");
@@ -227,7 +225,7 @@ public class PlexilParserState implements PlexilTokenTypes
 
     public boolean isNodeName(String name)
     {
-	PlexilNodeContext c = (PlexilNodeContext) nodeNames.get(name);
+	PlexilNodeContext c = nodeNames.get(name);
         boolean result = (c != null);
 //         System.out.println("isNodeName(" + name + ") returns " +
 //                            (result ? "true" : "false"));

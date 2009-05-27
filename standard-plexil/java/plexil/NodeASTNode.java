@@ -29,6 +29,8 @@ package plexil;
 
 public class NodeASTNode extends PlexilASTNode
 {
+    // Needed for serializable
+    private static final long serialVersionUID = 3152407280279220259L;
     private PlexilNodeContext m_context = null;
     private String m_nodeName = null;
 

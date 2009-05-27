@@ -44,10 +44,10 @@ import plexil.PlexilNameType;
 public class PlexilGlobalContext
     extends PlexilNodeContext
 {
-    protected Map commands;
-    protected Map functions;
-    protected Map lookups;
-    protected Map libraryNodes;
+    protected Map<String, PlexilGlobalDeclaration> commands;
+    protected Map<String, PlexilGlobalDeclaration> functions;
+    protected Map<String, PlexilGlobalDeclaration> lookups;
+    protected Map<String, PlexilGlobalDeclaration> libraryNodes;
 
     static PlexilGlobalContext s_instance = null;
 
@@ -61,10 +61,10 @@ public class PlexilGlobalContext
     protected PlexilGlobalContext()
     {
 	super(null, "_GLOBAL_CONTEXT_");
-	commands = new HashMap();
-	functions = new HashMap();
-	lookups = new HashMap();
-	libraryNodes = new HashMap();
+	commands = new HashMap<String, PlexilGlobalDeclaration>();
+	functions = new HashMap<String, PlexilGlobalDeclaration>();
+	lookups = new HashMap<String, PlexilGlobalDeclaration>();
+	libraryNodes = new HashMap<String, PlexilGlobalDeclaration>();
     }
 
     public boolean isGlobalContext()
@@ -74,7 +74,7 @@ public class PlexilGlobalContext
 
     protected PlexilGlobalDeclaration getCommand(String name)
     {
-	PlexilGlobalDeclaration ln = (PlexilGlobalDeclaration) commands.get(name);
+	PlexilGlobalDeclaration ln = commands.get(name);
 	return ln;
     }
 
@@ -110,7 +110,7 @@ public class PlexilGlobalContext
 
     protected PlexilGlobalDeclaration getFunction(String name)
     {
-	PlexilGlobalDeclaration ln = (PlexilGlobalDeclaration) functions.get(name);
+	PlexilGlobalDeclaration ln = functions.get(name);
 	return ln;
     }
 
@@ -145,7 +145,7 @@ public class PlexilGlobalContext
 
     protected PlexilGlobalDeclaration getLookup(String name)
     {
-	PlexilGlobalDeclaration ln = (PlexilGlobalDeclaration) lookups.get(name);
+	PlexilGlobalDeclaration ln = lookups.get(name);
 	return ln;
     }
 
@@ -183,7 +183,7 @@ public class PlexilGlobalContext
 
     protected PlexilGlobalDeclaration getLibraryNode(String name)
     {
-	PlexilGlobalDeclaration ln = (PlexilGlobalDeclaration) libraryNodes.get(name);
+	PlexilGlobalDeclaration ln = libraryNodes.get(name);
 	return ln;
     }
 
@@ -217,26 +217,26 @@ public class PlexilGlobalContext
 
     // Caller is responsible for creating the 3 vectors.
     // Any of the arguments may be null, in which case that arg is ignored.
-    public void getGlobalDeclarations(Vector commandsResult,
-				      Vector lookupsResult,
-				      Vector functionsResult)
+    public void getGlobalDeclarations(Vector<PlexilGlobalDeclaration> commandsResult,
+				      Vector<PlexilGlobalDeclaration> lookupsResult,
+				      Vector<PlexilGlobalDeclaration> functionsResult)
     {
 	if (commandsResult != null)
 	    {
 		commandsResult.removeAllElements();
-		for (Iterator commandIt = commands.values().iterator(); commandIt.hasNext(); )
+		for (Iterator<PlexilGlobalDeclaration> commandIt = commands.values().iterator(); commandIt.hasNext(); )
 		    commandsResult.add(commandIt.next());
 	    }
 	if (lookupsResult != null)
 	    {
 		lookupsResult.removeAllElements();
-		for (Iterator lookupIt = lookups.values().iterator(); lookupIt.hasNext(); )
+		for (Iterator<PlexilGlobalDeclaration> lookupIt = lookups.values().iterator(); lookupIt.hasNext(); )
 		    lookupsResult.add(lookupIt.next());
 	    }
 	if (functionsResult != null)
 	    {
 		functionsResult.removeAllElements();
-		for (Iterator functionIt = functions.values().iterator(); functionIt.hasNext(); )
+		for (Iterator<PlexilGlobalDeclaration> functionIt = functions.values().iterator(); functionIt.hasNext(); )
 		    functionsResult.add(functionIt.next());
 	    }
     }

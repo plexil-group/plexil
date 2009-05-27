@@ -30,6 +30,9 @@ import net.n3.nanoxml.*;
 
 public class ArrayRefASTNode extends PlexilASTNode
 {
+    // Needed for serializable
+    private static final long serialVersionUID = -8050276204257666071L;
+
     public ArrayRefASTNode()
     {
         super();

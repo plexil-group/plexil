@@ -30,6 +30,9 @@ import net.n3.nanoxml.*;
 
 public class VariableASTNode extends PlexilASTNode
 {
+    // Needed for serializable
+    private static final long serialVersionUID = 7326730183532364300L;
+
     protected PlexilVariableName m_variable = null;
 
     public VariableASTNode()

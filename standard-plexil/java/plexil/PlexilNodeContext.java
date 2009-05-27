@@ -48,13 +48,12 @@ public class PlexilNodeContext
 {
 
     protected PlexilNodeContext parentContext;
-    protected Vector variables = new Vector();
-    protected Vector childNodes = new Vector();
-    protected Vector childNodeNames = new Vector();
+    protected Vector<PlexilVariableName> variables = new Vector<PlexilVariableName>();
+    protected Vector<PlexilNodeContext> childNodes = new Vector<PlexilNodeContext>();
     protected String nodeName;
     protected AST resourcePriorityAST = null;
     protected IXMLElement resourcePriorityXML = null;
-    protected Vector resources = new Vector();
+    protected Vector<AST> resources = new Vector<AST>();
 
     public PlexilNodeContext(PlexilNodeContext previous, String name)
     {
@@ -144,11 +143,11 @@ public class PlexilNodeContext
 	    return this;
 
 	// recurse down children
-	Iterator childIt = childNodes.iterator();
+	Iterator<PlexilNodeContext> childIt = childNodes.iterator();
 	while (childIt.hasNext())
 	    {
 		PlexilNodeContext result = 
-		    ((PlexilNodeContext) childIt.next()).findNodeInternal(name);
+		    childIt.next().findNodeInternal(name);
 		if (result != null)
 		    return result;
 	    }
@@ -175,7 +174,7 @@ public class PlexilNodeContext
     // Resources and resource priority
     //
 
-    public Vector getResources()
+    public Vector<AST> getResources()
     {
         return resources;
     }
@@ -301,12 +300,12 @@ public class PlexilNodeContext
     }
 
     // Returns a vector of all interface variables declared in the node
-    public Vector getInterfaceVariables()
+    public Vector<PlexilInterfaceVariableName> getInterfaceVariables()
     {
-	Vector result = new Vector();
-	for (Iterator varIt = variables.iterator(); varIt.hasNext(); )
+	Vector<PlexilInterfaceVariableName> result = new Vector<PlexilInterfaceVariableName>();
+	for (Iterator<PlexilVariableName> varIt = variables.iterator(); varIt.hasNext(); )
 	    {
-		PlexilVariableName var = (PlexilVariableName) varIt.next();
+		PlexilVariableName var = varIt.next();
 		if (!var.isLocal())
 		    {
 			result.add((PlexilInterfaceVariableName) var);
@@ -316,16 +315,16 @@ public class PlexilNodeContext
     }
 
     // Caller is responsible for creating the 3 vectors
-    public void getNodeVariables(Vector localVarsResult,
-				 Vector inVarsResult,
-				 Vector inOutVarsResult)
+    public void getNodeVariables(Vector<PlexilVariableName> localVarsResult,
+				 Vector<PlexilInterfaceVariableName> inVarsResult,
+				 Vector<PlexilInterfaceVariableName> inOutVarsResult)
     {
 	localVarsResult.removeAllElements();
 	inVarsResult.removeAllElements();
 	inOutVarsResult.removeAllElements();
-	for (Iterator varIt = variables.iterator(); varIt.hasNext(); )
+	for (Iterator<PlexilVariableName> varIt = variables.iterator(); varIt.hasNext(); )
 	    {
-		PlexilVariableName var = (PlexilVariableName) varIt.next();
+		PlexilVariableName var = varIt.next();
 		if (var.isLocal())
 		    {
 			localVarsResult.add(var);
@@ -471,8 +470,8 @@ public class PlexilNodeContext
 
     protected PlexilVariableName findLocalVariable(String name)
     {
-        for (Iterator iter = variables.iterator() ; iter.hasNext(); ) {
-            PlexilVariableName candidate = (PlexilVariableName) iter.next();
+        for (Iterator<PlexilVariableName> iter = variables.iterator() ; iter.hasNext(); ) {
+            PlexilVariableName candidate = iter.next();
             if (candidate.getName().equals(name))
                 return candidate;
         }

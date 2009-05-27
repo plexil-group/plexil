@@ -35,6 +35,9 @@ import net.n3.nanoxml.*;
 
 public class LiteralASTNode extends PlexilASTNode
 {
+    // Needed for serializable
+    static final long serialVersionUID = 3820020334365921089L;
+
     public LiteralASTNode() 
     {
 	super();
