@@ -1,0 +1,5 @@
+(plexil-plan
+  (comment "A sequence of two consecutive waits")
+  (sequence
+    (wait 10.2 "for-godot")
+    (wait 5)))

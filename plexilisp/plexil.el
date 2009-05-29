@@ -1218,6 +1218,15 @@
    (pl-start-condition condition)
    (apply #'pl-list (cons form forms))))
 
+(pdefine pl (Wait wait) (seconds &optional comment) 2 node
+  ;; real * opt(string) -> xml
+  "Waits given number of seconds"
+  (let ((nodeid (or comment (plexil-unique-node-id "plexilisp_Wait"))))
+    (pl-empty-node
+     nodeid
+     (pl-end-condition (pl-> (pl-lookup-on-change "time")
+                             (pl-+ seconds (pl-start-time nodeid)))))))
+
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
   ("Declares variables that are lexically scoped to the enclosing forms, "
    "similar to LET in Lisp.")
