@@ -1218,10 +1218,10 @@
    (pl-start-condition condition)
    (apply #'pl-list (cons form forms))))
 
-(pdefine pl (Wait wait) (seconds &optional comment) 2 node
+(pdefine pl (Wait wait) (seconds &optional name) 2 node
   ;; real * opt(string) -> xml
   "Waits given number of seconds"
-  (let ((nodeid (or comment (plexil-unique-node-id "plexilisp_Wait"))))
+  (let ((nodeid (or name (plexil-unique-node-id "plexilisp_Wait"))))
     (pl-empty-node
      nodeid
      (pl-end-condition (pl-> (pl-lookup-on-change "time")
