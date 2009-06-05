@@ -78,5 +78,5 @@ ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval 
         return new RobotStateResponse(tDelay, state);
     }
   else
-    return new GenericResponse(tDelay, "0");
+    return new GenericResponse(tDelay, std::vector<double>(1, 0.0));
 }
