@@ -36,8 +36,7 @@ template< class Type > bool parseType(std::istringstream& stringStream, Type& ty
   
   if( stringStream.fail() )
     {
-      std::cerr << "Error: can not parse '" << stringStream << "'" << std::endl;
-      
+      std::cerr << "Error: cannot parse line:\n" << stringStream.str() << std::endl;
       return false;
     }
   
