@@ -35,9 +35,13 @@ PlexilSimResponseFactory::~PlexilSimResponseFactory()
 {
 }
 
-ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeval tDelay,
-                                            std::istringstream& inStr)
+ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, 
+                                              timeval tDelay,
+                                              std::istringstream& inStr)
 {
+  // Clear stream error status prior to parsing
+  inStr.clear(std::ios_base::failbit);
+
   if (cmdName == "move")
     {
       int returnValue;
@@ -72,4 +76,6 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeva
         }
       return new GenericResponse(tDelay, returnValue);
     }
+  // fall-thru return
+  return NULL;
 }
