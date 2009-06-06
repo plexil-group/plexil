@@ -73,7 +73,7 @@ public:
         bool status = ResponseMessage::extractMessageContents(contents, retData);
         if (status)
           {
-            for (int i = 0; i < retData.size(); ++i)
+            for (std::vector<double>::size_type i = 0; i < retData.size(); ++i)
               {
                 values[i] = retData[i];
               }
@@ -96,7 +96,7 @@ public:
         bool status = ResponseMessage::extractMessageContents(contents, retData);
         if (status)
           {
-            for (int i = 0; i < retData.size(); ++i)
+            for (std::vector<double>::size_type i = 0; i < retData.size(); ++i)
               {
                 values[i] = retData[i];
               }
