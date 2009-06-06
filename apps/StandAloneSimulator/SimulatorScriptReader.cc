@@ -59,7 +59,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
   
   if ( !inputFile )
     {
-      std::cerr << "Error: can not open script file '" << fName <<"'" << std::endl;
+      std::cerr << "Error: cannot open script file '" << fName <<"'" << std::endl;
       return false;
     }
   
@@ -110,30 +110,36 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
           inputStringStream >> delay;
         }
 
-      std::cout << "\nRead a new line for: " << commandName << std::endl;
+      std::cout << "\nRead a new line for \"" << commandName
+                << "\", delay = " << delay << std::endl;
       ResponseMessageManager* responseMessageManager = 
         m_Simulator->getResponseMessageManager(commandName);
       
       if( 0 == responseMessageManager )
         {
-          std::cout << "Creating a message manager for " << commandName 
-                    << ", telemetry? " << telemetry << std::endl;
+          std::cout << "Creating a message manager for "
+                    << (telemetry ? "telemetry" : "command")
+                    << " \"" << commandName 
+                    << "\"" << std::endl;
           responseMessageManager = new ResponseMessageManager(commandName);
 	  
           m_Simulator->registerResponseMessageManager(responseMessageManager);
 
-          if (telemetry) commandIndex = 1;
+          if (telemetry) 
+            commandIndex = 1;
         }
-      else if (telemetry) ++commandIndex;
+      else 
+        if (telemetry) 
+          ++commandIndex;
 
 
       inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
       lineCount++;
-      
+
       if( inputFile.eof())
         {
           std::cerr << "Error: response line missing in script-file " << fName 
-                    << " expecting one at line " << lineCount << std::endl;
+                    << " at line " << lineCount << std::endl;
           
           return false;
         }
@@ -154,8 +160,13 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
         }
       else
         {
-          std::cout << "ERROR: No response structure was specified for "
-                    << commandName << std::endl;
+          std::cout << "ERROR: Unable to parse response for \""
+                    << commandName
+                    << "\" at line "
+                    << lineCount
+                    << "\nResponse line was: "
+                    << inLine
+                    << std::endl;
           return false;
         }
       
