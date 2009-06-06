@@ -77,6 +77,6 @@ ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval 
       if (i == NUMBER_OF_STATE_READINGS)
         return new RobotStateResponse(tDelay, state);
     }
-  else
-    return new GenericResponse(tDelay, std::vector<double>(1, 0.0));
+  // fall-thru return
+  return new GenericResponse(tDelay, std::vector<double>(1, 0.0));
 }
