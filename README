@@ -51,14 +51,18 @@ Release Notes
  - misc bug fixes and enhancements
 
 0.90
- - new component: application framework, revised external interfaces, and
-   simple test application using both.  See the app-framework directory.
-   The existing external interfaces are unchanged from the previous release,
+ - New application framework, revised external interfaces, and simple
+   test application using both.  See the app-framework directory.  The
+   existing external interfaces are unchanged from the previous release,
    but are deprecated.
- - new component: root Makefile added 
- - new enhancements to Plexil Schema
- - new Extended Plexil plans and scripts added
- - new enhancements and bug fixes to the Universal Executive
- - new enhancements and bug fixes to the Luv Viewer
- - misc enhancements and bug fixes
+ - Standalone simulator now supports telemetry and has a test executive.
+ - New Extended Plexil language: schema, translator, examples.
+ - Plexilisp has several new constructs and generates Extended Plexil
+ - Refactoring of Plexil schemas.
+ - New enhancements and bug fixes to the Luv Viewer.
+ - Top level Makefile and simplified build and installation instructions.
+ - Numerous small enhancements and bug fixes throughout code base.
+
+
+
 
