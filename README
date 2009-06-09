@@ -50,3 +50,11 @@ Release Notes
  - easier setup for Plexilisp
  - misc bug fixes and enhancements
 
+0.90
+ - new component: root Makefile added 
+ - new enhancements to Plexil Schema
+ - new Extended Plexil plans and scripts added
+ - new enhancements and bug fixes to the Universal Executive
+ - new enhancements and bug fixes to the Luv Viewer
+ - misc enhancements and bug fixes
+
