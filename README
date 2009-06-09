@@ -51,6 +51,10 @@ Release Notes
  - misc bug fixes and enhancements
 
 0.90
+ - new component: application framework, revised external interfaces, and
+   simple test application using both.  See the app-framework directory.
+   The existing external interfaces are unchanged from the previous release,
+   but are deprecated.
  - new component: root Makefile added 
  - new enhancements to Plexil Schema
  - new Extended Plexil plans and scripts added
