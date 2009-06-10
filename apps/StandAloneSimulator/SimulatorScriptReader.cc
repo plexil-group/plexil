@@ -124,14 +124,12 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
           responseMessageManager = new ResponseMessageManager(commandName);
 	  
           m_Simulator->registerResponseMessageManager(responseMessageManager);
-
-          if (telemetry) 
-            commandIndex = 1;
         }
-      else 
-        if (telemetry) 
-          ++commandIndex;
-
+      if (telemetry) 
+        {
+          // Telemetry index is strictly sequential starting from 1
+          commandIndex = responseMessageManager->getCounter();
+        }
 
       inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
       lineCount++;
