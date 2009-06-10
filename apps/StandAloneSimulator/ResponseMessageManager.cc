@@ -27,9 +27,10 @@
 #include "ResponseMessage.hh"
 #include "ResponseBase.hh"
 #include <iostream>
+#include <cstdlib> // for abort()
 
 ResponseMessageManager::ResponseMessageManager(const std::string& id)
-  : m_Identifier(id), m_Counter(1)
+  : m_Identifier(id), m_Counter(1), m_DefaultResponse(NULL)
 {
 }
 
@@ -50,7 +51,9 @@ void ResponseMessageManager::addResponse(int cmdIndex, ResponseBase* resp)
     }
   else
     {
-      std::cerr << "Warning: The command index entry has been repeated. Ignoring it."
+      std::cerr << "Warning for " << m_Identifier
+                << ": Command index " << cmdIndex
+                << " has been repeated. Ignoring it."
                 << std::endl;
       return;
     }
@@ -65,28 +68,34 @@ ResponseMessage* ResponseMessageManager::getResponseMessages(timeval& tDelay)
 {
   std::map<int, ResponseBase*>::iterator iter;
   ResponseBase* respBase;
+  std::cout << "ResponseMessageManager for " << m_Identifier << ": ";
   if ((iter = m_CmdIdToResponse.find(m_Counter)) == m_CmdIdToResponse.end())
     {
-      std::cout << "ResponseMessageManager:getResponseMessages: " << "Using default." << std::endl;
-  
+      std::cout << "Getting default response.";
       respBase = m_DefaultResponse;
     }
   else
     {
-      std::cout << "ResponseMessageManager:getResponseMessages: " 
-                << "Using a specific occurrance." << std::endl;
+      std::cout << "Using response for index " << m_Counter << ".";
       respBase = iter->second;
     }
+  std::cout << std::endl;
 
   std::cout << "ResponseMessageManager:getResponseMessages: " << m_Identifier
             << ", count: " << m_Counter << std::endl;
   ++m_Counter;
 
-  if(respBase->getNumberOfResponses() > 0)
+  // This shouldn't happen, but check anyway just in case
+  if (respBase == NULL)
+    {
+      std::cerr << "INTERNAL ERROR: No response found! Aborting." << std::endl;
+      abort();
+    }
+
+  if (respBase->getNumberOfResponses() > 0)
     {
       tDelay = respBase->getDelay();
       return respBase->createResponseMessage();
     }
-  else
-    return NULL;
+  return NULL;
 }

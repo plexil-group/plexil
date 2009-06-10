@@ -39,6 +39,7 @@ public:
   ~ResponseMessageManager();
 
   const std::string& getIdentifier() const {return m_Identifier;}
+  int getCounter() const {return m_Counter;}
   void addResponse(int cmdIndex, ResponseBase* resp);
   ResponseMessage* getResponseMessages(timeval& tDelay);
 
