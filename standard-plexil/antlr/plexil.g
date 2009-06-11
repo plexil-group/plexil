@@ -1810,7 +1810,7 @@ stateName : ncName ;
 
 ncName :
    ( IDENT
-     ( ( PERIOD | MINUS )
+     ( PERIOD       // was ( PERIOD | MINUS )
        (IDENT)? )* )
    { 
      String myName = #ncName.getText();
