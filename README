@@ -4,8 +4,7 @@ See http://plexil.sourceforge.net for information about this software,
 including its user manuals.  There is more information in the README
 files found in each subdirectory of this directory.
 
-This distribution is based on SVN revision: [to be filled for prebuilt
-distributions only]
+This distribution is based on SVN revision: 548
 
 Release Notes
 -------------
@@ -55,8 +54,8 @@ Release Notes
    test application using both.  See the app-framework directory.  The
    existing external interfaces are unchanged from the previous release,
    but are deprecated.
- - Plexil Parser no longer supports hyphenated variable names. This 
-   restriction may removed in future releases.
+ - Plexil Parser no longer supports hyphenated variable names. Hyphenated
+   variables may be supported in a future release.
  - Standalone simulator now supports telemetry and has a test executive.
  - New Extended Plexil language: schema, translator, examples.
  - Plexilisp has several new constructs and generates Extended Plexil
