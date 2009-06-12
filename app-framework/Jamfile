@@ -28,6 +28,7 @@ Module PlexilAppFramework ;
 ModuleLibraries PlexilAppFramework : 
   $(PTHREADS_LIBRARY)
   $(SEM_LIBRARY)
+  $(REALTIME_LIBRARY)
   [ FVariantName Exec PlexilUtils PlexilTinyXml : $(VARIANTS) ]
   [ FVariantName Sockets : $(VARIANTS) ]
  ;
@@ -47,6 +48,7 @@ ModuleCore PlexilAppFramework :
 ModuleComponent PlexilAppFramework :
   DummyAdapter.cc  
   NewLuvListener.cc
+  PosixTimeAdapter.cc
  ;
 
 SubInclude app-framework test ; 
