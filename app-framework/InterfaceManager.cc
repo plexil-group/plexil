@@ -43,6 +43,7 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "NewLuvListener.hh"
+#include "PosixTimeAdapter.hh"
 #include "ResourceArbiterInterface.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
@@ -82,6 +83,10 @@ namespace PLEXIL
   {
     // Every application has access to the dummy adapter
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
+
+    // Register the time adapter
+    REGISTER_ADAPTER(PosixTimeAdapter, "PosixTime");
+
     // Every application should have access to the LUV Listener
     REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
   }
