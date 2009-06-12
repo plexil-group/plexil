@@ -65,6 +65,5 @@ Release Notes
  - Top level Makefile and simplified build and installation instructions.
  - Numerous small enhancements and bug fixes throughout code base.
 
-
-
-
+New (not yet in prebuilt distributions):
+ - Added 'jam' executables in plexil/bin
