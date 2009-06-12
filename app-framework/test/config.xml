@@ -2,5 +2,6 @@
  <Adapter AdapterType="Dummy">
   <DefaultAdapter/>
  </Adapter>
- <Listener ListenerType="LuvListener"/>
+ <Adapter AdapterType="PosixTime"/>
+ <!-- Listener ListenerType="LuvListener"/ -->
 </Interfaces>
