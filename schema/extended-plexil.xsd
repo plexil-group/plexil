@@ -294,7 +294,9 @@
   <xsd:element name="NodeWaiting" type="xsd:NCName"/>
   <xsd:element name="NodeInactive" type="xsd:NCName"/>
   <xsd:element name="NodeSucceeded" type="xsd:NCName"/>
+  <xsd:element name="NodeIterationSucceeded" type="xsd:NCName"/>
   <xsd:element name="NodeFailed" type="xsd:NCName"/>
+  <xsd:element name="NodeIterationFailed" type="xsd:NCName"/>
   <xsd:element name="NodeSkipped" type="xsd:NCName"/>
   <xsd:element name="NodeInvariantFailed" type="xsd:NCName"/>
   <xsd:element name="NodePreconditionFailed" type="xsd:NCName"/>

@@ -55,7 +55,7 @@ Release Notes
    test application using both.  See the app-framework directory.  The
    existing external interfaces are unchanged from the previous release,
    but are deprecated.
- - Plexil Parser no longer supports hyphenated variable names. Hyphenated
+ - Standard Plexil no longer supports hyphenated variable names. Hyphenated
    variables may be supported in a future release.
  - Standalone simulator now supports telemetry and has a test executive.
  - New Extended Plexil language: schema, translator, examples.
@@ -67,3 +67,4 @@ Release Notes
 
 New (not yet in prebuilt distributions):
  - Added 'jam' executables in plexil/bin
+ - Added support for testing node iteration outcome.

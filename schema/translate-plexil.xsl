@@ -655,9 +655,23 @@
   </AND>
 </xsl:template>
 
+<xsl:template match= "NodeIterationSucceeded">
+  <AND>
+    <xsl:call-template name= "node-iteration-ended"/>
+    <xsl:call-template name= "node-succeeded"/>
+  </AND>
+</xsl:template>
+
 <xsl:template match= "NodeFailed">
   <AND>
     <xsl:call-template name= "node-finished"/>
+    <xsl:call-template name= "node-failed"/>
+  </AND>
+</xsl:template>
+
+<xsl:template match= "NodeIterationFailed">
+  <AND>
+    <xsl:call-template name= "node-iteration-ended"/>
     <xsl:call-template name= "node-failed"/>
   </AND>
 </xsl:template>

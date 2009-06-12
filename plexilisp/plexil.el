@@ -1049,6 +1049,14 @@
  "Did the given action finish successfully?"
   (xml "NodeSucceeded" id))
 
+(pdefine pl (IterationSuccessful iteration-successful) (id) 1 nil
+ "Did the last iteration of the given action finish successfully?"
+  (xml "NodeIterationSucceeded" id))
+
+(pdefine pl (IterationFailed iteration-failed) (id) 1 nil
+ "Did the last iteration of the given action fail?"
+  (xml "NodeIterationFailed" id))
+
 (pdefine pl (Failed failed isFailed is-failed) (id) 1 nil
   "Did the given action fail?"
   (xml "NodeFailed" id))

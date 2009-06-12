@@ -3,6 +3,8 @@ default namespace = ""
 
 start =
   NodeBody
+  | (notAllowed
+     | element NodeIterationFailed { NCName })
   | BooleanVariable
   | NodeCommandHandleVariable
   | Concat
@@ -21,6 +23,8 @@ start =
   | SkipCondition
   | NodeTimepointValue
   | Command
+  | (notAllowed
+     | element NodeIterationSucceeded { NCName })
   | LibraryNodeCall
   | EndCondition
   | StringRHS
@@ -156,7 +160,6 @@ NodeExecuting =
 EQString =
   notAllowed
   | element EQString { StringExpression, StringExpression }
-NCName = xsd:NCName
 NCNameOrEmpty = xsd:NCName | xsd:string ""
 Action = Node | Sequence | UncheckedSequence | Try | If | While | For
 StringExpression =
@@ -398,7 +401,6 @@ CommandDeclaration =
   | element CommandDeclaration {
       ExternalCallDeclaration, ResourceList?
     }
-nonNegativeInteger = xsd:nonNegativeInteger
 NodeOutcomeValue =
   notAllowed
   | element NodeOutcomeValue {
@@ -626,6 +628,7 @@ AND =
 SkipCondition =
   notAllowed
   | element SkipCondition { BooleanExpression }
+NCName = xsd:NCName
 NodeSucceeded =
   notAllowed
   | element NodeSucceeded { NCName }
@@ -664,6 +667,7 @@ PreCondition =
 OR =
   notAllowed
   | element OR { BooleanExpression* }
+\string = xsd:string
 NodeSkipped =
   notAllowed
   | element NodeSkipped { NCName }
@@ -783,10 +787,10 @@ Return =
       },
       NCNameOrEmpty
     }
-\string = xsd:string
 NodeStateVariable =
   notAllowed
   | element NodeStateVariable { NodeRef | NodeId }
+nonNegativeInteger = xsd:nonNegativeInteger
 GE =
   notAllowed
   | element GE { NumericExpression, NumericExpression }
