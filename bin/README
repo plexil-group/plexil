@@ -1,0 +1,19 @@
+This directory contains executables, and links to executables, used in
+building and/or running the PLEXIL/UE software system.
+
+Saxon is an XSLT processor obtained from http://saxon.sourceforge.net/.
+A version that works with Plexil (saxon8.jar) is included here for
+convenience, and is executed via the script saxon8.
+
+Jam (Copyright 1993-2002 Christopher Seiwald and Perforce Software,
+Inc.), a 'make' alternative, is available freely in source form at
+ftp://ftp.perforce.com/jam/jam-2.5.tar.  We provide executables for
+various platforms here for convenience.  They can be copied to a
+location of your choice (and should be named simply 'jam'), or you can
+run them directly from this directory, provided you add a 'jam' symbolic
+link to the appropriate binary, and include this directory in your Unix
+search path prior to building Plexil/UE.
+
+
+
+    
