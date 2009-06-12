@@ -40,6 +40,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
+
             <Node NodeType="Empty">
                <NodeId>Two</NodeId>
                <StartCondition>
