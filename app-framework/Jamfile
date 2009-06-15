@@ -48,8 +48,16 @@ ModuleCore PlexilAppFramework :
 ModuleComponent PlexilAppFramework :
   DummyAdapter.cc  
   NewLuvListener.cc
-  PosixTimeAdapter.cc
  ;
+
+# Timer stuff is platform dependent
+if $(OS) = MACOSX {
+ModuleComponent PlexilAppFramework :
+  DarwinTimeAdapter.cc ;
+} else {
+ModuleComponent PlexilAppFramework :
+  PosixTimeAdapter.cc ;
+}
 
 SubInclude app-framework test ; 
 

@@ -148,7 +148,11 @@ if $(OS) = BEOS {
 
 # REALTIME_LIBRARY = library with real time related functions
 
-REALTIME_LIBRARY = rt ;
+if $(OS) = MACOSX {
+  REALTIME_LIBRARY = ;
+} else {
+  REALTIME_LIBRARY = rt ;
+}
 
 
 # THREADED_LINK_FLAGS = flags to enable multi-threaded execution

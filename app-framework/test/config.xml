@@ -2,6 +2,6 @@
  <Adapter AdapterType="Dummy">
   <DefaultAdapter/>
  </Adapter>
- <Adapter AdapterType="PosixTime"/>
+ <Adapter AdapterType="OSNativeTime"/>
  <!-- Listener ListenerType="LuvListener"/ -->
 </Interfaces>
