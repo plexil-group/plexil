@@ -393,10 +393,13 @@ namespace PLEXIL
   {
     // Should never happen, but just in case...
     assertTrueMsg(!m_execMutex.isLockedByCurrentThread(),
-                  "waitForPlanFinished: called from inside exec!");
+                  "Internal error: waitForPlanFinished: called with Exec mutex locked!");
     bool finished = false;
     while (!finished)
       {
+	// sleep for a bit so as not to hog the CPU
+	sleep(1);
+	
         // grab the exec and find out if it's finished yet
         RTMutexGuard guard(m_execMutex);
         finished = m_exec.allPlansFinished();
@@ -411,16 +414,9 @@ namespace PLEXIL
   void
   ExecApplication::notifyExec()
   {
-    if (m_execMutex.isLockedByCurrentThread())
+    if (m_runExecInBkgndOnly || m_execMutex.isLocked())
       {
-	// Called from inside runExec(), e.g. from within executeCommand()
-	// runExec() will notice the event at the end of the current step.
-	debugMsg("ExecApplication:notify",
-		 " (" << pthread_self() << ") inside runExec, ignoring event");
-      }
-    else if (m_runExecInBkgndOnly || m_execMutex.isLocked())
-      {
-	// Some other thread currently owns the exec.
+	// Some thread currently owns the exec. Could be this thread.
 	// runExec() could notice, or not.
 	// Post to semaphore to ensure event is not lost.
 	int status = m_sem.post();
