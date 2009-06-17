@@ -558,17 +558,6 @@
                 (list (xml "FunctionName" function-name))
                 (if args (list (xml "Arguments" (mapcar #'infer-type args))))))))
 
-(pdefine pl (RequestNode request-node) (&optional name &rest clauses) 1 node
-  ;; string * list(xml) -> xml
-  "Defines a Request Node.  Must contain a {{Request}} form."
-  (plexil-node name clauses "Request"))
-
-(pdefine pl (Request request) (nodeid &rest pairs) 1 node-body
-  ;; opt(string) * list(xml) -> xml
-  "Required inside a {{RequestNode}}, this form defines the plan request."
-  (xml "Request"
-       (append (if nodeid (list (xml "NodeId" nodeid))) pairs)))
-
 (pdefine pl (AssignmentNode assignment-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
   "Defines an Assignment Node.  Must contain an {{Assignment}} form."
