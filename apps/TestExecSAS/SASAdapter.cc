@@ -151,6 +151,7 @@ bool SASAdapter::shutdown()
     {
       debugMsg("SASAdapter:shutdown", " Destroying LCM");
       lcm_destroy(m_lcm);
+      m_lcm = NULL;
       std::cout << "Cancelling thread ...";
       pthread_cancel(m_ThreadId);
       pthread_join(m_ThreadId, NULL);
