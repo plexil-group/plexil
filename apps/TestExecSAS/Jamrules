@@ -1,6 +1,6 @@
 
 # DEBUG ONLY
-Echo In Jamrules ;
+#Echo In Jamrules ;
 
 rule RemoveBinaries {
   local target = $(1) ;
