@@ -1,21 +1,19 @@
 
-SubDir apps TestExec ;
+SubDir PLEXIL_HOME apps TestExecSAS ;
 
 # Explicitly included because Jam looks for $($(_top)) Jamrules, i.e. ../Jamrules,
 # which doesn't exist
-include Jamrules ;
-
-PLEXIL_HOME = [ FDirName $(TestExecSAS) $(DOTDOT) $(DOTDOT) ] ;
+include [ FDirName $(TestExecSAS) Jamrules ] ;
 
 # reference common library directories
 # *** unfortunately the references to relative paths only work
 # when executing in this directory!! ***
-LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
+LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) lib ] ]
+	     [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lib ] ]
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lcm-0.2.1 lib ] ] 
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm structs lib ] ]
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm ] ] ;
-
 
 # point to relevant UE headers
 HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
@@ -26,9 +24,7 @@ HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
         [ FDirName $(PLEXIL_HOME) universal-exec Exec base ]
         [ FDirName $(PLEXIL_HOME) universal-exec Exec component ]
         [ FDirName $(PLEXIL_HOME) interfaces Sockets base ]
-        [ FDirName $(PLEXIL_HOME) interfaces LuvListener base ]
-        [ FDirName $(PLEXIL_HOME) interfaces Sockets base ]
-        [ FDirName $(PLEXIL_HOME) interfaces Common base ]
+        [ FDirName $(PLEXIL_HOME) app-framework ]
         [ FDirName $(PLEXIL_HOME) interfaces lcm-0.2.1 ]
         [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm structs include ]
         [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm ]
@@ -37,14 +33,14 @@ HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
 Module sas-test-exec ;
 
 ModuleLibraries sas-test-exec :
-  [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets LuvListener PlexilInterface : $(VARIANTS) ] 
+  [ FVariantName PlexilUtils PlexilTinyXml Exec Sockets PlexilAppFramework : $(VARIANTS) ] 
   [ FVariantName lcm ComStructs lcmUtils : CUSTOM ] ;
 
 
 ModuleMain sas-test-exec :
   sas-exec-test-runner.cc
   SASExecTestRunner.cc
-  SASAdaptor.cc
+  SASAdapter.cc
   ;
 
 #RunTestPlan <dependency target> : <plan> : <script> : <output> : <library> ;

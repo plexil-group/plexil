@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef _H_SASExecTestRunner
 #define _H_SASExecTestRunner
 
-#include "ThreadedExternalInterface.hh"
+#include "ExecApplication.hh"
 
 namespace PLEXIL {
 
@@ -41,12 +41,13 @@ class SASExecTestRunner
 {
  public:
   
-  SASExecTestRunner() : threadedInterface() {}
+  SASExecTestRunner() : execApplication() {}
   ~SASExecTestRunner() {}
+
   /* @brief Run the UE with arguments passed in the command line. */
   int run (int argc, char** argv, const ExecListener* = 0);
 
-  ThreadedExternalInterface threadedInterface;
+  ExecApplication execApplication;
 };
 }
 

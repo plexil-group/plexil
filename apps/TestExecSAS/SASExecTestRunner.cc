@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,167 +36,206 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "SASExecTestRunner.hh"
-#include "SASAdaptor.hh"
+#include "SASAdapter.hh"
+#include "AdapterFactory.hh"
+#include "InterfaceSchema.hh"
 #include <fstream>
 
-namespace PLEXIL {
-
-int SASExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
+namespace PLEXIL 
 {
-   std::string scriptName("error");
-   std::string planName("error");
-   std::string debugConfig("Debug.cfg");
-   std::vector<std::string> libraryNames;
-   bool        luvRequest = false;
-   std::string luvHost("Local");
-   int         luvPort    = 9100;
-   bool        luvBlock   = false;
-   std::string usage(
-      "Usage: sas-exec-test-runner -s <script> -p <plan> [-l <library>]* [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
 
-   // if not enough parameters, print usage
+  int SASExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
+  {
+    std::string scriptName("error");
+    std::string planName("error");
+    std::string debugConfig("Debug.cfg");
+    std::string interfaceConfig("interface-config.xml");
+    std::vector<std::string> libraryNames;
+    bool        luvRequest = false;
+    std::string luvHost("Local");
+    int         luvPort    = 9100;
+    bool        luvBlock   = false;
+    std::string usage(
+		      "Usage: sas-exec-test-runner -s <script> -p <plan> [-l <library>]* [-c <interface_config_file>] [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
 
-   if ( argc < 3)
-   {
-      std::cout << usage << std::endl;
-      return -1;
-   }
-   // parse out parameters
+    // if not enough parameters, print usage
+
+    if ( argc < 3)
+      {
+	std::cout << usage << std::endl;
+	return -1;
+      }
+    // parse out parameters
    
-   for (int i = 1; i < argc; ++i)
-   {
-      if (strcmp(argv[i], "-p") == 0)
-         planName = argv[++i];
-      else if (strcmp(argv[i], "-s") == 0)
-         scriptName = argv[++i];
-      else if (strcmp(argv[i], "-l") == 0)
-         libraryNames.push_back(argv[++i]);
-      else if (strcmp(argv[i], "-d") == 0)
-        debugConfig = std::string(argv[++i]);
-      else if (strcmp(argv[i], "-v") == 0)
-         luvRequest = true;
-      else if (strcmp(argv[i], "-b") == 0)
-         luvBlock = true;
-      else if (strcmp(argv[i], "-h") == 0)
-         luvHost = argv[++i];
-      else if (strcmp(argv[i], "-n") == 0)
+    for (int i = 1; i < argc; ++i)
       {
-         std::stringstream buffer;
-         buffer << argv[++i];
-         buffer >> luvPort;
-         SHOW(luvPort);
-      }
-      else
-      {
-         std::cout << "Unknown option '" 
-                   << argv[i] 
-                   << "'.  " 
-                   << usage 
-                   << std::endl;
-         return -1;
-      }
-   }
-   // if no script, error out
-
-
-   std::cout << "Read plan: " << planName << std::endl;
-   // basic initialization
-
-   std::ifstream config(debugConfig.c_str());
-   if (config.good()) DebugMessage::readConfigFile(config);
-
-   initializeExpressions();
-   initializeStateManagers();
-
-   SASAdaptor sasAdaptor(threadedInterface);
-   threadedInterface.setDefaultInterface(sasAdaptor.getId());
-
-   // create the exec
-
-   PlexilExecId exec = (new PlexilExec())->getId();
-   threadedInterface.setExec(exec);
-   threadedInterface.resetQueue();
-
-   // if specified on command line, load libraries
-
-   for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
-              libraryName != libraryNames.end(); ++libraryName)
-   {
-      TiXmlDocument libraryXml(*libraryName);
-      if (!libraryXml.LoadFile())
-      {
-         std::cout << "XML error parsing library '"
-                   << *libraryName << "': "
-                   << libraryXml.ErrorDesc()
-                   << " line "
-                   << libraryXml.ErrorRow()
-                   << " column "
-                   << libraryXml.ErrorCol()
-                   << std::endl;
-         return -1;
+	if (strcmp(argv[i], "-b") == 0)
+	  luvBlock = true;
+	else if (strcmp(argv[i], "-c") == 0)
+	  interfaceConfig = std::string(argv[++i]);
+	else if (strcmp(argv[i], "-d") == 0)
+	  debugConfig = std::string(argv[++i]);
+	else if (strcmp(argv[i], "-h") == 0)
+	  luvHost = argv[++i];
+	else if (strcmp(argv[i], "-l") == 0)
+	  libraryNames.push_back(argv[++i]);
+	else if (strcmp(argv[i], "-n") == 0)
+	  {
+	    std::stringstream buffer;
+	    buffer << argv[++i];
+	    buffer >> luvPort;
+	    SHOW(luvPort);
+	  }
+	else if (strcmp(argv[i], "-p") == 0)
+	  planName = argv[++i];
+	else if (strcmp(argv[i], "-s") == 0)
+	  scriptName = argv[++i];
+	else if (strcmp(argv[i], "-v") == 0)
+	  luvRequest = true;
+	else
+	  {
+	    std::cout << "Unknown option '" 
+		      << argv[i] 
+		      << "'.  " 
+		      << usage 
+		      << std::endl;
+	    return -1;
+	  }
       }
 
-      PlexilXmlParser parser;
-      PlexilNodeId libnode;
-      try
-	{
-	  libnode = 
-	    parser.parse(libraryXml.FirstChildElement("PlexilPlan")->FirstChildElement("Node"));
-	}
-      catch (ParserException& e)
-	{
-	  std::cout << "XML error parsing library '"
-		    << *libraryName << "': \n"
-		    << e.what()
-		    << std::endl;
-	  return -1;
-	}
-      exec->addLibraryNode(libnode);
-   }
+    // Register factory for SASAdapter
+    REGISTER_ADAPTER(SASAdapter, "StandAloneSimulator");
 
-   if (planName != "error")
-   {
-      TiXmlDocument plan(planName);
-      if (!plan.LoadFile())
+    std::cout << "Read plan: " << planName << std::endl;
+    // basic initialization
+
+    std::ifstream config(debugConfig.c_str());
+    if (config.good())
+      DebugMessage::readConfigFile(config);
+
+    // get interface configuration file
+    std::cout << "Reading interface configuration from "
+	      << interfaceConfig
+	      << std::endl;
+    TiXmlDocument configDoc(interfaceConfig);
+    if (!configDoc.LoadFile())
       {
-         std::cout << "XML error parsing plan '"
-                   << planName << "': " 
-                   << plan.ErrorDesc()
-                   << " line "
-                   << plan.ErrorRow() 
-                   << " column " 
-                   << plan.ErrorCol()
-                   << std::endl;
-         return -1;
+	std::cout << "ERROR: unable to load configuration file "
+		  << interfaceConfig
+		  << ":\n "
+		  << configDoc.ErrorDesc()
+		  << std::endl;
+	return -1;
       }
-      PlexilXmlParser parser;
-      PlexilNodeId root;
-      try 
-	{
-	  root = 
-	    parser.parse(plan.FirstChildElement("PlexilPlan") ->FirstChildElement("Node"));
-	}
-      catch (ParserException& e)
-	{
-	  std::cout << "XML error parsing plan '"
-		    << planName << "': \n"
-		    << e.what()
-		    << std::endl;
-	  return -1;
-	}
-      exec->addPlan(root);
-   }
 
-   std::cout << "Kicking off the exec." << std::endl;
-   sleep(5);
-   // kick off the exec.
-   threadedInterface.run();
+    // get Interfaces element
+    TiXmlElement* configElt = 
+      configDoc.FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
 
-   
-   // clean up
+    // initialize application
+    std::cout << "Initializing application" << std::endl;
+    if (!execApplication.initialize(configElt))
+      {
+	std::cout << "ERROR: unable to initialize application"
+		  << std::endl;
+	return -1;
+      }
 
-   delete (PlexilExec*) exec;
-   return 0;
-}
+    // start interfaces
+    std::cout << "Starting interfaces" << std::endl;
+    if (!execApplication.startInterfaces())
+      {
+	std::cout << "ERROR: unable to start interfaces"
+		  << std::endl;
+	return -1;
+      }
+
+    // start exec
+    std::cout << "Starting exec" << std::endl;
+    if (!execApplication.run())
+      {
+	std::cout << "ERROR: unable to run exec"
+		  << std::endl;
+	return -1;
+      }
+
+    // if specified on command line, load libraries
+
+    for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
+	 libraryName != libraryNames.end(); ++libraryName)
+      {
+	TiXmlDocument libraryXml(*libraryName);
+	if (!libraryXml.LoadFile())
+	  {
+	    std::cout << "XML error parsing library '"
+		      << *libraryName << "': "
+		      << libraryXml.ErrorDesc()
+		      << " line "
+		      << libraryXml.ErrorRow()
+		      << " column "
+		      << libraryXml.ErrorCol()
+		      << std::endl;
+	    return -1;
+	  }
+
+	if (!execApplication.addLibrary(&libraryXml))
+	  {
+	    std::cout << "ERROR: unable to add library "
+		      << *libraryName
+		      << std::endl;
+	    return -1;
+	  }
+      }
+
+    if (planName != "error")
+      {
+	TiXmlDocument plan(planName);
+	if (!plan.LoadFile())
+	  {
+	    std::cout << "XML error parsing plan '"
+		      << planName << "': " 
+		      << plan.ErrorDesc()
+		      << " line "
+		      << plan.ErrorRow() 
+		      << " column " 
+		      << plan.ErrorCol()
+		      << std::endl;
+	    return -1;
+	  }
+	std::cout << "Executing plan" << std::endl;
+	if (!execApplication.addPlan(&plan))
+	  {
+	    std::cout << "ERROR: unable to add plan "
+		      << planName
+		      << std::endl;
+	    return -1;
+	  }
+      }
+
+    // wait til exec quiescent
+    execApplication.waitForPlanFinished();
+    std::cout << "Plan finished, stopping application" << std::endl;
+
+    // stop exec
+    if (!execApplication.stop())
+      {
+	std::cout << "ERROR: unable to stop application"
+		  << std::endl;
+	return -1;
+      }
+
+    // shut down exec
+    std::cout << "Shutting down..." << std::flush;
+    if (!execApplication.shutdown())
+      {
+	std::cout << "ERROR: unable to shut down application"
+		  << std::endl;
+	return -1;
+      }
+
+    std::cout << " shutdown complete, exiting." << std::endl;
+
+    return 0;
+  }
 
 } // namespace
