@@ -36,7 +36,12 @@ LIB_OBJECTS = $(OBJ_DIR)/SimulatorScriptReader$(OBJ_EXT) \
 ############################
 # Rules to build the targets
 
-all : $(LIB_DIR)/$(LIB_TARGET)
+all : simcore plexilsim
+
+plexilsim : simcore
+	$(MAKE) -C PlexilSimulator
+
+robosim : simcore
 	$(MAKE) -C RoboSimSimulator
 
 simcore : $(LIB_DIR)/$(LIB_TARGET)
