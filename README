@@ -66,5 +66,7 @@ Release Notes
  - Numerous small enhancements and bug fixes throughout code base.
 
 New (not yet in prebuilt distributions):
+ - Deprecated Function Call node.
  - Added 'jam' executables in plexil/bin
  - Added support for testing node iteration outcome.
+
