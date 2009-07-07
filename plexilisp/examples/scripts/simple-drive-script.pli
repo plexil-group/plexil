@@ -2,10 +2,10 @@
  (initial-state
    (state "At" "bool" false (param "Rock"))  )
  (script
-  (command-ack "drive" "bool" 0 (param 1.0 "real"))
+  (command-success "drive" (param 1.0 "real"))
   (state "At" "bool" 0 (param "Rock"))
-  (command-ack "drive" "bool" 0 (param 1.0 "real"))
+  (command-success "drive" (param 1.0 "real"))
   (state "At" "bool" 0 (param "Rock"))
-  (command-ack "drive" "bool" 0 (param 1.0 "real"))
+  (command-success "drive" (param 1.0 "real"))
   (state "At" "bool" 1 (param "Rock"))
-  (command-ack "takeSample" "bool" 1)))
+  (command-success "takeSample")))
