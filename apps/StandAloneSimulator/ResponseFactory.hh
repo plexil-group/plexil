@@ -27,19 +27,28 @@
 #define RESPONSE_FACTORY_HH
 
 #include <string>
-#include <sstream>
 #include <iostream>
 
-template< class Type > bool parseType(std::istringstream& stringStream, Type& type)
+/*
+ * @brief Function template to parse one object from an input stream.
+ * @param instream The stream to read an object from.
+ * @param result The variable where the result should be stored.
+ * @return True if a value was read, false otherwise.
+ * @note Can fail due to being at EOF - this should not be considered an error 
+         when an unknown number of values will be read from the stream.
+ */
+
+template< typename T > bool parseType(std::istream& instream, T& result)
 {
-  stringStream >> type;
-  
-  if( stringStream.fail() )
+  // Clear stream error status prior to parsing
+  instream.clear();
+  instream >> result;
+  if (instream.fail())
     {
-      std::cerr << "Error: cannot parse line:\n" << stringStream.str() << std::endl;
+      if (!instream.eof())
+	std::cerr << "parseType: Error: cannot parse line" << std::endl;
       return false;
     }
-  
   return true;
 }
 
@@ -51,7 +60,7 @@ public:
   ResponseFactory(){}
   virtual ~ResponseFactory(){}
   virtual ResponseBase* parse(const std::string& cmdName, timeval tDelay, 
-                              std::istringstream& inStr) = 0;
+                              std::istream& inStr) = 0;
 private:
 };
 

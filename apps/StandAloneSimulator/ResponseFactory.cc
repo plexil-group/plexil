@@ -36,11 +36,12 @@ ResponseFactory::~ResponseFactory()
 }
 
 ResponseBase* ResponseFactory::parse(const std::string& cmdName, timeval tDelay,
-                                     std::istringstream& inStr)
+                                     std::istream& inStr)
 {
   double returnValue;
   if (parseType<double>(inStr, returnValue))
     {
+      std::cout << "ResponseFactory::parse: Returning new GenericResponse, value = " << returnValue << std::endl;
       return new GenericResponse(tDelay, returnValue);
     }
   else
