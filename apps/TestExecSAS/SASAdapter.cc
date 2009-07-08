@@ -60,7 +60,7 @@ SASAdapter::SASAdapter(PLEXIL::AdapterExecInterface& execInterface) :
 
 SASAdapter::SASAdapter(PLEXIL::AdapterExecInterface& execInterface,
 		       const TiXmlElement * xml) : 
-  InterfaceAdapter(execInterface), m_lcm(NULL)
+  InterfaceAdapter(execInterface, xml), m_lcm(NULL)
 {
 }
 
@@ -107,6 +107,7 @@ bool SASAdapter::initialize()
       std::cout << "Error spawing thread for the receiving socket." << std::endl;
       return false;
     }
+  m_execInterface.defaultRegisterAdapter(getId());
   return true;
 }
 
