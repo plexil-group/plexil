@@ -37,11 +37,8 @@ PlexilSimResponseFactory::~PlexilSimResponseFactory()
 
 ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, 
                                               timeval tDelay,
-                                              std::istringstream& inStr)
+                                              std::istream& inStr)
 {
-  // Clear stream error status prior to parsing
-  inStr.clear(std::ios_base::failbit);
-
   if (cmdName == "move")
     {
       int returnValue;
@@ -59,14 +56,14 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName,
       // No customization present. See if the default version can be used.
       
       std::vector<double> returnValue;
-      while (inStr.peek() != -1)
+      while (!inStr.eof())
         {
           double retVal;
           if (parseType<double>(inStr, retVal))
             {
               returnValue.push_back(retVal);
             }
-          else
+          else if (!inStr.eof())
             {
               std::cout << "Error: The return value structure neither matches "
                         << " any customization nor the generic structure."
@@ -74,6 +71,8 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName,
               return NULL;
             }
         }
+      std::cout << "PlexilSimResponseFactory::parse: Returning new GenericResponse with "
+		<< returnValue.size() << " values" << std::endl;
       return new GenericResponse(tDelay, returnValue);
     }
   // fall-thru return

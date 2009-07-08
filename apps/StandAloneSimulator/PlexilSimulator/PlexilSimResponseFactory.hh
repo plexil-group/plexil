@@ -35,6 +35,6 @@ public:
   ~PlexilSimResponseFactory();
 
   virtual ResponseBase* parse(const std::string& cmdName, timeval tDelay, 
-                              std::istringstream& inStr);
+                              std::istream& inStr);
 };
 #endif
