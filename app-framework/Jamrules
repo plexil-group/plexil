@@ -12,6 +12,7 @@ actions RemoveBinaries {
   local SUBDIR = $(app-framework) ;
   include [ FDirName $(SUBDIR) CommonRules ] ;
   include [ FDirName $(SUBDIR) ModuleRules ] ;
-  include [ FDirName $(SUBDIR) Jamfile ] ;
+# this is now explicitly loading Jamrules
+#  include [ FDirName $(SUBDIR) Jamfile ] ;
   PLEXIL_APP_FWORK_READY = TRUE ;
 }

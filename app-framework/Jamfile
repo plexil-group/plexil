@@ -1,9 +1,14 @@
 
-SubDir app-framework ;
+SubDir PLEXIL_HOME app-framework ;
 
 if ! $(PLEXIL_APP_FWORK_READY) {
 
-PLEXIL_HOME = [ FDirName $(app-framework) $(DOTDOT) ] ;
+# By default jam looks for $(PLEXIL_HOME)/Jamrules before reading this Jamfile,
+# but that file doesn't exist at this writing,
+# so explicitly include the right one
+include [ FDirName $(app-framework) Jamrules ] ;
+
+# PLEXIL_HOME = [ FDirName $(app-framework) $(DOTDOT) ] ;
 
 # reference common library directories
 # *** unfortunately the references to relative paths only work
@@ -59,6 +64,6 @@ ModuleComponent PlexilAppFramework :
   PosixTimeAdapter.cc ;
 }
 
-SubInclude app-framework test ; 
+SubInclude PLEXIL_HOME app-framework test ; 
 
 } # PLEXIL_APP_FWORK_READY
