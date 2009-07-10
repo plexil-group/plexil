@@ -424,14 +424,6 @@
   (plexil-external-call-declaration "StateDeclaration" name
                                     returns-then-parameters))
 
-(pdefine pl (FunctionDeclaration function-declaration)
-            (name &rest returns-then-parameters) 0 nil
-  ;; string * list(xml) -> xml
-  ("Declare a function call.  Following the name should be zero or more Return "
-   "forms, then zero or more Parameter forms.  They cannot be intermixed.")
-  (plexil-external-call-declaration "FunctionDeclaration" name
-                                    returns-then-parameters))
-
 (pdefine pl (CommandDeclaration command-declaration)
             (name &rest returns-then-parameters-then-resource-list) 0 nil
   ;; string * list(xml) -> xml
@@ -460,7 +452,7 @@
 
 (defun plexil-external-call-declaration (type name args)
   ;; string * string * list(xml) -> xml
-  "Declaration of command, function call, or state"
+  "Declaration of command or external state."
   (xml type
        (cons (xml "Name" name) args)))
 
@@ -529,34 +521,6 @@
   ("Required inside an {{Update}}, this form defines a name/value pair."
    "The {{name}} must be a string and the {{value}} may be any PLEXIL type.")
   (xml "Pair" (list (xml "Name" name) (infer-type value))))
-
-
-(pdefine pl (FunctionCallNode function-call-node) (&optional name &rest clauses)
-         1 node
-  ;; string * list(xml) -> xml
-  "Defines a Function Call Node.  Must contain a {{FunctionCall}} form."
-  (plexil-node name clauses "FunctionCall"))
-
-(pdefine pl (FunctionCall function-call) (function-name &rest args) 0 node-body
-  ;; string * list(xml) -> xml
-  ("Valid inside a {{FunctionCallNode}}, this form calls the named function "
-   "with the given arguments.")
-  (plexil-node-body
-   (xml "FunctionCall"
-        (append (list (xml "FunctionName" function-name))
-                (if args (list (xml "Arguments" (mapcar #'infer-type args))))))))
-
-(pdefine pl (FunctionCallWithResult function-call-with-result)
-         (var function-name &rest args) 0 node-body
-  ;; xml * string * list(xml) -> xml
-  ("Valid inside a {{FunctionCallNode}}, this form calls the named function "
-   "with the given arguments, and assigns the return value to //var//, which "
-   "must be declared in this node or one of its ancestors.")
-  (plexil-node-body
-   (xml "FunctionCall"
-        (append (list var)
-                (list (xml "FunctionName" function-name))
-                (if args (list (xml "Arguments" (mapcar #'infer-type args))))))))
 
 (pdefine pl (AssignmentNode assignment-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
@@ -1148,12 +1112,10 @@
           (if the-name (list (xml "NodeId" the-name)))
           (cons first-form rest-forms)))))
 
-(pdefine pl (Concurrently concurrently) (form &rest forms) 0 node
-  "Executes forms concurrently.  Just an anonymous List node."
-  (pl-list-node (plexil-unique-node-id "plexilisp_Concurrently")
-   (apply
-    #'pl-list
-    (cons form forms))))
+(pdefine pl (Concurrence concurrence Concurrently concurrently)
+            (&optional name-or-first-form &rest forms) 1 node
+  "Executes forms concurrently.  Basically a List node."
+  (plexil-build-sequence name-or-first-form forms "Concurrence"))
 
 (insert-plexil-heading
  "=== Special Purpose Nodes ==="
@@ -1199,8 +1161,6 @@
       (funcall #'pl-update-node (eval body)))
      ((member type '(pl-library-call pl-LibraryCall))
       (funcall #'pl-library-call-node (eval body)))
-     ((member type '(pl-FunctionCall pl-function-call))
-      (funcall #'pl-function-call-node (eval body)))
      (t (error "Unknown action: %s" body)))))
 
 (pdefine pl (Nothing nothing) ()  0 node
@@ -1215,14 +1175,14 @@
    (pl-start-condition condition)
    (apply #'pl-list (cons form forms))))
 
-(pdefine pl (Wait wait) (seconds &optional name) 2 node
+(pdefine pl (Wait wait) (units &optional name) 2 node
   ;; real * opt(string) -> xml
-  "Waits given number of seconds"
+  "Waits given number of time units"
   (let ((nodeid (or name (plexil-unique-node-id "plexilisp_Wait"))))
     (pl-empty-node
      nodeid
-     (pl-end-condition (pl-> (pl-lookup-on-change "time")
-                             (pl-+ seconds (pl-start-time nodeid)))))))
+     (pl-end-condition (pl->= (pl-lookup-on-change "time")
+                              (pl-+ units (pl-start-time nodeid)))))))
 
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
   ("Declares variables that are lexically scoped to the enclosing forms, "
@@ -1394,11 +1354,6 @@
   ("Simulates the abort of the named command with given parameters "
    "returning the given result(s) of given type.")
   `(plexil-command-form "CommandAbort" ,name ,type ',result ',params))
-
-(pdefine-syntax ps (FunctionCall function-call) (name type result &rest params) 3 nil
-  ("Simulates the completion of the named function with given parameters "
-   "returning the given result(s) of given type.")
-  `(plexil-command-form "FunctionCall" ,name ,type ',result ',params))
 
 (defun plexil-command-form (kind name type result params)
   ;; string * string * string * (any + list(any)) * list(any) -> xml
