@@ -9,4 +9,4 @@ default:
 
 clean:
 	@ ( cd TestExec; jam $@ )
-	@ ( cd StandAloneSimulator; make $@ )
+	@ $(MAKE) -C StandAloneSimulator $@
