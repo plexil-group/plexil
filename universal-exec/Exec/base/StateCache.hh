@@ -264,6 +264,12 @@ namespace PLEXIL
      */
     bool stateForKey(const StateKey& key, State& state) const;
          
+    /**
+     * @brief Get the name of this state as a string.
+     * @param key The key to look up.
+     * @return Pointer to name string; may be NULL.
+     */
+    const char* stateNameForKey(const StateKey& key) const;
          
   protected:
   private:

@@ -500,12 +500,12 @@ namespace PLEXIL
       std::map<State, StateKey>::const_iterator it = m_keysByState.find(state);
       if (it != m_keysByState.end())
       {
-         debugMsg("StateCache:keyForState", "Already have a key for state '" << toString(state) << ": " << it->second);
+         debugMsg("StateCache:keyForState", " Already have a key for state \"" << toString(state) << "\": " << it->second);
          key = it->second;
          return false;
       }
 
-      debugMsg("StateCache:keyForState", "Allocating key for state '" << toString(state) << ": " << sl_stateKey);
+      debugMsg("StateCache:keyForState", " Allocating key for state \"" << toString(state) << "\": " << sl_stateKey);
       key = sl_stateKey;
       sl_stateKey += 2 * EPSILON;
       m_keysByState.insert(std::make_pair(state, key));
@@ -521,6 +521,14 @@ namespace PLEXIL
       state = (*it).second.first;
       return true;
    }
+
+  const char* StateCache::stateNameForKey(const StateKey& key) const
+  {
+    State state;
+    if (stateForKey(key, state))
+      return LabelStr(state.first).c_str();
+    return NULL;
+  };
 
    void StateCache::handleQuiescenceStarted()
    {
