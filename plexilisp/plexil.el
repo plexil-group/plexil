@@ -920,8 +920,9 @@
 
 (pdefine pl (LookupOnChangeWithTolerance lookup-on-change-with-tolerance)
   (state tolerance &rest args) 2 nil
-  ;; (string + xml) * xml * list(xml) -> xml
-  "Like the above, but uses the specified tolerance."
+  ;; (string + xml) * (string + number + xml) * list(xml) -> xml
+  ("Like the above, but uses the specified tolerance.  The tolerance is a real number "
+   "or (name of a) real variable.")
   (let ((state-name (plexil-normalize-string-expression state)))
     (plexil-lookup-on-change state-name args tolerance)))
 
@@ -929,7 +930,11 @@
   ;; string * list(xml) * opt(xml) -> xml
   (xml "LookupOnChange"
        (append (list (xml "Name" state-name))
-               (if tolerance (list (xml "Tolerance" tolerance)))
+               (if tolerance
+                   (list (xml "Tolerance"
+                              (cond ((numberp tolerance) (pl-realval tolerance))
+                                    ((stringp tolerance) (pl-realvar tolerance))
+                                    (t tolerance)))))
                (if args (list (xml "Arguments" (mapcar #'infer-type args)))))
        nil 'any))
 
