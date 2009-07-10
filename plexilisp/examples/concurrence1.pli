@@ -1,5 +1,5 @@
 (plexil-plan
- (concurrently
+ (concurrence
   (empty-node 
    (start-condition (= 1 2)))
   (empty-node)))
