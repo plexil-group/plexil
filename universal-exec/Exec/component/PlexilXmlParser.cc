@@ -30,16 +30,6 @@
 
 #include <sstream>
 
-#define checkTag(t,e) checkParserException(testTag(t, e), "Expected <" << t << "> element, but got <" << e->Value() << "> instead.")
-#define checkAttr(t,e) checkParserException(e->Attribute(t) != NULL, "Expected an attribute named '" << t << "' in element <" << e->Value() << ">")
-#define checkTagPart(t,e) checkParserException(testTagPart(t, e), "Expected an element containing '" << t << "', but instead got <" << e->Value() << ">")
-#define testTagPart(t, e) (std::string(e->Value()).find(t) != std::string::npos)
-#define testTag(t, e) (t == e->Value())
-#define notEmpty(e) (e->FirstChild() != NULL && e->FirstChild()->Value() != NULL && !std::string(e->FirstChild()->Value()).empty())
-#define checkNotEmpty(e) checkParserException(notEmpty(e), "Expected a non-empty text child of <" << e->Value() << ">");
-#define hasChildElement(e) (notEmpty(e) && e->FirstChildElement() != NULL)
-#define checkHasChildElement(e) checkParserException(hasChildElement(e), "Expected a child element of <" << e->Value() << ">");
-
 using namespace std;
 
 namespace PLEXIL
@@ -116,6 +106,71 @@ namespace PLEXIL
   const std::string CHILD_VAL("child");
   const std::string SIBLING_VAL("sibling");
   const std::string SELF_VAL("self");
+
+  //
+  // Internal error checking/reporting utilities
+  //
+
+  inline bool testTagPart(const string& t, const TiXmlNode* e)
+  {
+    return std::string(e->Value()).find(t) != std::string::npos;
+  }
+
+  inline bool testTag(const string& t, const TiXmlNode* e)
+  {
+    return t == e->Value();
+  }
+
+  inline bool notEmpty(const TiXmlNode* e)
+  {
+    return e->FirstChild() != NULL
+      && e->FirstChild()->Value() != NULL
+      && !std::string(e->FirstChild()->Value()).empty();
+  }
+  
+  inline bool hasChildElement(const TiXmlNode* e)
+  {
+    return notEmpty(e) && e->FirstChildElement() != NULL;
+  }
+
+  void checkTag(const string& t, const TiXmlNode* e)
+  {
+    checkParserException(testTag(t, e),
+			 "Line " << e->Row() << ", column " << e->Column() <<
+			 ": Expected <" << t << "> element, but got <" << e->Value() << "> instead.");
+  }
+
+  void checkAttr(const string& t, const TiXmlElement* e)
+  {
+    checkParserException(e->Attribute(t) != NULL,
+			 "Line " << e->Row() << ", column " << e->Column() <<
+			 ": Expected an attribute named '" << t << "' in element <" << e->Value() << ">");
+  }
+  
+  void checkTagPart(const string& t, const TiXmlNode* e)
+  {
+    checkParserException(testTagPart(t, e), 
+			 "Line " << e->Row() << ", column " << e->Column() <<
+			 ": Expected an element containing '" << t << "', but instead got <" << e->Value() << ">");
+  }
+ 
+  void checkNotEmpty(const TiXmlNode* e)
+  {
+    checkParserException(notEmpty(e),
+			 "Line " << e->Row() << ", column " << e->Column() <<
+			 ": Expected a non-empty text child of <" << e->Value() << ">");
+  }
+
+  void checkHasChildElement(const TiXmlNode* e)
+  {
+    checkParserException(hasChildElement(e),
+			 "Line " << e->Row() << ", column " << e->Column() <<
+			 ": Expected a child element of <" << e->Value() << ">");
+  }
+
+  //
+  // Implementation of parser class methods
+  //
 
   bool PlexilXmlParser::s_init = true;
   std::map<std::string, PlexilExprParser*> PlexilXmlParser::s_exprParsers;
