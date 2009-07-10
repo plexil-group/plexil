@@ -69,4 +69,5 @@ New (not yet in prebuilt distributions):
  - Deprecated Function Call node.
  - Added 'jam' executables in plexil/bin
  - Added support for testing node iteration outcome.
-
+ - Added to Extended Plexil: Concurrence
+ - Added to Plexilisp: Wait, Concurrence
