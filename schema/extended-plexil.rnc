@@ -57,6 +57,7 @@ start =
   | ADD
   | DeclareVariable
   | Parameter
+  | Concurrence
   | For
   | NodeCommandHandleValue
   | NodeOutcomeValue
@@ -154,22 +155,28 @@ NodeFailureVariable =
 ResourceList =
   notAllowed
   | element ResourceList { Resource* }
-NodeExecuting =
+NodeIterationEnded =
   notAllowed
-  | element NodeExecuting { NCName }
+  | element NodeIterationEnded { NCName }
 EQString =
   notAllowed
   | element EQString { StringExpression, StringExpression }
 NCNameOrEmpty = xsd:NCName | xsd:string ""
-Action = Node | Sequence | UncheckedSequence | Try | If | While | For
+Action =
+  Node
+  | Sequence
+  | Concurrence
+  | UncheckedSequence
+  | Try
+  | If
+  | While
+  | For
 StringExpression =
   StringVariable | StringValue | Concat | Lookup | ArrayElement
 Name =
   notAllowed
   | element Name { StringExpression }
-NodeFinished =
-  notAllowed
-  | element NodeFinished { NCName }
+\string = xsd:string
 NodeStateValue =
   notAllowed
   | element NodeStateValue {
@@ -332,9 +339,10 @@ Resource =
 Interface =
   notAllowed
   | element Interface { In? & InOut? }
-While =
+NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+If =
   notAllowed
-  | element While {
+  | element If {
       (NodeId?
        & element Comment { \string }?
        & StartCondition?
@@ -349,33 +357,16 @@ While =
        & Interface?
        & VariableDeclarations?),
       element Condition { BooleanExpression },
-      Action+,
+      element Then { Action+ },
+      element Else { Action+ }?,
       ColNo?,
       LineNo?,
       FileName?
     }
-NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+nonNegativeInteger = xsd:nonNegativeInteger
 RealVariable =
   notAllowed
   | element RealVariable { NCName }
-SequenceType =
-  (NodeId?
-   & (notAllowed
-      | element Comment { \string })?
-   & StartCondition?
-   & RepeatCondition?
-   & PreCondition?
-   & PostCondition?
-   & InvariantCondition?
-   & EndCondition?
-   & SkipCondition?
-   & (notAllowed
-      | element Priority { nonNegativeInteger })?
-   & (notAllowed
-      | element Permissions { \string })?
-   & Interface?
-   & VariableDeclarations?),
-  Action+
 In =
   notAllowed
   | element In { DeclareVariable+ }
@@ -393,9 +384,9 @@ PostCondition =
   notAllowed
   | element PostCondition { BooleanExpression }
 NodeFailure = NodeFailureVariable | NodeFailureValue
-NodeInvariantFailed =
+NodeSkipped =
   notAllowed
-  | element NodeInvariantFailed { NCName }
+  | element NodeSkipped { NCName }
 CommandDeclaration =
   notAllowed
   | element CommandDeclaration {
@@ -443,13 +434,14 @@ EQInternal =
       | (NodeFailure, NodeFailure)
       | (NodeCommandHandle, NodeCommandHandle)
     }
+NCName = xsd:NCName
 NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
 EQNumeric =
   notAllowed
   | element EQNumeric { NumericExpression, NumericExpression }
-For =
+While =
   notAllowed
-  | element For {
+  | element While {
       (NodeId?
        & element Comment { \string }?
        & StartCondition?
@@ -463,10 +455,8 @@ For =
        & element Permissions { \string }?
        & Interface?
        & VariableDeclarations?),
-      element LoopVariable { DeclareVariable },
       element Condition { BooleanExpression },
-      element LoopVariableUpdate { NumericExpression },
-      element Actions { Action+ },
+      Action+,
       ColNo?,
       LineNo?,
       FileName?
@@ -546,42 +536,24 @@ Parameter =
       },
       NCNameOrEmpty
     }
-Try =
+UncheckedSequence =
   notAllowed
-  | element Try { SequenceType, ColNo?, LineNo?, FileName? }
-NodeParentFailed =
-  notAllowed
-  | element NodeParentFailed { NCName }
+  | element UncheckedSequence {
+      SequenceType, ColNo?, LineNo?, FileName?
+    }
 NodeState = NodeStateVariable | NodeStateValue
 Update =
   notAllowed
   | element Update { Pair* }
+NodePostconditionFailed =
+  notAllowed
+  | element NodePostconditionFailed { NCName }
 EndCondition =
   notAllowed
   | element EndCondition { BooleanExpression }
-If =
+Try =
   notAllowed
-  | element If {
-      (NodeId?
-       & element Comment { \string }?
-       & StartCondition?
-       & RepeatCondition?
-       & PreCondition?
-       & PostCondition?
-       & InvariantCondition?
-       & EndCondition?
-       & SkipCondition?
-       & element Priority { nonNegativeInteger }?
-       & element Permissions { \string }?
-       & Interface?
-       & VariableDeclarations?),
-      element Condition { BooleanExpression },
-      element Then { Action+ },
-      element Else { Action+ }?,
-      ColNo?,
-      LineNo?,
-      FileName?
-    }
+  | element Try { SequenceType, ColNo?, LineNo?, FileName? }
 ArrayElement =
   notAllowed
   | element ArrayElement {
@@ -597,9 +569,9 @@ RepeatCondition =
 NodeId =
   notAllowed
   | element NodeId { NCName }
-NodeInactive =
+NodeWaiting =
   notAllowed
-  | element NodeInactive { NCName }
+  | element NodeWaiting { NCName }
 IntegerVariable =
   notAllowed
   | element IntegerVariable { NCName }
@@ -628,10 +600,12 @@ AND =
 SkipCondition =
   notAllowed
   | element SkipCondition { BooleanExpression }
-NCName = xsd:NCName
-NodeSucceeded =
+NodeInactive =
   notAllowed
-  | element NodeSucceeded { NCName }
+  | element NodeInactive { NCName }
+NodeExecuting =
+  notAllowed
+  | element NodeExecuting { NCName }
 NodeBody =
   notAllowed
   | element NodeBody {
@@ -652,9 +626,6 @@ IsKnown =
       | NodeOutcomeVariable
       | NodeTimepointValue
     }
-NodeWaiting =
-  notAllowed
-  | element NodeWaiting { NCName }
 NodeOutcomeVariable =
   notAllowed
   | element NodeOutcomeVariable { NodeRef | NodeId }
@@ -667,10 +638,9 @@ PreCondition =
 OR =
   notAllowed
   | element OR { BooleanExpression* }
-\string = xsd:string
-NodeSkipped =
+NodeFailed =
   notAllowed
-  | element NodeSkipped { NCName }
+  | element NodeFailed { NCName }
 StartCondition =
   notAllowed
   | element StartCondition { BooleanExpression }
@@ -690,19 +660,43 @@ element0 =
        | element0)*
     }
   }
-NodeFailed =
+NodeSucceeded =
   notAllowed
-  | element NodeFailed { NCName }
+  | element NodeSucceeded { NCName }
 Value = IntegerValue | RealValue | BooleanValue | StringValue
-NodeIterationEnded =
+NodeFinished =
   notAllowed
-  | element NodeIterationEnded { NCName }
+  | element NodeFinished { NCName }
+NodeInvariantFailed =
+  notAllowed
+  | element NodeInvariantFailed { NCName }
 StringRHS =
   notAllowed
   | element StringRHS { StringExpression }
-NodePreconditionFailed =
+For =
   notAllowed
-  | element NodePreconditionFailed { NCName }
+  | element For {
+      (NodeId?
+       & element Comment { \string }?
+       & StartCondition?
+       & RepeatCondition?
+       & PreCondition?
+       & PostCondition?
+       & InvariantCondition?
+       & EndCondition?
+       & SkipCondition?
+       & element Priority { nonNegativeInteger }?
+       & element Permissions { \string }?
+       & Interface?
+       & VariableDeclarations?),
+      element LoopVariable { DeclareVariable },
+      element Condition { BooleanExpression },
+      element LoopVariableUpdate { NumericExpression },
+      element Actions { Action+ },
+      ColNo?,
+      LineNo?,
+      FileName?
+    }
 NodeFailureValue =
   notAllowed
   | element NodeFailureValue {
@@ -711,17 +705,18 @@ NodeFailureValue =
       | xsd:NMTOKEN "PRE_CONDITION_FAILED"
       | xsd:NMTOKEN "PARENT_FAILED"
     }
+NodeParentFailed =
+  notAllowed
+  | element NodeParentFailed { NCName }
 StringVariable =
   notAllowed
   | element StringVariable { NCName }
 RealValue =
   notAllowed
   | element RealValue { xsd:double }
-UncheckedSequence =
+Concurrence =
   notAllowed
-  | element UncheckedSequence {
-      SequenceType, ColNo?, LineNo?, FileName?
-    }
+  | element Concurrence { SequenceType, ColNo?, LineNo?, FileName? }
 DeclareArray =
   notAllowed
   | element DeclareArray {
@@ -733,6 +728,24 @@ DeclareArray =
       }?
     }
 ColNo = attribute ColNo { xsd:integer }
+SequenceType =
+  (NodeId?
+   & (notAllowed
+      | element Comment { \string })?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & SkipCondition?
+   & (notAllowed
+      | element Priority { nonNegativeInteger })?
+   & (notAllowed
+      | element Permissions { \string })?
+   & Interface?
+   & VariableDeclarations?),
+  Action*
 DeclareVariable =
   notAllowed
   | element DeclareVariable {
@@ -772,9 +785,9 @@ NodeCommandHandleValue =
 NEString =
   notAllowed
   | element NEString { StringExpression, StringExpression }
-NodePostconditionFailed =
+NodePreconditionFailed =
   notAllowed
-  | element NodePostconditionFailed { NCName }
+  | element NodePreconditionFailed { NCName }
 Return =
   notAllowed
   | element Return {
@@ -790,7 +803,6 @@ Return =
 NodeStateVariable =
   notAllowed
   | element NodeStateVariable { NodeRef | NodeId }
-nonNegativeInteger = xsd:nonNegativeInteger
 GE =
   notAllowed
   | element GE { NumericExpression, NumericExpression }

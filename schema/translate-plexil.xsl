@@ -18,7 +18,7 @@
 -->
 
 <xsl:key name= "action"
-         match= "Node|Sequence|UncheckedSequence|Try|If|While|For"
+         match= "Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For"
          use= "."/>
 
 <!-- Entry point -->
@@ -90,7 +90,7 @@
     <xsl:when test= "preceding-sibling::Node|preceding-sibling::Sequence|
                      preceding-sibling::UncheckedSequence|preceding-sibling::If|
                      preceding-sibling::While|preceding-sibling::For|
-                     preceding-sibling::Try">
+                     preceding-sibling::Try|preceding-sibling::Concurrence">
       <StartCondition>
         <AND>
           <xsl:choose>
@@ -161,6 +161,30 @@
     </xsl:call-template>
     <xsl:call-template name= "sequence-body"/>    
   </Node>
+</xsl:template>
+
+<xsl:template match= "Concurrence">
+  <Node NodeType="NodeList">
+    <xsl:call-template name= "translate-nose-clauses"/>
+    <xsl:call-template name= "concurrent-body"/>
+  </Node>
+</xsl:template>
+
+<xsl:template match= "Concurrence" mode="ordered">
+  <Node NodeType="NodeList">
+    <xsl:call-template name= "translate-nose-clauses">
+      <xsl:with-param name= "mode" select= "'ordered'"/>
+    </xsl:call-template>
+    <xsl:call-template name= "concurrent-body"/>
+  </Node>
+</xsl:template>
+
+<xsl:template name= "concurrent-body">
+  <NodeBody>
+    <NodeList>
+      <xsl:apply-templates select= "key('action', *)"/>
+    </NodeList>
+  </NodeBody>
 </xsl:template>
 
 
@@ -545,8 +569,9 @@
   </xsl:element>
 </xsl:template>
 
-<xsl:template match= "Node|Sequence|UncheckedSequence|Try|If|While|For"
-              mode= "failure-check">
+<xsl:template
+    match= "Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For"
+    mode= "failure-check">
   <xsl:choose>
     <xsl:when test= "NodeId">
       <xsl:call-template name= "node-failed">
@@ -561,8 +586,9 @@
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match= "Node|Sequence|UncheckedSequence|Try|If|While|For"
-              mode= "success-check">
+<xsl:template
+    match= "Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For"
+    mode= "success-check">
   <xsl:choose>
     <xsl:when test= "NodeId">
       <xsl:call-template name= "node-succeeded">

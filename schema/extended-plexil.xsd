@@ -43,6 +43,7 @@
       <xsd:choice>
         <xsd:element ref="Node"/>
         <xsd:element ref="Sequence"/>
+        <xsd:element ref="Concurrence"/>
         <xsd:element ref="UncheckedSequence"/>
         <xsd:element ref="Try"/>
         <xsd:element ref="If"/>
@@ -108,9 +109,22 @@
         <xsd:element ref="Interface" minOccurs="0"/>
         <xsd:element ref="VariableDeclarations" minOccurs="0"/>
       </xsd:all>
-      <xsd:group ref="Action" maxOccurs="unbounded"/>
+      <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:group>
+
+  <!-- Actions are performed concurrently.  This is just a List Node.
+  -->
+  <xsd:element name="Concurrence">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:group ref="SequenceType"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
 
   <!-- Each action in the sequence is performed in the given order.  If
        one fails, the Sequence form terminates with failure.
