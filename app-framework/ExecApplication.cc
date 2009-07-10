@@ -268,8 +268,15 @@ namespace PLEXIL
                "ExecApplication::addLibrary: Not a valid Plexil XML library");
 
     // parse XML into node structure
-    PlexilNodeId root =
-      m_parser.parse(plexilXml->FirstChildElement("Node"));
+    PlexilNodeId root;
+    try {
+      root = m_parser.parse(plexilXml->FirstChildElement("Node"));
+    }
+    catch (const ParserException& e)
+      {
+	std::cerr << "Error parsing library from XML: \n" << e.what() << std::endl;
+	return false;
+      }
 
     m_interface.handleAddLibrary(root);
     debugMsg("ExecApplication:addLibrary", " Library added, stepping exec");
@@ -292,8 +299,15 @@ namespace PLEXIL
                "ExecApplication::addPlan: Not a valid Plexil XML plan");
 
     // parse XML into node structure
-    PlexilNodeId root =
-      m_parser.parse(plexilXml->FirstChildElement("Node"));
+    PlexilNodeId root;
+    try {
+      root = m_parser.parse(plexilXml->FirstChildElement("Node"));
+    }
+    catch (const ParserException& e)
+      {
+	std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
+	return false;
+      }
 
     m_interface.handleAddPlan(root, EMPTY_LABEL());
     debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
