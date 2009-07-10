@@ -28,6 +28,7 @@
 #define PARSER_EXCEPTION_H
 
 #include <exception>
+#include <sstream>
 
 /**
  * @def checkParserException
@@ -38,7 +39,7 @@
 #define checkParserException(cond, msg) { \
   if (!(cond)) \
     { \
-      std::stringstream whatstr; \
+      std::ostringstream whatstr; \
       whatstr << msg; \
       throw ParserException(whatstr.str().c_str()); \
     } \

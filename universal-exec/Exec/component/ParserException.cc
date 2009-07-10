@@ -26,6 +26,7 @@
 
 
 #include "ParserException.hh"
+#include <cstring>
 
 namespace PLEXIL
 {
@@ -37,11 +38,14 @@ namespace PLEXIL
   {
   }
 
+  // Must copy the message as it may be stack or dynamically allocated.
+  // *** N.B. This is an obvious source of memory leaks.
   ParserException::ParserException(const char * msg)
     throw()
     : std::exception(),
-      m_what(msg)
+      m_what(new char[strlen(msg) + 1])
   {
+    strcpy(const_cast<char*>(m_what), msg);
   }
 
   ParserException::ParserException(const ParserException& other)
