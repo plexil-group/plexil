@@ -189,7 +189,8 @@ namespace PLEXIL
     else
       {
         checkParserException(ALWAYS_FAIL,
-                             "Internal variable reference lacks "
+			     "Line " << xml->Row() << ", column " << xml->Column() <<
+                             ": Internal variable reference lacks "
                              << NODEID_TAG << " or "
                              << NODEREF_TAG << " tag");
         return PlexilNodeRefId::noId();
@@ -265,13 +266,15 @@ namespace PLEXIL
 
       TiXmlElement* state = xml->FirstChildElement(STATEVAL_TAG);
       checkParserException(state != NULL,
-                           "Timepoint missing " << STATEVAL_TAG << " tag");
+			   "Line " << xml->Row() << ", column " << xml->Column() <<
+                           ": Timepoint missing " << STATEVAL_TAG << " tag");
       checkNotEmpty(state);
       retval->setState(state->FirstChild()->Value());
 
       TiXmlElement* point = xml->FirstChildElement(TIMEPOINT_TAG);
       checkParserException(point != NULL,
-                           "Timepoint missing " << TIMEPOINT_TAG << " tag");
+			   "Line " << xml->Row() << ", column " << xml->Column() <<
+                           ": Timepoint missing " << TIMEPOINT_TAG << " tag");
       checkNotEmpty(point);
       retval->setTimepoint(point->FirstChild()->Value());
 
@@ -308,7 +311,9 @@ namespace PLEXIL
       PlexilFrequencyLookup* retval = new PlexilFrequencyLookup();
       retval->setState(PlexilXmlParser::parseState(xml));
       TiXmlElement* frequencies = xml->FirstChildElement(FREQ_TAG);
-      checkParserException(frequencies != NULL, "LookupWithFrequency without a Frequency element!");
+      checkParserException(frequencies != NULL,
+			   "Line " << xml->Row() << ", column " << xml->Column() <<
+			   ": LookupWithFrequency without a Frequency element!");
       TiXmlElement* freq = frequencies->FirstChildElement(LOW_TAG);
       checkHasChildElement(freq);
       retval->setLowFreq(PlexilXmlParser::parseExpr(freq->FirstChildElement()));
@@ -496,8 +501,12 @@ namespace PLEXIL
 	      break;
 	    }
 	}
-      checkParserException(rhs != NULL, "No RHS for " << *xml);
-      checkParserException(rhs->FirstChildElement() != NULL, "Empty RHS for " << *xml);
+      checkParserException(rhs != NULL,
+			   "Line " << xml->Row() << ", column " << xml->Column() <<
+			   ": No RHS for " << *xml);
+      checkParserException(rhs->FirstChildElement() != NULL, 
+			   "Line " << rhs->Row() << ", column " << rhs->Column() <<
+			   ": Empty RHS for " << *xml);
       retval->setRHS(PlexilXmlParser::parseExpr(rhs->FirstChildElement()));
       return retval->getId();
     }
@@ -530,9 +539,13 @@ namespace PLEXIL
       // get node id
 
       TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
-      checkParserException(nodeIdXml != NULL, "Missing NodeId element in library call.");
+      checkParserException(nodeIdXml != NULL,
+			   "Line " << xml->Row() << ", column " << xml->Column() <<
+			   ": Missing NodeId element in library call.");
       std::string nodeId(nodeIdXml->FirstChild()->Value());
-      checkParserException(!nodeId.empty(), "Empty NodeId element in library call.");
+      checkParserException(!nodeId.empty(), 
+			   "Line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
+			   ": Empty NodeId element in library call.");
                
       // create lib node call node body
 
@@ -546,9 +559,13 @@ namespace PLEXIL
 	  // get library node parameter 
 
 	  TiXmlElement* libParamXml = child->FirstChildElement(NODE_PARAMETER_TAG);
-	  checkParserException(libParamXml != NULL, "Missing NodeParameter element in library call.");
+	  checkParserException(libParamXml != NULL,
+			       "Line " << xml->Row() << ", column " << xml->Column() <<
+			       ": Missing NodeParameter element in library call.");
 	  std::string libParam(libParamXml->FirstChild()->Value());
-	  checkParserException(!libParam.empty(), "Empty NodeParameter element in library call.");
+	  checkParserException(!libParam.empty(),
+			       "Line " << libParamXml->Row() << ", column " << libParamXml->Column() <<
+			       ": Empty NodeParameter element in library call.");
                
 	  // get node parameter value
 
@@ -607,7 +624,9 @@ namespace PLEXIL
 	  TiXmlElement* value = child->FirstChildElement();
 	  while (value != NULL && value->Value() == NAME_TAG)
 	    value = value->NextSiblingElement();
-	  checkParserException(value != NULL, "No value in pair at " << *xml);
+	  checkParserException(value != NULL, 
+			       "Line " << xml->Row() << ", column " << xml->Column() <<
+			       ": No value in pair at " << *xml);
 	  debugMsg("PlexilXml:parsePairs", "Parsed pair {" << name << ", " << *value << "}");
 	  retval->addPair(name, PlexilXmlParser::parseExpr(value));
 	}
@@ -809,7 +828,8 @@ namespace PLEXIL
     std::map<std::string, PlexilExprParser*>::iterator it = 
       s_exprParsers.find(xml->Value());
     checkParserException(it != s_exprParsers.end(),
-			 "No parser for expression '" << xml->Value() << "'");
+			 "Line " << xml->Row() << ", column " << xml->Column() <<
+			 ": No parser for expression '" << xml->Value() << "'");
     return it->second->parse(xml);
   }
 
@@ -822,9 +842,13 @@ namespace PLEXIL
       // nodeid required
       
       TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
-      checkParserException(nodeIdXml != NULL, "Missing or empty NodeId element.");
+      checkParserException(nodeIdXml != NULL,
+			   "Line " << xml->Row() << ", column " << xml->Column() <<
+			   ": Missing or empty NodeId element.");
       std::string nodeId(nodeIdXml->FirstChild()->Value());
-      checkParserException(!nodeId.empty(), "Missing or empty NodeId element.");
+      checkParserException(!nodeId.empty(),
+			   "Line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
+			   ": Missing or empty NodeId element.");
       retval->setNodeId(nodeIdXml->FirstChild()->Value());
       
       // node type required
@@ -896,7 +920,8 @@ namespace PLEXIL
       if (bodyXml == NULL)
 	{
 	  checkParserException(retval->nodeType() == NodeType_Empty,
-			       "Node id " << retval->nodeId()
+			       "Line " << xml->Row() << ", column " << xml->Column() <<
+			       ": Node id " << retval->nodeId()
 			       << " of type "
 			       << retval->nodeTypeString()
 			       << " has no NodeBody element");
@@ -1065,14 +1090,16 @@ namespace PLEXIL
             std::string initValType = initValTag
 	      .substr(0, initValTag.size() - VAL_TAG.size());
             checkParserException(type == initValType,
-				 "Initial value of " << type << " array variable \'" <<
+				 "Line " << child->Row() << ", column " << child->Column() <<
+				 ": Initial value of " << type << " array variable \'" <<
 				 name << "\' of incorrect type \'" << initValType << "\'");
             std::string initVal = child->FirstChild()->Value();
             initVals.push_back(initVal);
             checkParserException(initVals.size() <= maxSize,
-				 "Number of initial values of " << type << 
+				 "Line " << child->FirstChild()->Row() << ", column " << child->FirstChild()->Column() <<
+				 ": Number of initial values of " << type << 
 				 " array variable \'" << name << 
-				 "\' exceeds maximun of " << maxSize);
+				 "\' exceeds maximum of " << maxSize);
 	  }
 	while ((child = child->NextSiblingElement()) != NULL);
       }
@@ -1113,7 +1140,8 @@ namespace PLEXIL
          std::string initValType = initValTag
             .substr(0, initValTag.size() - VAL_TAG.size());
          checkParserException(type == initValType,
-                              "Initial value of " << type << " variable \'" <<
+			      "Line " << child->Row() << ", column " << child->Column() <<
+                              ": Initial value of " << type << " variable \'" <<
                               name << "\' of incorrect type \'" << 
                               initValType << "\'");
          return new PlexilVar(name, PlexilParser::parseValueType(type), child->FirstChild()->Value());
@@ -1145,7 +1173,8 @@ namespace PLEXIL
 	 "> tag, use <DeclareVariable> tag instead.");
 
     checkParserException(!name.empty(),
-			 "Must have a tag ending in '" << 
+			 "Line " << child->Row() << ", column " << child->Column() <<
+			 ": Must have a tag ending in '" << 
 			 VAR_TAG << "' as a child of a <" <<
 			 VAR_DECLS_TAG << "> element.");
     if (value.empty())
@@ -1159,7 +1188,9 @@ namespace PLEXIL
   {
     std::string name(body->Value());
     std::map<std::string, PlexilBodyParser*>::iterator it = s_bodyParsers.find(name);
-    checkParserException(it != s_bodyParsers.end(), "No parser for body type " << name);
+    checkParserException(it != s_bodyParsers.end(),
+			 "Line " << body->Row() << ", column " << body->Column() <<
+			 ": No parser for body type " << name);
     return it->second->parse(body);
   }
 
@@ -1265,7 +1296,8 @@ namespace PLEXIL
     else
       {
 	checkParserException(ALWAYS_FAIL,
-			     "Invalid value for 'dir' attibute: " << ref->Attribute(DIR_ATTR));
+			     "Line " << ref->Row() << ", column " << ref->Column() <<
+			     ": Invalid value for 'dir' attibute: " << ref->Attribute(DIR_ATTR));
       }
     if (retval->dir() != PlexilNodeRef::PARENT && retval->dir() != PlexilNodeRef::SELF)
       {
@@ -1373,7 +1405,8 @@ namespace PLEXIL
     if (checkParent != NULL)
       {
 	checkParserException(!retval.isValid(),
-			     "Ambiguous old-style node reference.  Node " << (*node) <<
+			     "Line " << node->Row() << ", column " << node->Column() <<
+			     ": Ambiguous old-style node reference.  Node " << (*node) <<
 			     " and its parent are both named '" << name << "'");
 	retval = (new PlexilNodeRef())->getId();
 	retval->setDir(PlexilNodeRef::PARENT);
@@ -1381,22 +1414,24 @@ namespace PLEXIL
     if (checkSibling != NULL)
       {
 	checkParserException(!retval.isValid(),
-			     "Ambiguous old-style node reference.  Node " << (*node) <<
+			     "Line " << node->Row() << ", column " << node->Column() <<
+			     ": Ambiguous old-style node reference.  Node " << (*node) <<
 			     " has a sibling and either a parent or itself named '" << name << "'");
 	retval = (new PlexilNodeRef())->getId();
 	retval->setDir(PlexilNodeRef::SIBLING);
-
       }
     if (checkChild != NULL)
       {
 	checkParserException(!retval.isValid(),
-			     "Ambiguous old-style node reference.  Node " << (*node) <<
+			     "Line " << node->Row() << ", column " << node->Column() <<
+			     ": Ambiguous old-style node reference.  Node " << (*node) <<
 			     " has a sibling, parent, or itself and a child named '" << name << "'");
 	retval = (new PlexilNodeRef())->getId();
 	retval->setDir(PlexilNodeRef::CHILD);
       }
     checkParserException(retval.isValid(),
-			 "No node named '" << name << "' in vicinity of " << (*node));
+			 "Line " << node->Row() << ", column " << node->Column() <<
+			 ": No node named '" << name << "' in vicinity of " << (*node));
     retval->setName(name);
     return retval;
   }
