@@ -237,10 +237,11 @@ namespace PLEXIL
    * @param dest A (reference to a) vector of doubles where the result is to be stored.
    */
   void DarwinTimeAdapter::lookupNow(const StateKey& stateKey,
-                                   std::vector<double>& dest)
+				    std::vector<double>& dest)
   {
     assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
-                  "DarwinTimeAdaptor only implements lookups for \"time\"");
+                  "DarwinTimeAdaptor does not implement lookups for state \""
+		  << m_execInterface.getStateCache()->stateNameForKey(stateKey) << "\"");
     dest.resize(1);
     dest[0] = getCurrentTime();
   }
