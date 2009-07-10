@@ -169,20 +169,15 @@ void SASAdapter::executeCommand(const PLEXIL::LabelStr& name,
 {
   const PLEXIL::LabelStr& cmdName = name;
   
-  if (m_lcm != NULL)
-    {
-      debugMsg("SASAdapter:executeCommand", 
-               "Sending the following command to the stand alone simulator: "
-               << cmdName.toString());
-      genericCommand data;
-      data.name = const_cast<char *>(cmdName.toString().c_str());
-      //      driveCommand_publish(m_lcm, "DRIVECOMMAND", NULL);
-      genericCommand_publish(m_lcm, "GENERICCOMMAND", &data);
-    }
-  else
-    {
-      debugMsg("SASAdapter:executeCommand", "m_lcm is NULL. Unable to post command.");
-    }
+  assertTrueMsg(m_lcm != NULL,
+		"SASAdapter: m_lcm is NULL. Unable to post command \"" << cmdName.toString() << "\".");
+  debugMsg("SASAdapter:executeCommand", 
+	   " Sending command \""
+	   << cmdName.toString()
+	   << "\" to simulator");
+  genericCommand data;
+  data.name = const_cast<char *>(cmdName.toString().c_str());
+  genericCommand_publish(m_lcm, "GENERICCOMMAND", &data);
 
   m_execInterface.handleValueChange
     (ack, PLEXIL::CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
@@ -198,27 +193,18 @@ void SASAdapter::lookupNow(const PLEXIL::StateKey& stateKey,
   this->getState(stateKey, state);
   const PLEXIL::LabelStr& name = state.first;
   std::string n = name.toString();
-  debugMsg("SASAdapter:lookupNow", "Looking up state: " << n);
-
-  double returnValue = 0.0;
-  dest.resize(1);
+  debugMsg("SASAdapter:lookupNow", " Looking up state: " << n);
   
   std::map<std::string, std::vector<double> >::iterator iter;
-  if (n == "time")
+  if ((iter = m_StateToValueMap.find(n)) != m_StateToValueMap.end())
     {
-      returnValue = 0.0;
-      dest[0] = returnValue;
-    }
-  else if ((iter = m_StateToValueMap.find(n)) != m_StateToValueMap.end())
-    {
-
-      debugMsg("SASAdapter:lookupNow", "Found a cached state");
-      assert(dest.size() == iter->second.size());
+      debugMsg("SASAdapter:lookupNow", " Found a cached state");
+      assertTrueMsg(dest.size() == iter->second.size(),
+		    "SASAdapter::lookupNow: Expected " << dest.size() << 
+		    " value(s), but cache has " << iter->second.size() << " value(s)");
       dest = iter->second;
-
-      //      if (m_StateToChangeLookupMap.find(n) == m_StateToChangeLookupMap.end())
-      //  m_StateToValueMap.erase(iter);
     }
+  // else do nothing - values default to UNKNOWN
 }
 
 void SASAdapter::registerChangeLookup(const PLEXIL::LookupKey& uniqueId,
@@ -230,52 +216,58 @@ void SASAdapter::registerChangeLookup(const PLEXIL::LookupKey& uniqueId,
   const PLEXIL::LabelStr& name = state.first;
   std::string n = name.toString();
 
-  debugMsg("SASAdapter:registerChangeLookup", "In change look up for " << n);
+  debugMsg("SASAdapter:registerChangeLookup", " In change look up for " << n);
 
   std::map<std::string, ChangeLookupStruct>::iterator iter;
 
   if ((iter = m_StateToChangeLookupMap.find(n)) == m_StateToChangeLookupMap.end())
     {
-      debugMsg("SASAdapter:registerChangeLookup", "The state " << n 
-               << " has not already been registered for change lookup. Processing the new request");
+      debugMsg("SASAdapter:registerChangeLookup", " State " << n 
+               << " not previously registered. Processing the new request");
 
       std::map<std::string, std::vector<double> >::iterator iter2;
       if ((iter2 = m_StateToValueMap.find(n)) != m_StateToValueMap.end())
         {
-          debugMsg("SASAdapter:registerChangeLookup", "The newly registered state " << n 
-               << " has a known telemetry value. Storing it.");
-          
-          m_StateToChangeLookupMap.insert(std::pair<std::string, 
-                                          ChangeLookupStruct>(n, ChangeLookupStruct(stateKey, 
-                                                                                    iter2->second, 
-                                                                                    tolerances)));
+          debugMsg("SASAdapter:registerChangeLookup", " Newly registered state " << n 
+		   << " has a known telemetry value. Storing it.");
+	  m_StateToChangeLookupMap.insert(std::pair<std::string, ChangeLookupStruct>(n,
+										     ChangeLookupStruct(stateKey, 
+													iter2->second, 
+													tolerances)));
         }
       else
-        debugMsg("SASAdapter:registerChangeLookup", "The newly registered state " << n 
-                 << " does not have a known telemetry value yet.");
+	{
+	  debugMsg("SASAdapter:registerChangeLookup", 
+		   " Newly registered state " << n 
+		   << " has no telemetry value yet, using UNKNOWN");
+	  std::vector<double> current(tolerances.size(), PLEXIL::Expression::UNKNOWN());
+	  m_StateToChangeLookupMap.insert(std::pair<std::string, ChangeLookupStruct>(n, 
+										     ChangeLookupStruct(stateKey, 
+													current,
+													tolerances)));
+	}
     }
   else
     {
-      debugMsg("SASAdapter:registerChangeLookup", "The state " << n 
-               << " has already been registered for change lookup. Ignoring the new request");
+      debugMsg("SASAdapter:registerChangeLookup", " State " << n 
+               << " already registered. Ignoring the new request");
     }
 }
 
 void SASAdapter::unregisterChangeLookup(const PLEXIL::LookupKey& uniqueId)
 {
-  debugMsg("SASAdapter:unregisterChangeLookup", "In unregister change look up");
+  debugMsg("SASAdapter:unregisterChangeLookup", " In unregister change look up");
   // TODO: What exactly needs to be done here?
 }
 
 
 void SASAdapter::postCommandResponse(const std::string& cmd, float value)
 {
-  debugMsg("SASAdapter:postCommandResponse", "Received a reponse for " << cmd);
+  debugMsg("SASAdapter:postCommandResponse", " Received a reponse for " << cmd);
   std::map<std::string, PLEXIL::ExpressionId>::iterator iter;
   
   if ((iter = m_CommandToExpIdMap.find(cmd)) != m_CommandToExpIdMap.end())
     {
-      //PLEXIL::LabelStr(value).getKey()
       m_execInterface.handleValueChange(iter->second, value);
       m_CommandToExpIdMap.erase(iter);
     }
@@ -285,7 +277,7 @@ void SASAdapter::postCommandResponse(const std::string& cmd, float value)
 void SASAdapter::postTelemetryState(const std::string& state, unsigned int numOfValues,
                                     const double* values)
 {
-  debugMsg("SASAdapter::postTelemetryState", "Received telemetry for " << state);
+  debugMsg("SASAdapter:postTelemetryState", "Received telemetry for " << state);
   std::vector<double> vect;
   for (unsigned int i = 0; i < numOfValues; ++i)
     vect.push_back(values[i]);
@@ -299,7 +291,6 @@ void SASAdapter::postTelemetryState(const std::string& state, unsigned int numOf
       debugMsg("SASAdapter:postTelemetryState", "The state " << state 
                << " has received a new telemetry value. Checking against the previous value.");
       const std::vector<double>& prev = iter->second.getPreviousValues();
-
       const std::vector<double>& tolerance = iter->second.getToleranceValues();
 
       if (prev.size() != 0)
@@ -321,12 +312,17 @@ void SASAdapter::postTelemetryState(const std::string& state, unsigned int numOf
           iter->second.setPreviousValues(vect);
         }
       else
-        debugMsg("SASAdapter:postTelemetryState", "Not a known previous value to compute a change.");
+        debugMsg("SASAdapter:postTelemetryState", " Not a known previous value to compute a change.");
+    }
+  else
+    {
+      debugMsg("SASAdapter:postTelemetryState", " No active LookupOnChange for \"" << state 
+               << "\". Ignoring.");
     }
 
   if (changed)
     {
-      debugMsg("SASAdapter::postTelemetryState", "The state has changed. Posting value");
+      debugMsg("SASAdapter:postTelemetryState", " The state has changed. Posting value");
       m_execInterface.handleValueChange(iter->second.getStateKey(), vect);
       m_execInterface.notifyOfExternalEvent();
     }
