@@ -5,11 +5,20 @@ Real Command bletch(String s);
 
 CommandTest:
 {
+  String fooName = "foo";
+  String bazName = "baz";
+  String bletchName = "bletch";
+
   NodeList:
 
   NoArgsNoReturnTest:
   {
     Command: foo();
+  }
+
+  ArgsElidedNoReturnTest:
+  {
+    Command: foo;
   }
 
   OneArgNoReturnTest:
@@ -24,9 +33,37 @@ CommandTest:
     Command: b = baz();
   }
 
+  ArgsElidedOneReturnTest:
+  {
+    Boolean b;
+    Command: b = baz;
+  }
+
   OneArgOneReturnTest:
   {
     Real r;
     Command: r = bletch("Foo!");
+  }
+
+  VarRefAsCmdNameTest:
+  {
+    Command: (fooName)();
+  }
+
+  VarRefAsCmdNameArgsElidedTest:
+  {
+    Command: (fooName);
+  }
+
+  VarRefAsCmdNameWithRtnValTest:
+  {
+    Real r;
+    Command: r = (bletchName)("Bletch!");
+  }
+
+  VarRefAsCmdNameWithRtnValArgsElidedTest:
+  {
+    Boolean b;
+    Command: b = (bazName);
   }
 }
