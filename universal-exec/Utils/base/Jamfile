@@ -14,6 +14,7 @@ ModuleCore PlexilUtils
 	Utils.cc
 	ThreadMutex.cc
 	RecursiveThreadMutex.cc
-	;
+	Logging.cc
+        ;
 
 } # PLEXIL_READY

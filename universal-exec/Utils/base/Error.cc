@@ -48,6 +48,7 @@
 /* Contains the rest of this file */
 
 #include "Error.hh"
+#include "Logging.hh"
 
 #ifdef __BEOS__
 #include <OS.h>
@@ -86,7 +87,7 @@ Error::Error(const std::string& condition, const std::string& msg, const std::st
 }
 
 void Error::handleAssert() {
-  display();
+  Logging::handle_message(Logging::ERROR, m_file.c_str(), m_line, m_msg.c_str());
   if (throwEnabled())
     throw *this;
 #ifndef __BEOS__
@@ -119,7 +120,7 @@ void Error::printWarning(const std::string& msg,
                          const int& line) {
   if (!displayWarnings())
     return;
-  getStream() << file << ':' << line << ": Warning: " << msg << std::endl;
+  Logging::handle_message(Logging::WARNING, file.c_str(), line, msg.c_str());
 }
 
 void Error::print(std::ostream& os) const {
