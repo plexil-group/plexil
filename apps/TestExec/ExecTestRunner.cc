@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Logging.hh"
 #include "PlexilExec.hh"
 #include "ExecListener.hh"
 #include "TestExternalInterface.hh"
@@ -88,6 +89,15 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
          buffer >> luvPort;
          SHOW(luvPort);
       }
+      else if (strcmp(argv[i], "-log") == 0)
+      {
+	Logging::ENABLE_LOGGING = 1;
+	Logging::set_log_file_name(argv[++i]);
+      }
+      else if (strcmp(argv[i], "-eprompt") == 0)
+	Logging::ENABLE_E_PROMPT = 1;
+      else if (strcmp(argv[i], "-wprompt") == 0)
+	Logging::ENABLE_W_PROMPT = 1;
       else
       {
          std::cout << "Unknown option '" 
@@ -98,6 +108,15 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
          return -1;
       }
    }
+
+   // print plan and script info to log file if logging enabled
+   if (Logging::ENABLE_LOGGING) 
+   {
+     std::stringstream sstr;
+     sstr << "Executing   Plan: " << planName << "   Script: " << scriptName;
+     Logging::print_to_log(sstr.str().c_str());
+   }
+
    // if no script, error out
 
    if (scriptName == "error")
@@ -207,10 +226,10 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
 	}
       catch (ParserException& e)
 	{
-	  std::cout << "XML error parsing plan '"
-		    << planName << "': \n"
-		    << e.what()
-		    << std::endl;
+	  // std::cout << "XML error parsing plan '"
+	  //	    << planName << "': \n"
+	  //	    << e.what()
+	  //	    << std::endl;
 	  return -1;
 	}
       exec->addPlan(root);

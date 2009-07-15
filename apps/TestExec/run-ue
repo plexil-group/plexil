@@ -26,11 +26,11 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug file>] \
+                     [-eprompt] [-wprompt] [-log <log file>] \
                      <plan> [<script>] [-l <library>]*"
 
 # Convenient though stylized script for running exec-test-runner_g_rt.
-# Requires environment variable PLEXIL_HOME to be set to desired working directory,
-# i.e. the directory containing universal-exec, interfaces, and apps directories.
+# Requires environment variable UE_HOME to be set to desired Exec/test directory.
 # An optional environment variable UE_EXECUTABLE names an alternate executable.
 # Other options:
 #
@@ -50,15 +50,9 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 # subdirectory, where PLAN is the basename of the plan argument.  The
 # plan and script files are schecked for existence (but not the libraries).  If
 # none of these script files exist, the empty script is used:
-#        apps/TestExec/scripts/empty-script.plx
+#        universal-exec/Exec/test/scripts/empty-script.plx
 
-# Check environment variables and UE executable
-if [ ! $PLEXIL_HOME ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of the directory containing universal-exec
-    exit 1
-fi
+. $PLEXIL_HOME/bin/plexil-setup.sh
 
 # Determine executable
 if [ $UE_EXECUTABLE ]
@@ -68,16 +62,10 @@ if [ $UE_EXECUTABLE ]
     prog=$PLEXIL_HOME/apps/TestExec/test-exec_g_rt
 fi
 
-# Make sure executable exists.
-if [ ! -e $prog ]
-  then
-    echo Error: $prog does not exist.
-    echo You probably need to build it.
-    exit 1
-fi
+$PLEXIL_HOME/bin/plexil-check-prog $prog
 
 # Check for summary suppression
-if [ '-s' = $1 ]
+if [ '-s' = "$1" ]
   then
     summary=0
     shift
@@ -86,7 +74,7 @@ if [ '-s' = $1 ]
 fi
 
 # Check for viewer request
-if [ '-v' = $1 ]
+if [ '-v' = "$1" ]
   then
     viewer=-v
     shift
@@ -95,7 +83,7 @@ if [ '-v' = $1 ]
 fi
 
 # Check for viewer host name
-if [ '-h' = $1 ]
+if [ '-h' = "$1" ]
   then
     host="-h $2"
     shift
@@ -105,7 +93,7 @@ if [ '-h' = $1 ]
 fi
 
 # Check for viewer port number
-if [ '-n' = $1 ]
+if [ '-n' = "$1" ]
   then
     port="-n $2"
     shift
@@ -115,7 +103,7 @@ if [ '-n' = $1 ]
 fi
 
 # Check for viewer should block
-if [ '-b' = $1 ]
+if [ '-b' = "$1" ]
   then
     block="-b"
     shift
@@ -124,13 +112,41 @@ if [ '-b' = $1 ]
 fi
 
 # Check for specified debug file
-if [ '-d' = $1 ]
+if [ '-d' = "$1" ]
   then
     shift
     debug_file="$1"
     shift
   else
     debug_file="Debug.cfg"
+fi
+
+# Check for error prompt requested
+if [ '-eprompt' = "$1" ]
+  then
+    eprompt="$1"
+    shift
+  else
+    eprompt=
+fi
+
+# Check for warning prompt requested
+if [ '-wprompt' = "$1" ]
+  then
+    wprompt="$1"
+    shift
+  else
+    wprompt=
+fi
+
+# Check for specified log file
+if [ '-log' = "$1" ]
+  then 
+    shift
+    log_file="-log $1"
+    shift
+  else
+    log_file=
 fi
 
 # Any more arguments?
@@ -152,7 +168,7 @@ if [ ! -e $plan ]
 fi
 
 # Default simulation script
-script="$PLEXIL_HOME/apps/TestExec/scripts/empty-script.plx"
+script=$PLEXIL_HOME/apps/TestExec/scripts/empty-script.plx
 
 # The plan file's extension, used to compute guessed script name.
 ext=".`echo $plan | awk -F. '{print $2}'`"
@@ -221,8 +237,5 @@ if [ $summary -eq 1 ]
     echo
 fi
 
-# Go for it
-export LD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib
-export DYLD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib
-export DYLD_BIND_AT_LAUNCH=YES
-$prog -p $plan -s $script -d $debug_file $* $viewer $host $port $block
+echo "$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block"
+$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
