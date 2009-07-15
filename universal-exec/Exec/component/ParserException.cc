@@ -26,6 +26,7 @@
 
 
 #include "ParserException.hh"
+#include "Logging.hh"
 #include <cstring>
 
 namespace PLEXIL
@@ -33,26 +34,26 @@ namespace PLEXIL
 
   ParserException::ParserException()
     throw ()
-    : std::exception(),
-      m_what("Unspecified parser exception")
+    : std::exception(), 
+    m_what("Unspecified parser exception")
   {
   }
 
   // Must copy the message as it may be stack or dynamically allocated.
   // *** N.B. This is an obvious source of memory leaks.
-  ParserException::ParserException(const char * msg)
+  ParserException::ParserException(const char * msg, const char * file, const int& line)
     throw()
-    : std::exception(),
-      m_what(new char[strlen(msg) + 1])
+    : std::exception(), m_what(new char[strlen(msg) + 1]), m_file(file), m_line(line)
   {
     strcpy(const_cast<char*>(m_what), msg);
+    Logging::handle_message(Logging::ERROR, file, line, m_what);
   }
 
-  ParserException::ParserException(const ParserException& other)
+  ParserException::ParserException(const ParserException& other, const char * file, const int& line)
     throw()
-    : std::exception(other),
-      m_what(other.m_what)
+    : std::exception(other), m_what(other.m_what), m_file(file), m_line(line)
   {
+    Logging::handle_message(Logging::ERROR, file, line, m_what);
   }
   
   ParserException& ParserException::operator=(const ParserException& other)

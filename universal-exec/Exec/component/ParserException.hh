@@ -41,7 +41,7 @@
     { \
       std::ostringstream whatstr; \
       whatstr << msg; \
-      throw ParserException(whatstr.str().c_str()); \
+      throw ParserException(whatstr.str().c_str(), __FILE__, __LINE__);	\
     } \
 }
 
@@ -53,9 +53,9 @@ namespace PLEXIL
   public:
     ParserException() throw();
 
-    ParserException(const char* msg) throw();
+    ParserException(const char* msg, const char* m_file, const int& m_line) throw();
 
-    ParserException(const ParserException&) throw();
+    ParserException(const ParserException&, const char* m_file, const int& m_line) throw();
 
     ParserException& operator=(const ParserException&) throw();
 
@@ -65,6 +65,8 @@ namespace PLEXIL
     
   private:
     const char * m_what;
+    std::string m_file; /**<The source file in which the error was detected (__FILE__). */
+    int m_line; /**<The source line on which the error detected (__LINE__). */
   };
 
 }
