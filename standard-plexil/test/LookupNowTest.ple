@@ -1,0 +1,42 @@
+Integer Lookup foo;
+Real Lookup bar(Integer);
+
+LookupNowTest:
+{
+  Integer i;
+  Real x;
+  String fooName = "foo";
+  String barName = "bar";
+
+  NodeList:
+
+  Basic:
+  {
+    Assignment: i = LookupNow(foo);
+  }
+
+  ExplicitEmptyArglist:
+  {
+    Assignment: i = LookupNow(foo());
+  }
+
+  WithParam:
+  {
+    Assignment: x = LookupNow(bar(i));
+  }  
+
+  Indirect:
+  {
+    Assignment: i = LookupNow((fooName));
+  }
+  
+  IndirectExplicitArglist:
+  {
+    Assignment: i = LookupNow((fooName)());
+  }
+
+  IndirectWithParam:
+  {
+    Assignment: x = LookupNow((barName)(i));
+  }  
+}
