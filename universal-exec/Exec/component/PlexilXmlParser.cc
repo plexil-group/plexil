@@ -455,10 +455,10 @@ public:
 
 		checkParserException(rhs != NULL,
 				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Missing RHS (return value) tags for variable '" << xml->FirstChildElement()->FirstChild()->Value() << "' entirely");
+				": Missing RHS (return value) tags for " << xml->Value());
 		checkParserException(rhs->FirstChildElement() != NULL,
 				"In PLX file, line " << rhs->Row() << ", column " << rhs->Column() <<
-				": Empty RHS (return value) tags for variable '" << xml->FirstChildElement()->FirstChild()->Value() << "'");
+				": Empty RHS (return value) tags for " << xml->Value());
 		retval->setRHS(PlexilXmlParser::parseExpr(rhs->FirstChildElement()));
 		return retval->getId();
 	}
@@ -487,11 +487,11 @@ public:
 		TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
 		checkParserException(nodeIdXml != NULL,
 				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Missing NodeId element in library call.");
+				": Missing <NodeId> element in library call.");
 		std::string nodeId(nodeIdXml->FirstChild()->Value());
 		checkParserException(!nodeId.empty(),
 				"In PLX file, line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
-				": Empty NodeId element in library call.");
+				": Empty <NodeId> element in library call.");
 
 		// create lib node call node body
 
@@ -507,11 +507,11 @@ public:
 					NODE_PARAMETER_TAG);
 			checkParserException(libParamXml != NULL,
 					"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-					": Missing NodeParameter element in library call.");
+					": Missing <NodeParameter> element in library call.");
 			std::string libParam(libParamXml->FirstChild()->Value());
 			checkParserException(!libParam.empty(),
 					"In PLX file, line " << libParamXml->Row() << ", column " << libParamXml->Column() <<
-					": Empty NodeParameter element in library call.");
+					": Empty <NodeParameter> element in library call.");
 
 			// get node parameter value
 
@@ -766,11 +766,11 @@ PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
 	TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
 	checkParserException(nodeIdXml != NULL,
 			"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-			": Missing or empty NodeId element.");
+			": Missing or empty <NodeId> element.");
 	std::string nodeId(nodeIdXml->FirstChild()->Value());
 	checkParserException(!nodeId.empty(),
 			"In PLX file, line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
-			": Missing or empty NodeId element.");
+			": Missing or empty <NodeId> element.");
 	retval->setNodeId(nodeIdXml->FirstChild()->Value());
 
 	// node type required
@@ -839,10 +839,10 @@ PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
 	if (bodyXml == NULL) {
 		checkParserException(retval->nodeType() == NodeType_Empty,
 				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Node id " << retval->nodeId()
-				<< " of type "
-				<< retval->nodeTypeString()
-				<< " has no NodeBody element");
+				": " << retval->nodeTypeString() << " node '" << retval->nodeId() <<
+				"' missing <NodeBody> element. '" << retval->nodeTypeString() <<
+				"' nodes must contain a '" << retval->nodeTypeString() <<
+				"' as a <NodeBody> element.");
 	} else {
 		TiXmlElement* realBodyXml = bodyXml->FirstChildElement();
 		if (realBodyXml != NULL) {
@@ -1284,39 +1284,39 @@ PlexilNodeRefId PlexilXmlParser::getNodeRef(const std::string& name,
 	}
 	if (checkParent != NULL) {
 		checkParserException(!retval.isValid(),
-				"In PLX file, line " << node->FirstChildElement()->FirstChild()->Row() <<
-				", column " << node->FirstChildElement()->FirstChild()->Column() <<
+				"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
+				", column " << node->FirstChild()->FirstChild()->Column() <<
 				": Ambiguous old-style node reference.  Node " <<
-				node->FirstChildElement()->FirstChild()->Value() <<
+				node->FirstChild()->FirstChild()->Value() <<
 				" and its parent are both named '" << name << "'");
 		retval = (new PlexilNodeRef())->getId();
 		retval->setDir(PlexilNodeRef::PARENT);
 	}
 	if (checkSibling != NULL) {
 		checkParserException(!retval.isValid(),
-				"In PLX file, line " << node->FirstChildElement()->FirstChild()->Row() <<
-				", column " << node->FirstChildElement()->FirstChild()->Column() <<
+				"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
+				", column " << node->FirstChild()->FirstChild()->Column() <<
 				": Ambiguous old-style node reference.  Node " <<
-				node->FirstChildElement()->FirstChild()->Value() <<
+				node->FirstChild()->FirstChild()->Value() <<
 				" has a sibling and either a parent or itself named '" << name << "'");
 		retval = (new PlexilNodeRef())->getId();
 		retval->setDir(PlexilNodeRef::SIBLING);
 	}
 	if (checkChild != NULL) {
 		checkParserException(!retval.isValid(),
-				"In PLX file, line " << node->FirstChildElement()->FirstChild()->Row() <<
-				", column " << node->FirstChildElement()->FirstChild()->Column() <<
+				"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
+				", column " << node->FirstChild()->FirstChild()->Column() <<
 				": Ambiguous old-style node reference.  Node " <<
-				node->FirstChildElement()->FirstChild()->Value() <<
+				node->FirstChild()->FirstChild()->Value() <<
 				" has a sibling, parent, or itself and a child named '" << name << "'");
 		retval = (new PlexilNodeRef())->getId();
 		retval->setDir(PlexilNodeRef::CHILD);
 	}
-	
+
 	checkParserException(retval.isValid(),
-			"In PLX file, line " << node->FirstChildElement()->FirstChild()->Row() <<
-			", column " << node->FirstChildElement()->FirstChild()->Column() <<
-			": Node '" << node->FirstChildElement()->FirstChild()->Value() <<
+			"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
+			", column " << node->FirstChild()->FirstChild()->Column() <<
+			": Node '" << node->FirstChild()->FirstChild()->Value() <<
 			"' is trying to access node '" << name << "' which is out of scope or does not exist");
 	retval->setName(name);
 	return retval;
