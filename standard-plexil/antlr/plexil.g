@@ -254,6 +254,9 @@ tokens
     NODE_FAILURE_VARIABLE;
     NODE_TIMEPOINT_VALUE;
     ARGUMENT_LIST;
+    COMMAND_NAME;
+    FUNCTION_NAME;
+    STATE_NAME;
     CONCAT;
 }
 
@@ -422,7 +425,7 @@ declaration :
 // return type may be null!
 
 commandDeclaration :
-        ( (tn:typeName!)? COMMAND_KYWD^ cn:commandName (p:paramsSpec!)? SEMICOLON! )
+        ( (tn:typeName!)? COMMAND_KYWD^ cn:ncName (p:paramsSpec!)? SEMICOLON! )
         { 
             // add return spec (if needed)
             AST return_spec = null;
@@ -454,7 +457,7 @@ lookupDeclaration!
    AST return_spec = null;
  } : 
         // old style syntax
-        ( tn:typeName LOOKUP_KYWD! s:stateName (p:paramsSpec)? SEMICOLON!
+        ( tn:typeName LOOKUP_KYWD! s:ncName (p:paramsSpec)? SEMICOLON!
         { 
             state_name = #s;
             parm_spec = #p;
@@ -491,7 +494,7 @@ lookupDeclaration!
 // return type may be null!
 
 functionDeclaration : 
-        ( (tn:typeName!)? FUNCTION_KYWD^ fn:functionName (p:paramsSpec!)? SEMICOLON! )
+        ( (tn:typeName!)? FUNCTION_KYWD^ fn:ncName (p:paramsSpec!)? SEMICOLON! )
         { 
             // add return spec (if supplied)
             AST return_spec = null;
@@ -1251,7 +1254,7 @@ arrayReference :
 
 // *** To do:
 //  - add check for resource priorities (?)
-//  - add type check between return value and variable
+//  - add type check between return value and variable (in tree parser)
 
 command
 {
@@ -1260,25 +1263,29 @@ command
 } 
  : 
    COMMAND_KYWD^ COLON!
-   (
-    ( ncName LBRACKET ) =>
-    ar:arrayReference EQUALS commandName
-    {
-      lhs = #ar; 
-      variable = lhs.getFirstChild();
-    }          
-    |
-    ( ncName EQUALS ) =>
-    v:variable EQUALS commandName
-    {
-      lhs = #v; 
-      variable = lhs;
-    }          
-    |
-    c:commandName { !context.isVariableName(#c.getText()) }? 
-   )
-   ( LPAREN! ( argumentList )? RPAREN! )? SEMICOLON!
+   ( ( ncName ( LBRACKET | EQUALS ) ) =>
+     ( ( ( ncName LBRACKET ) =>
+         ar:arrayReference EQUALS
+         {
+           lhs = #ar; 
+           variable = lhs.getFirstChild();
+         }          
+        |
+         ( ncName EQUALS ) =>
+         v:variable EQUALS
+         {
+           lhs = #v; 
+           variable = lhs;
+         }
+       ) 
+       commandInvocation
+     )
+     |
+     commandInvocation
+     )
    {
+     // *** probably should move this check to the tree parser ***
+
      if (variable != null
          && !context.isAssignableVariableName(variable.getText()))
        {
@@ -1309,7 +1316,23 @@ command
    }
 ;
 
-commandName : ncName;
+commandInvocation :
+   (
+    commandName
+    |
+    ( LPAREN! commandNameExp RPAREN! )
+   )
+   ( LPAREN! ( argumentList )? RPAREN! )? SEMICOLON!
+   ;
+   
+
+commandName : ncName 
+ {
+   #commandName = #(#[COMMAND_NAME, "COMMAND_NAME"], #commandName);
+ }
+ ;
+
+commandNameExp : stringExpression ;
 
 argumentList : argument (COMMA! argument)*
   {
@@ -1330,20 +1353,20 @@ functionCall
    FUNCTION_CALL_KYWD^ COLON!
    (
     ( ncName LBRACKET ) =>
-    ar:arrayReference EQUALS functionName
+    ar:arrayReference EQUALS functionNameExp
     {
       lhs = #ar; 
       variable = lhs.getFirstChild();
     }          
     |
     ( ncName EQUALS ) =>
-    v:variable EQUALS functionName
+    v:variable EQUALS functionNameExp
     {
       lhs = #v; 
       variable = lhs;
     }          
     |
-    f:functionName { !context.isVariableName(#f.getText()) }? 
+    functionNameExp
    )
    LPAREN! ( argumentList )? RPAREN! SEMICOLON!
    {
@@ -1356,7 +1379,22 @@ functionCall
    }
    ;
 
-functionName : ncName ;
+functionInvocation :
+   (
+    functionName
+    |
+    ( LPAREN! functionNameExp RPAREN! )
+   )
+   ( LPAREN! ( argumentList )? RPAREN! )? SEMICOLON!
+   ;
+
+functionName : ncName 
+ {
+   #functionName = #(#[FUNCTION_NAME, "FUNCTION_NAME"], #functionName);
+ }
+ ;
+
+functionNameExp : stringExpression ;
 
 // general form is:
 // Assignment : ( <varName> | <arrayReference> ) = <expression>
@@ -1753,17 +1791,11 @@ arrayExpression : lookup ;
 lookup : lookupWithFrequency | lookupOnChange | lookupNow ;
 
 // should produce an AST of the form
-// #(LOOKUP_WITH_FREQ_KYWD stateName frequency (argumentList)? )
+// #(LOOKUP_WITH_FREQ_KYWD frequency lookupInvocation)
 
-lookupWithFrequency! :
-        lwf:LOOKUP_WITH_FREQ_KYWD fr:frequency LPAREN! sn:stateName ( LPAREN! (args:argumentList)? RPAREN! )? RPAREN!
-    {
-      #lookupWithFrequency = #(#lwf);
-      #lookupWithFrequency.addChild(#sn);
-      #lookupWithFrequency.addChild(#fr);
-      if (#args != null)
-        #lookupWithFrequency.addChild(#args);
-    } ;
+lookupWithFrequency :
+        lwf:LOOKUP_WITH_FREQ_KYWD^ LPAREN! f:frequency COMMA! li:lookupInvocation RPAREN!
+ ;
 
 frequency! : LBRACKET! lf:lowFreq COMMA! hf:highFreq RBRACKET!
     { #frequency = #(#[LOOKUP_FREQUENCY, "LOOKUP_FREQUENCY"], lf, hf) ; }
@@ -1774,21 +1806,11 @@ lowFreq : realValue | realVariable ;
 highFreq : realValue | realVariable ;
 
 // should produce an AST of the form
-// #(LOOKUP_ON_CHANGE_KYWD stateName (tolerance)? (argumentList)? )
+// #(LOOKUP_ON_CHANGE_KYWD lookupInvocation (tolerance)? )
 // N.b. tolerance is optional
 
-lookupOnChange! :
-        loc:LOOKUP_ON_CHANGE_KYWD LPAREN! sn:stateName ( LPAREN! (args:argumentList)? RPAREN! )? (COMMA! tol:tolerance)? RPAREN!
-    {
-      #lookupOnChange = #(#loc);
-      #lookupOnChange.addChild(#sn);
-      if (#tol != null)
-        #lookupOnChange.addChild(#tol);
-      if (#args != null)
-        {
-          #lookupOnChange.addChild(#args);
-        }
-    }
+lookupOnChange :
+       LOOKUP_ON_CHANGE_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
 ;
 
 // *** To do:
@@ -1797,12 +1819,26 @@ lookupOnChange! :
 tolerance : realValue | variable ;
 
 // should produce an AST of the form
-// #(LOOKUP_NOW_KYWD stateName (argumentList)? )
+// #(LOOKUP_NOW_KYWD stateNameExp (argumentList)? )
 
 lookupNow :
-        LOOKUP_NOW_KYWD^ LPAREN! stateName ( LPAREN! (argumentList)? RPAREN! )? RPAREN! ;
+        LOOKUP_NOW_KYWD^ LPAREN! lookupInvocation RPAREN! ;
 
-stateName : ncName ;
+lookupInvocation :
+  ( stateName
+    |
+    ( LPAREN! stateNameExp RPAREN! )
+  )
+  ( LPAREN! (argumentList)? RPAREN! )?
+ ;
+
+stateName : ncName 
+ {
+   #stateName = #(#[STATE_NAME, "STATE_NAME"], #stateName);
+ }
+ ;
+
+stateNameExp : stringExpression ;
 
 // Here's what to do when we really need an NCName, and we have an IDENT
 

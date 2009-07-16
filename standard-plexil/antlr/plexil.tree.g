@@ -225,7 +225,7 @@ commandDeclaration[IXMLElement parent]
 { IXMLElement decl = new XMLElement("CommandDeclaration"); }
  :
         #(COMMAND_KYWD
-            cn:commandName[decl]
+            cn:nameLiteral[decl]
             (ret:returnsSpec[decl])?
             (parms:paramsSpec[decl])?
             )
@@ -247,12 +247,23 @@ lookupDeclaration[IXMLElement parent]
 { IXMLElement decl = new XMLElement("StateDeclaration"); }
  : 
     #(LOOKUP_KYWD 
-       sn:stateName[decl]
+       sn:nameLiteral[decl]
        ret:returnsSpec[decl] 
        ( parms:paramsSpec[decl] )? 
      )
     { 
     } ;
+
+nameLiteral[IXMLElement parent]
+{ IXMLElement sn = new XMLElement("Name"); }
+ : n:NCName
+   {
+     IXMLElement sv = new XMLElement("StringValue");
+     sv.setContent(n.getText());
+     sn.addChild(sv);
+     parent.addChild(sn);
+   }
+ ;
 
 paramsSpec[IXMLElement parent] :
         #(PARAMETER_DECLARATIONS ( paramSpec[parent] )* ) ;
@@ -1078,7 +1089,7 @@ nodeList[IXMLElement node, IXMLElement nodeBody]
    ;
 
 
-// *** add variable assignability check? (probably move to surface parser)
+// *** add variable assignability check?
 
 command[IXMLElement node, IXMLElement nodeBody, IXMLElement resourceList]
 { 
@@ -1102,13 +1113,13 @@ command[IXMLElement node, IXMLElement nodeBody, IXMLElement resourceList]
 }
  : 
   (
-   ( #(COMMAND_KYWD ARRAY_REF) )=>
-   #(COMMAND_KYWD arrayReference[cmd] EQUALS commandName[cmd] (argumentList[cmd])? )
+   ( #(COMMAND_KYWD ARRAY_REF EQUALS) )=>
+   #(COMMAND_KYWD arrayReference[cmd] EQUALS ( commandNameLiteral[cmd] | nameExp[cmd] ) (argumentList[cmd])? )
    |
-   ( #(COMMAND_KYWD VARIABLE) )=>
-   #(COMMAND_KYWD variable[cmd] EQUALS commandName[cmd] (argumentList[cmd])? )
+   ( #(COMMAND_KYWD VARIABLE EQUALS) )=>
+   #(COMMAND_KYWD variable[cmd] EQUALS ( commandNameLiteral[cmd] | nameExp[cmd] ) (argumentList[cmd])? )
    |
-   #(COMMAND_KYWD commandName[cmd] (argumentList[cmd])? )
+   #(COMMAND_KYWD ( commandNameLiteral[cmd] | nameExp[cmd] ) (argumentList[cmd])? )
   )
    {
      node.setAttribute("NodeType", "Command");
@@ -1116,15 +1127,19 @@ command[IXMLElement node, IXMLElement nodeBody, IXMLElement resourceList]
    }
    ;
 
-commandName[IXMLElement parent]
-{ IXMLElement cn = new XMLElement("Name"); }
- : NCName
-   {
-     IXMLElement sv = new XMLElement("StringValue");
-     sv.setContent(#commandName.getText());
-     cn.addChild(sv);
-     parent.addChild(cn);
-   }
+commandNameLiteral[IXMLElement parent] :
+ #(COMMAND_NAME nameLiteral[parent]) ;
+
+// Shared between command, fn call, lookup
+nameExp[IXMLElement parent]
+{
+  IXMLElement nm = new XMLElement("Name");
+}
+ :
+  se:stringExpression[nm]
+  {
+    parent.addChild(nm);
+  }
  ;
 
 argumentList[IXMLElement parent]
@@ -1153,7 +1168,7 @@ functionCall[IXMLElement node, IXMLElement nodeBody]
  : 
    #(FUNCTION_CALL_KYWD
      (variable[fnCall] EQUALS)?
-     functionName[fnCall]
+     ( functionNameLiteral[fnCall] | nameExp[fnCall] )
      (argumentList[fnCall])? 
     )
    {
@@ -1162,7 +1177,8 @@ functionCall[IXMLElement node, IXMLElement nodeBody]
    }
  ;
 
-// *** will need to be modified to support string expression
+functionNameLiteral[IXMLElement parent] :
+  #(FUNCTION_NAME nl:nameLiteral[parent]) ;
 
 functionName[IXMLElement parent] :
    NCName
@@ -1915,18 +1931,70 @@ timeExpression[IXMLElement parent] :
 //
 
 lookup[IXMLElement parent] :
- lookupWithFrequency[parent]
+ lookupNow[parent]
  | lookupOnChange[parent]
- | lookupNow[parent] ;
+ | lookupWithFrequency[parent] ;
+
+lookupNow[IXMLElement parent]
+{ 
+  IXMLElement xln = new XMLElement("LookupNow"); 
+  parent.addChild(xln);
+}
+ :
+   #(LOOKUP_NOW_KYWD ( stateNameLiteral[xln] | nameExp[xln] ) ( argumentList[xln] )? ) ; 
+
+// Needs to output in the order <LOC><Name/><Tolerance/><Arguments/></LOC>, sigh.
+
+lookupOnChange[IXMLElement parent]
+{
+  IXMLElement xloc = new XMLElement("LookupOnChange");
+}
+ :
+   #(LOOKUP_ON_CHANGE_KYWD ( stateNameLiteral[xloc] | nameExp[xloc] ) (a:argumentList[xloc])? (t:tolerance[xloc])? )
+   {
+     // have to scramble only if both tolerance and arglist are provided
+     // if either is missing, order is fine
+     if (a != null && t != null)
+     {
+       IXMLElement arglist = xloc.getChildAtIndex(1); // 0-based index
+       xloc.removeChildAtIndex(1);
+       xloc.addChild(arglist);
+     }
+
+     // now attach to parent
+     parent.addChild(xloc);
+   }
+ ;
+
+// Needs to output in the order <LWF><Name/><Frequency/><Arguments/></LWF>, sigh.
 
 lookupWithFrequency[IXMLElement parent]
 { 
-  IXMLElement xlwf = new XMLElement("LookupWithFrequency"); 
-  parent.addChild(xlwf); 
+  XMLElement xlwf = new XMLElement("LookupWithFrequency"); 
 }
  :
-   #(LOOKUP_WITH_FREQ_KYWD stateName[xlwf] frequency[xlwf] (argumentList[xlwf])? )
+   #(LOOKUP_WITH_FREQ_KYWD frequency[xlwf] ( stateNameLiteral[xlwf] | nameExp[xlwf] ) (argumentList[xlwf])? )
+   {
+     // by the time we get here the i.r. of the XML has been constructed - need to swap things around
+     IXMLElement state = xlwf.getChildAtIndex(1); // 0-based index
+     xlwf.removeChildAtIndex(1);
+     xlwf.insertChild(state, 0);
+
+     // now attach it to the parent element
+     parent.addChild(xlwf); 
+   }
  ;
+
+stateNameLiteral[IXMLElement parent] :
+  #(STATE_NAME nameLiteral[parent]) ;
+
+tolerance[IXMLElement parent]
+{ IXMLElement xtol = new XMLElement("Tolerance"); parent.addChild(xtol); }
+ :
+ ( rval:realValue { xtol.addChild(((PlexilASTNode) #rval).getXmlElement()); }
+   | variable[xtol]
+ )
+;
 
 frequency[IXMLElement lookup]
 { IXMLElement xfreq = new XMLElement("Frequency"); }
@@ -1954,40 +2022,5 @@ highFreq[IXMLElement parent]
      | realVariable[hi] )
    {
      parent.addChild(hi);
-   }
- ;
-
-lookupOnChange[IXMLElement parent]
-{
-  IXMLElement xloc = new XMLElement("LookupOnChange");
-  parent.addChild(xloc);
-}
- :
-   #(LOOKUP_ON_CHANGE_KYWD stateName[xloc] (tolerance[xloc])? (argumentList[xloc])? ) ;
-
-tolerance[IXMLElement parent]
-{ IXMLElement xtol = new XMLElement("Tolerance"); parent.addChild(xtol); }
- :
- ( rval:realValue { xtol.addChild(((PlexilASTNode) #rval).getXmlElement()); }
-   | variable[xtol]
- )
-;
-
-lookupNow[IXMLElement parent]
-{ 
-  IXMLElement xln = new XMLElement("LookupNow"); 
-  parent.addChild(xln);
-}
- :
-   #(LOOKUP_NOW_KYWD stateName[xln] ( argumentList[xln] )? ) ; 
-
-stateName[IXMLElement parent]
-{ IXMLElement sn = new XMLElement("Name"); }
- : n:NCName
-   {
-     IXMLElement sv = new XMLElement("StringValue");
-     sv.setContent(n.getText());
-     sn.addChild(sv);
-     parent.addChild(sn);
    }
  ;
