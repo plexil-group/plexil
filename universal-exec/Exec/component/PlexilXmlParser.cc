@@ -1312,7 +1312,7 @@ PlexilNodeRefId PlexilXmlParser::getNodeRef(const std::string& name,
 		retval = (new PlexilNodeRef())->getId();
 		retval->setDir(PlexilNodeRef::CHILD);
 	}
-
+	
 	checkParserException(retval.isValid(),
 			"In PLX file, line " << node->FirstChildElement()->FirstChild()->Row() <<
 			", column " << node->FirstChildElement()->FirstChild()->Column() <<

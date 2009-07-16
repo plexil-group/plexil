@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 int Logging::ENABLE_LOGGING = 0; // enable messages to log file
 int Logging::ENABLE_E_PROMPT = 0; // enable error prompt messages
@@ -69,6 +70,13 @@ void Logging::print_unknown(char * fullmsg) {
 
 	if (Logging::ENABLE_LOGGING)
 		print_to_log(fullmsg);
+}
+
+void Logging::print_to_log(char** run_command, int num) {
+        std::string str  = "user command: ";
+        for (int i = 0; i < num; ++i)
+              str = str + run_command[i] + " ";
+        Logging::print_to_log(str.c_str());
 }
 
 void Logging::print_to_log(const char * fullmsg) {
