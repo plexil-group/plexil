@@ -93,8 +93,7 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       else if (strcmp(argv[i], "-log") == 0)
       {
 	Logging::ENABLE_LOGGING = 1;
-	Logging::set_log_file_name(argv[++i]);
-        Logging::print_to_log(argv, argc);
+	Logging::set_log_file_name(argv[++i]);     
       }
       else if (strcmp(argv[i], "-eprompt") == 0)
 	Logging::ENABLE_E_PROMPT = 1;
@@ -109,6 +108,24 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
                    << std::endl;
          return -1;
       }     
+   }
+
+   if (Logging::ENABLE_LOGGING) 
+   {
+
+     #ifdef __linux__
+        Logging::print_to_log(argv, argc);
+     #endif
+     #ifdef __BEOS__
+        Logging::print_to_log(argv, argc);
+     #endif
+     #ifdef __APPLE__
+        std::stringstream cmd = "user command: ";
+        for (int i = 1; i < argc; ++i)
+             cmd << argv[i] << " ";
+        
+        Logging::print_to_log(cmd.str().c_str());
+     #endif  
    }
    
    // if no script, error out
