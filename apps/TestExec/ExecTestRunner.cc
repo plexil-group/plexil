@@ -120,11 +120,11 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
         Logging::print_to_log(argv, argc);
      #endif
      #ifdef __APPLE__
-        std::stringstream cmd = "user command: ";
+        std::string cmd = "user command: ";
         for (int i = 1; i < argc; ++i)
-             cmd << argv[i] << " ";
+             cmd = cmd + argv[i] + " ";
         
-        Logging::print_to_log(cmd.str().c_str());
+        Logging::print_to_log(cmd.c_str());
      #endif  
    }
    
