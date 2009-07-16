@@ -41,6 +41,7 @@
 #include "ExecTestRunner.hh"
 #include "LuvListener.hh"
 #include <fstream>
+#include <string>
 
 namespace PLEXIL {
 
@@ -67,12 +68,12 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
    // parse out parameters
    
    for (int i = 1; i < argc; ++i)
-   {
-      if (strcmp(argv[i], "-p") == 0)
+   {     
+      if (strcmp(argv[i], "-p") == 0) 
          planName = argv[++i];
-      else if (strcmp(argv[i], "-s") == 0)
+      else if (strcmp(argv[i], "-s") == 0) 
          scriptName = argv[++i];
-      else if (strcmp(argv[i], "-l") == 0)
+      else if (strcmp(argv[i], "-l") == 0) 
          libraryNames.push_back(argv[++i]);
       else if (strcmp(argv[i], "-d") == 0)
         debugConfig = std::string(argv[++i]);
@@ -93,6 +94,7 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
       {
 	Logging::ENABLE_LOGGING = 1;
 	Logging::set_log_file_name(argv[++i]);
+        Logging::print_to_log(argv, argc);
       }
       else if (strcmp(argv[i], "-eprompt") == 0)
 	Logging::ENABLE_E_PROMPT = 1;
@@ -106,17 +108,9 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
                    << usage 
                    << std::endl;
          return -1;
-      }
+      }     
    }
-
-   // print plan and script info to log file if logging enabled
-   if (Logging::ENABLE_LOGGING) 
-   {
-     std::stringstream sstr;
-     sstr << "Executing   Plan: " << planName << "   Script: " << scriptName;
-     Logging::print_to_log(sstr.str().c_str());
-   }
-
+   
    // if no script, error out
 
    if (scriptName == "error")
@@ -217,6 +211,7 @@ int ExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
                    << std::endl;
          return -1;
       }
+   
       PlexilXmlParser parser;
       PlexilNodeId root;
       try 
