@@ -1,0 +1,67 @@
+Integer Lookup foo;
+Real Lookup bar(Integer);
+
+LookupOnChangeTest:
+{
+  Integer i;
+  Real x;
+  String fooName = "foo";
+  String barName = "bar";
+
+  NodeList:
+
+  Basic:
+  {
+    StartCondition: LookupOnChange(foo) > i;
+  }
+
+  BasicWithTolerance:
+  {
+    StartCondition: LookupOnChange(foo, 2) > i;
+  }
+
+  ExplicitEmptyArglist:
+  {
+    StartCondition: LookupOnChange(foo()) > i;
+  }
+
+  WithParam:
+  {
+    StartCondition: LookupOnChange(bar(i)) > x;
+  }  
+
+  WithParamAndTolerance:
+  {
+    StartCondition: LookupOnChange(bar(i), 0.5) > x;
+  }  
+
+  Indirect:
+  {
+    StartCondition: LookupOnChange((fooName)) > i;
+  }
+  
+  IndirectExplicitArglist:
+  {
+    StartCondition: LookupOnChange((fooName)()) > i;
+  }
+
+  IndirectWithTolerance:
+  {
+    StartCondition: LookupOnChange((fooName), 2) > i;
+  }
+  
+  IndirectExplicitArglistWithTolerance:
+  {
+    StartCondition: LookupOnChange((fooName)(), 2) > i;
+  }
+
+  IndirectWithParam:
+  {
+    StartCondition: LookupOnChange((barName)(i)) > x;
+  }  
+
+  IndirectWithParamAndTolerance:
+  {
+    StartCondition: LookupOnChange((barName)(i), 0.5) > x;
+  }  
+}
