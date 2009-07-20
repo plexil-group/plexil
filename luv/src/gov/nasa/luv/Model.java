@@ -87,10 +87,77 @@ public class Model extends Properties
      */
     public Model(String type, int row)
     {
-	this.type = type;
+        this.type = type;
         this.row_number = row;
         
         init();
+    }
+
+    /**
+     * Copy Constructor
+     * @param node
+     */
+    private Model(Model node)
+    {
+        init();
+
+        this.addPlanName(node.getAbsolutePlanName());
+        this.addScriptName(node.getAbsoluteScriptName());
+
+        for (String action : node.getActionList())
+            this.actionList.add(action);
+
+        for (Model child : node.getChildren())
+            this.children.add(new Model(child));
+
+        for (int condition_type = 0; condition_type < node.getConditionMap().size(); condition_type++) {
+            for (int condition_expr = 0; node.getConditionMap().get(condition_type) != null && condition_expr < node.getConditionMap().get(condition_type).size(); condition_expr++)
+                this.addConditionInfo(condition_type, (String)node.getConditionMap().get(condition_type).get(condition_expr));
+        }
+
+        this.setLibraryName(node.getLibraryName());
+
+        for (String library : node.getLibraryNames())
+            this.libraryFiles.add(library);
+
+        for (String library : node.getMissingLibraries())
+            this.missingLibraryNodes.add(library);
+
+        this.setModelName(node.getModelName());
+        this.setParent(node.getParent());
+        this.setRowNumber(node.getRowNumber());
+        this.type = node.getType();
+        this.setUnresolvedLibraryCall(node.getUnresolvedLibraryCall());
+
+        for (int i = 0; i < node.getVariableList().size(); i++) {
+            Stack<String> stack = new Stack<String>();
+            for (int x = 0; x < node.getVariableList().get(i).size(); x++) {
+                stack.add(x, node.getVariableList().get(i).get(x));
+            }
+            this.variableList.add(stack);
+        }
+
+        modelName = node.getProperty(NODE_ID);
+        setProperty(NODETYPE_ATTR, node.getProperty(NODETYPE_ATTR));
+        setProperty(NODE_ID, node.getProperty(NODE_ID));
+        setProperty(MODEL_TYPE, node.getProperty(MODEL_TYPE));
+        setProperty(MODEL_OUTCOME, node.getProperty(MODEL_OUTCOME));
+        setProperty(MODEL_STATE, node.getProperty(MODEL_STATE));
+        setProperty(SKIP_CONDITION, node.getProperty(SKIP_CONDITION));
+        setProperty(START_CONDITION, node.getProperty(START_CONDITION));
+        setProperty(END_CONDITION, node.getProperty(END_CONDITION));
+        setProperty(INVARIANT_CONDITION, node.getProperty(INVARIANT_CONDITION));
+        setProperty(PRE_CONDITION, node.getProperty(PRE_CONDITION));
+        setProperty(POST_CONDITION, node.getProperty(POST_CONDITION));
+        setProperty(REPEAT_CONDITION, node.getProperty(REPEAT_CONDITION));
+        setProperty(ANCESTOR_INVARIANT_CONDITION, node.getProperty(ANCESTOR_INVARIANT_CONDITION));
+        setProperty(ANCESTOR_END_CONDITION, node.getProperty(ANCESTOR_END_CONDITION));
+        setProperty(PARENT_EXECUTING_CONDITION, node.getProperty(PARENT_EXECUTING_CONDITION));
+        setProperty(PARENT_FINISHED_CONDITION, node.getProperty(PARENT_FINISHED_CONDITION));
+        setProperty(CHILDREN_WAITING_OR_FINISHED, node.getProperty(CHILDREN_WAITING_OR_FINISHED));
+        setProperty(ABORT_COMPLETE, node.getProperty(ABORT_COMPLETE));
+        setProperty(PARENT_WAITING_CONDITION, node.getProperty(PARENT_WAITING_CONDITION));
+        setProperty(COMMAND_HANDLE_RECEIVED_CONDITION, node.getProperty(COMMAND_HANDLE_RECEIVED_CONDITION));
     }
     
     private void init()
@@ -442,7 +509,7 @@ public class Model extends Properties
     public void addChild(Model child)
     {
 	assert child.isNode();
-
+    
 	children.add(child);
 	child.setParent(this);
     }
@@ -705,7 +772,8 @@ public class Model extends Properties
 	if (type.equals(NODE)
 	    && getProperty(NODETYPE_ATTR).equals(LIBRARYNODECALL)
 	    && libraryName.equals(library.modelName)) {
-	    addChild((Model) library.clone());
+        Model copy = new Model(library);
+	    addChild(copy);
 	    unresolvedLibraryCall = false;
 	    return true;
 	}
@@ -760,16 +828,19 @@ public class Model extends Properties
      */
     public void setMainAttributesOfNode()
     {
-	String rawType = getProperty(NODETYPE_ATTR);
-	String polishedtype = rawType != null ? NODE_TYPES.get(rawType) : null;
-	if (polishedtype == null)
+        String rawType = getProperty(NODETYPE_ATTR);
+        String polishedtype = rawType != null ? NODE_TYPES.get(rawType) : null;
+        if (polishedtype == null)
             polishedtype = rawType;
 
-	modelName = getProperty(NODE_ID);
-	setProperty(MODEL_TYPE, polishedtype);
-	setProperty(MODEL_OUTCOME, UNKNOWN);
-	setProperty(MODEL_STATE, INACTIVE);
-        
+        int i = 1;
+        if (polishedtype == null)
+            i = 0;
+
+        modelName = getProperty(NODE_ID);
+        setProperty(MODEL_TYPE, polishedtype);
+        setProperty(MODEL_OUTCOME, UNKNOWN);
+        setProperty(MODEL_STATE, INACTIVE);        
         setProperty(SKIP_CONDITION, UNKNOWN);                     
         setProperty(START_CONDITION, UNKNOWN);               
         setProperty(END_CONDITION, UNKNOWN); 
