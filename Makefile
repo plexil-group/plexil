@@ -5,6 +5,7 @@ default: all
 all: luv standard-plexil
 	@ cd universal-exec; jam
 	@ cd standard-plexil; jam
+	@ cd luv; ant jar
 	@ cd interfaces; jam
 	@ $(MAKE) -C apps
 	@ cd app-framework; jam
