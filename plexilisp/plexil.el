@@ -70,8 +70,8 @@
 (setq *node-types* nil)
 (defvar *node-body-types*)
 (setq *node-body-types* nil)
-(defun node-type? (x) (member x *node-types*))
-(defun node-body-type? (x) (member x *node-body-types*))
+(defun plexil-node? (x) (member (car x) *node-types*))
+(defun plexil-node-body? (x) (member (car x) *node-body-types*))
 
 
 ;;; User interface
@@ -1051,21 +1051,21 @@
  "They expand into node structures. ")
 
 
-(pdefine pl (If if) (condition then-part &optional else-part) 1 node
+(pdefine-syntax pl (If if) (condition then-part &optional else-part) 1 node
   ("If-then-else.  The {{then-part}} and {{else-part}} may be nodes or other "
    "actions.  The {{else-part}} is optional.")
-  (xml "If"
+  `(xml "If"
        (remove-nil
-        (xml "Condition" (infer-type condition))
-        (xml "Then" then-part)
-        (if else-part (xml "Else" else-part)))))
+        (xml "Condition" (infer-type ,condition))
+        (xml "Then" (plexil-nodify ',then-part))
+        (if ',else-part (xml "Else" (plexil-nodify ',else-part))))))
 
-(pdefine pl (While while) (condition form) 1 node
+(pdefine-syntax pl (While while) (condition &rest forms) 1 node
   "While loop."
-  (xml "While"
-       (list
-        (xml "Condition" (infer-type condition))
-        form)))
+  `(xml "While"
+       (cons
+        (xml "Condition" (infer-type ,condition))
+        (mapcar #'plexil-nodify ',forms))))
 
 (pdefine-syntax pl (for For)
                 (declaration condition update form &rest forms) 1 node
@@ -1082,45 +1082,65 @@
          (xml "LoopVariable" ,declaration)
          (xml "Condition" ,condition)
          (xml "LoopVariableUpdate" ,update)
-         (xml "Actions" (cons ,form (mapcar #'eval ',forms))))))
+         (xml "Actions" (cons (plexil-nodify ',form)
+                              (mapcar #'plexil-nodify ',forms))))))
 
 
-(pdefine pl (Sequence sequence)
+(pdefine-syntax pl (Sequence sequence)
          (&optional name-or-first-form &rest forms) 1 node
   ("Each action starts after the previous succeeds.  "
    "If an action fails, the sequence terminates immediately with failure.")
-  (plexil-build-sequence name-or-first-form forms "Sequence"))
+  `(plexil-build-sequence ',name-or-first-form ',forms "Sequence"))
 
-(pdefine pl (UncheckedSequence unchecked-sequence) 
+(pdefine-syntax pl (UncheckedSequence unchecked-sequence) 
          (&optional name-or-first-form &rest forms) 1 node
   "Each action starts after the previous finishes, regardless of success or failure."
-  (plexil-build-sequence name-or-first-form forms "UncheckedSequence"))
+  `(plexil-build-sequence ',name-or-first-form ',forms "UncheckedSequence"))
 
-(pdefine pl (Try try) (&optional name-or-first-form &rest forms) 1 node
+(pdefine-syntax pl (Concurrence concurrence Concurrently concurrently)
+            (&optional name-or-first-form &rest forms) 1 node
+  "Executes forms concurrently.  Basically a List node."
+  `(plexil-build-sequence ',name-or-first-form ',forms "Concurrence"))
+
+(pdefine-syntax pl (Try try) (&optional name-or-first-form &rest forms) 1 node
   ("Executes actions sequentially, stopping after the an action succeeds.  "
    "Fails if and only if no action succeeds.")
-  (plexil-build-sequence name-or-first-form forms "Try"))
+  `(plexil-build-sequence ',name-or-first-form ',forms "Try"))
 
 (defun plexil-build-sequence (name-or-first-form forms construct)
   ;; (string | xml) * list(xml) * string -> xml
   (let (the-name first-form rest-forms)
-    (cond ((stringp name-or-first-form)
+    (cond ((null name-or-first-form)
+           ;; do nothing
+           )
+           ((stringp name-or-first-form)
            (setq the-name name-or-first-form)
            (setq first-form (car forms))
            (setq rest-forms (cdr forms)))
-          ((xml? name-or-first-form)
+          ((and (listp name-or-first-form)
+                (or (plexil-node? name-or-first-form)
+                    (plexil-node-body? name-or-first-form)))
            (setq first-form name-or-first-form)
            (setq rest-forms forms))
-          (t (error "%s must have at least one action!" construct)))
+          (t (error "plexil-build-sequence: Unsupported form: %s"
+                    name-or-first-form)))
     (xml construct
          (append
           (if the-name (list (xml "NodeId" the-name)))
-          (cons first-form rest-forms)))))
+          (if first-form (cons (plexil-nodify first-form)
+                               (mapcar #'plexil-nodify rest-forms)))))))
 
-(pdefine pl (Concurrence concurrence Concurrently concurrently)
-            (&optional name-or-first-form &rest forms) 1 node
-  "Executes forms concurrently.  Basically a List node."
-  (plexil-build-sequence name-or-first-form forms "Concurrence"))
+
+(defun plexil-nodify (x)
+  ;; list -> xml
+  ;; Takes an expression representing either a node or node body, and
+  ;; returns a node.
+  ;;
+  (cond ((plexil-node? x)
+         (plexil-eval-node x))
+        ((plexil-node-body? x)
+         (plexil-eval-node-body x))
+        (t (error "Unsupported form: %s" x))))
 
 (insert-plexil-heading
  "=== Special Purpose Nodes ==="
@@ -1131,11 +1151,11 @@
   ("Specifies any kind of action.  The specified forms can include any node "
    "clauses (except NodeId, which is given by {{name}}, as well as any number "
    "of actions.  The actions form the body of the generated List Node.")
-  (let ((nodes (filter (lambda (x) (node-type? (car x))) forms))
-        (node-bodies (filter (lambda (x) (node-body-type? (car x))) forms))
+  (let ((nodes (filter (lambda (x) (plexil-node? x)) forms))
+        (node-bodies (filter (lambda (x) (plexil-node-body? x)) forms))
         (clauses (filter (lambda (x)
-                           (and (not (node-type? (car x)))
-                                (not (node-body-type? (car x)))))
+                           (and (not (plexil-node? x))
+                                (not (plexil-node-body? x))))
                          forms)))
     (if (not (or nodes node-bodies))
         (append '(pl-empty-node) `(,name) `,clauses)
