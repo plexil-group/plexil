@@ -70,4 +70,8 @@ New (not yet in prebuilt distributions):
  - Added 'jam' executables in plexil/bin
  - Added support for testing node iteration outcome.
  - Added to Extended Plexil: Concurrence
- - Added to Plexilisp: Wait, Concurrence
+ - Plexilisp: added Wait, Concurrence; action forms can now contain
+   nodes or node bodies; empty sequences are properly supported; While
+   loop can contain multiple actions.
+ - Extended Plexil: bug fixes in translator
+
