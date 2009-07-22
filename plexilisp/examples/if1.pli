@@ -1,7 +1,7 @@
 (plexil-plan
  (if true
-     (empty-node "true")
-     (empty-node "false")))
+     (command "foo")
+     (command "bar")))
 
 
 

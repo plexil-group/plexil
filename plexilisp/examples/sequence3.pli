@@ -4,4 +4,4 @@
    (start-condition (= 2 2)))
   (empty-node "baz"
    (start-condition (= 3 3)))
-  (empty-node "bar")))
+  (command "bar")))
