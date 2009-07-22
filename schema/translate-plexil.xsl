@@ -573,13 +573,15 @@
   </xsl:choose>
   <xsl:choose>
     <xsl:when test= "$try-clauses">
-      <EndCondition>
-        <OR>
-          <xsl:apply-templates select= "EndCondition/*"/>
-          <xsl:apply-templates
-              select= "key('action', *)" mode= "success-check"/>
-        </OR>
-      </EndCondition>
+      <xsl:if test= "key('action', *) | EndCondition/*">
+        <EndCondition>
+          <OR>
+            <xsl:apply-templates select= "EndCondition/*"/>
+            <xsl:apply-templates
+                select= "key('action', *)" mode= "success-check"/>
+          </OR>
+        </EndCondition>
+      </xsl:if>
     </xsl:when>
     <xsl:otherwise>
       <xsl:apply-templates select= "EndCondition"/>
