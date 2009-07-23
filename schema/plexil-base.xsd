@@ -178,6 +178,24 @@
           </xsd:restriction>
         </xsd:simpleType>
       </xsd:attribute>
+      <!-- The epx attribute indicates a node that is a translation of
+           an Extended Plexil construct.  Its value is the type of this
+           construct, or 'aux' indicating it is an auxilliary generated
+           node. -->
+      <xsd:attribute name="epx" use="optional">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:NMTOKEN">
+            <xsd:enumeration value="Sequence"/>
+            <xsd:enumeration value="UncheckedSequence"/>
+            <xsd:enumeration value="Concurrence"/>
+            <xsd:enumeration value="Try"/>
+            <xsd:enumeration value="If"/>
+            <xsd:enumeration value="While"/>
+            <xsd:enumeration value="For"/>
+            <xsd:enumeration value="aux"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:attribute>
       <xsd:attribute ref="FileName"/>
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
@@ -799,8 +817,8 @@
       <xsd:sequence>
         <xsd:choice>
           <xsd:element ref="NodeRef"/>
+          <!-- for backwards compatibility -->
           <xsd:element ref="NodeId"/>
-<!-- for backw compatibility -->
         </xsd:choice>
         <xsd:element ref="NodeStateValue"/>
         <xsd:element ref="Timepoint"/>
@@ -842,9 +860,9 @@
       <xsd:element ref="IntegerValue"/>
       <xsd:element ref="RealValue"/>
       <xsd:group ref="Lookup"/>
-<!-- only for lookups that return ONE value -->
+      <!-- only for lookups that return ONE value -->
       <xsd:element ref="NodeTimepointValue"/>
-<!-- read operations for arrays-->
+      <!-- read operations for arrays-->
       <xsd:element name="ArraySize" type="xsd:NCName"/>
       <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
       <xsd:element ref="ArrayElement"/>
@@ -903,8 +921,9 @@
       <xsd:sequence>
         <xsd:choice>
           <xsd:element ref="Name"/>
+          <!-- for backwards compatibility -->
           <xsd:element name="StateName" type="xsd:string"/>
-<!-- for backw compatibility -->
+
         </xsd:choice>
         <xsd:element ref="Tolerance" minOccurs="0"/>
         <xsd:element ref="Arguments" minOccurs="0"/>
@@ -924,8 +943,8 @@
       <xsd:sequence>
         <xsd:choice>
           <xsd:element ref="Name"/>
+          <!-- for backwards compatibility -->
           <xsd:element name="StateName" type="xsd:string"/>
-<!-- for backw compatibility -->
         </xsd:choice>
         <xsd:element ref="Arguments" minOccurs="0"/>
       </xsd:sequence>

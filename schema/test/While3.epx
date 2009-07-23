@@ -6,8 +6,10 @@
         <IntegerValue>1</IntegerValue>
       </LT>
     </Condition>
-    <Node NodeType="Empty">
-      <NodeId>One</NodeId>
-    </Node>
+    <Action>
+      <Node NodeType="Empty">
+        <NodeId>One</NodeId>
+      </Node>
+    </Action>
   </While>
 </PlexilPlan>

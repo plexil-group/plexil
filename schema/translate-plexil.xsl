@@ -147,14 +147,14 @@
 </xsl:template>
 
 <xsl:template match= "UncheckedSequence">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "UncheckedSequence">
     <xsl:call-template name= "translate-nose-clauses"/>
     <xsl:call-template name= "sequence-body"/>
   </Node>
 </xsl:template>
 
 <xsl:template match= "UncheckedSequence" mode= "ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "UncheckedSequence">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
     </xsl:call-template>
@@ -172,7 +172,7 @@
 
 
 <xsl:template match= "Sequence">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "Sequence">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "success-invariant" select= "'true'"/>
     </xsl:call-template>
@@ -181,7 +181,7 @@
 </xsl:template>
 
 <xsl:template match= "Sequence" mode= "ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "Sequence">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
       <xsl:with-param name= "success-invariant" select= "'true'"/>
@@ -191,14 +191,14 @@
 </xsl:template>
 
 <xsl:template match= "Concurrence">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "Concurrence">
     <xsl:call-template name= "translate-nose-clauses"/>
     <xsl:call-template name= "concurrent-body"/>
   </Node>
 </xsl:template>
 
 <xsl:template match= "Concurrence" mode="ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "Concurrence">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
     </xsl:call-template>
@@ -216,7 +216,7 @@
 
 
 <xsl:template match= "Try">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "Try">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "try-clauses" select= "'true'"/>
     </xsl:call-template>
@@ -225,7 +225,7 @@
 </xsl:template>
 
 <xsl:template match= "Try" mode= "ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "Try">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
       <xsl:with-param name= "try-clauses" select= "'true'"/>
@@ -236,7 +236,7 @@
 
 
 <xsl:template match= "If">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "If">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "declare-test" select= "'true'"/>
     </xsl:call-template>
@@ -245,7 +245,7 @@
 </xsl:template>
 
 <xsl:template match= "If" mode= "ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "If">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
       <xsl:with-param name= "declare-test" select= "'true'"/>
@@ -348,14 +348,14 @@
 
 
 <xsl:template match= "While">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "While">
     <xsl:call-template name= "translate-nose-clauses"/>
     <xsl:call-template name= "while-body"/>
   </Node>
 </xsl:template>
 
 <xsl:template match= "While" mode= "ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "While">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
     </xsl:call-template>
@@ -386,7 +386,8 @@
               </RepeatCondition>
               <NodeBody>
                 <NodeList>
-                  <xsl:apply-templates select= "key('action', *)"/>
+                  <xsl:apply-templates select= "Action/*"/>
+<!--                  <xsl:apply-templates select= "key('action', *)"/> -->
                 </NodeList>
               </NodeBody>
             </Node>
@@ -399,7 +400,7 @@
 
 
 <xsl:template match= "For">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "For">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "declare-for" select= "'true'"/>
     </xsl:call-template>
@@ -408,7 +409,7 @@
 </xsl:template>
 
 <xsl:template match= "For" mode= "ordered">
-  <Node NodeType="NodeList">
+  <Node NodeType="NodeList" epx= "For">
     <xsl:call-template name= "translate-nose-clauses">
       <xsl:with-param name= "mode" select= "'ordered'"/>
       <xsl:with-param name= "declare-for" select= "'true'"/>
@@ -438,7 +439,7 @@
               </NodeId>
               <NodeBody>
                 <NodeList>
-                  <xsl:apply-templates select= "Actions/*"/>
+                  <xsl:apply-templates select= "Action/*"/>
                 </NodeList>
               </NodeBody>
             </Node>
@@ -682,82 +683,82 @@
   <xsl:copy-of select= "."/>
 </xsl:template>
 
-<xsl:template match= "NodeFinished">
+<xsl:template match= "Finished">
   <xsl:call-template name= "node-finished"/>
 </xsl:template>
 
 
-<xsl:template match= "NodeIterationEnded">
+<xsl:template match= "IterationEnded">
   <xsl:call-template name= "node-iteration-ended"/>
 </xsl:template>
 
-<xsl:template match= "NodeExecuting">
+<xsl:template match= "Executing">
   <xsl:call-template name= "node-executing"/>
 </xsl:template>
 
-<xsl:template match= "NodeWaiting">
+<xsl:template match= "Waiting">
   <xsl:call-template name= "node-waiting"/>
 </xsl:template>
 
-<xsl:template match= "NodeInactive">
+<xsl:template match= "Inactive">
   <xsl:call-template name= "node-inactive"/>
 </xsl:template>
 
-<xsl:template match= "NodeSucceeded">
+<xsl:template match= "Succeeded">
   <AND>
     <xsl:call-template name= "node-finished"/>
     <xsl:call-template name= "node-succeeded"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodeIterationSucceeded">
+<xsl:template match= "IterationSucceeded">
   <AND>
     <xsl:call-template name= "node-iteration-ended"/>
     <xsl:call-template name= "node-succeeded"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodeFailed">
+<xsl:template match= "Failed">
   <AND>
     <xsl:call-template name= "node-finished"/>
     <xsl:call-template name= "node-failed"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodeIterationFailed">
+<xsl:template match= "IterationFailed">
   <AND>
     <xsl:call-template name= "node-iteration-ended"/>
     <xsl:call-template name= "node-failed"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodeSkipped">
+<xsl:template match= "Skipped">
   <!-- NOTE: implies that node is in state FINISHED. -->
   <xsl:call-template name= "node-skipped"/>
 </xsl:template>
 
-<xsl:template match= "NodeInvariantFailed">
+<xsl:template match= "InvariantFailed">
   <AND>
     <xsl:call-template name= "node-finished"/>
     <xsl:call-template name= "node-invariant-failed"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodePreconditionFailed">
+<xsl:template match= "PreconditionFailed">
   <AND>
     <xsl:call-template name= "node-finished"/>
     <xsl:call-template name= "node-precondition-failed"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodePostconditionFailed">
+<xsl:template match= "PostconditionFailed">
   <AND>
     <xsl:call-template name= "node-finished"/>
     <xsl:call-template name= "node-postcondition-failed"/>
   </AND>
 </xsl:template>
 
-<xsl:template match= "NodeParentFailed">
+<xsl:template match= "ParentFailed">
   <AND>
     <xsl:call-template name= "node-finished"/>
     <xsl:call-template name= "node-parent-failed"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList">
+   <Node NodeType="NodeList" epx="Try">
       <NodeId>Try_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
@@ -63,7 +63,7 @@
             <Node NodeType="Empty">
                <NodeId>One</NodeId>
             </Node>
-            <Node NodeType="NodeList">
+            <Node NodeType="NodeList" epx="Try">
                <NodeId>Try_d1e29</NodeId>
                <StartCondition>
                   <AND>

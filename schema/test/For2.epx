@@ -21,11 +21,11 @@
         <RealValue>0.2</RealValue>
       </ADD>
     </LoopVariableUpdate>
-    <Actions>
+    <Action>
       <Node NodeType="Empty">
         <NodeId>One</NodeId>
       </Node>
-    </Actions>
+    </Action>
   </For>
 </PlexilPlan>
 

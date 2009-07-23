@@ -74,18 +74,18 @@
         <xsd:element ref="BooleanValue"/>
         <xsd:group ref="Lookup"/>
         <xsd:element ref="ArrayElement"/>
-        <xsd:element ref="NodeFinished"/>
-        <xsd:element ref="NodeIterationEnded"/>
-        <xsd:element ref="NodeExecuting"/>
-        <xsd:element ref="NodeWaiting"/>
-        <xsd:element ref="NodeInactive"/>
-        <xsd:element ref="NodeSucceeded"/>
-        <xsd:element ref="NodeFailed"/>
-        <xsd:element ref="NodeSkipped"/>
-        <xsd:element ref="NodeInvariantFailed"/>
-        <xsd:element ref="NodePreconditionFailed"/>
-        <xsd:element ref="NodePostconditionFailed"/>
-        <xsd:element ref="NodeParentFailed"/>
+        <xsd:element ref="Finished"/>
+        <xsd:element ref="IterationEnded"/>
+        <xsd:element ref="Executing"/>
+        <xsd:element ref="Waiting"/>
+        <xsd:element ref="Inactive"/>
+        <xsd:element ref="Succeeded"/>
+        <xsd:element ref="Failed"/>
+        <xsd:element ref="Skipped"/>
+        <xsd:element ref="InvariantFailed"/>
+        <xsd:element ref="PreconditionFailed"/>
+        <xsd:element ref="PostconditionFailed"/>
+        <xsd:element ref="ParentFailed"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
@@ -200,14 +200,14 @@
         <xsd:element name="Then">
           <xsd:complexType>
             <xsd:all>
-              <xsd:group ref="Action" maxOccurs="unbounded"/>
+              <xsd:group ref="Action"/>
             </xsd:all>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="Else" minOccurs="0">
           <xsd:complexType>
             <xsd:all>
-              <xsd:group ref="Action" maxOccurs="unbounded"/>
+              <xsd:group ref="Action"/>
             </xsd:all>
           </xsd:complexType>
         </xsd:element>
@@ -242,7 +242,13 @@
             <xsd:group ref="BooleanExpression"/>
           </xsd:complexType>
         </xsd:element>
-        <xsd:group ref="Action" maxOccurs="unbounded"/>
+        <xsd:element name="Action">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:group ref="Action"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -290,9 +296,9 @@
             <xsd:group ref="NumericExpression"/>
           </xsd:complexType>
         </xsd:element>
-        <xsd:element name= "Actions">
+        <xsd:element name= "Action">
           <xsd:complexType>
-            <xsd:group ref="Action" maxOccurs= "unbounded"/>
+            <xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
@@ -302,19 +308,19 @@
 
   <!-- Node Predicates -->
 
-  <xsd:element name="NodeFinished" type="xsd:NCName"/>
-  <xsd:element name="NodeIterationEnded" type="xsd:NCName"/>
-  <xsd:element name="NodeExecuting" type="xsd:NCName"/>
-  <xsd:element name="NodeWaiting" type="xsd:NCName"/>
-  <xsd:element name="NodeInactive" type="xsd:NCName"/>
-  <xsd:element name="NodeSucceeded" type="xsd:NCName"/>
-  <xsd:element name="NodeIterationSucceeded" type="xsd:NCName"/>
-  <xsd:element name="NodeFailed" type="xsd:NCName"/>
-  <xsd:element name="NodeIterationFailed" type="xsd:NCName"/>
-  <xsd:element name="NodeSkipped" type="xsd:NCName"/>
-  <xsd:element name="NodeInvariantFailed" type="xsd:NCName"/>
-  <xsd:element name="NodePreconditionFailed" type="xsd:NCName"/>
-  <xsd:element name="NodePostconditionFailed" type="xsd:NCName"/>
-  <xsd:element name="NodeParentFailed" type="xsd:NCName"/>
+  <xsd:element name="Finished" type="xsd:NCName"/>
+  <xsd:element name="IterationEnded" type="xsd:NCName"/>
+  <xsd:element name="Executing" type="xsd:NCName"/>
+  <xsd:element name="Waiting" type="xsd:NCName"/>
+  <xsd:element name="Inactive" type="xsd:NCName"/>
+  <xsd:element name="Succeeded" type="xsd:NCName"/>
+  <xsd:element name="IterationSucceeded" type="xsd:NCName"/>
+  <xsd:element name="Failed" type="xsd:NCName"/>
+  <xsd:element name="IterationFailed" type="xsd:NCName"/>
+  <xsd:element name="Skipped" type="xsd:NCName"/>
+  <xsd:element name="InvariantFailed" type="xsd:NCName"/>
+  <xsd:element name="PreconditionFailed" type="xsd:NCName"/>
+  <xsd:element name="PostconditionFailed" type="xsd:NCName"/>
+  <xsd:element name="ParentFailed" type="xsd:NCName"/>
 
 </xsd:schema>

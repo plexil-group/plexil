@@ -94,29 +94,35 @@ start =
   | Return
   | NodeId
   | NodeOutcomeValue
-LT =
-  notAllowed
-  | element LT { NumericExpression, NumericExpression }
-DeclaredVariable =
-  IntegerVariable
-  | RealVariable
-  | BooleanVariable
-  | StringVariable
-  | (notAllowed
-     | element ArrayVariable { NCName })
-  | ArrayElement
+\string = xsd:string
 RepeatCondition =
   notAllowed
   | element RepeatCondition { BooleanExpression }
 NodeId =
   notAllowed
   | element NodeId { NCName }
+LT =
+  notAllowed
+  | element LT { NumericExpression, NumericExpression }
+Timepoint =
+  notAllowed
+  | element Timepoint { xsd:NMTOKEN "END" | xsd:NMTOKEN "START" }
 Node =
   notAllowed
   | element Node {
       ColNo?,
       LineNo?,
       FileName?,
+      attribute epx {
+        xsd:NMTOKEN "UncheckedSequence"
+        | xsd:NMTOKEN "Sequence"
+        | xsd:NMTOKEN "If"
+        | xsd:NMTOKEN "While"
+        | xsd:NMTOKEN "For"
+        | xsd:NMTOKEN "Concurrence"
+        | xsd:NMTOKEN "aux"
+        | xsd:NMTOKEN "Try"
+      }?,
       attribute NodeType {
         xsd:NMTOKEN "FunctionCall"
         | xsd:NMTOKEN "Assignment"
@@ -145,9 +151,6 @@ Node =
 StartCondition =
   notAllowed
   | element StartCondition { BooleanExpression }
-EQNumeric =
-  notAllowed
-  | element EQNumeric { NumericExpression, NumericExpression }
 Parameter =
   notAllowed
   | element Parameter {
@@ -160,66 +163,51 @@ Parameter =
       },
       NCNameOrEmpty
     }
-GT =
+LibraryNodeCall =
   notAllowed
-  | element GT { NumericExpression, NumericExpression }
-Timepoint =
-  notAllowed
-  | element Timepoint { xsd:NMTOKEN "END" | xsd:NMTOKEN "START" }
-NodeStateValue =
-  notAllowed
-  | element NodeStateValue {
-      xsd:NMTOKEN "INACTIVE"
-      | xsd:NMTOKEN "WAITING"
-      | xsd:NMTOKEN "FINISHED"
-      | xsd:NMTOKEN "ITERATION_ENDED"
-      | xsd:NMTOKEN "EXECUTING"
-      | xsd:NMTOKEN "FAILING"
-      | xsd:NMTOKEN "FINISHING"
+  | element LibraryNodeCall {
+      NodeId,
+      element RenameNodeId { NCName }?,
+      Alias*
     }
-InOut =
+LookupNow =
   notAllowed
-  | element InOut { DeclareVariable+ }
-Tolerance =
-  notAllowed
-  | element Tolerance { RealValue | RealVariable }
-StringValue =
-  notAllowed
-  | element StringValue { xsd:string }
-NodeCommandHandleValue =
-  notAllowed
-  | element NodeCommandHandleValue {
-      xsd:NMTOKEN "COMMAND_ACCEPTED"
-      | xsd:NMTOKEN "COMMAND_SUCCESS"
-      | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
-      | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
-      | xsd:NMTOKEN "COMMAND_FAILED"
-      | xsd:NMTOKEN "COMMAND_DENIED"
+  | element LookupNow {
+      (Name
+       | element StateName { \string }),
+      Arguments?
     }
+LookupRHS =
+  notAllowed
+  | element LookupRHS { Lookup }
+DIV =
+  notAllowed
+  | element DIV { NumericExpression, NumericExpression }
+BooleanRHS =
+  notAllowed
+  | element BooleanRHS { BooleanExpression }
 CommandDeclaration =
   notAllowed
   | element CommandDeclaration {
       ExternalCallDeclaration, ResourceList?
     }
-Arguments =
+Resource =
   notAllowed
-  | element Arguments {
-      (IntegerValue
-       | RealValue
-       | BooleanValue
-       | StringValue
-       | DeclaredVariable)+
+  | element Resource {
+      element ResourceName { StringExpression }
+      & element ResourcePriority { NumericExpression }
+      & element ResourceLowerBound { NumericExpression }?
+      & element ResourceUpperBound { NumericExpression }?
+      & element ResourceReleaseAtTermination { BooleanExpression }?
     }
-NodeOutcomeVariable =
-  notAllowed
-  | element NodeOutcomeVariable { NodeRef | NodeId }
 ColNo = attribute ColNo { xsd:integer }
+Value = IntegerValue | RealValue | BooleanValue | StringValue
 FunctionDeclaration =
   notAllowed
   | element FunctionDeclaration { ExternalCallDeclaration }
-IntegerVariable =
+In =
   notAllowed
-  | element IntegerVariable { NCName }
+  | element In { DeclareVariable+ }
 GlobalDeclarations =
   notAllowed
   | element GlobalDeclarations {
@@ -230,28 +218,12 @@ GlobalDeclarations =
        | LibraryNodeDeclaration
        | element TimeScalingUnitsSubunits { xsd:integer })+
     }
-ArrayRHS =
+StringVariable =
   notAllowed
-  | element ArrayRHS {
-      element ArrayVariable { NCName }
-    }
-EQInternal =
+  | element StringVariable { NCName }
+EQString =
   notAllowed
-  | element EQInternal {
-      (NodeState, NodeState)
-      | (NodeOutcome, NodeOutcome)
-      | (NodeFailure, NodeFailure)
-      | (NodeCommandHandle, NodeCommandHandle)
-    }
-AND =
-  notAllowed
-  | element AND { BooleanExpression* }
-SkipCondition =
-  notAllowed
-  | element SkipCondition { BooleanExpression }
-EQBoolean =
-  notAllowed
-  | element EQBoolean { BooleanExpression, BooleanExpression }
+  | element EQString { StringExpression, StringExpression }
 Command =
   notAllowed
   | element Command {
@@ -261,12 +233,28 @@ Command =
        | element CommandName { \string }),
       Arguments?
     }
-Name =
+SkipCondition =
   notAllowed
-  | element Name { StringExpression }
-NEString =
+  | element SkipCondition { BooleanExpression }
+Tolerance =
   notAllowed
-  | element NEString { StringExpression, StringExpression }
+  | element Tolerance { RealValue | RealVariable }
+OR =
+  notAllowed
+  | element OR { BooleanExpression* }
+NodeCommandHandleValue =
+  notAllowed
+  | element NodeCommandHandleValue {
+      xsd:NMTOKEN "COMMAND_ACCEPTED"
+      | xsd:NMTOKEN "COMMAND_SUCCESS"
+      | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_FAILED"
+      | xsd:NMTOKEN "COMMAND_DENIED"
+    }
+IntegerValue =
+  notAllowed
+  | element IntegerValue { xsd:integer }
 NodeBody =
   notAllowed
   | element NodeBody {
@@ -278,6 +266,286 @@ NodeBody =
       | Request
       | LibraryNodeCall
     }
+AND =
+  notAllowed
+  | element AND { BooleanExpression* }
+ADD =
+  notAllowed
+  | element ADD {
+      NumericExpression, NumericExpression, NumericExpression*
+    }
+NodeState = NodeStateVariable | NodeStateValue
+Arguments =
+  notAllowed
+  | element Arguments {
+      (IntegerValue
+       | RealValue
+       | BooleanValue
+       | StringValue
+       | DeclaredVariable)+
+    }
+EQInternal =
+  notAllowed
+  | element EQInternal {
+      (NodeState, NodeState)
+      | (NodeOutcome, NodeOutcome)
+      | (NodeFailure, NodeFailure)
+      | (NodeCommandHandle, NodeCommandHandle)
+    }
+NodeTimepointValue =
+  notAllowed
+  | element NodeTimepointValue {
+      (NodeRef | NodeId), NodeStateValue, Timepoint
+    }
+NodeStateValue =
+  notAllowed
+  | element NodeStateValue {
+      xsd:NMTOKEN "INACTIVE"
+      | xsd:NMTOKEN "WAITING"
+      | xsd:NMTOKEN "FINISHED"
+      | xsd:NMTOKEN "ITERATION_ENDED"
+      | xsd:NMTOKEN "EXECUTING"
+      | xsd:NMTOKEN "FAILING"
+      | xsd:NMTOKEN "FINISHING"
+    }
+ABS =
+  notAllowed
+  | element ABS { NumericExpression }
+NodeStateVariable =
+  notAllowed
+  | element NodeStateVariable { NodeRef | NodeId }
+NodeFailureValue =
+  notAllowed
+  | element NodeFailureValue {
+      xsd:NMTOKEN "INVARIANT_CONDITION_FAILED"
+      | xsd:NMTOKEN "POST_CONDITION_FAILED"
+      | xsd:NMTOKEN "PRE_CONDITION_FAILED"
+      | xsd:NMTOKEN "PARENT_FAILED"
+    }
+StringExpression =
+  StringVariable | StringValue | Concat | Lookup | ArrayElement
+LE =
+  notAllowed
+  | element LE { NumericExpression, NumericExpression }
+NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+NOT =
+  notAllowed
+  | element NOT { BooleanExpression }
+NEBoolean =
+  notAllowed
+  | element NEBoolean { BooleanExpression, BooleanExpression }
+Alias =
+  notAllowed
+  | element Alias {
+      element NodeParameter { NCName },
+      (Value | DeclaredVariable)
+    }
+BooleanVariable =
+  notAllowed
+  | element BooleanVariable { NCName }
+InvariantCondition =
+  notAllowed
+  | element InvariantCondition { BooleanExpression }
+PreCondition =
+  notAllowed
+  | element PreCondition { BooleanExpression }
+FunctionCall =
+  notAllowed
+  | element FunctionCall {
+      DeclaredVariable?,
+      (Name
+       | element FunctionName { \string }),
+      Arguments?
+    }
+LookupOnChange =
+  notAllowed
+  | element LookupOnChange {
+      (Name
+       | element StateName { \string }),
+      Tolerance?,
+      Arguments?
+    }
+GE =
+  notAllowed
+  | element GE { NumericExpression, NumericExpression }
+NodeFailure = NodeFailureVariable | NodeFailureValue
+StringRHS =
+  notAllowed
+  | element StringRHS { StringExpression }
+IsKnown =
+  notAllowed
+  | element IsKnown {
+      DeclaredVariable
+      | Lookup
+      | NodeStateVariable
+      | NodeOutcomeVariable
+      | NodeTimepointValue
+    }
+EndCondition =
+  notAllowed
+  | element EndCondition { BooleanExpression }
+StateDeclaration =
+  notAllowed
+  | element StateDeclaration { ExternalCallDeclaration }
+NodeRef =
+  notAllowed
+  | element NodeRef {
+      attribute dir {
+        xsd:NMTOKEN "child"
+        | xsd:NMTOKEN "self"
+        | xsd:NMTOKEN "sibling"
+        | xsd:NMTOKEN "parent"
+      }?,
+      NCNameOrEmpty
+    }
+Lookup = LookupOnChange | LookupNow
+SQRT =
+  notAllowed
+  | element SQRT { NumericExpression }
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | (notAllowed
+     | element ArrayVariable { NCName })
+  | ArrayElement
+PostCondition =
+  notAllowed
+  | element PostCondition { BooleanExpression }
+ArrayRHS =
+  notAllowed
+  | element ArrayRHS {
+      element ArrayVariable { NCName }
+    }
+NodeOutcomeVariable =
+  notAllowed
+  | element NodeOutcomeVariable { NodeRef | NodeId }
+SUB =
+  notAllowed
+  | element SUB { NumericExpression, NumericExpression }
+Pair =
+  notAllowed
+  | element Pair {
+      element Name { NCName },
+      (Value | DeclaredVariable | LookupNow)
+    }
+NodeFailureVariable =
+  notAllowed
+  | element NodeFailureVariable { NodeRef | NodeId }
+ArrayElement =
+  notAllowed
+  | element ArrayElement {
+      element Name { NCName },
+      element Index { NumericExpression }
+    }
+NEString =
+  notAllowed
+  | element NEString { StringExpression, StringExpression }
+LibraryNodeDeclaration =
+  notAllowed
+  | element LibraryNodeDeclaration {
+      element Name { NCName },
+      element Interface {
+        mixed {
+          (attribute * { text }
+           | element0)*
+        }
+      }
+    }
+NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
+Request =
+  notAllowed
+  | element Request { NodeId?, Pair* }
+NodeCommandHandleVariable =
+  notAllowed
+  | element NodeCommandHandleVariable { NodeId }
+NENumeric =
+  notAllowed
+  | element NENumeric { NumericExpression, NumericExpression }
+MUL =
+  notAllowed
+  | element MUL {
+      NumericExpression, NumericExpression, NumericExpression*
+    }
+ResourceList =
+  notAllowed
+  | element ResourceList { Resource* }
+DeclareArray =
+  notAllowed
+  | element DeclareArray {
+      element Name { NCName },
+      element Type { TypeValues },
+      element MaxSize { nonNegativeInteger },
+      element InitialValue {
+        IntegerValue+ | RealValue+ | BooleanValue+ | StringValue+
+      }?
+    }
+Concat =
+  notAllowed
+  | element Concat { StringExpression* }
+NEInternal =
+  notAllowed
+  | element NEInternal {
+      (NodeState, NodeState)
+      | (NodeOutcome, NodeOutcome)
+      | (NodeFailure, NodeFailure)
+      | (NodeCommandHandle, NodeCommandHandle)
+    }
+GT =
+  notAllowed
+  | element GT { NumericExpression, NumericExpression }
+StringValue =
+  notAllowed
+  | element StringValue { xsd:string }
+ExternalCallDeclaration =
+  (notAllowed
+   | element Name { NCName }),
+  Return*,
+  Parameter*
+XOR =
+  notAllowed
+  | element XOR { BooleanExpression* }
+LineNo = attribute LineNo { xsd:integer }
+RealValue =
+  notAllowed
+  | element RealValue { xsd:double }
+nonNegativeInteger = xsd:nonNegativeInteger
+Interface =
+  notAllowed
+  | element Interface { In? & InOut? }
+element0 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element0)*
+    }
+  }
+RealVariable =
+  notAllowed
+  | element RealVariable { NCName }
+NodeList =
+  notAllowed
+  | element NodeList { Action* }
+NodeOutcomeValue =
+  notAllowed
+  | element NodeOutcomeValue {
+      xsd:NMTOKEN "SKIPPED"
+      | xsd:NMTOKEN "SUCCESS"
+      | xsd:NMTOKEN "FAILURE"
+    }
+Action = Node
+EQBoolean =
+  notAllowed
+  | element EQBoolean { BooleanExpression, BooleanExpression }
+DeclareVariable =
+  notAllowed
+  | element DeclareVariable {
+      element Name { NCName },
+      element Type { TypeValues },
+      element InitialValue { Value }?
+    }
+FileName = attribute FileName { xsd:string }
 NumericExpression =
   ADD
   | SUB
@@ -296,61 +564,6 @@ NumericExpression =
   | (notAllowed
      | element ArrayMaxSize { NCName })
   | ArrayElement
-NodeFailure = NodeFailureVariable | NodeFailureValue
-Assignment =
-  notAllowed
-  | element Assignment {
-      DeclaredVariable,
-      (BooleanRHS | NumericRHS | StringRHS | LookupRHS | ArrayRHS)
-    }
-StringExpression =
-  StringVariable | StringValue | Concat | Lookup | ArrayElement
-Update =
-  notAllowed
-  | element Update { Pair* }
-Lookup = LookupOnChange | LookupNow
-NodeStateVariable =
-  notAllowed
-  | element NodeStateVariable { NodeRef | NodeId }
-NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
-ADD =
-  notAllowed
-  | element ADD {
-      NumericExpression, NumericExpression, NumericExpression*
-    }
-\string = xsd:string
-NENumeric =
-  notAllowed
-  | element NENumeric { NumericExpression, NumericExpression }
-InvariantCondition =
-  notAllowed
-  | element InvariantCondition { BooleanExpression }
-BooleanRHS =
-  notAllowed
-  | element BooleanRHS { BooleanExpression }
-PreCondition =
-  notAllowed
-  | element PreCondition { BooleanExpression }
-NumericRHS =
-  notAllowed
-  | element NumericRHS { NumericExpression }
-NCName = xsd:NCName
-NodeOutcomeValue =
-  notAllowed
-  | element NodeOutcomeValue {
-      xsd:NMTOKEN "SKIPPED"
-      | xsd:NMTOKEN "SUCCESS"
-      | xsd:NMTOKEN "FAILURE"
-    }
-NodeFailureVariable =
-  notAllowed
-  | element NodeFailureVariable { NodeRef | NodeId }
-ArrayElement =
-  notAllowed
-  | element ArrayElement {
-      element Name { NCName },
-      element Index { NumericExpression }
-    }
 BooleanExpression =
   OR
   | XOR
@@ -373,200 +586,10 @@ BooleanExpression =
   | BooleanValue
   | Lookup
   | ArrayElement
-EndCondition =
+NCName = xsd:NCName
+IntegerVariable =
   notAllowed
-  | element EndCondition { BooleanExpression }
-StateDeclaration =
-  notAllowed
-  | element StateDeclaration { ExternalCallDeclaration }
-SUB =
-  notAllowed
-  | element SUB { NumericExpression, NumericExpression }
-FunctionCall =
-  notAllowed
-  | element FunctionCall {
-      DeclaredVariable?,
-      (Name
-       | element FunctionName { \string }),
-      Arguments?
-    }
-LE =
-  notAllowed
-  | element LE { NumericExpression, NumericExpression }
-NodeRef =
-  notAllowed
-  | element NodeRef {
-      attribute dir {
-        xsd:NMTOKEN "child"
-        | xsd:NMTOKEN "self"
-        | xsd:NMTOKEN "sibling"
-        | xsd:NMTOKEN "parent"
-      }?,
-      NCNameOrEmpty
-    }
-XOR =
-  notAllowed
-  | element XOR { BooleanExpression* }
-IsKnown =
-  notAllowed
-  | element IsKnown {
-      DeclaredVariable
-      | Lookup
-      | NodeStateVariable
-      | NodeOutcomeVariable
-      | NodeTimepointValue
-    }
-ABS =
-  notAllowed
-  | element ABS { NumericExpression }
-BooleanValue =
-  notAllowed
-  | element BooleanValue { xsd:boolean }
-NodeFailureValue =
-  notAllowed
-  | element NodeFailureValue {
-      xsd:NMTOKEN "INVARIANT_CONDITION_FAILED"
-      | xsd:NMTOKEN "POST_CONDITION_FAILED"
-      | xsd:NMTOKEN "PRE_CONDITION_FAILED"
-      | xsd:NMTOKEN "PARENT_FAILED"
-    }
-DIV =
-  notAllowed
-  | element DIV { NumericExpression, NumericExpression }
-NodeState = NodeStateVariable | NodeStateValue
-LookupRHS =
-  notAllowed
-  | element LookupRHS { Lookup }
-RealValue =
-  notAllowed
-  | element RealValue { xsd:double }
-NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
-PostCondition =
-  notAllowed
-  | element PostCondition { BooleanExpression }
-StringRHS =
-  notAllowed
-  | element StringRHS { StringExpression }
-Alias =
-  notAllowed
-  | element Alias {
-      element NodeParameter { NCName },
-      (Value | DeclaredVariable)
-    }
-NodeList =
-  notAllowed
-  | element NodeList { Action* }
-MUL =
-  notAllowed
-  | element MUL {
-      NumericExpression, NumericExpression, NumericExpression*
-    }
-NodeTimepointValue =
-  notAllowed
-  | element NodeTimepointValue {
-      (NodeRef | NodeId), NodeStateValue, Timepoint
-    }
-NEBoolean =
-  notAllowed
-  | element NEBoolean { BooleanExpression, BooleanExpression }
-Request =
-  notAllowed
-  | element Request { NodeId?, Pair* }
-IntegerValue =
-  notAllowed
-  | element IntegerValue { xsd:integer }
-LibraryNodeDeclaration =
-  notAllowed
-  | element LibraryNodeDeclaration {
-      element Name { NCName },
-      element Interface {
-        mixed {
-          (attribute * { text }
-           | element0)*
-        }
-      }
-    }
-GE =
-  notAllowed
-  | element GE { NumericExpression, NumericExpression }
-NodeCommandHandleVariable =
-  notAllowed
-  | element NodeCommandHandleVariable { NodeId }
-In =
-  notAllowed
-  | element In { DeclareVariable+ }
-ResourceList =
-  notAllowed
-  | element ResourceList { Resource* }
-ExternalCallDeclaration =
-  (notAllowed
-   | element Name { NCName }),
-  Return*,
-  Parameter*
-BooleanVariable =
-  notAllowed
-  | element BooleanVariable { NCName }
-LineNo = attribute LineNo { xsd:integer }
-RealVariable =
-  notAllowed
-  | element RealVariable { NCName }
-OR =
-  notAllowed
-  | element OR { BooleanExpression* }
-Resource =
-  notAllowed
-  | element Resource {
-      element ResourceName { StringExpression }
-      & element ResourcePriority { NumericExpression }
-      & element ResourceLowerBound { NumericExpression }?
-      & element ResourceUpperBound { NumericExpression }?
-      & element ResourceReleaseAtTermination { BooleanExpression }?
-    }
-Value = IntegerValue | RealValue | BooleanValue | StringValue
-LibraryNodeCall =
-  notAllowed
-  | element LibraryNodeCall {
-      NodeId,
-      element RenameNodeId { NCName }?,
-      Alias*
-    }
-Interface =
-  notAllowed
-  | element Interface { In? & InOut? }
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
-  }
-Pair =
-  notAllowed
-  | element Pair {
-      element Name { NCName },
-      (Value | DeclaredVariable | LookupNow)
-    }
-Action = Node
-FileName = attribute FileName { xsd:string }
-EQString =
-  notAllowed
-  | element EQString { StringExpression, StringExpression }
-nonNegativeInteger = xsd:nonNegativeInteger
-NEInternal =
-  notAllowed
-  | element NEInternal {
-      (NodeState, NodeState)
-      | (NodeOutcome, NodeOutcome)
-      | (NodeFailure, NodeFailure)
-      | (NodeCommandHandle, NodeCommandHandle)
-    }
-LookupNow =
-  notAllowed
-  | element LookupNow {
-      (Name
-       | element StateName { \string }),
-      Arguments?
-    }
+  | element IntegerVariable { NCName }
 Return =
   notAllowed
   | element Return {
@@ -579,53 +602,40 @@ Return =
       },
       NCNameOrEmpty
     }
-StringVariable =
+BooleanValue =
   notAllowed
-  | element StringVariable { NCName }
+  | element BooleanValue { xsd:boolean }
+InOut =
+  notAllowed
+  | element InOut { DeclareVariable+ }
 TypeValues =
   xsd:NMTOKEN "String"
   | xsd:NMTOKEN "Integer"
   | xsd:NMTOKEN "Array"
   | xsd:NMTOKEN "Boolean"
   | xsd:NMTOKEN "Real"
-DeclareVariable =
+Name =
   notAllowed
-  | element DeclareVariable {
-      element Name { NCName },
-      element Type { TypeValues },
-      element InitialValue { Value }?
-    }
+  | element Name { StringExpression }
 NCNameOrEmpty = xsd:NCName | xsd:string ""
-NOT =
+NumericRHS =
   notAllowed
-  | element NOT { BooleanExpression }
-LookupOnChange =
+  | element NumericRHS { NumericExpression }
+Update =
   notAllowed
-  | element LookupOnChange {
-      (Name
-       | element StateName { \string }),
-      Tolerance?,
-      Arguments?
+  | element Update { Pair* }
+Assignment =
+  notAllowed
+  | element Assignment {
+      DeclaredVariable,
+      (BooleanRHS | NumericRHS | StringRHS | LookupRHS | ArrayRHS)
     }
 VariableDeclarations =
   notAllowed
   | element VariableDeclarations { (DeclareVariable | DeclareArray)+ }
-DeclareArray =
+EQNumeric =
   notAllowed
-  | element DeclareArray {
-      element Name { NCName },
-      element Type { TypeValues },
-      element MaxSize { nonNegativeInteger },
-      element InitialValue {
-        IntegerValue+ | RealValue+ | BooleanValue+ | StringValue+
-      }?
-    }
-SQRT =
-  notAllowed
-  | element SQRT { NumericExpression }
-Concat =
-  notAllowed
-  | element Concat { StringExpression* }
+  | element EQNumeric { NumericExpression, NumericExpression }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

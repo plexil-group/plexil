@@ -21,20 +21,11 @@
         <RealValue>0.2</RealValue>
       </ADD>
     </LoopVariableUpdate>
-    <Actions>
+    <Action>
       <Node NodeType="Empty">
         <NodeId>One</NodeId>
       </Node>
-      <Node NodeType="Empty">
-        <NodeId>Two</NodeId>
-      </Node>
-      <Node NodeType="Empty">
-        <NodeId>Three</NodeId>
-        <StartCondition>
-          <NodeFinished>Two</NodeFinished>
-        </StartCondition>
-      </Node>
-    </Actions>
+    </Action>
   </For>
 </PlexilPlan>
 

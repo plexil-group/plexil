@@ -13,8 +13,10 @@
     <Condition>
       <BooleanVariable>foo</BooleanVariable>
     </Condition>
+    <Action>
       <Node NodeType="Empty">
         <NodeId>One</NodeId>
       </Node>
+    </Action>
   </While>
 </PlexilPlan>
