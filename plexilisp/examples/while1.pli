@@ -3,8 +3,6 @@
   (variables (integer "count" 0))
   (list
    (while (< (intvar "count") 2)
-     (empty-node "foo")
-     (command "bar")
      (assignment (intvar "count") (+ (intvar "count") 1))))))
 
 

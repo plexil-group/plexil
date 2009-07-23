@@ -984,66 +984,66 @@
 
 (pdefine pl (Finished finished isFinished is-finished) (id) 1 nil
   "Is the given action in state FINISHED?"
-  (xml "NodeFinished" id))
+  (xml "Finished" id))
 
 (pdefine pl (IterationEnded iteration-ended
              isIterationEnded is-iteration-ended) (id) 1 nil
   "Is the given node in state ITERATION_ENDED?"
-  (xml "NodeIterationEnded" id))
+  (xml "IterationEnded" id))
 
 (pdefine pl (Executing executing isExecuting is-executing) (id) 1 nil
   "Is the given action in state EXECUTING?"
-  (xml "NodeExecuting" id))
+  (xml "Executing" id))
 
 (pdefine pl (Waiting waiting isWaiting is-waiting) (id) 1 nil
   "Is the given action in state WAITING?"
-  (xml "NodeWaiting" id))
+  (xml "Waiting" id))
 
 (pdefine pl (Inactive inactive isInactive is-inactive) (id) 1 nil
   "Is the given action in state INACTIVE?"
-  (xml "NodeInactive" id))
+  (xml "Inactive" id))
 
 (pdefine pl (Successful successful isSuccessful is-successful) (id) 1 nil
  "Did the given action finish successfully?"
-  (xml "NodeSucceeded" id))
+  (xml "Succeeded" id))
 
 (pdefine pl (IterationSuccessful iteration-successful) (id) 1 nil
  "Did the last iteration of the given action finish successfully?"
-  (xml "NodeIterationSucceeded" id))
+  (xml "IterationSucceeded" id))
 
 (pdefine pl (IterationFailed iteration-failed) (id) 1 nil
  "Did the last iteration of the given action fail?"
-  (xml "NodeIterationFailed" id))
+  (xml "IterationFailed" id))
 
 (pdefine pl (Failed failed isFailed is-failed) (id) 1 nil
   "Did the given action fail?"
-  (xml "NodeFailed" id))
+  (xml "Failed" id))
 
 (pdefine pl (Skipped skipped isSkipped is-skipped) (id) 1 nil
   "Was the given action skipped?"
-  (xml "NodeSkipped" id))
+  (xml "Skipped" id))
 
 (pdefine pl (InvariantFailed invariant-failed) (id) 1 nil
   "Did the invariant condition of the given action fail?"
-  (xml "NodeInvariantFailed" id))
+  (xml "InvariantFailed" id))
 
 (pdefine pl (PostConditionFailed
              PostconditionFailed
              postcondition-failed
              post-condition-failed) (id) 1 nil
   "Did the postcondition of the given action fail?"
-  (xml "NodePostconditionFailed" id))
+  (xml "PostconditionFailed" id))
 
 (pdefine pl (PreConditionFailed
              PreconditionFailed
              precondition-failed
              pre-condition-failed) (id) 1 nil
   "Did the precondition of the given action fail?"
-  (xml "NodePreconditionFailed" id))
+  (xml "PreconditionFailed" id))
 
 (pdefine pl (ParentFailed parent-failed) (id) 1 nil
   "Did the parent of the given action fail?"
-  (xml "NodeParentFailed" id))
+  (xml "ParentFailed" id))
 
 (insert-plexil-heading
  "=== Conditionals and Loops ==="
@@ -1059,31 +1059,29 @@
          (xml "Then" (plexil-nodify ',then-part))
          (if ',else-part (xml "Else" (plexil-nodify ',else-part))))))
 
-(pdefine-syntax pl (While while) (condition &rest forms) 1 node
+(pdefine-syntax pl (While while) (condition action) 1 node
   "While loop."
+  ;; xml * xml -> xml
   `(xml "While"
-       (cons
+       (list
         (xml "Condition" (infer-type ,condition))
-        (mapcar #'plexil-nodify ',forms))))
+        (xml "Action" (plexil-nodify ',action)))))
 
-(pdefine-syntax pl (for For)
-                (declaration condition update form &rest forms) 1 node
+(pdefine-syntax pl (for For) (declaration condition update action) 1 node
   ("For Loop.  The declaration should look like a variable declaration. i.e "
    "{{(type name [init])}}, where {{type}} must be either {{integer}} or {{real}} "
    "and the initial value {{init}} is optional (though generally useful).  "
    "{{condition}} is a boolean expression that will terminate the loop when "
    "it is false.  {{update}} is a numeric expression that expresses a new value "
-   "for the declared variable.  The one or more actions that follow will be "
-   "executed concurrently.")
-  ;; list(string,string,number) * xml * xml * xml * list(xml) -> xml
+   "for the declared variable.")
+  ;;
+  ;; list(string,string,number) * xml * xml * xml -> xml
   `(xml "For"
         (list
          (xml "LoopVariable" ,declaration)
          (xml "Condition" ,condition)
          (xml "LoopVariableUpdate" ,update)
-         (xml "Actions" (cons (plexil-nodify ',form)
-                              (mapcar #'plexil-nodify ',forms))))))
-
+         (xml "Action" (plexil-nodify ',action)))))
 
 (pdefine-syntax pl (Sequence sequence)
          (&optional name-or-first-form &rest forms) 1 node
