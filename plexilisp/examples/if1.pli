@@ -1,6 +1,6 @@
 (plexil-plan
  (if true
-     (command "foo")
+;;     (command "foo")
      (command "bar")))
 
 

@@ -1050,15 +1050,14 @@
  "These are high level syntax extensions of PLEXIL (syntactic sugar).  "
  "They expand into node structures. ")
 
-
 (pdefine-syntax pl (If if) (condition then-part &optional else-part) 1 node
   ("If-then-else.  The {{then-part}} and {{else-part}} may be nodes or other "
    "actions.  The {{else-part}} is optional.")
   `(xml "If"
-       (remove-nil
-        (xml "Condition" (infer-type ,condition))
-        (xml "Then" (plexil-nodify ',then-part))
-        (if ',else-part (xml "Else" (plexil-nodify ',else-part))))))
+        (remove-nil
+         (xml "Condition" (infer-type ,condition))
+         (xml "Then" (plexil-nodify ',then-part))
+         (if ',else-part (xml "Else" (plexil-nodify ',else-part))))))
 
 (pdefine-syntax pl (While while) (condition &rest forms) 1 node
   "While loop."
@@ -1157,36 +1156,53 @@
                            (and (not (plexil-node? x))
                                 (not (plexil-node-body? x))))
                          forms)))
-    (if (not (or nodes node-bodies))
-        (append '(pl-empty-node) `(,name) `,clauses)
-      (append '(pl-list-node)
-              `(,name)
-              `,clauses
-              (list
-               `(apply #'pl-list
-                       (append
-                        (mapcar #'plexil-eval-node ',nodes)
-                        (mapcar #'plexil-eval-node-body ',node-bodies))))))))
+    (cond
+     ;; empty action
+     ((not (or nodes node-bodies))
+      (append '(pl-empty-node) `(,name) `,clauses))
+     ;;
+     ;; A single node body becomes a node
+     ;;
+     ((and (not nodes) (= 1 (length node-bodies)))
+      `(plexil-eval-node-body (car ',node-bodies) ,name ',clauses))
+     ;;
+     ;; Anything else is wrapped in a list node.
+     ;;
+     (t (append '(pl-list-node) `(,name) `,clauses
+                (list
+                 `(apply #'pl-list
+                         ;; As a convention, nodes come before node bodies, though
+                         ;; all orderings are equivalent since they are concurrent.
+                         (append
+                          (mapcar #'plexil-eval-node ',nodes)
+                          (mapcar #'plexil-eval-node-body ',node-bodies)))))))))
 
 (defun plexil-eval-node (node)  ; list -> xml
   (eval node))
 
-(defun plexil-eval-node-body (body)  ; list -> xml
-  ;; Crude: could do something data-directed
-  (let ((type (car body)))
-    (cond
-     ((member type '(pl-command
-                     pl-Command
-                     pl-CommandWithReturn
-                     pl-command-with-return))
-      (funcall #'pl-command-node (eval body)))
-     ((member type '(pl-assignment pl-Assignment))
-      (funcall #'pl-assignment-node (eval body)))
-     ((member type '(pl-update pl-Update))
-      (funcall #'pl-update-node (eval body)))
-     ((member type '(pl-library-call pl-LibraryCall))
-      (funcall #'pl-library-call-node (eval body)))
-     (t (error "Unknown action: %s" body)))))
+(defun plexil-eval-node-body (body &optional name clauses)
+  ;; list * opt(string) * opt(list) -> xml
+  ;; Takes a construct representing a node body (with optional name and
+  ;; clauses), and returns a node.  Note crude approach; could do
+  ;; something data-directed.
+  ;;
+  (let* ((type (car body))
+         (fun
+          (cond
+           ((member type '(pl-command pl-Command
+                           pl-CommandWithReturn pl-command-with-return))
+            #'pl-command-node )
+           ((member type '(pl-assignment pl-Assignment))
+            #'pl-assignment-node)
+           ((member type '(pl-update pl-Update))
+            #'pl-update-node)
+           ((member type '(pl-library-call pl-LibraryCall))
+            #'pl-library-call-node)
+           (t (error "plexil-eval-node-body: Unknown action: %s" body)))))
+    (apply fun (append
+                (if name (list name))
+                (mapcar #'eval clauses)
+                (list (eval body))))))
 
 (pdefine pl (Nothing nothing) ()  0 node
   "An action that does nothing.  This becomes an anonymous empty node."
