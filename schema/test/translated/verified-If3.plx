@@ -11,7 +11,7 @@
       </VariableDeclarations>
       <NodeBody>
          <NodeList>
-            <Node NodeType="Assignment">
+            <Node NodeType="Assignment" epx="aux">
                <NodeId>ep2cp_IfSetup</NodeId>
                <NodeBody>
                   <Assignment>
@@ -22,7 +22,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList">
+            <Node NodeType="NodeList" epx="aux">
                <NodeId>ep2cp_IfBody</NodeId>
                <StartCondition>
                   <EQInternal>
@@ -36,7 +36,7 @@
                   <OR>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>ep2cp_IfTrueCase</NodeId>
+                           <NodeId>ep2cp_IfThenCase</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
@@ -47,8 +47,8 @@
                </EndCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList">
-                        <NodeId>ep2cp_IfTrueCase</NodeId>
+                     <Node NodeType="NodeList" epx="Then">
+                        <NodeId>ep2cp_IfThenCase</NodeId>
                         <StartCondition>
                            <BooleanVariable>ep2cp_test</BooleanVariable>
                         </StartCondition>

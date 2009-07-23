@@ -190,6 +190,8 @@
             <xsd:enumeration value="Concurrence"/>
             <xsd:enumeration value="Try"/>
             <xsd:enumeration value="If"/>
+            <xsd:enumeration value="Then"/>
+            <xsd:enumeration value="Else"/>
             <xsd:enumeration value="While"/>
             <xsd:enumeration value="For"/>
             <xsd:enumeration value="aux"/>

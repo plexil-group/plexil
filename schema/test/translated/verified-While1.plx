@@ -14,11 +14,11 @@
       </VariableDeclarations>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList">
+            <Node NodeType="NodeList" epx="aux">
                <NodeId>ep2cp_WhileBody</NodeId>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList">
+                     <Node NodeType="NodeList" epx="aux">
                         <NodeId>ep2cp_WhileTrue</NodeId>
                         <StartCondition>
                            <BooleanVariable>foo</BooleanVariable>

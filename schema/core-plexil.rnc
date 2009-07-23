@@ -115,6 +115,8 @@ Node =
       FileName?,
       attribute epx {
         xsd:NMTOKEN "UncheckedSequence"
+        | xsd:NMTOKEN "Then"
+        | xsd:NMTOKEN "Else"
         | xsd:NMTOKEN "Sequence"
         | xsd:NMTOKEN "If"
         | xsd:NMTOKEN "While"
@@ -266,9 +268,6 @@ NodeBody =
       | Request
       | LibraryNodeCall
     }
-AND =
-  notAllowed
-  | element AND { BooleanExpression* }
 ADD =
   notAllowed
   | element ADD {
@@ -503,14 +502,14 @@ ExternalCallDeclaration =
    | element Name { NCName }),
   Return*,
   Parameter*
-XOR =
-  notAllowed
-  | element XOR { BooleanExpression* }
 LineNo = attribute LineNo { xsd:integer }
 RealValue =
   notAllowed
   | element RealValue { xsd:double }
 nonNegativeInteger = xsd:nonNegativeInteger
+XOR =
+  notAllowed
+  | element XOR { BooleanExpression* }
 Interface =
   notAllowed
   | element Interface { In? & InOut? }
@@ -618,6 +617,9 @@ Name =
   notAllowed
   | element Name { StringExpression }
 NCNameOrEmpty = xsd:NCName | xsd:string ""
+AND =
+  notAllowed
+  | element AND { BooleanExpression* }
 NumericRHS =
   notAllowed
   | element NumericRHS { NumericExpression }

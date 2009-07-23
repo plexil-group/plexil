@@ -256,11 +256,11 @@
 
 <xsl:template name= "if-body">
   <xsl:variable name= "setup-node-id" select= "tr:prefix('IfSetup')"/>
-  <xsl:variable name= "true-node-id" select= "tr:prefix('IfTrueCase')"/>  
-  <xsl:variable name= "false-node-id" select= "tr:prefix('IfFalseCase')"/>  
+  <xsl:variable name= "true-node-id" select= "tr:prefix('IfThenCase')"/>  
+  <xsl:variable name= "false-node-id" select= "tr:prefix('IfElseCase')"/>  
   <NodeBody>
     <NodeList>
-      <Node NodeType= "Assignment">
+      <Node NodeType= "Assignment" epx= "aux">
         <NodeId>
           <xsl:value-of select= "$setup-node-id"/>
         </NodeId>
@@ -275,7 +275,7 @@
           </Assignment>
         </NodeBody>
       </Node>
-      <Node NodeType= "NodeList">
+      <Node NodeType= "NodeList" epx= "aux">
         <NodeId>
           <xsl:value-of select= "tr:prefix('IfBody')"/>
         </NodeId>
@@ -307,7 +307,7 @@
         </EndCondition>
         <NodeBody>
           <NodeList>
-            <Node NodeType= "NodeList">
+            <Node NodeType= "NodeList" epx= "Then">
               <NodeId>
                 <xsl:value-of select= "$true-node-id"/>
               </NodeId>
@@ -323,7 +323,7 @@
               </NodeBody>
             </Node>
             <xsl:if test= "Else">
-              <Node NodeType= "NodeList">
+              <Node NodeType= "NodeList" epx= "Else">
                 <NodeId>
                   <xsl:value-of select= "$false-node-id"/>
                 </NodeId>
@@ -368,13 +368,13 @@
   <xsl:variable name= "true-node-id" select= "tr:prefix('WhileTrue')"/>  
   <NodeBody>
     <NodeList>
-      <Node NodeType= "NodeList">
+      <Node NodeType= "NodeList" epx= "aux">
         <NodeId>
           <xsl:value-of select= "tr:prefix('WhileBody')"/>
         </NodeId>
         <NodeBody>
           <NodeList>
-            <Node NodeType= "NodeList">
+            <Node NodeType= "NodeList" epx= "aux">
               <NodeId>
                 <xsl:value-of select= "$true-node-id"/>
               </NodeId>
@@ -387,7 +387,6 @@
               <NodeBody>
                 <NodeList>
                   <xsl:apply-templates select= "Action/*"/>
-<!--                  <xsl:apply-templates select= "key('action', *)"/> -->
                 </NodeList>
               </NodeBody>
             </Node>
@@ -424,7 +423,7 @@
   <xsl:variable name= "do-node-id" select= "tr:prefix('ForDo')"/>
   <NodeBody>
     <NodeList>
-      <Node NodeType= "NodeList">
+      <Node NodeType= "NodeList" epx= "aux">
         <NodeId>
           <xsl:value-of select= "$loop-node-id"/>
         </NodeId>
@@ -433,7 +432,7 @@
         </RepeatCondition>
         <NodeBody>
           <NodeList>
-            <Node NodeType= "NodeList">
+            <Node NodeType= "NodeList" epx= "aux">
               <NodeId>
                 <xsl:value-of select= "$do-node-id"/>
               </NodeId>
@@ -443,7 +442,7 @@
                 </NodeList>
               </NodeBody>
             </Node>
-            <Node NodeType= "Assignment">
+            <Node NodeType= "Assignment" epx= "aux">
               <NodeId>
                 <xsl:value-of select= "tr:prefix('ForLoopUpdater')"/>
               </NodeId>

@@ -177,7 +177,6 @@ Action =
 Sequence =
   notAllowed
   | element Sequence { SequenceType, ColNo?, LineNo?, FileName? }
-NodeFailure = NodeFailureVariable | NodeFailureValue
 RealValue =
   notAllowed
   | element RealValue { xsd:double }
@@ -240,6 +239,8 @@ Node =
       FileName?,
       attribute epx {
         xsd:NMTOKEN "UncheckedSequence"
+        | xsd:NMTOKEN "Then"
+        | xsd:NMTOKEN "Else"
         | xsd:NMTOKEN "Sequence"
         | xsd:NMTOKEN "If"
         | xsd:NMTOKEN "While"
@@ -424,6 +425,7 @@ PostCondition =
 NEString =
   notAllowed
   | element NEString { StringExpression, StringExpression }
+NodeState = NodeStateVariable | NodeStateValue
 PreconditionFailed =
   notAllowed
   | element PreconditionFailed { NCName }
@@ -485,7 +487,7 @@ BooleanRHS =
 LookupRHS =
   notAllowed
   | element LookupRHS { Lookup }
-NodeState = NodeStateVariable | NodeStateValue
+NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
 nonNegativeInteger = xsd:nonNegativeInteger
 Concurrence =
   notAllowed
@@ -626,7 +628,7 @@ FunctionCall =
        | element FunctionName { \string }),
       Arguments?
     }
-NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+NodeFailure = NodeFailureVariable | NodeFailureValue
 SkipCondition =
   notAllowed
   | element SkipCondition { BooleanExpression }

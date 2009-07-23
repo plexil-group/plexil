@@ -14,7 +14,7 @@
       </VariableDeclarations>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList">
+            <Node NodeType="NodeList" epx="aux">
                <NodeId>ep2cp_ForLoop</NodeId>
                <RepeatCondition>
                   <LT>
@@ -24,7 +24,7 @@
                </RepeatCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList">
+                     <Node NodeType="NodeList" epx="aux">
                         <NodeId>ep2cp_ForDo</NodeId>
                         <NodeBody>
                            <NodeList>
@@ -34,7 +34,7 @@
                            </NodeList>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment">
+                     <Node NodeType="Assignment" epx="aux">
                         <NodeId>ep2cp_ForLoopUpdater</NodeId>
                         <StartCondition>
                            <EQInternal>
