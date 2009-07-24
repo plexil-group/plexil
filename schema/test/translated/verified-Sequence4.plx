@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="Sequence">
-      <NodeId>Sequence_d1e3</NodeId>
+      <NodeId>ep2cp_Sequence_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>foo</Name>
@@ -24,7 +24,7 @@
                   </EQInternal>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Sequence_d1e29</NodeId>
+                        <NodeId>ep2cp_Sequence_d1e29</NodeId>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
@@ -44,7 +44,7 @@
                <NodeId>One</NodeId>
             </Node>
             <Node NodeType="NodeList" epx="Sequence">
-               <NodeId>Sequence_d1e29</NodeId>
+               <NodeId>ep2cp_Sequence_d1e29</NodeId>
                <StartCondition>
                   <AND>
                      <EQInternal>
@@ -87,7 +87,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>Sequence_d1e29</NodeId>
+                           <NodeId>ep2cp_Sequence_d1e29</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>

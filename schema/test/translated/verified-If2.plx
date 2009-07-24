@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="If">
-      <NodeId>If_d1e3</NodeId>
+      <NodeId>ep2cp_If_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>ep2cp_test</Name>

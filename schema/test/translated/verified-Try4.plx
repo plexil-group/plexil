@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="Try">
-      <NodeId>Try_d1e3</NodeId>
+      <NodeId>ep2cp_Try_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>foo</Name>
@@ -23,7 +23,7 @@
                </EQInternal>
                <EQInternal>
                   <NodeOutcomeVariable>
-                     <NodeId>Try_d1e29</NodeId>
+                     <NodeId>ep2cp_Try_d1e29</NodeId>
                   </NodeOutcomeVariable>
                   <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                </EQInternal>
@@ -46,7 +46,7 @@
             </EQInternal>
             <EQInternal>
                <NodeOutcomeVariable>
-                  <NodeId>Try_d1e29</NodeId>
+                  <NodeId>ep2cp_Try_d1e29</NodeId>
                </NodeOutcomeVariable>
                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
             </EQInternal>
@@ -64,7 +64,7 @@
                <NodeId>One</NodeId>
             </Node>
             <Node NodeType="NodeList" epx="Try">
-               <NodeId>Try_d1e29</NodeId>
+               <NodeId>ep2cp_Try_d1e29</NodeId>
                <StartCondition>
                   <AND>
                      <EQInternal>
@@ -115,7 +115,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>Try_d1e29</NodeId>
+                           <NodeId>ep2cp_Try_d1e29</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>

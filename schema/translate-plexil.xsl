@@ -897,7 +897,7 @@
 <!-- Computes a unique NodeID -->
 <xsl:function name= "tr:node-id">
   <xsl:param name= "node"/>
-  <xsl:value-of select= "concat(name($node), '_', generate-id($node))"/>
+  <xsl:value-of select= "tr:prefix(concat(name($node), '_', generate-id($node)))"/>
 </xsl:function>
 
 <!-- Prefix names of some generated nodes and variables -->

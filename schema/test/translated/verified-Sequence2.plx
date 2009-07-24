@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="Sequence">
-      <NodeId>Sequence_d1e3</NodeId>
+      <NodeId>ep2cp_Sequence_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>foo</Name>

@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="UncheckedSequence">
-      <NodeId>UncheckedSequence_d1e3</NodeId>
+      <NodeId>ep2cp_UncheckedSequence_d1e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>foo</Name>
@@ -18,7 +18,7 @@
                <NodeId>One</NodeId>
             </Node>
             <Node NodeType="NodeList" epx="UncheckedSequence">
-               <NodeId>UncheckedSequence_d1e29</NodeId>
+               <NodeId>ep2cp_UncheckedSequence_d1e29</NodeId>
                <StartCondition>
                   <AND>
                      <EQInternal>
@@ -47,7 +47,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>UncheckedSequence_d1e29</NodeId>
+                           <NodeId>ep2cp_UncheckedSequence_d1e29</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
