@@ -52,6 +52,7 @@ public class Luv extends JFrame {
     private static boolean planPaused;
     private static boolean planStep;
     private static boolean isExecuting;
+    private static boolean extendedViewOn;
     private boolean newPlan;
     private boolean shouldHighlight;
 
@@ -65,6 +66,7 @@ public class Luv extends JFrame {
     private static HideOrShowWindow hideOrShowWindow;
     private DebugWindow debugWindow;
     private CreateCFGFileWindow createCFGFileWindow;
+    private SourceWindow sourceWindow;
     private RegexModelFilter regexFilter;
 
     // Luv menus
@@ -160,8 +162,10 @@ public class Luv extends JFrame {
         planPaused = false;
         planStep = false;
         isExecuting = false;
+        extendedViewOn = true;
         newPlan = false;
         shouldHighlight = true;
+        
         fileHandler = new FileHandler();
         statusMessageHandler = new StatusMessageHandler();
         luvBreakPointHandler = new LuvBreakPointHandler();
@@ -172,6 +176,7 @@ public class Luv extends JFrame {
         debugWindow = new DebugWindow();
 
         createCFGFileWindow = new CreateCFGFileWindow();
+        sourceWindow = new SourceWindow();
         regexFilter = new RegexModelFilter(true);
         fileMenu = new JMenu("File");
         recentRunMenu = new JMenu("Recent Runs");
@@ -215,6 +220,7 @@ public class Luv extends JFrame {
         setLocation(properties.getPoint(PROP_WIN_LOC));
         setPreferredSize(properties.getDimension(PROP_WIN_SIZE));
 
+        regexFilter.extendedPlexilView();
         regexFilter.updateRegexList();
 
         setTitle();
@@ -375,6 +381,12 @@ public class Luv extends JFrame {
         return createCFGFileWindow;
     }
 
+    /** Returns the current instance of the Luv SourceWindow.
+     *  @return the current instance of the Luv SourceWindow */
+    public SourceWindow getSourceWindow() {
+        return sourceWindow;
+    }
+
     /** Returns the current instance of the Luv RegexModelFilter.
      *  @return the current instance of the Luv RegexModelFilter */
     public RegexModelFilter getRegexModelFilter() {
@@ -439,6 +451,10 @@ public class Luv extends JFrame {
      *  @return the current instance of isExecuting */
     public boolean getIsExecuting() {
         return isExecuting;
+    }
+
+    public boolean getIsExtendedViewOn() {
+        return extendedViewOn;
     }
 
     /** Returns whether Luv currently allows breaks.
@@ -507,6 +523,10 @@ public class Luv extends JFrame {
         shouldHighlight = value;
     }
 
+    public void setExtendedViewOn(boolean value) {
+        extendedViewOn = value;
+    }
+
     /** Modifies the state of certain menu items based on whether the Universal 
      *  Executive is running and whether it blocks.
      * */
@@ -567,6 +587,11 @@ public class Luv extends JFrame {
         viewMenu.add(LuvActionHandler.collapseAll);
         viewMenu.add(LuvActionHandler.hideOrShowNodes);
         viewMenu.add(LuvActionHandler.findNode);
+        viewMenu.add(new JSeparator());
+        viewMenu.add(LuvActionHandler.extendedViewAction);
+       // viewMenu.add(new JSeparator());
+       // viewMenu.add(LuvActionHandler.viewSourceAction);
+        
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);

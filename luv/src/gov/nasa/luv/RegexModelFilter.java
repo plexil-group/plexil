@@ -138,6 +138,16 @@ public class RegexModelFilter extends AbstractModelFilter
             }
         }
     }
+
+    public void extendedPlexilView()
+    {
+        Luv.getLuv().setProperty(AUX, "HIDE");
+    }
+
+    public void corePlexilView()
+    {
+        Luv.getLuv().setProperty(AUX, "SHOW");
+    }
     
     private String formatRegex(String regex)
     {  

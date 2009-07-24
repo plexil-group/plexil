@@ -151,10 +151,10 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         checkBoxList = Box.createHorizontalBox();
         
         JPanel iconSide = new JPanel();
-        iconSide.setLayout(new GridLayout(7,1));
+        iconSide.setLayout(new GridLayout(16,1));
         
         JPanel checkBoxSide = new JPanel();
-        checkBoxSide.setLayout(new GridLayout(7,1));
+        checkBoxSide.setLayout(new GridLayout(16,1));
         
         final JCheckBox assnBox = new JCheckBox("Show " + ASSN + " Nodes", isBoxChecked(ASSN));
         final JCheckBox cmdBox = new JCheckBox("Show " + COMMAND + " Nodes", isBoxChecked(COMMAND)); 
@@ -163,6 +163,15 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         final JCheckBox funcBox = new JCheckBox("Show " + FUNCCALL + " Nodes", isBoxChecked(FUNCCALL));
         final JCheckBox listBox = new JCheckBox("Show " + NODELIST + " Nodes", isBoxChecked(NODELIST)); 
         final JCheckBox libBox = new JCheckBox("Show " + LIBRARYNODECALL + " Nodes", isBoxChecked(LIBRARYNODECALL));
+        final JCheckBox ifBox = new JCheckBox("Show " + IF + " Actions", isBoxChecked(IF));
+        final JCheckBox thenBox = new JCheckBox("Show " + THEN + " Actions", isBoxChecked(THEN));
+        final JCheckBox elseBox = new JCheckBox("Show " + ELSE + " Actions", isBoxChecked(ELSE));
+        final JCheckBox whileBox = new JCheckBox("Show " + WHILE + " Loop Actions", isBoxChecked(WHILE));
+        final JCheckBox forBox = new JCheckBox("Show " + FOR + " Loop Actions", isBoxChecked(FOR));
+        final JCheckBox tryBox = new JCheckBox("Show " + TRY + " Actions", isBoxChecked(TRY));
+        final JCheckBox seqBox = new JCheckBox("Show " + SEQ + " Actions", isBoxChecked(SEQ));
+        final JCheckBox unchkdSeqBox = new JCheckBox("Show " + UNCHKD_SEQ + " Actions", isBoxChecked(UNCHKD_SEQ));
+        final JCheckBox concBox = new JCheckBox("Show " + CONCURRENCE + " Actions", isBoxChecked(CONCURRENCE));
         
         assnBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         cmdBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -170,7 +179,16 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         emptyBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         funcBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         listBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12)); 
+        libBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        ifBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        thenBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        elseBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        whileBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        forBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        tryBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        seqBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        unchkdSeqBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        concBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
    
         iconSide.add(new JLabel(getIcon(NODELIST), JLabel.LEFT));
         checkBoxSide.add(listBox);
@@ -185,7 +203,25 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         iconSide.add(new JLabel(getIcon(LIBRARYNODECALL), JLabel.LEFT));
         checkBoxSide.add(libBox);
         iconSide.add(new JLabel(getIcon(UPDATE), JLabel.LEFT));
-        checkBoxSide.add(updateBox); 
+        checkBoxSide.add(updateBox);
+        iconSide.add(new JLabel(getIcon(IF), JLabel.LEFT));
+        checkBoxSide.add(ifBox);
+        iconSide.add(new JLabel(getIcon(THEN), JLabel.LEFT));
+        checkBoxSide.add(thenBox);
+        iconSide.add(new JLabel(getIcon(ELSE), JLabel.LEFT));
+        checkBoxSide.add(elseBox);
+        iconSide.add(new JLabel(getIcon(WHILE), JLabel.LEFT));
+        checkBoxSide.add(whileBox);
+        iconSide.add(new JLabel(getIcon(FOR), JLabel.LEFT));
+        checkBoxSide.add(forBox);
+        iconSide.add(new JLabel(getIcon(TRY), JLabel.LEFT));
+        checkBoxSide.add(tryBox);
+        iconSide.add(new JLabel(getIcon(SEQ), JLabel.LEFT));
+        checkBoxSide.add(seqBox);
+        iconSide.add(new JLabel(getIcon(UNCHKD_SEQ), JLabel.LEFT));
+        checkBoxSide.add(unchkdSeqBox);
+        iconSide.add(new JLabel(getIcon(CONCURRENCE), JLabel.LEFT));
+        checkBoxSide.add(concBox);
         
         checkBoxList.add(iconSide);
         checkBoxList.add(checkBoxSide);
@@ -250,6 +286,87 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(LIBRARYNODECALL, "HIDE");
                 else
                     Luv.getLuv().setProperty(LIBRARYNODECALL, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        ifBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!ifBox.isSelected())
+                    Luv.getLuv().setProperty(IF, "HIDE");
+                else
+                    Luv.getLuv().setProperty(IF, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        thenBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!thenBox.isSelected())
+                    Luv.getLuv().setProperty(THEN, "HIDE");
+                else
+                    Luv.getLuv().setProperty(THEN, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        elseBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!elseBox.isSelected())
+                    Luv.getLuv().setProperty(ELSE, "HIDE");
+                else
+                    Luv.getLuv().setProperty(ELSE, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        whileBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!whileBox.isSelected())
+                    Luv.getLuv().setProperty(WHILE, "HIDE");
+                else
+                    Luv.getLuv().setProperty(WHILE, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        forBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!forBox.isSelected())
+                    Luv.getLuv().setProperty(FOR, "HIDE");
+                else
+                    Luv.getLuv().setProperty(FOR, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        tryBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!tryBox.isSelected())
+                    Luv.getLuv().setProperty(TRY, "HIDE");
+                else
+                    Luv.getLuv().setProperty(TRY, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        seqBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!seqBox.isSelected())
+                    Luv.getLuv().setProperty(SEQ, "HIDE");
+                else
+                    Luv.getLuv().setProperty(SEQ, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        unchkdSeqBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!unchkdSeqBox.isSelected())
+                    Luv.getLuv().setProperty(UNCHKD_SEQ, "HIDE");
+                else
+                    Luv.getLuv().setProperty(UNCHKD_SEQ, "SHOW");
+                Luv.getLuv().getViewHandler().refreshRegexView();
+            }
+        });
+        concBox.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if (!concBox.isSelected())
+                    Luv.getLuv().setProperty(CONCURRENCE, "HIDE");
+                else
+                    Luv.getLuv().setProperty(CONCURRENCE, "SHOW");
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });

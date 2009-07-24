@@ -118,6 +118,7 @@ public class LuvStateHandler
 	    Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
 	    Luv.getLuv().getViewMenu().getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true);
             Luv.getLuv().getViewMenu().getItem(FIND_MENU_ITEM).setEnabled(true);
+            Luv.getLuv().getViewMenu().getItem(EPX_VIEW_MENU_ITEM).setEnabled(true);
 	    Luv.getLuv().getViewMenu().setEnabled(true);
 	}
 	else
@@ -160,6 +161,7 @@ public class LuvStateHandler
             Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
             Luv.getLuv().getViewMenu().getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true); 
             Luv.getLuv().getViewMenu().getItem(FIND_MENU_ITEM).setEnabled(true);
+            Luv.getLuv().getViewMenu().getItem(EPX_VIEW_MENU_ITEM).setEnabled(true);
             Luv.getLuv().getViewMenu().setEnabled(true);
         }
 	else
@@ -373,6 +375,7 @@ public class LuvStateHandler
 	    Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
 	    Luv.getLuv().getViewMenu().getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(false);  
             Luv.getLuv().getViewMenu().getItem(FIND_MENU_ITEM).setEnabled(false);
+            Luv.getLuv().getViewMenu().getItem(EPX_VIEW_MENU_ITEM).setEnabled(false);
 	}
 	Luv.getLuv().getViewMenu().setEnabled(false);
         

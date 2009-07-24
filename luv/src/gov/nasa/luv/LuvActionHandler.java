@@ -146,6 +146,25 @@ public class LuvActionHandler {
                     }
                 }
             };
+    /** Action to display extended or core plexil view. */
+    public static LuvAction extendedViewAction =
+            new LuvAction("Switch to Core Plexil View",
+            "Switches between Extended or Core Plexil views. Extended is the default.",
+            VK_F8) {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (Luv.getLuv().getIsExtendedViewOn()) {
+                        extendedViewAction.putValue(NAME, "Switch to Extended Plexil View");
+                        Luv.getLuv().getRegexModelFilter().corePlexilView();
+                        Luv.getLuv().getViewHandler().refreshRegexView();
+                    } else {
+                        extendedViewAction.putValue(NAME, "Switch to Core Plexil View");
+                        Luv.getLuv().getRegexModelFilter().extendedPlexilView();
+                        Luv.getLuv().getViewHandler().refreshRegexView(); 
+                    }
+                    Luv.getLuv().setExtendedViewOn(!Luv.getLuv().getIsExtendedViewOn());
+                }
+            };
     /** Action to show the About Luv Viewer window. */
     public static LuvAction aboutWindowAction =
             new LuvAction("About Luv Viewer Window",
@@ -293,7 +312,21 @@ public class LuvActionHandler {
                     try {
                         Luv.getLuv().getCreateCFGFileWindow().open();
                     } catch (FileNotFoundException ex) {
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening CFG Debug window.");
+                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening CFG Debug window");
+                    }
+                }
+            };
+
+    public static LuvAction viewSourceAction =
+            new LuvAction("View Source Files",
+            "Displays Source Files.",
+            VK_F9) {
+
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        Luv.getLuv().getSourceWindow().open(Luv.getLuv().getCurrentPlan());
+                    } catch (FileNotFoundException ex) {
+                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
                     }
                 }
             };

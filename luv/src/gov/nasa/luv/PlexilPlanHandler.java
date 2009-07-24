@@ -125,7 +125,10 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             // add attributes for this child
             for (int i = 0; i < attributes.getLength(); ++i) 
             {
-                child.setProperty(attributes.getQName(i), attributes.getValue(i));
+                if (attributes.getQName(i).equals(EPX))
+                    child.setProperty(NODETYPE_ATTR, attributes.getValue(i));
+                else
+                    child.setProperty(attributes.getQName(i), attributes.getValue(i));
             }
         }
 
@@ -664,7 +667,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     private boolean isProperty(String tag)
     {
         for (String property: PROPERTY_TAGS)
-            if (property.equalsIgnoreCase(tag))
+            if (property.equalsIgnoreCase(tag)) 
                 return true;
 
         return false;

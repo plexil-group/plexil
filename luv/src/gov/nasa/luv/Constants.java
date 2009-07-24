@@ -175,18 +175,41 @@ public class Constants
                                                 System.getProperty("file.separator");
       
       /** Plexil node icon file names */
-      public static final String    ABOUT_SCREEN_ICO  = "LuvIcon.gif";
-      public static final String    START_SCREEN_ICO  = "LuvIcon6.gif";
-      public static final String    NODELIST_ICO_NAME = "nodelist_node.gif";
-      public static final String    COMMAND_ICO_NAME  = "command_node.gif";
-      public static final String    ASSN_ICO_NAME     = "assignment_node.gif";
-      public static final String    EMPTY_ICO_NAME    = "empty_node.gif";
-      public static final String    FUNCALL_ICO_NAME  = "functioncall_node.gif";
-      public static final String    UPDATE_ICO_NAME   = "update_node.gif";
-      public static final String    REQUEST_ICO_NAME  = "request_node.gif";
-      public static final String    LIBCALL_ICO_NAME  = "library_node_call.gif";
-      public static final String    START_LOGO        = "Clear Screen";      
-      public static final String    ABOUT_LOGO        = "About Logo";
+      public static final String    IF_ICO  = "ACTION_IF.gif";
+      public static final String    THEN_ICO  = "ACTION_THEN.gif";
+      public static final String    ELSE_ICO  = "ACTION_ELSE.gif";
+      public static final String    WHILE_ICO  = "ACTION_WHILE.gif";
+      public static final String    TRY_ICO  = "ACTION_TRY.gif";
+      public static final String    FOR_ICO  = "ACTION_FOR.gif";
+      public static final String    SEQ_ICO  = "ACTION_SEQ.gif";
+      public static final String    UNCHKD_SEQ_ICO  = "ACTION_UNCHECKED_SEQ.gif";
+      public static final String    CONCURRENCE_ICO  = "ACTION_CONCURRENCE.gif";
+
+      public static final String    THEN_IF_ICO  = "THEN_ACTION_IF.gif";
+      public static final String    THEN_WHILE_ICO  = "THEN_ACTION_W.gif";
+      public static final String    THEN_FOR_ICO  = "THEN_ACTION_FOR.gif";
+      public static final String    THEN_TRY_ICO  = "THEN_ACTION_TRY.gif";
+      public static final String    THEN_SEQ_ICO  = "THEN_ACTION_SEQ.gif";
+      public static final String    THEN_UNCHKD_SEQ_ICO  = "THEN_ACTION_UNCHKD_SEQ.gif";
+      public static final String    THEN_CONCURRENCE_ICO  = "THEN_ACTION_CONC.gif";
+
+      public static final String    ELSE_IF_ICO  = "ELSE_ACTION_IF.gif";
+      public static final String    ELSE_WHILE_ICO  = "ELSE_ACTION_W.gif";
+      public static final String    ELSE_FOR_ICO  = "ELSE_ACTION_FOR.gif";
+      public static final String    ELSE_TRY_ICO  = "ELSE_ACTION_TRY.gif";
+      public static final String    ELSE_SEQ_ICO  = "ELSE_ACTION_SEQ.gif";
+      public static final String    ELSE_UNCHKD_SEQ_ICO  = "ELSE_ACTION_UNCHKD_SEQ.gif";
+      public static final String    ELSE_CONCURRENCE_ICO  = "ELSE_ACTION_CONC.gif";
+      
+      public static final String    ABOUT_SCREEN_ICO  = "LUV_ICON.gif";
+      public static final String    START_SCREEN_ICO  = "LUV_SPLASH_SCREEN.gif";
+      public static final String    NODELIST_ICO_NAME = "NODE_LIST.gif";
+      public static final String    COMMAND_ICO_NAME  = "NODE_COMMAND.gif";
+      public static final String    ASSN_ICO_NAME     = "NODE_ASSN.gif";
+      public static final String    EMPTY_ICO_NAME    = "NODE_EMPTY.gif";
+      public static final String    FUNCALL_ICO_NAME  = "NODE_FUNCTION.gif";
+      public static final String    UPDATE_ICO_NAME   = "NODE_UPDATE.gif";
+      public static final String    LIBCALL_ICO_NAME  = "NODE_LIB_CALL.gif";    
   
       private static HashMap<String, ImageIcon> iconLut = new HashMap<String, ImageIcon>()
       {
@@ -197,10 +220,35 @@ public class Constants
             add(EMPTY,           EMPTY_ICO_NAME);
             add(FUNCCALL,        FUNCALL_ICO_NAME);
             add(UPDATE,          UPDATE_ICO_NAME);
-            add(REQ,             REQUEST_ICO_NAME);
             add(LIBRARYNODECALL, LIBCALL_ICO_NAME);
             add(START_LOGO,      START_SCREEN_ICO);
             add(ABOUT_LOGO,      ABOUT_SCREEN_ICO);
+
+            add(IF,      IF_ICO);
+            add(THEN, THEN_ICO);
+            add(ELSE, ELSE_ICO);
+            add(WHILE, WHILE_ICO);
+            add(FOR, FOR_ICO);
+            add(TRY, TRY_ICO);
+            add(SEQ, SEQ_ICO);
+            add(UNCHKD_SEQ, UNCHKD_SEQ_ICO);
+            add(CONCURRENCE, CONCURRENCE_ICO);
+
+            add(THEN_IF, THEN_IF_ICO);
+            add(THEN_WHILE, THEN_WHILE_ICO);
+            add(THEN_FOR, THEN_FOR_ICO);
+            add(THEN_TRY, THEN_TRY_ICO);
+            add(THEN_SEQ, THEN_SEQ_ICO);
+            add(THEN_UNCHKD_SEQ, THEN_UNCHKD_SEQ_ICO);
+            add(THEN_CONCURRENCE, THEN_CONCURRENCE_ICO);
+
+            add(ELSE_IF, ELSE_IF_ICO);
+            add(ELSE_WHILE, ELSE_WHILE_ICO);
+            add(ELSE_FOR, ELSE_FOR_ICO);
+            add(ELSE_TRY, ELSE_TRY_ICO);
+            add(ELSE_SEQ, ELSE_SEQ_ICO);
+            add(ELSE_UNCHKD_SEQ, ELSE_UNCHKD_SEQ_ICO);
+            add(ELSE_CONCURRENCE, ELSE_CONCURRENCE_ICO);
          }
          
          public void add(String tag, String iconName)
@@ -423,7 +471,11 @@ public class Constants
       /** Represents index of the Hide Or Show... item under the View menu in the Luv application. */
       public static final int HIDE_OR_SHOW_NODES_MENU_ITEM  = 2;
       /** Represents index of the Find... item under the View menu in the Luv application. */
-      public static final int FIND_MENU_ITEM                = 3;   
+      public static final int FIND_MENU_ITEM                = 3;
+      
+      public static final int EPX_VIEW_MENU_ITEM            = 5;
+
+      public static final int VIEW_SOURCE_MENU_ITEM         = 7;
 
       ////////////////////////// Plexil plan XML tags ////////////////////////
       ///////////////// Scanned for in the PlexilPlanHandler //////////////////
@@ -714,7 +766,41 @@ public class Constants
       public static final String NODE_TIMEPOINT    = "NodeTimepoint";
       /** Represents the XML tag in the Plexil Plan marking the Node Command Handle information. */
       public static final String NODE_CMD_HANDLE   = "NodeCommandHandle";
-      
+
+      public static final String    START_LOGO        = "Clear Screen";
+      public static final String    ABOUT_LOGO        = "About Logo";
+
+
+      /* Extended Plexil elements */
+      public static final String EPX = "epx";
+      public static final String AUX = "aux";
+
+      public static final String IF = "If";
+      public static final String THEN  = "Then";
+      public static final String ELSE  = "Else";
+      public static final String WHILE  = "While";
+      public static final String TRY  = "Try";
+      public static final String FOR  = "For";
+      public static final String SEQ  = "Sequence";
+      public static final String UNCHKD_SEQ = "UncheckedSequence";
+      public static final String CONCURRENCE = "Concurrence";
+
+      public static final String THEN_IF  = "THEN_ACTION_IF";
+      public static final String THEN_WHILE  = "THEN_ACTION_W";
+      public static final String THEN_FOR  = "THEN_ACTION_FOR";
+      public static final String THEN_TRY  = "THEN_ACTION_TRY";
+      public static final String THEN_SEQ  = "THEN_ACTION_SEQ";
+      public static final String THEN_UNCHKD_SEQ  = "THEN_ACTION_UNCHKD_SEQ";
+      public static final String THEN_CONCURRENCE  = "THEN_ACTION_CONC";
+
+      public static final String ELSE_IF  = "ELSE_ACTION_IF";
+      public static final String ELSE_WHILE  = "ELSE_ACTION_W";
+      public static final String ELSE_FOR  = "ELSE_ACTION_FOR";
+      public static final String ELSE_TRY  = "ELSE_ACTION_TRY";
+      public static final String ELSE_SEQ  = "ELSE_ACTION_SEQ";
+      public static final String ELSE_UNCHKD_SEQ  = "ELSE_ACTION_UNCHKD_SEQ";
+      public static final String ELSE_CONCURRENCE = "ELSE_ACTION_CONC";
+
       /** A collection of all the possible Plexil Plan node types. */
       public static HashMap<String, String> NODE_TYPES = new HashMap<String, String>()
       {
@@ -791,9 +877,9 @@ public class Constants
          BOOL_VAL,
          DECL_VAR,
          DECL_ARRAY,
-         ARRAYELEMENT
-      };    
-      
+         ARRAYELEMENT,
+      };
+
       /** A collection of all the possible XML tags that represent Node State values. */   
       public static final String[] NODE_STATE_TAGS =
       {
