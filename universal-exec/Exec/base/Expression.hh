@@ -116,7 +116,7 @@ namespace PLEXIL {
      *        structures.  Expressions are inactive by default and must be activated.
      * @param expr Configuration data.
      */
-    Expression(PlexilExpr* expr);
+    Expression(PlexilExpr* expr, const NodeConnectorId& node);
 
     Expression();
 
@@ -126,6 +126,12 @@ namespace PLEXIL {
     virtual ~Expression();
 
     const ExpressionId& getId() const {return m_id;}
+
+    /**
+     * @brief Get the node that owns this expression.
+     * @return The NodeId of the parent node; may be noId.
+     */
+    const NodeId& getNode() const;
 
     /**
      * @brief Retrieve the value of this Expression.  This may cause recalculation, lookup of
@@ -282,6 +288,7 @@ namespace PLEXIL {
     bool m_lock; /*<! The lock for this expression */
     bool m_ignoreCachedValue; /*<! Disregard the m_value that has been cached when deciding to publissh a change*/
     std::list<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
+    const NodeConnectorId m_nodeConnector; /*<! Tracks the node that owns this expression */
   };
 
   /**
@@ -297,7 +304,7 @@ namespace PLEXIL {
      */
     EssentialVariable();
 
-    EssentialVariable(PlexilExpr* expr);
+    EssentialVariable(PlexilExpr* expr, const NodeConnectorId& node);
 
     /**
      * @brief Destructor.
@@ -306,7 +313,7 @@ namespace PLEXIL {
 
     /**
      * @brief Sets the value of this variable.  Will throw an error if the variable was
-
+     *        constructed with isConst == true.
      * @param value The new value for this variable.
      */
     virtual void setValue(const double value) = 0;
@@ -404,6 +411,7 @@ namespace PLEXIL {
 
     bool m_isConst; /*<! Flag indicating the const-ness of this variable */
     double m_initialValue; /*<! The initial value of the expression */
+    const NodeId m_node; /*<! The node that owns this variable */
   };
 
   /**

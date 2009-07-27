@@ -46,6 +46,7 @@ namespace PLEXIL {
     virtual ~NodeConnector() {m_id.remove();}
     const NodeConnectorId& getId() const {return m_id;}
     virtual const ExpressionId& findVariable(const PlexilVarRef* ref) = 0;
+    virtual const NodeId& getNode() const = 0;
     virtual const ExecConnectorId& getExec() = 0;
   protected:
   private:
@@ -219,11 +220,11 @@ namespace PLEXIL {
      */
 //    const ExpressionId& _findVariable(const PlexilVarId& var);
 
-    const ExpressionId& findVariable(const PlexilVarRef* ref);
+    const ExpressionId& findVariable(const PlexilVarRef* ref) const;
 
-    const ExpressionId& findVariable(const LabelStr& name);
+    const ExpressionId& findVariable(const LabelStr& name) const;
 
-    ExecConnectorId& getExec() {return m_exec;}
+    const ExecConnectorId& getExec() {return m_exec;}
 
     ExpressionId& getCondition(const LabelStr& name);
 

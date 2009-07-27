@@ -57,13 +57,29 @@ namespace PLEXIL {
     m_exp->handleChange(exp);
   }
 
-  Expression::Expression(PlexilExpr* expr)
-    : m_id(this), m_activeCount(0), m_value(UNKNOWN()), m_savedValue(UNKNOWN()),
-      m_dirty(false), m_lock(false), m_ignoreCachedValue(false) {}
+  Expression::Expression(PlexilExpr* expr, const NodeConnectorId& node)
+    : m_id(this),
+      m_activeCount(0), 
+      m_value(UNKNOWN()), 
+      m_savedValue(UNKNOWN()),
+      m_dirty(false), 
+      m_lock(false), 
+      m_ignoreCachedValue(false),
+      m_nodeConnector(node)
+  {
+  }
 
   Expression::Expression()
-    : m_id(this), m_activeCount(0), m_value(UNKNOWN()), m_savedValue(UNKNOWN()),
-      m_dirty(false), m_lock(false), m_ignoreCachedValue(false) {}
+    : m_id(this),
+      m_activeCount(0), 
+      m_value(UNKNOWN()), 
+      m_savedValue(UNKNOWN()),
+      m_dirty(false), 
+      m_lock(false), 
+      m_ignoreCachedValue(false),
+      m_nodeConnector(NodeConnectorId::noId())
+  {
+  }
 
   Expression::~Expression() {
     checkError(m_outgoingListeners.empty(),
@@ -73,6 +89,17 @@ namespace PLEXIL {
 
   double Expression::getValue() const {
     return (isActive() ? m_value : UNKNOWN());
+  }
+
+  /**
+   * @brief Get the node that owns this expression.
+   * @return The NodeId of the parent node; may be noId.
+   */
+  const NodeId& Expression::getNode() const 
+  { 
+    if (m_nodeConnector.isNoId())
+      return NodeId::noId();
+    return m_nodeConnector->getNode();
   }
 
   void Expression::setValue(const double val) {
@@ -178,8 +205,8 @@ namespace PLEXIL {
   {
   }
 
-  EssentialVariable::EssentialVariable(PlexilExpr* expr)
-    : Expression(expr)
+  EssentialVariable::EssentialVariable(PlexilExpr* expr, const NodeConnectorId& node)
+    : Expression(expr, node)
   {
   }
 
@@ -205,7 +232,7 @@ namespace PLEXIL {
   }
 
   Variable::Variable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
-    : EssentialVariable(expr), m_isConst(isConst) {
+    : EssentialVariable(expr, node), m_isConst(isConst) {
     check_error(Id<PlexilValue>::convertable(expr));
   }
 
@@ -262,7 +289,7 @@ namespace PLEXIL {
   Calculable::Calculable() : Expression(), m_listener(getId()) {}
 
   Calculable::Calculable(PlexilExpr* expr, const NodeConnectorId& node)
-    : Expression(expr), m_listener(getId()) {
+    : Expression(expr, node), m_listener(getId()) {
     const std::vector<PlexilExprId>& subExprs = expr->subExprs();
     for(std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); it != subExprs.end();
 	++it) {

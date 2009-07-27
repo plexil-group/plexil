@@ -406,7 +406,7 @@ namespace PLEXIL {
   class DerivedVariable : public EssentialVariable
   {
   public:
-    DerivedVariable(const PlexilExprId& expr);
+    DerivedVariable(const PlexilExprId& expr, const NodeConnectorId& node);
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.

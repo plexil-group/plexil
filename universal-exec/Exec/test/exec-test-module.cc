@@ -74,7 +74,7 @@ public:
 
 class AllocationExpression : public Expression {
 public:
-  AllocationExpression(PlexilExpr* expr, const NodeId node) : Expression(expr) {
+  AllocationExpression(PlexilExpr* expr, const NodeId node) : Expression(expr, node) {
     setValue(10);
   }
   //double getValue() {return 10;}
@@ -1042,6 +1042,7 @@ public:
   LookupTestNodeConnector() : NodeConnector() {}
   const ExpressionId& findVariable(const PlexilVarRef* var) {return ExpressionId::noId();}
   const ExpressionId& findVariable(const LabelStr& name) {return ExpressionId::noId();}
+  const NodeId& getNode() const { return NodeId::noId(); }
   const ExecConnectorId& getExec() {
     return m_exec.getId();
   }

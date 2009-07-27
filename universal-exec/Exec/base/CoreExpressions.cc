@@ -397,7 +397,7 @@ namespace PLEXIL
 
   ArrayElement::ArrayElement(const PlexilExprId& expr, 
                              const NodeConnectorId& node)
-    : DerivedVariable(expr),
+    : DerivedVariable(expr, node),
       m_deleteIndex(false),
       m_listener(getId())
   {
@@ -1346,8 +1346,8 @@ namespace PLEXIL
     return retval.str();
   }
 
-  DerivedVariable::DerivedVariable(const PlexilExprId& expr)
-    : EssentialVariable(expr)
+  DerivedVariable::DerivedVariable(const PlexilExprId& expr, const NodeConnectorId& node)
+    : EssentialVariable(expr, node)
   {
   }
 

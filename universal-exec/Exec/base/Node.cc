@@ -82,13 +82,26 @@ namespace PLEXIL {
 
   class RealNodeConnector : public NodeConnector {
   public:
-    RealNodeConnector(const NodeId& node) : NodeConnector(), m_node(node) {}
-    const ExpressionId& findVariable(const PlexilVarRef* ref) {
+    RealNodeConnector(const NodeId& node) 
+      : NodeConnector(), m_node(node) 
+    {
+    }
+
+    const ExpressionId& findVariable(const PlexilVarRef* ref) 
+    {
       return m_node->findVariable(ref);
     }
-    const ExecConnectorId& getExec() {
+
+    const ExecConnectorId& getExec()
+    {
       return m_node->getExec();
     }
+
+    const NodeId& getNode() const
+    {
+      return m_node;
+    }
+
   private:
     NodeId m_node;
   };
@@ -1327,7 +1340,8 @@ namespace PLEXIL {
     double m_name;
   };
 
-  const ExpressionId& Node::findVariable(const LabelStr& name) {
+  const ExpressionId& Node::findVariable(const LabelStr& name) const
+  {
     debugMsg("Node:findVariable",
 	     " Searching for variable \"" << name.toString() << "\" in node " <<
 	     m_nodeId.toString());
@@ -1338,7 +1352,7 @@ namespace PLEXIL {
     return (it == m_variablesByName.end() ? ExpressionId::noId() : it->second);
   }
    
-   const ExpressionId& Node::findVariable(const PlexilVarRef* ref) 
+   const ExpressionId& Node::findVariable(const PlexilVarRef* ref) const
    {
       debugMsg("Node:findVariable",
                " Searching for variable reference \"" << ref->name() << 
@@ -1367,7 +1381,7 @@ namespace PLEXIL {
                           "Child internal variable reference in node " << 
                           m_nodeId.toString() <<
                           " which isn't a list node.");
-               std::list<NodeId>::iterator it =
+               std::list<NodeId>::const_iterator it =
                   std::find_if(m_children.begin(), m_children.end(),
                                NodeIdEq(LabelStr(nodeRef->name())));
                checkError(it != m_children.end(),
@@ -1381,7 +1395,7 @@ namespace PLEXIL {
                checkError(m_parent.isValid(),
                           "Parent node reference in root node " << 
                           m_nodeId.toString());
-               std::list<NodeId>::iterator it =
+               std::list<NodeId>::const_iterator it =
                   std::find_if(m_parent->m_children.begin(), 
                                m_parent->m_children.end(),
                                NodeIdEq(LabelStr(nodeRef->name())));
@@ -1412,7 +1426,7 @@ namespace PLEXIL {
       }
       else 
       {
-         std::map<double, ExpressionId>::iterator it =
+         std::map<double, ExpressionId>::const_iterator it =
             m_variablesByName.find(LabelStr(ref->name()));
          
          checkError(it != m_variablesByName.end(),
