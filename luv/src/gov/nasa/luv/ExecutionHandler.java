@@ -89,7 +89,6 @@ public class ExecutionHandler
       public boolean runExec() throws IOException
       {
           String command = createCommandLine();
-          System.out.println(command);
           
           if (!command.contains("ERROR")) 
           {   

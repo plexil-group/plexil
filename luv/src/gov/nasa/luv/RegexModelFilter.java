@@ -142,11 +142,15 @@ public class RegexModelFilter extends AbstractModelFilter
     public void extendedPlexilView()
     {
         Luv.getLuv().setProperty(AUX, "HIDE");
+        Luv.getLuv().setProperty(AUX_THEN, "HIDE");
+        Luv.getLuv().setProperty(AUX_ELSE, "HIDE");
     }
 
     public void corePlexilView()
     {
         Luv.getLuv().setProperty(AUX, "SHOW");
+        Luv.getLuv().setProperty(AUX_THEN, "SHOW");
+        Luv.getLuv().setProperty(AUX_ELSE, "SHOW");
     }
     
     private String formatRegex(String regex)

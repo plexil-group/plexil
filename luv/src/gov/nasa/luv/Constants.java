@@ -185,6 +185,13 @@ public class Constants
       public static final String    UNCHKD_SEQ_ICO  = "ACTION_UNCHECKED_SEQ.gif";
       public static final String    CONCURRENCE_ICO  = "ACTION_CONCURRENCE.gif";
 
+      public static final String    THEN_LIST_ICO  = "THEN_NODE_LIST.gif";
+      public static final String    THEN_ASSN_ICO  = "THEN_NODE_A.gif";
+      public static final String    THEN_CMD_ICO  = "THEN_NODE_C.gif";
+      public static final String    THEN_EMPTY_ICO  = "THEN_NODE_E.gif";
+      public static final String    THEN_LIB_ICO  = "THEN_NODE_L.gif";
+      public static final String    THEN_UPDATE_ICO  = "THEN_NODE_U.gif";
+
       public static final String    THEN_IF_ICO  = "THEN_ACTION_IF.gif";
       public static final String    THEN_WHILE_ICO  = "THEN_ACTION_W.gif";
       public static final String    THEN_FOR_ICO  = "THEN_ACTION_FOR.gif";
@@ -192,6 +199,13 @@ public class Constants
       public static final String    THEN_SEQ_ICO  = "THEN_ACTION_SEQ.gif";
       public static final String    THEN_UNCHKD_SEQ_ICO  = "THEN_ACTION_UNCHKD_SEQ.gif";
       public static final String    THEN_CONCURRENCE_ICO  = "THEN_ACTION_CONC.gif";
+
+      public static final String    ELSE_LIST_ICO  = "ELSE_NODE_LIST.gif";
+      public static final String    ELSE_ASSN_ICO  = "ELSE_NODE_A.gif";
+      public static final String    ELSE_CMD_ICO  = "ELSE_NODE_C.gif";
+      public static final String    ELSE_EMPTY_ICO  = "ELSE_NODE_E.gif";
+      public static final String    ELSE_LIB_ICO  = "ELSE_NODE_L.gif";
+      public static final String    ELSE_UPDATE_ICO  = "ELSE_NODE_U.gif";
 
       public static final String    ELSE_IF_ICO  = "ELSE_ACTION_IF.gif";
       public static final String    ELSE_WHILE_ICO  = "ELSE_ACTION_W.gif";
@@ -234,6 +248,13 @@ public class Constants
             add(UNCHKD_SEQ, UNCHKD_SEQ_ICO);
             add(CONCURRENCE, CONCURRENCE_ICO);
 
+            add(THEN_EMPTY, THEN_EMPTY_ICO);
+            add(THEN_CMD, THEN_CMD_ICO);
+            add(THEN_ASSN, THEN_ASSN_ICO);
+            add(THEN_LIST, THEN_LIST_ICO);
+            add(THEN_LIB, THEN_LIB_ICO);
+            add(THEN_UPDATE, THEN_UPDATE_ICO);
+
             add(THEN_IF, THEN_IF_ICO);
             add(THEN_WHILE, THEN_WHILE_ICO);
             add(THEN_FOR, THEN_FOR_ICO);
@@ -241,6 +262,13 @@ public class Constants
             add(THEN_SEQ, THEN_SEQ_ICO);
             add(THEN_UNCHKD_SEQ, THEN_UNCHKD_SEQ_ICO);
             add(THEN_CONCURRENCE, THEN_CONCURRENCE_ICO);
+
+            add(ELSE_EMPTY, ELSE_EMPTY_ICO);
+            add(ELSE_CMD, ELSE_CMD_ICO);
+            add(ELSE_ASSN, ELSE_ASSN_ICO);
+            add(ELSE_LIST, ELSE_LIST_ICO);
+            add(ELSE_LIB, ELSE_LIB_ICO);
+            add(ELSE_UPDATE, ELSE_UPDATE_ICO);
 
             add(ELSE_IF, ELSE_IF_ICO);
             add(ELSE_WHILE, ELSE_WHILE_ICO);
@@ -752,8 +780,11 @@ public class Constants
       public static final String DECL_ARRAY = "DeclareArray";
       /** Represents the XML tag marking an array element value in the Plexil Plan. */
       public static final String ARRAYELEMENT = "ArrayElement";
+
       /** Represents the Node Type in a Plexil Plan and XML tag marking a NodeType in the Plexil Plan. */
       public static final String NODETYPE_ATTR = "NodeType";
+      public static final String NODETYPE_ATTR_PLX = "NodeTypePLX";
+
       /** Represents the XML tag in the Plexil Plan marking the Node Outcome information. */
       public static final String NODE_OUTCOME      = "NodeOutcome";
       /** Represents the XML tag in the Plexil Plan marking the Node Failure information. */
@@ -774,6 +805,8 @@ public class Constants
       /* Extended Plexil elements */
       public static final String EPX = "epx";
       public static final String AUX = "aux";
+      public static final String AUX_THEN = "aux_then";
+      public static final String AUX_ELSE = "aux_else";
 
       public static final String IF = "If";
       public static final String THEN  = "Then";
@@ -785,21 +818,35 @@ public class Constants
       public static final String UNCHKD_SEQ = "UncheckedSequence";
       public static final String CONCURRENCE = "Concurrence";
 
-      public static final String THEN_IF  = "THEN_ACTION_IF";
-      public static final String THEN_WHILE  = "THEN_ACTION_W";
-      public static final String THEN_FOR  = "THEN_ACTION_FOR";
-      public static final String THEN_TRY  = "THEN_ACTION_TRY";
-      public static final String THEN_SEQ  = "THEN_ACTION_SEQ";
-      public static final String THEN_UNCHKD_SEQ  = "THEN_ACTION_UNCHKD_SEQ";
-      public static final String THEN_CONCURRENCE  = "THEN_ACTION_CONC";
+      public static final String THEN_LIST  = "ThenNodeList";
+      public static final String THEN_ASSN  = "ThenAssignment";
+      public static final String THEN_CMD  = "ThenCommand";
+      public static final String THEN_EMPTY  = "ThenEmpty";
+      public static final String THEN_LIB  = "ThenLibraryNodeCall";
+      public static final String THEN_UPDATE  = "ThenUpdate";
 
-      public static final String ELSE_IF  = "ELSE_ACTION_IF";
-      public static final String ELSE_WHILE  = "ELSE_ACTION_W";
-      public static final String ELSE_FOR  = "ELSE_ACTION_FOR";
-      public static final String ELSE_TRY  = "ELSE_ACTION_TRY";
-      public static final String ELSE_SEQ  = "ELSE_ACTION_SEQ";
-      public static final String ELSE_UNCHKD_SEQ  = "ELSE_ACTION_UNCHKD_SEQ";
-      public static final String ELSE_CONCURRENCE = "ELSE_ACTION_CONC";
+      public static final String THEN_IF  = "ThenIf";
+      public static final String THEN_WHILE  = "ThenWhile";
+      public static final String THEN_FOR  = "ThenFor";
+      public static final String THEN_TRY  = "ThenTry";
+      public static final String THEN_SEQ  = "ThenSequence";
+      public static final String THEN_UNCHKD_SEQ  = "ThenUncheckedSequence";
+      public static final String THEN_CONCURRENCE  = "ThenConcurrence";
+
+      public static final String ELSE_LIST  = "ElseNodeList";
+      public static final String ELSE_ASSN  = "ElseAssignment";
+      public static final String ELSE_CMD  = "ElseCommand";
+      public static final String ELSE_EMPTY  = "ElseEmpty";
+      public static final String ELSE_LIB  = "ElseLibraryNodeCall";
+      public static final String ELSE_UPDATE  = "ElseUpdate";
+
+      public static final String ELSE_IF  = "ElseIf";
+      public static final String ELSE_WHILE  = "ElseWhile";
+      public static final String ELSE_FOR  = "ElseFor";
+      public static final String ELSE_TRY  = "ElseTry";
+      public static final String ELSE_SEQ  = "ElseSequence";
+      public static final String ELSE_UNCHKD_SEQ  = "ElseUncheckedSequence";
+      public static final String ELSE_CONCURRENCE = "ElseConcurrence";
 
       /** A collection of all the possible Plexil Plan node types. */
       public static HashMap<String, String> NODE_TYPES = new HashMap<String, String>()

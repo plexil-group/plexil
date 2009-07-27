@@ -139,6 +139,7 @@ public class Model extends Properties
 
         modelName = node.getProperty(NODE_ID);
         setProperty(NODETYPE_ATTR, node.getProperty(NODETYPE_ATTR));
+        setProperty(NODETYPE_ATTR_PLX, node.getProperty(NODETYPE_ATTR_PLX));
         setProperty(NODE_ID, node.getProperty(NODE_ID));
         setProperty(MODEL_TYPE, node.getProperty(MODEL_TYPE));
         setProperty(MODEL_OUTCOME, node.getProperty(MODEL_OUTCOME));
@@ -727,58 +728,20 @@ public class Model extends Properties
      */
     public boolean linkLibrary(Model library)
     {
-	boolean result = linkLibraryInternal(library);
-	if (result) {
-	    Model topLevelNode = topLevelNode();
-	    if (topLevelNode != null) {
-		topLevelNode.addLibraryName(library.planName);
-		missingLibraryFound(library.modelName);
-
-		// Inherit the libraries called by this one
-		for (String libfile: library.libraryFiles)
-		    topLevelNode.addLibraryName(libfile);
-		for (String libnode: library.missingLibraryNodes)
-		    topLevelNode.addMissingLibrary(libnode);
-	    }
-	}
+        if (type.equals(NODE) &&
+            getProperty(NODETYPE_ATTR).equals(LIBRARYNODECALL)&&
+            libraryName.equals(library.modelName)) {
+            addChild(library);
+            unresolvedLibraryCall = false;
+            Model topLevelNode = topLevelNode();
+            if (topLevelNode != null) {
+                topLevelNode.addLibraryName(library.planName);
+                missingLibraryFound(library.modelName);
+                return true;
+            }
+        }
         
-	return result;
-    }
-
-    /**
-     * Links the specified library into this Model.
-     * @param library the library for this Model
-     * @return true if the library satisfied an unresolved call, false otherwise.
-     */
-    private boolean linkLibraryInternal(Model library)
-    {
-	boolean result = linkLibraryLocal(library);
-	if (!result) {
-	    for (Model child : children) {
-		result = result || child.linkLibraryInternal(library);
-	    }
-	}
-        
-	return result;
-    }
-
-    /**
-     * Links the specified library into this library call Model.
-     * @param library the library for this Model
-     * @return true if the library satisfied an unresolved call, false otherwise.
-     */
-    private boolean linkLibraryLocal(Model library)
-    {
-	if (type.equals(NODE)
-	    && getProperty(NODETYPE_ATTR).equals(LIBRARYNODECALL)
-	    && libraryName.equals(library.modelName)) {
-        Model copy = new Model(library);
-	    addChild(copy);
-	    unresolvedLibraryCall = false;
-	    return true;
-	}
-        
-	return false;
+        return false;
     }
     
     /** {@inheritDoc} */
@@ -833,11 +796,8 @@ public class Model extends Properties
         if (polishedtype == null)
             polishedtype = rawType;
 
-        int i = 1;
-        if (polishedtype == null)
-            i = 0;
-
         modelName = getProperty(NODE_ID);
+
         setProperty(MODEL_TYPE, polishedtype);
         setProperty(MODEL_OUTCOME, UNKNOWN);
         setProperty(MODEL_STATE, INACTIVE);        

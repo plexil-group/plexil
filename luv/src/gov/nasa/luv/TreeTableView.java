@@ -159,7 +159,11 @@ public class TreeTableView extends JTreeTable
                      
                      Model model = ((Wrapper)value).model;
 
-                     setIcon(Constants.getIcon(model.getProperty(NODETYPE_ATTR)));
+                     // select icon depending on if in extended or core view
+                     if (Luv.getLuv().getIsExtendedViewOn())
+                        setIcon(Constants.getIcon(model.getProperty(NODETYPE_ATTR)));
+                     else
+                        setIcon(Constants.getIcon(model.getProperty(NODETYPE_ATTR_PLX)));
                      
                      Vector<LuvBreakPoint> breakPoints = Luv.getLuv().getLuvBreakPointHandler().getBreakPoints(model);
                      if (breakPoints.size() > 0)

@@ -274,20 +274,6 @@ public class Luv extends JFrame {
         }
     }
 
-    // NOT BEING USED CURRENTLY - need more info from UE
-    // Called from PlexilPlanHandler::endElement()
-    /*public void handleNewLibrary(Model library)
-    {
-    // See if this library was referenced before it was defined
-    for (Model child : Model.getRoot().getChildren()) {
-    if (child.getMissingLibraries().contains(library.getModelName())) {
-    // link in the new library
-    child.linkLibrary(library);
-    }
-    }
-
-    Model.getRoot().planChanged();
-    }*/
     /** 
      * Pauses the execution of the Plexil plan by the Universal Executive
      * when directed to by the user. 

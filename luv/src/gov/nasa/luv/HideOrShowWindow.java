@@ -228,145 +228,281 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
         assnBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!assnBox.isSelected())
+                if (!assnBox.isSelected()) {
                     Luv.getLuv().setProperty(ASSN, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_ASSN, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_ASSN, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(ASSN, "SHOW");
+                    Luv.getLuv().setProperty(THEN_ASSN, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_ASSN, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         cmdBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!cmdBox.isSelected())
+                if (!cmdBox.isSelected()) {
                     Luv.getLuv().setProperty(COMMAND, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_CMD, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_CMD, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(COMMAND, "SHOW");
+                    Luv.getLuv().setProperty(THEN_CMD, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_CMD, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         updateBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!updateBox.isSelected())
+                if (!updateBox.isSelected()) {
                     Luv.getLuv().setProperty(UPDATE, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_UPDATE, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_UPDATE, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(UPDATE, "SHOW");
+                    Luv.getLuv().setProperty(THEN_UPDATE, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_UPDATE, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         emptyBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!emptyBox.isSelected())
+                if (!emptyBox.isSelected()) {
                     Luv.getLuv().setProperty(EMPTY, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_EMPTY, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_EMPTY, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(EMPTY, "SHOW");
+                    Luv.getLuv().setProperty(THEN_EMPTY, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_EMPTY, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         funcBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!funcBox.isSelected())
+                if (!funcBox.isSelected()) {
                     Luv.getLuv().setProperty(FUNCCALL, "HIDE");
-                else
+                }
+                else {
                     Luv.getLuv().setProperty(FUNCCALL, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         listBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!listBox.isSelected())
+                if (!listBox.isSelected()) {
                     Luv.getLuv().setProperty(NODELIST, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_LIST, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_LIST, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(NODELIST, "SHOW");
+                    Luv.getLuv().setProperty(THEN_LIST, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_LIST, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         libBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!libBox.isSelected())
+                if (!libBox.isSelected()) {
                     Luv.getLuv().setProperty(LIBRARYNODECALL, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_LIB, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_LIB, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(LIBRARYNODECALL, "SHOW");
+                    Luv.getLuv().setProperty(THEN_LIB, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_LIB, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         ifBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!ifBox.isSelected())
+                if (!ifBox.isSelected()) {
                     Luv.getLuv().setProperty(IF, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_IF, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_IF, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(IF, "SHOW");
+                    Luv.getLuv().setProperty(THEN_IF, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_IF, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         thenBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!thenBox.isSelected())
+                if (!thenBox.isSelected()) {
                     Luv.getLuv().setProperty(THEN, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_LIST, "HIDE");
+                    Luv.getLuv().setProperty(THEN_ASSN, "HIDE");
+                    Luv.getLuv().setProperty(THEN_CMD, "HIDE");
+                    Luv.getLuv().setProperty(THEN_EMPTY, "HIDE");
+                    Luv.getLuv().setProperty(THEN_LIB, "HIDE");
+                    Luv.getLuv().setProperty(THEN_UPDATE, "HIDE");
+                    Luv.getLuv().setProperty(THEN_IF, "HIDE");
+                    Luv.getLuv().setProperty(THEN_WHILE, "HIDE");
+                    Luv.getLuv().setProperty(THEN_FOR, "HIDE");
+                    Luv.getLuv().setProperty(THEN_TRY, "HIDE");
+                    Luv.getLuv().setProperty(THEN_SEQ, "HIDE");
+                    Luv.getLuv().setProperty(THEN_UNCHKD_SEQ, "HIDE");
+                    Luv.getLuv().setProperty(THEN_CONCURRENCE, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(THEN, "SHOW");
+                    Luv.getLuv().setProperty(THEN_LIST, "SHOW");
+                    Luv.getLuv().setProperty(THEN_ASSN, "SHOW");
+                    Luv.getLuv().setProperty(THEN_CMD, "SHOW");
+                    Luv.getLuv().setProperty(THEN_EMPTY, "SHOW");
+                    Luv.getLuv().setProperty(THEN_LIB, "SHOW");
+                    Luv.getLuv().setProperty(THEN_UPDATE, "SHOW");
+                    Luv.getLuv().setProperty(THEN_IF, "SHOW");
+                    Luv.getLuv().setProperty(THEN_WHILE, "SHOW");
+                    Luv.getLuv().setProperty(THEN_FOR, "SHOW");
+                    Luv.getLuv().setProperty(THEN_TRY, "SHOW");
+                    Luv.getLuv().setProperty(THEN_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(THEN_UNCHKD_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(THEN_CONCURRENCE, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         elseBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!elseBox.isSelected())
+                if (!elseBox.isSelected()) {
                     Luv.getLuv().setProperty(ELSE, "HIDE");
-                else
+                    Luv.getLuv().setProperty(ELSE_LIST, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_ASSN, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_CMD, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_EMPTY, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_LIB, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_UPDATE, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_IF, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_WHILE, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_FOR, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_TRY, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_SEQ, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_UNCHKD_SEQ, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_CONCURRENCE, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(ELSE, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_LIST, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_ASSN, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_CMD, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_EMPTY, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_LIB, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_UPDATE, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_IF, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_WHILE, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_FOR, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_TRY, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_UNCHKD_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_CONCURRENCE, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         whileBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!whileBox.isSelected())
+                if (!whileBox.isSelected()) {
                     Luv.getLuv().setProperty(WHILE, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_WHILE, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_WHILE, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(WHILE, "SHOW");
+                    Luv.getLuv().setProperty(THEN_WHILE, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_WHILE, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         forBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!forBox.isSelected())
+                if (!forBox.isSelected()) {
                     Luv.getLuv().setProperty(FOR, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_FOR, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_FOR, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(FOR, "SHOW");
+                    Luv.getLuv().setProperty(THEN_FOR, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_FOR, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         tryBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!tryBox.isSelected())
+                if (!tryBox.isSelected()) {
                     Luv.getLuv().setProperty(TRY, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_TRY, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_TRY, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(TRY, "SHOW");
+                    Luv.getLuv().setProperty(THEN_TRY, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_TRY, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         seqBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!seqBox.isSelected())
+                if (!seqBox.isSelected()) {
                     Luv.getLuv().setProperty(SEQ, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_SEQ, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_SEQ, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(SEQ, "SHOW");
+                    Luv.getLuv().setProperty(THEN_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_SEQ, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         unchkdSeqBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!unchkdSeqBox.isSelected())
+                if (!unchkdSeqBox.isSelected()) {
                     Luv.getLuv().setProperty(UNCHKD_SEQ, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_UNCHKD_SEQ, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_UNCHKD_SEQ, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(UNCHKD_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(THEN_UNCHKD_SEQ, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_UNCHKD_SEQ, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });
         concBox.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if (!concBox.isSelected())
+                if (!concBox.isSelected()) {
                     Luv.getLuv().setProperty(CONCURRENCE, "HIDE");
-                else
+                    Luv.getLuv().setProperty(THEN_CONCURRENCE, "HIDE");
+                    Luv.getLuv().setProperty(ELSE_CONCURRENCE, "HIDE");
+                }
+                else {
                     Luv.getLuv().setProperty(CONCURRENCE, "SHOW");
+                    Luv.getLuv().setProperty(THEN_CONCURRENCE, "SHOW");
+                    Luv.getLuv().setProperty(ELSE_CONCURRENCE, "SHOW");
+                }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
         });

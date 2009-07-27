@@ -114,7 +114,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             node.addChild(child);
 
             // if the parent is the root node, save this as a (the?) top level node
-            if (node.isRoot()) 
+            if (node.isRoot())
             {
                 topLevelNode = child;
             }
@@ -123,13 +123,54 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
             node = child;
 
             // add attributes for this child
-            for (int i = 0; i < attributes.getLength(); ++i) 
+            // NODETYPE_ATTR identify which icon should be used when displaying plan
+            // AUX is nodes that should be hidden if in EPX view
+            for (int i = 0; i < attributes.getLength(); ++i)
             {
-                if (attributes.getQName(i).equals(EPX))
-                    child.setProperty(NODETYPE_ATTR, attributes.getValue(i));
+                if (attributes.getQName(i).equals(EPX)) {
+                    // save plexil core view icon
+                    if (child.getProperty(NODETYPE_ATTR).contains(THEN) ||
+                        child.getProperty(NODETYPE_ATTR).contains(ELSE))
+                        child.setProperty(NODETYPE_ATTR_PLX, child.getProperty(NODETYPE_ATTR).substring(THEN.length()));
+                    else
+                        child.setProperty(NODETYPE_ATTR_PLX, child.getProperty(NODETYPE_ATTR));
+
+                    // insert epx view icon
+                    if (attributes.getValue(i).equals(THEN))
+                        child.setProperty(NODETYPE_ATTR, AUX_THEN);
+                    else if (attributes.getValue(i).equals(ELSE))
+                        child.setProperty(NODETYPE_ATTR, AUX_ELSE);
+                    else if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
+                             child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_THEN)) 
+                        child.setProperty(NODETYPE_ATTR, THEN + attributes.getValue(i));                    
+                    else if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
+                             child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_ELSE)) 
+                        child.setProperty(NODETYPE_ATTR, ELSE + attributes.getValue(i));
+                    else 
+                        child.setProperty(NODETYPE_ATTR, attributes.getValue(i));
+                    
+                }
                 else
-                    child.setProperty(attributes.getQName(i), attributes.getValue(i));
+                {
+                    if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
+                        child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_THEN)) {
+                        child.setProperty(attributes.getQName(i), THEN + attributes.getValue(i));
+                        child.setProperty(NODETYPE_ATTR_PLX, attributes.getValue(i));
+                    }
+                    else if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
+                             child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_ELSE)) {
+                             child.setProperty(attributes.getQName(i), ELSE + attributes.getValue(i));
+                             child.setProperty(NODETYPE_ATTR_PLX, attributes.getValue(i));
+                    }
+                    else if (attributes.getQName(i).equals(NODETYPE_ATTR)) {
+                        child.setProperty(attributes.getQName(i), attributes.getValue(i));   
+                        child.setProperty(NODETYPE_ATTR_PLX, attributes.getValue(i));
+                    }
+                    else
+                        child.setProperty(attributes.getQName(i), attributes.getValue(i));                
+                }
             }
+            
         }
 
         // starting to load a library def'n?
@@ -200,9 +241,6 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
         // Make sure Luv instance is notified if this was plan or library
         if (tagName.equals(PLEXIL_PLAN))
             Luv.getLuv().handleNewPlan(topLevelNode);
-        // NOT BEING USED CURRENTLY - need more info from UE first
-       // else if (tagName.equals(PLEXIL_LIBRARY))
-         //   Luv.getLuv().handleNewLibrary(topLevelNode);
     }
 
     /** {@inheritDoc} */
