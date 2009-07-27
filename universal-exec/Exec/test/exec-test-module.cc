@@ -1025,7 +1025,6 @@ public:
 
   void handleConditionsChanged(const NodeId& node) {}
   void handleNeedsExecution(const NodeId& node) {}
-  const ExpressionId& findVariable(const LabelStr& name) {return ExpressionId::noId();}
   const StateCacheId& getStateCache() {return m_cache.getId();}
   const ExternalInterfaceId& getExternalInterface() 
   {
@@ -1040,8 +1039,8 @@ private:
 class LookupTestNodeConnector : public NodeConnector {
 public:
   LookupTestNodeConnector() : NodeConnector() {}
-  const ExpressionId& findVariable(const PlexilVarRef* var) {return ExpressionId::noId();}
-  const ExpressionId& findVariable(const LabelStr& name) {return ExpressionId::noId();}
+  const ExpressionId& findVariable(const PlexilVarRef* var) const {return ExpressionId::noId();}
+  const ExpressionId& findVariable(const LabelStr& name) const {return ExpressionId::noId();}
   const NodeId& getNode() const { return NodeId::noId(); }
   const ExecConnectorId& getExec() {
     return m_exec.getId();
@@ -1217,7 +1216,6 @@ public:
   TransitionExecConnector() : ExecConnector(), m_executed(false) {}
   void handleConditionsChanged(const NodeId& node) {}
   void handleNeedsExecution(const NodeId& node) {assertTrue(node->getState() == StateVariable::EXECUTING()); m_executed = true;}
-  const ExpressionId& findVariable(const LabelStr& name) {return ExpressionId::noId();}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
   const ExternalInterfaceId& getExternalInterface() {return ExternalInterfaceId::noId();}
   bool executed() {return m_executed;}

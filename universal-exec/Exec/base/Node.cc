@@ -87,9 +87,14 @@ namespace PLEXIL {
     {
     }
 
-    const ExpressionId& findVariable(const PlexilVarRef* ref) 
+    const ExpressionId& findVariable(const PlexilVarRef* ref) const
     {
       return m_node->findVariable(ref);
+    }
+
+    const ExpressionId& findVariable(const LabelStr& name) const
+    {
+      return m_node->findVariable(name);
     }
 
     const ExecConnectorId& getExec()

@@ -52,7 +52,6 @@ namespace PLEXIL
     const ExecConnectorId& getId() const {return m_id;}
     virtual void handleConditionsChanged(const NodeId& node) = 0;
     virtual void handleNeedsExecution(const NodeId& node) = 0;
-    //virtual const ExpressionId& findVariable(const LabelStr& name) = 0;
     virtual const StateCacheId& getStateCache() = 0;
     virtual const ExternalInterfaceId& getExternalInterface() = 0;
   protected:
