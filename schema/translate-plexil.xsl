@@ -765,7 +765,7 @@
 </xsl:template>
 
 <xsl:template name= "node-finished">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-state-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "state" select= "'FINISHED'"/>
@@ -773,7 +773,7 @@
 </xsl:template>
 
 <xsl:template name= "node-iteration-ended">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-state-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "state" select= "'ITERATION_ENDED'"/>
@@ -781,7 +781,7 @@
 </xsl:template>
 
 <xsl:template name= "node-executing">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-state-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "state" select= "'EXECUTING'"/>
@@ -789,7 +789,7 @@
 </xsl:template>
 
 <xsl:template name= "node-waiting">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-state-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "state" select= "'WAITING'"/>
@@ -797,7 +797,7 @@
 </xsl:template>
 
 <xsl:template name= "node-inactive">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-state-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "state" select= "'INACTIVE'"/>
@@ -816,7 +816,7 @@
 </xsl:template>
 
 <xsl:template name= "node-failed">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-outcome-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "outcome" select= "'FAILURE'"/>
@@ -824,7 +824,7 @@
 </xsl:template>
 
 <xsl:template name= "node-succeeded">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-outcome-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "outcome" select= "'SUCCESS'"/>
@@ -832,7 +832,7 @@
 </xsl:template>
 
 <xsl:template name= "node-skipped">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-outcome-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "outcome" select= "'SKIPPED'"/>
@@ -852,7 +852,7 @@
 
 
 <xsl:template name= "node-invariant-failed">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-failure-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "failure" select= "'INVARIANT_CONDITION_FAILED'"/>
@@ -860,7 +860,7 @@
 </xsl:template>
 
 <xsl:template name= "node-precondition-failed">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-failure-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "failure" select= "'PRE_CONDITION_FAILED'"/>
@@ -868,7 +868,7 @@
 </xsl:template>
 
 <xsl:template name= "node-postcondition-failed">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-failure-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "failure" select= "'POST_CONDITION_FAILED'"/>
@@ -876,7 +876,7 @@
 </xsl:template>
 
 <xsl:template name= "node-parent-failed">
-  <xsl:param name= "id" select="text()"/>
+  <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-failure-check">
     <xsl:with-param name= "id" select= "$id"/>
     <xsl:with-param name= "failure" select= "'PARENT_FAILED'"/>

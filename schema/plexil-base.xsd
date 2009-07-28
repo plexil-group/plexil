@@ -54,6 +54,38 @@
     </xsd:choice>
   </xsd:group>
 
+  <xsd:group name="NodeReference">
+    <xsd:choice>
+      <xsd:element ref="NodeId"/>
+      <xsd:element ref="NodeRef"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:complexType name="node-reference">
+    <xsd:group ref= "NodeReference"/>
+  </xsd:complexType>
+
+  <xsd:element name="NodeId" type="xsd:NCName"/>
+
+  <xsd:element name="NodeRef">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="NCNameOrEmpty">
+          <xsd:attribute name="dir">
+            <xsd:simpleType>
+              <xsd:restriction base="xsd:NMTOKEN">
+                <xsd:enumeration value="parent"/>
+                <xsd:enumeration value="sibling"/>
+                <xsd:enumeration value="child"/>
+                <xsd:enumeration value="self"/>
+              </xsd:restriction>
+            </xsd:simpleType>
+          </xsd:attribute>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="GlobalDeclarations">
     <xsd:complexType>
       <xsd:choice maxOccurs="unbounded">
@@ -201,26 +233,6 @@
       <xsd:attribute ref="FileName"/>
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
-    </xsd:complexType>
-  </xsd:element>
-  <xsd:element name="NodeId" type="xsd:NCName"/>
-
-  <xsd:element name="NodeRef">
-    <xsd:complexType>
-      <xsd:simpleContent>
-        <xsd:extension base="NCNameOrEmpty">
-          <xsd:attribute name="dir">
-            <xsd:simpleType>
-              <xsd:restriction base="xsd:NMTOKEN">
-                <xsd:enumeration value="parent"/>
-                <xsd:enumeration value="sibling"/>
-                <xsd:enumeration value="child"/>
-                <xsd:enumeration value="self"/>
-              </xsd:restriction>
-            </xsd:simpleType>
-          </xsd:attribute>
-        </xsd:extension>
-      </xsd:simpleContent>
     </xsd:complexType>
   </xsd:element>
 
@@ -738,15 +750,9 @@
       <xsd:element ref="NodeStateValue"/>
     </xsd:choice>
   </xsd:group>
-  <xsd:element name="NodeStateVariable">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="NodeRef"/>
-        <xsd:element ref="NodeId"/>
-<!-- for backw compatibility -->
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
+
+  <xsd:element name="NodeStateVariable" type="node-reference"/>
+
   <xsd:element name="NodeStateValue">
     <xsd:simpleType>
       <xsd:restriction base="xsd:NMTOKEN">
@@ -768,14 +774,7 @@
     </xsd:choice>
   </xsd:group>
 
-  <xsd:element name="NodeOutcomeVariable">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="NodeRef"/>
-        <xsd:element ref="NodeId"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
+  <xsd:element name="NodeOutcomeVariable" type="node-reference"/>
 
   <xsd:element name="NodeOutcomeValue">
     <xsd:simpleType>
@@ -794,14 +793,7 @@
     </xsd:choice>
   </xsd:group>
 
-  <xsd:element name="NodeFailureVariable">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="NodeRef"/>
-        <xsd:element ref="NodeId"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
+  <xsd:element name="NodeFailureVariable" type= "node-reference"/>
 
   <xsd:element name="NodeFailureValue">
     <xsd:simpleType>
@@ -817,11 +809,7 @@
   <xsd:element name="NodeTimepointValue">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:choice>
-          <xsd:element ref="NodeRef"/>
-          <!-- for backwards compatibility -->
-          <xsd:element ref="NodeId"/>
-        </xsd:choice>
+        <xsd:group ref= "NodeReference"/>
         <xsd:element ref="NodeStateValue"/>
         <xsd:element ref="Timepoint"/>
       </xsd:sequence>

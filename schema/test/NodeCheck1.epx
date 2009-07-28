@@ -33,7 +33,7 @@
         <Node NodeType="Assignment">
           <NodeId>Two</NodeId>
           <StartCondition>
-            <PostconditionFailed>One</PostconditionFailed>
+            <PostconditionFailed><NodeId>One</NodeId></PostconditionFailed>
           </StartCondition>
           <PostCondition>
             <EQNumeric>
@@ -54,7 +54,7 @@
         <Node NodeType="Assignment">
           <NodeId>Three</NodeId>
           <StartCondition>
-            <Finished>Two</Finished>
+            <Finished><NodeId>Two</NodeId></Finished>
           </StartCondition>
           <NodeBody>
             <Assignment>
