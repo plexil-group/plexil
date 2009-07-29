@@ -571,7 +571,7 @@
   "A call to a library node."
   (xml "NodeBody"
        (xml "LibraryNodeCall"
-            (cons (xml "NodeId" nodeid) aliases))))
+            (cons (plexil-nodeid nodeid) aliases))))
 
 (pdefine pl (Alias alias) (parameter value) 2 nil
   ;; ncName * (xml + literal) -> xml
@@ -597,7 +597,7 @@
                       ((stringp name-or-first-clause) clauses)
                       ((null name-or-first-clause) nil)
                       (t (cons name-or-first-clause clauses)))))
-    (xml "Node" (cons (xml "NodeId" the-name) the-clauses)
+    (xml "Node" (cons (plexil-nodeid the-name) the-clauses)
          `(("NodeType" . ,type)))))
 
 (insert-plexil-heading "=== Variable Declaration ===")
@@ -984,66 +984,66 @@
 
 (pdefine pl (Finished finished isFinished is-finished) (id) 1 nil
   "Is the given action in state FINISHED?"
-  (xml "Finished" id))
+  (xml "Finished" (plexil-nodeid id)))
 
 (pdefine pl (IterationEnded iteration-ended
              isIterationEnded is-iteration-ended) (id) 1 nil
   "Is the given node in state ITERATION_ENDED?"
-  (xml "IterationEnded" id))
+  (xml "IterationEnded" (plexil-nodeid id)))
 
 (pdefine pl (Executing executing isExecuting is-executing) (id) 1 nil
   "Is the given action in state EXECUTING?"
-  (xml "Executing" id))
+  (xml "Executing" (plexil-nodeid id)))
 
 (pdefine pl (Waiting waiting isWaiting is-waiting) (id) 1 nil
   "Is the given action in state WAITING?"
-  (xml "Waiting" id))
+  (xml "Waiting" (plexil-nodeid id)))
 
 (pdefine pl (Inactive inactive isInactive is-inactive) (id) 1 nil
   "Is the given action in state INACTIVE?"
-  (xml "Inactive" id))
+  (xml "Inactive" (plexil-nodeid id)))
 
 (pdefine pl (Successful successful isSuccessful is-successful) (id) 1 nil
  "Did the given action finish successfully?"
-  (xml "Succeeded" id))
+  (xml "Succeeded" (plexil-nodeid id)))
 
 (pdefine pl (IterationSuccessful iteration-successful) (id) 1 nil
  "Did the last iteration of the given action finish successfully?"
-  (xml "IterationSucceeded" id))
+  (xml "IterationSucceeded" (plexil-nodeid id)))
 
 (pdefine pl (IterationFailed iteration-failed) (id) 1 nil
  "Did the last iteration of the given action fail?"
-  (xml "IterationFailed" id))
+  (xml "IterationFailed" (plexil-nodeid id)))
 
 (pdefine pl (Failed failed isFailed is-failed) (id) 1 nil
   "Did the given action fail?"
-  (xml "Failed" id))
+  (xml "Failed" (plexil-nodeid id)))
 
 (pdefine pl (Skipped skipped isSkipped is-skipped) (id) 1 nil
   "Was the given action skipped?"
-  (xml "Skipped" id))
+  (xml "Skipped" (plexil-nodeid id)))
 
 (pdefine pl (InvariantFailed invariant-failed) (id) 1 nil
   "Did the invariant condition of the given action fail?"
-  (xml "InvariantFailed" id))
+  (xml "InvariantFailed" (plexil-nodeid id)))
 
 (pdefine pl (PostConditionFailed
              PostconditionFailed
              postcondition-failed
              post-condition-failed) (id) 1 nil
   "Did the postcondition of the given action fail?"
-  (xml "PostconditionFailed" id))
+  (xml "PostconditionFailed" (plexil-nodeid id)))
 
 (pdefine pl (PreConditionFailed
              PreconditionFailed
              precondition-failed
              pre-condition-failed) (id) 1 nil
   "Did the precondition of the given action fail?"
-  (xml "PreconditionFailed" id))
+  (xml "PreconditionFailed" (plexil-nodeid id)))
 
 (pdefine pl (ParentFailed parent-failed) (id) 1 nil
   "Did the parent of the given action fail?"
-  (xml "ParentFailed" id))
+  (xml "ParentFailed" (plexil-nodeid id)))
 
 (insert-plexil-heading
  "=== Conditionals and Loops ==="
@@ -1123,7 +1123,7 @@
                     name-or-first-form)))
     (xml construct
          (append
-          (if the-name (list (xml "NodeId" the-name)))
+          (if the-name (list (plexil-nodeid the-name)))
           (if first-form (cons (plexil-nodify first-form)
                                (mapcar #'plexil-nodify rest-forms)))))))
 
@@ -1304,7 +1304,7 @@
    "WAITING, FINISHED, ITERATION_ENDED, EXECUTING, FAILING, FINISHING. "
    "Timepoint must be one of START, END.")
   (xml "NodeTimepointValue"
-       (list (xml "NodeId" nodeid)
+       (list (plexil-nodeid nodeid)
              (xml "NodeStateValue" node-state-value)
              (xml "Timepoint" timepoint))
        nil 'time))
@@ -1315,11 +1315,11 @@
 
 (pdefine pl (NodeState node-state) (nodeid) 1 nil
   "Specifies the state of the node with the given ID."
-  (xml "NodeStateVariable" (xml "NodeId" nodeid)))
+  (xml "NodeStateVariable" (plexil-nodeid nodeid)))
 
 (pdefine pl (NodeOutcome node-outcome) (nodeid) 1 nil
   "Specifies the outcome of the node with the given ID."
-  (xml "NodeOutcomeVariable" (xml "NodeId" nodeid)))
+  (xml "NodeOutcomeVariable" (plexil-nodeid nodeid)))
 
 (pdefine pl (isKnown IsKnown is-known) (v) 1 nil ; xml -> xml
   ("Returns true or false depending on whether the value of the given declared "
@@ -1327,6 +1327,7 @@
    "value is known.")
   (xml "IsKnown" v nil 'boolean))
 
+(defun plexil-nodeid (id) (xml "NodeId" id))
 
 ;;; -------------------- Simulation Script -------------------------------------
 
