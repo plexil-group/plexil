@@ -36,7 +36,7 @@ import net.n3.nanoxml.*;
  */
 public class Parse
 {
-    public static final String version = new String("PlexilParser version 0.3");
+    public static final String version = new String("PlexilParser version 0.4");
 
     public static boolean quiet = false;
     public static FileWriter debugWriter = null;
@@ -55,12 +55,13 @@ public class Parse
         System.exit(value);
     }
 
-    private static File defaultOutputFile(String fullname)
+    private static File defaultOutputFile(String fullname, boolean isExtendedPlexil)
     {
 	File infile = new File(fullname);
-	// replace extension with .plx
+	// replace extension with .plx or .epx as appropriate
 	String inname = infile.getName();
-	String outname = inname.substring(0, inname.lastIndexOf('.')) + ".plx";
+	String outname = inname.substring(0, inname.lastIndexOf('.')) +
+	    (isExtendedPlexil ? ".epx" : ".plx");
 	return new File(infile.getParent(), outname);
     }
     
@@ -195,7 +196,8 @@ public class Parse
 	return returnFile; // default behaviour - let caller handle case when the file is not found 
     }
 
-    public static void load(IXMLElement xml, String filename) throws Exception 
+    public static boolean load(IXMLElement xml, String filename)
+	throws Exception 
     {
 	if (!quiet) 
 	    {
@@ -227,6 +229,7 @@ public class Parse
 		    }
 		debugWriter.write('\n');
 	    }
+
        	PlexilTreeParser treeParser = new PlexilTreeParser(parser.getState());
        	treeParser.plexilPlan(parser.getAST(), xml);
 	if (treeParser.getState().printErrorCount()) 
@@ -236,6 +239,7 @@ public class Parse
 		    debugWriter.close();
 		System.exit(1);
 	    }
+	return treeParser.getState().isExtendedPlexil();
     }
     
     public static void main(String [] args) throws Exception 
@@ -297,23 +301,21 @@ public class Parse
 			exit(-1);
 		    }
 
-		IXMLElement xml = new XMLElement("PlexilPlan");
 		if (!quiet) 
 		    {
 			System.out.println(version);
 			System.out.println();
 			System.out.println("Translating:");
 		    }
-		load(xml,argument);
-		while (itr.hasNext()) 
-		    {
-			argument = (String) itr.next();
-			load(xml,argument);
-		    }
+
+		// read in plan and translate
+		IXMLElement xml = new XMLElement("PlexilPlan");
+		boolean isExtended = load(xml,argument);
+
 		// write out XML
 		if (output == null) 
 		    {
-			output = defaultOutputFile(argument);
+			output = defaultOutputFile(argument, isExtended);
 		    }
 		FileWriter writer = new FileWriter(output);
 		XMLWriter xmlWriter = new XMLWriter(writer);

@@ -299,21 +299,6 @@ public class PlexilNodeContext
 	return result;
     }
 
-    // Returns a vector of all interface variables declared in the node
-    public Vector<PlexilInterfaceVariableName> getInterfaceVariables()
-    {
-	Vector<PlexilInterfaceVariableName> result = new Vector<PlexilInterfaceVariableName>();
-	for (Iterator<PlexilVariableName> varIt = variables.iterator(); varIt.hasNext(); )
-	    {
-		PlexilVariableName var = varIt.next();
-		if (!var.isLocal())
-		    {
-			result.add((PlexilInterfaceVariableName) var);
-		    }
-	    }
-	return result;
-    }
-
     // Caller is responsible for creating the 3 vectors
     public void getNodeVariables(Vector<PlexilVariableName> localVarsResult,
 				 Vector<PlexilInterfaceVariableName> inVarsResult,

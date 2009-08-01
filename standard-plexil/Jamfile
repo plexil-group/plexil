@@ -18,6 +18,7 @@ JavaJar plexil.jar :
   plexil.PlexilTreeParserTokenTypes
   plexil.PlexilParserState
   plexil.PlexilNodeContext
+  plexil.VariableBindingSubcontext
   plexil.PlexilGlobalContext
   plexil.PlexilASTNode
   plexil.LiteralASTNode

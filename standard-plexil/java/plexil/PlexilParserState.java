@@ -64,6 +64,7 @@ public class PlexilParserState implements PlexilTokenTypes
     protected int warnings = 0;
     protected Map<String,PlexilNodeContext> nodeNames = new HashMap<String,PlexilNodeContext>();
     protected Stack<File> fileStack = new Stack<File>();
+    protected boolean usingExtendedPlexil = false;
 
     public PlexilParserState(PlexilParserState state)
     {
@@ -84,6 +85,16 @@ public class PlexilParserState implements PlexilTokenTypes
     public File getFile()
     {
 	return fileStack.peek();
+    }
+
+    public boolean isExtendedPlexil()
+    {
+	return usingExtendedPlexil;
+    }
+
+    public void setExtendedPlexil()
+    {
+	usingExtendedPlexil = true;
     }
 
     public PlexilParserState()

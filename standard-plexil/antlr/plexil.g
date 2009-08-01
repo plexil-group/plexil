@@ -179,6 +179,34 @@ tokens
     ABS_KYWD="abs";
     IS_KNOWN_KYWD="isKnown";
 
+    // Node state predicates (Extended Plexil)
+    NODE_EXECUTING_KYWD="NodeExecuting";
+    NODE_FAILED_KYWD="NodeFailed";
+    NODE_FINISHED_KYWD="NodeFinished";
+    NODE_INACTIVE_KYWD="NodeInactive";
+    NODE_INVARIANT_FAILED_KYWD="NodeInvariantFailed";
+    NODE_ITERATION_ENDED_KYWD="NodeIterationEnded";
+    NODE_ITERATION_FAILED_KYWD="NodeIterationFailed";
+    NODE_ITERATION_SUCCEEDED_KYWD="NodeIterationSucceeded";
+    NODE_PARENT_FAILED_KYWD="NodeParentFailed";
+    NODE_POSTCONDITION_FAILED_KYWD="NodePostconditionFailed";
+    NODE_PRECONDITION_FAILED_KYWD="NodePreconditionFailed";
+    NODE_SKIPPED_KYWD="NodeSkipped";
+    NODE_SUCCEEDED_KYWD="NodeSucceeded";
+    NODE_WAITING_KYWD="NodeWaiting";
+
+    // Extended Plexil syntactic sugar
+    SEQUENCE_KYWD="Sequence";
+    CONCURRENCE_KYWD="Concurrence";
+    UNCHECKED_SEQUENCE_KYWD="UncheckedSequence";
+    TRY_KYWD="Try";
+    IF_KYWD="If";
+    THEN_KYWD="Then";
+    ELSE_KYWD="Else";
+    WHILE_KYWD="While";
+    // "For" needs a Node AST because of the loop variable.
+    FOR_KYWD="For"<AST=plexil.NodeASTNode>;
+
     // lexical token types that need a specific AST node type
     INT<AST=plexil.LiteralASTNode>;
     DOUBLE<AST=plexil.LiteralASTNode>;
@@ -258,6 +286,9 @@ tokens
     FUNCTION_NAME;
     STATE_NAME;
     CONCAT;
+
+    // Extended PLEXIL
+    NODE_STATE_PREDICATE;
 }
 
 {
@@ -293,6 +324,11 @@ tokens
                PLEXIL_MAJOR_RELEASE + "." +
                PLEXIL_MINOR_RELEASE + "." +
                PLEXIL_PARSER_RELEASE;
+    }
+
+    public boolean isExtendedPlexil()
+    {
+        return state.isExtendedPlexil();
     }
 
     //
@@ -396,6 +432,28 @@ tokens
   {
     state.warn(ex);
   }
+
+  /*
+    Miscellaneous methods
+   */
+  private static boolean isExtendedPlexilBody(AST ast)
+  {
+    int ttype = ast.getType();
+    switch (ttype)
+    {
+   case SEQUENCE_KYWD:
+   case CONCURRENCE_KYWD:
+   case UNCHECKED_SEQUENCE_KYWD:
+   case TRY_KYWD:
+   case IF_KYWD:
+   case WHILE_KYWD:
+   case FOR_KYWD:
+     return true;
+
+   default:
+     return false;
+    }
+  }
 }
 
 //
@@ -403,8 +461,7 @@ tokens
 // 
 
 plexilPlan :
-        (declarations)?
-        (node) EOF!
+        (declarations)? action EOF!
     { #plexilPlan = #(#[PLEXIL, "PLEXIL"], #plexilPlan) ;
       ((PlexilASTNode) #plexilPlan).setFilename(state.getFile().toString());
     }
@@ -564,22 +621,31 @@ libraryParamSpec :
  ;
 
 //
-// Nodes
+// Actions and nodes
+// node
+// Sequence
+// Concurrence
+// UncheckedSequence
+// Try
+// If
+// While
+// For
 //
 
-node
+// *** N.B. The supported schema does not require the strict sequencing of
+// the elements inside an action or node, nor does the XML parser.
+
+action
 { 
   String nodeName = null; 
 }
  :
        (myId:nodeId COLON! { nodeName = #myId.getFirstChild().getText(); })?
        lbrace:LBRACE!
-       {
-         #node = #(#[NODE, "NODE"], #node);
-         ((PlexilASTNode) #node).setLine(#lbrace.getLine());
-         ((PlexilASTNode) #node).setColumn(#lbrace.getColumn());
-         ((PlexilASTNode) #node).setFilename(state.getFile().toString());
-
+       { 
+         // Parse tree is a dummy node for now
+	 // We'll set its text when we know what the body is
+         #action = #(#[NODE, "_dummy_"]);
          if (#myId == null)
            {
              // create default node name & AST
@@ -590,22 +656,36 @@ node
              AST nnAST = astFactory.create(nn);
              #myId = #(#[NODE_ID, "NodeId"]);
              #myId.addChild(nnAST);
-             #node.addChild(#myId);
            }
-         else
-           {
-             nodeName = #myId.getFirstChild().getText();
-           }
+	 // Add the NODE_ID subtree  
+         #action.addChild(#myId);
 
          context = new PlexilNodeContext(context, nodeName);
-         ((NodeASTNode) #node).setContext(context);
-         ((NodeASTNode) #node).setNodeName(nodeName);
          state.addNode(nodeName, context);
+	 // Hang this info on the parse tree now, so subexpressions can see it.
+         ((NodeASTNode) #action).setContext(context);
+         ((NodeASTNode) #action).setNodeName(nodeName);
        }
        (comment)?
        (nodeDeclaration)*
        (nodeAttribute)*
-       (nodeBody)?
+       (body:nodeBody)?
+       {
+         if (#body != null && isExtendedPlexilBody(#body))
+           {
+             // Extended PLEXIL action
+             // Use node body keyword as root of parse subtree
+             #action.setText(#body.getText());
+           }
+	 else
+           {
+	     // Is a simple node
+	     #action.setText("NODE");
+           }
+         ((PlexilASTNode) #action).setLine(#lbrace.getLine());
+         ((PlexilASTNode) #action).setColumn(#lbrace.getColumn());
+         ((PlexilASTNode) #action).setFilename(state.getFile().toString());
+       }
        RBRACE!
        {
          context = context.getParentContext(); // back out to previous
@@ -617,17 +697,106 @@ nodeId : nodeName
 
 comment : COMMENT_KYWD^ COLON! STRING SEMICOLON! ;
 
+//
+// Extended PLEXIL here
+//
+
 nodeBody : 
-   nodeList
-   | assignment
-   | command
-   | functionCall
-   | update
-   | request
-   | libraryCall
+        nodeList
+    | assignment
+    | command
+    | functionCall
+    | update
+    | request
+    | libraryCall
+    | sequence
+    | concurrence
+    | uncheckedSequence
+    | tryBody
+    | ifBody
+    | whileBody
+    | forBody
  ;
 
-nodeList : NODE_LIST_KYWD^ COLON! (node)* ;
+nodeList : NODE_LIST_KYWD^ (COLON!)? (action)* ;
+
+sequence : SEQUENCE_KYWD^ (action)*
+  {
+    state.setExtendedPlexil();
+  }
+ ;
+
+concurrence : CONCURRENCE_KYWD^ (action)* 
+  {
+    state.setExtendedPlexil();
+  }
+ ;
+
+uncheckedSequence : UNCHECKED_SEQUENCE_KYWD^ (action)* 
+  {
+    state.setExtendedPlexil();
+  }
+ ;
+
+tryBody : TRY_KYWD^ (action)* 
+  {
+    state.setExtendedPlexil();
+  }
+ ;
+
+ifBody : IF_KYWD^ LPAREN! booleanExpression RPAREN! THEN_KYWD action (ELSE_KYWD action)? 
+  {
+    state.setExtendedPlexil();
+  }
+ ;
+
+whileBody : WHILE_KYWD^ LPAREN! booleanExpression RPAREN! action 
+  {
+    state.setExtendedPlexil();
+  }
+ ;
+
+//
+// "For" parsing
+//
+
+// "For" is unique among node bodies becaue it can have its own variable binding.
+forBody : 
+  FOR_KYWD^ 
+  {
+    // create new variable binding context
+    context = new VariableBindingSubcontext(context, null);
+    ((NodeASTNode) #forBody).setContext(context);
+    state.setExtendedPlexil();
+  }
+  LPAREN! loopVariableDeclaration SEMICOLON! booleanExpression SEMICOLON! numericExpression RPAREN! action
+  {
+    // restore old variable binding context
+    context = context.getParentContext();
+  }
+ ;
+
+loopVariableDeclaration :
+  integerLoopVariableDeclaration
+  | realLoopVariableDeclaration ;
+
+// patterned after integerScalarDeclaration
+
+integerLoopVariableDeclaration :
+  INTEGER_KYWD^ vn:variableName (EQUALS! iv:integerValue)?
+  {
+    context.addVariableName(#vn.getText(), PlexilDataType.INTEGER_TYPE); 
+  }
+ ;
+
+// patterned after realScalarDeclaration
+
+realLoopVariableDeclaration : 
+  REAL_KYWD^ vn:variableName (EQUALS! iv:realValue)?
+  {
+    context.addVariableName(#vn.getText(), PlexilDataType.REAL_TYPE); 
+  }
+ ;
 
 nodeDeclaration :
         interfaceDeclaration
@@ -1606,6 +1775,7 @@ simpleBoolean :
    | booleanArrayReference
    | booleanVariable
    | isKnownExp
+   | nodeStatePredicateExp
    | lookup ;
 
 isKnownExp :
@@ -1619,6 +1789,35 @@ isKnownExp :
      | nodeTimepointValue
    )
    RPAREN! ;
+
+nodeStatePredicate :
+  NODE_EXECUTING_KYWD
+  | NODE_FAILED_KYWD
+  | NODE_FINISHED_KYWD
+  | NODE_INACTIVE_KYWD
+  | NODE_INVARIANT_FAILED_KYWD
+  | NODE_ITERATION_ENDED_KYWD
+  | NODE_ITERATION_FAILED_KYWD
+  | NODE_ITERATION_SUCCEEDED_KYWD
+  | NODE_PARENT_FAILED_KYWD
+  | NODE_POSTCONDITION_FAILED_KYWD
+  | NODE_PRECONDITION_FAILED_KYWD
+  | NODE_SKIPPED_KYWD
+  | NODE_SUCCEEDED_KYWD
+  | NODE_WAITING_KYWD
+ ;
+
+nodeStatePredicateExp! :
+  nsp:nodeStatePredicate
+  LPAREN!
+  nir:nodeIdRef
+  RPAREN!
+  {
+    #nodeStatePredicateExp = #(#[NODE_STATE_PREDICATE, "NODE_STATE_PREDICATE"], #nsp, #nir);
+    state.setExtendedPlexil();
+  }  
+ ;		     
+
 
 // numericComparison! : 
 //    e1:numericExpression op:comparisonOperator e2:numericExpression
@@ -1693,7 +1892,8 @@ nodeTimepointValue :
    { #nodeTimepointValue = #(#[NODE_TIMEPOINT_VALUE, "NODE_TIMEPOINT_VALUE"], #nodeTimepointValue); }
  ;
 
-// Note that we can't check forward references to nodes defined later
+// Note: in the surface parser, we can't check forward references to nodes defined later
+// Can leave that to the tree parser.
 nodeIdRef: nodeName;
 
 timepoint : START_KYWD | END_KYWD ;
