@@ -1,0 +1,7 @@
+Root:
+{
+  Integer i = 0;
+  While (i < 3) {
+    Assignment: i = i + 3;
+  }
+}
