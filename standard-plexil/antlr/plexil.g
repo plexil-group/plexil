@@ -680,7 +680,7 @@ action
 	 else
            {
 	     // Is a simple node
-	     #action.setText("NODE");
+	     #action.setText("Node");
            }
          ((PlexilASTNode) #action).setLine(#lbrace.getLine());
          ((PlexilASTNode) #action).setColumn(#lbrace.getColumn());
