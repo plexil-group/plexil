@@ -55,7 +55,7 @@ public class Parse
         System.exit(value);
     }
 
-    private static File defaultOutputFile(String fullname, boolean isExtendedPlexil)
+    private static File outputFilename(String fullname, boolean isExtendedPlexil)
     {
 	File infile = new File(fullname);
 	// replace extension with .plx or .epx as appropriate
@@ -68,17 +68,16 @@ public class Parse
     private static void printUsage() 
     {
         System.out.println(version);
-        System.out.println("Usage: java plexil.Parse [OPTION]... [FILE]...");
+        System.out.println("Usage: plexil [OPTION]... <source file>");
         System.out.println("");
-        System.out.println("  -a, --arguments <filename> Read arguments from filename");
         System.out.println("  -d, --debug <filename>     Print debug information to filename");
-        System.out.println("  -h, --help                 Print this help");
-        System.out.println("  -o, --output <filename>    Print output to filename");
+        System.out.println("  -h, --help                 Print this help and exit");
+        System.out.println("  -o, --output <filename>    Write translator output to filename");
         System.out.println("  -q, --quiet                Parse files quietly");
-        System.out.println("  -v, --version              Print the version");
+        System.out.println("  -v, --version              Print the translator version and exit");
         System.out.println("");
-        System.out.println("Examples:");
-        System.out.println("java plexil.Parse -o filename.plx filename.ple");
+        System.out.println("Example:");
+        System.out.println("plexil -o filename.plx filename.ple");
     }
   
     private static Vector<String> getArgs(String[] args) 
@@ -139,7 +138,7 @@ public class Parse
 	    }
 	if (returnFile.canRead()) 
 	    {
-		// file exists, no need to serach the search path. 
+		// file exists, no need to search the search path. 
 		return returnFile;
 	    } 
 	else 
@@ -296,7 +295,7 @@ public class Parse
 		    }
 		if (!filename) 
 		    {
-			System.out.println("Error: no filenames supplied.");
+			System.out.println("Error: no source file name supplied.");
 			printUsage();
 			exit(-1);
 		    }
@@ -315,35 +314,47 @@ public class Parse
 		// write out XML
 		if (output == null) 
 		    {
-			output = defaultOutputFile(argument, isExtended);
+			output = outputFilename(argument, isExtended);
 		    }
 		FileWriter writer = new FileWriter(output);
 		XMLWriter xmlWriter = new XMLWriter(writer);
 		checkXML(xml);
+		if (!quiet)
+		    {
+			System.out.println("Writing "
+					   + (isExtended ? "Extended" : "Core")
+					   + " PLEXIL to "
+					   + output);
+		    }
 		xmlWriter.write(xml,true,2,true);
-		if (!quiet) 
-		    {
-			System.out.println();
-			System.out.println("Writing:");
-			System.out.println("  "+output);
-		    }
-		//FileWriter writer = new FileWriter(output);
-		//XMLWriter xmlWriter = new XMLWriter(writer);
 		//xmlWriter.write(xml,true,0,true);
-		if (!quiet) 
-		    {
-			System.out.println();
-		    }
 		writer.close();
-		if (debugWriter != null) 
+
+		if (isExtended)
 		    {
-			debugWriter.close();
+			// Translate from Extended PLEXIL to Core PLEXIL
+			File coreOutput = outputFilename(argument, false);
+			if (!quiet)
+			    {
+				System.out.println("Translating to Core PLEXIL file " + coreOutput);
+			    }
+			String[] saxonArgs = new String[4];
+			saxonArgs[0] = "-o";
+			saxonArgs[1] = coreOutput.toString();
+			saxonArgs[2] = output.toString();
+			saxonArgs[3] = System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl";
+			net.sf.saxon.Transform.main(saxonArgs);
 		    }
+		System.out.println("Done.");
+		if (debugWriter != null) 
+		    debugWriter.close();
 	    } 
 	catch (Exception e) 
 	    {
 		System.err.println();
 		e.printStackTrace();
+		if (debugWriter != null) 
+		    debugWriter.close();
 		exit(-1);
 	    }
         exit(0);
