@@ -116,6 +116,12 @@ namespace PLEXIL
     void addInterfaceAdapter(const InterfaceAdapterId& adapter);
 
     /**
+     * @brief Add an externally constructed ExecListener.
+     * @param listener The ExecListener ID.
+     */
+    void addExecListener(const ExecListenerId& listener);
+
+    /**
      * @brief Performs basic initialization of the interface and all adapters.
      * @return true if successful, false otherwise.
      */
