@@ -113,23 +113,47 @@ namespace PLEXIL
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      */
-    void notifyOfTransition(const LabelStr& prevState, 
-                            const NodeId& node) const;
+    void implementNotifyNodeTransition(const LabelStr& prevState, 
+				       const NodeId& node) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the parent node under which this plan will be inserted.
      */
-    void notifyOfAddPlan(const PlexilNodeId& plan, 
-                         const LabelStr& parent) const;
+    void implementNotifyAddPlan(const PlexilNodeId& plan, 
+				const LabelStr& parent) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method is deprecated and will go away in a future release.
      */
-    void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
+    void implementNotifyAddLibrary(const PlexilNodeId& libNode) const;
+
+    /**
+     * @brief Notify that a variable assignment has been performed.
+     * @param dest The Expression being assigned to.
+     * @param destName A string naming the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+    void implementNotifyAssignment(const ExpressionId & dest,
+				   const std::string& destName,
+				   const double& value) const;
+
+    //
+    // Public class member functions
+    //
+
+    /**
+     * @brief Construct the appropriate configuration XML for the desired settings.
+     * @param block true if the Exec should block until the user steps forward, false otherwise.
+     * @param hostname The host name where the Luv instance is running.
+     * @param port The port number for the Luv instance.
+     */
+    static TiXmlElement* constructConfigurationXml(const bool& block = false,
+						   const char* hostname = LUV_DEFAULT_HOSTNAME(),
+						   const unsigned int port = LUV_DEFAULT_PORT());
 
   protected:
 
@@ -155,6 +179,10 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(char*, NODE_OUTCOME_TAG, "NodeOutcome");
     DECLARE_STATIC_CLASS_CONST(char*, NODE_FAILURE_TYPE_TAG, "NodeFailureType");
     DECLARE_STATIC_CLASS_CONST(char*, CONDITIONS_TAG, "Conditions");
+
+    DECLARE_STATIC_CLASS_CONST(char*, ASSIGNMENT_TAG, "Assignment");
+    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_TAG, "Variable");
+    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_NAME_TAG, "VariableName");
 
     // End-of-message marker
     DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);

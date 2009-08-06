@@ -123,6 +123,8 @@ namespace PLEXIL
   { 
     try
       {
+        debugMsg("LuvListener:start",
+                 " opening client socket to host " << m_hostname << ", port " << m_port);
         m_socket = new ClientSocket(std::string(m_hostname), m_port);
       }
     catch (const SocketException &e)
@@ -178,8 +180,9 @@ namespace PLEXIL
 
   // handle node state transition event
 
-  void NewLuvListener::notifyOfTransition(const LabelStr& prevState, 
-                                          const NodeId& node) const
+  void
+  NewLuvListener::implementNotifyNodeTransition(const LabelStr& prevState, 
+						const NodeId& node) const
   {
     // create update 
 
@@ -224,8 +227,9 @@ namespace PLEXIL
    
   // handle add plan event
 
-  void NewLuvListener::notifyOfAddPlan(const PlexilNodeId& plan,
-                                       const LabelStr& parent) const
+  void
+  NewLuvListener::implementNotifyAddPlan(const PlexilNodeId& plan,
+					 const LabelStr& parent) const
   {
     // send an empty plan info
 
@@ -243,7 +247,8 @@ namespace PLEXIL
    
   // handle add library event
 
-  void NewLuvListener::notifyOfAddLibrary(const PlexilNodeId& plan) const
+  void
+  NewLuvListener::implementNotifyAddLibrary(const PlexilNodeId& plan) const
   {
     // send an empty plan info
 
@@ -259,6 +264,44 @@ namespace PLEXIL
     sendMessage(planXml);
   }
 
+
+  /**
+   * @brief Notify that a variable assignment has been performed.
+   * @param dest The Expression being assigned to.
+   * @param destName A string naming the destination.
+   * @param value The value (in internal Exec representation) being assigned.
+   */
+  void
+  NewLuvListener::implementNotifyAssignment(const ExpressionId & dest,
+					    const std::string& destName,
+					    const double& value) const
+  {
+    return; //*** method NYI ***
+
+    TiXmlElement assignXml(ASSIGNMENT_TAG());
+    TiXmlElement varXml(VARIABLE_TAG());
+    const NodeId node = dest->getNode();
+    if (node.isId())
+      {
+	// get path to node
+	TiXmlElement* path = new TiXmlElement(NODE_PATH_TAG());
+	constructNodePath(*path, node);
+	varXml.InsertEndChild(path);
+      }
+    // get variable name
+    TiXmlElement varName(VARIABLE_NAME_TAG());
+
+    varXml.InsertEndChild(varName);
+    assignXml.InsertEndChild(varXml);
+
+    // format variable value
+    TiXmlElement * valXml;
+    // *** formatting NYI ***
+    assignXml.InsertEndChild(valXml);
+    
+    // send it to viewer
+    sendMessage(assignXml);
+  }
 
   //
   // Static member functions
@@ -298,6 +341,29 @@ namespace PLEXIL
     return conditions;
   }
 
+
+  //
+  // Public class member functions
+  //
+
+  /**
+   * @brief Construct the appropriate configuration XML for the desired settings.
+   * @param block true if the Exec should block until the user steps forward, false otherwise.
+   * @param hostname The host name where the Luv instance is running.
+   * @param port The port number for the Luv instance.
+   */
+  TiXmlElement* NewLuvListener::constructConfigurationXml(const bool& block,
+							  const char* hostname,
+							  const unsigned int port)
+  {
+    TiXmlElement* result = new TiXmlElement("Listener");
+    result->SetAttribute("ListenerType", "LuvListener");
+    result->SetAttribute(LUV_BLOCKING_ATTR(),
+			block ? "true" : "false");
+    result->SetAttribute(LUV_HOSTNAME_ATTR(), hostname);
+    result->SetAttribute(LUV_PORT_ATTR(), port);
+    return result;
+  }
 
   //
   // Internal helper methods
