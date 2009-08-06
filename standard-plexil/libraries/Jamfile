@@ -6,5 +6,6 @@ ANTLR_JAR = [ FDirName $(SUBDIR) antlr.jar ] ;
 
 JavaThirdPartyJar antlr.jar ;
 JavaThirdPartyJar nanoxml.jar ;
+JavaThirdPartyJar saxon8.jar ;
 
 } # STANDARD_PLEXIL_READY
