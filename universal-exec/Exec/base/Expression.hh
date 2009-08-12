@@ -361,6 +361,12 @@ namespace PLEXIL {
     virtual ~Variable();
 
     /**
+     * @brief Get a string representation of this Expression.
+     * @return The string representation.
+     */
+    std::string toString() const;
+
+    /**
      * @brief Set the value of this expression back to the initial value with which it was
      *        created.
      */
@@ -391,6 +397,14 @@ namespace PLEXIL {
      */
     void setConst() {m_isConst = true;}
 
+    /**
+     * @brief Get the name of this variable, as declared in the node that owns it.
+     */
+    const std::string& getName() const
+    {
+      return m_name;
+    }
+
   protected:
     /**
      * @brief Handle additional behaviors for the reset() call.
@@ -409,9 +423,14 @@ namespace PLEXIL {
      */
     void commonNumericInit(PlexilValue* val);
 
+    //
+    // Private member variables
+    //
+
     bool m_isConst; /*<! Flag indicating the const-ness of this variable */
     double m_initialValue; /*<! The initial value of the expression */
     const NodeId m_node; /*<! The node that owns this variable */
+    const std::string& m_name; /*<! The name under which this variable was declared */
   };
 
   /**

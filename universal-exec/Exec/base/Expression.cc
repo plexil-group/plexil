@@ -217,7 +217,8 @@ namespace PLEXIL {
   // Used only in Expression::UNKNOWN_EXP()
 
   Variable::Variable(const bool isConst)
-    : EssentialVariable(), m_isConst(isConst), m_initialValue(UNKNOWN()) {
+    : EssentialVariable(), m_isConst(isConst), m_initialValue(UNKNOWN()), m_name("anonymous") 
+  {
     if(this->isConst())
       m_activeCount++;
   }
@@ -225,18 +226,35 @@ namespace PLEXIL {
   // Used only in Lookup::Lookup(const StateCacheId&, const LabelStr&, std::list<double>&)
 
   Variable::Variable(const double value, const bool isConst)
-    : EssentialVariable(), m_isConst(isConst), m_initialValue(value) {
+    : EssentialVariable(), m_isConst(isConst), m_initialValue(value), m_name("anonymous") 
+  {
     m_value = m_initialValue;
     if(this->isConst())
       m_activeCount++;
   }
 
+  //
+  // ExpressionFactory constructor
+  // uses PlexilVar prototype
+  //
+
   Variable::Variable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
-    : EssentialVariable(expr, node), m_isConst(isConst) {
+    : EssentialVariable(expr, node), m_isConst(isConst), m_name(expr->name())
+  {
     check_error(Id<PlexilValue>::convertable(expr));
   }
 
   Variable::~Variable() {}
+
+  std::string Variable::toString() const 
+  {
+    std::stringstream str;
+    str << m_name << " (" << getId() << "[" 
+	<< (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") 
+	<< "](" 
+	<< valueString() << "): ";
+    return str.str();
+  }
 
   void Variable::reset() {
     if(!isConst()) {
