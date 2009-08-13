@@ -78,7 +78,7 @@ clean: dust
 	@ -rm -f plexil-formatted.xsd
 
 # The rule creates a RELAX-NG schema from a XML Schema.
-%.rng: %.xsd
+%.rng: %.xsd plexil-base.xsd
 	java -jar $(RNGCONV_JAR) $< > $@
 
 # The rule creates a RELAX-NG compact schema from a RELAX-NG schema.
