@@ -69,11 +69,7 @@
   
 <!-- ALL create all built files -->
   
-<target name="all" depends="init,
-                                                       compile,
-                                                       jar,
-                                                       mac_app,
-                                                       mac_dmg"></target>
+<target name="all" depends="init, compile, mac_app"></target>
       
 <!-- RUN run project -->
 
@@ -140,7 +136,7 @@
 
 <!-- construct mac app -->
 
- <target name = "mac_app" depends = "isMacOSX, jar" if="isTargetMacOSX" description = "construct os x application (mac only)">
+ <target name = "mac_app" depends = "isMacOSX, jar" if="isMacOSX" description = "construct os x application (mac only)">
 
     <!-- build directory structure -->
 
@@ -177,44 +173,21 @@
 
 </target>
   
-<target name="isMacOSX" depends="isMacOSX.check" if="isTargetMacOSX"></target>
-
-<target name="isMacOSX.check">
-    <condition property="isTargetMacOSX" value="true" >
-            <equals arg1="${os.name}" arg2="macosx"/>
-    </condition>
+<target name="isMacOSX" depends="isMacOSX.check" if="isMacOSX">
+<echo>IS MAC OS X</echo>
 </target>
 
-<!-- set icon for this directory -->
-
-<target name = "icon" depends = "isMacOSX" if="isTargetMacOSX" description = "attach application icon to this folder [workng?] (mac only)">
-
-    <copy file = "${icons}/${app-title}Icon.icns" 
-          tofile = "Icon&#13;"/>
-    <exec executable = "/Developer/Tools/SetFile">
-      <arg value = "-t"/>
-      <arg value = "icon"/>
-      <arg value = "-c"/>
-      <arg value = "MACS"/>
-      <arg value = "-a"/>
-      <arg value = "V"/>
-      <arg value = "Icon&#13;"/>
-    </exec>
-
-    <!-- identify this having a custom icon (C) -->
-
-    <exec executable = "/Developer/Tools/SetFile">
-      <arg value = "-a"/>
-      <arg value = "C"/>
-      <arg value = "."/>
-    </exec>
-  </target>
+<target name="isMacOSX.check">
+    <condition property="isMacOSX" value="true" >
+            <equals arg1="${os.name}" arg2="Mac OS X"/>
+    </condition>
+</target>
 
   <!-- construct distribution disk image -->
 
   <target name = "mac_dmg" 
           depends = "isMacOSX, mac_app" 
-          if="isTargetMacOSX"
+          if="isMacOSX"
           description = "construct os x distribution disk image (mac only)">
 
     <!-- assemble disk image contents -->
@@ -273,6 +246,31 @@
     <!-- delete temporary disk image -->
 
     <delete file = "tmp-${dmg-name}"/>
+  </target>
+
+<!-- set icon for this directory -->
+
+<target name = "mac_icon" depends = "isMacOSX" if="isMacOSX" description = "attach application icon to this folder [workng?] (mac only)">
+
+    <copy file = "${icons}/${app-title}Icon.icns" 
+          tofile = "Icon&#13;"/>
+    <exec executable = "/Developer/Tools/SetFile">
+      <arg value = "-t"/>
+      <arg value = "icon"/>
+      <arg value = "-c"/>
+      <arg value = "MACS"/>
+      <arg value = "-a"/>
+      <arg value = "V"/>
+      <arg value = "Icon&#13;"/>
+    </exec>
+
+    <!-- identify this having a custom icon (C) -->
+
+    <exec executable = "/Developer/Tools/SetFile">
+      <arg value = "-a"/>
+      <arg value = "C"/>
+      <arg value = "."/>
+    </exec>
   </target>
 
   <!-- construct distribution zip file -->
