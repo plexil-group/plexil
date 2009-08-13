@@ -37,7 +37,6 @@ public class LuvSocketServer {
      * Constructs a server which listens on the specified port and StreamWranglerFactory.
      *
      * @param port port on which this server listens.
-     * @param factory An instance of SocketWranglerFactory to create socket wranglers.
      */
     public LuvSocketServer(final int port) {
         wranglerFactory = new LuvStreamWranglerFactory();

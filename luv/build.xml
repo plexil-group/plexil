@@ -50,9 +50,9 @@
   <property name = "build-env-vol-name" value = "${app-title}Environment"/>
   <property name = "java-framework-mac" value = "/System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS"/>
 
-  <!-- remove all built files -->
+<!-- CLEAN remove all built files -->
      
-  <target name = "clean" 
+<target name = "clean" 
           description = "remove all generated files">
     <delete dir = "${build-dir}"/>
     <delete dir = "${doc-dir}"/>
@@ -65,22 +65,31 @@
     <delete file = "${zip-name}"/>
     <delete file = "${build-env-dmg}"/>
     <delete file = "${build-env-zip}"/>
-  </target>
+</target>
+  
+<!-- ALL create all built files -->
+  
+<target name="all" depends="init,
+                                                       compile,
+                                                       jar,
+                                                       mac_app,
+                                                       mac_dmg"></target>
+      
+<!-- RUN run project -->
 
-  <!-- compile java doc -->
-
-  <target name = "doc" 
-          description = "compile java documentation">
-    <javadoc
-        packagenames = "${domain-scope}.${app-name}.*"
-        sourcepath   = "${source-dir}"
-        destdir      = "${doc-dir}">
+  <target name = "run" 
+          depends = "compile" 
+          description = "execute project code">
+    <java classname = "${domain-scope}.${app-name}.${main-class}"
+          fork = "true">
+      <arg value = "-Xdoc:name=${app-title}"/>
+      <arg value = "-ae"/>
       <classpath>
-        <fileset refid = "libraries"/>
-        <pathelement location = "${build-dir}"/>
-        <pathelement location = "."/>
+          <fileset refid = "libraries"/>
+          <pathelement location = "${build-dir}"/>
+          <pathelement location = "."/>
       </classpath>
-    </javadoc>
+    </java>
   </target>
 
   <!-- initialize the build -->
@@ -90,37 +99,9 @@
     <mkdir dir = "${build-dir}"/>
   </target>
 
-  <!-- set icon for this directory -->
-
-  <target name = "icon" 
-          description = "attach application icon to this folder [workng?] (mac only)">
-
-    <copy file = "${icons}/${app-title}Icon.icns" 
-          tofile = "Icon&#13;"/>
-    <exec executable = "/Developer/Tools/SetFile">
-      <arg value = "-t"/>
-      <arg value = "icon"/>
-      <arg value = "-c"/>
-      <arg value = "MACS"/>
-      <arg value = "-a"/>
-      <arg value = "V"/>
-      <arg value = "Icon&#13;"/>
-    </exec>
-
-    <!-- identify this having a custom icon (C) -->
-
-    <exec executable = "/Developer/Tools/SetFile">
-      <arg value = "-a"/>
-      <arg value = "C"/>
-      <arg value = "."/>
-    </exec>
-  </target>
-
   <!-- compile project -->
   
-  <target name = "compile" 
-          depends = "init" 
-          description = "compile java files">
+  <target name = "compile" depends = "init" description = "compile java files">
     <javac debug="on"
 	   includeJavaRuntime="false"
 	   includeAntRuntime="false"
@@ -136,23 +117,6 @@
           <pathelement location = "."/>
       </classpath>
     </javac>
-  </target>
-
-  <!-- run project -->
-
-  <target name = "run" 
-          depends = "compile" 
-          description = "execute project code">
-    <java classname = "${domain-scope}.${app-name}.${main-class}"
-          fork = "true">
-      <arg value = "-Xdoc:name=${app-title}"/>
-      <arg value = "-ae"/>
-      <classpath>
-          <fileset refid = "libraries"/>
-          <pathelement location = "${build-dir}"/>
-          <pathelement location = "."/>
-      </classpath>
-    </java>
   </target>
   
   <!-- construct jar -->
@@ -171,13 +135,12 @@
          update   = "true"
          basedir  = "${source-dir}"
          includes = "${domain-scope-dir}/**"/>
-  </target>
+    
+</target>
 
-  <!-- construct mac .app -->
+<!-- construct mac app -->
 
-  <target name = "app" 
-          depends = "jar" 
-          description = "construct os x application (mac only)">
+ <target name = "mac_app" depends = "isMacOSX, jar" if="isTargetMacOSX" description = "construct os x application (mac only)">
 
     <!-- build directory structure -->
 
@@ -212,12 +175,46 @@
       <arg value = "${app-dir}"/>
     </exec>
 
+</target>
+  
+<target name="isMacOSX" depends="isMacOSX.check" if="isTargetMacOSX"></target>
+
+<target name="isMacOSX.check">
+    <condition property="isTargetMacOSX" value="true" >
+            <equals arg1="${os.name}" arg2="macosx"/>
+    </condition>
+</target>
+
+<!-- set icon for this directory -->
+
+<target name = "icon" depends = "isMacOSX" if="isTargetMacOSX" description = "attach application icon to this folder [workng?] (mac only)">
+
+    <copy file = "${icons}/${app-title}Icon.icns" 
+          tofile = "Icon&#13;"/>
+    <exec executable = "/Developer/Tools/SetFile">
+      <arg value = "-t"/>
+      <arg value = "icon"/>
+      <arg value = "-c"/>
+      <arg value = "MACS"/>
+      <arg value = "-a"/>
+      <arg value = "V"/>
+      <arg value = "Icon&#13;"/>
+    </exec>
+
+    <!-- identify this having a custom icon (C) -->
+
+    <exec executable = "/Developer/Tools/SetFile">
+      <arg value = "-a"/>
+      <arg value = "C"/>
+      <arg value = "."/>
+    </exec>
   </target>
 
   <!-- construct distribution disk image -->
 
-  <target name = "dmg" 
-          depends = "app" 
+  <target name = "mac_dmg" 
+          depends = "isMacOSX, mac_app" 
+          if="isTargetMacOSX"
           description = "construct os x distribution disk image (mac only)">
 
     <!-- assemble disk image contents -->
@@ -415,7 +412,7 @@
 
   <!-- build all distribtions -->
 
-  <target name = "distro" depends = "build-env, zip, dmg"
+  <target name = "distro" depends = "build-env, zip, mac_dmg"
           description = "build all distributions">
   </target>
 
@@ -436,6 +433,23 @@
     </copy>
 
   </target>
+  
+   <!-- compile java doc -->
+
+  <target name = "doc" 
+          description = "compile java documentation">
+    <javadoc
+        packagenames = "${domain-scope}.${app-name}.*"
+        sourcepath   = "${source-dir}"
+        destdir      = "${doc-dir}">
+      <classpath>
+        <fileset refid = "libraries"/>
+        <pathelement location = "${build-dir}"/>
+        <pathelement location = "."/>
+      </classpath>
+    </javadoc>
+  </target>
+
 
   <!-- build everything -->
 

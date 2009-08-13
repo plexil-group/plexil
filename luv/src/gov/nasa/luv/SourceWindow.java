@@ -56,7 +56,7 @@ public class SourceWindow extends JFrame
 
     /** Construct an SourceWindow.
      *
-     * @param title the title of this SourceWindow
+     * @param model the model source for this SourceWindow
      */
     public SourceWindow(Model model) throws FileNotFoundException {
         super("Source Window");
