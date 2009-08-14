@@ -341,7 +341,7 @@ action[IXMLElement parent]
      xnode.setAttribute("LineNo", (new Integer(#action.getLine())).toString());
      xnode.setAttribute("ColNo", (new Integer(#action.getColumn())).toString());
 
-     if (#action.getText() == "NODE")
+     if (#action.getText() == "Node")
      {
        // initialize node type attribute to empty
        xnode.setAttribute("NodeType", "Empty");
