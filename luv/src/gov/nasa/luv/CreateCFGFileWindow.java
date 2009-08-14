@@ -23,6 +23,19 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
+/**
+ * This class was modeled after the CheckNodeTreeExample, CheckNode, CheckRenerer
+ * classes from Tame Swing examplescreated by Nobuo Tamemasa.
+ *
+ * http://devdaily.com/java/swing/tame/
+ * 
+@author Nobuo Tamemasa
+@version 1.0 01/11/99
+*/
+
+
 package gov.nasa.luv;
 
 import java.awt.BorderLayout;
