@@ -65,13 +65,16 @@ Release Notes
  - Top level Makefile and simplified build and installation instructions.
  - Numerous small enhancements and bug fixes throughout code base.
 
-New (not yet in prebuilt distributions):
+0.91
  - Deprecated Function Call node.
  - Added 'jam' executables in plexil/bin
  - Added support for testing node iteration outcome.
- - Added to Extended Plexil: Concurrence
+ - Extended Plexil: added Concurrence form; bug fixes
  - Plexilisp: added Wait, Concurrence; action forms can now contain
-   nodes or node bodies; empty sequences are properly supported; While
-   loop can contain multiple actions.
- - Extended Plexil: bug fixes in translator
+   nodes or node bodies; empty sequences are properly supported
+ - XML schema updates
+ CAVEATS: 
+ - Standalone Simulator may not work in Mac OS and some versions of
+   Linux, due to errors in the LCM library.  The problem is being worked on.
 
+ 
