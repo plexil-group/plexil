@@ -17,6 +17,7 @@ clean:
 	@ cd standard-plexil; jam $@
 	@ cd luv; ant $@
 	@ cd interfaces; jam $@
+	- $(MAKE) -C interfaces/lcm-0.2.1 $@
 	@ $(MAKE) -C apps $@
 	@ cd app-framework; jam $@
 	@ cd checker; ant $@
@@ -42,9 +43,9 @@ TestExec: luv
 
 TestExecSAS: luv
 	(cd universal-exec; jam)
-	(cd interfaces; jam)
+	$(MAKE) -C interfaces all
 	(cd app-framework; jam)
-	(cd apps/TestExecSAS; jam)
+	(cd apps/TestExecSAS; ./build.sh)
 	$(MAKE) -C apps/StandAloneSimulator plexilsim
 
 # The following targets apply only when the UE is being used with an
