@@ -81,7 +81,7 @@ if [ "$tlm_script" -a ! -e $tlm_script ]
 fi
 
 # Set up environment
-export LD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib
+export LD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib:${PLEXIL_HOME}/interfaces/lcm-0.2.1/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/PlexilSimulator/lib:${PLEXIL_HOME}/apps/TestExecSAS/lcm:${PLEXIL_HOME}/apps/TestExecSAS/lcm/structs/lib
 # Mac OS X only
 export DYLD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib:${PLEXIL_HOME}/interfaces/lcm-0.2.1/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/PlexilSimulator/lib:${PLEXIL_HOME}/apps/TestExecSAS/lcm:${PLEXIL_HOME}/apps/TestExecSAS/lcm/structs/lib
 export DYLD_BIND_AT_LAUNCH=YES
