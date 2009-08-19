@@ -35,7 +35,6 @@
 @version 1.0 01/11/99
 */
 
-
 package gov.nasa.luv;
 
 import java.awt.BorderLayout;
