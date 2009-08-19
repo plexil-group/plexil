@@ -1091,8 +1091,10 @@ namespace PLEXIL
         value = (*child)->getValue();
         
         // validate values 
-         
-        checkError(checkValue(value), "Invalid conjunction value: " << value);
+       
+       checkError(checkValue(value), "Invalid (non-boolean) conjunction value '"
+        		<< (*child)->valueString() << "' was returned to condition expression. "
+        		<< "More details condition expression: " << (*child)->toString());
 	
         // if the value is false, the expression is false, we're done
         
@@ -1155,7 +1157,9 @@ namespace PLEXIL
          
         // validate values 
          
-        checkError(checkValue(value), "Invalid disjunction value: " << value);
+        checkError(checkValue(value), "Invalid (non-boolean) disjunction value '"
+        		<< (*child)->valueString() << "' was returned to condition expression. "
+        		<< "More details condition expression: " << (*child)->toString());
 	
         // if the value is true, the expression is true, we're done
          

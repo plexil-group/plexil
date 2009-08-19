@@ -140,6 +140,8 @@ namespace PLEXIL {
 
   std::string Expression::toString() const {
     std::stringstream str;
+    std::cout << "getId() : " << getId() << "\n";
+    std::cout << "valueString()  : " << valueString() << "\n";
     str << "(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
       "](" << valueString() << "): ";
     return str.str();
