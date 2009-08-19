@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!-- Schema for extensions to Core PLEXIL that are not yet implemented 
+     (i.e. this schema is not supported by the UE).  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  <xsd:include schemaLocation='core-plexil.xsd' />
+
+  <xsd:redefine id="core-plexil-draft" schemaLocation= 'core-plexil.xsd'>
+
+  <!-- Add Duration to the PLEXIL type system.  This is a simple (and
+       possibly too simple) way.  Duration is a new type, which is a
+       kind of numeric expression.  This allows durations anywhere a
+       numeric expression is allowed, which is clearly not legal in many
+       situations.  New static checks could be added, or we might want
+       to make the schema smarter, which would take some refactoring.
+       Note that a Duration is in essence a numeric expression: it
+       reduces to a real number (seconds). -->
+
+    <xsd:simpleType name="TypeValues">
+      <xsd:restriction base="xsd:NMTOKEN">
+        <xsd:enumeration value="Integer"/>
+        <xsd:enumeration value="Real"/>
+        <xsd:enumeration value="Boolean"/>
+        <xsd:enumeration value="String"/>
+        <xsd:enumeration value="Array"/>
+        <xsd:enumeration value="Duration"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:group name="NumericExpression">
+      <xsd:choice>
+        <xsd:element ref="ADD"/>
+        <xsd:element ref="SUB"/>
+        <xsd:element ref="MUL"/>
+        <xsd:element ref="DIV"/>
+        <xsd:element ref="SQRT"/>
+        <xsd:element ref="ABS"/>
+        <xsd:element ref="IntegerVariable"/>
+        <xsd:element ref="RealVariable"/>
+        <xsd:element ref="IntegerValue"/>
+        <xsd:element ref="RealValue"/>
+        <xsd:group ref="Lookup"/>
+        <!-- only for lookups that return ONE value -->
+        <xsd:element ref="NodeTimepointValue"/>
+        <!-- read operations for arrays-->
+        <xsd:element name="ArraySize" type="xsd:NCName"/>
+        <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
+        <xsd:element ref="ArrayElement"/>
+        <xsd:element ref="Duration"/>
+      </xsd:choice>
+    </xsd:group>
+
+  </xsd:redefine>
+
+  <!-- Date, Time, Duration (based on ISO 8601 -->
+  <!-- Note that only Duration is incorporated into Core Plexil for now. -->
+
+   <xsd:element name="Date">  <!-- Gregorian calendar -->
+     <xsd:complexType>
+       <xsd:all>
+         <xsd:element name="Year" type="xsd:integer"/>
+         <xsd:element name="Month" type="xsd:integer"/> <!-- [1,12] -->
+         <xsd:element name="Day" type="xsd:integer"/> <!-- [1,31] -->
+       </xsd:all>
+     </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="Time">  <!--24-hour clock -->
+     <xsd:complexType>
+       <xsd:all>
+         <!-- [0,24], with 24 used only to indicate midnight at the end
+              of a calendar day -->
+         <xsd:element name="Hour" type="xsd:integer"/>
+
+         <!-- [0,59] -->
+         <xsd:element name="Minute" type="xsd:integer"/> 
+
+         <!-- [0,60], with 60 only for leap second -->
+         <xsd:element name="Second" type="xsd:float"/> 
+
+         <!-- Offset in hours (+/-) from UTC; default is 0 -->
+         <xsd:element name="Offset" type="xsd:integer"/> 
+       </xsd:all>
+     </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="TimePoint"> 
+     <xsd:complexType>
+       <xsd:all>
+         <xsd:element ref="Date"/>
+         <xsd:element ref="Time"/> 
+       </xsd:all>
+     </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="Duration">
+     <xsd:complexType>
+       <xsd:all>
+         <xsd:element name="Days" type="xsd:integer"/>
+         <xsd:element name="Hours" type="xsd:integer"/>
+         <xsd:element name="Minutes" type="xsd:integer"/>
+         <!-- [0, 60) up to microsecond precision -->
+         <xsd:element name="Seconds" type="xsd:float"/>
+       </xsd:all>
+     </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="TimeInterval">
+     <!--
+         Valid time interval is one of the following:
+          - start/end
+          - start/duration
+          - duration/end
+          - duration only
+     -->
+     <xsd:complexType>
+       <xsd:all>
+         <xsd:element name="Start">
+           <xsd:complexType>
+             <xsd:all>
+               <xsd:element ref="TimePoint"/>
+             </xsd:all>
+           </xsd:complexType>
+         </xsd:element>
+         <xsd:element name="End">
+           <xsd:complexType>
+             <xsd:all>
+               <xsd:element ref="TimePoint"/>
+             </xsd:all>
+           </xsd:complexType>
+         </xsd:element>
+         <xsd:element name="Duration">
+           <xsd:complexType>
+             <xsd:all>
+               <xsd:element ref="Duration"/>
+             </xsd:all>
+           </xsd:complexType>
+         </xsd:element>
+       </xsd:all>
+     </xsd:complexType>
+   </xsd:element> 
+
+</xsd:schema>
