@@ -3,13 +3,12 @@ contains the TestExec application, which combines the UE and a simple
 simulator into a single executable, as well as plans, simulation
 scripts, and utilities for running regression tests.
 
-See the UE reference manual for detailed information:
+See the PLEXIL reference manual for detailed information:
 
-  http://plexil.wiki.sourceforge.net/UE+Reference+Manual
+  http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction
 
-In particular, instructions and usages for TestExec are found in these chapters:
+In particular, instructions and usages for TestExec are found in here:
 
-  http://plexil.wiki.sourceforge.net/Basic+UE+Operation
-  http://plexil.wiki.sourceforge.net/Simulating+Plan+Execution
+  http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Executing_Plans
 
 This manual is included in PDF format in PLEXIL distributions.
