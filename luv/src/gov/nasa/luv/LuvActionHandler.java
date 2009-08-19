@@ -173,7 +173,7 @@ public class LuvActionHandler {
                 public void actionPerformed(ActionEvent e) {
                     String info =
                             "Product:   Luv Viewer Version 1.0 beta 4 (c) 2008 NASA Ames Research Center\n" +
-                            "Website:   http://plexil.wiki.sourceforge.net/Luv\n" +
+                            "Website:   http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
                             "Userdir:    " + System.getProperty("user.dir") + "\n";

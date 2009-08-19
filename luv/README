@@ -1,7 +1,7 @@
 This directory contains the Lightweight UE Viewer (LUV).  For more
 information see:
  
-  http://plexil.wiki.sourceforge.net/Luv
+  http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution
 
 Building requires Apache 'ant'.  To build, assuming 'ant' is in your
 path:
