@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="lcm-ioutils">
+<refmeta>
+<refentrytitle role="top_of_page" id="lcm-ioutils.top_of_page">ioutils</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>LCM Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>ioutils</refname>
+<refpurpose></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="lcm-ioutils.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+<link linkend="return">return</link>              <link linkend="fwrite32">fwrite32</link>                            (<link linkend="f">f</link> ,
+                                                         <link linkend="v">v</link> );
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 id="lcm-ioutils.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+</para>
+</refsect1>
+
+<refsect1 id="lcm-ioutils.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="fwrite32" role="function">
+<title>fwrite32 ()</title>
+<indexterm zone="fwrite32"><primary sortas="fwrite32">fwrite32</primary></indexterm><programlisting><link linkend="return">return</link>              fwrite32                            (<link linkend="f">f</link> ,
+                                                         <link linkend="v">v</link> );</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>Param1</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>Param2</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

@@ -1,0 +1,109 @@
+<!-- ##### SECTION Title ##### -->
+lcm_coretypes
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### STRUCT __lcm_hash_ptr ##### -->
+<para>
+
+</para>
+
+@parent: 
+@v: 
+
+<!-- ##### MACRO boolean_encoded_size ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO byte_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### FUNCTION sizeof ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### MACRO int8_t_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### MACRO int16_t_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### MACRO int32_t_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### MACRO int64_t_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### MACRO float_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### MACRO double_encoded_size ##### -->
+<para>
+
+</para>
+
+@p: 
+
+
+<!-- ##### FUNCTION malloc ##### -->
+<para>
+
+</para>
+
+@Param1: 
+@Returns: 
+
+

@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="lcm-eventlog">
+<refmeta>
+<refentrytitle role="top_of_page" id="lcm-eventlog.top_of_page">eventlog</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>LCM Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>eventlog</refname>
+<refpurpose></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="lcm-eventlog.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+                    <link linkend="lcm-eventlog-t">lcm_eventlog_t</link>;
+                    <link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link>;
+<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *    <link linkend="lcm-eventlog-create">lcm_eventlog_create</link>                 (const <link linkend="char">char</link> *path,
+                                                         const <link linkend="char">char</link> *mode);
+<link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link> * <link linkend="lcm-eventlog-read-next-event">lcm_eventlog_read_next_event</link>     (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l);
+<link linkend="void">void</link>                <link linkend="lcm-eventlog-free-event">lcm_eventlog_free_event</link>             (<link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link> *le);
+<link linkend="int">int</link>                 <link linkend="lcm-eventlog-seek-to-timestamp">lcm_eventlog_seek_to_timestamp</link>      (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l,
+                                                         <link linkend="int64-t">int64_t</link> ts);
+<link linkend="int">int</link>                 <link linkend="lcm-eventlog-write-event">lcm_eventlog_write_event</link>            (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l,
+                                                         <link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link> *le);
+<link linkend="void">void</link>                <link linkend="lcm-eventlog-destroy">lcm_eventlog_destroy</link>                (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 id="lcm-eventlog.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+</para>
+</refsect1>
+
+<refsect1 id="lcm-eventlog.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="lcm-eventlog-t" role="struct">
+<title>lcm_eventlog_t</title>
+<indexterm zone="lcm-eventlog-t"><primary sortas="lcm_eventlog_t">lcm_eventlog_t</primary></indexterm><programlisting>typedef struct {
+    FILE *f;
+    int64_t eventcount;
+} lcm_eventlog_t;
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="lcm-eventlog-event-t" role="struct">
+<title>lcm_eventlog_event_t</title>
+<indexterm zone="lcm-eventlog-event-t"><primary sortas="lcm_eventlog_event_t">lcm_eventlog_event_t</primary></indexterm><programlisting>typedef struct {
+    int64_t eventnum, timestamp;
+    int32_t channellen, datalen;
+
+    char     *channel;
+    void     *data;
+} lcm_eventlog_event_t;
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="lcm-eventlog-create" role="function">
+<title>lcm_eventlog_create ()</title>
+<indexterm zone="lcm-eventlog-create"><primary sortas="lcm_eventlog_create">lcm_eventlog_create</primary></indexterm><programlisting><link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *    lcm_eventlog_create                 (const <link linkend="char">char</link> *path,
+                                                         const <link linkend="char">char</link> *mode);</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>path</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>mode</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-eventlog-read-next-event" role="function">
+<title>lcm_eventlog_read_next_event ()</title>
+<indexterm zone="lcm-eventlog-read-next-event"><primary sortas="lcm_eventlog_read_next_event">lcm_eventlog_read_next_event</primary></indexterm><programlisting><link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link> * lcm_eventlog_read_next_event     (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l);</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>l</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-eventlog-free-event" role="function">
+<title>lcm_eventlog_free_event ()</title>
+<indexterm zone="lcm-eventlog-free-event"><primary sortas="lcm_eventlog_free_event">lcm_eventlog_free_event</primary></indexterm><programlisting><link linkend="void">void</link>                lcm_eventlog_free_event             (<link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link> *le);</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>le</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-eventlog-seek-to-timestamp" role="function">
+<title>lcm_eventlog_seek_to_timestamp ()</title>
+<indexterm zone="lcm-eventlog-seek-to-timestamp"><primary sortas="lcm_eventlog_seek_to_timestamp">lcm_eventlog_seek_to_timestamp</primary></indexterm><programlisting><link linkend="int">int</link>                 lcm_eventlog_seek_to_timestamp      (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l,
+                                                         <link linkend="int64-t">int64_t</link> ts);</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>l</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>ts</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-eventlog-write-event" role="function">
+<title>lcm_eventlog_write_event ()</title>
+<indexterm zone="lcm-eventlog-write-event"><primary sortas="lcm_eventlog_write_event">lcm_eventlog_write_event</primary></indexterm><programlisting><link linkend="int">int</link>                 lcm_eventlog_write_event            (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l,
+                                                         <link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link> *le);</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>l</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>le</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-eventlog-destroy" role="function">
+<title>lcm_eventlog_destroy ()</title>
+<indexterm zone="lcm-eventlog-destroy"><primary sortas="lcm_eventlog_destroy">lcm_eventlog_destroy</primary></indexterm><programlisting><link linkend="void">void</link>                lcm_eventlog_destroy                (<link linkend="lcm-eventlog-t">lcm_eventlog_t</link> *l);</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>l</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

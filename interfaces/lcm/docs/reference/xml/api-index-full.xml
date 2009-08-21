@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!DOCTYPE indexdiv PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<indexdiv>
+<indexdiv><title>B</title>
+<indexentry><primaryie linkends="boolean-encoded-size"><link linkend="boolean-encoded-size">boolean_encoded_size</link></primaryie></indexentry>
+<indexentry><primaryie linkends="byte-encoded-size"><link linkend="byte-encoded-size">byte_encoded_size</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>C</title>
+<indexentry><primaryie linkends="cdbg"><link linkend="cdbg">cdbg</link></primaryie></indexentry>
+<indexentry><primaryie linkends="cprintf"><link linkend="cprintf">cprintf</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>D</title>
+<indexentry><primaryie linkends="dbg"><link linkend="dbg">dbg</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-10--CAPS"><link linkend="DBG-10--CAPS">DBG_10</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-11--CAPS"><link linkend="DBG-11--CAPS">DBG_11</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-12--CAPS"><link linkend="DBG-12--CAPS">DBG_12</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-13--CAPS"><link linkend="DBG-13--CAPS">DBG_13</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-14--CAPS"><link linkend="DBG-14--CAPS">DBG_14</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-15--CAPS"><link linkend="DBG-15--CAPS">DBG_15</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-16--CAPS"><link linkend="DBG-16--CAPS">DBG_16</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-5--CAPS"><link linkend="DBG-5--CAPS">DBG_5</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-6--CAPS"><link linkend="DBG-6--CAPS">DBG_6</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-7--CAPS"><link linkend="DBG-7--CAPS">DBG_7</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-8--CAPS"><link linkend="DBG-8--CAPS">DBG_8</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-9--CAPS"><link linkend="DBG-9--CAPS">DBG_9</link></primaryie></indexentry>
+<indexentry><primaryie linkends="dbg-active"><link linkend="dbg-active">dbg_active</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-ALL--CAPS"><link linkend="DBG-ALL--CAPS">DBG_ALL</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-COLORTAB--CAPS"><link linkend="DBG-COLORTAB--CAPS">DBG_COLORTAB</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-DEFAULT--CAPS"><link linkend="DBG-DEFAULT--CAPS">DBG_DEFAULT</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-ERROR--CAPS"><link linkend="DBG-ERROR--CAPS">DBG_ERROR</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-LCM--CAPS"><link linkend="DBG-LCM--CAPS">DBG_LCM</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-LCM-MSG--CAPS"><link linkend="DBG-LCM-MSG--CAPS">DBG_LCM_MSG</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-MAIN--CAPS"><link linkend="DBG-MAIN--CAPS">DBG_MAIN</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-MODE--CAPS"><link linkend="DBG-MODE--CAPS">DBG_MODE</link></primaryie></indexentry>
+<indexentry><primaryie linkends="dbg-mode-color-t"><link linkend="dbg-mode-color-t">dbg_mode_color_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="dbg-mode-t"><link linkend="dbg-mode-t">dbg_mode_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-NAMETAB--CAPS"><link linkend="DBG-NAMETAB--CAPS">DBG_NAMETAB</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DBG-TEST--CAPS"><link linkend="DBG-TEST--CAPS">DBG_TEST</link></primaryie></indexentry>
+<indexentry><primaryie linkends="DCOLOR--CAPS"><link linkend="DCOLOR--CAPS">DCOLOR</link></primaryie></indexentry>
+<indexentry><primaryie linkends="double-encoded-size"><link linkend="double-encoded-size">double_encoded_size</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>F</title>
+<indexentry><primaryie linkends="float-encoded-size"><link linkend="float-encoded-size">float_encoded_size</link></primaryie></indexentry>
+<indexentry><primaryie linkends="fwrite32"><link linkend="fwrite32">fwrite32</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>I</title>
+<indexentry><primaryie linkends="int16-t-encoded-size"><link linkend="int16-t-encoded-size">int16_t_encoded_size</link></primaryie></indexentry>
+<indexentry><primaryie linkends="int32-t-encoded-size"><link linkend="int32-t-encoded-size">int32_t_encoded_size</link></primaryie></indexentry>
+<indexentry><primaryie linkends="int64-t-encoded-size"><link linkend="int64-t-encoded-size">int64_t_encoded_size</link></primaryie></indexentry>
+<indexentry><primaryie linkends="int8-t-encoded-size"><link linkend="int8-t-encoded-size">int8_t_encoded_size</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>L</title>
+<indexentry><primaryie linkends="lcm-create"><link linkend="lcm-create">lcm_create</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-destroy"><link linkend="lcm-destroy">lcm_destroy</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-create"><link linkend="lcm-eventlog-create">lcm_eventlog_create</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-destroy"><link linkend="lcm-eventlog-destroy">lcm_eventlog_destroy</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-event-t"><link linkend="lcm-eventlog-event-t">lcm_eventlog_event_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-free-event"><link linkend="lcm-eventlog-free-event">lcm_eventlog_free_event</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-read-next-event"><link linkend="lcm-eventlog-read-next-event">lcm_eventlog_read_next_event</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-seek-to-timestamp"><link linkend="lcm-eventlog-seek-to-timestamp">lcm_eventlog_seek_to_timestamp</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-t"><link linkend="lcm-eventlog-t">lcm_eventlog_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-eventlog-write-event"><link linkend="lcm-eventlog-write-event">lcm_eventlog_write_event</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-get-fileno"><link linkend="lcm-get-fileno">lcm_get_fileno</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-handle"><link linkend="lcm-handle">lcm_handle</link></primaryie></indexentry>
+<indexentry><primaryie linkends="LCM-MAX-CHANNEL-NAME-LENGTH--CAPS"><link linkend="LCM-MAX-CHANNEL-NAME-LENGTH--CAPS">LCM_MAX_CHANNEL_NAME_LENGTH</link></primaryie></indexentry>
+<indexentry><primaryie linkends="LCM-MAX-MESSAGE-SIZE--CAPS"><link linkend="LCM-MAX-MESSAGE-SIZE--CAPS">LCM_MAX_MESSAGE_SIZE</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-msg-handler-t"><link linkend="lcm-msg-handler-t">lcm_msg_handler_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-publish"><link linkend="lcm-publish">lcm_publish</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-recv-buf-t"><link linkend="lcm-recv-buf-t">lcm_recv_buf_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-alloc"><link linkend="lcm-ringbuf-alloc">lcm_ringbuf_alloc</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-available"><link linkend="lcm-ringbuf-available">lcm_ringbuf_available</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-dealloc"><link linkend="lcm-ringbuf-dealloc">lcm_ringbuf_dealloc</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-free"><link linkend="lcm-ringbuf-free">lcm_ringbuf_free</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-new"><link linkend="lcm-ringbuf-new">lcm_ringbuf_new</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-shrink-last"><link linkend="lcm-ringbuf-shrink-last">lcm_ringbuf_shrink_last</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-ringbuf-t"><link linkend="lcm-ringbuf-t">lcm_ringbuf_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-subscribe"><link linkend="lcm-subscribe">lcm_subscribe</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-subscription-t"><link linkend="lcm-subscription-t">lcm_subscription_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-t"><link linkend="lcm-t">lcm_t</link></primaryie></indexentry>
+<indexentry><primaryie linkends="lcm-unsubscribe"><link linkend="lcm-unsubscribe">lcm_unsubscribe</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>M</title>
+<indexentry><primaryie linkends="malloc"><link linkend="malloc">malloc</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>S</title>
+<indexentry><primaryie linkends="sizeof"><link linkend="sizeof">sizeof</link></primaryie></indexentry>
+</indexdiv>
+<indexdiv><title>_</title>
+<indexentry><primaryie linkends="lcm-hash-ptr"><link linkend="lcm-hash-ptr">__lcm_hash_ptr</link></primaryie></indexentry>
+</indexdiv>
+</indexdiv>

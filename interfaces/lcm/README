@@ -1,0 +1,16 @@
+LC refers to the communication layer itself
+
+LCM refers to the message type specification 
+
+---------------
+
+lcmgen       - Parses lcm type specifications, generating language-specific
+               implementations
+
+lcm-logger   - Minimalist logging implementation.
+
+lcm          - C runtime implementation of LCM
+
+lcm-java     - Java runtime implementation of LCM, plus logging tools
+
+lcm-python   - Python runtime implementation of LCM

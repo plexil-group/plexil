@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Tutorial for Java</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LCM Reference Manual">
+<link rel="up" href="ch01.html" title="Manual">
+<link rel="prev" href="tutorial-c.html" title="Tutorial for C">
+<link rel="next" href="tutorial-lcm-language.html" title="The LCM Type Specification Language">
+<meta name="generator" content="GTK-Doc V1.11 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="ch01.html" title="Manual">
+<link rel="chapter" href="ch02.html" title="API Reference">
+<link rel="chapter" href="ch03.html" title="Example LCM Type">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="tutorial-c.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">LCM Reference Manual</th>
+<td><a accesskey="n" href="tutorial-lcm-language.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry" lang="en">
+<a name="tutorial-java"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle">Tutorial for Java</span></h2>
+<p>Tutorial for Java — An example use case from start to finish in Java</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1" lang="en">
+<a name="id373679"></a><h2>Introduction</h2>
+<p>
+    This tutorial will show you how to use all of the core functionality
+    of LCM, including message transmission, subscription, and message
+    encoding. This guide is intended for those who have a working
+    knowledge of Java, and it should simultaneously provide a brief
+    introduction to using LCM. For detailed information about LCM,
+    however, please see the LCM documentation.
+    </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id373694"></a><h2>Core LCM concepts</h2>
+<p>
+    LCM is a package designed to allow multiple processes to exchange
+    messages in a safe and high-performance way. LCM was designed for
+    online real-time applications communicating via private
+    ethernets. 
+  </p>
+<p>
+    A <span class="emphasis"><em>message</em></span> is the basic unit of LCM
+    communications: it represents a self-contained unit. Messages are
+    defined using a language-independent definition language; the
+    lcm-gen tool compiles these definitions into language-specific
+    encoding and decoding functions. Java applications can thus
+    communicate with applications written in other languages: issues
+    like byte order are taken care of by LCM.
+  </p>
+<p>
+    For a simple example, suppose that we are building a system that
+    will record the temperature in a number of different
+    locations. One reasonable implementation would be to have a
+    message contain a single temperature measurement. The LCM type
+    specification, saved to a file named temperature_t.lcm, might look
+    like this:
+  </p>
+<pre class="programlisting">
+struct temperature_t
+{
+  int64_t  utime;
+  double   deg_celsius;
+}  </pre>
+<p>
+    We can compile this specification into a class file by invoking
+    lcm-gen with the -j flag.
+  </p>
+<p>
+    There is no single correct way to define a message, but this
+    example illustrates several useful conventions. First, the name of
+    the type is "temperature_t": by convention, all LCM types end in a
+    "_t" suffix. Type names are typically all lower-case with
+    underscores between word boundaries (e.g., "wind_speed_t"). The
+    type also contains a timestamp, conventionally denoted as a 64 bit
+    integer giving the number of microseconds since a noteworthy epoch
+    (often the UNIX epoch). Finally, embedding the units into the
+    names of the variables (e.g., "deg_celsius") helps prevent errors.
+  </p>
+<p>Each message is sent on a <span class="emphasis"><em>channel</em></span>, which
+    is identified by a human-readable name. For example, messages
+    containing information about the temperature in the hallway might
+    be published on the "HALLWAY_TEMPERATURE" channel. By convention,
+    all messages on a channel have the same type.
+  </p>
+<p>
+    Any application can publish on any channel, however, in many
+    cases, a single application serves as the sole source of data on a
+    channel. Any application can receive data on any channel--- for
+    example, both a thermostat application and data logger might
+    subscribe to the "HALLWAY_TEMPERATURE" channel.
+  </p>
+<p>
+    The remainder of the tutorial is divided into the four steps
+    required to make a working LCM application:
+  </p>
+<div class="itemizedlist"><ul type="disc">
+<li>Initializing LCM</li>
+<li>Defining LCM types</li>
+<li>Publishing messages</li>
+<li>Subscribing to messages</li>
+</ul></div>
+<p>
+    Defining LCM types is fairly intuitive and is language neutral. We
+    thus direct you to the LCM type specification reference. The
+    remainder of the tutorial on the other topics.
+  </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412457"></a><h2>Initializing LCM</h2>
+<p>
+    You will need to make sure that <span class="emphasis"><em>lcm.jar</em></span> is in
+    your classpath, and your Java classes will need to include "import
+    lcm.lcm.*". To initialize LCM, with default options, simply call:
+  </p>
+<pre class="programlisting">
+LCM myLCM = LCM.getSingleton();  </pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412476"></a><h2>Publishing a message</h2>
+<p>
+    In order to use LCM types, you must include the class files for
+    your LCM delcared types in a jar file on your classpath.
+  </p>
+<pre class="programlisting">
+temperature_t temp = new temperature_t();
+temp.utime = System.nanoTime()/1000;
+temp.deg_celsius = 25.0;
+
+myLCM.publish("HALLWAY_TEMPERATURE", temp);  </pre>
+<p>
+    Keep in mind that LCM is typically a lossy communications
+    mechanism. In a typical configuration on a private ethernet,
+    messages are only lost when a sender is transmitting faster than a
+    receiver can receive. Still, an application should not be designed
+    around reliable or ordered delivery. If reliable delivery is
+    required, it must be built on top of LCM (using a handshake or
+    acknowledgement mechanism, for example).
+  </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412500"></a><h2>Subscribing to messages</h2>
+<p>
+    In order to receive messages, you must register an LCMSubscriber
+    and pass it to the LCM object using the subscribe call. The
+    subscriber will be provided with a DataInputStream that can be
+    read for the message contents. All LCM data types include a
+    constructor that takes a DataInputStream as an argument. First,
+    let's look at the subscriber:
+  </p>
+<pre class="programlisting">
+public class MySubscriber implements LCMSubscriber
+{
+   public void messageReceived(LCM lcm, String channel, DataInputStream ins)
+   {
+      if (channel.equals("HALLWAY_TEMPERATURE")) 
+      {
+         try {
+            temperature_t temp = new temperature_t(ins);
+            System.out.println("The temperature is: "+temp.deg_celsius);
+         } catch (IOException ex) {
+            System.out.println("Error decoding temperature message: "+ex);
+         }
+      }
+   }
+}  </pre>
+<p>
+    Now, we can subscribe to the message with just:
+  </p>
+<pre class="programlisting">
+myLCM.subscriber("HALLWAY_TEMPERATURE", new MySubscriber());  </pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412529"></a><h2>Putting it all together</h2>
+<p>
+    We now provide complete code for two programs: the first will
+    periodically transmit a simulated temperature and the second will
+    subscribe to and display that temperature. We assume that the
+    temperature_t.class file (resulting from invoking lcm-gen -j
+    temperature_t.lcm) can be found on the classpath.
+  </p>
+<pre class="programlisting">
+import lcm.lcm.*;
+    
+public class TemperatureTransmit
+{
+    public static void main(String args[])
+    {
+	LCM myLCM = LCM.getSingleton();
+
+	while (true)
+	    {
+                temperature_t temp = new temperature_t();
+                temp.utime = System.nanoTime()/1000;
+                temp.deg_celsius = 25.0 + 5*Math.sin(System.nanoTime()/1000000000.0);
+
+                myLCM.publish("HALLWAY_TEMPERATURE", temp);
+
+		try {
+		    Thread.sleep(10);
+		} catch (InterruptedException ex) {
+		}
+	    }
+    }
+}  </pre>
+<pre class="programlisting">
+import lcm.lcm.*;
+import java.io.*;
+
+public class TemperatureDisplay implements LCMSubscriber
+{
+    public void messageReceived(LCM lcm, String channel, DataInputStream ins)
+    {
+	try {
+	    temperature_t temp = new temperature_t(ins);
+	    System.out.println("The temperature is: "+temp.deg_celsius);
+	} catch (IOException ex) {
+	    System.out.println("Error decoding temperature message: "+ex);
+	}
+    }
+
+    public static void main(String args[])
+    {
+	LCM myLCM = LCM.getSingleton();
+
+	myLCM.subscribe("HALLWAY_TEMPERATURE", new TemperatureDisplay());
+
+	// Sleep forever: if we quit, so will the LCM thread.
+	while (true) 
+	    {
+		try {
+		    Thread.sleep(1000);
+		} catch (InterruptedException ex) {
+		}
+	    }
+    }
+}  </pre>
+<p>
+    To compile and run these, let us assume that the lcm.jar file is
+    in the current directory (along with TemperatureDisplay.java,
+    TemperatureTransmit.java, and temperature_t.lcm). We can run our
+    programs by executing the commands:
+  </p>
+<pre class="programlisting">
+# 1. Create the Java implementation of temperature_t.lcm
+lcm-gen -j temperature_t.lcm
+
+# 2. Compile the demo applications and the LCM type created above.
+javac -cp .:lcm.jar *.java
+
+# 3. Run TemperatureTransmit (in one terminal)
+java -cp .:lcm.jar TemperatureTransmit 
+
+# 4. Run Temperature Display (in another terminal)
+java -cp .:lcm.jar TemperatureDisplay  </pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412572"></a><h2>Namespace issues</h2>
+<p>
+  LCM supports namespaces for data types, making it easier for users to
+  use the types defined by others without worry that those types will
+  conflict with other users' types. 
+</p>
+<p>
+  When defining a type, the name of the type can include a namespace,
+  e.g., "struct examples.temperature_t { ... }". When compiled with
+  lcm-gen, this will result in a class named "temperature_t" in
+  package "examples". If lcm-gen is given the root of a source tree
+  with the --jpath flag, it will automatically put temperature_t.class
+  in the examples subdirectory. You will need to remember to import
+  that type before you use it, e.g., "import examples.*", or else you
+  will need to refer to types by their fully-qualified names
+  (e.g., "new examples.temperature_t()").
+</p>
+<p>
+  Note that if you do not specify a package name in your LCM type
+  definition file, lcm-gen will (by default) put those types into the
+  "lcmtypes" Java package. This is necessary because Java does not
+  official support packageless classes.
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412599"></a><h2>Conclusion</h2>
+<p>
+    This tutorial has given a brief description of LCM and has shown
+    how to write a simple LCM application. While this application is
+    very simple, all of the important features of LCM have been
+    illustrated. For further information, please see the LCM
+    documentation.
+  </p>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.11</div>
+</body>
+</html>

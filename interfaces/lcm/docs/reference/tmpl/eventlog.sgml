@@ -1,0 +1,96 @@
+<!-- ##### SECTION Title ##### -->
+eventlog
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### STRUCT lcm_eventlog_t ##### -->
+<para>
+
+</para>
+
+@f: 
+@eventcount: 
+
+<!-- ##### STRUCT lcm_eventlog_event_t ##### -->
+<para>
+
+</para>
+
+@eventnum: 
+@timestamp: 
+@channellen: 
+@datalen: 
+@channel: 
+@data: 
+
+<!-- ##### FUNCTION lcm_eventlog_create ##### -->
+<para>
+
+</para>
+
+@path: 
+@mode: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_eventlog_read_next_event ##### -->
+<para>
+
+</para>
+
+@l: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_eventlog_free_event ##### -->
+<para>
+
+</para>
+
+@le: 
+
+
+<!-- ##### FUNCTION lcm_eventlog_seek_to_timestamp ##### -->
+<para>
+
+</para>
+
+@l: 
+@ts: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_eventlog_write_event ##### -->
+<para>
+
+</para>
+
+@l: 
+@le: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_eventlog_destroy ##### -->
+<para>
+
+</para>
+
+@l: 
+
+

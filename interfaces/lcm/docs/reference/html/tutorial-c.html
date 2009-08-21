@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Tutorial for C</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LCM Reference Manual">
+<link rel="up" href="ch01.html" title="Manual">
+<link rel="prev" href="intro.html" title="Introduction to LCM">
+<link rel="next" href="tutorial-java.html" title="Tutorial for Java">
+<meta name="generator" content="GTK-Doc V1.11 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="ch01.html" title="Manual">
+<link rel="chapter" href="ch02.html" title="API Reference">
+<link rel="chapter" href="ch03.html" title="Example LCM Type">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
+<td><a accesskey="p" href="intro.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">LCM Reference Manual</th>
+<td><a accesskey="n" href="tutorial-java.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry" lang="en">
+<a name="tutorial-c"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle">Tutorial for C</span></h2>
+<p>Tutorial for C — An example use case from start to finish in C</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1" lang="en">
+<a name="id372469"></a><h2>Introduction</h2>
+<p>
+    This tutorial will walk you through the main tasks for
+    exchange messages between two applications:
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li>Create a type definition.</li>
+<li>Initialize LCM in your application.</li>
+<li>Publish an instance of the data.</li>
+<li>Subscribe to the data.</li>
+</ul></div>
+<p>
+    This guide is intended for C users, although the type definition
+    is the same for all languages.  If you haven't already, you should
+    read the <a class="xref" href="intro.html" title="Introduction to LCM"><span class="refentrytitle">Introduction to LCM</span></a> first to understand the basic theory
+    of LCM's operation.
+    </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id372508"></a><h2>Defining a data type</h2>
+<p> When exchanging messages between two applications, you may have
+    many different types of data.  LCM allows you to define these types in
+    much the same way you would define a struct in C.  You can have multiple
+    fields, each with its own type and name.  Some of these fields may be
+    structs themselves, or arrays.  Basically, any data type you can imagine
+    as a C struct can be used as an LCM message type.  Because LCM supports
+    multiple languages, you have to define this type in a language-neutral
+    specification that looks very similar to C.</p>
+<p>Let's define an example type called <span class="type">example_t</span>.  Put it
+    in a file called <code class="filename">example_t.lcm</code>.  (In general, the
+    file name should match the type name, with the "lcm" extension added).
+    This file can live in your primary source code directory.  .h and .c files
+    will be automatically generated using the <span class="command"><strong>lcm-gen</strong></span> tool.
+    </p>
+<p>Here are the contents of <code class="filename">example_t.lcm</code>:</p>
+<pre class="programlisting">
+struct example_t
+{
+    int64_t  timestamp;
+    double   position[3];
+    double   orientation[4];
+    int32_t  num_ranges;
+    int16_t  ranges[num_ranges];
+}</pre>
+<p>
+    The predefined types available for use in the struct are: 
+    <span class="type">int8_t</span>, <span class="type">int16_t</span>, <span class="type">int32_t</span>,
+    <span class="type">int64_t</span>, <span class="type">byte</span>, <span class="type">float</span>,
+    <span class="type">double</span>, <span class="type">string</span>, <span class="type">boolean</span>.
+    These are mostly self-explanatory.  In C, <span class="type">byte</span> corresponds
+    to the C type <span class="type">uint8_t</span>.  string corresponds to
+    <span class="type">char *</span>, and is null-terminated.  Note that unsigned
+    types are not defined, since there is no equivalent in Java.
+    </p>
+<p>
+    In addition, you can refer to any other LCM types in the definition
+    of your struct, as long as the matching .lcm file for that type exists
+    in the same directory.  In this way, you can create arrays of structs
+    or nested structs.
+    </p>
+<p>
+    To generate the .h and .c files from the type definition, run
+    <span class="command"><strong>lcm-gen -c example_t.lcm</strong></span>.  The -c argument could
+    be replaced with -j or -p to generate Java or Python, respectively.
+    </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412288"></a><h2>Initializing LCM</h2>
+<p>
+    The first task for any application that uses LCM is to
+    initialize the library.  Here's an example of that (and how to clean
+    up after itself as well):
+    </p>
+<pre class="programlisting">
+#include &lt;lcm/lcm.h&gt;
+
+int main (int argc, char ** argv)
+{
+    lcm_t * lcm = lcm_create (NULL);
+
+    if (!lcm)
+        return 1;
+
+    /* Your application goes here */
+
+    lcm_destroy (lcm);
+    return 0;
+}
+</pre>
+<p>
+    The function <code class="function"><a class="link" href="lcm-lcm.html#lcm-create" title="lcm_create ()">lcm_create</a>()</code> allocates and
+    initializes an instance of <span class="structname"><a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a></span>, which represents a
+    connection to an LCM network.  The single
+    argument to <code class="function"><a class="link" href="lcm-lcm.html#lcm-create" title="lcm_create ()">lcm_create</a></code> can be 
+    <code class="literal">NULL</code> as shown above, to initialize a LCM context with
+    default settings.  It can also be a string specifying a specific LCM
+    <span class="emphasis"><em>provider</em></span> and options for that provider.
+    </p>
+<p>
+    There are currently two types of LCM providers: a UDP Multicast provider
+    and a file-based provider, both of which have different settings.  The
+    former is the default, and transmits and receives messages via UDP
+    Multicast.  The second, file-based provider, reads messages from an LCM
+    log file to simulate live traffic, and is often useful for data analysis.
+    </p>
+<p>
+    When specified, the argument to <code class="function"><a class="link" href="lcm-lcm.html#lcm-create" title="lcm_create ()">lcm_create</a></code> should be a string of
+    the form 
+    "<code class="literal">provider://network?option1=value1&amp;option2=value2&amp;...</code>"  
+    The reference manual for <code class="function"><a class="link" href="lcm-lcm.html#lcm-create" title="lcm_create ()">lcm_create</a></code> provides a list of the
+    exact values that can be specified.  One usage might be to read 
+    data from an LCM logfile (e.g., to post-process or analyze 
+    previously collected data):
+
+    </p>
+<pre class="programlisting">
+lcm_t * lcm = lcm_create ("file:///home/albert/path/to/logfile.log");
+</pre>
+<p>
+
+    For a complete listing of the available providers, networks, and options,
+    see the API reference for <code class="function"><a class="link" href="lcm-lcm.html#lcm-create" title="lcm_create ()">lcm_create</a></code>.
+    </p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412381"></a><h2>Publishing LCM data</h2>
+<p>When you create an LCM data type and generate C code with
+    <span class="command"><strong>lcm-gen</strong></span>, that data type will then be available as
+    a C struct with the same name.  For <span class="type">example_t</span>, the C
+    struct that gets generated looks like this:
+    </p>
+<pre class="programlisting">
+typedef struct _example_t example_t;
+struct _example_t
+{
+    int64_t    timestamp;
+    double     position[3];
+    double     orientation[4];
+    int32_t    num_ranges;
+    int16_t    *ranges;
+};
+</pre>
+<p>Notice here that fixed-length arrays in LCM appear as fixed-length
+    C arrays.  Variable length arrays appear as pointers in C.  More
+    on that below.</p>
+<p>
+    We can instantiate and then publish some sample data as follows:
+    </p>
+<pre class="programlisting">
+#include "example_t.h"
+
+static void
+send_message (lcm_t * lcm)
+{
+    example_t my_data = {
+        .timestamp = 0,
+        .position = { 1, 2, 3 },
+        .orientation = { 1, 0, 0, 0 },
+    };
+    int16_t ranges[15];
+    int i;
+    for (i = 0; i &lt; 15; i++)
+        ranges[i] = i;
+
+    my_data.num_ranges = 15;
+    my_data.ranges = ranges;
+
+    example_t_publish (lcm, "EXAMPLE", &amp;my_data);
+}
+</pre>
+<p>Note that <code class="varname">my_data.ranges</code> refers to a variable
+    length array defined by the <span class="type">example_t</span> LCM type, and is
+    represented by a pointer in the generated C struct.  It is up to the
+    programmer to set this pointer to an array of the proper type, and set
+    <code class="varname">my_data.num_ranges</code> to a value smaller or equal to the
+    number of elements in that array.  When the data is marshalled,
+    <code class="varname">my_data.num_ranges</code> determines how many elements will
+    actually be read and transmitted from <code class="varname">my_data.ranges</code>.
+    If <code class="varname">my_data.num_ranges</code> is set to 0, the value of
+    <code class="varname">my_data.ranges</code> is ignored.</p>
+<p>The call to <code class="function"><a
+href="../lcm/lcm-example-t.html#example-t-publish"
+>example_t_publish</a>()</code>
+    serializes the data into a byte stream and transmits the packet using LCM
+    to any interested receivers.  The string <code class="literal">"EXAMPLE"</code> is
+    the <span class="emphasis"><em>channel name</em></span>, which is a string transmitted with
+    each packet that identifies the contents to receivers.  Receivers
+    subscribe to different channels using this identifier, allowing
+    uninteresting data to be discarded quickly and efficiently.</p>
+<p>This full example is available in runnable form as
+    <code class="filename">examples/send_message.c</code> in the LCM source
+    distribution.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412720"></a><h2>Receiving LCM Messages</h2>
+<p>As discussed above, each LCM message is transmitted with
+    a <span class="emphasis"><em>channel name</em></span> attached to it.  It is these channel
+    names which are used to determine which LCM messages you will receive
+    in a given application.  It is important for senders and receivers to
+    agree on the channel names which will be used for each message type.
+    It is theoretically possible to transmit messages having a different
+    type using the same channel name.  However, doing so will produce
+    undesirable results on the receiver because subscriptions are
+    established with a single type in mind.  If a message of another type is
+    received on that channel, a decode error will occur.</p>
+<p>Here is a sample program that sets up LCM and
+    adds a subscription to the <code class="literal">"EXAMPLE"</code> channel.
+    Whenever a message is received on this channel, its contents are
+    printed out.  If messages on other channels are being transmitted over
+    the network, this program will not see them because it only has a
+    subscription to the <code class="literal">"EXAMPLE"</code> channel.
+    A particular instance of LCM may have an unlimited number of
+    subscriptions.</p>
+<pre class="programlisting">
+
+#include &lt;stdio.h&gt;
+#include &lt;inttypes.h&gt;
+#include &lt;lcm/lcm.h&gt;
+#include "example_t.h"
+
+static void
+my_handler (const lcm_recv_buf_t *rbuf, const char * channel, 
+        const example_t * msg, void * user)
+{
+    int i;
+    printf ("Received message on channel \"%s\":\n", channel);
+    printf ("  timestamp   = %"PRId64"\n", msg-&gt;timestamp);
+    printf ("  position    = (%f, %f, %f)\n",
+            msg-&gt;position[0], msg-&gt;position[1], msg-&gt;position[2]);
+    printf ("  orientaiton = (%f, %f, %f, %f)\n",
+            msg-&gt;orientation[0], msg-&gt;orientation[1], msg-&gt;orientation[2],
+            msg-&gt;orientation[3]);
+    printf ("  ranges:");
+    for (i = 0; i &lt; msg-&gt;num_ranges; i++)
+        printf (" %d", msg-&gt;ranges[i]);
+    printf ("\n");
+}
+
+int
+main (int argc, char ** argv)
+{
+    lcm_t * lcm;
+
+    lcm = lcm_create (NULL);
+    if (!lcm)
+        return 1;
+
+    example_t_subscription_t * sub =
+        example_t_subscribe (lcm, "EXAMPLE", &amp;my_handler, NULL);
+
+    while (1)
+        lcm_handle (lcm);
+
+    example_t_unsubscribe (lcm, sub);
+    lcm_destroy (lcm);
+    return 0;
+}
+
+</pre>
+<p>A key design principal for this subscription code is that it is
+    <span class="emphasis"><em>event driven</em></span>.  The application supplies a callback
+    with <code class="function"><a
+href="../lcm/lcm-example-t.html#example-t-subscribe"
+>example_t_subscribe</a></code> that
+    is called whenever a message is available.  This happens inside a single
+    thread without need for concurrency, since the callback is dispatched from
+    within the <code class="function"><a class="link" href="lcm-lcm.html#lcm-handle" title="lcm_handle ()">lcm_handle</a></code> function.</p>
+<p>It is important to call <code class="function"><a class="link" href="lcm-lcm.html#lcm-handle" title="lcm_handle ()">lcm_handle</a></code> whenever work needs to
+    be done by LCM.  If no work is needed, the function will block until there
+    is.  For applications without another type of main loop, it is suitable to
+    call <code class="function"><a class="link" href="lcm-lcm.html#lcm-handle" title="lcm_handle ()">lcm_handle</a></code> in
+    a loop as seen above.  However, most applications already use some type of
+    main loop.  In these cases, it is best to monitor the LCM file descriptor,
+    which can be obtained with <code class="function"><a class="link" href="lcm-lcm.html#lcm-get-fileno" title="lcm_get_fileno ()">lcm_get_fileno</a></code>.  Whenever this
+    file descriptor becomes readable, the application should call
+    <code class="function"><a class="link" href="lcm-lcm.html#lcm-handle" title="lcm_handle ()">lcm_handle</a></code>, which
+    is guaranteed to not block in such a situation.</p>
+<p>This full example is available in runnable form as
+    <code class="filename">examples/listener.c</code> in the LCM source
+    distribution.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id412826"></a><h2>Conclusion</h2>
+<p>You have now created an LCM type, a sender, and a receiver.
+    To show it all working, you can run the <span class="command"><strong>listener</strong></span>
+    example on the command line.  Then, each time you run
+    <span class="command"><strong>send-message</strong></span>, you should see the listener
+    print out the contents of the message.</p>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.11</div>
+</body>
+</html>

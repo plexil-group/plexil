@@ -1,0 +1,286 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="lcm-dbg">
+<refmeta>
+<refentrytitle role="top_of_page" id="lcm-dbg.top_of_page">dbg</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>LCM Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>dbg</refname>
+<refpurpose></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="lcm-dbg.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+#define             <link linkend="DBG-MODE--CAPS">DBG_MODE</link>                            (x)
+#define             <link linkend="DBG-ALL--CAPS">DBG_ALL</link>
+#define             <link linkend="DBG-ERROR--CAPS">DBG_ERROR</link>
+#define             <link linkend="DBG-DEFAULT--CAPS">DBG_DEFAULT</link>
+#define             <link linkend="DBG-TEST--CAPS">DBG_TEST</link>
+#define             <link linkend="DBG-LCM--CAPS">DBG_LCM</link>
+#define             <link linkend="DBG-LCM-MSG--CAPS">DBG_LCM_MSG</link>
+#define             <link linkend="DBG-MAIN--CAPS">DBG_MAIN</link>
+#define             <link linkend="DBG-5--CAPS">DBG_5</link>
+#define             <link linkend="DBG-6--CAPS">DBG_6</link>
+#define             <link linkend="DBG-7--CAPS">DBG_7</link>
+#define             <link linkend="DBG-8--CAPS">DBG_8</link>
+#define             <link linkend="DBG-9--CAPS">DBG_9</link>
+#define             <link linkend="DBG-10--CAPS">DBG_10</link>
+#define             <link linkend="DBG-11--CAPS">DBG_11</link>
+#define             <link linkend="DBG-12--CAPS">DBG_12</link>
+#define             <link linkend="DBG-13--CAPS">DBG_13</link>
+#define             <link linkend="DBG-14--CAPS">DBG_14</link>
+#define             <link linkend="DBG-15--CAPS">DBG_15</link>
+#define             <link linkend="DBG-16--CAPS">DBG_16</link>
+#define             <link linkend="DBG-NAMETAB--CAPS">DBG_NAMETAB</link>
+#define             <link linkend="DBG-COLORTAB--CAPS">DBG_COLORTAB</link>
+                    <link linkend="dbg-mode-t">dbg_mode_t</link>;
+                    <link linkend="dbg-mode-color-t">dbg_mode_color_t</link>;
+const <link linkend="char">char</link>*         <link linkend="DCOLOR--CAPS">DCOLOR</link>                              ();
+#define             <link linkend="dbg">dbg</link>                                 (mode, args...)
+#define             <link linkend="dbg-active">dbg_active</link>                          (mode)
+#define             <link linkend="cdbg">cdbg</link>                                (mode,color,dtag,arg)
+#define             <link linkend="cprintf">cprintf</link>                             (color, args...)
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 id="lcm-dbg.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+</para>
+</refsect1>
+
+<refsect1 id="lcm-dbg.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="DBG-MODE--CAPS" role="macro">
+<title>DBG_MODE()</title>
+<indexterm zone="DBG-MODE--CAPS"><primary sortas="DBG_MODE">DBG_MODE</primary></indexterm><programlisting>#define DBG_MODE(x) (1ULL &lt;&lt; (x))
+</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>x</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="DBG-ALL--CAPS" role="macro">
+<title>DBG_ALL</title>
+<indexterm zone="DBG-ALL--CAPS"><primary sortas="DBG_ALL">DBG_ALL</primary></indexterm><programlisting>#define DBG_ALL     (~0ULL)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-ERROR--CAPS" role="macro">
+<title>DBG_ERROR</title>
+<indexterm zone="DBG-ERROR--CAPS"><primary sortas="DBG_ERROR">DBG_ERROR</primary></indexterm><programlisting>#define DBG_ERROR   DBG_MODE(0)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-DEFAULT--CAPS" role="macro">
+<title>DBG_DEFAULT</title>
+<indexterm zone="DBG-DEFAULT--CAPS"><primary sortas="DBG_DEFAULT">DBG_DEFAULT</primary></indexterm><programlisting>#define DBG_DEFAULT DBG_ERROR
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-TEST--CAPS" role="macro">
+<title>DBG_TEST</title>
+<indexterm zone="DBG-TEST--CAPS"><primary sortas="DBG_TEST">DBG_TEST</primary></indexterm><programlisting>#define DBG_TEST    DBG_MODE(1) /* foo */
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-LCM--CAPS" role="macro">
+<title>DBG_LCM</title>
+<indexterm zone="DBG-LCM--CAPS"><primary sortas="DBG_LCM">DBG_LCM</primary></indexterm><programlisting>#define DBG_LCM      DBG_MODE(2)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-LCM-MSG--CAPS" role="macro">
+<title>DBG_LCM_MSG</title>
+<indexterm zone="DBG-LCM-MSG--CAPS"><primary sortas="DBG_LCM_MSG">DBG_LCM_MSG</primary></indexterm><programlisting>#define DBG_LCM_MSG  DBG_MODE(3)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-MAIN--CAPS" role="macro">
+<title>DBG_MAIN</title>
+<indexterm zone="DBG-MAIN--CAPS"><primary sortas="DBG_MAIN">DBG_MAIN</primary></indexterm><programlisting>#define DBG_MAIN    DBG_MODE(4)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-5--CAPS" role="macro">
+<title>DBG_5</title>
+<indexterm zone="DBG-5--CAPS"><primary sortas="DBG_5">DBG_5</primary></indexterm><programlisting>#define DBG_5       DBG_MODE(5)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-6--CAPS" role="macro">
+<title>DBG_6</title>
+<indexterm zone="DBG-6--CAPS"><primary sortas="DBG_6">DBG_6</primary></indexterm><programlisting>#define DBG_6       DBG_MODE(6)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-7--CAPS" role="macro">
+<title>DBG_7</title>
+<indexterm zone="DBG-7--CAPS"><primary sortas="DBG_7">DBG_7</primary></indexterm><programlisting>#define DBG_7       DBG_MODE(7)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-8--CAPS" role="macro">
+<title>DBG_8</title>
+<indexterm zone="DBG-8--CAPS"><primary sortas="DBG_8">DBG_8</primary></indexterm><programlisting>#define DBG_8       DBG_MODE(8)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-9--CAPS" role="macro">
+<title>DBG_9</title>
+<indexterm zone="DBG-9--CAPS"><primary sortas="DBG_9">DBG_9</primary></indexterm><programlisting>#define DBG_9       DBG_MODE(9)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-10--CAPS" role="macro">
+<title>DBG_10</title>
+<indexterm zone="DBG-10--CAPS"><primary sortas="DBG_10">DBG_10</primary></indexterm><programlisting>#define DBG_10      DBG_MODE(10)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-11--CAPS" role="macro">
+<title>DBG_11</title>
+<indexterm zone="DBG-11--CAPS"><primary sortas="DBG_11">DBG_11</primary></indexterm><programlisting>#define DBG_11      DBG_MODE(11)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-12--CAPS" role="macro">
+<title>DBG_12</title>
+<indexterm zone="DBG-12--CAPS"><primary sortas="DBG_12">DBG_12</primary></indexterm><programlisting>#define DBG_12      DBG_MODE(12)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-13--CAPS" role="macro">
+<title>DBG_13</title>
+<indexterm zone="DBG-13--CAPS"><primary sortas="DBG_13">DBG_13</primary></indexterm><programlisting>#define DBG_13      DBG_MODE(13)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-14--CAPS" role="macro">
+<title>DBG_14</title>
+<indexterm zone="DBG-14--CAPS"><primary sortas="DBG_14">DBG_14</primary></indexterm><programlisting>#define DBG_14      DBG_MODE(14)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-15--CAPS" role="macro">
+<title>DBG_15</title>
+<indexterm zone="DBG-15--CAPS"><primary sortas="DBG_15">DBG_15</primary></indexterm><programlisting>#define DBG_15      DBG_MODE(15)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-16--CAPS" role="macro">
+<title>DBG_16</title>
+<indexterm zone="DBG-16--CAPS"><primary sortas="DBG_16">DBG_16</primary></indexterm><programlisting>#define DBG_16      DBG_MODE(16)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-NAMETAB--CAPS" role="macro">
+<title>DBG_NAMETAB</title>
+<indexterm zone="DBG-NAMETAB--CAPS"><primary sortas="DBG_NAMETAB">DBG_NAMETAB</primary></indexterm><programlisting>#define             DBG_NAMETAB</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DBG-COLORTAB--CAPS" role="macro">
+<title>DBG_COLORTAB</title>
+<indexterm zone="DBG-COLORTAB--CAPS"><primary sortas="DBG_COLORTAB">DBG_COLORTAB</primary></indexterm><programlisting>#define             DBG_COLORTAB</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="dbg-mode-t" role="struct">
+<title>dbg_mode_t</title>
+<indexterm zone="dbg-mode-t"><primary sortas="dbg_mode_t">dbg_mode_t</primary></indexterm><programlisting>typedef struct {
+    const char *d_name;
+    unsigned long long d_mode;
+} dbg_mode_t;
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="dbg-mode-color-t" role="struct">
+<title>dbg_mode_color_t</title>
+<indexterm zone="dbg-mode-color-t"><primary sortas="dbg_mode_color_t">dbg_mode_color_t</primary></indexterm><programlisting>typedef struct {
+    unsigned long long d_mode;
+    const char *color;
+} dbg_mode_color_t;
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="DCOLOR--CAPS" role="function">
+<title>DCOLOR ()</title>
+<indexterm zone="DCOLOR--CAPS"><primary sortas="DCOLOR">DCOLOR</primary></indexterm><programlisting>const <link linkend="char">char</link>*         DCOLOR                              ();</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="dbg" role="macro">
+<title>dbg()</title>
+<indexterm zone="dbg"><primary sortas="dbg">dbg</primary></indexterm><programlisting>#define             dbg(mode, args...)</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>mode</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>args...</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="dbg-active" role="macro">
+<title>dbg_active()</title>
+<indexterm zone="dbg-active"><primary sortas="dbg_active">dbg_active</primary></indexterm><programlisting>#define             dbg_active(mode)</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>mode</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="cdbg" role="macro">
+<title>cdbg()</title>
+<indexterm zone="cdbg"><primary sortas="cdbg">cdbg</primary></indexterm><programlisting>#define cdbg(mode,color,dtag,arg) 
+</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>mode</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>color</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>dtag</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>arg</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="cprintf" role="macro">
+<title>cprintf()</title>
+<indexterm zone="cprintf"><primary sortas="cprintf">cprintf</primary></indexterm><programlisting>#define             cprintf(color, args...)</programlisting>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>color</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>args...</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

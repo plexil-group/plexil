@@ -1,0 +1,347 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="lcm-lcm">
+<refmeta>
+<refentrytitle role="top_of_page" id="lcm-lcm.top_of_page">lcm</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>LCM Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>lcm</refname>
+<refpurpose>Publish and receive messages with LCM.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="lcm-lcm.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+#define             <link linkend="LCM-MAX-MESSAGE-SIZE--CAPS">LCM_MAX_MESSAGE_SIZE</link>
+#define             <link linkend="LCM-MAX-CHANNEL-NAME-LENGTH--CAPS">LCM_MAX_CHANNEL_NAME_LENGTH</link>
+                    <link linkend="lcm-t">lcm_t</link>;
+                    <link linkend="lcm-recv-buf-t">lcm_recv_buf_t</link>;
+                    <link linkend="lcm-subscription-t">lcm_subscription_t</link>;
+<link linkend="void">void</link>                (<link linkend="lcm-msg-handler-t">*lcm_msg_handler_t</link>)                (const <link linkend="lcm-recv-buf-t">lcm_recv_buf_t</link> *rbuf,
+                                                         const <link linkend="char">char</link> *channel,
+                                                         <link linkend="void">void</link> *user_data);
+<link linkend="lcm-t">lcm_t</link> *             <link linkend="lcm-create">lcm_create</link>                          (const <link linkend="char">char</link> *provider);
+<link linkend="void">void</link>                <link linkend="lcm-destroy">lcm_destroy</link>                         (<link linkend="lcm-t">lcm_t</link> *lcm);
+<link linkend="int">int</link>                 <link linkend="lcm-get-fileno">lcm_get_fileno</link>                      (<link linkend="lcm-t">lcm_t</link> *lcm);
+<link linkend="lcm-subscription-t">lcm_subscription_t</link> * <link linkend="lcm-subscribe">lcm_subscribe</link>                      (<link linkend="lcm-t">lcm_t</link> *lcm,
+                                                         const <link linkend="char">char</link> *channel,
+                                                         <link linkend="lcm-msg-handler-t">lcm_msg_handler_t</link> handler,
+                                                         <link linkend="void">void</link> *userdata);
+<link linkend="int">int</link>                 <link linkend="lcm-unsubscribe">lcm_unsubscribe</link>                     (<link linkend="lcm-t">lcm_t</link> *lcm,
+                                                         <link linkend="lcm-subscription-t">lcm_subscription_t</link> *handler);
+<link linkend="int">int</link>                 <link linkend="lcm-publish">lcm_publish</link>                         (<link linkend="lcm-t">lcm_t</link> *lcm,
+                                                         const <link linkend="char">char</link> *channel,
+                                                         const <link linkend="void">void</link> *data,
+                                                         unsigned <link linkend="int">int</link> datalen);
+<link linkend="int">int</link>                 <link linkend="lcm-handle">lcm_handle</link>                          (<link linkend="lcm-t">lcm_t</link> *lcm);
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 id="lcm-lcm.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+</para>
+<para>
+</para>
+</refsect1>
+
+<refsect1 id="lcm-lcm.details" role="details">
+<title role="details.title">Details</title>
+<refsect2 id="LCM-MAX-MESSAGE-SIZE--CAPS" role="macro">
+<title>LCM_MAX_MESSAGE_SIZE</title>
+<indexterm zone="LCM-MAX-MESSAGE-SIZE--CAPS"><primary sortas="LCM_MAX_MESSAGE_SIZE">LCM_MAX_MESSAGE_SIZE</primary></indexterm><programlisting>#define LCM_MAX_MESSAGE_SIZE (1 &lt;&lt; 28)
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="LCM-MAX-CHANNEL-NAME-LENGTH--CAPS" role="macro">
+<title>LCM_MAX_CHANNEL_NAME_LENGTH</title>
+<indexterm zone="LCM-MAX-CHANNEL-NAME-LENGTH--CAPS"><primary sortas="LCM_MAX_CHANNEL_NAME_LENGTH">LCM_MAX_CHANNEL_NAME_LENGTH</primary></indexterm><programlisting>#define LCM_MAX_CHANNEL_NAME_LENGTH 63
+</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="lcm-t" role="struct">
+<title>lcm_t</title>
+<indexterm zone="lcm-t"><primary sortas="lcm_t">lcm_t</primary></indexterm><programlisting>typedef struct _lcm_t lcm_t;</programlisting>
+<para>
+</para></refsect2>
+<refsect2 id="lcm-recv-buf-t" role="struct">
+<title>lcm_recv_buf_t</title>
+<indexterm zone="lcm-recv-buf-t"><primary sortas="lcm_recv_buf_t">lcm_recv_buf_t</primary></indexterm><programlisting>typedef struct {
+    void *data;
+    uint32_t data_size;
+    int64_t recv_utime;
+    lcm_t *lcm;
+} lcm_recv_buf_t;
+</programlisting>
+<para>
+Received messages are passed to user programs using this data structure.  One
+struct represents one message.</para>
+<para>
+</para><variablelist role="struct">
+<varlistentry>
+<term><link linkend="void">void</link>&#160;*<structfield>data</structfield>;</term>
+<listitem><simpara>      the data received (raw bytes)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="uint32-t">uint32_t</link>&#160;<structfield>data_size</structfield>;</term>
+<listitem><simpara> the length of the data received (in bytes)
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="int64-t">int64_t</link>&#160;<structfield>recv_utime</structfield>;</term>
+<listitem><simpara> timestamp (micrseconds since the epoch) at which the first data
+            bytes of the message were received.
+</simpara></listitem>
+</varlistentry>
+<varlistentry>
+<term><link linkend="lcm-t">lcm_t</link>&#160;*<structfield>lcm</structfield>;</term>
+<listitem><simpara>       pointer to the lcm_t struct that owns this buffer
+</simpara></listitem>
+</varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-subscription-t" role="struct">
+<title>lcm_subscription_t</title>
+<indexterm zone="lcm-subscription-t"><primary sortas="lcm_subscription_t">lcm_subscription_t</primary></indexterm><programlisting>typedef struct _lcm_subscription_t lcm_subscription_t;</programlisting>
+<para>
+This is an opaque data structure that identifies an LCM subscription.</para>
+<para>
+</para></refsect2>
+<refsect2 id="lcm-msg-handler-t" role="function">
+<title>lcm_msg_handler_t ()</title>
+<indexterm zone="lcm-msg-handler-t"><primary sortas="lcm_msg_handler_t">lcm_msg_handler_t</primary></indexterm><programlisting><link linkend="void">void</link>                (*lcm_msg_handler_t)                (const <link linkend="lcm-recv-buf-t">lcm_recv_buf_t</link> *rbuf,
+                                                         const <link linkend="char">char</link> *channel,
+                                                         <link linkend="void">void</link> *user_data);</programlisting>
+<para>
+callback function prototype.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>rbuf</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>channel</parameter>&#160;:</term>
+<listitem><simpara> 
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>user_data</parameter>&#160;:</term>
+<listitem><simpara> the user-specified parameter passed to lcm_subscribe
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-create" role="function">
+<title>lcm_create ()</title>
+<indexterm zone="lcm-create"><primary sortas="lcm_create">lcm_create</primary></indexterm><programlisting><link linkend="lcm-t">lcm_t</link> *             lcm_create                          (const <link linkend="char">char</link> *provider);</programlisting>
+<para>
+Constructor.  Allocates and initializes a lcm_t.  <link linkend="provider"><literal>provider</literal></link> must be either
+NULL, or a string of the form 
+</para>
+<para>
+"provider://network?option1=value1&amp;option2=value2&amp;...&amp;optionN=valueN"
+</para>
+<para>
+The currently supported providers are:
+</para>
+<para>
+<programlisting>
+udpm://
+    UDP Multicast provider
+    network can be of the form "multicast_address:port".  Either the
+    multicast address or the port may be ommitted for the default.
+
+    options:
+
+        recv_buf_size = N
+            size of the kernel UDP receive buffer to request.  Defaults to
+            operating system defaults
+
+        ttl = N
+            time to live of transmitted packets.  Default 0
+
+    examples:
+
+        "udpm://239.255.76.67:7667"
+            Default initialization string
+
+        "udpm://239.255.76.67:7667?ttl=1"
+            Sets the multicast TTL to 1 so that packets published will enter
+            the local network.
+</programlisting>
+</para>
+<para>
+<programlisting>
+file://
+    LCM Log file-based provider
+    network should be the path to the log file
+
+    Events are read from or written to the log file.  In read mode, events
+    are generated from the log file in real-time, or at the rate specified
+    by the speed option.  In write mode, events published to the LCM instance
+    will be written to the log file in real-time.
+
+    options:
+
+        speed = N
+            Scale factor controlling the playback speed of the log file.
+            Defaults to 1.  If less than or equal to zero, then the events
+            in the log file are played back as fast as possible.
+        
+        mode = r | w
+            Specifies the log file mode.  Defaults to 'r'
+
+    examples:
+        
+        "file:///home/albert/path/to/logfile"
+            Loads the file "/home/albert/path/to/logfile" as an LCM event
+            source.
+
+        "file:///home/albert/path/to/logfile?speed=4"
+            Loads the file "/home/albert/path/to/logfile" as an LCM event
+            source.  Events are played back at 4x speed.
+            
+</programlisting></para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>provider</parameter>&#160;:</term>
+<listitem><simpara>  Initializationg string specifying the LCM network provider.
+If this is NULL, and the environment variable "LCM_DEFAULT_URL" is defined,
+then the environment variable is used instead.  If this is NULL and the
+environment variable is not defined, then default settings are used.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> a newly allocated <parameter>lcm_t</parameter> instance.  Free with <link linkend="lcm-destroy"><function>lcm_destroy()</function></link> when no
+longer needed.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-destroy" role="function">
+<title>lcm_destroy ()</title>
+<indexterm zone="lcm-destroy"><primary sortas="lcm_destroy">lcm_destroy</primary></indexterm><programlisting><link linkend="void">void</link>                lcm_destroy                         (<link linkend="lcm-t">lcm_t</link> *lcm);</programlisting>
+<para>
+destructor</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>lcm</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-get-fileno" role="function">
+<title>lcm_get_fileno ()</title>
+<indexterm zone="lcm-get-fileno"><primary sortas="lcm_get_fileno">lcm_get_fileno</primary></indexterm><programlisting><link linkend="int">int</link>                 lcm_get_fileno                      (<link linkend="lcm-t">lcm_t</link> *lcm);</programlisting>
+<para>
+</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>lcm</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> a file descriptor suitable for use with select, poll, etc.
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-subscribe" role="function">
+<title>lcm_subscribe ()</title>
+<indexterm zone="lcm-subscribe"><primary sortas="lcm_subscribe">lcm_subscribe</primary></indexterm><programlisting><link linkend="lcm-subscription-t">lcm_subscription_t</link> * lcm_subscribe                      (<link linkend="lcm-t">lcm_t</link> *lcm,
+                                                         const <link linkend="char">char</link> *channel,
+                                                         <link linkend="lcm-msg-handler-t">lcm_msg_handler_t</link> handler,
+                                                         <link linkend="void">void</link> *userdata);</programlisting>
+<para>
+registers a callback function that will be invoked any time a message on the
+specified channel is received.  Multiple callbacks can be subscribed for a
+given channel.
+</para>
+<para>
+<link linkend="channel"><literal>channel</literal></link> can also be a GLib regular expression, and is treated as a regex
+implicitly surrounded by '^' and '$'.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>lcm</parameter>&#160;:</term>
+<listitem><simpara>        the LCM object
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>channel</parameter>&#160;:</term>
+<listitem><simpara>   the channel to listen on
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>handler</parameter>&#160;:</term>
+<listitem><simpara>   the callback function to be invoked when a message is received
+            on the specified channel
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>userdata</parameter>&#160;:</term>
+<listitem><simpara>  this will be passed to the callback function.
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara> a lcm_subscription_t to identify the new subscription,
+         which can be passed to lcm_unsubscribe
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-unsubscribe" role="function">
+<title>lcm_unsubscribe ()</title>
+<indexterm zone="lcm-unsubscribe"><primary sortas="lcm_unsubscribe">lcm_unsubscribe</primary></indexterm><programlisting><link linkend="int">int</link>                 lcm_unsubscribe                     (<link linkend="lcm-t">lcm_t</link> *lcm,
+                                                         <link linkend="lcm-subscription-t">lcm_subscription_t</link> *handler);</programlisting>
+<para>
+unregisters a message handler so that it will no longer be invoked when the
+specified message type is received.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>lcm</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>handler</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-publish" role="function">
+<title>lcm_publish ()</title>
+<indexterm zone="lcm-publish"><primary sortas="lcm_publish">lcm_publish</primary></indexterm><programlisting><link linkend="int">int</link>                 lcm_publish                         (<link linkend="lcm-t">lcm_t</link> *lcm,
+                                                         const <link linkend="char">char</link> *channel,
+                                                         const <link linkend="void">void</link> *data,
+                                                         unsigned <link linkend="int">int</link> datalen);</programlisting>
+<para>
+transmits a message to a multicast group</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>lcm</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>channel</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>data</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><parameter>datalen</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+<refsect2 id="lcm-handle" role="function">
+<title>lcm_handle ()</title>
+<indexterm zone="lcm-handle"><primary sortas="lcm_handle">lcm_handle</primary></indexterm><programlisting><link linkend="int">int</link>                 lcm_handle                          (<link linkend="lcm-t">lcm_t</link> *lcm);</programlisting>
+<para>
+waits for and dispatches the next incoming message
+</para>
+<para>
+Message handlers are invoked in the order registered.</para>
+<para>
+</para><variablelist role="params">
+<varlistentry><term><parameter>lcm</parameter>&#160;:</term>
+<listitem><simpara>
+</simpara></listitem></varlistentry>
+<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term><listitem><simpara>
+</simpara></listitem></varlistentry>
+</variablelist></refsect2>
+
+</refsect1>
+
+
+
+
+</refentry>

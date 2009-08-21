@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>lcm</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LCM Reference Manual">
+<link rel="up" href="ch02.html" title="API Reference">
+<link rel="prev" href="ch02.html" title="API Reference">
+<link rel="next" href="lcm-eventlog.html" title="eventlog">
+<meta name="generator" content="GTK-Doc V1.11 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="chapter" href="ch01.html" title="Manual">
+<link rel="chapter" href="ch02.html" title="API Reference">
+<link rel="chapter" href="ch03.html" title="Example LCM Type">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="ch02.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">LCM Reference Manual</th>
+<td><a accesskey="n" href="lcm-eventlog.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#lcm-lcm.synopsis" class="shortcut">Top</a>
+                 | 
+                <a href="#lcm-lcm.description" class="shortcut">Description</a>
+</td></tr>
+</table>
+<div class="refentry" lang="en">
+<a name="lcm-lcm"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="lcm-lcm.top_of_page"></a>lcm</span></h2>
+<p>lcm — Publish and receive messages with LCM.</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="lcm-lcm.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#define             <a class="link" href="lcm-lcm.html#LCM-MAX-MESSAGE-SIZE--CAPS" title="LCM_MAX_MESSAGE_SIZE">LCM_MAX_MESSAGE_SIZE</a>
+#define             <a class="link" href="lcm-lcm.html#LCM-MAX-CHANNEL-NAME-LENGTH--CAPS" title="LCM_MAX_CHANNEL_NAME_LENGTH">LCM_MAX_CHANNEL_NAME_LENGTH</a>
+                    <a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a>;
+                    <a class="link" href="lcm-lcm.html#lcm-recv-buf-t" title="lcm_recv_buf_t">lcm_recv_buf_t</a>;
+                    <a class="link" href="lcm-lcm.html#lcm-subscription-t" title="lcm_subscription_t">lcm_subscription_t</a>;
+void                (<a class="link" href="lcm-lcm.html#lcm-msg-handler-t" title="lcm_msg_handler_t ()">*lcm_msg_handler_t</a>)                (const <a class="link" href="lcm-lcm.html#lcm-recv-buf-t" title="lcm_recv_buf_t">lcm_recv_buf_t</a> *rbuf,
+                                                         const char *channel,
+                                                         void *user_data);
+<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *             <a class="link" href="lcm-lcm.html#lcm-create" title="lcm_create ()">lcm_create</a>                          (const char *provider);
+void                <a class="link" href="lcm-lcm.html#lcm-destroy" title="lcm_destroy ()">lcm_destroy</a>                         (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm);
+int                 <a class="link" href="lcm-lcm.html#lcm-get-fileno" title="lcm_get_fileno ()">lcm_get_fileno</a>                      (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm);
+<a class="link" href="lcm-lcm.html#lcm-subscription-t" title="lcm_subscription_t">lcm_subscription_t</a> * <a class="link" href="lcm-lcm.html#lcm-subscribe" title="lcm_subscribe ()">lcm_subscribe</a>                      (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm,
+                                                         const char *channel,
+                                                         <a class="link" href="lcm-lcm.html#lcm-msg-handler-t" title="lcm_msg_handler_t ()">lcm_msg_handler_t</a> handler,
+                                                         void *userdata);
+int                 <a class="link" href="lcm-lcm.html#lcm-unsubscribe" title="lcm_unsubscribe ()">lcm_unsubscribe</a>                     (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm,
+                                                         <a class="link" href="lcm-lcm.html#lcm-subscription-t" title="lcm_subscription_t">lcm_subscription_t</a> *handler);
+int                 <a class="link" href="lcm-lcm.html#lcm-publish" title="lcm_publish ()">lcm_publish</a>                         (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm,
+                                                         const char *channel,
+                                                         const void *data,
+                                                         unsigned int datalen);
+int                 <a class="link" href="lcm-lcm.html#lcm-handle" title="lcm_handle ()">lcm_handle</a>                          (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm);
+</pre>
+</div>
+<div class="refsect1" lang="en">
+<a name="lcm-lcm.description"></a><h2>Description</h2>
+<p>
+</p>
+<p>
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="lcm-lcm.details"></a><h2>Details</h2>
+<div class="refsect2" lang="en">
+<a name="LCM-MAX-MESSAGE-SIZE--CAPS"></a><h3>LCM_MAX_MESSAGE_SIZE</h3>
+<pre class="programlisting">#define LCM_MAX_MESSAGE_SIZE (1 &lt;&lt; 28)
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="LCM-MAX-CHANNEL-NAME-LENGTH--CAPS"></a><h3>LCM_MAX_CHANNEL_NAME_LENGTH</h3>
+<pre class="programlisting">#define LCM_MAX_CHANNEL_NAME_LENGTH 63
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-t"></a><h3>lcm_t</h3>
+<pre class="programlisting">typedef struct _lcm_t lcm_t;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-recv-buf-t"></a><h3>lcm_recv_buf_t</h3>
+<pre class="programlisting">typedef struct {
+    void *data;
+    uint32_t data_size;
+    int64_t recv_utime;
+    lcm_t *lcm;
+} lcm_recv_buf_t;
+</pre>
+<p>
+Received messages are passed to user programs using this data structure.  One
+struct represents one message.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term">void *<em class="structfield"><code>data</code></em>;</span></p></td>
+<td>      the data received (raw bytes)
+</td>
+</tr>
+<tr>
+<td><p><span class="term">uint32_t <em class="structfield"><code>data_size</code></em>;</span></p></td>
+<td> the length of the data received (in bytes)
+</td>
+</tr>
+<tr>
+<td><p><span class="term">int64_t <em class="structfield"><code>recv_utime</code></em>;</span></p></td>
+<td> timestamp (micrseconds since the epoch) at which the first data
+            bytes of the message were received.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *<em class="structfield"><code>lcm</code></em>;</span></p></td>
+<td>       pointer to the lcm_t struct that owns this buffer
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-subscription-t"></a><h3>lcm_subscription_t</h3>
+<pre class="programlisting">typedef struct _lcm_subscription_t lcm_subscription_t;</pre>
+<p>
+This is an opaque data structure that identifies an LCM subscription.</p>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-msg-handler-t"></a><h3>lcm_msg_handler_t ()</h3>
+<pre class="programlisting">void                (*lcm_msg_handler_t)                (const <a class="link" href="lcm-lcm.html#lcm-recv-buf-t" title="lcm_recv_buf_t">lcm_recv_buf_t</a> *rbuf,
+                                                         const char *channel,
+                                                         void *user_data);</pre>
+<p>
+callback function prototype.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>rbuf</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>channel</code></em> :</span></p></td>
+<td> 
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
+<td> the user-specified parameter passed to lcm_subscribe
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-create"></a><h3>lcm_create ()</h3>
+<pre class="programlisting"><a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *             lcm_create                          (const char *provider);</pre>
+<p>
+Constructor.  Allocates and initializes a lcm_t.  <code class="literal">provider</code> must be either
+NULL, or a string of the form 
+</p>
+<p>
+"provider://network?option1=value1&amp;option2=value2&amp;...&amp;optionN=valueN"
+</p>
+<p>
+The currently supported providers are:
+</p>
+<p>
+</p>
+<pre class="programlisting">
+udpm://
+    UDP Multicast provider
+    network can be of the form "multicast_address:port".  Either the
+    multicast address or the port may be ommitted for the default.
+
+    options:
+
+        recv_buf_size = N
+            size of the kernel UDP receive buffer to request.  Defaults to
+            operating system defaults
+
+        ttl = N
+            time to live of transmitted packets.  Default 0
+
+    examples:
+
+        "udpm://239.255.76.67:7667"
+            Default initialization string
+
+        "udpm://239.255.76.67:7667?ttl=1"
+            Sets the multicast TTL to 1 so that packets published will enter
+            the local network.
+</pre>
+<p>
+</p>
+<p>
+</p>
+<pre class="programlisting">
+file://
+    LCM Log file-based provider
+    network should be the path to the log file
+
+    Events are read from or written to the log file.  In read mode, events
+    are generated from the log file in real-time, or at the rate specified
+    by the speed option.  In write mode, events published to the LCM instance
+    will be written to the log file in real-time.
+
+    options:
+
+        speed = N
+            Scale factor controlling the playback speed of the log file.
+            Defaults to 1.  If less than or equal to zero, then the events
+            in the log file are played back as fast as possible.
+        
+        mode = r | w
+            Specifies the log file mode.  Defaults to 'r'
+
+    examples:
+        
+        "file:///home/albert/path/to/logfile"
+            Loads the file "/home/albert/path/to/logfile" as an LCM event
+            source.
+
+        "file:///home/albert/path/to/logfile?speed=4"
+            Loads the file "/home/albert/path/to/logfile" as an LCM event
+            source.  Events are played back at 4x speed.
+            
+</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>provider</code></em> :</span></p></td>
+<td>  Initializationg string specifying the LCM network provider.
+If this is NULL, and the environment variable "LCM_DEFAULT_URL" is defined,
+then the environment variable is used instead.  If this is NULL and the
+environment variable is not defined, then default settings are used.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> a newly allocated <em class="parameter"><code>lcm_t</code></em> instance.  Free with <a class="link" href="lcm-lcm.html#lcm-destroy" title="lcm_destroy ()"><code class="function">lcm_destroy()</code></a> when no
+longer needed.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-destroy"></a><h3>lcm_destroy ()</h3>
+<pre class="programlisting">void                lcm_destroy                         (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm);</pre>
+<p>
+destructor</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>lcm</code></em> :</span></p></td>
+<td>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-get-fileno"></a><h3>lcm_get_fileno ()</h3>
+<pre class="programlisting">int                 lcm_get_fileno                      (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm);</pre>
+<p>
+</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>lcm</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> a file descriptor suitable for use with select, poll, etc.
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-subscribe"></a><h3>lcm_subscribe ()</h3>
+<pre class="programlisting"><a class="link" href="lcm-lcm.html#lcm-subscription-t" title="lcm_subscription_t">lcm_subscription_t</a> * lcm_subscribe                      (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm,
+                                                         const char *channel,
+                                                         <a class="link" href="lcm-lcm.html#lcm-msg-handler-t" title="lcm_msg_handler_t ()">lcm_msg_handler_t</a> handler,
+                                                         void *userdata);</pre>
+<p>
+registers a callback function that will be invoked any time a message on the
+specified channel is received.  Multiple callbacks can be subscribed for a
+given channel.
+</p>
+<p>
+<code class="literal">channel</code> can also be a GLib regular expression, and is treated as a regex
+implicitly surrounded by '^' and '$'.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>lcm</code></em> :</span></p></td>
+<td>        the LCM object
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>channel</code></em> :</span></p></td>
+<td>   the channel to listen on
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>handler</code></em> :</span></p></td>
+<td>   the callback function to be invoked when a message is received
+            on the specified channel
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>userdata</code></em> :</span></p></td>
+<td>  this will be passed to the callback function.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> a lcm_subscription_t to identify the new subscription,
+         which can be passed to lcm_unsubscribe
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-unsubscribe"></a><h3>lcm_unsubscribe ()</h3>
+<pre class="programlisting">int                 lcm_unsubscribe                     (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm,
+                                                         <a class="link" href="lcm-lcm.html#lcm-subscription-t" title="lcm_subscription_t">lcm_subscription_t</a> *handler);</pre>
+<p>
+unregisters a message handler so that it will no longer be invoked when the
+specified message type is received.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>lcm</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>handler</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-publish"></a><h3>lcm_publish ()</h3>
+<pre class="programlisting">int                 lcm_publish                         (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm,
+                                                         const char *channel,
+                                                         const void *data,
+                                                         unsigned int datalen);</pre>
+<p>
+transmits a message to a multicast group</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>lcm</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>channel</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>datalen</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" lang="en">
+<a name="lcm-handle"></a><h3>lcm_handle ()</h3>
+<pre class="programlisting">int                 lcm_handle                          (<a class="link" href="lcm-lcm.html#lcm-t" title="lcm_t">lcm_t</a> *lcm);</pre>
+<p>
+waits for and dispatches the next incoming message
+</p>
+<p>
+Message handlers are invoked in the order registered.</p>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>lcm</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.11</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="lcm-example-t">
+<refmeta>
+<refentrytitle role="top_of_page" id="lcm-example-t.top_of_page">example_t</refentrytitle>
+<manvolnum>3</manvolnum>
+<refmiscinfo>LCM Library</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>example_t</refname>
+<refpurpose></refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="lcm-example-t.synopsis" role="synopsis">
+<title role="synopsis.title">Synopsis</title>
+
+<synopsis>
+</synopsis>
+</refsynopsisdiv>
+
+
+
+
+
+
+
+
+
+<refsect1 id="lcm-example-t.description" role="desc">
+<title role="desc.title">Description</title>
+<para>
+</para>
+</refsect1>
+
+<refsect1 id="lcm-example-t.details" role="details">
+<title role="details.title">Details</title>
+
+</refsect1>
+
+
+
+
+</refentry>

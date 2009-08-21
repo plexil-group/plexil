@@ -1,0 +1,136 @@
+<!-- ##### SECTION Title ##### -->
+lcm
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### MACRO LCM_MAX_MESSAGE_SIZE ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO LCM_MAX_CHANNEL_NAME_LENGTH ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### STRUCT lcm_t ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT lcm_recv_buf_t ##### -->
+<para>
+
+</para>
+
+@data: 
+@data_size: 
+@recv_utime: 
+@lcm: 
+
+<!-- ##### STRUCT lcm_subscription_t ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### USER_FUNCTION lcm_msg_handler_t ##### -->
+<para>
+
+</para>
+
+@rbuf: 
+@channel: 
+@user_data: 
+
+
+<!-- ##### FUNCTION lcm_create ##### -->
+<para>
+
+</para>
+
+@provider: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_destroy ##### -->
+<para>
+
+</para>
+
+@lcm: 
+
+
+<!-- ##### FUNCTION lcm_get_fileno ##### -->
+<para>
+
+</para>
+
+@lcm: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_subscribe ##### -->
+<para>
+
+</para>
+
+@lcm: 
+@channel: 
+@handler: 
+@userdata: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_unsubscribe ##### -->
+<para>
+
+</para>
+
+@lcm: 
+@handler: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_publish ##### -->
+<para>
+
+</para>
+
+@lcm: 
+@channel: 
+@data: 
+@datalen: 
+@Returns: 
+
+
+<!-- ##### FUNCTION lcm_handle ##### -->
+<para>
+
+</para>
+
+@lcm: 
+@Returns: 
+
+
