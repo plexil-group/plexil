@@ -30,9 +30,23 @@
 #include "Debug.hh"
 
 int main(int argc, char** argv) {
+
   std::string debugConfig("Debug.cfg");
+  
+  for (int i = 1; i < argc; ++i) {
+      if (strcmp(argv[i], "-d") == 0)
+          debugConfig = std::string(argv[++i]);
+  }
+  
   std::ifstream config(debugConfig.c_str());
-  if (config.good()) DebugMessage::readConfigFile(config);
+  
+  if (config.good()) {
+     DebugMessage::readConfigFile(config);
+     std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";
+  }
+  else
+     std::cout << "Unable to read configuration file: " << debugConfig.c_str() << "\n";
+  
   ExecModuleTests::runTests();
   return 0;
 }
