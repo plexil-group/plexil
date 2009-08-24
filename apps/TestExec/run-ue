@@ -54,12 +54,23 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
-# Determine executable
+# Determine executable - the mode is determined by what you indicate the the VariantRules files located in 
+#1) apps/TestExec, 
+#2) app-framework, 
+#3) universal-exec, and 
+#4) interfaces
 if [ $UE_EXECUTABLE ]
   then
     prog=$UE_EXECUTABLE
-  else
+  elif [ -f $PLEXIL_HOME/apps/TestExec/test-exec_g_rt ]  # DEV MODE
+  then
     prog=$PLEXIL_HOME/apps/TestExec/test-exec_g_rt
+  elif [ -f $PLEXIL_HOME/apps/TestExec/test-exec_o_rt ]  # OPTIMIZED MODE
+  then
+    prog=$PLEXIL_HOME/apps/TestExec/test-exec_o_rt
+  elif [ -f $PLEXIL_HOME/apps/TestExec/test-exec_o_p_rt ]  # PROFILE MODE
+  then
+    prog=$PLEXIL_HOME/apps/TestExec/test-exec_o_p_rt
 fi
 
 $PLEXIL_HOME/bin/plexil-check-prog $prog
