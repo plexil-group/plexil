@@ -113,9 +113,8 @@ rule RunTestSuccess {
    Clean clean-outputs : $(outfile) ;
    RunTestPlan $(deptarget) : $(plan) : $(script) : $(outfile) : $(library) ; 
 
-   # LocalDepends $(1) : $(outfile) ;
-  #  operl $(1) : $(outfile) ; # this line caused warning messages: "warning: using independent target output/RUN_...etc." --> which means the target is not a dependency of any other target is being referenced
-    operl $(outfile) ;
+    LocalDepends $(1) : $(outfile) ;
+    operl $(1) : $(outfile) ; 
 }
 
 ALWAYS run-exec-tests1 ;
