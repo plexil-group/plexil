@@ -129,32 +129,32 @@ inline bool hasChildElement(const TiXmlNode* e) {
 
 void checkTag(const string& t, const TiXmlNode* e) {
 	checkParserException(testTag(t, e),
-			"In PLX file, line " << e->Row() << ", column " << e->Column() <<
-			": Expected <" << t << "> element, but got <" << e->Value() << "> instead.");
+			"(line " << e->Row() << ", column " << e->Column() <<
+			") XML parsing error: Expected <" << t << "> element, but got <" << e->Value() << "> instead.");
 }
 
 void checkAttr(const string& t, const TiXmlElement* e) {
 	checkParserException(e->Attribute(t) != NULL,
-			"In PLX file, line " << e->Row() << ", column " << e->Column() <<
-			": Expected an attribute named '" << t << "' in element <" << e->Value() << ">");
+			"(line " << e->Row() << ", column " << e->Column() <<
+			") XML parsing error: Expected an attribute named '" << t << "' in element <" << e->Value() << ">");
 }
 
 void checkTagPart(const string& t, const TiXmlNode* e) {
 	checkParserException(testTagPart(t, e),
-			"In PLX file, line " << e->Row() << ", column " << e->Column() <<
-			": Expected an element containing '" << t << "', but instead got <" << e->Value() << ">");
+			"(line " << e->Row() << ", column " << e->Column() <<
+			") XML parsing error: Expected an element containing '" << t << "', but instead got <" << e->Value() << ">");
 }
 
 void checkNotEmpty(const TiXmlNode* e) {
 	checkParserException(notEmpty(e),
-			"In PLX file, line " << e->Row() << ", column " << e->Column() <<
-			": Expected a non-empty text child of <" << e->Value() << ">");
+			"(line " << e->Row() << ", column " << e->Column() <<
+			") XML parsing error: Expected a non-empty text child of <" << e->Value() << ">");
 }
 
 void checkHasChildElement(const TiXmlNode* e) {
 	checkParserException(hasChildElement(e),
-			"In PLX file, line " << e->Row() << ", column " << e->Column() <<
-			": Expected a child element of <" << e->Value() << ">");
+			"(line " << e->Row() << ", column " << e->Column() <<
+			") XML parsing error: Expected a child element of <" << e->Value() << ">");
 }
 
 //
@@ -176,10 +176,12 @@ PlexilNodeRefId PlexilInternalVarParser::parseNodeReference(
 		return PlexilXmlParser::parseNodeRef(child);
 	else {
 		checkParserException(ALWAYS_FAIL,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Internal variable reference lacks "
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: Internal variable reference lacks "
 				<< NODEID_TAG << " or "
 				<< NODEREF_TAG << " tag");
+
+
 		return PlexilNodeRefId::noId();
 	}
 }
@@ -243,15 +245,15 @@ public:
 
 		TiXmlElement* state = xml->FirstChildElement(STATEVAL_TAG);
 		checkParserException(state != NULL,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Timepoint missing " << STATEVAL_TAG << " tag");
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: Timepoint missing " << STATEVAL_TAG << " tag");
 		checkNotEmpty(state);
 		retval->setState(state->FirstChild()->Value());
 
 		TiXmlElement* point = xml->FirstChildElement(TIMEPOINT_TAG);
 		checkParserException(point != NULL,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Timepoint missing " << TIMEPOINT_TAG << " tag");
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: Timepoint missing " << TIMEPOINT_TAG << " tag");
 		checkNotEmpty(point);
 		retval->setTimepoint(point->FirstChild()->Value());
 
@@ -285,8 +287,8 @@ public:
 		retval->setState(PlexilXmlParser::parseState(xml));
 		TiXmlElement* frequencies = xml->FirstChildElement(FREQ_TAG);
 		checkParserException(frequencies != NULL,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": LookupWithFrequency without a Frequency element");
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: LookupWithFrequency without a Frequency element");
 		TiXmlElement* freq = frequencies->FirstChildElement(LOW_TAG);
 		checkHasChildElement(freq);
 		retval->setLowFreq(
@@ -454,11 +456,11 @@ public:
 		}
 
 		checkParserException(rhs != NULL,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Missing RHS (return value) tags for " << xml->Value());
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: Missing RHS (return value) tags for " << xml->Value());
 		checkParserException(rhs->FirstChildElement() != NULL,
-				"In PLX file, line " << rhs->Row() << ", column " << rhs->Column() <<
-				": Empty RHS (return value) tags for " << xml->Value());
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: Empty RHS (return value) tags for " << xml->Value());
 		retval->setRHS(PlexilXmlParser::parseExpr(rhs->FirstChildElement()));
 		return retval->getId();
 	}
@@ -486,12 +488,12 @@ public:
 
 		TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
 		checkParserException(nodeIdXml != NULL,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": Missing <NodeId> element in library call.");
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: Missing <NodeId> element in library call.");
 		std::string nodeId(nodeIdXml->FirstChild()->Value());
 		checkParserException(!nodeId.empty(),
-				"In PLX file, line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
-				": Empty <NodeId> element in library call.");
+				"(line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
+				") XML parsing error: Empty <NodeId> element in library call.");
 
 		// create lib node call node body
 
@@ -506,12 +508,12 @@ public:
 			TiXmlElement* libParamXml = child->FirstChildElement(
 					NODE_PARAMETER_TAG);
 			checkParserException(libParamXml != NULL,
-					"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-					": Missing <NodeParameter> element in library call.");
+					"(line " << xml->Row() << ", column " << xml->Column() <<
+					") XML parsing library error: Missing <NodeParameter> element in library call.");
 			std::string libParam(libParamXml->FirstChild()->Value());
 			checkParserException(!libParam.empty(),
-					"In PLX file, line " << libParamXml->Row() << ", column " << libParamXml->Column() <<
-					": Empty <NodeParameter> element in library call.");
+					"(line " << libParamXml->Row() << ", column " << libParamXml->Column() <<
+					") XML parsing library error: Empty <NodeParameter> element in library call.");
 
 			// get node parameter value
 
@@ -564,8 +566,8 @@ public:
 			while (value != NULL && value->Value() == NAME_TAG)
 				value = value->NextSiblingElement();
 			checkParserException(value != NULL,
-					"In PLX file, line " << child->Row() << ", column " << child->Column() <<
-					": No update value in pair for variable '" << name << "'");
+					"(line " << child->Row() << ", column " << child->Column() <<
+					") XML parsing error: No update value in pair for variable '" << name << "'");
 			debugMsg("PlexilXml:parsePairs", "Parsed pair {" << name << ", " << *value << "}");
 			retval->addPair(name, PlexilXmlParser::parseExpr(value));
 		}
@@ -751,8 +753,8 @@ PlexilExprId PlexilXmlParser::parseExpr(const TiXmlElement* xml)
 	std::map<std::string, PlexilExprParser*>::iterator it = s_exprParsers.find(
 			xml->Value());
 	checkParserException(it != s_exprParsers.end(),
-			"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-			": No parser for expression '" << xml->Value() << "'");
+			"(line " << xml->Row() << ", column " << xml->Column() <<
+			") XML parsing error: No parser for expression '" << xml->Value() << "'");
 	return it->second->parse(xml);
 }
 
@@ -765,12 +767,12 @@ PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
 
 	TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
 	checkParserException(nodeIdXml != NULL,
-			"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-			": Missing or empty <NodeId> element.");
+			"(line " << xml->Row() << ", column " << xml->Column() <<
+			") XML parsing error: Missing or empty <NodeId> element.");
 	std::string nodeId(nodeIdXml->FirstChild()->Value());
 	checkParserException(!nodeId.empty(),
-			"In PLX file, line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
-			": Missing or empty <NodeId> element.");
+			"(line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
+			") XML parsing error: Missing or empty <NodeId> element.");
 	retval->setNodeId(nodeIdXml->FirstChild()->Value());
 
 	// node type required
@@ -838,8 +840,8 @@ PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
 	TiXmlElement* bodyXml = xml->FirstChildElement(BODY_TAG);
 	if (bodyXml == NULL) {
 		checkParserException(retval->nodeType() == NodeType_Empty,
-				"In PLX file, line " << xml->Row() << ", column " << xml->Column() <<
-				": " << retval->nodeTypeString() << " node '" << retval->nodeId() <<
+				"(line " << xml->Row() << ", column " << xml->Column() <<
+				") XML parsing error: " << retval->nodeTypeString() << " node '" << retval->nodeId() <<
 				"' missing <NodeBody> element. '" << retval->nodeTypeString() <<
 				"' nodes must contain a '" << retval->nodeTypeString() <<
 				"' as a <NodeBody> element.");
@@ -991,15 +993,14 @@ PlexilVar* PlexilXmlParser::parseArrayDeclaration(const TiXmlElement* decl)
 			std::string initValType = initValTag .substr(0, initValTag.size()
 					- VAL_TAG.size());
 			checkParserException(type == initValType,
-					"In PLX file, line " << child->Row() << ", column " << child->Column() <<
-					": Initial value of " << type << " array variable \'" <<
+					"(line " << child->Row() << ", column " << child->Column() <<
+					") XML parsing error: Initial value of " << type << " array variable \'" <<
 					name << "\' of incorrect type \'" << initValType << "\'");
 			std::string initVal = child->FirstChild()->Value();
 			initVals.push_back(initVal);
 			checkParserException(initVals.size() <= maxSize,
-					"In PLX file, line " << child->FirstChild()->Row() << ", column "
-					<< child->FirstChild()->Column() <<
-					": Number of initial values of " << type <<
+					"(line " << child->FirstChild()->Row() << ", column " << child->FirstChild()->Column() <<
+					") XML parsing error: Number of initial values of " << type <<
 					" array variable \'" << name <<
 					"\' exceeds maximum of " << maxSize);
 		} while ((child = child->NextSiblingElement()) != NULL);
@@ -1039,8 +1040,8 @@ PlexilVar* PlexilXmlParser::parseAtomicOrStringDeclaration(
 		std::string initValType = initValTag .substr(0, initValTag.size()
 				- VAL_TAG.size());
 		checkParserException(type == initValType,
-				"In PLX file, line " << child->Row() << ", column " << child->Column() <<
-				": Initial value of " << type << " variable \'" <<
+				"(line " << child->Row() << ", column " << child->Column() <<
+				") XML parsing error: Initial value of " << type << " variable \'" <<
 				name << "\' of incorrect type \'" <<
 				initValType << "\'");
 		return new PlexilVar(name, PlexilParser::parseValueType(type),
@@ -1071,8 +1072,8 @@ PlexilVar* PlexilXmlParser::parseDepricatedDeclaration(const TiXmlElement* decl)
 			"> tag, use <DeclareVariable> tag instead.");
 
 	checkParserException(!name.empty(),
-			"In PLX file, line " << child->Row() << ", column " << child->Column() <<
-			": Must have a tag ending in '" <<
+			"(line " << child->Row() << ", column " << child->Column() <<
+			") XML parsing error: Must have a tag ending in '" <<
 			VAR_TAG << "' as a child of a <" <<
 			VAR_DECLS_TAG << "> element.");
 	if (value.empty())
@@ -1087,8 +1088,8 @@ PlexilNodeBodyId PlexilXmlParser::parseBody(const TiXmlElement* body)
 	std::map<std::string, PlexilBodyParser*>::iterator it = s_bodyParsers.find(
 			name);
 	checkParserException(it != s_bodyParsers.end(),
-			"In PLX file, line " << body->Row() << ", column " << body->Column() <<
-			": No parser for body type " << name);
+			"(line " << body->Row() << ", column " << body->Column() <<
+			") XML parsing error: No parser for body type " << name);
 	return it->second->parse(body);
 }
 
@@ -1184,8 +1185,8 @@ PlexilNodeRefId PlexilXmlParser::parseNodeRef(const TiXmlElement* ref)
 		retval->setDir(PlexilNodeRef::SELF);
 	else {
 		checkParserException(ALWAYS_FAIL,
-				"In PLX file, line " << ref->Row() << ", column " << ref->Column() <<
-				": Invalid value for 'dir' attibute: " << ref->Attribute(DIR_ATTR));
+				"(line " << ref->Row() << ", column " << ref->Column() <<
+				") XML parsing error: Invalid value for 'dir' attibute: " << ref->Attribute(DIR_ATTR));
 	}
 	if (retval->dir() != PlexilNodeRef::PARENT && retval->dir()
 			!= PlexilNodeRef::SELF) {
@@ -1284,9 +1285,8 @@ PlexilNodeRefId PlexilXmlParser::getNodeRef(const std::string& name,
 	}
 	if (checkParent != NULL) {
 		checkParserException(!retval.isValid(),
-				"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
-				", column " << node->FirstChild()->FirstChild()->Column() <<
-				": Ambiguous old-style node reference.  Node " <<
+				"(line " << node->FirstChild()->FirstChild()->Row() << ", column " << node->FirstChild()->FirstChild()->Column() <<
+				") XML parsing error: Ambiguous old-style node reference.  Node " <<
 				node->FirstChild()->FirstChild()->Value() <<
 				" and its parent are both named '" << name << "'");
 		retval = (new PlexilNodeRef())->getId();
@@ -1294,9 +1294,8 @@ PlexilNodeRefId PlexilXmlParser::getNodeRef(const std::string& name,
 	}
 	if (checkSibling != NULL) {
 		checkParserException(!retval.isValid(),
-				"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
-				", column " << node->FirstChild()->FirstChild()->Column() <<
-				": Ambiguous old-style node reference.  Node " <<
+				"(line " << node->FirstChild()->FirstChild()->Row() << ", column " << node->FirstChild()->FirstChild()->Column() <<
+				") XML parsing error: Ambiguous old-style node reference.  Node " <<
 				node->FirstChild()->FirstChild()->Value() <<
 				" has a sibling and either a parent or itself named '" << name << "'");
 		retval = (new PlexilNodeRef())->getId();
@@ -1304,9 +1303,8 @@ PlexilNodeRefId PlexilXmlParser::getNodeRef(const std::string& name,
 	}
 	if (checkChild != NULL) {
 		checkParserException(!retval.isValid(),
-				"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
-				", column " << node->FirstChild()->FirstChild()->Column() <<
-				": Ambiguous old-style node reference.  Node " <<
+				"(line " << node->FirstChild()->FirstChild()->Row() << ", column " << node->FirstChild()->FirstChild()->Column() <<
+				") XML parsing error: Ambiguous old-style node reference.  Node " <<
 				node->FirstChild()->FirstChild()->Value() <<
 				" has a sibling, parent, or itself and a child named '" << name << "'");
 		retval = (new PlexilNodeRef())->getId();
@@ -1314,9 +1312,8 @@ PlexilNodeRefId PlexilXmlParser::getNodeRef(const std::string& name,
 	}
 
 	checkParserException(retval.isValid(),
-			"In PLX file, line " << node->FirstChild()->FirstChild()->Row() <<
-			", column " << node->FirstChild()->FirstChild()->Column() <<
-			": Node '" << node->FirstChild()->FirstChild()->Value() <<
+			"(line " << node->FirstChild()->FirstChild()->Row() << ", column " << node->FirstChild()->FirstChild()->Column() <<
+			") XML parsing error: Node '" << node->FirstChild()->FirstChild()->Value() <<
 			"' is trying to access node '" << name << "' which is out of scope or does not exist");
 	retval->setName(name);
 	return retval;
