@@ -28,6 +28,7 @@
 #include "ParserException.hh"
 #include "Logging.hh"
 #include <cstring>
+#include <iostream>
 
 namespace PLEXIL
 {
@@ -45,7 +46,7 @@ namespace PLEXIL
     throw()
     : std::exception(), m_what(new char[strlen(msg) + 1]), m_file(file), m_line(line)
   {
-    strcpy(const_cast<char*>(m_what), msg);
+    strcpy(const_cast<char*>(m_what), validXMLLineAndColumn(std::string(msg)));
     Logging::handle_message(Logging::ERROR, file, line, m_what);
   }
 
