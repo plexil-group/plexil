@@ -63,6 +63,16 @@ namespace PLEXIL
 
     virtual const char *what() const throw();
     
+    // if line and column are 0 or 1, then do not report line and column
+    const char * validXMLLineAndColumn(std::string str) {       
+    if ((str.compare(0, 18, "(line 0, column 0)") == 0) ||
+    	    (str.compare(0, 18, "(line 1, column 1)") == 0)) {
+    		str = str.substr(19, str.length());
+    		}
+
+    	return str.c_str();
+    }
+    
   private:
     const char * m_what;
     std::string m_file; /**<The source file in which the error was detected (__FILE__). */
