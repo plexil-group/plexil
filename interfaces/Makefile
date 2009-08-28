@@ -8,15 +8,16 @@ all:
 
 clean:
 	jam clean
-	$(MAKE) -C lcm-0.2.1 $@
+# can fail if configure not yet executed
+	- $(MAKE) -C lcm $@
 
 non-lcm:
 	jam
 
-lcm: lcm-0.2.1/Makefile
-	$(MAKE) -C lcm-0.2.1
-# we expect this one to blow up
-	- $(MAKE) -C lcm-0.2.1 install
+lcm: lcm/Makefile
+	$(MAKE) -C lcm
+# we expect this one to blow up because of directory permissions
+	- $(MAKE) -C lcm install
 
-lcm-0.2.1/Makefile:
-	(cd lcm-0.2.1; ./configure --without-java --without-python --prefix=`echo $$PWD`)
+lcm/Makefile:
+	(cd lcm; ./configure --without-java --without-python --prefix=`echo $$PWD`)

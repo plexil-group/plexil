@@ -11,7 +11,7 @@ include [ FDirName $(TestExecSAS) Jamrules ] ;
 LINKFLAGS += [ FLibDirFlags [ FDirName $(PLEXIL_HOME) lib ] ]
 	     [ FLibDirFlags [ FDirName $(PLEXIL_HOME) universal-exec lib ] ]
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lib ] ]
-             [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lcm-0.2.1 lib ] ] 
+             [ FLibDirFlags [ FDirName $(PLEXIL_HOME) interfaces lcm lib ] ] 
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm structs lib ] ]
              [ FLibDirFlags [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm ] ] ;
 
@@ -25,7 +25,7 @@ HDRS += [ FDirName $(PLEXIL_HOME) universal-exec TinyXml base ]
         [ FDirName $(PLEXIL_HOME) universal-exec Exec component ]
         [ FDirName $(PLEXIL_HOME) interfaces Sockets base ]
         [ FDirName $(PLEXIL_HOME) app-framework ]
-        [ FDirName $(PLEXIL_HOME) interfaces lcm-0.2.1 ]
+        [ FDirName $(PLEXIL_HOME) interfaces lcm ]
         [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm structs include ]
         [ FDirName $(PLEXIL_HOME) apps TestExecSAS lcm ]
         ;

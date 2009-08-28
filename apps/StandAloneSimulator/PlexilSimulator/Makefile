@@ -8,7 +8,7 @@ LIBS = -lpthread
 
 LIBS += -L$(STANDALONE_SIMULATOR_HOME)/lib -lstandalonesimulator \
          -L$(PLEXIL_HOME)/lib/ \
-	 -L$(PLEXIL_HOME)/interfaces/lcm-0.2.1/lib -llcm \
+	 -L$(PLEXIL_HOME)/interfaces/lcm/lib -llcm \
 	 -L$(PLEXIL_HOME)/apps/TestExecSAS/lcm/structs/lib -lComStructs \
 	 -L$(PLEXIL_HOME)/apps/TestExecSAS/lcm/ -llcmUtils
 
@@ -20,10 +20,10 @@ CXX     = g++
 OBJ_EXT = .o
 CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
 INCLUDES = -I$(STANDALONE_SIMULATOR_HOME) -I$(PLEXIL_HOME)/apps/TestExecSAS/lcm/structs/include \
-	   -I$(PLEXIL_HOME)/interfaces/lcm-0.2.1/include -I$(PLEXIL_HOME)/apps/TestExecSAS/lcm 
+	   -I$(PLEXIL_HOME)/interfaces/lcm/include -I$(PLEXIL_HOME)/apps/TestExecSAS/lcm 
 
 ifndef LCM_PATH
-	LCM_PATH = $(PLEXIL_HOME)/interfaces/lcm-0.2.1
+	LCM_PATH = $(PLEXIL_HOME)/interfaces/lcm
 endif
 
  LIB_EXT = .so

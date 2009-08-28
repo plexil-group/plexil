@@ -17,7 +17,7 @@ clean:
 	@ cd standard-plexil; jam $@
 	@ cd luv; ant $@
 	@ cd interfaces; jam $@
-	- $(MAKE) -C interfaces/lcm-0.2.1 $@
+	- $(MAKE) -C interfaces/lcm $@
 	@ $(MAKE) -C apps $@
 	@ cd app-framework; jam $@
 	@ cd checker; ant $@
