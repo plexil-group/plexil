@@ -3,5 +3,4 @@
   <DefaultAdapter/>
  </Adapter>
  <Adapter AdapterType="OSNativeTime"/>
- <!-- Listener ListenerType="LuvListener"/ -->
 </Interfaces>

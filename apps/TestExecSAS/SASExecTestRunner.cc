@@ -39,21 +39,34 @@
 #include "SASAdapter.hh"
 #include "AdapterFactory.hh"
 #include "InterfaceSchema.hh"
+#include "NewLuvListener.hh"
 #include <fstream>
 
 namespace PLEXIL 
 {
-
-  int SASExecTestRunner::run (int argc, char** argv, const ExecListener* listener)
+  void SASExecTestRunner::usage() const
   {
-    std::string scriptName("error");
+    std::cout << "Usage: sas-exec-test-runner [options] -p <plan>\n" 
+	      << " where options are: \n"
+	      << "  -l <library_file> -- library node file; multiple -l options permitted\n"
+	      << "  -c <interface_config_file> -- use a custom interface configuration file\n"
+	      << "  -d <debug_config_file> -- use a custom debug configuration file\n"
+	      << "  -v [-h <hostname>] [-n <portnumber>] -b] -- use the LUV execution viewer;\n"
+
+	      << "                     -h <hostname> -- LUV on remote host (default \"" << NewLuvListener::LUV_DEFAULT_HOSTNAME() << "\"\n"
+	      << "                     -n <portnumber> -- IP port number for LUV (default " << NewLuvListener::LUV_DEFAULT_PORT() << "\n"
+	      << std::endl;
+  }
+
+  int SASExecTestRunner::run (int argc, char** argv)
+  {
     std::string planName("error");
     std::string debugConfig("Debug.cfg");
     std::string interfaceConfig("interface-config.xml");
     std::vector<std::string> libraryNames;
     bool        luvRequest = false;
-    std::string luvHost("Local");
-    int         luvPort    = 9100;
+    std::string luvHost(NewLuvListener::LUV_DEFAULT_HOSTNAME());
+    int         luvPort    = NewLuvListener::LUV_DEFAULT_PORT();
     bool        luvBlock   = false;
     std::string usage(
 		      "Usage: sas-exec-test-runner -s <script> -p <plan> [-l <library>]* [-c <interface_config_file>] [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
@@ -88,15 +101,13 @@ namespace PLEXIL
 	  }
 	else if (strcmp(argv[i], "-p") == 0)
 	  planName = argv[++i];
-	else if (strcmp(argv[i], "-s") == 0)
-	  scriptName = argv[++i];
 	else if (strcmp(argv[i], "-v") == 0)
 	  luvRequest = true;
 	else
 	  {
 	    std::cout << "Unknown option '" 
 		      << argv[i] 
-		      << "'.  " 
+		      << "'.  \n" 
 		      << usage 
 		      << std::endl;
 	    return -1;
@@ -131,6 +142,14 @@ namespace PLEXIL
     // get Interfaces element
     TiXmlElement* configElt = 
       configDoc.FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+
+    // Add dummy element for LuvListener
+    if (luvRequest)
+      {
+	configElt->InsertEndChild(NewLuvListener::constructConfigurationXml(luvBlock,
+									    luvHost.c_str(), 
+									    luvPort));
+      }
 
     // initialize application
     std::cout << "Initializing application" << std::endl;

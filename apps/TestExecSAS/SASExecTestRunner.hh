@@ -29,26 +29,34 @@
 
 #include "ExecApplication.hh"
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
-class ExecListener;
+  class ExecListener;
 
-/*
+  /*
    * @brief This class provides the mechanism to run the Universal
    * Executive with a simulation script.
-*/
-class SASExecTestRunner 
-{
- public:
+   */
+  class SASExecTestRunner 
+  {
+  public:
   
-  SASExecTestRunner() : execApplication() {}
-  ~SASExecTestRunner() {}
+    SASExecTestRunner() 
+      : execApplication() 
+    {}
 
-  /* @brief Run the UE with arguments passed in the command line. */
-  int run (int argc, char** argv, const ExecListener* = 0);
+    ~SASExecTestRunner() 
+    {}
 
-  ExecApplication execApplication;
-};
+    /* @brief Run the UE with arguments passed in the command line. */
+    int run (int argc, char** argv);
+
+    ExecApplication execApplication;
+
+  private:
+    void usage() const;
+  };
 }
 
 #endif
