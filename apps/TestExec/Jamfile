@@ -113,7 +113,7 @@ rule RunTestSuccess {
    Clean clean-outputs : $(outfile) ;
    RunTestPlan $(deptarget) : $(plan) : $(script) : $(outfile) : $(library) ; 
 
-    LocalDepends $(1) : $(outfile) ;
+    #LocalDepends $(1) : $(outfile) ;
     operl $(1) : $(outfile) ; 
 }
 
