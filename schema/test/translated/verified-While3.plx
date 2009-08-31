@@ -3,30 +3,73 @@
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="While">
       <NodeId>ep2cp_While_d1e3</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable>
+            <Name>ep2cp_test</Name>
+            <Type>Boolean</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
       <NodeBody>
          <NodeList>
             <Node NodeType="NodeList" epx="aux">
                <NodeId>ep2cp_WhileBody</NodeId>
                <NodeBody>
                   <NodeList>
+                     <Node NodeType="Assignment" epx="aux">
+                        <NodeId>ep2cp_WhileRetest</NodeId>
+                        <NodeBody>
+                           <Assignment>
+                              <BooleanVariable>ep2cp_test</BooleanVariable>
+                              <BooleanRHS>
+                                 <LT>
+                                    <IntegerValue>0</IntegerValue>
+                                    <IntegerValue>1</IntegerValue>
+                                 </LT>
+                              </BooleanRHS>
+                           </Assignment>
+                        </NodeBody>
+                     </Node>
                      <Node NodeType="NodeList" epx="aux">
                         <NodeId>ep2cp_WhileTrue</NodeId>
                         <StartCondition>
-                           <LT>
-                              <IntegerValue>0</IntegerValue>
-                              <IntegerValue>1</IntegerValue>
-                           </LT>
+                           <BooleanVariable>ep2cp_test</BooleanVariable>
                         </StartCondition>
                         <RepeatCondition>
-                           <LT>
-                              <IntegerValue>0</IntegerValue>
-                              <IntegerValue>1</IntegerValue>
-                           </LT>
+                           <BooleanVariable>ep2cp_test</BooleanVariable>
                         </RepeatCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node NodeType="Empty">
-                                 <NodeId>One</NodeId>
+                              <Node NodeType="NodeList" epx="aux">
+                                 <NodeId>ep2cp_WhileAction</NodeId>
+                                 <NodeBody>
+                                    <NodeList>
+                                       <Node NodeType="Empty">
+                                          <NodeId>One</NodeId>
+                                       </Node>
+                                    </NodeList>
+                                 </NodeBody>
+                              </Node>
+                              <Node NodeType="Assignment" epx="aux">
+                                 <NodeId>ep2cp_WhileRetest</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>ep2cp_WhileAction</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                                 <NodeBody>
+                                    <Assignment>
+                                       <BooleanVariable>ep2cp_test</BooleanVariable>
+                                       <BooleanRHS>
+                                          <LT>
+                                             <IntegerValue>0</IntegerValue>
+                                             <IntegerValue>1</IntegerValue>
+                                          </LT>
+                                       </BooleanRHS>
+                                    </Assignment>
+                                 </NodeBody>
                               </Node>
                            </NodeList>
                         </NodeBody>
