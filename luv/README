@@ -12,6 +12,10 @@ To build a single jar file, which will be saved as luv.jar in this
 directory:
 
  > ant jar
+ 
+ To build everything, including Mac OS X app icon:
+ 
+ > ant all
 
 To run:
 
