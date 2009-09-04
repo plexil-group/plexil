@@ -355,6 +355,7 @@
 </xsl:template>
 
 <xsl:template name= "while-body">
+  <xsl:variable name= "setup-id" select= "tr:prefix('WhileSetup')"/>
   <xsl:variable name= "retest-id" select= "tr:prefix('WhileRetest')"/>
   <xsl:variable name= "true-node-id" select= "tr:prefix('WhileTrue')"/>  
   <xsl:variable name= "action-node-id" select= "tr:prefix('WhileAction')"/>  
@@ -367,17 +368,29 @@
         <NodeBody>
           <NodeList>
             <xsl:call-template name= "retest">
-              <xsl:with-param name= "id" select= "$retest-id"/>
+              <xsl:with-param name= "id" select= "$setup-id"/>
             </xsl:call-template>
             <Node NodeType= "NodeList" epx= "aux">
               <NodeId>
                 <xsl:value-of select= "$true-node-id"/>
               </NodeId>
               <StartCondition>
-                <BooleanVariable>
-                  <xsl:value-of select= "tr:prefix('test')"/>
-                </BooleanVariable>
+                <AND>
+                  <xsl:call-template name= "node-finished">
+                    <xsl:with-param name= "id" select= "$setup-id"/>
+                  </xsl:call-template>
+                  <BooleanVariable>
+                    <xsl:value-of select= "tr:prefix('test')"/>
+                  </BooleanVariable>
+                </AND>
               </StartCondition>
+              <SkipCondition>
+                <NOT>
+                  <BooleanVariable>
+                    <xsl:value-of select= "tr:prefix('test')"/>
+                  </BooleanVariable>
+                </NOT>
+              </SkipCondition>
               <RepeatCondition>
                 <BooleanVariable>
                   <xsl:value-of select= "tr:prefix('test')"/>

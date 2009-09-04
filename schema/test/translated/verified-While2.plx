@@ -16,7 +16,7 @@
                <NodeBody>
                   <NodeList>
                      <Node NodeType="Assignment" epx="aux">
-                        <NodeId>ep2cp_WhileRetest</NodeId>
+                        <NodeId>ep2cp_WhileSetup</NodeId>
                         <NodeBody>
                            <Assignment>
                               <BooleanVariable>ep2cp_test</BooleanVariable>
@@ -32,8 +32,21 @@
                      <Node NodeType="NodeList" epx="aux">
                         <NodeId>ep2cp_WhileTrue</NodeId>
                         <StartCondition>
-                           <BooleanVariable>ep2cp_test</BooleanVariable>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeId>ep2cp_WhileSetup</NodeId>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                              <BooleanVariable>ep2cp_test</BooleanVariable>
+                           </AND>
                         </StartCondition>
+                        <SkipCondition>
+                           <NOT>
+                              <BooleanVariable>ep2cp_test</BooleanVariable>
+                           </NOT>
+                        </SkipCondition>
                         <RepeatCondition>
                            <BooleanVariable>ep2cp_test</BooleanVariable>
                         </RepeatCondition>
