@@ -67,26 +67,16 @@ ResponseMessage* ResponseMessageManager::getResponseMessages(timeval& tDelay)
   ResponseBase* respBase;
   if ((iter = m_CmdIdToResponse.find(m_Counter)) == m_CmdIdToResponse.end())
     {
-      std::cout << "ResponseMessageManager:getResponseMessages: " << "Using default." << std::endl;
-  
       respBase = m_DefaultResponse;
     }
   else
     {
-      std::cout << "ResponseMessageManager:getResponseMessages: " 
-                << "Using a specific occurrance." << std::endl;
       respBase = iter->second;
     }
 
   std::cout << "ResponseMessageManager:getResponseMessages: " << m_Identifier
             << ", count: " << m_Counter << std::endl;
+  tDelay = respBase->getDelay();
   ++m_Counter;
-
-  if(respBase->getNumberOfResponses() > 0)
-    {
-      tDelay = respBase->getDelay();
-      return respBase->createResponseMessage();
-    }
-  else
-    return NULL;
+  return respBase->createResponseMessage();
 }

@@ -34,15 +34,12 @@ public:
   ResponseBase(timeval delay) : m_Delay(delay) {}
   virtual ~ResponseBase(){}
 
-  void setNumberOfResponses(int numOfResp) {m_NumberOfResponses = numOfResp;}
-  int getNumberOfResponses() const {return m_NumberOfResponses;}
   timeval getDelay() const {return m_Delay;}
 
   virtual ResponseMessage* createResponseMessage() = 0;
 
 private:
   timeval m_Delay;
-  int m_NumberOfResponses;
 };
 
 #endif // RESPONSE_BASE_HH

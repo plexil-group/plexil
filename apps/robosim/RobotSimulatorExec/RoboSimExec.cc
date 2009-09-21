@@ -39,7 +39,6 @@
 #include "PlexilPlan.hh"
 #include "RoboSimInterfaceAdaptor.hh"
 #include "LuvListener.hh"
-#include "SocketException.h"
 
 
 int main (int argc, char** argv)

@@ -27,12 +27,8 @@
 #define RESPONSE_MESSAGE_HH
 
 #include <string>
-#include <vector>
-#include <sstream>
-#include "ResponseFactory.hh"
 
 enum {MSG_COMMAND=0, MSG_TELEMETRY};
-
 
 class ResponseMessage
 {
@@ -42,21 +38,6 @@ public:
     : id(_id), contents(_contents), name(_name), messageType(_type) {}
   virtual ~ResponseMessage(){}
 
-  static bool extractMessageContents(const std::string& contents,
-                                     std::vector<double>& vect)
-  {
-    std::istringstream ss(contents);
-    while (ss.peek() != '\n')
-      {
-        double val;
-        if (parseType<double>(ss, val))
-          vect.push_back(val);
-        else
-          return false;
-      }
-    return true;
-  }
-  
   int id;
   std::string contents;
   std::string name;

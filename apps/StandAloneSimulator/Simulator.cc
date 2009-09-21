@@ -81,9 +81,7 @@ Simulator::~Simulator()
 bool Simulator::readScript(const std::string& fName,
                            const std::string& fNameTelemetry)
 {
-  bool status = true;
-  if (fName != "NULL")
-    status &= m_SimulatorScriptReader.readCommandScript(fName);
+  bool status = m_SimulatorScriptReader.readCommandScript(fName);
   if (fNameTelemetry != "NULL") 
     status &= m_SimulatorScriptReader.readTelemetryScript(fNameTelemetry);
   return status;
@@ -106,20 +104,18 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
                                            int uniqueId)
 {
   timeval time;
-  std::cout << "Simulator::scheduleResponseForCommand for : " << command 
+  std::cout << "Simulator::scheduleResponseForCommand for command: " << command 
             << std::endl;
   bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
   if (valid) scheduleNextResponse(time);
-  else std::cout << "Not a command that needs a response." << std::endl;
 }
 
 void Simulator::scheduleResponseForTelemetry(const std::string& state)
 {
   timeval time;
-  std::cout << "Simulator::scheduleResponseForTelemetry for : " << state 
+  std::cout << "Simulator::scheduleResponseForCommand for telemetry: " << state 
             << std::endl;
   bool valid = constructNextResponse(state, INT_MAX, time, MSG_TELEMETRY);
-
   if (valid) scheduleNextResponse(time);
 }
 
@@ -139,7 +135,6 @@ bool Simulator::constructNextResponse(const std::string& command,
   ResponseMessageManager* msgMgr = iter->second;
   timeval tDelay;
   ResponseMessage* respMsg = msgMgr->getResponseMessages(tDelay);
-  if (respMsg == NULL) return false;
   respMsg->id = uniqueId;
   respMsg->name = command;
   respMsg->messageType = type;
@@ -188,7 +183,7 @@ void Simulator::scheduleNextResponse(timeval time)
 
 void Simulator::handleWakeUp()
 {
-  std::cout << "\nSimulator::handleWakeUp" << std::endl;
+  std::cout << "Simulator::handleWakeUp" << std::endl;
   bool scheduleTimer=false;
   timeval time;
     

@@ -38,7 +38,7 @@ PlexilSimResponseFactory::~PlexilSimResponseFactory()
 ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeval tDelay,
                                             std::istringstream& inStr)
 {
-  if (cmdName == "move")
+  if (cmdName == "drive")
     {
       int returnValue;
       if (parseType<int>(inStr, returnValue))
@@ -51,25 +51,5 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, timeva
         return new foo(tDelay, returnValue);
     }
   else
-    {
-      // No customization present. See if the default version can be used.
-      
-      std::vector<double> returnValue;
-      while (inStr.peek() != -1)
-        {
-          double retVal;
-          if (parseType<double>(inStr, retVal))
-            {
-              returnValue.push_back(retVal);
-            }
-          else
-            {
-              std::cout << "Error: The return value structure neither matches "
-                        << " any customization nor the generic structure."
-                        << std::endl;
-              return NULL;
-            }
-        }
-      return new GenericResponse(tDelay, returnValue);
-    }
+    return new GenericResponse(tDelay, "0");
 }

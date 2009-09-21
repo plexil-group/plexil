@@ -23,30 +23,17 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "ResponseFactory.hh"
-#include "GenericResponse.hh"
-#include <assert.h>
 
-ResponseFactory::ResponseFactory()
-{
-}
+#ifndef THREAD_SPAWN_HEADER
+#define THREAD_SPAWN_HEADER
 
-ResponseFactory::~ResponseFactory()
-{
-}
 
-ResponseBase* ResponseFactory::parse(const std::string& cmdName, timeval tDelay,
-                                     std::istringstream& inStr)
-{
-  std::string returnValue;
-  if (parseType<std::string>(inStr, returnValue))
-    {
-      return new GenericResponse(tDelay, returnValue);
-    }
-  else
-    {
-      std::cerr << "ResponseFactory::parse: Error in parsing the generic response string: " 
-                << inStr << std::endl;
-      assert(0);
-    }
-}
+#include <pthread.h>
+
+
+#define THREAD_FUNC_PTR void* (*)(void*)
+
+bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id);
+
+
+#endif // THREAD_SPAWN_HEADER

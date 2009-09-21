@@ -47,7 +47,7 @@ public:
     std::ostringstream str;
     str << m_ReturnValue;
     std::cout << "Creating a Move response: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str()+'\n');
+    return new ResponseMessage(-1, str.str());
   }
 
 private:
@@ -67,12 +67,13 @@ public:
 
     std::ostringstream str;
     str << m_ReturnValue;
-    std::cout << "Creating a foo message: " << str.str() << std::endl;
-    return new ResponseMessage(-1, str.str()+'\n');
+    std::cout << "Creating a Move response: " << str.str() << std::endl;
+    return new ResponseMessage(-1, str.str());
   }
 
 private:
   const int m_ReturnValue;
 };
+
 
 #endif //ROBOSIM_RESPONSE_HH
