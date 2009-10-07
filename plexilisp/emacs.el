@@ -23,17 +23,23 @@
 ;;; TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(defun init-plexilisp ()
+(defun init-plexilisp (&optional compile)
   (interactive)
   (let* ((plexildir (format "%s/plexilisp" (getenv "PLEXIL_HOME")))
          (source-file (format "%s/plexil.el" plexildir))
-         (compiled-file (format "%s/plexil.el" plexildir))
+         (compiled-file (format "%s/plexil.elc" plexildir))
          (max-specpdl-size 2700))
-    ;; Improve this -- it unnecessarily recompiles.
-    (byte-compile-file source-file)
+    (if compile (byte-compile-file source-file))
     (if (file-exists-p compiled-file)
         (load-file compiled-file)
-      (load-file source-file))))
+      (progn
+        (message "Can't find compiled Plexilisp file.  Use M-x compile-plexilisp.")
+        (sleep-for 2)
+        (load-file source-file)))))
+
+(defun compile-plexilisp ()
+  (interactive)
+  (init-plexilisp t))
 
 (if (null (getenv "PLEXIL_HOME"))
     ;; Sometimes, Emacs doesn't see the environment variables defined by the user.
