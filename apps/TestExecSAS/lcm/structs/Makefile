@@ -3,7 +3,7 @@ STRUCTS = driveCommand driveResponse telemetryDouble genericCommand genericRespo
 CXX = g++
 
 ifndef LCM_PATH
-	LCM_PATH = $(PLEXIL_HOME)/interfaces/lcm-0.2.1
+	LCM_PATH = $(PLEXIL_HOME)/interfaces/lcm
 endif
 
 OSTYPE = $(shell uname -s 2>/dev/null | tr [:lower:] [:upper:])
