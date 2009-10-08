@@ -164,6 +164,40 @@ namespace PLEXIL
                      << " ignored");
               }
           }
+        else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()) == 0)
+          {
+            setDefaultCommandInterface(adapter);
+            // warn if children found
+            if (text != 0)
+              {
+                warn("registerInterface: extraneous text in "
+                     << InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()
+                     << " ignored");
+              }
+            else if (firstChild != 0)
+              {
+                warn("registerInterface: extraneous XML element(s) in "
+                     << InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()
+                     << " ignored");
+              }
+          }
+        if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()) == 0)
+          {
+            setDefaultLookupInterface(adapter);
+            // warn if children found
+            if (text != 0)
+              {
+                warn("registerInterface: extraneous text in "
+                     << InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()
+                     << " ignored");
+              }
+            else if (firstChild != 0)
+              {
+                warn("registerInterface: extraneous XML element(s) in "
+                     << InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()
+                     << " ignored");
+              }
+          }
         else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0)
           {
             registerPlannerUpdateInterface(adapter);
