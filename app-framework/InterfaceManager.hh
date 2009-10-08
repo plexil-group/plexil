@@ -325,6 +325,28 @@ namespace PLEXIL
     bool setDefaultInterface(InterfaceAdapterId intf);
 
     /**
+     * @brief Register the given interface adapter as the default for lookups.
+              This interface will be used for all lookups which do not have
+	      a specific adapter.  
+              Returns true if successful.
+	      Fails and returns false if there is already a default lookup adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    bool setDefaultLookupInterface(InterfaceAdapterId intf);
+
+    /**
+     * @brief Register the given interface adapter as the default for commands.
+              This interface will be used for all commands which do not have
+	      a specific adapter.  
+              Returns true if successful.
+	      Fails and returns false if there is already a default command adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    bool setDefaultCommandInterface(InterfaceAdapterId intf);
+
+    /**
      * @brief Retract registration of the previous interface adapter for this command.  
      * @param commandName The command.
      */
@@ -353,11 +375,27 @@ namespace PLEXIL
     void unsetDefaultInterface();
 
     /**
+     * @brief Retract registration of the previous default interface adapter for commands.
+     */
+    void unsetDefaultCommandInterface();
+
+    /**
+     * @brief Retract registration of the previous default interface adapter for lookups.
+     */
+    void unsetDefaultLookupInterface();
+
+    /**
      * @brief Return the interface adapter in effect for this command, whether 
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
     InterfaceAdapterId getCommandInterface(const LabelStr & commandName);
+
+    /**
+     * @brief Return the current default interface adapter for commands.
+              May return NoId().
+     */
+    InterfaceAdapterId getDefaultCommandInterface();
 
     /**
      * @brief Return the interface adapter in effect for this function, whether 
@@ -372,6 +410,12 @@ namespace PLEXIL
      * @param stateName The state.
      */
     InterfaceAdapterId getLookupInterface(const LabelStr & stateName);
+
+    /**
+     * @brief Return the current default interface adapter for lookups.
+              May return NoId().
+     */
+    InterfaceAdapterId getDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for planner updates,
@@ -773,8 +817,10 @@ namespace PLEXIL
     //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapterId> m_adapters;
 
-    //* Default InterfaceAdapter
+    //* Default InterfaceAdapters
     InterfaceAdapterId m_defaultInterface;
+    InterfaceAdapterId m_defaultCommandInterface;
+    InterfaceAdapterId m_defaultLookupInterface;
 
     //* InterfaceAdapter to use for PlannerUpdate nodes
     InterfaceAdapterId m_plannerUpdateInterface;

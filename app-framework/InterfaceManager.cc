@@ -71,6 +71,8 @@ namespace PLEXIL
       m_listeners(),
       m_adapters(),
       m_defaultInterface(),
+      m_defaultCommandInterface(),
+      m_defaultLookupInterface(),
       m_plannerUpdateInterface(),
       m_raInterface(),
       m_lookupAdapterMap(),
@@ -1138,6 +1140,50 @@ namespace PLEXIL
     return true;
   }
 
+  /**
+   * @brief Register the given interface adapter as the default for all commands
+   which do not have a specific adapter.  Returns true if successful.
+   Fails and returns false if there is already a default adapter registered.
+   * @param intf The interface adapter to use as the default.
+   */
+  bool 
+  InterfaceManager::setDefaultCommandInterface(InterfaceAdapterId intf)
+  {
+    if (!m_defaultCommandInterface.isNoId())
+      {
+	debugMsg("InterfaceManager:setDefaultCommandInterface",
+		 " attempt to overwrite default command interface adapter " << m_defaultCommandInterface);
+	return false;
+      }
+    m_defaultCommandInterface = intf;
+    m_adapters.insert(intf);
+    debugMsg("InterfaceManager:setDefaultCommandInterface",
+	     " setting default command interface " << intf);
+    return true;
+  }
+
+  /**
+   * @brief Register the given interface adapter as the default for all lookups
+   which do not have a specific adapter.  Returns true if successful.
+   Fails and returns false if there is already a default adapter registered.
+   * @param intf The interface adapter to use as the default.
+   */
+  bool 
+  InterfaceManager::setDefaultLookupInterface(InterfaceAdapterId intf)
+  {
+    if (!m_defaultLookupInterface.isNoId())
+      {
+	debugMsg("InterfaceManager:setDefaultLookupInterface",
+		 " attempt to overwrite default lookup interface adapter " << m_defaultLookupInterface);
+	return false;
+      }
+    m_defaultLookupInterface = intf;
+    m_adapters.insert(intf);
+    debugMsg("InterfaceManager:setDefaultLookupInterface",
+	     " setting default lookup interface " << intf);
+    return true;
+  }
+
 
   /**
    * @brief Removes the adapter and deletes it iff nothing refers to it.
@@ -1146,6 +1192,8 @@ namespace PLEXIL
   {
     // Check the easy places first
     if (intf == m_defaultInterface
+	|| intf == m_defaultCommandInterface
+	|| intf == m_defaultLookupInterface
         || intf == m_plannerUpdateInterface)
       return;
 
@@ -1179,6 +1227,8 @@ namespace PLEXIL
     m_functionMap.clear();
     m_plannerUpdateInterface = InterfaceAdapterId::noId();
     m_defaultInterface = InterfaceAdapterId::noId();
+    m_defaultCommandInterface = InterfaceAdapterId::noId();
+    m_defaultLookupInterface = InterfaceAdapterId::noId();
   }
 
   /**
@@ -1265,6 +1315,32 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Retract registration of the previous default interface adapter for commands.
+   */
+  void
+  InterfaceManager::unsetDefaultCommandInterface()
+  {
+    debugMsg("InterfaceManager:unsetDefaultCommandInterface",
+	     " removing default command interface");
+    InterfaceAdapterId intf = m_defaultCommandInterface;
+    m_defaultCommandInterface = InterfaceAdapterId::noId();
+    deleteIfUnknown(intf);
+  }
+
+  /**
+   * @brief Retract registration of the previous default interface adapter for lookups.
+   */
+  void
+  InterfaceManager::unsetDefaultLookupInterface()
+  {
+    debugMsg("InterfaceManager:unsetDefaultLookupInterface",
+	     " removing default lookup interface");
+    InterfaceAdapterId intf = m_defaultLookupInterface;
+    m_defaultLookupInterface = InterfaceAdapterId::noId();
+    deleteIfUnknown(intf);
+  }
+
+  /**
    * @brief Return the interface adapter in effect for this command, whether 
    specifically registered or default. May return NoId().
    * @param commandName The command.
@@ -1281,6 +1357,15 @@ namespace PLEXIL
 		 << " for command '" << commandName.toString() << "'");
 	return (*it).second;
       }
+    // check default command i/f
+    if (m_defaultCommandInterface.isId())
+      {
+	debugMsg("InterfaceManager:getCommandInterface",
+		 " returning default command interface " << m_defaultCommandInterface
+		 << " for command '" << commandName.toString() << "'");
+	return m_defaultCommandInterface;
+      }
+    // fall back on default default
     debugMsg("InterfaceManager:getCommandInterface",
 	     " returning default interface " << m_defaultInterface
 	     << " for command '" << commandName.toString() << "'");
@@ -1327,6 +1412,15 @@ namespace PLEXIL
 		 << " for lookup '" << stateName.toString() << "'");
 	return (*it).second;
       }
+    // try defaults
+    if (m_defaultLookupInterface.isId())
+      {
+	debugMsg("InterfaceManager:getLookupInterface",
+		 " returning default lookup interface " << m_defaultLookupInterface
+		 << " for lookup '" << stateName.toString() << "'");
+	return m_defaultLookupInterface;
+      }
+    // try default defaults
     debugMsg("InterfaceManager:getLookupInterface",
 	     " returning default interface " << m_defaultInterface
 	     << " for lookup '" << stateName.toString() << "'");
@@ -1340,6 +1434,24 @@ namespace PLEXIL
   InterfaceManager::getDefaultInterface()
   {
     return m_defaultInterface;
+  }
+
+  /**
+   * @brief Return the current default interface adapter for commands. May return NoId().
+   */
+  InterfaceAdapterId 
+  InterfaceManager::getDefaultCommandInterface()
+  {
+    return m_defaultCommandInterface;
+  }
+
+  /**
+   * @brief Return the current default interface adapter for lookups. May return NoId().
+   */
+  InterfaceAdapterId 
+  InterfaceManager::getDefaultLookupInterface()
+  {
+    return m_defaultLookupInterface;
   }
 
   /**
@@ -1361,7 +1473,7 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register the given resource arbiter interface forr all commands
+   * @brief Register the given resource arbiter interface for all commands
    Returns true if successful.
    Fails and returns false if there is already an interface registered.
    * @param raIntf The resource arbiter interface to use as the default.

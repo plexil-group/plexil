@@ -66,7 +66,7 @@ namespace PLEXIL
 
     /**
      * @brief Register the given interface adapter based on its configuration XML.  
-     * @param adapter The interface adapter to handle this command.
+     * @param adapter The interface adapter.
      */
 
     virtual void defaultRegisterAdapter(InterfaceAdapterId adapter) = 0;
@@ -125,6 +125,28 @@ namespace PLEXIL
     virtual bool setDefaultInterface(InterfaceAdapterId intf) = 0;
 
     /**
+     * @brief Register the given interface adapter as the default for commands.
+              This interface will be used for all commands which do not have
+	      a specific adapter.  
+              Returns true if successful.
+	      Fails and returns false if there is already a default command adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    virtual bool setDefaultCommandInterface(InterfaceAdapterId intf) = 0;
+
+    /**
+     * @brief Register the given interface adapter as the default for lookups.
+              This interface will be used for all lookups which do not have
+	      a specific adapter.  
+              Returns true if successful.
+	      Fails and returns false if there is already a default lookup adapter registered.
+     * @param intf The interface adapter to use as the default.
+     * @return True if successful, false if there is already a default adapter registered.
+     */
+    virtual bool setDefaultLookupInterface(InterfaceAdapterId intf) = 0;
+
+    /**
      * @brief Retract registration of the previous interface adapter for this command.  
      * @param commandName The command.
      */
@@ -153,11 +175,27 @@ namespace PLEXIL
     virtual void unsetDefaultInterface() = 0;
 
     /**
+     * @brief Retract registration of the previous default interface adapter for commands.
+     */
+    virtual void unsetDefaultCommandInterface() = 0;
+
+    /**
+     * @brief Retract registration of the previous default interface adapter for lookups.
+     */
+    virtual void unsetDefaultLookupInterface() = 0;
+
+    /**
      * @brief Return the interface adapter in effect for this command, whether 
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
     virtual InterfaceAdapterId getCommandInterface(const LabelStr & commandName) = 0;
+
+    /**
+     * @brief Return the current default interface adapter for commands.
+              May return NoId().
+     */
+    virtual InterfaceAdapterId getDefaultCommandInterface() = 0;
 
     /**
      * @brief Return the interface adapter in effect for this function, whether 
@@ -177,6 +215,12 @@ namespace PLEXIL
      * @brief Return the current default interface adapter. May return NoId().
      */
     virtual InterfaceAdapterId getDefaultInterface() = 0;
+
+    /**
+     * @brief Return the current default interface adapter for lookups.
+              May return NoId().
+     */
+    virtual InterfaceAdapterId getDefaultLookupInterface() = 0;
 
     /**
      * @brief Register the given resource arbiter interface for all commands
