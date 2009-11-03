@@ -10,3 +10,4 @@ default:
 clean:
 	@ ( cd TestExec; jam $@ )
 	@ $(MAKE) -C StandAloneSimulator $@
+#	@ (cd TestMultiExec ; jam $@)

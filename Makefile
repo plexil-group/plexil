@@ -48,6 +48,12 @@ TestExecSAS: luv
 	(cd apps/TestExecSAS; ./build.sh)
 	$(MAKE) -C apps/StandAloneSimulator plexilsim
 
+#TestMultiExec: luv
+#	(cd universal-exec; jam)
+#	$(MAKE) -C interfaces all
+#	(cd app-framework; jam)
+#	(cd apps/TestMultiExec; jam)
+
 # The following targets apply only when the UE is being used with an
 # ACE/TAO Corba installation.
 
