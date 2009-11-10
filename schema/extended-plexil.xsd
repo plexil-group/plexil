@@ -86,6 +86,7 @@
         <xsd:element ref="PreconditionFailed"/>
         <xsd:element ref="PostconditionFailed"/>
         <xsd:element ref="ParentFailed"/>
+        <xsd:element ref="MessageReceived"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
@@ -322,5 +323,9 @@
   <xsd:element name="PreconditionFailed" type="node-reference"/>
   <xsd:element name="PostconditionFailed" type="node-reference"/>
   <xsd:element name="ParentFailed" type="node-reference"/>
+
+  <!-- Support for message passing between executives (not yet released) -->
+
+  <xsd:element name="MessageReceived" type= "xsd:string"/>
 
 </xsd:schema>

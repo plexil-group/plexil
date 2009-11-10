@@ -1,0 +1,8 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Node NodeType= "NodeList">
+    <NodeId>Root</NodeId>
+    <StartCondition>
+      <MessageReceived>hello there</MessageReceived>
+    </StartCondition>
+  </Node>
+</PlexilPlan>

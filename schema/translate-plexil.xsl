@@ -818,6 +818,16 @@
   </AND>
 </xsl:template>
 
+<!-- Support for message passing between executives (not yet released) -->
+
+<xsl:template match= "MessageReceived">
+  <LookupOnChange>
+    <Name>
+      <StringValue><xsl:value-of select= "'MESSAGE__', ." separator=""/></StringValue>
+    </Name>
+  </LookupOnChange>
+</xsl:template>
+
 <xsl:template name= "node-finished">
   <xsl:param name= "id" select="*"/>
   <xsl:call-template name= "node-state-check">
