@@ -17,7 +17,8 @@ clean:
 	@ cd standard-plexil; jam $@
 	@ cd luv; ant $@
 	@ cd interfaces; jam $@
-	- $(MAKE) -C interfaces/lcm $@
+# KMD: there is no 'clean' target here
+#	- $(MAKE) -C interfaces/lcm $@
 	@ $(MAKE) -C apps $@
 	@ cd app-framework; jam $@
 	@ cd checker; ant $@
