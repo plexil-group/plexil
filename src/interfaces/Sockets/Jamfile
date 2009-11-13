@@ -2,8 +2,15 @@ SubDir interfaces Sockets ;
 
 if ! $(PLEXIL_INTFCS_READY) {
 
+SubDirC++Flags -Wno-unknown-pragmas -Wno-format -DTIXML_USE_STL ;
+
 Module Sockets ;
 
-SubInclude interfaces Sockets base ;
+ModuleCore Sockets
+	:
+        Socket.cpp 
+        ClientSocket.cpp 
+        ServerSocket.cpp 
+	;
 
 } # PLEXIL_INTFCS_READY
