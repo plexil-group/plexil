@@ -1,7 +1,0 @@
-SubDir universal-exec TinyXml documentation ;
-
-if ! $(PLEXIL_READY) {
-
-ModuleDocumentation PlexilTinyXml ;
-
-} # PLEXIL_READY
