@@ -305,7 +305,13 @@ namespace PLEXIL
      */
     bool getStateKey(const State& state, StateKey& stateKey);
 
+    //
+    // Shared member variables
+    //
+
     AdapterExecInterface& m_execInterface;
+
+    std::map<StateKey, std::set<LookupKey> > m_asynchLookups;
 
   private:
 
@@ -321,8 +327,6 @@ namespace PLEXIL
     const TiXmlElement * m_xml;
 
     InterfaceAdapterId m_id;
-
-    std::map<StateKey, std::set<LookupKey> > m_asynchLookups;
   };
 
   typedef Id<InterfaceAdapter> InterfaceAdapterId;
