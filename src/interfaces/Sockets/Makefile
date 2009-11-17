@@ -1,7 +1,7 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY		= exec
+LIBRARY		= PlexilSockets
 
 # External dependencies
 INC_DIRS	+=
