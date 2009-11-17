@@ -18,22 +18,27 @@
 
 ##### Wrapup defs
 
-TEMPOBJ = $(SRC:.cc=.o)
-OBJ     = $(TEMPOBJ:.cc=.o)
+# This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
+OBJ     = $(addsuffix .o,$(basename $(SRC)))
 DIRT    = $(OBJ) Makedepend
-ARCHIVE = $(LIBRARY).a
-DYLIB     = $(LIBRARY).dylib
+ARCHIVE = lib$(LIBRARY).a
+SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
-default: dylib
+ifneq ($(PLEXIL_SHARED),)
+default: shlib
+endif
+ifneq ($(PLEXIL_STATIC),)
+default: archive
+endif
 
 archive: $(ARCHIVE)
 
-dylib: $(DYLIB)
+shlib: $(SHLIB)
 
 ##### Delete all products of compilation and dependency list.
 
 clean: dust
-	@ $(RM) $(ARCHIVE) $(DYLIB)
+	@ $(RM) $(ARCHIVE) $(SHLIB)
 
 ##### Delete extraneous by-products of compilation.
 
@@ -95,10 +100,9 @@ dust-all: dust
 $(ARCHIVE): $(OBJ)
 	$(AR) -o $(ARCHIVE) $?
 
-# KMD: need correct command line options!
-## Build a shared library (DYLIB, .dylib file)
-$(DYLIB): $(OBJ)
-	$(CC) -o $(DYLIB) -shared $(OBJ)
+## Build a shared library (SHLIB)
+$(SHLIB): $(OBJ)
+	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(SHLIB) $(OBJ)
 
 ##### SVN conveniences
 
