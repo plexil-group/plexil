@@ -20,7 +20,7 @@
 
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
-DIRT    = $(OBJ) Makedepend
+DIRT    = $(OBJ)
 ARCHIVE = lib$(LIBRARY).a
 SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
@@ -38,19 +38,20 @@ shlib: $(SHLIB)
 ##### Delete all products of compilation and dependency list.
 
 clean: dust
-	@ $(RM) $(ARCHIVE) $(SHLIB)
+	$(RM) $(ARCHIVE) $(SHLIB) Makedepend
 
 ##### Delete extraneous by-products of compilation.
 
 dust:
-	@ $(RM) $(DIRT)
-	@ touch Makedepend
+	$(RM) $(DIRT)
 
 ##### Rebuild the dependency list.
 # NOTE: 'make' does not support automatic dependency updating like 'smake'
 
-depend: $(SRC) $(INC)
-	$(DEPEND) $(INCLUDES) -- $?
+depend: Makedepend
+
+Makedepend: $(SRC) $(INC)
+	$(DEPEND) $(INCLUDES) $(SRC)
 	@ echo
 
 ##### Rebuild an Emacs tags table (the TAGS file).
@@ -97,11 +98,11 @@ dust-all: dust
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
 
-$(ARCHIVE): $(OBJ)
+$(ARCHIVE): depend $(OBJ)
 	$(AR) -o $(ARCHIVE) $?
 
 ## Build a shared library (SHLIB)
-$(SHLIB): $(OBJ)
+$(SHLIB): depend $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(SHLIB) $(OBJ)
 
 ##### SVN conveniences

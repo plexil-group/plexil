@@ -30,7 +30,7 @@ RM		= /bin/rm -fr
 LN		= /bin/ln -s
 # Directory list
 LS              = /bin/ls
-DEPEND		= makedepend -f Makedepend
+DEPEND		= $(CXX) -MM -MF Makedepend
 TAG		= etags -t
 # Move a file
 MV              = /bin/mv
@@ -68,7 +68,7 @@ STANDARD_CXXFLAGS	:= -DTIXML_USE_STL
 
 # Include path
 INC_DIRS	= .
-INCLUDES	= $(foreach incdir,$(INC_DIRS),-I$(incdir))
+INCLUDES	= $(addprefix -I,$(INC_DIRS))
 
 # Compiler flags for shared libraries
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
