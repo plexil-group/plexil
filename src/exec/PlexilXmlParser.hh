@@ -91,7 +91,7 @@ namespace PLEXIL
       throw(ParserException);
     static PlexilInterfaceId parseInterface(const TiXmlElement* intf)
        throw(ParserException);
-    static void parseInOrInOut(TiXmlElement* inOrInOut, 
+    static void parseInOrInOut(const TiXmlElement* inOrInOut, 
                                PlexilInterfaceId& interface, bool isInOut)
       throw(ParserException);
     static void parseDeclarations(const TiXmlElement* decls, PlexilNodeId& node)

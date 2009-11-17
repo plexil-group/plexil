@@ -114,7 +114,7 @@ namespace PLEXIL {
                                double& value);
 
     void parseParams(const TiXmlElement& root, std::vector<double>& dest);
-    double parseValues(std::string type, TiXmlElement* valXml);
+    double parseValues(std::string type, const TiXmlElement* valXml);
     double parseValue(std::string type, std::string valStr);
     //bool handleStateChange(const UniqueThing& state, double value);
     //bool updateState(const LabelStr& name, const std::list<double>& args, const double value);

@@ -60,9 +60,9 @@ namespace PLEXIL
    {
       checkError(m_exec.isValid(), "Attempted to run a script without an executive.");
       handleInitialState(input);
-      TiXmlElement* script = input.FirstChildElement("Script");
+      const TiXmlElement* script = input.FirstChildElement("Script");
       checkError(script != NULL, "No Script element in script...");
-      TiXmlElement* scriptElement = script->FirstChildElement();
+      const TiXmlElement* scriptElement = script->FirstChildElement();
       while (scriptElement != NULL)
       {
          //bool stepExec = false;
@@ -216,7 +216,7 @@ namespace PLEXIL
 
          else if (strcmp(scriptElement->Value(), "Simultaneous") == 0)
          {
-            TiXmlElement* stateUpdates = scriptElement->FirstChildElement("State");
+            const TiXmlElement* stateUpdates = scriptElement->FirstChildElement("State");
             while (stateUpdates != NULL)
             {
                
@@ -269,13 +269,13 @@ namespace PLEXIL
 
    void TestExternalInterface::handleInitialState(const TiXmlElement& input)
    {
-      TiXmlElement* initialState = input.FirstChildElement("InitialState");
+      const TiXmlElement* initialState = input.FirstChildElement("InitialState");
       if (initialState != NULL)
       {
          LabelStr name;
          double value;
          std::vector<double> args;
-         TiXmlElement* state = initialState->FirstChildElement("State");
+         const TiXmlElement* state = initialState->FirstChildElement("State");
          while (state != NULL)
          {
             args.clear();
@@ -305,7 +305,7 @@ namespace PLEXIL
       checkError(state.Attribute("type") != NULL,
                  "No type attribute in <State> element.");
       std::string type(state.Attribute("type"));
-      TiXmlElement* valXml = state.FirstChildElement("Value");
+      const TiXmlElement* valXml = state.FirstChildElement("Value");
       checkError(valXml != NULL, "No Value child in State element.");
       checkError(valXml->FirstChild() != NULL,
                  "Empty Value child in State element.");
@@ -330,7 +330,7 @@ namespace PLEXIL
       checkError(cmd.Attribute("type") != NULL, "No type attribute in <Command> element.");
       std::string type(cmd.Attribute("type"));
 
-      TiXmlElement* resXml = cmd.FirstChildElement("Result");
+      const TiXmlElement* resXml = cmd.FirstChildElement("Result");
       checkError(resXml != NULL, "No Result child in Command element.");
       checkError(resXml->FirstChild() != NULL, "Empty Result child in Command element.");
 
@@ -357,7 +357,7 @@ namespace PLEXIL
                  "No type attribute in <FunctionCall> element.");
       std::string type(cmd.Attribute("type"));
 
-      TiXmlElement* resXml = cmd.FirstChildElement("Result");
+      const TiXmlElement* resXml = cmd.FirstChildElement("Result");
       checkError(resXml != NULL, "No Result child in FunctionCall element.");
       checkError(resXml->FirstChild() != NULL, 
                  "Empty Result child in FunctionCall element.");
@@ -372,7 +372,7 @@ namespace PLEXIL
    void TestExternalInterface::parseParams(const TiXmlElement& root, 
                                            std::vector<double>& dest)
    {
-      TiXmlElement* param = root.FirstChildElement("Param");
+      const TiXmlElement* param = root.FirstChildElement("Param");
 
       while (param != NULL)
       {
@@ -400,7 +400,7 @@ namespace PLEXIL
    }
 
    double TestExternalInterface::parseValues(std::string type, 
-                                             TiXmlElement* valXml)
+                                             const TiXmlElement* valXml)
    {
       // read in values
 
