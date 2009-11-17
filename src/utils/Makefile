@@ -9,9 +9,9 @@ LIB_PATH	+= ../../third-party/tinyxml
 LIBS		+= tinyxml
 
 SRC = $(wildcard *.cc)
-INC = $(SRC:.cc=.hh) CommonDefs.hh Id.hh TestSupport.hh sstream
+INC = $(SRC:.cc=.hh) CommonDefs.hh Id.hh TestSupport.hh
 
 SVN_FILES       = Makefile $(SRC) $(INC)
 
 include ../../makeinclude/standard-targets.make
-include Makedepend
+-include Makedepend
