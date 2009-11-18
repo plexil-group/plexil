@@ -1,15 +1,15 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY		= PlexilUtils
+LIBRARY		= LuvListener
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml
+INC_DIRS	+= ../Sockets ../../../third-party/tinyxml ../../utils ../../exec 
 LIB_PATH	+=
-LIBS		+= tinyxml
+LIBS		+= PlexilSockets tinyxml PlexilUtils PlexilExec
 
-SRC = $(wildcard *.cc)
-INC = $(SRC:.cc=.hh) CommonDefs.hh Id.hh TestSupport.hh
+SRC = LuvListener.cc
+INC = LuvListener.hh
 
 SVN_FILES       = Makefile $(SRC) $(INC)
 
