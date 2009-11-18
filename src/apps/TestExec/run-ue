@@ -60,17 +60,17 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 #3) universal-exec, and 
 #4) interfaces
 if [ $UE_EXECUTABLE ]
-  then
+then
     prog=$UE_EXECUTABLE
-  elif [ -f $PLEXIL_HOME/apps/TestExec/test-exec_g_rt ]  # DEV MODE
-  then
-    prog=$PLEXIL_HOME/apps/TestExec/test-exec_g_rt
-  elif [ -f $PLEXIL_HOME/apps/TestExec/test-exec_o_rt ]  # OPTIMIZED MODE
-  then
-    prog=$PLEXIL_HOME/apps/TestExec/test-exec_o_rt
-  elif [ -f $PLEXIL_HOME/apps/TestExec/test-exec_o_p_rt ]  # PROFILE MODE
-  then
-    prog=$PLEXIL_HOME/apps/TestExec/test-exec_o_p_rt
+elif [ -f $PLEXIL_HOME/bin/TestExec ]
+then
+    prog=$PLEXIL_HOME/bin/TestExec
+elif [ -f $PLEXIL_HOME/src/apps/TestExec/TestExec ]
+then
+    prog=$PLEXIL_HOME/src/apps/TestExec/TestExec
+else
+    echo "UE executable not found, aborting"
+    exit 1
 fi
 
 $PLEXIL_HOME/bin/plexil-check-prog $prog
@@ -179,7 +179,7 @@ if [ ! -e $plan ]
 fi
 
 # Default simulation script
-script=$PLEXIL_HOME/apps/TestExec/scripts/empty-script.plx
+script=$PLEXIL_HOME/src/apps/TestExec/scripts/empty-script.plx
 
 # The plan file's extension, used to compute guessed script name.
 ext=".`echo $plan | awk -F. '{print $2}'`"
