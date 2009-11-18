@@ -781,9 +781,9 @@ PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
 	retval->setNodeType(*(xml->Attribute(NODETYPE_ATTR)));
 
 	// file name, line, col optional
-	const char* fname = xml->Attribute(FILENAME_ATTR)->c_str();
+	const std::string* fname = xml->Attribute(FILENAME_ATTR);
 	if (fname != NULL)
-		retval->setFileName(fname);
+	  retval->setFileName(fname->c_str());
 	int line = 0;
 	xml->Attribute(LINENO_ATTR, &line);
 	if (line != 0)
