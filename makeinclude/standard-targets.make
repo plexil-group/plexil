@@ -50,12 +50,12 @@ executable $(PLEXIL_HOME)/bin/$(EXECUTABLE): $(EXECUTABLE)
 
 ##### Delete all products of compilation and dependency list.
 
-clean: dust
+localclean: localdust
 	$(RM) $(ARCHIVE) $(SHLIB) $(EXECUTABLE) Makedepend
 
 ##### Delete extraneous by-products of compilation.
 
-dust:
+localdust:
 	$(RM) $(DIRT)
 
 ##### Rebuild the dependency list.
@@ -84,25 +84,25 @@ tags:	$(SVN_FILES)
 all: default test
 
 ## Build test directory
-test: $(OBJ)
-	@ if [ -d test  ]; \
-		then \
-	                cd test; $(MAKE) ; \
-	  fi
+test: default
+	@ if [ -d test ]; \
+	then \
+		$(MAKE) -C test ; \
+	fi
 
 ## Clean module and test directories
-cleanall: clean
-	@ if [ -d test  ]; \
-		then \
-	                cd test; $(MAKE) clean; \
-	  fi
+clean: localclean
+	@ if [ -d test ]; \
+	then \
+		$(MAKE) -C test clean; \
+	fi
 
 ## Dust module and test directories
-dust-all: dust
-	@ if [ -d test  ]; \
-		then \
-	                cd test; $(MAKE) dust; \
-	  fi
+dust: localdust
+	@ if [ -d test ]; \
+	then \
+		$(MAKE) -C test dust; \
+	fi
 
 
 ##### Internal Targets  -- not typically invoked explicitly.
