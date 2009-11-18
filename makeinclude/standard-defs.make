@@ -105,13 +105,20 @@ CXXFLAGS	+= $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
 
 ##### Library support
 
-# Default name for library.  Must be redefined to be useful.
-LIBRARY		= 
+# Names the library that will be the product of this make.
+# User must set this to be useful.
+LIBRARY		=
 
-LIB_PATH	=
+LIB_PATH	= $(PLEXIL_HOME)/lib
 LIB_PATH_FLAGS	= $(foreach libdir,$(LIB_PATH),$(LIBRARY_PATH_SEARCH_FLAG)$(libdir))
 LIBS		=
 LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
+
+##### Executable support
+
+# Names the executable that will be the product of this make.
+# User must set this to be useful.
+EXECUTABLE	=
 
 #
 # Linker

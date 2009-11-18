@@ -24,21 +24,34 @@ DIRT    = $(OBJ)
 ARCHIVE = lib$(LIBRARY).a
 SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
+ifneq ($(LIBRARY),)
 ifneq ($(PLEXIL_SHARED),)
 default: shlib
 endif
 ifneq ($(PLEXIL_STATIC),)
 default: archive
 endif
+else ifeq ($(EXECUTABLE),)
+$(error Neither LIBRARY nor EXECUTABLE supplied for this Makefile. Exiting.)
+endif
 
-archive: $(ARCHIVE)
+ifneq ($(EXECUTABLE),)
+default: executable
+endif
 
-shlib: $(SHLIB)
+archive $(PLEXIL_HOME)/lib/$(ARCHIVE): $(ARCHIVE)
+	$(CP) $(ARCHIVE) $(PLEXIL_HOME)/lib/
+
+shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
+	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
+
+executable $(PLEXIL_HOME)/bin/$(EXECUTABLE): $(EXECUTABLE)
+	$(CP) $(EXECUTABLE) $(PLEXIL_HOME)/bin/
 
 ##### Delete all products of compilation and dependency list.
 
 clean: dust
-	$(RM) $(ARCHIVE) $(SHLIB) Makedepend
+	$(RM) $(ARCHIVE) $(SHLIB) $(EXECUTABLE) Makedepend
 
 ##### Delete extraneous by-products of compilation.
 
@@ -104,6 +117,10 @@ $(ARCHIVE): depend $(OBJ)
 ## Build a shared library (SHLIB)
 $(SHLIB): depend $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(SHLIB) $(OBJ)
+
+## Build an executable
+$(EXECUTABLE): depend $(OBJ)
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(EXECUTABLE) $(OBJ)
 
 ##### SVN conveniences
 
