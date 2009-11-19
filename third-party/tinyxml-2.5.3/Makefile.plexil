@@ -1,11 +1,11 @@
 
-include ../../makeinclude/standard-defs.make
+include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY		= tinyxml
 
 # External dependencies
 INC_DIRS	+=
-LIB_PATH	+= 
+LIB_PATH	+=
 LIBS		+=
 
 SRC = tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp
@@ -13,5 +13,5 @@ INC = tinyxml.h tinystr.h
 
 SVN_FILES       = Makefile $(SRC) $(INC)
 
-include ../../makeinclude/standard-targets.make
+include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 include Makedepend
