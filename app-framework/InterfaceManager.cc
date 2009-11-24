@@ -144,7 +144,7 @@ namespace PLEXIL
         // to use below
         TiXmlNode* firstChild = element->FirstChild();
         TiXmlText* text = 0;
-        if (firstChild == 0)
+        if (firstChild != 0)
           text = firstChild->ToText();
 
         if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0)
