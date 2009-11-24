@@ -51,7 +51,7 @@ executable $(PLEXIL_HOME)/bin/$(EXECUTABLE): $(EXECUTABLE)
 ##### Delete all products of compilation and dependency list.
 
 localclean: localdust
-	$(RM) $(ARCHIVE) $(SHLIB) $(EXECUTABLE) Makedepend
+	-$(RM) $(ARCHIVE) $(SHLIB) $(EXECUTABLE) Makedepend
 
 ##### Delete extraneous by-products of compilation.
 
