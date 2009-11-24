@@ -13,7 +13,7 @@ INC = exec-test-module.hh
 
 SVN_FILES       = Makefile $(SRC) $(INC)
 
-test-utils: $(EXECUTABLE)
+test-exec-module: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
