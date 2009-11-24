@@ -172,9 +172,9 @@ namespace PLEXIL
   void NewLuvListener::sendPlanInfo() const
   {
     TiXmlElement planInfo(PLAN_INFO_TAG());
-    TiXmlElement block(VIEWER_BLOCKS_TAG());
-    block.InsertEndChild(TiXmlText(m_block ? TRUE_STR() : FALSE_STR()));
-    planInfo.InsertEndChild(block);
+    TiXmlElement* block = new TiXmlElement(VIEWER_BLOCKS_TAG());
+    block->LinkEndChild(new TiXmlText(m_block ? TRUE_STR() : FALSE_STR()));
+    planInfo.LinkEndChild(block);
     sendMessage(planInfo);
   }
 
@@ -190,33 +190,27 @@ namespace PLEXIL
 
     // add state
 
-    TiXmlElement state(NODE_STATE_TAG());
-    state.InsertEndChild(TiXmlText(node->getState().c_str()));
-    nodeStateUpdate.InsertEndChild(state);
+    TiXmlElement* state = new TiXmlElement(NODE_STATE_TAG());
+    state->LinkEndChild(new TiXmlText(node->getState().c_str()));
+    nodeStateUpdate.LinkEndChild(state);
 
     // add outcome
 
-    TiXmlElement outcome(NODE_OUTCOME_TAG());
-    outcome.InsertEndChild(TiXmlText(node->getOutcome().c_str()));
-    nodeStateUpdate.InsertEndChild(outcome);
+    TiXmlElement* outcome = new TiXmlElement(NODE_OUTCOME_TAG());
+    outcome->LinkEndChild(new TiXmlText(node->getOutcome().c_str()));
+    nodeStateUpdate.LinkEndChild(outcome);
 
     // add failure type
 
-    TiXmlElement failureType(NODE_FAILURE_TYPE_TAG());
-    failureType.InsertEndChild(TiXmlText(node->getFailureType().c_str()));
-    nodeStateUpdate.InsertEndChild(failureType);
+    TiXmlElement* failureType = new TiXmlElement(NODE_FAILURE_TYPE_TAG());
+    failureType->LinkEndChild(new TiXmlText(node->getFailureType().c_str()));
+    nodeStateUpdate.LinkEndChild(failureType);
       
     // add the condition states
-      
-    TiXmlElement conditions(CONDITIONS_TAG());
-    nodeStateUpdate.InsertEndChild(constructConditions(conditions, node));
-
+    nodeStateUpdate.LinkEndChild(constructConditions(NULL, node));
 
     // add the path
-      
-    TiXmlElement path(NODE_PATH_TAG());
-    constructNodePath(path, node);
-    nodeStateUpdate.InsertEndChild(path);
+    nodeStateUpdate.LinkEndChild(constructNodePath(NULL, node));
 
     // send it off
       
@@ -284,9 +278,7 @@ namespace PLEXIL
     if (node.isId())
       {
 	// get path to node
-	TiXmlElement* path = new TiXmlElement(NODE_PATH_TAG());
-	constructNodePath(*path, node);
-	varXml.InsertEndChild(path);
+	varXml.LinkEndChild(constructNodePath(NULL, node));
       }
     // get variable name
     TiXmlElement varName(VARIABLE_NAME_TAG());
@@ -297,7 +289,7 @@ namespace PLEXIL
     // format variable value
     TiXmlElement * valXml;
     // *** formatting NYI ***
-    assignXml.InsertEndChild(valXml);
+    assignXml.LinkEndChild(valXml);
     
     // send it to viewer
     sendMessage(assignXml);
@@ -309,33 +301,41 @@ namespace PLEXIL
    
   // given a node id establish the path from the root to that node
    
-  TiXmlNode& NewLuvListener::constructNodePath(TiXmlNode& path, 
+  TiXmlNode* NewLuvListener::constructNodePath(TiXmlNode* path, 
                                                const NodeId& node)
   {
+    // Construct path if not provided
+    if (path == NULL)
+      path = new TiXmlElement(NODE_PATH_TAG());
+
     if (node->getParent().isId())
-      constructNodePath(path, node->getParent());
-      
-    TiXmlElement nodeId(NODE_ID_TAG());
-    nodeId.InsertEndChild(TiXmlText(node->getNodeId().toString()));
-    path.InsertEndChild(nodeId);
+      constructNodePath(path, node->getParent()); // for effect
+
+    TiXmlElement* nodeId = new TiXmlElement(NODE_ID_TAG());
+    nodeId->LinkEndChild(new TiXmlText(node->getNodeId().toString()));
+    path->LinkEndChild(nodeId);
 
     return path;
   }
    
   // given a node id establish the state of the conditions for this node
    
-  TiXmlNode& NewLuvListener::constructConditions(TiXmlNode& conditions,
+  TiXmlNode* NewLuvListener::constructConditions(TiXmlNode* conditions,
                                                  const NodeId& node)
   {
+    // Construct conditions element if not provided
+    if (conditions == NULL)
+      conditions = new TiXmlElement(CONDITIONS_TAG());
+
     const std::set<double>& allConditions = node->ALL_CONDITIONS();
     for (std::set<double>::const_iterator 
            conditionName = allConditions.begin();
          conditionName != allConditions.end(); ++conditionName)
       {
         LabelStr name(*conditionName);
-        TiXmlElement condition(name.toString());
-        condition.InsertEndChild(TiXmlText(node->getCondition(name)->valueString()));
-        conditions.InsertEndChild(condition);
+        TiXmlElement* condition = new TiXmlElement(name.toString());
+        condition->LinkEndChild(new TiXmlText(node->getCondition(name)->valueString()));
+        conditions->LinkEndChild(condition);
       }
 
     return conditions;

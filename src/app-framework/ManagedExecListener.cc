@@ -45,7 +45,7 @@ namespace PLEXIL
   {
     if (xml != NULL)
       {
-        TiXmlElement * filterSpec = xml->FirstChildElement(InterfaceSchema::FILTER_TAG());
+        const TiXmlElement * filterSpec = xml->FirstChildElement(InterfaceSchema::FILTER_TAG());
         if (filterSpec != NULL)
           {
             // Construct specified event filter

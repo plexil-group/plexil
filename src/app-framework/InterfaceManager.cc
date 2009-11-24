@@ -136,14 +136,14 @@ namespace PLEXIL
   {
     // Walk the children of the configuration XML element
     // and register the adapter according to the data found there
-    TiXmlElement* element = adapter->getXml()->FirstChildElement();
+    const TiXmlElement* element = adapter->getXml()->FirstChildElement();
     while (element != 0)
       {
         const char* elementType = element->Value();
         // look for text as the only child of this element
         // to use below
-        TiXmlNode* firstChild = element->FirstChild();
-        TiXmlText* text = 0;
+        const TiXmlNode* firstChild = element->FirstChild();
+        const TiXmlText* text = 0;
         if (firstChild == 0)
           text = firstChild->ToText();
 
@@ -284,7 +284,7 @@ namespace PLEXIL
                    << *configXml);
         // Walk the children of the configuration XML element
         // and register the adapter according to the data found there
-        TiXmlElement* element = configXml->FirstChildElement();
+        const TiXmlElement* element = configXml->FirstChildElement();
         while (element != 0)
           {
             const char* elementType = element->Value();

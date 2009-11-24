@@ -191,9 +191,10 @@ namespace PLEXIL
     // Static helper methods
     //
 
-    static TiXmlNode& constructNodePath(TiXmlNode& path,
+    // N.B. These allocate the first argument if it is NULL.
+    static TiXmlNode* constructNodePath(TiXmlNode* path,
                                         const NodeId& node);
-    static TiXmlNode& constructConditions(TiXmlNode& conditions,
+    static TiXmlNode* constructConditions(TiXmlNode* conditions,
                                           const NodeId& node);
 
     //

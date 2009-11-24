@@ -24,6 +24,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//
+// *** Ignore this file on systems that implement POSIX timers
+//
+
+#if !defined(_POSIX_TIMERS) || (_POSIX_TIMERS - 200112L) < 0L
+
 #include "DarwinTimeAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
@@ -364,3 +370,5 @@ namespace PLEXIL
   }
 
 }
+
+#endif // !defined(_POSIX_TIMERS) || (_POSIX_TIMERS - 200112L) < 0L
