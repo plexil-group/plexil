@@ -57,10 +57,10 @@ class ResponseBase;
 class ResponseFactory
 {
 public:
-  ResponseFactory(){}
-  virtual ~ResponseFactory(){}
+  ResponseFactory();
+  virtual ~ResponseFactory();
   virtual ResponseBase* parse(const std::string& cmdName, timeval tDelay, 
-                              std::istream& inStr) = 0;
+                              std::istream& inStr);
 private:
 };
 
