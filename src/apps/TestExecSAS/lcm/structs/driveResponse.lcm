@@ -1,4 +1,0 @@
-struct driveResponse
-{
- int32_t retValue;
-}
