@@ -1,0 +1,6 @@
+struct genericResponse
+{
+ string name;
+ int32_t number;
+ double retValue[number];
+}

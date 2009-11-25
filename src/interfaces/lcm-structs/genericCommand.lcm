@@ -1,0 +1,4 @@
+struct genericCommand
+{
+  string name;
+}
