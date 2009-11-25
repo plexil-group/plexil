@@ -1054,7 +1054,7 @@
 
 (pdefine pl (MessageReceived message-received) (m) 1 nil  ; string -> xml
   "Was the given message received? (NOT supported yet)"
-  (xml "MessageReceived" (concat "MESSAGE__" m)))
+  (xml "MessageReceived" m))
 
 (insert-plexil-heading
  "=== Conditionals and Loops ==="
