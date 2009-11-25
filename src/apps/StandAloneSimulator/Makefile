@@ -1,76 +1,28 @@
-SRC_DIR   = .
 
-LIB_DIR   = lib
-OBJ_DIR   = objs
+include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIB_NAME = standalonesimulator
+LIBRARY = standalonesimulator
 
-#OSTYPE ?= $(shell uname -s)
-OSTYPE = $(shell uname -s 2>/dev/null | tr [:lower:] [:upper:])
-MACHTYPE ?= $(shell uname -p)
-
-CXX     = g++
-OBJ_EXT = .o
-CXXFLAGS += -g -Wall -fno-rtti -Wno-deprecated
-ifdef NOT_SHARED
- LIB_EXT = .a
-else
- LIB_EXT = .so
- ifeq ($(findstring DARWIN, $(OSTYPE)), DARWIN)
-  SHARED_LIB_FLAGS += -dynamiclib -Wl
-  SHARED_OBJ_FLAGS += -fPIC
- else
-  SHARED_LIB_FLAGS += -z combreloc -shared -Wl
-  SHARED_OBJ_FLAGS += -fpic
- endif
-endif
-
-LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
-
-LIB_OBJECTS = $(OBJ_DIR)/SimulatorScriptReader$(OBJ_EXT) \
-	      $(OBJ_DIR)/Simulator$(OBJ_EXT) \
-	      $(OBJ_DIR)/ResponseMessageManager$(OBJ_EXT) \
-	      $(OBJ_DIR)/TimingService$(OBJ_EXT)
-
+SRC = $(wildcard *.cc)
+INC = $(wildcard *.hh)
 
 ############################
 # Rules to build the targets
 
-all : simcore plexilsim
+all : default plexilsim
 
-plexilsim : simcore
+plexilsim : default
 	$(MAKE) -C PlexilSimulator
 
-robosim : simcore
+robosim : default
 	$(MAKE) -C RoboSimSimulator
-
-simcore : $(LIB_DIR)/$(LIB_TARGET)
-
-ifdef NOT_SHARED
-$(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
-	$(AR) ruc $@ $(LIB_OBJECTS)
-else
-$(LIB_DIR)/$(LIB_TARGET) : $(OBJ_DIR) $(LIB_DIR) $(LIB_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(SHARED_OBJ_FLAGS) $(SHARED_LIB_FLAGS) -o $@ $(LIB_OBJECTS)
-endif
-
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(SHARED_OBJ_FLAGS) -c $< -o $@
-
-#########################################
-# Rules that make the directory structure
-
-$(OBJ_DIR) :
-	-mkdir -p $@
-
-$(LIB_DIR) :
-	-mkdir -p $@
 
 ###################
 # Rules to clean up
 
-clean:
-	@ -rm -rf $(OBJ_DIR)
-	@ -rm -rf $(LIB_DIR)
-	@ $(MAKE) -C RoboSimSimulator $@
-	@ $(MAKE) -C PlexilSimulator $@
+localclean:
+	$(MAKE) -C RoboSimSimulator $@
+	$(MAKE) -C PlexilSimulator $@
+
+include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+-include Makedepend
