@@ -25,8 +25,9 @@
 
 
 ;;; PlexiLisp -- An Emacs Lisp based syntax and XML generator for PLEXIL
-;;; plans and simulation scripts.  Described in full on its wiki:
-;;;   http://universalexec.wiki.sourceforge.net/PlexiLisp
+;;; plans and simulation scripts.  Described in full on its wiki at
+;;;   http://plexil.sourceforge.net
+;;; Click on Plexilisp in the navigation bar on the left.
 
 ;;; Basic instructions:
 ;;;    Write a plan or script in PlexiLisp
@@ -200,6 +201,11 @@
 
 
 ;;; Document Generation
+;;; This code generates its own reference manual, in wiki format.  
+
+;;; NOTE!!! This currently generates WikiSpaces format.
+;;; Sourceforge moved to MediaWiki.  We'll make the needed
+;;; changes (minor) soon.
 
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
@@ -1044,6 +1050,11 @@
 (pdefine pl (ParentFailed parent-failed) (id) 1 nil
   "Did the parent of the given action fail?"
   (xml "ParentFailed" (plexil-nodeid id)))
+
+
+(pdefine pl (MessageReceived message-received) (m) 1 nil  ; string -> xml
+  "Was the given message received? (NOT supported yet)"
+  (xml "MessageReceived" (concat "MESSAGE__" m)))
 
 (insert-plexil-heading
  "=== Conditionals and Loops ==="
