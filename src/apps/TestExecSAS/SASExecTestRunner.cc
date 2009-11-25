@@ -146,9 +146,9 @@ namespace PLEXIL
     // Add dummy element for LuvListener
     if (luvRequest)
       {
-	configElt->InsertEndChild(NewLuvListener::constructConfigurationXml(luvBlock,
-									    luvHost.c_str(), 
-									    luvPort));
+	configElt->LinkEndChild(NewLuvListener::constructConfigurationXml(luvBlock,
+									  luvHost.c_str(), 
+									  luvPort));
       }
 
     // initialize application
