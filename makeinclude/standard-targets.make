@@ -31,8 +31,8 @@ endif
 ifneq ($(PLEXIL_STATIC),)
 default: archive
 endif
-else ifeq ($(EXECUTABLE),)
-$(error Neither LIBRARY nor EXECUTABLE supplied for this Makefile. Exiting.)
+#else ifeq ($(EXECUTABLE),)
+#$(error Neither LIBRARY nor EXECUTABLE supplied for this Makefile. Exiting.)
 endif
 
 ifneq ($(EXECUTABLE),)
@@ -45,7 +45,9 @@ archive $(PLEXIL_HOME)/lib/$(ARCHIVE): $(ARCHIVE)
 shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
 	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
 
-executable $(PLEXIL_HOME)/bin/$(EXECUTABLE): $(EXECUTABLE)
+# handle case of multiple targets in EXECUTABLE
+# see src/interfaces/Sockets/test/Makefile
+executable $(foreach exec,$(EXECUTABLE),$(PLEXIL_HOME)/bin/$(exec)): $(EXECUTABLE)
 	$(CP) $(EXECUTABLE) $(PLEXIL_HOME)/bin/
 
 ##### Delete all products of compilation and dependency list.

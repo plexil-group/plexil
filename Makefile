@@ -22,7 +22,7 @@ LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener
 
 luv:
-	(cd luv && ant jar)
+	(cd src/luv && ant jar)
 
 app-framework: exec-core sockets
 	$(MAKE) -C src/app-framework
@@ -47,11 +47,9 @@ clean:
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
 	$(MAKE) -C src/apps/TestExecSAS $@
-	(cd standard-plexil && jam $@)
-	(cd luv && ant $@)
-# KMD: there is no 'clean' target here
-#	- $(MAKE) -C interfaces/lcm $@
-	(cd checker && ant $@)
+	(cd src/standard-plexil && jam $@)
+	(cd src/luv && ant $@)
+	(cd src/checker && ant $@)
 	@ echo Done.
 
 # Convenience targets

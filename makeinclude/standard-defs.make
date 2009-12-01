@@ -74,7 +74,7 @@ INCLUDES	= $(addprefix -I,$(INC_DIRS))
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
 
 # Compiler flags for debug builds
-DEBUG_FLAGS	:= -gfull -g3
+DEBUG_FLAGS	:= -g3
 WARNING_FLAGS	:= -Wall
 
 # Compiler flags for profiling
