@@ -37,7 +37,7 @@
 #include "PlexilXmlParser.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
-#include "RoboSimInterfaceAdaptor.hh"
+#include "RoboSimInterfaceAdapter.hh"
 #include "LuvListener.hh"
 #include "SocketException.h"
 
@@ -113,10 +113,10 @@ int main (int argc, char** argv)
    // Clear interface queue before loading plan
    _plxl_interface.resetQueue();
    
-   RoboSimInterfaceAdaptor* _plxl_adaptor = 
-     new RoboSimInterfaceAdaptor(_plxl_interface, "RoboSimExec", ipAddress, portNumber);
+   RoboSimInterfaceAdapter* _plxl_adapter = 
+     new RoboSimInterfaceAdapter(_plxl_interface, "RoboSimExec", ipAddress, portNumber);
 
-   _plxl_interface.setDefaultInterface(_plxl_adaptor->getId());
+   _plxl_interface.setDefaultInterface(_plxl_adapter->getId());
 
    if (planName != "error")
    {
@@ -170,6 +170,6 @@ int main (int argc, char** argv)
    // clean up
 
    delete (PLEXIL::PlexilExec*) exec;
-   delete _plxl_adaptor;
+   delete _plxl_adapter;
    return 0;
 }
