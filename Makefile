@@ -31,7 +31,7 @@ TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
 TestExecSAS: exec-core app-framework sockets luv
-	$(MAKE) -c src/apps/TestExecSAS
+	$(MAKE) -C src/apps/TestExecSAS
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
 all: TestExec TestExecSAS standard-plexil checker
@@ -55,7 +55,7 @@ clean:
 # Convenience targets
 
 standard-plexil:
-	(cd standard-plexil && jam)
+	(cd src/standard-plexil && jam)
 
 #TestMultiExec: luv
 #	(cd universal-exec; jam)
