@@ -6,7 +6,7 @@ EXECUTABLE	= TestExec
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../../interfaces/Sockets ../../interfaces/LuvListener  ../../utils ../../exec
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilSockets LuvListener PlexilUtils PlexilExec
+LIBS		+= tinyxml PlexilSockets LuvListener PlexilUtils PlexilExec $(PTHREAD_LIB)
 
 SRC = ExecTestRunner.cc exec-test-runner.cc
 INC = ExecTestRunner.hh
