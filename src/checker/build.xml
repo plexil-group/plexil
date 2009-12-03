@@ -1,21 +1,22 @@
 <?xml version = "1.0"?>
 
 <project name = "GlobalDeclChecker"
-         default = "compile" 
+         default = "jar" 
          basedir = ".">
 
   <!-- application specific build variables (change these) -->
 
+  <property environment="env"/>
   <property name = "app-name"           value = "global-decl-checker"/>
   <property name = "app-title"          value = "GlobalDeclChecker"/>
   <property name = "domain"             value = ""/>
   <property name = "domain-scope"       value = "main"/>
   <property name = "domain-scope-dir"   value = ""/>
   <property name = "main-class"         value = "DeclMain"/>
-  <property name = "lib-dir"            value = "lib"/>
-  <property name = "resources"          value = "."/>
-  <property name = "compile-includes"   value = ""/>
-  <property name = "compile-excludes"   value = ""/>
+  <property name = "lib-dir"            location = "${env.PLEXIL_HOME}/third-party/jars"/>
+  <property name = "resources"          location = "."/>
+  <property name = "compile-includes"   location = ""/>
+  <property name = "compile-excludes"   location = ""/>
   
   <!-- java library files that belong in the class path and the jar -->
   
@@ -23,7 +24,7 @@
     <!--include name = "your.jar"/-->
   </fileset>
   
-  <!-- any extra resources which may be neaded by the application -->
+  <!-- any extra resources which may be needed by the application -->
 
   <fileset dir = "." id = "resources">
     <include name = "${resources}/icons/*.gif"/>
@@ -31,23 +32,23 @@
 
   <!-- derived build variables -->
 
-  <property name = "source-dir"         value = "src"/>
-  <property name = "doc-dir"            value = "doc"/>
-  <property name = "build-dir"          value = "build"/>
-  <property name = "icons"              value = "${resources}/icons"/>
-  <property name = "samples"            value = "${resources}/samples"/>
+  <property name = "source-dir"         location = "src"/>
+  <property name = "doc-dir"            location = "doc"/>
+  <property name = "build-dir"          location = "build"/>
+  <property name = "icons"              location = "${resources}/icons"/>
+  <property name = "samples"            location = "${resources}/samples"/>
   <property name = "jar-name"           value = "${app-name}.jar"/>
   <property name = "app-dir"            value = "${app-title}.app"/>
-  <property name = "dmg-dir"            value = "disk-image"/>
+  <property name = "dmg-dir"            location = "disk-image"/>
   <property name = "dmg-name"           value = "${app-name}.dmg"/>
   <property name = "dmg-vol-name"       value = "${app-title}"/>
-  <property name = "zip-dir"            value = "zip-image"/>
+  <property name = "zip-dir"            location = "zip-image"/>
   <property name = "zip-name"           value = "${app-name}.zip"/>
   <property name = "build-env-dmg"      value = "${app-name}-build.dmg"/>
   <property name = "build-env-zip"      value = "${app-name}-build.zip"/>
-  <property name = "build-env-dir"      value = "build-env-image"/>
+  <property name = "build-env-dir"      location = "build-env-image"/>
   <property name = "build-env-vol-name" value = "${app-title}Environment"/>
-  <property name = "java-framework-mac" value = "/System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS"/>
+  <property name = "java-framework-mac" location = "/System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS"/>
 
   <!-- remove all built files -->
      
