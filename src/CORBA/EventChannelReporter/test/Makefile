@@ -25,5 +25,9 @@ event-channel-test-runner: event-channel-test-runner.o depend
 notification-test-runner: notification-test-runner.o depend
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
 
+localclean::
+	-$(RM) event-channel-test-runner notification-test-runner Makedepend
+
+
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 -include Makedepend
