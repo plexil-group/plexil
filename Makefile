@@ -44,7 +44,7 @@ sockets:
 
 lcm:
 	(cd third-party/lcm && \
- ./configure --without-python --without-java && \
+ ./configure --prefix=$(PLEXIL_HOME) --without-python --without-java && \
  $(MAKE))
 
 lcm-structs: lcm
@@ -52,6 +52,7 @@ lcm-structs: lcm
 
 clean:
 	$(MAKE) -C third-party/tinyxml $@
+	# should only be an error if 'configure' hasn't been run yet
 	-$(MAKE) -C third-party/lcm $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
