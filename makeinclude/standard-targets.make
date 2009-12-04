@@ -21,39 +21,71 @@
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
 DIRT    = $(OBJ)
-ARCHIVE = lib$(LIBRARY).a
-SHLIB	= lib$(LIBRARY)$(SUFSHARE)
+
+##### Internal Targets  -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
+
 ifneq ($(PLEXIL_SHARED),)
+## Build a shared library (SHLIB)
+
+SHLIB	= lib$(LIBRARY)$(SUFSHARE)
+
 default: shlib
-endif
-ifneq ($(PLEXIL_STATIC),)
-default: archive
-endif
-#else ifeq ($(EXECUTABLE),)
-#$(error Neither LIBRARY nor EXECUTABLE supplied for this Makefile. Exiting.)
+
+shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
+	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
+
+$(SHLIB): depend $(OBJ)
+	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(SHLIB) $(OBJ)
+
+localclean::
+	-$(RM) $(SHLIB)
 endif
 
-ifneq ($(EXECUTABLE),)
-default: executable
-endif
+ifneq ($(PLEXIL_STATIC),)
+## Build an archive library (.a file)
+
+ARCHIVE = lib$(LIBRARY).a
+
+default: archive
 
 archive $(PLEXIL_HOME)/lib/$(ARCHIVE): $(ARCHIVE)
 	$(CP) $(ARCHIVE) $(PLEXIL_HOME)/lib/
 
-shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
-	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
+# This will update an existing archive library with any object files newer
+# than it, or create the library from existing objects if it does not exist.
+
+$(ARCHIVE): depend $(OBJ)
+	$(AR) -o $(ARCHIVE) $?
+
+localclean::
+	-$(RM) $(ARCHIVE)
+endif
+
+endif # $(LIBRARY)
+
+ifneq ($(EXECUTABLE),)
+default: executable
 
 # handle case of multiple targets in EXECUTABLE
 # see src/interfaces/Sockets/test/Makefile
 executable $(foreach exec,$(EXECUTABLE),$(PLEXIL_HOME)/bin/$(exec)): $(EXECUTABLE)
 	$(CP) $(EXECUTABLE) $(PLEXIL_HOME)/bin/
 
+## Build an executable
+# note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
+$(EXECUTABLE): depend $(OBJ)
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(EXECUTABLE) $(OBJ)
+
+localclean::
+	-$(RM) $(EXECUTABLE)
+endif
+
 ##### Delete all products of compilation and dependency list.
 
-localclean: localdust
-	-$(RM) $(ARCHIVE) $(SHLIB) $(EXECUTABLE) Makedepend
+localclean:: localdust
+	-$(RM) Makedepend
 
 ##### Delete extraneous by-products of compilation.
 
@@ -106,23 +138,6 @@ dust: localdust
 		$(MAKE) -C test dust; \
 	fi
 
-
-##### Internal Targets  -- not typically invoked explicitly.
-
-# Build an archive library (.a file)
-# This will update an existing archive library with any object files newer
-# than it, or create the library from existing objects if it does not exist.
-
-$(ARCHIVE): depend $(OBJ)
-	$(AR) -o $(ARCHIVE) $?
-
-## Build a shared library (SHLIB)
-$(SHLIB): depend $(OBJ)
-	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(SHLIB) $(OBJ)
-
-## Build an executable
-$(EXECUTABLE): depend $(OBJ)
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(EXECUTABLE) $(OBJ)
 
 ##### SVN conveniences
 
