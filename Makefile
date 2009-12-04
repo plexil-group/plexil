@@ -52,7 +52,7 @@ lcm-structs: lcm
 
 clean:
 	$(MAKE) -C third-party/tinyxml $@
-	$(MAKE) -C third-party/lcm $@
+	-$(MAKE) -C third-party/lcm $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/lcm-structs $@
