@@ -25,7 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check environment variables and UE executable
+# Check environment variables
 if [ ! $PLEXIL_HOME ]
   then
     echo Error: Please set environment variable PLEXIL_HOME
@@ -33,10 +33,9 @@ if [ ! $PLEXIL_HOME ]
     exit 1
 fi
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
+. ${PLEXIL_HOME}/bin/plexil-setup.sh
 
-MYDIR=$PLEXIL_HOME/standard-plexil
-JARS_DIR=$MYDIR/libraries
+JARS_DIR=${PLEXIL_HOME}/third-party/jars
 
-# Assumes pathnames relative to location of THIS SCRIPT FILE
-java -cp ${MYDIR}/jars/plexil.jar:${JARS_DIR}/antlr.jar:${JARS_DIR}/nanoxml.jar:${JARS_DIR}/saxon8.jar plexil.Parse $*
+# Assumes pathnames relative to $PLEXIL_HOME
+java -cp ${PLEXIL_HOME}/lib/plexil.jar:${JARS_DIR}/antlr.jar:${JARS_DIR}/nanoxml.jar:${JARS_DIR}/saxon8.jar plexil.Parse $*

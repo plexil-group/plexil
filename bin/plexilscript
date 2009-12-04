@@ -25,9 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
-
-MYDIR=$PLEXIL_HOME/standard-plexil
+. ${PLEXIL_HOME}/bin/plexil-setup.sh
 
 if [ $# != 1 ] ; then
   echo "Usage: plexilscript foo-script.ple"
@@ -37,4 +35,4 @@ fi
 # echo "Reading:" $1
 # echo "Writing:" ${1//\.ple/.plx}
 
-java -cp ${MYDIR}/jars/plexilscript.jar:${MYDIR}/libraries/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.ple/.plx}
+java -cp ${PLEXIL_HOME}/lib/plexilscript.jar:${PLEXIL_HOME}/third-party/jars/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.ple/.plx}
