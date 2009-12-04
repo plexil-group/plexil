@@ -20,8 +20,8 @@ robosim : default
 ###################
 # Rules to clean up
 
-localclean:
-	$(MAKE) -C RoboSimSimulator $@
+localclean::
+	$(MAKE) -C RoboSimSimulator clean
 	$(MAKE) -C PlexilSimulator $@
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
