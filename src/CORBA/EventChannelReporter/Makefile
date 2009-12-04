@@ -1,7 +1,7 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY		= PlexilEventChannelReporter
+LIBRARY		:= PlexilEventChannelReporter
 
 # External dependencies
 INC_DIRS	+= $(ACE_ROOT) $(TAO_ROOT) $(TAO_ROOT)/orbsvcs \
@@ -14,10 +14,12 @@ LIBS		+= ACE TAO TAO_PortableServer TAO_AnyTypeCode TAO_CosNaming \
 		   tinyxml PlexilUtils PlexilExec PlexilAppFramework \
 		   PlexilCorbaUtils
 
-SRC = $(wildcard *.cc)
-INC = $(wildcard *.hh)
+SRC		:= $(wildcard *.cc)
+INC		:= $(wildcard *.hh)
 
-SVN_FILES       = Makefile $(SRC) $(INC)
+SVN_FILES       := Makefile $(SRC) $(INC)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

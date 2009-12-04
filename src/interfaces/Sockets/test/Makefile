@@ -10,16 +10,20 @@ LIBS		+= tinyxml
 
 SRC		:= $(wildcard *.cc)
 
-SVN_FILES       = Makefile $(SRC)
+SVN_FILES       := Makefile $(SRC)
 
 # dummy for now
 all: $(EXECUTABLE)
 
+include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+
+# these must follow the above 'include'
 simple_client_main: simple_client_main.o depend
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
 
 simple_server_main: simple_server_main.o depend
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
 
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

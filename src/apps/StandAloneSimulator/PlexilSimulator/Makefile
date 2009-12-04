@@ -1,18 +1,20 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY = plexilsimulator
+LIBRARY		:= plexilsimulator
 
-SRC = $(wildcard *.cc)
-INC = $(wildcard *.hh)
+SRC		:= $(wildcard *.cc)
+INC		:= $(wildcard *.hh)
 
-LIBS += PlexilUtils lcm ComStructs standalonesimulator
+LIBS		+= PlexilUtils lcm ComStructs standalonesimulator
 
 ifndef LCM_PATH
-LCM_PATH = $(PLEXIL_HOME)/third-party/lcm
+LCM_PATH	:= $(PLEXIL_HOME)/third-party/lcm
 endif
 
-INC_DIRS += .. ../../../utils $(PLEXIL_HOME)/src/interfaces/lcm-structs $(LCM_PATH)
+INC_DIRS 	+= .. ../../../utils $(PLEXIL_HOME)/src/interfaces/lcm-structs $(LCM_PATH)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

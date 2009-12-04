@@ -1,10 +1,10 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY = standalonesimulator
+LIBRARY		:= standalonesimulator
 
-SRC = $(wildcard *.cc)
-INC = $(wildcard *.hh)
+SRC		:= $(wildcard *.cc)
+INC		:= $(wildcard *.hh)
 
 ############################
 # Rules to build the targets
@@ -22,7 +22,9 @@ robosim : default
 
 localclean::
 	$(MAKE) -C RoboSimSimulator clean
-	$(MAKE) -C PlexilSimulator $@
+	$(MAKE) -C PlexilSimulator clean
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

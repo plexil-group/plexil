@@ -17,4 +17,6 @@ test-utils: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

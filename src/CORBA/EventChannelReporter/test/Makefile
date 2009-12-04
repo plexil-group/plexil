@@ -14,7 +14,7 @@ LIBS		+= ACE TAO TAO_PortableServer TAO_AnyTypeCode TAO_CosNaming \
 
 SRC		:= $(wildcard *.cc)
 
-SVN_FILES       = Makefile $(SRC)
+SVN_FILES       := Makefile $(SRC)
 
 # dummy for now
 default: event-channel-test-runner notification-test-runner
@@ -30,4 +30,6 @@ localclean::
 
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

@@ -1,5 +1,5 @@
 
-ifneq ($@,clean)
+ifneq ($(MAKECMDGOALS),clean)
 ifeq ($(ACE_ROOT),)
 $(error The environment variable ACE_ROOT is not set. Exiting.)
 endif

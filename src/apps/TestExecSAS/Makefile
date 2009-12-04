@@ -1,7 +1,7 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-EXECUTABLE	= TestExecSAS
+EXECUTABLE	:= TestExecSAS
 
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
@@ -11,10 +11,12 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
 LIB_PATH	+=
 LIBS		+= tinyxml lcm PlexilUtils PlexilExec PlexilAppFramework PlexilSockets ComStructs
 
-SRC = $(wildcard *.cc)
-INC = $(wildcard *.hh)
+SRC		:= $(wildcard *.cc)
+INC		:= $(wildcard *.hh)
 
-SVN_FILES       = Makefile $(SRC) $(INC)
+SVN_FILES       := Makefile $(SRC) $(INC)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif

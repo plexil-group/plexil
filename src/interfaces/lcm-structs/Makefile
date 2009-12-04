@@ -1,27 +1,30 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY	= ComStructs
+LIBRARY		:= ComStructs
 
-STRUCTS := $(wildcard *.lcm)
-STRUCTS_C := $(STRUCTS:%.lcm=%.c)
-STRUCTS_H := $(STRUCTS:%.lcm=%.h)
-STRUCTS_O := $(STRUCTS:%.lcm=%.o)
+STRUCTS		:= $(wildcard *.lcm)
+STRUCTS_C	:= $(STRUCTS:%.lcm=%.c)
+STRUCTS_H	:= $(STRUCTS:%.lcm=%.h)
+STRUCTS_O	:= $(STRUCTS:%.lcm=%.o)
 
-SRC = $(STRUCTS_C)
-INC =
+SRC		:= $(STRUCTS_C)
+INC		:=
 
-SVN_FILES	= Makefile $(STRUCTS)
+SVN_FILES	:= Makefile $(STRUCTS)
 
-LIBS = lcm
+LIBS		:= lcm
 
-DIRT += $(STRUCTS_C)
+DIRT		+= $(STRUCTS_C)
 
 ifndef LCM_PATH
-LCM_PATH = $(PLEXIL_HOME)/third-party/lcm
+LCM_PATH	:= $(PLEXIL_HOME)/third-party/lcm
 endif
-LCMGEN := $(PLEXIL_HOME)/bin/lcm-gen
-INCLUDES := -I$(LCM_PATH)
+
+#LCMGEN		:= $(PLEXIL_HOME)/bin/lcm-gen
+LCMGEN		:= $(LCM_PATH)/lcmgen/lcm-gen
+
+INC_DIRS	:= $(LCM_PATH)
 
 all: default
 
@@ -29,5 +32,10 @@ all: default
 %.c %.h : %.lcm 
 	$(LCMGEN) $< -c
 
+localclean::
+	-$(RM) $(STRUCTS_C) $(STRUCTS_H)
+
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif
