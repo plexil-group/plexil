@@ -6,11 +6,26 @@ endif
 
 default: all
 
+all: TestExec TestExecSAS standard-plexil checker
+
+TestExec: exec-core LuvListener luv
+	$(MAKE) -C src/apps/TestExec
+
+TestExecSAS: lcm-structs exec-core app-framework sockets luv
+	$(MAKE) -C src/apps/TestExecSAS
+	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
+
+checker:
+	(cd src/checker && ant jar)
+
+luv:
+	(cd src/luv && ant jar)
+
+standard-plexil:
+	(cd src/standard-plexil && ant install)
+
 tinyxml:
 	$(MAKE) -C third-party/tinyxml -f Makefile.plexil
-
-sockets:
-	$(MAKE) -C src/interfaces/Sockets
 
 utils: tinyxml
 	$(MAKE) -C src/utils
@@ -21,41 +36,39 @@ exec-core: utils
 LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener
 
-luv:
-	(cd src/luv && ant jar)
-
 app-framework: exec-core sockets
 	$(MAKE) -C src/app-framework
 
-TestExec: exec-core LuvListener luv
-	$(MAKE) -C src/apps/TestExec
+sockets:
+	$(MAKE) -C src/interfaces/Sockets
 
-TestExecSAS: exec-core app-framework sockets luv
-	$(MAKE) -C src/apps/TestExecSAS
-	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
+lcm:
+	(cd third-party/lcm && \
+ ./configure --without-python --without-java && \
+ $(MAKE))
 
-all: TestExec TestExecSAS standard-plexil checker
+lcm-structs: lcm
+	$(MAKE) -C src/interfaces/lcm-structs
 
 clean:
 	$(MAKE) -C third-party/tinyxml $@
+	$(MAKE) -C third-party/lcm $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/lcm-structs $@
 	$(MAKE) -C src/interfaces/LuvListener $@
 	$(MAKE) -C src/interfaces/Sockets $@
+	$(MAKE) -C src/CORBA $@
 	$(MAKE) -C src/app-framework $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
 	$(MAKE) -C src/apps/TestExecSAS $@
-	(cd src/standard-plexil && jam $@)
+	(cd src/standard-plexil && ant $@)
 	(cd src/luv && ant $@)
 	(cd src/checker && ant $@)
 	@ echo Done.
 
 # Convenience targets
-
-standard-plexil:
-	(cd src/standard-plexil && jam)
 
 #TestMultiExec: luv
 #	(cd universal-exec; jam)
@@ -66,11 +79,9 @@ standard-plexil:
 # The following targets apply only when the UE is being used with an
 # ACE/TAO Corba installation.
 
-corba: 
-	$(MAKE) all
-	@ cd CORBA; jam
+corba: utils exec app-framework
+	$(MAKE) -C src/CORBA all
 
-corba-clean: 
-	$(MAKE) clean
-	@ cd CORBA; jam clean
+corba-utils: utils
+	$(MAKE) -C src/CORBA $@
 
