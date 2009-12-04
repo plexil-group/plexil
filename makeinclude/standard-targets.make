@@ -121,21 +121,21 @@ all: default test
 test: default
 	@ if [ -d test ]; \
 	then \
-		$(MAKE) -C test ; \
+		$(MAKE) -C test; \
 	fi
 
 ## Clean module and test directories
 clean: localclean
 	@ if [ -d test ]; \
 	then \
-		$(MAKE) -C test clean; \
+		$(MAKE) -C test $@; \
 	fi
 
 ## Dust module and test directories
 dust: localdust
 	@ if [ -d test ]; \
 	then \
-		$(MAKE) -C test dust; \
+		$(MAKE) -C test $@; \
 	fi
 
 
