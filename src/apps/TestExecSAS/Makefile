@@ -4,11 +4,15 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 EXECUTABLE	:= TestExecSAS
 
 # External dependencies
+ifndef LCM_PATH
+LCM_PATH	:= $(PLEXIL_HOME)/third-party/lcm
+endif
+
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
-		   $(PLEXIL_HOME)/third-party/lcm \
 		   ../../utils ../../exec ../../app-framework \
-		   ../../interfaces/lcm-structs  ../../interfaces/Sockets
-LIB_PATH	+=
+		   ../../interfaces/lcm-structs  ../../interfaces/Sockets \
+		   $(LCM_PATH)
+LIB_PATH	+= $(LCM_PATH)/lcm/.libs
 LIBS		+= tinyxml lcm PlexilUtils PlexilExec PlexilAppFramework PlexilSockets ComStructs
 
 SRC		:= $(wildcard *.cc)

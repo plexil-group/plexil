@@ -25,6 +25,7 @@ endif
 LCMGEN		:= $(LCM_PATH)/lcmgen/lcm-gen
 
 INC_DIRS	:= $(LCM_PATH)
+LIB_PATH	+= $(LCM_PATH)/lcm/.libs
 
 all: default
 
