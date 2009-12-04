@@ -28,7 +28,7 @@
 #include "XmlStringEventFormatter.hh"
 #include "Node.hh"
 #include "CoreExpressions.hh"
-#include "ThreadedExternalInterface.hh"
+#include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
 #include "event-support.hh"
@@ -147,7 +147,7 @@ namespace PLEXIL
 	  {
 	    paramStr +=
 	      element("commandArgument",
-		      ThreadedExternalInterface::valueToString(*it));
+		      AdapterExecInterface::valueToString(*it));
 	  }
 
 	body = body + element("command",

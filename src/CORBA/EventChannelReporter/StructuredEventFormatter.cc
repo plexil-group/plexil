@@ -25,7 +25,7 @@
 */
 
 #include "StructuredEventFormatter.hh"
-#include "AdaptorExecInterface.hh"
+#include "AdapterExecInterface.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
@@ -141,7 +141,7 @@ namespace PLEXIL
 	  {
 	    pushEvent->filterable_data[i].name = "commandArgument";
 	    pushEvent->filterable_data[i++].value <<=
-	      AdaptorExecInterface::valueToString(*it).c_str();
+	      AdapterExecInterface::valueToString(*it).c_str();
 	  }
       }
 
@@ -161,7 +161,7 @@ namespace PLEXIL
 	      (LabelStr ((*it).first)).toString().c_str();
 	    pushEvent->filterable_data[i].name = "bindingValue";
 	    pushEvent->filterable_data[i++].value <<=
-	      AdaptorExecInterface::valueToString((*it).second).c_str();
+	      AdapterExecInterface::valueToString((*it).second).c_str();
 	  }
       }
 
