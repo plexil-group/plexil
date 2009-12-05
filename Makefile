@@ -1,12 +1,17 @@
 # A very basic top-level Makefile
 
-ifeq ($(PLEXIL_HOME),)
-export PLEXIL_HOME := $(shell pwd)
+MY_PLEXIL_HOME := $(shell pwd)
+ifneq ($(PLEXIL_HOME),)
+ifneq ($(PLEXIL_HOME),$(MY_PLEXIL_HOME))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MY_PLEXIL_HOME) before proceeding)
 endif
+endif
+
+export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec TestExecSAS standard-plexil checker
+all: TestExec app-framework standard-plexil checker
 
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
@@ -85,4 +90,3 @@ corba: utils exec app-framework
 
 corba-utils: utils
 	$(MAKE) -C src/CORBA $@
-
