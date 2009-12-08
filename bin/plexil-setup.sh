@@ -33,7 +33,7 @@ if [ ! $PLEXIL_HOME ]
     exit 1
 fi
 
-libpath=$PLEXIL_HOME/universal-exec/lib:$PLEXIL_HOME/interfaces/lib
+libpath=$PLEXIL_HOME/lib
 
 # Defining variables (redunantly) for both Mac and Linux.
 

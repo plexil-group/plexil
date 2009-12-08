@@ -1,6 +1,0 @@
-
-SubDir CORBA component ;
-
-if ! $(PLEXIL_CORBA_READY) {
-
-} # PLEXIL_CORBA_READY

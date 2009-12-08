@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Assumes pathnames relative to location of THIS SCRIPT FILE
-jdb -classpath jars/plexil.jar:libraries/antlr.jar:libraries/nanoxml.jar plexil.Parse $*

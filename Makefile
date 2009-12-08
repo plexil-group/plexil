@@ -1,53 +1,80 @@
 # A very basic top-level Makefile
 
+MY_PLEXIL_HOME := $(shell pwd)
+ifneq ($(PLEXIL_HOME),)
+ifneq ($(PLEXIL_HOME),$(MY_PLEXIL_HOME))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MY_PLEXIL_HOME) before proceeding)
+endif
+endif
+
+export PLEXIL_HOME := $(MY_PLEXIL_HOME)
+
 default: all
 
-all: luv standard-plexil
-	@ cd universal-exec; jam
-	@ cd standard-plexil; jam
-	@ cd luv; ant all
-	@ cd interfaces; jam
-	@ $(MAKE) -C apps
-	@ cd app-framework; jam
-	@ cd checker; ant jar
-	@ echo Done.
+all: TestExec app-framework standard-plexil checker
+
+TestExec: exec-core LuvListener luv
+	$(MAKE) -C src/apps/TestExec
+
+TestExecSAS: lcm-structs exec-core app-framework sockets luv
+	$(MAKE) -C src/apps/TestExecSAS
+	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
+
+checker:
+	(cd src/checker && ant jar)
+
+luv:
+	(cd src/luv && ant jar)
+
+standard-plexil:
+	(cd src/standard-plexil && ant install)
+
+tinyxml:
+	$(MAKE) -C third-party/tinyxml -f Makefile.plexil
+
+utils: tinyxml
+	$(MAKE) -C src/utils
+
+exec-core: utils
+	$(MAKE) -C src/exec
+
+LuvListener: exec-core sockets
+	$(MAKE) -C src/interfaces/LuvListener
+
+app-framework: exec-core sockets
+	$(MAKE) -C src/app-framework
+
+sockets:
+	$(MAKE) -C src/interfaces/Sockets
+
+lcm:
+	(cd third-party/lcm && \
+ ./configure --prefix=$(PLEXIL_HOME) --without-python --without-java && \
+ $(MAKE))
+
+lcm-structs: lcm
+	$(MAKE) -C src/interfaces/lcm-structs
 
 clean:
-	@ cd universal-exec; jam $@
-	@ cd standard-plexil; jam $@
-	@ cd luv; ant $@
-	@ cd interfaces; jam $@
-# KMD: there is no 'clean' target here
-#	- $(MAKE) -C interfaces/lcm $@
-	@ $(MAKE) -C apps $@
-	@ cd app-framework; jam $@
-	@ cd checker; ant $@
+	$(MAKE) -C third-party/tinyxml $@
+	# should only be an error if 'configure' hasn't been run yet
+	-$(MAKE) -C third-party/lcm $@
+	$(MAKE) -C src/utils $@
+	$(MAKE) -C src/exec $@
+	$(MAKE) -C src/interfaces/lcm-structs $@
+	$(MAKE) -C src/interfaces/LuvListener $@
+	$(MAKE) -C src/interfaces/Sockets $@
+	$(MAKE) -C src/CORBA $@
+	$(MAKE) -C src/app-framework $@
+	$(MAKE) -C src/apps/StandAloneSimulator $@
+	$(MAKE) -C src/apps/TestExec $@
+	$(MAKE) -C src/apps/TestExecSAS $@
+	(cd src/standard-plexil && ant $@)
+	(cd src/luv && ant $@)
+	(cd src/checker && ant $@)
 	@ echo Done.
 
 # Convenience targets
-
-# Coming soon
-#links:
-#	$(MAKE) -C bin $@
-#	$(MAKE) -C lib $@
-
-luv:
-	(cd luv; ant jar)
-
-standard-plexil:
-	(cd standard-plexil; jam)
-
-TestExec: luv
-	(cd universal-exec; jam)
-	(cd interfaces; jam)
-	(cd apps/TestExec; jam)
-
-TestExecSAS: luv
-	(cd universal-exec; jam)
-	$(MAKE) -C interfaces all
-	(cd app-framework; jam)
-	(cd apps/TestExecSAS; ./build.sh)
-	$(MAKE) -C apps/StandAloneSimulator plexilsim
 
 #TestMultiExec: luv
 #	(cd universal-exec; jam)
@@ -58,11 +85,8 @@ TestExecSAS: luv
 # The following targets apply only when the UE is being used with an
 # ACE/TAO Corba installation.
 
-corba: 
-	$(MAKE) all
-	@ cd CORBA; jam
+corba: utils exec app-framework
+	$(MAKE) -C src/CORBA all
 
-corba-clean: 
-	$(MAKE) clean
-	@ cd CORBA; jam clean
-
+corba-utils: utils
+	$(MAKE) -C src/CORBA $@

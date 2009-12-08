@@ -1,9 +1,0 @@
-SubDir interfaces Sockets ;
-
-if ! $(PLEXIL_INTFCS_READY) {
-
-Module Sockets ;
-
-SubInclude interfaces Sockets base ;
-
-} # PLEXIL_INTFCS_READY

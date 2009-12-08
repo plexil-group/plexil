@@ -1,7 +1,0 @@
-SubDir universal-exec Utils component ;
-
-if ! $(PLEXIL_READY) {
-
-ModuleComponent PlexilUtils ;
-
-} # PLEXIL_READY

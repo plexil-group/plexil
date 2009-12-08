@@ -1,0 +1,42 @@
+
+include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+
+LIBRARY		:= ComStructs
+
+STRUCTS		:= $(wildcard *.lcm)
+STRUCTS_C	:= $(STRUCTS:%.lcm=%.c)
+STRUCTS_H	:= $(STRUCTS:%.lcm=%.h)
+STRUCTS_O	:= $(STRUCTS:%.lcm=%.o)
+
+SRC		:= $(STRUCTS_C)
+INC		:=
+
+SVN_FILES	:= Makefile $(STRUCTS)
+
+LIBS		:= lcm
+
+DIRT		+= $(STRUCTS_C)
+
+ifndef LCM_PATH
+LCM_PATH	:= $(PLEXIL_HOME)/third-party/lcm
+endif
+
+#LCMGEN		:= $(PLEXIL_HOME)/bin/lcm-gen
+LCMGEN		:= $(LCM_PATH)/lcmgen/lcm-gen
+
+INC_DIRS	:= $(LCM_PATH)
+LIB_PATH	+= $(LCM_PATH)/lcm/.libs
+
+all: default
+
+# Pattern rule for generating C source code from LCM
+%.c %.h : %.lcm 
+	$(LCMGEN) $< -c
+
+localclean::
+	-$(RM) $(STRUCTS_C) $(STRUCTS_H)
+
+include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
+-include Makedepend
+endif

@@ -25,14 +25,17 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-. ${PLEXIL_HOME}/bin/plexil-setup.sh
-
-if [ $# != 1 ] ; then
-  echo "Usage: plexilscript foo-script.ple"
-  exit
+# Check environment variables
+if [ ! $PLEXIL_HOME ]
+  then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    exit 1
 fi
 
-# echo "Reading:" $1
-# echo "Writing:" ${1//\.ple/.plx}
+. ${PLEXIL_HOME}/bin/plexil-setup.sh
 
-java -cp ${PLEXIL_HOME}/lib/plexilscript.jar:${PLEXIL_HOME}/third-party/jars/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.ple/.plx}
+JARS_DIR=${PLEXIL_HOME}/third-party/jars
+
+# Assumes pathnames relative to $PLEXIL_HOME
+jdb -cp ${PLEXIL_HOME}/lib/plexil.jar:${JARS_DIR}/antlr.jar:${JARS_DIR}/nanoxml.jar:${JARS_DIR}/saxon8.jar plexil.Parse $*

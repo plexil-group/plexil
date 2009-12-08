@@ -1,9 +1,0 @@
-
-SubDir interfaces LuvListener base ;
-
-if ! $(PLEXIL_INTFCS_READY) {
-
-ModuleCore LuvListener :
-  LuvListener.cc ;
-
-} # PLEXIL_INTFCS_READY
