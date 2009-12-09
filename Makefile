@@ -55,10 +55,17 @@ lcm:
 lcm-structs: lcm
 	$(MAKE) -C src/interfaces/lcm-structs
 
+ipc:
+	$(MAKE) -C third-party/ipc \
+ PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include
+
 clean:
 	$(MAKE) -C third-party/tinyxml $@
 	# should only be an error if 'configure' hasn't been run yet
 	-$(MAKE) -C third-party/lcm $@
+	$(MAKE) -C third-party/ipc \
+ PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
+ $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/lcm-structs $@
