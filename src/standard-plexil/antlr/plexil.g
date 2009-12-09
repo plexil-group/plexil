@@ -207,6 +207,9 @@ tokens
     // "For" needs a Node AST because of the loop variable.
     FOR_KYWD="For"<AST=plexil.NodeASTNode>;
 
+    // Extended Plexil message passing
+    MESSAGE_RECEIVED_KYWD="MessageReceived";
+
     // lexical token types that need a specific AST node type
     INT<AST=plexil.LiteralASTNode>;
     DOUBLE<AST=plexil.LiteralASTNode>;
@@ -1776,7 +1779,9 @@ simpleBoolean :
    | booleanVariable
    | isKnownExp
    | nodeStatePredicateExp
-   | lookup ;
+   | lookup
+   | messageReceivedExp
+ ;
 
 isKnownExp :
    IS_KNOWN_KYWD^ 
@@ -1817,6 +1822,16 @@ nodeStatePredicateExp! :
     state.setExtendedPlexil();
   }  
  ;		     
+
+messageReceivedExp :
+  MESSAGE_RECEIVED_KYWD^
+  LPAREN!
+  stringValue
+  RPAREN!
+  {
+    state.setExtendedPlexil();
+  }
+ ;
 
 
 // numericComparison! : 

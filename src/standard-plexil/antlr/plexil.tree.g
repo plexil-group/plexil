@@ -1559,7 +1559,9 @@ booleanTerm[IXMLElement parent] :
    | bval:booleanValue { parent.addChild(((PlexilASTNode) #bval).getXmlElement()); }
    | isKnownExp[parent]
    | nodeStatePredicateExp[parent]
-   | lookup[parent] ;
+   | lookup[parent]
+   | messageReceivedExp[parent]
+ ;
 
 booleanValue :
    ( i:INT { #i.getText().equals("0") || #i.getText().equals("1") }?
@@ -1609,6 +1611,18 @@ nodeStatePredicate :
   | NODE_SKIPPED_KYWD
   | NODE_SUCCEEDED_KYWD
   | NODE_WAITING_KYWD
+ ;
+
+messageReceivedExp[IXMLElement parent]
+{
+  IXMLElement mrx = new XMLElement("MessageReceived");
+}
+ :
+ #(MESSAGE_RECEIVED_KYWD sv:stringValue)
+  {
+   mrx.addChild(((PlexilASTNode) #sv).getXmlElement());
+   parent.addChild(mrx);
+  }
  ;
 
 booleanExpression[IXMLElement parent] :
