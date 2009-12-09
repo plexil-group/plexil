@@ -50,7 +50,7 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 # subdirectory, where PLAN is the basename of the plan argument.  The
 # plan and script files are schecked for existence (but not the libraries).  If
 # none of these script files exist, the empty script is used:
-#        universal-exec/Exec/test/scripts/empty-script.plx
+#        $PLEXIL_HOME/src/apps/TestExec/test/scripts/empty-script.plx
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
@@ -179,7 +179,7 @@ if [ ! -e $plan ]
 fi
 
 # Default simulation script
-script=$PLEXIL_HOME/src/apps/TestExec/scripts/empty-script.plx
+script=$PLEXIL_HOME/src/apps/TestExec/test/scripts/empty-script.plx
 
 # The plan file's extension, used to compute guessed script name.
 ext=".`echo $plan | awk -F. '{print $2}'`"
