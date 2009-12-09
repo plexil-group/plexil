@@ -191,7 +191,7 @@ gen/XDR.yy.cc: XDR.l gen/XDR.tab.cc
 gen/XDR.tab.cc gen/XDR.tab.hh: XDR.y
 	@[ -d gen ] || $(MKDIR) gen
 	$(YACC) --defines XDR.y -o gen/XDR.tab.cc
-	@[ -e gen/XDR.tab.cc.h ] && cp gen/XDR.tab.cc.h gen/XDR.tab.hh
+	-@[ -e gen/XDR.tab.cc.h ] && cp gen/XDR.tab.cc.h gen/XDR.tab.hh
 
 $(ODIR)/XDR.yy.o: gen/XDR.yy.cc gen/XDR.tab.hh
 	@[ -d $(ODIR) ] || $(MKDIR) $(ODIR)
