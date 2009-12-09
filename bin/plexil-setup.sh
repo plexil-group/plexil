@@ -33,6 +33,8 @@ if [ ! $PLEXIL_HOME ]
     exit 1
 fi
 
+export PATH=${PATH}:${PLEXIL_HOME}/bin
+
 libpath=$PLEXIL_HOME/lib
 
 # Defining variables (redunantly) for both Mac and Linux.
