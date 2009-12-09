@@ -76,7 +76,7 @@ const char *yyinName;
 %token ENUM
 
 /* Reserved words which aren't implemented */
-%token DEFAULT ENUM HYPER SWITCH UNION CASE
+%token DEFAULT HYPER SWITCH UNION CASE
 
 /* figure out actual types later */
 
