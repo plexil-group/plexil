@@ -92,7 +92,7 @@ clean:
 # The following targets apply only when the UE is being used with an
 # ACE/TAO Corba installation.
 
-corba: utils exec app-framework
+corba: utils exec-core app-framework
 	$(MAKE) -C src/CORBA all
 
 corba-utils: utils
