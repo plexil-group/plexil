@@ -31,6 +31,9 @@
 #include "ManagedExecListener.hh"
 #include "PlexilPlan.hh"
 #include "LabelStr.hh"
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include "tinyxml.h"
 
 //

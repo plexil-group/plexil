@@ -27,7 +27,6 @@
 #include "NewLuvListener.hh"
 #include "ClientSocket.h"
 #include "SocketException.h"
-#include "tinyxml.h"
 
 #include "Expression.hh"
 #include "CoreExpressions.hh"

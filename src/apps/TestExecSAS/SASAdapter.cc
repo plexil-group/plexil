@@ -37,6 +37,9 @@
 #include <CoreExpressions.hh>
 #include <AdapterExecInterface.hh>
 #include <StateCache.hh>
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include <tinyxml.h>
 #include "ThreadSpawn.hh"
 #include "genericCommand.h"

@@ -37,6 +37,9 @@
 #include <cmath>
 #include <sstream>
 
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include "tinyxml.h"
 
 namespace PLEXIL

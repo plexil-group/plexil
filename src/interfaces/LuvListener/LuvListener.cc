@@ -28,7 +28,6 @@
 #include "ClientSocket.h"
 #include "ServerSocket.h"
 #include "Socket.h"
-#include "tinyxml.h"
 
 #include "Expression.hh"
 #include "CoreExpressions.hh"

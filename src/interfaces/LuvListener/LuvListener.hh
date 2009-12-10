@@ -32,6 +32,9 @@
 #include "LabelStr.hh"
 #include "ClientSocket.h"
 #include "ServerSocket.h"
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include "tinyxml.h"
 
 #include <pthread.h>

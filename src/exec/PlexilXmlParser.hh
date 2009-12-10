@@ -30,7 +30,9 @@
 #include "PlexilPlan.hh"
 #include "PlexilResource.hh"
 #include "ParserException.hh"
+#ifndef TIXML_USE_STL
 #define TIXML_USE_STL
+#endif
 #include "tinyxml.h"
 #include <map>
 

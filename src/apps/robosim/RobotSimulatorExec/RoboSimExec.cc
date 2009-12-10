@@ -29,7 +29,6 @@
 
 #include "PlexilExec.hh"
 #include "ThreadedExternalInterface.hh"
-#include "tinyxml.h"
 #include "CoreExpressions.hh"
 #include "Expressions.hh"
 #include "Debug.hh"

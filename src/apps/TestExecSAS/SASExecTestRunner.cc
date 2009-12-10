@@ -25,7 +25,6 @@
 */
 
 #include "PlexilExec.hh"
-#include "tinyxml.h"
 #include "SocketException.h"
 #include "CoreExpressions.hh"
 #include "Expressions.hh"

@@ -33,6 +33,9 @@
 #include "Debug.hh"
 #include "ExecApplication.hh"
 #include "InterfaceSchema.hh"
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include "tinyxml.h"
 #include <fstream>
 #include <iostream>
