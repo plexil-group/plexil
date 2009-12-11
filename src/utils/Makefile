@@ -6,7 +6,7 @@ LIBRARY		:= PlexilUtils
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml
 LIB_PATH	+=
-LIBS		+= tinyxml
+LIBS		+= tinyxml $(PTHREAD_LIB)
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh) CommonDefs.hh Id.hh TestSupport.hh
