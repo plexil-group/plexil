@@ -399,14 +399,16 @@ ifdef INS_PUBLIC_LIBS
 DONT_RANLIB = $(PUBLIC_LIB_DIR)/centralModule.o \
 		$(PUBLIC_LIB_DIR)/libipc_lisp.so \
 		$(PUBLIC_LIB_DIR)/libipc.so.% \
-		$(PUBLIC_LIB_DIR)/libipcjava.so
+		$(PUBLIC_LIB_DIR)/libipc.dylib \
+		$(PUBLIC_LIB_DIR)/libipcjava.so \
+		$(PUBLIC_LIB_DIR)/libipcjava.dylib \
 
 ifneq ($(filter $(DONT_RANLIB),$(INS_PUBLIC_LIBS)),)
 $(filter $(DONT_RANLIB),$(INS_PUBLIC_LIBS)): $(PUBLIC_LIB_DIR)/%: $(LDIR)/%
 	-$(MKDIR) $(PUBLIC_LIB_DIR)
 	$(INSTALL) $(INS_LIB_FLAGS) $(LDIR)/$(@F) $(INS_PUBLIC_LIB_DIR)
 #	$(RM) $(LDIR)/$(@F)
-	chmod 444 $@
+	chmod 644 $@
 endif
 #	(cd $(INS_PUBLIC_LIB_DIR); $(RM) libipc.so; ln -s $(@F) libipc.so)
 
@@ -416,7 +418,7 @@ $(filter-out $(DONT_RANLIB),$(INS_PUBLIC_LIBS)): $(PUBLIC_LIB_DIR)/%: $(LDIR)/%
 	$(INSTALL) $(INS_LIB_FLAGS) $(LDIR)/$(@F) $(INS_PUBLIC_LIB_DIR)
 #	$(RM) $(LDIR)/$(@F)
 	$(RANLIB) $@
-	chmod 444 $@
+	chmod 644 $@
 endif
 endif
 
@@ -629,7 +631,7 @@ $(ODIR)/%.o: %.cc
 
 $(SODIR)/%.o: %.c
 	@[ -d $(SODIR) ] || $(MKDIR) $(SODIR)
-	$(COMPILE.c) -fpic -o $@ $<
+	$(COMPILE.c) $(CFLAGS_SHARED) -o $@ $<
 
 $(VODIR)/%.o: %.c
 	@[ -d $(VODIR) ] || $(MKDIR) $(VODIR)

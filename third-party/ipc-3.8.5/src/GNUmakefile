@@ -155,15 +155,23 @@ PUBLIC_LIBS_Linux	= libipc_lisp.so libipc_lisp.sa
 endif
 
 PUBLIC_LIBS_RISC	= 
-ifneq ($(THIS_OS),vxworks)
+ifeq ($(THIS_OS),vxworks)
+PUBLIC_LIBS		= ipcModule.o centralModule.o
+else
+ifeq ($(THIS_OS),Darwin)
+MAKE_SHARED_LIBS	= 1
+PUBLIC_LIBS		= libipc.dylib
+else
 PUBLIC_LIBS		= libipc.a $(PUBLIC_LIBS_$(THIS_OS)) \
 			$(PUBLIC_LIBS_$(THIS_MACHINE))
-else
-PUBLIC_LIBS		= ipcModule.o centralModule.o
 endif
+endif
+
 ifdef MAKE_SHARED_LIBS
+ifneq ($(THIS_OS),Darwin)
 PUBLIC_LIBS	+= libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
 		   libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
+endif
 endif
 
 PUBLIC_LINTS		= 
@@ -332,6 +340,13 @@ $(PUBLIC_LIB_DIR)/ipcModule.o: $(LDIR)/ipcModule.o
 endif
 
 $(PUBLIC_LIB_DIR)/libipc.a: $(MODULEOBJS)
+
+ifeq ($(THIS_OS),Darwin)
+$(LDIR)/libipc.dylib: $(SHAREDOBJS)
+	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
+
+$(PUBLIC_LIB_DIR)/libipc.dylib: $(SHAREDOBJS)
+endif
 
 $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
 	$(LD_SHARED) -o \

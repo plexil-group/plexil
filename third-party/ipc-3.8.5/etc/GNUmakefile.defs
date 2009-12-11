@@ -276,6 +276,7 @@ LD		= ld
 LD_SHARED_Solaris= ld -G -dy
 LD_SHARED_SunOS	= ld -assert pure-text
 LD_SHARED_Linux	= ld -G -dy
+LD_SHARED_Darwin = libtool -dynamic
 LD_SHARED	= $(LD_SHARED_$(THIS_OS))
 CP		= /bin/cp
 CHMOD		= /bin/chmod
@@ -310,6 +311,7 @@ INC_PATH_Mach	=
 INC_PATH_SunOS	= -I/usr/local/include -I/usr/openwin/include
 INC_PATH_Solaris	= -I/usr/local/include -I/usr/openwin/include
 INC_PATH_Linux	= -I/usr/include/bsd
+INC_PATH_Darwin =
 INC_PATH_DBMALLOC= -I$(DBMALLOC_DIR)/include
 INC_PATH	= -I. -I$(PUBLIC_INC_DIR)  \
 		$(INC_PATH_$(THIS_OS)) $(INC_PATH_$(DBMALLOC))
@@ -345,6 +347,7 @@ CFLAGS_alpha	=
 CFLAGS_sun4c	= 
 CFLAGS_sun4m	= 
 CFLAGS_Sparc	= 
+CFLAGS_Darwin	=
 CFLAGS_IP22	= -g3
 CFLAGS_		= 
 CFLAGSD_	= -O2
@@ -369,12 +372,20 @@ CFLAGS_LISP_Mach	= -DALLEGRO
 CFLAGS_LISP_Linux	= -DCLISP
 CFLAGS_LISP_Solaris	= -DALLEGRO
 CFLAGS_LISP_SunOS	= -DALLEGRO
+CFLAGS_LISP_Darwin	=
 CFLAGS_LISP = -DLISP $(CFLAGS_LISP_$(THIS_OS))
+
+ifeq ($(THIS_OS),Darwin)
+CFLAGS_SHARED	= -fPIC
+else
+CFLAGS_SHARED	= -fpic
+endif
 
 LIB_PATH_Mach	= 
 LIB_PATH_Linux	= -L$(BASE_DIR)/$(LDIR) -L/lib -L/usr/X11R6/lib
 LIB_PATH_Solaris= -L$(BASE_DIR)/$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
 LIB_PATH_SunOS	= -L$(BASE_DIR)/$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
+LIB_PATH_Darwin =
 LIB_PATH_DBMALLOC= -L$(DBMALLOC_DIR)/lib
 LIB_PATH	= -L$(PWD) -L$(LDIR) -L$(PUBLIC_LIB_DIR) \
 		-L$(MODULE_LIB_DIR) -L$(TCL_LIB_DIR) -L$(TK_LIB_DIR) \
@@ -391,8 +402,10 @@ LIBS_Linux	=  -lbsd -lc
 endif
 LIBS_Solaris	=  -lsocket -lnsl
 LIBS_wnt	=  -lwsock32
+LIBS_Darwin	=  -lSystem
 LIBRARIES	= -lipc $(LIBS_$(DBMALLOC)) $(LIBS_$(THIS_OS))
 DYN_LIBS_Solaris=  -ldl
+DYN_LIBS_Darwin	=
 DYN_LIBRARIES	= $(DYN_LIBS_$(THIS_OS))
 CPP_LIBRARIES	= $(LIBRARIES) 
 
