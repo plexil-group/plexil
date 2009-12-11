@@ -587,6 +587,7 @@ extern int unlink _PARAMS((char *));
 #include <ctype.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #undef ALIGN
 #include <sys/stat.h>
 #include <netinet/in.h>
