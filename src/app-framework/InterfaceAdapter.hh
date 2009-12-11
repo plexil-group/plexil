@@ -294,6 +294,12 @@ namespace PLEXIL
     std::map<StateKey, std::set<LookupKey> >::const_iterator getAsynchLookupsEnd();
 
     /**
+     * @brief Get an iterator that points to the given key, if found; else returns end.
+     */
+    std::map<StateKey, std::set<LookupKey> >::const_iterator findLookupKey(const StateKey&);
+
+
+    /**
      * @brief Given a state key, fetch the corresponding state.
      * @return True if the state was found, false otherwise.
      */

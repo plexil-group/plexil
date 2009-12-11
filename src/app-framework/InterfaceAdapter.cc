@@ -223,6 +223,12 @@ namespace PLEXIL
     return m_asynchLookups.end();
   }
 
+  std::map<StateKey, std::set<LookupKey> >::const_iterator
+  InterfaceAdapter::findLookupKey(const StateKey& key)
+  {
+    return m_asynchLookups.find(key);
+  }
+
   bool 
   InterfaceAdapter::getState(const StateKey& key, State& state)
   {
