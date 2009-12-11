@@ -37,7 +37,7 @@ export PATH=${PATH}:${PLEXIL_HOME}/bin
 
 libpath=$PLEXIL_HOME/lib
 
-# Defining variables (redunantly) for both Mac and Linux.
+# Defining variables (redundantly) for both Mac and Linux.
 
 # Linux
 export LD_LIBRARY_PATH=$libpath
