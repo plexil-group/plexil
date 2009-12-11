@@ -16,3 +16,5 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:=
 SHARED_FLAGS				:= -fno-common -dynamiclib
 # Extension for shared library
 SUFSHARE				:= .dylib
+# Name of the library with the pthreads API
+PTHREAD_LIB   	      	       		:= pthread
