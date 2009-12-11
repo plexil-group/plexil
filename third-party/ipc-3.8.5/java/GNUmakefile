@@ -129,6 +129,10 @@ INC_PATH		+= -I/usr/java/include -I/usr/java/include/solaris
 else
 ifeq ($(THIS_OS),Solaris)
 INC_PATH		+= -I/usr/local/include
+else
+ifeq ($(THIS_OS),Darwin)
+INC_PATH		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
+endif
 endif
 endif
 endif
