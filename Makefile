@@ -57,15 +57,18 @@ lcm-structs: lcm
 
 ipc:
 	$(MAKE) -C third-party/ipc \
- PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include
+ PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
+ SUBDIRS='etc src doc xdrgen'
 
-clean:
-	$(MAKE) -C third-party/tinyxml $@
-	# should only be an error if 'configure' hasn't been run yet
-	-$(MAKE) -C third-party/lcm $@
+clean-ipc:
 	$(MAKE) -C third-party/ipc \
  PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
- $@
+ clean
+
+clean: clean-ipc
+	$(MAKE) -C third-party/tinyxml $@
+	# The following will cause an (ignorable) error if 'configure' hasn't been run yet
+	-$(MAKE) -C third-party/lcm $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/lcm-structs $@
