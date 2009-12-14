@@ -1,7 +1,0 @@
-SubDir universal-exec Utils documentation ;
-
-if ! $(PLEXIL_READY) {
-
-ModuleDocumentation PlexilUtils ;
-
-} # PLASMA_READY
