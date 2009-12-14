@@ -13,6 +13,10 @@ INC		:=
 
 SVN_FILES       := Makefile $(SRC) $(INC) time-lookup-test.ple
 
+test-app-framework: $(EXECUTABLE)
+	. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+ ./$(EXECUTABLE) -p time-lookup-test.plx -c config.xml -d Debug.cfg
+
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
