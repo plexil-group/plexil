@@ -14,7 +14,7 @@ INC = util-test-module.hh
 SVN_FILES       = Makefile $(SRC) $(INC)
 
 test-utils: $(EXECUTABLE)
-	./$(EXECUTABLE)
+	. $(PLEXIL_HOME)/bin/plexil-setup.sh && ./$(EXECUTABLE)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
