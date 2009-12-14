@@ -1,8 +1,0 @@
-SubDir universal-exec Exec test ;
-
-if ! $(PLEXIL_READY) {
-  ModuleMain exec-module-tests : module-tests.cc exec-test-module.cc : Exec ;
-  RunModuleMain run-exec-module-tests : exec-module-tests ;
-  LocalDepends tests : run-exec-module-tests ;
-
-}
