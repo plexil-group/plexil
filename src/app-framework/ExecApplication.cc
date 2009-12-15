@@ -393,13 +393,13 @@ namespace PLEXIL
    */
   bool ExecApplication::waitForExternalEvent()
   {
-    debugMsg("ExecApplication:wait", " waiting for external event");
-    bool status = m_sem.wait();
-    if (status)
+    debugMsg("ExecApplication:wait", " (" << pthread_self() << ") waiting for external event");
+    int status = m_sem.wait();
+    if (status == 0)
       {
-        debugMsg("ExecApplication:wait", " acquired semaphore, processing external event(s)");
+        debugMsg("ExecApplication:wait", " (" << pthread_self() << ") acquired semaphore, processing external event(s)");
       }
-    return status;
+    return (status == 0);
   }
 
   /**
