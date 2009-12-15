@@ -166,8 +166,8 @@ CPATH=:/usr/misc/include
 
 # Automatic defs to aid install target
 INS_PUBLIC_BINS	:= $(patsubst %,$(PUBLIC_BIN_DIR)/%,$(PUBLIC_BINS))
-#INS_PUBLIC_LIBS	:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(filter libipc.so.%,$(PUBLIC_LIBS)))
-#INS_PUBLIC_LIBSA:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(filter-out libipc.so.%,$(PUBLIC_LIBS)))
+#INS_PUBLIC_LIBS	:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(filter libipc.so,$(PUBLIC_LIBS)))
+#INS_PUBLIC_LIBSA:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(filter-out libipc.so,$(PUBLIC_LIBS)))
 INS_PUBLIC_LIBS	:= $(patsubst %,$(PUBLIC_LIB_DIR)/%,$(PUBLIC_LIBS))
 INS_PUBLIC_LINTS:= $(patsubst %,$(PUBLIC_LINT_DIR)/%,$(PUBLIC_LINTS))
 INS_PUBLIC_INCS	:= $(patsubst %,$(PUBLIC_INC_DIR)/%,$(PUBLIC_INCS))
@@ -398,7 +398,7 @@ ifdef INS_PUBLIC_LIBS
 
 DONT_RANLIB = $(PUBLIC_LIB_DIR)/centralModule.o \
 		$(PUBLIC_LIB_DIR)/libipc_lisp.so \
-		$(PUBLIC_LIB_DIR)/libipc.so.% \
+		$(PUBLIC_LIB_DIR)/libipc.so \
 		$(PUBLIC_LIB_DIR)/libipc.dylib \
 		$(PUBLIC_LIB_DIR)/libipcjava.so \
 		$(PUBLIC_LIB_DIR)/libipcjava.dylib \

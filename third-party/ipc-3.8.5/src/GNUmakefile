@@ -169,8 +169,8 @@ endif
 
 ifdef MAKE_SHARED_LIBS
 ifneq ($(THIS_OS),Darwin)
-PUBLIC_LIBS	+= libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
-		   libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
+PUBLIC_LIBS	+= libipc.so \
+		   libipc.sa
 endif
 endif
 
@@ -348,19 +348,19 @@ $(LDIR)/libipc.dylib: $(SHAREDOBJS)
 $(PUBLIC_LIB_DIR)/libipc.dylib: $(SHAREDOBJS)
 endif
 
-$(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
+$(LDIR)/libipc.so: $(SHAREDOBJS)
 	$(LD_SHARED) -o \
-	$(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR) \
+	$(LDIR)/libipc.so \
 		$(SHAREDOBJS) $(LIB_PATH)
 
-$(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
+$(PUBLIC_LIB_DIR)/libipc.so: $(SHAREDOBJS)
 
-$(LDIR)/libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(MODULEDATA)
+$(LDIR)/libipc.sa: $(MODULEDATA)
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(MODULEDATA)
 	$(RANLIB) $@
 
-$(PUBLIC_LIB_DIR)/libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(MODULEDATA)
+$(PUBLIC_LIB_DIR)/libipc.sa: $(MODULEDATA)
 
 ifeq ($(THIS_MACHINE),sun4u)
 LIBACL	= /usr/local/lib/acl60/libacl601.so
