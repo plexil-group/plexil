@@ -64,19 +64,19 @@ namespace PLEXIL
     if (isLockedByCurrentThread()) 
       {
 	debugMsg("RecursiveThreadMutex:lock",
-		 " Re-locking from thread " << pthread_self() << " with count of " << m_lockCount + 1);
+		 " Re-locking mutex " << (void *) this << " from thread " << pthread_self() << " with count of " << m_lockCount + 1);
 	++m_lockCount;
 	return;
       }
     debugMsg("RecursiveThreadMutex:lock",
-	     " from thread " << pthread_self());
+	     " mutex " << (void *) this << " from thread " << pthread_self());
     int rv = pthread_mutex_lock(&m_mutex);
     assertTrue(0 == rv, "Could not lock the mutex.");
     checkError(m_lockCount == 0, "Got a lock without a lock count of 0.");
     m_lockingThread = pthread_self();
     ++m_lockCount;
     debugMsg("RecursiveThreadMutex:lock",
-	     " thread " << pthread_self() << " acquired mutex");
+	     " thread " << pthread_self() << " acquired mutex " << (void *) this);
   }
 
   void RecursiveThreadMutex::unlock()
@@ -85,7 +85,7 @@ namespace PLEXIL
 	       "Tried to unlock without owning the mutex.");
     checkError(m_lockCount > 0, "Tried to unlock more than locked.");
     debugMsg("RecursiveThreadMutex:unlock",
-	     " from thread " << pthread_self() << " with count of " << m_lockCount);
+	     " mutex " << (void *) this << " from thread " << pthread_self() << " with count of " << m_lockCount);
     --m_lockCount;
     if (m_lockCount == 0)
       {
@@ -93,7 +93,7 @@ namespace PLEXIL
 	int rv = pthread_mutex_unlock(&m_mutex);
 	assertTrue(0 == rv, "Could not unlock the mutex.");
 	debugMsg("RecursiveThreadMutex:unlock",
-		 " released by thread " << pthread_self());
+		 " mutex " << (void *) this << " released by thread " << pthread_self());
       }
   }
 
