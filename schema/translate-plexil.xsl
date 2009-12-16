@@ -823,7 +823,11 @@
 <xsl:template match= "MessageReceived">
   <LookupOnChange>
     <Name>
-      <StringValue><xsl:value-of select= "'MESSAGE__', ." separator=""/></StringValue>
+      <Concat>
+        <StringValue>MESSAGE__</StringValue>
+        <xsl:apply-templates select= "*"/>
+      </Concat>
+<!--      <StringValue><xsl:value-of select= "'MESSAGE__', ." separator=""/></StringValue> -->
     </Name>
   </LookupOnChange>
 </xsl:template>

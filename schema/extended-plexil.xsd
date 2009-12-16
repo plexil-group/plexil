@@ -326,6 +326,10 @@
 
   <!-- Support for message passing between executives (not yet released) -->
 
-  <xsd:element name="MessageReceived" type= "xsd:string"/>
+  <xsd:element name="MessageReceived">
+    <xsd:complexType>
+      <xsd:group ref="StringExpression"/>
+    </xsd:complexType>
+  </xsd:element>
 
 </xsd:schema>
