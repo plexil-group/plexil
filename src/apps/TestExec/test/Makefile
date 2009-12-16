@@ -40,14 +40,22 @@ RESOURCE_ARBITRATION_TESTS	:= resource1 resource1-repeatCond \
  resource2-equalPriority \
  resource3-ackRel resource3-denyHP resource3-deny2HP \
  resource4-hvm resource4-hvm-repeatCond \
- resource-renewable \
+ resource-renewable1 \
  NonUnaryResources
 
 # Simple-drive tests
 SIMPLE_DRIVE_PLAN	:= simple-drive
 SIMPLE_DRIVE_SCRIPTS	:= single-drive double-drive
 
-exec-regression-tests: empty-script-tests same-name-script-tests simple-drive-tests
+exec-regression-tests: assign-parent-invariant-test empty-script-tests same-name-script-tests
+exec-regression-tests: simple-drive-tests command-handles-tests resource-arbitration-tests
+
+assign-parent-invariant-test:
+	@echo Running assign-to-parent-invariant test
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	tst=assign-to-parent-invariant ; \
+	$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > $${tst}.out ; \
+	perl $(REGRESSION_PL) $${tst}.out valid/RUN_$${tst}_empty-script.valid
 
 empty-script-tests:
 	@echo Running tests with the empty script
@@ -78,7 +86,31 @@ simple-drive-tests:
 
 command-handles-tests:
 	@echo Running command handles tests
-	@echo Command Handles tests are not yet implemented
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	for openclosed in open closed ; do \
+		for plan in a1 a3 ; do \
+			planname=simple-$${openclosed}loop-command-$${plan} ; \
+			for script in a1 a3 ; do \
+				scriptname=simple-$${openclosed}loop-command-$${script}-script ; \
+				logname=$${planname}_$${script}.out ; \
+				echo ' ' $${planname} $${scriptname} ; \
+				$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > $${logname} ; \
+				perl $(REGRESSION_PL) $${logname} valid/RUN_$${planname}_$${scriptname}.valid ; \
+			done ; \
+		done ; \
+	done
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	planname=simple-openloop-command-nopost ; \
+	scriptname=simple-openloop-command-a3-script ; \
+	echo ' ' $${planname} ; \
+	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > $${planname}.out ; \
+	perl $(REGRESSION_PL) $${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	planname=simple-closedloop-command-multipleAck ; \
+	scriptname=$${planname}-script ; \
+	echo ' ' $${planname} ; \
+	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > $${planname}.out ; \
+	perl $(REGRESSION_PL) $${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
 
 resource-arbitration-tests:
 	@echo Running resource arbitration tests
@@ -93,8 +125,8 @@ localclean::
 	-$(RM) *.out RegressionResults
 
 # Targets that should be made every time they are invoked
-.PHONY: empty-script-tests same-name-script-tests simple-drive-tests
+.PHONY: assign-parent-invariant-test empty-script-tests same-name-script-tests
 
-.PHONY: command-handles-tests resource-arbitration-tests
+.PHONY: simple-drive-tests command-handles-tests resource-arbitration-tests
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
