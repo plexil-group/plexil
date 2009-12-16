@@ -825,7 +825,7 @@
     <Name>
       <Concat>
         <StringValue>MESSAGE__</StringValue>
-        <xsl:apply-templates select= "*"/>
+        <xsl:copy-of select= "*"/>
       </Concat>
 <!--      <StringValue><xsl:value-of select= "'MESSAGE__', ." separator=""/></StringValue> -->
     </Name>

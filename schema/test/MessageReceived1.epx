@@ -2,7 +2,9 @@
   <Node NodeType= "NodeList">
     <NodeId>Root</NodeId>
     <StartCondition>
-      <MessageReceived>hello there</MessageReceived>
+      <MessageReceived>
+        <StringValue>hello there</StringValue>
+      </MessageReceived>
     </StartCondition>
   </Node>
 </PlexilPlan>

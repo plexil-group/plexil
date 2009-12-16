@@ -6,7 +6,10 @@
       <StartCondition>
          <LookupOnChange>
             <Name>
-               <StringValue>MESSAGE__hello there</StringValue>
+               <Concat>
+                  <StringValue>MESSAGE__</StringValue>
+                  <StringValue>hello there</StringValue>
+               </Concat>
             </Name>
          </LookupOnChange>
       </StartCondition>
