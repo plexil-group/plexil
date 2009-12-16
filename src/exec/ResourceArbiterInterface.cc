@@ -111,12 +111,6 @@ namespace PLEXIL {
 
                   }
               }
-            /*
-            std::cout << "Resources needed: " << std::endl;
-            for(std::set<ChildResourceNode, ResourceComparator>::const_iterator rnIter = resourcesNeeded.begin();
-                rnIter != resourcesNeeded.end(); ++rnIter)
-              std::cout << " name: " << rnIter->name << ", weight: " << rnIter->weight << std::endl;
-            */
             // Loop through the expanded set of resources per command
             for (std::set<ChildResourceNode, ResourceComparator>::const_iterator resNeededIter = resourcesNeeded.begin();
                  resNeededIter != resourcesNeeded.end(); ++resNeededIter)
@@ -333,12 +327,6 @@ namespace PLEXIL {
                 q.push((*cIter));
               }
           }
-        /*
-        std::cout << "Flattened resources: " << std::endl;
-        for (std::vector<ChildResourceNode>::const_iterator frIter = flattenedRes.begin();
-             frIter != flattenedRes.end(); ++frIter)
-          std::cout << " name: " << frIter->name << std::endl;
-        */
       }
   }
 
@@ -424,23 +412,6 @@ namespace PLEXIL {
             m_resourceHierarchy[pName] = ResourceNode(maxCons, maxRen, children);
           }
       }
-
-    // Print out the resource heirarchy
-    /*
-    for (std::map<std::string, ResourceNode>::const_iterator pIter = m_resourceHierarchy.begin();
-         pIter != m_resourceHierarchy.end(); ++pIter)
-      {
-        std::cout << "parent resource node: " << pIter->first 
-                  << ", maxRenewable: " << pIter->second.maxRenewableValue
-                  << ", maxConsumable: " << pIter->second.maxConsumableValue;
-        for (std::vector<ChildResourceNode>::const_iterator cIter = pIter->second.children.begin();
-             cIter != pIter->second.children.end(); ++cIter)
-          {
-            std::cout << " <" << (*cIter).weight << ", " << (*cIter).name << "> ";
-          }
-        std::cout << std::endl;
-      }
-    */
     return true;
   }
 

@@ -1798,16 +1798,7 @@ namespace PLEXIL {
             ExpressionId expr = resIter->second;
             check_error(expr.isValid());
             resValues[resIter->first] = expr->getValue();
-            /*            
-            std::cout << "Command::fixResourceValues: " << resIter->first;
-            if (resIter->first == RESOURCENAME_TAG)
-              std:: cout << ": " << LabelStr(resValues[resIter->first]).toString() << std::endl;
-            else
-                std:: cout << ": " << resValues[resIter->first] << std::endl;
-            */
           }
-        
-        //        std::cout << std::endl;
         m_resourceValues.push_back(resValues);
       }
   }
