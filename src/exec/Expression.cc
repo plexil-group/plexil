@@ -114,7 +114,8 @@ namespace PLEXIL {
   }
 
   void Expression::deactivate() {
-    checkError(m_activeCount > 0, "Attempted to deactivate an expression too many times.");
+    checkError(m_activeCount > 0,
+	       "Attempted to deactivate expression " << getId() << " too many times.");
     bool changed = (m_activeCount == 1);
     m_activeCount--;
     debugMsg("Expression:deactivate", "Deactivating " << getId());
