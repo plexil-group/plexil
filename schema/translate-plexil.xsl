@@ -827,7 +827,6 @@
         <StringValue>MESSAGE__</StringValue>
         <xsl:copy-of select= "*"/>
       </Concat>
-<!--      <StringValue><xsl:value-of select= "'MESSAGE__', ." separator=""/></StringValue> -->
     </Name>
   </LookupOnChange>
 </xsl:template>
