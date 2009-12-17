@@ -188,7 +188,9 @@ namespace PLEXIL {
       if(destState != StateVariable::FINISHING())
 	deactivatePair(node, Node::INVARIANT_CONDITION());
       deactivatePair(node, Node::END_CONDITION());
-
+      // Any variables declared in this node also need to be deactivated.
+      // Chucko 17 Dec 2009
+      deactivateExecutable(node);
     }
 
     void transitionTo(NodeId& node, const LabelStr& destState) {
