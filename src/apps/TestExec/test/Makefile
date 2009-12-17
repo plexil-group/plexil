@@ -47,45 +47,62 @@ RESOURCE_ARBITRATION_TESTS	:= resource1 resource1-repeatCond \
 SIMPLE_DRIVE_PLAN	:= simple-drive
 SIMPLE_DRIVE_SCRIPTS	:= single-drive double-drive
 
-exec-regression-tests: assign-parent-invariant-test empty-script-tests same-name-script-tests
-exec-regression-tests: simple-drive-tests command-handles-tests resource-arbitration-tests
+exec-regression-tests: run-regression-suite
 
-assign-parent-invariant-test:
-	@echo Running assign-to-parent-invariant test
+setup: 
+	@-$(RM) RegressionResults tempRegressionResults
+	@-if [ ! -d output ] ; then $(RM) output ; mkdir output ; fi
+	@-$(RM) output/*.out
+	@date > RegressionResults
+	@echo
+	@echo --------------------- SUMMARY OF FAILED TESTS ---------------------
+	@echo
+
+end-report: run-all-tests
+	@echo
+	@echo ------------------- END SUMMARY OF FAILED TESTS ------------------- 
+	@echo -- for complete test results see file: RegressionResults 
+	@echo
+
+run-tests-with-setup: setup run-all-tests
+
+run-all-tests: assign-parent-invariant-test empty-script-tests same-name-script-tests
+run-all-tests: simple-drive-tests command-handles-tests resource-arbitration-tests
+
+run-regression-suite: run-tests-with-setup end-report
+
+assign-parent-invariant-test: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	tst=assign-to-parent-invariant ; \
-	$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > $${tst}.out ; \
-	perl $(REGRESSION_PL) $${tst}.out valid/RUN_$${tst}_empty-script.valid
+	echo $${tst} >> tempRegressionResults ; \
+	$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out ; \
+	perl $(REGRESSION_PL) output/$${tst}.out valid/RUN_$${tst}_empty-script.valid
 
-empty-script-tests:
-	@echo Running tests with the empty script
+empty-script-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for tst in $(EMPTY_SCRIPT_TESTS) ; do \
-		echo ' ' $${tst} ; \
-		$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > $${tst}.out ; \
-		perl $(REGRESSION_PL) $${tst}.out ; \
+		echo $${tst} >> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out 2>> tempRegressionResults ; \
+		perl $(REGRESSION_PL) output/$${tst}.out ; \
 	done
 
-same-name-script-tests:
-	@echo Running tests with their own scripts
+same-name-script-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for tst in $(SAME_NAME_SCRIPT_TESTS) ; do \
-		echo ' ' $${tst} ; \
-		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}-script.plx > $${tst}.out ; \
-		perl $(REGRESSION_PL) $${tst}.out ; \
+		echo $${tst} >> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}-script.plx > output/$${tst}.out 2>> tempRegressionResults ; \
+		perl $(REGRESSION_PL) output/$${tst}.out ; \
 	done
 
-simple-drive-tests:
-	@echo Running simple-drive tests
+simple-drive-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for scrpt in $(SIMPLE_DRIVE_SCRIPTS) ; do \
-		echo ' ' $${scrpt} ; \
-		$(EXEC_PROG) -p plans/$(SIMPLE_DRIVE_PLAN).plx -s scripts/$${scrpt}-script.plx > $${scrpt}.out ; \
-		perl $(REGRESSION_PL) $${scrpt}.out ; \
+		echo $${scrpt} >> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$(SIMPLE_DRIVE_PLAN).plx -s scripts/$${scrpt}-script.plx > output/$${scrpt}.out 2>> tempRegressionResults ; \
+		perl $(REGRESSION_PL) output/$${scrpt}.out ; \
 	done
 
-command-handles-tests:
-	@echo Running command handles tests
+command-handles-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for openclosed in open closed ; do \
 		for plan in a1 a3 ; do \
@@ -93,38 +110,39 @@ command-handles-tests:
 			for script in a1 a3 ; do \
 				scriptname=simple-$${openclosed}loop-command-$${script}-script ; \
 				logname=$${planname}_$${script}.out ; \
-				echo ' ' $${planname} $${scriptname} ; \
-				$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > $${logname} ; \
-				perl $(REGRESSION_PL) $${logname} valid/RUN_$${planname}_$${scriptname}.valid ; \
+				echo $${planname}_$${scriptname} >> tempRegressionResults ; \
+				$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > output/$${logname} 2>> tempRegressionResults ; \
+				perl $(REGRESSION_PL) output/$${logname} valid/RUN_$${planname}_$${scriptname}.valid ; \
 			done ; \
 		done ; \
 	done
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	planname=simple-openloop-command-nopost ; \
 	scriptname=simple-openloop-command-a3-script ; \
-	echo ' ' $${planname} ; \
-	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > $${planname}.out ; \
-	perl $(REGRESSION_PL) $${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
+	echo $${planname} >> tempRegressionResults ; \
+	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > output/$${planname}.out 2>> tempRegressionResults ; \
+	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	planname=simple-closedloop-command-multipleAck ; \
 	scriptname=$${planname}-script ; \
-	echo ' ' $${planname} ; \
-	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > $${planname}.out ; \
-	perl $(REGRESSION_PL) $${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
+	echo $${planname} >> tempRegressionResults ; \
+	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > output/$${planname}.out 2>> tempRegressionResults ; \
+	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
 
-resource-arbitration-tests:
-	@echo Running resource arbitration tests
+resource-arbitration-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for tst in $(RESOURCE_ARBITRATION_TESTS) ; do \
-		echo ' ' $${tst} ; \
-		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}-script.plx > $${tst}.out ; \
-		perl $(REGRESSION_PL) $${tst}.out valid/RUN_$${tst}_$${tst}-script.valid ; \
+		echo $${tst} >> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}-script.plx > output/$${tst}.out 2>> tempRegressionResults ; \
+		perl $(REGRESSION_PL) output/$${tst}.out valid/RUN_$${tst}_$${tst}-script.valid ; \
 	done
 
 localclean::
-	-$(RM) *.out RegressionResults
+	-$(RM) RegressionResults tempRegressionResults output
 
 # Targets that should be made every time they are invoked
+.PHONY: setup header summary
+
 .PHONY: assign-parent-invariant-test empty-script-tests same-name-script-tests
 
 .PHONY: simple-drive-tests command-handles-tests resource-arbitration-tests
