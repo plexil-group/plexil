@@ -36,11 +36,8 @@
 #include "ExecListener.hh"
 #include "Expressions.hh"
 #include "InterfaceAdapter.hh"
-#include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
-#include "PlexilExec.hh"
 #include "StateManagerInit.hh"
-#include "ThreadSemaphore.hh"
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif
@@ -379,8 +376,8 @@ namespace PLEXIL
 	debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
 	m_exec.step();
 	debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
-        // give an opportunity to cancel thread here
-        pthread_testcancel();
+	// give an opportunity to cancel thread here
+	pthread_testcancel();
       }
     debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
   }
