@@ -30,7 +30,7 @@ RM		= /bin/rm -fr
 LN		= /bin/ln -s
 # Directory list
 LS              = /bin/ls
-DEPEND		= $(CXX) -MM -MF Makedepend
+DEPEND		= $(CXX) -MM
 TAG		= etags -t
 # Move a file
 MV              = /bin/mv

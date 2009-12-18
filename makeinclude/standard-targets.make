@@ -97,9 +97,12 @@ localdust:
 
 depend: Makedepend
 
-Makedepend: $(SRC) $(INC)
-	$(DEPEND) $(INCLUDES) $(SRC)
-	@ echo
+Makedepend: $(SRC) $(INC) Makefile
+	-$(RM) $@
+	touch $@
+	for src in $(SRC) ; do \
+		$(DEPEND) $(INCLUDES) $${src} >> $@ ; \
+	done
 
 ##### Rebuild an Emacs tags table (the TAGS file).
 
