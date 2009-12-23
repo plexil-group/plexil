@@ -1,0 +1,24 @@
+This directory contains a prototype Universal Executive
+application that interfaces through the "IPC" (Inter-Process
+Communications) package, a library for efficient,
+network-based inter-process message passing, developed at
+Carnegie Mellon University.  See plexil/third-party/ipc, which
+has more information and the latest distribution of this
+package.
+
+An instance of this UE can communicate with other UE instances
+via string-based messages.  The communication protocol is
+"publish/subscribe" -- messages are published to a central IPC
+server, and all executives connected to the server, except the
+sender, receive the message.
+
+The Standard (Extended) PLEXIL construct for sending messages
+is the command:
+
+  SendMessage(<string>)
+
+And for receiving messages, the boolean expression:
+
+  MessageReceived(<string>)
+
+See the 'plans' directory for several examples.

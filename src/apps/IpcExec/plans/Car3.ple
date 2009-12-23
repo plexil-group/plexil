@@ -1,0 +1,27 @@
+// A small extension of Car.ple
+
+Car:
+{
+  Boolean carstarted = false;
+  Boolean heaterstarted = false;
+  EndCondition: carstarted && heaterstarted;
+  NodeList:
+
+    CallIgnition: {
+     Command: SendMessage("StartCar");
+    } 
+
+    CallHeater: {
+     Command: SendMessage("StartHeater");
+    } 
+
+    CarStarted: {
+     StartCondition: MessageReceived("CarStarted");
+     Assignment: carstarted = true;
+    }
+
+    HeaterStarted: {
+     StartCondition: MessageReceived("HeaterStarted");
+     Assignment: heaterstarted = true;     
+    }
+}

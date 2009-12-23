@@ -1,0 +1,23 @@
+// A small extension of Car.ple
+
+Car:
+{
+  Boolean carstarted = false;
+  Boolean radiostarted = false;
+  EndCondition: carstarted && radiostarted;
+  NodeList:
+
+    CallIgnition: {
+     Command: SendMessage("StartCar");
+    } 
+
+    CarStarted: {
+     StartCondition: MessageReceived("CarStarted");
+     Assignment: carstarted = true;
+    }
+
+    RadioStarted: {
+     StartCondition: MessageReceived("RadioStarted");
+     Assignment: radiostarted = true;     
+    }
+}

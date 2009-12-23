@@ -1,0 +1,13 @@
+<Interfaces>
+ <Adapter AdapterType="OSNativeTime"/>
+ <Adapter AdapterType="Dummy">
+ <DefaultCommandAdapter/>
+ </Adapter>
+ <Adapter AdapterType="MultiExecutive" TaskName="Default" Server="localhost">
+  <DefaultLookupAdapter/>
+  <CommandNames>
+SendMessage,
+SendCommand
+  </CommandNames>
+ </Adapter>
+</Interfaces>
