@@ -1,0 +1,228 @@
+#!/bin/sh
+#
+# The checkreqs script checks for the UE build requirements (java,
+# gcc) and runs them to check that the correct versions are in the path.
+#
+BADOSTYPE=1
+GCCVERSTR="Minimum gcc version required is 3.3.3"
+MINGCC_I=3
+MINGCC_J=3
+MINGCC_K=3
+GCCPATH="/usr/local/beta/gcc-3.3.3/bin"
+BADGCC=0
+JAVAVERSTR="Minimum Java version required is 1.5"
+MINJAVA_I=1
+MINJAVA_J=5
+JAVAPATH="/usr/local/jdk1.5.0/bin"
+BADJAVA=0
+BADPATH=0
+BADENVV=0
+BADJH=0
+BADBAL=0
+BADLL=0
+MYOSTYPE=""
+
+#Treat all OSTYPE variants for linux as 'linux'
+# linux-gnu, gnu-linux, linux, Linux, and I think I once encountered rh-linux 
+if [ ! -z `echo $OSTYPE | grep -i linux` ]
+then 
+   MYOSTYPE=linux
+elif [ ! -z `echo $OSTYPE | grep -i darwin` ]
+then
+   MYOSTYPE=darwin
+else
+   MYOSTYPE=$OSTYPE
+fi
+
+#Check OS type set to a known OS
+if [ $MYOSTYPE = darwin ]
+then
+  BADOSTYPE=0
+fi
+
+if [ $MYOSTYPE = linux ]
+then
+  BADOSTYPE=0
+fi
+
+if [ $BADOSTYPE -eq 1 ]
+then
+ echo " [PROBLEM!] Unknown OSTYPE " $MYOSTYPE
+ echo "            Known values are darwin, solaris, and linux." 
+else 
+ echo "  OSTYPE is set to " $MYOSTYPE
+fi
+
+echo "Checking for required software versions:"
+
+
+#Check for minimum gcc version
+GCCVER=`gcc -v 2>&1 | egrep 'gcc version [0-9]\.[0-9]+' | cut -d" " -f3`
+if [ -n "$GCCVER" ]
+then
+  i=`echo $GCCVER | cut -d. -f1`
+  j=`echo $GCCVER | cut -d. -f2`
+  k=`echo $GCCVER | cut -d. -f3`
+# ignore version info after the "_" as in 3.3.3_01
+  k=`echo $k | cut -d_ -f1`
+  if [ $i -lt $MINGCC_I ]
+  then 
+    BADGCC=1 
+  else
+    if [ $i -le $MINGCC_I -a $j -lt $MINGCC_J ]
+    then
+      BADGCC=1 
+    else
+      if [ $MYOSTYPE != darwin ]
+      then
+        if [ $i -le $MINGCC_I -a $j -le $MINGCC_J -a $k -lt $MINGCC_K ]
+        then
+          BADGCC=1 
+        fi
+      fi
+    fi
+  fi
+  if [ $BADGCC -eq 1 ]
+  then
+    echo "  gcc version found is too old for build: version " $GCCVER 
+    echo " " $GCCVERSTR
+  fi
+else
+  BADGCC=1 
+  echo "Did not find any version of gcc in search path"
+fi
+if [ $BADGCC -eq 0 ]
+then
+  echo "  Found gcc version $GCCVER"
+fi
+
+#Check for minimum Java version
+JAVAVER=`java -version 2>&1 | egrep 'java version .[0-9]\.[0-9]' | cut -d"\"" -f2`
+if [ -n "$JAVAVER" ]
+then
+  i=`echo $JAVAVER | cut -d. -f1`
+  j=`echo $JAVAVER | cut -d. -f2`
+# ignore version info after the "_" as in 1.4.2_05
+  k=`echo $k | cut -d_ -f1`
+  if [ $i -lt $MINJAVA_I ]
+  then 
+    BADJAVA=1 
+  else
+    if [ $i -le $MINJAVA_I -a $j -lt $MINJAVA_J ]
+    then
+      BADJAVA=1    
+    fi
+  fi
+  if [ $BADJAVA -eq 1 ]
+  then
+    echo "  Java version found is too old for build: version " $JAVAVER 
+    echo " " $JAVAVERSTR
+  fi
+else
+  BADJAVA=1 
+  echo "Did not find any version of java in search path"
+fi
+
+if [ $BADJAVA -eq 0 ]
+then
+  echo "  Found java version $JAVAVER"
+fi
+
+#These are some suggested actions if version is missing or too old
+if [ $MYOSTYPE = solaris ]
+then
+  echo "Be sure to include $JAMPATH in your path."
+else  
+  if [ $MYOSTYPE = linux ]
+  then
+    echo "Use: find /usr -name 'jam*'"
+    echo "to help locate the required Jam executable."
+  fi
+fi
+
+
+if [ $BADGCC -eq 1 ]
+then
+  echo "Your path to gcc may be set wrong."
+  if [ $MYOSTYPE = solaris ]
+  then
+    echo "Be sure to include $GCCPATH in your path."
+  else  
+    if [ $MYOSTYPE = linux ]
+    then
+      echo "Use: find /usr -name gcc-3.3.3"
+      echo "to help locate the required gcc executable."
+    fi
+  fi
+fi
+
+
+if [ $BADJAVA -eq 1 ]
+then
+  echo "Your path to Java may be set wrong."
+  if [ $MYOSTYPE = solaris ]
+  then
+    echo "Be sure to include $JAVAPATH in your path."
+  else  
+    if [ $MYOSTYPE = linux ]
+    then
+      echo "Use: find /usr -name 'jdk1.*'"
+      echo "to help locate the required gcc executable."
+    fi
+  fi
+fi
+
+if [ $BADGCC -eq 1 -o $BADJAVA -eq 1 ]
+then
+  BADPATH=1
+else
+  echo "Path includes required versions to build UE"
+fi
+
+echo "Checking for required environment variables:"
+
+#check load library
+if [ $MYOSTYPE = darwin ]
+then 
+  if [ -z "$DYLD_LIBRARY_PATH" ] 
+  then
+    echo "  DYLD_LIBRARY_PATH environment variable missing or not set"
+    BADLL=1
+  else 
+    echo "  DYLD_LIBRARY_PATH is set to " $DYLD_LIBRARY_PATH
+  fi
+else 
+  if [ -z "$LD_LIBRARY_PATH" ] 
+    then
+      echo "  LD_LIBRARY_PATH environment variable missing or not set"
+      BADLL=1
+    else 
+      echo "  LD_LIBRARY_PATH is set to " $LD_LIBRARY_PATH
+    fi
+fi
+
+if [ $MYOSTYPE = darwin ]
+then
+  if [ "$DYLD_BIND_AT_LAUNCH"  != YES ]
+  then
+    echo "DYLD_BIND_AT_LAUNCH environment variable missing or not set to YES" 
+    BADENV=1
+  else
+    echo "  DYLD_BIND_AT_LAUNCH is set to " $DYLD_BIND_AT_LAUNCH
+  fi
+fi
+
+if [ $BADJH -eq 1 -o $BADPATH -eq 1 -o $BADLL -eq 1 ]
+then
+  BADENVV=1
+  echo "Environment variables may not be set correctly to build UE"
+else
+  echo "Required environment variables are present"
+fi
+
+if [ $BADPATH -eq 1 -o $BADENVV -eq 1 ]
+then
+  exit 1
+fi
+
+exit 0
