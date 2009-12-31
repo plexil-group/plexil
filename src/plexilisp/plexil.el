@@ -25,8 +25,7 @@
 
 
 ;;; PlexiLisp -- An Emacs Lisp based syntax and XML generator for PLEXIL
-;;; plans and simulation scripts.  Described in full on its wiki:
-;;;   http://universalexec.wiki.sourceforge.net/PlexiLisp
+;;; plans and simulation scripts.
 
 ;;; Basic instructions:
 ;;;    Write a plan or script in PlexiLisp
@@ -54,7 +53,7 @@
 ;;;   ...the rest should be intuitive
 
 (defconst *plexil-home* (format "%s" (getenv "PLEXIL_HOME")))
-(defconst *plexilisp-location* (format "%s/plexilisp" *plexil-home*))
+(defconst *plexilisp-location* (format "%s/src/plexilisp" *plexil-home*))
 (defconst *bin-location* (format "%s/bin" *plexil-home*))
 
 (defconst *plexilisp-version* "3.1")
@@ -79,9 +78,9 @@
 (defun plexil ()
   "Creates XML file from current buffer containing PlexiLisp plan or script."
   (interactive)
-  (if (null *plexilisp-location*)
-      (message (concat "The PLEXILISP_HOME environment variable is undefined. "
-                       "It must be set to the pathname of your 'plexilisp' "
+  (if (null *plexil-home*)
+      (message (concat "The PLEXIL_HOME environment variable is undefined. "
+                       "It must be set to the pathname of your 'plexil' "
                        "directory. Then restart Emacs."))
     (let* ((max-lisp-eval-depth 1000)   ; support huge plans!
            (marker (set-marker (make-marker) 1 (current-buffer)))

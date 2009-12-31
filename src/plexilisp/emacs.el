@@ -1,4 +1,4 @@
-;;; Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+;;; Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 ;;;  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 
 (defun init-plexilisp (&optional compile)
   (interactive)
-  (let* ((plexildir (format "%s/plexilisp" (getenv "PLEXIL_HOME")))
+  (let* ((plexildir (format "%s/src/plexilisp" (getenv "PLEXIL_HOME")))
          (source-file (format "%s/plexil.el" plexildir))
          (compiled-file (format "%s/plexil.elc" plexildir))
          (max-specpdl-size 2700))
@@ -46,7 +46,7 @@
     ;; I haven't yet figured out why.
     (message (concat "Error: PLEXIL_HOME undefined in Emacs. "
                      "Try defining it in your .emacs file. "
-                     "See your plexil/plexilisp/emacs.el for instructions. "))
+                     "See your plexil/src/plexilisp/emacs.el for instructions. "))
   (init-plexilisp))
 
 ;;; If you got the error message in the form above, put the following in
