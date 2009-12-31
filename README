@@ -77,4 +77,13 @@ Release Notes
  - Standalone Simulator may not work in Mac OS and some versions of
    Linux, due to errors in the LCM library.  The problem is being worked on.
 
- 
+1.00
+ - Revamped source code directory structure.
+ - Replaced 'jam' with 'make' as the system's build tool.
+ - Added a new application IpcExec, allowing multiple communicating executives.
+ - Added CMU's "IPC" system to support IpcExec, and future planned applications.
+ - Numerous small fixes and enhancements throughout the system.
+ CAVEATS: 
+ - Standalone Simulator may not work in Mac OS and some
+   versions of Linux, due to errors in the LCM library.  LCM
+   is in the process of being replaced by IPC.
