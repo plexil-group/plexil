@@ -87,3 +87,6 @@ Release Notes
  - Standalone Simulator may not work in Mac OS and some
    versions of Linux, due to errors in the LCM library.  LCM
    is in the process of being replaced by IPC.
+ - A PDF version of the user manual, normally included in the distribution, 
+   is not available; we are seeking a means to create one from the new wiki
+   system used by Sourceforge.
