@@ -1,0 +1,6 @@
+This directory contains a simple 2D graphical robot simulator,
+as a PLEXIL application.  For more information, see the
+Robosim chapter in the PLEXIL manual at
+http://plexil.sourceforge.net.
+
+To build this application, type 'make'.
