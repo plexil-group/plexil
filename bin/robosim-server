@@ -27,9 +27,9 @@
 
 . plexil-setup.sh
 
-prog=$PLEXIL_HOME/apps/robosim/RobotSimulator/SSWGComm/Unix/bin/testServer
+prog=$PLEXIL_HOME/bin/SSWGTestServer
 
 plexil-check-prog $prog
 
 echo Starting RoboSim server...
-$prog $*
+exec $prog $*
