@@ -37,8 +37,7 @@ SRC		:= $(wildcard *.cc)
 SVN_FILES       := Makefile $(SRC)
 
 # a hack until we need to get VxWorks working
-STANDARD_CXXFLAGS += -DUNIX
-DEPEND += -DUNIX
+DEFINES += -DUNIX
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
@@ -50,9 +49,6 @@ SSWGTestClient2: TestClient2.o depend
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
 
 SSWGTestComm: TestComm.o depend
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
-
-SSWGTestServer: TestServer.o depend
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
 
 ifneq ($(MAKECMDGOALS),clean)

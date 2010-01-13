@@ -26,11 +26,15 @@
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY := sswgcomm
+LIBRARY_SRC := $(wildcard SSWG*.cc)
+LIBRARY_OBJ := $(LIBRARY_SRC:.cc=.o)
+
+EXECUTABLE := SSWGTestServer
 
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/src/utils
 LIB_PATH	+=
-LIBS		+= PlexilUtils $(PTHREAD_LIB)
+LIBS		+= tinyxml PlexilUtils $(PTHREAD_LIB)
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
@@ -38,10 +42,22 @@ INC		:= $(wildcard *.hh)
 SVN_FILES       := Makefile $(SRC) $(INC)
 
 # a hack until we need to get VxWorks working
-STANDARD_CXXFLAGS += -DUNIX
-DEPEND += -DUNIX
+DEFINES += -DUNIX
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+
+# these must follow the above 'include'
+
+$(SHLIB): depend $(LIBRARY_OBJ)
+	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $(LIBRARY_OBJ)
+
+$(ARCHIVE): $(LIBRARY_OBJ) depend
+	$(AR) -o $@ $(LIBRARY_OBJ)
+
+# FIXME: needs explicit dependency on library!
+SSWGTestServer: TestServer.o depend
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -l$(LIBRARY) -o $@ $<
+
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
