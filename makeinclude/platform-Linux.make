@@ -2,6 +2,8 @@
 # C/C++ compiler flag overrides
 #
 
+OPENGL_LIBS	:= -lGL -lGLU -lglut
+
 #
 # Compiler/linker option overrides
 #
