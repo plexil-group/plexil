@@ -45,6 +45,9 @@ TestExecSAS: lcm-structs exec-core app-framework sockets luv
 	$(MAKE) -C src/apps/TestExecSAS
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
+robosim: exec-core app-framework
+	$(MAKE) -C src/apps/robosim
+
 checker:
 	(cd src/checker && ant jar)
 
