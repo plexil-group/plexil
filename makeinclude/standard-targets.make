@@ -126,7 +126,7 @@ Makedepend: $(SRC) $(INC) Makefile
 	-$(RM) $@
 	touch $@
 	for src in $(SRC) ; do \
-		$(DEPEND) $(INCLUDES) $${src} >> $@ ; \
+		$(DEPEND) $(DEFINES) $(INCLUDES) $${src} >> $@ ; \
 	done
 
 ##### Rebuild an Emacs tags table (the TAGS file).
