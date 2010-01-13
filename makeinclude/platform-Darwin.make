@@ -2,7 +2,9 @@
 # C/C++ compiler flag overrides
 #
 
+DEFINES		+= -DDarwin
 DEBUG_FLAGS	+= -gfull
+OPENGL_LIBS	:= -framework OpenGL -framework GLUT
 
 #
 # Compiler/linker option overrides
