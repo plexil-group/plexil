@@ -32,9 +32,10 @@ bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id)
 {
   const size_t stacksize = 0x10000;
   pthread_attr_t pthread_attr;
+  int nRet;
 
   // Initialize the pthread_attr_t struct
-  switch (pthread_attr_init(&pthread_attr)) {
+  switch ((nRet = pthread_attr_init(&pthread_attr))) {
   case 0: break;
   case ENOMEM: 
     std::cerr << "Insufficient memory exists to create the thread attribute object" << std::endl;
@@ -46,31 +47,31 @@ bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id)
     std::cerr << "&pthread_attr is an invalid pointer" << std::endl;
     return false;
   default:
-    std::cerr << "unknown error" << std::endl; 
+    std::cerr << "unknown error " << nRet << std::endl; 
     return false;
   }
 
   // Set the stack size in the pthread_attr_t struct
-  switch (pthread_attr_setstacksize(&pthread_attr, stacksize)) {
+  switch ((nRet = pthread_attr_setstacksize(&pthread_attr, stacksize))) {
   case 0: 
     break;
   case EINVAL: 
     std::cerr << "setstacksize invalid" << std::endl; 
     return false;
   default: 
-    std::cerr << "unknown error" << std::endl; 
+    std::cerr << "unknown error " << nRet << std::endl; 
     return false;
   }	
   
   //  pthread_t thread_id;
-  int nRet = pthread_create(
-                            &thread_id,                  // Thread id
-                            &pthread_attr,                        // Use default attributes
-                            (THREAD_FUNC_PTR)threadFunc, // Thread function
-                            arg                          // Argument to thread function
-                            );
+  nRet = pthread_create(
+			&thread_id,                  // Thread id
+			&pthread_attr,               // Use default attributes
+			(THREAD_FUNC_PTR)threadFunc, // Thread function
+			arg                          // Argument to thread function
+			);
   if (nRet !=0)
-    std::cerr << "Error occurred while spawning thread" << std::endl;
+    std::cerr << "Error " << nRet << " occurred while spawning thread" << std::endl;
   //  else
   //    pthread_detach(thread_id); // TODO: do we need this
 
