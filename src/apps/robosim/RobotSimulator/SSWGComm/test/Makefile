@@ -25,13 +25,12 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-# Dummy for now
-EXECUTABLE := TestClient1
+EXECUTABLE := SSWGTestClient1 SSWGTestClient2 SSWGTestComm SSWGTestServer
 
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/src/utils ..
 LIB_PATH	+= ..
-LIBS		+= PlexilUtils sswgcomm $(PTHREAD_LIB)
+LIBS		+= tinyxml PlexilUtils sswgcomm $(PTHREAD_LIB)
 
 SRC		:= $(wildcard *.cc)
 
@@ -42,6 +41,20 @@ STANDARD_CXXFLAGS += -DUNIX
 DEPEND += -DUNIX
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+
+# these must follow the above 'include'
+SSWGTestClient1: TestClient1.o depend
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
+
+SSWGTestClient2: TestClient2.o depend
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
+
+SSWGTestComm: TestComm.o depend
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
+
+SSWGTestServer: TestServer.o depend
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
+
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
