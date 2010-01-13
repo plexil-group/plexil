@@ -42,20 +42,54 @@ public:
                           const std::string& ipAddress = "127.0.0.1", 
 			  int portNumber=6164);
   ~RoboSimInterfaceAdapter();
+
+  //
+  // API to ExecApplication
+  //
+
+  /**
+   * @brief Initializes the adapter, possibly using its configuration data.
+   * @return true if successful, false otherwise.
+   */
+  bool initialize();
+
+  /**
+   * @brief Starts the adapter, possibly using its configuration data.  
+   * @return true if successful, false otherwise.
+   */
+  bool start();
+
+  /**
+   * @brief Stops the adapter.  
+   * @return true if successful, false otherwise.
+   */
+  bool stop();
+
+  /**
+   * @brief Resets the adapter.  
+   * @return true if successful, false otherwise.
+   */
+  bool reset();
+
+  /**
+   * @brief Shuts down the adapter, releasing any of its resources.
+   * @return true if successful, false otherwise.
+   */
+  bool shutdown();
   
-  virtual void lookupNow(const PLEXIL::StateKey& stateKey,
-                         std::vector<double>& dest);
+  void lookupNow(const PLEXIL::StateKey& stateKey,
+		 std::vector<double>& dest);
   
-  virtual void executeCommand(const PLEXIL::LabelStr& name,
-                              const std::list<double>& args,
-                              PLEXIL::ExpressionId dest,
-                              PLEXIL::ExpressionId ack);
-  virtual void executeFunctionCall(const PLEXIL::LabelStr& name,
-                                   const std::list<double>& args,
-                                   PLEXIL::ExpressionId dest,
-                                   PLEXIL::ExpressionId ack);
-  virtual void receivedMessage (const std::string& sender,
-                                const std::string& msg);
+  void executeCommand(const PLEXIL::LabelStr& name,
+		      const std::list<double>& args,
+		      PLEXIL::ExpressionId dest,
+		      PLEXIL::ExpressionId ack);
+  void executeFunctionCall(const PLEXIL::LabelStr& name,
+			   const std::list<double>& args,
+			   PLEXIL::ExpressionId dest,
+			   PLEXIL::ExpressionId ack);
+  void receivedMessage (const std::string& sender,
+			const std::string& msg);
 
 private:
 
@@ -63,6 +97,8 @@ private:
                                              const std::string& msg);
 
   std::string m_Name;
+  std::string m_IpAddress;
+  int m_PortNumber;
   SSWGClient m_SSWGClient;
   bool m_Connected;
   std::map<std::string, PLEXIL::ExpressionId> m_CommandMap;
