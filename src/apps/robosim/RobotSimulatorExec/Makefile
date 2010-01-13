@@ -35,10 +35,11 @@ MACHTYPE ?= $(shell uname -p)
 OS_ARCH = $(OSTYPE)-$(MACHTYPE)
 
 EXECUTABLE = roboSimExec
+SRC = RoboSimInterfaceAdapter.cc RoboSimExec.cc
+INC = RoboSimInterfaceAdapter.hh
 
 INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/interfaces/Sockets  $(PLEXIL_HOME)/src/app-framework $(ROBOSIM_HOME)/SSWGComm
-LIBS		+= pthread tinyxml PlexilUtils PlexilExec PlexilAppFramework PlexilSockets sswgcom
-LIB_DIRS	+= $(ROBOSIM_HOME)/SSWGComm/$(OS_ARCH)/lib
+LIBS		+= pthread tinyxml PlexilUtils PlexilExec PlexilAppFramework PlexilSockets sswgcomm
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 ROBOSIMEXEC_TARGET = roboSimExec
