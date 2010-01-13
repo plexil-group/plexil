@@ -27,148 +27,191 @@
 #include <fstream>
 #include <time.h>
 
-#include "PlexilExec.hh"
-#include "ThreadedExternalInterface.hh"
-#include "CoreExpressions.hh"
-#include "Expressions.hh"
+//#include "PlexilExec.hh"
+#include "ExecApplication.hh"
+#include "InterfaceManager.hh"
+#include "InterfaceSchema.hh"
+#include "TimeAdapter.hh"
 #include "Debug.hh"
-#include "StateManagerInit.hh"
 #include "PlexilXmlParser.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "RoboSimInterfaceAdapter.hh"
-#include "LuvListener.hh"
+#include "NewLuvListener.hh"
 #include "SocketException.h"
 
 
 int main (int argc, char** argv)
 {
-   std::string planName("error");
-   std::string debugConfig("Debug.cfg");
-   std::string ipAddress("127.0.0.1");
-   int portNumber=6164;
-   bool        luvRequest = false;
-   std::string luvHost    = LUV_DEFAULT_HOST;
-   int         luvPort    = LUV_DEFAULT_PORT;
-   bool        luvBlock   = false;
-   std::string usage(
-      "Usage: roboSimExec -p <plan> [-d <debug_config_file>] [-i <ip_address_comm_server>] [-p <port_number_comm_server>] [-v [-h <hostname>] [-n <portnumber>] -b];");
+  std::string planName("error");
+  std::string debugConfig("Debug.cfg");
+  std::string interfaceConfig("");
+  std::string ipAddress("127.0.0.1");
+  int portNumber=6164;
+  bool        luvRequest = false;
+  std::string luvHost    = PLEXIL::NewLuvListener::LUV_DEFAULT_HOSTNAME();
+  int         luvPort    = PLEXIL::NewLuvListener::LUV_DEFAULT_PORT();
+  bool        luvBlock   = false;
+  std::string usage(
+		    "Usage: roboSimExec -p <plan>\n\
+                   [-c <interface_config_file>]\n\
+                   [-d <debug_config_file>]\n\
+                   [-i <ip_address_comm_server>]\n\
+                   [-cp <port_number_comm_server>]\n\
+                   [-v [-h <luv_hostname>] [-n <luv_portnumber>] -b]");
 
-   // if not enough parameters, print usage
+  // if not enough parameters, print usage
 
-   if (argc < 2)
-   {
+  if (argc < 2)
+    {
       std::cout << usage << std::endl;
       return -1;
-   }
-   // parse out parameters
+    }
+  // parse out parameters
    
-   for (int i = 1; i < argc; ++i)
-   {
-      if (strcmp(argv[i], "-p") == 0)
-         planName = argv[++i];
+  for (int i = 1; i < argc; ++i)
+    {
+      if (strcmp(argv[i], "-b") == 0)
+	luvBlock = true;
+      else if (strcmp(argv[i], "-c") == 0)
+        interfaceConfig = std::string(argv[++i]);
+      else if (strcmp(argv[i], "-cp") == 0)
+        portNumber = atoi(argv[++i]);
       else if (strcmp(argv[i], "-d") == 0)
         debugConfig = std::string(argv[++i]);
       else if (strcmp(argv[i], "-i") == 0)
         ipAddress = std::string(argv[++i]);
-      else if (strcmp(argv[i], "-p") == 0)
-        portNumber = atoi(argv[++i]);
-      else if (strcmp(argv[i], "-v") == 0)
-         luvRequest = true;
-      else if (strcmp(argv[i], "-b") == 0)
-         luvBlock = true;
       else if (strcmp(argv[i], "-h") == 0)
-         luvHost = argv[++i];
+	luvHost = argv[++i];
       else if (strcmp(argv[i], "-n") == 0)
-      {
-         std::stringstream buffer;
-         buffer << argv[++i];
-         buffer >> luvPort;
-         SHOW(luvPort);
-      }
+	{
+	  std::stringstream buffer;
+	  buffer << argv[++i];
+	  buffer >> luvPort;
+	  SHOW(luvPort);
+	}
+      else if (strcmp(argv[i], "-p") == 0)
+	planName = argv[++i];
+      else if (strcmp(argv[i], "-v") == 0)
+	luvRequest = true;
       else
-      {
-         std::cout << "Unknown option '" 
-                   << argv[i] 
-                   << "'.  " 
-                   << usage 
-                   << std::endl;
-         return -1;
-      }
-   }
-   // basic initialization
+	{
+	  std::cout << "Unknown option '" 
+		    << argv[i] 
+		    << "'.\n" 
+		    << usage 
+		    << std::endl;
+	  return -1;
+	}
+    }
+  // basic initialization
 
-   std::ifstream config(debugConfig.c_str());
-   if (config.good()) DebugMessage::readConfigFile(config);
+  std::ifstream dbgConfig(debugConfig.c_str());
+  if (dbgConfig.good()) 
+    DebugMessage::readConfigFile(dbgConfig);
 
-   PLEXIL::initializeExpressions();
-   PLEXIL::initializeStateManagers();
+  // get interface configuration file, if provided
+  TiXmlDocument* configDoc = NULL;
+  if (!interfaceConfig.empty())
+    {
+      std::cout << "Reading interface configuration from "
+                << interfaceConfig
+                << std::endl;
+      configDoc = new TiXmlDocument(interfaceConfig);
+      if (!configDoc->LoadFile())
+        {
+          std::cout << "ERROR: unable to load interface configuration file "
+                    << interfaceConfig
+                    << ":\n "
+                    << configDoc->ErrorDesc()
+                    << std::endl;
+          return -1;
+        }
+    }
 
-   // create the exec
+  // get Interfaces element
+  TiXmlElement* configElt = NULL;
+  if (configDoc == NULL)
+    {
+      configElt = new TiXmlElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+      // Add a time adapter
+      TiXmlElement* timeElt = new TiXmlElement(PLEXIL::InterfaceSchema::ADAPTER_TAG());
+      timeElt->SetAttribute("AdapterType", "OSNativeTime");
+      configElt->LinkEndChild(timeElt);
+    }
+  else
+    {
+      configElt = configDoc->FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+    }
 
-   PLEXIL::PlexilExecId exec = (new PLEXIL::PlexilExec())->getId();
-   PLEXIL::ThreadedExternalInterface _plxl_interface;
-   _plxl_interface.setExec(exec);
-   // Clear interface queue before loading plan
-   _plxl_interface.resetQueue();
-   
-   RoboSimInterfaceAdapter* _plxl_adapter = 
-     new RoboSimInterfaceAdapter(_plxl_interface, "RoboSimExec", ipAddress, portNumber);
+  // if a luv view is to be attached,
+  // add dummy element for LuvListener
+  if (luvRequest)
+    {
+      configElt->LinkEndChild(PLEXIL::NewLuvListener::constructConfigurationXml(luvBlock,
+										luvHost.c_str(), 
+										luvPort));
+    }
 
-   _plxl_interface.setDefaultInterface(_plxl_adapter->getId());
+  // construct the application
+  PLEXIL::ExecApplication _app;
 
-   if (planName != "error")
-   {
+  // initialize it
+  std::cout << "Initializing application" << std::endl;
+  if (!_app.initialize(configElt))
+    {
+      std::cout << "ERROR: unable to initialize application"
+                << std::endl;
+      return -1;
+    }
+
+  // Add RoboSim adapter
+  RoboSimInterfaceAdapter* _plxl_adapter = 
+    new RoboSimInterfaceAdapter(_app.getInterfaceManagerReference(),
+				"RoboSimExec",
+				ipAddress, 
+				portNumber);
+  _plxl_adapter->initialize();
+  _app.getInterfaceManager()->setDefaultInterface(_plxl_adapter->getId());
+
+  // start interfaces
+  std::cout << "Starting interfaces" << std::endl;
+  if (!_app.startInterfaces())
+    {
+      std::cout << "ERROR: unable to start interfaces"
+                << std::endl;
+      return -1;
+    }
+
+  // execute plan
+  std::cout << "Starting the exec" << std::endl;
+  _app.run();
+
+  if (planName != "error")
+    {
       TiXmlDocument plan(planName);
       if (!plan.LoadFile())
-      {
-         std::cout << "Error parsing plan '"
-                   << planName << "': " 
-                   << plan.ErrorDesc()
-                   << " line "
-                   << plan.ErrorRow() 
-                   << " column " 
-                   << plan.ErrorCol()
-                   << std::endl;
-         return -1;
-      }
-      PLEXIL::PlexilXmlParser parser;
-      PLEXIL::PlexilNodeId root =
-         parser.parse(plan.FirstChildElement("PlexilPlan")
-                      ->FirstChildElement("Node"));
-      exec->addPlan(root);
-   }
+	{
+	  std::cout << "Error parsing plan '"
+		    << planName << "': " 
+		    << plan.ErrorDesc()
+		    << " line "
+		    << plan.ErrorRow() 
+		    << " column " 
+		    << plan.ErrorCol()
+		    << std::endl;
+	  return -1;
+	}
+      _app.addPlan(&plan);
+    }
 
+  _app.waitForPlanFinished();
 
-   // if a luv view is to be attached
+  // clean up
 
-   if (luvRequest)
-   {
-      // create and add luv listener
-
-      try
-      {
-        PLEXIL::LuvListener* ll = new PLEXIL::LuvListener(luvHost, luvPort, luvBlock);
-        exec->addListener(ll->getId());
-      }
-      catch (SocketException se)
-      {
-         std::cout 
-            << "WARNING: Unable to connect to Luv viewer: "  << std::endl
-            << "  address: " << luvHost << ":" << luvPort    << std::endl
-            << "   reason: " << se.description()             << std::endl
-            << "Execution will continue without the viewer." << std::endl 
-            << std::endl;
-      }
-   }
-
-   // execute plan
-   std::cout << "Starting the exec" << std::endl;
-   _plxl_interface.run();
-
-   // clean up
-
-   delete (PLEXIL::PlexilExec*) exec;
-   delete _plxl_adapter;
-   return 0;
+  return 0;
 }
+
+
+
+
