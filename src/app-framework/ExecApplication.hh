@@ -96,6 +96,11 @@ namespace PLEXIL
       return m_interface.getInterfaceManagerId();
     }
 
+    inline InterfaceManager& getInterfaceManagerReference()
+    {
+      return m_interface;
+    }
+
     inline const PlexilXmlParser& getParser() const
     {
       return m_parser;
