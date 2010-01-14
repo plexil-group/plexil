@@ -104,6 +104,7 @@ clean: clean-ipc
 	$(MAKE) -C src/interfaces/Sockets $@
 	$(MAKE) -C src/CORBA $@
 	$(MAKE) -C src/app-framework $@
+	$(MAKE) -C src/apps/robosim $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
 	$(MAKE) -C src/apps/TestExecSAS $@
