@@ -49,7 +49,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 # these must follow the above 'include'
 
 $(SHLIB): depend $(LIBRARY_OBJ)
-	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $(LIBRARY_OBJ)
+	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(OPENGL_LIBS) -o $@ $(LIBRARY_OBJ)
 
 $(ARCHIVE): $(LIBRARY_OBJ) depend
 	$(AR) -o $@ $(LIBRARY_OBJ)
