@@ -276,6 +276,11 @@ namespace PLEXIL
   protected:
 
     //
+    // Types provided by the base class to facilitate implementations
+
+    typedef std::map<StateKey, std::set<LookupKey> > StateToLookupMap;
+
+    //
     // API which all subclasses must implement
     //
 
@@ -286,17 +291,22 @@ namespace PLEXIL
     /**
      * @brief Get an iterator that points to the start of the asynchronous lookup map.
      */
-    std::map<StateKey, std::set<LookupKey> >::const_iterator getAsynchLookupsBegin();
+    StateToLookupMap::const_iterator getAsynchLookupsBegin();
 
     /**
      * @brief Get an iterator that points to the end of the asynchronous lookup map.
      */
-    std::map<StateKey, std::set<LookupKey> >::const_iterator getAsynchLookupsEnd();
+    StateToLookupMap::const_iterator getAsynchLookupsEnd();
 
     /**
      * @brief Get an iterator that points to the given key, if found; else returns end.
      */
-    std::map<StateKey, std::set<LookupKey> >::const_iterator findLookupKey(const StateKey&);
+    StateToLookupMap::const_iterator findStateKey(const StateKey&);
+
+    /**
+     * @brief Get an iterator that points to the given key, if found; else returns end.
+     */
+    StateToLookupMap::const_iterator findLookupKey(const LookupKey&);
 
 
     /**
@@ -328,7 +338,7 @@ namespace PLEXIL
 
     InterfaceAdapterId m_id;
 
-    std::map<StateKey, std::set<LookupKey> > m_asynchLookups;
+    StateToLookupMap m_asynchLookups;
   };
 
   typedef Id<InterfaceAdapter> InterfaceAdapterId;

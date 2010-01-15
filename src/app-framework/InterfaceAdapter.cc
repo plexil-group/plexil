@@ -158,7 +158,7 @@ namespace PLEXIL
   InterfaceAdapter::registerAsynchLookup(const LookupKey& uniqueId,
 					 const StateKey& key)
   {
-    std::map<StateKey, std::set<LookupKey> >::iterator it =
+    StateToLookupMap::iterator it =
       m_asynchLookups.find(key);
     if (it == m_asynchLookups.end())
       {
@@ -179,7 +179,7 @@ namespace PLEXIL
   {
     debugMsg("InterfaceAdapter:unregisterAsynchLookup",
 	     " for unique ID '" << uniqueId);
-    std::map<StateKey, std::set<LookupKey> >::iterator tableIt =
+    StateToLookupMap::iterator tableIt =
       m_asynchLookups.begin();
     for (; tableIt != m_asynchLookups.end(); tableIt++)
       {
@@ -211,22 +211,36 @@ namespace PLEXIL
 	     " Unique ID '" << uniqueId << "' not found.");
   }
     
-  std::map<StateKey, std::set<LookupKey> >::const_iterator 
+  InterfaceAdapter::StateToLookupMap::const_iterator 
   InterfaceAdapter::getAsynchLookupsBegin()
   {
     return m_asynchLookups.begin();
   }
   
-  std::map<StateKey, std::set<LookupKey> >::const_iterator
+  InterfaceAdapter::StateToLookupMap::const_iterator
   InterfaceAdapter::getAsynchLookupsEnd()
   {
     return m_asynchLookups.end();
   }
 
-  std::map<StateKey, std::set<LookupKey> >::const_iterator
-  InterfaceAdapter::findLookupKey(const StateKey& key)
+  InterfaceAdapter::StateToLookupMap::const_iterator
+  InterfaceAdapter::findStateKey(const StateKey& key)
   {
     return m_asynchLookups.find(key);
+  }
+
+  InterfaceAdapter::StateToLookupMap::const_iterator
+  InterfaceAdapter::findLookupKey(const LookupKey& key)
+  {
+    StateToLookupMap::const_iterator it =
+      m_asynchLookups.begin();
+    while (it != m_asynchLookups.end())
+      {
+	const std::set<LookupKey>& keys = it->second;
+	if (keys.find(key) != keys.end())
+	  return it;
+      }
+    return m_asynchLookups.end();
   }
 
   bool 
@@ -250,7 +264,5 @@ namespace PLEXIL
   {
     m_execInterface.defaultRegisterAdapter(m_id);
   }
-
-
 
 }
