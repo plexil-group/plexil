@@ -29,7 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= IpcAdapter
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml $(PLEXIL_HOME)/third-party/tinyxml \
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
+                   $(PLEXIL_HOME)/third-party/ipc/src \
+                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
                     ../../utils ../../exec ../../app-framework
 LIB_PATH	+=
 LIBS		+= ipc tinyxml PlexilUtils PlexilExec PlexilAppFramework

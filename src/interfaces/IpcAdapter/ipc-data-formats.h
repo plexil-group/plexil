@@ -28,75 +28,65 @@
  * Data formats used by IpcAdapter
  */
 
-typedef enum
-  {
-    PlexilMsgType_uninited=0,
-    PlexilMsgType_Command,
-    PlexilMsgType_Message,
-    PlexilMsgType_LookupNow,
-    PlexilMsgType_LookupOnChange,
-    PlexilMsgType_PlannerUpdate,
-    PlexilMsgType_AddPlan,
-    PlexilMsgType_AddPlanFile,
-    PlexilMsgType_AddLibrary,
-    PlexilMsgType_AddLibraryFile,
-    PlexilMsgType_ReturnValues,
-    PlexilMsgType_NumericValue,
-    PlexilMsgType_StringValue,
-    PlexilMsgType_NotifyExec,
-    PlexilMsgType_PairNumeric,
-    PlexilMsgType_PairString,
-    PlexilMsgType_limit
-  }
-  PlexilMsgType;
-
 struct PlexilMsgBase
 {
-  uint32_t msgType;
-  uint32_t serial;
-  char* senderUID;
+  uint16_t msgType;
+  uint16_t count;   /* either # of msgs to follow, or index of this msg in the sequence */
+  uint32_t serial;  /* uniquely IDs this message sequence from this sender */
+  const char* senderUID;  /* uniquely IDs the sender's IP and process */
 };
 
 #define MSG_BASE "PlexilMessageBase"
-#define MSG_BASE_FORMAT "{uint, uint, string}"
+#define MSG_BASE_FORMAT "{ushort, ushort, uint, string}"
 
 /*
- * Used for command, message, lookups, plans, libraries
+ * Used for return values
+ * Followed by count data messages
  */
 
-struct PlexilOperatorMsg
+struct PlexilReturnValuesMsg
 {
   struct PlexilMsgBase header;
-  char* opName;
-  uint32_t nArguments;
+  uint32_t requestSerial;
+  const char* requesterUID;
 };
 
-#define OPERATOR_MSG "PlexilOperatorMessage"
-#define OPERATOR_MSG_FORMAT "{uint, uint, string, string, uint}"
+#define RETURN_VALUE_MSG "PlexilReturnValueMessage"
+#define RETURN_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, uint, string}"
 
-struct DatumHeader
+/*
+ * Used for numeric argument or return values
+ */
+
+struct PlexilNumericValueMsg
 {
   struct PlexilMsgBase header;
-  uint32_t argNumber;
-};
-
-struct NumericValue
-{
-  struct DatumHeader datumHeader;
   double doubleValue;
 };
 
-#define NUMERIC_VALUE "PlexilNumericValue"
-#define NUMERIC_VALUE_FORMAT "{uint, uint, string, double}"
+#define NUMERIC_VALUE_MSG "PlexilNumericValue"
+#define NUMERIC_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, double}"
 
-struct StringValue
+/*
+ * When used for commands, messages, lookups:
+ *  followed by count parameter values
+ * When used for planner updates: 
+ *  string value is node name, followed by count name/value pairs
+ * When used for plans, plan files, libraries, library files: 
+ *  stands alone, count ignored
+ * When used for numeric argument or return values:
+ *  preceded by corresponding message type, 
+ *  count indicates position in sequence
+ */
+
+struct PlexilStringValueMsg
 {
-  DatumHeader argHeader;
-  char* stringValue;
+  struct PlexilMsgBase header;
+  const char* stringValue;
 };
 
-#define STRING_VALUE "PlexilStringValue"
-#define STRING_VALUE_FORMAT "{uint, uint, string, string}"
+#define STRING_VALUE_MSG "PlexilStringValue"
+#define STRING_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, string}"
 
 /*
  * Arrays and other argument types here (NYI)
@@ -104,8 +94,8 @@ struct StringValue
 
 struct PairHeader
 {
-  struct DatumHeader datumHeader;
-  char* pairName;
+  struct PlexilMsgBase datumHeader;
+  const char* pairName;
 };
 
 struct NumericPair
@@ -114,8 +104,8 @@ struct NumericPair
   double pairDoubleValue;
 };
 
-#define NUMERIC_PAIR "PlexilNumericPair"
-#define NUMERIC_PAIR_FORMAT "{uint, uint, string, string, double}"
+#define NUMERIC_PAIR_MSG "PlexilNumericPair"
+#define NUMERIC_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, double}"
 
 struct StringPair
 {
@@ -123,6 +113,116 @@ struct StringPair
   double stringDoubleValue;
 };
 
-#define STRING_PAIR "PlexilStringPair"
-#define STRING_PAIR_FORMAT "{uint, uint, string, string, string}"
+#define STRING_PAIR_MSG "PlexilStringPair"
+#define STRING_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, string}"
 
+typedef enum
+  {
+    PlexilMsgType_uninited=0,
+
+    // PlexilMsgBase
+    // These messages are complete unto themselves
+    PlexilMsgType_NotifyExec,
+    PlexilMsgType_TerminateChangeLookup,
+
+    // PlexilStringValueMsg
+    // These have an operation name and an argument count
+    PlexilMsgType_Command,
+    PlexilMsgType_Message,
+    PlexilMsgType_LookupNow,
+    PlexilMsgType_LookupOnChange,
+
+    // PlexilReturnValuesMsg
+    // These have a unique ID of the requested operation
+    // and count of values (which may be 0).
+    PlexilMsgType_ReturnValues,
+
+    // PlexilStringValueMsg
+    // These have one (non-empty?) string datum, the plan or file name
+    // Count must be 0
+    PlexilMsgType_AddPlan,
+    PlexilMsgType_AddPlanFile,
+    PlexilMsgType_AddLibrary,
+    PlexilMsgType_AddLibraryFile,
+
+    // PlexilStringValueMsg
+    // These have a node name and a pair count (which may be 0?)
+    PlexilMsgType_PlannerUpdate,
+
+    // PlexilNumericValueMsg
+    // A simple numeric datum
+    // Count indicates position in sequence
+    PlexilMsgType_NumericValue,
+
+    // PlexilStringValueMsg
+    // A simple string datum
+    // Count indicates position in sequence
+    PlexilMsgType_StringValue,
+
+    // A pair of a name and a numeric value
+    // Count indicates position in sequence
+    PlexilMsgType_PairNumeric,
+
+    // A pair of a name and a string value
+    // Count indicates position in sequence
+    PlexilMsgType_PairString,
+
+    PlexilMsgType_limit
+  }
+  PlexilMsgType;
+
+inline bool msgTypeIsValid(const PlexilMsgType mtyp)
+{
+  return (mtyp > PlexilMsgType_uninited) && (mtyp < PlexilMsgType_limit);
+}
+
+inline const char* msgFormatForType(const PlexilMsgType typ)
+{
+  switch (typ)
+    {
+    case PlexilMsgType_NotifyExec:
+    case PlexilMsgType_TerminateChangeLookup:
+
+      return MSG_BASE;
+      break;
+
+    case PlexilMsgType_AddPlan:
+    case PlexilMsgType_AddPlanFile:
+    case PlexilMsgType_AddLibrary:
+    case PlexilMsgType_AddLibraryFile:
+    case PlexilMsgType_Command:
+    case PlexilMsgType_Message:
+    case PlexilMsgType_LookupNow:
+    case PlexilMsgType_LookupOnChange:
+    case PlexilMsgType_PlannerUpdate:
+    case PlexilMsgType_StringValue:
+
+      return STRING_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_ReturnValues:
+
+      return RETURN_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_NumericValue:
+
+      return NUMERIC_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_PairNumeric:
+      
+      return NUMERIC_PAIR_MSG;
+      break;
+
+    case PlexilMsgType_PairString:
+
+      return STRING_PAIR_MSG;
+      break;
+			  
+    default:
+
+      return NULL;
+      break;
+    }
+}

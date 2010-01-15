@@ -25,10 +25,13 @@
  */
 
 #include "InterfaceAdapter.hh"
+#include "LabelStr.hh"
+#include "ThreadSemaphore.hh"
 #include <ipc.h>
 
-// Forward declaration
+// Forward declarations
 struct PlexilMsgBase;
+class TiXmlElement; 
 
 namespace PLEXIL
 {
@@ -36,6 +39,17 @@ namespace PLEXIL
     public InterfaceAdapter
   {
   public:
+
+    //
+    // Static class constants
+    //
+
+    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "COMMAND__")
+    DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "MESSAGE__")
+    DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "LOOKUP__")
+    DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "LOOKUP_ON_CHANGE__")
+
+    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
 
     /**
      * @brief Constructor.
@@ -114,28 +128,6 @@ namespace PLEXIL
     virtual void unregisterChangeLookup(const LookupKey& uniqueId);
 
     /**
-     * @brief Register one LookupWithFrequency.
-     * @param uniqueId The unique ID of this lookup.
-     * @param stateKey The state key for this lookup.
-     * @param lowFrequency The maximum interval in seconds between lookups.
-     * @param highFrequency The minimum interval in seconds between lookups.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void registerFrequencyLookup(const LookupKey& uniqueId,
-					 const StateKey& stateKey,
-					 double lowFrequency, 
-					 double highFrequency);
-
-    /**
-     * @brief Terminate one LookupWithFrequency.
-     * @param uniqueId The unique ID of the lookup to be terminated.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void unregisterFrequencyLookup(const LookupKey& uniqueId);
-
-    /**
      * @brief Perform an immediate lookup of the requested state.
      * @param stateKey The state key for this lookup.
      * @param dest A (reference to a) vector of doubles where the result is to be stored.
@@ -172,20 +164,6 @@ namespace PLEXIL
 				ExpressionId ack);
 
     /**
-     * @brief Execute a function with the requested arguments.
-     * @param name The LabelString representing the command name.
-     * @param args The command arguments expressed as doubles.
-     * @param dest The expression in which to store any value returned from the function.
-     * @param ack The expression in which to store an acknowledgement of function transmission.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void executeFunctionCall(const LabelStr& name,
-				     const std::list<double>& args,
-				     ExpressionId dest,
-				     ExpressionId ack);
-
-    /**
      * @brief Abort the pending command with the supplied name and arguments.
      * @param name The LabelString representing the command name.
      * @param args The command arguments expressed as doubles.
@@ -209,6 +187,13 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Initialize unique ID string
+     */
+    void initializeUID();
+    
+
+
+    /**
      * @brief Handler function as seen by IPC.
      */
 
@@ -222,7 +207,47 @@ namespace PLEXIL
 
     void handleIpcMessage(const PlexilMsgBase * msgData);
 
+
+    //
+    // Helper methods
+    //
+ 
+    /**
+     * @brief Cache start message of a multi-message sequence
+     */
     
+    void cacheMessageLeader(const PlexilMsgBase* msgData);
+ 
+    /**
+     * @brief Cache following message of a multi-message sequence
+     */
+    
+    void cacheMessageTrailer(const PlexilMsgBase* msgData);
+
+    /**
+     * @brief Send a single message to the Exec's queue and free the message
+     */
+    void enqueueMessage(const PlexilMsgBase* msgData);
+
+    /**
+     * @brief Send a message sequence to the Exec's queue and free the messages
+     */
+    void enqueueMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
+
+    /**
+     * @brief Process a ReturnValues message sequence
+     */
+    void handleReturnValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
+
+    /**
+     * @brief Get next serial number
+     */
+    uint32_t getSerialNumber();
+
+    /**
+     * @brief Returns true if the string starts with the prefix, false otherwise.
+     */
+    static bool hasPrefix(const std::string& s, const std::string& prefix);
 
     //
     // Private data types
@@ -231,21 +256,40 @@ namespace PLEXIL
     //* brief Unique identifier of a message sequence
     typedef std::pair<std::string, uint32_t> IpcMessageId;
 
+    //* brief Associates message IDs with active LookupOnChange instances
+    typedef std::map<IpcMessageId, StateKey> IpcChangeLookupMap;
+
     //* brief Cache of not-yet-complete message sequences
-    typedef std::map<IpcMessageId, std::vector<???> > IncompleteMessageMap;
+    typedef std::map<IpcMessageId, std::vector<const PlexilMsgBase*> > IncompleteMessageMap;
 
     //
     // Member variables
     //
 
-    IncompleteMessageMap m_incompletes;
+    //* @brief Cache of active LookupOnChange instances
+    IpcChangeLookupMap m_changeLookups;
 
     //* @brief Cache of incomplete received message data
-    
+    IncompleteMessageMap m_incompletes;
 
     //* @brief Unique ID of this adapter instance
-    const char* m_myUID;
+    std::string m_myUID;
 
+    //* @brief Thread ID of IPC dispatch thread
+    pthread_t m_thread;
+
+    //* @brief Semaphore for return values from LookupNow
+    ThreadSemaphore m_sem;
+
+    //* @brief Count of # of outgoing commands and requests, starting with 1
+    //  @note Should only ever be 0 at initialization
+    uint32_t m_serial;
+
+    //* @brief Serial # of current pending LookupNow request, or 0
+    uint32_t m_pendingLookupSerial;
+
+    //* @brief Pointer to destination of current pending LookupNow request, or NULL
+    std::vector<double>* m_pendingLookupDestination;
   };
 
 }
