@@ -29,8 +29,9 @@
 #include "ThreadSemaphore.hh"
 #include <ipc.h>
 
-// Forward declarations
+// Forward declarations outside of namespace
 struct PlexilMsgBase;
+struct PlexilStringValueMsg;
 class TiXmlElement; 
 
 namespace PLEXIL
@@ -230,6 +231,11 @@ namespace PLEXIL
     void enqueueMessage(const PlexilMsgBase* msgData);
 
     /**
+     * @brief Process a PlexilMsgType_Message packet and free the message
+     */
+    void handleMessageMessage(const PlexilStringValueMsg* msgData);
+
+    /**
      * @brief Send a message sequence to the Exec's queue and free the messages
      */
     void enqueueMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
@@ -256,21 +262,36 @@ namespace PLEXIL
     //* brief Unique identifier of a message sequence
     typedef std::pair<std::string, uint32_t> IpcMessageId;
 
-    //* brief Associates message IDs with active LookupOnChange instances
-    typedef std::map<IpcMessageId, StateKey> IpcChangeLookupMap;
+    //* brief Associates serial numbers with active LookupOnChange instances
+    typedef std::map<uint32_t, StateKey> IpcChangeLookupMap;
 
     //* brief Cache of not-yet-complete message sequences
     typedef std::map<IpcMessageId, std::vector<const PlexilMsgBase*> > IncompleteMessageMap;
+
+    //* brief Cache of message/command/lookup names we're actively listening for
+    typedef std::map<std::string, StateKey> ActiveListenerMap;
 
     //
     // Member variables
     //
 
-    //* @brief Cache of active LookupOnChange instances
+    //* @brief Cache of active outgoing LookupOnChange instances
     IpcChangeLookupMap m_changeLookups;
 
     //* @brief Cache of incomplete received message data
     IncompleteMessageMap m_incompletes;
+
+    //* @brief Cache of open LookupOnChange instances for messages
+    ActiveListenerMap m_activeMessageListeners;
+
+    //* @brief Cache of open LookupOnChange instances for commands
+    ActiveListenerMap m_activeCommandListeners;
+
+    //* @brief Cache of open LookupOnChange instances for LookupNow
+    ActiveListenerMap m_activeLookupListeners;
+
+    //* @brief Cache of open LookupOnChange instances for LookupOnChange
+    ActiveListenerMap m_activeChangeLookupListeners;
 
     //* @brief Unique ID of this adapter instance
     std::string m_myUID;

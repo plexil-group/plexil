@@ -30,6 +30,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "CoreExpressions.hh"
+#include "PlexilXmlParser.hh"
 #include "StoredArray.hh"
 #include "ThreadSpawn.hh"
 
@@ -162,9 +163,9 @@ namespace PLEXIL
 		      "IpcAdapter: Error defining " << STRING_PAIR_MSG << " message, IPC_errno = " << IPC_errno);
       }
 
+    // *** TODO: register lookup names for getting commands & msgs ***
     // Register with AdapterExecInterface
     m_execInterface.defaultRegisterAdapter(getId());
-    // *** TODO: register lookup names for getting commands & msgs ***
 
     return true;
   }
@@ -194,12 +195,13 @@ namespace PLEXIL
     status = IPC_subscribeData(STRING_VALUE_MSG, messageHandler, this);
     assertTrueMsg(status == IPC_OK,
 		  "IpcAdapter: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_subscribeData(NUMERIC_PAIR_MSG, messageHandler, this);
-    assertTrueMsg(status == IPC_OK,
-		  "IpcAdapter: Error subscribing to " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_subscribeData(STRING_PAIR_MSG, messageHandler, this);
-    assertTrueMsg(status == IPC_OK,
-		  "IpcAdapter: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    // *** TODO: implement receiving planner update
+//    status = IPC_subscribeData(NUMERIC_PAIR_MSG, messageHandler, this);
+//    assertTrueMsg(status == IPC_OK,
+//		  "IpcAdapter: Error subscribing to " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+//    status = IPC_subscribeData(STRING_PAIR_MSG, messageHandler, this);
+//    assertTrueMsg(status == IPC_OK,
+//		  "IpcAdapter: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
 
     return true;
   }
@@ -224,12 +226,13 @@ namespace PLEXIL
     status = IPC_unsubscribe(STRING_VALUE_MSG, NULL);
     assertTrueMsg(status == IPC_OK,
 		  "IpcAdapter: Error unsubscribing from " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(NUMERIC_PAIR_MSG, NULL);
-    assertTrueMsg(status == IPC_OK,
-		  "IpcAdapter: Error unsubscribing from " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(STRING_PAIR_MSG, NULL);
-    assertTrueMsg(status == IPC_OK,
-		  "IpcAdapter: Error unsubscribing from " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    // *** TODO: implement receiving planner update
+//     status = IPC_unsubscribe(NUMERIC_PAIR_MSG, NULL);
+//     assertTrueMsg(status == IPC_OK,
+// 		  "IpcAdapter: Error unsubscribing from " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+//     status = IPC_unsubscribe(STRING_PAIR_MSG, NULL);
+//     assertTrueMsg(status == IPC_OK,
+// 		  "IpcAdapter: Error unsubscribing from " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
 
     // Cancel IPC dispatch thread
     int myErrno;
@@ -286,27 +289,24 @@ namespace PLEXIL
     if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX()))
       {
 	// Set up to receive this message
-	assertTrueMsg(ALWAYS_FAIL,
-		      "IpcAdapter::registerChangeLookup: Receiving messages is not yet implemented");
+	m_activeMessageListeners[nameLabel.toString().substr(MESSAGE_PREFIX().size())] = stateKey;
       }
     else if (hasPrefix(nameLabel.toString(), COMMAND_PREFIX()))
       {
 	// Set up to receive this command
-	assertTrueMsg(ALWAYS_FAIL,
-		      "IpcAdapter::registerChangeLookup: Receiving commands is not yet implemented");
+	m_activeCommandListeners[nameLabel.toString().substr(COMMAND_PREFIX().size())] = stateKey;
       }
     else if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX()))
       {
 	// Set up to receive this lookup
-	assertTrueMsg(ALWAYS_FAIL,
-		      "IpcAdapter::registerChangeLookup: Receiving lookups is not yet implemented");
+	m_activeLookupListeners[nameLabel.toString().substr(LOOKUP_PREFIX().size())] = stateKey;
       }
     else if (hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX()))
       {
 	// Set up to receive this lookup
-	assertTrueMsg(ALWAYS_FAIL,
-		      "IpcAdapter::registerChangeLookup: Receiving lookups is not yet implemented");
+	m_activeChangeLookupListeners[nameLabel.toString().substr(LOOKUP_ON_CHANGE_PREFIX().size())] = stateKey;
       }
+    // *** TODO: implement receiving planner update
     else
       {
 	// Send a request
@@ -356,17 +356,30 @@ namespace PLEXIL
 	  }
 
 	// Take care of bookkeeping
-	m_changeLookups[IpcMessageId(m_myUID, serial)] = stateKey;
+	m_changeLookups[serial] = stateKey;
 
 	// Send the messages
-	// *** TODO: check for IPC errors ***
-	IPC_publishData(STRING_VALUE_MSG, (void *) &leader);
+	IPC_RETURN_TYPE status;
+	status = IPC_publishData(STRING_VALUE_MSG, (void *) &leader);
+	assertTrueMsg(status == IPC_OK,
+		      "IpcAdapter::registerChangeLookup: IPC Error, IPC_errno = " << IPC_errno);
 	for (size_t i = 0; i < nParams; i++)
 	  {
-	    IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType), 
-			    paramMsgs[i]);
+	    status = IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType), 
+				     paramMsgs[i]);
+	    assertTrueMsg(status == IPC_OK,
+			  "IpcAdapter::registerChangeLookup: IPC Error, IPC_errno = " << IPC_errno);
 	  }
-	// free the packets (NYI)
+	// free the parameter packets
+	for (size_t i = 0; i < nParams; i++)
+	  {
+	    PlexilMsgBase* m = paramMsgs[i];
+	    paramMsgs[i] = NULL;
+	    if (m->msgType == PlexilMsgType_NumericValue)
+	      delete (PlexilNumericValueMsg*) m;
+	    else
+	      delete (PlexilStringValueMsg*) m;
+	  }
       }
   }
 
@@ -377,39 +390,82 @@ namespace PLEXIL
 
   void IpcAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
   {
-    StateKey key;
-    
-    IpcChangeLookupMap::iterator it = m_changeLookups.find(key);
+    StateToLookupMap::const_iterator sit = this->findLookupKey(uniqueId);
+    assertTrueMsg(sit != this->getAsynchLookupsEnd(),
+		  "IpcAdapter::unregisterChangeLookup: internal error: no state key registered for lookup!");
 
-    // FIXME: should this be an error?
-    assertTrueMsg(it != m_changeLookups.end(),
-		  "IpcAdapter::unregisterChangeLookup: internal error: lookup not found");
-    
+    // Ignore this unless we're removing the last change lookup for this state
+    if (sit->second.size() > 1)
+      return;
+
+    StateKey key = sit->first;
     State state;
     getState(key, state);
     const LabelStr& nameLabel = state.first;
+    const std::string& name = nameLabel.toString();
 
     if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX()))
       {
 	// Stop looking for this message
+	ActiveListenerMap::iterator it = m_activeMessageListeners.find(name);
+	assertTrueMsg(it != m_activeMessageListeners.end(),
+		      "IpcAdapter::unregisterChangeLookup: internal error: can't find message \""
+		      << name << "\"");
+	m_activeMessageListeners.erase(it);
       }
     else if (hasPrefix(nameLabel.toString(), COMMAND_PREFIX()))
       {
 	// Stop looking for this command
+	ActiveListenerMap::iterator it = m_activeCommandListeners.find(name);
+	assertTrueMsg(it != m_activeCommandListeners.end(),
+		      "IpcAdapter::unregisterChangeLookup: internal error: can't find command \""
+		      << name << "\"");
+	m_activeCommandListeners.erase(it);
       }
     else if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX()))
       {
 	// Stop looking for this lookup
+	ActiveListenerMap::iterator it = m_activeLookupListeners.find(name);
+	assertTrueMsg(it != m_activeLookupListeners.end(),
+		      "IpcAdapter::unregisterChangeLookup: internal error: can't find lookup \""
+		      << name << "\"");
+	m_activeLookupListeners.erase(it);
       }
     else if (hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX()))
       {
 	// Stop looking for this lookup
+	ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name);
+	assertTrueMsg(it != m_activeChangeLookupListeners.end(),
+		      "IpcAdapter::unregisterChangeLookup: internal error: can't find change lookup \""
+		      << name << "\"");
+	m_activeChangeLookupListeners.erase(it);
       }
+    // *** TODO: implement receiving planner update
     else
       {
 	// send a TerminateChangeLookup message with the serial #
 	// of the original request
+	IpcChangeLookupMap::iterator it = m_changeLookups.begin();
+        while (it != m_changeLookups.end())
+	  {
+	    if (it->second == key)
+	      break;
+	    it++;
+	  }
+	assertTrueMsg(it != m_changeLookups.end(),
+		      "IpcAdapter::unregisterChangeLookup: internal error: lookup not found");
+	const uint32_t serial = it->first;
+	PlexilMsgBase msg = {PlexilMsgType_TerminateChangeLookup,
+			     0,
+			     serial,
+			     m_myUID.c_str()};
+	IPC_RETURN_TYPE status;
+	status = IPC_publishData(MSG_BASE,(void*) &msg);
+	assertTrueMsg(status == IPC_OK,
+		      "IpcAdapter::unregisterChangeLookup: IPC Error, IPC_errno = " << IPC_errno);
 
+	// clean up table
+	m_changeLookups.erase(it);
       }
   }
 
@@ -433,7 +489,18 @@ namespace PLEXIL
 	     " for state " << nameLabel.toString()
 	     << " with " << nParams << " parameters");
 
-    // *** TODO: filter out command, message, lookup lookups here ***
+    // filter out command, message, lookup lookups here - 
+    // they only have significance to LookupOnChange
+    // *** TODO: implement receiving (ignoring) planner update
+    if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX())
+	|| hasPrefix(nameLabel.toString(), COMMAND_PREFIX())
+	|| hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())
+	|| hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX()))
+      {
+	debugMsg("IpcAdapter:lookupNow",
+		 " ignoring special state name \"" << nameLabel.toString() << "\"");
+	return;
+      }
 
     // Construct the messages
     // Leader
@@ -479,18 +546,37 @@ namespace PLEXIL
 	paramMsgs[i] = paramMsg;
       }
 
+    assertTrueMsg(m_pendingLookupSerial == 0,
+		  "IpcAdapter::lookupNow: fatal error: reentrant call");
+
     // Send the messages
     m_pendingLookupSerial = serial;
     m_pendingLookupDestination = &dest;
-    // *** TODO: check for IPC errors ***
-    IPC_publishData(STRING_VALUE_MSG, (void *) &leader);
+    IPC_RETURN_TYPE status;
+    status = IPC_publishData(STRING_VALUE_MSG, (void *) &leader);
+    assertTrueMsg(status == IPC_OK,
+		  "IpcAdapter::lookupNow: IPC Error, IPC_errno = " << IPC_errno);
     for (size_t i = 0; i < nParams; i++)
       {
-	IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType),
-			paramMsgs[i]);
+	status = IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType),
+				 paramMsgs[i]);
+	assertTrueMsg(status == IPC_OK,
+		      "IpcAdapter::lookupNow: IPC Error, IPC_errno = " << IPC_errno);
+      }
+
+    // free the parameter packets
+    for (size_t i = 0; i < nParams; i++)
+      {
+	PlexilMsgBase* m = paramMsgs[i];
+	paramMsgs[i] = NULL;
+	if (m->msgType == PlexilMsgType_NumericValue)
+	  delete (PlexilNumericValueMsg*) m;
+	else
+	  delete (PlexilStringValueMsg*) m;
       }
 
     // Wait for results
+    // *** TODO: check for error
     m_sem.wait();
 
     // Clean up
@@ -632,6 +718,8 @@ namespace PLEXIL
    * @brief Handler function as seen by IPC.
    */
 
+  // *** TODO: confirm correct message formats!! ***
+
   void IpcAdapter::messageHandler(MSG_INSTANCE rawMsg,
 				  void * unmarshalledMsg,
 				  void * this_as_void_ptr)
@@ -650,6 +738,8 @@ namespace PLEXIL
   /**
    * @brief Handler function as seen by adapter.
    */
+
+  // *** TODO: confirm correct message formats!! ***
 
   void IpcAdapter::handleIpcMessage(const PlexilMsgBase * msgData)
   {
@@ -678,14 +768,19 @@ namespace PLEXIL
 	enqueueMessage(msgData);
 	break;
 
-	// Command and Message are PlexilStringValueMsg
+	// Command is a PlexilStringValueMsg
 	// Optionally followed by parameters
 
-	// *** TODO: filter out commands/msgs we aren't prepared to handle
       case PlexilMsgType_Command:
-      case PlexilMsgType_Message:
 	// Stash this and wait for the rest
 	cacheMessageLeader(msgData);
+	break;
+
+	// Message is a PlexilStringValueMsg
+	// No parameters
+
+      case PlexilMsgType_Message:
+	handleMessageMessage((const PlexilStringValueMsg*) msgData);
 	break;
 
 	// LookupNow and LookupOnChange are PlexilStringValueMsg
@@ -779,7 +874,7 @@ namespace PLEXIL
     assertTrueMsg(it == m_incompletes.end(),
 		  "IpcAdapter::cacheMessageTrailer: no existing sequence for sender "
 		  << msgData->senderUID << ", serial " << msgData->serial);
-    std::vector<const PlexilMsgBase*>& msgs = (*it).second;
+    std::vector<const PlexilMsgBase*>& msgs = it->second;
     msgs.push_back(msgData);
     // Have we got them all?
     if (msgs.size() > msgs[0]->count)
@@ -795,30 +890,96 @@ namespace PLEXIL
    */
   void IpcAdapter::enqueueMessage(const PlexilMsgBase* msgData)
   {
+    assertTrueMsg(msgData != NULL,
+		  "IpcAdapter::enqueueMessage: msgData is null");
+
     switch (msgData->msgType)
       {
       case PlexilMsgType_NotifyExec:
-	getExecInterface().notifyOfExternalEvent();
+	m_execInterface.notifyOfExternalEvent();
 	break;
 
 	// AddPlan is a PlexilStringValueMsg
       case PlexilMsgType_AddPlan:
-	// Always notify immediately when adding a plan
-	getExecInterface().notifyOfExternalEvent();
-	break;
+	{
+	  const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+	  assertTrueMsg(stringMsg->stringValue != NULL,
+			"IpcAdapter::enqueueMessage: AddPlan message contains null plan string");
+
+	  // parse XML into node structure
+	  PlexilXmlParser p;
+	  try {
+	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
+	      m_execInterface.handleAddPlan(root, EMPTY_LABEL());
+	      // Always notify immediately when adding a plan
+	      m_execInterface.notifyOfExternalEvent();
+	  }
+	  catch (const ParserException& e)
+	    {
+	      std::cerr << "Error parsing plan: \n" << e.what() << std::endl;
+	    }
+	}
 
 	// AddPlanFile is a PlexilStringValueMsg
       case PlexilMsgType_AddPlanFile:
-	// Always notify immediately when adding a plan
-	getExecInterface().notifyOfExternalEvent();
+	{
+	  const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+	  assertTrueMsg(stringMsg->stringValue != NULL,
+			"IpcAdapter::enqueueMessage: AddPlanFile message contains null file name");
+
+	  // parse XML into node structure
+	  PlexilXmlParser p;
+	  try {
+	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
+	      m_execInterface.handleAddPlan(root, EMPTY_LABEL());
+	      // Always notify immediately when adding a plan
+	      m_execInterface.notifyOfExternalEvent();
+	  }
+	  catch (const ParserException& e)
+	    {
+	      std::cerr << "Error parsing plan from file: \n" << e.what() << std::endl;
+	    }
+	}
 	break;
 
  	// AddLibrary is a PlexilStringValueMsg
       case PlexilMsgType_AddLibrary:
+	{
+	  const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+	  assertTrueMsg(stringMsg->stringValue != NULL,
+			"IpcAdapter::enqueueMessage: AddLibrary message contains null library node string");
+
+	  // parse XML into node structure
+	  PlexilXmlParser p;
+	  try {
+	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
+	    m_execInterface.handleAddLibrary(root);
+	  }
+	  catch (const ParserException& e)
+	    {
+	      std::cerr << "Error parsing library node: \n" << e.what() << std::endl;
+	    }
+	}
 	break;
 
  	// AddLibraryFile is a PlexilStringValueMsg
       case PlexilMsgType_AddLibraryFile:
+	{
+	  const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+	  assertTrueMsg(stringMsg->stringValue != NULL,
+			"IpcAdapter::enqueueMessage: AddLibraryFile message contains null file name");
+
+	  // parse XML into node structure
+	  PlexilXmlParser p;
+	  try {
+	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
+	    m_execInterface.handleAddLibrary(root);
+	  }
+	  catch (const ParserException& e)
+	    {
+	      std::cerr << "Error parsing library file: \n" << e.what() << std::endl;
+	    }
+	}
 	break;
 
       default:
@@ -831,10 +992,34 @@ namespace PLEXIL
 		 (void*) msgData);
   }
 
+  /**
+   * @brief Process a PlexilMsgType_Message packet and free the message
+   */
+  void IpcAdapter::handleMessageMessage(const PlexilStringValueMsg* msgData)
+  {
+    assertTrueMsg(msgData != NULL,
+		  "IpcAdapter::handleMessageMessage: msgData is null")
+    assertTrueMsg(msgData->stringValue != NULL,
+		  "IpcAdapter::handleMessageMessage: stringValue is null")
+    ActiveListenerMap::const_iterator it = m_activeMessageListeners.find(msgData->stringValue);
+    if (it != m_activeMessageListeners.end())
+      {
+	std::vector<double> valueVector(1, BooleanVariable::TRUE());
+	const StateKey& key = it->second;
+	m_execInterface.handleValueChange(key, valueVector);
+	m_execInterface.notifyOfExternalEvent();
+      }
+
+    // clean up
+    IPC_freeData(IPC_msgFormatter(STRING_VALUE_MSG_FORMAT), (void*) msgData);
+  }
+
 
   /**
    * @brief Send a message sequence to the Exec's queue and free the messages
    */
+
+  // *** TODO: implement! ***
   void IpcAdapter::enqueueMessageSequence(std::vector<const PlexilMsgBase*>& msgs)
   {
     const PlexilMsgBase* leader = msgs[0];
@@ -844,9 +1029,6 @@ namespace PLEXIL
       case PlexilMsgType_Command:
 	break;
 
-      case PlexilMsgType_Message:
-	break;
-
       case PlexilMsgType_LookupNow:
 	break;
 
@@ -854,6 +1036,7 @@ namespace PLEXIL
 	break;
 
       case PlexilMsgType_ReturnValues:
+	handleReturnValuesSequence(msgs);
 	break;
 
       case PlexilMsgType_PlannerUpdate:
@@ -880,7 +1063,54 @@ namespace PLEXIL
 
   void IpcAdapter::handleReturnValuesSequence(std::vector<const PlexilMsgBase*>& msgs)
   {
-    const PlexilReturnValuesMsg* leader = (const PlexilReturnValuesMsg*) msgs[0];
+    const PlexilReturnValuesMsg* rv = (const PlexilReturnValuesMsg*) msgs[0];
+    // Was this our request?
+    if (strcmp(rv->requesterUID, m_myUID.c_str()) == 0)
+      {
+	if (rv->requestSerial == m_pendingLookupSerial)
+	  {
+	    // LookupNow for which we are awaiting data
+	    size_t nValues = m_pendingLookupDestination->size();
+	    if (msgs[0]->count < nValues)
+	      nValues = msgs[0]->count;
+	    for (size_t i = 1; i < nValues; i++)
+	      {
+		if (msgs[i]->msgType == PlexilMsgType_NumericValue)
+		  (*m_pendingLookupDestination)[i-1] = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
+		else
+		  (*m_pendingLookupDestination)[i-1] =
+		    LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
+	      }
+	    // *** TODO: check for error
+	    m_sem.post();
+	    return;
+	  }
+
+	IpcChangeLookupMap::const_iterator it = m_changeLookups.find(rv->requestSerial);
+	if (it != m_changeLookups.end())
+	  {
+	    const StateKey& key = it->second;
+	    // Active LookupOnChange
+	    size_t nValues = msgs[0]->count;
+	    std::vector<double> values(nValues);
+	    for (size_t i = 1; i < nValues; i++)
+	      {
+		if (msgs[i]->msgType == PlexilMsgType_NumericValue)
+		  values[i-1] = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
+		else
+		  values[i-1] =
+		    LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
+	      }
+	    m_execInterface.handleValueChange(key, values);
+	    m_execInterface.notifyOfExternalEvent();
+	    return;
+	  }
+
+	if (false)
+	  {
+	    // Assume it's an active command
+	  }
+      }
   }
 
 
