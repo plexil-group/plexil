@@ -39,6 +39,13 @@ struct PlexilMsgBase
 #define MSG_BASE "PlexilMessageBase"
 #define MSG_BASE_FORMAT "{ushort, ushort, uint, string}"
 
+/* something is whacked with UINT16_MAX! */
+#ifndef UINT16_MAX
+#define UINT16_MAX (65535)
+#endif
+
+#define MSG_COUNT_CMD_ACK UINT16_MAX
+
 /*
  * Used for return values
  * Followed by count data messages
@@ -68,11 +75,11 @@ struct PlexilNumericValueMsg
 #define NUMERIC_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, double}"
 
 /*
- * When used for commands, messages, lookups:
+ * When used for commands, lookups:
  *  followed by count parameter values
  * When used for planner updates: 
  *  string value is node name, followed by count name/value pairs
- * When used for plans, plan files, libraries, library files: 
+ * When used for messages, plans, plan files, libraries, library files: 
  *  stands alone, count ignored
  * When used for numeric argument or return values:
  *  preceded by corresponding message type, 

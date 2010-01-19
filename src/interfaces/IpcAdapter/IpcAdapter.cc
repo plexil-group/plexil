@@ -167,6 +167,7 @@ namespace PLEXIL
     // Register with AdapterExecInterface
     m_execInterface.defaultRegisterAdapter(getId());
 
+    debugMsg("IpcAdapter:initialize", " succeeded");
     return true;
   }
 
@@ -203,6 +204,7 @@ namespace PLEXIL
 //    assertTrueMsg(status == IPC_OK,
 //		  "IpcAdapter: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
 
+    debugMsg("IpcAdapter:start", " succeeded");
     return true;
   }
 
@@ -241,6 +243,7 @@ namespace PLEXIL
     assertTrueMsg((myErrno = pthread_join(m_thread, NULL)) == 0,
 		  "IpcAdapter: error joining IPC dispatch thread, errno = " << myErrno); 
 
+    debugMsg("IpcAdapter:stop", " succeeded");
     return true;
   }
 
@@ -262,6 +265,7 @@ namespace PLEXIL
   {
     // Disconnect from central
     IPC_disconnect();
+    debugMsg("IpcAdapter:shutdown", " succeeded");
     return true;
   }
 
@@ -407,37 +411,38 @@ namespace PLEXIL
     if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX()))
       {
 	// Stop looking for this message
-	ActiveListenerMap::iterator it = m_activeMessageListeners.find(name);
+	ActiveListenerMap::iterator it = m_activeMessageListeners.find(name.substr(MESSAGE_PREFIX().size()));
 	assertTrueMsg(it != m_activeMessageListeners.end(),
 		      "IpcAdapter::unregisterChangeLookup: internal error: can't find message \""
-		      << name << "\"");
+		      << name.substr(MESSAGE_PREFIX().size()) << "\"");
 	m_activeMessageListeners.erase(it);
       }
     else if (hasPrefix(nameLabel.toString(), COMMAND_PREFIX()))
       {
 	// Stop looking for this command
-	ActiveListenerMap::iterator it = m_activeCommandListeners.find(name);
+	ActiveListenerMap::iterator it = m_activeCommandListeners.find(name.substr(COMMAND_PREFIX().size()));
 	assertTrueMsg(it != m_activeCommandListeners.end(),
 		      "IpcAdapter::unregisterChangeLookup: internal error: can't find command \""
-		      << name << "\"");
+		      << name.substr(COMMAND_PREFIX().size()) << "\"");
 	m_activeCommandListeners.erase(it);
       }
     else if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX()))
       {
 	// Stop looking for this lookup
-	ActiveListenerMap::iterator it = m_activeLookupListeners.find(name);
+	ActiveListenerMap::iterator it = m_activeLookupListeners.find(name.substr(LOOKUP_PREFIX().size()));
 	assertTrueMsg(it != m_activeLookupListeners.end(),
 		      "IpcAdapter::unregisterChangeLookup: internal error: can't find lookup \""
-		      << name << "\"");
+		      << name.substr(LOOKUP_PREFIX().size()) << "\"");
 	m_activeLookupListeners.erase(it);
       }
     else if (hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX()))
       {
 	// Stop looking for this lookup
-	ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name);
+	ActiveListenerMap::iterator it =
+	  m_activeChangeLookupListeners.find(name.substr(LOOKUP_ON_CHANGE_PREFIX().size()));
 	assertTrueMsg(it != m_activeChangeLookupListeners.end(),
 		      "IpcAdapter::unregisterChangeLookup: internal error: can't find change lookup \""
-		      << name << "\"");
+		      << name.substr(LOOKUP_ON_CHANGE_PREFIX().size()) << "\"");
 	m_activeChangeLookupListeners.erase(it);
       }
     // *** TODO: implement receiving planner update
@@ -624,6 +629,8 @@ namespace PLEXIL
 		      "IpcAdapter: The argument to the SendMessage command, " << args.front()
 		      << ", is not a string");
 	LabelStr theMessage(args.front());
+	debugMsg("IpcAdapter:executeCommand",
+		 " SendMessage(\"" << theMessage.c_str() << "\")");
 	struct PlexilStringValueMsg packet = {{PlexilMsgType_Message,
 					       0,
 					       getSerialNumber(),
@@ -631,10 +638,13 @@ namespace PLEXIL
 					      theMessage.c_str()};
 	IPC_publishData(STRING_VALUE_MSG, (void *) &packet);
 	// store ack
-	ack->setValue(CommandHandleVariable::COMMAND_SUCCESS().getKey());
+	m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
+	m_execInterface.notifyOfExternalEvent();
+	debugMsg("IpcAdapter:executeCommand", " message \"" << theMessage.c_str() << "\" sent.");
       }
     else // general case
       {
+	debugMsg("IpcAdapter:executeCommand", " for \"" << name.c_str() << "\"");
 	uint32_t serial = getSerialNumber();
 	size_t nParams = args.size();
 	struct PlexilStringValueMsg cmdPacket = {{PlexilMsgType_Command,
@@ -683,15 +693,24 @@ namespace PLEXIL
 
 	// Send the messages
 	// *** TODO: check for IPC errors ***
-	IPC_publishData(STRING_VALUE_MSG, (void *) &cmdPacket);
+	IPC_RETURN_TYPE status;
+	status = IPC_publishData(STRING_VALUE_MSG, (void *) &cmdPacket);
+	assertTrueMsg(status == IPC_OK,
+		      "IpcAdapter::executeCommand: IPC Error, IPC_errno = " << IPC_errno);
 	for (size_t i = 0; i < nParams; i++)
 	  {
-	    IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType),
-			    paramMsgs[i]);
+	    status = IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType),
+				     paramMsgs[i]);
+	    assertTrueMsg(status == IPC_OK,
+			  "IpcAdapter::executeCommand: IPC Error, IPC_errno = " << IPC_errno);
 	  }
 
+	// log ack and return variables in case we get values for them
+	m_pendingCommands[serial] = std::pair<ExpressionId, ExpressionId>(dest, ack);
 	// store ack
-	ack->setValue(CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
+	m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
+	m_execInterface.notifyOfExternalEvent();
+	debugMsg("IpcAdapter:executeCommand", " command \"" << name.c_str() << "\" sent.");
       }
   }
 
@@ -707,7 +726,7 @@ namespace PLEXIL
 			       const std::list<double>& args, 
 			       ExpressionId ack)
   {
-    assertTrueMsg(ALWAYS_FAIL, "IpcAdapter::invokeAbort is not implemented");
+    assertTrueMsg(ALWAYS_FAIL, "IpcAdapter::invokeAbort is not yet implemented");
   }
 
   //
@@ -773,6 +792,7 @@ namespace PLEXIL
 
       case PlexilMsgType_Command:
 	// Stash this and wait for the rest
+	debugMsg("IpcAdapter:handleIpcMessage", " processing as command");
 	cacheMessageLeader(msgData);
 	break;
 
@@ -780,6 +800,7 @@ namespace PLEXIL
 	// No parameters
 
       case PlexilMsgType_Message:
+	debugMsg("IpcAdapter:handleIpcMessage", " processing as message");
 	handleMessageMessage((const PlexilStringValueMsg*) msgData);
 	break;
 
@@ -805,6 +826,7 @@ namespace PLEXIL
       case PlexilMsgType_ReturnValues:
 	{
 	  // Only pay attention to our return values
+	  debugMsg("IpcAdapter:handleIpcMessage", " processing as return value");
 	  const PlexilReturnValuesMsg* returnLeader = (const PlexilReturnValuesMsg*) msgData;
 	  if (strcmp(returnLeader->requesterUID, m_myUID.c_str()) == 0)
 	    cacheMessageLeader(msgData);
@@ -908,12 +930,13 @@ namespace PLEXIL
 
 	  // parse XML into node structure
 	  PlexilXmlParser p;
-	  try {
-	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
+	  try
+	    {
+	      PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
 	      m_execInterface.handleAddPlan(root, EMPTY_LABEL());
 	      // Always notify immediately when adding a plan
 	      m_execInterface.notifyOfExternalEvent();
-	  }
+	    }
 	  catch (const ParserException& e)
 	    {
 	      std::cerr << "Error parsing plan: \n" << e.what() << std::endl;
@@ -929,12 +952,13 @@ namespace PLEXIL
 
 	  // parse XML into node structure
 	  PlexilXmlParser p;
-	  try {
-	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
+	  try
+	    {
+	      PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
 	      m_execInterface.handleAddPlan(root, EMPTY_LABEL());
 	      // Always notify immediately when adding a plan
 	      m_execInterface.notifyOfExternalEvent();
-	  }
+	    }
 	  catch (const ParserException& e)
 	    {
 	      std::cerr << "Error parsing plan from file: \n" << e.what() << std::endl;
@@ -951,10 +975,11 @@ namespace PLEXIL
 
 	  // parse XML into node structure
 	  PlexilXmlParser p;
-	  try {
-	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
-	    m_execInterface.handleAddLibrary(root);
-	  }
+	  try
+	    {
+	      PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
+	      m_execInterface.handleAddLibrary(root);
+	    }
 	  catch (const ParserException& e)
 	    {
 	      std::cerr << "Error parsing library node: \n" << e.what() << std::endl;
@@ -971,10 +996,11 @@ namespace PLEXIL
 
 	  // parse XML into node structure
 	  PlexilXmlParser p;
-	  try {
-	    PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
-	    m_execInterface.handleAddLibrary(root);
-	  }
+	  try
+	    {
+	      PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
+	      m_execInterface.handleAddLibrary(root);
+	    }
 	  catch (const ParserException& e)
 	    {
 	      std::cerr << "Error parsing library file: \n" << e.what() << std::endl;
@@ -1011,7 +1037,7 @@ namespace PLEXIL
       }
 
     // clean up
-    IPC_freeData(IPC_msgFormatter(STRING_VALUE_MSG_FORMAT), (void*) msgData);
+    IPC_freeData(IPC_msgFormatter(STRING_VALUE_MSG), (void*) msgData);
   }
 
 
@@ -1089,8 +1115,8 @@ namespace PLEXIL
 	IpcChangeLookupMap::const_iterator it = m_changeLookups.find(rv->requestSerial);
 	if (it != m_changeLookups.end())
 	  {
-	    const StateKey& key = it->second;
 	    // Active LookupOnChange
+	    const StateKey& key = it->second;
 	    size_t nValues = msgs[0]->count;
 	    std::vector<double> values(nValues);
 	    for (size_t i = 1; i < nValues; i++)
@@ -1106,9 +1132,26 @@ namespace PLEXIL
 	    return;
 	  }
 
-	if (false)
+	PendingCommandsMap::iterator cit = m_pendingCommands.find(rv->requestSerial);
+	if (cit != m_pendingCommands.end())
 	  {
-	    // Assume it's an active command
+	    // It's a command return value or ack
+	    ExpressionId& dest = cit->second.first;
+	    ExpressionId& ack = cit->second.second;
+	    size_t nValues = msgs[0]->count;
+	    for (size_t i = 1; i < nValues; i++)
+	      {
+		double value;
+		if (msgs[i]->msgType == PlexilMsgType_NumericValue)
+		  value = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
+		else
+		  value = LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
+		if (msgs[i]->count == MSG_COUNT_CMD_ACK)
+		  m_execInterface.handleValueChange(ack, value);
+		else
+		  m_execInterface.handleValueChange(dest, value);
+	      }
+	    m_execInterface.notifyOfExternalEvent();
 	  }
       }
   }
@@ -1133,9 +1176,8 @@ namespace PLEXIL
   bool IpcAdapter::hasPrefix(const std::string& s, const std::string& prefix)
   {
     if (s.size() < prefix.size())
-      return false;
-    return (0 == prefix.compare(0, prefix.size(), s));
+	return false;
+    return (0 == s.compare(0, prefix.size(), prefix));
   }
-
 
 }

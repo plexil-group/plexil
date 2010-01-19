@@ -271,6 +271,9 @@ namespace PLEXIL
     //* brief Cache of message/command/lookup names we're actively listening for
     typedef std::map<std::string, StateKey> ActiveListenerMap;
 
+    //* brief Cache of command serials and their corresponding ack and return value variables
+    typedef std::map<uint32_t, std::pair<ExpressionId, ExpressionId> > PendingCommandsMap;
+
     //
     // Member variables
     //
@@ -292,6 +295,9 @@ namespace PLEXIL
 
     //* @brief Cache of open LookupOnChange instances for LookupOnChange
     ActiveListenerMap m_activeChangeLookupListeners;
+
+    //* @brief Cache of ack and return value variables for commands we sent
+    PendingCommandsMap m_pendingCommands;
 
     //* @brief Unique ID of this adapter instance
     std::string m_myUID;
