@@ -6,8 +6,8 @@ EXECUTABLE	:= IpcExec
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
 		   $(PLEXIL_HOME)/third-party/ipc/src \
 		   $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework \
-		   $(PLEXIL_HOME)/src/interfaces/Sockets
-LIBS		+= ipc tinyxml  pthread PlexilUtils PlexilExec PlexilAppFramework PlexilSockets LuvListener
+		   $(PLEXIL_HOME)/src/interfaces/Sockets $(PLEXIL_HOME)/src/interfaces/IpcAdapter
+LIBS		+= ipc tinyxml  pthread PlexilUtils PlexilExec PlexilAppFramework PlexilSockets IpcAdapter LuvListener
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)

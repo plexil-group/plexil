@@ -35,8 +35,8 @@
 #include <time.h>
 #include "Node.hh"
 #include "PlexilPlan.hh"
+#include "IpcAdapter.hh"
 #include "IpcExecTestRunner.hh"
-#include "IpcExecAdapter.hh"
 #include "AdapterFactory.hh"
 #include "InterfaceSchema.hh"
 #include "NewLuvListener.hh"
@@ -114,9 +114,8 @@ namespace PLEXIL
 	  }
       }
 
-    // Register factory for IpcExecAdapter
-    REGISTER_ADAPTER(IpcExecAdapter, "IpcExecutive");
-    
+    // Register factory for IpcAdapter
+    REGISTER_ADAPTER(IpcAdapter, "IPC");
 
     std::cout << "Read plan: " << planName << std::endl;
     // basic initialization
