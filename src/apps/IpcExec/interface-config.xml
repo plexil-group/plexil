@@ -3,7 +3,7 @@
  <Adapter AdapterType="Dummy">
  <DefaultCommandAdapter/>
  </Adapter>
- <Adapter AdapterType="MultiExecutive" TaskName="Default" Server="localhost">
+ <Adapter AdapterType="IPC" Server="localhost">
   <DefaultLookupAdapter/>
   <CommandNames>
 SendMessage,
