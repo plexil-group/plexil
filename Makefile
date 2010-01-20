@@ -48,6 +48,9 @@ TestExecSAS: lcm-structs exec-core app-framework sockets luv
 robosim: exec-core app-framework
 	$(MAKE) -C src/apps/robosim
 
+IpcExec: IpcAdapter
+	$(MAKE) -C src/apps/IpcExec
+
 checker:
 	(cd src/checker && ant jar)
 
@@ -65,6 +68,9 @@ utils: tinyxml
 
 exec-core: utils
 	$(MAKE) -C src/exec
+
+IpcAdapter: app-framework ipc
+	$(MAKE) -C src/interfaces/IpcAdapter
 
 LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener
@@ -99,11 +105,13 @@ clean: clean-ipc
 	-$(MAKE) -C third-party/lcm $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
+	$(MAKE) -C src/interfaces/IpcAdapter $@
 	$(MAKE) -C src/interfaces/lcm-structs $@
 	$(MAKE) -C src/interfaces/LuvListener $@
 	$(MAKE) -C src/interfaces/Sockets $@
 	$(MAKE) -C src/CORBA $@
 	$(MAKE) -C src/app-framework $@
+	$(MAKE) -C src/apps/IpcExec $@
 	$(MAKE) -C src/apps/robosim $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
