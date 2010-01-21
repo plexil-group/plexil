@@ -128,19 +128,6 @@ then
   echo "  Found java version $JAVAVER"
 fi
 
-#These are some suggested actions if version is missing or too old
-if [ $MYOSTYPE = solaris ]
-then
-  echo "Be sure to include $JAMPATH in your path."
-else  
-  if [ $MYOSTYPE = linux ]
-  then
-    echo "Use: find /usr -name 'jam*'"
-    echo "to help locate the required Jam executable."
-  fi
-fi
-
-
 if [ $BADGCC -eq 1 ]
 then
   echo "Your path to gcc may be set wrong."
