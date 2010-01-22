@@ -43,13 +43,13 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName,
     {
       int returnValue;
       if (parseType<int>(inStr, returnValue))
-        return new MoveResponse(tDelay, returnValue);
+        return new MoveResponse(cmdName, tDelay, returnValue);
     }
   else if (cmdName == "foo")
     {
       int returnValue;
       if (parseType<int>(inStr, returnValue))
-        return new foo(tDelay, returnValue);
+        return new foo(cmdName, tDelay, returnValue);
     }
   else
     {
@@ -73,7 +73,7 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName,
         }
       std::cout << "PlexilSimResponseFactory::parse: Returning new GenericResponse with "
 		<< returnValue.size() << " values" << std::endl;
-      return new GenericResponse(tDelay, returnValue);
+      return new GenericResponse(cmdName, tDelay, returnValue);
     }
   // fall-thru return
   return NULL;

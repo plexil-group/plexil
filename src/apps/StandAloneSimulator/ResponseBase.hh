@@ -26,21 +26,27 @@
 #ifndef RESPONSE_BASE_HH
 #define RESPONSE_BASE_HH
 
+#include <string>
+
 class ResponseMessage;
 
 class ResponseBase
 {
 public:
-  ResponseBase(timeval delay) : m_Delay(delay) {}
+  ResponseBase(const std::string& name, timeval delay) : m_name(name), m_Delay(delay) {}
   virtual ~ResponseBase(){}
 
   void setNumberOfResponses(int numOfResp) {m_NumberOfResponses = numOfResp;}
   int getNumberOfResponses() const {return m_NumberOfResponses;}
   timeval getDelay() const {return m_Delay;}
-
+  const std::string& getName() const {return m_name;}
   virtual ResponseMessage* createResponseMessage() = 0;
 
 private:
+  // Deliberately not implemented
+  ResponseBase();
+
+  std::string m_name;
   timeval m_Delay;
   int m_NumberOfResponses;
 };

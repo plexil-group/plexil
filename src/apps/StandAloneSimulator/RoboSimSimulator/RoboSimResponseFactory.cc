@@ -43,7 +43,7 @@ ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval 
     {
       int returnValue;
       if (parseType<int>(inStr, returnValue))
-        return new MoveResponse(tDelay, returnValue);
+        return new MoveResponse(cmdName, tDelay, returnValue);
     }
   else if (cmdName == "QueryEnergySensor")
     {
@@ -59,7 +59,7 @@ ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval 
             break;
         }
       if (i == NUMBER_OF_ENERGY_LEVEL_READINGS)
-        return new QueryEnergyLevelResponse(tDelay, energyLevel);
+        return new QueryEnergyLevelResponse(cmdName, tDelay, energyLevel);
     }
   else if (cmdName == "RobotState")
     {
@@ -75,8 +75,8 @@ ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval 
             break;
         }
       if (i == NUMBER_OF_STATE_READINGS)
-        return new RobotStateResponse(tDelay, state);
+        return new RobotStateResponse(cmdName, tDelay, state);
     }
   // fall-thru return
-  return new GenericResponse(tDelay, std::vector<double>(1, 0.0));
+  return new GenericResponse(cmdName, tDelay, std::vector<double>(1, 0.0));
 }

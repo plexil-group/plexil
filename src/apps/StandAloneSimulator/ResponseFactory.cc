@@ -43,7 +43,7 @@ ResponseBase* ResponseFactory::parse(const std::string& cmdName, timeval tDelay,
     {
       std::vector<double> returnVector(1, returnValue);
       std::cout << "ResponseFactory::parse: Returning new GenericResponse, value = " << returnValue << std::endl;
-      return new GenericResponse(tDelay, returnVector);
+      return new GenericResponse(cmdName, tDelay, returnVector);
     }
   else
     {

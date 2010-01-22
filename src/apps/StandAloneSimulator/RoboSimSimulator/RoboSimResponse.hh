@@ -36,8 +36,8 @@
 class MoveResponse : public ResponseBase
 {
 public:
-  MoveResponse(timeval delay, const int returnValue)
-    : ResponseBase(delay), m_ReturnValue(returnValue) {}
+  MoveResponse(const std::string& name, timeval delay, const int returnValue)
+    : ResponseBase(name, delay), m_ReturnValue(returnValue) {}
 
   ~MoveResponse(){}
 
@@ -57,8 +57,8 @@ private:
 class QueryEnergyLevelResponse : public ResponseBase
 {
 public:
-  QueryEnergyLevelResponse(timeval delay, const std::vector<double> energyLevel) 
-    : ResponseBase(delay), m_EnergyLevel(energyLevel) {}
+  QueryEnergyLevelResponse(const std::string& name, timeval delay, const std::vector<double> energyLevel) 
+    : ResponseBase(name, delay), m_EnergyLevel(energyLevel) {}
 
   ~QueryEnergyLevelResponse(){}
 
@@ -82,8 +82,8 @@ private:
 class RobotStateResponse : public ResponseBase
 {
 public:
-  RobotStateResponse(timeval delay, const std::vector<double> state) 
-    : ResponseBase(delay), m_State(state) {}
+  RobotStateResponse(const std::string& name, timeval delay, const std::vector<double> state) 
+    : ResponseBase(name, delay), m_State(state) {}
 
   ~RobotStateResponse(){}
 

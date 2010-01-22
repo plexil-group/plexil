@@ -35,8 +35,8 @@
 class GenericResponse : public ResponseBase
 {
 public:
-  GenericResponse(timeval delay, const std::vector<double>& value) 
-    : ResponseBase(delay), m_ReturnValue(value)
+  GenericResponse(const std::string& name, timeval delay, const std::vector<double>& value) 
+    : ResponseBase(name, delay), m_ReturnValue(value)
   {
 
   }
@@ -57,7 +57,7 @@ public:
     vectToString += '\n';
     std::cout << "Creating a generic response with a return value of: " 
               << vectToString;
-    return new ResponseMessage(-1, vectToString);
+    return new ResponseMessage(-1, vectToString, getName());
   }
 
 private:

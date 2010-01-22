@@ -36,8 +36,8 @@
 class MoveResponse : public ResponseBase
 {
 public:
-  MoveResponse(timeval delay, const int returnValue)
-    : ResponseBase(delay), m_ReturnValue(returnValue) {}
+  MoveResponse(const std::string& name, timeval delay, const int returnValue)
+    : ResponseBase(name, delay), m_ReturnValue(returnValue) {}
 
   ~MoveResponse(){}
 
@@ -57,8 +57,8 @@ private:
 class foo : public ResponseBase
 {
 public:
-  foo(timeval delay, const int returnValue)
-    : ResponseBase(delay), m_ReturnValue(returnValue) {}
+  foo(const std::string& name, timeval delay, const int returnValue)
+    : ResponseBase(name, delay), m_ReturnValue(returnValue) {}
 
   ~foo(){}
 

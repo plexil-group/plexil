@@ -28,7 +28,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY		:= plexilsimulator
 
-SRC		:= $(wildcard *.cc)
+SRC		:= PlexilCommRelay.cc PlexilSimResponseFactory.cc PlexilSimulator.cc
 INC		:= $(wildcard *.hh)
 
 LIBS		+= PlexilUtils lcm ComStructs standalonesimulator
