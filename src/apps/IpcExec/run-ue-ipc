@@ -43,12 +43,12 @@ usage="Usage: run-ue-ipc [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <deb
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
-if [ -f $PLEXIL_HOME/bin/MultiExec ]
+if [ -f $PLEXIL_HOME/bin/IpcExec ]
 then
-    prog=$PLEXIL_HOME/bin/MultiExec
-elif [ -f $PLEXIL_HOME/src/apps/MultiExec/MultiExec ]
+    prog=$PLEXIL_HOME/bin/IpcExec
+elif [ -f $PLEXIL_HOME/src/apps/IpcExec/IpcExec ]
 then
-    prog=$PLEXIL_HOME/src/apps/MultiExec/MultiExec
+    prog=$PLEXIL_HOME/src/apps/IpcExec/IpcExec
 else
     echo "UE executable not found, aborting"
     exit 1
