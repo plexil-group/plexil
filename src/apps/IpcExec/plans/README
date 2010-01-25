@@ -9,7 +9,7 @@ Before Executing:
        make
        make ipc
 
-Within the MultiExec Directory:
+Within the IpcExec Directory:
 
 1)   Translate CarInternalSystems.ple  into CarInternalSystems.plx
        plexil plans/CarInternalSystems.ple
@@ -19,12 +19,12 @@ Within the MultiExec Directory:
 
 3)   Translate any other '.ple' files you wish to run.
 
-3)   Build MultiExec
+4)   Build IpcExec
        make
 
 Executing:
 
-Within the MultiExec Directory:
+Within the IpcExec Directory:
 
 1)   Begin the IPC Central Server
        $PLEXIL_HOME/bin/ipc
