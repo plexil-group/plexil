@@ -170,7 +170,7 @@ namespace PLEXIL
     }
   };
 
-#define REGISTER_ADAPTER(CLASS,NAME) {new PLEXIL::ConcreteAdapterFactory<CLASS>(LabelStr(NAME));}
+#define REGISTER_ADAPTER(CLASS,NAME) {new PLEXIL::ConcreteAdapterFactory<CLASS>(*(new PLEXIL::LabelStr(NAME)));}
 
 } // namespace PLEXIL
 

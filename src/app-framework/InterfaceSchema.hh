@@ -54,6 +54,8 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TAG, "Listener");
     DECLARE_STATIC_CLASS_CONST(char*, LOOKUP_NAMES_TAG, "LookupNames");
     DECLARE_STATIC_CLASS_CONST(char*, PLANNER_UPDATE_TAG, "PlannerUpdate");
+    DECLARE_STATIC_CLASS_CONST(char*, IP_ADDRESS_TAG, "IpAddress");
+    DECLARE_STATIC_CLASS_CONST(char*, PORT_NUMBER_TAG, "PortNumber");
 
     //
     // Attributes
