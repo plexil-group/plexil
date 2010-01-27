@@ -1,0 +1,17 @@
+<Interfaces>
+	<Adapter AdapterType="OSNativeTime" />
+	<Adapter AdapterType="RoboSimInterfaceAdapter">
+		<CommandNames>
+			MoveUp,
+      MoveLeft,
+      MoveDown,
+      MoveRight,
+			QueryRobotState,
+			QueryGoalSensor,
+			QueryEnergySensor,
+			QueryVisibilitySensor
+	  </CommandNames>
+	  <IpAddress>127.0.0.1</IpAddress>
+	  <PortNumber>6164</PortNumber>
+	</Adapter>
+</Interfaces>
