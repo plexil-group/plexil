@@ -47,9 +47,10 @@ RoboSimInterfaceAdapter::RoboSimInterfaceAdapter(PLEXIL::AdapterExecInterface& e
     const TiXmlElement *ipElem = ipNode->ToElement();
     if (ipElem) {
       m_IpAddress = ipElem->GetText();
+    } else {
+      m_IpAddress = DEFAULT_IP_ADDRESS();
     }
-  }
-  if (!m_IpAddress){
+  } else {
     m_IpAddress = DEFAULT_IP_ADDRESS();
   }
   const TiXmlNode* portNode = configXml->FirstChild(PLEXIL::InterfaceSchema::PORT_NUMBER_TAG());
