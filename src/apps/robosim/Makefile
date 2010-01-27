@@ -26,7 +26,9 @@
 default:
 	$(MAKE) -C RobotSimulator
 	$(MAKE) -C RobotSimulatorExec
+	$(MAKE) -C RobotSimulatorAdapter
 
 clean:
 	@ $(MAKE) -C RobotSimulator $@
 	@ $(MAKE) -C RobotSimulatorExec $@
+	@ $(MAKE) -C RobotSimulatorAdapter $@
