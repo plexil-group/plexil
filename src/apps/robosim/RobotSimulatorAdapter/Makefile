@@ -34,15 +34,23 @@ OSTYPE   ?= $(shell uname -s)
 MACHTYPE ?= $(shell uname -p)
 OS_ARCH = $(OSTYPE)-$(MACHTYPE)
 
-EXECUTABLE = roboSimExec
-SRC = RoboSimExec.cc
-INC = 
+LIBRARY := RoboSimInterfaceAdapter
+LIBRARY_SRC := RoboSimInterfaceAdapter.cc
+LIBRARY_OBJ := $(LIBRARY_SRC:.cc=.o)
 
-INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/interfaces/Sockets  $(PLEXIL_HOME)/src/app-framework $(ROBOSIM_HOME)/SSWGComm
-LIBS		+= pthread dl tinyxml PlexilUtils PlexilExec PlexilAppFramework PlexilSockets sswgcomm
+INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework $(ROBOSIM_HOME)/SSWGComm
+LIBS		+= tinyxml sswgcomm
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
-ROBOSIMEXEC_TARGET = roboSimExec
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+
+# these must follow the above 'include'
+
+$(SHLIB): depend $(LIBRARY_OBJ)
+	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $(LIBRARY_OBJ)
+
+$(ARCHIVE): $(LIBRARY_OBJ) depend
+	$(AR) -o $@ $(LIBRARY_OBJ)
+	
 -include Makedepend

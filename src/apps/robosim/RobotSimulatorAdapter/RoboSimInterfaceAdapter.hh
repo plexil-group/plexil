@@ -31,16 +31,21 @@
 #include <list>
 #include <string>
 #include "InterfaceAdapter.hh"
+#include "AdapterFactory.hh"
 #include "SSWGCallbackHandler.hh"
 #include "SSWGClient.hh"
+
+DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_IP_ADDRESS, "127.0.0.1");
+DECLARE_STATIC_CLASS_CONST(int, DEFAULT_PORT, 6164);
 
 class RoboSimInterfaceAdapter : public PLEXIL::InterfaceAdapter, public SSWGCallbackHandler
 {
 public:
+  RoboSimInterfaceAdapter(PLEXIL::AdapterExecInterface&, const TiXmlElement*&);
   RoboSimInterfaceAdapter(PLEXIL::AdapterExecInterface& execInterface,
 			  const std::string& _name = "RoboSimExec",
                           const std::string& ipAddress = "127.0.0.1", 
-			  int portNumber=6164);
+			  int portNumber=DEFAULT_PORT());
   ~RoboSimInterfaceAdapter();
 
   //
@@ -107,5 +112,11 @@ private:
   std::map<std::string, std::vector<double> >::iterator m_LookupMapIter;
   std::vector<std::string> m_MoveDirectionVector;
 };
+
+extern "C" {
+  void initAdapterFactories() {
+    REGISTER_ADAPTER(RoboSimInterfaceAdapter, "RoboSimInterfaceAdapter");
+  }
+}
 
 #endif

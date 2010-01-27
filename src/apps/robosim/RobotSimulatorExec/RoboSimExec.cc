@@ -26,17 +26,18 @@
 
 #include <fstream>
 #include <time.h>
+#include <dlfcn.h>
 
 //#include "PlexilExec.hh"
 #include "ExecApplication.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "TimeAdapter.hh"
+#include "AdapterFactory.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
-#include "RoboSimInterfaceAdapter.hh"
 #include "NewLuvListener.hh"
 #include "SocketException.h"
 
@@ -46,18 +47,16 @@ int main (int argc, char** argv)
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("");
-  std::string ipAddress("127.0.0.1");
-  int portNumber=6164;
+  char* adapterLib("libRoboSimInterfaceAdapter.so");
   bool        luvRequest = false;
   std::string luvHost    = PLEXIL::NewLuvListener::LUV_DEFAULT_HOSTNAME();
   int         luvPort    = PLEXIL::NewLuvListener::LUV_DEFAULT_PORT();
   bool        luvBlock   = false;
   std::string usage(
 		    "Usage: roboSimExec -p <plan>\n\
+                   [-l <adapter_library_file>]\n\
                    [-c <interface_config_file>]\n\
                    [-d <debug_config_file>]\n\
-                   [-i <ip_address_comm_server>]\n\
-                   [-cp <port_number_comm_server>]\n\
                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] -b]");
 
   // if not enough parameters, print usage
@@ -75,12 +74,10 @@ int main (int argc, char** argv)
 	luvBlock = true;
       else if (strcmp(argv[i], "-c") == 0)
         interfaceConfig = std::string(argv[++i]);
-      else if (strcmp(argv[i], "-cp") == 0)
-        portNumber = atoi(argv[++i]);
+      else if (strcmp(argv[i], "-l") == 0)
+        adapterLib = argv[++i];
       else if (strcmp(argv[i], "-d") == 0)
         debugConfig = std::string(argv[++i]);
-      else if (strcmp(argv[i], "-i") == 0)
-        ipAddress = std::string(argv[++i]);
       else if (strcmp(argv[i], "-h") == 0)
 	luvHost = argv[++i];
       else if (strcmp(argv[i], "-n") == 0)
@@ -156,6 +153,12 @@ int main (int argc, char** argv)
   // construct the application
   PLEXIL::ExecApplication _app;
 
+  // Load adapter library
+  void (*func)(void);
+  void *dlib = dlopen(adapterLib, RTLD_NOW);
+  *(void **)(&func) = dlsym(dlib, "initAdapterFactories");
+  (*func)();
+
   // initialize it
   std::cout << "Initializing application" << std::endl;
   if (!_app.initialize(configElt))
@@ -164,15 +167,6 @@ int main (int argc, char** argv)
                 << std::endl;
       return -1;
     }
-
-  // Add RoboSim adapter
-  RoboSimInterfaceAdapter* _plxl_adapter = 
-    new RoboSimInterfaceAdapter(_app.getInterfaceManagerReference(),
-				"RoboSimExec",
-				ipAddress, 
-				portNumber);
-  _plxl_adapter->initialize();
-  _app.getInterfaceManager()->setDefaultInterface(_plxl_adapter->getId());
 
   // start interfaces
   std::cout << "Starting interfaces" << std::endl;
