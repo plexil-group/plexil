@@ -138,6 +138,7 @@ namespace PLEXIL
 		  "IpcAdapter: Unable to connect to the central server at " << serverName);
 
     // Define messages
+    // *** TODO: move this logic into ipc-data-formats.h or similar ***
     if (!IPC_isMsgDefined(MSG_BASE))
       {
 	assertTrueMsg(IPC_errno == IPC_No_Error,
@@ -641,6 +642,31 @@ namespace PLEXIL
 	m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
 	m_execInterface.notifyOfExternalEvent();
 	debugMsg("IpcAdapter:executeCommand", " message \"" << theMessage.c_str() << "\" sent.");
+      }
+    // Check for SendReturnValue command
+    if (name == SEND_RETURN_VALUE_COMMAND())
+      {
+	// Check for one argument, the message
+	assertTrueMsg(args.size() >= 2,
+		      "IpcAdapter: The SendReturnValue command requires at least two arguments.");
+
+	// *** TODO: Implement!
+	assertTrueMsg(LabelStr::isString(args.front()),
+		      "IpcAdapter: The first argument to the SendReturnValue command, " << args.front()
+		      << ", is not a string");
+	LabelStr receiver(args.front());
+	debugMsg("IpcAdapter:executeCommand",
+		 " SendReturnValue(\"" << receiver.c_str() << "\")");
+	struct PlexilStringValueMsg packet = {{PlexilMsgType_Message,
+					       0,
+					       getSerialNumber(),
+					       m_myUID.c_str()},
+					      receiver.c_str()};
+	IPC_publishData(STRING_VALUE_MSG, (void *) &packet);
+	// store ack
+	m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
+	m_execInterface.notifyOfExternalEvent();
+	debugMsg("IpcAdapter:executeCommand", " return value sent.");
       }
     else // general case
       {
@@ -1170,6 +1196,10 @@ namespace PLEXIL
   }
 
 
+  //
+  // Static member functions
+  //
+
   /**
    * @brief Returns true if the string starts with the prefix, false otherwise.
    */
@@ -1178,6 +1208,29 @@ namespace PLEXIL
     if (s.size() < prefix.size())
 	return false;
     return (0 == s.compare(0, prefix.size(), prefix));
+  }
+  
+  /**
+   * @brief Generate a transaction ID string combining the given UID and serial
+   */
+  std::string IpcAdapter::makeTransactionID(const std::string& uid, uint32_t serial)
+  {
+    std::ostringstream s;
+    s << uid << TRANSACTION_ID_SEPARATOR_CHAR << serial;
+    return s.str();
+  }
+
+    /**
+     * @brief Given a transaction ID string, return the UID and the serial
+     */
+  void IpcAdapter::parseTransactionId(const std::string& transId, std::string& uidOut, uint32_t& serialOut)
+  {
+    std::string::size_type idx = transId.find(TRANSACTION_ID_SEPARATOR_CHAR);
+    assertTrueMsg(idx != std::string::npos,
+		  "parseTransactionId: string \"" << transId << "\" is not a valid transaction ID");
+    uidOut = transId.substr(0, idx);
+    std::istringstream s(transId.substr(idx + 1));
+    s >> serialOut;
   }
 
 }

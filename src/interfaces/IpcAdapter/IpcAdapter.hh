@@ -34,6 +34,8 @@ struct PlexilMsgBase;
 struct PlexilStringValueMsg;
 class TiXmlElement; 
 
+#define TRANSACTION_ID_SEPARATOR_CHAR ':'
+
 namespace PLEXIL
 {
   class IpcAdapter:
@@ -51,6 +53,7 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "LOOKUP_ON_CHANGE__")
 
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
+    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
 
     /**
      * @brief Constructor.
@@ -191,8 +194,6 @@ namespace PLEXIL
      * @brief Initialize unique ID string
      */
     void initializeUID();
-    
-
 
     /**
      * @brief Handler function as seen by IPC.
@@ -250,10 +251,24 @@ namespace PLEXIL
      */
     uint32_t getSerialNumber();
 
+    //
+    // Static member functions
+    //
+
     /**
      * @brief Returns true if the string starts with the prefix, false otherwise.
      */
     static bool hasPrefix(const std::string& s, const std::string& prefix);
+
+    /**
+     * @brief Generate a string combining the given UID and serial
+     */
+    static std::string makeTransactionID(const std::string& uid, uint32_t serial);
+
+    /**
+     * @brief Given a transaction ID string, return the UID and the serial
+     */
+    static void parseTransactionId(const std::string& transId, std::string& uidOut, uint32_t& serialOut);
 
     //
     // Private data types
