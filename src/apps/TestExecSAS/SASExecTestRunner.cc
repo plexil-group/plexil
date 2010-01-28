@@ -45,15 +45,15 @@ namespace PLEXIL
 {
   void SASExecTestRunner::usage() const
   {
-    std::cout << "Usage: sas-exec-test-runner [options] -p <plan>\n" 
+    std::cout << "Usage: TestExecSAS [options] -p <plan>\n" 
 	      << " where options are: \n"
 	      << "  -l <library_file> -- library node file; multiple -l options permitted\n"
 	      << "  -c <interface_config_file> -- use a custom interface configuration file\n"
 	      << "  -d <debug_config_file> -- use a custom debug configuration file\n"
 	      << "  -v [-h <hostname>] [-n <portnumber>] -b] -- use the LUV execution viewer;\n"
 
-	      << "                     -h <hostname> -- LUV on remote host (default \"" << NewLuvListener::LUV_DEFAULT_HOSTNAME() << "\"\n"
-	      << "                     -n <portnumber> -- IP port number for LUV (default " << NewLuvListener::LUV_DEFAULT_PORT() << "\n"
+	      << "                     -h <hostname> -- LUV on remote host (default \"" << NewLuvListener::LUV_DEFAULT_HOSTNAME() << "\")\n"
+	      << "                     -n <portnumber> -- IP port number for LUV (default " << NewLuvListener::LUV_DEFAULT_PORT() << ")\n"
 	      << std::endl;
   }
 
@@ -67,14 +67,12 @@ namespace PLEXIL
     std::string luvHost(NewLuvListener::LUV_DEFAULT_HOSTNAME());
     int         luvPort    = NewLuvListener::LUV_DEFAULT_PORT();
     bool        luvBlock   = false;
-    std::string usage(
-		      "Usage: sas-exec-test-runner -s <script> -p <plan> [-l <library>]* [-c <interface_config_file>] [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
 
     // if not enough parameters, print usage
 
     if ( argc < 3)
       {
-	std::cout << usage << std::endl;
+	usage();
 	return -1;
       }
     // parse out parameters
@@ -107,8 +105,8 @@ namespace PLEXIL
 	    std::cout << "Unknown option '" 
 		      << argv[i] 
 		      << "'.  \n" 
-		      << usage 
 		      << std::endl;
+	    usage();
 	    return -1;
 	  }
       }
