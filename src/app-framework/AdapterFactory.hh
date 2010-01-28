@@ -83,6 +83,14 @@ namespace PLEXIL
                                              bool& wasCreated);
 
     /**
+     * @brief Checks whether or not the given AdapterFactory is registered.
+     * @param name The registered name for the factory
+     * @return True if the factory is registered, false otherwise
+     */
+
+    static bool isRegistered(const LabelStr& name);
+
+    /**
      * @brief Deallocate all factories
      */
     static void purge();

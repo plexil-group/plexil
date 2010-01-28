@@ -50,6 +50,7 @@
 #include "PlexilXmlParser.hh"
 #include "StateCache.hh"
 #include "CommandHandle.hh"
+#include "DynamicLoader.hh"
 
 #include <limits>
 #include <sstream>
@@ -304,6 +305,30 @@ namespace PLEXIL
                            << " attribute for adapter XML:\n"
                            << *element);
                 
+                // load external library (linux only for now) if the adapter is not registered
+                // TODO: support mac os
+                if (!AdapterFactory::isRegistered(adapterType)) {
+                  const char* libCPath =
+                    element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+                  std::string *libPath;
+                  if (libCPath == 0) {
+                    debugMsg("true", "constructInterfaces: no "
+                               << InterfaceSchema::LIB_PATH_ATTR()
+                               << " attribute for adapter XML:\n"
+                               << *element);
+                    std::stringstream libStream;
+                    libStream << "lib" << adapterType << ".so";
+                    *libPath = libStream.str();
+                  } else {
+                    libPath = new std::string(libCPath);
+                  }
+                  std::string funcName = (std::string("init") + adapterType);
+                  void (*func)();
+                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath->c_str(), funcName.c_str());
+                  checkError(func != 0, DynamicLoader::getError());
+                  (*func)();
+                }
+
                 // Construct the adapter
                 InterfaceAdapterId adapter = 
                   AdapterFactory::createInstance(LabelStr(adapterType),

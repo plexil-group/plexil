@@ -27,7 +27,7 @@
 
 . plexil-setup.sh
 
-prog=$PLEXIL_HOME/bin/roboSimExec
+prog=$PLEXIL_HOME/bin/universalExec
 
 plexil-check-prog $prog
 

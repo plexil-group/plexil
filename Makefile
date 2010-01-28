@@ -45,9 +45,12 @@ TestExecSAS: lcm-structs exec-core app-framework sockets luv
 	$(MAKE) -C src/apps/TestExecSAS
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
-robosim: exec-core app-framework
+robosim: exec-core app-framework UniversalExec
 	$(MAKE) -C src/apps/robosim
 
+UniversalExec: exec-core app-framework
+	$(MAKE) -C src/apps/UniversalExec
+	
 IpcExec: IpcAdapter
 	$(MAKE) -C src/apps/IpcExec
 
@@ -113,6 +116,7 @@ clean: clean-ipc
 	$(MAKE) -C src/app-framework $@
 	$(MAKE) -C src/apps/IpcExec $@
 	$(MAKE) -C src/apps/robosim $@
+	$(MAKE) -C src/apps/UniversalExec $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
 	$(MAKE) -C src/apps/TestExecSAS $@

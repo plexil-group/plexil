@@ -26,7 +26,6 @@
 
 #include <fstream>
 #include <time.h>
-#include <dlfcn.h>
 
 //#include "PlexilExec.hh"
 #include "ExecApplication.hh"
@@ -39,7 +38,6 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "NewLuvListener.hh"
-#include "SocketException.h"
 
 
 int main (int argc, char** argv)
@@ -47,14 +45,12 @@ int main (int argc, char** argv)
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("");
-  char* adapterLib("libRoboSimInterfaceAdapter.so");
   bool        luvRequest = false;
   std::string luvHost    = PLEXIL::NewLuvListener::LUV_DEFAULT_HOSTNAME();
   int         luvPort    = PLEXIL::NewLuvListener::LUV_DEFAULT_PORT();
   bool        luvBlock   = false;
   std::string usage(
-		    "Usage: roboSimExec -p <plan>\n\
-                   [-l <adapter_library_file>]\n\
+		    "Usage: universalExec -p <plan>\n\
                    [-c <interface_config_file>]\n\
                    [-d <debug_config_file>]\n\
                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] -b]");
@@ -74,8 +70,6 @@ int main (int argc, char** argv)
 	luvBlock = true;
       else if (strcmp(argv[i], "-c") == 0)
         interfaceConfig = std::string(argv[++i]);
-      else if (strcmp(argv[i], "-l") == 0)
-        adapterLib = argv[++i];
       else if (strcmp(argv[i], "-d") == 0)
         debugConfig = std::string(argv[++i]);
       else if (strcmp(argv[i], "-h") == 0)
@@ -152,12 +146,6 @@ int main (int argc, char** argv)
 
   // construct the application
   PLEXIL::ExecApplication _app;
-
-  // Load adapter library
-  void (*func)(void);
-  void *dlib = dlopen(adapterLib, RTLD_NOW);
-  *(void **)(&func) = dlsym(dlib, "initAdapterFactories");
-  (*func)();
 
   // initialize it
   std::cout << "Initializing application" << std::endl;

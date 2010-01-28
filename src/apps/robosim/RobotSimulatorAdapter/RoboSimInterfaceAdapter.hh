@@ -114,7 +114,7 @@ private:
 };
 
 extern "C" {
-  void initAdapterFactories() {
+  void initRoboSimInterfaceAdapter() {
     REGISTER_ADAPTER(RoboSimInterfaceAdapter, "RoboSimInterfaceAdapter");
   }
 }

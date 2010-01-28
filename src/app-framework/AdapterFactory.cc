@@ -76,6 +76,10 @@ namespace PLEXIL
     return retval;
   }
 
+  bool AdapterFactory::isRegistered(const LabelStr& name) {
+    return factoryMap().find(name) != factoryMap().end();
+  }
+
   std::map<double, AdapterFactory*>& AdapterFactory::factoryMap() 
   {
     static std::map<double, AdapterFactory*> sl_map;
