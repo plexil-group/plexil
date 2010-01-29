@@ -27,9 +27,9 @@
 #define COMM_RELAY_BASE_HH
 
 #include <string>
-#include "ResponseMessage.hh"
 
 class Simulator;
+class ResponseMessage;
 
 class CommRelayBase
 {
