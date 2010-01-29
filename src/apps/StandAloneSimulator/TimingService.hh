@@ -38,7 +38,7 @@ public:
   TimingService(Simulator* _callBack=NULL);
   ~TimingService();
   static void timerHandler (int signum);
-  bool  setTimer(timeval time);
+  bool setTimer(const timeval& time);
 
 private:  
   void setupTimer(Simulator* _simulator);

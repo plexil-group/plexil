@@ -25,31 +25,10 @@
  */
 
 #include "TimingService.hh"
+#include "timeval-utils.hh"
 #include "Simulator.hh"
 #include <signal.h>
 #include <iostream>
-
-
-timeval operator- (const timeval& t1, const timeval& t2)
-{
-  timeval time;
-  
-  time.tv_sec = t1.tv_sec - t2.tv_sec;
-
-  if (t1.tv_usec >= t2.tv_usec)
-    {
-      time.tv_usec = t1.tv_usec - t2.tv_usec;
-    }
-  else
-    {
-      time.tv_sec -= 1;
-      time.tv_usec = 
-        static_cast<long>(((static_cast<double>((t1.tv_usec) * ONE_MILLIONTH) + 1.0) -
-                           (static_cast<double>((t2.tv_usec) * ONE_MILLIONTH))) / ONE_MILLIONTH);
-    }
-
-  return time;
-}
 
 Simulator* TimingService::m_Simulator=NULL;
 
@@ -80,7 +59,7 @@ void TimingService::timerHandler (int signum)
   m_Simulator->handleWakeUp();
 }
 
-bool TimingService::setTimer(timeval time)
+bool TimingService::setTimer(const timeval& time)
 {
   if (m_TimerSetup)
     {
@@ -91,7 +70,7 @@ bool TimingService::setTimer(timeval time)
       
       m_Timer.it_value = time - cTime;
       
-      if (m_Timer.it_value.tv_sec < 0)
+      if (m_Timer.it_value.tv_sec < 0 || m_Timer.it_value.tv_usec < 0)
         return true;
       
       int status = setitimer (ITIMER_REAL, &m_Timer, NULL);
