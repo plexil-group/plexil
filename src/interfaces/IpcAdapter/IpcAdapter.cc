@@ -847,6 +847,28 @@ namespace PLEXIL
 	cacheMessageLeader(msgData);
 	break;
 
+	// TelemetryValues is a PlexilStringValueMsg
+	// Followed by 0 (?) or more values
+      case PlexilMsgType_TelemetryValues:
+	{
+	  const PlexilStringValueMsg* tv = (const PlexilStringValueMsg*) msgData;
+	  State state(LabelStr(tv->stringValue), std::vector<double>(0));
+	  StateKey dummy;
+	  // is this a state the exec knows about?
+	  if (m_execInterface.keyForState(state, dummy))
+	    {
+	      // stash this and wait for the rest
+	      debugMsg("IpcAdapter:handleIpcMessage", " processing as telemetry value");
+	      cacheMessageLeader(msgData);
+	    }
+	  else
+	    {
+	      debugMsg("IpcAdapter:handleTelemetryValuesSequence",
+		       " ignoring unknown state \"" << tv->stringValue << "\"");
+	    }
+	  break;
+	}
+
 	// ReturnValues is a PlexilReturnValuesMsg
 	// Followed by 0 (?) or more values
       case PlexilMsgType_ReturnValues:
@@ -1087,6 +1109,9 @@ namespace PLEXIL
       case PlexilMsgType_LookupOnChange:
 	break;
 
+      case PlexilMsgType_TelemetryValues:
+	handleTelemetryValuesSequence(msgs);
+
       case PlexilMsgType_ReturnValues:
 	handleReturnValuesSequence(msgs);
 	break;
@@ -1107,6 +1132,32 @@ namespace PLEXIL
 	IPC_freeData(IPC_msgFormatter(msgFormatForType((PlexilMsgType) msg->msgType)),
 		     (void *) msg);
       }
+  }
+
+  /**
+   * @brief Process a TelemetryValues message sequence
+   */
+
+  void IpcAdapter::handleTelemetryValuesSequence(std::vector<const PlexilMsgBase*>& msgs)
+  {
+    const PlexilStringValueMsg* tv = (const PlexilStringValueMsg*) msgs[0];
+    State state(LabelStr(tv->stringValue), std::vector<double>(0));
+    StateKey key;
+    checkError(!m_execInterface.findStateKey(state, key),
+	       "IpcAdapter::handleTelemetryValuesSequence: state \"" << tv->stringValue << "\" is unknown");
+
+    size_t nValues = msgs[0]->count;
+    std::vector<double> values(nValues);
+    for (size_t i = 1; i < nValues; i++)
+      {
+	if (msgs[i]->msgType == PlexilMsgType_NumericValue)
+	  values[i-1] = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
+	else
+	  values[i-1] =
+	    LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
+      }
+    m_execInterface.handleValueChange(key, values);
+    m_execInterface.notifyOfExternalEvent();
   }
 
   /**

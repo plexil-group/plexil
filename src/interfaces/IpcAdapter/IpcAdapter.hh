@@ -242,6 +242,11 @@ namespace PLEXIL
     void enqueueMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
 
     /**
+     * @brief Process a TelemetryValues message sequence
+     */
+    void handleTelemetryValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
+
+    /**
      * @brief Process a ReturnValues message sequence
      */
     void handleReturnValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
