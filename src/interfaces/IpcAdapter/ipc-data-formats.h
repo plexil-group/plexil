@@ -81,6 +81,8 @@ struct PlexilNumericValueMsg
  *  string value is node name, followed by count name/value pairs
  * When used for messages, plans, plan files, libraries, library files: 
  *  stands alone, count ignored
+ * When used as telemetry value leader:
+ *  string value is state name, followed by count value messages
  * When used for numeric argument or return values:
  *  preceded by corresponding message type, 
  *  count indicates position in sequence
@@ -133,11 +135,12 @@ typedef enum
     PlexilMsgType_TerminateChangeLookup,
 
     // PlexilStringValueMsg
-    // These have an operation name and an argument count
+    // These have an operation (or state) name and an argument count
     PlexilMsgType_Command,
     PlexilMsgType_Message,
     PlexilMsgType_LookupNow,
     PlexilMsgType_LookupOnChange,
+    PlexilMsgType_TelemetryValues,
 
     // PlexilReturnValuesMsg
     // These have a unique ID of the requested operation
@@ -203,6 +206,7 @@ inline const char* msgFormatForType(const PlexilMsgType typ)
     case PlexilMsgType_LookupOnChange:
     case PlexilMsgType_PlannerUpdate:
     case PlexilMsgType_StringValue:
+    case PlexilMsgType_TelemetryValues:
 
       return STRING_VALUE_MSG;
       break;
