@@ -542,6 +542,14 @@ namespace PLEXIL
     }
 
     /**
+     * @brief Look up the unique key for a state.
+     * @param state The state.
+     * @param key The key associated with this state.
+     * @return True if the key was found.
+     */
+    bool findStateKey(const State& state, StateKey& key);
+
+    /**
      * @brief Get a unique key for a state, creating a new key for a new state.
      * @param state The state.
      * @param key The key.

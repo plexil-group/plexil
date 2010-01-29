@@ -493,6 +493,26 @@ namespace PLEXIL
       return needsUpdate;
    }
 
+  /**
+   * @brief Find the unique key for a state.
+   * @param state The state.
+   * @param key The key associated with this state.
+   * @return True if the key was found.
+   */
+  bool StateCache::findStateKey(const State& state, StateKey& key)
+  {
+    std::map<State, StateKey>::const_iterator it = m_keysByState.find(state);
+    if (it != m_keysByState.end())
+      {
+	debugMsg("StateCache:findStateKey", " found state \"" << toString(state) << "\", key " << it->second);
+	key = it->second;
+	return true;
+      }
+
+    debugMsg("StateCache:findStateKey", " state \"" << toString(state) << "\" not found");
+    return false;
+  }
+
    bool StateCache::keyForState(const State& state, StateKey& key)
    {
       static double sl_stateKey = std::numeric_limits<double>::min();

@@ -330,9 +330,17 @@ namespace PLEXIL
     virtual StateCacheId getStateCache() const = 0;
 
     /**
+     * @brief Find the unique key for a state.
+     * @param state The state.
+     * @param key The key associated with this state.
+     * @return True if the key was found.
+     */
+    virtual bool findStateKey(const State& state, StateKey& key) = 0;
+
+    /**
      * @brief Get a unique key for a state, creating a new key for a new state.
      * @param state The state.
-     * @param key The key.
+     * @param key The key associated with this state.
      * @return True if a new key had to be generated.
      */
     virtual bool keyForState(const State& state, StateKey& key) = 0;
