@@ -101,7 +101,7 @@ namespace PLEXIL
     REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
 
     // Every application has access to the default adapter configuration
-    REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "Default");
+    REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");
   }
 
   /**
