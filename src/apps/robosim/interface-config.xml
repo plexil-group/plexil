@@ -1,6 +1,6 @@
-<Interfaces>
+<Interfaces ConfigurationType="Default">
 	<Adapter AdapterType="OSNativeTime" />
-	<Adapter AdapterType="RoboSimInterfaceAdapter" LibPath="libRoboSimInterfaceAdapter.so">
+	<Adapter AdapterType="RoboSimInterfaceAdapter">
 		<CommandNames>
 			MoveUp,
       MoveLeft,
