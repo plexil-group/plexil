@@ -42,7 +42,9 @@
 
 #include "InterfaceManager.hh"
 
+#include "AdapterConfigurationFactory.hh"
 #include "AdapterFactory.hh"
+#include "AdapterConfiguration.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
 #include "Error.hh"
@@ -60,6 +62,7 @@
 #include "StateCache.hh"
 #include "CommandHandle.hh"
 #include "DynamicLoader.hh"
+#include "adapterconfigs/DefaultAdapterConfiguration.hh"
 
 #include <limits>
 #include <sstream>
@@ -77,22 +80,17 @@ namespace PLEXIL
       AdapterExecInterface(),
       m_interfaceManagerId((InterfaceManagerId)m_adapterInterfaceId),
       m_application(app),
+      m_adapterConfig(),
       m_valueQueue(),
-      m_listeners(),
       m_adapters(),
-      m_defaultInterface(),
-      m_defaultCommandInterface(),
-      m_defaultLookupInterface(),
-      m_plannerUpdateInterface(),
-      m_raInterface(),
+      m_listeners(),
       m_lookupAdapterMap(),
-      m_lookupMap(),
-      m_commandMap(),
-      m_functionMap(),
+      m_raInterface(),
       m_ackToCmdMap(),
       m_destToCmdMap(),
       m_currentTime(std::numeric_limits<double>::min())
   {
+
     // Every application has access to the dummy adapter
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
 
@@ -101,6 +99,9 @@ namespace PLEXIL
 
     // Every application should have access to the LUV Listener
     REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
+
+    // Every application has access to the default adapter configuration
+    REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "Default");
   }
 
   /**
@@ -108,29 +109,26 @@ namespace PLEXIL
    */
   InterfaceManager::~InterfaceManager()
   {
-    // clear adapter registry if not already done
-    clearAdapterRegistry();
+    m_adapterConfig.release();
 
     // unregister and delete listeners
     std::vector<ExecListenerId>::iterator lit = m_listeners.begin();
-    while (lit != m_listeners.end())
-      {
-        ExecListenerId l = *lit;
-        lit = m_listeners.erase(lit);
-        m_exec->removeListener(l);
-        delete (ExecListener*) l;
-      }
+    while (lit != m_listeners.end()) {
+      ExecListenerId l = *lit;
+      lit = m_listeners.erase(lit);
+      m_exec->removeListener(l);
+      delete (ExecListener*) l;
+    }
 
     // unregister and delete adapters
     // *** kludge for buggy std::set template ***
     std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-    while (it != m_adapters.end())
-      {
-        InterfaceAdapterId ia = *it;
-        m_adapters.erase(it);     // these two lines should be:
-        it = m_adapters.begin();  // it = m_adapters.erase(it)
-        delete (InterfaceAdapter*) ia;
-      }
+    while (it != m_adapters.end()) {
+      InterfaceAdapterId ia = *it;
+      m_adapters.erase(it); // these two lines should be:
+      it = m_adapters.begin(); // it = m_adapters.erase(it)
+      delete (InterfaceAdapter*) ia;
+    }
   }
 
   //
@@ -138,145 +136,13 @@ namespace PLEXIL
   //
 
   /**
-   * @brief Register this adapter based on its XML configuration data.
+   * @brief Register this adapter using the set AdapterConfiguration
    * @note The adapter is presumed to be fully initialized and working at the time of this call.
    * @note TODO: strategy for handling redundant registrations
    */
   void InterfaceManager::defaultRegisterAdapter(InterfaceAdapterId adapter)
   {
-    // Walk the children of the configuration XML element
-    // and register the adapter according to the data found there
-    const TiXmlElement* element = adapter->getXml()->FirstChildElement();
-    while (element != 0)
-      {
-        const char* elementType = element->Value();
-        // look for text as the only child of this element
-        // to use below
-        const TiXmlNode* firstChild = element->FirstChild();
-        const TiXmlText* text = 0;
-        if (firstChild != 0)
-          text = firstChild->ToText();
-
-        if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0)
-          {
-            setDefaultInterface(adapter);
-            // warn if children found
-            if (text != 0)
-              {
-                warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::DEFAULT_ADAPTER_TAG()
-                     << " ignored");
-              }
-            else if (firstChild != 0)
-              {
-                warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::DEFAULT_ADAPTER_TAG()
-                     << " ignored");
-              }
-          }
-        else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()) == 0)
-          {
-            setDefaultCommandInterface(adapter);
-            // warn if children found
-            if (text != 0)
-              {
-                warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()
-                     << " ignored");
-              }
-            else if (firstChild != 0)
-              {
-                warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()
-                     << " ignored");
-              }
-          }
-        if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()) == 0)
-          {
-            setDefaultLookupInterface(adapter);
-            // warn if children found
-            if (text != 0)
-              {
-                warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()
-                     << " ignored");
-              }
-            else if (firstChild != 0)
-              {
-                warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()
-                     << " ignored");
-              }
-          }
-        else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0)
-          {
-            registerPlannerUpdateInterface(adapter);
-            // warn if children found
-            if (text != 0)
-              {
-                warn("registerInterface: extraneous text in "
-                     << InterfaceSchema::PLANNER_UPDATE_TAG()
-                     << " ignored");
-              }
-            else if (firstChild != 0)
-              {
-                warn("registerInterface: extraneous XML element(s) in "
-                     << InterfaceSchema::PLANNER_UPDATE_TAG()
-                     << " ignored");
-              }
-          }
-        else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0)
-          {
-            checkError(text != 0,
-                       "registerAdapter: Invalid configuration XML: "
-                       << InterfaceSchema::COMMAND_NAMES_TAG()
-                       << " requires one or more comma-separated command names");
-            std::vector<std::string> * cmdNames =
-              InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-            for(std::vector<std::string>::const_iterator it = cmdNames->begin();
-                it != cmdNames->end();
-                it++)
-              {
-                registerCommandInterface(LabelStr(*it), adapter);
-              }
-            delete cmdNames;
-          }
-        else if (strcmp(elementType, InterfaceSchema::FUNCTION_NAMES_TAG()) == 0)
-          {
-            checkError(text != 0,
-                       "registerAdapter: Invalid configuration XML: "
-                       << InterfaceSchema::FUNCTION_NAMES_TAG()
-                       << " requires one or more comma-separated function names");
-            std::vector<std::string> * fnNames =
-              InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-            for(std::vector<std::string>::const_iterator it = fnNames->begin();
-                it != fnNames->end();
-                it++)
-              {
-                registerFunctionInterface(LabelStr(*it), adapter);
-              }
-            delete fnNames;
-          }
-        else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0)
-          {
-            checkError(text != 0,
-                       "registerAdapter: Invalid configuration XML: "
-                       << InterfaceSchema::LOOKUP_NAMES_TAG()
-                       << " requires one or more comma-separated lookup names");
-            std::vector<std::string> * lookupNames =
-              InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-            for(std::vector<std::string>::const_iterator it = lookupNames->begin();
-                it != lookupNames->end();
-                it++)
-              {
-                registerLookupInterface(LabelStr(*it), adapter);
-              }
-            delete lookupNames;
-          }
-        // ignore other tags, they're for adapter's use
-        
-        element = element->NextSiblingElement();
-      }
+    m_adapterConfig->defaultRegisterAdapter(adapter);
   }
 
   /**
@@ -292,6 +158,14 @@ namespace PLEXIL
         checkError(strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0,
                    "constructInterfaces: invalid configuration XML: \n"
                    << *configXml);
+        const char* configType =
+          configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
+        if (configType == 0) {
+          m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
+        } else {
+          m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
+        }
+        m_adapterConfig->getId();
         // Walk the children of the configuration XML element
         // and register the adapter according to the data found there
         const TiXmlElement* element = configXml->FirstChildElement();
@@ -486,6 +360,14 @@ namespace PLEXIL
          it++)
       success = (*it)->reset();
     return success;
+  }
+
+  /**
+   * @brief Clears the interface adapter registry.
+   */
+  void InterfaceManager::clearAdapterRegistry() {
+    m_lookupAdapterMap.clear();
+    m_adapterConfig->clearAdapterRegistry();
   }
 
   /**
@@ -1085,23 +967,7 @@ namespace PLEXIL
   InterfaceManager::registerCommandInterface(const LabelStr & commandName,
 						      InterfaceAdapterId intf)
   {
-    double commandNameKey = commandName.getKey();
-    InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
-    if (it == m_commandMap.end())
-      {
-	// Not found, OK to add
-	debugMsg("InterfaceManager:registerCommandInterface",
-		 " registering interface for command '" << commandName.toString() << "'");
-	m_commandMap.insert(std::pair<double, InterfaceAdapterId>(commandNameKey, intf)) ;
-        m_adapters.insert(intf);
-	return true;
-      }
-    else
-      {
-	debugMsg("InterfaceManager:registerCommandInterface",
-		 " interface already registered for command '" << commandName.toString() << "'");
-	return false;
-      }
+    return m_adapterConfig->registerCommandInterface(commandName, intf);
   }
 
   /**
@@ -1115,23 +981,7 @@ namespace PLEXIL
   InterfaceManager::registerFunctionInterface(const LabelStr & functionName,
 						       InterfaceAdapterId intf)
   {
-    double functionNameKey = functionName.getKey();
-    InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
-    if (it == m_functionMap.end())
-      {
-	// Not found, OK to add
-	debugMsg("InterfaceManager:registerFunctionInterface",
-		 " registering interface for function '" << functionName.toString() << "'");
-	m_functionMap.insert(std::pair<double, InterfaceAdapterId>(functionNameKey, intf)) ;
-        m_adapters.insert(intf);
-	return true;
-      }
-    else
-      {
-	debugMsg("InterfaceManager:registerFunctionInterface",
-		 " interface already registered for function '" << functionName.toString() << "'");
-	return false;
-      }
+    return m_adapterConfig->registerFunctionInterface(functionName, intf);
   }
 
   /**
@@ -1143,25 +993,9 @@ namespace PLEXIL
    */
   bool 
   InterfaceManager::registerLookupInterface(const LabelStr & stateName,
-						     InterfaceAdapterId intf)
+      const InterfaceAdapterId& intf)
   {
-    double stateNameKey = stateName.getKey();
-    InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
-    if (it == m_lookupMap.end())
-      {
-	// Not found, OK to add
-	debugMsg("InterfaceManager:registerLookupInterface",
-		 " registering interface for lookup '" << stateName.toString() << "'");
-	m_lookupMap.insert(std::pair<double, InterfaceAdapterId>(stateNameKey, intf)) ;
-        m_adapters.insert(intf);
-	return true;
-      }
-    else
-      {
-	debugMsg("InterfaceManager:registerLookupInterface",
-		 " interface already registered for lookup '" << stateName.toString() << "'");
-	return false;
-      }
+    return m_adapterConfig->registerLookupInterface(stateName, intf);
   }
 
   /**
@@ -1173,17 +1007,7 @@ namespace PLEXIL
   bool
   InterfaceManager::registerPlannerUpdateInterface(InterfaceAdapterId intf)
   {
-    if (!m_plannerUpdateInterface.isNoId())
-      {      
-	debugMsg("InterfaceManager:registerPlannerUpdateInterface",
-		 " planner update interface already registered");
-	return false;
-      }
-    debugMsg("InterfaceManager:registerPlannerUpdateInterface",
-	     " registering planner update interface"); 
-    m_plannerUpdateInterface = intf;
-    m_adapters.insert(intf);
-    return true;
+    return m_adapterConfig->registerPlannerUpdateInterface(intf);
   }
 
   /**
@@ -1195,17 +1019,7 @@ namespace PLEXIL
   bool 
   InterfaceManager::setDefaultInterface(InterfaceAdapterId intf)
   {
-    if (!m_defaultInterface.isNoId())
-      {
-	debugMsg("InterfaceManager:setDefaultInterface",
-		 " attempt to overwrite default interface adapter " << m_defaultInterface);
-	return false;
-      }
-    m_defaultInterface = intf;
-    m_adapters.insert(intf);
-    debugMsg("InterfaceManager:setDefaultInterface",
-	     " setting default interface " << intf);
-    return true;
+    return m_adapterConfig->setDefaultInterface(intf);
   }
 
   /**
@@ -1217,17 +1031,7 @@ namespace PLEXIL
   bool 
   InterfaceManager::setDefaultCommandInterface(InterfaceAdapterId intf)
   {
-    if (!m_defaultCommandInterface.isNoId())
-      {
-	debugMsg("InterfaceManager:setDefaultCommandInterface",
-		 " attempt to overwrite default command interface adapter " << m_defaultCommandInterface);
-	return false;
-      }
-    m_defaultCommandInterface = intf;
-    m_adapters.insert(intf);
-    debugMsg("InterfaceManager:setDefaultCommandInterface",
-	     " setting default command interface " << intf);
-    return true;
+    return m_adapterConfig->setDefaultCommandInterface(intf);
   }
 
   /**
@@ -1239,17 +1043,7 @@ namespace PLEXIL
   bool 
   InterfaceManager::setDefaultLookupInterface(InterfaceAdapterId intf)
   {
-    if (!m_defaultLookupInterface.isNoId())
-      {
-	debugMsg("InterfaceManager:setDefaultLookupInterface",
-		 " attempt to overwrite default lookup interface adapter " << m_defaultLookupInterface);
-	return false;
-      }
-    m_defaultLookupInterface = intf;
-    m_adapters.insert(intf);
-    debugMsg("InterfaceManager:setDefaultLookupInterface",
-	     " setting default lookup interface " << intf);
-    return true;
+    return m_adapterConfig->setDefaultLookupInterface(intf);
   }
 
 
@@ -1258,45 +1052,10 @@ namespace PLEXIL
    */
   void InterfaceManager::deleteIfUnknown(InterfaceAdapterId intf)
   {
-    // Check the easy places first
-    if (intf == m_defaultInterface
-	|| intf == m_defaultCommandInterface
-	|| intf == m_defaultLookupInterface
-        || intf == m_plannerUpdateInterface)
-      return;
-
-    // See if the adapter is in any of the tables
-    InterfaceMap::iterator it = m_lookupMap.begin();
-    for (; it != m_lookupMap.end(); it++)
-      if (it->second == intf)
-        return;
-    it = m_commandMap.begin();
-    for (; it != m_commandMap.end(); it++)
-      if (it->second == intf)
-        return;
-    it = m_functionMap.begin();
-    for (; it != m_functionMap.end(); it++)
-      if (it->second == intf)
-        return;
-
-    // Not found, remove it and destroy it
-    m_adapters.erase(intf);
-    intf.release();
-  }
-
-  /**
-   * @brief Clears the interface adapter registry.
-   */
-  void InterfaceManager::clearAdapterRegistry()
-  {
-    m_lookupAdapterMap.clear();
-    m_lookupMap.clear();
-    m_commandMap.clear();
-    m_functionMap.clear();
-    m_plannerUpdateInterface = InterfaceAdapterId::noId();
-    m_defaultInterface = InterfaceAdapterId::noId();
-    m_defaultCommandInterface = InterfaceAdapterId::noId();
-    m_defaultLookupInterface = InterfaceAdapterId::noId();
+    if (m_adapterConfig->isKnown(intf))
+    {
+      deleteAdapter(intf);
+    }
   }
 
   /**
@@ -1306,16 +1065,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterCommandInterface(const LabelStr & commandName)
   {
-    double commandNameKey = commandName.getKey();
-    InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
-    if (it != m_commandMap.end())
-      {
-	debugMsg("InterfaceManager:unregisterCommandInterface",
-		 " removing interface for command '" << commandName.toString() << "'");
-        InterfaceAdapterId intf = it->second;
-	m_commandMap.erase(it);
-        deleteIfUnknown(intf);
-      }
+    return m_adapterConfig->unregisterFunctionInterface(commandName);
   }
 
   /**
@@ -1325,16 +1075,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterFunctionInterface(const LabelStr & functionName)
   {
-    double functionNameKey = functionName.getKey();
-    InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
-    if (it != m_functionMap.end())
-      {
-	debugMsg("InterfaceManager:unregisterFunctionInterface",
-		 " removing interface for function '" << functionName.toString() << "'");
-        InterfaceAdapterId intf = it->second;
-	m_functionMap.erase(it);
-        deleteIfUnknown(intf);
-      }
+    return m_adapterConfig->unregisterFunctionInterface(functionName);
   }
 
   /**
@@ -1344,16 +1085,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterLookupInterface(const LabelStr & stateName)
   {
-    double stateNameKey = stateName.getKey();
-    InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
-    if (it != m_lookupMap.end())
-      {
-	debugMsg("InterfaceManager:unregisterLookupInterface",
-		 " removing interface for lookup '" << stateName.toString() << "'");
-        InterfaceAdapterId intf = it->second;
-	m_lookupMap.erase(it);
-        deleteIfUnknown(intf);
-      }
+    return m_adapterConfig->unregisterLookupInterface(stateName);
   }
 
   /**
@@ -1362,11 +1094,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterPlannerUpdateInterface()
   {
-    debugMsg("InterfaceManager:unregisterPlannerUpdateInterface",
-	     " removing planner update interface");
-    InterfaceAdapterId intf = m_plannerUpdateInterface;
-    m_plannerUpdateInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
+    return m_adapterConfig->unregisterPlannerUpdateInterface();
   }
 
   /**
@@ -1375,11 +1103,7 @@ namespace PLEXIL
   void
   InterfaceManager::unsetDefaultInterface()
   {
-    debugMsg("InterfaceManager:unsetDefaultInterface",
-	     " removing default interface");
-    InterfaceAdapterId intf = m_defaultInterface;
-    m_defaultInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
+    return m_adapterConfig->unsetDefaultInterface();
   }
 
   /**
@@ -1388,11 +1112,7 @@ namespace PLEXIL
   void
   InterfaceManager::unsetDefaultCommandInterface()
   {
-    debugMsg("InterfaceManager:unsetDefaultCommandInterface",
-	     " removing default command interface");
-    InterfaceAdapterId intf = m_defaultCommandInterface;
-    m_defaultCommandInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
+    return m_adapterConfig->unsetDefaultCommandInterface();
   }
 
   /**
@@ -1401,11 +1121,7 @@ namespace PLEXIL
   void
   InterfaceManager::unsetDefaultLookupInterface()
   {
-    debugMsg("InterfaceManager:unsetDefaultLookupInterface",
-	     " removing default lookup interface");
-    InterfaceAdapterId intf = m_defaultLookupInterface;
-    m_defaultLookupInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
+    return m_adapterConfig->unsetDefaultLookupInterface();
   }
 
   /**
@@ -1416,28 +1132,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getCommandInterface(const LabelStr & commandName)
   {
-    double commandNameKey = commandName.getKey();
-    InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
-    if (it != m_commandMap.end())
-      {
-	debugMsg("InterfaceManager:getCommandInterface",
-		 " found specific interface " << (*it).second
-		 << " for command '" << commandName.toString() << "'");
-	return (*it).second;
-      }
-    // check default command i/f
-    if (m_defaultCommandInterface.isId())
-      {
-	debugMsg("InterfaceManager:getCommandInterface",
-		 " returning default command interface " << m_defaultCommandInterface
-		 << " for command '" << commandName.toString() << "'");
-	return m_defaultCommandInterface;
-      }
-    // fall back on default default
-    debugMsg("InterfaceManager:getCommandInterface",
-	     " returning default interface " << m_defaultInterface
-	     << " for command '" << commandName.toString() << "'");
-    return m_defaultInterface;
+    return m_adapterConfig->getCommandInterface(commandName);
   }
 
   /**
@@ -1448,19 +1143,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getFunctionInterface(const LabelStr & functionName)
   {
-    double functionNameKey = functionName.getKey();
-    InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
-    if (it != m_functionMap.end())
-      {
-	debugMsg("InterfaceManager:getFunctionInterface",
-		 " found specific interface " << (*it).second
-		 << " for function '" << functionName.toString() << "'");
-	return (*it).second;
-      }
-    debugMsg("InterfaceManager:getFunctionInterface",
-	     " returning default interface " << m_defaultInterface
-	     << " for function '" << functionName.toString() << "'");
-    return m_defaultInterface;
+    return m_adapterConfig->getFunctionInterface(functionName);
   }
 
   /**
@@ -1471,28 +1154,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getLookupInterface(const LabelStr & stateName)
   {
-    double stateNameKey = stateName.getKey();
-    InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
-    if (it != m_lookupMap.end())
-      {
-	debugMsg("InterfaceManager:getLookupInterface",
-		 " found specific interface " << (*it).second
-		 << " for lookup '" << stateName.toString() << "'");
-	return (*it).second;
-      }
-    // try defaults
-    if (m_defaultLookupInterface.isId())
-      {
-	debugMsg("InterfaceManager:getLookupInterface",
-		 " returning default lookup interface " << m_defaultLookupInterface
-		 << " for lookup '" << stateName.toString() << "'");
-	return m_defaultLookupInterface;
-      }
-    // try default defaults
-    debugMsg("InterfaceManager:getLookupInterface",
-	     " returning default interface " << m_defaultInterface
-	     << " for lookup '" << stateName.toString() << "'");
-    return m_defaultInterface;
+    return m_adapterConfig->getLookupInterface(stateName);
   }
 
   /**
@@ -1501,7 +1163,7 @@ namespace PLEXIL
   InterfaceAdapterId 
   InterfaceManager::getDefaultInterface()
   {
-    return m_defaultInterface;
+    return m_adapterConfig->getDefaultInterface();
   }
 
   /**
@@ -1510,7 +1172,7 @@ namespace PLEXIL
   InterfaceAdapterId 
   InterfaceManager::getDefaultCommandInterface()
   {
-    return m_defaultCommandInterface;
+    return m_adapterConfig->getDefaultCommandInterface();
   }
 
   /**
@@ -1519,7 +1181,7 @@ namespace PLEXIL
   InterfaceAdapterId 
   InterfaceManager::getDefaultLookupInterface()
   {
-    return m_defaultLookupInterface;
+    return m_adapterConfig->getDefaultLookupInterface();
   }
 
   /**
@@ -1529,15 +1191,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getPlannerUpdateInterface()
   {
-    if (m_plannerUpdateInterface.isNoId())
-      {
-	debugMsg("InterfaceManager:getPlannerUpdateInterface",
-		 " returning default interface " << m_defaultInterface);
-	return m_defaultInterface;
-      }
-    debugMsg("InterfaceManager:getPlannerUpdateInterface",
-	     " found specific interface " << m_plannerUpdateInterface);
-    return m_plannerUpdateInterface;
+    return m_adapterConfig->getPlannerUpdateInterface();
   }
 
   /**
@@ -1812,7 +1466,16 @@ namespace PLEXIL
 
   }
 
-
+  /**
+   * @brief Deletes the given adapter
+   * @return true if the given adapter existed and was deleted. False if not found
+   */
+  bool InterfaceManager::deleteAdapter(InterfaceAdapterId intf) {
+    int res = m_adapters.erase(intf);
+    intf.release();
+    return res != 0;
+  }
+
   //
   // ValueQueue implementation
   //

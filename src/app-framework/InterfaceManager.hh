@@ -43,12 +43,16 @@ class TiXmlElement;
 
 namespace PLEXIL 
 {
+  class AdapterConfiguration;
 
   // Forward references
   class ExecApplication;
 
   class InterfaceAdapter;
   typedef Id<InterfaceAdapter> InterfaceAdapterId;
+
+  class AdapterConfiguration;
+  typedef Id<AdapterConfiguration> AdapterConfigurationId;
 
   class InterfaceManager;
   typedef Id<InterfaceManager> InterfaceManagerId;
@@ -73,7 +77,7 @@ namespace PLEXIL
   public:
 
     /**
-     * @brief Constructor.
+     * @brief Constructor. A new DefaultAdapterConfiguration is used as the AdapterConfiguration.
      * @param app The ExecApplication instance to which this object belongs.
      */
     InterfaceManager(ExecApplication & app);
@@ -97,6 +101,14 @@ namespace PLEXIL
     inline ExecApplication& getApplication() const
     {
       return m_application;
+    }
+
+    /**
+     * @brief Get adapterConfiguration.
+     */
+    inline AdapterConfigurationId getAdapterConfig() const
+    {
+      return m_adapterConfig;
     }
 
     //
@@ -306,7 +318,7 @@ namespace PLEXIL
      * @param intf The interface adapter to handle this lookup.
      */
     bool registerLookupInterface(const LabelStr & stateName,
-				 InterfaceAdapterId intf);
+        const InterfaceAdapterId& intf);
 
     /**
      * @brief Register the given interface adapter for planner updates.
@@ -565,6 +577,11 @@ namespace PLEXIL
      */
     bool stateForKey(const StateKey& key, State& state) const;
 
+    /**
+     * @brief Clears the interface adapter registry.
+     */
+    void clearAdapterRegistry();
+
 
   protected:
 
@@ -595,10 +612,7 @@ namespace PLEXIL
      */
     void deleteIfUnknown(InterfaceAdapterId intf);
 
-    /**
-     * @brief Clears the interface adapter registry.
-     */
-    void clearAdapterRegistry();
+    friend class AdapterConfiguration;
 
   private:
 
@@ -613,6 +627,12 @@ namespace PLEXIL
      * @param ackOrDest The expression id for which a value has been posted.
      */
     void releaseResourcesAtCommandTermination(ExpressionId ackOrDest);
+
+    /**
+     * @brief Deletes the given adapter
+     * @return true if the given adapter existed and was deleted. False if not found
+     */
+    bool deleteAdapter(InterfaceAdapterId intf);
 
     //
     // Internal types and classes
@@ -815,6 +835,8 @@ namespace PLEXIL
 
     //* Parent object
     ExecApplication& m_application;
+    //* Adapter Config
+    AdapterConfigurationId m_adapterConfig;
 
     //* The queue
     ValueQueue m_valueQueue;
@@ -825,30 +847,14 @@ namespace PLEXIL
     //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapterId> m_adapters;
 
-    //* Default InterfaceAdapters
-    InterfaceAdapterId m_defaultInterface;
-    InterfaceAdapterId m_defaultCommandInterface;
-    InterfaceAdapterId m_defaultLookupInterface;
-
-    //* InterfaceAdapter to use for PlannerUpdate nodes
-    InterfaceAdapterId m_plannerUpdateInterface;
-
-    //* The resource arbiter
-    ResourceArbiterInterfaceId m_raInterface;
-
     // Maps by lookup key
     typedef std::map<LookupKey, InterfaceAdapterId> LookupAdapterMap;
     LookupAdapterMap m_lookupAdapterMap;
-
-    // Maps by command/function
-
-    // Interface adapter maps
-    typedef std::map<double, InterfaceAdapterId> InterfaceMap;
-    InterfaceMap m_lookupMap;
-    InterfaceMap m_commandMap;
-    InterfaceMap m_functionMap;
     std::map<ExpressionId, CommandId> m_ackToCmdMap;
     std::map<ExpressionId, CommandId> m_destToCmdMap;
+
+    //* The resource arbiter
+    ResourceArbiterInterfaceId m_raInterface;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;

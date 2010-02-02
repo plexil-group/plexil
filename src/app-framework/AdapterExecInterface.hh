@@ -102,7 +102,7 @@ namespace PLEXIL
      * @return True if successful, false if there is already an adapter registered for this state name.
      */
     virtual bool registerLookupInterface(const LabelStr & stateName,
-					 InterfaceAdapterId intf) = 0;
+        const InterfaceAdapterId& intf) = 0;
 
     /**
      * @brief Register the given interface adapter for planner updates.
