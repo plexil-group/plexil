@@ -178,7 +178,7 @@ namespace PLEXIL
   InterfaceAdapter::unregisterAsynchLookup(const LookupKey& uniqueId)
   {
     debugMsg("InterfaceAdapter:unregisterAsynchLookup",
-	     " for unique ID '" << uniqueId);
+	     " for unique ID " << uniqueId);
     StateToLookupMap::iterator tableIt =
       m_asynchLookups.begin();
     for (; tableIt != m_asynchLookups.end(); tableIt++)
@@ -189,7 +189,6 @@ namespace PLEXIL
 	  {
 	    // Found it -- is it the only member?
 	    if (theSet.size() == 1)
-
 	      {
 		// delete entry from table
 		debugMsg("InterfaceAdapter:unregisterAsynchLookup",
@@ -208,7 +207,7 @@ namespace PLEXIL
       }
     // Warn, don't barf.
     debugMsg("InterfaceAdapter:unregisterAsynchLookup",
-	     " Unique ID '" << uniqueId << "' not found.");
+	     " Unique ID " << uniqueId << " not found.");
   }
     
   InterfaceAdapter::StateToLookupMap::const_iterator 
@@ -239,6 +238,7 @@ namespace PLEXIL
 	const std::set<LookupKey>& keys = it->second;
 	if (keys.find(key) != keys.end())
 	  return it;
+	it++;
       }
     return m_asynchLookups.end();
   }
