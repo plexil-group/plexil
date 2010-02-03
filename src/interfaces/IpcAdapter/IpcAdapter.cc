@@ -790,12 +790,12 @@ namespace PLEXIL
   {
     if (strcmp(msgData->senderUID, m_myUID.c_str()) == 0)
       {
-	debugMsg("IpcAdapter::handleIpcMessage", " ignoring my own outgoing message");
+	debugMsg("IpcAdapter:handleIpcMessage", " ignoring my own outgoing message");
 	return;
       }
 
     PlexilMsgType msgType = (PlexilMsgType) msgData->msgType;
-    debugMsg("IpcAdapter::handleIpcMessage", " received message type = " << msgType);
+    debugMsg("IpcAdapter:handleIpcMessage", " received message type = " << msgType);
     switch (msgType)
       {
 	// NotifyExec is a PlexilMsgBase
@@ -833,7 +833,7 @@ namespace PLEXIL
 	// LookupNow and LookupOnChange are PlexilStringValueMsg
 	// Optionally followed by parameters
 
-	// *** TODO: filter out commands/msgs we aren't prepared to handle
+	// TODO: filter out commands/msgs we aren't prepared to handle
       case PlexilMsgType_LookupNow:
       case PlexilMsgType_LookupOnChange:
 	// Stash this and wait for the rest
@@ -855,7 +855,7 @@ namespace PLEXIL
 	  State state(LabelStr(tv->stringValue), std::vector<double>(0));
 	  StateKey dummy;
 	  // is this a state the exec knows about?
-	  if (m_execInterface.keyForState(state, dummy))
+	  if (m_execInterface.findStateKey(state, dummy))
 	    {
 	      // stash this and wait for the rest
 	      debugMsg("IpcAdapter:handleIpcMessage", " processing as telemetry value");
@@ -863,7 +863,7 @@ namespace PLEXIL
 	    }
 	  else
 	    {
-	      debugMsg("IpcAdapter:handleTelemetryValuesSequence",
+	      debugMsg("IpcAdapter:handleIpcMessage",
 		       " ignoring unknown state \"" << tv->stringValue << "\"");
 	    }
 	  break;
@@ -920,13 +920,16 @@ namespace PLEXIL
 
     if (msgData->count == 0)
       {
+	debugMsg("IpcAdapter:cacheMessageLeader", " count == 0, processing immediately");
 	std::vector<const PlexilMsgBase*> msgVec(1, msgData);
 	enqueueMessageSequence(msgVec);
       }
     else
       {
-	m_incompletes[msgId] = std::vector<const PlexilMsgBase*>(msgData->count + 1);
-	m_incompletes[msgId].push_back(msgData);
+	debugMsg("IpcAdapter:cacheMessageLeader",
+		 " storing leader with sender " << msgData->senderUID << ", serial " << msgData->serial
+		 << ",\n expecting " << msgData->count << " values");
+	m_incompletes[msgId] = std::vector<const PlexilMsgBase*>(1, msgData);
       }
   }
 
@@ -941,9 +944,12 @@ namespace PLEXIL
   {
     IpcMessageId msgId(msgData->senderUID, msgData->serial);
     IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
-    assertTrueMsg(it == m_incompletes.end(),
-		  "IpcAdapter::cacheMessageTrailer: no existing sequence for sender "
-		  << msgData->senderUID << ", serial " << msgData->serial);
+    if (it == m_incompletes.end())
+      {
+	debugMsg("IpcAdapter::cacheMessageTrailer",
+		 " no existing sequence for sender "
+		 << msgData->senderUID << ", serial " << msgData->serial << ", ignoring");
+      }
     std::vector<const PlexilMsgBase*>& msgs = it->second;
     msgs.push_back(msgData);
     // Have we got them all?
@@ -1111,6 +1117,7 @@ namespace PLEXIL
 
       case PlexilMsgType_TelemetryValues:
 	handleTelemetryValuesSequence(msgs);
+	break;
 
       case PlexilMsgType_ReturnValues:
 	handleReturnValuesSequence(msgs);
@@ -1143,18 +1150,22 @@ namespace PLEXIL
     const PlexilStringValueMsg* tv = (const PlexilStringValueMsg*) msgs[0];
     State state(LabelStr(tv->stringValue), std::vector<double>(0));
     StateKey key;
-    checkError(!m_execInterface.findStateKey(state, key),
-	       "IpcAdapter::handleTelemetryValuesSequence: state \"" << tv->stringValue << "\" is unknown");
+    if (!m_execInterface.findStateKey(state, key))
+      {
+	debugMsg("IpcAdapter:handleTelemetryValuesSequence", 
+		 " state \"" << tv->stringValue << "\" is unknown, ignoring");
+	return;
+      }
 
     size_t nValues = msgs[0]->count;
     std::vector<double> values(nValues);
     for (size_t i = 1; i < nValues; i++)
       {
 	if (msgs[i]->msgType == PlexilMsgType_NumericValue)
-	  values[i-1] = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
+	  values[i-1] = ((const PlexilNumericValueMsg*) msgs[i])->doubleValue;
 	else
 	  values[i-1] =
-	    LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
+	    LabelStr(((const PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
       }
     m_execInterface.handleValueChange(key, values);
     m_execInterface.notifyOfExternalEvent();
