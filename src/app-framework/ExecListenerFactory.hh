@@ -65,6 +65,14 @@ namespace PLEXIL
                                          const TiXmlElement* xml);
 
     /**
+     * @brief Checks whether or not the given ExecListenerFactory is registered.
+     * @param name The registered name for the factory
+     * @return True if the factory is registered, false otherwise
+     */
+
+    static bool isRegistered(const LabelStr& name);
+
+    /**
      * @brief Deallocate all factories
      */
     static void purge();
@@ -239,9 +247,9 @@ namespace PLEXIL
     }
   };
 
-#define REGISTER_EXEC_LISTENER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFactory<CLASS>(LabelStr(NAME));}
+#define REGISTER_EXEC_LISTENER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFactory<CLASS>(PLEXIL::LabelStr(NAME));}
 
-#define REGISTER_EXEC_LISTENER_FILTER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFilterFactory<CLASS>(LabelStr(NAME));}
+#define REGISTER_EXEC_LISTENER_FILTER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFilterFactory<CLASS>(PLEXIL::LabelStr(NAME));}
 
 } // namespace PLEXIL
 

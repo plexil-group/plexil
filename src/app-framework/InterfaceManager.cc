@@ -201,14 +201,14 @@ namespace PLEXIL
                                << *element);
                     std::stringstream libStream;
                     libStream << "lib" << adapterType << LIB_EXT;
-                    *libPath = libStream.str();
+                    libPath = new std::string(libStream.str());
                   } else {
                     libPath = new std::string(libCPath);
                   }
                   std::string funcName = (std::string("init") + adapterType);
                   void (*func)();
                   *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath->c_str(), funcName.c_str());
-                  checkError(func != 0, DynamicLoader::getError());
+                  checkError(func != 0, "Failed to load library " << libPath->c_str() << DynamicLoader::getError());
                   (*func)();
                 }
 
@@ -235,6 +235,30 @@ namespace PLEXIL
                            << InterfaceSchema::LISTENER_TYPE_ATTR()
                            << " attribute for listener XML:\n"
                            << *element);
+
+                // load external library (linux only for now) if the listener is not registered
+                // TODO: support mac os
+                if (!ExecListenerFactory::isRegistered(listenerType)) {
+                  const char* libCPath =
+                    element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+                  std::string *libPath;
+                  if (libCPath == 0) {
+                    debugMsg("true", "constructInterfaces: no "
+                               << InterfaceSchema::LIB_PATH_ATTR()
+                               << " attribute for adapter XML:\n"
+                               << *element);
+                    std::stringstream libStream;
+                    libStream << "lib" << listenerType << LIB_EXT;
+                    libPath = new std::string(libStream.str());
+                  } else {
+                    libPath = new std::string(libCPath);
+                  }
+                  std::string funcName = (std::string("init") + listenerType);
+                  void (*func)();
+                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath->c_str(), funcName.c_str());
+                  checkError(func != 0, DynamicLoader::getError());
+                  (*func)();
+                }
 
                 // Construct an ExecListener instance and attach it to the Exec
                 ExecListenerId listener = 

@@ -96,6 +96,10 @@ namespace PLEXIL
              " Registered exec listener factory for name \"" << name.c_str() << "\"");
   }
 
+  bool ExecListenerFactory::isRegistered(const LabelStr& name) {
+    return factoryMap().find(name) != factoryMap().end();
+  }
+
   /**
    * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
    *        the given configuration XML.
