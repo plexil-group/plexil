@@ -41,8 +41,11 @@ all: TestExec app-framework standard-plexil checker
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
+# TODO: remove!
 TestExecSAS: lcm-structs exec-core app-framework sockets luv
 	$(MAKE) -C src/apps/TestExecSAS
+
+plexilsim: ipc
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
 robosim: exec-core app-framework UniversalExec
