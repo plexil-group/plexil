@@ -395,19 +395,29 @@ namespace PLEXIL
 
   void IpcAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
   {
+    debugMsg("IpcAdapter:unregisterChangeLookup", " entered");
     StateToLookupMap::const_iterator sit = this->findLookupKey(uniqueId);
     assertTrueMsg(sit != this->getAsynchLookupsEnd(),
 		  "IpcAdapter::unregisterChangeLookup: internal error: no state key registered for lookup!");
 
+    debugMsg("IpcAdapter:unregisterChangeLookup", " found state key");
+
     // Ignore this unless we're removing the last change lookup for this state
     if (sit->second.size() > 1)
-      return;
+      {
+	debugMsg("IpcAdapter:unregisterChangeLookup",
+		 " there are still active change lookups for this state, ignoring");
+
+	return;
+      }
 
     StateKey key = sit->first;
     State state;
     getState(key, state);
     const LabelStr& nameLabel = state.first;
     const std::string& name = nameLabel.toString();
+
+    debugMsg("IpcAdapter:unregisterChangeLookup", " for " << name);
 
     if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX()))
       {
@@ -451,6 +461,7 @@ namespace PLEXIL
       {
 	// send a TerminateChangeLookup message with the serial #
 	// of the original request
+	debugMsg("IpcAdapter:unregisterChangeLookup", " sending TerminateChangeLookupMessage");
 	IpcChangeLookupMap::iterator it = m_changeLookups.begin();
         while (it != m_changeLookups.end())
 	  {
@@ -473,6 +484,7 @@ namespace PLEXIL
 	// clean up table
 	m_changeLookups.erase(it);
       }
+    debugMsg("IpcAdapter:unregisterChangeLookup", " completed");
   }
 
   /**
@@ -670,7 +682,8 @@ namespace PLEXIL
       }
     else // general case
       {
-	debugMsg("IpcAdapter:executeCommand", " for \"" << name.c_str() << "\"");
+	debugMsg("IpcAdapter:executeCommand", " for \"" << name.c_str()
+		 << "\", destination expression is " << dest);
 	uint32_t serial = getSerialNumber();
 	size_t nParams = args.size();
 	struct PlexilStringValueMsg cmdPacket = {{PlexilMsgType_Command,
@@ -1159,7 +1172,7 @@ namespace PLEXIL
 
     size_t nValues = msgs[0]->count;
     std::vector<double> values(nValues);
-    for (size_t i = 1; i < nValues; i++)
+    for (size_t i = 1; i <= nValues; i++)
       {
 	if (msgs[i]->msgType == PlexilMsgType_NumericValue)
 	  values[i-1] = ((const PlexilNumericValueMsg*) msgs[i])->doubleValue;
@@ -1181,20 +1194,17 @@ namespace PLEXIL
     // Was this our request?
     if (strcmp(rv->requesterUID, m_myUID.c_str()) == 0)
       {
+	size_t nValues = msgs[0]->count;
 	if (rv->requestSerial == m_pendingLookupSerial)
 	  {
 	    // LookupNow for which we are awaiting data
-	    size_t nValues = m_pendingLookupDestination->size();
-	    if (msgs[0]->count < nValues)
-	      nValues = msgs[0]->count;
-	    for (size_t i = 1; i < nValues; i++)
-	      {
-		if (msgs[i]->msgType == PlexilMsgType_NumericValue)
-		  (*m_pendingLookupDestination)[i-1] = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
-		else
-		  (*m_pendingLookupDestination)[i-1] =
-		    LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
-	      }
+	    debugMsg("IpcAdapter:handleReturnValuesSequence",
+		     " processing value(s) for a pending LookupNow");
+	    size_t nExpected = m_pendingLookupDestination->size();
+	    assertTrueMsg(nExpected == 1,
+			  "IpcAdapter::handleReturnValuesSequence: Exec expects " << nExpected
+			  << " values; multiple return values for LookupNow not yet implemented");
+	    (*m_pendingLookupDestination)[0] = parseReturnValues(msgs);
 	    // *** TODO: check for error
 	    m_sem.post();
 	    return;
@@ -1204,18 +1214,10 @@ namespace PLEXIL
 	if (it != m_changeLookups.end())
 	  {
 	    // Active LookupOnChange
+	    debugMsg("IpcAdapter:handleReturnValuesSequence",
+		     " processing value(s) for an active LookupOnChange");
 	    const StateKey& key = it->second;
-	    size_t nValues = msgs[0]->count;
-	    std::vector<double> values(nValues);
-	    for (size_t i = 1; i < nValues; i++)
-	      {
-		if (msgs[i]->msgType == PlexilMsgType_NumericValue)
-		  values[i-1] = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
-		else
-		  values[i-1] =
-		    LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
-	      }
-	    m_execInterface.handleValueChange(key, values);
+	    m_execInterface.handleValueChange(key, parseReturnValues(msgs));
 	    m_execInterface.notifyOfExternalEvent();
 	    return;
 	  }
@@ -1227,23 +1229,97 @@ namespace PLEXIL
 	    ExpressionId& dest = cit->second.first;
 	    ExpressionId& ack = cit->second.second;
 	    size_t nValues = msgs[0]->count;
-	    for (size_t i = 1; i < nValues; i++)
+	    if (msgs[1]->count == MSG_COUNT_CMD_ACK)
 	      {
-		double value;
-		if (msgs[i]->msgType == PlexilMsgType_NumericValue)
-		  value = ((PlexilNumericValueMsg*) msgs[i])->doubleValue;
-		else
-		  value = LabelStr(((PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
-		if (msgs[i]->count == MSG_COUNT_CMD_ACK)
-		  m_execInterface.handleValueChange(ack, value);
-		else
-		  m_execInterface.handleValueChange(dest, value);
+		assertTrueMsg(nValues == 1, 
+			      "IpcAdapter::handleReturnValuesSequence: command ack requires 1 value, received "
+			      << nValues);
+		debugMsg("IpcAdapter:handleReturnValuesSequence", 
+			 " processing command acknowledgment for expression " << dest);
+		m_execInterface.handleValueChange(ack, parseReturnValues(msgs));
+		m_execInterface.notifyOfExternalEvent();
 	      }
-	    m_execInterface.notifyOfExternalEvent();
+	    else if (dest.isId())
+	      {
+		debugMsg("IpcAdapter:handleReturnValuesSequence", 
+			 " processing command return value for expression " << dest);
+		m_execInterface.handleValueChange(dest, parseReturnValues(msgs));
+		m_execInterface.notifyOfExternalEvent();
+	      }
+	    else
+	      {
+		debugMsg("IpcAdapter:handleReturnValuesSequence", 
+			 " ignoring unwanted command return value");
+	      }
+	  }
+	else
+	  {
+	    debugMsg("IpcAdapter:handleReturnValuesSequence",
+		     " no lookup or command found for sequence");
 	  }
       }
   }
 
+
+  /**
+   * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
+   */
+  double IpcAdapter::parseReturnValues(std::vector<const PlexilMsgBase*>& msgs)
+  {
+    size_t nValues = msgs[0]->count;
+    if (nValues == 1)
+      {
+	debugMsg("IpcAdapter:handleReturnValuesSequence", 
+		 " processing single return value");
+	double value;
+	if (msgs[1]->msgType == PlexilMsgType_NumericValue)
+	  value = ((PlexilNumericValueMsg*) msgs[1])->doubleValue;
+	else
+	  value = LabelStr(((PlexilStringValueMsg*) msgs[1])->stringValue).getKey();
+	return value;
+      }
+    else
+      {
+	// Convert sequence of values into an array
+	debugMsg("IpcAdapter:parseReturnValues", 
+		 " processing array of length " << nValues);
+	bool isString = false;
+	bool isNumeric = false;
+	for (size_t i = 1; i <= nValues; i++)
+	  {
+	    if (msgs[i]->msgType == PlexilMsgType_StringValue)
+	      {
+		assertTrueMsg(!isNumeric, "IpcAdapter::parseReturnValues: array element types are not consistent");
+		isString = true;
+	      }
+	    else
+	      {
+		assertTrueMsg(!isString, "IpcAdapter::parseReturnValues: array element types are not consistent");
+		isNumeric = true;
+	      }
+	  }
+	StoredArray ary(nValues, Expression::UNKNOWN());
+	if (isString)
+	  {
+	    for (size_t i = 0; i < nValues; i++)
+	      {
+		assertTrueMsg(msgs[i+1]->msgType == PlexilMsgType_StringValue,
+			      "IpcAdapter:handleReturnValueSequence: value is not a string");
+		ary[i] = LabelStr(((PlexilStringValueMsg*) msgs[i+1])->stringValue).getKey();
+	      }
+	  }
+	else
+	  {
+	    for (size_t i = 0; i < nValues; i++)
+	      {
+		assertTrueMsg(msgs[i+1]->msgType == PlexilMsgType_NumericValue,
+			      "IpcAdapter:handleReturnValueSequence: value is not a number");
+		ary[i] = ((PlexilNumericValueMsg*) msgs[i+1])->doubleValue;
+	      }
+	  }
+	return ary.getKey();
+      }
+  }
 
   /**
    * @brief Get next serial number

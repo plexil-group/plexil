@@ -275,6 +275,12 @@ namespace PLEXIL
      */
     static void parseTransactionId(const std::string& transId, std::string& uidOut, uint32_t& serialOut);
 
+    /**
+     * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
+     */
+    static double parseReturnValues(std::vector<const PlexilMsgBase*>& msgs);
+   
+
     //
     // Private data types
     //
