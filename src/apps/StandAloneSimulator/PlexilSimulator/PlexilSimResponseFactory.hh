@@ -34,7 +34,14 @@ public:
   PlexilSimResponseFactory();
   ~PlexilSimResponseFactory();
 
-  virtual ResponseBase* parse(const std::string& cmdName, timeval tDelay, 
-                              std::istream& inStr);
+  virtual ResponseBase* parseResponseValues(const std::string& cmdName, 
+					    const std::string& line,
+					    unsigned int lineCount);
+
+private:
+
+  // Deliberately not implemented
+  
+
 };
 #endif

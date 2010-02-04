@@ -24,10 +24,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "PlexilSimResponseFactory.hh"
-#include "PlexilSimResponse.hh"
+//#include "PlexilSimResponse.hh"
 #include "GenericResponse.hh"
+#include "Debug.hh"
 
 PlexilSimResponseFactory::PlexilSimResponseFactory()
+  : ResponseFactory()
 {
 }
 
@@ -35,21 +37,32 @@ PlexilSimResponseFactory::~PlexilSimResponseFactory()
 {
 }
 
-ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName, 
-                                              timeval tDelay,
-                                              std::istream& inStr)
+ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& cmdName,
+							    const std::string& line,
+							    unsigned int lineCount)
 {
+  std::istringstream inStr(line);
   if (cmdName == "move")
     {
       int returnValue;
-      if (parseType<int>(inStr, returnValue))
-        return new MoveResponse(cmdName, tDelay, returnValue);
+      if (!parseType<int>(inStr, returnValue))
+	{
+	  std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
+		    << cmdName << "\"" << std::endl;
+	  return NULL;
+	}
+      return new GenericResponse(std::vector<double>(1, (double) returnValue));
     }
   else if (cmdName == "foo")
     {
       int returnValue;
-      if (parseType<int>(inStr, returnValue))
-        return new foo(cmdName, tDelay, returnValue);
+      if (!parseType<int>(inStr, returnValue))
+	{
+	  std::cerr << "Line " << lineCount << ": Unable to parse script entry for \""
+		    << cmdName << "\"" << std::endl;
+	  return NULL;
+	}
+      return new GenericResponse(std::vector<double>(1, (double) returnValue));
     }
   else
     {
@@ -71,9 +84,9 @@ ResponseBase* PlexilSimResponseFactory::parse(const std::string& cmdName,
               return NULL;
             }
         }
-      std::cout << "PlexilSimResponseFactory::parse: Returning new GenericResponse with "
-		<< returnValue.size() << " values" << std::endl;
-      return new GenericResponse(cmdName, tDelay, returnValue);
+      debugMsg("PlexilSimResponseFactory:parse", 
+	       " Returning new GenericResponse with " << returnValue.size() << " values");
+      return new GenericResponse(returnValue);
     }
   // fall-thru return
   return NULL;

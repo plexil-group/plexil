@@ -23,68 +23,116 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "Simulator.hh"
-#include "PlexilCommRelay.hh"
+#include "IpcCommRelay.hh"
 #include "PlexilSimResponseFactory.hh"
+#include "Debug.hh"
+#include "ThreadSemaphore.hh"
 
-#include <assert.h>
-#include <signal.h>
+#include <fstream>
+#include <cassert>
+#include <csignal>
 
-bool done=false;
+
+PLEXIL::ThreadSemaphore doneSemaphore;
 
 void SIGINT_handler (int signum)
 {
   assert (signum == SIGINT);
-  std::cout << "In SIGINT_handler. The simulator has been terminated." << std::endl;
-
-  done = true;
+  debugMsg("PlexilSimulator", " Terminating simulator");
+  doneSemaphore.post();
 }
 
 int main(int argc, char** argv)
 {
-  std::string commandScriptName("NULL");
-  std::string telemetryScriptName("NULL");
-  std::string usage("Usage: plexilSimulator -c <command-script> -t <telemetry-script>");
+  // defaults for command line args
+  std::string commandScriptName("");
+  std::string telemetryScriptName("");
+  std::string centralhost("localhost:1381");
+  std::string debugConfig("");
 
-   for (int i = 1; i < argc; ++i)
-   {
+  std::string usage("Usage: PlexilSimulator -c <command script> -t <telemetry script> [-d <debug config file>] [-central <centralhost>]");
+
+  for (int i = 1; i < argc; ++i)
+    {
       if (strcmp(argv[i], "-c") == 0)
         commandScriptName = argv[++i];
       else if (strcmp(argv[i], "-t") == 0)
-        telemetryScriptName= argv[++i];
+        telemetryScriptName = argv[++i];
+      else if (strcmp(argv[i], "-d") == 0)
+        debugConfig = argv[++i];
+      else if (strcmp(argv[i], "-central") == 0)
+        centralhost = argv[++i];
       else if (strcmp(argv[i], "-h") == 0)
         {
           std::cout << usage << std::endl;
           return 0;
         }
       else
-      {
-         std::cout << "Unknown option '" 
-                   << argv[i] 
-                   << "'.  " 
-                   << usage 
-                   << std::endl;
-         return -1;
-      }
-   }
+	{
+	  std::cout << "Unknown option '" 
+		    << argv[i] 
+		    << "'.  " 
+		    << usage 
+		    << std::endl;
+	  return -1;
+	}
+    }
 
-   std::cout << "Running the simulator with command script: " << commandScriptName
-             << " and telemetry script: " << telemetryScriptName << std::endl;
+  if (commandScriptName.empty() && telemetryScriptName.empty())
+    {
+      std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
+      return -1;
+    }
 
-  PlexilSimResponseFactory respFactory;
+  if (!debugConfig.empty())
+    {
+      std::ifstream dc(debugConfig.c_str());
+      if (dc.fail())
+	{
+	  std::cerr << "Error: unable to open debug configuration file "
+		    << debugConfig << std::endl;
+	  return -1;
+	}
+      DebugMessage::setStream(std::cerr);
+      if (!DebugMessage::readConfigFile(dc))
+	{
+	  std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
+	  return -1;
+	}
+    }
+
+  debugMsg("PlexilSimulator",  
+	   " Running with command script: " << commandScriptName
+	   << " and telemetry script: " << telemetryScriptName);
+
+  ResponseManagerMap mgrMap;
+  {
+    // These objects can go away as soon as we finish reading scripts.
+    PlexilSimResponseFactory respFactory;
+    SimulatorScriptReader rdr(mgrMap, respFactory);
+    rdr.readCommandScript(commandScriptName);
+    rdr.readTelemetryScript(telemetryScriptName);
+  }
   
-  PlexilCommRelay plexilRelay("RobotYellow");
-  Simulator simulator(&respFactory, &plexilRelay);
-  simulator.readScript(commandScriptName, telemetryScriptName);
+  IpcCommRelay plexilRelay("RobotYellow", centralhost);
+  Simulator simulator(&plexilRelay, mgrMap);
 
-  struct sigaction sa;
-  sigemptyset (&sa.sa_mask);
+  simulator.start();
+
+  struct sigaction sa, previous_sa;
+  sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   //Register the handler for SIGINT.
   sa.sa_handler = SIGINT_handler;
-  sigaction (SIGINT, &sa, 0);
+  sigaction(SIGINT, &sa, &previous_sa);
 
-  while(!done){;}
+  doneSemaphore.wait();
+  debugMsg("PlexilSimulator", " Received interrupt, exiting");
+
+  // Restore previous SIGINT handler
+  sigaction(SIGINT, &previous_sa, NULL);
 
   return 0;
 }

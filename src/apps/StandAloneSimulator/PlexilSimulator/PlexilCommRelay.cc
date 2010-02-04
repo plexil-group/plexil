@@ -23,13 +23,16 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "PlexilCommRelay.hh"
-#include "Simulator.hh"
+#include "GenericResponse.hh"
+#include "LcmBaseImpl.hh"
 #include "ResponseMessage.hh"
+#include "Simulator.hh"
+#include "ThreadSpawn.hh"
+
 #include <iostream>
 #include <sstream>
-#include "ThreadSpawn.hh"
-#include "LcmBaseImpl.hh"
 
 // C wrapper to call a C++ method. Used while spawning a thread.
 void spawnThreadForEachClient(void* args)
@@ -59,30 +62,43 @@ PlexilCommRelay::PlexilCommRelay(const std::string& _host)
 
 PlexilCommRelay::~PlexilCommRelay()
 {
-  delete m_lcmBaseImpl;
-  lcm_destroy(m_lcm);
-  std::cout << "Cancelling thread ...";
+  std::cout << "Cancelling thread ..." << std::flush;
   pthread_cancel(m_ThreadId);
   pthread_join(m_ThreadId, NULL);
+  std::cout << " deleting LCM ..." << std::flush;
+  delete m_lcmBaseImpl;
+  lcm_destroy(m_lcm);
   std::cout << "done" << std::endl;
 }
 
 void PlexilCommRelay::receivedMessage (const std::string& msg)
 {
-  std::cout << "\n\nPlexilCommRelay:: got something: " << msg << std::endl;
+  std::cout << "\n\nPlexilCommRelay:: received: " << msg << std::endl;
   
   m_Simulator->scheduleResponseForCommand(msg, 0);
 }
 
 void PlexilCommRelay::sendResponse(const ResponseMessage* respMsg)
 {
-  
-  std::cout << "\nPlexilCommRelay::sendResponse Sending message: " << respMsg->contents
-            << " of type " << respMsg->messageType << " for: " << respMsg->name << std::endl;
-  timeval currTime;
-  gettimeofday(&currTime, NULL);
-  std::cout << "PlexilCommRelay::sendResponse. Current time: " 
-            << currTime.tv_sec << std::endl;
-  
-  m_lcmBaseImpl->sendMessage(respMsg->name, respMsg->contents, respMsg->messageType);
+  if (respMsg == NULL)
+    {
+      std::cerr << "ERROR: sendResponse: message is null!" << std::endl;
+      return;
+    }
+  const GenericResponse* gr = dynamic_cast<const GenericResponse*>(respMsg->getResponseBase());
+  if (gr != NULL)
+    {
+      std::cout << "\nPlexilCommRelay::sendResponse Sending message of type " << respMsg->getMessageType()
+		<< " for: " << respMsg->getName() << std::endl;
+      timeval currTime;
+      gettimeofday(&currTime, NULL);
+      std::cout << "PlexilCommRelay::sendResponse. Current time: " 
+		<< currTime.tv_sec << std::endl;
+      m_lcmBaseImpl->sendMessage(respMsg->getName(), gr->getReturnValue(), respMsg->getMessageType());
+    }
+  else
+    {
+      std::cerr << "ERROR: sendResponse: not a GenericResponse instance" << std::endl;
+    }
+  delete respMsg;
 }

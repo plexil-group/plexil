@@ -26,19 +26,17 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY		:= plexilsimulator
+EXECUTABLE	:= PlexilSimulator
 
-SRC		:= PlexilCommRelay.cc PlexilSimResponseFactory.cc PlexilSimulator.cc
+SRC		:= PlexilSimResponseFactory.cc PlexilSimulator.cc IpcCommRelay.cc
 INC		:= $(wildcard *.hh)
 
-LIBS		+= PlexilUtils lcm ComStructs standalonesimulator
+LIBS		+= PlexilUtils standalonesimulator ipc
 
-ifndef LCM_PATH
-LCM_PATH	:= $(PLEXIL_HOME)/third-party/lcm
-endif
-
-INC_DIRS 	+= .. ../../../utils $(PLEXIL_HOME)/src/interfaces/lcm-structs $(LCM_PATH)
-LIB_PATH	+= $(LCM_PATH)/lcm/.libs
+INC_DIRS 	+= .. $(PLEXIL_HOME)/src/utils \
+                   $(PLEXIL_HOME)/third-party/ipc/src \
+                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
+                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
