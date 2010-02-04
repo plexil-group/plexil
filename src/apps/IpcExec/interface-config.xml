@@ -1,13 +1,7 @@
 <Interfaces>
  <Adapter AdapterType="OSNativeTime"/>
- <Adapter AdapterType="Dummy">
- <DefaultCommandAdapter/>
- </Adapter>
  <Adapter AdapterType="IPC" Server="localhost">
   <DefaultLookupAdapter/>
-  <CommandNames>
-SendMessage,
-SendCommand
-  </CommandNames>
+  <DefaultCommandAdapter/>
  </Adapter>
 </Interfaces>
