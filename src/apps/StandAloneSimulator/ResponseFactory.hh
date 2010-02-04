@@ -28,40 +28,35 @@
 
 #include <string>
 #include <iostream>
-
-/*
- * @brief Function template to parse one object from an input stream.
- * @param instream The stream to read an object from.
- * @param result The variable where the result should be stored.
- * @return True if a value was read, false otherwise.
- * @note Can fail due to being at EOF - this should not be considered an error 
-         when an unknown number of values will be read from the stream.
- */
-
-template< typename T > bool parseType(std::istream& instream, T& result)
-{
-  // Clear stream error status prior to parsing
-  instream.clear();
-  instream >> result;
-  if (instream.fail())
-    {
-      if (!instream.eof())
-	std::cerr << "parseType: Error: cannot parse line" << std::endl;
-      return false;
-    }
-  return true;
-}
+#include "simdefs.hh"
 
 class ResponseBase;
+
+/**
+ * @brief ResponseFactory handles constructing response base objects from the script reader.
+ */
 
 class ResponseFactory
 {
 public:
   ResponseFactory();
   virtual ~ResponseFactory();
-  virtual ResponseBase* parse(const std::string& cmdName, timeval tDelay, 
-                              std::istream& inStr);
+
+  /**
+   * @brief Parse the line and return the corresponding response object.
+   * @param line The line to parse.
+   * @param lineCount Line number; intended for use in error reporting.
+   * @return The response object, or NULL if a parse error was encountered.
+   */
+  virtual ResponseBase* parseResponseValues(const std::string& cmdName,
+					    const std::string& line,
+					    unsigned int lineCount);
+
 private:
+
+  // deliberately not implemented
+  ResponseFactory(const ResponseFactory&);
+  ResponseFactory& operator=(const ResponseFactory&);
 };
 
 #endif // RESPONSE_FACTORY_HH

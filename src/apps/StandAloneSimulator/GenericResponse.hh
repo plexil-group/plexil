@@ -26,38 +26,24 @@
 #ifndef GENERIC_RESPONSE_HH
 #define GENERIC_RESPONSE_HH
 
-#include <string>
-#include <iostream>
-#include <vector>
 #include "ResponseBase.hh"
-#include "ResponseMessage.hh"
+#include <vector>
 
 class GenericResponse : public ResponseBase
 {
 public:
-  GenericResponse(const std::string& name, timeval delay, const std::vector<double>& value) 
-    : ResponseBase(name, delay), m_ReturnValue(value)
+  GenericResponse(const std::vector<double>& value) 
+    : m_ReturnValue(value)
   {
-
   }
 
-  ~GenericResponse(){}
-
-  virtual ResponseMessage* createResponseMessage()
+  virtual ~GenericResponse()
   {
-    std::string vectToString;
-    for (unsigned int i = 0; i < m_ReturnValue.size(); ++i)
-      {
-        std::ostringstream str;
-        str << m_ReturnValue[i];
-        vectToString += str.str();
-        if (i != (m_ReturnValue.size()-1))
-          vectToString += " ";
-      }
-    vectToString += '\n';
-    std::cout << "Creating a generic response with a return value of: " 
-              << vectToString;
-    return new ResponseMessage(-1, vectToString, getName());
+  }
+
+  const std::vector<double>& getReturnValue() const
+  {
+    return m_ReturnValue;
   }
 
 private:

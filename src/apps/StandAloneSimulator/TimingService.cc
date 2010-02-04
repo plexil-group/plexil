@@ -27,18 +27,23 @@
 #include "TimingService.hh"
 #include "timeval-utils.hh"
 #include "Simulator.hh"
-#include <signal.h>
+
+#include "Debug.hh"
+
+#include <cerrno>
 #include <iostream>
 
 Simulator* TimingService::m_Simulator=NULL;
 
-TimingService::TimingService(Simulator* _m_Simulator) : m_TimerSetup(false)
+TimingService::TimingService(Simulator* _m_Simulator) 
+  : m_TimerSetup(false)
 {
   setupTimer(_m_Simulator);
 }
 
 TimingService::~TimingService()
 {
+  stopTimer();
 }
 
 void TimingService::setupTimer(Simulator* _m_Simulator)
@@ -47,7 +52,7 @@ void TimingService::setupTimer(Simulator* _m_Simulator)
   
   memset (&sa, 0, sizeof (sa));
   sa.sa_handler = &TimingService::timerHandler;
-  sigaction (SIGALRM, &sa, NULL);
+  sigaction(SIGALRM, &sa, &m_oldSigaction);
   
   m_Timer.it_interval.tv_sec = m_Timer.it_interval.tv_usec = 0;
   m_Simulator = _m_Simulator;
@@ -65,28 +70,45 @@ bool TimingService::setTimer(const timeval& time)
     {
       timeval cTime;
       gettimeofday(&cTime, NULL);
-      
-      // compute (time - cTime).
-      
       m_Timer.it_value = time - cTime;
       
       if (m_Timer.it_value.tv_sec < 0 || m_Timer.it_value.tv_usec < 0)
         return true;
       
-      int status = setitimer (ITIMER_REAL, &m_Timer, NULL);
+      int status = setitimer(ITIMER_REAL, &m_Timer, NULL);
       if (status == -1)
         {
-          std::cerr << "TimingService::setTimer Error while setting timer." << std::endl;
+          std::cerr << "TimingService::setTimer Error " << errno << " while setting timer." << std::endl;
           perror("Error for setitimer");
         }
       else
         {
-          std::cout << "Set interval timer for: " << m_Timer.it_value.tv_sec << "(sec) "
-                    << m_Timer.it_value.tv_usec << "(usec)." << std::endl;
+          debugMsg("TimingService:setTimer",
+		   " Set interval timer for: " << m_Timer.it_value.tv_sec << "(sec) "
+		   << m_Timer.it_value.tv_usec << "(usec).");
         }
     }
   else
-    std::cerr << "Error: TimingService::setTimer. Timer has not been setup." << std::endl;
+    std::cerr << "Error: TimingService::setTimer. Timer has not been set up." << std::endl;
 
   return false;
+}
+
+void TimingService::stopTimer()
+{
+  if (m_TimerSetup)
+    {
+      debugMsg("TimingService:stopTimer", " disabling timer interrupts");
+      m_Timer.it_interval.tv_sec = m_Timer.it_interval.tv_usec = 0;
+      int status = setitimer(ITIMER_REAL, &m_Timer, NULL);
+      if (status == -1)
+        {
+          std::cerr << "TimingService:stopTimer Error " << errno << " while stopping timer." << std::endl;
+          perror("Error for setitimer");
+        }
+
+      debugMsg("TimingService:stopTimer", " restoring old SIGALRM handler");
+      sigaction(SIGALRM, &m_oldSigaction, NULL);
+      m_TimerSetup = false;
+    }
 }

@@ -31,6 +31,9 @@ LIBRARY		:= standalonesimulator
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
+INC_DIRS	+= $(PLEXIL_HOME)/src/utils
+LIBS		+= PlexilUtils
+
 ############################
 # Rules to build the targets
 

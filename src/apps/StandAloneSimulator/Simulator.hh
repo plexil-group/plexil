@@ -27,10 +27,10 @@
 #define SIMULATOR_HH
 
 #include <map>
-#include "TimingService.hh"
+#include "simdefs.hh"
 #include "SimulatorScriptReader.hh"
-
-#define ONE_MILLIONTH 0.000001
+#include "TimingService.hh"
+#include "ThreadMutex.hh"
 
 class ResponseMessageManager;
 class ResponseMessage;
@@ -40,40 +40,76 @@ class CommRelayBase;
 class Simulator
 {
 public:
-  Simulator(ResponseFactory* respFactory, 
-            CommRelayBase* commRelay);
+  Simulator(CommRelayBase* commRelay, ResponseManagerMap& map);
   ~Simulator();
 
+  /**
+   * @brief Starts the simulation.  Call after reading all scripts.
+   */
+  void start();
+
   ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
-  void registerResponseMessageManager(ResponseMessageManager* msgMgr);
+
   void handleWakeUp();
-  bool readScript(const std::string& fName,
-                  const std::string& fNameTelemetry = "NULL");
-  ResponseFactory* getResponseFactory() const {return m_ResponseFactory;}
+
+  /**
+   * @brief Schedules a response to the named command.
+   * @param command The command name to which we are responding.
+   * @param uniqueId Caller-specified identifier, passed through the simulator to the comm relay.
+   */
+  void scheduleResponseForCommand(const std::string& command, 
+				  void* uniqueId = NULL);
+
+  /**
+   * @brief Get the current value of the named state.
+   * @param stateName The state name to which we are responding.
+   * @return Pointer to a const ResponseBase object, or NULL.
+   */
+  ResponseMessage* getLookupNowResponse(const std::string& stateName, void* uniqueId) const;
   
-  void scheduleResponseForCommand(const std::string& command, int uniqueId);
-  void scheduleResponseForTelemetry(const std::string& state);
-  
-  timeval convertDoubleToTimeVal(double timeD);
+  /**
+   * @brief Schedules a message to be sent after an interval.
+   * @param delay The delay after which to send the message.
+   * @param msg The message to be sent.
+   */
+  void scheduleMessage(const timeval& delay, ResponseMessage* msg);
+
+  /**
+   * @brief Schedules a message to be sent at a future time.
+   * @param time The absolute time at which to send the message.
+   * @param msg The message to be sent.
+   */
+  void scheduleMessageAbsolute(const timeval& time, ResponseMessage* msg);
 
 private:
-  Simulator(){};
-  void sendResponse(const ResponseMessage* respMsg);
-  void scheduleNextResponse(timeval time);
-  bool constructNextResponse(const std::string& command, int uniqueId,
-                             timeval& time, int type);
 
+  // Deliberately not implemented
+  Simulator();
+  Simulator(const Simulator&);
+  Simulator& operator=(const Simulator&);
+
+  void scheduleNextResponse(const timeval& time);
   
-  std::map<const std::string, ResponseMessageManager*> m_CmdToRespMgr;
+  /**
+   * @brief Constructs a response to the named command.
+   * @param command The command name to which we are responding.
+   * @param uniqueId Caller-specified identifier, passed through the simulator to the comm relay.
+   * @param timeval (Out parameter) The time at which the response will be sent.
+   * @param type One of MSG_TELEMETRY or MSG_COMMAND.
+   */
+  bool constructNextResponse(const std::string& command, 
+			     void* uniqueId,
+                             timeval& time, 
+			     int type);
+  
+  ResponseManagerMap& m_CmdToRespMgr;
   std::multimap<timeval, ResponseMessage*> m_TimeToResp;
 
-  ResponseFactory* m_ResponseFactory;
   CommRelayBase* m_CommRelay;
   TimingService m_TimingService;
-  SimulatorScriptReader m_SimulatorScriptReader;
   bool m_TimerScheduled;
   timeval m_TimerScheduledTime;
-  pthread_mutex_t m_TimerMutex;
+  PLEXIL::ThreadMutex m_TimerMutex;
 };
 
 #endif // SIMULATOR_HH

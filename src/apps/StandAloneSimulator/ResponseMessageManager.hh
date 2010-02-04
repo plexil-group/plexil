@@ -29,24 +29,80 @@
 #include <string>
 #include <map>
 
+#include "simdefs.hh"
+
 class ResponseBase;
 class ResponseMessage;
+class Simulator;
 
+/**
+ * @brief Base class which represents the simulation script for the named command or state.
+ */
 class ResponseMessageManager
 {
 public:
   ResponseMessageManager(const std::string& id);
-  ~ResponseMessageManager();
 
-  const std::string& getIdentifier() const {return m_Identifier;}
-  int getCounter() const {return m_Counter;}
-  void addResponse(int cmdIndex, ResponseBase* resp);
-  ResponseMessage* getResponseMessages(timeval& tDelay);
+  virtual ~ResponseMessageManager();
 
-private:
+  virtual MsgType getType();
+
+  // used only for LookupNow (i.e. telemetry managers)
+  virtual const ResponseBase* getLastResponse() const;
+
+  const std::string& getIdentifier() const 
+  {
+    return m_Identifier;
+  }
+
+  int getCounter() const 
+  {
+    return m_Counter;
+  }
+
+  virtual void addResponse(ResponseBase* resp, int cmdIndex);
+
+  const ResponseBase* getResponses(timeval& tDelay);
+
+  const ResponseBase* getDefaultResponse()
+  {
+    return m_DefaultResponse;
+  }
+
+  //
+  // Virtual methods for extension
+  //
+
+  /**
+   * @brief Schedule the events dictated by this manager.
+   * @note The default method does nothing.
+   */ 
+  virtual void scheduleInitialEvents(Simulator* sim);
+
+  /**
+   * @brief Report that this message has been sent.
+   * @note The default method does nothing.
+   */
+  virtual void notifyMessageSent(const ResponseBase* resp);
+
+protected:
+
+  //
+  // Member variables shared with derived classes
+  //
+
+  typedef std::map<int, const ResponseBase*> IndexResponseMap;
+  IndexResponseMap m_CmdIdToResponse;
   const std::string m_Identifier;
   int m_Counter;
-  std::map<int, ResponseBase*> m_CmdIdToResponse;
-  ResponseBase* m_DefaultResponse;
+  const ResponseBase* m_DefaultResponse;
+
+private:
+
+  // Deliberately not implemented
+  ResponseMessageManager();
+  ResponseMessageManager(const ResponseMessageManager&);
+  ResponseMessageManager& operator=(const ResponseMessageManager&);
+
 };
 #endif // RESPONSE_MESSAGE_MANAGER_HH

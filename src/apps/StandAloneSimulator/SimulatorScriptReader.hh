@@ -27,21 +27,42 @@
 #define SIMULATOR_SCRIPT_READER_HH
 
 #include <string>
+#include "simdefs.hh"
 
-class Simulator;
+class ResponseFactory;
+
+/**
+ * @brief SimulatorScriptReader initializes the response managers used by the simulator.
+ */
 
 class SimulatorScriptReader
 {
 public:
-  SimulatorScriptReader(Simulator* simulator=NULL);
+  SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
   ~SimulatorScriptReader();
+
   bool readCommandScript(const std::string& fName);
   bool readTelemetryScript(const std::string& fName);
 
 private:
+
+  // Deliberately not implemented
+  SimulatorScriptReader();
+  SimulatorScriptReader(const SimulatorScriptReader&);
+  SimulatorScriptReader& operator=(const SimulatorScriptReader&);
+
   bool readScript(const std::string& fName, bool telemetry=false);
 
-  Simulator* m_Simulator;
+  //
+  // Helpers
+  //
+  ResponseMessageManager* ensureResponseMessageManager(const std::string& name,
+						       bool telemetry);
+  virtual ResponseMessageManager* constructResponseMessageManager(const std::string& name,
+								  bool telemetry);
+
+  ResponseManagerMap& m_map;
+  ResponseFactory& m_factory;
 };
 
 

@@ -25,16 +25,22 @@
 */
 #include "SimulatorScriptReader.hh"
 #include "Simulator.hh"
+#include "timeval-utils.hh"
 #include "ResponseMessageManager.hh"
 #include "ResponseBase.hh"
 #include "ResponseFactory.hh"
+#include "TelemetryResponseManager.hh"
+
+#include "Debug.hh"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-SimulatorScriptReader::SimulatorScriptReader(Simulator* simulator)
-  : m_Simulator(simulator)
+SimulatorScriptReader::SimulatorScriptReader(ResponseManagerMap& map,
+					     ResponseFactory& factory)
+  : m_map(map),
+    m_factory(factory)
 {
 }
 
@@ -55,15 +61,14 @@ bool SimulatorScriptReader::readTelemetryScript(const std::string& fName)
 bool SimulatorScriptReader::readScript(const std::string& fName,
                                        bool telemetry)
 {
-  std::ifstream inputFile( fName.c_str());
+  std::ifstream inputFile(fName.c_str());
+  unsigned int lineCount = 0;
   
   if ( !inputFile )
     {
       std::cerr << "Error: cannot open script file '" << fName <<"'" << std::endl;
       return false;
     }
-  
-  int lineCount = 0;
 
   const int MAX_INPUT_LINE_LENGTH = 1024;
   
@@ -78,13 +83,11 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
       char inLine[MAX_INPUT_LINE_LENGTH];
       
       inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
-      
       lineCount++;
       
       while (!isalpha (inLine[0]) && !inputFile.eof() ) 
         {
           inputFile.getline (inLine, MAX_INPUT_LINE_LENGTH);
-          
           lineCount++;
         }
       
@@ -93,7 +96,7 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
           return true;
         } 
       
-      std::istringstream inputStringStream( inLine );
+      std::istringstream inputStringStream(inLine);
       
       inputStringStream >> commandName;
 
@@ -101,7 +104,6 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
         {
           numOfResponses = 1;
           inputStringStream >> delay;
-          //          ++commandIndex;
         }
       else
         {
@@ -110,55 +112,42 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
           inputStringStream >> delay;
         }
 
-      std::cout << "\nRead a new line for \"" << commandName
-                << "\", delay = " << delay << std::endl;
-      ResponseMessageManager* responseMessageManager = 
-        m_Simulator->getResponseMessageManager(commandName);
-      
-      if( 0 == responseMessageManager )
-        {
-          std::cout << "Creating a message manager for "
-                    << (telemetry ? "telemetry" : "command")
-                    << " \"" << commandName 
-                    << "\"" << std::endl;
-          responseMessageManager = new ResponseMessageManager(commandName);
-	  
-          m_Simulator->registerResponseMessageManager(responseMessageManager);
-        }
+      debugMsg("SimulatorScriptReader:readScript", " Read a new line for \"" << commandName
+	       << "\", delay = " << delay);
+
+      ResponseMessageManager* responseMessageManager =
+	ensureResponseMessageManager(commandName, telemetry);
       if (telemetry) 
         {
-          // Telemetry index is strictly sequential starting from 1
+          // Telemetry index is strictly sequential starting from 0
           commandIndex = responseMessageManager->getCounter();
         }
 
       inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
       lineCount++;
 
-      if( inputFile.eof())
+      if (inputFile.eof())
         {
           std::cerr << "Error: response line missing in script-file " << fName 
                     << " at line " << lineCount << std::endl;
-          
           return false;
         }
       
-      std::istringstream responseStringStream( inLine );
-      
-      timeval timeDelay = m_Simulator->convertDoubleToTimeVal(delay);
-      
       ResponseBase* response = 
-        m_Simulator->getResponseFactory()->parse(commandName, timeDelay,
-                                                 responseStringStream);
+        m_factory.parseResponseValues(commandName, inLine, lineCount);
       
-      std::cout << "Command Index: " << commandIndex << std::endl;
-      if(response != 0)
+      debugMsg("SimulatorScriptReader:readScript",
+	       " Command Index: " << commandIndex);
+      if (response != NULL)
         {
+	  timeval timeDelay = doubleToTimeval(delay);
+	  response->setDelay(timeDelay);
           response->setNumberOfResponses(numOfResponses);
-          responseMessageManager->addResponse(commandIndex, response);
+          responseMessageManager->addResponse(response, commandIndex);
         }
       else
         {
-          std::cout << "ERROR: Unable to parse response for \""
+          std::cerr << "ERROR: Unable to parse response for \""
                     << commandName
                     << "\" at line "
                     << lineCount
@@ -168,13 +157,40 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
           return false;
         }
       
-      if (telemetry)
-        {
-          m_Simulator->scheduleResponseForTelemetry(commandName);
-        }
     }
   
   inputFile.close();
 
   return true;
+}
+
+ResponseMessageManager* 
+SimulatorScriptReader::ensureResponseMessageManager(const std::string& name,
+						    bool telemetry)
+{
+  debugMsg("SimulatorScriptReader:ensureResponseMessageManager",
+	   " " << name << ", " << (telemetry ? "true" : "false"));
+  ResponseManagerMap::const_iterator it = m_map.find(name);
+  if (it != m_map.end())
+    {
+      debugMsg("SimulatorScriptReader:ensureResponseMessageManager",
+	       " " << name << " exists");
+      // TODO: check whether it's a telemetry manager
+      return it->second;
+    }
+  // TODO: get appropriate class!
+  ResponseMessageManager* result =
+    constructResponseMessageManager(name, telemetry);
+  m_map[name] = result;
+  return result;
+}
+
+ResponseMessageManager* 
+SimulatorScriptReader::constructResponseMessageManager(const std::string& name,
+						       bool telemetry)
+{
+   if (telemetry)
+    return new TelemetryResponseManager(name);
+  else
+    return new ResponseMessageManager(name);
 }

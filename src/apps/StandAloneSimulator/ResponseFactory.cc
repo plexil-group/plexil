@@ -25,7 +25,10 @@
 */
 #include "ResponseFactory.hh"
 #include "GenericResponse.hh"
-#include <assert.h>
+#include "Debug.hh"
+#include "Error.hh"
+
+#include <sstream>
 
 ResponseFactory::ResponseFactory()
 {
@@ -35,20 +38,27 @@ ResponseFactory::~ResponseFactory()
 {
 }
 
-ResponseBase* ResponseFactory::parse(const std::string& cmdName, timeval tDelay,
-                                     std::istream& inStr)
+ResponseBase* ResponseFactory::parseResponseValues(const std::string& cmdName,
+						   const std::string& line,
+						   unsigned int lineCount)
 {
-  double returnValue;
-  if (parseType<double>(inStr, returnValue))
+  std::istringstream inStr(line);
+  std::vector<double> returnVector;
+
+  while (!inStr.eof())
     {
-      std::vector<double> returnVector(1, returnValue);
-      std::cout << "ResponseFactory::parse: Returning new GenericResponse, value = " << returnValue << std::endl;
-      return new GenericResponse(cmdName, tDelay, returnVector);
+      double returnValue;
+      if (!parseType<double>(inStr, returnValue))
+	{
+	  std::cerr << "Line " << lineCount << ": Unable to parse script entry" 
+		    << std::endl;
+	  return NULL;
+	}
+      returnVector.push_back(returnValue);
     }
-  else
-    {
-      std::cerr << "ResponseFactory::parse: Error in parsing the generic response string: " 
-                << inStr << std::endl;
-      assert(0);
-    }
+  debugMsg("ResponseFactory::parse",
+	   " Returning new GenericResponse of length " << returnVector.size());
+  ResponseBase* result = 
+    new GenericResponse(returnVector);
+  return result;
 }

@@ -28,38 +28,56 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
-#include "ResponseFactory.hh"
+#include "ResponseBase.hh"
+#include "simdefs.hh"
 
-enum {MSG_COMMAND=0, MSG_TELEMETRY};
-
-
+/**
+ * @brief ResponseMessage represents an outgoing message that has been scheduled for output.
+ */
 class ResponseMessage
 {
 public:
-  ResponseMessage(int _id=-1, const std::string& _contents="",
-                  const std::string& _name="", int _type=MSG_COMMAND)
-    : id(_id), contents(_contents), name(_name), messageType(_type) {}
-  virtual ~ResponseMessage(){}
+  ResponseMessage(const ResponseBase* _base,
+		  void* _id = NULL, 
+		  int _type=MSG_COMMAND)
+    : base(_base),
+      id(_id), 
+      messageType(_type) 
+  {}
 
-  static bool extractMessageContents(const std::string& contents,
-                                     std::vector<double>& vect)
+  virtual ~ResponseMessage()
   {
-    std::istringstream ss(contents);
-    while (ss.peek() != '\n')
-      {
-        double val;
-        if (parseType<double>(ss, val))
-          vect.push_back(val);
-        else
-          return false;
-      }
-    return true;
   }
-  
-  int id;
-  std::string contents;
-  std::string name;
+
+  const ResponseBase* getResponseBase() const
+  {
+    return base;
+  }
+
+  void* getId() const
+  {
+    return id;
+  }
+
+  int getMessageType() const
+  {
+    return messageType;
+  }
+
+  const std::string& getName() const
+  {
+    static const std::string emptyString("");
+    if (base == NULL)
+      return emptyString;
+    return base->getName();
+  }
+
+private:  
+  // deliberately not implemented
+  ResponseMessage();
+
+  const ResponseBase* base;
+  void* id;
   int messageType;
 };
 

@@ -26,76 +26,104 @@
 #include "ResponseMessageManager.hh"
 #include "ResponseMessage.hh"
 #include "ResponseBase.hh"
-#include <iostream>
-#include <cstdlib> // for abort()
+
+#include "Debug.hh"
 
 ResponseMessageManager::ResponseMessageManager(const std::string& id)
-  : m_Identifier(id), m_Counter(1), m_DefaultResponse(NULL)
+  : m_Identifier(id), 
+    m_Counter(1), 
+    m_DefaultResponse(NULL)
 {
 }
 
 ResponseMessageManager::~ResponseMessageManager()
 {
-  std::cout << "~ResponseMessageManager of " << m_Identifier << std::endl;
-  for(std::map<int, ResponseBase*>::iterator iter = m_CmdIdToResponse.begin();
-      iter != m_CmdIdToResponse.end(); ++iter)
+  for (std::map<int, const ResponseBase*>::iterator iter = m_CmdIdToResponse.begin();
+       iter != m_CmdIdToResponse.end(); 
+       ++iter)
     delete iter->second;
+  delete m_DefaultResponse;
 }
 
-void ResponseMessageManager::addResponse(int cmdIndex, ResponseBase* resp)
+MsgType ResponseMessageManager::getType()
+{
+  return MSG_COMMAND;
+}
+
+const ResponseBase* ResponseMessageManager::getLastResponse() const
+{
+  return NULL;
+}
+
+void ResponseMessageManager::addResponse(ResponseBase* resp, int cmdIndex)
 {
   // Make sure the command index had not been specified before.
-  if (m_CmdIdToResponse.find(cmdIndex) == m_CmdIdToResponse.end())
+  if (m_CmdIdToResponse.find(cmdIndex) != m_CmdIdToResponse.end())
     {
-      m_CmdIdToResponse[cmdIndex] = resp;
-    }
-  else
-    {
-      std::cerr << "Warning for " << m_Identifier
+      debugMsg("ResponseMessageManager:addResponse",
+	       "Warning for " << m_Identifier
                 << ": Command index " << cmdIndex
-                << " has been repeated. Ignoring it."
-                << std::endl;
+	       << " has been repeated. Ignoring it.");
+      delete resp;
       return;
     }
 
+  resp->setManager(this);
   if (cmdIndex == 0)
-    m_DefaultResponse = resp;
+    {
+      m_DefaultResponse = resp;
+    }
   else
     m_CmdIdToResponse[cmdIndex] = resp;
 }
 
-ResponseMessage* ResponseMessageManager::getResponseMessages(timeval& tDelay)
+const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
 {
-  std::map<int, ResponseBase*>::iterator iter;
-  ResponseBase* respBase;
-  std::cout << "ResponseMessageManager for " << m_Identifier << ": ";
+  IndexResponseMap::iterator iter;
+  const ResponseBase* respBase;
   if ((iter = m_CmdIdToResponse.find(m_Counter)) == m_CmdIdToResponse.end())
     {
-      std::cout << "Getting default response.";
+      debugMsg("ResponseMessageManager:getResponses",
+	       " for " << m_Identifier << ": Getting default response");
       respBase = m_DefaultResponse;
     }
   else
     {
-      std::cout << "Using response for index " << m_Counter << ".";
+      debugMsg("ResponseMessageManager:getResponses",
+	       " for " << m_Identifier << ": Using response for index " << m_Counter);
       respBase = iter->second;
     }
-  std::cout << std::endl;
-
-  std::cout << "ResponseMessageManager:getResponseMessages: " << m_Identifier
-            << ", count: " << m_Counter << std::endl;
+  debugMsg("ResponseMessageManager:getResponses",
+	   " " << m_Identifier << ", count: " << m_Counter);
   ++m_Counter;
 
   // This shouldn't happen, but check anyway just in case
-  if (respBase == NULL)
-    {
-      std::cerr << "INTERNAL ERROR: No response found! Aborting." << std::endl;
-      abort();
-    }
+  assertTrueMsg(respBase != NULL,
+		"ResponseMessageManager::getResponses: Internal error: No response found for \""
+		<< m_Identifier << "\"");
 
   if (respBase->getNumberOfResponses() > 0)
     {
       tDelay = respBase->getDelay();
-      return respBase->createResponseMessage();
+      return respBase;
     }
   return NULL;
+}
+
+/**
+ * @brief Schedule the events dictated by this manager.
+ * @note The default method does nothing.
+ */ 
+void ResponseMessageManager::scheduleInitialEvents(Simulator* sim)
+{
+  debugMsg("ResponseMessageManager:scheduleInitialEvents",
+	   " " << m_Identifier << " is a command manager, ignoring");
+}
+
+/**
+ * @brief Report that this message has been sent.
+ * @note The default method does nothing.
+ */
+void ResponseMessageManager::notifyMessageSent(const ResponseBase* resp)
+{
 }

@@ -28,23 +28,31 @@
 #define TIMING_SERVICE_HH
 
 #include <sys/time.h>
-#include <string.h>
+#include <csignal>
 
 class Simulator;
 
 class TimingService
 {
 public:
-  TimingService(Simulator* _callBack=NULL);
+  TimingService(Simulator* _callBack);
   ~TimingService();
   static void timerHandler (int signum);
   bool setTimer(const timeval& time);
+  void stopTimer();
 
 private:  
+  // Deliberately not implemented
+  TimingService();
+  TimingService(const TimingService&);
+  TimingService& operator=(const TimingService&);
+
   void setupTimer(Simulator* _simulator);
 
+  struct itimerval m_Timer;
+  struct sigaction m_oldSigaction;
   static Simulator* m_Simulator;
   bool m_TimerSetup;
-  struct itimerval m_Timer;
 };
+
 #endif

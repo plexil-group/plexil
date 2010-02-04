@@ -26,27 +26,74 @@
 #ifndef RESPONSE_BASE_HH
 #define RESPONSE_BASE_HH
 
+#include "ResponseMessageManager.hh"
+
 #include <string>
 
 class ResponseMessage;
 
+/**
+ * @brief ResponseBase is an abstract base class which represents one event in a simulator script.
+ */
 class ResponseBase
 {
 public:
-  ResponseBase(const std::string& name, timeval delay) : m_name(name), m_Delay(delay) {}
-  virtual ~ResponseBase(){}
+  ResponseBase() 
+    : m_Manager(NULL) 
+  {
+  }
 
-  void setNumberOfResponses(int numOfResp) {m_NumberOfResponses = numOfResp;}
-  int getNumberOfResponses() const {return m_NumberOfResponses;}
-  timeval getDelay() const {return m_Delay;}
-  const std::string& getName() const {return m_name;}
-  virtual ResponseMessage* createResponseMessage() = 0;
+  virtual ~ResponseBase()
+  {
+  }
+
+  void setManager(ResponseMessageManager* mgr)
+  {
+    m_Manager = mgr;
+  }
+
+  ResponseMessageManager* getManager() const
+  {
+    return m_Manager;
+  }
+
+  void notifyMessageSent()
+  {
+    if (m_Manager != NULL)
+      m_Manager->notifyMessageSent(this);
+  }
+
+  void setNumberOfResponses(int numOfResp)
+  {
+    m_NumberOfResponses = numOfResp;
+  }
+
+  int getNumberOfResponses() const 
+  {
+    return m_NumberOfResponses;
+  }
+
+  const timeval& getDelay() const 
+  {
+    return m_Delay;
+  }
+
+  void setDelay(const timeval& delay) 
+  {
+    m_Delay = delay;
+  }
+
+  const std::string& getName() const 
+  {
+    return m_Manager->getIdentifier();
+  }
 
 private:
   // Deliberately not implemented
-  ResponseBase();
+  ResponseBase(const ResponseBase&);
+  ResponseBase& operator=(const ResponseBase&);
 
-  std::string m_name;
+  ResponseMessageManager* m_Manager;
   timeval m_Delay;
   int m_NumberOfResponses;
 };
