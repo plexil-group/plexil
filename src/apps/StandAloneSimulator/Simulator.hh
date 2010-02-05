@@ -31,10 +31,10 @@
 #include "SimulatorScriptReader.hh"
 #include "TimingService.hh"
 #include "ThreadMutex.hh"
+#include "ThreadSemaphore.hh"
 
 class ResponseMessageManager;
 class ResponseMessage;
-class ResponseFactory;
 class CommRelayBase;
 
 class Simulator
@@ -48,9 +48,13 @@ public:
    */
   void start();
 
+  /**
+   * @brief Stops the simulator's top level thread.  Returns when the thread has rejoined.
+   */
+  void stop();
+
   ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
 
-  void handleWakeUp();
 
   /**
    * @brief Schedules a response to the named command.
@@ -88,6 +92,15 @@ private:
   Simulator(const Simulator&);
   Simulator& operator=(const Simulator&);
 
+  // Thread function for pthread_create
+  static void* run(void * this_as_void_ptr);
+
+  void simulatorTopLevel();
+  
+  static void wakeup(void* this_as_void_ptr);
+
+  void handleWakeUp();
+
   void scheduleNextResponse(const timeval& time);
   
   /**
@@ -102,14 +115,19 @@ private:
                              timeval& time, 
 			     int type);
   
-  ResponseManagerMap& m_CmdToRespMgr;
-  std::multimap<timeval, ResponseMessage*> m_TimeToResp;
 
   CommRelayBase* m_CommRelay;
   TimingService m_TimingService;
-  bool m_TimerScheduled;
-  timeval m_TimerScheduledTime;
   PLEXIL::ThreadMutex m_TimerMutex;
+  PLEXIL::ThreadSemaphore m_Sem;
+
+  std::multimap<timeval, ResponseMessage*> m_TimeToResp;
+  ResponseManagerMap& m_CmdToRespMgr;
+  timeval m_TimerScheduledTime;
+  pthread_t m_SimulatorThread;
+  bool m_TimerScheduled;
+  bool m_Started;
+  bool m_Stop;
 };
 
 #endif // SIMULATOR_HH

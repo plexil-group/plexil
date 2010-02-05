@@ -24,30 +24,35 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <iostream>
-
 #include "Simulator.hh"
 #include "timeval-utils.hh"
+#include "CommRelayBase.hh"
 #include "ResponseBase.hh"
 #include "ResponseMessage.hh"
 #include "ResponseMessageManager.hh"
-#include "CommRelayBase.hh"
+
 #include "Debug.hh"
+#include "ThreadSpawn.hh"
+
+#include <cerrno>
 
 Simulator::Simulator(CommRelayBase* commRelay, ResponseManagerMap& map) : 
-  m_CmdToRespMgr(map),
   m_CommRelay(commRelay),
-  m_TimingService(this), 
+  m_TimingService(wakeup, (void*) this),
+  m_TimerMutex(),
+  m_Sem(),
+  m_CmdToRespMgr(map),
   m_TimerScheduled(false),
-  m_TimerMutex()
+  m_Started(false),
+  m_Stop(false)
 {
   m_CommRelay->registerSimulator(this);
 }
 
 Simulator::~Simulator()
 {
-  // Shut down the timing service
-  m_TimingService.stopTimer();
+  // Shut down anything that may be running
+  stop();
 
   // delete all the response managers
   for (std::map<const std::string, ResponseMessageManager*>::iterator iter = m_CmdToRespMgr.begin();
@@ -61,6 +66,85 @@ Simulator::~Simulator()
 
 void Simulator::start()
 {
+  threadSpawn(run, this, m_SimulatorThread);
+}
+
+void Simulator::stop()
+{
+  if (!m_Started)
+    return;
+
+  m_TimingService.stopTimer();
+
+  if (m_Stop)
+    {
+      // we tried the gentle approach already -
+      // take more drastic action
+      int errno;
+      if ((errno = pthread_cancel(m_SimulatorThread)) != 0)
+	{
+	  // cancel failed
+	  if (errno == ESRCH) // no such thread to cancel, i.e. it's already dead
+	    {
+	      m_Stop = false;
+	      m_Started = false;
+	    }
+	  else
+	    {
+	      std::cerr << "Simulator::stop: pthread_cancel returned error " << errno << std::endl;
+	    }
+	  return;
+	}
+      // successfully canceled, wait for it to exit
+      if ((errno = pthread_join(m_SimulatorThread, NULL)) != 0)
+	{
+	  if (errno == ESRCH) // no such thread, i.e. already dead
+	    {
+	      m_Stop = false;
+	      m_Started = false;
+	    }
+	  else
+	    {
+	      std::cerr << "Simulator::stop: pthread_join (after pthread_cancel) returned error " << errno << std::endl;
+	    }
+	}
+    }
+  else
+    {
+      // Usual case
+
+      // Shut down the timing service
+      m_TimingService.stopTimer();
+
+      // stop the sim thread
+      m_Stop = true;
+      m_Sem.post();
+      int errno;
+      // wait for thread to terminate
+      if ((errno = pthread_join(m_SimulatorThread, NULL)) != 0)
+	{
+	  if (errno != ESRCH) // no such thread, i.e. already dead
+	    {
+	      std::cerr << "Simulator::stop: pthread_join returned error " << errno << std::endl;
+	      return;
+	    }
+	}
+    }
+  m_Stop = false;
+  m_Started = false;
+}
+
+void* Simulator::run(void* this_as_void_ptr)
+{
+  Simulator* _this = reinterpret_cast<Simulator*>(this_as_void_ptr);
+  _this->simulatorTopLevel();
+  return NULL;
+}
+
+void Simulator::simulatorTopLevel()
+{
+  m_Started = true;
+
   // Schedule all telemetry responses relative to this event
   ResponseManagerMap::const_iterator it = m_CmdToRespMgr.begin();
   while (it != m_CmdToRespMgr.end())
@@ -79,6 +163,18 @@ void Simulator::start()
 	       << m_TimeToResp.begin()->first.tv_sec);
       scheduleNextResponse(m_TimeToResp.begin()->first);
     }
+
+  while (!m_Stop)
+    {
+      // wait for next timer wakeup
+      m_Sem.wait();
+      if (m_Stop)
+	break;
+      handleWakeUp();
+    }
+  // clean up here (NYI)
+  // normal exit
+  pthread_exit(0);
 }
 
 ResponseMessageManager* Simulator::getResponseMessageManager(const std::string& cmdName) const
@@ -200,6 +296,14 @@ void Simulator::scheduleNextResponse(const timeval& time)
 	       " A wakeup has already been scheduled for an earlier time.");
     }
 }
+
+// Static member fn which is passed to the timing service
+void Simulator::wakeup(void* this_as_void_ptr)
+{
+  debugMsg("Simulator:wakeup", " releasing semaphore");
+  reinterpret_cast<Simulator*>(this_as_void_ptr)->m_Sem.post();
+}
+
 
 void Simulator::handleWakeUp()
 {
