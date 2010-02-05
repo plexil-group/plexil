@@ -41,10 +41,6 @@ all: TestExec app-framework standard-plexil checker
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
-# TODO: remove!
-TestExecSAS: lcm-structs exec-core app-framework sockets luv
-	$(MAKE) -C src/apps/TestExecSAS
-
 plexilsim: ipc
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
@@ -87,14 +83,6 @@ app-framework: exec-core sockets
 sockets:
 	$(MAKE) -C src/interfaces/Sockets
 
-lcm:
-	(cd third-party/lcm && \
- ./configure --prefix=$(PLEXIL_HOME) --without-python --without-java && \
- $(MAKE))
-
-lcm-structs: lcm
-	$(MAKE) -C src/interfaces/lcm-structs
-
 ipc:
 	$(MAKE) -C third-party/ipc \
  PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
@@ -108,11 +96,9 @@ clean-ipc:
 clean: clean-ipc
 	$(MAKE) -C third-party/tinyxml $@
 	# The following will cause an (ignorable) error if 'configure' hasn't been run yet
-	-$(MAKE) -C third-party/lcm $@
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/IpcAdapter $@
-	$(MAKE) -C src/interfaces/lcm-structs $@
 	$(MAKE) -C src/interfaces/LuvListener $@
 	$(MAKE) -C src/interfaces/Sockets $@
 	$(MAKE) -C src/CORBA $@
@@ -122,7 +108,6 @@ clean: clean-ipc
 	$(MAKE) -C src/apps/UniversalExec $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
-	$(MAKE) -C src/apps/TestExecSAS $@
 	(cd src/standard-plexil && ant $@)
 	(cd src/luv && ant $@)
 	(cd src/checker && ant $@)
