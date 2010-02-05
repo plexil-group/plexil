@@ -36,11 +36,14 @@
 
 
 PLEXIL::ThreadSemaphore doneSemaphore;
+Simulator* _the_simulator_ = NULL;
 
 void SIGINT_handler (int signum)
 {
   assert (signum == SIGINT);
   debugMsg("PlexilSimulator", " Terminating simulator");
+  if (_the_simulator_ != NULL)
+    _the_simulator_->stop();
   doneSemaphore.post();
 }
 
@@ -116,23 +119,27 @@ int main(int argc, char** argv)
     rdr.readTelemetryScript(telemetryScriptName);
   }
   
-  IpcCommRelay plexilRelay("RobotYellow", centralhost);
-  Simulator simulator(&plexilRelay, mgrMap);
+  {
+    // Comm Relay has to be destroyed before we can nuke the simulator
+    IpcCommRelay plexilRelay("RobotYellow", centralhost);
+    _the_simulator_ = new Simulator(&plexilRelay, mgrMap);
 
-  simulator.start();
+    struct sigaction sa, previous_sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    //Register the handler for SIGINT.
+    sa.sa_handler = SIGINT_handler;
+    sigaction(SIGINT, &sa, &previous_sa);
 
-  struct sigaction sa, previous_sa;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  //Register the handler for SIGINT.
-  sa.sa_handler = SIGINT_handler;
-  sigaction(SIGINT, &sa, &previous_sa);
+    _the_simulator_->start();
 
-  doneSemaphore.wait();
-  debugMsg("PlexilSimulator", " Received interrupt, exiting");
+    // wait here til we're interrupted
+    doneSemaphore.wait();
 
-  // Restore previous SIGINT handler
-  sigaction(SIGINT, &previous_sa, NULL);
+    // Restore previous SIGINT handler
+    sigaction(SIGINT, &previous_sa, NULL);
+  }
+  delete _the_simulator_;
 
   return 0;
 }
