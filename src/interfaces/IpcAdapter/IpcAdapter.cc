@@ -962,6 +962,7 @@ namespace PLEXIL
 	debugMsg("IpcAdapter::cacheMessageTrailer",
 		 " no existing sequence for sender "
 		 << msgData->senderUID << ", serial " << msgData->serial << ", ignoring");
+	return;
       }
     std::vector<const PlexilMsgBase*>& msgs = it->second;
     msgs.push_back(msgData);
