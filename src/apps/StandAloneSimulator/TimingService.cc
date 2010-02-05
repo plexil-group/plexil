@@ -26,19 +26,22 @@
 
 #include "TimingService.hh"
 #include "timeval-utils.hh"
-#include "Simulator.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 
 #include <cerrno>
 #include <iostream>
 
-Simulator* TimingService::m_Simulator=NULL;
+TimingService::TimerCallbackFn TimingService::s_Callback = NULL;
+void* TimingService::s_CallbackArg = NULL;
 
-TimingService::TimingService(Simulator* _m_Simulator) 
+TimingService::TimingService(TimerCallbackFn _callback, void* _callbackArg) 
   : m_TimerSetup(false)
 {
-  setupTimer(_m_Simulator);
+  s_Callback = _callback;
+  s_CallbackArg = _callbackArg;
+  setupTimer();
 }
 
 TimingService::~TimingService()
@@ -46,7 +49,7 @@ TimingService::~TimingService()
   stopTimer();
 }
 
-void TimingService::setupTimer(Simulator* _m_Simulator)
+void TimingService::setupTimer()
 {
   struct sigaction sa;
   
@@ -55,13 +58,16 @@ void TimingService::setupTimer(Simulator* _m_Simulator)
   sigaction(SIGALRM, &sa, &m_oldSigaction);
   
   m_Timer.it_interval.tv_sec = m_Timer.it_interval.tv_usec = 0;
-  m_Simulator = _m_Simulator;
   m_TimerSetup = true;
 }
 
 void TimingService::timerHandler (int signum)
 {
-  m_Simulator->handleWakeUp();
+  checkError(signum == SIGALRM,
+	     "TimingService: Fatal error: Handler function called with wrong signal # " << signum);
+  assertTrueMsg(s_Callback != NULL,
+		"TimingService: Fatal error: Callback is null at wakeup!");
+  (s_Callback)(s_CallbackArg);
 }
 
 bool TimingService::setTimer(const timeval& time)

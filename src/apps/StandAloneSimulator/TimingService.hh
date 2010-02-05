@@ -30,12 +30,11 @@
 #include <sys/time.h>
 #include <csignal>
 
-class Simulator;
-
 class TimingService
 {
 public:
-  TimingService(Simulator* _callBack);
+  typedef void(*TimerCallbackFn)(void*) ;
+  TimingService(TimerCallbackFn _callBack, void* _callbackArg);
   ~TimingService();
   static void timerHandler (int signum);
   bool setTimer(const timeval& time);
@@ -47,11 +46,13 @@ private:
   TimingService(const TimingService&);
   TimingService& operator=(const TimingService&);
 
-  void setupTimer(Simulator* _simulator);
+  void setupTimer();
+
+  static TimerCallbackFn s_Callback;
+  static void* s_CallbackArg;
 
   struct itimerval m_Timer;
   struct sigaction m_oldSigaction;
-  static Simulator* m_Simulator;
   bool m_TimerSetup;
 };
 
