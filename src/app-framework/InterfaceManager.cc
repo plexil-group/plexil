@@ -100,8 +100,6 @@ namespace PLEXIL
    */
   InterfaceManager::~InterfaceManager()
   {
-    m_adapterConfig.release();
-
     // unregister and delete listeners
     std::vector<ExecListenerId>::iterator lit = m_listeners.begin();
     while (lit != m_listeners.end()) {
@@ -120,6 +118,10 @@ namespace PLEXIL
       it = m_adapters.begin(); // it = m_adapters.erase(it)
       delete (InterfaceAdapter*) ia;
     }
+    
+    // we may not have initialized this!
+    if (m_adapterConfig.isId())
+      delete m_adapterConfig.operator->();
   }
 
   //
