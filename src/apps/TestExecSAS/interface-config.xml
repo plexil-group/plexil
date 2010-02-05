@@ -1,6 +1,0 @@
-<Interfaces>
- <Adapter AdapterType="StandAloneSimulator" Provider="udpm://">
-  <DefaultAdapter/>
- </Adapter>
- <Adapter AdapterType="OSNativeTime"/>
-</Interfaces>
