@@ -24,6 +24,8 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ipc.h" /* only required by definePlexilIPCMessageTypes */
+
 /*
  * Data formats used by IpcAdapter
  */
@@ -129,63 +131,74 @@ typedef enum
   {
     PlexilMsgType_uninited=0,
 
-    // PlexilMsgBase
-    // These messages are complete unto themselves
+    /* PlexilMsgBase - 
+     * These messages are complete unto themselves */
     PlexilMsgType_NotifyExec,
     PlexilMsgType_TerminateChangeLookup,
 
-    // PlexilStringValueMsg
-    // These have an operation (or state) name and an argument count
+    /* PlexilStringValueMsg -
+     * These have an operation (or state) name and an argument count */
     PlexilMsgType_Command,
     PlexilMsgType_Message,
     PlexilMsgType_LookupNow,
     PlexilMsgType_LookupOnChange,
     PlexilMsgType_TelemetryValues,
 
-    // PlexilReturnValuesMsg
-    // These have a unique ID of the requested operation
-    // and count of values (which may be 0).
+    /* PlexilReturnValuesMsg - 
+     * These have a unique ID of the requested operation and count of values (which may be 0) */
     PlexilMsgType_ReturnValues,
 
-    // PlexilStringValueMsg
-    // These have one (non-empty?) string datum, the plan or file name
-    // Count must be 0
+    /* PlexilStringValueMsg -
+     * These have one (non-empty?) string datum, the plan or file name
+     * Count must be 0 */
     PlexilMsgType_AddPlan,
     PlexilMsgType_AddPlanFile,
     PlexilMsgType_AddLibrary,
     PlexilMsgType_AddLibraryFile,
 
-    // PlexilStringValueMsg
-    // These have a node name and a pair count (which may be 0?)
+    /* PlexilStringValueMsg -
+     * These have a node name and a pair count (which may be 0?) */
     PlexilMsgType_PlannerUpdate,
 
-    // PlexilNumericValueMsg
-    // A simple numeric datum
-    // Count indicates position in sequence
+    /* PlexilNumericValueMsg -
+     * A simple numeric datum
+     * Count indicates position in sequence */
     PlexilMsgType_NumericValue,
 
-    // PlexilStringValueMsg
-    // A simple string datum
-    // Count indicates position in sequence
+    /* PlexilStringValueMsg -
+     * A simple string datum
+     * Count indicates position in sequence */
     PlexilMsgType_StringValue,
 
-    // A pair of a name and a numeric value
-    // Count indicates position in sequence
+    /* NumericPair -
+     * A pair of a name and a numeric value
+     * Count indicates position in sequence */
     PlexilMsgType_PairNumeric,
 
-    // A pair of a name and a string value
-    // Count indicates position in sequence
+    /* StringPair -
+     * A pair of a name and a string value
+     * Count indicates position in sequence */
     PlexilMsgType_PairString,
 
     PlexilMsgType_limit
   }
   PlexilMsgType;
 
+/**
+ * @brief Bounds check the supplied message type.
+ * @param mtyp The message type value to check.
+ * @return true if valid, false if not.
+ */
 inline bool msgTypeIsValid(const PlexilMsgType mtyp)
 {
   return (mtyp > PlexilMsgType_uninited) && (mtyp < PlexilMsgType_limit);
 }
 
+/**
+ * @brief Return the message format string corresponding to the message type.
+ * @param typ The message type.
+ * @return Const char pointer to the message format name.
+ */
 inline const char* msgFormatForType(const PlexilMsgType typ)
 {
   switch (typ)
@@ -236,4 +249,63 @@ inline const char* msgFormatForType(const PlexilMsgType typ)
       return NULL;
       break;
     }
+}
+
+/**
+ * @brief Ensure the whole suite of message types is defined
+ * @return true if successful, false otherwise
+ * @note Caller should ensure IPC_initialize() has been called first
+*/
+bool definePlexilIPCMessageTypes()
+{
+  IPC_RETURN_TYPE status;
+  if (!IPC_isMsgDefined(MSG_BASE))
+    {
+      if (IPC_errno != IPC_No_Error)
+	return false;
+      status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
+      if (status != IPC_OK)
+	return false;
+    }
+  if (!IPC_isMsgDefined(RETURN_VALUE_MSG))
+    {
+      if (IPC_errno != IPC_No_Error)
+	return false;
+      status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
+      if (status != IPC_OK)
+	return false;
+    }
+  if (!IPC_isMsgDefined(NUMERIC_VALUE_MSG))
+    {
+      if (IPC_errno != IPC_No_Error)
+	return false;
+      status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
+      if (status != IPC_OK)
+	return false;
+    }
+  if (!IPC_isMsgDefined(STRING_VALUE_MSG))
+    {
+      if (IPC_errno != IPC_No_Error)
+	return false;
+      status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
+      if (status != IPC_OK)
+	return false;
+    }
+  if (!IPC_isMsgDefined(NUMERIC_PAIR_MSG))
+    {
+      if (IPC_errno != IPC_No_Error)
+	return false;
+      status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
+      if (status != IPC_OK)
+	return false;
+    }
+  if (!IPC_isMsgDefined(STRING_PAIR_MSG))
+    {
+      if (IPC_errno != IPC_No_Error)
+	return false;
+      status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
+      if (status != IPC_OK)
+	return false;
+    }
+  return true;
 }

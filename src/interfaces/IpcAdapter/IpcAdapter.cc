@@ -138,31 +138,8 @@ namespace PLEXIL
 		  "IpcAdapter: Unable to connect to the central server at " << serverName);
 
     // Define messages
-    // *** TODO: move this logic into ipc-data-formats.h or similar ***
-    if (!IPC_isMsgDefined(MSG_BASE))
-      {
-	assertTrueMsg(IPC_errno == IPC_No_Error,
-		      "IpcAdapter: IPC_isMsgDefined failed, IPC_errno = " << IPC_errno);
-	IPC_RETURN_TYPE status;
-	status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
-	assertTrueMsg(status == IPC_OK,
-		      "IpcAdapter: Error defining " << MSG_BASE << " message, IPC_errno = " << IPC_errno);
-	status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
-	assertTrueMsg(status == IPC_OK,
-		      "IpcAdapter: Error defining " << RETURN_VALUE_MSG << " message, IPC_errno = " << IPC_errno);
-	status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
-	assertTrueMsg(status == IPC_OK,
-		      "IpcAdapter: Error defining " << NUMERIC_VALUE_MSG << " message, IPC_errno = " << IPC_errno);
-	status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
-	assertTrueMsg(status == IPC_OK,
-		      "IpcAdapter: Error defining " << STRING_VALUE_MSG << " message, IPC_errno = " << IPC_errno);
-	status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
-	assertTrueMsg(status == IPC_OK,
-		      "IpcAdapter: Error defining " << NUMERIC_PAIR_MSG << " message, IPC_errno = " << IPC_errno);
-	status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
-	assertTrueMsg(status == IPC_OK,
-		      "IpcAdapter: Error defining " << STRING_PAIR_MSG << " message, IPC_errno = " << IPC_errno);
-      }
+    assertTrueMsg(definePlexilIPCMessageTypes(),
+		  "IpcAdapter: Unable to define IPC message types");
 
     // *** TODO: register lookup names for getting commands & msgs ***
     // Register with AdapterExecInterface
@@ -782,6 +759,9 @@ namespace PLEXIL
 				  void * unmarshalledMsg,
 				  void * this_as_void_ptr)
   {
+    // Check whether the thread has been canceled before going any further
+    pthread_testcancel();
+
     IpcAdapter* theAdapter = reinterpret_cast<IpcAdapter*>(this_as_void_ptr);
     assertTrueMsg(theAdapter != NULL,
 		  "IpcAdapter::messageHandler: pointer to adapter instance is null!");
