@@ -1,24 +1,25 @@
 This directory contains libraries that perform various common
 interfacing tasks.  
 
-It includes the open source package LCM (Lightweight Communication and
-Marshalling, http://lcm.googlecode.com/) which is at present used
-exclusively for interfacing the UE with the Standalone Simulator.  LCM
-has insallation prerequisites which we have found typically
-pre-installed on Linux systems, but not in Mac OS.  See the UE Reference
-Manual for more information.
-
-It includes the open source package IPC (Inter-Process Communication)
-from http://www.cs.cmu.edu/~ipc/.  This is currently used to support a
-new multi-executive prototype that is being developed and will be
-released when ready.  This directory is not currently used by anything
-in the PLEXIL distribution and may be ignored.
-
-To build this directory without LCM, type 'make'.
-
-To build this directory with LCM, type 'make all'.
-
-See Makefile for more options.
-
 The CORBA code that used to live in this directory has been moved to
 ../CORBA.
+
+The Common subdirectory contains a previous version of the code that
+now lives in plexil/src/app-framework.  It is here for backward
+compatibility for older applications and is no longer supported.  New
+applications should use the versions in plexil/src/app-framework.
+
+The IpcAdapter subdirectory provides a general purpose interface to
+other systems, from a Plexil-centric viewpoint.  It uses the open
+source package TCA-IPC (Inter-Process Communication), which is
+available from http://www.cs.cmu.edu/~ipc/, and which is also included
+in this distribution as plexil/third-party/ipc.
+
+The LuvListener subdirectory is an older version that is only used at
+present by the single-threaded TestExec application.  Please use the
+version in plexil/src/app-framework for new development.
+
+The Sockets subdirectory contains C++ socket utility classes.  They
+are derived from an open source package whose origins have been
+forgotten.  Please let us know if you are aware of the origins of this
+code.
