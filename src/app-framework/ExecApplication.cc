@@ -181,6 +181,9 @@ namespace PLEXIL
         && m_state != APP_SUSPENDED)
       return false;
 
+    // Stop interfaces
+    m_interface.stop();
+
     // Stop the Exec
     debugMsg("ExecApplication:stop", " Halting top level thread");
 
@@ -205,9 +208,6 @@ namespace PLEXIL
         return false;
       }
     debugMsg("ExecApplication:stop", " Top level thread halted");
-
-    // Stop interfaces
-    m_interface.stop();
     
     m_state = APP_STOPPED;
     return true;
