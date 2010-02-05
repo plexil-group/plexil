@@ -66,32 +66,8 @@ IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost
 
   // Define the whole suite of message types,
   // as someone else may depend on this if we get to it first.
-  // *** TODO: move this logic into ipc-data-formats.h or similar ***
-  IPC_RETURN_TYPE status;
-  if (!IPC_isMsgDefined(MSG_BASE))
-    {
-      // Define the whole set as someone else may depend on this if we get to it first.
-      assertTrueMsg(IPC_errno == IPC_No_Error,
-		    "IpcCommRelay: IPC_isMsgDefined failed, IPC_errno = " << IPC_errno);
-      status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcCommRelay: Error defining " << MSG_BASE << " message, IPC_errno = " << IPC_errno);
-      status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcCommRelay: Error defining " << RETURN_VALUE_MSG << " message, IPC_errno = " << IPC_errno);
-      status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcCommRelay: Error defining " << NUMERIC_VALUE_MSG << " message, IPC_errno = " << IPC_errno);
-      status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcCommRelay: Error defining " << STRING_VALUE_MSG << " message, IPC_errno = " << IPC_errno);
-      status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcCommRelay: Error defining " << NUMERIC_PAIR_MSG << " message, IPC_errno = " << IPC_errno);
-      status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcCommRelay: Error defining " << STRING_PAIR_MSG << " message, IPC_errno = " << IPC_errno);
-    }
+  assertTrueMsg(definePlexilIPCMessageTypes(),
+		"IpcCommRelay: Unable to define IPC message types");
 
   // Spawn listener thread
   assertTrueMsg(threadSpawn((THREAD_FUNC_PTR)IPC_dispatch, NULL, m_thread),
@@ -99,7 +75,7 @@ IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost
   debugMsg("IpcCommRelay:IpcCommRelay", " spawned IPC dispatch thread");
 
   // Subscribe only to messages we care about
-  status = IPC_subscribeData(NUMERIC_VALUE_MSG, messageHandler, this);
+  IPC_RETURN_TYPE status = IPC_subscribeData(NUMERIC_VALUE_MSG, messageHandler, this);
   assertTrueMsg(status == IPC_OK,
 		"IpcCommRelay: Error subscribing to " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
   status = IPC_subscribeData(STRING_VALUE_MSG, messageHandler, this);
@@ -115,8 +91,7 @@ IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost
 IpcCommRelay::~IpcCommRelay()
 {
     // Unsubscribe from messages
-    IPC_RETURN_TYPE status;
-    status = IPC_unsubscribe(NUMERIC_VALUE_MSG, NULL);
+    IPC_RETURN_TYPE status = IPC_unsubscribe(NUMERIC_VALUE_MSG, NULL);
     assertTrueMsg(status == IPC_OK,
 		  "IpcCommRelay: Error unsubscribing from " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
     status = IPC_unsubscribe(STRING_VALUE_MSG, NULL);
@@ -150,6 +125,9 @@ void IpcCommRelay::initializeUID()
 /**
  * @brief Send a response from the sim back to the UE.
  */
+
+// *** TODO: isolate this method from the format of the response base!
+
 void IpcCommRelay::sendResponse(const ResponseMessage* respMsg)
 {
   // Get the response message

@@ -31,8 +31,12 @@ LIBRARY		:= standalonesimulator
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
-INC_DIRS	+= $(PLEXIL_HOME)/src/utils
-LIBS		+= PlexilUtils
+INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
+                   $(PLEXIL_HOME)/third-party/ipc/src \
+                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
+                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter
+
+LIBS		+= PlexilUtils ipc
 
 ############################
 # Rules to build the targets

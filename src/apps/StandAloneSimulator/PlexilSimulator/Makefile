@@ -28,7 +28,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 EXECUTABLE	:= PlexilSimulator
 
-SRC		:= PlexilSimResponseFactory.cc PlexilSimulator.cc IpcCommRelay.cc
+SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
 LIBS		+= PlexilUtils standalonesimulator ipc
