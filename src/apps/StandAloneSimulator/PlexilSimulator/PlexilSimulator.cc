@@ -31,7 +31,6 @@
 #include "ThreadSemaphore.hh"
 
 #include <fstream>
-#include <cassert>
 #include <csignal>
 
 
