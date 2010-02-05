@@ -58,6 +58,7 @@ public class DispatchHandler extends DefaultHandler
           // add each type of handler to the table of possible handlers
           registerHandler(PLAN_INFO, new PlanInfoHandler());
           registerHandler(NODE_STATE_UPDATE, new NodeStateUpdateHandler());
+          registerHandler(ASSIGNMENT, new AssignmentHandler());
 
 	  // Use same handler for plans & libraries
 	  AbstractDispatchableHandler planHandler = new PlexilPlanHandler();

@@ -530,6 +530,8 @@ public class Constants
       public static final String LIBRARY           = "Library";   
       /** Represents the XML tag in the Plexil Plan indicating that a Node State Update is occurring. */
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
+      /** Represents the XML tag in the Plexil Plan indicating that a variable assignment is occurring. */
+      public static final String ASSIGNMENT = "Assignment";
       /** Represents the XML tag in the Plexil Plan marking the Plan Info section. */
       public static final String PLAN_INFO     = "PlanInfo";
       /** Represents the XML tag in the Plexil Plan marking the Plexil Plan file name information. */
@@ -630,6 +632,10 @@ public class Constants
       public static final String VAR_DECLS = "VariableDeclarations";
       /** Represents the DeclareVariable XML tag in the Plexil Plan. */
       public static final String DECL_VAR = "DeclareVariable";
+      /** Represents the Variable XML tag in the Assignment xml. */
+      public static final String VARIABLE_NAME = "VariableName";
+      /** Represents the Variable Value XML tag in the Assignment xml. */
+      public static final String VALUE = "Value";
       /** Represents the In XML tag in the Plexil Plan. */
       public static final String IN = "In";
       /** Represents the InOut XML tag in the Plexil Plan. */

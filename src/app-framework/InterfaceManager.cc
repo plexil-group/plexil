@@ -31,15 +31,6 @@
 //  - utilities for adapters?
 //
 
-#ifdef __APPLE__
-#define LIB_EXT ".dylib"
-#elif defined __linux
-#define LIB_EXT ".so"
-//just in case. this does not imply windows support
-#elif defined __WIN32
-#define LIB_EXT ".dll"
-#endif
-
 #include "InterfaceManager.hh"
 
 #include "AdapterConfigurationFactory.hh"

@@ -26,21 +26,19 @@
 
 package gov.nasa.luv;
 
+import gov.nasa.luv.Model.ChangeAdapter;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Stack;
-import static gov.nasa.luv.Constants.*;
 
 /** 
  * The VariablesTab class provides methods for displaying a Plexil Model's local 
- * variable information. However, currently, Luv is only aware of the initial
- * value of a Plexil Model's local variable. Plexil Model's local variable value 
- * updates need to be provided from the Universal Executive.
+ * variable information. 
  */
 
 public class VariablesTab extends JPanel 
@@ -64,64 +62,16 @@ public class VariablesTab extends JPanel
         super(new GridLayout(1,0));
         
         this.model = model;
-        rows = 1000;
-        info = new String[rows][4];
+
 
         String[] columnNames = {"In/InOut",
                                 "Name",
                                 "Type",
-                                "Initial Value ONLY - (UE does not currently provide updated values to LUV)",
+                                "Value",
         };
-    
-        ArrayList<Stack<String>> variableList = model.getVariableList();
-        int row = 0;
-        int col = 0;
-        for (Stack<String> original : variableList)
-        {
-            Stack<String> copy = new Stack<String>();
         
-            Object[] obj = original.toArray();
-
-            for (int i = 0; i < obj.length; i++)
-            {
-                copy.push((String) obj[i]);
-            }
-
-            if (copy != null)
-            {
-                String value;
-                String type;
-                String name;
-                String in_inout;
-                    
-                if (copy.size() == 4)
-                {
-                    value = (String) copy.pop();
-                    type = (String) copy.pop();
-                    name = (String) copy.pop();
-                    in_inout = (String) copy.pop(); 
-                }
-                else
-                {
-                    value = UNKNOWN;
-                    type = UNKNOWN;
-                    name = UNKNOWN;
-                    in_inout = UNKNOWN;
-                }
-                
-                info[row][col] = in_inout; 
-                col++;
-                info[row][col] = name; 
-                col++;
-                info[row][col] = type; 
-                col++;
-                info[row][col] = value; 
-                
-                col = 0;
-                ++row;
-            }
-        }
-        
+        rows = 1000;
+        info = new String[rows][4];
         table = new JTable(info, columnNames);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
@@ -131,10 +81,39 @@ public class VariablesTab extends JPanel
         table.setPreferredScrollableViewportSize(new Dimension(900, 300));
         table.setShowGrid(false);
         table.setGridColor(Color.GRAY);
+        
+        refreshTable();
+        
         JScrollPane scrollPane = new JScrollPane(table);
-
         add(scrollPane);
+        model.addChangeListener(new ChangeAdapter() {
+        	public void variableAssigned(Model model, String variableName) {
+        		refreshTable();
+        	}
+        });
         setOpaque(true);
+    }
+    
+    private void refreshTable() {
+        int row = 0;
+        int col = 0;
+        for (Variable original : model.getVariableList())
+        {
+            if (original != null)
+            {
+                info[row][col] = original.getInOut(); 
+                col++;
+                info[row][col] = original.getName(); 
+                col++;
+                info[row][col] = original.getType(); 
+                col++;
+                info[row][col] = original.getValue(); 
+                
+                col = 0;
+                ++row;
+            }
+        }
+        table.addNotify();
     }
     
     /** 

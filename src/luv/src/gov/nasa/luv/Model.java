@@ -58,7 +58,7 @@ public class Model extends Properties
     private LinkedHashSet<String> libraryFiles;
     private LinkedHashSet<String> missingLibraryNodes;
     private HashMap<Integer, ArrayList> conditionMap;    
-    private ArrayList<Stack<String>> variableList;    
+    private ArrayList<Variable> variableList;    
     private ArrayList<String> actionList;
     private Model parent;
     private Vector<Model> children;
@@ -129,12 +129,8 @@ public class Model extends Properties
         this.type = node.getType();
         this.setUnresolvedLibraryCall(node.getUnresolvedLibraryCall());
 
-        for (int i = 0; i < node.getVariableList().size(); i++) {
-            Stack<String> stack = new Stack<String>();
-            for (int x = 0; x < node.getVariableList().get(i).size(); x++) {
-                stack.add(x, node.getVariableList().get(i).get(x));
-            }
-            this.variableList.add(stack);
+        for (Variable v : node.getVariableList()) {
+            this.variableList.add(v.clone());
         }
 
         modelName = node.getProperty(NODE_ID);
@@ -174,7 +170,7 @@ public class Model extends Properties
         changeListeners = new Vector<ChangeListener>();
         children = new Vector<Model>();
         conditionMap = new HashMap<Integer, ArrayList>();
-        variableList = new ArrayList<Stack<String>>();
+        variableList = new ArrayList<Variable>();
         actionList = new ArrayList<String>();
     }
     
@@ -204,7 +200,7 @@ public class Model extends Properties
     public HashMap<Integer, ArrayList>  getConditionMap()           { return conditionMap; }
     /** Returns the ArrayList of local variables for this Plexil Model/node.
      *  @return the ArrayList of local variables for this Plexil Model/node */
-    public ArrayList<Stack<String>>     getVariableList()           { return variableList; }
+    public ArrayList<Variable>     getVariableList()           { return variableList; }
     /** Returns the ArrayList of actions for this Plexil Model/node.
      *  @return the ArrayList of actions for this Plexil Model/node */
     public ArrayList<String>            getActionList()             { return actionList; }
@@ -395,6 +391,25 @@ public class Model extends Properties
          
 	return result;
     }
+
+
+	public void setVariable(String vName, String value) {
+		if (vName != null) {
+			Variable var = null;
+			for (Variable v : getVariableList()) {
+				if (vName.equals(v.getName())) {
+					var = v;
+					break;
+				}
+			}
+			if (var != null) {
+				var.setValue(value);
+				System.out.println("Assigned " + value + " to variable " + vName);
+				for (ChangeListener cl : changeListeners)
+					cl.variableAssigned(this, vName);
+			}
+		}
+	}
     
     /**
      * Resets the flag indicating that the child of this Model was either found or not.
@@ -418,21 +433,41 @@ public class Model extends Properties
     }
     
     /**
-     * Adds the specified local variable to the Stack of variables for this Model.
+     * Adds the specified local variable Stack to the list of variables for this Model. Converts into a Variable first
      * @param variable the local variable to add to this Model's Stack of local variables
      */
     public void addVariableInfo(Stack variable)
     { 
-        Stack<String> copyVariable = new Stack<String>();
-        
-        Object[] obj = variable.toArray();
-        
-        for (int i = 0; i < obj.length; i++)
+
+        String value;
+        String type;
+        String name;
+        String in_inout;
+            
+        if (variable.size() == 4)
         {
-            copyVariable.push((String) obj[i]);
+            value = (String) variable.pop();
+            type = (String) variable.pop();
+            name = (String) variable.pop();
+            in_inout = (String) variable.pop(); 
+        }
+        else
+        {
+            value = UNKNOWN;
+            type = UNKNOWN;
+            name = UNKNOWN;
+            in_inout = UNKNOWN;
         }
         
-        variableList.add(copyVariable);
+        variableList.add(new Variable(in_inout, name, type, value));
+    }
+    
+    /**
+     * Adds the given variable to the list of variables for this Model.
+     * @param v The local variable to add.
+     */
+    public void addVariableInfo(Variable v) {
+    	variableList.add(v);
     }
     
     /**
@@ -853,6 +888,8 @@ public class Model extends Properties
 	abstract public void scriptNameAdded(Model model, String scriptName);
 
 	abstract public void libraryNameAdded(Model model, String libraryName);
+	
+	abstract public void variableAssigned(Model model, String variableName);
     }
 
     /**
@@ -871,5 +908,7 @@ public class Model extends Properties
 	public void scriptNameAdded(Model model, String scriptName){}
 
 	public void libraryNameAdded(Model model, String libraryName){}
+	
+	public void variableAssigned(Model model, String variableName){}
     }
 }

@@ -39,6 +39,7 @@
 #include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
 #include "LabelStr.hh"
+#include "AdapterExecInterface.hh"
 
 #include <sstream>
 
@@ -269,8 +270,6 @@ namespace PLEXIL
 					    const std::string& destName,
 					    const double& value) const
   {
-    return; //*** method NYI ***
-
     TiXmlElement assignXml(ASSIGNMENT_TAG());
     TiXmlElement varXml(VARIABLE_TAG());
     const NodeId node = dest->getNode();
@@ -281,13 +280,14 @@ namespace PLEXIL
       }
     // get variable name
     TiXmlElement varName(VARIABLE_NAME_TAG());
+    varName.InsertEndChild(*(new TiXmlText(destName)));
 
     varXml.InsertEndChild(varName);
     assignXml.InsertEndChild(varXml);
 
     // format variable value
-    TiXmlElement * valXml;
-    // *** formatting NYI ***
+    TiXmlElement * valXml = new TiXmlElement(VARIABLE_VALUE_TAG());
+    valXml->InsertEndChild(*(new TiXmlText(AdapterExecInterface::valueToString(value))));
     assignXml.LinkEndChild(valXml);
     
     // send it to viewer

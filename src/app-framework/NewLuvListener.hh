@@ -186,6 +186,7 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(char*, ASSIGNMENT_TAG, "Assignment");
     DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_TAG, "Variable");
     DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_NAME_TAG, "VariableName");
+    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_VALUE_TAG, "Value");
 
     // End-of-message marker
     DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
