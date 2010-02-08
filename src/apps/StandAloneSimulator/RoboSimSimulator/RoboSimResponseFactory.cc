@@ -23,9 +23,15 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "RoboSimResponseFactory.hh"
-#include "RoboSimResponse.hh"
 #include "GenericResponse.hh"
+#include "simdefs.hh"
+
+#include "Debug.hh"
+
+#include <sstream>
+#include <iostream>
 
 RoboSimResponseFactory::RoboSimResponseFactory()
 {
@@ -35,48 +41,85 @@ RoboSimResponseFactory::~RoboSimResponseFactory()
 {
 }
 
-ResponseBase* RoboSimResponseFactory::parse(const std::string& cmdName, timeval tDelay,
-                                            std::istringstream& inStr)
+ResponseBase* RoboSimResponseFactory::parseResponseValues(const std::string& cmdName,
+							  const std::string& line,
+							  unsigned int lineCount)
 {
-  if ((cmdName == "MoveUp") || (cmdName == "MoveRight") || (cmdName == "MoveDown") || 
-      (cmdName == "MoveLeft"))
+  std::istringstream inStr(line);
+  std::vector<double> values;
+  if (cmdName == "RobotState")
     {
-      int returnValue;
-      if (parseType<int>(inStr, returnValue))
-        return new MoveResponse(cmdName, tDelay, returnValue);
+      const size_t NUMBER_OF_STATE_READINGS=3;
+      for (size_t i = 0; i < NUMBER_OF_STATE_READINGS; ++i)
+        {
+          double eLevel;
+          if (parseType<double>(inStr, eLevel))
+            values.push_back(eLevel);
+          else
+            break;
+        }
+      if (values.size() != NUMBER_OF_STATE_READINGS)
+	{
+	  std::cerr << "Line " << lineCount << ": unable to parse return value for \""
+		    << cmdName << "\"" << std::endl;
+	  return NULL;
+	}
     }
   else if (cmdName == "QueryEnergySensor")
     {
-      const int NUMBER_OF_ENERGY_LEVEL_READINGS=5;
-      std::vector<double> energyLevel(NUMBER_OF_ENERGY_LEVEL_READINGS, 0.0);
-      int i;
-      for (i = 0; i < NUMBER_OF_ENERGY_LEVEL_READINGS; ++i)
+      const size_t NUMBER_OF_ENERGY_LEVEL_READINGS=5;
+      for (size_t i = 0; i < NUMBER_OF_ENERGY_LEVEL_READINGS; ++i)
         {
           double eLevel;
           if (parseType<double>(inStr, eLevel))
-            energyLevel[i] = eLevel;
+            values.push_back(eLevel);
           else
             break;
         }
-      if (i == NUMBER_OF_ENERGY_LEVEL_READINGS)
-        return new QueryEnergyLevelResponse(cmdName, tDelay, energyLevel);
+      if (values.size() != NUMBER_OF_ENERGY_LEVEL_READINGS)
+	{
+	  std::cerr << "Line " << lineCount << ": unable to parse return value for \""
+		    << cmdName << "\"" << std::endl;
+	  return NULL;
+	}
     }
-  else if (cmdName == "RobotState")
+  else if ((cmdName == "MoveUp")
+	   || (cmdName == "MoveRight")
+	   || (cmdName == "MoveDown")
+	   || (cmdName == "MoveLeft"))
     {
-      const int NUMBER_OF_STATE_READINGS=3;
-      std::vector<double> state(NUMBER_OF_STATE_READINGS, 0.0);
-      int i;
-      for (i = 0; i < NUMBER_OF_STATE_READINGS; ++i)
-        {
-          double eLevel;
-          if (parseType<double>(inStr, eLevel))
-            state[i] = eLevel;
-          else
-            break;
-        }
-      if (i == NUMBER_OF_STATE_READINGS)
-        return new RobotStateResponse(cmdName, tDelay, state);
+      int returnValue;
+      if (parseType<int>(inStr, returnValue))
+	{
+	  values.push_back((double) returnValue);
+	}
+      else
+	{
+	  std::cerr << "Line " << lineCount << ": unable to parse return value for \""
+		    << cmdName << "\"" << std::endl;
+	  return NULL;
+	}
     }
-  // fall-thru return
-  return new GenericResponse(cmdName, tDelay, std::vector<double>(1, 0.0));
+  else
+    {
+      // Default case
+      std::vector<double> values;
+      while (!inStr.eof())
+	{
+	  double retVal;
+	  if (parseType<double>(inStr, retVal))
+	    {
+	      values.push_back(retVal);
+	    }
+	  else if (!inStr.eof())
+	    {
+	      std::cerr << "Line " << lineCount << ": unrecognized return value format for \""
+			<< cmdName << "\"" << std::endl;
+	      return NULL;
+	    }
+	}
+    }
+  debugMsg("RoboSimResponseFactory:parse", 
+	   " Returning new GenericResponse with " << values.size() << " values");
+  return new GenericResponse(values);
 }

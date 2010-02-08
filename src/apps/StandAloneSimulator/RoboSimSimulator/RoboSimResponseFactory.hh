@@ -34,7 +34,14 @@ public:
   RoboSimResponseFactory();
   ~RoboSimResponseFactory();
 
-  virtual ResponseBase* parse(const std::string& cmdName, timeval tDelay, 
-                              std::istringstream& inStr);
+  virtual ResponseBase* parseResponseValues(const std::string& cmdName,
+					    const std::string& line,
+					    unsigned int lineCount);
+
+private:
+  // deliberately not implemented
+  RoboSimResponseFactory(const RoboSimResponseFactory&);
+  RoboSimResponseFactory& operator=(const RoboSimResponseFactory&);
+
 };
 #endif // ROBOSIM_RESPONSE_FACTORY
