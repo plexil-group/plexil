@@ -25,16 +25,15 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY := robosim
-LIBRARY_SRC := MazeTerrain.cc Goals.cc EnergySources.cc Robot.cc RobotPositionServer.cc
-LIBRARY_OBJ := $(LIBRARY_SRC:.cc=.o)
-
 EXECUTABLE := robotSimulator
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/src/utils ../SSWGComm
+INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
+                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter \
+                   $(PLEXIL_HOME)/third-party/ipc/src \
+                   $(PLEXIL_HOME)/third-party/ooid/kashmir
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils sswgcomm $(PTHREAD_LIB)
+LIBS		+= tinyxml ipc PlexilUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
@@ -45,18 +44,6 @@ SVN_FILES       := Makefile $(SRC) $(INC)
 DEFINES += -DUNIX
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-
-# these must follow the above 'include'
-
-$(SHLIB): depend $(LIBRARY_OBJ)
-	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(OPENGL_LIBS) -o $@ $(LIBRARY_OBJ)
-
-$(ARCHIVE): $(LIBRARY_OBJ) depend
-	$(AR) -o $@ $(LIBRARY_OBJ)
-
-# note: needs explicit dependency on library!
-robotSimulator: RobotSimulator.o depend
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(OPENGL_LIBS) -l$(LIBRARY) -o $@ $<
 
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
