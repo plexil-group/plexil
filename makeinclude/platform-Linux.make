@@ -2,7 +2,7 @@
 # C/C++ compiler flag overrides
 #
 
-OPENGL_LIBS	:= -lGL -lGLU -lglut
+OPENGL_LIBS	:= GL GLU glut
 
 #
 # Compiler/linker option overrides
