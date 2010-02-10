@@ -23,10 +23,14 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-default:
-	$(MAKE) -C RobotSimulator
+default: 2DRoboSim
+
+2DRoboSim:
+	$(MAKE) -C 2DRobotSimulator
+
+ObsoleteAdapter:
 	$(MAKE) -C RobotSimulatorAdapter
 
 clean:
-	@ $(MAKE) -C RobotSimulator $@
+	@ $(MAKE) -C 2DRobotSimulator $@
 	@ $(MAKE) -C RobotSimulatorAdapter $@
