@@ -26,6 +26,7 @@
 
 #include "IpcAdapter.hh"
 #include "ipc-data-formats.h"
+#include "defineIpcMessageTypes.h"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"

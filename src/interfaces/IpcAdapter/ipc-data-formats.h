@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ipc.h" /* only required by definePlexilIPCMessageTypes */
+#ifndef IPC_DATA_FORMATS_H
+#define IPC_DATA_FORMATS_H
+
+#include <stdint.h>
 
 /*
  * Data formats used by IpcAdapter
@@ -184,128 +187,4 @@ typedef enum
   }
   PlexilMsgType;
 
-/**
- * @brief Bounds check the supplied message type.
- * @param mtyp The message type value to check.
- * @return true if valid, false if not.
- */
-inline bool msgTypeIsValid(const PlexilMsgType mtyp)
-{
-  return (mtyp > PlexilMsgType_uninited) && (mtyp < PlexilMsgType_limit);
-}
-
-/**
- * @brief Return the message format string corresponding to the message type.
- * @param typ The message type.
- * @return Const char pointer to the message format name.
- */
-inline const char* msgFormatForType(const PlexilMsgType typ)
-{
-  switch (typ)
-    {
-    case PlexilMsgType_NotifyExec:
-    case PlexilMsgType_TerminateChangeLookup:
-
-      return MSG_BASE;
-      break;
-
-    case PlexilMsgType_AddPlan:
-    case PlexilMsgType_AddPlanFile:
-    case PlexilMsgType_AddLibrary:
-    case PlexilMsgType_AddLibraryFile:
-    case PlexilMsgType_Command:
-    case PlexilMsgType_Message:
-    case PlexilMsgType_LookupNow:
-    case PlexilMsgType_LookupOnChange:
-    case PlexilMsgType_PlannerUpdate:
-    case PlexilMsgType_StringValue:
-    case PlexilMsgType_TelemetryValues:
-
-      return STRING_VALUE_MSG;
-      break;
-
-    case PlexilMsgType_ReturnValues:
-
-      return RETURN_VALUE_MSG;
-      break;
-
-    case PlexilMsgType_NumericValue:
-
-      return NUMERIC_VALUE_MSG;
-      break;
-
-    case PlexilMsgType_PairNumeric:
-      
-      return NUMERIC_PAIR_MSG;
-      break;
-
-    case PlexilMsgType_PairString:
-
-      return STRING_PAIR_MSG;
-      break;
-			  
-    default:
-
-      return NULL;
-      break;
-    }
-}
-
-/**
- * @brief Ensure the whole suite of message types is defined
- * @return true if successful, false otherwise
- * @note Caller should ensure IPC_initialize() has been called first
-*/
-bool definePlexilIPCMessageTypes()
-{
-  IPC_RETURN_TYPE status;
-  if (!IPC_isMsgDefined(MSG_BASE))
-    {
-      if (IPC_errno != IPC_No_Error)
-	return false;
-      status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
-      if (status != IPC_OK)
-	return false;
-    }
-  if (!IPC_isMsgDefined(RETURN_VALUE_MSG))
-    {
-      if (IPC_errno != IPC_No_Error)
-	return false;
-      status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
-      if (status != IPC_OK)
-	return false;
-    }
-  if (!IPC_isMsgDefined(NUMERIC_VALUE_MSG))
-    {
-      if (IPC_errno != IPC_No_Error)
-	return false;
-      status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
-      if (status != IPC_OK)
-	return false;
-    }
-  if (!IPC_isMsgDefined(STRING_VALUE_MSG))
-    {
-      if (IPC_errno != IPC_No_Error)
-	return false;
-      status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
-      if (status != IPC_OK)
-	return false;
-    }
-  if (!IPC_isMsgDefined(NUMERIC_PAIR_MSG))
-    {
-      if (IPC_errno != IPC_No_Error)
-	return false;
-      status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
-      if (status != IPC_OK)
-	return false;
-    }
-  if (!IPC_isMsgDefined(STRING_PAIR_MSG))
-    {
-      if (IPC_errno != IPC_No_Error)
-	return false;
-      status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
-      if (status != IPC_OK)
-	return false;
-    }
-  return true;
-}
+#endif /* IPC_DATA_FORMATS_H */
