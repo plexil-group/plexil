@@ -1,6 +1,13 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
-      <Node NodeType="NodeList">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="plans/FourSteps1.ple">
+      <Node FileName="plans/FourSteps1.ple" LineNo="10" ColNo="1" NodeType="NodeList">
           <VariableDeclarations>
+              <DeclareVariable>
+                  <Name>RobotName</Name>
+                  <Type>String</Type>
+                  <InitialValue>
+                      <StringValue>RobotYellow</StringValue>
+                  </InitialValue>
+              </DeclareVariable>
               <DeclareVariable>
                   <Name>StartX</Name>
                   <Type>Integer</Type>
@@ -40,7 +47,7 @@
           </PostCondition>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="NodeList">
+                  <Node FileName="plans/FourSteps1.ple" LineNo="18" ColNo="5" NodeType="NodeList">
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>RobotState</Name>
@@ -51,7 +58,7 @@
                       <NodeId>GetStartPosition</NodeId>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="22" ColNo="9" NodeType="Command">
                                   <NodeId>GetRobotState</NodeId>
                                   <EndCondition>
                                       <IsKnown>
@@ -69,10 +76,13 @@
                                           <Name>
                                               <StringValue>QueryRobotState</StringValue>
                                           </Name>
+                                          <Arguments>
+                                              <StringVariable>RobotName</StringVariable>
+                                          </Arguments>
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="27" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetStartX</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -96,7 +106,7 @@
                                       </Assignment>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="32" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetStartY</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -123,7 +133,7 @@
                           </NodeList>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="NodeList">
+                  <Node FileName="plans/FourSteps1.ple" LineNo="38" ColNo="5" NodeType="NodeList">
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>Directions</Name>
@@ -154,7 +164,7 @@
                       </RepeatCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="44" ColNo="9" NodeType="Command">
                                   <VariableDeclarations>
                                       <DeclareVariable>
                                           <Name>result</Name>
@@ -180,6 +190,7 @@
                                               <StringValue>Move</StringValue>
                                           </Name>
                                           <Arguments>
+                                              <StringVariable>RobotName</StringVariable>
                                               <ArrayElement>
                                                   <Name>Directions</Name>
                                                   <Index>
@@ -190,7 +201,7 @@
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="51" ColNo="9" NodeType="Assignment">
                                   <NodeId>IncrementDirection</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -215,7 +226,7 @@
                           </NodeList>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="NodeList">
+                  <Node FileName="plans/FourSteps1.ple" LineNo="57" ColNo="5" NodeType="NodeList">
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>RobotState</Name>
@@ -234,7 +245,7 @@
                       </StartCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="62" ColNo="9" NodeType="Command">
                                   <NodeId>GetRobotState</NodeId>
                                   <EndCondition>
                                       <IsKnown>
@@ -252,10 +263,13 @@
                                           <Name>
                                               <StringValue>QueryRobotState</StringValue>
                                           </Name>
+                                          <Arguments>
+                                              <StringVariable>RobotName</StringVariable>
+                                          </Arguments>
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="67" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetEndX</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -279,7 +293,7 @@
                                       </Assignment>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="plans/FourSteps1.ple" LineNo="72" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetEndY</NodeId>
                                   <StartCondition>
                                       <EQInternal>

@@ -3,10 +3,12 @@
 // if the start and end positions of the robot are the same.
 
 // This plan is like the one in FourSteps.ple, but instead uses the
-// parameterized move() function.
+// parameterized Move() command.
+// Direction 0 is up, 1 is right, 2 is down, and 3 is left.
 
 FourSteps:
 {
+  String RobotName = "RobotYellow";
   Integer StartX, StartY, EndX, EndY;
   Integer Index = 0; 
   PostCondition: (StartX == EndX) && (StartY == EndY);
@@ -19,7 +21,7 @@ FourSteps:
         GetRobotState:
         { 
           EndCondition: isKnown(RobotState[0]);
-          Command: RobotState = QueryRobotState();
+          Command: RobotState = QueryRobotState(RobotName);
         }
         SetStartX:
         {
@@ -43,7 +45,7 @@ FourSteps:
             Integer result;
             EndCondition: isKnown(result);
             PostCondition: result == 1;
-            Command: result = Move(Directions[Index]);
+            Command: result = Move(RobotName, Directions[Index]);
         }
         IncrementDirection:
         {
@@ -59,7 +61,7 @@ FourSteps:
         GetRobotState:
         { 
           EndCondition: isKnown(RobotState[0]);
-          Command: RobotState = QueryRobotState();
+          Command: RobotState = QueryRobotState(RobotName);
         }
         SetEndX:
         {

@@ -2,6 +2,7 @@ Integer Function RandomNumber(Integer, Integer);
 
 RootNode:
 {
+  String RobotName = "RobotYellow";
   Integer randNumber=0;
   NodeList:
 
@@ -23,14 +24,14 @@ RootNode:
         Real res;
         EndCondition: isKnown(res);
         PostCondition: res == 1.0;
-        Command: res = Move(randNumber);
+        Command: res = Move(RobotName, randNumber);
       }
 
       QueryEnergySensor:
       {
         Real energy[5];
         StartCondition: Move.state == FINISHED;
-        Command: energy = QueryEnergySensor();
+        Command: energy = QueryEnergySensor(RobotName);
       }
 
       RandomNumberGeneratorNode:
