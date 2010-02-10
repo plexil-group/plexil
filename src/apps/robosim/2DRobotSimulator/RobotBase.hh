@@ -47,7 +47,7 @@ public:
   
   virtual void displayRobot(void) = 0;
 
-  virtual const std::vector<double> processCommand(const std::string& cmd) = 0;
+  virtual const std::vector<double> processCommand(const std::string& cmd, double parameter) = 0;
 
 protected:
   const TerrainBase* m_Terrain;

@@ -60,8 +60,7 @@ public:
   double determineEnergySourceLevel();
   double determineGoalLevel();
 
-  const std::vector<double> processCommand(const std::string& cmd);
-
+  const std::vector<double> processCommand(const std::string& cmd, double parameter = 0.0);
 
 private:
 
@@ -87,6 +86,10 @@ private:
   const std::vector<double> queryVisibility();
 
   const std::vector<double> moveRobot(const std::string& cmd);
+
+  const std::vector<double> moveRobotParameterized(int direction);
+
+  const std::vector<double> moveRobotInternal(int rowDirOffset, int colDirOffset);
 
 
   std::vector<std::vector<int> > m_DirOffset;

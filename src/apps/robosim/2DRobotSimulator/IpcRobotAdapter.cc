@@ -405,9 +405,12 @@ void IpcRobotAdapter::processCommand(std::vector<const PlexilMsgBase*>& msgs)
 {
   const std::string cmdName(((const PlexilStringValueMsg*)msgs[0])->stringValue);
   assertTrueMsg(msgs[0]->count >= 1,
-		"IpcRobotAdapter::processCommand: name argument missing for command \"" << cmdName << "\"");
+		"IpcRobotAdapter::processCommand: robot name argument missing for command \"" << cmdName << "\"");
   assertTrueMsg(msgs[1]->msgType == PlexilMsgType_StringValue,
-		"IpcRobotAdapter::processCommand: name argument for command \"" << cmdName << "\" is not a string");
+		"IpcRobotAdapter::processCommand: robot name argument for command \"" << cmdName << "\" is not a string");
+  checkError(msgs.size() >= 2,
+	     "IpcRobotAdapter::processCommand: internal error: not enough arguments to \""
+	     << cmdName << "\" command");
   const std::string robotName(((const PlexilStringValueMsg*)msgs[1])->stringValue);
   NameToRobotMap::const_iterator it = m_robots.find(robotName);
   assertTrueMsg(it != m_robots.end(),
@@ -416,10 +419,30 @@ void IpcRobotAdapter::processCommand(std::vector<const PlexilMsgBase*>& msgs)
   assertTrueMsg(robot != NULL,
 		"IpcRobotAdapter::processCommand: robot named \"" << robotName << "\" is null!");
   IpcMessageId transId = IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
-  condDebugMsg(msgs[0]->count > 1,
-	       "IpcRobotAdapter:processCommand",
-	       "Ignoring " << msgs[0]->count << " argument(s)");
-  sendReturnValues(transId, robot->processCommand(cmdName));
+  double parameter = 0.0;
+  // Check for missing parameter
+  if (cmdName == "Move")
+    {
+      assertTrueMsg(msgs[0]->count >= 2,
+		    "IpcRobotAdapter::processCommand: missing required direction argument to \""
+		    << cmdName << "\" command");
+      checkError(msgs.size() >= 3,
+		 "IpcRobotAdapter::processCommand: internal error: not enough arguments to \""
+		 << cmdName << "\" command");
+      assertTrueMsg(msgs[2]->msgType == PlexilMsgType_NumericValue,
+		    "IpcRobotAdapter::processCommand: direction argument for command \"" << cmdName << "\" is not a number");
+      parameter = ((const PlexilNumericValueMsg*)msgs[2])->doubleValue;
+      condDebugMsg(msgs[0]->count > 2,
+		   "IpcRobotAdapter:processCommand",
+		   "Ignoring " << msgs[0]->count - 2 << " argument(s)");
+    }
+  else
+    {
+      condDebugMsg(msgs[0]->count > 1,
+		   "IpcRobotAdapter:processCommand",
+		   "Ignoring " << msgs[0]->count - 1 << " argument(s)");
+    }
+  sendReturnValues(transId, robot->processCommand(cmdName, parameter));
 }
 
 /**

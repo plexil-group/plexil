@@ -193,12 +193,14 @@ double Robot::determineGoalLevel()
   return m_Goals->determineGoalLevel(row, col);
 }
 
-const std::vector<double> Robot::processCommand(const std::string& cmd)
+const std::vector<double> Robot::processCommand(const std::string& cmd, double parameter)
 {
   std::cout << "Received " << cmd << std::endl;
   sleep(1);
 
-  if ((cmd == "MoveUp")
+  if (cmd == "Move")
+    return moveRobotParameterized((int) parameter);
+  else if ((cmd == "MoveUp")
       || (cmd == "MoveDown")
       || (cmd == "MoveRight")
       || (cmd == "MoveLeft"))
@@ -350,7 +352,45 @@ const std::vector<double> Robot::moveRobot(const std::string& str)
   else
     assertTrueMsg(ALWAYS_FAIL,
 		  "moveRobot: Unknown direction \"" << str << "\"");
-  
+  return moveRobotInternal(rowDirOffset, colDirOffset);
+}
+
+const std::vector<double> Robot::moveRobotParameterized(int direction)
+{
+  assertTrueMsg(direction >= 0 && direction <= 3,
+		"Robot::moveRobot: direction parameter " << direction << " not in range 0 to 3");
+
+  int rowDirOffset = 0; // -1 is up, +1 is down
+  int colDirOffset = 0; // -1 is left, +1 is right
+
+  switch (direction)
+    {
+    case 0: // up
+      rowDirOffset = -1;
+      break;
+
+    case 1: // right
+      colDirOffset = 1;
+      break;
+
+    case 2: // down
+      rowDirOffset = 1;
+      break;
+
+    case 3: // left
+      colDirOffset = -1;
+      break;
+
+    default: // should never get here
+      break;
+    }
+
+  return moveRobotInternal(rowDirOffset, colDirOffset);
+}
+
+const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
+						   int colDirOffset)
+{
   int rowCurr, colCurr;
   m_RobotPositionServer->getRobotPosition(m_Name, rowCurr, colCurr);
 
