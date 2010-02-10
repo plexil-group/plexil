@@ -37,7 +37,7 @@ LIB_PATH	+=
 LIBS		+= ipc tinyxml PlexilUtils PlexilExec PlexilAppFramework
 
 SRC		:= IpcAdapter.cc
-INC		:= IpcAdapter.hh ipc-data-formats.h
+INC		:= IpcAdapter.hh ipc-data-formats.h defineIpcMessageTypes.h
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
