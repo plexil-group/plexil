@@ -4,6 +4,7 @@
 
 FourSteps:
 {
+  String RobotName = "RobotYellow";
   Integer StartX, StartY, EndX, EndY;
   PostCondition: (StartX == EndX) && (StartY == EndY);
 
@@ -15,7 +16,7 @@ FourSteps:
         GetRobotState:
         { 
           EndCondition: isKnown(RobotState[0]);
-          Command: RobotState = QueryRobotState();
+          Command: RobotState = QueryRobotState(RobotName);
         }
         SetStartX:
         {
@@ -34,7 +35,7 @@ FourSteps:
         StartCondition: GetStartPosition.state == FINISHED;
         EndCondition: isKnown(result);
         PostCondition: result == 1;
-        Command: result = MoveLeft();
+        Command: result = MoveLeft(RobotName);
     }
     MoveUp:
     {
@@ -42,7 +43,7 @@ FourSteps:
         StartCondition: MoveLeft.state == FINISHED;
         EndCondition: isKnown(result);
         PostCondition: result == 1;
-        Command: result = MoveUp();
+        Command: result = MoveUp(RobotName);
     }
     MoveRight:
     {
@@ -50,7 +51,7 @@ FourSteps:
         StartCondition: MoveUp.state == FINISHED;
         EndCondition: isKnown(result);
         PostCondition: result == 1;
-        Command: result = MoveRight();
+        Command: result = MoveRight(RobotName);
     }
     MoveDown:
     {
@@ -58,7 +59,7 @@ FourSteps:
         StartCondition: MoveRight.state == FINISHED;
         EndCondition: isKnown(result);
         PostCondition: result == 1;
-        Command: result = MoveDown();
+        Command: result = MoveDown(RobotName);
     }
     GetEndPosition:
     {
@@ -68,7 +69,7 @@ FourSteps:
         GetRobotState:
         { 
           EndCondition: isKnown(RobotState[0]);
-          Command: RobotState = QueryRobotState();
+          Command: RobotState = QueryRobotState(RobotName);
         }
         SetEndX:
         {

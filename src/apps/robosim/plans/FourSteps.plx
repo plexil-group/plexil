@@ -1,6 +1,13 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
-      <Node NodeType="NodeList">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="FourSteps.ple">
+      <Node FileName="FourSteps.ple" LineNo="6" ColNo="1" NodeType="NodeList">
           <VariableDeclarations>
+              <DeclareVariable>
+                  <Name>RobotName</Name>
+                  <Type>String</Type>
+                  <InitialValue>
+                      <StringValue>RobotYellow</StringValue>
+                  </InitialValue>
+              </DeclareVariable>
               <DeclareVariable>
                   <Name>StartX</Name>
                   <Type>Integer</Type>
@@ -33,7 +40,7 @@
           </PostCondition>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="NodeList">
+                  <Node FileName="FourSteps.ple" LineNo="13" ColNo="5" NodeType="NodeList">
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>RobotState</Name>
@@ -44,7 +51,7 @@
                       <NodeId>GetStartPosition</NodeId>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node FileName="FourSteps.ple" LineNo="17" ColNo="9" NodeType="Command">
                                   <NodeId>GetRobotState</NodeId>
                                   <EndCondition>
                                       <IsKnown>
@@ -62,10 +69,13 @@
                                           <Name>
                                               <StringValue>QueryRobotState</StringValue>
                                           </Name>
+                                          <Arguments>
+                                              <StringVariable>RobotName</StringVariable>
+                                          </Arguments>
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="FourSteps.ple" LineNo="22" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetStartX</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -89,7 +99,7 @@
                                       </Assignment>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="FourSteps.ple" LineNo="27" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetStartY</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -116,7 +126,7 @@
                           </NodeList>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node FileName="FourSteps.ple" LineNo="33" ColNo="5" NodeType="Command">
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>result</Name>
@@ -149,10 +159,13 @@
                               <Name>
                                   <StringValue>MoveLeft</StringValue>
                               </Name>
+                              <Arguments>
+                                  <StringVariable>RobotName</StringVariable>
+                              </Arguments>
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node FileName="FourSteps.ple" LineNo="41" ColNo="5" NodeType="Command">
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>result</Name>
@@ -185,10 +198,13 @@
                               <Name>
                                   <StringValue>MoveUp</StringValue>
                               </Name>
+                              <Arguments>
+                                  <StringVariable>RobotName</StringVariable>
+                              </Arguments>
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node FileName="FourSteps.ple" LineNo="49" ColNo="5" NodeType="Command">
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>result</Name>
@@ -221,10 +237,13 @@
                               <Name>
                                   <StringValue>MoveRight</StringValue>
                               </Name>
+                              <Arguments>
+                                  <StringVariable>RobotName</StringVariable>
+                              </Arguments>
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="Command">
+                  <Node FileName="FourSteps.ple" LineNo="57" ColNo="5" NodeType="Command">
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>result</Name>
@@ -257,10 +276,13 @@
                               <Name>
                                   <StringValue>MoveDown</StringValue>
                               </Name>
+                              <Arguments>
+                                  <StringVariable>RobotName</StringVariable>
+                              </Arguments>
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="NodeList">
+                  <Node FileName="FourSteps.ple" LineNo="65" ColNo="5" NodeType="NodeList">
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>RobotState</Name>
@@ -279,7 +301,7 @@
                       </StartCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="Command">
+                              <Node FileName="FourSteps.ple" LineNo="70" ColNo="9" NodeType="Command">
                                   <NodeId>GetRobotState</NodeId>
                                   <EndCondition>
                                       <IsKnown>
@@ -297,10 +319,13 @@
                                           <Name>
                                               <StringValue>QueryRobotState</StringValue>
                                           </Name>
+                                          <Arguments>
+                                              <StringVariable>RobotName</StringVariable>
+                                          </Arguments>
                                       </Command>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="FourSteps.ple" LineNo="75" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetEndX</NodeId>
                                   <StartCondition>
                                       <EQInternal>
@@ -324,7 +349,7 @@
                                       </Assignment>
                                   </NodeBody>
                               </Node>
-                              <Node NodeType="Assignment">
+                              <Node FileName="FourSteps.ple" LineNo="80" ColNo="9" NodeType="Assignment">
                                   <NodeId>SetEndY</NodeId>
                                   <StartCondition>
                                       <EQInternal>
