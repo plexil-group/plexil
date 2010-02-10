@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec app-framework standard-plexil checker
+all: TestExec UniversalExec standard-plexil checker
 
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
@@ -44,7 +44,7 @@ TestExec: exec-core LuvListener luv
 plexilsim: ipc
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
-robosim: exec-core app-framework UniversalExec
+robosim: UniversalExec
 	$(MAKE) -C src/apps/robosim
 
 UniversalExec: exec-core app-framework
@@ -104,7 +104,7 @@ clean: clean-ipc
 	$(MAKE) -C src/CORBA $@
 	$(MAKE) -C src/app-framework $@
 	$(MAKE) -C src/apps/IpcExec $@
-#	$(MAKE) -C src/apps/robosim $@
+	$(MAKE) -C src/apps/robosim $@
 	$(MAKE) -C src/apps/UniversalExec $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
