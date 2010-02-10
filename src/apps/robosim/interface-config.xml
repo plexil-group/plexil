@@ -1,18 +1,15 @@
 <Interfaces ConfigurationType="default">
 	<Adapter AdapterType="OSNativeTime" />
-	<Adapter AdapterType="RoboSimInterfaceAdapter">
+	<Adapter AdapterType="IPC" Server= "localhost:1381">
 		<CommandNames>
 			MoveUp,
-      MoveLeft,
-      MoveDown,
-      MoveRight,
+                        MoveLeft,
+                        MoveDown,
+                        MoveRight,
 			QueryRobotState,
 			QueryGoalSensor,
 			QueryEnergySensor,
 			QueryVisibilitySensor
 	  </CommandNames>
-	  <IpAddress>127.0.0.1</IpAddress>
-	  <PortNumber>6164</PortNumber>
 	</Adapter>
-	<Listener ListenerType="EchoListener"/>
 </Interfaces>
