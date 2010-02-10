@@ -159,14 +159,14 @@ namespace PLEXIL
           m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
         }
         m_adapterConfig->getId();
+
         // Walk the children of the configuration XML element
         // and register the adapter according to the data found there
         const TiXmlElement* element = configXml->FirstChildElement();
         while (element != 0)
           {
             const char* elementType = element->Value();
-            debugMsg("InterfaceManager:constructInterfaces",
-                     " found tag " << elementType);
+
             // *** TO DO ***
             // generalize adapter factories to add support for (e.g.) ActorAdapter
             // w/o requiring knowledge of (e.g.) PlexilGenericActor
@@ -180,29 +180,38 @@ namespace PLEXIL
                            << InterfaceSchema::ADAPTER_TYPE_ATTR()
                            << " attribute for adapter XML:\n"
                            << *element);
+		debugMsg("InterfaceManager:constructInterfaces",
+			 " found adapter type \"" << adapterType << "\"");
                 
                 // load external library (linux only for now) if the adapter is not registered
                 // TODO: support mac os
                 if (!AdapterFactory::isRegistered(adapterType)) {
                   const char* libCPath =
                     element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-                  std::string *libPath;
+                  std::string libPath;
                   if (libCPath == 0) {
-                    debugMsg("true", "constructInterfaces: no "
-                               << InterfaceSchema::LIB_PATH_ATTR()
-                               << " attribute for adapter XML:\n"
-                               << *element);
                     std::stringstream libStream;
                     libStream << "lib" << adapterType << LIB_EXT;
-                    libPath = new std::string(libStream.str());
+                    libPath = std::string(libStream.str());
+                    debugMsg("InterfaceManager:constructInterfaces",
+			     " no "
+			     << InterfaceSchema::LIB_PATH_ATTR()
+			     << " attribute for adapter type \""
+			     << adapterType << "\", using default value of \""
+			     << libPath << "\"");
                   } else {
-                    libPath = new std::string(libCPath);
+                    libPath = std::string(libCPath);
                   }
                   std::string funcName = (std::string("init") + adapterType);
                   void (*func)();
-                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath->c_str(), funcName.c_str());
-                  checkError(func != 0, "Failed to load library " << libPath->c_str() << DynamicLoader::getError());
+                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath.c_str(), funcName.c_str());
+                  assertTrueMsg(func != 0,
+				"InterfaceManager::constructInterfaces: Failed to load library "
+				<< libPath.c_str() << ":\n" << DynamicLoader::getError());
                   (*func)();
+		  assertTrueMsg(AdapterFactory::isRegistered(adapterType),
+				"InterfaceManager::constructInterfaces: Failed to register adapter type \""
+				<< adapterType << "\"");
                 }
 
                 // Construct the adapter
@@ -228,13 +237,15 @@ namespace PLEXIL
                            << InterfaceSchema::LISTENER_TYPE_ATTR()
                            << " attribute for listener XML:\n"
                            << *element);
+		debugMsg("InterfaceManager:constructInterfaces",
+			 " found listener type \"" << listenerType << "\"");
 
                 // load external library (linux only for now) if the listener is not registered
                 // TODO: support mac os
                 if (!ExecListenerFactory::isRegistered(listenerType)) {
                   const char* libCPath =
                     element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-                  std::string *libPath;
+                  std::string libPath;
                   if (libCPath == 0) {
                     debugMsg("true", "constructInterfaces: no "
                                << InterfaceSchema::LIB_PATH_ATTR()
@@ -242,13 +253,13 @@ namespace PLEXIL
                                << *element);
                     std::stringstream libStream;
                     libStream << "lib" << listenerType << LIB_EXT;
-                    libPath = new std::string(libStream.str());
+                    libPath = libStream.str();
                   } else {
-                    libPath = new std::string(libCPath);
+                    libPath = std::string(libCPath);
                   }
                   std::string funcName = (std::string("init") + listenerType);
                   void (*func)();
-                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath->c_str(), funcName.c_str());
+                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath.c_str(), funcName.c_str());
                   checkError(func != 0, DynamicLoader::getError());
                   (*func)();
                 }
