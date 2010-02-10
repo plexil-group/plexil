@@ -25,37 +25,117 @@
 */
 #include "Simulator.hh"
 #include "RoboSimResponseFactory.hh"
-#include "SSWGCommRelay.hh"
 
-#include <assert.h>
-#include <signal.h>
+#include "Debug.hh"
+#include "IpcCommRelay.hh"
 
-bool done=false;
+#include <csignal>
+#include <fstream>
+
+PLEXIL::ThreadSemaphore doneSemaphore;
+Simulator* _the_simulator_ = NULL;
 
 void SIGINT_handler (int signum)
 {
   assert (signum == SIGINT);
-  std::cout << "In SIGINT_handler. The simulator has been terminated." << std::endl;
-
-  done = true;
+  debugMsg("RoboSimSimulator", " Terminating simulator");
+  if (_the_simulator_ != NULL)
+    _the_simulator_->stop();
+  doneSemaphore.post();
 }
 
 int main(int argc, char** argv)
 {
-  RoboSimResponseFactory respFactory;
-  SSWGCommRelay sswgRelay("RobotYellow");
-  Simulator simulator(&respFactory, &sswgRelay);
+  std::string commandScriptName("Test.script");
+  std::string telemetryScriptName("Telemetry.script");
+  std::string centralhost("localhost:1381");
+  std::string debugConfig("");
 
-  simulator.readScript("Test.script", "Telemetry.script");
+  std::string usage("Usage: RoboSimSimulator [-c <command script>] [-t <telemetry script>] [-d <debug config file>] [-central <centralhost>]");
 
-  struct sigaction sa;
-  sigemptyset (&sa.sa_mask);
-  sa.sa_flags = 0;
-  //Register the handler for SIGINT.
-  sa.sa_handler = SIGINT_handler;
-  sigaction (SIGINT, &sa, 0);
+  for (int i = 1; i < argc; ++i)
+    {
+      if (strcmp(argv[i], "-c") == 0)
+        commandScriptName = argv[++i];
+      else if (strcmp(argv[i], "-t") == 0)
+        telemetryScriptName = argv[++i];
+      else if (strcmp(argv[i], "-d") == 0)
+        debugConfig = argv[++i];
+      else if (strcmp(argv[i], "-central") == 0)
+        centralhost = argv[++i];
+      else if (strcmp(argv[i], "-h") == 0)
+        {
+          std::cout << usage << std::endl;
+          return 0;
+        }
+      else
+	{
+	  std::cout << "Unknown option '" 
+		    << argv[i] 
+		    << "'.  " 
+		    << usage 
+		    << std::endl;
+	  return -1;
+	}
+    }
 
-  while(!done){;}
+  if (commandScriptName.empty() && telemetryScriptName.empty())
+    {
+      std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
+      return -1;
+    }
+
+  if (!debugConfig.empty())
+    {
+      std::ifstream dc(debugConfig.c_str());
+      if (dc.fail())
+	{
+	  std::cerr << "Error: unable to open debug configuration file "
+		    << debugConfig << std::endl;
+	  return -1;
+	}
+      DebugMessage::setStream(std::cerr);
+      if (!DebugMessage::readConfigFile(dc))
+	{
+	  std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
+	  return -1;
+	}
+    }
+
+  debugMsg("RoboSimSimulator",  
+	   " Running with command script: " << commandScriptName
+	   << " and telemetry script: " << telemetryScriptName);
+
+  ResponseManagerMap mgrMap;
+  {
+    // These objects can go away as soon as we finish reading scripts.
+    RoboSimResponseFactory respFactory;
+    SimulatorScriptReader rdr(mgrMap, respFactory);
+    rdr.readCommandScript(commandScriptName);
+    rdr.readTelemetryScript(telemetryScriptName);
+  }
+
+  {
+    // Comm Relay has to be destroyed before we can nuke the simulator
+    IpcCommRelay roboSimRelay("RobotYellow", centralhost);
+    _the_simulator_ = new Simulator(&roboSimRelay, mgrMap);
+
+    struct sigaction sa, previous_sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    //Register the handler for SIGINT.
+    sa.sa_handler = SIGINT_handler;
+    sigaction(SIGINT, &sa, &previous_sa);
+
+    _the_simulator_->start();
+
+    // wait here til we're interrupted
+    doneSemaphore.wait();
+
+    // Restore previous SIGINT handler
+    sigaction(SIGINT, &previous_sa, NULL);
+  }
+  delete _the_simulator_;
 
   return 0;
 }
