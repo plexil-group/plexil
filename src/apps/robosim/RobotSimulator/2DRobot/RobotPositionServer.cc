@@ -25,29 +25,28 @@
 */
 
 #include "RobotPositionServer.hh"
-#include "MutexGuard.hh"
 #include <string>
 #include <vector>
 #include <iostream>
 
 RobotPositionServer::RobotPositionServer(int _height, int _width) : 
-  m_Height(_height), m_Width(_width), 
-  m_OccupancyGrid(std::vector<std::vector<std::string> >(m_Height,
-                                                         std::vector<std::string>(m_Width, "EMPTY")))
+  m_OccupancyGrid(std::vector<std::vector<std::string> >(_height,
+                                                         std::vector<std::string>(_width, "EMPTY"))),
+  m_RobotPositionMutex(),
+  m_Height(_height),
+  m_Width(_width)
 {
-  pthread_mutex_init(&m_RobotPositionMutex, NULL);
 }
 
 RobotPositionServer::~RobotPositionServer()
 {
-  pthread_mutex_destroy(&m_RobotPositionMutex);
 }
 
 bool RobotPositionServer::setRobotPosition(const std::string& name, int row, int col)
 {
   std::vector<int> pos2d(2);
   bool registered = false;
-  MutexGuard mg(&m_RobotPositionMutex);
+  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
   
   m_NameToPositionMapIter = m_NameToPositionMap.find(name);
   
@@ -91,7 +90,7 @@ bool RobotPositionServer::gridOccupied(int row, int col) const
 
 void RobotPositionServer::getRobotPosition(const std::string& name, int& row, int& col)
 {
-  MutexGuard mg(&m_RobotPositionMutex);
+  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
   
   m_NameToPositionMapIter = m_NameToPositionMap.find(name);
   

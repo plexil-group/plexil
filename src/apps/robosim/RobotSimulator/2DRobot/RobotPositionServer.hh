@@ -30,6 +30,8 @@
 #include <vector>
 #include <map>
 
+#include "ThreadMutex.hh"
+
 class RobotPositionServer
 {
 public:
@@ -44,12 +46,12 @@ public:
 
 private:
 
-  int m_Height;
-  int m_Width;
   std::vector<std::vector<std::string> > m_OccupancyGrid;
   std::map<std::string, std::vector<int> > m_NameToPositionMap;
   std::map<std::string, std::vector<int> >::iterator m_NameToPositionMapIter;
-  pthread_mutex_t m_RobotPositionMutex;
+  PLEXIL::ThreadMutex m_RobotPositionMutex;
+  int m_Height;
+  int m_Width;
 
 };
 
