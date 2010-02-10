@@ -1,15 +1,16 @@
 <Interfaces ConfigurationType="default">
-	<Adapter AdapterType="OSNativeTime" />
-	<Adapter AdapterType="IPC" Server= "localhost:1381">
-		<CommandNames>
-			MoveUp,
-                        MoveLeft,
-                        MoveDown,
-                        MoveRight,
-			QueryRobotState,
-			QueryGoalSensor,
-			QueryEnergySensor,
-			QueryVisibilitySensor
-	  </CommandNames>
-	</Adapter>
+  <Adapter AdapterType="OSNativeTime" />
+  <Adapter AdapterType="IPC" Server= "localhost:1381">
+    <CommandNames>
+      Move,
+      MoveUp,
+      MoveLeft,
+      MoveDown,
+      MoveRight,
+      QueryRobotState,
+      QueryGoalSensor,
+      QueryEnergySensor,
+      QueryVisibilitySensor
+    </CommandNames>
+  </Adapter>
 </Interfaces>
