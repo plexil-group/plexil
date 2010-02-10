@@ -29,6 +29,8 @@
 
 #include <iostream>
 
+#include "ThreadMutex.hh"
+
 class EnergySources
 {
 public:
@@ -45,8 +47,6 @@ public:
   double determineEnergySourceLevel(int rowCurr, int colCurr);
 
   void displayEnergySources();
-  
-  pthread_mutex_t m_EnergySourceListMutex;
 
 private:
 
@@ -54,9 +54,10 @@ private:
                        std::string::size_type& pos, std::string& result);
   void readEnergySourceLocations(const std::string& fName);
 
+  PLEXIL::ThreadMutex m_EnergySourceListMutex;
+  std::vector<std::vector<int> > m_EnergySourceLocations;
   int m_Size;
   double m_Radius;
-  std::vector<std::vector<int> > m_EnergySourceLocations;
 };
 
 #endif //ENERGY_SOURCES_HH

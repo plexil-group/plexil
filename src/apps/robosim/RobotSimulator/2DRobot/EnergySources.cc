@@ -33,19 +33,18 @@
 
 #include "MyOpenGL.hh"
 #include "EnergySources.hh"
-#include "MutexGuard.hh"
 #include "Macros.hh"
 
 EnergySources::EnergySources(const std::string& fName, int _size, double _radius) : 
-  m_Size(_size), m_Radius(_radius)
+  m_EnergySourceListMutex(),
+  m_Size(_size),
+  m_Radius(_radius)
 {
-  pthread_mutex_init(&m_EnergySourceListMutex, NULL);
   readEnergySourceLocations(fName);
-  }
+}
 
 EnergySources::~EnergySources()
 {
-  pthread_mutex_destroy(&m_EnergySourceListMutex);
 }
 
 double EnergySources::acquireEnergySource(int row, int col)
@@ -57,7 +56,7 @@ double EnergySources::acquireEnergySource(int row, int col)
   
   bool found = false;
   double resLevel = 0.0;
-  MutexGuard mg(&m_EnergySourceListMutex);
+  PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
   
   for (std::vector<std::vector<int> >::iterator iter = m_EnergySourceLocations.begin();
        (iter != m_EnergySourceLocations.end()) && !found; ++iter)
@@ -77,7 +76,7 @@ double EnergySources::determineEnergySourceLevel(int rowCurr, int colCurr)
 {
   // Loop through each resource and return the max.
   
-  MutexGuard mg(&m_EnergySourceListMutex);
+  PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
   
   double maxValue = -1.0 * static_cast<double>(INT_MAX);
   
@@ -103,7 +102,7 @@ void EnergySources::displayEnergySources()
   double rWidth = 2.0 / static_cast<double>(m_Size);
   double radius = m_Radius * rWidth;
   
-  MutexGuard mg(&m_EnergySourceListMutex);
+  PLEXIL::ThreadMutexGuard mg(m_EnergySourceListMutex);
   for (unsigned int i = 0; i < m_EnergySourceLocations.size(); ++i)
     {
       int row = m_EnergySourceLocations[i][0];
