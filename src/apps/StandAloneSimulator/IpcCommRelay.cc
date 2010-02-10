@@ -370,7 +370,7 @@ void IpcCommRelay::cacheMessageTrailer(const PlexilMsgBase* msgData)
 {
     IpcMessageId msgId(msgData->senderUID, msgData->serial);
     IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
-    assertTrueMsg(it == m_incompletes.end(),
+    assertTrueMsg(it != m_incompletes.end(),
 		  "IpcCommRelay::cacheMessageTrailer: no existing sequence for sender "
 		  << msgData->senderUID << ", serial " << msgData->serial);
     std::vector<const PlexilMsgBase*>& msgs = it->second;
