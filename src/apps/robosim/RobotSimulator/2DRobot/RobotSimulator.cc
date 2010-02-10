@@ -25,20 +25,23 @@
 */
 
 
-#include <assert.h>
-#include <signal.h>
+#include <cassert>
+#include <csignal>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <pthread.h>
 #include <unistd.h>
-#include <math.h>
+
+#include "Debug.hh"
 
 #include "MyOpenGL.hh"
 #include "Macros.hh"
 #include "EnergySources.hh"
 #include "MazeTerrain.hh"
 #include "Goals.hh"
+#include "IpcRobotAdapter.hh"
 #include "Robot.hh"
 #include "RobotPositionServer.hh"
 
@@ -51,6 +54,7 @@ static MazeTerrain* terrain = NULL;
 static EnergySources* resources = NULL;
 static Goals* goals = NULL;
 static RobotPositionServer* robotPoseServer = NULL;
+static IpcRobotAdapter* ipcAdapter = NULL;
 static std::vector<RobotBase*> robotList;
 static std::vector<pthread_t> threadList;
 
@@ -72,6 +76,7 @@ void cleanUpFunction(void)
   delete resources;
   delete goals;
   delete robotPoseServer;
+  delete ipcAdapter;
   
   for(std::vector<RobotBase*>::const_iterator iter = robotList.begin();
       iter != robotList.end(); ++iter)
@@ -207,7 +212,14 @@ void readRobotLocations(const std::string& fName)
           CHECK_READ_DATA(pos, lastPos, myFile);
           double b = atof(dataStr.substr(lastPos, pos - lastPos).c_str());
 
-          RobotBase* robot = new Robot(terrain, resources, goals, robotPoseServer, name, x, y, r, g, b);
+          RobotBase* robot = new Robot(terrain, 
+				       resources,
+				       goals, 
+				       robotPoseServer,
+				       *ipcAdapter, 
+				       name, 
+				       x, y,
+				       r, g, b);
           robotList.push_back(robot);
           if ((name != "RobotYellow") && (name != "RobotBlue3"))
             if (pthread_create (&thread, &attr, threadLoop, robot) !=  0) 
@@ -226,30 +238,45 @@ void readRobotLocations(const std::string& fName)
 
 int main(int argc, char** argv)
 { 
+  std::string usage("Usage: robotSimulator [-w <window-width>] [-centralhost <host:port>] [-d <debug config file>];\
+  window-width defaults to 1024\
+  host:port defaults to localhost:1381\
+  debug config file defaults to Debug.cfg");
 
-  std::string usage("Usage: robotSimulator -w <window-width>;");
   // parse command line parameters
-   
   int width = WINDOW_WIDTH;
-   for (int i = 1; i < argc; ++i)
-   {
-     if (strcmp(argv[i], "-w") == 0)
-       width = atoi(argv[++i]);
-     else if (strcmp(argv[i], "-h") == 0)
-       {
-         std::cout << usage << std::endl;
-         return 1;
-       }
-     else
-       {
-         std::cout << "Unknown option '" 
-                   << argv[i] 
-                   << "'.  " 
-                   << usage 
-                   << std::endl;
-         return -1;
-       }
-   }
+  std::string centralhost("localhost:1381");
+  std::string debugConfig("Debug.cfg");
+
+  for (int i = 1; i < argc; ++i)
+    {
+      if (strcmp(argv[i], "-w") == 0)
+	width = atoi(argv[++i]);
+      else if (strcmp(argv[i], "-centralhost") == 0)
+	centralhost = std::string(argv[++i]);
+      else if (strcmp(argv[i], "-d") == 0)
+	debugConfig = std::string(argv[++i]);
+      else if (strcmp(argv[i], "-h") == 0)
+	{
+	  std::cout << usage << std::endl;
+	  return 1;
+	}
+      else
+	{
+	  std::cout << "Unknown option '" 
+		    << argv[i] 
+		    << "'.  " 
+		    << usage 
+		    << std::endl;
+	  return -1;
+	}
+    }
+
+  std::ifstream config(debugConfig.c_str());
+  if (config.good())
+    DebugMessage::readConfigFile(config);
+
+  ipcAdapter = new IpcRobotAdapter(centralhost);
 
   glutInit(&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
