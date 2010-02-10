@@ -36,7 +36,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
 LIB_PATH	+=
 LIBS		+= ipc tinyxml PlexilUtils PlexilExec PlexilAppFramework
 
-SRC		:= IpcAdapter.cc
+SRC		:= IpcAdapter.cc initIpcAdapter.cc
 INC		:= IpcAdapter.hh ipc-data-formats.h defineIpcMessageTypes.h
 
 SVN_FILES       := Makefile $(SRC) $(INC)
