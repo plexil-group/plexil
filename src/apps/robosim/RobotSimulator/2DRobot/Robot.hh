@@ -28,16 +28,27 @@
 #define ROBOT_HH
 
 #include "RobotBase.hh"
-#include "../SSWGComm/SSWGCallbackHandler.hh"
-#include "../SSWGComm/SSWGClient.hh"
 
-class Robot : public RobotBase, public SSWGCallbackHandler
+#include <vector>
+
+#include "ThreadMutex.hh"
+
+class IpcRobotAdapter;
+
+class Robot : public RobotBase
 {
 public:
-  Robot(const TerrainBase* _terrain, EnergySources* _resources,
-        Goals* _goals, RobotPositionServer* _posServer, const std::string _name = "Robot0", 
-        int initRow=0, int initCol=0, double red=0.0, double green=1.0,
-        double blue=0.0);
+  Robot(const TerrainBase* _terrain,
+	EnergySources* _resources,
+        Goals* _goals,
+	RobotPositionServer* _posServer,
+	IpcRobotAdapter& adapter,
+	const std::string& _name = "Robot0", 
+        int initRow=0, 
+	int initCol=0, 
+	double red=1.0, 
+	double green=1.0,
+        double blue=1.0);
 
   ~Robot();
   
@@ -48,13 +59,16 @@ public:
 
   double determineEnergySourceLevel();
   double determineGoalLevel();
-  virtual void receivedMessage (const std::string& sender,
-                                const std::string& msg);
 
-  pthread_mutex_t m_RobotPositionMutex;
-  pthread_mutex_t m_RobotEnergyLevelMutex;
+  const std::vector<double> processCommand(const std::string& cmd);
+
 
 private:
+
+  // Deliberately not implemented
+  Robot();
+  Robot(const Robot&);
+  Robot& operator=(const Robot&);
 
   void getRobotPositionLocal(int& row, int& col);
 
@@ -64,25 +78,34 @@ private:
 
   void updateRobotEnergyLevel(double energyLevel);
 
-  void queryRobotState(const std::string& sender, const std::string& msg);
+  const std::vector<double> queryRobotState();
 
-  void querySensorLevel(const std::string& sender, const std::string& msg);
+  const std::vector<double> queryEnergySensor();
 
-  void queryVisibility(const std::string& sender, const std::string& msg);
+  const std::vector<double> queryGoalSensor();
 
-  void moveRobot(const std::string& sender, const std::string& str);
+  const std::vector<double> queryVisibility();
 
+  const std::vector<double> moveRobot(const std::string& cmd);
+
+
+  std::vector<std::vector<int> > m_DirOffset;
   const std::string m_Name;
+
+  PLEXIL::ThreadMutex m_RobotPositionMutex;
+  PLEXIL::ThreadMutex m_RobotEnergyLevelMutex;
+
+  double m_Red;
+  double m_Green;
+  double m_Blue;
+  double m_EnergyLevel;
+  double m_BeamWidth;
+  double m_ScanScale;
+
   // The locally cached row and col values are used only for display. The actual values
   // for navigation puposes are obtained from the position server.
   int m_Row;
   int m_Col;
-  double m_Red, m_Green, m_Blue;
-  double m_EnergyLevel;
-  std::vector<std::vector<int> > m_DirOffset;
-  double m_BeamWidth;
-  double m_ScanScale;
-  SSWGClient m_SSWGClient;
 };
 
 #endif // ROBOT_HH

@@ -31,23 +31,40 @@
 #include <fstream>
 #include <math.h>
 
+#include "IpcRobotAdapter.hh"
 #include "MyOpenGL.hh"
 #include "Macros.hh"
 #include "Robot.hh"
-#include "MutexGuard.hh"
 
-Robot::Robot(const TerrainBase* _terrain, EnergySources* _resources,
-             Goals* _goals, RobotPositionServer* _posServer, const std::string _name, 
-             int initRow, int initCol, double red, double green,
+#include "Debug.hh"
+#include "Error.hh"
+
+Robot::Robot(const TerrainBase* _terrain,
+	     EnergySources* _resources,
+             Goals* _goals,
+	     RobotPositionServer* _posServer,
+	     IpcRobotAdapter& adapter,
+	     const std::string& _name, 
+             int initRow,
+	     int initCol,
+	     double red, 
+	     double green,
              double blue)
-    : RobotBase(_terrain, _resources, _goals, _posServer), m_Name(_name), m_Row(initRow), 
-      m_Col(initCol), 
-      m_Red(red), m_Green(green), m_Blue(blue), m_EnergyLevel(1.0), 
-      m_DirOffset(5, std::vector<int>(2)), m_BeamWidth(0.01), m_ScanScale(0.0)
+    : RobotBase(_terrain, _resources, _goals, _posServer),
+      m_DirOffset(5, std::vector<int>(2)),
+      m_Name(_name),
+      m_RobotPositionMutex(),
+      m_RobotEnergyLevelMutex(),
+      m_Red(red),
+      m_Green(green),
+      m_Blue(blue),
+      m_EnergyLevel(1.0), 
+      m_BeamWidth(0.01),
+      m_ScanScale(0.0),
+      m_Row(initRow), 
+      m_Col(initCol)
   {
-    pthread_mutex_init(&m_RobotPositionMutex, NULL);
-    pthread_mutex_init(&m_RobotEnergyLevelMutex, NULL);
-    m_SSWGClient.connectToServer(m_Name, "127.0.0.1", 6164, this);
+    adapter.registerRobot(m_Name, this);
     m_RobotPositionServer->setRobotPosition(m_Name, m_Row, m_Col);
     m_DirOffset[0][0] = -1; // N
     m_DirOffset[0][1] = 0;
@@ -64,8 +81,6 @@ Robot::Robot(const TerrainBase* _terrain, EnergySources* _resources,
 Robot::~Robot()
 {
   std::cout << "Deleting robot: " << m_Name << std::endl;
-  pthread_mutex_destroy(&m_RobotPositionMutex);
-  pthread_mutex_destroy(&m_RobotEnergyLevelMutex);
 }
 
 void Robot::displayRobot(void)
@@ -178,186 +193,188 @@ double Robot::determineGoalLevel()
   return m_Goals->determineGoalLevel(row, col);
 }
 
-void Robot::receivedMessage (const std::string& sender,
-                             const std::string& msg)
+const std::vector<double> Robot::processCommand(const std::string& cmd)
 {
-  std::cout << "Received " << msg << std::endl;
+  std::cout << "Received " << cmd << std::endl;
   sleep(1);
 
-  if ((msg == "MoveUp") || (msg == "MoveDown") || (msg == "MoveRight") || 
-      (msg == "MoveLeft"))
-    moveRobot(sender, msg);
-  else if ((msg == "QueryEnergySensor") || (msg == "QueryGoalSensor"))
-    querySensorLevel(sender, msg);
-  else if (msg == "QueryVisibilitySensor")
-    queryVisibility(sender, msg);
-  else if (msg == "QueryRobotState")
-    queryRobotState(sender, msg);
-  else
-    std::cout << "Robot:receivedMessage: Unknown message: "
-              << msg << " Ignoring" << std::endl;
+  if ((cmd == "MoveUp")
+      || (cmd == "MoveDown")
+      || (cmd == "MoveRight")
+      || (cmd == "MoveLeft"))
+    return moveRobot(cmd);
+  else if (cmd == "QueryEnergySensor")
+    return queryEnergySensor();
+  else if (cmd == "QueryGoalSensor")
+    return queryGoalSensor();
+  else if (cmd == "QueryVisibilitySensor")
+    return queryVisibility();
+  else if (cmd == "QueryRobotState")
+    return queryRobotState();
+
+  // fall-thru return
+  debugMsg("Robot:processCommand",
+	   " Ignoring unknown command \"" << cmd << "\"");
+  return std::vector<double>(0);
 }
 
 void Robot::getRobotPositionLocal(int& row, int& col)
 {
-  MutexGuard mg(&m_RobotPositionMutex);
+  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
   row = m_Row;
   col = m_Col;
 }
 
 void Robot::setRobotPositionLocal(int row, int col)
 {
-  MutexGuard mg(&m_RobotPositionMutex);
+  PLEXIL::ThreadMutexGuard mg(m_RobotPositionMutex);
   m_Row = row;
   m_Col = col;
 }
 
 const double& Robot::readRobotEnergyLevel()
 {
-  MutexGuard mg(&m_RobotEnergyLevelMutex);
+  PLEXIL::ThreadMutexGuard mg(m_RobotEnergyLevelMutex);
   return m_EnergyLevel;
 }
 
 void Robot::updateRobotEnergyLevel(double energyLevel)
 {
-  MutexGuard mg(&m_RobotEnergyLevelMutex);
+  PLEXIL::ThreadMutexGuard mg(m_RobotEnergyLevelMutex);
   m_EnergyLevel = std::max(0.0, std::min(1.0, m_EnergyLevel + energyLevel));
 }
 
-void Robot::queryRobotState(const std::string& sender, const std::string& msg)
+const std::vector<double> Robot::queryRobotState()
 {
+  std::vector<double> result;
   int row, col;
-  std::string result=msg+",";
-  //    readRobotPosition(row, col);
   m_RobotPositionServer->getRobotPosition(m_Name, row, col);
+  result.push_back((double) row);
+  result.push_back((double) col);
   double energyLevel = readRobotEnergyLevel();
-  std::ostringstream sstr;
-  sstr << row << "," << col << "," << energyLevel;
-  
-  result += sstr.str();
-  std::cout << "res: " << result << std::endl;
-  
-  m_SSWGClient.sendMessage(result, sender);
+  result.push_back(energyLevel);
+  debugMsg("Robot:queryRobotState",
+	   " returning " << row << ", " << col << ", " << energyLevel);
+  return result;
 }
 
-void Robot::querySensorLevel(const std::string& sender, const std::string& msg)
+const std::vector<double> Robot::queryEnergySensor()
 {
   int row, col;
-  std::string result=msg+",";
-  //    readRobotPosition(row, col);
   m_RobotPositionServer->getRobotPosition(m_Name, row, col);
   
+  std::vector<double> result;
   for (std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
-       dIter != m_DirOffset.end();)
+       dIter != m_DirOffset.end();
+       ++dIter)
     {
-      std::ostringstream sstr;
-      
-      if (msg == "QueryEnergySensor")
-        sstr << m_EnergySources->determineEnergySourceLevel(row+(*dIter)[0], 
-                                                    col+(*dIter)[1]);
-      else if (msg == "QueryGoalSensor")
-        sstr <<  m_Goals->determineGoalLevel(row+(*dIter)[0], 
-                                             col+(*dIter)[1]);
-      
-      result += sstr.str();
-      ++dIter;
-      if (dIter == m_DirOffset.end())
-        break;
-      else
-        result += ",";
+      result.push_back(m_EnergySources->determineEnergySourceLevel(row+(*dIter)[0], 
+								   col+(*dIter)[1]));
     }
-  std::cout << "res: " << result << std::endl;
   
-  m_SSWGClient.sendMessage(result, sender);
+  return result;
 }
 
-void Robot::queryVisibility(const std::string& sender, const std::string& msg)
+const std::vector<double> Robot::queryGoalSensor()
 {
   int row, col;
-  std::string result=msg+",";
-  //    readRobotPosition(row, col);
+  m_RobotPositionServer->getRobotPosition(m_Name, row, col);
+  
+  std::vector<double> result;
+  for (std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
+       dIter != m_DirOffset.end();
+       ++dIter)
+    {
+      result.push_back(m_Goals->determineGoalLevel(row+(*dIter)[0], 
+						   col+(*dIter)[1]));
+      
+    }
+
+  return result;
+}
+
+const std::vector<double> Robot::queryVisibility()
+{
+  int row, col;
   m_RobotPositionServer->getRobotPosition(m_Name, row, col);
   
   std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
   int currRow = row;
   int currCol = col;
   int iter =  m_DirOffset.size();
+
+  std::vector<double> result;
   // The last (row, col) pair is the curr location. No need to consider it
   // for visibility
   while (iter > 1)
     {
-      std::ostringstream sstr;
-      bool noWall = m_Terrain->isTraversable(currRow, currCol, currRow+(*dIter)[0], 
+      bool noWall = m_Terrain->isTraversable(currRow, 
+					     currCol, 
+					     currRow+(*dIter)[0], 
                                              currCol+(*dIter)[1]);
       // If no wall make sure there are no other robots occupying the location.
       if (noWall && m_RobotPositionServer->gridOccupied(currRow+(*dIter)[0],
                                                         currCol+(*dIter)[1]))
-        sstr << "-1";
+        result.push_back(-1.0);
       else
-        sstr << noWall;
+        result.push_back(noWall ? 1.0 : 0.0);
       
-      result += sstr.str();
       ++dIter;
       --iter;
-      if (iter > 1) result += ",";
     }
-  std::cout << "res: " << result << std::endl;
-  
-  m_SSWGClient.sendMessage(result, sender);
+
+  return result;
 }
 
-void Robot::moveRobot(const std::string& sender, const std::string& str)
+const std::vector<double> Robot::moveRobot(const std::string& str)
 {
-  int rowDirOffset, colDirOffset;
-  std::string retCode=str;
+  int rowDirOffset = 0;
+  int colDirOffset = 0;
   
   if (str == "MoveUp") 
     {
       rowDirOffset = -1;
-      colDirOffset = 0;
     }
   else if (str == "MoveDown")
     {
       rowDirOffset = 1;
-      colDirOffset = 0;
     }
   else if (str == "MoveRight")
     {
-      rowDirOffset = 0;
       colDirOffset = 1;
     }
   else if (str == "MoveLeft")
     {
-      rowDirOffset = 0;
       colDirOffset = -1;
     }
   else
-    std::cout << "moveRobot: Unknown direction." << std::endl;
+    assertTrueMsg(ALWAYS_FAIL,
+		  "moveRobot: Unknown direction \"" << str << "\"");
   
   int rowCurr, colCurr;
   m_RobotPositionServer->getRobotPosition(m_Name, rowCurr, colCurr);
+
   int rowNext = rowCurr + rowDirOffset;
   int colNext = colCurr + colDirOffset;
+  std::vector<double> result;
   bool traversible = false;
-  if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext)) &&
-      m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext))
+  if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
+      && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext))
     {
       setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
-      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext)-0.025);
-      retCode += ",1";
+      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.025);
+      result.push_back(1.0);
     }
   else if (!traversible)
     {
-      std::cout << "moveRobot: Cannot move robot to the desired location due to" 
-                << " a fixed obstacle." << std::endl;
-      retCode += ",0";
+      debugMsg("Robot:moveRobot", " Cannot move to desired location due to a fixed obstacle.");
+      result.push_back(0.0);
     }
   else
     {
-      std::cout << "moveRobot: Cannot move robot to the desired location due to" 
-                << " a dynamic obstacle." << std::endl;
-      retCode += ",-1";
+      debugMsg("Robot:moveRobot", " Cannot move to desired location due to a dynamic obstacle.");
+      result.push_back(-1.0);
     }
   
-  m_SSWGClient.sendMessage(retCode, sender);
+  return result;
 }
