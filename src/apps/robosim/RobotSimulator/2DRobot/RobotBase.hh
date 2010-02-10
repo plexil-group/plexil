@@ -41,9 +41,13 @@ public:
   {
   }
 
-  virtual ~RobotBase(){}
+  virtual ~RobotBase()
+  {
+  }
   
   virtual void displayRobot(void) = 0;
+
+  virtual const std::vector<double> processCommand(const std::string& cmd) = 0;
 
 protected:
   const TerrainBase* m_Terrain;
