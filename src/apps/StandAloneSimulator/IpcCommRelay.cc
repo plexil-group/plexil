@@ -33,6 +33,8 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
+#include "defineIpcMessageTypes.h"
+
 // ooid classes
 #include "uuid.h"
 #include "devrand.h"
