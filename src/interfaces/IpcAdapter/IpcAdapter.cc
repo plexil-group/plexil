@@ -634,7 +634,7 @@ namespace PLEXIL
 	debugMsg("IpcAdapter:executeCommand", " message \"" << theMessage.c_str() << "\" sent.");
       }
     // Check for SendReturnValue command
-    if (name == SEND_RETURN_VALUE_COMMAND())
+    else if (name == SEND_RETURN_VALUE_COMMAND())
       {
 	// Check for one argument, the message
 	assertTrueMsg(args.size() >= 2,
