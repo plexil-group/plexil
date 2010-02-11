@@ -36,15 +36,15 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec standard-plexil checker
+all: TestExec UniversalExec IpcAdapter standard-plexil checker
 
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
-plexilsim: ipc
+plexilsim: utils ipc
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
-robosim: UniversalExec
+robosim: utils ipc
 	$(MAKE) -C src/apps/robosim
 
 UniversalExec: exec-core app-framework
@@ -95,7 +95,6 @@ clean-ipc:
 
 clean: clean-ipc
 	$(MAKE) -C third-party/tinyxml $@
-	# The following will cause an (ignorable) error if 'configure' hasn't been run yet
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/IpcAdapter $@
