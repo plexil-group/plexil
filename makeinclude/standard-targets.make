@@ -62,7 +62,7 @@ shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
 	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
 
 $(SHLIB): depend $(OBJ)
-	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(SHLIB) $(OBJ)
+	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ)
 
 localclean::
 	-$(RM) $(SHLIB)
@@ -101,7 +101,7 @@ executable $(foreach exec,$(EXECUTABLE),$(PLEXIL_HOME)/bin/$(exec)): $(EXECUTABL
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
 $(EXECUTABLE): depend $(OBJ)
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $(EXECUTABLE) $(OBJ)
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ)
 
 localclean::
 	-$(RM) $(EXECUTABLE)
