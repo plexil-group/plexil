@@ -34,6 +34,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/third-party/ooid/kashmir
 LIB_PATH	+=
 LIBS		+= tinyxml ipc PlexilUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
+EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
