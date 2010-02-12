@@ -2,7 +2,7 @@
 # C/C++ compiler flag overrides
 #
 
-DEFINES			+= -DDarwin
+DEFINES			+= -DDarwin -DPLATFORM_HAS_GNU_HASH_MAP
 DEBUG_FLAGS		+= -gfull
 OPENGL_EXTRA_FLAGS	:= -framework OpenGL -framework GLUT
 
