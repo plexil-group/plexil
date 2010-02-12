@@ -143,10 +143,10 @@ tags:	$(SVN_FILES)
 # These targets apply to any directory that has a 'test' subdirectory.
 
 ## Build library and test directory
-all: default test
+all: plexil-default test
 
 ## Build test directory
-test: default
+test: plexil-default
 	@ if [ -d test ]; \
 	then \
 		$(MAKE) -C test; \
