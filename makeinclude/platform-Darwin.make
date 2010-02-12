@@ -6,6 +6,9 @@ DEFINES			+= -DDarwin
 DEBUG_FLAGS		+= -gfull
 OPENGL_EXTRA_FLAGS	:= -framework OpenGL -framework GLUT
 
+# *** FIXME: This is only true of Mac OS X 10.4.x and newer
+DEFINES		+= -DPLATFORM_HAS_EXECINFO_H
+
 #
 # Compiler/linker option overrides
 #

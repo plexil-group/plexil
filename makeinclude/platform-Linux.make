@@ -2,6 +2,8 @@
 # C/C++ compiler flag overrides
 #
 
+DEFINES		+= -DPLATFORM_HAS_GLIBC
+
 OPENGL_LIBS	:= GL GLU glut
 
 #
