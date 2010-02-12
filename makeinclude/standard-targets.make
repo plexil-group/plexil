@@ -56,7 +56,7 @@ ifneq ($(PLEXIL_SHARED),)
 
 SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
-default: shlib
+plexil-default: shlib
 
 shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
 	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
@@ -73,7 +73,7 @@ ifneq ($(PLEXIL_STATIC),)
 
 ARCHIVE = lib$(LIBRARY).a
 
-default: archive
+plexil-default: archive
 
 archive $(PLEXIL_HOME)/lib/$(ARCHIVE): $(ARCHIVE)
 	$(CP) $(ARCHIVE) $(PLEXIL_HOME)/lib/
@@ -91,7 +91,7 @@ endif
 endif # $(LIBRARY)
 
 ifneq ($(EXECUTABLE),)
-default: executable
+plexil-default: executable
 
 # handle case of multiple targets in EXECUTABLE
 # see src/interfaces/Sockets/test/Makefile

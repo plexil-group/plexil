@@ -94,8 +94,10 @@ STANDARD_CFLAGS		:=
 STANDARD_CXXFLAGS	:=
 
 # Include path
+
+SYSTEM_INC_DIRS	=
 INC_DIRS	= .
-INCLUDES	= $(addprefix -I,$(INC_DIRS))
+INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 
 # Compiler flags for shared libraries
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
@@ -186,5 +188,9 @@ SVN_FILES       = *
 
 # KMD: determine if useful
 # .SUFFIXES : .cc .hh .o .c .h
+
+##### A pre-emptive strike against some 3rd party platform include files
+
+all: plexil-default
 
 include $(PLEXIL_HOME)/makeinclude/platform-defs.make
