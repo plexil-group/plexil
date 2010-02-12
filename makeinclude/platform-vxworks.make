@@ -8,6 +8,7 @@ ifndef CPU
 $(error Required environment variable CPU is not set. Exiting.)
 endif
 
+
 # Default to the Gnu toolchain.
 TOOL_FAMILY ?= gnu
 TOOL ?= gnu
@@ -25,11 +26,36 @@ include $(WIND_BASE)/target/h/make/defs.library
 #
 
 # Header file path for targets
-SYSTEM_INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/c++
+INC_DIRS	+= $(WIND_BASE)/target/usr/h
+#INCLUDES	+= -nostdinc
 
 # Define this as a Real Time Process project
-STANDARD_CFLAGS		+= -D__RTP__
-STANDARD_CXXFLAGS	+= -D__RTP__
+
+DEFINES		+= -D__RTP__ -DCPU=$(CPU) -D_VX_TOOL=_VX_$(TOOL) -D_VX_TOOL_FAMILY=_VX_$(TOOL_FAMILY)
+
+STANDARD_CFLAGS		+= $(CC_ARCH_SPEC)
+STANDARD_CXXFLAGS	+= $(CC_ARCH_SPEC)
+
+ifneq ($(PLEXIL_OPTIMIZE),)
+VARIANT_CFLAGS		+= $(CC_OPTIM_NORMAL)
+endif
+
+# Kludge around some things the Wind River Workbench includes but the standard make includes don't
+ifeq ($(CPU),PPC604)
+CPU_FAMILY := PPC32
+endif
+
+ifeq ($(CPU),PPC32)
+CPU_FAMILY := PPC32
+endif
+
+ifeq ($(CPU_FAMILY),PPC32)
+STANDARD_CFLAGS		+= -mhard-float -mstrict-align -mregnames -ansi -mrtp -Wall  -MD -MP
+STANDARD_CXXFLAGS	+= -mhard-float -mstrict-align -mregnames -ansi -mrtp -Wall  -MD -MP
+
+# Compiler flags for shared libraries
+POSITION_INDEPENDENT_CODE_FLAG	:= -fpic
+endif
 
 OPENGL_LIBS	:= -lGL -lGLU -lglut
 
