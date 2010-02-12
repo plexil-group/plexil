@@ -26,13 +26,16 @@
 
 #include "Logging.hh"
 #include "Error.hh"
-#include <execinfo.h>
 #include <iostream>
 #include <fstream>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
+
+#ifdef PLATFORM_HAS_EXECINFO_H
+#include <execinfo.h>
+#endif
 
 int Logging::ENABLE_LOGGING = 0; // enable messages to log file
 int Logging::ENABLE_E_PROMPT = 0; // enable error prompt messages
@@ -142,9 +145,11 @@ void Logging::prompt_user() {
 			exit(0);
 		} else if ((buf[0] == 'P' || buf[0] == 'p') && buf[1] == '\n')
 			return;
+#ifdef PLATFORM_HAS_EXECINFO_H
 		else if ((buf[0] == 'S' || buf[0] == 's') && buf[1] == '\n') {
 			print_stack();
 		}
+#endif
 
 	} while (1);
 }
@@ -178,6 +183,7 @@ void Logging::set_date_time() {
 	Logging::LOG_TIME[i - 1] = '\0';
 }
 
+#ifdef PLATFORM_HAS_EXECINFO_H
 void Logging::print_stack() {
 	void *trace[16];
 	char **messages = (char **) NULL;
@@ -194,6 +200,6 @@ void Logging::print_stack() {
 
 	free(messages);
 }
-
+#endif
 
 

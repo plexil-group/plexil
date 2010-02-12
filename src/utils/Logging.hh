@@ -51,7 +51,9 @@ class Logging {
 		static int print_warning(char * fullmsg);
 		static void print_unknown(char * fullmsg);	
 		static void prompt_user();
+#ifdef PLATFORM_HAS_EXECINFO_H
 		static void print_stack();
+#endif
 		static char* get_msg_type(int msg);
                 static void set_date_time();
 };
