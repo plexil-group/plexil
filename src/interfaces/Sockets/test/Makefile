@@ -31,7 +31,7 @@ EXECUTABLE	:= simple_client_main simple_server_main
 # External dependencies
 INC_DIRS	+= ..
 LIB_PATH	+=
-LIBS		+= tinyxml
+LIBS		+= tinyxml PlexilSockets
 
 SRC		:= $(wildcard *.cc)
 
