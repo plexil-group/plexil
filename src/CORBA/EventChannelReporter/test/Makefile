@@ -42,7 +42,7 @@ SRC		:= $(wildcard *.cc)
 SVN_FILES       := Makefile $(SRC)
 
 # dummy for now
-default: event-channel-test-runner notification-test-runner
+plexil-default: event-channel-test-runner notification-test-runner
 
 event-channel-test-runner: event-channel-test-runner.o depend
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<

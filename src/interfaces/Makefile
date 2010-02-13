@@ -25,7 +25,7 @@
 
 SHELL = /bin/sh
 
-default: non-lcm
+plexil-default: non-lcm
 
 all:
 	@ $(MAKE) non-lcm

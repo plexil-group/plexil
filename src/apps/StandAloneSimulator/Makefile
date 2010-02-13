@@ -41,12 +41,12 @@ LIBS		+= PlexilUtils ipc
 ############################
 # Rules to build the targets
 
-all : default plexilsim
+all : plexil-default plexilsim
 
-plexilsim : default
+plexilsim : plexil-default
 	$(MAKE) -C PlexilSimulator
 
-robosim : default
+robosim : plexil-default
 	$(MAKE) -C RoboSimSimulator
 
 ###################
