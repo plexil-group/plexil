@@ -80,32 +80,32 @@ void Simulator::stop()
     {
       // we tried the gentle approach already -
       // take more drastic action
-      int errno;
-      if ((errno = pthread_cancel(m_SimulatorThread)) != 0)
+      int pthread_errno;
+      if ((pthread_errno = pthread_cancel(m_SimulatorThread)) != 0)
 	{
 	  // cancel failed
-	  if (errno == ESRCH) // no such thread to cancel, i.e. it's already dead
+	  if (pthread_errno == ESRCH) // no such thread to cancel, i.e. it's already dead
 	    {
 	      m_Stop = false;
 	      m_Started = false;
 	    }
 	  else
 	    {
-	      std::cerr << "Simulator::stop: pthread_cancel returned error " << errno << std::endl;
+	      std::cerr << "Simulator::stop: pthread_cancel returned error " << pthread_errno << std::endl;
 	    }
 	  return;
 	}
       // successfully canceled, wait for it to exit
-      if ((errno = pthread_join(m_SimulatorThread, NULL)) != 0)
+      if ((pthread_errno = pthread_join(m_SimulatorThread, NULL)) != 0)
 	{
-	  if (errno == ESRCH) // no such thread, i.e. already dead
+	  if (pthread_errno == ESRCH) // no such thread, i.e. already dead
 	    {
 	      m_Stop = false;
 	      m_Started = false;
 	    }
 	  else
 	    {
-	      std::cerr << "Simulator::stop: pthread_join (after pthread_cancel) returned error " << errno << std::endl;
+	      std::cerr << "Simulator::stop: pthread_join (after pthread_cancel) returned error " << pthread_errno << std::endl;
 	    }
 	}
     }
@@ -119,13 +119,13 @@ void Simulator::stop()
       // stop the sim thread
       m_Stop = true;
       m_Sem.post();
-      int errno;
+      int pthread_errno;
       // wait for thread to terminate
-      if ((errno = pthread_join(m_SimulatorThread, NULL)) != 0)
+      if ((pthread_errno = pthread_join(m_SimulatorThread, NULL)) != 0)
 	{
-	  if (errno != ESRCH) // no such thread, i.e. already dead
+	  if (pthread_errno != ESRCH) // no such thread, i.e. already dead
 	    {
-	      std::cerr << "Simulator::stop: pthread_join returned error " << errno << std::endl;
+	      std::cerr << "Simulator::stop: pthread_join returned error " << pthread_errno << std::endl;
 	      return;
 	    }
 	}
