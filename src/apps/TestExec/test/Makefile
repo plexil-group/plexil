@@ -72,6 +72,8 @@ RESOURCE_ARBITRATION_TESTS	:= resource1 resource1-repeatCond \
 SIMPLE_DRIVE_PLAN	:= simple-drive
 SIMPLE_DRIVE_SCRIPTS	:= single-drive double-drive
 
+plexil-default: exec-regression-tests
+
 exec-regression-tests: run-regression-suite
 
 setup: 
