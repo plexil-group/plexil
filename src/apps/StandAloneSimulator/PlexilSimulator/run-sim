@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,12 @@ usage="Usage: $0 <command-script> [<telemetry-script>]"
 if [ ! $PLEXIL_HOME ]
   then
     echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of the directory containing universal-exec
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
     exit 1
 fi
 
 # Determine executable
-prog=$PLEXIL_HOME/apps/StandAloneSimulator/PlexilSimulator/bin/plexilSimulator
+prog=$PLEXIL_HOME/src/apps/StandAloneSimulator/PlexilSimulator/PlexilSimulator
 
 # Make sure executable exists.
 if [ ! -e $prog ]
@@ -81,10 +81,8 @@ if [ "$tlm_script" -a ! -e $tlm_script ]
 fi
 
 # Set up environment
-export LD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib:${PLEXIL_HOME}/interfaces/lcm/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/PlexilSimulator/lib:${PLEXIL_HOME}/apps/TestExecSAS/lcm:${PLEXIL_HOME}/apps/TestExecSAS/lcm/structs/lib
-# Mac OS X only
-export DYLD_LIBRARY_PATH=${PLEXIL_HOME}/universal-exec/lib:${PLEXIL_HOME}/interfaces/lib:${PLEXIL_HOME}/interfaces/lcm/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/lib:${PLEXIL_HOME}/apps/StandAloneSimulator/PlexilSimulator/lib:${PLEXIL_HOME}/apps/TestExecSAS/lcm:${PLEXIL_HOME}/apps/TestExecSAS/lcm/structs/lib
-export DYLD_BIND_AT_LAUNCH=YES
+
+. $PLEXIL_HOME/bin/plexil-setup.sh
 
 # Do it!
 if [ "$tlm_script" ]
