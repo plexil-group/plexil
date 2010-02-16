@@ -31,7 +31,7 @@ EXECUTABLE	:= AppFrameworkTest
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../../utils ../../exec .. ../../interfaces/Sockets
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework
+LIBS		+= tinyxml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
 
 SRC		:= testMain.cc
 INC		:=
