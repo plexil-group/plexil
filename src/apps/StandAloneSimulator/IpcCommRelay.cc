@@ -25,6 +25,7 @@
 */
 
 #include "IpcCommRelay.hh"
+#include "defineIpcMessageTypes.h"
 #include "ResponseMessage.hh"
 #include "GenericResponse.hh"
 #include "Simulator.hh"
