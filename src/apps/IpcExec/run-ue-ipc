@@ -45,10 +45,10 @@ usage="Usage: run-ue-ipc [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <deb
 
 if [ -f $PLEXIL_HOME/bin/IpcExec ]
 then
-    prog=$PLEXIL_HOME/bin/IpcExec
+    prog=$PLEXIL_HOME/bin/universalExec
 elif [ -f $PLEXIL_HOME/src/apps/IpcExec/IpcExec ]
 then
-    prog=$PLEXIL_HOME/src/apps/IpcExec/IpcExec
+    prog=$PLEXIL_HOME/src/apps/UniversalExec/universalExec
 else
     echo "UE executable not found, aborting"
     exit 1
@@ -172,4 +172,4 @@ if [ $# -gt 0 ]
     fi
 fi
 
-$prog -p $plan -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
+$prog -c interface-config.xml -p $plan -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
