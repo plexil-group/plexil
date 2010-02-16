@@ -44,7 +44,7 @@ int main (int argc, char** argv)
 {
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
-  std::string interfaceConfig("");
+  std::string interfaceConfig("interface-config.xml");
   bool        luvRequest = false;
   std::string luvHost    = PLEXIL::NewLuvListener::LUV_DEFAULT_HOSTNAME();
   int         luvPort    = PLEXIL::NewLuvListener::LUV_DEFAULT_PORT();
@@ -111,12 +111,14 @@ int main (int argc, char** argv)
       configDoc = new TiXmlDocument(interfaceConfig);
       if (!configDoc->LoadFile())
         {
-          std::cout << "ERROR: unable to load interface configuration file "
+          std::cout << "WARNING: unable to load interface configuration file "
                     << interfaceConfig
                     << ":\n "
                     << configDoc->ErrorDesc()
+                    <<"\nContinuing without interface configuration"
                     << std::endl;
-          return -1;
+          delete configDoc;
+          configDoc = NULL;
         }
     }
 
