@@ -26,7 +26,6 @@
 
 #include "StoredArray.hh"
 #include "LabelStr.hh"
-#include "Debug.hh"
 #include "Error.hh"
 
 namespace PLEXIL
