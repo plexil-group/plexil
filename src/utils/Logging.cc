@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <unistd.h> // for getpid(), isatty()
 
 #ifdef PLATFORM_HAS_EXECINFO_H
 #include <execinfo.h>
