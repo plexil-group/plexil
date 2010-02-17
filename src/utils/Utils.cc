@@ -29,8 +29,6 @@
 
 #include <sstream>
 
-DEFINE_GLOBAL_CONST(bool, g_alwaysFails, false);
-
 namespace PLEXIL {
 
   std::string toString(double value) {
@@ -81,7 +79,6 @@ namespace PLEXIL {
   // 
   DEFINE_GLOBAL_CONST(int32_t, g_maxInt, (INT32_MAX/8)); /*!< Same as max finite time */
   DEFINE_GLOBAL_CONST(int32_t, g_infiniteTime, (g_maxInt() + 1));
-  DEFINE_GLOBAL_CONST(int32_t, g_noTime, 0);
   DEFINE_GLOBAL_CONST(double, g_epsilon, 0.00001);
   DEFINE_GLOBAL_CONST(double, g_maxReal, ((double) DBL_MAX));
 }

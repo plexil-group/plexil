@@ -89,22 +89,14 @@
     return(sl_data); \
   }
 
-DECLARE_GLOBAL_CONST(bool, g_alwaysFails);
-#define ALWAYS_FAILS (g_alwaysFails())
-
 namespace PLEXIL {
-  DECLARE_GLOBAL_CONST(int, g_maxInt);
-  DECLARE_GLOBAL_CONST(int, g_infiniteTime);
-  DECLARE_GLOBAL_CONST(int, g_noTime);
+  DECLARE_GLOBAL_CONST(int32_t, g_maxInt);
+  DECLARE_GLOBAL_CONST(int32_t, g_infiniteTime);
   DECLARE_GLOBAL_CONST(double, g_epsilon);
   DECLARE_GLOBAL_CONST(double, g_maxReal);
 }
 
 #define MAX_INT (PLEXIL::g_maxInt())
-
-#define MAX_FINITE_TIME (MAX_INT)
-
-#define MIN_FINITE_TIME (-MAX_INT)
 
 #define PLUS_INFINITY (PLEXIL::g_infiniteTime())
 
