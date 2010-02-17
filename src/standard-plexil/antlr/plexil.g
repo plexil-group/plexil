@@ -367,6 +367,38 @@ tokens
         return parser;
     }
 
+  private RecognitionException createRecognitionException(String message, antlr.collections.AST location)
+  {
+    PlexilASTNode plexLoc = null;
+    if (location != null)
+    {
+      plexLoc = (PlexilASTNode) location;
+    }
+    if (plexLoc == null)
+    {
+      int line = 0;
+      int col = 0;
+      try
+      {
+        line = LT(0).getLine();
+        col = LT(0).getColumn();
+      }
+      catch (TokenStreamException e)
+      {}
+      return new RecognitionException(message,
+                                      state.getFile().getPath(),
+                                      line,
+                                      col);
+    }
+    else
+    {
+      return new RecognitionException(message,
+                                      plexLoc.getFilename(),
+                                      plexLoc.getLine(),
+                                      plexLoc.getColumn());
+    }
+  }
+
   private SemanticException createSemanticException(String message, antlr.collections.AST location)
   {
     PlexilASTNode plexLoc = null;
@@ -1018,10 +1050,15 @@ stringArrayVariable : v:variable { context.isStringArrayVariableName(#v.getText(
 
 timeArrayVariable : v:variable { context.isTimeArrayVariableName(#v.getText()) }? ;
 
-variable : n:ncName { context.isVariableName(#n.getText()) }?
+// FIXME: undeclared variables cause a NullPointerException in the caller
+variable : n:ncName
   { 
     #variable = #[VARIABLE, n_AST.getText()];
-    ((VariableASTNode) #variable).setVariable(context.findVariable(#n.getText()));
+    PlexilVariableName vn = context.findVariable(#n.getText());
+    if (vn == null)
+        throw createRecognitionException("Variable \"" + #n.getText() + "\" has not been declared",
+                                         #n);
+    ((VariableASTNode) #variable).setVariable(vn);
   }
   ;
 
