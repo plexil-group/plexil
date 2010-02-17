@@ -213,6 +213,8 @@ const std::vector<double> Robot::processCommand(const std::string& cmd, double p
     return queryVisibility();
   else if (cmd == "QueryRobotState")
     return queryRobotState();
+  else if (cmd == "MoveRandom")
+    return moveRandom();    
 
   // fall-thru return
   debugMsg("Robot:processCommand",
@@ -417,4 +419,13 @@ const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
     }
   
   return result;
+}
+
+const std::vector<double> Robot::moveRandom()
+{
+    int minVal = 0;
+    int maxVal = 3;
+    
+    int random = minVal + (int) ((double) (maxVal - minVal) * ((double) rand() / (double) RAND_MAX) + 0.5);
+    return moveRobotParameterized(random);    
 }

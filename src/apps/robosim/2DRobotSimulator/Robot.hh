@@ -43,15 +43,15 @@ public:
         Goals* _goals,
 	RobotPositionServer* _posServer,
 	IpcRobotAdapter& adapter,
-	const std::string& _name = "Robot0", 
-        int initRow=0, 
-	int initCol=0, 
-	double red=1.0, 
+	const std::string& _name = "Robot0",
+        int initRow=0,
+	int initCol=0,
+	double red=1.0,
 	double green=1.0,
         double blue=1.0);
 
   ~Robot();
-  
+
   virtual void displayRobot(void);
 
   // Purely for demo to have a robot moving in the scene
@@ -91,6 +91,7 @@ private:
 
   const std::vector<double> moveRobotInternal(int rowDirOffset, int colDirOffset);
 
+  const std::vector<double> moveRandom();
 
   std::vector<std::vector<int> > m_DirOffset;
   const std::string m_Name;
