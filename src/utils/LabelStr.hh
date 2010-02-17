@@ -29,14 +29,7 @@
 
 #include "CommonDefs.hh"
 #include "Error.hh"
-#include <map>
 #include <string>
-#include <ext/hash_map>
-#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-#include <ext/hash_fun.h>
-#else
-#include <ext/stl_hash_fun.h>
-#endif
 #include "StoredItem.hh"
 #include "Debug.hh"
 
@@ -50,220 +43,247 @@
 
 namespace PLEXIL
 {
-   class LabelStr;
-   DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
+  class LabelStr;
+  DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
 
-   // specialized hash function for pointers to string
+#ifdef PLATFORM_HAS_GNU_HASH_MAP
+  // specialized hash function for pointers to string
 
-   class StringHashFunction
-   {
-      public:
-         size_t operator()(const  std::string* s) const
-         {
-            return __gnu_cxx::hash<const char*>()(s->c_str());
-         }
-   };
+  class StringHashFunction
+  {
+  public:
+    size_t operator()(const  std::string* s) const
+    {
+      return __gnu_cxx::hash<const char*>()(s->c_str());
+    }
+  };
 
-   // specialized equal operator for pointers to strings
+  // specialized equal operator for pointers to strings
 
-   struct StringEqualOoperator : public std::binary_function<
-      const std::string*,
-      const std::string*,
-      bool>
-   {
-         bool operator()(const std::string* s1, const std::string* s2) const
-         { 
-            return *s1 == *s2;
-         }
-   };
+  struct StringEqualOoperator : public std::binary_function<
+    const std::string*,
+    const std::string*,
+    bool>
+  {
+    bool operator()(const std::string* s1, const std::string* s2) const
+    { 
+      return *s1 == *s2;
+    }
+  };
    
-   // 
+  // 
 
-   typedef StoredItem<
-      double, 
-      const std::string, 
-      StringHashFunction, 
-      StringEqualOoperator> StoredString;
-   
+  typedef StoredItem<
+    double, 
+    const std::string, 
+    StringHashFunction, 
+    StringEqualOoperator> StoredString;
+#endif // PLATFORM_HAS_GNU_HASH_MAP
 
-   /**
-    * @class LabelStr
-    * @brief Provides for a symbolic value to be handled in a domain.
-    *
-    * The reader should note that strings are stored in a static data
-    * structure so that they can be shared. Access to the store is
-    * provided by a key value. This reduces operations on LabelStr to
-    * operations on double valued keys which is considerable more
-    * efficient. This encoding is largely transparent to users.
-    */
+#ifdef PLATFORM_HAS_DINKUM_HASH_MAP
+  // specialized hash_compare class for pointers to string
+  class StringPointerCompare
+    : public std::hash_compare<std::string const *>
+  {
+  public:
+    // Hashing operator
+    size_t operator()(std::string const * const &item) const
+    {
+      return (size_t)item;
+    }
 
-   class LabelStr: protected StoredString
-   {
+    // less-than comparison
+    bool operator()(std::string const * const &s1, std::string const * const &s2) const
+    { 
+      return *s1 < *s2;
+    }
+  };
+
+  typedef StoredItem<
+    double, 
+    std::string const, 
+    StoredItemKeyCompare<double>,
+    StringPointerCompare > StoredString;
+#endif // PLATFORM_HAS_DINKUM_HASH_MAP
+
+/**
+ * @class LabelStr
+ * @brief Provides for a symbolic value to be handled in a domain.
+ *
+ * The reader should note that strings are stored in a static data
+ * structure so that they can be shared. Access to the store is
+ * provided by a key value. This reduces operations on LabelStr to
+ * operations on double valued keys which is considerable more
+ * efficient. This encoding is largely transparent to users.
+ */
+
+class LabelStr: protected StoredString
+{
          
-      public:
-         /**
-          * Zero argument constructor.
-          * @note Should only be used indirectly, e.g., via std::list.
-          */
-         LabelStr();
+public:
+  /**
+   * Zero argument constructor.
+   * @note Should only be used indirectly, e.g., via std::list.
+   */
+  LabelStr();
 
-         /**
-          * @brief Constructor
-          * @param str The null terminated string in question
-          */
-         LabelStr(const char* str);
+  /**
+   * @brief Constructor
+   * @param str The null terminated string in question
+   */
+  LabelStr(const char* str);
 
-         /**
-          * @brief Constructor
-          * @param label The symbolic value as a string
-          */
-         LabelStr(const std::string& label);
+  /**
+   * @brief Constructor
+   * @param label The symbolic value as a string
+   */
+  LabelStr(const std::string& label);
 
-         /**
-          * @brief Constructor from encoded key
-          *
-          * Each LabelStr gets encoded as a key such that any 2
-          * instances of a LabelStr constructed from the same string
-          * will have the same key and that the key preserves
-          * lexicographic ordering.
-          *
-          * @param key the key value for a previously created LabelStr
-          * instance.  @see m_key, getString()
-          */
-         LabelStr(double key);
+  /**
+   * @brief Constructor from encoded key
+   *
+   * Each LabelStr gets encoded as a key such that any 2
+   * instances of a LabelStr constructed from the same string
+   * will have the same key and that the key preserves
+   * lexicographic ordering.
+   *
+   * @param key the key value for a previously created LabelStr
+   * instance.  @see m_key, getString()
+   */
+  LabelStr(double key);
 
 #ifdef PLEXIL_FAST
 
-         LabelStr(const LabelStr& org) : StoredString(org.getKey())
-         {
-         }
+  LabelStr(const LabelStr& org) : StoredString(org.getKey())
+  {
+  }
 
-         inline operator double () const
-         {
-            return getKey();
-         }
+  inline operator double () const
+  {
+    return getKey();
+  }
 
 #else
 
-         /**
-          * @brief Copy constructor.
-          *
-          * Only needs to copy the key since the string value can be
-          * recovered from the shared repository.
-          *
-          * @param org The source LabelStr.
-          */
-         LabelStr(const LabelStr& org);
+  /**
+   * @brief Copy constructor.
+   *
+   * Only needs to copy the key since the string value can be
+   * recovered from the shared repository.
+   *
+   * @param org The source LabelStr.
+   */
+  LabelStr(const LabelStr& org);
 
-         operator double () const;
+  operator double () const;
 
 #endif
 
-         /**
-          * @brief Lexical ordering test - less than
-          */
-         bool operator <(const LabelStr& lbl) const;
+  /**
+   * @brief Lexical ordering test - less than
+   */
+  bool operator <(const LabelStr& lbl) const;
 
-         /**
-          * @brief Lexical ordering test - greater than
-          */
-         bool operator >(const LabelStr& lbl) const;
+  /**
+   * @brief Lexical ordering test - greater than
+   */
+  bool operator >(const LabelStr& lbl) const;
 
-         /**
-          * @brief Test equivilency of two LabelStr, defined by having
-          * the same key.
-          */
-         //bool LabelStr::operator==(const LabelStr& lbl) const;
+  /**
+   * @brief Test equivilency of two LabelStr, defined by having
+   * the same key.
+   */
+  //bool LabelStr::operator==(const LabelStr& lbl) const;
 
-         /**
-          * @brief Return the represented string.
-          */
-         const std::string& toString() const;
+  /**
+   * @brief Return the represented string.
+   */
+  const std::string& toString() const;
 
-         /**
-          * @brief Return the represent char*
-          */
-         const char* c_str() const;
+  /**
+   * @brief Return the represent char*
+   */
+  const char* c_str() const;
 
-         /**
-          * @brief Obtain the encoded key value for the string.
-          * @return The key for accessing the store of strings.
-          */
-         inline double getKey() const
-         {
-            return StoredString::getKey();
-         }
+  /**
+   * @brief Obtain the encoded key value for the string.
+   * @return The key for accessing the store of strings.
+   */
+  inline double getKey() const
+  {
+    return StoredString::getKey();
+  }
 
-         /**
-          * @brief Tests if a given string is contained within this string.
-          * @param lblStr The string to test for
-          * @return true if present, otherwise false.
-          */
-         bool contains(const LabelStr& lblStr) const;
+  /**
+   * @brief Tests if a given string is contained within this string.
+   * @param lblStr The string to test for
+   * @return true if present, otherwise false.
+   */
+  bool contains(const LabelStr& lblStr) const;
 
-         /**
-          * @brief Return the number of elements in the string delimited by the given delimeter.
-          *
-          * Cases:
-          * 1. 'A:B:C:DEF' will contain 4 elements
-          * 2. 'A' will contain 1 element
-          * 3. ....A:' is invalid.
-          * 4. ':A... is invalid
-          *
-          * @param delimiter The delimeter to mark element boundaries
-          * @return The number of elements found.
-          * @see getElement
-          */
-         unsigned int countElements(const char* delimiter) const;
+  /**
+   * @brief Return the number of elements in the string delimited by the given delimeter.
+   *
+   * Cases:
+   * 1. 'A:B:C:DEF' will contain 4 elements
+   * 2. 'A' will contain 1 element
+   * 3. ....A:' is invalid.
+   * 4. ':A... is invalid
+   *
+   * @param delimiter The delimeter to mark element boundaries
+   * @return The number of elements found.
+   * @see getElement
+   */
+  unsigned int countElements(const char* delimiter) const;
 
-         /**
-          * @brief Return the requested element in a delimited string
-          *
-          * Cases:
-          * 1. 'A:B:C:DEF', 2  => 'C'
-          * 2. 'A:B:C:DEF', < 0 => error
-          * 2. 'A:B:C:DEF', > 3 => error
-          *
-          * @param index The position of the requested element
-          * @param delimiter The delimeter to mark
-          */
-         LabelStr getElement(unsigned int index, const char* delimiter) const;
+  /**
+   * @brief Return the requested element in a delimited string
+   *
+   * Cases:
+   * 1. 'A:B:C:DEF', 2  => 'C'
+   * 2. 'A:B:C:DEF', < 0 => error
+   * 2. 'A:B:C:DEF', > 3 => error
+   *
+   * @param index The position of the requested element
+   * @param delimiter The delimeter to mark
+   */
+  LabelStr getElement(unsigned int index, const char* delimiter) const;
 
-         /**
-          * @brief Return the number of strings stored.
-          */
-         static unsigned int getSize();
+  /**
+   * @brief Return the number of strings stored.
+   */
+  static unsigned int getSize();
 
-         /**
-          * @brief Test if the given double valued key represents a string.
-          * @param key The double to be tested.
-          */
-         static bool isString(double key);
+  /**
+   * @brief Test if the given double valued key represents a string.
+   * @param key The double to be tested.
+   */
+  static bool isString(double key);
 
-         /**
-          * @brief Tests if the given candidate is actually stored already as a LabelStr
-	  * @param candidate The string to be tested.
-          */
-         static bool isString(const std::string& candidate);
+  /**
+   * @brief Tests if the given candidate is actually stored already as a LabelStr
+   * @param candidate The string to be tested.
+   */
+  static bool isString(const std::string& candidate);
 
-      private:
+private:
 
-         friend class LabelStrLocalStatic;
+  friend class LabelStrLocalStatic;
 
-         /**
-          * @brief Obtain the string from the key.
-          * @param key The double valued encoding of the string
-          * @return a reference to the original string held in the string store.
-          * @see s_stringFromKeys
-          */
-         static const std::string& getString(double key);
+  /**
+   * @brief Obtain the string from the key.
+   * @param key The double valued encoding of the string
+   * @return a reference to the original string held in the string store.
+   * @see s_stringFromKeys
+   */
+  static const std::string& getString(double key);
 
 
 #ifndef PLEXIL_FAST
-         const char* m_chars;
+  const char* m_chars;
 #endif
 
-      protected:
-   };
+protected:
+};
 }
 #endif
