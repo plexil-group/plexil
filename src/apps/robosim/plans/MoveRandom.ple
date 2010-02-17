@@ -1,0 +1,11 @@
+RootNode:
+{
+  String RobotName = "RobotYellow";
+  Integer randNumber = 0;
+  NodeList:
+
+      RandomNumberGeneratorNode:
+      {
+        Command: randNumber = MoveRandom(RobotName);
+      }      
+}
