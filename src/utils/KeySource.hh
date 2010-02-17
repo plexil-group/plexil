@@ -40,6 +40,11 @@
 #include "Error.hh"
 #include "ThreadMutex.hh"
 
+// defined in vxWorksCommon.h,
+// and they interfere with numeric_limits methods of the same name
+#undef min
+#undef max
+
 namespace PLEXIL
 {
 
