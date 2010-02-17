@@ -27,7 +27,7 @@
 #ifndef _H_CommonDefs
 #define _H_CommonDefs
 
-#include <cstdint> // for int32_t
+#include <stdint.h> // for int32_t
 #include <cassert>
 
 #ifdef __BEOS__
