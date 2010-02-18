@@ -33,6 +33,7 @@
 #include "Debug.hh"
 #include "StateCache.hh"
 
+#include <algorithm>
 #include <map>
 #include <ext/functional>
 #include <functional>
