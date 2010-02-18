@@ -36,6 +36,9 @@
 #include <map>
 #include <set>
 
+// Take care of annoying VxWorks macro
+#undef UPDATE
+
 namespace PLEXIL {
 
    typedef std::map<double, ExpressionId> ExpressionMap;
