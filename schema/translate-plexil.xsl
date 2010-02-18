@@ -165,7 +165,9 @@
 <xsl:template name= "sequence-body">
   <NodeBody>
     <NodeList>
-      <xsl:apply-templates select= "key('action', *)" mode= "ordered"/>
+	    <xsl:for-each select= "child::* intersect key('action', *)">
+	      <xsl:apply-templates select= "." mode= "ordered"/>
+	    </xsl:for-each>
     </NodeList>
   </NodeBody>
 </xsl:template>
@@ -209,7 +211,9 @@
 <xsl:template name= "concurrent-body">
   <NodeBody>
     <NodeList>
-      <xsl:apply-templates select= "key('action', *)"/>
+      <xsl:for-each select= "child::* intersect key('action', *)">
+        <xsl:apply-templates select= "."/>
+      </xsl:for-each>
     </NodeList>
   </NodeBody>
 </xsl:template>
