@@ -1,0 +1,12 @@
+MoveLeftCommand:
+{
+	Real theTime;
+	Sequence
+		{
+			Assignment: theTime = LookupNow(Time);
+		}
+		{
+			EndCondition: theTime + 5000 > LookupOnChange(Time);
+			Command: SendMessage("MoveLeft");
+		}
+}

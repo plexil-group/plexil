@@ -1,0 +1,9 @@
+<Interfaces>
+ <Adapter AdapterType="OSNativeTime">
+  <LookupNames>time</LookupNames>
+ </Adapter>
+ <Adapter AdapterType="IpcAdapter" libPath="libipc.so" Server="localhost">
+  <DefaultLookupAdapter/>
+  <DefaultCommandAdapter/>
+ </Adapter>
+</Interfaces>
