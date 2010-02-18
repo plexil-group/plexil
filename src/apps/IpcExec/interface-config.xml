@@ -1,7 +1,0 @@
-<Interfaces>
- <Adapter AdapterType="OSNativeTime"/>
- <Adapter AdapterType="IpcAdapter" Server="localhost">
-  <DefaultLookupAdapter/>
-  <DefaultCommandAdapter/>
- </Adapter>
-</Interfaces>
