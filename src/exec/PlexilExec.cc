@@ -35,7 +35,6 @@
 
 #include <algorithm>
 #include <map>
-#include <ext/functional>
 #include <functional>
 #include <time.h>
 
@@ -345,6 +344,21 @@ namespace PLEXIL {
     conflictSet.insert(node);
   }
 
+  // Used in step() below.
+  // Replaces the STL template of the same name; code is copied from the GNU STL implementation.
+
+  template <class _Pair>
+  struct select2nd : public std::unary_function<_Pair,
+						typename _Pair::second_type>
+    {
+      typename _Pair::second_type&
+      operator()(_Pair& __x) const
+      { return __x.second; }
+
+      const typename _Pair::second_type&
+      operator()(const _Pair& __x) const
+      { return __x.second; }
+    };
 
   //interesting test case:  one node assigns to a variable.  another node only executes when the first is executing and also assigns to that variable
   void PlexilExec::step() {
@@ -365,7 +379,7 @@ namespace PLEXIL {
       std::list<NodeId> transitioningNodes;
       std::transform(m_stateChangeQueue.begin(), m_stateChangeQueue.end(),
 		     std::back_insert_iterator<std::list<NodeId> >(transitioningNodes),
-		     __gnu_cxx::select2nd<std::map<unsigned int, NodeId>::value_type>());
+		     select2nd<std::map<unsigned int, NodeId>::value_type>());
       m_stateChangeQueue.clear();
 
       std::stringstream out;
