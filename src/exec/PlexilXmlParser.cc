@@ -409,7 +409,7 @@ public:
 		checkNotEmpty(xml);
 		PlexilVarRef* retval = new PlexilVarRef();
 		retval->setName(xml->FirstChild()->Value());
-		char* varStart;
+		const char* varStart;
 		if ((varStart = strstr(xml->Value(), VAR_TAG.c_str())) != xml->Value()) {
 			std::string type(xml->Value(), varStart - xml->Value());
 			retval->setType(PlexilParser::parseValueType(type));
