@@ -1,0 +1,57 @@
+
+LibraryNode MoveLeftCommand;
+LibraryNode MoveRightCommand;
+MasterPlan:
+{
+	Integer leftIter = 3;
+	Integer rightIter = 3;
+	Sequence
+		Left:
+		{
+			RepeatCondition: leftIter > 0;
+			Sequence
+				Action:
+				{
+					Command: SendMessage("Left::Move");
+				}
+				Response:
+				{
+					StartCondition: MessageReceived("Left::FinishedMove");
+					Assignment: leftIter = leftIter;
+				}
+				Set:
+				{
+					Assignment: leftIter = -1 + leftIter;
+				}
+		}
+		Right:
+		{
+			RepeatCondition: rightIter > 0;
+			Sequence
+				Action:
+				{
+					Command: SendMessage("Right::Move");
+				}
+				Response:
+				{
+					StartCondition: MessageReceived("Right::FinishedMove");
+					Assignment: rightIter = rightIter;
+				}
+				Set:
+				{
+					Assignment: rightIter = rightIter - 1;
+				}
+		}
+		Quit:
+		{	
+			NodeList:
+				LeftQuit:
+				{
+					Command: SendMessage("Left::Quit");
+				}
+				RightQuit:
+				{
+					Command: SendMessage("Right::Quit");
+				}
+		}
+}

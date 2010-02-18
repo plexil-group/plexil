@@ -1,0 +1,13 @@
+These plans show an example of a subscription system with two actors. The plan interfaces only with Interface, which holds global state. Normally, the global state would contain both the desired state and current state, but current lack of parameterized messages makes this difficult. 
+
+Instead, the requirement for an actor to change the state of the system is represented by a boolean. For instance, if the desired state is left of the current state, shouldMoveLeft is set to true. When the actor receives and processes this message (moving the system left), shouldMoveLeft is set back to false.
+
+NOTE: At time of writing, Interface.plx would not compile. These plans are not tested.
+
+To start the plans, use these commands:
+
+universalExec -p LeftActor.plx -l ../moveLeft.plx -c ../interface-config.xml
+
+universalExec -p RightActor.plx -l ../moveRight.plx -c ../interface-config.xml
+
+universalExec -p masterPlan.plx -c ../interface-config.xml

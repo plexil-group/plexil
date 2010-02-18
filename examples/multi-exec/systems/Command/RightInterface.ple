@@ -1,0 +1,35 @@
+//Command Based Demo
+//Defines the interface for the Right movement module
+LibraryNode MoveLeftCommand;
+LibraryNode MoveRightCommand;
+
+Interface:
+{
+	Integer calls = 0;
+	Boolean continue = true;
+	NodeList:
+		Loop:
+		{
+			RepeatCondition: continue;
+			EndCondition: RecMoveRight.state == FINISHED  || RecQuit.state == FINISHED;
+			NodeList:
+				RecMoveRight:
+				{
+					StartCondition: MessageReceived("Right::Move");
+					Sequence
+						RecMoveRightCall:
+						{
+							LibraryCall: MoveRightCommand;
+						}
+						RespondMoveRight:
+						{
+							Command: SendMessage("Right::FinishedMove");
+						}
+				}
+				RecQuit:
+				{
+					StartCondition: MessageReceived("Quit");
+					Assignment: continue = false;
+				}
+		}
+}

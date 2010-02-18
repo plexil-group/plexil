@@ -1,0 +1,12 @@
+Car:{
+ Boolean carstarted = false;
+ EndCondition: carstarted;
+ NodeList:
+ CallIgnition: {
+  Command: SendMessage("StartCar");
+ } 
+ CarStarted: {
+  StartCondition: MessageReceived("CarStarted");
+  Assignment: carstarted = true;
+ }
+}

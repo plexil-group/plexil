@@ -1,0 +1,18 @@
+(plexil-plan
+  (list-node "Consumer"
+    (variables (integer "consumed" 0))
+    (end-condition (= (intvar "consumed") 2))
+    (list
+      (sequence
+          (concurrence "First"
+            (command-node "GetCandy1"
+              (command "SendMessage" "CoinInserted"))
+            (assignment-node "EatCandy1"
+              (start-condition (message-received "Candy"))
+              (assignment (intvar "consumed") (+ 1 (intvar "consumed")))))
+        (concurrence "Second"
+          (command-node "GetCandy2"
+            (command "SendMessage" "CoinInserted"))
+          (assignment-node "EatCandy2"
+            (start-condition (message-received "Candy"))
+            (assignment (intvar "consumed") (+ 1 (intvar "consumed")))))))))

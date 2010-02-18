@@ -1,0 +1,35 @@
+
+MasterPlan:
+{
+	Integer leftIter = 3;
+	Integer rightIter = 3;
+	Sequence
+		Right:
+		{
+			RepeatCondition: rightIter > 0;
+			Sequence
+				Action:
+				{
+					EndCondition: MessageReceived("Update::ShouldMoveRight::false");
+					Command: SendMessage("MoveRight");
+				}
+				Set:
+				{
+					Assignment: rightIter = rightIter - 1;
+				}
+		}
+		Left:
+		{
+			RepeatCondition: leftIter > 0;
+			Sequence
+				Action:
+				{
+					EndCondition: MessageReceived("Update::ShouldMoveLeft::false");
+					Command: SendMessage("MoveLeft");
+				}
+				Set:
+				{
+					Assignment: leftIter = leftIter - 1;
+				}
+		}
+}

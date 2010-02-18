@@ -1,0 +1,46 @@
+//Defines the interface from the server to this robot system
+LibraryNode MoveLeftCommand;
+LibraryNode MoveRightCommand;
+
+//The interface consists of a set of command definitions
+Interface:
+{
+	Integer calls = 0;
+	Boolean continue = true;
+	NodeList:
+		Loop:
+		{
+			RepeatCondition: continue;
+			EndCondition: RecMoveLeft.state == FINISHED || RecQuit.state == FINISHED;
+			NodeList:
+				//Each command definition contains a hard-coded string that defines the command name, 
+				//the library it should call as the command, and a hard-coded response message
+				//This response message should have a standard format
+				RecMoveLeft:
+				{
+					StartCondition: MessageReceived("MoveLeft");
+					Sequence
+						RecMoveLeftCall:
+						{
+							LibraryCall: MoveLeftCommand;
+						}
+					RespondMoveLeft:
+						{
+							Command: SendMessage("FinishedMoveLeft");
+						}
+				}
+				RecQuit:
+				{
+					StartCondition: MessageReceived("Quit");
+					Sequence
+						RecMoveRightCall:
+						{
+							Assignment: continue = false;
+						}
+						RespondMoveRight:
+						{
+							Command: SendMessage("FinishedQuit");
+						}
+				}
+		}
+}
