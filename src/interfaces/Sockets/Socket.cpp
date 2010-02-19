@@ -34,6 +34,14 @@
 #include <iostream>
 #include <arpa/inet.h>
 
+#ifdef PLEXIL_VXWORKS
+// VxWorks is not BSD!
+#include <sockLib.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
+
 Socket::Socket() :
    m_sock (-1)
 {
@@ -65,7 +73,7 @@ bool Socket::create()
    
    // TIME_WAIT - argh
    int on = 1;
-   if (setsockopt (m_sock, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1)
+   if (setsockopt (m_sock, SOL_SOCKET, SO_REUSEADDR, (char*) &on, sizeof (on)) == -1)
       return false;
    
    
@@ -157,7 +165,12 @@ bool Socket::accept (Socket& new_socket) const
 {
    MARK;
    int addr_length = sizeof (m_addr);
-   new_socket.m_sock = ::accept (m_sock, (sockaddr *) &m_addr, (socklen_t *) &addr_length);
+   new_socket.m_sock =
+#ifdef PLEXIL_VXWORKS
+     ::accept (m_sock, (sockaddr *) &m_addr, &addr_length);
+#else
+     ::accept (m_sock, (sockaddr *) &m_addr, (socklen_t *) &addr_length);
+#endif
    
    if (new_socket.m_sock <= 0)
       return false;
