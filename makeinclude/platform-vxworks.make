@@ -26,12 +26,12 @@ include $(WIND_BASE)/target/h/make/defs.library
 #
 
 # Header file path for targets
-INC_DIRS	+= $(WIND_BASE)/target/usr/h
-#INCLUDES	+= -nostdinc
+INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/h/wrn/coreip
 
 # Define this as a Real Time Process project
 
-DEFINES		+= -D__RTP__ -DCPU=$(CPU) -D_VX_TOOL=_VX_$(TOOL) -D_VX_TOOL_FAMILY=_VX_$(TOOL_FAMILY)
+DEFINES		+= -DPLEXIL_VXWORKS -D__RTP__ -DCPU=$(CPU) -DTOOL=$(TOOL) -DTOOL_FAMILY=$(TOOL_FAMILY) \
+                   -DPLATFORM_HAS_DINKUM_HASH_MAP
 
 STANDARD_CFLAGS		+= $(CC_ARCH_SPEC)
 STANDARD_CXXFLAGS	+= $(CC_ARCH_SPEC)
@@ -72,4 +72,4 @@ SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
 # Name of the library with the pthreads API
-PTHREAD_LIB   	      	       		:= pthread
+PTHREAD_LIB   	      	       		:= pthreadLib
