@@ -33,7 +33,7 @@ INC_DIRS	+= ..
 LIB_PATH	+=
 LIBS		+= tinyxml PlexilSockets
 
-SRC		:= $(wildcard *.cc)
+SRC		:= $(wildcard *.cpp)
 
 SVN_FILES       := Makefile $(SRC)
 
@@ -44,10 +44,10 @@ include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 # these must follow the above 'include'
 simple_client_main: simple_client_main.o depend
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_FLAGS) -o $@ $<
 
 simple_server_main: simple_server_main.o depend
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) -o $@ $<
+	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_FLAGS) -o $@ $<
 
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
