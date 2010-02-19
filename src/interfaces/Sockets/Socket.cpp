@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <iostream>
+#include <arpa/inet.h>
 
 Socket::Socket() :
    m_sock (-1)
