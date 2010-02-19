@@ -45,7 +45,7 @@
 
 # This works for any file suffix, e.g. .c, .cc, .cpp, .C, ...
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
-DIRT    = $(OBJ)
+DIRT    = $(OBJ) $(addsuffix .d,$(basename $(SRC)))
 
 ##### Internal Targets  -- not typically invoked explicitly.
 
@@ -143,7 +143,7 @@ tags:	$(SVN_FILES)
 # These targets apply to any directory that has a 'test' subdirectory.
 
 ## Build library and test directory
-all: plexil-default test
+all: plexil-default
 
 ## Build test directory
 test: plexil-default
