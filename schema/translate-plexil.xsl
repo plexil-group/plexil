@@ -601,8 +601,9 @@
         <AND>
           <xsl:apply-templates select= "PostCondition/*"/>
           <OR>
-            <xsl:apply-templates
-                select= "key('action', *)" mode= "success-check"/>
+	          <xsl:for-each select= "child::* intersect key('action', *)">
+	            <xsl:apply-templates select= "." mode= "success-check"/>
+	          </xsl:for-each>
           </OR>
         </AND>
       </PostCondition>
@@ -618,8 +619,9 @@
           <xsl:apply-templates select= "InvariantCondition/*"/>
           <NOT>
             <OR>
-              <xsl:apply-templates
-                  select= "key('action', *)" mode= "failure-check"/>
+              <xsl:for-each select= "child::* intersect key('action', *)">
+                <xsl:apply-templates select= "." mode= "failure-check"/>
+              </xsl:for-each>
             </OR>
           </NOT>
         </AND>
@@ -635,8 +637,9 @@
         <EndCondition>
           <OR>
             <xsl:apply-templates select= "EndCondition/*"/>
-            <xsl:apply-templates
-                select= "key('action', *)" mode= "success-check"/>
+            <xsl:for-each select= "child::* intersect key('action', *)">
+              <xsl:apply-templates select= "." mode= "success-check"/>
+            </xsl:for-each>
           </OR>
         </EndCondition>
       </xsl:if>
