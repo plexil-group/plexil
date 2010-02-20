@@ -35,6 +35,7 @@
 #include "NodeStateManager.hh"
 #include "CommandHandle.hh"
 
+#include <algorithm> // for find_if
 #include <vector>
 #include <sstream>
 

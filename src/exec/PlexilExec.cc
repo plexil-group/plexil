@@ -33,7 +33,8 @@
 #include "Debug.hh"
 #include "StateCache.hh"
 
-#include <algorithm>
+#include <algorithm> // for find(), transform
+#include <iterator> // for back_insert_iterator
 #include <map>
 #include <functional>
 #include <time.h>
