@@ -48,7 +48,7 @@ robosim: utils ipc
 	$(MAKE) -C src/apps/robosim
 
 UniversalExec: exec-core app-framework
-	$(MAKE) -C src/UniversalExec
+	$(MAKE) -C src/universal-exec
 
 checker:
 	(cd src/checker && ant jar)
@@ -99,8 +99,8 @@ clean: clean-ipc
 	$(MAKE) -C src/interfaces/Sockets $@
 	$(MAKE) -C src/CORBA $@
 	$(MAKE) -C src/app-framework $@
+	$(MAKE) -C src/universal-exec $@
 	$(MAKE) -C src/apps/robosim $@
-	$(MAKE) -C src/apps/UniversalExec $@
 	$(MAKE) -C src/apps/StandAloneSimulator $@
 	$(MAKE) -C src/apps/TestExec $@
 	(cd src/standard-plexil && ant $@)
