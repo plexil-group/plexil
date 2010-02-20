@@ -40,8 +40,8 @@
 namespace PLEXIL {
 
   AdapterConfiguration::AdapterConfiguration(InterfaceManager* manager) :
-      m_id(this),
-      m_manager(manager)
+    m_manager(manager),
+    m_id(this)
   {}
 
   AdapterConfiguration::~AdapterConfiguration() {}

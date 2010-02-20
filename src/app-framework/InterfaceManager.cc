@@ -76,9 +76,9 @@ namespace PLEXIL
       m_adapters(),
       m_listeners(),
       m_lookupAdapterMap(),
-      m_raInterface(),
       m_ackToCmdMap(),
       m_destToCmdMap(),
+      m_raInterface(),
       m_currentTime(std::numeric_limits<double>::min())
   {
 
