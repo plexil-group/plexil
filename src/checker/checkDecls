@@ -32,7 +32,7 @@
 #   1 Checking Error(s) Found
 #   2 Unhandled Exception
 
-prog=${PLEXIL_HOME}/checker/global-decl-checker.jar
+prog=${PLEXIL_HOME}/src/checker/global-decl-checker.jar
 
 # Make sure jar file exists
 if [ ! -f "${prog}" ]
