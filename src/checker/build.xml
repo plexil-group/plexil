@@ -15,7 +15,7 @@
   <property name = "main-class"         value = "DeclMain"/>
   <property name = "lib-dir"            location = "${env.PLEXIL_HOME}/third-party/jars"/>
   <property name = "resources"          location = "."/>
-  <property name = "compile-includes"   location = ""/>
+  <property name = "compile-includes"   location = "reader/**,main/**,model/**"/>
   <property name = "compile-excludes"   location = ""/>
   
   <!-- java library files that belong in the class path and the jar -->
