@@ -22,7 +22,7 @@ def check_env_variables():
             global PLEXIL_HOME
             PLEXIL_HOME = os.environ[a]
             global UE_TEST_DIR
-            UE_TEST_DIR = PLEXIL_HOME + "/universal-exec/Utils/test/"
+            UE_TEST_DIR = PLEXIL_HOME + "/src/utils/test/"
             global LUV_DIR
             LUV_DIR = PLEXIL_HOME + "/luv/resources/"
             global DEBUG_FLAGS_TEMP
