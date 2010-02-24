@@ -890,7 +890,7 @@ IPC_RETURN_TYPE ipcReturnValue(X_IPC_RETURN_VALUE_TYPE retVal)
 /* Create a handler name from the message name and the handler function.
    Stick the handler name into the "hndName" string (already allocated!) */
 void ipcHandlerName (const char *msgName, HANDLER_TYPE handler, char *hndName,
-		     uint hndNameSize)
+		     unsigned int hndNameSize)
 {
   bzero(hndName, hndNameSize);
   snprintf(hndName, hndNameSize-1, "HND-%s%ld", msgName, (long)handler);

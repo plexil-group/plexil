@@ -435,7 +435,7 @@ extern IPC_RETURN_TYPE ipcDataToSend (CONST_FORMAT_PTR format,
 				      IPC_VARCONTENT_PTR varcontent);
 
 extern void ipcHandlerName (const char *msgName, HANDLER_TYPE handler, 
-			    char *hndName, uint hndNameSize);
+			    char *hndName, unsigned int hndNameSize);
 
 #ifdef macintosh
 #pragma export on
