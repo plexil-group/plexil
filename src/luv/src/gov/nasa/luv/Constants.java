@@ -153,9 +153,9 @@ public class Constants
       /** Represents the complete list of debug flags. */ 
       public static final String    COMPLETE_FLAG_LIST = PLEXIL_HOME +
                                                          System.getProperty("file.separator") +
-                                                         "universal-exec" + 
+                                                         "src" + 
                                                          System.getProperty("file.separator") +
-                                                         "Utils" + 
+                                                         "utils" + 
                                                          System.getProperty("file.separator") +
                                                          "test" + 
                                                          System.getProperty("file.separator") +
