@@ -163,6 +163,8 @@ public class Constants
       
       /** Represents the user defined list of debug flags. */
       public static final String    DEBUG_CFG_FILE = PLEXIL_HOME +
+      												 System.getProperty("file.separator") +
+      												 "src" +
                                                      System.getProperty("file.separator") +
                                                      "luv" + 
                                                      System.getProperty("file.separator") +
