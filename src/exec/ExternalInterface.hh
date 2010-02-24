@@ -172,7 +172,7 @@ namespace PLEXIL {
     virtual void executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
     //abort the given command with the given arguments.  store the abort-complete into dest
-    virtual void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest);
+    virtual void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     //XML VERSION IS DEPRECATED
     virtual void addPlan(const TiXmlElement& plan, const LabelStr& parent = EMPTY_LABEL())
       throw(ParserException);

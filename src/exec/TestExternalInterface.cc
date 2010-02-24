@@ -606,7 +606,7 @@ namespace PLEXIL
       //m_executingCommands.insert(UniqueThing((double)name, args), dest);
    }
 
-   void TestExternalInterface::invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest)
+   void TestExternalInterface::invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
    {
       //checkError(ALWAYS_FAIL, "Don't do that.");
       std::vector<double> realArgs(args.begin(), args.end());

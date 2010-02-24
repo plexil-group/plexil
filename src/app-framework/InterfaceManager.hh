@@ -271,10 +271,10 @@ namespace PLEXIL
     void batchActions(std::list<FunctionCallId>& functionCalls);
     void updatePlanner(std::list<UpdateId>& updates);
 
-    //abort the given command with the given arguments.  store the abort-complete into dest
+    //abort the given command with the given arguments that had the acknowledgment cmd_ack.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name,
 		     const std::list<double>& args,
-		     ExpressionId dest);
+		     ExpressionId cmd_ack, ExpressionId ack);
 
     double currentTime();
 

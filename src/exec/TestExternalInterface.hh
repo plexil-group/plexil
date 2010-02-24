@@ -84,7 +84,7 @@ namespace PLEXIL {
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
-    void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest);
+    void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void addPlan(const TiXmlElement& plan, const LabelStr& parent)
       throw(ParserException);
     

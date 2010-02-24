@@ -44,7 +44,7 @@
 #include "ExecListenerFactory.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "NewLuvListener.hh"
+#include "LuvListener.hh"
 #include "TimeAdapter.hh"
 #include "ResourceArbiterInterface.hh"
 #include "Node.hh"
@@ -76,9 +76,9 @@ namespace PLEXIL
       m_adapters(),
       m_listeners(),
       m_lookupAdapterMap(),
+      m_raInterface(),
       m_ackToCmdMap(),
       m_destToCmdMap(),
-      m_raInterface(),
       m_currentTime(std::numeric_limits<double>::min())
   {
 
@@ -89,7 +89,7 @@ namespace PLEXIL
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 
     // Every application should have access to the LUV Listener
-    REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
 
     // Every application has access to the default adapter configuration
     REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");
@@ -182,9 +182,7 @@ namespace PLEXIL
                            << *element);
 		debugMsg("InterfaceManager:constructInterfaces",
 			 " found adapter type \"" << adapterType << "\"");
-                
-                // load external library (linux only for now) if the adapter is not registered
-                // TODO: support mac os
+
                 if (!AdapterFactory::isRegistered(adapterType)) {
                   const char* libCPath =
                     element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
@@ -964,12 +962,12 @@ namespace PLEXIL
   void
   InterfaceManager::invokeAbort(const LabelStr& name,
 					 const std::list<double>& args,
-					 ExpressionId dest)
+					 ExpressionId cmd_ack, ExpressionId ack)
   {
     InterfaceAdapterId intf = getCommandInterface(name);
     assertTrueMsg(!intf.isNoId(),
 		  "invokeAbort: null interface adapter for command " << name.toString());
-    intf->invokeAbort(name, args, dest);
+    intf->invokeAbort(name, args, cmd_ack, ack);
   }
 
   double 

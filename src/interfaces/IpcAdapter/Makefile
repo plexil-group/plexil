@@ -32,12 +32,12 @@ LIBRARY		:= IpcAdapter
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                    $(PLEXIL_HOME)/third-party/ooid/kashmir \
-                    ../../utils ../../exec ../../app-framework
+                    ../../utils ../../exec ../../app-framework 
 LIB_PATH	+=
 LIBS		+= ipc tinyxml PlexilUtils PlexilExec PlexilAppFramework
 
-SRC		:= IpcAdapter.cc initIpcAdapter.cc
-INC		:= IpcAdapter.hh ipc-data-formats.h defineIpcMessageTypes.h
+SRC		:= IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cpp
+INC		:= IpcAdapter.hh ipc-data-formats.h defineIpcMessageTypes.h MessageQueueMap.h
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 

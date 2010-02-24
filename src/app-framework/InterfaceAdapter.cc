@@ -141,10 +141,10 @@ namespace PLEXIL
   }
 
 
-  //abort the given command with the given arguments.  store the abort-complete into dest
+  //abort the given command with the given arguments that had acknowledgment old_ack.  store the abort-complete into ack
   void InterfaceAdapter::invokeAbort(const LabelStr& name, 
 				     const std::list<double>& args, 
-				     ExpressionId dest)
+				     ExpressionId cmd_ack, ExpressionId ack)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::invokeAbort: default method called!");

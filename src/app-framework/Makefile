@@ -31,7 +31,7 @@ LIBRARY		:= PlexilAppFramework
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../utils ../exec ../interfaces/Sockets
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilSockets $(PTHREAD_LIB)
+LIBS		+= tinyxml PlexilUtils PlexilExec dl PlexilSockets $(PTHREAD_LIB)
 
 ifneq ($(OSNAME),Darwin)
 LIBS		+= rt

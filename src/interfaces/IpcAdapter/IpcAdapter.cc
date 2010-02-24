@@ -34,6 +34,7 @@
 #include "PlexilXmlParser.hh"
 #include "StoredArray.hh"
 #include "ThreadSpawn.hh"
+#include <string>
 
 #include "tinyxml.h"
 
@@ -50,10 +51,11 @@ namespace PLEXIL
    */
   IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface)
     : InterfaceAdapter(execInterface),
-      m_sem(),
+      m_lookupSem(),
       m_serial(0),
       m_pendingLookupSerial(0),
-      m_pendingLookupDestination(NULL)
+      m_pendingLookupDestination(NULL),
+      m_messageQueues(execInterface)
   {
     initializeUID();
   }
@@ -66,10 +68,11 @@ namespace PLEXIL
   IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface, 
 			 const TiXmlElement * xml)
     : InterfaceAdapter(execInterface, xml),
-      m_sem(),
+      m_lookupSem(),
       m_serial(0),
       m_pendingLookupSerial(0),
-      m_pendingLookupDestination(NULL)
+      m_pendingLookupDestination(NULL),
+      m_messageQueues(execInterface)
   {
     initializeUID();
   }
@@ -109,12 +112,14 @@ namespace PLEXIL
     // Get taskName, serverName from XML, if supplied
     const char* taskName = NULL;
     const char* serverName = NULL;
+    const char* acceptDuplicatesStr = NULL;
 
     const TiXmlElement* xml = this->getXml();
     if (xml != NULL) 
       {
 	taskName = xml->Attribute("TaskName");
 	serverName = xml->Attribute("Server");
+	acceptDuplicatesStr = xml->Attribute("AllowDuplicateMessages");
       }
 
     // Use defaults if necessary
@@ -122,10 +127,24 @@ namespace PLEXIL
       {
 	taskName = m_myUID.c_str();
       }
-    if(serverName != NULL)
+    if(serverName == NULL)
       {
 	serverName = "localhost";
       }
+    if(acceptDuplicatesStr != NULL) {
+      if (std::strcmp(acceptDuplicatesStr, "true") == 0) {
+        m_messageQueues.setAllowDuplicateMessages(true);
+      } else if (std::strcmp(acceptDuplicatesStr, "false") == 0) {
+        m_messageQueues.setAllowDuplicateMessages(false);
+      } else {
+        assertTrueMsg(ALWAYS_FAIL, "IpcAdapter: " << acceptDuplicatesStr << " invalid for \"AllowDuplicateMessages\"."
+            << " Must be 'true' or 'false'.");
+      }
+    } else {
+      //debugging only. set to true for release
+      m_messageQueues.setAllowDuplicateMessages(false);
+    }
+
     debugMsg("IpcAdapter:initialize", 
 	     " Connecting module " << taskName <<
 	     " to central server at " << serverName);
@@ -573,7 +592,7 @@ namespace PLEXIL
 
     // Wait for results
     // *** TODO: check for error
-    m_sem.wait();
+    m_lookupSem.wait();
 
     // Clean up
     m_pendingLookupSerial = 0;
@@ -658,6 +677,21 @@ namespace PLEXIL
 	m_execInterface.notifyOfExternalEvent();
 	debugMsg("IpcAdapter:executeCommand", " return value sent.");
       }
+        // Check for ReceiveMessage command
+    else if (name == RECEIVE_MESSAGE_COMMAND())
+      {
+      // Check for one argument, the message
+      assertTrueMsg(args.size() == 1,
+                "IpcAdapter: The ReceiveMessage command requires exactly one argument");
+      assertTrueMsg(LabelStr::isString(args.front()),
+                "IpcAdapter: The argument to the SendMessage command, " << args.front()
+                << ", is not a string");
+      LabelStr theMessage(args.front());
+      m_messageQueues.addRecipient(theMessage, ack, dest);
+      m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
+      m_execInterface.notifyOfExternalEvent();
+      debugMsg("IpcAdapter:executeCommand", " message handler for \"" << theMessage.c_str() << "\" registered.");
+      }
     else // general case
       {
 	debugMsg("IpcAdapter:executeCommand", " for \"" << name.c_str()
@@ -735,15 +769,30 @@ namespace PLEXIL
    * @brief Abort the pending command with the supplied name and arguments.
    * @param name The LabelString representing the command name.
    * @param args The command arguments expressed as doubles.
-   * @param ack The expression in which to store an acknowledgement of command abort.
+   * @param dest The destination of the pending command
+   * @param ack The expression in which to store an acknowledgment of command abort.
    * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
   void IpcAdapter::invokeAbort(const LabelStr& name, 
 			       const std::list<double>& args, 
-			       ExpressionId ack)
+			       ExpressionId cmd_ack, ExpressionId ack)
   {
-    assertTrueMsg(ALWAYS_FAIL, "IpcAdapter::invokeAbort is not yet implemented");
+    //TODO: implement unique command IDs for referencing command instances
+    assertTrueMsg(name == RECEIVE_MESSAGE_COMMAND(),
+              "IpcAdapter: Only ReceiveMessage commands can be aborted");
+    assertTrueMsg(args.size() == 1,
+              "IpcAdapter: Aborting ReceiveMessage requires exactly one argument");
+    assertTrueMsg(LabelStr::isString(args.front()),
+              "IpcAdapter: The argument to the ReceiveMessage abort, " << args.front()
+              << ", is not a string");
+    LabelStr theMessage(args.front());
+
+    debugMsg("IpcAdapter:invokeAbort", "Aborting command listener " << theMessage.c_str() << " with ack " << (double) cmd_ack << std::endl
+        << "WARNING: All listeners for this command will be released until unique command IDs are implemented.");
+    m_messageQueues.removeRecipient(theMessage, cmd_ack);
+    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
+    m_execInterface.notifyOfExternalEvent();
   }
 
   //
@@ -1076,14 +1125,7 @@ namespace PLEXIL
 		  "IpcAdapter::handleMessageMessage: msgData is null")
     assertTrueMsg(msgData->stringValue != NULL,
 		  "IpcAdapter::handleMessageMessage: stringValue is null")
-    ActiveListenerMap::const_iterator it = m_activeMessageListeners.find(msgData->stringValue);
-    if (it != m_activeMessageListeners.end())
-      {
-	std::vector<double> valueVector(1, BooleanVariable::TRUE());
-	const StateKey& key = it->second;
-	m_execInterface.handleValueChange(key, valueVector);
-	m_execInterface.notifyOfExternalEvent();
-      }
+	m_messageQueues.addMessage(msgData->stringValue);
 
     // clean up
     IPC_freeData(IPC_msgFormatter(STRING_VALUE_MSG), (void*) msgData);
@@ -1188,7 +1230,7 @@ namespace PLEXIL
 			  << " values; multiple return values for LookupNow not yet implemented");
 	    (*m_pendingLookupDestination)[0] = parseReturnValues(msgs);
 	    // *** TODO: check for error
-	    m_sem.post();
+	    m_lookupSem.post();
 	    return;
 	  }
 
