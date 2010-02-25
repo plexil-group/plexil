@@ -169,7 +169,7 @@ void x_ipc_closeSocket(int32 port);
   (msecs) = ((timeval).tv_sec == WAITFOREVER ? WAITFOREVER \
 	     : (1000*(0x1FFFFF&(timeval).tv_sec) + (timeval).tv_usec/1000))
 
-#if defined(VXWORKS) | defined(_WINSOCK_)
+#if (defined(VXWORKS) && !defined(__RTP__)) | defined(_WINSOCK_)
 /* Not defined in many environments */ 
 extern struct timeval *gettimeofday(struct timeval *, void *);
 #endif

@@ -807,7 +807,7 @@ struct timeval *gettimeofday(struct timeval *daytime, void *dummy)
   return daytime;
 }
 
-#elif defined(VXWORKS)
+#elif (defined(VXWORKS) && !defined(__RTP__))
 /* Not defined in vxworks environment */
 struct timeval *gettimeofday(struct timeval *daytime, void *dummy)
 {
