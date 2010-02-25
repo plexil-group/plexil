@@ -26,7 +26,7 @@ include $(WIND_BASE)/target/h/make/defs.library
 #
 
 # Header file path for targets
-INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/h/wrn/coreip
+INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/wrn/coreip $(WIND_BASE)/target/h/wrn/coreip
 
 # Define this as a Real Time Process project
 
