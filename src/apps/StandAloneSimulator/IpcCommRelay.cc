@@ -459,7 +459,7 @@ void IpcCommRelay::processLookupNow(std::vector<const PlexilMsgBase*>& msgs)
     {
       // Create a bogus response that returns 0 values (i.e. unknown)
       debugMsg("IpcCommRelay:lookupNow", " " << stateName << " not found, returning UNKNOWN");
-      GenericResponse gr(std::vector<double>(0, 0.0));
+      static GenericResponse gr(std::vector<double>(0, 0.0));
       response = new ResponseMessage(&gr, static_cast<void*>(transId), MSG_LOOKUP);
     }
   // Simply send the response
