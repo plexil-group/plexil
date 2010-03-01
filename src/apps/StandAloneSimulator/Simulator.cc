@@ -189,6 +189,7 @@ void Simulator::scheduleResponseForCommand(const std::string& command,
                                            void* uniqueId)
 {
   timeval time;
+  gettimeofday(&time, NULL);
   debugMsg("Simulator:scheduleResponseForCommand",
 	   " for : " << command);
   bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
