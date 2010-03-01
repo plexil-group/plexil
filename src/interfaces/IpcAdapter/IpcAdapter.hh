@@ -49,9 +49,11 @@ public:
   DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "MESSAGE__")
   DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "LOOKUP__")
   DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "LOOKUP_ON_CHANGE__")
+  DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPERATOR, ":")
 
   DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
   DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
+  DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
   DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
 
   /**
@@ -228,6 +230,11 @@ private:
   void enqueueMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
 
   /**
+   * @brief Queues the command in the message queue
+   */
+  void handleCommandSequence(std::vector<const PlexilMsgBase*>& msgs);
+
+  /**
    * @brief Process a TelemetryValues message sequence
    */
   void handleTelemetryValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
@@ -236,6 +243,23 @@ private:
    * @brief Process a ReturnValues message sequence
    */
   void handleReturnValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
+
+  /**
+   * @brief Helper function for sending a vector of parameters via IPC.
+   * @param args The arguments to convert into messages and send
+   * @param serial The serial to send along with each parameter. This should be the same serial as the header
+   */
+  void sendParameters(const std::list<double>& args, uint32_t serial);
+
+  /**
+   * @brief Helper function for converting message names into the propper format given the command type.
+   */
+  double formatMessageName(const LabelStr& name, const LabelStr& command);
+
+  /**
+   * @brief Helper function for converting message names into the propper format given the command type.
+   */
+  double formatMessageName(const char* name, const LabelStr& command);
 
   /**
    * @brief Get next serial number
