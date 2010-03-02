@@ -311,7 +311,7 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 		
 	  String command = UE_EXEC + " -v";
 
-	  if (this.isBreaksAllowed()){
+	  if (Luv.getLuv().breaksAllowed()){
 		  command += " -b";
 	  }
 		   
