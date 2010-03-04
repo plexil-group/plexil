@@ -26,7 +26,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug file>] \
-                     [-eprompt] [-wprompt] [-log <log file>] [-nocheck] \
+                     [-eprompt] [-wprompt] [-log <log file>] [-check] \
                      <plan> [<script>] [-l <library>]*"
 
 # Convenient though stylized script for running exec-test-runner_g_rt.
@@ -39,7 +39,7 @@ usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 #  -h hostname of viewer
 #  -n portnumber of viewer
 #  -d debug file (default is Debug.cfg)
-#  -nocheck skips Java checker program from executing
+#  -check enables Java checker program
 
 # Unless simulation script file is specified, it defaults to (in order
 # of existence):
@@ -162,12 +162,12 @@ if [ '-log' = "$1" ]
 fi
 
 # Flag no check
-if [ '-nocheck' = "$1" ]
+if [ '-check' = "$1" ]
   then 
     shift
-    no_check="true"
+    check="true"
   else
-    no_check="false"
+    check="false"
 fi
 
 # Any more arguments?
@@ -190,7 +190,7 @@ fi
 
 
 # Check plan for errors
-if [ $no_check = "false" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
+if [ $check = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
   then $PLEXIL_HOME/bin/checkDecls $plan
        if [ $? -gt 0 ]
          then
