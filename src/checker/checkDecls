@@ -35,6 +35,7 @@
 #   2 Unhandled Exception
 
 prog=${PLEXIL_HOME}/src/checker/global-decl-checker.jar
+args=$*
 
 # Make sure jar file exists
 if [ ! -f "${prog}" ]
@@ -42,6 +43,18 @@ then
   echo "Cannot find file ${prog}. Please run:"
   echo "  ant jar"
   echo "If JAR is located elsewhere, please update the location in the script"
+  exit 2
+fi
+
+if [ '-d' = "$1" ]
+  then
+    shift
+fi
+
+ #Make sure a true input file is added as argument
+if [ ! -f $1 ]
+then
+  echo "Cannot find file" $1
   exit 2
 fi
 
@@ -53,7 +66,7 @@ then
 fi
 
 # Run the program
-java -jar ${prog} $*
+java -jar ${prog} $args
 
 # Check result of the program
 result=$?
