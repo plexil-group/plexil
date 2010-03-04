@@ -25,6 +25,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# -d enable debug mode
+
 # Runs global-decl-checker.jar on a given input .plx file.
 
 # If the input is appropriate, it will return a following value.
@@ -43,23 +45,8 @@ then
   exit 2
 fi
 
-# Make sure a true input file is added as argument
-has_file=0
-for arg in $*
-do
-  if [ ! ${arg:0:1} = "-" ]
-  then
-    if [ ! -f $arg ]
-    then
-      echo "Cannot find file" $arg
-      exit 2
-    fi
-    has_file=1
-  fi
-done
-
 # No input file selected, exit
-if [ $has_file -eq 0 ]
+if [ ! $1 ]
 then
   echo "Usage: checkDecls [-d] file.plx"
   exit 2
