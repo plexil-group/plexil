@@ -90,7 +90,7 @@ namespace PLEXIL
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 
     // Every application should have access to the LUV Listener
-    REGISTER_EXEC_LISTENER(NewLuvListener, "NewLuvListener");
+    REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
 
     // Every application has access to the default adapter configuration
     REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");
