@@ -44,7 +44,8 @@
 #include "ExecListenerFactory.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "LuvListener.hh"
+//#include "LuvListener.hh"
+#include "NewLuvListener.hh"
 #include "TimeAdapter.hh"
 #include "ResourceArbiterInterface.hh"
 #include "Node.hh"
@@ -89,7 +90,7 @@ namespace PLEXIL
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 
     // Every application should have access to the LUV Listener
-    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+    REGISTER_EXEC_LISTENER(NewLuvListener, "NewLuvListener");
 
     // Every application has access to the default adapter configuration
     REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");
