@@ -1,4 +1,4 @@
-;;; Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+;;; Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 ;;;  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -308,8 +308,9 @@
 (defmacro pdefine (namespace names arglist indent type doc body)
   ;; symbol * list(symbol) * list(symbol) * any * opt(symbol) * string * any -> ()
   ;;
-  ;; Allows 2-4 differently named definitions of the same function, and
-  ;; provides automatic generation of the Plexilisp reference manual.
+  ;; Allows many differently named definitions of the same
+  ;; function, and provides automatic generation of the
+  ;; Plexilisp reference manual.
   ;;
   ;; This function is needed only for macro expansion.
   (defun plexil-qualify (a b)
@@ -323,25 +324,21 @@
               ((eq ',type 'node-body)
                (push (plexil-qualify ',namespace name) *node-body-types*))))
            ',names)
-     ;; ! This is a hack, but I haven't found a way to generalize it.
-     ;; to any number of names.
-     (defun ,(plexil-qualify namespace (car names)) ,arglist ,body)
-     (defun ,(plexil-qualify namespace (cadr names)) ,arglist ,body)
-     (when (> (length ',names) 2) 
-       (defun ,(plexil-qualify namespace (car (cddr names))) ,arglist ,body))
-     (when (> (length ',names) 3) 
-       (defun ,(plexil-qualify namespace (cadr (cddr names))) ,arglist ,body))
+     ,@(let ((forms nil))
+         (dolist (name names)
+           (push 
+            `(defun ,(plexil-qualify namespace name) ,arglist ,body)
+            forms))
+         forms)
      (if *assemble-doc*
          (push (plexil-doc ',names ',(mapcar #'symbol-name arglist) ',doc)
                *plexilisp-reference*))))
 
-;;;  This is a macro version of the above.
 
 (defmacro pdefine-syntax (namespace names arglist indent type doc body)
   ;; symbol * list(symbol) * list(symbol) * any * opt(symbol) * string * any -> ()
   ;;
-  ;; Allows 2-4 differently named definitions of the same macro, and
-  ;; provides automatic generation of the Plexilisp reference manual.
+  ;; Macro version of pdefine
   ;;
   ;; This function is needed only for macro expansion.
   (defun plexil-qualify (a b)
@@ -355,14 +352,12 @@
               ((eq ',type 'node-body)
                (push (plexil-qualify ',namespace name) *node-body-types*))))
            ',names)
-     ;; ! This is a hack, but I haven't found a way to generalize it.
-     ;; to any number of names.
-     (defmacro ,(plexil-qualify namespace (car names)) ,arglist ,body)
-     (defmacro ,(plexil-qualify namespace (cadr names)) ,arglist ,body)
-     (when (> (length ',names) 2) 
-       (defmacro ,(plexil-qualify namespace (car (cddr names))) ,arglist ,body))
-     (when (> (length ',names) 3) 
-       (defmacro ,(plexil-qualify namespace (cadr (cddr names))) ,arglist ,body))
+     ,@(let ((forms nil))
+         (dolist (name names)
+           (push 
+            `(defmacro ,(plexil-qualify namespace name) ,arglist ,body)
+            forms))
+         forms)
      (if *assemble-doc*
          (push (plexil-doc ',names ',(mapcar #'symbol-name arglist) ',doc)
                *plexilisp-reference*))))
@@ -601,20 +596,12 @@
 
 (insert-plexil-heading "=== Variable Declaration ===")
 
-;;; Stub that only obviates a compiler warning
-(defun pl-variables (&rest decls))
-
-(pdefine pl (VariableDeclarations variable-declarations Variables variables)
+(pdefine pl (VariableDeclarations variable-declarations Variables variables
+             DeclareVariables declare-variables)
          (&rest decls) 0 nil
   ;; list(xml) -> xml
   ("The node's variable declarations.  Must contain one or more of the "
    "declaration forms that follow.")
-  (xml "VariableDeclarations" decls))
-
-(pdefine pl (DeclareVariables declare-variables Let let)
-         (&rest decls) 0 nil
-  ;; list(xml) -> xml
-  "More synonyms for the VariableDeclarations form."
   (xml "VariableDeclarations" decls))
 
 (pdefine pl (Integer integer) (name &optional val) 2 nil ; string * opt(int) -> xml
