@@ -64,6 +64,10 @@
 //#include <cmath>
 #include <cfloat>
 
+#if S950
+#include <sys950Lib.h>
+#endif
+
 #ifndef PLEXIL_FAST
 #define non_fast_only_assert(T) assertTrue(T)
 #else
