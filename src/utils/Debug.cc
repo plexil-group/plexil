@@ -167,7 +167,7 @@ bool DebugMessage::readConfigFile(std::istream& is) {
       continue;
     std::string::size_type i = 0;
     std::string::size_type len = input.length();
-    while (i < len && isascii(input[i]) && isspace(input[i]))
+    while (i < len && isspace(input[i]))
       i++;
     if (input[i] == ';' || input[i] == '#' || input[i] == '/')
       continue; // input is a comment
@@ -175,7 +175,7 @@ bool DebugMessage::readConfigFile(std::istream& is) {
     i = input.find_first_of(";#/");
     input = input.substr(0, i); // chop off comment
     i = input.length();
-    while (i > 0 && isascii(input[i - 1]) && isspace(input[i - 1]))
+    while (i > 0 && isspace(input[i - 1]))
       --i;
     if (i <= 0)
       continue; // should be impossible
