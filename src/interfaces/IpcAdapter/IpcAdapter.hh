@@ -28,7 +28,10 @@
 #include "LabelStr.hh"
 #include "ThreadSemaphore.hh"
 #include "MessageQueueMap.h"
+#include "IpcFacade.hh"
 #include <ipc.h>
+#include <vector>
+#include <list>
 
 // Forward declarations outside of namespace
 struct PlexilMsgBase;
@@ -49,11 +52,13 @@ public:
   DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "MESSAGE__")
   DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "LOOKUP__")
   DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "LOOKUP_ON_CHANGE__")
+  DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "PARAMETER__")
   DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPERATOR, ":")
 
   DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
   DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
   DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
+  DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
   DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
 
   /**
@@ -182,38 +187,14 @@ private:
   //
 
   /**
-   * @brief Initialize unique ID string
-   */
-  void initializeUID();
-
-  /**
-   * @brief Handler function as seen by IPC.
-   */
-
-  static void messageHandler(MSG_INSTANCE rawMsg, void * unmarshalledMsg, void * this_as_void_ptr);
-
-  /**
    * @brief Handler function as seen by adapter.
    */
 
-  void handleIpcMessage(const PlexilMsgBase * msgData);
+  void handleIpcMessage(const std::vector<PlexilMsgBase *> msgData);
 
   //
   // Helper methods
   //
-
-  /**
-   * @brief Cache start message of a multi-message sequence
-   */
-
-  void cacheMessageLeader(const PlexilMsgBase* msgData);
-
-  /**
-   * @brief Cache following message of a multi-message sequence
-   */
-
-  void cacheMessageTrailer(const PlexilMsgBase* msgData);
-
   /**
    * @brief Send a single message to the Exec's queue and free the message
    */
@@ -225,31 +206,19 @@ private:
   void handleMessageMessage(const PlexilStringValueMsg* msgData);
 
   /**
-   * @brief Send a message sequence to the Exec's queue and free the messages
-   */
-  void enqueueMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
-
-  /**
    * @brief Queues the command in the message queue
    */
-  void handleCommandSequence(std::vector<const PlexilMsgBase*>& msgs);
+  void handleCommandSequence(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Process a TelemetryValues message sequence
    */
-  void handleTelemetryValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
+  void handleTelemetryValuesSequence(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Process a ReturnValues message sequence
    */
-  void handleReturnValuesSequence(std::vector<const PlexilMsgBase*>& msgs);
-
-  /**
-   * @brief Helper function for sending a vector of parameters via IPC.
-   * @param args The arguments to convert into messages and send
-   * @param serial The serial to send along with each parameter. This should be the same serial as the header
-   */
-  void sendParameters(const std::list<double>& args, uint32_t serial);
+  void handleReturnValuesSequence(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Helper function for converting message names into the propper format given the command type.
@@ -261,11 +230,6 @@ private:
    */
   double formatMessageName(const char* name, const LabelStr& command);
 
-  /**
-   * @brief Get next serial number
-   */
-  uint32_t getSerialNumber();
-
   //
   // Static member functions
   //
@@ -276,32 +240,16 @@ private:
   static bool hasPrefix(const std::string& s, const std::string& prefix);
 
   /**
-   * @brief Generate a string combining the given UID and serial
-   */
-  static std::string makeTransactionID(const std::string& uid, uint32_t serial);
-
-  /**
-   * @brief Given a transaction ID string, return the UID and the serial
-   */
-  static void parseTransactionId(const std::string& transId, std::string& uidOut, uint32_t& serialOut);
-
-  /**
    * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
    */
-  static double parseReturnValues(std::vector<const PlexilMsgBase*>& msgs);
+  static double parseReturnValues(const std::vector<const PlexilMsgBase*>& msgs);
 
   //
   // Private data types
   //
 
-  //* brief Unique identifier of a message sequence
-  typedef std::pair<std::string, uint32_t> IpcMessageId;
-
   //* brief Associates serial numbers with active LookupOnChange instances
   typedef std::map<uint32_t, StateKey> IpcChangeLookupMap;
-
-  //* brief Cache of not-yet-complete message sequences
-  typedef std::map<IpcMessageId, std::vector<const PlexilMsgBase*> > IncompleteMessageMap;
 
   //* brief Cache of message/command/lookup names we're actively listening for
   typedef std::map<std::string, StateKey> ActiveListenerMap;
@@ -309,18 +257,28 @@ private:
   //* brief Cache of command serials and their corresponding ack and return value variables
   typedef std::map<uint32_t, std::pair<ExpressionId, ExpressionId> > PendingCommandsMap;
 
+  //* brief Class to receive messages from Ipc
+  class MessageListener : public IpcMessageListener {
+  public:
+    MessageListener(IpcAdapter&);
+    ~MessageListener();
+    void ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs);
+  private:
+    IpcAdapter& m_adapter;
+  };
+
   //
   // Member variables
   //
+
+  //* @brief Interface with IPC
+  IpcFacade m_ipcFacade;
 
   //* @brief Map of queues for holding complete messages and message handlers while they wait to be paired
   MessageQueueMap m_messageQueues;
 
   //* @brief Cache of active outgoing LookupOnChange instances
   IpcChangeLookupMap m_changeLookups;
-
-  //* @brief Cache of incomplete received message data
-  IncompleteMessageMap m_incompletes;
 
   //* @brief Cache of open LookupOnChange instances for messages
   ActiveListenerMap m_activeMessageListeners;
@@ -337,18 +295,17 @@ private:
   //* @brief Cache of ack and return value variables for commands we sent
   PendingCommandsMap m_pendingCommands;
 
-  //* @brief Unique ID of this adapter instance
-  std::string m_myUID;
-
-  //* @brief Thread ID of IPC dispatch thread
-  pthread_t m_thread;
-
   //* @brief Semaphore for return values from LookupNow
   ThreadSemaphore m_lookupSem;
 
-  //* @brief Count of # of outgoing commands and requests, starting with 1
-  //  @note Should only ever be 0 at initialization
-  uint32_t m_serial;
+  //* @brief Listener instance to receive messages.
+  MessageListener m_listener;
+
+  /**
+   * @brief Mutex used to hold the processing of incoming return values while commands
+   * are being sent and recorded.
+   */
+  ThreadMutex m_cmdMutex;
 
   //* @brief Serial # of current pending LookupNow request, or 0
   uint32_t m_pendingLookupSerial;

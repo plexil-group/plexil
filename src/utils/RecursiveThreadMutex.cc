@@ -71,7 +71,10 @@ namespace PLEXIL
     debugMsg("RecursiveThreadMutex:lock",
 	     " mutex " << (void *) this << " from thread " << pthread_self());
     int rv = pthread_mutex_lock(&m_mutex);
-    assertTrue(0 == rv, "Could not lock the mutex.");
+    assertTrue(rv != EINVAL, "The mutex was created with the protocol attribute having the value PTHREAD_PRIO_PROTECT and the calling thread's priority is higher than the mutex's current priority ceiling.");
+    assertTrue(rv != EAGAIN, "The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.");
+    assertTrue(rv != EDEADLK, "The current thread already owns the mutex.");
+    assertTrue(rv == 0, "The mutex could not be locked. ");
     checkError(m_lockCount == 0, "Got a lock without a lock count of 0.");
     m_lockingThread = pthread_self();
     ++m_lockCount;

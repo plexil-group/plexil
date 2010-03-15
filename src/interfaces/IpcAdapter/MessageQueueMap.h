@@ -128,7 +128,7 @@ private:
 
   //* @brief Data queue structure associating a message string with a queue of recipients and a queue of messages. Only one queue should have items at a time. */
   struct PairingQueue {
-    const LabelStr &m_name;
+    LabelStr m_name;
     bool m_allowDuplicateMessages;
     RecipientQueue m_recipientQueue;
     MessageQueue m_messageQueue;

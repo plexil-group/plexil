@@ -57,7 +57,7 @@ void MessageQueueMap::addRecipient(const LabelStr& message, const ExpressionId& 
   PairingQueue* que = getQueue(message);
   que->m_recipientQueue.push_back(Recipient(ack, dest));
   updateQueue(que);
-  debugMsg("MessageQueueMap:addRecipient", "Recipient for message \"" << que->m_name << "\" added");
+  debugMsg("MessageQueueMap:addRecipient", "Recipient for message \"" << que->m_name.c_str() << "\" added");
   m_mutex.unlock();
 }
 /**
@@ -98,7 +98,7 @@ void MessageQueueMap::addMessage(const LabelStr& message) {
     pq->m_messageQueue.clear();
   pq->m_messageQueue.push_back(StoredArray(1, message.getKey()));
   updateQueue( pq);
-  debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name << "\" added");
+  debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
   m_mutex.unlock();
 }
 /**
@@ -114,7 +114,7 @@ void MessageQueueMap::addMessage(const LabelStr& message, const PLEXIL::StoredAr
     pq->m_messageQueue.clear();
   pq->m_messageQueue.push_back(params);
   updateQueue( pq);
-  debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name << "\" added");
+  debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
   m_mutex.unlock();
 }
 
@@ -149,6 +149,7 @@ MessageQueueMap::PairingQueue * MessageQueueMap::getQueue(const LabelStr& messag
   PairingQueue* result;
   std::map<LabelStr, PairingQueue*>::iterator it = m_map.find(message);
   if (m_map.end() == it) {
+    debugMsg("MessageQueueMap:getQueue", "Creating new queue with name " << message.c_str());
     result = new PairingQueue(message, m_allowDuplicateMessages);
     m_map.insert(it, std::pair<LabelStr, PairingQueue*> (message, result));
   } else {
@@ -175,7 +176,7 @@ void MessageQueueMap::updateQueue(PairingQueue* queue) {
     mqIter = mq.erase(mqIter);
   }
   if (valChanged) {
-    debugMsg("MessageQueueMap:updateQueue", "Message \"" << queue->m_name << "\" paired and sent");
+    debugMsg("MessageQueueMap:updateQueue", "Message \"" << queue->m_name.c_str() << "\" paired and sent");
     m_execInterface.notifyOfExternalEvent();
   }
 }
