@@ -1,4 +1,6 @@
-%Contains the resource hierarchy
+% Resource Configuration File
+% Contains a resource hierarchy for resource3.ple
+% ** Please note that blank lines currently break this file's reader **
 % resource maxRenewableValue maxConsumableValue <percentage child resource pairs> ..
 body 1.0 1.0 head 1.0 arms 1.0 legs
 head 1.0 1.0 vision 1.0 audio 1.0 brain
