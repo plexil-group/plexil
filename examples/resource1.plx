@@ -33,7 +33,7 @@
                               <ResourceList>
                                   <Resource>
                                       <ResourceName>
-                                          <StringValue>memory</StringValue>
+                                          <StringValue>sys_memory</StringValue>
                                       </ResourceName>
                                       <ResourcePriority>
                                           <IntegerValue>20</IntegerValue>
@@ -41,7 +41,7 @@
                                   </Resource>
                                   <Resource>
                                       <ResourceName>
-                                          <StringValue>arms</StringValue>
+                                          <StringValue>arm</StringValue>
                                       </ResourceName>
                                       <ResourcePriority>
                                           <IntegerValue>20</IntegerValue>
@@ -100,7 +100,7 @@
                               <ResourceList>
                                   <Resource>
                                       <ResourceName>
-                                          <StringValue>memory</StringValue>
+                                          <StringValue>sys_memory</StringValue>
                                       </ResourceName>
                                       <ResourcePriority>
                                           <IntegerVariable>mem_priority</IntegerVariable>
@@ -151,7 +151,7 @@
                               <ResourceList>
                                   <Resource>
                                       <ResourceName>
-                                          <StringValue>vision</StringValue>
+                                          <StringValue>vision_system</StringValue>
                                       </ResourceName>
                                       <ResourcePriority>
                                           <IntegerVariable>vision_priority</IntegerVariable>

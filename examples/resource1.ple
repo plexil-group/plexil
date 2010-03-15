@@ -5,8 +5,8 @@ SimpleTask: {
     EndCondition: returnValue == 10;
     PostCondition: C1.command_handle == COMMAND_SUCCESS;
     ResourcePriority: 20;
-    Resource: Name = "memory";
-    Resource: Name = "arms";
+    Resource: Name = "sys_memory";
+    Resource: Name = "arm";
     Command: returnValue = c1();
   }
   C2: {
@@ -16,7 +16,7 @@ SimpleTask: {
     PostCondition: C2.command_handle == COMMAND_SUCCESS;
     EndCondition: returnValue == 10;
     ResourcePriority: mem_priority;
-    Resource: Name = "memory";
+    Resource: Name = "sys_memory";
     Command: returnValue = c2();
   }
   C3: {
@@ -25,7 +25,7 @@ SimpleTask: {
     PostCondition: C3.command_handle == COMMAND_SUCCESS;
     EndCondition: returnValue == 10;
     ResourcePriority: vision_priority;
-    Resource: Name = "vision";
+    Resource: Name = "vision_system";
     Command: returnValue = c3();
   }
 }
