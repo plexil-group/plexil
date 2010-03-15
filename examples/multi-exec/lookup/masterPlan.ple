@@ -35,7 +35,7 @@ MasterPlan:
 			}
 			OnX:
 			{
-				StartCondition: LookupOnChange(x) > 14;
+				StartCondition: LookupOnChange(x) >= 14;
 				Command: SendMessage("Quit");
 			}
 		}
