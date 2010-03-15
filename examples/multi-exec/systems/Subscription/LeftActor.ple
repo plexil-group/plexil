@@ -18,29 +18,44 @@ Interface:
 				//This response message should have a standard format
 				RecMoveLeft:
 				{
-					StartCondition: MessageReceived("MoveLeft");
+					Integer x;
+					String hdl;
+					Invariant: Loop.state == EXECUTING;
 					Sequence
-						RecMoveLeftCall:
-						{
-							LibraryCall: MoveLeftCommand;
-						}
+					{
+						EndCondition: isKnown(hdl);
+						Command: hdl = ReceiveCommand("MoveLeft");
+					}
+					{
+						EndCondition: isKnown(x);
+						Command: x = GetParameter(hdl);
+					}
+					RecMoveLeftCall:
+					{
+						LibraryCall: MoveLeftCommand;
+					}
 					RespondMoveLeft:
-						{
-							Command: SendMessage("FinishedMoveLeft");
-						}
+					{
+						Command: SendReturnValue(hdl, "FinishedMoveLeft");
+					}
 				}
 				RecQuit:
 				{
-					StartCondition: MessageReceived("Quit");
+					Invariant: Loop.state == EXECUTING;
 					Sequence
-						RecMoveRightCall:
-						{
-							Assignment: continue = false;
-						}
-						RespondMoveRight:
-						{
-							Command: SendMessage("FinishedQuit");
-						}
+					{
+						String hdl;
+						EndCondition: isKnown(hdl);
+						Command: hdl = ReceiveMessage("Quit");
+					}
+					RecMoveRightCall:
+					{
+						Assignment: continue = false;
+					}
+					RespondMoveRight:
+					{
+						Command: SendMessage("FinishedQuit");
+					}
 				}
 		}
 }

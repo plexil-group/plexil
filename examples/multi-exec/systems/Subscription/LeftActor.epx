@@ -44,13 +44,64 @@
                       <NodeBody>
                           <NodeList>
                               <Sequence FileName="LeftActor.ple" LineNo="20" ColNo="33">
+                                  <VariableDeclarations>
+                                      <DeclareVariable>
+                                          <Name>x</Name>
+                                          <Type>Integer</Type>
+                                      </DeclareVariable>
+                                      <DeclareVariable>
+                                          <Name>hdl</Name>
+                                          <Type>String</Type>
+                                      </DeclareVariable>
+                                  </VariableDeclarations>
                                   <NodeId>RecMoveLeft</NodeId>
-                                  <StartCondition>
-                                      <MessageReceived>
-                                          <StringValue>MoveLeft</StringValue>
-                                      </MessageReceived>
-                                  </StartCondition>
-                                  <Node FileName="LeftActor.ple" LineNo="24" ColNo="49" NodeType="LibraryNodeCall">
+                                  <InvariantCondition>
+                                      <EQInternal>
+                                          <NodeStateVariable>
+                                              <NodeId>Loop</NodeId>
+                                          </NodeStateVariable>
+                                          <NodeStateValue>EXECUTING</NodeStateValue>
+                                      </EQInternal>
+                                  </InvariantCondition>
+                                  <Node FileName="LeftActor.ple" LineNo="25" ColNo="41" NodeType="Command">
+                                      <NodeId>RecMoveLeft__CHILD__1</NodeId>
+                                      <EndCondition>
+                                          <IsKnown>
+                                              <StringVariable>hdl</StringVariable>
+                                          </IsKnown>
+                                      </EndCondition>
+                                      <NodeBody>
+                                          <Command>
+                                              <StringVariable>hdl</StringVariable>
+                                              <Name>
+                                                  <StringValue>ReceiveCommand</StringValue>
+                                              </Name>
+                                              <Arguments>
+                                                  <StringValue>MoveLeft</StringValue>
+                                              </Arguments>
+                                          </Command>
+                                      </NodeBody>
+                                  </Node>
+                                  <Node FileName="LeftActor.ple" LineNo="29" ColNo="41" NodeType="Command">
+                                      <NodeId>RecMoveLeft__CHILD__2</NodeId>
+                                      <EndCondition>
+                                          <IsKnown>
+                                              <IntegerVariable>x</IntegerVariable>
+                                          </IsKnown>
+                                      </EndCondition>
+                                      <NodeBody>
+                                          <Command>
+                                              <IntegerVariable>x</IntegerVariable>
+                                              <Name>
+                                                  <StringValue>GetParameter</StringValue>
+                                              </Name>
+                                              <Arguments>
+                                                  <StringVariable>hdl</StringVariable>
+                                              </Arguments>
+                                          </Command>
+                                      </NodeBody>
+                                  </Node>
+                                  <Node FileName="LeftActor.ple" LineNo="34" ColNo="41" NodeType="LibraryNodeCall">
                                       <NodeId>RecMoveLeftCall</NodeId>
                                       <NodeBody>
                                           <LibraryNodeCall>
@@ -58,28 +109,57 @@
                                           </LibraryNodeCall>
                                       </NodeBody>
                                   </Node>
-                                  <Node FileName="LeftActor.ple" LineNo="28" ColNo="49" NodeType="Command">
+                                  <Node FileName="LeftActor.ple" LineNo="38" ColNo="41" NodeType="Command">
                                       <NodeId>RespondMoveLeft</NodeId>
                                       <NodeBody>
                                           <Command>
                                               <Name>
-                                                  <StringValue>SendMessage</StringValue>
+                                                  <StringValue>SendReturnValue</StringValue>
                                               </Name>
                                               <Arguments>
+                                                  <StringVariable>hdl</StringVariable>
                                                   <StringValue>FinishedMoveLeft</StringValue>
                                               </Arguments>
                                           </Command>
                                       </NodeBody>
                                   </Node>
                               </Sequence>
-                              <Sequence FileName="LeftActor.ple" LineNo="33" ColNo="33">
+                              <Sequence FileName="LeftActor.ple" LineNo="43" ColNo="33">
                                   <NodeId>RecQuit</NodeId>
-                                  <StartCondition>
-                                      <MessageReceived>
-                                          <StringValue>Quit</StringValue>
-                                      </MessageReceived>
-                                  </StartCondition>
-                                  <Node FileName="LeftActor.ple" LineNo="37" ColNo="49" NodeType="Assignment">
+                                  <InvariantCondition>
+                                      <EQInternal>
+                                          <NodeStateVariable>
+                                              <NodeId>Loop</NodeId>
+                                          </NodeStateVariable>
+                                          <NodeStateValue>EXECUTING</NodeStateValue>
+                                      </EQInternal>
+                                  </InvariantCondition>
+                                  <Node FileName="LeftActor.ple" LineNo="46" ColNo="41" NodeType="Command">
+                                      <VariableDeclarations>
+                                          <DeclareVariable>
+                                              <Name>hdl</Name>
+                                              <Type>String</Type>
+                                          </DeclareVariable>
+                                      </VariableDeclarations>
+                                      <NodeId>RecQuit__CHILD__1</NodeId>
+                                      <EndCondition>
+                                          <IsKnown>
+                                              <StringVariable>hdl</StringVariable>
+                                          </IsKnown>
+                                      </EndCondition>
+                                      <NodeBody>
+                                          <Command>
+                                              <StringVariable>hdl</StringVariable>
+                                              <Name>
+                                                  <StringValue>ReceiveMessage</StringValue>
+                                              </Name>
+                                              <Arguments>
+                                                  <StringValue>Quit</StringValue>
+                                              </Arguments>
+                                          </Command>
+                                      </NodeBody>
+                                  </Node>
+                                  <Node FileName="LeftActor.ple" LineNo="52" ColNo="41" NodeType="Assignment">
                                       <NodeId>RecMoveRightCall</NodeId>
                                       <NodeBody>
                                           <Assignment>
@@ -90,7 +170,7 @@
                                           </Assignment>
                                       </NodeBody>
                                   </Node>
-                                  <Node FileName="LeftActor.ple" LineNo="41" ColNo="49" NodeType="Command">
+                                  <Node FileName="LeftActor.ple" LineNo="56" ColNo="41" NodeType="Command">
                                       <NodeId>RespondMoveRight</NodeId>
                                       <NodeBody>
                                           <Command>

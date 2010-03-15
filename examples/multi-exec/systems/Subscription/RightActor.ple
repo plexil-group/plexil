@@ -18,29 +18,37 @@ Interface:
 				//This response message should have a standard format
 				RecMoveRight:
 				{	
-					StartCondition: MessageReceived("MoveRight");
 					Sequence
-						RecMoveRightCall:
-						{
-							LibraryCall: MoveRightCommand;
-						}
-						RespondMoveRight:
-						{
-							Command: SendMessage("FinishedMoveRight");
-						}
+					{
+						String hdl;
+						EndCondition: isKnown(hdl);
+						Command: hdl = ReceiveMessage("MoveRight");
+					}
+					RecMoveRightCall:
+					{
+						LibraryCall: MoveRightCommand;
+					}
+					RespondMoveRight:
+					{
+						Command: SendMessage("FinishedMoveRight");
+					}
 				}
 				RecQuit:
 				{
-					StartCondition: MessageReceived("Quit");
 					Sequence
-						RecMoveRightCall:
-						{
-							Assignment: continue = false;
-						}
-						RespondMoveRight:
-						{
-							Command: SendMessage("FinishedQuit");
-						}
+					{
+						String hdl;
+						EndCondition: isKnown(hdl);
+						Command: hdl = ReceiveMessage("Quit");
+					}
+					RecMoveRightCall:
+					{
+						Assignment: continue = false;
+					}
+					RespondMoveRight:
+					{
+						Command: SendMessage("FinishedQuit");
+					}
 				}
 		}
 }

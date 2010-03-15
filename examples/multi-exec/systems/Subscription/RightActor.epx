@@ -45,12 +45,32 @@
                           <NodeList>
                               <Sequence FileName="RightActor.ple" LineNo="20" ColNo="33">
                                   <NodeId>RecMoveRight</NodeId>
-                                  <StartCondition>
-                                      <MessageReceived>
-                                          <StringValue>MoveRight</StringValue>
-                                      </MessageReceived>
-                                  </StartCondition>
-                                  <Node FileName="RightActor.ple" LineNo="24" ColNo="49" NodeType="LibraryNodeCall">
+                                  <Node FileName="RightActor.ple" LineNo="22" ColNo="41" NodeType="Command">
+                                      <VariableDeclarations>
+                                          <DeclareVariable>
+                                              <Name>hdl</Name>
+                                              <Type>String</Type>
+                                          </DeclareVariable>
+                                      </VariableDeclarations>
+                                      <NodeId>RecMoveRight__CHILD__1</NodeId>
+                                      <EndCondition>
+                                          <IsKnown>
+                                              <StringVariable>hdl</StringVariable>
+                                          </IsKnown>
+                                      </EndCondition>
+                                      <NodeBody>
+                                          <Command>
+                                              <StringVariable>hdl</StringVariable>
+                                              <Name>
+                                                  <StringValue>ReceiveMessage</StringValue>
+                                              </Name>
+                                              <Arguments>
+                                                  <StringValue>MoveRight</StringValue>
+                                              </Arguments>
+                                          </Command>
+                                      </NodeBody>
+                                  </Node>
+                                  <Node FileName="RightActor.ple" LineNo="28" ColNo="41" NodeType="LibraryNodeCall">
                                       <NodeId>RecMoveRightCall</NodeId>
                                       <NodeBody>
                                           <LibraryNodeCall>
@@ -58,7 +78,7 @@
                                           </LibraryNodeCall>
                                       </NodeBody>
                                   </Node>
-                                  <Node FileName="RightActor.ple" LineNo="28" ColNo="49" NodeType="Command">
+                                  <Node FileName="RightActor.ple" LineNo="32" ColNo="41" NodeType="Command">
                                       <NodeId>RespondMoveRight</NodeId>
                                       <NodeBody>
                                           <Command>
@@ -72,14 +92,34 @@
                                       </NodeBody>
                                   </Node>
                               </Sequence>
-                              <Sequence FileName="RightActor.ple" LineNo="33" ColNo="33">
+                              <Sequence FileName="RightActor.ple" LineNo="37" ColNo="33">
                                   <NodeId>RecQuit</NodeId>
-                                  <StartCondition>
-                                      <MessageReceived>
-                                          <StringValue>Quit</StringValue>
-                                      </MessageReceived>
-                                  </StartCondition>
-                                  <Node FileName="RightActor.ple" LineNo="37" ColNo="49" NodeType="Assignment">
+                                  <Node FileName="RightActor.ple" LineNo="39" ColNo="41" NodeType="Command">
+                                      <VariableDeclarations>
+                                          <DeclareVariable>
+                                              <Name>hdl</Name>
+                                              <Type>String</Type>
+                                          </DeclareVariable>
+                                      </VariableDeclarations>
+                                      <NodeId>RecQuit__CHILD__1</NodeId>
+                                      <EndCondition>
+                                          <IsKnown>
+                                              <StringVariable>hdl</StringVariable>
+                                          </IsKnown>
+                                      </EndCondition>
+                                      <NodeBody>
+                                          <Command>
+                                              <StringVariable>hdl</StringVariable>
+                                              <Name>
+                                                  <StringValue>ReceiveMessage</StringValue>
+                                              </Name>
+                                              <Arguments>
+                                                  <StringValue>Quit</StringValue>
+                                              </Arguments>
+                                          </Command>
+                                      </NodeBody>
+                                  </Node>
+                                  <Node FileName="RightActor.ple" LineNo="45" ColNo="41" NodeType="Assignment">
                                       <NodeId>RecMoveRightCall</NodeId>
                                       <NodeBody>
                                           <Assignment>
@@ -90,7 +130,7 @@
                                           </Assignment>
                                       </NodeBody>
                                   </Node>
-                                  <Node FileName="RightActor.ple" LineNo="41" ColNo="49" NodeType="Command">
+                                  <Node FileName="RightActor.ple" LineNo="49" ColNo="41" NodeType="Command">
                                       <NodeId>RespondMoveRight</NodeId>
                                       <NodeBody>
                                           <Command>

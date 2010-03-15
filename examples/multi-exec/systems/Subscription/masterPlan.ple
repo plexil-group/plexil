@@ -11,7 +11,9 @@ MasterPlan:
 			Sequence
 				Action:
 				{
-					Command: SendMessage("MoveLeft");
+					String hdl;
+					EndCondition: isKnown(hdl);
+					Command: hdl = MoveLeft();
 				}
 				Set:
 				{
@@ -28,7 +30,11 @@ MasterPlan:
 				}
 				Response:
 				{
-					StartCondition: MessageReceived("FinishedMoveRight");
+					String hdl;
+					EndCondition: isKnown(hdl);
+					Command: hdl = ReceiveMessage("FinishedMoveRight");
+				}
+				{
 					Assignment: rightIter = rightIter;
 				}
 				Set:

@@ -1,0 +1,24 @@
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/extended-plexil.xsd" FileName="moveLeft.ple">
+      <Sequence FileName="moveLeft.ple" LineNo="2" ColNo="1">
+          <VariableDeclarations>
+              <DeclareVariable>
+                  <Name>theTime</Name>
+                  <Type>Real</Type>
+              </DeclareVariable>
+          </VariableDeclarations>
+          <NodeId>MoveLeftCommand</NodeId>
+          <Node FileName="moveLeft.ple" LineNo="5" ColNo="17" NodeType="Command">
+              <NodeId>MoveLeftCommand__CHILD__1</NodeId>
+              <NodeBody>
+                  <Command>
+                      <Name>
+                          <StringValue>SendMessage</StringValue>
+                      </Name>
+                      <Arguments>
+                          <StringValue>MoveLeft</StringValue>
+                      </Arguments>
+                  </Command>
+              </NodeBody>
+          </Node>
+      </Sequence>
+  </PlexilPlan>

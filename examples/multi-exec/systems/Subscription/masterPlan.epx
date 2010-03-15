@@ -26,19 +26,28 @@
                   </GT>
               </RepeatCondition>
               <Node FileName="masterPlan.ple" LineNo="13" ColNo="33" NodeType="Command">
+                  <VariableDeclarations>
+                      <DeclareVariable>
+                          <Name>hdl</Name>
+                          <Type>String</Type>
+                      </DeclareVariable>
+                  </VariableDeclarations>
                   <NodeId>Action</NodeId>
+                  <EndCondition>
+                      <IsKnown>
+                          <StringVariable>hdl</StringVariable>
+                      </IsKnown>
+                  </EndCondition>
                   <NodeBody>
                       <Command>
+                          <StringVariable>hdl</StringVariable>
                           <Name>
-                              <StringValue>SendMessage</StringValue>
-                          </Name>
-                          <Arguments>
                               <StringValue>MoveLeft</StringValue>
-                          </Arguments>
+                          </Name>
                       </Command>
                   </NodeBody>
               </Node>
-              <Node FileName="masterPlan.ple" LineNo="17" ColNo="33" NodeType="Assignment">
+              <Node FileName="masterPlan.ple" LineNo="19" ColNo="33" NodeType="Assignment">
                   <NodeId>Set</NodeId>
                   <NodeBody>
                       <Assignment>
@@ -53,7 +62,7 @@
                   </NodeBody>
               </Node>
           </Sequence>
-          <Sequence FileName="masterPlan.ple" LineNo="22" ColNo="17">
+          <Sequence FileName="masterPlan.ple" LineNo="24" ColNo="17">
               <NodeId>Right</NodeId>
               <RepeatCondition>
                   <GT>
@@ -61,7 +70,7 @@
                       <IntegerValue>0</IntegerValue>
                   </GT>
               </RepeatCondition>
-              <Node FileName="masterPlan.ple" LineNo="26" ColNo="33" NodeType="Command">
+              <Node FileName="masterPlan.ple" LineNo="28" ColNo="33" NodeType="Command">
                   <NodeId>Action</NodeId>
                   <NodeBody>
                       <Command>
@@ -74,13 +83,33 @@
                       </Command>
                   </NodeBody>
               </Node>
-              <Node FileName="masterPlan.ple" LineNo="30" ColNo="33" NodeType="Assignment">
+              <Node FileName="masterPlan.ple" LineNo="32" ColNo="33" NodeType="Command">
+                  <VariableDeclarations>
+                      <DeclareVariable>
+                          <Name>hdl</Name>
+                          <Type>String</Type>
+                      </DeclareVariable>
+                  </VariableDeclarations>
                   <NodeId>Response</NodeId>
-                  <StartCondition>
-                      <MessageReceived>
-                          <StringValue>FinishedMoveRight</StringValue>
-                      </MessageReceived>
-                  </StartCondition>
+                  <EndCondition>
+                      <IsKnown>
+                          <StringVariable>hdl</StringVariable>
+                      </IsKnown>
+                  </EndCondition>
+                  <NodeBody>
+                      <Command>
+                          <StringVariable>hdl</StringVariable>
+                          <Name>
+                              <StringValue>ReceiveMessage</StringValue>
+                          </Name>
+                          <Arguments>
+                              <StringValue>FinishedMoveRight</StringValue>
+                          </Arguments>
+                      </Command>
+                  </NodeBody>
+              </Node>
+              <Node FileName="masterPlan.ple" LineNo="37" ColNo="33" NodeType="Assignment">
+                  <NodeId>Right__CHILD__3</NodeId>
                   <NodeBody>
                       <Assignment>
                           <IntegerVariable>rightIter</IntegerVariable>
@@ -90,7 +119,7 @@
                       </Assignment>
                   </NodeBody>
               </Node>
-              <Node FileName="masterPlan.ple" LineNo="35" ColNo="33" NodeType="Assignment">
+              <Node FileName="masterPlan.ple" LineNo="41" ColNo="33" NodeType="Assignment">
                   <NodeId>Set</NodeId>
                   <NodeBody>
                       <Assignment>
@@ -105,7 +134,7 @@
                   </NodeBody>
               </Node>
           </Sequence>
-          <Node FileName="masterPlan.ple" LineNo="40" ColNo="17" NodeType="Command">
+          <Node FileName="masterPlan.ple" LineNo="46" ColNo="17" NodeType="Command">
               <NodeId>Quit</NodeId>
               <NodeBody>
                   <Command>

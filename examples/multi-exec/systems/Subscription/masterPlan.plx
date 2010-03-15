@@ -81,18 +81,27 @@
                   <NodeList>
                      <Node NodeType="Command" FileName="masterPlan.ple" LineNo="13" ColNo="33">
                         <NodeId>Action</NodeId>
+                        <VariableDeclarations>
+                           <DeclareVariable>
+                              <Name>hdl</Name>
+                              <Type>String</Type>
+                           </DeclareVariable>
+                        </VariableDeclarations>
+                        <EndCondition>
+                           <IsKnown>
+                              <StringVariable>hdl</StringVariable>
+                           </IsKnown>
+                        </EndCondition>
                         <NodeBody>
                            <Command>
+                              <StringVariable>hdl</StringVariable>
                               <Name>
-                                 <StringValue>SendMessage</StringValue>
-                              </Name>
-                              <Arguments>
                                  <StringValue>MoveLeft</StringValue>
-                              </Arguments>
+                              </Name>
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" FileName="masterPlan.ple" LineNo="17" ColNo="33">
+                     <Node NodeType="Assignment" FileName="masterPlan.ple" LineNo="19" ColNo="33">
                         <NodeId>Set</NodeId>
                         <StartCondition>
                            <AND>
@@ -119,7 +128,7 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Sequence" FileName="masterPlan.ple" LineNo="22"
+            <Node NodeType="NodeList" epx="Sequence" FileName="masterPlan.ple" LineNo="24"
                   ColNo="17">
                <NodeId>Right</NodeId>
                <StartCondition>
@@ -156,6 +165,12 @@
                            </EQInternal>
                            <EQInternal>
                               <NodeOutcomeVariable>
+                                 <NodeId>Right__CHILD__3</NodeId>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
                                  <NodeId>Set</NodeId>
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
@@ -166,7 +181,7 @@
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" FileName="masterPlan.ple" LineNo="26" ColNo="33">
+                     <Node NodeType="Command" FileName="masterPlan.ple" LineNo="28" ColNo="33">
                         <NodeId>Action</NodeId>
                         <NodeBody>
                            <Command>
@@ -179,8 +194,14 @@
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" FileName="masterPlan.ple" LineNo="30" ColNo="33">
+                     <Node NodeType="Command" FileName="masterPlan.ple" LineNo="32" ColNo="33">
                         <NodeId>Response</NodeId>
+                        <VariableDeclarations>
+                           <DeclareVariable>
+                              <Name>hdl</Name>
+                              <Type>String</Type>
+                           </DeclareVariable>
+                        </VariableDeclarations>
                         <StartCondition>
                            <AND>
                               <EQInternal>
@@ -189,14 +210,35 @@
                                  </NodeStateVariable>
                                  <NodeStateValue>FINISHED</NodeStateValue>
                               </EQInternal>
-                              <LookupOnChange>
-                                 <Name>
-                                    <Concat>
-                                       <StringValue>MESSAGE__</StringValue>
-                                       <StringValue>FinishedMoveRight</StringValue>
-                                    </Concat>
-                                 </Name>
-                              </LookupOnChange>
+                           </AND>
+                        </StartCondition>
+                        <EndCondition>
+                           <IsKnown>
+                              <StringVariable>hdl</StringVariable>
+                           </IsKnown>
+                        </EndCondition>
+                        <NodeBody>
+                           <Command>
+                              <StringVariable>hdl</StringVariable>
+                              <Name>
+                                 <StringValue>ReceiveMessage</StringValue>
+                              </Name>
+                              <Arguments>
+                                 <StringValue>FinishedMoveRight</StringValue>
+                              </Arguments>
+                           </Command>
+                        </NodeBody>
+                     </Node>
+                     <Node NodeType="Assignment" FileName="masterPlan.ple" LineNo="37" ColNo="33">
+                        <NodeId>Right__CHILD__3</NodeId>
+                        <StartCondition>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeId>Response</NodeId>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
                            </AND>
                         </StartCondition>
                         <NodeBody>
@@ -208,13 +250,13 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" FileName="masterPlan.ple" LineNo="35" ColNo="33">
+                     <Node NodeType="Assignment" FileName="masterPlan.ple" LineNo="41" ColNo="33">
                         <NodeId>Set</NodeId>
                         <StartCondition>
                            <AND>
                               <EQInternal>
                                  <NodeStateVariable>
-                                    <NodeId>Response</NodeId>
+                                    <NodeId>Right__CHILD__3</NodeId>
                                  </NodeStateVariable>
                                  <NodeStateValue>FINISHED</NodeStateValue>
                               </EQInternal>
@@ -235,7 +277,7 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="Command" FileName="masterPlan.ple" LineNo="40" ColNo="17">
+            <Node NodeType="Command" FileName="masterPlan.ple" LineNo="46" ColNo="17">
                <NodeId>Quit</NodeId>
                <StartCondition>
                   <AND>
