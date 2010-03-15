@@ -487,8 +487,8 @@ void IpcAdapter::executeCommand(const LabelStr& name, const std::list<double>& a
     assertTrueMsg(LabelStr::isString(args.front()),
         "IpcAdapter: The argument to the SendMessage command, " << args.front()
         << ", is not a string");
-    LabelStr command(args.front());
-    m_messageQueues.addRecipient(LabelStr(formatMessageName(command, name)), ack, dest);
+    LabelStr command(formatMessageName(args.front(), name));
+    m_messageQueues.addRecipient(command, ack, dest);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("IpcAdapter:executeCommand", " message handler for \"" << command.c_str() << "\" registered.");
@@ -500,6 +500,9 @@ void IpcAdapter::executeCommand(const LabelStr& name, const std::list<double>& a
     //lock mutex to ensure no return values are processed while the command is being
     //sent and logged
     ThreadMutexGuard guard(m_cmdMutex);
+    if (!args.empty())
+      debugMsg("IpcAdapter:executeCommand", " first parameter is \"" << args.front()
+          << "\"");
     uint32_t serial = m_ipcFacade.publishCommand(name, args);
     // log ack and return variables in case we get values for them
     m_pendingCommands[serial] = std::pair<ExpressionId, ExpressionId>(dest, ack);

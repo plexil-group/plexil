@@ -336,6 +336,7 @@ IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_
       strMsg->stringValue = LabelStr(param).c_str();
       paramMsg = (PlexilMsgBase*) strMsg;
       paramMsg->msgType = PlexilMsgType_StringValue;
+      debugMsg("IpcFacade:sendParameters", "String parameter: " << strMsg->stringValue);
     } else if (StoredArray::isKey(param)) {
       // array
       assertTrueMsg(ALWAYS_FAIL,
@@ -346,6 +347,7 @@ IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_
       numMsg->doubleValue = param;
       paramMsg = (PlexilMsgBase*) numMsg;
       paramMsg->msgType = PlexilMsgType_NumericValue;
+      debugMsg("IpcFacade:sendParameters", "Numeric parameter: " << param);
     }
 
     // Fill in common fields
