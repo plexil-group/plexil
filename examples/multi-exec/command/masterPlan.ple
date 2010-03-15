@@ -1,0 +1,29 @@
+//The controlling plan
+//Subscription commands are sent using SendMessage("<command name>")
+MasterPlan:
+{
+	Integer leftIter = 4;
+	Integer rightIter = 3;
+	Sequence
+		{
+		NodeList:
+			Right:
+			{
+				Integer ret;
+				RepeatCondition: rightIter > 0;
+			Sequence
+				Action:
+				{
+					EndCondition: isKnown(ret);
+					Command: ret = MoveRight(5);
+				}
+				Set:
+				{
+					Assignment: rightIter = rightIter - 1;
+				}
+			}
+		}
+		{
+			Command: SendMessage("Quit");
+		}
+}

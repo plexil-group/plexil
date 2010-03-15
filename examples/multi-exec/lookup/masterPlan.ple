@@ -1,0 +1,42 @@
+//The controlling plan
+Integer Lookup x;
+
+MasterPlan:
+{
+	Sequence
+		{
+		NodeList:
+			Right:
+			{
+				Integer curX;
+				Integer ret;
+				RepeatCondition: LookupOnChange(x) < 14;
+			Sequence
+				UpdateX:
+				{
+					Assignment: curX = LookupNow(x);
+				}
+				{If (isKnown(curX))
+				Then
+					ActionKnown:
+					{
+						EndCondition: isKnown(ret);
+						Command: ret = MoveRight(curX);
+					}
+				}
+				{If (!isKnown(curX))
+				Then
+					ActionUnknown:
+					{
+						EndCondition: isKnown(ret);
+						Command: ret = MoveRight(5);
+					}
+				}
+			}
+			OnX:
+			{
+				StartCondition: LookupOnChange(x) > 14;
+				Command: SendMessage("Quit");
+			}
+		}
+}

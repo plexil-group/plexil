@@ -1,0 +1,56 @@
+//The test interface for commands via IPC
+LibraryNode MoveRightCommand;
+
+//The interface consists of a set of command definitions
+Interface:
+{
+	Integer x = 0;
+	Boolean continue = true;
+	NodeList:
+		Loop:
+		{
+			String hdl;
+			RepeatCondition: continue;
+			EndCondition: RecMoveRight.state == FINISHED || RecQuit.state == FINISHED;
+			NodeList:
+				RecMoveRight:
+				{	
+					Integer modX;
+					Invariant: Loop.state == EXECUTING;
+					Sequence
+						WaitMessage:
+						{
+							EndCondition: isKnown(hdl) ;
+							Command: hdl = ReceiveCommand("MoveRight");
+						}
+						GetParameters:
+						{
+							EndCondition: isKnown(modX) ;
+							Command: modX = GetParameter(hdl);
+						}
+						Increment:
+						{
+							Assignment: x = x + modX;
+						}
+						RespondMoveRight:
+						{
+							Command: SendReturnValue(hdl, x);
+						}
+				}
+				RecQuit:
+				{
+					Invariant: Loop.state == EXECUTING;
+					Sequence
+						Rec:
+						{
+							String quitHdl;
+							EndCondition: isKnown(quitHdl);
+							Command: quitHdl = ReceiveMessage("Quit");
+						}
+						Call:
+						{
+							Assignment: continue = false;
+						}
+				}
+		}
+}
