@@ -1,0 +1,61 @@
+//The test interface for lookups and commands via IPC
+//This plan emulates a simulator that handles:
+//	One integer lookup, X
+//	The command 'MoveRight(Integer dX)', which increases X by dX
+//	The message 'Quit', which closes the simulator
+
+Interface:
+{
+	//The integer lookup, x
+	Integer x = 0;
+	Boolean continue = true;
+	NodeList:
+		Loop:
+		{
+			String hdl;
+			RepeatCondition: continue;
+			EndCondition: RecMoveRight.state == FINISHED || RecQuit.state == FINISHED;
+			NodeList:
+				//The handler for the command MoveRight(Integer dX)
+				RecMoveRight:
+				{	
+					Integer modX;
+					Invariant: Loop.state == EXECUTING;
+					Sequence
+						WaitMessage:
+						{
+							EndCondition: isKnown(hdl) ;
+							Command: hdl = ReceiveCommand("MoveRight");
+						}
+						GetParameters:
+						{
+							EndCondition: isKnown(modX) ;
+							Command: modX = GetParameter(hdl);
+						}
+						Increment:
+						{
+							Assignment: x = x + modX;
+						}
+						RespondMoveRight:
+						{
+							Command: SendReturnValue(hdl, x);
+						}
+				}
+				//The handler for the message 'Quit'
+				RecQuit:
+				{
+					Invariant: Loop.state == EXECUTING;
+					Sequence
+						Rec:
+						{
+							String quitHdl;
+							EndCondition: isKnown(quitHdl);
+							Command: quitHdl = ReceiveMessage("Quit");
+						}
+						Call:
+						{
+							Assignment: continue = false;
+						}
+				}
+		}
+}
