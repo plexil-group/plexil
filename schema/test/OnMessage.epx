@@ -1,0 +1,14 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OnMessage>
+    <Message>move rover</Message>
+    <Node NodeType= "Empty">
+      <NodeId>foo</NodeId>
+    </Node>
+    <Node NodeType= "Empty">
+      <NodeId>foo</NodeId>
+    </Node>
+    <Node NodeType= "Empty">
+      <NodeId>foo</NodeId>
+    </Node>
+  </OnMessage>
+</PlexilPlan>

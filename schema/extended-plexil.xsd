@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,8 @@
         <xsd:element ref="If"/>
         <xsd:element ref="While"/>
         <xsd:element ref="For"/>
+        <xsd:element ref="OnCommand"/>
+        <xsd:element ref="OnMessage"/>
       </xsd:choice>
     </xsd:group>
     <xsd:group name="BooleanExpression">
@@ -306,7 +308,6 @@
     </xsd:complexType>
   </xsd:element>
 
-
   <!-- Node Predicates -->
 
   <xsd:element name="Finished" type="node-reference"/>
@@ -324,11 +325,39 @@
   <xsd:element name="PostconditionFailed" type="node-reference"/>
   <xsd:element name="ParentFailed" type="node-reference"/>
 
-  <!-- Support for message passing between executives (not yet released) -->
+  <!-- Support for message passing between executives -->
 
+  <!-- Deprecated -->
   <xsd:element name="MessageReceived">
     <xsd:complexType>
       <xsd:group ref="StringExpression"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Under development (not yet supported) -->
+
+  <xsd:element name="OnCommand">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:element ref="Name"/>
+        <xsd:element ref="DeclareVariable" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="OnMessage">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:element name="Message" type="xsd:string"/>
+        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:all>
     </xsd:complexType>
   </xsd:element>
 
