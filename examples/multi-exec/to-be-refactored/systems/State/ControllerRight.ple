@@ -1,0 +1,65 @@
+//The actor in charge of performing movement commands
+LibraryNode MoveRightCommand;
+
+Controller:
+{
+	Integer calls = 0;
+	Boolean continue = true;
+	Sequence
+	//Check to see if a right move is required based on shared state
+	CheckMoveRightState:
+	{
+		Sequence
+			SendRequest:
+			{
+				Command: SendMessage("GetShouldMoveRight");
+			}
+			GetTrue:
+			{
+				StartCondition: MessageReceived("ShouldMoveRight::true");
+				SkipCondition: MessageReceived("ShouldMoveRight::false");
+					Sequence
+					RecMoveRightCall:
+					{
+						LibraryCall: MoveRightCommand;
+					}
+					Increment:
+					{
+						Assignment: calls = calls + 1;
+					}
+					RespondMoveRight:
+					{
+						Command: SendMessage("ResetMoveRight");
+					}
+			}
+	}
+	Loop:
+	{
+		RepeatCondition: continue;
+		EndCondition: RecUpdate.state == FINISHED || RecQuit.state == FINISHED;
+		//Loops continually until a Quit message is received
+		NodeList:
+			RecUpdate:
+			{
+				StartCondition: MessageReceived("Update::ShouldMoveRight::true");
+				Sequence
+					RecMoveRightCall:
+					{
+						LibraryCall: MoveRightCommand;
+					}
+					Increment:
+					{
+						Assignment: calls = calls + 1;
+					}
+					RespondMoveRight:
+					{
+						Command: SendMessage("ResetMoveRight");
+					}
+			}
+			RecQuit:
+			{
+				StartCondition: MessageReceived("Quit");
+				Assignment: continue = false;
+			}
+	}
+}

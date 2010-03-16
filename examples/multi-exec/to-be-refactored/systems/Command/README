@@ -1,0 +1,9 @@
+These plans show an example of a commanded system with two actors. Note the similarity between this and the subscription system. By addressing the actor implicitly, the code is easier to follow and there is less chance of naming conflicts. This implementation is just as error-prone as the subscription system, however.
+
+To start the plans, use these commands:
+
+universalExec -p LeftInterface.plx -l ../moveLeft.plx -c ../interface-config.xml
+
+universalExec -p RightInterface.plx -l ../moveRight.plx -c ../interface-config.xml
+
+universalExec -p masterPlan.plx -c ../interface-config.xml 

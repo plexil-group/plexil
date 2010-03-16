@@ -1,0 +1,49 @@
+//The controlling plan
+//Subscription commands are sent using SendMessage("<command name>")
+MasterPlan:
+{
+	Integer leftIter = 10;
+	Integer rightIter = 3;
+	Sequence
+		Left:
+		{
+			RepeatCondition: leftIter > 0;
+			Sequence
+				Action:
+				{
+					String hdl;
+					EndCondition: isKnown(hdl);
+					Command: hdl = MoveLeft();
+				}
+				Set:
+				{
+					Assignment: leftIter = -1 + leftIter;
+				}
+		}
+		Right:
+		{
+			RepeatCondition: rightIter > 0;
+			Sequence
+				Action:
+				{
+					Command: SendMessage("MoveRight");
+				}
+				Response:
+				{
+					String hdl;
+					EndCondition: isKnown(hdl);
+					Command: hdl = ReceiveMessage("FinishedMoveRight");
+				}
+				{
+					Assignment: rightIter = rightIter;
+				}
+				Set:
+				{
+					Assignment: rightIter = rightIter - 1;
+				}
+		}
+		Quit:
+		{
+			Command: SendMessage("Quit");
+		}
+}
