@@ -1,0 +1,4 @@
+MoveRightCommand:
+{
+					Command: SendMessage("MoveRight");
+}

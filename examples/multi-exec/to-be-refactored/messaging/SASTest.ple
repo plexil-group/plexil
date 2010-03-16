@@ -1,0 +1,17 @@
+Real Lookup some_state;
+SASTest:
+{
+  NodeList
+  foo_test:
+  {
+    Real x;
+    StartCondition: LookupOnChange(foo) == 2;
+    EndCondition: isKnown(x);
+    Command: x = drive;
+  }
+  some_state_test:
+  {
+    StartCondition: LookupOnChange(some_state) > 0;
+    Command: drive;
+  }
+}

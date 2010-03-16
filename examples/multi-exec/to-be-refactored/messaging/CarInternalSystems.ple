@@ -1,0 +1,7 @@
+CarInternalSystems:{
+ NodeList:
+ StartEngine: {
+  StartCondition: MessageReceived("StartCar");
+  Command: SendMessage("CarStarted");
+ }
+}

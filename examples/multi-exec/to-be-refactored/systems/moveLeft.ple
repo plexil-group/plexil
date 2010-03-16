@@ -1,0 +1,8 @@
+MoveLeftCommand:
+{
+	Real theTime;
+	Sequence
+		{
+			Command: SendMessage("MoveLeft");
+		}
+}
