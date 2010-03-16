@@ -49,6 +49,7 @@ public class Luv extends JFrame {
 
     // boolean variables to help determine Luv state
     private static boolean allowBreaks;
+    private static boolean allowTest;
     private static boolean planPaused;
     private static boolean planStep;
     private static boolean isExecuting;
@@ -65,6 +66,7 @@ public class Luv extends JFrame {
     private static LuvStateHandler luvStateHandler;
     private static HideOrShowWindow hideOrShowWindow;
     private DebugWindow debugWindow;
+    private DebugHistoryWindow debugHistoryWindow;
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
     private RegexModelFilter regexFilter;
@@ -159,6 +161,8 @@ public class Luv extends JFrame {
         };
 
         allowBreaks = false;
+        ////default is universalExec
+        allowTest = false;
         planPaused = false;
         planStep = false;
         isExecuting = false;
@@ -174,6 +178,7 @@ public class Luv extends JFrame {
         viewHandler = new ViewHandler();
         hideOrShowWindow = new HideOrShowWindow();
         debugWindow = new DebugWindow();
+        debugHistoryWindow = new DebugHistoryWindow();
 
         createCFGFileWindow = new CreateCFGFileWindow();
         sourceWindow = new SourceWindow();
@@ -360,6 +365,12 @@ public class Luv extends JFrame {
     public DebugWindow getDebugWindow() {
         return debugWindow;
     }
+    
+    /** Returns the current instance of the Luv DebugHistoryWindow.
+     *  @return the current instance of the Luv DebugHistoryWindow */
+    public DebugHistoryWindow getDebugHistoryWindow() {
+        return debugHistoryWindow;
+    }
 
     /** Returns the current instance of the Luv DebugCFGWindow.
      *  @return the current instance of the Luv DebugCFGWindow */
@@ -449,6 +460,12 @@ public class Luv extends JFrame {
         return allowBreaks;
     }
 
+    /** Returns whether Luv currently uses universalExec or Test Exec.
+     *  @return the current instance of allowTest */
+    public boolean allowTest() {
+        return allowTest;
+    }      
+    
     /** Returns whether the currently executing Plexil plan should pause. 
      *  @return the whether the flag for pausing a plan is set and the flag 
      *  for stepping a plan is not set */
@@ -500,6 +517,14 @@ public class Luv extends JFrame {
         allowBreaks = value;
         updateBlockingMenuItems();
     }
+    
+    /** Sets the flag that indicates whether the Luv application is currently
+     *  using TestExec or Universal Exec.
+     *  @param value sets the flag that indicates whether TestExec or Universal Exec
+     */
+    public void setTestExecAllowed(boolean value) {
+        allowTest = value;        
+    }    
 
     /** Sets the flag that indicates whether the Luv application should 
      *  highlist rows in pink in the model tree.
@@ -565,6 +590,7 @@ public class Luv extends JFrame {
         runMenu.add(LuvActionHandler.stepAction);
         runMenu.add(LuvActionHandler.allowBreaksAction);
         runMenu.add(LuvActionHandler.removeAllBreaksAction);
+        runMenu.add(LuvActionHandler.allowTestAction);
         runMenu.add(new JSeparator());
         runMenu.add(LuvActionHandler.execAction);
 
@@ -581,8 +607,9 @@ public class Luv extends JFrame {
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
+        debugMenu.add(LuvActionHandler.luvDebugHistoryWindowAction);
         debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
-        debugMenu.add(LuvActionHandler.aboutWindowAction);
+        debugMenu.add(LuvActionHandler.aboutWindowAction);        
     }
 
     /** Sets the title of the Luv application. */

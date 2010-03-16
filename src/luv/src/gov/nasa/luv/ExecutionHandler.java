@@ -27,6 +27,7 @@
 package gov.nasa.luv;
 import static gov.nasa.luv.Constants.DEBUG_CFG_FILE;
 import static gov.nasa.luv.Constants.TEST_EXEC;
+import static gov.nasa.luv.Constants.UE_TEST_EXEC;
 import static gov.nasa.luv.Constants.UE_EXEC;
 import static gov.nasa.luv.Constants.UNKNOWN;
 import gov.nasa.luv.runtime.AbstractPlexilExecutiveCommandGenerator;
@@ -125,8 +126,7 @@ public class ExecutionHandler
        * @return a plexil command generator.
        */
       private AbstractPlexilExecutiveCommandGenerator getPlexilExecutive() throws ExecutiveCommandGenerationException{
-    	  String alternativeExecutive=System.getProperty("ALT_EXECUTIVE");
-    	  
+    	  String alternativeExecutive=System.getProperty("ALT_EXECUTIVE");    	  
     	  if (alternativeExecutive==null){
     		  return new PlexilUniversalExecutive();
     	  }
@@ -194,28 +194,30 @@ public class ExecutionHandler
 
 
     	  // get script
-
-    	  if (currentPlan != null &&
-    			  currentPlan.getAbsoluteScriptName() != null &&
-    			  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
-    	  {
-    		  if (new File(currentPlan.getAbsoluteScriptName()).exists())
-    		  {
-    			  pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
-    		  }
-    		  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
-    		  {
-    			  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-    		  }
-    		  else
-    			  return "ERROR: unable to identify script.";
-    	  }
-    	  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
-    	  {
-    		  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-    	  }
-    	  else
-    		  return "ERROR: unable to identify script.";
+//    	  if (Luv.getLuv().allowTest())
+//    	  {
+			  if (currentPlan != null &&
+					  currentPlan.getAbsoluteScriptName() != null &&
+					  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
+			  {
+				  if (new File(currentPlan.getAbsoluteScriptName()).exists())
+				  {
+					  pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
+				  }
+				  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
+				  {
+					  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
+				  }
+				  else
+					  return "ERROR: unable to identify script.";
+			  }
+			  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
+			  {
+				  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
+			  }
+			  else
+				  return "ERROR: unable to identify script.";
+//    	  }
 
     	  // get libraries
 
@@ -263,7 +265,14 @@ public class ExecutionHandler
       
       public void killUEProcess() throws IOException
       {
-          String kill_ue = "killall " + TEST_EXEC;
+    	  String kill_ue = "killall ";
+    	  if (Luv.getLuv().allowTest()){
+    		  kill_ue += UE_TEST_EXEC;  
+    	  }
+    	  else
+    		  kill_ue += UE_EXEC;
+    	  
+          //String kill_ue = "killall " + TEST_EXEC;
             
           try 
           {
@@ -271,7 +280,7 @@ public class ExecutionHandler
           }
           catch (IOException e) 
           {
-              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: unable to kill " + TEST_EXEC + " process");
+              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: unable to execute " + kill_ue);
           }
       }
       
@@ -283,20 +292,22 @@ public class ExecutionHandler
 
           // display standard output from process (may contain an error message from UE)
           while ((line = is.readLine()) != null)
-          {
+          {        	
               if (line.contains("Error"))
               {
-                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive");
-              }
-
+                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive, see debug window");                  
+              }              
+              
               System.out.println(line);             
           }
 
           // display standard error message from process if any
           while ((line = err.readLine()) != null)
           {    
-              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive");
+              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive, see debug window");
               System.out.println(line);
+        	  if (line.contains("null interface adapter") && line.contains("command"))
+        		  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "an interface configuration xml file is required for handling " + line.substring(line.indexOf("command"), line.length()));        	  
           }
       }
 }
@@ -307,9 +318,15 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 
 	@Override
 	public String generateCommandLine() {
+	  String command = "";
 	  System.out.println("Using Universal Executive...");
-		
-	  String command = UE_EXEC + " -v";
+
+	  if (Luv.getLuv().allowTest()){
+		  command = UE_TEST_EXEC + " -v";  
+	  }
+	  else
+		  command = UE_EXEC + " -v";
+	  
 
 	  if (Luv.getLuv().breaksAllowed()){
 		  command += " -b";
@@ -321,18 +338,24 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 
 	  Model currentPlan=this.getCurrentPlan();
 	  
-	  command += " " + currentPlan.getAbsolutePlanName(); 
-
+	  if (Luv.getLuv().allowTest())
+		  command += " " + currentPlan.getAbsolutePlanName(); 
+	  else
+		  command += " -p " + currentPlan.getAbsolutePlanName();
 	  
-	  command += " " + this.getScriptPath(); 
+	  if (Luv.getLuv().allowTest())
+		  command += " " + this.getScriptPath();
+	  else if(!Luv.getLuv().allowTest() && this.getScriptPath() != null)
+		  command += " -c " + this.getScriptPath();	  
 
 	  if (this.getLibFiles()!=null){
 		  for (String lf:this.getLibFiles()){
 			  command += " -l ";
 			  command += lf;		  			  
 		  }
-	  }
-
+	  }	  
+	  ///command status
+	  System.out.println(command);
 	  return command;
 
 	}

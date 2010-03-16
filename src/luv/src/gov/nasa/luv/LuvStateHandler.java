@@ -47,7 +47,7 @@ public class LuvStateHandler
     public void startState()
     {
 	disableAllMenus();
-          
+	Luv.getLuv().setTestExecAllowed(false);
 	Luv.getLuv().setBreaksAllowed(false);
 	Luv.getLuv().setIsExecuting(false);     
 	Luv.getLuv().setIsPaused(false);
@@ -69,6 +69,7 @@ public class LuvStateHandler
 	Luv.getLuv().updateBlockingMenuItems();
 	LuvActionHandler.allowBreaksAction.putValue(NAME, "Enable Breaks");
         Luv.getLuv().getRunMenu().getItem(BREAK_MENU_ITEM).setEnabled(false);
+        Luv.getLuv().getRunMenu().getItem(ENABLE_TEST_EXEC_ITEM).setEnabled(true);
         Luv.getLuv().getRunMenu().setEnabled(true);
         
         Luv.getLuv().getViewMenu().setEnabled(true);
@@ -366,6 +367,7 @@ public class LuvStateHandler
 	Luv.getLuv().getRunMenu().getItem(STEP_MENU_ITEM).setEnabled(false);
 	Luv.getLuv().getRunMenu().getItem(BREAK_MENU_ITEM).setEnabled(false);	
         Luv.getLuv().getRunMenu().getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);
+        Luv.getLuv().getRunMenu().getItem(ENABLE_TEST_EXEC_ITEM).setEnabled(false);        
         Luv.getLuv().getRunMenu().getItem(EXECUTE_MENU_ITEM).setEnabled(false);  
 	Luv.getLuv().getRunMenu().setEnabled(false);
  

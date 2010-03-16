@@ -75,9 +75,9 @@ public class LuvActionHandler {
                 }
             };
     /** Action to load a script for Execution. */
-    public static LuvAction openScriptAction =
-            new LuvAction("Open Script",
-            "Open a plexil script file.",
+    public static LuvAction openScriptAction =    	
+            new LuvAction("Open Config",
+            "Open a interface-config.xml.",
             VK_E,
             META_MASK) {
 
@@ -129,6 +129,7 @@ public class LuvActionHandler {
                     Luv.getLuv().setNewPlan(false);
                 }
             };
+
     /** Action to show the debugging window. */
     public static LuvAction luvDebugWindowAction =
             new LuvAction("Show Debug Window",
@@ -146,6 +147,25 @@ public class LuvActionHandler {
                     }
                 }
             };
+            
+    /** Action to show the debugging window. */
+    public static LuvAction luvDebugHistoryWindowAction = 
+    	new LuvAction("Show History Player Window",
+        "Show window with history of events and debugging information.",
+        VK_K,
+        META_MASK) {
+
+    		public void actionPerformed(ActionEvent e) {
+	            Luv.getLuv().getDebugHistoryWindow().setVisible(!Luv.getLuv().getDebugHistoryWindow().isVisible());	            
+	
+	            if (Luv.getLuv().getDebugHistoryWindow().isVisible()) {
+	            	luvDebugHistoryWindowAction.putValue(NAME, "Hide History Player Window");
+	            } else {
+	            	luvDebugHistoryWindowAction.putValue(NAME, "Show History Player Window");
+	            }
+	        }
+    	};
+            
     /** Action to display extended or core plexil view. */
     public static LuvAction extendedViewAction =
             new LuvAction("Switch to Core Plexil View",
@@ -354,6 +374,32 @@ public class LuvActionHandler {
                     }
                 }
             };
+    /** Action to allow testExec. */
+    public static LuvAction allowTestAction =
+            new LuvAction("Enable TestExec",
+            "Select this to enable or disable TestExec and Scripts.",
+            VK_F12) {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (!Luv.getLuv().getIsExecuting()) {
+                        Luv.getLuv().setTestExecAllowed(!Luv.getLuv().allowTest());
+
+                        if (Luv.getLuv().allowTest()) {                            
+                            Luv.getLuv().getStatusMessageHandler().showStatus("Enabled TestExec", Color.GREEN.darker(), 1000);
+                            putValue(NAME, "Disable TestExec");
+                            openScriptAction.putValue(NAME, "Open Script");
+                            openScriptAction.putValue(SHORT_DESCRIPTION, "Open a plexil script file.");                            
+                            
+                        } else {                            
+                            Luv.getLuv().getStatusMessageHandler().showStatus("Disabled TestExec", Color.RED, 1000);
+                            putValue(NAME, "Enable TestExec");
+                            openScriptAction.putValue(NAME, "Open interface-config.xml");
+                            openScriptAction.putValue(SHORT_DESCRIPTION, "Open a config file");
+                            
+                        }
+                    }
+                }
+            };            
     /** Action to fully expand tree. */
     public static LuvAction expandAll = new LuvAction(
             "Expand All", "Expand all tree nodes.", VK_EQUALS) {

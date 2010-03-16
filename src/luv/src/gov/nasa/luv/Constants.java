@@ -130,9 +130,16 @@ public class Constants
       
       /** Represents the "test executive" for PLEXIL. */ 
       public static final String    TEST_EXEC = "test-exec_g_rt";
+
+      /** Represents the script for running the "Universal executive" for PLEXIL. */ 
+      public static final String    UE_EXEC = PLEXIL_HOME +
+                                              System.getProperty("file.separator") + 
+                                              "bin" + 
+                                              System.getProperty("file.separator") + 
+                                              "universalExec";
       
       /** Represents the script for running the "test executive" for PLEXIL. */ 
-      public static final String    UE_EXEC = PLEXIL_HOME +
+      public static final String    UE_TEST_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
@@ -491,8 +498,10 @@ public class Constants
       public static final int BREAK_MENU_ITEM               = 2;
       /** Represents index of the Remove Breaks item under the Run menu in the Luv application. */
       public static final int REMOVE_BREAKS_MENU_ITEM       = 3;
+      /** Represents index of the Enable Test Exec item under the Run menu in the Luv application. */
+      public static final int ENABLE_TEST_EXEC_ITEM       = 4;
       /** Represents index of the Execute item under the Run menu in the Luv application. */
-      public static final int EXECUTE_MENU_ITEM             = 5;
+      public static final int EXECUTE_MENU_ITEM             = 6;
       
       /** Represents index of the Expand All item under the View menu in the Luv application. */
       public static final int EXPAND_MENU_ITEM              = 0;
