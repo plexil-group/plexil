@@ -1,4 +1,0 @@
-MoveRightCommand:
-{
-					Command: SendMessage("MoveRight");
-}

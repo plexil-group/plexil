@@ -1,0 +1,19 @@
+Included in this folder are example plans for using multi-exec communication. There are two types of examples, messaging examples and simulator examples.
+
+Messaging:
+
+The messaging examples show the capabilities of exec communication using only the SendMessage and ReceiveMessage commands. These examples need to be refactored and have been removed until this work is complete.
+
+Simulator:
+
+This multi-part example shows off all current multi-exec features. The simulator.ple plan simulates an external system with one integer lookup, x, one command, MoveRight(Integer dx), and one message, Quit.
+
+The MoveRight(Integer dx) command increments the lookup, x, by dx. When the Quit message is received, the simulator closes.
+
+To run these examples, first compile each .ple file using the plexil compiler, then run these commands in seperate command-line instances:
+
+central
+universalExec -p simulator.plx -c interface_config.xml
+universalExec -p <example plx file> -c interface_config.xml
+
+Where <example plx file> is replaced with either command.plx, lookup.plx, or any other plan to interface with the simulator. To view the execution of a plan, start the Luv viewer first, then append -v to the command for the plan you wish to view.
