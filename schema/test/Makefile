@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ TESTS = UncheckedSequence1 UncheckedSequence2 \
 	Sequence1 Sequence2 Sequence3 Sequence4 \
 	Concurrence1 Concurrence2 Concurrence3 Concurrence4 Concurrence5 \
 	Try1 Try2 Try3 Try4 If1 If2 If3  While1 While2 While3 For1 For2 For3 \
-	NodeCheck1 MessageReceived1 Sequence-Concurrence
+	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$

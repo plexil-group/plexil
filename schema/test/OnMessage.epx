@@ -1,6 +1,6 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <OnMessage>
-    <Message>move rover</Message>
+    <Message><StringValue>move rover</StringValue></Message>
     <Node NodeType= "Empty">
       <NodeId>foo</NodeId>
     </Node>
