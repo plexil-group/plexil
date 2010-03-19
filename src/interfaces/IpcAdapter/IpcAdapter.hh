@@ -27,7 +27,7 @@
 #include "InterfaceAdapter.hh"
 #include "LabelStr.hh"
 #include "ThreadSemaphore.hh"
-#include "MessageQueueMap.h"
+#include "MessageQueueMap.hh"
 #include "IpcFacade.hh"
 #include <ipc.h>
 #include <vector>
