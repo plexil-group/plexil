@@ -342,9 +342,9 @@
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
       <xsd:all>
-        <xsd:element name="NodeId"/>
         <xsd:element ref="Name"/>
-        <xsd:element ref="DeclareVariable" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="NodeId" minOccurs="0"/>
+        <xsd:element ref="VariableDeclarations" minOccurs="0"/>
         <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:all>
     </xsd:complexType>
@@ -356,8 +356,12 @@
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
       <xsd:all>
-        <xsd:element name="NodeId"/>
-        <xsd:element name="Message" type="xsd:string"/>
+        <xsd:element name="Message">
+          <xsd:complexType>
+            <xsd:group ref="StringExpression"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element ref="NodeId" minOccurs="0"/>
         <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:all>
     </xsd:complexType>

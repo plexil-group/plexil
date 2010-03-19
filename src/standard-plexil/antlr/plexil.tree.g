@@ -1082,6 +1082,8 @@ actionBody[IXMLElement xaction, IXMLElement xmlResourceList]
      | ifBody[xaction]
      | whileBody[xaction]
      | forBody[xaction]
+     | onCommandBody[xaction]
+     | onMessageBody[xaction]
    )
    ;
 
@@ -1548,7 +1550,39 @@ realLoopVariableDeclaration[IXMLElement parent]:
   }
  ;
 
+onCommandBody[IXMLElement xaction] 
+{ 
+  IXMLElement xname = new XMLElement("Name");
+  xaction.addChild(xname);
+  
+}
+ :
+ #(ON_COMMAND_KYWD
+   n:NCName (typeName NCName (COMMA! typeName NCName )*)?! (copyNodeId[xaction])? (action[xaction])*
+   {
+     xname.setContent(#n.getText());
+   }
+  )
+ ;
 
+onMessageBody[IXMLElement xaction]  
+	{
+	 IXMLElement xname = new XMLElement("Message");
+	 xaction.addChild(xname);
+	}
+  : 
+  #(ON_MESSAGE_KYWD
+    m:stringExpression[xname] (copyNodeId[xaction])? (action[xaction])*
+  )
+ ;
+ 
+copyNodeId[IXMLElement xparent] : id:NodeName
+{
+  IXMLElement xid = new XMLElement("NodeId");
+  xid.setContent(#id.getText());
+  xparent.addChild(xid);
+}
+;
 //
 // Expressions
 //

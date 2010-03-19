@@ -902,15 +902,10 @@
           <xsl:value-of select="tr:prefix('hdl')" />
         </StringVariable>
       </xsl:variable>
-      <xsl:variable name="arg_dec">
-        <StringValue>
-          <xsl:value-of select="Name" />
-        </StringValue>
-      </xsl:variable>
       <xsl:call-template name="run-wait-command">
         <xsl:with-param name="command" select="'ReceiveMessage'" />
         <xsl:with-param name="dest" select="$hdl_dec" />
-        <xsl:with-param name="args" select="$arg_dec" />
+        <xsl:with-param name="args" select="Message/*" />
       </xsl:call-template>
       <!-- Actions for this message -->
       <Node NodeType="NodeList" epx="aux">
@@ -948,7 +943,7 @@
       <xsl:copy-of select="@LineNo" />
       <xsl:copy-of select="@ColNo" />
       <VariableDeclarations>
-        <xsl:copy-of select="DeclareVariable" />
+        <xsl:copy-of select="VariableDeclarations/DeclareVariable" />
         <DeclareVariable>
           <Name>
             <xsl:value-of select="tr:prefix('hdl')" />
@@ -992,7 +987,7 @@
         <xsl:with-param name="args" select="$arg_dec" />
       </xsl:call-template>
       <!-- Cmd get parameters nodes -->
-      <xsl:for-each select="DeclareVariable">
+      <xsl:for-each select="VariableDeclarations/DeclareVariable">
         <Node NodeType="Command" epx="aux">
           <NodeId>
             <xsl:value-of
@@ -1037,7 +1032,7 @@
       </Node>
       <!--  Insert return value command if not present -->
       <xsl:if
-        test="not(Node/NodeBody/Command/Name/StringValue/text() = 'SendReturnValue')">
+        test="not(.//Command/Name/StringValue/text() = 'SendReturnValue')">
         <Node NodeType="Command" epx="aux">
           <NodeId>
             <xsl:value-of select="tr:prefix('CmdReturn')" />
@@ -1048,6 +1043,9 @@
                 <StringValue>SendReturnValue</StringValue>
               </Name>
               <Arguments>
+                <StringVariable>
+                  <xsl:value-of select="tr:prefix('hdl')" />
+                </StringVariable>
                 <BooleanValue>true</BooleanValue>
               </Arguments>
             </Command>

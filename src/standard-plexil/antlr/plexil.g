@@ -204,6 +204,8 @@ tokens
     THEN_KYWD="Then";
     ELSE_KYWD="Else";
     WHILE_KYWD="While";
+    ON_COMMAND_KYWD="OnCommand"<AST=plexil.NodeASTNode>;
+    ON_MESSAGE_KYWD="OnMessage"<AST=plexil.NodeASTNode>;
     // "For" needs a Node AST because of the loop variable.
     FOR_KYWD="For"<AST=plexil.NodeASTNode>;
 
@@ -483,6 +485,8 @@ tokens
    case IF_KYWD:
    case WHILE_KYWD:
    case FOR_KYWD:
+   case ON_COMMAND_KYWD:
+   case ON_MESSAGE_KYWD:
      return true;
 
    default:
@@ -751,6 +755,8 @@ nodeBody :
     | ifBody
     | whileBody
     | forBody
+    | onCommandBody
+    | onMessageBody
  ;
 
 nodeList : NODE_LIST_KYWD^ (COLON!)? (action)* ;
@@ -790,7 +796,7 @@ whileBody : WHILE_KYWD^ LPAREN! booleanExpression RPAREN! action
     state.setExtendedPlexil();
   }
  ;
-
+ 
 //
 // "For" parsing
 //
@@ -830,6 +836,42 @@ realLoopVariableDeclaration :
   REAL_KYWD^ vn:variableName (EQUALS! iv:realValue)?
   {
     context.addVariableName(#vn.getText(), PlexilDataType.REAL_TYPE); 
+  }
+ ;
+ 
+ ///
+ // On Command Parsing
+ ///
+
+onCommandBody : ON_COMMAND_KYWD^ 
+  {
+    // create new variable binding context
+    context = new VariableBindingSubcontext(context, null);
+    ((NodeASTNode) #onCommandBody).setContext(context);
+    state.setExtendedPlexil();
+  }
+  ncName LPAREN! (incomingParam (COMMA! incomingParam)*)? RPAREN! (id:nodeName)? LBRACE! ( (action)* ) RBRACE!
+  {
+    if (#id != null)
+    {
+       state.addNode(#id.getText(), context);
+       ((NodeASTNode) #onCommandBody).setNodeName(#id.getText());
+    }
+    // restore old variable binding context
+    context = context.getParentContext();
+  }
+ ;
+ 
+ incomingParam : t:typeName n:ncName 
+ {
+ 	context.addVariableName(#n.getText(), PlexilDataType.findByName(#t.getText()));
+ }
+ ;
+
+onMessageBody : ON_MESSAGE_KYWD^
+  LPAREN! stringExpression RPAREN! (id:nodeName)? LBRACE! ( (action)* ) RBRACE!
+  {
+    state.setExtendedPlexil();
   }
  ;
 
