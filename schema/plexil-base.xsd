@@ -91,25 +91,18 @@
       <xsd:choice maxOccurs="unbounded">
         <xsd:element ref="CommandDeclaration" minOccurs="0"/>
         <xsd:element ref="StateDeclaration" minOccurs="0"/>
-        <xsd:element ref="FunctionDeclaration" minOccurs="0"/>
         <xsd:element ref="LibraryNodeDeclaration" minOccurs="0"/>
         <xsd:element name="TimeScalingUnitsSubunits" type="xsd:integer" minOccurs="0"/>
       </xsd:choice>
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:group name="ExternalCallDeclaration">
-    <xsd:sequence>
-      <xsd:element name="Name" type="xsd:NCName"/>
-      <xsd:element ref="Return" minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
-    </xsd:sequence>
-  </xsd:group>
-
   <xsd:element name="CommandDeclaration">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:group ref="ExternalCallDeclaration"/>
+        <xsd:element name="Name" type="xsd:NCName"/>
+        <xsd:element ref="Return" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
@@ -117,13 +110,11 @@
 
   <xsd:element name="StateDeclaration">
     <xsd:complexType>
-      <xsd:group ref="ExternalCallDeclaration"/>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="FunctionDeclaration">
-    <xsd:complexType>
-      <xsd:group ref="ExternalCallDeclaration"/>
+      <xsd:sequence>      
+        <xsd:element name="Name" type="xsd:NCName"/>
+        <xsd:element ref="Return"/>
+        <xsd:element ref="Parameter" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 
