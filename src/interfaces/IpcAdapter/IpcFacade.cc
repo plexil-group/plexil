@@ -28,6 +28,7 @@
 #include "IpcFacade.hh"
 #include "Debug.hh"
 #include "StoredArray.hh"
+#include "Expression.hh"
 
 // ooid classes
 #include "uuid.h"
@@ -330,24 +331,24 @@ IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_
   for (std::list<double>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
     double param = *it;
     PlexilMsgBase* paramMsg;
-    if (LabelStr::isString(param)) {
-      // string
-      struct PlexilStringValueMsg* strMsg = new PlexilStringValueMsg();
-      strMsg->stringValue = LabelStr(param).c_str();
-      paramMsg = (PlexilMsgBase*) strMsg;
-      paramMsg->msgType = PlexilMsgType_StringValue;
-      debugMsg("IpcFacade:sendParameters", "String parameter: " << strMsg->stringValue);
-    } else if (StoredArray::isKey(param)) {
-      // array
-      assertTrueMsg(ALWAYS_FAIL,
-          "IpcAdapter: Array values are not yet implemented");
-    } else {
+    if (Expression::UNKNOWN() == param || !LabelStr::isString(param)){
       // number or Boolean
       struct PlexilNumericValueMsg* numMsg = new PlexilNumericValueMsg();
       numMsg->doubleValue = param;
       paramMsg = (PlexilMsgBase*) numMsg;
       paramMsg->msgType = PlexilMsgType_NumericValue;
       debugMsg("IpcFacade:sendParameters", "Numeric parameter: " << param);
+    } else if (StoredArray::isKey(param)) {
+      // array
+      assertTrueMsg(ALWAYS_FAIL,
+          "IpcAdapter: Array values are not yet implemented");
+    } else {
+      // string
+      struct PlexilStringValueMsg* strMsg = new PlexilStringValueMsg();
+      strMsg->stringValue = LabelStr(param).c_str();
+      paramMsg = (PlexilMsgBase*) strMsg;
+      paramMsg->msgType = PlexilMsgType_StringValue;
+      debugMsg("IpcFacade:sendParameters", "String parameter: " << strMsg->stringValue);
     }
 
     // Fill in common fields

@@ -25,17 +25,10 @@
  */
 
 #include "IpcAdapter.hh"
-#include "IpcListener.hh"
 #include "AdapterFactory.hh"
 #include "ExecListenerFactory.hh"
 
 extern "C" void initIpcAdapter()
 {
   REGISTER_ADAPTER(PLEXIL::IpcAdapter, "IpcAdapter")
-}
-
-
-extern "C" void initIpcListener()
-{
-  REGISTER_EXEC_LISTENER(PLEXIL::IpcListener, "IpcListener")
 }

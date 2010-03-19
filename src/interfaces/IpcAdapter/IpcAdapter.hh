@@ -60,6 +60,8 @@ public:
   DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
   DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
   DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
+  DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
+
 
   /**
    * @brief Constructor.
@@ -187,6 +189,48 @@ private:
   //
 
   /**
+   * @brief handles SEND_MESSAGE_COMMAND commands from the exec
+   */
+  void executeSendMessageCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
+   * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
+   */
+  void executeSendReturnValueCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
+   * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
+   */
+  void executeReceiveMessageCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
+   * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
+   */
+  void executeReceiveCommandCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
+   * @brief handles UPDATE_LOOKUP_COMMAND commands from the exec
+   */
+  void executeUpdateLookupCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
+   * @brief handles all other commands from the exec
+   */
+  void executeDefaultCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
+   * @brief Parses external lookups from xml and puts them in the lookup map.
+   * If external is NULL, does nothing.
+   */
+  void parseExternalLookups(const TiXmlElement* external);
+
+  /**
    * @brief Handler function as seen by adapter.
    */
 
@@ -219,6 +263,11 @@ private:
    * @brief Process a ReturnValues message sequence
    */
   void handleReturnValuesSequence(const std::vector<const PlexilMsgBase*>& msgs);
+
+  /**
+   * @brief Process a LookupNow. Ignores any lookups that are not defined in config
+   */
+  void handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Helper function for converting message names into the propper format given the command type.
@@ -256,6 +305,8 @@ private:
 
   //* brief Cache of command serials and their corresponding ack and return value variables
   typedef std::map<uint32_t, std::pair<ExpressionId, ExpressionId> > PendingCommandsMap;
+
+  typedef std::map<double, double> ExternalLookupMap;
 
   //* brief Class to receive messages from Ipc
   class MessageListener : public IpcMessageListener {
@@ -312,5 +363,8 @@ private:
 
   //* @brief Pointer to destination of current pending LookupNow request, or NULL
   std::vector<double>* m_pendingLookupDestination;
+
+  //* @brief Map of external lookup values.
+  ExternalLookupMap m_externalLookups;
 };
 }
