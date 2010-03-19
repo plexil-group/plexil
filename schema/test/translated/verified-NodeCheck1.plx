@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
+            xmlns:tr="extended-plexil-translator"
+            xmlns:exslt="http://exslt.org/common">
    <Node NodeType="NodeList">
       <NodeId>Root</NodeId>
       <VariableDeclarations>
