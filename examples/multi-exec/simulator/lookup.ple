@@ -8,6 +8,7 @@ Integer Lookup x;
 
 MasterPlan:
 {
+	Boolean continue = true;
 	Sequence
 		{
 		NodeList:
@@ -16,7 +17,7 @@ MasterPlan:
 				// The current value of x
 				Integer curX;
 				// Repeat as long as x is less than 14
-				RepeatCondition: LookupOnChange(x) < 14;
+				RepeatCondition:continue;
 			Sequence
 				//update current value of x
 				UpdateX:
@@ -24,34 +25,25 @@ MasterPlan:
 					Assignment: curX = LookupNow(x);
 				}
 				//Tell the simulator to move right by 5
-				{If (isKnown(curX))
-				Then
-					ActionKnown:
-					{
-						// The returned value of x - used only to determine when the command has returned 
-						Integer ret;
-						EndCondition: isKnown(ret);
-						Command: ret = MoveRight(curX);
-					}
-				}
-				//For now, lookups only work after the value has changed once in the simulator
-				//In these cases, command the simulator to move right 5 spaces
-				{If (!isKnown(curX))
-				Then
-					ActionUnknown:
-					{
-						// The returned value of x - used only to determine when the command has returned 
-						Integer ret;
-						EndCondition: isKnown(ret);
-						Command: ret = MoveRight(5);
-					}
+				ActionKnown:
+				{
+					// The returned value of x - used only to determine when the command has returned 
+					Integer ret;
+					EndCondition: isKnown(ret);
+					Command: ret = MoveRight(curX);
 				}
 			}
 			// When x >= 14, send out the quit message
 			OnX:
 			{
 				StartCondition: LookupOnChange(x) >= 14;
-				Command: SendMessage("Quit");
+				Sequence
+				{
+					Command: SendMessage("Quit");
+				}
+				{
+					Assignment: continue = false;
+				}
 			}
 		}
 }

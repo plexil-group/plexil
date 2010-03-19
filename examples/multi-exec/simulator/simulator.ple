@@ -7,55 +7,45 @@
 Interface:
 {
 	//The integer lookup, x
-	Integer x = 0;
+	Integer x = 1;
 	Boolean continue = true;
 	NodeList:
 		Loop:
 		{
-			String hdl;
+			String hdl = "hi";
 			RepeatCondition: continue;
 			EndCondition: RecMoveRight.state == FINISHED || RecQuit.state == FINISHED;
 			NodeList:
 				//The handler for the command MoveRight(Integer dX)
 				RecMoveRight:
-				{	
-					Integer modX;
-					Invariant: Loop.state == EXECUTING;
-					Sequence
-						WaitMessage:
+				{
+					OnCommand MoveRight ( Integer modX ) {
 						{
-							EndCondition: isKnown(hdl) ;
-							Command: hdl = ReceiveCommand("MoveRight");
+							Sequence
+							Increment:
+							{
+								Assignment: x = x + modX;
+							}
+							SetExt:
+							{
+								Command: UpdateLookup("x", x);
+							}
+							RespondMoveRight:
+							{
+								Command: SendReturnValue(x);
+							}
 						}
-						GetParameters:
-						{
-							EndCondition: isKnown(modX) ;
-							Command: modX = GetParameter(hdl);
-						}
-						Increment:
-						{
-							Assignment: x = x + modX;
-						}
-						RespondMoveRight:
-						{
-							Command: SendReturnValue(hdl, x);
-						}
+					}
 				}
-				//The handler for the message 'Quit'
+				//The handler for the message 'Quit' goes here
 				RecQuit:
 				{
-					Invariant: Loop.state == EXECUTING;
-					Sequence
-						Rec:
+					OnMessage ("Quit") {
+						Set:
 						{
-							String quitHdl;
-							EndCondition: isKnown(quitHdl);
-							Command: quitHdl = ReceiveMessage("Quit");
+							Assignment: continue =false;
 						}
-						Call:
-						{
-							Assignment: continue = false;
-						}
+					}
 				}
 		}
 }
