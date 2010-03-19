@@ -411,12 +411,11 @@
              (xml "Interface" interface-declarations))))
 
 (pdefine pl (StateDeclaration state-declaration)
-            (name &rest returns-then-parameters) 0 nil
+            (name type &rest params) 0 nil
   ;; string * list(xml) -> xml
-  ("Declare a state (lookup).  Following the name should be zero or more Return "
-   "forms, then zero or more Parameter forms.  They cannot be intermixed.")
-  (plexil-external-call-declaration "StateDeclaration" name
-                                    returns-then-parameters))
+  ("Declare a state (lookup), specifying its type (as a Return form) "
+   "and parameters (as Parameter forms).")
+  (plexil-external-call-declaration "StateDeclaration" name (cons type params)))
 
 (pdefine pl (CommandDeclaration command-declaration)
             (name &rest returns-then-parameters-then-resource-list) 0 nil
@@ -430,7 +429,7 @@
 (pdefine pl (Return return) (type) 1 nil
   ;; string -> xml
   ("Specify a return type.  Argument must be one of 'string', 'integer', "
-   "'array', 'boolean', 'real' (case doesn't matter).")
+   "'array', 'boolean', 'real' (case insensitive).")
   (plexil-type-declaration "Return" type))
 
 (pdefine pl (Parameter parameter) (type) 1 nil
@@ -1089,6 +1088,30 @@
   ("Executes actions sequentially, stopping after the an action succeeds.  "
    "Fails if and only if no action succeeds.")
   `(plexil-build-sequence ',name-or-first-form ',forms "Try"))
+
+
+;;; Communication related macros
+
+(pdefine pl (OnMessage on-message) (message &rest forms) 1 node
+  ;; string * list(xml) -> xml
+  "Specifies action(s) for responding to a given message (string)."
+  (xml "OnMessage"
+       (cons
+        (xml "NodeId" (plexil-unique-node-id "OnMessage"))
+        (cons (xml "Message" message)
+              forms))))
+
+(pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &rest forms) 1 node
+  ;; string * xml * list(xml) -> xml
+  "Specifies action(s) for responding to a given command invocation."
+  `(xml "OnCommand"
+         (append
+          (list (xml "NodeId" (plexil-unique-node-id "OnCommand")))
+          (if ',arg-decls
+              (list (xml "VariableDeclarations" (mapcar #'eval ',arg-decls))))
+          (mapcar #'eval ',forms))))
+
+
 
 (defun plexil-build-sequence (name-or-first-form forms construct)
   ;; (string | xml) * list(xml) * string -> xml
