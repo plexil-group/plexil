@@ -28,7 +28,7 @@
 -->
 
 <xsl:transform version="2.0" xmlns:tr="extended-plexil-translator"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exslt="http://exslt.org/common">
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:output method="xml" indent="yes" />
 
@@ -854,14 +854,14 @@
     <xsl:variable name="Msg_staging">
       <xsl:call-template name="OnMessage-staging" />
     </xsl:variable>
-    <xsl:apply-templates select="exslt:node-set($Msg_staging)" />
+    <xsl:apply-templates select="$Msg_staging" />
   </xsl:template>
 
   <xsl:template match="OnMessage" mode="ordered">
     <xsl:variable name="Msg_staging">
       <xsl:call-template name="OnMessage-staging" />
     </xsl:variable>
-    <xsl:apply-templates select="exslt:node-set($Msg_staging)"
+    <xsl:apply-templates select="$Msg_staging"
       mode="ordered" />
   </xsl:template>
   <xsl:template name="OnMessage-staging">
@@ -926,14 +926,14 @@
     <xsl:variable name="Cmd_staging">
       <xsl:call-template name="OnCommand-staging" />
     </xsl:variable>
-    <xsl:apply-templates select="exslt:node-set($Cmd_staging)" />
+    <xsl:apply-templates select="$Cmd_staging" />
   </xsl:template>
 
   <xsl:template match="OnCommand" mode="ordered">
     <xsl:variable name="Cmd_staging">
       <xsl:call-template name="OnCommand-staging" />
     </xsl:variable>
-    <xsl:apply-templates select="exslt:node-set($Cmd_staging)"
+    <xsl:apply-templates select="$Cmd_staging"
       mode="ordered" />
   </xsl:template>
 
@@ -1069,7 +1069,7 @@
             <xsl:with-param name="node" select="$start_path/.." />
           </xsl:call-template>
         </xsl:variable>
-        <xsl:value-of select="exslt:node-set($id)/NodeId" />
+        <xsl:value-of select="$id/NodeId" />
       </xsl:when>
       <!-- If not an action, go up a level and try again, if one exists -->
       <xsl:when test="$start_path/..">
