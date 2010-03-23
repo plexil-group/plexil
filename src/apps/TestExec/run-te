@@ -25,7 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-usage="Usage: run-ue [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug file>] \
+usage="Usage: run-te [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug file>] \
                      [-eprompt] [-wprompt] [-log <log file>] [-check] \
                      <plan> [<script>] [-l <library>]*"
 
@@ -272,4 +272,5 @@ if [ $summary -eq 1 ]
     echo
 fi
 
-$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
+echo "$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file
+$viewer $host $port $block"

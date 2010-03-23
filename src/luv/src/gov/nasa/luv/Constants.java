@@ -136,14 +136,14 @@ public class Constants
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
-                                              "universalExec";
+                                              "run-ue";
       
       /** Represents the script for running the "test executive" for PLEXIL. */ 
       public static final String    UE_TEST_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
-                                              "run-ue";
+                                              "run-te";
       
       /** Represents the Luv application debug log file. Note this file is not referenced yet in the DebugWindow class. */ 
       public static final String    DEBUG_LOG_FILE = System.getProperty("user.home") + 

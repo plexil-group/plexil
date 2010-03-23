@@ -33,7 +33,7 @@
   <xsl:output method="xml" indent="yes" />
 
   <!--
-    To Do incorporate into run-ue (?) add checks for all node states?
+    To Do incorporate into run-te (?) add checks for all node states?
     add all node failure types to transition diagrams Implementation:
     copy comments (hard) use copy-of in local variables
   -->

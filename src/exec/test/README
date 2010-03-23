@@ -37,7 +37,7 @@ The '-d' option specifies a debug configuration file (described below).
 2. A stylized script (also in this directory) provides a more compact interface:
 
 [[code]]
-  run-ue [-s] [-d debug-file] plan [script] [-l library-file]*
+  run-te [-s] [-d debug-file] plan [script] [-l library-file]*
 [[code]]
 
 The '-s' option suppresses a leading summary (which is generally
@@ -84,7 +84,7 @@ Here are a few examples of running the plan execution simulator, all
 reproducable in the current 'Exec/test' directory.
 
 [[code]]
-% run-ue plans/site-survey.plx
+% run-te plans/site-survey.plx
 
   Running UE from /Users/kmd/universal-exec
     Plan:      plans/site-survey.plx
@@ -97,7 +97,7 @@ reproducable in the current 'Exec/test' directory.
 
   [ equivalent to previous ]
 
-% run-ue plans/library-call6.plx -l plans/library6.plx
+% run-te plans/library-call6.plx -l plans/library6.plx
 
   Running UE from /Users/kmd/universal-exec
     Plan:      plans/library-call6.plx

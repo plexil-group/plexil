@@ -88,7 +88,7 @@ jam -v >> $output | tee >> $output
 echo "" >> $output
 echo "TEST RUN OF UE" >> $output
 echo "--------------------------------" >> $output
-run-ue $PLEXIL_HOME/examples/cruise.plx $PLEXIL_HOME/examples/cruise-script.plx >> $output | tee >> $output 
+run-te $PLEXIL_HOME/examples/cruise.plx $PLEXIL_HOME/examples/cruise-script.plx >> $output | tee >> $output 
 
 
 
