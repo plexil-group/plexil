@@ -127,6 +127,14 @@ public class BinaryExpr extends Expr {
 	@Override
 	public String toString()
 	{
-		return "(" + getElem().toString() + " " + leftChild.toString() + " " + rightChild.toString() + ")";
+		String elemStr = "null", rightStr ="null", leftStr = "null";
+		if(leftChild != null)
+			leftStr = leftChild.toString();
+		if(rightChild != null)
+			rightStr = rightChild.toString();
+		if(getElem() != null)
+			elemStr = getElem().toString();
+		
+		return "(" + elemStr + " " + leftStr + " " + rightStr + ")";
 	}
 }
