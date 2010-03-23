@@ -272,5 +272,5 @@ if [ $summary -eq 1 ]
     echo
 fi
 
-echo "$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file
-$viewer $host $port $block"
+$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file
+$viewer $host $port $block
