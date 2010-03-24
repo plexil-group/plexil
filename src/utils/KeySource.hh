@@ -38,7 +38,10 @@
 #include <limits>
 #include <stack>
 #include "Error.hh"
+
+#ifndef STORED_ITEM_NO_MUTEX
 #include "ThreadMutex.hh"
+#endif
 
 // defined in vxWorksCommon.h,
 // and they interfere with numeric_limits methods of the same name
@@ -75,11 +78,12 @@ namespace PLEXIL
      * @brief Returns the next available key.
      */
 
-    inline static const key_t next()
+    static const key_t next()
     {
+#ifndef STORED_ITEM_NO_MUTEX
       // make key generation thread safe
-
       ThreadMutexGuard guard(getMutex());
+#endif
 
       key_t sl_key;
 
@@ -92,7 +96,7 @@ namespace PLEXIL
 	  sl_key = keyPool().top();
 	  keyPool().pop();
 	}
-            
+
       // otherwise increment the counter
             
       else
@@ -146,9 +150,12 @@ namespace PLEXIL
     inline static void unregister(key_t& key)
     {
 #ifdef STORED_ITEM_REUSE_KEYS
-      // make key generation thread safe
 
+#ifndef STORED_ITEM_NO_MUTEX
+      // make key generation thread safe
       ThreadMutexGuard guard(getMutex());
+#endif
+
       keyPool().push(key);
 #endif           
     }
@@ -159,13 +166,16 @@ namespace PLEXIL
      * @return The unassigned key value.
      */
          
-    inline static const key_t& unassigned()
+    static const key_t& unassigned()
     {
-      static const key_t sl_unassigned =
-	(keyLimits_t::has_denorm == std::denorm_present
-	 ? keyLimits_t::denorm_min()
-	 : keyLimits_t::min());
-      return sl_unassigned;
+      static const key_t* sl_unassigned = NULL;
+      if (sl_unassigned == NULL)
+	{
+	  sl_unassigned = new key_t(keyLimits_t::has_denorm == std::denorm_present
+				    ? keyLimits_t::denorm_min()
+				    : keyLimits_t::min());
+	}
+      return *sl_unassigned;
     }
 
     /**
@@ -174,13 +184,17 @@ namespace PLEXIL
      * @return The smallest allowable increment for a given key_t.
      */
 
-    inline static const key_t& increment()
+    static const key_t& increment()
     {
-      static const key_t sl_increment = 
-	(keyLimits_t::has_denorm == std::denorm_present
-	 ? keyLimits_t::denorm_min()
-	 : 1);
-      return sl_increment;
+      static const key_t* sl_increment = NULL;
+      if (sl_increment == NULL)
+	{
+	  sl_increment =
+	    new key_t(keyLimits_t::has_denorm == std::denorm_present
+		      ? keyLimits_t::denorm_min()
+		      : 1);
+	}
+      return *sl_increment;
     }
 
     /**
@@ -189,10 +203,12 @@ namespace PLEXIL
      * @return The smallest value of a key.
      */
 
-    inline static const key_t& keyMin()
+    static const key_t& keyMin()
     {
-      static const key_t sl_min = unassigned() + increment();
-      return sl_min;
+      static const key_t* sl_min = NULL;
+      if (sl_min == NULL)
+	sl_min = new key_t(unassigned() + increment());
+      return *sl_min;
     }
 
     /**
@@ -201,13 +217,14 @@ namespace PLEXIL
      * @return The largest value of a key.
      */
 
-    inline static const key_t& keyMax()
+    static const key_t& keyMax()
     {
-      static const key_t sl_max = 
-	(keyLimits_t::has_denorm == std::denorm_present
-	 ? keyLimits_t::min()
-	 : keyLimits_t::max());
-      return sl_max;
+      static const key_t* sl_max = NULL;
+      if (sl_max == NULL)
+	sl_max = new key_t(keyLimits_t::has_denorm == std::denorm_present
+			   ? keyLimits_t::min()
+			   : keyLimits_t::max());
+      return *sl_max;
     }
 
 
@@ -217,13 +234,16 @@ namespace PLEXIL
      * @return The largest value of a key.
      */
 
-    inline static const key_t& infinity()
+    static const key_t& infinity()
     {
-      static const key_t sl_infinity = 
-	(keyLimits_t::has_infinity
-	 ? keyLimits_t::infinity()
-	 : keyLimits_t::max());
-      return sl_infinity;
+      static const key_t* sl_infinity = NULL;
+      if (sl_infinity == NULL)
+	{
+	  sl_infinity = new key_t(keyLimits_t::has_infinity
+				  ? keyLimits_t::infinity()
+				  : keyLimits_t::max());
+	}
+      return *sl_infinity;
     }
 
   protected:
@@ -232,31 +252,41 @@ namespace PLEXIL
      * @brief Returns the value of the next key to be released.
      */
 
-    inline static key_t & counter()
+    static key_t & counter()
     {
-      static key_t sl_nextKey = keyMin();
-      return sl_nextKey;
+      static key_t* sl_nextKey = NULL;
+      if (sl_nextKey == NULL)
+	sl_nextKey = new key_t(keyMin());
+      return *sl_nextKey;
     }
 
+#ifndef STORED_ITEM_NO_MUTEX
     /**
      * @brief The mutex for thread safing.
      */
          
-    inline static ThreadMutex& getMutex()
+    static ThreadMutex& getMutex()
     {
-      static ThreadMutex sl_mutex;
-      return sl_mutex;
+      static ThreadMutex* sl_mutex = NULL;
+      if (sl_mutex == NULL)
+	sl_mutex = new ThreadMutex();
+      return *sl_mutex;
     }
+#endif
 
 #ifdef STORED_ITEM_REUSE_KEYS
     /**
      * @brief Stores unused keys for reuse.
      */
 
-    inline static keyPool_t& keyPool()
+    static keyPool_t& keyPool()
     {
-      static keyPool_t sl_keyPool;
-      return sl_keyPool;
+      static keyPool_t& sl_keyPool = NULL;
+      if (sl_keyPool == NULL)
+	{
+	  sl_keyPool = new keyPool_t();
+	}
+      return *sl_keyPool;
     }
 #endif         
   };
