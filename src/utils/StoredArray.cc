@@ -217,9 +217,9 @@ namespace PLEXIL
   {
     // *** KLUDGE ALERT ***
     // This is a local copy of the class constant Expression::UNKNOWN()
-    static double MY_UNKNOWN = (std::numeric_limits<double>::has_infinity ?
-                                std::numeric_limits<double>::infinity() :
-                                std::numeric_limits<double>::max());
+    const double MY_UNKNOWN = (std::numeric_limits<double>::has_infinity ?
+			       std::numeric_limits<double>::infinity() :
+			       std::numeric_limits<double>::max());
     std::stringstream retval;
 
     retval << "Array: [";
