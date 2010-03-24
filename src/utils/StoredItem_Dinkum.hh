@@ -68,7 +68,7 @@ namespace PLEXIL
   };
 
   /** 
-   * @class StoredItemItemCompare
+   * @class StoredItemPointerCompare
    *
    * @brief Provides a specialized hash_compare class for item_t in StoredItem.
    */
@@ -206,9 +206,10 @@ namespace PLEXIL
 
     static item_t& empty()
     {
-      static item_t sl_empty;
-            
-      return sl_empty;
+      static item_t* sl_empty = NULL;
+      if (sl_empty == NULL)
+	sl_empty = new item_t();
+      return *sl_empty;
     }
 
     /**
@@ -325,7 +326,6 @@ namespace PLEXIL
     static const key_t ensureKey(item_t* item, bool copyItem)
     {
       // if item is already in the system, return its key
-
       keyConstIterator_t ki = keyStore().find(item);
       if (ki != keyStore().end())
 	{
@@ -337,7 +337,6 @@ namespace PLEXIL
       const key_t key = KeySource<key_t>::next();
 
       // insert the item
-
       handleInsertion(key, copyItem ? new item_t(*item) : item);
       return(key);
     }
@@ -421,16 +420,23 @@ namespace PLEXIL
      */
     static keyStore_t& keyStore()
     {
-      static keyStore_t sl_keyStore;
-      return sl_keyStore;
+      static keyStore_t* sl_keyStore = NULL;
+      if (sl_keyStore == NULL)
+	sl_keyStore = new keyStore_t();
+      return *sl_keyStore;
     }
+
     /**
      * @brief Map keys to items for item retrieval - i.e. toItem(). 
      */
     static itemStore_t& itemStore()
     {
-      static itemStore_t sl_itemStore;
-      return sl_itemStore;
+      static itemStore_t* sl_itemStore = NULL;
+      if (sl_itemStore == NULL)
+	{
+	  sl_itemStore = new itemStore_t();
+	}
+      return *sl_itemStore;
     }
   };
 }
