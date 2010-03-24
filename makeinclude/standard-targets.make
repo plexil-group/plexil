@@ -82,7 +82,7 @@ archive $(PLEXIL_HOME)/lib/$(ARCHIVE): $(ARCHIVE)
 # than it, or create the library from existing objects if it does not exist.
 
 $(ARCHIVE): depend $(OBJ)
-	$(AR) ru $(ARCHIVE) $(OBJ)
+	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
 	-$(RM) $(ARCHIVE)
