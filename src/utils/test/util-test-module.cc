@@ -65,6 +65,8 @@
 #include <cfloat>
 
 #if S950
+// apparently needed for sys950lib
+#include <types/vxTypesOld.h>
 #include <sys950Lib.h>
 #endif
 
@@ -231,7 +233,7 @@ private:
   static void runDebugTest(int cfgNum) {
 #if !defined(PLEXIL_FAST) && defined(DEBUG_MESSAGE_SUPPORT)
     std::stringstream cfgName;
-    cfgName << "../../Utils/test/debug" << cfgNum << ".cfg";
+    cfgName << "debug" << cfgNum << ".cfg";
     std::string cfgFile(cfgName.str());
     cfgName << ".output";
     std::string cfgOut(cfgName.str());
@@ -652,8 +654,8 @@ class StoredArrayTests
          // this test is commented out as it raises and error when the
          // keyspace is exhausted and therefore does run cleanly
 
-         runTest(testBasics);
          runTest(testKeyspace);
+         runTest(testBasics);
          runTest(testSpeed);
          runTest(testMemory);
          return true;
@@ -661,9 +663,12 @@ class StoredArrayTests
 
       static bool testBasics()
       {
+	StoredArray sa0;
+
          StoredArray sa1(10, UNKNOWN);
          sa1[0] = 3.3;
          sa1[1] = 9.9;
+
          StoredArray sa2(sa1.getKey());
          assert(sa2[0] == 3.3);
          assert(sa2[1] == 9.9);
@@ -673,32 +678,44 @@ class StoredArrayTests
 
       static bool testKeyspace()
       {
-         try
-         {
+	size_t keySpace = KeySource<uint16_t>::totalKeys();
+	std::cout << "key space: " << keySpace << std::endl;
+	try
+	  {
             std::cout << std::endl;
             Error::doThrowExceptions();
-            size_t keySpace = KeySource<short>::totalKeys();
-            std::cout << "key space: " << keySpace << std::endl;
-            for (unsigned i = 0; i < keySpace + 1; ++i)
-            {
-               double j = 7;
-               StoredItem<short, double> x(j);
-               std::cout << "created key: " << (i + 1)
-                         << " available: " << KeySource<short>::availableKeys()
-                         << "\r" << std::flush;
-            }
-            std::cout << std::endl;
-         }
-         catch (Error e)
-         {
+            for (size_t i = 0; i < keySpace + 1; ++i)
+	      {
+		double j = 7;
+		StoredItem<uint16_t, double> x(j);
+		// cut down on output a bit
+		if ((i & 0xFF) == 0)
+		  {
+		    std::cout << "created key: " << (i + 1)
+			      << " available: " << KeySource<uint16_t>::availableKeys()
+			      << "\r" << std::flush;
+		  }
+	      }
+	  }
+	catch (Error e)
+	  {
             std::cout << "Caught expected exception: ";
             e.print(std::cout);
+	    // cleanup
+	    std::cout << "\nCleaning up...";
+	    for (size_t i = KeySource<uint16_t>::keyMin(); i < KeySource<uint16_t>::keyMax(); ++i)
+	      {
+		if (!StoredItem<uint16_t, double>::isKey(i))
+		  break;
+		StoredItem<uint16_t, double>x(i);
+		x.unregister();
+	      }
+            std::cout << " done." << std::endl;
             return true;
-         }
+	  }
 
-         // should never get here
-
-         return false;
+	// should never get here
+	return false;
       }
 
       
@@ -707,9 +724,12 @@ class StoredArrayTests
          std::cout << std::endl;
 
          unsigned width = 1000;
-         unsigned testSize = 1000000;
+         unsigned testSize = 100000; // was 1000000
          unsigned updateSize = 10000;
+	 // preallocate the vector to the appropriate size
          std::vector<double> keys;
+	 keys.reserve(testSize);
+
 #ifdef STORED_ITEM_REUSE_KEYS
          size_t availableKeys = KeySource<double>::availableKeys();
 #endif         
@@ -762,9 +782,11 @@ class StoredArrayTests
          std::cout << std::endl;
 
          unsigned width = 10;
-         unsigned testSize = 2000000;
-         unsigned updateSize = 100000;
+         unsigned testSize = 100000; // was 2000000
+         unsigned updateSize = 10000; // was 100000
+	 // preallocate the vector to the appropriate size
          std::vector<double> keys;
+	 keys.reserve(testSize);
          
          // create a whole bunch of StoredArray
          
@@ -808,15 +830,31 @@ class StoredArrayTests
                   (i + 1) << "\r" << std::flush;
             
             StoredArray sa(keys[i]);
-            assertTrue(
-               (StoredItem<double, std::vector<double> >::isKey(keys[i])),
-               "item key mismatch");
+            assertTrueMsg((StoredItem<double, ArrayStorage>::isKey(keys[i])),
+			  "item key mismatch for index " << i);
             
             for (unsigned j = 0; j < sa.size(); ++j)
                assertTrueMsg(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
          }
          std::cout << std::endl;
          stopTime(start);
+
+	 // delete everything
+	 
+         start = startTime();
+         for (unsigned i = 0; i < keys.size(); ++i)
+         {
+	   if ((i + 1) % updateSize == 0)
+	     std::cout << "deleting StoredArray: " << 
+	       (i + 1) << "\r" << std::flush;
+            
+	   StoredArray sa(keys[i]);
+	   sa.unregister();
+	   keys[i] = 0.0;
+         }
+         std::cout << std::endl;
+         stopTime(start);
+
          stopTime(startTotal);
          return true;
       }
