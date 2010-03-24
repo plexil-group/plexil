@@ -46,8 +46,6 @@
  * @ingroup Utils
  */
 
-#define streamIsEmpty(s) ((s).str() == ")"
-
 /**
  * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
  * @brief Declare and define class scoped constant to ensure initialization
@@ -55,8 +53,10 @@
  */
 #define DECLARE_STATIC_CLASS_CONST(TYPE, NAME, VALUE) \
   static const TYPE& NAME() { \
-    static const TYPE sl_data(VALUE); \
-    return(sl_data); \
+    static const TYPE *sl_data = NULL; \
+    if (sl_data == NULL) \
+      sl_data = new const TYPE(VALUE); \
+    return *sl_data; \
   }
 
 /**
@@ -75,8 +75,10 @@
  */
 #define DEFINE_GLOBAL_CONST(TYPE, NAME, VALUE) \
   const TYPE& NAME() { \
-    static const TYPE sl_data(VALUE); \
-    return(sl_data); \
+    static const TYPE *sl_data = NULL; \
+    if (sl_data == NULL) \
+      sl_data = new TYPE(VALUE); \
+    return *sl_data; \
   }
 
 /**
@@ -86,8 +88,10 @@
  */
 #define DEFINE_GLOBAL_EMPTY_CONST(TYPE, NAME) \
   const TYPE& NAME() { \
-    static const TYPE sl_data; \
-    return(sl_data); \
+    static const TYPE *sl_data = NULL; \
+    if (sl_data == NULL) \
+      sl_data = new const TYPE(); \
+    return *sl_data; \
   }
 
 namespace PLEXIL {
