@@ -39,12 +39,6 @@ PLEXIL_PROFILE		?=
 PLEXIL_SHARED		?= 1
 PLEXIL_STATIC		?=
 
-ifneq ($(PLEXIL_SHARED),)
-ifneq ($(PLEXIL_STATIC),)
-$(error PLEXIL_STATIC and PLEXIL_SHARED cannot both be true. Exiting.)
-endif
-endif
-
 ##### Basic utilities and Unix commands
 
 SHELL           = /bin/sh
@@ -125,9 +119,6 @@ endif
 ifneq ($(PLEXIL_PROFILE),)
 VARIANT_CFLAGS	+= $(PROFILE_FLAGS)
 endif
-ifneq ($(PLEXIL_SHARED),)
-VARIANT_CFLAGS	+= $(POSITION_INDEPENDENT_CODE_FLAG)
-endif
 
 CFLAGS		+= $(DEFINES) $(STANDARD_CFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
 CXXFLAGS	+= $(DEFINES) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
@@ -194,3 +185,15 @@ SVN_FILES       = *
 all: plexil-default
 
 include $(PLEXIL_HOME)/makeinclude/platform-defs.make
+
+# Check here in case some platform include file (re)defines these
+
+ifneq ($(PLEXIL_SHARED),)
+ifneq ($(PLEXIL_STATIC),)
+$(error PLEXIL_STATIC and PLEXIL_SHARED cannot both be true. Exiting.)
+endif
+endif
+
+ifneq ($(PLEXIL_SHARED),)
+VARIANT_CFLAGS	+= $(POSITION_INDEPENDENT_CODE_FLAG)
+endif
