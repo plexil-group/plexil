@@ -54,7 +54,7 @@ namespace PLEXIL
   public:
     size_t operator()(const std::string* str) const
     {
-      return __gnu_cxx::hash<const char*>()(s->c_str());
+      return __gnu_cxx::hash<const char*>()(str->c_str());
     }
   };
 
