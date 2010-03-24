@@ -52,7 +52,7 @@ namespace PLEXIL
   class StringHashFunction
   {
   public:
-    size_t operator()(const  std::string* s) const
+    size_t operator()(const std::string* str) const
     {
       return __gnu_cxx::hash<const char*>()(s->c_str());
     }
@@ -89,7 +89,12 @@ namespace PLEXIL
     // Hashing operator
     size_t operator()(std::string const * const &item) const
     {
-      return (size_t)item;
+      // Code taken from GNU's ext/hash_fun.h
+      const char* s = item->c_str();
+      unsigned long h = 0;
+      for ( ; *s; ++s)
+	h = 5 * h + *s;
+      return size_t(h);
     }
 
     // less-than comparison
