@@ -64,18 +64,21 @@ namespace PLEXIL {
   }
 
   ID_KEY_TYPE IdTable::insert(ID_POINTER_TYPE id, const char* baseType) {
-    static ID_KEY_TYPE sl_nextId(1);
-    debugMsg("IdTable:insert", "id,key:" << id << ", " << sl_nextId << ")");
+    static ID_KEY_TYPE* sl_nextId = NULL;
+    if (sl_nextId == NULL)
+      sl_nextId = new ID_KEY_TYPE(1);
+
+    debugMsg("IdTable:insert", "id,key:" << id << ", " << *sl_nextId << ")");
     std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = getInstance().m_collection.find(id);
     if (it != getInstance().m_collection.end())
       return(0); /* Already in table. */
-    getInstance().m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, sl_nextId));
+    getInstance().m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, *sl_nextId));
     std::map<std::string, ID_SIZE_TYPE>::iterator tCit = getInstance().m_typeCnts.find(baseType);
     if (tCit == getInstance().m_typeCnts.end())
       getInstance().m_typeCnts.insert(std::pair<std::string, ID_SIZE_TYPE>(baseType, 1));
     else
       tCit->second++;
-    return(sl_nextId++);
+    return((*sl_nextId)++);
   }
 
   bool IdTable::allocated(ID_POINTER_TYPE id) {
@@ -91,6 +94,8 @@ namespace PLEXIL {
   }
 
   void IdTable::remove(ID_POINTER_TYPE id) {
+    // N.B. sl_key is only used in debug message output;
+    // the risk of harm from thread collision here is very low.
     static ID_KEY_TYPE sl_key;
     debugMsg("IdTable:remove", "<" << id << ", " << (sl_key = getInstance().m_collection.find(id)->second) << ">");
     getInstance().m_collection.erase(id);
@@ -123,7 +128,9 @@ namespace PLEXIL {
   }
 
   IdTable& IdTable::getInstance() {
-    static IdTable sl_instance;
-    return(sl_instance);
+    static IdTable* sl_instance = NULL;
+    if (sl_instance == NULL)
+      sl_instance = new IdTable();
+    return *sl_instance;
   }
 }
