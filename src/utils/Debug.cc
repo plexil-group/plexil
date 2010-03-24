@@ -57,9 +57,13 @@
  */
 class DebugConfig {
 public:
-  static void init() {
-    static DebugConfig s_instance;
+  static void init() 
+  {
+    static DebugConfig* s_instance = NULL;
+    if (s_instance == NULL)
+      s_instance = new DebugConfig();
   }
+
 private:
   DebugConfig() {
     DebugMessage::setStream(std::cout);
