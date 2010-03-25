@@ -48,11 +48,11 @@ public:
   // Static class constants
   //
 
-  DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "COMMAND__")
-  DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "MESSAGE__")
-  DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "LOOKUP__")
-  DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "LOOKUP_ON_CHANGE__")
-  DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "PARAMETER__")
+  DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "__COMMAND__")
+  DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "__MESSAGE__")
+  DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "__LOOKUP__")
+  DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "__LOOKUP_ON_CHANGE__")
+  DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "__PARAMETER__")
   DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPERATOR, ":")
 
   DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
@@ -213,6 +213,12 @@ private:
       ExpressionId dest, ExpressionId ack);
 
   /**
+   * @brief handles GET_PARAMETER_COMMAND commands from the exec
+   */
+  void executeGetParameterCommand(const LabelStr& name, const std::list<double>& args,
+      ExpressionId dest, ExpressionId ack);
+
+  /**
    * @brief handles UPDATE_LOOKUP_COMMAND commands from the exec
    */
   void executeUpdateLookupCommand(const LabelStr& name, const std::list<double>& args,
@@ -268,6 +274,11 @@ private:
    * @brief Process a LookupNow. Ignores any lookups that are not defined in config
    */
   void handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs);
+
+  /**
+   * @brief Helper function for converting message names into the proper format given the command type and a user-defined id.
+   */
+  double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
 
   /**
    * @brief Helper function for converting message names into the propper format given the command type.

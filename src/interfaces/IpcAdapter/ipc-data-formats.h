@@ -106,6 +106,36 @@ struct PlexilStringValueMsg
  * Arrays and other argument types here (NYI)
  */
 
+struct PlexilStringArrayMsg
+{
+  ~PlexilStringArrayMsg() {
+    delete [] stringArray;
+  }
+  struct PlexilMsgBase header;
+  int32_t arraySize;
+  const char** stringArray;
+};
+
+#define STRING_ARRAY_MSG "PlexilStringArray"
+#define STRING_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <string:5>}"
+
+/*
+ * Used for numeric argument or return values
+ */
+
+struct PlexilNumericArrayMsg
+{
+  ~PlexilNumericArrayMsg() {
+    delete doubleArray;
+  }
+  struct PlexilMsgBase header;
+  int32_t arraySize;
+  double* doubleArray;
+};
+
+#define NUMERIC_ARRAY_MSG "PlexilNumericArray"
+#define NUMERIC_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <double:5>}"
+
 struct PairHeader
 {
   struct PlexilMsgBase datumHeader;
@@ -167,11 +197,13 @@ typedef enum
      * A simple numeric datum
      * Count indicates position in sequence */
     PlexilMsgType_NumericValue,
+    PlexilMsgType_NumericArray,
 
     /* PlexilStringValueMsg -
      * A simple string datum
      * Count indicates position in sequence */
     PlexilMsgType_StringValue,
+    PlexilMsgType_StringArray,
 
     /* NumericPair -
      * A pair of a name and a numeric value

@@ -76,7 +76,7 @@ public:
    * @param message The message string to be added
    * @param params The parameters that are to be sent with the message
    */
-  void addMessage(const LabelStr& message, const StoredArray& params);
+  void addMessage(const LabelStr& message, double param);
   /**
    * @brief Sets the flag that determines whether or not incoming messages
    * with duplicate strings are queued. If true, all incoming messages are
@@ -98,7 +98,7 @@ public:
   bool getAllowDuplicateMessages();
 private:
   //forward declarations
-  typedef std::vector<StoredArray> MessageQueue;
+  typedef std::vector<double> MessageQueue;
   struct Recipient;
   typedef std::vector<Recipient> RecipientQueue;
   struct PairingQueue;

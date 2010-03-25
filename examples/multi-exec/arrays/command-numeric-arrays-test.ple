@@ -1,0 +1,20 @@
+//The controlling plan
+MasterPlan:
+{
+	Integer iter = 0;
+	Integer ret[2];
+	Sequence
+		Action:
+		{
+			EndCondition: isKnown(ret[0]);
+			Command: ret = MoveRight(5);
+		}
+		Set:
+		{
+			Assignment: iter = ret[0] + ret[1];
+		}
+		Check:
+		{
+			InvariantCondition: isKnown(iter);
+		}
+}

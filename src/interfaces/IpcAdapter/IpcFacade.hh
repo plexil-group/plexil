@@ -32,6 +32,7 @@
 #include "ThreadSpawn.hh"
 #include "RecursiveThreadMutex.hh"
 #include "CommonDefs.hh"
+#include "ExecDefs.hh"
 #include "LabelStr.hh"
 
 #include <vector>
@@ -160,6 +161,9 @@ private:
   //* brief Cache of not-yet-complete message sequences
   typedef std::map<IpcMessageId, std::vector<const PlexilMsgBase*> > IncompleteMessageMap;
 
+  //* brief basic types of items to send
+  enum BasicType { UNKNOWN, STRING, NUMERIC };
+
   /**
    * @brief Initialize unique ID string
    */
@@ -224,6 +228,15 @@ private:
    * @brief Given a transaction ID string, return the UID and the serial
    */
   static void parseTransactionId(const std::string& transId, std::string& uidOut, uint32_t& serialOut);
+
+  /**
+   * @brief Determines the type of the given StoredArray by iterating over the elements, determining the type of each one until
+   * an item is not UNKNOWN.
+   *
+   * @return STRING if LabelStr::isString() returns true for the first non-unknown value, NUMERIC if LabelStr::isString()
+   * returns false for the first non-unknown value, and UNKNOWN if all items are UNKNOWN.
+   */
+  static BasicType determineType(double array_id);
 
   //* @brief Is the facade initilized?
   bool m_isInitilized;
@@ -327,6 +340,14 @@ inline const char* msgFormatForType(const PlexilMsgType typ)
       return STRING_PAIR_MSG;
       break;
 			  
+    case PlexilMsgType_NumericArray:
+      return NUMERIC_ARRAY_MSG;
+      break;
+
+    case PlexilMsgType_StringArray:
+      return STRING_ARRAY_MSG;
+      break;
+
     default:
 
       return NULL;

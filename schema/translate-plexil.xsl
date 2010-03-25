@@ -1012,6 +1012,9 @@
                 <StringVariable>
                   <xsl:value-of select="tr:prefix('hdl')" />
                 </StringVariable>
+                <IntegerValue>
+                  <xsl:value-of select="position() - 1" />
+                </IntegerValue>
               </Arguments>
             </Command>
           </NodeBody>

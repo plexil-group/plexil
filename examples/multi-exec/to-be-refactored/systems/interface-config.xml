@@ -6,6 +6,5 @@
   <DefaultCommandAdapter/>
   <DefaultLookupAdapter/>
  </Adapter>
- <Listener ListenerType="IpcListener" LibPath="libIpcAdapter.so" Server="localhost">
  </Listener>
 </Interfaces>

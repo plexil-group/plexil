@@ -12,7 +12,6 @@ Interface:
 	NodeList:
 		Loop:
 		{
-			String hdl = "hi";
 			RepeatCondition: continue;
 			EndCondition: RecMoveRight.state == FINISHED || RecQuit.state == FINISHED;
 			NodeList:

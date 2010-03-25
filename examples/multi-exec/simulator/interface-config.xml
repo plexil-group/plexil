@@ -5,7 +5,9 @@
  <Adapter AdapterType="IpcAdapter" LibPath="libIpcAdapter.so" Server="localhost" AllowDuplicateMessages="true">
   <DefaultCommandAdapter/>
   <DefaultLookupAdapter/>
+  <ExternalLookups>
+    <Lookup name="x" type="Integer" value="1"/>
+    <Lookup name="str" type="String" value="Hello"/>
+  </ExternalLookups>
  </Adapter>
- <Listener ListenerType="IpcListener" LibPath="libIpcAdapter.so" Server="localhost">
- </Listener>
 </Interfaces>

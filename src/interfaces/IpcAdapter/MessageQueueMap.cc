@@ -96,7 +96,7 @@ void MessageQueueMap::addMessage(const LabelStr& message) {
   PairingQueue* pq = getQueue(message);
   if (!pq->m_allowDuplicateMessages)
     pq->m_messageQueue.clear();
-  pq->m_messageQueue.push_back(StoredArray(1, message.getKey()));
+  pq->m_messageQueue.push_back(message.getKey());
   updateQueue( pq);
   debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
   m_mutex.unlock();
@@ -107,12 +107,12 @@ void MessageQueueMap::addMessage(const LabelStr& message) {
  * @param message The message string to be added
  * @param params The parameters that are to be sent with the message
  */
-void MessageQueueMap::addMessage(const LabelStr& message, const PLEXIL::StoredArray& params) {
+void MessageQueueMap::addMessage(const LabelStr& message, double param) {
   m_mutex.lock();
   PairingQueue* pq = getQueue(message);
   if (!pq->m_allowDuplicateMessages)
     pq->m_messageQueue.clear();
-  pq->m_messageQueue.push_back(params);
+  pq->m_messageQueue.push_back(param);
   updateQueue( pq);
   debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
   m_mutex.unlock();
@@ -167,11 +167,7 @@ void MessageQueueMap::updateQueue(PairingQueue* queue) {
   RecipientQueue::iterator rqIter = rq.begin();
   bool valChanged = !mq.empty() && !rq.empty();
   while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
-    if ((*mqIter).size() == 1) {
-      m_execInterface.handleValueChange(rqIter->m_dest, (*mqIter).at(0));
-    } else {
-      m_execInterface.handleValueChange(rqIter->m_dest, (*mqIter).getKey());
-    }
+    m_execInterface.handleValueChange(rqIter->m_dest, (*mqIter));
     rqIter = rq.erase(rqIter);
     mqIter = mq.erase(mqIter);
   }

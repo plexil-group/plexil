@@ -34,6 +34,7 @@
 #include "StoredArray.hh"
 #include "ThreadSpawn.hh"
 #include <string>
+#include <sstream>
 
 #include "tinyxml.h"
 
@@ -187,13 +188,7 @@ void IpcAdapter::registerChangeLookup(const LookupKey& uniqueId, const StateKey&
       " for state " << nameLabel.toString()
       << " with " << nParams << " parameters");
 
-  if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX())) {
-    // Set up to receive this message
-    m_activeMessageListeners[nameLabel.toString().substr(MESSAGE_PREFIX().size())] = stateKey;
-  } else if (hasPrefix(nameLabel.toString(), COMMAND_PREFIX())) {
-    // Set up to receive this command
-    m_activeCommandListeners[nameLabel.toString().substr(COMMAND_PREFIX().size())] = stateKey;
-  } else if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())) {
+  if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())) {
     // Set up to receive this lookup
     m_activeLookupListeners[nameLabel.toString().substr(LOOKUP_PREFIX().size())] = stateKey;
   } else if (hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX())) {
@@ -201,66 +196,6 @@ void IpcAdapter::registerChangeLookup(const LookupKey& uniqueId, const StateKey&
     m_activeChangeLookupListeners[nameLabel.toString().substr(LOOKUP_ON_CHANGE_PREFIX().size())] = stateKey;
   }
   // *** TODO: implement receiving planner update
-  else {
-    //    // Send a request
-    //
-    //    // Construct the messages
-    //    // Leader
-    //    uint32_t serial = getSerialNumber();
-    //    struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupOnChange, nParams, serial, m_myUID.c_str() }, nameLabel.c_str() };
-    //    // Construct parameter messages
-    //    PlexilMsgBase* paramMsgs[nParams];
-    //    for (size_t i = 0; i < nParams; i++) {
-    //      double param = params[i];
-    //      PlexilMsgBase* paramMsg;
-    //      if (LabelStr::isString(param)) {
-    //        // string
-    //        struct PlexilStringValueMsg* strMsg = new PlexilStringValueMsg();
-    //        strMsg->stringValue = LabelStr(param).c_str();
-    //        paramMsg = (PlexilMsgBase*) strMsg;
-    //        paramMsg->msgType = PlexilMsgType_StringValue;
-    //      } else if (StoredArray::isKey(param)) {
-    //        // array
-    //        assertTrueMsg(ALWAYS_FAIL,
-    //            "IpcAdapter: Array values are not yet implemented");
-    //      } else {
-    //        // number or Boolean
-    //        struct PlexilNumericValueMsg* numMsg = new PlexilNumericValueMsg();
-    //        numMsg->doubleValue = param;
-    //        paramMsg = (PlexilMsgBase*) numMsg;
-    //        paramMsg->msgType = PlexilMsgType_NumericValue;
-    //      }
-    //
-    //      // Fill in common fields
-    //      paramMsg->count = i;
-    //      paramMsg->serial = serial;
-    //      paramMsg->senderUID = m_myUID.c_str();
-    //      paramMsgs[i] = paramMsg;
-    //    }
-    //
-    //    // Take care of bookkeeping
-    //    m_changeLookups[serial] = stateKey;
-    //
-    //    // Send the messages
-    //    IPC_RETURN_TYPE status;
-    //    status = IPC_publishData(STRING_VALUE_MSG, (void *) &leader);
-    //    assertTrueMsg(status == IPC_OK,
-    //        "IpcAdapter::registerChangeLookup: IPC Error, IPC_errno = " << IPC_errno);
-    //    for (size_t i = 0; i < nParams; i++) {
-    //      status = IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType), paramMsgs[i]);
-    //      assertTrueMsg(status == IPC_OK,
-    //          "IpcAdapter::registerChangeLookup: IPC Error, IPC_errno = " << IPC_errno);
-    //    }
-    //    // free the parameter packets
-    //    for (size_t i = 0; i < nParams; i++) {
-    //      PlexilMsgBase* m = paramMsgs[i];
-    //      paramMsgs[i] = NULL;
-    //      if (m->msgType == PlexilMsgType_NumericValue)
-    //        delete (PlexilNumericValueMsg*) m;
-    //      else
-    //        delete (PlexilStringValueMsg*) m;
-    //    }
-  }
 }
 
 /**
@@ -292,21 +227,7 @@ void IpcAdapter::unregisterChangeLookup(const LookupKey& uniqueId) {
 
   debugMsg("IpcAdapter:unregisterChangeLookup", " for " << name);
 
-  if (hasPrefix(nameLabel.toString(), MESSAGE_PREFIX())) {
-    // Stop looking for this message
-    ActiveListenerMap::iterator it = m_activeMessageListeners.find(name.substr(MESSAGE_PREFIX().size()));
-    assertTrueMsg(it != m_activeMessageListeners.end(),
-        "IpcAdapter::unregisterChangeLookup: internal error: can't find message \""
-        << name.substr(MESSAGE_PREFIX().size()) << "\"");
-    m_activeMessageListeners.erase(it);
-  } else if (hasPrefix(nameLabel.toString(), COMMAND_PREFIX())) {
-    // Stop looking for this command
-    ActiveListenerMap::iterator it = m_activeCommandListeners.find(name.substr(COMMAND_PREFIX().size()));
-    assertTrueMsg(it != m_activeCommandListeners.end(),
-        "IpcAdapter::unregisterChangeLookup: internal error: can't find command \""
-        << name.substr(COMMAND_PREFIX().size()) << "\"");
-    m_activeCommandListeners.erase(it);
-  } else if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())) {
+  if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())) {
     // Stop looking for this lookup
     ActiveListenerMap::iterator it = m_activeLookupListeners.find(name.substr(LOOKUP_PREFIX().size()));
     assertTrueMsg(it != m_activeLookupListeners.end(),
@@ -322,28 +243,6 @@ void IpcAdapter::unregisterChangeLookup(const LookupKey& uniqueId) {
     m_activeChangeLookupListeners.erase(it);
   }
   // *** TODO: implement receiving planner update
-  else {
-    //    // send a TerminateChangeLookup message with the serial #
-    //    // of the original request
-    //    debugMsg("IpcAdapter:unregisterChangeLookup", " sending TerminateChangeLookupMessage");
-    //    IpcChangeLookupMap::iterator it = m_changeLookups.begin();
-    //    while (it != m_changeLookups.end()) {
-    //      if (it->second == key)
-    //        break;
-    //      it++;
-    //    }
-    //    assertTrueMsg(it != m_changeLookups.end(),
-    //        "IpcAdapter::unregisterChangeLookup: internal error: lookup not found");
-    //    const uint32_t serial = it->first;
-    //    PlexilMsgBase msg = { PlexilMsgType_TerminateChangeLookup, 0, serial, m_myUID.c_str() };
-    //    IPC_RETURN_TYPE status;
-    //    status = IPC_publishData(MSG_BASE, (void*) &msg);
-    //    assertTrueMsg(status == IPC_OK,
-    //        "IpcAdapter::unregisterChangeLookup: IPC Error, IPC_errno = " << IPC_errno);
-    //
-    //    // clean up table
-    //    m_changeLookups.erase(it);
-  }
   debugMsg("IpcAdapter:unregisterChangeLookup", " completed");
 }
 
@@ -416,8 +315,10 @@ void IpcAdapter::executeCommand(const LabelStr& name, const std::list<double>& a
   else if (name == RECEIVE_MESSAGE_COMMAND())
     executeReceiveMessageCommand(name, args, dest, ack);
   // Check for ReceiveCommand command
-  else if (name == RECEIVE_COMMAND_COMMAND() || name == GET_PARAMETER_COMMAND())
+  else if (name == RECEIVE_COMMAND_COMMAND())
     executeReceiveCommandCommand(name, args, dest, ack);
+  else if (name == GET_PARAMETER_COMMAND())
+    executeGetParameterCommand(name, args, dest, ack);
   // Check for UpdateLookup command
   else if (name == UPDATE_LOOKUP_COMMAND())
     executeUpdateLookupCommand(name, args, dest, ack);
@@ -456,23 +357,32 @@ void IpcAdapter::invokeAbort(const LabelStr& name, const std::list<double>& args
 
 
 /**
+ * @brief Helper function for converting message names into the proper format given the command type and a user-defined id.
+ */
+double IpcAdapter::formatMessageName(const LabelStr& name, const LabelStr& command, int id) {
+  std::stringstream ss;
+  if (command == RECEIVE_COMMAND_COMMAND()) {
+    ss << COMMAND_PREFIX() << name.toString();
+  } else if (command == GET_PARAMETER_COMMAND()) {
+    ss << PARAM_PREFIX() << name.toString();
+  } else {
+    ss << name.getKey();
+  }
+  ss << '_' << id;
+  return LabelStr(ss.str()).getKey();
+}
+/**
  * @brief Helper function for converting message names into the proper format given the command type.
  */
 double IpcAdapter::formatMessageName(const LabelStr& name, const LabelStr& command) {
-  if (command == RECEIVE_COMMAND_COMMAND()) {
-    return LabelStr(COMMAND_PREFIX() + name.toString()).getKey();
-  } else if (command == GET_PARAMETER_COMMAND()) {
-    return LabelStr(PARAM_PREFIX() + name.toString()).getKey();
-  } else {
-    return name.getKey();
-  }
+  return formatMessageName(name, command, 0);
 }
 
 /**
  * @brief Helper function for converting message names into the proper format given the command type.
  */
 double IpcAdapter::formatMessageName(const char* name, const LabelStr& command) {
-  return formatMessageName(LabelStr(name), command);
+  return formatMessageName(LabelStr(name), command, 0);
 }
 
 /**
@@ -550,7 +460,7 @@ void IpcAdapter::executeReceiveMessageCommand(const LabelStr& name, const std::l
 }
 
 /**
- * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
+ * @brief handles RECEIVE_COMMAND_COMMAND commands from the exec
  */
 void IpcAdapter::executeReceiveCommandCommand(const LabelStr& name, const std::list<double>& args,
     ExpressionId dest, ExpressionId ack){
@@ -561,6 +471,37 @@ void IpcAdapter::executeReceiveCommandCommand(const LabelStr& name, const std::l
       "IpcAdapter: The argument to the SendMessage command, " << args.front()
       << ", is not a string");
   LabelStr command(formatMessageName(args.front(), name));
+  m_messageQueues.addRecipient(command, ack, dest);
+  m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
+  m_execInterface.notifyOfExternalEvent();
+  debugMsg("IpcAdapter:executeCommand", " message handler for \"" << command.c_str() << "\" registered.");
+}
+
+/**
+ * @brief handles GET_PARAMETER_COMMAND commands from the exec
+ */
+void IpcAdapter::executeGetParameterCommand(const LabelStr& name, const std::list<double>& args,
+    ExpressionId dest, ExpressionId ack){
+  // Check for one argument, the message
+  assertTrueMsg(args.size() == 1 || args.size() == 2,
+      "IpcAdapter: The " << name.c_str() << " command requires either one or two arguments");
+  assertTrueMsg(LabelStr::isString(args.front()),
+      "IpcAdapter: The first argument to the " << name.c_str() << " command, " << args.front()
+      << ", is not a string");
+  std::list<double>::const_iterator it = ++args.begin();
+  int id;
+  if (it == args.end()) {
+    id = 0;
+  } else {
+    id = static_cast<int>(*it);
+    assertTrueMsg(id == *it,
+        "IpcAdapter: The second argument to the " << name.c_str() << " command, " << *it
+        << ", is not an integer");
+    assertTrueMsg(id >= 0,
+        "IpcAdapter: The second argument to the " << name.c_str() << " command, " << *it
+        << ", is not a valid index");
+  }
+  LabelStr command(formatMessageName(args.front(), name, id));
   m_messageQueues.addRecipient(command, ack, dest);
   m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
   m_execInterface.notifyOfExternalEvent();
@@ -766,21 +707,43 @@ void IpcAdapter::handleCommandSequence(const std::vector<const PlexilMsgBase*>& 
   debugMsg("IpcAdapter:handleCommandSequence",
       " adding \"" << header->stringValue << "\" to the command queue");
   const LabelStr& msg(formatMessageName(header->stringValue, RECEIVE_COMMAND_COMMAND()));
-  m_messageQueues.addMessage(msg, StoredArray(1, uid_lbl.getKey()));
-  if (msgs.size() > 1) {
-    const LabelStr& paramLbl(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND()));
-    if (msgs[1]->msgType == PlexilMsgType_NumericValue) {
-      const PlexilNumericValueMsg* param = reinterpret_cast<const PlexilNumericValueMsg*> (msgs[1]);
+  m_messageQueues.addMessage(msg, uid_lbl.getKey());
+  int i = 0;
+  for (std::vector<const PlexilMsgBase*>::const_iterator it = ++msgs.begin(); it != msgs.end(); it++, i++) {
+    const LabelStr& paramLbl(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND(), i));
+    switch ((int) (*it)->msgType) {
+    case (int) PlexilMsgType_NumericValue: {
+      const PlexilNumericValueMsg* param = reinterpret_cast<const PlexilNumericValueMsg*> (*it);
       debugMsg("IpcAdapter:handleCommandSequence",
           " Sending numeric parameter \"" << param->doubleValue << "\" to the command queue");
-      m_messageQueues.addMessage(paramLbl, StoredArray(1, param->doubleValue));
-    } else { //assume string
-      const PlexilStringValueMsg* param = reinterpret_cast<const PlexilStringValueMsg*> (msgs[1]);
+      m_messageQueues.addMessage(paramLbl, param->doubleValue);
+      break;
+    }
+    case (int) PlexilMsgType_StringArray: {
+      const PlexilStringArrayMsg* param = reinterpret_cast<const PlexilStringArrayMsg*> (*it);
+      StoredArray array(param->arraySize);
+      for (int j = 0; j < param->arraySize; j++) {
+        array[j] = LabelStr(param->stringArray[j]).getKey();
+      }
+      m_messageQueues.addMessage(paramLbl, array.getKey());
+      break;
+    }
+    case (int) PlexilMsgType_NumericArray: {
+      const PlexilNumericArrayMsg* param = reinterpret_cast<const PlexilNumericArrayMsg*> (*it);
+      StoredArray array(param->arraySize);
+      for (int j = 0; j < param->arraySize; j++) {
+        array[j] = param->doubleArray[j];
+      }
+      m_messageQueues.addMessage(paramLbl, array.getKey());
+    }
+    default: { //assume string
+      const PlexilStringValueMsg* param = reinterpret_cast<const PlexilStringValueMsg*> (*it);
       assertTrueMsg(param != NULL, "Non-numeric non-string parameter sent with command \""
           << header->stringValue << "\"");
       debugMsg("IpcAdapter:handleCommandSequence",
           " Sending parameter \"" << param->stringValue << "\" to the command queue");
-      m_messageQueues.addMessage(paramLbl, StoredArray(1, LabelStr(param->stringValue).getKey()));
+      m_messageQueues.addMessage(paramLbl, LabelStr(param->stringValue).getKey());
+    }
     }
   }
 }
@@ -902,46 +865,40 @@ void IpcAdapter::handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs) 
  */
 double IpcAdapter::parseReturnValues(const std::vector<const PlexilMsgBase*>& msgs) {
   size_t nValues = msgs[0]->count;
-  if (nValues == 1) {
-    debugMsg("IpcAdapter:parseReturnValues",
-        " processing single return value");
+  checkError(nValues == 1, "PlexilMsgType_ReturnValue may only have one parameter");
     double value;
-    if (msgs[1]->msgType == PlexilMsgType_NumericValue)
+    switch (msgs[1]->msgType) {
+    case PlexilMsgType_NumericValue:
       value = ((PlexilNumericValueMsg*) msgs[1])->doubleValue;
-    else
+      break;
+    case PlexilMsgType_StringValue:
       value = LabelStr(((PlexilStringValueMsg*) msgs[1])->stringValue).getKey();
+      break;
+    case PlexilMsgType_StringArray: {
+      const PlexilStringArrayMsg* msg = reinterpret_cast<const PlexilStringArrayMsg*>(msgs[1]);
+      std::vector<double> str_array(msg->arraySize);
+      for (int i = 0; i < msg->arraySize; i++) {
+        str_array[i] = LabelStr(msg->stringArray[i]).getKey();
+      }
+      value = StoredArray(str_array).getKey();
+      break;
+    }
+    case PlexilMsgType_NumericArray: {
+      const PlexilNumericArrayMsg* msg = reinterpret_cast<const PlexilNumericArrayMsg*>(msgs[1]);
+      std::vector<double> num_array(msg->arraySize);
+      for (int i = 0; i < msg->arraySize; i++) {
+        num_array[i] = msg->doubleArray[i];
+        debugMsg("IpcAdapter:parseReturnValues",
+            " processing array numeric value: " << msg->doubleArray[i]);
+      }
+      value = StoredArray(num_array).getKey();
+      break;
+    }
+    default:
+      assertTrueMsg(ALWAYS_FAIL, "IpcAdapter:parseReturnValues: Unknown parameter type "
+          << msgs[1]->msgType);
+    }
     return value;
-  } else {
-    // Convert sequence of values into an array
-    debugMsg("IpcAdapter:parseReturnValues",
-        " processing array of length " << nValues);
-    bool isString = false;
-    bool isNumeric = false;
-    for (size_t i = 1; i <= nValues; i++) {
-      if (msgs[i]->msgType == PlexilMsgType_StringValue) {
-        assertTrueMsg(!isNumeric, "IpcAdapter::parseReturnValues: array element types are not consistent");
-        isString = true;
-      } else {
-        assertTrueMsg(!isString, "IpcAdapter::parseReturnValues: array element types are not consistent");
-        isNumeric = true;
-      }
-    }
-    StoredArray ary(nValues, Expression::UNKNOWN());
-    if (isString) {
-      for (size_t i = 0; i < nValues; i++) {
-        assertTrueMsg(msgs[i+1]->msgType == PlexilMsgType_StringValue,
-            "IpcAdapter:parseReturnValues: value is not a string");
-        ary[i] = LabelStr(((PlexilStringValueMsg*) msgs[i + 1])->stringValue).getKey();
-      }
-    } else {
-      for (size_t i = 0; i < nValues; i++) {
-        assertTrueMsg(msgs[i+1]->msgType == PlexilMsgType_NumericValue,
-            "IpcAdapter:parseReturnValues: value is not a number");
-        ary[i] = ((PlexilNumericValueMsg*) msgs[i + 1])->doubleValue;
-      }
-    }
-    return ary.getKey();
-  }
 }
 
 IpcAdapter::MessageListener::MessageListener(IpcAdapter& adapter) :

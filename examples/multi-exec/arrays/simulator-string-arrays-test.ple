@@ -1,0 +1,19 @@
+//This plan emulates a simulator that handles:
+//	The command 'GetName()', which returns an array of strings
+
+Interface:
+{
+	//The integer lookup, x
+	String a_name[2] = #("Jeff" "Gold");
+	NodeList:
+		//The handler for the command GetName()
+		RecGetName:
+		{
+			OnCommand GetName ( ) {
+				RespondMoveRight:
+				{
+					Command: SendReturnValue(a_name);
+				}
+			}
+		}
+}

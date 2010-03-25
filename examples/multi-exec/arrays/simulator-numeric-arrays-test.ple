@@ -1,0 +1,18 @@
+//This plan emulates a simulator that handles:
+//	The command 'GetName()', which returns an array of integers
+
+Interface:
+{
+	//The integer array
+	Integer nums[2] = #(5 10);
+	NodeList:
+		//The handler for the command GetNums()
+		RecGetName:
+		{
+			OnCommand GetNums ( ) {
+				{
+					Command: SendReturnValue(a_nums);
+				}
+			}
+		}
+}
