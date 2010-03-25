@@ -1558,9 +1558,13 @@ onCommandBody[IXMLElement xaction]
 }
  :
  #(ON_COMMAND_KYWD
+   {
+     context = ((NodeASTNode) #onCommandBody).getContext();
+   }
    n:NCName (typeName NCName (COMMA! typeName NCName )*)?! (copyNodeId[xaction])? (action[xaction])*
    {
      xname.setContent(#n.getText());
+     context = context.getParentContext();
    }
   )
  ;

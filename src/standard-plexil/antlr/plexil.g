@@ -850,13 +850,8 @@ onCommandBody : ON_COMMAND_KYWD^
     ((NodeASTNode) #onCommandBody).setContext(context);
     state.setExtendedPlexil();
   }
-  ncName LPAREN! (incomingParam (COMMA! incomingParam)*)? RPAREN! (id:nodeName)? LBRACE! ( (action)* ) RBRACE!
+  ncName LPAREN! (incomingParam (COMMA! incomingParam)*)? RPAREN! LBRACE! ( (action)* ) RBRACE!
   {
-    if (#id != null)
-    {
-       state.addNode(#id.getText(), context);
-       ((NodeASTNode) #onCommandBody).setNodeName(#id.getText());
-    }
     // restore old variable binding context
     context = context.getParentContext();
   }
