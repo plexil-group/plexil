@@ -41,27 +41,26 @@
 
 namespace PLEXIL {
   const std::set<double>& Node::ALL_CONDITIONS() {
-    static bool init = true;
-    static std::set<double> sl_allConds;
-    if(init) {
-      sl_allConds.insert(SKIP_CONDITION());
-      sl_allConds.insert(START_CONDITION());
-      sl_allConds.insert(END_CONDITION());
-      sl_allConds.insert(INVARIANT_CONDITION());
-      sl_allConds.insert(PRE_CONDITION());
-      sl_allConds.insert(POST_CONDITION());
-      sl_allConds.insert(REPEAT_CONDITION());
-      sl_allConds.insert(ANCESTOR_INVARIANT_CONDITION());
-      sl_allConds.insert(ANCESTOR_END_CONDITION());
-      sl_allConds.insert(PARENT_EXECUTING_CONDITION());
-      sl_allConds.insert(CHILDREN_WAITING_OR_FINISHED());
-      sl_allConds.insert(ABORT_COMPLETE());
-      sl_allConds.insert(PARENT_WAITING_CONDITION());
-      sl_allConds.insert(PARENT_FINISHED_CONDITION());
-      sl_allConds.insert(COMMAND_HANDLE_RECEIVED_CONDITION());
-      init = false;
-    }
-    return sl_allConds;
+    static std::set<double>* sl_allConds = NULL;
+    if (sl_allConds == NULL)
+      {
+	sl_allConds = new std::set<double>();
+	sl_allConds->insert(START_CONDITION());
+	sl_allConds->insert(END_CONDITION());
+	sl_allConds->insert(INVARIANT_CONDITION());
+	sl_allConds->insert(PRE_CONDITION());
+	sl_allConds->insert(POST_CONDITION());
+	sl_allConds->insert(REPEAT_CONDITION());
+	sl_allConds->insert(ANCESTOR_INVARIANT_CONDITION());
+	sl_allConds->insert(ANCESTOR_END_CONDITION());
+	sl_allConds->insert(PARENT_EXECUTING_CONDITION());
+	sl_allConds->insert(CHILDREN_WAITING_OR_FINISHED());
+	sl_allConds->insert(ABORT_COMPLETE());
+	sl_allConds->insert(PARENT_WAITING_CONDITION());
+	sl_allConds->insert(PARENT_FINISHED_CONDITION());
+	sl_allConds->insert(COMMAND_HANDLE_RECEIVED_CONDITION());
+      }
+    return *sl_allConds;
   }
 
   class ConditionChangeListener : public ExpressionListener {
@@ -151,8 +150,6 @@ namespace PLEXIL {
     return EMPTY_LABEL();
   }
 
-
-  unsigned int Node::anonynode = 0;
 
   Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
     : m_id(this), m_exec(exec), m_parent(parent),
