@@ -1554,6 +1554,7 @@ onCommandBody[IXMLElement xaction]
 { 
   IXMLElement xname = new XMLElement("Name");
   xaction.addChild(xname);
+  IXMLElement xparam = new XMLElement("VariableDeclarations");
   
 }
  :
@@ -1561,13 +1562,24 @@ onCommandBody[IXMLElement xaction]
    {
      context = ((NodeASTNode) #onCommandBody).getContext();
    }
-   n:NCName (typeName NCName (COMMA! typeName NCName )*)?! (copyNodeId[xaction])? (action[xaction])*
+   n:NCName (incomingParam[xparam]
+   {
+   	 xaction.addChild(xparam);
+   }
+   (COMMA! incomingParam[xparam] )*)?! (copyNodeId[xaction])? (action[xaction])*
    {
      xname.setContent(#n.getText());
      context = context.getParentContext();
    }
   )
  ;
+ 
+incomingParam[IXMLElement xparent] : t:typeName vn:variableName
+{
+    PlexilVariableName var = context.findLocalVariable(#vn.getText());
+    xparent.addChild(var.makeVariableDeclarationElement());
+}
+;
 
 onMessageBody[IXMLElement xaction]  
 	{
