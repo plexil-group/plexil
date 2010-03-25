@@ -324,7 +324,6 @@ namespace PLEXIL {
     ExpressionId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     std::list<NodeId> m_children; /*<! Child nodes.*/
     std::set<double> m_garbage;
-    static unsigned int anonynode;
     ExpressionId m_extraEndCond;
     ExpressionId m_interruptEndCond;
     ExpressionId m_conjunctCondition;
