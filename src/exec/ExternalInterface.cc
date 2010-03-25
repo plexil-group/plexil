@@ -29,21 +29,12 @@
 
 namespace PLEXIL {
 
-  ExternalInterfaceId ExternalInterface::s_instance = ExternalInterfaceId::noId();
-
-  ExternalInterfaceId ExternalInterface::instance() {
-    checkError(s_instance.isValid(), "Attempted to get the ExternalInterface instance without having instantiated it!"); 
-      return s_instance;
+  ExternalInterface::ExternalInterface() : m_id(this) 
+  {
   }
 
-  ExternalInterface::ExternalInterface() : m_id(this) {
-    if (s_instance.isNoId())
-      s_instance = m_id;
-  }
-
-  ExternalInterface::~ExternalInterface() {
-    if (s_instance == m_id)
-      s_instance = ExternalInterfaceId::noId();
+  ExternalInterface::~ExternalInterface() 
+  {
     m_id.remove();
   }
 

@@ -73,9 +73,6 @@
 namespace PLEXIL {
   class ExternalInterface {
   public:
-    // *** DEPRECATED - TO BE REMOVED ***
-    static ExternalInterfaceId instance();
-    
     /**
      * @brief Return the ID of this instance.
      */
@@ -191,9 +188,6 @@ namespace PLEXIL {
 
   private:
     ExternalInterfaceId m_id;
-
-    // *** DEPRECATED - TO BE REMOVED ***
-    static ExternalInterfaceId s_instance;
   };
 }
 
