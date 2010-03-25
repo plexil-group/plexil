@@ -162,8 +162,8 @@ void checkHasChildElement(const TiXmlNode* e) {
 //
 
 bool PlexilXmlParser::s_init = true;
-std::map<std::string, PlexilExprParser*> PlexilXmlParser::s_exprParsers;
-std::map<std::string, PlexilBodyParser*> PlexilXmlParser::s_bodyParsers;
+  std::map<std::string, PlexilExprParser*> *PlexilXmlParser::s_exprParsers = NULL;
+  std::map<std::string, PlexilBodyParser*> *PlexilXmlParser::s_bodyParsers = NULL;
 
 PlexilNodeRefId PlexilInternalVarParser::parseNodeReference(
 		const TiXmlElement* xml) {
@@ -600,94 +600,99 @@ public:
 	}
 };
 
-void PlexilXmlParser::registerParsers() {
-	s_bodyParsers.insert(std::make_pair(ASSN_TAG, new PlexilAssignmentParser()));
-	s_bodyParsers.insert(std::make_pair(NODELIST_TAG,
-			new PlexilNodeListParser()));
-	s_bodyParsers.insert(std::make_pair(LIBRARYNODECALL_TAG,
-			new PlexilLibraryNodeCallParser()));
-	s_bodyParsers.insert(std::make_pair(CMD_TAG, new PlexilCommandParser()));
-	s_bodyParsers.insert(std::make_pair(FUNCCALL_TAG,
-			new PlexilFunctionCallParser()));
-	s_bodyParsers.insert(std::make_pair(UPDATE_TAG, new PlexilUpdateParser()));
-	s_bodyParsers.insert(std::make_pair(REQ_TAG, new PlexilRequestParser()));
+void PlexilXmlParser::registerParsers() 
+{
+  s_bodyParsers = new std::map<std::string, PlexilBodyParser*>();
+  s_bodyParsers->insert(std::make_pair(ASSN_TAG, new PlexilAssignmentParser()));
+  s_bodyParsers->insert(std::make_pair(NODELIST_TAG,
+				      new PlexilNodeListParser()));
+  s_bodyParsers->insert(std::make_pair(LIBRARYNODECALL_TAG,
+				      new PlexilLibraryNodeCallParser()));
+  s_bodyParsers->insert(std::make_pair(CMD_TAG, new PlexilCommandParser()));
+  s_bodyParsers->insert(std::make_pair(FUNCCALL_TAG,
+				      new PlexilFunctionCallParser()));
+  s_bodyParsers->insert(std::make_pair(UPDATE_TAG, new PlexilUpdateParser()));
+  s_bodyParsers->insert(std::make_pair(REQ_TAG, new PlexilRequestParser()));
 
-	PlexilExprParser* varRef = new PlexilVarRefParser();
-	s_exprParsers.insert(std::make_pair(VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(INT_TAG + VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(REAL_TAG + VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(ARRAY_TAG + VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(STRING_TAG + VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(BOOL_TAG + VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(TIME_TAG + VAR_TAG, varRef));
-	s_exprParsers.insert(std::make_pair(BLOB_TAG + VAR_TAG, varRef));
+  s_exprParsers = new std::map<std::string, PlexilExprParser*>();
+  PlexilExprParser* varRef = new PlexilVarRefParser();
+  s_exprParsers->insert(std::make_pair(VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(INT_TAG + VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(REAL_TAG + VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(ARRAY_TAG + VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(STRING_TAG + VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(BOOL_TAG + VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(TIME_TAG + VAR_TAG, varRef));
+  s_exprParsers->insert(std::make_pair(BLOB_TAG + VAR_TAG, varRef));
 
-	s_exprParsers.insert(std::make_pair(NODE_OUTCOME_TAG + VAR_TAG,
-			new PlexilOutcomeVarParser()));
-	s_exprParsers.insert(std::make_pair(NODE_FAILURE_TAG + VAR_TAG,
-			new PlexilFailureVarParser()));
-	s_exprParsers.insert(std::make_pair(NODE_STATE_TAG + VAR_TAG,
-			new PlexilStateVarParser()));
-	s_exprParsers.insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAR_TAG,
-			new PlexilCommandHandleVarParser()));
-	s_exprParsers.insert(std::make_pair("NodeTimepoint" + VAL_TAG,
-			new PlexilTimepointVarParser()));
+  s_exprParsers->insert(std::make_pair(NODE_OUTCOME_TAG + VAR_TAG,
+				      new PlexilOutcomeVarParser()));
+  s_exprParsers->insert(std::make_pair(NODE_FAILURE_TAG + VAR_TAG,
+				      new PlexilFailureVarParser()));
+  s_exprParsers->insert(std::make_pair(NODE_STATE_TAG + VAR_TAG,
+				      new PlexilStateVarParser()));
+  s_exprParsers->insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAR_TAG,
+				      new PlexilCommandHandleVarParser()));
+  s_exprParsers->insert(std::make_pair("NodeTimepoint" + VAL_TAG,
+				      new PlexilTimepointVarParser()));
 
-	PlexilExprParser* val = new PlexilValueParser();
-	s_exprParsers.insert(std::make_pair(INT_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(REAL_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(STRING_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(BOOL_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(TIME_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(BLOB_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(NODE_OUTCOME_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(NODE_FAILURE_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(NODE_STATE_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAL_TAG, val));
-	s_exprParsers.insert(std::make_pair(LOOKUPNOW_TAG,
-			new PlexilLookupNowParser()));
-	s_exprParsers.insert(std::make_pair(LOOKUPCHANGE_TAG,
-			new PlexilChangeLookupParser()));
-	s_exprParsers.insert(std::make_pair(LOOKUPFREQ_TAG,
-			new PlexilFrequencyLookupParser()));
-	s_exprParsers.insert(std::make_pair(ARRAYELEMENT_TAG,
-			new PlexilArrayElementParser()));
+  PlexilExprParser* val = new PlexilValueParser();
+  s_exprParsers->insert(std::make_pair(INT_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(REAL_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(STRING_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(BOOL_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(TIME_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(BLOB_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(NODE_OUTCOME_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(NODE_FAILURE_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(NODE_STATE_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAL_TAG, val));
+  s_exprParsers->insert(std::make_pair(LOOKUPNOW_TAG,
+				      new PlexilLookupNowParser()));
+  s_exprParsers->insert(std::make_pair(LOOKUPCHANGE_TAG,
+				      new PlexilChangeLookupParser()));
+  s_exprParsers->insert(std::make_pair(LOOKUPFREQ_TAG,
+				      new PlexilFrequencyLookupParser()));
+  s_exprParsers->insert(std::make_pair(ARRAYELEMENT_TAG,
+				      new PlexilArrayElementParser()));
 
-	PlexilExprParser* op = new PlexilOpParser();
-	s_exprParsers.insert(std::make_pair("AND", op));
-	s_exprParsers.insert(std::make_pair("OR", op));
-	s_exprParsers.insert(std::make_pair("XOR", op));
-	s_exprParsers.insert(std::make_pair("NOT", op));
-	s_exprParsers.insert(std::make_pair("Concat", op));
-	s_exprParsers.insert(std::make_pair("IsKnown", op));
-	s_exprParsers.insert(std::make_pair("EQ", op));
-	s_exprParsers.insert(std::make_pair("EQNumeric", op));
-	s_exprParsers.insert(std::make_pair("EQString", op));
-	s_exprParsers.insert(std::make_pair("EQBoolean", op));
-	s_exprParsers.insert(std::make_pair("EQInternal", op));
-	s_exprParsers.insert(std::make_pair("NE", op));
-	s_exprParsers.insert(std::make_pair("NENumeric", op));
-	s_exprParsers.insert(std::make_pair("NEString", op));
-	s_exprParsers.insert(std::make_pair("NEBoolean", op));
-	s_exprParsers.insert(std::make_pair("NEInternal", op));
-	s_exprParsers.insert(std::make_pair("LT", op));
-	s_exprParsers.insert(std::make_pair("LE", op));
-	s_exprParsers.insert(std::make_pair("GT", op));
-	s_exprParsers.insert(std::make_pair("GE", op));
-	s_exprParsers.insert(std::make_pair("ADD", op));
-	s_exprParsers.insert(std::make_pair("SUB", op));
-	s_exprParsers.insert(std::make_pair("MUL", op));
-	s_exprParsers.insert(std::make_pair("DIV", op));
-	s_exprParsers.insert(std::make_pair("SQRT", op));
-	s_exprParsers.insert(std::make_pair("ABS", op));
+  PlexilExprParser* op = new PlexilOpParser();
+  s_exprParsers->insert(std::make_pair("AND", op));
+  s_exprParsers->insert(std::make_pair("OR", op));
+  s_exprParsers->insert(std::make_pair("XOR", op));
+  s_exprParsers->insert(std::make_pair("NOT", op));
+  s_exprParsers->insert(std::make_pair("Concat", op));
+  s_exprParsers->insert(std::make_pair("IsKnown", op));
+  s_exprParsers->insert(std::make_pair("EQ", op));
+  s_exprParsers->insert(std::make_pair("EQNumeric", op));
+  s_exprParsers->insert(std::make_pair("EQString", op));
+  s_exprParsers->insert(std::make_pair("EQBoolean", op));
+  s_exprParsers->insert(std::make_pair("EQInternal", op));
+  s_exprParsers->insert(std::make_pair("NE", op));
+  s_exprParsers->insert(std::make_pair("NENumeric", op));
+  s_exprParsers->insert(std::make_pair("NEString", op));
+  s_exprParsers->insert(std::make_pair("NEBoolean", op));
+  s_exprParsers->insert(std::make_pair("NEInternal", op));
+  s_exprParsers->insert(std::make_pair("LT", op));
+  s_exprParsers->insert(std::make_pair("LE", op));
+  s_exprParsers->insert(std::make_pair("GT", op));
+  s_exprParsers->insert(std::make_pair("GE", op));
+  s_exprParsers->insert(std::make_pair("ADD", op));
+  s_exprParsers->insert(std::make_pair("SUB", op));
+  s_exprParsers->insert(std::make_pair("MUL", op));
+  s_exprParsers->insert(std::make_pair("DIV", op));
+  s_exprParsers->insert(std::make_pair("SQRT", op));
+  s_exprParsers->insert(std::make_pair("ABS", op));
 }
 
-PlexilXmlParser::PlexilXmlParser() :
-	m_root(NULL), m_delete(true) {
-	if (s_init) {
-		registerParsers();
-		s_init = false;
-	}
+PlexilXmlParser::PlexilXmlParser()
+  : m_root(NULL), m_delete(true) 
+{
+  if (s_init) 
+    {
+      registerParsers();
+      s_init = false;
+    }
 }
 
 PlexilXmlParser::PlexilXmlParser(const std::string& str, bool isFile)
@@ -750,9 +755,9 @@ PlexilNodeId PlexilXmlParser::parse() throw(ParserException) {
 
 PlexilExprId PlexilXmlParser::parseExpr(const TiXmlElement* xml)
 		throw(ParserException) {
-	std::map<std::string, PlexilExprParser*>::iterator it = s_exprParsers.find(
+	std::map<std::string, PlexilExprParser*>::iterator it = s_exprParsers->find(
 			xml->Value());
-	checkParserException(it != s_exprParsers.end(),
+	checkParserException(it != s_exprParsers->end(),
 			"(line " << xml->Row() << ", column " << xml->Column() <<
 			") XML parsing error: No parser for expression '" << xml->Value() << "'");
 	return it->second->parse(xml);
@@ -1085,9 +1090,9 @@ PlexilVar* PlexilXmlParser::parseDepricatedDeclaration(const TiXmlElement* decl)
 PlexilNodeBodyId PlexilXmlParser::parseBody(const TiXmlElement* body)
 		throw(ParserException) {
 	std::string name(body->Value());
-	std::map<std::string, PlexilBodyParser*>::iterator it = s_bodyParsers.find(
+	std::map<std::string, PlexilBodyParser*>::iterator it = s_bodyParsers->find(
 			name);
-	checkParserException(it != s_bodyParsers.end(),
+	checkParserException(it != s_bodyParsers->end(),
 			"(line " << body->Row() << ", column " << body->Column() <<
 			") XML parsing error: No parser for body type " << name);
 	return it->second->parse(body);

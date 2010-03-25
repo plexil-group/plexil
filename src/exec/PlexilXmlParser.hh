@@ -184,8 +184,8 @@ namespace PLEXIL
 
     TiXmlElement* m_root;
     bool m_delete;
-    static std::map<std::string, PlexilBodyParser*> s_bodyParsers;
-    static std::map<std::string, PlexilExprParser*> s_exprParsers;
+    static std::map<std::string, PlexilBodyParser*> *s_bodyParsers;
+    static std::map<std::string, PlexilExprParser*> *s_exprParsers;
     static bool s_init;
   };
 }
