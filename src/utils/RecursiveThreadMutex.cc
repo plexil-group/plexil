@@ -54,6 +54,9 @@ namespace PLEXIL
 
   RecursiveThreadMutex::~RecursiveThreadMutex()
   {
+    //release all locks by current thread (protects against assertion failures during exit())
+    while (isLockedByCurrentThread())
+      unlock();
     int rv = pthread_mutex_destroy(&m_mutex);
     assertTrue(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
     assertTrue(0 == rv, "Could not destroy the mutex.");
@@ -73,7 +76,6 @@ namespace PLEXIL
     int rv = pthread_mutex_lock(&m_mutex);
     assertTrue(rv != EINVAL, "The mutex was created with the protocol attribute having the value PTHREAD_PRIO_PROTECT and the calling thread's priority is higher than the mutex's current priority ceiling.");
     assertTrue(rv != EAGAIN, "The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.");
-    assertTrue(rv != EDEADLK, "The current thread already owns the mutex.");
     assertTrue(rv == 0, "The mutex could not be locked. ");
     checkError(m_lockCount == 0, "Got a lock without a lock count of 0.");
     m_lockingThread = pthread_self();

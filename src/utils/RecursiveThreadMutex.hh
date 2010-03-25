@@ -79,7 +79,6 @@ namespace PLEXIL
 
     /**
      * @brief Returns true if the mutex is locked by the current thread.
-     * @note Slight chance of race condition between check of lock status and locking thread.
      */
     inline bool isLockedByCurrentThread()
     {
