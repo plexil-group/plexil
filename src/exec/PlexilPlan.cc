@@ -59,7 +59,10 @@ namespace PLEXIL {
 
   const std::string& PlexilParser::nodeTypeString(PlexilNodeType nodeType)
   {
-    static const std::string errorReturn("Unknown Node Type");
+    static const std::string* errorReturn = NULL;
+    if (errorReturn == NULL)
+      errorReturn = new std::string("Unknown Node Type");
+
     switch (nodeType)
       {
       case NodeType_NodeList:
@@ -93,7 +96,7 @@ namespace PLEXIL {
                    "Invalid node type " << nodeType);
         break;
       }
-    return errorReturn;
+    return *errorReturn;
   }
 
   PlexilType PlexilParser::parseValueType(const std::string & str)
