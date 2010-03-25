@@ -34,8 +34,11 @@ namespace PLEXIL {
 
   std::map<double, NodeStateManagerId>& NodeStateManager::registeredManagers() 
   {
-    static std::map<double, NodeStateManagerId> sl_map;
-    return sl_map;
+    static std::map<double, NodeStateManagerId>* sl_map = NULL;
+    if (sl_map == NULL)
+      sl_map = new std::map<double, NodeStateManagerId>();
+
+    return *sl_map;
   }
 
 //   void StateComputer::activatePair(NodeId& node, const LabelStr& name) {node->activatePair(name);}
