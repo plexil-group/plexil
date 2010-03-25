@@ -1,0 +1,18 @@
+//This plan emulates a simulator that handles:
+//	The command 'GetName()', which returns an array of strings
+
+Interface:
+{
+	//The array of strings
+	String name[2] = #("Jeff" "Gold");
+	NodeList:
+		//The handler for the command GetName()
+		RecGetName:
+		{
+			OnCommand GetName ( ) {
+				{
+					Command: SendReturnValue(name);
+				}
+			}
+		}
+}
