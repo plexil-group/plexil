@@ -571,8 +571,11 @@ namespace PLEXIL {
    }
 
   std::map<double, ExpressionFactory*>& ExpressionFactory::factoryMap() {
-    static std::map<double, ExpressionFactory*> sl_map;
-    return sl_map;
+    static std::map<double, ExpressionFactory*>* sl_map = NULL;
+    if (sl_map == NULL)
+      sl_map = new std::map<double, ExpressionFactory*>();
+
+    return *sl_map;
   }
 
   void ExpressionFactory::purge() {
@@ -583,7 +586,9 @@ namespace PLEXIL {
   }
 
   ExpressionId& Expression::UNKNOWN_EXP() {
-    static ExpressionId sl_exp = (new Variable(true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new Variable(true))->getId();
     return sl_exp;
   }
 
