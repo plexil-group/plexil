@@ -46,8 +46,10 @@ namespace PLEXIL
 
    UniqueThing& TestExternalInterface::timeState()
    {
-      static UniqueThing sl_state(std::make_pair((double)LabelStr("time"), std::vector<double>()));
-      return sl_state;
+     static UniqueThing* sl_state = NULL;
+     if (sl_state == NULL)
+       sl_state = new UniqueThing(std::make_pair((double)LabelStr("time"), std::vector<double>()));
+     return *sl_state;
    }
 
    TestExternalInterface::TestExternalInterface() : ExternalInterface()
