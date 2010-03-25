@@ -136,7 +136,7 @@ public class Constants
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
-                                              "run-ue";
+                                              "universalExec";
       
       /** Represents the script for running the "test executive" for PLEXIL. */ 
       public static final String    UE_TEST_EXEC = PLEXIL_HOME +
