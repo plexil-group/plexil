@@ -515,22 +515,24 @@ namespace PLEXIL
 
    bool StateCache::keyForState(const State& state, StateKey& key)
    {
-      static double sl_stateKey = std::numeric_limits<double>::min();
-
-      std::map<State, StateKey>::const_iterator it = m_keysByState.find(state);
-      if (it != m_keysByState.end())
-      {
+     std::map<State, StateKey>::const_iterator it = m_keysByState.find(state);
+     if (it != m_keysByState.end())
+       {
          debugMsg("StateCache:keyForState", " Already have a key for state \"" << toString(state) << "\": " << it->second);
          key = it->second;
          return false;
-      }
+       }
 
-      debugMsg("StateCache:keyForState", " Allocating key for state \"" << toString(state) << "\": " << sl_stateKey);
-      key = sl_stateKey;
-      sl_stateKey += 2 * EPSILON;
-      m_keysByState.insert(std::make_pair(state, key));
-      m_states.insert(std::make_pair(key, std::make_pair(state, -1)));
-      return true;
+     static double* sl_stateKey = NULL;
+     if (sl_stateKey == NULL)
+       sl_stateKey = new double(std::numeric_limits<double>::min());
+
+     debugMsg("StateCache:keyForState", " Allocating key for state \"" << toString(state) << "\": " << sl_stateKey);
+     key = *sl_stateKey;
+     (*sl_stateKey) += 2 * EPSILON;
+     m_keysByState.insert(std::make_pair(state, key));
+     m_states.insert(std::make_pair(key, std::make_pair(state, -1)));
+     return true;
    }
 
    bool StateCache::stateForKey(const StateKey& key, State& state) const
