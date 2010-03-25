@@ -82,16 +82,8 @@ namespace PLEXIL
   class ThreadMutexGuard
   {
   public:
-    ThreadMutexGuard(ThreadMutex& mutex):
-      m_mutex(mutex)
-    {
-      m_mutex.lock();
-    }
-
-    ~ThreadMutexGuard( )
-    {
-      m_mutex.unlock();
-    }
+    ThreadMutexGuard(ThreadMutex& mutex);
+    ~ThreadMutexGuard();
 
   private:
 

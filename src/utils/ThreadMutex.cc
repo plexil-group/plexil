@@ -26,54 +26,102 @@
 
 #include "ThreadMutex.hh"
 #include "Error.hh"
-#include <errno.h>
+#include <cerrno>
 
 namespace PLEXIL
 {
   ThreadMutex::ThreadMutex()
   {
-    pthread_mutexattr_t mta;
+    pthread_mutexattr_t m_mta;
+    int rv = pthread_mutexattr_init(&m_mta);
+    if (rv != 0)
+      {
+	assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
+	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_init failed, errno = " << rv);
+      }
 
-    int rv = pthread_mutexattr_init(&mta);
-    assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
-    assertTrue(rv == 0, "Error initializing mutex attribute structure.");
+    rv = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL);
+    if (rv != 0)
+      {
+	assertTrue(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
+	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << rv);
+      }
 
-    rv = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-    assertTrue(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
-    assertTrue(0 == rv, "Could not set the mutex attribute.");
+    rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
+    if (rv != 0)
+      {
+	assertTrue(rv != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
+	assertTrue(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
+	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << rv);
+      }
 
-    rv = pthread_mutex_init(&m_mutex, &mta);
-    assertTrue(0 == rv, "Could not initialize the mutex.");
+    rv = pthread_mutex_init(&m_mutex, &m_mta);
+    if (rv != 0)
+      {
+	assertTrue(rv != EINVAL, "Mutex pointer or attribute pointer invalid.");
+	assertTrue(rv != EPERM, "Insufficient permissions for mutex initialization.");
+	assertTrue(rv != EBUSY, "Attempt to initialize mutex which was already initialized.");
+	assertTrue(rv != ENOMEM, "No memory for mutex initialization.");
+	assertTrue(rv != EAGAIN, "Insufficient system resources for mutex initialization.");
+	assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_init failed, errno = " << rv);
+      }
+    
+    // Clean up
+    rv = pthread_mutexattr_destroy(&m_mta);
+    assertTrueMsg(rv == 0, "pthread_mutexattr_destroy failed, errno = " << rv);
   }
 
   ThreadMutex::~ThreadMutex()
   {
     int rv = pthread_mutex_destroy(&m_mutex);
+    if (rv == 0)
+      return;
     assertTrue(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
-    assertTrue(0 == rv, "Could not destroy the mutex.")
+    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_destroy failed, errno = " << rv);
   }
 
   void ThreadMutex::lock()
   {
     int rv = pthread_mutex_lock(&m_mutex);
+    if (rv == 0)
+      return;
+
     assertTrue(rv != EDEADLK, "Deadlock detected, or attempt to lock mutex that is already locked by this thread.");
-    assertTrue(0 == rv, "Could not lock the mutex.");
+    assertTrue(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
+    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_lock failed, errno = " << rv);
   }
 
   bool ThreadMutex::trylock()
   {
     int rv = pthread_mutex_trylock(&m_mutex);
-    if (0 == rv)
+    if (rv == 0)
       return true;
-    assertTrue(EBUSY == rv, "Could not trylock the mutex.");
-    return false;
+    if (rv == EBUSY)
+      // mutex already locked
+      return false;
+    assertTrue(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
+    assertTrueMsg(ALWAYS_FAIL,  "pthread_mutex_trylock failed, errno = " << rv);
+    return false; // to make compiler happy
   }
 
   void ThreadMutex::unlock()
   {
     int rv = pthread_mutex_unlock(&m_mutex);
+    if (rv == 0)
+      return;
     assertTrue(rv != EPERM, "Attempt to unlock mutex that is locked by another thread.");
-    assertTrue(0 == rv, "Could not unlock the mutex.");
+    assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_unlock failed, errno = " << rv);
+  }
+
+  ThreadMutexGuard::ThreadMutexGuard(ThreadMutex& mutex)
+    : m_mutex(mutex)
+  {
+    m_mutex.lock();
+  }
+
+  ThreadMutexGuard::~ThreadMutexGuard()
+  {
+    m_mutex.unlock();
   }
 
 }
