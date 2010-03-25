@@ -610,21 +610,27 @@ namespace PLEXIL
   }
 
   ExpressionId& RealVariable::ZERO_EXP() {
-    static ExpressionId sl_zero_exp = (new RealVariable(0.0, true))->getId();
+    static ExpressionId sl_zero_exp;
+    if (sl_zero_exp.isNoId())
+      sl_zero_exp = (new RealVariable(0.0, true))->getId();
     if(!sl_zero_exp->isActive())
       sl_zero_exp->activate();
     return sl_zero_exp;
   }
 
   ExpressionId& RealVariable::ONE_EXP() {
-    static ExpressionId sl_one_exp = (new RealVariable(1.0, true))->getId();
+    static ExpressionId sl_one_exp;
+    if (sl_one_exp.isNoId())
+      sl_one_exp = (new RealVariable(1.0, true))->getId();
     if(!sl_one_exp->isActive())
       sl_one_exp->activate();
     return sl_one_exp;
   }
 
   ExpressionId& RealVariable::MINUS_ONE_EXP() {
-    static ExpressionId sl_minus_one_exp = (new RealVariable(-1.0, true))->getId();
+    static ExpressionId sl_minus_one_exp;
+    if (sl_minus_one_exp.isNoId())
+      sl_minus_one_exp = (new RealVariable(-1.0, true))->getId();
     if(!sl_minus_one_exp->isActive())
       sl_minus_one_exp->activate();
     return sl_minus_one_exp;
@@ -667,14 +673,20 @@ namespace PLEXIL
   }
 
   bool IntegerVariable::checkValue(const double val) {
-    return val == Expression::UNKNOWN() ||
-      ((val >= MINUS_INFINITY && val <= PLUS_INFINITY) &&
-       val == (double) (int32_t) val);  //more cast means more double
+    if (val == Expression::UNKNOWN())
+      return true;
+    if (val < MINUS_INFINITY || val > PLUS_INFINITY)
+      return false;
+    if (abs(val - ((double) (int32_t) val)) < EPSILON)
+      return true;
+    return false;
   }
 
   ExpressionId& IntegerVariable::ZERO_EXP()
   {
-    static ExpressionId sl_zero_exp = (new IntegerVariable(0.0, true))->getId();
+    static ExpressionId sl_zero_exp;
+    if (sl_zero_exp.isNoId())
+      sl_zero_exp = (new IntegerVariable(0.0, true))->getId();
     if(!sl_zero_exp->isActive())
       sl_zero_exp->activate();
     return sl_zero_exp;
@@ -682,7 +694,9 @@ namespace PLEXIL
 
   ExpressionId& IntegerVariable::ONE_EXP()
   {
-    static ExpressionId sl_one_exp = (new IntegerVariable(1.0, true))->getId();
+    static ExpressionId sl_one_exp;
+    if (sl_one_exp.isNoId())
+      sl_one_exp = (new IntegerVariable(1.0, true))->getId();
     if(!sl_one_exp->isActive())
       sl_one_exp->activate();
     return sl_one_exp;
@@ -690,8 +704,9 @@ namespace PLEXIL
 
   ExpressionId& IntegerVariable::MINUS_ONE_EXP()
   {
-    static ExpressionId sl_minus_one_exp =
-      (new IntegerVariable(-1.0, true))->getId();
+    static ExpressionId sl_minus_one_exp;
+    if (sl_minus_one_exp.isNoId())
+      sl_minus_one_exp = (new IntegerVariable(-1.0, true))->getId();
     if(!sl_minus_one_exp->isActive())
       sl_minus_one_exp->activate();
     return sl_minus_one_exp;
@@ -731,14 +746,18 @@ namespace PLEXIL
   }
 
   ExpressionId& BooleanVariable::TRUE_EXP() {
-    static ExpressionId sl_exp = (new BooleanVariable(1.0, true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new BooleanVariable(1.0, true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
 
   ExpressionId& BooleanVariable::FALSE_EXP() {
-    static ExpressionId sl_exp = (new BooleanVariable(0.0, false))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new BooleanVariable(0.0, false))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
@@ -781,65 +800,81 @@ namespace PLEXIL
   }
 
   const std::set<double>& StateVariable::ALL_STATES() {
-    static bool init = true;
-    static std::set<double> allStates;
-    if(init) {
-      allStates.insert(INACTIVE());
-      allStates.insert(WAITING());
-      allStates.insert(EXECUTING());
-      allStates.insert(FINISHING());
-      allStates.insert(FINISHED());
-      allStates.insert(FAILING());
-      allStates.insert(ITERATION_ENDED());
-      init = false;
-    }
-    return allStates;
+    static std::set<double>* allStates = NULL;
+    if (allStates == NULL) 
+      {
+	allStates = new std::set<double>;
+	allStates->insert(INACTIVE());
+	allStates->insert(WAITING());
+	allStates->insert(EXECUTING());
+	allStates->insert(FINISHING());
+	allStates->insert(FINISHED());
+	allStates->insert(FAILING());
+	allStates->insert(ITERATION_ENDED());
+      }
+    return *allStates;
   }
 
   ExpressionId& StateVariable::INACTIVE_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(INACTIVE(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(INACTIVE(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::WAITING_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(WAITING(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(WAITING(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::EXECUTING_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(EXECUTING(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(EXECUTING(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::FINISHING_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(FINISHING(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(FINISHING(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::FINISHED_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(FINISHED(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(FINISHED(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::FAILING_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(FAILING(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(FAILING(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::ITERATION_ENDED_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(ITERATION_ENDED(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(ITERATION_ENDED(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::NO_STATE_EXP() {
-    static ExpressionId sl_exp = (new StateVariable(NO_STATE(), true))->getId();
+    static ExpressionId sl_exp;
+    if (sl_exp.isNoId())
+      sl_exp = (new StateVariable(NO_STATE(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
