@@ -28,6 +28,7 @@
 #include <queue>
 #include <fstream>
 #include <math.h>
+#include <ctype.h>
 
 namespace PLEXIL {
 
@@ -342,17 +343,20 @@ namespace PLEXIL {
                  << fName << " does not exist. No resources read.");
         return false;
       }
+    std::getline(myFile, dataStr);
     while (!myFile.eof())
       {
-        std::getline(myFile, dataStr);
-        if (dataStr.substr(0,1) != "%")
+        // For debugging
+        // std::cout << "Resource: " << dataStr << std::endl;
+        if (dataStr.substr(0,1) != "%" && ~isspace(dataStr.substr(0,1)[0]))
           {
             // first element which is the parent resource name
             std::string::size_type lastPos = dataStr.find_first_not_of(delimiter, 0);
             std::string::size_type pos = dataStr.find_first_of(delimiter, lastPos);
             if ((std::string::npos == pos) && (std::string::npos == lastPos))
               {
-                std::cerr << "Error reading the first element." << std::endl;
+                std::cerr << "Error reading the first element of resource file: "
+                          << dataStr << std::endl;
                 myFile.close();
                 return false;
               }
@@ -365,7 +369,8 @@ namespace PLEXIL {
             pos = dataStr.find_first_of(delimiter, lastPos);
             if ((std::string::npos == pos) && (std::string::npos == lastPos))
               {
-                std::cerr << "Error reading the first element." << std::endl;
+                std::cerr << "Error reading the second element of resource file: "
+                          << dataStr << std::endl;
                 myFile.close();
                 return false;
               }
@@ -380,7 +385,8 @@ namespace PLEXIL {
             pos = dataStr.find_first_of(delimiter, lastPos);
             if ((std::string::npos == pos) && (std::string::npos == lastPos))
               {
-                std::cerr << "Error reading the first element." << std::endl;
+                std::cerr << "Error reading the third element of resource file: "
+                          << dataStr << std::endl;
                 myFile.close();
                 return false;
               }
@@ -411,6 +417,7 @@ namespace PLEXIL {
 
             m_resourceHierarchy[pName] = ResourceNode(maxCons, maxRen, children);
           }
+        std::getline(myFile, dataStr);
       }
     return true;
   }
