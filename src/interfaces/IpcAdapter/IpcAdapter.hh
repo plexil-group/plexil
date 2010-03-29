@@ -175,7 +175,7 @@ public:
    * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
-  void IpcAdapter::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
+  virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
 
 private:
 

@@ -341,7 +341,7 @@ void IpcAdapter::executeCommand(const LabelStr& name, const std::list<double>& a
  * @note Derived classes may implement this method.  The default method causes an assertion to fail.
  */
 
-void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck) {
+void IpcAdapter::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck) {
   //TODO: implement unique command IDs for referencing command instances
   assertTrueMsg(cmdName == RECEIVE_MESSAGE_COMMAND() || cmdName == RECEIVE_COMMAND_COMMAND(),
       "IpcAdapter: Only ReceiveMessage and ReceiveCommand commands can be aborted");
