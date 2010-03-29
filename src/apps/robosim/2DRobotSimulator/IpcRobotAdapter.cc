@@ -31,7 +31,6 @@
 #include "Error.hh"
 #include "ThreadSpawn.hh"
 
-#include "defineIpcMessageTypes.h"
 
 // ooid classes
 #include "uuid.h"
@@ -44,44 +43,20 @@
  */
 IpcRobotAdapter::IpcRobotAdapter(const std::string& centralhost)
   : m_robots(),
-    m_incompletes(),
     m_stateUIDMap(),
-    m_thread(),
-    m_myUID(),
-    m_serial(0)
+    m_ipcFacade(),
+    m_listener(*this)
 {
-  initializeUID();
-
-  debugMsg("IpcRobotAdapter:IpcRobotAdapter", 
-	   " Connecting module " << m_myUID <<
-	   " to central server at " << centralhost);
-
-  // Initialize IPC
-  // possibly redundant, but always safe
-  IPC_initialize();
-
-  // Connect to central
-  assertTrueMsg(IPC_connectModule(m_myUID.c_str(), centralhost.c_str()) == IPC_OK,
-		"IpcRobotAdapter: Unable to connect to the central server at " << centralhost);
-
-  // Define the whole suite of message types,
-  // as someone else may depend on this if we get to it first.
-  assertTrueMsg(definePlexilIPCMessageTypes(),
-		"IpcRobotAdapter: Unable to define IPC message types");
+  assertTrueMsg(m_ipcFacade.initilize(m_ipcFacade.getUID(), centralhost) == IPC_OK,
+      "IpcRobotAdapter: Unable to initilize ipc to central server at " << centralhost);
 
   // Spawn listener thread
-  assertTrueMsg(threadSpawn((THREAD_FUNC_PTR)IPC_dispatch, NULL, m_thread),
-		"IpcRobotAdapter constructor: Unable to spawn IPC dispatch thread");
-  debugMsg("IpcRobotAdapter:IpcRobotAdapter", " spawned IPC dispatch thread");
+  assertTrueMsg(m_ipcFacade.start() == IPC_OK,
+		"IpcRobotAdapter constructor: Unable to start IPC dispatch thread");
 
   // Subscribe only to messages we care about
-  IPC_RETURN_TYPE status = IPC_subscribeData(NUMERIC_VALUE_MSG, messageHandler, this);
-  assertTrueMsg(status == IPC_OK,
-		"IpcRobotAdapter: Error subscribing to " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-  status = IPC_subscribeData(STRING_VALUE_MSG, messageHandler, this);
-  assertTrueMsg(status == IPC_OK,
-		"IpcRobotAdapter: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-
+  m_ipcFacade.subscribe(m_listener, PlexilMsgType_Command);
+  m_ipcFacade.subscribe(m_listener, PlexilMsgType_LookupNow);
   debugMsg("IpcRobotAdapter:IpcRobotAdapter", " succeeded");
 }
 
@@ -106,20 +81,6 @@ IpcRobotAdapter::~IpcRobotAdapter()
 		  "IpcRobotAdapter: error joining IPC dispatch thread, errno = " << myErrno); 
 
     debugMsg("IpcRobotAdapter:~IpcRobotAdapter", " complete");
-}
-
-/**
- * @brief Initialize unique ID string
- */
-void IpcRobotAdapter::initializeUID()
-{
-  kashmir::system::DevRand randomStream;
-  kashmir::uuid_t uuid;
-  randomStream >> uuid;
-  std::ostringstream s;
-  s << uuid;
-  m_myUID = s.str();
-  debugMsg("IpcRobotAdapter:initializeUID", " generated UUID " << m_myUID);
 }
 
 /**
@@ -203,199 +164,6 @@ void IpcRobotAdapter::sendReturnValues(const IpcMessageId& requestId,
 }
 
 /**
- * @brief Handler function as seen by IPC.
- */
-
-void IpcRobotAdapter::messageHandler(MSG_INSTANCE rawMsg,
-				  void * unmarshalledMsg,
-				  void * this_as_void_ptr)
-{
-  IpcRobotAdapter* theRelay = reinterpret_cast<IpcRobotAdapter*>(this_as_void_ptr);
-  assertTrueMsg(theRelay != NULL,
-		"IpcRobotAdapter::messageHandler: pointer to instance is null!");
-
-  const PlexilMsgBase* msgData = reinterpret_cast<const PlexilMsgBase*>(unmarshalledMsg);
-  assertTrueMsg(msgData != NULL,
-		"IpcRobotAdapter::messageHandler: pointer to message data is null!");
-
-  theRelay->handleIpcMessage(msgData);
-}
-
-/**
- * @brief Handler function as seen by comm relay.
- */
-
-void IpcRobotAdapter::handleIpcMessage(const PlexilMsgBase * msgData)
-{
-  if (strcmp(msgData->senderUID, m_myUID.c_str()) == 0)
-    {
-      debugMsg("IpcRobotAdapter:handleIpcMessage", " ignoring my own outgoing message");
-      return;
-    }
-
-  PlexilMsgType msgType = (PlexilMsgType) msgData->msgType;
-  debugMsg("IpcRobotAdapter:handleIpcMessage", " received message type = " << msgType);
-  switch (msgType)
-    {
-      // Command is a PlexilStringValueMsg
-      // Optionally followed by parameters
-    case PlexilMsgType_Command:
-      // Stash this and wait for the rest
-      debugMsg("IpcRobotAdapter:handleIpcMessage", " processing as command");
-      cacheMessageLeader(msgData);
-      break;
-
-      // LookupNow and LookupOnChange are PlexilStringValueMsg
-      // Optionally followed by parameters
-    case PlexilMsgType_LookupNow:
-    case PlexilMsgType_LookupOnChange:
-      // Stash this and wait for the rest
-      cacheMessageLeader(msgData);
-      break;
-
-      // Values - could be parameters or return values
-    case PlexilMsgType_NumericValue:
-    case PlexilMsgType_StringValue:
-      // Log with corresponding leader message, if any
-      cacheMessageTrailer(msgData);
-      break;
-
-      //
-      // below this line are not used by the simulator
-      //
-
-      // NotifyExec is a PlexilMsgBase
-    case PlexilMsgType_NotifyExec:
-
-      // AddPlan/AddPlanFile is a PlexilStringValueMsg
-    case PlexilMsgType_AddPlan:
-    case PlexilMsgType_AddPlanFile:
-
-      // AddLibrary/AddLibraryFile is a PlexilStringValueMsg
-    case PlexilMsgType_AddLibrary:
-    case PlexilMsgType_AddLibraryFile:
-
-      // ReturnValues is a PlexilReturnValuesMsg
-      // Followed by 0 (?) or more values
-    case PlexilMsgType_ReturnValues:
-
-      // Message is a PlexilStringValueMsg
-      // No parameters
-    case PlexilMsgType_Message:
-
-      // PlannerUpdate is a PlexilStringValueMsg
-      // Followed by 0 (?) or more name/value pairs
-    case PlexilMsgType_PlannerUpdate:
-
-      // PlannerUpdate pairs
-    case PlexilMsgType_PairNumeric:
-    case PlexilMsgType_PairString:
-      debugMsg("IpcRobotAdapter:handleIpcMessage", " ignoring message of type " << msgType);
-      // free the message
-      IPC_freeData(IPC_msgFormatter(msgFormatForType((PlexilMsgType) msgData->msgType)),
-		   (void*) msgData);
-      break;
-
-      // clearly bogus data
-    default:
-      assertTrueMsg(ALWAYS_FAIL,
-		    "IpcRobotAdapter::handleIpcMessage: received invalid message data type " << msgType);
-      break;
-    }
-}
-
- 
-/**
- * @brief Cache start message of a multi-message sequence
- */
-    
-void IpcRobotAdapter::cacheMessageLeader(const PlexilMsgBase* msgData)
-{
-  IpcMessageId msgId(msgData->senderUID, msgData->serial);
-
-  // Check that this isn't a duplicate header
-  IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
-  assertTrueMsg(it == m_incompletes.end(),
-		"IpcRobotAdapter::cacheMessageLeader: internal error: found existing sequence for sender "
-		<< msgData->senderUID << ", serial " << msgData->serial);
-
-  if (msgData->count == 0)
-    {
-      debugMsg("IpcRobotAdapter:cacheMessageLeader", " no trailers, processing immediately");
-      std::vector<const PlexilMsgBase*> msgVec(1, msgData);
-      processMessageSequence(msgVec);
-    }
-  else
-    {
-      debugMsg("IpcRobotAdapter:cacheMessageLeader", " waiting for " << msgData->count << " trailing message(s)");
-      m_incompletes[msgId] = std::vector<const PlexilMsgBase*>(1, msgData);
-    }
-}
- 
-/**
- * @brief Cache following message of a multi-message sequence
- */
-    
-void IpcRobotAdapter::cacheMessageTrailer(const PlexilMsgBase* msgData)
-{
-  IpcMessageId msgId(msgData->senderUID, msgData->serial);
-  IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
-  assertTrueMsg(it != m_incompletes.end(),
-		"IpcRobotAdapter::cacheMessageTrailer: no existing sequence for sender "
-		<< msgData->senderUID << ", serial " << msgData->serial);
-  std::vector<const PlexilMsgBase*>& msgs = it->second;
-  msgs.push_back(msgData);
-  // Have we got them all?
-  if (msgs.size() > msgs[0]->count)
-    {
-      processMessageSequence(msgs);
-      m_incompletes.erase(it);
-    }
-}
-
-/**
- * @brief Send a message sequence to the simulator and free the messages
- */
-void IpcRobotAdapter::processMessageSequence(std::vector<const PlexilMsgBase*>& msgs)
-{
-  const PlexilMsgBase* leader = msgs[0];
-  switch (leader->msgType)
-    {
-    case PlexilMsgType_Command:
-      processCommand(msgs);
-      break;
-
-    case PlexilMsgType_LookupNow:
-      processLookupNow(msgs);
-      break;
-
-      // these are ignored - telemetry updates provide the data to the exec
-    case PlexilMsgType_LookupOnChange:
-      debugMsg("IpcRobotAdapter:handleMessageSequence", " ignoring LookupOnChange request");
-      break;
-
-      // ignore these if they get through - we don't deal with them
-    case PlexilMsgType_ReturnValues:
-    case PlexilMsgType_PlannerUpdate:
-      debugMsg("IpcRobotAdapter:handleMessageSequence", " ignoring sequence starting with type " << leader->msgType);
-      break;
-
-    default:
-      assertTrueMsg(ALWAYS_FAIL,
-		    "IpcRobotAdapter::processMessageSequence: invalid leader message type " << leader->msgType);
-    }
-
-  // clean up
-  for (size_t i = 0; i < msgs.size(); i++)
-    {
-      const PlexilMsgBase* msg = msgs[i];
-      msgs[i] = NULL;
-      IPC_freeData(IPC_msgFormatter(msgFormatForType((PlexilMsgType) msg->msgType)),
-		   (void *) msg);
-    }
-}
-
-/**
  * @brief Send a command to RoboSim
  */
 
@@ -442,7 +210,8 @@ void IpcRobotAdapter::processCommand(std::vector<const PlexilMsgBase*>& msgs)
 		   "IpcRobotAdapter:processCommand",
 		   "Ignoring " << msgs[0]->count - 1 << " argument(s)");
     }
-  sendReturnValues(transId, robot->processCommand(cmdName, parameter));
+  std::vector<double>& ret_values = robot->processCommand(cmdName, parameter);
+  m_ipcFacade.publishReturnValues(transId, std::list<double>(ret_values.begin(), ret_values.end()));
 }
 
 /**
@@ -456,13 +225,26 @@ void IpcRobotAdapter::processLookupNow(std::vector<const PlexilMsgBase*>& msgs)
   debugMsg("IpcRobotAdapter:lookupNow", " ignoring lookup request for " << stateName);
 }
 
-/**
- * @brief Deal with a LookupOnChange request
- */
 
-// N.B. RoboSim does not implement LookupOnChange
-void IpcRobotAdapter::processLookupOnChange(std::vector<const PlexilMsgBase*>& msgs)
-{
-  std::string stateName(((const PlexilStringValueMsg*)msgs[0])->stringValue);
-  debugMsg("IpcRobotAdapter:lookupOnChange", " ignoring lookup request for " << stateName);
+IpcRobotAdapter::MessageListener::MessageListener(IpcRobotAdapter& adapter) :
+  m_adapter(adapter) {
+}
+IpcRobotAdapter::MessageListener::~MessageListener() {
+}
+void IpcRobotAdapter::MessageListener::ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs) {
+  const PlexilMsgBase* leader = msgs[0];
+  switch (leader->msgType)
+    {
+    case PlexilMsgType_Command:
+      m_adapter.processCommand(msgs);
+      break;
+
+    case PlexilMsgType_LookupNow:
+      m_adapter.processLookupNow(msgs);
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+            "IpcRobotAdapter::ReceiveMessage: invalid leader message type " << leader->msgType);
+    }
 }

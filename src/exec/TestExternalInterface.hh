@@ -84,7 +84,16 @@ namespace PLEXIL {
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
-    void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    /**
+     * @brief Abort the pending command with the supplied name and arguments.
+     * @param cmdName The LabelString representing the command name.
+     * @param cmdArgs The command arguments expressed as doubles.
+     * @param cmdAck The acknowledgment of the pending command
+     * @param abrtAck The expression in which to store an acknowledgment of command abort.
+     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+     */
+
+    void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
     void addPlan(const TiXmlElement& plan, const LabelStr& parent)
       throw(ParserException);
     

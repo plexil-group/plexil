@@ -29,6 +29,7 @@
 
 #include "ipc.h"
 #include "ipc-data-formats.h"
+#include "IpcFacade.hh"
 
 #include <map>
 #include <string>
@@ -94,34 +95,15 @@ private:
 			     void * unmarshalledMsg,
 			     void * this_as_void_ptr);
 
-  /**
-   * @brief Handler function as seen by robot adapter.
-   */
-
-  void handleIpcMessage(const PlexilMsgBase * msgData);
-
-  /**
-   * @brief Generate unique ID
-   */
-    
-  void initializeUID();
- 
-  /**
-   * @brief Cache start message of a multi-message sequence
-   */
-    
-  void cacheMessageLeader(const PlexilMsgBase* msgData);
- 
-  /**
-   * @brief Cache following message of a multi-message sequence
-   */
-    
-  void cacheMessageTrailer(const PlexilMsgBase* msgData);
-
-  /**
-   * @brief Send a message sequence to the simulator and free the messages
-   */
-  void processMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
+  //* brief Class to receive messages from Ipc
+  class MessageListener : public PLEXIL::IpcMessageListener {
+  public:
+    MessageListener(IpcRobotAdapter&);
+    ~MessageListener();
+    void ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs);
+  private:
+    IpcRobotAdapter& m_adapter;
+  };
 
   /**
    * @brief Send a command to the simulator
@@ -138,11 +120,6 @@ private:
    */
   void processLookupNow(std::vector<const PlexilMsgBase*>& msgs);
 
-  /**
-   * @brief Deal with a LookupOnChange request
-   */
-  void processLookupOnChange(std::vector<const PlexilMsgBase*>& msgs);
-
 
   //
   // Member variables
@@ -150,21 +127,15 @@ private:
 
   //* @brief Map recording robot names and instances.
   NameToRobotMap m_robots;
-
-  //* @brief Cache of incomplete received message data
-  IncompleteMessageMap m_incompletes;
   
   //* @brief Map from state name to unique ID of LookupOnChange request
   NameUniqueIDMap m_stateUIDMap;
 
-  //* @brief Unique ID of this adapter instance
-  std::string m_myUID;
+  //* @brief Handler for the IPC connection
+  PLEXIL::IpcFacade m_ipcFacade;
 
-  //* @brief Thread ID of IPC dispatch thread
-  pthread_t m_thread;
-
-  //* @brief Serial number used in transactions.
-  uint32_t m_serial;
+  //* @brief Message handler for IPC
+  MessageListener m_listener;
 
 };
 

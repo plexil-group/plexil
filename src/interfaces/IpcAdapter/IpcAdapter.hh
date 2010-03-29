@@ -168,14 +168,14 @@ public:
 
   /**
    * @brief Abort the pending command with the supplied name and arguments.
-   * @param name The LabelString representing the command name.
-   * @param args The command arguments expressed as doubles.
-   * @param dest The destination for the command to abort
-   * @param ack The expression in which to store an acknowledgement of command abort.
+   * @param cmdName The LabelString representing the command name.
+   * @param cmdArgs The command arguments expressed as doubles.
+   * @param cmdAck The acknowledgment of the pending command
+   * @param abrtAck The expression in which to store an acknowledgment of command abort.
    * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
-  virtual void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+  void IpcAdapter::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
 
 private:
 

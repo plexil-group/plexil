@@ -608,13 +608,22 @@ namespace PLEXIL
       //m_executingCommands.insert(UniqueThing((double)name, args), dest);
    }
 
-   void TestExternalInterface::invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+   /**
+    * @brief Abort the pending command with the supplied name and arguments.
+    * @param cmdName The LabelString representing the command name.
+    * @param cmdArgs The command arguments expressed as doubles.
+    * @param cmdAck The acknowledgment of the pending command
+    * @param abrtAck The expression in which to store an acknowledgment of command abort.
+    * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+    */
+
+   void TestExternalInterface::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck)
    {
       //checkError(ALWAYS_FAIL, "Don't do that.");
-      std::vector<double> realArgs(args.begin(), args.end());
-      UniqueThing cmd((double)name, realArgs);
+      std::vector<double> realArgs(cmdArgs.begin(), cmdArgs.end());
+      UniqueThing cmd((double)cmdName, realArgs);
       debugMsg("Test:testOutput", "Aborting " << getText(cmd));
-      m_abortingCommands[cmd] = dest;
+      m_abortingCommands[cmd] = abrtAck;
    }
 
    void TestExternalInterface::updatePlanner(std::list<UpdateId>& updates)

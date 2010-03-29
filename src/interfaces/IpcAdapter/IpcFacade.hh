@@ -32,7 +32,6 @@
 #include "ThreadSpawn.hh"
 #include "RecursiveThreadMutex.hh"
 #include "CommonDefs.hh"
-#include "ExecDefs.hh"
 #include "LabelStr.hh"
 
 #include <vector>

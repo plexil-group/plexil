@@ -65,8 +65,8 @@ namespace PLEXIL {
   void ExternalInterface::executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack){}
 
   void ExternalInterface::executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack){}
-  
-  void ExternalInterface::invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack){}
+
+  void ExternalInterface::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck){}
 
   void ExternalInterface::addPlan(const TiXmlElement& plan, const LabelStr& parent)
     throw(ParserException)

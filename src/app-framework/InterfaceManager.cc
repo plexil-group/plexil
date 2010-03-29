@@ -959,16 +959,21 @@ namespace PLEXIL
     intf->executeFunctionCall(name, args, dest, ack);
   }
 
-  //abort the given command with the given arguments.  store the abort-complete into dest
-  void
-  InterfaceManager::invokeAbort(const LabelStr& name,
-					 const std::list<double>& args,
-					 ExpressionId cmd_ack, ExpressionId ack)
+  /**
+   * @brief Abort the pending command with the supplied name and arguments.
+   * @param cmdName The LabelString representing the command name.
+   * @param cmdArgs The command arguments expressed as doubles.
+   * @param cmdAck The acknowledgment of the pending command
+   * @param abrtAck The expression in which to store an acknowledgment of command abort.
+   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   */
+
+  void InterfaceManager::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck)
   {
-    InterfaceAdapterId intf = getCommandInterface(name);
+    InterfaceAdapterId intf = getCommandInterface(cmdName);
     assertTrueMsg(!intf.isNoId(),
-		  "invokeAbort: null interface adapter for command " << name.toString());
-    intf->invokeAbort(name, args, cmd_ack, ack);
+		  "invokeAbort: null interface adapter for command " << cmdName.toString());
+    intf->invokeAbort(cmdName, cmdArgs, abrtAck, cmdAck);
   }
 
   double 

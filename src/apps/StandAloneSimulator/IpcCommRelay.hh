@@ -29,6 +29,7 @@
 
 #include "CommRelayBase.hh"
 #include "ipc-data-formats.h"
+#include "IpcFacade.hh"
 
 #include <ipc.h>
 
@@ -74,58 +75,24 @@ private:
   //
 
   /**
-   * @brief Handler function as seen by IPC.
-   */
-
-  static void messageHandler(MSG_INSTANCE rawMsg,
-			     void * unmarshalledMsg,
-			     void * this_as_void_ptr);
-
-  /**
-   * @brief Handler function as seen by comm relay.
-   */
-
-  void handleIpcMessage(const PlexilMsgBase * msgData);
-
-  /**
-   * @brief Generate unique ID
-   */
-    
-  void initializeUID();
- 
-  /**
-   * @brief Cache start message of a multi-message sequence
-   */
-    
-  void cacheMessageLeader(const PlexilMsgBase* msgData);
- 
-  /**
-   * @brief Cache following message of a multi-message sequence
-   */
-    
-  void cacheMessageTrailer(const PlexilMsgBase* msgData);
-
-  /**
-   * @brief Send a message sequence to the simulator and free the messages
-   */
-  void processMessageSequence(std::vector<const PlexilMsgBase*>& msgs);
-
-  /**
    * @brief Send a command to the simulator
    */
-  void processCommand(std::vector<const PlexilMsgBase*>& msgs);
+  void processCommand(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Deal with a LookupNow request
    */
-  void processLookupNow(std::vector<const PlexilMsgBase*>& msgs);
+  void processLookupNow(const std::vector<const PlexilMsgBase*>& msgs);
 
-  /**
-   * @brief Deal with a LookupOnChange request
-   */
-  void processLookupOnChange(std::vector<const PlexilMsgBase*>& msgs);
-
-
+  //* brief Class to receive messages from Ipc
+  class MessageListener : public PLEXIL::IpcMessageListener  {
+  public:
+    MessageListener(IpcCommRelay&);
+    ~MessageListener();
+    void ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs);
+  private:
+    IpcCommRelay& m_adapter;
+  };
 
   //
   // Private data types
@@ -144,20 +111,14 @@ private:
   // Member variables
   //
 
-  //* @brief Cache of incomplete received message data
-  IncompleteMessageMap m_incompletes;
+  //* @brief Handler for the IPC connection
+  PLEXIL::IpcFacade m_ipcFacade;
   
   //* @brief Map from state name to unique ID of LookupOnChange request
   NameUniqueIDMap m_stateUIDMap;
 
-  //* @brief Unique ID of this adapter instance
-  std::string m_myUID;
-
-  //* @brief Thread ID of IPC dispatch thread
-  pthread_t m_thread;
-
-  //* @brief Serial number used in transactions.
-  uint32_t m_serial;
+  //* @brief Message handler for IPC
+  MessageListener m_listener;
 
 };
 

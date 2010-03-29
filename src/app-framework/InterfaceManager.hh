@@ -271,10 +271,16 @@ namespace PLEXIL
     void batchActions(std::list<FunctionCallId>& functionCalls);
     void updatePlanner(std::list<UpdateId>& updates);
 
-    //abort the given command with the given arguments that had the acknowledgment cmd_ack.  store the abort-complete into ack
-    void invokeAbort(const LabelStr& name,
-		     const std::list<double>& args,
-		     ExpressionId cmd_ack, ExpressionId ack);
+    /**
+     * @brief Abort the pending command with the supplied name and arguments.
+     * @param cmdName The LabelString representing the command name.
+     * @param cmdArgs The command arguments expressed as doubles.
+     * @param cmdAck The acknowledgment of the pending command
+     * @param abrtAck The expression in which to store an acknowledgment of command abort.
+     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+     */
+
+    void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
 
     double currentTime();
 
