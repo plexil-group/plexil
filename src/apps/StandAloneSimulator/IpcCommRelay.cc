@@ -83,7 +83,7 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
         << ((respMsg->getMessageType() == MSG_COMMAND) ? "command" : "lookup")
         << " \"" << respMsg->getName() << "\"");
     const IpcMessageId* transId = static_cast<const IpcMessageId*> (respMsg->getId());
-    m_ipcFacade.publishReturnValues(transId->second, respMsg->getName(), ret_list);
+    m_ipcFacade.publishReturnValues(transId->second, transId->first, ret_list);
   }
     break;
 

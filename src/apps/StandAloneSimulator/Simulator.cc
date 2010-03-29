@@ -320,6 +320,8 @@ void Simulator::handleWakeUp()
       {
 	ResponseMessage* resp = iter->second;
 	m_CommRelay->sendResponse(resp);
+	ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
+	manager->notifyMessageSent(resp->getResponseBase());
 	debugMsg("Simulator:handleWakeUp", " Sent response");
 	// delete resp; // handled by comm relay
 	m_TimeToResp.erase(iter);

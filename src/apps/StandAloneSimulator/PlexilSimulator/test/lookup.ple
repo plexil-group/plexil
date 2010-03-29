@@ -1,0 +1,41 @@
+//The controlling plan
+//This plan tests lookups over IPC. This plan models a loop that tells the simulator to move to the right a number of units
+//equal to the current value of x. It is assumed that x always starts at a positive value
+//When x reaches 15, the plan finishes and sends out the "Quit" message
+
+//The lookup located on Interface.ple
+Integer Lookup x;
+
+MasterPlan:
+{
+	Boolean continue = true;
+	Sequence
+		{
+		NodeList:
+			// When x >= 14, send out the quit message
+			OnX:
+			{
+				StartCondition: LookupOnChange(x) >= 14;
+				Sequence
+				{
+					Command: SendMessage("Quit");
+				}
+				{
+					Assignment: continue = false;
+				}
+			}
+			Right:
+			{
+				// The current value of x
+				Integer curX;
+				// Repeat as long as x is less than 14
+				RepeatCondition:continue;
+			Sequence
+				//update current value of x
+				UpdateX:
+				{
+					Assignment: curX = LookupNow(x);
+				}
+			}
+		}
+}
