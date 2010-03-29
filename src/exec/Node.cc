@@ -1643,8 +1643,8 @@ namespace PLEXIL {
     if(getType() == Node::COMMAND() && m_command.isValid())
       m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
                                                   m_command->getArgValues(),
-                                                  m_command->m_ack,
-                                                  m_conditionsByName[ABORT_COMPLETE()]);
+                                                  m_conditionsByName[ABORT_COMPLETE()],
+                                                  m_command->m_ack);
     else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
       m_assignment->getDest()->setValue(Expression::UNKNOWN());
     else {
