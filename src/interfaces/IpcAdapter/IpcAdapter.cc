@@ -843,7 +843,7 @@ void IpcAdapter::handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs) 
   ExternalLookupMap::iterator it = m_externalLookups.find(lookup.getKey());
   if (it == m_externalLookups.end()) {
     debugMsg("IpcAdapter:handleLookupNow", " undefined external lookup" << msg->stringValue
-        << ", returning UNKNOWN");
+        << ", discarding");
   } else {
     debugMsg("IpcAdapter:handleLookupNow", " Publishing value of external lookup \"" << msg->stringValue
         << "\" with internal value '" << (*it).second << "'");
