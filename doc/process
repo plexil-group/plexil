@@ -1,0 +1,104 @@
+#wget -i plexil_links.txt
+#sed -f /root/sed pageFull > tester1
+
+/<script.*script>/s///
+/<script/,/script>/{
+			/<script/{
+				h
+				d
+			}
+			/script>/!{
+				H
+				d
+				}
+			/script>/{
+				x
+				G
+				}
+		s/<script.*script>//
+		}
+		
+/<div class="printfooter">.*<!-- Served.*secs. -->/s///
+/<div class="printfooter">/,/<!-- Served.*secs. -->/{
+	/<div class="printfooter">/{
+				h
+				d
+				}
+			/<!-- Served.*secs. -->/!{
+				H
+				d
+				}
+			/<!-- Served.*secs. -->/{
+				x
+				G
+				}
+		s/<div class="printfooter">.*<!-- Served.*secs. -->//
+		}
+
+/<p>Copyright.*<[/]p>/s///
+/<p>Copyright/,/<[/]p>/{
+	/<p>Copyright/{
+				h
+				d
+				}
+			/<[/]p>/!{
+				H
+				d
+				}
+			/<[/]p>/{
+				x
+				G
+				}
+		s/<p>Copyright.*<[/]p>//
+		}
+		
+/Welcome.*Account/s///
+/Welcome/,/Account/{
+	/Welcome/{
+				h
+				d
+				}
+			/Account/!{
+				H
+				d
+				}
+			/Account/{
+				x
+				G
+				}
+		s/Welcome.*Account//
+		}		
+
+/<p class="copyright">.*<[/]p>/s///
+/<p class="copyright">/,/<[/]p>/{
+	/<p class="copyright">/{
+				h
+				d
+				}
+			/<[/]p>/!{
+				H
+				d
+				}
+			/<[/]p>/{
+				x
+				G
+				}
+		s/<p class="copyright">.*<[/]p>//
+		}
+
+/<h3 id="siteSub">From plexil.*h3>/s///
+/<h3 id="siteSub">From plexil/,/h3>/{
+	/<h3 id="siteSub">From plexil/{
+				h
+				d
+				}
+			/h3>/!{
+				H
+				d
+				}
+			/h3>/{
+				x
+				G
+				}
+		s/<h3 id="siteSub">From plexil.*h3>//
+		}

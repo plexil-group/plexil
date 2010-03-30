@@ -1,0 +1,42 @@
+Author: Jason Ho
+
+--- Requirements ---
+This Application requires the following components:
+
+htmldoc (http://www.htmldoc.org/software.php)
+bash
+	wget
+	sed
+	exec
+
+--- How to Use? ---
+cd /extraction/folder/
+./docHtmlPull
+
+output file should be book2.pdf
+
+
+---Contents Include: ---
+README
+	this document
+
+docHtmlPull
+	main bash script to automate all features
+
+parse
+	sed script to clean links into usable formats based upon sourceforge
+	index
+
+PictureMan.book
+	configuration file for htmldoc to produce standardized pdf file
+	
+process
+	sed script to remove extraneous details from html pages
+	
+--- How it Works? ---
+Pulls all relevant links from Plexil sourceforge website index
+downloads relevant pages based upon index into sourceforge root folder
+cleans links based upon names
+formats html files to build a usable index for dochtml in a clean folder
+passes html documents to htmldoc to produce PDF
+

@@ -1,0 +1,13 @@
+#sed -nf /root/parse intro
+
+/Chapter/{
+s/<ul>.*<li> //g
+s/" title.*//gw naming.txt
+s/.*<a href="//gw plexil_links.txt
+}
+
+/Appendix/{
+s/<ul>.*<li> /x/g
+s/" title.*//gw naming.txt
+s/.*<a href="//gw plexil_links.txt
+}

@@ -1,0 +1,114 @@
+#!/bin/bash
+parse="./parse"
+if [ -e $parse ]; then
+	:
+else 
+	echo "$parse does not exists"
+	exit 1
+fi 
+
+process="./process"
+if [ -e $process ]; then
+	:
+else 
+	echo "$process does not exists"
+	exit 1
+fi 
+
+bookTemplate="./PictureMan.book"
+if [ -e $bookTemplate ]; then
+	:
+else 
+	echo "$bookTemplate does not exists"
+	exit 1
+fi 
+
+wget -O intro -k http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction
+
+touch plexil_links.txt
+echo 'http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction' >> plexil_links.txt
+
+sed -nf ./parse intro
+
+intro="./intro"
+if [ -e $intro ]; then
+	rm intro
+else 
+	echo "$intro does not exists"
+fi 
+
+#wget -A.jpg -x --cut-dirs=12 -r -l1 -np -i plexil_links.txt
+#wget -A.png -x --cut-dirs=12 -r -l1 -np -i plexil_links.txt
+wget -x --convert-links --cut-dirs=12 -i plexil_links.txt
+echo
+echo
+echo "----downloading completed----"
+echo
+echo
+links="./plexil_links.txt"
+if [ -e $links ]; then
+	rm plexil_links.txt
+	#echo "" > /dev/null
+else 
+	echo "$links does not exists"
+fi 
+
+mkdir clean
+echo
+echo
+echo "----Cleaning links----"
+echo
+echo
+sf="./sourceforge.net"
+if [ -d $sf ]; then
+	for f in $(ls $sf); do 
+		if [[ ( $f =~ ".*png" ) || ( $f =~ ".*jpg" ) ]]
+		then
+			echo "" > /dev/null		
+		else	
+			if [[ $f =~ ".*title=.*" ]]
+			then
+				sed -f $process $sf/$f > clean/$f
+			fi
+		fi
+	done
+else 
+	echo "$sf does not exists"
+fi 
+
+names="./naming.txt"
+if [ -e $names ]; then
+	sed 's/: <a.*plexil[/]/|/g' $names > names.txt
+	rm $names
+else 
+	echo "$names does not exists"
+fi 
+
+echo
+echo
+echo "----Formatting links----"
+echo
+echo
+names="names.txt"
+	
+chapters=$(wc -l $names | sed 's/ .*//')
+
+cleanFld="clean"
+if [ -d $cleanFld ]; then
+	while read line
+	do 
+	    grab=$line
+	    messy=$(echo $grab | sed 's/.*|//')	    
+	    clean=$(echo $grab | sed 's/|.*//')
+	    if [ -e $cleanFld/$messy ]; then
+		mv $cleanFld/$messy $cleanFld/"$clean".html
+	    else 
+		echo "Error: $messy does not exists"
+	     fi 
+	done < $names
+	rm $names
+else 
+	echo "Error: $cleanFld does not exists"
+fi 
+
+exec htmldoc --batch $bookTemplate
