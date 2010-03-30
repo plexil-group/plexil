@@ -29,6 +29,9 @@ import static gov.nasa.luv.Constants.DEBUG_CFG_FILE;
 import static gov.nasa.luv.Constants.TEST_EXEC;
 import static gov.nasa.luv.Constants.UE_TEST_EXEC;
 import static gov.nasa.luv.Constants.UE_EXEC;
+import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
+import static gov.nasa.luv.Constants.RUN_UE_EXEC;
+
 import static gov.nasa.luv.Constants.UNKNOWN;
 import gov.nasa.luv.runtime.AbstractPlexilExecutiveCommandGenerator;
 import gov.nasa.luv.runtime.ExecutiveCommandGenerationException;
@@ -283,6 +286,16 @@ public class ExecutionHandler
               Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: unable to execute " + kill_ue);
           }
       }
+
+  	/**
+  	 * Determine status of Execution Thread.
+  	 * 
+  	 * @return whether an internal instance is still runnning
+  	 */
+
+  	public boolean isAlive() {
+  		return runThread.isAlive();
+  	}      
       
       private void displayProcessMessagesToDebugWindow(Process ue_process) throws IOException
       {
@@ -322,10 +335,10 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  System.out.println("Using Universal Executive...");
 
 	  if (Luv.getLuv().allowTest()){
-		  command = UE_TEST_EXEC + " -v";  
+		  command = RUN_TEST_EXEC + " -v";  
 	  }
 	  else
-		  command = UE_EXEC + " -v";
+		  command = RUN_UE_EXEC + " -v";
 	  
 
 	  if (Luv.getLuv().breaksAllowed()){

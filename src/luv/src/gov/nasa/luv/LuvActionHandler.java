@@ -26,6 +26,9 @@
 package gov.nasa.luv;
 
 import gov.nasa.luv.FindWindow;
+import gov.nasa.luv.Luv;
+import gov.nasa.luv.LuvAction;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -374,32 +377,35 @@ public class LuvActionHandler {
                     }
                 }
             };
-    /** Action to allow testExec. */
-    public static LuvAction allowTestAction =
-            new LuvAction("Enable TestExec",
-            "Select this to enable or disable TestExec and Scripts.",
-            VK_F12) {
+	/** Action to allow testExec. */
+	public static LuvAction allowTestAction = new LuvAction("Use TestExec",
+			"Select this to enable TestExec and Scripts or UniversalExec and Configs.", VK_F12) {
 
-                public void actionPerformed(ActionEvent e) {
-                    if (!Luv.getLuv().getIsExecuting()) {
-                        Luv.getLuv().setTestExecAllowed(!Luv.getLuv().allowTest());
+		public void actionPerformed(ActionEvent e) {
+			if (!Luv.getLuv().getIsExecuting()) {
+				Luv.getLuv().setTestExecAllowed(!Luv.getLuv().allowTest());
 
-                        if (Luv.getLuv().allowTest()) {                            
-                            Luv.getLuv().getStatusMessageHandler().showStatus("Enabled TestExec", Color.GREEN.darker(), 1000);
-                            putValue(NAME, "Disable TestExec");
-                            openScriptAction.putValue(NAME, "Open Script");
-                            openScriptAction.putValue(SHORT_DESCRIPTION, "Open a plexil script file.");                            
-                            
-                        } else {                            
-                            Luv.getLuv().getStatusMessageHandler().showStatus("Disabled TestExec", Color.RED, 1000);
-                            putValue(NAME, "Enable TestExec");
-                            openScriptAction.putValue(NAME, "Open interface-config.xml");
-                            openScriptAction.putValue(SHORT_DESCRIPTION, "Open a config file");
-                            
-                        }
-                    }
-                }
-            };            
+				if (Luv.getLuv().allowTest()) {
+					Luv.getLuv().getStatusMessageHandler().showStatus(
+							"Use TestExec", Color.GREEN.darker(), 1000);
+					putValue(NAME, "Use UniversalExec");
+					openScriptAction.putValue(NAME, "Open Script");
+					openScriptAction.putValue(SHORT_DESCRIPTION,
+							"Open a plexil script file.");
+
+				} else {
+					Luv.getLuv().getStatusMessageHandler().showStatus(
+							"Use UniversalExec", Color.RED, 1000);
+					putValue(NAME, "Enable TestExec");
+					openScriptAction
+							.putValue(NAME, "Open interface-config.xml");
+					openScriptAction.putValue(SHORT_DESCRIPTION,
+							"Open a config file");
+
+				}
+			}
+		}
+	};
     /** Action to fully expand tree. */
     public static LuvAction expandAll = new LuvAction(
             "Expand All", "Expand all tree nodes.", VK_EQUALS) {

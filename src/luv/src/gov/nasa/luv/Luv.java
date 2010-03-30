@@ -178,7 +178,7 @@ public class Luv extends JFrame {
         viewHandler = new ViewHandler();
         hideOrShowWindow = new HideOrShowWindow();
         debugWindow = new DebugWindow();
-        debugHistoryWindow = new DebugHistoryWindow();
+        //debugHistoryWindow = new DebugHistoryWindow();
 
         createCFGFileWindow = new CreateCFGFileWindow();
         sourceWindow = new SourceWindow();
@@ -607,7 +607,7 @@ public class Luv extends JFrame {
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
-        debugMenu.add(LuvActionHandler.luvDebugHistoryWindowAction);
+        //debugMenu.add(LuvActionHandler.luvDebugHistoryWindowAction);
         debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
         debugMenu.add(LuvActionHandler.aboutWindowAction);        
     }

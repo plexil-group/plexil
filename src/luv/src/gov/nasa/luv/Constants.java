@@ -130,16 +130,30 @@ public class Constants
       
       /** Represents the "test executive" for PLEXIL. */ 
       public static final String    TEST_EXEC = "test-exec_g_rt";
-
-      /** Represents the script for running the "Universal executive" for PLEXIL. */ 
+      
+      /** Represents the "universal executive" for PLEXIL. */ 
       public static final String    UE_EXEC = PLEXIL_HOME +
+										      System.getProperty("file.separator") + 
+										      "bin" + 
+										      System.getProperty("file.separator") + 
+										      "universalExec";
+
+      /** Represents the "test executive" for PLEXIL. */ 
+      public static final String    UE_TEST_EXEC = PLEXIL_HOME +
+										      System.getProperty("file.separator") + 
+										      "bin" + 
+										      System.getProperty("file.separator") + 
+										      "TestExec";
+      
+      /** Represents the script for running the "Universal executive" for PLEXIL. */ 
+      public static final String    RUN_UE_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
-                                              "universalExec";
+                                              "run-ue";
       
       /** Represents the script for running the "test executive" for PLEXIL. */ 
-      public static final String    UE_TEST_EXEC = PLEXIL_HOME +
+      public static final String    RUN_TEST_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
@@ -475,7 +489,9 @@ public class Constants
       };
       
       /** Represents an empty Plexil script. */ 
-      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";    
+      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
+      /** Represents an default UE config. */
+      public static final String DEFAULT_CONFIG_NAME = "interface-config.xml";
       /** Contains the contents of an empty Plexil script. */
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
  

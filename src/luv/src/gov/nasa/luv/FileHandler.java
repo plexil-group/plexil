@@ -26,6 +26,8 @@
 
 package gov.nasa.luv;
 
+import gov.nasa.luv.Luv;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.FileWriter;
@@ -225,7 +227,7 @@ public class FileHandler
         if (script == null)
         {
             directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator");
-            script = createEmptyScript(directory);
+				script = createEmptyScript(directory);
         }
 
         if (!doNotLoadScript)
@@ -246,11 +248,14 @@ public class FileHandler
     public int chooseScript()
     {
 	int option = -1;
+	String supplement = "Script";
+	if (! Luv.getLuv().allowTest())
+		supplement = "Config";
 	try 
         {
             fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR)));
             
-            if (fileChooser.showDialog(dirChooser, "Open Script") == APPROVE_OPTION)
+            if (fileChooser.showDialog(dirChooser, "Open " + supplement) == APPROVE_OPTION)
             {
                     File script = fileChooser.getSelectedFile();
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
@@ -546,37 +551,51 @@ public class FileHandler
     
     private File createEmptyScript(String path) throws IOException 
     {
+    
+    String supplement = "script";
+    String defaultSup = "empty " + supplement;
+    if (! Luv.getLuv().allowTest()) {
+    	supplement = "config";
+    	defaultSup = "default " + supplement;
+    }
+    	
 	Object[] options = 
 	    {
-		"Yes, use empty script",
-		"No, I will locate Script",
+		"Yes, use " + defaultSup,
+		"No, I will locate " + supplement,
 		"Cancel plan execution"
 	    };
+		
          
 	int option = 
 	    JOptionPane.showOptionDialog(Luv.getLuv(),
-					 "Unable to locate a script for this plan. \n\nDo you want to use the following default empty script?\n\n"
+					 "Unable to locate a " + supplement + " for this plan. \n\nDo you want to use the following default "+ supplement +"?\n\n"
 					 + Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)
 					 + System.getProperty("file.separator")
 					 + DEFAULT_SCRIPT_NAME
 					 + "\n\n",
-					 "Default Script Option",
+					 "Default "+ supplement +" Option",
 					 JOptionPane.YES_NO_CANCEL_OPTION,
 					 JOptionPane.WARNING_MESSAGE,
 					 null,
 					 options,
-					 options[0]);
+					 options[0]);	
         
         switch (option)
         {
             case 0:
-                String scriptName = path + DEFAULT_SCRIPT_NAME;
-                FileWriter emptyScript = new FileWriter(scriptName);
-                BufferedWriter out = new BufferedWriter(emptyScript);
-                out.write(EMPTY_SCRIPT);
-                out.close();                          
-                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
-                return new File(scriptName);
+            	String scriptName = path + DEFAULT_SCRIPT_NAME;
+            	if (Luv.getLuv().allowTest()){	                
+	                FileWriter emptyScript = new FileWriter(scriptName);
+	                BufferedWriter out = new BufferedWriter(emptyScript);
+	                out.write(EMPTY_SCRIPT);
+	                out.close();                          
+	                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
+	                return new File(scriptName);
+            	} else {
+            		return new File(path + DEFAULT_CONFIG_NAME);
+            	}
+            		
             case 1:
                 if (chooseScript() == APPROVE_OPTION)
                     return new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_BASE));
@@ -591,4 +610,5 @@ public class FileHandler
         
         return null;
     }
+        
 }
