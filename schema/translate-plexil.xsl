@@ -39,7 +39,7 @@
   -->
 
   <xsl:key name="action"
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|OnCommand"
     use="." />
 
   <!-- Entry point -->
