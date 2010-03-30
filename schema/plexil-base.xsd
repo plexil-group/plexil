@@ -724,6 +724,8 @@
          <xsd:enumeration value="COMMAND_RCVD_BY_SYSTEM"/>
          <xsd:enumeration value="COMMAND_FAILED"/>
          <xsd:enumeration value="COMMAND_SUCCESS"/>
+         <xsd:enumeration value="COMMAND_ABORTED"/>
+         <xsd:enumeration value="COMMAND_ABORT_FAILED"/>
        </xsd:restriction>
      </xsd:simpleType>
    </xsd:element>

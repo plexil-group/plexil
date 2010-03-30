@@ -426,8 +426,10 @@ NodeCommandHandleValue =
       | xsd:NMTOKEN "COMMAND_SUCCESS"
       | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
       | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_ABORTED"
       | xsd:NMTOKEN "COMMAND_FAILED"
       | xsd:NMTOKEN "COMMAND_DENIED"
+      | xsd:NMTOKEN "COMMAND_ABORT_FAILED"
     }
 ABS =
   notAllowed

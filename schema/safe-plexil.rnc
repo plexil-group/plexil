@@ -336,6 +336,9 @@ Pair =
       element Name { NCName },
       (Value | DeclaredVariable | LookupNow)
     }
+Concat =
+  notAllowed
+  | element Concat { StringExpression* }
 nonNegativeInteger = xsd:nonNegativeInteger
 EQString =
   notAllowed
@@ -464,8 +467,10 @@ NodeCommandHandleValue =
       | xsd:NMTOKEN "COMMAND_SUCCESS"
       | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
       | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_ABORTED"
       | xsd:NMTOKEN "COMMAND_FAILED"
       | xsd:NMTOKEN "COMMAND_DENIED"
+      | xsd:NMTOKEN "COMMAND_ABORT_FAILED"
     }
 Assignment =
   notAllowed
@@ -634,9 +639,6 @@ NCNameOrEmpty = xsd:NCName | xsd:string ""
 SQRT =
   notAllowed
   | element SQRT { NumericExpression }
-Concat =
-  notAllowed
-  | element Concat { StringExpression* }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

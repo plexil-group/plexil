@@ -173,6 +173,16 @@ Request =
 EQNumeric =
   notAllowed
   | element EQNumeric { NumericExpression, NumericExpression }
+OnMessage =
+  notAllowed
+  | element OnMessage {
+      (element Message { StringExpression }
+       & NodeId?
+       & Action*),
+      ColNo?,
+      LineNo?,
+      FileName?
+    }
 Action =
   Node
   | Sequence
@@ -332,9 +342,9 @@ DeclareVariable =
     }
 StringExpression =
   StringVariable | StringValue | Concat | Lookup | ArrayElement
-While =
+If =
   notAllowed
-  | element While {
+  | element If {
       (NodeId?
        & element Comment { \string }?
        & StartCondition?
@@ -349,7 +359,8 @@ While =
        & Interface?
        & VariableDeclarations?),
       element Condition { BooleanExpression },
-      element Action { Action },
+      element Then { Action },
+      element Else { Action }?,
       ColNo?,
       LineNo?,
       FileName?
@@ -451,16 +462,9 @@ TypeValues =
   | xsd:NMTOKEN "Boolean"
   | xsd:NMTOKEN "Real"
 NodeState = NodeStateVariable | NodeStateValue
-StateDeclaration =
+While =
   notAllowed
-  | element StateDeclaration {
-      element Name { NCName },
-      Return,
-      Parameter*
-    }
-For =
-  notAllowed
-  | element For {
+  | element While {
       (NodeId?
        & element Comment { \string }?
        & StartCondition?
@@ -474,13 +478,18 @@ For =
        & element Permissions { \string }?
        & Interface?
        & VariableDeclarations?),
-      element LoopVariable { DeclareVariable },
       element Condition { BooleanExpression },
-      element LoopVariableUpdate { NumericExpression },
       element Action { Action },
       ColNo?,
       LineNo?,
       FileName?
+    }
+StateDeclaration =
+  notAllowed
+  | element StateDeclaration {
+      element Name { NCName },
+      Return,
+      Parameter*
     }
 NodeOutcomeValue =
   notAllowed
@@ -495,12 +504,10 @@ StartCondition =
 VariableDeclarations =
   notAllowed
   | element VariableDeclarations { (DeclareVariable | DeclareArray)+ }
-OnMessage =
+OnCommand =
   notAllowed
-  | element OnMessage {
-      (element Message { StringExpression }
-       & NodeId?
-       & Action*),
+  | element OnCommand {
+      (Name & NodeId? & VariableDeclarations? & Action*),
       ColNo?,
       LineNo?,
       FileName?
@@ -512,8 +519,10 @@ NodeCommandHandleValue =
       | xsd:NMTOKEN "COMMAND_SUCCESS"
       | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
       | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_ABORTED"
       | xsd:NMTOKEN "COMMAND_FAILED"
       | xsd:NMTOKEN "COMMAND_DENIED"
+      | xsd:NMTOKEN "COMMAND_ABORT_FAILED"
     }
 Concurrence =
   notAllowed
@@ -567,29 +576,6 @@ Tolerance =
 MessageReceived =
   notAllowed
   | element MessageReceived { StringExpression }
-If =
-  notAllowed
-  | element If {
-      (NodeId?
-       & element Comment { \string }?
-       & StartCondition?
-       & RepeatCondition?
-       & PreCondition?
-       & PostCondition?
-       & InvariantCondition?
-       & EndCondition?
-       & SkipCondition?
-       & element Priority { nonNegativeInteger }?
-       & element Permissions { \string }?
-       & Interface?
-       & VariableDeclarations?),
-      element Condition { BooleanExpression },
-      element Then { Action },
-      element Else { Action }?,
-      ColNo?,
-      LineNo?,
-      FileName?
-    }
 SQRT =
   notAllowed
   | element SQRT { NumericExpression }
@@ -718,10 +704,26 @@ Waiting =
   notAllowed
   | element Waiting { node-reference }
 \string = xsd:string
-OnCommand =
+For =
   notAllowed
-  | element OnCommand {
-      (Name & NodeId? & VariableDeclarations? & Action*),
+  | element For {
+      (NodeId?
+       & element Comment { \string }?
+       & StartCondition?
+       & RepeatCondition?
+       & PreCondition?
+       & PostCondition?
+       & InvariantCondition?
+       & EndCondition?
+       & SkipCondition?
+       & element Priority { nonNegativeInteger }?
+       & element Permissions { \string }?
+       & Interface?
+       & VariableDeclarations?),
+      element LoopVariable { DeclareVariable },
+      element Condition { BooleanExpression },
+      element LoopVariableUpdate { NumericExpression },
+      element Action { Action },
       ColNo?,
       LineNo?,
       FileName?
