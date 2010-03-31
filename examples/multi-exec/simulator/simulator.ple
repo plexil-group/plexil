@@ -9,13 +9,14 @@ Interface:
 	//The integer lookup, x
 	Integer x = 1;
 	Boolean continue = true;
+	Invariant: continue;
 	NodeList:
-		Loop:
-		{
-			RepeatCondition: continue;
-			EndCondition: RecMoveRight.state == FINISHED || RecQuit.state == FINISHED;
-			NodeList:
 				//The handler for the command MoveRight(Integer dX)
+                //Fix for a current issue with aborting OnCommand and OnMessage nodes
+                RepeatMoveRight:
+                {
+                  RepeatCondition: continue;
+                  NodeList:
 				RecMoveRight:
 				{
 					OnCommand MoveRight ( Integer modX ) {
@@ -36,7 +37,13 @@ Interface:
 						}
 					}
 				}
+                }
 				//The handler for the message 'Quit' goes here
+                //Fix for a current issue with aborting OnCommand and OnMessage nodes
+                RepeatMoveRight:
+                {
+                  RepeatCondition: continue;
+                  NodeList:
 				RecQuit:
 				{
 					OnMessage ("Quit") {
@@ -46,5 +53,5 @@ Interface:
 						}
 					}
 				}
-		}
+                }
 }
