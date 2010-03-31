@@ -5,10 +5,7 @@
       <NodeId>foo</NodeId>
     </Node>
     <Node NodeType= "Empty">
-      <NodeId>foo</NodeId>
-    </Node>
-    <Node NodeType= "Empty">
-      <NodeId>foo</NodeId>
+      <NodeId>bar</NodeId>
     </Node>
   </OnMessage>
 </PlexilPlan>
