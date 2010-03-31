@@ -1,3 +1,0 @@
-#! /bin/sh 
-
-java -jar $PLEXIL_HOME/third-party/jars/saxon8.jar $*

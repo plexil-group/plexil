@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -50,5 +50,5 @@ if [ $# = 2 ]
     exit 1
 fi
 
-$PLEXIL_HOME/bin/saxon8 -o $output_file $input_file  $PLEXIL_HOME/schema/translate-plexil.xsl
+$PLEXIL_HOME/bin/saxon-xslt -o $output_file $input_file  $PLEXIL_HOME/schema/translate-plexil.xsl
 
