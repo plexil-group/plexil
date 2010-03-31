@@ -231,12 +231,13 @@ public class DeclChecker {
 		
 		// Find all Lookup sub expressions in ex, and check they are both accessible the right type
 		for (Expr e : findSubExprs(ex, ExprElement.Lookup))
-		{
+		{			
 			LookupExpr le = (LookupExpr)e;
-			if (le.getType().equals(ExprType.NodeState) ||
-                            le.getType().equals(ExprType.NodeTimepointValue) ||
-                            le.getType().equals(ExprType.NodeOutcome))
-				continue; // NodeState/Outcome should not exist for lookups
+			if (le.getType() != null)
+				if (le.getType().equals(ExprType.NodeState) ||
+                        	    le.getType().equals(ExprType.NodeTimepointValue) ||
+                        	    le.getType().equals(ExprType.NodeOutcome))
+					continue; // NodeState/Outcome should not exist for lookups
 			
 			if (le.getAction() == null)
 				continue;
