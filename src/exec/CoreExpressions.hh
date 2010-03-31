@@ -909,7 +909,7 @@ namespace PLEXIL {
 
   protected:
   private:
-    bool checkValue(const double value) {return true;}
+    bool checkValue(const double /* value */) {return true;}
   };
 
   class Subtraction : public BinaryExpression
@@ -936,7 +936,7 @@ namespace PLEXIL {
 
   protected:
   private:
-    bool checkValue(const double value) {return true;}
+    bool checkValue(const double /* value */) {return true;}
   };
 
   class Multiplication : public BinaryExpression
@@ -963,7 +963,7 @@ namespace PLEXIL {
 
   protected:
   private:
-    bool checkValue(const double value) {return true;}
+    bool checkValue(const double /* value */) {return true;}
   };
 
   class Division : public BinaryExpression
@@ -990,7 +990,7 @@ namespace PLEXIL {
 
   protected:
   private:
-    bool checkValue(const double value) {return true;}
+    bool checkValue(const double /* value */) {return true;}
   };
 
 

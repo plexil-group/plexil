@@ -227,7 +227,7 @@ namespace PLEXIL {
     /**
      * @brief Check to make sure a value is appropriate for this expression.
      */
-    virtual bool checkValue(const double val) {return false;}
+    virtual bool checkValue(const double /* val */) {return false;}
 
     /**
      * @brief Disregard to the expression value that has been cached. 
@@ -239,7 +239,7 @@ namespace PLEXIL {
      * @param exp The changed subexpression.
      * @note The default method does nothing.
      */
-    virtual void handleChange(const ExpressionId& exp) {}
+    virtual void handleChange(const ExpressionId& /* exp */) {}
 
   protected:
 
@@ -271,14 +271,14 @@ namespace PLEXIL {
      * @param changed True if the call to activate actually caused a change from inactive to
      *                active.
      */
-    virtual void handleActivate(const bool changed) {}
+    virtual void handleActivate(const bool /* changed */) {}
 
     /**
      * @brief Handle the deactivation of the expression
      * @param changed True if the call to deactivate actually caused a change from active to
      *                inactive.
      */
-    virtual void handleDeactivate(const bool changed) {}
+    virtual void handleDeactivate(const bool /* changed */) {}
 
     ExpressionId m_id; /*<! The Id for this Expression */
     unsigned int m_activeCount;
@@ -526,7 +526,7 @@ namespace PLEXIL {
      * @note The default method is a no-op.
      * @note As of 25 Nov 2008, there appear to be no other implementations of this method.
      */
-    virtual void handleSubexpressionChange(const ExpressionId& exp) {}
+    virtual void handleSubexpressionChange(const ExpressionId& /* exp */) {}
 
     void addSubexpression(const ExpressionId& exp, const bool garbage);
 

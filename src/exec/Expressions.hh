@@ -71,7 +71,7 @@ namespace PLEXIL {
      * @note The current method simply returns true.
      * @note In a future enhancement, this should validate against global declarations.
      */
-    bool checkValue(const double value)
+    bool checkValue(const double /* value */)
     { 
       return true;
     }

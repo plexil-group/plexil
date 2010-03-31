@@ -170,8 +170,8 @@ namespace PLEXIL
      * @note The current state is accessible via the node.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyNodeTransition(const LabelStr& prevState,
-                                               const NodeId& node) const
+    virtual void implementNotifyNodeTransition(const LabelStr& /* prevState */,
+                                               const NodeId& /* node */) const
     {
     }
 
@@ -181,8 +181,8 @@ namespace PLEXIL
      * @param parent The name of the parent node under which this plan will be inserted.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddPlan(const PlexilNodeId& plan, 
-                                        const LabelStr& parent) const
+    virtual void implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
+                                        const LabelStr& /* parent */) const
     {
     }
 
@@ -191,7 +191,7 @@ namespace PLEXIL
      * @param libNode The intermediate representation of the plan.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddLibrary(const PlexilNodeId& libNode) const
+    virtual void implementNotifyAddLibrary(const PlexilNodeId& /* libNode */) const
     {
     }
 
@@ -201,9 +201,9 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    virtual void implementNotifyAssignment(const ExpressionId & dest,
-                                           const std::string& destName,
-                                           const double& value) const
+    virtual void implementNotifyAssignment(const ExpressionId & /* dest */,
+                                           const std::string& /* destName */,
+                                           const double& /* value */) const
     {
     }
     
