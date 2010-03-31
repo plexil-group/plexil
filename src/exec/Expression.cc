@@ -57,7 +57,7 @@ namespace PLEXIL {
     m_exp->handleChange(exp);
   }
 
-  Expression::Expression(PlexilExpr* expr, const NodeConnectorId& node)
+  Expression::Expression(PlexilExpr* /* expr */, const NodeConnectorId& node)
     : m_id(this),
       m_activeCount(0), 
       m_value(UNKNOWN()), 
@@ -363,7 +363,7 @@ namespace PLEXIL {
                                                del);
    }
 
-  void Calculable::setValue(const double value) {
+  void Calculable::setValue(const double /* value */) {
     checkError(ALWAYS_FAIL, "Shouldn't set the value of a calculable expression.");
   }
 
@@ -435,29 +435,29 @@ namespace PLEXIL {
     return str.str();
   }
 
-  void ConstVariableWrapper::setValue(const double value) {
+  void ConstVariableWrapper::setValue(const double /* value */) {
     checkError(ALWAYS_FAIL,
 	       "Attempted to set the value of a const expression.");
   }
 
-  bool ConstVariableWrapper::checkValue(const double val) {
+  bool ConstVariableWrapper::checkValue(const double /* val */) {
     checkError(ALWAYS_FAIL,
 	       "Attempted to check an incoming value for const expresssion " << toString());
     return false;
   }
 
-  void ConstVariableWrapper::handleActivate(const bool changed) {
+  void ConstVariableWrapper::handleActivate(const bool /* changed */) {
     checkError(m_exp.isValid(), "Got to handleActivate without a valid wrapped variable.");
     m_listener.activate();
     m_exp->activate();
   }
-  void ConstVariableWrapper::handleDeactivate(const bool changed) {
+  void ConstVariableWrapper::handleDeactivate(const bool /* changed */) {
     checkError(m_exp.isValid(), "Got to handleDeactivate without a valid wrapped variable.");
     m_listener.deactivate();
     m_exp->deactivate();
   }
 
-  void ConstVariableWrapper::handleChange(const ExpressionId& expr) {
+  void ConstVariableWrapper::handleChange(const ExpressionId& /* expr */) {
     checkError(m_exp.isValid(), "Got to handleChange without a valid wrapped variable.");
     publishChange();
   }
@@ -505,14 +505,14 @@ namespace PLEXIL {
     return m_exp->valueString();
   }
 
-  void TransparentWrapper::handleActivate(const bool changed) {
+  void TransparentWrapper::handleActivate(const bool /* changed */) {
     m_listener.activate();
     m_exp->activate();
     if(m_exp->isActive())
       internalSetValue(m_exp->getValue());
   }
 
-  void TransparentWrapper::handleDeactivate(const bool changed) {
+  void TransparentWrapper::handleDeactivate(const bool /* changed */) {
     m_exp->deactivate();
     m_listener.deactivate();
   }

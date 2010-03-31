@@ -191,8 +191,8 @@ namespace PLEXIL
    * @note The default method simply returns true.
    */
   bool 
-  ExecListenerFilter::reportNodeTransition(const LabelStr& prevState, 
-                                           const NodeId& node)
+  ExecListenerFilter::reportNodeTransition(const LabelStr& /* prevState */, 
+                                           const NodeId& /* node */)
   {
     return true;
   }
@@ -205,8 +205,8 @@ namespace PLEXIL
    * @note The default method simply returns true.
    */
   bool
-  ExecListenerFilter::reportAddPlan(const PlexilNodeId& plan,
-                                    const LabelStr& parent)
+  ExecListenerFilter::reportAddPlan(const PlexilNodeId& /* plan */,
+                                    const LabelStr& /* parent */)
   {
     return true;
   }
@@ -218,7 +218,7 @@ namespace PLEXIL
    * @note The default method simply returns true.
    */
   bool 
-  ExecListenerFilter::reportAddLibrary(const PlexilNodeId& plan)
+  ExecListenerFilter::reportAddLibrary(const PlexilNodeId& /* plan */)
   {
     return true;
   }
@@ -230,9 +230,9 @@ namespace PLEXIL
      * @param value The value (in internal Exec representation) being assigned.
      */
   bool 
-  ExecListenerFilter::reportAssignment(const ExpressionId & dest,
-                                       const std::string& destName,
-                                       const double& value) const
+  ExecListenerFilter::reportAssignment(const ExpressionId & /* dest */,
+                                       const std::string& /* destName */,
+                                       const double& /* value */) const
   {
     return true;
   }

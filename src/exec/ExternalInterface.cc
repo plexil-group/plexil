@@ -43,36 +43,87 @@ namespace PLEXIL {
     m_exec = exec;
     m_exec->setExternalInterface(m_id);
   }
+
+  //
+  // No-op default methods
+  //
   
-  void ExternalInterface::registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances, 
-					       std::vector<double>& dest) {}
-  void ExternalInterface::registerChangeLookup(const LookupKey& source, const StateKey& key, const std::vector<double>& tolerances) {}
+  void ExternalInterface::registerChangeLookup(const LookupKey& /* source */,
+					       const State& /* state */,
+					       const StateKey& /* key */,
+					       const std::vector<double>& /* tolerances */, 
+					       std::vector<double>& /* dest */)
+  {}
 
-  void ExternalInterface::registerFrequencyLookup(const LookupKey& source, const State& state, const StateKey& key, const double& lowFreq, const double& highFreq,
-						  std::vector<double>& dest) {}
-  void ExternalInterface::registerFrequencyLookup(const LookupKey& source, const StateKey& key, const double& lowFreq, const double& highFreq) {}
+  void ExternalInterface::registerChangeLookup(const LookupKey& /* source */,
+					       const StateKey& /* key */,
+					       const std::vector<double>& /* tolerances */)
+  {}
 
-  void ExternalInterface::lookupNow(const State& state, const StateKey& key, std::vector<double>& dest) {}
-  void ExternalInterface::lookupNow(const StateKey& key, std::vector<double>& dest) {}
+  void ExternalInterface::registerFrequencyLookup(const LookupKey& /* source */,
+						  const State& /* state */,
+						  const StateKey& /* key */,
+						  const double& /* lowFreq */,
+						  const double& /* highFreq */,
+						  std::vector<double>& /* dest */)
+  {}
+
+  void ExternalInterface::registerFrequencyLookup(const LookupKey& /* source */,
+						  const StateKey& /* key */,
+						  const double& /* lowFreq */,
+						  const double& /* highFreq */)
+  {}
+
+  void ExternalInterface::lookupNow(const State& /* state */,
+				    const StateKey& /* key */,
+				    std::vector<double>& /* dest */)
+  {}
+
+  void ExternalInterface::lookupNow(const StateKey& /* key */,
+				    std::vector<double>& /* dest */)
+  {}
   
-  void ExternalInterface::unregisterChangeLookup(const LookupKey& dest) {}
-  void ExternalInterface::unregisterFrequencyLookup(const LookupKey& dest) {}
+  void ExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
+  {}
 
-  void ExternalInterface::batchActions(std::list<CommandId>& commands){}
-  void ExternalInterface::batchActions(std::list<FunctionCallId>& functionCalls){}
-  void ExternalInterface::updatePlanner(std::list<UpdateId>& updates){}
+  void ExternalInterface::unregisterFrequencyLookup(const LookupKey& /* dest */)
+  {}
+
+  void ExternalInterface::batchActions(std::list<CommandId>& /* commands */)
+  {}
+
+  void ExternalInterface::batchActions(std::list<FunctionCallId>& /* functionCalls */)
+  {}
+
+  void ExternalInterface::updatePlanner(std::list<UpdateId>& /* updates */)
+  {}
   
-  void ExternalInterface::executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack){}
+  void ExternalInterface::executeCommand(const LabelStr& /* name */,
+					 const std::list<double>& /* args */,
+					 ExpressionId /* dest */,
+					 ExpressionId /* ack */)
+  {}
 
-  void ExternalInterface::executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack){}
+  void ExternalInterface::executeFunctionCalls(const LabelStr& /* name */,
+					       const std::list<double>& /* args */,
+					       ExpressionId /* dest */,
+					       ExpressionId /* ack */)
+  {}
 
-  void ExternalInterface::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck){}
+  void ExternalInterface::invokeAbort(const LabelStr& /* cmdName */,
+				      const std::list<double>& /* cmdArgs */,
+				      ExpressionId /* abrtAck */,
+				      ExpressionId /* cmdAck */)
+  {}
 
-  void ExternalInterface::addPlan(const TiXmlElement& plan, const LabelStr& parent)
+  void ExternalInterface::addPlan(const TiXmlElement& /* plan */,
+				  const LabelStr& /* parent */)
     throw(ParserException)
   {}
 
-  void ExternalInterface::addPlan(PlexilNode* plan, const LabelStr& parent) {}
+  void ExternalInterface::addPlan(PlexilNode* /* plan */,
+				  const LabelStr& /* parent */)
+  {}
 
   double ExternalInterface::currentTime() {return 0.0;}
 }

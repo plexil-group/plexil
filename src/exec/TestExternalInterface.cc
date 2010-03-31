@@ -462,10 +462,11 @@ namespace PLEXIL
       return value;
    }
 
-   void TestExternalInterface::registerChangeLookup(
-      const LookupKey& source, const State& state, 
-      const StateKey& key, const std::vector<double>& tolerances,
-      std::vector<double>& dest)
+   void TestExternalInterface::registerChangeLookup(const LookupKey& /* source */,
+						    const State& state, 
+						    const StateKey& key,
+						    const std::vector<double>& tolerances,
+						    std::vector<double>& dest)
    {
       debugMsg("Test:testOutput", "Registering change lookup " 
                << StateCache::toString(state) << " with tolerances " 
@@ -491,8 +492,12 @@ namespace PLEXIL
       registerChangeLookup(source, m_statesByKey[key], key, tolerances, fakeDest);
    }
 
-   void TestExternalInterface::registerFrequencyLookup(const LookupKey& source, const State& state, const StateKey& key, const double& lowFreq, const double& highFreq,
-                                                       std::vector<double>& dest)
+  void TestExternalInterface::registerFrequencyLookup(const LookupKey& /* source */,
+						      const State& state,
+						      const StateKey& key,
+						      const double& lowFreq, 
+						      const double& highFreq,
+						      std::vector<double>& dest)
    {
       debugMsg("Test:testOutput", "Registering frequency lookup " << StateCache::toString(state) << " with frequency (" << lowFreq << ", " << highFreq << ")");
       m_statesByKey.insert(std::make_pair(key, state));
@@ -542,11 +547,11 @@ namespace PLEXIL
    }
 
 
-   void TestExternalInterface::unregisterChangeLookup(const LookupKey& dest)
-   {}
+  void TestExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
+  {}
 
-   void TestExternalInterface::unregisterFrequencyLookup(const LookupKey& dest)
-   {}
+  void TestExternalInterface::unregisterFrequencyLookup(const LookupKey& /* dest */)
+  {}
 
    void TestExternalInterface::batchActions(std::list<CommandId>& commands)
    {
@@ -617,7 +622,10 @@ namespace PLEXIL
     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
     */
 
-   void TestExternalInterface::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck)
+   void TestExternalInterface::invokeAbort(const LabelStr& cmdName,
+					   const std::list<double>& cmdArgs,
+					   ExpressionId abrtAck,
+					   ExpressionId /* cmdAck */)
    {
       //checkError(ALWAYS_FAIL, "Don't do that.");
       std::vector<double> realArgs(cmdArgs.begin(), cmdArgs.end());
@@ -693,7 +701,8 @@ namespace PLEXIL
       return retval.str();
    }
 
-   void TestExternalInterface::addPlan(const TiXmlElement& plan, const LabelStr& parent)
+  void TestExternalInterface::addPlan(const TiXmlElement& /* plan */,
+				      const LabelStr& /* parent */)
      throw(ParserException)
    {}
 

@@ -31,6 +31,7 @@
 #include "Debug.hh"
 #include "Utils.hh"
 #include "CommandHandle.hh"
+#include <cmath> // for fabs()
 #include <string>
 #include <sstream>
 #include <list>
@@ -488,7 +489,7 @@ namespace PLEXIL
    * @param exp The changed subexpression.
    */
 
-  void ArrayElement::handleChange(const ExpressionId& ignored)
+  void ArrayElement::handleChange(const ExpressionId& /* ignored */)
   {
     internalSetValue(recalculate());
   }
@@ -677,7 +678,7 @@ namespace PLEXIL
       return true;
     if (val < MINUS_INFINITY || val > PLUS_INFINITY)
       return false;
-    if (abs(val - ((double) (int32_t) val)) < EPSILON)
+    if (fabs(val - ((double) (int32_t) val)) < EPSILON)
       return true;
     return false;
   }
@@ -720,7 +721,8 @@ namespace PLEXIL
   }
 
   BooleanVariable::BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst) : Variable(expr, node) {
+				   const bool /* isConst */)
+    : Variable(expr, node) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     commonNumericInit((PlexilValue*)expr);
   }
@@ -1918,7 +1920,7 @@ namespace PLEXIL
     </(N?)EQInternal>
   */
 
-  InternalCondition::InternalCondition(const PlexilExprId& xml)
+  InternalCondition::InternalCondition(const PlexilExprId& /* xml */)
     : Calculable() {
     checkError(ALWAYS_FAIL, "Internal conditions require a Node argument");
   }
@@ -1979,7 +1981,8 @@ namespace PLEXIL
     return retval.str();
   }
 
-  TimepointVariable::TimepointVariable(const PlexilExprId& xml) : ConstVariableWrapper() {
+  TimepointVariable::TimepointVariable(const PlexilExprId& /* xml */)
+    : ConstVariableWrapper() {
     checkError(ALWAYS_FAIL, "Timepoint references require a node argument.");
   }
 

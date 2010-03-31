@@ -207,7 +207,7 @@ namespace PLEXIL {
     checkError(Id<PlexilLookupNow>::convertable(expr), "Expected LookupNow.");
   }
 
-  void LookupNow::handleChange(const ExpressionId& exp)
+  void LookupNow::handleChange(const ExpressionId& /* exp */)
   {
     // need to notify state cache if cached lookup is no longer valid
     if (!isStateCurrent())
@@ -227,7 +227,7 @@ namespace PLEXIL {
 
   // Simply reinvokes StateCache::lookupNow().
 
-  void LookupNow::handleRegistrationChange(const State& oldState)
+  void LookupNow::handleRegistrationChange(const State& /* oldState */)
   {
     m_cache->lookupNow(m_id, m_dest, m_state);
   }
@@ -309,7 +309,7 @@ namespace PLEXIL {
   // *** To do:
   //  - optimize by adding specific method for this case to StateCache class
 
-  void LookupOnChange::handleRegistrationChange(const State& oldState)
+  void LookupOnChange::handleRegistrationChange(const State& /* oldState */)
   {
     m_cache->unregisterChangeLookup(m_id);
     m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
@@ -400,7 +400,7 @@ namespace PLEXIL {
   // *** To do:
   //  - optimize by adding specific method for this case to StateCache class
 
-  void LookupWithFrequency::handleRegistrationChange(const State& oldState)
+  void LookupWithFrequency::handleRegistrationChange(const State& /* oldState */)
   {
     m_cache->unregisterFrequencyLookup(m_id);
     m_cache->registerFrequencyLookup(m_id, 

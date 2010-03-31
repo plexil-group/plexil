@@ -51,7 +51,7 @@ namespace PLEXIL {
   void TransitionHandler::handleAbort(NodeId& node) {node->abort();}
   void TransitionHandler::deactivateExecutable(NodeId& node) {node->deactivateExecutable();}
 
-  bool TransitionHandler::checkConditions(const NodeId& node,
+  bool TransitionHandler::checkConditions(const NodeId& /* node */,
 					  const std::set<double>& active) {
     std::vector<double> inactive(Node::ALL_CONDITIONS().size() - active.size());
     //FINISH THIS
@@ -167,13 +167,13 @@ namespace PLEXIL {
     return StateVariable::UNKNOWN_STR();
   }
 
-  void TransitionHandlerError::transitionTo(NodeId& node, const LabelStr& destState) {
+  void TransitionHandlerError::transitionTo(NodeId& node, const LabelStr& /* destState */) {
     checkError(ALWAYS_FAIL,
 	       "Attempted to transition node '" << node->getNodeId().toString() <<
 	       "' of type " << node->getType().toString());
   }
 
-  void TransitionHandlerError::transitionFrom(NodeId& node, const LabelStr& destState) {
+  void TransitionHandlerError::transitionFrom(NodeId& node, const LabelStr& /* destState */) {
     checkError(ALWAYS_FAIL,
 	       "Attempted to transition node '" << node->getNodeId().toString() <<
 	       "' of type " << node->getType().toString());
