@@ -669,7 +669,7 @@ namespace PLEXIL {
 
     virtual ExpressionId create(const PlexilExprId& expr,
 				const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
-    ExpressionFactory(const LabelStr& name, bool finder = false)
+    ExpressionFactory(const LabelStr& name)
       : m_name(name) {registerFactory(m_name, this);}
 
   private:
