@@ -343,11 +343,9 @@ namespace PLEXIL {
                  << fName << " does not exist. No resources read.");
         return false;
       }
-    std::getline(myFile, dataStr);
     while (!myFile.eof())
       {
-        // For debugging
-        // std::cout << "Resource: " << dataStr << std::endl;
+        std::getline(myFile, dataStr);
         if (dataStr.substr(0,1) != "%" && ~isspace(dataStr.substr(0,1)[0]))
           {
             // first element which is the parent resource name
@@ -417,7 +415,6 @@ namespace PLEXIL {
 
             m_resourceHierarchy[pName] = ResourceNode(maxCons, maxRen, children);
           }
-        std::getline(myFile, dataStr);
       }
     return true;
   }
