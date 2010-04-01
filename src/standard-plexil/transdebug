@@ -38,4 +38,4 @@ fi
 JARS_DIR=${PLEXIL_HOME}/third-party/jars
 
 # Assumes pathnames relative to $PLEXIL_HOME
-jdb -cp ${PLEXIL_HOME}/lib/plexil.jar:${JARS_DIR}/antlr.jar:${JARS_DIR}/nanoxml.jar:${JARS_DIR}/saxon8.jar plexil.Parse $*
+jdb -cp ${PLEXIL_HOME}/lib/plexil.jar:${JARS_DIR}/antlr.jar:${JARS_DIR}/nanoxml.jar:${JARS_DIR}/saxon.jar plexil.Parse $*
