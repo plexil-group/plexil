@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Compiles a plexilisp file without having to start Emacs interactively.
+# Very simple and unrobust for now!
+# Usage: plexilisp <filename>
+
+emacs --batch --no-site-file --load $PLEXIL_HOME/src/plexilisp/plexil.el $1 --eval '(plexil)'
