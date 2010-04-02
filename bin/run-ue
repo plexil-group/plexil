@@ -79,45 +79,36 @@ debug_file="" #debug file
 check="false" #run static checker
 quiet=1 #quiet by default
 
-#use -u to make sure arguments are not quoted (single quote breaks directory referrences)
-set -- `getopt -a -u sp:c:l:d:vh:n:bkvxq $*`
-
-if [ "$*" = "--" ]
+if [ ! $1 ]
   then
-    echo "Error: Not enough arguments" 
-    echo $usage
-    exit 1
+  echo No arguments defined
+  echo $usage
+  exit 1
 fi
 
-while [ $1 != -- ]
+while getopts "sp:c:l:d:vh:n:bkvxq" args
 do
-    case $1 in    	
-        -s ) summary=1;;	
-	-p ) plan_nm="$2"
-	plan_cmd="-p $2"
-	shift;;	
-	-c ) config_nm="$2"
-	config_cmd="-c $2"
-	shift;;	
-	-l ) valid $2
-	libraries="$libraries -l $2"
-	shift;;	
-	-d ) valid $2
-	debug_file="-d $2"
-	shift;;	
-	-v ) viewer="-v";;	#luv listener enabled	
-	-h ) host="-h $2"	#luv host name
-	shift;;	
-	-n ) port="-n $2"	#luv port
-	shift;;	
-	-b ) block="-b";;	#enable luv break point	
-	-k ) check="true";;	
-	-x ) no_plan=1;;
-	-q ) quiet=0;;
+    case $args in    	
+        s ) summary=1;;	
+	p ) plan_nm="$OPTARG"
+	plan_cmd="-p $OPTARG";;
+	c ) config_nm="$OPTARG"
+	config_cmd="-c $OPTARG";;
+	l ) valid $OPTARG
+	libraries="$libraries -l $OPTARG";;
+	d ) valid $OPTARG
+	debug_file="-d $OPTARG";;
+	v ) viewer="-v";;	#luv listener enabled	
+	h ) host="-h $OPTARG";;	#luv host name
+	n ) port="-n $OPTARG";;	#luv port
+	b ) block="-b";;	#enable luv break point	
+	k ) check="true";;	
+	x ) no_plan=1;;
+	q ) quiet=0;;
+	\? ) echo $usage
+	  exit 2;;
     esac
-    shift
 done
-shift
 
 # Check the plan's existence
 if [ "$plan_nm" = "" ] || [ ! -e $plan_nm ]
