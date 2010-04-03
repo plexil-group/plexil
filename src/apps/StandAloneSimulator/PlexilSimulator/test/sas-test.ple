@@ -1,12 +1,14 @@
 //The controlling plan
 //Subscription commands are sent using SendMessage("<command name>")
-MasterPlan:
+Root:
 {
 	Integer rightIter = 4;
 	Integer x = 0;
+        StartCondition: LookupOnChange(x) > 10;
 	Invariant: x <= 21;
 	Sequence
-		{
+		Body:
+                {
 		NodeList:
 			Right:
 			{
@@ -28,6 +30,7 @@ MasterPlan:
 				}
 			}
 		}
+                Quit:
 		{
 			Command: SendMessage("Quit");
 		}
