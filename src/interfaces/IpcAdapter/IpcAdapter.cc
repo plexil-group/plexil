@@ -89,9 +89,6 @@ bool IpcAdapter::initialize() {
   }
 
   // Use defaults if necessary
-  if (taskName == NULL) {
-    taskName = IpcFacade::getUID().c_str();
-  }
   if (serverName == NULL) {
     serverName = "localhost";
   }
@@ -117,7 +114,6 @@ bool IpcAdapter::initialize() {
   assertTrueMsg(m_ipcFacade.initilize(taskName, serverName) == IPC_OK,
       "IpcAdapter: Unable to connect to the central server at " << serverName);
 
-  // *** TODO: register lookup names for getting commands & msgs ***
   // Register with AdapterExecInterface
   m_execInterface.defaultRegisterAdapter(getId());
 
@@ -417,8 +413,8 @@ void IpcAdapter::executeSendMessageCommand(const LabelStr& name, const std::list
  */
 void IpcAdapter::executeSendReturnValueCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack) {
   // Check for one argument, the message
-  assertTrueMsg(args.size() >= 2,
-      "IpcAdapter: The SendReturnValue command requires at least two arguments.");
+  assertTrueMsg(args.size() == 2,
+      "IpcAdapter: The SendReturnValue command requires exactly two arguments.");
 
   assertTrueMsg(LabelStr::isString(args.front()),
       "IpcAdapter: The first argument to the SendReturnValue command, " << args.front()
@@ -433,11 +429,8 @@ void IpcAdapter::executeSendReturnValueCommand(const LabelStr& name, const std::
   front_string = front_string.substr(sep_pos + 1, front_string.size());
   debugMsg("IpcAdapter:executeCommand",
       " SendReturnValue(sender_serial:\"" << serial << "\" \"" << front_string.c_str() << "\")");
-  //erase first parameter
-  std::list<double> argsToDeliver = args;
-  argsToDeliver.erase(argsToDeliver.begin());
   //publish
-  serial = m_ipcFacade.publishReturnValues(serial, LabelStr(front_string), argsToDeliver);
+  serial = m_ipcFacade.publishReturnValues(serial, LabelStr(front_string), *(++args.begin()));
   assertTrue(serial != IpcFacade::ERROR_SERIAL(), "Return values failed to be sent");
 
   // store ack
@@ -847,7 +840,7 @@ void IpcAdapter::handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs) 
   } else {
     debugMsg("IpcAdapter:handleLookupNow", " Publishing value of external lookup \"" << msg->stringValue
         << "\" with internal value '" << (*it).second << "'");
-    m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, std::list<double>(1, (*it).second));
+    m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, (*it).second);
   }
 }
 

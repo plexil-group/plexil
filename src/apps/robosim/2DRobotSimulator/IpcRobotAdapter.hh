@@ -108,17 +108,12 @@ private:
   /**
    * @brief Send a command to the simulator
    */
-  void processCommand(std::vector<const PlexilMsgBase*>& msgs);
-
-  /**
-   * @brief Send return values for a command
-   */
-  void sendReturnValues(const IpcMessageId& requestId, const std::vector<double>& values);
+  void processCommand(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Deal with a LookupNow request
    */
-  void processLookupNow(std::vector<const PlexilMsgBase*>& msgs);
+  void processLookupNow(const std::vector<const PlexilMsgBase*>& msgs);
 
 
   //

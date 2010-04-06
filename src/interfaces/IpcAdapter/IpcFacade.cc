@@ -37,7 +37,7 @@
 namespace PLEXIL {
 
 const int IpcFacade::ALL_MSG_TYPE = ((int) PlexilMsgType_uninited) - 1;
-const std::string& IpcFacade::MY_UID = IpcFacade::generateUID();
+std::string& IpcFacade::MY_UID = IpcFacade::generateUID();
 RecursiveThreadMutex IpcFacade::mutex;
 pthread_t IpcFacade::threadHandle;
 IpcFacade::ListenerMap IpcFacade::registeredListeners;
@@ -70,8 +70,9 @@ const std::string& IpcFacade::getUID() {
  * @breif Connects to the Ipc server. This should be called before calling start().
  * If it is not, this method is called by start. If already initilized, this method
  * does nothing and returns IPC_OK.
+ * @param taskName If null, the current UID of the IpcFacade is used as the task name.
  */
-IPC_RETURN_TYPE IpcFacade::initilize(const std::string& taskName, const std::string& serverName) {
+IPC_RETURN_TYPE IpcFacade::initilize(const char* taskName, const char* serverName) {
   if (m_isInitilized) {
     return IPC_OK;
   }
@@ -83,10 +84,12 @@ IPC_RETURN_TYPE IpcFacade::initilize(const std::string& taskName, const std::str
     // Initialize IPC
     // possibly redundant, but always safe
     result = IPC_initialize();
+    if (taskName != NULL)
+      MY_UID.assign(taskName);
 
     // Connect to central
     if (result == IPC_OK)
-      result = IPC_connectModule(taskName.c_str(), serverName.c_str());
+      result = IPC_connectModule(getUID().c_str(), serverName);
 
     // Define messages
     if (result == IPC_OK)
@@ -280,13 +283,13 @@ uint32_t IpcFacade::publishLookupNow(LabelStr lookup, const std::list<double>& a
   return result == IPC_OK ? serial : ERROR_SERIAL();
 }
 
-uint32_t IpcFacade::publishReturnValues(uint32_t request_serial, LabelStr request_uid, const std::list<double>& args) {
+uint32_t IpcFacade::publishReturnValues(uint32_t request_serial, LabelStr request_uid, double arg) {
   assertTrue(m_isStarted, "publishReturnValues called before started");
   uint32_t serial = getSerialNumber();
-  struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, args.size(), serial, getUID().c_str() }, request_serial, request_uid.c_str() };
+  struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, getUID().c_str() }, request_serial, request_uid.c_str() };
   IPC_RETURN_TYPE result = IPC_publishData(RETURN_VALUE_MSG, (void *) &packet);
   if (result == IPC_OK) {
-    result = sendParameters(args, serial);
+    result = sendParameters(std::list<double>(1, arg), serial);
   }
   setError(result);
   return result == IPC_OK ? serial : ERROR_SERIAL();
@@ -644,7 +647,7 @@ bool IpcFacade::unsubscribeGlobal(const LocalListenerRef& listener) {
 /**
  * @brief Initialize unique ID string
  */
-const std::string& IpcFacade::generateUID() {
+std::string& IpcFacade::generateUID() {
   kashmir::system::DevRand randomStream;
   kashmir::uuid_t uuid;
   randomStream >> uuid;

@@ -65,7 +65,7 @@ public:
    * If it is not, this method is called by start. If already initilized, this method
    * does nothing and returns IPC_OK.
    */
-  IPC_RETURN_TYPE initilize(const std::string& taskName, const std::string& serverName);
+  IPC_RETURN_TYPE initilize(const char* taskName, const char* serverName);
   /**
    * @brief Starts the Ipc message handling thread. If not initilized, initilization occurs.
    * If Ipc is already started, this method does nothing and returns IPC_OK.
@@ -133,7 +133,7 @@ public:
    * @brief publishes the given return values via IPC
    * @param command The command string to send
    */
-  uint32_t publishReturnValues(uint32_t request_serial, LabelStr command, const std::list<double>& argsToDeliver);
+  uint32_t publishReturnValues(uint32_t request_serial, LabelStr command, double arg);
 
   /**
    * @brief publishes the given telemetry value via IPC
@@ -166,7 +166,7 @@ private:
   /**
    * @brief Initialize unique ID string
    */
-  static const std::string& generateUID();
+  static std::string& generateUID();
 
   /**
    * @brief Get next serial number
@@ -261,7 +261,7 @@ private:
   //* @brief The mutex used for synchronizing initilization/shutdown methods
   static RecursiveThreadMutex mutex;
   //* @brief Unique ID of this adapter instance
-  static const std::string& MY_UID;
+  static std::string& MY_UID;
 
   //* @brief Count of # of outgoing commands and requests, starting with 1
   //  @note Should only ever be 0 at initialization

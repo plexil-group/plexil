@@ -28,6 +28,7 @@
 #include "ResponseMessage.hh"
 #include "GenericResponse.hh"
 #include "Simulator.hh"
+#include "Expression.hh"
 
 #include "Debug.hh"
 #include "Error.hh"
@@ -40,7 +41,7 @@
  */
 IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost) :
   CommRelayBase(id), m_stateUIDMap(), m_ipcFacade(), m_listener(*this) {
-  assertTrueMsg(m_ipcFacade.initilize(m_ipcFacade.getUID(), centralhost) == IPC_OK,
+  assertTrueMsg(m_ipcFacade.initilize(id.c_str(), centralhost.c_str()) == IPC_OK,
       "IpcCommRelay: Unable to initilize ipc to central server at " << centralhost);
 
   // Spawn listener thread
@@ -83,7 +84,7 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
         << ((respMsg->getMessageType() == MSG_COMMAND) ? "command" : "lookup")
         << " \"" << respMsg->getName() << "\"");
     const IpcMessageId* transId = static_cast<const IpcMessageId*> (respMsg->getId());
-    m_ipcFacade.publishReturnValues(transId->second, transId->first, ret_list);
+    m_ipcFacade.publishReturnValues(transId->second, transId->first, values.front());
   }
     break;
 
@@ -129,7 +130,7 @@ void IpcCommRelay::processLookupNow(const std::vector<const PlexilMsgBase*>& msg
   } else {
     // Create a bogus response that returns 0 values (i.e. unknown)
     debugMsg("IpcCommRelay:lookupNow", " " << stateName << " not found, returning UNKNOWN");
-    static GenericResponse gr(std::vector<double>(0, 0.0));
+    static GenericResponse gr(std::vector<double>(1, PLEXIL::Expression::UNKNOWN()));
     response = new ResponseMessage(&gr, static_cast<void*> (transId), MSG_LOOKUP);
   }
   // Simply send the response

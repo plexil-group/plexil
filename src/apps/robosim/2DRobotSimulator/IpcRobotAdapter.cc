@@ -27,6 +27,8 @@
 #include "IpcRobotAdapter.hh"
 #include "RobotBase.hh"
 
+#include "LabelStr.hh"
+#include "StoredArray.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ThreadSpawn.hh"
@@ -47,7 +49,7 @@ IpcRobotAdapter::IpcRobotAdapter(const std::string& centralhost)
     m_ipcFacade(),
     m_listener(*this)
 {
-  assertTrueMsg(m_ipcFacade.initilize(m_ipcFacade.getUID(), centralhost) == IPC_OK,
+  assertTrueMsg(m_ipcFacade.initilize(m_ipcFacade.getUID().c_str(), centralhost.c_str()) == IPC_OK,
       "IpcRobotAdapter: Unable to initilize ipc to central server at " << centralhost);
 
   // Spawn listener thread
@@ -55,8 +57,8 @@ IpcRobotAdapter::IpcRobotAdapter(const std::string& centralhost)
 		"IpcRobotAdapter constructor: Unable to start IPC dispatch thread");
 
   // Subscribe only to messages we care about
-  m_ipcFacade.subscribe(m_listener, PlexilMsgType_Command);
-  m_ipcFacade.subscribe(m_listener, PlexilMsgType_LookupNow);
+  m_ipcFacade.subscribe(&m_listener, PlexilMsgType_Command);
+  m_ipcFacade.subscribe(&m_listener, PlexilMsgType_LookupNow);
   debugMsg("IpcRobotAdapter:IpcRobotAdapter", " succeeded");
 }
 
@@ -65,22 +67,6 @@ IpcRobotAdapter::IpcRobotAdapter(const std::string& centralhost)
  */
 IpcRobotAdapter::~IpcRobotAdapter()
 {
-    // Unsubscribe from messages
-    IPC_RETURN_TYPE status = IPC_unsubscribe(NUMERIC_VALUE_MSG, NULL);
-    assertTrueMsg(status == IPC_OK,
-		  "IpcRobotAdapter: Error unsubscribing from " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(STRING_VALUE_MSG, NULL);
-    assertTrueMsg(status == IPC_OK,
-		  "IpcRobotAdapter: Error unsubscribing from " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-
-    // Cancel IPC dispatch thread
-    int myErrno;
-    assertTrueMsg((myErrno = pthread_cancel(m_thread)) == 0,
-		  "IpcRobotAdapter: error canceling IPC dispatch thread, errno = " << myErrno); 
-    assertTrueMsg((myErrno = pthread_join(m_thread, NULL)) == 0,
-		  "IpcRobotAdapter: error joining IPC dispatch thread, errno = " << myErrno); 
-
-    debugMsg("IpcRobotAdapter:~IpcRobotAdapter", " complete");
 }
 
 /**
@@ -94,82 +80,13 @@ void IpcRobotAdapter::registerRobot(const std::string& name,
 		"Robot name conflict for \"" << name << "\"");
   m_robots[name] = robot;
 }
-
-/**
- * @brief Send a response from the sim back to the UE.
- */
-
-// *** TODO: isolate this method from the format of the response base!
-
-void IpcRobotAdapter::sendReturnValues(const IpcMessageId& requestId,
-				       const std::vector<double>& values)
-{
-  // Get the response message
-  // Format the leader
-  PlexilMsgBase* leader = NULL;
-  debugMsg("IpcRobotAdapter:sendReturnValues",
-	   " sending " << values.size() << " return value(s)");
-  PlexilReturnValuesMsg* rvMsg = new PlexilReturnValuesMsg();
-  rvMsg->header.msgType = (uint16_t) PlexilMsgType_ReturnValues;
-  rvMsg->requestSerial = requestId.second;
-  rvMsg->requesterUID = requestId.first.c_str();
-  leader = reinterpret_cast<PlexilMsgBase*>(rvMsg);
-
-  // fill in common fields
-  leader->count = values.size();
-  uint32_t leaderSerial = ++m_serial;
-  leader->serial = leaderSerial;
-  leader->senderUID= m_myUID.c_str(); 
-
-  // Format the value message(s)
-  PlexilNumericValueMsg* valueMsgs[values.size()];
-  for (size_t i = 0; i < values.size(); i++)
-    {
-      PlexilNumericValueMsg* valueMsg = new PlexilNumericValueMsg();
-      valueMsg->header.msgType = (uint16_t) PlexilMsgType_NumericValue;
-      valueMsg->header.count = (uint16_t) i;
-      valueMsg->header.serial = leaderSerial;
-      valueMsg->header.senderUID = m_myUID.c_str();
-      valueMsg->doubleValue = values[i];
-      valueMsgs[i] = valueMsg;
-    }
-
-  // Send them
-  debugMsg("IpcRobotAdapter:sendReturnValues", " sending leader");
-  IPC_RETURN_TYPE status;
-  status = IPC_publishData(RETURN_VALUE_MSG, (void *) leader);
-  assertTrueMsg(status == IPC_OK,
-		"IpcRobotAdapter::sendReturnValues: IPC Error, IPC_errno = " << IPC_errno);
-  debugMsg("IpcRobotAdapter:sendReturnValues", " sending " << values.size() << " values");
-  for (size_t i = 0; i < values.size(); i++)
-    {
-      status = IPC_publishData(NUMERIC_VALUE_MSG, (void *) valueMsgs[i]);
-      assertTrueMsg(status == IPC_OK,
-		    "IpcRobotAdapter::sendReturnValues: IPC Error, IPC_errno = " << IPC_errno);
-    }
-
-  // free the leader
-  if (leader->msgType == PlexilMsgType_ReturnValues)
-    delete reinterpret_cast<PlexilReturnValuesMsg*>(leader);
-  else if (leader->msgType == PlexilMsgType_TelemetryValues)
-    delete reinterpret_cast<PlexilStringValueMsg*>(leader);
-
-  // free the value packets
-  for (size_t i = 0; i < values.size(); i++)
-    {
-      delete valueMsgs[i];
-    }
-
-  debugMsg("IpcRobotAdapter:sendReturnValues", " completed");
-}
-
 /**
  * @brief Send a command to RoboSim
  */
 
 // N.B. RoboSim commands take one argument, the robot name.
 // Additional arguments are ignored.
-void IpcRobotAdapter::processCommand(std::vector<const PlexilMsgBase*>& msgs)
+void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& msgs)
 {
   const std::string cmdName(((const PlexilStringValueMsg*)msgs[0])->stringValue);
   assertTrueMsg(msgs[0]->count >= 1,
@@ -210,8 +127,8 @@ void IpcRobotAdapter::processCommand(std::vector<const PlexilMsgBase*>& msgs)
 		   "IpcRobotAdapter:processCommand",
 		   "Ignoring " << msgs[0]->count - 1 << " argument(s)");
     }
-  std::vector<double>& ret_values = robot->processCommand(cmdName, parameter);
-  m_ipcFacade.publishReturnValues(transId, std::list<double>(ret_values.begin(), ret_values.end()));
+  const std::vector<double>& ret_values = robot->processCommand(cmdName, parameter);
+  m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), PLEXIL::StoredArray(ret_values).getKey());
 }
 
 /**
@@ -219,7 +136,7 @@ void IpcRobotAdapter::processCommand(std::vector<const PlexilMsgBase*>& msgs)
  */
 
 // N.B. RoboSim does not implement LookupNow
-void IpcRobotAdapter::processLookupNow(std::vector<const PlexilMsgBase*>& msgs)
+void IpcRobotAdapter::processLookupNow(const std::vector<const PlexilMsgBase*>& msgs)
 {
   std::string stateName(((const PlexilStringValueMsg*)msgs[0])->stringValue);
   debugMsg("IpcRobotAdapter:lookupNow", " ignoring lookup request for " << stateName);
