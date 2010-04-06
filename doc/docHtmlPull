@@ -78,7 +78,7 @@ fi
 
 names="./naming.txt"
 if [ -e $names ]; then
-	sed 's/: <a.*plexil[/]/|/g' $names > names.txt
+	sed 's/[:]* <a.*plexil[/]/|/g' $names > names.txt
 	rm $names
 else 
 	echo "$names does not exists"

@@ -13,7 +13,7 @@ bash
 cd /extraction/folder/
 ./docHtmlPull
 
-output file should be book2.pdf
+output file should be man.pdf
 
 
 ---Contents Include: ---
@@ -38,5 +38,6 @@ Pulls all relevant links from Plexil sourceforge website index
 downloads relevant pages based upon index into sourceforge root folder
 cleans links based upon names
 formats html files to build a usable index for dochtml in a clean folder
+loads a pre-configured htmldoc file
 passes html documents to htmldoc to produce PDF
 
