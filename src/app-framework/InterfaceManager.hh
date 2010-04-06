@@ -112,6 +112,25 @@ namespace PLEXIL
     }
 
     //
+    // API for all related objects
+    //
+
+    /**
+     * @brief Associate an arbitrary object with a string.
+     * @param name The string naming the property.
+     * @param thing The property value as an untyped pointer.
+     */
+    virtual void setProperty(const std::string& name, void * thing);
+
+    /**
+     * @brief Fetch the named property.
+     * @param name The string naming the property.
+     * @return The property value as an untyped pointer.
+     */
+    virtual void* getProperty(const std::string& name);
+
+
+    //
     // API for ExecApplication
     //
 
@@ -858,6 +877,10 @@ namespace PLEXIL
     LookupAdapterMap m_lookupAdapterMap;
     std::map<ExpressionId, CommandId> m_ackToCmdMap;
     std::map<ExpressionId, CommandId> m_destToCmdMap;
+
+    // Properties
+    typedef std::map<const std::string, void*> PropertyMap;
+    PropertyMap m_propertyMap;
 
     //* The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;

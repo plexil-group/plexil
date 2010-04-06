@@ -1508,6 +1508,32 @@ namespace PLEXIL
     return res != 0;
   }
 
+
+  /**
+   * @brief Associate an arbitrary object with a string.
+   * @param name The string naming the property.
+   * @param thing The property value as an untyped pointer.
+   */
+  void InterfaceManager::setProperty(const std::string& name, void * thing)
+  {
+    m_propertyMap[name] = thing;
+  }
+
+  /**
+   * @brief Fetch the named property.
+   * @param name The string naming the property.
+   * @return The property value as an untyped pointer.
+   */
+  void* InterfaceManager::getProperty(const std::string& name)
+  {
+    PropertyMap::const_iterator it = m_propertyMap.find(name);
+    if (it == m_propertyMap.end())
+      return NULL;
+    else
+      return it->second;
+  }
+
+
   //
   // ValueQueue implementation
   //
