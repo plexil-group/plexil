@@ -1180,7 +1180,8 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 
 	// Read in text and elements in any order.
 	const char* pWithWhiteSpace = p;
-	p = SkipWhiteSpace( p, encoding );
+	if ( TiXmlBase::IsWhiteSpaceCondensed() )
+	  p = SkipWhiteSpace( p, encoding );
 
 	while ( p && *p )
 	{
@@ -1206,7 +1207,7 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 				p = textNode->Parse( pWithWhiteSpace, data, encoding );
 			}
 
-			if ( !textNode->Blank() )
+			if ( !TiXmlBase::IsWhiteSpaceCondensed() || !textNode->Blank() )
 				LinkEndChild( textNode );
 			else
 				delete textNode;
