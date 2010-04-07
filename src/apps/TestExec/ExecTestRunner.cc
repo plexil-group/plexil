@@ -130,6 +130,9 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 	initializeExpressions();
 	initializeStateManagers();
 
+	// always preserve white space in XML
+	TiXmlBase::SetCondenseWhiteSpace(false);
+
 	// create the exec
 
 	TestExternalInterface intf;

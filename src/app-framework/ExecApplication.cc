@@ -59,6 +59,9 @@ namespace PLEXIL
     // connect exec and interface manager
     m_exec.setExternalInterface(m_interface.getId());
     m_interface.setExec(m_exec.getId());
+
+    // Tell tinyxml to respect whitespace
+    TiXmlBase::SetCondenseWhiteSpace(false);
   }
 
   ExecApplication::~ExecApplication()
