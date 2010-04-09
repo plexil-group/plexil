@@ -79,8 +79,8 @@ public class LuvActionHandler {
             };
     /** Action to load a script for Execution. */
     public static LuvAction openScriptAction =    	
-            new LuvAction("Open Config",
-            "Open a interface-config.xml.",
+            new LuvAction("Open Script",
+            "Open a script file.",
             VK_E,
             META_MASK) {
 
@@ -378,7 +378,7 @@ public class LuvActionHandler {
                 }
             };
 	/** Action to allow testExec. */
-	public static LuvAction allowTestAction = new LuvAction("Use TestExec",
+	public static LuvAction allowTestAction = new LuvAction("Use UniversalExec",
 			"Select this to enable TestExec and Scripts or UniversalExec and Configs.", VK_F12) {
 
 		public void actionPerformed(ActionEvent e) {
@@ -396,9 +396,9 @@ public class LuvActionHandler {
 				} else {
 					Luv.getLuv().getStatusMessageHandler().showStatus(
 							"Use UniversalExec", Color.RED, 1000);
-					putValue(NAME, "Enable TestExec");
+					putValue(NAME, "Use TestExec");
 					openScriptAction
-							.putValue(NAME, "Open interface-config.xml");
+							.putValue(NAME, "Open Config");
 					openScriptAction.putValue(SHORT_DESCRIPTION,
 							"Open a config file");
 

@@ -33,6 +33,7 @@ import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
 import static gov.nasa.luv.Constants.RUN_UE_EXEC;
 
 import static gov.nasa.luv.Constants.UNKNOWN;
+import gov.nasa.luv.Luv;
 import gov.nasa.luv.runtime.AbstractPlexilExecutiveCommandGenerator;
 import gov.nasa.luv.runtime.ExecutiveCommandGenerationException;
 
@@ -108,7 +109,7 @@ public class ExecutionHandler
  
       public boolean runExec() throws IOException
       {
-          String command = createCommandLine();
+          String command = createCommandLine();          
           
           if (!command.contains("ERROR")) 
           {   
@@ -193,12 +194,11 @@ public class ExecutionHandler
 
     	  }
     	  else
-    		  return "ERROR: unable to identify plan.";
-
-
+    		  return "ERROR: unable to identify plan.";    	      	 
+    	  
     	  // get script
-//    	  if (Luv.getLuv().allowTest())
-//    	  {
+    	  if (Luv.getLuv().allowTest())
+    	  {
 			  if (currentPlan != null &&
 					  currentPlan.getAbsoluteScriptName() != null &&
 					  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
@@ -210,17 +210,33 @@ public class ExecutionHandler
 				  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
 				  {
 					  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-				  }
+				  }				  
 				  else
 					  return "ERROR: unable to identify script.";
-			  }
+			  }			  
 			  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
 			  {
 				  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-			  }
+			  }			  	  
 			  else
 				  return "ERROR: unable to identify script.";
-//    	  }
+			  
+    	  }else if (currentPlan != null &&
+				  currentPlan.getAbsoluteScriptName() != null &&
+				  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
+				  {
+		    		  if (!new File(currentPlan.getAbsoluteScriptName()).exists())
+					  {
+						  return "ERROR: unable to identify config."; 
+					  }
+				  }else if (Luv.getLuv().getFileHandler().searchForConfig() != null)
+				  {
+					  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
+				  }
+	    	  else
+	    		  return "ERROR: unable to identify config.";
+    		  
+    	  // get config
 
     	  // get libraries
 
@@ -267,13 +283,9 @@ public class ExecutionHandler
     /** Kills the currently running instance of the Universal Executive. */
       
       public void killUEProcess() throws IOException
-      {
+      {    	      	  
     	  String kill_ue = "killall ";
-    	  if (Luv.getLuv().allowTest()){
-    		  kill_ue += UE_TEST_EXEC;  
-    	  }
-    	  else
-    		  kill_ue += UE_EXEC;
+    	  kill_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	  
     	  
           //String kill_ue = "killall " + TEST_EXEC;
             
@@ -331,30 +343,21 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 
 	@Override
 	public String generateCommandLine() {
-	  String command = "";
-	  System.out.println("Using Universal Executive...");
+	  String command = "";	  
+	  System.out.println(Luv.getLuv().allowTest() ? "Using Test Executive..." : "Using Universal Executive...");
+	  command = Luv.getLuv().allowTest() ? RUN_TEST_EXEC + " -v" : RUN_UE_EXEC + " -v";  	  
 
-	  if (Luv.getLuv().allowTest()){
-		  command = RUN_TEST_EXEC + " -v";  
-	  }
-	  else
-		  command = RUN_UE_EXEC + " -v";
-	  
-
-	  if (Luv.getLuv().breaksAllowed()){
+	  if (Luv.getLuv().breaksAllowed())
 		  command += " -b";
-	  }
-		   
+	  		   
 	  command += " -d " + DEBUG_CFG_FILE;
 
 	  // get plan
 
 	  Model currentPlan=this.getCurrentPlan();
 	  
-	  if (Luv.getLuv().allowTest())
-		  command += " " + currentPlan.getAbsolutePlanName(); 
-	  else
-		  command += " -p " + currentPlan.getAbsolutePlanName();
+	  command += Luv.getLuv().allowTest() ? " " + currentPlan.getAbsolutePlanName() : 
+		  " -p " + currentPlan.getAbsolutePlanName();
 	  
 	  if (Luv.getLuv().allowTest())
 		  command += " " + this.getScriptPath();

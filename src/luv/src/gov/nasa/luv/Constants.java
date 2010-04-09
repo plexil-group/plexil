@@ -132,18 +132,10 @@ public class Constants
       public static final String    TEST_EXEC = "test-exec_g_rt";
       
       /** Represents the "universal executive" for PLEXIL. */ 
-      public static final String    UE_EXEC = PLEXIL_HOME +
-										      System.getProperty("file.separator") + 
-										      "bin" + 
-										      System.getProperty("file.separator") + 
-										      "universalExec";
+      public static final String    UE_EXEC = "universalExec";
 
       /** Represents the "test executive" for PLEXIL. */ 
-      public static final String    UE_TEST_EXEC = PLEXIL_HOME +
-										      System.getProperty("file.separator") + 
-										      "bin" + 
-										      System.getProperty("file.separator") + 
-										      "TestExec";
+      public static final String    UE_TEST_EXEC = "TestExec";
       
       /** Represents the script for running the "Universal executive" for PLEXIL. */ 
       public static final String    RUN_UE_EXEC = PLEXIL_HOME +

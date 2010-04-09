@@ -49,7 +49,6 @@ public class LuvStateHandler {
 	 */
 	public void startState() {
 		disableAllMenus();
-		Luv.getLuv().setTestExecAllowed(false);
 		Luv.getLuv().setBreaksAllowed(false);
 		Luv.getLuv().setIsExecuting(false);
 		Luv.getLuv().setIsPaused(false);

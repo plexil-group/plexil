@@ -198,6 +198,33 @@ public class FileHandler
         return library;  
     }
     
+    /** Finds the Plexil config needed.
+     * 
+     * @return the Plexil config or null if not found
+     * @throws java.io.IOException
+     */
+    public File searchForConfig() throws IOException
+    {
+    	File config = null;
+    	String directory = "";
+    	// create empty script and prompt user
+
+            directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator");
+            config = createEmptyScript(directory);
+
+        if (!doNotLoadScript)
+        {
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, config.getParent());
+            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, config.toString()); 
+            loadScript(config);  
+            Luv.getLuv().getStatusMessageHandler().showStatus("Config \"" + config.toString() + "\" loaded", 1000);
+        }
+        
+        return config;
+    	
+    }
+    
+    
     /** Finds the Plexil script needed.
      * 
      * @return the Plexil script or null if not found
@@ -552,20 +579,18 @@ public class FileHandler
     private File createEmptyScript(String path) throws IOException 
     {
     
-    String supplement = "script";
-    String defaultSup = "empty " + supplement;
-    if (! Luv.getLuv().allowTest()) {
-    	supplement = "config";
-    	defaultSup = "default " + supplement;
-    }
+    String supplement = Luv.getLuv().allowTest() ? "script" : "config";
+    String defaultSup = Luv.getLuv().allowTest() ? "Yes, use empty script" : "No config";
     	
 	Object[] options = 
 	    {
-		"Yes, use " + defaultSup,
+		defaultSup,
 		"No, I will locate " + supplement,
 		"Cancel plan execution"
 	    };
-		
+
+	
+	
          
 	int option = 
 	    JOptionPane.showOptionDialog(Luv.getLuv(),
@@ -593,7 +618,8 @@ public class FileHandler
 	                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
 	                return new File(scriptName);
             	} else {
-            		return new File(path + DEFAULT_CONFIG_NAME);
+            		doNotLoadScript = true;      
+            		return null;
             	}
             		
             case 1:

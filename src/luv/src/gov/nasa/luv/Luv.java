@@ -47,7 +47,7 @@ import static javax.swing.JFileChooser.*;
  */
 public class Luv extends JFrame {
 
-    // boolean variables to help determine Luv state
+    // boolean variables to help determine Luv state	
     private static boolean allowBreaks;
     private static boolean allowTest;
     private static boolean planPaused;
@@ -161,8 +161,7 @@ public class Luv extends JFrame {
         };
 
         allowBreaks = false;
-        ////default is universalExec
-        allowTest = false;
+        allowTest = true; //default is testExec
         planPaused = false;
         planStep = false;
         isExecuting = false;
@@ -188,6 +187,7 @@ public class Luv extends JFrame {
         runMenu = new JMenu("Run");
         viewMenu = new JMenu("View");
         debugMenu = new JMenu("Debug");
+        
     }
 
     private void constructFrame(Container frame) {
@@ -458,7 +458,7 @@ public class Luv extends JFrame {
      *  @return the current instance of allowBreaks */
     public boolean breaksAllowed() {
         return allowBreaks;
-    }
+    }       
 
     /** Returns whether Luv currently uses universalExec or Test Exec.
      *  @return the current instance of allowTest */
@@ -536,7 +536,7 @@ public class Luv extends JFrame {
 
     public void setExtendedViewOn(boolean value) {
         extendedViewOn = value;
-    }
+    }       
 
     /** Modifies the state of certain menu items based on whether the Universal 
      *  Executive is running and whether it blocks.
