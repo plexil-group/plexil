@@ -225,9 +225,9 @@ public class ExecutionHandler
 				  currentPlan.getAbsoluteScriptName() != null &&
 				  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
 				  {
-		    		  if (!new File(currentPlan.getAbsoluteScriptName()).exists())
+		    		  if (new File(currentPlan.getAbsoluteScriptName()).exists())
 					  {
-						  return "ERROR: unable to identify config."; 
+		    			  pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
 					  }
 				  }else if (Luv.getLuv().getFileHandler().searchForConfig() != null)
 				  {
@@ -318,19 +318,20 @@ public class ExecutionHandler
           // display standard output from process (may contain an error message from UE)
           while ((line = is.readLine()) != null)
           {        	
+
+        	  System.out.println(line);
+        	  
               if (line.contains("Error"))
-              {
+              {            	  
                   Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive, see debug window");                  
-              }              
-              
-              System.out.println(line);             
+              }                                                       
           }
 
           // display standard error message from process if any
           while ((line = err.readLine()) != null)
           {    
-              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive, see debug window");
-              System.out.println(line);
+        	  System.out.println("Err: " + line);
+              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: STDERR error reported by the Universal Executive, see debug window");              
         	  if (line.contains("null interface adapter") && line.contains("command"))
         		  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "an interface configuration xml file is required for handling " + line.substring(line.indexOf("command"), line.length()));        	  
           }

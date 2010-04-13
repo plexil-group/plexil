@@ -368,7 +368,8 @@ public class LuvBreakPointHandler
                }); 
 
          // if we got any add enable/disable & remove item for each one
-         if (bps.size() > 0 && !Luv.getLuv().getIsExecuting())
+         //if (bps.size() > 0 && !Luv.getLuv().getIsExecuting())
+         if (bps.size() > 0)
          {
             // add the breakpoints
             popup.add(new JSeparator());
