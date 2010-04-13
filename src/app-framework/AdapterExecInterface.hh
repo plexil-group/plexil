@@ -30,6 +30,7 @@
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
 #include "ParserException.hh"
+#include "InterfaceManagerBase.hh"
 
 // forward references w/o namespace
 class TiXmlElement;
@@ -56,28 +57,9 @@ namespace PLEXIL
    *       need not be aware of the implementation details of InterfaceManager.
    */
 
-  class AdapterExecInterface
+  class AdapterExecInterface : public InterfaceManagerBase
   {
   public:
-
-    //
-    // API for all related objects
-    //
-
-    /**
-     * @brief Associate an arbitrary object with a string.
-     * @param name The string naming the property.
-     * @param thing The property value as an untyped pointer.
-     */
-    virtual void setProperty(const std::string& name, void * thing) = 0;
-
-    /**
-     * @brief Fetch the named property.
-     * @param name The string naming the property.
-     * @return The property value as an untyped pointer.
-     */
-    virtual void* getProperty(const std::string& name) = 0;
-
 
     //
     // API to interface adapters
@@ -376,8 +358,6 @@ namespace PLEXIL
     // Static utility functions
     //
     
-    static std::string valueToString(double val);
-    static double stringToValue(const char * rawValue);
     static std::string getText(const State& c);
 
   protected:
@@ -391,8 +371,6 @@ namespace PLEXIL
      * @brief Destructor method.
      */
     virtual ~AdapterExecInterface();
-
-    AdapterExecInterfaceId m_adapterInterfaceId;
 
   private:
 

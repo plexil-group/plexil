@@ -32,7 +32,6 @@
 #define TIXML_USE_STL
 #endif
 #include "tinyxml.h"
-#include <iomanip>
 #include <sstream>
 
 namespace PLEXIL
@@ -42,7 +41,6 @@ namespace PLEXIL
    * @brief Default constructor method.
    */
   AdapterExecInterface::AdapterExecInterface()
-    : m_adapterInterfaceId(this)
   {
   }
 
@@ -51,76 +49,11 @@ namespace PLEXIL
    */
   AdapterExecInterface::~AdapterExecInterface()
   {
-    m_adapterInterfaceId.remove();
   }
 
   //
   // Static utility functions
   //
-    
-  std::string AdapterExecInterface::valueToString(double val)
-  {
-    if (LabelStr::isString(val))
-      {
-	return std::string(LabelStr(val).toString());
-      }
-
-    // assume it's a number instead
-    // (do something special with ints?)
-    std::ostringstream tmp;
-    tmp << std::setprecision(15) << val;
-    return tmp.str();
-  }
-
-  double AdapterExecInterface::stringToValue(const char * rawValue)
-  {
-    // null / empty check first
-    if (rawValue == 0)
-      {
-	debugMsg("ExternalInterface:stringToValue",
-		 " raw value is null pointer");
-	return Expression::UNKNOWN();
-      }
-    else if (strlen(rawValue) == 0)
-      {
-	debugMsg("ExternalInterface:stringToValue",
-		 " raw value is empty string");
-	return Expression::UNKNOWN();
-      }
-
-    debugMsg("ExternalInterface:stringToValue", " input string = \"" << rawValue << "\"");
-
-    if (*rawValue != '\0')
-      {
-	// try converting to integer first
-	char * endptr;
-	long longResult = strtol(rawValue, &endptr, 10);
-	if (*endptr == '\0')
-	  {
-	    // string is valid integer
-	    debugMsg("ExternalInterface:stringToValue", " result is integer " << longResult);
-	    return (double) longResult;
-	  }
-
-	debugMsg("ExternalInterface:stringToValue", " result is not valid integer");
-
-	// string is not valid integer --
-	// try converting to double
-	double doubleResult = strtod(rawValue, &endptr);
-	if (*endptr == '\0')
-	  {
-	    // string is valid double
-	    debugMsg("ExternalInterface:stringToValue", " result is double " << doubleResult);
-	    return doubleResult;
-	  }
-
-	debugMsg("ExternalInterface:stringToValue", " result is not valid double");
-      }
-
-    // if all else fails, turn it into a LabelStr
-    LabelStr labelResult(rawValue);
-    return (double) labelResult;
-  }
 
   std::string AdapterExecInterface::getText(const State& c) 
   {
