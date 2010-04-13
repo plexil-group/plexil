@@ -191,6 +191,8 @@ int main (int argc, char** argv)
   _app.waitForPlanFinished();
 
   // clean up
+  _app.stop();
+  _app.shutdown();
 
   return 0;
 }
