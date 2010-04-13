@@ -2,6 +2,7 @@
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
-$PLEXIL_HOME/bin/central
+$PLEXIL_HOME/bin/central $*
+
 
 
