@@ -70,7 +70,7 @@ namespace PLEXIL
   InterfaceManager::InterfaceManager(ExecApplication & app)
     : ExternalInterface(),
       AdapterExecInterface(),
-      m_interfaceManagerId((InterfaceManagerId)m_adapterInterfaceId),
+      m_interfaceManagerId((InterfaceManagerId)m_baseId),
       m_application(app),
       m_adapterConfig(),
       m_valueQueue(),
@@ -223,9 +223,6 @@ namespace PLEXIL
                            << adapterType);
                 m_adapters.insert(adapter);
               }
-            // *** TO DO ***
-            // generalize listener factories to add support for (e.g.) ActorListener
-            // w/o requiring knowledge of (e.g.) PlexilGenericActor
             else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
               {
                 // Get the kind of listener to make
