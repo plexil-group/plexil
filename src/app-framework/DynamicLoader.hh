@@ -37,12 +37,31 @@
 #ifndef DYNAMICLOADER_HH_
 #define DYNAMICLOADER_HH_
 
+#include <cstddef> // for NULL
+
 namespace PLEXIL
 {
   class DynamicLoader {
   public:
+
+    //
+    // Dynamic library loading utility
+    //
+    
     /**
-     * @breif Executes the given function in the given dynamic library (loaded and cached
+     * @brief Dynamically load the shared library containing the module name, using the library name if provided.
+     * @param typeName The name of the module
+     * @param libPath The library name containing the module; defaults to NULL.
+     * @return true if successful, false otherwise.
+     * @note If libPath is not provided, attempts to load 'lib<moduleName><LIB_EXT>'.
+     * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
+     */
+
+    static bool loadModule(const char* moduleName, 
+			   const char* libPath = NULL);
+
+    /**
+     * @brief Executes the given function in the given dynamic library (loaded and cached
      *    if not already).
      * @param libPath The path to the library to execute funcSymbol.
      * @param funcSymbol The function to execute.
@@ -54,7 +73,7 @@ namespace PLEXIL
     static void *getDynamicSymbol(const char* libPath, const char* symbol);
 
     /**
-     * @breif Returns a human readable string describing the most recent error that
+     * @brief Returns a human readable string describing the most recent error that
      * occurred from runDynamicFunction.
      * @return NULL if no errors have occured since startup; a human readable string
      * describing the most recent error otherwise.

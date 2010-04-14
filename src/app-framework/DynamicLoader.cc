@@ -24,11 +24,66 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <dlfcn.h>
 #include "DynamicLoader.hh"
+#include <dlfcn.h>
+#include <string>
+
+#include "Debug.hh"
 
 namespace PLEXIL
 {
+    /**
+     * @brief Dynamically load the shared library containing the module name, using the library name if provided.
+     * @param typeName The name of the module
+     * @param libPath The library name containing the module, or NULL.
+     * @param moduleTypeForDisplay Used in display messages only.
+     * @return true if successful, false otherwise.
+     * @note Expects to call init<moduleName>() with no args to initialize the freshly loaded module.
+     */
+
+  bool DynamicLoader::loadModule(const char* moduleName, 
+				 const char* libPath)
+  {
+    std::string libName;
+    if (libPath == NULL)
+      {
+	// construct library name from module name
+	libName = "lib" + std::string(moduleName);
+	debugMsg("DynamicLoader:loadModule",
+		 " no library name provided for module "
+		 << moduleName << "\", using default value of \""
+		 << libName << "\"");
+      }
+    else
+      {
+	// use provided name
+	libName = libPath;
+      }
+
+    // append file extension
+    libName += LIB_EXT;
+
+    // attempt to load the library
+    // (technically, attempt to find the named symbol in the spec'd library)
+    std::string funcName = (std::string("init") + moduleName);
+    void (*func)();
+    *(void **)(&func) = DynamicLoader::getDynamicSymbol(libName.c_str(), funcName.c_str());
+    if (func == 0)
+      {
+	debugMsg("DynamicLoader:loadModule", 
+		 " Failed to load library "
+		 << libPath << ":\n" << DynamicLoader::getError());
+	return false;
+      }
+
+    // Call init function
+    (*func)();
+
+    debugMsg("DynamicLoader:loadModule",
+	     " successfully loaded " << moduleName << "\"");
+    return true;
+  }
+
   void *DynamicLoader::getDynamicSymbol(const char* libPath, const char* symbol) {
     void *handle = dlopen(libPath, RTLD_NOW | RTLD_GLOBAL);
     if (!handle) //an error occured in loading the library
