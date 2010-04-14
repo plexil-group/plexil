@@ -42,9 +42,11 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    */
-  ManagedExecListener::ManagedExecListener(const TiXmlElement* xml)
+  ManagedExecListener::ManagedExecListener(const TiXmlElement* xml,
+					   InterfaceManagerBase & mgr)
     : ExecListener(),
-      m_xml(xml)
+      m_xml(xml),
+      m_manager(mgr)
   {
     if (xml != NULL)
       {
@@ -62,7 +64,8 @@ namespace PLEXIL
                           << " attribute");
             ExecListenerFilterId f = 
               ExecListenerFilterFactory::createInstance(LabelStr(filterType),
-                                                        filterSpec);
+                                                        filterSpec,
+							mgr);
             assertTrue(f.isId(),
                        "ManagedExecListener constructor: failed to construct filter");
             this->setFilter(f);
@@ -84,9 +87,11 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    */
-  ManagedExecListenerFilter::ManagedExecListenerFilter(TiXmlElement* xml)
+  ManagedExecListenerFilter::ManagedExecListenerFilter(const TiXmlElement* xml,
+						       InterfaceManagerBase & mgr)
     : ExecListenerFilter(),
-      m_xml(xml)
+      m_xml(xml),
+      m_manager(mgr)
   {
   }
 

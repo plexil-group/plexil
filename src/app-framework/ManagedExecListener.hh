@@ -34,6 +34,10 @@ class TiXmlElement;
 
 namespace PLEXIL
 {
+
+  // Forward reference w/o namespace
+  class InterfaceManagerBase;
+
   /**
    * @brief An abstract base class, derived from ExecListener, which supports
    *        automatic management by the InterfaceManager class.
@@ -45,9 +49,12 @@ namespace PLEXIL
   public:
 
     /**
-     * @brief Constructor from configuration XML.
+     * @brief Constructor from configuration XML and owning manager.
+     * @param xml Pointer to the (shared) configuration XML describing this listener.
+     * @param mgr A reference to the owning manager.
      */
-    ManagedExecListener(const TiXmlElement* xml);
+    ManagedExecListener(const TiXmlElement* xml,
+			InterfaceManagerBase & mgr);
 
     /**
      * @brief Destructor.
@@ -61,6 +68,15 @@ namespace PLEXIL
     inline const TiXmlElement* getXml() const
     { 
       return m_xml; 
+    }
+
+    /**
+     * @brief Get the InterfaceManager that owns this instance.
+     * @return A InterfaceManagerBase &.
+     */
+    inline InterfaceManagerBase & getManager() const
+    { 
+      return m_manager; 
     }
 
     //
@@ -113,6 +129,11 @@ namespace PLEXIL
      * @brief The configuration XML used at construction time.
      */
     const TiXmlElement* m_xml;
+
+    /**
+     * @brief The InterfaceManager instance that owns this listener.
+     */
+    InterfaceManagerBase & m_manager;
   };
 
   /**
@@ -127,7 +148,7 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      */
-    ManagedExecListenerFilter(TiXmlElement* xml);
+    ManagedExecListenerFilter(const TiXmlElement* xml, InterfaceManagerBase & mgr);
 
     /**
      * @brief Destructor from configuration XML.
@@ -138,9 +159,18 @@ namespace PLEXIL
      * @brief Get the configuration XML of this instance.
      * @return A pointer to the XML element.
      */
-    inline const TiXmlElement* getXml() const
+    const TiXmlElement* getXml() const
     {
       return m_xml;
+    }
+
+    /**
+     * @brief Get the interface manager.
+     * @return A reference to the manager.
+     */
+    InterfaceManagerBase& getManager() const
+    {
+      return m_manager;
     }
 
   private:
@@ -154,7 +184,17 @@ namespace PLEXIL
     //
     // Member variables
     //
+
+    /**
+     * @brief The configuration XML used at construction time.
+     */
     const TiXmlElement* m_xml;
+
+    /**
+     * @brief The InterfaceManager instance that owns (the listener which owns) this filter.
+     * @note Provided for access to the Exec core and other shared data.
+     */
+    InterfaceManagerBase & m_manager;
   };
 
 
