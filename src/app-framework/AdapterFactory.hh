@@ -54,6 +54,18 @@ namespace PLEXIL
   public:
 
     /**
+     * @brief Creates a new InterfaceAdapter instance as specified by
+     *        the given configuration XML.
+     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+     * @param execInterface Reference to the parent InterfaceManager instance.
+     * @return The Id for the new InterfaceAdapter.  May not be unique.
+     */
+
+    static InterfaceAdapterId createInstance(const TiXmlElement* xml,
+                                             AdapterExecInterface& execInterface);
+
+
+    /**
      * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.

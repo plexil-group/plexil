@@ -27,6 +27,9 @@
 #include "AdapterFactory.hh"
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
+#include "DynamicLoader.hh"
+#include "InterfaceSchema.hh"
+
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif
@@ -35,10 +38,42 @@
 namespace PLEXIL
 {
   /**
+   * @brief Creates a new InterfaceAdapter instance as specified by
+   *        the given configuration XML.
+   * @param name The registered name for the factory.
+   * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+   * @param execInterface Reference to the parent InterfaceManager instance.
+   * @return The Id for the new InterfaceAdapter.  May not be unique.
+   */
+
+  InterfaceAdapterId 
+  AdapterFactory::createInstance(const TiXmlElement* xml,
+                                 AdapterExecInterface& execInterface)
+  {
+    // Can't do anything without the spec
+    assertTrueMsg(xml != NULL,
+		  "AdapterFactory::createInstance: null configuration XML");
+
+    // Get the kind of adapter to make
+    const char* adapterType = 
+      xml->Attribute(InterfaceSchema::ADAPTER_TYPE_ATTR());
+    checkError(adapterType != 0,
+	       "AdapterFactory::createInstance: no "
+	       << InterfaceSchema::ADAPTER_TYPE_ATTR()
+	       << " attribute for adapter XML:\n"
+	       << *xml);
+
+    // Make it
+    bool dummy;
+    return createInstance(LabelStr(adapterType), xml, execInterface, dummy);
+  }
+
+  /**
    * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
+   * @param execInterface Reference to the parent InterfaceManager instance.
    * @return The Id for the new InterfaceAdapter.  May not be unique.
    */
 
@@ -69,6 +104,22 @@ namespace PLEXIL
                                  bool& wasCreated)
   {
     std::map<double, AdapterFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    if (it == factoryMap().end())
+      {
+	debugMsg("AdapterFactory:createInstance", 
+		 "Attempting to dynamically load adapter type \""
+		 << name.c_str() << "\"");
+	// Attempt to dynamically load library
+	const char* libCPath =
+	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+	assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
+		      "AdapterFactory::createInstance: unable to load module for adapter type \""
+		      << name.c_str() << "\"");
+
+	// See if it's registered now
+	it = factoryMap().find(name.getKey());
+      }
+
     assertTrueMsg(it != factoryMap().end(),
 		  "Error: No adapter factory registered for name \"" << name.c_str() << "\".");
     InterfaceAdapterId retval = it->second->create(xml, execInterface, wasCreated);
