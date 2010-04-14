@@ -167,106 +167,26 @@ namespace PLEXIL
         while (element != 0)
           {
             const char* elementType = element->Value();
-
-            // *** TO DO ***
-            // generalize adapter factories to add support for (e.g.) ActorAdapter
-            // w/o requiring knowledge of (e.g.) PlexilGenericActor
             if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
               {
-                // Get the kind of adapter to make
-                const char* adapterType = 
-                  element->Attribute(InterfaceSchema::ADAPTER_TYPE_ATTR());
-                checkError(adapterType != 0,
-                           "constructInterfaces: no "
-                           << InterfaceSchema::ADAPTER_TYPE_ATTR()
-                           << " attribute for adapter XML:\n"
-                           << *element);
-		debugMsg("InterfaceManager:constructInterfaces",
-			 " found adapter type \"" << adapterType << "\"");
-
-                if (!AdapterFactory::isRegistered(adapterType)) {
-                  const char* libCPath =
-                    element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-                  std::string libPath;
-                  if (libCPath == 0) {
-                    std::stringstream libStream;
-                    libStream << "lib" << adapterType << LIB_EXT;
-                    libPath = std::string(libStream.str());
-                    debugMsg("InterfaceManager:constructInterfaces",
-			     " no "
-			     << InterfaceSchema::LIB_PATH_ATTR()
-			     << " attribute for adapter type \""
-			     << adapterType << "\", using default value of \""
-			     << libPath << "\"");
-                  } else {
-                    libPath = std::string(libCPath);
-                  }
-                  std::string funcName = (std::string("init") + adapterType);
-                  void (*func)();
-                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath.c_str(), funcName.c_str());
-                  assertTrueMsg(func != 0,
-				"InterfaceManager::constructInterfaces: Failed to load library "
-				<< libPath.c_str() << ":\n" << DynamicLoader::getError());
-                  (*func)();
-		  assertTrueMsg(AdapterFactory::isRegistered(adapterType),
-				"InterfaceManager::constructInterfaces: Failed to register adapter type \""
-				<< adapterType << "\"");
-                }
-
                 // Construct the adapter
                 InterfaceAdapterId adapter = 
-                  AdapterFactory::createInstance(LabelStr(adapterType),
-                                                 element,
+                  AdapterFactory::createInstance(element,
                                                  *((AdapterExecInterface*)this));
-                checkError(adapter.isId(),
-                           "constructInterfaces: failed to construct adapter of type "
-                           << adapterType);
+                assertTrueMsg(adapter.isId(),
+			      "constructInterfaces: failed to construct adapter from XML:\n"
+			      << *element);
                 m_adapters.insert(adapter);
               }
             else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
               {
-                // Get the kind of listener to make
-                const char* listenerType =
-                  element->Attribute(InterfaceSchema::LISTENER_TYPE_ATTR());
-                checkError(listenerType != 0,
-                           "constructInterfaces: no "
-                           << InterfaceSchema::LISTENER_TYPE_ATTR()
-                           << " attribute for listener XML:\n"
-                           << *element);
-		debugMsg("InterfaceManager:constructInterfaces",
-			 " found listener type \"" << listenerType << "\"");
-
-                // load external library (linux only for now) if the listener is not registered
-                // TODO: support mac os
-                if (!ExecListenerFactory::isRegistered(listenerType)) {
-                  const char* libCPath =
-                    element->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-                  std::string libPath;
-                  if (libCPath == 0) {
-                    debugMsg("true", "constructInterfaces: no "
-                               << InterfaceSchema::LIB_PATH_ATTR()
-                               << " attribute for adapter XML:\n"
-                               << *element);
-                    std::stringstream libStream;
-                    libStream << "lib" << listenerType << LIB_EXT;
-                    libPath = libStream.str();
-                  } else {
-                    libPath = std::string(libCPath);
-                  }
-                  std::string funcName = (std::string("init") + listenerType);
-                  void (*func)();
-                  *(void **)(&func) = DynamicLoader::getDynamicSymbol(libPath.c_str(), funcName.c_str());
-                  checkError(func != 0, DynamicLoader::getError());
-                  (*func)();
-                }
-
                 // Construct an ExecListener instance and attach it to the Exec
                 ExecListenerId listener = 
-                  ExecListenerFactory::createInstance(LabelStr(listenerType),
-                                                      element);
-                checkError(listener.isId(),
-                           "constructInterfaces: failed to construct listener of type "
-                           << listenerType);
+                  ExecListenerFactory::createInstance(element,
+						      (AdapterExecInterface&) *this);
+                assertTrueMsg(listener.isId(),
+			      "constructInterfaces: failed to construct listener from XML:\n"
+			      << *element);
                 m_listeners.push_back(listener);
               }
             else
