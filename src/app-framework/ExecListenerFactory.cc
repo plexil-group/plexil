@@ -26,6 +26,10 @@
 
 #include "ExecListenerFactory.hh"
 #include "ExecListener.hh"
+#include "InterfaceManagerBase.hh"
+#include "InterfaceSchema.hh"
+#include "DynamicLoader.hh"
+
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif
@@ -40,19 +44,66 @@ namespace PLEXIL
   /**
    * @brief Creates a new ExecListener instance with the type associated with the name and
    *        the given configuration XML.
+   * @param xml The configuration XML specifying the ExecListener.
+   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
+   * @return The Id for the new ExecListener.
+   */
+
+  ExecListenerId 
+  ExecListenerFactory::createInstance(const TiXmlElement* xml,
+				      InterfaceManagerBase & mgr)
+  {
+    // Can't do anything without the spec
+    assertTrueMsg(xml != NULL,
+		  "ExecListenerFactory::createInstance: null configuration XML");
+
+    // Get the kind of listener to make
+    const char* listenerType = 
+      xml->Attribute(InterfaceSchema::LISTENER_TYPE_ATTR());
+    checkError(listenerType != 0,
+	       "ExecListenerFactory::createInstance: no "
+	       << InterfaceSchema::LISTENER_TYPE_ATTR()
+	       << " attribute for listener XML:\n"
+	       << *xml);
+
+    // Make it
+    return createInstance(LabelStr(listenerType), xml, mgr);
+  }
+
+  /**
+   * @brief Creates a new ExecListener instance with the type associated with the name and
+   *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListener constructor.
+   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new ExecListener.
    */
 
   ExecListenerId 
   ExecListenerFactory::createInstance(const LabelStr& name,
-                                      const TiXmlElement* xml)
+                                      const TiXmlElement* xml,
+				      InterfaceManagerBase & mgr)
   {
     std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    if (it == factoryMap().end())
+      {
+	debugMsg("ExecListenerFactory:createInstance", 
+		 "Attempting to dynamically load listener type \""
+		 << name.c_str() << "\"");
+	// Attempt to dynamically load library
+	const char* libCPath =
+	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+	assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
+		      "ExecListenerFactory::createInstance: unable to load module for listener type \""
+		      << name.c_str() << "\"");
+
+	// See if it's registered now
+	it = factoryMap().find(name.getKey());
+      }
+
     assertTrueMsg(it != factoryMap().end(),
 		  "Error: No exec listener factory registered for name \"" << name.c_str() << "\".");
-    ExecListenerId retval = it->second->create(xml);
+    ExecListenerId retval = it->second->create(xml, mgr);
     debugMsg("ExecListenerFactory:createInstance", " Created Exec listener " << name.c_str());
     return retval;
   }
@@ -100,23 +151,75 @@ namespace PLEXIL
     return factoryMap().find(name) != factoryMap().end();
   }
 
+  //
+  // ExecListenerFilterFactory
+  //
+
+  /**
+   * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
+   *        the given configuration XML.
+   * @param xml The configuration XML specifying the ExecListenerFilter.
+   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
+   * @return The Id for the new ExecListenerFilter.
+   */
+
+  ExecListenerFilterId 
+  ExecListenerFilterFactory::createInstance(const TiXmlElement* xml,
+					    InterfaceManagerBase & mgr)
+  {
+    // Can't do anything without the spec
+    assertTrueMsg(xml != NULL,
+		  "ExecListenerFilterFactory::createInstance: null configuration XML");
+
+    // Get the kind of filter to make
+    const char* filterType = 
+      xml->Attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+    checkError(filterType != 0,
+	       "ExecListenerFilterFactory::createInstance: no "
+	       << InterfaceSchema::FILTER_TYPE_ATTR()
+	       << " attribute for filter XML:\n"
+	       << *xml);
+
+    // Make it
+    return createInstance(LabelStr(filterType), xml, mgr);
+  }
+
+
   /**
    * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListenerFilter constructor.
+   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new ExecListenerFilter.
    */
 
   ExecListenerFilterId 
   ExecListenerFilterFactory::createInstance(const LabelStr& name,
-                                            const TiXmlElement* xml)
+                                            const TiXmlElement* xml,
+					    InterfaceManagerBase & mgr)
   {
     std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    if (it == factoryMap().end())
+      {
+	debugMsg("ExecListenerFilterFactory:createInstance", 
+		 "Attempting to dynamically load filter type \""
+		 << name.c_str() << "\"");
+	// Attempt to dynamically load library
+	const char* libCPath =
+	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+	assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
+		      "ExecListenerFilterFactory::createInstance: unable to load module for filter type \""
+		      << name.c_str() << "\"");
+
+	// See if it's registered now
+	it = factoryMap().find(name.getKey());
+      }
+
     assertTrueMsg(it != factoryMap().end(),
 		  "Error: No exec listener filter factory registered for name \""
                   << name.c_str() << "\".");
-    ExecListenerFilterId retval = it->second->create(xml);
+    ExecListenerFilterId retval = it->second->create(xml, mgr);
     debugMsg("ExecListenerFilterFactory:createInstance",
              " Created Exec listener filter " << name.c_str());
     return retval;
