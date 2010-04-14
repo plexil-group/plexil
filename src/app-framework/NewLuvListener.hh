@@ -73,7 +73,7 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      */
-    NewLuvListener(const TiXmlElement* xml);
+    NewLuvListener(const TiXmlElement* xml, InterfaceManagerBase& mgr);
 
     /**
      * @brief Destructor.

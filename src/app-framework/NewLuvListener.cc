@@ -39,7 +39,7 @@
 #include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
 #include "LabelStr.hh"
-#include "AdapterExecInterface.hh"
+#include "InterfaceManagerBase.hh"
 
 #include <sstream>
 
@@ -50,8 +50,9 @@ namespace PLEXIL
 {
   // create a listener given configuration XML
 
-  NewLuvListener::NewLuvListener(const TiXmlElement* xml)
-    : ManagedExecListener(xml),
+  NewLuvListener::NewLuvListener(const TiXmlElement* xml,
+				 InterfaceManagerBase& mgr)
+    : ManagedExecListener(xml, mgr),
       m_socket(NULL),
       m_hostname(NULL),
       m_port(0),
@@ -287,7 +288,7 @@ namespace PLEXIL
 
     // format variable value
     TiXmlElement * valXml = new TiXmlElement(VARIABLE_VALUE_TAG());
-    valXml->InsertEndChild(*(new TiXmlText(AdapterExecInterface::valueToString(value))));
+    valXml->InsertEndChild(*(new TiXmlText(InterfaceManagerBase::valueToString(value))));
     assignXml.LinkEndChild(valXml);
     
     // send it to viewer
