@@ -35,4 +35,4 @@ plexil-check-prog $prog
 dir=$PLEXIL_HOME/src/apps/robosim/2DRobotSimulator
 cd $dir
 
-exec $prog $*
+exec $prog $* &
