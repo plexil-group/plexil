@@ -77,6 +77,9 @@ namespace PLEXIL
    */
   bool ExecApplication::initialize(const TiXmlElement * configXml)
   {
+    condDebugMsg(configXml == NULL, "ExecApplication:initialize", " configuration is NULL");
+    condDebugMsg(configXml != NULL, "ExecApplication:initialize", " configuration = " << *configXml);
+
     if (m_state != APP_UNINITED)
       return false;
 

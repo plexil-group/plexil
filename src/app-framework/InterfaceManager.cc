@@ -136,6 +136,7 @@ namespace PLEXIL
    */
   void InterfaceManager::defaultRegisterAdapter(InterfaceAdapterId adapter)
   {
+    debugMsg("InterfaceManager:defaultRegisterAdapter", " for adapter " << adapter);
     m_adapterConfig->defaultRegisterAdapter(adapter);
   }
 
@@ -145,9 +146,11 @@ namespace PLEXIL
    */
   void InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
   {
-    debugMsg("InterfaceManager:constructInterfaces", " constructing interface adapters");
-    if (configXml != 0)
+    condDebugMsg(configXml == NULL, "InterfaceManager:constructInterfaces", " configuration is NULL");
+    condDebugMsg(configXml != NULL, "InterfaceManager:constructInterfaces", " configuration = " << *configXml);
+    if (configXml != NULL)
       {
+	debugMsg("InterfaceManager:constructInterfaces", " parsing configuration XML " << *configXml);
         const char* elementType = configXml->Value();
         checkError(strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0,
                    "constructInterfaces: invalid configuration XML: \n"
@@ -166,6 +169,7 @@ namespace PLEXIL
         const TiXmlElement* element = configXml->FirstChildElement();
         while (element != 0)
           {
+	    debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
             const char* elementType = element->Value();
             if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
               {

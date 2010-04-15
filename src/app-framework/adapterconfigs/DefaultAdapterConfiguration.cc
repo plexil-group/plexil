@@ -51,12 +51,14 @@ DefaultAdapterConfiguration::DefaultAdapterConfiguration(InterfaceManager* manag
 DefaultAdapterConfiguration::~DefaultAdapterConfiguration() {
   clearAdapterRegistry();
 }
+
 /**
  * @brief Register the given interface adapter. By default, this method does nothing
  * @param adapter The interface adapter to handle this command.
  */
 
 void DefaultAdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId adapter) {
+  debugMsg("DefaultAdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
   // Walk the children of the configuration XML element
   // and register the adapter according to the data found there
   const TiXmlElement* element = adapter->getXml()->FirstChildElement();
