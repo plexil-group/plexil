@@ -1127,7 +1127,7 @@ void x_ipc_execHnd(CONNECTION_PTR connection, DATA_MSG_PTR dataMsg)
       if (!direct) x_ipcSuccess(x_ipcRef); break;
     }
 
-    case UNKNOWN_TYPE:
+    case UNKNOWN:
     case HandlerRegClass:
     case ExecHndClass:
     case GoalClass:
