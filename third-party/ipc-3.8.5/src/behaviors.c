@@ -828,7 +828,7 @@ const char *x_ipc_messageClassName(X_IPC_MSG_CLASS_TYPE msg_class)
   case MultiQueryClass:
     return("MQuery");
 
-  case UNKNOWN:
+  case UNKNOWN_TYPE:
   case HandlerRegClass:
   case ExecHndClass:
   case ReplyClass:
@@ -891,7 +891,7 @@ void x_ipc_checkMessageClass(MSG_PTR msg, X_IPC_MSG_CLASS_TYPE msg_class)
       use = "x_ipcMultiQuery"; 
       break;
 
-    case UNKNOWN:
+    case UNKNOWN_TYPE:
     case HandlerRegClass:
     case ExecHndClass: 
     case ExceptionClass:
@@ -1127,7 +1127,7 @@ void x_ipc_execHnd(CONNECTION_PTR connection, DATA_MSG_PTR dataMsg)
       if (!direct) x_ipcSuccess(x_ipcRef); break;
     }
 
-    case UNKNOWN:
+    case UNKNOWN_TYPE:
     case HandlerRegClass:
     case ExecHndClass:
     case GoalClass:

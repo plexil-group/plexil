@@ -39,6 +39,7 @@
 #include "StoredArray.hh"
 #include "PlexilPlan.hh"
 #include "ExecDefs.hh"
+#include "CommonDefs.hh"
 
 #include <limits>
 #include <list>
@@ -102,13 +103,9 @@ namespace PLEXIL {
   class Expression {
   public:
 
-    DECLARE_STATIC_CLASS_CONST(double, UNKNOWN, (std::numeric_limits<double>::has_infinity ?
-						 std::numeric_limits<double>::infinity() :
-						 std::numeric_limits<double>::max()));
-    DECLARE_STATIC_CLASS_CONST(LabelStr, UNKNOWN_STR,
-			       (std::numeric_limits<double>::has_infinity ?
-				std::numeric_limits<double>::infinity() :
-				std::numeric_limits<double>::max()));
+    //redirects for old usage.
+    DECLARE_STATIC_CLASS_CONST(double, UNKNOWN, PLEXIL::UNKNOWN());
+    DECLARE_STATIC_CLASS_CONST(LabelStr, UNKNOWN_STR, PLEXIL::UNKNOWN_STR());
 
     static ExpressionId& UNKNOWN_EXP();
     /**
@@ -147,7 +144,7 @@ namespace PLEXIL {
      * @return The value type of this Expression.
      * @note The default method returns UNKNOWN.
      */
-    virtual PlexilType getValueType() const { return PLEXIL::UNKNOWN; }
+    virtual PlexilType getValueType() const { return PLEXIL::UNKNOWN_TYPE; }
 
     /**
      * @brief Set the value for this expression.  This may cause notifications to fire, which

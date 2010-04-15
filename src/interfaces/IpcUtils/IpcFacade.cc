@@ -28,7 +28,7 @@
 #include "IpcFacade.hh"
 #include "Debug.hh"
 #include "StoredArray.hh"
-#include "Expression.hh"
+#include "CommonDefs.hh"
 
 // ooid classes
 #include "uuid.h"
@@ -92,8 +92,9 @@ IPC_RETURN_TYPE IpcFacade::initilize(const char* taskName, const char* serverNam
       result = IPC_connectModule(getUID().c_str(), serverName);
 
     // Define messages
-    if (result == IPC_OK)
+    if (result == IPC_OK) {
       result = definePlexilIPCMessageTypes() ? IPC_OK : IPC_Error;
+    }
   }
   if (result == IPC_OK) {
     m_isInitilized = true;
@@ -335,7 +336,7 @@ IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_
   for (std::list<double>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
     double param = *it;
     PlexilMsgBase* paramMsg;
-    if (Expression::UNKNOWN() != param && StoredArray::isKey(param)) {
+    if (PLEXIL::UNKNOWN() != param && StoredArray::isKey(param)) {
       StoredArray array(param);
       int size = array.size();
       BasicType type = determineType(array.getKey());
@@ -361,7 +362,7 @@ IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_
         paramMsg = (PlexilMsgBase*) numArrayMsg;
         paramMsg->msgType = PlexilMsgType_NumericArray;
       }
-    } else if (Expression::UNKNOWN() == param || !LabelStr::isString(param)) {
+    } else if (PLEXIL::UNKNOWN() == param || !LabelStr::isString(param)) {
       // number or Boolean
       struct PlexilNumericValueMsg* numMsg = new PlexilNumericValueMsg();
       numMsg->doubleValue = param;
@@ -662,7 +663,7 @@ IpcFacade::BasicType IpcFacade::determineType(double array_id) {
   StoredArray array(array_id);
   int size = array.size();
   for (int i = 0; i < size && type == UNKNOWN; i++) {
-    if (Expression::UNKNOWN() == array[i]) {
+    if (PLEXIL::UNKNOWN() == array[i]) {
       continue;
     } else if (LabelStr::isString(array[i])) {
       type = STRING;

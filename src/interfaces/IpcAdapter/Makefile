@@ -31,13 +31,13 @@ LIBRARY		:= IpcAdapter
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
                    $(PLEXIL_HOME)/third-party/ipc/src \
-                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
-                    ../../utils ../../exec ../../app-framework 
+                    ../../utils ../../exec ../../app-framework \
+                    ../IpcUtils
 LIB_PATH	+=
-LIBS		+= ipc tinyxml PlexilUtils PlexilExec PlexilAppFramework
+LIBS		+= ipc tinyxml IpcUtils PlexilUtils PlexilExec PlexilAppFramework
 
-SRC		:= IpcAdapter.cc initIpcAdapter.cc IpcFacade.cc MessageQueueMap.cc
-INC		:= IpcAdapter.hh ipc-data-formats.h IpcFacade.hh MessageQueueMap.hh
+SRC		:= IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc
+INC		:= IpcAdapter.hh MessageQueueMap.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 

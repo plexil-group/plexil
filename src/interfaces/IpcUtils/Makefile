@@ -23,19 +23,24 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SHELL = /bin/sh
 
-plexil-default: all
+include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-all:
-	$(MAKE) -C Sockets
-	$(MAKE) -C LuvListener
-	$(MAKE) -C IpcAdapter
-	$(MAKE) -c IpcUtils
+LIBRARY		:= IpcUtils
 
-clean:
-	$(MAKE) -C Sockets $@
-	$(MAKE) -C LuvListener $@
-	$(MAKE) -C IpcAdapter $@
-	$(MAKE) -c IpcUtils $@
+# External dependencies
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/ipc/src \
+                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
+                    ../../utils ../../app-framework 
+LIB_PATH	+=
+LIBS		+= ipc PlexilUtils PlexilAppFramework
 
+SRC		:= IpcFacade.cc
+INC		:= ipc-data-formats.h IpcFacade.hh
+
+SVN_FILES       := Makefile $(SRC) $(INC)
+
+include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
+-include Makedepend
+endif

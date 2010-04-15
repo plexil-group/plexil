@@ -61,6 +61,10 @@ namespace PLEXIL
    // define the empty label
 
    DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
+   DEFINE_GLOBAL_CONST(LabelStr, UNKNOWN_STR,
+                  (std::numeric_limits<double>::has_infinity ?
+                      std::numeric_limits<double>::infinity() :
+                      std::numeric_limits<double>::max()));
 
    LabelStr::LabelStr()
    {

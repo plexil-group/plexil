@@ -33,11 +33,10 @@ INC		:= $(wildcard *.hh)
 
 INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/third-party/ipc/src \
-                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter \
-                   $(PLEXIL_HOME)/src/exec
+                   $(PLEXIL_HOME)/src/interfaces/IpcUtils
                    
 
-LIBS		+= PlexilUtils ipc IpcAdapter PlexilExec
+LIBS		+= PlexilUtils ipc IpcUtils
 
 ############################
 # Rules to build the targets

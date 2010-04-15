@@ -126,7 +126,7 @@ namespace PLEXIL {
       
     // default case
     checkError(ALWAYS_FAIL, "Invalid value type name '" << str << "'");
-    return PLEXIL::UNKNOWN;
+    return PLEXIL::UNKNOWN_TYPE;
   }
 
   const std::string& PlexilParser::valueTypeString(const PlexilType& typ)

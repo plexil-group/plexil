@@ -68,8 +68,11 @@ utils: tinyxml
 exec-core: utils
 	$(MAKE) -C src/exec
 
-IpcAdapter: app-framework ipc
+IpcAdapter: app-framework IpcUtils
 	$(MAKE) -C src/interfaces/IpcAdapter
+
+IpcUtils: ipc
+	$(MAKE) -C src/interfaces/IpcUtils
 
 LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener

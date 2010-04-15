@@ -197,7 +197,7 @@ namespace PLEXIL {
 
   PlexilType Lookup::getValueType() const
   {
-    return PLEXIL::UNKNOWN;
+    return PLEXIL::UNKNOWN_TYPE;
   }
 
 

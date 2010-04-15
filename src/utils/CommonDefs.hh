@@ -99,6 +99,8 @@ namespace PLEXIL {
   DECLARE_GLOBAL_CONST(int32_t, g_infiniteTime);
   DECLARE_GLOBAL_CONST(double, g_epsilon);
   DECLARE_GLOBAL_CONST(double, g_maxReal);
+  DECLARE_GLOBAL_CONST(double, UNKNOWN);
+
 }
 
 #define MAX_INT (PLEXIL::g_maxInt())

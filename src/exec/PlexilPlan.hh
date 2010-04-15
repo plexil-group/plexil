@@ -236,7 +236,7 @@ namespace PLEXIL {
      PlexilVarRef() :
        PlexilExpr(),
        m_typed(false),
-       m_type(PLEXIL::UNKNOWN),
+       m_type(PLEXIL::UNKNOWN_TYPE),
        m_defaultValue(PlexilExprId::noId())
      {}
 
@@ -438,7 +438,7 @@ namespace PLEXIL {
   public:
     PlexilAssignmentBody()
       : PlexilActionBody(),
-	m_type(PLEXIL::UNKNOWN)
+	m_type(PLEXIL::UNKNOWN_TYPE)
     {}
 
     const PlexilExprId& RHS() const {return m_rhs;}
