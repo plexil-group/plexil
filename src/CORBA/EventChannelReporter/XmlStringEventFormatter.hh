@@ -35,7 +35,7 @@ namespace PLEXIL
   class XmlStringEventFormatter : public EventFormatter
   {
   public:
-    XmlStringEventFormatter();
+    XmlStringEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr);
     virtual ~XmlStringEventFormatter();
 
     virtual CORBA::Any_ptr formatTransition(const LabelStr& prevState,
@@ -59,6 +59,7 @@ namespace PLEXIL
 
   private:
     // unimplemented 
+    XmlStringEventFormatter();
     XmlStringEventFormatter(const XmlStringEventFormatter &);
     XmlStringEventFormatter & operator=(const XmlStringEventFormatter &);
 

@@ -27,8 +27,16 @@
 #ifndef EVENT_FORMATTER_H
 #define EVENT_FORMATTER_H
 
-#include "Node.hh"
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
+
+#include "tinyxml.h"
+
 #include "Id.hh"
+#include "Node.hh"
+#include "InterfaceManagerBase.hh"
+
 
 // ACE/TAO includes
 #include "tao/Version.h"
@@ -48,6 +56,7 @@
 
 namespace PLEXIL
 {
+  // forward references
   class EventFormatter;
   typedef Id<EventFormatter> EventFormatterId;
 
@@ -55,8 +64,14 @@ namespace PLEXIL
   class EventFormatter
   {
   public:
-    EventFormatter()
-      : m_id(this)
+    DECLARE_STATIC_CLASS_CONST(char*,
+			       EVENT_FORMATTER_TYPE,
+			       "EventFormatterType");
+
+    EventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr)
+      : m_id(this),
+	m_xml(xml),
+	m_manager(mgr)
     {
     }
 
@@ -76,13 +91,26 @@ namespace PLEXIL
       return m_id;
     }
 
+    const TiXmlElement* getXml() const
+    {
+      return m_xml;
+    }
+
+    InterfaceManagerBase& getManager() const
+    {
+      return m_manager;
+    }
+
   private:
     // deliberately unimplemented
+    EventFormatter();
     EventFormatter(const EventFormatter &);
     EventFormatter & operator=(const EventFormatter &);
     
     // private member variables
     EventFormatterId m_id;
+    const TiXmlElement* m_xml;
+    InterfaceManagerBase& m_manager;
   };
 
 }

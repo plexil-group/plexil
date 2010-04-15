@@ -41,7 +41,8 @@ namespace PLEXIL
 					  public BaseEventChannelExecListener
   {
   public:
-    NotificationChannelExecListener();
+    NotificationChannelExecListener(const TiXmlElement* xml,
+				    InterfaceManagerBase & mgr);
     virtual ~NotificationChannelExecListener();
 
     virtual bool isConnected() const;
@@ -64,14 +65,30 @@ namespace PLEXIL
 
   protected:
 
+    //
+    // ExecListener API
+    //
+
+    /**
+     * @brief Notify that a node has changed state.
+     * @param prevState The old state.
+     * @param node The node that has transitioned.
+     * @note The current state is accessible via the node.
+     */
     virtual void
-    pushTransitionToChannel(const LabelStr& prevState, const NodeId& node) const;
+    implementNotifyNodeTransition(const LabelStr& prevState, const NodeId& node) const;
     
+    /**
+     * @brief Notify that a plan has been received by the Exec.
+     * @param plan The intermediate representation of the plan.
+     * @param parent The name of the parent node under which this plan will be inserted.
+     */
     virtual void
-    pushAddPlanToChannel(const PlexilNodeId& plan, const LabelStr& parent) const;
+    implementNotifyAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const;
 
   private:
     // Deliberately unimplemented
+    NotificationChannelExecListener();
     NotificationChannelExecListener(const NotificationChannelExecListener &);
     NotificationChannelExecListener & operator=(const NotificationChannelExecListener &);
 
@@ -82,7 +99,6 @@ namespace PLEXIL
     CosNotifyChannelAdmin::StructuredProxyPushConsumer_var m_structuredPushConsumer;
 
     StructuredEventFormatterId m_structuredFormatter;
-    EventFilterId m_filter;
 
     bool m_isConnectedToNotifyChannel;
 

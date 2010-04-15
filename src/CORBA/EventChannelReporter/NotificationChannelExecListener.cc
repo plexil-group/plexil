@@ -26,7 +26,8 @@
 
 #include "NotificationChannelExecListener.hh"
 #include "StructuredEventFormatter.hh"
-#include "EventFilter.hh"
+#include "EventFormatterSchema.hh"
+#include "EventFormatterFactory.hh"
 #include "NameServiceHelper.hh"
 #include "Debug.hh"
 #include "CoreExpressions.hh"
@@ -37,11 +38,22 @@
 
 namespace PLEXIL
 {
-  NotificationChannelExecListener::NotificationChannelExecListener()
+  NotificationChannelExecListener::NotificationChannelExecListener(const TiXmlElement* xml,
+								   InterfaceManagerBase & mgr)
     : POA_CosNotifyComm::StructuredPushSupplier(),
-      BaseEventChannelExecListener(),
+      BaseEventChannelExecListener(xml, mgr),
       m_isConnectedToNotifyChannel(false)
   {
+    // Get structured formatter spec from XML
+    if (this->getXml() == NULL)
+      return;
+    const TiXmlElement* formatterXml = 
+      this->getXml()->FirstChildElement(EventFormatterSchema::STRUCTURED_FORMATTER_TAG());
+    if (formatterXml == NULL)
+      return;
+    m_structuredFormatter =
+      StructuredEventFormatterFactory::createInstance(formatterXml,
+						      this->getManager());
   }
 
   NotificationChannelExecListener::~NotificationChannelExecListener()
@@ -268,8 +280,8 @@ namespace PLEXIL
   }
 
   void
-  NotificationChannelExecListener::pushTransitionToChannel(const LabelStr& prevState,
-							   const NodeId& node) const
+  NotificationChannelExecListener::implementNotifyNodeTransition(const LabelStr& prevState,
+								 const NodeId& node) const
   {
     checkError(this->isConnected(),
 	       "NotificationChannelExecListener::notifyOfTransition: not connected to event channel!");
@@ -283,14 +295,14 @@ namespace PLEXIL
 		   "notifyOfTransition: no proxy push consumer!");
 
 	CORBA::Any_var pushAny = m_formatter->formatTransition(prevState, node);
-	debugMsg("ExecListener:pushTransitionToChannel",
+	debugMsg("ExecListener:notifyOfTransition",
 		 " formatter returned object of type id "
 		 << pushAny->type()->id());
 
 	try
 	  {
 	    m_pushConsumer->push(*pushAny);
-	    debugMsg("ExecListener:pushTransitionToChannel", " push any successful");
+	    debugMsg("ExecListener:notifyOfTransition", " push any successful");
 	  }
 	catch (CORBA::Exception & e)
 	  {
@@ -305,44 +317,48 @@ namespace PLEXIL
 	try
 	  {
 	    m_structuredPushConsumer->push_structured_event(*event);
-	    debugMsg("ExecListener:pushTransitionToChannel", " push structured successful");
+	    debugMsg("ExecListener:notifyOfTransition", " push structured successful");
 	  }
 	catch (CORBA::Exception & e)
 	  {
-	    std::cerr << "notifyOfTransition: unexpected CORBA exception " << e
-		      << "\n while pushing node transition to channel" << std::endl;
+	    std::cerr << "NotificationChannelExecListener::implementNotifyNodeTransition: unexpected CORBA exception "
+		      << e
+		      << "\n while pushing node transition to channel"
+		      << std::endl;
 	  }
       }
   }
 
   void
-  NotificationChannelExecListener::pushAddPlanToChannel(const PlexilNodeId& plan,
-							const LabelStr& parent) const
+  NotificationChannelExecListener::implementNotifyAddPlan(const PlexilNodeId& plan,
+							  const LabelStr& parent) const
   {
     checkError(this->isConnected(),
-	       "NotificationChannelExecListener::notifyOfAddPlan: not connected to event channel!");
+	       "NotificationChannelExecListener::implementNotifyAddPlan: not connected to event channel!");
     if (m_structuredFormatter.isNoId()
 	|| m_structuredPushConsumer == CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil())
       {
 	// Push as ANY
 	// It would help to know we actually have a connection at this point...
 	checkError(m_pushConsumer != CosNotifyChannelAdmin::ProxyPushConsumer::_nil(),
-		   "notifyOfAddPlan: no proxy push consumer!");
+		   "NotificationChannelExecListener::implementNotifyAddPlan: no proxy push consumer!");
 
 	CORBA::Any_var pushAny = m_formatter->formatPlan(plan, parent);
-	debugMsg("ExecListener:pushAddPlanToChannel",
+	debugMsg("ExecListener:notifyOfAddPlan",
 		 " formatter returned object of type id "
 		 << pushAny->type()->id());
 
 	try
 	  {
 	    m_pushConsumer->push(*pushAny);
-	    debugMsg("ExecListener:pushAddPlanToChannel", " push any successful");
+	    debugMsg("ExecListener:notifyOfAddPlan", " push any successful");
 	  }
 	catch (CORBA::Exception & e)
 	  {
-	    std::cerr << "notifyOfTransition: unexpected CORBA exception " << e
-		      << "\n while pushing AddPlan event to channel" << std::endl;
+	    std::cerr << "NotificationChannelExecListener::implementNotifyAddPlan: unexpected CORBA exception "
+		      << e
+		      << "\n while pushing AddPlan event to channel"
+		      << std::endl;
 	  }
       }
     else
@@ -352,11 +368,12 @@ namespace PLEXIL
 	try
 	  {
 	    m_structuredPushConsumer->push_structured_event(*event);
-	    debugMsg("ExecListener:pushAddPlanToChannel", " push structured successful");
+	    debugMsg("ExecListener:notifyOfAddPlan", " push structured successful");
 	  }
 	catch (CORBA::Exception & e)
 	  {
-	    std::cerr << "notifyOfTransition: unexpected CORBA exception " << e
+	    std::cerr << "NotificationChannelExecListener::implementNotifyAddPlan: unexpected CORBA exception "
+		      << e
 		      << "\n while pushing AddPlan event to channel" << std::endl;
 	  }
       }

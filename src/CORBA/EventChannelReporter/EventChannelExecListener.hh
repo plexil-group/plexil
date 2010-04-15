@@ -27,19 +27,20 @@
 #ifndef EC_EXEC_LISTENER_H
 #define EC_EXEC_LISTENER_H
 
-#include "ExecListener.hh" // for ExecListener
+#include "ManagedExecListener.hh" // for ManagedExecListener
 #include "orbsvcs/CosEventChannelAdminC.h" 
 #include "orbsvcs/CosEventCommS.h" 
+
+// Forward reference w/o namespace
+class TiXmlElement;
 
 namespace PLEXIL
 {
   // forward references
   class EventFormatter;
   typedef Id<EventFormatter> EventFormatterId;
-  class EventFilter;
-  typedef Id<EventFilter> EventFilterId;
 
-  class BaseEventChannelExecListener : public ExecListener
+  class BaseEventChannelExecListener : public ManagedExecListener
   {
   public:
     virtual ~BaseEventChannelExecListener();
@@ -49,10 +50,6 @@ namespace PLEXIL
     virtual bool disconnect() = 0;
 
     void setFormatter(EventFormatterId fmtr);
-    void setFilter(EventFilterId fltr);
-
-    void notifyOfTransition(const LabelStr& prevState, const NodeId& node) const;
-    void notifyOfAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const;
 
     // CosEventComm::PushSupplier API
     virtual void disconnect_push_supplier()
@@ -61,16 +58,10 @@ namespace PLEXIL
 
   protected:
     // Only for use by derived classes
-    BaseEventChannelExecListener();
-
-    // required API for derived classes
-    virtual void
-    pushTransitionToChannel(const LabelStr& prevState, const NodeId& node) const = 0;
-    virtual void
-    pushAddPlanToChannel(const PlexilNodeId& plan, const LabelStr& parent) const = 0;
+    BaseEventChannelExecListener(const TiXmlElement* xml,
+				 InterfaceManagerBase & mgr);
 
     EventFormatterId m_formatter;
-    EventFilterId m_filter;
 
   private:
     // Deliberately unimplemented
@@ -83,7 +74,8 @@ namespace PLEXIL
 				   public POA_CosEventComm::PushSupplier
   {
   public:
-    EventChannelExecListener();
+    EventChannelExecListener(const TiXmlElement* xml,
+			     InterfaceManagerBase & mgr);
     virtual ~EventChannelExecListener();
 
     virtual bool isConnected() const;
@@ -94,13 +86,67 @@ namespace PLEXIL
       throw (CORBA::SystemException);
 
   protected:
+
+    //
+    // ExecListener API
+    //
+
+    /**
+     * @brief Notify that a node has changed state.
+     * @param prevState The old state.
+     * @param node The node that has transitioned.
+     * @note The current state is accessible via the node.
+     */
     virtual void
-    pushTransitionToChannel(const LabelStr& prevState, const NodeId& node) const;
+    implementNotifyNodeTransition(const LabelStr& prevState, const NodeId& node) const;
+
+    /**
+     * @brief Notify that a plan has been received by the Exec.
+     * @param plan The intermediate representation of the plan.
+     * @param parent The name of the parent node under which this plan will be inserted.
+     */
     virtual void
-    pushAddPlanToChannel(const PlexilNodeId& plan, const LabelStr& parent) const;
+    implementNotifyAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const;
+
+    //
+    // ManagedExecListener API
+    //
+
+
+    /**
+     * @brief Perform listener-specific initialization.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool initialize();
+
+    /**
+     * @brief Perform listener-specific startup.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool start();
+
+    /**
+     * @brief Perform listener-specific actions to stop.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool stop();
+
+    /**
+     * @brief Perform listener-specific actions to reset to initialized state.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool reset();
+
+    /**
+     * @brief Perform listener-specific actions to shut down.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool shutdown();
 
   private:
+
     // Deliberately unimplemented
+    EventChannelExecListener();
     EventChannelExecListener(const EventChannelExecListener &);
     EventChannelExecListener & operator=(const EventChannelExecListener &);
 

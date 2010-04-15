@@ -25,7 +25,7 @@
 */
 
 #include "StructuredEventFormatter.hh"
-#include "AdapterExecInterface.hh"
+#include "InterfaceManagerBase.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
@@ -35,13 +35,17 @@
 namespace PLEXIL
 {
 
-  StructuredEventFormatter::StructuredEventFormatter()
-    : m_eventDomainName("_no_domain_name_")
+  StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr)
+    : EventFormatter(xml, mgr),
+      m_eventDomainName("_no_domain_name_")
   {
   }
 
-  StructuredEventFormatter::StructuredEventFormatter(const std::string & domainName)
-    : m_eventDomainName(domainName)
+  StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml, 
+						     InterfaceManagerBase& mgr, 
+						     const std::string & domainName)
+    : EventFormatter(xml, mgr),
+      m_eventDomainName(domainName)
   {
   }
 
@@ -141,7 +145,7 @@ namespace PLEXIL
 	  {
 	    pushEvent->filterable_data[i].name = "commandArgument";
 	    pushEvent->filterable_data[i++].value <<=
-	      AdapterExecInterface::valueToString(*it).c_str();
+	      InterfaceManagerBase::valueToString(*it).c_str();
 	  }
       }
 
@@ -161,7 +165,7 @@ namespace PLEXIL
 	      (LabelStr ((*it).first)).toString().c_str();
 	    pushEvent->filterable_data[i].name = "bindingValue";
 	    pushEvent->filterable_data[i++].value <<=
-	      AdapterExecInterface::valueToString((*it).second).c_str();
+	      InterfaceManagerBase::valueToString((*it).second).c_str();
 	  }
       }
 

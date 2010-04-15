@@ -26,6 +26,8 @@
 
 #include "EventChannelExecListener.hh"
 #include "EventFormatter.hh"
+#include "EventFormatterSchema.hh"
+#include "EventFormatterFactory.hh"
 #include "EventFilter.hh"
 #include "NameServiceHelper.hh"
 #include "Debug.hh"
@@ -35,15 +37,25 @@
 
 namespace PLEXIL
 {
-  BaseEventChannelExecListener::BaseEventChannelExecListener()
-    : ExecListener()
+  BaseEventChannelExecListener::BaseEventChannelExecListener(const TiXmlElement* xml,
+							     InterfaceManagerBase & mgr)
+    : ManagedExecListener(xml, mgr),
+      m_formatter()
   {
+    // Get formatter spec from XML
+    if (this->getXml() == NULL)
+      return;
+    const TiXmlElement* formatterXml = 
+      this->getXml()->FirstChildElement(EventFormatterSchema::EVENT_FORMATTER_TAG());
+    if (formatterXml == NULL)
+      return;
+    m_formatter = EventFormatterFactory::createInstance(formatterXml,
+							this->getManager());
   }
 
   BaseEventChannelExecListener::~BaseEventChannelExecListener()
   {
     delete (EventFormatter*) m_formatter;
-    delete (EventFilter*) m_filter;
   }
 
   void BaseEventChannelExecListener::setFormatter(EventFormatterId fmtr)
@@ -51,68 +63,13 @@ namespace PLEXIL
     m_formatter = fmtr;
   }
 
-  void BaseEventChannelExecListener::setFilter(EventFilterId fltr)
-  {
-    m_filter = fltr;
-  }
-
-  void BaseEventChannelExecListener::notifyOfTransition(const LabelStr& prevState,
-							const NodeId& node) const
-  {
-    debugMsg("ExecListener", 
-	     " notifyOfTransition for node " << node->getNodeId().toString());
-
-    if (m_filter.isNoId())
-      {
-	debugMsg("ExecListener",
-		 " no event filter, notifying on all events");
-      }
-    else
-      {
-	// Ignore events the filter rejects
-	if (!m_filter->reportEvent(prevState, node))
-	  {
-	    debugMsg("ExecListener:notifyOfTransition",
-		     " event filter rejected event");
-	    return;
-	  }
-      }
-
-    // Push events that make it through the filter onto the channel.
-    this->pushTransitionToChannel(prevState, node);
-  }
-
-  void BaseEventChannelExecListener::notifyOfAddPlan(const PlexilNodeId& plan,
-						     const LabelStr& parent) const
-  {
-    debugMsg("ExecListener", 
-	     " notifyOfAddPlan for parent " << parent.toString());
-
-    if (m_filter.isNoId())
-      {
-	debugMsg("ExecListener",
-		 " no event filter, notifying on all events");
-      }
-    else
-      {
-	// Ignore events the filter rejects
-	if (!m_filter->reportAddPlan(plan, parent))
-	  {
-	    debugMsg("ExecListener:notifyOfAddPlan",
-		     " event filter rejected event");
-	    return;
-	  }
-      }
-
-    // Push events that make it through the filter onto the channel.
-    this->pushAddPlanToChannel(plan, parent);
-  }
-
-  EventChannelExecListener::EventChannelExecListener()
-    : BaseEventChannelExecListener(),
+  EventChannelExecListener::EventChannelExecListener(const TiXmlElement* xml,
+						     InterfaceManagerBase & mgr)
+    : BaseEventChannelExecListener(xml, mgr),
       POA_CosEventComm::PushSupplier(),
       m_isConnected(false)
   {
+
   }
 
   EventChannelExecListener::~EventChannelExecListener()
@@ -124,11 +81,87 @@ namespace PLEXIL
     return m_isConnected;
   }
 
+  //
+  // ManagedExecListener API
+  //
+
+  /**
+   * @brief Perform listener-specific initialization.
+   * @return true if successful, false otherwise.
+   */
+  bool EventChannelExecListener::initialize()
+  {
+    return true;
+  }
+
+
+  /**
+   * @brief Perform listener-specific startup.
+   * @return true if successful, false otherwise.
+   */
+  bool EventChannelExecListener::start()
+  {
+    if (isConnected())
+      return true; // already done
+
+    if (this->getXml() == NULL)
+      {
+	// can't get channel name from nonexistent XML, so fail
+	return false;
+      }
+
+    // Extract event channel name from XML
+    const char* channelName =
+      this->getXml()->Attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE());
+    if (channelName == NULL)
+      {
+	// can't connect without a channel name, so fail
+	return false;
+      }
+    
+    return connect(std::string(channelName));
+  }
+
+
+  /**
+   * @brief Perform listener-specific actions to stop.
+   * @return true if successful, false otherwise.
+   */
+  bool EventChannelExecListener::stop()
+  {
+    // TODO: see disconnect()
+
+    return true;
+  }
+
+
+  /**
+   * @brief Perform listener-specific actions to reset to initialized state.
+   * @return true if successful, false otherwise.
+   */
+  bool EventChannelExecListener::reset()
+  {
+    // TODO: tbd
+    return true;
+  }
+
+
+  /**
+   * @brief Perform listener-specific actions to shut down.
+   * @return true if successful, false otherwise.
+   */
+  bool EventChannelExecListener::shutdown()
+  {
+    // TODO: tbd
+    return true;
+  }
+
+
   bool EventChannelExecListener::connect(const std::string & eventChannelNameString)
   {
     NameServiceHelper & helper = NameServiceHelper::getInstance();
     checkError(helper.isInitialized(),
-	       "BaseEventChannelExecListener::connect: Name service is not initialized");
+	       "EventChannelExecListener::connect: Name service is not initialized");
 
     CosNaming::Name eventChannelName =
       NameServiceHelper::parseName(eventChannelNameString);
@@ -137,7 +170,7 @@ namespace PLEXIL
       helper.queryNamingServiceForObject(eventChannelName);
     if (CORBA::is_nil(ecAsObject.in()))
       {
-	std::cerr << "BaseEventChannelExecListener::connect: naming service unable to find '"
+	std::cerr << "EventChannelExecListener::connect: naming service unable to find '"
 		  << NameServiceHelper::nameToEscapedString(eventChannelName)
 		  << "'" << std::endl;
 	m_isConnected = false;
@@ -153,7 +186,7 @@ namespace PLEXIL
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "BaseEventChannelExecListener::connect: Unexpected CORBA exception "
+	std::cerr << "EventChannelExecListener::connect: Unexpected CORBA exception "
 		  << e
 		  << " while narrowing to EventChannel" << std::endl;
 	m_isConnected = false;
@@ -162,7 +195,7 @@ namespace PLEXIL
 
     if (CORBA::is_nil(m_eventChannel.in()))
       {
-	std::cerr << "BaseEventChannelExecListener::connect: object named '"
+	std::cerr << "EventChannelExecListener::connect: object named '"
 		  << NameServiceHelper::nameToEscapedString(eventChannelName)
 		  << "' is not an event channel!" << std::endl;
 	m_isConnected = false;
@@ -184,13 +217,13 @@ namespace PLEXIL
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "BaseEventChannelExecListener::connect: Unexpected CORBA exception "
+	std::cerr << "EventChannelExecListener::connect: Unexpected CORBA exception "
 		  << e << "\n while attempting to get push-consumer proxy from event channel"
 		  << std::endl;
 	m_isConnected = false;
 	return false;
       }
-    debugMsg("ExecListener",
+    debugMsg("EventChannelExecListener",
 	     " event channel " << m_eventChannel << " obtained push consumer");
     m_isConnected = true;
     return true;
@@ -219,9 +252,16 @@ namespace PLEXIL
     return;
   }
 
+
+  /**
+   * @brief Notify that a node has changed state.
+   * @param prevState The old state.
+   * @param node The node that has transitioned.
+   * @note The current state is accessible via the node.
+   */
   void
-  EventChannelExecListener::pushTransitionToChannel(const LabelStr& prevState,
-						    const NodeId& node) const
+  EventChannelExecListener::implementNotifyNodeTransition(const LabelStr& prevState,
+							  const NodeId& node) const
   {
 
     // It would help to know we actually have a formatter at this point...
@@ -233,46 +273,56 @@ namespace PLEXIL
 
     CORBA::Any_var pushAny = m_formatter->formatTransition(prevState, node);
     // *** breaks with strings!
-//     debugMsg("ExecListener:pushTransitionToChannel",
-// 	     " formatter returned object of type id "
-// 	     << pushAny->type()->id());
+    //     debugMsg("EventChannelExecListener:notifyOfTransition",
+    // 	     " formatter returned object of type id "
+    // 	     << pushAny->type()->id());
 
     try
       {
 	m_pushConsumer->push(*pushAny);
-	debugMsg("ExecListener:pushTransitionToChannel", " push successful");
+	debugMsg("EventChannelExecListener:notifyOfTransition", " push successful");
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "notifyOfTransition: unexpected CORBA exception " << e << std::endl;
+	std::cerr << "EventChannelExecListener::implementNotifyNodeTransition: unexpected CORBA exception "
+		  << e
+		  << std::endl;
       }
   }
 
+  /**
+   * @brief Notify that a plan has been received by the Exec.
+   * @param plan The intermediate representation of the plan.
+   * @param parent The name of the parent node under which this plan will be inserted.
+   * @note The default method does nothing.
+   */
   void
-  EventChannelExecListener::pushAddPlanToChannel(const PlexilNodeId& plan,
-						 const LabelStr& parent) const
+  EventChannelExecListener::implementNotifyAddPlan(const PlexilNodeId& plan,
+						   const LabelStr& parent) const
   {
     // It would help to know we actually have a formatter at this point...
     checkError(!m_formatter.isNoId(),
 	       "notifyOfAddPlan: m_formatter is null!");
 
     checkError(this->isConnected(),
-	       "BaseEventChannelExecListener::notifyOfAddPlan: not connected to event channel!");
+	       "EventChannelExecListener::notifyOfAddPlan: not connected to event channel!");
 
     CORBA::Any_var pushAny = m_formatter->formatPlan(plan, parent);
     // *** breaks with strings!
-//     debugMsg("ExecListener:pushAddPlanToChannel",
-// 	     " formatter returned object of type id "
-// 	     << pushAny->type()->id());
+    //     debugMsg("EventChannelExecListener:notifyOfAddPlan",
+    // 	     " formatter returned object of type id "
+    // 	     << pushAny->type()->id());
 
     try
       {
 	m_pushConsumer->push(*pushAny);
-	debugMsg("ExecListener:pushAddPlanToChannel", " push successful");
+	debugMsg("EventChannelExecListener:notifyOfAddPlan", " push successful");
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "notifyOfAddPlan: unexpected CORBA exception " << e << std::endl;
+	std::cerr << "EventChannelExecListener::implementNotifyAddPlan: unexpected CORBA exception "
+		  << e
+		  << std::endl;
       }
   }
 

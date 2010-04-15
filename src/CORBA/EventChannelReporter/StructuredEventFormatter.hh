@@ -37,8 +37,8 @@ namespace PLEXIL
   class StructuredEventFormatter : public EventFormatter
   {
   public:
-    StructuredEventFormatter();
-    StructuredEventFormatter(const std::string & domainName);
+    StructuredEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr);
+    StructuredEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr, const std::string & domainName);
     virtual ~StructuredEventFormatter();
 
     virtual CORBA::Any_ptr formatTransition(const LabelStr& prevState,
@@ -57,6 +57,7 @@ namespace PLEXIL
 
   private:
     // deliberately unimplemented
+    StructuredEventFormatter();
     StructuredEventFormatter(const StructuredEventFormatter &);
     StructuredEventFormatter& operator=(const StructuredEventFormatter &);
 
