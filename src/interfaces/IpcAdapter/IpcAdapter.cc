@@ -36,6 +36,9 @@
 #include <string>
 #include <sstream>
 
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include "tinyxml.h"
 
 namespace PLEXIL {
@@ -47,6 +50,7 @@ namespace PLEXIL {
 IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface) :
   InterfaceAdapter(execInterface), m_ipcFacade(), m_lookupSem(), m_cmdMutex(), m_listener(*this), m_pendingLookupSerial(0), m_pendingLookupDestination(NULL),
       m_messageQueues(execInterface), m_externalLookups() {
+  debugMsg("IpcAdapter:IpcAdapter", " configuration XML not provided");
 }
 
 /**
@@ -57,7 +61,8 @@ IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface) :
 IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface, const TiXmlElement * xml) :
   InterfaceAdapter(execInterface, xml), m_ipcFacade(), m_lookupSem(), m_cmdMutex(), m_listener(*this), m_pendingLookupSerial(0), m_pendingLookupDestination(
       NULL), m_messageQueues(execInterface), m_externalLookups() {
-
+  condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
+  condDebugMsg(xml != NULL, "IpcAdapter:IpcAdapter", " configuration XML = " << *xml);
 }
 
 /**
@@ -75,6 +80,8 @@ IpcAdapter::~IpcAdapter() {
  * @return true if successful, false otherwise.
  */
 bool IpcAdapter::initialize() {
+  debugMsg("IpcAdapter:initialize", " called");
+
   // Get taskName, serverName from XML, if supplied
   const char* taskName = NULL;
   const char* serverName = NULL;
@@ -105,10 +112,14 @@ bool IpcAdapter::initialize() {
     //debugging only. set to true for release
     m_messageQueues.setAllowDuplicateMessages(false);
   }
+  if (taskName == NULL)
+    {
+      taskName = m_ipcFacade.getUID().c_str();
+    }
 
   debugMsg("IpcAdapter:initialize",
-      " Connecting module " << taskName <<
-      " to central server at " << serverName);
+	   " Connecting module " << taskName <<
+	   " to central server at " << serverName);
 
   // init IPC
   assertTrueMsg(m_ipcFacade.initilize(taskName, serverName) == IPC_OK,
