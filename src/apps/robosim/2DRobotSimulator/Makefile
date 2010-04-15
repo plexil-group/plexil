@@ -29,11 +29,11 @@ EXECUTABLE := robotSimulator
 
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
-                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter \
+                   $(PLEXIL_HOME)/src/interfaces/IpcUtils \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                    $(PLEXIL_HOME)/third-party/ooid/kashmir
 LIB_PATH	+=
-LIBS		+= tinyxml ipc PlexilUtils IpcAdapter $(PTHREAD_LIB) $(OPENGL_LIBS)
+LIBS		+= tinyxml ipc PlexilUtils IpcUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 
 SRC		:= $(wildcard *.cc)
