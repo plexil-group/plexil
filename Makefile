@@ -41,10 +41,10 @@ all: TestExec UniversalExec IpcAdapter standard-plexil checker
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
-plexilsim: utils ipc
+plexilsim: utils ipc IpcUtils
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
-robosim: utils ipc
+robosim: utils ipc IpcUtils
 	$(MAKE) -C src/apps/robosim
 
 UniversalExec: exec-core app-framework
@@ -98,6 +98,7 @@ clean: clean-ipc
 	$(MAKE) -C src/utils $@
 	$(MAKE) -C src/exec $@
 	$(MAKE) -C src/interfaces/IpcAdapter $@
+	$(MAKE) -C src/interfaces/IpcUtils $@
 	$(MAKE) -C src/interfaces/LuvListener $@
 	$(MAKE) -C src/interfaces/Sockets $@
 	$(MAKE) -C src/CORBA $@
