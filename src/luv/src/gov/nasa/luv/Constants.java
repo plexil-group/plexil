@@ -138,18 +138,24 @@ public class Constants
       public static final String    UE_TEST_EXEC = "TestExec";
       
       /** Represents the script for running the "Universal executive" for PLEXIL. */ 
+      public static final String    UE_SCRIPT = "run-ue";
+      
+      /** Represents the script for running the "Test executive" for PLEXIL. */ 
+      public static final String    TE_SCRIPT = "run-te";
+      
+      /** Represents the script path for running the "Universal executive" for PLEXIL. */ 
       public static final String    RUN_UE_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
-                                              "run-ue";
+                                              UE_SCRIPT;
       
-      /** Represents the script for running the "test executive" for PLEXIL. */ 
+      /** Represents the script path for running the "Test executive" for PLEXIL. */ 
       public static final String    RUN_TEST_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
                                               "bin" + 
                                               System.getProperty("file.separator") + 
-                                              "run-te";
+                                              TE_SCRIPT;
       
       /** Represents the Luv application debug log file. Note this file is not referenced yet in the DebugWindow class. */ 
       public static final String    DEBUG_LOG_FILE = System.getProperty("user.home") + 

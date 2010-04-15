@@ -26,11 +26,12 @@
 
 package gov.nasa.luv;
 import static gov.nasa.luv.Constants.DEBUG_CFG_FILE;
-import static gov.nasa.luv.Constants.TEST_EXEC;
 import static gov.nasa.luv.Constants.UE_TEST_EXEC;
 import static gov.nasa.luv.Constants.UE_EXEC;
 import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
 import static gov.nasa.luv.Constants.RUN_UE_EXEC;
+import static gov.nasa.luv.Constants.UE_SCRIPT;
+import static gov.nasa.luv.Constants.TE_SCRIPT;
 
 import static gov.nasa.luv.Constants.UNKNOWN;
 import gov.nasa.luv.Luv;
@@ -285,12 +286,13 @@ public class ExecutionHandler
       public void killUEProcess() throws IOException
       {    	      	  
     	  String kill_ue = "killall ";
-    	  kill_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	  
-    	  
-          //String kill_ue = "killall " + TEST_EXEC;
+    	  String kill_run_e = "killall ";
+    	  kill_run_e += Luv.getLuv().allowTest() ? TE_SCRIPT : UE_SCRIPT;
+    	  kill_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	      	  
             
           try 
           {
+        	  Runtime.getRuntime().exec(kill_run_e);
               Runtime.getRuntime().exec(kill_ue);
           }
           catch (IOException e) 
@@ -323,7 +325,7 @@ public class ExecutionHandler
         	  
               if (line.contains("Error"))
               {            	  
-                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive, see debug window");                  
+                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive: " + line);                  
               }                                                       
           }
 
@@ -331,7 +333,7 @@ public class ExecutionHandler
           while ((line = err.readLine()) != null)
           {    
         	  System.out.println("Err: " + line);
-              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: STDERR error reported by the Universal Executive, see debug window");              
+              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive: " + line);              
         	  if (line.contains("null interface adapter") && line.contains("command"))
         		  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "an interface configuration xml file is required for handling " + line.substring(line.indexOf("command"), line.length()));        	  
           }
