@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,14 +41,17 @@ usage="Usage: $0 -p <plan> [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d 
 # An optional environment variable UE_EXECUTABLE names an alternate executable.
 # Other options:
 #
-#  -s suppresses a leading printed summary.
-#  -v requests that plan state be transmitted to the UE viewer.
-#  -h hostname of viewer
-#  -n portnumber of viewer
-#  -d debug file (default is Debug.cfg)
-#  -k enables Java checker program
-#  -x no-plan mode, runs UE which expects plan from external source
-#  -q quiet mode "no warnings from script"
+# -s suppresses a leading printed summary.
+# -v requests that plan state be transmitted to the UE viewer.
+# -h hostname of viewer
+# -n portnumber of viewer
+# -b enables breakpoints in viewer (recommended)
+# -d debug file (default is Debug.cfg)
+# -k runs the PLEXIL static checker prior to executing plan
+# -x no-plan mode; runs UE, which awaits plan from external source
+# -q quiet mode, or "no warnings from script"
+# -c specifies an interface configuration file (defaulting to interface-config.xml)
+# -l  specifies a plan library (.plx file)
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
