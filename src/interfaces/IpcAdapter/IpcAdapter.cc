@@ -188,20 +188,15 @@ void IpcAdapter::registerChangeLookup(const LookupKey& uniqueId, const StateKey&
   State state;
   assertTrueMsg(getState(stateKey, state),
       "IpcAdapter::registerChangeLookup: Internal error: state not found!");
-  LabelStr nameLabel(state.first);
+  LabelStr nameLabel = LabelStr(state.first);
   const std::vector<double>& params = state.second;
   size_t nParams = params.size();
   debugMsg("IpcAdapter:registerChangeLookup",
       " for state " << nameLabel.toString()
       << " with " << nParams << " parameters");
 
-  if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())) {
-    // Set up to receive this lookup
-    m_activeLookupListeners[nameLabel.toString().substr(LOOKUP_PREFIX().size())] = stateKey;
-  } else if (hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX())) {
-    // Set up to receive this lookup
-    m_activeChangeLookupListeners[nameLabel.toString().substr(LOOKUP_ON_CHANGE_PREFIX().size())] = stateKey;
-  }
+  // Set up to receive this lookup
+  m_activeChangeLookupListeners[nameLabel.toString()] = stateKey;
   // *** TODO: implement receiving planner update
 }
 
@@ -229,26 +224,17 @@ void IpcAdapter::unregisterChangeLookup(const LookupKey& uniqueId) {
   StateKey key = sit->first;
   State state;
   getState(key, state);
-  const LabelStr& nameLabel = state.first;
+  LabelStr nameLabel(state.first);
   const std::string& name = nameLabel.toString();
 
   debugMsg("IpcAdapter:unregisterChangeLookup", " for " << name);
 
-  if (hasPrefix(nameLabel.toString(), LOOKUP_PREFIX())) {
-    // Stop looking for this lookup
-    ActiveListenerMap::iterator it = m_activeLookupListeners.find(name.substr(LOOKUP_PREFIX().size()));
-    assertTrueMsg(it != m_activeLookupListeners.end(),
-        "IpcAdapter::unregisterChangeLookup: internal error: can't find lookup \""
-        << name.substr(LOOKUP_PREFIX().size()) << "\"");
-    m_activeLookupListeners.erase(it);
-  } else if (hasPrefix(nameLabel.toString(), LOOKUP_ON_CHANGE_PREFIX())) {
-    // Stop looking for this lookup
-    ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name.substr(LOOKUP_ON_CHANGE_PREFIX().size()));
-    assertTrueMsg(it != m_activeChangeLookupListeners.end(),
-        "IpcAdapter::unregisterChangeLookup: internal error: can't find change lookup \""
-        << name.substr(LOOKUP_ON_CHANGE_PREFIX().size()) << "\"");
-    m_activeChangeLookupListeners.erase(it);
-  }
+  // Stop looking for this lookup
+  ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name);
+  assertTrueMsg(it != m_activeChangeLookupListeners.end(),
+      "IpcAdapter::unregisterChangeLookup: internal error: can't find change lookup \""
+      << name << "\"");
+  m_activeChangeLookupListeners.erase(it);
   // *** TODO: implement receiving planner update
   debugMsg("IpcAdapter:unregisterChangeLookup", " completed");
 }
@@ -283,7 +269,15 @@ void IpcAdapter::lookupNow(const StateKey& stateKey, std::vector<double>& dest) 
     }
     m_pendingLookupDestination = &dest;
     m_cmdMutex.lock();
-    m_pendingLookupSerial = m_ipcFacade.publishLookupNow(nameLabel, paramList);
+    int sep_pos = nameLabel.toString().find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
+    //decide to direct or publish lookup
+    if (sep_pos != std::string::npos) {
+      LabelStr name = LabelStr(nameLabel.toString().substr(sep_pos + 1));
+      LabelStr dest = LabelStr(nameLabel.toString().substr(0, sep_pos));
+      m_pendingLookupSerial = m_ipcFacade.sendLookupNow(name, dest, paramList);
+    } else {
+      m_pendingLookupSerial = m_ipcFacade.publishLookupNow(nameLabel, paramList);
+    }
     m_cmdMutex.unlock();
 
     // Wait for results
@@ -528,7 +522,7 @@ void IpcAdapter::executeUpdateLookupCommand(const LabelStr& name, const std::lis
   //Set value internally
   it->second = *(++args.begin());
   //send telemetry
-  assertTrueMsg(m_ipcFacade.publishTelemetry(lookup_name.toString(), std::list<double>(1, it->second)) != IpcFacade::ERROR_SERIAL(),
+  assertTrueMsg(m_ipcFacade.publishTelemetry(m_ipcFacade.getUID() + TRANSACTION_ID_SEPARATOR_CHAR + lookup_name.toString(), std::list<double>(1, it->second)) != IpcFacade::ERROR_SERIAL(),
       "IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
   m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
   m_execInterface.notifyOfExternalEvent();
@@ -547,7 +541,16 @@ void IpcAdapter::executeDefaultCommand(const LabelStr& name, const std::list<dou
   if (!args.empty())
     debugMsg("IpcAdapter:executeCommand", " first parameter is \"" << args.front()
         << "\"");
-  uint32_t serial = m_ipcFacade.publishCommand(name, args);
+  int sep_pos = name.toString().find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
+  //decide to direct or publish lookup
+  uint32_t serial;
+  if (sep_pos != std::string::npos) {
+    LabelStr nameLbl = LabelStr(name.toString().substr(sep_pos + 1));
+    LabelStr dest = LabelStr(name.toString().substr(0, sep_pos));
+    serial = m_ipcFacade.sendCommand(nameLbl, dest, args);
+  } else {
+    serial = m_ipcFacade.publishCommand(name, args);
+  }
   // log ack and return variables in case we get values for them
   m_pendingCommands[serial] = std::pair<ExpressionId, ExpressionId>(dest, ack);
   assertTrueMsg(serial != IpcFacade::ERROR_SERIAL(),

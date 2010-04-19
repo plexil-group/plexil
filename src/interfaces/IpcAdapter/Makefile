@@ -34,7 +34,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
                     ../../utils ../../exec ../../app-framework \
                     ../IpcUtils
 LIB_PATH	+=
-LIBS		+= ipc tinyxml IpcUtils PlexilUtils PlexilExec PlexilAppFramework
+LIBS		+= tinyxml IpcUtils PlexilUtils PlexilExec PlexilAppFramework
 
 SRC		:= IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc
 INC		:= IpcAdapter.hh MessageQueueMap.hh

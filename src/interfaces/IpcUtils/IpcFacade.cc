@@ -119,23 +119,23 @@ IPC_RETURN_TYPE IpcFacade::start() {
     if (threadSpawn((THREAD_FUNC_PTR) IPC_dispatch, NULL, threadHandle)) {
       // Subscribe to messages
       IPC_RETURN_TYPE status;
-      status = IPC_subscribeData(MSG_BASE, messageHandler, NULL);
+      status = subscribeDataCentral(MSG_BASE, messageHandler, NULL);
       assertTrueMsg(status == IPC_OK, "ipcUtil::ipcSubscribeAll: Error subscribing to " << MSG_BASE << " messages, IPC_errno = " << IPC_errno);
-      status = IPC_subscribeData(RETURN_VALUE_MSG, messageHandler, NULL);
+      status = subscribeDataCentral(RETURN_VALUE_MSG, messageHandler, NULL);
       assertTrueMsg(status == IPC_OK, "ipcUtil::ipcSubscribeAll: Error subscribing to " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-      status = IPC_subscribeData(NUMERIC_VALUE_MSG, messageHandler, NULL);
+      status = subscribeDataCentral(NUMERIC_VALUE_MSG, messageHandler, NULL);
       assertTrueMsg(status == IPC_OK, "ipcUtil::ipcSubscribeAll: Error subscribing to " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-      status = IPC_subscribeData(STRING_VALUE_MSG, messageHandler, NULL);
+      status = subscribeDataCentral(STRING_VALUE_MSG, messageHandler, NULL);
       assertTrueMsg(status == IPC_OK, "ipcUtil::ipcSubscribeAll: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-      status = IPC_subscribeData(STRING_ARRAY_MSG, messageHandler, NULL);
+      status = subscribeDataCentral(STRING_ARRAY_MSG, messageHandler, NULL);
       assertTrueMsg(status == IPC_OK, "ipcUtil::ipcSubscribeAll: Error subscribing to " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-      status = IPC_subscribeData(NUMERIC_ARRAY_MSG, messageHandler, NULL);
+      status = subscribeDataCentral(NUMERIC_ARRAY_MSG, messageHandler, NULL);
       assertTrueMsg(status == IPC_OK, "ipcUtil::ipcSubscribeAll: Error subscribing to " << NUMERIC_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
       // *** TODO: implement receiving planner update
-      //    status = IPC_subscribeData(NUMERIC_PAIR_MSG, messageHandler, this);
+      //    status = subscribeDataCentral(NUMERIC_PAIR_MSG, messageHandler, this);
       //    assertTrueMsg(status == IPC_OK,
       //          "IpcFacade: Error subscribing to " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-      //    status = IPC_subscribeData(STRING_PAIR_MSG, messageHandler, this);
+      //    status = subscribeDataCentral(STRING_PAIR_MSG, messageHandler, this);
       //    assertTrueMsg(status == IPC_OK,
       //          "IpcFacade: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
     } else {
@@ -257,10 +257,13 @@ uint32_t IpcFacade::publishMessage(LabelStr command) {
 }
 
 uint32_t IpcFacade::publishCommand(LabelStr command, const std::list<double>& argsToDeliver) {
+  return sendCommand(command, LabelStr(), argsToDeliver);
+}
+uint32_t IpcFacade::sendCommand(LabelStr command, LabelStr dest, const std::list<double>& argsToDeliver) {
   assertTrue(m_isStarted, "publishCommand called before started");
   uint32_t serial = getSerialNumber();
   struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, argsToDeliver.size(), serial, getUID().c_str() }, command.c_str() };
-  IPC_RETURN_TYPE result = IPC_publishData(STRING_VALUE_MSG, (void *) &cmdPacket);
+  IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest.toString()).c_str(), (void *) &cmdPacket);
   if (result == IPC_OK) {
     result = sendParameters(argsToDeliver, serial);
     debugMsg("IpcFacade:publishCommand", "Command " << command.toString() << " published with serial " << serial);
@@ -270,13 +273,17 @@ uint32_t IpcFacade::publishCommand(LabelStr command, const std::list<double>& ar
 }
 
 uint32_t IpcFacade::publishLookupNow(LabelStr lookup, const std::list<double>& argsToDeliver) {
+  return sendLookupNow(lookup, LabelStr(), argsToDeliver);
+}
+
+uint32_t IpcFacade::sendLookupNow(LabelStr lookup, LabelStr dest, const std::list<double>& argsToDeliver) {
   // Construct the messages
   // Leader
   uint32_t serial = getSerialNumber();
   struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupNow, argsToDeliver.size(), serial, MY_UID.c_str() }, lookup.c_str() };
 
   IPC_RETURN_TYPE result;
-  result = IPC_publishData(STRING_VALUE_MSG, (void *) &leader);
+  result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest.toString()).c_str(), (void *) &leader);
   if (result == IPC_OK) {
     result = sendParameters(argsToDeliver, serial);
   }
@@ -288,9 +295,9 @@ uint32_t IpcFacade::publishReturnValues(uint32_t request_serial, LabelStr reques
   assertTrue(m_isStarted, "publishReturnValues called before started");
   uint32_t serial = getSerialNumber();
   struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, getUID().c_str() }, request_serial, request_uid.c_str() };
-  IPC_RETURN_TYPE result = IPC_publishData(RETURN_VALUE_MSG, (void *) &packet);
+  IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid.toString()).c_str(), (void *) &packet);
   if (result == IPC_OK) {
-    result = sendParameters(std::list<double>(1, arg), serial);
+    result = sendParameters(std::list<double>(1, arg), serial, request_uid);
   }
   setError(result);
   return result == IPC_OK ? serial : ERROR_SERIAL();
@@ -329,6 +336,17 @@ uint32_t IpcFacade::publishTelemetry(const std::string& destName, const std::lis
  * @param serial The serial to send along with each parameter. This should be the same serial as the header
  */
 IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_t serial) {
+  return sendParameters(args, serial, "");
+}
+
+/**
+ * @brief Helper function for sending a vector of parameters via IPC to a specific executive.
+ * @param args The arguments to convert into messages and send
+ * @param serial The serial to send along with each parameter. This should be the same serial as the header
+ * @param dest The destination executive name. If dest is an empty string, parameters are broadcast to
+ * all executives
+ */
+IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_t serial, const LabelStr& dest) {
   size_t nParams = args.size();
   // Construct parameter messages
   PlexilMsgBase* paramMsgs[nParams];
@@ -386,10 +404,9 @@ IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_
   }
 
   // Send the messages
-  // *** TODO: check for IPC errors ***
   IPC_RETURN_TYPE result = IPC_OK;
   for (size_t i = 0; i < nParams && result == IPC_OK; i++) {
-    result = IPC_publishData(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType), paramMsgs[i]);
+    result = IPC_publishData(formatMsgName(std::string(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType)), dest.toString()).c_str(), paramMsgs[i]);
   }
 
   // free the parameter packets
@@ -424,63 +441,53 @@ uint32_t IpcFacade::getSerialNumber() {
 
 bool IpcFacade::definePlexilIPCMessageTypes() {
   IPC_RETURN_TYPE status;
-  if (!IPC_isMsgDefined(MSG_BASE)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(RETURN_VALUE_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(NUMERIC_VALUE_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(STRING_VALUE_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(NUMERIC_ARRAY_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(NUMERIC_ARRAY_MSG, IPC_VARIABLE_LENGTH, NUMERIC_ARRAY_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(STRING_ARRAY_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(STRING_ARRAY_MSG, IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(NUMERIC_PAIR_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  if (!IPC_isMsgDefined(STRING_PAIR_MSG)) {
-    if (IPC_errno != IPC_No_Error)
-      return false;
-    status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
-    if (status != IPC_OK)
-      return false;
-  }
-  return true;
+  status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(MSG_BASE), getUID()).c_str(), IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(RETURN_VALUE_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(NUMERIC_VALUE_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(STRING_VALUE_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(NUMERIC_ARRAY_MSG, IPC_VARIABLE_LENGTH, NUMERIC_ARRAY_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(NUMERIC_ARRAY_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, NUMERIC_ARRAY_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(STRING_ARRAY_MSG, IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(STRING_ARRAY_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(NUMERIC_PAIR_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
+  if (status != IPC_OK)
+    return false;
+  status = IPC_defineMsg(formatMsgName(std::string(STRING_PAIR_MSG), getUID()).c_str(), IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
+  return status == IPC_OK;
 }
 
 /**
@@ -506,8 +513,7 @@ void IpcFacade::messageHandler(MSG_INSTANCE rawMsg, void * unmarshalledMsg, void
   case PlexilMsgType_LookupOnChange:
   case PlexilMsgType_PlannerUpdate:
   case PlexilMsgType_TelemetryValues:
-    debugMsg("IpcFacade:messageHandler", "processing as multi-part message")
-    ;
+    debugMsg("IpcFacade:messageHandler", "processing as multi-part message");
     cacheMessageLeader(msgData);
     break;
 
@@ -537,8 +543,7 @@ void IpcFacade::messageHandler(MSG_INSTANCE rawMsg, void * unmarshalledMsg, void
     break;
 
   default:
-    debugMsg("IpcFacade:messageHandler", "Received single-message type, delivering to listeners")
-    ;
+    debugMsg("IpcFacade:messageHandler", "Received single-message type, delivering to listeners");
     deliverMessage(std::vector<const PlexilMsgBase*>(1, msgData));
     break;
   }
@@ -672,5 +677,45 @@ IpcFacade::BasicType IpcFacade::determineType(double array_id) {
     }
   }
   return type;
+}
+
+/**
+ * Unsubscribes from the given message and the UID-specific version of the given message on central. Wrapper for IPC_unsubscribe.
+ * If an error occurs in unsubscribing from the given message, the UID-specific version is not processed
+ * @param msgName the name of the message to unsubscribe from
+ * @param handler The handler to unsubscribe.
+ */
+IPC_RETURN_TYPE IpcFacade::unsubscribeCentral (const char *msgName, HANDLER_TYPE handler) {
+  IPC_RETURN_TYPE result = IPC_unsubscribe(msgName, handler);
+  if (result == IPC_OK) {
+    result = IPC_unsubscribe(formatMsgName(std::string(msgName), getUID()).c_str(), handler);
+  }
+  return result;
+}
+
+/**
+ * Subscribes from the given message and the UID-specific version of the given message on central. Wrapper for IPC_unsubscribe.
+ * If an error occurs in subscribing from the given message, the UID-specific version is not processed
+ * @param msgName the name of the message to subscribe from
+ * @param handler The handler to subscribe.
+ * @param clientData Pointer to data that will be passed to handler upon message receipt.
+ */
+IPC_RETURN_TYPE IpcFacade::subscribeDataCentral (const char *msgName,
+                   HANDLER_DATA_TYPE handler,
+                   void *clientData) {
+  IPC_RETURN_TYPE result = IPC_subscribeData(msgName, handler, clientData);
+  if (result == IPC_OK) {
+    result = IPC_subscribeData(formatMsgName(std::string(msgName), getUID()).c_str(), handler, clientData);
+  }
+  return result;
+}
+/**
+ * Returns a formatted message type string given the basic message type and destination ID.
+ * The caller is responsible for
+ * @param msgName The name of the message type
+ * @param destId The destination ID for the message
+ */
+std::string IpcFacade::formatMsgName(const std::string& msgName, const std::string& destId) {
+  return destId + msgName;
 }
 }

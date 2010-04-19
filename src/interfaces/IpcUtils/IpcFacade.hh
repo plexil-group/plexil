@@ -61,6 +61,12 @@ public:
    */
   static const std::string& getUID();
   /**
+   * Returns a formatted message type string given the basic message type and destination ID.
+   * @param msgName The name of the message type
+   * @param destId The destination ID for the message
+   */
+  static std::string formatMsgName(const std::string& msgName, const std::string& destId);
+  /**
    * @breif Connects to the Ipc server. This should be called before calling start().
    * If it is not, this method is called by start. If already initilized, this method
    * does nothing and returns IPC_OK.
@@ -116,18 +122,38 @@ public:
   uint32_t publishMessage(LabelStr command);
 
   /**
-   * @brief publishes the given command via IPC.
-   * Note: Be warned that the response to this command may be received before
+   * @brief publishes the given command via IPC. This is equivalent to calling
+   * sendCommand with an empty destination string.
+   * Note: The response to this command may be received before
    * this method returns.
    * @param command The command string to send
    */
   uint32_t publishCommand(LabelStr command, const std::list<double>& argsToDeliver);
 
   /**
-   * @brief publishes the given command via IPC
+   * @brief Sends the given command to the given client ID via IPC. If the client ID is
+   * an empty string, the command is published to all clients.
+   * Note: The response to this command may be received before
+   * this method returns.
+   * @param command The command string to send
+   * @param dest The destination ID for this command
+   */
+  uint32_t sendCommand(LabelStr command, LabelStr dest, const std::list<double>& argsToDeliver);
+
+  /**
+   * @brief publishes the given LookupNow via IPC
    * @param command The command string to send
    */
   uint32_t publishLookupNow(LabelStr lookup, const std::list<double>& argsToDeliver);
+
+
+  /**
+   * @brief Sends the given LookupNow to the given client ID via IPC. If the client ID is
+   * an empty string, the LookupNow is published to all clients.
+   * @param lookup The lookup string to send
+   * @param dest The destination ID for this LookupNow
+   */
+  uint32_t sendLookupNow(LabelStr lookup, LabelStr dest, const std::list<double>& argsToDeliver);
 
   /**
    * @brief publishes the given return values via IPC
@@ -172,12 +198,6 @@ private:
    * @brief Get next serial number
    */
   static uint32_t getSerialNumber();
-  /**
-   * @brief Ensure the whole suite of message types is defined
-   * @return true if successful, false otherwise
-   * @note Caller should ensure IPC_initialize() has been called first
-  */
-  static bool definePlexilIPCMessageTypes();
 
   /**
    * @brief Handler function as seen by IPC.
@@ -209,6 +229,22 @@ private:
   IPC_RETURN_TYPE sendParameters(const std::list<double>& args, uint32_t serial);
 
   /**
+   * @brief Helper function for sending a vector of parameters via IPC to a specific executive.
+   * @param args The arguments to convert into messages and send
+   * @param serial The serial to send along with each parameter. This should be the same serial as the header
+   * @param dest The destination executive name
+   */
+  IPC_RETURN_TYPE sendParameters(const std::list<double>& args, uint32_t serial, const LabelStr& dest);
+
+  /**
+   * @brief Define all PLEXIL message types with Central. Also defines each PLEXIL message type with
+   * the UID as a prefix for directed communication. Has no effect for any previously defined message types.
+   * @return true if successful, false otherwise
+   * @note Caller should ensure IPC_initialize() has been called first
+  */
+  bool definePlexilIPCMessageTypes();
+
+  /**
    * @brief Set the error code of the last called IPC method.
    * @param error The error code of the last called IPC method.
    */
@@ -236,6 +272,22 @@ private:
    * returns false for the first non-unknown value, and UNKNOWN if all items are UNKNOWN.
    */
   static BasicType determineType(double array_id);
+
+  /**
+   * Unsubscribes from the given message on central. Wrapper for IPC_unsubscribe
+   * @param msgName the name of the message to unsubscribe from
+   * @param handler The handler to unsubscribe.
+   */
+  static IPC_RETURN_TYPE unsubscribeCentral (const char *msgName, HANDLER_TYPE handler);
+
+  /**
+   * Subscribes to the given message on central. Wrapper for IPC_subscribeData
+   * @param msgName the name of the message to unsubscribe from
+   * @param handler The handler to unsubscribe.
+   */
+  static IPC_RETURN_TYPE subscribeDataCentral (const char *msgName,
+                     HANDLER_DATA_TYPE handler,
+                     void *clientData);
 
   //* @brief Is the facade initilized?
   bool m_isInitilized;
