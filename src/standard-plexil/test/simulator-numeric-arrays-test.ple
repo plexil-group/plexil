@@ -11,7 +11,7 @@ Interface:
 		{
 			OnCommand GetNums ( ) {
 				{
-					Command: SendReturnValue(a_nums);
+					Command: SendReturnValue(nums);
 				}
 			}
 		}
