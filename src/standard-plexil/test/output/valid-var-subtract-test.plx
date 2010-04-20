@@ -1,0 +1,32 @@
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="var-subtract-test.ple">
+      <Node FileName="var-subtract-test.ple" LineNo="2" ColNo="1" NodeType="Assignment">
+          <VariableDeclarations>
+              <DeclareVariable>
+                  <Name>foo</Name>
+                  <Type>Integer</Type>
+                  <InitialValue>
+                      <IntegerValue>1</IntegerValue>
+                  </InitialValue>
+              </DeclareVariable>
+              <DeclareVariable>
+                  <Name>x</Name>
+                  <Type>Integer</Type>
+                  <InitialValue>
+                      <IntegerValue>9</IntegerValue>
+                  </InitialValue>
+              </DeclareVariable>
+          </VariableDeclarations>
+          <NodeId>SimpleAssignment</NodeId>
+          <NodeBody>
+              <Assignment>
+                  <IntegerVariable>foo</IntegerVariable>
+                  <NumericRHS>
+                      <SUB>
+                          <IntegerVariable>x</IntegerVariable>
+                          <IntegerVariable>foo</IntegerVariable>
+                      </SUB>
+                  </NumericRHS>
+              </Assignment>
+          </NodeBody>
+      </Node>
+  </PlexilPlan>

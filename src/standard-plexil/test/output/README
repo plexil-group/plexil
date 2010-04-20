@@ -1,0 +1,5 @@
+This directory contains validated output from compiling the
+files in the parent directory using 'make'.
+
+The 'schemas.xml' file works for PLEXIL plans only, not
+scripts.

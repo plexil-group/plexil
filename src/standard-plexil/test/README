@@ -1,0 +1,4 @@
+This directory contains Standard Plexil tests.
+
+Type 'make' to compile all the tests and have them verified
+against references stored in the 'output' subdirectory.
