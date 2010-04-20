@@ -1,8 +1,10 @@
-Command doStart()
+Command doStart();
 
 OnMessageTest:
 {
   OnMessage("Start") {
-    Command: doStart();
+    start: {
+	Command: doStart(); 
+    }
   }
 }
