@@ -10,7 +10,7 @@ bash
 	exec
 
 --- How to Use? ---
-cd /extraction/folder/
+cd $PLEXIL_HOME/doc/
 ./docHtmlPull
 
 output file should be man.pdf
