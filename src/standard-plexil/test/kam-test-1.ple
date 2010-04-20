@@ -1,5 +1,0 @@
-kam_test_1:
-{
-  Boolean x;
-  StartCondition: LookupNow(RoverBatteryLevel(x)) >= 10;
-}
