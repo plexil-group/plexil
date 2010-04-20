@@ -521,7 +521,7 @@ declaration :
 // return type may be null!
 
 commandDeclaration :
-        ( (tn:typeName!)? COMMAND_KYWD^ cn:ncName (p:paramsSpec!)? SEMICOLON! )
+        ( (tn:typeName!)? COMMAND_KYWD^ cn:commandName (p:paramsSpec!)? SEMICOLON! )
         { 
             // add return spec (if needed)
             AST return_spec = null;
@@ -1571,11 +1571,8 @@ commandInvocation :
    ( LPAREN! ( argumentList )? RPAREN! )? SEMICOLON!
    ;
    
-
-commandName : ncName 
- {
-   #commandName = #(#[COMMAND_NAME, "COMMAND_NAME"], #commandName);
- }
+commandName :
+   ncName (COLON! ncName)?
  ;
 
 commandNameExp : stringExpression ;

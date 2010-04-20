@@ -1154,8 +1154,20 @@ command[IXMLElement node, IXMLElement nodeBody, IXMLElement resourceList]
    }
    ;
 
-commandNameLiteral[IXMLElement parent] :
- #(COMMAND_NAME nameLiteral[parent]) ;
+commandNameLiteral[IXMLElement parent] 
+{ IXMLElement sn = new XMLElement("Name"); }
+  : n:NCName (n2:NCName)?
+   {
+     IXMLElement sv = new XMLElement("StringValue");
+     String text = n.getText();
+     if (n2 != null) {
+     	text += ":" + n2.getText();
+     }
+     sv.setContent(text);
+     sn.addChild(sv);
+     parent.addChild(sn);
+   }
+ ;
 
 // Shared between command, fn call, lookup
 nameExp[IXMLElement parent]

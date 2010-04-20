@@ -1,0 +1,9 @@
+
+This is a multi-part example that displays PLEXIL's capabilities for directed communication. There are two actors and one controller in this system. The two actors are front_engine and rear_engine. Each engine has one lookup, Torque, and can process one command, setTorque. The controller plan swaps the torque of the front and rear engines.
+
+To run these examples, first compile each .ple file using the plexil compiler, then run these commands in seperate command-line instances:
+
+central
+universalExec -p front_engine.plx -c front_engine-config.xml
+universalExec -p rear_engine.plx -c rear_engine-config.xml
+universalExec -p controller.plx -c controller-config.xml
