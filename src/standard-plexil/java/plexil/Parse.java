@@ -345,7 +345,7 @@ public class Parse
 			saxonArgs[3] = System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl";
 			net.sf.saxon.Transform.main(saxonArgs);
 		    }
-		System.out.println("Done.");
+		if (!quiet) System.out.println("Done.");
 		if (debugWriter != null) 
 		    debugWriter.close();
 	    } 
