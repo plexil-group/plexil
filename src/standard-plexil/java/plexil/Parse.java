@@ -55,13 +55,29 @@ public class Parse
         System.exit(value);
     }
 
-    private static File outputFilename(String fullname, boolean isExtendedPlexil)
+    private static File outputFilename(String inFileName, String outFileName, boolean isExtendedPlexil)
     {
-	File infile = new File(fullname);
-	// replace extension with .plx or .epx as appropriate
-	String inname = infile.getName();
-	String outname = inname.substring(0, inname.lastIndexOf('.')) +
-	    (isExtendedPlexil ? ".epx" : ".plx");
+        // NOTE: the extension of output filename is dictated
+        // by this function; any user-specified extension will
+        // be ignored.
+
+        // The input file is explicitly named
+	File infile = new File(inFileName);
+
+        // The output file depends on whether the user
+        // specified an output file.  If so, this file is
+        // used; however, any user-specified extension is
+        // replaced by .epx or .plx as appopriate.
+        //
+        // If the output file is NOT user-specified, the input
+        // filename is used as the basis for the output
+        // filename, replacing the extension as needed for
+        // core or extended plexil.
+
+        String outfile_basis = outFileName == null ? inFileName : outFileName;
+        int index = outfile_basis.lastIndexOf('.');
+        String outname = outfile_basis.substring(0, index != -1 ? index : outfile_basis.length()) +
+            (isExtendedPlexil ? ".epx" : ".plx");
 	return new File(infile.getParent(), outname);
     }
     
@@ -251,12 +267,14 @@ public class Parse
 			printUsage();
 			exit(0);
 		    }
-		File output = null;
+                File outputFile = null;
+                String output = null;
 		Iterator<String> itr = arguments.iterator();
 		boolean filename = false;
 		String argument = null;
 		while (itr.hasNext()) 
 		    {
+                        // NOTE: when loop terminates normally, 'argument' is the input filename
 			argument = itr.next();
 			if (argument.length() == 0) continue;
 			if (argument.charAt(0) != '-') 
@@ -276,7 +294,7 @@ public class Parse
 			    }
 			if (argument.equals("-o") || argument.equals("--output")) 
 			    {
-				output = new File((String) itr.next());
+                                output = (String) itr.next();
 				continue;
 			    }
 			if (argument.equals("-q") || argument.equals("--quiet")) 
@@ -312,11 +330,8 @@ public class Parse
 		boolean isExtended = load(xml,argument);
 
 		// write out XML
-		if (output == null) 
-		    {
-			output = outputFilename(argument, isExtended);
-		    }
-		FileWriter writer = new FileWriter(output);
+                outputFile = outputFilename(argument, output, isExtended);
+		FileWriter writer = new FileWriter(outputFile);
 		XMLWriter xmlWriter = new XMLWriter(writer);
 		checkXML(xml);
 		if (!quiet)
@@ -324,7 +339,7 @@ public class Parse
 			System.out.println("Writing "
 					   + (isExtended ? "Extended" : "Core")
 					   + " PLEXIL to "
-					   + output);
+					   + outputFile);
 		    }
 		xmlWriter.write(xml,true,2,true);
 		//xmlWriter.write(xml,true,0,true);
@@ -333,7 +348,7 @@ public class Parse
 		if (isExtended)
 		    {
 			// Translate from Extended PLEXIL to Core PLEXIL
-			File coreOutput = outputFilename(argument, false);
+			File coreOutput = outputFilename(argument, output, false);
 			if (!quiet)
 			    {
 				System.out.println("Translating to Core PLEXIL file " + coreOutput);
@@ -341,7 +356,7 @@ public class Parse
 			String[] saxonArgs = new String[4];
 			saxonArgs[0] = "-o";
 			saxonArgs[1] = coreOutput.toString();
-			saxonArgs[2] = output.toString();
+			saxonArgs[2] = outputFile.toString();
 			saxonArgs[3] = System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl";
 			net.sf.saxon.Transform.main(saxonArgs);
 		    }
