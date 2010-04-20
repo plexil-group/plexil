@@ -128,7 +128,10 @@ void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& ms
 		   "Ignoring " << msgs[0]->count - 1 << " argument(s)");
     }
   const std::vector<double>& ret_values = robot->processCommand(cmdName, parameter);
-  m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), PLEXIL::StoredArray(ret_values).getKey());
+  if (ret_values.size() > 1)
+    m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), PLEXIL::StoredArray(ret_values).getKey());
+  else
+    m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), ret_values.at(0));
 }
 
 /**
