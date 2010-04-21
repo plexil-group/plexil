@@ -77,7 +77,7 @@ Release Notes
  - Standalone Simulator may not work in Mac OS and some versions of
    Linux, due to errors in the LCM library.  The problem is being worked on.
 
-1.00
+1.0
  - Revamped source code directory structure.
  - Replaced 'jam' with 'make' as the system's build tool.
  - Added a new application IpcExec, allowing multiple communicating executives.

@@ -24,7 +24,7 @@ Linux behaves much better than MacOS.
   ERROR: RecursiveThreadMutex.cc:61: Attempted to destroy mutex while locked or referenced.
   Assertion failed: (false), function handleAssert, file Error.cc, line 94.
 
-3. This one occurs mainly in MacOS:
+3. This one occurs mainly in MacOS, but occasionally in Linux too:
 
   Initializing application
   NMP IPC Version 3.8.5 (Nov-09-09)
