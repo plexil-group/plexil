@@ -90,3 +90,29 @@ Release Notes
  - A PDF version of the user manual, normally included in the distribution, 
    is not available; we are seeking a means to create one from the new wiki
    system used by Sourceforge.
+
+1.1
+ - Added signficant support and language features for inter-executive
+   communication, with a new chapter on this feature.  In particular, executives
+   can send (and respond to) messages, commands, and state lookups amongst each
+   other.
+ - Greatly simplified the interfacing of the PLEXIL executive with external
+   systems, with a new chapter on this.  In particular:
+   * universalExec executable replaces most UE application executables.
+   * Interface adapters and exec listeners can be loaded dynamically from shared
+     libraries at runtime, and no longer need to be built into the executable.
+   * Interface manager now has getProperty() and setProperty() to allow
+     communication of arbitrary data between the application, adapters, and
+     listeners.
+   * Exec listeners and exec listener filters' constructors are now called with
+     a 2nd argument, a reference to the interface manager.
+ - The LCM (Lightweight Communications and Marshalling) package has been
+   completely replaced by CMU's IPC (Inter-Process Communication).  The
+   applications that used LCM (standalone simulator, Robosim) now use IPC.
+ - The 'run-ue' script now runs 'universalExec' and a new 'run-te' runs the Test
+   Executive.  Both can optionally run the PLEXIL static checker first.
+ - LUV can run either the TestExecutive (default) or UniversalExec.
+ - New Plexilisp Emacs menus (courtesy of Robert Goldman at SIFT). 
+ - Numerous miscellaneous fixes, enhancements, and code refactorings across the
+   entire system.
+ - Much revision of the reference manual.
