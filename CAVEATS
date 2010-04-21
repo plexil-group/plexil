@@ -1,0 +1,54 @@
+This file, plexil/CAVEATS, lists known bugs and issues in the
+PLEXIL system.
+
+IPC and related applications (inter-executive communication,
+Standalone Simulator, Robosim)
+------------------------------------------------------------
+
+There are several intermittent bugs associated with use of IPC (communications
+package).  They occur when an executive is started, or sometimes when the plan
+ends.  They sometimes occur in tandem.  The workaround is to simply try again!
+Linux behaves much better than MacOS.
+
+1. This one is most common, occurring at startup.
+
+  Initializing application
+  NMP IPC Version 3.8.5 (Nov-09-09)
+  ... IPC Connected on port 1381
+  Starting interfaces
+
+
+2. This one usually occurs at exit, and does not appear to affect plan
+   execution.
+
+  ERROR: RecursiveThreadMutex.cc:61: Attempted to destroy mutex while locked or referenced.
+  Assertion failed: (false), function handleAssert, file Error.cc, line 94.
+
+3. This one occurs mainly in MacOS:
+
+  Initializing application
+  NMP IPC Version 3.8.5 (Nov-09-09)
+  ... IPC Connected on port 1381
+  Starting interfaces
+  ERROR: received message with data that is not packed.
+  universalExec(11167,0xba9820) malloc: *** mmap(size=1509953536) failed (error code=12)
+  *** error: can't allocate region
+  *** set a breakpoint in malloc_error_break to debug
+  x_ipcMalloc: NULL returned from malloc for request: 1509949504
+
+  ERROR: Reading Data Message in x_ipc_waitForReplyFrom 4.
+
+
+Robosim
+-------
+
+The (graphical) robot simulator does not always shut down cleanly.
+
+
+Standard Plexil compiler ('plexil')
+-----------------------------------
+
+File extensions included in the '-o' option are ignored: Extended and Core
+Plexil files are always written with the ".epx" and ".plx" extensions,
+respectively.
+
