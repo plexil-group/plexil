@@ -190,7 +190,10 @@ namespace PLEXIL
      * @param bkgndOnly True if background only, false if opportunistic.
      * @note Default is opportunistic.
      */
-    void setRunExecInBkgndOnly(bool bkgndOnly);
+    void setRunExecInBkgndOnly(bool bkgndOnly)
+    { 
+      m_runExecInBkgndOnly = bkgndOnly; 
+    }
 
   protected:
 
