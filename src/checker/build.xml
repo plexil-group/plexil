@@ -21,7 +21,7 @@
   <!-- java library files that belong in the class path and the jar -->
   
   <fileset dir = "${lib-dir}" id = "libraries">
-    <!--include name = "your.jar"/-->
+    <include name = "nanoxml.jar"/>
   </fileset>
   
   <!-- any extra resources which may be needed by the application -->
