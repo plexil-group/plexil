@@ -213,7 +213,7 @@ namespace PLEXIL
    */
   void InterfaceManager::addInterfaceAdapter(const InterfaceAdapterId& adapter)
   {
-    if (m_adapters.find(adapter) != m_adapters.end())
+    if (m_adapters.find(adapter) == m_adapters.end())
       m_adapters.insert(adapter);
   }
 
@@ -224,6 +224,7 @@ namespace PLEXIL
   void InterfaceManager::addExecListener(const ExecListenerId& listener)
   {
     m_listeners.push_back(listener);
+    m_exec->addListener(listener);
   }
 
   /**
@@ -238,10 +239,17 @@ namespace PLEXIL
          success && it != m_adapters.end();
          it++)
       success = (*it)->initialize();
+    if (!success)
+      {
+	debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
+	return false;
+      }
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          it++)
       success = (*it)->initialize();
+    condDebugMsg(!success, 
+		 "InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
     return success;
   }
 
@@ -251,12 +259,18 @@ namespace PLEXIL
    */
   bool InterfaceManager::start()
   {
-    debugMsg("InterfaceManager:startInterface", " starting interface adapters");
+    debugMsg("InterfaceManager:start", " starting interface adapters");
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
          it++)
       success = (*it)->start();
+    if (!success)
+      {
+	debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
+	return false;
+      }
+
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          it++)
@@ -264,6 +278,8 @@ namespace PLEXIL
         if (success = (*it)->start())
           m_exec->addListener(*it);
       }
+    condDebugMsg(!success, 
+		 "InterfaceManager:start", " failed to start all Exec listeners, returning false");
     return success;
   }
 
