@@ -91,6 +91,27 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::initialize()
   {
+    // Some checks before we get rolling
+    if (this->getXml() == NULL)
+      {
+	// can't get channel name from nonexistent XML, so fail
+	debugMsg("EventChannelExecListener:initialize",
+		 " failed; no configuration XML provided");
+	return false;
+      }
+
+    // Extract event channel name from XML
+    const char* channelName =
+      this->getXml()->Attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE());
+    if (channelName == NULL)
+      {
+	// can't connect without a channel name, so fail
+	debugMsg("EventChannelExecListener:initialize",
+		 " failed; no " << EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()
+		 << " attribute provided");
+	return false;
+      }
+
     return true;
   }
 
@@ -107,6 +128,8 @@ namespace PLEXIL
     if (this->getXml() == NULL)
       {
 	// can't get channel name from nonexistent XML, so fail
+	debugMsg("EventChannelExecListener:start",
+		 " failed; no configuration XML provided");
 	return false;
       }
 
@@ -116,6 +139,9 @@ namespace PLEXIL
     if (channelName == NULL)
       {
 	// can't connect without a channel name, so fail
+	debugMsg("EventChannelExecListener:initialize",
+		 " failed; no " << EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()
+		 << " attribute provided");
 	return false;
       }
     
