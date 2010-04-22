@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter standard-plexil checker
+all: TestExec UniversalExec IpcAdapter standard-plexil checker plexilsim robosim
 
 # convenience target for A4O project
 A4O: exec-core app-framework corba luv standard-plexil
