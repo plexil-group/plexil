@@ -36,7 +36,8 @@ LIBS		+= PlexilUtils standalonesimulator ipc
 INC_DIRS 	+= .. $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                    $(PLEXIL_HOME)/third-party/ooid/kashmir \
-                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter
+                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter \
+		   $(PLEXIL_HOME)/src/interfaces/IpcUtils
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)

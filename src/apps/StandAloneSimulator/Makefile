@@ -33,6 +33,7 @@ INC		:= $(wildcard *.hh)
 
 INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/third-party/ipc/src \
+		   $(PLEXIL_HOME)/src/exec \
                    $(PLEXIL_HOME)/src/interfaces/IpcUtils
                    
 
