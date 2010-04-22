@@ -788,13 +788,13 @@ namespace PLEXIL
          *        to add a new plan or library node.
          */
 	QueueEntry(PlexilNodeId newPlan, 
-		   const LabelStr& parent,
+		   const LabelStr& parentNode,
                    const QueueEntryType typ)
 	  : expression(),
 	    stateKey(),
 	    values(),
 	    plan(newPlan),
-	    parent(),
+	    parent(parentNode),
 	    type(typ)
 	{
           assertTrue((typ == queueEntry_PLAN) || (typ == queueEntry_LIBRARY),
