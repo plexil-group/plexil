@@ -111,6 +111,9 @@ namespace PLEXIL {
 
     DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
 
+    // miscellaneous constants
+    DECLARE_STATIC_CLASS_CONST(std::string, WHITESPACE_CHARS, " \t\n");
+
     virtual PlexilNodeId parse() = 0;
     virtual ~PlexilParser() {}
     
@@ -217,7 +220,7 @@ namespace PLEXIL {
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
 
-    void setName(const std::string& name)  {m_name = name;}
+    void setName(const std::string& name);
     void addSubExpr(PlexilExprId expr) {m_subExprs.push_back(expr);}
     void setLineNo(int n) {m_lineNo = n;}
     void setColNo(int n) {m_colNo = n;}

@@ -162,6 +162,19 @@ namespace PLEXIL {
   }
 
 
+  // Trim whitespace when setting expression names
+  void PlexilExpr::setName(const std::string& name)
+  {
+    m_name = name;
+    size_t nonBlank = m_name.find_first_not_of(PlexilParser::WHITESPACE_CHARS());
+    if (nonBlank != 0)
+      m_name.erase(0, nonBlank);
+    nonBlank = m_name.find_last_not_of(PlexilParser::WHITESPACE_CHARS());
+    if (nonBlank + 1 < m_name.length())
+      m_name.erase(nonBlank + 1);
+  }
+
+
   void PlexilState::setName(const std::string& name)
   {
     PlexilValue* pv = new PlexilValue(PLEXIL::STRING, name);
