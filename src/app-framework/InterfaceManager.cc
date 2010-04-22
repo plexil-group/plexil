@@ -53,6 +53,7 @@
 #include "PlexilXmlParser.hh"
 #include "StateCache.hh"
 #include "CommandHandle.hh"
+#include "CoreExpressions.hh"
 #include "DynamicLoader.hh"
 #include "adapterconfigs/DefaultAdapterConfiguration.hh"
 
@@ -576,6 +577,8 @@ namespace PLEXIL
     State state;
     m_exec->getStateCache()->stateForKey(key, state);
     const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:registerChangeLookup",
+	     " for unique ID " << source << " of '" << stateName.toString() << "'");
 
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
@@ -708,6 +711,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterChangeLookup(const LookupKey& dest)
   {
+    debugMsg("InterfaceManager:unregisterChangeLookup", " for unique ID " << dest);
     LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
     if (it == m_lookupAdapterMap.end())
       {
@@ -831,24 +835,38 @@ namespace PLEXIL
   void
   InterfaceManager::updatePlanner(std::list<UpdateId>& updates)
   {
+    if (updates.empty()) 
+      {
+	debugMsg("InterfaceManager:updatePlanner", " update list is empty, returning");
+	return;
+      }
     InterfaceAdapterId intf = this->getPlannerUpdateInterface();
     if (intf.isNoId())
       {
+	// Must acknowledge updates if no interface for them
 	debugMsg("InterfaceManager:updatePlanner",
-		 " no planner interface defined, not sending planner updates");
-	return;
+		 " no planner update interface defined, acknowledging updates");
+	for (std::list<UpdateId>::const_iterator it = updates.begin();
+	     it != updates.end();
+	     it++)
+	  handleValueChange((*it)->getAck(),
+			    BooleanVariable::TRUE());
+	notifyOfExternalEvent();
       }
-    for (std::list<UpdateId>::const_iterator it = updates.begin();
-	 it != updates.end();
-	 it++)
+    else
       {
-	UpdateId upd = *it;
-	debugMsg("InterfaceManager:updatePlanner",
-		 " sending planner update for node '"
-		 << upd->getSource()->getNodeId().toString() << "'");
-	intf->sendPlannerUpdate(upd->getSource(),
-				upd->getPairs(),
-				upd->getAck());
+	for (std::list<UpdateId>::const_iterator it = updates.begin();
+	     it != updates.end();
+	     it++)
+	  {
+	    UpdateId upd = *it;
+	    debugMsg("InterfaceManager:updatePlanner",
+		     " sending planner update for node '"
+		     << upd->getSource()->getNodeId().toString() << "'");
+	    intf->sendPlannerUpdate(upd->getSource(),
+				    upd->getPairs(),
+				    upd->getAck());
+	  }
       }
   }
 
