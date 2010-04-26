@@ -166,8 +166,6 @@ namespace PLEXIL
       throw(ParserException);
     static TiXmlElement* toXml(const PlexilChangeLookup* lookup)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilFrequencyLookup* lookup)
-      throw(ParserException);
     static void toXml(const PlexilUpdateId& update, TiXmlElement* parent)
       throw(ParserException);
     static void toXml(const std::vector<PlexilExpr*>& src, std::vector<TiXmlElement*>& dest)

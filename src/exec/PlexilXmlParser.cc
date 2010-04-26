@@ -56,22 +56,15 @@ const std::string LIBRARYNODECALL_TAG("LibraryNodeCall");
 const std::string ALIAS_TAG("Alias");
 const std::string NODE_PARAMETER_TAG("NodeParameter");
 const std::string CMD_TAG("Command");
-const std::string CMDNAME_TAG("CommandName");
 const std::string FUNCCALL_TAG("FunctionCall");
-const std::string FUNCCALLNAME_TAG("FunctionName");
 const std::string NAME_TAG("Name");
 const std::string INDEX_TAG("Index");
 const std::string ARGS_TAG("Arguments");
 const std::string LOOKUPNOW_TAG("LookupNow");
 const std::string LOOKUPCHANGE_TAG("LookupOnChange");
-const std::string LOOKUPFREQ_TAG("LookupWithFrequency");
-const std::string FREQ_TAG("Frequency");
-const std::string HIGH_TAG("High");
-const std::string LOW_TAG("Low");
 const std::string TOLERANCE_TAG("Tolerance");
 const std::string NODEREF_TAG("NodeRef");
 const std::string STATEVAL_TAG("NodeStateValue");
-const std::string STATENAME_TAG("StateName");
 const std::string TIMEPOINT_TAG("Timepoint");
 const std::string UPDATE_TAG("Update");
 const std::string REQ_TAG("Request");
@@ -272,33 +265,6 @@ public:
 		for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
 				= child->NextSiblingElement())
 			retval->addSubExpr(PlexilXmlParser::parseExpr(child));
-		return retval->getId();
-	}
-};
-
-class PlexilFrequencyLookupParser: public PlexilExprParser {
-public:
-	PlexilFrequencyLookupParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(LOOKUPFREQ_TAG, xml);
-		PlexilFrequencyLookup* retval = new PlexilFrequencyLookup();
-		retval->setState(PlexilXmlParser::parseState(xml));
-		const TiXmlElement* frequencies = xml->FirstChildElement(FREQ_TAG);
-		checkParserException(frequencies != NULL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: LookupWithFrequency without a Frequency element");
-		const TiXmlElement* freq = frequencies->FirstChildElement(LOW_TAG);
-		checkHasChildElement(freq);
-		retval->setLowFreq(
-				PlexilXmlParser::parseExpr(freq->FirstChildElement()));
-		freq = frequencies->FirstChildElement(HIGH_TAG);
-		if (freq != NULL) {
-			checkHasChildElement(freq);
-			retval->setHighFreq(PlexilXmlParser::parseExpr(
-					freq->FirstChildElement()));
-		}
 		return retval->getId();
 	}
 };
@@ -651,8 +617,6 @@ void PlexilXmlParser::registerParsers()
 				      new PlexilLookupNowParser()));
   s_exprParsers->insert(std::make_pair(LOOKUPCHANGE_TAG,
 				      new PlexilChangeLookupParser()));
-  s_exprParsers->insert(std::make_pair(LOOKUPFREQ_TAG,
-				      new PlexilFrequencyLookupParser()));
   s_exprParsers->insert(std::make_pair(ARRAYELEMENT_TAG,
 				      new PlexilArrayElementParser()));
 
@@ -1099,42 +1063,43 @@ PlexilNodeBodyId PlexilXmlParser::parseBody(const TiXmlElement* body)
 }
 
 PlexilStateId PlexilXmlParser::parseState(const TiXmlElement* xml)
-		throw(ParserException) {
-	PlexilStateId retval = (new PlexilState())->getId();
-	const TiXmlElement* arguments = NULL;
-	for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
-			= child->NextSiblingElement()) {
-		// create tag string
+		throw(ParserException) 
+{
+  PlexilStateId retval = (new PlexilState())->getId();
+  const TiXmlElement* arguments = NULL;
+  for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
+	 = child->NextSiblingElement()) 
+    {
+      // get tag string
+      const std::string& tag(child->ValueStr());
 
-		std::string tag(child->Value());
+      // if name, it should contain a string variable or value expression
 
-		// if state or command name, use contained value
-
-		if (tag == STATENAME_TAG || tag == CMDNAME_TAG || tag
-				== FUNCCALLNAME_TAG) {
-			checkNotEmpty(child);
-			retval->setName(child->FirstChild()->Value());
-		}
-		// if name, it should contain a string variable or value expression
-
-		else if (tag == NAME_TAG) {
-			checkHasChildElement(child);
-			retval->setNameExpr(parseExpr(child->FirstChildElement()));
-		}
-		// if it's an argument use that
-
-		else if (tag == ARGS_TAG)
-			arguments = child;
+      if (tag == NAME_TAG) 
+	{
+	  debugMsg("PlexilXmlParser::parseState", " name expression = " << *child);
+	  checkHasChildElement(child);
+	  retval->setNameExpr(parseExpr(child->FirstChildElement()));
 	}
 
-	if (arguments != NULL) {
-		for (const TiXmlElement* child = arguments->FirstChildElement(); child
-				!= NULL; child = child->NextSiblingElement()) {
-			retval->addArg(PlexilXmlParser::parseExpr(child));
-		}
+      // if it's an argument use that
+      else if (tag == ARGS_TAG)
+	{
+	  debugMsg("PlexilXmlParser::parseState", " args = " << *child);
+	  arguments = child;
 	}
+    }
 
-	return retval;
+  if (arguments != NULL) {
+    for (const TiXmlElement* child = arguments->FirstChildElement();
+	 child != NULL;
+	 child = child->NextSiblingElement()) 
+     {
+       retval->addArg(PlexilXmlParser::parseExpr(child));
+     }
+  }
+
+  return retval;
 }
 
 std::vector<PlexilResourceId> PlexilXmlParser::parseResource(
@@ -1538,8 +1503,6 @@ TiXmlElement* PlexilXmlParser::toXml(const PlexilLookup* lookup)
 		retval = element(LOOKUPNOW_TAG);
 	else if (Id<PlexilChangeLookup>::convertable(lookup->getId()))
 		retval = toXml((PlexilChangeLookup*) lookup);
-	else if (Id<PlexilFrequencyLookup>::convertable(lookup->getId()))
-		retval = toXml((PlexilFrequencyLookup*) lookup);
 	checkParserException(retval != NULL, "Unknown lookup type.");
 	toXml(lookup->state(), retval);
 	return retval;
@@ -1678,23 +1641,6 @@ TiXmlElement* PlexilXmlParser::toXml(const PlexilChangeLookup* lookup)
 	for (std::vector<PlexilExprId>::const_iterator it =
 			lookup->tolerances().begin(); it != lookup->tolerances().end(); ++it)
 		retval->LinkEndChild(toXml(*it));
-	return retval;
-}
-
-TiXmlElement* PlexilXmlParser::toXml(const PlexilFrequencyLookup* lookup)
-		throw(ParserException) {
-	TiXmlElement* retval = element(LOOKUPFREQ_TAG);
-	TiXmlElement* freq = element(FREQ_TAG);
-	TiXmlElement* low = element(LOW_TAG);
-	low->LinkEndChild(toXml(lookup->lowFreq()));
-	freq->LinkEndChild(low);
-
-	if (lookup->highFreq().isValid()) {
-		TiXmlElement* high = element(HIGH_TAG);
-		high->LinkEndChild(toXml(lookup->highFreq()));
-		freq->LinkEndChild(high);
-	}
-	retval->LinkEndChild(freq);
 	return retval;
 }
 
