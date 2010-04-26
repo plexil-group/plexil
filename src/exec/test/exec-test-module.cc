@@ -1055,7 +1055,6 @@ public:
     TestInterface foo;
     runTest(lookupNow);
     runTest(lookupOnChange);
-    runTest(lookupWithFrequency);
     return true;
   }
 private:
@@ -1157,10 +1156,6 @@ private:
     TestInterface::instance()->unwatch(LabelStr("changeTest"), watchVar.getId());
     TestInterface::instance()->unwatch(LabelStr("changeWithToleranceTest"), watchVar.getId());
 
-    return true;
-  }
-
-  static bool lookupWithFrequency() {
     return true;
   }
 };
@@ -2301,12 +2296,6 @@ public:
     m_states.insert(std::make_pair(key, state));
     dest[0] = m_values[state];
   }
-  void registerFrequencyLookup(const LookupKey&  source, const State& state, const StateKey& key, const double& lowFreq, const double& highFreq,
-			       std::vector<double>& dest) {
-    check_error(!dest.empty());
-    m_states.insert(std::make_pair(key, state));
-    dest[0] = m_values[state];
-  }
   bool lookupNowCalled() {return m_lookupNowCalled;}
   void clearLookupNowCalled() {m_lookupNowCalled = false;}
   void setValue(const State& state, const double& value, StateCacheId cache, bool update = true) {
@@ -2331,7 +2320,6 @@ public:
   static bool test() {
     runTest(testLookupNow);
     runTest(testChangeLookup);
-    runTest(testFrequencyLookup);
     return true;
   }
 private:
@@ -2425,46 +2413,6 @@ private:
     iface.setValue(st, 5, cache.getId());
     assertTrue(destVar2.getValue() == 3);
     assertTrue(destVar1.getValue() == 5);
-    return true;
-  }
-
-  static bool testFrequencyLookup() {
-    CacheTestInterface iface;
-    StateCache cache;
-    cache.setExternalInterface(iface.getId());
-
-    IntegerVariable destVar1, destVar2;
-    destVar1.activate();
-    destVar2.activate();
-    Expressions dest1;
-    dest1.push_back(destVar1.getId());
-    Expressions dest2;
-    dest2.push_back(destVar2.getId());
-
-
-
-    State time(LabelStr("time"), std::vector<double>());
-    State st(LabelStr("foo"), std::vector<double>());
-
-    //lookup
-    iface.setValue(time, 0, cache.getId(), false);
-    iface.setValue(st, 1, cache.getId(), false);
-    cache.handleQuiescenceStarted();
-    cache.registerFrequencyLookup(destVar1.getId(), dest1, st, 3, 1);
-    assertTrue(destVar1.getValue() == 1);
-    cache.registerFrequencyLookup(destVar2.getId(), dest2, st, 2, 2);
-    assertTrue(destVar2.getValue() == 1);
-    cache.handleQuiescenceEnded();
-
-    iface.setValue(time, 1, cache.getId(), false);
-    iface.setValue(st, 2, cache.getId());
-    assertTrue(destVar1.getValue() == 2);
-    assertTrue(destVar2.getValue() == 1);
-
-    iface.setValue(time, 4, cache.getId(), false);
-    iface.setValue(st, 3, cache.getId());
-    assertTrue(destVar1.getValue() == 3);
-    assertTrue(destVar2.getValue() == Expression::UNKNOWN());
     return true;
   }
 };

@@ -87,22 +87,6 @@ namespace PLEXIL
 	       "InterfaceAdapter::unregisterChangeLookup: default method called!");
   }
 
-  void InterfaceAdapter::registerFrequencyLookup(const LookupKey& uniqueId,
-						 const StateKey& stateKey,
-						 double lowFrequency, 
-						 double highFrequency)
-  {
-    assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::registerFrequencyLookup: default method called!");
-  }
-
-
-  void InterfaceAdapter::unregisterFrequencyLookup(const LookupKey& uniqueId)
-  {
-    assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::registerFrequencyLookup: default method called!");
-  }
-
   void InterfaceAdapter::lookupNow(const StateKey& key,
 				   std::vector<double>& dest)
   {
@@ -162,14 +146,16 @@ namespace PLEXIL
       m_asynchLookups.find(key);
     if (it == m_asynchLookups.end())
       {
-	debugMsg("InterfaceAdapter:registerAsynchLookup", " adding new state with key " << key);
+	debugMsg("InterfaceAdapter:registerAsynchLookup",
+		 " for state key " << key << "; new lookup for unique ID " << uniqueId);
 	std::set<LookupKey> theSet;
 	theSet.insert(uniqueId);
 	m_asynchLookups.insert(std::pair<StateKey, std::set<LookupKey> >(key, theSet));
       }
     else
       {
-	debugMsg("InterfaceAdapter:registerAsynchLookup", " adding new destination for old state");
+	debugMsg("InterfaceAdapter:registerAsynchLookup",
+		 " for state key " << key << "; adding unique ID " << uniqueId << " to existing lookup");
 	(*it).second.insert(uniqueId);
       }
   }

@@ -592,60 +592,6 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register a frequency lookup on a new state, expecting values back.
-   * @param source The unique key for this lookup.
-   * @param state The state
-   * @param key The key for the state to be used in future communications about the state.
-   * @param lowFreq The most time allowable between updates, or the exec will assume UNKNOWN.
-   * @param highFreq The least time allowable between updates.
-   * @param dest The destination for the current values for the state.
-   */
-
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void
-  InterfaceManager::registerFrequencyLookup(const LookupKey& source,
-						     const State& state,
-						     const StateKey& key,
-						     const double& lowFreq,
-						     const double& highFreq,
-						     std::vector<double>& dest)
-  {
-    // Do an immediate lookup for effect
-    lookupNow(state, key, dest);
-    // Defer to method below
-    registerFrequencyLookup(source, key, lowFreq, highFreq);
-  }
-
-  /**
-   * @brief Register a frequency lookup on an existing state.
-   * @param source The unique key for this lookup.
-   * @param key The key for the state.
-   * @param lowFreq The most time allowable between updates, or the exec will assume UNKNOWN.
-   * @param highFreq The least time allowable between updates.
-   */
-  void 
-  InterfaceManager::registerFrequencyLookup(const LookupKey& source,
-						     const StateKey& key,
-						     const double& lowFreq,
-						     const double& highFreq)
-  {
-    // Extract state name and arglist
-    State state;
-    m_exec->getStateCache()->stateForKey(key, state);
-    const LabelStr& stateName(state.first);
-
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-		  "registerFrequencyLookup: No interface adapter found for lookup '"
-		  << stateName.toString() << "'");
-
-    m_lookupAdapterMap.insert(std::pair<LookupKey, InterfaceAdapterId>(source, adapter));
-    // for convenience of adapter implementors
-    adapter->registerAsynchLookup(source, key);
-    adapter->registerFrequencyLookup(source, key, lowFreq, highFreq);
-  }
-
-  /**
    * @brief Perform an immediate lookup on a new state.
    * @param state The state
    * @param key The key for the state to be used in future communications about the state.
@@ -726,30 +672,6 @@ namespace PLEXIL
 		  << dest << "'");
 
     adapter->unregisterChangeLookup(dest);
-    adapter->unregisterAsynchLookup(dest);
-    m_lookupAdapterMap.erase(dest);
-  }
-
-  /**
-   * @brief Inform the FL that a lookup should no longer receive updates.
-   */ 
-  void 
-  InterfaceManager::unregisterFrequencyLookup(const LookupKey& dest)
-  {
-    LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
-    if (it == m_lookupAdapterMap.end())
-      {
-	debugMsg("InterfaceManager:unregisterFrequencyLookup", 
-		 " no lookup found for key " << dest);
-	return;
-      }
-
-    InterfaceAdapterId adapter = (*it).second;
-    assertTrueMsg(!adapter.isNoId(),
-		  "unregisterFrequencyLookup: Internal Error: No interface adapter found for lookup key '"
-		  << dest << "'");
-
-    adapter->unregisterFrequencyLookup(dest);
     adapter->unregisterAsynchLookup(dest);
     m_lookupAdapterMap.erase(dest);
   }

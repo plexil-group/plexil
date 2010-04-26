@@ -331,20 +331,6 @@ namespace PLEXIL {
     std::vector<PlexilExprId> m_tolerances;
   };
 
-  class PlexilFrequencyLookup : public PlexilLookup {
-  public:
-    PlexilFrequencyLookup()
-      : PlexilLookup() {setName("LookupWithFrequency");}
-    const PlexilExprId& lowFreq() const {return m_lowFreq;}
-    const PlexilExprId& highFreq() const {return m_highFreq;}
-
-    void setLowFreq(PlexilExprId freq) {m_lowFreq = freq;}
-    void setHighFreq(PlexilExprId freq) {m_highFreq = freq;}
-  private:
-    PlexilExprId m_lowFreq;
-    PlexilExprId m_highFreq;
-  };
-
   class PlexilValue : public PlexilExpr {
   public:
     PlexilValue(const PlexilType& type, const std::string& value = "UNKNOWN");

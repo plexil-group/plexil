@@ -58,15 +58,6 @@ namespace PLEXIL
                                Expression::UNKNOWN());
       }
 
-
-      FrequencyLookup::FrequencyLookup(const ExpressionId& _source, 
-                                       const Expressions& _dest,
-                                       const StateKey& key, const double _lowFreq,
-                                       const double _highFreq)
-         : Lookup(_source, _dest, key), lowFreq(_lowFreq), 
-           highFreq(_highFreq), lastTime(-1) 
-      {
-      }
    }
 
    StateCache::StateCache() : m_id(this), m_inQuiescence(false), 
@@ -204,46 +195,6 @@ namespace PLEXIL
       }
    }
 
-   void StateCache::registerFrequencyLookup(const ExpressionId& source, Expressions& dest, const State& state, const double lowFreq, const double highFreq)
-   {
-      check_error(m_inQuiescence, "Lookup outside of quiescence!");
-      debugMsg("StateCache:registerFrequencyLookup", "Registering frequency lookup " << source->toString() << " for state " << toString(state));
-      StateKey key;
-      bool newState = keyForState(state, key);
-
-      Cache::LookupId lookup = (new Cache::FrequencyLookup(source, dest, key, lowFreq, highFreq))->getId();
-
-      std::multimap<StateKey, Cache::LookupId>::iterator it = m_lookups.insert(std::make_pair(key, lookup));
-      m_lookupsByExpression.insert(std::make_pair(source, lookup));
-
-      if (newState || m_states.find(key)->second.second < m_quiescenceCount)
-      {
-         condDebugMsg(newState, "StateCache:registerFrequencyLookup", "New state, so performing external lookup.");
-         condDebugMsg(m_states.find(key)->second.second < m_quiescenceCount, "StateCache:registerFrequencyLookup",
-                      "Out-of-date state, so performing external lookup.");
-         std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
-
-         getExternalInterface()->registerFrequencyLookup((LookupKey) source, state, key, lowFreq, highFreq, values);
-         internalStateUpdate(key, values);
-      }
-      else
-      {
-         std::map<StateKey, std::vector<double> >::iterator currentValues = m_values.find(key);
-         check_error(currentValues != m_values.end());
-         debugMsg("StateCache:registerFrequency", "Already have up-to-date values for state, so using those (" <<
-                  toString(currentValues->second) << ")");
-         std::vector<double>::iterator valueIt = currentValues->second.begin();
-         for (Expressions::iterator destIt = dest.begin(); valueIt != currentValues->second.end() && destIt != dest.end(); ++valueIt, ++destIt)
-         {
-            if (destIt->isNoId())
-               continue;
-            (*destIt)->setValue(*valueIt);
-         }
-         ((Cache::FrequencyLookup*)lookup)->lastTime = currentTime();
-         getExternalInterface()->registerFrequencyLookup((LookupKey) source, key, lowFreq, highFreq);
-      }
-   }
-
    void StateCache::internalUnregisterLookup(const ExpressionId& source)
    {
       check_error(source.isValid());
@@ -267,13 +218,6 @@ namespace PLEXIL
       check_error(m_inQuiescence, "Lookup outside of quiescence!");
       internalUnregisterLookup(source);
       getExternalInterface()->unregisterChangeLookup((LookupKey) source);
-   }
-
-   void StateCache::unregisterFrequencyLookup(const ExpressionId& source)
-   {
-      check_error(m_inQuiescence, "Lookup outside of quiescence!");
-      internalUnregisterLookup(source);
-      getExternalInterface()->unregisterFrequencyLookup((LookupKey)source);
    }
 
    void StateCache::updateState(const State& state, const std::vector<double>& values)
@@ -364,44 +308,11 @@ namespace PLEXIL
             Cache::ChangeLookup* lookup = (Cache::ChangeLookup*) l;
             retval = updateChangeLookup(lookup, values) || retval;
          }
-         else if (Id<Cache::FrequencyLookup>::convertable(l))
-         {
-            Cache::FrequencyLookup* lookup = (Cache::FrequencyLookup*) l;
-            retval = updateFrequencyLookup(lookup, values, time) || retval;
-         }
          else
          {
-            checkError(ALWAYS_FAIL, "Bizarre... lookup stored not of type ChangeLookup or FrequencyLookup.");
+            checkError(ALWAYS_FAIL, "Bizarre... lookup stored not of type ChangeLookup.");
          }
          ++it;
-      }
-
-      if (key == m_timeState)
-      {
-         debugMsg("StateCache:updateState", "State is time state.  Checking to see if there are timed-out frequency lookups.");
-         for (std::map<ExpressionId, Cache::LookupId>::iterator it = m_lookupsByExpression.begin(); it != m_lookupsByExpression.end(); ++it)
-         {
-            Cache::LookupId lookup = it->second;
-            check_error(lookup.isValid());
-            if (!Id<Cache::FrequencyLookup>::convertable(lookup))
-               continue;
-            Cache::FrequencyLookup* freq = (Cache::FrequencyLookup*) lookup;
-            checkError(freq->lastTime <= time, "Synchronization error.  Lookup " << freq->source->toString() << " was updated in the future: " << freq->lastTime << ", " << time);
-            if (time - freq->lastTime > freq->lowFreq)
-            {
-               debugMsg("StateCache:updateState", "Lookup " << freq->source->toString() << " has timed out.  Current time: " <<
-                        time << " last update: " << freq->lastTime << " low frequency: " << freq->lowFreq);
-               for (Expressions::size_type i = 0; i < freq->dest.size(); ++i)
-                  if (freq->dest[i].isValid())
-                     freq->dest[i]->setValue(Expression::UNKNOWN());
-            }
-            else
-            {
-               debugMsg("StateCache:updateState",
-                        "Lookup " << freq->source->toString() << " has not timed out.  Current time: " <<
-                        time << " last update: " << freq->lastTime << " low frequency: " << freq->lowFreq);
-            }
-         }
       }
 
       return retval;
@@ -459,36 +370,6 @@ namespace PLEXIL
             }
             lookup->previousValues[i] = values[i];
          }
-      }
-      return needsUpdate;
-   }
-
-   bool StateCache::updateFrequencyLookup(Cache::FrequencyLookup* lookup, const std::vector<double>& values, const double& time)
-   {
-      bool needsUpdate = false;
-      check_error(lookup->dest.size() == values.size());
-
-      check_error(lookup->lastTime <= time);
-
-      debugMsg("StateCache:updateState", "Seeing if frequency lookup " << lookup->source->toString() <<
-               " needs updating from time " << lookup->lastTime << " (current: " << time << ")");
-      //need an update if we've never been updated or delta t >= the high frequency
-      needsUpdate = (lookup->lastTime == -1) || (time - lookup->lastTime >= lookup->highFreq);
-      //too late if we've been previously updated and delta t > the low frequency
-      bool tooLate = (lookup->lastTime != -1) && (time - lookup->lastTime > lookup->lowFreq);
-      condDebugMsg(tooLate, "StateCache:updateState", "Update is too late.  Setting unknown.");
-      condDebugMsg(lookup->lastTime != -1 && (time - lookup->lastTime < lookup->highFreq), "StateCache:updateState",
-                   "Not updating.  The time of the last update (" << lookup->lastTime << ") and current time (" << time <<
-                   ") differ by less than the high frequency (" << lookup->highFreq << ")");
-
-      lookup->lastTime = time;
-      if (needsUpdate)
-      {
-         debugMsg("StateCache:updateState",
-                  "Updating frequency lookup " << lookup->source->toString() << " to " << (tooLate ? std::string("UNKNOWN") : toString(values)));
-         for (std::vector<double>::size_type i = (std::vector<double>::size_type) 0; i < values.size(); ++i)
-            if (lookup->dest[i].isValid())
-               lookup->dest[i]->setValue((tooLate ? Expression::UNKNOWN() : values[i]));
       }
       return needsUpdate;
    }

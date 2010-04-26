@@ -141,28 +141,6 @@ namespace PLEXIL
     virtual void unregisterChangeLookup(const LookupKey& uniqueId);
 
     /**
-     * @brief Register one LookupWithFrequency.
-     * @param uniqueId The unique ID of this lookup.
-     * @param stateKey The state key for this lookup.
-     * @param lowFrequency The maximum interval in seconds between lookups.
-     * @param highFrequency The minimum interval in seconds between lookups.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void registerFrequencyLookup(const LookupKey& uniqueId,
-					 const StateKey& stateKey,
-					 double lowFrequency, 
-					 double highFrequency);
-
-    /**
-     * @brief Terminate one LookupWithFrequency.
-     * @param uniqueId The unique ID of the lookup to be terminated.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void unregisterFrequencyLookup(const LookupKey& uniqueId);
-
-    /**
      * @brief Perform an immediate lookup of the requested state.
      * @param stateKey The state key for this lookup.
      * @param dest A (reference to a) vector of doubles where the result is to be stored.

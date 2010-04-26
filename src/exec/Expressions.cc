@@ -315,101 +315,6 @@ namespace PLEXIL {
     m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
   }
 
-  LookupWithFrequency::LookupWithFrequency(const PlexilExprId& expr,
-					   const NodeConnectorId& node)
-    : Lookup(expr, node)
-  {
-    checkError(Id<PlexilFrequencyLookup>::convertable(expr), "Expected LookupWithFrequency");
-    PlexilFrequencyLookup* lookup = (PlexilFrequencyLookup*) expr;
-    
-    checkError(lookup->lowFreq().isValid(),
-	       "Need at least a low frequency.");
-
-    if (Id<PlexilVarRef>::convertable(lookup->lowFreq()))
-      m_lowFrequency = node->findVariable((PlexilVarRef*)lookup);
-    else 
-      {
-        m_lowFrequency = ExpressionFactory::createInstance(lookup->lowFreq()->name(),
-                                                           lookup->lowFreq());
-        m_garbage.push_back(m_lowFrequency);
-      }
-    m_lowFrequency->addListener(m_listener.getId());
-
-    if(lookup->highFreq().isValid()) 
-      m_highFrequency = m_lowFrequency;
-    else 
-      {
-        if (Id<PlexilVarRef>::convertable(lookup->highFreq()))
-          m_highFrequency = node->findVariable((PlexilVarRef*)lookup);
-        else 
-          {
-            m_highFrequency = ExpressionFactory::createInstance(lookup->highFreq()->name(),
-                                                                lookup->highFreq());
-            m_garbage.push_back(m_highFrequency);
-          }
-        m_highFrequency->addListener(m_listener.getId());
-      }
-    checkError(m_highFrequency.isValid(), "No high frequency specified in LookupWithFrequency.");
-    checkError(m_lowFrequency.isValid(), "No low frequency specified in LookupWithFrequency.");
-  }
-
-  LookupWithFrequency::~LookupWithFrequency()
-  {
-    m_lowFrequency->removeListener(m_listener.getId());
-    m_highFrequency->removeListener(m_listener.getId());
-  }
-
-  std::string LookupWithFrequency::toString() const {
-    std::stringstream retval;
-    retval << Expression::toString();
-    retval << "LookupWithFrequency(" << m_stateNameExpr->getValue() << "(";
-    for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
-	++it)
-      retval << ", " << (*it)->toString();
-    retval << "), " << m_lowFrequency->toString() << ", " << m_highFrequency->toString() << "))";
-    return retval.str();
-  }
-
-  void LookupWithFrequency::handleRegistration() 
-  {
-    m_highFrequency->activate();
-    m_lowFrequency->activate();
-    m_cache->registerFrequencyLookup(m_id, 
-                                     m_dest,
-                                     m_state, 
-                                     m_lowFrequency->getValue(), 
-                                     m_highFrequency->getValue());
-  }
-
-  void LookupWithFrequency::handleUnregistration() {
-    m_highFrequency->deactivate();
-    m_lowFrequency->deactivate();
-    m_cache->unregisterFrequencyLookup(m_id);
-  }
-
-  void LookupWithFrequency::handleChange(const ExpressionId& exp)
-  {
-    // need to notify state cache if cached lookup is no longer valid
-    if (isStateCurrent() && exp != m_lowFrequency && exp != m_highFrequency)
-      return;
-    const State oldState(m_state);
-    updateState();
-    handleRegistrationChange(oldState);
-  }
-
-  // *** To do:
-  //  - optimize by adding specific method for this case to StateCache class
-
-  void LookupWithFrequency::handleRegistrationChange(const State& /* oldState */)
-  {
-    m_cache->unregisterFrequencyLookup(m_id);
-    m_cache->registerFrequencyLookup(m_id, 
-                                     m_dest,
-                                     m_state, 
-                                     m_lowFrequency->getValue(), 
-                                     m_highFrequency->getValue());
-  }
-
   AbsoluteValue::AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node)
     : UnaryExpression(expr, node) {}
 
@@ -540,7 +445,6 @@ namespace PLEXIL {
 	REGISTER_EXPRESSION(InternalCondition, NEInternal);
 	REGISTER_EXPRESSION(LookupNow, LookupNow);
 	REGISTER_EXPRESSION(LookupOnChange, LookupOnChange);
-	REGISTER_EXPRESSION(LookupWithFrequency, LookupWithFrequency);
 	REGISTER_EXPRESSION(TimepointVariable, NodeTimepointValue);
 	//REGISTER_EXPRESSION(TimepointVariable, NodeTimepointValue);
 	REGISTER_EXPRESSION(AbsoluteValue, ABS);

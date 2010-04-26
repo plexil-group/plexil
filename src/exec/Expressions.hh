@@ -157,31 +157,6 @@ namespace PLEXIL {
     ExpressionId m_tolerance;
   };
 
-  class LookupWithFrequency : public Lookup {
-  public:
-    LookupWithFrequency(const PlexilExprId& expr, const NodeConnectorId& node);
-    virtual ~LookupWithFrequency();
-
-    std::string toString() const;
-
-    void handleChange(const ExpressionId& exp);
-
-  protected:
-
-  private:
-    // Deliberately unimplemented
-    LookupWithFrequency();
-    LookupWithFrequency(const LookupWithFrequency&);
-    LookupWithFrequency& operator=(const LookupWithFrequency&);
-
-    void handleRegistration();
-    void handleRegistrationChange(const State& oldState);
-    void handleUnregistration();
-
-    ExpressionId m_lowFrequency;
-    ExpressionId m_highFrequency;
-  };
-
   class AbsoluteValue : public UnaryExpression {
   public:
     AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node);

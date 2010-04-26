@@ -60,20 +60,6 @@ namespace PLEXIL {
 					       const std::vector<double>& /* tolerances */)
   {}
 
-  void ExternalInterface::registerFrequencyLookup(const LookupKey& /* source */,
-						  const State& /* state */,
-						  const StateKey& /* key */,
-						  const double& /* lowFreq */,
-						  const double& /* highFreq */,
-						  std::vector<double>& /* dest */)
-  {}
-
-  void ExternalInterface::registerFrequencyLookup(const LookupKey& /* source */,
-						  const StateKey& /* key */,
-						  const double& /* lowFreq */,
-						  const double& /* highFreq */)
-  {}
-
   void ExternalInterface::lookupNow(const State& /* state */,
 				    const StateKey& /* key */,
 				    std::vector<double>& /* dest */)
@@ -84,9 +70,6 @@ namespace PLEXIL {
   {}
   
   void ExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
-  {}
-
-  void ExternalInterface::unregisterFrequencyLookup(const LookupKey& /* dest */)
   {}
 
   void ExternalInterface::batchActions(std::list<CommandId>& /* commands */)

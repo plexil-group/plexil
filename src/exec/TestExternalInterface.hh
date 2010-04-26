@@ -61,12 +61,6 @@ namespace PLEXIL {
     void registerChangeLookup(const LookupKey& source, const StateKey& key, const std::vector<double>& tolerances);
 
 
-    //void registerFrequencyLookup(ExpressionId dest, const LabelStr& name, double lowFrequency, double highFrequency, const std::list<double>& params);
-    void registerFrequencyLookup(const LookupKey& source, const State& state, const StateKey& key, const double& lowFreq, const double& highFreq,
-				 std::vector<double>& dest);
-    void registerFrequencyLookup(const LookupKey& source, const StateKey& key, const double& lowFreq, const double& highFreq);
-
-
     //void lookupNow(ExpressionId dest, const LabelStr& name, const std::list<double>& params);
     void lookupNow(const State& state, const StateKey& key, std::vector<double>& dest);
     void lookupNow(const StateKey& key, std::vector<double>& dest);
@@ -74,8 +68,6 @@ namespace PLEXIL {
 
     //void unregisterChangeLookup(ExpressionId dest);
     void unregisterChangeLookup(const LookupKey& dest);
-    //void unregisterFrequencyLookup(ExpressionId dest);
-    void unregisterFrequencyLookup(const LookupKey& dest);
 
     void batchActions(std::list<CommandId>& commands);
     void batchActions(std::list<FunctionCallId>& functionCalls);

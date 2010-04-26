@@ -96,13 +96,6 @@ namespace PLEXIL
 
     virtual void unregisterChangeLookup(const LookupKey& uniqueId);
 
-    virtual void registerFrequencyLookup(const LookupKey& uniqueId,
-					 const StateKey& stateKey,
-					 double lowFrequency, 
-					 double highFrequency);
-
-    virtual void unregisterFrequencyLookup(const LookupKey& uniqueId);
-
     void lookupNow(const StateKey& stateKey,
 		   std::vector<double>& dest);
 

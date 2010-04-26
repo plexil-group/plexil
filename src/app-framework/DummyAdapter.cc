@@ -115,19 +115,6 @@ namespace PLEXIL
     debugMsg("ExternalInterface:dummy", " unregisterChangeLookup called");
   }
 
-  void DummyAdapter::registerFrequencyLookup(const LookupKey& uniqueId,
-					     const StateKey& stateKey,
-					     double lowFrequency, 
-					     double highFrequency)
-  {
-    debugMsg("ExternalInterface:dummy", " registerFrequencyLookup called");
-  }
-
-  void DummyAdapter::unregisterFrequencyLookup(const LookupKey& uniqueId)
-  {
-    debugMsg("ExternalInterface:dummy", " unregisterFrequencyLookup called");
-  }
-
   void DummyAdapter::lookupNow(const StateKey& key,
 			       std::vector<double>& dest)
   {

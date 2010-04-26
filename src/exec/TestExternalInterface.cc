@@ -492,31 +492,6 @@ namespace PLEXIL
       registerChangeLookup(source, m_statesByKey[key], key, tolerances, fakeDest);
    }
 
-  void TestExternalInterface::registerFrequencyLookup(const LookupKey& /* source */,
-						      const State& state,
-						      const StateKey& key,
-						      const double& lowFreq, 
-						      const double& highFreq,
-						      std::vector<double>& dest)
-   {
-      debugMsg("Test:testOutput", "Registering frequency lookup " << StateCache::toString(state) << " with frequency (" << lowFreq << ", " << highFreq << ")");
-      m_statesByKey.insert(std::make_pair(key, state));
-      StateMap::iterator it = m_states.find(state);
-      if (it == m_states.end())
-      {
-         it = m_states.insert(std::make_pair(state, Expression::UNKNOWN())).first;
-      }
-      checkError(m_states.find(state) != m_states.end(), "No entry for state " << StateCache::toString(state));
-      dest[0] = 77.7; //m_states[state][0];
-   }
-
-   void TestExternalInterface::registerFrequencyLookup(const LookupKey& source, const StateKey& key, const double& lowFreq, const double& highFreq)
-   {
-      checkError(m_statesByKey.find(key) != m_statesByKey.end(), "No known state for key " << key);
-      std::vector<double> fakeDest(1, 0);
-      registerFrequencyLookup(source, m_statesByKey[key], key, lowFreq, highFreq, fakeDest);
-   }
-
    void TestExternalInterface::lookupNow(const State& state, const StateKey& key,
                                          std::vector<double>& dest)
    {
@@ -548,9 +523,6 @@ namespace PLEXIL
 
 
   void TestExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
-  {}
-
-  void TestExternalInterface::unregisterFrequencyLookup(const LookupKey& /* dest */)
   {}
 
    void TestExternalInterface::batchActions(std::list<CommandId>& commands)

@@ -70,15 +70,6 @@ namespace PLEXIL
       std::vector<double> tolerances;
       std::vector<double> previousValues;
     };
-      
-    class FrequencyLookup : public Lookup 
-    {
-    public:
-      FrequencyLookup(const ExpressionId& _source, 
-                      const Expressions& _dest, const StateKey& key,
-                      const double _lowFreq, const double _highFreq);
-      double lowFreq, highFreq, lastTime;
-    };
   }
    
   /**
@@ -158,35 +149,11 @@ namespace PLEXIL
                               const std::vector<double>& tolerances);
          
     /**
-     * @brief Register a change lookup with the external world.
-     *        Performs an immediate lookup in manner of lookupNow.
-     *        @param source The Id of the LookupOnChange
-     *        expression.  @param dest A vector of the expressions
-     *        into which the values returned by the lookup will be
-     *        stored.  @param state The state being watched.
-     *        @param lowFreq The longest time the lookup should
-     *        wait between updates before setting UNKNOWN.  @param
-     *        highFreq The least time the lookup will wait between
-     *        updates.
-     */
-    void registerFrequencyLookup(const ExpressionId& source, 
-                                 Expressions& dest, const State& state,
-                                 const double lowFreq, 
-                                 const double highFreq);
-         
-    /**
      * @brief Un-register a change lookup with the external world
      *        (this may allow the functional layer to stop sending
      *        data, saving bandwidth.
      */
     void unregisterChangeLookup(const ExpressionId& source);
-         
-    /**
-     * @brief Un-register a frequency lookup with the external
-     *        world (this may allow the functional layer to stop
-     *        sending data, saving bandwidth.
-     */
-    void unregisterFrequencyLookup(const ExpressionId& source);
          
     /**
      * FUNCTIONS FOR THE EXTERNALINTERFACE TO CALL
@@ -284,7 +251,7 @@ namespace PLEXIL
          
     /**
      * @brief Update lookups on a given state with the given
-     *        values.  Also expires late frequency lookups.
+     *        values.
      *
      * @param key The key for the state.
      * @param values The values for the update.
@@ -305,29 +272,10 @@ namespace PLEXIL
                             const std::vector<double>& values);
          
     /**
-     * @brief Conditionally update a frequency lookup if the
-     *        current time is within its limits.  If the update is
-     *        too late, the destination expressions are set to
-     *        UNKNOWN.  @param lookup The lookup to possibly
-     *        update.  @param values The values to update to.
-     *        @param time The current time.
-     */
-    bool updateFrequencyLookup(Cache::FrequencyLookup* lookup, 
-                               const std::vector<double>& values,
-                               const double& time);
-         
-    /**
      * @brief Remove a lookup from internal data structures.
      * @param source The un-registered lookup.
      */
     void internalUnregisterLookup(const ExpressionId& source);
-         
-    /**
-     * @brief Set all expired frequency lookups (lookups that
-     *        haven't gotten an update in the last lowFreq time
-     *        units) to UNKNOWN.
-     */
-    //void expireFrequencyLookups();
          
     /**
      * @brief Compute the magnitude of the difference between x and y.

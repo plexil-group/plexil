@@ -224,35 +224,6 @@ namespace PLEXIL
 			      const std::vector<double>& tolerances);
 
     /**
-     * @brief Register a frequency lookup on a new state, expecting values back.
-     * @param source The unique key for this lookup.
-     * @param state The state
-     * @param key The key for the state to be used in future communications about the state.
-     * @param lowFreq The most time allowable between updates, or the exec will assume UNKNOWN.
-     * @param highFreq The least time allowable between updates.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
-     */
-    void registerFrequencyLookup(const LookupKey& source,
-				 const State& state,
-				 const StateKey& key,
-				 const double& lowFreq,
-				 const double& highFreq,
-				 std::vector<double>& dest);
-
-    /**
-     * @brief Register a frequency lookup on an existing state.
-     * @param source The unique key for this lookup.
-     * @param key The key for the state.
-     * @param lowFreq The most time allowable between updates, or the exec will assume UNKNOWN.
-     * @param highFreq The least time allowable between updates.
-     */
-    void registerFrequencyLookup(const LookupKey& source,
-				 const StateKey& key,
-				 const double& lowFreq,
-				 const double& highFreq);
-
-    /**
      * @brief Perform an immediate lookup on a new state.
      * @param state The state
      * @param key The key for the state to be used in future communications about the state.
@@ -276,11 +247,6 @@ namespace PLEXIL
      * @brief Inform the FL that a lookup should no longer receive updates.
      */
     void unregisterChangeLookup(const LookupKey& dest);
-
-    /**
-     * @brief Inform the FL that a lookup should no longer receive updates.
-     */ 
-    void unregisterFrequencyLookup(const LookupKey& dest);
 
     //this batches the set of actions from quiescence completion.  calls PlexilExecutive::step() at the end
     //assignments must be performed first.
