@@ -1,10 +1,10 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
       <Node NodeType="NodeList">
           <NodeId>Wrapper0</NodeId>
           <EndCondition>
               <NEBoolean>
                   <LookupOnChange>
-                      <StateName>x</StateName>
+                      <Name><StringValue>x</StringValue></Name>
                   </LookupOnChange>
                   <BooleanValue>0</BooleanValue>
               </NEBoolean>
@@ -26,7 +26,7 @@
                                               </RepeatCondition>
                                               <NodeBody>
                                                   <Command>
-                                                      <CommandName>foo</CommandName>
+                                                      <Name><StringValue>foo</StringValue></Name>
                                                   </Command>
                                               </NodeBody>
                                           </Node>

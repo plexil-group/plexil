@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- test plan -->
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:noNamespaceSchemaLocation="schema_060613.xsd">
+ xsi:noNamespaceSchemaLocation="file:/Users/vandi/MTP/scenarios/ISS/schema_060303.xsd">
  <Node NodeType="NodeList">
    <NodeId>Procedure_5_350</NodeId>
    <StartCondition>  <!-- Have received C&W message 5520 -->
     <EQBoolean>
      <LookupOnChange>
-      <StateName>Event_5520</StateName>
+      <Name><StringValue>Event_5520</StringValue></Name>
      </LookupOnChange>
      <BooleanValue>1</BooleanValue>
     </EQBoolean>
@@ -39,7 +39,7 @@
         <EndCondition> <!-- Currently UE script does not support LookupWithFrequency or Timepoints, hence using a simplified solution -->
          <EQBoolean>
           <LookupOnChange>
-           <StateName>three_min_timer</StateName>
+           <Name><StringValue>three_min_timer</StringValue></Name>
           </LookupOnChange>
           <BooleanValue>1</BooleanValue>
          </EQBoolean> 
@@ -79,7 +79,7 @@
           <BooleanVariable>advisory_persistent</BooleanVariable>
           <BooleanRHS>
            <LookupNow>
-            <StateName>Event_5520</StateName>
+            <Name><StringValue>Event_5520</StringValue></Name>
            </LookupNow>
           </BooleanRHS>
          </Assignment>

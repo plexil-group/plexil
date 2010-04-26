@@ -32,7 +32,7 @@
         <NodeBody>
           <Command>
             <IntegerVariable>retTestFunction</IntegerVariable>
-            <CommandName>drive</CommandName>
+            <Name><StringValue>drive</StringValue></Name>
           </Command>
         </NodeBody>
       </Node>

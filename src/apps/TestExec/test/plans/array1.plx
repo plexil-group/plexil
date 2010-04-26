@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexilJul31.xsd">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
   <Node NodeType="NodeList">
     <NodeId>TestArrays</NodeId>
     <VariableDeclarations>
@@ -187,7 +187,7 @@
           <StartCondition>
             <EQNumeric>
               <LookupOnChange>
-                <StateName>stateInteger</StateName>
+                <Name><StringValue>stateInteger</StringValue></Name>
               </LookupOnChange>
               <IntegerValue>100</IntegerValue>
             </EQNumeric>
@@ -201,7 +201,7 @@
           <NodeBody>
             <Command>
               <ArrayVariable>myBooleanArray</ArrayVariable>
-              <CommandName>boolArrayCommand</CommandName>
+              <Name><StringValue>boolArrayCommand</StringValue></Name>
             </Command>
           </NodeBody>
         </Node>

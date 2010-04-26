@@ -63,7 +63,7 @@
                 </Resource>
               </ResourceList>
               <IntegerVariable>returnValue</IntegerVariable>
-              <CommandName>pickup_object</CommandName>
+              <Name><StringValue>pickup_object</StringValue></Name>
                 <Arguments>
                    <IntegerValue>20</IntegerValue>
                 </Arguments>
@@ -115,7 +115,7 @@
                   </ResourceUpperBound>
                 </Resource>
               </ResourceList>
-              <CommandName>process_image</CommandName>
+              <Name><StringValue>process_image</StringValue></Name>
             </Command>
         </NodeBody>
       </Node>
@@ -150,7 +150,7 @@
                   </ResourcePriority>
                 </Resource>
               </ResourceList>
-              <CommandName>take_picture</CommandName>
+              <Name><StringValue>take_picture</StringValue></Name>
             </Command>
         </NodeBody>
       </Node>

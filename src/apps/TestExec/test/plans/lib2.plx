@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
       <GlobalDeclarations/>
       <Node NodeType="NodeList">
           <Interface>
@@ -23,7 +23,7 @@
                       <NodeId>BarCall2</NodeId>
                       <NodeBody>
                           <Command>
-                              <CommandName>bar</CommandName>
+                              <Name><StringValue>bar</StringValue></Name>
                               <Arguments>
                                   <RealVariable>y</RealVariable>
                                   <RealVariable>z</RealVariable>

@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
       <Node NodeType="NodeList">
           <NodeId>SimpleTask</NodeId>
           <NodeBody>
@@ -55,7 +55,7 @@
                                   </Resource>
                               </ResourceList>
                               <IntegerVariable>returnValue</IntegerVariable>
-                              <CommandName>c1</CommandName>
+                              <Name><StringValue>c1</StringValue></Name>
                           </Command>
                       </NodeBody>
                   </Node>
@@ -118,7 +118,7 @@
                                   </Resource>
                               </ResourceList>
                               <IntegerVariable>returnValue</IntegerVariable>
-                              <CommandName>c2</CommandName>
+                              <Name><StringValue>c2</StringValue></Name>
                           </Command>
                       </NodeBody>
                   </Node>
@@ -167,7 +167,7 @@
                                   </Resource>
                               </ResourceList>
                               <IntegerVariable>returnValue</IntegerVariable>
-                              <CommandName>c3</CommandName>
+                              <Name><StringValue>c3</StringValue></Name>
                           </Command>
                       </NodeBody>
                   </Node>

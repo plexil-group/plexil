@@ -35,7 +35,7 @@
 	<Pair>
 	  <Name>lookup</Name>
 	  <LookupNow>
-	    <StateName>someValue</StateName>
+	    <Name><StringValue>someValue</StringValue></Name>
 	  </LookupNow>
 	</Pair>
       </Update>

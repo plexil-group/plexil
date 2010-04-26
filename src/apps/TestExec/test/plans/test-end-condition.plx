@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- test plan -->
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:noNamespaceSchemaLocation="schema_060613.xsd">
+ xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
  <Node NodeType="NodeList">
    <NodeId>Procedure_5_350</NodeId>
    <StartCondition>  
     <EQBoolean>
      <LookupOnChange>
-      <StateName>Event_5520</StateName>
+      <Name><StringValue>Event_5520</StringValue></Name>
      </LookupOnChange>
      <BooleanValue>1</BooleanValue>
     </EQBoolean>
@@ -21,7 +21,7 @@
      <NodeId>Step_1_2_3</NodeId>
      <NodeBody>
        <Command>
-        <CommandName>blah</CommandName>
+        <Name><StringValue>blah</StringValue></Name>
        </Command>
      </NodeBody>
     </Node> <!-- end of Procedure_5_350.Step 1_2_3 -->

@@ -8,7 +8,7 @@
         <NodeId>Drive</NodeId>
         <NodeBody>
           <Command>
-            <CommandName>drive</CommandName>
+            <Name><StringValue>drive</StringValue></Name>
           </Command>
         </NodeBody>
       </Node>

@@ -19,7 +19,7 @@
             <AND>
               <EQNumeric>
                 <LookupOnChange>
-                  <StateName>A</StateName>
+                  <Name><StringValue>A</StringValue></Name>
                   <Arguments>
                     <StringValue>is</StringValue>
                   </Arguments>
@@ -29,7 +29,7 @@
               <AND>
                 <EQNumeric>
                   <LookupOnChange>
-                    <StateName>B</StateName>
+                    <Name><StringValue>B</StringValue></Name>
                     <Arguments>
                       <StringValue>is</StringValue>
                     </Arguments>
@@ -38,7 +38,7 @@
                 </EQNumeric>
                 <EQNumeric>
                   <LookupOnChange>
-                    <StateName>C</StateName>
+                    <Name><StringValue>C</StringValue></Name>
                     <Arguments>
                       <StringValue>is</StringValue>
                     </Arguments>
@@ -50,7 +50,7 @@
           </PreCondition>
           <NodeBody>
             <Command>
-              <CommandName>Execute1</CommandName>
+              <Name><StringValue>Execute1</StringValue></Name>
             </Command>
           </NodeBody>
         </Node>

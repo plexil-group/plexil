@@ -33,12 +33,12 @@
             <StringValue>One</StringValue>
             <StringVariable>bar</StringVariable>
             <LookupNow>
-              <StateName>name</StateName>
+              <Name><StringValue>name</StringValue></Name>
             </LookupNow>
             <Concat>
               <StringValue>Four</StringValue>
               <LookupNow>
-                <StateName>name2</StateName>
+                <Name><StringValue>name2</StringValue></Name>
               </LookupNow>
             </Concat>
           </Concat>

@@ -25,7 +25,7 @@
         <PreCondition>
           <EQBoolean>
               <LookupNow>
-                <StateName>At</StateName>
+                <Name><StringValue>At</StringValue></Name>
                 <Arguments>
                     <StringValue>Rock</StringValue>
                 </Arguments>
@@ -36,7 +36,7 @@
         <RepeatCondition>
           <NEBoolean>
               <LookupOnChange>
-                <StateName>At</StateName>
+                <Name><StringValue>At</StringValue></Name>
                 <Arguments>
                     <StringValue>Rock</StringValue>
                 </Arguments>
@@ -46,7 +46,7 @@
         </RepeatCondition>
         <NodeBody>
           <Command>
-            <CommandName>drive</CommandName>
+            <Name><StringValue>drive</StringValue></Name>
             <Arguments>
                 <RealValue>1.0</RealValue>
             </Arguments>
@@ -66,7 +66,7 @@
         <InvariantCondition>
           <EQBoolean>
               <LookupOnChange>
-                <StateName>At</StateName>
+                <Name><StringValue>At</StringValue></Name>
                 <Arguments>
                     <StringValue>Rock</StringValue>
                 </Arguments>
@@ -76,7 +76,7 @@
         </InvariantCondition>
         <NodeBody>
           <Command>
-            <CommandName>takeSample</CommandName>
+            <Name><StringValue>takeSample</StringValue></Name>
           </Command>
         </NodeBody>
       </Node>

@@ -56,7 +56,7 @@
                 </Resource>
               </ResourceList>
               <IntegerVariable>returnValue</IntegerVariable>
-              <CommandName>c1</CommandName>
+              <Name><StringValue>c1</StringValue></Name>
                 <Arguments>
                    <IntegerValue>20</IntegerValue>
                 </Arguments>
@@ -114,7 +114,7 @@
                   </ResourceUpperBound>
                 </Resource>
               </ResourceList>
-              <CommandName>c2</CommandName>
+              <Name><StringValue>c2</StringValue></Name>
             </Command>
         </NodeBody>
       </Node>
@@ -140,7 +140,7 @@
                   </ResourcePriority>
                 </Resource>
               </ResourceList>
-              <CommandName>c3</CommandName>
+              <Name><StringValue>c3</StringValue></Name>
             </Command>
         </NodeBody>
       </Node>

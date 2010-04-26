@@ -32,7 +32,7 @@
         <NodeBody>
           <Command>
             <IntegerVariable>retTestFunction</IntegerVariable>
-            <CommandName>drive</CommandName>
+            <Name><StringValue>drive</StringValue></Name>
           </Command>
         </NodeBody>
       </Node>
@@ -48,7 +48,7 @@
         </StartCondition>
         <NodeBody>
           <Command>
-            <CommandName>next_waypoint</CommandName>
+            <Name><StringValue>next_waypoint</StringValue></Name>
           </Command>
         </NodeBody>
       </Node>

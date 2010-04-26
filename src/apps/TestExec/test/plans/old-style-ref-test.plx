@@ -28,7 +28,7 @@
 	    <EQNumeric>
 	      <ADD>
 		<LookupOnChange>
-		  <StateName>time</StateName>
+		  <Name><StringValue>time</StringValue></Name>
 		</LookupOnChange>
 		<NodeTimepointValue>
                   <!-- KMD: this was Child1, which worked -->
