@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- test plan -->
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:noNamespaceSchemaLocation="file:/Users/vandi/MTP/scenarios/ISS/schema_060303.xsd">
+ xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
  <Node NodeType="NodeList">
    <NodeId>Procedure_5_350</NodeId>
    <StartCondition>  <!-- Have received C&W message 5520 -->
