@@ -29,7 +29,7 @@
     <NodeBody>
       <FunctionCall>
         <IntegerVariable>retTestFunction</IntegerVariable>
-        <FunctionName>testFunction</FunctionName>
+        <Name><StringValue>testFunction</StringValue></Name>
           <Arguments>
             <RealVariable>arg1</RealVariable>
             <RealVariable>arg2</RealVariable>

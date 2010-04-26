@@ -60,7 +60,7 @@
           <NodeBody>
             <FunctionCall>
               <ArrayVariable>a1</ArrayVariable>
-              <FunctionName>get-a1</FunctionName>
+              <Name><StringValue>get-a1</StringValue></Name>
               <Arguments>
                 <StringValue>foo</StringValue>
               </Arguments>

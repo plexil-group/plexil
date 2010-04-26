@@ -236,7 +236,7 @@
           <NodeBody>
             <FunctionCall>
               <ArrayVariable>myStringArray</ArrayVariable>
-              <FunctionName>stringArrayFunction</FunctionName>
+              <Name><StringValue>stringArrayFunction</StringValue></Name>
             </FunctionCall>
           </NodeBody>
         </Node>
