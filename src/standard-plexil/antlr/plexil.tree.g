@@ -168,7 +168,7 @@ plexilPlan[IXMLElement plexilPlan] :
      else
      {
        plexilPlan.setAttribute("xsi:noNamespaceSchemaLocation",
-			       "http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd");
+			       "http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd");
      }
      plexilPlan.setAttribute("FileName", 
                              ((PlexilASTNode) #plexilPlan).getFilename());
@@ -2194,8 +2194,7 @@ timeExpression[IXMLElement parent] :
 
 lookup[IXMLElement parent] :
  lookupNow[parent]
- | lookupOnChange[parent]
- | lookupWithFrequency[parent] ;
+ | lookupOnChange[parent] ;
 
 lookupNow[IXMLElement parent]
 { 
@@ -2228,25 +2227,6 @@ lookupOnChange[IXMLElement parent]
    }
  ;
 
-// Needs to output in the order <LWF><Name/><Frequency/><Arguments/></LWF>, sigh.
-
-lookupWithFrequency[IXMLElement parent]
-{ 
-  XMLElement xlwf = new XMLElement("LookupWithFrequency"); 
-}
- :
-   #(LOOKUP_WITH_FREQ_KYWD frequency[xlwf] ( stateNameLiteral[xlwf] | nameExp[xlwf] ) (argumentList[xlwf])? )
-   {
-     // by the time we get here the i.r. of the XML has been constructed - need to swap things around
-     IXMLElement state = xlwf.getChildAtIndex(1); // 0-based index
-     xlwf.removeChildAtIndex(1);
-     xlwf.insertChild(state, 0);
-
-     // now attach it to the parent element
-     parent.addChild(xlwf); 
-   }
- ;
-
 stateNameLiteral[IXMLElement parent] :
   #(STATE_NAME nameLiteral[parent]) ;
 
@@ -2257,32 +2237,3 @@ tolerance[IXMLElement parent]
    | variable[xtol]
  )
 ;
-
-frequency[IXMLElement lookup]
-{ IXMLElement xfreq = new XMLElement("Frequency"); }
- : 
-   #(LOOKUP_FREQUENCY lowFreq[xfreq] highFreq[xfreq])
-   {
-     lookup.addChild(xfreq);
-   }
- ;
-
-lowFreq[IXMLElement parent]
-{ IXMLElement lo = new XMLElement("Low"); }
- :
-   ( rval:realValue { lo.addChild(((PlexilASTNode) #rval).getXmlElement()); }
-     | realVariable[lo] )
-   {
-     parent.addChild(lo);
-   }
- ;
-
-highFreq[IXMLElement parent]
-{ IXMLElement hi = new XMLElement("High"); }
- :
-   ( rval:realValue { hi.addChild(((PlexilASTNode) #rval).getXmlElement()); }
-     | realVariable[hi] )
-   {
-     parent.addChild(hi);
-   }
- ;

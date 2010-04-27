@@ -171,7 +171,6 @@ tokens
     START_KYWD="START";
     END_KYWD="END";
 
-    LOOKUP_WITH_FREQ_KYWD="LookupWithFrequency";
     LOOKUP_ON_CHANGE_KYWD="LookupOnChange";
     LOOKUP_NOW_KYWD="LookupNow";
 
@@ -277,7 +276,6 @@ tokens
     STRING_COMPARISON;
     TIME_COMPARISON;
 
-    LOOKUP_FREQUENCY;
     LOOKUP_STATE;
     POINTS_TO;
     TIME_VALUE<AST=plexil.TimeLiteralASTNode>;
@@ -1583,7 +1581,7 @@ argumentList : argument (COMMA! argument)*
   }
  ;
 
-// *** needs rethinking ***
+// *** needs rethinking to allow general expressions ***
 argument : INT | DOUBLE | STRING | booleanValue | variable | arrayReference ;
 
 // *** see command above
@@ -2074,22 +2072,7 @@ arrayExpression : lookup ;
 // Lookups
 //
 
-lookup : lookupWithFrequency | lookupOnChange | lookupNow ;
-
-// should produce an AST of the form
-// #(LOOKUP_WITH_FREQ_KYWD frequency lookupInvocation)
-
-lookupWithFrequency :
-        lwf:LOOKUP_WITH_FREQ_KYWD^ LPAREN! f:frequency COMMA! li:lookupInvocation RPAREN!
- ;
-
-frequency! : LBRACKET! lf:lowFreq COMMA! hf:highFreq RBRACKET!
-    { #frequency = #(#[LOOKUP_FREQUENCY, "LOOKUP_FREQUENCY"], lf, hf) ; }
-    ;
-
-lowFreq : realValue | realVariable ;
-
-highFreq : realValue | realVariable ;
+lookup : lookupOnChange | lookupNow ;
 
 // should produce an AST of the form
 // #(LOOKUP_ON_CHANGE_KYWD lookupInvocation (tolerance)? )
