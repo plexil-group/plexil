@@ -161,7 +161,7 @@ namespace PLEXIL
 
   // handle node state transition event
 
-  void LuvListener::notifyOfTransition(const LabelStr& prevState, 
+  void LuvListener::notifyOfTransition(const LabelStr& /* prevState */, 
                                        const NodeId& node) const
   {
     // create update 
@@ -208,7 +208,7 @@ namespace PLEXIL
   // handle add plan event
 
   void LuvListener::notifyOfAddPlan(const PlexilNodeId& plan,
-                                    const LabelStr& parent) const
+                                    const LabelStr& /* parent */) const
   {
     // send an empty plan info
 
