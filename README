@@ -116,3 +116,8 @@ Release Notes
  - Numerous miscellaneous fixes, enhancements, and code refactorings across the
    entire system.
  - Much revision of the reference manual.
+
+next release
+ - Allow string expressions as command arguments
+ - Cleanup of TestExec regression tests
+ - Cleanup of XML schemas
