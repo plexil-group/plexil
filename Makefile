@@ -89,7 +89,7 @@ sockets:
 ipc:
 	$(MAKE) -C third-party/ipc \
  PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
- MAKE_SHARED_LIBS=1 SUBDIRS='etc src doc xdrgen'
+ MAKE_SHARED_LIBS=1 SUBDIRS='etc src doc'
 
 clean-ipc:
 	$(MAKE) -C third-party/ipc \
