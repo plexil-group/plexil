@@ -35,9 +35,11 @@
 #include "LabelStr.hh"
 
 #include <vector>
+#include <limits>
 #include <list>
 #include <string>
 #include <map>
+
 
 namespace PLEXIL {
 
@@ -49,7 +51,7 @@ class IpcMessageListener;
 //TODO: Integrate all plexil type converting into this class.
 class IpcFacade {
 public:
-  DECLARE_STATIC_CLASS_CONST(int, ERROR_SERIAL, -1)
+  DECLARE_STATIC_CLASS_CONST(uint32_t, ERROR_SERIAL, std::numeric_limits<uint32_t>::max())
 
   IpcFacade();
   ~IpcFacade();
@@ -67,13 +69,13 @@ public:
    */
   static std::string formatMsgName(const std::string& msgName, const std::string& destId);
   /**
-   * @breif Connects to the Ipc server. This should be called before calling start().
-   * If it is not, this method is called by start. If already initilized, this method
+   * @brief Connects to the Ipc server. This should be called before calling start().
+   * If it is not, this method is called by start. If already initialized, this method
    * does nothing and returns IPC_OK.
    */
-  IPC_RETURN_TYPE initilize(const char* taskName, const char* serverName);
+  IPC_RETURN_TYPE initialize(const char* taskName, const char* serverName);
   /**
-   * @brief Starts the Ipc message handling thread. If not initilized, initilization occurs.
+   * @brief Starts the Ipc message handling thread. If not initialized, initilization occurs.
    * If Ipc is already started, this method does nothing and returns IPC_OK.
    */
   IPC_RETURN_TYPE start();
@@ -84,7 +86,7 @@ public:
   void stop();
   /**
    * @brief Disconnects from the Ipc server. This puts Ipc back in its initial state before
-   * being initilized. If not initilized, this method does nothing.
+   * being initialized. If not initialized, this method does nothing.
    */
   void shutdown();
 
@@ -289,8 +291,8 @@ private:
                      HANDLER_DATA_TYPE handler,
                      void *clientData);
 
-  //* @brief Is the facade initilized?
-  bool m_isInitilized;
+  //* @brief Is the facade initialized?
+  bool m_isInitialized;
   //* @brief Is the facade started?
   bool m_isStarted;
   //* @brief The error code of the last called IPC method.
@@ -304,8 +306,8 @@ private:
   static pthread_t threadHandle;
   //* @brief The map of message type to list of listeners for that type
   static ListenerMap registeredListeners;
-  //* @brief The number of initilized instances. Used for managing the connection
-  static int numInitilized;
+  //* @brief The number of initialized instances. Used for managing the connection
+  static int numInitialized;
   //* @brief The number of started instances. Used for managing the message thread
   static int numStarted;
   //* @brief Cache of incomplete received message data
@@ -322,7 +324,7 @@ private:
 
 /**
  * @brief Base class for receiving messages through Ipc. To use, create an instance of
- * IpcFacade, initilize and start it, and register an instance of the listener as a
+ * IpcFacade, initialize and start it, and register an instance of the listener as a
  * recipient for the plexil message type you wish to handle.
  */
 class IpcMessageListener {
