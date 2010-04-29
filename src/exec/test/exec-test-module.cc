@@ -80,13 +80,13 @@ public:
   //double getValue() {return 10;}
   std::string toString() const {return "AllocationExpression";}
 private:
-  bool checkValue(const double val){return true;}
+  bool checkValue(const double /* val */){return true;}
 };
 
 class TestListener : public ExpressionListener {
 public:
   TestListener(bool& changed) : ExpressionListener(), m_changed(changed) {}
-  void notifyValueChanged(const ExpressionId& expression) { m_changed = true;}
+  void notifyValueChanged(const ExpressionId& /* expression */) { m_changed = true;}
 private:
   bool& m_changed;
 };
@@ -944,7 +944,10 @@ public:
     lookupNow(m_states[key], key, dest);
   }
 
-  void registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances,
+  void registerChangeLookup(const LookupKey& /* source */,
+			    const State& state,
+			    const StateKey& key,
+			    const std::vector<double>& /* tolerances */,
                             std::vector<double>& dest) {
     m_states.insert(std::make_pair(key, state));
     dest[0] = m_changingExprs[state.first]->getValue();
@@ -978,8 +981,16 @@ public:
 protected:
   friend class ChangeListener;
 
-  void internalExecuteCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest) {}
-  void internalInvokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest) {}
+  void internalExecuteCommand(const LabelStr& /* name */,
+			      const std::list<double>& /* args */,
+			      ExpressionId /* dest */)
+  {}
+
+  void internalInvokeAbort(const LabelStr& /* name */,
+			   const std::list<double>& /* args */, 
+			   ExpressionId /* dest */)
+  {}
+
   void notifyValueChanged(ExpressionId expression)
   {
     std::vector<double> values(1, expression->getValue());
@@ -1023,8 +1034,8 @@ public:
     m_cache.setExternalInterface(TestInterface::instance()->getId()); // static_cast didn't work here, grumble
   }
 
-  void handleConditionsChanged(const NodeId& node) {}
-  void handleNeedsExecution(const NodeId& node) {}
+  void handleConditionsChanged(const NodeId& /* node */) {}
+  void handleNeedsExecution(const NodeId& /* node */) {}
   const StateCacheId& getStateCache() {return m_cache.getId();}
   const ExternalInterfaceId& getExternalInterface() 
   {
@@ -1039,8 +1050,8 @@ private:
 class LookupTestNodeConnector : public NodeConnector {
 public:
   LookupTestNodeConnector() : NodeConnector() {}
-  const ExpressionId& findVariable(const PlexilVarRef* var) const {return ExpressionId::noId();}
-  const ExpressionId& findVariable(const LabelStr& name) const {return ExpressionId::noId();}
+  const ExpressionId& findVariable(const PlexilVarRef* /* var */) const {return ExpressionId::noId();}
+  const ExpressionId& findVariable(const LabelStr& /* name */) const {return ExpressionId::noId();}
   const NodeId& getNode() const { return NodeId::noId(); }
   const ExecConnectorId& getExec() {
     return m_exec.getId();
@@ -1209,7 +1220,7 @@ private:
 class TransitionExecConnector : public ExecConnector {
 public:
   TransitionExecConnector() : ExecConnector(), m_executed(false) {}
-  void handleConditionsChanged(const NodeId& node) {}
+  void handleConditionsChanged(const NodeId& /* node */) {}
   void handleNeedsExecution(const NodeId& node) {assertTrue(node->getState() == StateVariable::EXECUTING()); m_executed = true;}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
   const ExternalInterfaceId& getExternalInterface() {return ExternalInterfaceId::noId();}
@@ -2291,7 +2302,11 @@ public:
     dest[0] = m_values[m_states[key]];
     m_lookupNowCalled = true;
   }
-  void registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances, std::vector<double>& dest) {
+  void registerChangeLookup(const LookupKey& /* source */,
+			    const State& state,
+			    const StateKey& key,
+			    const std::vector<double>& /* tolerances */,
+			    std::vector<double>& dest) {
     check_error(!dest.empty());
     m_states.insert(std::make_pair(key, state));
     dest[0] = m_values[state];

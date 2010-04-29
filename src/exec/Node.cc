@@ -67,7 +67,7 @@ namespace PLEXIL {
   public:
     ConditionChangeListener(NodeId node, const LabelStr& cond)
       : ExpressionListener(), m_node(node), m_cond(cond) {}
-    void notifyValueChanged(const ExpressionId& expression) {
+    void notifyValueChanged(const ExpressionId& /* expression */) {
       debugMsg("Node:conditionChange",
 	       m_cond.toString() << " may have changed value in " <<
 	       m_node->getNodeId().toString());
