@@ -191,37 +191,37 @@ private:
   /**
    * @brief handles SEND_MESSAGE_COMMAND commands from the exec
    */
-  void executeSendMessageCommand(const LabelStr& name, const std::list<double>& args,
+  void executeSendMessageCommand(const std::list<double>& args,
       ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
-  void executeSendReturnValueCommand(const LabelStr& name, const std::list<double>& args,
+  void executeSendReturnValueCommand(const std::list<double>& args,
       ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
-  void executeReceiveMessageCommand(const LabelStr& name, const std::list<double>& args,
+  void executeReceiveMessageCommand(const std::list<double>& args,
       ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
-  void executeReceiveCommandCommand(const LabelStr& name, const std::list<double>& args,
+  void executeReceiveCommandCommand(const std::list<double>& args,
       ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles GET_PARAMETER_COMMAND commands from the exec
    */
-  void executeGetParameterCommand(const LabelStr& name, const std::list<double>& args,
+  void executeGetParameterCommand(const std::list<double>& args,
       ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles UPDATE_LOOKUP_COMMAND commands from the exec
    */
-  void executeUpdateLookupCommand(const LabelStr& name, const std::list<double>& args,
+  void executeUpdateLookupCommand(const std::list<double>& args,
       ExpressionId dest, ExpressionId ack);
 
   /**

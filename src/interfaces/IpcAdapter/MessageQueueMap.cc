@@ -62,9 +62,8 @@ void MessageQueueMap::addRecipient(const LabelStr& message, const ExpressionId& 
 }
 /**
  * @brief Removes all instances of the given recipient waiting on the given message string.
- * @return True if a recipient was removed, false otherwise
  */
-bool MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionId ack) {
+void MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionId ack) {
   m_mutex.lock();
   PairingQueue* pq = getQueue(message);
   for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
@@ -77,16 +76,17 @@ bool MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionI
   }
   m_mutex.unlock();
 }
+
 /**
  * @brief Removes all recipients waiting on the given message string.
- * @return True if at least one recipient was removed, false otherwise.
  */
-bool MessageQueueMap::clearRecipientsForMessage(const LabelStr& message) {
+void MessageQueueMap::clearRecipientsForMessage(const LabelStr& message) {
   m_mutex.lock();
   PairingQueue* pq = getQueue(message);
   pq->m_recipientQueue.clear();
   m_mutex.unlock();
 }
+
 /**
  * @brief Adds the given message to its queue. If there is a recipient waiting for the message, it is sent immediately.
  * @param message The message string to be added
@@ -101,6 +101,7 @@ void MessageQueueMap::addMessage(const LabelStr& message) {
   debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
   m_mutex.unlock();
 }
+
 /**
  * @brief Adds the given message with the given parameters to its queue.
  * If there is a recipient waiting for the message, it is sent immediately.

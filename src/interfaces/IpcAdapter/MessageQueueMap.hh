@@ -56,14 +56,12 @@ public:
   /**
    * @brief Removes the given recipient waiting on the given message string associated with
    * the given acknowledgment.
-   * @return True if a recipient was removed, false otherwise
    */
-  bool removeRecipient(const LabelStr& message, const ExpressionId ack);
+  void removeRecipient(const LabelStr& message, const ExpressionId ack);
   /**
    * @brief Removes all recipients waiting on the given message string.
-   * @return True if at least one recipient was removed, false otherwise.
    */
-  bool clearRecipientsForMessage(const LabelStr& message);
+  void clearRecipientsForMessage(const LabelStr& message);
   /**
    * @brief Adds the given message to its queue. If there is a recipient
    * waiting for the message, it is sent immediately.
@@ -134,11 +132,12 @@ private:
     MessageQueue m_messageQueue;
     PairingQueue(const LabelStr &name, bool allowDuplicateMessages) :
       m_name(name),
+      m_allowDuplicateMessages(allowDuplicateMessages),
       m_recipientQueue(),
-      m_messageQueue(),
-      m_allowDuplicateMessages(allowDuplicateMessages) {}
-    ~PairingQueue() {
-    }
+      m_messageQueue()
+    {}
+    ~PairingQueue() 
+    {}
   };
 
   //* @brief Map holding all message queues
