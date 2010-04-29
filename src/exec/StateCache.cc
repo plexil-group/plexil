@@ -296,8 +296,6 @@ namespace PLEXIL
 
       //should it be an error if we receive a state update without any lookups?
       bool retval = false;
-      double time = (key == m_timeState ? values[0] : currentTime());
-
       while (it != m_lookups.end() && it->first == key)
       {
          Cache::LookupId l = it->second;
