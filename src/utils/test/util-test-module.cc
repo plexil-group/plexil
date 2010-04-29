@@ -329,11 +329,11 @@ public:
   }
 };
 
-void overloadFunc(const Id<Bing>& arg) {
+void overloadFunc(const Id<Bing>& /* arg */) {
   assertTrue(true);
 }
 
-void overloadFunc(const Id<Foo>& arg) {
+void overloadFunc(const Id<Foo>& /* arg */) {
   assertTrue(true);
 }
 
@@ -1010,7 +1010,7 @@ private:
   }
 };
 
-void UtilModuleTests::runTests(std::string path) {
+void UtilModuleTests::runTests(std::string /* path */) {
   //LockManager::instance().connect();
   
   runTestSuite(ErrorTest::test);
