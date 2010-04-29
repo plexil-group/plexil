@@ -103,19 +103,19 @@ namespace PLEXIL
   }
 
 
-  void DummyAdapter::registerChangeLookup(const LookupKey& uniqueId,
-					  const StateKey& stateKey,
-					  const std::vector<double>& tolerances)
+  void DummyAdapter::registerChangeLookup(const LookupKey& /* uniqueId */,
+					  const StateKey& /* stateKey */,
+					  const std::vector<double>& /* tolerances */)
   {
     debugMsg("ExternalInterface:dummy", " registerChangeLookup called");
   }
 
-  void DummyAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
+  void DummyAdapter::unregisterChangeLookup(const LookupKey& /* uniqueId */)
   {
     debugMsg("ExternalInterface:dummy", " unregisterChangeLookup called");
   }
 
-  void DummyAdapter::lookupNow(const StateKey& key,
+  void DummyAdapter::lookupNow(const StateKey& /* key */,
 			       std::vector<double>& dest)
   {
     debugMsg("ExternalInterface:dummy", " lookupNow called; returning UNKNOWN");
@@ -123,7 +123,7 @@ namespace PLEXIL
   }
 
   void DummyAdapter::sendPlannerUpdate(const NodeId& node,
-				       const std::map<double, double>& valuePairs,
+				       const std::map<double, double>& /* valuePairs */,
 				       ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " sendPlannerUpdate called");
@@ -138,9 +138,9 @@ namespace PLEXIL
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdapter::executeCommand(const LabelStr& name,
-				    const std::list<double>& args,
-				    ExpressionId dest,
+  void DummyAdapter::executeCommand(const LabelStr& /* name */,
+				    const std::list<double>& /* args */,
+				    ExpressionId /* dest */,
 				    ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " executeCommand called");
@@ -149,9 +149,9 @@ namespace PLEXIL
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdapter::executeFunctionCall(const LabelStr& name,
-					 const std::list<double>& args,
-					 ExpressionId dest,
+  void DummyAdapter::executeFunctionCall(const LabelStr& /* name */,
+					 const std::list<double>& /* args */,
+					 ExpressionId /* dest */,
 					 ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " executeFunctionCall called");
@@ -161,9 +161,10 @@ namespace PLEXIL
   }
 
   //abort the given command with the given arguments.  store the abort-complete into dest
-  void DummyAdapter::invokeAbort(const LabelStr& name, 
-				 const std::list<double>& args, 
-				 ExpressionId dest, ExpressionId ack)
+  void DummyAdapter::invokeAbort(const LabelStr& /* name */, 
+				 const std::list<double>& /* args */, 
+				 ExpressionId /* dest */,
+				 ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " invokeAbort called");
     m_execInterface.handleValueChange(ack,

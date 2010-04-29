@@ -75,12 +75,12 @@ namespace PLEXIL
       m_application(app),
       m_adapterConfig(),
       m_valueQueue(),
-      m_adapters(),
       m_listeners(),
+      m_adapters(),
       m_lookupAdapterMap(),
-      m_raInterface(),
       m_ackToCmdMap(),
       m_destToCmdMap(),
+      m_raInterface(),
       m_currentTime(std::numeric_limits<double>::min())
   {
 
@@ -811,10 +811,10 @@ namespace PLEXIL
 
     // rejects a command due to non-availability of resources
   void 
-  InterfaceManager::rejectCommand(const LabelStr& name,
-                                           const std::list<double>& args,
-                                           ExpressionId dest,
-                                           ExpressionId ack)
+  InterfaceManager::rejectCommand(const LabelStr& /* name */,
+				  const std::list<double>& /* args */,
+				  ExpressionId /* dest */,
+				  ExpressionId ack)
   {
     this->handleValueChange(ack, CommandHandleVariable::COMMAND_DENIED());
   }
@@ -1169,9 +1169,9 @@ namespace PLEXIL
    * @param params The parameters associated with this command.
    */
   void
-  InterfaceManager::registerCommandReturnValue(ExpressionId dest,
-							const LabelStr & name,
-							const std::list<double> & params)
+  InterfaceManager::registerCommandReturnValue(ExpressionId /* dest */,
+					       const LabelStr & /* name */,
+					       const std::list<double> & /* params */)
   {
     assertTrue(ALWAYS_FAIL, "registerCommandReturnValue not yet implemented!");
   }
@@ -1184,9 +1184,9 @@ namespace PLEXIL
    * @param params The parameters associated with this command.
    */
   void
-  InterfaceManager::registerFunctionReturnValue(ExpressionId dest,
-							 const LabelStr & name,
-							 const std::list<double> & params)
+  InterfaceManager::registerFunctionReturnValue(ExpressionId /* dest */,
+						const LabelStr & /* name */,
+						const std::list<double> & /* params */)
   {
     assertTrue(ALWAYS_FAIL, "registerFunctionReturnValue not yet implemented!");
   }
@@ -1197,7 +1197,7 @@ namespace PLEXIL
    * @param dest The expression whose value was to be returned.
    */
   void
-  InterfaceManager::unregisterCommandReturnValue(ExpressionId dest)
+  InterfaceManager::unregisterCommandReturnValue(ExpressionId /* dest */)
   {
     assertTrue(ALWAYS_FAIL, "unregisterCommandReturnValue not yet implemented!");
   }
@@ -1208,7 +1208,7 @@ namespace PLEXIL
    * @param dest The expression whose value was to be returned.
    */
   void
-  InterfaceManager::unregisterFunctionReturnValue(ExpressionId dest)
+  InterfaceManager::unregisterFunctionReturnValue(ExpressionId /* dest */)
   {
     assertTrue(ALWAYS_FAIL, "unregisterFunctionReturnValue not yet implemented!");
   }

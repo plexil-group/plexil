@@ -59,7 +59,7 @@ namespace PLEXIL {
    * @param adapter The interface adapter to handle this command.
    */
 
-  void AdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId adapter) {}
+  void AdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId /* adapter */) {}
 
   /**
    * @brief Register the given interface adapter for this command.
@@ -69,8 +69,8 @@ namespace PLEXIL {
    * @param commandName The command to map to this adapter.
    * @param intf The interface adapter to handle this command.
    */
-  bool AdapterConfiguration::registerCommandInterface(const LabelStr & commandName,
-                InterfaceAdapterId intf) {
+  bool AdapterConfiguration::registerCommandInterface(const LabelStr & /* commandName */,
+						      InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -82,8 +82,8 @@ namespace PLEXIL {
    * @param functionName The function to map to this adapter.
    * @param intf The interface adapter to handle this function.
    */
-  bool AdapterConfiguration::registerFunctionInterface(const LabelStr & functionName,
-                 InterfaceAdapterId intf) {
+  bool AdapterConfiguration::registerFunctionInterface(const LabelStr & /* functionName */,
+						       InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -95,8 +95,8 @@ namespace PLEXIL {
    * @param stateName The name of the state to map to this adapter.
    * @param intf The interface adapter to handle this lookup.
    */
-  bool AdapterConfiguration::registerLookupInterface(const LabelStr & stateName,
-               InterfaceAdapterId intf) {
+  bool AdapterConfiguration::registerLookupInterface(const LabelStr & /* stateName */,
+						     InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -107,7 +107,7 @@ namespace PLEXIL {
             or setting the default planner update interface is not implemented.
    * @param intf The interface adapter to handle planner updates.
    */
-  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapterId intf) {
+  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -118,7 +118,7 @@ namespace PLEXIL {
             or setting the default interface is not implemented.
    * @param intf The interface adapter to use as the default.
    */
-  bool AdapterConfiguration::setDefaultInterface(InterfaceAdapterId intf) {
+  bool AdapterConfiguration::setDefaultInterface(InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -132,7 +132,7 @@ namespace PLEXIL {
    * @param intf The interface adapter to use as the default.
    * @return True if successful, false if there is already a default adapter registered.
    */
-  bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapterId intf) {
+  bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -145,7 +145,7 @@ namespace PLEXIL {
    * @param intf The interface adapter to use as the default.
    * @return True if successful, false if there is already a default adapter registered.
    */
-  bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapterId intf) {
+  bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapterId /* intf */) {
     return false;
   }
 
@@ -154,21 +154,21 @@ namespace PLEXIL {
    * Does nothing by default.
    * @param commandName The command.
    */
-  void AdapterConfiguration:: unregisterCommandInterface(const LabelStr & commandName) {}
+  void AdapterConfiguration:: unregisterCommandInterface(const LabelStr & /* commandName */) {}
 
   /**
    * @brief Retract registration of the previous interface adapter for this function.
    * Does nothing by default.
    * @param functionName The function.
    */
-  void AdapterConfiguration:: unregisterFunctionInterface(const LabelStr & functionName) {}
+  void AdapterConfiguration:: unregisterFunctionInterface(const LabelStr & /* functionName */) {}
 
   /**
    * @brief Retract registration of the previous interface adapter for this state.
    * Does nothing by default.
    * @param stateName The state name.
    */
-  void AdapterConfiguration:: unregisterLookupInterface(const LabelStr & stateName) {}
+  void AdapterConfiguration:: unregisterLookupInterface(const LabelStr & /* stateName */) {}
 
   /**
    * @brief Retract registration of the previous interface adapter for planner updates.
@@ -199,7 +199,7 @@ namespace PLEXIL {
    specifically registered or default. May return noId().
    * @param commandName The command.
    */
-  InterfaceAdapterId AdapterConfiguration:: getCommandInterface(const LabelStr & commandName) {
+  InterfaceAdapterId AdapterConfiguration:: getCommandInterface(const LabelStr & /* commandName */) {
     return InterfaceAdapterId::noId();
   }
 
@@ -216,7 +216,7 @@ namespace PLEXIL {
    specifically registered or default. May return noId(). Returns noId() if default interfaces are not implemented.
    * @param functionName The function.
    */
-  InterfaceAdapterId AdapterConfiguration:: getFunctionInterface(const LabelStr & functionName) {
+  InterfaceAdapterId AdapterConfiguration:: getFunctionInterface(const LabelStr & /* functionName */) {
     return InterfaceAdapterId::noId();
   }
 
@@ -225,7 +225,7 @@ namespace PLEXIL {
    whether specifically registered or default. May return noId(). Returns noId() if default interfaces are not implemented.
    * @param stateName The state.
    */
-  InterfaceAdapterId AdapterConfiguration:: getLookupInterface(const LabelStr & stateName) {
+  InterfaceAdapterId AdapterConfiguration:: getLookupInterface(const LabelStr & /* stateName */) {
     return InterfaceAdapterId::noId();
   }
 
@@ -257,7 +257,7 @@ namespace PLEXIL {
   /**
    * @brief Returns true if the given adapter is a known interface in the system. False otherwise
    */
-  bool AdapterConfiguration::isKnown(InterfaceAdapterId intf) {
+  bool AdapterConfiguration::isKnown(InterfaceAdapterId /* intf */) {
     return false;
   }
 

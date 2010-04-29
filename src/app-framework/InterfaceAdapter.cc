@@ -73,30 +73,30 @@ namespace PLEXIL
   // Default methods for InterfaceManager API
   //
 
-  void InterfaceAdapter::registerChangeLookup(const LookupKey& uniqueId,
-					      const StateKey& stateKey,
-					      const std::vector<double>& tolerances)
+  void InterfaceAdapter::registerChangeLookup(const LookupKey& /* uniqueId */,
+					      const StateKey& /* stateKey */,
+					      const std::vector<double>& /* tolerances */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::registerChangeLookup: default method called!");
   }
 
-  void InterfaceAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
+  void InterfaceAdapter::unregisterChangeLookup(const LookupKey& /* uniqueId */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::unregisterChangeLookup: default method called!");
   }
 
-  void InterfaceAdapter::lookupNow(const StateKey& key,
-				   std::vector<double>& dest)
+  void InterfaceAdapter::lookupNow(const StateKey& /* key */,
+				   std::vector<double>& /* dest */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::lookupNow: default method called!");
   }
 
-  void InterfaceAdapter::sendPlannerUpdate(const NodeId& node,
-					   const std::map<double, double>& valuePairs,
-					   const ExpressionId ack)
+  void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
+					   const std::map<double, double>& /* valuePairs */,
+					   const ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::updatePlanner: default method called!");
@@ -104,10 +104,10 @@ namespace PLEXIL
 
 
   // executes a command with the given arguments
-  void InterfaceAdapter::executeCommand(const LabelStr& name,
-					const std::list<double>& args,
-					ExpressionId dest,
-					ExpressionId ack)
+  void InterfaceAdapter::executeCommand(const LabelStr& /* name */,
+					const std::list<double>& /* args */,
+					ExpressionId /* dest */,
+					ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::executeCommand: default method called!");
@@ -115,10 +115,10 @@ namespace PLEXIL
 
 
   // executes a function call with the given arguments
-  void InterfaceAdapter::executeFunctionCall(const LabelStr& name,
-					     const std::list<double>& args,
-					     ExpressionId dest,
-					     ExpressionId ack)
+  void InterfaceAdapter::executeFunctionCall(const LabelStr& /* name */,
+					     const std::list<double>& /* args */,
+					     ExpressionId /* dest */,
+					     ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::executeCommand: default method called!");
@@ -126,9 +126,10 @@ namespace PLEXIL
 
 
   //abort the given command with the given arguments that had acknowledgment old_ack.  store the abort-complete into ack
-  void InterfaceAdapter::invokeAbort(const LabelStr& name, 
-				     const std::list<double>& args, 
-				     ExpressionId cmd_ack, ExpressionId ack)
+  void InterfaceAdapter::invokeAbort(const LabelStr& /* name */, 
+				     const std::list<double>& /* args */, 
+				     ExpressionId /* cmd_ack */,
+				     ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::invokeAbort: default method called!");
