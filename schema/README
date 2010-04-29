@@ -1,7 +1,10 @@
 This directory contains the PLEXIL schemas and related files.  Look
 inside the files for more comments.
 
-All schemas are provided in two formats: XSD and RNG (Compact Relax NG).
+All schemas are provided in two formats: XSD and RNG (Compact
+Relax NG).  We use two third-party tools to create the RNG
+schemas; these are not provided with PLEXIL; see Makefile for
+the names and sources of these tools.
 
 core-plexil.xsd define the Core PLEXIL that is currently implemented by
 the Universal Executive.

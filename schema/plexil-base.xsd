@@ -193,7 +193,6 @@
             <xsd:enumeration value="NodeList"/>
             <xsd:enumeration value="Command"/>
             <xsd:enumeration value="Assignment"/>
-            <xsd:enumeration value="FunctionCall"/>
             <xsd:enumeration value="Update"/>
             <xsd:enumeration value="Request"/>
             <xsd:enumeration value="Empty"/>
@@ -233,7 +232,6 @@
         <xsd:element ref="NodeList"/>
         <xsd:element ref="Command"/>
         <xsd:element ref="Assignment"/>
-        <xsd:element ref="FunctionCall"/>
         <xsd:element ref="Update"/>
         <xsd:element ref="Request"/>
         <xsd:element ref="LibraryNodeCall"/>
@@ -420,11 +418,7 @@
        <xsd:sequence>
          <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>
          <xsd:group ref="DeclaredVariable" minOccurs="0"/>
-         <xsd:choice>
-           <xsd:element ref="Name"/>
-           <xsd:element name="CommandName" type="xsd:string"/>
- <!-- for backw compatibility -->
-         </xsd:choice>
+         <xsd:element ref="Name"/>
          <xsd:element ref="Arguments" minOccurs="0"/>
        </xsd:sequence>
      </xsd:complexType>
@@ -436,22 +430,9 @@
          <xsd:element ref="IntegerValue"/>
          <xsd:element ref="RealValue"/>
          <xsd:element ref="BooleanValue"/>
-         <xsd:element ref="StringValue"/>
+         <xsd:group ref="StringExpression"/>
          <xsd:group ref="DeclaredVariable"/>
        </xsd:choice>
-     </xsd:complexType>
-   </xsd:element>
-   <xsd:element name="FunctionCall">
-     <xsd:complexType>
-       <xsd:sequence>
-         <xsd:group ref="DeclaredVariable" minOccurs="0"/>
-         <xsd:choice>
-           <xsd:element ref="Name"/>
-           <xsd:element name="FunctionName" type="xsd:string"/>
- <!-- for backw compatibility -->
-         </xsd:choice>
-         <xsd:element ref="Arguments" minOccurs="0"/>
-       </xsd:sequence>
      </xsd:complexType>
    </xsd:element>
    <xsd:element name="Update">
@@ -915,12 +896,7 @@
    <xsd:element name="LookupOnChange">
      <xsd:complexType>
        <xsd:sequence>
-         <xsd:choice>
-           <xsd:element ref="Name"/>
-           <!-- for backwards compatibility -->
-           <xsd:element name="StateName" type="xsd:string"/>
-
-         </xsd:choice>
+         <xsd:element ref="Name"/>
          <xsd:element ref="Tolerance" minOccurs="0"/>
          <xsd:element ref="Arguments" minOccurs="0"/>
        </xsd:sequence>
