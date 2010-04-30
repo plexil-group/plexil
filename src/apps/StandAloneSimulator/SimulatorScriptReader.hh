@@ -39,7 +39,7 @@ class SimulatorScriptReader
 {
 public:
   SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
-  ~SimulatorScriptReader();
+  virtual ~SimulatorScriptReader();
 
   bool readCommandScript(const std::string& fName);
   bool readTelemetryScript(const std::string& fName);
