@@ -40,13 +40,17 @@
  * @brief Constructor. Opens the connection and spawns a listener thread.
  */
 IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost) :
-  CommRelayBase(id), m_stateUIDMap(), m_ipcFacade(), m_listener(*this) {
-  assertTrueMsg(m_ipcFacade.initilize(id.c_str(), centralhost.c_str()) == IPC_OK,
-      "IpcCommRelay: Unable to initilize ipc to central server at " << centralhost);
+  CommRelayBase(id),
+  m_stateUIDMap(),
+  m_ipcFacade(),
+  m_listener(*this)
+{
+  assertTrueMsg(m_ipcFacade.initialize(id.c_str(), centralhost.c_str()) == IPC_OK,
+		"IpcCommRelay: Unable to initialize ipc to central server at " << centralhost);
 
   // Spawn listener thread
   assertTrueMsg(m_ipcFacade.start() == IPC_OK,
-      "IpcCommRelay constructor: Unable to start IPC dispatch thread");
+		"IpcCommRelay constructor: Unable to start IPC dispatch thread");
 
   // Subscribe only to messages we care about
   m_ipcFacade.subscribe(&m_listener, PlexilMsgType_Command);
