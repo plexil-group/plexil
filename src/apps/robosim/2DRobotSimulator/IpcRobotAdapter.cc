@@ -49,8 +49,8 @@ IpcRobotAdapter::IpcRobotAdapter(const std::string& centralhost)
     m_ipcFacade(),
     m_listener(*this)
 {
-  assertTrueMsg(m_ipcFacade.initilize(m_ipcFacade.getUID().c_str(), centralhost.c_str()) == IPC_OK,
-      "IpcRobotAdapter: Unable to initilize ipc to central server at " << centralhost);
+  assertTrueMsg(m_ipcFacade.initialize(m_ipcFacade.getUID().c_str(), centralhost.c_str()) == IPC_OK,
+      "IpcRobotAdapter: Unable to initialize ipc to central server at " << centralhost);
 
   // Spawn listener thread
   assertTrueMsg(m_ipcFacade.start() == IPC_OK,
