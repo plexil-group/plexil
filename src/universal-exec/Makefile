@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,9 @@ EXECUTABLE = universalExec
 SRC = UniversalExec.cc
 INC = 
 
-INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
+INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml \
+	    $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
+LIBS     += tinyxml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 UNIVERSALEXEC_TARGET = universalExec
