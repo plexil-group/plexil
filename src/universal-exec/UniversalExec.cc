@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #include <fstream>
 #include <time.h>
 
-//#include "PlexilExec.hh"
 #include "ExecApplication.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
@@ -105,10 +104,10 @@ int main (int argc, char** argv)
     configDoc = new TiXmlDocument(interfaceConfig);
     if (!configDoc->LoadFile()) {
       std::cout << "WARNING: unable to load interface configuration file " 
-      << interfaceConfig 
-      << ":\n " 
-      << configDoc->ErrorDesc()
-         << "\nContinuing without interface configuration" << std::endl;
+                << interfaceConfig 
+                << ":\n " 
+                << configDoc->ErrorDesc()
+                << "\nContinuing without interface configuration" << std::endl;
       delete configDoc;
       configDoc = NULL;
     }
@@ -159,17 +158,19 @@ int main (int argc, char** argv)
       return -1;
     }
 
-  // execute plan
+  // start the application
   std::cout << "Starting the exec" << std::endl;
   _app.run();
 
-  // if specified on command line, load libraries
-
-  for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin(); libraryName != libraryNames.end(); ++libraryName) {
+  // if specified on command line, load Plexil libraries
+  for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
+       libraryName != libraryNames.end();
+       ++libraryName) {
     TiXmlDocument libraryXml(*libraryName);
     if (!libraryXml.LoadFile()) {
-      std::cout << "XML error parsing library '" << *libraryName << "': " << libraryXml.ErrorDesc() << " line " << libraryXml.ErrorRow() << " column "
-          << libraryXml.ErrorCol() << std::endl;
+      std::cout << "XML error parsing library '" << *libraryName << "': "
+                << libraryXml.ErrorDesc() << " line " << libraryXml.ErrorRow()
+                << " column " << libraryXml.ErrorCol() << std::endl;
       return -1;
     }
 
@@ -179,10 +180,13 @@ int main (int argc, char** argv)
     }
   }
 
+  // load the plan
   if (planName != "error") {
     TiXmlDocument plan(planName);
     if (!plan.LoadFile()) {
-      std::cout << "Error parsing plan '" << planName << "': " << plan.ErrorDesc() << " line " << plan.ErrorRow() << " column " << plan.ErrorCol() << std::endl;
+      std::cout << "Error parsing plan '" << planName << "': "
+                << plan.ErrorDesc() << " line " << plan.ErrorRow()
+                << " column " << plan.ErrorCol() << std::endl;
       return -1;
     }
     _app.addPlan(&plan);
@@ -196,4 +200,3 @@ int main (int argc, char** argv)
 
   return 0;
 }
-
