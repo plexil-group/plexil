@@ -51,6 +51,11 @@ class IpcMessageListener;
 //TODO: Integrate all plexil type converting into this class.
 class IpcFacade {
 public:
+
+  //
+  // Class constants
+  //
+
   DECLARE_STATIC_CLASS_CONST(uint32_t, ERROR_SERIAL, std::numeric_limits<uint32_t>::max())
 
   IpcFacade();
@@ -61,21 +66,17 @@ public:
    * a valid string, and it will never change, regardless of the state changes of the
    * connection.
    */
-  static const std::string& getUID();
-  /**
-   * Returns a formatted message type string given the basic message type and destination ID.
-   * @param msgName The name of the message type
-   * @param destId The destination ID for the message
-   */
-  static std::string formatMsgName(const std::string& msgName, const std::string& destId);
+  const std::string& getUID();
+
   /**
    * @brief Connects to the Ipc server. This should be called before calling start().
    * If it is not, this method is called by start. If already initialized, this method
    * does nothing and returns IPC_OK.
    */
   IPC_RETURN_TYPE initialize(const char* taskName, const char* serverName);
+
   /**
-   * @brief Starts the Ipc message handling thread. If not initialized, initilization occurs.
+   * @brief Starts the Ipc message handling thread. If not initialized, initialization occurs.
    * If Ipc is already started, this method does nothing and returns IPC_OK.
    */
   IPC_RETURN_TYPE start();
@@ -168,60 +169,75 @@ public:
    * @param command The command string to send
    */
   uint32_t publishTelemetry(const std::string& destName, const std::list<double>& values);
+
+  /**
+   * @brief Get next serial number
+   */
+  uint32_t getSerialNumber();
+
   /**
    * @brief Returns the error code of the last publish method call. If the last publish call returned
    * -1, this will return the appropriate error. Otherwise, it will return IPC_OK.
    */
   IPC_RETURN_TYPE getError();
+
 private:
+  //
+  // Private types
+  //
+
   //* brief Structure for holding references to listeners registered through local instances
-  typedef std::pair<int, IpcMessageListener*> LocalListenerRef;
+  typedef std::pair<uint16_t, IpcMessageListener*> LocalListenerRef;
+
   //* brief List of listeners registered through local instances
   typedef std::list<LocalListenerRef> LocalListenerList;
+
   //* brief List of listeners registered globally - for ListenerMap
   typedef std::list<IpcMessageListener*> ListenerList;
+
   //* brief Map of message types to lists of registered listeners
-  typedef std::map<int, ListenerList> ListenerMap;
+  typedef std::map<uint16_t, ListenerList> ListenerMap;
 
   //* brief Unique identifier of a message sequence
   typedef std::pair<std::string, uint32_t> IpcMessageId;
+
   //* brief Cache of not-yet-complete message sequences
   typedef std::map<IpcMessageId, std::vector<const PlexilMsgBase*> > IncompleteMessageMap;
 
   //* brief basic types of items to send
   enum BasicType { UNKNOWN, STRING, NUMERIC };
 
-  /**
-   * @brief Initialize unique ID string
-   */
-  static std::string& generateUID();
+  //
+  // Class constants
+  //
 
-  /**
-   * @brief Get next serial number
-   */
-  static uint32_t getSerialNumber();
+  DECLARE_STATIC_CLASS_CONST(uint16_t, ALL_MSG_TYPE, std::numeric_limits<uint16_t>::max())
 
   /**
    * @brief Handler function as seen by IPC.
    */
   static void messageHandler(MSG_INSTANCE rawMsg, void * unmarshalledMsg, void * this_as_void_ptr);
 
+  //
+  // Implementation methods
+  //
+
   /**
    * @brief Cache start message of a multi-message sequence
    */
 
-  static void cacheMessageLeader(const PlexilMsgBase* msgData);
+  void cacheMessageLeader(const PlexilMsgBase* msgData);
 
   /**
    * @brief Cache following message of a multi-message sequence
    */
 
-  static void cacheMessageTrailer(const PlexilMsgBase* msgData);
+  void cacheMessageTrailer(const PlexilMsgBase* msgData);
 
   /**
    * @brief Deliver the given message to all listeners registered for it
    */
-  static void deliverMessage(const std::vector<const PlexilMsgBase*>& msgs);
+  void deliverMessage(const std::vector<const PlexilMsgBase*>& msgs);
 
   /**
    * @brief Helper function for sending a vector of parameters via IPC.
@@ -251,15 +267,33 @@ private:
    * @param error The error code of the last called IPC method.
    */
   void setError(IPC_RETURN_TYPE error);
+
   /**
    * @brief Registers the subscription of the given msg type/listener
    */
   void subscribeGlobal(const LocalListenerRef& listener);
+
   /**
-   * @brief Unsubscribe the given listener from the static listener map.
+   * @brief Unsubscribe the given listener from the listener map.
    * @return True if found and unsubscribed. False if not found.
    */
   bool unsubscribeGlobal(const LocalListenerRef& listener);
+
+  //
+  // Static utility methods
+  //
+
+  /**
+   * @brief Initialize unique ID string
+   */
+  static std::string generateUID();
+
+  /**
+   * Returns a formatted message type string given the basic message type and destination ID.
+   * @param msgName The name of the message type
+   * @param destId The destination ID for the message
+   */
+  static std::string formatMsgName(const std::string& msgName, const std::string& destId);
 
   /**
    * @brief Given a transaction ID string, return the UID and the serial
@@ -280,46 +314,38 @@ private:
    * @param msgName the name of the message to unsubscribe from
    * @param handler The handler to unsubscribe.
    */
-  static IPC_RETURN_TYPE unsubscribeCentral (const char *msgName, HANDLER_TYPE handler);
+  IPC_RETURN_TYPE unsubscribeCentral(const char *msgName, HANDLER_TYPE handler);
 
   /**
    * Subscribes to the given message on central. Wrapper for IPC_subscribeData
    * @param msgName the name of the message to unsubscribe from
    * @param handler The handler to unsubscribe.
    */
-  static IPC_RETURN_TYPE subscribeDataCentral (const char *msgName,
-                     HANDLER_DATA_TYPE handler,
-                     void *clientData);
+  IPC_RETURN_TYPE subscribeDataCentral(const char *msgName,
+				       HANDLER_DATA_TYPE handler);
 
   //* @brief Is the facade initialized?
   bool m_isInitialized;
   //* @brief Is the facade started?
   bool m_isStarted;
+  //* @brief Count of # of outgoing commands and requests, starting with 1
+  //  @note Should only ever be 0 at initialization
+  uint32_t m_nextSerial;
+  //* @brief Unique ID of this adapter instance
+  std::string m_myUID;
   //* @brief The error code of the last called IPC method.
   IPC_RETURN_TYPE m_error;
   //* @brief The listeners registered under this facade
   LocalListenerList m_localRegisteredHandlers;
-
-  //* @brief The key for listeners on all messages
-  static const int ALL_MSG_TYPE;
   //* @brief The handle for the message thread
-  static pthread_t threadHandle;
-  //* @brief The map of message type to list of listeners for that type
-  static ListenerMap registeredListeners;
-  //* @brief The number of initialized instances. Used for managing the connection
-  static int numInitialized;
-  //* @brief The number of started instances. Used for managing the message thread
-  static int numStarted;
+  pthread_t m_threadHandle;
+  //* @brief The mutex used for synchronizing initialization/shutdown methods
+  RecursiveThreadMutex m_mutex;
   //* @brief Cache of incomplete received message data
-  static IncompleteMessageMap incompletes;
-  //* @brief The mutex used for synchronizing initilization/shutdown methods
-  static RecursiveThreadMutex mutex;
-  //* @brief Unique ID of this adapter instance
-  static std::string& MY_UID;
+  IncompleteMessageMap m_incompletes;
+  //* @brief Map of message type to list of listeners for that type
+  ListenerMap m_registeredListeners;
 
-  //* @brief Count of # of outgoing commands and requests, starting with 1
-  //  @note Should only ever be 0 at initialization
-  static uint32_t nextSerial;
 };
 
 /**
