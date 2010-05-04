@@ -59,7 +59,8 @@ SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 plexil-default: shlib
 
 shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
-	$(CP) $(SHLIB) $(PLEXIL_HOME)/lib/
+	-$(RM) $(PLEXIL_HOME)/lib/$(SHLIB)
+	$(LN) $(subst $(PLEXIL_HOME),..,$(shell pwd))/$(SHLIB) $(PLEXIL_HOME)/lib/$(SHLIB)
 
 $(SHLIB): depend $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ)
