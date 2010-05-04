@@ -54,7 +54,7 @@ MUTEX_STATUS initMutex(MUTEX_PTR mutex)
   pthread_mutexattr_init(&mutex->mutexAttributes);
 
   result = PTHREAD_MUTEX_SETKIND(&mutex->mutexAttributes,
-				 PTHREAD_MUTEX_RECURSIVE_NP);
+				 PTHREAD_MUTEX_RECURSIVE_KIND);
   switch (result) {
   case 0:  /* It worked */
     pthread_mutex_init(&mutex->mutexData,

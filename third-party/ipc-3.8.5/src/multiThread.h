@@ -43,14 +43,18 @@
  */
 #if defined ( REDHAT_6 )
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_settype
+#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE
 #elif defined ( REDHAT_52 )
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_setkind_np
+#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE_NP
 #elif defined ( PTHREAD_CREATE_JOINABLE )	/* Try to guess it... */
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_settype
+#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE
 /* This may produce a warning message, but the         *
  * pthreads library is, in fact, backwards compatible. */
 #else
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_setkind_np
+#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE_NP
 #endif
 
 typedef struct {
