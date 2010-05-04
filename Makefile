@@ -47,7 +47,7 @@ TestExec: exec-core LuvListener luv
 plexilsim: utils ipc IpcUtils
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
-robosim: utils ipc IpcUtils
+robosim: UniversalExec IpcAdapter
 	$(MAKE) -C src/apps/robosim
 
 UniversalExec: exec-core app-framework
