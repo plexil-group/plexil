@@ -147,18 +147,23 @@ namespace PLEXIL
      * @param key Key which will be unregistered.
      */
 
+#ifdef STORED_ITEM_REUSE_KEYS
     inline static void unregister(key_t& key)
     {
-#ifdef STORED_ITEM_REUSE_KEYS
 
 #ifndef STORED_ITEM_NO_MUTEX
       // make key generation thread safe
       ThreadMutexGuard guard(getMutex());
-#endif
+#endif // STORED_ITEM_NO_MUTEX
 
       keyPool().push(key);
-#endif           
     }
+#else
+    inline static void unregister(key_t& /*key*/)
+    {
+      // do nothing
+    }
+#endif // STORED_ITEM_REUSE_KEYS
 
     /**
      * @brief Return the unassigned key value.
