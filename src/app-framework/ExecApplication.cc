@@ -141,7 +141,7 @@ namespace PLEXIL
     assertTrue(spawnExecThread(),
                "ExecApplication::run: Fatal error: failed to start Exec thread");
     
-    m_state = APP_RUNNING;
+    // m_state = APP_RUNNING; // done in spawnExecThread()
     return true;
   }
 
