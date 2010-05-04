@@ -64,8 +64,8 @@ namespace PLEXIL {
     virtual ~AdapterConfiguration();
 
     /**
-     * @brief Returns the InterfaceManager set in initilization
-     * @return The InterfaceManager set in initilization.
+     * @brief Returns the InterfaceManager set in initialization
+     * @return The InterfaceManager set in initialization.
      */
     InterfaceManager* getInterfaceManager();
 
