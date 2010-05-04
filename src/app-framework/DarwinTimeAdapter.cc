@@ -28,7 +28,7 @@
 // *** Ignore this file on systems that implement POSIX timers
 //
 
-#if !defined(_POSIX_TIMERS) || (_POSIX_TIMERS - 200112L) < 0L
+#if !defined(_POSIX_TIMERS) || ((_POSIX_TIMERS - 200112L) < 0L)
 
 #include "DarwinTimeAdapter.hh"
 #include "AdapterExecInterface.hh"
@@ -350,7 +350,7 @@ namespace PLEXIL
    * @brief Static member function invoked upon receiving a timer signal
    * @param signo The signal number
    */
-  void DarwinTimeAdapter::timerNotifyFunction(int signo)
+  void DarwinTimeAdapter::timerNotifyFunction(int /* signo */)
   {
     // Simply invoke the timeout method
     theInstance()->timerTimeout();

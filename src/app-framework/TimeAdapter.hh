@@ -28,7 +28,7 @@
 #define TIME_ADAPTER_H
 
 #include <unistd.h>
-#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS - 200112L) >= 0L
+#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L)
 // POSIX timers are supported
 #define TIME_ADAPTER_CLASS PosixTimeAdapter
 #include "PosixTimeAdapter.hh"
