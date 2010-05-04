@@ -214,6 +214,11 @@ private:
   DECLARE_STATIC_CLASS_CONST(uint16_t, ALL_MSG_TYPE, std::numeric_limits<uint16_t>::max())
 
   /**
+   * @brief IPC listener thread top level function to replace IPC_dispatch().
+   */
+  static void myIpcDispatch(void * this_as_void_ptr);
+
+  /**
    * @brief Handler function as seen by IPC.
    */
   static void messageHandler(MSG_INSTANCE rawMsg, void * unmarshalledMsg, void * this_as_void_ptr);
@@ -328,6 +333,8 @@ private:
   bool m_isInitialized;
   //* @brief Is the facade started?
   bool m_isStarted;
+  //* @brief True if the dispatch thread should stop.
+  bool m_stopDispatchThread;
   //* @brief Count of # of outgoing commands and requests, starting with 1
   //  @note Should only ever be 0 at initialization
   uint32_t m_nextSerial;

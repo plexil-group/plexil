@@ -39,6 +39,7 @@ namespace PLEXIL {
   IpcFacade::IpcFacade() :
     m_isInitialized(false),
     m_isStarted(false),
+    m_stopDispatchThread(false),
     m_nextSerial(1),
     m_myUID(generateUID())
   {
@@ -134,7 +135,7 @@ namespace PLEXIL {
     if (result == IPC_OK && !m_isStarted) {
       //spawn message thread - separated for readability
       debugMsg("IpcFacade:start", " spawning IPC dispatch thread");
-      if (threadSpawn((THREAD_FUNC_PTR) IPC_dispatch, NULL, m_threadHandle)) {
+      if (threadSpawn((THREAD_FUNC_PTR) myIpcDispatch, this, m_threadHandle)) {
 	// Subscribe to messages
 	debugMsg("IpcFacade:start", " subscribing to messages");
 	IPC_RETURN_TYPE status;
@@ -207,16 +208,11 @@ namespace PLEXIL {
 
     // Cancel IPC dispatch thread
     debugMsg("IpcFacade:stop", " cancelling dispatch thread");
-    int myErrno;
-    myErrno = pthread_cancel(m_threadHandle);
-    if (myErrno == 0) {
-      myErrno = pthread_join(m_threadHandle, NULL);
-      if (myErrno != 0) {
-	debugMsg("IpcUtil:stop", "Error in pthread_join with errno " << myErrno);
+    m_stopDispatchThread = true;
+    int myErrno = pthread_join(m_threadHandle, NULL);
+    if (myErrno != 0) {
+	debugMsg("IpcUtil:stop", "Error in pthread_join; errno = " << myErrno);
       }
-    } else {
-      debugMsg("IpcUtil:stop", "Error in pthread_cancel with errno " << myErrno);
-    }
   }
 
   /**
@@ -516,19 +512,32 @@ namespace PLEXIL {
   }
 
   /**
+   * @brief IPC listener thread top level function to replace IPC_dispatch().
+   */
+  void IpcFacade::myIpcDispatch(void * this_as_void_ptr)
+  {
+    IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
+    assertTrueMsg(facade != NULL,
+		  "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
+    IPC_RETURN_TYPE ipcStatus;
+    while (!facade->m_stopDispatchThread
+	   && ipcStatus != IPC_Error) {
+      ipcStatus = IPC_listenClear(1000); // 
+    }
+    facade->m_stopDispatchThread = false;
+  }
+
+  /**
    * @brief Handler function as seen by IPC.
    */
   void IpcFacade::messageHandler(MSG_INSTANCE /* rawMsg */,
 				 void * unmarshalledMsg,
 				 void * this_as_void_ptr) {
-    // Check whether the thread has been canceled before going any further
-    pthread_testcancel();
-
     const PlexilMsgBase* msgData = reinterpret_cast<const PlexilMsgBase*> (unmarshalledMsg);
     assertTrueMsg(msgData != NULL,
 		  "IpcFacade::messageHandler: pointer to message data is null!");
     IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
-    assertTrueMsg(msgData != NULL,
+    assertTrueMsg(facade != NULL,
 		  "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
 
     PlexilMsgType msgType = (PlexilMsgType) msgData->msgType;
