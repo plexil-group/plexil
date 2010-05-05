@@ -4,3 +4,22 @@ Robosim chapter in the PLEXIL manual at
 http://plexil.sourceforge.net.
 
 To build this application, type 'make'.
+
+To run this application, first start IPC:
+
+ ipc
+
+Then, in a separate shell, start the robot simulator:
+
+ robosim
+
+Finally, run a plan of your choice, using the interface-config.xml file
+in this directory.  For example, in this directory, you can type:
+
+  run-ue -p plans/FourSteps.plx
+
+Note that 'interface-config.xml' is a default.
+
+
+
+
