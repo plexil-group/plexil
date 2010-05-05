@@ -37,16 +37,24 @@
 #include <pthread.h>
 #include <sys/time.h>
 
-/* In between Red Hat 5.2 and Red Hat 6.2, the invocation format
+/* Deal with pthreads API differences here.
+ *
+ * In between Red Hat 5.2 and Red Hat 6.2, the invocation format
  * for setting the mutex type changed.  While the pthreads library
  * maintains a backward compatibility mode, there is a newer invocation format.
+ *
+ * For some reason, newer Linuxes don't support this POSIX-style variant
+ * by default, so punt and go with the old API where available.
  */
 #if defined ( REDHAT_6 )
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_settype
-#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE
+#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE_NP
 #elif defined ( REDHAT_52 )
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_setkind_np
 #define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE_NP
+#elif defined ( __APPLE__ )	/* Mac OS X */
+#define PTHREAD_MUTEX_SETKIND pthread_mutexattr_settype
+#define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE
 #elif defined ( PTHREAD_CREATE_JOINABLE )	/* Try to guess it... */
 #define PTHREAD_MUTEX_SETKIND pthread_mutexattr_settype
 #define PTHREAD_MUTEX_RECURSIVE_KIND PTHREAD_MUTEX_RECURSIVE
