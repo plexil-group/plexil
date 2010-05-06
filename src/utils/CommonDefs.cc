@@ -25,7 +25,7 @@
 */
 
 #include "CommonDefs.hh"
-
+#include <limits>
 
 /**
  * @file CommonDefs.cc
