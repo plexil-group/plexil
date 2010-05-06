@@ -37,7 +37,7 @@ ifneq ($(OSNAME),Darwin)
 LIBS		+= rt
 endif
 
-SRC		:= $(wildcard *.cc) $(wildcard ./adapterconfigs/*.cc) 
+SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh) TimeAdapter.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)

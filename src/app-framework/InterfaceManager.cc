@@ -55,7 +55,7 @@
 #include "CommandHandle.hh"
 #include "CoreExpressions.hh"
 #include "DynamicLoader.hh"
-#include "adapterconfigs/DefaultAdapterConfiguration.hh"
+#include "DefaultAdapterConfiguration.hh"
 
 #include <limits>
 #include <sstream>
