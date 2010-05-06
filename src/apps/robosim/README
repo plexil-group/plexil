@@ -16,10 +16,11 @@ Then, in a separate shell, start the robot simulator:
 Finally, run a plan of your choice, using the interface-config.xml file
 in this directory.  For example, in this directory, you can type:
 
+  run-ue -p plans/FourSteps.plx -c interface-config.xml
+
+Note that 'interface-config.xml' is a default, so you can also simply type:
+
   run-ue -p plans/FourSteps.plx
-
-Note that 'interface-config.xml' is a default.
-
 
 
 
