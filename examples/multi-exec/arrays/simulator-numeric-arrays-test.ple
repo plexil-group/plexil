@@ -4,7 +4,7 @@
 Interface:
 {
 	//The integer array
-	Integer nums[2] = #(5 10);
+	Integer a_nums[2] = #(5 10);
 	NodeList:
 		//The handler for the command GetNums()
 		RecGetName:
