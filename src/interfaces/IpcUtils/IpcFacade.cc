@@ -519,12 +519,16 @@ namespace PLEXIL {
     IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
     assertTrueMsg(facade != NULL,
 		  "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
+    debugMsg("IpcFacade:myIpcDispatch", " started");
     IPC_RETURN_TYPE ipcStatus;
     while (!facade->m_stopDispatchThread
 	   && ipcStatus != IPC_Error) {
       ipcStatus = IPC_listenClear(1000); // 
     }
+    assertTrueMsg(ipcStatus != IPC_Error, "IpcFacade::myIpcDispatch: IPC error, IPC_errno = " << IPC_errno);
+      
     facade->m_stopDispatchThread = false;
+    debugMsg("IpcFacade:myIpcDispatch", " terminated");
   }
 
   /**
