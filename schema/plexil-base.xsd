@@ -359,6 +359,9 @@
      </xsd:choice>
    </xsd:group>
 
+   <!-- Note: ArrayValue is not included here because arrays
+        are handled independently (and NOT supported in places
+        were Value is) -->
    <xsd:group name="Value">
      <xsd:choice>
        <xsd:element ref="IntegerValue"/>
@@ -367,6 +370,7 @@
        <xsd:element ref="StringValue"/>
      </xsd:choice>
    </xsd:group>
+
    <xsd:element name="IntegerVariable" type="xsd:NCName"/>
    <xsd:element name="RealVariable" type="xsd:NCName"/>
    <xsd:element name="BooleanVariable" type="xsd:NCName"/>
@@ -405,6 +409,7 @@
        </xsd:sequence>
      </xsd:complexType>
    </xsd:element>
+
    <xsd:element name="VariableDeclarations">
      <xsd:complexType>
        <xsd:choice maxOccurs="unbounded">
@@ -413,6 +418,7 @@
        </xsd:choice>
      </xsd:complexType>
    </xsd:element>
+
    <xsd:element name="Command">
      <xsd:complexType>
        <xsd:sequence>
@@ -426,10 +432,11 @@
    <xsd:element name="Arguments">
      <xsd:complexType>
        <xsd:choice maxOccurs="unbounded">
- <!-- could put expression here ?? -->
          <xsd:element ref="IntegerValue"/>
          <xsd:element ref="RealValue"/>
          <xsd:element ref="BooleanValue"/>
+         <xsd:element ref="ArrayValue"/> <!-- NOTE: NOT YET SUPPORTED (in development as of 5/7/10) -->
+         <!-- Note: should also support ArrayElement -->
          <xsd:group ref="StringExpression"/>
          <xsd:group ref="DeclaredVariable"/>
        </xsd:choice>
@@ -508,6 +515,17 @@
        <xsd:restriction base="xsd:string">
        </xsd:restriction>
      </xsd:simpleType>
+   </xsd:element>
+
+   <xsd:element name="ArrayValue">
+     <xsd:complexType>
+       <xsd:choice>
+         <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
+         <xsd:element ref="RealValue" maxOccurs="unbounded"/>
+         <xsd:element ref="BooleanValue" maxOccurs="unbounded"/>
+         <xsd:element ref="StringValue" maxOccurs="unbounded"/>
+       </xsd:choice>
+     </xsd:complexType>
    </xsd:element>
 
    <xsd:element name="BooleanRHS">
