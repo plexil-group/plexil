@@ -47,6 +47,7 @@ const std::string TYPE_TAG("Type");
 const std::string MAXSIZE_TAG("MaxSize");
 const std::string DECL_TAG("Declare");
 const std::string VAL_TAG("Value");
+const std::string ARRAY_VAL_TAG("ArrayValue");
 const std::string INITIALVAL_TAG("InitialValue");
 const std::string ASSN_TAG("Assignment");
 const std::string BODY_TAG("NodeBody");
@@ -344,7 +345,7 @@ public:
 
 		checkTagPart(VAL_TAG, xml);
 
-		// get value (which could be empty)n
+		// get value (which could be empty)
 
 		std::string tag;
 		if (xml->Value() != NULL)
@@ -362,6 +363,57 @@ public:
 
 		// return new value
 		return (new PlexilValue(PlexilXmlParser::parseValueType(type), value))->getId();
+	}
+};
+
+class PlexilArrayValueParser: public PlexilExprParser {
+public:
+	PlexilArrayValueParser() :
+	  PlexilExprParser() {
+	}
+
+	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+	  // confirm that we have an array value
+	  checkTag(ARRAY_VAL_TAG, xml);
+
+	  // confirm that we have an element type
+	  checkAttr(TYPE_TAG, xml);
+	  std::string valueType(xml->Attribute(TYPE_TAG.c_str()));
+
+	  // gather elements
+	  std::vector<std::string> values;
+
+	  const TiXmlElement* thisElement = xml->FirstChildElement();
+	  while (thisElement != NULL) {
+	    checkTagPart(VAL_TAG, thisElement);
+	    // Check type
+	    std::string thisElementTag(thisElement->Value());
+	    std::string thisElementType = thisElementTag.substr(0, thisElementTag.find(VAL_TAG));
+	    checkParserException(thisElementType == valueType,
+				 "(line " << thisElement->Row() << ", column " << thisElement->Column()
+				 << ") XML parsing error: Array element type '" << thisElementTag
+				 << "' in array value of type '" << valueType << "'");
+
+	    // Get array element value
+	    const char* thisElementValue = thisElement->GetText();
+	    if (thisElementValue != NULL && strlen(thisElementValue) != 0) {
+	      values.push_back(std::string(thisElementValue));
+	    }
+	    else if (valueType == STRING_TAG) {
+	      values.push_back(std::string());
+	    }
+	    else {
+	      // parse error - empty array element not of type string
+	      checkParserException(ALWAYS_FAIL,
+				   "(line " << thisElement->Row() << ", column " << thisElement->Column() <<
+				   ") XML parsing error: Empty element value in array value of type '" << valueType << "'");
+	    }
+	  }
+
+	  // return new value
+	  return (new PlexilArrayValue(PlexilXmlParser::parseValueType(valueType),
+				       values.size(),
+				       values))->getId();
 	}
 };
 
