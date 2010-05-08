@@ -159,6 +159,15 @@
     </xsd:restriction>
   </xsd:simpleType>
 
+  <xsd:simpleType name="AtomicTypeValues">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="Integer"/>
+      <xsd:enumeration value="Real"/>
+      <xsd:enumeration value="Boolean"/>
+      <xsd:enumeration value="String"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
   <xsd:simpleType name="NCNameOrEmpty">
     <xsd:union memberTypes="xsd:NCName">
       <xsd:simpleType>
@@ -380,7 +389,7 @@
      <xsd:complexType>
        <xsd:sequence>
          <xsd:element name="Name" type="xsd:NCName" />
-         <xsd:element name="Type" type="TypeValues"/>
+         <xsd:element name="Type" type="AtomicTypeValues"/>
          <xsd:element name="InitialValue" minOccurs="0">
            <xsd:complexType>
              <xsd:group ref="Value"/>
@@ -394,7 +403,7 @@
      <xsd:complexType>
        <xsd:sequence>
          <xsd:element name="Name" type="xsd:NCName" />
-         <xsd:element name="Type" type="TypeValues"/>
+         <xsd:element name="Type" type="AtomicTypeValues"/>
          <xsd:element name="MaxSize" type="xsd:nonNegativeInteger"/>
          <xsd:element name="InitialValue" minOccurs="0">
            <xsd:complexType>
@@ -519,6 +528,7 @@
 
    <xsd:element name="ArrayValue">
      <xsd:complexType>
+       <xsd:attribute name="Type" type="AtomicTypeValues" use="required"/>
        <xsd:choice>
          <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
          <xsd:element ref="RealValue" maxOccurs="unbounded"/>
