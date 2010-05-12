@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="Sequence">
-      <NodeId>ep2cp_Sequence_d1e3</NodeId>
+      <NodeId>ep2cp_Sequence_d1e5</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>foo</Name>
@@ -50,6 +50,12 @@
                      </NumericRHS>
                   </Assignment>
                </NodeBody>
+               <SkipCondition>
+                  <EQNumeric>
+                     <IntegerVariable>foo</IntegerVariable>
+                     <IntegerValue>3</IntegerValue>
+                  </EQNumeric>
+               </SkipCondition>
             </Node>
             <Node NodeType="Assignment">
                <NodeId>Two</NodeId>
@@ -77,6 +83,20 @@
                      </NumericRHS>
                   </Assignment>
                </NodeBody>
+               <SkipCondition>
+                  <AND>
+                     <EQInternal>
+                        <NodeStateVariable>
+                           <NodeId>One</NodeId>
+                        </NodeStateVariable>
+                        <NodeStateValue>FINISHED</NodeStateValue>
+                     </EQInternal>
+                     <EQNumeric>
+                        <IntegerVariable>foo</IntegerVariable>
+                        <IntegerValue>0</IntegerValue>
+                     </EQNumeric>
+                  </AND>
+               </SkipCondition>
             </Node>
          </NodeList>
       </NodeBody>

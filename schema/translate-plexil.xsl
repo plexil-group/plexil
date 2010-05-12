@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -87,8 +87,17 @@
       <!-- Elements that may need translation -->
       <xsl:apply-templates
         select="RepeatCondition|PreCondition|PostCondition|
-                                  InvariantCondition|EndCondition|SkipCondition" />
+                InvariantCondition|EndCondition" />
       <xsl:apply-templates select="NodeBody" />
+    <!-- Handle skip condition -->
+    <xsl:choose>
+      <xsl:when test="$ordered">
+        <xsl:call-template name="ordered-skip-condition" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="SkipCondition" />
+      </xsl:otherwise>
+    </xsl:choose>
     </Node>
   </xsl:template>
 
@@ -110,23 +119,23 @@
   <xsl:template name="ordered-start-condition">
     <xsl:choose>
       <xsl:when
-        test="preceding-sibling::Node|preceding-sibling::Sequence|
-                     preceding-sibling::UncheckedSequence|preceding-sibling::If|
-                     preceding-sibling::While|preceding-sibling::For|
-                     preceding-sibling::Try|preceding-sibling::Concurrence">
+          test="preceding-sibling::Node|preceding-sibling::Sequence|
+                preceding-sibling::UncheckedSequence|preceding-sibling::If|
+                preceding-sibling::While|preceding-sibling::For|
+                preceding-sibling::Try|preceding-sibling::Concurrence">
         <StartCondition>
           <AND>
             <xsl:choose>
               <xsl:when test="preceding-sibling::*[1]/NodeId">
                 <xsl:call-template name="node-finished">
                   <xsl:with-param name="id"
-                    select="preceding-sibling::*[1]/NodeId" />
+                                  select="preceding-sibling::*[1]/NodeId" />
                 </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:call-template name="node-finished">
                   <xsl:with-param name="id"
-                    select="tr:node-id(preceding-sibling::*[1])" />
+                                  select="tr:node-id(preceding-sibling::*[1])" />
                 </xsl:call-template>
               </xsl:otherwise>
             </xsl:choose>
@@ -138,6 +147,41 @@
         <xsl:apply-templates select="StartCondition" />
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="ordered-skip-condition">
+    <xsl:if test= "SkipCondition">
+      <xsl:choose>
+        <xsl:when
+            test="preceding-sibling::Node|preceding-sibling::Sequence|
+                  preceding-sibling::UncheckedSequence|preceding-sibling::If|
+                  preceding-sibling::While|preceding-sibling::For|
+                  preceding-sibling::Try|preceding-sibling::Concurrence">
+          <SkipCondition>
+            <AND>
+              <xsl:choose>
+                <xsl:when test="preceding-sibling::*[1]/NodeId">
+                  <xsl:call-template name="node-finished">
+                    <xsl:with-param name="id"
+                                    select="preceding-sibling::*[1]/NodeId" />
+                  </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:call-template name="node-finished">
+                    <xsl:with-param name="id"
+                                    select="tr:node-id(preceding-sibling::*[1])" />
+                  </xsl:call-template>
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:apply-templates select="SkipCondition/*" />
+            </AND>
+          </SkipCondition>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="SkipCondition" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="UncheckedSequence">
@@ -652,7 +696,16 @@
         <xsl:apply-templates select="EndCondition" />
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:apply-templates select="SkipCondition" />
+    <!-- Handle skip condition -->
+    <xsl:choose>
+      <xsl:when test="$mode = 'ordered'">
+        <xsl:call-template name="ordered-skip-condition" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="SkipCondition" />
+      </xsl:otherwise>
+    </xsl:choose>
+
   </xsl:template>
 
   <xsl:template
@@ -836,9 +889,10 @@
   </xsl:template>
 
   <!--
-    Support for message passing between executives (not yet released)
+    Support for message passing between executives
   -->
 
+  <!-- Warning:  This one might be obsolete. -->
   <xsl:template match="MessageReceived">
     <LookupOnChange>
       <Name>
@@ -1281,6 +1335,9 @@
       </NodeFailureValue>
     </EQInternal>
   </xsl:template>
+
+
+  <!-- Functions -->
 
   <!-- Computes a unique NodeID -->
   <xsl:function name="tr:node-id">

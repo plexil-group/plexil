@@ -1,4 +1,5 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- Tested: unnamed sequence, postconditions, skip condition -->
   <Sequence>
     <VariableDeclarations>
       <DeclareVariable>
@@ -18,6 +19,12 @@
           <IntegerValue>3</IntegerValue>
         </EQNumeric>
       </PostCondition>
+      <SkipCondition>
+        <EQNumeric>
+          <IntegerVariable>foo</IntegerVariable>
+          <IntegerValue>3</IntegerValue>
+        </EQNumeric>
+      </SkipCondition>
       <NodeBody>
         <Assignment>
           <IntegerVariable>foo</IntegerVariable>
@@ -36,6 +43,12 @@
           <IntegerValue>6</IntegerValue>
         </EQNumeric>
       </PostCondition>
+      <SkipCondition>
+        <EQNumeric>
+          <IntegerVariable>foo</IntegerVariable>
+          <IntegerValue>0</IntegerValue>
+        </EQNumeric>
+      </SkipCondition>
       <NodeBody>
         <Assignment>
           <IntegerVariable>foo</IntegerVariable>
