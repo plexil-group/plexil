@@ -166,24 +166,9 @@ GT =
   | element GT { NumericExpression, NumericExpression }
 Action = Node
 NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
-Date =
-  notAllowed
-  | element Date {
-      element Year { integer }
-      & element Month { integer }
-      & element Day { integer }
-    }
 Tolerance =
   notAllowed
   | element Tolerance { RealValue | RealVariable }
-Duration =
-  notAllowed
-  | element Duration {
-      element Days { integer }
-      & element Hours { integer }
-      & element Minutes { integer }
-      & element Seconds { float }
-    }
 Node =
   notAllowed
   | element Node {
@@ -291,6 +276,7 @@ NENumeric =
 InvariantCondition =
   notAllowed
   | element InvariantCondition { BooleanExpression }
+float = xsd:float
 Arguments =
   notAllowed
   | element Arguments {
@@ -306,7 +292,7 @@ AtomicTypeValues =
   | xsd:NMTOKEN "Integer"
   | xsd:NMTOKEN "Boolean"
   | xsd:NMTOKEN "Real"
-NCName = xsd:NCName
+\string = xsd:string
 NodeId =
   notAllowed
   | element NodeId { NCName }
@@ -329,6 +315,9 @@ ArrayValue =
         | xsd:NMTOKEN "Real"
       }
     }
+TimePoint =
+  notAllowed
+  | element TimePoint { Date & Time }
 Concat =
   notAllowed
   | element Concat { StringExpression* }
@@ -364,6 +353,13 @@ StartCondition =
   notAllowed
   | element StartCondition { BooleanExpression }
 NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+Date =
+  notAllowed
+  | element Date {
+      element Year { integer }
+      & element Month { integer }
+      & element Day { integer }
+    }
 StateDeclaration =
   notAllowed
   | element StateDeclaration {
@@ -381,7 +377,7 @@ DeclareVariable =
       element Type { AtomicTypeValues },
       element InitialValue { Value }?
     }
-integer = xsd:integer
+nonNegativeInteger = xsd:nonNegativeInteger
 ADD =
   notAllowed
   | element ADD {
@@ -439,6 +435,7 @@ BooleanExpression =
   | BooleanValue
   | Lookup
   | ArrayElement
+integer = xsd:integer
 Alias =
   notAllowed
   | element Alias {
@@ -448,7 +445,6 @@ Alias =
 In =
   notAllowed
   | element In { DeclareVariable+ }
-float = xsd:float
 NodeStateVariable =
   notAllowed
   | element NodeStateVariable { node-reference }
@@ -515,6 +511,14 @@ DeclaredVariable =
 AND =
   notAllowed
   | element AND { BooleanExpression* }
+Duration =
+  notAllowed
+  | element Duration {
+      element Days { integer }
+      & element Hours { integer }
+      & element Minutes { integer }
+      & element Seconds { float }
+    }
 StringRHS =
   notAllowed
   | element StringRHS { StringExpression }
@@ -527,15 +531,6 @@ LibraryNodeCall =
       NodeId,
       element RenameNodeId { NCName }?,
       Alias*
-    }
-\string = xsd:string
-Time =
-  notAllowed
-  | element Time {
-      element Hour { integer }
-      & element Minute { integer }
-      & element Second { float }
-      & element Offset { integer }
     }
 element0 =
   element * {
@@ -556,6 +551,14 @@ Return =
         | xsd:NMTOKEN "Real"
       },
       NCNameOrEmpty
+    }
+Time =
+  notAllowed
+  | element Time {
+      element Hour { integer }
+      & element Minute { integer }
+      & element Second { float }
+      & element Offset { integer }
     }
 BooleanValue =
   notAllowed
@@ -601,13 +604,10 @@ RealVariable =
 NEBoolean =
   notAllowed
   | element NEBoolean { BooleanExpression, BooleanExpression }
+NCName = xsd:NCName
 LookupNow =
   notAllowed
-  | element LookupNow {
-      (Name
-       | element StateName { \string }),
-      Arguments?
-    }
+  | element LookupNow { Name, Arguments? }
 NodeBody =
   notAllowed
   | element NodeBody {
@@ -632,7 +632,6 @@ LibraryNodeDeclaration =
 NOT =
   notAllowed
   | element NOT { BooleanExpression }
-nonNegativeInteger = xsd:nonNegativeInteger
 ColNo = attribute ColNo { xsd:integer }
 InOut =
   notAllowed
@@ -669,9 +668,6 @@ StringValue =
 SQRT =
   notAllowed
   | element SQRT { NumericExpression }
-TimePoint =
-  notAllowed
-  | element TimePoint { Date & Time }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

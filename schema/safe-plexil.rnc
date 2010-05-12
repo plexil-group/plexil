@@ -176,7 +176,6 @@ NodeRef =
       }?,
       NCNameOrEmpty
     }
-\string = xsd:string
 Value = IntegerValue | RealValue | BooleanValue | StringValue
 ColNo = attribute ColNo { xsd:integer }
 GlobalDeclarations =
@@ -273,6 +272,7 @@ NodeStateValue =
       | xsd:NMTOKEN "FAILING"
       | xsd:NMTOKEN "FINISHING"
     }
+NCName = xsd:NCName
 NodeStateVariable =
   notAllowed
   | element NodeStateVariable { node-reference }
@@ -293,11 +293,7 @@ Command =
     }
 LookupNow =
   notAllowed
-  | element LookupNow {
-      (Name
-       | element StateName { \string }),
-      Arguments?
-    }
+  | element LookupNow { Name, Arguments? }
 BooleanExpression =
   OR
   | XOR
@@ -440,8 +436,7 @@ NodeId =
 IntegerValue =
   notAllowed
   | element IntegerValue { xsd:integer }
-NCName = xsd:NCName
-nonNegativeInteger = xsd:nonNegativeInteger
+\string = xsd:string
 BooleanRHS =
   notAllowed
   | element BooleanRHS { BooleanExpression }
@@ -622,6 +617,7 @@ LookupOnChange =
 AND =
   notAllowed
   | element AND { BooleanExpression* }
+nonNegativeInteger = xsd:nonNegativeInteger
 EndCondition =
   notAllowed
   | element EndCondition { BooleanExpression }

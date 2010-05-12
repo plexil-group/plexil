@@ -943,11 +943,7 @@
    <xsd:element name="LookupNow">
      <xsd:complexType>
        <xsd:sequence>
-         <xsd:choice>
-           <xsd:element ref="Name"/>
-           <!-- for backwards compatibility -->
-           <xsd:element name="StateName" type="xsd:string"/>
-         </xsd:choice>
+         <xsd:element ref="Name"/>
          <xsd:element ref="Arguments" minOccurs="0"/>
        </xsd:sequence>
      </xsd:complexType>
