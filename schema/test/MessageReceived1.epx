@@ -1,5 +1,5 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Node NodeType= "NodeList">
+  <Node NodeType= "Empty">
     <NodeId>Root</NodeId>
     <StartCondition>
       <MessageReceived>
