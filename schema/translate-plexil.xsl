@@ -122,7 +122,8 @@
           test="preceding-sibling::Node|preceding-sibling::Sequence|
                 preceding-sibling::UncheckedSequence|preceding-sibling::If|
                 preceding-sibling::While|preceding-sibling::For|
-                preceding-sibling::Try|preceding-sibling::Concurrence">
+                preceding-sibling::Try|preceding-sibling::Concurrence|
+                preceding-sibling::OnCommand|preceding-sibling::OnMessage">
         <StartCondition>
           <AND>
             <xsl:choose>
@@ -156,7 +157,8 @@
             test="preceding-sibling::Node|preceding-sibling::Sequence|
                   preceding-sibling::UncheckedSequence|preceding-sibling::If|
                   preceding-sibling::While|preceding-sibling::For|
-                  preceding-sibling::Try|preceding-sibling::Concurrence">
+                  preceding-sibling::Try|preceding-sibling::Concurrence|
+                  preceding-sibling::OnCommand|preceding-sibling::OnMessage">
           <SkipCondition>
             <AND>
               <xsl:choose>
@@ -718,7 +720,7 @@
   </xsl:template>
 
   <xsl:template
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage"
     mode="failure-check">
     <xsl:choose>
       <xsl:when test="NodeId">
@@ -735,7 +737,7 @@
   </xsl:template>
 
   <xsl:template
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage"
     mode="success-check">
     <xsl:choose>
       <xsl:when test="NodeId">
