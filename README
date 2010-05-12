@@ -118,6 +118,11 @@ Release Notes
  - Much revision of the reference manual.
 
 next release
- - Allow string expressions as command arguments
+ - Allow string expressions, and arrays, as command arguments
  - Cleanup of TestExec regression tests
  - Cleanup of XML schemas
+ - Extended PLEXIL: 
+   - new all-purpose "Lookup" form
+   - Skip Condition now handled correctly in sequences
+   - OnCommand, OnMessage fully integrated
+
