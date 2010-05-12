@@ -89,6 +89,7 @@ start =
   | Arguments
   | Try
   | PostCondition
+  | Lookup
   | NodeRef
   | Alias
   | NENumeric
@@ -122,24 +123,23 @@ start =
 LE =
   notAllowed
   | element LE { NumericExpression, NumericExpression }
-\string = xsd:string
 IsKnown =
   notAllowed
   | element IsKnown {
       DeclaredVariable
-      | Lookup
+      | LookupGroup
       | NodeStateVariable
       | NodeOutcomeVariable
       | NodeTimepointValue
     }
 StringExpression =
-  StringVariable | StringValue | Concat | Lookup | ArrayElement
+  StringVariable | StringValue | Concat | LookupGroup | ArrayElement
+PostconditionFailed =
+  notAllowed
+  | element PostconditionFailed { node-reference }
 ParentFailed =
   notAllowed
   | element ParentFailed { node-reference }
-MessageReceived =
-  notAllowed
-  | element MessageReceived { StringExpression }
 NumericExpression =
   ADD
   | SUB
@@ -151,7 +151,7 @@ NumericExpression =
   | RealVariable
   | IntegerValue
   | RealValue
-  | Lookup
+  | LookupGroup
   | NodeTimepointValue
   | (notAllowed
      | element ArraySize { NCName })
@@ -199,16 +199,16 @@ NodeFailureVariable =
   notAllowed
   | element NodeFailureVariable { node-reference }
 Value = IntegerValue | RealValue | BooleanValue | StringValue
-Lookup = LookupOnChange | LookupNow
-Executing =
+LookupGroup = LookupOnChange | LookupNow | Lookup
+IterationEnded =
   notAllowed
-  | element Executing { node-reference }
+  | element IterationEnded { node-reference }
 GT =
   notAllowed
   | element GT { NumericExpression, NumericExpression }
 LookupRHS =
   notAllowed
-  | element LookupRHS { Lookup }
+  | element LookupRHS { LookupGroup }
 BooleanRHS =
   notAllowed
   | element BooleanRHS { BooleanExpression }
@@ -230,9 +230,9 @@ Tolerance =
 Try =
   notAllowed
   | element Try { SequenceType, ColNo?, LineNo?, FileName? }
-Skipped =
+Failed =
   notAllowed
-  | element Skipped { node-reference }
+  | element Failed { node-reference }
 Node =
   notAllowed
   | element Node {
@@ -290,10 +290,13 @@ NodeStateValue =
       | xsd:NMTOKEN "FAILING"
       | xsd:NMTOKEN "FINISHING"
     }
-PreconditionFailed =
+InvariantFailed =
   notAllowed
-  | element PreconditionFailed { node-reference }
+  | element InvariantFailed { node-reference }
 LineNo = attribute LineNo { xsd:integer }
+MessageReceived =
+  notAllowed
+  | element MessageReceived { StringExpression }
 Parameter =
   notAllowed
   | element Parameter {
@@ -333,9 +336,9 @@ Assignment =
 RepeatCondition =
   notAllowed
   | element RepeatCondition { BooleanExpression }
-Succeeded =
+Inactive =
   notAllowed
-  | element Succeeded { node-reference }
+  | element Inactive { node-reference }
 ArrayElement =
   notAllowed
   | element ArrayElement {
@@ -358,6 +361,7 @@ Arguments =
        | StringExpression
        | DeclaredVariable)+
     }
+nonNegativeInteger = xsd:nonNegativeInteger
 AtomicTypeValues =
   xsd:NMTOKEN "String"
   | xsd:NMTOKEN "Integer"
@@ -406,10 +410,9 @@ NEString =
   notAllowed
   | element NEString { StringExpression, StringExpression }
 NodeState = NodeStateVariable | NodeStateValue
-NCName = xsd:NCName
-Inactive =
+Waiting =
   notAllowed
-  | element Inactive { node-reference }
+  | element Waiting { node-reference }
 ArrayValue =
   notAllowed
   | element ArrayValue {
@@ -424,6 +427,24 @@ ArrayValue =
 Concat =
   notAllowed
   | element Concat { StringExpression* }
+SequenceType =
+  (NodeId?
+   & (notAllowed
+      | element Comment { \string })?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & SkipCondition?
+   & (notAllowed
+      | element Priority { nonNegativeInteger })?
+   & (notAllowed
+      | element Permissions { \string })?
+   & Interface?
+   & VariableDeclarations?),
+  Action*
 NodeRef =
   notAllowed
   | element NodeRef {
@@ -440,6 +461,7 @@ UncheckedSequence =
   | element UncheckedSequence {
       SequenceType, ColNo?, LineNo?, FileName?
     }
+\string = xsd:string
 EQString =
   notAllowed
   | element EQString { StringExpression, StringExpression }
@@ -478,14 +500,15 @@ DeclareVariable =
       element Type { AtomicTypeValues },
       element InitialValue { Value }?
     }
-IterationEnded =
+Finished =
   notAllowed
-  | element IterationEnded { node-reference }
+  | element Finished { node-reference }
 ADD =
   notAllowed
   | element ADD {
       NumericExpression, NumericExpression, NumericExpression*
     }
+NCName = xsd:NCName
 VariableDeclarations =
   notAllowed
   | element VariableDeclarations { (DeclareVariable | DeclareArray)+ }
@@ -495,13 +518,13 @@ ABS =
 Request =
   notAllowed
   | element Request { NodeId?, Pair* }
+PreconditionFailed =
+  notAllowed
+  | element PreconditionFailed { node-reference }
 LT =
   notAllowed
   | element LT { NumericExpression, NumericExpression }
 NodeReference = NodeId | NodeRef
-PostconditionFailed =
-  notAllowed
-  | element PostconditionFailed { node-reference }
 DIV =
   notAllowed
   | element DIV { NumericExpression, NumericExpression }
@@ -569,6 +592,7 @@ BooleanExpression =
   | NEString
   | BooleanVariable
   | BooleanValue
+  | LookupGroup
   | Lookup
   | ArrayElement
   | Finished
@@ -636,7 +660,6 @@ NodeTimepointValue =
 SkipCondition =
   notAllowed
   | element SkipCondition { BooleanExpression }
-nonNegativeInteger = xsd:nonNegativeInteger
 Interface =
   notAllowed
   | element Interface { In? & InOut? }
@@ -657,9 +680,9 @@ AND =
 StringRHS =
   notAllowed
   | element StringRHS { StringExpression }
-InvariantFailed =
+Skipped =
   notAllowed
-  | element InvariantFailed { node-reference }
+  | element Skipped { node-reference }
 IntegerValue =
   notAllowed
   | element IntegerValue { xsd:integer }
@@ -677,9 +700,9 @@ element0 =
        | element0)*
     }
   }
-Waiting =
+Executing =
   notAllowed
-  | element Waiting { node-reference }
+  | element Executing { node-reference }
 Return =
   notAllowed
   | element Return {
@@ -719,9 +742,9 @@ NodeOutcomeValue =
       | xsd:NMTOKEN "SUCCESS"
       | xsd:NMTOKEN "FAILURE"
     }
-Finished =
+Lookup =
   notAllowed
-  | element Finished { node-reference }
+  | element Lookup { Name, Tolerance?, Arguments? }
 NodeFailureValue =
   notAllowed
   | element NodeFailureValue {
@@ -745,9 +768,9 @@ Concurrence =
 LookupNow =
   notAllowed
   | element LookupNow { Name, Arguments? }
-Failed =
+Succeeded =
   notAllowed
-  | element Failed { node-reference }
+  | element Succeeded { node-reference }
 LibraryNodeDeclaration =
   notAllowed
   | element LibraryNodeDeclaration {
@@ -796,24 +819,6 @@ ArrayRHS =
   | element ArrayRHS {
       element ArrayVariable { NCName }
     }
-SequenceType =
-  (NodeId?
-   & (notAllowed
-      | element Comment { \string })?
-   & StartCondition?
-   & RepeatCondition?
-   & PreCondition?
-   & PostCondition?
-   & InvariantCondition?
-   & EndCondition?
-   & SkipCondition?
-   & (notAllowed
-      | element Priority { nonNegativeInteger })?
-   & (notAllowed
-      | element Permissions { \string })?
-   & Interface?
-   & VariableDeclarations?),
-  Action*
 LookupOnChange =
   notAllowed
   | element LookupOnChange { Name, Tolerance?, Arguments? }

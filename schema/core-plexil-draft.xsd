@@ -67,7 +67,7 @@
         <xsd:element ref="RealVariable"/>
         <xsd:element ref="IntegerValue"/>
         <xsd:element ref="RealValue"/>
-        <xsd:group ref="Lookup"/>
+        <xsd:group ref="LookupGroup"/>
         <!-- only for lookups that return ONE value -->
         <xsd:element ref="NodeTimepointValue"/>
         <!-- read operations for arrays-->

@@ -219,7 +219,7 @@ DeclareVariable =
       element Type { AtomicTypeValues },
       element InitialValue { Value }?
     }
-Lookup = LookupOnChange | LookupNow
+LookupGroup = LookupOnChange | LookupNow
 SkipCondition =
   notAllowed
   | element SkipCondition { BooleanExpression }
@@ -314,7 +314,7 @@ BooleanExpression =
   | NEString
   | BooleanVariable
   | BooleanValue
-  | Lookup
+  | LookupGroup
   | ArrayElement
 NumericExpression =
   ADD
@@ -327,7 +327,7 @@ NumericExpression =
   | RealVariable
   | IntegerValue
   | RealValue
-  | Lookup
+  | LookupGroup
   | NodeTimepointValue
   | (notAllowed
      | element ArraySize { NCName })
@@ -385,14 +385,14 @@ IsKnown =
   notAllowed
   | element IsKnown {
       DeclaredVariable
-      | Lookup
+      | LookupGroup
       | NodeStateVariable
       | NodeOutcomeVariable
       | NodeTimepointValue
     }
 NodeReference = NodeId | NodeRef
 StringExpression =
-  StringVariable | StringValue | Concat | Lookup | ArrayElement
+  StringVariable | StringValue | Concat | LookupGroup | ArrayElement
 NodeList =
   notAllowed
   | element NodeList { Action* }
@@ -430,7 +430,7 @@ CommandDeclaration =
     }
 LookupRHS =
   notAllowed
-  | element LookupRHS { Lookup }
+  | element LookupRHS { LookupGroup }
 NodeId =
   notAllowed
   | element NodeId { NCName }

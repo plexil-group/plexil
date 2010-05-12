@@ -110,13 +110,13 @@ IsKnown =
   notAllowed
   | element IsKnown {
       DeclaredVariable
-      | Lookup
+      | LookupGroup
       | NodeStateVariable
       | NodeOutcomeVariable
       | NodeTimepointValue
     }
 StringExpression =
-  StringVariable | StringValue | Concat | Lookup | ArrayElement
+  StringVariable | StringValue | Concat | LookupGroup | ArrayElement
 NumericExpression =
   ADD
   | SUB
@@ -128,7 +128,7 @@ NumericExpression =
   | RealVariable
   | IntegerValue
   | RealValue
-  | Lookup
+  | LookupGroup
   | NodeTimepointValue
   | (notAllowed
      | element ArraySize { NCName })
@@ -154,13 +154,13 @@ NodeFailureVariable =
   notAllowed
   | element NodeFailureVariable { node-reference }
 Value = IntegerValue | RealValue | BooleanValue | StringValue
-Lookup = LookupOnChange | LookupNow
+LookupGroup = LookupOnChange | LookupNow
 BooleanRHS =
   notAllowed
   | element BooleanRHS { BooleanExpression }
 LookupRHS =
   notAllowed
-  | element LookupRHS { Lookup }
+  | element LookupRHS { LookupGroup }
 GT =
   notAllowed
   | element GT { NumericExpression, NumericExpression }
@@ -433,7 +433,7 @@ BooleanExpression =
   | NEString
   | BooleanVariable
   | BooleanValue
-  | Lookup
+  | LookupGroup
   | ArrayElement
 integer = xsd:integer
 Alias =

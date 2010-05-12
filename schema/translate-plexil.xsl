@@ -38,6 +38,22 @@
     copy comments (hard) use copy-of in local variables
   -->
 
+  <!-- This is the "overriding copy idiom", from "XSLT
+       Cookbook" by Sal Mangano.  It is the identity
+       transform, covering all elements that are not
+       explicitly handled elsewhere. -->
+
+  <xsl:template match= "node() | @*">
+    <xsl:copy>
+      <xsl:apply-templates select= "@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+
+<!-- Abstraction for Action constructs.  Unfortunately, this
+     is not allowed in 'select' attributes, so the actions are
+     enumerated there. -->
+
   <xsl:key name="action"
     match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|OnCommand"
     use="." />
@@ -88,7 +104,7 @@
       <xsl:apply-templates
         select="RepeatCondition|PreCondition|PostCondition|
                 InvariantCondition|EndCondition" />
-      <xsl:apply-templates select="NodeBody" />
+      <xsl:apply-templates select="NodeBody" /> 
     <!-- Handle skip condition -->
     <xsl:choose>
       <xsl:when test="$ordered">
@@ -99,21 +115,6 @@
       </xsl:otherwise>
     </xsl:choose>
     </Node>
-  </xsl:template>
-
-  <xsl:template match="NodeBody">
-    <NodeBody>
-      <xsl:choose>
-        <xsl:when test="NodeList">
-          <NodeList>
-            <xsl:apply-templates select="*" />
-          </NodeList>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:copy-of select="*" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </NodeBody>
   </xsl:template>
 
   <xsl:template name="ordered-start-condition">
@@ -1336,6 +1337,40 @@
         <xsl:value-of select="$failure" />
       </NodeFailureValue>
     </EQInternal>
+  </xsl:template>
+
+
+  <!-- Generic Lookup form -->
+
+  <xsl:template match= "Lookup">
+    <xsl:choose>
+      <xsl:when test= "ancestor::NodeBody|ancestor::PreCondition|
+                       ancestor::PostCondition|ancestor::InvariantCondition">
+        <LookupNow>
+          <Name>
+            <xsl:apply-templates select= "Name/*"/>
+          </Name>
+          <xsl:if test= "Arguments">
+            <Arguments>
+              <xsl:apply-templates select= "Arguments/*"/>
+            </Arguments>
+          </xsl:if>
+        </LookupNow>
+      </xsl:when>
+      <xsl:otherwise>
+        <LookupOnChange>
+          <Name>
+            <xsl:apply-templates select= "Name/*"/>
+          </Name>
+          <xsl:copy-of select="Tolerance"/>
+          <xsl:if test= "Arguments">
+            <Arguments>
+              <xsl:apply-templates select= "Arguments/*"/>
+            </Arguments>
+          </xsl:if>
+        </LookupOnChange>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 

@@ -27,7 +27,7 @@
               </DeclareVariable>
           </VariableDeclarations>
       <NodeBody>
-         <NodeList>
+              <NodeList>
                   <Node NodeType="NodeList" epx="Sequence" FileName="Plan.ple" LineNo="7" ColNo="22">
                <NodeId>One</NodeId>
                <InvariantCondition>
@@ -55,7 +55,7 @@
                      <Node NodeType="Assignment" FileName="Plan.ple" LineNo="8" ColNo="34">
                         <NodeId>DoFirst</NodeId>
                         <NodeBody>
-                           <Assignment>
+                              <Assignment>
                                   <IntegerVariable>x</IntegerVariable>
                                   <NumericRHS>
                                       <ADD>
@@ -64,7 +64,7 @@
                                       </ADD>
                                   </NumericRHS>
                               </Assignment>
-                        </NodeBody>
+                          </NodeBody>
                      </Node>
                      <Node NodeType="Assignment" FileName="Plan.ple" LineNo="9" ColNo="35">
                         <NodeId>DoSecond</NodeId>
@@ -79,7 +79,7 @@
                            </AND>
                         </StartCondition>
                         <NodeBody>
-                           <Assignment>
+                              <Assignment>
                                   <IntegerVariable>y</IntegerVariable>
                                   <NumericRHS>
                                       <ADD>
@@ -88,7 +88,7 @@
                                       </ADD>
                                   </NumericRHS>
                               </Assignment>
-                        </NodeBody>
+                          </NodeBody>
                      </Node>
                   </NodeList>
                </NodeBody>
@@ -101,7 +101,7 @@
                      <Node NodeType="Assignment" FileName="Plan.ple" LineNo="12" ColNo="38">
                         <NodeId>DoFirstDiff</NodeId>
                         <NodeBody>
-                           <Assignment>
+                              <Assignment>
                                   <IntegerVariable>z</IntegerVariable>
                                   <NumericRHS>
                                       <ADD>
@@ -110,12 +110,12 @@
                                       </ADD>
                                   </NumericRHS>
                               </Assignment>
-                        </NodeBody>
+                          </NodeBody>
                      </Node>
                      <Node NodeType="Assignment" FileName="Plan.ple" LineNo="13" ColNo="35">
                         <NodeId>DoSecond</NodeId>
                         <NodeBody>
-                           <Assignment>
+                              <Assignment>
                                   <IntegerVariable>y</IntegerVariable>
                                   <NumericRHS>
                                       <ADD>
@@ -124,12 +124,12 @@
                                       </ADD>
                                   </NumericRHS>
                               </Assignment>
-                        </NodeBody>
+                          </NodeBody>
                      </Node>
                   </NodeList>
                </NodeBody>
             </Node>
               </NodeList>
-      </NodeBody>
+          </NodeBody>
    </Node>
 </PlexilPlan>

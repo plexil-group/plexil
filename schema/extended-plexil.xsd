@@ -35,9 +35,6 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
   <xsd:include schemaLocation='core-plexil.xsd'/>
 
-  <!-- We extend Action and BooleanExpression to include the forms in
-       this file.  -->
-
   <xsd:redefine schemaLocation='plexil-base.xsd'>
     <xsd:group name="Action">
       <xsd:choice>
@@ -74,7 +71,8 @@
         <xsd:element ref="NEString"/>
         <xsd:element ref="BooleanVariable"/>
         <xsd:element ref="BooleanValue"/>
-        <xsd:group ref="Lookup"/>
+        <xsd:group ref="LookupGroup"/>
+        <xsd:element ref="Lookup"/>
         <xsd:element ref="ArrayElement"/>
         <xsd:element ref="Finished"/>
         <xsd:element ref="IterationEnded"/>
@@ -89,6 +87,13 @@
         <xsd:element ref="PostconditionFailed"/>
         <xsd:element ref="ParentFailed"/>
         <xsd:element ref="MessageReceived"/>
+      </xsd:choice>
+    </xsd:group>
+    <xsd:group name="LookupGroup">
+      <xsd:choice>
+        <xsd:element ref="LookupOnChange"/>
+        <xsd:element ref="LookupNow"/>
+        <xsd:element ref="Lookup"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
@@ -366,5 +371,16 @@
       </xsd:all>
     </xsd:complexType>
   </xsd:element>
+
+  <!-- Generic lookup form -->
+   <xsd:element name="Lookup">
+     <xsd:complexType>
+       <xsd:sequence>
+         <xsd:element ref="Name"/>
+         <xsd:element ref="Tolerance" minOccurs="0"/>
+         <xsd:element ref="Arguments" minOccurs="0"/>
+       </xsd:sequence>
+     </xsd:complexType>
+   </xsd:element>
 
 </xsd:schema>

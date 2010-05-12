@@ -558,7 +558,7 @@
 
    <xsd:element name="LookupRHS">
      <xsd:complexType>
-       <xsd:group ref="Lookup"/>
+       <xsd:group ref="LookupGroup"/>
      </xsd:complexType>
    </xsd:element>
 
@@ -606,7 +606,7 @@
        <xsd:element ref="NEString"/>
        <xsd:element ref="BooleanVariable"/>
        <xsd:element ref="BooleanValue"/>
-       <xsd:group ref="Lookup"/>
+       <xsd:group ref="LookupGroup"/>
        <xsd:element ref="ArrayElement"/>
      </xsd:choice>
    </xsd:group>
@@ -615,7 +615,7 @@
      <xsd:complexType>
        <xsd:choice>
          <xsd:group ref="DeclaredVariable"/>
-         <xsd:group ref="Lookup"/>
+         <xsd:group ref="LookupGroup"/>
          <xsd:element ref="NodeStateVariable"/>
          <xsd:element ref="NodeOutcomeVariable"/>
          <xsd:element ref="NodeTimepointValue"/>
@@ -832,7 +832,7 @@
        <xsd:element ref="StringVariable"/>
        <xsd:element ref="StringValue"/>
        <xsd:element ref="Concat"/>
-       <xsd:group ref="Lookup"/>
+       <xsd:group ref="LookupGroup"/>
        <xsd:element ref="ArrayElement"/>
      </xsd:choice>
    </xsd:group>
@@ -855,7 +855,7 @@
        <xsd:element ref="RealVariable"/>
        <xsd:element ref="IntegerValue"/>
        <xsd:element ref="RealValue"/>
-       <xsd:group ref="Lookup"/>
+       <xsd:group ref="LookupGroup"/>
        <!-- only for lookups that return ONE value -->
        <xsd:element ref="NodeTimepointValue"/>
        <!-- read operations for arrays-->
@@ -914,7 +914,7 @@
      </xsd:complexType>
    </xsd:element>
 
-   <xsd:group name="Lookup">
+   <xsd:group name="LookupGroup">
      <xsd:choice>
        <xsd:element ref="LookupOnChange"/>
        <xsd:element ref="LookupNow"/>
