@@ -56,7 +56,9 @@
 (defconst *plexilisp-location* (format "%s/src/plexilisp" *plexil-home*))
 (defconst *bin-location* (format "%s/bin" *plexil-home*))
 
-(defconst *plexilisp-version* "3.1")
+;;; Note that this version is for Plexilisp only; not tied to
+;;; any other PLEXIL versioning scheme.
+(defconst *plexilisp-version* "3.2")
 
 (defvar *node-id-number*) ; supports repeatable, unique node ID's
 (defconst *plexil-script-prefix* "ps-")
@@ -203,7 +205,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  nil)
+  t)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -222,15 +224,14 @@
 (defun insert-plexilisp-entry (e)  ; docitem -> ()
   (cond ((plexil-doc? e)
          (insert "----\n")
-         (insert "[[code]]\n")
+         (insert "<pre>\n")
          (mapc
           (lambda (name)
             (insert (format "(%s %s)\n"
                             name
                             (plexil-format-arglist (plexil-doc-arglist e)))))
           (plexil-doc-names e))
-         (insert "[[code]]\n")
-         (insert "\n")         
+         (insert "</pre>\n\n")
          (let ((desc (plexil-doc-desc e)))
            (if (stringp desc)
                (insert desc)
@@ -368,15 +369,16 @@
 (insert-plexil-heading
  "= Plexilisp Reference Manual = "
  (format
-  "//This wiki was automatically generated from {{plexil.el}} on %s \n"
+  "''This wiki was automatically generated from <tt>plexil.el</tt> on %s \n"
   (current-time-string))
- (format "for version %s.  Do not edit!//\n\n" *plexilisp-version*)
+ (format "for version %s.  Do not edit!''\n\n" *plexilisp-version*)
  "This is a complete reference for the Plexilisp language. "
  "It assumes a basic understanding of the PLEXIL language. "
  "Each construct in Plexilisp has at least two aliases "
- "(e.g. {{CommandNode}} and {{command-node}}).  You may use whichever you prefer, "
+ "(e.g. <tt>CommandNode</tt> and <tt>command-node</tt>).  You may use whichever you prefer, "
  "or mix and match them.\n\n"
- "[[toc]]")
+ ;; TOC here?
+ )
 
 (insert-plexil-heading
  "== PLEXIL Plan =="
@@ -385,10 +387,10 @@
 (pdefine pl (PlexilPlan plexil-plan) (form &rest forms) 0 nil ; list(xml) -> xml
   ("The top level form for a plan.  "
    "A Plexilisp file must contain exactly one of these, and nothing else.  "
-   "A {{PlexilPlan}} form must contain forms in the following order. "
-   "The first (optional) can be a {{GlobalDeclarations}}. "
+   "A <tt>PlexilPlan</tt> form must contain forms in the following order. "
+   "The first (optional) can be a <tt>GlobalDeclarations</tt>. "
    "The second (required) is the plan's root node. "
-   "Additional forms can only be {{Comment}}'s.")
+   "Additional forms can only be <tt>Comment</tt>'s.")
   (xml "PlexilPlan" (cons form forms)))
 
 (insert-plexil-heading
@@ -405,7 +407,7 @@
          (name &rest interface-declarations) 0 nil
   ;; string * list(xml) -> xml
   ("Declare a library node (call).  Following the name may be any number of "
-   "interface declarations, which are either {{In}} or {{InOut}} forms.")
+   "interface declarations, which are either <tt>In</tt> or <tt>InOut</tt> forms.")
   (xml "LibraryNodeDeclaration"
        (list (xml "Name" name)
              (xml "Interface" interface-declarations))))
@@ -454,29 +456,29 @@
  "These are the forms for defining PLEXIL nodes. "
  "It takes at least two to fully define a node. "
  "An outer form declares the node. "
- "(e.g. {{CommandNode}}), and an inner form defines the action "
- "(e.g. {{(command ...)}}).  These forms must be compatible "
+ "(e.g. <tt>CommandNode</tt>), and an inner form defines the action "
+ "(e.g. <tt>(command ...)</tt>).  These forms must be compatible "
  "(more specifics in each entry below)")
 
 (pdefine pl (ListNode list-node) (&optional name &rest node-clauses) 1 node
   ;; string * list(xml) -> xml
-  "Defines a List Node.  Must contain a {{List}} form." 
+  "Defines a List Node.  Must contain a <tt>List</tt> form." 
   (plexil-node name node-clauses "NodeList"))
 
 (pdefine pl (List list) (&rest nodes) 0 node-body       ; list(xml) -> xml
-  "Required inside a {{ListNode}}, this form wraps its list of nodes."
+  "Required inside a <tt>ListNode</tt>, this form wraps its list of nodes."
   (xml "NodeBody"
        (xml "NodeList" nodes)))
 
 (pdefine pl (CommandNode command-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
-  ("Defines a Command Node.  Must contain either a {{Command}} or "
-   "{{CommandWithReturn}} form.")
+  ("Defines a Command Node.  Must contain either a <tt>Command</tt> or "
+   "<tt>CommandWithReturn</tt> form.")
   (plexil-node name clauses "Command"))
 
 (pdefine pl (Command command) (command-name &rest args) 1 node-body
   ;; (string + xml) * list(xml) -> xml         
-  ("Required inside a {{CommandNode}}, this form calls the specified command. "
+  ("Required inside a <tt>CommandNode</tt>, this form calls the specified command. "
    "command-name may be any string "
    "expression (literal, variable, concatenation, or lookup). "
    "If resources are specified, they must follow the command name.")
@@ -488,7 +490,7 @@
 (pdefine pl (CommandWithReturn command-with-return) (command-name var &rest args)
          1 node-body
   ;; (string + xml) * list(xml) -> xml
-  ("This is just like {{Command}} above, but a value returned from the command "
+  ("This is just like <tt>Command</tt> above, but a value returned from the command "
    "is assigned to the given variable, which must be declared in this node or "
    "one of its ancestors.")
   (let ((resources (plexil-extract-resources-from-args args)))
@@ -502,27 +504,27 @@
 
 (pdefine pl (UpdateNode update-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
-  "Defines an Update Node.  Must contain an {{Update}} form."
+  "Defines an Update Node.  Must contain an <tt>Update</tt> form."
   (plexil-node name clauses "Update"))
 
 (pdefine pl (Update update) (&rest pairs) 0 node-body     ; list(xml) -> xml
-  ("Required inside an {{UpdateNode}}, this form defines the plan update."
-   "It must contain one or more {{Pair}} forms.")
+  ("Required inside an <tt>UpdateNode</tt>, this form defines the plan update."
+   "It must contain one or more <tt>Pair</tt> forms.")
   (plexil-node-body (xml "Update" pairs)))
 
 (pdefine pl (Pair pair) (name value) 2 nil            ; string * any -> xml
-  ("Required inside an {{Update}}, this form defines a name/value pair."
-   "The {{name}} must be a string and the {{value}} may be any PLEXIL type.")
+  ("Required inside an <tt>Update</tt>, this form defines a name/value pair."
+   "The <tt>name</tt> must be a string and the <tt>value</tt> may be any PLEXIL type.")
   (xml "Pair" (list (xml "Name" name) (infer-type value))))
 
 (pdefine pl (AssignmentNode assignment-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
-  "Defines an Assignment Node.  Must contain an {{Assignment}} form."
+  "Defines an Assignment Node.  Must contain an <tt>Assignment</tt> form."
   (plexil-node name clauses "Assignment"))
 
 (pdefine pl (Assignment assignment) (var val) 2 node-body
   ;; xml * (xml + int + bool + string) -> xml
-  ("Required inside an {{AssignmentNode}}, this form assigns a value (any PLEXIL "
+  ("Required inside an <tt>AssignmentNode</tt>, this form assigns a value (any PLEXIL "
    "type) to a variable that must be declared in this node or one of its "
    "ancestors.")
   (let ((vall (infer-type val)))
@@ -556,7 +558,7 @@
 (pdefine pl (LibraryCallNode library-call-node) 
          (&optional name &rest node-clauses) 1 node
   ;; string * list(xml) -> xml
-  "A Library Call Node.  Must contain exactly one {{call}} form."
+  "A Library Call Node.  Must contain exactly one <tt>call</tt> form."
   (plexil-node name node-clauses "LibraryNodeCall"))
 
 (pdefine pl (Call call) (nodeid &rest aliases) 1 node-body
@@ -746,11 +748,11 @@
   
 (insert-plexil-heading
  "=== Interface Declaration ==="
- "Plexilisp does not automatically generate any {{Interface}} declarations. "
+ "Plexilisp does not automatically generate any <tt>Interface</tt> declarations. "
  "They must be created explicitly with these forms.")
 
 (pdefine pl (Interface interface) (&rest decls) 0 nil     ; list(xml) -> xml
-  ("The Node's interface.  This must contain only {{In}} and {{InOut}} forms. "
+  ("The Node's interface.  This must contain only <tt>In</tt> and <tt>InOut</tt> forms. "
    "They can be intermixed.")
   (xml "Interface" decls))
 
@@ -824,12 +826,12 @@
  "These return true, false, or unknown.")
 
 (pdefine pl (Or or) (&rest disjuncts) 0  nil        ; list(xml) -> xml
-  "Permits 0 or more disjuncts. {{(Or)}} = {{false}}."
+  "Permits 0 or more disjuncts. <tt>(Or)</tt> = <tt>false</tt>."
   (let ((evaled (mapcar #'infer-type disjuncts)))
     (xml "OR" evaled nil 'boolean)))
 
 (pdefine pl (And and) (&rest conjuncts) 0 nil       ; list(xml) -> xml
-  "Permits 0 or more conjuncts. {{(And)}} = {{true}}."
+  "Permits 0 or more conjuncts. <tt>(And)</tt> = <tt>true</tt>."
   (let ((evaled (mapcar #'infer-type conjuncts)))
     (xml "AND" evaled nil 'boolean)))
 
@@ -881,39 +883,50 @@
 
 (insert-plexil-heading
  "=== Lookups ==="
- "In Plexilisp, these all return values of 'any' type, which means they are "
- "compatible with any kind of variable or value for assignments, comparisons, "
- "and operations.  It is up to you to see that the types are compatible.  "
- "Also, the //state// may be specified by any kind of string expression "
- "(literal, variable, concatentation, or even another lookup).")
+ "The new form Lookup (and its variant LookupWithTolerance) is a "
+ "convenient substitute for the Core PLEXIL forms LookupNow and LookupOnChange. "
+ "It can be used anywhere, though note that 'tolerance' is valid only "
+ "in gate conditions.")
 
-(pdefine pl (LookupNow lookup-now) (state &rest args) 1 nil
+(pdefine pl (Lookup lookup) (state &rest args) 1 nil
   ;; (string + xml) * list(xml) -> xml
   "Queries for the value of the given state with given arguments."
   (let ((state-name (plexil-normalize-string-expression state)))
-    (xml "LookupNow" (append (list (xml "Name" state-name))
-                             (if args (list (xml "Arguments"
-                                                 (mapcar #'infer-type args)))))
-         nil 'any)))
+    (plexil-lookup "Lookup" state-name args)))
 
-(pdefine pl (LookupOnChange lookup-on-change) (state &rest args) 1 nil
-  ;; (string + xml) * list(xml) -> xml
-  ("Subscribes for updates of the given state with given arguments."
-   "Uses default tolerance value.")
-  (let ((state-name (plexil-normalize-string-expression state)))
-    (plexil-lookup-on-change state-name args)))
-
-(pdefine pl (LookupOnChangeWithTolerance lookup-on-change-with-tolerance)
+(pdefine pl (LookupWithTolerance lookup-with-tolerance)
   (state tolerance &rest args) 2 nil
   ;; (string + xml) * (string + number + xml) * list(xml) -> xml
   ("Like the above, but uses the specified tolerance.  The tolerance is a real number "
    "or (name of a) real variable.")
   (let ((state-name (plexil-normalize-string-expression state)))
-    (plexil-lookup-on-change state-name args tolerance)))
+    (plexil-lookup "Lookup" state-name args tolerance)))
 
-(defun plexil-lookup-on-change (state-name args &optional tolerance)
-  ;; string * list(xml) * opt(xml) -> xml
-  (xml "LookupOnChange"
+(pdefine pl (LookupNow lookup-now) (state &rest args) 1 nil
+  ;; (string + xml) * list(xml) -> xml
+  ("Queries for the value of the given state with given arguments. "
+   "Valid only in node bodies and check conditions (Pre, Post, Invariant).")
+  (let ((state-name (plexil-normalize-string-expression state)))
+    (plexil-lookup "LookupNow" state-name args)))
+
+(pdefine pl (LookupOnChange lookup-on-change) (state &rest args) 1 nil
+  ;; (string + xml) * list(xml) -> xml
+  ("Subscribes for updates to the given state with given arguments."
+   "Valid only in gate conditions (Start, End, Repeat, Skip).")
+  (let ((state-name (plexil-normalize-string-expression state)))
+    (plexil-lookup "LookupOnChange" state-name args)))
+
+(pdefine pl (LookupOnChangeWithTolerance lookup-on-change-with-tolerance)
+  (state tolerance &rest args) 2 nil
+  ;; (string + xml) * (string + number + xml) * list(xml) -> xml
+  ("Like the above, but uses the specified tolerance.  The tolerance is a real number "
+   "or real variable.")
+  (let ((state-name (plexil-normalize-string-expression state)))
+    (plexil-lookup "LookupOnChange" state-name args tolerance)))
+
+(defun plexil-lookup (name state-name args &optional tolerance)
+  ;; string * string * list(xml) * opt(xml) -> xml
+  (xml name
        (append (list (xml "Name" state-name))
                (if tolerance
                    (list (xml "Tolerance"
@@ -933,7 +946,7 @@
  "=== Literals ==="
  "Most of these are not needed, because Plexilisp automatically infers "
  "types of literals.  For example, 5.5 would be a real, 5 would be an integer, "
- "\"foo\" a string, {{true}} and {{false}} a boolean.")
+ "\"foo\" a string, <tt>true</tt> and <tt>false</tt> a boolean.")
 
 (pdefine pl (IntegerValue intval) (val) 1 nil                ; string -> xml
   ""
@@ -948,7 +961,7 @@
   ;; valid arguments are 0, 1
   ;; need to test if these will work: true, false, "true", "false"
   ("Valid arguments are 0, 1, and UNKNOWN. "
-  "More simply, the symbols {{true}}, {{false}}, and {{unknown}} may be used "
+  "More simply, the symbols <tt>true</tt>, <tt>false</tt>, and <tt>unknown</tt> may be used "
   "instead of this form.")
   (xml "BooleanValue" val nil 'boolean))
 
@@ -1036,8 +1049,8 @@
  "They expand into node structures. ")
 
 (pdefine-syntax pl (If if) (condition then-part &optional else-part) 1 node
-  ("If-then-else.  The {{then-part}} and {{else-part}} may be nodes or other "
-   "actions.  The {{else-part}} is optional.")
+  ("If-then-else.  The <tt>then-part</tt> and <tt>else-part</tt> may be nodes or other "
+   "actions.  The <tt>else-part</tt> is optional.")
   `(xml "If"
         (remove-nil
          (xml "Condition" (infer-type ,condition))
@@ -1054,10 +1067,10 @@
 
 (pdefine-syntax pl (for For) (declaration condition update action) 1 node
   ("For Loop.  The declaration should look like a variable declaration. i.e "
-   "{{(type name [init])}}, where {{type}} must be either {{integer}} or {{real}} "
-   "and the initial value {{init}} is optional (though generally useful).  "
-   "{{condition}} is a boolean expression that will terminate the loop when "
-   "it is false.  {{update}} is a numeric expression that expresses a new value "
+   "<tt>(type name [init])</tt>, where <tt>type</tt> must be either <tt>integer</tt> or <tt>real</tt> "
+   "and the initial value <tt>init</tt> is optional (though generally useful).  "
+   "<tt>condition</tt> is a boolean expression that will terminate the loop when "
+   "it is false.  <tt>update</tt> is a numeric expression that expresses a new value "
    "for the declared variable.")
   ;;
   ;; list(string,string,number) * xml * xml * xml -> xml
@@ -1155,7 +1168,7 @@
 (pdefine-syntax pl (Action action) (name &rest forms) 1 node
   ;; string * list(xml) -> xml
   ("Specifies any kind of action.  The specified forms can include any node "
-   "clauses (except NodeId, which is given by {{name}}, as well as any number "
+   "clauses (except NodeId, which is given by <tt>name</tt>, as well as any number "
    "of actions.  The actions form the body of the generated List Node.")
   (let ((nodes (filter (lambda (x) (plexil-node? x)) forms))
         (node-bodies (filter (lambda (x) (plexil-node-body? x)) forms))
@@ -1218,7 +1231,7 @@
 (pdefine pl (When when) (condition form &rest forms) 1 node
   ;; xml * xml * list(xml) -> xml
   ("Executes actions (concurrently) when condition becomes true.  "
-   "This is essentially a //monitor//.")
+   "This is essentially a ''monitor''.")
   (pl-list-node
    (pl-start-condition condition)
    (apply #'pl-list (cons form forms))))
@@ -1252,7 +1265,7 @@
 (pdefine pl (Resource resource) (name priority &rest clauses) 0 nil
   ;; (xml + string) * (xml + int) * list(xml) -> xml
   ("A Resource specification.  Name and priority are required. "
-   "The remaining clauses can be {{ResourceUpperBound}} or {{ResourceLowerBound}}")
+   "The remaining clauses can be <tt>ResourceUpperBound</tt> or <tt>ResourceLowerBound</tt>")
   (let ((resource-name (plexil-normalize-string-expression name)))
   (xml "Resource"
        (cons (xml "ResourceName" resource-name)
@@ -1309,7 +1322,7 @@
          (nodeid node-state-value timepoint) 1 nil
   ;; string * string * string -> xml
   ("Returns the amount of time since the specified state of the specified node "
-   "has either started or ended.  {{node-state-value must be one of INACTIVE, "
+   "has either started or ended.  <tt>node-state-value must be one of INACTIVE, "
    "WAITING, FINISHED, ITERATION_ENDED, EXECUTING, FAILING, FINISHING. "
    "Timepoint must be one of START, END.")
   (xml "NodeTimepointValue"
@@ -1352,7 +1365,7 @@
 
 (pdefine ps (InitialState initial-state) (&rest forms) 0 nil ; list(xml) -> xml
   ("Defines the initial state section of the script, which is optional. "
-   "It consists of {{State}} forms.")
+   "It consists of <tt>State</tt> forms.")
   (xml "InitialState" forms))
 
 (pdefine ps (Script script) (&rest forms) 0 nil        ; list(xml) -> xml
@@ -1361,9 +1374,9 @@
   (xml "Script" forms))
 
 (insert-plexil-heading
- "NOTE: In the following 5 forms that have a {{value}} or {{result}} argument,  "
+ "NOTE: In the following 5 forms that have a <tt>value</tt> or <tt>result</tt> argument,  "
  "the argument may be either a single value or a list of values.  The list "
- "must not be quoted, e.g. {{(1 2 3)}}.  A list indicates that that return value "
+ "must not be quoted, e.g. <tt>(1 2 3)</tt>.  A list indicates that that return value "
  "or result is an array.  Its elements must all be of the same type.  For boolean "
  "arrays, you must use 0 and 1 for true and false, respectively.")
 
@@ -1390,7 +1403,7 @@
    "returning the given result(s) of given type.  IMPORTANT NOTE: "
    "An acknowledgment should return only 0 or 1 (false or true). "
    "If your plan is awaiting an actual return value, you must have the script "
-   "return this value //before// acknowledgement.  I.e. put one of the "
+   "return this value ''before'' acknowledgement.  I.e. put one of the "
    "following two forms before this one.")
   `(plexil-command-form "CommandAck" ,name ,type ',result ',params))
 
@@ -1412,7 +1425,7 @@
        (list (cons "name" name) (cons "type" type))))
 
 (pdefine ps (Param param) (value &optional type) 1 nil ; any * opt(string) -> xml
-  "Defines a parameter //value//, with optional type."
+  "Defines a parameter ''value'', with optional type."
   (xml "Param" value (if type (list (cons "type" type)))))
 
 (pdefine ps (ParamString param-string) (str &rest strs) 1 nil
@@ -1443,7 +1456,7 @@
 (pdefine-syntax ps (CommandSuccess command-success) (name &rest params) 1 nil
   ("Sends a COMMAND_SUCCESS handle for the given command invocation. "
    "NOTE: If your plan is awaiting a return value from the command itself, "
-   "you must return this (using the {{Command}} form) //before// "
+   "you must return this (using the <tt>Command</tt> form) ''before'' "
    "this handle.")
   `(plexil-command-form "CommandAck" ,name "string" "COMMAND_SUCCESS" ',params))
 
