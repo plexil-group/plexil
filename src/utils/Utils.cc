@@ -27,15 +27,35 @@
 // N.B.: This #include *must* come before any other #include statements!
 #include "Utils.hh"
 
+#include "CommonDefs.hh"
+#include "LabelStr.hh"
+#include "StoredArray.hh"
+
+#include <limits>
 #include <sstream>
 
 namespace PLEXIL {
 
   std::string toString(double value) {
-    std::stringstream s;
+    std::ostringstream s;
     s << value;
     return(s.str());
   }
+
+  /**
+   * @brief Utility to convert PLEXIL internal representation to string
+   */
+  std::string plexilValueToString(double value) {
+    if (StoredArray::isKey(value))
+      return StoredArray(value).toString();
+    else if (LabelStr::isString(value))
+      return std::string(LabelStr(value).toString());
+    else if (value == UNKNOWN())
+      return std::string("UNKNOWN");
+    // must be a number...
+    return toString(value);
+  }
+
 
    bool compareIgnoreCase(const std::string & s1,
                           const std::string & s2)
@@ -81,4 +101,8 @@ namespace PLEXIL {
   DEFINE_GLOBAL_CONST(int32_t, g_infiniteTime, (g_maxInt() + 1));
   DEFINE_GLOBAL_CONST(double, g_epsilon, 0.00001);
   DEFINE_GLOBAL_CONST(double, g_maxReal, ((double) DBL_MAX));
+  DEFINE_GLOBAL_CONST(double, UNKNOWN,
+		      std::numeric_limits<double>::has_infinity ?
+		      std::numeric_limits<double>::infinity() :
+		      std::numeric_limits<double>::max());
 }

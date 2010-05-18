@@ -48,9 +48,15 @@
 #include <cstdlib>
 
 #include "Id.hh"
+#include "CommonDefs.hh" // for DECLARE_GLOBAL_CONST
 
 namespace PLEXIL {
 
+  DECLARE_GLOBAL_CONST(int32_t, g_maxInt);
+  DECLARE_GLOBAL_CONST(int32_t, g_infiniteTime);
+  DECLARE_GLOBAL_CONST(double, g_epsilon);
+  DECLARE_GLOBAL_CONST(double, g_maxReal);
+  DECLARE_GLOBAL_CONST(double, UNKNOWN);
 
   /**
    * Utility class that might get promoted later.
@@ -78,6 +84,11 @@ namespace PLEXIL {
   std::string toString(double value);
 
   /**
+   * @brief Utility to convert PLEXIL internal representation to string
+   */
+  std::string plexilValueToString(double value);
+
+  /**
    * @brief Case insensitive string compare.
    */
   bool compareIgnoreCase(const std::string & s1,
@@ -103,28 +114,6 @@ namespace PLEXIL {
     return true;
   }
 
-  template<class TYPE1, class TYPE>
-  bool allValid(const std::map<TYPE1, Id<TYPE> >& objects){
-    typedef typename std::map<TYPE1, Id<TYPE> >::const_iterator object_iterator;
-    for(object_iterator it = objects.begin(); it != objects.end(); ++it){
-      Id<TYPE> id = it->second;
-      if(id.isNoId() || id.isInvalid())
-        return false;
-    }
-    return true;
-  }
-
-//   template<class TYPE>
-//   bool allValid(const std::set<Id<TYPE>, EntityComparator<Id<Entity> > >& objects){
-//     typedef typename std::set<Id<TYPE> >::const_iterator object_iterator;
-//     for(object_iterator it = objects.begin(); it != objects.end(); ++it){
-//       Id<TYPE> id = *it;
-//       if(id.isNoId() || id.isInvalid())
-//         return false;
-//     }
-//     return true;
-//   }
-
   template<class TYPE>
   void cleanup(std::set<Id<TYPE> >& objects){
     typedef typename std::set<Id<TYPE> >::const_iterator object_iterator;
@@ -135,28 +124,6 @@ namespace PLEXIL {
     }
     objects.clear();
   }
-
-//   template<class TYPE>
-//   void cleanup(std::set<Id<TYPE>, EntityComparator<Id<TYPE> > >& objects){
-//     typedef typename std::set<Id<TYPE>, EntityComparator<Id<TYPE> > >::const_iterator object_iterator;
-//     object_iterator it = objects.begin();
-//     while(it != objects.end()){
-//       check_error((*it).isValid());
-//       delete (TYPE*) (*it++);
-//     }
-//     objects.clear();
-//   }
-
-//   template<class TYPE>
-//   void cleanup(std::set<Id<TYPE>, EntityComparator<Id<Entity> > >& objects){
-//     typedef typename std::set<Id<TYPE>, EntityComparator<Id<Entity> > >::const_iterator object_iterator;
-//     object_iterator it = objects.begin();
-//     while(it != objects.end()){
-//       check_error((*it).isValid());
-//       delete (TYPE*) (*it++);
-//     }
-//     objects.clear();
-//   }
 
   template<class TYPE>
   void cleanup(std::vector<Id<TYPE> >& objects){
@@ -169,34 +136,6 @@ namespace PLEXIL {
     objects.clear();
   }
 
-
-  template<class TYPE>
-  void discardAll(std::vector<Id<TYPE> >& objects){
-    typedef typename std::vector<Id<TYPE> >::const_iterator object_iterator;
-    object_iterator it = objects.begin();
-    while(it != objects.end()){
-      checkError((*it).isValid(), *it);
-      Id<TYPE> elem = *it;
-      elem->discard();
-      ++it;
-    }
-    objects.clear();
-  }
-
-  template<class TYPE>
-  void discardAll(std::list<Id<TYPE> >& objects){
-    typedef typename std::list<Id<TYPE> >::const_iterator object_iterator;
-    object_iterator it = objects.begin();
-    while(it != objects.end()){
-      Id<TYPE> object = *it;
-      if(!object.isNoId()){
-	check_error(object.isValid());
-	object->discard();
-      }
-      ++it;
-    }
-    objects.clear();
-  }
 
   template<class TYPE>
   void cleanup(std::list<Id<TYPE> >& objects){
