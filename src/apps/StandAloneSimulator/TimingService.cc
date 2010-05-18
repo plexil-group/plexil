@@ -31,6 +31,9 @@
 #include "Error.hh"
 
 #include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 TimingService::TimerCallbackFn TimingService::s_Callback = NULL;

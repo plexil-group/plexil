@@ -25,6 +25,7 @@
 */
 
 #include "InterfaceSchema.hh"
+#include <cstring>
 
 namespace PLEXIL
 {

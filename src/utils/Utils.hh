@@ -45,6 +45,7 @@
 #include <list>
 #include <string>
 #include <cfloat> // for DBL_MAX
+#include <cstdlib>
 
 #include "Id.hh"
 

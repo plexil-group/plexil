@@ -118,7 +118,8 @@ namespace PLEXIL
     //abort the given command with the given arguments.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name, 
 		     const std::list<double>& args, 
-		     ExpressionId ack, ExpressionId ack);
+		     ExpressionId dest,
+		     ExpressionId ack);
     
   private:
     // deliberately unimplemented

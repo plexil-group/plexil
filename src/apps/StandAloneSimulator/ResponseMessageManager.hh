@@ -28,6 +28,7 @@
 
 #include <string>
 #include <map>
+#include <sys/time.h>
 
 #include "simdefs.hh"
 

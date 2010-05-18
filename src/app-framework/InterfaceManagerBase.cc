@@ -28,6 +28,7 @@
 #include "Debug.hh"
 #include "Expression.hh"
 
+#include <cstring>
 #include <sstream>
 #include <iomanip>
 

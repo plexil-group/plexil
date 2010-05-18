@@ -30,6 +30,8 @@
 #include "StoredArray.hh"
 #include "CommonDefs.hh"
 
+#include <cstring>
+
 // ooid classes
 #include "uuid.h"
 #include "devrand.h"

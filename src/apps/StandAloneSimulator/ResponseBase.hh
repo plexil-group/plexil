@@ -29,6 +29,7 @@
 #include "ResponseMessageManager.hh"
 
 #include <string>
+#include <sys/time.h>
 
 class ResponseMessage;
 

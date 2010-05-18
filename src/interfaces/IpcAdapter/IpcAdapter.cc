@@ -33,6 +33,7 @@
 #include "PlexilXmlParser.hh"
 #include "StoredArray.hh"
 #include "ThreadSpawn.hh"
+#include <cstring>
 #include <string>
 #include <sstream>
 
