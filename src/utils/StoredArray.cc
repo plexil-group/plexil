@@ -27,6 +27,7 @@
 #include "StoredArray.hh"
 #include "LabelStr.hh"
 #include "Error.hh"
+#include "Utils.hh" // for UNKNOWN()
 
 namespace PLEXIL
 {
@@ -215,12 +216,7 @@ namespace PLEXIL
   
   std::string StoredArray::toString() const
   {
-    // *** KLUDGE ALERT ***
-    // This is a local copy of the class constant Expression::UNKNOWN()
-    const double MY_UNKNOWN = (std::numeric_limits<double>::has_infinity ?
-			       std::numeric_limits<double>::infinity() :
-			       std::numeric_limits<double>::max());
-    std::stringstream retval;
+    std::ostringstream retval;
 
     retval << "Array: [";
     const std::vector<double>& theVector = getConstArray();
@@ -229,7 +225,7 @@ namespace PLEXIL
         const double value = theVector[i];
         if (i != 0)
           retval << ", ";
-        if (value == MY_UNKNOWN)
+        if (value == UNKNOWN())
           retval << "<unknown>";
         else if (LabelStr::isString(value))
           retval << '\"' << LabelStr(value).toString() << '\"';
