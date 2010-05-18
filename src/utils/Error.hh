@@ -118,7 +118,7 @@
  */
 #define assertTrueMsg(cond, msg) { \
   if (!(cond)) { \
-    std::stringstream sstr; \
+    std::ostringstream sstr; \
     sstr << msg; \
     Error(#cond, sstr.str(), __FILE__, __LINE__).handleAssert(); \
   } \
@@ -199,21 +199,21 @@
 
 #define checkError(cond, msg) { \
   if (!(cond)) { \
-    std::stringstream sstr; \
+    std::ostringstream sstr; \
     sstr << msg; \
     Error(#cond, sstr.str(), __FILE__, __LINE__).handleAssert(); \
   } \
 }
 
 #define warn(msg) {                                             \
-      std::stringstream sstr;                                   \
+      std::ostringstream sstr;                                   \
       sstr << msg;                                              \
       Error::printWarning(sstr.str(), __FILE__, __LINE__);      \
 }
 
 #define condWarning(cond, msg) { \
   if (!(cond)) { \
-    std::stringstream sstr; \
+    std::ostringstream sstr; \
     sstr << msg; \
     Error::printWarning(sstr.str(), __FILE__, __LINE__); \
   } \
