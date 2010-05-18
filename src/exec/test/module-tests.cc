@@ -26,6 +26,7 @@
 
 #include "exec-test-module.hh"
 #include <fstream>
+#include <cstring>
 #include <string>
 #include "Debug.hh"
 
