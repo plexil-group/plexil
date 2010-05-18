@@ -39,7 +39,7 @@
 #include "StoredArray.hh"
 #include "PlexilPlan.hh"
 #include "ExecDefs.hh"
-#include "CommonDefs.hh"
+#include "Utils.hh"
 
 #include <limits>
 #include <list>
