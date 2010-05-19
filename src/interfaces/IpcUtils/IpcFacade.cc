@@ -28,7 +28,7 @@
 #include "IpcFacade.hh"
 #include "Debug.hh"
 #include "StoredArray.hh"
-#include "CommonDefs.hh"
+#include "Utils.hh"
 
 #include <cstring>
 
