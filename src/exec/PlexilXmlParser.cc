@@ -105,50 +105,50 @@ const std::string SELF_VAL("self");
 //
 
 inline bool testTagPart(const string& t, const TiXmlNode* e) {
-	return std::string(e->Value()).find(t) != std::string::npos;
+        return std::string(e->Value()).find(t) != std::string::npos;
 }
 
 inline bool testTag(const string& t, const TiXmlNode* e) {
-	return t == e->Value();
+        return t == e->Value();
 }
 
 inline bool notEmpty(const TiXmlNode* e) {
-	return e->FirstChild() != NULL && e->FirstChild()->Value() != NULL
-			&& !std::string(e->FirstChild()->Value()).empty();
+        return e->FirstChild() != NULL && e->FirstChild()->Value() != NULL
+                        && !std::string(e->FirstChild()->Value()).empty();
 }
 
 inline bool hasChildElement(const TiXmlNode* e) {
-	return notEmpty(e) && e->FirstChildElement() != NULL;
+        return notEmpty(e) && e->FirstChildElement() != NULL;
 }
 
 void checkTag(const string& t, const TiXmlNode* e) {
-	checkParserException(testTag(t, e),
-			"(line " << e->Row() << ", column " << e->Column() <<
-			") XML parsing error: Expected <" << t << "> element, but got <" << e->Value() << "> instead.");
+        checkParserException(testTag(t, e),
+                        "(line " << e->Row() << ", column " << e->Column() <<
+                        ") XML parsing error: Expected <" << t << "> element, but got <" << e->Value() << "> instead.");
 }
 
 void checkAttr(const string& t, const TiXmlElement* e) {
-	checkParserException(e->Attribute(t) != NULL,
-			"(line " << e->Row() << ", column " << e->Column() <<
-			") XML parsing error: Expected an attribute named '" << t << "' in element <" << e->Value() << ">");
+        checkParserException(e->Attribute(t) != NULL,
+                        "(line " << e->Row() << ", column " << e->Column() <<
+                        ") XML parsing error: Expected an attribute named '" << t << "' in element <" << e->Value() << ">");
 }
 
 void checkTagPart(const string& t, const TiXmlNode* e) {
-	checkParserException(testTagPart(t, e),
-			"(line " << e->Row() << ", column " << e->Column() <<
-			") XML parsing error: Expected an element containing '" << t << "', but instead got <" << e->Value() << ">");
+        checkParserException(testTagPart(t, e),
+                        "(line " << e->Row() << ", column " << e->Column() <<
+                        ") XML parsing error: Expected an element containing '" << t << "', but instead got <" << e->Value() << ">");
 }
 
 void checkNotEmpty(const TiXmlNode* e) {
-	checkParserException(notEmpty(e),
-			"(line " << e->Row() << ", column " << e->Column() <<
-			") XML parsing error: Expected a non-empty text child of <" << e->Value() << ">");
+        checkParserException(notEmpty(e),
+                        "(line " << e->Row() << ", column " << e->Column() <<
+                        ") XML parsing error: Expected a non-empty text child of <" << e->Value() << ">");
 }
 
 void checkHasChildElement(const TiXmlNode* e) {
-	checkParserException(hasChildElement(e),
-			"(line " << e->Row() << ", column " << e->Column() <<
-			") XML parsing error: Expected a child element of <" << e->Value() << ">");
+        checkParserException(hasChildElement(e),
+                        "(line " << e->Row() << ", column " << e->Column() <<
+                        ") XML parsing error: Expected a child element of <" << e->Value() << ">");
 }
 
 //
@@ -160,462 +160,462 @@ bool PlexilXmlParser::s_init = true;
   std::map<std::string, PlexilBodyParser*> *PlexilXmlParser::s_bodyParsers = NULL;
 
 PlexilNodeRefId PlexilInternalVarParser::parseNodeReference(
-		const TiXmlElement* xml) {
-	const TiXmlElement* child = xml->FirstChildElement(NODEID_TAG);
-	//if we have an old-style node reference, we have to do a lot of work!
-	if (child != NULL)
-		return PlexilXmlParser::getNodeRef(child->FirstChild()->Value(),
-				PlexilXmlParser::getNodeParent(xml));
-	else if ((child = xml->FirstChildElement(NODEREF_TAG)) != NULL)
-		return PlexilXmlParser::parseNodeRef(child);
-	else {
-		checkParserException(ALWAYS_FAIL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: Internal variable reference lacks "
-				<< NODEID_TAG << " or "
-				<< NODEREF_TAG << " tag");
+                const TiXmlElement* xml) {
+        const TiXmlElement* child = xml->FirstChildElement(NODEID_TAG);
+        //if we have an old-style node reference, we have to do a lot of work!
+        if (child != NULL)
+                return PlexilXmlParser::getNodeRef(child->FirstChild()->Value(),
+                                PlexilXmlParser::getNodeParent(xml));
+        else if ((child = xml->FirstChildElement(NODEREF_TAG)) != NULL)
+                return PlexilXmlParser::parseNodeRef(child);
+        else {
+                checkParserException(ALWAYS_FAIL,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: Internal variable reference lacks "
+                                << NODEID_TAG << " or "
+                                << NODEREF_TAG << " tag");
 
 
-		return PlexilNodeRefId::noId();
-	}
+                return PlexilNodeRefId::noId();
+        }
 }
 
 class PlexilOutcomeVarParser: public PlexilInternalVarParser {
 public:
-	PlexilOutcomeVarParser() :
-		PlexilInternalVarParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		PlexilOutcomeVar* retval = new PlexilOutcomeVar();
-		retval->setRef(parseNodeReference(xml));
-		return retval->getId();
-	}
+        PlexilOutcomeVarParser() :
+                PlexilInternalVarParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                PlexilOutcomeVar* retval = new PlexilOutcomeVar();
+                retval->setRef(parseNodeReference(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilFailureVarParser: public PlexilInternalVarParser {
 public:
-	PlexilFailureVarParser() :
-		PlexilInternalVarParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		PlexilFailureVar* retval = new PlexilFailureVar();
-		retval->setRef(parseNodeReference(xml));
-		return retval->getId();
-	}
+        PlexilFailureVarParser() :
+                PlexilInternalVarParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                PlexilFailureVar* retval = new PlexilFailureVar();
+                retval->setRef(parseNodeReference(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilStateVarParser: public PlexilInternalVarParser {
 public:
-	PlexilStateVarParser() :
-		PlexilInternalVarParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		PlexilStateVar* retval = new PlexilStateVar();
-		retval->setRef(parseNodeReference(xml));
-		return retval->getId();
-	}
+        PlexilStateVarParser() :
+                PlexilInternalVarParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                PlexilStateVar* retval = new PlexilStateVar();
+                retval->setRef(parseNodeReference(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilCommandHandleVarParser: public PlexilInternalVarParser {
 public:
-	PlexilCommandHandleVarParser() :
-		PlexilInternalVarParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		PlexilCommandHandleVar* retval = new PlexilCommandHandleVar();
-		retval->setRef(parseNodeReference(xml));
-		return retval->getId();
-	}
+        PlexilCommandHandleVarParser() :
+                PlexilInternalVarParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                PlexilCommandHandleVar* retval = new PlexilCommandHandleVar();
+                retval->setRef(parseNodeReference(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilTimepointVarParser: public PlexilInternalVarParser {
 public:
-	PlexilTimepointVarParser() :
-		PlexilInternalVarParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		PlexilTimepointVar* retval = new PlexilTimepointVar();
-		retval->setRef(parseNodeReference(xml));
+        PlexilTimepointVarParser() :
+                PlexilInternalVarParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                PlexilTimepointVar* retval = new PlexilTimepointVar();
+                retval->setRef(parseNodeReference(xml));
 
-		const TiXmlElement* state = xml->FirstChildElement(STATEVAL_TAG);
-		checkParserException(state != NULL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: Timepoint missing " << STATEVAL_TAG << " tag");
-		checkNotEmpty(state);
-		retval->setState(state->FirstChild()->Value());
+                const TiXmlElement* state = xml->FirstChildElement(STATEVAL_TAG);
+                checkParserException(state != NULL,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: Timepoint missing " << STATEVAL_TAG << " tag");
+                checkNotEmpty(state);
+                retval->setState(state->FirstChild()->Value());
 
-		const TiXmlElement* point = xml->FirstChildElement(TIMEPOINT_TAG);
-		checkParserException(point != NULL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: Timepoint missing " << TIMEPOINT_TAG << " tag");
-		checkNotEmpty(point);
-		retval->setTimepoint(point->FirstChild()->Value());
+                const TiXmlElement* point = xml->FirstChildElement(TIMEPOINT_TAG);
+                checkParserException(point != NULL,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: Timepoint missing " << TIMEPOINT_TAG << " tag");
+                checkNotEmpty(point);
+                retval->setTimepoint(point->FirstChild()->Value());
 
-		return retval->getId();
-	}
+                return retval->getId();
+        }
 };
 
 class PlexilOpParser: public PlexilExprParser {
 public:
-	PlexilOpParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		PlexilOp* retval = new PlexilOp();
-		retval->setOp(xml->Value());
-		for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
-				= child->NextSiblingElement())
-			retval->addSubExpr(PlexilXmlParser::parseExpr(child));
-		return retval->getId();
-	}
+        PlexilOpParser() :
+                PlexilExprParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                PlexilOp* retval = new PlexilOp();
+                retval->setOp(xml->Value());
+                for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
+                                = child->NextSiblingElement())
+                        retval->addSubExpr(PlexilXmlParser::parseExpr(child));
+                return retval->getId();
+        }
 };
 
 class PlexilChangeLookupParser: public PlexilExprParser {
 public:
-	PlexilChangeLookupParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(LOOKUPCHANGE_TAG, xml);
-		PlexilChangeLookup* retval = new PlexilChangeLookup();
-		retval->setState(PlexilXmlParser::parseState(xml));
-		for (const TiXmlElement* tol = xml->FirstChildElement(TOLERANCE_TAG); tol
-				!= NULL; tol = tol->NextSiblingElement(TOLERANCE_TAG)) {
-			checkHasChildElement(tol);
-			retval->addTolerance(PlexilXmlParser::parseExpr(
-					tol->FirstChildElement()));
-		}
-		return retval->getId();
-	}
+        PlexilChangeLookupParser() :
+                PlexilExprParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(LOOKUPCHANGE_TAG, xml);
+                PlexilChangeLookup* retval = new PlexilChangeLookup();
+                retval->setState(PlexilXmlParser::parseState(xml));
+                for (const TiXmlElement* tol = xml->FirstChildElement(TOLERANCE_TAG); tol
+                                != NULL; tol = tol->NextSiblingElement(TOLERANCE_TAG)) {
+                        checkHasChildElement(tol);
+                        retval->addTolerance(PlexilXmlParser::parseExpr(
+                                        tol->FirstChildElement()));
+                }
+                return retval->getId();
+        }
 };
 
 class PlexilLookupNowParser: public PlexilExprParser {
 public:
-	PlexilLookupNowParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(LOOKUPNOW_TAG, xml);
-		PlexilLookupNow* retval = new PlexilLookupNow();
-		retval->setState(PlexilXmlParser::parseState(xml));
-		return retval->getId();
-	}
+        PlexilLookupNowParser() :
+                PlexilExprParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(LOOKUPNOW_TAG, xml);
+                PlexilLookupNow* retval = new PlexilLookupNow();
+                retval->setState(PlexilXmlParser::parseState(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilArrayElementParser: public PlexilExprParser {
 public:
-	PlexilArrayElementParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(ARRAYELEMENT_TAG, xml);
+        PlexilArrayElementParser() :
+                PlexilExprParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(ARRAYELEMENT_TAG, xml);
 
-		// create an array element
+                // create an array element
 
-		PlexilArrayElement* arrayElement = new PlexilArrayElement();
+                PlexilArrayElement* arrayElement = new PlexilArrayElement();
 
-		// extract array name
+                // extract array name
 
-		const TiXmlElement* child = xml->FirstChildElement();
-		checkTag(NAME_TAG, child);
-		std::string name = child->FirstChild()->Value();
-		arrayElement->setArrayName(name);
+                const TiXmlElement* child = xml->FirstChildElement();
+                checkTag(NAME_TAG, child);
+                std::string name = child->FirstChild()->Value();
+                arrayElement->setArrayName(name);
 
-		// extract index
+                // extract index
 
-		child = child->NextSiblingElement();
-		checkTag(INDEX_TAG, child);
-		PlexilExprId indexExpr = PlexilXmlParser::parseExpr(
-				child->FirstChildElement());
-		arrayElement->addSubExpr(indexExpr);
+                child = child->NextSiblingElement();
+                checkTag(INDEX_TAG, child);
+                PlexilExprId indexExpr = PlexilXmlParser::parseExpr(
+                                child->FirstChildElement());
+                arrayElement->addSubExpr(indexExpr);
 
-		// return new array element
+                // return new array element
 
-		return arrayElement->getId();
-	}
+                return arrayElement->getId();
+        }
 };
 
 class PlexilValueParser: public PlexilExprParser {
 public:
-	PlexilValueParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		// confirm that we have a value
+        PlexilValueParser() :
+                PlexilExprParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                // confirm that we have a value
 
-		checkTagPart(VAL_TAG, xml);
+                checkTagPart(VAL_TAG, xml);
 
-		// get value (which could be empty)
+                // get value (which could be empty)
 
-		std::string tag;
-		if (xml->Value() != NULL)
-			tag = xml->Value();
+                std::string tag;
+                if (xml->Value() != NULL)
+                        tag = xml->Value();
 
-		// establish value type
+                // establish value type
 
-		std::string type = tag.substr(0, tag.find(VAL_TAG));
+                std::string type = tag.substr(0, tag.find(VAL_TAG));
 
-		// establish the value (could be empty)
+                // establish the value (could be empty)
 
-		std::string value;
-		if (xml->FirstChild() != NULL && xml->FirstChild()->Value() != NULL)
-			value = xml->FirstChild()->Value();
+                std::string value;
+                if (xml->FirstChild() != NULL && xml->FirstChild()->Value() != NULL)
+                        value = xml->FirstChild()->Value();
 
-		// return new value
-		return (new PlexilValue(PlexilXmlParser::parseValueType(type), value))->getId();
-	}
+                // return new value
+                return (new PlexilValue(PlexilXmlParser::parseValueType(type), value))->getId();
+        }
 };
 
 class PlexilArrayValueParser: public PlexilExprParser {
 public:
-	PlexilArrayValueParser() :
-	  PlexilExprParser() {
-	}
+        PlexilArrayValueParser() :
+          PlexilExprParser() {
+        }
 
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-	  // confirm that we have an array value
-	  checkTag(ARRAY_VAL_TAG, xml);
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+          // confirm that we have an array value
+          checkTag(ARRAY_VAL_TAG, xml);
 
-	  // confirm that we have an element type
-	  checkAttr(TYPE_TAG, xml);
-	  std::string valueType(xml->Attribute(TYPE_TAG.c_str()));
+          // confirm that we have an element type
+          checkAttr(TYPE_TAG, xml);
+          std::string valueType(xml->Attribute(TYPE_TAG.c_str()));
 
-	  // gather elements
-	  std::vector<std::string> values;
+          // gather elements
+          std::vector<std::string> values;
 
-	  const TiXmlElement* thisElement = xml->FirstChildElement();
-	  while (thisElement != NULL) {
-	    checkTagPart(VAL_TAG, thisElement);
-	    // Check type
-	    std::string thisElementTag(thisElement->Value());
-	    std::string thisElementType = thisElementTag.substr(0, thisElementTag.find(VAL_TAG));
-	    checkParserException(thisElementType == valueType,
-				 "(line " << thisElement->Row() << ", column " << thisElement->Column()
-				 << ") XML parsing error: Array element type '" << thisElementTag
-				 << "' in array value of type '" << valueType << "'");
+          const TiXmlElement* thisElement = xml->FirstChildElement();
+          while (thisElement != NULL) {
+            checkTagPart(VAL_TAG, thisElement);
+            // Check type
+            std::string thisElementTag(thisElement->Value());
+            std::string thisElementType = thisElementTag.substr(0, thisElementTag.find(VAL_TAG));
+            checkParserException(thisElementType == valueType,
+                                 "(line " << thisElement->Row() << ", column " << thisElement->Column()
+                                 << ") XML parsing error: Array element type '" << thisElementTag
+                                 << "' in array value of type '" << valueType << "'");
 
-	    // Get array element value
-	    const char* thisElementValue = thisElement->GetText();
-	    if (thisElementValue != NULL && strlen(thisElementValue) != 0) {
-	      values.push_back(std::string(thisElementValue));
-	    }
-	    else if (valueType == STRING_TAG) {
-	      values.push_back(std::string());
-	    }
-	    else {
-	      // parse error - empty array element not of type string
-	      checkParserException(ALWAYS_FAIL,
-				   "(line " << thisElement->Row() << ", column " << thisElement->Column() <<
-				   ") XML parsing error: Empty element value in array value of type '" << valueType << "'");
-	    }
-	  }
+            // Get array element value
+            const char* thisElementValue = thisElement->GetText();
+            if (thisElementValue != NULL && strlen(thisElementValue) != 0) {
+              values.push_back(std::string(thisElementValue));
+            }
+            else if (valueType == STRING_TAG) {
+              values.push_back(std::string());
+            }
+            else {
+              // parse error - empty array element not of type string
+              checkParserException(ALWAYS_FAIL,
+                                   "(line " << thisElement->Row() << ", column " << thisElement->Column() <<
+                                   ") XML parsing error: Empty element value in array value of type '" << valueType << "'");
+            }
+          }
 
-	  // return new value
-	  return (new PlexilArrayValue(PlexilXmlParser::parseValueType(valueType),
-				       values.size(),
-				       values))->getId();
-	}
+          // return new value
+          return (new PlexilArrayValue(PlexilXmlParser::parseValueType(valueType),
+                                       values.size(),
+                                       values))->getId();
+        }
 };
 
 class PlexilVarRefParser: public PlexilExprParser {
 public:
-	PlexilVarRefParser() :
-		PlexilExprParser() {
-	}
-	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTagPart(VAR_TAG, xml);
-		checkNotEmpty(xml);
-		PlexilVarRef* retval = new PlexilVarRef();
-		retval->setName(xml->FirstChild()->Value());
-		const char* varStart;
-		if ((varStart = strstr(xml->Value(), VAR_TAG.c_str())) != xml->Value()) {
-			std::string type(xml->Value(), varStart - xml->Value());
-			retval->setType(PlexilParser::parseValueType(type));
-		}
-		return retval->getId();
-	}
+        PlexilVarRefParser() :
+                PlexilExprParser() {
+        }
+        PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTagPart(VAR_TAG, xml);
+                checkNotEmpty(xml);
+                PlexilVarRef* retval = new PlexilVarRef();
+                retval->setName(xml->FirstChild()->Value());
+                const char* varStart;
+                if ((varStart = strstr(xml->Value(), VAR_TAG.c_str())) != xml->Value()) {
+                        std::string type(xml->Value(), varStart - xml->Value());
+                        retval->setType(PlexilParser::parseValueType(type));
+                }
+                return retval->getId();
+        }
 };
 
 class PlexilActionParser: public PlexilBodyParser {
 public:
-	void parseDest(const TiXmlElement* xml, PlexilActionBody* body)
-			throw(ParserException) {
-		for (const TiXmlElement* var = xml->FirstChildElement(); var != NULL; var
-				= var->NextSiblingElement()) {
-			std::string tag(var->Value());
-			if (tag.find(VAR_TAG) != std::string::npos) {
-				body->addDestVar(PlexilVarRefParser().parse(var));
-			} else if (tag.find(ARRAYELEMENT_TAG) != std::string::npos) {
-				body->addDestVar(PlexilArrayElementParser().parse(var));
-			}
-			continue;
-		}
-	}
+        void parseDest(const TiXmlElement* xml, PlexilActionBody* body)
+                        throw(ParserException) {
+                for (const TiXmlElement* var = xml->FirstChildElement(); var != NULL; var
+                                = var->NextSiblingElement()) {
+                        std::string tag(var->Value());
+                        if (tag.find(VAR_TAG) != std::string::npos) {
+                                body->addDestVar(PlexilVarRefParser().parse(var));
+                        } else if (tag.find(ARRAYELEMENT_TAG) != std::string::npos) {
+                                body->addDestVar(PlexilArrayElementParser().parse(var));
+                        }
+                        continue;
+                }
+        }
 };
 
 class PlexilAssignmentParser: public PlexilActionParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(ASSN_TAG, xml);
-		PlexilAssignmentBody* retval = new PlexilAssignmentBody();
-		parseDest(xml, retval);
-		const TiXmlElement* rhs = NULL;
-		for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
-				= child->NextSiblingElement()) {
-			std::string tag(child->Value());
-			std::string::size_type pos = tag.find(RHS_TAG);
-			if (pos != std::string::npos) {
-				// *** N.B. Used to try to get expression type info here,
-				// but that info is ambiguous and not used at present.
-				// So ignore it.
-				rhs = child;
-				break;
-			}
-		}
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(ASSN_TAG, xml);
+                PlexilAssignmentBody* retval = new PlexilAssignmentBody();
+                parseDest(xml, retval);
+                const TiXmlElement* rhs = NULL;
+                for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
+                                = child->NextSiblingElement()) {
+                        std::string tag(child->Value());
+                        std::string::size_type pos = tag.find(RHS_TAG);
+                        if (pos != std::string::npos) {
+                                // *** N.B. Used to try to get expression type info here,
+                                // but that info is ambiguous and not used at present.
+                                // So ignore it.
+                                rhs = child;
+                                break;
+                        }
+                }
 
-		checkParserException(rhs != NULL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: Missing RHS (return value) tags for " << xml->Value());
-		checkParserException(rhs->FirstChildElement() != NULL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: Empty RHS (return value) tags for " << xml->Value());
-		retval->setRHS(PlexilXmlParser::parseExpr(rhs->FirstChildElement()));
-		return retval->getId();
-	}
+                checkParserException(rhs != NULL,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: Missing RHS (return value) tags for " << xml->Value());
+                checkParserException(rhs->FirstChildElement() != NULL,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: Empty RHS (return value) tags for " << xml->Value());
+                retval->setRHS(PlexilXmlParser::parseExpr(rhs->FirstChildElement()));
+                return retval->getId();
+        }
 };
 
 class PlexilNodeListParser: public PlexilBodyParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(NODELIST_TAG, xml);
-		PlexilListBody* retval = new PlexilListBody();
-		for (const TiXmlElement* child = xml->FirstChildElement(NODE_TAG); child
-				!= NULL; child = child->NextSiblingElement(NODE_TAG))
-			retval->addChild(PlexilXmlParser::parseNode(child));
-		return retval->getId();
-	}
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(NODELIST_TAG, xml);
+                PlexilListBody* retval = new PlexilListBody();
+                for (const TiXmlElement* child = xml->FirstChildElement(NODE_TAG); child
+                                != NULL; child = child->NextSiblingElement(NODE_TAG))
+                        retval->addChild(PlexilXmlParser::parseNode(child));
+                return retval->getId();
+        }
 };
 // parse a library node call
 
 class PlexilLibraryNodeCallParser: public PlexilBodyParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(LIBRARYNODECALL_TAG, xml);
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(LIBRARYNODECALL_TAG, xml);
 
-		// get node id
+                // get node id
 
-		const TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
-		checkParserException(nodeIdXml != NULL,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: Missing <NodeId> element in library call.");
-		std::string nodeId(nodeIdXml->FirstChild()->Value());
-		checkParserException(!nodeId.empty(),
-				"(line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
-				") XML parsing error: Empty <NodeId> element in library call.");
+                const TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
+                checkParserException(nodeIdXml != NULL,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: Missing <NodeId> element in library call.");
+                std::string nodeId(nodeIdXml->FirstChild()->Value());
+                checkParserException(!nodeId.empty(),
+                                "(line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
+                                ") XML parsing error: Empty <NodeId> element in library call.");
 
-		// create lib node call node body
+                // create lib node call node body
 
-		PlexilLibNodeCallBody* body = new PlexilLibNodeCallBody(nodeId);
+                PlexilLibNodeCallBody* body = new PlexilLibNodeCallBody(nodeId);
 
-		// collect the variable alias information
+                // collect the variable alias information
 
-		for (const TiXmlElement* child = xml->FirstChildElement(ALIAS_TAG); child
-				!= NULL; child = child->NextSiblingElement(ALIAS_TAG)) {
-			// get library node parameter
+                for (const TiXmlElement* child = xml->FirstChildElement(ALIAS_TAG); child
+                                != NULL; child = child->NextSiblingElement(ALIAS_TAG)) {
+                        // get library node parameter
 
-			const TiXmlElement* libParamXml = child->FirstChildElement(
-					NODE_PARAMETER_TAG);
-			checkParserException(libParamXml != NULL,
-					"(line " << xml->Row() << ", column " << xml->Column() <<
-					") XML parsing library error: Missing <NodeParameter> element in library call.");
-			std::string libParam(libParamXml->FirstChild()->Value());
-			checkParserException(!libParam.empty(),
-					"(line " << libParamXml->Row() << ", column " << libParamXml->Column() <<
-					") XML parsing library error: Empty <NodeParameter> element in library call.");
+                        const TiXmlElement* libParamXml = child->FirstChildElement(
+                                        NODE_PARAMETER_TAG);
+                        checkParserException(libParamXml != NULL,
+                                        "(line " << xml->Row() << ", column " << xml->Column() <<
+                                        ") XML parsing library error: Missing <NodeParameter> element in library call.");
+                        std::string libParam(libParamXml->FirstChild()->Value());
+                        checkParserException(!libParam.empty(),
+                                        "(line " << libParamXml->Row() << ", column " << libParamXml->Column() <<
+                                        ") XML parsing library error: Empty <NodeParameter> element in library call.");
 
-			// get node parameter value
+                        // get node parameter value
 
-			PlexilExprId value = PlexilXmlParser::parseExpr(
-					libParamXml->NextSiblingElement());
+                        PlexilExprId value = PlexilXmlParser::parseExpr(
+                                        libParamXml->NextSiblingElement());
 
-			// add alias to body
+                        // add alias to body
 
-			body->addAlias(libParam, value);
-		}
-		// return lib node call node body
+                        body->addAlias(libParam, value);
+                }
+                // return lib node call node body
 
-		return body->getId();
-	}
+                return body->getId();
+        }
 };
 
 class PlexilCommandParser: public PlexilActionParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(CMD_TAG, xml);
-		PlexilCommandBody* retval = new PlexilCommandBody();
-		parseDest(xml, retval);
-		retval->setState(PlexilXmlParser::parseState(xml));
-		retval->setResource(PlexilXmlParser::parseResource(xml));
-		return retval->getId();
-	}
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(CMD_TAG, xml);
+                PlexilCommandBody* retval = new PlexilCommandBody();
+                parseDest(xml, retval);
+                retval->setState(PlexilXmlParser::parseState(xml));
+                retval->setResource(PlexilXmlParser::parseResource(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilFunctionCallParser: public PlexilActionParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(FUNCCALL_TAG, xml);
-		PlexilFunctionCallBody* retval = new PlexilFunctionCallBody();
-		parseDest(xml, retval);
-		retval->setState(PlexilXmlParser::parseState(xml));
-		return retval->getId();
-	}
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(FUNCCALL_TAG, xml);
+                PlexilFunctionCallBody* retval = new PlexilFunctionCallBody();
+                parseDest(xml, retval);
+                retval->setState(PlexilXmlParser::parseState(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilPairsParser: public PlexilBodyParser {
 public:
-	PlexilUpdateId parsePairs(const TiXmlElement* xml) throw(ParserException) {
-		PlexilUpdateId retval = (new PlexilUpdate())->getId();
-		for (const TiXmlElement* child = xml->FirstChildElement(PAIR_TAG); child
-				!= NULL; child = child->NextSiblingElement(PAIR_TAG)) {
-			checkNotEmpty(child->FirstChildElement(NAME_TAG));
-			std::string name =
-					child->FirstChildElement(NAME_TAG)->FirstChild()->Value();
-			const TiXmlElement* value = child->FirstChildElement();
-			while (value != NULL && value->Value() == NAME_TAG)
-				value = value->NextSiblingElement();
-			checkParserException(value != NULL,
-					"(line " << child->Row() << ", column " << child->Column() <<
-					") XML parsing error: No update value in pair for variable '" << name << "'");
-			debugMsg("PlexilXml:parsePairs", "Parsed pair {" << name << ", " << *value << "}");
-			retval->addPair(name, PlexilXmlParser::parseExpr(value));
-		}
-		return retval->getId();
-	}
+        PlexilUpdateId parsePairs(const TiXmlElement* xml) throw(ParserException) {
+                PlexilUpdateId retval = (new PlexilUpdate())->getId();
+                for (const TiXmlElement* child = xml->FirstChildElement(PAIR_TAG); child
+                                != NULL; child = child->NextSiblingElement(PAIR_TAG)) {
+                        checkNotEmpty(child->FirstChildElement(NAME_TAG));
+                        std::string name =
+                                        child->FirstChildElement(NAME_TAG)->FirstChild()->Value();
+                        const TiXmlElement* value = child->FirstChildElement();
+                        while (value != NULL && value->Value() == NAME_TAG)
+                                value = value->NextSiblingElement();
+                        checkParserException(value != NULL,
+                                        "(line " << child->Row() << ", column " << child->Column() <<
+                                        ") XML parsing error: No update value in pair for variable '" << name << "'");
+                        debugMsg("PlexilXml:parsePairs", "Parsed pair {" << name << ", " << *value << "}");
+                        retval->addPair(name, PlexilXmlParser::parseExpr(value));
+                }
+                return retval->getId();
+        }
 };
 
 class PlexilUpdateParser: public PlexilPairsParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(UPDATE_TAG, xml);
-		PlexilUpdateBody* retval = new PlexilUpdateBody();
-		if (xml->FirstChildElement(PAIR_TAG) != NULL)
-			retval->setUpdate(parsePairs(xml));
-		return retval->getId();
-	}
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(UPDATE_TAG, xml);
+                PlexilUpdateBody* retval = new PlexilUpdateBody();
+                if (xml->FirstChildElement(PAIR_TAG) != NULL)
+                        retval->setUpdate(parsePairs(xml));
+                return retval->getId();
+        }
 };
 
 class PlexilRequestParser: public PlexilPairsParser {
 public:
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-		checkTag(REQ_TAG, xml);
-		PlexilRequestBody* retval = new PlexilRequestBody();
-		if (xml->FirstChildElement(PAIR_TAG) != NULL)
-			retval->setUpdate(parsePairs(xml));
-		const TiXmlElement* ref = xml->FirstChildElement(NODEREF_TAG);
-		if (ref != NULL)
-			retval->setParent(PlexilXmlParser::parseNodeRef(ref));
-		return retval->getId();
-	}
+        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+                checkTag(REQ_TAG, xml);
+                PlexilRequestBody* retval = new PlexilRequestBody();
+                if (xml->FirstChildElement(PAIR_TAG) != NULL)
+                        retval->setUpdate(parsePairs(xml));
+                const TiXmlElement* ref = xml->FirstChildElement(NODEREF_TAG);
+                if (ref != NULL)
+                        retval->setParent(PlexilXmlParser::parseNodeRef(ref));
+                return retval->getId();
+        }
 };
 
 void PlexilXmlParser::registerParsers() 
@@ -623,12 +623,12 @@ void PlexilXmlParser::registerParsers()
   s_bodyParsers = new std::map<std::string, PlexilBodyParser*>();
   s_bodyParsers->insert(std::make_pair(ASSN_TAG, new PlexilAssignmentParser()));
   s_bodyParsers->insert(std::make_pair(NODELIST_TAG,
-				      new PlexilNodeListParser()));
+                                      new PlexilNodeListParser()));
   s_bodyParsers->insert(std::make_pair(LIBRARYNODECALL_TAG,
-				      new PlexilLibraryNodeCallParser()));
+                                      new PlexilLibraryNodeCallParser()));
   s_bodyParsers->insert(std::make_pair(CMD_TAG, new PlexilCommandParser()));
   s_bodyParsers->insert(std::make_pair(FUNCCALL_TAG,
-				      new PlexilFunctionCallParser()));
+                                      new PlexilFunctionCallParser()));
   s_bodyParsers->insert(std::make_pair(UPDATE_TAG, new PlexilUpdateParser()));
   s_bodyParsers->insert(std::make_pair(REQ_TAG, new PlexilRequestParser()));
 
@@ -644,15 +644,15 @@ void PlexilXmlParser::registerParsers()
   s_exprParsers->insert(std::make_pair(BLOB_TAG + VAR_TAG, varRef));
 
   s_exprParsers->insert(std::make_pair(NODE_OUTCOME_TAG + VAR_TAG,
-				      new PlexilOutcomeVarParser()));
+                                      new PlexilOutcomeVarParser()));
   s_exprParsers->insert(std::make_pair(NODE_FAILURE_TAG + VAR_TAG,
-				      new PlexilFailureVarParser()));
+                                      new PlexilFailureVarParser()));
   s_exprParsers->insert(std::make_pair(NODE_STATE_TAG + VAR_TAG,
-				      new PlexilStateVarParser()));
+                                      new PlexilStateVarParser()));
   s_exprParsers->insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAR_TAG,
-				      new PlexilCommandHandleVarParser()));
+                                      new PlexilCommandHandleVarParser()));
   s_exprParsers->insert(std::make_pair("NodeTimepoint" + VAL_TAG,
-				      new PlexilTimepointVarParser()));
+                                      new PlexilTimepointVarParser()));
 
   PlexilExprParser* val = new PlexilValueParser();
   s_exprParsers->insert(std::make_pair(INT_TAG + VAL_TAG, val));
@@ -666,11 +666,11 @@ void PlexilXmlParser::registerParsers()
   s_exprParsers->insert(std::make_pair(NODE_STATE_TAG + VAL_TAG, val));
   s_exprParsers->insert(std::make_pair(NODE_COMMAND_HANDLE_TAG + VAL_TAG, val));
   s_exprParsers->insert(std::make_pair(LOOKUPNOW_TAG,
-				      new PlexilLookupNowParser()));
+                                      new PlexilLookupNowParser()));
   s_exprParsers->insert(std::make_pair(LOOKUPCHANGE_TAG,
-				      new PlexilChangeLookupParser()));
+                                      new PlexilChangeLookupParser()));
   s_exprParsers->insert(std::make_pair(ARRAYELEMENT_TAG,
-				      new PlexilArrayElementParser()));
+                                      new PlexilArrayElementParser()));
 
   PlexilExprParser* op = new PlexilOpParser();
   s_exprParsers->insert(std::make_pair("AND", op));
@@ -712,211 +712,213 @@ PlexilXmlParser::PlexilXmlParser()
 }
 
 PlexilXmlParser::PlexilXmlParser(const std::string& str, bool isFile)
-		throw(ParserException) :
-	m_delete(true) {
-	if (isFile) {
-		TiXmlDocument* doc = new TiXmlDocument(str);
-		if (!doc->LoadFile()) {
-			checkParserException(ALWAYS_FAIL, "Error loading '" << str << "': " << doc->ErrorDesc());
-		}
-		m_root = doc->RootElement()->FirstChildElement(NODE_TAG);
-	} else
-		m_root = initXml(str);
-	checkParserException(m_root != NULL, "No node root in " << str);
-	if (s_init) {
-		registerParsers();
-		s_init = false;
-	}
+                throw(ParserException) :
+        m_delete(true) {
+        if (isFile) {
+                TiXmlDocument* doc = new TiXmlDocument(str);
+                if (!doc->LoadFile()) {
+                        checkParserException(ALWAYS_FAIL, "Error loading '" << str << "': " << doc->ErrorDesc());
+                }
+                m_root = doc->RootElement()->FirstChildElement(NODE_TAG);
+        } else
+                m_root = initXml(str);
+        checkParserException(m_root != NULL, "No node root in " << str);
+        if (s_init) {
+                registerParsers();
+                s_init = false;
+        }
 }
 
 PlexilXmlParser::PlexilXmlParser(TiXmlElement* xml) :
-	m_root(xml), m_delete(false) {
-	if (s_init) {
-		registerParsers();
-		s_init = false;
-	}
+        m_root(xml), m_delete(false) {
+        if (s_init) {
+                registerParsers();
+                s_init = false;
+        }
 }
 
 PlexilNodeId PlexilXmlParser::parse(const std::string& str, bool isFile)
-		throw(ParserException) {
-	if (m_delete && m_root != NULL)
-		delete m_root;
-	m_delete = true;
-	if (isFile) {
-		TiXmlDocument* doc = new TiXmlDocument(str);
-		if (!doc->LoadFile()) {
-			checkParserException(ALWAYS_FAIL, "Error loading '" << str << "': " << doc->ErrorDesc());
-		}
-		m_root = doc->RootElement()->FirstChildElement(NODE_TAG);
-	} else
-		m_root = initXml(str);
-	checkParserException(m_root != NULL, "No node root in " << str);
-	PlexilNodeId result = parse();
-	if (result->fileName().empty() && isFile)
-		result->setFileName(str);
-	return result;
+                throw(ParserException) {
+        if (m_delete && m_root != NULL)
+                delete m_root;
+        m_delete = true;
+        if (isFile) {
+                TiXmlDocument* doc = new TiXmlDocument(str);
+                if (!doc->LoadFile()) {
+                        checkParserException(ALWAYS_FAIL, "Error loading '" << str << "': " << doc->ErrorDesc());
+                }
+                m_root = doc->RootElement()->FirstChildElement(NODE_TAG);
+        } else
+                m_root = initXml(str);
+        checkParserException(m_root != NULL, "No node root in " << str);
+        PlexilNodeId result = parse();
+        if (result->fileName().empty() && isFile)
+                result->setFileName(str);
+        return result;
 }
 
 PlexilNodeId PlexilXmlParser::parse(TiXmlElement* xml) throw(ParserException) {
-	if (m_delete && m_root != NULL)
-		delete m_root;
-	m_delete = false;
-	m_root = xml;
-	return parse();
+        if (m_delete && m_root != NULL)
+                delete m_root;
+        m_delete = false;
+        m_root = xml;
+        return parse();
 }
 
 PlexilNodeId PlexilXmlParser::parse() throw(ParserException) {
-	return parseNode(m_root);
+        return parseNode(m_root);
 }
 
 PlexilExprId PlexilXmlParser::parseExpr(const TiXmlElement* xml)
-		throw(ParserException) {
-	std::map<std::string, PlexilExprParser*>::iterator it = s_exprParsers->find(
-			xml->Value());
-	checkParserException(it != s_exprParsers->end(),
-			"(line " << xml->Row() << ", column " << xml->Column() <<
-			") XML parsing error: No parser for expression '" << xml->Value() << "'");
-	return it->second->parse(xml);
+                throw(ParserException) {
+        std::map<std::string, PlexilExprParser*>::iterator it = s_exprParsers->find(
+                        xml->Value());
+        checkParserException(it != s_exprParsers->end(),
+                        "(line " << xml->Row() << ", column " << xml->Column() <<
+                        ") XML parsing error: No parser for expression '" << xml->Value() << "'");
+        return it->second->parse(xml);
 }
 
 PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
-		throw(ParserException) {
-	checkTag(NODE_TAG, xml);
-	PlexilNodeId retval = (new PlexilNode())->getId();
+                throw(ParserException) {
+        checkTag(NODE_TAG, xml);
+        PlexilNodeId retval = (new PlexilNode())->getId();
 
-	// nodeid required
+        // nodeid required
 
-	const TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
-	checkParserException(nodeIdXml != NULL,
-			"(line " << xml->Row() << ", column " << xml->Column() <<
-			") XML parsing error: Missing or empty <NodeId> element.");
-	std::string nodeId(nodeIdXml->FirstChild()->Value());
-	checkParserException(!nodeId.empty(),
-			"(line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
-			") XML parsing error: Missing or empty <NodeId> element.");
-	retval->setNodeId(nodeIdXml->FirstChild()->Value());
+        const TiXmlElement* nodeIdXml = xml->FirstChildElement(NODEID_TAG);
+        checkParserException(nodeIdXml != NULL,
+                        "(line " << xml->Row() << ", column " << xml->Column() <<
+                        ") XML parsing error: Missing or empty <NodeId> element.");
+        std::string nodeId(nodeIdXml->FirstChild()->Value());
+        checkParserException(!nodeId.empty(),
+                        "(line " << nodeIdXml->Row() << ", column " << nodeIdXml->Column() <<
+                        ") XML parsing error: Missing or empty <NodeId> element.");
+        retval->setNodeId(nodeIdXml->FirstChild()->Value());
 
-	// node type required
+        // node type required
 
-	checkAttr(NODETYPE_ATTR, xml);
-	retval->setNodeType(*(xml->Attribute(NODETYPE_ATTR)));
+        checkAttr(NODETYPE_ATTR, xml);
+        retval->setNodeType(*(xml->Attribute(NODETYPE_ATTR)));
 
-	// file name, line, col optional
-	const std::string* fname = xml->Attribute(FILENAME_ATTR);
-	if (fname != NULL)
-	  retval->setFileName(fname->c_str());
-	int line = 0;
-	xml->Attribute(LINENO_ATTR, &line);
-	if (line != 0)
-		retval->setLineNo(line);
-	int col = 0;
-	xml->Attribute(COLNO_ATTR, &col);
-	if (col != 0)
-		retval->setColNo(col);
+        // file name, line, col optional
+        const std::string* fname = xml->Attribute(FILENAME_ATTR);
+        if (fname != NULL)
+          retval->setFileName(fname->c_str());
+        int line = 0;
+        xml->Attribute(LINENO_ATTR, &line);
+        if (line != 0)
+                retval->setLineNo(line);
+        int col = 0;
+        xml->Attribute(COLNO_ATTR, &col);
+        if (col != 0)
+                retval->setColNo(col);
 
-	// priority optional
+        // priority optional
 
-	const TiXmlElement* priorityXml = xml->FirstChildElement(PRIORITY_TAG);
-	if (priorityXml != NULL) {
-		std::string priority = priorityXml->FirstChild()->Value();
-		if (!priority.empty()) {
-			std::stringstream str;
-			double value;
-			str << priority;
-			str >> value;
-			retval->setPriority(value);
-		}
-	}
+        const TiXmlElement* priorityXml = xml->FirstChildElement(PRIORITY_TAG);
+        if (priorityXml != NULL) {
+                std::string priority = priorityXml->FirstChild()->Value();
+                if (!priority.empty()) {
+                        std::stringstream str;
+                        double value;
+                        str << priority;
+                        str >> value;
+                        retval->setPriority(value);
+                }
+        }
 
-	// permissions optional
+        // permissions optional
 
-	const TiXmlElement* permissionsXml = xml->FirstChildElement(PERMISSIONS_TAG);
-	if (permissionsXml != NULL)
-		retval->setPermissions(permissionsXml->FirstChild()->Value());
+        const TiXmlElement* permissionsXml = xml->FirstChildElement(PERMISSIONS_TAG);
+        if (permissionsXml != NULL)
+                retval->setPermissions(permissionsXml->FirstChild()->Value());
 
-	// interface optional
+        // interface optional
 
-	const TiXmlElement* interfaceXml = xml->FirstChildElement(INTERFACE_TAG);
-	if (interfaceXml != NULL)
-		retval->setInterface(parseInterface(interfaceXml));
+        const TiXmlElement* interfaceXml = xml->FirstChildElement(INTERFACE_TAG);
+        if (interfaceXml != NULL)
+                retval->setInterface(parseInterface(interfaceXml));
 
-	// variable declarations optional
+        // variable declarations optional
 
-	const TiXmlElement* declarationsXml = xml->FirstChildElement(VAR_DECLS_TAG);
-	if (declarationsXml != NULL)
-		parseDeclarations(declarationsXml, retval);
+        const TiXmlElement* declarationsXml = xml->FirstChildElement(VAR_DECLS_TAG);
+        if (declarationsXml != NULL)
+                parseDeclarations(declarationsXml, retval);
 
-	// conditions optional
+        // conditions optional
 
-	for (const TiXmlElement* conditionsXml = xml->FirstChildElement(); conditionsXml
-			!= NULL; conditionsXml = conditionsXml->NextSiblingElement()) {
-		std::string tag = conditionsXml->Value();
-		if (tag.find(COND_TAG) == std::string::npos)
-			continue;
-		retval->addCondition(tag, parseExpr(conditionsXml->FirstChildElement()));
-	}
+        for (const TiXmlElement* conditionsXml = xml->FirstChildElement(); conditionsXml
+                        != NULL; conditionsXml = conditionsXml->NextSiblingElement()) {
+                std::string tag = conditionsXml->Value();
+                if (tag.find(COND_TAG) == std::string::npos)
+                        continue;
+                retval->addCondition(tag, parseExpr(conditionsXml->FirstChildElement()));
+        }
 
-	// node body optional
+        // node body optional
 
-	const TiXmlElement* bodyXml = xml->FirstChildElement(BODY_TAG);
-	if (bodyXml == NULL) {
-		checkParserException(retval->nodeType() == NodeType_Empty,
-				"(line " << xml->Row() << ", column " << xml->Column() <<
-				") XML parsing error: " << retval->nodeTypeString() << " node '" << retval->nodeId() <<
-				"' missing <NodeBody> element. '" << retval->nodeTypeString() <<
-				"' nodes must contain a '" << retval->nodeTypeString() <<
-				"' as a <NodeBody> element.");
-	} else {
-		const TiXmlElement* realBodyXml = bodyXml->FirstChildElement();
-		if (realBodyXml != NULL) {
-			retval->setBody(parseBody(realBodyXml));
-		}
-	}
+        const TiXmlElement* bodyXml = xml->FirstChildElement(BODY_TAG);
+        if (bodyXml == NULL) {
+                checkParserException(retval->nodeType() == NodeType_Empty,
+                                "(line " << xml->Row() << ", column " << xml->Column() <<
+                                ") XML parsing error: " << retval->nodeTypeString() << " node '" << retval->nodeId() <<
+                                "' missing <NodeBody> element. '" << retval->nodeTypeString() <<
+                                "' nodes must contain a '" << retval->nodeTypeString() <<
+                                "' as a <NodeBody> element.");
+        } else {
+                const TiXmlElement* realBodyXml = bodyXml->FirstChildElement();
+                if (realBodyXml != NULL) {
+                        retval->setBody(parseBody(realBodyXml));
+                }
+        }
 
-	return retval;
+        return retval;
 }
 
 PlexilInterfaceId PlexilXmlParser::parseDepricatedInterface(
-		const TiXmlElement* intf) throw(ParserException) {
-	checkTag(INTERFACE_TAG, intf);
-	PlexilInterfaceId retval = (new PlexilInterface())->getId();
-	const TiXmlElement* in = intf->FirstChildElement(IN_TAG);
-	PlexilVarRefParser p;
-	if (in != NULL)
-		for (const TiXmlElement* var = in->FirstChildElement(); var != NULL; var
-				= var->NextSiblingElement())
-			retval->addIn(p.parse(var));
-	const TiXmlElement* inOut = intf->FirstChildElement(INOUT_TAG);
-	if (inOut != NULL)
-		for (const TiXmlElement* var = inOut->FirstChildElement(); var != NULL; var
-				= var->NextSiblingElement())
-			retval->addInOut(p.parse(var));
-	return retval;
+                const TiXmlElement* intf) throw(ParserException) {
+        checkTag(INTERFACE_TAG, intf);
+        PlexilInterfaceId retval = (new PlexilInterface())->getId();
+        const TiXmlElement* in = intf->FirstChildElement(IN_TAG);
+        PlexilVarRefParser p;
+        if (in != NULL)
+                for (const TiXmlElement* var = in->FirstChildElement(); var != NULL; var
+                                = var->NextSiblingElement())
+                        retval->addIn(p.parse(var));
+        const TiXmlElement* inOut = intf->FirstChildElement(INOUT_TAG);
+        if (inOut != NULL)
+                for (const TiXmlElement* var = inOut->FirstChildElement(); var != NULL; var
+                                = var->NextSiblingElement())
+                        retval->addInOut(p.parse(var));
+        return retval;
 }
 
 PlexilInterfaceId PlexilXmlParser::parseInterface(const TiXmlElement* intf)
-		throw(ParserException) {
-	PlexilInterfaceId retval = (new PlexilInterface())->getId();
-	checkTag(INTERFACE_TAG, intf);
-	parseInOrInOut(intf->FirstChildElement(IN_TAG), retval, false);
-	parseInOrInOut(intf->FirstChildElement(INOUT_TAG), retval, true);
-	return retval;
+                throw(ParserException) {
+        PlexilInterfaceId retval = (new PlexilInterface())->getId();
+        checkTag(INTERFACE_TAG, intf);
+        parseInOrInOut(intf->FirstChildElement(IN_TAG), retval, false);
+        parseInOrInOut(intf->FirstChildElement(INOUT_TAG), retval, true);
+        return retval;
 }
 
 void PlexilXmlParser::parseInOrInOut(const TiXmlElement* inOrInOut,
-		PlexilInterfaceId& interface, bool isInOut) throw(ParserException) {
-	// if this is an empty in or inOut section, just return
+				     PlexilInterfaceId& interface, 
+				     bool isInOut)
+  throw(ParserException) {
+        // if this is an empty in or inOut section, just return
 
-	if (inOrInOut == NULL)
-		return;
+        if (inOrInOut == NULL)
+                return;
 
-	PlexilVarRefParser p; // depricated
+        PlexilVarRefParser p; // depricated
 
-	for (const TiXmlElement* var = inOrInOut->FirstChildElement(); var != NULL; var
-			= var->NextSiblingElement()) {
-		// if this is a declare var or array read those in
+        for (const TiXmlElement* var = inOrInOut->FirstChildElement(); var != NULL; var
+                        = var->NextSiblingElement()) {
+                // if this is a declare var or array read those in
 
-		if (testTag(DECL_VAR_TAG, var) || testTag(DECL_ARRAY_TAG, var)) {
+                if (testTag(DECL_VAR_TAG, var) || testTag(DECL_ARRAY_TAG, var)) {
 			PlexilVarId variable = parseDeclaration(var)->getId();
 
 			// convert variable to var ref
@@ -978,59 +980,68 @@ PlexilVar* PlexilXmlParser::parseDeclaration(const TiXmlElement* decl)
 // parse an array declaration
 
 PlexilVar* PlexilXmlParser::parseArrayDeclaration(const TiXmlElement* decl)
-		throw(ParserException) {
-	checkTag(DECL_ARRAY_TAG, decl);
+  throw(ParserException) {
+  checkTag(DECL_ARRAY_TAG, decl);
 
-	// extract array name
+  // extract array name
 
-	const TiXmlElement* child = decl->FirstChildElement();
-	checkTag(NAME_TAG, child);
-	std::string name = child->FirstChild()->Value();
+  const TiXmlElement* child = decl->FirstChildElement();
+  checkTag(NAME_TAG, child);
+  std::string name = child->FirstChild()->Value();
 
-	// extract array type
+  // extract array type
 
-	child = child->NextSiblingElement();
-	checkTag(TYPE_TAG, child);
-	std::string type = child->FirstChild()->Value();
+  child = child->NextSiblingElement();
+  checkTag(TYPE_TAG, child);
+  std::string type = child->FirstChild()->Value();
 
-	// extract array max size
+  // extract array max size
 
-	child = child->NextSiblingElement();
-	checkTag(MAXSIZE_TAG, child);
-	std::stringstream maxSizeStr;
-	maxSizeStr << child->FirstChild()->Value();
-	unsigned int maxSize;
-	maxSizeStr >> maxSize;
+  child = child->NextSiblingElement();
+  checkTag(MAXSIZE_TAG, child);
+  std::stringstream maxSizeStr;
+  maxSizeStr << child->FirstChild()->Value();
+  unsigned int maxSize;
+  maxSizeStr >> maxSize;
 
-	// if present, extract initial values
+  debugMsg("PlexilXmlParser:parseArrayDeclaration",
+	   " for array " << name << ", element type " << type << ", size " << maxSize);
 
-	std::vector<std::string> initVals;
-	if ((child = child->NextSiblingElement()) != NULL) {
-		checkTag(INITIALVAL_TAG, child);
-		child = child->FirstChildElement();
-		do {
-			checkTagPart(VAL_TAG, child);
-			std::string initValTag = std::string(child->Value());
-			std::string initValType = initValTag .substr(0, initValTag.size()
-					- VAL_TAG.size());
-			checkParserException(type == initValType,
-					"(line " << child->Row() << ", column " << child->Column() <<
-					") XML parsing error: Initial value of " << type << " array variable \'" <<
-					name << "\' of incorrect type \'" << initValType << "\'");
-			std::string initVal = child->FirstChild()->Value();
-			initVals.push_back(initVal);
-			checkParserException(initVals.size() <= maxSize,
-					"(line " << child->FirstChild()->Row() << ", column " << child->FirstChild()->Column() <<
-					") XML parsing error: Number of initial values of " << type <<
-					" array variable \'" << name <<
-					"\' exceeds maximum of " << maxSize);
-		} while ((child = child->NextSiblingElement()) != NULL);
-	}
+  // if present, extract initial values
 
-	// add variable to returned variable set
+  std::vector<std::string> initVals;
+  if ((child = child->NextSiblingElement()) != NULL) {
+    checkTag(INITIALVAL_TAG, child);
+    child = child->FirstChildElement();
+    do {
+      checkTagPart(VAL_TAG, child);
+      std::string initValTag = std::string(child->Value());
+      std::string initValType = initValTag.substr(0, initValTag.size() - VAL_TAG.size());
+      checkParserException(type == initValType,
+			   "(line " << child->Row() << ", column " << child->Column() <<
+			   ") XML parsing error: Initial value of " << type << " array variable \'" <<
+			   name << "\' of incorrect type \'" << initValType << "\'");
+      std::string initVal = child->FirstChild()->Value();
+      initVals.push_back(initVal);
+      debugMsg("PlexilXmlParser:parseArrayDeclaration",
+	       " element value \"" << initVal << "\"");
+      checkParserException(initVals.size() <= maxSize,
+			   "(line " << child->FirstChild()->Row() << ", column " << child->FirstChild()->Column() <<
+			   ") XML parsing error: Number of initial values of " << type <<
+			   " array variable \'" << name <<
+			   "\' exceeds maximum of " << maxSize);
+    } while ((child = child->NextSiblingElement()) != NULL);
+  }
 
-	return new PlexilArrayVar(name, PlexilParser::parseValueType(type),
-			maxSize, initVals);
+  // add variable to returned variable set
+
+  PlexilVar* result =
+    new PlexilArrayVar(name, 
+		       PlexilParser::parseValueType(type),
+		       maxSize,
+		       initVals);
+  debugMsg("PlexilXmlParser:parseArrayDeclaration", " succeeded");
+  return result;
 }
 
 // parse an atomic or string declaration
