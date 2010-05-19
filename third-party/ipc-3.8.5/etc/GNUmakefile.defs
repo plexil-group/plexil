@@ -251,6 +251,7 @@ INS_FTP_FLAGS	= -m 444
 
 CC		= gcc
 CCC		= g++
+GCC_VERSION	= $(shell gcc -dumpversion)
 ifneq ($(THIS_OS),Solaris)
 AR		= ar
 else
@@ -358,6 +359,11 @@ CFLAGSD_TEST	= -g -DTEST -O2
 CFLAGSD_PROF	= -pg -O2 -static
 CFLAGSM_DBMALLOC= -DDBMALLOC
 CFLAGS_gcc	= -Wall -Wstrict-prototypes -Wnested-externs -Wmissing-prototypes -Wmissing-declarations
+# work around missing library in Ubuntu -- Chucko 19 May 2010
+ifneq ($(sort 4.4 $(GCC_VERSION)), 4.3 $(GCC_VERSION))
+CFLAGS_gcc	+= -fno-stack-protector
+endif
+
 #CFLAGS_cc	= -ansi -fullwarn
 CFLAGS_cc	= -ansi
 
