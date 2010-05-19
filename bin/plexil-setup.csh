@@ -29,20 +29,21 @@
 if (! $?PLEXIL_HOME) then
     echo Error: Please set environment variable PLEXIL_HOME
     echo to the full pathname of your 'plexil' or 'trunk' directory.
-    exit 1
+    echo Exiting.
+
+else
+    setenv PATH ${PATH}:${PLEXIL_HOME}/bin
+
+    set _plexil_libpath=$PLEXIL_HOME/lib
+
+    # Defining variables (redundantly) for both Mac and Linux.
+
+    # Linux
+    setenv LD_LIBRARY_PATH $_plexil_libpath
+
+    # Mac
+    setenv DYLD_LIBRARY_PATH $_plexil_libpath
+    setenv DYLD_BIND_AT_LAUNCH YES
+
+    unset _plexil_libpath
 endif
-
-setenv PATH ${PATH}:${PLEXIL_HOME}/bin
-
-set _plexil_libpath=$PLEXIL_HOME/lib
-
-# Defining variables (redundantly) for both Mac and Linux.
-
-# Linux
-setenv LD_LIBRARY_PATH $_plexil_libpath
-
-# Mac
-setenv DYLD_LIBRARY_PATH $_plexil_libpath
-setenv DYLD_BIND_AT_LAUNCH YES
-
-unset _plexil_libpath

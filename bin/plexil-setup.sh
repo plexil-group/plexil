@@ -30,8 +30,9 @@ if [ ! $PLEXIL_HOME ]
   then
     echo Error: Please set environment variable PLEXIL_HOME
     echo to the full pathname of your 'plexil' or 'trunk' directory.
-    exit 1
-fi
+    echo Exiting.
+
+else
 
 export PATH=${PATH}:${PLEXIL_HOME}/bin
 
@@ -45,3 +46,7 @@ export LD_LIBRARY_PATH=$libpath
 # Mac
 export DYLD_LIBRARY_PATH=$libpath
 export DYLD_BIND_AT_LAUNCH=YES
+
+unset libpath
+
+fi
