@@ -40,18 +40,23 @@
 namespace PLEXIL 
 {
 
-  ArrayVariable::ArrayVariable(unsigned maxSize, PlexilType type,
+  ArrayVariable::ArrayVariable(unsigned maxSize,
+			       PlexilType type,
                                const bool isConst)
     : Variable(isConst), m_maxSize(maxSize), m_type(type)
   {
+    debugMsg("ArrayVariable", " constructor, no initial elements");
     StoredArray array(m_maxSize, Expression::UNKNOWN());
     setValue(array.getKey());
   }
 
-  ArrayVariable::ArrayVariable(unsigned maxSize, PlexilType type, 
-                               std::vector<double>& values, const bool isConst)
+  ArrayVariable::ArrayVariable(unsigned maxSize, 
+			       PlexilType type, 
+                               std::vector<double>& values, 
+			       const bool isConst)
     : Variable(isConst), m_maxSize(maxSize), m_type(type)
   {
+    debugMsg("ArrayVariable", " constructor, " << values.size() << " initial elements");
     StoredArray array(m_maxSize, Expression::UNKNOWN());
     setValue(array.getKey());
     setValues(values);
@@ -62,8 +67,9 @@ namespace PLEXIL
                                const bool isConst)
     : Variable(expr, node, isConst)
   {
-    // confirm that we have a an array
+    debugMsg("ArrayVariable", " constructor from intermediate representation");
 
+    // confirm that we have a an array
     checkError(Id<PlexilArrayValue>::convertable(expr),
                "Expected an array value.");
     PlexilArrayValue* arrayValue = (PlexilArrayValue*)expr;
@@ -84,7 +90,7 @@ namespace PLEXIL
         double convertedValue;
         if (m_type == STRING)
           convertedValue = (double)LabelStr(*value);
-        if (m_type == BOOLEAN)
+        else if (m_type == BOOLEAN)
           {
             if (compareIgnoreCase(*value, "true") || 
                 (strcmp(value->c_str(), "1") == 0))
@@ -97,7 +103,7 @@ namespace PLEXIL
           }
         else
           {
-            std::stringstream valueStream(*value);
+            std::istringstream valueStream(*value);
             valueStream >> convertedValue;
           }
         convertedValues.push_back(convertedValue);
@@ -183,6 +189,8 @@ namespace PLEXIL
     for (std::vector<double>::iterator value = values.begin();
          value != values.end(); ++value)
       {
+	debugMsg("ArrayVariable::setValues", 
+		 " checking element value " << plexilValueToString(*value));
         checkError(checkElementValue(*value),
                    "Attempted to initialize a variable with an invalid value.");
         array[index++] = *value;
@@ -293,7 +301,7 @@ namespace PLEXIL
 
   std::string ArrayVariable::toString() const 
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     if (m_value == Expression::UNKNOWN())
       {
@@ -454,7 +462,7 @@ namespace PLEXIL
 
   std::string ArrayElement::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "ArrayElement: " << m_arrayVariable->toString()
            << "[" << m_index->toString() << "])";
@@ -557,7 +565,7 @@ namespace PLEXIL
 
 
   std::string StringVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "string)";
     return retval.str();
@@ -585,7 +593,7 @@ namespace PLEXIL
 
   std::string RealVariable::toString() const 
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "real)";
     return retval.str();
@@ -593,7 +601,7 @@ namespace PLEXIL
    
   std::string RealVariable::valueString() const 
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     if(m_value == Expression::UNKNOWN())
       retval << "UNKNOWN";
     else if(m_value == REAL_PLUS_INFINITY)
@@ -654,14 +662,14 @@ namespace PLEXIL
   }
 
   std::string IntegerVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "int)";
     return retval.str();
   }
 
   std::string IntegerVariable::valueString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     if(m_value == Expression::UNKNOWN())
       retval << "UNKNOWN";
     else if(m_value == REAL_PLUS_INFINITY)
@@ -728,14 +736,14 @@ namespace PLEXIL
   }
 
   std::string BooleanVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "boolean)";
     return retval.str();
   }
 
   std::string BooleanVariable::valueString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     if(m_value == Expression::UNKNOWN())
       retval << "UNKNOWN";
     else
@@ -795,7 +803,7 @@ namespace PLEXIL
   }
 
   std::string StateVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "state(" << LabelStr(m_value).toString() << "))";
     return retval.str();
@@ -905,7 +913,7 @@ namespace PLEXIL
   }
 
   std::string OutcomeVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << " outcome)";
     return retval.str();
@@ -933,7 +941,7 @@ namespace PLEXIL
   }
 
   std::string FailureVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << " failure)";
     return retval.str();
@@ -967,7 +975,7 @@ namespace PLEXIL
   }
 
   std::string CommandHandleVariable::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << " command_handle)";
     return retval.str();
@@ -1013,7 +1021,7 @@ namespace PLEXIL
 
   std::string LogicalNegation::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "!" << m_e->toString();
     retval << ")";
@@ -1155,7 +1163,7 @@ namespace PLEXIL
    
   std::string Conjunction::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
@@ -1221,7 +1229,7 @@ namespace PLEXIL
 
   std::string Disjunction::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
@@ -1300,7 +1308,7 @@ namespace PLEXIL
 
   std::string ExclusiveDisjunction::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
@@ -1321,7 +1329,7 @@ namespace PLEXIL
 
   double Concatenation::recalculate()
   {   
-    std::stringstream retval; 
+    std::ostringstream retval; 
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
@@ -1345,7 +1353,7 @@ namespace PLEXIL
 
   std::string Concatenation::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
     for (ExpressionListConstItr child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
@@ -1381,7 +1389,7 @@ namespace PLEXIL
   }
 
   std::string Equality::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " == " << m_b->toString() << "))";
     return retval.str();
@@ -1428,7 +1436,7 @@ namespace PLEXIL
 
   std::string Inequality::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " != " << m_b->toString() << "))";
     return retval.str();
@@ -1453,7 +1461,7 @@ namespace PLEXIL
 
   std::string LessThan::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " < " << m_b->toString() << "))";
     return retval.str();
@@ -1475,7 +1483,7 @@ namespace PLEXIL
 
   std::string LessEqual::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " <= " << m_b->toString() << "))";
     return retval.str();
@@ -1497,7 +1505,7 @@ namespace PLEXIL
 
   std::string GreaterThan::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " > " << m_b->toString() << "))";
     return retval.str();
@@ -1519,7 +1527,7 @@ namespace PLEXIL
 
   std::string GreaterEqual::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " >= " << m_b->toString() << "))";
     return retval.str();
@@ -1541,7 +1549,7 @@ namespace PLEXIL
 
   std::string Addition::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " + " << m_b->toString() << "))";
     return retval.str();
@@ -1572,7 +1580,7 @@ namespace PLEXIL
 
   std::string Subtraction::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " - " << m_b->toString() << "))";
     return retval.str();
@@ -1602,7 +1610,7 @@ namespace PLEXIL
 
   std::string Multiplication::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " * " << m_b->toString() << "))";
     return retval.str();
@@ -1635,7 +1643,7 @@ namespace PLEXIL
 
   std::string Division::toString() const
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << BinaryExpression::toString();
     retval << "(" << m_a->toString() << " / " << m_b->toString() << "))";
     return retval.str();
@@ -1780,7 +1788,7 @@ namespace PLEXIL
   }
 
   std::string AllChildrenFinishedCondition::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "childrenFinished(" << m_count << ":" << m_total << "))";
     return retval.str();
@@ -1904,7 +1912,7 @@ namespace PLEXIL
   }
 
   std::string AllChildrenWaitingOrFinishedCondition::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "childrenWaitingOrFinished(" << m_count << ":" << m_total << "))";
     return retval.str();
@@ -1974,7 +1982,7 @@ namespace PLEXIL
   }
 
   std::string InternalCondition::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << m_expr->toString();
     retval << ")";
@@ -1994,40 +2002,4 @@ namespace PLEXIL
     setWrapped(node->findVariable((PlexilVarRef*)expr));
   }
 
-  //   class CoreExpressionsLocalStatic {
-  //   public:
-  //     CoreExpressionsLocalStatic() {
-  //       static bool sl_called = false;
-  //       if(!sl_called) {
-  //  REGISTER_EXPRESSION(Conjunction, AND);
-  //  REGISTER_EXPRESSION(Disjunction, OR);
-  //  REGISTER_EXPRESSION(LogicalNegation, NOT);
-  //  REGISTER_EXPRESSION(Equality, EQ);
-  //  REGISTER_EXPRESSION(Equality, EQNumeric);
-  //  REGISTER_EXPRESSION(Equality, EQBoolean);
-  //  REGISTER_EXPRESSION(Inequality, NE);
-  //  REGISTER_EXPRESSION(Inequality, NENumeric);
-  //  REGISTER_EXPRESSION(Inequality, NEBoolean);
-  //  REGISTER_EXPRESSION(LessThan, LT);
-  //  REGISTER_EXPRESSION(LessEqual, LE);
-  //  REGISTER_EXPRESSION(GreaterThan, GT);
-  //  REGISTER_EXPRESSION(GreaterEqual, GE);
-  //  REGISTER_EXPRESSION(Addition, ADD);
-  //  REGISTER_EXPRESSION(Subtraction, SUB);
-  //  REGISTER_EXPRESSION(Multiplication, MUL);
-  //  REGISTER_EXPRESSION(Division, DIV);
-  //  REGISTER_EXPRESSION(BooleanVariable, BooleanValue);
-  //  REGISTER_EXPRESSION(IntegerVariable, IntegerValue);
-  //  REGISTER_EXPRESSION(RealVariable, RealValue);
-  //  REGISTER_EXPRESSION(StringVariable, StringValue);
-  //  REGISTER_EXPRESSION(StateVariable, NodeStateValue);
-  //  REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeValue);
-  //  REGISTER_EXPRESSION(InternalCondition, EQInternal);
-  //  REGISTER_EXPRESSION(InternalCondition, NEInternal);
-  //  sl_called = true;
-  //       }
-  //     }
-  //   };
-
-  //   CoreExpressionsLocalStatic s_coreExpressions;
 }
