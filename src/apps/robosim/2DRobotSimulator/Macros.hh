@@ -27,6 +27,9 @@
 #ifndef MACROS_HH
 #define MACROS_HH
 
+#include <cstdlib>
+#include <iostream>
+
 #define PI 3.14159265
 
 #define EUCLIDEAN_DISTANCE(r1, c1, r2, c2) pow(static_cast<double>(pow(abs(r1-r2), 2) + pow(abs(c1-c2), 2)), 0.5)
