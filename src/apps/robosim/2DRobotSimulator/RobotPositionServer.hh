@@ -27,8 +27,9 @@
 #ifndef ROBOT_POSITION_SERVER
 #define ROBOT_POSITION_SERVER
 
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "ThreadMutex.hh"
 

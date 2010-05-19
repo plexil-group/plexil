@@ -24,7 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <math.h>
+#include <climits>
+#include <cmath>
 
 #include "MyOpenGL.hh"
 #include "Macros.hh"
