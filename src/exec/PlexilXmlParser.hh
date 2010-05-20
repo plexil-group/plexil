@@ -119,7 +119,7 @@ namespace PLEXIL
     static void getNameOrValue(const TiXmlElement* xml, std::string& name, 
 			       std::string& value);
     //this is used to get around the old way of handling node references
-    static PlexilNodeRefId getNodeRef(const std::string& name, 
+    static PlexilNodeRefId getNodeRef(const TiXmlElement* ref, 
 				      const TiXmlElement* node)
       throw(ParserException);
     static TiXmlElement* getNodeParent(const TiXmlElement* node);
