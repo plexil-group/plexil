@@ -56,7 +56,8 @@ namespace PLEXIL
       m_socket(NULL),
       m_hostname(NULL),
       m_port(0),
-      m_block(false)
+      m_block(false),
+      m_ignoreConnectFailure(true)
   {
   }
 
@@ -113,6 +114,24 @@ namespace PLEXIL
       {
         m_block = false;
       }
+
+    dummy = xml->Attribute(IGNORE_CONNECT_FAILURE_ATTR());
+    if (dummy == NULL)
+      {
+        debugMsg("LuvListener:initialize",
+                 " no " << IGNORE_CONNECT_FAILURE_ATTR()
+                 << " attribute found, using default \"true\"");
+        m_ignoreConnectFailure = true;
+      }
+    else if (strcmp(dummy, FALSE_STR()) == 0)
+      {
+        m_ignoreConnectFailure = false;
+      }
+    else
+      {
+        m_ignoreConnectFailure = true;
+      }
+
     return true; 
   }
 
@@ -132,7 +151,9 @@ namespace PLEXIL
       {
         debugMsg("LuvListener:start",
                  " socket error: " << e.description());
-        return false;
+	delete m_socket;
+	m_socket = NULL;
+        return m_ignoreConnectFailure;
       }
     return true; 
   }
@@ -172,11 +193,13 @@ namespace PLEXIL
 
   void NewLuvListener::sendPlanInfo() const
   {
-    TiXmlElement planInfo(PLAN_INFO_TAG());
-    TiXmlElement* block = new TiXmlElement(VIEWER_BLOCKS_TAG());
-    block->LinkEndChild(new TiXmlText(m_block ? TRUE_STR() : FALSE_STR()));
-    planInfo.LinkEndChild(block);
-    sendMessage(planInfo);
+    if (m_socket != NULL) {
+      TiXmlElement planInfo(PLAN_INFO_TAG());
+      TiXmlElement* block = new TiXmlElement(VIEWER_BLOCKS_TAG());
+      block->LinkEndChild(new TiXmlText(m_block ? TRUE_STR() : FALSE_STR()));
+      planInfo.LinkEndChild(block);
+      sendMessage(planInfo);
+    }
   }
 
   // handle node state transition event
@@ -185,39 +208,37 @@ namespace PLEXIL
   NewLuvListener::implementNotifyNodeTransition(const LabelStr& /* prevState */, 
 						const NodeId& node) const
   {
-    // create update 
+    if (m_socket != NULL) {
 
-    TiXmlElement nodeStateUpdate(NODE_STATE_UPDATE_TAG());
+      // create update 
+      TiXmlElement nodeStateUpdate(NODE_STATE_UPDATE_TAG());
 
-    // add state
+      // add state
+      TiXmlElement* state = new TiXmlElement(NODE_STATE_TAG());
+      state->LinkEndChild(new TiXmlText(node->getState().c_str()));
+      nodeStateUpdate.LinkEndChild(state);
 
-    TiXmlElement* state = new TiXmlElement(NODE_STATE_TAG());
-    state->LinkEndChild(new TiXmlText(node->getState().c_str()));
-    nodeStateUpdate.LinkEndChild(state);
+      // add outcome
+      TiXmlElement* outcome = new TiXmlElement(NODE_OUTCOME_TAG());
+      outcome->LinkEndChild(new TiXmlText(node->getOutcome().c_str()));
+      nodeStateUpdate.LinkEndChild(outcome);
 
-    // add outcome
-
-    TiXmlElement* outcome = new TiXmlElement(NODE_OUTCOME_TAG());
-    outcome->LinkEndChild(new TiXmlText(node->getOutcome().c_str()));
-    nodeStateUpdate.LinkEndChild(outcome);
-
-    // add failure type
-
-    TiXmlElement* failureType = new TiXmlElement(NODE_FAILURE_TYPE_TAG());
-    failureType->LinkEndChild(new TiXmlText(node->getFailureType().c_str()));
-    nodeStateUpdate.LinkEndChild(failureType);
+      // add failure type
+      TiXmlElement* failureType = new TiXmlElement(NODE_FAILURE_TYPE_TAG());
+      failureType->LinkEndChild(new TiXmlText(node->getFailureType().c_str()));
+      nodeStateUpdate.LinkEndChild(failureType);
       
-    // add the condition states
-    nodeStateUpdate.LinkEndChild(constructConditions(NULL, node));
+      // add the condition states
+      nodeStateUpdate.LinkEndChild(constructConditions(NULL, node));
 
-    // add the path
-    nodeStateUpdate.LinkEndChild(constructNodePath(NULL, node));
+      // add the path
+      nodeStateUpdate.LinkEndChild(constructNodePath(NULL, node));
 
-    // send it off
-      
-    std::ostringstream buffer;
-    buffer << nodeStateUpdate;
-    sendMessage(nodeStateUpdate);
+      // send it off
+      std::ostringstream buffer;
+      buffer << nodeStateUpdate;
+      sendMessage(nodeStateUpdate);
+    }
   }
    
   // handle add plan event
@@ -226,18 +247,17 @@ namespace PLEXIL
   NewLuvListener::implementNotifyAddPlan(const PlexilNodeId& plan,
 					 const LabelStr& /* parent */) const
   {
-    // send an empty plan info
+    if (m_socket != NULL) {
+      // send an empty plan info
+      sendPlanInfo();
 
-    sendPlanInfo();
+      // create a plexil wrapper plan and stick the plan in it
+      TiXmlElement planXml(PLEXIL_PLAN_TAG());
+      planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
 
-    // create a plexil wrapper plan and stick the plan in it
-
-    TiXmlElement planXml(PLEXIL_PLAN_TAG());
-    planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
-
-    // send plan to viewer
-      
-    sendMessage(planXml);
+      // send plan to viewer
+      sendMessage(planXml);
+    }
   }
    
   // handle add library event
@@ -245,18 +265,17 @@ namespace PLEXIL
   void
   NewLuvListener::implementNotifyAddLibrary(const PlexilNodeId& plan) const
   {
-    // send an empty plan info
+    if (m_socket != NULL) {
+      // send an empty plan info
+      sendPlanInfo();
 
-    sendPlanInfo();
+      // create a library wrapper and stick the plan in it
+      TiXmlElement planXml(PLEXIL_LIBRARY_TAG());
+      planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
 
-    // create a library wrapper and stick the plan in it
-
-    TiXmlElement planXml(PLEXIL_LIBRARY_TAG());
-    planXml.LinkEndChild(PlexilXmlParser::toXml(plan));
-
-    // send plan to viewer
-      
-    sendMessage(planXml);
+      // send plan to viewer
+      sendMessage(planXml);
+    }
   }
 
 
@@ -271,28 +290,30 @@ namespace PLEXIL
 					    const std::string& destName,
 					    const double& value) const
   {
-    TiXmlElement assignXml(ASSIGNMENT_TAG());
-    TiXmlElement varXml(VARIABLE_TAG());
-    const NodeId node = dest->getNode();
-    if (node.isId())
-      {
-	// get path to node
-	varXml.LinkEndChild(constructNodePath(NULL, node));
-      }
-    // get variable name
-    TiXmlElement varName(VARIABLE_NAME_TAG());
-    varName.InsertEndChild(*(new TiXmlText(destName)));
+    if (m_socket != NULL) {
+      TiXmlElement assignXml(ASSIGNMENT_TAG());
+      TiXmlElement varXml(VARIABLE_TAG());
+      const NodeId node = dest->getNode();
+      if (node.isId())
+	{
+	  // get path to node
+	  varXml.LinkEndChild(constructNodePath(NULL, node));
+	}
+      // get variable name
+      TiXmlElement varName(VARIABLE_NAME_TAG());
+      varName.InsertEndChild(*(new TiXmlText(destName)));
 
-    varXml.InsertEndChild(varName);
-    assignXml.InsertEndChild(varXml);
+      varXml.InsertEndChild(varName);
+      assignXml.InsertEndChild(varXml);
 
-    // format variable value
-    TiXmlElement * valXml = new TiXmlElement(VARIABLE_VALUE_TAG());
-    valXml->InsertEndChild(*(new TiXmlText(InterfaceManagerBase::valueToString(value))));
-    assignXml.LinkEndChild(valXml);
+      // format variable value
+      TiXmlElement * valXml = new TiXmlElement(VARIABLE_VALUE_TAG());
+      valXml->InsertEndChild(*(new TiXmlText(InterfaceManagerBase::valueToString(value))));
+      assignXml.LinkEndChild(valXml);
     
-    // send it to viewer
-    sendMessage(assignXml);
+      // send it to viewer
+      sendMessage(assignXml);
+    }
   }
 
   //

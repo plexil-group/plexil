@@ -61,6 +61,7 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(char*, LUV_HOSTNAME_ATTR, "HostName");
     DECLARE_STATIC_CLASS_CONST(char*, LUV_PORT_ATTR, "Port");
     DECLARE_STATIC_CLASS_CONST(char*, LUV_BLOCKING_ATTR, "Blocking");
+    DECLARE_STATIC_CLASS_CONST(char*, IGNORE_CONNECT_FAILURE_ATTR, "IgnoreConnectFailure");
 
     // Defaults
     DECLARE_STATIC_CLASS_CONST(char*, LUV_DEFAULT_HOSTNAME, "localhost");
@@ -230,6 +231,7 @@ namespace PLEXIL
     const char* m_hostname;
     uint16_t m_port;
     bool m_block;
+    bool m_ignoreConnectFailure;
   };
 }
 
