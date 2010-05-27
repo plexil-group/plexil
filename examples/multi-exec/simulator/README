@@ -5,26 +5,26 @@ acts as a simulator.  Another executive sends either commands or lookups
 
 To run this example, first compile the plans:
 
-  % plexil simulator.ple
-  % plexil command.ple
-  % plexil lookup.ple
+  plexil simulator.ple
+  plexil command.ple
+  plexil lookup.ple
 
 Then start the IPC publish/subscribe server used for inter-executive
 communication:
 
-  % ipc
+  ipc
 
 Next, start the simulator executive:
 
-  % run-ue -p simulator.plx -c simulator-config.xml 
+  run-ue -p simulator.plx -c simulator-config.xml 
 
 Finally, start an executive using either the command or lookup plans:
 
-  % run-ue -p command.plx -c command-config.xml 
+  run-ue -p command.plx -c command-config.xml 
 
 or 
 
-  % run-ue -p lookup.plx -c command-config.xml 
+  run-ue -p lookup.plx -c command-config.xml 
 
 Note that both use the same interface configuration file.
 
