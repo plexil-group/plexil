@@ -205,7 +205,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  t)
+  nil)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -366,8 +366,7 @@
 
 ;;; ----------------------- Plexilisp Language ----------------------------------
 
-(insert-plexil-heading
- "= Plexilisp Reference Manual = "
+(insert-plexil-heading ""
  (format
   "''This wiki was automatically generated from <tt>plexil.el</tt> on %s \n"
   (current-time-string))
@@ -377,11 +376,10 @@
  "Each construct in Plexilisp has at least two aliases "
  "(e.g. <tt>CommandNode</tt> and <tt>command-node</tt>).  You may use whichever you prefer, "
  "or mix and match them.\n\n"
- ;; TOC here?
  )
 
 (insert-plexil-heading
- "== PLEXIL Plan =="
+ "= PLEXIL Plan ="
  "This section describes the forms (constructs) that comprise PLEXIL plans.")
                         
 (pdefine pl (PlexilPlan plexil-plan) (form &rest forms) 0 nil ; list(xml) -> xml
@@ -394,7 +392,7 @@
   (xml "PlexilPlan" (cons form forms)))
 
 (insert-plexil-heading
- "=== Global Declarations ==="
+ "== Global Declarations =="
  "")
 
 (pdefine pl (GlobalDeclarations global-declarations Declarations declarations)
@@ -452,7 +450,7 @@
        (cons (xml "Name" name) args)))
 
 (insert-plexil-heading
- "=== Nodes and Node Types ==="
+ "== Nodes and Node Types =="
  "These are the forms for defining PLEXIL nodes. "
  "It takes at least two to fully define a node. "
  "An outer form declares the node. "
@@ -595,7 +593,7 @@
     (xml "Node" (cons (plexil-nodeid the-name) the-clauses)
          `(("NodeType" . ,type)))))
 
-(insert-plexil-heading "=== Variable Declaration ===")
+(insert-plexil-heading "== Variable Declaration ==")
 
 (pdefine pl (VariableDeclarations variable-declarations Variables variables
              DeclareVariables declare-variables)
@@ -672,7 +670,7 @@
 
 ;;; Conditions, all: xml -> xml
 
-(insert-plexil-heading "=== Node Conditions ===")
+(insert-plexil-heading "== Node Conditions ==")
 
 (pdefine pl (Postcondition postcondition) (exp) 0 nil
   ""         
@@ -713,7 +711,7 @@
 ;;; Variable Reference
 
 (insert-plexil-heading
- "=== Variable Reference ==="
+ "== Variable Reference =="
  "All variable references must take one of the  following forms, which "
  "specifies the name of the variable as a string.  The variable is assumed "
  "to be legally declared.")
@@ -747,7 +745,7 @@
              (xml "Index" (infer-type index))) nil 'any))
   
 (insert-plexil-heading
- "=== Interface Declaration ==="
+ "== Interface Declaration =="
  "Plexilisp does not automatically generate any <tt>Interface</tt> declarations. "
  "They must be created explicitly with these forms.")
 
@@ -769,7 +767,7 @@
 ;;; Predicates, all: xml * xml -> xml
 
 (insert-plexil-heading
- "=== Boolean Comparisons ==="
+ "== Boolean Comparisons =="
  "These return true or false.")
                        
 
@@ -822,7 +820,7 @@
 
 
 (insert-plexil-heading
- "=== Logical Connectives ==="
+ "== Logical Connectives =="
  "These return true, false, or unknown.")
 
 (pdefine pl (Or or) (&rest disjuncts) 0  nil        ; list(xml) -> xml
@@ -841,7 +839,7 @@
   (xml "NOT" (infer-type x) nil 'boolean))
 
 (insert-plexil-heading
- "=== Numeric Operators ==="
+ "== Numeric Operators =="
  "These should be self-explanatory.  They work with integer or real values.")
 
 (pdefine pl (+ add) (x y) 2 nil
@@ -882,11 +880,11 @@
       (error "Illegal arguments in %s: %s %s" name x y))))
 
 (insert-plexil-heading
- "=== Lookups ==="
+ "== Lookups =="
  "The new form Lookup (and its variant LookupWithTolerance) is a "
  "convenient substitute for the Core PLEXIL forms LookupNow and LookupOnChange. "
  "It can be used anywhere, though note that 'tolerance' is valid only "
- "in gate conditions.")
+ "in gate conditions (Start, End, Repeat, Skip) and otherwise ignored.")
 
 (pdefine pl (Lookup lookup) (state &rest args) 1 nil
   ;; (string + xml) * list(xml) -> xml
@@ -943,7 +941,7 @@
    (t (error "Bad state or command name: %s" x))))
 
 (insert-plexil-heading
- "=== Literals ==="
+ "== Literals =="
  "Most of these are not needed, because Plexilisp automatically infers "
  "types of literals.  For example, 5.5 would be a real, 5 would be an integer, "
  "\"foo\" a string, <tt>true</tt> and <tt>false</tt> a boolean.")
@@ -975,7 +973,7 @@
 ;;; Syntactic Sugar
 
 (insert-plexil-heading
- "=== Node State, Outcome, and Failure Type ==="
+ "== Node State, Outcome, and Failure Type =="
  "Predicates for querying the state, outcome, and failure type of actions.")
 
 ;;; All have type:  string -> xml
@@ -1044,7 +1042,7 @@
   (xml "ParentFailed" (plexil-nodeid id)))
 
 (insert-plexil-heading
- "=== Conditionals and Loops ==="
+ "== Conditionals and Loops =="
  "These are high level syntax extensions of PLEXIL (syntactic sugar).  "
  "They expand into node structures. ")
 
@@ -1162,7 +1160,7 @@
         (t (error "Unsupported form: %s" x))))
 
 (insert-plexil-heading
- "=== Special Purpose Nodes ==="
+ "== Special Purpose Nodes =="
  "These forms expand into nodes that perform convenient functions.")
 
 (pdefine-syntax pl (Action action) (name &rest forms) 1 node
@@ -1254,7 +1252,7 @@
 
 
 (insert-plexil-heading
- "=== Resource Clauses ==="
+ "== Resource Clauses =="
  "")
 
 (pdefine pl (ResourceList resource-list Resources resources) (&rest resources) 0 nil
@@ -1284,7 +1282,7 @@
        
 
 (insert-plexil-heading
- "=== Miscellaneous Node Clauses ==="
+ "== Miscellaneous Node Clauses =="
  "")
 
 (pdefine pl (NodeComment node-comment) (&rest sentences) 1 nil  
@@ -1304,7 +1302,7 @@
   (xml (apply #'concat sentences) nil nil 'comment))
 
 (insert-plexil-heading
- "=== Miscellaneous Expressions ==="
+ "== Miscellaneous Expressions =="
  "")
 
 (pdefine pl (Concat concat) (&rest exprs) 0 nil
@@ -1354,7 +1352,7 @@
 ;;; -------------------- Simulation Script -------------------------------------
 
 (insert-plexil-heading
- "== PLEXIL Simulation Script =="
+ "= PLEXIL Simulation Script ="
  "This section describes the forms (constructs) that comprise simulation ."
  "scripts, which are used to test plans with the Universal Executive.")
 
@@ -1373,7 +1371,7 @@
    "It consists of any of the following forms.")
   (xml "Script" forms))
 
-(insert-plexil-heading
+(insert-plexil-heading ""
  "NOTE: In the following 5 forms that have a <tt>value</tt> or <tt>result</tt> argument,  "
  "the argument may be either a single value or a list of values.  The list "
  "must not be quoted, e.g. <tt>(1 2 3)</tt>.  A list indicates that that return value "
@@ -1400,11 +1398,7 @@
 
 (pdefine-syntax ps (CommandAck command-ack) (name type result &rest params) 3 nil
   ("Acknowledges the named command with given parameters, "
-   "returning the given result(s) of given type.  IMPORTANT NOTE: "
-   "An acknowledgment should return only 0 or 1 (false or true). "
-   "If your plan is awaiting an actual return value, you must have the script "
-   "return this value ''before'' acknowledgement.  I.e. put one of the "
-   "following two forms before this one.")
+   "returning the given result(s) of given type.")
   `(plexil-command-form "CommandAck" ,name ,type ',result ',params))
 
 (pdefine-syntax ps (Command command) (name type result &rest params) 3 nil
@@ -1449,7 +1443,7 @@
   (xml (apply #'concat sentences) nil nil 'comment))
 
 (insert-plexil-heading
- "=== Simulation Script Shortcuts ==="
+ "== Simulation Script Shortcuts =="
  "This section describes various shortcuts for simulation scripts.  "
  "They each expand into some combination of the forms in the previous section.")
 
