@@ -10,88 +10,22 @@ distributions only]
 Release Notes
 -------------
 
-0.80
- - first Sourceforge release
+1.2  (June 2010)
+ - Support for Ubuntu Linux
+ - LUV (execution viewer) enhancements
+   - multiple instances possible, one for each executive
+   - automatically started, when requested, from run-ue and run-te scripts
+ - Extended PLEXIL: 
+   - new all-purpose "Lookup" form
+   - Skip Condition now handled correctly in sequences
+   - OnCommand, OnMessage fully integrated
+ - Allow string expressions, and arrays, as command arguments
+ - Cleanup of TestExec regression tests
+ - Cleanup of XML schemas
+ - Miscellaneous fixes throughout system
+ - Reference manual revision
 
-0.81
- - new syntax and translator for simulation scripts
-   (standard-plexil/plexilscript)
- - numerous minor fixes and enhancements
-
-0.82
- - refactored universal-exec/Exec/test,
-   creating new 'bin' and 'apps' directories
- - slightly simplified installation
- - added RoboSim example application and plans
- - reduced response time to external world events
- - support for 64-bit architectures
- - numerous minor fixes and enhancements
-
-0.83
- - critical bug fix for event processing
- - the Node Priority clause has been deprecated.  It had semantic
-   issues, and is not used in any known PLEXIL applications.  Multiple
-   assignments to the same variable occuring simultaneously results in a
-   runtime error.  At this stage, the Priority clause has only been
-   removed from documentation and tests.  It is still implemented, as an
-   undocumented and unsupported feature.  It may someday be removed from
-   the implementation without notice.  A better solution may be designed.
- - more documentation regarding concurrency in list nodes
- - added PLEXIL workshop presentations
- - significant revision of several UE reference manual chapters
- - PDF manuals now included in distribution
-
-0.84
- - new component: a standalone simulator for PLEXIL.
- - new component: static checker for PLEXIL.
- - added global declarations (for static plan checking) to schemas and
-   Plexilisp
- - additional workshop slides
- - easier setup for Plexilisp
- - misc bug fixes and enhancements
-
-0.90
- - New application framework, revised external interfaces, and simple
-   test application using both.  See the app-framework directory.  The
-   existing external interfaces are unchanged from the previous release,
-   but are deprecated.
- - Standard Plexil no longer supports hyphenated variable names. Hyphenated
-   variables may be supported in a future release.
- - Standalone simulator now supports telemetry and has a test executive.
- - New Extended Plexil language: schema, translator, examples.
- - Plexilisp has several new constructs and generates Extended Plexil
- - Refactoring of Plexil schemas.
- - New enhancements and bug fixes to the Luv Viewer.
- - Top level Makefile and simplified build and installation instructions.
- - Numerous small enhancements and bug fixes throughout code base.
-
-0.91
- - Deprecated Function Call node.
- - Added 'jam' executables in plexil/bin
- - Added support for testing node iteration outcome.
- - Extended Plexil: added Concurrence form; bug fixes
- - Plexilisp: added Wait, Concurrence; action forms can now contain
-   nodes or node bodies; empty sequences are properly supported
- - XML schema updates
- CAVEATS: 
- - Standalone Simulator may not work in Mac OS and some versions of
-   Linux, due to errors in the LCM library.  The problem is being worked on.
-
-1.0
- - Revamped source code directory structure.
- - Replaced 'jam' with 'make' as the system's build tool.
- - Added a new application IpcExec, allowing multiple communicating executives.
- - Added CMU's "IPC" system to support IpcExec, and future planned applications.
- - Numerous small fixes and enhancements throughout the system.
- CAVEATS: 
- - Standalone Simulator may not work in Mac OS and some
-   versions of Linux, due to errors in the LCM library.  LCM
-   is in the process of being replaced by IPC.
- - A PDF version of the user manual, normally included in the distribution, 
-   is not available; we are seeking a means to create one from the new wiki
-   system used by Sourceforge.
-
-1.1
+1.1 (April 2010)
  - Added signficant support and language features for inter-executive
    communication, with a new chapter on this feature.  In particular, executives
    can send (and respond to) messages, commands, and state lookups amongst each
@@ -117,12 +51,90 @@ Release Notes
    entire system.
  - Much revision of the reference manual.
 
-next release
- - Allow string expressions, and arrays, as command arguments
- - Cleanup of TestExec regression tests
- - Cleanup of XML schemas
- - Extended PLEXIL: 
-   - new all-purpose "Lookup" form
-   - Skip Condition now handled correctly in sequences
-   - OnCommand, OnMessage fully integrated
+1.0
+ - Revamped source code directory structure.
+ - Replaced 'jam' with 'make' as the system's build tool.
+ - Added a new application IpcExec, allowing multiple communicating executives.
+ - Added CMU's "IPC" system to support IpcExec, and future planned applications.
+ - Numerous small fixes and enhancements throughout the system.
+ CAVEATS: 
+ - Standalone Simulator may not work in Mac OS and some
+   versions of Linux, due to errors in the LCM library.  LCM
+   is in the process of being replaced by IPC.
+ - A PDF version of the user manual, normally included in the distribution, 
+   is not available; we are seeking a means to create one from the new wiki
+   system used by Sourceforge.
+
+
+0.91
+ - Deprecated Function Call node.
+ - Added 'jam' executables in plexil/bin
+ - Added support for testing node iteration outcome.
+ - Extended Plexil: added Concurrence form; bug fixes
+ - Plexilisp: added Wait, Concurrence; action forms can now contain
+   nodes or node bodies; empty sequences are properly supported
+ - XML schema updates
+ CAVEATS: 
+ - Standalone Simulator may not work in Mac OS and some versions of
+   Linux, due to errors in the LCM library.  The problem is being worked on.
+
+
+0.90
+ - New application framework, revised external interfaces, and simple
+   test application using both.  See the app-framework directory.  The
+   existing external interfaces are unchanged from the previous release,
+   but are deprecated.
+ - Standard Plexil no longer supports hyphenated variable names. Hyphenated
+   variables may be supported in a future release.
+ - Standalone simulator now supports telemetry and has a test executive.
+ - New Extended Plexil language: schema, translator, examples.
+ - Plexilisp has several new constructs and generates Extended Plexil
+ - Refactoring of Plexil schemas.
+ - New enhancements and bug fixes to the Luv Viewer.
+ - Top level Makefile and simplified build and installation instructions.
+ - Numerous small enhancements and bug fixes throughout code base.
+
+
+0.84
+ - new component: a standalone simulator for PLEXIL.
+ - new component: static checker for PLEXIL.
+ - added global declarations (for static plan checking) to schemas and
+   Plexilisp
+ - additional workshop slides
+ - easier setup for Plexilisp
+ - misc bug fixes and enhancements
+
+
+0.83
+ - critical bug fix for event processing
+ - the Node Priority clause has been deprecated.  It had semantic
+   issues, and is not used in any known PLEXIL applications.  Multiple
+   assignments to the same variable occuring simultaneously results in a
+   runtime error.  At this stage, the Priority clause has only been
+   removed from documentation and tests.  It is still implemented, as an
+   undocumented and unsupported feature.  It may someday be removed from
+   the implementation without notice.  A better solution may be designed.
+ - more documentation regarding concurrency in list nodes
+ - added PLEXIL workshop presentations
+ - significant revision of several UE reference manual chapters
+ - PDF manuals now included in distribution
+
+
+0.82
+ - refactored universal-exec/Exec/test,
+   creating new 'bin' and 'apps' directories
+ - slightly simplified installation
+ - added RoboSim example application and plans
+ - reduced response time to external world events
+ - support for 64-bit architectures
+ - numerous minor fixes and enhancements
+
+
+0.81
+ - new syntax and translator for simulation scripts
+   (standard-plexil/plexilscript)
+ - numerous minor fixes and enhancements
+
+0.80
+ - first Sourceforge release
 
