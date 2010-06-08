@@ -330,17 +330,24 @@ public class ExecutionHandler
       
       public void killUEProcess() throws IOException
       {   
-    	  //String kill_ue = "killall ";
-    	  //String kill_run_e = "killall ";
-    	  //kill_run_e += Luv.getLuv().allowTest() ? TE_SCRIPT : UE_SCRIPT;
-    	  //kill_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	      	  
-    	  String kill_ue = "kill " + Luv.getLuv().getPid();
-    	  System.out.println("Killing PID: " + Luv.getLuv().getPid());
+    	  String killa_ue = "killall ";
+    	  String killa_run_e = "killall ";
+    	  killa_run_e += Luv.getLuv().allowTest() ? TE_SCRIPT : UE_SCRIPT;
+    	  killa_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	      	  
+    	  String kill_ue = "kill " + Luv.getLuv().getPid();    	  
     	  
           try 
           {
-        	  //Runtime.getRuntime().exec(kill_run_e);
-              Runtime.getRuntime().exec(kill_ue);              
+        	  if(Luv.getLuv().getPid() == 0 && Luv.getLuv().allowTest())
+        	  {        		          		          		  
+        		  Runtime.getRuntime().exec(killa_run_e);
+        		  Runtime.getRuntime().exec(killa_ue);
+        	  }
+        	  else
+        	  {
+        		  System.out.println("Killing PID: " + Luv.getLuv().getPid());
+        		  Runtime.getRuntime().exec(kill_ue);
+        	  }
           }
           catch (IOException e) 
           {
