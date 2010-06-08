@@ -25,6 +25,22 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+portscan()
+{
+for((j=65400;j<=65535;++j))
+do
+tport=`netstat -l | grep $j`
+    if test "${tport:-FALSE}" = FALSE; then
+    	echo "-n $j"
+	return
+    fi    
+done
+return
+}
+
+skip=
+DEFAULT_HOST=127.0.0.1
+
 usage="Usage: run-te [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug file>] \
                      [-eprompt] [-wprompt] [-log <log file>] [-check] \
                      <plan> [<script>] [-l <library>]*"
@@ -108,10 +124,25 @@ fi
 if [ '-n' = "$1" ]
   then
     port="-n $2"
+    skip=1
     shift
     shift
   else
     port=
+fi
+
+# Check for port number
+if [ "$viewer" = "-v" ] ; then
+  host=${host:="-h $DEFAULT_HOST"}
+  port=${port:=`portscan`}
+  if [ "$skip" = "" ] ; then
+    luv ${port//[^0-9]/}
+    until [ -f /tmp/Luv_${port//[^0-9]/} ]
+      do
+	:
+    done    
+    usleep 250
+  fi  
 fi
 
 # Check for viewer should block
