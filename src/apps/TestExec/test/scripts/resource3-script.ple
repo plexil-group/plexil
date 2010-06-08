@@ -2,6 +2,7 @@
 // resource3
 
 script {
-  command-ack store () = 1 : bool;
+  command store () = "COMMAND_SUCCESS" : string;
+  command-success store ();
 }
 

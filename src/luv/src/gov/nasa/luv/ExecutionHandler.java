@@ -44,8 +44,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /** The ExecutionHandler class runs an instance of the Universal Executive. */
 
@@ -57,6 +59,7 @@ public class ExecutionHandler
       private ExecutionHandler ee;   
       private Runtime runtime;
       private Thread runThread;
+      private Process process;
       
       public ExecutionHandler() {}
       
@@ -68,18 +71,20 @@ public class ExecutionHandler
       public ExecutionHandler(final String command)
       {        
           // create a new thread for the ue process
-          
+              	  
           runThread = new Thread()
           {
             @Override
               public void run()
               {
+            	  process = null;
                   try
                   {
                       runtime = Runtime.getRuntime();
-                      Process ue_process = runtime.exec(command);
-                      
-                      displayProcessMessagesToDebugWindow(ue_process);                                          
+                      process = runtime.exec(command);                      
+                      Luv.getLuv().setPid(definePid(process));
+                      System.out.println("THE PID is: " + Luv.getLuv().getPid());                      
+                      displayProcessMessagesToDebugWindow(process);
                   }
                   catch(Exception e)
                   {
@@ -88,6 +93,31 @@ public class ExecutionHandler
               }
           };
       }
+      
+    private int definePid(Process ue_process) throws IOException
+    {
+    	int pid = 0;
+        BufferedReader is = new BufferedReader(new InputStreamReader(ue_process.getInputStream()));                    
+        String line;
+
+        // display standard output from process
+        while ((line = is.readLine()) != null)
+        {        	      	  
+            if (line.contains("RUN_UE_PID") || line.contains("RUN_TE_PID"))
+            {
+            	pid = Integer.parseInt(line.replaceAll("[^0-9]", ""));
+            	break;
+            }
+    	}    	
+        return pid;
+    }
+
+	private void cleanup(Process ue_process) throws IOException
+	{
+		ue_process.getInputStream().close();
+		ue_process.getOutputStream().close();
+		ue_process.getErrorStream().close();		
+	}
 
       /** Start running the UE. */
 
@@ -101,6 +131,21 @@ public class ExecutionHandler
          {
              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while starting the Universal Executive");
          }
+      }
+      
+      public void stop()
+      {
+    	  try
+    	  {
+    		  cleanup(process);
+    		  process.destroy();
+    		  process = null;
+    	  }
+    	  catch (Exception e)
+          {
+              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while stopping the Universal Executive");
+          }
+    	  
       }
       
     /** Creates an instance of an ExecutionHandler.
@@ -284,21 +329,24 @@ public class ExecutionHandler
     /** Kills the currently running instance of the Universal Executive. */
       
       public void killUEProcess() throws IOException
-      {    	      	  
-    	  String kill_ue = "killall ";
-    	  String kill_run_e = "killall ";
-    	  kill_run_e += Luv.getLuv().allowTest() ? TE_SCRIPT : UE_SCRIPT;
-    	  kill_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	      	  
-            
+      {   
+    	  //String kill_ue = "killall ";
+    	  //String kill_run_e = "killall ";
+    	  //kill_run_e += Luv.getLuv().allowTest() ? TE_SCRIPT : UE_SCRIPT;
+    	  //kill_ue += Luv.getLuv().allowTest() ? UE_TEST_EXEC : UE_EXEC;      	      	  
+    	  String kill_ue = "kill " + Luv.getLuv().getPid();
+    	  System.out.println("Killing PID: " + Luv.getLuv().getPid());
+    	  
           try 
           {
-        	  Runtime.getRuntime().exec(kill_run_e);
-              Runtime.getRuntime().exec(kill_ue);
+        	  //Runtime.getRuntime().exec(kill_run_e);
+              Runtime.getRuntime().exec(kill_ue);              
           }
           catch (IOException e) 
           {
               Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: unable to execute " + kill_ue);
           }
+          
       }
 
   	/**
@@ -310,7 +358,7 @@ public class ExecutionHandler
   	public boolean isAlive() {
   		return runThread.isAlive();
   	}      
-      
+  	     
       private void displayProcessMessagesToDebugWindow(Process ue_process) throws IOException
       {
           BufferedReader is = new BufferedReader(new InputStreamReader(ue_process.getInputStream()));
@@ -325,7 +373,7 @@ public class ExecutionHandler
         	  
               if (line.contains("Error"))
               {            	  
-                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive: " + line);                  
+                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Executive: " + line);                  
               }                                                       
           }
 
@@ -333,7 +381,7 @@ public class ExecutionHandler
           while ((line = err.readLine()) != null)
           {    
         	  System.out.println("Err: " + line);
-              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Universal Executive: " + line);              
+              Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Executive: " + line);              
         	  if (line.contains("null interface adapter") && line.contains("command"))
         		  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "an interface configuration xml file is required for handling " + line.substring(line.indexOf("command"), line.length()));        	  
           }
@@ -348,13 +396,19 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	public String generateCommandLine() {
 	  String command = "";	  
 	  System.out.println(Luv.getLuv().allowTest() ? "Using Test Executive..." : "Using Universal Executive...");
+	  //viewer
 	  command = Luv.getLuv().allowTest() ? RUN_TEST_EXEC + " -v" : RUN_UE_EXEC + " -v";  	  
-
-	  if (Luv.getLuv().breaksAllowed())
-		  command += " -b";
-	  		   
-	  command += " -d " + DEBUG_CFG_FILE;
-
+	  //port
+	  command += Luv.getLuv().allowTest() ? "" : " -n " + Luv.getLuv().getPort();
+	  //breaks
+	  command += Luv.getLuv().breaksAllowed() ? " -b" : "";
+	  //automation to allow PID capture	  
+	  command += " -a";
+	  //debug file		   
+	  command += " -d " + DEBUG_CFG_FILE;	  	  
+	  //Check Plan file	  
+	  command += Luv.getLuv().allowTest() ? "" : " -check";	  
+	  
 	  // get plan
 
 	  Model currentPlan=this.getCurrentPlan();
@@ -375,6 +429,7 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  }	  
 	  ///command status
 	  System.out.println(command);
+	  //put command in background
 	  return command;
 
 	}

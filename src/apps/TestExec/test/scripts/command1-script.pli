@@ -1,4 +1,4 @@
 (plexil-script
   (script
-    (command-ack "foo" "bool" 1
+    (command-ack "foo" "string" "COMMAND_SUCCESS"
       (param-string ""))))

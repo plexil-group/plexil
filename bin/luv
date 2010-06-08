@@ -45,4 +45,4 @@ if [ ! -e $prog ]
     exit 1
 fi
 
-exec java -jar $prog &
+exec java -jar $prog $* &

@@ -40,7 +40,10 @@ import java.util.Vector;
  */
 
 public class Constants
-{      
+{     
+	  /** Represents the location of the Luv port temp file. */      
+      public static final String    PORT_TEMP_FILE_LOCATION = System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator");    
+	
       /** Represents the location of the Luv application properties file. */      
       public static final String    PROPERTIES_FILE_LOCATION = System.getProperty("user.home") + System.getProperty("file.separator") + ".luv";
       

@@ -123,6 +123,15 @@ if [ '-b' = "$1" ]
     block=
 fi
 
+# Check for LUV automation
+if [ '-a' = "$1" ]
+  then
+    automate="true"
+    shift
+  else
+    automate=
+fi
+
 # Check for specified debug file
 if [ '-d' = "$1" ]
   then
@@ -272,4 +281,11 @@ if [ $summary -eq 1 ]
     echo
 fi
 
-$prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
+if [ "$automate" = "true" ]
+  then
+    $prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block &
+    echo "RUN_TE_PID$!"
+    trap "{ kill $!; }" SIGINT
+  else
+    $prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
+fi

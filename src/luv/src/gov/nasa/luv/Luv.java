@@ -70,6 +70,8 @@ public class Luv extends JFrame {
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
     private RegexModelFilter regexFilter;
+    private int luvPort;
+    private int pid;
 
     // Luv menus
     private JMenu fileMenu;
@@ -84,21 +86,24 @@ public class Luv extends JFrame {
     // current working instance of luv
     private static Luv theLuv;   
     
+    // current port file associated with luv
+    private static LuvTempFile portFile;
+    
     // persistent properties for luv viewer
     private Properties properties;
 
     /** Entry point for the Luv application. */
     public static void main(String[] args) {
-        runApp();
+        runApp(args);
     }
 
     /** Creates a new instance of the Luv application. */
-    private static void runApp() {
+    private static void runApp(String[] args) {
         // if we're on a mac, use mac style menus
         System.setProperty("apple.laf.useScreenMenuBar", "true");
 
         try {
-            new Luv();
+            new Luv(args);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,17 +115,44 @@ public class Luv extends JFrame {
      * and initializing a SocketServer to start listening for events from the 
      * Universal Executive.
      */
-    public Luv() throws IOException {
+    public Luv(String[] args) throws IOException {
         init();
 
         viewHandler.showModelInViewer(currentPlan);
 
         constructFrame(getContentPane());
 
-        luvStateHandler.startState();
-
-        new LuvSocketServer(properties.getInteger(PROP_NET_SERVER_PORT));
-
+        luvStateHandler.startState();        
+        
+	    luvPort = definePort(args);
+	
+        new LuvSocketServer(luvPort);
+        
+        //Script handles socket connections, temp file only for timing difference
+        LuvTempFile.deleteTempFile();
+        
+        portFile = new LuvTempFile();
+    }
+    
+    private int definePort(String[] args)
+    {    	
+    	int port = 0;
+    	int def_port = properties.getInteger(PROP_NET_SERVER_PORT);
+    	
+    	if(args.length > 0)
+    	{
+    		try{    			
+    			port = Integer.parseInt(args[0]);
+    		}catch(NumberFormatException e){
+    	        System.err.println("Port " + args[0] + " is invalid");
+    	    }
+    	}
+    	if(port < 1)
+    		port = def_port;
+    	
+    	System.out.println("PORT: " + port);//
+    	
+    	return port;    	
     }
 
     private void init() {
@@ -317,6 +349,12 @@ public class Luv extends JFrame {
     public static Luv getLuv() {
         return theLuv;
     }
+    
+    /** Returns the current instance of the Luv temp port file. 
+     *  @return the current instance of the Luv temp port file */
+    public static LuvTempFile getPortFile() {
+        return portFile;
+    }
 
     /** Returns the current instance of the Luv ViewHandler.
      *  @return the current instance of the Luv ViewHandler */
@@ -453,6 +491,18 @@ public class Luv extends JFrame {
     public boolean getIsExtendedViewOn() {
         return extendedViewOn;
     }
+    
+    public int getPort() {
+    	return luvPort;
+    }
+    
+  	public int getPid() {
+  		return pid;
+  	}
+  	
+  	public void setPid(int pid) {
+  		this.pid = pid;
+  	}
 
     /** Returns whether Luv currently allows breaks.
      *  @return the current instance of allowBreaks */

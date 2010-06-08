@@ -4,7 +4,7 @@
   (state "B" "int" 2)
   (state "C" "int" 3))
  (script
-  (command-ack "Execute1" "bool" 1)))
+  (command-ack "Execute1" "string" "COMMAND_SUCCESS")))
 
 
 

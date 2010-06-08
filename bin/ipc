@@ -2,7 +2,12 @@
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
-$PLEXIL_HOME/bin/central $*
-
-
-
+if [ '-x' = "$1" ]
+  then
+    shift
+    $PLEXIL_HOME/bin/central -u $* &
+    pid=$!
+    trap "{ kill $pid; }" EXIT
+  else
+    $PLEXIL_HOME/bin/central $*
+fi
