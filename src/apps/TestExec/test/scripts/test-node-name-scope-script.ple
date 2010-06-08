@@ -5,6 +5,6 @@ initial-state {
 }
 
 script {
-  command-ack Y () = 1 : bool;
+  command-ack Y () = "COMMAND_SUCCESS" : string;
 }
 
