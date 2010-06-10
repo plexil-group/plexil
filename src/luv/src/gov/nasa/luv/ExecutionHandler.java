@@ -405,7 +405,7 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  //viewer
 	  command = Luv.getLuv().allowTest() ? RUN_TEST_EXEC + " -v" : RUN_UE_EXEC + " -v";  	  
 	  //port
-	  command += Luv.getLuv().allowTest() ? "" : " -n " + Luv.getLuv().getPort();
+	  command += " -n " + Luv.getLuv().getPort();
 	  //breaks
 	  command += Luv.getLuv().breaksAllowed() ? " -b" : "";
 	  //automation to allow PID capture	  
