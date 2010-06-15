@@ -1,4 +1,17 @@
 #!/bin/bash
+cleanFld="clean"
+bookTemplate="./PictureMan.book"
+if [ $1 = "clean" ]; then
+	if [ -d $cleanFld ]; then
+		rm $cleanFld -r
+	fi
+	if [ -e $bookTemplate ]; then
+		rm $bookTemplate
+	fi
+	echo "cleaned /$cleanFld and $bookTemplate"
+	exit 1
+fi
+
 parse="./parse"
 if [ -e $parse ]; then
 	:
@@ -15,13 +28,12 @@ else
 	exit 1
 fi 
 
-bookTemplate="./PictureMan.book"
 if [ -e $bookTemplate ]; then
-	:
-else 
-	echo "$bookTemplate does not exists"
-	exit 1
-fi 
+	echo "Warning: Re-writing existing $bookTemplate"
+fi
+
+echo '#HTMLDOC 1.8.27 
+-t pdf13 -f "plexil-manual.pdf" --book --toclevels 3 --no-numbered --toctitle "Table of Contents" --title --textcolor #000000 --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --header1 d.. --footer h.1 --nup 1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-xrxcomments --compression=1 --jpeg=90 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset iso-8859-1 --links --embedfonts --pagemode outline --pagelayout single --firstpage c1 --pageeffect none --pageduration 10 --effectduration 1.0 --no-encryption --permissions all  --owner-password ""  --user-password "" --browserwidth 680 --no-strict --no-overflow' > $bookTemplate 
 
 wget -O intro -k http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction
 
@@ -93,7 +105,6 @@ names="names.txt"
 	
 chapters=$(wc -l $names | sed 's/ .*//')
 
-cleanFld="clean"
 if [ -d $cleanFld ]; then
 	while read line
 	do 
@@ -106,7 +117,6 @@ if [ -d $cleanFld ]; then
 		echo "Error: $messy does not exists"
 	     fi 
 	done < $names
-	rm $names
 	if [ -d $sf ]; then
 		rm $sf/*
 		rmdir $sf
@@ -114,5 +124,13 @@ if [ -d $cleanFld ]; then
 else 
 	echo "Error: $cleanFld does not exists"
 fi 
+
+if [ -e $names ]; then
+	while read line
+	do
+	    echo clean/$(echo $line | sed 's/|.*//').html >> $bookTemplate
+	done < $names
+	rm $names
+fi	
 
 exec htmldoc --batch $bookTemplate
