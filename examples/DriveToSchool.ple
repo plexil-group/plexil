@@ -1,4 +1,3 @@
-Integer Lookup time;
 Boolean Lookup at_school;
 
 DriveToSchool:
@@ -7,106 +6,72 @@ DriveToSchool:
   
     StartCar:
     {
-    	PostCondition: KeyStart.outcome == SUCCESS || PushStart.outcome == SUCCESS;
-	EndCondition: KeyStart.outcome == SUCCESS || PushStart.outcome == SUCCESS;
-	NodeList:
+      Try
 	
-	  KeyStart:
-	  {
-	    PostCondition: LookupNow(car_started);
-	    NodeList:
-	    
-	      PrimeAccelerator:
-	      {
-		For 
-		( Integer count = 0; count < 3; count + 1 )
-		  PressAccelerator: 
-		  {
-		    Command: depress_accelerator();
-		  }
-		}
-	      
-	      DepressClutch:
-	      {
-	        StartCondition: PrimeAccelerator.state == FINISHED;
-		Command: depress_clutch();
-	      }	      
-	      TurnKey:  
-	      {	        
-	        StartCondition: DepressClutch.state == FINISHED;
-		EndCondition: LookupOnChange(car_started) || LookupOnChange(time) > 5.0; // TurnKey.state.EXECUTING.START + 
-		Command: turn_key();
-	      }	      	    
-	  }
-	  PushStart:
-	  {
-	    StartCondition: KeyStart.state == FINISHED;
-	    PostCondition: LookupNow(car_started);
-	    Command: push_start();
-	  }
-    }//end of startCar
+        KeyStart:
+        {
+          PostCondition: LookupNow(car_started);
+          Sequence
+
+            PrimeAccelerator:
+	    {
+              For ( Integer count = 0; count < 3; count + 1 )
+                PressAccelerator: { Command: depress_accelerator(); }
+            }
+            
+            TurnKeyCombo:
+            // Depress clutch while turning key
+            {
+              Concurrence 
+
+                DepressClutch: { Command: depress_clutch(); }	      
+
+                TurnKey:  
+                {
+                  // NOTE: We'd like to add a time elapsed check to this end
+                  // condition, but the Plexil compiler doesn't support this yet.
+                  EndCondition: LookupOnChange(car_started);
+                  Command: turn_key();
+                }	      	    
+           }
+        }
+
+        PushStart:
+        {
+          PostCondition: LookupNow(car_started);
+          Command: push_start();
+        }
+    } // end of startCar
+
     SelectStation:
     {
-      Boolean test;    
-      StartCondition: StartCar.state == FINISHED;
-      NodeList:
-        CheckPassengers:
-	{
-	  Assignment: test = LookupNow(no_passengers);
-	}
-	{
-	If ( test )
-	Then
-	  Radio:
-	  {
-	  Command: select_radio();
-	  }
-	Else
-	  CD:
-	  {
-	  Command:  select_CD();
-	  }
-	}
-    }//end of SelectStation
+      If ( LookupNow(no_passengers) )
+      Then Radio: { Command: select_radio(); }
+      Else CD: { Command: select_CD(); }
+    }
+
     DriveUntilAtSchool:
     {
-      StartCondition: SelectStation.state == FINISHED;
-      NodeList:
-      
-        {While (!LookupNow(at_school))
-	  {
-	    NodeList:
+      While ( !LookupNow(at_school) )
+      {
+        Concurrence
 	    	            	
             HandleRain:
 	    {
-	      NodeList:
-	   
-	        {
-	        If(LookupNow(raining))
-	        Then
-	          {
-		    NodeList:
-		  
-	            Wipers:
-	            {
-	              Command: turn_on_wipers();
-	            }
-	            Lights:
-	            {
-	              Command: turn_on_lights();
-	            }
-		  }//end of Then
-	        Else
-	          {
-	          }
-	        }//end of If Parent
-	    }//end of Handle Rain
-	  DriveABit:
-	  {
-	    EndCondition: LookupOnChange(at_school) || LookupOnChange(time) > 5; //DriveABit.state.EXECUTING.START + 
-	    Command: drive_a_bit();
-	  }	    
-	  }//End of While Loop
-	}//end of While Loop Parent	
-      }//End of DriveUntilAtSchool
-}//end of driveToSchool
+              If ( LookupNow(raining) )
+              Then
+	      {
+                Concurrence
+                  Wipers: { Command: turn_on_wipers(); }
+                  Lights: { Command: turn_on_lights(); }
+              }
+            }
+
+            DriveABit:
+            {
+              EndCondition: LookupOnChange(at_school);
+              Command: drive_a_bit();
+            }    
+      }  // end of While Loop
+    } // end of DriveUntilAtSchool
+}
