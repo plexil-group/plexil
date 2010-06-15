@@ -22,6 +22,7 @@ Release Notes
  - Allow string expressions, and arrays, as command arguments
  - Cleanup of TestExec regression tests
  - Cleanup of XML schemas
+ - Revision of DriveToSchool example
  - Miscellaneous fixes throughout system
  - Reference manual revision
 

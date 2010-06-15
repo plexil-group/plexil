@@ -1,17 +1,25 @@
 This file, plexil/CAVEATS, lists known bugs and issues in the
 PLEXIL system.
 
-IPC and related applications (inter-executive
-communication, Standalone Simulator, Robosim) are not working
-in MacOS PowerPC (Intel-based Macs seem fine).  Plans hang
-when the executive is started, and the underlying problem is
-that messaging threads are getting destroyed.
+Major problems
+--------------
+
+IPC and related applications (inter-executive communication,
+Standalone Simulator, Robosim) are not working under MacOS.
+Plans hang when the executive is started, and the underlying
+problem is that messaging threads are getting destroyed.
+
+
+Minor problems
+--------------
 
 Robosim: The (graphical) robot simulator does not always
 shut down cleanly.
 
-Standard Plexil compiler ('plexil'): File extensions included
-in the '-o' option are ignored: Extended and Core Plexil files
-are always written with the ".epx" and ".plx" extensions,
-respectively.
+Standard Plexil compiler ('plexil'): 
 
+ * File extensions included inn the '-o' option are ignored:
+   Extended and Core Plexil files are always written with the
+   ".epx" and ".plx" extensions, respectively.
+
+ * Node timepoints cannot be assigned to variables.
