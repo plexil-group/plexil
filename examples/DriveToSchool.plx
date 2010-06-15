@@ -2,12 +2,51 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <GlobalDeclarations>
+          <CommandDeclaration>
+              <Name>turn_on_lights</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>turn_on_wipers</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>depress_clutch</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>depress_accelerator</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>select_radio</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>drive_a_bit</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>push_start</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>turn_key</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
+              <Name>select_CD</Name>
+          </CommandDeclaration>
           <StateDeclaration>
               <Name>at_school</Name>
               <Return Type="Boolean">_State_return_1</Return>
           </StateDeclaration>
+          <StateDeclaration>
+              <Name>no_passengers</Name>
+              <Return Type="Boolean">_State_return_1</Return>
+          </StateDeclaration>
+          <StateDeclaration>
+              <Name>raining</Name>
+              <Return Type="Boolean">_State_return_1</Return>
+          </StateDeclaration>
+          <StateDeclaration>
+              <Name>car_started</Name>
+              <Return Type="Boolean">_State_return_1</Return>
+          </StateDeclaration>
       </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" FileName="DriveToSchool.ple" LineNo="4"
+   <Node NodeType="NodeList" epx="Sequence" FileName="DriveToSchool.ple" LineNo="20"
          ColNo="1">
       <NodeId>DriveToSchool</NodeId>
       <InvariantCondition>
@@ -38,7 +77,8 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Try" FileName="DriveToSchool.ple" LineNo="8" ColNo="5">
+            <Node NodeType="NodeList" epx="Try" FileName="DriveToSchool.ple" LineNo="24"
+                  ColNo="5">
                <NodeId>StartCar</NodeId>
                <PostCondition>
                   <AND>
@@ -76,7 +116,7 @@
                </EndCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList" epx="Sequence" FileName="DriveToSchool.ple" LineNo="12"
+                     <Node NodeType="NodeList" epx="Sequence" FileName="DriveToSchool.ple" LineNo="28"
                            ColNo="9">
                         <NodeId>KeyStart</NodeId>
                         <PostCondition>
@@ -108,7 +148,7 @@
                         </InvariantCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node NodeType="NodeList" epx="For" FileName="DriveToSchool.ple" LineNo="17"
+                              <Node NodeType="NodeList" epx="For" FileName="DriveToSchool.ple" LineNo="33"
                                     ColNo="13">
                                  <NodeId>PrimeAccelerator</NodeId>
                                  <VariableDeclarations>
@@ -136,7 +176,7 @@
                                                    <NodeId>ep2cp_ForDo</NodeId>
                                                    <NodeBody>
                                                       <NodeList>
-                                                         <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="19" ColNo="35">
+                                                         <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="35" ColNo="35">
                                                             <NodeId>PressAccelerator</NodeId>
                                                             <NodeBody>
                                                                <Command>
@@ -177,7 +217,7 @@
                                     </NodeList>
                                  </NodeBody>
                               </Node>
-                              <Node NodeType="NodeList" epx="Concurrence" FileName="DriveToSchool.ple" LineNo="24"
+                              <Node NodeType="NodeList" epx="Concurrence" FileName="DriveToSchool.ple" LineNo="40"
                                     ColNo="13">
                                  <NodeId>TurnKeyCombo</NodeId>
                                  <StartCondition>
@@ -192,7 +232,7 @@
                                  </StartCondition>
                                  <NodeBody>
                                     <NodeList>
-                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="27" ColNo="32">
+                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="43" ColNo="32">
                                           <NodeId>DepressClutch</NodeId>
                                           <NodeBody>
                                              <Command>
@@ -202,7 +242,7 @@
                                              </Command>
                                           </NodeBody>
                                        </Node>
-                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="30" ColNo="17">
+                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="46" ColNo="17">
                                           <NodeId>TurnKey</NodeId>
                                           <EndCondition>
                                              <LookupOnChange>
@@ -225,7 +265,7 @@
                            </NodeList>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="40" ColNo="9">
+                     <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="56" ColNo="9">
                         <NodeId>PushStart</NodeId>
                         <StartCondition>
                            <AND>
@@ -255,7 +295,7 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="If" FileName="DriveToSchool.ple" LineNo="47" ColNo="5">
+            <Node NodeType="NodeList" epx="If" FileName="DriveToSchool.ple" LineNo="63" ColNo="5">
                <NodeId>SelectStation</NodeId>
                <VariableDeclarations>
                   <DeclareVariable>
@@ -325,7 +365,7 @@
                                  </StartCondition>
                                  <NodeBody>
                                     <NodeList>
-                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="49" ColNo="19">
+                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="65" ColNo="19">
                                           <NodeId>Radio</NodeId>
                                           <NodeBody>
                                              <Command>
@@ -347,7 +387,7 @@
                                  </StartCondition>
                                  <NodeBody>
                                     <NodeList>
-                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="50" ColNo="16">
+                                       <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="66" ColNo="16">
                                           <NodeId>CD</NodeId>
                                           <NodeBody>
                                              <Command>
@@ -366,7 +406,7 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="While" FileName="DriveToSchool.ple" LineNo="54"
+            <Node NodeType="NodeList" epx="While" FileName="DriveToSchool.ple" LineNo="70"
                   ColNo="5">
                <NodeId>DriveUntilAtSchool</NodeId>
                <VariableDeclarations>
@@ -435,12 +475,12 @@
                                           <NodeId>ep2cp_WhileAction</NodeId>
                                           <NodeBody>
                                              <NodeList>
-                                                <Node NodeType="NodeList" epx="Concurrence" FileName="DriveToSchool.ple" LineNo="56"
+                                                <Node NodeType="NodeList" epx="Concurrence" FileName="DriveToSchool.ple" LineNo="72"
                                                       ColNo="7">
                                                    <NodeId>DriveUntilAtSchool__CHILD__1</NodeId>
                                                    <NodeBody>
                                                       <NodeList>
-                                                         <Node NodeType="NodeList" epx="If" FileName="DriveToSchool.ple" LineNo="60"
+                                                         <Node NodeType="NodeList" epx="If" FileName="DriveToSchool.ple" LineNo="76"
                                                                ColNo="13">
                                                             <NodeId>HandleRain</NodeId>
                                                             <VariableDeclarations>
@@ -498,12 +538,12 @@
                                                                               </StartCondition>
                                                                               <NodeBody>
                                                                                  <NodeList>
-                                                                                    <Node NodeType="NodeList" epx="Concurrence" FileName="DriveToSchool.ple" LineNo="63"
+                                                                                    <Node NodeType="NodeList" epx="Concurrence" FileName="DriveToSchool.ple" LineNo="79"
                                                                                           ColNo="15">
                                                                                        <NodeId>HandleRain__CHILD__1</NodeId>
                                                                                        <NodeBody>
                                                                                           <NodeList>
-                                                                                             <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="65" ColNo="27">
+                                                                                             <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="81" ColNo="27">
                                                                                                 <NodeId>Wipers</NodeId>
                                                                                                 <NodeBody>
                                                                                                    <Command>
@@ -513,7 +553,7 @@
                                                                                                    </Command>
                                                                                                 </NodeBody>
                                                                                              </Node>
-                                                                                             <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="66" ColNo="27">
+                                                                                             <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="82" ColNo="27">
                                                                                                 <NodeId>Lights</NodeId>
                                                                                                 <NodeBody>
                                                                                                    <Command>
@@ -535,7 +575,7 @@
                                                                </NodeList>
                                                             </NodeBody>
                                                          </Node>
-                                                         <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="71" ColNo="13">
+                                                         <Node NodeType="Command" FileName="DriveToSchool.ple" LineNo="87" ColNo="13">
                                                             <NodeId>DriveABit</NodeId>
                                                             <EndCondition>
                                                                <LookupOnChange>

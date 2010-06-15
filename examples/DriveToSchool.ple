@@ -1,4 +1,20 @@
+// Declare lookups (optional)
+
 Boolean Lookup at_school;
+Boolean Lookup no_passengers;
+Boolean Lookup car_started;
+Boolean Lookup raining;
+
+// Declare commands (optional)
+Command depress_accelerator();
+Command depress_clutch();
+Command turn_key();
+Command push_start();
+Command select_radio();
+Command select_CD();
+Command turn_on_wipers();
+Command turn_on_lights();
+Command drive_a_bit();
 
 DriveToSchool:
 {
