@@ -1,7 +1,7 @@
 #!/bin/bash
 cleanFld="clean"
 bookTemplate="./PictureMan.book"
-if [ $1 = "clean" ]; then
+if [ "$1" = "clean" ]; then
 	if [ -d $cleanFld ]; then
 		rm $cleanFld -r
 	fi
@@ -33,7 +33,7 @@ if [ -e $bookTemplate ]; then
 fi
 
 echo '#HTMLDOC 1.8.27 
--t pdf13 -f "plexil-manual.pdf" --book --toclevels 3 --no-numbered --toctitle "Table of Contents" --title --textcolor #000000 --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --header1 d.. --footer h.1 --nup 1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-xrxcomments --compression=1 --jpeg=90 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset iso-8859-1 --links --embedfonts --pagemode outline --pagelayout single --firstpage c1 --pageeffect none --pageduration 10 --effectduration 1.0 --no-encryption --permissions all  --owner-password ""  --user-password "" --browserwidth 680 --no-strict --no-overflow' > $bookTemplate 
+-t pdf14 -f "plexil-manual.pdf" --book --toclevels 4 --no-numbered --toctitle "Table of Contents" --title --textcolor #000000 --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .c. --header1 d.. --footer ..1 --nup 1 --tocheader .C. --tocfooter ..i --portrait --color --no-pscommands --no-xrxcomments --compression=1 --jpeg=90 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset iso-8859-1 --links --embedfonts --pagemode outline --pagelayout single --firstpage c1 --pageeffect none --pageduration 10 --effectduration 1.0 --no-encryption --permissions all  --owner-password ""  --user-password "" --browserwidth 680 --no-strict --no-overflow' > $bookTemplate 
 
 wget -O intro -k http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction
 

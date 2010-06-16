@@ -4,6 +4,7 @@ Author: Jason Ho
 This Application requires the following components:
 
 htmldoc (http://www.htmldoc.org/software.php)
+	last working version: HTMLDOC 1.8.27 
 bash
 	wget
 	sed
@@ -25,6 +26,7 @@ README
 
 docHtmlPull
 	main bash script to automate all features
+	also has feature to remove cleaned html and htmldoc template
 
 parse
 	sed script to clean links into usable formats based upon sourceforge
@@ -39,8 +41,16 @@ process
 --- How it Works? ---
 Pulls all relevant links from Plexil sourceforge website index
 downloads relevant pages based upon index into sourceforge root folder
+builds pre-configured htmldoc template
 cleans links based upon names
 formats html files to build a usable index for dochtml in a clean folder
-configures a pre-configured htmldoc file
+configures a pre-configured htmldoc template
 passes html to htmldoc to produce PDF
 
+--- Notes to future editors ---
+Wiki must not contain level 1 entries otherwise confuses HtmlDoc.  
+
+TODO:
+  convert bad php links to useable links by hmtldoc as references witin PDF
+  simplify process sed script to use less lines of code (possibly using
+  functions and variables)
