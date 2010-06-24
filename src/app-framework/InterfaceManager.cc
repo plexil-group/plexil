@@ -701,9 +701,10 @@ namespace PLEXIL
 
         if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end()))
           {
-            debugMsg("InterfaceManager:batchActions", 
-                     " Permission to execute " << cmd->getName().toString()
-                     << " has been granted by the resource arbiter (if one exists).");
+            condDebugMsg(resourceArbiterExists,
+                         "InterfaceManager:batchActions", 
+                         " Permission to execute " << cmd->getName().toString()
+                         << " has been granted by the resource arbiter.");
             // Maintain a <acks, cmdId> map of commands
             m_ackToCmdMap[cmd->getAck()] = cmd;
             // Maintain a <dest, cmdId> map
@@ -1223,7 +1224,7 @@ namespace PLEXIL
 					   const LabelStr& parent)
     throw(ParserException)
   {
-    debugMsg("InterfaceManager:handleAddPlan(XML)", " entered");
+    debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
     checkParserException(planXml->FirstChild() != NULL
