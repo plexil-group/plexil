@@ -10,6 +10,9 @@ distributions only]
 Release Notes
 -------------
 
+Next release
+ - 'Try' will no longer hang if no child succeeds
+
 1.2  (June 2010)
  - Support for Ubuntu Linux
  - LUV (execution viewer) enhancements
