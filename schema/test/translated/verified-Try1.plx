@@ -44,6 +44,20 @@
                </NodeOutcomeVariable>
                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
             </EQInternal>
+            <AND>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeId>One</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeId>Two</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+            </AND>
          </OR>
       </EndCondition>
       <NodeBody>

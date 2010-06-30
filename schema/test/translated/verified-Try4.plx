@@ -56,6 +56,26 @@
                </NodeOutcomeVariable>
                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
             </EQInternal>
+            <AND>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeId>One</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeId>ep2cp_Try_d1e29</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeId>Three</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+            </AND>
          </OR>
       </EndCondition>
       <NodeBody>
@@ -99,6 +119,14 @@
                         </NodeOutcomeVariable>
                         <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                      </EQInternal>
+                     <AND>
+                        <EQInternal>
+                           <NodeStateVariable>
+                              <NodeId>Two</NodeId>
+                           </NodeStateVariable>
+                           <NodeStateValue>FINISHED</NodeStateValue>
+                        </EQInternal>
+                     </AND>
                   </OR>
                </EndCondition>
                <NodeBody>

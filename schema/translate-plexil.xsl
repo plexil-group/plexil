@@ -691,6 +691,12 @@
                 <xsl:apply-templates select="."
                   mode="success-check" />
               </xsl:for-each>
+                <AND>
+                  <xsl:for-each select="child::* intersect key('action', *)">
+                    <xsl:apply-templates select="."
+                                         mode="finished-check" />
+                  </xsl:for-each>
+                </AND>
             </OR>
           </EndCondition>
         </xsl:if>
@@ -748,6 +754,23 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:call-template name="node-succeeded">
+          <xsl:with-param name="id" select="tr:node-id(.)" />
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage"
+    mode="finished-check">
+    <xsl:choose>
+      <xsl:when test="NodeId">
+        <xsl:call-template name="node-finished">
+          <xsl:with-param name="id" select="NodeId" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="node-finished">
           <xsl:with-param name="id" select="tr:node-id(.)" />
         </xsl:call-template>
       </xsl:otherwise>
