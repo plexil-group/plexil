@@ -379,7 +379,8 @@ public class ExecutionHandler
         	  
               if (line.contains("Error"))
               {            	  
-                  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Executive: " + line);                  
+            	  if(!line.contains("PINGED")&&!line.contains("IPC Connected on port 1381"))
+            	  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Executive: " + line);                  
               }                                                       
           }
 
@@ -387,6 +388,7 @@ public class ExecutionHandler
           while ((line = err.readLine()) != null)
           {    
         	  System.out.println("Err: " + line);
+        	  if(!line.contains("PINGED")&&!line.contains("IPC Connected on port 1381"))
               Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: error reported by the Executive: " + line);              
         	  if (line.contains("null interface adapter") && line.contains("command"))
         		  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "an interface configuration xml file is required for handling " + line.substring(line.indexOf("command"), line.length()));        	  

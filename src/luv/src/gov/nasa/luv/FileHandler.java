@@ -580,24 +580,22 @@ public class FileHandler
     {
     
     String supplement = Luv.getLuv().allowTest() ? "script" : "config";
-    String defaultSup = Luv.getLuv().allowTest() ? "Yes, use empty script" : "No config";
-    	
+    String defaultSup = Luv.getLuv().allowTest() ? "Yes, use empty script" : "Yes, use empty config";
+    String message_supplement = Luv.getLuv().allowTest() ? Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)
+			 + System.getProperty("file.separator")
+			 + DEFAULT_SCRIPT_NAME : DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME;
+    
 	Object[] options = 
 	    {
 		defaultSup,
 		"No, I will locate " + supplement,
 		"Cancel plan execution"
 	    };
-
-	
-	
          
 	int option = 
 	    JOptionPane.showOptionDialog(Luv.getLuv(),
 					 "Unable to locate a " + supplement + " for this plan. \n\nDo you want to use the following default "+ supplement +"?\n\n"
-					 + Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)
-					 + System.getProperty("file.separator")
-					 + DEFAULT_SCRIPT_NAME
+					 + message_supplement
 					 + "\n\n",
 					 "Default "+ supplement +" Option",
 					 JOptionPane.YES_NO_CANCEL_OPTION,
@@ -617,6 +615,8 @@ public class FileHandler
 	                out.close();                          
 	                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
 	                return new File(scriptName);
+            	} else if(!Luv.getLuv().allowTest()){
+            		return new File(DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME);            		
             	} else {
             		doNotLoadScript = true;      
             		return null;

@@ -72,6 +72,9 @@ public class Luv extends JFrame {
     private RegexModelFilter regexFilter;
     private int luvPort;
     private int pid;
+    
+    //Luv SocketServer
+    private LuvSocketServer luvServer;
 
     // Luv menus
     private JMenu fileMenu;
@@ -89,7 +92,7 @@ public class Luv extends JFrame {
     // current port file associated with luv
     private static LuvTempFile portFile;
     
-    // persistent properties for luv viewer
+    // persistent properties for Plexil viewer
     private Properties properties;
 
     /** Entry point for the Luv application. */
@@ -113,7 +116,8 @@ public class Luv extends JFrame {
      * Constructs Luv and initializes the many features of the Luv application
      * such as creating the main viewing window, putting Luv in a 'start state'
      * and initializing a SocketServer to start listening for events from the 
-     * Universal Executive.
+     * Universal Executive.  Assigns port argument in to socket server and
+     * creates a port temp file with the relevant port in use.
      */
     public Luv(String[] args) throws IOException {
         init();
@@ -126,14 +130,46 @@ public class Luv extends JFrame {
         
 	    luvPort = definePort(args);
 	
-        new LuvSocketServer(luvPort);
+	    luvServer = new LuvSocketServer(luvPort);
         
         //Script handles socket connections, temp file only for timing difference
         LuvTempFile.deleteTempFile();
         
         portFile = new LuvTempFile();
+        setTitle();
+        
+    }
+
+    /** 
+     * Redefines port argument based upon string argument.
+     * Restarts listening server with new port. Sets
+     * up new port temp file.
+     */
+    public void changePort(String port)
+    {
+    	String[] tempArry = {""};
+    	tempArry[0] = port;
+    	int tempPort = definePort(tempArry);
+    	try{
+    		LuvSocketServer temp = new LuvSocketServer(tempPort);
+    		if(!LuvTempFile.checkPort(tempPort) && temp != null)
+    		{
+	    		luvServer.stopServer();
+	    		LuvTempFile.deleteTempFile();
+	    		luvPort = tempPort;
+	    		luvServer = temp;
+	    		portFile = new LuvTempFile();
+    		}
+    	}catch(Exception e)
+    	{    		
+    		Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error occured while changing to port " + tempPort);
+    	}
+    	
     }
     
+    /** 
+     * Tests port argument or uses default
+     */    
     private int definePort(String[] args)
     {    	
     	int port = 0;
@@ -651,13 +687,14 @@ public class Luv extends JFrame {
         viewMenu.add(LuvActionHandler.findNode);
         viewMenu.add(new JSeparator());
         viewMenu.add(LuvActionHandler.extendedViewAction);
-       // viewMenu.add(new JSeparator());
-       // viewMenu.add(LuvActionHandler.viewSourceAction);
+        //viewMenu.add(new JSeparator());
+        //viewMenu.add(LuvActionHandler.viewSourceAction);
         
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
         //debugMenu.add(LuvActionHandler.luvDebugHistoryWindowAction);
+        debugMenu.add(LuvActionHandler.luvServerAction);
         debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
         debugMenu.add(LuvActionHandler.aboutWindowAction);        
     }
@@ -665,7 +702,10 @@ public class Luv extends JFrame {
     /** Sets the title of the Luv application. */
     public void setTitle() {
         if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN)) {
-            String title = "Luv Viewer  -  " + currentPlan.getPlanName();
+            String title = "Luv Viewer @ " + getPort();
+            title += " - ";
+            title += allowTest() ? " Test " : " Universal ";
+            title += "Executive - " + currentPlan.getPlanName();
 
             if (!currentPlan.getScriptName().equals(UNKNOWN)) {
                 title += " + " + currentPlan.getScriptName();
@@ -673,9 +713,9 @@ public class Luv extends JFrame {
 
             setTitle(title);
         } else if (isExecuting) {
-            setTitle("Luv Viewer  -  Remote Execution");
+            setTitle("Luv Viewer @ " + getPort() + " -  Remote Execution");
         } else {
-            setTitle("Luv Viewer");
+            setTitle("Luv Viewer @ " + getPort());
         }
     }
 

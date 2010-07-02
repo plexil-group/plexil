@@ -32,6 +32,8 @@ import java.net.Socket;
 public class LuvSocketServer {
 
     private StreamWranglerFactory wranglerFactory;
+    private ServerSocket luvSocket;
+    private boolean threadDone;
 
     /**
      * Constructs a server which listens on the specified port and StreamWranglerFactory.
@@ -40,6 +42,7 @@ public class LuvSocketServer {
      */
     public LuvSocketServer(final int port) {
         wranglerFactory = new LuvStreamWranglerFactory();
+        threadDone = true;
 
         // create a thread which listens for events
         new Thread() {
@@ -58,12 +61,17 @@ public class LuvSocketServer {
      */
     public void accept(int port) {
         try {
-            ServerSocket ss = new ServerSocket(port);
-
-            while (true) {
-                handleConnection(ss.accept());
+        	luvSocket = new ServerSocket(port);
+            while (threadDone) {
+                handleConnection(luvSocket.accept());
             }
-        } catch (Exception e) {
+        }catch (java.net.SocketException e){
+        	if(e.getMessage().equals("Socket closed"))
+        		Luv.getLuv().getStatusMessageHandler().showStatusOnBarOnly("Previous " + e.getMessage());
+        	else
+        		Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);
+        }        
+        catch (Exception e) {
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);
         }
     }
@@ -80,5 +88,12 @@ public class LuvSocketServer {
                 }
             }
         }.start();
+    }
+    
+    public void stopServer() throws IOException
+    {
+	    	threadDone = false;
+	    	if(luvSocket != null)
+	    		luvSocket.close();	    	    	    
     }
 }

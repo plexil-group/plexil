@@ -5,7 +5,8 @@ import static gov.nasa.luv.Constants.PORT_TEMP_FILE_LOCATION;
 
 public class LuvTempFile {
 	
-	LuvTempFile() {
+	LuvTempFile() 
+	{
 		File temp_dir = new File(PORT_TEMP_FILE_LOCATION);
 		File temp = new File(PORT_TEMP_FILE_LOCATION + "Luv_" + Luv.getLuv().getPort());		
 		try{
@@ -23,8 +24,9 @@ public class LuvTempFile {
 		}
 	}
 	
-public static void deleteTempFile() {
-	
+public static void deleteTempFile() 
+{
+
 	String fileName = PORT_TEMP_FILE_LOCATION + "Luv_" + Luv.getLuv().getPort();
 	File f = new File(fileName);
 	
@@ -39,4 +41,10 @@ public static void deleteTempFile() {
 	if(!success)
 		throw new IllegalArgumentException("Delete: deletion failed");
 	}
+
+public static boolean checkPort(int port)
+{
+	File temp = new File(PORT_TEMP_FILE_LOCATION + "Luv_" + port);
+	return temp.exists();
+}
 }

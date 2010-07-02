@@ -1,5 +1,3 @@
-Integer Function RandomNumber(Integer, Integer);
-
 RootNode:
 {
   String RobotName = "RobotYellow";
@@ -15,8 +13,7 @@ RootNode:
     {
       Integer randNumberTmp;
       PostCondition: Move.outcome == SUCCESS && QueryEnergySensor.outcome == SUCCESS &&
-                     RandomNumberGeneratorNode.outcome == SUCCESS && 
-                     ResetRandomNumber.outcome == SUCCESS;
+                     MoveRandom.outcome == SUCCESS;
       NodeList:
 
       Move:
@@ -34,18 +31,9 @@ RootNode:
         Command: energy = QueryEnergySensor(RobotName);
       }
 
-      RandomNumberGeneratorNode:
+      MoveRandom:
       {
-        StartCondition: QueryEnergySensor.state == FINISHED;
-        EndCondition: isKnown(randNumberTmp);
-
-        FunctionCall: randNumberTmp = RandomNumber(0, 3);
-      }
-
-      ResetRandomNumber:
-      {
-        StartCondition: RandomNumberGeneratorNode.state == FINISHED;
-        Assignment: randNumber = randNumberTmp;
+        Command: randNumber = MoveRandom(RobotName);
       }
     }
   }

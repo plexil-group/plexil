@@ -151,6 +151,33 @@ public class LuvActionHandler {
                 }
             };
             
+    /** Action to change luv server port. */
+    public static LuvAction luvServerAction = 
+    	new LuvAction("Change Server port",
+        "Change viewer server listening port.",
+        VK_S,
+        META_MASK) {
+
+    		public void actionPerformed(ActionEvent e) {
+    			boolean test = true;
+    			int numTest = -1;
+    			String port = "";
+    			String message = "Enter port value:";
+    			while(test)
+    			{    			
+    				port = JOptionPane.showInputDialog(Luv.getLuv(), message);
+    				try{
+    				numTest = Integer.parseInt(port);
+    				if(numTest > 0 || port == "" + CANCEL_OPTION)
+    					test = false;
+    				}catch(NumberFormatException ex){}
+    				message = "Invalid integer port value! Enter port value:";
+    			}
+    			Luv.getLuv().changePort(port);
+    			Luv.getLuv().setTitle();
+	        }
+    	};        
+            
     /** Action to show the debugging window. */
     public static LuvAction luvDebugHistoryWindowAction = 
     	new LuvAction("Show History Player Window",
@@ -191,11 +218,11 @@ public class LuvActionHandler {
     /** Action to show the About Luv Viewer window. */
     public static LuvAction aboutWindowAction =
             new LuvAction("About Luv Viewer Window",
-            "Show window with luv viewer about information.") {
+            "Show window with Luv Viewer about information.") {
 
                 public void actionPerformed(ActionEvent e) {
                     String info =
-                            "Product:   Luv Viewer Version 1.0 beta 4 (c) 2008 NASA Ames Research Center\n" +
+                            "Product:   Luv Viewer Version 1.0 beta 6 (c) 2010 NASA Ames Research Center\n" +
                             "Website:   http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
@@ -357,24 +384,8 @@ public class LuvActionHandler {
     public static LuvAction exitAction =
             new LuvAction("Exit", "Terminate this program.", VK_ESCAPE) {
 
-                public void actionPerformed(ActionEvent e) {
-                    Object[] options = {
-                        "Yes",
-                        "No",};
-
-                    int exitLuv =
-                            JOptionPane.showOptionDialog(Luv.getLuv(),
-                            "Are you sure you want to exit?",
-                            "Exit Luv Viewer",
-                            JOptionPane.YES_NO_CANCEL_OPTION,
-                            JOptionPane.WARNING_MESSAGE,
-                            null,
-                            options,
-                            options[0]);
-
-                    if (exitLuv == 0) {
-                        System.exit(0);
-                    }
+                public void actionPerformed(ActionEvent e) {                  
+                        System.exit(0);                    
                 }
             };
 	/** Action to allow testExec. */
@@ -391,7 +402,7 @@ public class LuvActionHandler {
 					putValue(NAME, "Use UniversalExec");
 					openScriptAction.putValue(NAME, "Open Script");
 					openScriptAction.putValue(SHORT_DESCRIPTION,
-							"Open a plexil script file.");
+							"Open a plexil script file.");					
 
 				} else {
 					Luv.getLuv().getStatusMessageHandler().showStatus(
@@ -403,6 +414,7 @@ public class LuvActionHandler {
 							"Open a config file");
 
 				}
+				Luv.getLuv().setTitle();
 			}
 		}
 	};

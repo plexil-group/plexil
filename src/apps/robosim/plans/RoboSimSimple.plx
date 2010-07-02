@@ -1,14 +1,13 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="plexil.xsd">
-      <GlobalDeclarations>
-          <FunctionDeclaration>
-              <Name>RandomNumber</Name>
-              <Return Type="Integer">_Function_return_1</Return>
-              <Parameter Type="Integer">_Function_param_1</Parameter>
-              <Parameter Type="Integer">_Function_param_2</Parameter>
-          </FunctionDeclaration>
-      </GlobalDeclarations>
-      <Node NodeType="NodeList">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="RoboSimSimple.ple">
+      <Node FileName="RoboSimSimple.ple" LineNo="2" ColNo="1" NodeType="NodeList">
           <VariableDeclarations>
+              <DeclareVariable>
+                  <Name>RobotName</Name>
+                  <Type>String</Type>
+                  <InitialValue>
+                      <StringValue>RobotYellow</StringValue>
+                  </InitialValue>
+              </DeclareVariable>
               <DeclareVariable>
                   <Name>randNumber</Name>
                   <Type>Integer</Type>
@@ -20,7 +19,7 @@
           <NodeId>RootNode</NodeId>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="NodeList">
+                  <Node FileName="RoboSimSimple.ple" LineNo="8" ColNo="3" NodeType="NodeList">
                       <NodeId>MoveRobot</NodeId>
                       <RepeatCondition>
                           <EQInternal>
@@ -32,7 +31,7 @@
                       </RepeatCondition>
                       <NodeBody>
                           <NodeList>
-                              <Node NodeType="NodeList">
+                              <Node FileName="RoboSimSimple.ple" LineNo="13" ColNo="5" NodeType="NodeList">
                                   <VariableDeclarations>
                                       <DeclareVariable>
                                           <Name>randNumberTmp</Name>
@@ -43,30 +42,22 @@
                                   <PostCondition>
                                       <AND>
                                           <AND>
-                                              <AND>
-                                                  <EQInternal>
-                                                      <NodeOutcomeVariable>
-                                                          <NodeId>Move</NodeId>
-                                                      </NodeOutcomeVariable>
-                                                      <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                                  </EQInternal>
-                                                  <EQInternal>
-                                                      <NodeOutcomeVariable>
-                                                          <NodeId>QueryEnergySensor</NodeId>
-                                                      </NodeOutcomeVariable>
-                                                      <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                                  </EQInternal>
-                                              </AND>
                                               <EQInternal>
                                                   <NodeOutcomeVariable>
-                                                      <NodeId>RandomNumberGeneratorNode</NodeId>
+                                                      <NodeId>Move</NodeId>
+                                                  </NodeOutcomeVariable>
+                                                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                                              </EQInternal>
+                                              <EQInternal>
+                                                  <NodeOutcomeVariable>
+                                                      <NodeId>QueryEnergySensor</NodeId>
                                                   </NodeOutcomeVariable>
                                                   <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                                               </EQInternal>
                                           </AND>
                                           <EQInternal>
                                               <NodeOutcomeVariable>
-                                                  <NodeId>ResetRandomNumber</NodeId>
+                                                  <NodeId>MoveRandom</NodeId>
                                               </NodeOutcomeVariable>
                                               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                                           </EQInternal>
@@ -74,7 +65,7 @@
                                   </PostCondition>
                                   <NodeBody>
                                       <NodeList>
-                                          <Node NodeType="Command">
+                                          <Node FileName="RoboSimSimple.ple" LineNo="20" ColNo="7" NodeType="Command">
                                               <VariableDeclarations>
                                                   <DeclareVariable>
                                                       <Name>res</Name>
@@ -100,12 +91,13 @@
                                                           <StringValue>Move</StringValue>
                                                       </Name>
                                                       <Arguments>
+                                                          <StringVariable>RobotName</StringVariable>
                                                           <IntegerVariable>randNumber</IntegerVariable>
                                                       </Arguments>
                                                   </Command>
                                               </NodeBody>
                                           </Node>
-                                          <Node NodeType="Command">
+                                          <Node FileName="RoboSimSimple.ple" LineNo="28" ColNo="7" NodeType="Command">
                                               <VariableDeclarations>
                                                   <DeclareArray>
                                                       <Name>energy</Name>
@@ -128,54 +120,24 @@
                                                       <Name>
                                                           <StringValue>QueryEnergySensor</StringValue>
                                                       </Name>
+                                                      <Arguments>
+                                                          <StringVariable>RobotName</StringVariable>
+                                                      </Arguments>
                                                   </Command>
                                               </NodeBody>
                                           </Node>
-                                          <Node NodeType="FunctionCall">
-                                              <NodeId>RandomNumberGeneratorNode</NodeId>
-                                              <StartCondition>
-                                                  <EQInternal>
-                                                      <NodeStateVariable>
-                                                          <NodeId>QueryEnergySensor</NodeId>
-                                                      </NodeStateVariable>
-                                                      <NodeStateValue>FINISHED</NodeStateValue>
-                                                  </EQInternal>
-                                              </StartCondition>
-                                              <EndCondition>
-                                                  <IsKnown>
-                                                      <IntegerVariable>randNumberTmp</IntegerVariable>
-                                                  </IsKnown>
-                                              </EndCondition>
+                                          <Node FileName="RoboSimSimple.ple" LineNo="35" ColNo="7" NodeType="Command">
+                                              <NodeId>MoveRandom</NodeId>
                                               <NodeBody>
-                                                  <FunctionCall>
-                                                      <IntegerVariable>randNumberTmp</IntegerVariable>
+                                                  <Command>
+                                                      <IntegerVariable>randNumber</IntegerVariable>
                                                       <Name>
-                                                          <StringValue>RandomNumber</StringValue>
+                                                          <StringValue>MoveRandom</StringValue>
                                                       </Name>
                                                       <Arguments>
-                                                          <IntegerValue>0</IntegerValue>
-                                                          <IntegerValue>3</IntegerValue>
+                                                          <StringVariable>RobotName</StringVariable>
                                                       </Arguments>
-                                                  </FunctionCall>
-                                              </NodeBody>
-                                          </Node>
-                                          <Node NodeType="Assignment">
-                                              <NodeId>ResetRandomNumber</NodeId>
-                                              <StartCondition>
-                                                  <EQInternal>
-                                                      <NodeStateVariable>
-                                                          <NodeId>RandomNumberGeneratorNode</NodeId>
-                                                      </NodeStateVariable>
-                                                      <NodeStateValue>FINISHED</NodeStateValue>
-                                                  </EQInternal>
-                                              </StartCondition>
-                                              <NodeBody>
-                                                  <Assignment>
-                                                      <IntegerVariable>randNumber</IntegerVariable>
-                                                      <NumericRHS>
-                                                          <IntegerVariable>randNumberTmp</IntegerVariable>
-                                                      </NumericRHS>
-                                                  </Assignment>
+                                                  </Command>
                                               </NodeBody>
                                           </Node>
                                       </NodeList>

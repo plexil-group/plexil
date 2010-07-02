@@ -491,11 +491,14 @@ public class Constants
       
       /** Represents an empty Plexil script. */ 
       public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
-      /** Represents an default UE config. */
-      public static final String DEFAULT_CONFIG_NAME = "interface-config.xml";
+      /** Represents an default UE config. */      
+      public static final String DEFAULT_CONFIG_NAME = "dummy-config.xml";
+      public static final String DEFAULT_CONFIG_PATH = PLEXIL_HOME +
+		 												System.getProperty("file.separator") +
+		 												"examples" + System.getProperty("file.separator");      
       /** Contains the contents of an empty Plexil script. */
-      public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";
- 
+      public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";          
+      
       /** Represents index of the Open Plan item under the File menu in the Luv application. */ 
       public static final int OPEN_PLAN_MENU_ITEM           = 0;
       /** Represents index of the Open Script item under the File menu in the Luv application. */ 
