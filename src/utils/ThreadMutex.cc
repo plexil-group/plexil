@@ -47,6 +47,8 @@ namespace PLEXIL
 	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << rv);
       }
 
+    // this may not be implemented, skip it if not
+#ifdef PTHREAD_PRIO_INHERIT
     rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
     if (rv != 0)
       {
@@ -54,6 +56,7 @@ namespace PLEXIL
 	assertTrue(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
 	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << rv);
       }
+#endif
 
     rv = pthread_mutex_init(&m_mutex, &m_mta);
     if (rv != 0)
