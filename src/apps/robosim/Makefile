@@ -28,9 +28,5 @@ plexil-default: 2DRoboSim
 2DRoboSim:
 	$(MAKE) -C 2DRobotSimulator
 
-ObsoleteAdapter:
-	$(MAKE) -C RobotSimulatorAdapter
-
 clean:
 	@ $(MAKE) -C 2DRobotSimulator $@
-	@ $(MAKE) -C RobotSimulatorAdapter $@
