@@ -290,7 +290,7 @@ int main(int argc, char** argv)
 
   terrain = new MazeTerrain("maze32.data");
   resources = new EnergySources("energySource.data", terrain->getHeight());
-  goals = new Goals(terrain->getHeight());
+  goals = new Goals(terrain->getHeight(), 25.5);
   robotPoseServer = new RobotPositionServer(terrain->getHeight(), terrain->getWidth());
 
   readRobotLocations("Robots.data");
