@@ -1,0 +1,205 @@
+// This is a Plexil plan for the RoboSim application.  It has the robot
+// find the goal.  Contributed by Sudhanshu Vias of Iowa State University.
+
+// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+GoalSearch:
+{
+  String RobotName = "RobotYellow";
+  Integer Found;
+  Integer Direction;
+  Real RobotGoal[5];
+  Real HighestSensorVal;
+  Integer RobotVisibility[4];
+  NodeList:
+
+    StartNode://Initialization Node
+    {
+      EndCondition: isKnown(Found);
+      Assignment: Found = 0;
+    }
+
+    FoundGOAL:
+    {
+      StartCondition: StartNode.state == FINISHED;
+
+      // Node will reach FINISHED state only when Robot's
+      // center sensor senses 1
+      EndCondition: RobotGoal[4] == 1;
+      RepeatCondition: RobotGoal[4] < 1;
+    }
+
+    Loop:
+    // Repeats forever but stops moving once reaches goal 
+    {
+      StartCondition: StartNode.state == FINISHED;
+      RepeatCondition: Found == 0;
+      Sequence
+
+        ReadGoalSensors:
+        {
+          // Exit node only after sensor data is registered
+          EndCondition: isKnown(RobotGoal[0]); 
+          Command: RobotGoal = QueryGoalSensor(RobotName);
+        }
+
+        ReadVisibility: // Check if anything is blocking the path
+        {
+          EndCondition: isKnown(RobotVisibility[0]);
+          Command: RobotVisibility = QueryVisibilitySensor(RobotName);
+        }
+
+        InitReadSensor:
+        {
+          Sequence
+
+            ReadUp:
+            {
+              EndCondition: isKnown(HighestSensorVal);
+              // Set value to start a comparison
+              Assignment: HighestSensorVal = RobotGoal[0];
+            }
+
+           ResetDir:
+            {
+              EndCondition: Direction == -1;
+              // Set direction to an invalid value. In 'Move' stage if the 
+              // value remains -1 the robot will not move.
+              Assignment: Direction = -1;
+            }
+        }
+
+       CompareSensors:
+       {
+         // Compare each Sensor value.
+         // If higher than previous store and change direction.
+         For (Integer i = 1; i < 4; i + 1) 
+           {
+             If (HighestSensorVal < RobotGoal[i]) Then
+               { 
+                 Sequence
+                   SetVal:
+                   { 
+                     EndCondition: isKnown(HighestSensorVal);
+                     Assignment: HighestSensorVal = RobotGoal[i];
+                   }
+                   ChangeDir:
+                   {
+                     EndCondition: isKnown(HighestSensorVal);
+                     Assignment: Direction = i;
+                   }
+               }
+             Else
+               {
+                 Assignment: Direction = Direction;  //otherwise ignore
+               }
+           } // For
+       } // CompareSensors
+
+       Move:
+       {
+         Integer Result;
+         EndCondition: isKnown(Result);
+         If (Direction == -1) Then
+           {             
+             //If direction invalid(-1)  do not move
+             Assignment: Result = 0;
+           }
+         Else
+           {
+             If (RobotVisibility[Direction] == 0) Then
+               {
+                 // Obstacle handling logic
+                 Sequence
+
+                   TurnOne:
+                   {
+                     // Turn 90 degrees clockwise
+                     Assignment: Direction = Direction + 1; 
+                   }
+
+                   checkbound:
+                   {
+                     If (Direction > 3) Then
+                       {
+                         // Correct direction value if beyond 3,
+                         // e.g. if previously moving left (3)and then turn 90
+                         // degrees we must change the 4 to a 0 for up
+                         Assignment: Direction = Direction - 4; 
+                       }                                      
+                     Else
+                       {                                    
+                         Assignment: Direction = Direction;
+                       }
+                   }
+
+                   MakeTurnOne:
+                   {
+                     Integer move_turn1;
+                     EndCondition: isKnown(move_turn1);
+                     For (Integer j = 0; j < 2; j + 1)
+                       {      //move two paces in the new direction
+                         Command: move_turn1 = Move(RobotName,Direction);
+                       }
+                   }
+                   DecideTurnTwo:
+                   {
+                     Assignment: Direction = Direction + 1;             
+                   }
+                   checkturn: // Note should make as function or callable Node
+                   {
+                     If (Direction > 3) Then {
+                       Assignment: Direction = Direction - 4;
+                     }
+                     Else
+                       {
+                         Assignment: Direction = Direction;
+                       }
+                   }
+
+                   TaketurnTwo:
+                   {
+                     // Using Result and not local variable to 
+                     // satisfy Move Node's EndCondition.
+                     EndCondition: isKnown(Result);
+                     For (Integer i = 0; i < 2; i + 1)
+                       {
+                         Command: Result = Move(RobotName,Direction);
+                       }
+                   }
+
+               } // End of obstacle handling logic
+             Else
+               // No static obstacle
+               { 
+               Command: Result = Move(RobotName,Direction);
+               }
+           }
+       } // End Move
+    } // End Loop
+} 
+
