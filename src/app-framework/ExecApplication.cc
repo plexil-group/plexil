@@ -54,7 +54,8 @@ namespace PLEXIL
       m_execMutex(),
       m_sem(),
       m_state(APP_UNINITED),
-      m_runExecInBkgndOnly(true)
+      m_runExecInBkgndOnly(true),
+      m_suspended(false)
   {
     // connect exec and interface manager
     m_exec.setExternalInterface(m_interface.getId());
@@ -99,7 +100,7 @@ namespace PLEXIL
     bool success = m_interface.initialize();
     if (success)
       {
-        m_state = APP_INITED;
+        setApplicationState(APP_INITED);
       }
 
     return success;
@@ -123,7 +124,7 @@ namespace PLEXIL
         return false;
       }
       
-    m_state = APP_INTERFACES_STARTED;
+    setApplicationState(APP_INTERFACES_STARTED);
     return true;
   }
 
@@ -137,11 +138,13 @@ namespace PLEXIL
     if (m_state != APP_INTERFACES_STARTED)
       return false;
 
+    // Clear suspended flag just in case
+    m_suspended = false;
+
     // Start the event listener thread
     assertTrue(spawnExecThread(),
                "ExecApplication::run: Fatal error: failed to start Exec thread");
-    
-    // m_state = APP_RUNNING; // done in spawnExecThread()
+
     return true;
   }
 
@@ -155,9 +158,10 @@ namespace PLEXIL
       return false;
 
     // Suspend the Exec 
-    // *** NYI ***
+    m_suspended = true;
     
-    m_state = APP_SUSPENDED;
+    // *** NYI: wait here til current step completes ***
+    setApplicationState(APP_SUSPENDED);
     return true;
   }
 
@@ -171,9 +175,10 @@ namespace PLEXIL
       return false;
 
     // Resume the Exec
-    // *** NYI ***
+    m_suspended = false;
+    notifyExec();
     
-    m_state = APP_RUNNING;
+    setApplicationState(APP_RUNNING);
     return true;
   }
 
@@ -215,7 +220,7 @@ namespace PLEXIL
       }
     debugMsg("ExecApplication:stop", " Top level thread halted");
     
-    m_state = APP_STOPPED;
+    setApplicationState(APP_STOPPED);
     return true;
   }
 
@@ -232,10 +237,13 @@ namespace PLEXIL
     // Reset interfaces
     m_interface.reset();
 
+    // Clear suspended flag
+    m_suspended = true;
+
     // Reset the Exec
     // *** NYI ***
     
-    m_state = APP_INITED;
+    setApplicationState(APP_INITED);
     return true;
   }
 
@@ -255,7 +263,7 @@ namespace PLEXIL
     // Shut down interfaces
     m_interface.shutdown();
     
-    m_state = APP_SHUTDOWN;
+    setApplicationState(APP_SHUTDOWN);
     return true;
   }
 
@@ -280,8 +288,8 @@ namespace PLEXIL
     }
     catch (const ParserException& e)
       {
-	std::cerr << "Error parsing library from XML: \n" << e.what() << std::endl;
-	return false;
+        std::cerr << "Error parsing library from XML: \n" << e.what() << std::endl;
+        return false;
       }
 
     m_interface.handleAddLibrary(root);
@@ -311,8 +319,8 @@ namespace PLEXIL
     }
     catch (const ParserException& e)
       {
-	std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
-	return false;
+        std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
+        return false;
       }
 
     m_interface.handleAddPlan(root, EMPTY_LABEL());
@@ -329,13 +337,13 @@ namespace PLEXIL
   {
     debugMsg("ExecApplication:run", " Spawning top level thread");
     int success = pthread_create(&m_execThread,
-				 NULL,
-				 execTopLevel,
-				 this);
+                                 NULL,
+                                 execTopLevel,
+                                 this);
     assertTrue(success == 0,
-	       "ExecApplication::run: unable to spawn exec thread!");
+               "ExecApplication::run: unable to spawn exec thread!");
     debugMsg("ExecApplication:run", " Top level thread running");
-    m_state = APP_RUNNING;
+    setApplicationState(APP_RUNNING);
     return success == 0;
   }
 
@@ -355,7 +363,7 @@ namespace PLEXIL
 
     while (waitForExternalEvent())
       {
-	runExec(false);
+        runExec(false);
       }
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
   }
@@ -373,35 +381,45 @@ namespace PLEXIL
     RTMutexGuard guard(m_execMutex);
     if (stepFirst)
       {
-	debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
-	m_exec.step();
-	debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
+        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
+        m_exec.step();
+        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
       }
-    while (m_interface.processQueue())
+    while (!m_suspended && m_interface.processQueue())
       {
-	debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
-	m_exec.step();
-	debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
-	// give an opportunity to cancel thread here
-	pthread_testcancel();
+        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
+        m_exec.step();
+        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
+        // give an opportunity to cancel thread here
+        pthread_testcancel();
       }
-    debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
+    condDebugMsg(!m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
+    condDebugMsg(m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") Suspended");
   }
 
   /**
    * @brief Suspends the calling thread until another thread has
-   *         placed a call to notifyOfExternalEvent().  Can return
-   *	    immediately if the call to wait() returns an error.
+   *         placed a call to notifyExec().  Can return
+   *        immediately if the call to wait() returns an error.
    * @return true if resumed normally, false if wait resulted in an error.
+   * @note Can wait here indefinitely while the application is suspended.
    */
   bool ExecApplication::waitForExternalEvent()
   {
     debugMsg("ExecApplication:wait", " (" << pthread_self() << ") waiting for external event");
-    int status = m_sem.wait();
-    if (status == 0)
-      {
-        debugMsg("ExecApplication:wait", " (" << pthread_self() << ") acquired semaphore, processing external event(s)");
-      }
+	int status;
+    do {
+      status = m_sem.wait();
+      if (status == 0)
+        {
+          condDebugMsg(!m_suspended, 
+                       "ExecApplication:wait",
+                       " (" << pthread_self() << ") acquired semaphore, processing external event");
+          condDebugMsg(m_suspended, 
+                       "ExecApplication:wait",
+                       " Application is suspended, ignoring external event");
+        }
+    } while (m_suspended);
     return (status == 0);
   }
 
@@ -417,9 +435,9 @@ namespace PLEXIL
     bool finished = false;
     while (!finished)
       {
-	// sleep for a bit so as not to hog the CPU
-	sleep(1);
-	
+        // sleep for a bit so as not to hog the CPU
+        sleep(1);
+    
         // grab the exec and find out if it's finished yet
         RTMutexGuard guard(m_execMutex);
         finished = m_exec.allPlansFinished();
@@ -427,32 +445,111 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
+   * @note May be called by multiple threads
+   */
+  void
+  ExecApplication::waitForShutdown() {
+    m_shutdownSem.wait();
+    m_shutdownSem.post(); // pass it on to the next, if any
+  }
+
+  /**
+   * @brief Get the application's current state.
+   */
+  ExecApplication::ApplicationState 
+  ExecApplication::getApplicationState() {
+    ThreadMutexGuard guard(m_stateMutex);
+    return m_state;
+  }
+
+  /**
+   * @brief Transitions the application to the new state.
+   * @return true if the new state is a legal transition from the current state, false if not.
+   */ 
+  bool 
+  ExecApplication::setApplicationState(const ExecApplication::ApplicationState& newState) {
+    assertTrueMsg(newState != APP_UNINITED,
+                  "APP_UNINITED is an invalid state for setApplicationState");
+
+    // variable binding context for guard -- DO NOT DELETE THESE BRACES!
+    {
+      ThreadMutexGuard guard(m_stateMutex);
+      switch (newState) {
+      case APP_INITED:
+        assertTrueMsg(m_state == APP_UNINITED || m_state == APP_STOPPED,
+                      "Illegal application state transition");
+        m_state = newState;
+        break;
+
+      case APP_INTERFACES_STARTED:
+        assertTrueMsg(m_state == APP_INITED,
+                      "Illegal application state transition");
+        m_state = newState;
+        break;
+
+      case APP_RUNNING:
+        assertTrueMsg(m_state == APP_INTERFACES_STARTED || m_state == APP_SUSPENDED,
+                      "Illegal application state transition");
+        m_state = newState;
+        break;
+
+      case APP_SUSPENDED:
+        assertTrueMsg(m_state == APP_RUNNING,
+                      "Illegal application state transition");
+        m_state = newState;
+        break;
+
+      case APP_STOPPED:
+        assertTrueMsg(m_state == APP_RUNNING || m_state == APP_SUSPENDED,
+                      "Illegal application state transition");
+        m_state = newState;
+        break;
+
+      case APP_SHUTDOWN:
+        assertTrueMsg(m_state == APP_STOPPED,
+                      "Illegal application state transition");
+        m_state = newState;
+        break;
+
+      }
+      // end variable binding context for guard -- DO NOT DELETE THESE BRACES!
+    }
+
+    if (newState == APP_SHUTDOWN) {
+      // Notify any threads waiting for this state
+      m_shutdownSem.post();
+    }
+  }
+
+
+  /**
    * @brief Notify the executive that it should run one cycle.  
-            This should be sent after each batch of lookup, command
-            return, and function return data.
+   This should be sent after each batch of lookup, command
+   return, and function return data.
   */
   void
   ExecApplication::notifyExec()
   {
     if (m_runExecInBkgndOnly || m_execMutex.isLocked())
       {
-	// Some thread currently owns the exec. Could be this thread.
-	// runExec() could notice, or not.
-	// Post to semaphore to ensure event is not lost.
-	int status = m_sem.post();
-	assertTrueMsg(status == 0,
-		      "notifyOfExternalEvent: semaphore post failed, status = "
-		      << status);
-	debugMsg("ExecApplication:notify",
-		 " (" << pthread_self() << ") released semaphore");
+        // Some thread currently owns the exec. Could be this thread.
+        // runExec() could notice, or not.
+        // Post to semaphore to ensure event is not lost.
+        int status = m_sem.post();
+        assertTrueMsg(status == 0,
+					  "notifyExec: semaphore post failed, status = "
+					  << status);
+		debugMsg("ExecApplication:notify",
+				 " (" << pthread_self() << ") released semaphore");
       }
     else
       {
-	// Exec is idle, so run it
-	// If another thread grabs it first, no worries.
-	debugMsg("ExecApplication:notify",
-		 " (" << pthread_self() << ") exec was idle, stepping it");
-	this->runExec();
+		// Exec is idle, so run it
+		// If another thread grabs it first, no worries.
+		debugMsg("ExecApplication:notify",
+				 " (" << pthread_self() << ") exec was idle, stepping it");
+		this->runExec();
       }
   }
 

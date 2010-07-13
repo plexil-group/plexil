@@ -31,6 +31,7 @@
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
+#include "ThreadMutex.hh"
 #include "RecursiveThreadMutex.hh"
 #include "ThreadSemaphore.hh"
 
@@ -104,11 +105,6 @@ namespace PLEXIL
     inline const PlexilXmlParser& getParser() const
     {
       return m_parser;
-    }
-
-    inline const ApplicationState& getApplicationState() const
-    {
-      return m_state;
     }
 
     /**
@@ -186,6 +182,11 @@ namespace PLEXIL
     virtual void waitForPlanFinished();
 
     /**
+     * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
+     */
+    virtual void waitForShutdown();
+
+    /**
      * @brief Select whether the exec runs opportunistically or only in background thread.
      * @param bkgndOnly True if background only, false if opportunistic.
      * @note Default is opportunistic.
@@ -230,8 +231,15 @@ namespace PLEXIL
      *         placed a call to notifyOfExternalEvent().  Can return
      *         immediately if the calling thread is canceled.
      * @return true if resumed normally, false if thread was canceled.
+	 * @note Can wait here indefinitely while the application is suspended.
      */
     bool waitForExternalEvent();
+
+
+	/**
+	 * @brief Get the application's current state.
+	 */
+    ApplicationState getApplicationState();
 
     //
     // Common methods provided to subclasses
@@ -270,15 +278,23 @@ namespace PLEXIL
     // Serialize execution in exec to guarantee in-order processing of events
     RecursiveThreadMutex m_execMutex;
 
+	// Mutex for application state
+	ThreadMutex m_stateMutex;
+
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;
+
+	// Semaphore for notifying external threads that the application is shut down
+	ThreadSemaphore m_shutdownSem;
 
     // Current state of the application
     ApplicationState m_state;
 
-    // Flag to determine whether exec should run conservatively
+	// Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
 
+	// Flag for suspend/resume
+	bool m_suspended;
   };
 
 }
