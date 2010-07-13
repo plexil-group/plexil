@@ -47,9 +47,14 @@
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
 DIRT    = $(OBJ) $(addsuffix .d,$(basename $(SRC)))
 
+# The location we're building into - may 
+TOP_DIR ?= $(PLEXIL_HOME)
+
 ##### Internal Targets  -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
+
+LIB_DIR ?= $(TOP_DIR)/lib
 
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
@@ -58,9 +63,10 @@ SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
 plexil-default: shlib
 
-shlib $(PLEXIL_HOME)/lib/$(SHLIB): $(SHLIB)
-	-$(RM) $(PLEXIL_HOME)/lib/$(SHLIB)
-	$(LN) $(subst $(PLEXIL_HOME),..,$(shell pwd))/$(SHLIB) $(PLEXIL_HOME)/lib/$(SHLIB)
+shlib $(LIB_DIR)/$(SHLIB): $(SHLIB)
+	-$(MKDIR) -p $(LIB_DIR)
+	-$(RM) $(LIB_DIR)/$(SHLIB)
+	$(LN) $(subst $(TOP_DIR),..,$(shell pwd))/$(SHLIB) $(LIB_DIR)/$(SHLIB)
 
 $(SHLIB): depend $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ)
@@ -76,8 +82,8 @@ ARCHIVE = lib$(LIBRARY).a
 
 plexil-default: archive
 
-archive $(PLEXIL_HOME)/lib/$(ARCHIVE): $(ARCHIVE)
-	$(CP) $(ARCHIVE) $(PLEXIL_HOME)/lib/
+archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE)
+	$(CP) $(ARCHIVE) $(LIB_DIR)/
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
@@ -92,12 +98,15 @@ endif
 endif # $(LIBRARY)
 
 ifneq ($(EXECUTABLE),)
+
+BIN_DIR ?= $(TOP_DIR)/bin
+
 plexil-default: executable
 
 # handle case of multiple targets in EXECUTABLE
 # see src/interfaces/Sockets/test/Makefile
-executable $(foreach exec,$(EXECUTABLE),$(PLEXIL_HOME)/bin/$(exec)): $(EXECUTABLE)
-	$(CP) $(EXECUTABLE) $(PLEXIL_HOME)/bin/
+executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE)
+	$(CP) $(EXECUTABLE) $(BIN_DIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
