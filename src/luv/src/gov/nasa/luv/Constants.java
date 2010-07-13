@@ -41,8 +41,6 @@ import java.util.Vector;
 
 public class Constants
 {     
-	  /** Represents the location of the Luv port temp file. */      
-      public static final String    PORT_TEMP_FILE_LOCATION = System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator");    
 	
       /** Represents the location of the Luv application properties file. */      
       public static final String    PROPERTIES_FILE_LOCATION = System.getProperty("user.home") + System.getProperty("file.separator") + ".luv";
@@ -125,6 +123,16 @@ public class Constants
       public static final String    PROP_CFGWIN_SIZE          = "cfgwindow.size";
       /** Stored in the Luv application properties file, this is the size of the DebugCFGWindow. */
       public static final Dimension PROP_CFGWIN_SIZE_DEF      = new Dimension(900, 700);
+      
+      //////////// Port configuration information /////////////
+	  /** Represents the location of the Luv port temp file. */      
+      public static final String    PORT_TEMP_FILE_LOCATION = System.getProperty("file.separator") + "tmp" + System.getProperty("file.separator");    
+
+	  /** Represents the smallest port value. */      
+      public static final int    PORT_MIN = 65400;    
+
+      /** Represents the maximum port value. */      
+      public static final int    PORT_MAX = 65420;
       
       //////////// Various constant info used within this program /////////////
 

@@ -29,17 +29,19 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import static gov.nasa.luv.Constants.*;
 import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
-import static javax.swing.JFileChooser.*;
 
 /**
  * The Luv class is the starting point of the Luv application and creates a 
@@ -69,8 +71,10 @@ public class Luv extends JFrame {
     private DebugHistoryWindow debugHistoryWindow;
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
+    private LuvPortGUI portGui;
     private RegexModelFilter regexFilter;
     private int luvPort;
+    private int luvPrevPort = 0;
     private int pid;
     
     //Luv SocketServer
@@ -125,7 +129,7 @@ public class Luv extends JFrame {
         viewHandler.showModelInViewer(currentPlan);
 
         constructFrame(getContentPane());
-
+        
         luvStateHandler.startState();        
         
 	    luvPort = definePort(args);
@@ -136,7 +140,6 @@ public class Luv extends JFrame {
         LuvTempFile.deleteTempFile();
         
         portFile = new LuvTempFile();
-        setTitle();
         
     }
 
@@ -149,6 +152,7 @@ public class Luv extends JFrame {
     {
     	String[] tempArry = {""};
     	tempArry[0] = port;
+    	luvPrevPort = luvPort;
     	int tempPort = definePort(tempArry);
     	try{
     		LuvSocketServer temp = new LuvSocketServer(tempPort);
@@ -162,7 +166,7 @@ public class Luv extends JFrame {
     		}
     	}catch(Exception e)
     	{    		
-    		Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error occured while changing to port " + tempPort);
+    		statusMessageHandler.displayErrorMessage(e, "Error occured while changing to port " + tempPort);    		
     	}
     	
     }
@@ -175,19 +179,29 @@ public class Luv extends JFrame {
     	int port = 0;
     	int def_port = properties.getInteger(PROP_NET_SERVER_PORT);
     	
+    	if(args.length == 0)
+    		port = portGui.getPick();
     	if(args.length > 0)
     	{
     		try{    			
     			port = Integer.parseInt(args[0]);
     		}catch(NumberFormatException e){
-    	        System.err.println("Port " + args[0] + " is invalid");
+    			statusMessageHandler.displayErrorMessage(e, "Port " + args[0] + " is invalid");    			
     	    }
     	}
-    	if(port < 1)
+    	if(port < 1 && !portGui.isEmpty())
+    	{
+    		port = portGui.getPick();
+    		statusMessageHandler.showChangeOnPort("Re-routing to port " + port, 2000);
+    	}
+    	else if(port < 1)
+    	{
     		port = def_port;
+    		statusMessageHandler.showChangeOnPort("Attempting last resort port " + port, 2000);
+    	}
     	
-    	System.out.println("PORT: " + port);//
-    	
+    	///System.out.println("PORT: " + port);
+    	statusMessageHandler.showChangeOnPort("Listening on port " + port);    	     	
     	return port;    	
     }
 
@@ -235,7 +249,7 @@ public class Luv extends JFrame {
         isExecuting = false;
         extendedViewOn = true;
         newPlan = false;
-        shouldHighlight = true;
+        shouldHighlight = true;        
         
         fileHandler = new FileHandler();
         statusMessageHandler = new StatusMessageHandler();
@@ -245,6 +259,7 @@ public class Luv extends JFrame {
         viewHandler = new ViewHandler();
         hideOrShowWindow = new HideOrShowWindow();
         debugWindow = new DebugWindow();
+        portGui = new LuvPortGUI();
         //debugHistoryWindow = new DebugHistoryWindow();
 
         createCFGFileWindow = new CreateCFGFileWindow();
@@ -273,11 +288,29 @@ public class Luv extends JFrame {
         setJMenuBar(menuBar);
         createMenuBar(menuBar);
 
+        //allocate area for status bars
+        JPanel infoBar = new JPanel();
+        frame.add(infoBar, SOUTH);
+        GridBagLayout gridbag = new GridBagLayout();
+        infoBar.setLayout(gridbag);
+        GridBagConstraints c = new GridBagConstraints();
+                
         // create the status bar
         final JLabel statusBar = new JLabel(" ");
-        statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));
-        frame.add(statusBar, SOUTH);
-        statusMessageHandler.startStatusBarThread(statusBar);
+        statusBar.setBorder(new EmptyBorder(2, 2, 2, 2));        
+        infoBar.add(statusBar);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        gridbag.setConstraints(statusBar, c);
+        statusMessageHandler.startMsgStatusBarThread(statusBar);
+        
+        // create port message bar
+        final JLabel portBar = new JLabel(" ");
+        portBar.setBorder(new EmptyBorder(2, 2, 2, 2));
+        infoBar.add(portBar);
+        c.weightx = 0.0;
+        gridbag.setConstraints(portBar,c);
+        statusMessageHandler.startPortStatusBarThread(portBar);                
 
         // save preferred window sizes when Luv application closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -445,6 +478,12 @@ public class Luv extends JFrame {
     public DebugHistoryWindow getDebugHistoryWindow() {
         return debugHistoryWindow;
     }
+    
+    /** Returns the current instance of the Listener Port GUI.
+     *  @return the current instance of the Listener Port GUI */
+    public LuvPortGUI getPortGUI() {
+        return portGui;
+    }    
 
     /** Returns the current instance of the Luv DebugCFGWindow.
      *  @return the current instance of the Luv DebugCFGWindow */
@@ -530,6 +569,10 @@ public class Luv extends JFrame {
     
     public int getPort() {
     	return luvPort;
+    }
+
+    public int getPrevPort() {
+    	return luvPrevPort;
     }
     
   	public int getPid() {
@@ -676,7 +719,7 @@ public class Luv extends JFrame {
         runMenu.add(LuvActionHandler.stepAction);
         runMenu.add(LuvActionHandler.allowBreaksAction);
         runMenu.add(LuvActionHandler.removeAllBreaksAction);
-        runMenu.add(LuvActionHandler.allowTestAction);
+        runMenu.add(LuvActionHandler.allowTestAction);        
         runMenu.add(new JSeparator());
         runMenu.add(LuvActionHandler.execAction);
 
@@ -688,8 +731,7 @@ public class Luv extends JFrame {
         viewMenu.add(new JSeparator());
         viewMenu.add(LuvActionHandler.extendedViewAction);
         //viewMenu.add(new JSeparator());
-        //viewMenu.add(LuvActionHandler.viewSourceAction);
-        
+        //viewMenu.add(LuvActionHandler.viewSourceAction);        
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
@@ -702,20 +744,16 @@ public class Luv extends JFrame {
     /** Sets the title of the Luv application. */
     public void setTitle() {
         if (currentPlan != null && !currentPlan.getPlanName().equals(UNKNOWN)) {
-            String title = "Luv Viewer @ " + getPort();
-            title += " - ";
-            title += allowTest() ? " Test " : " Universal ";
-            title += "Executive - " + currentPlan.getPlanName();
+            String title = "Plexil Viewer - " + currentPlan.getPlanName();;            
 
             if (!currentPlan.getScriptName().equals(UNKNOWN)) {
                 title += " + " + currentPlan.getScriptName();
             }
 
             setTitle(title);
-        } else if (isExecuting) {
-            setTitle("Luv Viewer @ " + getPort() + " -  Remote Execution");
-        } else {
-            setTitle("Luv Viewer @ " + getPort());
+        }
+        else {
+            setTitle("Plexil Viewer - no plan loaded");
         }
     }
 

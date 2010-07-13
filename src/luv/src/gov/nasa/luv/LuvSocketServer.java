@@ -67,12 +67,25 @@ public class LuvSocketServer {
             }
         }catch (java.net.SocketException e){
         	if(e.getMessage().equals("Socket closed"))
-        		Luv.getLuv().getStatusMessageHandler().showStatusOnBarOnly("Previous " + e.getMessage());
-        	else
+        		Luv.getLuv().getStatusMessageHandler().showStatus("Previous " + e.getMessage(), 100);
+        	else if(e.getMessage().equals("Permission denied")) {
+        		if(!LuvTempFile.checkPort(Luv.getLuv().getPrevPort()) && Luv.getLuv().getPrevPort() != 0)
+        		{
+        			Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: " + e.getMessage() + " using port " + port + ". Reverting to " + Luv.getLuv().getPrevPort());
+        			Luv.getLuv().changePort(Luv.getLuv().getPrevPort()+"");
+        			Luv.getLuv().setTitle();
+        		}
+        		else
+        			Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using ports " + port
+        					+ " and " + Luv.getLuv().getPrevPort());
+        	}
+        	else {
         		Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);
+        		e.printStackTrace();
+        	}
         }        
         catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);            
         }
     }
 

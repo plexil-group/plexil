@@ -31,6 +31,8 @@ import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
+import static gov.nasa.luv.Constants.UNKNOWN;
 import static java.lang.System.*;
 
 /**
@@ -43,13 +45,17 @@ public class StatusMessageHandler
     private static final StatusMessageHandler BLANK_MESSAGE = 
             new StatusMessageHandler(" ", Color.BLACK, 0);
     private static JLabel statusBar;
+    private static JLabel portBar;
+    private static final long DEFAULT_WAIT = 0;
     
     // queue of status messages
-    private LinkedList<StatusMessageHandler> StatusMessageHandlerQ;                     
+    private LinkedList<StatusMessageHandler> StatusMessageHandlerQ;       
+    private LinkedList<StatusMessageHandler> PortStatusMessageHandlerQ;
     private boolean abortAutoClear;
     private long autoClearTime;
     private Color color;
     private String message;
+    private boolean idleMessage = false;
 
     /**
      * Constructs a StatusMessageHandler.
@@ -57,6 +63,7 @@ public class StatusMessageHandler
     public StatusMessageHandler() 
     {
         StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        PortStatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
         autoClearTime = 0;
         color = Color.BLACK;
         abortAutoClear = false;
@@ -73,11 +80,31 @@ public class StatusMessageHandler
     public StatusMessageHandler(String message, Color color, long autoClearTime)
     {
         StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        PortStatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
         this.message = message;
         this.color = color;
         this.autoClearTime = autoClearTime;
         abortAutoClear = false;
     }   
+    
+    /**
+     * Constructs a StatusMessageHandler with the specified message, color, idleStatus, and 
+     * amount of time it will be displayed.
+     * 
+     * @param message the message displayed
+     * @param color the color the message will be displayed in
+     * @param autoClearTime the amount of time message will be displayed
+     */
+    public StatusMessageHandler(String message, Color color, Boolean idle, long autoClearTime)
+    {
+        StatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        PortStatusMessageHandlerQ = new LinkedList<StatusMessageHandler>();
+        this.message = message;
+        this.color = color;
+        this.autoClearTime = autoClearTime;
+        this.idleMessage = idle;
+        abortAutoClear = false;
+    }    
     
     /**
      * Clears the Queue of messages.
@@ -92,9 +119,49 @@ public class StatusMessageHandler
      * 
      * @return the queue of status messages
      */
-    public LinkedList getStatusMessageHandlerQ()
+    public LinkedList<StatusMessageHandler> getStatusMessageHandlerQ()
     {
         return StatusMessageHandlerQ;
+    }
+
+    /**
+     * Clears the Queue of messages.
+     */
+    public void clearPortStatusMessageQ()
+    {
+    	PortStatusMessageHandlerQ.clear();
+    }
+    
+    /**
+     * Returns the queue of status messages.
+     * 
+     * @return the queue of status messages
+     */
+    public LinkedList<StatusMessageHandler> getPortStatusMessageHandlerQ()
+    {
+        return PortStatusMessageHandlerQ;
+    }
+    
+    /**
+     * Creates and returns the message status bar thread.
+     * 
+     * @param statusBar the message status bar thread
+     */    
+    public void startMsgStatusBarThread(final JLabel statusBar)
+    {
+    	this.statusBar = statusBar;    	
+    	startStatusBarThread(this.statusBar, StatusMessageHandlerQ);
+    }
+    
+    /**
+     * Creates and returns the port status bar thread.
+     * 
+     * @param statusBar the port status bar thread
+     */    
+    public void startPortStatusBarThread(final JLabel portBar)
+    {
+    	this.portBar = portBar;
+    	startStatusBarThread(this.portBar, PortStatusMessageHandlerQ);
     }
     
     /**
@@ -102,9 +169,8 @@ public class StatusMessageHandler
      * 
      * @param statusBar the status bar thread
      */
-    public void startStatusBarThread(final JLabel statusBar)
-    {
-         this.statusBar = statusBar;
+    public void startStatusBarThread(final JLabel statusBar, final LinkedList<StatusMessageHandler> messageHandlerQ)
+    {         
          statusBar.setFont(statusBar.getFont().deriveFont(Font.PLAIN, 12.0f));
           
          new Thread()
@@ -114,41 +180,65 @@ public class StatusMessageHandler
                   try
                   {
                      StatusMessageHandler lastMessage = null;
-                     
+                     long idleTime = 0;
                      while (true)
-                     {                       
-                        
-                        if (!StatusMessageHandlerQ.isEmpty())
+                     {                                           	  
+                        if (!messageHandlerQ.isEmpty())
                         {
-                           // kill any preceeding auto clear thread
-                           if (lastMessage != null)
-                              lastMessage.abortAutoClear = true;
+                           // kill any preceding auto clear thread
+                           if(lastMessage != null)              
+                           {
+                              lastMessage.abortAutoClear = true;                           
+                              idleTime = lastMessage.autoClearTime;                             
+                           }
 
                            // get the message
                            final StatusMessageHandler message = 
-                              StatusMessageHandlerQ.removeFirst();
+                        	   messageHandlerQ.removeFirst();
                            lastMessage = message.autoClearTime > 0 
                               ? message
-                              : null;
-
-                           // print to debug window only pertinent messages
-                           statusBar.setForeground(message.color);
-                           statusBar.setText(message.message);
+                              : null;                           
+                           
+                           // print to debug window only pertinent messages  
+                           if(message.idleMessage)
+                           {
+	                        	new Thread()
+	                           {
+	                                 @Override public void run()
+	                                 {
+	                                    try
+	                                    {                 
+	                                       statusBar.setForeground(message.color);
+	                                       statusBar.setText(message.message);
+	                                    }
+	                                    catch (Exception e)
+	                                    {
+	                                       e.printStackTrace();
+	                                    }
+	                                 }
+	                           }.start();
+	                           
+                           }
+                           else
+                           {
+                        	    statusBar.setForeground(message.color);
+                           		statusBar.setText(message.message);
+                           }
 
                            if (!message.message.equals(BLANK_MESSAGE.message))
                            {                  
                                out.println("STATUS: " + message.message);
                            }
 
-                           // if auto clear requestd start a thread for that
-                           if (message.autoClearTime > 0)
+                           // if auto clear requested start a thread for that
+                           if (message.autoClearTime > 0 && !message.idleMessage)
                               new Thread()
                               {
                                     @Override public void run()
                                     {
                                        try
-                                       {
-                                          sleep(message.autoClearTime);
+                                       {                                    	  
+                                          sleep(message.autoClearTime);                                               
                                           if (!message.abortAutoClear)
                                              statusBar.setText(BLANK_MESSAGE.message);
                                        }
@@ -158,11 +248,10 @@ public class StatusMessageHandler
                                        }
                                     }
                               }.start();
-                        }
+                        }                        
 
                         // wait a bit then check for the next message
-                        sleep(50);
-
+                        sleep(50);    
                      }
                   }
                   catch (Exception e)
@@ -171,6 +260,68 @@ public class StatusMessageHandler
                }
          }.start();
     }
+    
+    public void showIdlePortMessage()
+    {    	
+    	if(Luv.getLuv().getIsExecuting() && (Luv.getLuv().getCurrentPlan() == null || Luv.getLuv().getCurrentPlan().getPlanName().equals(UNKNOWN)))
+    	{
+    		idleMessage = true;
+	    	showChangeOnPort("Connected", Color.GREEN, DEFAULT_WAIT);
+    	}
+    }
+
+    /**
+     * Displays the specified message to the port status bar and not the Debug Window.
+     * 
+     * @param message the message to be displayed
+     */
+    public void showChangeOnPort(String message)
+    {
+    	idleMessage = false;
+    	showChangeOnPort(message, Color.BLACK, DEFAULT_WAIT);
+    }
+
+    /**
+     * Adds the specified message and color to port status bar
+     * (Color only apply to port status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     * @param color the color the message will display in the port status bar
+     */
+    public void showChangeOnPort(String message, Color color)
+    {
+    	idleMessage = false;
+    	showChangeOnPort(message, color, DEFAULT_WAIT);
+    }
+    
+    /**
+     * Adds the specified message and time to status bar and debug Window with default
+     * color. (Color and time only apply to status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     * @param autoClearTime the amount of time the message will display
+     */
+    public void showChangeOnPort(String message, long autoClearTime)
+    {
+    	idleMessage = false;
+    	showChangeOnPort(message, Color.BLACK, autoClearTime);
+    }    
+    
+    /**
+     * Adds the specified message, color and time to port status bar and debug Window.
+     * (Color and time only apply to port status bar, not Debug Window)
+     * 
+     * @param message the message to display
+     * @param color the color the message will display in the port status bar
+     * @param autoClearTime the amount of time the message will display
+     */
+    public void showChangeOnPort(String message, Color color, final long autoClearTime)
+    {
+        if (message.length() > 0 && idleMessage)
+        	PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, color, idleMessage, autoClearTime));
+        else if (message.length() > 0)	
+        	PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
+    }    
     
     /**
      * Displays the specified message to the status bar and not the Debug Window.
@@ -233,7 +384,7 @@ public class StatusMessageHandler
     }
       
     /**
-     * Displays a consistantly formatted error message in a Dialog Box and 
+     * Displays a consistently formatted error message in a Dialog Box and 
      * again to the Debug Window.
      * 
      * @param e the exception that triggered the error message, can be null
@@ -248,7 +399,7 @@ public class StatusMessageHandler
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
   
-            System.out.println(errorMessage + "\n" + e.getMessage());
+            out.println(errorMessage + "\n" + e.getMessage());
         }
         else
         {
@@ -257,12 +408,12 @@ public class StatusMessageHandler
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
 
-            System.out.println(errorMessage);
+            out.println(errorMessage);
         }
     }
     
     /**
-     * Displays a consistantly formatted errinformationor message in a Dialog Box.
+     * Displays a consistently formatted error information or message in a Dialog Box.
      * 
      * @param infoMessage the message to be displayed 
      */
@@ -272,7 +423,7 @@ public class StatusMessageHandler
                                       infoMessage,
                                       "Stopping Execution",
                                       JOptionPane.INFORMATION_MESSAGE);
-        System.out.println("INFO: " + infoMessage);
+        out.println("INFO: " + infoMessage);
     }
 
     /**

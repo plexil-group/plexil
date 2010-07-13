@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.*;
@@ -159,22 +160,14 @@ public class LuvActionHandler {
         META_MASK) {
 
     		public void actionPerformed(ActionEvent e) {
-    			boolean test = true;
-    			int numTest = -1;
-    			String port = "";
-    			String message = "Enter port value:";
-    			while(test)
-    			{    			
-    				port = JOptionPane.showInputDialog(Luv.getLuv(), message);
-    				try{
-    				numTest = Integer.parseInt(port);
-    				if(numTest > 0 || port == "" + CANCEL_OPTION)
-    					test = false;
-    				}catch(NumberFormatException ex){}
-    				message = "Invalid integer port value! Enter port value:";
-    			}
-    			Luv.getLuv().changePort(port);
-    			Luv.getLuv().setTitle();
+    			JComponent newContentPane = Luv.getLuv().getPortGUI(); 
+    			newContentPane.setOpaque(true);    			
+    			Luv.getLuv().getPortGUI().getFrame().setContentPane(newContentPane);
+    			Luv.getLuv().getPortGUI().getFrame().pack();
+    			Luv.getLuv().getPortGUI().refresh();
+    			Luv.getLuv().getPortGUI().getFrame().setVisible(true);    	
+    			if(Luv.getLuv().getPortGUI().isEmpty())
+    				Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: No ports avaliable.  Close an open instance and try again");
 	        }
     	};        
             
@@ -217,12 +210,12 @@ public class LuvActionHandler {
             };
     /** Action to show the About Luv Viewer window. */
     public static LuvAction aboutWindowAction =
-            new LuvAction("About Luv Viewer Window",
-            "Show window with Luv Viewer about information.") {
+            new LuvAction("About Plexil Viewer Window",
+            "Show window with Plexil Viewer about information.") {
 
                 public void actionPerformed(ActionEvent e) {
                     String info =
-                            "Product:   Luv Viewer Version 1.0 beta 6 (c) 2010 NASA Ames Research Center\n" +
+                            "Product:   Plexil Viewer Version 1.0 beta 6 (c) 2010 NASA Ames Research Center\n" +
                             "Website:   http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
@@ -232,7 +225,7 @@ public class LuvActionHandler {
 
                     JOptionPane.showMessageDialog(Luv.getLuv(),
                             info,
-                            "About Luv Viewer",
+                            "About Plexil Viewer",
                             JOptionPane.INFORMATION_MESSAGE,
                             icon);
                 }
@@ -366,7 +359,6 @@ public class LuvActionHandler {
                     }
                 }
             };
-
     public static LuvAction viewSourceAction =
             new LuvAction("View Source Files",
             "Displays Source Files.",
@@ -414,10 +406,10 @@ public class LuvActionHandler {
 							"Open a config file");
 
 				}
-				Luv.getLuv().setTitle();
 			}
 		}
 	};
+
     /** Action to fully expand tree. */
     public static LuvAction expandAll = new LuvAction(
             "Expand All", "Expand all tree nodes.", VK_EQUALS) {

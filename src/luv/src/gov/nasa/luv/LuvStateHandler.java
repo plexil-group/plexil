@@ -188,6 +188,7 @@ public class LuvStateHandler {
 
 		Luv.getLuv().getStatusMessageHandler().showStatus("Execution stopped",
 				Color.BLUE);
+		Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Listening on port " + Luv.getLuv().getPort());
 	}
 
 	/**
@@ -217,7 +218,9 @@ public class LuvStateHandler {
 	 */
 	public void executionState() {
 		Luv.getLuv().setIsExecuting(true);
-
+		
+		Luv.getLuv().getStatusMessageHandler().showIdlePortMessage();
+		
 		Luv.getLuv().getStatusMessageHandler().showStatus("Executing...",
 				Color.GREEN.darker());
 

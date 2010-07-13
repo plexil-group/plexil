@@ -176,7 +176,7 @@ public class ExecutionHandler
        * @return a plexil command generator.
        */
       private AbstractPlexilExecutiveCommandGenerator getPlexilExecutive() throws ExecutiveCommandGenerationException{
-    	  String alternativeExecutive=System.getProperty("ALT_EXECUTIVE");    	  
+    	  String alternativeExecutive=System.getenv("ALT_EXECUTIVE");    	  
     	  if (alternativeExecutive==null){
     		  return new PlexilUniversalExecutive();
     	  }
@@ -402,7 +402,8 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 
 	@Override
 	public String generateCommandLine() {
-	  String command = "";	  
+	  String command = "";	 
+  
 	  System.out.println(Luv.getLuv().allowTest() ? "Using Test Executive..." : "Using Universal Executive...");
 	  //viewer
 	  command = Luv.getLuv().allowTest() ? RUN_TEST_EXEC + " -v" : RUN_UE_EXEC + " -v";  	  
@@ -424,11 +425,19 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  command += Luv.getLuv().allowTest() ? " " + currentPlan.getAbsolutePlanName() : 
 		  " -p " + currentPlan.getAbsolutePlanName();
 	  
-	  if (Luv.getLuv().allowTest())
+	  if (Luv.getLuv().allowTest()){
 		  command += " " + this.getScriptPath();
+		  if(this.getScriptPath().contains("xml"))
+			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Test Exec requires a plexil-script");
+		  return "echo";
+	  }
 	  else if(!Luv.getLuv().allowTest() && this.getScriptPath() != null)
-		  command += " -c " + this.getScriptPath();	  
-
+	  {
+		  command += " -c " + this.getScriptPath();
+		  if(this.getScriptPath().contains("plx"))
+			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Universal Exec requires a configuration xml");		  	 
+		  return "echo";
+	  }
 	  if (this.getLibFiles()!=null){
 		  for (String lf:this.getLibFiles()){
 			  command += " -l ";
