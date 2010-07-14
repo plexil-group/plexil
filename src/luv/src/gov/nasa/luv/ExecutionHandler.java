@@ -428,15 +428,19 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  if (Luv.getLuv().allowTest()){
 		  command += " " + this.getScriptPath();
 		  if(this.getScriptPath().contains("xml"))
+		  {
 			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Test Exec requires a plexil-script");
-		  return "echo";
+			  return "echo";
+		  }
 	  }
 	  else if(!Luv.getLuv().allowTest() && this.getScriptPath() != null)
 	  {
 		  command += " -c " + this.getScriptPath();
 		  if(this.getScriptPath().contains("plx"))
+		  {
 			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Universal Exec requires a configuration xml");		  	 
-		  return "echo";
+			  return "echo";
+		  }
 	  }
 	  if (this.getLibFiles()!=null){
 		  for (String lf:this.getLibFiles()){
