@@ -360,7 +360,7 @@ CFLAGSD_PROF	= -pg -O2 -static
 CFLAGSM_DBMALLOC= -DDBMALLOC
 CFLAGS_gcc	= -Wall -Wstrict-prototypes -Wnested-externs -Wmissing-prototypes -Wmissing-declarations
 # work around missing library in Ubuntu -- Chucko 19 May 2010
-ifneq ($(sort 4.4 $(GCC_VERSION)), 4.3 $(GCC_VERSION))
+ifeq ($(sort 4.4 $(GCC_VERSION)), 4.4 $(GCC_VERSION))
 CFLAGS_gcc	+= -fno-stack-protector
 endif
 
