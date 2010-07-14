@@ -34,19 +34,19 @@ if [ ! $PLEXIL_HOME ]
 
 else
 
-export PATH=${PATH}:${PLEXIL_HOME}/bin
+    export PATH=${PATH}:${PLEXIL_HOME}/bin
 
-libpath=$PLEXIL_HOME/lib
+    _plexil_libpath=$PLEXIL_HOME/lib
 
-# Defining variables (redundantly) for both Mac and Linux.
+    # Defining variables (redundantly) for both Mac and Linux.
 
-# Linux
-export LD_LIBRARY_PATH=$libpath
+    # Linux
+    export LD_LIBRARY_PATH=$_plexil_libpath
 
-# Mac
-export DYLD_LIBRARY_PATH=$libpath
-export DYLD_BIND_AT_LAUNCH=YES
+    # Mac
+    export DYLD_LIBRARY_PATH=$_plexil_libpath
+    export DYLD_BIND_AT_LAUNCH=YES
 
-unset libpath
+    unset _plexil_libpath
 
 fi
