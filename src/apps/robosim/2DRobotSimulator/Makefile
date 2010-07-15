@@ -32,7 +32,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/src/interfaces/IpcUtils \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                    $(PLEXIL_HOME)/third-party/ooid/kashmir
-LIB_PATH	+=
+LIB_PATH	+= $(OPENGL_LIB_PATH)
 LIBS		+= tinyxml ipc PlexilUtils IpcUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 

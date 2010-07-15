@@ -4,7 +4,8 @@
 
 DEFINES		+= -DPLATFORM_HAS_EXECINFO_H -DPLATFORM_HAS_GNU_HASH_MAP
 
-OPENGL_LIBS	:= GL GLU glut
+OPENGL_LIB_PATH := /usr/X11R6/lib
+OPENGL_LIBS	:= GL GLU glut Xi Xmu
 
 #
 # Compiler/linker option overrides
