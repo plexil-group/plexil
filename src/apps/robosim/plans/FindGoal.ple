@@ -1,0 +1,474 @@
+RootNode:
+{
+  String RobotName = "RobotYellow";
+  Sequence
+
+  Robot:
+  {
+    //Arrays
+    Real energy[5] = #(-999.0 0.0 0.0 0.0);
+    Real goal[5] = #(-999.0 0.0 0.0 0.0 0.0);
+    Integer visible[4] = #(-999 0 0 0);
+    Real rstate[3] = #(-999.0 0.0 1.0);
+    Integer moveList[10] = #(0 0 0 0 0 0 0 0 0 0);
+    
+    //Array assignments
+    Real currEnergy = 1.0;
+    Real sLocR = 0.0;
+    Real sLocC = 0.0;
+    
+    //Energy Sensor
+    Real eSenL = 0.0;
+    Real eSenR = 0.0;
+    Real eSenU = 0.0;
+    Real eSenD = 0.0;
+    Real eCheckD = 0.0;
+    
+    //Goal Sensor
+    Real gSenL = 0.0;
+    Real gSenR = 0.0;
+    Real gSenU = 0.0;
+    Real gSenD = 0.0;
+    Real gCheckD = 0.0;    
+    
+    //Visibility Sensor
+    Integer vSenL = 0;
+    Integer vSenR = 0;
+    Integer vSenU = 0;
+    Integer vSenD = 0;            
+    
+    //Persistence
+    Integer res = -999; 
+    Integer lastRes = 3;       
+    Real lastLocR = 0.0;
+    Real lastLocC = 0.0;
+    Real lastGoalL = 0.0;
+    Real lastGoalR = 0.0;    
+    Real lastGoalU = 0.0;
+    Real lastGoalD = 0.0;
+    
+    //Comparison
+    Integer counter = 1;
+    Real walker = 0;
+    Integer holder = -1;
+    Integer holder2 = -1;
+    Integer arrayGimp = 0; //used since arrays are preloaded and don't like -1
+    Integer blocked = 0;
+    Integer status = 0;
+    Integer clock = 0;  //for counting every other sequence in lieu of modulus
+    
+    While (counter < 120 && currEnergy > 0 && status == 0)
+    {
+      Sequence 
+    
+   	NodeWrapper:
+    	{      
+    	  Sequence
+	    //Required to syncronize sensors to assignment
+	    PrimeArrays:
+	    {
+	      Concurrence
+	        ToEnergyZero: { Assignment: energy[0] = -999.0; }
+	        ToGoalZero: { Assignment: goal[0] = -999.0; }
+	        ToVisZero: { Assignment: visible[0] = -999; }
+	        ToLocationZero: { Assignment: rstate[0] = -999.0; }
+	    }
+    	    EnergySensor:
+    	    {
+	      EndCondition: energy[0] != -999;
+	      PostCondition:  isKnown(energy);
+              Command: energy = QueryEnergySensor(RobotName);
+	    }	    
+	    GoalSensor:
+	    {
+	      EndCondition: goal[0] != -999;
+	      PostCondition:  isKnown(goal);
+	      Command: goal = QueryGoalSensor(RobotName);
+    	    }
+    	    VisibilitySensor:
+	    {
+	      EndCondition: visible[0] != -999;	    
+	      PostCondition:  isKnown(visible);	   
+	      Command: visible = QueryVisibilitySensor(RobotName);
+	    }
+	    LocationSensor:
+	    {
+	      EndCondition: rstate[0] != -999;
+	      PostCondition:  isKnown(rstate);      
+	      Command: rstate = QueryRobotState(RobotName);
+	    }
+    
+        }//end of Nodewrapper  
+	ComparisonTrackers:        
+	{	  
+	//Assign primary tracker values
+	  Concurrence
+	  
+	    ToCurrEnergy: { Assignment: currEnergy = rstate[2]; }
+	    ToCurrRow: { Assignment: sLocR = rstate[0]; }
+	    ToCurrCol: { Assignment: sLocC = rstate[1]; }
+	    SetWalker: { Assignment: walker = 0; }
+	    SetHolder: { Assignment: holder = -1; }
+	    ResetRes: { Assignment: res = -999; }
+	}  //end of status concurrence						
+	ResetClock:
+	{
+	    SkipCondition: clock != 5;
+	    Assignment: clock = 0;
+	}
+	IncrementClock: { Assignment: clock = clock + 1; }	
+	ArrayIndexes:
+	{
+	  //Assign values from array to be viewed in MoveRobot Node
+	  //SkipCondition: sLocR == lastLocR && sLocC == lastLocC;
+	  Concurrence
+	    ToEnergyLeft: { Assignment: eSenL = energy[3]; }		
+	    ToEnergyRight: { Assignment: eSenR = energy[1]; }
+	    ToEnergyUp: { Assignment: eSenU = energy[0]; }
+	    ToEnergyDown: { Assignment: eSenD = energy[2]; }
+	    ToEnergyCheck: { Assignment: eCheckD = energy[4]; }
+	    ToGoalUp: { Assignment: gSenU = goal[0]; }
+	    ToGoalRight: { Assignment: gSenR = goal[1]; }
+	    ToGoalDown: { Assignment: gSenD = goal[2]; }
+	    ToGoalLeft: { Assignment: gSenL = goal[3]; }
+	    ToGoalCheck: { Assignment: gCheckD = goal[4]; }
+	    ToVisUp: { Assignment: vSenU = visible[0]; }
+	    ToVisRight: { Assignment: vSenR = visible[1]; }
+	    ToVisDown: { Assignment: vSenD = visible[2]; }
+	    ToVisLeft: { Assignment: vSenL = visible[3]; }	    
+	}//end of Assignments		
+	
+	//Stores Previous Moves in array
+	RecordMovements:
+	{
+	   Sequence
+	     Check1:
+	     {
+	         SkipCondition:  clock != 1;
+		 Sequence
+		   AssignFirstMoveR: { Assignment: moveList[0] = sLocR; }
+		   AssignFirstMoveC: { Assignment: moveList[1] = sLocC; }
+	     }
+	     Check2:
+	     {
+	         SkipCondition:  clock != 2;	     
+		 Sequence
+		   AssignSecondMoveR: { Assignment: moveList[2] = sLocR; }
+		   AssignSecondMoveC: { Assignment: moveList[3] = sLocC; }		 
+	     }
+	     Check3:
+	     {
+	         SkipCondition:  clock != 3;	     
+		 Sequence
+		   AssignThirdMoveR: { Assignment: moveList[4] = sLocR; }
+		   AssignThirdMoveC: { Assignment: moveList[5] = sLocC; }		 
+	     }
+	     Check4:
+	     {
+	         SkipCondition:  clock != 4;	     
+		 Sequence
+		   AssignFourthMoveR: { Assignment: moveList[6] = sLocR; }
+		   AssignFourthMoveC: { Assignment: moveList[7] = sLocC; }		 
+	     }
+	     Check5:
+	     {
+	         SkipCondition:  clock != 5;	     
+		 Sequence
+		   AssignFifthMoveR: { Assignment: moveList[8] = sLocR; }
+		   AssignFifthMoveC: { Assignment: moveList[9] = sLocC; }		 
+	     }
+	     IdentifyStop:
+	     {
+	       If ( moveList[0] == moveList[2] && moveList[1] == moveList[3] && lastRes == 0 )
+	         Then
+		 { Assignment: blocked = 1; }
+		 Else
+		 { Assignment: blocked = 0; }
+	     }
+	   
+	}	
+		
+	//Decision model for energy, obstacles, goal, or default
+	Tactics:
+	{
+	  //Model for determining energy direction
+	  //TODO: incorporate workaround incase run into obstacle while trying to get energy
+	  //PostCondition: res == 1;
+	  SkipCondition: goal[4] == 1;
+	  Try	  
+	DecideEnergy:
+	{
+	   StartCondition: currEnergy < 0.75; 
+	   SkipCondition:  currEnergy > 0.74 || MoveEnergy.outcome == SKIPPED;
+	   PostCondition: MoveEnergy.outcome == SUCCESS;
+	   EndCondition: MoveEnergy.outcome == SUCCESS || MoveEnergy.outcome == SKIPPED;
+	   Sequence	     
+	     MoveEnergy:
+	     {
+	     SkipCondition: EngGoUp.outcome == SKIPPED && EngGoRight.outcome == SKIPPED && EngGoDown.outcome == SKIPPED && EngGoLeft.outcome == SKIPPED;
+	     Try
+	       EngGoUp:
+	       {
+	          StartCondition: energy[0] == 1;
+		  SkipCondition: energy[0] == 0;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveUp(RobotName);
+	       }
+	       EngGoRight:
+	       {
+	          StartCondition: energy[1] == 1;
+		  SkipCondition: energy[1] == 0;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveRight(RobotName);
+	       }
+	       EngGoDown:
+	       {
+	          StartCondition: energy[2] == 1;
+		  SkipCondition: energy[2] == 0;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveDown(RobotName);
+	       }	       	       
+	       EngGoLeft:
+	       {
+	          StartCondition: energy[3] == 1;
+		  SkipCondition: energy[3] == 0;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveLeft(RobotName);
+	       }	       
+	     }	         
+	}	
+	//Model for determining workaround against obstacles	
+	DecideObstacle:
+	{
+	   SkipCondition:  vSenL == 1 && vSenR == 1 && vSenU == 1 && vSenD == 1 && blocked == 0;
+	   Sequence
+	     MoveObstacle:
+	     {
+	     Try		            	       
+	       ObsGoLeft:
+	       {
+	          StartCondition: vSenL == 1;
+		  SkipCondition: vSenL == 0 || vSenL == -1;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveLeft(RobotName);
+	       }
+	       ObsGoDown:
+	       {
+	          StartCondition: vSenD == 1;
+		  SkipCondition: vSenD == 0 || vSenD == -1;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveDown(RobotName);
+	       }
+	       ObsGoRight:
+	       {
+	          StartCondition: vSenR == 1;	       
+		  SkipCondition: vSenR == 0 || vSenR == -1;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveRight(RobotName);
+	       }	       	       	       	       
+	       ObsGoUp:
+	       {
+	          StartCondition: vSenU == 1;	       
+		  SkipCondition: vSenU == 0 || vSenU == -1;
+		  //PostCondition: res == 1;
+		  EndCondition: res != -999;
+		  Command: res = MoveUp(RobotName);
+	       }
+	       Succession:
+	       {	       
+	       }
+	     }
+	       
+	}
+		
+	//Model for determining direction towards goal center	    
+	GoalManuever:
+	{
+	    Integer testSimpGoal = 0;
+   	    StartCondition: goal[0] > 0 || goal[1] > 0 || goal[2] > 0 || goal[3] > 0;	    
+	    SkipCondition: goal[0] == 0 && goal[1] == 0 && goal[2] == 0 && goal[3] == 0;		   
+	    EndCondition: testSimpGoal == 1 || DecideGoal.outcome == SKIPPED || goal[4] == 1;
+	    Sequence
+
+		DecideGoal:
+		{		   
+		   SkipCondition: goal[0] == 0 && goal[1] == 0 && goal[2] == 0 && goal[3] == 0;		   
+		   PostCondition: DefineDoneGoal.outcome == SUCCESS;
+		   EndCondition: testSimpGoal == 1;
+			Sequence
+			  TestOptions:
+	   		  {
+	   		    For 
+	   		    ( Integer i = 0; i < 4; i + 1 )
+	     			PickWinner:
+	     			{
+	       			    Sequence
+	          		    {
+	          			If ( goal[0] >= walker )
+	     	    			  Then
+		      			  {
+		        		    Sequence
+		          			IssueUp: { Assignment:  walker = goal[0]; }						
+						HoldPlaceUp2: {
+						    SkipCondition:  holder2 >= holder;
+		          			    Assignment:  holder2 = holder;
+		          			}
+		          			HoldPlaceUp: { Assignment:  holder = 0; }
+		      			   }
+		  		    }			    
+		  		    {
+	          		        If ( goal[1] >= walker )
+	     	  		          Then
+		  		          {
+		  		            Sequence
+		 		                 IssueRight: { Assignment:  walker = goal[1]; }
+						 HoldPlaceRight2:
+		          			 {
+						    SkipCondition:  holder2 >= holder;
+		          			    Assignment:  holder2 = holder;
+		          			 }						 
+		 		                 HoldPlaceRight: { Assignment:  holder = 1; }
+		  		            }
+		  		     }
+		  		     {
+	         		         If ( goal[2] >= walker )
+	     	 		           Then
+		 		           {
+		 		             Sequence
+		 		                 IssueDown: { Assignment:  walker = goal[2]; }
+						 HoldPlaceDown2:
+		          			 {
+						    SkipCondition:  holder2 >= holder;
+		          			    Assignment:  holder2 = holder;
+		          			 }
+		 		                 HoldPlaceDown: { Assignment:  holder = 2; }
+		 		           }
+		 		     }
+		 		     {
+	          		          If ( goal[3] >= walker )
+	     	  		            Then
+		  		            {
+		  		              Sequence
+		  		            	IssueLeft: { Assignment:  walker = goal[3]; }						
+						HoldPlaceLeft2: {
+						    SkipCondition:  holder2 >= holder;
+		          			    Assignment:  holder2 = holder;
+		          			}
+		   		           	HoldPlaceLeft: { Assignment:  holder = 3; }
+		    		      	     }
+		  		      }				      
+	     	  		}//end of PickWinner
+	     	   	    }//end of TestOptions	   
+	      	   	GoalGoUp:
+	      	   	{
+	      	   	     StartCondition: holder == 0;
+		  	     SkipCondition: goal[0] == 0 || holder != 0 || gSenU < lastGoalU;
+		  	     //PostCondition: res == 1;
+		  	     EndCondition: res != -999;
+		  	     Command: res = MoveUp(RobotName);
+	    	        }
+	    	        GoalGoRight:
+	    	        {
+	    	             StartCondition: holder == 1;
+		  	     SkipCondition: goal[1] == 0 || holder != 1 || gSenR < lastGoalR;
+		  	     //PostCondition: res == 1;
+		  	     EndCondition: res != -999;
+		  	     Command: res = MoveRight(RobotName);
+	      	        }
+	      	        GoalGoDown:
+	      	        {
+	    	              StartCondition: holder == 2;
+		 	      SkipCondition: goal[2] == 0 || holder != 2 || gSenD < lastGoalD;
+		 	      //PostCondition: res == 1;
+		 	      EndCondition: res != -999;
+		 	      Command: res = MoveDown(RobotName);
+	      	        }	       	       
+	      	        GoalGoLeft:
+	      	        {
+	    	 	     StartCondition: holder == 3;
+		  	     SkipCondition: goal[3] == 0 || holder != 3 || gSenL < lastGoalL;
+		  	     //PostCondition: res == 1;
+		  	     EndCondition: res != -999;
+		  	     Command: res = MoveLeft(RobotName);
+	      	        }
+			AssignGimp:
+			{
+			    If ( holder2 == -1 )
+			      Then
+			      { Assignment: arrayGimp = holder; }
+			      Else
+			      { Assignment: arrayGimp = holder2; }
+			}
+			Pick2ndPlace:
+			{
+			    SkipCondition: GoalGoUp.outcome != SKIPPED || GoalGoRight.outcome != SKIPPED || GoalGoDown.outcome != SKIPPED || GoalGoLeft.outcome != SKIPPED;
+			    If ( goal[arrayGimp] != 0 ) //should actually be holder2 although array is picky
+			      Then
+			      {
+			        Sequence
+			        UseAlternative:
+				{
+				  //PostCondition: res == 1;
+				  EndCondition: res != -999;
+				  Command: res = Move(RobotName, holder2);
+				}
+			      }
+			}      
+	      	        DefineSkipGoal:
+	      	        {
+			     SkipCondition:   GoalGoUp.outcome == SUCCESS || GoalGoRight.outcome == SUCCESS || GoalGoDown.outcome == SUCCESS || GoalGoLeft.outcome == SUCCESS;
+	      	 	     StartCondition:  GoalGoUp.outcome == SKIPPED && GoalGoRight.outcome == SKIPPED && GoalGoDown.outcome == SKIPPED && GoalGoLeft.outcome == SKIPPED;
+	      	 	     Assignment:  testSimpGoal = 1;
+	      	        }
+	      	        DefineDoneGoal:
+	      	        {
+			     SkipCondition:   GoalGoUp.outcome == SKIPPED && GoalGoRight.outcome == SKIPPED && GoalGoDown.outcome == SKIPPED && GoalGoLeft.outcome == SKIPPED;
+	      	 	     StartCondition:  GoalGoUp.outcome == SUCCESS || GoalGoRight.outcome == SUCCESS || GoalGoDown.outcome == SUCCESS || GoalGoLeft.outcome == SUCCESS;
+	      	 	     Assignment:  testSimpGoal = 1;
+	      	        }
+			DefineElse:
+			{
+			     StartCondition:  DefineSkipGoal.outcome == SKIPPED && DefineDoneGoal.outcome == SKIPPED;
+			     Assignment:  testSimpGoal = 1;
+			}	       	       
+		   }//End of DecideGoal	
+	}//End of GoalManuever
+	Move:
+	{		
+		//PostCondition: res == 1;
+		EndCondition: res != -999;
+		Command: res = MoveDown(RobotName);
+	}
+	}//End of Tactics
+	//Model for persisting data between moves, comparison values for obstacle comparisons
+	Persistence:
+	{
+	  Concurrence
+	    ToRes: { Assignment: res = res;
+	    }
+	    ToLastRow: { Assignment: lastLocR = sLocR; }
+	    ToLastCol: { Assignment: lastLocC = sLocC; }
+	    ToLastRes: { Assignment: lastRes = res; }
+	    ToLastGoalUp: { Assignment: lastGoalU = gSenU; }
+	    ToLastGoalRight: { Assignment: lastGoalR = gSenR; }
+	    ToLastGoalDown: { Assignment: lastGoalD = gSenD; }
+	    ToLastGoalLeft: { Assignment: lastGoalL = gSenL; }
+	    ToCounter: { Assignment: counter = counter + 1; }
+	    CheckStatus:
+	    {
+	        If(goal[4] == 1)
+		  Then
+		  { Assignment:  status = 1; }
+	    }
+	}
+	
+    }//end of Sequence
+  }//end of Move Robot
+}//end of Root Node
