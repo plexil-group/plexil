@@ -522,7 +522,7 @@ namespace PLEXIL {
     assertTrueMsg(facade != NULL,
 		  "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
     debugMsg("IpcFacade:myIpcDispatch", " started");
-    IPC_RETURN_TYPE ipcStatus;
+    IPC_RETURN_TYPE ipcStatus = IPC_OK;
     while (!facade->m_stopDispatchThread
 	   && ipcStatus != IPC_Error) {
       ipcStatus = IPC_listenClear(1000); // 
