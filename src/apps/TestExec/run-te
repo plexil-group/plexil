@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Copyright (c) 2006-2008, Universities Space Research Association (USRA).
 # All rights reserved.
@@ -25,12 +25,37 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+checkWarn()
+{
+  if [ "$summary" = 1 ]
+    then
+    echo $1
+  fi
+    exit 1
+}
+
+#Validate file
+valid()
+{
+  if [ ! -e $1 ] && [ $summary = 1 ]
+    then
+      echo "ERROR: $1 does not exist"
+      warning=1
+  fi
+  return
+}
+
 portscan()
 {
-for((j=65400;j<=65535;++j))
+for((j=65400;j<=65420;++j))
 do
-tport=`netstat -l | grep $j`
-    if test "${tport:-FALSE}" = FALSE; then
+if [ "$platform" = "Darwin"  ]
+  then
+    tport=`netstat -a | grep $j`
+  else
+    tport=`netstat -l | grep $j`
+fi
+    if [ "${tport:-FALSE}" = FALSE ] && [ ! -f /tmp/Luv_$j ] ; then
     	echo "-n $j"
 	return
     fi    
@@ -39,6 +64,7 @@ return
 }
 
 skip=
+warning=
 DEFAULT_HOST=127.0.0.1
 
 usage="Usage: run-te [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug file>] \
@@ -54,8 +80,11 @@ usage="Usage: run-te [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 #  -v requests that plan state be transmitted to the UE viewer.
 #  -h hostname of viewer
 #  -n portnumber of viewer
+#  -b enables breakpoints in viewer (recommended)
 #  -d debug file (default is Debug.cfg)
 #  -check enables Java checker program
+#  -l  specifies a plan library (.plx file)
+#  -a used only for viewer acquire PID
 
 # Unless simulation script file is specified, it defaults to (in order
 # of existence):
@@ -86,8 +115,7 @@ elif [ -f $PLEXIL_HOME/src/apps/TestExec/TestExec ]
 then
     prog=$PLEXIL_HOME/src/apps/TestExec/TestExec
 else
-    echo "UE executable not found, aborting"
-    exit 1
+    checkWarn "UE executable not found, aborting"
 fi
 
 $PLEXIL_HOME/bin/plexil-check-prog $prog
@@ -131,20 +159,6 @@ if [ '-n' = "$1" ]
     port=
 fi
 
-# Check for port number
-if [ "$viewer" = "-v" ] ; then
-  host=${host:="-h $DEFAULT_HOST"}
-  port=${port:=`portscan`}
-  if [ "$skip" = "" ] ; then
-    luv ${port//[^0-9]/}
-    until [ -f /tmp/Luv_${port//[^0-9]/} ]
-      do
-	:
-    done    
-    usleep 250
-  fi  
-fi
-
 # Check for viewer should block
 if [ '-b' = "$1" ]
   then
@@ -167,6 +181,7 @@ fi
 if [ '-d' = "$1" ]
   then
     shift
+    valid $1
     debug_file="$1"
     shift
   else
@@ -213,8 +228,7 @@ fi
 # Any more arguments?
 if [ $# -eq 0 ]
   then
-    echo $usage
-    exit 1
+    checkWarn $usage
 fi
 
 # Process first argument, which is the plan.
@@ -224,8 +238,7 @@ shift
 # Check the plan's existence
 if [ ! -e $plan ]
   then
-    echo Error: Plan $plan does not exist.
-    exit 1
+    checkWarn "Error: Plan $plan does not exist."
 fi
 
 
@@ -240,7 +253,6 @@ if [ $check = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
       then
 	echo Error: $PLEXIL_HOME/bin/checkDecls not found.	
 fi
-
 
 # Default simulation script
 script=$PLEXIL_HOME/src/apps/TestExec/test/scripts/empty-script.plx
@@ -268,8 +280,7 @@ if [ $# -eq 0 ]
       shift
       if [ ! -e $script ]
         then
-          echo Error: Script $script does not exist.
-          exit 1
+          checkWarn "Error: Script $script does not exist."
       fi
 fi
 
@@ -295,11 +306,44 @@ if [ $# -gt 0 ]
     if [ '-l' = $1 ] 
       then
         libraries=$*
+        while [ $# -gt 0 ] ; do
+	  if [ '-l' = $1 ] ; then
+	    valid $2
+	    shift
+	    shift
+	  else
+	    shift
+	  fi
+	done
+	if [ "$warning" = 1 ] ; then
+	  checkWarn "Library files missing, aborting"
+	fi
       else
         echo Error: expected -l at this point
-        echo $usage
-        exit 1
+        checkWarn $usage
     fi
+fi
+
+# Check for port number
+if [ "$viewer" = "-v" ] ; then
+  host=${host:="-h $DEFAULT_HOST"}
+  port=${port:=`portscan`}
+    if [ "$port" = "" ] ; then
+      checkWarn "Exceeds Maximum number of allowable viewer instances.  Please close
+      an instance prior to execution"      
+    fi
+  if [ "$skip" = "" ] ; then
+    luv ${port//[^0-9]/}
+    until [ -f /tmp/Luv_${port//[^0-9]/} ]
+      do
+	:
+    done    
+    if [ "$platform" = "Darwin" ] ; then
+      sleep 1
+    else    
+      usleep 500
+    fi
+  fi    
 fi
 
 # Print summary if desired
@@ -308,15 +352,16 @@ if [ $summary -eq 1 ]
     echo Running UE from $PLEXIL_HOME
     echo "  Plan:      $plan"
     echo "  Script:    $script"
-    echo "  Libraries: $*"
+    echo "  Port: 	${port//[^0-9]/}"        
+    echo "  Libraries: $libraries"
     echo
 fi
 
 if [ "$automate" = "true" ]
   then
-    $prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block &
+    $prog -p $plan -s $script -d $debug_file $libraries $eprompt $wprompt $log_file $viewer $host $port $block &
     echo "RUN_TE_PID$!"
     trap "{ kill $!; }" SIGINT
   else
-    $prog -p $plan -s $script -d $debug_file $* $eprompt $wprompt $log_file $viewer $host $port $block
+    $prog -p $plan -s $script -d $debug_file $libraries $eprompt $wprompt $log_file $viewer $host $port $block
 fi

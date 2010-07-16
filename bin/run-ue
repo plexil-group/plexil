@@ -28,42 +28,55 @@
 #Validate file
 valid()
 {
-  if [ ! -e $1 ] && [ $quiet = 0 ]
+  if [ ! -e $1 ] && [ $summary = 1 ]
     then
       echo "WARNING: $1 does not exist"
   fi
   return
 }
 
+warn()
+{
+   if [ $summary = 1 ]
+     then
+       echo "$1"
+   fi
+}
+
+#There are ranges below 22000 which netstat does not detect
 portscan()
 {
-for((j=65400;j<=65535;++j))
+for((j=65400;j<=65420;++j))
 do
-tport=`netstat -l | grep $j`
-    if test "${tport:-FALSE}" = FALSE; then
+if [ "$platform" = "Darwin"  ]
+  then
+    tport=`netstat -a | grep $j`
+  else
+    tport=`netstat -l | grep $j`
+fi    
+    if [ "${tport:-FALSE}" = FALSE ] && [ ! -f /tmp/Luv_$j ] ; then
     	echo "-n $j"
 	return
     fi    
 done
 return
 }
-usage="Usage: $0 -p <plan> [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-                     [-k] [-x] [-q] [-c <interface config>] [-l <library>]*"
+usage="Usage: $0 [-p <plan>] [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+                     [-k] [-c <interface config>] [-l <library>]*"
 
 # An optional environment variable UE_EXECUTABLE names an alternate executable.
 # Other options:
 #
-# -s suppresses a leading printed summary.
+# -s suppresses a leading printed summary and default debug messages.
 # -v requests that plan state be transmitted to the UE viewer.
 # -h hostname of viewer
 # -n portnumber of viewer
 # -b enables breakpoints in viewer (recommended)
 # -d debug file (default is Debug.cfg)
 # -k runs the PLEXIL static checker prior to executing plan
-# -x no-plan mode; runs UE, which awaits plan from external source
-# -q quiet mode, or "no warnings from script"
 # -c specifies an interface configuration file (defaulting to interface-config.xml)
 # -l  specifies a plan library (.plx file)
+# -a used only for viewer acquire PID
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
 
@@ -83,6 +96,12 @@ fi
 
 $PLEXIL_HOME/bin/plexil-check-prog $prog
 
+current_config="interface-config.xml" #current directory config
+default_config_path="${PLEXIL_HOME}/examples" #default config location
+default_config_name="dummy-config.xml"
+default_config="${default_config_path}/${default_config_name}" 
+
+platform=`uname`
 no_plan=0 #assume plan required
 summary=1 #summary default
 plan_nm="" #plan name
@@ -92,7 +111,6 @@ config_cmd="" #interface config command
 libraries="" #library files
 debug_file="" #debug file
 check="false" #run static checker
-quiet=1 #quiet by default
 DEFAULT_PORT=9787
 DEFAULT_HOST=127.0.0.1
 
@@ -103,10 +121,10 @@ if [ ! $1 ]
   exit 1
 fi
 
-while getopts "sp:c:l:d:vh:n:bkvxqa" args
+while getopts "sp:c:l:d:vh:n:bkva" args
 do
     case $args in    	
-        s ) summary=1;;	
+        s ) summary=0;;	
 	p ) plan_nm="$OPTARG"
 	plan_cmd="-p $OPTARG";;
 	c ) config_nm="$OPTARG"
@@ -121,8 +139,6 @@ do
 	    skip=1;;	#luv port
 	b ) block="-b";;	#enable luv break point	
 	k ) check="true";;	
-	x ) no_plan=1;;
-	q ) quiet=0;;
 	a ) automate="true";;
 	\? ) echo $usage
 	  exit 2;;
@@ -130,56 +146,130 @@ do
 done
 
 # Check the plan's existence
-if [ "$plan_nm" = "" ] || [ ! -e $plan_nm ]
+if [ "$plan_nm" = "" ] 
   then
-    if [ $no_plan = 0 ]
-      then
-        echo Error: No plan defined or Plan: $plan_nm, does not exist.
-        exit 1
-    fi    
+    no_plan=1
+fi    
+
+# Check if user typed invalid plan
+if [ ! -e "$plan_nm" ] && [ "$no_plan" = 0 ]
+  then
+        echo Error: Plan $plan_nm, does not exist.
+        exit 1    
 fi
 
+# Redefine current path config to look for dummy config on current path
+if [ ! -e "$config_nm" ] || [ "$config_nm" = "" ]
+   then
+        if [ ! -e "$current_config" ] ; then
+	  current_config=$default_config_name
+	fi
+fi
+
+# Check the config's existence
+if [ ! -e "$config_nm" ] || [ "$config_nm" = "" ]
+  then  
+  if [ -e "$current_config" ]
+    then   
+    warn "Warning: using local config: $current_config"
+    config_nm=$current_config
+    #use default blank config if plan is loaded
+    elif [ -e "$default_config" ] && [ -e "$plan_nm" ]
+      then      
+        default_msg=": $config_nm,"
+          warn "Error: No config defined or Config${config_nm:+$default_msg} does not exist."
+          warn "Warning: using default config: $default_config"
+        config_nm=$default_config
+	#prevent idle exec from default blank config call
+    elif [ $no_plan = 1 ]
+      then
+          echo Error: No config defined or on current path and no plan.
+          exit 1
+    else 
+      echo Error: Default config $default_config does not exist.
+      exit 1
+  fi  
+  config_cmd="-c $config_nm"
+fi
+
+#host workaround to skip pass thru check
+if [ ! "$host_in" = "" ]
+  then
+  skip=""
+fi
+
+# Check pass thru port into viewer
+if [ "$viewer" = "-v" ] && [ "$skip" = "1" ]
+  then
+  temphelper=$port_in  
+  if [ "${port_in//[^0-9]/}" -lt 1024 ] && [ $summary = 1 ] ; then
+    echo "Warning: ${port_in//[^0-9]/} is within frequently used port range, usage of this port is not recommended"
+  fi
+  if [ "$platform" = "Darwin"  ]
+  then
+    testOpen=`netstat -a | grep ${temphelper//[^0-9]}`
+  else
+    testOpen=`netstat -l | grep ${temphelper//[^0-9]}`
+  fi
+  if [ "$testOpen" = "" ] ; then
+      warn "Warning: script may not detect ports listening < 22000"      
+    if [ ${temphelper//[^0-9]} -gt 22000 ] ; then
+      echo "local Viewer is not listening on ${temphelper//[^0-9]}, exiting"
+      exit 1
+    fi
+  fi
+fi
+
+#host re-enable to pass check
+if [ ! "$host_in" = "" ]
+  then
+  skip=1
+fi
+  
 # Check for port number
 if [ "$viewer" = "-v" ] ; then
   host=${host_in:="-h $DEFAULT_HOST"}
   port=${port_in:=`portscan`}
+    if [ "$port" = "" ] ; then
+      echo "Exceeds Maximum number of allowable viewer instances.  Please close
+      an instance prior to execution"
+      exit 1
+  fi
   if [ "$skip" = "" ] ; then
     luv ${port//[^0-9]/}
     until [ -f /tmp/Luv_${port//[^0-9]/} ]
       do
 	:
     done    
-    usleep 250
-  fi  
+    if [ "$platform" = "Darwin" ] ; then
+      sleep 1
+    else    
+      usleep 500
+    fi
+  elif [ "$automate" = "" ] ; then
+    if [ ! -f /tmp/Luv_${port//[^0-9]/} ] && [ $summary = 1 ] ; then
+      echo "Warning: Viewer is not listening on port ${port//[^0-9]/}"
+    fi
+  fi      
 fi
 
-default_config="interface-config.xml"
-
-# Check the config's existence
-if [ ! -e $config_nm ] || [ "$config_nm" = "" ]
-  then  
-  if [ $no_plan = 1 ] && [ -e $default_config ]
-    then
-    config_nm=$default_config
-    config_cmd="-c $default_config"
-  elif [ $no_plan = 1 ]
-    then
-    echo Error: No config defined or Config: $config_nm, does not exist.
-    echo $usage
-    exit 1
-  fi
+if [ ! "$viewer" = "-v" ] && [ "$port_in" ] ; then
+  echo "Error: -n option requires Viewer, please add -v option"
+  exit 1
 fi
 
 # Run default debug
-if [ "$debug_file" = "" ] && [ $quiet = 0 ]
+if [ "$debug_file" = "" ] && [ $summary = 1 ]
   then
     debug_file="-d Debug.cfg"
 fi
 
 # Check plan for errors
 if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
-  then $PLEXIL_HOME/bin/checkDecls $plan_nm
-       if [ ! -e $plan_nm ] && [ $? -gt 0 ]
+  then 
+       echo "Checking Plan..."
+       $PLEXIL_HOME/bin/checkDecls $plan_nm
+       if [ ! -e "$plan_nm" ] && [ $? -gt 0 ]
          then
 	   echo Error: $plan_nm, contains runtime error
            exit 1
@@ -203,9 +293,9 @@ fi
 
 if [ "$automate" = "true" ]
   then
-    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries &
+    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries &    
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
-  else
+  else     
     $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries
 fi
