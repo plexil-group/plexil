@@ -1,5 +1,8 @@
 // This is a Plexil plan for the RoboSim application.  It has the robot
-// find the goal.  Contributed by Sudhanshu Vias of Iowa State University.
+// find the "goal".  NOTE: For some reason, the robot circles a while
+// before landing on the goal spot.
+
+// Contributed by Sudhanshu Vias of Iowa State University.
 
 // Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 //  All rights reserved.
@@ -30,34 +33,12 @@
 GoalSearch:
 {
   String RobotName = "RobotYellow";
-  Integer Found;
   Integer Direction;
   Real RobotGoal[5];
   Real HighestSensorVal;
   Integer RobotVisibility[4];
-  NodeList:
-
-    StartNode://Initialization Node
-    {
-      EndCondition: isKnown(Found);
-      Assignment: Found = 0;
-    }
-
-    FoundGOAL:
-    {
-      StartCondition: StartNode.state == FINISHED;
-
-      // Node will reach FINISHED state only when Robot's
-      // center sensor senses 1
-      EndCondition: RobotGoal[4] == 1;
-      RepeatCondition: RobotGoal[4] < 1;
-    }
-
-    Loop:
-    // Repeats forever but stops moving once reaches goal 
-    {
-      StartCondition: StartNode.state == FINISHED;
-      RepeatCondition: Found == 0;
+  While ((! isKnown(RobotGoal[4])) || RobotGoal[4] != 1)
+    Loop: {
       Sequence
 
         ReadGoalSensors:
@@ -125,10 +106,19 @@ GoalSearch:
          Integer Result;
          EndCondition: isKnown(Result);
          If (Direction == -1) Then
-           {             
-             //If direction invalid(-1)  do not move
-             Assignment: Result = 0;
-           }
+         {
+           If (HighestSensorVal == 0) Then
+             {             
+               //If direction invalid(-1)  do not move
+               Assignment: Result = 0;
+             }
+           Else 
+             MoveUp:
+             {
+               EndCondition: isKnown(Result);
+               Command: Result = Move(RobotName,0);
+             }
+         }
          Else
            {
              If (RobotVisibility[Direction] == 0) Then
