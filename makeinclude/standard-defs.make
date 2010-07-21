@@ -81,7 +81,11 @@ CXX	        := g++
 # SKIP_WARNINGS = -woff 1355,1009,3322,1356,1375,1401,1201,1234
 
 # Compiler options
-DEFINES			:= -DTIXML_USE_STL
+
+# Defines
+# -DTIXML_USE_STL ensures that any inclusion of tinyxml.h gets the STL types.
+# -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
+DEFINES			:= -DTIXML_USE_STL -D__STDC_LIMIT_MACROS
 
 #STANDARD_CFLAGS		= -multigot $(SKIP_WARNINGS)
 STANDARD_CFLAGS		:=
