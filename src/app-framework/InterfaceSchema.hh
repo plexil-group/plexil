@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CommonDefs.hh"
+#include "ConstantMacros.hh"
 #include <string>
 #include <vector>
 
@@ -45,6 +45,7 @@ namespace PLEXIL
 
     DECLARE_STATIC_CLASS_CONST(char*, ADAPTER_TAG, "Adapter");
     DECLARE_STATIC_CLASS_CONST(char*, COMMAND_NAMES_TAG, "CommandNames");
+    DECLARE_STATIC_CLASS_CONST(char*, CONTROLLER_TAG, "Controller");
     DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_ADAPTER_TAG, "DefaultAdapter");
     DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_COMMAND_ADAPTER_TAG, "DefaultCommandAdapter");
     DECLARE_STATIC_CLASS_CONST(char*, DEFAULT_LOOKUP_ADAPTER_TAG, "DefaultLookupAdapter");
@@ -62,6 +63,7 @@ namespace PLEXIL
     //
 
     DECLARE_STATIC_CLASS_CONST(char*, ADAPTER_TYPE_ATTR, "AdapterType");
+    DECLARE_STATIC_CLASS_CONST(char*, CONTROLLER_TYPE_ATTR, "ControllerType");
     DECLARE_STATIC_CLASS_CONST(char*, CONFIGURATION_TYPE_ATTR, "ConfigurationType");
     DECLARE_STATIC_CLASS_CONST(char*, LIB_PATH_ATTR, "LibPath");
     DECLARE_STATIC_CLASS_CONST(char*, FILTER_TYPE_ATTR, "FilterType");
