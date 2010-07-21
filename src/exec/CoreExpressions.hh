@@ -27,7 +27,6 @@
 #ifndef _H_CoreExpressions
 #define _H_CoreExpressions
 
-#include "Debug.hh"
 #include "Expression.hh"
 #include "PlexilPlan.hh"
 #include <limits>
