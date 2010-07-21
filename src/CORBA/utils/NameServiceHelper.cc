@@ -300,6 +300,36 @@ namespace PLEXIL
     return true;
   }
 
+  /*!
+	\brief Unbinds the given name.  
+	Returns true if successful, false otherwise.
+  */
+  bool
+  NameServiceHelper::nameServiceUnbind(const CosNaming::Name & nom) {
+    checkError(nom.length() > 0,
+			   "nameServiceUnbind: attempt to unbind a null name");
+	try {
+	  m_namingClient.get_context()->unbind(nom);
+	}
+	catch (CosNaming::NamingContext::NotFound & nf) {
+	  // We don't care if it wasn't bound in the first place
+	  debugMsg("NameServiceHelper:nameServiceUnbind",
+			   " name " << nameToEscapedString(nom) << " not found, ignoring");
+	  return true;
+	}
+    catch (CosNaming::NamingContext::InvalidName & inv) {
+	  debugMsg("NameServiceHelper:nameServiceUnbind",
+			   " invalid name exception for " << nameToEscapedString(nom));
+	  return false;
+	}
+    catch (CORBA::Exception & e) {
+	  checkError(ALWAYS_FAIL,
+				 "ensureNamingContext: unexpected CORBA exception " << e);
+	  return false;
+	}
+	return true;
+  }
+
   
 
   //

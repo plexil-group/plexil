@@ -90,6 +90,13 @@ namespace PLEXIL
     nameServiceBind(const CosNaming::Name & nom, 
 		    CORBA::Object_ptr obj);
 
+    /*!
+      \brief Unbinds the given name.  
+             Returns true if successful, false otherwise.
+    */
+    bool
+    nameServiceUnbind(const CosNaming::Name & nom);
+
     // 
     // Static public helper functions
     //
