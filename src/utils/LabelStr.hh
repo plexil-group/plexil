@@ -27,7 +27,7 @@
 #ifndef _H__LabelStr
 #define _H__LabelStr
 
-#include "CommonDefs.hh"
+#include "ConstantMacros.hh"
 #include "Error.hh"
 #include <string>
 #include "StoredItem.hh"
