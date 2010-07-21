@@ -27,13 +27,12 @@
 #ifndef _H_CoreExpressions
 #define _H_CoreExpressions
 
-#include "CommonDefs.hh"
+#include "Debug.hh"
 #include "Expression.hh"
 #include "PlexilPlan.hh"
-#include "Debug.hh"
+#include <limits>
 #include <list>
 #include <set>
-#include <limits>
 
 namespace PLEXIL {
 
