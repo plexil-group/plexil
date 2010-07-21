@@ -38,7 +38,6 @@
 //  remain on all copies of the software.
 
 #include "IdTable.hh"
-#include "CommonDefs.hh"
 #include "Debug.hh"
 
 /**
