@@ -24,17 +24,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-ifneq ($(MAKECMDGOALS),clean)
-ifeq ($(ACE_ROOT),)
-$(error The environment variable ACE_ROOT is not set. Exiting.)
-endif
-
-ifeq ($(TAO_ROOT),)
-TAO_ROOT	:= $(ACE_ROOT)/TAO
-endif
-endif
-
-all: corba-utils EventChannelReporter
+all: corba-utils EventChannelReporter CorbaCommander
 
 corba-utils:
 	$(MAKE) -C utils all
@@ -42,7 +32,11 @@ corba-utils:
 EventChannelReporter: utils
 	$(MAKE) -C EventChannelReporter all
 
+CorbaCommander: utils
+	$(MAKE) -C ExecCommander/controller all
+
 clean:
 	$(MAKE) -C utils $@
 	$(MAKE) -C EventChannelReporter $@
+	$(MAKE) -C ExecCommander/controller $@
 
