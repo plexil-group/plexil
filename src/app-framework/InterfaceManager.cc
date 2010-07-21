@@ -36,15 +36,16 @@
 #include "AdapterConfigurationFactory.hh"
 #include "AdapterFactory.hh"
 #include "AdapterConfiguration.hh"
+#include "ControllerFactory.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
+#include "ExecController.hh"
 #include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-//#include "LuvListener.hh"
 #include "NewLuvListener.hh"
 #include "TimeAdapter.hh"
 #include "ResourceArbiterInterface.hh"
@@ -81,6 +82,7 @@ namespace PLEXIL
       m_ackToCmdMap(),
       m_destToCmdMap(),
       m_raInterface(),
+	  m_execController(),
       m_currentTime(std::numeric_limits<double>::min())
   {
 
@@ -121,9 +123,15 @@ namespace PLEXIL
       delete (InterfaceAdapter*) ia;
     }
     
-    // we may not have initialized this!
+    // we may not have initialized these!
     if (m_adapterConfig.isId())
       delete m_adapterConfig.operator->();
+
+	if (m_execController.isId()) {
+	  // shut it down
+	  m_execController->controllerShutdown();
+	  delete m_execController.operator->();
+	}
   }
 
   //
@@ -151,7 +159,7 @@ namespace PLEXIL
     condDebugMsg(configXml != NULL, "InterfaceManager:constructInterfaces", " configuration = " << *configXml);
     if (configXml != NULL)
       {
-	debugMsg("InterfaceManager:constructInterfaces", " parsing configuration XML " << *configXml);
+        debugMsg("InterfaceManager:constructInterfaces", " parsing configuration XML " << *configXml);
         const char* elementType = configXml->Value();
         checkError(strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0,
                    "constructInterfaces: invalid configuration XML: \n"
@@ -170,7 +178,7 @@ namespace PLEXIL
         const TiXmlElement* element = configXml->FirstChildElement();
         while (element != 0)
           {
-	    debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
+            debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
             const char* elementType = element->Value();
             if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
               {
@@ -179,8 +187,8 @@ namespace PLEXIL
                   AdapterFactory::createInstance(element,
                                                  *((AdapterExecInterface*)this));
                 assertTrueMsg(adapter.isId(),
-			      "constructInterfaces: failed to construct adapter from XML:\n"
-			      << *element);
+                              "constructInterfaces: failed to construct adapter from XML:\n"
+                              << *element);
                 m_adapters.insert(adapter);
               }
             else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
@@ -188,11 +196,21 @@ namespace PLEXIL
                 // Construct an ExecListener instance and attach it to the Exec
                 ExecListenerId listener = 
                   ExecListenerFactory::createInstance(element,
-						      (AdapterExecInterface&) *this);
+                                                      (AdapterExecInterface&) *this);
                 assertTrueMsg(listener.isId(),
-			      "constructInterfaces: failed to construct listener from XML:\n"
-			      << *element);
+                              "constructInterfaces: failed to construct listener from XML:\n"
+                              << *element);
                 m_listeners.push_back(listener);
+              }
+            else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0)
+              {
+                // Construct an ExecController instance and attach it to the application
+                ExecControllerId controller = 
+                  ControllerFactory::createInstance(element, m_application);
+                assertTrueMsg(controller.isId(),
+                              "constructInterfaces: failed to construct controller from XML:\n"
+                              << *element);
+                m_execController = controller;
               }
             else
               {
@@ -238,19 +256,34 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
-         it++)
+         it++) {
       success = (*it)->initialize();
-    if (!success)
-      {
-	debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
-	return false;
-      }
+	  if (!success)
+		{
+		  debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
+		  return false;
+		}
+	}
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
-         it++)
+         it++) {
       success = (*it)->initialize();
-    condDebugMsg(!success, 
-		 "InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
+	  if (!success)
+		{
+		  debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
+		  return false;
+		}
+	}
+
+	if (m_execController.isId()) {
+	  success = m_execController->initialize();
+	  if (!success)
+		{
+		  debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
+		  return false;
+		}
+	}
+
     return success;
   }
 
@@ -268,8 +301,8 @@ namespace PLEXIL
       success = (*it)->start();
     if (!success)
       {
-	debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
-	return false;
+        debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
+        return false;
       }
 
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
@@ -280,7 +313,7 @@ namespace PLEXIL
           m_exec->addListener(*it);
       }
     condDebugMsg(!success, 
-		 "InterfaceManager:start", " failed to start all Exec listeners, returning false");
+                 "InterfaceManager:start", " failed to start all Exec listeners, returning false");
     return success;
   }
 
@@ -372,7 +405,7 @@ namespace PLEXIL
     debugMsg("InterfaceManager:resetQueue", " entered");
     while (!m_valueQueue.isEmpty())
       {
-	m_valueQueue.pop();
+        m_valueQueue.pop();
       }
   }
     
@@ -385,7 +418,7 @@ namespace PLEXIL
   bool InterfaceManager::processQueue()
   {
     debugMsg("InterfaceManager:processQueue",
-	     " (" << pthread_self() << ") entered");
+             " (" << pthread_self() << ") entered");
 
     // Potential optimization (?): these could be member variables
     // Can't use static as that would cause collisions between multiple instances
@@ -401,135 +434,135 @@ namespace PLEXIL
 
     while (true)
       {
-	// get next entry
-	debugMsg("InterfaceManager:processQueue",
-		 " (" << pthread_self() << ") getting next entry");
-	typ = m_valueQueue.dequeue(stateKey, newStateValues,
-				   exp, newExpValue,
-				   plan, parent);
+        // get next entry
+        debugMsg("InterfaceManager:processQueue",
+                 " (" << pthread_self() << ") getting next entry");
+        typ = m_valueQueue.dequeue(stateKey, newStateValues,
+                                   exp, newExpValue,
+                                   plan, parent);
         // opportunity to cancel thread here
         pthread_testcancel();
-	switch (typ)
-	  {
-	  case queueEntry_EMPTY:
-	    if (firstTime)
-	      {
-		debugMsg("InterfaceManager:processQueue",
-			 " (" << pthread_self() << ") queue empty at entry, returning false");
-		return false;
-	      }
-	    debugMsg("InterfaceManager:processQueue",
-		     " (" << pthread_self() << ") reached end of queue without finding mark, returning true");
-	    return true;
-	    break;
+        switch (typ)
+          {
+          case queueEntry_EMPTY:
+            if (firstTime)
+              {
+                debugMsg("InterfaceManager:processQueue",
+                         " (" << pthread_self() << ") queue empty at entry, returning false");
+                return false;
+              }
+            debugMsg("InterfaceManager:processQueue",
+                     " (" << pthread_self() << ") reached end of queue without finding mark, returning true");
+            return true;
+            break;
 
-	  case queueEntry_MARK:
-	    // Exit loop now, whether or not queue is empty
-	    debugMsg("InterfaceManager:processQueue",
-		     " (" << pthread_self() << ") Received mark, returning true");
-	    return true;
-	    break;
+          case queueEntry_MARK:
+            // Exit loop now, whether or not queue is empty
+            debugMsg("InterfaceManager:processQueue",
+                     " (" << pthread_self() << ") Received mark, returning true");
+            return true;
+            break;
 
-	  case queueEntry_LOOKUP_VALUES:
-	    // State -- update all listeners
-	    {
-	      // state for debugging only
-	      State state;
-	      bool stateFound =
-		m_exec->getStateCache()->stateForKey(stateKey, state);
-	      if (stateFound)
-		{
-		  debugMsg("InterfaceManager:processQueue",
-			   " (" << pthread_self()
-			   << ") Handling state change for '"
-			   << getText(state)
-			   << "', " << newStateValues.size()
-			   << " new value(s)");
+          case queueEntry_LOOKUP_VALUES:
+            // State -- update all listeners
+            {
+              // state for debugging only
+              State state;
+              bool stateFound =
+                m_exec->getStateCache()->stateForKey(stateKey, state);
+              if (stateFound)
+                {
+                  debugMsg("InterfaceManager:processQueue",
+                           " (" << pthread_self()
+                           << ") Handling state change for '"
+                           << getText(state)
+                           << "', " << newStateValues.size()
+                           << " new value(s)");
 
-		  if (newStateValues.size() == 0)
-		    {
-		      debugMsg("InterfaceManager:processQueue",
-			       "(" << pthread_self()
-			       << ") Ignoring empty state change vector for '"
-			       << getText(state)
-			       << "'");
-		      break;
-		    }
+                  if (newStateValues.size() == 0)
+                    {
+                      debugMsg("InterfaceManager:processQueue",
+                               "(" << pthread_self()
+                               << ") Ignoring empty state change vector for '"
+                               << getText(state)
+                               << "'");
+                      break;
+                    }
 
-		  // If this is a time state update message, check if it's stale
-		  if (stateKey == m_exec->getStateCache()->getTimeStateKey())
-		    {
-		      if (newStateValues[0] <= m_currentTime)
-			{
-			  debugMsg("InterfaceManager:processQueue",
-				   " (" << pthread_self()
-				   << ") Ignoring stale time update - new value "
-				   << newStateValues[0] << " is not greater than cached value "
-				   << m_currentTime);
-			}
-		      else
-			{
-			  debugMsg("InterfaceManager:processQueue",
-				   " (" << pthread_self()
-				   << ") setting current time to "
-				   << valueToString(newStateValues[0]));
-			  m_currentTime = newStateValues[0];
-			  m_exec->getStateCache()->updateState(stateKey, newStateValues);
-			}
-		    }
-		  else
-		    {
-		      // General case, update state cache
-		      m_exec->getStateCache()->updateState(stateKey, newStateValues);
-		    }
-		}
-	      else
-		{
-		  // State not found -- possibly stale update
-		  debugMsg("InterfaceManager:processQueue", 
-			   " (" << pthread_self()
-			   << ") ignoring lookup for nonexistent state, key = "
-			   << stateKey);
-		}
-	      break;
-	    }
+                  // If this is a time state update message, check if it's stale
+                  if (stateKey == m_exec->getStateCache()->getTimeStateKey())
+                    {
+                      if (newStateValues[0] <= m_currentTime)
+                        {
+                          debugMsg("InterfaceManager:processQueue",
+                                   " (" << pthread_self()
+                                   << ") Ignoring stale time update - new value "
+                                   << newStateValues[0] << " is not greater than cached value "
+                                   << m_currentTime);
+                        }
+                      else
+                        {
+                          debugMsg("InterfaceManager:processQueue",
+                                   " (" << pthread_self()
+                                   << ") setting current time to "
+                                   << valueToString(newStateValues[0]));
+                          m_currentTime = newStateValues[0];
+                          m_exec->getStateCache()->updateState(stateKey, newStateValues);
+                        }
+                    }
+                  else
+                    {
+                      // General case, update state cache
+                      m_exec->getStateCache()->updateState(stateKey, newStateValues);
+                    }
+                }
+              else
+                {
+                  // State not found -- possibly stale update
+                  debugMsg("InterfaceManager:processQueue", 
+                           " (" << pthread_self()
+                           << ") ignoring lookup for nonexistent state, key = "
+                           << stateKey);
+                }
+              break;
+            }
 
-	  case queueEntry_RETURN_VALUE:
-	    // Expression -- update the expression only
-	    debugMsg("InterfaceManager:processQueue",
-		     " (" << pthread_self()
-		     << ") Updating expression " << exp
-		     << ", new value is '" << valueToString(newExpValue) << "'");
-	    this->releaseResourcesAtCommandTermination(exp);
-	    exp->setValue(newExpValue);
-	    break;
+          case queueEntry_RETURN_VALUE:
+            // Expression -- update the expression only
+            debugMsg("InterfaceManager:processQueue",
+                     " (" << pthread_self()
+                     << ") Updating expression " << exp
+                     << ", new value is '" << valueToString(newExpValue) << "'");
+            this->releaseResourcesAtCommandTermination(exp);
+            exp->setValue(newExpValue);
+            break;
 
-	  case queueEntry_PLAN:
-	    // Plan -- add the plan
-	    debugMsg("InterfaceManager:processQueue",
-		     " (" << pthread_self() << ") Received plan");
-	    getExec()->addPlan(plan, parent);
-	    break;
+          case queueEntry_PLAN:
+            // Plan -- add the plan
+            debugMsg("InterfaceManager:processQueue",
+                     " (" << pthread_self() << ") Received plan");
+            getExec()->addPlan(plan, parent);
+            break;
 
-	  case queueEntry_LIBRARY:
-	    // Library -- add the library
+          case queueEntry_LIBRARY:
+            // Library -- add the library
 
-	    debugMsg("InterfaceManager:processQueue",
-		     " (" << pthread_self() << ") Received library");
-	    // *** TODO: check here for duplicates ***
+            debugMsg("InterfaceManager:processQueue",
+                     " (" << pthread_self() << ") Received library");
+            // *** TODO: check here for duplicates ***
             getExec()->addLibraryNode(plan);
-	    // no need to step here
-	    break;
+            // no need to step here
+            break;
 
-	  default:
-	    // error
-	    checkError(ALWAYS_FAIL,
-		       "InterfaceManager:processQueue: Invalid entry type "
-		       << typ);
-	    break;
-	  }
+          default:
+            // error
+            checkError(ALWAYS_FAIL,
+                       "InterfaceManager:processQueue: Invalid entry type "
+                       << typ);
+            break;
+          }
 
-	firstTime = false;
+        firstTime = false;
 
         // Allow an opportunity to quit here
         pthread_testcancel();
@@ -548,10 +581,10 @@ namespace PLEXIL
   // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
   void
   InterfaceManager::registerChangeLookup(const LookupKey& source,
-						  const State& state,
-						  const StateKey& key,
-						  const std::vector<double>& tolerances, 
-						  std::vector<double>& dest)
+                                         const State& state,
+                                         const StateKey& key,
+                                         const std::vector<double>& tolerances, 
+                                         std::vector<double>& dest)
   {
     // Do an immediate lookup for effect
     lookupNow(state, key, dest);
@@ -570,20 +603,20 @@ namespace PLEXIL
   //  - optimize for multiple lookups on same state, e.g. time?
   void
   InterfaceManager::registerChangeLookup(const LookupKey& source,
-						  const StateKey& key, 
-						  const std::vector<double>& tolerances)
+                                         const StateKey& key, 
+                                         const std::vector<double>& tolerances)
   {
     // Extract state name and arglist
     State state;
     m_exec->getStateCache()->stateForKey(key, state);
     const LabelStr& stateName(state.first);
     debugMsg("InterfaceManager:registerChangeLookup",
-	     " for unique ID " << source << " of '" << stateName.toString() << "'");
+             " for unique ID " << source << " of '" << stateName.toString() << "'");
 
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
-		  "registerChangeLookup: No interface adapter found for lookup '"
-		  << stateName.toString() << "'");
+                  "registerChangeLookup: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
 
     m_lookupAdapterMap.insert(std::pair<LookupKey, InterfaceAdapterId>(source, adapter));
     // for convenience of adapter implementors
@@ -601,34 +634,34 @@ namespace PLEXIL
   // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
   void 
   InterfaceManager::lookupNow(const State& state,
-				       const StateKey& key,
-				       std::vector<double>& dest)
+                              const StateKey& key,
+                              std::vector<double>& dest)
   {
     const LabelStr& stateName(state.first);
     debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "'");
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
-		  "lookupNow: No interface adapter found for lookup '"
-		  << stateName.toString() << "'");
+                  "lookupNow: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
 
     adapter->lookupNow(key, dest);
     // update internal idea of time if required
     if (key == m_exec->getStateCache()->getTimeStateKey())
       {
-	if (dest[0] <= m_currentTime)
-	  {
-	    debugMsg("InterfaceManager:lookupNow",
-		     " Ignoring stale time update - new value "
-		     << dest[0] << " is not greater than cached value "
-		     << m_currentTime);
-	  }
-	else
-	  {
-	    debugMsg("InterfaceManager:lookupNow",
-		     " setting current time to "
-		     << valueToString(dest[0]));
-	    m_currentTime = dest[0];
-	  }
+        if (dest[0] <= m_currentTime)
+          {
+            debugMsg("InterfaceManager:verboseLookupNow",
+                     " Ignoring stale time update - new value "
+                     << dest[0] << " is not greater than cached value "
+                     << m_currentTime);
+          }
+        else
+          {
+            debugMsg("InterfaceManager:verboseLookupNow",
+                     " setting current time to "
+                     << valueToString(dest[0]));
+            m_currentTime = dest[0];
+          }
       }
 
     debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' complete");
@@ -661,15 +694,15 @@ namespace PLEXIL
     LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
     if (it == m_lookupAdapterMap.end())
       {
-	debugMsg("InterfaceManager:unregisterChangeLookup", 
-		 " no lookup found for key " << dest);
-	return;
+        debugMsg("InterfaceManager:unregisterChangeLookup", 
+                 " no lookup found for key " << dest);
+        return;
       }
 
     InterfaceAdapterId adapter = (*it).second;
     assertTrueMsg(!adapter.isNoId(),
-		  "unregisterChangeLookup: Internal Error: No interface adapter found for lookup key '"
-		  << dest << "'");
+                  "unregisterChangeLookup: Internal Error: No interface adapter found for lookup key '"
+                  << dest << "'");
 
     adapter->unregisterChangeLookup(dest);
     adapter->unregisterAsynchLookup(dest);
@@ -694,10 +727,10 @@ namespace PLEXIL
       getResourceArbiterInterface()->arbitrateCommands(commands, acceptCmds);
 
     for (std::list<CommandId>::const_iterator it = commands.begin();
-	 it != commands.end();
-	 it++)
+         it != commands.end();
+         it++)
       {
-	CommandId cmd = *it;
+        CommandId cmd = *it;
 
         if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end()))
           {
@@ -723,9 +756,9 @@ namespace PLEXIL
                      << " has been denied by the resource arbiter.");
             
             this->rejectCommand(cmd->getName(),
-                                 cmd->getArgValues(),
-                                 cmd->getDest(),
-                                 cmd->getAck());
+                                cmd->getArgValues(),
+                                cmd->getDest(),
+                                cmd->getAck());
           }
       }
 
@@ -741,14 +774,14 @@ namespace PLEXIL
   InterfaceManager::batchActions(std::list<FunctionCallId>& calls)
   {
     for (std::list<FunctionCallId>::const_iterator it = calls.begin();
-	 it != calls.end();
-	 it++)
+         it != calls.end();
+         it++)
       {
-	FunctionCallId call = *it;
-	this->executeFunctionCall(call->getName(),
-				  call->getArgValues(),
-				  call->getDest(),
-				  call->getAck());
+        FunctionCallId call = *it;
+        this->executeFunctionCall(call->getName(),
+                                  call->getArgValues(),
+                                  call->getDest(),
+                                  call->getAck());
       }
   }
 
@@ -760,36 +793,36 @@ namespace PLEXIL
   {
     if (updates.empty()) 
       {
-	debugMsg("InterfaceManager:updatePlanner", " update list is empty, returning");
-	return;
+        debugMsg("InterfaceManager:updatePlanner", " update list is empty, returning");
+        return;
       }
     InterfaceAdapterId intf = this->getPlannerUpdateInterface();
     if (intf.isNoId())
       {
-	// Must acknowledge updates if no interface for them
-	debugMsg("InterfaceManager:updatePlanner",
-		 " no planner update interface defined, acknowledging updates");
-	for (std::list<UpdateId>::const_iterator it = updates.begin();
-	     it != updates.end();
-	     it++)
-	  handleValueChange((*it)->getAck(),
-			    BooleanVariable::TRUE());
-	notifyOfExternalEvent();
+        // Must acknowledge updates if no interface for them
+        debugMsg("InterfaceManager:updatePlanner",
+                 " no planner update interface defined, acknowledging updates");
+        for (std::list<UpdateId>::const_iterator it = updates.begin();
+             it != updates.end();
+             it++)
+          handleValueChange((*it)->getAck(),
+                            BooleanVariable::TRUE());
+        notifyOfExternalEvent();
       }
     else
       {
-	for (std::list<UpdateId>::const_iterator it = updates.begin();
-	     it != updates.end();
-	     it++)
-	  {
-	    UpdateId upd = *it;
-	    debugMsg("InterfaceManager:updatePlanner",
-		     " sending planner update for node '"
-		     << upd->getSource()->getNodeId().toString() << "'");
-	    intf->sendPlannerUpdate(upd->getSource(),
-				    upd->getPairs(),
-				    upd->getAck());
-	  }
+        for (std::list<UpdateId>::const_iterator it = updates.begin();
+             it != updates.end();
+             it++)
+          {
+            UpdateId upd = *it;
+            debugMsg("InterfaceManager:updatePlanner",
+                     " sending planner update for node '"
+                     << upd->getSource()->getNodeId().toString() << "'");
+            intf->sendPlannerUpdate(upd->getSource(),
+                                    upd->getPairs(),
+                                    upd->getAck());
+          }
       }
   }
 
@@ -800,22 +833,22 @@ namespace PLEXIL
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
   void
   InterfaceManager::executeCommand(const LabelStr& name,
-					    const std::list<double>& args,
-					    ExpressionId dest,
-					    ExpressionId ack)
+                                   const std::list<double>& args,
+                                   ExpressionId dest,
+                                   ExpressionId ack)
   {
     InterfaceAdapterId intf = getCommandInterface(name);
     assertTrueMsg(!intf.isNoId(),
-		  "executeCommand: null interface adapter for command " << name.toString());
+                  "executeCommand: null interface adapter for command " << name.toString());
     intf->executeCommand(name, args, dest, ack);
   }
 
-    // rejects a command due to non-availability of resources
+  // rejects a command due to non-availability of resources
   void 
   InterfaceManager::rejectCommand(const LabelStr& /* name */,
-				  const std::list<double>& /* args */,
-				  ExpressionId /* dest */,
-				  ExpressionId ack)
+                                  const std::list<double>& /* args */,
+                                  ExpressionId /* dest */,
+                                  ExpressionId ack)
   {
     this->handleValueChange(ack, CommandHandleVariable::COMMAND_DENIED());
   }
@@ -827,13 +860,13 @@ namespace PLEXIL
   //  - bookkeeping (i.e. tracking active calls), mostly for invokeAbort() below
   void
   InterfaceManager::executeFunctionCall(const LabelStr& name,
-						 const std::list<double>& args,
-						 ExpressionId dest,
-						 ExpressionId ack)
+                                        const std::list<double>& args,
+                                        ExpressionId dest,
+                                        ExpressionId ack)
   {
     InterfaceAdapterId intf = getFunctionInterface(name);
     assertTrueMsg(!intf.isNoId(),
-		  "executeFunctionCall: null interface adapter for function " << name.toString());
+                  "executeFunctionCall: null interface adapter for function " << name.toString());
     intf->executeFunctionCall(name, args, dest, ack);
   }
 
@@ -850,7 +883,7 @@ namespace PLEXIL
   {
     InterfaceAdapterId intf = getCommandInterface(cmdName);
     assertTrueMsg(!intf.isNoId(),
-		  "invokeAbort: null interface adapter for command " << cmdName.toString());
+                  "invokeAbort: null interface adapter for command " << cmdName.toString());
     intf->invokeAbort(cmdName, cmdArgs, abrtAck, cmdAck);
   }
 
@@ -875,21 +908,21 @@ namespace PLEXIL
    */
   bool
   InterfaceManager::registerCommandInterface(const LabelStr & commandName,
-						      InterfaceAdapterId intf)
+                                             InterfaceAdapterId intf)
   {
     return m_adapterConfig->registerCommandInterface(commandName, intf);
   }
 
   /**
    * @brief Register the given interface adapter for this function.  
-            Returns true if successful.  Fails and returns false 
-            iff the function name already has an adapter registered.
+   Returns true if successful.  Fails and returns false 
+   iff the function name already has an adapter registered.
    * @param functionName The function to map to this adapter.
    * @param intf The interface adapter to handle this function.
    */
   bool
   InterfaceManager::registerFunctionInterface(const LabelStr & functionName,
-						       InterfaceAdapterId intf)
+                                              InterfaceAdapterId intf)
   {
     return m_adapterConfig->registerFunctionInterface(functionName, intf);
   }
@@ -903,15 +936,15 @@ namespace PLEXIL
    */
   bool 
   InterfaceManager::registerLookupInterface(const LabelStr & stateName,
-      const InterfaceAdapterId& intf)
+                                            const InterfaceAdapterId& intf)
   {
     return m_adapterConfig->registerLookupInterface(stateName, intf);
   }
 
   /**
    * @brief Register the given interface adapter for planner updates.
-            Returns true if successful.  Fails and returns false 
-	    iff an adapter is already registered.
+   Returns true if successful.  Fails and returns false 
+   iff an adapter is already registered.
    * @param intf The interface adapter to handle planner updates.
    */
   bool
@@ -963,9 +996,9 @@ namespace PLEXIL
   void InterfaceManager::deleteIfUnknown(InterfaceAdapterId intf)
   {
     if (m_adapterConfig->isKnown(intf))
-    {
-      deleteAdapter(intf);
-    }
+      {
+        deleteAdapter(intf);
+      }
   }
 
   /**
@@ -1096,7 +1129,7 @@ namespace PLEXIL
 
   /**
    * @brief Return the interface adapter in effect for planner updates,
-            whether specifically registered or default. May return NoId().
+   whether specifically registered or default. May return NoId().
   */
   InterfaceAdapterId
   InterfaceManager::getPlannerUpdateInterface()
@@ -1115,13 +1148,13 @@ namespace PLEXIL
   {
     if (m_raInterface.isId())
       {
-	debugMsg("InterfaceManager:setResourceArbiterInterface",
-		 " attempt to overwrite resource arbiter interface " << m_raInterface);
-	return false;
+        debugMsg("InterfaceManager:setResourceArbiterInterface",
+                 " attempt to overwrite resource arbiter interface " << m_raInterface);
+        return false;
       }
     m_raInterface = raIntf;
     debugMsg("InterfaceManager:setResourceArbiterInterface",
-	     " setting resource arbiter interface " << raIntf);
+             " setting resource arbiter interface " << raIntf);
     return true;
   }
 
@@ -1132,7 +1165,7 @@ namespace PLEXIL
   InterfaceManager::unsetResourceArbiterInterface()
   {
     debugMsg("InterfaceManager:unsetResourceArbiterInterface",
-	     " removing resource arbiter interface");
+             " removing resource arbiter interface");
     m_raInterface = ResourceArbiterInterfaceId::noId();
   }
 
@@ -1143,7 +1176,7 @@ namespace PLEXIL
    */
   void
   InterfaceManager::handleValueChange(const StateKey& key, 
-					       const std::vector<double>& values)
+                                      const std::vector<double>& values)
   {
     debugMsg("InterfaceManager:handleValueChange", " for lookup values entered");
     m_valueQueue.enqueue(key, values);
@@ -1156,7 +1189,7 @@ namespace PLEXIL
    */
   void 
   InterfaceManager::handleValueChange(const ExpressionId & exp,
-					       double value)
+                                      double value)
   {
     debugMsg("InterfaceManager:handleValueChange", " for return value entered");
     m_valueQueue.enqueue(exp, value);
@@ -1164,37 +1197,37 @@ namespace PLEXIL
 
   /**
    * @brief Tells the external interface to expect a return value from this command.
-            Use handleValueChange() to actually return the value.
+   Use handleValueChange() to actually return the value.
    * @param dest The expression whose value will be returned.
    * @param name The command whose value will be returned.
    * @param params The parameters associated with this command.
    */
   void
   InterfaceManager::registerCommandReturnValue(ExpressionId /* dest */,
-					       const LabelStr & /* name */,
-					       const std::list<double> & /* params */)
+                                               const LabelStr & /* name */,
+                                               const std::list<double> & /* params */)
   {
     assertTrue(ALWAYS_FAIL, "registerCommandReturnValue not yet implemented!");
   }
 
   /**
    * @brief Tells the external interface to expect a return value from this function.
-            Use handleValueChange() to actually return the value.
+   Use handleValueChange() to actually return the value.
    * @param dest The expression whose value will be returned.
    * @param name The command whose value will be returned.
    * @param params The parameters associated with this command.
    */
   void
   InterfaceManager::registerFunctionReturnValue(ExpressionId /* dest */,
-						const LabelStr & /* name */,
-						const std::list<double> & /* params */)
+                                                const LabelStr & /* name */,
+                                                const std::list<double> & /* params */)
   {
     assertTrue(ALWAYS_FAIL, "registerFunctionReturnValue not yet implemented!");
   }
 
   /**
    * @brief Notify the external interface that this previously registered expression
-            should not wait for a return value.
+   should not wait for a return value.
    * @param dest The expression whose value was to be returned.
    */
   void
@@ -1205,7 +1238,7 @@ namespace PLEXIL
 
   /**
    * @brief Notify the external interface that this previously registered expression
-            should not wait for a return value.
+   should not wait for a return value.
    * @param dest The expression whose value was to be returned.
    */
   void
@@ -1221,18 +1254,18 @@ namespace PLEXIL
    */
   void
   InterfaceManager::handleAddPlan(TiXmlElement * planXml,
-					   const LabelStr& parent)
+								  const LabelStr& parent)
     throw(ParserException)
   {
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
     checkParserException(planXml->FirstChild() != NULL
-			 && planXml->FirstChild()->Value() != NULL
-			 && !(std::string(planXml->FirstChild()->Value()).empty())
-			 && planXml->FirstChildElement() != NULL
-			 && planXml->FirstChildElement("Node") != NULL,
-			 "<" << planXml->Value() << "> is not a valid Plexil XML plan");
+						 && planXml->FirstChild()->Value() != NULL
+						 && !(std::string(planXml->FirstChild()->Value()).empty())
+						 && planXml->FirstChildElement() != NULL
+						 && planXml->FirstChildElement("Node") != NULL,
+						 "<" << planXml->Value() << "> is not a valid Plexil XML plan");
 
     // parse the plan
     static PlexilXmlParser parser;
@@ -1249,7 +1282,7 @@ namespace PLEXIL
    */
   void
   InterfaceManager::handleAddPlan(PlexilNodeId planStruct,
-					   const LabelStr& parent)
+								  const LabelStr& parent)
   {
     debugMsg("InterfaceManager:handleAddPlan", " entered");
     m_valueQueue.enqueue(planStruct, parent);
@@ -1268,14 +1301,14 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive that it should run one cycle.  
-            This should be sent after each batch of lookup, command
-            return, and function return data.
+   This should be sent after each batch of lookup, command
+   return, and function return data.
   */
   void
   InterfaceManager::notifyOfExternalEvent()
   {
     debugMsg("InterfaceManager:notify",
-	     " (" << pthread_self() << ") received external event");
+			 " (" << pthread_self() << ") received external event");
     m_valueQueue.mark();
     m_application.notifyExec();
   }
@@ -1433,21 +1466,21 @@ namespace PLEXIL
   }
 
   void InterfaceManager::ValueQueue::enqueue(const ExpressionId & exp,
-						      double newValue)
+											 double newValue)
   {
     ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(exp, newValue));
   }
 
   void InterfaceManager::ValueQueue::enqueue(const StateKey& key, 
-						      const std::vector<double> & newValues)
+											 const std::vector<double> & newValues)
   {
     ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(key, newValues));
   }
 
   void InterfaceManager::ValueQueue::enqueue(PlexilNodeId newPlan,
-						      const LabelStr & parent)
+											 const LabelStr & parent)
   {
     ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(newPlan, parent, queueEntry_PLAN));
@@ -1461,8 +1494,8 @@ namespace PLEXIL
 
   InterfaceManager::QueueEntryType
   InterfaceManager::ValueQueue::dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
-						 ExpressionId& exp, double& newExpValue,
-						 PlexilNodeId& plan, LabelStr& planParent)
+										ExpressionId& exp, double& newExpValue,
+										PlexilNodeId& plan, LabelStr& planParent)
   {
     ThreadMutexGuard guard(*m_mutex);
     if (m_queue.empty())
@@ -1471,32 +1504,32 @@ namespace PLEXIL
     switch (e.type)
       {
       case queueEntry_MARK: // do nothing
-	break;
+		break;
 
       case queueEntry_LOOKUP_VALUES:
-	stateKey = e.stateKey;
-	newStateValues = e.values;
-	break;
+		stateKey = e.stateKey;
+		newStateValues = e.values;
+		break;
 
       case queueEntry_RETURN_VALUE:
-	checkError(e.values.size() == 1,
-		   "InterfaceManager:dequeue: Invalid number of values for return value entry");
-	exp = e.expression;
-	newExpValue = e.values[0];
-	break;
+		checkError(e.values.size() == 1,
+				   "InterfaceManager:dequeue: Invalid number of values for return value entry");
+		exp = e.expression;
+		newExpValue = e.values[0];
+		break;
 
       case queueEntry_PLAN:
-	planParent = e.parent;
-	// fall thru to library case
+		planParent = e.parent;
+		// fall thru to library case
 
       case queueEntry_LIBRARY:
-	plan = e.plan;
-	break;
+		plan = e.plan;
+		break;
 
       default:
-	assertTrue(ALWAYS_FAIL,
-		   "InterfaceManager:dequeue: Invalid queue entry");
-	break;
+		assertTrue(ALWAYS_FAIL,
+				   "InterfaceManager:dequeue: Invalid queue entry");
+		break;
       }
     m_queue.pop();
     return e.type;

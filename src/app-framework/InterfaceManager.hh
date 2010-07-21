@@ -60,6 +60,9 @@ namespace PLEXIL
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
 
+  class ExecController;
+  typedef Id<ExecController> ExecControllerId;
+
   /**
    * @brief A concrete derived class implementing the APIs of the
    *        ExternalInterface and AdapterExecInterface classes.
@@ -850,6 +853,9 @@ namespace PLEXIL
 
     //* The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;
+
+	//* The exec controller
+	ExecControllerId m_execController;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;
