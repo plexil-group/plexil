@@ -24,17 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include "CoreExpressions.hh"
 #include "Node.hh"
 #include "ExternalInterface.hh"
 #include "LabelStr.hh"
 #include "Debug.hh"
-#include "Utils.hh"
 #include "CommandHandle.hh"
 #include <cmath> // for fabs()
+#include <list>
 #include <string>
 #include <sstream>
-#include <list>
 #include <stdint.h> // for int32_t
 
 namespace PLEXIL 
@@ -667,6 +667,8 @@ namespace PLEXIL
     retval << "int)";
     return retval.str();
   }
+
+  // FIXME: Shouldn't these be PLUS_INFINTIY, MINUS_INFINITY?!
 
   std::string IntegerVariable::valueString() const {
     std::ostringstream retval;
