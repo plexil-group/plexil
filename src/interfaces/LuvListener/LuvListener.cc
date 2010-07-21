@@ -35,7 +35,6 @@
 
 #include "Node.hh"
 
-#include "CommonDefs.hh"
 #include "PlexilExec.hh"
 #include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
