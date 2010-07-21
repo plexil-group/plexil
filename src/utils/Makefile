@@ -34,7 +34,7 @@ LIB_PATH	+=
 LIBS		+= tinyxml $(PTHREAD_LIB)
 
 SRC		:= $(wildcard *.cc)
-INC		:= $(SRC:.cc=.hh) CommonDefs.hh Id.hh TestSupport.hh utils_main_page.hh
+INC		:= $(SRC:.cc=.hh) ConstantMacros.hh Id.hh TestSupport.hh utils_main_page.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
