@@ -31,7 +31,7 @@
 #include "ipc-data-formats.h"
 #include "ThreadSpawn.hh"
 #include "RecursiveThreadMutex.hh"
-#include "CommonDefs.hh"
+#include "ConstantMacros.hh"
 #include "LabelStr.hh"
 
 #include <vector>
