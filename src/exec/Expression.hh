@@ -35,16 +35,33 @@
  * @ingroup Exec
  */
 
-#include "LabelStr.hh"
-#include "StoredArray.hh"
-#include "PlexilPlan.hh"
 #include "ExecDefs.hh"
+#include "LabelStr.hh"
+#include "PlexilPlan.hh"
+#include "StoredArray.hh"
 #include "Utils.hh"
 
 #include <limits>
 #include <list>
 #include <map>
 #include <set>
+
+// Common constants used only in expressions
+
+#define PLUS_INFINITY (PLEXIL::g_infiniteTime())
+
+#define MINUS_INFINITY (-PLEXIL::g_infiniteTime())
+
+#define REAL_PLUS_INFINITY (PLEXIL::g_maxReal())
+
+#define REAL_MINUS_INFINITY (-PLEXIL::g_maxReal())
+
+/**
+ * @def EPSILON
+ * Used when computing differences and comparing real numbers:
+ * smallest recognized increment.
+ */
+#define EPSILON (PLEXIL::g_epsilon())
 
 namespace PLEXIL {
   /**
