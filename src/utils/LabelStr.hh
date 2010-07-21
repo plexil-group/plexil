@@ -284,6 +284,14 @@ private:
    */
   static const std::string& getString(double key);
 
+  /**
+   * @brief Utility function to tokenzie a std string 
+   */
+
+  static void tokenize(const std::string& str, 
+					   std::vector<std::string>& tokens,  
+					   const std::string& delimiters = " "); 
+
 
 #ifndef PLEXIL_FAST
   const char* m_chars;
