@@ -35,20 +35,16 @@
  * @ingroup Utils
  */
 
-// both lines below are needed for int32_t, INT32_MAX
-// N.B.: These two lines *must* come before any other #include statements!
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-
 #include <vector>
 #include <set>
 #include <list>
 #include <string>
+#include <stdint.h> // for int32_t
 #include <cfloat> // for DBL_MAX
 #include <cstdlib>
 
+#include "ConstantMacros.hh"
 #include "Id.hh"
-#include "CommonDefs.hh" // for DECLARE_GLOBAL_CONST
 
 namespace PLEXIL {
 
@@ -57,26 +53,6 @@ namespace PLEXIL {
   DECLARE_GLOBAL_CONST(double, g_epsilon);
   DECLARE_GLOBAL_CONST(double, g_maxReal);
   DECLARE_GLOBAL_CONST(double, UNKNOWN);
-
-  /**
-   * Utility class that might get promoted later.
-   */
-  class Infinity {
-  public:
-    static double plus(double n1, double n2, double defaultValue) {
-      // Why cast to int and use abs()?  Why not just use fabs()? --wedgingt 2004 Feb 24
-      if (abs((int)n1) == PLUS_INFINITY || abs((int)n2) == PLUS_INFINITY)
-	return(defaultValue);
-      return(n1 + n2);
-    }
-
-    static double minus(double n1, double n2, double defaultValue) {
-      // Why cast to int and use abs()?  Why not just use fabs()? --wedgingt 2004 Feb 24
-      if (abs((int)n1) == PLUS_INFINITY || abs((int)n2) == PLUS_INFINITY)
-	return(defaultValue);
-      return(n1 - n2);
-    }
-  };
 
   /**
    * @brief Utility to produce a string from a double
@@ -94,14 +70,6 @@ namespace PLEXIL {
   bool compareIgnoreCase(const std::string & s1,
                          const std::string & s2);
 
-
-  /**
-   * @brief Utility function to tokenzie a std string 
-   */
-
-  void tokenize(const std::string& str, 
-		std::vector<std::string>& tokens,  
-		const std::string& delimiters = " "); 
 
   template<class TYPE>
   bool allValid(const std::set<Id<TYPE> >& objects){
