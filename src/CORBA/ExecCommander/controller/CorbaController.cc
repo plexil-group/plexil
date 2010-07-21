@@ -1,0 +1,265 @@
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "CorbaController.hh"
+
+#include "ControllerFactory.hh"
+
+#include "CorbaHelper.hh"
+#include "NameServiceHelper.hh"
+
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
+#include "tinyxml.h"
+
+#include <cstring>
+#include <cstdlib>
+
+namespace PLEXIL {
+
+  CorbaController::CorbaController(ExecApplication& app, const TiXmlElement * configXml)
+	: POA_PLEXIL::ExecCommander(),
+	  ExecController(app, configXml),
+	  m_name(NULL)
+  {
+  }
+
+  CorbaController::~CorbaController() {
+	// shut it down if not already down
+	controllerShutdown();
+  }
+
+	/**
+     * @brief Prepare the controller for use.
+     */
+  bool CorbaController::initialize() {
+	bool result = true;
+	// register self with name service if name provided
+	if (getXml() != NULL) {
+	  const char* myName = getXml()->Attribute(CONTROLLER_NAME_ATTR());
+	  if (myName != NULL) {
+		result = registerWithNameService(myName);
+	  }
+	}
+	return result;
+  }
+
+  /**
+   * @brief Terminate operation
+   */
+  void CorbaController::controllerShutdown() {
+	// unregister from name service if necessary
+	if (m_name != NULL) {
+	  unregisterWithNameService(m_name);
+	}
+	free(m_name);
+  }
+
+  //
+  // ExecutionControl API
+  //
+	
+  CommandStatus CorbaController::start() {
+	if (getApplication().getApplicationState() != ExecApplication::APP_INITED)
+	  return WRONG_STATE;
+	return (getApplication().run() ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::suspend() {
+	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
+	  return WRONG_STATE;
+	return (getApplication().suspend() ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::resume() {
+	if (getApplication().getApplicationState() != ExecApplication::APP_SUSPENDED)
+	  return WRONG_STATE;
+	return (getApplication().resume() ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::stop() {
+	ExecApplication::ApplicationState s = getApplication().getApplicationState();
+	if (s != ExecApplication::APP_RUNNING && s != ExecApplication::APP_SUSPENDED)
+	  return WRONG_STATE;
+	return (getApplication().stop() ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::reset() {
+	if (getApplication().getApplicationState() != ExecApplication::APP_STOPPED)
+	  return WRONG_STATE;
+	return (getApplication().reset() ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::shutdown() {
+	if (getApplication().getApplicationState() != ExecApplication::APP_STOPPED)
+	  return WRONG_STATE;
+	return (getApplication().shutdown() ? OK : FAILED);
+  }
+
+  ExecState CorbaController::getExecState() {
+	return ExecStateFromAppState(getApplication().getApplicationState());
+  }
+
+  //
+  // PlanLoader API
+  //
+
+  CommandStatus CorbaController::loadPlan(const char* planXml) {
+	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
+	  return WRONG_STATE;
+
+	// parse XML
+	TiXmlDocument* xdoc = new TiXmlDocument();
+	xdoc->Parse(planXml);
+	if (xdoc->Error())
+	  return PLAN_PARSE_ERROR;
+
+	// pass it to exec
+	return (getApplication().addPlan(xdoc) ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::loadPlanFile(const char* filename) {
+	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
+	  return WRONG_STATE;
+
+	// parse XML
+	TiXmlDocument* xdoc = new TiXmlDocument(filename);
+	if (!xdoc->LoadFile()) {
+	  int xmlErr = xdoc->ErrorId();
+	  if (xmlErr == TiXmlBase::TIXML_ERROR_OPENING_FILE)
+		return IO_ERROR;
+	  else
+		return PLAN_PARSE_ERROR;
+	}
+
+	// pass it to exec
+	return (getApplication().addPlan(xdoc) ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::loadLibrary(const char* libraryXml) {
+	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
+	  return WRONG_STATE;
+
+	// parse XML
+	TiXmlDocument* xdoc = new TiXmlDocument();
+	xdoc->Parse(libraryXml);
+	if (xdoc->Error())
+	  return PLAN_PARSE_ERROR;
+
+	// pass it to exec
+	return (getApplication().addLibrary(xdoc) ? OK : FAILED);
+  }
+
+  CommandStatus CorbaController::loadLibraryFile(const char* filename) {
+	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
+	  return WRONG_STATE;
+
+	// parse XML
+	TiXmlDocument* xdoc = new TiXmlDocument(filename);
+	if (!xdoc->LoadFile()) {
+	  int xmlErr = xdoc->ErrorId();
+	  if (xmlErr == TiXmlBase::TIXML_ERROR_OPENING_FILE)
+		return IO_ERROR;
+	  else
+		return PLAN_PARSE_ERROR;
+	}
+
+	// pass it to exec
+	return (getApplication().addLibrary(xdoc) ? OK : FAILED);
+  }
+
+  /**
+   * @brief Register this object with the CORBA Naming Service.
+   * @param contactName The name to register.
+   * @return true if successful, false otherwise.
+   */
+  bool CorbaController::registerWithNameService(const char* contactName) {
+    CosNaming::Name myName = NameServiceHelper::parseName(contactName);
+    debugMsg("CorbaController:register",
+	     " registering Ariel interface as '"
+	     << NameServiceHelper::nameToEscapedString(myName) << "'");
+    NameServiceHelper & helper = NameServiceHelper::getInstance();
+    bool result = helper.nameServiceBind(myName, _this());
+	if (result) {
+	  m_name = static_cast<char*>(malloc(strlen(contactName) + 1));
+	  strcpy(m_name, contactName);
+	}
+	return result;
+  }
+
+  /**
+   * @brief Retract registration with the CORBA Naming Service.
+   * @param contactName The name that was registered.
+   * @return true if successful, false otherwise.
+   */
+  bool CorbaController::unregisterWithNameService(const char* contactName) {
+    CosNaming::Name myName = NameServiceHelper::parseName(contactName);
+    debugMsg("CorbaController:unregister",
+			 " unbinding '"
+			 << NameServiceHelper::nameToEscapedString(myName) << "' from naming service");
+    NameServiceHelper & helper = NameServiceHelper::getInstance();
+    return helper.nameServiceUnbind(myName);
+  }
+
+  // Static utility method
+  ExecState CorbaController::ExecStateFromAppState(ExecApplication::ApplicationState as) {
+	switch (as) {
+	case ExecApplication::APP_INITED:
+	  return INITED;
+	  break;
+
+	case ExecApplication::APP_INTERFACES_STARTED:
+	  return INTERFACES_STARTED;
+	  break;
+
+	case ExecApplication::APP_RUNNING:
+	  return RUNNING;
+	  break;
+
+	case ExecApplication::APP_SUSPENDED:
+	  return SUSPENDED;
+	  break;
+
+	case ExecApplication::APP_STOPPED:
+	  return STOPPED;
+	  break;
+
+	case ExecApplication::APP_SHUTDOWN:
+	  return SHUTDOWN;
+	  break;
+
+	default:
+	  return STATE_UNKNOWN;
+	  break;
+	}
+  }
+
+  void initCorbaController() {
+	REGISTER_CONTROLLER(CorbaController, "CorbaController");
+  }
+
+}
