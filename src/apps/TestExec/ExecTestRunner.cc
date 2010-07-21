@@ -103,9 +103,6 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 #ifdef __linux__
 		Logging::print_to_log(argv, argc);
 #endif
-#ifdef __BEOS__
-		Logging::print_to_log(argv, argc);
-#endif
 #ifdef __APPLE__
 		std::string cmd = "user command: ";
 		for (int i = 1; i < argc; ++i)
