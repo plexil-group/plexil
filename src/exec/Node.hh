@@ -27,10 +27,10 @@
 #ifndef _H_Node
 #define _H_Node
 
-#include "CommonDefs.hh"
+#include "ConstantMacros.hh"
 #include "ExecDefs.hh"
-#include "PlexilPlan.hh"
 #include "LabelStr.hh"
+#include "PlexilPlan.hh"
 
 #include <list>
 #include <map>
