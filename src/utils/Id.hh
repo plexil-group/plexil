@@ -40,7 +40,6 @@
 #ifndef _H_ID
 #define _H_ID
 
-#include "CommonDefs.hh"
 #include "IdTable.hh"
 #include "Error.hh"
 #include <typeinfo>
