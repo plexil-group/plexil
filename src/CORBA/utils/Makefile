@@ -25,13 +25,14 @@
 
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+include $(PLEXIL_HOME)/makeinclude/tao-defs.make
 
 LIBRARY		:= PlexilCorbaUtils
 
 # External dependencies
-INC_DIRS	+= $(ACE_ROOT)  $(TAO_ROOT) $(TAO_ROOT)/orbsvcs $(PLEXIL_HOME)/src/utils
-LIB_PATH	+= $(ACE_ROOT)/lib $(PLEXIL_HOME)/lib
-LIBS		+= ACE TAO TAO_PortableServer TAO_CosNaming PlexilUtils
+INC_DIRS	+= $(PLEXIL_HOME)/src/utils
+LIB_PATH	+= $(PLEXIL_HOME)/lib
+LIBS		+= PlexilUtils
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh)
