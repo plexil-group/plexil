@@ -27,8 +27,6 @@
 #ifndef _H_Expressions
 #define _H_Expressions
 
-#include "CommonDefs.hh"
-#include "Expression.hh"
 #include "CoreExpressions.hh"
 #include "PlexilPlan.hh"
 #include "LabelStr.hh"
