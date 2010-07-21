@@ -38,7 +38,7 @@ LIBS		+= rt
 endif
 
 SRC		:= $(wildcard *.cc)
-INC		:= $(SRC:.cc=.hh) TimeAdapter.hh
+INC		:= $(SRC:.cc=.hh) TimeAdapter.hh ExecController.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
