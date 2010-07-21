@@ -196,6 +196,11 @@ namespace PLEXIL
       m_runExecInBkgndOnly = bkgndOnly; 
     }
 
+	/**
+	 * @brief Get the application's current state.
+	 */
+    ApplicationState getApplicationState();
+
   protected:
 
     //
@@ -235,11 +240,6 @@ namespace PLEXIL
      */
     bool waitForExternalEvent();
 
-
-	/**
-	 * @brief Get the application's current state.
-	 */
-    ApplicationState getApplicationState();
 
     //
     // Common methods provided to subclasses
