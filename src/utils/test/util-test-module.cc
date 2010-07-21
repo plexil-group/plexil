@@ -48,6 +48,7 @@
 */
 
 #include "util-test-module.hh"
+#include "ConstantMacros.hh"
 #include "Error.hh"
 #include "Debug.hh"
 #include "LabelStr.hh"
