@@ -27,7 +27,7 @@
 #ifndef _H_NewLuvListener
 #define _H_NewLuvListener
 
-#include "CommonDefs.hh"
+#include "ConstantMacros.hh"
 #include "ManagedExecListener.hh"
 #include "PlexilPlan.hh"
 #include "LabelStr.hh"
