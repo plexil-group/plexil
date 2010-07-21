@@ -50,10 +50,6 @@
 #include "Error.hh"
 #include "Logging.hh"
 
-#ifdef __BEOS__
-#include <OS.h>
-#endif
-
 std::ostream *Error::s_os = 0;
 bool Error::s_throw = false;
 bool Error::s_printErrors = true;
@@ -90,11 +86,7 @@ void Error::handleAssert() {
   Logging::handle_message(Logging::ERROR, m_file.c_str(), m_line, m_msg.c_str());
   if (throwEnabled())
     throw *this;
-#ifndef __BEOS__
   assert(false); // Need the stack to work backwards and look at state in the debugger
-#else
-  debugger(m_condition.c_str());
-#endif
 }
 
 void Error::setCause(const std::string& condition, const std::string& file, const int& line) {
