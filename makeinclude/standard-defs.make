@@ -31,6 +31,9 @@ ifeq ($(PLEXIL_HOME),)
 $(error The environment variable PLEXIL_HOME is not set. Exiting.)
 endif
 
+# The location we're building into - may be overridden
+TOP_DIR ?= $(PLEXIL_HOME)
+
 # Which variant(s) to build by default
 # These can be overridden at the command line or in the shell environment
 PLEXIL_DEBUG		?= 1
@@ -133,7 +136,10 @@ CXXFLAGS	+= $(DEFINES) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
 # User must set this to be useful.
 LIBRARY		=
 
-LIB_PATH	= $(PLEXIL_HOME)/lib
+LIB_PATH	:= $(PLEXIL_HOME)/lib
+ifneq ($(PLEXIL_HOME),$(TOP_DIR))
+LIB_PATH	+= $(TOP_DIR)/lib
+endif
 LIB_PATH_FLAGS	= $(foreach libdir,$(LIB_PATH),$(LIBRARY_PATH_SEARCH_FLAG)$(libdir))
 LIBS		=
 LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
