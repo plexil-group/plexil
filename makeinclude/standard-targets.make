@@ -47,9 +47,6 @@
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
 DIRT    = $(OBJ) $(addsuffix .d,$(basename $(SRC)))
 
-# The location we're building into - may 
-TOP_DIR ?= $(PLEXIL_HOME)
-
 ##### Internal Targets  -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
@@ -105,8 +102,11 @@ plexil-default: executable
 
 # handle case of multiple targets in EXECUTABLE
 # see src/interfaces/Sockets/test/Makefile
-executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE)
+executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE) $(BIN_DIR)
 	$(CP) $(EXECUTABLE) $(BIN_DIR)
+
+$(BIN_DIR):
+		mkdir -p $(BIN_DIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
