@@ -50,7 +50,7 @@ namespace PLEXIL
 	// construct library name from module name
 	libName = "lib" + std::string(moduleName);
 	debugMsg("DynamicLoader:loadModule",
-		 " no library name provided for module "
+		 " no library name provided for module \""
 		 << moduleName << "\", using default value of \""
 		 << libName << "\"");
       }
@@ -71,8 +71,7 @@ namespace PLEXIL
     if (func == 0)
       {
 	debugMsg("DynamicLoader:loadModule", 
-		 " Failed to load library "
-		 << libPath << ":\n" << DynamicLoader::getError());
+			 " Failed to load library " << libPath);
 	return false;
       }
 
@@ -80,17 +79,23 @@ namespace PLEXIL
     (*func)();
 
     debugMsg("DynamicLoader:loadModule",
-	     " successfully loaded " << moduleName << "\"");
+	     " successfully loaded \"" << moduleName << "\"");
     return true;
   }
 
   void *DynamicLoader::getDynamicSymbol(const char* libPath, const char* symbol) {
     void *handle = dlopen(libPath, RTLD_NOW | RTLD_GLOBAL);
-    if (!handle) //an error occured in loading the library
+    if (!handle) { //an error occured in loading the library
+	  debugMsg("DynamicLoader:loadModule",
+			   " dlopen failed on file " << libPath << ": " << dlerror());
       return 0;
+	}
     void *func = dlsym(handle, symbol);
-    if (!func) //an error occured in loading the function
+    if (!func) { //an error occured in loading the function
+	  debugMsg("DynamicLoader:loadModule",
+			   " dlsym failed to find symbol \"" << symbol << "\": " << dlerror());
       return 0;
+	}
     return func;
   }
 
