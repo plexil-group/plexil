@@ -33,7 +33,10 @@
 
 namespace PLEXIL {
 
-  class CorbaController : public POA_PLEXIL::ExecCommander,
+  using gov::nasa::plexil::CommandStatus;
+  using gov::nasa::plexil::ExecState;
+
+  class CorbaController : public POA_gov::nasa::plexil::ExecCommander,
 						  public ExecController
   {
 

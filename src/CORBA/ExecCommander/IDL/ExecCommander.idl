@@ -27,31 +27,39 @@
 #ifndef EXEC_COMMANDER_IDL
 #define EXEC_COMMANDER_IDL
 
-module PLEXIL {
+module gov {
 
-  enum CommandStatus {OK, FAILED, WRONG_STATE, IO_ERROR, PLAN_PARSE_ERROR};
+  module nasa {
 
-  enum ExecState {STATE_UNKNOWN, INITED, INTERFACES_STARTED, RUNNING, SUSPENDED, STOPPED, SHUTDOWN};
+	module plexil {
 
-  interface ExecutionControl {
-	CommandStatus start();
-	CommandStatus suspend();
-	CommandStatus resume();
-	CommandStatus stop();
-	CommandStatus reset();
-	CommandStatus shutdown();
-	ExecState getExecState();
-  };
+	  enum CommandStatus {OK, FAILED, WRONG_STATE, IO_ERROR, PLAN_PARSE_ERROR};
 
-  interface PlanLoader {
-	CommandStatus loadPlan(in string planXml);
-	CommandStatus loadPlanFile(in string filename);
-	CommandStatus loadLibrary(in string libraryXml);
-	CommandStatus loadLibraryFile(in string filename);
-  };
+	  enum ExecState {STATE_UNKNOWN, INITED, INTERFACES_STARTED, RUNNING, SUSPENDED, STOPPED, SHUTDOWN};
 
-  interface ExecCommander : ExecutionControl, PlanLoader {};
+	  interface ExecutionControl {
+		CommandStatus start();
+		CommandStatus suspend();
+		CommandStatus resume();
+		CommandStatus stop();
+		CommandStatus reset();
+		CommandStatus shutdown();
+		ExecState getExecState();
+	  };
 
-}; // module PLEXIL
+	  interface PlanLoader {
+		CommandStatus loadPlan(in string planXml);
+		CommandStatus loadPlanFile(in string filename);
+		CommandStatus loadLibrary(in string libraryXml);
+		CommandStatus loadLibraryFile(in string filename);
+	  };
+
+	  interface ExecCommander : ExecutionControl, PlanLoader {};
+
+	}; // module plexil
+
+  }; // module nasa
+
+}; // module gov
 
 #endif // EXEC_COMMANDER_IDL

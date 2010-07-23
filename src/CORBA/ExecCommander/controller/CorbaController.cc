@@ -41,8 +41,10 @@
 
 namespace PLEXIL {
 
+  using namespace gov::nasa::plexil;
+
   CorbaController::CorbaController(ExecApplication& app, const TiXmlElement * configXml)
-	: POA_PLEXIL::ExecCommander(),
+	: POA_gov::nasa::plexil::ExecCommander(),
 	  ExecController(app, configXml),
 	  m_name(NULL)
   {
