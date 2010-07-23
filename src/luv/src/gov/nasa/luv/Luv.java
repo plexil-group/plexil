@@ -100,7 +100,7 @@ public class Luv extends JFrame {
     private Properties properties;
 
     /** Entry point for the Luv application. */
-    public static void main(String[] args) {
+    public static void main(String[] args) {    	
         runApp(args);
     }
 
@@ -108,7 +108,7 @@ public class Luv extends JFrame {
     private static void runApp(String[] args) {
         // if we're on a mac, use mac style menus
         System.setProperty("apple.laf.useScreenMenuBar", "true");
-
+             
         try {
             new Luv(args);
         } catch (Exception e) {
@@ -141,6 +141,12 @@ public class Luv extends JFrame {
         
         portFile = new LuvTempFile();
         
+    }
+    
+    private class MyShutdownHook extends Thread {
+    	public void run() {    		
+    		LuvTempFile.deleteTempFile();
+    	}
     }
 
     /** 
@@ -207,6 +213,8 @@ public class Luv extends JFrame {
 
     private void init() {
         theLuv = this;
+                
+        Runtime.getRuntime().addShutdownHook(new MyShutdownHook());
 
         currentPlan = new Model("dummy");
 
@@ -308,7 +316,7 @@ public class Luv extends JFrame {
         final JLabel portBar = new JLabel(" ");
         portBar.setBorder(new EmptyBorder(2, 2, 2, 2));
         infoBar.add(portBar);
-        c.weightx = 0.0;
+        c.weightx = 0.02;
         gridbag.setConstraints(portBar,c);
         statusMessageHandler.startPortStatusBarThread(portBar);                
 
