@@ -69,7 +69,7 @@ $(SHLIB): depend $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ)
 
 localclean::
-	-$(RM) $(SHLIB)
+	-$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB)
 endif
 
 ifneq ($(PLEXIL_STATIC),)
@@ -80,7 +80,9 @@ ARCHIVE = lib$(LIBRARY).a
 plexil-default: archive
 
 archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE)
-	$(CP) $(ARCHIVE) $(LIB_DIR)/
+	-$(MKDIR) -p $(LIB_DIR)
+	-$(RM) $(LIB_DIR)/$(ARCHIVE)
+	$(LN) $(subst $(TOP_DIR),..,$(shell pwd))/$(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
@@ -89,7 +91,7 @@ $(ARCHIVE): depend $(OBJ)
 	$(AR) crus $(ARCHIVE) $(OBJ)
 
 localclean::
-	-$(RM) $(ARCHIVE)
+	-$(RM) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 endif
 
 endif # $(LIBRARY)
@@ -106,7 +108,7 @@ executable $(foreach exec,$(EXECUTABLE),$(BIN_DIR)/$(exec)): $(EXECUTABLE) $(BIN
 	$(CP) $(EXECUTABLE) $(BIN_DIR)
 
 $(BIN_DIR):
-		mkdir -p $(BIN_DIR)
+	$(MKDIR) -p $(BIN_DIR)
 
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
@@ -114,7 +116,7 @@ $(EXECUTABLE): depend $(OBJ)
 	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ)
 
 localclean::
-	-$(RM) $(EXECUTABLE)
+	-$(RM) $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
 endif
 
 ##### Delete all products of compilation and dependency list.
