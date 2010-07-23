@@ -53,7 +53,9 @@ namespace PLEXIL
 	// look for comma or end of string
 	const char * comma = strchr(next, ',');
 	unsigned int len = 
-	  (comma == NULL) ? strlen(next) : comma - next;
+	  (comma == NULL) ? 
+	  strcspn(next, whitespace) /* strip trailing whitespace */ :
+	  comma - next;
 
 	// construct result string
 	result->push_back(std::string(next, len));
