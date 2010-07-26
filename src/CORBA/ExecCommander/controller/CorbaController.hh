@@ -72,22 +72,22 @@ namespace PLEXIL {
     // ExecutionControl API
     //
 	
-	CommandStatus start();
-	CommandStatus suspend();
-	CommandStatus resume();
-	CommandStatus stop();
-	CommandStatus reset();
-	CommandStatus shutdown();
-	ExecState getExecState();
+    CommandStatus start() throw (CORBA::SystemException);
+	CommandStatus suspend() throw (CORBA::SystemException);
+	CommandStatus resume() throw (CORBA::SystemException);
+	CommandStatus stop() throw (CORBA::SystemException);
+	CommandStatus reset() throw (CORBA::SystemException);
+	CommandStatus shutdown() throw (CORBA::SystemException);
+	ExecState getExecState() throw (CORBA::SystemException);
 
 	//
 	// PlanLoader API
 	//
 
-	CommandStatus loadPlan(const char* planXml);
-	CommandStatus loadPlanFile(const char* filename);
-	CommandStatus loadLibrary(const char* libraryXml);
-	CommandStatus loadLibraryFile(const char* filename);
+	CommandStatus loadPlan(const char* planXml) throw (CORBA::SystemException);
+	CommandStatus loadPlanFile(const char* filename) throw (CORBA::SystemException);
+	CommandStatus loadLibrary(const char* libraryXml) throw (CORBA::SystemException);
+	CommandStatus loadLibraryFile(const char* filename) throw (CORBA::SystemException);
 
 	/**
 	 * @brief Register this object with the CORBA Naming Service.

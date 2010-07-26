@@ -85,44 +85,51 @@ namespace PLEXIL {
   // ExecutionControl API
   //
 	
-  CommandStatus CorbaController::start() {
+  CommandStatus CorbaController::start()
+    throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_INITED)
 	  return WRONG_STATE;
 	return (getApplication().run() ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::suspend() {
+  CommandStatus CorbaController::suspend() 
+    throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
 	  return WRONG_STATE;
 	return (getApplication().suspend() ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::resume() {
+  CommandStatus CorbaController::resume() 
+    throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_SUSPENDED)
 	  return WRONG_STATE;
 	return (getApplication().resume() ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::stop() {
+  CommandStatus CorbaController::stop() 
+    throw (CORBA::SystemException){
 	ExecApplication::ApplicationState s = getApplication().getApplicationState();
 	if (s != ExecApplication::APP_RUNNING && s != ExecApplication::APP_SUSPENDED)
 	  return WRONG_STATE;
 	return (getApplication().stop() ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::reset() {
+  CommandStatus CorbaController::reset() 
+   throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_STOPPED)
 	  return WRONG_STATE;
 	return (getApplication().reset() ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::shutdown() {
+  CommandStatus CorbaController::shutdown() 
+    throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_STOPPED)
 	  return WRONG_STATE;
 	return (getApplication().shutdown() ? OK : FAILED);
   }
 
-  ExecState CorbaController::getExecState() {
+  ExecState CorbaController::getExecState()
+    throw (CORBA::SystemException) {
 	return ExecStateFromAppState(getApplication().getApplicationState());
   }
 
@@ -130,7 +137,8 @@ namespace PLEXIL {
   // PlanLoader API
   //
 
-  CommandStatus CorbaController::loadPlan(const char* planXml) {
+  CommandStatus CorbaController::loadPlan(const char* planXml)
+   throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
 	  return WRONG_STATE;
 
@@ -144,7 +152,8 @@ namespace PLEXIL {
 	return (getApplication().addPlan(xdoc) ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::loadPlanFile(const char* filename) {
+  CommandStatus CorbaController::loadPlanFile(const char* filename)
+    throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
 	  return WRONG_STATE;
 
@@ -162,7 +171,8 @@ namespace PLEXIL {
 	return (getApplication().addPlan(xdoc) ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::loadLibrary(const char* libraryXml) {
+  CommandStatus CorbaController::loadLibrary(const char* libraryXml)
+   throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
 	  return WRONG_STATE;
 
@@ -176,7 +186,8 @@ namespace PLEXIL {
 	return (getApplication().addLibrary(xdoc) ? OK : FAILED);
   }
 
-  CommandStatus CorbaController::loadLibraryFile(const char* filename) {
+  CommandStatus CorbaController::loadLibraryFile(const char* filename)
+    throw (CORBA::SystemException) {
 	if (getApplication().getApplicationState() != ExecApplication::APP_RUNNING)
 	  return WRONG_STATE;
 
