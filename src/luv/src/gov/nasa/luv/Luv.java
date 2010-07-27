@@ -760,6 +760,9 @@ public class Luv extends JFrame {
 
             setTitle(title);
         }
+        else if (isExecuting) {
+        	setTitle("Plexil Viewer");
+        }
         else {
             setTitle("Plexil Viewer - no plan loaded");
         }

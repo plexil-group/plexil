@@ -228,7 +228,7 @@ fi
 # Any more arguments?
 if [ $# -eq 0 ]
   then
-    checkWarn $usage
+    checkWarn "$usage"
 fi
 
 # Process first argument, which is the plan.
@@ -320,7 +320,7 @@ if [ $# -gt 0 ]
 	fi
       else
         echo Error: expected -l at this point
-        checkWarn $usage
+        checkWarn "$usage"
     fi
 fi
 
