@@ -1657,6 +1657,32 @@ namespace PLEXIL
   }
 
 
+  double Modulo::recalculate()
+  {
+    double v1 = m_a->getValue();
+    double v2 = m_b->getValue();
+    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
+      return Expression::UNKNOWN();
+
+    check_error(v2 != 0.0, "Attempt to divide by zero");
+
+    return (double) fmod (v1, v2);
+  }
+
+  std::string Modulo::toString() const
+  {
+    std::ostringstream retval;
+    retval << BinaryExpression::toString();
+    retval << "(" << m_a->toString() << " % " << m_b->toString() << "))";
+    return retval.str();
+  }
+
+  PlexilType Modulo::getValueType() const
+  {
+    return REAL;
+  }
+
+
   AllChildrenFinishedCondition::AllChildrenFinishedCondition(std::list<NodeId>& children)
     : Calculable(), m_listener(*this), m_total(0), m_count(0), m_constructed(false) {
     for(std::list<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {

@@ -858,6 +858,10 @@
   ""
   (plexil-binary-numop "DIV" x y))
 
+(pdefine pl (% mod) (x y) 2 nil
+  ""
+  (plexil-binary-numop "MOD" x y))
+
 (pdefine pl (Abs abs) (x) 2 nil
   ""
   (plexil-unary-numop "ABS" x))

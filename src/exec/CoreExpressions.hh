@@ -992,6 +992,34 @@ namespace PLEXIL {
   };
 
 
+  class Modulo : public BinaryExpression
+  {
+  public:
+    Modulo(const PlexilExprId& expr, const NodeConnectorId& node)
+      : BinaryExpression(expr, node)
+    {}
+
+    Modulo(const ExpressionId& a, const ExpressionId& b)
+      : BinaryExpression(a, b)
+    {}
+    Modulo(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
+      : BinaryExpression(a, aGarbage, b, bGarbage) {}
+
+    double recalculate();
+    std::string toString() const;
+
+    /**
+     * @brief Retrieve the value type of this Expression.
+     * @return The value type of this Expression.
+     */
+    virtual PlexilType getValueType() const;
+
+  protected:
+  private:
+    bool checkValue(const double /* value */) {return true;}
+  };
+
+
   class AllChildrenFinishedCondition : public Calculable {
   public:
     AllChildrenFinishedCondition(std::list<NodeId>& children);

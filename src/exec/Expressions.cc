@@ -426,6 +426,7 @@ namespace PLEXIL {
 	REGISTER_EXPRESSION(Subtraction, SUB);
 	REGISTER_EXPRESSION(Multiplication, MUL);
 	REGISTER_EXPRESSION(Division, DIV);
+	REGISTER_EXPRESSION(Modulo, MOD);        
 	REGISTER_EXPRESSION(BooleanVariable, BooleanValue);
 	//REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);
 	REGISTER_EXPRESSION(IntegerVariable, IntegerValue);

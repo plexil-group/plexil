@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
+            xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
   <Node NodeType="NodeList">
     <NodeId>Parent</NodeId>
     <EndCondition>
@@ -21,12 +21,12 @@
 	  <NodeId>SimpleAssignment1</NodeId>
 	  <VariableDeclarations>
 	    <DeclareVariable>
-        <Name>foo</Name>
-        <Type>Integer</Type>
-        <InitialValue>
-          <IntegerValue>0</IntegerValue>
-        </InitialValue>
-      </DeclareVariable>
+              <Name>foo</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>0</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
 	  </VariableDeclarations>
 	  <PreCondition>
 	    <AND>
@@ -80,27 +80,27 @@
 	<Node NodeType="Assignment">
 	  <NodeId>SimpleAssignment2</NodeId>
 	  <VariableDeclarations>
-       <DeclareVariable>
-        <Name>x</Name>
-        <Type>Real</Type>
-        <InitialValue>
-          <RealValue>0.0</RealValue>
-        </InitialValue>
-      </DeclareVariable>
-       <DeclareVariable>
-        <Name>y</Name>
-        <Type>Real</Type>
-        <InitialValue>
-          <RealValue>0.0</RealValue>
-        </InitialValue>
-      </DeclareVariable>
-      <DeclareVariable>
-        <Name>bar</Name>
-        <Type>Integer</Type>
-        <InitialValue>
-          <IntegerValue>0</IntegerValue>
-        </InitialValue>
-      </DeclareVariable>
+            <DeclareVariable>
+              <Name>x</Name>
+              <Type>Real</Type>
+              <InitialValue>
+                <RealValue>0.0</RealValue>
+              </InitialValue>
+            </DeclareVariable>
+            <DeclareVariable>
+              <Name>y</Name>
+              <Type>Real</Type>
+              <InitialValue>
+                <RealValue>0.0</RealValue>
+              </InitialValue>
+            </DeclareVariable>
+            <DeclareVariable>
+              <Name>bar</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>0</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
 	  </VariableDeclarations>
 	  <PreCondition>
 	    <AND>

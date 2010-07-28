@@ -696,6 +696,7 @@ void PlexilXmlParser::registerParsers()
   s_exprParsers->insert(std::make_pair("SUB", op));
   s_exprParsers->insert(std::make_pair("MUL", op));
   s_exprParsers->insert(std::make_pair("DIV", op));
+  s_exprParsers->insert(std::make_pair("MOD", op));
   s_exprParsers->insert(std::make_pair("SQRT", op));
   s_exprParsers->insert(std::make_pair("ABS", op));
 }

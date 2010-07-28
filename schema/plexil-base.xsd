@@ -849,6 +849,7 @@
        <xsd:element ref="SUB"/>
        <xsd:element ref="MUL"/>
        <xsd:element ref="DIV"/>
+       <xsd:element ref="MOD"/>
        <xsd:element ref="SQRT"/>
        <xsd:element ref="ABS"/>
        <xsd:element ref="IntegerVariable"/>
@@ -897,6 +898,12 @@
    </xsd:element>
 
    <xsd:element name="DIV">
+     <xsd:complexType>
+       <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+     </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="MOD">
      <xsd:complexType>
        <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
      </xsd:complexType>
