@@ -39,7 +39,7 @@ default: all
 all: TestExec UniversalExec IpcAdapter standard-plexil checker plexilsim robosim
 
 # convenience target for A4O project
-A4O: exec-core app-framework corba luv standard-plexil
+A4O: exec-core app-framework corba luv standard-plexil IpcAdapter plexilsim
 
 TestExec: exec-core LuvListener luv
 	$(MAKE) -C src/apps/TestExec
