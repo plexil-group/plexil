@@ -44,7 +44,7 @@ if [ $# = 2 ]
   elif [ $# = 1 ]
     then
       input_file=$1
-      output_file=`basename $1 .epx`.plx
+      output_file=`dirname $1`/`basename $1 .epx`.plx
   else
     echo "Usage: eplexil input-file [ output_file ]"
     exit 1
