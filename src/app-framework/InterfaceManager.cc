@@ -82,7 +82,7 @@ namespace PLEXIL
       m_ackToCmdMap(),
       m_destToCmdMap(),
       m_raInterface(),
-	  m_execController(),
+      m_execController(),
       m_currentTime(std::numeric_limits<double>::min())
   {
 
@@ -127,11 +127,11 @@ namespace PLEXIL
     if (m_adapterConfig.isId())
       delete m_adapterConfig.operator->();
 
-	if (m_execController.isId()) {
-	  // shut it down
-	  m_execController->controllerShutdown();
-	  delete m_execController.operator->();
-	}
+    if (m_execController.isId()) {
+      // shut it down
+      m_execController->controllerShutdown();
+      delete m_execController.operator->();
+    }
   }
 
   //
@@ -157,87 +157,87 @@ namespace PLEXIL
   bool InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
   {
     if (configXml == NULL) {
-	  debugMsg("InterfaceManager:constructInterfaces", " configuration is NULL, nothing to construct");
-	  return true;
-	}
+      debugMsg("InterfaceManager:constructInterfaces", " configuration is NULL, nothing to construct");
+      return true;
+    }
 
-	debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << *configXml);
-	const char* elementType = configXml->Value();
-	if (!strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0) {
-	  debugMsg("InterfaceManager:constructInterfaces",
-			   " invalid configuration XML: \n"
-			   << *configXml);
-	  return false;
-	}
-	const char* configType =
-	  configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
-	if (configType == 0) {
-	  m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
-	} else {
-	  m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
-	}
-	m_adapterConfig->getId();
+    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << *configXml);
+    const char* elementType = configXml->Value();
+    if (!strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0) {
+      debugMsg("InterfaceManager:constructInterfaces",
+               " invalid configuration XML: \n"
+               << *configXml);
+      return false;
+    }
+    const char* configType =
+      configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
+    if (configType == 0) {
+      m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
+    } else {
+      m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
+    }
+    m_adapterConfig->getId();
 
-	// Walk the children of the configuration XML element
-	// and register the adapter according to the data found there
-	const TiXmlElement* element = configXml->FirstChildElement();
-	while (element != 0)
-	  {
-		debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
-		const char* elementType = element->Value();
-		if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
-		  {
-			// Construct the adapter
-			InterfaceAdapterId adapter = 
-			  AdapterFactory::createInstance(element,
-											 *((AdapterExecInterface*)this));
-			if (!adapter.isId()) {
-			  debugMsg("InterfaceManager:constructInterfaces",
-					   " failed to construct adapter from XML:\n"
-					   << *element);
-			  return false;
-			}
-			m_adapters.insert(adapter);
-		  }
-		else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
-		  {
-			// Construct an ExecListener instance and attach it to the Exec
-			ExecListenerId listener = 
-			  ExecListenerFactory::createInstance(element,
-												  (AdapterExecInterface&) *this);
-			if (!listener.isId()) {
-			  debugMsg("InterfaceManager:constructInterfaces",
-					   " failed to construct listener from XML:\n"
-					   << *element);
-			  return false;
-			}
-			m_listeners.push_back(listener);
-		  }
-		else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0)
-		  {
-			// Construct an ExecController instance and attach it to the application
-			ExecControllerId controller = 
-			  ControllerFactory::createInstance(element, m_application);
-			if (!controller.isId()) {
-			  debugMsg("InterfaceManager:constructInterfaces", 
-					   " failed to construct controller from XML:\n"
-					   << *element);
-			  return false;
-			}
-			m_execController = controller;
-		  }
-		else
-		  {
-			debugMsg("InterfaceManager:constructInterfaces",
-					 " ignoring unrecognized XML element \""
-					 << elementType << "\"");
-		  }
+    // Walk the children of the configuration XML element
+    // and register the adapter according to the data found there
+    const TiXmlElement* element = configXml->FirstChildElement();
+    while (element != 0)
+      {
+        debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
+        const char* elementType = element->Value();
+        if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
+          {
+            // Construct the adapter
+            InterfaceAdapterId adapter = 
+              AdapterFactory::createInstance(element,
+                                             *((AdapterExecInterface*)this));
+            if (!adapter.isId()) {
+              debugMsg("InterfaceManager:constructInterfaces",
+                       " failed to construct adapter from XML:\n"
+                       << *element);
+              return false;
+            }
+            m_adapters.insert(adapter);
+          }
+        else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
+          {
+            // Construct an ExecListener instance and attach it to the Exec
+            ExecListenerId listener = 
+              ExecListenerFactory::createInstance(element,
+                                                  (AdapterExecInterface&) *this);
+            if (!listener.isId()) {
+              debugMsg("InterfaceManager:constructInterfaces",
+                       " failed to construct listener from XML:\n"
+                       << *element);
+              return false;
+            }
+            m_listeners.push_back(listener);
+          }
+        else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0)
+          {
+            // Construct an ExecController instance and attach it to the application
+            ExecControllerId controller = 
+              ControllerFactory::createInstance(element, m_application);
+            if (!controller.isId()) {
+              debugMsg("InterfaceManager:constructInterfaces", 
+                       " failed to construct controller from XML:\n"
+                       << *element);
+              return false;
+            }
+            m_execController = controller;
+          }
+        else
+          {
+            debugMsg("InterfaceManager:constructInterfaces",
+                     " ignoring unrecognized XML element \""
+                     << elementType << "\"");
+          }
 
-		element = element->NextSiblingElement();
-	  }
+        element = element->NextSiblingElement();
+      }
 
     debugMsg("InterfaceManager:constructInterfaces", " done.");
-	return true;
+    return true;
   }
 
   /**
@@ -272,31 +272,31 @@ namespace PLEXIL
          success && it != m_adapters.end();
          it++) {
       success = (*it)->initialize();
-	  if (!success)
-		{
-		  debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
-		  return false;
-		}
-	}
+      if (!success)
+        {
+          debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
+          return false;
+        }
+    }
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          it++) {
       success = (*it)->initialize();
-	  if (!success)
-		{
-		  debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
-		  return false;
-		}
-	}
+      if (!success)
+        {
+          debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
+          return false;
+        }
+    }
 
-	if (m_execController.isId()) {
-	  success = m_execController->initialize();
-	  if (!success)
-		{
-		  debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
-		  return false;
-		}
-	}
+    if (m_execController.isId()) {
+      success = m_execController->initialize();
+      if (!success)
+        {
+          debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
+          return false;
+        }
+    }
 
     return success;
   }
@@ -555,7 +555,11 @@ namespace PLEXIL
             // Plan -- add the plan
             debugMsg("InterfaceManager:processQueue",
                      " (" << pthread_self() << ") Received plan");
-            getExec()->addPlan(plan, parent);
+            if (!getExec()->addPlan(plan, parent)) {
+              debugMsg("InterfaceManager:processQueue",
+                       " (" << pthread_self() << ") addPlan failed!");
+              // TODO: report back to whoever enqueued it
+            }
             break;
 
           case queueEntry_LIBRARY:
@@ -1268,18 +1272,18 @@ namespace PLEXIL
    */
   void
   InterfaceManager::handleAddPlan(TiXmlElement * planXml,
-								  const LabelStr& parent)
+                                  const LabelStr& parent)
     throw(ParserException)
   {
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
     checkParserException(planXml->FirstChild() != NULL
-						 && planXml->FirstChild()->Value() != NULL
-						 && !(std::string(planXml->FirstChild()->Value()).empty())
-						 && planXml->FirstChildElement() != NULL
-						 && planXml->FirstChildElement("Node") != NULL,
-						 "<" << planXml->Value() << "> is not a valid Plexil XML plan");
+                         && planXml->FirstChild()->Value() != NULL
+                         && !(std::string(planXml->FirstChild()->Value()).empty())
+                         && planXml->FirstChildElement() != NULL
+                         && planXml->FirstChildElement("Node") != NULL,
+                         "<" << planXml->Value() << "> is not a valid Plexil XML plan");
 
     // parse the plan
     static PlexilXmlParser parser;
@@ -1296,7 +1300,7 @@ namespace PLEXIL
    */
   void
   InterfaceManager::handleAddPlan(PlexilNodeId planStruct,
-								  const LabelStr& parent)
+                                  const LabelStr& parent)
   {
     debugMsg("InterfaceManager:handleAddPlan", " entered");
     m_valueQueue.enqueue(planStruct, parent);
@@ -1322,7 +1326,7 @@ namespace PLEXIL
   InterfaceManager::notifyOfExternalEvent()
   {
     debugMsg("InterfaceManager:notify",
-			 " (" << pthread_self() << ") received external event");
+             " (" << pthread_self() << ") received external event");
     m_valueQueue.mark();
     m_application.notifyExec();
   }
@@ -1480,21 +1484,21 @@ namespace PLEXIL
   }
 
   void InterfaceManager::ValueQueue::enqueue(const ExpressionId & exp,
-											 double newValue)
+                                             double newValue)
   {
     ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(exp, newValue));
   }
 
   void InterfaceManager::ValueQueue::enqueue(const StateKey& key, 
-											 const std::vector<double> & newValues)
+                                             const std::vector<double> & newValues)
   {
     ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(key, newValues));
   }
 
   void InterfaceManager::ValueQueue::enqueue(PlexilNodeId newPlan,
-											 const LabelStr & parent)
+                                             const LabelStr & parent)
   {
     ThreadMutexGuard guard(*m_mutex);
     m_queue.push(QueueEntry(newPlan, parent, queueEntry_PLAN));
@@ -1508,8 +1512,8 @@ namespace PLEXIL
 
   InterfaceManager::QueueEntryType
   InterfaceManager::ValueQueue::dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
-										ExpressionId& exp, double& newExpValue,
-										PlexilNodeId& plan, LabelStr& planParent)
+                                        ExpressionId& exp, double& newExpValue,
+                                        PlexilNodeId& plan, LabelStr& planParent)
   {
     ThreadMutexGuard guard(*m_mutex);
     if (m_queue.empty())
@@ -1518,32 +1522,32 @@ namespace PLEXIL
     switch (e.type)
       {
       case queueEntry_MARK: // do nothing
-		break;
+        break;
 
       case queueEntry_LOOKUP_VALUES:
-		stateKey = e.stateKey;
-		newStateValues = e.values;
-		break;
+        stateKey = e.stateKey;
+        newStateValues = e.values;
+        break;
 
       case queueEntry_RETURN_VALUE:
-		checkError(e.values.size() == 1,
-				   "InterfaceManager:dequeue: Invalid number of values for return value entry");
-		exp = e.expression;
-		newExpValue = e.values[0];
-		break;
+        checkError(e.values.size() == 1,
+                   "InterfaceManager:dequeue: Invalid number of values for return value entry");
+        exp = e.expression;
+        newExpValue = e.values[0];
+        break;
 
       case queueEntry_PLAN:
-		planParent = e.parent;
-		// fall thru to library case
+        planParent = e.parent;
+        // fall thru to library case
 
       case queueEntry_LIBRARY:
-		plan = e.plan;
-		break;
+        plan = e.plan;
+        break;
 
       default:
-		assertTrue(ALWAYS_FAIL,
-				   "InterfaceManager:dequeue: Invalid queue entry");
-		break;
+        assertTrue(ALWAYS_FAIL,
+                   "InterfaceManager:dequeue: Invalid queue entry");
+        break;
       }
     m_queue.pop();
     return e.type;
