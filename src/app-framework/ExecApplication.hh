@@ -186,6 +186,11 @@ namespace PLEXIL
      */
     virtual void waitForShutdown();
 
+	/**
+	 * @brief Whatever state the application may be in, bring it down in a controlled fashion.
+	 */
+	virtual void terminate();
+
     /**
      * @brief Select whether the exec runs opportunistically or only in background thread.
      * @param bkgndOnly True if background only, false if opportunistic.
@@ -200,6 +205,13 @@ namespace PLEXIL
 	 * @brief Get the application's current state.
 	 */
     ApplicationState getApplicationState();
+
+	/**
+	 * @brief Return a human-readable name for the ApplicationState.
+	 * @param state An ApplicationState.
+	 * @return The name of the state as a const char*.
+	 */
+	static const char* getApplicationStateName(ApplicationState state);
 
   protected:
 

@@ -223,6 +223,7 @@ namespace PLEXIL
    */
   bool ExecApplication::reset()
   {
+	debugMsg("ExecApplication:reset", " entered");
     if (m_state != APP_STOPPED)
       return false;
 
@@ -230,11 +231,12 @@ namespace PLEXIL
     m_interface.reset();
 
     // Clear suspended flag
-    m_suspended = true;
+    m_suspended = false;
 
     // Reset the Exec
     // *** NYI ***
     
+	debugMsg("ExecApplication:reset", " completed");
     return setApplicationState(APP_INITED);
   }
 
@@ -245,6 +247,7 @@ namespace PLEXIL
    */
   bool ExecApplication::shutdown()
   {
+	debugMsg("ExecApplication:shutdown", " entered");
     if (m_state != APP_STOPPED)
       return false;
 
@@ -254,6 +257,7 @@ namespace PLEXIL
     // Shut down interfaces
     m_interface.shutdown();
     
+	debugMsg("ExecApplication:shutdown", " completed");
     return setApplicationState(APP_SHUTDOWN);
   }
 
@@ -367,7 +371,6 @@ namespace PLEXIL
    * @brief Run the exec until the queue is empty.
    * @param stepFirst True if the exec should be stepped before checking the queue.
    * @note Acquires m_execMutex and holds until done.  
-   * @note This should be the only method that acquires m_execMutex.
    */
 
   void
@@ -414,6 +417,8 @@ namespace PLEXIL
                        "ExecApplication:wait",
                        " Application is suspended, ignoring external event");
         }
+	  // give an opportunity to cancel thread here
+	  pthread_testcancel();
     } while (m_suspended);
     return (status == 0);
   }
@@ -450,6 +455,39 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Whatever state the application may be in, bring it down in a controlled fashion.
+   */
+  void ExecApplication::terminate() {
+	std::cout << "Terminating PLEXIL Exec application" << std::endl;
+
+	ApplicationState initState = getApplicationState();
+	debugMsg("ExecApplication:terminate", " from state " << getApplicationStateName(initState));
+
+	switch (initState) {
+	case APP_UNINITED:
+	case APP_SHUTDOWN:
+	  // nothing to do
+	  break;
+
+	case APP_INITED:
+	case APP_INTERFACES_STARTED:
+	  // Shut down interfaces
+	  m_interface.shutdown();
+	  break;
+
+	case APP_RUNNING:
+	  stop();
+	  // fall through to shutdown
+
+	case APP_SUSPENDED:
+	case APP_STOPPED:
+	  shutdown();
+	  break;
+	}
+	std::cout << "PLEXIL Exec terminated" << std::endl;
+  }
+
+  /**
    * @brief Get the application's current state.
    */
   ExecApplication::ApplicationState 
@@ -464,6 +502,10 @@ namespace PLEXIL
    */ 
   bool 
   ExecApplication::setApplicationState(const ExecApplication::ApplicationState& newState) {
+	debugMsg("ExecApplication:setApplicationState",
+			 "(" << getApplicationStateName(newState)
+			 << ") from " << getApplicationStateName(m_state));
+
     assertTrueMsg(newState != APP_UNINITED,
                   "APP_UNINITED is an invalid state for setApplicationState");
 
@@ -534,9 +576,59 @@ namespace PLEXIL
       m_shutdownSem.post();
     }
 
+	debugMsg("ExecApplication:setApplicationState",
+			 " to " << getApplicationStateName(newState) << " successful");
 	return true;
   }
 
+  //
+  // Static helper methods
+  //
+
+  /**
+   * @brief Return a human-readable name for the ApplicationState.
+   * @param state An ApplicationState.
+   * @return The name of the state as a const char*.
+   */
+
+  const char* 
+  ExecApplication::getApplicationStateName(ApplicationState state) {
+	switch (state) {
+	case APP_UNINITED:
+	  return "APP_UNINITED";
+	  break;
+
+	case APP_INITED:
+	  return "APP_INITED";
+	  break;
+
+	case APP_INTERFACES_STARTED:
+	  return "APP_INTERFACES_STARTED";
+	  break;
+
+	case APP_RUNNING:
+	  return "APP_RUNNING";
+	  break;
+
+	case APP_SUSPENDED:
+	  return "APP_SUSPENDED";
+	  break;
+
+	case APP_STOPPED:
+	  return "APP_STOPPED";
+	  break;
+
+	case APP_SHUTDOWN:
+	  return "APP_SHUTDOWN";
+	  break;
+
+	default:
+	  return "*** ILLEGAL APPLICATION STATE ***";
+	  break;
+	}
+	// just in case
+	return "*** ILLEGAL APPLICATION STATE ***";
+  }
 
   /**
    * @brief Notify the executive that it should run one cycle.  
