@@ -213,8 +213,7 @@ namespace PLEXIL
     const std::vector<double>& params = state.second;
     size_t nParams = params.size();
     debugMsg("IpcAdapter:registerChangeLookup",
-             " for state " << nameLabel.toString()
-             << " with " << nParams << " parameters");
+             " for state " << AdapterExecInterface::getText(state));
 
     // Set up to receive this lookup
     m_activeChangeLookupListeners[nameLabel.toString()] = stateKey;
