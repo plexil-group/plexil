@@ -309,6 +309,8 @@ namespace PLEXIL
     checkError(nom.length() > 0,
 			   "nameServiceUnbind: attempt to unbind a null name");
 	try {
+	  debugMsg("NameServiceHelper:nameServiceUnbind",
+			   " unbinding '" << nameToEscapedString(nom) << "'");
 	  m_namingClient.get_context()->unbind(nom);
 	}
 	catch (CosNaming::NamingContext::NotFound & nf) {
@@ -327,6 +329,7 @@ namespace PLEXIL
 				 "ensureNamingContext: unexpected CORBA exception " << e);
 	  return false;
 	}
+	debugMsg("NameServiceHelper:nameServiceUnbind", " successful");
 	return true;
   }
 
