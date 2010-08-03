@@ -94,7 +94,8 @@ namespace PLEXIL
     initializeStateManagers();
 
     // Construct interfaces
-    m_interface.constructInterfaces(configXml);
+    if (!m_interface.constructInterfaces(configXml))
+	  return false;
 
     // Initialize them
     if (!m_interface.initialize())
