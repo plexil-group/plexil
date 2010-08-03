@@ -152,78 +152,92 @@ namespace PLEXIL
   /**
    * @brief Constructs interface adapters from the provided XML.
    * @param configXml The XML element used for interface configuration.
+   * @return true if successful, false otherwise.
    */
-  void InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
+  bool InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
   {
-    condDebugMsg(configXml == NULL, "InterfaceManager:constructInterfaces", " configuration is NULL");
-    condDebugMsg(configXml != NULL, "InterfaceManager:constructInterfaces", " configuration = " << *configXml);
-    if (configXml != NULL)
-      {
-        debugMsg("InterfaceManager:constructInterfaces", " parsing configuration XML " << *configXml);
-        const char* elementType = configXml->Value();
-        checkError(strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0,
-                   "constructInterfaces: invalid configuration XML: \n"
-                   << *configXml);
-        const char* configType =
-          configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
-        if (configType == 0) {
-          m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
-        } else {
-          m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
-        }
-        m_adapterConfig->getId();
+    if (configXml == NULL) {
+	  debugMsg("InterfaceManager:constructInterfaces", " configuration is NULL, nothing to construct");
+	  return true;
+	}
 
-        // Walk the children of the configuration XML element
-        // and register the adapter according to the data found there
-        const TiXmlElement* element = configXml->FirstChildElement();
-        while (element != 0)
-          {
-            debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
-            const char* elementType = element->Value();
-            if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
-              {
-                // Construct the adapter
-                InterfaceAdapterId adapter = 
-                  AdapterFactory::createInstance(element,
-                                                 *((AdapterExecInterface*)this));
-                assertTrueMsg(adapter.isId(),
-                              "constructInterfaces: failed to construct adapter from XML:\n"
-                              << *element);
-                m_adapters.insert(adapter);
-              }
-            else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
-              {
-                // Construct an ExecListener instance and attach it to the Exec
-                ExecListenerId listener = 
-                  ExecListenerFactory::createInstance(element,
-                                                      (AdapterExecInterface&) *this);
-                assertTrueMsg(listener.isId(),
-                              "constructInterfaces: failed to construct listener from XML:\n"
-                              << *element);
-                m_listeners.push_back(listener);
-              }
-            else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0)
-              {
-                // Construct an ExecController instance and attach it to the application
-                ExecControllerId controller = 
-                  ControllerFactory::createInstance(element, m_application);
-                assertTrueMsg(controller.isId(),
-                              "constructInterfaces: failed to construct controller from XML:\n"
-                              << *element);
-                m_execController = controller;
-              }
-            else
-              {
-                checkError(ALWAYS_FAIL,
-                           "constructInterfaces: unrecognized XML element \""
-                           << elementType << "\"");
-              }
+	debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << *configXml);
+	const char* elementType = configXml->Value();
+	if (!strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0) {
+	  debugMsg("InterfaceManager:constructInterfaces",
+			   " invalid configuration XML: \n"
+			   << *configXml);
+	  return false;
+	}
+	const char* configType =
+	  configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
+	if (configType == 0) {
+	  m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
+	} else {
+	  m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
+	}
+	m_adapterConfig->getId();
 
-            element = element->NextSiblingElement();
-          }
+	// Walk the children of the configuration XML element
+	// and register the adapter according to the data found there
+	const TiXmlElement* element = configXml->FirstChildElement();
+	while (element != 0)
+	  {
+		debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
+		const char* elementType = element->Value();
+		if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
+		  {
+			// Construct the adapter
+			InterfaceAdapterId adapter = 
+			  AdapterFactory::createInstance(element,
+											 *((AdapterExecInterface*)this));
+			if (!adapter.isId()) {
+			  debugMsg("InterfaceManager:constructInterfaces",
+					   " failed to construct adapter from XML:\n"
+					   << *element);
+			  return false;
+			}
+			m_adapters.insert(adapter);
+		  }
+		else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
+		  {
+			// Construct an ExecListener instance and attach it to the Exec
+			ExecListenerId listener = 
+			  ExecListenerFactory::createInstance(element,
+												  (AdapterExecInterface&) *this);
+			if (!listener.isId()) {
+			  debugMsg("InterfaceManager:constructInterfaces",
+					   " failed to construct listener from XML:\n"
+					   << *element);
+			  return false;
+			}
+			m_listeners.push_back(listener);
+		  }
+		else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0)
+		  {
+			// Construct an ExecController instance and attach it to the application
+			ExecControllerId controller = 
+			  ControllerFactory::createInstance(element, m_application);
+			if (!controller.isId()) {
+			  debugMsg("InterfaceManager:constructInterfaces", 
+					   " failed to construct controller from XML:\n"
+					   << *element);
+			  return false;
+			}
+			m_execController = controller;
+		  }
+		else
+		  {
+			debugMsg("InterfaceManager:constructInterfaces",
+					 " ignoring unrecognized XML element \""
+					 << elementType << "\"");
+		  }
 
-      }
+		element = element->NextSiblingElement();
+	  }
+
     debugMsg("InterfaceManager:constructInterfaces", " done.");
+	return true;
   }
 
   /**

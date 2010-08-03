@@ -140,8 +140,9 @@ namespace PLEXIL
     /**
      * @brief Constructs interface adapters from the provided XML.
      * @param configXml The XML element used for interface configuration.
+	 * @return true if successful, false otherwise.
      */
-    void constructInterfaces(const TiXmlElement * configXml);
+    bool constructInterfaces(const TiXmlElement * configXml);
 
     /**
      * @brief Add an externally constructed interface adapter.
