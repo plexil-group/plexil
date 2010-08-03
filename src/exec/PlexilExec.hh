@@ -114,10 +114,11 @@ namespace PLEXIL
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the node under which to insert this plan.
+	 * @return true if successful, false otherwise.
      * @note If the plan references any library nodes, they are linked in.
      * @note Currently parent is ignored.
      */
-    void addPlan(PlexilNodeId& plan, const LabelStr& parent = EMPTY_LABEL());
+    bool addPlan(PlexilNodeId& plan, const LabelStr& parent = EMPTY_LABEL());
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.

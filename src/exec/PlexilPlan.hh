@@ -66,7 +66,7 @@ namespace PLEXIL {
   DECLARE_ID(PlexilNodeRef);
   DECLARE_ID(PlexilInternalVar);
 
-  typedef std::vector<const PlexilNodeId*> PlexilNodeIdSet;
+  typedef std::vector<const PlexilNode*> PlexilNodeSet;
   typedef std::map<double, PlexilExprId>  PlexilAliasMap;
 
   enum PlexilNodeType
@@ -165,10 +165,11 @@ namespace PLEXIL {
     /**
      * @brief Recurse into given node and ink library calls found therein.
      */
-    void link(const std::vector<PlexilNodeId>& libraries);
-    void link(const std::vector<PlexilNodeId>& libraries, PlexilNodeIdSet& seen);
+    bool link(const std::vector<PlexilNodeId>& libraries);
 
   private:
+	// Internal method
+    bool link(const std::vector<PlexilNodeId>& libraries, PlexilNodeSet& seen);
 
     PlexilNodeType m_nodeType;
     int m_lineNo;

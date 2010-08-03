@@ -342,79 +342,87 @@ namespace PLEXIL {
 
 
   // wrapper call for link which creates the seen library nodes
-  // data structure before calling the recurisive linker
+  // data structure before calling the recursive linker
 
-  void PlexilNode::link(const std::vector<PlexilNodeId>& libraries)
+  bool PlexilNode::link(const std::vector<PlexilNodeId>& libraries)
   {
-    PlexilNodeIdSet* seen = new PlexilNodeIdSet();
-    link(libraries, *seen);
-    delete seen;
+    PlexilNodeSet seen;
+    bool result = link(libraries, seen);
+	return result;
   }
-  // resolve links between the plan and a library node, returns the number
-  // of unresolved library node calls present after linking is completed
+
+  // Resolve links between the plan and a library node.
+  // Returns false if there is a circular library reference
+  // or if there are unresolved library node calls present after linking is completed,
+  // true otherwise.
    
-  void PlexilNode::link(const std::vector<PlexilNodeId>& libraries, PlexilNodeIdSet& seen)
+  bool PlexilNode::link(const std::vector<PlexilNodeId>& libraries, PlexilNodeSet& seen)
   {
-    // if this is a library node call, find matching node in libraries
+    if (nodeType() == NodeType_LibraryNodeCall) {
+      Id<PlexilLibNodeCallBody> & body = (Id<PlexilLibNodeCallBody> &)m_nodeBody;
 
-    if (nodeType() == NodeType_LibraryNodeCall)
-      {
-	Id<PlexilLibNodeCallBody> & body = (Id<PlexilLibNodeCallBody> &)m_nodeBody;
-
-	// loop through the provided libraries
-
-	for (std::vector<PlexilNodeId>::const_iterator library = libraries.begin();
-	     library  != libraries.end(); ++library)
-	  {
-	    // if the called node name matches the library node name
-            
-            if (body->libNodeName() == (*library)->nodeId())
-	      {
-		// test for a circular library reference
-
-		for (PlexilNodeIdSet::iterator seenLib = seen.begin(); 
-		     seenLib != seen.end(); ++seenLib)
-		  {
-		    checkError(**seenLib != *library, "Circular library reference: "
-			       << body->libNodeName());
-		  }
-		// link the the two nodes
-
-		body->setLibNode(*library);
-
-		// add this to the seen library nodes
-
-		seen.push_back(&(*library));
-
-		// resolve any library calls in the library
-
-		(*library)->link(libraries, seen);
-
-		// now remove said item from the seen set  (pop the stack)
-               
-		seen.pop_back();
-
-		// return to avoide unresolved library call error
-
-		return;
-	      }
+      // find the referenced library
+      PlexilNodeId library;
+      for (std::vector<PlexilNodeId>::const_iterator libraryIt = libraries.begin();
+           libraryIt != libraries.end();
+           ++libraryIt) {
+        if (body->libNodeName() == (*libraryIt)->nodeId()) {
+          library = *libraryIt;
+          break;
+        }
+      }
+      if (library.isNoId()) {
+		// Report unresolved library call error
+		debugMsg("PlexilPlan:link", "Unresolved library call: " << body->libNodeName());
+		return false;
 	  }
-	// no libary node found, report unresolved library call error
-            
-	checkError(false, "Unresolved library call: " << body->libNodeName());
-      }
-    // if this is a list node, recurse into it's children
-      
-    else if (nodeType() == NodeType_NodeList)
-      {
-	Id<PlexilListBody> & body = (Id<PlexilListBody> &)m_nodeBody;
-         
-	// iterate through the list nodes children and check for library calls
-         
-	const std::vector<PlexilNodeId>& children = body->children();
-	for(std::vector<PlexilNodeId>::const_iterator child = children.begin();
-	    child != children.end(); ++child)
-	  (*child)->link(libraries, seen);
-      }
+
+	  // found it -- test for a circular library reference
+	  for (PlexilNodeSet::iterator seenLib = seen.begin(); 
+		   seenLib != seen.end();
+		   ++seenLib)
+		{
+		  if (*seenLib == library.operator->()) {
+			// TODO: show entire chain of references
+			debugMsg("PlexilPlan:link",
+					 " Circular library reference: "
+					 << body->libNodeName());
+			return false;
+		  }
+		}
+
+	  // link the the two nodes
+	  body->setLibNode(library);
+
+	  // add this to the seen library nodes
+	  seen.push_back(library.operator->());
+
+	  // resolve any library calls in the library,
+	  if (!library->link(libraries, seen)) 
+		return false;
+
+	  // now remove said item from the seen set (pop the stack)
+	  seen.pop_back();
+
+	  // return success
+	  return true;
+	}
+
+    // if this is a list node, recurse into its children
+    else if (nodeType() == NodeType_NodeList) {
+	  // iterate through the list nodes children and check for library calls
+	  Id<PlexilListBody> & body = (Id<PlexilListBody> &)m_nodeBody;
+	  const std::vector<PlexilNodeId>& children = body->children();
+	  for(std::vector<PlexilNodeId>::const_iterator child = children.begin();
+		  child != children.end();
+		  ++child) {
+		if (!(*child)->link(libraries, seen))
+		  return false;
+	  }
+	  return true;
+	}
+	else 
+	  // Nothing to do, return true
+	  return true;
   }
 }

@@ -131,22 +131,28 @@ namespace PLEXIL {
 
   // Add a plan
 
-  void PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) {
+  bool PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) {
     //currently parent is ignored!
     //not actually quiesceing, but causing the new nodes to look at the current known world state
     m_cache->handleQuiescenceStarted();
     clock_t time1 = clock();
-    plan->link(m_libraries);
+    if (!plan->link(m_libraries)) {
+      debugMsg("PlexilExec:addPlan", " library linking failed");
+      return false;
+    }
+
+    // after this point any failures are likely to be fatal!
     NodeId root = (new Node(plan, m_connector))->getId();
     check_error(root.isValid());
     m_plan.push_back(root);
     root->postInit();
     debugMsg("PlexilExec:addPlan",
-	     "Added plan: " << std::endl << root->toString());
+         "Added plan: " << std::endl << root->toString());
     debugMsg("Time", "Time to initialize plan: " << clock() - time1);
     publishAddPlan(plan, parent);
     root->checkConditions();
     m_cache->handleQuiescenceEnded();
+    return true;
   }
 
   /**
