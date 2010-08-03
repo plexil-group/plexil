@@ -211,7 +211,8 @@ namespace PLEXIL
             PlexilNodeId root =
                parser.parse(doc->FirstChildElement("PlexilPlan")->
                             FirstChildElement("Node"));
-            m_exec->addPlan(root, parent);
+            checkError(m_exec->addPlan(root, parent),
+					   "Adding plan " << scriptElement->Attribute("file") << " failed");
          }
 
          // parse simultaneous

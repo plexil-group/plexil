@@ -201,7 +201,10 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 		} catch (ParserException& e) {
 			return -1;
 		}
-		exec->addPlan(root);
+		if (!exec->addPlan(root)) {
+		  warn("Adding plan " << planName << " failed");
+		  return -1;
+		}
 	}
 
 	// Add listener if specified
