@@ -337,6 +337,8 @@ namespace PLEXIL
    */
   bool InterfaceManager::stop()
   {
+	debugMsg("InterfaceManager:stop", " entered");
+
     // halt adapters
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
@@ -347,6 +349,8 @@ namespace PLEXIL
          success && it != m_listeners.end();
          it++)
       success = (*it)->stop();
+
+	debugMsg("InterfaceManager:stop", " completed");
     return success;
   }
 
@@ -356,6 +360,8 @@ namespace PLEXIL
    */
   bool InterfaceManager::reset()
   {
+	debugMsg("InterfaceManager:reset", " entered");
+
     // reset queue etc. to freshly initialized state
     // *** NYI ***
 
@@ -371,6 +377,7 @@ namespace PLEXIL
          success && it != m_listeners.end();
          it++)
       success = (*it)->reset();
+	debugMsg("InterfaceManager:reset", " completed");
     return success;
   }
 
@@ -388,6 +395,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::shutdown()
   {
+	debugMsg("InterfaceManager:shutdown", " entered");
     // clear adapter registry
     clearAdapterRegistry();
 
@@ -404,6 +412,7 @@ namespace PLEXIL
     // Clean up
     // *** NYI ***
 
+	debugMsg("InterfaceManager:shutdown", " completed");
     return success;
   }
 
