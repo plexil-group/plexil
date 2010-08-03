@@ -106,22 +106,30 @@ namespace PLEXIL
     std::map<double, AdapterFactory*>::const_iterator it = factoryMap().find(name.getKey());
     if (it == factoryMap().end())
       {
-	debugMsg("AdapterFactory:createInstance", 
-		 "Attempting to dynamically load adapter type \""
-		 << name.c_str() << "\"");
-	// Attempt to dynamically load library
-	const char* libCPath =
-	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-	assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
-		      "AdapterFactory::createInstance: unable to load module for adapter type \""
-		      << name.c_str() << "\"");
+		debugMsg("AdapterFactory:createInstance", 
+				 "Attempting to dynamically load adapter type \""
+				 << name.c_str() << "\"");
+		// Attempt to dynamically load library
+		const char* libCPath =
+		  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+		if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+		  debugMsg("AdapterFactory::createInstance",
+				   " unable to load module for adapter type \""
+				   << name.c_str() << "\"");
+		  wasCreated = false;
+		  return InterfaceAdapterId::noId();
+		}
 
-	// See if it's registered now
-	it = factoryMap().find(name.getKey());
+		// See if it's registered now
+		it = factoryMap().find(name.getKey());
       }
 
-    assertTrueMsg(it != factoryMap().end(),
-		  "Error: No adapter factory registered for name \"" << name.c_str() << "\".");
+    if (it == factoryMap().end()) {
+	  debugMsg("AdapterFactory:createInstance", 
+			   " No adapter factory registered for name \"" << name.c_str() << "\".");
+	  wasCreated = false;
+	  return InterfaceAdapterId::noId();
+	}
     InterfaceAdapterId retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
     return retval;

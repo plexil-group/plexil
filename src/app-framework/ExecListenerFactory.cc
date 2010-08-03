@@ -51,20 +51,20 @@ namespace PLEXIL
 
   ExecListenerId 
   ExecListenerFactory::createInstance(const TiXmlElement* xml,
-				      InterfaceManagerBase & mgr)
+                      InterfaceManagerBase & mgr)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
-		  "ExecListenerFactory::createInstance: null configuration XML");
+          "ExecListenerFactory::createInstance: null configuration XML");
 
     // Get the kind of listener to make
     const char* listenerType = 
       xml->Attribute(InterfaceSchema::LISTENER_TYPE_ATTR());
     checkError(listenerType != 0,
-	       "ExecListenerFactory::createInstance: no "
-	       << InterfaceSchema::LISTENER_TYPE_ATTR()
-	       << " attribute for listener XML:\n"
-	       << *xml);
+           "ExecListenerFactory::createInstance: no "
+           << InterfaceSchema::LISTENER_TYPE_ATTR()
+           << " attribute for listener XML:\n"
+           << *xml);
 
     // Make it
     return createInstance(LabelStr(listenerType), xml, mgr);
@@ -82,27 +82,32 @@ namespace PLEXIL
   ExecListenerId 
   ExecListenerFactory::createInstance(const LabelStr& name,
                                       const TiXmlElement* xml,
-				      InterfaceManagerBase & mgr)
+                      InterfaceManagerBase & mgr)
   {
     std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name.getKey());
     if (it == factoryMap().end())
       {
-	debugMsg("ExecListenerFactory:createInstance", 
-		 "Attempting to dynamically load listener type \""
-		 << name.c_str() << "\"");
-	// Attempt to dynamically load library
-	const char* libCPath =
-	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-	assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
-		      "ExecListenerFactory::createInstance: unable to load module for listener type \""
-		      << name.c_str() << "\"");
-
-	// See if it's registered now
-	it = factoryMap().find(name.getKey());
+        debugMsg("ExecListenerFactory:createInstance", 
+                 "Attempting to dynamically load listener type \""
+                 << name.c_str() << "\"");
+        // Attempt to dynamically load library
+        const char* libCPath =
+          xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+        if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+          debugMsg("ExecListenerFactory:createInstance", 
+                   " unable to load module for listener type \""
+                   << name.c_str() << "\"");
+          return ExecListenerId::noId();
+        }
+        // See if it's registered now
+        it = factoryMap().find(name.getKey());
       }
 
-    assertTrueMsg(it != factoryMap().end(),
-		  "Error: No exec listener factory registered for name \"" << name.c_str() << "\".");
+    if (it == factoryMap().end()) {
+      debugMsg("ExecListenerFactory:createInstance", 
+               " No exec listener factory registered for name \"" << name.c_str() << "\"");
+      return ExecListenerId::noId();
+    }
     ExecListenerId retval = it->second->create(xml, mgr);
     debugMsg("ExecListenerFactory:createInstance", " Created Exec listener " << name.c_str());
     return retval;
@@ -165,20 +170,20 @@ namespace PLEXIL
 
   ExecListenerFilterId 
   ExecListenerFilterFactory::createInstance(const TiXmlElement* xml,
-					    InterfaceManagerBase & mgr)
+                        InterfaceManagerBase & mgr)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
-		  "ExecListenerFilterFactory::createInstance: null configuration XML");
+          "ExecListenerFilterFactory::createInstance: null configuration XML");
 
     // Get the kind of filter to make
     const char* filterType = 
       xml->Attribute(InterfaceSchema::FILTER_TYPE_ATTR());
     checkError(filterType != 0,
-	       "ExecListenerFilterFactory::createInstance: no "
-	       << InterfaceSchema::FILTER_TYPE_ATTR()
-	       << " attribute for filter XML:\n"
-	       << *xml);
+           "ExecListenerFilterFactory::createInstance: no "
+           << InterfaceSchema::FILTER_TYPE_ATTR()
+           << " attribute for filter XML:\n"
+           << *xml);
 
     // Make it
     return createInstance(LabelStr(filterType), xml, mgr);
@@ -197,28 +202,34 @@ namespace PLEXIL
   ExecListenerFilterId 
   ExecListenerFilterFactory::createInstance(const LabelStr& name,
                                             const TiXmlElement* xml,
-					    InterfaceManagerBase & mgr)
+                        InterfaceManagerBase & mgr)
   {
     std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name.getKey());
     if (it == factoryMap().end())
       {
-	debugMsg("ExecListenerFilterFactory:createInstance", 
-		 "Attempting to dynamically load filter type \""
-		 << name.c_str() << "\"");
-	// Attempt to dynamically load library
-	const char* libCPath =
-	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-	assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
-		      "ExecListenerFilterFactory::createInstance: unable to load module for filter type \""
-		      << name.c_str() << "\"");
+    debugMsg("ExecListenerFilterFactory:createInstance", 
+         "Attempting to dynamically load filter type \""
+         << name.c_str() << "\"");
+    // Attempt to dynamically load library
+    const char* libCPath =
+      xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+    if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+      debugMsg("ExecListenerFilterFactory:createInstance",
+               " unable to load module for filter type \""
+               << name.c_str() << "\"");
+      return ExecListenerFilterId::noId();
+    }
 
-	// See if it's registered now
-	it = factoryMap().find(name.getKey());
+    // See if it's registered now
+    it = factoryMap().find(name.getKey());
       }
 
-    assertTrueMsg(it != factoryMap().end(),
-		  "Error: No exec listener filter factory registered for name \""
+    if (it == factoryMap().end()) {
+      debugMsg("ExecListenerFilterFactory:createInstance", 
+          " No exec listener filter factory registered for name \""
                   << name.c_str() << "\".");
+      return ExecListenerFilterId::noId();
+    }
     ExecListenerFilterId retval = it->second->create(xml, mgr);
     debugMsg("ExecListenerFilterFactory:createInstance",
              " Created Exec listener filter " << name.c_str());

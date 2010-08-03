@@ -112,16 +112,21 @@ namespace PLEXIL
         // Attempt to dynamically load library
         const char* libCPath =
           xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-        assertTrueMsg(DynamicLoader::loadModule(name.c_str(), libCPath),
-                      "ControllerFactory::createInstance: unable to load module for controller type \""
+        if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+			debugMsg("ControllerFactory:createInstance", 
+					 " unable to load module for controller type \""
                       << name.c_str() << "\"");
-
+			return ExecControllerId::noId();
+		  }
         // See if it's registered now
         it = factoryMap().find(name.getKey());
       }
 
-    assertTrueMsg(it != factoryMap().end(),
-                  "Error: No controller factory registered for name \"" << name.c_str() << "\".");
+		if (it == factoryMap().end()) {
+		  debugMsg("ControllerFactory:createInstance",
+				   " No controller factory registered for name \"" << name.c_str() << "\".");
+		  return ExecControllerId::noId();
+		}
     ExecControllerId retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("ControllerFactory:createInstance", " Created controller " << name.c_str());
     return retval;
