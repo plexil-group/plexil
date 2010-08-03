@@ -97,13 +97,11 @@ namespace PLEXIL
     m_interface.constructInterfaces(configXml);
 
     // Initialize them
-    bool success = m_interface.initialize();
-    if (success)
-      {
-        setApplicationState(APP_INITED);
-      }
+    if (!m_interface.initialize())
+	  return false;
 
-    return success;
+	// Set the application state and return
+	return setApplicationState(APP_INITED);
   }
 
   /**
@@ -124,8 +122,7 @@ namespace PLEXIL
         return false;
       }
       
-    setApplicationState(APP_INTERFACES_STARTED);
-    return true;
+    return setApplicationState(APP_INTERFACES_STARTED);
   }
 
   /**
@@ -142,10 +139,7 @@ namespace PLEXIL
     m_suspended = false;
 
     // Start the event listener thread
-    assertTrue(spawnExecThread(),
-               "ExecApplication::run: Fatal error: failed to start Exec thread");
-
-    return true;
+    return spawnExecThread();
   }
 
   /**
@@ -161,8 +155,7 @@ namespace PLEXIL
     m_suspended = true;
     
     // *** NYI: wait here til current step completes ***
-    setApplicationState(APP_SUSPENDED);
-    return true;
+    return setApplicationState(APP_SUSPENDED);
   }
 
   /**
@@ -178,8 +171,7 @@ namespace PLEXIL
     m_suspended = false;
     notifyExec();
     
-    setApplicationState(APP_RUNNING);
-    return true;
+    return setApplicationState(APP_RUNNING);
   }
 
   /**
@@ -220,8 +212,7 @@ namespace PLEXIL
       }
     debugMsg("ExecApplication:stop", " Top level thread halted");
     
-    setApplicationState(APP_STOPPED);
-    return true;
+    return setApplicationState(APP_STOPPED);
   }
 
    
@@ -243,8 +234,7 @@ namespace PLEXIL
     // Reset the Exec
     // *** NYI ***
     
-    setApplicationState(APP_INITED);
-    return true;
+    return setApplicationState(APP_INITED);
   }
 
 
@@ -263,8 +253,7 @@ namespace PLEXIL
     // Shut down interfaces
     m_interface.shutdown();
     
-    setApplicationState(APP_SHUTDOWN);
-    return true;
+    return setApplicationState(APP_SHUTDOWN);
   }
 
   /**
@@ -278,8 +267,10 @@ namespace PLEXIL
 
     // grab the library itself from the document
     TiXmlElement* plexilXml = libraryXml->FirstChildElement("PlexilPlan");
-    assertTrue(plexilXml != 0,
-               "ExecApplication::addLibrary: Not a valid Plexil XML library");
+    if (plexilXml == NULL) {
+	  std::cerr << "Error parsing library from XML: No \"PlexilPlan\" tag found" << std::endl;
+	  return false;
+	}
 
     // parse XML into node structure
     PlexilNodeId root;
@@ -309,8 +300,10 @@ namespace PLEXIL
 
     // grab the plan itself from the document
     TiXmlElement* plexilXml = planXml->FirstChildElement("PlexilPlan");
-    assertTrue(plexilXml != 0,
-               "ExecApplication::addPlan: Not a valid Plexil XML plan");
+    if (plexilXml == NULL) {
+	  std::cerr << "Error parsing plan from XML: No \"PlexilPlan\" tag found" << std::endl;
+	  return false;
+	}
 
     // parse XML into node structure
     PlexilNodeId root;
@@ -340,11 +333,12 @@ namespace PLEXIL
                                  NULL,
                                  execTopLevel,
                                  this);
-    assertTrue(success == 0,
-               "ExecApplication::run: unable to spawn exec thread!");
+    if (success != 0) {
+	  std::cerr << "Error: unable to spawn exec thread" << std::endl;
+	  return false;
+	}
     debugMsg("ExecApplication:run", " Top level thread running");
-    setApplicationState(APP_RUNNING);
-    return success == 0;
+    return setApplicationState(APP_RUNNING);
   }
 
   void * ExecApplication::execTopLevel(void * this_as_void_ptr)
@@ -477,38 +471,56 @@ namespace PLEXIL
       ThreadMutexGuard guard(m_stateMutex);
       switch (newState) {
       case APP_INITED:
-        assertTrueMsg(m_state == APP_UNINITED || m_state == APP_STOPPED,
-                      "Illegal application state transition");
+        if (m_state != APP_UNINITED && m_state != APP_STOPPED) {
+		  debugMsg("ExecApplication:setApplicationState",
+				   " Illegal application state transition to APP_INITED");
+		  return false;
+		}
         m_state = newState;
         break;
 
       case APP_INTERFACES_STARTED:
-        assertTrueMsg(m_state == APP_INITED,
-                      "Illegal application state transition");
+        if (m_state != APP_INITED) {
+		  debugMsg("ExecApplication:setApplicationState",
+				   " Illegal application state transition to APP_INTERFACES_STARTED");
+		  return false;
+		}
         m_state = newState;
         break;
 
       case APP_RUNNING:
-        assertTrueMsg(m_state == APP_INTERFACES_STARTED || m_state == APP_SUSPENDED,
-                      "Illegal application state transition");
+        if (m_state != APP_INTERFACES_STARTED && m_state != APP_SUSPENDED) {
+		  debugMsg("ExecApplication::setApplicationState", 
+				   " Illegal application state transition to APP_RUNNING");
+		  return false;
+		}
         m_state = newState;
         break;
 
       case APP_SUSPENDED:
-        assertTrueMsg(m_state == APP_RUNNING,
-                      "Illegal application state transition");
+        if (m_state != APP_RUNNING) {
+		  debugMsg("ExecApplication::setApplicationState", 
+				   " Illegal application state transition to APP_SUSPENDED");
+		  return false;
+		}
         m_state = newState;
         break;
 
       case APP_STOPPED:
-        assertTrueMsg(m_state == APP_RUNNING || m_state == APP_SUSPENDED,
-                      "Illegal application state transition");
+        if (m_state != APP_RUNNING && m_state != APP_SUSPENDED) {
+		  debugMsg("ExecApplication::setApplicationState", 
+				   " Illegal application state transition to APP_STOPPED");
+		  return false;
+		}
         m_state = newState;
         break;
 
-      case APP_SHUTDOWN:
-        assertTrueMsg(m_state == APP_STOPPED,
-                      "Illegal application state transition");
+	  case APP_SHUTDOWN:
+		if (m_state != APP_STOPPED) {
+		  debugMsg("ExecApplication::setApplicationState", 
+				   " Illegal application state transition to APP_SHUTDOWN");
+		  return false;
+		}
         m_state = newState;
         break;
 
@@ -520,6 +532,8 @@ namespace PLEXIL
       // Notify any threads waiting for this state
       m_shutdownSem.post();
     }
+
+	return true;
   }
 
 
