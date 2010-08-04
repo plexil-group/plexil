@@ -132,5 +132,8 @@ corba: utils exec-core app-framework
 corba-utils: utils
 	$(MAKE) -C src/CORBA $@
 
-tags:
-	find . \( -name "*.cc" -or -name "*.hh" \) | etags -
+# This redirection forces recreation of TAGS file in MacOS, which is case-insensitive.
+tags: newtags
+
+newtags:
+	@ find . \( -name "*.cc" -or -name "*.hh" \) | etags -
