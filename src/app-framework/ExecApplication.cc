@@ -476,10 +476,10 @@ namespace PLEXIL
 	  break;
 
 	case APP_RUNNING:
+	case APP_SUSPENDED:
 	  stop();
 	  // fall through to shutdown
 
-	case APP_SUSPENDED:
 	case APP_STOPPED:
 	  shutdown();
 	  break;
