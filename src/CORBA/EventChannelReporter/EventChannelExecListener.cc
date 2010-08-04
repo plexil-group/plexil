@@ -232,13 +232,14 @@ namespace PLEXIL
     // Now that we have an event channel, get the push-consumer proxy
     try
       {
-	CosEventChannelAdmin::SupplierAdmin_var admin =
-	  m_eventChannel->for_suppliers();
-	m_pushConsumer = admin->obtain_push_consumer();
-	// don't need push supplier (I think) -- only used
-	// for notifying us when event channel is destroyed
-	CosEventComm::PushSupplier_var supplier = this->_this();
-	m_pushConsumer->connect_push_supplier(supplier.in());
+		CosEventChannelAdmin::SupplierAdmin_var admin =
+		  m_eventChannel->for_suppliers();
+		m_pushConsumer = 
+		  CosEventChannelAdmin::ProxyPushConsumer::_duplicate(admin->obtain_push_consumer());
+		// don't need push supplier (I think) -- only used
+		// for notifying us when event channel is destroyed
+		CosEventComm::PushSupplier_var supplier = this->_this();
+		m_pushConsumer->connect_push_supplier(supplier.in());
       }
     catch (CORBA::Exception & e)
       {
