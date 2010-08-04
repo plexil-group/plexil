@@ -131,3 +131,6 @@ corba: utils exec-core app-framework
 
 corba-utils: utils
 	$(MAKE) -C src/CORBA $@
+
+tags:
+	find . \( -name "*.cc" -or -name "*.hh" \) | etags -
