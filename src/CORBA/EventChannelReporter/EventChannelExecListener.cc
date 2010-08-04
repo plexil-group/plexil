@@ -155,9 +155,8 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::stop()
   {
-    // TODO: see disconnect()
-
-    return true;
+	debugMsg("EventChannelExecListener:stop", " disconnecting");
+	return disconnect();
   }
 
 
@@ -167,7 +166,7 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::reset()
   {
-    // TODO: tbd
+	// Nothing to do here since we should be disconnected
     return true;
   }
 
@@ -178,7 +177,7 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::shutdown()
   {
-    // TODO: tbd
+	// Nothing to do here since we should be disconnected
     return true;
   }
 
@@ -207,7 +206,7 @@ namespace PLEXIL
       {
 	m_eventChannel =
 	  CosEventChannelAdmin::EventChannel::_duplicate(CosEventChannelAdmin::EventChannel::_narrow(ecAsObject.in()));
-	debugMsg("ExecListener",
+	debugMsg("EventChannelExecListener:connect",
 		 " successfully narrowed reference to event channel");
       }
     catch (CORBA::Exception & e)
@@ -227,7 +226,7 @@ namespace PLEXIL
 	m_isConnected = false;
 	return false;
       }
-    debugMsg("ExecListener",
+    debugMsg("EventChannelExecListener:connect",
 	     " event channel " << m_eventChannel << " found");
 
     // Now that we have an event channel, get the push-consumer proxy
@@ -249,7 +248,7 @@ namespace PLEXIL
 	m_isConnected = false;
 	return false;
       }
-    debugMsg("EventChannelExecListener",
+    debugMsg("EventChannelExecListener:connect",
 	     " event channel " << m_eventChannel << " obtained push consumer");
     m_isConnected = true;
     return true;
@@ -257,22 +256,36 @@ namespace PLEXIL
 
   bool EventChannelExecListener::disconnect()
   {
-    if (!this->isConnected())
-      return true;
+    if (this->isConnected()) {
+	  debugMsg("EventChannelExecListener:disconnect", " from event channel");
+	  try {
+		m_pushConsumer->disconnect_push_consumer();
+	  }
+	  catch (CORBA::Exception &e) {
+		debugMsg("EventChannelExecListener:disconnect",
+				 " ignoring CORBA exception " << e << " while attempting to disconnect");
+	  }
+	  m_pushConsumer = CosEventChannelAdmin::ProxyPushConsumer::_nil();
+	  m_isConnected = false;
+	}
 
-    m_pushConsumer->disconnect_push_consumer();
-    m_pushConsumer = CosEventChannelAdmin::ProxyPushConsumer::_nil();
-    m_isConnected = false;
+	debugMsg("EventChannelExecListener:disconnect", " successful");
     return true;
   }
 
+  // CosEventComm::PushSupplier API
+
+  // The push consumer calls this to break the connection.
   void EventChannelExecListener::disconnect_push_supplier()
     throw (CORBA::SystemException)
   {
+	debugMsg("EventChannelExecListener:disconnect_push_supplier",
+			 " disconnecting at event channel's request");
     if (!this->isConnected())
       return;
 
-    m_pushConsumer->disconnect_push_consumer();
+	// Since the consumer is telling us he's shutting down,
+	// should be no need to call disconnect_push_consumer()
     m_pushConsumer = CosEventChannelAdmin::ProxyPushConsumer::_nil();
     m_isConnected = false;
     return;

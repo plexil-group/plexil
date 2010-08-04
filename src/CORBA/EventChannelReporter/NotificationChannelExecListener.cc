@@ -99,7 +99,7 @@ namespace PLEXIL
       {
 	m_notifyChannel =
 	  CosNotifyChannelAdmin::EventChannel::_duplicate(CosNotifyChannelAdmin::EventChannel::_narrow(ecAsObject.in()));
-	debugMsg("ExecListener",
+	debugMsg("NotificationChannelExecListener:connect",
 		 " successfully narrowed reference to notification service event channel");
       }
     catch (CORBA::Exception & e)
@@ -119,7 +119,7 @@ namespace PLEXIL
 	m_isConnectedToNotifyChannel = false;
 	return false;
       }
-    debugMsg("ExecListener",
+    debugMsg("NotificationChannelExecListener:connect",
 	     " notification service event channel " << m_notifyChannel << " found");
 
     // Now that we have an event channel, get the push-consumer proxy
@@ -136,12 +136,12 @@ namespace PLEXIL
 	if (m_structuredFormatter.isNoId())
 	  {
 	    clientType = CosNotifyChannelAdmin::ANY_EVENT;
-	    debugMsg("ExecListener", " requesting ANY_EVENT proxy push consumer");
+	    debugMsg("NotificationChannelExecListener:connect", " requesting ANY_EVENT proxy push consumer");
 	  }
 	else
 	  {
 	   clientType = CosNotifyChannelAdmin::STRUCTURED_EVENT;
-	    debugMsg("ExecListener", " requesting STRUCTURED_EVENT proxy push consumer");
+	    debugMsg("NotificationChannelExecListener:connect", " requesting STRUCTURED_EVENT proxy push consumer");
 	  }
 
 	proxy =
@@ -165,7 +165,7 @@ namespace PLEXIL
 	    // No structured formatter, push anys
 	    m_pushConsumer = 
 	      CosNotifyChannelAdmin::ProxyPushConsumer::_duplicate(CosNotifyChannelAdmin::ProxyPushConsumer::_narrow(proxy.in()));
-	    debugMsg("ExecListener",
+	    debugMsg("NotificationChannelExecListener:connect",
 		     " successfully narrowed reference to (any) proxy push consumer");
 	  }
 	else 
@@ -173,7 +173,7 @@ namespace PLEXIL
 	    // Structured formatter, push structured events
 	    m_structuredPushConsumer = 
 	      CosNotifyChannelAdmin::StructuredProxyPushConsumer::_duplicate(CosNotifyChannelAdmin::StructuredProxyPushConsumer::_narrow(proxy.in()));
-	    debugMsg("ExecListener",
+	    debugMsg("NotificationChannelExecListener:connect",
 		     " successfully narrowed reference to structured proxy push consumer");
 	  }
       }
@@ -195,20 +195,20 @@ namespace PLEXIL
 	  {
 	    checkError(ALWAYS_FAIL, "Push-any supplier not yet implemented!");
 	    //m_pushConsumer->connect_any_push_supplier(this->CosEventComm::PushSupplier::_this());
-	    debugMsg("ExecListener",
+	    debugMsg("NotificationChannelExecListener:connect",
 		     " connected to UNstructured proxy push consumer");
 	  }
 	else
 	  {
 	    m_structuredPushConsumer->connect_structured_push_supplier(this->_this());
-	    debugMsg("ExecListener",
+	    debugMsg("NotificationChannelExecListener:connecct",
 		     " connected to structured proxy push consumer");
 	  }
       }
     catch (CosEventChannelAdmin::AlreadyConnected & e)
       {
 	// can ignore this error (?)
-	debugMsg("ExecListener", " Warning: Already connected to push-consumer proxy");
+	debugMsg("NotificationChannelExecListener:connect", " Warning: Already connected to push-consumer proxy");
 	m_isConnectedToNotifyChannel = true;
 	return true;
       }
@@ -226,34 +226,42 @@ namespace PLEXIL
 
   bool NotificationChannelExecListener::disconnect()
   {
-    if (!this->isConnected())
-      return true;
-
-    if (m_pushConsumer != CosNotifyChannelAdmin::ProxyPushConsumer::_nil())
-      {
-	m_pushConsumer->disconnect_push_consumer();
-	m_pushConsumer = CosNotifyChannelAdmin::ProxyPushConsumer::_nil();
-      }
-    if (m_structuredPushConsumer != CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil())
-      {
-	m_structuredPushConsumer->disconnect_structured_push_consumer();
-	m_structuredPushConsumer = CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil();
-      }
-    m_isConnectedToNotifyChannel = false;
-    debugMsg("ExecListener", " Successfully disconnected");
+    if (this->isConnected()) {
+	  if (m_pushConsumer != CosNotifyChannelAdmin::ProxyPushConsumer::_nil()) {
+		try {
+		  m_pushConsumer->disconnect_push_consumer();
+		}
+		catch (CORBA::Exception &e) {
+		  debugMsg("NotificationChannelExecListener:disconnect",
+				   " ignoring CORBA exception " << e << " while attempting to disconnect");
+		}
+		m_pushConsumer = CosNotifyChannelAdmin::ProxyPushConsumer::_nil();
+	  }
+	  if (m_structuredPushConsumer != CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil()) {
+		try {
+		  m_structuredPushConsumer->disconnect_structured_push_consumer();
+		}
+		catch (CORBA::Exception &e) {
+		  debugMsg("NotificationChannelExecListener:disconnect",
+				   " ignoring CORBA exception " << e << " while attempting to disconnect");
+		}
+		m_structuredPushConsumer = CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil();
+	  }
+	  m_isConnectedToNotifyChannel = false;
+	}
+	debugMsg("NotificationChannelExecListener:disconnect", " successful");
     return true;
   }
 
   void NotificationChannelExecListener::disconnect_push_supplier()
     throw (CORBA::SystemException)
   {
+	debugMsg("NotificationChannelExecListener:disconnect_push_supplier",
+			 " disconnecting at notification channel's request");
     if (!this->isConnected())
       return;
-    if (m_pushConsumer != CosNotifyChannelAdmin::ProxyPushConsumer::_nil())
-      {
-	m_pushConsumer->disconnect_push_consumer();
+
 	m_pushConsumer = CosNotifyChannelAdmin::ProxyPushConsumer::_nil();
-      }
     m_isConnectedToNotifyChannel = false;
     return;
   }
@@ -263,11 +271,8 @@ namespace PLEXIL
   {
     if (!this->isConnected())
       return;
-    if (m_structuredPushConsumer != CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil())
-      {
-	m_structuredPushConsumer->disconnect_structured_push_consumer();
+
 	m_structuredPushConsumer = CosNotifyChannelAdmin::StructuredProxyPushConsumer::_nil();
-      }
     m_isConnectedToNotifyChannel = false;
     return;
   }
