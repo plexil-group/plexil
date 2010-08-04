@@ -132,8 +132,11 @@ corba: utils exec-core app-framework
 corba-utils: utils
 	$(MAKE) -C src/CORBA $@
 
-# This redirection forces recreation of TAGS file in MacOS, which is case-insensitive.
+# Create an Emacs tags file capturing most relevant file types
+#   Note: The indirection forces recreation of TAGS file in
+#   MacOS, which is case-insensitive.
+#
 tags: newtags
 
 newtags:
-	@ find . \( -name "*.cc" -or -name "*.hh" \) | etags -
+	@ find . \( -name "*.cc" -or -name "*.hh" -or -name "*.xml" -or -name Makefile \) | etags -
