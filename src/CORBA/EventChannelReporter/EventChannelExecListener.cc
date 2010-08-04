@@ -38,7 +38,7 @@
 namespace PLEXIL
 {
   BaseEventChannelExecListener::BaseEventChannelExecListener(const TiXmlElement* xml,
-							     InterfaceManagerBase & mgr)
+                                                             InterfaceManagerBase & mgr)
     : ManagedExecListener(xml, mgr),
       m_formatter()
   {
@@ -50,7 +50,7 @@ namespace PLEXIL
     if (formatterXml == NULL)
       return;
     m_formatter = EventFormatterFactory::createInstance(formatterXml,
-							this->getManager());
+                                                        this->getManager());
   }
 
   BaseEventChannelExecListener::~BaseEventChannelExecListener()
@@ -64,7 +64,7 @@ namespace PLEXIL
   }
 
   EventChannelExecListener::EventChannelExecListener(const TiXmlElement* xml,
-						     InterfaceManagerBase & mgr)
+                                                     InterfaceManagerBase & mgr)
     : BaseEventChannelExecListener(xml, mgr),
       POA_CosEventComm::PushSupplier(),
       m_isConnected(false)
@@ -94,10 +94,10 @@ namespace PLEXIL
     // Some checks before we get rolling
     if (this->getXml() == NULL)
       {
-	// can't get channel name from nonexistent XML, so fail
-	debugMsg("EventChannelExecListener:initialize",
-		 " failed; no configuration XML provided");
-	return false;
+        // can't get channel name from nonexistent XML, so fail
+        debugMsg("EventChannelExecListener:initialize",
+                 " failed; no configuration XML provided");
+        return false;
       }
 
     // Extract event channel name from XML
@@ -105,11 +105,11 @@ namespace PLEXIL
       this->getXml()->Attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE());
     if (channelName == NULL)
       {
-	// can't connect without a channel name, so fail
-	debugMsg("EventChannelExecListener:initialize",
-		 " failed; no " << EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()
-		 << " attribute provided");
-	return false;
+        // can't connect without a channel name, so fail
+        debugMsg("EventChannelExecListener:initialize",
+                 " failed; no " << EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()
+                 << " attribute provided");
+        return false;
       }
 
     return true;
@@ -127,10 +127,10 @@ namespace PLEXIL
 
     if (this->getXml() == NULL)
       {
-	// can't get channel name from nonexistent XML, so fail
-	debugMsg("EventChannelExecListener:start",
-		 " failed; no configuration XML provided");
-	return false;
+        // can't get channel name from nonexistent XML, so fail
+        debugMsg("EventChannelExecListener:start",
+                 " failed; no configuration XML provided");
+        return false;
       }
 
     // Extract event channel name from XML
@@ -138,11 +138,11 @@ namespace PLEXIL
       this->getXml()->Attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE());
     if (channelName == NULL)
       {
-	// can't connect without a channel name, so fail
-	debugMsg("EventChannelExecListener:initialize",
-		 " failed; no " << EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()
-		 << " attribute provided");
-	return false;
+        // can't connect without a channel name, so fail
+        debugMsg("EventChannelExecListener:initialize",
+                 " failed; no " << EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()
+                 << " attribute provided");
+        return false;
       }
     
     return connect(std::string(channelName));
@@ -155,8 +155,8 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::stop()
   {
-	debugMsg("EventChannelExecListener:stop", " disconnecting");
-	return disconnect();
+    debugMsg("EventChannelExecListener:stop", " disconnecting");
+    return disconnect();
   }
 
 
@@ -166,7 +166,7 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::reset()
   {
-	// Nothing to do here since we should be disconnected
+    // Nothing to do here since we should be disconnected
     return true;
   }
 
@@ -177,7 +177,7 @@ namespace PLEXIL
    */
   bool EventChannelExecListener::shutdown()
   {
-	// Nothing to do here since we should be disconnected
+    // Nothing to do here since we should be disconnected
     return true;
   }
 
@@ -186,7 +186,7 @@ namespace PLEXIL
   {
     NameServiceHelper & helper = NameServiceHelper::getInstance();
     checkError(helper.isInitialized(),
-	       "EventChannelExecListener::connect: Name service is not initialized");
+               "EventChannelExecListener::connect: Name service is not initialized");
 
     CosNaming::Name eventChannelName =
       NameServiceHelper::parseName(eventChannelNameString);
@@ -195,62 +195,60 @@ namespace PLEXIL
       helper.queryNamingServiceForObject(eventChannelName);
     if (CORBA::is_nil(ecAsObject.in()))
       {
-	std::cerr << "EventChannelExecListener::connect: naming service unable to find '"
-		  << NameServiceHelper::nameToEscapedString(eventChannelName)
-		  << "'" << std::endl;
-	m_isConnected = false;
-	return false;
+        std::cerr << "EventChannelExecListener::connect: naming service unable to find '"
+                  << NameServiceHelper::nameToEscapedString(eventChannelName)
+                  << "'" << std::endl;
+        m_isConnected = false;
+        return false;
       }
 
     try
       {
-	m_eventChannel =
-	  CosEventChannelAdmin::EventChannel::_duplicate(CosEventChannelAdmin::EventChannel::_narrow(ecAsObject.in()));
-	debugMsg("EventChannelExecListener:connect",
-		 " successfully narrowed reference to event channel");
+        m_eventChannel = CosEventChannelAdmin::EventChannel::_narrow(ecAsObject.in());
+        debugMsg("EventChannelExecListener:connect",
+                 " successfully narrowed reference to event channel");
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "EventChannelExecListener::connect: Unexpected CORBA exception "
-		  << e
-		  << " while narrowing to EventChannel" << std::endl;
-	m_isConnected = false;
-	return false;
+        std::cerr << "EventChannelExecListener::connect: Unexpected CORBA exception "
+                  << e
+                  << " while narrowing to EventChannel" << std::endl;
+        m_isConnected = false;
+        return false;
       }
 
     if (CORBA::is_nil(m_eventChannel.in()))
       {
-	std::cerr << "EventChannelExecListener::connect: object named '"
-		  << NameServiceHelper::nameToEscapedString(eventChannelName)
-		  << "' is not an event channel!" << std::endl;
-	m_isConnected = false;
-	return false;
+        std::cerr << "EventChannelExecListener::connect: object named '"
+                  << NameServiceHelper::nameToEscapedString(eventChannelName)
+                  << "' is not an event channel!" << std::endl;
+        m_isConnected = false;
+        return false;
       }
     debugMsg("EventChannelExecListener:connect",
-	     " event channel " << m_eventChannel << " found");
+             " event channel " << m_eventChannel << " found");
 
     // Now that we have an event channel, get the push-consumer proxy
     try
       {
-		CosEventChannelAdmin::SupplierAdmin_var admin =
-		  m_eventChannel->for_suppliers();
-		m_pushConsumer = 
-		  CosEventChannelAdmin::ProxyPushConsumer::_duplicate(admin->obtain_push_consumer());
-		// don't need push supplier (I think) -- only used
-		// for notifying us when event channel is destroyed
-		CosEventComm::PushSupplier_var supplier = this->_this();
-		m_pushConsumer->connect_push_supplier(supplier.in());
+        CosEventChannelAdmin::SupplierAdmin_var admin =
+          m_eventChannel->for_suppliers();
+        m_pushConsumer = admin->obtain_push_consumer();
+        // don't need push supplier (I think) -- only used
+        // for notifying us when event channel is destroyed
+        CosEventComm::PushSupplier_var supplier = this->_this();
+        m_pushConsumer->connect_push_supplier(supplier.in());
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "EventChannelExecListener::connect: Unexpected CORBA exception "
-		  << e << "\n while attempting to get push-consumer proxy from event channel"
-		  << std::endl;
-	m_isConnected = false;
-	return false;
+        std::cerr << "EventChannelExecListener::connect: Unexpected CORBA exception "
+                  << e << "\n while attempting to get push-consumer proxy from event channel"
+                  << std::endl;
+        m_isConnected = false;
+        return false;
       }
     debugMsg("EventChannelExecListener:connect",
-	     " event channel " << m_eventChannel << " obtained push consumer");
+             " event channel " << m_eventChannel << " obtained push consumer");
     m_isConnected = true;
     return true;
   }
@@ -258,19 +256,19 @@ namespace PLEXIL
   bool EventChannelExecListener::disconnect()
   {
     if (this->isConnected()) {
-	  debugMsg("EventChannelExecListener:disconnect", " from event channel");
-	  try {
-		m_pushConsumer->disconnect_push_consumer();
-	  }
-	  catch (CORBA::Exception &e) {
-		debugMsg("EventChannelExecListener:disconnect",
-				 " ignoring CORBA exception " << e << " while attempting to disconnect");
-	  }
-	  m_pushConsumer = CosEventChannelAdmin::ProxyPushConsumer::_nil();
-	  m_isConnected = false;
-	}
+      debugMsg("EventChannelExecListener:disconnect", " from event channel");
+      try {
+        m_pushConsumer->disconnect_push_consumer();
+      }
+      catch (CORBA::Exception &e) {
+        debugMsg("EventChannelExecListener:disconnect",
+                 " ignoring CORBA exception " << e << " while attempting to disconnect");
+      }
+      m_pushConsumer = CosEventChannelAdmin::ProxyPushConsumer::_nil();
+      m_isConnected = false;
+    }
 
-	debugMsg("EventChannelExecListener:disconnect", " successful");
+    debugMsg("EventChannelExecListener:disconnect", " successful");
     return true;
   }
 
@@ -280,13 +278,13 @@ namespace PLEXIL
   void EventChannelExecListener::disconnect_push_supplier()
     throw (CORBA::SystemException)
   {
-	debugMsg("EventChannelExecListener:disconnect_push_supplier",
-			 " disconnecting at event channel's request");
+    debugMsg("EventChannelExecListener:disconnect_push_supplier",
+             " disconnecting at event channel's request");
     if (!this->isConnected())
       return;
 
-	// Since the consumer is telling us he's shutting down,
-	// should be no need to call disconnect_push_consumer()
+    // Since the consumer is telling us he's shutting down,
+    // should be no need to call disconnect_push_consumer()
     m_pushConsumer = CosEventChannelAdmin::ProxyPushConsumer::_nil();
     m_isConnected = false;
     return;
@@ -301,32 +299,32 @@ namespace PLEXIL
    */
   void
   EventChannelExecListener::implementNotifyNodeTransition(const LabelStr& prevState,
-							  const NodeId& node) const
+                                                          const NodeId& node) const
   {
 
     // It would help to know we actually have a formatter at this point...
     checkError(!m_formatter.isNoId(),
-	       "notifyOfTransition: m_formatter is null!");
+               "notifyOfTransition: m_formatter is null!");
 
     checkError(this->isConnected(),
-	       "BaseEventChannelExecListener::notifyOfTransition: not connected to event channel!");
+               "BaseEventChannelExecListener::notifyOfTransition: not connected to event channel!");
 
     CORBA::Any_var pushAny = m_formatter->formatTransition(prevState, node);
     // *** breaks with strings!
     //     debugMsg("EventChannelExecListener:notifyOfTransition",
-    // 	     " formatter returned object of type id "
-    // 	     << pushAny->type()->id());
+    //       " formatter returned object of type id "
+    //       << pushAny->type()->id());
 
     try
       {
-	m_pushConsumer->push(*pushAny);
-	debugMsg("EventChannelExecListener:notifyOfTransition", " push successful");
+        m_pushConsumer->push(*pushAny);
+        debugMsg("EventChannelExecListener:notifyOfTransition", " push successful");
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "EventChannelExecListener::implementNotifyNodeTransition: unexpected CORBA exception "
-		  << e
-		  << std::endl;
+        std::cerr << "EventChannelExecListener::implementNotifyNodeTransition: unexpected CORBA exception "
+                  << e
+                  << std::endl;
       }
   }
 
@@ -338,31 +336,31 @@ namespace PLEXIL
    */
   void
   EventChannelExecListener::implementNotifyAddPlan(const PlexilNodeId& plan,
-						   const LabelStr& parent) const
+                                                   const LabelStr& parent) const
   {
     // It would help to know we actually have a formatter at this point...
     checkError(!m_formatter.isNoId(),
-	       "notifyOfAddPlan: m_formatter is null!");
+               "notifyOfAddPlan: m_formatter is null!");
 
     checkError(this->isConnected(),
-	       "EventChannelExecListener::notifyOfAddPlan: not connected to event channel!");
+               "EventChannelExecListener::notifyOfAddPlan: not connected to event channel!");
 
     CORBA::Any_var pushAny = m_formatter->formatPlan(plan, parent);
     // *** breaks with strings!
     //     debugMsg("EventChannelExecListener:notifyOfAddPlan",
-    // 	     " formatter returned object of type id "
-    // 	     << pushAny->type()->id());
+    //       " formatter returned object of type id "
+    //       << pushAny->type()->id());
 
     try
       {
-	m_pushConsumer->push(*pushAny);
-	debugMsg("EventChannelExecListener:notifyOfAddPlan", " push successful");
+        m_pushConsumer->push(*pushAny);
+        debugMsg("EventChannelExecListener:notifyOfAddPlan", " push successful");
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "EventChannelExecListener::implementNotifyAddPlan: unexpected CORBA exception "
-		  << e
-		  << std::endl;
+        std::cerr << "EventChannelExecListener::implementNotifyAddPlan: unexpected CORBA exception "
+                  << e
+                  << std::endl;
       }
   }
 
