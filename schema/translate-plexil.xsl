@@ -818,7 +818,8 @@
   <!-- Boolean Expressions -->
 
   <!-- These expressions are translated recursively. -->
-  <xsl:template match="OR|XOR|AND|NOT|EQBoolean|NEBoolean">
+  <xsl:template match="IsKnown|GT|GE|LT|LE|EQNumeric|EQInternal|EQString|
+                       NENumeric|NEInternal|NEString|OR|XOR|AND|NOT|EQBoolean|NEBoolean">
     <xsl:element name="{name()}">
       <xsl:apply-templates select="*" />
     </xsl:element>
@@ -826,9 +827,7 @@
 
   <!-- These expressions are deep copied. -->
   <xsl:template
-    match="IsKnown|GT|GE|LT|LE|EQNumeric|EQInternal|EQString|
-                      NENumeric|NEInternal|NEString|BooleanVariable|
-                      BooleanValue|LookupNow|LookupOnChange|ArrayElement">
+    match="BooleanVariable|BooleanValue|LookupNow|LookupOnChange|ArrayElement">
     <xsl:copy-of select="." />
   </xsl:template>
 
