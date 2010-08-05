@@ -38,10 +38,9 @@
 PLEXIL::ThreadSemaphore doneSemaphore;
 Simulator* _the_simulator_ = NULL;
 
-void SIGINT_handler (int signum)
+void signal_handler (int signum)
 {
-  assert (signum == SIGINT);
-  debugMsg("PlexilSimulator", " Terminating simulator");
+  debugMsg("PlexilSimulator", " Terminating simulator on signal " << signum);
   if (_the_simulator_ != NULL)
     _the_simulator_->stop();
   doneSemaphore.post();
@@ -124,20 +123,22 @@ int main(int argc, char** argv)
     IpcCommRelay plexilRelay("RobotYellow", centralhost);
     _the_simulator_ = new Simulator(&plexilRelay, mgrMap);
 
-    struct sigaction sa, previous_sa;
+    struct sigaction sa, old_sigint_sa, old_sigterm_sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
-    //Register the handler for SIGINT.
-    sa.sa_handler = SIGINT_handler;
-    sigaction(SIGINT, &sa, &previous_sa);
+    //Register the handler for SIGINT and SIGTERM.
+    sa.sa_handler = signal_handler;
+    sigaction(SIGINT, &sa, &old_sigint_sa);
+    sigaction(SIGTERM, &sa, &old_sigterm_sa);
 
     _the_simulator_->start();
 
     // wait here til we're interrupted
     doneSemaphore.wait();
 
-    // Restore previous SIGINT handler
-    sigaction(SIGINT, &previous_sa, NULL);
+    // Restore previous handlers
+    sigaction(SIGINT, &old_sigint_sa, NULL);
+    sigaction(SIGINT, &old_sigterm_sa, NULL);
   }
   delete _the_simulator_;
 
