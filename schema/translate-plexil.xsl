@@ -1366,7 +1366,8 @@
 
   <xsl:template match= "Lookup">
     <xsl:choose>
-      <xsl:when test= "ancestor::NodeBody|ancestor::PreCondition|
+      <xsl:when test= "ancestor::Command|ancestor::Assignment|ancestor::Update|
+                       ancestor::Command|ancestor::PreCondition|
                        ancestor::PostCondition|ancestor::InvariantCondition">
         <LookupNow>
           <Name>
