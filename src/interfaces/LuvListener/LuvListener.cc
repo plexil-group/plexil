@@ -45,6 +45,7 @@
 #include <sstream>
 #include <signal.h>
 #include <pthread.h>
+#include <iomanip>
 
 #define TRUE_STR              "true"
 #define FALSE_STR             "false"
@@ -222,6 +223,43 @@ namespace PLEXIL
       
     sendMessage(planXml);
   }
+
+  /**
+   * @brief Notify that a variable assignment has been performed.
+   * @param dest The Expression being assigned to.
+   * @param destName A string naming the destination.
+   * @param value The value (in internal Exec representation) being assigned.
+   */
+  void
+  LuvListener::implementNotifyAssignment(const ExpressionId & dest,
+					    const std::string& destName,
+					    const double& value) const
+  {
+    if (m_socket != NULL) {
+      TiXmlElement assignXml(ASSIGNMENT_TAG());
+      TiXmlElement varXml(VARIABLE_TAG());
+      const NodeId node = dest->getNode();
+      if (node.isId())
+	{
+	  // get path to node
+	  varXml.LinkEndChild(constructNodePath(NULL, node));
+	}
+      // get variable name
+      TiXmlElement varName(VARIABLE_NAME_TAG());
+      varName.InsertEndChild(*(new TiXmlText(destName)));
+
+      varXml.InsertEndChild(varName);
+      assignXml.InsertEndChild(varXml);
+
+      // format variable value
+      TiXmlElement * valXml = new TiXmlElement(VARIABLE_VALUE_TAG());
+      valXml->InsertEndChild(*(new TiXmlText(valueToString(value))));
+      assignXml.LinkEndChild(valXml);
+
+      // send it to viewer
+      sendMessage(assignXml);
+    }
+  }
    
   // handle add library event
 
@@ -355,4 +393,70 @@ namespace PLEXIL
         while (buffer[0] != LUV_END_OF_MESSAGE);
       }
   }
+
+  //
+    // Static member functions
+    //
+
+    // given a node id establish the path from the root to that node
+
+    TiXmlNode* LuvListener::constructNodePath(TiXmlNode* path,
+                                                 const NodeId& node)
+    {
+      // Construct path if not provided
+      if (path == NULL)
+        path = new TiXmlElement(NODE_PATH_TAG());
+
+      if (node->getParent().isId())
+        constructNodePath(path, node->getParent()); // for effect
+
+      TiXmlElement* nodeId = new TiXmlElement(NODE_ID_TAG());
+      nodeId->LinkEndChild(new TiXmlText(node->getNodeId().toString()));
+      path->LinkEndChild(nodeId);
+
+      return path;
+    }
+
+    // given a node id establish the state of the conditions for this node
+
+    TiXmlNode* LuvListener::constructConditions(TiXmlNode* conditions,
+                                                   const NodeId& node)
+    {
+      // Construct conditions element if not provided
+      if (conditions == NULL)
+        conditions = new TiXmlElement(CONDITIONS_TAG());
+
+      const std::set<double>& allConditions = node->ALL_CONDITIONS();
+      for (std::set<double>::const_iterator
+             conditionName = allConditions.begin();
+           conditionName != allConditions.end(); ++conditionName)
+        {
+          LabelStr name(*conditionName);
+          TiXmlElement* condition = new TiXmlElement(name.toString());
+          condition->LinkEndChild(new TiXmlText(node->getCondition(name)->valueString()));
+          conditions->LinkEndChild(condition);
+        }
+
+      return conditions;
+    }
+
+    std::string valueToString(double val)
+    {
+		  if (LabelStr::isString(val))
+			{
+			  return std::string(LabelStr(val).toString());
+			}
+		  else if (StoredArray::isKey(val))
+			{
+			  return (StoredArray(val).toString());
+			}
+		  else
+			{
+				// assume it's a number instead
+				// (do something special with ints?)
+				std::ostringstream tmp;
+				tmp << std::setprecision(15) << val;
+				return tmp.str();
+			}
+    }
 }

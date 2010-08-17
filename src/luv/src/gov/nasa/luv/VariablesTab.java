@@ -26,15 +26,28 @@
 
 package gov.nasa.luv;
 
+import static java.awt.BorderLayout.SOUTH;
 import gov.nasa.luv.Model.ChangeAdapter;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
+
+import treetable.JTreeTable;
+import treetable.TreeTableModel;
 
 /** 
  * The VariablesTab class provides methods for displaying a Plexil Model's local 
@@ -48,6 +61,9 @@ public class VariablesTab extends JPanel
     private int rows;
     private String info[][];
     private JTable table;   
+    private VariableTreeTable treeTable;    
+    private JButton flex;
+    private static boolean flexState;
     
     public VariablesTab() {}
     
@@ -59,18 +75,25 @@ public class VariablesTab extends JPanel
     
     public VariablesTab(Model model) 
     {       
-        super(new GridLayout(1,0));
-        
+        super(new BorderLayout());
         this.model = model;
-
+        treeTable = new VariableTreeTable(model);///
 
         String[] columnNames = {"In/InOut",
                                 "Name",
                                 "Type",
                                 "Value",
         };
+        VariablesTab.flexState = false;
         
-        rows = 1000;
+        JPanel buttonBar = new JPanel();
+        add(buttonBar, BorderLayout.NORTH);
+        GridBagLayout gridbag = new GridBagLayout();
+        buttonBar.setLayout(gridbag);
+        GridBagConstraints c = new GridBagConstraints();
+                
+        /*
+        rows = 1000;        
         info = new String[rows][4];
         table = new JTable(info, columnNames);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
@@ -81,7 +104,17 @@ public class VariablesTab extends JPanel
         table.setPreferredScrollableViewportSize(new Dimension(900, 300));
         table.setShowGrid(false);
         table.setGridColor(Color.GRAY);
-        
+        */       
+        //treeTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        treeTable.getColumnModel().getColumn(0).setPreferredWidth(50);
+        treeTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+        treeTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        treeTable.getColumnModel().getColumn(3).setPreferredWidth(550);
+        //treeTable.setPreferredScrollableViewportSize(new Dimension(900, 300));
+        //treeTable.setShowGrid(false);
+        //treeTable.setGridColor(Color.GRAY);        
+        ///
+        /*
         refreshTable();
         
         JScrollPane scrollPane = new JScrollPane(table);
@@ -92,7 +125,40 @@ public class VariablesTab extends JPanel
         	}
         });
         setOpaque(true);
-    }
+        */
+        
+        JScrollPane scrollPane = new JScrollPane(treeTable);
+        add(scrollPane);
+        treeTable.addNotify();
+        flex = new JButton("Expand All");        
+        flex.addActionListener(new ActionListener()
+        {
+        	public void actionPerformed(ActionEvent e) {
+        		
+        		if(VariablesTab.flexState)
+        		{
+        			treeTable.collapseAllNodes();
+        			flex.setText("Expand All");	        	    
+	        	    VariablesTab.flexState = false;
+        		} else
+        		{
+        			treeTable.expandAllNodes();        	    
+	        	    flex.setText("Collapse All");
+	        	    VariablesTab.flexState = true;
+        		}
+        	  }
+        });
+                               
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.02;
+        gridbag.setConstraints(flex, c);
+        buttonBar.add(flex);
+        JLabel blank = new JLabel("");
+        c.weightx = 1.0;
+        gridbag.setConstraints(blank, c);
+        buttonBar.add(blank);
+        
+    }  
     
     private void refreshTable() {
         int row = 0;
@@ -136,5 +202,6 @@ public class VariablesTab extends JPanel
     public static void open(Model model) 
     {       
         variablesPane = new VariablesTab(model);
-    }
-}
+    }        
+    	    
+}    

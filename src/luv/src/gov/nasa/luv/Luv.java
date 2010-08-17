@@ -222,6 +222,7 @@ public class Luv extends JFrame {
 
             {
                 define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
+                define(PROP_ARRAY_MAX_CHARS, PROP_ARRAY_MAX_CHARS_DEF);
                 define(PROP_WIN_LOC, PROP_WIN_LOC_DEF);
                 define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);
                 define(PROP_WIN_BCLR, PROP_WIN_BCLR_DEF);

@@ -518,7 +518,20 @@ namespace PLEXIL {
                                                destExpr,
                                                m_connector);
       // *** beef this up later ***
-      destName = LabelStr("ArrayElement");
+	  PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
+	  debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
+	  int e_index = dest->toString().find(": ", dest->toString().length()-15);
+	  int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
+	  int diff_index = e_index - b_index;
+	  std::string m_index = " ";
+	  if(e_index != std::string::npos)
+	  {
+
+		  m_index = dest->toString().substr(e_index-diff_index,diff_index);
+	  }
+	  debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
+	  const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
+	  destName = LabelStr(m_str);
       deleteLhs = true;
     }
     else {

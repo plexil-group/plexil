@@ -394,18 +394,37 @@ public class Model extends Properties
 
 
 	public void setVariable(String vName, String value) {
+		boolean found = false;
 		if (vName != null) {
+			Model walker = this;
+			if(getVariableList().isEmpty())
+				while(!found && (walker = walker.parent) != null)
+					if(!walker.getVariableList().isEmpty())
+						for(Variable v : walker.getVariableList())
+							if(ArrayVariable.getBaseName(vName).equals(ArrayVariable.getBaseName(v.getName())))
+							{
+								found = true;
+								break;								
+							}
 			Variable var = null;
-			for (Variable v : getVariableList()) {
-				if (vName.equals(v.getName())) {
+			if(walker != null)
+			for (Variable v : walker.getVariableList()) {
+				//needs some other logic if there is dynamic support for assigning a set of values to array
+				if (v instanceof ArrayVariable && vName.contains(((ArrayVariable)v).getBaseName())){
+					((ArrayVariable) v).setArrayIndexVariable(vName, value);					
 					var = v;
 					break;
 				}
+				else if (vName.equals(v.getName())) {
+					var = v;
+					break;
+				}				
 			}
 			if (var != null) {
-				var.setValue(value);
+				if(!(var instanceof ArrayVariable))
+					var.setValue(value);
 				System.out.println("Assigned " + value + " to variable " + vName);
-				for (ChangeListener cl : changeListeners)
+				for (ChangeListener cl : walker.changeListeners)
 					cl.variableAssigned(this, vName);
 			}
 		}
@@ -459,7 +478,13 @@ public class Model extends Properties
             in_inout = UNKNOWN;
         }
         
-        variableList.add(new Variable(in_inout, name, type, value));
+        if(!type.equals("UNKNOWN") && name.matches(".*\\[[0-9]*\\]"))
+        {   
+        	ArrayVariable m_array = new ArrayVariable("--", name, type, value); 
+        	variableList.add(m_array);
+        }
+        else
+        	variableList.add(new Variable(in_inout, name, type, value));
     }
     
     /**

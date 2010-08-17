@@ -62,7 +62,7 @@ public class AssignmentHandler extends AbstractDispatchableHandler {
 		String text = getTweenerText();
 		// get text between tags
 		if (Constants.NODE_ID.equals(qName)) {
-			Model candidate;
+			Model candidate = null;
 			if ((candidate = current.findChildByName(text)) != null) {
 				current = candidate;
 			}

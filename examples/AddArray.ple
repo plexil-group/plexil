@@ -1,0 +1,20 @@
+{
+Real foo[4] = #(0.0 0.0 0.0 0.0);
+Real temp = 0.0;
+While(temp < 3.0)
+{
+  Sequence
+  SimpleAssignment:
+  {
+    Assignment: temp = foo[1];
+  }
+  SimpleArrayAssignment:
+  {    
+    Assignment: foo[1] = foo[1] + 1.0;
+  }
+  SimpleArrayAssignment2:
+  {    
+    Assignment: foo[2] = foo[2] + 2.0;
+  }
+}
+}

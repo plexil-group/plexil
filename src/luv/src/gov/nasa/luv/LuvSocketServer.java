@@ -73,11 +73,19 @@ public class LuvSocketServer {
         		{
         			Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: " + e.getMessage() + " using port " + port + ". Reverting to " + Luv.getLuv().getPrevPort());
         			Luv.getLuv().changePort(Luv.getLuv().getPrevPort()+"");
-        			Luv.getLuv().setTitle();
+        		}
+        		else if(Luv.getLuv().getPrevPort() == 0)
+        		{
+        			Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Switching to next avaliable");
+        			Luv.getLuv().getPortGUI().refresh();
+        			Luv.getLuv().changePort(Luv.getLuv().getPortGUI().getPick()+"");
         		}
         		else
+        		{        			
         			Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using ports " + port
         					+ " and " + Luv.getLuv().getPrevPort());
+        			Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Port Unassigned, change server port");
+        		}
         	}
         	else {
         		Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while connecting to server using port " + port);

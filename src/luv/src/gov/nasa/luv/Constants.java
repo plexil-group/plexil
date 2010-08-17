@@ -62,7 +62,11 @@ public class Constants
       /** Stored in the Luv application properties file, this represents the number of Plexil plan executions Luv will save. */ 
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
       /** Stored in the Luv application properties file, this is the number of Plexil plan executions Luv will save. */ 
-      public static final int       PROP_FILE_RECENT_COUNT_DEF = 9;     
+      public static final int       PROP_FILE_RECENT_COUNT_DEF = 9;
+      /** Stored in the Luv application properties file, this represents the number of characters the viewer will allow arrays to display for arrays. */ 
+      public static final String    PROP_ARRAY_MAX_CHARS = "array.max.chars";
+      /** Stored in the Luv application properties file, this is the number of characters the viewer will allow arrays to display for arrays. */ 
+      public static final int       PROP_ARRAY_MAX_CHARS_DEF = 40;
       /** Stored in the Luv application properties file, this represents the server port number. */ 
       public static final String    PROP_NET_SERVER_PORT      = "net.server.port";
       /** Stored in the Luv application properties file, this is the server port number. */ 
@@ -753,6 +757,8 @@ public class Constants
       public static final String PAIR = "Pair";
       /** Represents the ArrayValue XML tag in the Plexil Plan. */
       public static final String ARRAY_VAL = "ArrayValue";
+      /** Represents the ArrayVariable XML tag in the Plexil Plan. */
+      public static final String ARRAY_VAR = "ArrayVariable";      
       /** Represents the ResourceList XML tag in the Plexil Plan. */
       public static final String RESOURCE_LIST = "ResourceList";
       /** Represents the Resource XML tag in the Plexil Plan. */

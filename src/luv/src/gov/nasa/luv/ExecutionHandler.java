@@ -44,10 +44,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 /** The ExecutionHandler class runs an instance of the Universal Executive. */
 
@@ -427,16 +425,18 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  
 	  if (Luv.getLuv().allowTest()){
 		  command += " " + this.getScriptPath();
-		  if(this.getScriptPath().contains("xml"))
+		  /*
+		  if(this.getScriptPath().endsWith("xml"))
 		  {
 			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Test Exec requires a plexil-script");
 			  return "echo";
 		  }
+		  */
 	  }
 	  else if(!Luv.getLuv().allowTest() && this.getScriptPath() != null)
 	  {
 		  command += " -c " + this.getScriptPath();
-		  if(this.getScriptPath().contains("plx"))
+		  if(this.getScriptPath().endsWith("plx"))
 		  {
 			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Universal Exec requires a configuration xml");		  	 
 			  return "echo";
@@ -449,7 +449,7 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 		  }
 	  }	  
 	  ///command status
-	  System.out.println(command);
+	  System.out.println(command);///
 	  //put command in background
 	  return command;
 

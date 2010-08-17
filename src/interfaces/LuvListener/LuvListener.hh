@@ -45,10 +45,21 @@
 #define MESSAGE_ACKNOWLEDGE "<acknowledge/>"
 #define VULTURE_DELAY 10000
 
+DECLARE_STATIC_CLASS_CONST(char*, NODE_ID_TAG, "NodeId");
+DECLARE_STATIC_CLASS_CONST(char*, NODE_PATH_TAG, "NodePath");
+
+DECLARE_STATIC_CLASS_CONST(char*, CONDITIONS_TAG, "Conditions");
+
+DECLARE_STATIC_CLASS_CONST(char*, ASSIGNMENT_TAG, "Assignment");
+DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_TAG, "Variable");
+DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_NAME_TAG, "VariableName");
+DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_VALUE_TAG, "Value");
+
+
 namespace PLEXIL 
 {
    void* handleConnection(void* threadId);
-
+   std::string valueToString(double val);
    class LuvServer
    {
       public:
@@ -94,6 +105,16 @@ namespace PLEXIL
      void notifyOfAddPlan(const PlexilNodeId& plan, 
                           const LabelStr& parent) const;
 
+     /**
+      * @brief Notify that a variable assignment has been performed.
+      * @param dest The Expression being assigned to.
+      * @param destName A string naming the destination.
+      * @param value The value (in internal Exec representation) being assigned.
+      */
+     void implementNotifyAssignment(const ExpressionId & dest,
+ 				   const std::string& destName,
+ 				   const double& value) const;
+
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
@@ -120,6 +141,12 @@ namespace PLEXIL
      void sendMessage(const TiXmlNode& xml) const;
      void sendMessage(const std::string& message) const;
      void waitForAcknowledge() const;
+
+     // N.B. These allocate the first argument if it is NULL.
+         static TiXmlNode* constructNodePath(TiXmlNode* path,
+                                             const NodeId& node);
+         static TiXmlNode* constructConditions(TiXmlNode* conditions,
+                                               const NodeId& node);
 
      // *** these don't seem to be used anywhere ***
      void sendTaggedStream(std::istream& stream, 
