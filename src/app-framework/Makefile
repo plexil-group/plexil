@@ -29,9 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= PlexilAppFramework
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../utils ../exec ../interfaces/Sockets
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../utils ../exec ../interfaces/Sockets ../interfaces/LuvListener
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec dl PlexilSockets $(PTHREAD_LIB)
+LIBS		+= tinyxml PlexilUtils PlexilExec dl PlexilSockets LuvListener $(PTHREAD_LIB)
 
 ifneq ($(OSNAME),Darwin)
 LIBS		+= rt

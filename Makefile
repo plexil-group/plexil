@@ -80,7 +80,7 @@ IpcUtils: ipc
 LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener
 
-app-framework: exec-core sockets
+app-framework: exec-core sockets LuvListener
 	$(MAKE) -C src/app-framework
 
 sockets:

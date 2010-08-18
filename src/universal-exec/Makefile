@@ -35,8 +35,8 @@ SRC = UniversalExec.cc
 INC = 
 
 INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml \
-	    $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
-LIBS     += tinyxml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
+	    ../utils ../exec ../app-framework ../interfaces/LuvListener
+LIBS     += tinyxml PlexilUtils PlexilExec PlexilSockets LuvListener dl PlexilAppFramework
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 UNIVERSALEXEC_TARGET = universalExec

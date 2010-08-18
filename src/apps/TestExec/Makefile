@@ -33,8 +33,8 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../../interfaces/Sockets ../../in
 LIB_PATH	+=
 LIBS		+= tinyxml PlexilSockets LuvListener PlexilUtils PlexilExec $(PTHREAD_LIB)
 
-SRC		:= ExecTestRunner.cc exec-test-runner.cc
-INC		:= ExecTestRunner.hh
+SRC		:= ExecTestRunner.cc exec-test-runner.cc TestLuvListener.cc
+INC		:= ExecTestRunner.hh TestLuvListener.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
