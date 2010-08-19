@@ -376,7 +376,7 @@ namespace PLEXIL
                   "IpcAdapter: Aborting ReceiveMessage requires exactly one argument");
     assertTrueMsg(LabelStr::isString(cmdArgs.front()),
                   "IpcAdapter: The argument to the ReceiveMessage abort, "
-                  << InterfaceManagerBase::valueToString(cmdArgs.front())
+                  << Expression::valueToString(cmdArgs.front())
                   << ", is not a string");
     LabelStr theMessage(cmdArgs.front());
 
@@ -434,7 +434,7 @@ namespace PLEXIL
                   "IpcAdapter: The SendMessage command requires exactly one argument");
     assertTrueMsg(LabelStr::isString(args.front()),
                   "IpcAdapter: The argument to the SendMessage command, "
-                  << InterfaceManagerBase::valueToString(args.front())
+                  << Expression::valueToString(args.front())
                   << ", is not a string");
     LabelStr theMessage(args.front());
     debugMsg("IpcAdapter:executeCommand",
@@ -458,7 +458,7 @@ namespace PLEXIL
 
     assertTrueMsg(LabelStr::isString(args.front()),
                   "IpcAdapter: The first argument to the SendReturnValue command, "
-                  << InterfaceManagerBase::valueToString(args.front())
+                  << Expression::valueToString(args.front())
                   << ", is not a string");
     const LabelStr& front(args.front());
     uint32_t serial;
@@ -491,7 +491,7 @@ namespace PLEXIL
                   "IpcAdapter: The ReceiveMessage command requires exactly one argument");
     assertTrueMsg(LabelStr::isString(args.front()),
                   "IpcAdapter: The argument to the SendMessage command, "
-                  << InterfaceManagerBase::valueToString(args.front())
+                  << Expression::valueToString(args.front())
                   << ", is not a string");
     LabelStr theMessage(args.front());
     m_messageQueues.addRecipient(theMessage, ack, dest);
@@ -509,7 +509,7 @@ namespace PLEXIL
                   "IpcAdapter: The " << RECEIVE_COMMAND_COMMAND().c_str() << " command requires exactly one argument");
     assertTrueMsg(LabelStr::isString(args.front()),
                   "IpcAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND().c_str()
-                  << " command, " << InterfaceManagerBase::valueToString(args.front())
+                  << " command, " << Expression::valueToString(args.front())
                   << ", is not a string");
     LabelStr command(formatMessageName(args.front(), RECEIVE_COMMAND_COMMAND()));
     m_messageQueues.addRecipient(command, ack, dest);
@@ -527,7 +527,7 @@ namespace PLEXIL
                   "IpcAdapter: The " << GET_PARAMETER_COMMAND().c_str() << " command requires either one or two arguments");
     assertTrueMsg(LabelStr::isString(args.front()),
                   "IpcAdapter: The first argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, "
-                  << InterfaceManagerBase::valueToString(args.front())
+                  << Expression::valueToString(args.front())
                   << ", is not a string");
     std::list<double>::const_iterator it = ++args.begin();
     int id;
@@ -557,7 +557,7 @@ namespace PLEXIL
                   "IpcAdapter: The " << UPDATE_LOOKUP_COMMAND().c_str() << " command requires exactly two arguments");
     assertTrueMsg(LabelStr::isString(args.front()),
                   "IpcAdapter: The argument to the " << UPDATE_LOOKUP_COMMAND().c_str()
-                  << " command, " << InterfaceManagerBase::valueToString(args.front())
+                  << " command, " << Expression::valueToString(args.front())
                   << ", is not a string");
     ThreadMutexGuard guard(m_cmdMutex);
     ExternalLookupMap::iterator it = m_externalLookups.find(args.front());
@@ -586,7 +586,7 @@ namespace PLEXIL
     ThreadMutexGuard guard(m_cmdMutex);
     if (!args.empty())
       debugMsg("IpcAdapter:executeCommand", " first parameter is \""
-               << InterfaceManagerBase::valueToString(args.front())
+               << Expression::valueToString(args.front())
                << "\"");
     size_t sep_pos = name.toString().find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
     //decide to direct or publish lookup
