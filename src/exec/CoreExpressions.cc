@@ -601,16 +601,7 @@ namespace PLEXIL
    
   std::string RealVariable::valueString() const 
   {
-    std::ostringstream retval;
-    if(m_value == Expression::UNKNOWN())
-      retval << "UNKNOWN";
-    else if(m_value == REAL_PLUS_INFINITY)
-      retval << "inf";
-    else if(m_value == REAL_MINUS_INFINITY)
-      retval << "-inf";
-    else
-      retval << m_value;
-    return retval.str();
+	return valueToString(getValue());
   }
 
   bool RealVariable::checkValue(const double val) {
@@ -670,17 +661,19 @@ namespace PLEXIL
 
   // FIXME: Shouldn't these be PLUS_INFINTIY, MINUS_INFINITY?!
 
+  // Specialized for integer values.
   std::string IntegerVariable::valueString() const {
-    std::ostringstream retval;
-    if(m_value == Expression::UNKNOWN())
-      retval << "UNKNOWN";
-    else if(m_value == REAL_PLUS_INFINITY)
-      retval << "inf";
-    else if(m_value == REAL_MINUS_INFINITY)
-      retval << "-inf";
-    else
+    if (m_value == Expression::UNKNOWN())
+      return std::string("UNKNOWN");
+    else if (m_value == REAL_PLUS_INFINITY)
+      return std::string("inf");
+    else if (m_value == REAL_MINUS_INFINITY)
+      return std::string("-inf");
+    else {
+	  std::ostringstream retval;
       retval << (int32_t) m_value;
-    return retval.str();
+	  return retval.str();
+	}
   }
 
   bool IntegerVariable::checkValue(const double val) {
@@ -744,23 +737,26 @@ namespace PLEXIL
     return retval.str();
   }
 
+  // Specialized for Boolean values.
+  // *** FIXME: should this return "true" or "false" instead of "0" or "1"?
   std::string BooleanVariable::valueString() const {
-    std::ostringstream retval;
-    if(m_value == Expression::UNKNOWN())
-      retval << "UNKNOWN";
-    else
+    if (m_value == Expression::UNKNOWN())
+      return std::string("UNKNOWN");
+    else {
+	  std::ostringstream retval;
       retval << m_value;
-    return retval.str();
+	  return retval.str();
+	}
   }
 
   bool BooleanVariable::checkValue(const double val) {
-    return val == Expression::UNKNOWN() || val == 0.0 || val == 1.0;
+    return val == Expression::UNKNOWN() || val == FALSE() || val == TRUE();
   }
 
   ExpressionId& BooleanVariable::TRUE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new BooleanVariable(1.0, true))->getId();
+      sl_exp = (new BooleanVariable(TRUE(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
@@ -769,7 +765,7 @@ namespace PLEXIL
   ExpressionId& BooleanVariable::FALSE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new BooleanVariable(0.0, false))->getId();
+      sl_exp = (new BooleanVariable(FALSE(), false))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
