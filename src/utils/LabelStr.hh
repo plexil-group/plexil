@@ -31,7 +31,6 @@
 #include "Error.hh"
 #include <string>
 #include "StoredItem.hh"
-#include "Debug.hh"
 
 /**
  * @file LabelStr.hh
