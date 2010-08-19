@@ -224,6 +224,12 @@ namespace PLEXIL {
     virtual std::string valueString() const;
 
     /**
+     * @brief Get a string representation of the double value.
+     * @return The string representation.
+     */
+	static std::string valueToString(const double value);
+
+    /**
      * @brief Lock this expression so its value doesn't change.  Changes are stored until the
      *        unlock call, at which point the expression gets updated and notifications happen
      *        normally.
