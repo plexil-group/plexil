@@ -92,27 +92,29 @@ ipc:
  THREADED=1 MAKE_SHARED_LIBS=1 SUBDIRS='etc src doc'
 
 clean-ipc:
-	$(MAKE) -C third-party/ipc \
+	-$(MAKE) -C third-party/ipc \
  PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
  clean
+	-$(RM) lib/libipc.*
 
 clean: clean-ipc
-	$(MAKE) -C third-party/tinyxml $@
-	$(MAKE) -C src/utils $@
-	$(MAKE) -C src/exec $@
-	$(MAKE) -C src/interfaces/IpcAdapter $@
-	$(MAKE) -C src/interfaces/IpcUtils $@
-	$(MAKE) -C src/interfaces/LuvListener $@
-	$(MAKE) -C src/interfaces/Sockets $@
-	$(MAKE) -C src/CORBA $@
-	$(MAKE) -C src/app-framework $@
-	$(MAKE) -C src/universal-exec $@
-	$(MAKE) -C src/apps/robosim $@
-	$(MAKE) -C src/apps/StandAloneSimulator $@
-	$(MAKE) -C src/apps/TestExec $@
+	-$(MAKE) -C third-party/tinyxml $@
+	-$(MAKE) -C src/utils $@
+	-$(MAKE) -C src/exec $@
+	-$(MAKE) -C src/interfaces/IpcAdapter $@
+	-$(MAKE) -C src/interfaces/IpcUtils $@
+	-$(MAKE) -C src/interfaces/LuvListener $@
+	-$(MAKE) -C src/interfaces/Sockets $@
+	-$(MAKE) -C src/CORBA $@
+	-$(MAKE) -C src/app-framework $@
+	-$(MAKE) -C src/universal-exec $@
+	-$(MAKE) -C src/apps/robosim $@
+	-$(MAKE) -C src/apps/StandAloneSimulator $@
+	-$(MAKE) -C src/apps/TestExec $@
 	(cd src/standard-plexil && ant $@)
 	(cd src/luv && ant $@)
 	(cd src/checker && ant $@)
+	-$(RM) lib/lib*
 	@ echo Done.
 
 # Convenience targets
