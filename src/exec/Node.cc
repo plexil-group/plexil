@@ -1566,6 +1566,7 @@ namespace PLEXIL {
     return NodeStateManager::getStateManager(getType())->getDestState(m_id);
   }
 
+  /* Old version
   void Node::activatePair(const LabelStr& name) {
     checkError(m_listenersByName.find(name) != m_listenersByName.end() &&
 	       m_conditionsByName.find(name) != m_conditionsByName.end(),
@@ -1575,7 +1576,21 @@ namespace PLEXIL {
     m_listenersByName[name]->activate();
     m_conditionsByName[name]->activate();
   }
+  */
 
+  void Node::activatePair(const LabelStr& name) {
+    std::map<double, ExpressionListenerId>::iterator listenIt = m_listenersByName.find(name);
+    std::map<double, ExpressionId>::iterator condIt = m_conditionsByName.find(name);
+    checkError(listenIt != m_listenersByName.end() &&
+	       condIt != m_conditionsByName.end(),
+	       "No condition/listener pair exists for '" << name.toString() << "'");
+    debugMsg("Node:activatePair",
+	     "Activating '" << name.toString() << "' in node '" << m_nodeId.toString());
+    listenIt->second->activate();
+    condIt->second->activate();
+  }
+
+  /* Old version
   void Node::deactivatePair(const LabelStr& name) {
     checkError(m_listenersByName.find(name) != m_listenersByName.end() &&
 	       m_conditionsByName.find(name) != m_conditionsByName.end(),
@@ -1586,7 +1601,22 @@ namespace PLEXIL {
     if(m_listenersByName[name]->isActive())
       m_listenersByName[name]->deactivate();
   }
+  */
 
+  void Node::deactivatePair(const LabelStr& name) {
+    std::map<double, ExpressionListenerId>::iterator listenIt = m_listenersByName.find(name);
+    std::map<double, ExpressionId>::iterator condIt = m_conditionsByName.find(name);
+    checkError(listenIt != m_listenersByName.end() &&
+	       condIt != m_conditionsByName.end(),
+	       "No condition/listener pair exists for '" << name.toString() << "'");
+    debugMsg("Node:deactivatePair",
+	     "Deactivating '" << name.toString() << "' in node '" << m_nodeId.toString());
+    condIt->second->deactivate();
+    if (listenIt->second->isActive())
+      listenIt->second->deactivate();
+  }
+
+  /* Old version
   bool Node::pairActive(const LabelStr& name) {
     checkError(m_listenersByName.find(name) != m_listenersByName.end() &&
 	       m_conditionsByName.find(name) != m_conditionsByName.end(),
@@ -1598,6 +1628,27 @@ namespace PLEXIL {
 		 "Condition " << name.toString() << " in " << m_nodeId.toString() <<
 		 " is inactive.");
     return m_listenersByName[name]->isActive() && m_conditionsByName[name]->isActive();
+  }
+  */
+
+  // Optimized (debug) version
+  bool Node::pairActive(const LabelStr& name) {
+    std::map<double, ExpressionId>::const_iterator condIt = m_conditionsByName.find(name);
+    std::map<double, ExpressionListenerId>::const_iterator listenIt = m_listenersByName.find(name);
+    checkError(listenIt != m_listenersByName.end() &&
+	       condIt != m_conditionsByName.end(),
+	       "Node::pairActive: No condition/listener pair exists for '" << name.toString() << "'");
+    bool listenActive = listenIt->second->isActive();
+    condDebugMsg(!listenActive, 
+		 "Node:pairActive",
+		 "Listener for " << name.toString() << " in " << m_nodeId.toString() <<
+		 " is inactive.");
+    bool condActive = condIt->second->isActive();
+    condDebugMsg(!condActive, 
+		 "Node:pairActive",
+		 "Condition " << name.toString() << " in " << m_nodeId.toString() <<
+		 " is inactive.");
+    return listenActive && condActive;
   }
 
   void Node::execute() {
@@ -1659,6 +1710,7 @@ namespace PLEXIL {
     }
   }
 
+  /* old version
   void Node::lockConditions() {
     for(std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
 	it != m_conditionsByName.end(); ++it) {
@@ -1672,12 +1724,38 @@ namespace PLEXIL {
       }
     }
   }
+  */
 
-  void Node::unlockConditions() {
-    for(std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
-	it != m_conditionsByName.end(); ++it) {
+  // Optimized version
+  // N.B. we omit the validity check on the condition expression
+  // because this is a critical path method in the inner loop of the Exec.
+  void Node::lockConditions() {
+    for (std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
+	 it != m_conditionsByName.end();
+	 ++it) {
       ExpressionId expr = it->second;
-      check_error(expr.isValid());
+      std::map<double, ExpressionListenerId>::const_iterator listenIt = 
+	m_listenersByName.find(it->first);
+      checkError(listenIt != m_listenersByName.end(),
+		 "Node::lockConditions: no listener named " << LabelStr(it->first).toString());
+      if (listenIt->second->isActive()
+	  && expr->isActive()
+	  && !expr->isLocked()) {
+	debugMsg("Node:lockConditions",
+		 "In " << m_nodeId.toString() << ", locking " <<
+		 LabelStr(it->first).toString() << " " << expr->toString());
+	expr->lock();
+      }
+    }
+  }
+
+  // As above, skip the Id validity check because this is a critical path function.
+  void Node::unlockConditions() {
+    for (std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
+	 it != m_conditionsByName.end(); 
+	 ++it) {
+      ExpressionId expr = it->second;
+      // check_error(expr.isValid());
       if(expr->isLocked()) {
 	debugMsg("Node:unlockConditions",
 		 "In " << m_nodeId.toString() << ", unlocking " <<
