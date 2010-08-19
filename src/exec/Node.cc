@@ -327,6 +327,9 @@ namespace PLEXIL {
     if(m_interruptEndCond.isValid())
       delete (Expression*) m_interruptEndCond;
 
+    // unset state variable prior to variable-by-name cleanup
+    m_stateVariable = ExpressionId::noId();
+
     for(std::set<double>::iterator it = m_garbage.begin(); it != m_garbage.end(); ++it) {
       if(m_variablesByName.find(*it) != m_variablesByName.end()) {
 	debugMsg("Node:cleanUpVars",
@@ -345,8 +348,8 @@ namespace PLEXIL {
   void Node::commonInit() {
     debugMsg("Node:node", "Instantiating internal variables...");
     //instantiate state/outcome/failure variables
-    m_variablesByName[STATE()] = (new StateVariable())->getId();
-    m_variablesByName[STATE()]->activate();
+    m_variablesByName[STATE()] = m_stateVariable = (new StateVariable())->getId();
+    m_stateVariable->activate();
 
     m_variablesByName[OUTCOME()] = (new OutcomeVariable())->getId();
     m_variablesByName[OUTCOME()]->activate();
@@ -1321,7 +1324,7 @@ namespace PLEXIL {
   }
 
   const ExpressionId& Node::getStateVariable() {
-    return getInternalVariable(STATE());
+    return m_stateVariable;
   }
 
   const LabelStr Node::getOutcome() {

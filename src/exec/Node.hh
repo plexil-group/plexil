@@ -117,6 +117,9 @@ namespace PLEXIL {
      */
     Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent = NodeId::noId());
 
+    /**
+     * @brief Alternate constructor.  Used only by Exec test module.
+     */
     Node(const LabelStr& type, const LabelStr& name, const LabelStr& state, const bool skip, const bool start, const bool pre,
 	 const bool invariant, const bool post, const bool end, const bool repeat,
 	 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
@@ -323,11 +326,12 @@ namespace PLEXIL {
     FunctionCallId m_functionCall;
     ExpressionId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     std::list<NodeId> m_children; /*<! Child nodes.*/
-    std::set<double> m_garbage;
+    std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
     ExpressionId m_extraEndCond;
     ExpressionId m_interruptEndCond;
     ExpressionId m_conjunctCondition;
     ExpressionId m_allCommandHandleValues;
+    ExpressionId m_stateVariable;
   };
 
   class Assignment {
