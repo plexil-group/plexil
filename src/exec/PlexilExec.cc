@@ -186,13 +186,15 @@ namespace PLEXIL {
     check_error(node.isValid());
     debugMsg("PlexilExec:handleConditionsChanged",
 	     "Node " << node->getNodeId().toString() << " had a relevant condition change.");
-    if(node->getDestState() == StateVariable::UNKNOWN() ||
-       node->getDestState() == StateVariable::NO_STATE()) {
+
+    const LabelStr& destState = node->getDestState();
+    if (destState == StateVariable::UNKNOWN() ||
+	destState == StateVariable::NO_STATE()) {
       debugMsg("PlexilExec:handleConditionsChanged",
 	       "Node '" << node->getNodeId().toString() <<
 	       "' was previously eligible to transition but isn't now.");
       int idx = inQueue(node);
-      if(idx != -1) {
+      if (idx != -1) {
 	debugMsg("PlexilExec:handleConditionsChanged",
 		 "Removing " << node->getNodeId().toString() <<
 		 " from the state change queue.");
@@ -200,19 +202,19 @@ namespace PLEXIL {
       }
       else {
         //	if((node->getType() == Node::ASSIGNMENT() || node->getType() == Node::FUNCTION()) &&
-	if((node->getType() == Node::ASSIGNMENT()) &&
-	   node->getState() != StateVariable::EXECUTING()) {
+	if ((node->getType() == Node::ASSIGNMENT()) &&
+	    node->getState() != StateVariable::EXECUTING()) {
 	  debugMsg("PlexilExec:handleConditionsChanged",
-		   "Removing node from resource contention.")
-	    removeFromResourceContention(node);
+		   "Removing node from resource contention.");
+	  removeFromResourceContention(node);
 	}
       }
       return;
     }
     debugMsg("PlexilExec:handleConditionsChanged",
 	     "Considering node '" << node->getNodeId().toString() << "' for state transition.");
-    if(node->getType() == Node::ASSIGNMENT()) {
-      if(node->getDestState() == StateVariable::EXECUTING()) {
+    if (node->getType() == Node::ASSIGNMENT()) {
+      if (destState == StateVariable::EXECUTING()) {
 	//if it's an assignment node and it's eligible to execute
 	//add it to contention consideration
 	debugMsg("PlexilExec:handleConditionsChanged",
@@ -239,7 +241,7 @@ namespace PLEXIL {
       }
     }
 
-    if(inQueue(node) == -1) {
+    if (inQueue(node) == -1) {
       debugMsg("PlexilExec:handleConditionsChanged",
 	       "Placing node '" << node->getNodeId().toString() <<
 	       "' on the state change queue in position " << m_queuePos);
