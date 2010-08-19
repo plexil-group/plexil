@@ -25,10 +25,11 @@
 */
 
 #include "ResourceArbiterInterface.hh"
+#include "Debug.hh"
 #include <queue>
 #include <fstream>
-#include <math.h>
-#include <ctype.h>
+#include <cmath>
+#include <cctype>
 
 namespace PLEXIL {
 
