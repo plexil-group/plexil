@@ -145,7 +145,7 @@ namespace PLEXIL
 	  {
 	    pushEvent->filterable_data[i].name = "commandArgument";
 	    pushEvent->filterable_data[i++].value <<=
-	      InterfaceManagerBase::valueToString(*it).c_str();
+	      Expression::valueToString(*it).c_str();
 	  }
       }
 
@@ -165,7 +165,7 @@ namespace PLEXIL
 	      (LabelStr ((*it).first)).toString().c_str();
 	    pushEvent->filterable_data[i].name = "bindingValue";
 	    pushEvent->filterable_data[i++].value <<=
-	      InterfaceManagerBase::valueToString((*it).second).c_str();
+	      Expression::valueToString((*it).second).c_str();
 	  }
       }
 

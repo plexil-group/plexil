@@ -150,7 +150,7 @@ namespace PLEXIL
 	  {
 	    paramStr +=
 	      element("commandArgument",
-		      AdapterExecInterface::valueToString(*it));
+		      Expression::valueToString(*it));
 	  }
 
 	body = body + element("command",
