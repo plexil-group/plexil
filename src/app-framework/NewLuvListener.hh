@@ -29,18 +29,15 @@
 
 #include "ConstantMacros.hh"
 #include "ManagedExecListener.hh"
+#include "EssentialLuvListener.hh"
 #include "PlexilPlan.hh"
 #include "LabelStr.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+
 
 //
 // Forward references w/o namespace
 //
 
-class Socket;
 class TiXmlElement;
 
 namespace PLEXIL 
@@ -50,7 +47,8 @@ namespace PLEXIL
    * @see Class LuvListener
    */
   class NewLuvListener :
-    public ManagedExecListener
+	public EssentialLuvListener,
+    public ManagedExecListener 
   {
   public:
     //
@@ -63,9 +61,9 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(char*, LUV_BLOCKING_ATTR, "Blocking");
     DECLARE_STATIC_CLASS_CONST(char*, IGNORE_CONNECT_FAILURE_ATTR, "IgnoreConnectFailure");
 
-    // Defaults
-    DECLARE_STATIC_CLASS_CONST(char*, LUV_DEFAULT_HOSTNAME, "localhost");
-    DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 9787);
+    // Literal strings (yes, this is redundant with LuvFormat.hh)
+    DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");
+    DECLARE_STATIC_CLASS_CONST(char*, FALSE_STR, "false");
 
     //
     // Constructors
@@ -118,7 +116,10 @@ namespace PLEXIL
      * @note The current state is accessible via the node.
      */
     void implementNotifyNodeTransition(const LabelStr& prevState, 
-				       const NodeId& node) const;
+									   const NodeId& node) const
+	{
+	  EssentialLuvListener::implementNotifyNodeTransition(prevState, node);
+	}
 
     /**
      * @brief Notify that a plan has been received by the Exec.
@@ -126,14 +127,20 @@ namespace PLEXIL
      * @param parent The name of the parent node under which this plan will be inserted.
      */
     void implementNotifyAddPlan(const PlexilNodeId& plan, 
-				const LabelStr& parent) const;
+								const LabelStr& parent) const
+	{
+	  EssentialLuvListener::implementNotifyAddPlan(plan, parent);
+	}
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method is deprecated and will go away in a future release.
      */
-    void implementNotifyAddLibrary(const PlexilNodeId& libNode) const;
+    void implementNotifyAddLibrary(const PlexilNodeId& libNode) const
+	{
+	  EssentialLuvListener::implementNotifyAddLibrary(libNode);
+	}
 
     /**
      * @brief Notify that a variable assignment has been performed.
@@ -142,8 +149,12 @@ namespace PLEXIL
      * @param value The value (in internal Exec representation) being assigned.
      */
     void implementNotifyAssignment(const ExpressionId & dest,
-				   const std::string& destName,
-				   const double& value) const;
+								   const std::string& destName,
+								   const double& value) const
+	{
+	  EssentialLuvListener::implementNotifyAssignment(dest, destName, value);
+	}
+
 
     //
     // Public class member functions
@@ -158,63 +169,6 @@ namespace PLEXIL
     static TiXmlElement* constructConfigurationXml(const bool& block = false,
 						   const char* hostname = LUV_DEFAULT_HOSTNAME(),
 						   const unsigned int port = LUV_DEFAULT_PORT());
-
-  protected:
-
-    //
-    // Internal class constants
-    //
-
-    // Literal strings
-    DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");
-    DECLARE_STATIC_CLASS_CONST(char*, FALSE_STR, "false");
-
-    // XML tags
-    DECLARE_STATIC_CLASS_CONST(char*, PLAN_INFO_TAG, "PlanInfo");
-    DECLARE_STATIC_CLASS_CONST(char*, PLEXIL_PLAN_TAG, "PlexilPlan");
-    DECLARE_STATIC_CLASS_CONST(char*, PLEXIL_LIBRARY_TAG, "PlexilLibrary");
-    DECLARE_STATIC_CLASS_CONST(char*, VIEWER_BLOCKS_TAG, "ViewerBlocks");
-
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_ID_TAG, "NodeId");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_PATH_TAG, "NodePath");
-
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_STATE_UPDATE_TAG, "NodeStateUpdate");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_STATE_TAG, "NodeState");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_OUTCOME_TAG, "NodeOutcome");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_FAILURE_TYPE_TAG, "NodeFailureType");
-    DECLARE_STATIC_CLASS_CONST(char*, CONDITIONS_TAG, "Conditions");
-
-    DECLARE_STATIC_CLASS_CONST(char*, ASSIGNMENT_TAG, "Assignment");
-    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_TAG, "Variable");
-    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_NAME_TAG, "VariableName");
-    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_VALUE_TAG, "Value");
-
-    // End-of-message marker
-    DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
-
-    //
-    // Static helper methods
-    //
-
-    // N.B. These allocate the first argument if it is NULL.
-    static TiXmlNode* constructNodePath(TiXmlNode* path,
-                                        const NodeId& node);
-    static TiXmlNode* constructConditions(TiXmlNode* conditions,
-                                          const NodeId& node);
-
-    //
-    // Internal methods
-    //
-
-    void sendPlanInfo() const;
-    void sendMessage(const TiXmlNode& xml) const;
-    void sendMessage(const std::string& message) const;
-    void waitForAcknowledge() const;
-
-    // *** these don't seem to be used anywhere ***
-    void sendTaggedStream(std::istream& stream, 
-                          const std::string& tag) const;
-    void sendStream(std::istream& stream) const;
 
   private:
     //
