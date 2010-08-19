@@ -33,8 +33,8 @@ INC_DIRS	+= ../Sockets ../../../third-party/tinyxml ../../utils ../../exec
 LIB_PATH	+=
 LIBS		+= PlexilSockets tinyxml PlexilUtils PlexilExec
 
-SRC		:= LuvListener.cc
-INC		:= LuvListener.hh
+SRC		:= LuvFormat.cc EssentialLuvListener.cc
+INC		:= $(SRC:.cc=.hh)
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
