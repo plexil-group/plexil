@@ -27,6 +27,7 @@
 #include "EventFormatterFactory.hh"
 #include "EventFormatter.hh"
 #include "InterfaceManagerBase.hh"
+#include "Debug.hh"
 #include "DynamicLoader.hh"
 #include "InterfaceSchema.hh"
 #include "EventFormatterSchema.hh"
