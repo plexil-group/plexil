@@ -30,6 +30,7 @@
  */
 
 #include "MessageQueueMap.hh"
+#include "Debug.hh"
 #include <map>
 #include <utility>
 
