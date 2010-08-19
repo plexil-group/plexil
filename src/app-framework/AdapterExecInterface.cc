@@ -62,9 +62,9 @@ namespace PLEXIL
     std::vector<double>::const_iterator it = c.second.begin();
     if(it != c.second.end()) 
       {
-	retval << valueToString(*it);
-	for (++it; it != c.second.end(); ++it)
-	  retval << ", " << valueToString(*it);
+        retval << Expression::valueToString(*it);
+        for (++it; it != c.second.end(); ++it)
+          retval << ", " << Expression::valueToString(*it);
       }
     retval << ")";
     return retval.str();

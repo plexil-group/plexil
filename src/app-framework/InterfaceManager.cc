@@ -528,7 +528,7 @@ namespace PLEXIL
                           debugMsg("InterfaceManager:processQueue",
                                    " (" << pthread_self()
                                    << ") setting current time to "
-                                   << valueToString(newStateValues[0]));
+                                   << Expression::valueToString(newStateValues[0]));
                           m_currentTime = newStateValues[0];
                           m_exec->getStateCache()->updateState(stateKey, newStateValues);
                         }
@@ -555,7 +555,7 @@ namespace PLEXIL
             debugMsg("InterfaceManager:processQueue",
                      " (" << pthread_self()
                      << ") Updating expression " << exp
-                     << ", new value is '" << valueToString(newExpValue) << "'");
+                     << ", new value is '" << Expression::valueToString(newExpValue) << "'");
             this->releaseResourcesAtCommandTermination(exp);
             exp->setValue(newExpValue);
             break;
@@ -686,7 +686,7 @@ namespace PLEXIL
           {
             debugMsg("InterfaceManager:verboseLookupNow",
                      " setting current time to "
-                     << valueToString(dest[0]));
+                     << Expression::valueToString(dest[0]));
             m_currentTime = dest[0];
           }
       }
