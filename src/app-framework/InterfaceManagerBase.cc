@@ -49,26 +49,6 @@ namespace PLEXIL
   //
   // Static utility functions
   //
-    
-  std::string InterfaceManagerBase::valueToString(double val)
-  {
-    if (LabelStr::isString(val))
-      {
-	return std::string(LabelStr(val).toString());
-      }
-    else if (StoredArray::isKey(val))
-      {
-	return (StoredArray(val).toString());
-      }
-    else
-      {
-	// assume it's a number instead
-	// (do something special with ints?)
-	std::ostringstream tmp;
-	tmp << std::setprecision(15) << val;
-	return tmp.str();
-      }
-  }
 
   double InterfaceManagerBase::stringToValue(const char * rawValue)
   {

@@ -28,6 +28,7 @@
 #define INTERFACE_MANAGER_BASE_HH
 
 #include "Id.hh"
+#include "Expression.hh"
 #include <string>
 
 namespace PLEXIL
@@ -70,7 +71,9 @@ namespace PLEXIL
     // Static utility functions
     //
     
-    static std::string valueToString(double val);
+    inline static std::string valueToString(const double val) {
+	  Expression::valueToString(val);
+	};
     static double stringToValue(const char * rawValue);
 
   protected:
