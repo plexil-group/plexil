@@ -92,17 +92,24 @@ namespace PLEXIL {
     return it->second->getDestState(node);
   }
 
+  // This method is currently used only by exec-test-module.
+  // Its logic has been absorbed into transition() below to avoid redundant calls to getDestState().
   bool NodeStateManager::canTransition(NodeId& node) {
     check_error(node.isValid());
     LabelStr toState = getDestState(node);
     return toState != StateVariable::UNKNOWN() && toState != StateVariable::NO_STATE() && toState != node->getState();
   }
 
+  // Inline canTransition() to save a bunch of work.
+  // Can skip the NodeId valid check because getDestState() does it for us.
   void NodeStateManager::transition(NodeId& node) {
-    check_error(node.isValid());
-    checkError(canTransition(node),
+    LabelStr destState = getDestState(node);
+    checkError(destState != StateVariable::UNKNOWN()
+	       && destState != StateVariable::NO_STATE()
+	       && destState != node->getState(),
 	       "Attempted to transition node " << node->getNodeId().toString() <<
 	       " when it is ineligible.");
+
     std::map<double, TransitionHandlerId>::iterator fromIt =
       m_transitionHandlers.find(node->getState());
     checkError(fromIt != m_transitionHandlers.end(),
@@ -112,8 +119,6 @@ namespace PLEXIL {
 	       "Invalid transition handler for node " << node->getNodeId().toString() <<
 	       " from state " << node->getState().toString());
 
-    LabelStr destState = getDestState(node);
-    //it's round!
     std::map<double, TransitionHandlerId>::iterator toIt =
       m_transitionHandlers.find(destState);
     checkError(toIt != m_transitionHandlers.end(),
