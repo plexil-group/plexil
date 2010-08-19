@@ -160,7 +160,10 @@ int main (int argc, char** argv)
 
   // start the application
   std::cout << "Starting the exec" << std::endl;
-  _app.run();
+  if (!_app.run()) {
+	std::cout << "ERROR: Failed to start Exec" << std::endl;
+	return -1;
+  }
 
   // if specified on command line, load Plexil libraries
   for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
@@ -195,8 +198,15 @@ int main (int argc, char** argv)
   _app.waitForPlanFinished();
 
   // clean up
-  _app.stop();
-  _app.shutdown();
+  if (!_app.stop()) {
+	std::cout << "ERROR: failed to stop Exec" << std::endl;
+	return -1;
+  }
+
+  if (!_app.shutdown()) {
+	std::cout << "ERROR: failed to shut down Exec" << std::endl;
+	return -1;
+  }
 
   return 0;
 }
