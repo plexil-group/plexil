@@ -72,7 +72,7 @@ namespace PLEXIL
     //
     
     inline static std::string valueToString(const double val) {
-	  Expression::valueToString(val);
+	  return Expression::valueToString(val);
 	};
     static double stringToValue(const char * rawValue);
 
