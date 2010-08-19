@@ -27,6 +27,7 @@
 #include "AdapterFactory.hh"
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
+#include "Debug.hh"
 #include "DynamicLoader.hh"
 #include "InterfaceSchema.hh"
 

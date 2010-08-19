@@ -25,9 +25,10 @@
 */
 
 #include "ControllerFactory.hh"
+#include "Debug.hh"
+#include "DynamicLoader.hh"
 #include "ExecController.hh"
 #include "ExecApplication.hh"
-#include "DynamicLoader.hh"
 #include "InterfaceSchema.hh"
 
 #ifndef TIXML_USE_STL

@@ -25,10 +25,11 @@
 */
 
 #include "ExecListenerFactory.hh"
+#include "Debug.hh"
+#include "DynamicLoader.hh"
 #include "ExecListener.hh"
 #include "InterfaceManagerBase.hh"
 #include "InterfaceSchema.hh"
-#include "DynamicLoader.hh"
 
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
