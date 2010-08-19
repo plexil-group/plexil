@@ -38,7 +38,7 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "ExecTestRunner.hh"
-#include "LuvListener.hh"
+#include "TestLuvListener.hh"
 #include <fstream>
 #include <string>
 
@@ -50,8 +50,8 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 	std::string debugConfig("Debug.cfg");
 	std::vector<std::string> libraryNames;
 	bool luvRequest = false;
-	std::string luvHost = LUV_DEFAULT_HOST;
-	int luvPort = LUV_DEFAULT_PORT;
+	std::string luvHost = EssentialLuvListener::LUV_DEFAULT_HOSTNAME();
+	int luvPort = EssentialLuvListener::LUV_DEFAULT_PORT();
 	bool luvBlock = false;
 	std::string
 			usage(
@@ -139,22 +139,17 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 	// if a luv view is to be attached
 
 	if (luvRequest) {
-		// create and add luv listener
-
-		try {
-			//          Socket* socket = new ClientSocket(luvHost, luvPort);
-			//          ServerSocket* socket = new ServerSocket(luvPort);
-			//          LuvListener* ll = new LuvListener(socket, luvBlock);
-			//          LuvServer* luvServer = NULL;
-
-			LuvListener* ll = new LuvListener(luvHost, luvPort, luvBlock);
-			exec->addListener(ll->getId());
-		} catch (SocketException se) {
-			warn("WARNING: Unable to connect to Luv viewer: " << std::endl
-					<< "  address: " << luvHost << ":" << luvPort << std::endl
-					<< "   reason: " << se.description() << std::endl
-					<< "Execution will continue without the viewer.");
-		}
+	  // create and add luv listener
+	  TestLuvListener* ll = 
+		new TestLuvListener(luvHost, luvPort, luvBlock);
+	  if (ll->isConnected()) {
+		  exec->addListener(ll->getId());
+	  }
+	  else {
+		warn("WARNING: Unable to connect to Luv viewer: " << std::endl
+			 << "  address: " << luvHost << ":" << luvPort << std::endl
+			 << "Execution will continue without the viewer.");
+	  }
 	}
 
 	// if specified on command line, load libraries
