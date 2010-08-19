@@ -36,6 +36,9 @@
 #include <sstream>
 #include <vector>
 
+// Unix libraries
+#include <unistd.h> // for sleep()
+
 // *** TO DO:
 //  - Improve error checking, reporting
 //  - Efficiency hacks
@@ -85,10 +88,10 @@ namespace PLEXIL
   {
     if (m_namingClient.init(orb) != 0)
       {
-	ACE_ERROR_RETURN ((LM_ERROR,
-			   "[CLIENT] Process/Thread Id : (%P/%t) Unable to initialize "
-			   "the TAO_Naming_Client. \n"),
-			  false);
+        ACE_ERROR_RETURN ((LM_ERROR,
+                           "[CLIENT] Process/Thread Id : (%P/%t) Unable to initialize "
+                           "the TAO_Naming_Client. \n"),
+                          false);
       }
     m_initialized = true;
     return true;
@@ -110,55 +113,55 @@ namespace PLEXIL
     ACE_DECLARE_NEW_ENV;
     ACE_TRY
       {
-	strm << "Naming context " << nom << ":" << std::endl;
-	CosNaming::NamingContext_var ctxt =
-	  CosNaming::NamingContext::_narrow(obj.in()
-					    ACE_ENV_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        strm << "Naming context " << nom << ":" << std::endl;
+        CosNaming::NamingContext_var ctxt =
+          CosNaming::NamingContext::_narrow(obj.in()
+                                            ACE_ENV_ARG_PARAMETER);
+        ACE_TRY_CHECK;
 
-	if (CORBA::is_nil(ctxt.in()))
-	  {
-	    strm << "ERROR: not a naming context!" << std::endl;
-	    return;
-	  }
+        if (CORBA::is_nil(ctxt.in()))
+          {
+            strm << "ERROR: not a naming context!" << std::endl;
+            return;
+          }
 
-	// Have context, now iterate over its bindings
-	CosNaming::BindingList_var dummy;
-	CosNaming::BindingIterator_var it;
-	ctxt->list(0, dummy, it);
-	ACE_TRY_CHECK;
+        // Have context, now iterate over its bindings
+        CosNaming::BindingList_var dummy;
+        CosNaming::BindingIterator_var it;
+        ctxt->list(0, dummy, it);
+        ACE_TRY_CHECK;
 
-	CosNaming::Binding_var binding;
-	while (it->next_one(binding))
-	  {
-	    ACE_TRY_CHECK;
-	    // Display the contents of one binding
-	    strm << " " << binding->binding_name
-		 << " type = ";
-	    switch (binding->binding_type)
-	      {
-	      case CosNaming::nobject: 
-		strm << "object"; 
-		break;
+        CosNaming::Binding_var binding;
+        while (it->next_one(binding))
+          {
+            ACE_TRY_CHECK;
+            // Display the contents of one binding
+            strm << " " << binding->binding_name
+                 << " type = ";
+            switch (binding->binding_type)
+              {
+              case CosNaming::nobject: 
+                strm << "object"; 
+                break;
 
-	      case CosNaming::ncontext:
-		strm << "context";
-		break;
+              case CosNaming::ncontext:
+                strm << "context";
+                break;
 
-	      default:
-		strm << "*** unknown type " << binding->binding_type << "***";
-	      }
-	    strm << std::endl;
-	  }
-	ACE_TRY_CHECK;
-	it->destroy();
-	ACE_TRY_CHECK;
+              default:
+                strm << "*** unknown type " << binding->binding_type << "***";
+              }
+            strm << std::endl;
+          }
+        ACE_TRY_CHECK;
+        it->destroy();
+        ACE_TRY_CHECK;
       }
     ACE_CATCHANY
       {
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION,
-			    "NameServiceHelper::describeNamingContext");
-	return;
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION,
+                            "NameServiceHelper::describeNamingContext");
+        return;
       }
     ACE_ENDTRY;
   }
@@ -171,30 +174,80 @@ namespace PLEXIL
   NameServiceHelper::queryNamingServiceForObject(const CosNaming::Name & nom)
   {
     debugMsg("NameServiceHelper:queryNamingService",
-	     " for '" << nameToEscapedString(nom) << "'");
+             " for '" << nameToEscapedString(nom) << "'");
     // return root context if name is empty
     if (nom.length() == 0)
       return m_namingClient.get_context();
 
     if (!this->isInitialized())
       {
-	std::cerr << "NameServiceHelper::queryNamingServiceForObject: name service not initialized!"
-		  << std::endl;
-	return CORBA::Object::_nil();
+        std::cerr << "NameServiceHelper::queryNamingServiceForObject: name service not initialized!"
+                  << std::endl;
+		debugMsg("NameServiceHelper:queryNamingService",
+				 " for '" << nameToEscapedString(nom) << "' failed");
+        return CORBA::Object::_nil();
       }
-	  
+      
     CORBA::Object_var obj;
-    bool can_retry = true; // or we never try the 1st time!
-    int max_retries = 3;
-    for (int tries = 0; ((tries < max_retries) && can_retry);  tries ++)
-      {
-	if (this->performNamingServiceQuery(nom, obj, can_retry))
-	  return CORBA::Object::_duplicate(obj.in());
-      }
+    bool can_retry = true; // dummy, ignored
+    if (this->performNamingServiceQuery(nom, obj, can_retry)) {
+	  debugMsg("NameServiceHelper:queryNamingService",
+			   " for '" << nameToEscapedString(nom) << "' succeeded");
+      return CORBA::Object::_duplicate(obj.in());
+	}
 
     // Fall-thru return
+	debugMsg("NameServiceHelper:queryNamingService",
+			 " for '" << nameToEscapedString(nom) << "' failed");
     return CORBA::Object::_nil();
 
+  }
+
+  /*!
+    \brief Performs a naming service query with user specified retries.
+    \param nom The name to query.
+    \param nRetries The maximum number of times to repeat the query in event of failure,
+    at one-second intervals.
+    \note Caller must still check return value for nil.
+  */
+  CORBA::Object_ptr
+  NameServiceHelper::queryNamingServiceWithRetries(const CosNaming::Name & nom,
+                                                   unsigned int nRetries)
+  {
+    debugMsg("NameServiceHelper:queryNamingService",
+             " for '" << nameToEscapedString(nom) << "'");
+    // return root context if name is empty
+    if (nom.length() == 0)
+      return m_namingClient.get_context();
+
+    if (!this->isInitialized())
+      {
+        std::cerr << "NameServiceHelper::queryNamingServiceWithRetries: name service not initialized!"
+                  << std::endl;
+		debugMsg("NameServiceHelper:queryNamingService",
+				 " for '" << nameToEscapedString(nom) << "' failed");
+        return CORBA::Object::_nil();
+      }
+      
+    CORBA::Object_var obj;
+    bool can_retry = true; // or we never try the 1st time!
+    for (unsigned int tries = 0; tries < nRetries; tries ++) {
+	  if (this->performNamingServiceQuery(nom, obj, can_retry)) {
+		debugMsg("NameServiceHelper:queryNamingService",
+				 " for '" << nameToEscapedString(nom) << "' succeeded");
+		return CORBA::Object::_duplicate(obj.in());
+	  }
+	  if (!can_retry)
+		break;
+	  sleep(1);
+	  debugMsg("NameServiceHelper:queryNamingService",
+			   " retry " << tries + 1);
+	}
+
+    // Fall-thru return
+	debugMsg("NameServiceHelper:queryNamingService",
+			 " for '" << nameToEscapedString(nom) << "' failed");
+    return CORBA::Object::_nil();
   }
 
 
@@ -207,9 +260,9 @@ namespace PLEXIL
                                      CORBA::Object_ptr obj)
   {
     checkError(this->isInitialized(),
-	       "nameServiceBind: naming service not initialized");
+               "nameServiceBind: naming service not initialized");
     checkError(nom.length() > 0,
-	       "nameServiceBind: attempt to bind a null name");
+               "nameServiceBind: attempt to bind a null name");
 
     // Check that parent naming contexts (if any) exist;
     // create new ones if needed
@@ -219,19 +272,19 @@ namespace PLEXIL
       this->ensureNamingContext(parentName);
     if (CORBA::is_nil(parentContext.in()))
       {
-	debugMsg("NameServiceHelper:nameServiceBind", 
-		 " unable to find or construct parent naming context '" 
-		 << nameToEscapedString(parentName)
-		 << "'");
+        debugMsg("NameServiceHelper:nameServiceBind", 
+                 " unable to find or construct parent naming context '" 
+                 << nameToEscapedString(parentName)
+                 << "'");
       }
     else
       {
-	// bind the tail of the name in the parent context
-	CosNaming::Name localName(1);
-	localName.length(1);
-	localName[0] = nom[nom.length() - 1];
-	if (this->nameServiceBindInternal(parentContext.in(), localName, obj))
-	  return true;
+        // bind the tail of the name in the parent context
+        CosNaming::Name localName(1);
+        localName.length(1);
+        localName[0] = nom[nom.length() - 1];
+        if (this->nameServiceBindInternal(parentContext.in(), localName, obj))
+          return true;
       }
     
     // error finding/creating parent context, or failure binding in parent -
@@ -247,90 +300,90 @@ namespace PLEXIL
                                              CORBA::Object_ptr obj)
   {
     checkError(nom.length() > 0,
-	       "nameServiceBindInternal: attempt to bind a null name");
+               "nameServiceBindInternal: attempt to bind a null name");
     checkError(!CORBA::is_nil(parentContext),
-	       "nameServiceBindInternal: parent context is null");
+               "nameServiceBindInternal: parent context is null");
 
     // bind the name
     try
       {
-	parentContext->bind(nom, obj);
+        parentContext->bind(nom, obj);
       }
     catch (CosNaming::NamingContext::AlreadyBound & ab)
       {
-	// rebind
-	debugMsg("NameServiceHelper:nameServiceBind", 
-		 " name " 
-		 << nameToEscapedString(nom)
-		 << " already bound, will attempt rebinding");
-	try
-	  {
-	    parentContext->rebind(nom, obj);
-	  }
-	catch (CORBA::Exception & e)
-	  {
-	    checkError(ALWAYS_FAIL,
-		       "nameServiceBind: unexpected CORBA exception "
-		       << e
-		       << " while rebinding name "
-		       << nameToEscapedString(nom));
-	  }
+        // rebind
+        debugMsg("NameServiceHelper:nameServiceBind", 
+                 " name " 
+                 << nameToEscapedString(nom)
+                 << " already bound, will attempt rebinding");
+        try
+          {
+            parentContext->rebind(nom, obj);
+          }
+        catch (CORBA::Exception & e)
+          {
+            checkError(ALWAYS_FAIL,
+                       "nameServiceBind: unexpected CORBA exception "
+                       << e
+                       << " while rebinding name "
+                       << nameToEscapedString(nom));
+          }
       }
     catch (CosNaming::NamingContext::InvalidName & inv)
       {
-	debugMsg("NameServiceHelper:nameServiceBind",
-		 " attempt to bind to invalid name "
-		 << nameToEscapedString(nom));
-	return false;
+        debugMsg("NameServiceHelper:nameServiceBind",
+                 " attempt to bind to invalid name "
+                 << nameToEscapedString(nom));
+        return false;
       }
     catch (CORBA::Exception & e)
       {
-	std::cerr << "nameServiceBind: unexpected CORBA exception "
-		  << e
-		  << "\n while attempting to bind name '"
-		  << nameToEscapedString(nom) << "'"
-		  << std::endl;
-	return false;
+        std::cerr << "nameServiceBind: unexpected CORBA exception "
+                  << e
+                  << "\n while attempting to bind name '"
+                  << nameToEscapedString(nom) << "'"
+                  << std::endl;
+        return false;
       }
 
     debugMsg("NameServiceHelper:nameServiceBind", 
-	     " successfully bound name '" 
-	     << nameToEscapedString(nom)
-	     << "'");
+             " successfully bound name '" 
+             << nameToEscapedString(nom)
+             << "'");
     return true;
   }
 
   /*!
-	\brief Unbinds the given name.  
-	Returns true if successful, false otherwise.
+    \brief Unbinds the given name.  
+    Returns true if successful, false otherwise.
   */
   bool
   NameServiceHelper::nameServiceUnbind(const CosNaming::Name & nom) {
     checkError(nom.length() > 0,
-			   "nameServiceUnbind: attempt to unbind a null name");
-	try {
-	  debugMsg("NameServiceHelper:nameServiceUnbind",
-			   " unbinding '" << nameToEscapedString(nom) << "'");
-	  m_namingClient.get_context()->unbind(nom);
-	}
-	catch (CosNaming::NamingContext::NotFound & nf) {
-	  // We don't care if it wasn't bound in the first place
-	  debugMsg("NameServiceHelper:nameServiceUnbind",
-			   " name " << nameToEscapedString(nom) << " not found, ignoring");
-	  return true;
-	}
+               "nameServiceUnbind: attempt to unbind a null name");
+    try {
+      debugMsg("NameServiceHelper:nameServiceUnbind",
+               " unbinding '" << nameToEscapedString(nom) << "'");
+      m_namingClient.get_context()->unbind(nom);
+    }
+    catch (CosNaming::NamingContext::NotFound & nf) {
+      // We don't care if it wasn't bound in the first place
+      debugMsg("NameServiceHelper:nameServiceUnbind",
+               " name " << nameToEscapedString(nom) << " not found, ignoring");
+      return true;
+    }
     catch (CosNaming::NamingContext::InvalidName & inv) {
-	  debugMsg("NameServiceHelper:nameServiceUnbind",
-			   " invalid name exception for " << nameToEscapedString(nom));
-	  return false;
-	}
+      debugMsg("NameServiceHelper:nameServiceUnbind",
+               " invalid name exception for " << nameToEscapedString(nom));
+      return false;
+    }
     catch (CORBA::Exception & e) {
-	  checkError(ALWAYS_FAIL,
-				 "ensureNamingContext: unexpected CORBA exception " << e);
-	  return false;
-	}
-	debugMsg("NameServiceHelper:nameServiceUnbind", " successful");
-	return true;
+      checkError(ALWAYS_FAIL,
+                 "ensureNamingContext: unexpected CORBA exception " << e);
+      return false;
+    }
+    debugMsg("NameServiceHelper:nameServiceUnbind", " successful");
+    return true;
   }
 
   
@@ -356,57 +409,68 @@ namespace PLEXIL
     ACE_DECLARE_NEW_ENV;
     ACE_TRY
       {
-	result =
-	  this->m_namingClient->resolve(nom
-					ACE_ENV_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        result =
+          this->m_namingClient->resolve(nom
+                                        ACE_ENV_ARG_PARAMETER);
+        ACE_TRY_CHECK;
 
-	return true;
+        return true;
       }
     ACE_CATCH(CosNaming::NamingContext::NotFound, exc)
       {
-	can_retry = false;
-	std::cerr << "Warning: Name '" << nom
-		  << "' not found, reason: ";
-	switch (exc.why)
-	  {
-	  case CosNaming::NamingContext::missing_node:
-	    std::cerr << "missing node";
-	    break;
+        switch (exc.why)
+          {
+          case CosNaming::NamingContext::missing_node:
+			can_retry = true; // node may appear in the future
+			debugMsg("NameServiceHelper:queryNamingService", 
+					 " failed, reason: missing node");
+            break;
 
-	  case CosNaming::NamingContext::not_context:
-	    std::cerr << "not a context";
-	    break;
+          case CosNaming::NamingContext::not_context:
+			can_retry = false; // ??
+			std::cerr << "Warning: Name '" << nom
+					  << "' not found, reason: not a context"
+					  << std::endl;
+            break;
 
-	  case CosNaming::NamingContext::not_object:
-	    std::cerr << "not an object";
-	    break;
+          case CosNaming::NamingContext::not_object:
+			can_retry = false; // ??
+			std::cerr << "Warning: Name '" << nom
+					  << "' not found, reason: not an object"
+					  << std::endl;
+            break;
 
-	  default:
-	    std::cerr << "(unknown reason code " << exc.why << ")";
-	    break;
-	  }
-	std::cerr << ",\n rest of name: '" << exc.rest_of_name
-		  << "'" << std::endl;
+          default:
+            std::cerr << "Internal Error: query failed with unknown reason code " << exc.why
+					  << std::endl;
+            break;
+          }
 
-	// Describe parent context (as a debug aid)
- 	// this->describeNamingContext(getParentContextName(exc.rest_of_name, nom),
-        //			       std::cerr);
+        // Describe parent context (as a debug aid)
+        // this->describeNamingContext(getParentContextName(exc.rest_of_name, nom),
+        //                 std::cerr);
       }
+    ACE_CATCH(CosNaming::NamingContext::InvalidName, exc)
+      {
+        can_retry = false;
+        std::cerr << "ERROR: Query failed; name '" << nom
+                  << "' is invalid" << std::endl;
+	  }
     ACE_CATCH(CORBA::COMM_FAILURE, exc)
       {
-	can_retry = true;
-	std::cerr << "WARNING: Non-fatal exception while querying name "
-		  << nom << std::endl;
-	ACE_PRINT_EXCEPTION(exc, "NameServiceHelper::performNamingServiceQuery");
+        can_retry = true;
+        std::cerr << "WARNING: Non-fatal exception while querying name "
+                  << nom << std::endl;		
+
+        ACE_PRINT_EXCEPTION(exc, "NameServiceHelper::performNamingServiceQuery");
       }
     ACE_CATCHANY
       {
-	can_retry = false;
-	std::cerr << "ERROR: Unhandled exception while querying name "
-		  << nom << std::endl;
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION,
-			    "NameServiceHelper::queryNamingServiceForObject");
+        can_retry = false;
+        std::cerr << "ERROR: Unhandled exception while querying name "
+                  << nom << std::endl;
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION,
+                            "NameServiceHelper::performNamingServiceQuery");
 
       }
     ACE_ENDTRY;
@@ -432,115 +496,115 @@ namespace PLEXIL
     
     try
       {
-	debugMsg("NameServiceHelper:nameServiceBind",
-		 " attempting to resolve naming context '" << nom << "'");
-	tmp = m_namingClient->resolve(nom);
-	// tmp is a valid object, but is it a naming context?
-	debugMsg("NameServiceHelper:nameServiceBind",
-		 " resolved '" << nom << "', trying to narrow to naming context");
-	try
-	  {
-	    ctxt = CosNaming::NamingContext::_narrow(tmp.in());
-	  }
-	catch (CORBA::Exception & e)
-	  {
-	    std::cerr << "ensureNamingContext: unexpected CORBA exception " << e
-		      << " while narrowing to naming context "
-		      << nameToEscapedString(nom)
-		      << std::endl;
-	  }
-	if (CORBA::is_nil(ctxt.in()))
-	  {
-	    debugMsg("NameServiceHelper:nameServiceBind",
-		     " parent name already bound to a non-context object");
-	  }
-	else
-	  {
-	    debugMsg("NameServiceHelper:nameServiceBind",
-		     " successfully narrowed naming context '"
-		     << nameToEscapedString(nom) << "'");
-	  }
+        debugMsg("NameServiceHelper:nameServiceBind",
+                 " attempting to resolve naming context '" << nom << "'");
+        tmp = m_namingClient->resolve(nom);
+        // tmp is a valid object, but is it a naming context?
+        debugMsg("NameServiceHelper:nameServiceBind",
+                 " resolved '" << nom << "', trying to narrow to naming context");
+        try
+          {
+            ctxt = CosNaming::NamingContext::_narrow(tmp.in());
+          }
+        catch (CORBA::Exception & e)
+          {
+            std::cerr << "ensureNamingContext: unexpected CORBA exception " << e
+                      << " while narrowing to naming context "
+                      << nameToEscapedString(nom)
+                      << std::endl;
+          }
+        if (CORBA::is_nil(ctxt.in()))
+          {
+            debugMsg("NameServiceHelper:nameServiceBind",
+                     " parent name already bound to a non-context object");
+          }
+        else
+          {
+            debugMsg("NameServiceHelper:nameServiceBind",
+                     " successfully narrowed naming context '"
+                     << nameToEscapedString(nom) << "'");
+          }
       }
     catch (CosNaming::NamingContext::NotFound & nf)
       {
-	// create the missing intervening contexts
-	CosNaming::Name parentName =
-	  getParentContextName(nf.rest_of_name, nom);
-	debugMsg("NameServiceHelper:nameServiceBind",
-		 " will attempt to create missing context '"
-		 << nf.rest_of_name
-		 << "' below '"
-		 << nameToEscapedString(parentName)
-		 << "'");
-	try
-	  {
-	    CosNaming::NamingContext_var parentCtxt;
-	    if (parentName.length() == 0)
-	      {
-		parentCtxt = m_namingClient.get_context();
-	      }
-	    else
-	      {
-		tmp = m_namingClient->resolve(parentName);
-		parentCtxt = CosNaming::NamingContext::_narrow(tmp.in());
-	      }
-	    checkError(!CORBA::is_nil(parentCtxt.in()),
-		       "NameServiceHelper:ensureNamingContext: internal error: can't find parent context '"
-		       << nameToEscapedString(parentName)
-		       << "'");
+        // create the missing intervening contexts
+        CosNaming::Name parentName =
+          getParentContextName(nf.rest_of_name, nom);
+        debugMsg("NameServiceHelper:nameServiceBind",
+                 " will attempt to create missing context '"
+                 << nf.rest_of_name
+                 << "' below '"
+                 << nameToEscapedString(parentName)
+                 << "'");
+        try
+          {
+            CosNaming::NamingContext_var parentCtxt;
+            if (parentName.length() == 0)
+              {
+                parentCtxt = m_namingClient.get_context();
+              }
+            else
+              {
+                tmp = m_namingClient->resolve(parentName);
+                parentCtxt = CosNaming::NamingContext::_narrow(tmp.in());
+              }
+            checkError(!CORBA::is_nil(parentCtxt.in()),
+                       "NameServiceHelper:ensureNamingContext: internal error: can't find parent context '"
+                       << nameToEscapedString(parentName)
+                       << "'");
 
-	    // create and bind new context
-	    CosNaming::NamingContext_var newCtxt;
-	    try
-	      {
-		newCtxt = parentCtxt->bind_new_context(nf.rest_of_name);
-	      }
-	    catch (CosNaming::NamingContext::InvalidName & inv)
-	      {
-		debugMsg("NameServiceHelper:nameServiceBind",
-			 " invalid name exception for '" << nameToEscapedString(nf.rest_of_name)
-			 <<"':\n" << inv);
-		return CosNaming::NamingContext::_nil();
-	      }
-	    catch (CosNaming::NamingContext::AlreadyBound & ab)
-	      {
-		debugMsg("NameServiceHelper:nameServiceBind",
-			 " name '" << nameToEscapedString(nf.rest_of_name)
-			 << "' is already bound:\n" << ab);
-		return CosNaming::NamingContext::_nil();
-	      }
-	    catch (CORBA::Exception & e)
-	      {
-		std::cerr << "ensureNamingContext: unexpected CORBA exception " << e
-			  << " while binding new naming context '"
-			  << nameToEscapedString(nf.rest_of_name) << "'"
-			  << std::endl;
-		return CosNaming::NamingContext::_nil();
-	      }
-	      
-	    debugMsg("NameServiceHelper:nameServiceBind",
-		     " successfully created naming context '"
-		     << nameToEscapedString(nom)
-		     << "'");
-	    return CosNaming::NamingContext::_duplicate(newCtxt.in());
-	  }
-	catch (CORBA::Exception & e)
-	  {
-	    checkError(ALWAYS_FAIL,
-		       "ensureNamingContext: unexpected CORBA exception " << e
-		       << " while creating naming context "
-		       << nameToEscapedString(nf.rest_of_name));
-	  }
+            // create and bind new context
+            CosNaming::NamingContext_var newCtxt;
+            try
+              {
+                newCtxt = parentCtxt->bind_new_context(nf.rest_of_name);
+              }
+            catch (CosNaming::NamingContext::InvalidName & inv)
+              {
+                debugMsg("NameServiceHelper:nameServiceBind",
+                         " invalid name exception for '" << nameToEscapedString(nf.rest_of_name)
+                         <<"':\n" << inv);
+                return CosNaming::NamingContext::_nil();
+              }
+            catch (CosNaming::NamingContext::AlreadyBound & ab)
+              {
+                debugMsg("NameServiceHelper:nameServiceBind",
+                         " name '" << nameToEscapedString(nf.rest_of_name)
+                         << "' is already bound:\n" << ab);
+                return CosNaming::NamingContext::_nil();
+              }
+            catch (CORBA::Exception & e)
+              {
+                std::cerr << "ensureNamingContext: unexpected CORBA exception " << e
+                          << " while binding new naming context '"
+                          << nameToEscapedString(nf.rest_of_name) << "'"
+                          << std::endl;
+                return CosNaming::NamingContext::_nil();
+              }
+          
+            debugMsg("NameServiceHelper:nameServiceBind",
+                     " successfully created naming context '"
+                     << nameToEscapedString(nom)
+                     << "'");
+            return CosNaming::NamingContext::_duplicate(newCtxt.in());
+          }
+        catch (CORBA::Exception & e)
+          {
+            checkError(ALWAYS_FAIL,
+                       "ensureNamingContext: unexpected CORBA exception " << e
+                       << " while creating naming context "
+                       << nameToEscapedString(nf.rest_of_name));
+          }
       }
     catch (CosNaming::NamingContext::InvalidName & inv)
       {
-	debugMsg("NameServiceHelper:nameServiceBind",
-		 " invalid name exception for " << nameToEscapedString(nom));
+        debugMsg("NameServiceHelper:nameServiceBind",
+                 " invalid name exception for " << nameToEscapedString(nom));
       }
     catch (CORBA::Exception & e)
       {
-	checkError(ALWAYS_FAIL,
-		   "ensureNamingContext: unexpected CORBA exception " << e);
+        checkError(ALWAYS_FAIL,
+                   "ensureNamingContext: unexpected CORBA exception " << e);
       }
 
     return CosNaming::NamingContext::_duplicate(ctxt.in());
@@ -585,15 +649,15 @@ namespace PLEXIL
   {
     if (namestring.length() == 0)
       {
-	std::cerr << "WARNING: NameServiceHelper::parseName: empty string to parse" << std::endl;
-	return CosNaming::Name();
+        std::cerr << "WARNING: NameServiceHelper::parseName: empty string to parse" << std::endl;
+        return CosNaming::Name();
       }
 
     std::string::size_type idx = 0;
     std::vector<CosNaming::NameComponent> vec;
     while (idx != std::string::npos)
       {
-	vec.push_back(parseNameComponent(namestring, idx));
+        vec.push_back(parseNameComponent(namestring, idx));
       }
 
     // Copy from temp to new Name instance
@@ -601,7 +665,7 @@ namespace PLEXIL
     result.length(vec.size());
     for (unsigned int i = 0; i < vec.size(); i++)
       {
-	result[i] = vec[i];
+        result[i] = vec[i];
       }
 
     return result;
@@ -625,89 +689,89 @@ namespace PLEXIL
       findNameComponentEnd(namestring, idx);
     if (term == idx)
       {
-	if (namestring.at(term) == s_nameSeparatorChar)
-	  // empty name component
-	  // *** should this be an error? ***
-	  {
-	    idx++;
-	    return CosNaming::NameComponent();
-	  }
-	else 
-	  {
-	    // name component with kind only
-	    idx = term + 1;
-	    term = findNameComponentEnd(namestring, idx);
-	    if (term == std::string::npos)
-	      {
-		// Whole remaining string is the type
-		// *** Should check for redundant type chars ***
-		CosNaming::NameComponent result;
-		result.kind =
-		  makeNameComponentString(namestring, idx);
-		idx = std::string::npos;
-		return result;
-	      }
-	    else if (term == idx)
-	      {
-		// Empty type too
-		idx = term + 1;
-		return CosNaming::NameComponent();
-	      }
-	    else 
-	      {
-		// General case for type
-		CosNaming::NameComponent result;
-		result.kind =
-		  makeNameComponentString(namestring, idx, term);
-		idx = term + 1;
-		return result;
-	      }
-	  }
+        if (namestring.at(term) == s_nameSeparatorChar)
+          // empty name component
+          // *** should this be an error? ***
+          {
+            idx++;
+            return CosNaming::NameComponent();
+          }
+        else 
+          {
+            // name component with kind only
+            idx = term + 1;
+            term = findNameComponentEnd(namestring, idx);
+            if (term == std::string::npos)
+              {
+                // Whole remaining string is the type
+                // *** Should check for redundant type chars ***
+                CosNaming::NameComponent result;
+                result.kind =
+                  makeNameComponentString(namestring, idx);
+                idx = std::string::npos;
+                return result;
+              }
+            else if (term == idx)
+              {
+                // Empty type too
+                idx = term + 1;
+                return CosNaming::NameComponent();
+              }
+            else 
+              {
+                // General case for type
+                CosNaming::NameComponent result;
+                result.kind =
+                  makeNameComponentString(namestring, idx, term);
+                idx = term + 1;
+                return result;
+              }
+          }
       }
     else if (term == std::string::npos)
       {
-	// Whole remaining string is an id
-	CosNaming::NameComponent result;
-	result.id =
-	  makeNameComponentString(namestring, idx);
-	idx = std::string::npos;
-	return result;
+        // Whole remaining string is an id
+        CosNaming::NameComponent result;
+        result.id =
+          makeNameComponentString(namestring, idx);
+        idx = std::string::npos;
+        return result;
       }
     else
       {
-	// General case.  
-	// Extract the ID part.
-	CosNaming::NameComponent result;
-	result.id =
-	  makeNameComponentString(namestring, idx, term);
-	idx = term + 1;
+        // General case.  
+        // Extract the ID part.
+        CosNaming::NameComponent result;
+        result.id =
+          makeNameComponentString(namestring, idx, term);
+        idx = term + 1;
 
-	if (namestring.at(term) == s_nameKindChar)
-	  {
-	    // Extract kind part
-	    term = findNameComponentEnd(namestring, idx);
-	    if (term == std::string::npos)
-	      {
-		// Whole remaining string is the kind
-		// *** Should check for redundant kind chars ***
-		result.kind =
-		  makeNameComponentString(namestring, idx);
-		idx = std::string::npos;
-	      }
-	    else if (term == idx)
-	      {
-		// Empty type
-		idx = term + 1;
-	      }
-	    else 
-	      {
-		// General case for kind
-		result.kind =
-		  makeNameComponentString(namestring, idx, term);
-		idx = term + 1;
-	      }
-	  }
-	return result;
+        if (namestring.at(term) == s_nameKindChar)
+          {
+            // Extract kind part
+            term = findNameComponentEnd(namestring, idx);
+            if (term == std::string::npos)
+              {
+                // Whole remaining string is the kind
+                // *** Should check for redundant kind chars ***
+                result.kind =
+                  makeNameComponentString(namestring, idx);
+                idx = std::string::npos;
+              }
+            else if (term == idx)
+              {
+                // Empty type
+                idx = term + 1;
+              }
+            else 
+              {
+                // General case for kind
+                result.kind =
+                  makeNameComponentString(namestring, idx, term);
+                idx = term + 1;
+              }
+          }
+        return result;
 
       }
   }
@@ -730,60 +794,60 @@ namespace PLEXIL
     std::string::size_type next =
       namestring.find(s_nameEscapeChar, start);
     if ((next == std::string::npos) // none anywhere
-	|| (next > end)) // none in segment
+        || (next > end)) // none in segment
       {
-	// Easy case - no escapes found in segment to copy
-	len = end - start;
-	result = CORBA::string_alloc(len + 1);
-	ACE_OS::memcpy(result,
-		       namestring.c_str() + start,
-		       len);
+        // Easy case - no escapes found in segment to copy
+        len = end - start;
+        result = CORBA::string_alloc(len + 1);
+        ACE_OS::memcpy(result,
+                       namestring.c_str() + start,
+                       len);
       }
     else
       {
-	// Escape char found in segment to be copied
-	std::string::size_type prev = start;
-	len = next - prev;
-	prev = next + 1; // skip escape
-	while (prev < end)
-	  {
-	    next = namestring.find(s_nameEscapeChar, prev + 1);
-	    if ((next == std::string::npos) || (next >= end))
-	      {
-		len += end - prev;
-		break;
-	      }
-	    else 
-	      len += next - prev;
-	    prev = next + 1; // skip escape
-	  }
+        // Escape char found in segment to be copied
+        std::string::size_type prev = start;
+        len = next - prev;
+        prev = next + 1; // skip escape
+        while (prev < end)
+          {
+            next = namestring.find(s_nameEscapeChar, prev + 1);
+            if ((next == std::string::npos) || (next >= end))
+              {
+                len += end - prev;
+                break;
+              }
+            else 
+              len += next - prev;
+            prev = next + 1; // skip escape
+          }
 
-	// Allocate result array
-	result = CORBA::string_alloc(len + 1);
+        // Allocate result array
+        result = CORBA::string_alloc(len + 1);
 
-	// Copy the pieces -- 
-	// must scan for escapes again
-	char * writePtr = result;
-	std::string::size_type segLen;
-	if (namestring.at(start) == s_nameEscapeChar)
-	  prev = start + 1;
-	else
-	  prev = start;
-	while (prev < end)
-	  {
-	    next = namestring.find(s_nameEscapeChar, prev + 1);
-	    if ((next == std::string::npos) || (next >= end))
-	      segLen = end - prev;
-	    else
-	      segLen = next - prev;
-	    ACE_OS::memcpy(writePtr,
-			   namestring.c_str() + prev,
-			   segLen);
-	    if ((next == std::string::npos) || (next >= end))
-	      break;
-	    writePtr += segLen;
-	    prev = next + 1;
-	  }
+        // Copy the pieces -- 
+        // must scan for escapes again
+        char * writePtr = result;
+        std::string::size_type segLen;
+        if (namestring.at(start) == s_nameEscapeChar)
+          prev = start + 1;
+        else
+          prev = start;
+        while (prev < end)
+          {
+            next = namestring.find(s_nameEscapeChar, prev + 1);
+            if ((next == std::string::npos) || (next >= end))
+              segLen = end - prev;
+            else
+              segLen = next - prev;
+            ACE_OS::memcpy(writePtr,
+                           namestring.c_str() + prev,
+                           segLen);
+            if ((next == std::string::npos) || (next >= end))
+              break;
+            writePtr += segLen;
+            prev = next + 1;
+          }
       }
 
     // Terminate with a null and return it
@@ -809,16 +873,16 @@ namespace PLEXIL
     std::string::size_type result = start;
     while (!terminated && (result != std::string::npos))
       {
-	result = namestring.find_first_of(s_specialNameChars, start);
-	if (result != std::string::npos)
-	  {
-	    // Skip over escape and following character
-	    if (namestring.at(result) == s_nameEscapeChar)
-	      start = result + 2;
-	    // Exit if we found some other special character
-	    else
-	      terminated = true;
-	  }
+        result = namestring.find_first_of(s_specialNameChars, start);
+        if (result != std::string::npos)
+          {
+            // Skip over escape and following character
+            if (namestring.at(result) == s_nameEscapeChar)
+              start = result + 2;
+            // Exit if we found some other special character
+            else
+              terminated = true;
+          }
       }
     return result;
   }
@@ -833,10 +897,10 @@ namespace PLEXIL
     unsigned int i = 0;
     while (i < nom.length())
       {
-	printNameComponent(nom[i], str);
-	i++;
-	if (i < nom.length())
-	  str << s_nameSeparatorChar;
+        printNameComponent(nom[i], str);
+        i++;
+        if (i < nom.length())
+          str << s_nameSeparatorChar;
       }
   }
 
@@ -858,32 +922,32 @@ namespace PLEXIL
   {
     if (strlen(comp.id) != 0)
       {
-	// Print ID, respecting escape chars
-	int len = strlen(comp.id);
-	for (int i = 0; i < len; i++)
-	  {
-	    char c = comp.id[i];
-	    if ((c == s_nameSeparatorChar)
-		|| (c == s_nameKindChar)
-		|| (c == s_nameEscapeChar))
-	      strm.put(s_nameEscapeChar);
-	    strm.put(c);
-	  }
+        // Print ID, respecting escape chars
+        int len = strlen(comp.id);
+        for (int i = 0; i < len; i++)
+          {
+            char c = comp.id[i];
+            if ((c == s_nameSeparatorChar)
+                || (c == s_nameKindChar)
+                || (c == s_nameEscapeChar))
+              strm.put(s_nameEscapeChar);
+            strm.put(c);
+          }
       }
     if (strlen(comp.kind) != 0)
       {
-	strm << s_nameKindChar;
-	// print kind, respecting escape chars
-	int len = strlen(comp.kind);
-	for (int i = 0; i < len; i++)
-	  {
-	    char c = comp.kind[i];
-	    if ((c == s_nameSeparatorChar)
-		|| (c == s_nameKindChar)
-		|| (c == s_nameEscapeChar))
-	      strm.put(s_nameEscapeChar);
-	    strm.put(c);
-	  }
+        strm << s_nameKindChar;
+        // print kind, respecting escape chars
+        int len = strlen(comp.kind);
+        for (int i = 0; i < len; i++)
+          {
+            char c = comp.kind[i];
+            if ((c == s_nameSeparatorChar)
+                || (c == s_nameKindChar)
+                || (c == s_nameEscapeChar))
+              strm.put(s_nameEscapeChar);
+            strm.put(c);
+          }
       }
   }
   

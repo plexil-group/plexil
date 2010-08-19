@@ -82,6 +82,17 @@ namespace PLEXIL
     queryNamingServiceForObject(const CosNaming::Name & nom);
 
     /*!
+      \brief Performs a naming service query with limited retries.
+	  \param nom The name to query.
+	  \param nRetries The maximum number of times to repeat the query in event of failure,
+	         at one-second intervals.
+	  \note Caller must still check return value for nil.
+    */
+    CORBA::Object_ptr
+    queryNamingServiceWithRetries(const CosNaming::Name & nom,
+								  unsigned int nRetries);
+
+    /*!
       \brief Binds the object to the given name.  
              Returns true if successful, false otherwise.
              Rebinds if necessary.
