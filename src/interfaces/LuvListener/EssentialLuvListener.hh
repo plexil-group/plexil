@@ -63,7 +63,7 @@ namespace PLEXIL {
 
     // Defaults
     DECLARE_STATIC_CLASS_CONST(char*, LUV_DEFAULT_HOSTNAME, "localhost");
-    DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 9787);
+    DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 65400);
 
     // End-of-message marker
     DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
