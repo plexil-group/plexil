@@ -365,24 +365,14 @@ namespace PLEXIL {
     m_garbage.insert(FAILURE_TYPE());
     m_garbage.insert(COMMAND_HANDLE());
 
-    debugMsg("Node:node", "Instantiating timepoint variables.");
     //instantiate timepoint variables
-    std::vector<std::string> suffix;
-    suffix.push_back("START");
-    suffix.push_back("END");
-
-    for(std::set<double>::const_iterator it = StateVariable::ALL_STATES().begin();
-	it != StateVariable::ALL_STATES().end(); ++it) {
-      //       if(*it == StateVariable::INACTIVE())
-      //  continue;
-      for(unsigned int i = 0; i < suffix.size(); i++) {
-	std::stringstream str;
-	str << (LabelStr(*it)).toString() << "." << suffix[i];
-	LabelStr varName(str.str());
-	m_variablesByName[varName] = (new RealVariable())->getId();
-	m_variablesByName[varName]->activate();
-	m_garbage.insert(varName);
-      }
+    debugMsg("Node:node", "Instantiating timepoint variables.");
+    for(std::vector<double>::const_iterator it = ALL_TIMEPOINTS().begin();
+	it != ALL_TIMEPOINTS().end();
+	++it) {
+      m_variablesByName[*it] = (new RealVariable())->getId();
+      m_variablesByName[*it]->activate();
+      m_garbage.insert(*it);
     }
     setConditionDefaults();
   }
@@ -1634,14 +1624,10 @@ namespace PLEXIL {
     suffix.push_back("END");
 
     //reset timepoints
-    for(std::set<double>::const_iterator it = StateVariable::ALL_STATES().begin();
-	it != StateVariable::ALL_STATES().end(); ++it) {
-      for(unsigned int i = 0; i < suffix.size(); i++) {
-	std::stringstream str;
-	str << (LabelStr(*it)).toString() << "." << suffix[i];
-	LabelStr varName(str.str());
-	((Variable*)m_variablesByName[varName])->reset();
-      }
+    for (std::vector<double>::const_iterator it = ALL_TIMEPOINTS().begin();
+	it != ALL_TIMEPOINTS().end();
+	++it) {
+      ((Variable*)m_variablesByName[*it])->reset();
     }
 
     for(std::list<ExpressionId>::const_iterator it = m_localVariables.begin();
@@ -1770,6 +1756,26 @@ namespace PLEXIL {
     retval << indentStr.str() << "}" << std::endl;
     return retval.str();
   }
+
+  // Static "constant"
+  const std::vector<double>& Node::ALL_TIMEPOINTS() {
+    static std::vector<double>* allTimepoints = NULL;
+    if (allTimepoints == NULL) {
+      allTimepoints = new std::vector<double>;
+      for (std::set<double>::const_iterator it = StateVariable::ALL_STATES().begin();
+	   it != StateVariable::ALL_STATES().end(); 
+	   ++it) {
+	const std::string& state = LabelStr(*it).toString();
+	LabelStr startName(state + ".START");
+	allTimepoints->push_back(startName);
+	LabelStr endName(state + ".END");
+	allTimepoints->push_back(endName);
+      }
+    }
+    return *allTimepoints;
+  }
+
+
 
   Command::Command(const ExpressionId nameExpr, const std::list<ExpressionId>& args,
 		   const ExpressionId dest, const ExpressionId ack,

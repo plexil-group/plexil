@@ -302,6 +302,8 @@ namespace PLEXIL {
      */
     void setConditionDefaults();
 
+    static const std::vector<double>& ALL_TIMEPOINTS();
+
     NodeId m_id; /*<! The Id for this node*/
     ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
     NodeId m_parent; /*<! The parent of this node.*/
