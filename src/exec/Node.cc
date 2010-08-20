@@ -24,6 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//
+// *** TODO ***
+// Resolve use of m_garbage with respect to conditions
+
 #include "Node.hh"
 #include "Expression.hh"
 #include "CoreExpressions.hh"
@@ -40,27 +44,47 @@
 #include <sstream>
 
 namespace PLEXIL {
-  const std::set<double>& Node::ALL_CONDITIONS() {
-    static std::set<double>* sl_allConds = NULL;
+  const std::vector<double>& Node::ALL_CONDITIONS() {
+    static std::vector<double>* sl_allConds = NULL;
     if (sl_allConds == NULL)
       {
-	sl_allConds = new std::set<double>();
-	sl_allConds->insert(START_CONDITION());
-	sl_allConds->insert(END_CONDITION());
-	sl_allConds->insert(INVARIANT_CONDITION());
-	sl_allConds->insert(PRE_CONDITION());
-	sl_allConds->insert(POST_CONDITION());
-	sl_allConds->insert(REPEAT_CONDITION());
-	sl_allConds->insert(ANCESTOR_INVARIANT_CONDITION());
-	sl_allConds->insert(ANCESTOR_END_CONDITION());
-	sl_allConds->insert(PARENT_EXECUTING_CONDITION());
-	sl_allConds->insert(CHILDREN_WAITING_OR_FINISHED());
-	sl_allConds->insert(ABORT_COMPLETE());
-	sl_allConds->insert(PARENT_WAITING_CONDITION());
-	sl_allConds->insert(PARENT_FINISHED_CONDITION());
-	sl_allConds->insert(COMMAND_HANDLE_RECEIVED_CONDITION());
+	// *** N.B.: Order MUST agree with enum conditionIndex!
+	sl_allConds = new std::vector<double>();
+	sl_allConds->push_back(SKIP_CONDITION());
+	sl_allConds->push_back(START_CONDITION());
+	sl_allConds->push_back(END_CONDITION());
+	sl_allConds->push_back(INVARIANT_CONDITION());
+	sl_allConds->push_back(PRE_CONDITION());
+	sl_allConds->push_back(POST_CONDITION());
+	sl_allConds->push_back(REPEAT_CONDITION());
+	sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
+	sl_allConds->push_back(ANCESTOR_END_CONDITION());
+	sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
+	sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
+	sl_allConds->push_back(ABORT_COMPLETE());
+	sl_allConds->push_back(PARENT_WAITING_CONDITION());
+	sl_allConds->push_back(PARENT_FINISHED_CONDITION());
+	sl_allConds->push_back(COMMAND_HANDLE_RECEIVED_CONDITION());
+	// inexpensive sanity check
+	assertTrue(sl_allConds->size() == conditionIndexMax,
+		   "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
       }
     return *sl_allConds;
+  }
+
+  unsigned int Node::getConditionIndex(const LabelStr& cName) {
+    double nameKey = cName.getKey();
+    const std::vector<double>& allConds = ALL_CONDITIONS();
+    for (size_t i = 0; i < conditionIndexMax; i++) {
+      if (allConds[i] == nameKey)
+	return i;
+    }
+    assertTrueMsg(ALWAYS_FAIL,
+		  cName.toString() << " is not a valid condition name");
+  }
+
+  LabelStr Node::getConditionName(unsigned int idx) {
+    return LabelStr(ALL_CONDITIONS()[idx]);
   }
 
   class ConditionChangeListener : public ExpressionListener {
@@ -162,6 +186,7 @@ namespace PLEXIL {
      m_priority = node->priority();
 
      m_nodeType = nodeTypeToLabelStr(node->nodeType());
+	 m_stateManager = NodeStateManager::getStateManager(m_nodeType);
 
      debugMsg("Node:node", "Creating node '" << m_nodeId.toString() << "'");
      commonInit();
@@ -174,7 +199,7 @@ namespace PLEXIL {
 
      getVarsFromInterface(node->interface());
 
-        // inherit all variables from parten which
+        // inherit all variables from parent which
         // do not already appear in this node 
 
      getVarsFromParent();
@@ -197,12 +222,13 @@ namespace PLEXIL {
      {
         debugMsg("Node:node", "Creating library node call.");
 	checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
-		   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
-		   "list body.");
+		   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
+		   "library node call body.");
         createLibraryNode(node);
      }
   }
 
+  // Used only by module test
   Node::Node(const LabelStr& type, const LabelStr& name, const LabelStr& state,
 	     const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
 	     const bool end, const bool repeat, const bool ancestorInvariant,
@@ -213,6 +239,7 @@ namespace PLEXIL {
       sl_called(false), m_cleanedConditions(false), m_cleanedVars(false),
       m_transitioning(false), m_lastQuery(StateVariable::UNKNOWN()) {
     m_nodeType = type;
+	m_stateManager = NodeStateManager::getStateManager(m_nodeType);
     m_nodeId = name;
     commonInit();
     double conds[15] = {SKIP_CONDITION(), START_CONDITION(), PRE_CONDITION(), INVARIANT_CONDITION(),
@@ -225,16 +252,17 @@ namespace PLEXIL {
 		       ancestorEnd, parentExecuting, childrenFinished, commandAbort,
 		       parentWaiting, parentFinished, cmdHdlRcvdCondition};
     m_variablesByName[STATE()]->setValue(state);
-    for(int i = 0; i < 15; i++) {
+    for (unsigned int i = 0; i < 15; i++) {
       debugMsg("Node:node",
 	       "Creating internal variable " << LabelStr(conds[i]).toString() <<
 	       " with value " << values[i] << " for node " << m_nodeId.toString());
-      m_conditionsByName[conds[i]]->removeListener(m_listenersByName[conds[i]]);
-      delete (Expression*) m_conditionsByName[conds[i]];
+      unsigned int ix = getConditionIndex(conds[i]);
+      m_conditions[ix]->removeListener(m_listeners[ix]);
+      delete (Expression*) m_conditions[ix];
       ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
-      m_conditionsByName[conds[i]] = expr;
-      expr->addListener(m_listenersByName[conds[i]]);
-      m_garbage.insert(conds[i]);
+      m_conditions[ix] = expr;
+      expr->addListener(m_listeners[ix]);
+      m_garbageConditions.insert(ix);
     }
     if (m_nodeType == COMMAND())
       m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
@@ -258,39 +286,30 @@ namespace PLEXIL {
     if(m_cleanedConditions)
       return;
 
-    for(std::map<double, ExpressionListenerId>::iterator it = m_listenersByName.begin();
-	it != m_listenersByName.end(); ++it) {
-      if(m_variablesByName.find(it->first) != m_variablesByName.end()) {
-	debugMsg("Node:cleanUpConds",
-		 "<" << m_nodeId.toString() << "> Removing variable listener for " <<
-		 LabelStr(it->first).toString());
-	m_variablesByName[it->first]->removeListener(it->second);
-      }
-      else if(m_conditionsByName.find(it->first) != m_conditionsByName.end()) {
+    // Clean up condition listeners
+    for (unsigned int i = 0; i < conditionIndexMax; i++) {
+      if (m_listeners[i].isId()) {
 	debugMsg("Node:cleanUpConds",
 		 "<" << m_nodeId.toString() << "> Removing condition listener for " <<
-		 LabelStr(it->first).toString());
-	m_conditionsByName[it->first]->removeListener(it->second);
+		 getConditionName(i).toString());
+	m_conditions[i]->removeListener(m_listeners[i]);
+	delete (ExpressionListener*) m_listeners[i];
+	m_listeners[i] = ExpressionListenerId::noId();
       }
-      else {
-	checkError(ALWAYS_FAIL,
-		   "Have a listener but no expression for " <<
-		   LabelStr(it->first).toString());
-      }
-      delete (ExpressionListener*) it->second;
     }
-    m_listenersByName.clear();
-
+ 
+    // Clean up children
     for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpConditions();
 
-    for(std::set<double>::iterator it = m_garbage.begin(); it != m_garbage.end(); ++it) {
-      if(m_conditionsByName.find(*it) != m_conditionsByName.end()) {
-	debugMsg("Node:cleanUpConds",
-		 "<" << m_nodeId.toString() << "> Removing " << LabelStr(*it).toString());
-	delete (Expression*) m_conditionsByName.find(*it)->second;
-	m_conditionsByName.erase(*it);
-      }
+    // Clean up conditions
+    for (std::set<unsigned int>::iterator it = m_garbageConditions.begin();
+	 it != m_garbageConditions.end();
+	 ++it) {
+      debugMsg("Node:cleanUpConds",
+	       "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(*it).toString());
+      delete (Expression*) m_conditions[*it];
+      m_conditions[*it] = ExpressionId::noId();
     }
 
     if(m_assignment.isValid()) {
@@ -378,72 +397,72 @@ namespace PLEXIL {
   }
 
   void Node::setConditionDefaults() {
-    m_conditionsByName[SKIP_CONDITION()] = 
+    m_conditions[skipIdx] = 
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listenersByName[SKIP_CONDITION()] =
+    m_listeners[skipIdx] =
       (new ConditionChangeListener(m_id, SKIP_CONDITION()))->getId();
-    m_conditionsByName[START_CONDITION()] = 
+    m_conditions[startIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[START_CONDITION()] =
+    m_listeners[startIdx] =
       (new ConditionChangeListener(m_id, START_CONDITION()))->getId();
-    m_conditionsByName[END_CONDITION()] = 
+    m_conditions[endIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[END_CONDITION()] =
+    m_listeners[endIdx] =
       (new ConditionChangeListener(m_id, END_CONDITION()))->getId();
-    m_conditionsByName[INVARIANT_CONDITION()] =
+    m_conditions[invariantIdx] =
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[INVARIANT_CONDITION()] =
+    m_listeners[invariantIdx] =
       (new ConditionChangeListener(m_id, INVARIANT_CONDITION()))->getId();
-    m_conditionsByName[PRE_CONDITION()] = 
+    m_conditions[preIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[PRE_CONDITION()] =
+    m_listeners[preIdx] =
       (new ConditionChangeListener(m_id, PRE_CONDITION()))->getId();
-    m_conditionsByName[POST_CONDITION()] = 
+    m_conditions[postIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[POST_CONDITION()] =
+    m_listeners[postIdx] =
       (new ConditionChangeListener(m_id, POST_CONDITION()))->getId();
-    m_conditionsByName[REPEAT_CONDITION()] =
+    m_conditions[repeatIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listenersByName[REPEAT_CONDITION()] =
+    m_listeners[repeatIdx] =
       (new ConditionChangeListener(m_id, REPEAT_CONDITION()))->getId();
-    m_conditionsByName[ANCESTOR_INVARIANT_CONDITION()] = 
+    m_conditions[ancestorInvariantIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[ANCESTOR_INVARIANT_CONDITION()] =
+    m_listeners[ancestorInvariantIdx] =
       (new ConditionChangeListener(m_id, ANCESTOR_INVARIANT_CONDITION()))->getId();
-    m_conditionsByName[ANCESTOR_END_CONDITION()] =
+    m_conditions[ancestorEndIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listenersByName[ANCESTOR_END_CONDITION()] =
+    m_listeners[ancestorEndIdx] =
       (new ConditionChangeListener(m_id, ANCESTOR_END_CONDITION()))->getId();
-    m_conditionsByName[PARENT_EXECUTING_CONDITION()] = 
+    m_conditions[parentExecutingIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[PARENT_EXECUTING_CONDITION()] =
+    m_listeners[parentExecutingIdx] =
       (new ConditionChangeListener(m_id, PARENT_EXECUTING_CONDITION()))->getId();
-    m_conditionsByName[CHILDREN_WAITING_OR_FINISHED()] =
+    m_conditions[childrenWaitingOrFinishedIdx] =
       (new BooleanVariable(BooleanVariable::UNKNOWN(), true))->getId();
-    m_listenersByName[CHILDREN_WAITING_OR_FINISHED()] =
+    m_listeners[childrenWaitingOrFinishedIdx] =
       (new ConditionChangeListener(m_id, CHILDREN_WAITING_OR_FINISHED()))->getId();
-    m_conditionsByName[ABORT_COMPLETE()] =
+    m_conditions[abortCompleteIdx] =
       (new BooleanVariable(BooleanVariable::UNKNOWN(), true))->getId();
-    m_listenersByName[ABORT_COMPLETE()] =
+    m_listeners[abortCompleteIdx] =
       (new ConditionChangeListener(m_id, CHILDREN_WAITING_OR_FINISHED()))->getId();
-    m_conditionsByName[PARENT_WAITING_CONDITION()] =
+    m_conditions[parentWaitingIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listenersByName[PARENT_WAITING_CONDITION()] =
+    m_listeners[parentWaitingIdx] =
       (new ConditionChangeListener(m_id, PARENT_WAITING_CONDITION()))->getId();
-    m_conditionsByName[PARENT_FINISHED_CONDITION()] =
+    m_conditions[parentFinishedIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listenersByName[PARENT_FINISHED_CONDITION()] =
+    m_listeners[parentFinishedIdx] =
       (new ConditionChangeListener(m_id, PARENT_FINISHED_CONDITION()))->getId();
-    m_conditionsByName[COMMAND_HANDLE_RECEIVED_CONDITION()] = 
+    m_conditions[commandHandleReceivedIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listenersByName[COMMAND_HANDLE_RECEIVED_CONDITION()] =
+    m_listeners[commandHandleReceivedIdx] =
       (new ConditionChangeListener(m_id, COMMAND_HANDLE_RECEIVED_CONDITION()))->getId();
 
 
-    m_listenersByName[PARENT_EXECUTING_CONDITION()]->activate();
-    m_listenersByName[PARENT_FINISHED_CONDITION()]->activate();
-//     m_listenersByName[ANCESTOR_END_CONDITION()]->activate();
-//     m_listenersByName[ANCESTOR_INVARIANT_CONDITION()]->activate();
+    m_listeners[parentExecutingIdx]->activate();
+    m_listeners[parentFinishedIdx]->activate();
+//     m_listeners[ancestorEndIdx]->activate();
+//     m_listeners[ancestorInvariantIdx]->activate();
   }
 
   void Node::postInit() {
@@ -744,11 +763,7 @@ namespace PLEXIL {
 
 
   ExpressionId& Node::getCondition(const LabelStr& name) {
-    std::map<double, ExpressionId>::iterator it = m_conditionsByName.find(name);
-    checkError(it != m_conditionsByName.end(),
-	       "No condition '" << name.toString() << "' in node '" << m_nodeId.toString() <<
-	       "'");
-    return it->second;
+    return m_conditions[getConditionIndex(name)];
   }
 
   double Node::getAcknowledgementValue() const 
@@ -779,67 +794,68 @@ namespace PLEXIL {
 		      StateVariable::FINISHED_EXP()))->getId();
 
       ExpressionListenerId ancestorInvariantListener =
-	m_listenersByName[ANCESTOR_INVARIANT_CONDITION()];
+	m_listeners[ancestorInvariantIdx];
 //       if(!ancestorInvariantListener->isActive())
 // 	ancestorInvariantListener->activate();
       ExpressionListenerId ancestorEndListener =
-	m_listenersByName[ANCESTOR_END_CONDITION()];
+	m_listeners[ancestorEndIdx];
 //       if(!ancestorEndListener->isActive())
 // 	ancestorEndListener->activate();
       ExpressionListenerId ancestorExecutingListener =
-	m_listenersByName[PARENT_EXECUTING_CONDITION()];
+	m_listeners[parentExecutingIdx];
       if(!ancestorExecutingListener->isActive())
 	ancestorExecutingListener->activate();
       ExpressionListenerId parentWaitingListener =
-	m_listenersByName[PARENT_WAITING_CONDITION()];
+	m_listeners[parentWaitingIdx];
       ExpressionListenerId parentFinishedListener =
-	m_listenersByName[PARENT_FINISHED_CONDITION()];
+	m_listeners[parentFinishedIdx];
       if(!parentFinishedListener->isActive())
 	parentFinishedListener->activate();
 
-      m_conditionsByName[ANCESTOR_INVARIANT_CONDITION()]->removeListener(ancestorInvariantListener);
-      delete (Expression*) m_conditionsByName[ANCESTOR_INVARIANT_CONDITION()];
+      m_conditions[ancestorInvariantIdx]->removeListener(ancestorInvariantListener);
+      delete (Expression*) m_conditions[ancestorInvariantIdx];
 
       //ancestorInvariant->activate();
       ancestorInvariant->addListener(ancestorInvariantListener);
 
-      m_conditionsByName[ANCESTOR_END_CONDITION()]->removeListener(ancestorEndListener);
-      delete (Expression*) m_conditionsByName[ANCESTOR_END_CONDITION()];
+      m_conditions[ancestorEndIdx]->removeListener(ancestorEndListener);
+      delete (Expression*) m_conditions[ancestorEndIdx];
 
       //ancestorEnd->activate();
       ancestorEnd->addListener(ancestorEndListener);
 
-      m_conditionsByName[PARENT_EXECUTING_CONDITION()]->removeListener(ancestorExecutingListener);
-      delete (Expression*) m_conditionsByName[PARENT_EXECUTING_CONDITION()];
+      m_conditions[parentExecutingIdx]->removeListener(ancestorExecutingListener);
+      delete (Expression*) m_conditions[parentExecutingIdx];
 
       ancestorExecuting->activate(); //activate this right off so we can start executing
       ancestorExecuting->addListener(ancestorExecutingListener);
 
-      m_conditionsByName[PARENT_WAITING_CONDITION()]->removeListener(parentWaitingListener);
-      delete (Expression*) m_conditionsByName[PARENT_WAITING_CONDITION()];
+      m_conditions[parentWaitingIdx]->removeListener(parentWaitingListener);
+      delete (Expression*) m_conditions[parentWaitingIdx];
       parentWaiting->addListener(parentWaitingListener);
 
-      m_conditionsByName[PARENT_FINISHED_CONDITION()]->removeListener(parentFinishedListener);
-      delete (Expression*) m_conditionsByName[PARENT_FINISHED_CONDITION()];
+      m_conditions[parentFinishedIdx]->removeListener(parentFinishedListener);
+      delete (Expression*) m_conditions[parentFinishedIdx];
       parentFinished->activate();
       parentFinished->addListener(parentFinishedListener);
 
-      m_conditionsByName[ANCESTOR_INVARIANT_CONDITION()] = ancestorInvariant;
-      m_conditionsByName[ANCESTOR_END_CONDITION()] = ancestorEnd;
-      m_conditionsByName[PARENT_EXECUTING_CONDITION()] = ancestorExecuting;
-      m_conditionsByName[PARENT_WAITING_CONDITION()] = parentWaiting;
-      m_conditionsByName[PARENT_FINISHED_CONDITION()] = parentFinished;
+      m_conditions[ancestorInvariantIdx] = ancestorInvariant;
+      m_conditions[ancestorEndIdx] = ancestorEnd;
+      m_conditions[parentExecutingIdx] = ancestorExecuting;
+      m_conditions[parentWaitingIdx] = parentWaiting;
+      m_conditions[parentFinishedIdx] = parentFinished;
 
-      m_garbage.insert(ANCESTOR_INVARIANT_CONDITION());
-      m_garbage.insert(PARENT_EXECUTING_CONDITION());
-      m_garbage.insert(PARENT_WAITING_CONDITION());
-      m_garbage.insert(PARENT_FINISHED_CONDITION());
-      m_garbage.insert(ANCESTOR_END_CONDITION());
+      m_garbageConditions.insert(ancestorInvariantIdx);
+      m_garbageConditions.insert(parentExecutingIdx);
+      m_garbageConditions.insert(parentWaitingIdx);
+      m_garbageConditions.insert(parentFinishedIdx);
+      m_garbageConditions.insert(ancestorEndIdx);
     }
 
     for(std::map<std::string, PlexilExprId>::const_iterator it = conds.begin(); 
 	it != conds.end(); ++it) {
-      LabelStr condName(it->first);
+      const LabelStr condName(it->first);
+      unsigned int condIdx = getConditionIndex(condName);
       ExpressionId expr = ExpressionId::noId();
       if(Id<PlexilVarRef>::convertable(it->second)) {
 	expr = findVariable(it->second);
@@ -847,13 +863,13 @@ namespace PLEXIL {
       else {
 	expr = ExpressionFactory::createInstance(it->second->name(), it->second,
 						 m_connector);
-	m_garbage.insert(condName);
+	m_garbageConditions.insert(condIdx);
       }
-      ExpressionListenerId condListener = m_listenersByName[condName];
+      ExpressionListenerId condListener = m_listeners[condIdx];
       
-      m_conditionsByName[condName]->removeListener(condListener);
-      delete (Expression*) m_conditionsByName[condName];
-      m_conditionsByName[condName] = expr;
+      m_conditions[condIdx]->removeListener(condListener);
+      delete (Expression*) m_conditions[condIdx];
+      m_conditions[condIdx] = expr;
       expr->addListener(condListener);
     }
 
@@ -861,51 +877,51 @@ namespace PLEXIL {
       if(m_nodeType == COMMAND()) 
         {
           ExpressionId commandAbort = (new BooleanVariable())->getId();
-          ExpressionListenerId abortListener = m_listenersByName[ABORT_COMPLETE()];
+          ExpressionListenerId abortListener = m_listeners[abortCompleteIdx];
           
           commandAbort->addListener(abortListener);
-          m_conditionsByName[ABORT_COMPLETE()] = commandAbort;
+          m_conditions[abortCompleteIdx] = commandAbort;
           m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
           
-          m_conditionsByName[END_CONDITION()]->removeListener(m_listenersByName[END_CONDITION()]);
+          m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
           
           m_extraEndCond = (new IsKnown(m_ack))->getId();
           m_interruptEndCond = (new InterruptibleCommandHandleValues(m_ack))->getId();
           
           m_conjunctCondition = (new Conjunction(m_extraEndCond, false, 
-                                                 m_conditionsByName[END_CONDITION()],
-                                                 m_garbage.find(END_CONDITION()) != m_garbage.end()))->getId();
+                                                 m_conditions[endIdx],
+                                                 m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
           ExpressionId realEndCondition =
             (new Disjunction(m_interruptEndCond, false, 
-                             m_conjunctCondition, m_garbage.find(END_CONDITION()) != m_garbage.end()))->getId();
+                             m_conjunctCondition, m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
           
-          realEndCondition->addListener(m_listenersByName[END_CONDITION()]);
-          m_conditionsByName[END_CONDITION()] = realEndCondition;
-          m_garbage.insert(END_CONDITION());
+          realEndCondition->addListener(m_listeners[endIdx]);
+          m_conditions[endIdx] = realEndCondition;
+          m_garbageConditions.insert(endIdx);
           
           // Listen to any change in the command handle so that the internal variable 
           // CommandHandleVariable can be updated
-          m_conditionsByName[COMMAND_HANDLE_RECEIVED_CONDITION()]->removeListener(m_listenersByName[COMMAND_HANDLE_RECEIVED_CONDITION()]);
+          m_conditions[commandHandleReceivedIdx]->removeListener(m_listeners[commandHandleReceivedIdx]);
           m_allCommandHandleValues = (new AllCommandHandleValues(m_ack))->getId();
           m_allCommandHandleValues->ignoreCachedValue();
           ExpressionId realCmdHandleCondition =
-            (new Conjunction(m_allCommandHandleValues, false, m_conditionsByName[COMMAND_HANDLE_RECEIVED_CONDITION()],
-                             m_garbage.find(COMMAND_HANDLE_RECEIVED_CONDITION()) != m_garbage.end()))->getId();
-          realCmdHandleCondition->addListener(m_listenersByName[COMMAND_HANDLE_RECEIVED_CONDITION()]);
-          m_conditionsByName[COMMAND_HANDLE_RECEIVED_CONDITION()] = realCmdHandleCondition;
-          m_conditionsByName[COMMAND_HANDLE_RECEIVED_CONDITION()]->ignoreCachedValue();
-          m_garbage.insert(COMMAND_HANDLE_RECEIVED_CONDITION());
+            (new Conjunction(m_allCommandHandleValues, false, m_conditions[commandHandleReceivedIdx],
+                             m_garbageConditions.find(commandHandleReceivedIdx) != m_garbageConditions.end()))->getId();
+          realCmdHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
+          m_conditions[commandHandleReceivedIdx] = realCmdHandleCondition;
+          m_conditions[commandHandleReceivedIdx]->ignoreCachedValue();
+          m_garbageConditions.insert(commandHandleReceivedIdx);
         }
       else
         {
-          m_conditionsByName[END_CONDITION()]->removeListener(m_listenersByName[END_CONDITION()]);
+          m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
           m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
           ExpressionId realEndCondition =
-            (new Conjunction(m_ack, false, m_conditionsByName[END_CONDITION()],
-                             m_garbage.find(END_CONDITION()) != m_garbage.end()))->getId();
-          realEndCondition->addListener(m_listenersByName[END_CONDITION()]);
-          m_conditionsByName[END_CONDITION()] = realEndCondition;
-          m_garbage.insert(END_CONDITION());
+            (new Conjunction(m_ack, false, m_conditions[endIdx],
+                             m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
+          realEndCondition->addListener(m_listeners[endIdx]);
+          m_conditions[endIdx] = realEndCondition;
+          m_garbageConditions.insert(endIdx);
         }
     }
   }
@@ -917,16 +933,16 @@ namespace PLEXIL {
       m_children.push_back((new Node(*it, m_exec, m_id))->getId());
 
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    ExpressionListenerId listener = m_listenersByName[CHILDREN_WAITING_OR_FINISHED()];
+    ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
     cond->addListener(listener);
-    m_conditionsByName[CHILDREN_WAITING_OR_FINISHED()] = cond;
-    m_garbage.insert(CHILDREN_WAITING_OR_FINISHED());
+    m_conditions[childrenWaitingOrFinishedIdx] = cond;
+    m_garbageConditions.insert(childrenWaitingOrFinishedIdx);
 
     ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-    listener = m_listenersByName[END_CONDITION()];
+    listener = m_listeners[endIdx];
     endCond->addListener(listener);
-    m_conditionsByName[END_CONDITION()] = endCond;
-    m_garbage.insert(END_CONDITION());
+    m_conditions[endIdx] = endCond;
+    m_garbageConditions.insert(endIdx);
   }
 
   // Check aliases against interfaceVars.
@@ -1130,16 +1146,16 @@ namespace PLEXIL {
       m_children.push_back((new Node(body->libNode(), m_exec, m_id))->getId());
 
       ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-      ExpressionListenerId listener = m_listenersByName[CHILDREN_WAITING_OR_FINISHED()];
+      ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
       cond->addListener(listener);
-      m_conditionsByName[CHILDREN_WAITING_OR_FINISHED()] = cond;
-      m_garbage.insert(CHILDREN_WAITING_OR_FINISHED());
+      m_conditions[childrenWaitingOrFinishedIdx] = cond;
+      m_garbageConditions.insert(childrenWaitingOrFinishedIdx);
 
       ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-      listener = m_listenersByName[END_CONDITION()];
+      listener = m_listeners[endIdx];
       endCond->addListener(listener);
-      m_conditionsByName[END_CONDITION()] = endCond;
-      m_garbage.insert(END_CONDITION());    
+      m_conditions[endIdx] = endCond;
+      m_garbageConditions.insert(endIdx);    
    }
 
    // extract variable from parent which are not already present in this node
@@ -1282,7 +1298,7 @@ namespace PLEXIL {
 	       "Node " << m_nodeId.toString() << " is already transitioning.");
     m_transitioning = true;
     LabelStr prevState = getState();
-    NodeStateManager::getStateManager(getType())->transition(m_id);
+    m_stateManager->transition(m_id);
     debugMsg("Node:transition", "Transitioning '" << m_nodeId.toString() <<
 	     "' from " << prevState.toString() << " to " << getState().toString());
     condDebugMsg((getState() == StateVariable::FINISHED()),
@@ -1310,7 +1326,11 @@ namespace PLEXIL {
   }
 
   const LabelStr Node::getState() {
-    return getStateVariable()->getValue();
+    return m_stateVariable->getValue();
+  }
+
+  void Node::setState(double newValue) {
+	m_stateVariable->setValue(newValue);
   }
 
   const ExpressionId& Node::getStateVariable() {
@@ -1563,90 +1583,40 @@ namespace PLEXIL {
     debugMsg("Node:getDestState",
 	     "Getting destination state for " << m_nodeId.toString() << " from state " <<
 	     getState().toString());
-    return NodeStateManager::getStateManager(getType())->getDestState(m_id);
+    return m_stateManager->getDestState(m_id);
   }
 
-  /* Old version
-  void Node::activatePair(const LabelStr& name) {
-    checkError(m_listenersByName.find(name) != m_listenersByName.end() &&
-	       m_conditionsByName.find(name) != m_conditionsByName.end(),
-	       "No condition/listener pair exists for '" << name.toString() << "'");
+  void Node::activatePair(unsigned int idx) {
+    checkError(m_listeners[idx].isId() && m_conditions[idx].isId(),
+			   "No condition/listener pair exists for '" << getConditionName(idx).toString() << "'");
     debugMsg("Node:activatePair",
-	     "Activating '" << name.toString() << "' in node '" << m_nodeId.toString());
-    m_listenersByName[name]->activate();
-    m_conditionsByName[name]->activate();
-  }
-  */
-
-  void Node::activatePair(const LabelStr& name) {
-    std::map<double, ExpressionListenerId>::iterator listenIt = m_listenersByName.find(name);
-    std::map<double, ExpressionId>::iterator condIt = m_conditionsByName.find(name);
-    checkError(listenIt != m_listenersByName.end() &&
-	       condIt != m_conditionsByName.end(),
-	       "No condition/listener pair exists for '" << name.toString() << "'");
-    debugMsg("Node:activatePair",
-	     "Activating '" << name.toString() << "' in node '" << m_nodeId.toString());
-    listenIt->second->activate();
-    condIt->second->activate();
+			 "Activating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString());
+    m_listeners[idx]->activate();
+    m_conditions[idx]->activate();
   }
 
-  /* Old version
-  void Node::deactivatePair(const LabelStr& name) {
-    checkError(m_listenersByName.find(name) != m_listenersByName.end() &&
-	       m_conditionsByName.find(name) != m_conditionsByName.end(),
-	       "No condition/listener pair exists for '" << name.toString() << "'");
+  void Node::deactivatePair(unsigned int idx) {
+    checkError(m_listeners[idx].isId() && m_conditions[idx].isId(),
+			   "No condition/listener pair exists for '" << getConditionName(idx).toString() << "'");
     debugMsg("Node:deactivatePair",
-	     "Deactivating '" << name.toString() << "' in node '" << m_nodeId.toString());
-    m_conditionsByName[name]->deactivate();
-    if(m_listenersByName[name]->isActive())
-      m_listenersByName[name]->deactivate();
-  }
-  */
-
-  void Node::deactivatePair(const LabelStr& name) {
-    std::map<double, ExpressionListenerId>::iterator listenIt = m_listenersByName.find(name);
-    std::map<double, ExpressionId>::iterator condIt = m_conditionsByName.find(name);
-    checkError(listenIt != m_listenersByName.end() &&
-	       condIt != m_conditionsByName.end(),
-	       "No condition/listener pair exists for '" << name.toString() << "'");
-    debugMsg("Node:deactivatePair",
-	     "Deactivating '" << name.toString() << "' in node '" << m_nodeId.toString());
-    condIt->second->deactivate();
-    if (listenIt->second->isActive())
-      listenIt->second->deactivate();
+			 "Deactivating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString());
+    m_conditions[idx]->deactivate();
+    if (m_listeners[idx]->isActive())
+      m_listeners[idx]->deactivate();
   }
 
-  /* Old version
-  bool Node::pairActive(const LabelStr& name) {
-    checkError(m_listenersByName.find(name) != m_listenersByName.end() &&
-	       m_conditionsByName.find(name) != m_conditionsByName.end(),
-	       "No condition/listener pair exists for '" << name.toString() << "'");
-    condDebugMsg(!m_listenersByName[name]->isActive(), "Node:pairActive",
-		 "Listener for " << name.toString() << " in " << m_nodeId.toString() <<
-		 " is inactive.");
-    condDebugMsg(!m_conditionsByName[name]->isActive(), "Node:pairActive",
-		 "Condition " << name.toString() << " in " << m_nodeId.toString() <<
-		 " is inactive.");
-    return m_listenersByName[name]->isActive() && m_conditionsByName[name]->isActive();
-  }
-  */
-
-  // Optimized (debug) version
-  bool Node::pairActive(const LabelStr& name) {
-    std::map<double, ExpressionId>::const_iterator condIt = m_conditionsByName.find(name);
-    std::map<double, ExpressionListenerId>::const_iterator listenIt = m_listenersByName.find(name);
-    checkError(listenIt != m_listenersByName.end() &&
-	       condIt != m_conditionsByName.end(),
-	       "Node::pairActive: No condition/listener pair exists for '" << name.toString() << "'");
-    bool listenActive = listenIt->second->isActive();
+  bool Node::pairActive(unsigned int idx) {
+    checkError(idx < conditionIndexMax,
+	       "Invalid condition index " << idx);
+    bool listenActive = m_listeners[idx]->isActive();
     condDebugMsg(!listenActive, 
 		 "Node:pairActive",
-		 "Listener for " << name.toString() << " in " << m_nodeId.toString() <<
+		 "Listener for " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
 		 " is inactive.");
-    bool condActive = condIt->second->isActive();
+    bool condActive = m_conditions[idx]->isActive();
     condDebugMsg(!condActive, 
 		 "Node:pairActive",
-		 "Condition " << name.toString() << " in " << m_nodeId.toString() <<
+		 "Condition " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
 		 " is inactive.");
     return listenActive && condActive;
   }
@@ -1696,7 +1666,7 @@ namespace PLEXIL {
     if(getType() == Node::COMMAND() && m_command.isValid())
       m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
                                                   m_command->getArgValues(),
-                                                  m_conditionsByName[ABORT_COMPLETE()],
+                                                  m_conditions[abortCompleteIdx],
                                                   m_command->m_ack);
     else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
       m_assignment->getDest()->setValue(Expression::UNKNOWN());
@@ -1730,20 +1700,16 @@ namespace PLEXIL {
   // N.B. we omit the validity check on the condition expression
   // because this is a critical path method in the inner loop of the Exec.
   void Node::lockConditions() {
-    for (std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
-	 it != m_conditionsByName.end();
-	 ++it) {
-      ExpressionId expr = it->second;
-      std::map<double, ExpressionListenerId>::const_iterator listenIt = 
-	m_listenersByName.find(it->first);
-      checkError(listenIt != m_listenersByName.end(),
-		 "Node::lockConditions: no listener named " << LabelStr(it->first).toString());
-      if (listenIt->second->isActive()
+    for (unsigned int i = 0; i < conditionIndexMax; ++i) {
+      ExpressionId expr = m_conditions[i];
+      checkError(m_listeners[i].isId(), // isValid() ??
+		 "Node::lockConditions: no listener named " << getConditionName(i).toString());
+      if (m_listeners[i]->isActive()
 	  && expr->isActive()
 	  && !expr->isLocked()) {
 	debugMsg("Node:lockConditions",
 		 "In " << m_nodeId.toString() << ", locking " <<
-		 LabelStr(it->first).toString() << " " << expr->toString());
+		 getConditionName(i).toString() << " " << expr->toString());
 	expr->lock();
       }
     }
@@ -1751,15 +1717,13 @@ namespace PLEXIL {
 
   // As above, skip the Id validity check because this is a critical path function.
   void Node::unlockConditions() {
-    for (std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
-	 it != m_conditionsByName.end(); 
-	 ++it) {
-      ExpressionId expr = it->second;
+    for (unsigned int i = 0; i < conditionIndexMax; ++i) {
+      ExpressionId expr = m_conditions[i];
       // check_error(expr.isValid());
       if(expr->isLocked()) {
 	debugMsg("Node:unlockConditions",
 		 "In " << m_nodeId.toString() << ", unlocking " <<
-		 LabelStr(it->first).toString() << " " << expr->toString());
+		 getConditionName(i).toString() << " " << expr->toString());
 	expr->unlock();
       }
     }
@@ -1814,10 +1778,9 @@ namespace PLEXIL {
       }
     }
     else if(m_variablesByName[STATE()]->getValue() != StateVariable::INACTIVE()) {
-      for(std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
-	  it != m_conditionsByName.end(); ++it) {
-	retval << indentStr.str() << " " << LabelStr(it->first).toString() << ": " <<
-	  (*it).second->toString() << std::endl;
+      for(unsigned int i = 0; i < conditionIndexMax; ++i) {
+	retval << indentStr.str() << " " << getConditionName(i).toString() << ": " <<
+	  m_conditions[i]->toString() << std::endl;
       }
       for(std::map<double, ExpressionId>::iterator it = m_variablesByName.begin();
 	  it != m_variablesByName.end(); ++it) {

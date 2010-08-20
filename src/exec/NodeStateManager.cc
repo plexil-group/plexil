@@ -41,11 +41,6 @@ namespace PLEXIL {
     return *sl_map;
   }
 
-//   void StateComputer::activatePair(NodeId& node, const LabelStr& name) {node->activatePair(name);}
-//   void StateComputer::deactivatePair(NodeId& node, const LabelStr& name) {node->deactivatePair(name);}
-
-  void TransitionHandler::activatePair(NodeId& node, const LabelStr& name) {node->activatePair(name);}
-  void TransitionHandler::deactivatePair(NodeId& node, const LabelStr& name) {node->deactivatePair(name);}
   void TransitionHandler::handleExecution(NodeId& node) {node->execute();}
   void TransitionHandler::handleReset(NodeId& node) {node->reset();}
   void TransitionHandler::handleAbort(NodeId& node) {node->abort();}

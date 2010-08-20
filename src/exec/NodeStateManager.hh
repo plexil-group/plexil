@@ -69,8 +69,6 @@ namespace PLEXIL {
      */
     virtual void transitionTo(NodeId& node, const LabelStr& destState) = 0;
   protected:
-    static void activatePair(NodeId& node, const LabelStr& name);
-    static void deactivatePair(NodeId& node, const LabelStr& name);
     static void deactivateExecutable(NodeId& node);
     static void handleExecution(NodeId& node);
     static void handleReset(NodeId& node);

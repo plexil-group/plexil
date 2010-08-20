@@ -45,28 +45,28 @@ namespace PLEXIL
             checkError(node->getState() == StateVariable::EXECUTING(),
                        "Node " << node->getNodeId().toString() << " in state " <<
                        node->getState().toString() << " not EXECUTING.");
-            checkError(node->pairActive(Node::ANCESTOR_INVARIANT_CONDITION()),
+            checkError(node->isAncestorInvariantConditionActive(),
                        "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
-            checkError(node->pairActive(Node::INVARIANT_CONDITION()),
+            checkError(node->isInvariantConditionActive(),
                        "Invariant for " << node->getNodeId().toString() << " is inactive.");
-            checkError(node->pairActive(Node::END_CONDITION()),
+            checkError(node->isEndConditionActive(),
                        "End for " << node->getNodeId().toString() << " is inactive.");
 
-            if (node->getCondition(Node::ANCESTOR_INVARIANT_CONDITION())->getValue() == BooleanVariable::FALSE() ||
-                node->getCondition(Node::INVARIANT_CONDITION())->getValue() == BooleanVariable::FALSE())
+            if (node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE() ||
+                node->getInvariantCondition()->getValue() == BooleanVariable::FALSE())
             {
                debugMsg("Node:getDestState", "Destination: FAILING.");
-               condDebugMsg(node->getCondition(Node::ANCESTOR_INVARIANT_CONDITION())->getValue() == 
+               condDebugMsg(node->getAncestorInvariantCondition()->getValue() == 
                             BooleanVariable::FALSE(),
                             "Node:getDestState",
                             "Library node call and ANCESTOR_INVARIANT_CONDITION false or unknown.");
-               condDebugMsg(node->getCondition(Node::INVARIANT_CONDITION())->getValue() ==
+               condDebugMsg(node->getInvariantCondition()->getValue() ==
                             BooleanVariable::FALSE(),
                             "Node:getDestState",
                             "Library node call and INVARIANT_CONDITION false or unknown.");
                return StateVariable::FAILING();
             }
-            if (node->getCondition(Node::END_CONDITION())->getValue() == BooleanVariable::TRUE())
+            if (node->getEndCondition()->getValue() == BooleanVariable::TRUE())
             {
                debugMsg("Node:getDestState",
                         "Destination: FINISHING.  Library node call and END_CONDITION true.");
@@ -90,11 +90,11 @@ namespace PLEXIL
             checkError(node->getState() == StateVariable::FAILING(),
                        "Node " << node->getNodeId().toString() << " in state " <<
                        node->getState().toString() << " not FAILING.");
-            checkError(node->pairActive(Node::CHILDREN_WAITING_OR_FINISHED()),
+            checkError(node->isChildrenWaitingOrFinishedConditionActive(),
                        "Children waiting or finished for " << node->getNodeId().toString() <<
                        " is inactive.");
 
-            if (node->getCondition(Node::CHILDREN_WAITING_OR_FINISHED())->getValue() ==
+            if (node->getChildrenWaitingOrFinishedCondition()->getValue() ==
                 BooleanVariable::TRUE())
             {
                if (node->findVariable(Node::FAILURE_TYPE())->getValue() ==
@@ -130,34 +130,34 @@ namespace PLEXIL
             checkError(node->getState() == StateVariable::FINISHING(),
                        "Node " << node->getNodeId().toString() << " in state " <<
                        node->getState().toString() << " not FINISHING.");
-            checkError(node->pairActive(Node::ANCESTOR_INVARIANT_CONDITION()),
+            checkError(node->isAncestorInvariantConditionActive(),
                        "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
-            checkError(node->pairActive(Node::INVARIANT_CONDITION()),
+            checkError(node->isInvariantConditionActive(),
                        "Invariant for " << node->getNodeId().toString() << " is inactive.");
-            checkError(node->pairActive(Node::CHILDREN_WAITING_OR_FINISHED()),
+            checkError(node->isChildrenWaitingOrFinishedConditionActive(),
                        "Children waiting or finished for " << node->getNodeId().toString() <<
                        " is inactive.");
 
-            if (node->getCondition(Node::ANCESTOR_INVARIANT_CONDITION())->getValue() == BooleanVariable::FALSE() ||
-                node->getCondition(Node::INVARIANT_CONDITION())->getValue() == BooleanVariable::FALSE())
+            if (node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE() ||
+                node->getInvariantCondition()->getValue() == BooleanVariable::FALSE())
             {
                debugMsg("Node:getDestState",
                         "Destination: FAILING.");
-               condDebugMsg(node->getCondition(Node::ANCESTOR_INVARIANT_CONDITION())->getValue() == BooleanVariable::FALSE(),
+               condDebugMsg(node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE(),
                             "Node:getDestState",
                             "List node and ANCESTOR_INVARIANT_CONDITION false.");
-               condDebugMsg(node->getCondition(Node::INVARIANT_CONDITION())->getValue() == BooleanVariable::FALSE(),
+               condDebugMsg(node->getInvariantCondition()->getValue() == BooleanVariable::FALSE(),
                             "Node:getDestState",
                             "List node and INVARIANT_CONDITION false.");
                return StateVariable::FAILING();
             }
-            if (node->getCondition(Node::CHILDREN_WAITING_OR_FINISHED())->getValue() ==
+            if (node->getChildrenWaitingOrFinishedCondition()->getValue() ==
                 BooleanVariable::TRUE())
             {
-               if (!node->getCondition(Node::POST_CONDITION())->isActive())
-                  node->getCondition(Node::POST_CONDITION())->activate();
+               if (!node->getPostCondition()->isActive())
+                  node->getPostCondition()->activate();
 
-               if (BooleanVariable::falseOrUnknown(node->getCondition(Node::POST_CONDITION())->getValue()))
+               if (BooleanVariable::falseOrUnknown(node->getPostCondition()->getValue()))
                {
                   debugMsg("Node:getDestState",
                            "Destination: FINISHED.  List node, ALL_CHILDREN_WAITING_OR_FINISHED " <<
@@ -191,13 +191,13 @@ namespace PLEXIL
                        destState == StateVariable::FAILING(),
                        "Attempting to transition to invalid state '" << destState.toString() << "'");
 
-            if (node->getCondition(Node::ANCESTOR_INVARIANT_CONDITION())->getValue() ==
+            if (node->getAncestorInvariantCondition()->getValue() ==
                 BooleanVariable::FALSE())
             {
                node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
                node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
             }
-            else if (node->getCondition(Node::INVARIANT_CONDITION())->getValue() ==
+            else if (node->getInvariantCondition()->getValue() ==
                      BooleanVariable::FALSE())
             {
                node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
@@ -205,10 +205,10 @@ namespace PLEXIL
             }
 
 
-            deactivatePair(node, Node::ANCESTOR_INVARIANT_CONDITION());
+            node->deactivateAncestorInvariantCondition();
             if (destState != StateVariable::FINISHING())
-               deactivatePair(node, Node::INVARIANT_CONDITION());
-            deactivatePair(node, Node::END_CONDITION());
+			  node->deactivateInvariantCondition();
+            node->deactivateEndCondition();
             deactivateExecutable(node);
          }
 
@@ -219,11 +219,11 @@ namespace PLEXIL
             checkError(destState == StateVariable::EXECUTING(),
                        "Attempting to transition to inavlid state '" << destState.toString() << "'");
 
-            activatePair(node, Node::ANCESTOR_INVARIANT_CONDITION());
-            activatePair(node, Node::INVARIANT_CONDITION());
-            activatePair(node, Node::END_CONDITION());
+            node->activateAncestorInvariantCondition();
+            node->activateInvariantCondition();
+            node->activateEndCondition();
 
-            node->findVariable(Node::STATE())->setValue(destState);
+            node->setState(destState);
             handleExecution(node);
          }
 
@@ -244,7 +244,7 @@ namespace PLEXIL
                        destState == StateVariable::FINISHED(),
                        "Attempting to transition to invalid state '" << destState.toString() << "'");
 
-            deactivatePair(node, Node::CHILDREN_WAITING_OR_FINISHED());
+            node->deactivateChildrenWaitingOrFinishedCondition();
 
          }
          void transitionTo(NodeId& node, const LabelStr& destState)
@@ -254,9 +254,9 @@ namespace PLEXIL
             checkError(destState == StateVariable::FAILING(),
                        "Attempting to transition to invalid state '" << destState.toString() << "'");
 
-            activatePair(node, Node::CHILDREN_WAITING_OR_FINISHED());
+            node->activateChildrenWaitingOrFinishedCondition();
 
-            node->findVariable(Node::STATE())->setValue(destState);
+            node->setState(destState);
 
          }
    };
@@ -276,19 +276,19 @@ namespace PLEXIL
                        destState == StateVariable::FAILING(),
                        "Attempting to transition to invalid state '" << destState.toString() << "'");
 
-            if (node->getCondition(Node::ANCESTOR_INVARIANT_CONDITION())->getValue() ==
+            if (node->getAncestorInvariantCondition()->getValue() ==
                 BooleanVariable::FALSE())
             {
                node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
                node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
             }
-            else if (node->getCondition(Node::INVARIANT_CONDITION())->getValue() ==
+            else if (node->getInvariantCondition()->getValue() ==
                      BooleanVariable::FALSE())
             {
                node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
                node->getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
             }
-            else if (node->getCondition(Node::POST_CONDITION())->getValue() ==
+            else if (node->getPostCondition()->getValue() ==
                      BooleanVariable::TRUE())
                node->getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
             else
@@ -297,10 +297,10 @@ namespace PLEXIL
                node->getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
             }
 
-            deactivatePair(node, Node::ANCESTOR_INVARIANT_CONDITION());
-            deactivatePair(node, Node::INVARIANT_CONDITION());
-            deactivatePair(node, Node::CHILDREN_WAITING_OR_FINISHED());
-            deactivatePair(node, Node::POST_CONDITION());
+            node->deactivateAncestorInvariantCondition();
+            node->deactivateInvariantCondition();
+            node->deactivateChildrenWaitingOrFinishedCondition();
+            node->deactivatePostCondition();
          }
 
          void transitionTo(NodeId& node, const LabelStr& destState)
@@ -310,11 +310,11 @@ namespace PLEXIL
             checkError(destState == StateVariable::FINISHING(),
                        "Attempting to transition to invalid state '" << destState.toString() << "'.");
 
-            activatePair(node, Node::ANCESTOR_INVARIANT_CONDITION());
-            activatePair(node, Node::CHILDREN_WAITING_OR_FINISHED());
-            activatePair(node, Node::POST_CONDITION());
+            node->activateAncestorInvariantCondition();
+            node->activateChildrenWaitingOrFinishedCondition();
+            node->activatePostCondition();
 
-            node->findVariable(Node::STATE())->setValue(destState);
+            node->setState(destState);
          }
    };
 
