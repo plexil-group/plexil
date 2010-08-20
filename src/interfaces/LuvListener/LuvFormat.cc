@@ -112,8 +112,8 @@ namespace PLEXIL {
 						const NodeId& node) {
 	simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
-    const std::set<double>& allConditions = node->ALL_CONDITIONS();
-    for (std::set<double>::const_iterator conditionName = allConditions.begin();
+    const std::vector<double>& allConditions = node->ALL_CONDITIONS();
+    for (std::vector<double>::const_iterator conditionName = allConditions.begin();
          conditionName != allConditions.end();
 		 ++conditionName) {
 	  LabelStr cname(*conditionName);
