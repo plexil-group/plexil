@@ -222,6 +222,11 @@ namespace PLEXIL
     void unregisterAsynchLookup(const LookupKey& uniqueId);
 
     /**
+     * @brief Is this state key subscribed for lookups (i.e. LookupOnChange)?
+     */
+    bool InterfaceAdapter::stateKeySubscribed(const StateKey& key) const;
+
+    /**
      * @brief Register this adapter based on its XML configuration data.
      * @note The adapter is presumed to be fully initialized and working at the time of this call.
      * @note This is a default method; adapters are free to override it.

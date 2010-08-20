@@ -215,6 +215,12 @@ namespace PLEXIL
     return m_asynchLookups.find(key);
   }
 
+  bool
+  InterfaceAdapter::stateKeySubscribed(const StateKey& key) const
+  {
+    return m_asynchLookups.find(key) != m_asynchLookups.end();
+  }
+
   InterfaceAdapter::StateToLookupMap::const_iterator
   InterfaceAdapter::findLookupKey(const LookupKey& key)
   {
