@@ -224,7 +224,7 @@ namespace PLEXIL
     /**
      * @brief Is this state key subscribed for lookups (i.e. LookupOnChange)?
      */
-    bool InterfaceAdapter::stateKeySubscribed(const StateKey& key) const;
+    bool InterfaceAdapter::isStateKeySubscribed(const StateKey& key) const;
 
     /**
      * @brief Register this adapter based on its XML configuration data.

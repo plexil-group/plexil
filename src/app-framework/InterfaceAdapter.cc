@@ -216,7 +216,7 @@ namespace PLEXIL
   }
 
   bool
-  InterfaceAdapter::stateKeySubscribed(const StateKey& key) const
+  InterfaceAdapter::isStateKeySubscribed(const StateKey& key) const
   {
     return m_asynchLookups.find(key) != m_asynchLookups.end();
   }
