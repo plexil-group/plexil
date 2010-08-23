@@ -184,6 +184,12 @@ public class Constants
                                                     System.getProperty("file.separator") +
                                                     "debugFlagCollector.py";
       
+      public static final String    PORT_CHECK_UTIL_RHEL5 = System.getProperty("file.separator") + "usr"
+      											+ System.getProperty("file.separator") + "sbin"
+      											+ System.getProperty("file.separator") + "lsof -i";
+      
+      public static final String    PORT_CHECK_UTIL_UNIX = "lsof -i";
+      
       /** Represents the complete list of debug flags. */ 
       public static final String    COMPLETE_FLAG_LIST = PLEXIL_HOME +
                                                          System.getProperty("file.separator") +

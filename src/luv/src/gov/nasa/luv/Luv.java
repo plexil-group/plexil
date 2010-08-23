@@ -132,15 +132,21 @@ public class Luv extends JFrame {
         
         luvStateHandler.startState();        
         
-	    luvPort = definePort(args);
-	
+        handlePort(args);        	    
+        
+    }
+    
+    private void handlePort(String[] args){
+    	LuvTempFile.cleanupPorts();
+    	
+    	luvPort = definePort(args);
+    	
 	    luvServer = new LuvSocketServer(luvPort);
         
         //Script handles socket connections, temp file only for timing difference
         LuvTempFile.deleteTempFile();
         
         portFile = new LuvTempFile();
-        
     }
     
     private class MyShutdownHook extends Thread {
@@ -739,8 +745,8 @@ public class Luv extends JFrame {
         viewMenu.add(LuvActionHandler.findNode);
         viewMenu.add(new JSeparator());
         viewMenu.add(LuvActionHandler.extendedViewAction);
-        //viewMenu.add(new JSeparator());
-        //viewMenu.add(LuvActionHandler.viewSourceAction);        
+        viewMenu.add(new JSeparator());
+        viewMenu.add(LuvActionHandler.viewSourceAction);        
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);

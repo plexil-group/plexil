@@ -50,6 +50,7 @@ public class SourceWindow extends JFrame
     private int rows;
     private String planlines[][];
     private String scriptlines[][];
+    private boolean loaded = false;
 
     public SourceWindow() {
     }
@@ -60,81 +61,110 @@ public class SourceWindow extends JFrame
      */
     public SourceWindow(Model model) throws FileNotFoundException {
         super("Source Window");
-
-        loadPlanSource(model.getAbsolutePlanName());
-        loadScriptSource(model.getAbsoluteScriptName());
-
-        getContentPane().add(planPanel, BorderLayout.WEST);
-        getContentPane().add(new JSeparator(SwingConstants.VERTICAL));
-        getContentPane().add(scriptPanel, BorderLayout.EAST);
+        
+        if(model != null)
+        {
+        	if(loadPlanSource(model.getAbsolutePlanName()))
+        	{
+        		getContentPane().add(planPanel, BorderLayout.WEST);
+        		loaded = true;
+        	}
+        	if(loadScriptSource(model.getAbsoluteScriptName()))
+		        {   
+			        getContentPane().add(new JSeparator(SwingConstants.VERTICAL));
+			        getContentPane().add(scriptPanel, BorderLayout.EAST);
+			        loaded = true;
+        		}
+        }
     }
 
-    private void loadPlanSource(String filename) {
+    private boolean loadPlanSource(String filename) {
+    	boolean success = false;
         planPanel = new JPanel(new GridLayout(1,0));
         rows = 10000;
         planlines = new String[rows][1];
-        String[] columnNames = {filename,};
+        String[] columnNames = null;
+        if(filename != null && !filename.equals("UNKNOWN"))
+        {
+	        columnNames = filename.split("  ");
+	
+	        try  {
+	            FileInputStream fstream = new FileInputStream(filename);
+	            DataInputStream in = new DataInputStream(fstream);
+	            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+	            String line;
+	            int row = 0;
+	
+	            while ((line = br.readLine()) != null && row < rows)
+	            {
+	                planlines[row][0] = line;
+	                row++;
+	            }
+	
+	            in.close();
+	        } catch (Exception e) {
+	            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while opening plan");
+	        }        
 
-        try  {
-            FileInputStream fstream = new FileInputStream(filename);
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String line;
-            int row = 0;
-
-            while ((line = br.readLine()) != null && row < rows)
-            {
-                planlines[row][0] = line;
-                row++;
-            }
-
-            in.close();
-        } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while opening source window");
-        }          
-
-        JTable source = new JTable(planlines, columnNames);
+        JTable source = new JTable(planlines, columnNames);        
+        source.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);        
+        source.getColumnModel().getColumn(0).setPreferredWidth(1000);
         source.setShowGrid(false);
         source.setGridColor(Color.GRAY);
-        JScrollPane scrollPane = new JScrollPane(source);
-
+        JScrollPane scrollPane = new JScrollPane(source);        
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);        
+        
         planPanel.add(scrollPane);
-        planPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        planPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));        
         source.setOpaque(true);
+        success = true;
+        }
+        return success;
     }
-
-    private void loadScriptSource(String filename) {
+    
+    private boolean loadScriptSource(String filename) {
+    	boolean success = false;
         scriptPanel = new JPanel(new GridLayout(1,0));
         rows = 10000;
         scriptlines = new String[rows][1];
-        String[] columnNames = {filename,};
-
-        try  {
-            FileInputStream fstream = new FileInputStream(filename);
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String line;
-            int row = 0;
-
-            while ((line = br.readLine()) != null && row < rows)
-            {
-                scriptlines[row][0] = line;
-                row++;
-            }
-
-            in.close();
-        } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while opening source window");
-        }
+        String[] columnNames = null;
+        if(filename != null && !filename.equals("UNKNOWN"))
+        {
+	        columnNames = filename.split("  ");
+	
+	        try  {
+	            FileInputStream fstream = new FileInputStream(filename);
+	            DataInputStream in = new DataInputStream(fstream);
+	            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+	            String line;
+	            int row = 0;
+	
+	            while ((line = br.readLine()) != null && row < rows)
+	            {
+	                scriptlines[row][0] = line;
+	                row++;
+	            }
+	
+	            in.close();
+	        } catch (Exception e) {
+	            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while opening script");
+	        }        
 
         JTable source = new JTable(scriptlines, columnNames);
+        source.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        source.getColumnModel().getColumn(0).setPreferredWidth(1000);
         source.setShowGrid(false);
         source.setGridColor(Color.GRAY);
         JScrollPane scrollPane = new JScrollPane(source);
+        scrollPane.setAutoscrolls(true);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         scriptPanel.add(scrollPane);
         scriptPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         source.setOpaque(true);
+        success = true;
+        }
+        return success;
     }
 
     /**
@@ -145,10 +175,13 @@ public class SourceWindow extends JFrame
             frame.setVisible(false);
         }
 
-        frame = new SourceWindow(model);
-        //frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
+        frame = new SourceWindow(model);   
         frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
         frame.pack();
-        frame.setVisible(true);
+        
+        if(frame.loaded)
+        	frame.setVisible(true);
+        else
+        	Luv.getLuv().getStatusMessageHandler().showStatus("No Data avaliable", Color.RED, 10000);
     }
 }
