@@ -1,13 +1,4 @@
-This file, plexil/CAVEATS, lists known bugs and issues in the
-PLEXIL system.
-
-Major problems
---------------
-
-IPC and related applications (inter-executive communication,
-Standalone Simulator, Robosim) are not working under MacOS.
-Plans hang when the executive is started, and the underlying
-problem is that messaging threads are getting destroyed.
+This file, plexil/CAVEATS, lists known bugs and issues in the PLEXIL system.
 
 
 Minor problems

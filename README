@@ -10,9 +10,19 @@ distributions only]
 Release Notes
 -------------
 
-Next release
- - 'Try' will no longer hang if no child succeeds
- - added summarize-plexil utility
+1.2.1 (August 2010)
+ - IPC-related applications (Robosim, Standalone Simulator, and any
+   user-created applications that use IPC) now work in Mac OS
+ - Enhanced PLEXIL viewer (LUV):
+   * Array variable assignments now shown; dynamic and expandable views
+   * Current port displays in bottom right corner
+   * Misc. minor redesigns and internal refactorings
+ - Performance enhancements yielding a much faster executive
+ - Revised startup scripts (new command line options)
+ - 'Try' form will no longer hang if no child succeeds
+ - New 'summarize-plexil' utility for producing a compact
+   textual representation of a Plexil XML file
+ - Misc enhancements, fixes, and refactorings throughout system
 
 1.2  (June 2010)
  - Support for Ubuntu Linux
