@@ -205,7 +205,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  nil)
+  t)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -485,9 +485,9 @@
         (plexil-command command-name nil resources (cdr args))
       (plexil-command command-name nil nil args))))
 
-(pdefine pl (CommandWithReturn command-with-return) (command-name var &rest args)
+(pdefine pl (CommandWithReturn command-with-return) (var command-name &rest args)
          1 node-body
-  ;; (string + xml) * list(xml) -> xml
+  ;; xml * (string + xml) * list(xml) -> xml
   ("This is just like <tt>Command</tt> above, but a value returned from the command "
    "is assigned to the given variable, which must be declared in this node or "
    "one of its ancestors.")
