@@ -54,7 +54,7 @@ if [ "$platform" = "Darwin"  ]
   else
     tport=`netstat -l | grep $j`
 fi    
-    if [ "${tport:-FALSE}" = FALSE ] && [ ! -f /tmp/Luv_$j ] ; then
+    if [ "${tport:-FALSE}" = FALSE ] && [ ! -f /tmp/.Luv_$j ] ; then
     	echo "-n $j"
 	return
     fi    
@@ -118,6 +118,11 @@ if [ ! $1 ]
   then
   echo No arguments defined
   echo $usage
+  exit 1
+fi
+
+if [ $# = 1 ] && [ $* = "-v" ] ; then
+  luv
   exit 1
 fi
 
@@ -237,7 +242,7 @@ if [ "$viewer" = "-v" ] ; then
   fi
   if [ "$skip" = "" ] ; then
     luv ${port//[^0-9]/}
-    until [ -f /tmp/Luv_${port//[^0-9]/} ]
+    until [ -f /tmp/.Luv_${port//[^0-9]/} ]
       do
 	:
     done    
@@ -247,7 +252,7 @@ if [ "$viewer" = "-v" ] ; then
       usleep 500
     fi
   elif [ "$automate" = "" ] ; then
-    if [ ! -f /tmp/Luv_${port//[^0-9]/} ] && [ $summary = 1 ] ; then
+    if [ ! -f /tmp/.Luv_${port//[^0-9]/} ] && [ $summary = 1 ] ; then
       echo "Warning: Viewer is not listening on port ${port//[^0-9]/}"
     fi
   fi      

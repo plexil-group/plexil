@@ -55,7 +55,7 @@ if [ "$platform" = "Darwin"  ]
   else
     tport=`netstat -l | grep $j`
 fi
-    if [ "${tport:-FALSE}" = FALSE ] && [ ! -f /tmp/Luv_$j ] ; then
+    if [ "${tport:-FALSE}" = FALSE ] && [ ! -f /tmp/.Luv_$j ] ; then
     	echo "-n $j"
 	return
     fi    
@@ -119,6 +119,11 @@ else
 fi
 
 $PLEXIL_HOME/bin/plexil-check-prog $prog
+
+if [ $# = 1 ] && [ $* = "-v" ] ; then
+  luv
+  exit 1
+fi
 
 # Check for summary suppression
 if [ '-s' = "$1" ]
@@ -334,7 +339,7 @@ if [ "$viewer" = "-v" ] ; then
     fi
   if [ "$skip" = "" ] ; then
     luv ${port//[^0-9]/}
-    until [ -f /tmp/Luv_${port//[^0-9]/} ]
+    until [ -f /tmp/.Luv_${port//[^0-9]/} ]
       do
 	:
     done    

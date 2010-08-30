@@ -15,7 +15,7 @@ public class LuvTempFile {
 	LuvTempFile() 
 	{
 		File temp_dir = new File(PORT_TEMP_FILE_LOCATION);
-		File temp = new File(PORT_TEMP_FILE_LOCATION + "Luv_" + Luv.getLuv().getPort());		
+		File temp = new File(PORT_TEMP_FILE_LOCATION + ".Luv_" + Luv.getLuv().getPort());		
 		try{
 		  if(!temp_dir.exists())
 			  throw new IllegalArgumentException("Undefined temporary file directory" + temp_dir.getName()); 
@@ -39,7 +39,7 @@ public class LuvTempFile {
 	public static void deleteTempFile(int port)
 	{
 	
-		String fileName = PORT_TEMP_FILE_LOCATION + "Luv_" + port;
+		String fileName = PORT_TEMP_FILE_LOCATION + ".Luv_" + port;
 		File f = new File(fileName);
 		
 		if (!f.exists())
@@ -56,7 +56,7 @@ public class LuvTempFile {
 	
 	public static boolean checkPort(int port)
 	{
-		File temp = new File(PORT_TEMP_FILE_LOCATION + "Luv_" + port);
+		File temp = new File(PORT_TEMP_FILE_LOCATION + ".Luv_" + port);
 		return temp.exists();
 	}
 	
