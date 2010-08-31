@@ -138,6 +138,7 @@ namespace PLEXIL {
     clock_t time1 = clock();
     if (!plan->link(m_libraries)) {
       debugMsg("PlexilExec:addPlan", " library linking failed");
+      m_cache->handleQuiescenceEnded();
       return false;
     }
 
