@@ -146,6 +146,12 @@ namespace PLEXIL {
     const std::string& permissions() const {return m_permissions;}
     const PlexilNodeBodyId& body() const {return m_nodeBody;}
 
+    /**
+     * @brief Get the names of all library nodes referenced by this node and its descendants.
+     * @return A vector of library node names.
+     */
+    std::set<std::string> getLibraryReferences() const;
+
     void setFileName(const std::string& fname) {m_fileName = fname;}
     void setFileName(const char* fname) {m_fileName = fname;}
     void setLineNo(int n) {m_lineNo = n;}
@@ -168,8 +174,14 @@ namespace PLEXIL {
     bool link(const std::vector<PlexilNodeId>& libraries);
 
   private:
-	// Internal method
+
+    // Internal methods
     bool link(const std::vector<PlexilNodeId>& libraries, PlexilNodeSet& seen);
+    /**
+     * @brief Get the names of all library nodes referenced by this node and its descendants.
+     * @param The vector of referenced library node names to be returned.
+     */
+    void getLibraryReferences(std::set<std::string>& refs) const;
 
     PlexilNodeType m_nodeType;
     int m_lineNo;

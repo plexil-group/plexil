@@ -321,7 +321,11 @@ namespace PLEXIL
         return false;
       }
 
-    m_interface.handleAddPlan(root, EMPTY_LABEL());
+    if (!m_interface.handleAddPlan(root, EMPTY_LABEL())) {
+      debugMsg("ExecApplication:addPlan", " Plan was not added due to references to unloaded libraries");
+      return false;
+    }
+
     debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
     m_interface.notifyOfExternalEvent();
     return true;

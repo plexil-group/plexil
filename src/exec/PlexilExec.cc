@@ -115,6 +115,23 @@ namespace PLEXIL {
     m_cache->setExternalInterface(id);
   }
 
+  /**
+   * @brief Queries whether the named library node is loaded.
+   * @param nodeName The name of the library node.
+   * @return True if the node is already defined, false otherwise.
+   */
+  bool PlexilExec::hasLibrary(const std::string& nodeName) const {
+    checkError(!nodeName.empty(),
+	       "PlexilExec::hasLibrary: Node name is empty");
+    for (std::vector<PlexilNodeId>::const_iterator it = m_libraries.begin();
+	 it != m_libraries.end();
+	 it++) {
+      if (nodeName == (*it)->nodeId())
+	return true;
+    }
+    return false;
+  }
+
   // Add a new library node
 
   // *** To do:

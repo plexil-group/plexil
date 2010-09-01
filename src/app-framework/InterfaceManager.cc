@@ -1278,8 +1278,9 @@ namespace PLEXIL
    * @brief Notify the executive of a new plan.
    * @param planXml The TinyXML representation of the new plan.
    * @param parent Label string naming the parent node.
+   * @return False if the plan references unloaded libraries, true otherwise.
    */
-  void
+  bool
   InterfaceManager::handleAddPlan(TiXmlElement * planXml,
                                   const LabelStr& parent)
     throw(ParserException)
@@ -1299,20 +1300,39 @@ namespace PLEXIL
     PlexilNodeId root =
       parser.parse(planXml->FirstChildElement("Node")); // can also throw ParserException
 
-    this->handleAddPlan(root, parent);
+    return this->handleAddPlan(root, parent);
   }
 
   /**
    * @brief Notify the executive of a new plan.
    * @param planStruct The PlexilNode representation of the new plan.
    * @param parent The node which is the parent of the new node.
-   */
-  void
+   * @return False if the plan references unloaded libraries, true otherwise.
+  */
+  bool
   InterfaceManager::handleAddPlan(PlexilNodeId planStruct,
                                   const LabelStr& parent)
   {
     debugMsg("InterfaceManager:handleAddPlan", " entered");
-    m_valueQueue.enqueue(planStruct, parent);
+
+    // Determine if there are any unloaded libraries
+    bool result = true;
+    std::set<std::string> refs = planStruct->getLibraryReferences();
+    for (std::set<std::string>::const_iterator it = refs.begin();
+	 it != refs.end();
+	 it++) {
+      if (!m_exec->hasLibrary(*it)) {
+	debugMsg("InterfaceManager:handleAddPlan", 
+		 " Plan references unloaded library node \"" << *it << "\"");
+	result = false;
+      }
+    }
+
+    if (result) {
+      m_valueQueue.enqueue(planStruct, parent);
+      debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
+    }
+    return result;
   }
 
   /**
@@ -1324,6 +1344,15 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:handleAddLibrary", " entered");
     m_valueQueue.enqueue(planStruct);
+  }
+
+  /**
+   * @brief Determine whether the named library is loaded.
+   * @return True if loaded, false otherwise.
+   */
+  bool
+  InterfaceManager::isLibraryLoaded(const std::string& libName) const {
+    return m_exec->hasLibrary(libName);
   }
 
   /**

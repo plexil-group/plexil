@@ -297,9 +297,10 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
      * @param parent The node which is the parent of the new node.
+     * @return False if the plan references unloaded libraries, true otherwise.
      * @note This is deprecated, use the PlexilNodeId variant instead.
      */
-    virtual void handleAddPlan(TiXmlElement * planXml,
+    virtual bool handleAddPlan(TiXmlElement * planXml,
 			       const LabelStr& parent)
       throw(ParserException)
       = 0;
@@ -308,9 +309,16 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planStruct The PlexilNode representation of the new plan.
      * @param parent The node which is the parent of the new node.
+     * @return False if the plan references unloaded libraries, true otherwise.
      */
-    virtual void handleAddPlan(PlexilNodeId planStruct,
+    virtual bool handleAddPlan(PlexilNodeId planStruct,
 			       const LabelStr& parent) = 0;
+
+    /**
+     * @brief Determine whether the named library is loaded.
+     * @return True if loaded, false otherwise.
+     */
+    virtual bool isLibraryLoaded(const std::string& libName) const = 0;
 
     /**
      * @brief Notify the executive of a new library node.

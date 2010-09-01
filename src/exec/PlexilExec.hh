@@ -111,6 +111,13 @@ namespace PLEXIL
     void addLibraryNode(const PlexilNodeId& libNode);
 
     /**
+     * @brief Queries whether the named library node is loaded.
+     * @param nodeName The name of the library node.
+     * @return True if the node is already defined, false otherwise.
+     */
+    bool hasLibrary(const std::string& nodeName) const;
+
+    /**
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the node under which to insert this plan.
