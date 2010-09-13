@@ -16,7 +16,7 @@
               </DeclareArray>
           </VariableDeclarations>
       <NodeBody>
-         <NodeList>
+              <NodeList>
                   <Node NodeType="NodeList" epx="Sequence" FileName="simulator-string-arrays-test.ple"
                   LineNo="11"
                   ColNo="17">
@@ -91,7 +91,7 @@
                         <NodeBody>
                            <NodeList>
                               <Node NodeType="Command" FileName="simulator-string-arrays-test.ple" LineNo="13"
-                                    ColNo="33">
+                                    ColNo="25">
                                  <NodeId>RecGetName__CHILD__2</NodeId>
                                  <NodeBody>
                                     <Command>
@@ -113,6 +113,6 @@
                </NodeBody>
             </Node>
               </NodeList>
-      </NodeBody>
+          </NodeBody>
    </Node>
 </PlexilPlan>
