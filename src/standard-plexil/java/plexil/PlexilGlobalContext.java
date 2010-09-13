@@ -45,7 +45,6 @@ public class PlexilGlobalContext
     extends PlexilNodeContext
 {
     protected Map<String, PlexilGlobalDeclaration> commands;
-    protected Map<String, PlexilGlobalDeclaration> functions;
     protected Map<String, PlexilGlobalDeclaration> lookups;
     protected Map<String, PlexilGlobalDeclaration> libraryNodes;
 
@@ -62,7 +61,6 @@ public class PlexilGlobalContext
     {
 	super(null, "_GLOBAL_CONTEXT_");
 	commands = new HashMap<String, PlexilGlobalDeclaration>();
-	functions = new HashMap<String, PlexilGlobalDeclaration>();
 	lookups = new HashMap<String, PlexilGlobalDeclaration>();
 	libraryNodes = new HashMap<String, PlexilGlobalDeclaration>();
     }
@@ -97,42 +95,6 @@ public class PlexilGlobalContext
 	    try 
 		{
 		    plexil.Parse.debugWriter.write("Added command '");
-		    plexil.Parse.debugWriter.write(name);
-		    plexil.Parse.debugWriter.write("' to global context\n");
-		}
-	    catch (Exception e)
-		{
-		    System.out.println("Exception " + e.getClass() +
-				       " caught while writing to debug file");
-		}
-    }
-
-
-    protected PlexilGlobalDeclaration getFunction(String name)
-    {
-	PlexilGlobalDeclaration ln = functions.get(name);
-	return ln;
-    }
-
-    public boolean isFunctionName(String name)
-    {
-	PlexilGlobalDeclaration ln = getFunction(name);
-	return (ln != null);
-    }
-
-    public void addFunctionName(String name, 
-			       AST parm_spec,
-			       AST return_spec)
-    {
-	functions.put(name, 
-		      new PlexilGlobalDeclaration(name,
-						  PlexilNameType.FUNCTION_NAME,
-						  parm_spec,
-						  return_spec));
-	if (plexil.Parse.debugWriter != null)
-	    try 
-		{
-		    plexil.Parse.debugWriter.write("Added function '");
 		    plexil.Parse.debugWriter.write(name);
 		    plexil.Parse.debugWriter.write("' to global context\n");
 		}
@@ -215,11 +177,10 @@ public class PlexilGlobalContext
     }
 
 
-    // Caller is responsible for creating the 3 vectors.
+    // Caller is responsible for creating the 2 vectors.
     // Any of the arguments may be null, in which case that arg is ignored.
     public void getGlobalDeclarations(Vector<PlexilGlobalDeclaration> commandsResult,
-				      Vector<PlexilGlobalDeclaration> lookupsResult,
-				      Vector<PlexilGlobalDeclaration> functionsResult)
+				      Vector<PlexilGlobalDeclaration> lookupsResult)
     {
 	if (commandsResult != null)
 	    {
@@ -232,12 +193,6 @@ public class PlexilGlobalContext
 		lookupsResult.removeAllElements();
 		for (Iterator<PlexilGlobalDeclaration> lookupIt = lookups.values().iterator(); lookupIt.hasNext(); )
 		    lookupsResult.add(lookupIt.next());
-	    }
-	if (functionsResult != null)
-	    {
-		functionsResult.removeAllElements();
-		for (Iterator<PlexilGlobalDeclaration> functionIt = functions.values().iterator(); functionIt.hasNext(); )
-		    functionsResult.add(functionIt.next());
 	    }
     }
 

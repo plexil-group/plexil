@@ -177,7 +177,7 @@ plexilPlan[IXMLElement plexilPlan] :
 
 
 // *** need to output declarations in correct order:
-//  command, lookup, function, time scaling
+//  command, lookup, time scaling
 
 globalDeclarations[IXMLElement parent]
 { IXMLElement globals = new XMLElement("GlobalDeclarations"); }
@@ -188,10 +188,8 @@ globalDeclarations[IXMLElement parent]
      // output in correct order
      Vector commandDecls = new Vector();
      Vector lookupDecls = new Vector();
-     Vector functionDecls = new Vector();
      PlexilGlobalContext.getGlobalContext().getGlobalDeclarations(commandDecls,
-                                                                  lookupDecls,
-                                                                  functionDecls);
+                                                                  lookupDecls);
      for (Iterator commandIt = commandDecls.iterator(); commandIt.hasNext(); )
        {
          // process one command declaration
@@ -206,20 +204,12 @@ globalDeclarations[IXMLElement parent]
                 ((PlexilGlobalDeclaration) lookupIt.next()).getXml();
          globals.addChild(lookupXml);
        }
-     for (Iterator functionIt = functionDecls.iterator(); functionIt.hasNext(); )
-       {
-         // process one function declaration
-         IXMLElement functionXml = 
-                ((PlexilGlobalDeclaration) functionIt.next()).getXml();
-         globals.addChild(functionXml);
-       }
 
      parent.addChild(globals); 
    } ;
        
 globalDeclaration[IXMLElement parent] :
         commandDeclaration[parent]
-        | functionDeclaration[parent]
         | lookupDeclaration[parent]
         | libraryNodeDeclaration ;
 
@@ -239,17 +229,6 @@ commandDeclaration[IXMLElement parent]
             )
      { 
      } ;
-
-functionDeclaration[IXMLElement parent]
-{ IXMLElement decl = new XMLElement("FunctionDeclaration"); }
- : 
-        #(FUNCTION_KYWD
-            fn:functionName[decl]
-            (ret:returnsSpec[decl])?
-            (parms:paramsSpec[decl])?
-            )
-    { 
-    } ;
 
 lookupDeclaration[IXMLElement parent]
 { IXMLElement decl = new XMLElement("StateDeclaration"); }
@@ -1094,7 +1073,6 @@ nodeBody[IXMLElement xnode, IXMLElement xmlResourceList]
  : 
    ( nodeList[xnode, xNodeBody]
      | command[xnode, xNodeBody, xmlResourceList]
-     | functionCall[xnode, xNodeBody]
      | assignment[xnode, xNodeBody]
      | update[xnode, xNodeBody]
      | request[xnode, xNodeBody]
@@ -1199,37 +1177,6 @@ argValue[IXMLElement parent] :
    | bv:booleanValue { parent.addChild(((PlexilASTNode) #bv).getXmlElement()); }
  )
  ;
-
-// *** add assignability check?
-
-functionCall[IXMLElement node, IXMLElement nodeBody]
-{ IXMLElement fnCall = new XMLElement("FunctionCall"); }
- : 
-   #(FUNCTION_CALL_KYWD
-     (variable[fnCall] EQUALS)?
-     ( functionNameLiteral[fnCall] | nameExp[fnCall] )
-     (argumentList[fnCall])? 
-    )
-   {
-     node.setAttribute("NodeType", "FunctionCall");
-     nodeBody.addChild(fnCall);
-   }
- ;
-
-functionNameLiteral[IXMLElement parent] :
-  #(FUNCTION_NAME nl:nameLiteral[parent]) ;
-
-functionName[IXMLElement parent] :
-   NCName
-   {
-     IXMLElement val = new XMLElement("StringValue");
-     val.setContent(#functionName.getText());
-     IXMLElement fn = new XMLElement("Name");
-     fn.addChild(val);
-     parent.addChild(fn);
-   }
- ;
-
 
 // *** To do:
 //  - multi-valued lookups
@@ -1578,7 +1525,7 @@ onCommandBody[IXMLElement xaction]
    {
    	 xaction.addChild(xparam);
    }
-   (COMMA! incomingParam[xparam] )*)?! (copyNodeId[xaction])? (action[xaction])*
+   (COMMA! incomingParam[xparam] )*)?! (copyNodeId[xaction])? action[xaction]
    {
      xname.setContent(#n.getText());
      context = context.getParentContext();
@@ -1600,7 +1547,7 @@ onMessageBody[IXMLElement xaction]
 	}
   : 
   #(ON_MESSAGE_KYWD
-    m:stringExpression[xname] (copyNodeId[xaction])? (action[xaction])*
+    m:stringExpression[xname] (copyNodeId[xaction])? action[xaction]
   )
  ;
  

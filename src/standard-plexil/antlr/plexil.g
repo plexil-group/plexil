@@ -69,7 +69,6 @@ tokens
     //
     // Kinds of declarations
     COMMAND_KYWD="Command";
-    FUNCTION_KYWD="Function";
     LOOKUP_KYWD="Lookup";
     LIBRARY_NODE_KYWD="LibraryNode";
 
@@ -123,7 +122,6 @@ tokens
 
     // node types
     NODE_LIST_KYWD="NodeList";
-    FUNCTION_CALL_KYWD="FunctionCall";
     ASSIGNMENT_KYWD="Assignment";
     UPDATE_KYWD="Update";
     REQUEST_KYWD="Request";
@@ -286,7 +284,6 @@ tokens
     NODE_TIMEPOINT_VALUE;
     ARGUMENT_LIST;
     COMMAND_NAME;
-    FUNCTION_NAME;
     STATE_NAME;
     CONCAT;
 
@@ -510,7 +507,6 @@ declarations : (declaration)+
 
 declaration :
     commandDeclaration
-    | functionDeclaration
     | lookupDeclaration
     | libraryNodeDeclaration ;
 
@@ -582,34 +578,6 @@ lookupDeclaration!
             //  - massage return spec data
             // *** may throw exception if lookup already defined!
             globalContext.addLookupName(#s.getText(), parm_spec, return_spec);
-        } ;
-
-// should generate #(FUNCTION_KYWD functionName (returnsSpec)? (paramsSpec)?)
-// return type may be null!
-
-functionDeclaration : 
-        ( (tn:typeName!)? FUNCTION_KYWD^ fn:ncName (p:paramsSpec!)? SEMICOLON! )
-        { 
-            // add return spec (if supplied)
-            AST return_spec = null;
-            if (#tn != null)
-            {
-                return_spec = #(#[RETURNS_KYWD, "returns"],
-                                #(#[RETURN_VALUE, "RETURN_VALUE"], #tn));
-                #functionDeclaration.addChild(return_spec);
-            }
-
-            // error check params
-            // *** NYI ***
-
-            // add param spec
-            if (#p != null)
-            {
-                #functionDeclaration.addChild(#p);
-            }
-
-            // declare function
-            globalContext.addFunctionName(#fn.getText(), #p, return_spec);
         } ;
 
 paramsSpec :
@@ -732,7 +700,7 @@ action
 nodeId : nodeName
         { #nodeId = #(#[NODE_ID, "NodeId"], #nodeId); };
 
-comment : COMMENT_KYWD^ COLON! STRING SEMICOLON! ;
+comment : COMMENT_KYWD^ (COLON!)? STRING SEMICOLON! ;
 
 //
 // Extended PLEXIL here
@@ -742,7 +710,6 @@ nodeBody :
         nodeList
     | assignment
     | command
-    | functionCall
     | update
     | request
     | libraryCall
@@ -759,25 +726,25 @@ nodeBody :
 
 nodeList : NODE_LIST_KYWD^ (COLON!)? (action)* ;
 
-sequence : SEQUENCE_KYWD^ (action)*
+sequence : SEQUENCE_KYWD^ (COLON!)? (action)*
   {
     state.setExtendedPlexil();
   }
  ;
 
-concurrence : CONCURRENCE_KYWD^ (action)* 
+concurrence : CONCURRENCE_KYWD^ (COLON!)? (action)* 
   {
     state.setExtendedPlexil();
   }
  ;
 
-uncheckedSequence : UNCHECKED_SEQUENCE_KYWD^ (action)* 
+uncheckedSequence : UNCHECKED_SEQUENCE_KYWD^ (COLON!)? (action)* 
   {
     state.setExtendedPlexil();
   }
  ;
 
-tryBody : TRY_KYWD^ (action)* 
+tryBody : TRY_KYWD^ (COLON!)? (action)* 
   {
     state.setExtendedPlexil();
   }
@@ -848,7 +815,7 @@ onCommandBody : ON_COMMAND_KYWD^
     ((NodeASTNode) #onCommandBody).setContext(context);
     state.setExtendedPlexil();
   }
-  ncName LPAREN! (incomingParam (COMMA! incomingParam)*)? RPAREN! LBRACE! ( (action)* ) RBRACE!
+  ncName LPAREN! (incomingParam (COMMA! incomingParam)*)? RPAREN! action
   {
     // restore old variable binding context
     context = context.getParentContext();
@@ -862,7 +829,7 @@ onCommandBody : ON_COMMAND_KYWD^
  ;
 
 onMessageBody : ON_MESSAGE_KYWD^
-  LPAREN! stringExpression RPAREN! (id:nodeName)? LBRACE! ( (action)* ) RBRACE!
+  LPAREN! stringExpression RPAREN! (id:nodeName)? action
   {
     state.setExtendedPlexil();
   }
@@ -1506,7 +1473,7 @@ command
   AST variable = null;
 } 
  : 
-   COMMAND_KYWD^ COLON!
+   COMMAND_KYWD^ (COLON!)?
    ( ( ncName ( LBRACKET | EQUALS ) ) =>
      ( ( ( ncName LBRACKET ) =>
          ar:arrayReference EQUALS
@@ -1584,59 +1551,6 @@ argumentList : argument (COMMA! argument)*
 // *** needs rethinking to allow general expressions ***
 argument : INT | DOUBLE | STRING | booleanValue | variable | arrayReference ;
 
-// *** see command above
-functionCall
-{
-  AST lhs = null;
-  AST variable = null;
-} 
- : 
-   FUNCTION_CALL_KYWD^ COLON!
-   (
-    ( ncName LBRACKET ) =>
-    ar:arrayReference EQUALS functionNameExp
-    {
-      lhs = #ar; 
-      variable = lhs.getFirstChild();
-    }          
-    |
-    ( ncName EQUALS ) =>
-    v:variable EQUALS functionNameExp
-    {
-      lhs = #v; 
-      variable = lhs;
-    }          
-    |
-    functionNameExp
-   )
-   LPAREN! ( argumentList )? RPAREN! SEMICOLON!
-   {
-     if (variable != null 
-         && !context.isAssignableVariableName(variable.getText()))
-       {
-         throw new antlr.SemanticException("Variable '" + variable.getText()
-                                           + "' is declared an In interface variable and may not be assigned");
-       }
-   }
-   ;
-
-functionInvocation :
-   (
-    functionName
-    |
-    ( LPAREN! functionNameExp RPAREN! )
-   )
-   ( LPAREN! ( argumentList )? RPAREN! )? SEMICOLON!
-   ;
-
-functionName : ncName 
- {
-   #functionName = #(#[FUNCTION_NAME, "FUNCTION_NAME"], #functionName);
- }
- ;
-
-functionNameExp : stringExpression ;
-
 // general form is:
 // Assignment : ( <varName> | <arrayReference> ) = <expression>
 assignment!
@@ -1646,7 +1560,7 @@ assignment!
   PlexilDataType assignType = null;
 } 
  : 
-    ASSIGNMENT_KYWD! COLON!
+    ASSIGNMENT_KYWD! (COLON!)?
     ( 
       ( ncName LBRACKET ) => ar:arrayReference
       { 
@@ -1702,7 +1616,7 @@ assignment!
 // Update nodes
 //
 
-update : UPDATE_KYWD^ COLON! ( pair ( COMMA! pair )* )? SEMICOLON! ;
+update : UPDATE_KYWD^ (COLON!)? ( pair ( COMMA! pair )* )? SEMICOLON! ;
 
 //
 // Request nodes
@@ -1710,7 +1624,7 @@ update : UPDATE_KYWD^ COLON! ( pair ( COMMA! pair )* )? SEMICOLON! ;
 // Note that nodeName need not be known
 //
 
-request : REQUEST_KYWD^ COLON! nodeName ( pair ( COMMA! pair )* )? SEMICOLON! ;
+request : REQUEST_KYWD^ (COLON!)? nodeName ( pair ( COMMA! pair )* )? SEMICOLON! ;
 
 // common to both update and request nodes
 
@@ -1730,7 +1644,7 @@ value :
 libraryCall
 { PlexilGlobalDeclaration lndec = null; }
  :
-  LIBRARY_CALL_KYWD^ COLON!
+  LIBRARY_CALL_KYWD^ (COLON!)?
    ln:libraryNodeIdRef
    { 
      if (!globalContext.isLibraryNodeName(#ln.getText()))
