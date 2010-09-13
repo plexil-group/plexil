@@ -1,6 +1,6 @@
-Building the parser requires Java 1.4.x or newer, and jam 2.5.
+Building the parser requires Java 1.4.x or newer, and Apache 'ant' 1.7 or newer.
 
-To build the parser, invoke 'jam'.  NOTE: there are many warnings, due
+To build the parser, invoke 'ant'.  NOTE: there are many warnings, due
 to circular file dependencies, but the final build should be correct.
 
 The 'plexil' shell script in this directory is a convenience
