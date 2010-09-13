@@ -9,10 +9,9 @@ Interface:
 		//The handler for the command GetName()
 		RecGetName:
 		{
-			OnCommand GetName ( ) {
-				{
-					Command: SendReturnValue(name);
-				}
+			OnCommand GetName ( )
+			{
+				Command: SendReturnValue(name);
 			}
 		}
 }
