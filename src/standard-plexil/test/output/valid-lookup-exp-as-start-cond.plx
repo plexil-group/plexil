@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="lookup-exp-as-start-cond.ple">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="lookup-exp-as-start-cond.ple">
       <GlobalDeclarations>
           <StateDeclaration>
               <Name>LAPR02FC0617U</Name>

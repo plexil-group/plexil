@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="time-exp-assignment.ple">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="time-exp-assignment.ple">
       <Node FileName="time-exp-assignment.ple" LineNo="2" ColNo="1" NodeType="NodeList">
           <NodeId>test_translator</NodeId>
           <NodeBody>

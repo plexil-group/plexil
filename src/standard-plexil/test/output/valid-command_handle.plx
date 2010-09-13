@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="command_handle.ple">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="command_handle.ple">
       <Node FileName="command_handle.ple" LineNo="2" ColNo="1" NodeType="NodeList">
           <NodeId>root</NodeId>
           <EndCondition>

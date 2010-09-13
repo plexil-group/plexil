@@ -1,4 +1,4 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/supported-plexil.xsd" FileName="SiteSurvey.ple">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="SiteSurvey.ple">
       <Node FileName="SiteSurvey.ple" LineNo="28" ColNo="1" NodeType="NodeList">
           <VariableDeclarations>
               <DeclareVariable>
