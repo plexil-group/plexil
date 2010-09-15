@@ -98,9 +98,9 @@
     </xsd:group>
   </xsd:redefine>
 
-  <!-- Sequence forms -->
+  <!-- Node clauses, which can occur in any action. -->
 
-  <xsd:group name="SequenceType">
+  <xsd:group name="NodeClauses">
     <xsd:sequence>
       <xsd:all>
         <xsd:element ref="NodeId" minOccurs="0"/>
@@ -117,7 +117,18 @@
         <xsd:element ref="Interface" minOccurs="0"/>
         <xsd:element ref="VariableDeclarations" minOccurs="0"/>
       </xsd:all>
-      <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:group>
+
+
+  <!-- Sequence forms -->
+
+  <xsd:group name="SequenceType">
+    <xsd:sequence>
+      <xsd:all>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="1"/>
+        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:all>
     </xsd:sequence>
   </xsd:group>
 
@@ -185,21 +196,7 @@
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:all>
-          <xsd:element ref="NodeId" minOccurs="0"/>
-          <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
-          <xsd:element ref="StartCondition" minOccurs="0"/>
-          <xsd:element ref="RepeatCondition" minOccurs="0"/>
-          <xsd:element ref="PreCondition" minOccurs="0"/>
-          <xsd:element ref="PostCondition" minOccurs="0"/>
-          <xsd:element ref="InvariantCondition" minOccurs="0"/>
-          <xsd:element ref="EndCondition" minOccurs="0"/>
-          <xsd:element ref="SkipCondition" minOccurs="0"/>
-          <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-          <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
-          <xsd:element ref="Interface" minOccurs="0"/>
-          <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-        </xsd:all>
+        <xsd:group ref="NodeClauses"/>
         <xsd:element name="Condition">
           <xsd:complexType>
             <xsd:group ref="BooleanExpression"/>
@@ -230,21 +227,7 @@
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:all>
-          <xsd:element ref="NodeId" minOccurs="0"/>
-          <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
-          <xsd:element ref="StartCondition" minOccurs="0"/>
-          <xsd:element ref="RepeatCondition" minOccurs="0"/>
-          <xsd:element ref="PreCondition" minOccurs="0"/>
-          <xsd:element ref="PostCondition" minOccurs="0"/>
-          <xsd:element ref="InvariantCondition" minOccurs="0"/>
-          <xsd:element ref="EndCondition" minOccurs="0"/>
-          <xsd:element ref="SkipCondition" minOccurs="0"/>
-          <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-          <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
-          <xsd:element ref="Interface" minOccurs="0"/>
-          <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-        </xsd:all>
+        <xsd:group ref="NodeClauses"/>
         <xsd:element name="Condition">
           <xsd:complexType>
             <xsd:group ref="BooleanExpression"/>
@@ -272,21 +255,7 @@
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:all>
-          <xsd:element ref="NodeId" minOccurs="0"/>
-          <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
-          <xsd:element ref="StartCondition" minOccurs="0"/>
-          <xsd:element ref="RepeatCondition" minOccurs="0"/>
-          <xsd:element ref="PreCondition" minOccurs="0"/>
-          <xsd:element ref="PostCondition" minOccurs="0"/>
-          <xsd:element ref="InvariantCondition" minOccurs="0"/>
-          <xsd:element ref="EndCondition" minOccurs="0"/>
-          <xsd:element ref="SkipCondition" minOccurs="0"/>
-          <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-          <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
-          <xsd:element ref="Interface" minOccurs="0"/>
-          <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-        </xsd:all>
+        <xsd:group ref="NodeClauses"/>
         <xsd:element name= "LoopVariable">
           <xsd:complexType>
             <xsd:all>
@@ -339,19 +308,16 @@
     </xsd:complexType>
   </xsd:element>
 
-  <!-- Under development (not yet supported) -->
-
   <xsd:element name="OnCommand">
     <xsd:complexType>
       <xsd:attribute ref="FileName"/>
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
-      <xsd:all>
+      <xsd:sequence>
+        <xsd:group ref="NodeClauses"/>
         <xsd:element ref="Name"/>
-        <xsd:element ref="NodeId" minOccurs="0"/>
-        <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:all>
+        <xsd:group ref="Action" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 
@@ -360,15 +326,15 @@
       <xsd:attribute ref="FileName"/>
       <xsd:attribute ref="LineNo"/>
       <xsd:attribute ref="ColNo"/>
-      <xsd:all>
+      <xsd:sequence>
+        <xsd:group ref="NodeClauses"/>
         <xsd:element name="Message">
           <xsd:complexType>
             <xsd:group ref="StringExpression"/>
           </xsd:complexType>
         </xsd:element>
-        <xsd:element ref="NodeId" minOccurs="0"/>
-        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:all>
+        <xsd:group ref="Action" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 

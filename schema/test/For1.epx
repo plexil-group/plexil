@@ -31,11 +31,11 @@
         <IntegerValue>1</IntegerValue>
       </ADD>
     </LoopVariableUpdate>
-    <Actions>
+    <Action>
       <Node NodeType="Empty">
         <NodeId>Two</NodeId>
       </Node>
-    </Actions>
+    </Action>
   </For>
 </PlexilPlan>
 

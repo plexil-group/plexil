@@ -1,6 +1,5 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <OnCommand>
-    <Name><StringValue>move rover</StringValue></Name>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>distance</Name>
@@ -11,9 +10,7 @@
         <Type>Real</Type>
       </DeclareVariable>
     </VariableDeclarations>
-    <Node NodeType= "Empty">
-      <NodeId>foo</NodeId>
-    </Node>
+    <Name><StringValue>move rover</StringValue></Name>
     <Node NodeType= "Empty">
       <NodeId>foo</NodeId>
     </Node>

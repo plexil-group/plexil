@@ -4,8 +4,5 @@
     <Node NodeType= "Empty">
       <NodeId>foo</NodeId>
     </Node>
-    <Node NodeType= "Empty">
-      <NodeId>bar</NodeId>
-    </Node>
   </OnMessage>
 </PlexilPlan>
