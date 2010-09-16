@@ -39,7 +39,10 @@
 #include <set>
 #include <vector>
 
+#include <csignal>
 #include <pthread.h>
+
+#define EXEC_APPLICATION_MAX_N_SIGNALS 8
 
 // Forward references in global namespace
 class TiXmlDocument;
@@ -183,6 +186,8 @@ namespace PLEXIL
 
     /**
      * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
+	 * @note May be called by multiple threads
+	 * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
      */
     virtual void waitForShutdown();
 
@@ -194,7 +199,7 @@ namespace PLEXIL
     /**
      * @brief Select whether the exec runs opportunistically or only in background thread.
      * @param bkgndOnly True if background only, false if opportunistic.
-     * @note Default is opportunistic.
+     * @note Default is background only.
      */
     void setRunExecInBkgndOnly(bool bkgndOnly)
     { 
@@ -263,6 +268,18 @@ namespace PLEXIL
      */ 
     bool setApplicationState(const ApplicationState& newState);
 
+	/**
+	 * @brief Establish signal handling environment for exec main loop thread.
+	 * @return True if successful, false otherwise.
+	 */
+	bool initializeSignalHandling();
+
+	/**
+	 * @brief Restore previous signal handling environment for exec main loop thread.
+	 * @return True if successful, false otherwise.
+	 */
+	bool restoreSignalHandling();
+
   private:
 
     //
@@ -307,6 +324,15 @@ namespace PLEXIL
 
 	// Flag for suspend/resume
 	bool m_suspended;
+
+	//
+	// Signal handling
+	//
+	size_t m_nBlockedSignals;
+	int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
+	sigset_t m_sigset;
+	sigset_t m_restoreSigset;
+
   };
 
 }

@@ -55,7 +55,8 @@ namespace PLEXIL
       m_sem(),
       m_state(APP_UNINITED),
       m_runExecInBkgndOnly(true),
-      m_suspended(false)
+      m_suspended(false),
+	  m_nBlockedSignals(0)
   {
     // connect exec and interface manager
     m_exec.setExternalInterface(m_interface.getId());
@@ -360,6 +361,10 @@ namespace PLEXIL
   {
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Thread started");
 
+	// set up signal handling environment for this thread
+	assertTrueMsg(initializeSignalHandling(),
+				  "ExecApplication::runInternal: Fatal error: signal handling initialization failed."); 
+
     // must step exec once to initialize time
     runExec(true);
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Initial step complete");
@@ -368,6 +373,11 @@ namespace PLEXIL
       {
         runExec(false);
       }
+
+	// restore old signal handlers for this thread
+	// don't bother to check for errors
+	restoreSignalHandling();
+
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
   }
 
@@ -408,6 +418,9 @@ namespace PLEXIL
    */
   bool ExecApplication::waitForExternalEvent()
   {
+	assertTrueMsg(m_nBlockedSignals != 0,
+				  "ExecApplication::waitForExternalEvent: fatal error: signal handling not initialized.:");
+
     debugMsg("ExecApplication:wait", " (" << pthread_self() << ") waiting for external event");
 	int status;
     do {
@@ -451,11 +464,15 @@ namespace PLEXIL
   /**
    * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
    * @note May be called by multiple threads
+   * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
    */
   void
   ExecApplication::waitForShutdown() {
-    m_shutdownSem.wait();
-    m_shutdownSem.post(); // pass it on to the next, if any
+	int waitStatus;
+    while ((waitStatus == m_shutdownSem.wait()) != PLEXIL_SEMAPHORE_STATUS_INTERRUPTED)
+	  continue;
+	if (waitStatus == 0)
+	  m_shutdownSem.post(); // pass it on to the next, if any
   }
 
   /**
@@ -586,6 +603,75 @@ namespace PLEXIL
   }
 
   //
+  // Signal handling
+  //
+
+  // Prevent the Exec run thread from seeing the signals listed below.
+  // Applications are free to deal with them in other ways.
+
+  bool ExecApplication::initializeSignalHandling()
+  {
+	static int signumsToIgnore[EXEC_APPLICATION_MAX_N_SIGNALS] =
+	  {
+		SIGINT,   // user interrupt (i.e. control-C)
+		SIGHUP,   // hangup
+		SIGQUIT,  // quit
+		SIGTERM,  // kill
+		SIGALRM,  // timer interrupt, used by (e.g.) Darwin time adapter
+		SIGUSR1,  // user defined
+		SIGUSR2,  // user defined
+		0
+	  };
+
+	//
+	// Generate the mask
+	//
+	int errnum = sigemptyset(&m_sigset);
+	if (errnum != 0) {
+	  debugMsg("ExecApplication:initializeSignalHandling", " sigemptyset returned " << errnum);
+	  return false;
+	}
+	for (m_nBlockedSignals = 0;
+		 m_nBlockedSignals < EXEC_APPLICATION_MAX_N_SIGNALS && signumsToIgnore[m_nBlockedSignals] != 0;
+		 m_nBlockedSignals++) {
+	  int sig = signumsToIgnore[m_nBlockedSignals];
+	  m_blockedSignals[m_nBlockedSignals] = sig; // save to restore it later
+	  errnum = sigaddset(&m_sigset, sig);
+	  if (errnum != 0) {
+		debugMsg("ExecApplication:initializeSignalHandling", " sigaddset returned " << errnum);
+		return false;
+	  }
+	}
+	// Set the mask for this thread
+	errnum = pthread_sigmask(SIG_BLOCK, &m_sigset, &m_restoreSigset);
+	if (errnum != 0) {
+	  debugMsg("ExecApplication:initializeSignalHandling", " pthread_sigmask returned " << errnum);
+	  return false;
+	}
+	   
+	debugMsg("ExecApplication:initializeSignalHandling", " complete");
+	return true;
+  }
+
+  bool ExecApplication::restoreSignalHandling()
+  {
+	//
+	// Restore old mask
+	//
+	int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreSigset, NULL);
+	if (errnum != 0) { 
+	  debugMsg("ExecApplication:restoreSignalHandling", " failed; sigprocmask returned " << errnum);
+	  return false;
+	}
+
+	// flag as complete
+	m_nBlockedSignals = 0;
+
+	debugMsg("ExecApplication:restoreSignalHandling", " complete");
+	return true;
+  }
+
+  //
   // Static helper methods
   //
 
@@ -636,9 +722,9 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive that it should run one cycle.  
-   This should be sent after each batch of lookup, command
-   return, and function return data.
-  */
+   *        This should be sent after each batch of lookup, command
+   * 		return, and function return data.
+   */
   void
   ExecApplication::notifyExec()
   {
