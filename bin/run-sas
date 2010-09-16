@@ -88,6 +88,10 @@ fi
 if [ "$tlm_script" ]
 then
   exec $prog -c $cmd_script -t $tlm_script
+  sasPID=$!
 else
   exec $prog -c $cmd_script
-fi 
+  sasPID=$!  
+fi
+    trap "{ kill $sasPID; }" SIGINT
+    trap "{ kill $sasPID; }" SIGQUIT  

@@ -7,7 +7,8 @@ if [ '-x' = "$1" ]
     shift
     $PLEXIL_HOME/bin/central -u $* &
     pid=$!
-    trap "{ kill $pid; }" EXIT
+    trap "{ kill $pid; }" SIGQUIT
+    trap "{ kill $pid; }" SIGINT
   else
     $PLEXIL_HOME/bin/central $*
 fi
