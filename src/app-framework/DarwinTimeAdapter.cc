@@ -35,14 +35,13 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "StateCache.hh"
+#include "ThreadSpawn.hh"
 #include <cerrno>
 #include <cmath> // for modf
+#include <mach/kern_return.h> // for KERN_ABORTED
 
 namespace PLEXIL
 {
-  // Ugly singleton variable
-  DarwinTimeAdapter* DarwinTimeAdapter::s_theInstance = NULL;
-
   /**
    * @brief Constructor.
    * @param execInterface Reference to the parent AdapterExecInterface object.
@@ -90,6 +89,9 @@ namespace PLEXIL
    */
   bool DarwinTimeAdapter::start()
   {
+	// Spawn the timer thread
+	threadSpawn(timerWaitThread, (void*) this, m_waitThread);
+
     return true;
   }
 
@@ -101,6 +103,9 @@ namespace PLEXIL
   {
     // Disable the timer
     stopTimer();
+
+	// Exit the timer thread
+
 
     // Clear the map
     m_lookupToleranceMap.clear();
@@ -123,10 +128,6 @@ namespace PLEXIL
    */
   bool DarwinTimeAdapter::shutdown()
   {
-    // Restore previous SIGALRM handler
-    int status = sigaction(SIGALRM, &m_oldsigaction, NULL);
-    assertTrueMsg(status == 0,
-                  "DarwinTimerAdapter::shutdown: sigaction failed, errno = " << errno);
     return true;
   }
 
@@ -153,34 +154,25 @@ namespace PLEXIL
     timeval tolval;
     doubleToTimeval(tolerances[0], tolval);
 
-    if (m_lookupToleranceMap.empty())
-      {
-	// If this is the first LookupOnChange, 
-	// set up signal handler and start the timer
-	int status = sigaction(SIGALRM, &m_sigaction, &m_oldsigaction);
-	assertTrueMsg(status == 0,
-		      "LookupOnChange: sigaction failed, errno = " << errno);
-	m_lastItimerval.it_value = tolval;
-	m_lastItimerval.it_interval = tolval;
-	status = setitimer(ITIMER_REAL, &m_lastItimerval, NULL);
-	assertTrueMsg(status == 0,
-		      "LookupOnChange: setitimer failed, errno = " << errno);
-      }
-    else if (timevalLess(tolval, m_lastItimerval.it_interval))
-      {
-	// New tolerance is smaller than old - 
-	// Get the current timer setting and update
-	int status = getitimer(ITIMER_REAL, &m_lastItimerval);
-	assertTrueMsg(status == 0,
-		      "LookupOnChange: getitimer failed, errno = " << errno);
-	m_lastItimerval.it_interval = tolval;
-	// Only set it_value if remaining delay is greater than new
-	if (timevalGreater(m_lastItimerval.it_value, tolval))
+    if (m_lookupToleranceMap.empty()) {
+	  // If this is the first LookupOnChange, start the timer
 	  m_lastItimerval.it_value = tolval;
-	status = setitimer(ITIMER_REAL, &m_lastItimerval, NULL);
-	assertTrueMsg(status == 0,
-		      "LookupOnChange: setitimer failed, errno = " << errno);
-      }
+	  m_lastItimerval.it_interval = tolval;
+	  assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
+					"LookupOnChange: setitimer failed, errno = " << errno);
+	}
+    else if (timevalLess(tolval, m_lastItimerval.it_interval)) {
+	  // New tolerance is smaller than old - 
+	  // Get the current timer setting and update
+	  assertTrueMsg(0 == getitimer(ITIMER_REAL, &m_lastItimerval),
+					"LookupOnChange: getitimer failed, errno = " << errno);
+	  m_lastItimerval.it_interval = tolval;
+	  // Only set it_value if remaining delay is greater than new
+	  if (timevalGreater(m_lastItimerval.it_value, tolval))
+		m_lastItimerval.it_value = tolval;
+	  assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
+					"LookupOnChange: setitimer failed, errno = " << errno);
+	}
     // else do nothing, smallest existing tolerance is smaller than new
 
     // Add it to the map
@@ -301,15 +293,16 @@ namespace PLEXIL
   // Internal member functions
   //
 
+  // Dummy handler function for SIGALRM
+  // Should never actually be called
+  void dummyHandlerFunction(int /* signo */) {}
+
   /**
    * @brief Helper for constructor methods.
    */
 
   void DarwinTimeAdapter::commonInit()
   {
-    // Set the singleton variable here
-    s_theInstance = this;
-
     // Zero the last timer setting
     m_lastItimerval.it_value.tv_sec = 0;
     m_lastItimerval.it_value.tv_usec = 0;
@@ -321,13 +314,6 @@ namespace PLEXIL
     m_disableItimerval.it_value.tv_usec = 0;
     m_disableItimerval.it_interval.tv_sec = 0;
     m_disableItimerval.it_interval.tv_usec = 0;
-
-    // Pre-fill sigaction fields
-    m_sigaction.sa_flags = SA_RESTART ;
-    m_sigaction.sa_handler = DarwinTimeAdapter::timerNotifyFunction;
-    int status = sigprocmask(0, NULL, &m_sigaction.sa_mask);
-    assertTrueMsg(status == 0,
-		  "DarwinTimeAdapter: call to sigprocmask() failed, errno = " << errno);
   }
 
 
@@ -339,21 +325,82 @@ namespace PLEXIL
     int status = setitimer(ITIMER_REAL, &m_disableItimerval, NULL);
     assertTrueMsg(status == 0,
 		  "DarwinTimeAdapter::stopTimer: call to setitimer() failed, errno = " << errno);
-
-    // Restore previous SIGALRM handler
-    status = sigaction(SIGALRM, &m_oldsigaction, NULL);
-    assertTrueMsg(status == 0,
-                  "DarwinTimerAdapter::shutdown: sigaction failed, errno = " << errno);
   }
 
+
   /**
-   * @brief Static member function invoked upon receiving a timer signal
-   * @param signo The signal number
+   * @brief Static member function which waits for timer wakeups.
+   * @param this_as_void_ptr Pointer to the DarwinTimeAdapter instance, as a void *.
    */
-  void DarwinTimeAdapter::timerNotifyFunction(int /* signo */)
+  void* DarwinTimeAdapter::timerWaitThread(void* this_as_void_ptr)
   {
-    // Simply invoke the timeout method
-    theInstance()->timerTimeout();
+	DarwinTimeAdapter* myInstance = reinterpret_cast<DarwinTimeAdapter*>(this_as_void_ptr);
+	
+	//
+	// Set up signal handling environment.
+	//
+
+	// block SIGALRM for the process as a whole
+	sigset_t processSigset, originalSigset;
+	int errnum = sigemptyset(&processSigset);
+	errnum = errnum | sigaddset(&processSigset, SIGALRM);
+	assertTrueMsg(errnum == 0,
+				  "Fatal Error: signal mask initialization failed!");
+	errnum = sigprocmask(SIG_BLOCK, &processSigset, &originalSigset);
+	assertTrueMsg(errnum == 0,
+				  "Fatal Error: sigprocmask failed, result = " << errnum);
+
+	// block most common signals for this thread
+	sigset_t threadSigset;
+	errnum = sigemptyset(&threadSigset);
+	errnum = sigaddset(&threadSigset, SIGALRM);
+	errnum = errnum | sigaddset(&threadSigset, SIGINT);
+	errnum = errnum | sigaddset(&threadSigset, SIGHUP);
+	errnum = errnum | sigaddset(&threadSigset, SIGQUIT);
+	errnum = errnum | sigaddset(&threadSigset, SIGTERM);
+	errnum = errnum | sigaddset(&threadSigset, SIGUSR1);
+	errnum = errnum | sigaddset(&threadSigset, SIGUSR2);
+	// FIXME: maybe more??
+	assertTrueMsg(errnum == 0,
+				  "Fatal Error: signal mask initialization failed!");
+	errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
+	assertTrueMsg(errnum == 0,
+				  "Fatal Error: pthread_sigmask failed, result = " << errnum);
+
+	//
+	// Wait loop
+	//
+
+	// listen only for SIGALRM
+	sigset_t waitSigset;
+	errnum = sigemptyset(&waitSigset);
+	errnum = errnum | sigaddset(&waitSigset, SIGALRM);
+	assertTrueMsg(errnum == 0,
+				  "Fatal Error: signal mask initialization failed!");
+
+	while (true) {
+	  int signalReceived = 0;
+	  int errnum = sigwait(&waitSigset, &signalReceived);
+	  if (errnum == KERN_ABORTED) {
+		// should only happen on pthread_cancel (?)
+		debugMsg("DarwinTimeAdapter:timerWaitThread", " interrupted, exiting");
+		break;
+	  }
+	  assertTrueMsg(errnum == 0, 
+					"Fatal Error: sigwait failed, result = " << errnum);
+	  // wake up the Exec
+	  myInstance->timerTimeout();
+	}
+
+	//
+	// Clean up - 
+	//  restore previous process signal mask
+	//
+	errnum = sigprocmask(SIG_SETMASK, &originalSigset, NULL);
+	assertTrueMsg(errnum == 0,
+				  "Fatal Error: sigprocmask failed, result = " << errnum);
+
+	return (void*) 0;
   }
 
   /**

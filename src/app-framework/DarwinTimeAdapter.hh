@@ -198,21 +198,15 @@ namespace PLEXIL
     void stopTimer();
 
     /**
-     * @brief Static member function invoked upon receiving a timer signal
-     * @param signo The signal number.
+     * @brief Static member function which waits for timer wakeups.
+	 * @param this_as_void_ptr Pointer to the DarwinTimeAdapter instance, as a void *.
      */
-    static void timerNotifyFunction(int signo);
+    static void* timerWaitThread(void* this_as_void_ptr);
 
     /**
      * @brief Report the current time to the Exec as an asynchronous lookup value.
      */
     void timerTimeout();
-
-    /**
-     * @brief Ugly singleton access method
-     * @note Means that only copy of this adapter per process
-     */
-    inline static DarwinTimeAdapter* theInstance() { return s_theInstance; }
 
     //
     // Member variables
@@ -221,14 +215,12 @@ namespace PLEXIL
     typedef std::map<LookupKey, timeval> LookupToleranceMap;
     LookupToleranceMap m_lookupToleranceMap;
 
+	// Wait thread
+	pthread_t m_waitThread;
+
     // Storage for system call parameters
-    struct sigaction m_sigaction;
-    struct sigaction m_oldsigaction;
     itimerval m_disableItimerval;
     itimerval m_lastItimerval;
-
-    // Ugly singleton variable
-    static DarwinTimeAdapter* s_theInstance;
   };
 
 }
