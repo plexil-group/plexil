@@ -35,14 +35,14 @@
 #include "ThreadSpawn.hh"
 
 #include <cerrno>
+#include <iomanip>
 
 Simulator::Simulator(CommRelayBase* commRelay, ResponseManagerMap& map) : 
   m_CommRelay(commRelay),
-  m_TimingService(wakeup, (void*) this),
-  m_TimerMutex(),
-  m_Sem(),
+  m_TimingService(),
+  m_Mutex(),
   m_CmdToRespMgr(map),
-  m_TimerScheduled(false),
+  m_SimulatorThread((pthread_t) 0),
   m_Started(false),
   m_Stop(false)
 {
@@ -61,7 +61,7 @@ Simulator::~Simulator()
     delete iter->second;
 
   debugMsg("Simulator:~Simulator",
-	   " shutting down with " << m_TimeToResp.size() << " responses pending");
+	   " shutting down with " << m_Agenda.size() << " responses pending");
 }
 
 void Simulator::start()
@@ -71,67 +71,73 @@ void Simulator::start()
 
 void Simulator::stop()
 {
+  debugMsg("Simulator:stop", " called");
   if (!m_Started)
     return;
 
   m_TimingService.stopTimer();
 
-  if (m_Stop)
-    {
-      // we tried the gentle approach already -
-      // take more drastic action
-      int pthread_errno;
-      if ((pthread_errno = pthread_cancel(m_SimulatorThread)) != 0)
-	{
-	  // cancel failed
-	  if (pthread_errno == ESRCH) // no such thread to cancel, i.e. it's already dead
-	    {
-	      m_Stop = false;
-	      m_Started = false;
-	    }
-	  else
-	    {
-	      std::cerr << "Simulator::stop: pthread_cancel returned error " << pthread_errno << std::endl;
-	    }
-	  return;
+  if (m_Stop) {
+	// we tried the gentle approach already -
+	// take more drastic action
+	if (m_SimulatorThread == pthread_self()) {
+	  assertTrue(ALWAYS_FAIL, "Simulator:stop: Emergency stop!");
 	}
-      // successfully canceled, wait for it to exit
-      if ((pthread_errno = pthread_join(m_SimulatorThread, NULL)) != 0)
-	{
-	  if (pthread_errno == ESRCH) // no such thread, i.e. already dead
-	    {
-	      m_Stop = false;
-	      m_Started = false;
-	    }
-	  else
-	    {
-	      std::cerr << "Simulator::stop: pthread_join (after pthread_cancel) returned error " << pthread_errno << std::endl;
-	    }
-	}
-    }
-  else
-    {
-      // Usual case
+	else {
+	  int pthread_errno = pthread_cancel(m_SimulatorThread);
+	  if (pthread_errno == ESRCH) {
+		// no such thread to cancel, i.e. it's already dead
+		m_Stop = false;
+		m_Started = false;
+		return;
+	  }
+	  else if (pthread_errno != 0) {
+		assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_cancel returned " << pthread_errno);
+	  }
 
-      // Shut down the timing service
-      m_TimingService.stopTimer();
-
-      // stop the sim thread
-      m_Stop = true;
-      m_Sem.post();
-      int pthread_errno;
-      // wait for thread to terminate
-      if ((pthread_errno = pthread_join(m_SimulatorThread, NULL)) != 0)
-	{
-	  if (pthread_errno != ESRCH) // no such thread, i.e. already dead
-	    {
-	      std::cerr << "Simulator::stop: pthread_join returned error " << pthread_errno << std::endl;
-	      return;
-	    }
+	  // successfully canceled, wait for it to exit
+	  pthread_errno = pthread_join(m_SimulatorThread, NULL);
+	  if (pthread_errno == 0 || pthread_errno == ESRCH) {
+		// thread joined or died before it could be joined
+		// either way we succeeded
+		m_Stop = false;
+		m_Started = false;
+	  }
+	  else {
+		assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
+	  }
 	}
-    }
-  m_Stop = false;
-  m_Started = false;
+  }
+  else {
+	// Usual case
+	// stop the sim thread
+	m_Stop = true;
+	if (m_SimulatorThread != pthread_self()) {
+	  // Signal the thread to stop
+	  int pthread_errno = pthread_kill(m_SimulatorThread, SIGTERM);
+	  if (pthread_errno == 0) {
+		// wait for thread to terminate
+		pthread_errno = pthread_join(m_SimulatorThread, NULL);
+		if (pthread_errno == 0 || pthread_errno == ESRCH) {
+		  // thread joined or died before it could be joined
+		  // either way we succeeded
+		  m_Stop = false;
+		  m_Started = false;
+		}
+		else {
+		  assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_join returned " << pthread_errno);
+		}
+	  }
+	  else if (pthread_errno != ESRCH) {
+		// thread is already dead
+		m_Stop = false;
+		m_Started = false;
+	  }
+	  else {
+		assertTrueMsg(ALWAYS_FAIL, "Simulator::stop: fatal error: pthread_kill returned " << pthread_errno);
+	  }
+	}
+  }
 }
 
 void* Simulator::run(void* this_as_void_ptr)
@@ -143,38 +149,104 @@ void* Simulator::run(void* this_as_void_ptr)
 
 void Simulator::simulatorTopLevel()
 {
+  // if called directly from the main() thread,
+  // record our thread ID
+  if (m_SimulatorThread == (pthread_t) 0)
+	m_SimulatorThread = pthread_self();
+  
+  assertTrue(m_SimulatorThread == pthread_self(),
+			 "Internal error: simulatorTopLevel running in thread other than m_SimulatorThread");
+
   m_Started = true;
 
-  // Schedule all telemetry responses relative to this event
-  ResponseManagerMap::const_iterator it = m_CmdToRespMgr.begin();
-  while (it != m_CmdToRespMgr.end())
-    {
-      it->second->scheduleInitialEvents(this);
-      it++;
-    }
-  
-  // Set the timer for the first event, if any
-  if (m_TimeToResp.begin() != m_TimeToResp.end())
-    {
-      timeval now;
-      gettimeofday(&now, NULL);
-      debugMsg("Simulator:start",
-	       " at " << now.tv_sec << ", scheduling first event at "
-	       << m_TimeToResp.begin()->first.tv_sec);
-      scheduleNextResponse(m_TimeToResp.begin()->first);
-    }
+  timeval now;
+  gettimeofday(&now, NULL);
+  debugMsg("Simulator:start", " at "
+		   << std::setiosflags(std::ios_base::fixed) 
+		   << timevalToDouble(now));
 
-  while (!m_Stop)
-    {
-      // wait for next timer wakeup
-      m_Sem.wait();
-      if (m_Stop)
-	break;
-      handleWakeUp();
-    }
-  // clean up here (NYI)
-  // normal exit
-  pthread_exit(0);
+  // Schedule initial telemetry responses
+  ResponseManagerMap::const_iterator it = m_CmdToRespMgr.begin();
+  while (it != m_CmdToRespMgr.end()) {
+	it->second->scheduleInitialEvents(this);
+	it++;
+  }
+
+  //
+  // Initialize signal handling
+  //
+  if (!m_TimingService.defaultInitializeSignalHandling())
+	return;
+  
+  //
+  // Set the timer for the first event, if any
+  //
+
+  timeval firstWakeup;
+  firstWakeup.tv_sec = firstWakeup.tv_usec = 0;
+
+  // begin critical section
+  {
+	PLEXIL::ThreadMutexGuard mg(m_Mutex);
+	if (!m_Agenda.empty())
+	  firstWakeup = m_Agenda.begin()->first;
+  }
+  // end critical section
+
+  if (firstWakeup.tv_sec != 0 || firstWakeup.tv_usec != 0) {
+	debugMsg("Simulator:start",
+			 " scheduling first event at "
+			 << std::setiosflags(std::ios_base::fixed)
+			 << timevalToDouble(firstWakeup));
+	scheduleNextResponse(firstWakeup);
+  }
+
+  //
+  // Handle timer events until interrupted
+  //
+
+  while (!m_Stop) {
+	// wait for next timer wakeup
+	int waitResult = m_TimingService.wait();
+	if (waitResult != 0) {
+	  // received some other signal
+	  debugMsg("Simulator:simulatorTopLevel", " timing service received signal " << waitResult << ", exiting");
+	  break;
+	}
+
+	// check for exit request
+	if (m_Stop) {
+	  debugMsg("Simulator:simulatorTopLevel", " stop request received");
+	  break;
+	}
+
+	handleWakeUp();
+  }
+
+  //
+  // Clean up
+  //
+  m_TimingService.stopTimer();
+  m_TimingService.restoreSignalHandling();
+
+  m_Stop = false;
+  m_Started = false;
+
+  debugMsg("Simulator:simulatorTopLevel", " cleaning up");
+  // clean up agenda
+  // begin critical section
+  {
+	PLEXIL::ThreadMutexGuard mg(m_Mutex);
+	AgendaMap::iterator it = m_Agenda.begin();
+	while (it != m_Agenda.end()) {
+	  delete it->second;
+	  m_Agenda.erase(it);    // it = m_Agenda.erase(it);
+	  it = m_Agenda.begin(); // slightly kludgy, but safe
+	}
+  }
+  // end critical section
+
+  m_SimulatorThread = (pthread_t) 0;
 }
 
 ResponseMessageManager* Simulator::getResponseMessageManager(const std::string& cmdName) const
@@ -251,95 +323,115 @@ ResponseMessage* Simulator::getLookupNowResponse(const std::string& stateName, v
  */
 void Simulator::scheduleMessage(const timeval& delay, ResponseMessage* msg)
 {
-  timeval currTime;
-  gettimeofday(&currTime, NULL);
-  timeval eventTime = currTime + delay;
+  timeval now;
+  gettimeofday(&now, NULL);
+  timeval eventTime = now + delay;
   scheduleMessageAbsolute(eventTime, msg);
 }
 
 void Simulator::scheduleMessageAbsolute(const timeval& eventTime, ResponseMessage* msg)
 {
   debugMsg("Simulator:scheduleMessage",
-	   " scheduling message at " << eventTime.tv_sec);
+		   " scheduling message at "
+		   << std::setiosflags(std::ios_base::fixed) 
+		   << timevalToDouble(eventTime));
 
-  PLEXIL::ThreadMutexGuard mg(m_TimerMutex);
-  m_TimeToResp.insert(std::pair<timeval, ResponseMessage*>(eventTime, msg));
+  // begin critical section
+  PLEXIL::ThreadMutexGuard mg(m_Mutex);
+  m_Agenda.insert(std::pair<timeval, ResponseMessage*>(eventTime, msg));
+  // end critical section
 }
 
-/*
-  By passing the time as argument we can avoid yet another mutex lock in this
-  function.
- */
 void Simulator::scheduleNextResponse(const timeval& time)
 {
-  bool immediateResp = false;
-
-  if ((!m_TimerScheduled) || (time < m_TimerScheduledTime))
-    {
-      // Schedule timer
-      debugMsg("Simulator:scheduleNextResponse", " Scheduling a timer");
-      immediateResp = m_TimingService.setTimer(time);
-      if (immediateResp)
-	{
+  timeval nextEvent;
+  m_TimingService.getTimer(nextEvent);
+  if ((nextEvent.tv_sec == 0 && nextEvent.tv_usec == 0)
+	  || time < nextEvent) {
+	// Schedule timer
+	debugMsg("Simulator:scheduleNextResponse", " Scheduling a timer");
+	bool timeIsFuture = m_TimingService.setTimer(time);
+	if (timeIsFuture) {
+	  debugMsg("Simulator:scheduleNextResponse",
+			   " Timer set for "
+			   << std::setiosflags(std::ios_base::fixed) 
+			   << timevalToDouble(time));
+	}
+	else {
 	  debugMsg("Simulator:scheduleNextResponse", " Immediate response required");
 	  handleWakeUp();
 	}
-      else
-	{
-	  m_TimerScheduled = true;
-	  m_TimerScheduledTime = time;
-	  debugMsg("Simulator:scheduleNextResponse", " Setting timer for " << time.tv_sec);
-	}
-    }
-  else
-    {
-      debugMsg("Simulator:scheduleNextResponse",
-	       " A wakeup has already been scheduled for an earlier time.");
-    }
+  }
+  else {
+	debugMsg("Simulator:scheduleNextResponse",
+			 " A wakeup has already been scheduled for an earlier time.");
+  }
 }
-
-// Static member fn which is passed to the timing service
-void Simulator::wakeup(void* this_as_void_ptr)
-{
-  debugMsg("Simulator:wakeup", " releasing semaphore");
-  reinterpret_cast<Simulator*>(this_as_void_ptr)->m_Sem.post();
-}
-
 
 void Simulator::handleWakeUp()
 {
   debugMsg("Simulator:handleWakeUp", " entered");
-  bool scheduleTimer=false;
-  timeval time;
-    
-  {
-    PLEXIL::ThreadMutexGuard mg(m_TimerMutex);
-    int count = m_TimeToResp.count(m_TimeToResp.begin()->first);
-    for (std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
-	 count > 0; ++iter, --count)
-      {
-	ResponseMessage* resp = iter->second;
-	m_CommRelay->sendResponse(resp);
-	ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
-	manager->notifyMessageSent(resp->getResponseBase());
-	debugMsg("Simulator:handleWakeUp", " Sent response");
-	// delete resp; // handled by comm relay
-	m_TimeToResp.erase(iter);
-      }
+
+  //
+  // Send every message with a scheduled time earlier than now.
+  //
+  bool moreEvents = false;
+  do {
+	moreEvents = false;
+	ResponseMessage* resp = NULL;
+
+	// Get the current time inside the loop to account for time lost in sending messages
+	// Could be pulled out of the loop for a small efficiency gain.
+	timeval now;
+	gettimeofday(&now, NULL);
+
+	// begin critical section
+	{
+	  PLEXIL::ThreadMutexGuard mg(m_Mutex);
+	  if (!m_Agenda.empty()) {
+		AgendaMap::iterator it = m_Agenda.begin();
+		if (it->first < now) {
+		  // grab the event and remove it from the map
+		  resp = it->second;
+		  m_Agenda.erase(it);
+		  moreEvents = !m_Agenda.empty();
+		}
+	  }
+	}
+	// end critical section
+	
+	if (resp != NULL) {
+	  m_CommRelay->sendResponse(resp);
+	  ResponseMessageManager* manager = getResponseMessageManager(resp->getName());
+	  manager->notifyMessageSent(resp->getResponseBase());
+	  debugMsg("Simulator:handleWakeUp", " Sent response");
+	  // delete resp; // handled by comm relay
+	}
   }
-    
-  m_TimerScheduled = false;
-  if (m_TimeToResp.size() > 0)
-    {
-      std::multimap<timeval, ResponseMessage*>::iterator iter = m_TimeToResp.begin();
-      time = iter->first;
-      scheduleTimer = true;
-    }
+  while (moreEvents);
+
+  //
+  // Schedule next wakeup, if any
+  //
+  bool scheduleTimer = false;
+  timeval nextWakeup;
+  // begin critical section
+  {
+	PLEXIL::ThreadMutexGuard mg(m_Mutex);
+	if (!m_Agenda.empty()) {
+	  nextWakeup = m_Agenda.begin()->first;
+	  scheduleTimer = true;
+	}
+  }
+  // end critical section
 
   if (scheduleTimer) 
     {
-      debugMsg("Simulator:handleWakeUp", " Scheduling next wakeup at " << time.tv_sec);
-      scheduleNextResponse(time);
+      debugMsg("Simulator:handleWakeUp",
+			   " Scheduling next wakeup at "
+			   << std::setiosflags(std::ios_base::fixed) 
+			   << timevalToDouble(nextWakeup));
+      scheduleNextResponse(nextWakeup);
     }
   debugMsg("Simulator:handleWakeUp", " completed");
 }

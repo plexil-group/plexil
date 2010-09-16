@@ -31,7 +31,6 @@
 #include "SimulatorScriptReader.hh"
 #include "TimingService.hh"
 #include "ThreadMutex.hh"
-#include "ThreadSemaphore.hh"
 
 class ResponseMessageManager;
 class ResponseMessage;
@@ -44,7 +43,8 @@ public:
   ~Simulator();
 
   /**
-   * @brief Starts the simulation.  Call after reading all scripts.
+   * @brief Starts a new background thread with the simulator top level loop and returns immediately.
+   * @note Call only after reading all scripts.
    */
   void start();
 
@@ -52,6 +52,12 @@ public:
    * @brief Stops the simulator's top level thread.  Returns when the thread has rejoined.
    */
   void stop();
+
+  /**
+   * @brief The simulator top level loop.  
+   * @note Call only after reading all scripts.
+   */
+  void simulatorTopLevel();
 
   ResponseMessageManager* getResponseMessageManager(const std::string& cmdName) const;
 
@@ -62,7 +68,7 @@ public:
    * @param uniqueId Caller-specified identifier, passed through the simulator to the comm relay.
    */
   void scheduleResponseForCommand(const std::string& command, 
-				  void* uniqueId = NULL);
+                                  void* uniqueId = NULL);
 
   /**
    * @brief Get the current value of the named state.
@@ -95,10 +101,6 @@ private:
   // Thread function for pthread_create
   static void* run(void * this_as_void_ptr);
 
-  void simulatorTopLevel();
-  
-  static void wakeup(void* this_as_void_ptr);
-
   void handleWakeUp();
 
   void scheduleNextResponse(const timeval& time);
@@ -111,21 +113,19 @@ private:
    * @param type One of MSG_TELEMETRY or MSG_COMMAND.
    */
   bool constructNextResponse(const std::string& command, 
-			     void* uniqueId,
+                             void* uniqueId,
                              timeval& time, 
-			     int type);
+                             int type);
   
 
   CommRelayBase* m_CommRelay;
   TimingService m_TimingService;
-  PLEXIL::ThreadMutex m_TimerMutex;
-  PLEXIL::ThreadSemaphore m_Sem;
+  PLEXIL::ThreadMutex m_Mutex;
 
-  std::multimap<timeval, ResponseMessage*> m_TimeToResp;
+  typedef std::multimap<timeval, ResponseMessage*> AgendaMap;
+  AgendaMap m_Agenda;
   ResponseManagerMap& m_CmdToRespMgr;
-  timeval m_TimerScheduledTime;
   pthread_t m_SimulatorThread;
-  bool m_TimerScheduled;
   bool m_Started;
   bool m_Stop;
 };
