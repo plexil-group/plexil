@@ -28,6 +28,7 @@
 // *** Ignore this file on systems that implement POSIX timers
 //
 
+#include <unistd.h>
 #if !defined(_POSIX_TIMERS) || ((_POSIX_TIMERS - 200112L) < 0L)
 
 #include "DarwinTimeAdapter.hh"
