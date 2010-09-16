@@ -209,7 +209,7 @@ namespace PLEXIL
     State state;
     assertTrueMsg(getState(stateKey, state),
                   "IpcAdapter::registerChangeLookup: Internal error: state not found!");
-    LabelStr nameLabel = LabelStr(state.first);
+    LabelStr nameLabel(state.first);
     const std::vector<double>& params = state.second;
     size_t nParams = params.size();
     debugMsg("IpcAdapter:registerChangeLookup",
@@ -295,8 +295,8 @@ namespace PLEXIL
       size_t sep_pos = nameLabel.toString().find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
       //decide to direct or publish lookup
       if (sep_pos != std::string::npos) {
-        LabelStr name = LabelStr(nameLabel.toString().substr(sep_pos + 1));
-        LabelStr dest = LabelStr(nameLabel.toString().substr(0, sep_pos));
+        LabelStr name(nameLabel.toString().substr(sep_pos + 1));
+        LabelStr dest(nameLabel.toString().substr(0, sep_pos));
         m_pendingLookupSerial = m_ipcFacade.sendLookupNow(name, dest, paramList);
       }
       else {
@@ -305,8 +305,11 @@ namespace PLEXIL
       m_cmdMutex.unlock();
 
       // Wait for results
-      // *** TODO: check for error
-      m_lookupSem.wait();
+	  // N.B. shouldn't have to worry about signals causing wait to be interrupted -
+	  // ExecApplication blocks most of the common ones
+      int errnum = m_lookupSem.wait();
+	  assertTrueMsg(errnum == 0,
+					"IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
 
       // Clean up
       m_pendingLookupSerial = 0;
@@ -592,8 +595,8 @@ namespace PLEXIL
     //decide to direct or publish lookup
     uint32_t serial;
     if (sep_pos != std::string::npos) {
-      LabelStr nameLbl = LabelStr(name.toString().substr(sep_pos + 1));
-      LabelStr dest = LabelStr(name.toString().substr(0, sep_pos));
+      LabelStr nameLbl(name.toString().substr(sep_pos + 1));
+      LabelStr dest(name.toString().substr(0, sep_pos));
       serial = m_ipcFacade.sendCommand(nameLbl, dest, args);
     }
     else {
