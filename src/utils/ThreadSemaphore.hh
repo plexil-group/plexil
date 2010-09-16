@@ -50,12 +50,18 @@
 
 #ifdef PLEXIL_USE_POSIX_SEMAPHORES
 #include <semaphore.h>
+#include <cerrno>
+
+//* @brief Error status showing that the wait() call was interrupted.
+#define PLEXIL_SEMAPHORE_STATUS_INTERRUPTED EINTR
 #endif // PLEXIL_USE_POSIX_SEMAPHORES
 
 #ifdef PLEXIL_USE_MACH_SEMAPHORES
-#include <mach/mach_init.h> // for mach_task_self()
 #include <mach/semaphore.h>
 #include <mach/task.h> // for semaphore_create(), semaphore_destroy()
+
+//* @brief Error status showing that the wait() call was interrupted.
+#define PLEXIL_SEMAPHORE_STATUS_INTERRUPTED KERN_ABORTED
 #endif // PLEXIL_USE_MACH_SEMAPHORES
 
 namespace PLEXIL 
@@ -84,6 +90,9 @@ namespace PLEXIL
        @brief Causes the thread to block until post() is called on the semaphore.
        @return 0 if successful, error number otherwise.
        @note Error number is platform dependent.
+	   @note A status of PLEXIL_SEMAPHORE_STATUS_INTERRUPTED means the system call was interrupted,
+             e.g. by a signal or pthread_cancel(). This may not be an error depending on the situation.
+			 The caller should always check the return value and deal with it appropriately!
     */
     int wait();
 
