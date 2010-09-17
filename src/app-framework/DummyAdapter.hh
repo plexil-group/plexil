@@ -109,12 +109,6 @@ namespace PLEXIL
 			ExpressionId dest,
 			ExpressionId ack);
 
-    // executes a function call with the given arguments
-    void executeFunctionCall(const LabelStr& name,
-			     const std::list<double>& args,
-			     ExpressionId dest,
-			     ExpressionId ack);
-
     //abort the given command with the given arguments.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name, 
 		     const std::list<double>& args, 

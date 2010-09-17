@@ -99,17 +99,6 @@ namespace PLEXIL {
                   InterfaceAdapterId intf);
 
     /**
-     * @brief Register the given interface adapter for this function.
-              Returns true if successful.  Fails and returns false
-              iff the function name already has an adapter registered
-              or setting a function interface is not implemented.
-     * @param functionName The function to map to this adapter.
-     * @param intf The interface adapter to handle this function.
-     */
-    virtual bool registerFunctionInterface(const LabelStr & functionName,
-                   InterfaceAdapterId intf);
-
-    /**
      * @brief Register the given interface adapter for lookups to this state.
      Returns true if successful.  Fails and returns false
      if the state name already has an adapter registered
@@ -168,12 +157,6 @@ namespace PLEXIL {
     virtual void unregisterCommandInterface(const LabelStr & commandName);
 
     /**
-     * @brief Retract registration of the previous interface adapter for this function.
-     * @param functionName The function.
-     */
-    virtual void unregisterFunctionInterface(const LabelStr & functionName);
-
-    /**
      * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
@@ -211,13 +194,6 @@ namespace PLEXIL {
               May return NoId().
      */
     virtual InterfaceAdapterId getDefaultCommandInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for this function, whether
-     specifically registered or default. May return NoId().
-     * @param functionName The function.
-     */
-    virtual InterfaceAdapterId getFunctionInterface(const LabelStr & functionName);
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,

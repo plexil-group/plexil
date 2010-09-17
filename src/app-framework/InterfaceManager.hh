@@ -257,7 +257,6 @@ namespace PLEXIL
     //though it only takes a list of commands as an argument at the moment, it will eventually take function calls and the like
     //so the name remains "batchActions"
     void batchActions(std::list<CommandId>& commands);
-    void batchActions(std::list<FunctionCallId>& functionCalls);
     void updatePlanner(std::list<UpdateId>& updates);
 
     /**
@@ -294,16 +293,6 @@ namespace PLEXIL
      */
     bool registerCommandInterface(const LabelStr & commandName,
 				  InterfaceAdapterId intf);
-
-    /**
-     * @brief Register the given interface adapter for this function.  
-              Returns true if successful.  Fails and returns false 
-              iff the function name already has an adapter registered.
-     * @param functionName The function to map to this adapter.
-     * @param intf The interface adapter to handle this function.
-     */
-    bool registerFunctionInterface(const LabelStr & functionName,
-				   InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter for lookups to this state.
@@ -360,12 +349,6 @@ namespace PLEXIL
     void unregisterCommandInterface(const LabelStr & commandName);
 
     /**
-     * @brief Retract registration of the previous interface adapter for this function.  
-     * @param functionName The function.
-     */
-    void unregisterFunctionInterface(const LabelStr & functionName);
-
-    /**
      * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
@@ -403,13 +386,6 @@ namespace PLEXIL
               May return NoId().
      */
     InterfaceAdapterId getDefaultCommandInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for this function, whether 
-     specifically registered or default. May return NoId().
-     * @param functionName The function.
-     */
-    InterfaceAdapterId getFunctionInterface(const LabelStr & functionName);
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,
@@ -480,31 +456,12 @@ namespace PLEXIL
 				    const LabelStr & name,
 				    const std::list<double> & params);
 
-
-    /**
-     * @brief Tells the external interface to expect a return value from this function.
-     Use handleValueChange() to actually return the value.
-     * @param dest The expression whose value will be returned.
-     * @param functionName The function whose value will be returned.
-     * @param params The parameters associated with this function.
-     */
-    void registerFunctionReturnValue(ExpressionId dest,
-				     const LabelStr & functionName,
-				     const std::list<double> & params);
-
     /**
      * @brief Notify the external interface that this previously registered expression
      should not wait for a return value.
      * @param dest The expression whose value was to be returned.
      */
     void unregisterCommandReturnValue(ExpressionId dest);
-
-    /**
-     * @brief Notify the external interface that this previously registered expression
-     should not wait for a return value.
-     * @param dest The expression whose value was to be returned.
-     */
-    void unregisterFunctionReturnValue(ExpressionId dest);
 
     /**
      * @brief Notify the executive of a new plan.
@@ -603,12 +560,6 @@ namespace PLEXIL
 			const std::list<double>& args,
 			ExpressionId dest,
 			ExpressionId ack);
-
-    // executes a function call with the given arguments
-    void executeFunctionCall(const LabelStr& name,
-			     const std::list<double>& args,
-			     ExpressionId dest,
-			     ExpressionId ack);
 
     /**
      * @brief Removes the adapter and deletes it iff nothing refers to it.
@@ -719,7 +670,7 @@ namespace PLEXIL
       {
       public:
         /*
-         * @brief Constructor for a QueueEntry representing a function or command return value.
+         * @brief Constructor for a QueueEntry representing a command return value.
          */
 	QueueEntry(const ExpressionId & exp,
 		   double val)

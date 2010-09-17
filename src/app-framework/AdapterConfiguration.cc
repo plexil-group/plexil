@@ -75,19 +75,6 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Register the given interface adapter for this function.
-            Returns true if successful.  Fails and returns false
-            iff the function name already has an adapter registered
-            or setting a function interface is not implemented.
-   * @param functionName The function to map to this adapter.
-   * @param intf The interface adapter to handle this function.
-   */
-  bool AdapterConfiguration::registerFunctionInterface(const LabelStr & /* functionName */,
-						       InterfaceAdapterId /* intf */) {
-    return false;
-  }
-
-  /**
    * @brief Register the given interface adapter for lookups to this state.
    Returns true if successful.  Fails and returns false
    if the state name already has an adapter registered
@@ -157,13 +144,6 @@ namespace PLEXIL {
   void AdapterConfiguration:: unregisterCommandInterface(const LabelStr & /* commandName */) {}
 
   /**
-   * @brief Retract registration of the previous interface adapter for this function.
-   * Does nothing by default.
-   * @param functionName The function.
-   */
-  void AdapterConfiguration:: unregisterFunctionInterface(const LabelStr & /* functionName */) {}
-
-  /**
    * @brief Retract registration of the previous interface adapter for this state.
    * Does nothing by default.
    * @param stateName The state name.
@@ -208,15 +188,6 @@ namespace PLEXIL {
             May return noId(). Returns noId() if default interfaces are not implemented.
    */
   InterfaceAdapterId AdapterConfiguration:: getDefaultCommandInterface() {
-    return InterfaceAdapterId::noId();
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for this function, whether
-   specifically registered or default. May return noId(). Returns noId() if default interfaces are not implemented.
-   * @param functionName The function.
-   */
-  InterfaceAdapterId AdapterConfiguration:: getFunctionInterface(const LabelStr & /* functionName */) {
     return InterfaceAdapterId::noId();
   }
 

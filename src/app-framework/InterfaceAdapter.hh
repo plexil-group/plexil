@@ -177,20 +177,6 @@ namespace PLEXIL
 				ExpressionId ack);
 
     /**
-     * @brief Execute a function with the requested arguments.
-     * @param name The LabelString representing the command name.
-     * @param args The command arguments expressed as doubles.
-     * @param dest The expression in which to store any value returned from the function.
-     * @param ack The expression in which to store an acknowledgement of function transmission.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void executeFunctionCall(const LabelStr& name,
-				     const std::list<double>& args,
-				     ExpressionId dest,
-				     ExpressionId ack);
-
-    /**
      * @brief Abort the pending command with the supplied name and arguments.
      * @param name The LabelString representing the command name.
      * @param args The command arguments expressed as doubles.

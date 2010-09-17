@@ -795,23 +795,6 @@ namespace PLEXIL
     debugMsg("InterfaceManager:batchActions", " exited");
   }
 
-  // this batches the set of function calls from quiescence completion.
-
-  void 
-  InterfaceManager::batchActions(std::list<FunctionCallId>& calls)
-  {
-    for (std::list<FunctionCallId>::const_iterator it = calls.begin();
-         it != calls.end();
-         it++)
-      {
-        FunctionCallId call = *it;
-        this->executeFunctionCall(call->getName(),
-                                  call->getArgValues(),
-                                  call->getDest(),
-                                  call->getAck());
-      }
-  }
-
   // *** To do:
   //  - bookkeeping (i.e. tracking non-acked updates) ?
 
@@ -880,23 +863,6 @@ namespace PLEXIL
     this->handleValueChange(ack, CommandHandleVariable::COMMAND_DENIED());
   }
 
-  // executes a function call with the given arguments by looking up the name 
-  // and passing the information to the appropriate interface adapter
-
-  // *** To do:
-  //  - bookkeeping (i.e. tracking active calls), mostly for invokeAbort() below
-  void
-  InterfaceManager::executeFunctionCall(const LabelStr& name,
-                                        const std::list<double>& args,
-                                        ExpressionId dest,
-                                        ExpressionId ack)
-  {
-    InterfaceAdapterId intf = getFunctionInterface(name);
-    assertTrueMsg(!intf.isNoId(),
-                  "executeFunctionCall: null interface adapter for function " << name.toString());
-    intf->executeFunctionCall(name, args, dest, ack);
-  }
-
   /**
    * @brief Abort the pending command with the supplied name and arguments.
    * @param cmdName The LabelString representing the command name.
@@ -938,20 +904,6 @@ namespace PLEXIL
                                              InterfaceAdapterId intf)
   {
     return m_adapterConfig->registerCommandInterface(commandName, intf);
-  }
-
-  /**
-   * @brief Register the given interface adapter for this function.  
-   Returns true if successful.  Fails and returns false 
-   iff the function name already has an adapter registered.
-   * @param functionName The function to map to this adapter.
-   * @param intf The interface adapter to handle this function.
-   */
-  bool
-  InterfaceManager::registerFunctionInterface(const LabelStr & functionName,
-                                              InterfaceAdapterId intf)
-  {
-    return m_adapterConfig->registerFunctionInterface(functionName, intf);
   }
 
   /**
@@ -1035,17 +987,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterCommandInterface(const LabelStr & commandName)
   {
-    return m_adapterConfig->unregisterFunctionInterface(commandName);
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for this function.  
-   * @param functionName The function.
-   */
-  void
-  InterfaceManager::unregisterFunctionInterface(const LabelStr & functionName)
-  {
-    return m_adapterConfig->unregisterFunctionInterface(functionName);
+    return m_adapterConfig->unregisterCommandInterface(commandName);
   }
 
   /**
@@ -1103,17 +1045,6 @@ namespace PLEXIL
   InterfaceManager::getCommandInterface(const LabelStr & commandName)
   {
     return m_adapterConfig->getCommandInterface(commandName);
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for this function, whether 
-   specifically registered or default. May return NoId().
-   * @param functionName The function.
-   */
-  InterfaceAdapterId
-  InterfaceManager::getFunctionInterface(const LabelStr & functionName)
-  {
-    return m_adapterConfig->getFunctionInterface(functionName);
   }
 
   /**
@@ -1238,21 +1169,6 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Tells the external interface to expect a return value from this function.
-   Use handleValueChange() to actually return the value.
-   * @param dest The expression whose value will be returned.
-   * @param name The command whose value will be returned.
-   * @param params The parameters associated with this command.
-   */
-  void
-  InterfaceManager::registerFunctionReturnValue(ExpressionId /* dest */,
-                                                const LabelStr & /* name */,
-                                                const std::list<double> & /* params */)
-  {
-    assertTrue(ALWAYS_FAIL, "registerFunctionReturnValue not yet implemented!");
-  }
-
-  /**
    * @brief Notify the external interface that this previously registered expression
    should not wait for a return value.
    * @param dest The expression whose value was to be returned.
@@ -1261,17 +1177,6 @@ namespace PLEXIL
   InterfaceManager::unregisterCommandReturnValue(ExpressionId /* dest */)
   {
     assertTrue(ALWAYS_FAIL, "unregisterCommandReturnValue not yet implemented!");
-  }
-
-  /**
-   * @brief Notify the external interface that this previously registered expression
-   should not wait for a return value.
-   * @param dest The expression whose value was to be returned.
-   */
-  void
-  InterfaceManager::unregisterFunctionReturnValue(ExpressionId /* dest */)
-  {
-    assertTrue(ALWAYS_FAIL, "unregisterFunctionReturnValue not yet implemented!");
   }
 
   /**
@@ -1357,8 +1262,8 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive that it should run one cycle.  
-   This should be sent after each batch of lookup, command
-   return, and function return data.
+   This should be sent after each batch of lookup and command
+   return data.
   */
   void
   InterfaceManager::notifyOfExternalEvent()

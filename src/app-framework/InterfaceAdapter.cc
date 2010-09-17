@@ -114,17 +114,6 @@ namespace PLEXIL
   }
 
 
-  // executes a function call with the given arguments
-  void InterfaceAdapter::executeFunctionCall(const LabelStr& /* name */,
-					     const std::list<double>& /* args */,
-					     ExpressionId /* dest */,
-					     ExpressionId /* ack */)
-  {
-    assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::executeCommand: default method called!");
-  }
-
-
   //abort the given command with the given arguments that had acknowledgment old_ack.  store the abort-complete into ack
   void InterfaceAdapter::invokeAbort(const LabelStr& /* name */, 
 				     const std::list<double>& /* args */, 

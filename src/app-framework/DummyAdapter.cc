@@ -149,17 +149,6 @@ namespace PLEXIL
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdapter::executeFunctionCall(const LabelStr& /* name */,
-					 const std::list<double>& /* args */,
-					 ExpressionId /* dest */,
-					 ExpressionId ack)
-  {
-    debugMsg("ExternalInterface:dummy", " executeFunctionCall called");
-    m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE());
-    m_execInterface.notifyOfExternalEvent();
-  }
-
   //abort the given command with the given arguments.  store the abort-complete into dest
   void DummyAdapter::invokeAbort(const LabelStr& /* name */, 
 				 const std::list<double>& /* args */, 

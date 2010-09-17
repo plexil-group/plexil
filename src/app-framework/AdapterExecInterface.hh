@@ -84,17 +84,6 @@ namespace PLEXIL
 					  InterfaceAdapterId intf) = 0;
 
     /**
-     * @brief Register the given interface adapter for this function.  
-              Returns true if successful.  Fails and returns false 
-              iff the function name already has an adapter registered.
-     * @param functionName The function to map to this adapter.
-     * @param intf The interface adapter to handle this function.
-     * @return True if successful, false if there is already an adapter registered for this function.
-     */
-    virtual bool registerFunctionInterface(const LabelStr & functionName,
-					   InterfaceAdapterId intf) = 0;
-
-    /**
      * @brief Register the given interface adapter for lookups to this state.
               Returns true if successful.  Fails and returns false 
               iff the state name already has an adapter registered.
@@ -116,8 +105,8 @@ namespace PLEXIL
 
     /**
      * @brief Register the given interface adapter as the default.
-              This interface will be used for all lookups, commands, 
-              and functions which do not have a specific adapter.  
+              This interface will be used for all lookups, commands, and updates
+              which do not have a specific adapter.  
               Returns true if successful.
 	      Fails and returns false if there is already a default adapter registered.
      * @param intf The interface adapter to use as the default.
@@ -152,12 +141,6 @@ namespace PLEXIL
      * @param commandName The command.
      */
     virtual void unregisterCommandInterface(const LabelStr & commandName) = 0;
-
-    /**
-     * @brief Retract registration of the previous interface adapter for this function.  
-     * @param functionName The function.
-     */
-    virtual void unregisterFunctionInterface(const LabelStr & functionName) = 0;
 
     /**
      * @brief Retract registration of the previous interface adapter for this state.
@@ -197,13 +180,6 @@ namespace PLEXIL
               May return NoId().
      */
     virtual InterfaceAdapterId getDefaultCommandInterface() = 0;
-
-    /**
-     * @brief Return the interface adapter in effect for this function, whether 
-     specifically registered or default. May return NoId().
-     * @param functionName The function.
-     */
-    virtual InterfaceAdapterId getFunctionInterface(const LabelStr & functionName) = 0;
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,
@@ -269,29 +245,11 @@ namespace PLEXIL
 					    const std::list<double> & params) = 0;
 
     /**
-     * @brief Tells the external interface to expect a return value from this function.
-     Use handleValueChange() to actually return the value.
-     * @param dest The expression whose value will be returned.
-     * @param functionName The function whose value will be returned.
-     * @param params The parameters associated with this function.
-     */
-    virtual void registerFunctionReturnValue(ExpressionId dest,
-					     const LabelStr & functionName,
-					     const std::list<double> & params) = 0;
-
-    /**
      * @brief Notify the external interface that this previously registered expression
      should not wait for a return value.
      * @param dest The expression whose value was to be returned.
      */
     virtual void unregisterCommandReturnValue(ExpressionId dest) = 0;
-
-    /**
-     * @brief Notify the external interface that this previously registered expression
-     should not wait for a return value.
-     * @param dest The expression whose value was to be returned.
-     */
-    virtual void unregisterFunctionReturnValue(ExpressionId dest) = 0;
 
     /**
      * @brief Notify the executive of a new plan.

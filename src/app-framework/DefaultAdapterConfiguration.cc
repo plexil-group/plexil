@@ -130,16 +130,6 @@ void DefaultAdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId adap
         registerCommandInterface(LabelStr(*it), adapter);
       }
       delete cmdNames;
-    } else if (strcmp(elementType, InterfaceSchema::FUNCTION_NAMES_TAG()) == 0) {
-      checkError(text != 0,
-          "registerAdapter: Invalid configuration XML: "
-          << InterfaceSchema::FUNCTION_NAMES_TAG()
-          << " requires one or more comma-separated function names");
-      std::vector<std::string> * fnNames = InterfaceSchema::parseCommaSeparatedArgs(text->Value());
-      for (std::vector<std::string>::const_iterator it = fnNames->begin(); it != fnNames->end(); it++) {
-        registerFunctionInterface(LabelStr(*it), adapter);
-      }
-      delete fnNames;
     } else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
       checkError(text != 0,
           "registerAdapter: Invalid configuration XML: "
@@ -178,31 +168,6 @@ bool DefaultAdapterConfiguration::registerCommandInterface(const LabelStr & comm
   } else {
     debugMsg("DefaultAdapterConfiguration:registerCommandInterface",
         " interface already registered for command '" << commandName.toString() << "'");
-    return false;
-  }
-}
-
-/**
- * @brief Register the given interface adapter for this function.
- Returns true if successful.  Fails and returns false
- iff the function name already has an adapter registered
- or setting a function interface is not implemented.
- * @param functionName The function to map to this adapter.
- * @param intf The interface adapter to handle this function.
- */
-bool DefaultAdapterConfiguration::registerFunctionInterface(const LabelStr & functionName, InterfaceAdapterId intf) {
-  double functionNameKey = functionName.getKey();
-  InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
-  if (it == m_functionMap.end()) {
-    // Not found, OK to add
-    debugMsg("DefaultAdapterConfiguration:registerFunctionInterface",
-        " registering interface for function '" << functionName.toString() << "'");
-    m_functionMap.insert(std::pair<double, InterfaceAdapterId>(functionNameKey, intf));
-    getAdaptersFromManager().insert(intf);
-    return true;
-  } else {
-    debugMsg("DefaultAdapterConfiguration:registerFunctionInterface",
-        " interface already registered for function '" << functionName.toString() << "'");
     return false;
   }
 }
@@ -335,23 +300,6 @@ void DefaultAdapterConfiguration::unregisterCommandInterface(const LabelStr & co
 }
 
 /**
- * @brief Retract registration of the previous interface adapter for this function.
- * Does nothing by default.
- * @param functionName The function.
- */
-void DefaultAdapterConfiguration::unregisterFunctionInterface(const LabelStr & functionName) {
-  double functionNameKey = functionName.getKey();
-  InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
-  if (it != m_functionMap.end()) {
-    debugMsg("DefaultAdapterConfiguration:unregisterFunctionInterface",
-        " removing interface for function '" << functionName.toString() << "'");
-    InterfaceAdapterId intf = it->second;
-    m_functionMap.erase(it);
-    deleteIfUnknown(intf);
-  }
-}
-
-/**
  * @brief Retract registration of the previous interface adapter for this state.
  * Does nothing by default.
  * @param stateName The state name.
@@ -453,26 +401,6 @@ InterfaceAdapterId DefaultAdapterConfiguration::getDefaultCommandInterface() {
 }
 
 /**
- * @brief Return the interface adapter in effect for this function, whether
- specifically registered or default. May return NoId(). Returns NoId() if default interfaces are not implemented.
- * @param functionName The function.
- */
-InterfaceAdapterId DefaultAdapterConfiguration::getFunctionInterface(const LabelStr & functionName) {
-  double functionNameKey = functionName.getKey();
-  InterfaceMap::iterator it = m_functionMap.find(functionNameKey);
-  if (it != m_functionMap.end()) {
-    debugMsg("DefaultAdapterConfiguration:getFunctionInterface",
-        " found specific interface " << (*it).second
-        << " for function '" << functionName.toString() << "'");
-    return (*it).second;
-  }
-  debugMsg("DefaultAdapterConfiguration:getFunctionInterface",
-      " returning default interface " << m_defaultInterface
-      << " for function '" << functionName.toString() << "'");
-  return m_defaultInterface;
-}
-
-/**
  * @brief Return the interface adapter in effect for lookups with this state name,
  whether specifically registered or default. May return NoId(). Returns NoId() if default interfaces are not implemented.
  * @param stateName The state.
@@ -552,10 +480,6 @@ bool DefaultAdapterConfiguration::isKnown(InterfaceAdapterId intf) {
   for (; it != m_commandMap.end(); it++)
     if (it->second == intf)
       return true;
-  it = m_functionMap.begin();
-  for (; it != m_functionMap.end(); it++)
-    if (it->second == intf)
-      return true;
   return false;
 }
 
@@ -574,7 +498,6 @@ void DefaultAdapterConfiguration::deleteIfUnknown(InterfaceAdapterId intf) {
 void DefaultAdapterConfiguration::clearAdapterRegistry() {
   m_lookupMap.clear();
   m_commandMap.clear();
-  m_functionMap.clear();
   m_plannerUpdateInterface = InterfaceAdapterId::noId();
   m_defaultInterface = InterfaceAdapterId::noId();
   m_defaultCommandInterface = InterfaceAdapterId::noId();
