@@ -3,7 +3,6 @@
 
 <!-- working node types -->
 
-<!--   <Node NodeType="FunctionCall"> -->
 <!--   <Node NodeType="Command"> -->
 
 <!-- broken node types -->
@@ -34,16 +33,6 @@
           </Name>
         </LookupOnChange>
     </RepeatCondition>
- 
-    <!-- call function -->
-
-<!--     <NodeBody> -->
-<!--       <FunctionCall> -->
-<!--         <Name> -->
-<!--           <StringValue>f1</StringValue> -->
-<!--         </Name> -->
-<!--       </FunctionCall> -->
-<!--     </NodeBody> -->
 
    <!-- execute a command -->
 

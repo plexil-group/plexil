@@ -54,10 +54,9 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
 SAME_NAME_SCRIPT_TESTS	:= array1 array3 array4 array8 atomic-assignment \
  boolean1 \
  change-lookup-test command1 command2 command3 command4 command5 concat2 conjuncts conjuncts1 \
- function-call1 \
  lookup1 lookup2 lookup3 \
  repeat2 repeat5 \
- simple-functioncall site-survey \
+ site-survey \
  test-end-condition test-timepoint \
  update-lookup-test update-test
 

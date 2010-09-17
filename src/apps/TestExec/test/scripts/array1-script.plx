@@ -21,13 +21,5 @@
       <Result>COMMAND_SUCCESS</Result>
     </CommandAck>
 
-    <!-- Function returning array of string -->
-    
-    <FunctionCall name="stringArrayFunction" type="string-array">
-      <Result>new string 1</Result>
-      <Result>new string 2</Result>
-      <Result>new strign 3</Result>
-    </FunctionCall>
-
   </Script>
 </PLEXILScript>

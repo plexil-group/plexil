@@ -228,44 +228,6 @@
             </AND>
             </StartCondition>
         </Node>
-        
-        <!-- call a function which returns an array -->
-    
-        <Node NodeType="FunctionCall">
-          <NodeId>callStringArrayFunction</NodeId>
-          <NodeBody>
-            <FunctionCall>
-              <ArrayVariable>myStringArray</ArrayVariable>
-              <Name><StringValue>stringArrayFunction</StringValue></Name>
-            </FunctionCall>
-          </NodeBody>
-        </Node>
-        
-        <!-- the test that the function executed and
-             the string array values updated -->
-
-        <Node NodeType="Empty">
-          <NodeId>testCallStringArrayFunction</NodeId>
-          <StartCondition>
-            <AND>
-              <EQInternal>
-                <NodeOutcomeVariable>
-                  <NodeId>callStringArrayFunction</NodeId>
-                </NodeOutcomeVariable>
-                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-              </EQInternal>
-              <EQString>
-                <ArrayElement>
-                  <Name>myStringArray</Name>
-                  <Index>
-                    <IntegerValue>1</IntegerValue>
-                  </Index>
-                </ArrayElement>
-                <StringValue>new string 2</StringValue>
-              </EQString>
-            </AND>
-            </StartCondition>
-        </Node>
       </NodeList>
     </NodeBody>
   </Node>

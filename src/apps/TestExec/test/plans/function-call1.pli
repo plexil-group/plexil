@@ -1,6 +1,0 @@
-(plexil-plan
-  (list-node "Root"
-    (variables (real "result"))
-    (list
-      (function-call-node "Add"
-        (function-call "add" 2.5 2.0)))))

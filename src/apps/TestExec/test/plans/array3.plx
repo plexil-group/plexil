@@ -24,12 +24,6 @@
       <AND>
         <EQInternal>
           <NodeOutcomeVariable>
-            <NodeId>One</NodeId>
-          </NodeOutcomeVariable>
-          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-        </EQInternal>
-        <EQInternal>
-          <NodeOutcomeVariable>
             <NodeId>Two</NodeId>
           </NodeOutcomeVariable>
           <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
@@ -44,29 +38,6 @@
     </PostCondition>
     <NodeBody>
       <NodeList>
-        <Node NodeType="FunctionCall" >
-          <NodeId>One</NodeId>
-          <PostCondition>
-            <EQNumeric>
-              <ArrayElement>
-                <Name>a1</Name>
-                <Index>
-                  <IntegerValue>0</IntegerValue>
-                </Index>
-              </ArrayElement>
-              <IntegerValue>555</IntegerValue>
-            </EQNumeric>
-          </PostCondition>
-          <NodeBody>
-            <FunctionCall>
-              <ArrayVariable>a1</ArrayVariable>
-              <Name><StringValue>get-a1</StringValue></Name>
-              <Arguments>
-                <StringValue>foo</StringValue>
-              </Arguments>
-            </FunctionCall>
-          </NodeBody>
-        </Node>
         <Node NodeType="Command" >
           <NodeId>Two</NodeId>
           <PostCondition>
