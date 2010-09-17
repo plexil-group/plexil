@@ -205,7 +205,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  t)
+  nil)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -1138,9 +1138,7 @@
            (setq the-name name-or-first-form)
            (setq first-form (car forms))
            (setq rest-forms (cdr forms)))
-          ((and (listp name-or-first-form)
-                (or (plexil-node? name-or-first-form)
-                    (plexil-node-body? name-or-first-form)))
+          ((listp name-or-first-form)
            (setq first-form name-or-first-form)
            (setq rest-forms forms))
           (t (error "plexil-build-sequence: Unsupported form: %s"
@@ -1154,14 +1152,15 @@
 
 (defun plexil-nodify (x)
   ;; list -> xml
-  ;; Takes an expression representing either a node or node body, and
-  ;; returns a node.
+  ;;
+  ;; If the given expression looks like a Plexil node or Plexil node body,
+  ;; return it as a Plexil node.  Otherwise just evaluate it.
   ;;
   (cond ((plexil-node? x)
          (plexil-eval-node x))
         ((plexil-node-body? x)
          (plexil-eval-node-body x))
-        (t (error "Unsupported form: %s" x))))
+        (t (eval x))))
 
 (insert-plexil-heading
  "== Special Purpose Nodes =="
@@ -1531,7 +1530,7 @@
         (data (xml-data x))
         (attrs (xml-attrs x)))
     (if (comment? x)
-        (format "<!-- %s -->" name)
+        (format "<!-- %s -->" (xml-name x))
       (format "<%s%s>%s%s"
               name
               (if attrs
