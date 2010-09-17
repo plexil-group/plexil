@@ -43,20 +43,37 @@ warn()
    fi
 }
 
-usage="Usage: $0 -p <plan> [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-                     [-k] [-c <command-script>] [-t <telemetry-script>] [-l <library>]*"
+usage="Usage: $0 -p <plan> -cmd <command-script> -t <telemetry-script> [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+                     [-ch] [-l <library>]*"
 
-# Other options:
-#
-# -q suppresses a leading printed summary and default debug messages.
-# -v requests that plan state be transmitted to the UE viewer.
-# -h hostname of viewer
-# -n portnumber of viewer
-# -b enables breakpoints in viewer (recommended)
-# -d debug file (default is Debug.cfg)
-# -k runs the PLEXIL static checker prior to executing plan
-# -c specifies an command-script file (defaulting to .........)
-# -l  specifies a plan library (.plx file)
+help=" Other options:\n\
+\n\
+ -p | -plan <plan> \n\
+\t	load plan (required) \n\
+ -cmd | -commands <commandt> \n\
+\t	load command-script (required) \n\
+ -t | -tele <telemetry> \n\
+\t	load telemetry-script (required) \n\
+ -c | -config <config> \n\
+\t 	specifies an interface configuration file (defaulting to interface-config.xml)\n\
+ -q | -quiet \n\
+\t 	suppresses a leading printed summary and default debug messages.\n\
+ -v | -viewer \n\
+\t 	requests that plan state be transmitted to the UE viewer.\n\
+ -h | -hostname <name> \n\
+\t 	hostname of viewer\n\
+ -n | -port <number> \n\
+\t 	portnumber of viewer\n\
+ -b | -blocking \n\
+\t 	enables breakpoints in viewer (recommended)\n\
+ -d | -debug <file name> \n\
+\t 	debug file (default is Debug.cfg)\n\
+ -ch | -check \n\
+\t 	runs the PLEXIL static checker prior to executing plan\n\
+ -l | -library <file name>\n\
+\t 	specifies a plan library (.plx file)\n\
+-? | -help \n\
+	shows this message of options"
 # -a used only for viewer acquire PID
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
@@ -78,49 +95,50 @@ check="false" #run static checker
 
 if [ ! $1 ]
   then
-  echo No arguments defined
   echo $usage
   exit 1
 fi
 
-#use -u to make sure arguments are not quoted (single qute breaks directory references)
-set -- `getopt -a -u qp:c:l:d:vh:n:bkva -- $@`   
-
-
-while [ "$1" != "" ]
+for i in $*
 do
-    case $1 in    	
-        -q | --quiet ) quiet=0;;	
-	-p | --plan ) plan_nm="$2"
-	plan_cmd="-p $2"
-	shift;;
-	-c | --commands ) valid $2
-	cmd_scr="$2"
-	shift;;
-	-t | --telemetry ) valid $2
-	tele_scr="$2"
-	shift;;	
-	-l | --library ) valid $2
-	libraries="$libraries -l $2"
-	shift;;
-	-d | --debug ) valid $2
-	debug_file="-d $2"
-	shift;;
-	-v | --viewer ) viewer="-v";;	#luv listener enabled	
-	-h | --host ) host_in="-h $2"
-	shift;;	#luv host name
-	-n | --port ) port_in="-n $2"
- 	shift
-	    skip=1;;	#luv port
-	-b | --blocking ) block="-b";;	#enable luv break point	
-	-k | --check ) check="true";;	
+    case $1 in 	
+        -q | -quiet ) quiet=0;;	
+	-p | -plan ) shift
+	plan_nm="$1"
+	plan_cmd="-p $1";;
+	-c | -config ) shift
+	valid $1
+	config_nm="$1"
+	config_cmd="-c $1";;
+	-cmd | -commands ) shift
+	valid $1
+	cmd_scr="$1";;
+	-t | -telemetry ) shift
+	valid $1
+	tele_scr="$1";;	
+	-l | -library ) shift
+	valid $1
+	libraries="$libraries -l $1";;
+	-d | -debug ) shift
+	valid $1
+	debug_file="-d $1";;
+	-v | -viewer ) viewer="-v";;	#luv listener enabled	
+	-h | -hostname ) shift
+	host_in="-h $1";;	#luv host name
+	-n | -port ) shift
+	port_in="-n $1"
+	skip=1;;	#luv port
+	-b | -blocking ) block="-b";;	#enable luv break point	
+	-k | -check ) check="true";;	
 	-a ) automate="true";;
-	\? ) echo $usage
+	-help ) echo -e $help
 	  exit 2;;
+	-? ) echo 'Error: missing argument for option' $1
+	  echo $usage
+	  exit 2;; 
     esac
     shift
 done
-shift
 
 # Check the plan's existence
 if [ "$plan_nm" = "" ] 
