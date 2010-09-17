@@ -11,15 +11,16 @@ Release Notes
 -------------
 
 Next release
- - new sample Plexil executive application
+ - new small example Plexil executive application in src/apps/sample
  - Plexil syntax improvements:
    * OnCommand, OnMessage forms more consistent with other actions
    * uniform usage of colons in action bodies
- - Rewrite of standalone simulator internals
- - Plexilisp: Sequence forms can now contain any attributes, and also structured
-   comments.
+ - Rewrote standalone simulator internals, fixing Mac OS issues
+ - Plexilisp improvements: 
+   * Sequence forms can now contain any attributes, and also structured
+     comments.
+   * In command-with-return, reversed order of state name and return variable.
  - signficant revision of user manual
-
 
 1.2.1 (August 2010)
  - IPC-related applications (Robosim, Standalone Simulator, and any
