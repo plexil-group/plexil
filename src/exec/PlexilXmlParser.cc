@@ -57,7 +57,6 @@ const std::string LIBRARYNODECALL_TAG("LibraryNodeCall");
 const std::string ALIAS_TAG("Alias");
 const std::string NODE_PARAMETER_TAG("NodeParameter");
 const std::string CMD_TAG("Command");
-const std::string FUNCCALL_TAG("FunctionCall");
 const std::string NAME_TAG("Name");
 const std::string INDEX_TAG("Index");
 const std::string ARGS_TAG("Arguments");
@@ -559,17 +558,6 @@ public:
         }
 };
 
-class PlexilFunctionCallParser: public PlexilActionParser {
-public:
-        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-                checkTag(FUNCCALL_TAG, xml);
-                PlexilFunctionCallBody* retval = new PlexilFunctionCallBody();
-                parseDest(xml, retval);
-                retval->setState(PlexilXmlParser::parseState(xml));
-                return retval->getId();
-        }
-};
-
 class PlexilPairsParser: public PlexilBodyParser {
 public:
         PlexilUpdateId parsePairs(const TiXmlElement* xml) throw(ParserException) {
@@ -626,8 +614,6 @@ void PlexilXmlParser::registerParsers()
   s_bodyParsers->insert(std::make_pair(LIBRARYNODECALL_TAG,
                                       new PlexilLibraryNodeCallParser()));
   s_bodyParsers->insert(std::make_pair(CMD_TAG, new PlexilCommandParser()));
-  s_bodyParsers->insert(std::make_pair(FUNCCALL_TAG,
-                                      new PlexilFunctionCallParser()));
   s_bodyParsers->insert(std::make_pair(UPDATE_TAG, new PlexilUpdateParser()));
   s_bodyParsers->insert(std::make_pair(REQ_TAG, new PlexilRequestParser()));
 
@@ -1530,8 +1516,6 @@ TiXmlElement* PlexilXmlParser::toXml(const PlexilNodeBodyId& body)
 		realBody = toXml((PlexilAssignmentBody*) body);
 	else if (Id<PlexilCommandBody>::convertable(body))
 		realBody = toXml((PlexilCommandBody*) body);
-	else if (Id<PlexilFunctionCallBody>::convertable(body))
-		realBody = toXml((PlexilFunctionCallBody*) body);
 	else if (Id<PlexilLibNodeCallBody>::convertable(body))
 		realBody = toXml((PlexilLibNodeCallBody*) body);
 	checkParserException(realBody != NULL, "Unknown body type.");
@@ -1639,19 +1623,6 @@ TiXmlElement* PlexilXmlParser::toXml(const PlexilCommandBody* body)
 	for (std::vector<TiXmlElement*>::const_iterator it = dest.begin(); it
 			!= dest.end(); ++it)
 		retval->LinkEndChild(*it);
-	toXml(body->state(), retval);
-	return retval;
-}
-
-TiXmlElement* PlexilXmlParser::toXml(const PlexilFunctionCallBody* body)
-		throw(ParserException) {
-	TiXmlElement* retval = element(FUNCCALL_TAG);
-	std::vector<TiXmlElement*> dest;
-	toXml(body->dest(), dest);
-	for (std::vector<TiXmlElement*>::const_iterator it = dest.begin(); it
-			!= dest.end(); ++it)
-		retval->LinkEndChild(*it);
-
 	toXml(body->state(), retval);
 	return retval;
 }

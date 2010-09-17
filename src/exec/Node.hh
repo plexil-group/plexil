@@ -107,7 +107,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, LIST, "NodeList");
     DECLARE_STATIC_CLASS_CONST(LabelStr, LIBRARYNODECALL, "LibraryNodeCall");
     DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, FUNCTION, "FunctionCall");
     DECLARE_STATIC_CLASS_CONST(LabelStr, REQUEST, "Request");
     DECLARE_STATIC_CLASS_CONST(LabelStr, EMPTY, "Empty");
 
@@ -228,8 +227,6 @@ namespace PLEXIL {
     CommandId& getCommand();
 
     UpdateId& getUpdate();
-
-    FunctionCallId& getFunctionCall();
 
     void checkConditions();
 
@@ -361,8 +358,6 @@ namespace PLEXIL {
 
     void createUpdate(const PlexilUpdateBody* body);
 
-    void createFunctionCall(const PlexilFunctionCallBody* funcCall);
-
     void createConditions(const std::map<std::string, PlexilExprId>& conds);
 
     void createChildNodes(const PlexilListBody* body);
@@ -453,7 +448,6 @@ namespace PLEXIL {
     AssignmentId m_assignment;
     CommandId m_command; /*<! The command to be performed. */
     UpdateId m_update;
-    FunctionCallId m_functionCall;
     ExpressionId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     std::list<NodeId> m_children; /*<! Child nodes.*/
     std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
@@ -541,32 +535,6 @@ namespace PLEXIL {
     ExpressionId m_ack;
     std::list<ExpressionId> m_garbage;
     std::map<double, double> m_valuePairs;
-  };
-
-  class FunctionCall {
-  public:
-    FunctionCall(const ExpressionId nameExpr, const std::list<ExpressionId>& args, const ExpressionId dest, const ExpressionId ack,
-                 const std::list<ExpressionId>& garbage);
-    ~FunctionCall();
-    FunctionCallId& getId() {return m_id;}
-    const LabelStr& getName();
-    ExpressionId& getDest() {return m_dest;}
-    ExpressionId& getAck() {return m_ack;}
-    const std::list<double>& getArgValues() {return m_argValues;}
-    void activate();
-    void deactivate();
-  protected:
-    friend class Node;
-    void fixValues();
-  private:
-    FunctionCallId m_id;
-    LabelStr m_name;
-    ExpressionId m_nameExpr;
-    std::list<ExpressionId> m_args;
-    ExpressionId m_dest;
-    ExpressionId m_ack;
-    std::list<ExpressionId> m_garbage;
-    std::list<double> m_argValues;
   };
 
 }

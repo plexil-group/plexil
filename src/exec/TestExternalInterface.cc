@@ -105,36 +105,6 @@ namespace PLEXIL
             //stepExec = true;
          }
 
-         // parse function call
-
-         else if (strcmp(scriptElement->Value(), "FunctionCall") == 0)
-         {
-            parseFunctionCall(*scriptElement, name, args, value);
-            UniqueThing functionCall(name, args);
-            debugMsg("Test:testOutput", "Sending functionCall result "
-                     << getText(functionCall, value));
-            ExpressionUtMap::iterator it = 
-               m_executingFunctionCalls.find(functionCall);
-            checkError(it != m_executingFunctionCalls.end(),
-                       "No currently executing functionCall " <<
-                       getText(functionCall));
-            setVariableValue(getText(functionCall), it->second,
-                             value);
-            m_executingFunctionCalls.erase(it);
-
-            debugMsg("Test:testOutput", "Sending function call ACK " 
-                     << getText(functionCall, value));
-            it = m_functionCallAcks.find(functionCall);
-            checkError(it != m_functionCallAcks.end(),
-                       "No functionCall waiting for an acknowledgement"
-                       << getText(functionCall));
-            if (it->second != ExpressionId::noId())
-               it->second->setValue(BooleanVariable::TRUE());
-            m_functionCallAcks.erase(it);
-
-            //stepExec = true;
-         }
-
          // parse command ack
 
          else if (strcmp(scriptElement->Value(), "CommandAck") == 0)
@@ -343,35 +313,6 @@ namespace PLEXIL
       parseParams(cmd, args);
    }
 
-   void TestExternalInterface::parseFunctionCall(const TiXmlElement& cmd, 
-                                                 LabelStr& name, 
-                                                 std::vector<double>& args,
-                                                 double& value)
-   {
-      checkError(strcmp(cmd.Value(), "FunctionCall") == 0 ||
-                 strcmp(cmd.Value(), "FunctionCallAck") == 0 ||
-                 strcmp(cmd.Value(), "FunctionCallAbort") == 0, 
-                 "Expected <FunctionCall> element.  Found '" << cmd.Value() << "'");
-
-      checkError(cmd.Attribute("name") != NULL,
-                 "No name attribute in <FunctionCall> element.");
-      name = LabelStr(cmd.Attribute("name"));
-      checkError(cmd.Attribute("type") != NULL, 
-                 "No type attribute in <FunctionCall> element.");
-      std::string type(cmd.Attribute("type"));
-
-      const TiXmlElement* resXml = cmd.FirstChildElement("Result");
-      checkError(resXml != NULL, "No Result child in FunctionCall element.");
-      checkError(resXml->FirstChild() != NULL, 
-                 "Empty Result child in FunctionCall element.");
-      std::string resStr(resXml->FirstChild()->Value());
-
-      // read in the initiial values and parameters
-
-      value = parseValues(type, resXml);
-      parseParams(cmd, args);
-   }
-
    void TestExternalInterface::parseParams(const TiXmlElement& root, 
                                            std::vector<double>& dest)
    {
@@ -558,31 +499,6 @@ namespace PLEXIL
                " into " << (dest.isNoId() ? std::string("noId") : dest->toString()) << " with ack " << ack->toString());
       if (!dest.isNoId()) m_executingCommands[cmd] = dest;
       m_commandAcks[cmd] = ack;
-      //m_executingCommands.insert(UniqueThing((double)name, args), dest);
-   }
-
-   void TestExternalInterface::batchActions(std::list<FunctionCallId>& functionCalls)
-   {
-      if (functionCalls.empty())
-         return;
-      for (std::list<FunctionCallId>::iterator it = functionCalls.begin(); it != functionCalls.end(); ++it)
-      {
-         FunctionCallId fc = *it;
-         check_error(fc.isValid());
-         executeFunctionCalls(fc->getName(), fc->getArgValues(), fc->getDest(), fc->getAck());
-      }
-      //m_exec->step();
-   }
-
-   void TestExternalInterface::executeFunctionCalls(const LabelStr& name, const std::list<double>& args,
-                                                    ExpressionId dest, ExpressionId ack)
-   {
-      std::vector<double> realArgs(args.begin(), args.end());
-      UniqueThing fc((double)name, realArgs);
-      debugMsg("Test:testOutput", "Executing " << getText(fc) <<
-               " into " << (dest.isNoId() ? std::string("noId") : dest->toString()) << " with ack " << ack->toString());
-      m_executingFunctionCalls[fc] = dest;
-      m_functionCallAcks[fc] = ack;
       //m_executingCommands.insert(UniqueThing((double)name, args), dest);
    }
 

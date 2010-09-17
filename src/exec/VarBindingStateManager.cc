@@ -36,8 +36,8 @@ namespace PLEXIL {
   public:
     BindingExecutingStateComputer() : StateComputer() {}
     const LabelStr& getDestState(NodeId& node) {
-      checkError(node->getType() == Node::ASSIGNMENT() || node->getType() == Node::FUNCTION(),
-		 "Expected assignment or function call node, got " <<
+      checkError(node->getType() == Node::ASSIGNMENT(),
+		 "Expected assignment node, got " <<
 		 node->getType().toString());
       checkError(node->getState() == StateVariable::EXECUTING(),
 		 "Node " << node->getNodeId().toString() << " in state " <<
@@ -81,8 +81,8 @@ namespace PLEXIL {
   public:
     BindingExecutingTransitionHandler() : TransitionHandler() {}
     void transitionFrom(NodeId& node, const LabelStr& destState) {
-      checkError(node->getType() == Node::ASSIGNMENT() || node->getType() == Node::FUNCTION(),
-		 "Expected assignment or function call node, got " <<
+      checkError(node->getType() == Node::ASSIGNMENT(),
+		 "Expected assignment node, got " <<
 		 node->getType().toString());
       checkError(node->getState() == StateVariable::EXECUTING(),
 		 "In state '" << node->getState().toString() << "', not EXECUTING.");
@@ -126,11 +126,11 @@ namespace PLEXIL {
     }
 
     void transitionTo(NodeId& node, const LabelStr& destState) {
-      checkError(node->getType() == Node::ASSIGNMENT() || node->getType() == Node::FUNCTION(),
-		 "Expected assignment or function call node, got " <<
+      checkError(node->getType() == Node::ASSIGNMENT(),
+		 "Expected assignment node, got " <<
 		 node->getType().toString());
       checkError(destState == StateVariable::EXECUTING(),
-		 "Attempting to transition to inavlid state '" << destState.toString() << "'.");
+		 "Attempting to transition to invalid state '" << destState.toString() << "'.");
 
       node->activateAncestorInvariantCondition();
       node->activateInvariantCondition();

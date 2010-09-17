@@ -43,7 +43,6 @@ namespace PLEXIL
       if (!initializeStateManagers_called)
       {
          REGISTER_STATE_MANAGER(VarBindingStateManager,      Assignment);
-         REGISTER_STATE_MANAGER(VarBindingStateManager,      FunctionCall);
          REGISTER_STATE_MANAGER(ActionNodeStateManager,      Command);
          REGISTER_STATE_MANAGER(ActionNodeStateManager,      Update);
          REGISTER_STATE_MANAGER(ActionNodeStateManager,      Request);

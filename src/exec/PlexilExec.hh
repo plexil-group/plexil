@@ -238,7 +238,6 @@ namespace PLEXIL
     std::list<AssignmentId> m_assignmentsToExecute;
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
-    std::list<FunctionCallId> m_functionCallsToExecute;
     std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
                                                                                                   The nodes in the sets are assignment nodes which can assign values to the variable.
                                                                                                   The sets are ordered by priority, but the order is dominated by EXECUTING nodes.

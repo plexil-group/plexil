@@ -41,8 +41,6 @@ namespace PLEXIL {
       return NodeType_Command;
     else if (typeName == ASSIGNMENT())
       return NodeType_Assignment;
-    else if (typeName == FUNCTION())
-      return NodeType_FunctionCall;
     else if (typeName == UPDATE())
       return NodeType_Update;
     else if (typeName == REQUEST())
@@ -73,9 +71,6 @@ namespace PLEXIL {
         break;
       case NodeType_Assignment:
         return PlexilParser::ASSIGNMENT();
-        break;
-      case NodeType_FunctionCall:
-        return PlexilParser::FUNCTION();
         break;
       case NodeType_Update:
         return PlexilParser::UPDATE();

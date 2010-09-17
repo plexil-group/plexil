@@ -75,9 +75,6 @@ namespace PLEXIL {
   void ExternalInterface::batchActions(std::list<CommandId>& /* commands */)
   {}
 
-  void ExternalInterface::batchActions(std::list<FunctionCallId>& /* functionCalls */)
-  {}
-
   void ExternalInterface::updatePlanner(std::list<UpdateId>& /* updates */)
   {}
   
@@ -85,12 +82,6 @@ namespace PLEXIL {
 					 const std::list<double>& /* args */,
 					 ExpressionId /* dest */,
 					 ExpressionId /* ack */)
-  {}
-
-  void ExternalInterface::executeFunctionCalls(const LabelStr& /* name */,
-					       const std::list<double>& /* args */,
-					       ExpressionId /* dest */,
-					       ExpressionId /* ack */)
   {}
 
   void ExternalInterface::invokeAbort(const LabelStr& /* cmdName */,

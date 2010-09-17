@@ -75,9 +75,6 @@ namespace PLEXIL {
   class Update;
   typedef Id<Update> UpdateId;
 
-  class FunctionCall;
-  typedef Id<FunctionCall> FunctionCallId;
-
   typedef std::pair<double, std::vector<double> > State;
   typedef std::list<ExpressionId> ExpressionList;
   typedef std::list<ExpressionId>::iterator ExpressionListItr;

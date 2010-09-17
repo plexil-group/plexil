@@ -128,16 +128,12 @@ namespace PLEXIL {
     //though it only takes a list of commands as an argument at the moment, it will eventually take function calls and the like
     //so the name remains "batchActions"
     virtual void batchActions(std::list<CommandId>& commands);
-    virtual void batchActions(std::list<FunctionCallId>& functionCalls);
     virtual void updatePlanner(std::list<UpdateId>& updates);
 
     //executes a command with the given arguments
     //this base version looks up the command name and the correct argument types
     //and passes the information to internalExecuteCommand, which is overridden in base classes
     virtual void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-
-    //executes a function call with the given arguments
-    virtual void executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
 
     /**

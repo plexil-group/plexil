@@ -75,7 +75,6 @@ namespace PLEXIL {
       NodeType_NodeList,
       NodeType_Command,
       NodeType_Assignment,
-      NodeType_FunctionCall,
       NodeType_Update,
       NodeType_Request,
       NodeType_Empty,
@@ -90,7 +89,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, LIST, "NodeList");
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND, "Command");
     DECLARE_STATIC_CLASS_CONST(std::string, ASSIGNMENT, "Assignment");
-    DECLARE_STATIC_CLASS_CONST(std::string, FUNCTION, "FunctionCall");
     DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
     DECLARE_STATIC_CLASS_CONST(std::string, REQUEST, "Request");
     DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
@@ -466,16 +464,6 @@ namespace PLEXIL {
     std::vector<PlexilResourceId> m_resource;
   };
 
-  class PlexilFunctionCallBody : public PlexilActionBody {
-  public:
-    PlexilFunctionCallBody() : PlexilActionBody() {}
-    const PlexilStateId& state() const {return m_state;}
-
-    void setState(const PlexilStateId& state) {m_state = state;}
-  private:
-    PlexilStateId m_state;
-  };
-
   class PlexilNodeRef {
   public:
     enum Direction {
@@ -549,10 +537,6 @@ namespace PLEXIL {
     std::string m_state;
     std::string m_timepoint;
   };
-
-// PlexilFunctionBody : public PlexilActionBody {
-//   PlexilState function();
-// }
 
   class PlexilUpdate {
   public:

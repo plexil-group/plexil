@@ -70,11 +70,9 @@ namespace PLEXIL {
     void unregisterChangeLookup(const LookupKey& dest);
 
     void batchActions(std::list<CommandId>& commands);
-    void batchActions(std::list<FunctionCallId>& functionCalls);
     void updatePlanner(std::list<UpdateId>& updates);
 
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeFunctionCalls(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
@@ -111,11 +109,6 @@ namespace PLEXIL {
                           LabelStr& name, 
                           std::vector<double>& args, 
                           double& value);
-        
-        void parseFunctionCall(const TiXmlElement& cmd, 
-                               LabelStr& name, 
-                               std::vector<double>& args, 
-                               double& value);
 
     void parseParams(const TiXmlElement& root, std::vector<double>& dest);
     double parseValues(std::string type, const TiXmlElement* valXml);
@@ -125,9 +118,7 @@ namespace PLEXIL {
 
     std::map<double, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables
-    ExpressionUtMap m_executingFunctionCalls; //map from functionCalls to the destination variables
     ExpressionUtMap m_commandAcks; //map from command to the acknowledgement variables
-    ExpressionUtMap m_functionCallAcks; //map from a function call to the acknowledgement variables
     ExpressionUtMap m_abortingCommands;
     StateMap m_states; //uniquely identified states and their values
     //std::multimap<UniqueThing, ExpressionId> m_stateListeners; //map from states to lookup expressions

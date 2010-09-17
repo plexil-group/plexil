@@ -149,9 +149,6 @@ namespace PLEXIL {
       case NodeType_Assignment:
         return ASSIGNMENT();
         break;
-      case NodeType_FunctionCall:
-        return FUNCTION();
-        break;
       case NodeType_Update:
         return UPDATE();
         break;
@@ -493,12 +490,6 @@ namespace PLEXIL {
 		 "Node is an update node but doesn't have an update body.");
       createUpdate((PlexilUpdateBody*)m_node->body());
     }
-    else if(m_nodeType == FUNCTION()) {
-      debugMsg("Node:postInit", "Creating function call for node '" << m_nodeId.toString() << "'");
-      checkError(Id<PlexilFunctionCallBody>::convertable(m_node->body()),
-		 "Node is a function call node but doesn't have a function call body.");
-      createFunctionCall((PlexilFunctionCallBody*)m_node->body());
-    }
 
     //call postInit on all children
     for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
@@ -700,68 +691,6 @@ namespace PLEXIL {
     m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
   }
 
-  void Node::createFunctionCall(const PlexilFunctionCallBody* funcCall) {
-    checkError(m_nodeType == FUNCTION(),
-	       "Attempted to create a function call for a(n) " << m_nodeType.toString() <<
-	       " node '" << m_nodeId.toString() << "'");
-    checkError(funcCall->state()->nameExpr().isValid(),
-               "Attempt to create command with invalid name expression");
-
-    PlexilStateId state = funcCall->state();
-    ExpressionId nameExpr = 
-      ExpressionFactory::createInstance(state->nameExpr()->name(), state->nameExpr(), m_connector);
-    LabelStr name(nameExpr->getValue());
-
-    std::list<ExpressionId> args;
-    std::list<ExpressionId> garbage;
-    for(std::vector<PlexilExprId>::const_iterator it = state->args().begin();
-	it != state->args().end(); ++it) {
-      ExpressionId argExpr;
-      if(Id<PlexilVarRef>::convertable(*it)) {
-	argExpr = findVariable(*it);
-	checkError(argExpr.isValid(),
-		   "Unknown variable '" << (*it)->name() <<
-		   "' in argument list for function call '" << name.toString() <<
-		   "' in node '" << m_nodeId.toString() << "'");
-      }
-      else {
-	argExpr = ExpressionFactory::createInstance((*it)->name(), *it, m_connector);
-	garbage.push_back(argExpr);
-	check_error(argExpr.isValid());
-      }
-      args.push_back(argExpr);
-    }
-
-    ExpressionId dest;
-    if (!funcCall->dest().empty()) {
-      const PlexilExprId& destExpr = funcCall->dest()[0]->getId();
-      if (Id<PlexilVarRef>::convertable(destExpr)) {
-        dest = findVariable(destExpr);
-        checkError(dest.isValid(),
-                   "Unknown destination variable '" << destExpr->name() <<
-                   "' in function call '" << name.toString() << "' in node '" <<
-                   m_nodeId.toString() << "'");
-      }
-      else if (Id<PlexilVarRef>::convertable(destExpr)) {
-        dest = ExpressionFactory::createInstance(destExpr->name(),
-                                                 destExpr,
-                                                 m_connector);
-        garbage.push_back(dest);
-      }
-      else {
-        checkError(ALWAYS_FAIL, "Invalid left-hand side for function call");
-      }
-
-    }
-
-    debugMsg("Node:createFunctionCall",
-	     "Creating function call '" << name.toString() << "' for node '" <<
-	     m_nodeId.toString() << "'");
-    m_functionCall = (new FunctionCall(nameExpr, args, dest, m_ack, garbage))->getId();
-    check_error(m_functionCall.isValid());
-  }
-
-
   ExpressionId& Node::getCondition(const LabelStr& name) {
     return m_conditions[getConditionIndex(name)];
   }
@@ -873,7 +802,7 @@ namespace PLEXIL {
       expr->addListener(condListener);
     }
 
-    if(m_nodeType == COMMAND() || m_nodeType == ASSIGNMENT() || m_nodeType == UPDATE() || m_nodeType == FUNCTION()) {
+    if(m_nodeType == COMMAND() || m_nodeType == ASSIGNMENT() || m_nodeType == UPDATE()) {
       if(m_nodeType == COMMAND()) 
         {
           ExpressionId commandAbort = (new BooleanVariable())->getId();
@@ -1560,15 +1489,6 @@ namespace PLEXIL {
     return m_update;
   }
 
-  FunctionCallId& Node::getFunctionCall() {
-    if(getState() == StateVariable::EXECUTING())
-      m_functionCall->activate();
-    if(m_functionCall.isValid()) {
-      m_functionCall->fixValues();
-    }
-    return m_functionCall;
-  }
-
   const ExpressionId& Node::getAssignmentVariable() const {return m_assignment->getDest();}
 
   AssignmentId& Node::getAssignment() {
@@ -1656,7 +1576,7 @@ namespace PLEXIL {
       ((Variable*)(*it))->reset();
     }
     
-    if(getType() == COMMAND() || getType() == UPDATE() || getType() == FUNCTION() ||
+    if(getType() == COMMAND() || getType() == UPDATE() ||
        getType() == REQUEST())
       ((Variable*)m_ack)->reset();
   }
@@ -1736,8 +1656,6 @@ namespace PLEXIL {
       m_assignment->deactivate();
     else if(getType() == Node::UPDATE() && m_update.isValid())
       m_update->deactivate();
-    else if(getType() == Node::FUNCTION() && m_functionCall.isValid())
-      m_functionCall->deactivate();
     // deactivate local variables
     for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
@@ -1979,56 +1897,6 @@ namespace PLEXIL {
     for(std::map<double, ExpressionId>::iterator it = m_pairs.begin(); it != m_pairs.end();
 	++it) {
       it->second->deactivate();
-    }
-  }
-
-  FunctionCall::FunctionCall(const ExpressionId nameExpr, const std::list<ExpressionId>& args,
-                             const ExpressionId dest, const ExpressionId ack,
-                             const std::list<ExpressionId>& garbage)
-    : m_id(this), m_nameExpr(nameExpr), m_args(args), m_dest(dest), m_ack(ack), m_garbage(garbage) {}
-
-  FunctionCall::~FunctionCall() {
-    for(std::list<ExpressionId>::const_iterator it = m_garbage.begin();
-	it != m_garbage.end(); ++it)
-      delete (Expression*) (*it);
-    m_nameExpr.remove();
-    m_id.remove();
-  }
-
-  void FunctionCall::fixValues() {
-    m_argValues.clear();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      m_argValues.push_back(expr->getValue());
-    }
-  }
-
-  const LabelStr& FunctionCall::getName()
-   {
-      return m_name = LabelStr(m_nameExpr->getValue());
-   }
-
-  //more error checking here
-  void FunctionCall::activate() {
-    m_nameExpr->activate();
-    if(m_dest != ExpressionId::noId())
-      m_dest->activate();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->activate();
-    }
-  }
-
-  void FunctionCall::deactivate() {
-    m_nameExpr->deactivate();
-    if(m_dest != ExpressionId::noId())
-      m_dest->deactivate();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->deactivate();
     }
   }
 }

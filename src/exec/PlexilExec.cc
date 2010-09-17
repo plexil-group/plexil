@@ -150,16 +150,15 @@ namespace PLEXIL {
 
   bool PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) {
     //currently parent is ignored!
-    //not actually quiesceing, but causing the new nodes to look at the current known world state
-    m_cache->handleQuiescenceStarted();
-    clock_t time1 = clock();
     if (!plan->link(m_libraries)) {
       debugMsg("PlexilExec:addPlan", " library linking failed");
-      m_cache->handleQuiescenceEnded();
       return false;
     }
 
     // after this point any failures are likely to be fatal!
+    //not actually quiesceing, but causing the new nodes to look at the current known world state
+    m_cache->handleQuiescenceStarted();
+    clock_t time1 = clock();
     NodeId root = (new Node(plan, m_connector))->getId();
     check_error(root.isValid());
     m_plan.push_back(root);
@@ -219,7 +218,6 @@ namespace PLEXIL {
 	m_stateChangeQueue.erase(idx);
       }
       else {
-        //	if((node->getType() == Node::ASSIGNMENT() || node->getType() == Node::FUNCTION()) &&
 	if ((node->getType() == Node::ASSIGNMENT()) &&
 	    node->getState() != StateVariable::EXECUTING()) {
 	  debugMsg("PlexilExec:handleConditionsChanged",
@@ -282,8 +280,6 @@ namespace PLEXIL {
       m_commandsToExecute.push_back(node->getCommand());
     else if(node->getType() == Node::UPDATE())
       m_updatesToExecute.push_back(node->getUpdate());
-    else if(node->getType() == Node::FUNCTION())
-      m_functionCallsToExecute.push_back(node->getFunctionCall());
   }
 
   void PlexilExec::removeFromResourceContention(const NodeId node) {
@@ -467,10 +463,6 @@ namespace PLEXIL {
     std::list<UpdateId> updates(m_updatesToExecute.begin(), m_updatesToExecute.end());
     m_updatesToExecute.clear();
     getExternalInterface()->updatePlanner(updates);
-
-    std::list<FunctionCallId> functionCalls(m_functionCallsToExecute.begin(), m_functionCallsToExecute.end());
-    m_functionCallsToExecute.clear();
-    getExternalInterface()->batchActions(functionCalls);
 
     debugMsg("PlexilExec:cycle", "==>End cycle " << m_cycleNum);
     for(std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
