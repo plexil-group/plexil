@@ -137,7 +137,6 @@ DEFAULT_HOST=127.0.0.1
 
 if [ ! $1 ]
   then
-  echo No arguments defined
   echo $usage
   exit 1
 fi

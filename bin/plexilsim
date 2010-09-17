@@ -1,0 +1,190 @@
+#! /bin/bash
+
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#Validate file
+valid()
+{
+  if [ ! -e $1 ] && [ $quiet = 1 ]
+    then
+      echo "WARNING: $1 does not exist"
+  fi
+  return
+}
+
+warn()
+{
+   if [ $quiet = 1 ]
+     then
+       echo "$1"
+   fi
+}
+
+usage="Usage: $0 -p <plan> [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+                     [-k] [-c <command-script>] [-t <telemetry-script>] [-l <library>]*"
+
+# Other options:
+#
+# -q suppresses a leading printed summary and default debug messages.
+# -v requests that plan state be transmitted to the UE viewer.
+# -h hostname of viewer
+# -n portnumber of viewer
+# -b enables breakpoints in viewer (recommended)
+# -d debug file (default is Debug.cfg)
+# -k runs the PLEXIL static checker prior to executing plan
+# -c specifies an command-script file (defaulting to .........)
+# -l  specifies a plan library (.plx file)
+# -a used only for viewer acquire PID
+
+. $PLEXIL_HOME/bin/plexil-setup.sh
+
+#separate command-line from run-ue output
+echo
+
+platform=`uname`
+quiet=1 #quiet default
+plan_nm="" #plan name
+plan_cmd="" #plan command
+config_nm="${PLEXIL_HOME}/src/apps/StandAloneSimulator/PlexilSimulator/test/config.xml"
+config_cmd="-c ${config_nm}"
+cmd_scr="" #command script name
+tele_scr="" #telemetry script name
+libraries="" #library files
+debug_file="" #debug file
+check="false" #run static checker
+
+if [ ! $1 ]
+  then
+  echo No arguments defined
+  echo $usage
+  exit 1
+fi
+
+#use -u to make sure arguments are not quoted (single qute breaks directory references)
+set -- `getopt -a -u qp:c:l:d:vh:n:bkva -- $@`   
+
+
+while [ "$1" != "" ]
+do
+    case $1 in    	
+        -q | --quiet ) quiet=0;;	
+	-p | --plan ) plan_nm="$2"
+	plan_cmd="-p $2"
+	shift;;
+	-c | --commands ) valid $2
+	cmd_scr="$2"
+	shift;;
+	-t | --telemetry ) valid $2
+	tele_scr="$2"
+	shift;;	
+	-l | --library ) valid $2
+	libraries="$libraries -l $2"
+	shift;;
+	-d | --debug ) valid $2
+	debug_file="-d $2"
+	shift;;
+	-v | --viewer ) viewer="-v";;	#luv listener enabled	
+	-h | --host ) host_in="-h $2"
+	shift;;	#luv host name
+	-n | --port ) port_in="-n $2"
+ 	shift
+	    skip=1;;	#luv port
+	-b | --blocking ) block="-b";;	#enable luv break point	
+	-k | --check ) check="true";;	
+	-a ) automate="true";;
+	\? ) echo $usage
+	  exit 2;;
+    esac
+    shift
+done
+shift
+
+# Check the plan's existence
+if [ "$plan_nm" = "" ] 
+  then
+    warn "Error: No plan defined"
+    exit 1
+fi    
+
+# Check if user typed invalid plan
+if [ ! -e "$plan_nm" ]
+  then
+        echo Error: Plan $plan_nm, does not exist.
+        exit 1    
+fi
+
+# Redefine current path config to look for dummy config on current path
+if [ ! -e "$cmd_scr_nm" ] || [ "$cmd_scr_nm" = "" ]
+   then
+        if [ ! -e "$current_config" ] ; then
+	  current_config=$default_config_name
+	fi
+fi
+
+# Check plan for errors
+if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
+  then 
+       echo "Checking Plan..."
+       $PLEXIL_HOME/bin/checkDecls $plan_nm
+       if [ ! -e "$plan_nm" ] && [ $? -gt 0 ]
+         then
+	   echo Error: $plan_nm, contains runtime error
+           exit 1
+	fi
+    elif [ ! -f $PLEXIL_HOME/bin/checkDecls ]
+      then
+	echo Error: $PLEXIL_HOME/bin/checkDecls not found.	
+	exit 1
+fi  
+
+# Print summary if desired
+if [ $quiet -eq 1 ] 
+  then
+    echo Running UE from $PLEXIL_HOME
+    echo "  Plan:              $plan_nm"
+    echo "  Command-Script:    $cmd_scr"
+    echo "  Telemetry:         $tele_scr"
+    echo "  Libraries:         $libraries"
+    echo
+fi
+xterm -e ipc &
+`xterm -e run-sas $cmd_scr $tele_scr` &
+sas_kill=$!
+trap "{ kill $sas_kill; }" SIGINT
+trap "{ kill $sas_kill; }" SIGQUIT
+sleep 2
+
+if [ "$automate" = "true" ]
+  then    
+    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries &    
+    echo "RUN_UE_PID$!"
+    trap "{ kill $!; }" SIGINT
+    trap "{ kill $!; }" SIGQUIT    
+  else     
+    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries
+fi
+trap "{ killall ipc; }" EXIT
+trap "{ killall central; }" EXIT
