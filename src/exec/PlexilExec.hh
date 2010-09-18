@@ -235,7 +235,7 @@ namespace PLEXIL
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     //std::list<NodeId> m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
     std::map<unsigned int, NodeId> m_stateChangeQueue;
-    std::list<AssignmentId> m_assignmentsToExecute;
+    std::vector<AssignmentId> m_assignmentsToExecute;
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
     std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
@@ -243,7 +243,7 @@ namespace PLEXIL
                                                                                                   The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
                                                                                                   Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                                                                   in state EXECUTING gets added to the end of the queue. */
-    std::list<ExecListenerId> m_listeners;
+    std::vector<ExecListenerId> m_listeners;
     std::vector<PlexilNodeId> m_libraries;
   };
 }

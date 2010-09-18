@@ -520,7 +520,7 @@ namespace PLEXIL {
 
   void PlexilExec::performAssignments() 
   {
-    for(std::list<AssignmentId>::iterator it = m_assignmentsToExecute.begin();
+    for(std::vector<AssignmentId>::iterator it = m_assignmentsToExecute.begin();
 	it != m_assignmentsToExecute.end(); ++it) 
       {
 	AssignmentId assn = *it;
@@ -649,7 +649,7 @@ namespace PLEXIL {
   }
 
   void PlexilExec::publishTransition(const LabelStr& prevState, const NodeId& node) {
-    for(std::list<ExecListenerId>::iterator it = m_listeners.begin(); it != m_listeners.end();
+    for(std::vector<ExecListenerId>::iterator it = m_listeners.begin(); it != m_listeners.end();
 	++it) {
       ExecListenerId listener = *it;
       check_error(listener.isValid());
@@ -659,7 +659,7 @@ namespace PLEXIL {
 
   void PlexilExec::publishAddLibrary(const PlexilNodeId& libNode) 
   {
-    for (std::list<ExecListenerId>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
 	 it != m_listeners.end();
 	 ++it)
       {
@@ -671,7 +671,7 @@ namespace PLEXIL {
 
   void PlexilExec::publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent) 
   {
-    for (std::list<ExecListenerId>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
 	 it != m_listeners.end();
 	 ++it)
       {
@@ -685,7 +685,7 @@ namespace PLEXIL {
                                      const std::string& destName,
                                      const double& value)
   {
-    for (std::list<ExecListenerId>::iterator it = m_listeners.begin();
+    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
 	 it != m_listeners.end();
 	 ++it)
       {
@@ -702,7 +702,7 @@ namespace PLEXIL {
   }
 
   void PlexilExec::removeListener(const ExecListenerId& listener) {
-    std::list<ExecListenerId>::iterator it =
+    std::vector<ExecListenerId>::iterator it =
       std::find(m_listeners.begin(), m_listeners.end(), listener);
     check_error(it != m_listeners.end());
     m_listeners.erase(it);
