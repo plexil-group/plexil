@@ -37,41 +37,52 @@ Simulator* _the_simulator_ = NULL;
 int main(int argc, char** argv)
 {
   // defaults for command line args
-  std::string commandScriptName("");
+  std::vector<std::string> scriptNames;
   std::string telemetryScriptName("");
   std::string centralhost("localhost:1381");
   std::string debugConfig("");
 
-  std::string usage("Usage: PlexilSimulator -c <command script> -t <telemetry script> [-d <debug config file>] [-central <centralhost>]");
+  std::string usage("Usage: PlexilSimulator [<script file>]+ [-t <telemetry script file>] [-d <debug config file>] [-central <centralhost>]");
 
   //
   // Parse command arguments
   //
 
   for (int i = 1; i < argc; ++i) {
-	if (strcmp(argv[i], "-c") == 0)
-	  commandScriptName = argv[++i];
-	else if (strcmp(argv[i], "-t") == 0)
-	  telemetryScriptName = argv[++i];
-	else if (strcmp(argv[i], "-d") == 0)
-	  debugConfig = argv[++i];
-	else if (strcmp(argv[i], "-central") == 0)
-	  centralhost = argv[++i];
-	else if (strcmp(argv[i], "-h") == 0) {
-	  std::cout << usage << std::endl;
-	  return 0;
+	if (argv[i][0] == '-') {
+	  // It's an option
+	  if (strcmp(argv[i], "-h") == 0) {
+		std::cout << usage << std::endl;
+		return 0;
+	  }
+	  else if (strcmp(argv[i], "-d") == 0)
+		debugConfig = argv[++i];
+	  else if (strcmp(argv[i], "-central") == 0)
+		centralhost = argv[++i];
+	  else if (strcmp(argv[i], "-t") == 0) {
+		telemetryScriptName = argv[++i];
+		std::cout << "WARNING: The '-t' option is deprecated.\n\
+Telemetry scripts can be converted to the unified format by adding the line:\n\n\
+BEGIN_TELEMETRY\n\n\
+at the top of the script."
+				  << std::endl;
+	  }
+	  else {
+		std::cout << "Unknown option '" 
+				  << argv[i] 
+				  << "'.\n" 
+				  << usage 
+				  << std::endl;
+		return -1;
+	  }
 	}
 	else {
-	  std::cout << "Unknown option '" 
-				<< argv[i] 
-				<< "'.  " 
-				<< usage 
-				<< std::endl;
-	  return -1;
+	  // presume it's a file name
+	  scriptNames.push_back(argv[i]);
 	}
   }
 
-  if (commandScriptName.empty() && telemetryScriptName.empty()) {
+  if (scriptNames.empty() && telemetryScriptName.empty()) {
 	std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
 	return -1;
   }
@@ -90,9 +101,6 @@ int main(int argc, char** argv)
 	}
   }
 
-  debugMsg("PlexilSimulator",  
-		   " Running with command script: " << commandScriptName
-		   << " and telemetry script: " << telemetryScriptName);
 
   //
   // Read the scripts
@@ -103,8 +111,18 @@ int main(int argc, char** argv)
     // These objects can go away as soon as we finish reading scripts.
     PlexilSimResponseFactory respFactory;
     SimulatorScriptReader rdr(mgrMap, respFactory);
-    rdr.readCommandScript(commandScriptName);
-    rdr.readTelemetryScript(telemetryScriptName);
+	for (std::vector<std::string>::const_iterator it = scriptNames.begin();
+		 it != scriptNames.end();
+		 it++) {
+	  debugMsg("PlexilSimulator",  
+			   " reading script " << *it);
+	  rdr.readScript(*it);
+	}
+	if (!telemetryScriptName.empty()) {
+	  debugMsg("PlexilSimulator",  
+			   " reading telemetry script " << telemetryScriptName);
+	  rdr.readScript(telemetryScriptName, true);
+	}
   }
 
   //
