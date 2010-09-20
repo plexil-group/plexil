@@ -41,6 +41,9 @@ public:
   SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
   virtual ~SimulatorScriptReader();
 
+  bool readScript(const std::string& fName, bool telemetry=false);
+
+  // Deprecated
   bool readCommandScript(const std::string& fName);
   bool readTelemetryScript(const std::string& fName);
 
@@ -50,8 +53,6 @@ private:
   SimulatorScriptReader();
   SimulatorScriptReader(const SimulatorScriptReader&);
   SimulatorScriptReader& operator=(const SimulatorScriptReader&);
-
-  bool readScript(const std::string& fName, bool telemetry=false);
 
   //
   // Helpers

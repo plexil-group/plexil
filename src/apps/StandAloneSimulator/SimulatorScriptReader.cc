@@ -62,102 +62,100 @@ bool SimulatorScriptReader::readScript(const std::string& fName,
                                        bool telemetry)
 {
   std::ifstream inputFile(fName.c_str());
-  unsigned int lineCount = 0;
   
-  if ( !inputFile )
-    {
-      std::cerr << "Error: cannot open script file '" << fName <<"'" << std::endl;
-      return false;
-    }
+  if (!inputFile) {
+	std::cerr << "Error: cannot open script file \"" << fName << "\"" << std::endl;
+	return false;
+  }
+
+  unsigned int lineCount = 0;
 
   const int MAX_INPUT_LINE_LENGTH = 1024;
   
-  //1st line for a given message
-  std::string commandName;
-  long commandIndex=0;
-  double delay;
-  int numOfResponses;
+  while (!inputFile.eof()) {
+	char inLine[MAX_INPUT_LINE_LENGTH];
+      
+	// Get first line of response
+	// Skip lines with non-alpha leading characters.
+	do {
+	  inputFile.getline(inLine, MAX_INPUT_LINE_LENGTH);
+	  lineCount++;
+	}	
+	while (!inputFile.eof() && !isalpha(inLine[0]));
 
-  while ( !inputFile.eof() ) 
-    {
-      char inLine[MAX_INPUT_LINE_LENGTH];
+	if (inputFile.eof()) {
+	  return true;
+	} 
       
-      inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
-      lineCount++;
+	std::istringstream inputStringStream(inLine);
       
-      while (!isalpha (inLine[0]) && !inputFile.eof() ) 
-        {
-          inputFile.getline (inLine, MAX_INPUT_LINE_LENGTH);
-          lineCount++;
-        }
-      
-      if( inputFile.eof() )
-        {
-          return true;
-        } 
-      
-      std::istringstream inputStringStream(inLine);
-      
-      inputStringStream >> commandName;
+	std::string commandName;
+	inputStringStream >> commandName;
 
-      if (telemetry)
-        {
-          numOfResponses = 1;
-          inputStringStream >> delay;
-        }
-      else
-        {
-          inputStringStream >> commandIndex;
-          inputStringStream >> numOfResponses;
-          inputStringStream >> delay;
-        }
+	// Check for mode lines
+	if (commandName == "BEGIN_TELEMETRY") {
+	  telemetry = true;
+	  continue;
+	}
+	else if (commandName == "BEGIN_COMMANDS") {
+	  telemetry = false;
+	  continue;
+	}
 
-      debugMsg("SimulatorScriptReader:readScript", " Read a new line for \"" << commandName
-	       << "\", delay = " << delay);
+	unsigned long commandIndex;
+	unsigned int numOfResponses;
+	double delay;
 
-      ResponseMessageManager* responseMessageManager =
-	ensureResponseMessageManager(commandName, telemetry);
-      if (telemetry) 
-        {
-          // Telemetry index is strictly sequential starting from 0
-          commandIndex = responseMessageManager->getCounter();
-        }
+	ResponseMessageManager* responseMessageManager =
+	  ensureResponseMessageManager(commandName, telemetry);
 
-      inputFile.getline( inLine, MAX_INPUT_LINE_LENGTH );
-      lineCount++;
+	if (telemetry) {
+		// Telemetry index is strictly sequential starting from 0
+		commandIndex = responseMessageManager->getCounter();
+		numOfResponses = 1;
+		inputStringStream >> delay;
+	  }
+	else {
+		inputStringStream >> commandIndex;
+		inputStringStream >> numOfResponses;
+		inputStringStream >> delay;
+	  }
 
-      if (inputFile.eof())
-        {
-          std::cerr << "Error: response line missing in script-file " << fName 
-                    << " at line " << lineCount << std::endl;
-          return false;
-        }
+	debugMsg("SimulatorScriptReader:readScript", " Read a new line for \"" << commandName
+			 << "\", delay = " << delay);
+
+	// Get successive responses
+	inputFile.getline(inLine, MAX_INPUT_LINE_LENGTH);
+	lineCount++;
+
+	if (inputFile.eof()) {
+		std::cerr << "Error: response line missing in script-file " << fName 
+				  << " at line " << lineCount << std::endl;
+		return false;
+	  }
       
-      ResponseBase* response = 
-        m_factory.parseResponseValues(commandName, inLine, lineCount);
+	ResponseBase* response = 
+	  m_factory.parseResponseValues(commandName, inLine, lineCount);
       
-      debugMsg("SimulatorScriptReader:readScript",
-	       " Command Index: " << commandIndex);
-      if (response != NULL)
-        {
-	  timeval timeDelay = doubleToTimeval(delay);
-	  response->setDelay(timeDelay);
-          response->setNumberOfResponses(numOfResponses);
-          responseMessageManager->addResponse(response, commandIndex);
-        }
-      else
-        {
-          std::cerr << "ERROR: Unable to parse response for \""
-                    << commandName
-                    << "\" at line "
-                    << lineCount
-                    << "\nResponse line was: "
-                    << inLine
-                    << std::endl;
-          return false;
-        }
-      
-    }
+	debugMsg("SimulatorScriptReader:readScript",
+			 " Command Index: " << commandIndex);
+	if (response != NULL) {
+		timeval timeDelay = doubleToTimeval(delay);
+		response->setDelay(timeDelay);
+		response->setNumberOfResponses(numOfResponses);
+		responseMessageManager->addResponse(response, commandIndex);
+	  }
+	else {
+		std::cerr << "ERROR: Unable to parse response for \""
+				  << commandName
+				  << "\" at line "
+				  << lineCount
+				  << "\nResponse line was: "
+				  << inLine
+				  << std::endl;
+		return false;
+	  }
+  }
   
   inputFile.close();
 
