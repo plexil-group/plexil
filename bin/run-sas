@@ -25,7 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-usage="Usage: $0 <command-script> [<telemetry-script>]"
+usage="Usage: $0 <script> [<telemetry-script>]"
 
 # Convenient script for running plexilSimulator (StandAloneSimulator with LCM comms).
 # Requires environment variable PLEXIL_HOME to be set to desired working directory,
@@ -71,10 +71,10 @@ tlm_script=$2
 # Check scripts' existence
 if [ ! -e $cmd_script ]
   then
-    echo Error: Command script $cmd_script does not exist.
+    echo Error: Script $cmd_script does not exist.
     exit 1
 fi
-if [ "$tlm_script" -a ! -e $tlm_script ]
+if [ "$tlm_script" -a ! -e "$tlm_script" ]
   then
     echo Error: Telemetry script $tlm_script does not exist.
     exit 1
@@ -87,11 +87,7 @@ fi
 # Do it!
 if [ "$tlm_script" ]
 then
-  exec $prog -c $cmd_script -t $tlm_script
-  sasPID=$!
+  exec $prog $cmd_script -t $tlm_script
 else
-  exec $prog -c $cmd_script
-  sasPID=$!  
+  exec $prog $cmd_script
 fi
-    trap "{ kill $sasPID; }" SIGINT
-    trap "{ kill $sasPID; }" SIGQUIT  
