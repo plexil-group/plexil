@@ -12,7 +12,7 @@ Then start the following programs, preferably in separate Unix shells.
 
 2. Standalone Simulator
 
-   $ run-sas command-script.txt telemetry-script.txt 
+   $ run-sas unified-script.txt
 
 3. Universal Executive
 
