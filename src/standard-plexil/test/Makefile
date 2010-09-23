@@ -51,7 +51,7 @@ default: plans scripts
 plans:
 	@ echo Translating Standard Plexil test plans...
 	@ for i in $(TEST_PLANS); do \
-	        plexil -q -o output/$$i.plx $$i.ple  ; \
+	        plexilc -q -o output/$$i.plx $$i.ple  ; \
 		diff -b output/$$i.plx output/valid-$$i.plx \
 		  > $(DIFF) ; \
 		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
