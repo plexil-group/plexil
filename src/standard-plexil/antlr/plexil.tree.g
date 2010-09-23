@@ -1285,7 +1285,7 @@ arrayRHS[IXMLElement parent]
  ;
 
 // ** needs work ***
-arrayExpression[IXMLElement parent] : lookup[parent] ;
+arrayExpression[IXMLElement parent] : lookupExpr[parent] ;
 
 
 
@@ -1568,7 +1568,7 @@ booleanTerm[IXMLElement parent] :
    | bval:booleanValue { parent.addChild(((PlexilASTNode) #bval).getXmlElement()); }
    | isKnownExp[parent]
    | nodeStatePredicateExp[parent]
-   | lookup[parent]
+   | lookupExpr[parent]
    | messageReceivedExp[parent]
  ;
 
@@ -2025,7 +2025,7 @@ numericTerm[IXMLElement parent] :
  | integerArrayReference[parent]
  | realArrayReference[parent]
  | numericUnaryOperation[parent]
- | lookup[parent]
+ | lookupExpr[parent]
  | nodeTimepointValue[parent]
  | LPAREN! numericExpression[parent] RPAREN! ;
 
@@ -2113,7 +2113,7 @@ stringExpression[IXMLElement parent] :
   | sv:stringValue { parent.addChild(((PlexilASTNode) #sv).getXmlElement()); }
   | stringVariable[parent]
   | stringArrayReference[parent]
-  | lookup[parent] ;
+  | lookupExpr[parent] ;
 
 stringConcatenation[IXMLElement parent] 
 { IXMLElement xconcat = new XMLElement("Concat"); }
@@ -2132,16 +2132,39 @@ stringValue :
 timeExpression[IXMLElement parent] :
  tv:timeValue { parent.addChild(((PlexilASTNode)#tv).getXmlElement()); }
  | timeVariable[parent]
- | lookup[parent] ;
+ | lookupExpr[parent] ;
 
 
 //
 // Lookups
 //
 
-lookup[IXMLElement parent] :
- lookupNow[parent]
- | lookupOnChange[parent] ;
+lookupExpr[IXMLElement parent] :
+        lookup[parent]
+    | lookupNow[parent]
+    | lookupOnChange[parent] ;
+
+
+// Needs to output in the order <Lookup><Name/><Tolerance/><Arguments/></Lookup>, sigh.
+
+lookup[IXMLElement parent]
+{ 
+  IXMLElement xl = new XMLElement("Lookup"); 
+  parent.addChild(xl);
+}
+ :
+   #(LOOKUP_KYWD ( stateNameLiteral[xl] | nameExp[xl] ) (a:argumentList[xl])? (t:tolerance[xl])? )
+   {
+     // have to scramble only if both tolerance and arglist are provided
+     // if either is missing, order is fine
+     if (a != null && t != null)
+     {
+       IXMLElement arglist = xl.getChildAtIndex(1); // 0-based index
+       xl.removeChildAtIndex(1);
+       xl.addChild(arglist);
+     }
+   }
+    ;
 
 lookupNow[IXMLElement parent]
 { 
@@ -2156,6 +2179,7 @@ lookupNow[IXMLElement parent]
 lookupOnChange[IXMLElement parent]
 {
   IXMLElement xloc = new XMLElement("LookupOnChange");
+  parent.addChild(xloc);
 }
  :
    #(LOOKUP_ON_CHANGE_KYWD ( stateNameLiteral[xloc] | nameExp[xloc] ) (a:argumentList[xloc])? (t:tolerance[xloc])? )
@@ -2168,9 +2192,6 @@ lookupOnChange[IXMLElement parent]
        xloc.removeChildAtIndex(1);
        xloc.addChild(arglist);
      }
-
-     // now attach to parent
-     parent.addChild(xloc);
    }
  ;
 

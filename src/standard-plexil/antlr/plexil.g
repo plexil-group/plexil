@@ -1628,7 +1628,7 @@ request : REQUEST_KYWD^ (COLON!)? nodeName ( pair ( COMMA! pair )* )? SEMICOLON!
 
 // common to both update and request nodes
 
-pair : ncName EQUALS! ( value | variable | arrayReference | lookupNow ) ;
+pair : ncName EQUALS! ( value | variable | arrayReference | lookupExpr ) ;
 
 value :
    integerValue
@@ -1762,7 +1762,7 @@ simpleBoolean :
    | booleanVariable
    | isKnownExp
    | nodeStatePredicateExp
-   | lookup
+   | lookupExpr
    | messageReceivedExp
  ;
 
@@ -1931,7 +1931,7 @@ numericFactor :
    | { context.isIntegerVariableName(LT(1).getText()) }? integerVariable
    | { context.isRealVariableName(LT(1).getText()) }? realVariable
    | { !context.isVariableName(LT(1).getText()) }? nodeTimepointValue // s/b isNodeName() ?
-   | lookup
+   | lookupExpr
  ;
 
 additiveOperator : PLUS | MINUS ;
@@ -1965,20 +1965,20 @@ stringExpression! :
    ;
 
 stringQuantity : 
-   stringValue | stringArrayReference | stringVariable | lookup ;
+   stringValue | stringArrayReference | stringVariable | lookupExpr ;
 
 //
 // Time expressions
 //
 
-timeExpression : timeValue | timeArrayReference | timeVariable | lookup ;
+timeExpression : timeValue | timeArrayReference | timeVariable | lookupExpr ;
 
 //
 // Array expressions
 // *** needs work ***
 //
 
-arrayExpression : lookup ;
+arrayExpression : lookupExpr ;
 
 
 
@@ -1986,7 +1986,7 @@ arrayExpression : lookup ;
 // Lookups
 //
 
-lookup : lookupOnChange | lookupNow ;
+lookupExpr : lookupOnChange | lookupNow | lookup ;
 
 // should produce an AST of the form
 // #(LOOKUP_ON_CHANGE_KYWD lookupInvocation (tolerance)? )
@@ -2006,6 +2006,16 @@ tolerance : realValue | variable ;
 
 lookupNow :
         LOOKUP_NOW_KYWD^ LPAREN! lookupInvocation RPAREN! ;
+
+// new generic lookup
+// should produce an AST of the form
+// #(LOOKUP_KYWD lookupInvocation (tolerance)? )
+// N.b. tolerance is optional
+
+lookup :
+        LOOKUP_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
+        { state.setExtendedPlexil(); }
+    ;
 
 lookupInvocation :
   ( stateName
