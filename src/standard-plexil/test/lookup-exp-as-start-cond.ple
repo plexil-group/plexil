@@ -4,4 +4,8 @@ testNode:
 {
    Real x ;
    StartCondition: LookupOnChange(LAPR02FC0617U) == x ;
+   NodeList
+   {
+        EndCondition: Lookup(LAPR02FC0617U) != x ;
+	}
 }
