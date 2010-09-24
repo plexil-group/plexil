@@ -7,7 +7,7 @@ Root:
   SkipCondition: Lookup ((temp));
   EndCondition: Lookup (foo(), 3.2);
   PostCondition: Lookup (bar("d","e"));
-  RepeatCondition: Lookup ((temp)(1,2), 3.0);
+  RepeatCondition: Lookup ((temp)(temp,2), 3.0);
 
   Command: res = some_command(temp);
   
