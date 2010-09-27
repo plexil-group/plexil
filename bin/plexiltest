@@ -70,14 +70,14 @@ fi
 done
 return
 }
-usage='Usage: plexiltest [-p <plan>] [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-                    [-eprompt] [-wprompt] [-log <log file>] [-ch] [-c <interface config>] [-l <library>]* \
-		    For more options use -help'
+usage="Usage: plexiltest [-p <plan>] [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+[-eprompt] [-wprompt] [-log <log file>] [-ch] [-c <interface config>] [-l <library>]* \n\n\
+For more options enter 'plexiltest -help'"
 
-help=" Other options:\n\
+help="Options:\n\
 \n\
  -p | -plan <plan> \n\
-\t	load plan (required) \n\
+\t	specify PLEXIL plan (required) \n\
  -s | -script <script> \n\
 \t 	specifies an script file\n\
  -q | -quiet \n\
@@ -100,8 +100,8 @@ help=" Other options:\n\
  \t	runs debugger if plan hits a c++ error\n\
  -w | -warning \n\
  \t	runs debugger if plan hits a c++ warning\n\
--? | -help \n\
-	shows this message of options"
+ -? | -help \n\
+\t	shows this message of options"
 # -a used only for viewer acquire PID
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
@@ -137,7 +137,7 @@ DEFAULT_HOST=127.0.0.1
 
 if [ ! $1 ]
   then
-  echo $usage
+  echo -e $usage
   exit 1
 fi
 
@@ -174,7 +174,7 @@ do
 	-log ) log_file="-log $1";;
 	-a ) automate="true";;
 	-? ) echo 'Error: missing argument for option' $1
-	  echo $usage
+	  echo -e $usage
 	  exit 2;;
     esac
     shift
