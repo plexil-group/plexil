@@ -852,28 +852,33 @@ nodeAttribute :
         | resourcePriority
         | permissions ;
 
-startCondition : ( START_CONDITION_KYWD! | START_COND_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #startCondition = #(#[START_CONDITION_KYWD, "StartCondition"], #startCondition); } ;
+startCondition : 
+    ( START_CONDITION_KYWD^ | s:START_COND_KYWD^ { #s.setType(START_CONDITION_KYWD); } ) COLON! booleanExpression SEMICOLON!
+    ;
 
 repeatCondition :
-        ( REPEAT_CONDITION_KYWD! | REPEAT_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #repeatCondition = #(#[REPEAT_CONDITION_KYWD, "RepeatCondition"], #repeatCondition); } ; 
+    ( REPEAT_CONDITION_KYWD^ | r:REPEAT_KYWD^ { #r.setType(REPEAT_CONDITION_KYWD); } ) COLON! booleanExpression SEMICOLON!
+	;
 
 skipCondition :
-        ( SKIP_CONDITION_KYWD! | SKIP_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #skipCondition = #(#[SKIP_CONDITION_KYWD, "SkipCondition"], #skipCondition); } ; 
+    ( SKIP_CONDITION_KYWD^ | s:SKIP_KYWD^ { #s.setType(SKIP_KYWD); } ) COLON! booleanExpression SEMICOLON!
+	;
 
-preCondition : ( PRE_CONDITION_KYWD! | PRE_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #preCondition = #(#[PRE_CONDITION_KYWD, "PreCondition"], #preCondition); } ;	
+preCondition :
+    ( PRE_CONDITION_KYWD^ | p:PRE_KYWD^ { #p.setType(PRE_CONDITION_KYWD); } ) COLON! booleanExpression SEMICOLON!
+	;
 
-postCondition : ( POST_CONDITION_KYWD! | POST_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #postCondition = #(#[POST_CONDITION_KYWD, "PostCondition"], #postCondition); } ;	
+postCondition :
+    ( POST_CONDITION_KYWD^ | p:POST_KYWD^ { #p.setType(POST_CONDITION_KYWD); } ) COLON! booleanExpression SEMICOLON!
+	;
 
-invariantCondition : ( INVARIANT_CONDITION_KYWD! | INVARIANT_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #invariantCondition = #(#[INVARIANT_CONDITION_KYWD, "InvariantCondition"], #invariantCondition); } ;	
+invariantCondition :
+    ( INVARIANT_CONDITION_KYWD^ | i:INVARIANT_KYWD^ { #i.setType(INVARIANT_CONDITION_KYWD); } ) COLON! booleanExpression SEMICOLON!
+	;
 
-endCondition : ( END_CONDITION_KYWD! | END_COND_KYWD! ) COLON! booleanExpression SEMICOLON!
-    { #endCondition = #(#[END_CONDITION_KYWD, "EndCondition"], #endCondition); } ;  
+endCondition :
+    ( END_CONDITION_KYWD^ | e:END_COND_KYWD^ { #e.setType(END_CONDITION_KYWD); } ) COLON! booleanExpression SEMICOLON!
+	;
 
 
 resource

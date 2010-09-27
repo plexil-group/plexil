@@ -75,6 +75,19 @@ options {
         return state;
     }
 
+    protected Boolean hasChild(IXMLElement xnode, String name) 
+    {
+		if (!xnode.hasChildren())
+		  return false;
+        java.util.Enumeration<IXMLElement> children = xnode.enumerateChildren();
+        while (children.hasMoreElements()) {
+		    IXMLElement child = children.nextElement();
+			if (name.equals(child.getName()))
+			    return true;
+		}
+		return false;
+    }
+
 	protected void copyPosition(IXMLElement object, AST n) throws ClassCastException {
 		if(!(n instanceof PlexilASTNode))
 			throw new ClassCastException("cannot copy position from AST!");
@@ -427,8 +440,14 @@ nodeAttribute[IXMLElement node, XMLElement xmlResourceList]
 startCondition[IXMLElement node]
 { IXMLElement xsc = new XMLElement("StartCondition"); }
  :
-   #(START_CONDITION_KYWD booleanExpression[xsc])
+   #(sc:START_CONDITION_KYWD be:booleanExpression[xsc])
    {
+     if (hasChild(node, "StartCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #sc.getText()
+									 + "\" attribute is redundant",
+									 #sc);
+     }
      node.addChild(xsc);
    }
  ;
@@ -436,8 +455,14 @@ startCondition[IXMLElement node]
 repeatCondition[IXMLElement node]
 { IXMLElement xrc = new XMLElement("RepeatCondition"); }
  :
-   #(REPEAT_CONDITION_KYWD booleanExpression[xrc])
+   #(rc:REPEAT_CONDITION_KYWD booleanExpression[xrc])
    {
+     if (hasChild(node, "RepeatCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #rc.getText()
+									 + "\" attribute is redundant",
+									 #rc);
+     }
      node.addChild(xrc);
    }
  ;
@@ -445,8 +470,14 @@ repeatCondition[IXMLElement node]
 skipCondition[IXMLElement node]
 { IXMLElement xsc = new XMLElement("SkipCondition"); }
  :
-   #(SKIP_CONDITION_KYWD booleanExpression[xsc])
+   #(sc:SKIP_CONDITION_KYWD booleanExpression[xsc])
    {
+     if (hasChild(node, "SkipCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #sc.getText()
+									 + "\" attribute is redundant",
+									 #sc);
+     }
      node.addChild(xsc);
    }
  ;
@@ -454,8 +485,14 @@ skipCondition[IXMLElement node]
 preCondition[IXMLElement node]
 { IXMLElement xpc = new XMLElement("PreCondition"); }
  : 
-   #(PRE_CONDITION_KYWD booleanExpression[xpc])
+   #(pc:PRE_CONDITION_KYWD booleanExpression[xpc])
    {
+     if (hasChild(node, "PreCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #pc.getText()
+									 + "\" attribute is redundant",
+									 #pc);
+     }
      node.addChild(xpc);
    }
  ;
@@ -463,8 +500,14 @@ preCondition[IXMLElement node]
 postCondition[IXMLElement node]
 { IXMLElement xpc = new XMLElement("PostCondition"); }
  : 
-   #(POST_CONDITION_KYWD booleanExpression[xpc])
+   #(pc:POST_CONDITION_KYWD booleanExpression[xpc])
    {
+     if (hasChild(node, "PostCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #pc.getText()
+									 + "\" attribute is redundant",
+									 #pc);
+     }
      node.addChild(xpc);
    }
  ;
@@ -472,8 +515,14 @@ postCondition[IXMLElement node]
 invariantCondition[IXMLElement node]
 { IXMLElement xic = new XMLElement("InvariantCondition"); }
  : 
-   #(INVARIANT_CONDITION_KYWD booleanExpression[xic])
+   #(ic:INVARIANT_CONDITION_KYWD booleanExpression[xic])
    {
+     if (hasChild(node, "InvariantCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #ic.getText()
+									 + "\" attribute is redundant",
+									 #ic);
+     }
      node.addChild(xic);
    }
  ;
@@ -481,8 +530,14 @@ invariantCondition[IXMLElement node]
 endCondition[IXMLElement node]
 { IXMLElement xec = new XMLElement("EndCondition"); }
  : 
-   #(END_CONDITION_KYWD booleanExpression[xec])
+   #(ec:END_CONDITION_KYWD booleanExpression[xec])
    {
+     if (hasChild(node, "EndCondition")) {
+       throw createSemanticException("Error: \""
+	                                 + #ec.getText()
+									 + "\" attribute is redundant",
+									 ec);
+     }
      node.addChild(xec);
    }
  ;
@@ -534,8 +589,14 @@ resource[IXMLElement node, XMLElement resourceList]
 priority[IXMLElement node]
 { IXMLElement xprio = new XMLElement("Priority"); }
  : 
-   #(PRIORITY_KYWD i:nonNegativeInteger)
+   #(pr:PRIORITY_KYWD i:nonNegativeInteger)
    {
+     if (hasChild(node, "Priority")) {
+       throw createSemanticException("Error: \""
+	                                 + #pr.getText()
+									 + "\" attribute is redundant",
+									 #pr);
+     } 
      xprio.setContent(#i.getText());
      node.addChild(xprio);
    }
@@ -547,8 +608,14 @@ nonNegativeInteger : INT ;
 permissions[IXMLElement node]
 { IXMLElement xperm = new XMLElement("Permissions"); }
  :
-   #(PERMISSIONS_KYWD s:STRING)
+   #(per:PERMISSIONS_KYWD s:STRING)
    {
+     if (hasChild(node, "Permissions")) {
+       throw createSemanticException("Error: \""
+	                                 + #per.getText()
+									 + "\" attribute is redundant",
+									 #per);
+     }
      xperm.setContent(#s.getText());
      node.addChild(xperm);
    }
