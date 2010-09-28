@@ -43,17 +43,16 @@ warn()
    fi
 }
 
-usage="Usage: plexilsim -p <plan> -cmd <command-script> -t <telemetry-script> [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-                     [-ch] [-l <library>]*"
+usage="Usage: plexilsim -p <plan> -s <script> [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+[-ch] [-l <library>]* \n\
+For more options enter 'plexilsim -help'"
 
 help="Options:\n\
 \n\
  -p | -plan <plan> \n\
 \t	specify PLEXIL plan (required) \n\
- -cmd | -commands <commandt> \n\
-\t	load command-script (required) \n\
- -t | -tele <telemetry> \n\
-\t	load telemetry-script (required) \n\
+ -s | -script <script> \n\
+\t	specify simulation script (required) \n\
  -c | -config <config> \n\
 \t 	specifies an interface configuration file (defaulting to interface-config.xml)\n\
  -q | -quiet \n\
@@ -87,15 +86,14 @@ plan_nm="" #plan name
 plan_cmd="" #plan command
 config_nm="${PLEXIL_HOME}/src/apps/StandAloneSimulator/PlexilSimulator/test/config.xml"
 config_cmd="-c ${config_nm}"
-cmd_scr="" #command script name
-tele_scr="" #telemetry script name
+script="" #command script name
 libraries="" #library files
 debug_file="" #debug file
 check="false" #run static checker
 
 if [ ! $1 ]
   then
-  echo $usage
+  echo -e $usage
   exit 1
 fi
 
@@ -110,12 +108,9 @@ do
 	valid $1
 	config_nm="$1"
 	config_cmd="-c $1";;
-	-cmd | -commands ) shift
+	-s | -script ) shift
 	valid $1
-	cmd_scr="$1";;
-	-t | -telemetry ) shift
-	valid $1
-	tele_scr="$1";;	
+	script="$1";;
 	-l | -library ) shift
 	valid $1
 	libraries="$libraries -l $1";;
@@ -134,7 +129,7 @@ do
 	-help ) echo -e $help
 	  exit 2;;
 	-? ) echo 'Error: missing argument for option' $1
-	  echo $usage
+	  echo -e $usage
 	  exit 2;; 
     esac
     shift
@@ -155,7 +150,7 @@ if [ ! -e "$plan_nm" ]
 fi
 
 # Redefine current path config to look for dummy config on current path
-if [ ! -e "$cmd_scr_nm" ] || [ "$cmd_scr_nm" = "" ]
+if [ ! -e "$script_nm" ] || [ "$script_nm" = "" ]
    then
         if [ ! -e "$current_config" ] ; then
 	  current_config=$default_config_name
@@ -183,13 +178,12 @@ if [ $quiet -eq 1 ]
   then
     echo Running executive from $PLEXIL_HOME
     echo "  Plan:              $plan_nm"
-    echo "  Command-Script:    $cmd_scr"
-    echo "  Telemetry:         $tele_scr"
+    echo "  Script:            $script"
     echo "  Libraries:         $libraries"
     echo
 fi
 xterm -e ipc &
-`xterm -e run-sas $cmd_scr $tele_scr` &
+`xterm -e run-sas $script` &
 sas_kill=$!
 trap "{ kill $sas_kill; }" SIGINT
 trap "{ kill $sas_kill; }" SIGQUIT
