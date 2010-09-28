@@ -71,7 +71,7 @@ help="Options:\n\
 \t 	runs the PLEXIL static checker prior to executing plan\n\
  -l | -library <file name>\n\
 \t 	specifies a plan library (.plx file)\n\
--? | -help \n\
+ -? | -help \n\
 \t	displays this message"
 # -a used only for viewer acquire PID
 
