@@ -108,9 +108,9 @@ help="Options:\n\
 
 #separate command-line from plexexec output
 echo
-if [ $UE_EXECUTABLE ]
+if [ $PLEXIL_EXECUTABLE ]
 then
-    prog=$UE_EXECUTABLE
+    prog=$PLEXIL_EXECUTABLE
 elif [ -f $PLEXIL_HOME/bin/TestExec ]
 then
     prog=$PLEXIL_HOME/bin/TestExec
@@ -323,7 +323,7 @@ if [ ! -e $script_nm ] || [ "$script_nm" = "" ]
 # Print summary if desired
 if [ $quiet -eq 1 ] 
   then
-    echo Running UE from $PLEXIL_HOME
+    echo Running executive from $PLEXIL_HOME
     echo "  Plan:      $plan_nm"
     echo "  Script:    $script_nm"
     echo "  Libraries: $libraries"

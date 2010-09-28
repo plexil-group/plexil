@@ -65,7 +65,7 @@ usage="Usage: plexilexec [-p <plan>] [-s] [-v [-h <hostname>] [-n <portnumber>] 
 [-ch] [-c <interface config>] [-l <library>]* \n\n\
 For more options enter 'plexilexec -help'"
 
-# An optional environment variable UE_EXECUTABLE names an alternate executable.
+# An optional environment variable PLEXIL_EXECUTABLE names an alternate executable.
 
 help=" Other options:\n\
 \n\
@@ -98,9 +98,9 @@ help=" Other options:\n\
 #separate command-line from plexexec output
 echo
 
-if [ $UE_EXECUTABLE ]
+if [ $PLEXIL_EXECUTABLE ]
 then
-    prog=$UE_EXECUTABLE
+    prog=$PLEXIL_EXECUTABLE
 elif [ -f $PLEXIL_HOME/bin/universalExec ]
 then
     prog=$PLEXIL_HOME/bin/universalExec
@@ -314,7 +314,7 @@ fi
 # Print summary if desired
 if [ $quiet -eq 1 ] 
   then
-    echo Running UE from $PLEXIL_HOME
+    echo Running executive from $PLEXIL_HOME
     echo "  Plan:      $plan_nm"
     echo "  Configuration:    $config_nm"
     echo "  Libraries: $libraries"

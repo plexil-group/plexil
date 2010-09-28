@@ -43,13 +43,13 @@ warn()
    fi
 }
 
-usage="Usage: $0 -p <plan> -cmd <command-script> -t <telemetry-script> [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+usage="Usage: plexilsim -p <plan> -cmd <command-script> -t <telemetry-script> [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
                      [-ch] [-l <library>]*"
 
-help=" Other options:\n\
+help="Options:\n\
 \n\
  -p | -plan <plan> \n\
-\t	load plan (required) \n\
+\t	specify PLEXIL plan (required) \n\
  -cmd | -commands <commandt> \n\
 \t	load command-script (required) \n\
  -t | -tele <telemetry> \n\
@@ -59,7 +59,7 @@ help=" Other options:\n\
  -q | -quiet \n\
 \t 	suppresses a leading printed summary and default debug messages.\n\
  -v | -viewer \n\
-\t 	requests that plan state be transmitted to the UE viewer.\n\
+\t 	requests that plan state be transmitted to the Plexil viewer.\n\
  -h | -hostname <name> \n\
 \t 	hostname of viewer\n\
  -n | -port <number> \n\
@@ -73,7 +73,7 @@ help=" Other options:\n\
  -l | -library <file name>\n\
 \t 	specifies a plan library (.plx file)\n\
 -? | -help \n\
-	shows this message of options"
+\t	displays this message"
 # -a used only for viewer acquire PID
 
 . $PLEXIL_HOME/bin/plexil-setup.sh
@@ -181,7 +181,7 @@ fi
 # Print summary if desired
 if [ $quiet -eq 1 ] 
   then
-    echo Running UE from $PLEXIL_HOME
+    echo Running executive from $PLEXIL_HOME
     echo "  Plan:              $plan_nm"
     echo "  Command-Script:    $cmd_scr"
     echo "  Telemetry:         $tele_scr"
