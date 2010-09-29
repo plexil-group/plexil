@@ -9,10 +9,9 @@ Interface:
 		//The handler for the command GetNums()
 		RecGetName:
 		{
-			OnCommand GetNums ( ) {
+			OnCommand GetNums ( )
 				{
 					Command: SendReturnValue(a_nums);
 				}
-			}
 		}
 }
