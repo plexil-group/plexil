@@ -2,10 +2,9 @@ Receiver: {
 	RepeatCondition: true;
 	NodeList: 
 		{
-			OnCommand setTorque(Real torque) {
+			OnCommand setTorque(Real torque)
 				{
 					Command: UpdateLookup("Torque", torque);
 				}
-			}
 		}
 }
