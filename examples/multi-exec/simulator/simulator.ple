@@ -19,7 +19,7 @@ Interface:
                   NodeList:
 				RecMoveRight:
 				{
-					OnCommand MoveRight ( Integer modX ) {
+					OnCommand MoveRight ( Integer modX )
 						{
 							Sequence
 							Increment:
@@ -37,7 +37,6 @@ Interface:
 						}
 					}
 				}
-                }
 				//The handler for the message 'Quit' goes here
                 //Fix for a current issue with aborting OnCommand and OnMessage nodes
                 RepeatMoveRight:
@@ -46,12 +45,11 @@ Interface:
                   NodeList:
 				RecQuit:
 				{
-					OnMessage ("Quit") {
+					OnMessage ("Quit") 
 						Set:
 						{
 							Assignment: continue =false;
 						}
-					}
 				}
                 }
 }
