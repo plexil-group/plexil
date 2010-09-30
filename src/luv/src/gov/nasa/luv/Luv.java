@@ -52,6 +52,7 @@ public class Luv extends JFrame {
     // boolean variables to help determine Luv state	
     private static boolean allowBreaks;
     private static boolean allowTest;
+    private static boolean checkPlan;
     private static boolean planPaused;
     private static boolean planStep;
     private static boolean isExecuting;
@@ -72,6 +73,7 @@ public class Luv extends JFrame {
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
     private LuvPortGUI portGui;
+    private ExecSelect execSelect;
     private RegexModelFilter regexFilter;
     private int luvPort;
     private int luvPrevPort = 0;
@@ -259,6 +261,7 @@ public class Luv extends JFrame {
 
         allowBreaks = false;
         allowTest = true; //default is testExec
+        checkPlan = true;
         planPaused = false;
         planStep = false;
         isExecuting = false;
@@ -274,6 +277,7 @@ public class Luv extends JFrame {
         viewHandler = new ViewHandler();
         hideOrShowWindow = new HideOrShowWindow();
         debugWindow = new DebugWindow();
+        execSelect = new ExecSelect();
         portGui = new LuvPortGUI();
         //debugHistoryWindow = new DebugHistoryWindow();
 
@@ -499,6 +503,12 @@ public class Luv extends JFrame {
     public LuvPortGUI getPortGUI() {
         return portGui;
     }    
+    
+    /** Returns the current instance of the Executive GUI.
+     *  @return the current instance of the Executive GUI */
+    public ExecSelect getExecSelect() {
+        return execSelect;
+    }    
 
     /** Returns the current instance of the Luv DebugCFGWindow.
      *  @return the current instance of the Luv DebugCFGWindow */
@@ -610,6 +620,12 @@ public class Luv extends JFrame {
         return allowTest;
     }      
     
+    /** Returns whether viewer invokes static checker.
+     *  @return the current instance of checkPlan */
+    public boolean checkPlan() {
+        return checkPlan;
+    }      
+    
     /** Returns whether the currently executing Plexil plan should pause. 
      *  @return the whether the flag for pausing a plan is set and the flag 
      *  for stepping a plan is not set */
@@ -668,7 +684,15 @@ public class Luv extends JFrame {
      */
     public void setTestExecAllowed(boolean value) {
         allowTest = value;        
-    }    
+    }
+    
+    /** Sets the flag that indicates whether the application is currently
+     *  statically checking the plan.
+     *  @param value sets the flag that indicates plan check
+     */
+    public void setCheckPlan(boolean value) {
+        checkPlan = value;        
+    }
 
     /** Sets the flag that indicates whether the Luv application should 
      *  highlist rows in pink in the model tree.
@@ -720,11 +744,9 @@ public class Luv extends JFrame {
     }
 
     private void createMenuBar(JMenuBar menuBar) {
-        menuBar.add(fileMenu);
-        fileMenu.add(LuvActionHandler.openPlanAction);
-        fileMenu.add(LuvActionHandler.openScriptAction);
+        menuBar.add(fileMenu);        
         LoadRecentAction.updateRecentMenu();
-        fileMenu.add(recentRunMenu);
+        fileMenu.add(LuvActionHandler.ExecSelect);
         fileMenu.add(LuvActionHandler.reloadAction);
         fileMenu.add(new JSeparator());
         fileMenu.add(LuvActionHandler.exitAction);
@@ -733,8 +755,7 @@ public class Luv extends JFrame {
         runMenu.add(LuvActionHandler.pauseAction);
         runMenu.add(LuvActionHandler.stepAction);
         runMenu.add(LuvActionHandler.allowBreaksAction);
-        runMenu.add(LuvActionHandler.removeAllBreaksAction);
-        runMenu.add(LuvActionHandler.allowTestAction);        
+        runMenu.add(LuvActionHandler.removeAllBreaksAction);                
         runMenu.add(new JSeparator());
         runMenu.add(LuvActionHandler.execAction);
 

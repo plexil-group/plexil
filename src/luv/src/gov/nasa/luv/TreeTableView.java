@@ -491,6 +491,24 @@ public class TreeTableView extends JTreeTable
     }
     
     /**
+     * Expands all the Waiting nodes of this TreeTableView.
+     */
+    public void expandAllWaitingNodes()
+    {
+        for (int i = 0; i < tree.getRowCount(); i++)
+        {
+        	TreePath nodePath = tree.getPathForRow(i);
+        	Model node = ((Wrapper)nodePath.getLastPathComponent()).model;
+                    	
+        	//MODEL_STATE
+            if (node.getProperty(PARENT_WAITING_CONDITION)==WAITING)
+            {
+                tree.expandRow(i);
+            }        	            
+        }                 
+    }
+    
+    /**
      * Collapses all the node of this TreeTableView.
      */
     public void collapseAllNodes()

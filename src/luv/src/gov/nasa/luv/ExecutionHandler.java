@@ -32,7 +32,8 @@ import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
 import static gov.nasa.luv.Constants.RUN_UE_EXEC;
 import static gov.nasa.luv.Constants.UE_SCRIPT;
 import static gov.nasa.luv.Constants.TE_SCRIPT;
-
+import static gov.nasa.luv.Constants.RUN_SIMULATOR;
+import static gov.nasa.luv.Constants.SIM_SCRIPT;
 import static gov.nasa.luv.Constants.UNKNOWN;
 import gov.nasa.luv.Luv;
 import gov.nasa.luv.runtime.AbstractPlexilExecutiveCommandGenerator;
@@ -176,7 +177,10 @@ public class ExecutionHandler
       private AbstractPlexilExecutiveCommandGenerator getPlexilExecutive() throws ExecutiveCommandGenerationException{
     	  String alternativeExecutive=System.getenv("ALT_EXECUTIVE");    	  
     	  if (alternativeExecutive==null){
-    		  return new PlexilUniversalExecutive();
+    		  if(Luv.getLuv().allowTest())
+    			  return new PlexilTestExecutive();
+    		  else
+    			  return new PlexilUniversalExecutive();
     	  }
     	  else{
     		  try {    			
@@ -339,6 +343,7 @@ public class ExecutionHandler
         		  Runtime.getRuntime().exec(killa + UE_EXEC);        		  
         		  Runtime.getRuntime().exec(killa + TE_SCRIPT);        		  
         		  Runtime.getRuntime().exec(killa + UE_TEST_EXEC);
+        		  Runtime.getRuntime().exec(killa + SIM_SCRIPT);
         	  }
         	  else
         	  {
@@ -402,9 +407,9 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	public String generateCommandLine() {
 	  String command = "";	 
   
-	  System.out.println(Luv.getLuv().allowTest() ? "Using Test Executive..." : "Using Universal Executive...");
+	  System.out.println("Using Universal Executive...");
 	  //viewer
-	  command = Luv.getLuv().allowTest() ? RUN_TEST_EXEC + " -v" : RUN_UE_EXEC + " -v";  	  
+	  command = RUN_UE_EXEC + " -v";  	  
 	  //port
 	  command += " -n " + Luv.getLuv().getPort();
 	  //breaks
@@ -414,34 +419,17 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  //debug file		   
 	  command += " -d " + DEBUG_CFG_FILE;	  	  
 	  //Check Plan file	  
-	  command += Luv.getLuv().allowTest() ? "" : " -check";	  
+	  command += Luv.getLuv().checkPlan() ? " -check" : "";	  
 	  
 	  // get plan
 
 	  Model currentPlan=this.getCurrentPlan();
 	  
-	  command += Luv.getLuv().allowTest() ? " " + currentPlan.getAbsolutePlanName() : 
-		  " -p " + currentPlan.getAbsolutePlanName();
+	  command += " -p " + currentPlan.getAbsolutePlanName();
+	  	  
+	  if(this.getScriptPath() != null)	  
+		  command += " -c " + this.getScriptPath();		  
 	  
-	  if (Luv.getLuv().allowTest()){
-		  command += " " + this.getScriptPath();
-		  /*
-		  if(this.getScriptPath().endsWith("xml"))
-		  {
-			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Test Exec requires a plexil-script");
-			  return "echo";
-		  }
-		  */
-	  }
-	  else if(!Luv.getLuv().allowTest() && this.getScriptPath() != null)
-	  {
-		  command += " -c " + this.getScriptPath();
-		  if(this.getScriptPath().endsWith("plx"))
-		  {
-			  Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "Universal Exec requires a configuration xml");		  	 
-			  return "echo";
-		  }
-	  }
 	  if (this.getLibFiles()!=null){
 		  for (String lf:this.getLibFiles()){
 			  command += " -l ";
@@ -450,7 +438,89 @@ class PlexilUniversalExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	  }	  
 	  ///command status
 	  System.out.println(command);///
-	  //put command in background
+	  return command;
+
+	}
+
+}
+
+class PlexilTestExecutive extends AbstractPlexilExecutiveCommandGenerator{
+
+	@Override
+	public String generateCommandLine() {
+		String command = "";	 
+		  
+		  //System.out.println(Luv.getLuv().allowTest() ? "Using Test Executive..." : "Using Universal Executive...");
+		  System.out.println("Using Test Executive...");
+		  //viewer
+		  command = RUN_TEST_EXEC + " -v";  	  
+		  //port
+		  command += " -n " + Luv.getLuv().getPort();
+		  //breaks
+		  command += Luv.getLuv().breaksAllowed() ? " -b" : "";
+		  //automation to allow PID capture	  
+		  command += " -a";
+		  //debug file		   
+		  command += " -d " + DEBUG_CFG_FILE;	  	  
+		  //Check Plan file	  
+		  command += Luv.getLuv().checkPlan() ? " -check" : "";	  
+		  
+		  // get plan
+		  Model currentPlan=this.getCurrentPlan();
+		  
+		  command += " -p " + currentPlan.getAbsolutePlanName();				  
+		  command += " " + this.getScriptPath();				  
+		  
+		  if (this.getLibFiles()!=null){
+			  for (String lf:this.getLibFiles()){
+				  command += " -l ";
+				  command += lf;		  			  
+			  }
+		  }	  
+		  ///command status
+		  System.out.println(command);///		  
+		  return command;
+	}	
+
+}
+
+class PlexilSimulator extends AbstractPlexilExecutiveCommandGenerator{
+
+	@Override
+	public String generateCommandLine() {
+	  String command = "";	 
+  
+	  System.out.println("Using PlexilSim...");
+	  //viewer
+	  command = RUN_SIMULATOR + " -v";  	  
+	  //port
+	  command += " -n " + Luv.getLuv().getPort();
+	  //breaks
+	  command += Luv.getLuv().breaksAllowed() ? " -b" : "";
+	  //automation to allow PID capture	  
+	  command += " -a";
+	  //debug file		   
+	  command += " -d " + DEBUG_CFG_FILE;	  	  
+	  //Check Plan file	  
+	  command += Luv.getLuv().checkPlan() ? " -check" : "";	  
+	  
+	  // get plan
+
+	  Model currentPlan=this.getCurrentPlan();
+	  
+	  command += " -p " + currentPlan.getAbsolutePlanName();
+	  	  
+	  if(this.getScriptPath() != null)	  
+		  command += " -c " + this.getScriptPath();		  
+	  
+	  if (this.getLibFiles()!=null){
+		  for (String lf:this.getLibFiles()){
+			  command += " -l ";
+			  command += lf;		  			  
+		  }
+	  }	  
+	  ///command status
+	  System.out.println(command);///
 	  return command;
 
 	}

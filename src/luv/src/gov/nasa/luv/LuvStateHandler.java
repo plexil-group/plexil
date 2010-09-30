@@ -61,20 +61,14 @@ public class LuvStateHandler {
 
 		// reset all menu items
 
-		Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM)
-				.setEnabled(true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(
-				true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(
-				true);
+		Luv.getLuv().getExecSelect().getSaveBut().setEnabled(true);
 		Luv.getLuv().getFileMenu().getItem(EXIT_MENU_ITEM).setEnabled(true);
 		Luv.getLuv().getFileMenu().setEnabled(true);
 
 		Luv.getLuv().updateBlockingMenuItems();
 		LuvActionHandler.allowBreaksAction.putValue(NAME, "Enable Breaks");
 		Luv.getLuv().getRunMenu().getItem(BREAK_MENU_ITEM).setEnabled(false);
-		Luv.getLuv().getRunMenu().getItem(ENABLE_TEST_EXEC_ITEM).setEnabled(
-				true);
+		Luv.getLuv().getRunMenu().getItem(EXEC_SELECT_ITEM).setEnabled(true);
 		Luv.getLuv().getRunMenu().setEnabled(true);
 
 		Luv.getLuv().getViewMenu().setEnabled(true);
@@ -102,12 +96,7 @@ public class LuvStateHandler {
 
 		LuvActionHandler.execAction.putValue(NAME, "Execute Plan");
 
-		Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM)
-				.setEnabled(true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(
-				true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(
-				true);
+		Luv.getLuv().getExecSelect().getSaveBut().setEnabled(true);
 		Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(true);
 		Luv.getLuv().getFileMenu().getItem(EXIT_MENU_ITEM).setEnabled(true);
 		Luv.getLuv().getFileMenu().setEnabled(true);
@@ -123,7 +112,7 @@ public class LuvStateHandler {
 
 		Luv.getLuv().getRunMenu().setEnabled(true);
 
-		if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) {
+		if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) {		
 			Luv.getLuv().getViewMenu().getItem(EXPAND_MENU_ITEM).setEnabled(
 					true);
 			Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(
@@ -154,12 +143,7 @@ public class LuvStateHandler {
 
 		LuvActionHandler.execAction.putValue(NAME, "Execute Plan");
 
-		Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM)
-				.setEnabled(true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(
-				true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(
-				true);
+		Luv.getLuv().getExecSelect().getSaveBut().setEnabled(true);
 		Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(true);
 		Luv.getLuv().getFileMenu().getItem(EXIT_MENU_ITEM).setEnabled(true);
 		Luv.getLuv().getFileMenu().setEnabled(true);
@@ -170,7 +154,7 @@ public class LuvStateHandler {
 
 		Luv.getLuv().getRunMenu().setEnabled(true);
 
-		if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) {
+		if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) {			
 			Luv.getLuv().getViewMenu().getItem(EXPAND_MENU_ITEM).setEnabled(
 					true);
 			Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(
@@ -199,12 +183,7 @@ public class LuvStateHandler {
 		Luv.getLuv().setShouldHighlight(false);
 		Luv.getLuv().getCurrentPlan().resetMainAttributesOfAllNodes();
 
-		Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM).setEnabled(
-				false);
-		Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(
-				false);
-		Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(
-				false);
+		Luv.getLuv().getExecSelect().getSaveBut().setEnabled(false);
 		Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getRunMenu().getItem(BREAK_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getRunMenu().getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(
@@ -226,12 +205,7 @@ public class LuvStateHandler {
 
 		LuvActionHandler.execAction.putValue(NAME, "Stop Execution");
 
-		Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM)
-				.setEnabled(true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(
-				true);
-		Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(
-				true);
+		Luv.getLuv().getExecSelect().getSaveBut().setEnabled(true);
 		Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(true);
 
 		Luv.getLuv().getRunMenu().getItem(EXECUTE_MENU_ITEM).setEnabled(true);
@@ -380,13 +354,8 @@ public class LuvStateHandler {
 		Luv.getLuv().updateBlockingMenuItems();
 	}
 
-	private void disableAllMenus() {
-		Luv.getLuv().getFileMenu().getItem(OPEN_PLAN_MENU_ITEM).setEnabled(
-				false);
-		Luv.getLuv().getFileMenu().getItem(OPEN_SCRIPT_MENU_ITEM).setEnabled(
-				false);
-		Luv.getLuv().getFileMenu().getItem(OPEN_RECENT_MENU_ITEM).setEnabled(
-				false);
+	private void disableAllMenus() {		
+		Luv.getLuv().getExecSelect().getSaveBut().setEnabled(false);
 		Luv.getLuv().getFileMenu().getItem(RELOAD_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getFileMenu().getItem(EXIT_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getFileMenu().setEnabled(false);
@@ -396,13 +365,12 @@ public class LuvStateHandler {
 		Luv.getLuv().getRunMenu().getItem(STEP_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getRunMenu().getItem(BREAK_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getRunMenu().getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(
-				false);
-		Luv.getLuv().getRunMenu().getItem(ENABLE_TEST_EXEC_ITEM).setEnabled(
-				false);
+				false);		
+		Luv.getLuv().getRunMenu().getItem(EXEC_SELECT_ITEM).setEnabled(false);
 		Luv.getLuv().getRunMenu().getItem(EXECUTE_MENU_ITEM).setEnabled(false);
 		Luv.getLuv().getRunMenu().setEnabled(false);
 
-		if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) {
+		if (Luv.getLuv().getViewMenu().getMenuComponentCount() > 0) {			
 			Luv.getLuv().getViewMenu().getItem(EXPAND_MENU_ITEM).setEnabled(
 					false);
 			Luv.getLuv().getViewMenu().getItem(COLLAPSE_MENU_ITEM).setEnabled(

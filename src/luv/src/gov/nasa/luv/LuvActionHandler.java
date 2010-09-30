@@ -101,6 +101,32 @@ public class LuvActionHandler {
                     }
                 }
             };
+    
+    /** Action to load a config for Execution. */
+    public static LuvAction openConfigAction =    	
+        new LuvAction("Open Config",
+                "Open a Config file.",
+                VK_E,
+                META_MASK) {
+
+                    public void actionPerformed(ActionEvent e) {
+                        int option = Luv.getLuv().getFileHandler().chooseScript();
+                        if (option == APPROVE_OPTION) {
+                            if (Luv.getLuv().getIsExecuting()) {
+                                try {
+                                    Luv.getLuv().getLuvStateHandler().stopExecutionState();
+                                    Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Stopping execution and opening a new Config");
+                                } catch (IOException ex) {
+                                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while stopping execution");
+                                }
+                            }
+
+                            Luv.getLuv().getLuvStateHandler().readyState();
+                        }
+                    }
+                };   	
+                    
+         
     /** Action to reload a plan. */
     public static LuvAction reloadAction =
             new LuvAction("Reload",
@@ -151,6 +177,23 @@ public class LuvActionHandler {
                     }
                 }
             };
+            
+    /** Action to change Executive. */
+    public static LuvAction ExecSelect = 
+    	new LuvAction("Configuration",
+        "Window to Change Executive.",
+        VK_E,
+        META_MASK) {
+
+    		public void actionPerformed(ActionEvent e) {
+    			JComponent newContentPane = Luv.getLuv().getExecSelect(); 
+    			newContentPane.setOpaque(true);    			
+    			Luv.getLuv().getExecSelect().getFrame().setContentPane(newContentPane);
+    			Luv.getLuv().getExecSelect().getFrame().pack();
+    			Luv.getLuv().getExecSelect().getFrame().setVisible(true);
+    			Luv.getLuv().getExecSelect().backupNames();
+	        }
+    	};            
             
     /** Action to change luv server port. */
     public static LuvAction luvServerAction = 
@@ -425,6 +468,16 @@ public class LuvActionHandler {
 
         public void actionPerformed(ActionEvent e) {
             TreeTableView.getCurrent().collapseAllNodes();
+            Luv.getLuv().getViewHandler().refreshRegexView();
+        }
+    };
+    
+    /** Action to fully expand tree. */
+    public static LuvAction expandAllWait = new LuvAction(
+            "Expand All Waiting", "Expand all Waiting tree nodes.", VK_0) {
+
+        public void actionPerformed(ActionEvent e) {
+            TreeTableView.getCurrent().expandAllWaitingNodes();
             Luv.getLuv().getViewHandler().refreshRegexView();
         }
     };

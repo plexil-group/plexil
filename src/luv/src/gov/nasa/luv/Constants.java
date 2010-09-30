@@ -153,10 +153,13 @@ public class Constants
       public static final String    UE_TEST_EXEC = "TestExec";
       
       /** Represents the script for running the "Universal executive" for PLEXIL. */ 
-      public static final String    UE_SCRIPT = "run-ue";
+      public static final String    UE_SCRIPT = "plexilexec";
       
       /** Represents the script for running the "Test executive" for PLEXIL. */ 
-      public static final String    TE_SCRIPT = "run-te";
+      public static final String    TE_SCRIPT = "plexiltest";
+      
+      /** Represents the script for running the "Plexil Simulator (includes Universal Exec)" for PLEXIL. */ 
+      public static final String    SIM_SCRIPT = "plexilsim";
       
       /** Represents the script path for running the "Universal executive" for PLEXIL. */ 
       public static final String    RUN_UE_EXEC = PLEXIL_HOME +
@@ -171,6 +174,13 @@ public class Constants
                                               "bin" + 
                                               System.getProperty("file.separator") + 
                                               TE_SCRIPT;
+      
+      /** Represents the script path for running the "Plexil Simulator" for PLEXIL. */ 
+      public static final String    RUN_SIMULATOR = PLEXIL_HOME +
+                                              System.getProperty("file.separator") + 
+                                              "bin" + 
+                                              System.getProperty("file.separator") + 
+                                              SIM_SCRIPT;
       
       /** Represents the Luv application debug log file. Note this file is not referenced yet in the DebugWindow class. */ 
       public static final String    DEBUG_LOG_FILE = System.getProperty("user.home") + 
@@ -504,11 +514,13 @@ public class Constants
       {
          "xml",
          "plx",
+         "txt",
+         "pst",
          "pls",
       };
       
       /** Represents an empty Plexil script. */ 
-      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.plx";
+      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.pst";
       /** Represents an default UE config. */      
       public static final String DEFAULT_CONFIG_NAME = "dummy-config.xml";
       public static final String DEFAULT_CONFIG_PATH = PLEXIL_HOME +
@@ -517,16 +529,12 @@ public class Constants
       /** Contains the contents of an empty Plexil script. */
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";          
       
-      /** Represents index of the Open Plan item under the File menu in the Luv application. */ 
-      public static final int OPEN_PLAN_MENU_ITEM           = 0;
-      /** Represents index of the Open Script item under the File menu in the Luv application. */ 
-      public static final int OPEN_SCRIPT_MENU_ITEM         = 1;
-      /** Represents index of the Open Recent item under the File menu in the Luv application. */ 
-      public static final int OPEN_RECENT_MENU_ITEM         = 2;
-      /** Represents index of the Reload item under the File menu in the Luv application. */ 
-      public static final int RELOAD_MENU_ITEM              = 3;
+      /** Represents index of the Executive Select under the File menu in the Luv application. */
+      public static final int EXEC_SELECT_ITEM      		= 0;
+      /** Represents index of the Reload item under the File menu in the Luv application. */
+      public static final int RELOAD_MENU_ITEM              = 1;
       /** Represents index of the Exit item under the File menu in the Luv application. */ 
-      public static final int EXIT_MENU_ITEM                = 5;    
+      public static final int EXIT_MENU_ITEM                = 3;    
       
       /** Represents index of the Pause/Resume item under the Run menu in the Luv application. */ 
       public static final int PAUSE_RESUME_MENU_ITEM        = 0;
@@ -535,11 +543,9 @@ public class Constants
       /** Represents index of the Break item under the Run menu in the Luv application. */
       public static final int BREAK_MENU_ITEM               = 2;
       /** Represents index of the Remove Breaks item under the Run menu in the Luv application. */
-      public static final int REMOVE_BREAKS_MENU_ITEM       = 3;
-      /** Represents index of the Enable Test Exec item under the Run menu in the Luv application. */
-      public static final int ENABLE_TEST_EXEC_ITEM       = 4;
+      public static final int REMOVE_BREAKS_MENU_ITEM       = 3;      
       /** Represents index of the Execute item under the Run menu in the Luv application. */
-      public static final int EXECUTE_MENU_ITEM             = 6;
+      public static final int EXECUTE_MENU_ITEM             = 5;
       
       /** Represents index of the Expand All item under the View menu in the Luv application. */
       public static final int EXPAND_MENU_ITEM              = 0;

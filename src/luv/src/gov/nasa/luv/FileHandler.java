@@ -288,6 +288,11 @@ public class FileHandler
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
                     loadScript(script);
+                    if(supplement.equals("Config"))
+                    	ExecSelect.getExecSel().setConfigName(script.toString());
+                    else	
+                    	ExecSelect.getExecSel().setScriptName(script.toString());
+                    
                     return APPROVE_OPTION;
             }
 	}
@@ -317,6 +322,7 @@ public class FileHandler
                     Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
                     loadPlan(plan);
                     Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
+                    ExecSelect.getExecSel().setPlanName(plan.toString());
                     return APPROVE_OPTION;
             }  
             else
@@ -535,10 +541,10 @@ public class FileHandler
     {
         ArrayList<String> listOfScriptNames = new ArrayList<String>();
         
-        listOfScriptNames.add(path + planName + "_script.plx");
-        listOfScriptNames.add(path + planName + "-script.plx");
-        listOfScriptNames.add(path + "script-" + planName + ".plx");
-        listOfScriptNames.add(path + "script_" + planName + ".plx");
+        listOfScriptNames.add(path + planName + "_script.pst");
+        listOfScriptNames.add(path + planName + "-script.pst");
+        listOfScriptNames.add(path + "script-" + planName + ".pst");
+        listOfScriptNames.add(path + "script_" + planName + ".pst");
         listOfScriptNames.add(path + planName + "_script.pls");
         listOfScriptNames.add(path + planName + "-script.pls");
         listOfScriptNames.add(path + "script-" + planName + ".pls");
