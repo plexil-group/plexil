@@ -103,7 +103,7 @@ do
 	plan_nm="$1"
 	plan_cmd="-p $1";;
 	-s | -script ) shift
-	valide $1
+	valid $1
 	script="$script $1";;
 	-c | -config ) shift
 	valid $1

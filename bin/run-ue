@@ -122,7 +122,7 @@ if [ ! $1 ]
 fi
 
 if [ $# = 1 ] && [ $* = "-v" ] ; then
-  luv
+  plexil
   exit 1
 fi
 
@@ -138,11 +138,11 @@ do
 	libraries="$libraries -l $OPTARG";;
 	d ) valid $OPTARG
 	debug_file="-d $OPTARG";;
-	v ) viewer="-v";;	#luv listener enabled	
-	h ) host_in="-h $OPTARG";;	#luv host name
+	v ) viewer="-v";;	#viewer listener enabled	
+	h ) host_in="-h $OPTARG";;	#viewer host name
 	n ) port_in="-n $OPTARG"
-	    skip=1;;	#luv port
-	b ) block="-b";;	#enable luv break point	
+	    skip=1;;	#viewer port
+	b ) block="-b";;	#enable viewer break point	
 	k ) check="true";;	
 	a ) automate="true";;
 	\? ) echo $usage
@@ -241,7 +241,7 @@ if [ "$viewer" = "-v" ] ; then
       exit 1
   fi
   if [ "$skip" = "" ] ; then
-    luv ${port//[^0-9]/}
+    plexil ${port//[^0-9]/}
     until [ -f /tmp/.Luv_${port//[^0-9]/} ]
       do
 	:
