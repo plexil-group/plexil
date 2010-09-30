@@ -57,28 +57,29 @@ public class Parse
 
     private static File outputFilename(String inFileName, String outFileName, boolean isExtendedPlexil)
     {
-        // NOTE: the extension of output filename is dictated
-        // by this function; any user-specified extension will
-        // be ignored.
+		File infile = new File(inFileName);
 
-        // The input file is explicitly named
-	File infile = new File(inFileName);
-
-        // The output file depends on whether the user
-        // specified an output file.  If so, this file is
-        // used; however, any user-specified extension is
-        // replaced by .epx or .plx as appopriate.
-        //
-        // If the output file is NOT user-specified, the input
-        // filename is used as the basis for the output
-        // filename, replacing the extension as needed for
-        // core or extended plexil.
-
-        String outfile_basis = outFileName == null ? inFileName : outFileName;
-        int index = outfile_basis.lastIndexOf('.');
-        String outname = outfile_basis.substring(0, index != -1 ? index : outfile_basis.length()) +
-            (isExtendedPlexil ? ".epx" : ".plx");
-	return new File(infile.getParent(), outname);
+		if (outFileName == null) {
+			// Replace the infile's extension with .epx or .plx as required.
+			String outfile_basis = infile.getName();
+			int index = outfile_basis.lastIndexOf('.');
+			String outname = 
+				outfile_basis.substring(0, index != -1 ? index : outfile_basis.length()) +
+				(isExtendedPlexil ? ".epx" : ".plx");
+			return new File(infile.getParent(), outname);
+		}
+		else if (isExtendedPlexil) {
+			// Use the specified output file, but replace the extension with .epx.
+			int index = outFileName.lastIndexOf('.');
+			String outname = 
+				outFileName.substring(0, index != -1 ? index : outFileName.length()) +
+				(isExtendedPlexil ? ".epx" : ".plx");
+			return new File(outname);
+		}
+		else {
+			// The user specified an output file, so use it.
+			return new File(outFileName);
+		}
     }
     
     private static void printUsage() 
