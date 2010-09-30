@@ -48,7 +48,7 @@ namespace PLEXIL
       }
 
     // this may not be implemented, skip it if not
-#ifdef PTHREAD_PRIO_INHERIT
+#if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT >= 0
     rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
     if (rv != 0)
       {
