@@ -1,4 +1,12 @@
-This directory contains example PLEXIL plans and scripts.  The plans are
-described in the PLEXIL Reference Manual:
+This directory contains example PLEXIL plans and scripts.  A few of these are
+explained in the PLEXIL Reference Manual:
 
-  http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction
+https://sourceforge.net/apps/mediawiki/plexil/index.php?title=Example_PLEXIL_Plans
+
+Multiple-executive examples are found in the 'multi-exec' subdirectory.
+
+An example "PLEXIL application" (executive interfaced to an external system,
+with plans), is found in plexil/src/apps/sample.
+
+A more sophisticated example of a PLEXIL application, one that uses PLEXIL to
+control robots in a graphical simulator, is found in plexil/src/apps/robosim.
