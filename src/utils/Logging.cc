@@ -31,8 +31,9 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 #include <cstring>
+#include <ctime>
+#include <string>
 #include <unistd.h> // for getpid(), isatty()
 
 #ifdef PLATFORM_HAS_EXECINFO_H
