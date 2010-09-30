@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# The checkreqs script checks for the UE build requirements (java,
-# gcc) and runs them to check that the correct versions are in the path.
+# Checks for the build requirements (java, gcc) and runs them to check that the
+# correct versions are in the path.
 #
 BADOSTYPE=1
 GCCVERSTR="Minimum gcc version required is 3.3.3"
@@ -15,11 +15,8 @@ MINJAVA_I=1
 MINJAVA_J=5
 JAVAPATH="/usr/local/jdk1.5.0/bin"
 BADJAVA=0
-BADPATH=0
-BADENVV=0
+BADENV=0
 BADJH=0
-BADBAL=0
-BADLL=0
 MYOSTYPE=""
 
 #Treat all OSTYPE variants for linux as 'linux'
@@ -161,9 +158,9 @@ fi
 
 if [ $BADGCC -eq 1 -o $BADJAVA -eq 1 ]
 then
-  BADPATH=1
+  BADENV=1
 else
-  echo "Path includes required versions to build UE"
+  echo "GCC and Java versions look good."
 fi
 
 echo "Checking for required environment variables:"
@@ -174,7 +171,7 @@ then
   if [ -z "$DYLD_LIBRARY_PATH" ] 
   then
     echo "  DYLD_LIBRARY_PATH environment variable missing or not set"
-    BADLL=1
+    BADENV=1
   else 
     echo "  DYLD_LIBRARY_PATH is set to " $DYLD_LIBRARY_PATH
   fi
@@ -182,7 +179,7 @@ else
   if [ -z "$LD_LIBRARY_PATH" ] 
     then
       echo "  LD_LIBRARY_PATH environment variable missing or not set"
-      BADLL=1
+      BADENV=1
     else 
       echo "  LD_LIBRARY_PATH is set to " $LD_LIBRARY_PATH
     fi
@@ -192,24 +189,27 @@ if [ $MYOSTYPE = darwin ]
 then
   if [ "$DYLD_BIND_AT_LAUNCH"  != YES ]
   then
-    echo "DYLD_BIND_AT_LAUNCH environment variable missing or not set to YES" 
+    echo "Error: DYLD_BIND_AT_LAUNCH environment variable missing or not set to YES" 
     BADENV=1
   else
     echo "  DYLD_BIND_AT_LAUNCH is set to " $DYLD_BIND_AT_LAUNCH
   fi
 fi
 
-if [ $BADJH -eq 1 -o $BADPATH -eq 1 -o $BADLL -eq 1 ]
-then
-  BADENVV=1
-  echo "Environment variables may not be set correctly to build UE"
-else
-  echo "Required environment variables are present"
+if [ ! $PLEXIL_HOME ]
+  then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' directory.
+    BADENV=1
 fi
 
-if [ $BADPATH -eq 1 -o $BADENVV -eq 1 ]
+if [ $BADENV -eq 1 ]
 then
+  echo "FAILURE.  Environment variables are not set correctly to build PLEXIL."
+  echo "See error messages above."
   exit 1
+else
+  echo "SUCCESS.  Environment is satisfactory.  Type 'make' to build PLEXIL."
+  exit 0
 fi
 
-exit 0
