@@ -102,7 +102,7 @@
             ((member type '(plexil-script PlexilScript))
              (apply  #'process-script-buffer
                   (list
-                   ".plx"
+                   ".psx"
                    (eval
                     (translate-symbols
                      buffer-content
@@ -155,7 +155,7 @@
 (defun process-script-buffer (extension xml) ; -> ()
   ;; First, save file
   (save-buffer (current-buffer))
-  ;; Next, open or create corresponding .plx buffer
+  ;; Next, open or create corresponding .psx buffer
   (let ((buffer (find-file
                  (concat (file-name-sans-extension (buffer-name)) extension))))
     ;; Wipe out any existing content
