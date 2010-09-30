@@ -159,15 +159,15 @@ do
 	debug_file="-d $1";;
 	-help ) echo -e $help
 	  exit 2;;
-	-v | -viewer ) viewer="-v";;	#luv listener enabled	
+	-v | -viewer ) viewer="-v";;	#viewer listener enabled	
 	-h | -hostname ) shift
 	validNum $1 $save
-	host_in="-h $1";;	#luv host name
+	host_in="-h $1";;	#viewer host name
 	-n | -port ) shift
 	validNum $1 $save
 	port_in="-n $1"
-	skip=1;;	#luv port
-	-b | -blocking ) block="-b";;	#enable luv break point	
+	skip=1;;	#viewer port
+	-b | -blocking ) block="-b";;	#enable viewer break point	
 	-ch | -check ) check="true";;
 	-e | -errors) err="-eprompt";;
 	-w | -warnings) warning="-wprompt";;
@@ -231,7 +231,7 @@ if [ "$viewer" = "-v" ] ; then
       exit 1
   fi
   if [ "$skip" = "" ] ; then
-    luv ${port//[^0-9]/}
+    plexil ${port//[^0-9]/}
     until [ -f /tmp/.Luv_${port//[^0-9]/} ]
       do
 	:
@@ -239,7 +239,7 @@ if [ "$viewer" = "-v" ] ; then
     if [ "$platform" = "Darwin" ] ; then
       sleep 1
     else    
-      usleep 500
+      sleep 1
     fi
   elif [ "$automate" = "" ] ; then
     if [ ! -f /tmp/.Luv_${port//[^0-9]/} ] && [ $quiet = 1 ] ; then

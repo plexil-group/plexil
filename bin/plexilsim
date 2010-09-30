@@ -43,18 +43,15 @@ warn()
    fi
 }
 
-usage="Usage: plexilsim -p <plan> -s <script> [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-[-ch] [-l <library>]* \n\
-For more options enter 'plexilsim -help'"
-
+usage='Usage: plexilsim -p <plan> [-script <script>]+ [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+                     [-ch] [-l <library>]*\n Use -help for more options'
 help="Options:\n\
 \n\
  -p | -plan <plan> \n\
+\t	load plan (required) \n\
 \t	specify PLEXIL plan (required) \n\
- -s | -script <script> \n\
+ -s | -script <scrpt>+ \n\
 \t	specify simulation script (required) \n\
- -c | -config <config> \n\
-\t 	specifies an interface configuration file (defaulting to interface-config.xml)\n\
  -q | -quiet \n\
 \t 	suppresses a leading printed summary and default debug messages.\n\
  -v | -viewer \n\
@@ -84,6 +81,7 @@ platform=`uname`
 quiet=1 #quiet default
 plan_nm="" #plan name
 plan_cmd="" #plan command
+script="" #script
 config_nm="${PLEXIL_HOME}/src/apps/StandAloneSimulator/PlexilSimulator/test/config.xml"
 config_cmd="-c ${config_nm}"
 script="" #command script name
@@ -104,6 +102,9 @@ do
 	-p | -plan ) shift
 	plan_nm="$1"
 	plan_cmd="-p $1";;
+	-s | -script ) shift
+	valide $1
+	script="$script $1";;
 	-c | -config ) shift
 	valid $1
 	config_nm="$1"
@@ -117,13 +118,13 @@ do
 	-d | -debug ) shift
 	valid $1
 	debug_file="-d $1";;
-	-v | -viewer ) viewer="-v";;	#luv listener enabled	
+	-v | -viewer ) viewer="-v";;	#viewer listener enabled	
 	-h | -hostname ) shift
-	host_in="-h $1";;	#luv host name
+	host_in="-h $1";;	#viewer host name
 	-n | -port ) shift
 	port_in="-n $1"
-	skip=1;;	#luv port
-	-b | -blocking ) block="-b";;	#enable luv break point	
+	skip=1;;	#viewer port
+	-b | -blocking ) block="-b";;	#enable viewer break point	
 	-k | -check ) check="true";;	
 	-a ) automate="true";;
 	-help ) echo -e $help
@@ -178,7 +179,8 @@ if [ $quiet -eq 1 ]
   then
     echo Running executive from $PLEXIL_HOME
     echo "  Plan:              $plan_nm"
-    echo "  Script:            $script"
+    echo "  Scripts:    	$script"
+#    echo "  Telemetry:         $tele_scr"
     echo "  Libraries:         $libraries"
     echo
 fi
