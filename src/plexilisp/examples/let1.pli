@@ -13,7 +13,7 @@
      (sequence
       (command-node "Get_NDFD_forecast"
 	  (start-condition (> (lookup-on-change "forecast_no") 0)) 
-	  (command-with-return "get_forecast" (stringvar "forecast_data")))
+	  (command-with-return (stringvar "forecast_data") "get_forecast"))
       (if (= (stringvar "forecast_data") (stringval "clear"))
 	  (assignment-node "n3_setFreqClear"
 	   (assignment (intvar "frequency_of_goes") 5))
@@ -24,9 +24,9 @@
     (when (>= (lookup-on-change "localtime")
 	      (+ (intvar "last_goes") (intvar "frequency_of_goes")))
       (sequence
-       (assign (intvar "last_goes") (lookup-now "localtime"))
+       (assignment (intvar "last_goes") (lookup-now "localtime"))
        (command-node "Get_GOES_data"
         (variables (string "goes_image"))
-	(command-with-return "acquire_goes_image"
-                             (stringvar "goes_image")))))))))
+	(command-with-return (stringvar "goes_image")
+          "acquire_goes_image"))))))))
 
