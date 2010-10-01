@@ -36,8 +36,6 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-cygwin: TestExec UniversalExec standard-plexil checker
-
 all: TestExec UniversalExec IpcAdapter standard-plexil checker plexilsim robosim
 
 # convenience target for A4O project
@@ -55,18 +53,12 @@ robosim: UniversalExec IpcAdapter
 UniversalExec: exec-core app-framework
 	$(MAKE) -C src/universal-exec
 
-ifeq ($(shell uname -o),Cygwin)
-checker: override PLEXIL_HOME := $(shell cygpath -w $(PLEXIL_HOME))
-endif
 checker:
 	(cd src/checker && ant jar)
 
 luv:
 	(cd src/luv && ant jar)
 
-ifeq ($(shell uname -o),Cygwin)
-standard-plexil: override PLEXIL_HOME := $(shell cygpath -w $(PLEXIL_HOME))
-endif
 standard-plexil:
 	(cd src/standard-plexil && ant install)
 
