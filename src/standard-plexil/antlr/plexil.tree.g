@@ -1995,7 +1995,6 @@ nodeOutcomeValue[IXMLElement parent]
    ( SUCCESS_OUTCOME_KYWD
      | FAILURE_OUTCOME_KYWD
      | SKIPPED_OUTCOME_KYWD
-     | INFINITE_LOOP_OUTCOME_KYWD
    )
    {
      nov.setContent(#nodeOutcomeValue.getText());
@@ -2019,12 +2018,14 @@ nodeCommandHandleVariable[IXMLElement parent]
 nodeCommandHandleValue[IXMLElement parent]
 { IXMLElement nov = new XMLElement("NodeCommandHandleValue"); }
  :
-   ( COMMAND_SENT_KYWD
-     | COMMAND_ACCEPTED_KYWD
-     | COMMAND_DENIED_KYWD
-     | COMMAND_RCVD_KYWD
-     | COMMAND_FAILED_KYWD
-     | COMMAND_SUCCESS_KYWD 
+   ( COMMAND_ABORTED_KYWD
+   | COMMAND_ABORT_FAILED_KYWD
+   | COMMAND_ACCEPTED_KYWD
+   | COMMAND_DENIED_KYWD
+   | COMMAND_FAILED_KYWD
+   | COMMAND_RCVD_KYWD
+   | COMMAND_SENT_KYWD
+   | COMMAND_SUCCESS_KYWD
    )
    {
      nov.setContent(#nodeCommandHandleValue.getText());
@@ -2052,8 +2053,6 @@ nodeFailureValue[IXMLElement parent]
      | POST_CONDITION_FAILED_KYWD
      | INVARIANT_CONDITION_FAILED_KYWD
      | PARENT_FAILED_KYWD
-     | COMMAND_FAILED_KYWD
-     | INFINITE_LOOP_KYWD
    )
    {
      nov.setContent(#nodeFailureValue.getText());
