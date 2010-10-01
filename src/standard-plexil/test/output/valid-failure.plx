@@ -6,7 +6,7 @@
                   <NodeFailureVariable>
                       <NodeRef>foo</NodeRef>
                   </NodeFailureVariable>
-                  <NodeFailureValue>INFINITE_LOOP</NodeFailureValue>
+                  <NodeFailureValue>PARENT_FAILED</NodeFailureValue>
               </EQInternal>
           </EndCondition>
           <NodeBody>

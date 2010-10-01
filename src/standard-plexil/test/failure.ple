@@ -1,6 +1,6 @@
 root:
 {
-  EndCondition: foo.failure == INFINITE_LOOP;
+  EndCondition: foo.failure == PARENT_FAILED;
   NodeList:
   foo:
   {
