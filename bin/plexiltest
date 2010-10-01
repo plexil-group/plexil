@@ -28,7 +28,7 @@
 #Validate file
 valid()
 {
-  if [ ! -e $1 ] && [ $quiet = 1 ]
+  if [ ! -e $1 ] && [ $quiet = 0 ]
     then
       echo "WARNING: $1 does not exist"
   fi
@@ -46,7 +46,7 @@ validNum()
 
 warn()
 {
-   if [ $quiet = 1 ]
+   if [ $quiet = 0 ]
      then
        echo "$1"
    fi
@@ -124,14 +124,15 @@ fi
 $PLEXIL_HOME/bin/plexil-check-prog $prog
 
 platform=`uname`
-quiet=1 #quiet default
-plan_nm="" #plan name
-plan_cmd="" #plan command
-script_nm="" #script name
-script_cmd="" #script command
-libraries="" #library files
-debug_file="" #debug file
-check="false" #run static checker
+quiet=0
+plan_name="" 
+plan_cmd="" 
+script_name="" 
+guess_script=0
+script_cmd="" 
+libraries="" 
+debug_file="" 
+check="false" 
 DEFAULT_PORT=9787
 DEFAULT_HOST=127.0.0.1
 
@@ -145,12 +146,12 @@ for i in $*
 do
     save=$1
     case $1 in
-        -quiet | -q ) quiet=0;;	
+        -quiet | -q ) quiet=1;;
 	-p | -plan ) shift
-	plan_nm=$1
+	plan_name=$1
 	plan_cmd="-p $1";;
 	-s | -script ) shift
-	script_nm=$1;;
+	script_name=$1;;
 	-l | -library ) shift
 	valid $1
 	libraries="$libraries -l $1";;
@@ -181,9 +182,9 @@ do
 done
 
 # Check if user typed invalid plan
-if [ ! -e "$plan_nm" ] || [ "$plan_nm" = "" ]
+if [ ! -e "$plan_name" ] || [ "$plan_name" = "" ]
   then
-        echo Error: Plan $plan_nm, does not exist.
+        echo Error: Plan $plan_name, does not exist.
         exit 1    
 fi
 
@@ -197,7 +198,7 @@ fi
 if [ "$viewer" = "-v" ] && [ "$skip" = "1" ]
   then
   temphelper=$port_in  
-  if [ "${port_in//[^0-9]/}" -lt 1024 ] && [ $quiet = 1 ] ; then
+  if [ "${port_in//[^0-9]/}" -lt 1024 ] && [ $quiet = 0 ] ; then
     echo "Warning: ${port_in//[^0-9]/} is within frequently used port range, usage of this port is not recommended"
   fi
   if [ "$platform" = "Darwin"  ]
@@ -242,7 +243,7 @@ if [ "$viewer" = "-v" ] ; then
       sleep 1
     fi
   elif [ "$automate" = "" ] ; then
-    if [ ! -f /tmp/.Luv_${port//[^0-9]/} ] && [ $quiet = 1 ] ; then
+    if [ ! -f /tmp/.Luv_${port//[^0-9]/} ] && [ $quiet = 0 ] ; then
       echo "Warning: Viewer is not listening on port ${port//[^0-9]/}"
     fi
   fi      
@@ -254,7 +255,7 @@ if [ ! "$viewer" = "-v" ] && [ "$port_in" ] ; then
 fi
 
 # Run default debug
-if [ "$debug_file" = "" ] && [ $quiet = 1 ]
+if [ "$debug_file" = "" ] && [ $quiet = 0 ]
   then
     debug_file="-d Debug.cfg"
 fi
@@ -263,10 +264,10 @@ fi
 if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
   then 
        echo "Checking Plan..."
-       $PLEXIL_HOME/bin/checkDecls $plan_nm
-       if [ ! -e "$plan_nm" ] && [ $? -gt 0 ]
+       $PLEXIL_HOME/bin/checkDecls $plan_name
+       if [ ! -e "$plan_name" ] && [ $? -gt 0 ]
          then
-	   echo Error: $plan_nm, contains runtime error
+	   echo Error: $plan_name, contains runtime error
            exit 1
 	fi
     elif [ ! -f $PLEXIL_HOME/bin/checkDecls ]
@@ -275,57 +276,49 @@ if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
 	exit 1
 fi  
 
-# Default simulation script
-script_def=$PLEXIL_HOME/src/apps/TestExec/test/scripts/empty-script.plx
-
 # The plan file's extension, used to compute guessed script name.
-ext=".`echo $plan_nm | awk -F. '{print $2}'`"
-
-# Alternate script candidates
-script1=`basename $plan_nm $ext`-script.plx
-script2=`basename $plan_nm $ext`_script.plx
-script3=script-`basename $plan_nm $ext`.plx
-script4=script_`basename $plan_nm $ext`.plx
+ext=".`echo $plan_name | awk -F. '{print $2}'`"
 
 # If no more arguments, or next argument -l, check for candidate scripts.
 # Otherwise, next argument must be script.
 
-if [ ! -e $script_nm ] || [ "$script_nm" = "" ]
+if [ "$script_name" = "" ]
   then
     guess_script=1
-    else
-      guess_script=0      
+  elif [ ! -e $script_name ]
+    then
+      echo "Error: Specified script $script_name does not exist!"
+      exit 1
 fi
+
 
 if [ $guess_script -eq 1 ]
   then
-    for s in $script1 $script2 $script3 $script4
-      do
-        echo $s
-        if [ -e $s ]
+    script_candidate=`basename $plan_name $ext`.psx
+    if [ -e $script_candidate ]
+      then
+        script_name=$script_candidate
+      elif [ -e scripts/$script_candidate ]
+        then
+          script_name=scripts/$script_candidate
+        elif [ -e ../scripts/$script_candidate ]        
           then
-            script_nm=$s
-            break
-          elif [ -e scripts/$s ]
-            then
-              script_nm=scripts/$s
-              break
-        fi
-    done
+            script_name=../scripts/$script_candidate
+    fi
 fi
 
-if [ ! -e $script_nm ] || [ "$script_nm" = "" ]
-        then
-          warn "Error: Script $script_nm does not exist.  Using Default"
-	  script_nm=$script_def
-      fi
+if [ "$script_name" = "" ]
+  then
+    warn "No simulation script specified; using empty script."
+    script_name=$PLEXIL_HOME/examples/empty.psx
+fi
 
 # Print summary if desired
-if [ $quiet -eq 1 ] 
+if [ $quiet -eq 0 ] 
   then
     echo Running executive from $PLEXIL_HOME
-    echo "  Plan:      $plan_nm"
-    echo "  Script:    $script_nm"
+    echo "  Plan:      $plan_name"
+    echo "  Script:    $script_name"
     echo "  Libraries: $libraries"
     echo "  PORT:      ${port//[^0-9]/}"    
     echo
@@ -333,9 +326,9 @@ fi
 
 if [ "$automate" = "true" ]
   then    
-    $prog $plan_cmd -s $script_nm $debug_file $libraries $err $warning $log_file $viewer $host $port $block &
+    $prog $plan_cmd -s $script_name $debug_file $libraries $err $warning $log_file $viewer $host $port $block &
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
   else     
-    $prog $plan_cmd -s $script_nm $debug_file $libraries $err $warning $log_file $viewer $host $port $block
+    $prog $plan_cmd -s $script_name $debug_file $libraries $err $warning $log_file $viewer $host $port $block
 fi

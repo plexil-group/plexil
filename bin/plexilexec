@@ -208,8 +208,8 @@ if [ ! -e "$config_nm" ] || [ "$config_nm" = "" ]
     elif [ -e "$default_config" ] && [ -e "$plan_nm" ]
       then      
         default_msg=": $config_nm,"
-          warn "Error: No config defined or Config${config_nm:+$default_msg} does not exist."
-          warn "Warning: using default config: $default_config"
+        warn "Error: No config defined or Config${config_nm:+$default_msg} does not exist."
+        warn "Warning: using default config: $default_config"
         config_nm=$default_config
 	#prevent idle exec from default blank config call
     elif [ $no_plan = 1 ]

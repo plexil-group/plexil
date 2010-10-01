@@ -292,7 +292,7 @@ public class FileHandler
                     	ExecSelect.getExecSel().setConfigName(script.toString());
                     else	
                     	ExecSelect.getExecSel().setScriptName(script.toString());
-                    
+
                     return APPROVE_OPTION;
             }
 	}
@@ -540,20 +540,7 @@ public class FileHandler
     private ArrayList<String> generateListOfScriptNames(String planName, String path)
     {
         ArrayList<String> listOfScriptNames = new ArrayList<String>();
-        
-        listOfScriptNames.add(path + planName + "_script.pst");
-        listOfScriptNames.add(path + planName + "-script.pst");
-        listOfScriptNames.add(path + "script-" + planName + ".pst");
-        listOfScriptNames.add(path + "script_" + planName + ".pst");
-        listOfScriptNames.add(path + planName + "_script.pls");
-        listOfScriptNames.add(path + planName + "-script.pls");
-        listOfScriptNames.add(path + "script-" + planName + ".pls");
-        listOfScriptNames.add(path + "script_" + planName + ".pls");
-        listOfScriptNames.add(path + planName + "_script.xml");
-        listOfScriptNames.add(path + planName + "-script.xml");
-        listOfScriptNames.add(path + "script-" + planName + ".xml");
-        listOfScriptNames.add(path + "script_" + planName + ".xml");
-       
+        listOfScriptNames.add(path + planName + ".psx");
         return listOfScriptNames;
     }
     

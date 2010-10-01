@@ -1,11 +1,11 @@
-// Declare lookups (optional)
+// Declare lookups (optional but recommended)
 
 Boolean Lookup at_school;
 Boolean Lookup no_passengers;
 Boolean Lookup car_started;
 Boolean Lookup raining;
 
-// Declare commands (optional)
+// Declare commands (optional but recommended)
 Command depress_accelerator();
 Command depress_clutch();
 Command turn_key();

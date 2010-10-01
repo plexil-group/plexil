@@ -1,0 +1,40 @@
+CruiseControl:
+{
+  Boolean cruiseOn = false;
+  Real targetSpeed, throttlePos = 0.0;
+  Concurrence:
+  
+    SET : {
+      StartCondition: Lookup (SetPressed);
+      Concurrence:
+        SetCruiseOn: { Assignment: cruiseOn = true; }
+        SetTargetSpeed: { Assignment: targetSpeed = Lookup (ActualSpeed); }
+    }
+
+    CANCEL : {
+      StartCondition: Lookup (CancelPressed);
+      RepeatCondition: true;
+      Assignment: cruiseOn = false;
+    }
+
+    RESUME: { }
+
+    ACCEL: { }
+
+    DECEL: { }
+
+    ControlSpeedAutomatically: {
+      StartCondition: cruiseOn;
+      EndCondition: !cruiseOn;
+      RepeatCondition: cruiseOn;    
+      Concurrence:
+        IncreaseThrottle: {
+          StartCondition: Lookup (ActualSpeed) < targetSpeed;
+          Assignment: throttlePos = throttlePos + 0.1;
+        }
+        DecreaseThrottle: {
+          StartCondition: Lookup (ActualSpeed) > targetSpeed;
+          Assignment: throttlePos = throttlePos - 0.1;
+        }
+    }
+}

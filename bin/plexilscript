@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,11 @@
 . ${PLEXIL_HOME}/bin/plexil-setup.sh
 
 if [ $# != 1 ] ; then
-  echo "Usage: plexilscript foo-script.ple"
+  echo "Usage: plexilscript foo.ple"
   exit
 fi
 
 # echo "Reading:" $1
-# echo "Writing:" ${1//\.ple/.plx}
+# echo "Writing:" ${1//\.pst/.psx}
 
-java -cp ${PLEXIL_HOME}/lib/plexilscript.jar:${PLEXIL_HOME}/third-party/jars/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.ple/.plx}
+java -cp ${PLEXIL_HOME}/lib/plexilscript.jar:${PLEXIL_HOME}/third-party/jars/antlr.jar plexilscript.PlexilScriptParse < $1 > ${1//\.pst/.psx}

@@ -32,7 +32,7 @@ EXEC_PROG	:= ../TestExec -d $(DEBUG_CFG)
 REGRESSION_PL	:= regression.pl
 
 # Tests which run to success and require no script
-EMPTY_SCRIPT		:= scripts/empty-script.plx
+EMPTY_SCRIPT		:= scripts/empty.psx
 
 EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  concat1 contention1 contention3 \
@@ -122,7 +122,7 @@ same-name-script-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for tst in $(SAME_NAME_SCRIPT_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
-		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}-script.plx > output/$${tst}.out 2>> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}.psx > output/$${tst}.out 2>> tempRegressionResults ; \
 		perl $(REGRESSION_PL) output/$${tst}.out ; \
 	done
 
@@ -130,7 +130,7 @@ simple-drive-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for scrpt in $(SIMPLE_DRIVE_SCRIPTS) ; do \
 		echo $${scrpt} >> tempRegressionResults ; \
-		$(EXEC_PROG) -p plans/$(SIMPLE_DRIVE_PLAN).plx -s scripts/$${scrpt}-script.plx > output/$${scrpt}.out 2>> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$(SIMPLE_DRIVE_PLAN).plx -s scripts/$${scrpt}.psx > output/$${scrpt}.out 2>> tempRegressionResults ; \
 		perl $(REGRESSION_PL) output/$${scrpt}.out ; \
 	done
 
@@ -140,32 +140,32 @@ command-handles-tests: setup
 		for plan in a1 a3 ; do \
 			planname=simple-$${openclosed}loop-command-$${plan} ; \
 			for script in a1 a3 ; do \
-				scriptname=simple-$${openclosed}loop-command-$${script}-script ; \
+				scriptname=simple-$${openclosed}loop-command-$${script} ; \
 				logname=$${planname}_$${script}.out ; \
 				echo $${planname}_$${scriptname} >> tempRegressionResults ; \
-				$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > output/$${logname} 2>> tempRegressionResults ; \
-				perl $(REGRESSION_PL) output/$${logname} valid/RUN_$${planname}_$${scriptname}.valid ; \
+				$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.psx > output/$${logname} 2>> tempRegressionResults ; \
+				perl $(REGRESSION_PL) output/$${logname} valid/RUN_$${planname}_$${scriptname}-script.valid ; \
 			done ; \
 		done ; \
 	done
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	planname=simple-openloop-command-nopost ; \
-	scriptname=simple-openloop-command-a3-script ; \
+	scriptname=simple-openloop-command-a3 ; \
 	echo $${planname} >> tempRegressionResults ; \
-	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > output/$${planname}.out 2>> tempRegressionResults ; \
-	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
+	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.psx > output/$${planname}.out 2>> tempRegressionResults ; \
+	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}-script.valid
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	planname=simple-closedloop-command-multipleAck ; \
-	scriptname=$${planname}-script ; \
+	scriptname=$${planname} ; \
 	echo $${planname} >> tempRegressionResults ; \
-	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.plx > output/$${planname}.out 2>> tempRegressionResults ; \
-	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}.valid
+	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.psx > output/$${planname}.out 2>> tempRegressionResults ; \
+	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}-script.valid
 
 resource-arbitration-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for tst in $(RESOURCE_ARBITRATION_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
-		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}-script.plx > output/$${tst}.out 2>> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}.psx > output/$${tst}.out 2>> tempRegressionResults ; \
 		perl $(REGRESSION_PL) output/$${tst}.out valid/RUN_$${tst}_$${tst}-script.valid ; \
 	done
 

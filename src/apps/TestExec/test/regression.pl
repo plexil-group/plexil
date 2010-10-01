@@ -145,10 +145,6 @@ foreach $line3 (@lines3){
   }
 }
 
-
-#RUN_exec-test-runner_g_rt.-s.empty-script.xml.-p.libcall.plexil.xml.-l.lib1.plexil.xml.-l.lib2.plexil.xml
-
-
 close(F1);
 close(F2);
 close(DIF);

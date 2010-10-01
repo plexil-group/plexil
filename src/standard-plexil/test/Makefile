@@ -41,7 +41,7 @@ TEST_PLANS =  HierarchicalResources library-call-test \
   failure time-exp-start-cond for-test update if-test var-operator-test \
   if-test1 var-subtract-test integer-exp-test while1
 
-TEST_SCRIPTS = test-script
+TEST_SCRIPTS = test
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$
@@ -66,15 +66,15 @@ plans:
 scripts:
 	@ echo Translating Standard Plexil test scripts...
 	@ for i in $(TEST_SCRIPTS); do \
-	        plexilscript $$i.ple  ; \
-		if [ -e $$i.plx ] ; then \
-			mv $$i.plx output ; \
-			diff output/$$i.plx output/valid-$$i.plx > $(DIFF) ; \
+	        plexilscript $$i.pst  ; \
+		if [ -e $$i.psx ] ; then \
+			mv $$i.psx output ; \
+			diff output/$$i.psx output/valid-$$i.psx > $(DIFF) ; \
 			diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
 			if [ $$diffsize -eq 0 ] ; then \
-		  	  echo "     Verified $$i.plx" ; \
+		  	  echo "     Verified $$i.psx" ; \
 			else \
-		  	  echo WARNING: $$i.plx does not verify! ; \
+		  	  echo WARNING: $$i.psx does not verify! ; \
 			fi ; \
 		fi ; \
 	  done
