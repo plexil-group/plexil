@@ -16,7 +16,6 @@ MINJAVA_J=5
 JAVAPATH="/usr/local/jdk1.5.0/bin"
 BADJAVA=0
 BADENV=0
-BADJH=0
 MYOSTYPE=""
 
 #Treat all OSTYPE variants for linux as 'linux'
@@ -163,38 +162,7 @@ else
   echo "GCC and Java versions look good."
 fi
 
-echo "Checking for required environment variables:"
-
-#check load library
-if [ $MYOSTYPE = darwin ]
-then 
-  if [ -z "$DYLD_LIBRARY_PATH" ] 
-  then
-    echo "  DYLD_LIBRARY_PATH environment variable missing or not set"
-    BADENV=1
-  else 
-    echo "  DYLD_LIBRARY_PATH is set to " $DYLD_LIBRARY_PATH
-  fi
-else 
-  if [ -z "$LD_LIBRARY_PATH" ] 
-    then
-      echo "  LD_LIBRARY_PATH environment variable missing or not set"
-      BADENV=1
-    else 
-      echo "  LD_LIBRARY_PATH is set to " $LD_LIBRARY_PATH
-    fi
-fi
-
-if [ $MYOSTYPE = darwin ]
-then
-  if [ "$DYLD_BIND_AT_LAUNCH"  != YES ]
-  then
-    echo "Error: DYLD_BIND_AT_LAUNCH environment variable missing or not set to YES" 
-    BADENV=1
-  else
-    echo "  DYLD_BIND_AT_LAUNCH is set to " $DYLD_BIND_AT_LAUNCH
-  fi
-fi
+echo "Checking for PLEXIL_HOME environment variable:"
 
 if [ ! $PLEXIL_HOME ]
   then
