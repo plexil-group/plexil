@@ -1185,9 +1185,11 @@
               <xsl:copy-of select="$command" />
             </StringValue>
           </Name>
-          <Arguments>
-            <xsl:copy-of select="$args" />
-          </Arguments>
+          <xsl:if test= "$args">
+            <Arguments>
+              <xsl:copy-of select="$args" />
+            </Arguments>
+          </xsl:if>
         </Command>
       </NodeBody>
     </Node>
