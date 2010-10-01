@@ -329,12 +329,6 @@ namespace PLEXIL {
   class FailureVariable : public Variable {
   public:
     //failure types (one for each condition, command failure)
-    DECLARE_STATIC_CLASS_CONST(LabelStr, INFINITE_LOOP,
-			       "INFINITE_LOOP"); /*<! An infinite loop was detected within
-						   quiescence.  All nodes eligible for state
-						   transition during this quiescence cycle
-						   are put into state FAILED with this failure
-						   type.*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, PRE_CONDITION_FAILED,
 			       "PRE_CONDITION_FAILED"); /*<! The pre-condition was false
 							 (checked after the start condition
@@ -347,11 +341,6 @@ namespace PLEXIL {
 			       "INVARIANT_CONDITION_FAILED"); /*<! The invariant condition was
 							       false (checked when
 							       executing).*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_INVARIANT_CONDITION_FAILED,
-			       "ANCESTOR_INVARIANT_CONDITION_FAILED") /*<! The ancestor
-								       invariant condition was
-								       false (checked at each
-								       state transition).*/;
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_FAILED, "PARENT_FAILED");
 
     FailureVariable(const bool isConst = false);

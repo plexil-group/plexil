@@ -946,8 +946,11 @@ namespace PLEXIL
   }
 
   bool FailureVariable::checkValue(const double val) {
-    return val == UNKNOWN() || val == INFINITE_LOOP() || val == PRE_CONDITION_FAILED() ||
-      val == POST_CONDITION_FAILED() || val == INVARIANT_CONDITION_FAILED() || ANCESTOR_INVARIANT_CONDITION_FAILED() || val == PARENT_FAILED();
+    return val == UNKNOWN()
+	  || val == PRE_CONDITION_FAILED()
+	  || val == POST_CONDITION_FAILED()
+	  || val == INVARIANT_CONDITION_FAILED()
+	  || val == PARENT_FAILED();
   }
 
   CommandHandleVariable::CommandHandleVariable(const bool isConst) : Variable(isConst) {}
