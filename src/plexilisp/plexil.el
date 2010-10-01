@@ -1107,26 +1107,25 @@
 
 ;;; Communication related macros
 
-(pdefine pl (OnMessage on-message) (message &rest forms) 1 node
+(pdefine pl (OnMessage on-message) (message &optional action) 1 node
   ;; string * list(xml) -> xml
-  "Specifies action(s) for responding to a given message (string)."
+  "Specifies an action for responding to a given message (string)."
   (xml "OnMessage"
        (cons
         (xml "NodeId" (plexil-unique-node-id "OnMessage"))
         (cons (xml "Message" message)
-              forms))))
+              (if action (list action))))))
 
-(pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &rest forms) 1 node
+(pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &optional action) 1 node
   ;; string * xml * list(xml) -> xml
-  "Specifies action(s) for responding to a given command invocation."
+  ("Specifies an action for responding to a given command. "
+   "command-name must be a string, arg-decls a list of variable declarations.")
   `(xml "OnCommand"
          (append
           (list (xml "NodeId" (plexil-unique-node-id "OnCommand")))
           (if ',arg-decls
               (list (xml "VariableDeclarations" (mapcar #'eval ',arg-decls))))
-          (mapcar #'eval ',forms))))
-
-
+          (if ',action (list (eval ',action))))))
 
 (defun plexil-build-sequence (name-or-first-form forms construct)
   ;; (string | xml) * list(xml) * string -> xml
