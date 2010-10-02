@@ -384,7 +384,8 @@ public class ExecSelect extends JPanel {
 	class ExecChooserListener implements ActionListener {
 		ExecChooserListener(){			
 		}
-		@Override		
+            // KMD: this doesn't work with javac 1.5
+            //		@Override		
 		public void actionPerformed(ActionEvent e){
 			if(e.getActionCommand() == plexilExec.getText())
 			{				
