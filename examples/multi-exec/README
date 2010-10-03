@@ -1,30 +1,10 @@
-Included in this folder are example plans for using multi-exec communication. There are two types of examples, messaging examples and simulator examples.
+This directory contains several examples of PLEXIL applications that involve
+multiple communicating executives.  
 
-Messaging:
+The 'directed' example illustrates directed communication (messaging) between
+executives.
 
-The messaging examples show the capabilities of exec communication using only the SendMessage and ReceiveMessage commands. These examples need to be refactored and have been removed until this work is complete.
+The 'simulator' example illustrates an executive acting as a simulator
+(i.e. accepting commands and lookups) from another executive.
 
-Simulator:
-
-This is a multi-part example of PLEXIL being used as a simulator. The simulator.ple plan simulates an external system that can process one integer lookup, x, one command, MoveRight(Integer dx), and one message, Quit.
-
-The MoveRight(Integer dx) command increments the lookup, x, by dx. When the Quit message is received, the simulator closes.
-
-To run these examples, first compile each .ple file using the plexil compiler, then run these commands in seperate command-line instances:
-
-central
-universalExec -p simulator.plx -c interface_config.xml
-universalExec -p <example plx file> -c interface_config.xml
-
-Where <example plx file> is replaced with either command.plx, lookup.plx, or any other plan to interface with the simulator. To view the execution of a plan, start the Luv viewer first, then append -v to the command for the plan you wish to view.
-
-Directed:
-
-This is a multi-part example that displays PLEXIL's capabilities for directed communication. There are two actors and one controller in this system. The two actors are front_engine and rear_engine. Each engine has one lookup, Torque, and can process one command, setTorque. The controller plan swaps the torque of the front and rear engines.
-
-To run these examples, first compile each .ple file using the plexil compiler, then run these commands in seperate command-line instances:
-
-central
-universalExec -p front_engine.plx -c front_engine-config.xml
-universalExec -p rear_engine.plx -c rear_engine-config.xml
-universalExec -p controller.plx -c controller-config.xml
+The other subdirectories are in need of some rework and/or documentation.
