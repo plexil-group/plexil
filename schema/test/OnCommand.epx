@@ -10,7 +10,7 @@
         <Type>Real</Type>
       </DeclareVariable>
     </VariableDeclarations>
-    <Name><StringValue>move rover</StringValue></Name>
+    <Name><StringValue>moveRover</StringValue></Name>
     <Node NodeType= "Empty">
       <NodeId>foo</NodeId>
     </Node>

@@ -986,11 +986,11 @@
         <xsl:with-param name="dest" select="$hdl_dec" />
         <xsl:with-param name="args" select="Message/*" />
       </xsl:call-template>
-      <!-- Actions for this message -->
+      <!-- Action for this message -->
       <Node NodeType="NodeList" epx="aux">
         <NodeId>
           <xsl:value-of
-            select="concat(tr:prefix('MsgAction'), '_', Name/text())" />
+            select="concat(tr:prefix('MsgAction'), '_', Name/StringValue/text())" />
         </NodeId>
         <NodeBody>
           <NodeList>
@@ -1099,11 +1099,11 @@
           </NodeBody>
         </Node>
       </xsl:for-each>
-      <!-- Actions for this command -->
+      <!-- Action for this command -->
       <Node NodeType="NodeList" epx="aux">
         <NodeId>
           <xsl:value-of
-            select="concat(tr:prefix('CmdAction'), '_', Name/text())" />
+            select="concat(tr:prefix('CmdAction'), '_', Name/StringValue/text())" />
         </NodeId>
         <NodeBody>
           <NodeList>
