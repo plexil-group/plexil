@@ -34,7 +34,11 @@
                      <Node NodeType="NodeList" epx="aux">
                         <NodeId>ep2cp_ForDo</NodeId>
                         <NodeBody>
-                           <NodeList/>
+                           <NodeList>
+                              <Node NodeType="Empty">
+                                 <NodeId>Two</NodeId>
+                              </Node>
+                           </NodeList>
                         </NodeBody>
                      </Node>
                      <Node NodeType="Assignment" epx="aux">

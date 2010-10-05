@@ -45,7 +45,7 @@
                         <StringValue>ReceiveMessage</StringValue>
                      </Name>
                      <Arguments>
-                        <StringValue>move rover</StringValue>
+                        <StringValue>moveRover</StringValue>
                      </Arguments>
                   </Command>
                </NodeBody>
@@ -66,9 +66,6 @@
                   <NodeList>
                      <Node NodeType="Empty">
                         <NodeId>foo</NodeId>
-                     </Node>
-                     <Node NodeType="Empty">
-                        <NodeId>bar</NodeId>
                      </Node>
                   </NodeList>
                </NodeBody>

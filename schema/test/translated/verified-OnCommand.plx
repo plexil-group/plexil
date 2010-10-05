@@ -41,7 +41,7 @@
                   </EQInternal>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>ep2cp_CmdAction_</NodeId>
+                        <NodeId>ep2cp_CmdAction_moveRover</NodeId>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
@@ -71,7 +71,7 @@
                         <StringValue>ReceiveCommand</StringValue>
                      </Name>
                      <Arguments>
-                        <StringValue>move rover</StringValue>
+                        <StringValue>moveRover</StringValue>
                      </Arguments>
                   </Command>
                </NodeBody>
@@ -137,7 +137,7 @@
                </NodeBody>
             </Node>
             <Node NodeType="NodeList">
-               <NodeId>ep2cp_CmdAction_</NodeId>
+               <NodeId>ep2cp_CmdAction_moveRover</NodeId>
                <StartCondition>
                   <AND>
                      <EQInternal>
@@ -153,9 +153,6 @@
                      <Node NodeType="Empty">
                         <NodeId>foo</NodeId>
                      </Node>
-                     <Node NodeType="Empty">
-                        <NodeId>foo</NodeId>
-                     </Node>
                   </NodeList>
                </NodeBody>
             </Node>
@@ -165,7 +162,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>ep2cp_CmdAction_</NodeId>
+                           <NodeId>ep2cp_CmdAction_moveRover</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
