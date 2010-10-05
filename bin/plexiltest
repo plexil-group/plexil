@@ -83,7 +83,7 @@ help="Options:\n\
  -q | -quiet \n\
 \t 	suppresses a leading printed summary and default debug messages.\n\
  -v | -viewer \n\
-\t 	requests that plan state be transmitted to the UE viewer.\n\
+\t 	requests that plan state be transmitted to the Plexil viewer.\n\
  -h | -hostname <name> \n\
 \t 	hostname of viewer\n\
  -n | -port <number> \n\
