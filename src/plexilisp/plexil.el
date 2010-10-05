@@ -513,7 +513,7 @@
 (pdefine pl (Pair pair) (name value) 2 nil            ; string * any -> xml
   ("Required inside an <tt>Update</tt>, this form defines a name/value pair."
    "The <tt>name</tt> must be a string and the <tt>value</tt> may be any PLEXIL type.")
-  (xml "Pair" (list (xml "Name" name) (infer-type value))))
+  (xml "Pair" (list (xml "Name" name) (plexil-infer-type value))))
 
 (pdefine pl (AssignmentNode assignment-node) (&optional name &rest clauses) 1 node
   ;; string * list(xml) -> xml
@@ -525,7 +525,7 @@
   ("Required inside an <tt>AssignmentNode</tt>, this form assigns a value (any PLEXIL "
    "type) to a variable that must be declared in this node or one of its "
    "ancestors.")
-  (let ((vall (infer-type val)))
+  (let ((vall (plexil-infer-type val)))
     (xml "NodeBody"
          (xml "Assignment"
               (list var
@@ -551,7 +551,7 @@
                   (if var (list var))
                   (list (xml "Name" name))
                   (if args (list (xml "Arguments"
-                                      (mapcar #'infer-type args)))))))))
+                                      (mapcar #'plexil-infer-type args)))))))))
 
 (pdefine pl (LibraryCallNode library-call-node) 
          (&optional name &rest node-clauses) 1 node
@@ -571,7 +571,7 @@
   ("In a library node call, this pairs a parameter of the node with "
    "a value.  The parameter is an ncName, and the value must be either "
    "a literal or declared variable.")
-  (xml "Alias" (list (xml "NodeParameter" parameter) (infer-type value))))
+  (xml "Alias" (list (xml "NodeParameter" parameter) (plexil-infer-type value))))
 
 (pdefine pl (EmptyNode empty-node) (&optional name &rest clauses) 1 node
   ;; opt(string + xml) * list(xml) -> xml
@@ -674,39 +674,39 @@
 
 (pdefine pl (Postcondition postcondition) (exp) 0 nil
   ""         
-  (xml "PostCondition" (infer-type exp)))
+  (xml "PostCondition" (plexil-infer-type exp)))
 
 (pdefine pl (PostCondition post-condition) (exp) 0 nil
   ""
-  (xml "PostCondition" (infer-type exp)))
+  (xml "PostCondition" (plexil-infer-type exp)))
 
 (pdefine pl (EndCondition end-condition) (exp) 0 nil
   ""
-  (xml "EndCondition" (infer-type exp)))
+  (xml "EndCondition" (plexil-infer-type exp)))
 
 (pdefine pl (SkipCondition skip-condition) (exp) 0 nil
   ""
-  (xml "SkipCondition" (infer-type exp)))
+  (xml "SkipCondition" (plexil-infer-type exp)))
 
 (pdefine pl (Precondition precondition) (exp) 0 nil
   ""
-  (xml "PreCondition" (infer-type exp)))
+  (xml "PreCondition" (plexil-infer-type exp)))
 
 (pdefine pl (PreCondition pre-condition) (exp) 0 nil
   ""
-  (xml "PreCondition" (infer-type exp)))
+  (xml "PreCondition" (plexil-infer-type exp)))
 
 (pdefine pl (RepeatCondition repeat-condition) (exp) 0 nil
   ""
-  (xml "RepeatCondition" (infer-type exp)))
+  (xml "RepeatCondition" (plexil-infer-type exp)))
 
 (pdefine pl (StartCondition start-condition) (exp) 0 nil
   ""
-  (xml "StartCondition" (infer-type exp)))
+  (xml "StartCondition" (plexil-infer-type exp)))
 
 (pdefine pl (InvariantCondition invariant-condition) (exp) 0 nil
   ""
-  (xml "InvariantCondition" (infer-type exp)))
+  (xml "InvariantCondition" (plexil-infer-type exp)))
 
 ;;; Variable Reference
 
@@ -741,8 +741,8 @@
   ("Reference a single array element by index (beginning with 0).  "
    "Name and index can be string and numeric expressions, respectively.")
   (xml "ArrayElement"
-       (list (xml "Name" (infer-type name))
-             (xml "Index" (infer-type index))) nil 'any))
+       (list (xml "Name" (plexil-infer-type name))
+             (xml "Index" (plexil-infer-type index))) nil 'any))
   
 (insert-plexil-heading
  "== Interface Declaration =="
@@ -780,8 +780,8 @@
   (pl-comparison "NE" x y))
 
 (defun pl-comparison (name x y)
-  (let ((xx (infer-type x))
-        (yy (infer-type y)))
+  (let ((xx (plexil-infer-type x))
+        (yy (plexil-infer-type y)))
     (cond ((and (number? xx) (number? yy))
            (xml (concat name "Numeric") (list xx yy) nil 'boolean))
           ((and (string? xx) (string? yy))
@@ -812,8 +812,8 @@
   (plexil-numeric-comparison "LE" x y))
 
 (defun plexil-numeric-comparison (name x y)
-  (let ((xx (infer-type x))
-        (yy (infer-type y)))
+  (let ((xx (plexil-infer-type x))
+        (yy (plexil-infer-type y)))
     (if (and (number? xx) (number? yy))
         (xml name (list xx yy) nil 'boolean)
       (error "Illegal args to %s: %s %s" name x y))))
@@ -825,18 +825,18 @@
 
 (pdefine pl (Or or) (&rest disjuncts) 0  nil        ; list(xml) -> xml
   "Permits 0 or more disjuncts. <tt>(Or)</tt> = <tt>false</tt>."
-  (let ((evaled (mapcar #'infer-type disjuncts)))
+  (let ((evaled (mapcar #'plexil-infer-type disjuncts)))
     (xml "OR" evaled nil 'boolean)))
 
 (pdefine pl (And and) (&rest conjuncts) 0 nil       ; list(xml) -> xml
   "Permits 0 or more conjuncts. <tt>(And)</tt> = <tt>true</tt>."
-  (let ((evaled (mapcar #'infer-type conjuncts)))
+  (let ((evaled (mapcar #'plexil-infer-type conjuncts)))
     (xml "AND" evaled nil 'boolean)))
 
 (pdefine pl (Not not) (x) 1  nil                     ; xml -> xml
   ""
   
-  (xml "NOT" (infer-type x) nil 'boolean))
+  (xml "NOT" (plexil-infer-type x) nil 'boolean))
 
 (insert-plexil-heading
  "== Numeric Operators =="
@@ -871,14 +871,14 @@
   (plexil-unary-numop "SQRT" x))
 
 (defun plexil-unary-numop (name x)
-  (let ((xx (infer-type x)))
+  (let ((xx (plexil-infer-type x)))
     (if (number? xx)
         (xml name xx)
       (error "Illegal argument to %s: %s" name x))))
 
 (defun plexil-binary-numop (name x y)
-  (let ((xx (infer-type x))
-        (yy (infer-type y)))
+  (let ((xx (plexil-infer-type x))
+        (yy (plexil-infer-type y)))
     (if (and (number? xx) (number? yy))
         (xml name (list xx yy) nil 'number)
       (error "Illegal arguments in %s: %s %s" name x y))))
@@ -935,7 +935,7 @@
                               (cond ((numberp tolerance) (pl-realval tolerance))
                                     ((stringp tolerance) (pl-realvar tolerance))
                                     (t tolerance)))))
-               (if args (list (xml "Arguments" (mapcar #'infer-type args)))))
+               (if args (list (xml "Arguments" (mapcar #'plexil-infer-type args)))))
        nil 'any))
 
 (defun plexil-normalize-string-expression (x)
@@ -1055,7 +1055,7 @@
    "actions.  The <tt>else-part</tt> is optional.")
   `(xml "If"
         (remove-nil
-         (xml "Condition" (infer-type ,condition))
+         (xml "Condition" (plexil-infer-type ,condition))
          (xml "Then" (plexil-nodify ',then-part))
          (if ',else-part (xml "Else" (plexil-nodify ',else-part))))))
 
@@ -1064,7 +1064,7 @@
   ;; xml * xml -> xml
   `(xml "While"
        (list
-        (xml "Condition" (infer-type ,condition))
+        (xml "Condition" (plexil-infer-type ,condition))
         (xml "Action" (plexil-nodify ',action)))))
 
 (pdefine-syntax pl (for For) (declaration condition update action) 1 node
@@ -1113,7 +1113,7 @@
   (xml "OnMessage"
        (cons
         (xml "NodeId" (plexil-unique-node-id "OnMessage"))
-        (cons (xml "Message" message)
+        (cons (xml "Message" (xml "StringValue" message))
               (if action (list action))))))
 
 (pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &optional action) 1 node
@@ -1125,6 +1125,7 @@
           (list (xml "NodeId" (plexil-unique-node-id "OnCommand")))
           (if ',arg-decls
               (list (xml "VariableDeclarations" (mapcar #'eval ',arg-decls))))
+          (list (xml "Name" (xml "StringValue" ,command-name)))
           (if ',action (list (eval ',action))))))
 
 (defun plexil-build-sequence (name-or-first-form forms construct)
@@ -1269,18 +1270,18 @@
   (let ((resource-name (plexil-normalize-string-expression name)))
   (xml "Resource"
        (cons (xml "ResourceName" resource-name)
-             (cons (xml "ResourcePriority" (infer-type priority))
+             (cons (xml "ResourcePriority" (plexil-infer-type priority))
                    clauses)))))
 
 (pdefine pl (ResourceUpperBound resource-upper-bound) (x) 0 nil
   ;; (xml + real) -> xml
   "A resource upper bound."
-  (xml "ResourceUpperBound" (infer-type x)))
+  (xml "ResourceUpperBound" (plexil-infer-type x)))
 
 (pdefine pl (ResourceLowerBound resource-lower-bound) (x) 0 nil
   ;; (xml + real) -> xml
   "A resource lower bound."
-  (xml "ResourceLowerBound" (infer-type x)))
+  (xml "ResourceLowerBound" (plexil-infer-type x)))
        
 
 (insert-plexil-heading
@@ -1315,7 +1316,7 @@
    "of the evaluated expressions.  Concat() is the empty string.  "
    "Concat(x) = x")
   (xml "Concat"
-       (mapcar #'infer-type exprs)
+       (mapcar #'plexil-infer-type exprs)
        nil 'string))
 
 (pdefine pl (TimepointValue timepoint-value)
@@ -1415,7 +1416,7 @@
 
 (defun plexil-command-form (kind name type result params)
   ;; string * string * string * (any + list(any)) * list(any) -> xml
-  (xml kind (append (mapcar #'infer-type (mapcar #'eval params))
+  (xml kind (append (mapcar #'plexil-infer-type (mapcar #'eval params))
                     (mapcar (lambda (x) (xml "Result" x))
                             (if (consp result) result (list result))))
        (list (cons "name" name) (cons "type" type))))
@@ -1458,7 +1459,7 @@
 
 ;;; Misc
 
-(defun infer-type (x &optional prefer-float?)                   ; any -> xml
+(defun plexil-infer-type (x &optional prefer-float?)                   ; any -> xml
   ;; Type inference for literals
   (cond ((equal 'true x) (pl-boolval 1))
         ((equal 'false x) (pl-boolval 0))
