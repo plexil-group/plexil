@@ -1,0 +1,24 @@
+;; File: $SVNROOT/plexil/examples/multi-exec/simulator/sim.pli
+
+(plexil-plan
+  (concurrently "Interface"
+    (variables (integer "x" 1)
+               (boolean "continue" true))
+    (invariant-condition (boolvar "continue"))
+    (action "MoveRightCommand"
+      (repeat-condition (boolvar "continue"))
+      (on-command "MoveRight" ((integer "modX"))
+                  (sequence "RecMoveRight"
+                    (action "Increment"
+                      (assignment (intvar "x") (+ (intvar "x") (intvar "modX"))))
+                    (action "SetExt"
+                      (command "UpdateLookup" "x" (intvar "x")))
+                    (action "RespondMoveRight"
+                      (command "SendReturnValue" (intvar "x"))))))
+    (action "QuitCommand"
+      (repeat-condition (boolvar "continue"))
+      (on-message "Quit"
+        (action "Set"
+          (assignment (boolvar "continue") (boolval false)))))))
+
+;; EOF
