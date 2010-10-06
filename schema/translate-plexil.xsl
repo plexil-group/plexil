@@ -1057,7 +1057,7 @@
       </xsl:variable>
       <xsl:variable name="arg_dec">
         <StringValue>
-          <xsl:value-of select="Name" />
+          <xsl:value-of select="Name/StringValue" />
         </StringValue>
       </xsl:variable>
       <xsl:call-template name="run-wait-command">
