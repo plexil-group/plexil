@@ -1,0 +1,48 @@
+#!/bin/bash
+# File: $SVNROOT/plexil/examples/multi-exec/agents/run-agents
+
+has_xterm=`which xterm`
+
+if [ "$has_xterm" = "" ] ;
+then
+  echo "Sorry, can't run this script without xterms"
+  exit
+fi
+
+agent1=sim
+agent2=cmd
+
+# compile if necessary
+
+if [ ! -e $agent1.plx ] ;
+then
+  plexilisp $agent1.pli
+fi
+
+if [ ! -e $agent2.plx ] ;
+then
+  plexilisp $agent2.pli
+fi
+
+# start IPC/central if necessary
+
+ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
+
+if [ "$ipc_running" = "" ] ;
+then
+   echo "Starting IPC..."
+   xterm ipc &
+   sleep 2;
+else
+   echo "IPC already running..."
+fi
+
+echo "Starting $agent1..."
+
+xterm -e run-ue -v -p sim.plx -c sim.xml &
+
+sleep 5
+
+echo "Starting $agent2..."
+
+run-ue -v -b -p cmd.plx -c cmd.xml
