@@ -484,14 +484,24 @@ public:
 
 class PlexilNodeListParser: public PlexilBodyParser {
 public:
-        PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-                checkTag(NODELIST_TAG, xml);
-                PlexilListBody* retval = new PlexilListBody();
-                for (const TiXmlElement* child = xml->FirstChildElement(NODE_TAG); child
-                                != NULL; child = child->NextSiblingElement(NODE_TAG))
-                        retval->addChild(PlexilXmlParser::parseNode(child));
-                return retval->getId();
-        }
+  PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
+	checkTag(NODELIST_TAG, xml);
+	PlexilListBody* retval = new PlexilListBody();
+	std::set<std::string> childIds;
+	for (const TiXmlElement* child = xml->FirstChildElement(NODE_TAG); 
+		 child != NULL;
+		 child = child->NextSiblingElement(NODE_TAG)) {
+	  PlexilNodeId thisNode = PlexilXmlParser::parseNode(child);
+	  // check for duplicate node ID
+	  checkParserException(childIds.find(thisNode->nodeId()) == childIds.end(),
+						   "(line " << child->FirstChildElement(NODEID_TAG)->Row()
+						   << ", column " << child->FirstChildElement(NODEID_TAG)->Column() <<
+						   ") XML parsing error: Multiple nodes with node ID \"" << thisNode->nodeId() << "\"");
+	  childIds.insert(thisNode->nodeId());
+	  retval->addChild(thisNode);
+	}
+	return retval->getId();
+  }
 };
 // parse a library node call
 
