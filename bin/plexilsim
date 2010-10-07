@@ -193,12 +193,12 @@ sleep 2
 
 if [ "$automate" = "true" ]
   then    
-    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries &    
+    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $libraries &    
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
     trap "{ kill $!; }" SIGQUIT    
   else     
-    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries
+    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $libraries
 fi
 trap "{ killall ipc; }" EXIT
 trap "{ killall central; }" EXIT

@@ -121,7 +121,7 @@ fi
 $PLEXIL_HOME/bin/plexil-check-prog $prog
 
 if [ $# = 1 ] && [ $* = "-v" ] ; then
-  luv
+  plexil
   exit 1
 fi
 
@@ -173,7 +173,7 @@ if [ '-b' = "$1" ]
     block=
 fi
 
-# Check for LUV automation
+# Check for viewer automation
 if [ '-a' = "$1" ]
   then
     automate="true"
@@ -338,7 +338,7 @@ if [ "$viewer" = "-v" ] ; then
       an instance prior to execution"      
     fi
   if [ "$skip" = "" ] ; then
-    luv ${port//[^0-9]/}
+    plexil ${port//[^0-9]/}
     until [ -f /tmp/.Luv_${port//[^0-9]/} ]
       do
 	:
@@ -346,7 +346,7 @@ if [ "$viewer" = "-v" ] ; then
     if [ "$platform" = "Darwin" ] ; then
       sleep 1
     else    
-      usleep 500
+      sleep 1
     fi
   fi    
 fi
