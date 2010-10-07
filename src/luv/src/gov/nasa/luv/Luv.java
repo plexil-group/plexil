@@ -51,7 +51,7 @@ public class Luv extends JFrame {
 
     // boolean variables to help determine Luv state	
     private static boolean allowBreaks;
-    private static boolean allowTest;
+    private static int appMode;
     private static boolean checkPlan;
     private static boolean planPaused;
     private static boolean planStep;
@@ -69,7 +69,6 @@ public class Luv extends JFrame {
     private static LuvStateHandler luvStateHandler;
     private static HideOrShowWindow hideOrShowWindow;
     private DebugWindow debugWindow;
-    private DebugHistoryWindow debugHistoryWindow;
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
     private LuvPortGUI portGui;
@@ -247,11 +246,22 @@ public class Luv extends JFrame {
                 define(PROP_CFGWIN_SIZE, PROP_CFGWIN_SIZE_DEF);
 
                 define(PROP_NET_SERVER_PORT, PROP_NET_SERVER_PORT_DEF);
-                define(PROP_FILE_RECENT_PLAN_DIR,
-                        getProperty(PROP_FILE_RECENT_PLAN_BASE + 1, UNKNOWN));
-                define(PROP_FILE_RECENT_SCRIPT_DIR,
-                        getProperty(PROP_FILE_RECENT_SCRIPT_BASE + 1, UNKNOWN));
-
+                
+                define(PROP_FILE_EXEC_RECENT_PLAN_DIR,
+                        getProperty(PROP_FILE_EXEC_RECENT_PLAN_BASE + 1, UNKNOWN));
+                define(PROP_FILE_EXEC_RECENT_CONFIG_DIR,
+                        getProperty(PROP_FILE_EXEC_RECENT_CONFIG_BASE + 1, UNKNOWN));
+                define(PROP_FILE_TEST_RECENT_PLAN_DIR,
+                        getProperty(PROP_FILE_TEST_RECENT_PLAN_BASE + 1, UNKNOWN));
+                define(PROP_FILE_TEST_RECENT_SCRIPT_DIR,
+                        getProperty(PROP_FILE_TEST_RECENT_SCRIPT_BASE + 1, UNKNOWN));
+                define(PROP_FILE_SIM_RECENT_PLAN_DIR,
+                        getProperty(PROP_FILE_SIM_RECENT_PLAN_BASE + 1, UNKNOWN));
+                define(PROP_FILE_SIM_RECENT_SCRIPT_DIR,
+                        getProperty(PROP_FILE_SIM_RECENT_SCRIPT_BASE + 1, UNKNOWN));
+                
+                
+                
                 define(PROP_HIDE_SHOW_LIST,
                         getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_HIDE_SHOW_LIST));
                 define(PROP_SEARCH_LIST,
@@ -260,7 +270,7 @@ public class Luv extends JFrame {
         };
 
         allowBreaks = false;
-        allowTest = true; //default is testExec
+        appMode = PLEXIL_TEST; //default is testExec
         checkPlan = true;
         planPaused = false;
         planStep = false;
@@ -279,7 +289,6 @@ public class Luv extends JFrame {
         debugWindow = new DebugWindow();
         execSelect = new ExecSelect();
         portGui = new LuvPortGUI();
-        //debugHistoryWindow = new DebugHistoryWindow();
 
         createCFGFileWindow = new CreateCFGFileWindow();
         sourceWindow = new SourceWindow();
@@ -289,7 +298,7 @@ public class Luv extends JFrame {
         runMenu = new JMenu("Run");
         viewMenu = new JMenu("View");
         debugMenu = new JMenu("Debug");
-        
+        execSelect.loadFromPersistence();
     }
 
     private void constructFrame(Container frame) {
@@ -490,13 +499,7 @@ public class Luv extends JFrame {
      *  @return the current instance of the Luv DebugWindow */
     public DebugWindow getDebugWindow() {
         return debugWindow;
-    }
-    
-    /** Returns the current instance of the Luv DebugHistoryWindow.
-     *  @return the current instance of the Luv DebugHistoryWindow */
-    public DebugHistoryWindow getDebugHistoryWindow() {
-        return debugHistoryWindow;
-    }
+    }    
     
     /** Returns the current instance of the Listener Port GUI.
      *  @return the current instance of the Listener Port GUI */
@@ -614,10 +617,10 @@ public class Luv extends JFrame {
         return allowBreaks;
     }       
 
-    /** Returns whether Luv currently uses universalExec or Test Exec.
-     *  @return the current instance of allowTest */
-    public boolean allowTest() {
-        return allowTest;
+    /** Returns Which application is in use.
+     *  @return the current instance of mode */
+    public int getAppMode() {
+        return appMode;
     }      
     
     /** Returns whether viewer invokes static checker.
@@ -682,8 +685,8 @@ public class Luv extends JFrame {
      *  using TestExec or Universal Exec.
      *  @param value sets the flag that indicates whether TestExec or Universal Exec
      */
-    public void setTestExecAllowed(boolean value) {
-        allowTest = value;        
+    public void setAppMode(int mode) {
+        appMode = mode;        
     }
     
     /** Sets the flag that indicates whether the application is currently
@@ -771,7 +774,6 @@ public class Luv extends JFrame {
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
-        //debugMenu.add(LuvActionHandler.luvDebugHistoryWindowAction);
         debugMenu.add(LuvActionHandler.luvServerAction);
         debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
         debugMenu.add(LuvActionHandler.aboutWindowAction);        

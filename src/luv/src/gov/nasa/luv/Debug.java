@@ -15,8 +15,8 @@ public class Debug
 	
 	public Debug()
 	{
-		msgList_ = new Vector();
-		msgMap_ = new HashMap();
+		msgList_ = new Vector<List<String>>();
+		msgMap_ = new HashMap<String,List<String>>();
 	}
 
 	public List<List<String>> getMsgList()

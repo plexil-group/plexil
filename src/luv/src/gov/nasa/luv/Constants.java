@@ -47,18 +47,45 @@ public class Constants
       
       ////////// Info stored in the Luv application properties file  //////////
       
-      /** Stored in the Luv application properties file, this represents the location of the most recent Plexil plan. */      
-      public static final String    PROP_FILE_RECENT_PLAN_BASE = "file.recent-plan-";
-      /** Stored in the Luv application properties file, this represents the location of the most recent Plexil script. */
-      public static final String    PROP_FILE_RECENT_SCRIPT_BASE = "file.recent-script-";
-      /** Stored in the Luv application properties file, this represents the location of the most recent Plexil plan directory. */
-      public static final String    PROP_FILE_RECENT_PLAN_DIR = "file.recent-plan-directory";
-      /** Stored in the Luv application properties file, this represents the location of the most recent Plexil script directory. */
-      public static final String    PROP_FILE_RECENT_SCRIPT_DIR = "file.recent-script-directory";
-      /** Stored in the Luv application properties file, this represents the location of the most recent Plexil library. */  
-      public static final String    PROP_FILE_RECENT_LIB_BASE  = "file.recent-lib-";
-      /** Stored in the Luv application properties file, this represents the location of the most recent Plexil library directory. */  
-      public static final String    PROP_FILE_RECENT_LIB_DIR = "file.recent-library-directory";  
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilExec plan. */      
+      public static final String    PROP_FILE_EXEC_RECENT_PLAN_BASE = "file.exec.recent-plan-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilExec script. */
+      public static final String    PROP_FILE_EXEC_RECENT_CONFIG_BASE = "file.exec.recent-config-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilExec plan directory. */
+      public static final String    PROP_FILE_EXEC_RECENT_PLAN_DIR = "file.exec.recent-plan-directory";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilExec script directory. */
+      public static final String    PROP_FILE_EXEC_RECENT_CONFIG_DIR = "file.exec.recent-config-directory";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilExec library. */  
+      public static final String    PROP_FILE_EXEC_RECENT_LIB_BASE  = "file.exec.recent-lib-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilExec library directory. */  
+      public static final String    PROP_FILE_EXEC_RECENT_LIB_DIR = "file.exec.recent-library-directory";
+      
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilTest plan. */      
+      public static final String    PROP_FILE_TEST_RECENT_PLAN_BASE = "file.test.recent-plan-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilTest script. */
+      public static final String    PROP_FILE_TEST_RECENT_SCRIPT_BASE = "file.test.recent-script-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilTest plan directory. */
+      public static final String    PROP_FILE_TEST_RECENT_PLAN_DIR = "file.test.recent-plan-directory";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilTest script directory. */
+      public static final String    PROP_FILE_TEST_RECENT_SCRIPT_DIR = "file.test.recent-script-directory";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilTest library. */  
+      public static final String    PROP_FILE_TEST_RECENT_LIB_BASE  = "file.test.recent-lib-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilTest library directory. */  
+      public static final String    PROP_FILE_TEST_RECENT_LIB_DIR = "file.test.recent-library-directory";
+      
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilSim plan. */      
+      public static final String    PROP_FILE_SIM_RECENT_PLAN_BASE = "file.sim.recent-plan-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilSim script. */
+      public static final String    PROP_FILE_SIM_RECENT_SCRIPT_BASE = "file.sim.recent-script-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilSim plan directory. */
+      public static final String    PROP_FILE_SIM_RECENT_PLAN_DIR = "file.sim.recent-plan-directory";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilSim script directory. */
+      public static final String    PROP_FILE_SIM_RECENT_SCRIPT_DIR = "file.sim.recent-script-directory";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilSim library. */  
+      public static final String    PROP_FILE_SIM_RECENT_LIB_BASE  = "file.sim.recent-lib-";
+      /** Stored in the Luv application properties file, this represents the location of the most recent PlexilSim library directory. */  
+      public static final String    PROP_FILE_SIM_RECENT_LIB_DIR = "file.sim.recent-library-directory";            
+      
       /** Stored in the Luv application properties file, this represents the number of Plexil plan executions Luv will save. */ 
       public static final String    PROP_FILE_RECENT_COUNT = "file.recent-count";
       /** Stored in the Luv application properties file, this is the number of Plexil plan executions Luv will save. */ 
@@ -137,6 +164,14 @@ public class Constants
 
       /** Represents the maximum port value. */      
       public static final int    PORT_MAX = 65420;
+      
+      ////////////Executive configuration information /////////////
+      
+      public static final int	PLEXIL_EXEC = 1;
+      
+      public static final int	PLEXIL_TEST = 2;
+      
+      public static final int	PLEXIL_SIM = 3;
       
       //////////// Various constant info used within this program /////////////
 
@@ -514,13 +549,14 @@ public class Constants
       {
          "xml",
          "plx",
+         "psx",
          "txt",
          "pst",
          "pls",
       };
       
       /** Represents an empty Plexil script. */ 
-      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.pst";
+      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.psx";
       /** Represents an default UE config. */      
       public static final String DEFAULT_CONFIG_NAME = "dummy-config.xml";
       public static final String DEFAULT_CONFIG_PATH = PLEXIL_HOME +

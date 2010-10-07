@@ -40,6 +40,7 @@ public class LoadRecentAction extends LuvAction
 {
     // file to switch to open when action is performed
     private int recentIndex;
+    public static final int RECENT_BASE = 1, RECENT_DIR = 2;
 
     /**
      * Constructs a LoadRecentAction with the specified index of the plan
@@ -59,6 +60,105 @@ public class LoadRecentAction extends LuvAction
     }
     
     /**
+     * Gets the Plexil Plan base or directory.
+     * 
+     * @param parameter indicates base or directory
+     * @return the Plexil Plan Constant
+     */
+    public static String defineRecentPlan(int parm)
+    {
+    	String str = "";
+    	switch(Luv.getLuv().getExecSelect().getMode())
+    	{
+    	case PLEXIL_EXEC:
+    		if(parm == RECENT_BASE)
+    			str = PROP_FILE_EXEC_RECENT_PLAN_BASE;
+    		else
+    			str = PROP_FILE_EXEC_RECENT_PLAN_DIR;
+    		break;
+		case PLEXIL_TEST:
+			if(parm == RECENT_BASE)
+    			str = PROP_FILE_TEST_RECENT_PLAN_BASE;
+    		else
+    			str = PROP_FILE_TEST_RECENT_PLAN_DIR;
+			break;
+		case PLEXIL_SIM:
+			if(parm == RECENT_BASE)
+    			str = PROP_FILE_SIM_RECENT_PLAN_BASE;
+    		else
+    			str = PROP_FILE_SIM_RECENT_PLAN_DIR;
+			break;	
+    	}    	
+    	return str;
+    }
+    
+    /**
+     * Gets the Plexil Supplement base or directory.
+     * 
+     * @param parameter indicates base or directory
+     * @return the Plexil Supplement Constant
+     */
+    public static String defineRecentSupp(int parm)
+    {
+    	String str = "";
+    	switch(Luv.getLuv().getExecSelect().getMode())
+    	{
+    	case PLEXIL_EXEC:
+    		if(parm == RECENT_BASE)
+    			str = PROP_FILE_EXEC_RECENT_CONFIG_BASE;
+    		else
+    			str = PROP_FILE_EXEC_RECENT_CONFIG_DIR;
+    		break;
+		case PLEXIL_TEST:
+			if(parm == RECENT_BASE)
+    			str = PROP_FILE_TEST_RECENT_SCRIPT_BASE;
+    		else
+    			str = PROP_FILE_TEST_RECENT_SCRIPT_DIR;
+			break;
+		case PLEXIL_SIM:
+			if(parm == RECENT_BASE)
+    			str = PROP_FILE_SIM_RECENT_SCRIPT_BASE;
+    		else
+    			str = PROP_FILE_SIM_RECENT_SCRIPT_DIR;
+			break;	
+    	}    	
+    	return str;
+    }
+    
+    /**
+     * Gets the Plexil Lib base or directory.
+     * 
+     * @param parameter indicates base or directory
+     * @return the Plexil Lib Constant
+     */
+    public static String defineRecentLib(int parm)
+    {
+    	String str = "";
+    	switch(Luv.getLuv().getExecSelect().getMode())
+    	{
+    	case PLEXIL_EXEC:
+    		if(parm == RECENT_BASE)
+    			str = PROP_FILE_EXEC_RECENT_LIB_BASE;
+    		else
+    			str = PROP_FILE_EXEC_RECENT_LIB_DIR;
+    		break;
+		case PLEXIL_TEST:
+			if(parm == RECENT_BASE)
+    			str = PROP_FILE_TEST_RECENT_LIB_BASE;
+    		else
+    			str = PROP_FILE_TEST_RECENT_LIB_DIR;
+			break;
+		case PLEXIL_SIM:
+			if(parm == RECENT_BASE)
+    			str = PROP_FILE_SIM_RECENT_LIB_BASE;
+    		else
+    			str = PROP_FILE_SIM_RECENT_LIB_DIR;
+			break;	
+    	}    	
+    	return str;
+    }    
+    
+    /**
      * Gets the Plexil Plan with the specified index.
      * 
      * @param index indicates which Plexil Plan the user wants to load
@@ -68,8 +168,8 @@ public class LoadRecentAction extends LuvAction
     {
         String recentPlan = UNKNOWN;
         
-        if (Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index) != null)
-            recentPlan = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index);  
+        if (Luv.getLuv().getProperties().getProperty(defineRecentPlan(RECENT_BASE) + index) != null)
+            recentPlan = Luv.getLuv().getProperties().getProperty(defineRecentPlan(RECENT_BASE) + index);  
         
         return recentPlan;
     }
@@ -84,8 +184,8 @@ public class LoadRecentAction extends LuvAction
     {
         String recentScript = UNKNOWN;
         
-        if (Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index) != null)
-            recentScript = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index);  
+        if (Luv.getLuv().getProperties().getProperty(defineRecentSupp(RECENT_BASE) + index) != null)
+            recentScript = Luv.getLuv().getProperties().getProperty(defineRecentSupp(RECENT_BASE) + index);  
         
         return recentScript;
     }
@@ -93,8 +193,8 @@ public class LoadRecentAction extends LuvAction
     // given a recent plan index, the description used for the recent menu item tooltip
     private static String getRecentMenuDescription(int index)
     {
-        String plan = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_PLAN_BASE + index);
-        String script = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_SCRIPT_BASE + index);
+        String plan = Luv.getLuv().getProperties().getProperty(defineRecentPlan(RECENT_BASE) + index);
+        String script = Luv.getLuv().getProperties().getProperty(defineRecentSupp(RECENT_BASE) + index);
 	
 	String description = "Load " + plan + " + " + script;
 
@@ -109,7 +209,7 @@ public class LoadRecentAction extends LuvAction
 	// put newest file at the top of the list   
         String planName = Luv.getLuv().getCurrentPlan().getAbsolutePlanName();
         String scriptName = Luv.getLuv().getCurrentPlan().getAbsoluteScriptName();
-        String libDirectory = Luv.getLuv().getProperties().getProperty(PROP_FILE_RECENT_LIB_DIR);      
+        String libDirectory = Luv.getLuv().getProperties().getProperty(defineRecentLib(RECENT_DIR));      
         String currPlan = planName;
         String currScript = scriptName;
         
@@ -122,9 +222,11 @@ public class LoadRecentAction extends LuvAction
             {
                 if (planName != null) 
                 {
-                    planName = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_PLAN_BASE + i, planName);
-                    scriptName = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_SCRIPT_BASE + i, scriptName);
-                    libDirectory = (String)Luv.getLuv().getProperties().setProperty(PROP_FILE_RECENT_LIB_DIR + i, libDirectory);
+                    planName = (String)Luv.getLuv().getProperties().setProperty(defineRecentPlan(RECENT_BASE) + i, planName);
+                    scriptName = (String)Luv.getLuv().getProperties().setProperty(defineRecentSupp(RECENT_BASE) + i, scriptName);
+                    if(libDirectory == null)
+                    	libDirectory = "";
+                    libDirectory = (String)Luv.getLuv().getProperties().setProperty(defineRecentLib(RECENT_DIR) + i, libDirectory);
                     
                     // if this run already existed in the list, we can stop
                     if (planName != null && planName.equals(currPlan) &&

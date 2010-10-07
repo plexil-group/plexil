@@ -135,28 +135,7 @@ public class LuvActionHandler {
             META_MASK) {
 
                 public void actionPerformed(ActionEvent e) {
-                    Luv.getLuv().setNewPlan(true);
-                    PlexilPlanHandler.resetRowNumber();
-
-                    if (Luv.getLuv().getIsExecuting()) {
-                        try {
-                            Luv.getLuv().getLuvStateHandler().stopExecutionState();
-                            Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Stopping execution and reloading plan");
-                        } catch (IOException ex) {
-                            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
-                        }
-                    }
-
-                    File plan = new File(Luv.getLuv().getCurrentPlan().getAbsolutePlanName());
-                    if (plan.exists()) {
-                        Luv.getLuv().getFileHandler().loadPlan(new File(Luv.getLuv().getCurrentPlan().getAbsolutePlanName()));
-                        Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + Luv.getLuv().getCurrentPlan().getAbsolutePlanName() + "\" loaded", 1000);
-                        Luv.getLuv().getLuvStateHandler().openPlanState();
-                    } else {
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: trying to reload an UNKNOWN plan");
-                        Luv.getLuv().getLuvStateHandler().reloadPlanState();
-                    }
-                    Luv.getLuv().setNewPlan(false);
+                	Luv.getLuv().getExecSelect().reload();
                 }
             };
 
@@ -190,6 +169,7 @@ public class LuvActionHandler {
     			newContentPane.setOpaque(true);    			
     			Luv.getLuv().getExecSelect().getFrame().setContentPane(newContentPane);
     			Luv.getLuv().getExecSelect().getFrame().pack();
+    			Luv.getLuv().getExecSelect().reload();
     			Luv.getLuv().getExecSelect().getFrame().setVisible(true);
     			Luv.getLuv().getExecSelect().backupNames();
 	        }
@@ -212,25 +192,7 @@ public class LuvActionHandler {
     			if(Luv.getLuv().getPortGUI().isEmpty())
     				Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: No ports avaliable.  Close an open instance and try again");
 	        }
-    	};        
-            
-    /** Action to show the debugging window. */
-    public static LuvAction luvDebugHistoryWindowAction = 
-    	new LuvAction("Show History Player Window",
-        "Show window with history of events and debugging information.",
-        VK_K,
-        META_MASK) {
-
-    		public void actionPerformed(ActionEvent e) {
-	            Luv.getLuv().getDebugHistoryWindow().setVisible(!Luv.getLuv().getDebugHistoryWindow().isVisible());	            
-	
-	            if (Luv.getLuv().getDebugHistoryWindow().isVisible()) {
-	            	luvDebugHistoryWindowAction.putValue(NAME, "Hide History Player Window");
-	            } else {
-	            	luvDebugHistoryWindowAction.putValue(NAME, "Show History Player Window");
-	            }
-	        }
-    	};
+    	};                    
             
     /** Action to display extended or core plexil view. */
     public static LuvAction extendedViewAction =
@@ -258,7 +220,7 @@ public class LuvActionHandler {
 
                 public void actionPerformed(ActionEvent e) {
                     String info =
-                            "Product:   Plexil Viewer Version 1.0 beta 6 (c) 2010 NASA Ames Research Center\n" +
+                            "Application:   Plexil Version 2.0.0 (c) 2006-2010 Universities Space Research Association\n" +
                             "Website:   http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
@@ -423,35 +385,6 @@ public class LuvActionHandler {
                         System.exit(0);                    
                 }
             };
-	/** Action to allow testExec. */
-	public static LuvAction allowTestAction = new LuvAction("Use UniversalExec",
-			"Select this to enable TestExec and Scripts or UniversalExec and Configs.", VK_F12) {
-
-		public void actionPerformed(ActionEvent e) {
-			if (!Luv.getLuv().getIsExecuting()) {
-				Luv.getLuv().setTestExecAllowed(!Luv.getLuv().allowTest());
-
-				if (Luv.getLuv().allowTest()) {
-					Luv.getLuv().getStatusMessageHandler().showStatus(
-							"Use TestExec", Color.GREEN.darker(), 1000);
-					putValue(NAME, "Use UniversalExec");
-					openScriptAction.putValue(NAME, "Open Script");
-					openScriptAction.putValue(SHORT_DESCRIPTION,
-							"Open a plexil script file.");					
-
-				} else {
-					Luv.getLuv().getStatusMessageHandler().showStatus(
-							"Use UniversalExec", Color.RED, 1000);
-					putValue(NAME, "Use TestExec");
-					openScriptAction
-							.putValue(NAME, "Open Config");
-					openScriptAction.putValue(SHORT_DESCRIPTION,
-							"Open a config file");
-
-				}
-			}
-		}
-	};
 
     /** Action to fully expand tree. */
     public static LuvAction expandAll = new LuvAction(

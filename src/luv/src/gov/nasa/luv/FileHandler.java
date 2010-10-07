@@ -158,7 +158,7 @@ public class FileHandler
      */
     public File searchForLibrary(String libraryName) throws InterruptedIOException 
     {      
-        String directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
+        String directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR));
         
         File library = new File(directory + System.getProperty("file.separator") + libraryName + ".plx");
             
@@ -166,7 +166,7 @@ public class FileHandler
             library = new File(directory + System.getProperty("file.separator") + libraryName + ".xml");
             
             if (!library.exists()) {
-                directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+                directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR));
         
                 library = new File(directory + System.getProperty("file.separator") + libraryName + ".plx");
                 
@@ -187,8 +187,8 @@ public class FileHandler
         if (library != null && library.exists()) 
         {
             directory = library.getAbsolutePath();
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_BASE, library.toString());         
+            Luv.getLuv().setProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR), library.getParent());
+            Luv.getLuv().setProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_BASE), library.toString());         
             loadPlan(library);
             Luv.getLuv().getStatusMessageHandler().showStatus("Library \"" + library.toString() + "\" loaded", 1000);
         }
@@ -209,13 +209,13 @@ public class FileHandler
     	String directory = "";
     	// create empty script and prompt user
 
-            directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator");
+            directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR)) + System.getProperty("file.separator");
             config = createEmptyScript(directory);
 
         if (!doNotLoadScript)
         {
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, config.getParent());
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, config.toString()); 
+            Luv.getLuv().setProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_DIR), config.getParent());
+            Luv.getLuv().setProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_BASE), config.toString()); 
             loadScript(config);  
             Luv.getLuv().getStatusMessageHandler().showStatus("Config \"" + config.toString() + "\" loaded", 1000);
         }
@@ -253,14 +253,14 @@ public class FileHandler
         // if cannot find script, create empty script and prompt user
         if (script == null)
         {
-            directory = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator");
+            directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR)) + System.getProperty("file.separator");
 				script = createEmptyScript(directory);
         }
 
         if (!doNotLoadScript)
         {
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-            Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
+            Luv.getLuv().setProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_DIR), script.getParent());
+            Luv.getLuv().setProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_BASE), script.toString()); 
             loadScript(script);  
             Luv.getLuv().getStatusMessageHandler().showStatus("Script \"" + script.toString() + "\" loaded", 1000);
         }
@@ -276,22 +276,24 @@ public class FileHandler
     {
 	int option = -1;
 	String supplement = "Script";
-	if (! Luv.getLuv().allowTest())
+	if (Luv.getLuv().getAppMode() == PLEXIL_EXEC)
 		supplement = "Config";
 	try 
         {
-            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR)));
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_DIR))));
             
             if (fileChooser.showDialog(dirChooser, "Open " + supplement) == APPROVE_OPTION)
             {
                     File script = fileChooser.getSelectedFile();
-                    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_DIR, script.getParent());
-                    Luv.getLuv().setProperty(PROP_FILE_RECENT_SCRIPT_BASE, script.toString()); 
+                    Luv.getLuv().setProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_DIR), script.getParent());
+                    Luv.getLuv().setProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_BASE), script.toString()); 
                     loadScript(script);
                     if(supplement.equals("Config"))
-                    	ExecSelect.getExecSel().setConfigName(script.toString());
+                    	//ExecSelect.getExecSel().setConfigName(script.toString());
+                    	ExecSelect.getExecSel().getSettings().setSuppLocation(script.toString());
                     else	
-                    	ExecSelect.getExecSel().setScriptName(script.toString());
+                    	//ExecSelect.getExecSel().setScriptName(script.toString());
+                    	ExecSelect.getExecSel().getSettings().setSuppLocation(script.toString());
 
                     return APPROVE_OPTION;
             }
@@ -312,17 +314,18 @@ public class FileHandler
     {
 	try 
         {
-            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)));
+            fileChooser.setCurrentDirectory(new File(Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR))));
             
             if (fileChooser.showDialog(dirChooser, "Open Plan") == APPROVE_OPTION)
             {
                     File plan = fileChooser.getSelectedFile();
-                    Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_DIR, plan.getParent());
-                    Luv.getLuv().setProperty(PROP_FILE_RECENT_PLAN_BASE, plan.toString());
-                    Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, plan.getParent());
+                    Luv.getLuv().setProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR), plan.getParent());
+                    Luv.getLuv().setProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_BASE), plan.toString());
+                    Luv.getLuv().setProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR), plan.getParent());
                     loadPlan(plan);
                     Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + plan.toString() + "\" loaded", 1000);
-                    ExecSelect.getExecSel().setPlanName(plan.toString());
+                    //ExecSelect.getExecSel().setPlanName(plan.toString());
+                    ExecSelect.getExecSel().getSettings().setPlanLocation(plan.toString());
                     return APPROVE_OPTION;
             }  
             else
@@ -344,16 +347,16 @@ public class FileHandler
     {
 	try 
         {
-            String recent = Luv.getLuv().getProperty(PROP_FILE_RECENT_LIB_DIR);
+            String recent = Luv.getLuv().getProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR));
             if (recent == null)
-		recent = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+		recent = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR));
             
             fileChooser.setCurrentDirectory(new File(recent));
 
             if (fileChooser.showDialog(dirChooser, "Open Library") == APPROVE_OPTION) 
             {
 		File library = fileChooser.getSelectedFile();
-		Luv.getLuv().setProperty(PROP_FILE_RECENT_LIB_DIR, library.getParent());
+		Luv.getLuv().setProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR), library.getParent());
 		return library.getAbsolutePath();
             }
 	}
@@ -549,20 +552,20 @@ public class FileHandler
     {
         ArrayList<String> listOfDirectories = new ArrayList<String>();
   
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_DIR) + System.getProperty("file.separator"));
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator"));
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator") + "scripts" + System.getProperty("file.separator"));
-        listOfDirectories.add(Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR) + System.getProperty("file.separator") + "script" + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_DIR)) + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR)) + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR)) + System.getProperty("file.separator") + "scripts" + System.getProperty("file.separator"));
+        listOfDirectories.add(Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR)) + System.getProperty("file.separator") + "script" + System.getProperty("file.separator"));
         
-        String path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+        String path = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR));
         path = path.substring(0, path.lastIndexOf('/') + 1);
         listOfDirectories.add(path);
         
-        path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+        path = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR));
         path = path.substring(0, path.lastIndexOf('/') + 1) + "script" + System.getProperty("file.separator");
         listOfDirectories.add(path);
         
-        path = Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR);
+        path = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR));
         path = path.substring(0, path.lastIndexOf('/') + 1) + "scripts" + System.getProperty("file.separator");
         listOfDirectories.add(path);      
        
@@ -571,10 +574,12 @@ public class FileHandler
     
     private File createEmptyScript(String path) throws IOException 
     {
-    
-    String supplement = Luv.getLuv().allowTest() ? "script" : "config";
-    String defaultSup = Luv.getLuv().allowTest() ? "Yes, use empty script" : "Yes, use empty config";
-    String message_supplement = Luv.getLuv().allowTest() ? Luv.getLuv().getProperty(PROP_FILE_RECENT_PLAN_DIR)
+    boolean test = false;
+    if(Luv.getLuv().getAppMode() == PLEXIL_TEST)
+    	test = true;
+    String supplement = test ? "script" : "config";
+    String defaultSup = test ? "Yes, use empty script" : "Yes, use empty config";
+    String message_supplement = test ? Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR))
 			 + System.getProperty("file.separator")
 			 + DEFAULT_SCRIPT_NAME : DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME;
     
@@ -601,14 +606,14 @@ public class FileHandler
         {
             case 0:
             	String scriptName = path + DEFAULT_SCRIPT_NAME;
-            	if (Luv.getLuv().allowTest()){	                
+            	if (Luv.getLuv().getAppMode() == PLEXIL_TEST){	                
 	                FileWriter emptyScript = new FileWriter(scriptName);
 	                BufferedWriter out = new BufferedWriter(emptyScript);
 	                out.write(EMPTY_SCRIPT);
 	                out.close();                          
 	                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
 	                return new File(scriptName);
-            	} else if(!Luv.getLuv().allowTest()){
+            	} else if(Luv.getLuv().getAppMode() == PLEXIL_EXEC){
             		return new File(DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME);            		
             	} else {
             		doNotLoadScript = true;      
@@ -617,7 +622,7 @@ public class FileHandler
             		
             case 1:
                 if (chooseScript() == APPROVE_OPTION)
-                    return new File(Luv.getLuv().getProperty(PROP_FILE_RECENT_SCRIPT_BASE));
+                    return new File(Luv.getLuv().getProperty(LoadRecentAction.defineRecentSupp(LoadRecentAction.RECENT_BASE)));
                 else
                     return null;
             case 2:

@@ -26,6 +26,7 @@
 
 package gov.nasa.luv;
 import static gov.nasa.luv.Constants.DEBUG_CFG_FILE;
+import static gov.nasa.luv.Constants.PLEXIL_EXEC;
 import static gov.nasa.luv.Constants.UE_TEST_EXEC;
 import static gov.nasa.luv.Constants.UE_EXEC;
 import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
@@ -174,13 +175,23 @@ public class ExecutionHandler
        * generator will be used (will be used the class name given on such variable).
        * @return a plexil command generator.
        */
-      private AbstractPlexilExecutiveCommandGenerator getPlexilExecutive() throws ExecutiveCommandGenerationException{
-    	  String alternativeExecutive=System.getenv("ALT_EXECUTIVE");    	  
-    	  if (alternativeExecutive==null){
-    		  if(Luv.getLuv().allowTest())
-    			  return new PlexilTestExecutive();
-    		  else
-    			  return new PlexilUniversalExecutive();
+      @SuppressWarnings("unchecked")
+	private AbstractPlexilExecutiveCommandGenerator getPlexilExecutive() throws ExecutiveCommandGenerationException{
+    	  String alternativeExecutive=System.getenv("ALT_EXECUTIVE");
+    	  AbstractPlexilExecutiveCommandGenerator exec = null;
+    	  if (alternativeExecutive==null){    		  
+    		  switch (Luv.getLuv().getAppMode()){
+    				case	Constants.PLEXIL_EXEC:
+    					exec = new PlexilUniversalExecutive();
+    					break;
+    				case	Constants.PLEXIL_TEST:
+    					exec = new PlexilTestExecutive();
+    					break;
+    				case	Constants.PLEXIL_SIM:
+    					exec = new PlexilSimulator();
+    					break;    					
+    		  }    		  
+    		  return exec;
     	  }
     	  else{
     		  try {    			
@@ -245,7 +256,7 @@ public class ExecutionHandler
     		  return "ERROR: unable to identify plan.";    	      	 
     	  
     	  // get script
-    	  if (Luv.getLuv().allowTest())
+    	  if (Luv.getLuv().getExecSelect().getMode() != Constants.PLEXIL_TEST)
     	  {
 			  if (currentPlan != null &&
 					  currentPlan.getAbsoluteScriptName() != null &&
@@ -450,7 +461,6 @@ class PlexilTestExecutive extends AbstractPlexilExecutiveCommandGenerator{
 	public String generateCommandLine() {
 		String command = "";	 
 		  
-		  //System.out.println(Luv.getLuv().allowTest() ? "Using Test Executive..." : "Using Universal Executive...");
 		  System.out.println("Using Test Executive...");
 		  //viewer
 		  command = RUN_TEST_EXEC + " -v";  	  
@@ -469,7 +479,7 @@ class PlexilTestExecutive extends AbstractPlexilExecutiveCommandGenerator{
 		  Model currentPlan=this.getCurrentPlan();
 		  
 		  command += " -p " + currentPlan.getAbsolutePlanName();				  
-		  command += " " + this.getScriptPath();				  
+		  command += " -s " + this.getScriptPath();				  
 		  
 		  if (this.getLibFiles()!=null){
 			  for (String lf:this.getLibFiles()){
@@ -497,8 +507,6 @@ class PlexilSimulator extends AbstractPlexilExecutiveCommandGenerator{
 	  command += " -n " + Luv.getLuv().getPort();
 	  //breaks
 	  command += Luv.getLuv().breaksAllowed() ? " -b" : "";
-	  //automation to allow PID capture	  
-	  command += " -a";
 	  //debug file		   
 	  command += " -d " + DEBUG_CFG_FILE;	  	  
 	  //Check Plan file	  
@@ -511,7 +519,7 @@ class PlexilSimulator extends AbstractPlexilExecutiveCommandGenerator{
 	  command += " -p " + currentPlan.getAbsolutePlanName();
 	  	  
 	  if(this.getScriptPath() != null)	  
-		  command += " -c " + this.getScriptPath();		  
+		  command += " -s " + this.getScriptPath();		  
 	  
 	  if (this.getLibFiles()!=null){
 		  for (String lf:this.getLibFiles()){
