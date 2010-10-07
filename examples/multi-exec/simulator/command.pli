@@ -1,0 +1,19 @@
+;; File: $SVNROOT/plexil/examples/multi-exec/simulator/command.pli
+
+;; Mimics command.ple, but in plexilisp
+
+(plexil-plan
+  (sequence "MasterPlan"
+    (variables (integer "rightIter" 3))
+    (sequence "Right"
+      (variables (integer "ret"))
+      (repeat-condition (> (intvar "rightIter") 0))
+      (action "MoveRight"
+        (end-condition (is-known (intvar "ret")))
+        (command-with-return (intvar "ret") "MoveRight" 5))
+      (action "Set"
+        (assignment (intvar "rightIter") (- (intvar "rightIter") 1))))
+    (action "Quit"
+      (command "SendMessage" "Quit"))))
+
+;; EOF
