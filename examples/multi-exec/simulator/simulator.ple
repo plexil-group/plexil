@@ -39,7 +39,7 @@ Interface:
 				}
 				//The handler for the message 'Quit' goes here
                 //Fix for a current issue with aborting OnCommand and OnMessage nodes
-                RepeatMoveRight:
+                RepeatMoveRight1:
                 {
                   RepeatCondition: continue;
                   NodeList:
