@@ -4,13 +4,13 @@
           <NodeBody>
               <NodeList>
                   <Node FileName="time-exp-assignment.ple" LineNo="5" ColNo="3" NodeType="Assignment">
+                      <NodeId>testNode</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>currentTime</Name>
                               <Type>Time</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>testNode</NodeId>
                       <NodeBody>
                           <Assignment>
                               <TimeVariable>currentTime</TimeVariable>

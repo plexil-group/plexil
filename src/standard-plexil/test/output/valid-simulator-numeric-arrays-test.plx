@@ -92,7 +92,7 @@
                            <NodeList>
                               <Node NodeType="Command" FileName="simulator-numeric-arrays-test.ple" LineNo="13"
                                     ColNo="25">
-                                 <NodeId>RecGetName__CHILD__2</NodeId>
+                                 <NodeId>RecGetName__CHILD__1</NodeId>
                                  <NodeBody>
                                     <Command>
                                        <Name>

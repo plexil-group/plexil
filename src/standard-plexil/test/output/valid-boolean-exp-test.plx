@@ -1,5 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="boolean-exp-test.ple">
       <Node FileName="boolean-exp-test.ple" LineNo="2" ColNo="1" NodeType="NodeList">
+          <NodeId>BooleanExpressionTest</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>foo</Name>
@@ -37,7 +38,6 @@
                   </InitialValue>
               </DeclareArray>
           </VariableDeclarations>
-          <NodeId>BooleanExpressionTest</NodeId>
           <NodeBody>
               <NodeList>
                   <Node FileName="boolean-exp-test.ple" LineNo="5" ColNo="8" NodeType="Assignment">

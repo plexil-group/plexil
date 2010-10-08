@@ -1,5 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="update.ple">
       <Node FileName="update.ple" LineNo="2" ColNo="1" NodeType="Update">
+          <NodeId>UpdateTest</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>i</Name>
@@ -16,7 +17,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>UpdateTest</NodeId>
           <NodeBody>
               <Update>
                   <Pair>

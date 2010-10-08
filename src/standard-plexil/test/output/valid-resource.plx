@@ -4,6 +4,7 @@
           <NodeBody>
               <NodeList>
                   <Node FileName="resource.ple" LineNo="6" ColNo="2" NodeType="Command">
+                      <NodeId>C1</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>returnValue</Name>
@@ -13,7 +14,6 @@
                               </InitialValue>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>C1</NodeId>
                       <EndCondition>
                           <EQNumeric>
                               <IntegerVariable>returnValue</IntegerVariable>

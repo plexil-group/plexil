@@ -1,9 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="command-test.ple">
       <GlobalDeclarations>
           <CommandDeclaration>
-              <Name>foo</Name>
-          </CommandDeclaration>
-          <CommandDeclaration>
               <Name>bletch</Name>
               <Return Type="Real">_Command_return_1</Return>
               <Parameter Type="String">s</Parameter>
@@ -13,11 +10,15 @@
               <Return Type="Boolean">_Command_return_1</Return>
           </CommandDeclaration>
           <CommandDeclaration>
+              <Name>foo</Name>
+          </CommandDeclaration>
+          <CommandDeclaration>
               <Name>bar</Name>
               <Parameter Type="Integer">i</Parameter>
           </CommandDeclaration>
       </GlobalDeclarations>
       <Node FileName="command-test.ple" LineNo="7" ColNo="1" NodeType="NodeList">
+          <NodeId>CommandTest</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>fooName</Name>
@@ -41,7 +42,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>CommandTest</NodeId>
           <NodeBody>
               <NodeList>
                   <Node FileName="command-test.ple" LineNo="15" ColNo="3" NodeType="Command">
@@ -65,6 +65,7 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="command-test.ple" LineNo="25" ColNo="3" NodeType="Command">
+                      <NodeId>OneArgNoReturnTest</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>n</Name>
@@ -74,7 +75,6 @@
                               </InitialValue>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>OneArgNoReturnTest</NodeId>
                       <NodeBody>
                           <Command>
                               <Name>
@@ -87,13 +87,13 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="command-test.ple" LineNo="31" ColNo="3" NodeType="Command">
+                      <NodeId>NoArgOneReturnTest</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>b</Name>
                               <Type>Boolean</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>NoArgOneReturnTest</NodeId>
                       <NodeBody>
                           <Command>
                               <BooleanVariable>b</BooleanVariable>
@@ -104,13 +104,13 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="command-test.ple" LineNo="37" ColNo="3" NodeType="Command">
+                      <NodeId>ArgsElidedOneReturnTest</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>b</Name>
                               <Type>Boolean</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>ArgsElidedOneReturnTest</NodeId>
                       <NodeBody>
                           <Command>
                               <BooleanVariable>b</BooleanVariable>
@@ -121,13 +121,13 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="command-test.ple" LineNo="43" ColNo="3" NodeType="Command">
+                      <NodeId>OneArgOneReturnTest</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>r</Name>
                               <Type>Real</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>OneArgOneReturnTest</NodeId>
                       <NodeBody>
                           <Command>
                               <RealVariable>r</RealVariable>
@@ -161,13 +161,13 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="command-test.ple" LineNo="59" ColNo="3" NodeType="Command">
+                      <NodeId>VarRefAsCmdNameWithRtnValTest</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>r</Name>
                               <Type>Real</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>VarRefAsCmdNameWithRtnValTest</NodeId>
                       <NodeBody>
                           <Command>
                               <RealVariable>r</RealVariable>
@@ -181,13 +181,13 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="command-test.ple" LineNo="65" ColNo="3" NodeType="Command">
+                      <NodeId>VarRefAsCmdNameWithRtnValArgsElidedTest</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>b</Name>
                               <Type>Boolean</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>VarRefAsCmdNameWithRtnValArgsElidedTest</NodeId>
                       <NodeBody>
                           <Command>
                               <BooleanVariable>b</BooleanVariable>

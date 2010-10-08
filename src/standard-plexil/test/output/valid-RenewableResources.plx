@@ -4,6 +4,7 @@
           <NodeBody>
               <NodeList>
                   <Node FileName="RenewableResources.ple" LineNo="6" ColNo="3" NodeType="Command">
+                      <NodeId>C1</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>returnValue</Name>
@@ -13,7 +14,6 @@
                               </InitialValue>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>C1</NodeId>
                       <EndCondition>
                           <EQNumeric>
                               <IntegerVariable>returnValue</IntegerVariable>
@@ -54,6 +54,7 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="RenewableResources.ple" LineNo="20" ColNo="3" NodeType="Command">
+                      <NodeId>C2</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>mem_priority</Name>
@@ -70,7 +71,6 @@
                               </InitialValue>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>C2</NodeId>
                       <PostCondition>
                           <EQInternal>
                               <NodeCommandHandleVariable>
@@ -111,6 +111,7 @@
                       </NodeBody>
                   </Node>
                   <Node FileName="RenewableResources.ple" LineNo="34" ColNo="3" NodeType="Command">
+                      <NodeId>C3</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>returnValue</Name>
@@ -120,7 +121,6 @@
                               </InitialValue>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>C3</NodeId>
                       <PostCondition>
                           <EQInternal>
                               <NodeCommandHandleVariable>

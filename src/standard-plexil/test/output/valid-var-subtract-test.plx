@@ -1,5 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="var-subtract-test.ple">
       <Node FileName="var-subtract-test.ple" LineNo="2" ColNo="1" NodeType="Assignment">
+          <NodeId>SimpleAssignment</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>foo</Name>
@@ -16,7 +17,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>SimpleAssignment</NodeId>
           <NodeBody>
               <Assignment>
                   <IntegerVariable>foo</IntegerVariable>

@@ -4,6 +4,7 @@
           <NodeBody>
               <NodeList>
                   <Node FileName="arrayref-is-known.ple" LineNo="7" ColNo="5" NodeType="Empty">
+                      <NodeId>One</NodeId>
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>Numbers</Name>
@@ -11,7 +12,6 @@
                               <MaxSize>3</MaxSize>
                           </DeclareArray>
                       </VariableDeclarations>
-                      <NodeId>One</NodeId>
                       <PostCondition>
                           <IsKnown>
                               <ArrayVariable>Numbers</ArrayVariable>
@@ -19,6 +19,7 @@
                       </PostCondition>
                   </Node>
                   <Node FileName="arrayref-is-known.ple" LineNo="13" ColNo="5" NodeType="Empty">
+                      <NodeId>Two</NodeId>
                       <VariableDeclarations>
                           <DeclareArray>
                               <Name>Numbers</Name>
@@ -26,7 +27,6 @@
                               <MaxSize>3</MaxSize>
                           </DeclareArray>
                       </VariableDeclarations>
-                      <NodeId>Two</NodeId>
                       <PostCondition>
                           <IsKnown>
                               <ArrayElement>

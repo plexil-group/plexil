@@ -1,5 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="integer-exp-test.ple">
       <Node FileName="integer-exp-test.ple" LineNo="1" ColNo="1" NodeType="NodeList">
+          <NodeId>_GLOBAL_CONTEXT___CHILD__1</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>foo</Name>
@@ -38,7 +39,6 @@
                   </InitialValue>
               </DeclareArray>
           </VariableDeclarations>
-          <NodeId>_GLOBAL_CONTEXT___CHILD__1</NodeId>
           <NodeBody>
               <NodeList>
                   <Node FileName="integer-exp-test.ple" LineNo="4" ColNo="3" NodeType="Assignment">

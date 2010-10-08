@@ -11,6 +11,7 @@
           </StateDeclaration>
       </GlobalDeclarations>
       <Node FileName="LookupNowTest.ple" LineNo="5" ColNo="1" NodeType="NodeList">
+          <NodeId>LookupNowTest</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>i</Name>
@@ -35,7 +36,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>LookupNowTest</NodeId>
           <NodeBody>
               <NodeList>
                   <Node FileName="LookupNowTest.ple" LineNo="14" ColNo="3" NodeType="Assignment">

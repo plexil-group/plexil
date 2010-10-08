@@ -4,13 +4,13 @@
           <NodeBody>
               <NodeList>
                   <Node FileName="time-exp-start-cond.ple" LineNo="5" ColNo="3" NodeType="Empty">
+                      <NodeId>testNode</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>now</Name>
                               <Type>Time</Type>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>testNode</NodeId>
                       <StartCondition>
                           <EQTime>
                               <TimeVariable>now</TimeVariable>

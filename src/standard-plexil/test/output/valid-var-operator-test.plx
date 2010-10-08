@@ -1,5 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="var-operator-test.ple">
       <Node FileName="var-operator-test.ple" LineNo="2" ColNo="1" NodeType="NodeList">
+          <NodeId>Root</NodeId>
           <VariableDeclarations>
               <DeclareArray>
                   <Name>array</Name>
@@ -27,7 +28,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>Root</NodeId>
           <NodeBody>
               <NodeList>
                   <Node FileName="var-operator-test.ple" LineNo="9" ColNo="5" NodeType="Assignment">

@@ -11,6 +11,7 @@
           </StateDeclaration>
       </GlobalDeclarations>
       <Node FileName="LookupOnChangeTest.ple" LineNo="5" ColNo="1" NodeType="NodeList">
+          <NodeId>LookupOnChangeTest</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>i</Name>
@@ -35,7 +36,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>LookupOnChangeTest</NodeId>
           <NodeBody>
               <NodeList>
                   <Node FileName="LookupOnChangeTest.ple" LineNo="14" ColNo="3" NodeType="Empty">

@@ -1,5 +1,6 @@
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="SiteSurvey.ple">
       <Node FileName="SiteSurvey.ple" LineNo="28" ColNo="1" NodeType="NodeList">
+          <NodeId>SiteSurveyWithEOF</NodeId>
           <VariableDeclarations>
               <DeclareVariable>
                   <Name>task_type</Name>
@@ -24,7 +25,6 @@
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>SiteSurveyWithEOF</NodeId>
           <EndCondition>
               <OR>
                   <OR>
@@ -50,6 +50,7 @@
           <NodeBody>
               <NodeList>
                   <Node FileName="SiteSurvey.ple" LineNo="40" ColNo="3" NodeType="NodeList">
+                      <NodeId>SiteSurveyWrapper</NodeId>
                       <VariableDeclarations>
                           <DeclareVariable>
                               <Name>task_type</Name>
@@ -63,7 +64,6 @@
                               </InitialValue>
                           </DeclareVariable>
                       </VariableDeclarations>
-                      <NodeId>SiteSurveyWrapper</NodeId>
                       <EndCondition>
                           <OR>
                               <OR>
@@ -85,6 +85,7 @@
                       <NodeBody>
                           <NodeList>
                               <Node FileName="SiteSurvey.ple" LineNo="49" ColNo="5" NodeType="NodeList">
+                                  <NodeId>SiteSurvey</NodeId>
                                   <VariableDeclarations>
                                       <DeclareVariable>
                                           <Name>task_result_str</Name>
@@ -102,7 +103,6 @@
                                           </InitialValue>
                                       </DeclareVariable>
                                   </VariableDeclarations>
-                                  <NodeId>SiteSurvey</NodeId>
                                   <RepeatCondition>
                                       <NENumeric>
                                           <IntegerVariable>task_type</IntegerVariable>
@@ -130,13 +130,13 @@
                                               <NodeBody>
                                                   <NodeList>
                                                       <Node FileName="SiteSurvey.ple" LineNo="66" ColNo="10" NodeType="Command">
+                                                          <NodeId>RequestNextWaypt</NodeId>
                                                           <VariableDeclarations>
                                                               <DeclareVariable>
                                                                   <Name>ret_val</Name>
                                                                   <Type>Integer</Type>
                                                               </DeclareVariable>
                                                           </VariableDeclarations>
-                                                          <NodeId>RequestNextWaypt</NodeId>
                                                           <StartCondition>
                                                               <EQBoolean>
                                                                   <BooleanVariable>is_paused</BooleanVariable>
@@ -183,6 +183,7 @@
                                                           </NodeBody>
                                                       </Node>
                                                       <Node FileName="SiteSurvey.ple" LineNo="82" ColNo="10" NodeType="NodeList">
+                                                          <NodeId>GetAndProcessWaypoint</NodeId>
                                                           <VariableDeclarations>
                                                               <DeclareVariable>
                                                                   <Name>waypt_name</Name>
@@ -229,7 +230,6 @@
                                                                   <Type>Real</Type>
                                                               </DeclareVariable>
                                                           </VariableDeclarations>
-                                                          <NodeId>GetAndProcessWaypoint</NodeId>
                                                           <StartCondition>
                                                               <AND>
                                                                   <EQInternal>
