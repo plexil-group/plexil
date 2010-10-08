@@ -96,6 +96,11 @@ public class PlexilNodeContext
 	childNodes.add(child);
     }
 
+	public String getNodeName()
+    {
+		return nodeName;
+    }
+
     // get the root of this context tree
     protected PlexilNodeContext getRootContext()
 	throws Exception
