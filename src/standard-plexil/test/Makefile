@@ -28,23 +28,14 @@
 # verifies that the output matches the validated version of
 # the file.
 
-SHELL = /bin/sh
+SHELL := /bin/sh
 
-TEST_PLANS =  HierarchicalResources library-call-test \
-  LookupNowTest library-node-defn LookupOnChangeTest lookup-exp-as-start-cond \
-  NENumeric-test message-rcvd-test NonUnaryResources numeric-exp-test \
-  RenewableResources onMessage-test SimpleUnaryResources real-exp-test \
-  SiteSurvey request SiteSurveyWithEOF resource array2 \
-  sequence1 arrayref-is-known sequence2 boolean-exp-test \
-  simulator-numeric-arrays-test command-test simulator-string-arrays-test \
-  command_handle string-test empty-node-test time-exp-assignment \
-  failure time-exp-start-cond for-test update if-test var-operator-test \
-  if-test1 var-subtract-test integer-exp-test while1
+TEST_PLANS := $(basename $(wildcard *.ple))
 
-TEST_SCRIPTS = test
+TEST_SCRIPTS = $(basename $(wildcard *.pst))
 
 # Temporary file
-DIFF = /tmp/plexil-$$$$
+DIFF := /tmp/plexil-$$$$
 
 default: plans scripts
 
@@ -81,8 +72,11 @@ scripts:
 	@ echo Finished.
 
 clean:
-	@ for i in $(TEST_SCRIPTS) $(TEST_PLANS); do \
+	@ for i in $(TEST_PLANS); do \
 	        rm -f output/$$i.plx output/$$i.epx  ; \
+	  done
+	@ for i in $(TEST_SCRIPTS); do \
+	        rm -f output/$$i.psx ; \
 	  done
 
 # For developers: Check the current output agains the benchmarks.
