@@ -341,13 +341,10 @@ action[IXMLElement parent]
    }
    #(NODE_ID id:NodeName)
    { 
-     if (#id != null)
-     {
 	IXMLElement nodeId = new XMLElement("NodeId");
 	xnode.addChild(nodeId);
 	nodeId.setContent(#id.getText());
-     }
-   }        
+   }
   (comment[xnode])?
   (nodeDeclaration[xnode])*
   (nodeAttribute[xnode, xmlResourceList])*   // build resource list here...
@@ -360,21 +357,17 @@ action[IXMLElement parent]
    Vector inOutVars = new Vector();
    context.getNodeVariables(localVars, inVars, inOutVars);
 
-   if (!localVars.isEmpty())
-     {
-       IXMLElement varDeclXml = xnode.getFirstChildNamed("VariableDeclarations");
-       if (varDeclXml == null)
-	 {
-	   varDeclXml = new XMLElement("VariableDeclarations");
-	   xnode.insertChild(varDeclXml, 0);
-	 }
-      for (Iterator it = localVars.iterator(); it.hasNext(); )
-        {
-	  PlexilVariableName var = (PlexilVariableName) it.next();
-	  IXMLElement xdecl = var.makeVariableDeclarationElement();
-	  varDeclXml.addChild(xdecl);
-	}
+   if (!localVars.isEmpty()) {
+     // System.out.println("Adding " + localVars.size() + " variable declarations to node " + #id.getText());
+     IXMLElement varDeclXml = new XMLElement("VariableDeclarations");
+     xnode.insertChild(varDeclXml, 1);
+     for (Iterator it = localVars.iterator(); it.hasNext(); ) {
+       PlexilVariableName var = (PlexilVariableName) it.next();
+       // System.out.println("Making variable declaration for variable " + var.getName());
+       IXMLElement xdecl = var.makeVariableDeclarationElement();
+       varDeclXml.addChild(xdecl);
      }
+   }
 
    if (!inVars.isEmpty() || !inOutVars.isEmpty())
      {
@@ -411,6 +404,14 @@ action[IXMLElement parent]
    // pop out to parent context on exit
    context = context.getParentContext();
  }
+ ;
+
+extendedPlexilActionKywd:
+    CONCURRENCE_KYWD
+  | ON_COMMAND_KYWD
+  | SEQUENCE_KYWD
+  | TRY_KYWD
+  | UNCHECKED_SEQUENCE_KYWD	 
  ;
 
 comment[IXMLElement parent]
@@ -1576,36 +1577,30 @@ realLoopVariableDeclaration[IXMLElement parent]:
   }
  ;
 
-onCommandBody[IXMLElement xaction] 
-{ 
-  IXMLElement xname = new XMLElement("Name");
-  xaction.addChild(xname);
-  IXMLElement xparam = new XMLElement("VariableDeclarations");
-  
-}
- :
+onCommandBody[IXMLElement xaction] :
  #(ON_COMMAND_KYWD
    {
-     context = ((NodeASTNode) #onCommandBody).getContext();
+     // xaction.setValue("OnCommand"); // override Node -- shouldn't be needed
    }
-   n:NCName (incomingParam[xparam]
+   n:NCName
    {
-   	 xaction.addChild(xparam);
+     IXMLElement xname = new XMLElement("Name");
+     IXMLElement xstring = new XMLElement("StringValue");
+     xname.addChild(xstring);
+     xstring.setContent(#n.getText());
+     xaction.addChild(xname); // schema sez command name must follow any variable decls
    }
-   (COMMA! incomingParam[xparam] )*)?! (copyNodeId[xaction])? action[xaction]
    {
-     xname.setContent(#n.getText());
-     context = context.getParentContext();
    }
+   (onCommandParams)?
+   action[xaction]
   )
  ;
- 
-incomingParam[IXMLElement xparent] : t:typeName vn:variableName
-{
-    PlexilVariableName var = context.findLocalVariable(#vn.getText());
-    xparent.addChild(var.makeVariableDeclarationElement());
-}
-;
+
+// Should already be in parent action context
+onCommandParams : #(ON_COMMAND_PARAMS (onCommandParam)*) ;
+
+onCommandParam : variableDeclaration ;
 
 onMessageBody[IXMLElement xaction]  
 	{
@@ -1614,17 +1609,11 @@ onMessageBody[IXMLElement xaction]
 	}
   : 
   #(ON_MESSAGE_KYWD
-    m:stringExpression[xname] (copyNodeId[xaction])? action[xaction]
+    stringExpression[xname]
+    action[xaction]
   )
  ;
- 
-copyNodeId[IXMLElement xparent] : id:NodeName
-{
-  IXMLElement xid = new XMLElement("NodeId");
-  xid.setContent(#id.getText());
-  xparent.addChild(xid);
-}
-;
+
 //
 // Expressions
 //

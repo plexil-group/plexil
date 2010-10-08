@@ -289,6 +289,7 @@ tokens
 
     // Extended PLEXIL
     NODE_STATE_PREDICATE;
+    ON_COMMAND_PARAMS;
 }
 
 {
@@ -808,28 +809,31 @@ realLoopVariableDeclaration :
  // On Command Parsing
  ///
 
-onCommandBody : ON_COMMAND_KYWD^ 
-  {
-    // create new variable binding context
-    context = new VariableBindingSubcontext(context, null);
-    ((NodeASTNode) #onCommandBody).setContext(context);
-    state.setExtendedPlexil();
-  }
-  ncName LPAREN! (incomingParam (COMMA! incomingParam)*)? RPAREN! action
-  {
-    // restore old variable binding context
-    context = context.getParentContext();
-  }
+onCommandBody : 
+  ON_COMMAND_KYWD^ 
+  { state.setExtendedPlexil(); }
+  ncName (onCommandParams)? action
  ;
- 
- incomingParam : t:typeName n:ncName 
- {
- 	context.addVariableName(#n.getText(), PlexilDataType.findByName(#t.getText()));
- }
+
+onCommandParams : 
+    LPAREN! (onCommandParam (COMMA! onCommandParam)* )? RPAREN!
+    {
+      #onCommandParams = #(#[ON_COMMAND_PARAMS, "ON_COMMAND_PARAMS"], #onCommandParams);
+    }
+ ;
+
+// Add parameter declarations to parent context
+onCommandParam! : 
+   tn:typeName vn:variableName
+   {
+     // System.out.println("Adding OnCommand parameter " + #vn.getText() + " to context " + context.getNodeName());
+     context.addVariableName(#vn.getText(), PlexilDataType.findByName(#tn.getText()));
+     #onCommandParam = #(#tn, #vn);
+   }
  ;
 
 onMessageBody : ON_MESSAGE_KYWD^
-  LPAREN! stringExpression RPAREN! (id:nodeName)? action
+  LPAREN! stringExpression RPAREN! action
   {
     state.setExtendedPlexil();
   }
