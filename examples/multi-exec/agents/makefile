@@ -6,9 +6,12 @@
 all:
 	plexilisp cmd.pli
 	plexilisp sim.pli
+	make dust
 
-clean:
-	$(RM) *.plx *.epx *.last
+dust:
+	$(RM) *.epx *.last
+clean: dust
+	$(RM) *.plx
 
 cleaner: clean
 	$(RM) *~

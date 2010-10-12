@@ -15,6 +15,18 @@
                       (command "UpdateLookup" "x" (intvar "x")))
                     (action "RespondMoveRight"
                       (command "SendReturnValue" (intvar "x"))))))
+    (action "TestCommand"
+      (repeat-condition (boolvar "continue"))
+      (on-command "TestCommand" ((integer "int"))
+                  (concurrently "Dispatch"
+                    (action "One"
+                      (start-condition (= (intvar "int") 1))
+                      (skip-condition (!= (intvar "int") 1))
+                      (command "SendReturnValue" "one"))
+                    (action "Two"
+                      (start-condition (= (intvar "int") 2))
+                      (skip-condition (!= (intvar "int") 2))
+                      (command "SendReturnValue" "two")))))
     (action "QuitCommand"
       (repeat-condition (boolvar "continue"))
       (on-message "Quit"

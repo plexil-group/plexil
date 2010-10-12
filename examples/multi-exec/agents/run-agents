@@ -39,10 +39,10 @@ fi
 
 echo "Starting $agent1..."
 
-xterm -e run-ue -v -p sim.plx -c sim.xml &
+xterm -e plexilexec -v -p sim.plx -c sim.xml &
 
 sleep 5
 
 echo "Starting $agent2..."
 
-run-ue -v -b -p cmd.plx -c cmd.xml
+plexilexec -v -b -p cmd.plx -c cmd.xml
