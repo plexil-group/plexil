@@ -27,6 +27,7 @@
 
   <fileset dir = "." id = "resources">
     <include name = "${resources}/icons/*.gif"/>
+    <include name = "${resources}/icons/*.jpg"/>
   </fileset>
 
   <!-- derived build variables -->
