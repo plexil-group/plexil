@@ -302,8 +302,8 @@ public class Constants
       public static final String    ELSE_UNCHKD_SEQ_ICO  = "ELSE_ACTION_UNCHKD_SEQ.gif";
       public static final String    ELSE_CONCURRENCE_ICO  = "ELSE_ACTION_CONC.gif";
       
-      public static final String    ABOUT_SCREEN_ICO  = "LUV_ICON.gif";
-      public static final String    START_SCREEN_ICO  = "LUV_SPLASH_SCREEN.gif";
+      public static final String    ABOUT_SCREEN_ICO  = "LUV_plexil-logo.jpg";//LUV_ICON.gif
+      public static final String    START_SCREEN_ICO  = "LUV_SPLASH_SCREEN.jpg";//LUV_SPLASH_SCREEN.gif
       public static final String    NODELIST_ICO_NAME = "NODE_LIST.gif";
       public static final String    COMMAND_ICO_NAME  = "NODE_COMMAND.gif";
       public static final String    ASSN_ICO_NAME     = "NODE_ASSN.gif";
@@ -559,9 +559,17 @@ public class Constants
       public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.psx";
       /** Represents an default UE config. */      
       public static final String DEFAULT_CONFIG_NAME = "dummy-config.xml";
+      /** Represents an default UE path. */
       public static final String DEFAULT_CONFIG_PATH = PLEXIL_HOME +
 		 												System.getProperty("file.separator") +
 		 												"examples" + System.getProperty("file.separator");      
+      /** Represents an default SIM Script. */      
+      public static final String DEFAULT_SIM_SCRIPT_NAME = "unified-script.txt";
+      /** Represents an default SIM Script path. */
+      public static final String DEFAULT_SIM_SCRIPT_PATH = PLEXIL_HOME +
+		 System.getProperty("file.separator") +	"src" + System.getProperty("file.separator") + "apps"
+		 + System.getProperty("file.separator") + "StandAloneSimulator" + System.getProperty("file.separator")
+		 + "PlexilSimulator" + System.getProperty("file.separator") + "test" + System.getProperty("file.separator");
       /** Contains the contents of an empty Plexil script. */
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";          
       

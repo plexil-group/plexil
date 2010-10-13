@@ -168,8 +168,8 @@ public class LuvActionHandler {
     			JComponent newContentPane = Luv.getLuv().getExecSelect(); 
     			newContentPane.setOpaque(true);    			
     			Luv.getLuv().getExecSelect().getFrame().setContentPane(newContentPane);
-    			Luv.getLuv().getExecSelect().getFrame().pack();
-    			Luv.getLuv().getExecSelect().reload();
+    			Luv.getLuv().getExecSelect().loadExecSelect();
+    			Luv.getLuv().getExecSelect().getFrame().pack();    			
     			Luv.getLuv().getExecSelect().getFrame().setVisible(true);
     			Luv.getLuv().getExecSelect().backupNames();
 	        }
@@ -194,15 +194,15 @@ public class LuvActionHandler {
 	        }
     	};                    
             
-    /** Action to display extended or core plexil view. */
+    /** Action to display normal or core plexil view. */
     public static LuvAction extendedViewAction =
             new LuvAction("Switch to Core Plexil View",
-            "Switches between Extended or Core Plexil views. Extended is the default.",
+            "Switches between Normal or Core Plexil views. Normal is the default.",
             VK_F8) {
 
                 public void actionPerformed(ActionEvent e) {
                     if (Luv.getLuv().getIsExtendedViewOn()) {
-                        extendedViewAction.putValue(NAME, "Switch to Extended Plexil View");
+                        extendedViewAction.putValue(NAME, "Switch to Normal Plexil View");
                         Luv.getLuv().getRegexModelFilter().corePlexilView();
                         Luv.getLuv().getViewHandler().refreshRegexView();
                     } else {
@@ -220,7 +220,7 @@ public class LuvActionHandler {
 
                 public void actionPerformed(ActionEvent e) {
                     String info =
-                            "Application:   Plexil Version 2.0.0 (c) 2006-2010 Universities Space Research Association\n" +
+                            "Application:   Plexil Version 1.5.0 (c) 2006-2010 Universities Space Research Association\n" +
                             "Website:   http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +

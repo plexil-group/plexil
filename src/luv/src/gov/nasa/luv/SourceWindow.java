@@ -184,4 +184,21 @@ public class SourceWindow extends JFrame
         else
         	Luv.getLuv().getStatusMessageHandler().showStatus("No Data avaliable", Color.RED, 10000);
     }
+    
+    /**
+     * Creates an instance of an SourceWindow for the current Plexil Model.
+     */
+    public void refresh() throws FileNotFoundException {
+    	if(frame != null && frame.isVisible())
+    	{
+    	frame.setVisible(false);    	
+    	frame = new SourceWindow(Luv.getLuv().getCurrentPlan());
+    	frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+    	frame.pack();
+    	if(frame.loaded)
+        	frame.setVisible(true);
+        else
+        	Luv.getLuv().getStatusMessageHandler().showStatus("No Data avaliable", Color.RED, 10000);
+    	}
+    }
 }

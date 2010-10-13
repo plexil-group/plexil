@@ -572,16 +572,34 @@ public class FileHandler
         return listOfDirectories;
     }
     
+    /*
+     * Determines appropriate default supplement's absolute path based upon mode
+     * @return absolute filename of default supplement
+     */
+    private String defaultEmptySupp(){
+    	String str = "";
+    	switch(Luv.getLuv().getAppMode())
+    	{
+    	case PLEXIL_TEST:
+    		str = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR))
+			 + System.getProperty("file.separator")
+			 + DEFAULT_SCRIPT_NAME;
+    		break;
+    	case PLEXIL_EXEC:
+    		str = DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME;
+    		break;
+    	case PLEXIL_SIM:
+    		str = DEFAULT_SIM_SCRIPT_PATH+DEFAULT_SIM_SCRIPT_NAME;
+    		break;
+    	}
+    	return str;
+    }
+    
     private File createEmptyScript(String path) throws IOException 
     {
-    boolean test = false;
-    if(Luv.getLuv().getAppMode() == PLEXIL_TEST)
-    	test = true;
-    String supplement = test ? "script" : "config";
-    String defaultSup = test ? "Yes, use empty script" : "Yes, use empty config";
-    String message_supplement = test ? Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR))
-			 + System.getProperty("file.separator")
-			 + DEFAULT_SCRIPT_NAME : DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME;
+    String supplement = Luv.getLuv().getExecSelect().getSettings().getSuppName();
+    String defaultSup = "Yes, use default " + supplement;
+    String message_supplement = defaultEmptySupp();
     
 	Object[] options = 
 	    {
@@ -613,9 +631,10 @@ public class FileHandler
 	                out.close();                          
 	                Luv.getLuv().getCurrentPlan().addScriptName(scriptName);
 	                return new File(scriptName);
-            	} else if(Luv.getLuv().getAppMode() == PLEXIL_EXEC){
-            		return new File(DEFAULT_CONFIG_PATH+DEFAULT_CONFIG_NAME);            		
-            	} else {
+            	} else if(Luv.getLuv().getAppMode() == PLEXIL_EXEC || Luv.getLuv().getAppMode() == PLEXIL_SIM){
+            		return new File(message_supplement);            		
+            	}
+            	else {
             		doNotLoadScript = true;      
             		return null;
             	}

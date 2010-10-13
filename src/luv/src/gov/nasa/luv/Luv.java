@@ -137,6 +137,10 @@ public class Luv extends JFrame {
         
     }
     
+    /** Manages initial port configuration for viewer.
+     * 
+     * @param port argument from command line 
+     */
     private void handlePort(String[] args){
     	LuvTempFile.cleanupPorts();
     	
@@ -150,6 +154,8 @@ public class Luv extends JFrame {
         portFile = new LuvTempFile();
     }
     
+    /** class which Deletes temp file assocated with viewer port prior to shutting down.
+     */
     private class MyShutdownHook extends Thread {
     	public void run() {    		
     		LuvTempFile.deleteTempFile();

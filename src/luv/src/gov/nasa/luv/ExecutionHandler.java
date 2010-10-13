@@ -94,6 +94,11 @@ public class ExecutionHandler
           };
       }
       
+    /*
+     * Defines PID from script message, used later on to kill process
+     * @param script process Java is executing
+     * @return PID of executed script  
+     */
     private int definePid(Process ue_process) throws IOException
     {
     	int pid = 0;
@@ -241,7 +246,7 @@ public class ExecutionHandler
 
     	  pe.setCurrentPlan(currentPlan);
 
-
+    	  // get plan
     	  if (currentPlan != null && 
     			  currentPlan.getAbsolutePlanName() != null &&
     			  !currentPlan.getAbsolutePlanName().equals(UNKNOWN))
@@ -255,47 +260,49 @@ public class ExecutionHandler
     	  else
     		  return "ERROR: unable to identify plan.";    	      	 
     	  
-    	  // get script
-    	  if (Luv.getLuv().getExecSelect().getMode() != Constants.PLEXIL_TEST)
-    	  {
-			  if (currentPlan != null &&
-					  currentPlan.getAbsoluteScriptName() != null &&
-					  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
-			  {
-				  if (new File(currentPlan.getAbsoluteScriptName()).exists())
-				  {
-					  pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
-				  }
-				  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
-				  {
-					  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-				  }				  
-				  else
-					  return "ERROR: unable to identify script.";
-			  }			  
-			  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
-			  {
-				  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-			  }			  	  
-			  else
-				  return "ERROR: unable to identify script.";
-			  
-    	  }else if (currentPlan != null &&
-				  currentPlan.getAbsoluteScriptName() != null &&
-				  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
-				  {
-		    		  if (new File(currentPlan.getAbsoluteScriptName()).exists())
-					  {
-		    			  pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
-					  }
-				  }else if (Luv.getLuv().getFileHandler().searchForConfig() != null)
-				  {
-					  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-				  }
-	    	  else
-	    		  return "ERROR: unable to identify config.";
+    	  // get supp
+    	  String supp = Luv.getLuv().getExecSelect().getSettings().getSuppName();
+    	  if(currentPlan != null)
     		  
-    	  // get config
+	    	  switch(Luv.getLuv().getExecSelect().getMode()){
+	    	  	case Constants.PLEXIL_TEST: 
+	    		  if(currentPlan.getAbsoluteScriptName() != null &&
+					  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
+				  {
+	    			  if (new File(currentPlan.getAbsoluteScriptName()).exists())
+					  {
+						  pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
+					  }
+					  else if (Luv.getLuv().getFileHandler().searchForScript() != null)
+					  {
+						  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
+					  }				  
+					  else
+						  return "ERROR: unable to identify " + supp;		    	  
+				  } else if (Luv.getLuv().getFileHandler().searchForScript() != null)
+				  {
+					  pe.setScriptPath(currentPlan.getAbsoluteScriptName());
+				  }			  	  
+				  else
+					  return "ERROR: unable to identify " + supp;
+	    		break;
+	    	  	case Constants.PLEXIL_SIM:
+	    	  	case Constants.PLEXIL_EXEC:
+	    	  		if (currentPlan.getAbsoluteScriptName() != null &&
+	    				  !currentPlan.getAbsoluteScriptName().equals(UNKNOWN))
+	    			{
+	    	  			if (new File(currentPlan.getAbsoluteScriptName()).exists())
+	    				{
+	    	  				pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
+	    				}
+	    			} else if (Luv.getLuv().getFileHandler().searchForConfig() != null)
+	    			{
+	    				pe.setScriptPath(currentPlan.getAbsoluteScriptName());
+	    			}
+	    		    else
+	    		    	return "ERROR: unable to identify " + supp;	    			
+	    	   break;
+	    	  }
 
     	  // get libraries
 
