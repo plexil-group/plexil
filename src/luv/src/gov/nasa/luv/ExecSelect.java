@@ -367,6 +367,14 @@ public class ExecSelect extends JPanel {
                 Luv.getLuv().getStatusMessageHandler().showStatus("Script \"" + Luv.getLuv().getCurrentPlan().getAbsoluteScriptName() + "\" loaded", 1000);                
             }
         }
+        Luv.getLuv().setTitle();
+		try{
+			Luv.getLuv().getSourceWindow().refresh();
+			
+		} catch (IOException ex){
+			Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
+		}
+        
 	}
 	
 	class ButtonListener implements ActionListener {
@@ -572,7 +580,7 @@ public class ExecSelect extends JPanel {
 						Luv.getLuv().getSourceWindow().refresh();
 						
 					} catch (IOException ex){
-						
+						Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
 					}
 					Luv.getLuv().setProperty(lookupRecent(RECENT_SUPP), supp.getParent());
 				}
