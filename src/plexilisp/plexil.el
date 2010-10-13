@@ -1357,7 +1357,7 @@
 (insert-plexil-heading
  "= PLEXIL Simulation Script ="
  "This section describes the forms (constructs) that comprise simulation ."
- "scripts, which are used to test plans with the Universal Executive.")
+ "scripts, which are used to test plans with the PLEXIL Test Executive.")
 
 (pdefine ps (PlexilScript plexil-script) (&rest forms) 0 nil     ; list(xml) -> xml
   ("The top level form for a script. "
