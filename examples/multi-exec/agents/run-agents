@@ -1,5 +1,6 @@
 #!/bin/bash
-# File: $SVNROOT/plexil/examples/multi-exec/agents/run-agents
+# File: $SVNROOT/examples/multi-exec/agents/run-agents
+# Date: Tue Oct 12 17:29:21 2010
 
 has_xterm=`which xterm`
 
@@ -9,8 +10,19 @@ then
   exit
 fi
 
-agent1=sim
-agent2=cmd
+if [ -z $1 ] ;
+then
+  agent1=sim
+else
+  agent1=$1
+fi
+
+if [ -z $2 ] ;
+then
+  agent2=cmd
+else
+  agent2=$2
+fi
 
 # compile if necessary
 
@@ -39,10 +51,10 @@ fi
 
 echo "Starting $agent1..."
 
-xterm -e plexilexec -v -p sim.plx -c sim.xml &
+xterm -e plexilexec -v -b -p $agent1.plx -c $agent1.xml &
 
-sleep 5
+sleep 10
 
 echo "Starting $agent2..."
 
-plexilexec -v -b -p cmd.plx -c cmd.xml
+plexilexec -v -b -p $agent2.plx -c $agent2.xml
