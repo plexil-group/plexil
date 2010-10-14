@@ -1,0 +1,31 @@
+;; File: $SVNROOT/examples/multi-exec/agents/tests/t3-cmd.pli
+;; Date: Thu Oct 14 14:58:59 2010
+
+(plexil-plan
+  (sequence "MasterPlan"
+    (variables (integer "rightIter" 3)
+               (string "return"))
+    (sequence "Right"
+      (variables (integer "ret"))
+      (repeat-condition (> (intvar "rightIter") 0))
+      (action "MoveRight"
+        (end-condition (is-known (intvar "ret")))
+        (command-with-return (intvar "ret") "MoveRight" 5))
+      (action "Set"
+        (assignment (intvar "rightIter") (- (intvar "rightIter") 1))))
+    (sequence "One"
+      (assignment (stringvar "return") "Unknown")
+      (sequence "CommandWithReturn1"
+        (end-condition (not (= (stringvar "return") "Unknown"))) ;this works
+        (command-with-return (stringvar "return") "TestCommand" 1))
+      (assignment (stringvar "return") (stringvar "return")))
+    (sequence "Two"
+      (assignment (stringvar "return") "UNKNOWN")
+      (sequence "CommandWithReturn2"
+        (end-condition (not (= (stringvar "return") "UNKNOWN"))) ;this doesn't
+        (command-with-return (stringvar "return") "TestCommand" 2))
+      (assignment (stringvar "return") (stringvar "return")))
+    (action "Quit"
+      (command "SendMessage" "Quit"))))
+
+;; EOF
