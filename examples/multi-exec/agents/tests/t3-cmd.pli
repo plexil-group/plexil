@@ -1,5 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/tests/t3-cmd.pli
-;; Date: Thu Oct 14 14:58:59 2010
+;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
 
 (plexil-plan
   (sequence "MasterPlan"
@@ -13,15 +12,15 @@
         (command-with-return (intvar "ret") "MoveRight" 5))
       (action "Set"
         (assignment (intvar "rightIter") (- (intvar "rightIter") 1))))
-    (sequence "One"
+    (sequence "CommandSequenceOne"
       (assignment (stringvar "return") "Unknown")
-      (sequence "CommandWithReturn1"
+      (sequence "SendCommandOne"
         (end-condition (not (= (stringvar "return") "Unknown"))) ;this works
         (command-with-return (stringvar "return") "TestCommand" 1))
       (assignment (stringvar "return") (stringvar "return")))
-    (sequence "Two"
+    (sequence "CommandSequenceTwo"
       (assignment (stringvar "return") "UNKNOWN")
-      (sequence "CommandWithReturn2"
+      (sequence "SendCommandTwo"
         (end-condition (not (= (stringvar "return") "UNKNOWN"))) ;this doesn't
         (command-with-return (stringvar "return") "TestCommand" 2))
       (assignment (stringvar "return") (stringvar "return")))
