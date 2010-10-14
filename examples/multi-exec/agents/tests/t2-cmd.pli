@@ -16,10 +16,10 @@
         (assignment (intvar "rightIter") (- (intvar "rightIter") 1))))
     (sequence "One"
       (command-with-return (stringvar "str") "TestCommand" 1)
-      (assignment (stringvar "return") (stringvar "str")))
+      (assignment (stringvar "return") (stringvar "str"))) ;1st assignment
     (sequence "Two"
       (command-with-return (stringvar "str") "TestCommand" 2)
-      (assignment (stringvar "return") (stringvar "str")))
+      (assignment (stringvar "return") (stringvar "str"))) ;2nd assignemtn
     (action "Quit"
       (command "SendMessage" "Quit"))))
 
