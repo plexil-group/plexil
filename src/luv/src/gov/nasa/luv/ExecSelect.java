@@ -112,7 +112,7 @@ public class ExecSelect extends JPanel {
 		scriptBut.addActionListener(new ButtonFileListener());
 		scriptLab = new JLabel("");	
 		
-		saveBut = new JButton("Ok");
+		saveBut = new JButton("OK");
 		saveBut.addActionListener(new SaveButtonListener());
 		cancelBut = new JButton("Cancel");
 		cancelBut.addActionListener(new ButtonListener());
