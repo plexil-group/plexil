@@ -1,4 +1,4 @@
-;; File: $SVNROOT/plexil/examples/multi-exec/simulator/cmd.pli
+;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
 
 (plexil-plan
   (sequence "MasterPlan"
@@ -12,17 +12,18 @@
         (command-with-return (intvar "ret") "MoveRight" 5))
       (action "Set"
         (assignment (intvar "rightIter") (- (intvar "rightIter") 1))))
-    (sequence "TestCommand"
-      (action "One"
-        (variables (string "ret"))
-        (end-condition (is-known (stringvar "ret")))
-        (command-with-return (stringvar "ret") "TestCommand" 1)
-        (assignment (stringvar "return") (stringvar "ret")))
-      (action "Two"
-        (variables (string "ret"))
-        (end-condition (is-known (stringvar "ret")))
-        (command-with-return (stringvar "ret") "TestCommand" 2)
-        (assignment (stringvar "return") (stringvar "ret"))))
+    (sequence "CommandSequenceOne"
+      (assignment (stringvar "return") "Unknown")
+      (sequence "SendCommandOne"
+        (end-condition (not (= (stringvar "return") "Unknown")))
+        (command-with-return (stringvar "return") "TestCommand" 1))
+      (assignment (stringvar "return") (stringvar "return")))
+    (sequence "CommandSequenceTwo"
+      (assignment (stringvar "return") "Unknown")
+      (sequence "SendCommandTwo"
+        (end-condition (not (= (stringvar "return") "Unknown")))
+        (command-with-return (stringvar "return") "TestCommand" 2))
+      (assignment (stringvar "return") (stringvar "return")))
     (action "Quit"
       (command "SendMessage" "Quit"))))
 
