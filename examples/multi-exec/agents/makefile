@@ -2,14 +2,12 @@
 # File: $SVNROOT/plexil/examples/multi-exec/agents/makefile
 # Date: Wed Oct  6 10:46:12 2010
 
-PLEXILISP = plexilisp
+plans = $(shell echo *.pli)
 
-.SUFFIXES : .plx .pli
+all: $(plans:%.pli=%.plx)
 
-all: cmd.plx sim.plx
-
-.pli.plx :
-	$(PLEXILISP) $<
+%.plx : %.pli
+	plexilisp $<
 	$(RM) $*.epx*
 
 dust:
