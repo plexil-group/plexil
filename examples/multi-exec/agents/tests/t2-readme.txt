@@ -12,5 +12,15 @@ In t2-cmd.pli (using t1-sim.pli), Plexil Viewer doesn't update
 % xterm -v -p t1-sim.plx -c sim.xml
 % plexilexec -v -b -p t2-cmd.plx -c cmd.xml
 
-Watch "return" variable in "MasterPlan" -- it updates only after the
-second assignment, but to the wrong value
+In t2-cmd.plx, none of the following variables ever update:
+
+  MasterPlan: str
+  Right: ret
+
+The variable
+
+  MasterPlan: return
+
+updates to the value "one" after the assignment made on line 22.
+
+The behavior of t1-sim.plx is described in t1-readme.txt.
