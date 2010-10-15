@@ -1184,10 +1184,13 @@ PlexilXmlParser::parseResource(const TiXmlElement* xml)
 
 		checkTag(RESOURCE_TAG, resourceElt);
 
-		// check that the resource has a name!
+		// check that the resource has a name and a priority
 		checkParserException(resourceElt->FirstChildElement(RESOURCENAME_TAG) != NULL,
 							 "(line " << resourceElt->Row() << ", column " << resourceElt->Column() <<
 							 ") XML parsing error: No " << RESOURCENAME_TAG << " element for resource");
+		checkParserException(resourceElt->FirstChildElement(RESOURCEPRIORITY_TAG) != NULL,
+							 "(line " << resourceElt->Row() << ", column " << resourceElt->Column() <<
+							 ") XML parsing error: No " << RESOURCEPRIORITY_TAG << " element for resource");
 
 		// Create a new PlexilResourceId.
 		PlexilResourceId prId = (new PlexilResource())->getId();
