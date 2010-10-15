@@ -1666,10 +1666,10 @@ namespace PLEXIL {
   }
 
   std::string Node::toString(const unsigned int indent) {
-    std::stringstream indentStr;
+    std::ostringstream indentStr;
     for(unsigned int i = 0; i < indent; i++)
       indentStr << " ";
-    std::stringstream retval;
+    std::ostringstream retval;
 
     retval << indentStr.str() << m_nodeId.toString() << "{" << std::endl;
     retval << indentStr.str() << " State: " << m_variablesByName[STATE()]->toString() <<

@@ -405,7 +405,7 @@ namespace PLEXIL {
 		     select2nd<std::map<unsigned int, NodeId>::value_type>());
       m_stateChangeQueue.clear();
 
-      std::stringstream out;
+      std::ostringstream out;
       for(std::list<NodeId>::const_iterator it = transitioningNodes.begin();
 	  it != transitioningNodes.end(); ++it) {
 	out << (*it)->getNodeId().toString() << " ";
@@ -528,13 +528,8 @@ namespace PLEXIL {
 	ExpressionId exp = assn->getDest();
 	check_error(exp.isValid());
 	double value = assn->getValue();
-	std::stringstream valueStr;
-	if (LabelStr::isString(value))
-	  valueStr << LabelStr(value).toString();
-	else
-	  valueStr << value;
 	debugMsg("Test:testOutput", "Assigning '" << assn->getDestName() <<
-		 "' (" << exp->toString() << ") to " << valueStr.str());
+		 "' (" << exp->toString() << ") to " << Expression::valueToString(value));
 	exp->setValue(value);
         publishAssignment(exp, assn->getDestName(), value);
 	assn->getAck()->setValue(1);
@@ -631,7 +626,7 @@ namespace PLEXIL {
   //   }
 
   std::string PlexilExec::stateChangeQueueStr() {
-    std::stringstream retval;
+    std::ostringstream retval;
     for(std::map<unsigned int, NodeId>::const_iterator it = m_stateChangeQueue.begin();
 	it != m_stateChangeQueue.end(); ++it) {
       check_error(it->second.isValid());

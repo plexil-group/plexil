@@ -139,7 +139,7 @@ namespace PLEXIL {
   }
 
   std::string Expression::toString() const {
-    std::stringstream str;
+    std::ostringstream str;
     str << "(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
       "](" << valueString() << "): ";
     return str.str();
@@ -160,7 +160,7 @@ namespace PLEXIL {
     else if (val == REAL_MINUS_INFINITY)
       return std::string("-inf");
 	else {
-	  std::stringstream str;
+	  std::ostringstream str;
       str << val;
 	  return str.str();
 	}
@@ -263,7 +263,7 @@ namespace PLEXIL {
 
   std::string Variable::toString() const 
   {
-    std::stringstream str;
+    std::ostringstream str;
     str << m_name << " (" << getId() << "[" 
 	<< (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") 
 	<< "](" 
@@ -444,7 +444,7 @@ namespace PLEXIL {
 
   std::string ConstVariableWrapper::valueString() const {
     checkError(m_exp.isValid(), "Got to valueString without a valid wrapped variable.");
-    std::stringstream str;
+    std::ostringstream str;
     str << "const " << m_exp->valueString();
     return str.str();
   }
@@ -509,7 +509,7 @@ namespace PLEXIL {
   }
 
   std::string TransparentWrapper::toString() const {
-    std::stringstream str;
+    std::ostringstream str;
     str << "TransparentWrapper(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
        "T]{" << valueString() <<"}(" << m_exp->toString() << ")";
     return str.str();

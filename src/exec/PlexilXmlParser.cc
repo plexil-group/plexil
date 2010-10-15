@@ -1773,7 +1773,7 @@ TiXmlElement* PlexilXmlParser::namedTextElement(const std::string& name,
 
 TiXmlElement* PlexilXmlParser::namedNumberElement(const std::string& name,
 		const double value) {
-	std::stringstream str;
+	std::ostringstream str;
 	str << value;
 	return namedTextElement(name, str.str());
 }

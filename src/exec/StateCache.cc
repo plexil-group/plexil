@@ -524,14 +524,14 @@ namespace PLEXIL
 
    std::string StateCache::toString(const State& state)
    {
-      std::stringstream str;
+      std::ostringstream str;
       str << LabelStr(state.first).toString() << "(" << toString(state.second) << ")";
       return str.str();
    }
 
    std::string StateCache::toString(const std::vector<double>& values)
    {
-      std::stringstream str;
+      std::ostringstream str;
       if (!values.empty())
       {
          for (std::vector<double>::size_type i = 0; i < values.size(); ++i)

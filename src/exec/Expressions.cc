@@ -237,7 +237,7 @@ namespace PLEXIL {
   }
 
   std::string LookupNow::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "LookupNow(" << m_stateNameExpr->getValue() << "(";
     for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
@@ -274,7 +274,7 @@ namespace PLEXIL {
   }
 
   std::string LookupOnChange::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "LookupOnChange(" << m_stateNameExpr->getValue() << "(";
     for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
@@ -334,7 +334,7 @@ namespace PLEXIL {
   }
 
   std::string AbsoluteValue::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "abs(" << m_e->toString();
     retval << "))";
@@ -365,7 +365,7 @@ namespace PLEXIL {
   }
 
   std::string SquareRoot::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "sqrt(" << m_e->toString();
     retval << "))";
@@ -391,7 +391,7 @@ namespace PLEXIL {
   }
 
   std::string IsKnown::toString() const {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << Expression::toString();
     retval << "isknown(" << m_e->toString();
     retval << "))";

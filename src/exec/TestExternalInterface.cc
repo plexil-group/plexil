@@ -383,7 +383,6 @@ namespace PLEXIL
       }
       else if (type == "bool" || type == "bool-array")
       {
-         std::stringstream ss;
          if (valStr == "true" || valStr == "TRUE" || valStr == "True")
             value = 1;
          else if (valStr == "false" || valStr == "FALSE" || valStr == "False")
@@ -537,7 +536,7 @@ namespace PLEXIL
 
    std::string TestExternalInterface::getText(const UniqueThing& c)
    {
-      std::stringstream retval;
+      std::ostringstream retval;
       retval << LabelStr(c.first).toString() << "(";
       std::vector<double>::const_iterator it = c.second.begin();
       if (it != c.second.end())
@@ -562,7 +561,7 @@ namespace PLEXIL
    std::string TestExternalInterface::getText(const UniqueThing& c, 
                                               const double val)
    {
-      std::stringstream retval;
+      std::ostringstream retval;
       retval << getText(c);
       retval << " = ";
       if (LabelStr::isString(val))
@@ -575,7 +574,7 @@ namespace PLEXIL
    std::string TestExternalInterface::getText(const UniqueThing& c, 
                                               const std::vector<double>& vals)
    {
-      std::stringstream retval;
+      std::ostringstream retval;
       retval << getText(c);
       retval << " = ";
       for (std::vector<double>::const_iterator it = vals.begin();
