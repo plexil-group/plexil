@@ -57,7 +57,7 @@ namespace PLEXIL
 
   std::string AdapterExecInterface::getText(const State& c) 
   {
-    std::stringstream retval;
+    std::ostringstream retval;
     retval << LabelStr(c.first).toString() << "(";
     std::vector<double>::const_iterator it = c.second.begin();
     if(it != c.second.end()) 
