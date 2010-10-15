@@ -45,25 +45,46 @@ namespace PLEXIL {
   DECLARE_ID(PlexilResource);
   DECLARE_ID(PlexilExpr);
 
+  //* The data structure to hold the resource specification.
+  typedef std::map<std::string, PlexilExprId> PlexilResourceMap;
+
+  /**
+   * @brief A class to represent resource specifications in commands.
+   */
+
   class PlexilResource
   {
   public:
-    PlexilResource() : m_id(this) {}
-    ~PlexilResource() {m_id.remove();}
-    const PlexilResourceId& getId() const {return m_id;}
+	//* Constructor.
+    PlexilResource() : m_id(this)
+	{}
+
+	//* Destructor.
+    ~PlexilResource()
+	{
+	  m_id.remove();
+	}
+
+    const PlexilResourceId& getId() const 
+	{
+	  return m_id;
+	}
+
     void addResource(const std::string& tag, const PlexilExprId& resource)
     {
       m_resource[tag] = resource;
     }
     
-    const std::map<std::string, PlexilExprId>& getResourceMap() const
+    const PlexilResourceMap& getResourceMap() const
     {
       return m_resource;
     }
+
   private:
     PlexilResourceId m_id;
-    std::map<std::string, PlexilExprId> m_resource;
+    PlexilResourceMap m_resource;
   };
+
 }
 
 #endif // _H_PlexilResource
