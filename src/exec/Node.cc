@@ -616,42 +616,40 @@ namespace PLEXIL {
       }
 
     // Resource
-    std::vector<std::map<std::string, ExpressionId> > resourceVector;
-    const std::vector<PlexilResourceId>& resourceList = command->getResource();
-    for(std::vector<PlexilResourceId>::const_iterator resListItr = resourceList.begin();
-        resListItr != resourceList.end(); ++resListItr)
+    ResourceList resourceList;
+    const std::vector<PlexilResourceId>& plexilResourceList = command->getResource();
+    for(std::vector<PlexilResourceId>::const_iterator resListItr = plexilResourceList.begin();
+        resListItr != plexilResourceList.end(); ++resListItr)
       {
-        std::map<std::string, ExpressionId> resourceMap;
+        ResourceMap resourceMap;
 
-        const std::map<std::string, PlexilExprId>& resources = (*resListItr)->getResourceMap();
-        for(std::map<std::string,PlexilExprId>::const_iterator resItr = resources.begin();
-            resItr != resources.end(); ++resItr)
-          {
-            ExpressionId resExpr;
-            if(Id<PlexilVarRef>::convertable(resItr->second))
-              {
-                resExpr = findVariable(resItr->second);
-                checkError(resExpr.isValid(),
-                           "Unknown variable '" << resItr->second->name() <<
-                           "' in resource list for command '" << nameExpr->getValue() <<
-                           "' in node '" << m_nodeId.toString() << "'");
-              }
-            else 
-              {
-                resExpr = ExpressionFactory::createInstance(resItr->second->name(), 
-                                                            resItr->second, m_connector);
-                garbage.push_back(resExpr);
-                check_error(resExpr.isValid());
-              }
-            resourceMap[resItr->first] = resExpr;
-          }
-        resourceVector.push_back(resourceMap);
+        const PlexilResourceMap& resources = (*resListItr)->getResourceMap();
+        for (PlexilResourceMap::const_iterator resItr = resources.begin();
+			 resItr != resources.end();
+			 ++resItr) {
+		  ExpressionId resExpr;
+		  if (Id<PlexilVarRef>::convertable(resItr->second)) {
+			resExpr = findVariable(resItr->second);
+			checkError(resExpr.isValid(),
+					   "Unknown variable '" << resItr->second->name() <<
+					   "' in resource list for command '" << nameExpr->getValue() <<
+					   "' in node '" << m_nodeId.toString() << "'");
+		  }
+		  else {
+			resExpr = ExpressionFactory::createInstance(resItr->second->name(), 
+														resItr->second, m_connector);
+			garbage.push_back(resExpr);
+			check_error(resExpr.isValid());
+		  }
+		  resourceMap[resItr->first] = resExpr;
+		}
+        resourceList.push_back(resourceMap);
       }
 
     debugMsg("Node:createCommand",
 	     "Creating command '" << name.toString() << "' for node '" <<
 	     m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, dest, m_ack, garbage, resourceVector))->getId();
+    m_command = (new Command(nameExpr, args, dest, m_ack, garbage, resourceList))->getId();
     check_error(m_command.isValid());
   }
 
@@ -1736,16 +1734,25 @@ namespace PLEXIL {
 
 
 
-  Command::Command(const ExpressionId nameExpr, const std::list<ExpressionId>& args,
-		   const ExpressionId dest, const ExpressionId ack,
-		   const std::list<ExpressionId>& garbage,
-                   const std::vector<std::map<std::string, ExpressionId> >& resource)
-    : m_id(this), m_nameExpr(nameExpr), m_args(args), m_dest(dest), m_ack(ack), 
-      m_garbage(garbage), m_resourceList(resource) {}
+  Command::Command(const ExpressionId nameExpr, 
+				   const std::list<ExpressionId>& args,
+				   const ExpressionId dest,
+				   const ExpressionId ack,
+				   const std::list<ExpressionId>& garbage,
+                   const ResourceList& resource)
+    : m_id(this),
+	  m_nameExpr(nameExpr),
+	  m_args(args),
+	  m_dest(dest),
+	  m_ack(ack), 
+      m_garbage(garbage),
+	  m_resourceList(resource)
+  {}
 
   Command::~Command() {
-    for(std::list<ExpressionId>::const_iterator it = m_garbage.begin();
-	it != m_garbage.end(); ++it)
+    for (std::list<ExpressionId>::const_iterator it = m_garbage.begin();
+		 it != m_garbage.end();
+		 ++it)
       delete (Expression*) (*it);
     m_nameExpr.remove();
     m_id.remove();
@@ -1758,7 +1765,7 @@ namespace PLEXIL {
 
   void Command::fixValues() {
     m_argValues.clear();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
+    for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       m_argValues.push_back(expr->getValue());
@@ -1767,19 +1774,20 @@ namespace PLEXIL {
 
   void Command::fixResourceValues()
   {
-    m_resourceValues.clear();
-    for(std::vector<std::map<std::string, ExpressionId> >::const_iterator resListIter = 
-          m_resourceList.begin(); resListIter != m_resourceList.end(); ++resListIter)
+    m_resourceValuesList.clear();
+    for(ResourceList::const_iterator resListIter = m_resourceList.begin();
+		resListIter != m_resourceList.end();
+		++resListIter)
       {
-        std::map<std::string, double> resValues;
-        for(std::map<std::string, ExpressionId>::const_iterator resIter = resListIter->begin();
-            resIter != resListIter->end(); ++resIter)
-          {
-            ExpressionId expr = resIter->second;
-            check_error(expr.isValid());
-            resValues[resIter->first] = expr->getValue();
-          }
-        m_resourceValues.push_back(resValues);
+        ResourceValues resValues;
+        for(ResourceMap::const_iterator resIter = resListIter->begin();
+            resIter != resListIter->end();
+			++resIter) {
+		  ExpressionId expr = resIter->second;
+		  check_error(expr.isValid());
+		  resValues[resIter->first] = expr->getValue();
+		}
+        m_resourceValuesList.push_back(resValues);
       }
   }
 
@@ -1793,17 +1801,17 @@ namespace PLEXIL {
       check_error(expr.isValid());
       expr->activate();
     }
-    for(std::vector<std::map<std::string, ExpressionId> >::const_iterator resListIter = 
-          m_resourceList.begin(); resListIter != m_resourceList.end(); ++resListIter)
-      {
-        for(std::map<std::string, ExpressionId>::const_iterator resIter = resListIter->begin();
-            resIter != resListIter->end(); ++resIter)
-          {
-            ExpressionId expr = resIter->second;
-            check_error(expr.isValid());
-            expr->activate();
-          }
-      }
+    for (ResourceList::const_iterator resListIter = m_resourceList.begin();
+		 resListIter != m_resourceList.end();
+		 ++resListIter) {
+	  for (ResourceMap::const_iterator resIter = resListIter->begin();
+		   resIter != resListIter->end();
+		   ++resIter) {
+		ExpressionId expr = resIter->second;
+		check_error(expr.isValid());
+		expr->activate();
+	  }
+	}
   }
 
   void Command::deactivate() {
