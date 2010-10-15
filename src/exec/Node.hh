@@ -481,26 +481,38 @@ namespace PLEXIL {
     bool m_deleteLhs, m_deleteRhs;
   };
 
+  // *** TODO: replace ResourceMap and ResourceValues with structs or classes
+  typedef std::map<std::string, ExpressionId> ResourceMap;
+  typedef std::vector<ResourceMap> ResourceList;
+  typedef std::map<std::string, double> ResourceValues;
+  typedef std::vector<ResourceValues> ResourceValuesList;
+
   class Command {
   public:
-    Command(const ExpressionId nameExpr, const std::list<ExpressionId>& args, 
-            const ExpressionId dest, const ExpressionId ack,
-	    const std::list<ExpressionId>& garbage,
-            const std::vector<std::map<std::string, ExpressionId> >& resource);
+    Command(const ExpressionId nameExpr, 
+			const std::list<ExpressionId>& args, 
+            const ExpressionId dest, 
+			const ExpressionId ack,
+			const std::list<ExpressionId>& garbage,
+            const ResourceList& resource);
     ~Command();
+
     CommandId& getId() {return m_id;}
     const LabelStr& getName();
     ExpressionId& getDest() {return m_dest;}
     ExpressionId& getAck() {return m_ack;}
     const std::list<double>& getArgValues() {return m_argValues;}
-    const std::vector<std::map<std::string, double> >& getResourceValues() const 
-    {return m_resourceValues;}
+    const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
+
     void activate();
     void deactivate();
+
   protected:
     friend class Node;
+
     void fixValues();
     void fixResourceValues();
+
   private:
     CommandId m_id;
     LabelStr m_name;
@@ -510,8 +522,8 @@ namespace PLEXIL {
     ExpressionId m_ack;
     std::list<ExpressionId> m_garbage;
     std::list<double> m_argValues;
-    std::vector<std::map<std::string, ExpressionId> > m_resourceList;
-    std::vector<std::map<std::string, double> > m_resourceValues;
+    ResourceList m_resourceList;
+    ResourceValuesList m_resourceValuesList;
   };
 
   class Update {
