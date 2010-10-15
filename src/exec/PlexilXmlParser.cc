@@ -1161,42 +1161,55 @@ PlexilStateId PlexilXmlParser::parseState(const TiXmlElement* xml)
   return retval;
 }
 
-std::vector<PlexilResourceId> PlexilXmlParser::parseResource(
-                const TiXmlElement* xml) throw(ParserException) {
-        checkTag(CMD_TAG, xml);
+std::vector<PlexilResourceId> 
+PlexilXmlParser::parseResource(const TiXmlElement* xml) 
+  throw(ParserException) 
+{
+  // Redundant with caller's check
+  // checkTag(CMD_TAG, xml);
 
-        // Create a vector of PlexilResourceId
-        std::vector<PlexilResourceId> rId_vec;
+  // Create a vector of PlexilResourceId
+  std::vector<PlexilResourceId> rId_vec;
 
-        for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
-                        = child->NextSiblingElement()) {
-                std::string tag(child->Value());
-                // Parse only resource list tag
-                if (tag == RESOURCELIST_TAG) {
-                        // Loop through each resource in the list
-                        for (const TiXmlElement* child2 = child->FirstChildElement(); child2
-                                        != NULL; child2 = child2->NextSiblingElement()) {
-                                // Create a new PlexilResourceId.
-                                PlexilResourceId prId = (new PlexilResource())->getId();
-                                // loop through each resource element
-                                for (const TiXmlElement* child3 = child2->FirstChildElement(); child3
-                                                != NULL; child3 = child3->NextSiblingElement()) {
-                                        // add each resource element just like addArg to PLexilResourceId. Use
-                                        // tag3 and expresssion the in <name, expr> pair
-                                        prId->addResource(child3->Value(),
-                                                        PlexilXmlParser::parseExpr(
-                                                                        child3->FirstChildElement()));
-                                }
+  for (const TiXmlElement* child = xml->FirstChildElement();
+	   child != NULL; 
+	   child = child->NextSiblingElement()) {
+	std::string tag(child->Value());
+	// Parse only resource list tag
+	if (tag == RESOURCELIST_TAG) {
+	  // Loop through each resource in the list
+	  for (const TiXmlElement* resourceElt = child->FirstChildElement(); 
+		   resourceElt != NULL;
+		   resourceElt = resourceElt->NextSiblingElement()) {
 
-                                // push the PlexilResourceId into a vector to be returned and
-                                // used in the PlexilCommandBody.
-                                rId_vec.push_back(prId);
-                        }
-                }
-        }
+		checkTag(RESOURCE_TAG, resourceElt);
 
-        return rId_vec;
-        // return the vector of PlexilResourceId
+		// check that the resource has a name!
+		checkParserException(resourceElt->FirstChildElement(RESOURCENAME_TAG) != NULL,
+							 "(line " << resourceElt->Row() << ", column " << resourceElt->Column() <<
+							 ") XML parsing error: No " << RESOURCENAME_TAG << " element for resource");
+
+		// Create a new PlexilResourceId.
+		PlexilResourceId prId = (new PlexilResource())->getId();
+		// loop through each resource element
+		for (const TiXmlElement* child3 = resourceElt->FirstChildElement(); 
+			 child3 != NULL; 
+			 child3 = child3->NextSiblingElement()) {
+		  // add each resource element just like addArg to PLexilResourceId. Use
+		  // tag3 and expresssion the in <name, expr> pair
+		  prId->addResource(child3->Value(),
+							PlexilXmlParser::parseExpr(child3->FirstChildElement()));
+		}
+
+		// push the PlexilResourceId into a vector to be returned and
+		// used in the PlexilCommandBody.
+		rId_vec.push_back(prId);
+	  }
+	}
+  }
+
+  return rId_vec;
+  // return the vector of PlexilResourceId
 }
 
 PlexilNodeRefId PlexilXmlParser::parseNodeRef(const TiXmlElement* ref)
