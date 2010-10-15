@@ -64,78 +64,80 @@ namespace PLEXIL {
     m_resCmdMap.clear();
 
     //Loop through each command
-    for (std::list<CommandId>::const_iterator it = cmds.begin(); it != cmds.end(); ++it)
-      {
-        CommandId cmd = *it;
-        check_error(cmd.isValid());
-        const std::vector<std::map<std::string, double> >& resList = cmd->getResourceValues();
-        
-        if (resList.size() > 0)
-          {
-            // Sort commands by priority
+    for (std::list<CommandId>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
+	  CommandId cmd = *it;
+	  check_error(cmd.isValid());
+	  const ResourceValuesList& resList = cmd->getResourceValues();
 
-            int priority = (int) resList.begin()->find(RESOURCEPRIORITY_TAG)->second;
-            m_prioritySortedCommands.insert(std::make_pair(priority, cmd));
+	  if (resList.size() > 0) {
+		// Sort commands by priority
+			
+		ResourceValues::const_iterator prioIt = resList.begin()->find(RESOURCEPRIORITY_TAG);
+		assertTrueMsg(prioIt != resList.begin()->end(), "ResourcePriority not found");
+		int priority = (int) prioIt->second;
+		m_prioritySortedCommands.insert(std::make_pair(priority, cmd));
 
-            std::set<ChildResourceNode, ResourceComparator> resourcesNeeded;
-            // Expand all the resources in the hierarchy.
+		std::set<ChildResourceNode, ResourceComparator> resourcesNeeded;
+		// Expand all the resources in the hierarchy.
             
-            for (std::vector<std::map<std::string, double> >::const_iterator resListIter = resList.begin();
-                 resListIter != resList.end(); ++resListIter)
-              {
-                std::string resName = LabelStr((*resListIter).find(RESOURCENAME_TAG)->second).toString();
-                // Flatten out the hierarchy into a vector ChildResourceNode with scaled weights
+		for (ResourceValuesList::const_iterator resListIter = resList.begin();
+			 resListIter != resList.end();
+			 ++resListIter) {
+		  ResourceValues::const_iterator nameit = resListIter->find(RESOURCENAME_TAG);
+		  assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
+		  std::string resName = LabelStr(nameit->second).toString();
+		  // Flatten out the hierarchy into a vector ChildResourceNode with scaled weights
 
-                std::vector<ChildResourceNode> flattenedRes;
-                determineAllChildResources(*resListIter, flattenedRes);
+		  std::vector<ChildResourceNode> flattenedRes;
+		  determineAllChildResources(*resListIter, flattenedRes);
 
-                //loop through each hierarchy element in the flattened structure
-                for(std::vector<ChildResourceNode>::const_iterator rIter = flattenedRes.begin();
-                    rIter != flattenedRes.end(); ++rIter)
-                  {
-                    if (resourcesNeeded.find(*rIter) != resourcesNeeded.end())
-                      {
-                        // resource is already present. If current is explicitly specified in 
-                        // the command then the value can be overwritten. The
-                        // child resource scales will not be overwritten however.
-                        // In fact this check will be valid only for the first element
-                        // of the flattened vector. This means that if a resource value
-                        // has to be overwritten it has to be explicitly scpecified in the 
-                        // plan
-                        if ((*rIter).name == resName)
-                          resourcesNeeded.insert(*rIter);
-                      }
-                    else
-                      {
-                        // resource not already present. Insert it in the map.
-                        resourcesNeeded.insert(*rIter);
-                      }
+		  //loop through each hierarchy element in the flattened structure
+		  for(std::vector<ChildResourceNode>::const_iterator rIter = flattenedRes.begin();
+			  rIter != flattenedRes.end(); ++rIter)
+			{
+			  if (resourcesNeeded.find(*rIter) != resourcesNeeded.end())
+				{
+				  // resource is already present. If current is explicitly specified in 
+				  // the command then the value can be overwritten. The
+				  // child resource scales will not be overwritten however.
+				  // In fact this check will be valid only for the first element
+				  // of the flattened vector. This means that if a resource value
+				  // has to be overwritten it has to be explicitly scpecified in the 
+				  // plan
+				  if ((*rIter).name == resName)
+					resourcesNeeded.insert(*rIter);
+				}
+			  else
+				{
+				  // resource not already present. Insert it in the map.
+				  resourcesNeeded.insert(*rIter);
+				}
 
-                  }
-              }
-            // Loop through the expanded set of resources per command
-            for (std::set<ChildResourceNode, ResourceComparator>::const_iterator resNeededIter = resourcesNeeded.begin();
-                 resNeededIter != resourcesNeeded.end(); ++resNeededIter)
-              {
-                if (m_resCmdMap.find(resNeededIter->name) != m_resCmdMap.end())
-                  {
-                    // resource is already present in the map. just append the new command
-                    m_resCmdMap.find(resNeededIter->name)->second.insert(cmd);
-                  }
-                else
-                  {
-                    // resource is not already in the map. Add it
-                    std::set<CommandId> setTmp;
-                    setTmp.insert(cmd);
-                    m_resCmdMap.insert(std::make_pair(resNeededIter->name, setTmp));
-                  }
-              }
+			}
+		}
+		// Loop through the expanded set of resources per command
+		for (std::set<ChildResourceNode, ResourceComparator>::const_iterator resNeededIter = resourcesNeeded.begin();
+			 resNeededIter != resourcesNeeded.end(); ++resNeededIter)
+		  {
+			if (m_resCmdMap.find(resNeededIter->name) != m_resCmdMap.end())
+			  {
+				// resource is already present in the map. just append the new command
+				m_resCmdMap.find(resNeededIter->name)->second.insert(cmd);
+			  }
+			else
+			  {
+				// resource is not already in the map. Add it
+				std::set<CommandId> setTmp;
+				setTmp.insert(cmd);
+				m_resCmdMap.insert(std::make_pair(resNeededIter->name, setTmp));
+			  }
+		  }
             
-            m_cmdResMap[LabelStr(cmd->getName()).toString()] = resourcesNeeded;
-          }
-        else
-          acceptCmds.insert(cmd);
-      }
+		m_cmdResMap[LabelStr(cmd->getName()).toString()] = resourcesNeeded;
+	  }
+	  else
+		acceptCmds.insert(cmd);
+	}
   }
 
 
@@ -292,10 +294,12 @@ namespace PLEXIL {
             (resNeeded > maxConsumableResourceValue(resName)));
   }
 
-  void ResourceArbiterInterface::determineAllChildResources
-  (const std::map<std::string, double>& res, std::vector<ChildResourceNode>& flattenedRes)
+  void ResourceArbiterInterface::determineAllChildResources(const ResourceValues& res,
+															std::vector<ChildResourceNode>& flattenedRes)
   {
-    std::string resName = LabelStr(res.find(RESOURCENAME_TAG)->second).toString();
+	ResourceValues::const_iterator nameit = res.find(RESOURCENAME_TAG);
+	assertTrueMsg(nameit != res.end(), "ResourceName not found");
+    std::string resName = LabelStr(nameit->second).toString();
 
     double scale = (res.find(RESOURCEUPPERBOUND_TAG) != res.end()) ? 
       (double) (res.find(RESOURCEUPPERBOUND_TAG)->second) : 1.0;
@@ -306,29 +310,27 @@ namespace PLEXIL {
     flattenedRes.push_back(ChildResourceNode(scale, resName, release));
     // Push all the children into a queue (uses a std::vector).
 
-    if (m_resourceHierarchy.find(resName) != m_resourceHierarchy.end())
-      {
+    if (m_resourceHierarchy.find(resName) != m_resourceHierarchy.end()) {
         const std::vector<ChildResourceNode>& children = 
           m_resourceHierarchy.find(resName)->second.children;
         std::queue<ChildResourceNode> q;
-        for(std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
-            cIter != children.end(); ++cIter)
-          {
-            q.push((*cIter));
-          }
-        while(!q.empty())
-          {
-            const ChildResourceNode& child = q.front();
-            q.pop();
-            flattenedRes.push_back(ChildResourceNode(child.weight, child.name, release));
-            const std::vector<ChildResourceNode>& children = 
-              m_resourceHierarchy.find(child.name)->second.children;
-            for(std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
-                cIter != children.end(); ++cIter)
-              {
-                q.push((*cIter));
-              }
-          }
+        for (std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
+			 cIter != children.end();
+			 ++cIter) {
+		  q.push((*cIter));
+		}
+        while (!q.empty()) {
+		  const ChildResourceNode& child = q.front();
+		  q.pop();
+		  flattenedRes.push_back(ChildResourceNode(child.weight, child.name, release));
+		  const std::vector<ChildResourceNode>& children = 
+			m_resourceHierarchy.find(child.name)->second.children;
+		  for (std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
+			   cIter != children.end();
+			   ++cIter) {
+			q.push((*cIter));
+		  }
+		}
       }
   }
 
@@ -461,21 +463,24 @@ namespace PLEXIL {
             debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
                      "cmds: " << cmdId->getName().toString() << " uses the following resources");
 
-            const std::vector<std::map<std::string, double> >& resList = cmdId->getResourceValues();
-            
-            for (std::vector<std::map<std::string, double> >::const_iterator resListIter = resList.begin();
-                 resListIter != resList.end(); ++resListIter)
-              {
-                std::string resName = LabelStr((*resListIter).find(RESOURCENAME_TAG)->second).toString();
-                double ubound = ((*resListIter).find(RESOURCEUPPERBOUND_TAG) != (*resListIter).end()) ? 
-                  (double) ((*resListIter).find(RESOURCEUPPERBOUND_TAG)->second) : 1.0;
-                double lbound = ((*resListIter).find(RESOURCELOWERBOUND_TAG) != (*resListIter).end()) ? 
-                  (double) ((*resListIter).find(RESOURCELOWERBOUND_TAG)->second) : 1.0;
-                int priority = static_cast<int>(((*resListIter).find(RESOURCEPRIORITY_TAG)->second));
-                debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
-                         "<" << resName << "," << priority << "," << lbound
-                         << "," << ubound << ">");
-              }
+            const ResourceValuesList& resList = cmdId->getResourceValues();
+            for (ResourceValuesList::const_iterator resListIter = resList.begin();
+                 resListIter != resList.end();
+				 ++resListIter) {
+			  ResourceValues::const_iterator nameit = resListIter->find(RESOURCENAME_TAG);
+			  assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
+			  std::string resName = LabelStr(nameit->second).toString();
+			  double ubound = (resListIter->find(RESOURCEUPPERBOUND_TAG) != resListIter->end()) ? 
+				(double) (resListIter->find(RESOURCEUPPERBOUND_TAG)->second) : 1.0;
+			  double lbound = (resListIter->find(RESOURCELOWERBOUND_TAG) != resListIter->end()) ? 
+				(double) (resListIter->find(RESOURCELOWERBOUND_TAG)->second) : 1.0;
+			  ResourceValues::const_iterator prioIt = resListIter->find(RESOURCEPRIORITY_TAG);
+			  assertTrueMsg(prioIt != resListIter->end(), "ResourcePriority not found");
+			  int priority = static_cast<int>(prioIt->second);
+			  debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
+					   "<" << resName << "," << priority << "," << lbound
+					   << "," << ubound << ">");
+			}
           }
       }
   }
