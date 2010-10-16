@@ -1,57 +1,40 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="libcall.ple">
       <GlobalDeclarations/>
-      <Node NodeType="NodeList">
+      <Node FileName="libcall.ple" LineNo="5" ColNo="1" NodeType="NodeList">
+          <NodeId>List</NodeId>
           <VariableDeclarations>
-                <DeclareVariable>
-                  <Name>i</Name>
-                  <Type>Integer</Type>
-                  <InitialValue>
-                    <IntegerValue>1966</IntegerValue>
-                  </InitialValue>
-                </DeclareVariable>
-                <DeclareVariable>
-                  <Name>r</Name>
-                  <Type>Real</Type>
-                  <InitialValue>
-                    <RealValue>3.1415</RealValue>
-                  </InitialValue>
-                </DeclareVariable>
-                <DeclareVariable>
+              <DeclareVariable>
                   <Name>b</Name>
                   <Type>Boolean</Type>
                   <InitialValue>
-                    <BooleanValue>true</BooleanValue>
+                      <BooleanValue>true</BooleanValue>
                   </InitialValue>
-                </DeclareVariable>
-                <DeclareVariable>
+              </DeclareVariable>
+              <DeclareVariable>
+                  <Name>i</Name>
+                  <Type>Integer</Type>
+                  <InitialValue>
+                      <IntegerValue>1966</IntegerValue>
+                  </InitialValue>
+              </DeclareVariable>
+              <DeclareVariable>
+                  <Name>r</Name>
+                  <Type>Real</Type>
+                  <InitialValue>
+                      <RealValue>3.1415</RealValue>
+                  </InitialValue>
+              </DeclareVariable>
+              <DeclareVariable>
                   <Name>s</Name>
                   <Type>String</Type>
                   <InitialValue>
-                    <StringValue>"hello"</StringValue>
+                      <StringValue>hello</StringValue>
                   </InitialValue>
-                </DeclareVariable>
-
-<!--               <DeclareInteger> -->
-<!--                   <IntegerVariable>i</IntegerVariable> -->
-<!--                   <IntegerValue>1966</IntegerValue> -->
-<!--               </DeclareInteger> -->
-<!--               <DeclareReal> -->
-<!--                   <RealVariable>r</RealVariable> -->
-<!--                   <RealValue>3.1415</RealValue> -->
-<!--               </DeclareReal> -->
-<!--               <DeclareBoolean> -->
-<!--                   <BooleanVariable>b</BooleanVariable> -->
-<!--                   <BooleanValue>true</BooleanValue> -->
-<!--               </DeclareBoolean> -->
-<!--               <DeclareString> -->
-<!--                   <StringVariable>s</StringVariable> -->
-<!--                   <StringValue>&quot;hello&quot;</StringValue> -->
-<!--               </DeclareString> -->
+              </DeclareVariable>
           </VariableDeclarations>
-          <NodeId>List</NodeId>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="LibraryNodeCall">
+                  <Node FileName="libcall.ple" LineNo="19" ColNo="4" NodeType="LibraryNodeCall">
                       <NodeId>CallLibTest1</NodeId>
                       <StartCondition>
                           <EQInternal>
@@ -83,7 +66,7 @@
                           </LibraryNodeCall>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="LibraryNodeCall">
+                  <Node FileName="libcall.ple" LineNo="28" ColNo="4" NodeType="LibraryNodeCall">
                       <NodeId>CallLibTest2</NodeId>
                       <NodeBody>
                           <LibraryNodeCall>
@@ -92,10 +75,10 @@
                                   <NodeParameter>y</NodeParameter>
                                   <RealVariable>r</RealVariable>
                               </Alias>
-<!--                               <Alias> -->
-<!--                                   <NodeParameter>z</NodeParameter> -->
-<!--                                   <RealVariable>r</RealVariable> -->
-<!--                               </Alias> -->
+                              <Alias>
+                                  <NodeParameter>z</NodeParameter>
+                                  <RealVariable>r</RealVariable>
+                              </Alias>
                           </LibraryNodeCall>
                       </NodeBody>
                   </Node>

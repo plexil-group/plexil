@@ -1,29 +1,28 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd" FileName="lib2.ple">
       <GlobalDeclarations/>
-      <Node NodeType="NodeList">
+      <Node FileName="lib2.ple" LineNo="5" ColNo="1" NodeType="NodeList">
           <Interface>
               <In>
-                <DeclareVariable>
-                  <Name>z</Name>
-                  <Type>Real</Type>
-                  <InitialValue>
-                    <RealValue>2.7</RealValue>
-                  </InitialValue>
-                </DeclareVariable>
-                <DeclareVariable>
-                  <Name>y</Name>
-                  <Type>Real</Type>
-                </DeclareVariable>
+                  <DeclareVariable>
+                      <Name>y</Name>
+                      <Type>Real</Type>
+                  </DeclareVariable>
+                  <DeclareVariable>
+                      <Name>z</Name>
+                      <Type>Real</Type>
+                  </DeclareVariable>
               </In>
           </Interface>
           <NodeId>LibTest2</NodeId>
           <NodeBody>
               <NodeList>
-                  <Node NodeType="Command">
+                  <Node FileName="lib2.ple" LineNo="14" ColNo="13" NodeType="Command">
                       <NodeId>BarCall2</NodeId>
                       <NodeBody>
                           <Command>
-                              <Name><StringValue>bar</StringValue></Name>
+                              <Name>
+                                  <StringValue>bar</StringValue>
+                              </Name>
                               <Arguments>
                                   <RealVariable>y</RealVariable>
                                   <RealVariable>z</RealVariable>
@@ -31,7 +30,7 @@
                           </Command>
                       </NodeBody>
                   </Node>
-                  <Node NodeType="LibraryNodeCall">
+                  <Node FileName="lib2.ple" LineNo="19" ColNo="4" NodeType="LibraryNodeCall">
                       <NodeId>Call2LibTest1</NodeId>
                       <NodeBody>
                           <LibraryNodeCall>
@@ -50,7 +49,7 @@
                               </Alias>
                               <Alias>
                                   <NodeParameter>ls</NodeParameter>
-                                  <StringValue>&quot;what!&quot;</StringValue>
+                                  <StringValue>what!</StringValue>
                               </Alias>
                           </LibraryNodeCall>
                       </NodeBody>

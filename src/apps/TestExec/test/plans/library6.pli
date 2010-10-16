@@ -3,7 +3,7 @@
     (interface (inout (string "x"))
                (in (string "y")))
     (assignment (stringvar "x")
-        (lookup-now "foo" (stringvar "y")))))
+        (lookup "foo"))))
 
       
       
