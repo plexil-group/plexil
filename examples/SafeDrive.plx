@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Concurrence" FileName="SafeDrive.ple" LineNo="28"
-         ColNo="1">
+   <Node NodeType="NodeList" epx="While" FileName="SafeDrive.ple" LineNo="2" ColNo="1">
       <NodeId>SafeDrive</NodeId>
       <VariableDeclarations>
-              <DeclareVariable>
+         <DeclareVariable>
                   <Name>pictures</Name>
                   <Type>Integer</Type>
                   <InitialValue>
                       <IntegerValue>0</IntegerValue>
                   </InitialValue>
               </DeclareVariable>
-          </VariableDeclarations>
+         <DeclareVariable>
+            <Name>ep2cp_test</Name>
+            <Type>Boolean</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
       <EndCondition>
          <OR>
             <LookupOnChange>
@@ -28,83 +31,184 @@
       </EndCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Concurrence" FileName="SafeDrive.ple" LineNo="33"
-                  ColNo="5">
-               <NodeId>Loop</NodeId>
-               <RepeatCondition>
-                  <NOT>
-                     <LookupOnChange>
-                          <Name>
-                              <StringValue>Rover.WheelStuck</StringValue>
-                          </Name>
-                      </LookupOnChange>
-                  </NOT>
-               </RepeatCondition>
+            <Node NodeType="NodeList" epx="aux">
+               <NodeId>ep2cp_WhileBody</NodeId>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="38" ColNo="9">
-                        <NodeId>OneMeter</NodeId>
+                     <Node NodeType="Assignment" epx="aux">
+                        <NodeId>ep2cp_WhileSetup</NodeId>
                         <NodeBody>
-                           <Command>
-                              <Name>
-                                 <StringValue>Rover.Drive</StringValue>
-                              </Name>
-                              <Arguments>
-                                 <IntegerValue>1</IntegerValue>
-                              </Arguments>
-                           </Command>
+                           <Assignment>
+                              <BooleanVariable>ep2cp_test</BooleanVariable>
+                              <BooleanRHS>
+                                 <NOT>
+                                    <LookupOnChange>
+                                       <Name>
+                                          <StringValue>Rover.WheelStuck</StringValue>
+                                       </Name>
+                                    </LookupOnChange>
+                                 </NOT>
+                              </BooleanRHS>
+                           </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="43" ColNo="9">
-                        <NodeId>TakePic</NodeId>
+                     <Node NodeType="NodeList" epx="aux">
+                        <NodeId>ep2cp_WhileTrue</NodeId>
                         <StartCondition>
                            <AND>
                               <EQInternal>
                                  <NodeStateVariable>
-                                    <NodeId>OneMeter</NodeId>
+                                    <NodeId>ep2cp_WhileSetup</NodeId>
                                  </NodeStateVariable>
                                  <NodeStateValue>FINISHED</NodeStateValue>
                               </EQInternal>
-                              <LT>
-                                 <IntegerVariable>pictures</IntegerVariable>
-                                 <IntegerValue>10</IntegerValue>
-                              </LT>
+                              <BooleanVariable>ep2cp_test</BooleanVariable>
                            </AND>
                         </StartCondition>
+                        <SkipCondition>
+                           <NOT>
+                              <BooleanVariable>ep2cp_test</BooleanVariable>
+                           </NOT>
+                        </SkipCondition>
+                        <RepeatCondition>
+                           <BooleanVariable>ep2cp_test</BooleanVariable>
+                        </RepeatCondition>
                         <NodeBody>
-                           <Command>
-                              <Name>
-                                 <StringValue>Rover.TakePicture</StringValue>
-                              </Name>
-                           </Command>
-                        </NodeBody>
-                     </Node>
-                     <Node NodeType="Assignment" FileName="SafeDrive.ple" LineNo="49" ColNo="9">
-                        <NodeId>Counter</NodeId>
-                        <StartCondition>
-                           <EQInternal>
-                              <NodeStateVariable>
-                                 <NodeId>TakePic</NodeId>
-                              </NodeStateVariable>
-                              <NodeStateValue>FINISHED</NodeStateValue>
-                           </EQInternal>
-                        </StartCondition>
-                        <PreCondition>
-                           <LT>
-                              <IntegerVariable>pictures</IntegerVariable>
-                              <IntegerValue>10</IntegerValue>
-                           </LT>
-                        </PreCondition>
-                        <NodeBody>
-                           <Assignment>
-                              <IntegerVariable>pictures</IntegerVariable>
-                              <NumericRHS>
-                                 <ADD>
-                                    <IntegerVariable>pictures</IntegerVariable>
-                                    <IntegerValue>1</IntegerValue>
-                                 </ADD>
-                              </NumericRHS>
-                           </Assignment>
+                           <NodeList>
+                              <Node NodeType="NodeList" epx="aux">
+                                 <NodeId>ep2cp_WhileAction</NodeId>
+                                 <NodeBody>
+                                    <NodeList>
+                                       <Node NodeType="NodeList" epx="Sequence" FileName="SafeDrive.ple" LineNo="7"
+                                             ColNo="3">
+                                          <NodeId>SafeDrive__CHILD__1</NodeId>
+                                          <InvariantCondition>
+                                             <AND>
+                                                <NOT>
+                                                   <OR>
+                                                      <EQInternal>
+                                                         <NodeOutcomeVariable>
+                                                            <NodeId>OneMeter</NodeId>
+                                                         </NodeOutcomeVariable>
+                                                         <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                      </EQInternal>
+                                                      <EQInternal>
+                                                         <NodeOutcomeVariable>
+                                                            <NodeId>TakePic</NodeId>
+                                                         </NodeOutcomeVariable>
+                                                         <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                      </EQInternal>
+                                                      <EQInternal>
+                                                         <NodeOutcomeVariable>
+                                                            <NodeId>Counter</NodeId>
+                                                         </NodeOutcomeVariable>
+                                                         <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                      </EQInternal>
+                                                   </OR>
+                                                </NOT>
+                                             </AND>
+                                          </InvariantCondition>
+                                          <NodeBody>
+                                             <NodeList>
+                                                <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="11" ColNo="9">
+                                                   <NodeId>OneMeter</NodeId>
+                                                   <NodeBody>
+                                                      <Command>
+                                                         <Name>
+                                                            <StringValue>Rover.Drive</StringValue>
+                                                         </Name>
+                                                         <Arguments>
+                                                            <IntegerValue>1</IntegerValue>
+                                                         </Arguments>
+                                                      </Command>
+                                                   </NodeBody>
+                                                </Node>
+                                                <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="16" ColNo="9">
+                                                   <NodeId>TakePic</NodeId>
+                                                   <StartCondition>
+                                                      <AND>
+                                                         <EQInternal>
+                                                            <NodeStateVariable>
+                                                               <NodeId>OneMeter</NodeId>
+                                                            </NodeStateVariable>
+                                                            <NodeStateValue>FINISHED</NodeStateValue>
+                                                         </EQInternal>
+                                                         <LT>
+                                                            <IntegerVariable>pictures</IntegerVariable>
+                                                            <IntegerValue>10</IntegerValue>
+                                                         </LT>
+                                                      </AND>
+                                                   </StartCondition>
+                                                   <NodeBody>
+                                                      <Command>
+                                                         <Name>
+                                                            <StringValue>Rover.TakePicture</StringValue>
+                                                         </Name>
+                                                      </Command>
+                                                   </NodeBody>
+                                                </Node>
+                                                <Node NodeType="Assignment" FileName="SafeDrive.ple" LineNo="22" ColNo="9">
+                                                   <NodeId>Counter</NodeId>
+                                                   <StartCondition>
+                                                      <AND>
+                                                         <EQInternal>
+                                                            <NodeStateVariable>
+                                                               <NodeId>TakePic</NodeId>
+                                                            </NodeStateVariable>
+                                                            <NodeStateValue>FINISHED</NodeStateValue>
+                                                         </EQInternal>
+                                                      </AND>
+                                                   </StartCondition>
+                                                   <PreCondition>
+                                                      <LT>
+                                                         <IntegerVariable>pictures</IntegerVariable>
+                                                         <IntegerValue>10</IntegerValue>
+                                                      </LT>
+                                                   </PreCondition>
+                                                   <NodeBody>
+                                                      <Assignment>
+                                                         <IntegerVariable>pictures</IntegerVariable>
+                                                         <NumericRHS>
+                                                            <ADD>
+                                                               <IntegerVariable>pictures</IntegerVariable>
+                                                               <IntegerValue>1</IntegerValue>
+                                                            </ADD>
+                                                         </NumericRHS>
+                                                      </Assignment>
+                                                   </NodeBody>
+                                                </Node>
+                                             </NodeList>
+                                          </NodeBody>
+                                       </Node>
+                                    </NodeList>
+                                 </NodeBody>
+                              </Node>
+                              <Node NodeType="Assignment" epx="aux">
+                                 <NodeId>ep2cp_WhileRetest</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>ep2cp_WhileAction</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                                 <NodeBody>
+                                    <Assignment>
+                                       <BooleanVariable>ep2cp_test</BooleanVariable>
+                                       <BooleanRHS>
+                                          <NOT>
+                                             <LookupOnChange>
+                                                <Name>
+                                                   <StringValue>Rover.WheelStuck</StringValue>
+                                                </Name>
+                                             </LookupOnChange>
+                                          </NOT>
+                                       </BooleanRHS>
+                                    </Assignment>
+                                 </NodeBody>
+                              </Node>
+                           </NodeList>
                         </NodeBody>
                      </Node>
                   </NodeList>
