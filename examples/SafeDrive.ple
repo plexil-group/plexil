@@ -28,11 +28,11 @@ SafeDrive:
 {
   Integer pictures = 0;
   EndCondition: LookupOnChange(Rover.WheelStuck) || pictures == 10;
-  NodeList:
+  Concurrence:
     Loop:
     {
       RepeatCondition: ! LookupOnChange(Rover.WheelStuck);
-      NodeList:
+      Concurrence:
       
         OneMeter:
         {
