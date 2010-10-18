@@ -19,10 +19,10 @@
       <EndCondition>
          <OR>
             <LookupOnChange>
-                      <Name>
-                          <StringValue>Rover.WheelStuck</StringValue>
-                      </Name>
-                  </LookupOnChange>
+               <Name>
+                  <StringValue>Rover.WheelStuck</StringValue>
+               </Name>
+            </LookupOnChange>
             <EQNumeric>
                <IntegerVariable>pictures</IntegerVariable>
                <IntegerValue>10</IntegerValue>
