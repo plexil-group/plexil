@@ -1,15 +1,19 @@
 This file, plexil/CAVEATS, lists known bugs and issues in the PLEXIL system.
 
-
 Minor problems
 --------------
+
+In the Plexil Viewer, the Configuration Dialog is a new feature and still has
+some bugs.  In particular, incorrect selections might appear when the Script and
+Config buttons are clicked.  These can be overwritten by choosing the desired
+file in the file browser that opens.
 
 Robosim: The (graphical) robot simulator does not always
 shut down cleanly.
 
 Standard Plexil compiler ('plexil'): 
 
- * File extensions included inn the '-o' option are ignored:
+ * File extensions included in the '-o' option are ignored:
    Extended and Core Plexil files are always written with the
    ".epx" and ".plx" extensions, respectively.
 
