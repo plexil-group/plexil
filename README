@@ -10,17 +10,46 @@ distributions only]
 Release Notes
 -------------
 
-Next release
- - new small example Plexil executive application in src/apps/sample
+1.5  (October 2010)
+ - Extensively revised user manual
+   * PLEXIL is now presented as a language of high level Actions, of which Core
+     PLEXIL (nodes) is the executable subset.  I.e. PLEXIL is now Core PLEXIL
+     plus syntactic extensions (formerly called Extended Plexil).  There are no
+     changes to Core PLEXIL, and existing Plexil plans are fully compatible.
+   * Changes to long-standing PLEXIL nomenclature:
+       "Universal Executive" is now "Plexil Executive"
+       "Extended PLEXIL" is now just "PLEXIL"
+       "LUV" is now "Plexil Viewer"
+       "Standalone Simulator" is now "Plexil Simulator"
+   * Reorganized; most chapters expanded and corrected
+ - New and refactored set of commands for Plexil related applications:
+   * plexilexec starts the Plexil Executive, replacing run-ue
+   * plexiltest starts the Test Executive, replacing run-te
+   * plexilsim runs the Plexil Simulator in one step
+   * plexil (formerly the Plexil translator) replaces luv
+   * plexilc replaces the former plexil and is an all-purpose translator:
+       - translates (standard) Plexil into XML
+       - translates Test Executive simulation scripts into XML
+       - translates Plexilisp files into XML
+ - Enhancements to the Plexil Viewer
+   * new Configuration Dialog to select Plexil application and its parameters
+   * new Plexil logo
  - Plexil syntax improvements:
+   * all-purpose Lookup form obviates need for LookupNow, LookupOnChange
    * OnCommand, OnMessage forms more consistent with other actions
    * uniform usage of colons in action bodies
- - Rewrote standalone simulator internals, fixing Mac OS issues
+ - Rewrote Plexil Simulator internals, fixing Mac OS issues
  - Plexilisp improvements: 
-   * Sequence forms can now contain any attributes, and also structured
-     comments.
+   * Sequence forms can now contain any attributes, and also structured comments.
    * In command-with-return, reversed order of state name and return variable.
- - signficant revision of user manual
+ - Greatly revised examples
+   * New small, complete Plexil Executive application in src/apps/sample
+   * new multiple-executive plan examples in plexil/examples/multi-exec
+   * existing examples revised to use high-level actions where possible
+ - New file extension requirements for Test Executive simulation scripts
+   * Source files: .pst
+   * Translated (XML) files: .psx
+ - Numerous misc. fixes and enhancements throughout system
 
 1.2.1 (August 2010)
  - IPC-related applications (Robosim, Standalone Simulator, and any
