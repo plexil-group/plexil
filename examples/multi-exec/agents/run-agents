@@ -1,14 +1,8 @@
 #!/bin/bash
 # File: $SVNROOT/examples/multi-exec/agents/run-agents
-# Date: Tue Oct 12 17:29:21 2010
 
 has_xterm=`which xterm`
-
-if [ "$has_xterm" = "" ] ;
-then
-  echo "Sorry, can't run this script without xterms"
-  exit
-fi
+ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
 
 if [ -z $1 ] ;
 then
@@ -24,37 +18,51 @@ else
   agent2=$2
 fi
 
-# compile if necessary
+cmd1="plexilexec -v -b -p $agent1.plx -c $agent1.xml"
+cmd2="plexilexec -v -b -p $agent2.plx -c $agent2.xml"
 
-if [ ! -e $agent1.plx ] ;
+if [ "$has_xterm" = "" ] ;
 then
-  plexilisp $agent1.pli
+  echo " "
+  if [ "$ipc_running" = "" ] ;
+  then
+    echo "ipc (central) must already be running for this script to work without xterm..."
+    echo " "
+    exit
+  else
+    echo "xterm not found: both agents will be run in the background..."
+    echo " "
+  fi
 fi
 
-if [ ! -e $agent2.plx ] ;
-then
-  plexilisp $agent2.pli
-fi
+# Try to keep the plans up-to-date
+make
 
 # start IPC/central if necessary
-
-ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
-
 if [ "$ipc_running" = "" ] ;
 then
-   echo "Starting IPC..."
-   xterm ipc &
-   sleep 2;
+  echo "Starting IPC..."
+  xterm ipc &
+  sleep 2;
 else
    echo "IPC already running..."
 fi
 
+# Start the agents
 echo "Starting $agent1..."
-
-xterm -e plexilexec -v -b -p $agent1.plx -c $agent1.xml &
+if [ "$has_xterm" = "" ] ;
+then
+  $cmd1 &
+else
+  xterm -e $cmd1 &
+fi
 
 sleep 10
 
 echo "Starting $agent2..."
-
-plexilexec -v -b -p $agent2.plx -c $agent2.xml
+if [ "$has_xterm" = "" ] ;
+then
+  $cmd2
+else
+  xterm -e $cmd2
+fi
