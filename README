@@ -21,7 +21,7 @@ Release Notes
        "Extended PLEXIL" is now just "PLEXIL"
        "LUV" is now "Plexil Viewer"
        "Standalone Simulator" is now "Plexil Simulator"
-   * Reorganized; most chapters expanded and corrected
+   * Reorganized; many chapters expanded and corrected
  - New and refactored set of commands for Plexil related applications:
    * plexilexec starts the Plexil Executive, replacing run-ue
    * plexiltest starts the Test Executive, replacing run-te
