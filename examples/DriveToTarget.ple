@@ -12,7 +12,7 @@ DriveToTarget:
 
     StopForTimeout:
     {
-      StartCondition: LookupOnChange(time) >= 10;
+      StartCondition: Lookup(time) >= 10;
       Concurrence:
         Stop:
         {
@@ -26,7 +26,7 @@ DriveToTarget:
 
     StopForTarget:
     {
-      StartCondition: LookupOnChange(target_in_view);
+      StartCondition: Lookup(target_in_view);
       SkipCondition: timeout;
       Concurrence:
         Stop:
@@ -56,9 +56,8 @@ DriveToTarget:
     Heater:
     {
       SkipCondition: timeout;
-      StartCondition: LookupOnChange(temperature) < 0;
-      EndCondition: LookupOnChange(temperature) >= 10;
-      RepeatCondition: true;
+      StartCondition: Lookup(temperature) < 0;
+      EndCondition: Lookup(temperature) >= 10;
       Command: turn_on_heater();
     }
 }

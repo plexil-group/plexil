@@ -41,10 +41,10 @@
                <StartCondition>
                   <GE>
                      <LookupOnChange>
-                          <Name>
-                              <StringValue>time</StringValue>
-                          </Name>
-                      </LookupOnChange>
+                        <Name>
+                           <StringValue>time</StringValue>
+                        </Name>
+                     </LookupOnChange>
                      <IntegerValue>10</IntegerValue>
                   </GE>
                </StartCondition>
@@ -79,9 +79,9 @@
                <NodeId>StopForTarget</NodeId>
                <StartCondition>
                   <LookupOnChange>
-                      <Name>
-                          <StringValue>target_in_view</StringValue>
-                      </Name>
+                     <Name>
+                        <StringValue>target_in_view</StringValue>
+                     </Name>
                   </LookupOnChange>
                </StartCondition>
                <SkipCondition>
@@ -150,26 +150,23 @@
                <StartCondition>
                   <LT>
                      <LookupOnChange>
-                          <Name>
-                              <StringValue>temperature</StringValue>
-                          </Name>
-                      </LookupOnChange>
+                        <Name>
+                           <StringValue>temperature</StringValue>
+                        </Name>
+                     </LookupOnChange>
                      <IntegerValue>0</IntegerValue>
                   </LT>
                </StartCondition>
                <EndCondition>
                   <GE>
                      <LookupOnChange>
-                          <Name>
-                              <StringValue>temperature</StringValue>
-                          </Name>
-                      </LookupOnChange>
+                        <Name>
+                           <StringValue>temperature</StringValue>
+                        </Name>
+                     </LookupOnChange>
                      <IntegerValue>10</IntegerValue>
                   </GE>
                </EndCondition>
-               <RepeatCondition>
-                  <BooleanValue>true</BooleanValue>
-               </RepeatCondition>
                <NodeBody>
                   <Command>
                       <Name>
