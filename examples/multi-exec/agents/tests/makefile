@@ -1,13 +1,28 @@
 # -*- Mode: Makefile -*-
 # File: $SVNROOT/examples/multi-exec/agents/tests/makefile
-# Date: Thu Oct 14 10:45:26 2010
+# Note: Generic makefile for plexilisp and standard plexil
 
-plans = $(shell echo *.pli)
+# Find the .pli plans in this directory
+ifneq ($(shell echo *.pli),*.pli)
+  plans += $(shell echo *.pli)
+endif
 
-all: $(plans:%.pli=%.plx)
+# Find the .ple plans in this directory
+ifneq ($(shell echo *.ple),*.ple)
+  plans += $(shell echo *.ple)
+endif
 
+# Find the implied .plx targets in this directory
+all: $(plans:%.ple=%.plx) $(plans:%.pli=%.plx)
+
+# Plexilisp rule
 %.plx : %.pli
 	plexilisp $<
+	$(RM) $*.epx*
+
+# Standard Plexil rule
+%.plx : %.ple
+	plexilc $<
 	$(RM) $*.epx*
 
 dust:

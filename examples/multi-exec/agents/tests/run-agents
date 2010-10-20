@@ -1,6 +1,5 @@
 #!/bin/bash
-# File: $SVNROOT/examples/multi-exec/agents/run-agents
-# Note: Script to run two Plexil agent systems
+# File: $SVNROOT/examples/multi-exec/agents/tests/run-agents
 
 function usage ()
 {
@@ -10,10 +9,8 @@ Usage:      `basename $0` <agent1> <agent2>
 
 Examples:   `basename $0` t1-cmd t1-sim
             `basename $0` t2-cmd.pli t1-sim.pli
-            `basename $0` sim cmd
 
             <agent1> and <agent2> are the "base names" of the plans, e.g., <agent1>.pli.
-
             The communications configuration files will be guessed at based on the given
             "base names", e.g., given "t1-cmd" as the base name, "t1-cmd.xml" and "cmd.xml"
             will be tried.
@@ -28,7 +25,7 @@ then
     usage
 fi
 
-has_xterm=`which xterm`
+#has_xterm=`which xterm`
 ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
 
 # Allow for either base names or names including extensions
