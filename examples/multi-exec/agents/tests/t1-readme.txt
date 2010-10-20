@@ -10,9 +10,14 @@ in t1-cmd.pli.
 % xterm -v -p t1-sim.plx -c sim.xml
 % plexilexec -v -b -p t1-cmd.plx -c cmd.xml
 
+or
+
+% cd plexil/examples/multi-exec/agents/test
+% run-agents t1-sim t1-cmd
+
 In t1-cmd.plx, none of the following variable ever update:
 
-  MasterPlan: retrun
+  MasterPlan: return
   Right: ret
   One: ret
   Two: ret

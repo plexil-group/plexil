@@ -25,7 +25,7 @@ then
     usage
 fi
 
-#has_xterm=`which xterm`
+has_xterm=`which xterm`
 ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
 
 # Allow for either base names or names including extensions

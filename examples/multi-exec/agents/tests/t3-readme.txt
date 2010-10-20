@@ -20,4 +20,9 @@ string I've tried work fine.
 % xterm -v -p t1-sim.plx -c sim.xml
 % plexilexec -v -b -p t3-cmd.plx -c cmd.xml
 
+or
+
+% cd plexil/examples/multi-exec/agents/test
+% run-agents t1-sim t3-cmd
+
 t3-cmd.plx never completes due to the above end-condition (line 25).
