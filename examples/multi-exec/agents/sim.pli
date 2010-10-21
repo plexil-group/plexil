@@ -2,11 +2,10 @@
 
 (plexil-plan
   (concurrently "Interface"
-    (variables (integer "x" 1)
-               (boolean "continue" true))
-    (invariant-condition (boolvar "continue"))
+    (variables (integer "x" 1))
+    (invariant-condition (not (finished "QuitCommand")))
     (action "MoveRightCommand"
-      (repeat-condition (boolvar "continue"))
+      (repeat-condition true)
       (on-command "MoveRight" ((integer "modX"))
                   (sequence "RecMoveRight"
                     (action "Increment"
@@ -16,7 +15,7 @@
                     (action "RespondMoveRight"
                       (command "SendReturnValue" (intvar "x"))))))
     (action "TestCommand"
-      (repeat-condition (boolvar "continue"))
+      (repeat-condition true)
       (on-command "TestCommand" ((integer "int"))
                   (concurrently "Dispatch"
                     (action "One"
@@ -26,9 +25,6 @@
                       (skip-condition (!= (intvar "int") 2))
                       (command "SendReturnValue" "two")))))
     (action "QuitCommand"
-      (repeat-condition (boolvar "continue"))
-      (on-message "Quit"
-        (action "Set"
-          (assignment (boolvar "continue") (boolval false)))))))
+      (on-message "Quit"))))
 
 ;; EOF
