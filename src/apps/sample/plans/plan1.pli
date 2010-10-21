@@ -29,8 +29,8 @@
     ;;
     (list
       (command-node "A" (command "Hello"))
-      (command-node "A" (command-with-return (intvar "result") "Square" 4))
-      (command-node "B" (command "SetSpeed" 10))
-      (command-node "C" (command "SetSize" 10.0))
-      (command-node "D" (command "SetColor" "Green"))
-      (command-node "E" (command "Move" "Waypoint1" 1 1)))))
+      (command-node "B" (command-with-return (intvar "result") "Square" 4))
+      (command-node "C" (command "SetSpeed" 10))
+      (command-node "D" (command "SetSize" 10.0))
+      (command-node "E" (command "SetColor" "Green"))
+      (command-node "F" (command "Move" "Waypoint1" 1 1)))))
