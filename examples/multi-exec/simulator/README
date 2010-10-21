@@ -7,7 +7,7 @@ lookup (x), one command (MoveRight(Integer dx)), and one message (Quit).
 
 To run this example, first compile the plans:
 
-  plexilc simulator.ple (currently broken -- can not receive messages (10/07/10))
+  plexilc simulator.ple
   plexilc command.ple
   plexilc lookup.ple
 
