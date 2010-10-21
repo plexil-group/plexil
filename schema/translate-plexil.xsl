@@ -1034,6 +1034,10 @@
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
       </xsl:variable>
+<!-- This invariant condition can create an out-of-scope node reference,
+     e.g. when the OnCommand occurs inside a While.  The purpose and usefulness
+     of this condition is questionable to begin with, so we're trying without
+     it...
       <xsl:if test="not($parent_id='')">
         <InvariantCondition>
           <AND>
@@ -1048,6 +1052,7 @@
           </AND>
         </InvariantCondition>
       </xsl:if>
+ -->
       <xsl:copy-of select="NodeId" />
       <!-- Cmd wait node -->
       <xsl:variable name="hdl_dec">
