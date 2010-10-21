@@ -46,8 +46,8 @@ typedef double Array;
 Int encodeInt (int);
 int decodeInt (Int);
 
-Real encodeReal (float x);
-float decodeReal (Real x);
+Real encodeReal (double x);
+double decodeReal (Real x);
 
 Bool encodeBool (bool x);
 bool decodeBool (Bool x);

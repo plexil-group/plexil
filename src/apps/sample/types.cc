@@ -46,7 +46,7 @@ ctype decode##type (type x) \
 } 
 
 defSimpleType(Int, int)
-defSimpleType(Real, float)
+defSimpleType(Real, double)
 defSimpleType(Bool, bool)
 
 
