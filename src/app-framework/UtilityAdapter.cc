@@ -31,18 +31,11 @@
 #include "Expression.hh"
 #include "Debug.hh"
 #include "UtilityAdapter.hh"
-
-using PLEXIL::LabelStr;
-
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::list;
-using std::string;
+#include "plan-utils.hh"
 
 namespace PLEXIL {
 
-UtilityAdapter::UtilityAdapter(PLEXIL::AdapterExecInterface& execInterface,
+UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
                      const TiXmlElement*& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
@@ -81,49 +74,27 @@ bool UtilityAdapter::shutdown()
   return true;
 }
 
-/////////////////  Command support ///////////////////
-
-
-static void print_aux (const list<double>& args, bool pretty)
-{
-  for (list<double>::const_iterator iter = args.begin();
-       iter != args.end();
-       iter++) {
-    cout << PLEXIL::Expression::valueToString(*iter)
-         << (pretty ? " " : "");
-  }
-  if (pretty) cout << endl;
-}
-
-static void print (const list<double>& args)
-{
-  print_aux (args, false);
-}
-
-static void pprint (const list<double>& args)
-{
-  print_aux (args, true);
-}
-
 void UtilityAdapter::executeCommand (const LabelStr& command_name,
-                                     const list<double>& args,
-                                     PLEXIL::ExpressionId dest,
-                                     PLEXIL::ExpressionId ack) 
+                                     const std::list<double>& args,
+                                     ExpressionId dest,
+                                     ExpressionId ack) 
 {
-  string name = command_name.toString();
+  std::string name = command_name.toString();
   debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
 
   if (name == "print") print (args);
   else if (name == "pprint") pprint (args);
-  else cerr << "Error in Utility Adapter: invalid command: " << name << endl;
+  else std::cerr <<
+         "Error in Utility Adapter: invalid command (should never happen!): "
+                 << name << std::endl;
 
   m_execInterface.handleValueChange
-    (ack, PLEXIL::CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    (ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
 
   // Technically, this may be unnecessary, but is the closest equivalent of a
   // "void" return value.
-  if (dest != PLEXIL::ExpressionId::noId()) {
-    m_execInterface.handleValueChange (dest, PLEXIL::UNKNOWN());
+  if (dest != ExpressionId::noId()) {
+    m_execInterface.handleValueChange (dest, UNKNOWN());
   }
 
   m_execInterface.notifyOfExternalEvent();

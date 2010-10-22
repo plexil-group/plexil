@@ -38,10 +38,10 @@
 
 namespace PLEXIL {
 
-class UtilityAdapter : public PLEXIL::InterfaceAdapter
+class UtilityAdapter : public InterfaceAdapter
 {
 public:
-  UtilityAdapter (PLEXIL::AdapterExecInterface&, const TiXmlElement*&);
+  UtilityAdapter (AdapterExecInterface&, const TiXmlElement*&);
 
   bool initialize();
   bool start();
@@ -49,21 +49,10 @@ public:
   bool reset();
   bool shutdown();
 
-  void executeCommand (const PLEXIL::LabelStr& name,
+  void executeCommand (const LabelStr& name,
                        const std::list<double>& args,
-                       PLEXIL::ExpressionId dest,
-                       PLEXIL::ExpressionId ack);
-
-  /* can we skip these?
-  void lookupNow (const PLEXIL::StateKey&, std::vector<double>& dest);
-
-  void registerChangeLookup(const PLEXIL::LookupKey& ,
-                            const PLEXIL::StateKey& stateKey,
-                            const std::vector<double>& );
-
-  void unregisterChangeLookup(const PLEXIL::LookupKey& uniqueId);
-*/
-
+                       ExpressionId dest,
+                       ExpressionId ack);
 };
 
 extern "C" {
