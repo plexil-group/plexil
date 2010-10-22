@@ -39,6 +39,7 @@
 #include "ControllerFactory.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
+#include "UtilityAdapter.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecController.hh"
@@ -86,8 +87,9 @@ namespace PLEXIL
       m_currentTime(std::numeric_limits<double>::min())
   {
 
-    // Every application has access to the dummy adapter
+    // Every application has access to the dummy and utility adapters
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
+    REGISTER_ADAPTER(UtilityAdapter, "Utility");
 
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
