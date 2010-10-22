@@ -5,4 +5,5 @@
     <DefaultLookupAdapter/>
   </Adapter>
   <Adapter AdapterType="OSNativeTime"/>
+  <Adapter AdapterType="Utility"/>
 </Interfaces>
