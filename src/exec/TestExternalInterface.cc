@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include "StateCache.hh"
 #include "PlexilXmlParser.hh"
 #include "CommandHandle.hh"
+#include "plan-utils.hh"
 #include <limits>
 #include <sstream>
 #include <cmath>
@@ -121,13 +122,10 @@ namespace PLEXIL
                        "No command waiting for acknowledgement " <<
                        getText(command));
             it->second->setValue(value);
-
+            
             // Release resources if the command does not have a return value
             if (m_executingCommands.find(command) == m_executingCommands.end())
               raInterface.releaseResourcesForCommand(name);
-            
-            //            m_commandAcks.erase(it);
-            //stepExec = true;
          }
          
          // parse command abort
@@ -478,8 +476,9 @@ namespace PLEXIL
          CommandId cmd = *it;
          check_error(cmd.isValid());
          
-         if (acceptCmds.find(cmd) != acceptCmds.end())
+         if (acceptCmds.find(cmd) != acceptCmds.end()) {
            executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
+         }
          else
            {
              debugMsg("Test:testOutput", 
@@ -490,16 +489,33 @@ namespace PLEXIL
       }
    }
 
-   void TestExternalInterface::executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+   void TestExternalInterface::executeCommand (const LabelStr& name,
+                                               const std::list<double>& args,
+                                               ExpressionId dest, ExpressionId ack)
    {
-      std::vector<double> realArgs(args.begin(), args.end());
-      UniqueThing cmd((double)name, realArgs);
-      debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
-               " into " << (dest.isNoId() ? std::string("noId") : dest->toString()) << " with ack " << ack->toString());
-      if (!dest.isNoId()) m_executingCommands[cmd] = dest;
-      m_commandAcks[cmd] = ack;
-      //m_executingCommands.insert(UniqueThing((double)name, args), dest);
+     std::vector<double> realArgs(args.begin(), args.end());
+     UniqueThing cmd((double)name, realArgs);
+     debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
+              " into " <<
+              (dest.isNoId() ? std::string("noId") : dest->toString()) <<
+              " with ack " << ack->toString());
+     if (!dest.isNoId()) m_executingCommands[cmd] = dest;
+     m_commandAcks[cmd] = ack;
+
+     // Special handling of the utility commands (a bit of a hack!):
+     std::string cname = name.toString();
+     if (cname == "print" || cname == "pprint") {
+       if (cname == "print") print (args);
+       else if (cname == "pprint") pprint (args);
+       ExpressionUtMap::iterator it = m_commandAcks.find(cmd);
+       checkError(it != m_commandAcks.end(), 
+                  "No command waiting for acknowledgement " <<
+                  getText(cmd));
+       it->second->setValue(LabelStr ("COMMAND_SUCCESS"));
+       raInterface.releaseResourcesForCommand(name);
+     }
    }
+
 
    /**
     * @brief Abort the pending command with the supplied name and arguments.
