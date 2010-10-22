@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,16 @@ namespace PLEXIL {
 class ExecListener;
 
 /*
-   * @brief This class provides the mechanism to run the Universal
-   * Executive with a simulation script.
+   * @brief This class provides the mechanism to run the Plexil application
+   * called "Test Executive", which executes a plan in lock step with a
+   * simulation script.
 */
 class ExecTestRunner 
 {
  public:
   // using default constructor, destructor, assignment, and copy methods
   
-  /* @brief Run the UE with arguments passed in the command line. */
+  /* @brief Run the Test Executive with arguments passed in the command line. */
   int run (int argc, char** argv, const ExecListener* = 0);
 };
 

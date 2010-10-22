@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,194 +42,198 @@
 #include <fstream>
 #include <string>
 
+using std::string;
+using std::vector;
+using std::endl;
+
 namespace PLEXIL {
 
 int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
-	std::string scriptName("error");
-	std::string planName("error");
-	std::string debugConfig("Debug.cfg");
-	std::vector<std::string> libraryNames;
-	bool luvRequest = false;
-	std::string luvHost = EssentialLuvListener::LUV_DEFAULT_HOSTNAME();
-	int luvPort = EssentialLuvListener::LUV_DEFAULT_PORT();
-	bool luvBlock = false;
-	std::string
-			usage(
-					"Usage: exec-test-runner -s <script> -p <plan> [-l <library>]* [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
+  string scriptName("error");
+  string planName("error");
+  string debugConfig("Debug.cfg");
+  vector<string> libraryNames;
+  bool luvRequest = false;
+  string luvHost = EssentialLuvListener::LUV_DEFAULT_HOSTNAME();
+  int luvPort = EssentialLuvListener::LUV_DEFAULT_PORT();
+  bool luvBlock = false;
+  string
+    usage(
+          "Usage: exec-test-runner -s <script> -p <plan> [-l <library>]* [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
 
-	// if not enough parameters, print usage
+  // if not enough parameters, print usage
 
-	if (argc < 3) {
-		warn(usage);
-		return -1;
-	}
-	// parse out parameters
+  if (argc < 3) {
+    warn(usage);
+    return -1;
+  }
+  // parse out parameters
 
-	for (int i = 1; i < argc; ++i) {
-		if (strcmp(argv[i], "-p") == 0)
-			planName = argv[++i];
-		else if (strcmp(argv[i], "-s") == 0)
-			scriptName = argv[++i];
-		else if (strcmp(argv[i], "-l") == 0)
-			libraryNames.push_back(argv[++i]);
-		else if (strcmp(argv[i], "-d") == 0)
-			debugConfig = std::string(argv[++i]);
-		else if (strcmp(argv[i], "-v") == 0)
-			luvRequest = true;
-		else if (strcmp(argv[i], "-b") == 0)
-			luvBlock = true;
-		else if (strcmp(argv[i], "-h") == 0)
-			luvHost = argv[++i];
-		else if (strcmp(argv[i], "-n") == 0) {
-			std::stringstream buffer;
-			buffer << argv[++i];
-			buffer >> luvPort;
-			SHOW(luvPort);
-		} else if (strcmp(argv[i], "-log") == 0) {
-			Logging::ENABLE_LOGGING = 1;
-			Logging::set_log_file_name(argv[++i]);
-		} else if (strcmp(argv[i], "-eprompt") == 0)
-			Logging::ENABLE_E_PROMPT = 1;
-		else if (strcmp(argv[i], "-wprompt") == 0)
-			Logging::ENABLE_W_PROMPT = 1;
-		else {
-			warn("Unknown option '" << argv[i] << "'.  " << usage);
-			return -1;
-		}
-	}
+  for (int i = 1; i < argc; ++i) {
+    if (strcmp(argv[i], "-p") == 0)
+      planName = argv[++i];
+    else if (strcmp(argv[i], "-s") == 0)
+      scriptName = argv[++i];
+    else if (strcmp(argv[i], "-l") == 0)
+      libraryNames.push_back(argv[++i]);
+    else if (strcmp(argv[i], "-d") == 0)
+      debugConfig = string(argv[++i]);
+    else if (strcmp(argv[i], "-v") == 0)
+      luvRequest = true;
+    else if (strcmp(argv[i], "-b") == 0)
+      luvBlock = true;
+    else if (strcmp(argv[i], "-h") == 0)
+      luvHost = argv[++i];
+    else if (strcmp(argv[i], "-n") == 0) {
+      stringstream buffer;
+      buffer << argv[++i];
+      buffer >> luvPort;
+      SHOW(luvPort);
+    } else if (strcmp(argv[i], "-log") == 0) {
+      Logging::ENABLE_LOGGING = 1;
+      Logging::set_log_file_name(argv[++i]);
+    } else if (strcmp(argv[i], "-eprompt") == 0)
+      Logging::ENABLE_E_PROMPT = 1;
+    else if (strcmp(argv[i], "-wprompt") == 0)
+      Logging::ENABLE_W_PROMPT = 1;
+    else {
+      warn("Unknown option '" << argv[i] << "'.  " << usage);
+      return -1;
+    }
+  }
 
-	if (Logging::ENABLE_LOGGING) {
+  if (Logging::ENABLE_LOGGING) {
 
 #ifdef __linux__
-		Logging::print_to_log(argv, argc);
+    Logging::print_to_log(argv, argc);
 #endif
 #ifdef __APPLE__
-		std::string cmd = "user command: ";
-		for (int i = 1; i < argc; ++i)
-		cmd = cmd + argv[i] + " ";
+    string cmd = "user command: ";
+    for (int i = 1; i < argc; ++i)
+      cmd = cmd + argv[i] + " ";
 
-		Logging::print_to_log(cmd.c_str());
+    Logging::print_to_log(cmd.c_str());
 #endif
-	}
+  }
 
-	// if no script, error out
+  // if no script, error out
 
-	if (scriptName == "error") {
-		warn("No -s option found.  " << usage);
-		return -1;
-	}
-	// basic initialization
+  if (scriptName == "error") {
+    warn("No -s option found.  " << usage);
+    return -1;
+  }
+  // basic initialization
 
-	std::ifstream config(debugConfig.c_str());
-	if (config.good())
-		DebugMessage::readConfigFile(config);
+  std::ifstream config(debugConfig.c_str());
+  if (config.good())
+    DebugMessage::readConfigFile(config);
 
-	initializeExpressions();
-	initializeStateManagers();
+  initializeExpressions();
+  initializeStateManagers();
 
-	// always preserve white space in XML
-	TiXmlBase::SetCondenseWhiteSpace(false);
+  // always preserve white space in XML
+  TiXmlBase::SetCondenseWhiteSpace(false);
 
-	// create the exec
+  // create the exec
 
-	TestExternalInterface intf;
-	PlexilExecId exec = (new PlexilExec())->getId();
-	intf.setExec(exec);
+  TestExternalInterface intf;
+  PlexilExecId exec = (new PlexilExec())->getId();
+  intf.setExec(exec);
 
-	// if a luv view is to be attached
+  // if a Plexil Viwer is to be attached
 
-	if (luvRequest) {
-	  // create and add luv listener
-	  TestLuvListener* ll = 
-		new TestLuvListener(luvHost, luvPort, luvBlock);
-	  if (ll->isConnected()) {
-		  exec->addListener(ll->getId());
-	  }
-	  else {
-		warn("WARNING: Unable to connect to Luv viewer: " << std::endl
-			 << "  address: " << luvHost << ":" << luvPort << std::endl
-			 << "Execution will continue without the viewer.");
-	  }
-	}
+  if (luvRequest) {
+    // create and add luv listener
+    TestLuvListener* ll = 
+      new TestLuvListener(luvHost, luvPort, luvBlock);
+    if (ll->isConnected()) {
+      exec->addListener(ll->getId());
+    }
+    else {
+      warn("WARNING: Unable to connect to Plexil Viewer: " << endl
+           << "  address: " << luvHost << ":" << luvPort << endl
+           << "Execution will continue without the viewer.");
+    }
+  }
 
-	// if specified on command line, load libraries
+  // if specified on command line, load libraries
 
-	for (std::vector<std::string>::const_iterator libraryName =
-			libraryNames.begin(); libraryName != libraryNames.end(); ++libraryName) {
-		TiXmlDocument libraryXml(*libraryName);
-		if (!libraryXml.LoadFile()) {
-			checkParserException(false,
-					"(line " << libraryXml.ErrorRow() << ", column " << libraryXml.ErrorCol()
-					<< ") XML error parsing library '" << *libraryName << "': " << libraryXml.ErrorDesc());
-			return -1;
-		}
+  for (vector<string>::const_iterator libraryName =
+         libraryNames.begin(); libraryName != libraryNames.end(); ++libraryName) {
+    TiXmlDocument libraryXml(*libraryName);
+    if (!libraryXml.LoadFile()) {
+      checkParserException(false,
+                           "(line " << libraryXml.ErrorRow() << ", column " << libraryXml.ErrorCol()
+                           << ") XML error parsing library '" << *libraryName << "': " << libraryXml.ErrorDesc());
+      return -1;
+    }
 
-		PlexilXmlParser parser;
-		PlexilNodeId libnode;
-		try {
-			libnode
-					= parser.parse(
-							libraryXml.FirstChildElement("PlexilPlan")->FirstChildElement(
-									"Node"));
-		} catch (ParserException& e) {
-			checkParserException(false,
-					"XML error parsing library '" << *libraryName << "': \n" << e.what());
-			return -1;
-		}
-		exec->addLibraryNode(libnode);
-	}
+    PlexilXmlParser parser;
+    PlexilNodeId libnode;
+    try {
+      libnode
+        = parser.parse(
+                       libraryXml.FirstChildElement("PlexilPlan")->FirstChildElement(
+                                                                                     "Node"));
+    } catch (ParserException& e) {
+      checkParserException(false,
+                           "XML error parsing library '" << *libraryName << "': \n" << e.what());
+      return -1;
+    }
+    exec->addLibraryNode(libnode);
+  }
 
-	if (planName != "error") {
-		TiXmlDocument plan(planName);
-		if (!plan.LoadFile()) {
-			checkParserException(false,
-					"(line " << plan.ErrorRow() << ", column " << plan.ErrorCol()
-					<< ") XML error parsing plan '" << planName << "': " << plan.ErrorDesc());
-			return -1;
-		}
+  if (planName != "error") {
+    TiXmlDocument plan(planName);
+    if (!plan.LoadFile()) {
+      checkParserException(false,
+                           "(line " << plan.ErrorRow() << ", column " << plan.ErrorCol()
+                           << ") XML error parsing plan '" << planName << "': " << plan.ErrorDesc());
+      return -1;
+    }
 
-		PlexilXmlParser parser;
-		PlexilNodeId root;
-		try {
-			root = parser.parse(
-					plan.FirstChildElement("PlexilPlan") ->FirstChildElement("Node"));
-		} catch (ParserException& e) {
-			return -1;
-		}
-		if (!exec->addPlan(root)) {
-		  warn("Adding plan " << planName << " failed");
-		  return -1;
-		}
-	}
+    PlexilXmlParser parser;
+    PlexilNodeId root;
+    try {
+      root = parser.parse(
+                          plan.FirstChildElement("PlexilPlan") ->FirstChildElement("Node"));
+    } catch (ParserException& e) {
+      return -1;
+    }
+    if (!exec->addPlan(root)) {
+      warn("Adding plan " << planName << " failed");
+      return -1;
+    }
+  }
 
-	// Add listener if specified
-	if (listener)
-		((PlexilExec*) exec)->addListener(listener->getId());
+  // Add listener if specified
+  if (listener)
+    ((PlexilExec*) exec)->addListener(listener->getId());
 
-	// load script
+  // load script
 
-	TiXmlDocument script(scriptName);
-	if (!script.LoadFile()) {
-		checkParserException(false,
-				"(line " << script.ErrorRow() << ", column " << script.ErrorCol()
-				<< ") XML error parsing script '" << scriptName << "': " << script.ErrorDesc());
-		return -1;
-	}
-	// execute plan
+  TiXmlDocument script(scriptName);
+  if (!script.LoadFile()) {
+    checkParserException(false,
+                         "(line " << script.ErrorRow() << ", column " << script.ErrorCol()
+                         << ") XML error parsing script '" << scriptName << "': " << script.ErrorDesc());
+    return -1;
+  }
+  // execute plan
 
-	clock_t time = clock();
-	TiXmlElement* scriptElement = script.FirstChildElement("PLEXILScript");
-	if (scriptElement == 0) {
-		warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
-		return -1;
-	}
-	intf.run(*scriptElement);
-	debugMsg("Time", "Time spent in execution: " << clock() - time);
+  clock_t time = clock();
+  TiXmlElement* scriptElement = script.FirstChildElement("PLEXILScript");
+  if (scriptElement == 0) {
+    warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
+    return -1;
+  }
+  intf.run(*scriptElement);
+  debugMsg("Time", "Time spent in execution: " << clock() - time);
 
-	// clean up
+  // clean up
 
-	delete (PlexilExec*) exec;
-	return 0;
+  delete (PlexilExec*) exec;
+  return 0;
 }
 
 } // namespace
