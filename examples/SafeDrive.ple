@@ -23,5 +23,10 @@ SafeDrive:
           PreCondition: pictures < 10;
           Assignment: pictures = pictures + 1;
         }
+
+        Print:
+        {
+          Command: pprint ("Pictures taken:", pictures);
+        }
    }
 }

@@ -104,6 +104,12 @@
                                                          </NodeOutcomeVariable>
                                                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                                                       </EQInternal>
+                                                      <EQInternal>
+                                                         <NodeOutcomeVariable>
+                                                            <NodeId>Print</NodeId>
+                                                         </NodeOutcomeVariable>
+                                                         <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                      </EQInternal>
                                                    </OR>
                                                 </NOT>
                                              </AND>
@@ -175,6 +181,30 @@
                                                             </ADD>
                                                          </NumericRHS>
                                                       </Assignment>
+                                                   </NodeBody>
+                                                </Node>
+                                                <Node NodeType="Command" FileName="SafeDrive.ple" LineNo="28" ColNo="9">
+                                                   <NodeId>Print</NodeId>
+                                                   <StartCondition>
+                                                      <AND>
+                                                         <EQInternal>
+                                                            <NodeStateVariable>
+                                                               <NodeId>Counter</NodeId>
+                                                            </NodeStateVariable>
+                                                            <NodeStateValue>FINISHED</NodeStateValue>
+                                                         </EQInternal>
+                                                      </AND>
+                                                   </StartCondition>
+                                                   <NodeBody>
+                                                      <Command>
+                                                         <Name>
+                                                            <StringValue>pprint</StringValue>
+                                                         </Name>
+                                                         <Arguments>
+                                                            <StringValue>Pictures taken:</StringValue>
+                                                            <IntegerVariable>pictures</IntegerVariable>
+                                                         </Arguments>
+                                                      </Command>
                                                    </NodeBody>
                                                 </Node>
                                              </NodeList>
