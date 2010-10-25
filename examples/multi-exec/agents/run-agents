@@ -6,7 +6,7 @@ function usage ()
 {
 cat <<EOF
 
-Usage:      `basename $0` <agent1> <agent2>
+Usage:      `basename $0` <agent1> <agent2> [-persist]
 
 Examples:   `basename $0` t1-cmd t1-sim
             `basename $0` t2-cmd.pli t1-sim.pli
@@ -18,12 +18,15 @@ Examples:   `basename $0` t1-cmd t1-sim
             "base names", e.g., given "t1-cmd" as the base name, "t1-cmd.xml" and "cmd.xml"
             will be tried.
 
+            The -persist option runs both agents in the invoking shell, which in turn,
+            allows the Viewers to "persist" beyond the completion of the plans.
+
 EOF
 exit
 }
 
 # Only 2 "base name" parameters
-if [ $# != 2 ] ;
+if [ $# < 2 ] ;
 then
     usage
 fi
@@ -101,6 +104,11 @@ then
   sleep 2;
 else
    echo "IPC already running..."
+fi
+
+if [ "$3" = "-persist" ] ;
+then
+  has_xterm=
 fi
 
 # Start the agents
