@@ -85,7 +85,7 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
     else if (strcmp(argv[i], "-h") == 0)
       luvHost = argv[++i];
     else if (strcmp(argv[i], "-n") == 0) {
-      stringstream buffer;
+      std::stringstream buffer;
       buffer << argv[++i];
       buffer >> luvPort;
       SHOW(luvPort);
