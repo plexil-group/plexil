@@ -1,12 +1,27 @@
-This directory contains example PLEXIL plans and scripts.  A few of these are
-explained in the PLEXIL Reference Manual:
+This directory contains example PLEXIL plans and scripts.  A few of these
+examples are explained in the PLEXIL Reference Manual:
 
 https://sourceforge.net/apps/mediawiki/plexil/index.php?title=Example_PLEXIL_Plans
 
-Multiple-executive examples are found in the 'multi-exec' subdirectory.
+All the example plans in the immediate directory are found in both source (.ple)
+and translated (.plx) format.  They all have default simulation scripts for the
+Test Executive application, and thus may be executed by entering the following
+(as an example) at a Unix prompt:
+
+ plexiltest -v -p SafeDrive.plx
+
+See the Plexil Simulators chapter in the manual above for more information about
+the TestExecutive, the 'plexiltest' command, and simulation scripts.
+
+----
+
+Multiple-executive examples are found in the 'multi-exec' subdirectory.  See the
+README there for more information.
 
 An example "PLEXIL application" (executive interfaced to an external system,
-with plans), is found in plexil/src/apps/sample.
+with plans), is found in plexil/src/apps/sample.  See the "Interfacing" chapter
+for a description of how applications work.
 
 A more sophisticated example of a PLEXIL application, one that uses PLEXIL to
 control robots in a graphical simulator, is found in plexil/src/apps/robosim.
+See the "RoboSim" appendix for more info.
