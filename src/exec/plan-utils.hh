@@ -30,9 +30,12 @@
 
 namespace PLEXIL {
 
-// Commands
+// Printing Commands
 
+// Print arguments to standard output verbatim.
 void print (const std::list<double>& args);
+
+// Print arguments to standard output in a "pretty" way.
 void pprint (const std::list<double>& args);
 
 }
