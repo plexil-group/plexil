@@ -1,5 +1,6 @@
 (plexil-plan
   (comment "A sequence of two consecutive waits")
   (sequence "root"
-    (wait 10.2 "for-Godot")
+    (wait 10.2 "ForGodot")
+    (wait-with-tolerance 0.7 0.5)
     (wait 5)))
