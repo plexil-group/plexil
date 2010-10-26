@@ -45,210 +45,219 @@
 namespace PLEXIL
 {
 
-   UniqueThing& TestExternalInterface::timeState()
-   {
-     static UniqueThing* sl_state = NULL;
-     if (sl_state == NULL)
-       sl_state = new UniqueThing(std::make_pair((double)LabelStr("time"), std::vector<double>()));
-     return *sl_state;
-   }
+  // CommandPending means that a utility command, which is executed directly
+  // rather than driven by a simulation script has been executed, and that the
+  // driver loop should continue.
+  static bool CommandPending = false;
 
-   TestExternalInterface::TestExternalInterface() : ExternalInterface()
-   {
-      m_states.insert(std::make_pair(timeState(), 0));
-   }
+  UniqueThing& TestExternalInterface::timeState()
+  {
+    static UniqueThing* sl_state = NULL;
+    if (sl_state == NULL)
+      sl_state = new UniqueThing(std::make_pair((double)LabelStr("time"), std::vector<double>()));
+    return *sl_state;
+  }
 
-   void TestExternalInterface::run(const TiXmlElement& input)
-     throw(ParserException)
-   {
-      checkError(m_exec.isValid(), "Attempted to run a script without an executive.");
-      handleInitialState(input);
-      const TiXmlElement* script = input.FirstChildElement("Script");
-      checkError(script != NULL, "No Script element in script...");
-      const TiXmlElement* scriptElement = script->FirstChildElement();
-      while (scriptElement != NULL)
+  TestExternalInterface::TestExternalInterface() : ExternalInterface()
+  {
+    m_states.insert(std::make_pair(timeState(), 0));
+  }
+
+  void TestExternalInterface::run(const TiXmlElement& input)
+    throw(ParserException)
+  {
+    checkError(m_exec.isValid(), "Attempted to run a script without an executive.");
+    handleInitialState(input);
+    const TiXmlElement* script = input.FirstChildElement("Script");
+    checkError(script != NULL, "No Script element in script...");
+    const TiXmlElement* scriptElement = script->FirstChildElement();
+    while (scriptElement != NULL || CommandPending)
       {
-         //bool stepExec = false;
-         LabelStr name;
-         double value;
-         std::vector<double> args;
+        if (CommandPending) {
+          CommandPending = false;
+          m_exec->step();
+        }
+        else {
+          LabelStr name;
+          double value;
+          std::vector<double> args;
 
-         // parse state
+          // parse state
 
-         if (strcmp(scriptElement->Value(), "State") == 0)
-         {
-            parseState(*scriptElement, name, args, value);
-            State st(name, args);
-            std::vector<double> stateValues(1, value);
-            m_states[st] = value;
-            debugMsg("Test:testOutput", "Processing event: " <<
-                     StateCache::toString(st)
-                     << " = " << StateCache::toString(stateValues));
-            m_exec->getStateCache()->updateState(st, stateValues);
-         }
-
-         // parse command
-
-         else if (strcmp(scriptElement->Value(), "Command") == 0)
-         {
-            parseCommand(*scriptElement, name, args, value);
-            UniqueThing command(name, args);
-            debugMsg("Test:testOutput", "Sending command result " << 
-                     getText(command, value));
-            ExpressionUtMap::iterator it = 
-              m_executingCommands.find(command);
-            checkError(it != m_executingCommands.end(),
-                       "No currently executing command " << getText(command));
-
-            setVariableValue(getText(command), it->second, value);
-            m_executingCommands.erase(it);
-            raInterface.releaseResourcesForCommand(name);
-            //stepExec = true;
-         }
-
-         // parse command ack
-
-         else if (strcmp(scriptElement->Value(), "CommandAck") == 0)
-         {
-            parseCommand(*scriptElement, name, args, value);
-            UniqueThing command(name, args);
-            debugMsg("Test:testOutput", "Sending command ACK " << 
-                     getText(command, value));
-
-            ExpressionUtMap::iterator it = 
-               m_commandAcks.find(command);
-
-            checkError(it != m_commandAcks.end(), 
-                       "No command waiting for acknowledgement " <<
-                       getText(command));
-            it->second->setValue(value);
-            
-            // Release resources if the command does not have a return value
-            if (m_executingCommands.find(command) == m_executingCommands.end())
-              raInterface.releaseResourcesForCommand(name);
-         }
-         
-         // parse command abort
-
-         else if (strcmp(scriptElement->Value(), "CommandAbort") == 0)
-         {
-            parseCommand(*scriptElement, name, args, value);
-            UniqueThing command(name, args);
-            debugMsg("Test:testOutput", "Sending abort ACK " << 
-                     getText(command, value));
-            ExpressionUtMap::iterator it = 
-               m_abortingCommands.find(command);
-            checkError(it != m_abortingCommands.end(), 
-                       "No abort waiting for acknowledgement " << 
-                       getText(command));
-            debugMsg("Test:testOutput", "Acknowledging abort into " << 
-                     it->second->toString());
-            it->second->setValue(BooleanVariable::TRUE());
-            m_abortingCommands.erase(it);
-         }
-
-         // parse update ack
-
-         else if (strcmp(scriptElement->Value(), "UpdateAck") == 0)
-         {
-            LabelStr name(scriptElement->Attribute("name"));
-            debugMsg("Test:testOutput", "Sending update ACK " << name.toString());
-            std::map<double, UpdateId>::iterator it = m_waitingUpdates.find(name);
-            checkError(it != m_waitingUpdates.end(),
-                       "No update from node " << name.toString() << 
-                       " waiting for acknowledgement.");
-            it->second->getAck()->setValue(BooleanVariable::TRUE());
-            m_waitingUpdates.erase(it);
-         }
-
-         // parse send plan
-
-         else if (strcmp(scriptElement->Value(), "SendPlan") == 0)
-         {
-            TiXmlDocument* doc = new TiXmlDocument();
-            doc->LoadFile(scriptElement->Attribute("file"));
-
-            LabelStr parent;
-            if (scriptElement->Attribute("parent") != NULL)
-               parent = LabelStr(scriptElement->Attribute("parent"));
-            debugMsg("Test:testOutput", "Sending plan from file " << 
-                     scriptElement->Attribute("file"));
-            condDebugMsg(parent != EMPTY_LABEL(), "Test:testOutput", 
-                         "To be child of parent " << parent.toString());
-            PlexilXmlParser parser;
-            PlexilNodeId root =
-               parser.parse(doc->FirstChildElement("PlexilPlan")->
-                            FirstChildElement("Node"));
-            checkError(m_exec->addPlan(root, parent),
-					   "Adding plan " << scriptElement->Attribute("file") << " failed");
-         }
-
-         // parse simultaneous
-
-         else if (strcmp(scriptElement->Value(), "Simultaneous") == 0)
-         {
-            const TiXmlElement* stateUpdates = scriptElement->FirstChildElement("State");
-            while (stateUpdates != NULL)
+          if (strcmp(scriptElement->Value(), "State") == 0)
             {
-               
-               parseState(*stateUpdates, name, args, value);
-               State st(name, args);
-               m_states[st] = value;
-               debugMsg("Test:testOutput", "Processing simultaneous event: " <<
-                        StateCache::toString(st) << " = " << value);
-               m_exec->getStateCache()->updateState(
-                  st, std::vector<double>(1, value));
-               args.clear();
-               stateUpdates = stateUpdates->NextSiblingElement("State");
+              parseState(*scriptElement, name, args, value);
+              State st(name, args);
+              std::vector<double> stateValues(1, value);
+              m_states[st] = value;
+              debugMsg("Test:testOutput", "Processing event: " <<
+                       StateCache::toString(st)
+                       << " = " << StateCache::toString(stateValues));
+              m_exec->getStateCache()->updateState(st, stateValues);
             }
-         }
-         else if (strcmp(scriptElement->Value(), "Delay") == 0)
-         {
-           ; // No-op
-         }
 
-         // report unknow script element
+          // parse command
 
-         else
-         {
-            checkError(ALWAYS_FAIL, "Unknown script element '" << 
-                       scriptElement->Value() << "'");
-            return;
-         }
+          else if (strcmp(scriptElement->Value(), "Command") == 0)
+            {
+              parseCommand(*scriptElement, name, args, value);
+              UniqueThing command(name, args);
+              debugMsg("Test:testOutput", "Sending command result " << 
+                       getText(command, value));
+              ExpressionUtMap::iterator it = 
+                m_executingCommands.find(command);
+              checkError(it != m_executingCommands.end(),
+                         "No currently executing command " << getText(command));
+
+              setVariableValue(getText(command), it->second, value);
+              m_executingCommands.erase(it);
+              raInterface.releaseResourcesForCommand(name);
+            }
+
+          // parse command ack
+
+          else if (strcmp(scriptElement->Value(), "CommandAck") == 0)
+            {
+              parseCommand(*scriptElement, name, args, value);
+              UniqueThing command(name, args);
+              debugMsg("Test:testOutput", "Sending command ACK " << 
+                       getText(command, value));
+
+              ExpressionUtMap::iterator it = 
+                m_commandAcks.find(command);
+
+              checkError(it != m_commandAcks.end(), 
+                         "No command waiting for acknowledgement " <<
+                         getText(command));
+              it->second->setValue(value);
+            
+              // Release resources if the command does not have a return value
+              if (m_executingCommands.find(command) == m_executingCommands.end())
+                raInterface.releaseResourcesForCommand(name);
+            }
          
-         // step the exec forward
+          // parse command abort
+
+          else if (strcmp(scriptElement->Value(), "CommandAbort") == 0)
+            {
+              parseCommand(*scriptElement, name, args, value);
+              UniqueThing command(name, args);
+              debugMsg("Test:testOutput", "Sending abort ACK " << 
+                       getText(command, value));
+              ExpressionUtMap::iterator it = 
+                m_abortingCommands.find(command);
+              checkError(it != m_abortingCommands.end(), 
+                         "No abort waiting for acknowledgement " << 
+                         getText(command));
+              debugMsg("Test:testOutput", "Acknowledging abort into " << 
+                       it->second->toString());
+              it->second->setValue(BooleanVariable::TRUE());
+              m_abortingCommands.erase(it);
+            }
+
+          // parse update ack
+
+          else if (strcmp(scriptElement->Value(), "UpdateAck") == 0)
+            {
+              LabelStr name(scriptElement->Attribute("name"));
+              debugMsg("Test:testOutput", "Sending update ACK " << name.toString());
+              std::map<double, UpdateId>::iterator it = m_waitingUpdates.find(name);
+              checkError(it != m_waitingUpdates.end(),
+                         "No update from node " << name.toString() << 
+                         " waiting for acknowledgement.");
+              it->second->getAck()->setValue(BooleanVariable::TRUE());
+              m_waitingUpdates.erase(it);
+            }
+
+          // parse send plan
+
+          else if (strcmp(scriptElement->Value(), "SendPlan") == 0)
+            {
+              TiXmlDocument* doc = new TiXmlDocument();
+              doc->LoadFile(scriptElement->Attribute("file"));
+
+              LabelStr parent;
+              if (scriptElement->Attribute("parent") != NULL)
+                parent = LabelStr(scriptElement->Attribute("parent"));
+              debugMsg("Test:testOutput", "Sending plan from file " << 
+                       scriptElement->Attribute("file"));
+              condDebugMsg(parent != EMPTY_LABEL(), "Test:testOutput", 
+                           "To be child of parent " << parent.toString());
+              PlexilXmlParser parser;
+              PlexilNodeId root =
+                parser.parse(doc->FirstChildElement("PlexilPlan")->
+                             FirstChildElement("Node"));
+              checkError(m_exec->addPlan(root, parent),
+                         "Adding plan " << scriptElement->Attribute("file") << " failed");
+            }
+
+          // parse simultaneous
+
+          else if (strcmp(scriptElement->Value(), "Simultaneous") == 0)
+            {
+              const TiXmlElement* stateUpdates = scriptElement->FirstChildElement("State");
+              while (stateUpdates != NULL)
+                {
+               
+                  parseState(*stateUpdates, name, args, value);
+                  State st(name, args);
+                  m_states[st] = value;
+                  debugMsg("Test:testOutput", "Processing simultaneous event: " <<
+                           StateCache::toString(st) << " = " << value);
+                  m_exec->getStateCache()->updateState(
+                                                       st, std::vector<double>(1, value));
+                  args.clear();
+                  stateUpdates = stateUpdates->NextSiblingElement("State");
+                }
+            }
+          else if (strcmp(scriptElement->Value(), "Delay") == 0)
+            {
+              ; // No-op
+            }
+
+          // report unknow script element
+
+          else
+            {
+              checkError(ALWAYS_FAIL, "Unknown script element '" << 
+                         scriptElement->Value() << "'");
+              return;
+            }
          
-         m_exec->step();
-         scriptElement = scriptElement->NextSiblingElement();
+          // step the exec forward
+         
+          m_exec->step();
+          scriptElement = scriptElement->NextSiblingElement();
+        }
       }
-   }
+  }
 
-   // map values from script into a variable expression
+  // map values from script into a variable expression
 
-   void TestExternalInterface::setVariableValue(std::string source,
-                                                ExpressionId expr,
-                                                double& value)
-   {
-      if (expr != ExpressionId::noId())
+  void TestExternalInterface::setVariableValue(std::string source,
+                                               ExpressionId expr,
+                                               double& value)
+  {
+    if (expr != ExpressionId::noId())
       {
-         checkError(Id<Variable>::convertable(expr),
-                    "Expected string or atomic variable in \'" <<
-                    source << "\'");
-         expr->setValue(value);
+        checkError(Id<Variable>::convertable(expr),
+                   "Expected string or atomic variable in \'" <<
+                   source << "\'");
+        expr->setValue(value);
       }
-   }
+  }
 
-   void TestExternalInterface::handleInitialState(const TiXmlElement& input)
-   {
-      const TiXmlElement* initialState = input.FirstChildElement("InitialState");
-      if (initialState != NULL)
+  void TestExternalInterface::handleInitialState(const TiXmlElement& input)
+  {
+    const TiXmlElement* initialState = input.FirstChildElement("InitialState");
+    if (initialState != NULL)
       {
-         LabelStr name;
-         double value;
-         std::vector<double> args;
-         const TiXmlElement* state = initialState->FirstChildElement("State");
-         while (state != NULL)
-         {
+        LabelStr name;
+        double value;
+        std::vector<double> args;
+        const TiXmlElement* state = initialState->FirstChildElement("State");
+        while (state != NULL)
+          {
             args.clear();
             parseState(*state, name, args, value);
             UniqueThing st(name, args);
@@ -256,362 +265,363 @@ namespace PLEXIL
                      << getText(st, value));
             m_states.insert(std::pair<UniqueThing, double>(st, value));
             state = state->NextSiblingElement("State");
-         }
+          }
       }
-      m_exec->step();
-   }
+    m_exec->step();
+  }
 
-   void TestExternalInterface::parseState(const TiXmlElement& state,
-                                          LabelStr& name,
-                                          std::vector<double>& args,
-                                          double& value)
+  void TestExternalInterface::parseState(const TiXmlElement& state,
+                                         LabelStr& name,
+                                         std::vector<double>& args,
+                                         double& value)
 
-   {
-      checkError(strcmp(state.Value(), "State") == 0,
-                 "Expected <State> element.  Found '" << state.Value() << "'");
+  {
+    checkError(strcmp(state.Value(), "State") == 0,
+               "Expected <State> element.  Found '" << state.Value() << "'");
 
-      checkError(state.Attribute("name") != NULL,
-                 "No name attribute in <State> element.");
-      name = LabelStr(state.Attribute("name"));
-      checkError(state.Attribute("type") != NULL,
-                 "No type attribute in <State> element.");
-      std::string type(state.Attribute("type"));
-      const TiXmlElement* valXml = state.FirstChildElement("Value");
-      checkError(valXml != NULL, "No Value child in State element.");
-      checkError(valXml->FirstChild() != NULL,
-                 "Empty Value child in State element.");
+    checkError(state.Attribute("name") != NULL,
+               "No name attribute in <State> element.");
+    name = LabelStr(state.Attribute("name"));
+    checkError(state.Attribute("type") != NULL,
+               "No type attribute in <State> element.");
+    std::string type(state.Attribute("type"));
+    const TiXmlElement* valXml = state.FirstChildElement("Value");
+    checkError(valXml != NULL, "No Value child in State element.");
+    checkError(valXml->FirstChild() != NULL,
+               "Empty Value child in State element.");
 
-      // read in the initiial values and parameters
+    // read in the initiial values and parameters
 
-      value = parseValues(type, valXml);
-      parseParams(state, args);
-   }
+    value = parseValues(type, valXml);
+    parseParams(state, args);
+  }
 
-   void TestExternalInterface::parseCommand(const TiXmlElement& cmd,
-                                            LabelStr& name, 
-                                            std::vector<double>& args, 
-                                            double& value)
-   {
-      checkError(strcmp(cmd.Value(), "Command") == 0 ||
-                 strcmp(cmd.Value(), "CommandAck") == 0 ||
-                 strcmp(cmd.Value(), "CommandAbort") == 0, "Expected <Command> element.  Found '" << cmd.Value() << "'");
+  void TestExternalInterface::parseCommand(const TiXmlElement& cmd,
+                                           LabelStr& name, 
+                                           std::vector<double>& args, 
+                                           double& value)
+  {
+    checkError(strcmp(cmd.Value(), "Command") == 0 ||
+               strcmp(cmd.Value(), "CommandAck") == 0 ||
+               strcmp(cmd.Value(), "CommandAbort") == 0, "Expected <Command> element.  Found '" << cmd.Value() << "'");
 
-      checkError(cmd.Attribute("name") != NULL, "No name attribute in <Command> element.");
-      name = LabelStr(cmd.Attribute("name"));
-      checkError(cmd.Attribute("type") != NULL, "No type attribute in <Command> element.");
-      std::string type(cmd.Attribute("type"));
+    checkError(cmd.Attribute("name") != NULL, "No name attribute in <Command> element.");
+    name = LabelStr(cmd.Attribute("name"));
+    checkError(cmd.Attribute("type") != NULL, "No type attribute in <Command> element.");
+    std::string type(cmd.Attribute("type"));
 
-      const TiXmlElement* resXml = cmd.FirstChildElement("Result");
-      checkError(resXml != NULL, "No Result child in Command element.");
-      checkError(resXml->FirstChild() != NULL, "Empty Result child in Command element.");
+    const TiXmlElement* resXml = cmd.FirstChildElement("Result");
+    checkError(resXml != NULL, "No Result child in Command element.");
+    checkError(resXml->FirstChild() != NULL, "Empty Result child in Command element.");
 
-      // read in the initiial values and parameters
+    // read in the initiial values and parameters
 
-      value = parseValues(type, resXml);
-      parseParams(cmd, args);
-   }
+    value = parseValues(type, resXml);
+    parseParams(cmd, args);
+  }
 
-   void TestExternalInterface::parseParams(const TiXmlElement& root, 
-                                           std::vector<double>& dest)
-   {
-      const TiXmlElement* param = root.FirstChildElement("Param");
+  void TestExternalInterface::parseParams(const TiXmlElement& root, 
+                                          std::vector<double>& dest)
+  {
+    const TiXmlElement* param = root.FirstChildElement("Param");
 
-      while (param != NULL)
+    while (param != NULL)
       {
-         checkError(param->FirstChild() != NULL || strcmp(param->Attribute("type"),
-                                                          "string") == 0,
-                    "Empty Param child in " << root.Value() << " element.");
-         double value;
-         if (param->Attribute("type") != NULL &&
-             (strcmp(param->Attribute("type"), "int") == 0 ||
-              strcmp(param->Attribute("type"), "real") == 0 ||
-              strcmp(param->Attribute("type"), "bool") == 0))
-         {
+        checkError(param->FirstChild() != NULL || strcmp(param->Attribute("type"),
+                                                         "string") == 0,
+                   "Empty Param child in " << root.Value() << " element.");
+        double value;
+        if (param->Attribute("type") != NULL &&
+            (strcmp(param->Attribute("type"), "int") == 0 ||
+             strcmp(param->Attribute("type"), "real") == 0 ||
+             strcmp(param->Attribute("type"), "bool") == 0))
+          {
             std::stringstream str;
             str << param->FirstChild()->Value();
             str >> value;
-         }
-         else
-            value = (param->FirstChild() != NULL)
-               ? LabelStr(param->FirstChild()->Value())
-               : LabelStr();
+          }
+        else
+          value = (param->FirstChild() != NULL)
+            ? LabelStr(param->FirstChild()->Value())
+            : LabelStr();
 
-         dest.push_back(value);
-         param = param->NextSiblingElement("Param");
+        dest.push_back(value);
+        param = param->NextSiblingElement("Param");
       }
-   }
+  }
 
-   double TestExternalInterface::parseValues(std::string type, 
-                                             const TiXmlElement* valXml)
-   {
-      // read in values
+  double TestExternalInterface::parseValues(std::string type, 
+                                            const TiXmlElement* valXml)
+  {
+    // read in values
 
-      std::vector<double> values;
-      while (valXml != NULL)
+    std::vector<double> values;
+    while (valXml != NULL)
       {
-         values.push_back(parseValue(type, valXml->FirstChild()->Value()));
-         valXml = valXml->NextSiblingElement();
+        values.push_back(parseValue(type, valXml->FirstChild()->Value()));
+        valXml = valXml->NextSiblingElement();
       }
 
-      // if atomic use 1st value, else its an array, create array
+    // if atomic use 1st value, else its an array, create array
 
-      double value = (type.find("array", 0) == std::string::npos)
-         ? values[0]
-         : StoredArray(values.size(), values).getKey();
-      return value;
-   }
+    double value = (type.find("array", 0) == std::string::npos)
+      ? values[0]
+      : StoredArray(values.size(), values).getKey();
+    return value;
+  }
 
-   // parse in value
+  // parse in value
 
-   double TestExternalInterface::parseValue(std::string type, 
-                                            std::string valStr)
-   {
-      double value;
+  double TestExternalInterface::parseValue(std::string type, 
+                                           std::string valStr)
+  {
+    double value;
 
-      if (type == "string" || type == "string-array")
+    if (type == "string" || type == "string-array")
       {
-         value = (double) LabelStr(valStr);
+        value = (double) LabelStr(valStr);
       }
-      else if (type == "int" || type == "real" ||
-               type == "int-array" || type == "real-array")
+    else if (type == "int" || type == "real" ||
+             type == "int-array" || type == "real-array")
       {
-         std::stringstream ss;
-         ss << valStr;
-         ss >> value;
+        std::stringstream ss;
+        ss << valStr;
+        ss >> value;
       }
-      else if (type == "bool" || type == "bool-array")
+    else if (type == "bool" || type == "bool-array")
       {
-         if (valStr == "true" || valStr == "TRUE" || valStr == "True")
-            value = 1;
-         else if (valStr == "false" || valStr == "FALSE" || valStr == "False")
-            value = 0;
-         else
-         {
+        if (valStr == "true" || valStr == "TRUE" || valStr == "True")
+          value = 1;
+        else if (valStr == "false" || valStr == "FALSE" || valStr == "False")
+          value = 0;
+        else
+          {
             std::stringstream ss;
             ss << valStr;
             ss >> value;
-         }
+          }
       }
-      else
+    else
       {
-         checkError(ALWAYS_FAIL,
-                    "Unknown type '" << type << "' in State element.");
-         return 0;
+        checkError(ALWAYS_FAIL,
+                   "Unknown type '" << type << "' in State element.");
+        return 0;
       }
-      return value;
-   }
+    return value;
+  }
 
-   void TestExternalInterface::registerChangeLookup(const LookupKey& /* source */,
-						    const State& state, 
-						    const StateKey& key,
-						    const std::vector<double>& tolerances,
-						    std::vector<double>& dest)
-   {
-      debugMsg("Test:testOutput", "Registering change lookup " 
-               << StateCache::toString(state) << " with tolerances " 
-               << StateCache::toString(tolerances));
-      m_statesByKey.insert(std::make_pair(key, state));
+  void TestExternalInterface::registerChangeLookup(const LookupKey& /* source */,
+                                                   const State& state, 
+                                                   const StateKey& key,
+                                                   const std::vector<double>& tolerances,
+                                                   std::vector<double>& dest)
+  {
+    debugMsg("Test:testOutput", "Registering change lookup " 
+             << StateCache::toString(state) << " with tolerances " 
+             << StateCache::toString(tolerances));
+    m_statesByKey.insert(std::make_pair(key, state));
 
-      //ignore source, because we don't care about bandwidth here
-      StateMap::iterator it = m_states.find(state);
-      if (it == m_states.end())
+    //ignore source, because we don't care about bandwidth here
+    StateMap::iterator it = m_states.find(state);
+    if (it == m_states.end())
       {
-         std::pair<UniqueThing, double> p = 
-            std::make_pair(state, Expression::UNKNOWN());
-         it = m_states.insert(p).first;
+        std::pair<UniqueThing, double> p = 
+          std::make_pair(state, Expression::UNKNOWN());
+        it = m_states.insert(p).first;
       }
-      dest[0] = m_states[state];
-   }
+    dest[0] = m_states[state];
+  }
 
-   void TestExternalInterface::registerChangeLookup(
-      const LookupKey& source, const StateKey& key, 
-      const std::vector<double>& tolerances)
-   {
-      std::vector<double> fakeDest(1, 0);
-      registerChangeLookup(source, m_statesByKey[key], key, tolerances, fakeDest);
-   }
+  void TestExternalInterface::registerChangeLookup(
+                                                   const LookupKey& source, const StateKey& key, 
+                                                   const std::vector<double>& tolerances)
+  {
+    std::vector<double> fakeDest(1, 0);
+    registerChangeLookup(source, m_statesByKey[key], key, tolerances, fakeDest);
+  }
 
-   void TestExternalInterface::lookupNow(const State& state, const StateKey& key,
-                                         std::vector<double>& dest)
-   {
-      debugMsg("Test:testOutput", "Looking up immediately "
-               << StateCache::toString(state));
-      m_statesByKey.insert(std::make_pair(key, state));
-      StateMap::iterator it = m_states.find(state);
-      if (it == m_states.end())
+  void TestExternalInterface::lookupNow(const State& state, const StateKey& key,
+                                        std::vector<double>& dest)
+  {
+    debugMsg("Test:testOutput", "Looking up immediately "
+             << StateCache::toString(state));
+    m_statesByKey.insert(std::make_pair(key, state));
+    StateMap::iterator it = m_states.find(state);
+    if (it == m_states.end())
       {
-         debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
-         it = m_states.insert(
-            std::make_pair(state, Expression::UNKNOWN())).first;
+        debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
+        it = m_states.insert(
+                             std::make_pair(state, Expression::UNKNOWN())).first;
       }
-      debugMsg("Test:testOutput", "Returning value " << m_states[state]);
-      double value = m_states[state];
-      if (dest.size() < 1)
-         dest.push_back(value);
-      else
-         dest[0] = value;
-   }
+    debugMsg("Test:testOutput", "Returning value " << m_states[state]);
+    double value = m_states[state];
+    if (dest.size() < 1)
+      dest.push_back(value);
+    else
+      dest[0] = value;
+  }
 
-   void TestExternalInterface::lookupNow(const StateKey& key, 
-                                         std::vector<double>& dest)
-   {
-      checkError(m_statesByKey.find(key) != m_statesByKey.end(),
-                 "No state known for key " << key);
-      lookupNow(m_statesByKey[key], key, dest);
-   }
+  void TestExternalInterface::lookupNow(const StateKey& key, 
+                                        std::vector<double>& dest)
+  {
+    checkError(m_statesByKey.find(key) != m_statesByKey.end(),
+               "No state known for key " << key);
+    lookupNow(m_statesByKey[key], key, dest);
+  }
 
 
   void TestExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
   {}
 
-   void TestExternalInterface::batchActions(std::list<CommandId>& commands)
-   {
-      if (commands.empty())
-         return;
+  void TestExternalInterface::batchActions(std::list<CommandId>& commands)
+  {
+    if (commands.empty())
+      return;
       
-      std::set<CommandId> acceptCmds;
-      raInterface.arbitrateCommands(commands, acceptCmds);
-      for (std::list<CommandId>::iterator it = commands.begin(); it != commands.end(); ++it)
+    std::set<CommandId> acceptCmds;
+    raInterface.arbitrateCommands(commands, acceptCmds);
+    for (std::list<CommandId>::iterator it = commands.begin(); it != commands.end(); ++it)
       {
-         CommandId cmd = *it;
-         check_error(cmd.isValid());
+        CommandId cmd = *it;
+        check_error(cmd.isValid());
          
-         if (acceptCmds.find(cmd) != acceptCmds.end()) {
-           executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
-         }
-         else
-           {
-             debugMsg("Test:testOutput", 
-                      "Permission to execute " << cmd->getName().toString()
-                      << " has been denied by the resource arbiter.");
-             cmd->getAck()->setValue(CommandHandleVariable::COMMAND_DENIED());
-           }
+        if (acceptCmds.find(cmd) != acceptCmds.end()) {
+          executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
+        }
+        else
+          {
+            debugMsg("Test:testOutput", 
+                     "Permission to execute " << cmd->getName().toString()
+                     << " has been denied by the resource arbiter.");
+            cmd->getAck()->setValue(CommandHandleVariable::COMMAND_DENIED());
+          }
       }
-   }
+  }
 
-   void TestExternalInterface::executeCommand (const LabelStr& name,
-                                               const std::list<double>& args,
-                                               ExpressionId dest, ExpressionId ack)
-   {
-     std::vector<double> realArgs(args.begin(), args.end());
-     UniqueThing cmd((double)name, realArgs);
-     debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
-              " into " <<
-              (dest.isNoId() ? std::string("noId") : dest->toString()) <<
-              " with ack " << ack->toString());
-     if (!dest.isNoId()) m_executingCommands[cmd] = dest;
-     m_commandAcks[cmd] = ack;
+  void TestExternalInterface::executeCommand (const LabelStr& name,
+                                              const std::list<double>& args,
+                                              ExpressionId dest, ExpressionId ack)
+  {
+    std::vector<double> realArgs(args.begin(), args.end());
+    UniqueThing cmd((double)name, realArgs);
+    debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
+             " into " <<
+             (dest.isNoId() ? std::string("noId") : dest->toString()) <<
+             " with ack " << ack->toString());
+    if (!dest.isNoId()) m_executingCommands[cmd] = dest;
+    m_commandAcks[cmd] = ack;
 
-     // Special handling of the utility commands (a bit of a hack!):
-     std::string cname = name.toString();
-     if (cname == "print" || cname == "pprint") {
-       if (cname == "print") print (args);
-       else if (cname == "pprint") pprint (args);
-       ExpressionUtMap::iterator it = m_commandAcks.find(cmd);
-       checkError(it != m_commandAcks.end(), 
-                  "No command waiting for acknowledgement " <<
-                  getText(cmd));
-       it->second->setValue(LabelStr ("COMMAND_SUCCESS"));
-       raInterface.releaseResourcesForCommand(name);
-     }
-   }
+    // Special handling of the utility commands (a bit of a hack!):
+    std::string cname = name.toString();
+    if (cname == "print" || cname == "pprint") {
+      if (cname == "print") print (args);
+      else if (cname == "pprint") pprint (args);
+      ExpressionUtMap::iterator it = m_commandAcks.find(cmd);
+      checkError(it != m_commandAcks.end(), 
+                 "No command waiting for acknowledgement " <<
+                 getText(cmd));
+      it->second->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
+      raInterface.releaseResourcesForCommand(name);
+      CommandPending = true;
+    }
+  }
 
 
-   /**
-    * @brief Abort the pending command with the supplied name and arguments.
-    * @param cmdName The LabelString representing the command name.
-    * @param cmdArgs The command arguments expressed as doubles.
-    * @param cmdAck The acknowledgment of the pending command
-    * @param abrtAck The expression in which to store an acknowledgment of command abort.
-    * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-    */
+  /**
+   * @brief Abort the pending command with the supplied name and arguments.
+   * @param cmdName The LabelString representing the command name.
+   * @param cmdArgs The command arguments expressed as doubles.
+   * @param cmdAck The acknowledgment of the pending command
+   * @param abrtAck The expression in which to store an acknowledgment of command abort.
+   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   */
 
-   void TestExternalInterface::invokeAbort(const LabelStr& cmdName,
-					   const std::list<double>& cmdArgs,
-					   ExpressionId abrtAck,
-					   ExpressionId /* cmdAck */)
-   {
-      //checkError(ALWAYS_FAIL, "Don't do that.");
-      std::vector<double> realArgs(cmdArgs.begin(), cmdArgs.end());
-      UniqueThing cmd((double)cmdName, realArgs);
-      debugMsg("Test:testOutput", "Aborting " << getText(cmd));
-      m_abortingCommands[cmd] = abrtAck;
-   }
+  void TestExternalInterface::invokeAbort(const LabelStr& cmdName,
+                                          const std::list<double>& cmdArgs,
+                                          ExpressionId abrtAck,
+                                          ExpressionId /* cmdAck */)
+  {
+    //checkError(ALWAYS_FAIL, "Don't do that.");
+    std::vector<double> realArgs(cmdArgs.begin(), cmdArgs.end());
+    UniqueThing cmd((double)cmdName, realArgs);
+    debugMsg("Test:testOutput", "Aborting " << getText(cmd));
+    m_abortingCommands[cmd] = abrtAck;
+  }
 
-   void TestExternalInterface::updatePlanner(std::list<UpdateId>& updates)
-   {
-      for (std::list<UpdateId>::const_iterator it = updates.begin(); it != updates.end(); ++it)
+  void TestExternalInterface::updatePlanner(std::list<UpdateId>& updates)
+  {
+    for (std::list<UpdateId>::const_iterator it = updates.begin(); it != updates.end(); ++it)
       {
-         debugMsg("Test:testOutput", "Received update: ");
-         const std::map<double, double>& pairs = (*it)->getPairs();
-         for (std::map<double, double>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
-            debugMsg("Test:testOutput", " " << LabelStr(pairIt->first).toString() << " => " << pairIt->second);
-         m_waitingUpdates.insert(std::make_pair((*it)->getSource()->getNodeId(), *it));
+        debugMsg("Test:testOutput", "Received update: ");
+        const std::map<double, double>& pairs = (*it)->getPairs();
+        for (std::map<double, double>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
+          debugMsg("Test:testOutput", " " << LabelStr(pairIt->first).toString() << " => " << pairIt->second);
+        m_waitingUpdates.insert(std::make_pair((*it)->getSource()->getNodeId(), *it));
       }
-   }
+  }
 
-   std::string TestExternalInterface::getText(const UniqueThing& c)
-   {
-      std::ostringstream retval;
-      retval << LabelStr(c.first).toString() << "(";
-      std::vector<double>::const_iterator it = c.second.begin();
-      if (it != c.second.end())
+  std::string TestExternalInterface::getText(const UniqueThing& c)
+  {
+    std::ostringstream retval;
+    retval << LabelStr(c.first).toString() << "(";
+    std::vector<double>::const_iterator it = c.second.begin();
+    if (it != c.second.end())
       {
-         if (!LabelStr::isString(*it))
-            retval << *it;
-         else
-            retval << LabelStr(*it).toString();
-         for (++it; it != c.second.end(); ++it)
-         {
+        if (!LabelStr::isString(*it))
+          retval << *it;
+        else
+          retval << LabelStr(*it).toString();
+        for (++it; it != c.second.end(); ++it)
+          {
             retval << ", ";
             if (!LabelStr::isString(*it))
-               retval << *it;
+              retval << *it;
             else
-               retval << LabelStr(*it).toString();
-         }
+              retval << LabelStr(*it).toString();
+          }
       }
-      retval << ")";
-      return retval.str();
-   }
+    retval << ")";
+    return retval.str();
+  }
 
-   std::string TestExternalInterface::getText(const UniqueThing& c, 
-                                              const double val)
-   {
-      std::ostringstream retval;
-      retval << getText(c);
-      retval << " = ";
-      if (LabelStr::isString(val))
-         retval << "(string)" << LabelStr(val).toString();
-      else
-         retval << val;
-      return retval.str();
-   }
+  std::string TestExternalInterface::getText(const UniqueThing& c, 
+                                             const double val)
+  {
+    std::ostringstream retval;
+    retval << getText(c);
+    retval << " = ";
+    if (LabelStr::isString(val))
+      retval << "(string)" << LabelStr(val).toString();
+    else
+      retval << val;
+    return retval.str();
+  }
 
-   std::string TestExternalInterface::getText(const UniqueThing& c, 
-                                              const std::vector<double>& vals)
-   {
-      std::ostringstream retval;
-      retval << getText(c);
-      retval << " = ";
-      for (std::vector<double>::const_iterator it = vals.begin();
-           it != vals.end(); ++it)
+  std::string TestExternalInterface::getText(const UniqueThing& c, 
+                                             const std::vector<double>& vals)
+  {
+    std::ostringstream retval;
+    retval << getText(c);
+    retval << " = ";
+    for (std::vector<double>::const_iterator it = vals.begin();
+         it != vals.end(); ++it)
       {
-         double val = *it;
-         if (LabelStr::isString(val))
-            retval << "(string)" << LabelStr(val).toString();
-         else
-            retval << val;
+        double val = *it;
+        if (LabelStr::isString(val))
+          retval << "(string)" << LabelStr(val).toString();
+        else
+          retval << val;
       }
-      return retval.str();
-   }
+    return retval.str();
+  }
 
   void TestExternalInterface::addPlan(const TiXmlElement& /* plan */,
 				      const LabelStr& /* parent */)
-     throw(ParserException)
-   {}
+    throw(ParserException)
+  {}
 
-   double TestExternalInterface::currentTime()
-   {
-      return m_states[timeState()];
-   }
+  double TestExternalInterface::currentTime()
+  {
+    return m_states[timeState()];
+  }
 }
