@@ -516,12 +516,8 @@ public class ExecSelect extends JPanel {
 	class ButtonFileListener implements ActionListener {
 		ButtonFileListener(){			
 		}
-		public void actionPerformed(ActionEvent e){			
-	    		if(e.getSource()==ExecSelect.exec.planBut && Luv.getLuv().getCurrentPlan().getPlanName()!=Constants.UNKNOWN)
-	    			objMap.get(e.getSource()).setText(Luv.getLuv().getCurrentPlan().getPlanName());
-	    		else if(Luv.getLuv().getCurrentPlan().getScriptName()!=Constants.UNKNOWN)
-	    			objMap.get(e.getSource()).setText(Luv.getLuv().getCurrentPlan().getScriptName());    		                		            
-			}
+		public void actionPerformed(ActionEvent e){  		                		            
+		}
 	}	
 	
 	class ExtensionButtonFileListener implements ActionListener {
@@ -581,7 +577,7 @@ public class ExecSelect extends JPanel {
 						
 					} catch (IOException ex){
 						Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
-					}
+					}					
 					Luv.getLuv().setProperty(lookupRecent(RECENT_SUPP), supp.getParent());
 				}
 			}		
