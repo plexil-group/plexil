@@ -10,6 +10,13 @@ distributions only]
 Release Notes
 -------------
 
+Next release
+ - Plexil Viewer:
+   * fixed inconsisent entry problem in Configuration Dialog 
+ - Plexilisp:
+   * fixed bug in Wait, added WaitWithTolerance
+   * fixed bug in handling of newlines in strings
+   
 1.5  (October 2010)
  - Extensively revised user manual
    * PLEXIL is now presented as a language of high level Actions, of which Core
