@@ -205,7 +205,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  nil)
+  t)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -1242,11 +1242,20 @@
 
 (pdefine pl (Wait wait) (units &optional name) 2 node
   ;; real * opt(string) -> xml
-  "Waits given number of time units"
+  "Waits given number of time units."
+  (plexil-wait units name 1.0))
+
+(pdefine pl (WaitWithTolerance wait-with-tolerance)
+         (units tolerance &optional name) 2 node
+  ;; real * real * opt(string) -> xml
+  "Waits given number of time units with given tolerance."
+  (plexil-wait units name tolerance))
+
+(defun plexil-wait (units name tolerance)
   (let ((nodeid (or name (plexil-unique-node-id "plexilisp_Wait"))))
     (pl-empty-node
      nodeid
-     (pl-end-condition (pl->= (pl-lookup-on-change-with-tolerance "time" 1.0)
+     (pl-end-condition (pl->= (pl-lookup-on-change-with-tolerance "time" tolerance)
                               (pl-+ units (pl-start-time nodeid)))))))
 
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
