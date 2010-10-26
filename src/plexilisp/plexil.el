@@ -1119,7 +1119,10 @@
 (pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &optional action) 1 node
   ;; string * xml * list(xml) -> xml
   ("Specifies an action for responding to a given command. "
-   "command-name must be a string, arg-decls a list of variable declarations.")
+   "command-name must be a string, arg-decls a list of variable declarations. "
+   "If this is action should return a value, send it using the command "
+   "SendReturnValue.  See the Plexil manual (plexil.sourceforge.net) "
+   "for more information.")
   `(xml "OnCommand"
          (append
           (list (xml "NodeId" (plexil-unique-node-id "OnCommand")))
@@ -1243,7 +1246,7 @@
   (let ((nodeid (or name (plexil-unique-node-id "plexilisp_Wait"))))
     (pl-empty-node
      nodeid
-     (pl-end-condition (pl->= (pl-lookup-on-change "time")
+     (pl-end-condition (pl->= (pl-lookup-on-change-with-tolerance "time" 1.0)
                               (pl-+ units (pl-start-time nodeid)))))))
 
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
