@@ -1,4 +1,5 @@
 <Interfaces>
+ <Adapter AdapterType="Utility"/>
  <Adapter AdapterType="Dummy">
   <DefaultAdapter/>
  </Adapter>
