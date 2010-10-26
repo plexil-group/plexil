@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!-- This schema defines proposed extensions to PLEXIL that are not yet
+     implemented.  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  <xsd:include schemaLocation=extended-plexil.xsd'/>
+
+  <xsd:redefine schemaLocation='extended-plexil.xsd'>
+    <xsd:group name="Action">
+      <xsd:choice>
+        <xsd:element ref="Node"/>
+        <xsd:element ref="Sequence"/>
+        <xsd:element ref="Concurrence"/>
+        <xsd:element ref="UncheckedSequence"/>
+        <xsd:element ref="Try"/>
+        <xsd:element ref="If"/>
+        <xsd:element ref="While"/>
+        <xsd:element ref="For"/>
+        <xsd:element ref="OnCommand"/>
+        <xsd:element ref="OnMessage"/>
+        <xsd:element ref="BlockingCommand"/>
+        <xsd:element ref="NonBlockingCommand"/>
+      </xsd:choice>
+    </xsd:group>
+  </xsd:redefine>
+
+  <xsd:group name="CommandType">
+    <xsd:sequence>
+      <xsd:all>
+        <xsd:group ref="NodeClauses"/>
+        <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>  
+        <xsd:group ref="DeclaredVariable" minOccurs="0"/>
+        <xsd:element ref="Name"/>
+        <xsd:element ref="Arguments" minOccurs="0"/>
+        <xsd:element ref="Timeout" minOccurs="0"/>
+      </xsd:all>
+    </xsd:sequence>
+  </xsd:group>
+
+  <xsd:element name="BlockingCommand">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:group ref="CommandType"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="NonBlockingCommand">
+    <xsd:complexType>
+      <xsd:attribute ref="FileName"/>
+      <xsd:attribute ref="LineNo"/>
+      <xsd:attribute ref="ColNo"/>
+      <xsd:all>
+        <xsd:group ref="CommandType"/>
+      </xsd:all>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Timeout">
+    <xsd:choice>
+      <xsd:element ref="RealValue"/>
+      <xsd:element ref="RealVariable"/>
+    </xsd:choice>
+  </xsd:element>
+
+</xsd:schema>
