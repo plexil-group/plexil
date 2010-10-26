@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,17 @@
 -->
 
 <!-- Schema for extensions to Core PLEXIL that are not yet implemented 
-     (i.e. this schema is not supported by the UE).  -->
+     (i.e. this schema is not supported by the Plexil Executive).  -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
   <xsd:include schemaLocation='core-plexil.xsd' />
 
   <xsd:redefine id="core-plexil-draft" schemaLocation= 'core-plexil.xsd'>
 
-  <!-- Add Duration to the PLEXIL type system.  This is a simple (and
-       possibly too simple) way.  Duration is a new type, which is a
-       kind of numeric expression.  This allows durations anywhere a
-       numeric expression is allowed, which is clearly not legal in many
-       situations.  New static checks could be added, or we might want
-       to make the schema smarter, which would take some refactoring.
-       Note that a Duration is in essence a numeric expression: it
-       reduces to a real number (seconds). -->
+  <!-- This adds Duration as a new kind of numeric expression.  Clearly this is
+       very simple and rather liberal way to support durations, but affords a
+       simple schema change.  Note that a Duration is in essence a numeric
+       expression: it reduces to a real number (seconds). -->
 
     <xsd:simpleType name="TypeValues">
       <xsd:restriction base="xsd:NMTOKEN">
