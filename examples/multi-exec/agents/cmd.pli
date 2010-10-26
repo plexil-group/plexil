@@ -18,6 +18,7 @@
         (end-condition (not (= (stringvar "return") "Unknown")))
         (command-with-return (stringvar "return") "TestCommand" 1))
       (assignment (stringvar "return") (stringvar "return")))
+    (wait 2.0)
     (sequence "CommandSequenceTwo"
       (assignment (stringvar "return") "Unknown")
       (sequence "SendCommandTwo"
