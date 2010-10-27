@@ -1,16 +1,25 @@
 #!/bin/bash
-# File: $SVNROOT/examples/multi-exec/agents/tests/run-agents
+# File: $SVNROOT/examples/multi-exec/agents/run-agents
+# Note: Script to run two Plexil agent systems
 
 function usage ()
 {
 cat <<EOF
 
-Usage:      `basename $0` <agent1> <agent2>
+Usage:      `basename $0` <agent1> <agent2> [options]
 
-Examples:   `basename $0` t1-cmd t1-sim
+Options:    -n -viewer  := start the Plexil Viewer
+            -p -persist := leave the Plexil Viewer up even when the plans complete/exit.
+                           It does this by running both agents in the shell in which this
+                           script is executed.
+
+Examples:   `basename $0` t1-cmd t1-sim -v
             `basename $0` t2-cmd.pli t1-sim.pli
+            `basename $0` sim cmd -v -p
 
-            <agent1> and <agent2> are the "base names" of the plans, e.g., <agent1>.pli.
+Notes:      <agent1> and <agent2> are the "base names" of the plans, e.g., "cmd" for cmd.pli
+            or "t1-sim" for t1-sim.pli.
+
             The communications configuration files will be guessed at based on the given
             "base names", e.g., given "t1-cmd" as the base name, "t1-cmd.xml" and "cmd.xml"
             will be tried.
@@ -19,18 +28,27 @@ EOF
 exit
 }
 
-# Only 2 "base name" parameters
-if [ $# != 2 ] ;
-then
-    usage
-fi
+# Check for something like the right parameters and/or a "help" request
+if [ $# -lt 2 ] || [ $# -gt 4 ] ; then usage ; fi
 
+# Check for xterms and IPC/central
 has_xterm=`which xterm`
 ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
 
 # Allow for either base names or names including extensions
-agent1=`echo $1 | awk '{ split($0, arr, "."); print(arr[1]) }'`
-agent2=`echo $2 | awk '{ split($0, arr, "."); print(arr[1]) }'`
+agent1_raw=$1
+agent1=`echo $1 | awk '{ split($0, arr, "."); print(arr[1]) }'` ; shift
+agent2_raw=$1
+agent2=`echo $1 | awk '{ split($0, arr, "."); print(arr[1]) }'` ; shift
+use_viewer=no
+
+until [ -z $1 ] ;
+do
+    if [ "$1" = "-h" ] || [ "$1" = "-help" ] ; then usage ; fi
+    if [ "$1" = "-v" ] || [ "$1" = "-viewer" ] ; then use_viewer=yes ; shift ;
+    elif [ "$1" = "-p" ] || [ "$1" = "-persist" ] ; then has_xterm= ; shift ;
+    else usage ; fi
+done
 
 # Guess at what the communications configurations might be for these agents
 # t1-cmd = cmd.xml or t1-cmd.xml = cmd-t1; cmd = cmd.xml
@@ -48,6 +66,7 @@ else
     exit
 fi
 
+# And now for agent2
 if [ -e $agent2.xml ] ;
 then
     com2=$agent2.xml ;
@@ -63,58 +82,66 @@ else
 fi
 
 # Keep the plans up-to-date if possible...
-make $1.plx $2.plx
+make $agent1_raw.plx $agent2_raw.plx
 make_status=$?
 # bail if things don't compile properly
 if [ $make_status != 0 ] ;
 then
-    echo "make exited with status of $make_status"
+    echo "make exited with error status $make_status"
     exit $make_status
 fi
 
-cmd1="plexilexec -v -b -p $agent1.plx -c $com1"
-cmd2="plexilexec -v -b -p $agent2.plx -c $com2"
+if [ "$use_viewer" = "yes" ] ;
+then
+    cmd1="plexilexec -v -b -p $agent1.plx -c $com1"
+    cmd2="plexilexec -v -b -p $agent2.plx -c $com2"
+    sleep_time=10
+else
+    cmd1="plexilexec -p $agent1.plx -c $com1"
+    cmd2="plexilexec -p $agent2.plx -c $com2"
+    sleep_time=1
+fi
 
 # Either start IPC/central in an xterm, or make sure it is already running
 if [ "$has_xterm" = "" ] ;
 then
-  echo " "
-  if [ "$ipc_running" = "" ] ;
-  then
-    echo "ipc (central) must already be running for this script to work without xterm..."
     echo " "
-    exit
-  else
-    echo "xterm not found: both agents will be run in the background..."
-    echo " "
-  fi
+    if [ "$ipc_running" = "" ] ;
+    then
+        echo "ipc (central) must already be running for this script to work without xterm..."
+        echo " "
+        exit
+    else
+        echo "xterm not found: both agents will be run in the background..."
+        echo " "
+    fi
 fi
 
 # start IPC/central in an xterm if necessary
 if [ "$ipc_running" = "" ] ;
 then
-  echo "Starting IPC..."
-  xterm ipc &
-  sleep 2;
+    echo "Starting IPC..."
+    xterm ipc &
+    sleep 2;
 else
-   echo "IPC already running..."
+    echo "IPC already running..."
 fi
 
 # Start the agents
 echo "$cmd1..."
-if [ "$has_xterm" = "" ] ;
+if [ "$has_xterm" = "" ] || [ "$use_viewer" != "yes" ] ;
 then
-  $cmd1 &
+    $cmd1 &
 else
-  xterm -e $cmd1 &
+    xterm -e $cmd1 &
 fi
 
-sleep 10
+sleep $sleep_time
 
 echo "$cmd2..."
-if [ "$has_xterm" = "" ] ;
+if [ "$has_xterm" = "" ] || [ "$use_viewer" != "yes" ] ;
 then
-  $cmd2
+    $cmd2
 else
-  xterm -e $cmd2
+    xterm -e $cmd2
 fi
