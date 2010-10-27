@@ -205,7 +205,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  t)
+  nil)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -1129,7 +1129,7 @@
           (if ',arg-decls
               (list (xml "VariableDeclarations" (mapcar #'eval ',arg-decls))))
           (list (xml "Name" (xml "StringValue" ,command-name)))
-          (if ',action (list (eval ',action))))))
+          (if ',action (list (plexil-nodify ',action))))))
 
 (defun plexil-build-sequence (name-or-first-form forms construct)
   ;; (string | xml) * list(xml) * string -> xml
@@ -1159,6 +1159,7 @@
   ;; If the given expression looks like a Plexil node or Plexil node body,
   ;; return it as a Plexil node.  Otherwise just evaluate it.
   ;;
+  (message x)
   (cond ((plexil-node? x)
          (plexil-eval-node x))
         ((plexil-node-body? x)
