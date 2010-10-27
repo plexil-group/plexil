@@ -1,5 +1,5 @@
 #!/bin/bash
-# File: $SVNROOT/examples/multi-exec/agents/run-agents
+# File: $SVNROOT/examples/multi-exec/agents/tests/run-agents
 # Note: Script to run two Plexil agent systems
 
 function usage ()
@@ -8,14 +8,12 @@ cat <<EOF
 
 Usage:      `basename $0` <agent1> <agent2> [options]
 
-Options:    -n -viewer  := start the Plexil Viewer
-            -p -persist := leave the Plexil Viewer up even when the plans complete/exit.
-                           It does this by running both agents in the shell in which this
-                           script is executed.
+Options:    -v -viewer  := start the Plexil Viewer
+            -x -xterms  := run the execs in xterms (if your system has them)
 
 Examples:   `basename $0` t1-cmd t1-sim -v
             `basename $0` t2-cmd.pli t1-sim.pli
-            `basename $0` sim cmd -v -p
+            `basename $0` sim cmd -v -x
 
 Notes:      <agent1> and <agent2> are the "base names" of the plans, e.g., "cmd" for cmd.pli
             or "t1-sim" for t1-sim.pli.
@@ -33,6 +31,7 @@ if [ $# -lt 2 ] || [ $# -gt 4 ] ; then usage ; fi
 
 # Check for xterms and IPC/central
 has_xterm=`which xterm`
+use_xterm=no
 ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
 
 # Allow for either base names or names including extensions
@@ -42,11 +41,13 @@ agent2_raw=$1
 agent2=`echo $1 | awk '{ split($0, arr, "."); print(arr[1]) }'` ; shift
 use_viewer=no
 
+# Show the usage message and/or set up the "mode" to run in
 until [ -z $1 ] ;
 do
     if [ "$1" = "-h" ] || [ "$1" = "-help" ] ; then usage ; fi
     if [ "$1" = "-v" ] || [ "$1" = "-viewer" ] ; then use_viewer=yes ; shift ;
-    elif [ "$1" = "-p" ] || [ "$1" = "-persist" ] ; then has_xterm= ; shift ;
+    elif [ "$1" = "-x" ] || [ "$1" = "-xterm" ] || [ "$1" = "-xterms" ] ; then use_xterm=yes ; shift ;
+    elif [ "$1" = "-vx" ] || [ "$1" = "-xv" ] ; then use_xterm=yes ; use_viewer=yes ; shift ;
     else usage ; fi
 done
 
@@ -91,11 +92,12 @@ then
     exit $make_status
 fi
 
+# Set up the command line
 if [ "$use_viewer" = "yes" ] ;
 then
     cmd1="plexilexec -v -b -p $agent1.plx -c $com1"
     cmd2="plexilexec -v -b -p $agent2.plx -c $com2"
-    sleep_time=10
+    sleep_time=15
 else
     cmd1="plexilexec -p $agent1.plx -c $com1"
     cmd2="plexilexec -p $agent2.plx -c $com2"
@@ -129,7 +131,7 @@ fi
 
 # Start the agents
 echo "$cmd1..."
-if [ "$has_xterm" = "" ] || [ "$use_viewer" != "yes" ] ;
+if [ "$use_xterm" = "no" ] ;
 then
     $cmd1 &
 else
@@ -139,9 +141,11 @@ fi
 sleep $sleep_time
 
 echo "$cmd2..."
-if [ "$has_xterm" = "" ] || [ "$use_viewer" != "yes" ] ;
+if [ "$use_xterm" = "no" ] ;
 then
     $cmd2
 else
     xterm -e $cmd2
 fi
+
+# EOF

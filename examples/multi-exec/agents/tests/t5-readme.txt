@@ -14,7 +14,7 @@ process appears to throw it away.
 or
 
 % cd plexil/examples/multi-exec/agents/test
-% run-agents t5-sim t5-cmd [-v [-p]]
+% run-agents t5-sim t5-cmd -v
 
 Specifically,
 

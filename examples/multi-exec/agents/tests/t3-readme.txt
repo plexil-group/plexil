@@ -23,6 +23,6 @@ string I've tried work fine.
 or
 
 % cd plexil/examples/multi-exec/agents/test
-% run-agents t1-sim t3-cmd
+% run-agents t1-sim t3-cmd -v
 
 t3-cmd.plx never completes due to the above end-condition (line 25).

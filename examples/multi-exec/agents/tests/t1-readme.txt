@@ -13,7 +13,7 @@ in t1-cmd.pli.
 or
 
 % cd plexil/examples/multi-exec/agents/test
-% run-agents t1-sim t1-cmd
+% run-agents t1-sim t1-cmd -v
 
 In t1-cmd.plx, none of the following variable ever update:
 
