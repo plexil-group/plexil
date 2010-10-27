@@ -1107,14 +1107,14 @@
 
 ;;; Communication related macros
 
-(pdefine pl (OnMessage on-message) (message &optional action) 1 node
+(pdefine-syntax pl (OnMessage on-message) (message &optional action) 1 node
   ;; string * list(xml) -> xml
   "Specifies an action for responding to a given message (string)."
-  (xml "OnMessage"
-       (cons
-        (xml "NodeId" (plexil-unique-node-id "OnMessage"))
-        (cons (xml "Message" (xml "StringValue" message))
-              (if action (list action))))))
+  `(xml "OnMessage"
+        (cons
+         (xml "NodeId" (plexil-unique-node-id "OnMessage"))
+         (cons (xml "Message" (xml "StringValue" ,message))
+               (if ',action (list (plexil-nodify ',action)))))))
 
 (pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &optional action) 1 node
   ;; string * xml * list(xml) -> xml
@@ -1159,7 +1159,6 @@
   ;; If the given expression looks like a Plexil node or Plexil node body,
   ;; return it as a Plexil node.  Otherwise just evaluate it.
   ;;
-  (message x)
   (cond ((plexil-node? x)
          (plexil-eval-node x))
         ((plexil-node-body? x)
