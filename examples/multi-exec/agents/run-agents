@@ -92,12 +92,18 @@ then
     exit $make_status
 fi
 
-# Set up the command line
+# Set up the command line and sleep time.  Java on Mac OS is really slow,
+# hence the long sleep time...
 if [ "$use_viewer" = "yes" ] ;
 then
     cmd1="plexilexec -v -b -p $agent1.plx -c $com1"
     cmd2="plexilexec -v -b -p $agent2.plx -c $com2"
-    sleep_time=15
+    if [ "`uname`" = "Darwin" ] ;
+    then
+        sleep_time=15
+    else
+        sleep_time=3
+    fi
 else
     cmd1="plexilexec -p $agent1.plx -c $com1"
     cmd2="plexilexec -p $agent2.plx -c $com2"
