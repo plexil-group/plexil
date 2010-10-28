@@ -1067,7 +1067,7 @@
         (xml "Condition" (plexil-infer-type ,condition))
         (xml "Action" (plexil-nodify ',action)))))
 
-(pdefine-syntax pl (for For) (declaration condition update action) 1 node
+(pdefine-syntax pl (for For) (declaration condition update action) 3 node
   ("For Loop.  The declaration should look like a variable declaration. i.e "
    "<tt>(type name [init])</tt>, where <tt>type</tt> must be either <tt>integer</tt> or <tt>real</tt> "
    "and the initial value <tt>init</tt> is optional (though generally useful).  "
@@ -1116,7 +1116,7 @@
          (cons (xml "Message" (xml "StringValue" ,message))
                (if ',action (list (plexil-nodify ',action)))))))
 
-(pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &optional action) 1 node
+(pdefine-syntax pl (OnCommand on-command) (command-name arg-decls &optional action) 2 node
   ;; string * xml * list(xml) -> xml
   ("Specifies an action for responding to a given command. "
    "command-name must be a string, arg-decls a list of variable declarations. "
