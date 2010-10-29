@@ -12,17 +12,16 @@
         (end-condition (is-known (intvar "ret")))
         (command-with-return (intvar "ret") "MoveRight" (intvar "rightIter")))
       (command "pprint" (stringvar "name") "received:" (intvar "ret"))
-      (action "Set"
-        (assignment (intvar "rightIter") (- (intvar "rightIter") 1))))
+      (assignment (intvar "rightIter") (- (intvar "rightIter") 1)))
     (for (integer "x" 1) (< (intvar "x") 5) (+ (intvar "x") 1)
-         (sequence "CommandSequence"
-           (variables (string "ret"))
-           (wait-with-tolerance 0.5 0.1 "Waiting...")
-           (command "print" "\n" (stringvar "name") " sending: " (intvar "x") "\n")
-           (action "SendCommand"
-             (end-condition (not (= (stringvar "ret") "Unknown")))
-             (command-with-return (stringvar "ret") "TestCommand" (intvar "x")))
-           (command "pprint" (stringvar "name") "received:" (stringvar "ret"))))
+      (sequence "CommandSequence"
+        (variables (string "ret"))
+        (wait-with-tolerance 0.5 0.1 "Waiting...")
+        (command "print" "\n" (stringvar "name") " sending: " (intvar "x") "\n")
+        (action "SendCommand"
+          (end-condition (not (= (stringvar "ret") "Unknown")))
+          (command-with-return (stringvar "ret") "TestCommand" (intvar "x")))
+        (command "pprint" (stringvar "name") "received:" (stringvar "ret"))))
     (action "Quit"
       (command "print" "\n" (stringvar "name") " sending Quit (and quitting)\n")
       (command "SendMessage" "Quit"))))

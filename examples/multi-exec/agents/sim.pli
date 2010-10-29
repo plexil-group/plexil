@@ -8,34 +8,30 @@
     (action "MoveRightCommand"
       (repeat-condition true)
       (on-command "MoveRight" ((integer "modX"))
-                  (sequence "RecMoveRight"
-                    (command "pprint" (stringvar "name") "received:" (intvar "modX"))
-                    (action "Increment"
-                      (assignment (intvar "x") (+ (intvar "x") (intvar "modX"))))
-                    (action "SetExt"
-                      (command "UpdateLookup" "x" (intvar "x")))
-                    (command "pprint" (stringvar "name") "sending:" (intvar "x"))
-                    (action "RespondMoveRight"
-                      (command "SendReturnValue" (intvar "x"))))))
+        (sequence "RecMoveRight"
+          (command "pprint" (stringvar "name") "received:" (intvar "modX"))
+          (assignment (intvar "x") (+ (intvar "x") (intvar "modX")))
+          (command "UpdateLookup" "x" (intvar "x"))
+          (command "pprint" (stringvar "name") "sending:" (intvar "x"))
+          (command "SendReturnValue" (intvar "x")))))
     (action "TestCommand"
       (repeat-condition true)
       (on-command "TestCommand" ((integer "int"))
-                  (sequence "ReceiveCommand"
-                    (command "pprint" (stringvar "name") "received:" (intvar "int"))
-                    (concurrently "Dispatch"
-                      (action "Odd"
-                        (skip-condition (or (= (intvar "int") 2)
-                                            (= (intvar "int") 4)))
-                        (command "pprint" (stringvar "name") "sending: odd")
-                        (command "SendReturnValue" "odd"))
-                      (action "Two"
-                        (skip-condition (or (= (intvar "int") 1)
-                                            (= (intvar "int") 3)))
-                        (command "pprint" (stringvar "name") "sending: even")
-                        (command "SendReturnValue" "even"))))))
+        (sequence "ReceiveCommand"
+          (command "pprint" (stringvar "name") "received:" (intvar "int"))
+          (concurrently "Dispatch"
+            (action "Odd"
+              (skip-condition (or (= (intvar "int") 2)
+                                  (= (intvar "int") 4)))
+              (command "pprint" (stringvar "name") "sending: odd")
+              (command "SendReturnValue" "odd"))
+            (action "Even"
+              (skip-condition (or (= (intvar "int") 1)
+                                  (= (intvar "int") 3)))
+              (command "pprint" (stringvar "name") "sending: even")
+              (command "SendReturnValue" "even"))))))
     (action "QuitCommand"
       (on-message "Quit"
-        (action "Goodbye"               ;see t5-readme.txt for why this is here
-          (command "pprint" (stringvar "name") "quitting\n"))))))
+        (command "pprint" (stringvar "name") "quitting\n")))))
 
 ;; EOF
