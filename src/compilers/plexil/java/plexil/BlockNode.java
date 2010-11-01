@@ -77,40 +77,42 @@ public class BlockNode extends PlexilTreeNode
 		m_attributes.clear();
 		m_body.clear();
 
-		int i = 0;
-		if (this.getChild(i).getType() == PlexilLexer.COMMENT_KYWD) {
-			m_comment = this.getChild(i);
-			i++;
-		}
-		for ( ; i < this.getChildCount(); i++) {
-			PlexilTreeNode child = this.getChild(i);
-			switch (child.getType()) {
-			case PlexilLexer.IN_KYWD:
-			case PlexilLexer.IN_OUT_KYWD:
-			case PlexilLexer.VARIABLE_DECLARATIONS:
-				m_declarations.add(child);
-				break;
+		if (this.getChildCount() > 0) {
+			int i = 0;
+			if (this.getChild(i).getType() == PlexilLexer.COMMENT_KYWD) {
+				m_comment = this.getChild(i);
+				i++;
+			}
+			for ( ; i < this.getChildCount(); i++) {
+				PlexilTreeNode child = this.getChild(i);
+				switch (child.getType()) {
+				case PlexilLexer.IN_KYWD:
+				case PlexilLexer.IN_OUT_KYWD:
+				case PlexilLexer.VARIABLE_DECLARATIONS:
+					m_declarations.add(child);
+					break;
 
-			case PlexilLexer.END_CONDITION_KYWD:
-			case PlexilLexer.INVARIANT_CONDITION_KYWD:
-			case PlexilLexer.POST_CONDITION_KYWD:
-			case PlexilLexer.PRE_CONDITION_KYWD:
-			case PlexilLexer.REPEAT_CONDITION_KYWD:
-			case PlexilLexer.SKIP_CONDITION_KYWD:
-			case PlexilLexer.START_CONDITION_KYWD:
-				m_conditions.add(child);
-				break;
+				case PlexilLexer.END_CONDITION_KYWD:
+				case PlexilLexer.INVARIANT_CONDITION_KYWD:
+				case PlexilLexer.POST_CONDITION_KYWD:
+				case PlexilLexer.PRE_CONDITION_KYWD:
+				case PlexilLexer.REPEAT_CONDITION_KYWD:
+				case PlexilLexer.SKIP_CONDITION_KYWD:
+				case PlexilLexer.START_CONDITION_KYWD:
+					m_conditions.add(child);
+					break;
 
-			case PlexilLexer.RESOURCE_KYWD:
-			case PlexilLexer.RESOURCE_PRIORITY_KYWD:
-			case PlexilLexer.PRIORITY_KYWD:
-			case PlexilLexer.PERMISSIONS_KYWD:
-				m_attributes.add(child);
-				break;
+				case PlexilLexer.RESOURCE_KYWD:
+				case PlexilLexer.RESOURCE_PRIORITY_KYWD:
+				case PlexilLexer.PRIORITY_KYWD:
+				case PlexilLexer.PERMISSIONS_KYWD:
+					m_attributes.add(child);
+					break;
 
-			default:
-				m_body.add(child);
-				break;
+				default:
+					m_body.add(child);
+					break;
+				}
 			}
 		}
 	}
