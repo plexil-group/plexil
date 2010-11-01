@@ -55,5 +55,43 @@
 ;;; replacing the pathname appropriately -- it should be that of your
 ;;; 'plexil' installation directory.  Do not use the '~' character.
 
+;;; Plexil Syntax Highlighting
 
+;; To turn on Plexil highlighting, load this file and add these lines to your .emacs:
+;; (add-hook 'plexilisp-mode-hook 'font-lock-fontify-buffer)
+;; (plexil-enable-highlighting)
 
+;; Can be turned on and off with `M-x plexil-enable-highlighting'
+;; and `M-x plexil-disable-highlighting'.
+
+(setq plexil-keyword-list
+  ;; List of fond lock face classes the the Plexil symbols to highlight with them.
+  '((font-lock-comment-delimiter-face "comment" "Comment" "node-comment" "NodeComment")
+    (font-lock-keyword-face "try" "Try" "if" "If" "for" "For"
+                            "when" "When" "while" "While" "let" "Let")
+    (font-lock-builtin-face "variables" "Variables" "variable-declarations"
+                            "VariableDeclarations" "declare-variables" "DeclareVariables"
+                            "global-declarations" "GlobalDeclarations"
+                            "declarations" "Declarations" "interface" "Interface"
+                            "postcondition" "Postcondition" "post-condition" "PostCondition"
+                            "precondition" "Precondition" "pre-condition" "PreCondition"
+                            "start-condition" "StartCondition" "end-condition" "EndCondition"
+                            "skip-condition" "SkipCondition" "repeat-condition" "RepeatCondition"
+                            "invariant-condition" "InvariantCondition")
+    (font-lock-constant-face "true" "True" "false" "False")))
+
+(defun plexil-enable-highlighting ()
+  (interactive)
+  (plexil-highlighting t))
+
+(defun plexil-disable-highlighting ()
+  (interactive)
+  (plexil-highlighting nil))
+
+(defun plexil-highlighting (add-keywords)
+  (dolist (entry plexil-keyword-list)
+    (let ((face (first entry)))
+      (dolist (keyword (rest entry))
+        (let ((word (format "[^-]\\<%s\\>[^-]" keyword))
+              (func (if add-keywords #'font-lock-add-keywords #'font-lock-remove-keywords)))
+          (funcall func 'plexilisp-mode (list (cons word face))))))))
