@@ -44,8 +44,10 @@ public class CompilerState
 	protected File m_outfile = null;
 
 	public boolean debug = false;
-	public boolean keepEpx = false;
 	public boolean epxOnly = false;
+	public boolean keepEpx = false;
+	public boolean semanticsOnly = false;
+	public boolean syntaxOnly = false;
 
 	protected CharStream m_instream; //* the stream to use initially
 
@@ -120,6 +122,12 @@ public class CompilerState
 			else if (m_args[i].equals("-o")) {
 				m_outfile = new File(m_args[++i]);
 			}
+			else if (m_args[i].equals("--semantics-only")) {
+				semanticsOnly = true;
+			}
+			else if (m_args[i].equals("--syntax-only")) {
+				syntaxOnly = true;
+			}
 			else {
 				// Not a recognized option, go on to process input file names
 				break;
@@ -142,6 +150,8 @@ public class CompilerState
 		System.out.println("  --debug            Enable debug output to standard-error stream");
 		System.out.println("  --epx-only         Do not translate output to Core Plexil XML");
 		System.out.println("  --keep-epx         Do not delete Extended Plexil XML intermediate file");
+		System.out.println("  --semantics-only   Perform syntax and semantic checks, but do not generate code");
+		System.out.println("  --syntax-only      Perform surface syntax parsing only");
 	}
 
 	public CharStream openInputFile(File f)

@@ -51,7 +51,9 @@ public class Compiler
 			System.err.println("Pass 1 output:");
 			System.err.println(plan1.toStringTree());
 		}
-		
+		if (myState.syntaxOnly) {
+			System.exit(0);
+		}
 
 		// Pass 2: Tree parse & transformations
 		// *** DISABLED until something useful is done in this pass ***
@@ -67,6 +69,9 @@ public class Compiler
 		}
 		if (myState.debug)
 			System.err.println("Semantic checks succeeded"); 
+		if (myState.semanticsOnly) {
+			System.exit(0);
+		}
 
 		// Pass 4: generate Extended Plexil XML
 		if (!pass4(plan1, myState)) {
@@ -75,9 +80,11 @@ public class Compiler
 		}
 
 		// Pass 5: translate Extended Plexil to Core Plexil
-		if (!pass5(plan1, myState)) {
-			System.err.println("Internal error: translation from Extended Plexil XML failed");
-			System.exit(-1);
+		if (!myState.epxOnly) {
+			if (!pass5(plan1, myState)) {
+				System.err.println("Internal error: translation from Extended Plexil XML failed");
+				System.exit(-1);
+			}
 		}
 
 		System.exit(0);
