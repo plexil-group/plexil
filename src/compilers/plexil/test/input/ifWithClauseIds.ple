@@ -1,0 +1,8 @@
+Command foo;
+Command bar;
+
+ifWithClauseIds:
+If (true)
+Then TrueClause: foo()
+Else FalseClause: bar()
+

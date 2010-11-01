@@ -1,0 +1,6 @@
+Command foo;
+
+simpleIf:
+If (true)
+Then foo()
+

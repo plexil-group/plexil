@@ -1,0 +1,8 @@
+Command foo;
+Command bar;
+
+simpleIfThenElse:
+If (true)
+Then foo()
+Else bar()
+

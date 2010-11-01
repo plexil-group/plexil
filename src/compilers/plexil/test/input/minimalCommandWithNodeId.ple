@@ -1,0 +1,3 @@
+Command foo;
+
+minimalCommand: foo();

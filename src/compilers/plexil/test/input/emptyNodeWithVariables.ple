@@ -1,0 +1,4 @@
+emptyNodeWithVariables:
+{
+  Integer foo;
+}
