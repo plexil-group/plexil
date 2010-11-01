@@ -170,6 +170,13 @@ public class VariableName extends PlexilName
         IXMLElement result = 
             new XMLElement(isArray() ? "DeclareArray" : "DeclareVariable");
 
+		// add source locators
+		// TODO: add FileName attribute
+		if (m_declaration != null) {
+			result.setAttribute("LineNo", String.valueOf(m_declaration.getLine()));
+			result.setAttribute("ColNo", String.valueOf(m_declaration.getCharPositionInLine()));
+		}
+
         IXMLElement xname = new XMLElement("Name");
         xname.setContent(getName());
         result.addChild(xname);
@@ -188,7 +195,9 @@ public class VariableName extends PlexilName
         }
 
         if (m_initialValue != null) {
-			result.addChild(m_initialValue.getXML());
+			IXMLElement init = new XMLElement("InitialValue");
+			result.addChild(init);
+			init.addChild(m_initialValue.getXML());
         }
 
         return result;
