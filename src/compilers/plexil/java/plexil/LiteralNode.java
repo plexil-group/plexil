@@ -146,6 +146,9 @@ public class LiteralNode extends ExpressionNode
 			return m_dataType.typeName() + "Value";
 	}
 
+	// Literal nodes do not support source locators.
+	protected void addSourceLocatorAttributes() {}
+
 	// *** is this still necessary?? ***
     public IXMLElement getXML(String elementType)
     {
