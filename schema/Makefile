@@ -92,7 +92,9 @@ SCHEMA_RNC_IN = $(SCHEMA_XSD:.xsd=.rnc.in)
 
 default: all
 
-all: $(SCHEMA_RNC) 
+all: $(SCHEMA_RNC)
+
+rng: $(SCHEMA_RNG)
 
 dust:
 	@ -rm -f $(SCHEMA_RNG)
