@@ -1,0 +1,28 @@
+;; File:
+;; Date:
+
+(plexil-plan
+  (sequence "Pilot"
+    (variables (string "name" "[pilot]")
+               (real "lat" 0.0)
+               (real "lon" 0.0)
+               (integer "alt" 0))
+    (sequence "get-aircraft-state"
+      (command "print" "\n" (stringvar "name") " getting aircraft state\n")
+      (action "get-lat"
+        (end-condition (not (= 0.0 (realvar "lat"))))
+        (command-with-return (realvar "lat") "StateRequest" "lat"))
+      ;;(command "pprint" (stringvar "name") "recv:" (realvar "lat"))
+      ;;(command "print" "\n" (stringvar "name") " send: lon\n")
+      (action "get-lon"
+        (end-condition (not (= 0.0 (realvar "lon"))))
+        (command-with-return (realvar "lon") "StateRequest" "lon"))
+      (action "get-alt"
+        (end-condition (not (= 0.0 (realvar "alt"))))
+        (command-with-return (intvar "alt") "StateRequest" "alt"))
+      (command "pprint" (stringvar "name") "recv:" (realvar "lat") (realvar "lon") (intvar "alt")))
+    (action "Quit"
+      (command "print" "\n" (stringvar "name") " sending Quit (and quitting)\n")
+      (command "SendMessage" "Quit"))))
+
+;; EOF
