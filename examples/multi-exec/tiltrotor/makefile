@@ -1,5 +1,5 @@
 # -*- Mode: Makefile -*-
-# File: $SVNROOT/examples/multi-exec/agents/makefile
+# File: $SVNROOT/examples/multi-exec/tiltrotor/makefile
 # Note: Generic makefile for plexilisp and standard plexil
 
 # Find the .pli plans in this and the lib directory
