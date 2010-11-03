@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # Copyright (c) 2006-2010, Universities Space Research Association (USRA).
-#  All rights reserved.
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -8,7 +10,7 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#    * Neither the name of the Universities Space Research Association nor the
+#     * Neither the name of the Universities Space Research Association nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
 #
@@ -23,27 +25,34 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PLEXIL_HOME			?= ../../../..
 
-VALID_TESTS	:= concurrenceOfAssignments emptyNodeWithVariables ifWithClauseIds \
- minimal minimalCommand minimalCommandWithNodeId \
- sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse
-VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
+# Check environment variables
+if [ ! $PLEXIL_HOME ]
+then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    exit 1
+fi
 
-all: valid-tests syntax-error-tests semantic-error-tests
+. ${PLEXIL_HOME}/bin/plexil-setup.sh
 
-valid-tests: $(VALID_TEST_FILES)
-	for tf in $(VALID_TEST_FILES) ; do \
-		./validate $${tf} ; \
-	done
+SCHEMA_DIR=${PLEXIL_HOME}/schema
+PLEXIL_COMPILER_DIR=${PLEXIL_HOME}/src/compilers/plexil
 
-syntax-error-tests:
-	for 
+# Generate 
+${PLEXIL_COMPILER_DIR}/PlexilCompiler --epx-only $1
+if [ $? -ne 0 ]
+then
+	echo Compilation of $1 failed.
+	exit 1
+fi
 
-semantic-error-tests:
+# Validate
+xmllint --noout --schema ${SCHEMA_DIR}/extended-plexil.xsd ${1/%.ple/.epx}
+if [ $? -ne 0 ]
+then
+	echo Validation of ${1/%.ple/.epx} failed.
+	exit 1
+fi
 
-output:
-	-$(MKDIR) -p output
 
-clean:
-	$(RM) output input/*.epx input/*.plx
