@@ -18,6 +18,11 @@
               <Name>X</Name>
               <Return Type="Boolean">_State_return_1</Return>
           </StateDeclaration>
+          <FunctionDeclaration>
+              <Name>update</Name>
+              <Return Type="String">_Function_return_1</Return>
+              <Parameter Type="String">s</Parameter>
+          </FunctionDeclaration>
       </GlobalDeclarations>
       <Node NodeType="NodeList" FileName="plans/test.ple" LineNo="9" ColNo="1">
           <VariableDeclarations>
