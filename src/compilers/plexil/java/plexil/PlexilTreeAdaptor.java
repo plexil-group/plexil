@@ -58,6 +58,18 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.XOR_KYWD:
 			return new LogicalOperatorNode(payload);
 
+			// Equality comparisons
+		case PlexilLexer.DEQUALS:
+		case PlexilLexer.NEQUALS:
+			return new EqualityNode(payload);
+
+			// Numeric comparisons
+		case PlexilLexer.GREATER:
+		case PlexilLexer.GEQ:
+		case PlexilLexer.LESS:
+		case PlexilLexer.LEQ:
+			return new RelationalNode(payload);
+
 			// Block types
 		case PlexilLexer.BLOCK:
 		case PlexilLexer.CONCURRENCE_KYWD:
@@ -66,9 +78,18 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 			return new BlockNode(payload);
 
 			// Other syntactic features
+		case PlexilLexer.FOR_KYWD:
+			return new ForNode(payload);
 		case PlexilLexer.IF_KYWD:
 			return new IfNode(payload);
+		case PlexilLexer.WHILE_KYWD:
+			return new WhileNode(payload);
 
+			// Internal tokens
+		case PlexilLexer.VARIABLE_DECLARATION:
+			return new VariableDeclNode(payload);
+
+			// Literals
 		case PlexilLexer.TRUE_KYWD:
 		case PlexilLexer.FALSE_KYWD:
 		case PlexilLexer.INT:
