@@ -162,7 +162,7 @@ public class BlockNode extends PlexilTreeNode
 		// Construct basic XML
 		// If body is 1 simple action, use its XML as a base
 		if (isSimpleNode()) {
-			m_xml = m_body.firstElement().getXML();
+			m_xml = m_body.firstElement().getChild(0).getXML();
 		}
 		else {
 			// Build XML wrapper
@@ -246,14 +246,16 @@ public class BlockNode extends PlexilTreeNode
 		if (m_body.size() != 1) {
 			return false;
 		}
+
+		PlexilTreeNode action = m_body.firstElement();
 		// this should NEVER fail!
-		if (m_body.firstElement().getType() != PlexilLexer.ACTION) {
+		if (action.getType() != PlexilLexer.ACTION) {
 			return false;
 		}
-		if (m_body.firstElement().getChildCount() != 1) {
+		if (action.getChildCount() != 1) {
 			return false;
 		}
-		int bodyType = m_body.firstElement().getChild(0).getType();
+		int bodyType = action.getChild(0).getType();
 		switch (bodyType) {
 		case PlexilLexer.ASSIGNMENT:
 		case PlexilLexer.COMMAND:
@@ -277,14 +279,15 @@ public class BlockNode extends PlexilTreeNode
 		if (m_body.size() != 1) {
 			return false;
 		}
+		PlexilTreeNode action = m_body.firstElement();
 		// this should NEVER fail!
-		if (m_body.firstElement().getType() != PlexilLexer.ACTION) {
+		if (action.getType() != PlexilLexer.ACTION) {
 			return false;
 		}
-		if (m_body.firstElement().getChildCount() != 1) {
+		if (action.getChildCount() != 1) {
 			return false;
 		}
-		return m_body.firstElement().getChild(0).getType() == PlexilLexer.COMMAND;
+		return action.getChild(0).getType() == PlexilLexer.COMMAND;
 	}
 
 }
