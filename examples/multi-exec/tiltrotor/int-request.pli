@@ -1,0 +1,16 @@
+;; File: $SVNROOT/examples/multi-exec/tiltrotor/int-request.pli
+;; Date: Wed Nov  3 09:56:40 2010
+
+(plexil-plan
+  (sequence "int-request"
+    (interface (inout (string "name") (string "type") (integer "intval")))
+    (variables (boolean "debug" true))
+    (if (boolvar "debug")
+      (command "print" "[" (stringvar "name") ".int-request] sent: " (stringvar "type") "\n"))
+    (action "get-int-value"
+      (end-condition (not (= 0.0 (intvar "intval"))))
+      (command-with-return (intvar "intval") "state-request" (stringvar "type")))
+    (if (boolvar "debug")
+      (command "print" "[" (stringvar "name") ".int-request] recv: " (intvar "intval") "\n"))))
+
+;; EOF
