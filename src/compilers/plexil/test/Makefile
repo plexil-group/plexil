@@ -49,8 +49,8 @@ syntax-error-tests:
 semantic-error-tests:
 
 output:
-	-$(MKDIR) -p output
+	-mkdir -p output
 
 clean:
-	-$(RMDIR) output
+	-$(RM) -r output
 	-$(RM) tempRegressionResults input/*.epx input/*.plx
