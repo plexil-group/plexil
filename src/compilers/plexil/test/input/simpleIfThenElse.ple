@@ -2,7 +2,8 @@ Command foo;
 Command bar;
 
 simpleIfThenElse:
-If (true)
-Then foo()
-Else bar()
-
+if (true)
+ foo();
+else
+ bar();
+endif

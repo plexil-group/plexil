@@ -2,7 +2,7 @@ Command foo;
 Command bar;
 
 ifWithClauseIds:
-If (true)
-Then TrueClause: foo()
-Else FalseClause: bar()
-
+if (true)
+TrueClause: foo();
+else FalseClause: bar();
+endif

@@ -26,6 +26,7 @@
 package plexil;
 
 import java.util.Vector;
+import java.util.TreeSet;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
@@ -40,6 +41,7 @@ public class BlockNode extends PlexilTreeNode
 	Vector<PlexilTreeNode> m_declarations = new Vector<PlexilTreeNode>();
 	Vector<PlexilTreeNode> m_conditions = new Vector<PlexilTreeNode>();
 	Vector<PlexilTreeNode> m_attributes = new Vector<PlexilTreeNode>();
+	Vector<PlexilTreeNode> m_resources = new Vector<PlexilTreeNode>();
 	Vector<PlexilTreeNode> m_body = new Vector<PlexilTreeNode>();
 
 	public BlockNode(BlockNode b)
@@ -59,14 +61,46 @@ public class BlockNode extends PlexilTreeNode
 		super(new CommonToken(ttype, "BLOCK"));
 	}
 
-	// N.B. Interface and variable decl's check themselves.
+	// N.B. Interface and variable decl's, and conditions, check themselves.
 	public boolean checkSelf(NodeContext context, CompilerState myState)
 	{
 		m_context = context;
 		partitionChildren();
 		boolean success = true;
-		// TODO: Check for duplicate conditions
+
+		// Check for duplicate conditions
+		TreeSet<Integer> conditionsSeen = new TreeSet<Integer>();
+		for (PlexilTreeNode c : m_conditions) {
+			Integer condType = new Integer(c.getType());
+			if (conditionsSeen.contains(condType)) {
+				myState.addDiagnostic(c,
+									  "Multiple \"" + c.getToken().getText() + "\" conditions specified",
+									  Severity.ERROR);
+				success = false;
+			}
+			else {
+				conditionsSeen.add(condType);
+			}
+		}
+
+		if (isCommandNode()) {
+			// TODO: Resources legal, look for collisions
+		}
+		else {
+			// Resources are NOT legal, flag them as errors
+			for (PlexilTreeNode r : m_resources) {
+				myState.addDiagnostic(r, 
+									  "The \"" + r.getToken().getText() + "\" keyword is only valid for Command actions",
+									  Severity.ERROR);
+				success = false;
+			}
+		}
+
 		// TODO: Check attributes
+		for (PlexilTreeNode a : m_attributes) {
+			// Check for collisions
+		}
+
 		return success;
 	}
 
@@ -75,6 +109,7 @@ public class BlockNode extends PlexilTreeNode
 		m_declarations.clear();
 		m_conditions.clear();
 		m_attributes.clear();
+		m_resources.clear();
 		m_body.clear();
 
 		if (this.getChildCount() > 0) {
@@ -104,6 +139,9 @@ public class BlockNode extends PlexilTreeNode
 
 				case PlexilLexer.RESOURCE_KYWD:
 				case PlexilLexer.RESOURCE_PRIORITY_KYWD:
+					m_resources.add(child);
+					break;
+
 				case PlexilLexer.PRIORITY_KYWD:
 				case PlexilLexer.PERMISSIONS_KYWD:
 					m_attributes.add(child);
@@ -189,6 +227,12 @@ public class BlockNode extends PlexilTreeNode
 			m_xml.addChild(n.getXML());
 		}
 
+		// TODO: Add resources
+		if (isCommandNode()) {
+			for (PlexilTreeNode n : m_resources) {
+			}
+		}
+
 		// Add children from body
 		if (!isSimpleNode()) {
 			for (PlexilTreeNode n : m_body) {
@@ -226,6 +270,21 @@ public class BlockNode extends PlexilTreeNode
 	private boolean isListNode()
 	{
 		return m_body.size() > 1;
+	}
+
+	private boolean isCommandNode()
+	{
+		if (m_body.size() != 1) {
+			return false;
+		}
+		// this should NEVER fail!
+		if (m_body.firstElement().getType() != PlexilLexer.ACTION) {
+			return false;
+		}
+		if (m_body.firstElement().getChildCount() != 1) {
+			return false;
+		}
+		return m_body.firstElement().getChild(0).getType() == PlexilLexer.COMMAND;
 	}
 
 }

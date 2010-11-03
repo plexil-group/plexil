@@ -65,6 +65,16 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.UNCHECKED_SEQUENCE_KYWD:
 			return new BlockNode(payload);
 
+			// Other syntactic features
+		case PlexilLexer.IF_KYWD:
+			return new IfNode(payload);
+
+		case PlexilLexer.TRUE_KYWD:
+		case PlexilLexer.FALSE_KYWD:
+		case PlexilLexer.INT:
+		case PlexilLexer.DOUBLE:
+			return new LiteralNode(payload);
+
 		default:
 			return new PlexilTreeNode(payload);
 		}

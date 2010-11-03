@@ -153,15 +153,17 @@ NODE_WAITING_KYWD = 'NodeWaiting';
 
 // Extended Plexil keywords
 CONCURRENCE_KYWD = 'Concurrence';
-ELSE_KYWD = 'Else';
-FOR_KYWD = 'For';
-IF_KYWD = 'If';
 ON_COMMAND_KYWD = 'OnCommand';
 ON_MESSAGE_KYWD = 'OnMessage';
-THEN_KYWD = 'Then';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
-WHILE_KYWD = 'While';
+
+ELSE_KYWD = 'else';
+ELSEIF_KYWD = 'elseif';
+ENDIF_KYWD = 'endif';
+FOR_KYWD = 'for';
+IF_KYWD = 'if';
+WHILE_KYWD = 'while';
 
 // Extended Plexil message passing
 MESSAGE_RECEIVED_KYWD = 'MessageReceived';
@@ -396,10 +398,10 @@ forAction :
  ;
 
 ifAction :
-    IF_KYWD LPAREN expression RPAREN
-    THEN_KYWD thenAction=consequentAction
-    (ELSE_KYWD elseAction=action)?
-    -> ^(IF_KYWD expression $thenAction $elseAction?)
+    IF_KYWD^ LPAREN! expression RPAREN! action
+    (ELSEIF_KYWD LPAREN! expression RPAREN! action)*
+    (ELSE_KYWD! action)?
+    ENDIF_KYWD!
  ;
 
 onCommandAction : 

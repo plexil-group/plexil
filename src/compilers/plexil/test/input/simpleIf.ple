@@ -1,6 +1,4 @@
 Command foo;
 
 simpleIf:
-If (true)
-Then foo()
-
+if (true) foo(); endif
