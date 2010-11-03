@@ -1,7 +1,9 @@
-;; File:
-;; Date:
+;; File: $SVNROOT/examples/multi-exec/tiltrotor/pilot.pli
+;; Date: Tue Nov  2 23:27:15 2010
 
 (plexil-plan
+  ;;(declarations
+  ;;  (library-node-declaration "send-command" (inout (real"realval"))))
   (sequence "Pilot"
     (variables (string "name" "[pilot]")
                (real "lat" 0.0)
@@ -12,8 +14,6 @@
       (action "get-lat"
         (end-condition (not (= 0.0 (realvar "lat"))))
         (command-with-return (realvar "lat") "StateRequest" "lat"))
-      ;;(command "pprint" (stringvar "name") "recv:" (realvar "lat"))
-      ;;(command "print" "\n" (stringvar "name") " send: lon\n")
       (action "get-lon"
         (end-condition (not (= 0.0 (realvar "lon"))))
         (command-with-return (realvar "lon") "StateRequest" "lon"))
@@ -21,6 +21,8 @@
         (end-condition (not (= 0.0 (realvar "alt"))))
         (command-with-return (intvar "alt") "StateRequest" "alt"))
       (command "pprint" (stringvar "name") "recv:" (realvar "lat") (realvar "lon") (intvar "alt")))
+    ;;(library-call-node "send-cmd"
+    ;;  (call "send-command" (alias "realval" 0.0)))
     (action "Quit"
       (command "print" "\n" (stringvar "name") " sending Quit (and quitting)\n")
       (command "SendMessage" "Quit"))))

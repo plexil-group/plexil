@@ -1,0 +1,14 @@
+;; File: $SVNROOT/examples/multi-exec/tiltrotor/command-lib.pli
+;; Date: Tue Nov  2 23:29:58 2010
+
+(plexil-plan
+  (sequence "send-command"
+    (interface (inout (real "realval" 0.0)))
+    ;;(command "print" "\n[library] sent: lat\n")
+    (action "get-value"
+      (end-condition (not (= 0.0 (realvar "realval"))))
+      (command-with-return (realvar "realval") "StateRequest" "lat"))
+    ;;(command "print" "\n[library] recv: " (realvar "realval"))
+    ))
+
+;; EOF
