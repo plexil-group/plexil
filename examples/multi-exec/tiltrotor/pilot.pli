@@ -3,7 +3,7 @@
 
 (plexil-plan
   (declarations
-    (library-node-declaration "state-request" (inout (string "name") (string "type") (real"realval"))))
+    (library-node-declaration "real-request" (inout (string "name") (string "type") (real "realval"))))
   (sequence "Pilot"
     (variables (string "name" "pilot")
                (real "lat" 0.0)
@@ -11,19 +11,11 @@
                (integer "alt" 0))
     (sequence "get-aircraft-state"
       (command "print" "\n[" (stringvar "name") "] getting aircraft state\n")
-      (action "get-lat"
-        (end-condition (not (= 0.0 (realvar "lat"))))
-        (command-with-return (realvar "lat") "StateRequest" "lat"))
-      (action "get-lon"
-        (end-condition (not (= 0.0 (realvar "lon"))))
-        (command-with-return (realvar "lon") "StateRequest" "lon"))
-      (action "get-alt"
-        (end-condition (not (= 0.0 (realvar "alt"))))
-        (command-with-return (intvar "alt") "StateRequest" "alt"))
-      (command "print" "[" (stringvar "name") "] recv:"
-               (realvar "lat") " " (realvar "lon") " " (intvar "alt") "\n"))
-    (library-call-node "send-cmd"
-      (call "state-request" (alias "name" (stringvar "name")) (alias "type" "lat") (alias "realval" 0.0)))
+      (library-call-node "get-lat"
+        (call "real-request" (alias "name" (stringvar "name")) (alias "type" "lat") (alias "realval" (realvar "lat"))))
+      (library-call-node "get-lon"
+        (call "real-request" (alias "name" (stringvar "name")) (alias "type" "lon") (alias "realval" (realvar "lon")))))
+    (command "print" "[" (stringvar "name") "] recv: " (realvar "lat") " " (realvar "lon") " " (intvar "alt") "\n")
     (action "Quit"
       (command "print" "[" (stringvar "name") "] sending Quit (and quitting)\n\n")
       (command "SendMessage" "Quit"))))
