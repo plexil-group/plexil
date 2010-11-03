@@ -25,6 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# TODO: redirect output files to 'output' directory
 
 # Check environment variables
 if [ ! $PLEXIL_HOME ]
@@ -39,19 +40,22 @@ fi
 SCHEMA_DIR=${PLEXIL_HOME}/schema
 PLEXIL_COMPILER_DIR=${PLEXIL_HOME}/src/compilers/plexil
 
+OUTEPX=${1/%.ple/.epx}
+OUTFILE=${OUTEPX/input/output}
+
 # Generate 
-${PLEXIL_COMPILER_DIR}/PlexilCompiler --epx-only $1
+${PLEXIL_COMPILER_DIR}/PlexilCompiler --epx-only -o ${OUTFILE} $1
 if [ $? -ne 0 ]
 then
 	echo Compilation of $1 failed.
 	exit 1
 fi
 
-# Validate
-xmllint --noout --schema ${SCHEMA_DIR}/extended-plexil.xsd ${1/%.ple/.epx}
+# Validate, redirecting output to stderr
+xmllint --noout --schema ${SCHEMA_DIR}/extended-plexil.xsd ${OUTFILE} 1>&2
 if [ $? -ne 0 ]
 then
-	echo Validation of ${1/%.ple/.epx} failed.
+	echo Validation of ${OUTFILE} failed.
 	exit 1
 fi
 

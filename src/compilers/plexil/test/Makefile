@@ -30,15 +30,21 @@ VALID_TESTS	:= concurrenceOfAssignments emptyNodeWithVariables ifWithClauseIds \
  sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
 
-all: valid-tests syntax-error-tests semantic-error-tests
+all: setup valid-tests syntax-error-tests semantic-error-tests
 
-valid-tests: $(VALID_TEST_FILES)
+setup:
+	-$(RM) tempRegressionResults
+
+valid-tests: $(VALID_TEST_FILES) | output setup
+	touch tempRegressionResults ; \
 	for tf in $(VALID_TEST_FILES) ; do \
-		./validate $${tf} ; \
-	done
+		echo $${tf} ; \
+		./validate $${tf} 2>> tempRegressionResults ; \
+		if [ $$? -ne 0 ] ; then failure=1 ; fi; \
+	done ; \
+	exit $${failure}
 
 syntax-error-tests:
-	for 
 
 semantic-error-tests:
 
@@ -46,4 +52,5 @@ output:
 	-$(MKDIR) -p output
 
 clean:
-	$(RM) output input/*.epx input/*.plx
+	-$(RMDIR) output
+	-$(RM) tempRegressionResults input/*.epx input/*.plx
