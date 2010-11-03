@@ -1,5 +1,18 @@
 This file, plexil/CAVEATS, lists known bugs and issues in the PLEXIL system.
 
+
+Moderate problems
+-----------------
+
+Plexil Viewer: 
+
+ * Multiple actions with the same name (Node ID) will not show correct status
+   and outcome.  The viewer does not seem to distinguish the actions.
+
+ * The viewer may fail to display the plan if it uses more than one library
+   node.
+
+
 Minor problems
 --------------
 

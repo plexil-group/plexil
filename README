@@ -16,7 +16,12 @@ Next release
  - Plexilisp:
    * fixed bug in Wait, added WaitWithTolerance
    * fixed bug in handling of newlines in strings
-   
+ - Schemas
+   * fixed XSD schemas to work with xmllint
+   * added file locator attributes to aid in source debugging
+   * added Relax NG versions of the schema
+
+
 1.5  (October 2010)
  - Extensively revised user manual
    * PLEXIL is now presented as a language of high level Actions, of which Core
