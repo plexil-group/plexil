@@ -72,7 +72,6 @@
         <xsd:element ref="BooleanVariable"/>
         <xsd:element ref="BooleanValue"/>
         <xsd:group ref="LookupGroup"/>
-        <xsd:element ref="Lookup"/>
         <xsd:element ref="ArrayElement"/>
         <xsd:element ref="Finished"/>
         <xsd:element ref="IterationEnded"/>
@@ -101,23 +100,21 @@
   <!-- Node clauses, which can occur in any action. -->
 
   <xsd:group name="NodeClauses">
-    <xsd:sequence>
-      <xsd:all>
-        <xsd:element ref="NodeId" minOccurs="0"/>
-        <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
-        <xsd:element ref="StartCondition" minOccurs="0"/>
-        <xsd:element ref="RepeatCondition" minOccurs="0"/>
-        <xsd:element ref="PreCondition" minOccurs="0"/>
-        <xsd:element ref="PostCondition" minOccurs="0"/>
-        <xsd:element ref="InvariantCondition" minOccurs="0"/>
-        <xsd:element ref="EndCondition" minOccurs="0"/>
-        <xsd:element ref="SkipCondition" minOccurs="0"/>
-        <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-        <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
-        <xsd:element ref="Interface" minOccurs="0"/>
-        <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-      </xsd:all>
-    </xsd:sequence>
+	 <xsd:choice>
+	   <xsd:element ref="NodeId" minOccurs="0"/>
+	   <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
+	   <xsd:element ref="StartCondition" minOccurs="0"/>
+	   <xsd:element ref="RepeatCondition" minOccurs="0"/>
+	   <xsd:element ref="PreCondition" minOccurs="0"/>
+	   <xsd:element ref="PostCondition" minOccurs="0"/>
+	   <xsd:element ref="InvariantCondition" minOccurs="0"/>
+	   <xsd:element ref="EndCondition" minOccurs="0"/>
+	   <xsd:element ref="SkipCondition" minOccurs="0"/>
+	   <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
+	   <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
+	   <xsd:element ref="Interface" minOccurs="0"/>
+	   <xsd:element ref="VariableDeclarations" minOccurs="0"/>
+	 </xsd:choice>
   </xsd:group>
 
 
@@ -125,10 +122,8 @@
 
   <xsd:group name="SequenceType">
     <xsd:sequence>
-      <xsd:all>
-        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="1"/>
-        <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:all>
+	  <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:group>
 
@@ -136,12 +131,8 @@
   -->
   <xsd:element name="Concurrence">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
-      <xsd:all>
-        <xsd:group ref="SequenceType"/>
-      </xsd:all>
+	  <xsd:group ref="SequenceType"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -150,12 +141,8 @@
   -->
   <xsd:element name="Sequence">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
-      <xsd:all>
-        <xsd:group ref="SequenceType"/>
-      </xsd:all>
+	  <xsd:group ref="SequenceType"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -163,12 +150,8 @@
      They will all be executed -->
   <xsd:element name="UncheckedSequence">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
-      <xsd:all>
-        <xsd:group ref="SequenceType"/>
-      </xsd:all>
+	  <xsd:group ref="SequenceType"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -177,12 +160,8 @@
        only if all its actions fail. -->
   <xsd:element name="Try">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
-      <xsd:all>
-        <xsd:group ref="SequenceType"/>
-      </xsd:all>
+	  <xsd:group ref="SequenceType"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -192,11 +171,8 @@
   <!-- A classic if-then-else with optional else. -->
   <xsd:element name="If">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:group ref="NodeClauses"/>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Condition">
           <xsd:complexType>
             <xsd:group ref="BooleanExpression"/>
@@ -204,30 +180,24 @@
         </xsd:element>
         <xsd:element name="Then">
           <xsd:complexType>
-            <xsd:all>
-              <xsd:group ref="Action"/>
-            </xsd:all>
+			<xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="Else" minOccurs="0">
           <xsd:complexType>
-            <xsd:all>
-              <xsd:group ref="Action"/>
-            </xsd:all>
+			<xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <!-- A classic while loop -->
   <xsd:element name="While">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:group ref="NodeClauses"/>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Condition">
           <xsd:complexType>
             <xsd:group ref="BooleanExpression"/>
@@ -235,12 +205,11 @@
         </xsd:element>
         <xsd:element name="Action">
           <xsd:complexType>
-            <xsd:all>
-              <xsd:group ref="Action"/>
-            </xsd:all>
+			<xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -251,12 +220,9 @@
      to execute. -->
   <xsd:element name="For">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:group ref="NodeClauses"/>
-        <xsd:element name= "LoopVariable">
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="LoopVariable">
           <xsd:complexType>
             <xsd:all>
               <xsd:element ref="DeclareVariable"/>
@@ -279,6 +245,7 @@
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -305,29 +272,25 @@
   <xsd:element name="MessageReceived">
     <xsd:complexType>
       <xsd:group ref="StringExpression"/>
+	  <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="OnCommand">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:group ref="NodeClauses"/>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="Name"/>
         <xsd:group ref="Action" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="OnMessage">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:sequence>
-        <xsd:group ref="NodeClauses"/>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Message">
           <xsd:complexType>
             <xsd:group ref="StringExpression"/>
@@ -335,6 +298,7 @@
         </xsd:element>
         <xsd:group ref="Action" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -346,6 +310,7 @@
          <xsd:element ref="Tolerance" minOccurs="0"/>
          <xsd:element ref="Arguments" minOccurs="0"/>
        </xsd:sequence>
+	   <xsd:attributeGroup ref="SourceLocators"/>
      </xsd:complexType>
    </xsd:element>
 
