@@ -1,10 +1,10 @@
-;; File: $SVNROOT/examples/multi-exec/tiltrotor/command-lib.pli
-;; Date: Tue Nov  2 23:29:58 2010
+;; File: $SVNROOT/examples/multi-exec/tiltrotor/cmd-lib.pli
+;; Date: Tue Nov  2 23:57:46 2010
 
 (plexil-plan
-  (sequence "send-command"
-    (interface (inout (string "name") (real "realval")))
-    (command "print" "[" (stringvar "name") ".cmd-lib] sent: lat\n")
+  (sequence "state-request"
+    (interface (inout (string "name") (string "type") (real "realval")))
+    (command "print" "[" (stringvar "name") ".cmd-lib] sent: " (stringvar "type") "\n")
     (action "get-value"
       (end-condition (not (= 0.0 (realvar "realval"))))
       (command-with-return (realvar "realval") "StateRequest" "lat"))

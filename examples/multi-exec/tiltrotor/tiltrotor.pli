@@ -38,6 +38,7 @@
             ))))
     (action "QuitCommand"
       (on-message "Quit"
-        (command "pprint" (stringvar "name") "recv: quit\n")))))
+        (command "pprint" (stringvar "name") "recv: quit\n")))
+    ))
 
 ;; EOF
