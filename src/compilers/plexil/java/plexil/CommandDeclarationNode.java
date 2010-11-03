@@ -106,8 +106,6 @@ public class CommandDeclarationNode extends PlexilTreeNode
 		PlexilTreeNode nameTree = this.getChild(0);
 		IXMLElement nameXML = new XMLElement("Name");
 		nameXML.setContent(nameTree.getText());
-		nameXML.setAttribute("LineNo", String.valueOf(nameTree.getLine()));
-		nameXML.setAttribute("ColNo", String.valueOf(nameTree.getCharPositionInLine()));
 		m_xml.addChild(nameXML);
 
 		if (this.getChildCount() > 1) {
