@@ -28,9 +28,9 @@
 -->
 
 <!--  
-     Schema for Core PLEXIL as implemented (i.e. supported by the UE).  This is
-     distinct from the "blessed" schema found in plexil/schema/plexil.xsd, 
-     which is the latest "official" Core PLEXIL specification at NASA.
+Schema for Core PLEXIL as implemented (i.e. supported by the UE).  This is
+distinct from the "blessed" schema found in plexil/schema/plexil.xsd, 
+which is the latest "official" Core PLEXIL specification at NASA.
 -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
@@ -38,7 +38,7 @@
   <xsd:element name="Name">
     <xsd:complexType>
       <xsd:group ref="StringExpression"/>
-	  <xsd:attributeGroup ref="SourceLocators"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 </xsd:schema>

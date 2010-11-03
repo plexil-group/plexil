@@ -90,9 +90,9 @@ SCHEMA_RNG =    $(SCHEMA_XSD:.xsd=.rng)
 SCHEMA_RNC =    $(SCHEMA_XSD:.xsd=.rnc)
 SCHEMA_RNC_IN = $(SCHEMA_XSD:.xsd=.rnc.in)
 
-default: all
+default: rng rnc
 
-all: $(SCHEMA_RNC)
+rnc: $(SCHEMA_RNC)
 
 rng: $(SCHEMA_RNG)
 

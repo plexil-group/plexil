@@ -28,8 +28,8 @@
 -->
 
 <!--
-     This schema extends Core PLEXIL with syntactic sugar: convenient forms 
-     that are translated into Core PLEXIL for execution.
+This schema extends Core PLEXIL with syntactic sugar: convenient forms 
+that are translated into Core PLEXIL for execution.
 -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
@@ -100,21 +100,21 @@
   <!-- Node clauses, which can occur in any action. -->
 
   <xsd:group name="NodeClauses">
-	 <xsd:choice>
-	   <xsd:element ref="NodeId" minOccurs="0"/>
-	   <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
-	   <xsd:element ref="StartCondition" minOccurs="0"/>
-	   <xsd:element ref="RepeatCondition" minOccurs="0"/>
-	   <xsd:element ref="PreCondition" minOccurs="0"/>
-	   <xsd:element ref="PostCondition" minOccurs="0"/>
-	   <xsd:element ref="InvariantCondition" minOccurs="0"/>
-	   <xsd:element ref="EndCondition" minOccurs="0"/>
-	   <xsd:element ref="SkipCondition" minOccurs="0"/>
-	   <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-	   <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
-	   <xsd:element ref="Interface" minOccurs="0"/>
-	   <xsd:element ref="VariableDeclarations" minOccurs="0"/>
-	 </xsd:choice>
+    <xsd:choice>
+      <xsd:element ref="NodeId" minOccurs="0"/>
+      <xsd:element name="Comment" type="xsd:string" minOccurs="0"/>
+      <xsd:element ref="StartCondition" minOccurs="0"/>
+      <xsd:element ref="RepeatCondition" minOccurs="0"/>
+      <xsd:element ref="PreCondition" minOccurs="0"/>
+      <xsd:element ref="PostCondition" minOccurs="0"/>
+      <xsd:element ref="InvariantCondition" minOccurs="0"/>
+      <xsd:element ref="EndCondition" minOccurs="0"/>
+      <xsd:element ref="SkipCondition" minOccurs="0"/>
+      <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
+      <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
+      <xsd:element ref="Interface" minOccurs="0"/>
+      <xsd:element ref="VariableDeclarations" minOccurs="0"/>
+    </xsd:choice>
   </xsd:group>
 
 
@@ -122,8 +122,8 @@
 
   <xsd:group name="SequenceType">
     <xsd:sequence>
-	  <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
-	  <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="Action" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:group>
 
@@ -131,7 +131,7 @@
   -->
   <xsd:element name="Concurrence">
     <xsd:complexType>
-	  <xsd:group ref="SequenceType"/>
+      <xsd:group ref="SequenceType"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -141,16 +141,16 @@
   -->
   <xsd:element name="Sequence">
     <xsd:complexType>
-	  <xsd:group ref="SequenceType"/>
+      <xsd:group ref="SequenceType"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
-<!-- Like Sequence, except the actions are not checked for success.
-     They will all be executed -->
+  <!-- Like Sequence, except the actions are not checked for success.
+       They will all be executed -->
   <xsd:element name="UncheckedSequence">
     <xsd:complexType>
-	  <xsd:group ref="SequenceType"/>
+      <xsd:group ref="SequenceType"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -160,7 +160,7 @@
        only if all its actions fail. -->
   <xsd:element name="Try">
     <xsd:complexType>
-	  <xsd:group ref="SequenceType"/>
+      <xsd:group ref="SequenceType"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -180,12 +180,12 @@
         </xsd:element>
         <xsd:element name="Then">
           <xsd:complexType>
-			<xsd:group ref="Action"/>
+            <xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="Else" minOccurs="0">
           <xsd:complexType>
-			<xsd:group ref="Action"/>
+            <xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
@@ -205,7 +205,7 @@
         </xsd:element>
         <xsd:element name="Action">
           <xsd:complexType>
-			<xsd:group ref="Action"/>
+            <xsd:group ref="Action"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
@@ -213,11 +213,11 @@
     </xsd:complexType>
   </xsd:element>
 
-<!-- A For loop.  First a variable is declared (it must be numeric).
-     Next is a boolean expression that determines when to keep the loop
-     going.  Next is a numeric expression used to update the variable
-     (it is typically a function of the variable).  Finally, actions
-     to execute. -->
+  <!-- A For loop.  First a variable is declared (it must be numeric).
+       Next is a boolean expression that determines when to keep the loop
+       going.  Next is a numeric expression used to update the variable
+       (it is typically a function of the variable).  Finally, actions
+       to execute. -->
   <xsd:element name="For">
     <xsd:complexType>
       <xsd:sequence>
@@ -272,7 +272,7 @@
   <xsd:element name="MessageReceived">
     <xsd:complexType>
       <xsd:group ref="StringExpression"/>
-	  <xsd:attributeGroup ref="SourceLocators"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -303,15 +303,15 @@
   </xsd:element>
 
   <!-- Generic lookup form -->
-   <xsd:element name="Lookup">
-     <xsd:complexType>
-       <xsd:sequence>
-         <xsd:element ref="Name"/>
-         <xsd:element ref="Tolerance" minOccurs="0"/>
-         <xsd:element ref="Arguments" minOccurs="0"/>
-       </xsd:sequence>
-	   <xsd:attributeGroup ref="SourceLocators"/>
-     </xsd:complexType>
-   </xsd:element>
+  <xsd:element name="Lookup">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="Name"/>
+        <xsd:element ref="Tolerance" minOccurs="0"/>
+        <xsd:element ref="Arguments" minOccurs="0"/>
+      </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
 
 </xsd:schema>
