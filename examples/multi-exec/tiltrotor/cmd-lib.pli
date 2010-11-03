@@ -3,12 +3,12 @@
 
 (plexil-plan
   (sequence "send-command"
-    (interface (inout (real "realval" 0.0)))
-    ;;(command "print" "\n[library] sent: lat\n")
+    (interface (inout (string "name") (real "realval")))
+    (command "print" "[" (stringvar "name") ".cmd-lib] sent: lat\n")
     (action "get-value"
       (end-condition (not (= 0.0 (realvar "realval"))))
       (command-with-return (realvar "realval") "StateRequest" "lat"))
-    ;;(command "print" "\n[library] recv: " (realvar "realval"))
+    (command "print" "[" (stringvar "name") ".cmd-lib] recv: " (realvar "realval") "\n")
     ))
 
 ;; EOF

@@ -2,15 +2,15 @@
 ;; Date: Tue Nov  2 23:27:15 2010
 
 (plexil-plan
-  ;;(declarations
-  ;;  (library-node-declaration "send-command" (inout (real"realval"))))
+  (declarations
+    (library-node-declaration "send-command" (inout (string "name") (real"realval"))))
   (sequence "Pilot"
-    (variables (string "name" "[pilot]")
+    (variables (string "name" "pilot")
                (real "lat" 0.0)
                (real "lon" 0.0)
                (integer "alt" 0))
     (sequence "get-aircraft-state"
-      (command "print" "\n" (stringvar "name") " getting aircraft state\n")
+      (command "print" "\n[" (stringvar "name") "] getting aircraft state\n")
       (action "get-lat"
         (end-condition (not (= 0.0 (realvar "lat"))))
         (command-with-return (realvar "lat") "StateRequest" "lat"))
@@ -20,11 +20,12 @@
       (action "get-alt"
         (end-condition (not (= 0.0 (realvar "alt"))))
         (command-with-return (intvar "alt") "StateRequest" "alt"))
-      (command "pprint" (stringvar "name") "recv:" (realvar "lat") (realvar "lon") (intvar "alt")))
-    ;;(library-call-node "send-cmd"
-    ;;  (call "send-command" (alias "realval" 0.0)))
+      (command "print" "[" (stringvar "name") "] recv:"
+               (realvar "lat") " " (realvar "lon") " " (intvar "alt") "\n"))
+    (library-call-node "send-cmd"
+      (call "send-command" (alias "name" (stringvar "name")) (alias "realval" 0.0)))
     (action "Quit"
-      (command "print" "\n" (stringvar "name") " sending Quit (and quitting)\n")
+      (command "print" "[" (stringvar "name") "] sending Quit (and quitting)\n\n")
       (command "SendMessage" "Quit"))))
 
 ;; EOF
