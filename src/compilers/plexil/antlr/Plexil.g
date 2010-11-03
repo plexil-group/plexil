@@ -353,29 +353,6 @@ action
 
 baseAction : compoundAction | simpleAction | block ; 
 
-// added to eliminate ambiguity in if-then-else
-// essentially requires braces around anything that could contain an if-then-else
-consequentAction
-@init { NodeContext actionContext = null; }
- :
-    (actionId=NCNAME COLON)?
-	{ 
-	  // push new naming context
-	  actionContext = m_context =
-	    new NodeContext(m_context,
-						($actionId == null)? null : $actionId.getText());
-	}
-	rest=restrictedAction
-	{ 
-	  // pop out to previous context
-	  m_context = m_context.getParentContext(); 
-    }
-    -> ^(ACTION<ActionNode>[actionContext] $actionId? $rest)
- ;
-
-restrictedAction : simpleAction | block ;
-
-// These are actions which could contain (or be) a naked if-then-else
 compoundAction : forAction | ifAction | onCommandAction | onMessageAction | whileAction ;
 
 // One-liner actions
@@ -394,12 +371,12 @@ forAction :
     SEMICOLON loopvarupdate=expression
     RPAREN
     action
-    -> ^(FOR_KYWD typeName NCNAME $loopvarinit $endtest $loopvarupdate action)
+    -> ^(FOR_KYWD ^(VARIABLE_DECLARATION typeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
  ;
 
 ifAction :
-    IF_KYWD^ LPAREN! expression RPAREN! action
-    (ELSEIF_KYWD LPAREN! expression RPAREN! action)*
+    IF_KYWD^ expression action
+    (ELSEIF_KYWD expression action)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!
  ;
@@ -412,11 +389,11 @@ incomingParam : typeName NCNAME
  ;
 
 onMessageAction :
-  ON_MESSAGE_KYWD^ LPAREN! expression RPAREN! action
+  ON_MESSAGE_KYWD^ expression action
  ;
 
 whileAction :
-    WHILE_KYWD^ LPAREN! expression RPAREN! action
+    WHILE_KYWD^ expression action
  ;
 
 // *** N.B. The supported schema does not require the strict sequencing of
@@ -682,8 +659,8 @@ equality :
  ;
 
 equalityOp :
-    DEQUALS<EqualityNode>
-  | NEQUALS<EqualityNode>
+    DEQUALS
+  | NEQUALS
  ;
 
 // 10 relational (<, <=, >, >=)
@@ -696,10 +673,10 @@ relational :
  ;
 
 relationalOp : 
-    GREATER<RelationalNode>
-  | GEQ<RelationalNode>
-  | LESS<RelationalNode>
-  | LEQ<RelationalNode>
+    GREATER
+  | GEQ
+  | LESS
+  | LEQ
  ;
 
 // 11 left/right shift - not in the Plexil language
