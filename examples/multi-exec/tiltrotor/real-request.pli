@@ -7,7 +7,7 @@
     (command "print" "[" (stringvar "name") ".real-request] sent: " (stringvar "type") "\n")
     (action "get-value"
       (end-condition (not (= 0.0 (realvar "realval"))))
-      (command-with-return (realvar "realval") "StateRequest" (stringvar "type")))
+      (command-with-return (realvar "realval") "state-request" (stringvar "type")))
     (command "print" "[" (stringvar "name") ".real-request] recv: " (realvar "realval") "\n")))
 
 ;; EOF

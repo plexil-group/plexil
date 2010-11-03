@@ -19,7 +19,7 @@
     (invariant-condition (not (finished "QuitCommand")))
     (action "HandleCommand"
       (repeat-condition true)
-      (on-command "StateRequest" ((string "tr-state"))
+      (on-command "state-request" ((string "tr-state"))
         (sequence "ReceiveRequest"
           (command "pprint" (stringvar "name") "recv:" (stringvar "tr-state"))
           (concurrently "Dispatch"
