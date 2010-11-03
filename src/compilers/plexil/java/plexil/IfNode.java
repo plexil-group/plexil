@@ -79,37 +79,43 @@ public class IfNode extends PlexilTreeNode
 		consequent.addChild(this.getChild(1).getXML());
 		m_xml.addChild(consequent);
 
-		// Handle ElseIf
 		IXMLElement parent = m_xml;
 		int i = 2;
-		while (i < this.getChildCount() && this.getChild(i).getType() == PlexilLexer.ELSEIF_KYWD) {
-			// Construct new IF
-			IXMLElement elseifNode = new XMLElement("If");
-			parent.addChild(elseifNode);
-			// add source locators
-			// TODO: add FileName attribute
-			elseifNode.setAttribute("LineNo", String.valueOf(this.getChild(i).getLine()));
-			elseifNode.setAttribute("ColNo", String.valueOf(this.getChild(i).getCharPositionInLine()));
+		while (i < this.getChildCount()) {
+			// Generate an Else
+			IXMLElement elseClause = new XMLElement("Else");
+			parent.addChild(elseClause);
 
-			// Insert elseif-condition
-			condition = new XMLElement("Condition");
-			condition.addChild(this.getChild(i+1).getXML());
-			elseifNode.addChild(condition);
+			// Handle ElseIf
+			if (this.getChild(i).getType() == PlexilLexer.ELSEIF_KYWD) {
+				// Construct new IF
+				IXMLElement elseifNode = new XMLElement("If");
+				elseClause.addChild(elseifNode);
 
-			// Insert then clause
-			consequent = new XMLElement("Then");
-			consequent.addChild(this.getChild(i+2).getXML());
-			elseifNode.addChild(consequent);
+				// add source locators
+				// TODO: add FileName attribute
+				elseifNode.setAttribute("LineNo", String.valueOf(this.getChild(i).getLine()));
+				elseifNode.setAttribute("ColNo", String.valueOf(this.getChild(i).getCharPositionInLine()));
 
-			i += 3;
-			parent = elseifNode;
-		}
+				// Insert elseif-condition
+				condition = new XMLElement("Condition");
+				condition.addChild(this.getChild(i+1).getXML());
+				elseifNode.addChild(condition);
 
-		// Handle final else, if any
-		if (i < this.getChildCount()) {
-			IXMLElement elseNode = new XMLElement("Else");
-			parent.addChild(elseNode);
-			elseNode.addChild(this.getChild(i).getXML());
+				// Insert then clause
+				consequent = new XMLElement("Then");
+				consequent.addChild(this.getChild(i+2).getXML());
+				elseifNode.addChild(consequent);
+
+				// prepare for next iteration
+				i += 3;
+				parent = elseifNode;
+			}
+			// Handle final else, if any
+			else {
+				elseClause.addChild(this.getChild(i).getXML());
+				i += 1;
+			}
 		}
 	}
 
