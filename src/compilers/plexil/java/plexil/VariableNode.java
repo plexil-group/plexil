@@ -64,6 +64,9 @@ public class VariableNode extends ExpressionNode
 		return m_dataType.typeName() + "Variable";
 	}
 
+	// Source locators are not allowed on variable elements.
+	protected void addSourceLocatorAttributes() {}
+
 	public boolean isAssignable()
 	{
 		if (m_variable == null)
