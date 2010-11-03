@@ -114,12 +114,12 @@ if [ ! -e $com1 ] ; then
     fi
 fi
 # Now, do it again for the second agent
-if [ ! -e $com1 ] ; then
-    if [ ! -e $com1.xml ] ; then
-        echo " " ; echo "No communications configuration file found for \"-c $com1\""
+if [ ! -e $com2 ] ; then
+    if [ ! -e $com2.xml ] ; then
+        echo " " ; echo "No communications configuration file found for \"-c $com2\""
         usage
     else
-        com1=$com1.xml
+        com2=$com2.xml
     fi
 fi
 
