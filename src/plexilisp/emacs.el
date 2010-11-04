@@ -78,7 +78,8 @@
                             "start-condition" "StartCondition" "end-condition" "EndCondition"
                             "skip-condition" "SkipCondition" "repeat-condition" "RepeatCondition"
                             "invariant-condition" "InvariantCondition")
-    (font-lock-constant-face "true" "True" "false" "False")))
+    ;;(font-lock-constant-face "true" "True" "false" "False")
+    ))
 
 (defun plexil-enable-highlighting ()
   (interactive)
