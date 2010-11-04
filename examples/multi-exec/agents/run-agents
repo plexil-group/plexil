@@ -8,12 +8,12 @@ function usage ()
 {
 cat <<EOF
 
-Usage:      `basename $0` [options] <agent1> [-c <config>] [-l <lib>]* <agent2> [-c <config>] [-l <lib>]*
+Usage:      `basename $0` [options] <agent1> [-c <config>] [-l <lib>] <agent2> [-c <config>] [-l <lib>]
 
 Options:    -v -viewer  := start the Plexil Viewer
             -x -xterms  := run the execs in xterms (if your system has them)
 
-Examples:   `basename $0` -x pilot -l real-request -l int-request tiltrotor
+Examples:   `basename $0` -x sim cmd -l get-int -l get-real
 
 Notes:      <agent1> and <agent2> are the "base names" of the plans, e.g., "cmd" for cmd.pli
             or "t1-sim" for t1-sim.pli.
@@ -53,7 +53,8 @@ do
         fi
     else
         if [ -z $agent1_raw ] ; then agent1_raw=$1 ; shift ;
-        else agent2_raw=$1 ; shift ;
+        elif [ -z $agent2_raw ] ; then agent2_raw=$1 ; shift ;
+        else echo "The \"$1\" parameter is ambiguous.  Maybe it is a library missing the -l flag?" ; usage ;
         fi
     fi
 done
@@ -123,6 +124,9 @@ if [ ! -e $com2 ] ; then
     fi
 fi
 
+# For readability
+echo " "
+
 # Keep the plans up-to-date if possible...
 make $agent1.plx $agent2.plx
 make_status=$?
@@ -133,18 +137,32 @@ then
     exit $make_status
 fi
 
-# Fix the libraries so that they can be included
+# Set up the libraries for inclusion
 for lib in $libs1 ;
 do
     lib=`echo $lib | awk '{ split($0, arr, "."); print(arr[1]) }'`
+    # allow for both lib/name and just name
+    if [ ! -e $lib.plx ] ; then
+        if [ -e lib/$lib.pli ] ; then lib=lib/$lib ;
+        else echo "$lib.pli not found" ; exit ;
+        fi
+    fi
     make $lib.plx
+    # stop of the compile fails
+    if [ $? != 0 ] ; then echo "Error: $lib.plx failed to compile" ; exit ; fi
     libraries1+=`echo " -l " $lib.plx`
 done
 # And again for the second agent
 for lib in $libs2 ;
 do
     lib=`echo $lib | awk '{ split($0, arr, "."); print(arr[1]) }'`
+    if [ ! -e $lib.plx ] ; then
+        if [ -e lib/$lib.pli ] ; then lib=lib/$lib ;
+        else echo "$lib.pli not found" ; exit ;
+        fi
+    fi
     make $lib.plx
+    if [ $? != 0 ] ; then echo "Error: $lib.plx failed to compile" ; exit ; fi
     libraries2+=`echo " -l " $lib.plx`
 done
 
