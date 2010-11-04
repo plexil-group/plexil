@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,7 +39,7 @@ public class ExecSelect extends JPanel {
 	 */	
 	private JFrame frame;
 	private static ExecSelect exec;	
-	private JButton planBut, configBut, scriptBut, saveBut, cancelBut, clearBut;
+	private JButton planBut, configBut, scriptBut, saveBut, cancelBut, defaultBut;
 	private JRadioButton plexilExec, plexilTest, plexilSim;
 	private JLabel planLab, configLab, scriptLab;
 	private ArrayList<JButton> buttonList;
@@ -90,14 +91,17 @@ public class ExecSelect extends JPanel {
 		backSim = new AppSettings("simExec","script");
 		
 		ButtonGroup execGroup = new ButtonGroup(); 
-		plexilExec = new JRadioButton("PlexilExec");		
+		plexilExec = new JRadioButton("PlexilExec");
+		plexilExec.setToolTipText("Execute a plan on one or more external systems or executives");
 		execGroup.add(plexilExec);
 		plexilExec.addActionListener(new ExecChooserListener());		
 		plexilTest = new JRadioButton("PlexilTest");
+		plexilTest.setToolTipText("Simulate Plan Execution using a Test Executive Script");
 		execGroup.add(plexilTest);
 		setRadioMode(PLEXIL_TEST);
 		plexilTest.addActionListener(new ExecChooserListener());		
 		plexilSim = new JRadioButton("PlexilSim");
+		plexilSim.setToolTipText("Execute a plan using Plexil Simulator");
 		execGroup.add(plexilSim);
 		plexilSim.addActionListener(new ExecChooserListener());		
 		
@@ -108,6 +112,7 @@ public class ExecSelect extends JPanel {
 		configBut.addActionListener(new ButtonFileListener());
 		configBut.setEnabled(false);
 		configLab = new JLabel("");
+		configBut.setVisible(false);
 		scriptBut = new JButton(action.chooseScriptAction);
 		scriptBut.addActionListener(new ButtonFileListener());
 		scriptLab = new JLabel("");	
@@ -116,8 +121,8 @@ public class ExecSelect extends JPanel {
 		saveBut.addActionListener(new SaveButtonListener());
 		cancelBut = new JButton("Cancel");
 		cancelBut.addActionListener(new ButtonListener());
-		clearBut = new JButton("Clear Script");
-		clearBut.addActionListener(new ButtonListener());
+		defaultBut = new JButton("Use Default Script");
+		defaultBut.addActionListener(new ButtonListener());		
 		
 		patternPanel = new JPanel();
 		
@@ -198,7 +203,7 @@ public class ExecSelect extends JPanel {
 				
 		setGridbag(saveBut, 0, 5, 10, 10, 1, 10);
 		setGridbag(cancelBut, 1, 5, 10, 10, 1, 10);
-		setGridbag(clearBut, 2, 5, 10, 10, 1, 10);
+		setGridbag(defaultBut, 2, 5, 10, 10, 1, 10);
 	}
 	
 	/*
@@ -263,9 +268,15 @@ public class ExecSelect extends JPanel {
 	 */
 	private void rememberBlank(){
 		switch (mode) {
-		 case PLEXIL_EXEC: getSettings().initializeSuppLabel(configLab); break;
-		 case PLEXIL_TEST: getSettings().initializeSuppLabel(scriptLab); break;
-		 case PLEXIL_SIM: getSettings().initializeSuppLabel(scriptLab); break;			 
+		 case PLEXIL_EXEC: getSettings().initializeSuppLabel(configLab);
+		 getSettings().setSuppToolTip(configLab);
+		 break;
+		 case PLEXIL_TEST: getSettings().initializeSuppLabel(scriptLab);
+		 getSettings().setSuppToolTip(scriptLab);
+		 break;
+		 case PLEXIL_SIM: getSettings().initializeSuppLabel(scriptLab);
+		 getSettings().setSuppToolTip(scriptLab);
+		 break;			 
 		 }
 	}
 	
@@ -291,6 +302,7 @@ public class ExecSelect extends JPanel {
         plan = new File(plannm);
         if (plan.exists()) {        	
             getSettings().initializePlanLabel(planLab);
+            getSettings().setPlanToolTip(planLab);
         } else {
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: trying to reload an UNKNOWN plan");
         }
@@ -303,14 +315,16 @@ public class ExecSelect extends JPanel {
             config = new File(suppnm);
             if (config.exists()) {                     
                 getSettings().initializeSuppLabel(configLab);
-                clearBut.setText("Clear Config");
+                getSettings().setSuppToolTip(configLab);
+                defaultBut.setText("Use Default Config");
             }
         } else
         {            
            	script = new File(suppnm);
             if (script.exists()) {
                 getSettings().initializeSuppLabel(scriptLab);
-                clearBut.setText("Clear Script");
+                getSettings().setSuppToolTip(scriptLab);
+                defaultBut.setText("Use Default Script");
             }
         }
 	}
@@ -391,12 +405,17 @@ public class ExecSelect extends JPanel {
 				setInputs(simSet, backSim.getPlanLocation(), backSim.getSuppLocation());				
 				setRadioMode(modeTemp);
 			}
-			if(e.getActionCommand().equals("Clear Script") || e.getActionCommand().equals("Clear Config"))
-			{
-				//getSettings().setPlanLocation("");
-				getSettings().setSuppLocation("");
+			if(e.getActionCommand().equals("Use Default Script"))
+			{				
+				getSettings().setSuppLocation(Constants.DEFAULT_CONFIG_PATH+Constants.DEFAULT_SCRIPT_NAME);
 				refresh();
-				Luv.getLuv().getStatusMessageHandler().showStatus("Cleared");
+				Luv.getLuv().getStatusMessageHandler().showStatus("Default Script");
+			}
+			if(e.getActionCommand().equals("Use Default Config"))
+			{				
+				getSettings().setSuppLocation(Constants.DEFAULT_CONFIG_PATH+Constants.DEFAULT_CONFIG_NAME);
+				refresh();
+				Luv.getLuv().getStatusMessageHandler().showStatus("Default Config");
 			}
 		}
 	}	
@@ -598,8 +617,11 @@ public class ExecSelect extends JPanel {
 							"Use UniversalExec", Color.GREEN.darker(), 1000);						
 					JButton[] on={planBut, configBut};
 					handleButtons(on, true);
+					handleVisibleButtons(on, true);
+					defaultBut.setVisible(true);
 					JButton[] off={scriptBut};
-					handleButtons(off, false);
+					handleButtons(off, false);		
+					handleVisibleButtons(off, false);
 					refresh();
 				}
 			}
@@ -612,8 +634,11 @@ public class ExecSelect extends JPanel {
 							"Use TestExec", Color.GREEN.darker(), 1000);				
 					JButton[] on={planBut, scriptBut};
 					handleButtons(on, true);
+					handleVisibleButtons(on, true);
+					defaultBut.setVisible(true);
 					JButton[] off={configBut};
 					handleButtons(off, false);
+					handleVisibleButtons(off, false);
 					refresh();
 				}
 			}
@@ -626,8 +651,11 @@ public class ExecSelect extends JPanel {
 							"Use PlexilSim", Color.GREEN.darker(), 1000);								
 					JButton[] on={planBut, scriptBut};
 					handleButtons(on, true);
+					handleVisibleButtons(on, true);
 					JButton[] off={configBut};
 					handleButtons(off, false);
+					defaultBut.setVisible(false);
+					handleVisibleButtons(off, false);
 					refresh();
 				}
 			}
@@ -639,7 +667,13 @@ public class ExecSelect extends JPanel {
 				if(toggle == false)
 					objMap.get(buttons[i]).setText("");
 			}
-		}				
+		}
+		private void handleVisibleButtons(JButton[] buttons, boolean toggle){
+			for(int i=0;i<buttons.length;i++)
+			{
+				buttons[i].setVisible(toggle);				
+			}
+		}
 	}
 	
 	class PlexilFilter extends FileFilter {
@@ -768,6 +802,12 @@ public class ExecSelect extends JPanel {
 		}
 		public void initializeSuppLabel(JLabel lab){
 			lab.setText(suppLocation.replaceAll(".*/",""));
+		}
+		public void setPlanToolTip(JComponent comp){
+			comp.setToolTipText(planLocation);
+		}
+		public void setSuppToolTip(JComponent comp){
+			comp.setToolTipText(suppLocation);
 		}
 		public PlexilFilter getFilter() {
 			return filter;
