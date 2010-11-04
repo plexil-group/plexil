@@ -1,0 +1,16 @@
+;; File: $SVNROOT/examples/multi-exec/agents/lib/get-int.pli
+
+(plexil-plan
+  (sequence "get-int"
+    (interface (inout (string "name") (string "type") (integer "int")))
+    (variables (boolean "debug" true)
+               (string "lib-name" ".lib/get-int"))
+    (when (boolvar "debug")
+      (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (stringvar "type") "\n"))
+    (action "get-int-value"
+      (end-condition (not (= 0.0 (intvar "int"))))
+      (command-with-return (intvar "int") "state-request" (stringvar "type")))
+    (when (boolvar "debug")
+      (command "print" "[" (stringvar "name") (stringvar "lib-name") "] recv: " (intvar "int") "\n"))))
+
+;; EOF

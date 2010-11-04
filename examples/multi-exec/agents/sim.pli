@@ -6,15 +6,7 @@
       (string "name" "[sim]")
       (real "lat" 36.3)
       (real "lon" -110.7)
-      (integer "alt" 2000)
-      ;;(integer "true-hdg" 90)
-      ;;(integer "magnetic" 90)
-      ;;(integer "g-speed" 250)
-      ;;(integer "v-speed" 0)
-      ;;(integer "bank-angle" 0)
-      ;;(integer "prop-angle" 0)
-      ;;(integer "distance" 70000)
-      )
+      (integer "alt" 2000))
     (invariant-condition (not (finished "QuitCommand")))
     (action "HandleCommand"
       (repeat-condition true)
@@ -37,7 +29,6 @@
             ))))
     (action "QuitCommand"
       (on-message "Quit"
-        (command "pprint" (stringvar "name") "recv: Quit\n")))
-    ))
+        (command "pprint" (stringvar "name") "recv: Quit\n")))))
 
 ;; EOF
