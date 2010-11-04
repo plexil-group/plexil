@@ -1,15 +1,15 @@
 # -*- Mode: Makefile -*-
-# File: $SVNROOT/examples/multi-exec/agents/makefile
+# File: $SVNROOT/examples/multi-exec/tiltrotor/makefile
 # Note: Generic makefile for plexilisp and standard plexil
 
-# Find the .pli plans in this directory
-ifneq ($(shell echo *.pli),*.pli)
-  plans += $(shell echo *.pli)
+# Find the .pli plans in this and the lib directory
+ifneq ($(shell echo *.pli lib/*.pli),*.pli lib/*.pli)
+  plans += $(shell echo *.pli lib/*.pli)
 endif
 
 # Find the .ple plans in this directory
-ifneq ($(shell echo *.ple),*.ple)
-  plans += $(shell echo *.ple)
+ifneq ($(shell echo *.ple lib/*.ple),*.ple lib/*.ple)
+  plans += $(shell echo *.ple lib/*.ple)
 endif
 
 # Find the implied .plx targets in this directory
@@ -26,10 +26,10 @@ all: $(plans:%.ple=%.plx) $(plans:%.pli=%.plx)
 	$(RM) $*.epx*
 
 dust:
-	$(RM) *.epx *.last
+	$(RM) *.epx *.last lib/*.epx lib/*.last
 
 clean: dust
-	$(RM) *.plx
+	$(RM) *.plx lib/*.plx
 
 cleaner: clean
 	$(RM) *~
