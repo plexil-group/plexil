@@ -1,5 +1,5 @@
 # -*- Mode: Makefile -*-
-# File: $SVNROOT/examples/multi-exec/tiltrotor/makefile
+# File: $SVNROOT/examples/multi-exec/agents/makefile
 # Note: Generic makefile for plexilisp and standard plexil
 
 # Find the .pli plans in this and the lib directory
@@ -7,7 +7,7 @@ ifneq ($(shell echo *.pli lib/*.pli),*.pli lib/*.pli)
   plans += $(shell echo *.pli lib/*.pli)
 endif
 
-# Find the .ple plans in this directory
+# Find the .ple plans in this and lib directory
 ifneq ($(shell echo *.ple lib/*.ple),*.ple lib/*.ple)
   plans += $(shell echo *.ple lib/*.ple)
 endif
