@@ -32,6 +32,6 @@ clean: dust
 	$(RM) *.plx lib/*.plx
 
 cleaner: clean
-	$(RM) *~
+	$(RM) *~ lib/*~
 
 # EOF

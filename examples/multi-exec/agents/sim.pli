@@ -1,5 +1,4 @@
-;; File:
-;; Date:
+;; File: $SVNROOT/examples/multi-exec/agents/sim.pli
 
 (plexil-plan
   (concurrently "sim"
@@ -13,7 +12,7 @@
       ;;(integer "g-speed" 250)
       ;;(integer "v-speed" 0)
       ;;(integer "bank-angle" 0)
-      ;;(integer "tilt-angle" 0)
+      ;;(integer "prop-angle" 0)
       ;;(integer "distance" 70000)
       )
     (invariant-condition (not (finished "QuitCommand")))

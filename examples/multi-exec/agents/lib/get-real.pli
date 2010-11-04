@@ -1,0 +1,15 @@
+;; File: $SVNROOT/examples/multi-exec/agents/lib/get-real.pli
+
+(plexil-plan
+  (sequence "real-request"
+    (interface (inout (string "name") (string "type") (real "realval")))
+    (variables (boolean "debug" true))
+    (when (boolvar "debug")
+      (command "print" "[" (stringvar "name") ".real-request] sent: " (stringvar "type") "\n"))
+    (action "get-real-value"
+      (end-condition (not (= 0.0 (realvar "realval"))))
+      (command-with-return (realvar "realval") "state-request" (stringvar "type")))
+    (when (boolvar "debug")
+      (command "print" "[" (stringvar "name") ".real-request] recv: " (realvar "realval") "\n"))))
+
+;; EOF
