@@ -5,12 +5,12 @@
   (sequence "real-request"
     (interface (inout (string "name") (string "type") (real "realval")))
     (variables (boolean "debug" true))
-    (if (boolvar "debug")
+    (when (boolvar "debug")
       (command "print" "[" (stringvar "name") ".real-request] sent: " (stringvar "type") "\n"))
     (action "get-real-value"
       (end-condition (not (= 0.0 (realvar "realval"))))
       (command-with-return (realvar "realval") "state-request" (stringvar "type")))
-    (if (boolvar "debug")
+    (when (boolvar "debug")
       (command "print" "[" (stringvar "name") ".real-request] recv: " (realvar "realval") "\n"))))
 
 ;; EOF
