@@ -2,15 +2,14 @@
 
 (plexil-plan
   (sequence "get-real"
-    (interface (inout (string "name") (string "type") (real "real")))
-    (variables (boolean "debug" true)
-               (string "lib-name" ".lib/get-real"))
-    (when (boolvar "debug")
+    (interface (inout (string "name") (string "type") (real "real") (boolean "debug" false)))
+    (variables (string "lib-name" ".lib/get-real"))
+    (if (boolvar "debug")
       (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (stringvar "type") "\n"))
     (action "get-real-value"
       (end-condition (not (= 0.0 (realvar "real"))))
       (command-with-return (realvar "real") "state-request" (stringvar "type")))
-    (when (boolvar "debug")
+    (if (boolvar "debug")
       (command "print" "[" (stringvar "name") (stringvar "lib-name") "] recv: " (realvar "real") "\n"))))
 
 ;; EOF

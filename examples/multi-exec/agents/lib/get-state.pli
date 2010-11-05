@@ -1,0 +1,32 @@
+;; File: $SVNROOT/examples/multi-exec/agents/lib/get-state.pli
+
+(plexil-plan
+  (sequence "get-state"
+    (interface (inout (string "name") (boolean "debug" false)))
+    (variables ;;(boolean "debug" false)
+               (string "lib-name" ".lib/get-state")
+               (real "lat" 36.3)
+               (real "lon" -110.7)
+               (integer "alt" 2000))
+    (on-command "state-request" ((string "type"))
+      (sequence "ReceiveRequest"
+        (if (boolvar "debug")
+            (command "print" "[" (stringvar "name") (stringvar "lib-name") "] recv: " (stringvar "type") "\n"))
+        (concurrently "Dispatch"
+          (action "lat"
+            (skip-condition (not (= "lat" (stringvar "type"))))
+            (if (boolvar "debug")
+              (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (realvar "lat") "\n"))
+            (command "SendReturnValue" (realvar "lat")))
+          (action "lon"
+            (skip-condition (not (= "lon" (stringvar "type"))))
+            (if (boolvar "debug")
+              (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (realvar "lon") "\n"))
+            (command "SendReturnValue" (realvar "lon")))
+          (action "alt"
+            (skip-condition (not (= "alt" (stringvar "type"))))
+            (if (boolvar "debug")
+              (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (intvar "alt") "\n"))
+            (command "SendReturnValue" (intvar "alt"))))))))
+
+;; EOF

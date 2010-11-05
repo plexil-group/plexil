@@ -2,33 +2,21 @@
 
 (plexil-plan
   (concurrently "sim"
+    (declarations
+      (library-node-declaration "get-state"))
     (variables
-      (string "name" "[sim]")
-      (real "lat" 36.3)
-      (real "lon" -110.7)
-      (integer "alt" 2000))
+      (string "name" "sim")
+      (real "lat" 0.0)
+      (real "lon" 0.0)
+      (integer "alt" 0)
+      (boolean "debug" true))
     (invariant-condition (not (finished "QuitCommand")))
-    (action "HandleCommand"
+    (action "handle-state-request"
       (repeat-condition true)
-      (on-command "state-request" ((string "tr-state"))
-        (sequence "ReceiveRequest"
-          (command "pprint" (stringvar "name") "recv:" (stringvar "tr-state"))
-          (concurrently "Dispatch"
-            (action "lat"
-              (skip-condition (not (= "lat" (stringvar "tr-state"))))
-              (command "pprint" (stringvar "name") "send:" (realvar "lat"))
-              (command "SendReturnValue" (realvar "lat")))
-            (action "lon"
-              (skip-condition (not (= "lon" (stringvar "tr-state"))))
-              (command "pprint" (stringvar "name") "send:" (realvar "lon"))
-              (command "SendReturnValue" (realvar "lon")))
-            (action "alt"
-              (skip-condition (not (= "alt" (stringvar "tr-state"))))
-              (command "pprint" (stringvar "name") "send:" (intvar "alt"))
-              (command "SendReturnValue" (intvar "alt")))
-            ))))
+      (library-call-node "get-state"
+        (call "get-state" (alias "name" (stringvar "name")) (alias "debug" (boolvar "debug")))))
     (action "QuitCommand"
       (on-message "Quit"
-        (command "pprint" (stringvar "name") "recv: Quit\n")))))
+        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
 
 ;; EOF
