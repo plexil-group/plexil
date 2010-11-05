@@ -11,15 +11,19 @@ Release Notes
 -------------
 
 Next release
+ - Plexil executive and interface
+   * variable updates from command return values are now published (e.g. show up
+     in Plexil Viewer)
  - Plexil Viewer:
-   * fixed inconsisent entry problem in Configuration Dialog 
+   * fixed and enhanced the Configuration Dialog 
  - Plexilisp:
    * fixed bug in Wait, added WaitWithTolerance
    * fixed bug in handling of newlines in strings
+   * fixed bug in When
  - Schemas
    * fixed XSD schemas to work with xmllint
    * added file locator attributes to aid in source debugging
-   * added Relax NG versions of the schema
+   * added Relax NG versions of some schemas
 
 
 1.5  (October 2010)
