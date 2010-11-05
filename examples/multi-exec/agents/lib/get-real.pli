@@ -5,11 +5,11 @@
     (interface (inout (string "name") (string "type") (real "real") (boolean "debug" false)))
     (variables (string "lib-name" ".lib/get-real"))
     (if (boolvar "debug")
-      (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (stringvar "type") "\n"))
+        (command "print" "[" (stringvar "name") (stringvar "lib-name") "] sent: " (stringvar "type") "\n"))
     (action "get-real-value"
       (end-condition (not (= 0.0 (realvar "real"))))
       (command-with-return (realvar "real") "state-request" (stringvar "type")))
     (if (boolvar "debug")
-      (command "print" "[" (stringvar "name") (stringvar "lib-name") "] recv: " (realvar "real") "\n"))))
+        (command "print" "[" (stringvar "name") (stringvar "lib-name") "] recv: " (realvar "real") "\n"))))
 
 ;; EOF
