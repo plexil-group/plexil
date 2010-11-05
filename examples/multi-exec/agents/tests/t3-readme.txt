@@ -14,7 +14,7 @@ nor
 work as expected.  On the other hand, "Unknown", and every other
 string I've tried work fine.
 
-% cd plexil/examples/multi-exec/agents/test
+% cd plexil/examples/multi-exec/agents/tests
 % make
 % xterm ipc &
 % xterm -v -p t1-sim.plx -c sim.xml
@@ -22,7 +22,7 @@ string I've tried work fine.
 
 or
 
-% cd plexil/examples/multi-exec/agents/test
+% cd plexil/examples/multi-exec/agents/tests
 % run-agents [-v] t1-sim t3-cmd
 
 t3-cmd.plx never completes due to the above end-condition (line 25).

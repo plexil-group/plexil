@@ -8,7 +8,7 @@ error:
   ERROR: Expression.cc:190: Value 5 invalid for (id_626[au](EXECUTING): state(EXECUTING))
   Assertion failed: (false), function handleAssert, file Error.cc, line 89.
 
-% cd plexil/examples/multi-exec/agents/test
+% cd plexil/examples/multi-exec/agents/tests
 % make
 % xterm ipc &
 % xterm -v -p t4-sim.plx -c sim.xml
@@ -16,7 +16,7 @@ error:
 
 or
 
-% cd plexil/examples/multi-exec/agents/test
+% cd plexil/examples/multi-exec/agents/tests
 % run-agents [-v] t4-sim t1-cmd
 
 The run ends  with the error quoted above.  However,
