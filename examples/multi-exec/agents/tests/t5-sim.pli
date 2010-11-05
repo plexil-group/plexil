@@ -1,5 +1,0 @@
-(plexil-plan
-  (comment "Plexilisp appears to throw the command away somewhere in translation")
-  (action "QuitCommand"
-    (on-message "Quit"
-      (command "pprint" "Quitting"))))

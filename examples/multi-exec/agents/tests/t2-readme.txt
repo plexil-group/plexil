@@ -15,4 +15,4 @@ In t2-cmd.pli (using t1-sim.pli), Plexil Viewer doesn't update
 or
 
 % cd plexil/examples/multi-exec/agents/test
-% run-agents t1-sim t2-cmd -v
+% run-agents [-v] t1-sim t2-cmd

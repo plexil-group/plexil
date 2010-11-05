@@ -1,3 +1,0 @@
-(plexil-plan
-  (action "Quit"
-    (command "SendMessage" "Quit")))
