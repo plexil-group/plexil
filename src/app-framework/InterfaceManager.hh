@@ -575,6 +575,10 @@ namespace PLEXIL
     InterfaceManager(const InterfaceManager &);
     InterfaceManager & operator=(const InterfaceManager &);
 
+    void maybePublishCommandReturnValue (const ExpressionId & dest,
+                                         const double& value);
+
+
     /**
      * @brief update the resoruce arbiter interface that an ack or return value
      * has been received so that resources can be released.

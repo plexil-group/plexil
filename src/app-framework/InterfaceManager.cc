@@ -553,12 +553,17 @@ namespace PLEXIL
             }
 
           case queueEntry_RETURN_VALUE:
-            // Expression -- update the expression only
+            // Expression -- update the expression only.  Note that this could
+            // be either an assignment OR command return value.
             debugMsg("InterfaceManager:processQueue",
                      " (" << pthread_self()
                      << ") Updating expression " << exp
                      << ", new value is '" << Expression::valueToString(newExpValue) << "'");
+
+            // Handle potential command return value.
+            this->maybePublishCommandReturnValue (exp, newExpValue);
             this->releaseResourcesAtCommandTermination(exp);
+
             exp->setValue(newExpValue);
             break;
 
@@ -597,6 +602,29 @@ namespace PLEXIL
         pthread_testcancel();
       }
   }
+
+  void InterfaceManager::maybePublishCommandReturnValue (const ExpressionId& dest,
+                                                         const double& value)
+  {
+    // If the destination is a command destination, publish it (as an
+    // assignment), otherwise do nothing.
+
+    std::map<ExpressionId, CommandId>::iterator iter;
+    if ((iter = m_destToCmdMap.find (dest)) != m_destToCmdMap.end()) {
+      CommandId cmdId = iter->second;
+      std::string destName = cmdId->getDestName();
+
+      for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
+           it != m_listeners.end();
+           ++it)
+        {
+          ExecListenerId listener = *it;
+          check_error(listener.isValid());
+          (*it)->notifyOfAssignment(dest, destName, value);
+        }
+    }
+  }
+
 
   /**
    * @brief Register a change lookup on a new state, expecting values back.
