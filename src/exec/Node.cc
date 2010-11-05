@@ -592,14 +592,16 @@ namespace PLEXIL {
     }
     
     ExpressionId dest;
+    LabelStr dest_name = "";
     if (!command->dest().empty())
       {
         const PlexilExprId& destExpr = command->dest()[0]->getId();
+        dest_name = destExpr->name();
         if (Id<PlexilVarRef>::convertable(destExpr))
           {
             dest = findVariable((Id<PlexilVarRef>) destExpr);
             checkError(dest.isValid(),
-                       "Unknown destination variable '" << destExpr->name() <<
+                       "Unknown destination variable '" << dest_name <<
                        "' in command '" << name.toString() << "' in node '" <<
                        m_nodeId.toString() << "'");
           }
@@ -649,7 +651,7 @@ namespace PLEXIL {
     debugMsg("Node:createCommand",
 	     "Creating command '" << name.toString() << "' for node '" <<
 	     m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, dest, m_ack, garbage, resourceList))->getId();
+    m_command = (new Command(nameExpr, args, dest, dest_name, m_ack, garbage, resourceList))->getId();
     check_error(m_command.isValid());
   }
 
@@ -1737,6 +1739,7 @@ namespace PLEXIL {
   Command::Command(const ExpressionId nameExpr, 
 				   const std::list<ExpressionId>& args,
 				   const ExpressionId dest,
+                   const LabelStr& dest_name,
 				   const ExpressionId ack,
 				   const std::list<ExpressionId>& garbage,
                    const ResourceList& resource)
@@ -1744,6 +1747,7 @@ namespace PLEXIL {
 	  m_nameExpr(nameExpr),
 	  m_args(args),
 	  m_dest(dest),
+      m_destName(dest_name),
 	  m_ack(ack), 
       m_garbage(garbage),
 	  m_resourceList(resource)
@@ -1823,6 +1827,10 @@ namespace PLEXIL {
       check_error(expr.isValid());
       expr->deactivate();
     }
+  }
+
+  const std::string& Command::getDestName() {
+    return m_destName.toString();
   }
 
   Assignment::Assignment(const ExpressionId lhs, const ExpressionId rhs,

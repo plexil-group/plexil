@@ -491,7 +491,8 @@ namespace PLEXIL {
   public:
     Command(const ExpressionId nameExpr, 
 			const std::list<ExpressionId>& args, 
-            const ExpressionId dest, 
+            const ExpressionId dest,
+            const LabelStr& dest_name,
 			const ExpressionId ack,
 			const std::list<ExpressionId>& garbage,
             const ResourceList& resource);
@@ -503,6 +504,7 @@ namespace PLEXIL {
     ExpressionId& getAck() {return m_ack;}
     const std::list<double>& getArgValues() {return m_argValues;}
     const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
+    const std::string& getDestName();
 
     void activate();
     void deactivate();
@@ -519,6 +521,7 @@ namespace PLEXIL {
     ExpressionId m_nameExpr;
     std::list<ExpressionId> m_args;
     ExpressionId m_dest;
+    LabelStr m_destName;
     ExpressionId m_ack;
     std::list<ExpressionId> m_garbage;
     std::list<double> m_argValues;
