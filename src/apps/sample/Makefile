@@ -42,6 +42,6 @@ LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
 test1:
-	run-ue -p plans/plan1.plx
+	plexilexec -p plans/plan1.plx
 
 -include Makedepend
