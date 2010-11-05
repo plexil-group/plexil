@@ -4,7 +4,7 @@ Date: Thu Oct 14 09:34:42 2010
 In t2-cmd.pli (using t1-sim.pli), Plexil Viewer doesn't update
 "return" variable in "MasterPlan" node for the first assignment (line
 19), then updates the second assignment (line 22) with the value
-("one") for the first assignment.
+"one" rather than the "two" passed in the assignement.
 
 % cd plexil/examples/multi-exec/agents/test
 % make
@@ -16,16 +16,3 @@ or
 
 % cd plexil/examples/multi-exec/agents/test
 % run-agents t1-sim t2-cmd -v
-
-In t2-cmd.plx, none of the following variables ever update:
-
-  MasterPlan: str
-  Right: ret
-
-The variable
-
-  MasterPlan: return
-
-updates to the value "one" after the assignment made on line 22.
-
-The behavior of t1-sim.plx is described in t1-readme.txt.
