@@ -559,7 +559,7 @@
   "A Library Call Node.  Must contain exactly one <tt>call</tt> form."
   (plexil-node name node-clauses "LibraryNodeCall"))
 
-(pdefine pl (Call call) (nodeid &rest aliases) 1 node-body
+(pdefine pl (Call call) (nodeid &rest aliases) 0 node-body
   ;; string * list(xml) -> xml
   "A call to a library node."
   (xml "NodeBody"
@@ -759,7 +759,7 @@
    "forms defined above.")
   (xml "In" vars))
 
-(pdefine pl (InOut inout) (&rest vars) 1 nil          ; list(xml) -> xml
+(pdefine pl (InOut inout) (&rest vars) 0 nil          ; list(xml) -> xml
   ("Declare input/ouput variables.  Your must use the variable declaration "
    "forms defined above.")
   (xml "InOut" vars))
@@ -1050,7 +1050,7 @@
  "These are high level syntax extensions of PLEXIL (syntactic sugar).  "
  "They expand into node structures. ")
 
-(pdefine-syntax pl (If if) (condition then-part &optional else-part) 1 node
+(pdefine-syntax pl (If if) (condition then-part &optional else-part) 2 node
   ("If-then-else.  The <tt>then-part</tt> and <tt>else-part</tt> may be nodes or other "
    "actions.  The <tt>else-part</tt> is optional.")
   `(xml "If"
@@ -1309,7 +1309,7 @@
   "The node's permissions."
   (xml "Permissions" p))
 
-(pdefine pl (Comment comment) (&rest sentences) 1 nil   ; list(string) -> xml
+(pdefine pl (Comment comment) (&rest sentences) 0 nil   ; list(string) -> xml
   ;; XML comments
   ("This creates a comment in the XML, and may occur in any number within "
    "a node.  It is useful for commenting your plan in a way that will "
@@ -1416,7 +1416,7 @@
    "returning the given result(s) of given type.")
   `(plexil-command-form "CommandAck" ,name ,type ',result ',params))
 
-(pdefine-syntax ps (Command command) (name type result &rest params) 3 nil
+(pdefine-syntax ps (Command command) (name type result &rest params) 0 nil
   ("Simulates the completion of the named command with given parameters "
    "returning the given result(s) of given type.")
   `(plexil-command-form "Command" ,name ,type ',result ',params))
