@@ -244,6 +244,16 @@ namespace PLEXIL
                    "Expected string or atomic variable in \'" <<
                    source << "\'");
         expr->setValue(value);
+        std::map<ExpressionId, CommandId>::iterator iter;
+        if ((iter = m_destToCmdMap.find (expr)) != m_destToCmdMap.end()) {
+          CommandId cmdId = iter->second;
+          std::string destName = cmdId->getDestName();
+          m_exec->publishCommandReturn (expr, destName, value);
+          m_destToCmdMap.erase(iter);
+        }
+        else std::cerr << "Error in TestExternalInterface: "
+                       << "Could not find destination for command " << source
+                       << ".  Should never happen!" << std::endl;
       }
   }
 
@@ -486,6 +496,7 @@ namespace PLEXIL
         check_error(cmd.isValid());
          
         if (acceptCmds.find(cmd) != acceptCmds.end()) {
+          m_destToCmdMap[cmd->getDest()] = cmd;
           executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
         }
         else

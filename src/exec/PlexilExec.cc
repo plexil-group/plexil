@@ -676,6 +676,14 @@ namespace PLEXIL {
       }
   }
 
+  void PlexilExec::publishCommandReturn (const ExpressionId& dest,
+                                         const std::string& destName,
+                                         const double& value)
+  {
+    publishAssignment (dest, destName, value);
+  }
+
+
   void PlexilExec::publishAssignment(const ExpressionId & dest,
                                      const std::string& destName,
                                      const double& value)

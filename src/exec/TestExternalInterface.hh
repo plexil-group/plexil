@@ -128,6 +128,7 @@ namespace PLEXIL {
     std::map<StateKey, State> m_statesByKey;
     static UniqueThing& timeState();
     ResourceArbiterInterface raInterface;
+    std::map<ExpressionId, CommandId> m_destToCmdMap;
   };
 }
 
