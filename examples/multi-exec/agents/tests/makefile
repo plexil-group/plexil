@@ -20,7 +20,4 @@ t3:
 t4:
 	$(run_agents) $(opts) t4-sim t1-cmd
 
-t5:
-	$(run_agents) $(opts) t5-sim t5-cmd
-
 # EOF
