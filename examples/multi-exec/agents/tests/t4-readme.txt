@@ -17,10 +17,10 @@ error:
 or
 
 % cd plexil/examples/multi-exec/agents/test
-% run-agents t4-sim t1-cmd [-v]
+% run-agents [-v] t4-sim t1-cmd
 
 The run ends  with the error quoted above.  However,
 
-% run-agents t1-sim t1-cmd [-v]
+% run-agents [-v] t1-sim t1-cmd
 
 executes fine.
