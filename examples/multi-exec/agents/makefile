@@ -2,17 +2,19 @@
 # File: $SVNROOT/examples/multi-exec/agents/makefile
 # Note: makefile for the <as-yet-un-named> application
 
-agent1=sim
-agent2=cmd
-opts=				#-v -x -vx -d
-sim_libs= -l get-state
-cmd_libs= -l get-int -l get-real
-cmd_line= $(agent1) $(sim_libs) $(agent2) $(cmd_libs)
-
 include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
+
+AGENT1=sim
+AGENT2=cmd
+OPTS=				#-v -x -vx -d
+SIM_LIBS= -l get-state
+CMD_LIBS= -l get-int -l get-real
+CMD_LINE= $(AGENT1) $(SIM_LIBS) $(AGENT2) $(CMD_LIBS)
 
 run:
 	@echo " "
-	$(run_agents) $(opts) $(cmd_line)
+	$(RUN_AGENTS) $(OPTS) $(CMD_LINE)
+
+.PHONY: run
 
 # EOF

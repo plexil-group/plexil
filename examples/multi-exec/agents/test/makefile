@@ -1,23 +1,26 @@
 # -*- Mode: Makefile -*-
 # File: $SVNROOT/examples/multi-exec/agents/test/makefile
-# Note: Generic makefile for plexilisp and standard plexil
+# Note: makefile agents/test
+
+OPTS=
 
 include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
-opts=
 
 t1:
-	$(run_agents) $(opts) t1-sim t1-cmd
+	$(RUN_AGENTS) $(OPTS) t1-sim t1-cmd
 
 # intermittently errors out
 t2:
-	$(run_agents) $(opts) t1-sim t2-cmd
+	$(RUN_AGENTS) $(OPTS) t1-sim t2-cmd
 
 # t3 hangs (but should not)
 t3:
-	$(run_agents) $(opts) t1-sim t3-cmd
+	$(RUN_AGENTS) $(OPTS) t1-sim t3-cmd
 
 # t4 get a run-time error and hangs (but should not)
 t4:
-	$(run_agents) $(opts) t4-sim t1-cmd
+	$(RUN_AGENTS) $(OPTS) t4-sim t1-cmd
+
+.PHONY: t1 t2 t3 t4
 
 # EOF
