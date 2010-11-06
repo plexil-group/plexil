@@ -1,5 +1,4 @@
-File: $SVNROOT/examples/multi-exec/agents/tests/t3-readme.txt
-Date: Thu Oct 14 15:28:39 2010
+File: $SVNROOT/examples/multi-exec/agents/test/t3-readme.txt
 
 In t3-cmd.pli (using t1-sim.pli), using Janson's "workaround" to get
 values to update in the Plan Viewer, I find that the string value

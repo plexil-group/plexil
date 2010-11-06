@@ -1,5 +1,4 @@
-File: $SVNROOT/examples/multi-exec/agents/tests/t2-readme.txt
-Date: Thu Oct 14 09:34:42 2010
+File: $SVNROOT/examples/multi-exec/agents/test/t2-readme.txt
 
 In t2-cmd.pli (using t1-sim.pli), Plexil Viewer doesn't update
 "return" variable in "MasterPlan" node for the first assignment (line

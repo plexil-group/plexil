@@ -1,5 +1,4 @@
-File: $SVNROOT/examples/multi-exec/agents/tests/t4-readme.txt
-Date: Mon Nov  1 19:26:26 2010
+File: $SVNROOT/examples/multi-exec/agents/test/t4-readme.txt
 
 In t4-sim.pli, which exactly the same as t1-sim.pli except for the
 renaming of "modX" to "state", the renamed variable causes an obscure

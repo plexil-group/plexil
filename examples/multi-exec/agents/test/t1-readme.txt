@@ -1,5 +1,4 @@
-File: $SVNROOT/examples/multi-exec/agents/tests/t1-readme.txt
-Date: Tue Oct 12 17:25:00 2010
+File: $SVNROOT/examples/multi-exec/agents/test/t1-readme.txt
 
 Plexil Viewer doesn't update the "return" variable in "MasterPlan"
 node in t1-cmd.pli.

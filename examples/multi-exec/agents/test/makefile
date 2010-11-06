@@ -1,5 +1,5 @@
 # -*- Mode: Makefile -*-
-# File: $SVNROOT/examples/multi-exec/agents/makefile
+# File: $SVNROOT/examples/multi-exec/agents/test/makefile
 # Note: Generic makefile for plexilisp and standard plexil
 
 include $(PLEXIL_HOME)/makeinclude/generic-plexil.make

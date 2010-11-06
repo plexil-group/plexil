@@ -1,4 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
+;; File: $SVNROOT/examples/multi-exec/agents/test/t3-cmd.pli
 
 (plexil-plan
   (sequence "MasterPlan"

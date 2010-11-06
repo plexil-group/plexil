@@ -1,5 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/tests/t2-cmd.pli
-;; Date: Thu Oct 14 09:32:40 2010
+;; File: $SVNROOT/examples/multi-exec/agents/test/t2-cmd.pli
 
 (plexil-plan
   (sequence "MasterPlan"

@@ -1,5 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/tests/t1-sim.pli
-;; Date: Tue Oct 12 17:26:07 2010
+;; File: $SVNROOT/examples/multi-exec/agents/test/t1-sim.pli
 
 (plexil-plan
   (concurrently "Interface"

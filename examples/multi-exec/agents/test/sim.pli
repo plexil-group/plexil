@@ -1,4 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/sim.pli
+;; File: $SVNROOT/examples/multi-exec/agents/test/sim.pli
 
 (plexil-plan
   (concurrently "Agent2"
