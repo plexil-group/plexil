@@ -1,52 +1,52 @@
 # -*- Mode: Makefile -*-
 # File: $SVNROOT/makeinclude/generic-plexil.make
 # Note: Generic makefile for plexilisp and standard plexil.  Compiles
-#       and validates *.pl{i,e} and lib/*.pl{i,e}.  You can override
-#       any of these targets by simply including this file after your
-#       similarly named targets.
+#       and validates *.pl{i,e} and lib/*.pl{i,e}.
 
-# Find the .pli plans in this directory
-ifneq ($(shell echo *.pli), *.pli)
-  plans += $(shell echo *.pli)
-endif
-# Find the .pli files in the lib subdirectory
-ifneq ($(shell echo lib/*.pli), lib/*.pli)
-  plans += $(shell echo lib/*.pli)
-endif
+# For use in running agents from a makefile which includes this one
+RUN_AGENTS = $(PLEXIL_HOME)/bin/run-agents
 
-# Find the .ple plans in this directory
-ifneq ($(shell echo *.ple), *.ple)
-  plans += $(shell echo *.ple)
-endif
-# Find the .ple plans in the lib subdirectory
-ifneq ($(shell echo lib/*.ple), lib/*.ple)
-  plans += $(shell echo lib/*.ple)
-endif
+# Find the .pli and .ple plans in ./ and lib/
+PLANS = $(wildcard *.pli *.ple lib/*.pli lib/*.ple)
 
-run_agents=$(PLEXIL_HOME)/bin/run-agents
+# Find all of the .plx targets implied by PLANS
+TARGETS = $(filter %.plx, $(PLANS:%.ple=%.plx) $(PLANS:%.pli=%.plx))
 
-# Find the implied .plx targets in this directory
-all: $(plans:%.ple=%.plx) $(plans:%.pli=%.plx)
+# The default target for this file (leave all for others)
+plx: $(TARGETS)
 
 # Plexilisp rule
-%.plx : %.pli
+%.plx: %.pli
 	plexilisp $<
 	xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
 	$(RM) $*.epx*
 
 # Standard Plexil rule
-%.plx : %.ple
+%.plx: %.ple
 	plexilc $<
 	xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
 	$(RM) $*.epx*
 
-dust:
-	$(RM) *.epx *.last lib/*.epx lib/*.last
+# Default clean targets.  Can be redefined in makefile which includes this file.
+# This idiom allows makefiles which include this one to add more rules to clean, etc.
+DIRS = . lib test
 
-clean: dust
-	$(RM) *.plx lib/*.plx
+_dust:
+	for dir in $(DIRS) ; do $(RM) $${dir}/*.{epx,last} ; done
+dust: _dust
 
-cleaner: clean
-	$(RM) *~ lib/*~
+_clean: dust
+	for dir in $(DIRS) ; do $(RM) $${dir}/*.plx ; done
+clean: _clean
+
+_cleaner: clean
+	for dir in $(DIRS) ; do $(RM) $${dir}/*~ ; done
+cleaner: _cleaner
+
+plexil-targets:
+	@echo "plans:   " $(PLANS)
+	@echo "targets: " $(TARGETS)
+
+.PHONY: _dust dust _clean clean _cleaner cleaner plexil-targets
 
 # EOF
