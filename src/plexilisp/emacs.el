@@ -67,6 +67,7 @@
 (setq plexil-keyword-list
   ;; List of fond lock face classes the the Plexil symbols to highlight with them.
   '((font-lock-comment-delimiter-face "comment" "Comment" "node-comment" "NodeComment")
+    (font-lock-constant-face "true" "True" "false" "False")
     (font-lock-keyword-face "try" "Try" "if" "If" "for" "For"
                             "when" "When" "while" "While" "let" "Let")
     (font-lock-builtin-face "variables" "Variables" "variable-declarations"
@@ -78,7 +79,6 @@
                             "start-condition" "StartCondition" "end-condition" "EndCondition"
                             "skip-condition" "SkipCondition" "repeat-condition" "RepeatCondition"
                             "invariant-condition" "InvariantCondition")
-    ;;(font-lock-constant-face "true" "True" "false" "False")
     ))
 
 (defun plexil-enable-highlighting ()
