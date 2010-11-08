@@ -7,12 +7,14 @@ MasterPlan:
 		Action:
 		{
 			EndCondition: isKnown(ret[0]);
-			Command: ret = MoveRight(5);
+			Command: ret = GetNums(5);
 		}
 		Set:
 		{
 			Assignment: iter = ret[0] + ret[1];
 		}
+                NotivyViewer1: { Assignment: ret[0] = ret[0]; }
+                NotivyViewer2: { Assignment: ret[1] = ret[1]; }
 		Check:
 		{
 			InvariantCondition: isKnown(iter);
