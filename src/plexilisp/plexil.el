@@ -737,11 +737,12 @@
   (xml "ArrayVariable" name nil 'string))
 
 (pdefine pl (ArrayElement array-element) (name index) 2 nil
-         ;; (string + xml) * (int + xml) -> xml
+  ;; (string + xml) * (int + xml) -> xml
   ("Reference a single array element by index (beginning with 0).  "
-   "Name and index can be string and numeric expressions, respectively.")
+   "Name must be a string (XML NCName precisely). "
+   "Index must be a numeric expression.")
   (xml "ArrayElement"
-       (list (xml "Name" (plexil-infer-type name))
+       (list (xml "Name" name)
              (xml "Index" (plexil-infer-type index))) nil 'any))
   
 (insert-plexil-heading
