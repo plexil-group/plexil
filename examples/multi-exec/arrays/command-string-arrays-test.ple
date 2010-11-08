@@ -10,6 +10,8 @@ MasterPlan:
 			EndCondition: isKnown(ret[0]) && isKnown(ret[1]);
 			Command: ret = GetName();
 		}
+                NotifyViewer1: { Assignment: ret[0] = ret[0]; }
+                NotifyViewer2: { Assignment: ret[1] = ret[1]; }
 		Set:
 		{
 			Assignment: name = ret[0] + " " + ret[1];
