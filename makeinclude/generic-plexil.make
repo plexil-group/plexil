@@ -36,7 +36,7 @@ _dust:
 dust: _dust
 
 _clean: dust
-	for dir in $(DIRS) ; do $(RM) $${dir}/*.plx ; done
+	for dir in $(DIRS) ; do $(RM) $${dir}/*.plx ; $(RM) core.* ; done
 clean: _clean
 
 _cleaner: clean
