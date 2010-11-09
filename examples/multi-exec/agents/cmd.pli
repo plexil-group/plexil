@@ -2,6 +2,7 @@
 
 (plexil-plan
   (declarations
+    (library-node-declaration "get-array")
     (library-node-declaration "get-real")
     (library-node-declaration "get-int"))
   (sequence "cmd"
@@ -9,6 +10,7 @@
                (real "lat" 0.0)
                (real "lon" 0.0)
                (integer "alt" 0)
+               (int-array "states" 4)
                (boolean "debug" true))
     (sequence "get-current-state"
       (command "print" "\n[" (stringvar "name") "] getting current state\n")
@@ -21,7 +23,13 @@
       (library-call-node "get-alt"
         (call "get-int" (alias "name" (stringvar "name")) (alias "type" "alt") (alias "int" (intvar "alt"))
               (alias "debug" (boolvar "debug")))))
-    (command "print" "[" (stringvar "name") "] state: " (realvar "lat") " " (realvar "lon") " " (intvar "alt") "\n")
+    (command "print" "[" (stringvar "name") "] state: " (realvar "lat") " " (realvar "lon") " " (intvar "alt") "\n")    
+    (sequence "get-state-array"
+      (command "print" "[" (stringvar "name") "] sent: get-state-arrary\n")
+      (action "get-states"
+        (end-condition (is-known (array-element "states" 0)))
+        (command-with-return (arrayvar "states") "get-state-array" (intval 10)))
+      (command "print" "[" (stringvar "name") "] recv: " (arrayvar "states") "\n"))
     (action "Quit"
       (command "print" "[" (stringvar "name") "] sent: Quit (quitting)\n")
       (command "SendMessage" "Quit"))))

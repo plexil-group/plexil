@@ -4,6 +4,7 @@
   </Adapter>
   <Adapter AdapterType="Utility"/>
   <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+    <CommandNames>ReceiveMessage, UpdateLookup,  ReceiveCommand, SendReturnValue, GetParameter</CommandNames> 
     <LookupNames>x</LookupNames>
     <DefaultCommandAdapter/>
   </Adapter>

@@ -9,12 +9,20 @@
       (real "lat" 0.0)
       (real "lon" 0.0)
       (integer "alt" 0)
+      (int-array "states" 4 70000 2000 250 0)
       (boolean "debug" true))
     (invariant-condition (not (finished "QuitCommand")))
     (action "handle-state-request"
       (repeat-condition true)
       (library-call-node "get-state"
         (call "get-state" (alias "name" (stringvar "name")) (alias "debug" (boolvar "debug")))))
+    (sequence "handle-array-request"
+      (repeat-condition true)
+      (on-command "get-state-array" ((integer "elapsed-time"))
+        (sequence"send-state-array"
+          (command "print" "[" (stringvar "name") "] recv: get-state-array " (intvar "elapsed-time") "\n")
+          (command "SendReturnValue" (arrayvar "states"))))
+      (command "print" "[" (stringvar "name") "] sent: " (arrayvar "states") "\n"))
     (action "QuitCommand"
       (on-message "Quit"
         (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
