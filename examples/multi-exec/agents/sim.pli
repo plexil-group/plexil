@@ -2,20 +2,20 @@
 
 (plexil-plan
   (concurrently "sim"
-    (declarations
-      (library-node-declaration "get-state"))
+    ;;(declarations
+    ;;  (library-node-declaration "get-state"))
     (variables
       (string "name" "sim")
-      (real "lat" 0.0)
-      (real "lon" 0.0)
-      (integer "alt" 0)
+      ;;(real "lat" 0.0)
+      ;;(real "lon" 0.0)
+      ;;(integer "alt" 0)
       (int-array "states" 4 70000 2000 250 0)
       (boolean "debug" true))
     (invariant-condition (not (finished "QuitCommand")))
-    (action "handle-state-request"
-      (repeat-condition true)
-      (library-call-node "get-state"
-        (call "get-state" (alias "name" (stringvar "name")) (alias "debug" (boolvar "debug")))))
+    ;;(action "handle-state-request"
+    ;;  (repeat-condition true)
+    ;;  (library-call-node "get-state"
+    ;;    (call "get-state" (alias "name" (stringvar "name")) (alias "debug" (boolvar "debug")))))
     (sequence "handle-array-request"
       (repeat-condition true)
       (on-command "get-state-array" ((integer "elapsed-time"))
