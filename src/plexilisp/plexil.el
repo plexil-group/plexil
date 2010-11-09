@@ -843,23 +843,23 @@
  "== Numeric Operators =="
  "These should be self-explanatory.  They work with integer or real values.")
 
-(pdefine pl (+ add) (x y) 2 nil
+(pdefine pl (+ add) (x y) 0 nil
   ""
   (plexil-binary-numop "ADD" x y))
 
-(pdefine pl (- sub) (x y) 2 nil
+(pdefine pl (- sub) (x y) 0 nil
   ""
   (plexil-binary-numop "SUB" x y))
 
-(pdefine pl (* mul) (x y) 2 nil
+(pdefine pl (* mul) (x y) 0 nil
   ""
   (plexil-binary-numop "MUL" x y))
 
-(pdefine pl (/ div) (x y) 2 nil
+(pdefine pl (/ div) (x y) 0 nil
   ""
   (plexil-binary-numop "DIV" x y))
 
-(pdefine pl (% mod) (x y) 2 nil
+(pdefine pl (% mod) (x y) 0 nil
   ""
   (plexil-binary-numop "MOD" x y))
 
