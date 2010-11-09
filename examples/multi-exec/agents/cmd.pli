@@ -1,41 +1,24 @@
 ;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
 
 (plexil-plan
-  ;;(declarations
-  ;;  (library-node-declaration "get-array")
-  ;;  (library-node-declaration "get-real")
-  ;;  (library-node-declaration "get-int"))
   (sequence "cmd"
     (variables (string "name" "cmd")
-               ;(real "lat" 0.0)
-               ;(real "lon" 0.0)
-               ;(integer "alt" 0)
-               (integer "period" 5)
-               (int-array "states" 4)
+               (integer "period" 2)
+               (integer "run-length" 20)
+               (real-array "states" 4)
                (boolean "debug" true))
-    ;;(sequence "get-current-state"
-    ;;  (command "print" "\n[" (stringvar "name") "] getting current state\n")
-    ;;  (library-call-node "get-lat"
-    ;;    (call "get-real" (alias "name" (stringvar "name")) (alias "type" "lat") (alias "real" (realvar "lat"))
-    ;;          (alias "debug" (boolvar "debug"))))
-    ;;  (library-call-node "get-lon"
-    ;;    (call "get-real" (alias "name" (stringvar "name")) (alias "type" "lon") (alias "real" (realvar "lon"))
-    ;;          (alias "debug" (boolvar "debug"))))
-    ;;  (library-call-node "get-alt"
-    ;;    (call "get-int" (alias "name" (stringvar "name")) (alias "type" "alt") (alias "int" (intvar "alt"))
-    ;;          (alias "debug" (boolvar "debug")))))
-    ;;(command "print" "[" (stringvar "name") "] state: " (realvar "lat") " " (realvar "lon") " " (intvar "alt") "\n")    
-    (for (integer "i" 10) (>= 20 (intvar "i")) (+ (intvar "i") (intvar "period"))
+    (comment "Send the elapsed time since the last request in order to track time correctly")
+    (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
       (sequence "get-state-array"
         ;;(variables (int-array "states" 4))
+        (wait (intvar "period") "Wait")
         (assignment (array-element "states" 0) 0)
-        (command "print" "\n[" (stringvar "name") "] sent: get-state-array " (intvar "i") "\n")
+        (command "print" "[" (stringvar "name") "] sent: get-state-array (elapsed-time: " (intvar "i") ")\n")
         (action "get-states"
           ;;(end-condition (is-known (array-element "states" 0)))
           (end-condition (not (= (array-element "states" 0) 0)))
-          (command-with-return (arrayvar "states") "get-state-array" (intvar "i")))
-        (command "print" "[" (stringvar "name") "] recv: " (arrayvar "states") "\n")
-        (wait (intvar "period") "Wait")))
+          (command-with-return (arrayvar "states") "get-state-array" (intvar "period")))
+        (command "print" "[" (stringvar "name") "] recv: " (arrayvar "states") "\n")))
     (action "Quit"
       (command "print" "[" (stringvar "name") "] sent: Quit (quitting)\n")
       (command "SendMessage" "Quit"))))

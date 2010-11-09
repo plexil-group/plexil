@@ -7,8 +7,8 @@ include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
 AGENT1=sim
 AGENT2=cmd
 OPTS=				#-v -x -vx -d
-SIM_LIBS= -l get-state
-CMD_LIBS= -l get-int -l get-real
+SIM_LIBS=			#-l get-state
+CMD_LIBS=			#-l get-int -l get-real
 CMD_LINE= $(AGENT1) $(SIM_LIBS) $(AGENT2) $(CMD_LIBS)
 
 run:
