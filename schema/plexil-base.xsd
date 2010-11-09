@@ -324,7 +324,7 @@ element.  It is used as an included schema only.
     <xsd:complexType>
       <xsd:choice maxOccurs="unbounded">
         <xsd:element ref="DeclareVariable"/>
-        <!-- 	<xsd:element ref="DeclareArray"/> -->
+        <xsd:element ref="DeclareArray"/>
       </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
@@ -334,7 +334,7 @@ element.  It is used as an included schema only.
     <xsd:complexType>
       <xsd:choice maxOccurs="unbounded">
         <xsd:element ref="DeclareVariable"/>
-        <!-- 	<xsd:element ref="DeclareArray"/> -->
+        <xsd:element ref="DeclareArray"/>
       </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
