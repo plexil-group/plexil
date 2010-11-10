@@ -50,6 +50,8 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  whitespace1 \
  uninitialized-assignment
 
+LIBRARY_TESTS	:= library-call-with-array
+
 # Tests which run to success and require a script of the same name
 SAME_NAME_SCRIPT_TESTS	:= array1 array3 array4 array8 atomic-assignment \
  boolean1 \
@@ -95,6 +97,7 @@ run-tests-with-setup: setup run-all-tests
 
 run-all-tests: assign-parent-invariant-test empty-script-tests same-name-script-tests
 run-all-tests: simple-drive-tests command-handles-tests resource-arbitration-tests
+run-all-tests: library-call-with-array
 
 run-regression-suite: run-tests-with-setup end-report
 
@@ -168,6 +171,12 @@ resource-arbitration-tests: setup
 		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}.psx > output/$${tst}.out 2>> tempRegressionResults ; \
 		perl $(REGRESSION_PL) output/$${tst}.out valid/RUN_$${tst}_$${tst}-script.valid ; \
 	done
+
+library-call-with-array: setup
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	echo library-call-with-array >> tempRegressionResults ; \
+	$(EXEC_PROG) -p plans/library-call-with-array.plx -l plans/library-node-with-array.plx -s $(EMPTY_SCRIPT) > output/library-call-with-array.out 2>> tempRegressionResults ; \
+	perl $(REGRESSION_PL) output/library-call-with-array.out
 
 localclean::
 	-$(RM) RegressionResults tempRegressionResults output
