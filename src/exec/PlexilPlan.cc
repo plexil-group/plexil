@@ -320,6 +320,14 @@ namespace PLEXIL {
   {
     setName("ArrayValue");
   }
+
+  void PlexilVarRef::setVariable(const PlexilVarId& var)
+  {
+	m_variable = var;
+	this->setName(var->name());
+	setType(var->type());
+	setDefaultValue(var->value()->getId());
+  }
    
   PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
 		       const std::string& value)

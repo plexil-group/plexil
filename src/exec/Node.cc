@@ -944,18 +944,14 @@ namespace PLEXIL {
                  << getNodeId().toString());
       
       // get node body
-      
       const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*)node->body();
       
-      // get the lib node and it's interface
-      
+      // get the lib node and its interface
       const PlexilNodeId& libNode = body->libNode();
       const PlexilInterfaceId& libInterface = libNode->interface();
       
       // if there is no interface, there must be no variables
-      
-      if (libInterface.isId() == false)
-      {
+      if (libInterface.isNoId()) {
          checkError(body->aliases().size() == 0,
                     "Variable aliases in '" << getNodeId().toString() <<
                     "' do not match interface in '" << 
@@ -963,26 +959,18 @@ namespace PLEXIL {
       }
       
       // otherwise check variables in interface
-
-      else
-      {
+      else {
          // make a copy of the alias map
-
          PlexilAliasMap aliasesCopy(body->aliases());
 
-         // check each "In" variable in the interface to ensure it is
-         // referenced in the alias list
-         
+         // check whether all "In" variables in the interface are referenced in the alias list
          testLibraryNodeParameters(libNode, libInterface->in(), aliasesCopy);
 
-         // check each "InOut" variable in the interface to ensure it is
-         // referenced in the alias list
-         
+         // check whether all "InOut" variables in the interface are referenced in the alias list
          testLibraryNodeParameters(libNode, libInterface->inOut(), aliasesCopy);
 
          // check that every veriable in alias list has been referenced
          // or has a default value
-         
          checkError(aliasesCopy.size() == 0, "Unknown variable '"
                     << LabelStr(aliasesCopy.begin()->first).toString() 
                     << "' passed in call to '" << libNode->nodeId() << "' from '"
@@ -990,24 +978,17 @@ namespace PLEXIL {
       }
 
       // link aliases to variables or values
-
       for (PlexilAliasMap::const_iterator alias = body->aliases().begin();
-           alias != body->aliases().end(); ++alias)
-      {
+           alias != body->aliases().end();
+		   ++alias) {
          LabelStr paramName(alias->first);
          
          // if this is a variable reference, look it up
-         
-         if (Id<PlexilVarRef>::convertable(alias->second))
-         {
+         if (Id<PlexilVarRef>::convertable(alias->second)) {
             const PlexilVarRef* paramVar = alias->second;
             
             // find variable in interface
-            
             const PlexilVarRef* iVar = libInterface->findVar(paramName.toString());
-            
-            // be sure it exists in interface
-            
             checkError(iVar != NULL,
                        "Variable '" << paramName.toString()
                        << "' referenced in '" << getNodeId().toString()
@@ -1015,15 +996,13 @@ namespace PLEXIL {
                        << libNode->nodeId() << "' ");
             
             // check type
-            
             checkError(iVar->type() == paramVar->type(), 
-                       "Variable type mismatch between '" 
-                       << iVar->name() << "' (" << iVar->type() << ") and '" 
+                       "Variable type mismatch between formal parameter '" 
+                       << iVar->name() << "' (" << iVar->type() << ") and actual variable '" 
                        << paramVar->name() << "' (" << paramVar->type() << ") "
                        << "' referenced in '" << getNodeId().toString() << "'");
 
             // find the expression form
-
             const Id<Expression>& varExp = findVariable(alias->second);
             checkError(varExp.isId(), "Unknown variable '" 
                        << alias->second->name()
@@ -1034,12 +1013,29 @@ namespace PLEXIL {
                        << "' referenced in call to '" << libNode->nodeId() << "' from '"
                        << getNodeId().toString() << "'");
 
-            // covert expression to variable
-
+            // convert expression to variable
             const Id<Variable>& var = (const Id<Variable>&)varExp;
 
+			if (iVar->type() == ARRAY) {
+			  // check for array element type match
+			  // iVar should have variable definition
+			  const PlexilArrayVarId ivarDef = (const PlexilArrayVarId&) iVar->variable();
+			  checkError(ivarDef.isId(), 
+						 "Internal error: interface array variable '" << paramName
+						 << "' is missing its variable definition");
+			  const Id<ArrayVariable> arrayVar = (const Id<ArrayVariable>&) var;
+			  checkError(arrayVar.isId(),
+						 "Internal error: variable '" << alias->second->name()
+						 << "' doesn't seem to be an array variable");
+			  checkError(arrayVar->getElementType() == ivarDef->elementType(),
+						 "Array variable type mismatch between formal parameter '"
+						 << iVar->name() << "' (" << ivarDef->elementType() 
+						 << ") and actual variable '" << paramVar->name()
+						 << "' (" << arrayVar->getElementType()
+						 << ") referenced in '" << getNodeId().toString() << "'");
+			}
+
             // check that read only variables appear in the the In interface
-            
             checkError(!var->isConst() || libInterface->findInVar(paramName.toString()),
                        "Constant variable '" << alias->second->name()
                        << "' referenced in '" << getNodeId().toString() 
@@ -1047,12 +1043,10 @@ namespace PLEXIL {
                        << "' declaried as InOut in '" << libNode->nodeId() << "'");
 
             // add this variable to node
-
             m_variablesByName[paramName] = var;
          }
          
-            // if this is a value, create a local variable for it
-         
+		 // if this is a value, create a local variable for it
          else if (Id<PlexilValue>::convertable(alias->second))
          {
             Id<PlexilValue> value = (Id<PlexilValue>)alias->second;

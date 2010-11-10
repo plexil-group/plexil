@@ -254,17 +254,28 @@ namespace PLEXIL {
        m_defaultValue(PlexilExprId::noId())
      {}
 
-         bool typed() const {return m_typed;}
-         const PlexilType& type() const {return m_type;}
-         const PlexilExprId& defaultValue() const {return m_defaultValue;}
+	 bool typed() const {return m_typed;}
+	 const PlexilType& type() const {return m_type;}
+	 const PlexilExprId& defaultValue() const {return m_defaultValue;}
+	 const PlexilVarId& variable() const {return m_variable;}
          
-         void setDefaultValue(const PlexilExprId& defaultValue)
-         {m_defaultValue = defaultValue;}
-         void setType(const PlexilType& type) {m_type = type; m_typed = true;}
-      private:
-         bool m_typed;
-         PlexilType m_type;
-         PlexilExprId m_defaultValue;
+	 void setDefaultValue(const PlexilExprId& defaultValue)
+	 {
+	   m_defaultValue = defaultValue;
+	 }
+
+	 void setType(const PlexilType& type)
+	 {
+	   m_type = type; 
+	   m_typed = true;
+	 }
+	 void setVariable(const PlexilVarId& var);
+
+   private:
+	 bool m_typed;
+	 PlexilType m_type;
+	 PlexilExprId m_defaultValue;
+	 PlexilVarId m_variable;
    };
 
   class PlexilOp : public PlexilExpr {
@@ -376,17 +387,19 @@ namespace PLEXIL {
 
     const PlexilVarId& getId() const {return m_id;}
     const std::string& name() const {return m_name;}
-    const PlexilType& type() const {return m_type;}
+    virtual const PlexilType& type() const {return m_type;}
     PlexilValue* value() const {return m_value;}
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
     void setLineNo(int n) {m_lineNo = n;}
     void setColNo(int n) {m_colNo = n;}
 
+  protected:
+    PlexilType m_type;
+
   private:
     int m_lineNo;
     int m_colNo;
-    PlexilType m_type;
     PlexilVarId m_id;
     std::string m_name;
     PlexilValue* m_value;
@@ -400,7 +413,15 @@ namespace PLEXIL {
 		    std::vector<std::string>& values);
      ~PlexilArrayVar();
 
+	 // override PlexilVar method
+	 
+	 virtual const PlexilType& type() const
+	 { 
+	   static PlexilType s_arrayType = ARRAY;
+	   return s_arrayType;
+	 }
      virtual bool isArray() const {return true;}
+	 const PlexilType& elementType() const {return m_type;}
      virtual unsigned maxSize() const {return m_maxSize;}
 
    private:

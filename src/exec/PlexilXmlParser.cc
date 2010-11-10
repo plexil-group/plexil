@@ -902,50 +902,49 @@ PlexilInterfaceId PlexilXmlParser::parseInterface(const TiXmlElement* intf)
 void PlexilXmlParser::parseInOrInOut(const TiXmlElement* inOrInOut,
                                      PlexilInterfaceId& interface, 
                                      bool isInOut)
-  throw(ParserException) {
-        // if this is an empty in or inOut section, just return
+  throw(ParserException) 
+{
+  // if this is an empty In or InOut section, just return
+  if (inOrInOut == NULL)
+	return;
 
-        if (inOrInOut == NULL)
-                return;
+  for (const TiXmlElement* var = inOrInOut->FirstChildElement(); 
+	   var != NULL; 
+	   var = var->NextSiblingElement()) {
 
-        PlexilVarRefParser p; // depricated
+	// if this is a declare var or array read those in
+	if (testTag(DECL_VAR_TAG, var) || testTag(DECL_ARRAY_TAG, var)) {
+	  PlexilVarId variable = parseDeclaration(var)->getId();
 
-        for (const TiXmlElement* var = inOrInOut->FirstChildElement(); var != NULL; var
-                        = var->NextSiblingElement()) {
-                // if this is a declare var or array read those in
+	  // convert variable to var ref
+	  Id<PlexilVarRef> varRef = (new PlexilVarRef())->getId();
+	  varRef->setVariable(variable);
 
-                if (testTag(DECL_VAR_TAG, var) || testTag(DECL_ARRAY_TAG, var)) {
-                        PlexilVarId variable = parseDeclaration(var)->getId();
+	  // add var ref to interface
+	  if (isInOut)
+		interface->addInOut(varRef);
+	  else
+		interface->addIn(varRef);
+	}
 
-                        // convert variable to var ref
+	// else this is the depricated case
+	else {
+	  checkParserException(ALWAYS_FAIL,
+                           "(line " << var->Row() << ", column " << var->Column() <<
+						   ") XML parsing error: Deprecated interface declaration syntax no longer supported");
+	  
+	  warn("DEPRECATED: <" << var->Value() <<
+		   "> tag, use <" << DECL_VAR_TAG <<
+		   "> or <" << DECL_ARRAY_TAG <<
+		   "> tag instead.");
 
-                        Id<PlexilVarRef> varRef = (new PlexilVarRef())->getId();
-                        varRef->setType(variable->type());
-                        varRef->setName(variable->name());
-                        varRef->setDefaultValue(variable->value()->getId());
-
-                        // add var ref to interface
-
-                        if (isInOut)
-                                interface->addInOut(varRef);
-                        else
-                                interface->addIn(varRef);
-                }
-
-                // else this is the depricated case
-
-                else {
-                        warn("DEPRECATED: <" << var->Value() <<
-                                        "> tag, use <" << DECL_VAR_TAG <<
-                                        "> or <" << DECL_ARRAY_TAG <<
-                                        "> tag instead.");
-
-                        if (isInOut)
-                                interface->addInOut(p.parse(var));
-                        else
-                                interface->addIn(p.parse(var));
-                }
-        }
+	  PlexilVarRefParser p;
+	  if (isInOut)
+		interface->addInOut(p.parse(var));
+	  else
+		interface->addIn(p.parse(var));
+	}
+  }
 }
 
 void PlexilXmlParser::parseDeclarations(const TiXmlElement* decls,
