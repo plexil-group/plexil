@@ -1,28 +1,22 @@
 ;; File: $SVNROOT/examples/multi-exec/agents/sim.pli
 
 (plexil-plan
+  (declarations
+    (library-node-declaration "state-request"))
   (concurrently "sim"
     (variables
       (string "name" "sim")
-      (real-array "states" 4 70000.0 2000.0 250.0 0.0) ;dist alt speed angle
-      (boolean "debug" false))
+      (real-array "states" 4 70000.0 2000.0 250.0 0.0) ;dist(ft) alt(ft) speed(kts) angle(deg)
+      (boolean "debug" true))
     (invariant-condition (not (finished "QuitCommand")))
     (comment "Handle commands to set the current state.  Only alt, speed and angle can be commanded.")
     (comment "Send the current state out on request")
-    (sequence "handle-state-request"
+    (action "state-request-monitor"
       (repeat-condition true)
-      (on-command "get-state-array" ((integer "elapsed-time"))
-        (sequence"send-state-array"
-          (variables (real "dist")
-                     (real "ft_s"))
-          (if (boolvar "debug")
-              (command "print" "[" (stringvar "name") "] recv: get-state-array " (intvar "elapsed-time") "\n"))
-          (assignment (realvar "ft_s") (* 6076.11549 (/ (array-element "states" 2) 3600.0)))
-          (assignment (realvar "dist") (- (array-element "states" 0) (* (realvar "elapsed-time") (realvar "ft_s"))))
-          (assignment (array-element "states" 0) (realvar "dist"))
-          (command "SendReturnValue" (arrayvar "states"))))
-      (if (boolvar "debug")
-          (command "print" "[" (stringvar "name") "] sent: " (arrayvar "states") "\n")))
+      (library-call-node (call "state-request"
+                               (alias "states" (arrayvar "states"))
+                               (alias "name" (stringvar "name"))
+                               (alias "debug" (boolvar "debug")))))
     (action "QuitCommand"
       (on-message "Quit"
         (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))

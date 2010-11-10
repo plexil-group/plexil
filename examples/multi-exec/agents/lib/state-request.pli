@@ -1,0 +1,20 @@
+;; File: $SVNROOT/examples/multi-exec/agents/lib/feet-per-second.pli
+
+;; 1 nm = 6076.11549
+;; ft/s = (* 6076.11549 (/ kts (* 60 60)))
+
+(plexil-plan
+  (sequence "state-request"
+    (interface (inout (real-array "states" 4) (string "name" "sim") (boolean "debug" true)))
+    (on-command "get-current-state" ((integer "elapsed-time"))
+      (sequence "update-state"
+        ;; ft/s = ft/nm * (knots/hour)/(second/hour)
+        ;; dist = dist - elapsted-time * ft/s
+        (assignment (array-element "states" 0) (- (array-element "states" 0)
+                                                  (* (realvar "elapsed-time")
+                                                     (* 6076.11549 (/ (array-element "states" 2) 3600.0)))))
+        (if (boolvar "debug")
+            (command "print" "[" (stringvar "name") "] sent: " (arrayvar "states") "\n"))
+        (command "SendReturnValue" (arrayvar "states"))))))
+
+;; EOF

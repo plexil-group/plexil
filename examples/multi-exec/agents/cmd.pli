@@ -7,20 +7,22 @@
                (integer "run-length" 20)
                (real-array "states" 4)
                (boolean "debug" true))
-    (comment "Send the elapsed time since the last request in order to track time correctly")
+    (comment "Send the elapsed time since the last request in order to track state correctly")
     (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
-      (sequence "get-state-array"
+      (sequence "get-current-state"
         ;;(variables (int-array "states" 4))
         (wait (intvar "period") "Wait")
         (assignment (array-element "states" 0) 0)
-        (command "print" "[" (stringvar "name") "] sent: get-state-array (elapsed-time: " (intvar "i") ")\n")
+        (command "print" "\n[" (stringvar "name") "] sent: get-current-state "
+                 (intvar "period")" (elapsed-time: " (intvar "i") ")\n")
         (action "get-states"
           ;;(end-condition (is-known (array-element "states" 0)))
           (end-condition (not (= (array-element "states" 0) 0)))
-          (command-with-return (arrayvar "states") "get-state-array" (intvar "period")))
+          (command-with-return (arrayvar "states") "get-current-state" (intvar "period")))
         (command "print" "[" (stringvar "name") "] recv: " (arrayvar "states") "\n")))
+    (wait 2 "Wait")
     (action "Quit"
-      (command "print" "[" (stringvar "name") "] sent: Quit (quitting)\n")
+      (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
       (command "SendMessage" "Quit"))))
 
 ;; EOF
