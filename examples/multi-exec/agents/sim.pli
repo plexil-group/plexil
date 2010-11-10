@@ -33,7 +33,6 @@
                                (alias "debug" (boolvar "debug")))))
     (action "QuitCommand"
       (on-message "Quit"
-        (command "print" "[" (stringvar "name") "] recv: Quit (quiting)\n\n")))))
-
+        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
 
 ;; EOF

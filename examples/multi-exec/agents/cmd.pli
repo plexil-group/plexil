@@ -6,13 +6,17 @@
                (integer "period" 2)
                (integer "run-length" 160)
                (real-array "actual" 5)
+               (real "start-time")
                (boolean "debug" true))
-    ;; Send the elapsed time since the last request in order to track state correctly
+    ;; Record the start time of the run...
+    (assignment (realvar "start-time") (lookup-now "time"))
+    ;; Poll for the current state and react accordingly
     (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
       (sequence "get-current-state"
-        (wait (intvar "period") "Wait")
-        (assignment (array-element "actual" 0) 0)
-        (command "print" "\n[" (stringvar "name") "] sent: get-current-state (elapsed-time: " (intvar "i") ")\n")
+        (variables (real "elapsed-time"))
+        (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
+        (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
+        (assignment (array-element "actual" 0) 0) ;for use iin the end-condition
         (action "get-states"
           (end-condition (not (= (array-element "actual" 0) 0)))
           (command-with-return (arrayvar "actual") "get-current-state" (intvar "period")))
@@ -33,8 +37,12 @@
           (command "set-speed" (realvar "kps-delta"))
           (action "set-angle"
             (if (> 59.8 (array-element "actual" 4))
-                (command "set-angle" (realvar "dps-delta")))))))
-    (wait 2 "Wait")
+                (command "set-angle" (realvar "dps-delta")))))
+        ;;(wait-with-tolerance (- (intvar "period") (mod (lookup-with-tolerance "time" .1) 1)) .1 "Wait")
+        ;;ERROR: DarwinTimeAdapter.cc:216: LookupOnChange: Internal error: couldn't find smallest tolerance
+        ;;Assertion failed: (false), function handleAssert, file Error.cc, line 89.
+        (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .1 "Wait")
+        ))
     (action "Quit"
       (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
       (command "SendMessage" "Quit"))))
