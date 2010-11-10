@@ -18,14 +18,14 @@ plx: $(TARGETS)
 # Plexilisp rule
 %.plx: %.pli
 	plexilisp $<
-	xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
-	$(RM) $*.epx*
+	@xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
+	@$(RM) $*.epx*
 
 # Standard Plexil rule
 %.plx: %.ple
 	plexilc $<
-	xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
-	$(RM) $*.epx*
+	@xmllint --noout --schema $(PLEXIL_HOME)/schema/core-plexil.xsd $*.plx
+	@$(RM) $*.epx*
 
 # Default clean targets.  Can be redefined in makefile which includes this file.
 # This idiom allows makefiles which include this one to add more rules to clean, etc.
