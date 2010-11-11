@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,17 +23,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# This Makefile was originally created by Jeff Kowing
+# The original version of this Makefile was contributed by Jeff Kowing
 # (jeffrey.d.kowing@nasa.gov)
-#
-# Modifications:
-#
-#   - requires environment variable RNGCONV_JAR to specify the rngconv
-#     application jar file, and TRANG_JAR to specify the Trang
-#     application jar file.  See below for more information on these
-#     applications.  (Mike Dalal)
-#   - adds the 'make format' target that formats plexil.xsd into
-#     plexil-formatted.xsd (Mike Dalal)
 #
 # This makefile generates RELAX NG Compact schemas from XML Schemas.
 # A *.rnc RELAX-NG compact schema file will be generated for each
@@ -106,11 +97,11 @@ clean: dust
 
 # The rule creates a RELAX-NG schema from a XML Schema.
 %.rng: %.xsd plexil-base.xsd
-	java -jar $(RNGCONV_JAR) $< > $@
+	java -jar $(PLEXIL_HOME)/third-party/jars/rngconv.jar $< > $@
 
 # The rule creates a RELAX-NG compact schema from a RELAX-NG schema.
 %.rnc.in: %.rng
-	java -jar $(TRANG_JAR) $< $@.rnc
+	java -jar $(PLEXIL_HOME)/third-party/jars/trang.jar $< $@.rnc
 	mv $@.rnc $@
 
 # The rule makes some fixes to the generated RELAX-NG compact schema.
