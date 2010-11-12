@@ -28,12 +28,14 @@
 #include "XMLUtils.hh"
 #include "Debug.hh"
 
+#include <set>
 #include <sstream>
 
 using namespace std;
 
 namespace PLEXIL 
 {
+  const std::string PLEXIL_PLAN_TAG("PlexilPlan");
   const std::string NODE_TAG("Node");
   const std::string NODEID_TAG("NodeId");
   const std::string PRIORITY_TAG("Priority");
@@ -743,30 +745,130 @@ namespace PLEXIL
 	}
   }
 
+  /*
+   * @brief Load the named library node from a file on the given path.
+   * @param name Name of the node.
+   * @param path Vector of places to search for the file.
+   * @return The loaded node, or noId() if not found or error.
+   */
+  PlexilNodeId PlexilXmlParser::findLibraryNode(const std::string& name,
+												const std::vector<std::string>& path)
+  {
+	PlexilNodeId result;
+	TiXmlDocument doc();
+
+	std::vector<std::string>::const_iterator it = path.begin();
+	// Find the first occurrence of the library in this path
+	while (result.isNoId() && it != path.end())
+	  {
+		std::string filename = *it + "/" + name + std::string(".plx");
+		try {
+		  result = findLibraryNodeInternal(name, filename);
+		  if (result.isId())
+			return result;
+		}
+		catch (ParserException& p) {
+		  debugMsg("PlexilXmlParser:findLibraryNode", 
+				   " failed due to error in  " 
+				   << filename
+				   << ":\n"
+				   << p.what());
+		  return PlexilNodeId::noId();
+		}
+		it++;
+	  }
+
+	// check current working directory
+	std::string filename = name + std::string(".plx");
+	try {
+	  return findLibraryNodeInternal(name, filename);
+	}
+	catch (ParserException& p) {
+	  debugMsg("PlexilXmlParser:findLibraryNode", 
+			   " failed due to error in  " 
+			   << filename
+			   << ":\n"
+			   << p.what());
+	  return PlexilNodeId::noId();
+	}
+  }
+
+	/*
+	 * @brief Load the named library node from a file in the given directory.
+	 * @param name Name of the node.
+	 * @param filename Candidate file for this node.
+	 * @return The loaded node, or noId() if not found or error.
+	 */
+  PlexilNodeId PlexilXmlParser::findLibraryNodeInternal(const std::string& name, 
+														const std::string& filename)
+	  throw(ParserException)
+  {
+	TiXmlDocument doc(filename);
+	if (!doc.LoadFile()) {
+	  checkParserException(doc.ErrorId() == TiXmlBase::TIXML_ERROR_OPENING_FILE,
+						   "Error reading XML file " << filename
+						   << ": " << doc.ErrorDesc());
+	  debugMsg("PlexilXmlParser:findLibraryNode", 
+			   " unable to open file " << filename);
+	  return PlexilNodeId::noId();
+	}
+	PlexilNodeId result = parse(doc.RootElement());
+	// Check that node has the desired node ID
+	checkParserException(0 == name.compare(result->nodeId()),
+						 "Error: File " << filename
+						 << " contains node ID \"" << result->nodeId()
+						 << "\", not \"" << name << "\"");
+	debugMsg("PlexilXmlParser:findLibraryNode",
+			 " successfully loaded node " << name << " from " << filename);
+	return result;
+  }
+
   PlexilNodeId PlexilXmlParser::parse(const std::string& str, bool isFile)
 	throw(ParserException) 
   {
+	if (!isFile)
+	  return parse(str.c_str());
+
 	registerParsers();
-	TiXmlElement* root = NULL;
-	if (isFile) {
-	  TiXmlDocument* doc = new TiXmlDocument(str);
-	  if (!doc->LoadFile()) {
-		checkParserException(ALWAYS_FAIL, "Error loading '" << str << "': " << doc->ErrorDesc());
-	  }
-	  root = doc->RootElement()->FirstChildElement(NODE_TAG);
-	} 
-	else
-	  root = initXml(str);
-	checkParserException(root != NULL, "No node root in " << str);
-	PlexilNodeId result = parseNode(root);
-	if (result->fileName().empty() && isFile)
+	TiXmlDocument doc(str);
+	checkParserException(doc.LoadFile(),
+						 "Error reading XML file " << str << ": " << doc.ErrorDesc());
+	TiXmlElement* root = doc.RootElement();
+	checkParserException(root != NULL, "No root node in file " << str);
+	PlexilNodeId result = parse(root);
+	if (result->fileName().empty())
 	  result->setFileName(str);
 	return result;
   }
 
-  PlexilNodeId PlexilXmlParser::parse(TiXmlElement* xml) throw(ParserException) 
+  PlexilNodeId PlexilXmlParser::parse(const char* text)
+	throw(ParserException) 
   {
 	registerParsers();
+
+	// First parse the XML itself
+	TiXmlDocument doc;
+	doc.LoadFile(text);
+	checkParserException(!doc.Error(),
+						 "(line " << doc.ErrorRow()
+						 << ", column " << doc.ErrorCol()
+						 << ") XML parsing error: " << doc.ErrorDesc());
+
+	TiXmlElement* root = doc.RootElement();
+	PlexilNodeId result = parseNode(root);
+	return result;
+  }
+
+  PlexilNodeId PlexilXmlParser::parse(const TiXmlElement* xml)
+	throw(ParserException) 
+  {
+	registerParsers();
+	// strip away PlexilPlan wrapper, if any
+	if (0 == PLEXIL_PLAN_TAG.compare(xml->Value())) {
+	  const TiXmlElement* node = xml->FirstChildElement(NODE_TAG);
+	  checkParserException(node != NULL, "No root node in " << xml);
+	  xml = node;
+	}
 	return parseNode(xml);
   }
 
