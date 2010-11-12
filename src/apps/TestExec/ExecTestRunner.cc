@@ -42,9 +42,10 @@
 #include <fstream>
 #include <string>
 
+using std::endl;
+using std::set;
 using std::string;
 using std::vector;
-using std::endl;
 
 namespace PLEXIL {
 
@@ -53,6 +54,7 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
   string planName("error");
   string debugConfig("Debug.cfg");
   vector<string> libraryNames;
+  vector<string> libraryPaths;
   bool luvRequest = false;
   string luvHost = EssentialLuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = EssentialLuvListener::LUV_DEFAULT_PORT();
@@ -76,6 +78,8 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
       scriptName = argv[++i];
     else if (strcmp(argv[i], "-l") == 0)
       libraryNames.push_back(argv[++i]);
+    else if (strcmp(argv[i], "-L") == 0)
+      libraryPaths.push_back(argv[++i]);
     else if (strcmp(argv[i], "-d") == 0)
       debugConfig = string(argv[++i]);
     else if (strcmp(argv[i], "-v") == 0)
@@ -193,11 +197,38 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 
     PlexilNodeId root;
     try {
-      root = PlexilXmlParser::parse(
-                          plan.FirstChildElement("PlexilPlan") ->FirstChildElement("Node"));
+      root =
+		PlexilXmlParser::parse(plan.FirstChildElement("PlexilPlan")
+							   ->FirstChildElement("Node"));
     } catch (ParserException& e) {
       return -1;
     }
+
+	// Check whether all libraries for this plan are loaded
+	// and try to load those that aren't
+	vector<string> libs = root->getLibraryReferences();
+	// N.B. libs is potentially growing during this operation!
+	for (vector<string>::iterator it = libs.begin();
+		 it != libs.end();
+		 it++) {
+	  if (!exec->hasLibrary(*it)) {
+		// Try to load the library
+		PlexilNodeId libroot = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
+		if (libroot.isNoId()) {
+		  warn("Adding plan " << planName
+			   << " failed because library " << *it
+			   << " could not be loaded");
+		  return -1;
+		}
+
+		// Make note of any dependencies in the library itself
+		libroot->getLibraryReferences(libs);
+
+		// add the library node
+		exec->addLibraryNode(libroot);
+	  }
+	}
+
     if (!exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
       return -1;
