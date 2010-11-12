@@ -61,13 +61,17 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
   bool luvBlock = false;
   string
     usage(
-          "Usage: exec-test-runner -s <script> -p <plan> [-l <library>]* [-d <debug_config_file>] [-v [-h <hostname>] [-n <portnumber>] -b];");
+"Usage: exec-test-runner -s <script> -p <plan>\n\
+                        [-l <library>]*\n\
+                        [-L <library-dir>]*\n\
+                        [-d <debug_config_file>]\n\
+                        [-v [-h <hostname>] [-n <portnumber>] -b];");
 
   // if not enough parameters, print usage
 
   if (argc < 3) {
-    warn(usage);
-    return -1;
+	std::cout << usage << endl;
+    return 0;
   }
   // parse out parameters
 
