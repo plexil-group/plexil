@@ -43,54 +43,66 @@ namespace PLEXIL
   class PlexilElementParser
   {
   public:
+    PlexilElementParser() {}
+	virtual ~PlexilElementParser() {}
     virtual Id<Ret> parse(const TiXmlElement* xml)
       throw(ParserException)
       = 0;
-    PlexilElementParser()
-    {}
-    virtual ~PlexilElementParser()
-    {}
+
+  private:
+	// deliberately not implemented
+    PlexilElementParser(const PlexilElementParser&);
+    PlexilElementParser& operator=(const PlexilElementParser&);
   };
 
   typedef PlexilElementParser<PlexilNodeBody> PlexilBodyParser;
   typedef PlexilElementParser<PlexilExpr> PlexilExprParser;
 
-  /**
-   * @brief A variation of PlexilExprParser that supports parsing internal variable references.
+  /*
+   * @brief A stateless class for parsing Plexil XML plans.
    */
-  class PlexilInternalVarParser : public PlexilExprParser
-  {
-  public:
-    PlexilNodeRefId parseNodeReference(const TiXmlElement* xml);
-    PlexilInternalVarParser()
-    {}
-    virtual ~PlexilInternalVarParser()
-    {}
-  };
-
-
-
   class PlexilXmlParser : public PlexilParser
   {
   public:
-    PlexilXmlParser();
-    PlexilXmlParser(const std::string& str, bool isFile)
+    static PlexilNodeId parse(const std::string& str, bool isFile)
       throw(ParserException);
-    PlexilXmlParser(TiXmlElement* xml);
-    ~PlexilXmlParser();
+    static PlexilNodeId parse(TiXmlElement* xml)
+      throw(ParserException);
+    static TiXmlElement* toXml(const PlexilNodeId& node)
+      throw(ParserException);
 
-    PlexilNodeId parse(const std::string& str, bool isFile)
+	// These don't really need to be public,
+	// but the alternative is forward declaring the classes of their callers
+	// so that they can be declared friends.
+	// C++ sucks at encapsulation.
+	// -- Chucko 12 Nov 2010
+
+    //this is used to get around the old way of handling node references
+    static PlexilNodeRefId getNodeRef(const TiXmlElement* ref, 
+				      const TiXmlElement* node)
       throw(ParserException);
-    PlexilNodeId parse(TiXmlElement* xml)
-      throw(ParserException);
-    PlexilNodeId parse()
-      throw(ParserException);
+    static TiXmlElement* getNodeParent(const TiXmlElement* node);
 
     static PlexilExprId parseExpr(const TiXmlElement* xml)
       throw(ParserException);
     static PlexilNodeId parseNode(const TiXmlElement* node)
       throw(ParserException);
-    static PlexilInterfaceId parseDepricatedInterface(const TiXmlElement* intf)
+    static PlexilNodeRefId parseNodeRef(const TiXmlElement* xml)
+      throw(ParserException);
+    static PlexilStateId parseState(const TiXmlElement* xml)
+      throw(ParserException);
+    static std::vector<PlexilResourceId> parseResource(const TiXmlElement* xml)
+      throw(ParserException);
+
+  private:
+
+	// Explicitly not implemented
+	PlexilXmlParser();
+	PlexilXmlParser(const PlexilXmlParser&);
+	PlexilXmlParser& operator=(const PlexilXmlParser&);
+	~PlexilXmlParser();
+
+    static PlexilInterfaceId parseDeprecatedInterface(const TiXmlElement* intf)
       throw(ParserException);
     static PlexilInterfaceId parseInterface(const TiXmlElement* intf)
        throw(ParserException);
@@ -105,27 +117,14 @@ namespace PLEXIL
       throw(ParserException);
     static PlexilVar* parseAtomicOrStringDeclaration(const TiXmlElement* decls)
       throw(ParserException);
-    static PlexilVar* parseDepricatedDeclaration(const TiXmlElement* decls)
+    static PlexilVar* parseDeprecatedDeclaration(const TiXmlElement* decls)
       throw(ParserException);
     static PlexilNodeBodyId parseBody(const TiXmlElement* body)
       throw(ParserException);
-    static PlexilStateId parseState(const TiXmlElement* xml)
-      throw(ParserException);
-    static std::vector<PlexilResourceId> parseResource(const TiXmlElement* xml)
-      throw(ParserException);
 
-    static PlexilNodeRefId parseNodeRef(const TiXmlElement* xml)
-      throw(ParserException);
     static void getNameOrValue(const TiXmlElement* xml, std::string& name, 
 			       std::string& value);
-    //this is used to get around the old way of handling node references
-    static PlexilNodeRefId getNodeRef(const TiXmlElement* ref, 
-				      const TiXmlElement* node)
-      throw(ParserException);
-    static TiXmlElement* getNodeParent(const TiXmlElement* node);
 
-    static TiXmlElement* toXml(const PlexilNodeId& node)
-      throw(ParserException);
     static TiXmlElement* toXml(const PlexilInterfaceId& intf)
       throw(ParserException);
     static TiXmlElement* toXml(const PlexilVarId& var)
@@ -171,15 +170,12 @@ namespace PLEXIL
     static TiXmlElement* toXml(const PlexilNodeRefId& ref)
       throw(ParserException);
 
-  private:
     static TiXmlElement* element(const std::string& name);
     static TiXmlElement* namedTextElement(const std::string& name, const std::string& value);
     static TiXmlElement* namedNumberElement(const std::string& name, const double value);
 
-    void registerParsers();
+    static void registerParsers();
 
-    TiXmlElement* m_root;
-    bool m_delete;
     static std::map<std::string, PlexilBodyParser*> *s_bodyParsers;
     static std::map<std::string, PlexilExprParser*> *s_exprParsers;
     static bool s_init;
