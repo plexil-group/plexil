@@ -13,54 +13,6 @@ start =
   | Command
   | UpdateAck
   | Script
-InitialState =
-  notAllowed
-  | element InitialState { State* }
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
-    }
-\string = xsd:string
-Simultaneous =
-  notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-Command =
-  notAllowed
-  | element Command { command-type }
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
-    }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
-Script =
-  notAllowed
-  | element Script {
-      (State
-       | UpdateAck
-       | Command
-       | CommandAck
-       | CommandAbort
-       | Simultaneous)*
-    }
 type =
   attribute type {
     xsd:NMTOKEN "int-array"
@@ -72,6 +24,57 @@ type =
     | xsd:NMTOKEN "real"
     | xsd:NMTOKEN "bool"
   }
+CommandAck =
+  notAllowed
+  | element CommandAck { command-type }
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
+Command =
+  notAllowed
+  | element Command { command-type }
+Simultaneous =
+  notAllowed
+  | element Simultaneous {
+      (State | UpdateAck | Command | CommandAck | CommandAbort)*
+    }
+Script =
+  notAllowed
+  | element Script {
+      (State
+       | UpdateAck
+       | Command
+       | CommandAck
+       | CommandAbort
+       | Simultaneous)*
+    }
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+CommandAbort =
+  notAllowed
+  | element CommandAbort { command-type }
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
+\string = xsd:string
 Param =
   notAllowed
   | element Param { type?, xsd:string }
+PlexilPlanAttributes = 
+  notAllowed
+  | attribute xsi:* { xsd:anyURI }*
