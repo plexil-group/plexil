@@ -112,14 +112,20 @@ namespace PLEXIL {
     // miscellaneous constants
     DECLARE_STATIC_CLASS_CONST(std::string, WHITESPACE_CHARS, " \t\n");
 
-    virtual PlexilNodeId parse() = 0;
-    virtual ~PlexilParser() {}
-    
     static PlexilNodeType parseNodeType(const std::string & typeName);
     static const std::string& nodeTypeString(PlexilNodeType nodeType);
 
     static PlexilType parseValueType(const std::string& typeStr);
     static const std::string& valueTypeString(const PlexilType& type);
+
+  private:
+	// Deliberately not implemented because this class can't be instantiated,
+	// only derived from.
+	PlexilParser();
+	PlexilParser(const PlexilParser&);
+	PlexilParser& operator=(const PlexilParser&);
+	~PlexilParser();
+
   };
 
   class PlexilNode 

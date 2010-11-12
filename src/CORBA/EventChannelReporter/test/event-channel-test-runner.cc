@@ -125,10 +125,8 @@ int main(int argc, char** argv)
 	  return -1;
 	}
 
-      PlexilXmlParser parser;
-      libraries.push_back(
-			  parser.parse(libraryXml.FirstChildElement("PlexilPlan")
-				       ->FirstChildElement("Node")));
+      libraries.push_back(PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
+												 ->FirstChildElement("Node")));
     }
   // load plan
 
@@ -151,10 +149,9 @@ int main(int argc, char** argv)
 		    << std::endl;
 	  return -1;
 	}
-      PlexilXmlParser parser;
       PlexilNodeId root =
-	parser.parse(plan.FirstChildElement("PlexilPlan")
-		     ->FirstChildElement("Node"));
+		PlexilXmlParser::parse(plan.FirstChildElement("PlexilPlan")
+							   ->FirstChildElement("Node"));
       root->link(libraries);
       exec = (new PlexilExec(root))->getId();
 

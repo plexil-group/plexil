@@ -125,10 +125,8 @@ int main(int argc, char** argv)
 	  return -1;
 	}
 
-      PlexilXmlParser parser;
-      libraries.push_back(
-			  parser.parse(libraryXml.FirstChildElement("PlexilPlan")
-				       ->FirstChildElement("Node")));
+      libraries.push_back(PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
+												 ->FirstChildElement("Node")));
     }
   // load plan
 

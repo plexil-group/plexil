@@ -30,7 +30,6 @@
 #include "Id.hh"
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
-#include "PlexilXmlParser.hh"
 #include "ThreadMutex.hh"
 #include "RecursiveThreadMutex.hh"
 #include "ThreadSemaphore.hh"
@@ -103,11 +102,6 @@ namespace PLEXIL
     inline InterfaceManager& getInterfaceManagerReference()
     {
       return m_interface;
-    }
-
-    inline const PlexilXmlParser& getParser() const
-    {
-      return m_parser;
     }
 
     /**
@@ -295,7 +289,6 @@ namespace PLEXIL
 
     PlexilExec m_exec;
     InterfaceManager m_interface;
-    PlexilXmlParser m_parser;
 
     //
     // Synchronization and mutual exclusion

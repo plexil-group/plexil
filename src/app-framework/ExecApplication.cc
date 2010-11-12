@@ -37,6 +37,7 @@
 #include "Expressions.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
+#include "PlexilXmlParser.hh"
 #include "StateManagerInit.hh"
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
@@ -49,7 +50,6 @@ namespace PLEXIL
     : m_id(this),
       m_exec(),
       m_interface(*this),
-      m_parser(),
       m_execThread(),
       m_execMutex(),
       m_sem(),
@@ -281,7 +281,7 @@ namespace PLEXIL
     // parse XML into node structure
     PlexilNodeId root;
     try {
-      root = m_parser.parse(plexilXml->FirstChildElement("Node"));
+      root = PlexilXmlParser::parse(plexilXml->FirstChildElement("Node"));
     }
     catch (const ParserException& e)
       {
@@ -314,7 +314,7 @@ namespace PLEXIL
     // parse XML into node structure
     PlexilNodeId root;
     try {
-      root = m_parser.parse(plexilXml->FirstChildElement("Node"));
+      root = PlexilXmlParser::parse(plexilXml->FirstChildElement("Node"));
     }
     catch (const ParserException& e)
       {

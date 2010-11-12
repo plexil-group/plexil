@@ -669,9 +669,8 @@ namespace PLEXIL
                     "IpcAdapter::enqueueMessage: AddPlan message contains null plan string");
 
       // parse XML into node structure
-      PlexilXmlParser p;
       try {
-        PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
+        PlexilNodeId root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), false);
         m_execInterface.handleAddPlan(root, EMPTY_LABEL());
         // Always notify immediately when adding a plan
         m_execInterface.notifyOfExternalEvent();
@@ -687,9 +686,8 @@ namespace PLEXIL
                     "IpcAdapter::enqueueMessage: AddPlanFile message contains null file name");
 
       // parse XML into node structure
-      PlexilXmlParser p;
       try {
-        PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
+        PlexilNodeId root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), true);
         m_execInterface.handleAddPlan(root, EMPTY_LABEL());
         // Always notify immediately when adding a plan
         m_execInterface.notifyOfExternalEvent();
@@ -706,9 +704,8 @@ namespace PLEXIL
                     "IpcAdapter::enqueueMessage: AddLibrary message contains null library node string");
 
       // parse XML into node structure
-      PlexilXmlParser p;
       try {
-        PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), false);
+        PlexilNodeId root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), false);
         m_execInterface.handleAddLibrary(root);
       } catch (const ParserException& e) {
         std::cerr << "Error parsing library node: \n" << e.what() << std::endl;
@@ -723,9 +720,8 @@ namespace PLEXIL
                     "IpcAdapter::enqueueMessage: AddLibraryFile message contains null file name");
 
       // parse XML into node structure
-      PlexilXmlParser p;
       try {
-        PlexilNodeId root = p.parse(std::string(stringMsg->stringValue), true);
+        PlexilNodeId root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), true);
         m_execInterface.handleAddLibrary(root);
       } catch (const ParserException& e) {
         std::cerr << "Error parsing library file: \n" << e.what() << std::endl;

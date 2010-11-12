@@ -1231,9 +1231,8 @@ namespace PLEXIL
                          "<" << planXml->Value() << "> is not a valid Plexil XML plan");
 
     // parse the plan
-    static PlexilXmlParser parser;
     PlexilNodeId root =
-      parser.parse(planXml->FirstChildElement("Node")); // can also throw ParserException
+      PlexilXmlParser::parse(planXml->FirstChildElement("Node")); // can also throw ParserException
 
     return this->handleAddPlan(root, parent);
   }

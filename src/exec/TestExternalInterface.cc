@@ -183,9 +183,8 @@ namespace PLEXIL
                        scriptElement->Attribute("file"));
               condDebugMsg(parent != EMPTY_LABEL(), "Test:testOutput", 
                            "To be child of parent " << parent.toString());
-              PlexilXmlParser parser;
               PlexilNodeId root =
-                parser.parse(doc->FirstChildElement("PlexilPlan")->
+                PlexilXmlParser::parse(doc->FirstChildElement("PlexilPlan")->
                              FirstChildElement("Node"));
               checkError(m_exec->addPlan(root, parent),
                          "Adding plan " << scriptElement->Attribute("file") << " failed");

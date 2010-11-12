@@ -33,7 +33,6 @@
 #include "TimeAdapter.hh"
 #include "AdapterFactory.hh"
 #include "Debug.hh"
-#include "PlexilXmlParser.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "NewLuvListener.hh"

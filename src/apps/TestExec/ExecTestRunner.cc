@@ -168,11 +168,10 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
       return -1;
     }
 
-    PlexilXmlParser parser;
     PlexilNodeId libnode;
     try {
       libnode
-        = parser.parse(
+        = PlexilXmlParser::parse(
                        libraryXml.FirstChildElement("PlexilPlan")->FirstChildElement(
                                                                                      "Node"));
     } catch (ParserException& e) {
@@ -192,10 +191,9 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
       return -1;
     }
 
-    PlexilXmlParser parser;
     PlexilNodeId root;
     try {
-      root = parser.parse(
+      root = PlexilXmlParser::parse(
                           plan.FirstChildElement("PlexilPlan") ->FirstChildElement("Node"));
     } catch (ParserException& e) {
       return -1;
