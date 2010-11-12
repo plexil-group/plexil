@@ -31,7 +31,6 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <set>
 #include "Id.hh"
 #include "LabelStr.hh"
 #include "ExecDefs.hh"
@@ -154,7 +153,8 @@ namespace PLEXIL {
      * @brief Get the names of all library nodes referenced by this node and its descendants.
      * @return A vector of library node names.
      */
-    std::set<std::string> getLibraryReferences() const;
+    std::vector<std::string> getLibraryReferences() const;
+    void getLibraryReferences(std::vector<std::string>& refs) const;
 
     void setFileName(const std::string& fname) {m_fileName = fname;}
     void setFileName(const char* fname) {m_fileName = fname;}
@@ -181,11 +181,6 @@ namespace PLEXIL {
 
     // Internal methods
     bool link(const std::vector<PlexilNodeId>& libraries, PlexilNodeSet& seen);
-    /**
-     * @brief Get the names of all library nodes referenced by this node and its descendants.
-     * @param The vector of referenced library node names to be returned.
-     */
-    void getLibraryReferences(std::set<std::string>& refs) const;
 
     PlexilNodeType m_nodeType;
     int m_lineNo;

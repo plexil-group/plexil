@@ -205,25 +205,36 @@ namespace PLEXIL {
    * @brief Get the names of all library nodes referenced by this node and its descendants.
    * @return A vector of library node names.
    */
-  std::set<std::string> PlexilNode::getLibraryReferences() const {
-    std::set<std::string> result;
+  std::vector<std::string> PlexilNode::getLibraryReferences() const {
+    std::vector<std::string> result;
     this->getLibraryReferences(result);
     debugMsg("PlexilNode:getLibraryReferences", " found " << result.size() << " unique library references");
     return result;
   }
 
+  // Stupid utility made necessary because STL sorts its sets.
+  template <typename T>
+  void insertUnique(std::vector<T>& vec, const T& thing)
+  {
+	for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); it++) {
+	  if (*it == thing)
+		return;
+	}
+	vec.push_back(thing);
+  }
+
   /**
    * @brief Get the names of all library nodes referenced by this node and its descendants.
-   * @param The vector of referenced library node names to be returned.
+   * @param refs The vector of referenced library node names to be returned.
    */
-  void PlexilNode::getLibraryReferences(std::set<std::string>& refs) const {
+  void PlexilNode::getLibraryReferences(std::vector<std::string>& refs) const {
     switch (m_nodeType) {
 
     case NodeType_LibraryNodeCall: {
       const Id<PlexilLibNodeCallBody> callBody = (const Id<PlexilLibNodeCallBody>) m_nodeBody;
       checkError(callBody.isId(),
 		 "PlexilNode::getLibraryReferences: node is not a library call node");
-      refs.insert(callBody->libNodeName());
+      insertUnique(refs, callBody->libNodeName());
       break;
     }
 
