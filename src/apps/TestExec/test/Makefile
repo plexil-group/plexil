@@ -174,9 +174,9 @@ resource-arbitration-tests: setup
 
 library-call-with-array: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
-	echo library-call-with-array >> tempRegressionResults ; \
-	$(EXEC_PROG) -p plans/library-call-with-array.plx -l plans/library-node-with-array.plx -s $(EMPTY_SCRIPT) > output/library-call-with-array.out 2>> tempRegressionResults ; \
-	perl $(REGRESSION_PL) output/library-call-with-array.out
+	echo $@ >> tempRegressionResults ; \
+	$(EXEC_PROG) -p plans/$@.plx -L plans -s $(EMPTY_SCRIPT) > output/$@.out 2>> tempRegressionResults ; \
+	perl $(REGRESSION_PL) output/$@.out
 
 localclean::
 	-$(RM) RegressionResults tempRegressionResults output
