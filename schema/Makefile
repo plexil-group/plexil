@@ -76,7 +76,7 @@
 RNCFIX := ./rncfix
 
 SCHEMA_XSD = core-plexil.xsd safe-plexil.xsd extended-plexil.xsd \
-	     core-plexil-draft.xsd
+	     core-plexil-draft.xsd plexil-script.xsd
 SCHEMA_RNG =    $(SCHEMA_XSD:.xsd=.rng)
 SCHEMA_RNC =    $(SCHEMA_XSD:.xsd=.rnc)
 SCHEMA_RNC_IN = $(SCHEMA_XSD:.xsd=.rnc.in)
