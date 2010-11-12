@@ -42,31 +42,8 @@ namespace PLEXIL {
     return data;
   }
 
-  TiXmlElement* initXml(const char* sourceFile, const char* element){
-    std::ifstream is(sourceFile);
-    checkError(is.good(), "Invalid input stream '" << sourceFile << "'");
-
-  
-    while(!is.eof()){
-      while(!is.eof() && is.peek() != '<')
-	is.get();
-
-      TiXmlElement * xmlElement = new TiXmlElement("");
-      is >> (*xmlElement);
-      debugMsg("Tests", "Loading element " << *xmlElement);
-      if(element == NULL || strcmp(xmlElement->Value(), element) == 0)
-	return xmlElement;
-      else
-	delete xmlElement;
-    }
-
-    return NULL;
-  }
-
   TiXmlElement* initXml(const std::string& xmlStr) {
-    std::stringstream is;
-    is << xmlStr;
-
+    std::istringstream is(xmlStr);
     TiXmlElement* root = new TiXmlElement("");
     is >> (*root);
     return root;

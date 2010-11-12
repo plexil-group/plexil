@@ -48,12 +48,7 @@ namespace PLEXIL {
   LabelStr extractData(const TiXmlElement& element, const LabelStr& argName);
 
   /**
-   * @brief Helper method to get the first xml element in the file
-   */
-  TiXmlElement* initXml(const char* sourceFile, const char* element = NULL);
-
-  /**
-   * @brief Helper method to parse a given XML string
+   * @brief Helper function to parse a given XML string
    */
   TiXmlElement* initXml(const std::string& xmlStr);
 
