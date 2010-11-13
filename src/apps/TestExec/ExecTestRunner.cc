@@ -242,9 +242,10 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 	for (vector<string>::iterator it = libs.begin();
 		 it != libs.end();
 		 it++) {
-	  if (!exec->hasLibrary(*it)) {
+	  PlexilNodeId libroot = exec->getLibrary(*it);
+	  if (libroot.isNoId()) {
 		// Try to load the library
-		PlexilNodeId libroot = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
+		libroot = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
 		if (libroot.isNoId()) {
 		  warn("Adding plan " << planName
 			   << " failed because library " << *it
@@ -252,12 +253,12 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 		  return -1;
 		}
 
-		// Make note of any dependencies in the library itself
-		libroot->getLibraryReferences(libs);
-
 		// add the library node
 		exec->addLibraryNode(libroot);
 	  }
+
+	  // Make note of any dependencies in the library itself
+	  libroot->getLibraryReferences(libs);
 	}
 
     if (!exec->addPlan(root)) {
