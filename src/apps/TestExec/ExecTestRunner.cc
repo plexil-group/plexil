@@ -179,14 +179,41 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
     PlexilNodeId libnode;
     try {
       libnode
-        = PlexilXmlParser::parse(
-                       libraryXml.FirstChildElement("PlexilPlan")->FirstChildElement(
-                                                                                     "Node"));
+        = PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
+								 ->FirstChildElement("Node"));
     } catch (ParserException& e) {
       checkParserException(false,
                            "XML error parsing library '" << *libraryName << "': \n" << e.what());
       return -1;
     }
+
+	// Check whether all libraries ref'd by this library are loaded
+	// and try to load those that aren't
+	vector<string> libs = libnode->getLibraryReferences();
+	// N.B. libs is potentially growing during this operation!
+	for (vector<string>::iterator it = libs.begin();
+		 it != libs.end();
+		 it++) {
+	  if (!exec->hasLibrary(*it)) {
+		// Try to load the library
+		PlexilNodeId reflib = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
+		if (reflib.isNoId()) {
+		  // N.B. This is a WARNING only, the user may have spec'd
+		  // the missing library later in the command line.
+		  warn("While resolving dependencies for library " << *libraryName
+			   << ": dependent library " << *it
+			   << " could not be loaded");
+		}
+		else {
+		  // Record any additional dependencies in the library itself
+		  reflib->getLibraryReferences(libs);
+
+		  // add the library node
+		  exec->addLibraryNode(reflib);
+		}
+	  }
+	}
+
     exec->addLibraryNode(libnode);
   }
 
