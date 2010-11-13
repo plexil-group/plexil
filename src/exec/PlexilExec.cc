@@ -116,20 +116,30 @@ namespace PLEXIL {
   }
 
   /**
+   * @brief Retrieves the named library node if it is present.
+   * @param nodeName The name of the library node.
+   * @return The library node, or noId() if not found.
+   */
+  PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
+  {
+    checkError(!nodeName.empty(),
+	       "PlexilExec::hasLibrary: Node name is empty");
+    for (std::vector<PlexilNodeId>::const_iterator it = m_libraries.begin();
+		 it != m_libraries.end();
+		 it++) {
+      if (nodeName == (*it)->nodeId())
+		return *it;
+    }
+    return PlexilNodeId::noId();
+  }
+
+  /**
    * @brief Queries whether the named library node is loaded.
    * @param nodeName The name of the library node.
    * @return True if the node is already defined, false otherwise.
    */
   bool PlexilExec::hasLibrary(const std::string& nodeName) const {
-    checkError(!nodeName.empty(),
-	       "PlexilExec::hasLibrary: Node name is empty");
-    for (std::vector<PlexilNodeId>::const_iterator it = m_libraries.begin();
-	 it != m_libraries.end();
-	 it++) {
-      if (nodeName == (*it)->nodeId())
-	return true;
-    }
-    return false;
+	return getLibrary(nodeName).isId();
   }
 
   // Add a new library node

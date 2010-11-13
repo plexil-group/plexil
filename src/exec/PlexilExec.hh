@@ -118,6 +118,13 @@ namespace PLEXIL
     bool hasLibrary(const std::string& nodeName) const;
 
     /**
+     * @brief Retrieves the named library node if it is present.
+     * @param nodeName The name of the library node.
+     * @return The library node, or noId() if not found.
+     */
+	PlexilNodeId getLibrary(const std::string& nodeName) const;
+
+    /**
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the node under which to insert this plan.
