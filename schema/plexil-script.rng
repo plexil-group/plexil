@@ -22,20 +22,6 @@
             <ref name="Script"/>
         </choice>
     </start>
-    <define name="type">
-        <attribute name="type">
-            <choice>
-                <value type="NMTOKEN">int-array</value>
-                <value type="NMTOKEN">string-array</value>
-                <value type="NMTOKEN">real-array</value>
-                <value type="NMTOKEN">string</value>
-                <value type="NMTOKEN">bool-array</value>
-                <value type="NMTOKEN">int</value>
-                <value type="NMTOKEN">real</value>
-                <value type="NMTOKEN">bool</value>
-            </choice>
-        </attribute>
-    </define>
     <define name="CommandAck">
         <choice>
             <notAllowed/>
@@ -96,6 +82,9 @@
                 </zeroOrMore>
             </element>
         </choice>
+    </define>
+    <define name="string">
+        <data type="string"/>
     </define>
     <define name="command-type">
         <group>
@@ -162,8 +151,19 @@
             </element>
         </choice>
     </define>
-    <define name="string">
-        <data type="string"/>
+    <define name="type">
+        <attribute name="type">
+            <choice>
+                <value type="NMTOKEN">int-array</value>
+                <value type="NMTOKEN">string-array</value>
+                <value type="NMTOKEN">real-array</value>
+                <value type="NMTOKEN">string</value>
+                <value type="NMTOKEN">bool-array</value>
+                <value type="NMTOKEN">int</value>
+                <value type="NMTOKEN">real</value>
+                <value type="NMTOKEN">bool</value>
+            </choice>
+        </attribute>
     </define>
     <define name="Param">
         <choice>
