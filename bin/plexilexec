@@ -89,6 +89,8 @@ help=" Other options:\n\
 \t 	runs the PLEXIL static checker prior to executing plan\n\
  -l | -library <file name>\n\
 \t 	specifies a plan library (.plx file)\n\
+ -L | -libraryPath <directory name>\n\
+\t 	specifies a directory for finding plan library files\n\
 -? | -help \n\
 \t	shows this message of options"
 # -a used only for viewer acquire PID
@@ -124,6 +126,7 @@ plan_cmd="" #plan command
 config_nm="" #interface config name
 config_cmd="" #interface config command
 libraries="" #library files
+library_dirs="" #library files
 debug_file="" #debug file
 check="false" #run static checker
 DEFAULT_PORT=9787
@@ -155,6 +158,9 @@ do
 	-l | -library ) shift
 	valid $1	
 	libraries="$libraries -l $1";;
+	-L | -libraryPath ) shift
+	valid $1	
+	library_dirs="$library_dirs -L $1";;
 	-d | -debug ) shift
 	valid $1
 	debug_file="-d $1";;
@@ -318,15 +324,16 @@ if [ $quiet -eq 1 ]
     echo "  Plan:      $plan_nm"
     echo "  Configuration:    $config_nm"
     echo "  Libraries: $libraries"
+    echo "  Library directories: $library_dirs"
     echo "  PORT:      ${port//[^0-9]/}"    
     echo
 fi
 
 if [ "$automate" = "true" ]
   then
-    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries &    
+    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $library_dirs $libraries &    
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
   else     
-    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $libraries
+    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $library_dirs $libraries
 fi

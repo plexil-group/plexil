@@ -8,7 +8,7 @@ function usage ()
 {
 cat <<EOF
 
-Usage:      `basename $0` [options] <agent1> [-c <config>] [-l <lib>] <agent2> [-c <config>] [-l <lib>]
+Usage:      `basename $0` [options] <agent1> [-c <config>] [-l <lib>] [-L <lib_dir>] <agent2> [-c <config>] [-l <lib>] [-L <lib_dir>]
 
 Options:    -v -viewer  := start the Plexil Viewer
             -x -xterms  := run the execs in xterms (if your system has them)
@@ -56,6 +56,10 @@ do
     elif [ "$1" = "-l" ] ; then
         if [ -z $agent2_raw ] ; then shift ; libs1+=$1 ; libs1+=" " ; shift ;
         else shift ; libs2+=$1 ; libs2+=" " ; shift ;
+        fi
+    elif [ "$1" = "-L" ] ; then
+        if [ -z $agent2_raw ] ; then libdirs1+=$1 ; libdirs1+=" " ; shift ; libdirs1+=$1 ; libdirs1+=" " ; shift ;
+        else libdirs2+=$1 ; libdirs2+=" "; shift ; libdirs2+=$1 ; libdirs2+=" " ; shift ;
         fi
     else
         if [ -z $agent1_raw ] ; then agent1_raw=$1 ; shift ;
@@ -185,8 +189,8 @@ done
 # hence the long sleep time...
 if [ "$use_viewer" = "yes" ] ;
 then
-    cmd1="plexilexec -v -b -p $agent1.plx -c $com1 $libraries1"
-    cmd2="plexilexec -v -b -p $agent2.plx -c $com2 $libraries2"
+    cmd1="plexilexec -v -b -p $agent1.plx -c $com1 $libdirs1 $libraries1"
+    cmd2="plexilexec -v -b -p $agent2.plx -c $com2 $libdirs2 $libraries2"
     if [ "`uname`" = "Darwin" ] ;
     then
         sleep_time=15
@@ -194,8 +198,8 @@ then
         sleep_time=3
     fi
 else
-    cmd1="plexilexec -p $agent1.plx -c $com1 $libraries1"
-    cmd2="plexilexec -p $agent2.plx -c $com2 $libraries2"
+    cmd1="plexilexec -p $agent1.plx -c $com1 $libdirs1 $libraries1"
+    cmd2="plexilexec -p $agent2.plx -c $com2 $libdirs2 $libraries2"
     sleep_time=1
 fi
 
