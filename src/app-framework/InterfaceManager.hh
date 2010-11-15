@@ -137,6 +137,23 @@ namespace PLEXIL
     // API for ExecApplication
     //
 
+	inline const std::vector<std::string>& getLibraryPath() const
+	{
+	  return m_libraryPath;
+	}
+
+	/**
+	 * @brief Add the specified directory name to the end of the library node loading path.
+	 * @param libdir The directory name.
+	 */
+	void addLibraryPath(const std::string& libdir);
+
+	/**
+	 * @brief Add the specified directory names to the end of the library node loading path.
+	 * @param libdirs The vector of directory names.
+	 */
+	void addLibraryPath(const std::vector<std::string>& libdirs);
+
     /**
      * @brief Constructs interface adapters from the provided XML.
      * @param configXml The XML element used for interface configuration.
@@ -820,6 +837,9 @@ namespace PLEXIL
 
 	//* The exec controller
 	ExecControllerId m_execController;
+
+	//* List of directory names for library node search path
+	std::vector<std::string> m_libraryPath;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;

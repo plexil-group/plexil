@@ -104,6 +104,18 @@ namespace PLEXIL
       return m_interface;
     }
 
+	/**
+	 * @brief Add the specified directory name to the end of the library node loading path.
+	 * @param libdir The directory name.
+	 */
+	void addLibraryPath(const std::string& libdir);
+
+	/**
+	 * @brief Add the specified directory names to the end of the library node loading path.
+	 * @param libdirs The vector of directory names.
+	 */
+	void addLibraryPath(const std::vector<std::string>& libdirs);
+
     /**
      * @brief Initialize all internal data structures and interfaces.
      * @param configXml Configuration data to use.

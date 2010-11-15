@@ -183,12 +183,10 @@ namespace PLEXIL
     // Walk the children of the configuration XML element
     // and register the adapter according to the data found there
     const TiXmlElement* element = configXml->FirstChildElement();
-    while (element != 0)
-      {
+    while (element != 0) {
         debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
         const char* elementType = element->Value();
-        if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0)
-          {
+        if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
             // Construct the adapter
             InterfaceAdapterId adapter = 
               AdapterFactory::createInstance(element,
@@ -201,8 +199,7 @@ namespace PLEXIL
             }
             m_adapters.insert(adapter);
           }
-        else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0)
-          {
+        else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
             // Construct an ExecListener instance and attach it to the Exec
             ExecListenerId listener = 
               ExecListenerFactory::createInstance(element,
@@ -215,8 +212,7 @@ namespace PLEXIL
             }
             m_listeners.push_back(listener);
           }
-        else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0)
-          {
+        else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
             // Construct an ExecController instance and attach it to the application
             ExecControllerId controller = 
               ControllerFactory::createInstance(element, m_application);
@@ -228,8 +224,19 @@ namespace PLEXIL
             }
             m_execController = controller;
           }
-        else
-          {
+		else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
+			// Add to library path
+			const char* pathstring = element->GetText();
+			if (pathstring != NULL) {
+			  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+			  for (std::vector<std::string>::const_iterator it = path->begin();
+				   it != path->end();
+				   it++)
+				m_libraryPath.push_back(*it);
+			  delete path;
+			}
+		  }
+        else {
             debugMsg("InterfaceManager:constructInterfaces",
                      " ignoring unrecognized XML element \""
                      << elementType << "\"");
@@ -260,6 +267,28 @@ namespace PLEXIL
   {
     m_listeners.push_back(listener);
     m_exec->addListener(listener);
+  }
+
+  /**
+   * @brief Add the specified directory name to the end of the library node loading path.
+   * @param libdir The directory name.
+   */
+  void InterfaceManager::addLibraryPath(const std::string& libdir)
+  {
+	m_libraryPath.push_back(libdir);
+  }
+
+  /**
+   * @brief Add the specified directory names to the end of the library node loading path.
+   * @param libdirs The vector of directory names.
+   */
+  void InterfaceManager::addLibraryPath(const std::vector<std::string>& libdirs)
+  {
+	for (std::vector<std::string>::const_iterator it = libdirs.begin();
+		 it != libdirs.end();
+		 it++) {
+	  m_libraryPath.push_back(*it);
+	}
   }
 
   /**
@@ -1251,16 +1280,32 @@ namespace PLEXIL
 
     // Determine if there are any unloaded libraries
     bool result = true;
-    std::set<std::string> refs = planStruct->getLibraryReferences();
-    for (std::set<std::string>::const_iterator it = refs.begin();
-	 it != refs.end();
-	 it++) {
-      if (!m_exec->hasLibrary(*it)) {
-	debugMsg("InterfaceManager:handleAddPlan", 
-		 " Plan references unloaded library node \"" << *it << "\"");
-	result = false;
-      }
-    }
+
+	// Check whether all libraries for this plan are loaded
+	// and try to load those that aren't
+	std::vector<std::string> libs = planStruct->getLibraryReferences();
+	// N.B. libs is potentially growing during this operation!
+	for (std::vector<std::string>::iterator it = libs.begin();
+		 it != libs.end();
+		 it++) {
+	  PlexilNodeId libroot = m_exec->getLibrary(*it);
+	  if (libroot.isNoId()) {
+		// Try to load the library
+		libroot = PlexilXmlParser::findLibraryNode(*it, m_libraryPath);
+		if (libroot.isNoId()) {
+		  debugMsg("InterfaceManager:handleAddPlan", 
+				   " Plan references unloaded library node \"" << *it << "\"");
+		  result = false;
+		}
+
+		// add the library node
+		handleAddLibrary(libroot);
+	  }
+
+	  // Make note of any dependencies in the library itself
+	  if (libroot.isId())
+		libroot->getLibraryReferences(libs);
+	}
 
     if (result) {
       m_valueQueue.enqueue(planStruct, parent);
