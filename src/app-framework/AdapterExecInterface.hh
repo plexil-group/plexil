@@ -272,6 +272,24 @@ namespace PLEXIL
     virtual bool handleAddPlan(PlexilNodeId planStruct,
 			       const LabelStr& parent) = 0;
 
+	/**
+	 * @brief Get the search path for library nodes.
+	 * @return A reference to the library search path.
+	 */
+	const std::vector<std::string>& getLibraryPath() const;
+
+	/**
+	 * @brief Add the specified directory name to the end of the library node loading path.
+	 * @param libdir The directory name.
+	 */
+	void addLibraryPath(const std::string& libdir);
+
+	/**
+	 * @brief Add the specified directory names to the end of the library node loading path.
+	 * @param libdirs The vector of directory names.
+	 */
+	void addLibraryPath(const std::vector<std::string>& libdirs);
+
     /**
      * @brief Determine whether the named library is loaded.
      * @return True if loaded, false otherwise.
