@@ -137,6 +137,11 @@ namespace PLEXIL
     // API for ExecApplication
     //
 
+	/**
+	 * @brief Get the search path for library nodes.
+	 * @return A reference to the library search path.
+	 */
+
 	inline const std::vector<std::string>& getLibraryPath() const
 	{
 	  return m_libraryPath;
