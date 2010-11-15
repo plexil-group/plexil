@@ -45,6 +45,7 @@ int main (int argc, char** argv)
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("interface-config.xml");
   std::vector<std::string> libraryNames;
+  std::vector<std::string> libraryPath;
   bool luvRequest = false;
   std::string luvHost = PLEXIL::NewLuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = PLEXIL::NewLuvListener::LUV_DEFAULT_PORT();
@@ -53,18 +54,18 @@ int main (int argc, char** argv)
       usage(
           "Usage: universalExec -p <plan>\n\
                    [-l <library>]*\n\
+                   [-L <library_directory>]*\n\
                    [-c <interface_config_file>]\n\
                    [-d <debug_config_file>]\n\
                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] -b]");
 
   // if not enough parameters, print usage
-
   if (argc < 2) {
     std::cout << usage << std::endl;
     return -1;
   }
-  // parse out parameters
 
+  // parse out parameters
   for (int i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "-b") == 0)
       luvBlock = true;
@@ -74,6 +75,8 @@ int main (int argc, char** argv)
       debugConfig = std::string(argv[++i]);
     else if (strcmp(argv[i], "-l") == 0)
       libraryNames.push_back(argv[++i]);
+    else if (strcmp(argv[i], "-L") == 0)
+      libraryPath.push_back(argv[++i]);
     else if (strcmp(argv[i], "-h") == 0)
       luvHost = argv[++i];
     else if (strcmp(argv[i], "-n") == 0) {
@@ -81,7 +84,8 @@ int main (int argc, char** argv)
       buffer << argv[++i];
       buffer >> luvPort;
       SHOW(luvPort);
-    } else if (strcmp(argv[i], "-p") == 0)
+    } 
+	else if (strcmp(argv[i], "-p") == 0)
       planName = argv[++i];
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
@@ -114,23 +118,20 @@ int main (int argc, char** argv)
 
   // get Interfaces element
   TiXmlElement* configElt = NULL;
-  if (configDoc == NULL)
-    {
+  if (configDoc == NULL) {
       configElt = new TiXmlElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
       // Add a time adapter
       TiXmlElement* timeElt = new TiXmlElement(PLEXIL::InterfaceSchema::ADAPTER_TAG());
       timeElt->SetAttribute("AdapterType", "OSNativeTime");
       configElt->LinkEndChild(timeElt);
     }
-  else
-    {
+  else {
       configElt = configDoc->FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
     }
 
   // if a luv view is to be attached,
   // add dummy element for LuvListener
-  if (luvRequest)
-    {
+  if (luvRequest) {
       configElt->LinkEndChild(PLEXIL::NewLuvListener::constructConfigurationXml(luvBlock,
 										luvHost.c_str(), 
 										luvPort));
@@ -141,17 +142,19 @@ int main (int argc, char** argv)
 
   // initialize it
   std::cout << "Initializing application" << std::endl;
-  if (!_app.initialize(configElt))
-    {
+  if (!_app.initialize(configElt)) {
       std::cout << "ERROR: unable to initialize application"
                 << std::endl;
       return -1;
     }
 
+  // add library path
+  if (!libraryPath.empty())
+	_app.addLibraryPath(libraryPath);
+
   // start interfaces
   std::cout << "Starting interfaces" << std::endl;
-  if (!_app.startInterfaces())
-    {
+  if (!_app.startInterfaces()) {
       std::cout << "ERROR: unable to start interfaces"
                 << std::endl;
       return -1;
