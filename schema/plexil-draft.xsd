@@ -27,11 +27,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<!-- This schema defines proposed extensions to PLEXIL that are not yet
-     implemented.  -->
+
+<!-- This schema defines proposed extensions to PLEXIL (macros for Core PLEXIL)
+     that are not yet implemented.  -->
+
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
-  <xsd:include schemaLocation=extended-plexil.xsd'/>
+  <xsd:include schemaLocation='extended-plexil.xsd'/>
 
   <xsd:redefine schemaLocation='extended-plexil.xsd'>
     <xsd:group name="Action">
@@ -48,9 +50,27 @@
         <xsd:element ref="OnMessage"/>
         <xsd:element ref="BlockingCommand"/>
         <xsd:element ref="NonBlockingCommand"/>
+        <xsd:element ref="Wait"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
+
+
+<!-- Abstraction for waiting an amount of time -->
+
+  <xsd:element name="Wait">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="Units" type= "real-expression"/>
+        <xsd:element ref="Tolerance" minOccurs="0"/>
+      </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+
+<!-- The rest of this file is nearing deprecation... -->
 
   <xsd:group name="CommandType">
     <xsd:sequence>
@@ -67,23 +87,19 @@
 
   <xsd:element name="BlockingCommand">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:all>
         <xsd:group ref="CommandType"/>
       </xsd:all>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="NonBlockingCommand">
     <xsd:complexType>
-      <xsd:attribute ref="FileName"/>
-      <xsd:attribute ref="LineNo"/>
-      <xsd:attribute ref="ColNo"/>
       <xsd:all>
         <xsd:group ref="CommandType"/>
       </xsd:all>
+      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
