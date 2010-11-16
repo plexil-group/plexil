@@ -57,7 +57,7 @@ int main (int argc, char** argv)
                    [-L <library_directory>]*\n\
                    [-c <interface_config_file>]\n\
                    [-d <debug_config_file>]\n\
-                   [-v [-h <luv_hostname>] [-n <luv_portnumber>] -b]");
+                   [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]");
 
   // if not enough parameters, print usage
   if (argc < 2) {
@@ -69,28 +69,73 @@ int main (int argc, char** argv)
   for (int i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "-b") == 0)
       luvBlock = true;
-    else if (strcmp(argv[i], "-c") == 0)
-      interfaceConfig = std::string(argv[++i]);
-    else if (strcmp(argv[i], "-d") == 0)
-      debugConfig = std::string(argv[++i]);
-    else if (strcmp(argv[i], "-l") == 0)
-      libraryNames.push_back(argv[++i]);
-    else if (strcmp(argv[i], "-L") == 0)
-      libraryPath.push_back(argv[++i]);
-    else if (strcmp(argv[i], "-h") == 0)
-      luvHost = argv[++i];
+    else if (strcmp(argv[i], "-c") == 0) {
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      interfaceConfig = std::string(argv[i]);
+	}
+    else if (strcmp(argv[i], "-d") == 0) {
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      debugConfig = std::string(argv[i]);
+	}
+    else if (strcmp(argv[i], "-l") == 0) {
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n" 
+				  << usage << std::endl;
+		return -1;
+	  }
+      libraryNames.push_back(argv[i]);
+	}
+    else if (strcmp(argv[i], "-L") == 0) {
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      libraryPath.push_back(argv[i]);
+	}
+    else if (strcmp(argv[i], "-h") == 0) {
+	  if (!luvRequest) {
+		// interpret as simple help request
+		std::cout << usage << std::endl;
+		return 0;
+	  }
+	  else if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      luvHost = argv[i];
+	}
     else if (strcmp(argv[i], "-n") == 0) {
-      std::stringstream buffer;
-      buffer << argv[++i];
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      std::istringstream buffer(argv[i]);
       buffer >> luvPort;
       SHOW(luvPort);
     } 
-	else if (strcmp(argv[i], "-p") == 0)
-      planName = argv[++i];
+	else if (strcmp(argv[i], "-p") == 0) {
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      planName = argv[i];
+	}
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
     else {
-      std::cout << "Unknown option '" << argv[i] << "'.\n" << usage << std::endl;
+      std::cerr << "Error: Unknown option '" << argv[i] << "'.\n" << usage << std::endl;
       return -1;
     }
   }
