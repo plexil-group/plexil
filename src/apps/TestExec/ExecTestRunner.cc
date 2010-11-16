@@ -49,7 +49,8 @@ using std::vector;
 
 namespace PLEXIL {
 
-int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
+int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) 
+{
   string scriptName("error");
   string planName("error");
   string debugConfig("Debug.cfg");
@@ -61,46 +62,98 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
   bool luvBlock = false;
   string
     usage(
-"Usage: exec-test-runner -s <script> -p <plan>\n\
+		  "Usage: exec-test-runner -s <script> -p <plan>\n\
                         [-l <library>]*\n\
                         [-L <library-dir>]*\n\
                         [-d <debug_config_file>]\n\
-                        [-v [-h <hostname>] [-n <portnumber>] -b];");
+                        [-v [-h <hostname>] [-n <portnumber>] [-b] ]");
 
   // if not enough parameters, print usage
 
-  if (argc < 3) {
-	std::cout << usage << endl;
-    return 0;
+  if (argc < 5) {
+	if (argc >= 2 && strcmp(argv[1], "-h") == 0) {
+	  // print usage and exit
+	  std::cout << usage << std::endl;
+	  return 0;
+	}
+	warn("Not enough arguments.\n At least the -p and -s arguments must be provided.\n" << usage);
+    return -1;
   }
   // parse out parameters
 
   for (int i = 1; i < argc; ++i) {
-    if (strcmp(argv[i], "-p") == 0)
-      planName = argv[++i];
-    else if (strcmp(argv[i], "-s") == 0)
-      scriptName = argv[++i];
-    else if (strcmp(argv[i], "-l") == 0)
-      libraryNames.push_back(argv[++i]);
-    else if (strcmp(argv[i], "-L") == 0)
-      libraryPaths.push_back(argv[++i]);
-    else if (strcmp(argv[i], "-d") == 0)
-      debugConfig = string(argv[++i]);
+    if (strcmp(argv[i], "-p") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      planName = argv[i];
+	}
+    else if (strcmp(argv[i], "-s") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      scriptName = argv[i];
+	}
+    else if (strcmp(argv[i], "-l") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      libraryNames.push_back(argv[i]);
+	}
+    else if (strcmp(argv[i], "-L") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      libraryPaths.push_back(argv[i]);
+	}
+    else if (strcmp(argv[i], "-d") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      debugConfig = string(argv[i]);
+	}
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
     else if (strcmp(argv[i], "-b") == 0)
       luvBlock = true;
-    else if (strcmp(argv[i], "-h") == 0)
-      luvHost = argv[++i];
+    else if (strcmp(argv[i], "-h") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      luvHost = argv[i];
+	}
     else if (strcmp(argv[i], "-n") == 0) {
-      std::stringstream buffer;
-      buffer << argv[++i];
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
+      std::istringstream buffer(argv[++i]);
       buffer >> luvPort;
       SHOW(luvPort);
-    } else if (strcmp(argv[i], "-log") == 0) {
+    } 
+	else if (strcmp(argv[i], "-log") == 0) {
+	  if (argc == (++i)) {
+		warn("Missing argument to the " << argv[i-1] << " option.\n"
+			 << usage);
+		return -1;
+	  }
       Logging::ENABLE_LOGGING = 1;
-      Logging::set_log_file_name(argv[++i]);
-    } else if (strcmp(argv[i], "-eprompt") == 0)
+      Logging::set_log_file_name(argv[i]);
+    }
+	else if (strcmp(argv[i], "-eprompt") == 0)
       Logging::ENABLE_E_PROMPT = 1;
     else if (strcmp(argv[i], "-wprompt") == 0)
       Logging::ENABLE_W_PROMPT = 1;
@@ -108,6 +161,16 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
       warn("Unknown option '" << argv[i] << "'.  " << usage);
       return -1;
     }
+  }
+
+  // if no plan or script supplied, error out
+  if (scriptName == "error") {
+    warn("No -s option found.\n" << usage);
+    return -1;
+  }
+  if (planName == "error") {
+    warn("No -p option found.\n" << usage);
+    return -1;
   }
 
   if (Logging::ENABLE_LOGGING) {
@@ -124,12 +187,6 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 #endif
   }
 
-  // if no script, error out
-
-  if (scriptName == "error") {
-    warn("No -s option found.  " << usage);
-    return -1;
-  }
   // basic initialization
 
   std::ifstream config(debugConfig.c_str());
@@ -166,79 +223,79 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) {
 
   // if specified on command line, load libraries
 
-  for (vector<string>::const_iterator libraryName =
-         libraryNames.begin(); libraryName != libraryNames.end(); ++libraryName) {
+  for (vector<string>::const_iterator libraryName = libraryNames.begin(); 
+	   libraryName != libraryNames.end();
+	   ++libraryName) {
     TiXmlDocument libraryXml(*libraryName);
-    if (!libraryXml.LoadFile()) {
-      checkParserException(false,
-                           "(line " << libraryXml.ErrorRow() << ", column " << libraryXml.ErrorCol()
-                           << ") XML error parsing library '" << *libraryName << "': " << libraryXml.ErrorDesc());
-      return -1;
-    }
+	if (!libraryXml.LoadFile()) {
+	  warn("XML error parsing library file '" << *libraryName
+		   << "' (line " << libraryXml.ErrorRow() << ", column " << libraryXml.ErrorCol()
+		   << "):\n" << libraryXml.ErrorDesc());
+	  return -1;
+	}
 
     PlexilNodeId libnode;
     try {
-      libnode
-        = PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
-								 ->FirstChildElement("Node"));
+      libnode =
+        PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
+							   ->FirstChildElement("Node"));
     } 
 	catch (ParserException& e) {
-      checkParserException(false,
-                           "XML error parsing library '" << *libraryName << "': \n" << e.what());
+	  warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
       return -1;
     }
 
     exec->addLibraryNode(libnode);
   }
 
-  if (planName != "error") {
-    TiXmlDocument plan(planName);
-    if (!plan.LoadFile()) {
-      checkParserException(false,
-                           "(line " << plan.ErrorRow() << ", column " << plan.ErrorCol()
-                           << ") XML error parsing plan '" << planName << "': " << plan.ErrorDesc());
-      return -1;
-    }
+  // Load the plan
+  TiXmlDocument plan(planName);
+  if (!plan.LoadFile()) {
+	warn("XML error parsing plan file '" << planName
+		 << "' (line " << plan.ErrorRow() << ", column " << plan.ErrorCol()
+		 << "):\n" << plan.ErrorDesc());
+	return -1;
+  }
 
-    PlexilNodeId root;
-    try {
-      root =
-		PlexilXmlParser::parse(plan.FirstChildElement("PlexilPlan")
-							   ->FirstChildElement("Node"));
-    } catch (ParserException& e) {
-      return -1;
-    }
+  PlexilNodeId root;
+  try {
+	root =
+	  PlexilXmlParser::parse(plan.FirstChildElement("PlexilPlan")
+							 ->FirstChildElement("Node"));
+  } catch (ParserException& e) {
+	warn("XML error parsing plan '" << planName << "':\n" << e.what());
+	return -1;
+  }
 
-	// Check whether all libraries for this plan are loaded
-	// and try to load those that aren't
-	vector<string> libs = root->getLibraryReferences();
-	// N.B. libs is potentially growing during this operation!
-	for (vector<string>::iterator it = libs.begin();
-		 it != libs.end();
-		 it++) {
-	  PlexilNodeId libroot = exec->getLibrary(*it);
+  // Check whether all libraries for this plan are loaded
+  // and try to load those that aren't
+  vector<string> libs = root->getLibraryReferences();
+  // N.B. libs is potentially growing during this operation!
+  for (vector<string>::iterator it = libs.begin();
+	   it != libs.end();
+	   it++) {
+	PlexilNodeId libroot = exec->getLibrary(*it);
+	if (libroot.isNoId()) {
+	  // Try to load the library
+	  libroot = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
 	  if (libroot.isNoId()) {
-		// Try to load the library
-		libroot = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
-		if (libroot.isNoId()) {
-		  warn("Adding plan " << planName
-			   << " failed because library " << *it
-			   << " could not be loaded");
-		  return -1;
-		}
-
-		// add the library node
-		exec->addLibraryNode(libroot);
+		warn("Adding plan " << planName
+			 << " failed because library " << *it
+			 << " could not be loaded");
+		return -1;
 	  }
 
-	  // Make note of any dependencies in the library itself
-	  libroot->getLibraryReferences(libs);
+	  // add the library node
+	  exec->addLibraryNode(libroot);
 	}
 
-    if (!exec->addPlan(root)) {
-      warn("Adding plan " << planName << " failed");
-      return -1;
-    }
+	// Make note of any dependencies in the library itself
+	libroot->getLibraryReferences(libs);
+  }
+
+  if (!exec->addPlan(root)) {
+	warn("Adding plan " << planName << " failed");
+	return -1;
   }
 
   // Add listener if specified
