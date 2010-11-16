@@ -536,6 +536,8 @@
                       (xml "StringRHS" vall))
                      ((and (boolean? var) (boolean? vall))
                       (xml "BooleanRHS" vall))
+                     ((and (array? var) (array? vall))
+                      (xml "ArrayRHS" vall))
                      ((and (time? var) (time? vall))
                       (xml "TimeRHS" vall))
                      (t
@@ -734,10 +736,10 @@
 
 (pdefine pl (ArrayVariable arrayvar) (name) 1 nil             ; string -> xml
   ""
-  (xml "ArrayVariable" name nil 'string))
+  (xml "ArrayVariable" name nil 'array))
 
 (pdefine pl (ArrayElement array-element) (name index) 2 nil
-  ;; (string + xml) * (int + xml) -> xml
+  ;; string * (int + xml) -> xml
   ("Reference a single array element by index (beginning with 0).  "
    "Name must be a string (XML NCName precisely). "
    "Index must be a numeric expression.")
@@ -1534,6 +1536,9 @@
 
 (defun boolean? (x)                     ; xml -> bool
   (memq (xml-type x) '(boolean any)))
+
+(defun array? (x)                       ; xml -> bool
+  (memq (xml-type x) '(array any)))
 
 (defun comment? (x)                     ; xml -> bool
   (eq 'comment (xml-type x)))
