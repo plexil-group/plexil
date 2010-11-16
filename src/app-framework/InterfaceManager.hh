@@ -93,7 +93,7 @@ namespace PLEXIL
     /**
      * @brief Get internal ID pointer.
      */
-    inline const InterfaceManagerId& getInterfaceManagerId() const
+    const InterfaceManagerId& getInterfaceManagerId() const
     {
       return m_interfaceManagerId;
     }
@@ -141,11 +141,7 @@ namespace PLEXIL
 	 * @brief Get the search path for library nodes.
 	 * @return A reference to the library search path.
 	 */
-
-	inline const std::vector<std::string>& getLibraryPath() const
-	{
-	  return m_libraryPath;
-	}
+	const std::vector<std::string>& getLibraryPath() const;
 
 	/**
 	 * @brief Add the specified directory name to the end of the library node loading path.

@@ -270,6 +270,15 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Get the search path for library nodes.
+   * @return A reference to the library search path.
+   */
+  const std::vector<std::string>& InterfaceManager::getLibraryPath() const
+  {
+	return m_libraryPath;
+  }
+
+  /**
    * @brief Add the specified directory name to the end of the library node loading path.
    * @param libdir The directory name.
    */
