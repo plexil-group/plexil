@@ -2,7 +2,8 @@
 
 (plexil-plan
   (declarations
-    (library-node-declaration "state-request"))
+    (library-node-declaration "state-request")
+    (library-node-declaration "get-state"))
   (concurrently "sim"
     (variables
       (string "name" "sim")
@@ -24,6 +25,12 @@
           (assignment (array-element "actual" 4) (+ (array-element "actual" 4) (realvar "degrees")))
           (if (boolvar "debug")
               (command "print" "[" (stringvar "name") "] recv: set-angle " (realvar "degrees") ", " (arrayvar "actual") "\n")))))
+    ;; Fake node to test loading multiple libraries in the View
+    (action "fake-node"
+      (repeat-condition true)
+      (library-call-node (call "get-state"
+                               (alias "name" (stringvar "name"))
+                               (alias "debug" (boolvar "debug")))))          
     (comment "Send the current state out on request")
     (action "state-request-monitor"
       (repeat-condition true)
