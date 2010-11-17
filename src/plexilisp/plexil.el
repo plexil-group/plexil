@@ -1255,12 +1255,13 @@
   (plexil-wait units name tolerance))
 
 (defun plexil-wait (units name tolerance)
-  (let ((nodeid (or name (plexil-unique-node-id "plexilisp_Wait"))))
-    (pl-empty-node
-     nodeid
-     (pl-end-condition (pl->= (pl-lookup-on-change-with-tolerance "time" tolerance)
-                              (pl-+ units (pl-start-time nodeid)))))))
+  (xml "Wait"
+       (append
+        (if name (list (plexil-nodeid name)))
+        (list (xml "Units" (plexil-infer-type units)))
+        (list (xml "Tolerance" (plexil-infer-type tolerance))))))
 
+             
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
   ("Declares variables that are lexically scoped to the enclosing forms, "
    "similar to LET in Lisp.")
