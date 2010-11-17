@@ -43,8 +43,8 @@ warn()
    fi
 }
 
-usage='Usage: plexilsim -p <plan> [-script <script>]+ [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-                     [-ch] [-l <library>]*\n Use -help for more options'
+usage="Usage: plexilsim -p <plan> [-script <script>]+ [-q] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
+                     [-ch] [-l <library>]* [-L <library dir>]*\n Use -help for more options"
 help="Options:\n\
 \n\
  -p | -plan <plan> \n\
@@ -68,6 +68,8 @@ help="Options:\n\
 \t 	runs the PLEXIL static checker prior to executing plan\n\
  -l | -library <file name>\n\
 \t 	specifies a plan library (.plx file)\n\
+ -L | -libraryPath <directory name>\n\
+\t 	specifies a directory for finding plan library files\n\
  -? | -help \n\
 \t	displays this message"
 # -a used only for viewer acquire PID
@@ -86,6 +88,7 @@ config_nm="${PLEXIL_HOME}/src/apps/StandAloneSimulator/PlexilSimulator/test/conf
 config_cmd="-c ${config_nm}"
 script="" #command script name
 libraries="" #library files
+library_dirs="" #library directories
 debug_file="" #debug file
 check="false" #run static checker
 
@@ -115,6 +118,9 @@ do
 	-l | -library ) shift
 	valid $1
 	libraries="$libraries -l $1";;
+	-L | -libraryPath ) shift
+	valid $1	
+	library_dirs="$library_dirs -L $1";;
 	-d | -debug ) shift
 	valid $1
 	debug_file="-d $1";;
@@ -182,6 +188,7 @@ if [ $quiet -eq 1 ]
     echo "  Scripts:    	$script"
 #    echo "  Telemetry:         $tele_scr"
     echo "  Libraries:         $libraries"
+    echo "  Library directories: $library_dirs"
     echo
 fi
 xterm -e ipc &
@@ -193,12 +200,12 @@ sleep 2
 
 if [ "$automate" = "true" ]
   then    
-    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $libraries &    
+    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $library_dirs $libraries &    
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
     trap "{ kill $!; }" SIGQUIT    
   else     
-    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $libraries
+    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $library_dirs $libraries
 fi
 trap "{ killall ipc; }" EXIT
 trap "{ killall central; }" EXIT
