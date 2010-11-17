@@ -48,6 +48,7 @@ that are translated into Core PLEXIL for execution.
         <xsd:element ref="For"/>
         <xsd:element ref="OnCommand"/>
         <xsd:element ref="OnMessage"/>
+        <xsd:element ref="Wait"/>
       </xsd:choice>
     </xsd:group>
     <xsd:group name="BooleanExpression">
@@ -301,6 +302,22 @@ that are translated into Core PLEXIL for execution.
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
+
+
+  <!-- Specialized actions -->
+
+  <!-- Wait a specified duration, with optional tolerance for the time reading -->
+  <xsd:element name="Wait">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="Units" type= "real-expression"/>
+        <xsd:element ref="Tolerance" minOccurs="0"/>
+      </xsd:sequence>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
 
   <!-- Generic lookup form -->
   <xsd:element name="Lookup">

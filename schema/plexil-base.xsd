@@ -225,24 +225,13 @@ element.  It is used as an included schema only.
           </xsd:restriction>
         </xsd:simpleType>
       </xsd:attribute>
-      <!-- The epx attribute indicates a node that is a translation of
-           an Extended Plexil construct.  Its value is the type of this
-           construct, or 'aux' indicating it is an auxilliary generated
+      <!-- The epx attribute indicates a node that is a translation of an
+           Extended Plexil construct (i.e. macro).  Its value is the type of
+           this construct, or 'aux' indicating it is an auxilliary generated
            node. -->
       <xsd:attribute name="epx" use="optional">
         <xsd:simpleType>
-          <xsd:restriction base="xsd:NMTOKEN">
-            <xsd:enumeration value="Sequence"/>
-            <xsd:enumeration value="UncheckedSequence"/>
-            <xsd:enumeration value="Concurrence"/>
-            <xsd:enumeration value="Try"/>
-            <xsd:enumeration value="If"/>
-            <xsd:enumeration value="Then"/>
-            <xsd:enumeration value="Else"/>
-            <xsd:enumeration value="While"/>
-            <xsd:enumeration value="For"/>
-            <xsd:enumeration value="aux"/>
-          </xsd:restriction>
+          <xsd:restriction base="xsd:NCName"/>
         </xsd:simpleType>
       </xsd:attribute>
       <xsd:attributeGroup ref="SourceLocators"/>

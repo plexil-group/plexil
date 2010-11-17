@@ -48,66 +48,28 @@
         <xsd:element ref="For"/>
         <xsd:element ref="OnCommand"/>
         <xsd:element ref="OnMessage"/>
-        <xsd:element ref="BlockingCommand"/>
-        <xsd:element ref="NonBlockingCommand"/>
         <xsd:element ref="Wait"/>
+        <xsd:element ref="CommandWithReturn"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
 
-
-<!-- Abstraction for waiting an amount of time -->
-
-  <xsd:element name="Wait">
+  <!-- Command with return value that automatically waits for the return value -->
+  <xsd:element name="CommandWithReturn">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element name="Units" type= "real-expression"/>
-        <xsd:element ref="Tolerance" minOccurs="0"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
-
-
-<!-- The rest of this file is nearing deprecation... -->
-
-  <xsd:group name="CommandType">
-    <xsd:sequence>
       <xsd:all>
         <xsd:group ref="NodeClauses"/>
         <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>  
-        <xsd:group ref="DeclaredVariable" minOccurs="0"/>
+        <xsd:group ref="DeclaredVariable"/>
         <xsd:element ref="Name"/>
         <xsd:element ref="Arguments" minOccurs="0"/>
-        <xsd:element ref="Timeout" minOccurs="0"/>
       </xsd:all>
     </xsd:sequence>
-  </xsd:group>
-
-  <xsd:element name="BlockingCommand">
-    <xsd:complexType>
-      <xsd:all>
-        <xsd:group ref="CommandType"/>
-      </xsd:all>
-      <xsd:attributeGroup ref="SourceLocators"/>
+    <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="NonBlockingCommand">
-    <xsd:complexType>
-      <xsd:all>
-        <xsd:group ref="CommandType"/>
-      </xsd:all>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
 
-  <xsd:element name="Timeout">
-    <xsd:choice>
-      <xsd:element ref="RealValue"/>
-      <xsd:element ref="RealVariable"/>
-    </xsd:choice>
-  </xsd:element>
 
 </xsd:schema>

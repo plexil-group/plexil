@@ -141,6 +141,13 @@ Alias =
 GT =
   notAllowed
   | element GT { SourceLocators, NumericExpression, NumericExpression }
+Date =
+  notAllowed
+  | element Date {
+      element Year { integer }
+      & element Month { integer }
+      & element Day { integer }
+    }
 Timepoint =
   notAllowed
   | element Timepoint { xsd:NMTOKEN "END" | xsd:NMTOKEN "START" }
@@ -301,18 +308,6 @@ ADD =
       NumericExpression,
       NumericExpression*
     }
-NodeCommandHandleValue =
-  notAllowed
-  | element NodeCommandHandleValue {
-      xsd:NMTOKEN "COMMAND_ACCEPTED"
-      | xsd:NMTOKEN "COMMAND_SUCCESS"
-      | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
-      | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
-      | xsd:NMTOKEN "COMMAND_ABORTED"
-      | xsd:NMTOKEN "COMMAND_FAILED"
-      | xsd:NMTOKEN "COMMAND_DENIED"
-      | xsd:NMTOKEN "COMMAND_ABORT_FAILED"
-    }
 StateDeclaration =
   notAllowed
   | element StateDeclaration {
@@ -331,13 +326,6 @@ InOut =
 LookupRHS =
   notAllowed
   | element LookupRHS { SourceLocators, LookupGroup }
-Date =
-  notAllowed
-  | element Date {
-      element Year { integer }
-      & element Month { integer }
-      & element Day { integer }
-    }
 LookupNow =
   notAllowed
   | element LookupNow { SourceLocators, Name, Arguments? }
@@ -550,18 +538,7 @@ Node =
   notAllowed
   | element Node {
       SourceLocators,
-      attribute epx {
-        xsd:NMTOKEN "UncheckedSequence"
-        | xsd:NMTOKEN "Then"
-        | xsd:NMTOKEN "Else"
-        | xsd:NMTOKEN "Sequence"
-        | xsd:NMTOKEN "If"
-        | xsd:NMTOKEN "While"
-        | xsd:NMTOKEN "For"
-        | xsd:NMTOKEN "Concurrence"
-        | xsd:NMTOKEN "aux"
-        | xsd:NMTOKEN "Try"
-      }?,
+      attribute epx { xsd:NCName }?,
       attribute NodeType {
         xsd:NMTOKEN "Assignment"
         | xsd:NMTOKEN "Command"
@@ -657,6 +634,18 @@ SourceLocators =
   attribute ColNo { xsd:integer }?,
   attribute LineNo { xsd:integer }?,
   attribute FileName { xsd:string }?
+NodeCommandHandleValue =
+  notAllowed
+  | element NodeCommandHandleValue {
+      xsd:NMTOKEN "COMMAND_ACCEPTED"
+      | xsd:NMTOKEN "COMMAND_SUCCESS"
+      | xsd:NMTOKEN "COMMAND_RCVD_BY_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_SENT_TO_SYSTEM"
+      | xsd:NMTOKEN "COMMAND_ABORTED"
+      | xsd:NMTOKEN "COMMAND_FAILED"
+      | xsd:NMTOKEN "COMMAND_DENIED"
+      | xsd:NMTOKEN "COMMAND_ABORT_FAILED"
+    }
 NOT =
   notAllowed
   | element NOT { SourceLocators, BooleanExpression }

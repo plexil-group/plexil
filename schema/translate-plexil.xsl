@@ -55,7 +55,7 @@
      enumerated there. -->
 
   <xsl:key name="action"
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|OnCommand"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|OnCommand|Wait"
     use="." />
 
   <!-- Entry point -->
@@ -591,23 +591,84 @@
     </NodeBody>
   </xsl:template>
 
+
+  <!-- Wait -->
+
+  <xsl:template match="Wait">
+    <Node NodeType="Empty" epx="Wait">
+      <xsl:call-template name="basic-clauses"/>
+      <xsl:copy-of select="VariableDeclarations"/>
+      <xsl:apply-templates select="StartCondition"/>
+      <xsl:apply-templates select="RepeatCondition"/>
+      <xsl:apply-templates select="PreCondition"/>
+      <xsl:apply-templates select="PostCondition"/>
+      <xsl:apply-templates select="InvariantCondition"/>
+      <xsl:call-template name= "wait-end-condition"/>
+      <xsl:apply-templates select="SkipCondition"/>
+    </Node>
+  </xsl:template>
+
+  <xsl:template match="Wait" mode= "ordered">
+    <Node NodeType="Empty" epx="Wait">
+      <xsl:call-template name="basic-clauses"/>
+      <xsl:copy-of select="VariableDeclarations"/>
+      <xsl:call-template name="ordered-start-condition"/>
+      <xsl:apply-templates select="RepeatCondition"/>
+      <xsl:apply-templates select="PreCondition"/>
+      <xsl:apply-templates select="PostCondition"/>
+      <xsl:apply-templates select="InvariantCondition"/>
+      <xsl:call-template name= "wait-end-condition"/>
+      <xsl:call-template name="ordered-skip-condition"/>
+    </Node>
+  </xsl:template>
+
+  <xsl:template name= "wait-end-condition">
+    <EndCondition>
+      <OR>
+        <xsl:apply-templates select="EndCondition/*"/>
+        <GE>
+          <LookupOnChange>
+            <Name>
+              <StringValue>time</StringValue>
+            </Name>
+            <xsl:choose>
+              <xsl:when test= "Tolerance">
+                <xsl:copy-of select="Tolerance"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <Tolerance>
+                  <RealValue>1.0</RealValue>
+                </Tolerance>                  
+              </xsl:otherwise>
+            </xsl:choose>
+          </LookupOnChange>
+          <ADD>
+            <xsl:copy-of select="Units/*"/>              
+            <NodeTimepointValue>
+              <xsl:call-template name= "insert-node-id"/>
+              <NodeStateValue>EXECUTING</NodeStateValue>
+              <Timepoint>START</Timepoint>
+            </NodeTimepointValue>
+          </ADD>
+        </GE>
+      </OR>
+    </EndCondition>
+  </xsl:template>
+
+
+  <!-- Action support -->
+
+  <!-- This template translates the basic node/action clauses and is
+       parameterized to handle specific kinds of actions.  Beginning to refactor
+       and plan to eventually eliminate this unwieldy template!
+  -->
   <xsl:template name="translate-nose-clauses">
     <xsl:param name="mode" />
     <xsl:param name="declare-test" />
     <xsl:param name="declare-for" />
     <xsl:param name="success-invariant" />
     <xsl:param name="try-clauses" />
-    <!-- Copy attributes first -->
-    <xsl:copy-of select="@FileName" />
-    <xsl:copy-of select="@LineNo" />
-    <xsl:copy-of select="@ColNo" />
-    <!-- Then handle NodeId -->
-    <xsl:call-template name="insert-node-id" />
-    <!-- Copy clauses that don't need translation -->
-    <xsl:copy-of select="Comment" />
-    <xsl:copy-of select="Priority" />
-    <xsl:copy-of select="Permissions" />
-    <xsl:copy-of select="Interface" />
+    <xsl:call-template name= "basic-clauses"/>
     <!-- Special case translations -->
     <xsl:choose>
       <xsl:when test="$declare-test">
@@ -714,8 +775,23 @@
         <xsl:apply-templates select="SkipCondition" />
       </xsl:otherwise>
     </xsl:choose>
-
   </xsl:template>
+
+
+  <xsl:template name= "basic-clauses">
+    <!-- Copy attributes first -->
+    <xsl:copy-of select="@FileName" />
+    <xsl:copy-of select="@LineNo" />
+    <xsl:copy-of select="@ColNo" />
+    <!-- Then handle NodeId -->
+    <xsl:call-template name="insert-node-id" />
+    <!-- Copy clauses that don't need translation -->
+    <xsl:copy-of select="Comment" />
+    <xsl:copy-of select="Priority" />
+    <xsl:copy-of select="Permissions" />
+    <xsl:copy-of select="Interface" />
+  </xsl:template>
+
 
   <xsl:template
     match="StartCondition|RepeatCondition|PreCondition|
@@ -727,7 +803,7 @@
   </xsl:template>
 
   <xsl:template
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage|Wait"
     mode="failure-check">
     <xsl:choose>
       <xsl:when test="NodeId">
@@ -744,7 +820,7 @@
   </xsl:template>
 
   <xsl:template
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage|Wait"
     mode="success-check">
     <xsl:choose>
       <xsl:when test="NodeId">
@@ -761,7 +837,7 @@
   </xsl:template>
 
   <xsl:template
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage"
+    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnCommand|OnMessage|Wait"
     mode="finished-check">
     <xsl:choose>
       <xsl:when test="NodeId">
@@ -1368,7 +1444,6 @@
 
 
   <!-- Generic Lookup form -->
-
   <xsl:template match= "Lookup">
     <xsl:choose>
       <xsl:when test= "ancestor::Command|ancestor::Assignment|ancestor::Update|

@@ -234,6 +234,24 @@
             </element>
         </choice>
     </define>
+    <define name="Date">
+        <choice>
+            <notAllowed/>
+            <element name="Date">
+                <interleave>
+                    <element name="Year">
+                        <ref name="integer"/>
+                    </element>
+                    <element name="Month">
+                        <ref name="integer"/>
+                    </element>
+                    <element name="Day">
+                        <ref name="integer"/>
+                    </element>
+                </interleave>
+            </element>
+        </choice>
+    </define>
     <define name="Timepoint">
         <choice>
             <notAllowed/>
@@ -639,23 +657,6 @@
             </element>
         </choice>
     </define>
-    <define name="NodeCommandHandleValue">
-        <choice>
-            <notAllowed/>
-            <element name="NodeCommandHandleValue">
-                <choice>
-                    <value type="NMTOKEN">COMMAND_ACCEPTED</value>
-                    <value type="NMTOKEN">COMMAND_SUCCESS</value>
-                    <value type="NMTOKEN">COMMAND_RCVD_BY_SYSTEM</value>
-                    <value type="NMTOKEN">COMMAND_SENT_TO_SYSTEM</value>
-                    <value type="NMTOKEN">COMMAND_ABORTED</value>
-                    <value type="NMTOKEN">COMMAND_FAILED</value>
-                    <value type="NMTOKEN">COMMAND_DENIED</value>
-                    <value type="NMTOKEN">COMMAND_ABORT_FAILED</value>
-                </choice>
-            </element>
-        </choice>
-    </define>
     <define name="StateDeclaration">
         <choice>
             <notAllowed/>
@@ -705,24 +706,6 @@
             <element name="LookupRHS">
                 <ref name="SourceLocators"/>
                 <ref name="LookupGroup"/>
-            </element>
-        </choice>
-    </define>
-    <define name="Date">
-        <choice>
-            <notAllowed/>
-            <element name="Date">
-                <interleave>
-                    <element name="Year">
-                        <ref name="integer"/>
-                    </element>
-                    <element name="Month">
-                        <ref name="integer"/>
-                    </element>
-                    <element name="Day">
-                        <ref name="integer"/>
-                    </element>
-                </interleave>
             </element>
         </choice>
     </define>
@@ -1230,18 +1213,7 @@
                 <ref name="SourceLocators"/>
                 <optional>
                     <attribute name="epx">
-                        <choice>
-                            <value type="NMTOKEN">UncheckedSequence</value>
-                            <value type="NMTOKEN">Then</value>
-                            <value type="NMTOKEN">Else</value>
-                            <value type="NMTOKEN">Sequence</value>
-                            <value type="NMTOKEN">If</value>
-                            <value type="NMTOKEN">While</value>
-                            <value type="NMTOKEN">For</value>
-                            <value type="NMTOKEN">Concurrence</value>
-                            <value type="NMTOKEN">aux</value>
-                            <value type="NMTOKEN">Try</value>
-                        </choice>
+                        <data type="NCName"/>
                     </attribute>
                 </optional>
                 <attribute name="NodeType">
@@ -1452,6 +1424,23 @@
                 <data type="string"/>
             </attribute>
         </optional>
+    </define>
+    <define name="NodeCommandHandleValue">
+        <choice>
+            <notAllowed/>
+            <element name="NodeCommandHandleValue">
+                <choice>
+                    <value type="NMTOKEN">COMMAND_ACCEPTED</value>
+                    <value type="NMTOKEN">COMMAND_SUCCESS</value>
+                    <value type="NMTOKEN">COMMAND_RCVD_BY_SYSTEM</value>
+                    <value type="NMTOKEN">COMMAND_SENT_TO_SYSTEM</value>
+                    <value type="NMTOKEN">COMMAND_ABORTED</value>
+                    <value type="NMTOKEN">COMMAND_FAILED</value>
+                    <value type="NMTOKEN">COMMAND_DENIED</value>
+                    <value type="NMTOKEN">COMMAND_ABORT_FAILED</value>
+                </choice>
+            </element>
+        </choice>
     </define>
     <define name="NOT">
         <choice>
