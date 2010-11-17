@@ -1,0 +1,6 @@
+Increment:
+{
+  In Integer x;
+  InOut Integer result;
+  Assignment: result = x + 1;
+}
