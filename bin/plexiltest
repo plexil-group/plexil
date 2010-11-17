@@ -71,7 +71,7 @@ done
 return
 }
 usage="Usage: plexiltest [-p <plan>] [-s] [-v [-h <hostname>] [-n <portnumber>] [-b]] [-d <debug file>] \
-[-eprompt] [-wprompt] [-log <log file>] [-ch] [-c <interface config>] [-l <library>]* \n\n\
+[-eprompt] [-wprompt] [-log <log file>] [-ch] [-c <interface config>] [-l <library>]* [-L <library dir>]* \n\n\
 For more options enter 'plexiltest -help'"
 
 help="Options:\n\
@@ -96,6 +96,8 @@ help="Options:\n\
 \t 	runs the PLEXIL static checker prior to executing plan\n\
  -l | -library <file name>\n\
 \t 	specifies a plan library (.plx file)\n\
+ -L | -libraryPath <directory name>\n\
+\t 	specifies a directory for finding plan library files\n\
  -e | -error \n\
  \t	runs debugger if plan hits a c++ error\n\
  -w | -warning \n\
@@ -131,6 +133,7 @@ script_name=""
 guess_script=0
 script_cmd="" 
 libraries="" 
+library_dirs=""
 debug_file="" 
 check="false" 
 DEFAULT_PORT=9787
@@ -155,6 +158,9 @@ do
 	-l | -library ) shift
 	valid $1
 	libraries="$libraries -l $1";;
+	-L | -libraryPath ) shift
+	valid $1	
+	library_dirs="$library_dirs -L $1";;
 	-d | -debug ) shift
 	valid $1
 	debug_file="-d $1";;
@@ -320,15 +326,16 @@ if [ $quiet -eq 0 ]
     echo "  Plan:      $plan_name"
     echo "  Script:    $script_name"
     echo "  Libraries: $libraries"
+    echo "  Library directories: $library_dirs"
     echo "  PORT:      ${port//[^0-9]/}"    
     echo
 fi
 
 if [ "$automate" = "true" ]
   then    
-    $prog $plan_cmd -s $script_name $debug_file $libraries $err $warning $log_file $viewer $host $port $block &
+    $prog $plan_cmd -s $script_name $debug_file $library_dirs $libraries $err $warning $log_file $viewer $host $port $block &
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
   else     
-    $prog $plan_cmd -s $script_name $debug_file $libraries $err $warning $log_file $viewer $host $port $block
+    $prog $plan_cmd -s $script_name $debug_file $library_dirs $libraries $err $warning $log_file $viewer $host $port $block
 fi
