@@ -12,6 +12,14 @@ Plexil Viewer:
  * The viewer may fail to display the plan if it uses more than one library
    node.
 
+ * When started from a script via the '-v' option, the viewer does not
+   distinguish between "normal" and Core Plexil plan view, always showing the
+   latter.
+
+ * In the "Select Configuration" window, the "Use Default Script" button always
+   selects the empty simulation script, rather than a more appropriate default
+   if one exists.
+
 
 Minor problems
 --------------
