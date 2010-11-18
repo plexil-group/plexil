@@ -187,11 +187,12 @@ namespace PLEXIL {
   }
 
   void Expression::internalSetValue(const double value) {
-    checkError(checkValue(value), "Value " << value << " invalid for " << toString());
-    if(isLocked()) {
-      if(m_savedValue != value || m_value != value) {
-	m_dirty = true;
-	m_savedValue = value;
+    checkError(checkValue(value), 
+			   "Value " << valueToString(value) << " invalid for " << toString());
+    if (isLocked()) {
+      if (m_savedValue != value || m_value != value) {
+		m_dirty = true;
+		m_savedValue = value;
       }
     }
     else {
@@ -199,7 +200,7 @@ namespace PLEXIL {
       m_value = value;
       m_dirty = false;
       if(m_ignoreCachedValue || changed)
-	publishChange();
+		publishChange();
     }
   }
 
@@ -284,7 +285,9 @@ namespace PLEXIL {
   }
 
   void Variable::setValue(const double value) {
-    checkError(!isConst(), "Attempted to set value " << value << " to " << toString());
+    checkError(!isConst(),
+			   "Attempted to assign value " << Expression::valueToString(value)
+			   << " to read-only variable " << toString());
     internalSetValue(value);
   }
 
@@ -315,7 +318,8 @@ namespace PLEXIL {
       double value;
       str >> value;
       m_initialValue = m_value = value;
-      checkError(checkValue(m_value), "Invalid " << PlexilParser::valueTypeString(val->type()) << " '" << m_value << "'");
+      checkError(checkValue(m_value), 
+				 "Invalid " << PlexilParser::valueTypeString(val->type()) << " '" << Expression::valueToString(m_value) << "'");
     }
   }
 
@@ -497,14 +501,14 @@ namespace PLEXIL {
 
   void TransparentWrapper::setValue(const double value) {
     debugMsg("TransparentWrapper:setValue",
-	     "Setting " << toString() << " to value " << value);
+			 "Setting " << toString() << " to value " << Expression::valueToString(value));
     internalSetValue(value);
     m_exp->setValue(value);
   }
 
   bool TransparentWrapper::checkValue(const double value) {
     debugMsg("TransparentWrapper:checkValue",
-	     "Checking " << toString() << " value " << value);
+			 "Checking " << toString() << " value " << Expression::valueToString(value));
     return m_exp->checkValue(value);
   }
 
