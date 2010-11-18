@@ -267,6 +267,33 @@ public class FileHandler
         
         return script;  
     }
+    
+    /** Finds the Plexil script path.
+     * 
+     * @return the Plexil script location 
+     * @throws java.io.IOException
+     */
+    public File searchForScriptPath(String plan) throws IOException
+    {
+        File script = null;
+        String directory = ""; 
+        ArrayList<String> listOfDirectories = generateListOfDirectories();
+
+        // if user did not specify script, look for it        
+        for (int i = 0; i < listOfDirectories.size() && script == null; i++) 
+        {
+            directory = listOfDirectories.get(i);            
+            if (new File(directory).exists())
+            {            	
+                if (!plan.equals(""))
+                    script = tryScriptNameVariations(plan, directory);
+                else
+                    return null;
+            }
+        }        
+        
+        return script;  
+    }
          
     /** Selects and loads a Plexil script from the disk. This operates on the global model.    
      * 

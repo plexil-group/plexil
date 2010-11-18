@@ -556,7 +556,7 @@ public class Constants
       };
       
       /** Represents an empty Plexil script. */ 
-      public static final String DEFAULT_SCRIPT_NAME = "default-empty-script.psx";
+      public static final String DEFAULT_SCRIPT_NAME = "empty.psx";
       /** Represents an default UE config. */      
       public static final String DEFAULT_CONFIG_NAME = "dummy-config.xml";
       /** Represents an default UE path. */

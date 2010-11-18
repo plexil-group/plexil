@@ -395,7 +395,8 @@ public class ExecSelect extends JPanel {
 		ButtonListener(){			
 		}
 		
-		public void actionPerformed(ActionEvent e){						
+		public void actionPerformed(ActionEvent e){		
+			File script = null;
 			if(e.getActionCommand().equals("Cancel"))
 			{
 				Luv.getLuv().getExecSelect().frame.setVisible(false);
@@ -406,8 +407,19 @@ public class ExecSelect extends JPanel {
 				setRadioMode(modeTemp);
 			}
 			if(e.getActionCommand().equals("Use Default Script"))
-			{				
-				getSettings().setSuppLocation(Constants.DEFAULT_CONFIG_PATH+Constants.DEFAULT_SCRIPT_NAME);
+			{								
+					try{
+					script = Luv.getLuv().getFileHandler().searchForScriptPath(getSettings().getPlanLocation().replaceAll(".*/",""));
+					if(script != null)
+					{
+						getSettings().setSuppLocation(script.getAbsolutePath());						
+					}
+					else
+					{
+						getSettings().setSuppLocation(Constants.DEFAULT_CONFIG_PATH+Constants.DEFAULT_SCRIPT_NAME);
+					}
+					}catch (IOException ex)
+					{ex.printStackTrace();}					
 				refresh();
 				Luv.getLuv().getStatusMessageHandler().showStatus("Default Script");
 			}
