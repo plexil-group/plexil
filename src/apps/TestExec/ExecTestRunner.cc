@@ -140,7 +140,7 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener)
 			 << usage);
 		return -1;
 	  }
-      std::istringstream buffer(argv[++i]);
+      std::istringstream buffer(argv[i]);
       buffer >> luvPort;
       SHOW(luvPort);
     } 
