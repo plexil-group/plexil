@@ -44,9 +44,9 @@ public class StringLiteralNode extends LiteralNode
 		super(t);
     }
 
-    public IXMLElement getXML(String elementType)
+    public void constructXML()
     {
-        IXMLElement result = new XMLElement(elementType);
+		super.constructXML();
         String myText = getText();
         // N.B. should be StringBuilder for Java 1.5 up
         StringBuffer myContent = new StringBuffer(myText.length());
@@ -166,8 +166,7 @@ public class StringLiteralNode extends LiteralNode
             }
             index = nextIdx;
         }
-        result.setContent(myContent.toString());
-        return result;
+        m_xml.setContent(myContent.toString());
     }
 
 }
