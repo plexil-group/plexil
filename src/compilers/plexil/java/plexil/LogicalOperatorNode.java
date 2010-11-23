@@ -49,7 +49,17 @@ public class LogicalOperatorNode extends ExpressionNode
 		for (int i = 0; i < this.getChildCount(); i++) {
 			ExpressionNode operand = (ExpressionNode) this.getChild(i);
 			PlexilDataType otype = operand.getDataType();
-			if (otype != PlexilDataType.BOOLEAN_TYPE) {
+			if (otype == PlexilDataType.BOOLEAN_TYPE) {
+				// OK, no action needed
+			}
+			else if (otype == PlexilDataType.INTEGER_TYPE
+					 && operand instanceof LiteralNode
+					 && ((LiteralNode)operand).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
+				// forced conversion to Boolean literal -
+				// run additional post-conversion check
+				success = operand.check(context, myState);
+			}
+			else {
 				myState.addDiagnostic(operand,
 									  "The operand to the " + this.getToken().getText() + " operator is not Boolean",
 									  Severity.ERROR);
