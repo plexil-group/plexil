@@ -121,6 +121,9 @@ public final class PlexilDataType
     // Members of the class
     //
 
+	// Invalid type
+    public static final PlexilDataType ERROR_TYPE = new PlexilDataType("ERROR_TYPE", "Error", false);
+
     // Primitive types
     public static final PlexilDataType BOOLEAN_TYPE = new PlexilDataType("BOOLEAN_TYPE", "Boolean", false);
     public static final PlexilDataType INTEGER_TYPE = new PlexilDataType("INTEGER_TYPE", "Integer", true);
@@ -145,7 +148,8 @@ public final class PlexilDataType
         new PlexilDataType("REAL_ARRAY_TYPE", "Array", REAL_TYPE);
     public static final PlexilDataType STRING_ARRAY_TYPE =
         new PlexilDataType("STRING_ARRAY_TYPE", "Array", STRING_TYPE);
-
-    public static final PlexilDataType ERROR_TYPE = new PlexilDataType("ERROR_TYPE", "Error", false);
+	// this is for use before semantic checking has determined the value type
+    public static final PlexilDataType UNKNOWN_ARRAY_TYPE =
+        new PlexilDataType("UNKNOWN_ARRAY_TYPE", "Array", ERROR_TYPE);
 
 }
