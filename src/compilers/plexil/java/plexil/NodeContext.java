@@ -285,7 +285,7 @@ public class NodeContext
     public boolean declareVariable(PlexilTreeNode declaration,
 								   PlexilTreeNode nameNode,
 								   PlexilDataType varType,
-								   PlexilTreeNode initialValueExpr)
+								   ExpressionNode initialValueExpr)
     {
         if (checkVariableName(nameNode)) {
 			m_variables.add(new VariableName(declaration, nameNode.getText(), varType, initialValueExpr));
@@ -301,30 +301,19 @@ public class NodeContext
 
     public boolean addArrayVariableName(PlexilTreeNode declaration,
 										PlexilTreeNode nameNode, 
-										PlexilDataType elementType,
+										PlexilDataType arrayType,
 										String maxSize)
     {
-        return addArrayVariableName(declaration, nameNode, elementType, maxSize, null);
+        return addArrayVariableName(declaration, nameNode, arrayType, maxSize, null);
     }
 
     public boolean addArrayVariableName(PlexilTreeNode declaration,
 										PlexilTreeNode nameNode, 
-										PlexilDataType elementType,
+										PlexilDataType arrayType,
 										String maxSize,
-										PlexilTreeNode initialValueExpr)
+										ExpressionNode initialValueExpr)
     {
         boolean success = checkVariableName(nameNode);
-        PlexilDataType arrayType = elementType.arrayType();
-        if (arrayType == null) {
-			CompilerState.getCompilerState().addDiagnostic(nameNode,
-														   "For array variable \""
-														   + nameNode.getText()
-														   + "\": Element type "
-														   + elementType.typeName()
-														   + " has no associated array type",
-														   Severity.ERROR);
-			success = false;
-		}
 		if (success)
 			m_variables.add(new VariableName(declaration, nameNode.getText(), arrayType, maxSize, initialValueExpr));
 		return success;
