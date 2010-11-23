@@ -105,4 +105,15 @@ public class ExpressionNode extends PlexilTreeNode
 		return true;
 	}
 
+	/**
+	 * @brief Persuade the expression to assume the specified data type
+	 * @return true if the expression can consistently assume the specified type, false otherwise.
+	 * @note This is a default method.  Derived classes should override it.
+	 */
+	protected boolean assumeType(PlexilDataType t, CompilerState myState)
+	{
+		// By default, don't change anything
+		return m_dataType == t;
+	}
+
 }
