@@ -481,25 +481,21 @@ variableDeclaration :
     | scalarVariableDecl[$tn.start]
     )+
     SEMICOLON
-    -> ^(VARIABLE_DECLARATIONS<VariableDeclarationsNode> scalarVariableDecl* arrayVariableDecl*)
+    -> ^(VARIABLE_DECLARATIONS scalarVariableDecl* arrayVariableDecl*)
   ;
 
 scalarVariableDecl[Token typeName] :
     NCNAME ( EQUALS literalScalarValue )?
-    -> ^(VARIABLE_DECLARATION<VariableDeclNode> {new PlexilTreeNode($typeName)} NCNAME literalScalarValue?)
+    -> ^(VARIABLE_DECLARATION {new PlexilTreeNode($typeName)} NCNAME literalScalarValue?)
   ;
 
 arrayVariableDecl[Token typeName] :
     NCNAME LBRACKET INT RBRACKET ( EQUALS literalValue ) ?
-	-> ^(ARRAY_VARIABLE_DECLARATION<ArrayVariableDeclNode> {new PlexilTreeNode($typeName)} NCNAME INT literalValue?)
+	-> ^(ARRAY_VARIABLE_DECLARATION {new PlexilTreeNode($typeName)} NCNAME INT literalValue?)
   ;
 
 literalScalarValue : 
-    booleanLiteral
-  | INT<LiteralNode>
-  | DOUBLE<LiteralNode>
-  | STRING<StringLiteralNode>
-  ;
+    booleanLiteral | INT | DOUBLE | STRING ;
 
 literalArrayValue :
     HASHPAREN literalScalarValue* RPAREN
@@ -508,7 +504,7 @@ literalArrayValue :
 
 literalValue : literalScalarValue | literalArrayValue ;
 
-booleanLiteral : TRUE_KYWD<LiteralNode> | FALSE_KYWD<LiteralNode> ;
+booleanLiteral : TRUE_KYWD | FALSE_KYWD ;
 
 realValue : DOUBLE | INT ;
 
@@ -931,7 +927,10 @@ NOT_KYWD : 'NOT' | '!' ;
 STRING: '"' (Escape|~('"'|'\\'))* '"'
       | '\'' (Escape|~('\''|'\\'))* '\''
       ;
-fragment Escape: '\\' ('n' | 't' | 'b' | 'f' | '"' | '\'' | '\\' | UnicodeEscape | OctalEscape);
+fragment Escape:
+  '\\'
+  ('n' | 't' | 'b' | 'f' |'\n' | '\r' | '"' | '\'' | '\\' | UnicodeEscape | OctalEscape);
+
 fragment UnicodeEscape: 
   'u' HexDigit HexDigit HexDigit HexDigit;
 
@@ -960,6 +959,8 @@ PERIOD : '.';
 //  0o is always octal (must not be signed, no decimal point)
 //  0b is always binary (must not be signed, no decimal point)
 //  . is always double (decimal)
+
+// *** TODO: set base for non-decimal INTs ***
 
 INT_OR_DOUBLE
 @init { int base = 10; } :
