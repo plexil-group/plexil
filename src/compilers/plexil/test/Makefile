@@ -25,7 +25,8 @@
 
 PLEXIL_HOME			?= ../../../..
 
-VALID_TESTS	:= concurrenceOfAssignments emptyNodeWithVariables ifWithClauseIds \
+VALID_TESTS	:= concurrenceOfAssignments emptyNodeWithVariables \
+ ifWithClauseIds literal-format-test \
  minimal minimalCommand minimalCommandWithNodeId \
  sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
