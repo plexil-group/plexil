@@ -34,15 +34,21 @@ public class VariableDeclNode extends PlexilTreeNode
 {
 	protected VariableName m_variable = null;
 
-	public VariableDeclNode(int ttype)
-	{
-		super(new CommonToken(ttype, "VARIABLE_DECLARATION"));
-	}
-
 	// for use by derived classes
 	public VariableDeclNode(Token t)
 	{
 		super(t);
+	}
+
+	/**
+	 * @brief Override PlexilTreeNode.check
+	 * @return true if check is successful, false otherwise.
+	 */
+	public boolean check(NodeContext context, CompilerState myState)
+	{
+		// No need to check children, all handled in checkSelf
+		m_passedCheck = checkSelf(context, myState);
+		return m_passedCheck;
 	}
 
 	public boolean checkSelf(NodeContext context, CompilerState myState)
@@ -55,17 +61,22 @@ public class VariableDeclNode extends PlexilTreeNode
 		String varName = varNameNode.getText();
 		// Check for name conflict (issues diagnostics on failure)
 		boolean nameOK = context.checkVariableName(varNameNode);
-		boolean initValTypeOK = true;
+		boolean initValOK = true;
 
-		ExpressionNode initValNode = null;
+		LiteralNode initValNode = null;
 		if (this.getChildCount() > 2) {
 			// check initial value for type conflict
-			initValNode = (ExpressionNode) this.getChild(2);
+			initValNode = (LiteralNode) this.getChild(2);
 			// FIXME: any chance initValNode could be null?
 			PlexilDataType initType = initValNode.getDataType();
 			// Allow integer initial val for real var (but not the other way around)
 			if (initType == type
-				|| (type == PlexilDataType.REAL_TYPE && initType == PlexilDataType.INTEGER_TYPE)) {
+				|| (type == PlexilDataType.REAL_TYPE
+					&& initType.isNumeric()
+					&& initValNode.assumeType(type, myState)) // N.B. side effect on initial value type!
+				|| (type == PlexilDataType.BOOLEAN_TYPE
+					&& initValNode.assumeType(type, myState)) // N.B. side effect on initial value type!
+				) {
 				// initial value type is consistent
 			}
 			else {
@@ -74,17 +85,21 @@ public class VariableDeclNode extends PlexilTreeNode
 									  + "\": Initial value type " + initType.typeName()
 									  + " is incompatible with variable type " + type.typeName(),
 									  Severity.ERROR);
-				// Declare without an initial value to allow additional checks
-				initValNode = null;
-				initValTypeOK = false;
+				initValOK = false;
 			}
+			// now that correct type is enforced, check it
+			initValOK = initValNode.check(context, myState) && initValOK;
 		}
+
+		// Declare without an initial value to allow additional checks
+		if (!initValOK)
+			initValNode = null;
 
 		// Declare the variable if the name check passed to support further semantic checks
 		if (nameOK) 
 			context.declareVariable(this, varNameNode, type, initValNode);
 
-		return nameOK && initValTypeOK;
+		return nameOK && initValOK;
 	}
 
 }

@@ -37,7 +37,7 @@ import net.n3.nanoxml.*;
 public class VariableName extends PlexilName
 {
     protected PlexilDataType m_variableType;
-    protected PlexilTreeNode m_initialValue;
+    protected ExpressionNode m_initialValue;
     protected String m_maxSize; // for arrays only
 
     // this variant used only in global declarations
@@ -52,7 +52,7 @@ public class VariableName extends PlexilName
 
     // used in local variable declarations in tree parser
 
-    public VariableName(PlexilTreeNode decl, String myName, PlexilDataType varType, PlexilTreeNode initVal)
+    public VariableName(PlexilTreeNode decl, String myName, PlexilDataType varType, ExpressionNode initVal)
     {
         super(myName, NameType.VARIABLE_NAME, decl);
         m_variableType = varType;
@@ -60,13 +60,13 @@ public class VariableName extends PlexilName
         m_maxSize = null;
     }
 
-    // used in local array variable declarations in tree parser
+    // used in local array variable declarations
 
     public VariableName(PlexilTreeNode decl,
 						String myName, 
                         PlexilDataType varType, 
                         String maxSize,
-                        PlexilTreeNode initVal)
+                        ExpressionNode initVal)
     {
         super(myName, NameType.VARIABLE_NAME, decl);
         m_variableType = varType;
@@ -86,11 +86,6 @@ public class VariableName extends PlexilName
     public PlexilTreeNode getInitialValue()
     {
         return m_initialValue;
-    }
-
-    public void setInitialValue(PlexilTreeNode initVal)
-    {
-        m_initialValue = initVal;
     }
 
     public String getMaxSize()
@@ -162,9 +157,6 @@ public class VariableName extends PlexilName
 
 
     // For code generation purposes
-    // Subclasses may override this method
-
-	// *** TODO: source locators
     public IXMLElement makeDeclarationXML()
     {
         IXMLElement result = 
@@ -197,7 +189,15 @@ public class VariableName extends PlexilName
         if (m_initialValue != null) {
 			IXMLElement init = new XMLElement("InitialValue");
 			result.addChild(init);
-			init.addChild(m_initialValue.getXML());
+			if (m_initialValue.getDataType().isArray()) {
+				// handle array initial value
+				for (int i = 0; i < m_initialValue.getChildCount(); i++) {
+					init.addChild(m_initialValue.getChild(i).getXML());
+				}
+			}
+			else {
+				init.addChild(m_initialValue.getXML());
+			}
         }
 
         return result;

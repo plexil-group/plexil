@@ -102,24 +102,128 @@ public class LiteralNode extends ExpressionNode
 			this.setDataType(PlexilDataType.COMMAND_HANDLE_TYPE);
 			break;
 
+		case PlexilLexer.ARRAY_LITERAL:
+			this.setDataType(PlexilDataType.UNKNOWN_ARRAY_TYPE);
+			break;
+
 		default:
 			this.setDataType(PlexilDataType.ERROR_TYPE);
 		}
 	}
 
+
+	/**
+	 * @brief Persuade the expression to assume the specified data type
+	 * @return true if the expression can consistently assume the specified type, false otherwise.
+	 */
+	protected boolean assumeType(PlexilDataType t, CompilerState myState)
+	{
+		if (m_dataType == t)
+			return true;
+		else if (m_dataType == PlexilDataType.INTEGER_TYPE
+				 && t == PlexilDataType.REAL_TYPE) {
+			// Promote to real
+			m_dataType = t;
+			return true;
+		}
+		else if (t == PlexilDataType.BOOLEAN_TYPE
+				 && m_dataType == PlexilDataType.INTEGER_TYPE) {
+			String txt = this.getToken().getText();
+			if (txt.equals("0") || txt.equals("1")) {
+				// OK to coerce it to boolean
+				m_dataType = t;
+				return true;
+			}
+			// else fall through to failure
+		}
+		else if (t.isArray()) {
+			boolean success = true;
+			if (m_dataType == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+				// Can this array be coerced to the desired type?
+				PlexilDataType eltType = t.arrayElementType();
+				// Check that children are type consistent
+				for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
+					LiteralNode child = (LiteralNode) this.getChild(childIdx);
+					if (!child.assumeType(eltType, myState)) {
+						myState.addDiagnostic(child,
+											  "Array element type " + child.m_dataType.typeName()
+											  + " does not match required array literal element type " + t.typeName(),
+											  Severity.ERROR);
+						success = false;
+					}
+				}
+				if (success) {
+					m_dataType = t;
+				}
+			}
+			// TODO: in all cases, perform semantic check of entire array
+			return success;
+		}
+
+		// fall-through return
+		return false;
+	}
+
+
 	public boolean checkTypeConsistency(NodeContext context, CompilerState myState)
 	{
 		boolean success = true;
-        if (m_dataType.isArray()) {
-			// TODO: check that children are type consistent
+		if (m_dataType == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+			myState.addDiagnostic(this,
+								  "Translator internal error: Array element type has not been resolved",
+								  Severity.ERROR);
+		}
+        else if (m_dataType.isArray()) {
+			// TODO: ???
 		}
 		else if (m_dataType == PlexilDataType.INTEGER_TYPE) {
+			// TODO: format check
 			// TODO: range check
 		}
 		else if (m_dataType == PlexilDataType.REAL_TYPE) {
 			// TODO: range check
 		}
 		return success;
+	}
+
+	// Utility for use from various contexts
+	static public int parseIntegerValue(String txt)
+	{
+		int radix = 10;
+		// Look for prefixes
+		if (txt.length() > 2
+			&& txt.charAt(0) == '0'
+			&& !isDigit(txt.charAt(1))) {
+			switch (txt.charAt(1)) {
+			case 'b':
+			case 'B':
+				// Binary
+				radix = 2;
+				txt = txt.substring(2);
+				break;
+
+			case 'o':
+			case 'O':
+				// Octal
+				radix = 8;
+				txt = txt.substring(2);
+				break;
+
+			case 'x':
+			case 'X':
+				// Hexadecimal
+				radix = 16;
+				txt = txt.substring(2);
+				break;
+
+			default:
+				// *** should never get here ***
+				System.err.println("In integer value \"" + txt
+								   + "\": Unknown numeric prefix \"" + txt.substring(0, 2)
+								   + "\", parsing as decimal");
+			}
+		}
+		return Integer.parseInt(txt, radix);
 	}
 
     public void constructXML()
@@ -133,8 +237,13 @@ public class LiteralNode extends ExpressionNode
             }
         }
         else {
-			// TODO: handle non-base-10 INT tokens
-			m_xml.setContent(this.getToken().getText());
+			String txt = this.getToken().getText();
+			if (getToken().getType() == PlexilLexer.INT) {
+				m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
+			}
+			else {
+				m_xml.setContent(txt);
+			}
         }
     }
 
