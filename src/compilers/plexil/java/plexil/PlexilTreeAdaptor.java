@@ -86,6 +86,8 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 			return new WhileNode(payload);
 
 			// Internal tokens
+		case PlexilLexer.ARRAY_VARIABLE_DECLARATION:
+			return new ArrayVariableDeclNode(payload);
 		case PlexilLexer.VARIABLE_DECLARATION:
 			return new VariableDeclNode(payload);
 
@@ -94,7 +96,11 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.FALSE_KYWD:
 		case PlexilLexer.INT:
 		case PlexilLexer.DOUBLE:
+		case PlexilLexer.ARRAY_LITERAL:
 			return new LiteralNode(payload);
+
+		case PlexilLexer.STRING:
+			return new StringLiteralNode(payload);
 
 		default:
 			return new PlexilTreeNode(payload);
