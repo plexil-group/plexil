@@ -510,7 +510,7 @@ realValue : DOUBLE | INT ;
 
 arrayReference :
     variable LBRACKET expression RBRACKET
-    -> ^(ARRAY_REF<ArrayReferenceNode> variable expression)
+    -> ^(ARRAY_REF variable expression)
   ;
 
 commandInvocation :
