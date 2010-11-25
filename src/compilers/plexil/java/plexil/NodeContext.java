@@ -302,14 +302,6 @@ public class NodeContext
     public boolean addArrayVariableName(PlexilTreeNode declaration,
 										PlexilTreeNode nameNode, 
 										PlexilDataType arrayType,
-										String maxSize)
-    {
-        return addArrayVariableName(declaration, nameNode, arrayType, maxSize, null);
-    }
-
-    public boolean addArrayVariableName(PlexilTreeNode declaration,
-										PlexilTreeNode nameNode, 
-										PlexilDataType arrayType,
 										String maxSize,
 										ExpressionNode initialValueExpr)
     {
