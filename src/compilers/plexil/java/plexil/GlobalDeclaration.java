@@ -51,10 +51,9 @@ public class GlobalDeclaration extends PlexilName
         m_paramSpecs = null;
         if (parmAST != null) {
 			m_paramSpecs = new Vector<VariableName>();
-			int parmIdx = 0;
-			PlexilTreeNode parm = parmAST.getChild(parmIdx);
-			while (parm != null) {
-				PlexilTreeNode typeName = parm.getChild(0);
+			for (int parmIdx = 0; parmIdx < parmAST.getChildCount(); parmIdx++) {
+				PlexilTreeNode parm = parmAST.getChild(parmIdx);
+				String typeName = parm.getToken().getText();
 				PlexilTreeNode parmName = parm.getChild(1);
 				String nam =
 					(parmName == null) ? ("_" + m_declarationType.plexilName + "_param_" + parmIdx)
@@ -66,14 +65,14 @@ public class GlobalDeclaration extends PlexilName
 					newParmVar = new InterfaceVariableName(parm,
 														   nam,
 														   false,
-														   PlexilDataType.findByName(typeName.getText()));
+														   PlexilDataType.findByName(typeName));
 					break;
 
 				case PlexilLexer.IN_OUT_KYWD:
 					newParmVar = new InterfaceVariableName(parm,
 														   nam,
 														   true,
-														   PlexilDataType.findByName(typeName.getText()));
+														   PlexilDataType.findByName(typeName));
 					break;
 
 				case PlexilLexer.BOOLEAN_KYWD:
@@ -82,7 +81,7 @@ public class GlobalDeclaration extends PlexilName
 				case PlexilLexer.STRING_KYWD:
 					newParmVar = new VariableName(parm,
 												  nam,
-												  PlexilDataType.findByName(typeName.getText()));
+												  PlexilDataType.findByName(typeName));
 					break;
 
 				default:
@@ -91,26 +90,18 @@ public class GlobalDeclaration extends PlexilName
 				}
 
 				m_paramSpecs.add(newParmVar);
-				parmIdx++;
-				parm = parmAST.getChild(parmIdx);
 			}
 		}
         m_returnSpecs = null;
         if (returnAST != null) {
 			m_returnSpecs = new Vector<VariableName>();
-			int retnIdx = 0;
-			PlexilTreeNode retn = returnAST.getChild(retnIdx);
-			while (retn != null) {
-				PlexilTreeNode typeName = retn.getChild(0);
-				PlexilTreeNode retnName = typeName.getChild(1);
-				String nam =
-					(retnName == null) ? ("_" + m_declarationType.plexilName + "_return_" + retnIdx)
-					: retnName.getText();
+			for (int retnIdx = 0; retnIdx < returnAST.getChildCount(); retnIdx++) {
+				PlexilTreeNode retn = returnAST.getChild(retnIdx);
+				String typeName = retn.getToken().getText();
+				String nam = "_" + m_declarationType.plexilName + "_return_" + retnIdx;
 				m_returnSpecs.add(new VariableName(retn,
 												   nam,
-												   PlexilDataType.findByName(typeName.getText())));
-				retnIdx++;
-				retn = returnAST.getChild(retnIdx);
+												   PlexilDataType.findByName(typeName)));
 			}
 		}
     }
@@ -140,7 +131,7 @@ public class GlobalDeclaration extends PlexilName
     // returns vector of parameter types, or null
     public Vector<PlexilDataType> getParameterTypes()
     {
-        if (m_returnSpecs == null)
+        if (m_paramSpecs == null)
             return null;
         Vector<PlexilDataType> result = new Vector<PlexilDataType>();
 		for (VariableName v : m_paramSpecs)
