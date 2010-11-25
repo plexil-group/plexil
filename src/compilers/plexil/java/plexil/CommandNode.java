@@ -96,15 +96,29 @@ public class CommandNode extends ExpressionNode
 				}
 			}
 
-			// TODO: Check/set return type 
+			// Set return type 
+			PlexilDataType retnType = cmdDecl.getReturnType();
+			if (retnType != null)
+				m_dataType = retnType;
 
 			// TODO: Check resource list
 			
 		}
 		else {
-			// TODO: Check that name expression returns a string
+			// Check that name expression returns a string
+			
 		}
 
+		return success;
+	}
+
+	/**
+	 * @brief Check the expression for type consistency.
+	 * @return true if consistent, false otherwise.
+	 */
+	protected boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	{
+		boolean success = true;
 		return success;
 	}
 
