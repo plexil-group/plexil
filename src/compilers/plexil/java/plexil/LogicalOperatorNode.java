@@ -43,29 +43,23 @@ public class LogicalOperatorNode extends ExpressionNode
 	}
 
 	// May have 1 or more args; all must be boolean
-	public boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	public boolean check(NodeContext context, CompilerState myState)
 	{
 		boolean success = true;
 		for (int i = 0; i < this.getChildCount(); i++) {
 			ExpressionNode operand = (ExpressionNode) this.getChild(i);
-			PlexilDataType otype = operand.getDataType();
-			if (otype == PlexilDataType.BOOLEAN_TYPE) {
-				// OK, no action needed
-			}
-			else if (otype == PlexilDataType.INTEGER_TYPE
-					 && operand instanceof LiteralNode
-					 && ((LiteralNode)operand).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
-				// forced conversion to Boolean literal -
-				// run additional post-conversion check
-				success = operand.check(context, myState);
-			}
-			else {
+			if (!operand.assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
 				myState.addDiagnostic(operand,
 									  "The operand to the " + this.getToken().getText() + " operator is not Boolean",
 									  Severity.ERROR);
 				success = false;
 			}
+
+			// run semantic checks on operand even if it failed type check
+			success = operand.check(context, myState) && success;
 		}
+
+		m_passedCheck = success;
 		return success;
 	}
 
