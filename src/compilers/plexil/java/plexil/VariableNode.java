@@ -39,18 +39,22 @@ public class VariableNode extends ExpressionNode
 		super(t);
 	}
 
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public boolean check(NodeContext context, CompilerState myState)
 	{
+		boolean success = true;
 		// Get variable from context
 		m_variable = context.findVariable(this.getText());
 		if (m_variable == null) {
 			myState.addDiagnostic(this,
 								  "Variable \"" + this.getText() + "\" is not declared",
 								  Severity.ERROR);
-			return false;
+			success = false;
 		}
-		m_dataType = m_variable.getVariableType();
-		return true;
+		else {
+			m_dataType = m_variable.getVariableType();
+		}
+		m_passedCheck = success;
+		return m_passedCheck;
 	}
 
 	protected void constructXML()
@@ -67,13 +71,19 @@ public class VariableNode extends ExpressionNode
 	// Source locators are not allowed on variable elements.
 	protected void addSourceLocatorAttributes() {}
 
-	public boolean isAssignable()
+	public boolean checkAssignable(CompilerState myState)
 	{
-		if (m_variable == null)
-			return false;
-
-		// defer to variable name
-		return m_variable.isAssignable();
+		if (m_variable == null
+			|| m_variable.isAssignable())
+			return true;
+		// we have a variable and it's not assignable
+		myState.addDiagnostic(this,
+							  "Variable \"" + this.getText() + "\" is declared In",
+							  Severity.ERROR);
+		myState.addDiagnostic(m_variable.getDeclaration(),
+							  "Variable \"" + this.getText() + "\" declared In here",
+							  Severity.NOTE);
+		return false;
 	}
 
 	public PlexilTreeNode getDeclaration() 
