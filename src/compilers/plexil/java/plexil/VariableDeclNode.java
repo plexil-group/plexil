@@ -46,13 +46,6 @@ public class VariableDeclNode extends PlexilTreeNode
 	 */
 	public boolean check(NodeContext context, CompilerState myState)
 	{
-		// No need to check children, all handled in checkSelf
-		m_passedCheck = checkSelf(context, myState);
-		return m_passedCheck;
-	}
-
-	public boolean checkSelf(NodeContext context, CompilerState myState)
-	{
 		PlexilTreeNode typeNode = this.getChild(0);
 		PlexilDataType type = PlexilDataType.findByName(typeNode.getText());
 		// FIXME: any chance that type could be null??
@@ -99,7 +92,8 @@ public class VariableDeclNode extends PlexilTreeNode
 		if (nameOK) 
 			context.declareVariable(this, varNameNode, type, initValNode);
 
-		return nameOK && initValOK;
+		m_passedCheck = nameOK && initValOK;
+		return m_passedCheck;
 	}
 
 }
