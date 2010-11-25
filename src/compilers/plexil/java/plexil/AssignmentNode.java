@@ -37,28 +37,23 @@ public class AssignmentNode extends PlexilTreeNode
 		super(new CommonToken(ttype, "ASSIGNMENT"));
 	}
 
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public boolean check(NodeContext context, CompilerState myState)
 	{
 		boolean success = true;
-		VariableNode lhs = (VariableNode) this.getChild(0);
-		if (lhs.passedCheck()) {
-			if (!lhs.isAssignable()) {
-				PlexilTreeNode varDecl = lhs.getDeclaration();
-				if (varDecl != null) {
-					myState.addDiagnostic(lhs,
-										  "Variable \"" + lhs.getText() + "\" is declared In",
-										  Severity.ERROR);
-					myState.addDiagnostic(varDecl,
-										  "Variable \"" + lhs.getText() + "\" declared In here",
-										  Severity.NOTE);
-				}
-				success = false;
-			}
+		// N.B. LHS can be an array reference
+		ExpressionNode lhs = (ExpressionNode) this.getChild(0);
+		ExpressionNode rhs = (ExpressionNode) this.getChild(1);
+		PlexilDataType lhsType = null;
+		if (lhs.check(context, myState)) {
+			lhsType = lhs.getDataType();
+			success = lhs.checkAssignable(myState) && success;
 		}
 
+		if (lhsType != null) {
+			rhs.assumeType(lhsType, myState); // for effect
+		}
 
-		ExpressionNode rhs = (ExpressionNode) this.getChild(1);
-		if (rhs.passedCheck()) {
+		if (rhs.check(context, myState)) {
 			PlexilDataType rhsType = rhs.getDataType(); // is VOID_TYPE if RHS failed check or is command w/ no return value
 			if (rhsType == PlexilDataType.VOID_TYPE) {
 				myState.addDiagnostic(rhs,
@@ -66,22 +61,23 @@ public class AssignmentNode extends PlexilTreeNode
 									  Severity.ERROR);
 				success = false;
 			}
-			else if (lhs.passedCheck()) {
-				PlexilDataType lhsType = lhs.getDataType();
-				if (lhsType.isNumeric() && rhsType.isNumeric()) {
+			else if (lhsType != null) {
+				if (lhsType == rhsType
+					|| (lhsType.isNumeric() && rhsType.isNumeric())) {
 					// it's all good
 				}
-				else if (lhsType != rhsType) {
+				else {
 					myState.addDiagnostic(rhs,
 										  "Cannot assign expression of type " + rhsType.typeName()
-										  + " to variable \"" + lhs.getText() 
+										  + " to \"" + lhs.getText() 
 										  + "\" of type " + lhsType.typeName(),
 										  Severity.ERROR);
-					return false;
+					success = false;
 				}
 			}
 		}
 
+		m_passedCheck = success;
 		return success;
 	}
 
