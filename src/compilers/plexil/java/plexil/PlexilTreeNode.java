@@ -96,12 +96,6 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 	}
 
 	/**
-	 * @brief Ask whether this node passed its check.
-	 * @return true if check is successful, false otherwise.
-	 */
-	public boolean passedCheck() { return m_passedCheck; }
-
-	/**
 	 * @brief Perform semantic checks on the node's children.
 	 * @return true if checks are successful, false otherwise.
 	 */
@@ -113,6 +107,12 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 		}
 		return success;
 	}
+
+	/**
+	 * @brief Ask whether this node passed its check.
+	 * @return true if check is successful, false otherwise.
+	 */
+	public boolean passedCheck() { return m_passedCheck; }
 	
 	//* Returns the NanoXML representation of this part of the parse tree.
 	public IXMLElement getXML()
