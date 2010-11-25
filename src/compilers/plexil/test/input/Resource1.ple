@@ -1,0 +1,35 @@
+Command c1;
+Command c2;
+Command c3;
+
+SimpleTask: Concurrence
+{
+  C1: {
+    Integer returnValue = -1;
+    EndCondition returnValue == 10;
+    PostCondition C1.command_handle == COMMAND_SUCCESS;
+    ResourcePriority 20;
+    ResourceName = "sys_memory";
+    ResourceName = "arm";
+    returnValue = c1();
+  }
+  C2: {
+    Integer mem_priority = 30;
+    Integer returnValue = -1;
+    RepeatCondition C2.command_handle == COMMAND_DENIED;
+    PostCondition C2.command_handle == COMMAND_SUCCESS;
+    EndCondition returnValue == 10;
+    ResourcePriority mem_priority;
+    ResourceName = "sys_memory";
+    returnValue = c2();
+  }
+  C3: {
+    Integer returnValue = -1;
+    Integer vision_priority = 10;
+    PostCondition C3.command_handle == COMMAND_SUCCESS;
+    EndCondition returnValue == 10;
+    ResourcePriority vision_priority;
+    ResourceName = "vision_system";
+    returnValue = c3();
+  }
+}

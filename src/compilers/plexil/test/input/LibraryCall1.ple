@@ -1,0 +1,10 @@
+LibraryNode Increment (In Integer x, InOut Integer result);
+
+LibraryCallTest:
+{
+  Integer result;
+  Increment (x=1, result=result);
+  pprint ("Increment(1) =", result);
+  Increment (x=result, result=result);
+  pprint ("Increment(2) =", result);
+}
