@@ -39,7 +39,7 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 	}
 
 	// format is (ARRAY_VARIABLE_DECLARATION element-type NCNAME INT initialValue?)
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public boolean check(NodeContext context, CompilerState myState)
 	{
 		boolean success = true;
 		PlexilTreeNode varNameNode = this.getChild(1);
@@ -121,7 +121,8 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 												   sizeString,
 												   initValSuccess ? initValNode : null);
 		}
-		return success && initValSuccess;
+		m_passedCheck = success && initValSuccess;
+		return m_passedCheck;
 	}
 
 }
