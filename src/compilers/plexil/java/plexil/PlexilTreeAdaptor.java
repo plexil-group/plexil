@@ -70,6 +70,12 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.LEQ:
 			return new RelationalNode(payload);
 
+			// Lookups
+		case PlexilLexer.LOOKUP_KYWD:
+		case PlexilLexer.LOOKUP_NOW_KYWD:
+		case PlexilLexer.LOOKUP_ON_CHANGE_KYWD:
+			return new LookupNode(payload);
+
 			// Block types
 		case PlexilLexer.BLOCK:
 		case PlexilLexer.CONCURRENCE_KYWD:
@@ -86,6 +92,8 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 			return new WhileNode(payload);
 
 			// Internal tokens
+		case PlexilLexer.ARRAY_REF:
+			return new ArrayReferenceNode(payload);
 		case PlexilLexer.ARRAY_VARIABLE_DECLARATION:
 			return new ArrayVariableDeclNode(payload);
 		case PlexilLexer.VARIABLE_DECLARATION:
@@ -97,6 +105,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.INT:
 		case PlexilLexer.DOUBLE:
 		case PlexilLexer.ARRAY_LITERAL:
+		case PlexilLexer.STATE_NAME:
 			return new LiteralNode(payload);
 
 		case PlexilLexer.STRING:
