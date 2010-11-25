@@ -162,8 +162,8 @@ public class CommandDeclarationNode extends PlexilTreeNode
 		if (this.getChildCount() < 2)
 			return null;
 		for (int i = 1; i < this.getChildCount(); i++) {
-			if (this.getChild(1).getType() == PlexilLexer.RETURNS_KYWD)
-				return this.getChild(1);
+			if (this.getChild(i).getType() == PlexilLexer.RETURNS_KYWD)
+				return this.getChild(i);
 		}
 		return null; // not found
 	}
