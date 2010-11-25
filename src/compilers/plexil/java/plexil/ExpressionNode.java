@@ -69,6 +69,16 @@ public class ExpressionNode extends PlexilTreeNode
 		return m_dataType;
 	}
 
+	// Default method.  
+	// Variables and array references should override this method.
+	public boolean checkAssignable(CompilerState myState)
+	{
+		myState.addDiagnostic(this,
+							  "Expression may not be assigned to",
+							  Severity.ERROR);
+		return false;
+	}
+
 	// Lookup expressions can override this if needed (?)
 	public String assignmentRHSElementName()
 	{
@@ -85,13 +95,17 @@ public class ExpressionNode extends PlexilTreeNode
 	}
 
 	/**
-	 * @brief Check the expression for semantic consistency.
-	 * @return true if consistent, false otherwise.
-	 * @note This is a default method.  Derived classes should override it.
+	 * @brief Perform a recursive semantic check.
+	 * @return true if check is successful, false otherwise.
+	 * @note The top level check comes first because it establishes types for the children.
+	 * @note Derived classes should override this where appropriate.
 	 */
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public boolean check(NodeContext context, CompilerState myState)
 	{
-		boolean success = checkTypeConsistency(context, myState);
+		boolean success = checkSelf(context, myState); // can establish types for children
+		success = checkChildren(context, myState) && success;
+		success = checkTypeConsistency(context, myState) && success;
+		m_passedCheck = success;
 		return success;
 	}
 
@@ -113,7 +127,8 @@ public class ExpressionNode extends PlexilTreeNode
 	protected boolean assumeType(PlexilDataType t, CompilerState myState)
 	{
 		// By default, don't change anything
-		return m_dataType == t;
+		return (m_dataType == t)
+			|| (t.isNumeric() && m_dataType.isNumeric()); // *** FIXME: too general?
 	}
 
 }
