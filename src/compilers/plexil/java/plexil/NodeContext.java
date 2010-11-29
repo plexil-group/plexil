@@ -282,33 +282,38 @@ public class NodeContext
 		}
     }
 
-    public boolean declareVariable(PlexilTreeNode declaration,
-								   PlexilTreeNode nameNode,
-								   PlexilDataType varType,
-								   ExpressionNode initialValueExpr)
+    public VariableName declareVariable(PlexilTreeNode declaration,
+										PlexilTreeNode nameNode,
+										PlexilDataType varType,
+										ExpressionNode initialValueExpr)
     {
         if (checkVariableName(nameNode)) {
-			m_variables.add(new VariableName(declaration, nameNode.getText(), varType, initialValueExpr));
-			return true;
+			VariableName result = new VariableName(declaration, nameNode.getText(), varType, initialValueExpr);
+			m_variables.add(result);
+			return result;
 		}
 		else 
-			return false;
+			return null;
     }
 
     //
     // Array variables
     //
 
-    public boolean addArrayVariableName(PlexilTreeNode declaration,
-										PlexilTreeNode nameNode, 
-										PlexilDataType arrayType,
-										String maxSize,
-										ExpressionNode initialValueExpr)
+    public VariableName declareArrayVariable(PlexilTreeNode declaration,
+											 PlexilTreeNode nameNode, 
+											 PlexilDataType arrayType,
+											 String maxSize,
+											 ExpressionNode initialValueExpr)
     {
-        boolean success = checkVariableName(nameNode);
-		if (success)
-			m_variables.add(new VariableName(declaration, nameNode.getText(), arrayType, maxSize, initialValueExpr));
-		return success;
+		if (checkVariableName(nameNode)) {
+			VariableName result = 
+				new VariableName(declaration, nameNode.getText(), arrayType, maxSize, initialValueExpr);
+			m_variables.add(result);
+			return result;
+		}
+		else 
+			return null;
     }
 
 	// Returns true if name is not in direct conflict with other names in this context.
