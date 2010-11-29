@@ -115,11 +115,13 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 		// to support further semantic checking in the plan
 		if (success) {
 			// Can fail in event of name conflict
-			success = context.addArrayVariableName(this,
-												   varNameNode,
-												   arrayType,
-												   sizeString,
-												   initValSuccess ? initValNode : null);
+			m_variable = context.declareArrayVariable(this,
+													  varNameNode,
+													  arrayType,
+													  sizeString,
+													  initValSuccess ? initValNode : null);
+			if (m_variable == null)
+				success = false;
 		}
 		m_passedCheck = success && initValSuccess;
 		return m_passedCheck;
