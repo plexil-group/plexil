@@ -79,9 +79,13 @@ public class ArrayReferenceNode extends VariableNode
 		return success;
 	}
 
+	// N.B. Can't use super.constructXML because of conflict with VariableNode method
 	protected void constructXML()
 	{
-		super.constructXML();
+		// Copied from PlexilTreeNode method
+		m_xml = new XMLElement(this.getXMLElementName());
+		addSourceLocatorAttributes();
+
 
 		// Construct variable name element
 		IXMLElement var = new XMLElement("Name");
