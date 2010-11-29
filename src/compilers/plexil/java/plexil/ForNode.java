@@ -88,7 +88,9 @@ public class ForNode extends PlexilTreeNode
 
 		IXMLElement loopVar = new XMLElement("LoopVariable");
 		m_xml.addChild(loopVar);
-		loopVar.addChild(this.getChild(0).getXML());
+		// Get the declaration from the VariableName, not the declaration AST
+		VariableName var = ((VariableDeclNode) this.getChild(0)).getVariableName();
+		loopVar.addChild(var.makeDeclarationXML());
 
 		IXMLElement condition = new XMLElement("Condition");
 		m_xml.addChild(condition);
