@@ -40,6 +40,9 @@ public class VariableDeclNode extends PlexilTreeNode
 		super(t);
 	}
 
+	// Required by (e.g.) ForNode code generation
+	public VariableName getVariableName() { return m_variable; }
+
 	/**
 	 * @brief Override PlexilTreeNode.check
 	 * @return true if check is successful, false otherwise.
@@ -90,7 +93,7 @@ public class VariableDeclNode extends PlexilTreeNode
 
 		// Declare the variable if the name check passed to support further semantic checks
 		if (nameOK) 
-			context.declareVariable(this, varNameNode, type, initValNode);
+			m_variable =  context.declareVariable(this, varNameNode, type, initValNode);
 
 		m_passedCheck = nameOK && initValOK;
 		return m_passedCheck;
