@@ -187,13 +187,6 @@ element.  It is used as an included schema only.
     </xsd:union>
   </xsd:simpleType>
 
-  <xsd:complexType name= "real-expression">
-    <xsd:choice>
-      <xsd:element ref="RealValue"/>
-      <xsd:element ref="RealVariable"/>
-    </xsd:choice>
-  </xsd:complexType>
-
   <xsd:element name="Node">
     <xsd:complexType>
       <xsd:all>
@@ -1028,7 +1021,14 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="Tolerance" type= "real-expression"/>
+  <xsd:element name="Tolerance">
+    <xsd:complexType>
+      <xsd:choice>
+        <xsd:element ref="RealValue"/>
+        <xsd:element ref="RealVariable"/>
+      </xsd:choice>
+    </xsd:complexType>
+  </xsd:element>
 
   <xsd:element name="LookupNow">
     <xsd:complexType>

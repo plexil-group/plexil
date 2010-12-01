@@ -1,0 +1,23 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sequence>
+    <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
+      <NodeId>A</NodeId>
+      <ResourceList>
+        <Resource>
+          <ResourceName><StringValue>arm</StringValue></ResourceName>
+          <ResourcePriority><IntegerValue>3</IntegerValue></ResourcePriority>
+        </Resource>
+        </ResourceList>
+      <Name><StringValue>FOO</StringValue></Name>
+      <Arguments>
+        <StringValue>this</StringValue>
+        <StringValue>that</StringValue>
+      </Arguments>
+    </SynchronousCommand>
+    <SynchronousCommand>
+      <NodeId>B</NodeId>
+      <ResourceList></ResourceList>
+      <Name><StringValue>BAR</StringValue></Name>
+    </SynchronousCommand>
+  </Sequence>
+</PlexilPlan>

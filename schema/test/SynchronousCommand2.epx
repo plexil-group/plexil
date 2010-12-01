@@ -1,0 +1,21 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
+    <NodeId>A</NodeId>
+    <VariableDeclarations>
+      <DeclareArray>
+        <Name>y</Name>
+        <Type>String</Type>
+        <MaxSize>20</MaxSize>
+      </DeclareArray>
+      <DeclareArray>
+        <Name>x</Name>
+        <Type>Integer</Type>
+        <MaxSize>4</MaxSize>
+      </DeclareArray>
+    </VariableDeclarations>
+    <ReturnVariable>
+      <ArrayVariable>x</ArrayVariable>
+    </ReturnVariable>
+    <Name><StringValue>foo</StringValue></Name>
+  </SynchronousCommand>
+</PlexilPlan>

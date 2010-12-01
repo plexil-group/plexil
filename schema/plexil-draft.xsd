@@ -54,21 +54,6 @@
     </xsd:group>
   </xsd:redefine>
 
-  <!-- Command with return value that automatically waits for the return value -->
-  <xsd:element name="CommandWithReturn">
-    <xsd:complexType>
-      <xsd:sequence>
-      <xsd:all>
-        <xsd:group ref="NodeClauses"/>
-        <xsd:element ref="ResourceList" minOccurs="0" maxOccurs="1"/>  
-        <xsd:group ref="DeclaredVariable"/>
-        <xsd:element ref="Name"/>
-        <xsd:element ref="Arguments" minOccurs="0"/>
-      </xsd:all>
-    </xsd:sequence>
-    <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
 
 
 

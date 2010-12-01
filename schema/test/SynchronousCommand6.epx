@@ -1,0 +1,41 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Sequence>
+    <VariableDeclarations>
+      <!-- This is the array used for command FOO: -->
+      <DeclareArray>
+        <Name>x</Name>
+        <Type>Integer</Type>
+        <MaxSize>4</MaxSize>
+      </DeclareArray>
+    </VariableDeclarations>
+    <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
+      <NodeId>A</NodeId>
+      <ResourceList>
+        <Resource>
+          <ResourceName><StringValue>arm</StringValue></ResourceName>
+          <ResourcePriority><IntegerValue>3</IntegerValue></ResourcePriority>
+        </Resource>
+        </ResourceList>
+      <ReturnVariable>
+        <ArrayVariable>x</ArrayVariable>
+      </ReturnVariable>
+      <Name><StringValue>FOO</StringValue></Name>
+    </SynchronousCommand>
+    <SynchronousCommand>
+      <NodeId>B</NodeId>
+      <VariableDeclarations>
+        <!-- This is the array used for command BAR: -->
+        <DeclareArray>
+          <Name>x</Name>
+          <Type>String</Type>
+          <MaxSize>20</MaxSize>
+        </DeclareArray>
+      </VariableDeclarations>
+      <ResourceList></ResourceList>
+      <ReturnVariable>
+        <ArrayVariable>x</ArrayVariable>
+      </ReturnVariable>
+      <Name><StringValue>BAR</StringValue></Name>
+    </SynchronousCommand>
+  </Sequence>
+</PlexilPlan>
