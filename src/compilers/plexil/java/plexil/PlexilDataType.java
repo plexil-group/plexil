@@ -137,7 +137,11 @@ public final class PlexilDataType
     public static final PlexilDataType NODE_OUTCOME_TYPE = new PlexilDataType("NODE_OUTCOME_TYPE", "NodeOutcome", false);
     public static final PlexilDataType NODE_FAILURE_TYPE = new PlexilDataType("NODE_FAILURE_TYPE", "NodeFailure", false);
 
+	// Has no value at all, e.g. commands that return no value
     public static final PlexilDataType VOID_TYPE = new PlexilDataType("VOID_TYPE", "Void", false);
+
+	// May assume any type
+	public static final PlexilDataType ANY_TYPE = new PlexilDataType("ANY_TYPE", "Any", true);
 
     // Array types
     public static final PlexilDataType BOOLEAN_ARRAY_TYPE =
