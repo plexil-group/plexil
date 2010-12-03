@@ -157,6 +157,7 @@ ON_COMMAND_KYWD = 'OnCommand';
 ON_MESSAGE_KYWD = 'OnMessage';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
+WAIT_KYWD = 'Wait';
 
 ELSE_KYWD = 'else';
 ELSEIF_KYWD = 'elseif';
@@ -333,22 +334,10 @@ libraryParamSpec : ( IN_KYWD^ | IN_OUT_KYWD^ ) typeName NCNAME ;
 // Actions
 // 
 
-action
-@init { NodeContext actionContext = null; }
- :
+action :
     (actionId=NCNAME COLON)?
-	{ 
-	  // push new naming context
-	  actionContext = m_context =
-	    new NodeContext(m_context,
-						($actionId == null)? m_context.generateChildNodeName() : $actionId.getText());
-	}
 	rest=baseAction
-	{ 
-	  // pop out to previous context
-	  m_context = m_context.getParentContext(); 
-    }
-    -> ^(ACTION<ActionNode>[actionContext] $actionId? $rest)
+    -> ^(ACTION $actionId? $rest)
  ;
 
 baseAction : compoundAction | simpleAction | block ; 
@@ -362,6 +351,7 @@ simpleAction :
   | libraryCall
   | request
   | update
+  | waitBuiltin
  ;
 
 forAction :
@@ -376,7 +366,7 @@ forAction :
 
 ifAction :
     IF_KYWD^ expression action
-    (ELSEIF_KYWD expression action)*
+    (ELSEIF_KYWD! expression action)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!
  ;
@@ -396,12 +386,17 @@ whileAction :
     WHILE_KYWD^ expression action
  ;
 
+
+waitBuiltin :
+	WAIT_KYWD^ expression (COMMA! (variable|INT|DOUBLE))? SEMICOLON!
+ ;
+
 // *** N.B. The supported schema does not require the strict sequencing of
 // the elements inside a block, nor does the XML parser.
 
 block : 
     (variant=sequenceVariantKywd LBRACE -> $variant
-     | LBRACE -> BLOCK<BlockNode>)
+     | LBRACE -> BLOCK)
     comment?
     nodeDeclaration*
     nodeAttribute*
@@ -411,9 +406,9 @@ block :
 ;
 
 sequenceVariantKywd : 
-    CONCURRENCE_KYWD<BlockNode>
-  | UNCHECKED_SEQUENCE_KYWD<BlockNode>
-  | TRY_KYWD<BlockNode>
+    CONCURRENCE_KYWD
+  | UNCHECKED_SEQUENCE_KYWD
+  | TRY_KYWD
  ;
 
 comment : COMMENT_KYWD^ STRING SEMICOLON! ;
@@ -530,7 +525,7 @@ argument : expression ;
 
 assignment :
     assignmentLHS EQUALS assignmentRHS SEMICOLON
-    -> ^(ASSIGNMENT<AssignmentNode> assignmentLHS assignmentRHS)
+    -> ^(ASSIGNMENT assignmentLHS assignmentRHS)
  ;
 
 assignmentLHS : 
