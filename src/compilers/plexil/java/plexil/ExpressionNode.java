@@ -71,12 +71,11 @@ public class ExpressionNode extends PlexilTreeNode
 
 	// Default method.  
 	// Variables and array references should override this method.
-	public boolean checkAssignable(CompilerState myState)
+	public void checkAssignable(NodeContext context, CompilerState myState)
 	{
 		myState.addDiagnostic(this,
 							  "Expression may not be assigned to",
 							  Severity.ERROR);
-		return false;
 	}
 
 	// Lookup expressions can override this if needed (?)
@@ -96,27 +95,22 @@ public class ExpressionNode extends PlexilTreeNode
 
 	/**
 	 * @brief Perform a recursive semantic check.
-	 * @return true if check is successful, false otherwise.
 	 * @note The top level check comes first because it establishes types for the children.
 	 * @note Derived classes should override this where appropriate.
 	 */
-	public boolean check(NodeContext context, CompilerState myState)
+	public void check(NodeContext context, CompilerState myState)
 	{
-		boolean success = checkSelf(context, myState); // can establish types for children
-		success = checkChildren(context, myState) && success;
-		success = checkTypeConsistency(context, myState) && success;
-		m_passedCheck = success;
-		return success;
+		checkSelf(context, myState); // can establish types for children
+		checkChildren(context, myState);
+		checkTypeConsistency(context, myState);
 	}
 
 	/**
 	 * @brief Check the expression for type consistency.
-	 * @return true if consistent, false otherwise.
 	 * @note This is a default method.  Derived classes should override it.
 	 */
-	protected boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	protected void checkTypeConsistency(NodeContext context, CompilerState myState)
 	{
-		return true;
 	}
 
 	/**
@@ -126,7 +120,32 @@ public class ExpressionNode extends PlexilTreeNode
 	 */
 	protected boolean assumeType(PlexilDataType t, CompilerState myState)
 	{
-		// By default, don't change anything
+		// If target type is Void, Error, or underspec'd array, fail.
+		if (t == PlexilDataType.VOID_TYPE
+			|| t == PlexilDataType.ERROR_TYPE
+			|| t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+			myState.addDiagnostic(null,
+								  "Internal error: ExpressionNode.assumeType called with illegal first argument of "
+								  + t.typeName(),
+								  Severity.FATAL);
+			return false;
+		}
+
+		// If target type is Any, succeed.
+		if (t == PlexilDataType.ANY_TYPE)
+			return true;
+
+		// If our type is Void, fail.
+		if (m_dataType == PlexilDataType.VOID_TYPE)
+			return false;
+
+		// If our type is Any, assume the requested type
+		if (m_dataType == PlexilDataType.ANY_TYPE) {
+			m_dataType = t;
+			return true;
+		}
+
+		// Otherwise don't change anything
 		return (m_dataType == t)
 			|| (t.isNumeric() && m_dataType.isNumeric()); // *** FIXME: too general?
 	}

@@ -60,19 +60,94 @@ public class ArithmeticOperatorNode extends ExpressionNode
 	// Special cases:
 	//  PLUS with 2 or more args can have strings
 
-	// Computes m_dataType as a side effect.
-	public boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+
+	// Get an early handle on data type if possible.
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
+		earlyCheckChildren(context, state);
+		PlexilDataType workingType = null;
+		if (this.getType() == PlexilLexer.SQRT_KYWD) 
+			workingType = PlexilDataType.REAL_TYPE;
+		else if (this.getType() == PlexilLexer.PLUS) {
+			// Operands are either all string or all numeric
+			for (int i = 0; i < this.getChildCount(); i++) {
+				PlexilDataType childType = ((ExpressionNode) this.getChild(i)).getDataType();
+				if (workingType == null) {
+					if (childType.isNumeric() || childType == PlexilDataType.STRING_TYPE)
+						workingType = childType; 
+					else {
+						workingType = PlexilDataType.ERROR_TYPE;
+						break;
+					}
+				}
+				else if (childType == PlexilDataType.STRING_TYPE) {
+					if (childType != workingType) {
+						workingType = PlexilDataType.ERROR_TYPE;
+						break;
+					}
+				}
+				else if (childType == PlexilDataType.INTEGER_TYPE) {
+					if (!workingType.isNumeric()) {
+						workingType = PlexilDataType.ERROR_TYPE;
+						break;
+					}
+				}
+				else if (childType == PlexilDataType.REAL_TYPE) {
+					if (!workingType.isNumeric()) {
+						workingType = PlexilDataType.ERROR_TYPE;
+						break;
+					}
+					else if (workingType == PlexilDataType.INTEGER_TYPE)
+						workingType = PlexilDataType.REAL_TYPE;
+				}
+				else {
+					workingType = PlexilDataType.ERROR_TYPE;
+					break;
+				}
+			}
+		}
+		else {
+			// Implement numeric type contagion
+			for (int i = 0; i < this.getChildCount(); i++) {
+				PlexilDataType childType = ((ExpressionNode) this.getChild(i)).getDataType();
+				if (workingType == null) {
+					if (childType.isNumeric())
+						workingType = childType; 
+					else {
+						workingType = PlexilDataType.ERROR_TYPE;
+						break;
+					}
+				}
+				else if (childType == PlexilDataType.REAL_TYPE
+						 && workingType == PlexilDataType.INTEGER_TYPE) 
+					workingType = PlexilDataType.REAL_TYPE;
+				else if (childType != PlexilDataType.INTEGER_TYPE) {
+					workingType = PlexilDataType.ERROR_TYPE;
+					break;
+				}
+			}
+		}
+		// debug aid
+		if (m_dataType == PlexilDataType.ERROR_TYPE) {
+			state.addDiagnostic(this,
+								"Internal error: ArithmeticOperatorNode.earlyCheck could not determine expression type",
+								Severity.NOTE);
+		}
+		m_dataType = workingType;
+	}
+
+
+	// Computes m_dataType as a side effect.
+	public void checkTypeConsistency(NodeContext context, CompilerState state)
+	{
 		if (this.getChildCount() == 1) {
 			// Unary + or - must be numeric
 			ExpressionNode operand = (ExpressionNode) this.getChild(0);
 			if (!operand.getDataType().isNumeric()) {
 				// TODO: improve message for things like absolute value
-				myState.addDiagnostic(operand,
-									  "The operand to the " + this.getToken().getText() + " operator is not numeric",
-									  Severity.ERROR);
-				success = false;
+				state.addDiagnostic(operand,
+									"The operand to the " + this.getToken().getText() + " operator is not numeric",
+									Severity.ERROR);
 			}
 			if (this.getType() == PlexilLexer.SQRT_KYWD)
 				m_dataType = PlexilDataType.REAL_TYPE;
@@ -89,11 +164,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
 						m_dataType = operand.getDataType();
 					}
 					else {
-						myState.addDiagnostic(operand,
-											  "The first operand to the " + this.getToken().getText()
-											  + " operator is not a numeric type or a string",
-											  Severity.ERROR);
-						success = false;
+						state.addDiagnostic(operand,
+											"The first operand to the " + this.getToken().getText()
+											+ " operator is not a numeric type or a string",
+											Severity.ERROR);
 					}
 				}
 				else {
@@ -110,11 +184,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
 						}
 					}
 					else {
-						myState.addDiagnostic(operand,
-											  "Operands to the " + this.getToken().getText() + " operator have inconsistent types",
-											  Severity.ERROR);
+						state.addDiagnostic(operand,
+											"Operands to the " + this.getToken().getText() + " operator have inconsistent types",
+											Severity.ERROR);
 						m_dataType = PlexilDataType.VOID_TYPE;
-						success = false;
 					}
 				}
 			}
@@ -130,21 +203,19 @@ public class ArithmeticOperatorNode extends ExpressionNode
 						m_dataType = operand.getDataType();
 					}
 					else {
-						myState.addDiagnostic(operand,
-											  "The first operand to the " + this.getToken().getText()
-											  + " operator is not a numeric type",
-											  Severity.ERROR);
-						success = false;
+						state.addDiagnostic(operand,
+											"The first operand to the " + this.getToken().getText()
+											+ " operator is not a numeric type",
+											Severity.ERROR);
 					}
 				}
 				else {
 					// following parameters must all be numeric
 					if (!otype.isNumeric()) {
-						myState.addDiagnostic(operand,
-											  "The operand to the " + this.getToken().getText() + " operator is not a numeric type",
-											  Severity.ERROR);
+						state.addDiagnostic(operand,
+											"The operand to the " + this.getToken().getText() + " operator is not a numeric type",
+											Severity.ERROR);
 						m_dataType = PlexilDataType.VOID_TYPE;
-						success = false;
 					}
 					else if (m_dataType == PlexilDataType.INTEGER_TYPE
 							 && otype == PlexilDataType.REAL_TYPE) {
@@ -154,7 +225,6 @@ public class ArithmeticOperatorNode extends ExpressionNode
 				}
 			}
 		}
-		return success;
 	}
 
 	public void constructXML()

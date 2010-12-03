@@ -27,6 +27,8 @@
 package plexil;
 
 import java.util.Vector;
+import java.util.Map;
+import java.util.TreeMap;
 
 import net.n3.nanoxml.IXMLElement;
 
@@ -34,25 +36,22 @@ import net.n3.nanoxml.IXMLElement;
 // A class to represent the context of one PLEXIL node in the translator.
 //
 
-//
-// *** To do:
-//
-
 public class NodeContext
 {
 
-    protected NodeContext parentContext;
+    protected NodeContext m_parentContext;
     protected Vector<VariableName> m_variables = new Vector<VariableName>();
-    protected Vector<NodeContext> children = new Vector<NodeContext>();
-    protected String nodeName = null;
-    protected PlexilTreeNode resourcePriorityAST = null;
-    protected IXMLElement resourcePriorityXML = null;
-    protected Vector<PlexilTreeNode> resources = new Vector<PlexilTreeNode>();
+    protected Vector<NodeContext> m_children = new Vector<NodeContext>();
+	protected Map<String, PlexilTreeNode> m_childIds = new TreeMap<String, PlexilTreeNode>();
+    protected String m_nodeName = null;
+    protected PlexilTreeNode m_resourcePriorityAST = null;
+    protected IXMLElement m_resourcePriorityXML = null;
+    protected Vector<PlexilTreeNode> m_resources = new Vector<PlexilTreeNode>();
 
     public NodeContext(NodeContext previous, String name)
     {
-        parentContext = previous;
-		nodeName = name;
+        m_parentContext = previous;
+		m_nodeName = name;
         if (previous != null) {
 			previous.addChildNode(this);
 		}
@@ -65,53 +64,77 @@ public class NodeContext
 
     public NodeContext getParentContext()
     {
-        return parentContext;
+        return m_parentContext;
     }
 
     public void addChildNode(NodeContext child)
     {
-        children.add(child);
+        m_children.add(child);
     }
 
 	public void setNodeName(String name)
 	{
-		nodeName = name;
+		m_nodeName = name;
 	}
 
     public String getNodeName()
     {
-        return nodeName;
+        return m_nodeName;
     }
 
     // get the root of this context tree
     protected NodeContext getRootContext()
         throws Exception
     {
-        if (parentContext == null)
+        if (m_parentContext == null)
             // is global context -- error
             throw new Exception("getRootContext() called on global context");
-        else if (parentContext.isGlobalContext())
+        else if (m_parentContext.isGlobalContext())
             return this;
-        return parentContext.getRootContext();
+        return m_parentContext.getRootContext();
     }
 
     protected boolean isRootContext()
     {
-        return (parentContext != null) && parentContext.isGlobalContext();
+        return (m_parentContext != null) && m_parentContext.isGlobalContext();
     }
 
     public boolean isLibraryNode()
     {
-        return (nodeName != null) && isRootContext();
+        return (m_nodeName != null) && isRootContext();
     }
+
+	public boolean isChildNodeId(String name)
+	{
+        if (name == null)
+            return false;
+		if (m_childIds.containsKey(name))
+			return true;
+		return false;
+	}
+
+	public PlexilTreeNode getChildNodeId(String name)
+	{
+        if (name == null)
+            return null;
+		return m_childIds.get(name);
+	}
+
+	public void addChildNodeId(PlexilTreeNode nameNode)
+	{
+        if (nameNode == null)
+            return;
+		String name = nameNode.getText();
+		m_childIds.put(name, nameNode);
+	}
 
     // *** this won't find library nodes!
     // Only finds nodes in the current tree.
-    public NodeContext findNode(String name)
+    public PlexilTreeNode findNode(String name)
     {
         if (name == null)
             return null;
-        NodeContext result = null;
+        PlexilTreeNode result = null;
         try {
 			result = getRootContext().findNodeInternal(name);
 		}
@@ -120,16 +143,18 @@ public class NodeContext
         return result;
     }
 
-    protected NodeContext findNodeInternal(String name)
+    protected PlexilTreeNode findNodeInternal(String name)
     {
         // check self
-        if ((nodeName != null)
-            && nodeName.equals(name))
-            return this;
+		// FIXME: implement (?)
 
-        // recurse down children
-        for (NodeContext child : children) {
-			NodeContext result = 
+		// check children
+		if (m_childIds.containsKey(name))
+			return m_childIds.get(name);
+
+        // recurse down child contexts
+        for (NodeContext child : m_children) {
+			PlexilTreeNode result = 
 				child.findNodeInternal(name);
 			if (result != null)
 				return result;
@@ -137,26 +162,11 @@ public class NodeContext
         return null;
     }
 
-	public NodeContext getChildContext(String name) {
-		for (NodeContext child : children)
-			if (child.getNodeName() == name)
-				return child;
-		return null;
-	}
-
-    public boolean isNodeName(String name)
-    {
-        if (name == null)
-            return false;
-
-        return (findNode(name) != null);
-    }
-
     // Creates a locally unique node name based on this node's name
     public String generateChildNodeName()
     {
-        int childCount = children.size() + 1;
-        return ((nodeName == null) ? "__ANONYMOUS_NODE" : nodeName)
+        int childCount = m_children.size() + 1;
+        return ((m_nodeName == null) ? "__ANONYMOUS_NODE" : m_nodeName)
             + "__CHILD__" + childCount;
     }
 
@@ -166,32 +176,32 @@ public class NodeContext
 
     public Vector<PlexilTreeNode> getResources()
     {
-        return resources;
+        return m_resources;
     }
 
     public void addResource(PlexilTreeNode resourceAST)
     {
-        resources.add(resourceAST);
+        m_resources.add(resourceAST);
     }
 
     public PlexilTreeNode getResourcePriorityAST()
     {
-        return resourcePriorityAST;
+        return m_resourcePriorityAST;
     }
 
     public void setResourcePriorityAST(PlexilTreeNode priority)
     {
-        resourcePriorityAST = priority;
+        m_resourcePriorityAST = priority;
     }
 
     public IXMLElement getResourcePriorityXML()
     {
-        return resourcePriorityXML;
+        return m_resourcePriorityXML;
     }
 
     public void setResourcePriorityXML(IXMLElement priority)
     {
-        resourcePriorityXML = priority;
+        m_resourcePriorityXML = priority;
     }
 
     public boolean declareInterfaceVariable(PlexilTreeNode declaration,
@@ -327,7 +337,7 @@ public class NodeContext
 			// error - duplicate variable name in node
 			CompilerState.getCompilerState().addDiagnostic(nameNode,
 														   "Variable name \"" + name
-														   + "\" is already declared locally",
+														   + "\" is already declared in this context",
 														   Severity.ERROR);
 			CompilerState.getCompilerState().addDiagnostic(existing.getDeclaration(),
 														   "Variable \"" + name
@@ -335,9 +345,9 @@ public class NodeContext
 														   Severity.NOTE);
 			success = false;
 		}
-        if (parentContext != null) {
+        if (m_parentContext != null) {
 			VariableName shadowedVar =
-				parentContext.findInheritedVariable(name);
+				m_parentContext.findInheritedVariable(name);
 			if (shadowedVar != null)
 				// warn of conflict
 				CompilerState.getCompilerState().addDiagnostic(nameNode,
@@ -362,13 +372,13 @@ public class NodeContext
 
     protected VariableName findInheritedVariable(String name)
     {
-        if (parentContext == null)
+        if (m_parentContext == null)
             return null;
-        VariableName vn = parentContext.findLocalVariable(name);
+        VariableName vn = m_parentContext.findLocalVariable(name);
         if (vn != null)
             return vn;
         else
-            return parentContext.findInheritedVariable(name);
+            return m_parentContext.findInheritedVariable(name);
     }
 
     public VariableName findVariable(String name)

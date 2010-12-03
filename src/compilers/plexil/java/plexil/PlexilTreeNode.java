@@ -33,7 +33,6 @@ import net.n3.nanoxml.*;
 public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 {
 	protected IXMLElement m_xml = null;
-	protected boolean m_passedCheck = false;
 
 	//
 	// Constructors
@@ -68,51 +67,84 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 		return (PlexilTreeNode) super.getChild(i);
 	}
 
+	public PlexilTreeNode getParent()
+	{
+		return (PlexilTreeNode) super.getParent();
+	}
+
 
 	//
 	// Extensions
 	//
 
 	/**
-	 * @brief Perform a recursive semantic check.
-	 * @return true if check is successful, false otherwise.
+	 * @brief Get the containing name binding context for this branch of the parse tree.
+	 * @return A NodeContext instance, or the global context.
+	 * @note Derived classes that implement new binding contexts should override this method.
 	 */
-	public boolean check(NodeContext context, CompilerState myState)
+	public NodeContext getContext()
 	{
-		boolean success = checkChildren(context, myState);
-		success = checkSelf(context, myState) && success;
-		m_passedCheck = success;
-		return success;
+		PlexilTreeNode parent = getParent();
+		if (parent != null)
+			return parent.getContext();
+		else
+			return GlobalContext.getGlobalContext();
+	}
+
+	/**
+	 * @brief Establish bindings and do initial checks.
+	 * @note Derived classes that establish binding contexts should override or wrap this method.
+	 */
+	public void earlyCheck(NodeContext context, CompilerState state)
+	{
+		earlyCheckSelf(context, state);
+		earlyCheckChildren(context, state);
+	}
+
+	/**
+	 * @brief Establish local bindings and do initial self checks.
+	 * @note This default method does nothing. Derived classes should override it.
+	 */
+	public void earlyCheckSelf(NodeContext context, CompilerState state)
+	{
+	}
+
+	/**
+	 * @brief Establish bindings and do initial checks of this node's children.
+	 * @note Derived classes should override this as applicable.
+	 */
+	public void earlyCheckChildren(NodeContext context, CompilerState state)
+	{
+		for (int i = 0; i < this.getChildCount(); i++)
+			this.getChild(i).earlyCheck(context, state);
+	}
+
+	/**
+	 * @brief Perform a recursive semantic check.
+	 */
+	public void check(NodeContext context, CompilerState state)
+	{
+		checkChildren(context, state);
+		checkSelf(context, state);
 	}
 
 	/**
 	 * @brief Perform a semantic check of this node's requirements.
-	 * @return true if check is successful, false otherwise.
 	 * @note This is a default method. Derived classes should implement their own. 
 	 */
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public void checkSelf(NodeContext context, CompilerState state)
 	{
-		return true;
 	}
 
 	/**
 	 * @brief Perform semantic checks on the node's children.
-	 * @return true if checks are successful, false otherwise.
 	 */
-	public boolean checkChildren(NodeContext context, CompilerState myState)
+	public void checkChildren(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
 		for (int i = 0; i < this.getChildCount(); i++) {
-			success = this.getChild(i).check(context, myState) && success;
+			this.getChild(i).check(context, state);
 		}
-		return success;
 	}
-
-	/**
-	 * @brief Ask whether this node passed its check.
-	 * @return true if check is successful, false otherwise.
-	 */
-	public boolean passedCheck() { return m_passedCheck; }
 	
 	//* Returns the NanoXML representation of this part of the parse tree.
 	public IXMLElement getXML()
@@ -128,6 +160,11 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 	 * @note This is a base method. Derived classes should extend or override it as required.
 	 */
 	protected void constructXML()
+	{
+		constructXMLBase();
+	}
+
+	protected void constructXMLBase()
 	{
 		m_xml = new XMLElement(this.getXMLElementName());
 		addSourceLocatorAttributes();

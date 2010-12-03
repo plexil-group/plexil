@@ -32,73 +32,45 @@ import net.n3.nanoxml.*;
 
 public class ActionNode extends PlexilTreeNode
 {
-	protected NodeContext m_context = null;
 	protected String m_nodeId = null;
 
 	//
 	// Constructors
 	//
-	public ActionNode()
-	{
-		super();
-	}
-
-	// *** N.B. m_xml is ignored.
-	public ActionNode(ActionNode node)
-	{
-		super(node);
-	}
-
-	public ActionNode(PlexilTreeNode node)
-	{
-		super(node);
-	}
-
-	public ActionNode(int ttype, NodeContext context)
-	{
-		super(new CommonToken(ttype, "ACTION"));
-		m_context = context;
-	}
 
 	public ActionNode(Token t)
 	{
 		super(t);
 	}
 
-	public ActionNode(CommonTree node)
+	public String getNodeId()
 	{
-		super(node);
+		return m_nodeId; 
 	}
 
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
-
-		// If supplied, check that node ID is unique in parent
+		// If supplied, get the node ID
 		PlexilTreeNode firstChild = this.getChild(0);
 		if (firstChild.getType() == PlexilLexer.NCNAME) {
 			m_nodeId = firstChild.getText();
-			if (m_context.getParentContext().getChildContext(firstChild.getText()) != m_context) {
-				myState.addDiagnostic(firstChild,
-									  "Node ID \"" + firstChild.getText() + "\" is multiply defined",
-									  Severity.ERROR);
-				success = false;
+			// Check that node ID is locally unique
+			if (context.isChildNodeId(m_nodeId)) {
+				state.addDiagnostic(firstChild,
+									"Node ID \"" + m_nodeId + "\" defined more than once in this context",
+									Severity.ERROR);
+				state.addDiagnostic(context.getChildNodeId(m_nodeId),
+									"Original definition of node ID \"" + m_nodeId + "\" is here",
+									Severity.NOTE);
+			}
+			else {
+				context.addChildNodeId(firstChild);
 			}
 		}
 		else {
-			// Set node ID from context (which got it at constructor time from parent)
-			m_nodeId = m_context.getNodeName();
+			// Gensym a name but don't log it, since it never appeared in the source
+			m_nodeId = context.generateChildNodeName();
 		}
-
-		// TODO: other checks?
-
-		return success;
-	}
-
-	// Use local node context for kids
-	public boolean checkChildren(NodeContext context, CompilerState myState)
-	{
-		return super.checkChildren(m_context, myState);
 	}
 
 	protected void constructXML()

@@ -35,48 +35,83 @@ import net.n3.nanoxml.*;
 
 public class BlockNode extends PlexilTreeNode
 {
+	// Name binding context
 	NodeContext m_context = null;
 
+	// Components of the block
 	PlexilTreeNode m_comment = null;
-	Vector<PlexilTreeNode> m_declarations = new Vector<PlexilTreeNode>();
-	Vector<PlexilTreeNode> m_conditions = new Vector<PlexilTreeNode>();
-	Vector<PlexilTreeNode> m_attributes = new Vector<PlexilTreeNode>();
-	Vector<PlexilTreeNode> m_resources = new Vector<PlexilTreeNode>();
-	Vector<PlexilTreeNode> m_body = new Vector<PlexilTreeNode>();
-
-	public BlockNode(BlockNode b)
-	{
-		super(b);
-		// FIXME: should this copy context??
-		m_context = b.m_context;
-	}
+	Vector<PlexilTreeNode> m_declarations = null;
+	Vector<PlexilTreeNode> m_conditions = null;
+	Vector<PlexilTreeNode> m_attributes = null;
+	Vector<PlexilTreeNode> m_resources = null;
+	Vector<PlexilTreeNode> m_body = null;
 
 	public BlockNode(Token t)
 	{
 		super(t);
 	}
 
-	public BlockNode(int ttype)
+	/**
+	 * @brief Get the containing name binding context for this branch of the parse tree.
+	 * @return A NodeContext instance, or the global context.
+	 */
+	public NodeContext getContext()
 	{
-		super(new CommonToken(ttype, "BLOCK"));
+		return m_context;
+	}
+
+	/**
+	 * @brief Prepare for the semantic check.
+	 */
+	public void earlyCheck(NodeContext parentContext, CompilerState state)
+	{
+		earlyCheckSelf(parentContext, state);
+		for (int i = 0; i < this.getChildCount(); i++)
+			this.getChild(i).earlyCheck(m_context, state);
+	}
+
+	public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+	{
+		// See if we have a node ID
+		String nodeId = null;
+		PlexilTreeNode parent = this.getParent();
+		if (parent != null && parent instanceof ActionNode) {
+			nodeId = ((ActionNode) parent).getNodeId();
+		}
+		else {
+			// should never happen
+			state.addDiagnostic(this,
+								"Internal error: BlockNode instance has no parent ActionNode",
+								Severity.FATAL);
+		}
+		m_context = new NodeContext(parentContext, nodeId);
+
+		// Divide up the children by category
+		partitionChildren();
+	}
+
+	/**
+	 * @brief Perform a recursive semantic check.
+	 * @return true if check is successful, false otherwise.
+	 * @note Uses new binding context for children.
+	 */
+	public void check(NodeContext parentContext, CompilerState state)
+	{
+		checkChildren(m_context, state);
+		checkSelf(parentContext, state);
 	}
 
 	// N.B. Interface and variable decl's, and conditions, check themselves.
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public void checkSelf(NodeContext context, CompilerState state)
 	{
-		m_context = context;
-		partitionChildren();
-		boolean success = true;
-
 		// Check for duplicate conditions
 		TreeSet<Integer> conditionsSeen = new TreeSet<Integer>();
 		for (PlexilTreeNode c : m_conditions) {
 			Integer condType = new Integer(c.getType());
 			if (conditionsSeen.contains(condType)) {
-				myState.addDiagnostic(c,
-									  "Multiple \"" + c.getToken().getText() + "\" conditions specified",
-									  Severity.ERROR);
-				success = false;
+				state.addDiagnostic(c,
+									"Multiple \"" + c.getToken().getText() + "\" conditions specified",
+									Severity.ERROR);
 			}
 			else {
 				conditionsSeen.add(condType);
@@ -89,10 +124,9 @@ public class BlockNode extends PlexilTreeNode
 		else {
 			// Resources are NOT legal, flag them as errors
 			for (PlexilTreeNode r : m_resources) {
-				myState.addDiagnostic(r, 
-									  "The \"" + r.getToken().getText() + "\" keyword is only valid for Command actions",
-									  Severity.ERROR);
-				success = false;
+				state.addDiagnostic(r, 
+									"The \"" + r.getToken().getText() + "\" keyword is only valid for Command actions",
+									Severity.ERROR);
 			}
 		}
 
@@ -100,17 +134,15 @@ public class BlockNode extends PlexilTreeNode
 		for (PlexilTreeNode a : m_attributes) {
 			// Check for collisions
 		}
-
-		return success;
 	}
 
 	private void partitionChildren()
 	{
-		m_declarations.clear();
-		m_conditions.clear();
-		m_attributes.clear();
-		m_resources.clear();
-		m_body.clear();
+		m_declarations = new Vector<PlexilTreeNode>();
+		m_conditions = new Vector<PlexilTreeNode>();
+		m_attributes = new Vector<PlexilTreeNode>();
+		m_resources = new Vector<PlexilTreeNode>();
+		m_body = new Vector<PlexilTreeNode>();
 
 		if (this.getChildCount() > 0) {
 			int i = 0;

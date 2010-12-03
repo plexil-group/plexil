@@ -35,6 +35,7 @@ import net.n3.nanoxml.*;
 
 public class WhileNode extends PlexilTreeNode
 {
+	private NodeContext m_bodyContext = null;
 
 	public WhileNode(Token t)
 	{
@@ -46,17 +47,60 @@ public class WhileNode extends PlexilTreeNode
 		super(n);
 	}
 
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	//
+	// N.B. The extra complexity in the checking logic is to ensure the body
+	// is contained in a separate name binding context from the while loop
+	// as a whole.
+	//
+
+	/**
+	 * @brief Prepare for the semantic check.
+	 */
+	public void earlyCheck(NodeContext parentContext, CompilerState state)
 	{
-		boolean success = true;
+		earlyCheckSelf(parentContext, state);
+		this.getChild(0).earlyCheck(parentContext, state); // while-test expression
+		this.getChild(1).earlyCheck(m_bodyContext, state); // body
+	}
+
+	public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+	{
+		// See if we have a node ID
+		String nodeId = null;
+		PlexilTreeNode parent = this.getParent();
+		if (parent != null && parent instanceof ActionNode) {
+			nodeId = ((ActionNode) parent).getNodeId();
+		}
+		else {
+			// should never happen
+			state.addDiagnostic(this,
+								"Internal error: WhileNode instance has no parent ActionNode",
+								Severity.FATAL);
+		}
+		// Construct body binding context
+		// FIXME: change suffix to match generated code!
+		m_bodyContext = new NodeContext(parentContext, nodeId + "_WHILE_BODY");
+	}
+
+	/**
+	 * @brief Semantic check.
+	 * @note Uses separate context for body.
+	 */
+	public void check(NodeContext parentContext, CompilerState state)
+	{
+		checkSelf(parentContext, state);
+		this.getChild(0).check(parentContext, state); // while test
+		this.getChild(1).check(m_bodyContext, state); // body
+	}
+
+	public void checkSelf(NodeContext context, CompilerState state)
+	{
 		ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
-		if (whileTest.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
-			myState.addDiagnostic(whileTest,
+		if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
+			state.addDiagnostic(whileTest,
 								  "\"while\" test expression is not Boolean",
 								  Severity.ERROR);
-			success = false;
 		}
-		return success;
 	}
 
 	protected void constructXML()

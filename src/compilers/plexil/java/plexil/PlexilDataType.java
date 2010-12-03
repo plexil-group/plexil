@@ -136,6 +136,7 @@ public final class PlexilDataType
     public static final PlexilDataType NODE_STATE_TYPE = new PlexilDataType("NODE_STATE_TYPE", "NodeState", false);
     public static final PlexilDataType NODE_OUTCOME_TYPE = new PlexilDataType("NODE_OUTCOME_TYPE", "NodeOutcome", false);
     public static final PlexilDataType NODE_FAILURE_TYPE = new PlexilDataType("NODE_FAILURE_TYPE", "NodeFailure", false);
+    public static final PlexilDataType STATE_NAME_TYPE = new PlexilDataType("STATE_NAME_TYPE", "StateName", false);
 
 	// Has no value at all, e.g. commands that return no value
     public static final PlexilDataType VOID_TYPE = new PlexilDataType("VOID_TYPE", "Void", false);

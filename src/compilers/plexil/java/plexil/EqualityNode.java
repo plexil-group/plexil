@@ -40,16 +40,20 @@ public class EqualityNode extends ExpressionNode
 
 	/**
 	 * @brief Check the expression for type consistency.
-	 * @return true if consistent, false otherwise.
 	 */
-	public boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	public void checkTypeConsistency(NodeContext context, CompilerState state)
 	{
-		// TODO: add diagnostics
 		PlexilDataType lhsType = ((ExpressionNode) this.getChild(0)).getDataType();
 		PlexilDataType rhsType = ((ExpressionNode) this.getChild(1)).getDataType();
-		if (lhsType.isNumeric())
-			return rhsType.isNumeric();
-		return lhsType == rhsType;
+		if (lhsType == rhsType
+			|| lhsType.isNumeric() && rhsType.isNumeric()
+			|| lhsType == PlexilDataType.ANY_TYPE
+			|| rhsType == PlexilDataType.ANY_TYPE)
+			return;
+		state.addDiagnostic(this,
+							"Operands to the " + this.getToken().getText()
+							+ " operator have incompatible types",
+							Severity.ERROR);
 	}
 
 	/**

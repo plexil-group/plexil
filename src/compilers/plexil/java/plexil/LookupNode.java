@@ -34,7 +34,7 @@ import net.n3.nanoxml.*;
 
 public class LookupNode extends ExpressionNode
 {
-	private Vector<ExpressionNode> m_parameters = null;
+	private PlexilTreeNode m_arguments = null;
 	private ExpressionNode m_tolerance = null;
 	private GlobalDeclaration m_state = null;
 
@@ -43,62 +43,51 @@ public class LookupNode extends ExpressionNode
 		super(t);
 	}
 
-	/**
-	 * @brief Persuade the expression to assume the specified data type
-	 * @return true if the expression can consistently assume the specified type, false otherwise.
-	 */
-	protected boolean assumeType(PlexilDataType t, CompilerState myState)
+	//
+	// LookupNow is (LOOKUP_KYWD lookupNameExp argumentList?)
+	// LookupOnChange is (LOOKUP_ON_CHANGE_KYWD lookupNameExp argumentList? tolerance?)
+	// Lookup is (LOOKUP_KYWD lookupNameExp argumentList? tolerance?)
+	//
+	// lookupNameExp is (STATE_NAME NCNAME) or expression
+	// argument list is (ARGUMENT_LIST expression*)
+	// tolerance is REAL or NCNAME -> variable
+	//
+
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		if (m_state != null)
-			// We have an assigned type, so the usual rules apply
-			return super.assumeType(t, myState);
-		else {
-			// We have no information, 
-			// so all we can do is accept the imposed type
-			m_dataType = t;
-			return true;
-		}
-	}
-
-	/**
-	 * @brief Check the expression for semantic consistency.
-	 * @return true if consistent, false otherwise.
-	 */
-	public boolean checkSelf(NodeContext context, CompilerState myState)
-	{
-		// LookupNow is (LOOKUP_KYWD lookupNameExp argumentList?)
-		// LookupOnChange is (LOOKUP_ON_CHANGE_KYWD lookupNameExp argumentList? tolerance?)
-		// Lookup is (LOOKUP_KYWD lookupNameExp argumentList? tolerance?)
-		// lookupNameExp is (STATE_NAME NCNAME) or expression
-		// argument list is (ARGUMENT_LIST expression*)
-		// tolerance is REAL or NCNAME -> variable
-
-		boolean success = true;
-
 		// Break down into subexpressions
-		PlexilTreeNode invocation = this.getChild(0);
-		PlexilTreeNode arglist = null;
-
 		if (this.getChildCount() > 1) {
 			PlexilTreeNode secondKid = this.getChild(1);
 			if (secondKid.getType() == PlexilLexer.ARGUMENT_LIST) {
-				arglist = secondKid;
+				m_arguments = secondKid;
 				m_tolerance = (ExpressionNode) this.getChild(2);
 			}
 			else 
 				m_tolerance = (ExpressionNode) secondKid;
 		}
 
+		if (m_tolerance != null) {
+			// Enforce variable reference or literal restriction
+			if (!(m_tolerance instanceof LiteralNode || m_tolerance instanceof VariableNode)) {
+				state.addDiagnostic(m_tolerance,
+									"Tolerance argument to " + this.getToken().getText()
+									+ " must be a variable reference or a literal",
+									Severity.ERROR);
+			}
+		}
+
+		PlexilTreeNode invocation = this.getChild(0);
 		if (invocation.getType() == PlexilLexer.STATE_NAME) {
 			// Do additional checking if state name is a literal
 			String stateName = invocation.getChild(0).getText();
 			m_state = GlobalContext.getGlobalContext().getLookupDeclaration(stateName);
 			if (m_state == null) {
 				// FIXME: should this be an error instead?
-				myState.addDiagnostic(invocation.getChild(0),
-									  "State name \"" + stateName + "\" has not been declared",
-									  Severity.WARNING);
+				state.addDiagnostic(invocation.getChild(0),
+									"State name \"" + stateName + "\" has not been declared",
+									Severity.WARNING);
 				// FIXME: add implicit declaration?
+				m_dataType = PlexilDataType.ANY_TYPE;
 			}
 			else {
 				// Set return value type
@@ -107,93 +96,74 @@ public class LookupNode extends ExpressionNode
 				// Check arglist
 				Vector<PlexilDataType> argTypes = m_state.getParameterTypes();
 				if (argTypes == null) {
-					if (arglist != null) {
-						myState.addDiagnostic(invocation,
-											  "State name \"" + stateName + "\" requires 0 parameters, but "
-											  + Integer.toString(arglist.getChildCount()) + " were supplied",
-											  Severity.ERROR);
-						success = false;
+					if (m_arguments != null) {
+						state.addDiagnostic(invocation,
+											"State name \"" + stateName + "\" requires 0 parameters, but "
+											+ Integer.toString(m_arguments.getChildCount()) + " were supplied",
+											Severity.ERROR);
 					}
 					// else nothing needs to be done
 				}
 				else {
 					// State takes parameters
-					if (arglist == null) {
-						myState.addDiagnostic(invocation,
-											  "State name \"" + stateName + "\" requires "
-											  + Integer.toString(argTypes.size())
-											  + " parameters, but none were supplied",
-											  Severity.ERROR);
-						success = false;
+					if (m_arguments == null) {
+						state.addDiagnostic(invocation,
+											"State name \"" + stateName + "\" requires "
+											+ Integer.toString(argTypes.size())
+											+ " parameters, but none were supplied",
+											Severity.ERROR);
 					}
-					else {
-						// Check arg count and store them for later type checking
-						m_parameters = new Vector<ExpressionNode>(argTypes.size());
-						int i = 0;
-						for (; i < argTypes.size(); i++) {
-							ExpressionNode actualParam = (ExpressionNode) arglist.getChild(i);
-							if (actualParam == null) {
-								myState.addDiagnostic(invocation,
-													  "State name \"" + stateName
-													  + "\" requires " + Integer.toString(argTypes.size())
-													  + " parameters, but " + Integer.toString(i) + " were supplied",
-													  Severity.ERROR);
-								success = false;
-								break;
-							}
-							m_parameters.add(actualParam);
-						}
+					// Check arg count
+					else if (argTypes.size() != m_arguments.getChildCount()) {
+						state.addDiagnostic(invocation,
+											"State name \"" + stateName
+											+ "\" requires " + Integer.toString(argTypes.size())
+											+ " parameters, but " + Integer.toString(m_arguments.getChildCount())
+											+ " were supplied",
+											Severity.ERROR);
 					}
-				}					
-
+				}
 			}
 		}
-		else {
-			// FIXME: what can we do if we don't have the name??
-		}
-
-		return success;
 	}
 
-	/**
-	 * @brief Check the expression for type consistency.
-	 * @return true if consistent, false otherwise.
-	 */
-	protected boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	public void check(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
 		if (m_state != null) {
 			// Check arglist
 			// Formal vs. actual counts have already been done in checkSelf()
 			Vector<PlexilDataType> argTypes = m_state.getParameterTypes();
-			if (argTypes != null && m_parameters != null) {
+			if (argTypes != null
+				&& m_arguments != null
+				&& argTypes.size() == m_arguments.getChildCount()) {
 				// Check arg types
 				for (int i = 0; i < argTypes.size(); i++) {
 					PlexilDataType argType = argTypes.elementAt(i);
-					ExpressionNode actualParam = m_parameters.elementAt(i);
-					if (!actualParam.assumeType(argType, myState)) {
-						myState.addDiagnostic(actualParam,
-											  "Parameter " + Integer.toString(i+1)
-											  + " to state \"" + m_state.getName()
-											  + "\" has type " + actualParam.getDataType().typeName()
-											  + ", instead of expected type " + argType.typeName(),
-											  Severity.ERROR);
-						success = false;
+					ExpressionNode actualParam = (ExpressionNode) m_arguments.getChild(i);
+					if (!actualParam.assumeType(argType, state)) {
+						state.addDiagnostic(actualParam,
+											"Parameter " + Integer.toString(i+1)
+											+ " to state \"" + m_state.getName()
+											+ "\" has type " + actualParam.getDataType().typeName()
+											+ ", instead of expected type " + argType.typeName(),
+											Severity.ERROR);
 					}
 				}
 			}
 
 			// Type check tolerance if supplied and if state name is known
-			if (m_tolerance != null && !m_tolerance.assumeType(m_dataType, myState)) {
-				myState.addDiagnostic(m_tolerance,
-									  "Tolerance supplied for state \"" + m_state.getName()
-									  + "\" has type " + m_tolerance.getDataType().typeName()
-									  + ", instead of state's return type " + m_dataType.typeName(),
-									  Severity.ERROR);
-				success = false;
+			if (m_tolerance != null) {
+				if (!m_tolerance.assumeType(m_dataType, state)) {
+					state.addDiagnostic(m_tolerance,
+										"Tolerance supplied for state \"" + m_state.getName()
+										+ "\" has type " + m_tolerance.getDataType().typeName()
+										+ ", instead of state's return type " + m_dataType.typeName(),
+										Severity.ERROR);
+				}
 			}
 		}
-		return success;
+		// Now do recursive checks
+		this.checkChildren(context, state);
 	}
 
 	protected void constructXML()
@@ -220,11 +190,11 @@ public class LookupNode extends ExpressionNode
 		}
 
 		// Add parameters
-		if (m_parameters != null) {
+		if (m_arguments != null) {
 			IXMLElement argXML = new XMLElement("Arguments");
 			m_xml.addChild(argXML);
-			for (ExpressionNode arg : m_parameters) 
-				argXML.addChild(arg.getXML());
+			for (int i = 0; i < m_arguments.getChildCount(); i++) 
+				argXML.addChild(m_arguments.getChild(i).getXML());
 		}
 
 	}

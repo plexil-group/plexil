@@ -88,10 +88,16 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 			return new ForNode(payload);
 		case PlexilLexer.IF_KYWD:
 			return new IfNode(payload);
+		case PlexilLexer.WAIT_KYWD:
+			return new WaitNode(payload);
 		case PlexilLexer.WHILE_KYWD:
 			return new WhileNode(payload);
 
 			// Internal tokens
+		case PlexilLexer.ACTION:
+			return new ActionNode(payload);
+		case PlexilLexer.ASSIGNMENT:
+			return new AssignmentNode(payload);
 		case PlexilLexer.ARRAY_REF:
 			return new ArrayReferenceNode(payload);
 		case PlexilLexer.ARRAY_VARIABLE_DECLARATION:
@@ -104,9 +110,11 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.FALSE_KYWD:
 		case PlexilLexer.INT:
 		case PlexilLexer.DOUBLE:
-		case PlexilLexer.ARRAY_LITERAL:
 		case PlexilLexer.STATE_NAME:
 			return new LiteralNode(payload);
+
+		case PlexilLexer.ARRAY_LITERAL:
+			return new ArrayLiteralNode(payload);
 
 		case PlexilLexer.STRING:
 			return new StringLiteralNode(payload);
@@ -123,27 +131,6 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 	{
 		PlexilErrorNode t = new PlexilErrorNode(input, start, stop, e);
 		return t;
-	}
-
-	// This seems to be of more use in tree parsing.
-	public Object dupNode(Object t)
-	{
-		System.err.println("PlexilTreeAdaptor.dupNode of " + t.getClass().getName());
-		if (t instanceof ArithmeticOperatorNode)
-			return new ArithmeticOperatorNode((ArithmeticOperatorNode) t);
-		else if (t instanceof LogicalOperatorNode)
-			return new LogicalOperatorNode((LogicalOperatorNode) t);
-		else if (t instanceof ExpressionNode)
-			return new ExpressionNode((ExpressionNode) t);
-		else if (t instanceof BlockNode)
-			return new BlockNode((BlockNode) t);
-		else if (t instanceof PlexilTreeNode)
-			return new PlexilTreeNode((PlexilTreeNode) t);
-		else if (t instanceof CommonTree)
-			return new PlexilTreeNode((CommonTree) t);
-		else if (t instanceof Token)
-			return new PlexilTreeNode((Token) t);
-		else return null;
 	}
 
 }

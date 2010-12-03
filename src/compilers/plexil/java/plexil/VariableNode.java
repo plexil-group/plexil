@@ -39,22 +39,22 @@ public class VariableNode extends ExpressionNode
 		super(t);
 	}
 
-	public boolean check(NodeContext context, CompilerState myState)
+	/**
+	 * @brief Prepare for the semantic check.
+	 */
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
-		// Get variable from context
+		// Get variable from context, if possible
 		m_variable = context.findVariable(this.getText());
 		if (m_variable == null) {
-			myState.addDiagnostic(this,
+			state.addDiagnostic(this,
 								  "Variable \"" + this.getText() + "\" is not declared",
 								  Severity.ERROR);
-			success = false;
 		}
 		else {
+
 			m_dataType = m_variable.getVariableType();
 		}
-		m_passedCheck = success;
-		return m_passedCheck;
 	}
 
 	protected void constructXML()
@@ -71,19 +71,18 @@ public class VariableNode extends ExpressionNode
 	// Source locators are not allowed on variable elements.
 	protected void addSourceLocatorAttributes() {}
 
-	public boolean checkAssignable(CompilerState myState)
+	public void checkAssignable(NodeContext context, CompilerState state)
 	{
 		if (m_variable == null
 			|| m_variable.isAssignable())
-			return true;
+			return;
 		// we have a variable and it's not assignable
-		myState.addDiagnostic(this,
-							  "Variable \"" + this.getText() + "\" is declared In",
-							  Severity.ERROR);
-		myState.addDiagnostic(m_variable.getDeclaration(),
-							  "Variable \"" + this.getText() + "\" declared In here",
-							  Severity.NOTE);
-		return false;
+		state.addDiagnostic(this,
+							"Variable \"" + this.getText() + "\" is declared In",
+							Severity.ERROR);
+		state.addDiagnostic(m_variable.getDeclaration(),
+							"Variable \"" + this.getText() + "\" declared In here",
+							Severity.NOTE);
 	}
 
 	public PlexilTreeNode getDeclaration() 

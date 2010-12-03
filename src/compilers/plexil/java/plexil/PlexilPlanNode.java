@@ -39,12 +39,10 @@ public class PlexilPlanNode extends PlexilTreeNode
 
 	/**
 	 * @brief Perform a recursive semantic check.
-	 * @return true if check is successful, false otherwise.
 	 */
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public void earlyCheckSelf(NodeContext context, CompilerState myState)
 	{
 		// TODO: implement!
-		return true;
 	}
 
 	/**

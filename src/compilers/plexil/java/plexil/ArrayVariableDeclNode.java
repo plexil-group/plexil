@@ -38,93 +38,87 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 		super(t);
 	}
 
-	// format is (ARRAY_VARIABLE_DECLARATION element-type NCNAME INT initialValue?)
-	public boolean check(NodeContext context, CompilerState myState)
+	// Various places expect the variable to be defined early
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
+		// N.B. type is restricted syntactically so *should be* no chance of error here
+		PlexilDataType arrayType = 
+			PlexilDataType.findByName(getChild(0).getText()).arrayType();
+
+		// Check for name conflict (issues diagnostics on failure)
+		// and define the variable if no conflict found
+		PlexilTreeNode varNameNode = this.getChild(1);
+		String sizeString = this.getChild(2).getText();
+		ExpressionNode initValNode = null;
+		if (this.getChildCount() > 3)
+			initValNode = (ExpressionNode) this.getChild(3);
+
+		if (context.checkVariableName(varNameNode))
+			m_variable = context.declareArrayVariable(this,
+													  varNameNode,
+													  arrayType,
+													  sizeString,
+													  initValNode);
+		if (this.getChildCount() > 3)
+			initValNode.earlyCheck(context, state);
+	}
+
+	// format is (ARRAY_VARIABLE_DECLARATION element-type NCNAME INT initialValue?)
+	public void check(NodeContext context, CompilerState state)
+	{
 		PlexilTreeNode varNameNode = this.getChild(1);
 		String varName = varNameNode.getText();
 
-		// N.B. type is restricted syntactically so *should be* no chance of error here
 		PlexilDataType elementType = PlexilDataType.findByName(this.getChild(0).getText());
 		PlexilDataType arrayType = elementType.arrayType();
-        if (arrayType == null) {
-			myState.addDiagnostic(this.getChild(0),
-								  "For array variable \"" + varName
-								  + "\": Element type " + elementType.typeName()
-								  + " has no associated array type",
-								  Severity.ERROR);
-			success = false;
-		}
 
 		// Check max size for non-negative integer
 		LiteralNode sizeNode = (LiteralNode) this.getChild(2);
 		String sizeString = sizeNode.getText();
 		int size = LiteralNode.parseIntegerValue(sizeString);
 		if (size < 0) {
-			myState.addDiagnostic(sizeNode,
-								  "For array variable \"" + varName
-								  + "\": size " + sizeString + " is negative",
-								  Severity.ERROR);
-			success = false;
+			state.addDiagnostic(sizeNode,
+								"For array variable \"" + varName
+								+ "\": size " + sizeString + " is negative",
+								Severity.ERROR);
 		}
 
 		// If supplied, check initial value for type conflict
 		// Track success of this check separately
 		ExpressionNode initValNode = null;
-		boolean initValSuccess = true;
 		if (this.getChildCount() > 3) {
 			// N.B. we assume this is a LiteralNode,
 			// but ExpressionNode supports the required method
 			// and allows the syntax to be generalized later.
 			initValNode = (ExpressionNode) this.getChild(3);
 			if (initValNode.getDataType().isArray()) {
-				if (!initValNode.assumeType(arrayType, myState)) {
-					// Just mark it as failed
+				if (!initValNode.assumeType(arrayType, state)) {
 					// assumeType() already reported the cause of the failure 
-					initValSuccess = false;
 				}
 
-				// TODO: check size < max
+				// Check size < declared max
 				if (initValNode.getChildCount() > size) {
-					myState.addDiagnostic(initValNode,
-										  "For array variable \"" + varName
-										  + "\": Array size is " + Integer.toString(size)
-										  + ", but initial value has " + Integer.toString(initValNode.getChildCount())
-										  + " elements", 
-										  Severity.ERROR);
-					initValSuccess = false;
+					state.addDiagnostic(initValNode,
+										"For array variable \"" + varName
+										+ "\": Array size is " + Integer.toString(size)
+										+ ", but initial value has " + Integer.toString(initValNode.getChildCount())
+										+ " elements", 
+										Severity.ERROR);
 				}
 			}
 			// Check scalar init value type consistency
-			else if (!initValNode.assumeType(elementType, myState)) {
-				myState.addDiagnostic(initValNode,
-									  "For array variable \"" + varName
-									  + "\": Initial value's type, "
-									  + initValNode.getDataType().typeName()
-									  + ", does not match array element type "
-									  + elementType.typeName(),
-									  Severity.ERROR);
-				initValSuccess = false;
+			else if (!initValNode.assumeType(elementType, state)) {
+				state.addDiagnostic(initValNode,
+									"For array variable \"" + varName
+									+ "\": Initial value's type, "
+									+ initValNode.getDataType().typeName()
+									+ ", does not match array element type "
+									+ elementType.typeName(),
+									Severity.ERROR);
 			}
 			// Perform general semantic check of init value
-			initValSuccess = initValNode.check(context, myState) && success;
+			initValNode.check(context, state);
 		}
-
-		// Add variable to context, even if initial value failed check,
-		// to support further semantic checking in the plan
-		if (success) {
-			// Can fail in event of name conflict
-			m_variable = context.declareArrayVariable(this,
-													  varNameNode,
-													  arrayType,
-													  sizeString,
-													  initValSuccess ? initValNode : null);
-			if (m_variable == null)
-				success = false;
-		}
-		m_passedCheck = success && initValSuccess;
-		return m_passedCheck;
 	}
 
 }

@@ -40,28 +40,38 @@ public class LiteralNode extends ExpressionNode
     public LiteralNode(Token t) 
     {
 		super(t);
-		setDataTypeFromContent();
+		setInitialDataTypeFromTokenType();
     }
 
-	private void setDataTypeFromContent()
+	private void setInitialDataTypeFromTokenType()
 	{
 		switch (this.getToken().getType()) {
 
 		case PlexilLexer.INT:
-			this.setDataType(PlexilDataType.INTEGER_TYPE);
+			m_dataType = PlexilDataType.INTEGER_TYPE;
 			break;
 
 		case PlexilLexer.DOUBLE:
-			this.setDataType(PlexilDataType.REAL_TYPE);
-			break;
-
-		case PlexilLexer.STRING:
-			this.setDataType(PlexilDataType.STRING_TYPE);
+			m_dataType = PlexilDataType.REAL_TYPE;
 			break;
 
 		case PlexilLexer.TRUE_KYWD:
 		case PlexilLexer.FALSE_KYWD:
-			this.setDataType(PlexilDataType.BOOLEAN_TYPE);
+			m_dataType = PlexilDataType.BOOLEAN_TYPE;
+			break;
+
+		case PlexilLexer.STATE_NAME:
+			m_dataType = PlexilDataType.STATE_NAME_TYPE;
+			break;
+
+			// Handled by ArrayLiteralNode
+		case PlexilLexer.ARRAY_LITERAL:
+			m_dataType = PlexilDataType.UNKNOWN_ARRAY_TYPE;
+			break;
+
+			// Handled by StringLiteralNode
+		case PlexilLexer.STRING:
+			m_dataType = PlexilDataType.STRING_TYPE;
 			break;
 
 			// internal data types
@@ -73,14 +83,14 @@ public class LiteralNode extends ExpressionNode
 		case PlexilLexer.INACTIVE_STATE_KYWD:
 		case PlexilLexer.ITERATION_ENDED_STATE_KYWD:
 		case PlexilLexer.WAITING_STATE_KYWD:
-			this.setDataType(PlexilDataType.NODE_STATE_TYPE);
+			m_dataType = PlexilDataType.NODE_STATE_TYPE;
 			break;
 
 
 		case PlexilLexer.SUCCESS_OUTCOME_KYWD:
 		case PlexilLexer.FAILURE_OUTCOME_KYWD:
 		case PlexilLexer.SKIPPED_OUTCOME_KYWD:
-			this.setDataType(PlexilDataType.NODE_OUTCOME_TYPE);
+			m_dataType = PlexilDataType.NODE_OUTCOME_TYPE;
 			break;
 
 
@@ -88,7 +98,7 @@ public class LiteralNode extends ExpressionNode
 		case PlexilLexer.POST_CONDITION_FAILED_KYWD:
 		case PlexilLexer.INVARIANT_CONDITION_FAILED_KYWD:
 		case PlexilLexer.PARENT_FAILED_KYWD:
-			this.setDataType(PlexilDataType.NODE_FAILURE_TYPE);
+			m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
 			break;
 
 		case PlexilLexer.COMMAND_ABORTED_KYWD:
@@ -99,16 +109,22 @@ public class LiteralNode extends ExpressionNode
 		case PlexilLexer.COMMAND_RCVD_KYWD:
 		case PlexilLexer.COMMAND_SENT_KYWD:
 		case PlexilLexer.COMMAND_SUCCESS_KYWD:
-			this.setDataType(PlexilDataType.COMMAND_HANDLE_TYPE);
-			break;
-
-		case PlexilLexer.ARRAY_LITERAL:
-			this.setDataType(PlexilDataType.UNKNOWN_ARRAY_TYPE);
+			m_dataType = PlexilDataType.COMMAND_HANDLE_TYPE;
 			break;
 
 		default:
-			this.setDataType(PlexilDataType.ERROR_TYPE);
+			// debug aid
+			CompilerState.getCompilerState().addDiagnostic(this,
+														   "Internal error: LiteralNode cannot determine data type for \""
+														   + this.getText() + "\"",
+														   Severity.FATAL);
+			m_dataType = PlexilDataType.ERROR_TYPE;
+			break;
 		}
+	}
+
+	public void earlyCheck(NodeContext context, CompilerState state)
+	{
 	}
 
 
@@ -116,8 +132,24 @@ public class LiteralNode extends ExpressionNode
 	 * @brief Persuade the expression to assume the specified data type
 	 * @return true if the expression can consistently assume the specified type, false otherwise.
 	 */
-	protected boolean assumeType(PlexilDataType t, CompilerState myState)
+	protected boolean assumeType(PlexilDataType t, CompilerState state)
 	{
+		// If target type is Void, Error, or underspec'd array, fail.
+		if (t == PlexilDataType.VOID_TYPE
+			|| t == PlexilDataType.ERROR_TYPE
+			|| t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+			state.addDiagnostic(null,
+								  "Internal error: LiteralNode.assumeType called with illegal first argument of "
+								  + t.typeName(),
+								  Severity.FATAL);
+			return false;
+		}
+
+		// If target type is Any, succeed.
+		if (t == PlexilDataType.ANY_TYPE)
+			return true;
+
+		// If we are already the right type, succeed.
 		if (m_dataType == t)
 			return true;
 		else if (m_dataType == PlexilDataType.INTEGER_TYPE
@@ -128,62 +160,29 @@ public class LiteralNode extends ExpressionNode
 		}
 		else if (t == PlexilDataType.BOOLEAN_TYPE
 				 && m_dataType == PlexilDataType.INTEGER_TYPE) {
-			String txt = this.getToken().getText();
-			if (txt.equals("0") || txt.equals("1")) {
+			int value = parseIntegerValue(this.getToken().getText());
+			if (value == 0 || value == 1) {
 				// OK to coerce it to boolean
 				m_dataType = t;
 				return true;
 			}
 			// else fall through to failure
 		}
-		else if (t.isArray()) {
-			boolean success = true;
-			if (m_dataType == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
-				// Can this array be coerced to the desired type?
-				PlexilDataType eltType = t.arrayElementType();
-				// Check that children are type consistent
-				for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-					LiteralNode child = (LiteralNode) this.getChild(childIdx);
-					if (!child.assumeType(eltType, myState)) {
-						myState.addDiagnostic(child,
-											  "Array element type " + child.m_dataType.typeName()
-											  + " does not match required array literal element type " + t.typeName(),
-											  Severity.ERROR);
-						success = false;
-					}
-				}
-				if (success) {
-					m_dataType = t;
-				}
-			}
-			// TODO: in all cases, perform semantic check of entire array
-			return success;
-		}
 
 		// fall-through return
 		return false;
 	}
 
-
-	public boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	// Assumes this has been called after assumeType().
+	public void checkTypeConsistency(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
-		if (m_dataType == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
-			myState.addDiagnostic(this,
-								  "Translator internal error: Array element type has not been resolved",
-								  Severity.ERROR);
-		}
-        else if (m_dataType.isArray()) {
-			// TODO: ???
-		}
-		else if (m_dataType == PlexilDataType.INTEGER_TYPE) {
+		if (m_dataType == PlexilDataType.INTEGER_TYPE) {
 			// TODO: format check
 			// TODO: range check
 		}
 		else if (m_dataType == PlexilDataType.REAL_TYPE) {
 			// TODO: range check
 		}
-		return success;
 	}
 
 	// Utility for use from various contexts
@@ -229,30 +228,18 @@ public class LiteralNode extends ExpressionNode
     public void constructXML()
     {
 		super.constructXML();
-        if (m_dataType.isArray()) {
-			m_xml.setAttribute("Type", m_dataType.typeName());
-			for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-				LiteralNode child = (LiteralNode) this.getChild(childIdx);
-				m_xml.addChild(child.getXML());
-            }
-        }
-        else {
-			String txt = this.getToken().getText();
-			if (getToken().getType() == PlexilLexer.INT) {
-				m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
-			}
-			else {
-				m_xml.setContent(txt);
-			}
-        }
+		String txt = this.getToken().getText();
+		if (getToken().getType() == PlexilLexer.INT) {
+			m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
+		}
+		else {
+			m_xml.setContent(txt);
+		}
     }
 
 	public String getXMLElementName()
 	{
-        if (m_dataType.isArray()) 
-			return "ArrayValue";
-		else
-			return m_dataType.typeName() + "Value";
+		return m_dataType.typeName() + "Value"; 
 	}
 
 	// Literal nodes do not support source locators.

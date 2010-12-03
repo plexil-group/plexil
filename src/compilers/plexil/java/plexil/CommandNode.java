@@ -34,6 +34,8 @@ import net.n3.nanoxml.*;
 
 public class CommandNode extends ExpressionNode
 {
+	private GlobalDeclaration m_commandDeclaration = null;
+
 	public CommandNode(int ttype)
 	{
 		super(new CommonToken(ttype, "COMMAND"));
@@ -42,84 +44,126 @@ public class CommandNode extends ExpressionNode
 	// AST is:
 	// (COMMAND ((COMMAND_NAME NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
-
-		// if name is known:
-		if (isCommandNameLiteral()) {
+		PlexilTreeNode nameAST = this.getChild(0);
+		if (nameAST.getType() == PlexilLexer.COMMAND_KYWD) {
+			// Literal command name - 
 			// Check that name is defined as a command
-		    PlexilTreeNode nameNode = this.getChild(0).getChild(0);
+			PlexilTreeNode nameNode = nameAST.getChild(0);
 			String name = nameNode.getText();
 			if (!GlobalContext.getGlobalContext().isCommandName(name)) {
-				myState.addDiagnostic(nameNode,
-									  "Command \"" + name + "\" is not defined",
-									  Severity.ERROR);
-				return false;
+				state.addDiagnostic(nameNode,
+									"Command \"" + name + "\" is not defined",
+									Severity.ERROR);
 			}
 
-			// Check parameter list against declaration
-			GlobalDeclaration cmdDecl = GlobalContext.getGlobalContext().getCommandDeclaration(name);
-			Vector<PlexilDataType> parmTypes = cmdDecl.getParameterTypes();
-			PlexilTreeNode parmSpecs = this.getParameters();
-			if (parmTypes == null) {
-				// No parameters expected
-				if (parmSpecs != null) {
-					myState.addDiagnostic(parmSpecs,
-										  "Command \"" + name + "\" expects 0 parameters, but "
-										  + String.valueOf(parmSpecs.getChildCount() + " were supplied"),
-										  Severity.ERROR);
-					success = false;
-				}
+			// get declaration for type info
+			m_commandDeclaration = GlobalContext.getGlobalContext().getCommandDeclaration(name);
+			if (m_commandDeclaration == null) {
+				// We can't make any assumptions about return type
+				m_dataType = PlexilDataType.ANY_TYPE;
 			}
 			else {
-				// Parameters expected
-				if (parmSpecs == null) {
-					// None supplied
-					myState.addDiagnostic(nameNode,
-										  "Command \"" + name + "\" expects "
-										  + String.valueOf(parmTypes.size()) + " parameters, but none were supplied",
-										  Severity.ERROR);
-					success = false;
-				}
-				else if (parmSpecs.getChildCount() != parmTypes.size()) {
-					// Wrong number supplied
-					myState.addDiagnostic(nameNode,
-										  "Command \"" + name + "\" expects "
-										  + String.valueOf(parmTypes.size()) + " parameters, but "
-										  + String.valueOf(parmSpecs.getChildCount()) + " were supplied",
-										  Severity.ERROR);
-					success = false;
+				// We know this command
+				// Set return type 
+				PlexilDataType retnType = m_commandDeclaration.getReturnType();
+				if (retnType != null)
+					m_dataType = retnType;
+
+				// We have a valid command declaration
+				// Check parameter list
+				Vector<PlexilDataType> parmTypes = m_commandDeclaration.getParameterTypes();
+				PlexilTreeNode parmsAST = this.getParameters();
+				if (parmTypes == null) {
+					// No parameters expected
+					if (parmsAST != null) {
+						state.addDiagnostic(parmsAST,
+											"Command \"" + name + "\" expects 0 parameters, but "
+											+ String.valueOf(parmsAST.getChildCount() + " were supplied"),
+											Severity.ERROR);
+					}
 				}
 				else {
-					// TODO: Check supplied expression types against declared
+					// Parameters expected
+					if (parmsAST == null) {
+						// None supplied
+						state.addDiagnostic(nameNode,
+											"Command \"" + name + "\" expects "
+											+ String.valueOf(parmTypes.size()) + " parameters, but none were supplied",
+											Severity.ERROR);
+					}
+					else if (parmsAST.getChildCount() != parmTypes.size()) {
+						// Wrong number supplied
+						state.addDiagnostic(nameNode,
+											"Command \"" + name + "\" expects "
+											+ String.valueOf(parmTypes.size()) + " parameters, but "
+											+ String.valueOf(parmsAST.getChildCount()) + " were supplied",
+											Severity.ERROR);
+					}
+					// Parameter type checking done in checkTypeConsistency() below
+				}
+
+				// TODO: Check resource list (?)
+			
+			}
+		}
+	}
+
+	public void check(NodeContext context, CompilerState state)
+	{
+		PlexilTreeNode nameAST = this.getChild(0);
+
+		// if name is not literal
+		if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {
+ 			// Check that name expression returns a string
+			ExpressionNode nameExp = (ExpressionNode) nameAST;
+			if (nameExp.getDataType() != PlexilDataType.STRING_TYPE) {
+				state.addDiagnostic(nameExp,
+									"Command name expression is not a string expression",
+									Severity.ERROR);
+			}
+		}
+
+		if (m_commandDeclaration != null) {
+			// We have a valid command declaration
+			// Check parameter list
+			Vector<PlexilDataType> parmTypes = m_commandDeclaration.getParameterTypes();
+			PlexilTreeNode parmsAST = this.getParameters();
+			if (parmTypes != null
+				&& parmsAST != null
+				&& parmsAST.getChildCount() == parmTypes.size()) {
+				// Check supplied expression types against declared
+				for (int i = 0; i < parmsAST.getChildCount(); i++) {
+					ExpressionNode parm = (ExpressionNode) parmsAST.getChild(i);
+					if (!parm.assumeType(parmTypes.elementAt(i), state)) {
+						state.addDiagnostic(parm,
+											"Command parameter is not of expected type "
+											+ parmTypes.elementAt(i).typeName(),
+											Severity.ERROR);
+					}
 				}
 			}
-
-			// Set return type 
-			PlexilDataType retnType = cmdDecl.getReturnType();
-			if (retnType != null)
-				m_dataType = retnType;
-
-			// TODO: Check resource list
-			
-		}
-		else {
-			// Check that name expression returns a string
-			
 		}
 
-		return success;
+		// TODO: Check resources
+
+		// Perform recursive checks on subexprs
+		this.checkChildren(context, state);
 	}
 
 	/**
-	 * @brief Check the expression for type consistency.
-	 * @return true if consistent, false otherwise.
+	 * @brief Persuade the expression to assume the specified data type
+	 * @return true if the expression can consistently assume the specified type, false otherwise.
 	 */
-	protected boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	protected boolean assumeType(PlexilDataType t, CompilerState myState)
 	{
-		boolean success = true;
-		return success;
+		// If we have a known type already, the usual rules apply
+		if (m_commandDeclaration != null)
+			return super.assumeType(t, myState);
+		// If not, take on whatever type the user expects
+		m_dataType = t;
+		return true;
 	}
 
 	public void constructXML()

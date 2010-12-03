@@ -35,22 +35,64 @@ import net.n3.nanoxml.*;
 
 public class ForNode extends PlexilTreeNode
 {
+	NodeContext m_context = null;
 
 	public ForNode(Token t)
 	{
 		super(t);
 	}
 
-	public ForNode(ForNode n)
+	/**
+	 * @brief Get the containing name binding context for this branch of the parse tree.
+	 * @return A NodeContext instance, or the global context.
+	 */
+	public NodeContext getContext()
 	{
-		super(n);
+		return m_context;
+	}
+
+	/**
+	 * @brief Prepare for the semantic check.
+	 */
+	public void earlyCheck(NodeContext parentContext, CompilerState state)
+	{
+		earlyCheckSelf(parentContext, state);
+		for (int i = 0; i < this.getChildCount(); i++)
+			this.getChild(i).earlyCheck(m_context, state);
+	}
+
+	public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+	{
+		// See if we have a node ID
+		String nodeId = null;
+		PlexilTreeNode parent = this.getParent();
+		if (parent != null && parent instanceof ActionNode) {
+			nodeId = ((ActionNode) parent).getNodeId();
+		}
+		else {
+			// should never happen
+			state.addDiagnostic(this,
+								"Internal error: ForNode instance has no parent ActionNode",
+								Severity.FATAL);
+		}
+		m_context = new NodeContext(parentContext, nodeId);
+	}
+
+	/**
+	 * @brief Perform a recursive semantic check.
+	 * @return true if check is successful, false otherwise.
+	 * @note Uses new binding context for action.
+	 */
+	public void check(NodeContext parentContext, CompilerState myState)
+	{
+		checkChildren(m_context, myState);
+		checkSelf(parentContext, myState);
 	}
 
 	// format is:
 	// ^(FOR_KYWD (VARIABLE_DECLARATION typeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
-	public boolean checkSelf(NodeContext context, CompilerState myState)
+	public void checkSelf(NodeContext context, CompilerState myState)
 	{
-		boolean success = true;
 		PlexilTreeNode loopVarDecl = this.getChild(0);
 		PlexilTreeNode typeNode = loopVarDecl.getChild(0);
 		PlexilDataType loopVarType = PlexilDataType.findByName(typeNode.getText());
@@ -59,7 +101,6 @@ public class ForNode extends PlexilTreeNode
 			myState.addDiagnostic(typeNode,
 								  "\"for\" loop variable type is not numeric",
 								  Severity.ERROR);
-			success = false;
 		}
 		// other checks will be handled by VariableDeclNode via checkChildren()
 
@@ -68,7 +109,6 @@ public class ForNode extends PlexilTreeNode
 			myState.addDiagnostic(whileTest,
 								  "\"for\" loop test expression is not Boolean",
 								  Severity.ERROR);
-			success = false;
 		}
 
 		ExpressionNode loopVarUpdate = (ExpressionNode) this.getChild(2);
@@ -76,10 +116,7 @@ public class ForNode extends PlexilTreeNode
 			myState.addDiagnostic(typeNode,
 								  "\"for\" loop variable update expression is not a numeric expression",
 								  Severity.ERROR);
-			success = false;
 		}
-		
-		return success;
 	}
 
 	protected void constructXML()

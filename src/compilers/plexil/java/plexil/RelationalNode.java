@@ -38,29 +38,23 @@ public class RelationalNode extends ExpressionNode
 
 	/**
 	 * @brief Check the expression for type consistency.
-	 * @return true if consistent, false otherwise.
-	 * @note Fails if either child is of non-numeric type.
 	 */
-	public boolean checkTypeConsistency(NodeContext context, CompilerState myState)
+	public void checkTypeConsistency(NodeContext context, CompilerState myState)
 	{
-		boolean success = true;
 		ExpressionNode lhs = (ExpressionNode) this.getChild(0);
 		ExpressionNode rhs = (ExpressionNode) this.getChild(1);
 		PlexilDataType lhsType = lhs.getDataType();
 		PlexilDataType rhsType = rhs.getDataType();
 		if (!lhsType.isNumeric()) {
 			myState.addDiagnostic(lhs,
-								  "The first operand of the " + this.getToken().getText() + " operator is not a numeric expression",
+								  "The first operand to the " + this.getToken().getText() + " operator is not a numeric expression",
 								  Severity.ERROR);
-			success = false;
 		}
 		if (!rhsType.isNumeric()) {
 			myState.addDiagnostic(rhs,
-								  "The second operand of the " + this.getToken().getText() + " operator is not a numeric expression",
+								  "The second operand to the " + this.getToken().getText() + " operator is not a numeric expression",
 								  Severity.ERROR);
-			success = false;
 		}
-		return success;
 	}
 
 	/**

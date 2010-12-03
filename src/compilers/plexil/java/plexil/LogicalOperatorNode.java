@@ -43,24 +43,19 @@ public class LogicalOperatorNode extends ExpressionNode
 	}
 
 	// May have 1 or more args; all must be boolean
-	public boolean check(NodeContext context, CompilerState myState)
+	public void check(NodeContext context, CompilerState myState)
 	{
-		boolean success = true;
 		for (int i = 0; i < this.getChildCount(); i++) {
 			ExpressionNode operand = (ExpressionNode) this.getChild(i);
 			if (!operand.assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
 				myState.addDiagnostic(operand,
 									  "The operand to the " + this.getToken().getText() + " operator is not Boolean",
 									  Severity.ERROR);
-				success = false;
 			}
 
 			// run semantic checks on operand even if it failed type check
-			success = operand.check(context, myState) && success;
+			operand.check(context, myState);
 		}
-
-		m_passedCheck = success;
-		return success;
 	}
 
 	public void constructXML()

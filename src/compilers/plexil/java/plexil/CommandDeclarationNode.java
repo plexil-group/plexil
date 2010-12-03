@@ -42,28 +42,26 @@ public class CommandDeclarationNode extends PlexilTreeNode
 
 	// structure is:
 	// ^(COMMAND_KYWD NCNAME paramsSpec? returnsSpec? resourcesList?)
-	public boolean checkSelf(NodeContext context, CompilerState myState)
-	{
-		boolean success = true;
-		// check that there is a name!
-		if (this.getChildCount() < 1) {
-			// Report internal error
-			myState.addDiagnostic(this,
-								  "Internal error: Command declaration without a name", 
-								  Severity.FATAL);
-			return false;
-		}
 
+	public void earlyCheckSelf(NodeContext context, CompilerState myState)
+	{
 		// check that name is not already defined
-		String name = this.getChild(0).getText();
-		if (GlobalContext.getGlobalContext().isCommandName(name)) {
+		String cmdName = this.getChild(0).getText();
+		if (GlobalContext.getGlobalContext().isCommandName(cmdName)) {
 			// TODO: handle overloaded def'n
 			// Report duplicate definition
 			myState.addDiagnostic(this.getChild(0),
-								  "Command \"" + name + "\" is already defined",
+								  "Command \"" + cmdName + "\" is already defined",
 								  Severity.ERROR);
-			return false;
 		}
+
+		// Define in global environment
+		GlobalContext.getGlobalContext().addCommandName(this, cmdName, getParameters(), getReturn());
+	}
+
+	public void checkSelf(NodeContext context, CompilerState myState)
+	{
+		String cmdName = this.getChild(0).getText();
 
 		// Check that parameters have no name conflicts
 		PlexilTreeNode parms = getParameters();
@@ -77,7 +75,7 @@ public class CommandDeclarationNode extends PlexilTreeNode
 					if (names.contains(thisName)) {
 						// Report duplicate name warning
 						myState.addDiagnostic(nameSpec,
-											  "Command \"" + name + "\": Parameter name \"" + thisName + "\" is already defined",
+											  "Command \"" + cmdName + "\": Parameter name \"" + thisName + "\" is already defined",
 											  Severity.WARNING);
 					}
 					else {
@@ -88,10 +86,6 @@ public class CommandDeclarationNode extends PlexilTreeNode
 		}
 
 		// TODO: handle resource list
-
-		// Define in global environment
-		GlobalContext.getGlobalContext().addCommandName(this, name, parms, getReturn());
-		return true;
 	}
 
 	public void constructXML()

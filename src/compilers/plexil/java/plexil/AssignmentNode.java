@@ -32,53 +32,55 @@ import net.n3.nanoxml.*;
 
 public class AssignmentNode extends PlexilTreeNode
 {
-	public AssignmentNode(int ttype)
+	public AssignmentNode(Token t)
 	{
-		super(new CommonToken(ttype, "ASSIGNMENT"));
+		super(t);
 	}
 
-	public boolean check(NodeContext context, CompilerState myState)
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		boolean success = true;
 		// N.B. LHS can be an array reference
 		ExpressionNode lhs = (ExpressionNode) this.getChild(0);
 		ExpressionNode rhs = (ExpressionNode) this.getChild(1);
-		PlexilDataType lhsType = null;
-		if (lhs.check(context, myState)) {
-			lhsType = lhs.getDataType();
-			success = lhs.checkAssignable(myState) && success;
-		}
 
+		lhs.earlyCheck(context, state);
+		lhs.checkAssignable(context, state);
+		rhs.earlyCheck(context, state);
+	}
+
+	public void check(NodeContext context, CompilerState state)
+	{
+		// N.B. LHS can be an array reference
+		ExpressionNode lhs = (ExpressionNode) this.getChild(0);
+		ExpressionNode rhs = (ExpressionNode) this.getChild(1);
+
+		lhs.check(context, state); // for effect;
+		PlexilDataType lhsType = lhs.getDataType();
 		if (lhsType != null) {
-			rhs.assumeType(lhsType, myState); // for effect
+			// LHS passed check
+			rhs.assumeType(lhsType, state); // for effect
 		}
 
-		if (rhs.check(context, myState)) {
-			PlexilDataType rhsType = rhs.getDataType(); // is VOID_TYPE if RHS failed check or is command w/ no return value
-			if (rhsType == PlexilDataType.VOID_TYPE) {
-				myState.addDiagnostic(rhs,
-									  "Expression or command has no return value",
-									  Severity.ERROR);
-				success = false;
+		rhs.check(context, state); // for effect
+		PlexilDataType rhsType = rhs.getDataType(); // is VOID_TYPE if RHS failed check or is command w/ no return value
+		if (rhsType == PlexilDataType.VOID_TYPE) {
+			state.addDiagnostic(rhs,
+								"Expression or command has no return value",
+								Severity.ERROR);
+		}
+		else if (lhsType != null) {
+			if (lhsType == rhsType
+				|| (lhsType.isNumeric() && rhsType.isNumeric())) {
+				// it's all good
 			}
-			else if (lhsType != null) {
-				if (lhsType == rhsType
-					|| (lhsType.isNumeric() && rhsType.isNumeric())) {
-					// it's all good
-				}
-				else {
-					myState.addDiagnostic(rhs,
-										  "Cannot assign expression of type " + rhsType.typeName()
-										  + " to \"" + lhs.getText() 
-										  + "\" of type " + lhsType.typeName(),
-										  Severity.ERROR);
-					success = false;
-				}
+			else {
+				state.addDiagnostic(rhs,
+									"Cannot assign expression of type " + rhsType.typeName()
+									+ " to \"" + lhs.getText() 
+									+ "\" of type " + lhsType.typeName(),
+									Severity.ERROR);
 			}
 		}
-
-		m_passedCheck = success;
-		return success;
 	}
 
 	protected void constructXML()

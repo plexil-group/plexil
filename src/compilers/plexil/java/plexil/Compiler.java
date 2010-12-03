@@ -37,51 +37,51 @@ public class Compiler
 {
 	public static void main(String[] args)
 	{
-		CompilerState myState = new CompilerState(args);
+		CompilerState state = new CompilerState(args);
 
 		// open source file
 
 		// Pass 1: Parse plan
-		PlexilTreeNode plan1 = pass1(myState);
+		PlexilTreeNode plan1 = pass1(state);
 		if (plan1 == null) {
 			System.out.println("Translation exited with errors.");
 			System.exit(-1);
 		}
-		if (myState.debug) {
+		if (state.debug) {
 			System.err.println("Pass 1 output:");
 			System.err.println(plan1.toStringTree());
 		}
-		if (myState.syntaxOnly) {
+		if (state.syntaxOnly) {
 			System.exit(0);
 		}
 
 		// Pass 2: Tree parse & transformations
 		// *** DISABLED until something useful is done in this pass ***
-		// PlexilTreeNode plan2 = pass2(plan1, myState);
-		// if (myState.debug) {
+		// PlexilTreeNode plan2 = pass2(plan1, state);
+		// if (state.debug) {
 		// 	System.err.println("Pass 2 output:");
 		// 	System.err.println(plan2.toStringTree());
 		// }
 
 		// Pass 3: semantic checks
-		if (!pass3(plan1, myState)) {
+		if (!pass3(plan1, state)) {
 			System.exit(-1);
 		}
-		if (myState.debug)
+		if (state.debug)
 			System.err.println("Semantic checks succeeded"); 
-		if (myState.semanticsOnly) {
+		if (state.semanticsOnly) {
 			System.exit(0);
 		}
 
 		// Pass 4: generate Extended Plexil XML
-		if (!pass4(plan1, myState)) {
+		if (!pass4(plan1, state)) {
 			System.err.println("Internal error: XML generation failed");
 			System.exit(-1);
 		}
 
 		// Pass 5: translate Extended Plexil to Core Plexil
-		if (!myState.epxOnly) {
-			if (!pass5(plan1, myState)) {
+		if (!state.epxOnly) {
+			if (!pass5(plan1, state)) {
 				System.err.println("Internal error: translation from Extended Plexil XML failed");
 				System.exit(-1);
 			}
@@ -90,12 +90,12 @@ public class Compiler
 		System.exit(0);
 	}
 
-	public static PlexilTreeNode pass1(CompilerState myState)
+	public static PlexilTreeNode pass1(CompilerState state)
 	{
-		PlexilLexer lexer = new PlexilLexer(myState.getInputStream(), myState.sharedState);
+		PlexilLexer lexer = new PlexilLexer(state.getInputStream(), state.sharedState);
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 
-		PlexilParser parser = new PlexilParser(tokenStream, myState.sharedState);
+		PlexilParser parser = new PlexilParser(tokenStream, state.sharedState);
 		parser.setTreeAdaptor(new PlexilTreeAdaptor());
 
 		try {
@@ -109,10 +109,10 @@ public class Compiler
 		return null;
 	}
 
-	public static PlexilTreeNode pass2(PlexilTreeNode plan1, CompilerState myState)
+	public static PlexilTreeNode pass2(PlexilTreeNode plan1, CompilerState state)
 	{
 		CommonTreeNodeStream treeStream = new CommonTreeNodeStream(plan1);
-		PlexilTree treeParser = new PlexilTree(treeStream, myState.sharedState);
+		PlexilTree treeParser = new PlexilTree(treeStream, state.sharedState);
 		treeParser.setTreeAdaptor(new PlexilTreeAdaptor());
 
 		try {
@@ -126,21 +126,23 @@ public class Compiler
 		return null;
 	}
 
-	public static boolean pass3(PlexilTreeNode plan, CompilerState myState)
+	public static boolean pass3(PlexilTreeNode plan, CompilerState state)
 	{
-		plan.check(GlobalContext.getGlobalContext(), myState);
-		for (Diagnostic d : myState.getDiagnostics()) {
+		GlobalContext gcontext = GlobalContext.getGlobalContext();
+		plan.earlyCheck(gcontext, state);
+		plan.check(gcontext, state);
+		for (Diagnostic d : state.getDiagnostics()) {
 			System.err.println(d.toString());
 		}
-		return myState.maxErrorSeverity() <= 0;
+		return state.maxErrorSeverity() <= 0;
 	}
 
-	public static boolean pass4(PlexilTreeNode plan, CompilerState myState)
+	public static boolean pass4(PlexilTreeNode plan, CompilerState state)
 	{
 		IXMLElement planXML = null;
 		try {
 			planXML = plan.getXML();
-			XMLWriter writer = myState.getEpxWriter();
+			XMLWriter writer = state.getEpxWriter();
 			if (writer == null) {
 				System.err.println("Unable to create Extended Plexil output stream");
 				return false;
@@ -154,17 +156,17 @@ public class Compiler
 		}
 	}
 
-	public static boolean pass5(PlexilTreeNode plan, CompilerState myState)
+	public static boolean pass5(PlexilTreeNode plan, CompilerState state)
 	{
-		File epxFile = myState.getEpxFile();
+		File epxFile = state.getEpxFile();
 		if (epxFile == null) {
 			System.err.println("No Extended Plexil file specified");
 			return false;
 		}
-		File outputFile = myState.getOutputFile();
+		File outputFile = state.getOutputFile();
 		try {
 			// Invoke XSLT translator
-			if (myState.debug)
+			if (state.debug)
 				System.err.println("Translating to Core PLEXIL file " + outputFile);
 
 			String[] saxonArgs = new String[4];
@@ -174,7 +176,7 @@ public class Compiler
 			saxonArgs[3] = System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl";
 			net.sf.saxon.Transform.main(saxonArgs);
 
-			if (!myState.keepEpx) {
+			if (!state.keepEpx) {
 				try {
 					if (!epxFile.delete())
 						System.err.println("WARNING: Could not delete " + epxFile.toString());

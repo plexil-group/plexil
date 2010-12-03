@@ -32,60 +32,44 @@ import net.n3.nanoxml.*;
 
 public class ArrayReferenceNode extends VariableNode
 {
-	private VariableNode m_variableNode = null;
-	private ExpressionNode m_index = null;
-
 	public ArrayReferenceNode(Token t)
 	{
 		super(t);
 	}
 
-	public void preCheckInit()
+	// Override VariableNode method
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		m_variableNode = (VariableNode) this.getChild(0);
-		m_index = (ExpressionNode) this.getChild(1);
-	}
-
-	public boolean check(NodeContext context, CompilerState myState)
-	{
-		preCheckInit();
-
-		boolean success = true;
+		earlyCheckChildren(context, state);
 
 		// Check that variable is declared array
-		success = m_variableNode.check(context, myState);
-		PlexilDataType varType = m_variableNode.getDataType();
-		if (varType != PlexilDataType.VOID_TYPE) { // i.e. var failed defined check
-			if (!varType.isArray()) {
-				myState.addDiagnostic(this.getChild(0),
-									  "Variable \"" + m_variableNode.getText() + "\" is not an array variable",
-									  Severity.ERROR);
-				success = false;
-			}
+		VariableNode variableNode = (VariableNode) this.getChild(0);
+		PlexilDataType varType = variableNode.getDataType();
+		if (varType.isArray()) {
 			m_dataType = varType.arrayElementType();
 		}
-
-		// Check index expression
-
-		success = m_index.check(context, myState) && success;
-		if (!m_index.getDataType().isNumeric()) {
-			myState.addDiagnostic(this.getChild(1),
-								  "Array index expression is not numeric",
-								  Severity.ERROR);
-			success = false;
+		else {
+			state.addDiagnostic(this.getChild(0),
+								"Variable \"" + variableNode.getText() + "\" is not an array variable",
+								Severity.ERROR);
 		}
+	}
 
-		m_passedCheck = success;
-		return success;
+	public void checkTypeConsistency(NodeContext context, CompilerState state)
+	{
+		// Check index expression type
+		ExpressionNode index = (ExpressionNode) this.getChild(1);
+		if (!index.getDataType().isNumeric()) {
+			state.addDiagnostic(index,
+								"Array index expression is not numeric",
+								Severity.ERROR);
+		}
 	}
 
 	// N.B. Can't use super.constructXML because of conflict with VariableNode method
 	protected void constructXML()
 	{
-		// Copied from PlexilTreeNode method
-		m_xml = new XMLElement(this.getXMLElementName());
-		addSourceLocatorAttributes();
-
+		constructXMLBase();
 
 		// Construct variable name element
 		IXMLElement var = new XMLElement("Name");
@@ -100,10 +84,11 @@ public class ArrayReferenceNode extends VariableNode
 
 	protected String getXMLElementName() { return "ArrayElement"; }
 
-	public boolean checkAssignable(CompilerState myState)
+	public void checkAssignable(NodeContext context, CompilerState state)
 	{
-		// defer to variable
-		return m_variableNode.checkAssignable(myState);
+		// defer to the variable
+		VariableNode variableNode = (VariableNode) this.getChild(0);
+		variableNode.checkAssignable(context, state);
 	}
 
 }
