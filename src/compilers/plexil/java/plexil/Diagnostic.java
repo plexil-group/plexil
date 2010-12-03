@@ -40,12 +40,19 @@ public class Diagnostic
 
 	public String toString()
 	{
-		return
-			m_severity.toString() + ": "
-			// TODO: file name goes here
-		    + "line " + String.valueOf(m_location.getLine()) + ':'
-			+ String.valueOf(m_location.getCharPositionInLine()) + ": "
-			+ m_message;
+		if (m_location == null) {
+			return
+				m_severity.toString() + ": "
+				+ m_message;
+		}
+		else {
+			return
+				m_severity.toString() + ": "
+				// TODO: file name goes here
+				+ "line " + String.valueOf(m_location.getLine()) + ':'
+				+ String.valueOf(m_location.getCharPositionInLine()) + ": "
+				+ m_message;
+		}
 	}
 
 	public int severity() { return m_severity.rank; }
