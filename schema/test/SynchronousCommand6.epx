@@ -10,16 +10,16 @@
     </VariableDeclarations>
     <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
       <NodeId>A</NodeId>
-      <ResourceList>
-        <Resource>
-          <ResourceName><StringValue>arm</StringValue></ResourceName>
-          <ResourcePriority><IntegerValue>3</IntegerValue></ResourcePriority>
-        </Resource>
+      <Command>
+        <ResourceList>
+          <Resource>
+            <ResourceName><StringValue>arm</StringValue></ResourceName>
+            <ResourcePriority><IntegerValue>3</IntegerValue></ResourcePriority>
+          </Resource>
         </ResourceList>
-      <ReturnVariable>
         <ArrayVariable>x</ArrayVariable>
-      </ReturnVariable>
-      <Name><StringValue>FOO</StringValue></Name>
+        <Name><StringValue>FOO</StringValue></Name>
+      </Command>
     </SynchronousCommand>
     <SynchronousCommand>
       <NodeId>B</NodeId>
@@ -31,11 +31,11 @@
           <MaxSize>20</MaxSize>
         </DeclareArray>
       </VariableDeclarations>
-      <ResourceList></ResourceList>
-      <ReturnVariable>
+      <Command>
+        <ResourceList></ResourceList>
         <ArrayVariable>x</ArrayVariable>
-      </ReturnVariable>
-      <Name><StringValue>BAR</StringValue></Name>
+        <Name><StringValue>BAR</StringValue></Name>
+      </Command>
     </SynchronousCommand>
   </Sequence>
 </PlexilPlan>

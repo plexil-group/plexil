@@ -665,7 +665,11 @@
 
   <xsl:template match="SynchronousCommand">
     <xsl:choose>
-      <xsl:when test= "ReturnVariable">
+      <xsl:when test= "Command/IntegerVariable|
+                       Command/RealVariable|
+                       Command/BooleanVariable|
+                       Command/StringVariable|
+                       Command/ArrayVariable">
         <xsl:call-template name= "command-with-return"/>
       </xsl:when>
       <xsl:otherwise>
@@ -676,7 +680,11 @@
 
   <xsl:template match="SynchronousCommand" mode= "ordered">
     <xsl:choose>
-      <xsl:when test= "ReturnVariable">
+      <xsl:when test= "Command/IntegerVariable|
+                       Command/RealVariable|
+                       Command/BooleanVariable|
+                       Command/StringVariable|
+                       Command/ArrayVariable">
         <xsl:call-template name= "command-with-return">
           <xsl:with-param name= "ordered" select= "true"/>
         </xsl:call-template>
@@ -695,22 +703,22 @@
     <xsl:param name= "ordered"/>
     <xsl:variable name= "return" select= "tr:prefix('return')"/>
     <!-- Hack to save array name, iff command's return is an array -->
-    <xsl:variable name= "array_name" select= "ReturnVariable/ArrayVariable"/>    
+    <xsl:variable name= "array_name" select= "Command/ArrayVariable"/>    
     <xsl:variable name= "decl">
       <xsl:choose>
-        <xsl:when test= "ReturnVariable/IntegerVariable">
+        <xsl:when test= "Command/IntegerVariable">
           <IntegerVariable><xsl:value-of select="$return"/></IntegerVariable>
         </xsl:when>
-        <xsl:when test= "ReturnVariable/RealVariable">
+        <xsl:when test= "Command/RealVariable">
           <RealVariable><xsl:value-of select="$return"/></RealVariable>
         </xsl:when>
-        <xsl:when test= "ReturnVariable/StringVariable">
+        <xsl:when test= "Command/StringVariable">
           <StringVariable><xsl:value-of select="$return"/></StringVariable>
         </xsl:when>
-        <xsl:when test= "ReturnVariable/BooleanVariable">
+        <xsl:when test= "Command/BooleanVariable">
           <BooleanVariable><xsl:value-of select="$return"/></BooleanVariable>
         </xsl:when>
-        <xsl:when test= "ReturnVariable/ArrayVariable">
+        <xsl:when test= "Command/ArrayVariable">
           <ArrayVariable><xsl:value-of select="$return"/></ArrayVariable>
         </xsl:when>
         <xsl:otherwise>
@@ -735,31 +743,31 @@
             </NodeId>
             <VariableDeclarations>
               <xsl:choose>
-                <xsl:when test= "ReturnVariable/IntegerVariable">
+                <xsl:when test= "Command/IntegerVariable">
                   <xsl:call-template name= "declare-variable">
                     <xsl:with-param name= "name" select= "$return"/>
                     <xsl:with-param name= "type" select= "'Integer'"/>
                   </xsl:call-template>
                 </xsl:when>
-                <xsl:when test= "ReturnVariable/RealVariable">
+                <xsl:when test= "Command/RealVariable">
                   <xsl:call-template name= "declare-variable">
                     <xsl:with-param name= "name" select= "$return"/>
                     <xsl:with-param name= "type" select= "'Real'"/>
                   </xsl:call-template>
                 </xsl:when>
-                <xsl:when test= "ReturnVariable/StringVariable">
+                <xsl:when test= "Command/StringVariable">
                   <xsl:call-template name= "declare-variable">
                     <xsl:with-param name= "name" select= "$return"/>
                     <xsl:with-param name= "type" select= "'String'"/>
                   </xsl:call-template>
                 </xsl:when>
-                <xsl:when test= "ReturnVariable/BooleanVariable">
+                <xsl:when test= "Command/BooleanVariable">
                   <xsl:call-template name= "declare-variable">
                     <xsl:with-param name= "name" select= "$return"/>
                     <xsl:with-param name= "type" select= "'Boolean'"/>
                   </xsl:call-template>
                 </xsl:when>
-                <xsl:when test= "ReturnVariable/ArrayVariable">
+                <xsl:when test= "Command/ArrayVariable">
                   <DeclareArray>
                     <Name><xsl:value-of select= "$return"/></Name>
                     <!-- A royal hack!  Couldn't find a more compact expression that worked. -->
@@ -800,10 +808,10 @@
                   </EndCondition>
                   <NodeBody>
                     <Command>
-                      <xsl:copy-of select= "ResourceList"/>
+                      <xsl:copy-of select= "Command/ResourceList"/>
                       <xsl:copy-of select= "$decl"/>
-                      <xsl:copy-of select= "Name"/>
-                      <xsl:copy-of select= "Arguments"/>
+                      <xsl:copy-of select= "Command/Name"/>
+                      <xsl:copy-of select= "Command/Arguments"/>
                     </Command>
                   </NodeBody>
                 </Node>
@@ -816,23 +824,23 @@
                   </StartCondition>
                   <NodeBody>
                     <Assignment>
-                      <xsl:copy-of select= "ReturnVariable/IntegerVariable|
-                                            ReturnVariable/RealVariable|
-                                            ReturnVariable/StringVariable|
-                                            ReturnVariable/BooleanVariable|
-                                            ReturnVariable/ArrayVariable"/>
+                      <xsl:copy-of select= "Command/IntegerVariable|
+                                            Command/RealVariable|
+                                            Command/StringVariable|
+                                            Command/BooleanVariable|
+                                            Command/ArrayVariable"/>
                       <xsl:choose>
-                        <xsl:when test= "ReturnVariable/IntegerVariable|
-                                         ReturnVariable/RealVariable">
+                        <xsl:when test= "Command/IntegerVariable|
+                                         Command/RealVariable">
                           <NumericRHS><xsl:copy-of select="$decl"/></NumericRHS>
                         </xsl:when>
-                        <xsl:when test= "ReturnVariable/StringVariable">
+                        <xsl:when test= "Command/StringVariable">
                           <StringRHS><xsl:copy-of select="$decl"/></StringRHS>
                         </xsl:when>
-                        <xsl:when test= "ReturnVariable/BooleanVariable">
+                        <xsl:when test= "Command/BooleanVariable">
                           <BooleanRHS><xsl:copy-of select="$decl"/></BooleanRHS>
                         </xsl:when>
-                        <xsl:when test= "ReturnVariable/ArrayVariable">
+                        <xsl:when test= "Command/ArrayVariable">
                           <ArrayRHS><xsl:copy-of select="$decl"/></ArrayRHS>
                         </xsl:when>
                         <xsl:otherwise>
@@ -910,9 +918,9 @@
                   </EndCondition>
                   <NodeBody>
                     <Command>
-                      <xsl:copy-of select= "ResourceList"/>
-                      <xsl:copy-of select= "Name"/>
-                      <xsl:copy-of select= "Arguments"/>
+                      <xsl:copy-of select= "Command/ResourceList"/>
+                      <xsl:copy-of select= "Command/Name"/>
+                      <xsl:copy-of select= "Command/Arguments"/>
                     </Command>
                   </NodeBody>
                 </Node>

@@ -7,9 +7,9 @@
         <Type>Integer</Type>
       </DeclareVariable>
     </VariableDeclarations>
-    <ReturnVariable>
+    <Command>
       <IntegerVariable>x</IntegerVariable>
-    </ReturnVariable>
-    <Name><StringValue>foo</StringValue></Name>
+      <Name><StringValue>foo</StringValue></Name>
+    </Command>
   </SynchronousCommand>
 </PlexilPlan>

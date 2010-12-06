@@ -123,6 +123,7 @@ start =
   | Return
   | NodeId
   | Inactive
+\string = xsd:string
 LE =
   notAllowed
   | element LE { SourceLocators, NumericExpression, NumericExpression }
@@ -394,6 +395,7 @@ ArrayValue =
       },
       (IntegerValue+ | RealValue+ | BooleanValue+ | StringValue+)
     }
+NCName = xsd:NCName
 ResourceList =
   notAllowed
   | element ResourceList { SourceLocators, Resource* }
@@ -467,7 +469,7 @@ InvariantCondition =
 PreCondition =
   notAllowed
   | element PreCondition { SourceLocators, BooleanExpression }
-NCName = xsd:NCName
+nonNegativeInteger = xsd:nonNegativeInteger
 ADD =
   notAllowed
   | element ADD {
@@ -559,12 +561,9 @@ SynchronousCommand =
   | element SynchronousCommand {
       SourceLocators,
       (NodeClauses+
-       & ResourceList?
-       & element ReturnVariable { DeclaredVariable }?
        & element Timeout { NumericExpression }?
        & Tolerance?
-       & Name
-       & Arguments?)
+       & Command)
     }
 Return =
   notAllowed
@@ -736,7 +735,6 @@ For =
 DIV =
   notAllowed
   | element DIV { SourceLocators, NumericExpression, NumericExpression }
-nonNegativeInteger = xsd:nonNegativeInteger
 Wait =
   notAllowed
   | element Wait {
@@ -759,7 +757,6 @@ ArrayElement =
       element Name { NCName },
       element Index { NumericExpression }
     }
-\string = xsd:string
 Pair =
   notAllowed
   | element Pair {

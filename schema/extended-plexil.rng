@@ -139,6 +139,9 @@
             <ref name="Inactive"/>
         </choice>
     </start>
+    <define name="string">
+        <data type="string"/>
+    </define>
     <define name="LE">
         <choice>
             <notAllowed/>
@@ -815,6 +818,9 @@
             </element>
         </choice>
     </define>
+    <define name="NCName">
+        <data type="NCName"/>
+    </define>
     <define name="ResourceList">
         <choice>
             <notAllowed/>
@@ -993,8 +999,8 @@
             </element>
         </choice>
     </define>
-    <define name="NCName">
-        <data type="NCName"/>
+    <define name="nonNegativeInteger">
+        <data type="nonNegativeInteger"/>
     </define>
     <define name="ADD">
         <choice>
@@ -1208,14 +1214,6 @@
                         <ref name="NodeClauses"/>
                     </oneOrMore>
                     <optional>
-                        <ref name="ResourceList"/>
-                    </optional>
-                    <optional>
-                        <element name="ReturnVariable">
-                            <ref name="DeclaredVariable"/>
-                        </element>
-                    </optional>
-                    <optional>
                         <element name="Timeout">
                             <ref name="NumericExpression"/>
                         </element>
@@ -1223,10 +1221,7 @@
                     <optional>
                         <ref name="Tolerance"/>
                     </optional>
-                    <ref name="Name"/>
-                    <optional>
-                        <ref name="Arguments"/>
-                    </optional>
+                    <ref name="Command"/>
                 </interleave>
             </element>
         </choice>
@@ -1666,9 +1661,6 @@
             </element>
         </choice>
     </define>
-    <define name="nonNegativeInteger">
-        <data type="nonNegativeInteger"/>
-    </define>
     <define name="Wait">
         <choice>
             <notAllowed/>
@@ -1727,9 +1719,6 @@
                 </element>
             </element>
         </choice>
-    </define>
-    <define name="string">
-        <data type="string"/>
     </define>
     <define name="Pair">
         <choice>

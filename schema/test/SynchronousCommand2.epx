@@ -13,9 +13,9 @@
         <MaxSize>4</MaxSize>
       </DeclareArray>
     </VariableDeclarations>
-    <ReturnVariable>
+    <Command>
       <ArrayVariable>x</ArrayVariable>
-    </ReturnVariable>
-    <Name><StringValue>foo</StringValue></Name>
+      <Name><StringValue>foo</StringValue></Name>
+    </Command>
   </SynchronousCommand>
 </PlexilPlan>

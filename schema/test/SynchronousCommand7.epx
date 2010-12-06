@@ -7,6 +7,8 @@
         <Type>Integer</Type>
       </DeclareVariable>
     </VariableDeclarations>
-    <Name><StringValue>foo</StringValue></Name>
+    <Command>
+      <Name><StringValue>foo</StringValue></Name>
+    </Command>
   </SynchronousCommand>
 </PlexilPlan>

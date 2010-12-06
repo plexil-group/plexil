@@ -16,10 +16,10 @@
     <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
       <NodeId>A</NodeId>
       <RepeatCondition><BooleanValue>true</BooleanValue></RepeatCondition>
-      <ReturnVariable>
+      <Command>
         <ArrayVariable>x</ArrayVariable>
-      </ReturnVariable>
-      <Name><StringValue>foo</StringValue></Name>
+        <Name><StringValue>foo</StringValue></Name>
+      </Command>
     </SynchronousCommand>
   </Concurrence>
 </PlexilPlan>
