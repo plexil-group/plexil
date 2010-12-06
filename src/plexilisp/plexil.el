@@ -64,6 +64,19 @@
 (defconst *plexil-script-prefix* "ps-")
 (defconst *plexil-plan-prefix* "pl-")
 
+(defun make-plexil-property (name)
+  (cons '*plexil-property* name))
+
+(defun plexil-property? (x)
+  (and (consp x) (eq '*plexil-property* (car x))))
+
+(defun plexil-property-name (p)
+  (cdr p))
+
+(defun plexil-eval-property (p)
+  (xml (get (plexil-property-name p) 'xml)
+       (eval (get (plexil-property-name p) 'value))))
+
 ;;; These support the 'Action' macro.  They are lists of names (symbols)
 ;;; of Plexilisp constructs, automatically generated when this file is
 ;;; evaluated.
@@ -74,6 +87,9 @@
 (defun plexil-node? (x) (member (car x) *node-types*))
 (defun plexil-node-body? (x) (member (car x) *node-body-types*))
 
+
+;;; Hack: dynamically bound variable used in limited situations.
+(defvar ++not-core-plexil++ nil)
 
 ;;; User interface
 
@@ -546,14 +562,17 @@
 
 (defun plexil-command (command var resources args)
   ;; (string + xml) * opt(xml) * opt(xml) * list(xml) -> xml
-  (let ((name (plexil-normalize-string-expression command)))
-    (plexil-node-body
-     (xml "Command"
+  (let* ((name (plexil-normalize-string-expression command))
+         (body (xml "Command"
           (append (if resources (list (xml "ResourceList" resources)))
                   (if var (list var))
                   (list (xml "Name" name))
                   (if args (list (xml "Arguments"
-                                      (mapcar #'plexil-infer-type args)))))))))
+                                      (mapcar #'plexil-infer-type args))))))))
+    ;; Note use of dynamically bound variable!
+    (if ++not-core-plexil++
+        body 
+      (plexil-node-body body))))
 
 (pdefine pl (LibraryCallNode library-call-node) 
          (&optional name &rest node-clauses) 1 node
@@ -1156,8 +1175,8 @@
                                (mapcar #'plexil-nodify rest-forms)))))))
 
 
-(defun plexil-nodify (x)
-  ;; list -> xml
+(defun plexil-nodify (x &optional no-node-body)
+  ;; any -> xml
   ;;
   ;; If the given expression looks like a Plexil node or Plexil node body,
   ;; return it as a Plexil node.  Otherwise just evaluate it.
@@ -1165,7 +1184,7 @@
   (cond ((plexil-node? x)
          (plexil-eval-node x))
         ((plexil-node-body? x)
-         (plexil-eval-node-body x))
+         (if no-node-body (eval x) (plexil-eval-node-body x)))
         (t (eval x))))
 
 (insert-plexil-heading
@@ -1244,13 +1263,13 @@
     (apply #'pl-list (mapcar #'plexil-nodify (cons ',form ',forms)))))
 
 (pdefine pl (Wait wait) (units &optional name) 2 node
-  ;; real * opt(string) -> xml
+  ;; (real + xml) * opt(string) -> xml
   "Waits given number of time units."
   (plexil-wait units name 1.0))
 
 (pdefine pl (WaitWithTolerance wait-with-tolerance)
          (units tolerance &optional name) 2 node
-  ;; real * real * opt(string) -> xml
+  ;; (real + xml) * (real + xml) * opt(string) -> xml
   "Waits given number of time units with given tolerance."
   (plexil-wait units name tolerance))
 
@@ -1260,6 +1279,36 @@
         (if name (list (plexil-nodeid name)))
         (list (xml "Units" (plexil-infer-type units)))
         (list (xml "Tolerance" (plexil-infer-type tolerance))))))
+
+
+(pdefine-syntax pl (SynchronousCommand synchronous-command)
+                (&optional name-or-first-form &rest forms) 1 node
+  ;; opt(string) * list(xml) -> xml
+  "The Synchronous Command action, which waits for its return value or status handle"
+  `(let (the-name
+         the-forms
+         ;; Note use of dynamically bound variable!
+         (++not-core-plexil++ t))
+     (cond ((null ',name-or-first-form)
+           (error "synchronous-command: expects at least one argument!"))
+          ((stringp ',name-or-first-form)
+           (setq the-name ',name-or-first-form)
+           (setq the-forms ',forms))
+          ((listp name-or-first-form)
+           (setq the-forms (cons ',name-or-first-form ',forms)))
+          (t (error "synchronous-command: Unsupported first argument: %s"
+                    ',name-or-first-form)))
+      (xml "SynchronousCommand"
+           (append
+            (if the-name (list (plexil-nodeid the-name)))
+            (if the-forms (mapcar (lambda (x) (plexil-nodify x t)) the-forms))))))
+
+
+(pdefine pl (WaitWithTolerance wait-with-tolerance)
+         (units tolerance &optional name) 2 node
+  ;; (real + xml) * (real + xml) * opt(string) -> xml
+  "Waits given number of time units with given tolerance."
+  (plexil-wait units name tolerance))
 
              
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
