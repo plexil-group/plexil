@@ -43,22 +43,59 @@ public class VariableDeclNode extends PlexilTreeNode
 	// Required by (e.g.) ForNode code generation
 	public VariableName getVariableName() { return m_variable; }
 
+	// Required by interface variable parsing
+	public void setVariableName(VariableName v) { m_variable = v; }
+
+	//
+	// Next several utilities are required by InterfaceDeclNode as well as internally
+	// 
+
+	// Works for ArrayVariableDeclNode too.
+	public PlexilTreeNode getNameNode()
+	{ 
+		return this.getChild(1); 
+	}
+
+	public PlexilDataType getVariableType()
+	{
+		return PlexilDataType.findByName(this.getChild(0).getText());
+	}
+
+	public ExpressionNode getInitialValueNode()
+	{
+		if (this.getChildCount() > 2)
+			return (ExpressionNode) this.getChild(2);
+		else 
+			return null;
+	}
+
 	// Various places expect the variable to be defined early
 	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		PlexilTreeNode typeNode = this.getChild(0);
-		PlexilDataType type = PlexilDataType.findByName(typeNode.getText());
-		// FIXME: any chance that type could be null??
+		earlyCheckCommon(context, state);	
+		// Check for name conflict (issues diagnostics on failure)
+		PlexilTreeNode nameNode = getNameNode();
+		if (context.checkVariableName(nameNode))
+			m_variable = context.addVariable(this, 
+											 nameNode,
+											 getVariableType(),
+											 getInitialValueNode());
+	}
+
+	// Also called by InterfaceDeclNode
+	public void earlyCheckCommon(NodeContext context, CompilerState state)
+	{
+		// Check that type is valid - should be enforced by parser already
+		if (getVariableType() == null) {
+			state.addDiagnostic(this.getChild(0),
+								"Internal error: \"" + this.getChild(0).getText() + "\" is not a valid type name",
+								Severity.FATAL);
+		}
 
 		ExpressionNode initValNode = null;
 		if (this.getChildCount() > 2)
 			initValNode = (ExpressionNode) this.getChild(2);
 
-		// Check for name conflict (issues diagnostics on failure)
-		// and define the variable if no conflict found
-		PlexilTreeNode varNameNode = this.getChild(1);
-		if (context.checkVariableName(varNameNode))
-			m_variable =  context.declareVariable(this, varNameNode, type, initValNode);
 		if (this.getChildCount() > 2)
 			initValNode.earlyCheck(context, state);
 	}

@@ -204,75 +204,52 @@ public class NodeContext
         m_resourcePriorityXML = priority;
     }
 
-    public boolean declareInterfaceVariable(PlexilTreeNode declaration,
-											PlexilTreeNode nameNode, 
-											boolean isInOut, 
-											PlexilDataType typ)
+	// This is for the library node case, for scalars
+    public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
+													  PlexilTreeNode nameNode,
+													  boolean isInOut,
+													  PlexilDataType typ)
     {
-        // For library nodes, just add the declaration
-        if (isLibraryNode()) {
-			return addInterfaceVariable(declaration, nameNode, isInOut, typ, null, true);
-		}
-        else {
-			boolean success = true;
-			// Not a library node -- find original definition, if any
-			// N.B. getInheritedVariable can issue a diagnostic if 
-			// the variable is previously declared In and now is redeclared InOut
-			VariableName ext = findInheritedVariable(nameNode.getText());
-			if (ext == null) {
-				CompilerState.getCompilerState().addDiagnostic(nameNode, 
-															   "Interface variable \""
-															   + nameNode.getText()
-															   + "\" was not found",
-															   Severity.ERROR);
-				success = false;
-			}
-			else {
-				// If type supplied, check it for consistency
-				if ((typ != null) && (ext.getVariableType() != typ)) {
-					CompilerState.getCompilerState().addDiagnostic(nameNode,
-																   "Interface variable \"" + nameNode.getText() +
-																   "\" declared as type " +
-																   typ.typeName() +
-																   ", but is actually of type " +
-																   ext.getVariableType(),
-																   Severity.ERROR);
-					success = false;
-				}
-				success = addInterfaceVariable(declaration, nameNode, isInOut, typ, ext, true);
-			}
-			return success;
-		}
+        InterfaceVariableName var = 
+			new InterfaceVariableName(declaration, nameNode.getText(), isInOut, typ);
+		m_variables.add(var);
+		return var;
     }
 
-    protected boolean addInterfaceVariable(PlexilTreeNode declaration,
-										   PlexilTreeNode nameNode,
-										   boolean isInOut,
-										   PlexilDataType typ,
-										   VariableName original,
-										   boolean isDeclared)
+	// This is for the library node case, for arrays
+    public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
+													  PlexilTreeNode nameNode,
+													  boolean isInOut,
+													  PlexilDataType typ,
+													  String maxSize,
+													  ExpressionNode initVal)
     {
-        InterfaceVariableName var = null;
-        if (isLibraryNode()) {
-			var = new InterfaceVariableName(declaration, nameNode.getText(), isInOut, typ);
-		}
-        else if (original == null) {
-			// no such variable
-			CompilerState.getCompilerState().addDiagnostic(declaration,
-														   "Interface variable \""
-														   + nameNode.getText()
-														   + "\" is not a known variable",
-														   Severity.ERROR);
-			return false;
-		}
-        else {
-			var = 
-				new InterfaceVariableName(declaration, nameNode.getText(), isInOut, original, isDeclared);
-		}
-		if (var != null)
-			m_variables.add(var);
-        return var != null;
+        InterfaceVariableName var = 
+			new InterfaceVariableName(declaration, 
+									  nameNode.getText(),
+									  isInOut,
+									  typ,
+									  maxSize,
+									  initVal);
+		m_variables.add(var);
+		return var;
     }
+
+	// This version is for the case where the declaration restricts an existing variable.
+    public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
+													  PlexilTreeNode nameNode,
+													  boolean isInOut,
+													  PlexilDataType typ,
+													  VariableName original)
+    {
+        InterfaceVariableName var = 
+			new InterfaceVariableName(declaration, 
+									  nameNode.getText(),
+									  isInOut,
+									  original);
+		m_variables.add(var);
+		return var;
+	}
 
     // Caller is responsible for creating the 3 vectors
     public void getNodeVariables(Vector<VariableName> localVarsResult,
@@ -292,18 +269,14 @@ public class NodeContext
 		}
     }
 
-    public VariableName declareVariable(PlexilTreeNode declaration,
-										PlexilTreeNode nameNode,
-										PlexilDataType varType,
-										ExpressionNode initialValueExpr)
+    public VariableName addVariable(PlexilTreeNode declaration,
+									PlexilTreeNode nameNode,
+									PlexilDataType varType,
+									ExpressionNode initialValueExpr)
     {
-        if (checkVariableName(nameNode)) {
-			VariableName result = new VariableName(declaration, nameNode.getText(), varType, initialValueExpr);
-			m_variables.add(result);
-			return result;
-		}
-		else 
-			return null;
+		VariableName result = new VariableName(declaration, nameNode.getText(), varType, initialValueExpr);
+		m_variables.add(result);
+		return result;
     }
 
     //
@@ -370,7 +343,7 @@ public class NodeContext
     // Returns the first instance found up the tree.
     // If none exists, return null.
 
-    protected VariableName findInheritedVariable(String name)
+    public VariableName findInheritedVariable(String name)
     {
         if (m_parentContext == null)
             return null;

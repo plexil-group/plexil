@@ -28,6 +28,8 @@
 
 package plexil;
 
+import net.n3.nanoxml.*;
+
 //
 // A specialization of VariableName to support interface variables.
 //
@@ -35,23 +37,20 @@ package plexil;
 public class InterfaceVariableName extends VariableName
 {
     protected boolean isInOut;
-    protected boolean isExplicitlyDeclared;
     protected VariableName parentVariable;
 
+	// This variant is for variables that already exist.
     public InterfaceVariableName(PlexilTreeNode declaration,
 								 String myName, 
                                  boolean is_inOut,
-                                 VariableName parent,
-                                 boolean isDeclared)
+                                 VariableName parent)
     {
         super(declaration, myName, parent.getVariableType());
         parentVariable = parent;
         isInOut = is_inOut;
-        isExplicitlyDeclared = isDeclared;
     }
 
-    // use this variant for library nodes
-
+    // use this variant for scalar library node interface variables
     public InterfaceVariableName(PlexilTreeNode declaration,
 								 String myName, 
                                  boolean is_inOut,
@@ -60,7 +59,19 @@ public class InterfaceVariableName extends VariableName
         super(declaration, myName, varType);
         parentVariable = null;
         isInOut = is_inOut;
-        isExplicitlyDeclared = true;
+    }
+
+    // use this variant for array library node interface variables
+    public InterfaceVariableName(PlexilTreeNode declaration,
+								 String myName, 
+                                 boolean is_inOut,
+                                 PlexilDataType varType,
+								 String maxSize,
+								 ExpressionNode initVal)
+    {
+        super(declaration, myName, varType, maxSize, initVal);
+        parentVariable = null;
+        isInOut = is_inOut;
     }
 
     public boolean isLocal()
@@ -71,11 +82,6 @@ public class InterfaceVariableName extends VariableName
     public boolean isAssignable()
     {
         return isInOut;
-    }
-
-    public boolean isExplicit()
-    {
-        return isExplicitlyDeclared;
     }
 
     public boolean hasParentVariable()

@@ -265,8 +265,15 @@ public class BlockNode extends PlexilTreeNode
 			}
 		}
 
-		// Add children from body
-		if (!isSimpleNode()) {
+		if (isSimpleNode()) {
+			// All above have been added after original body,
+			// so move body to last place
+			IXMLElement bodyXML = m_xml.getChildAtIndex(0);
+			m_xml.removeChildAtIndex(0);
+			m_xml.addChild(bodyXML);
+		}
+		else {
+			// Add children from body
 			for (PlexilTreeNode n : m_body) {
 				m_xml.addChild(n.getXML());
 			}

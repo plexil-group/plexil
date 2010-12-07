@@ -86,22 +86,33 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 			// Other syntactic features
 		case PlexilLexer.FOR_KYWD:
 			return new ForNode(payload);
+
 		case PlexilLexer.IF_KYWD:
 			return new IfNode(payload);
+
+		case PlexilLexer.IN_KYWD:
+		case PlexilLexer.IN_OUT_KYWD:
+			return new InterfaceDeclNode(payload);
+
 		case PlexilLexer.WAIT_KYWD:
 			return new WaitNode(payload);
+
 		case PlexilLexer.WHILE_KYWD:
 			return new WhileNode(payload);
 
 			// Internal tokens
 		case PlexilLexer.ACTION:
 			return new ActionNode(payload);
+
 		case PlexilLexer.ASSIGNMENT:
 			return new AssignmentNode(payload);
+
 		case PlexilLexer.ARRAY_REF:
 			return new ArrayReferenceNode(payload);
+
 		case PlexilLexer.ARRAY_VARIABLE_DECLARATION:
 			return new ArrayVariableDeclNode(payload);
+
 		case PlexilLexer.VARIABLE_DECLARATION:
 			return new VariableDeclNode(payload);
 

@@ -38,28 +38,73 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 		super(t);
 	}
 
+	public PlexilDataType getVariableType()
+	{
+		PlexilDataType eltType = PlexilDataType.findByName(this.getChild(0).getText());
+		if (eltType == null)
+			return null;
+		else
+			return eltType.arrayType();
+	}
+
+	public LiteralNode getArraySizeNode()
+	{
+		return (LiteralNode) this.getChild(2);
+	}
+
+	public String getArraySizeString()
+	{
+		return this.getChild(2).getText();
+	}
+
+	public ExpressionNode getInitialValueNode()
+	{
+		if (this.getChildCount() > 3)
+			return (ExpressionNode) this.getChild(3);
+		else
+			return null;
+	}
+
 	// Various places expect the variable to be defined early
 	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		// N.B. type is restricted syntactically so *should be* no chance of error here
-		PlexilDataType arrayType = 
-			PlexilDataType.findByName(getChild(0).getText()).arrayType();
+		earlyCheckCommon(context, state);
 
 		// Check for name conflict (issues diagnostics on failure)
 		// and define the variable if no conflict found
-		PlexilTreeNode varNameNode = this.getChild(1);
-		String sizeString = this.getChild(2).getText();
-		ExpressionNode initValNode = null;
-		if (this.getChildCount() > 3)
-			initValNode = (ExpressionNode) this.getChild(3);
-
-		if (context.checkVariableName(varNameNode))
+		PlexilTreeNode nameNode = getNameNode();
+		if (context.checkVariableName(nameNode))
 			m_variable = context.declareArrayVariable(this,
-													  varNameNode,
-													  arrayType,
-													  sizeString,
-													  initValNode);
-		if (this.getChildCount() > 3)
+													  nameNode,
+													  getVariableType(),
+													  getArraySizeString(),
+													  getInitialValueNode());
+	}
+
+	// Also called by InterfaceDeclNode
+	public void earlyCheckCommon(NodeContext context, CompilerState state)
+	{
+		// N.B. type is restricted syntactically so *should be* no chance of error here
+		// Check that type is valid - should be enforced by parser already
+		PlexilDataType arrayType = getVariableType();
+		if (arrayType == null) {
+			state.addDiagnostic(this.getChild(0),
+								"Internal error: \"" + this.getChild(0).getText() + "\" is not a valid type name",
+								Severity.FATAL);
+		}
+
+		// Check max size for non-negative integer
+		String sizeString = getArraySizeString();
+		int size = LiteralNode.parseIntegerValue(sizeString);
+		if (size < 0) {
+			state.addDiagnostic(getArraySizeNode(),
+								"For array variable \"" + getNameNode().getText()
+								+ "\": size " + sizeString + " is negative",
+								Severity.ERROR);
+		}
+
+		ExpressionNode initValNode = getInitialValueNode();
+		if (initValNode != null) 
 			initValNode.earlyCheck(context, state);
 	}
 
@@ -69,34 +114,30 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 		PlexilTreeNode varNameNode = this.getChild(1);
 		String varName = varNameNode.getText();
 
-		PlexilDataType elementType = PlexilDataType.findByName(this.getChild(0).getText());
-		PlexilDataType arrayType = elementType.arrayType();
-
-		// Check max size for non-negative integer
-		LiteralNode sizeNode = (LiteralNode) this.getChild(2);
-		String sizeString = sizeNode.getText();
-		int size = LiteralNode.parseIntegerValue(sizeString);
-		if (size < 0) {
-			state.addDiagnostic(sizeNode,
-								"For array variable \"" + varName
-								+ "\": size " + sizeString + " is negative",
-								Severity.ERROR);
-		}
-
 		// If supplied, check initial value for type conflict
 		// Track success of this check separately
-		ExpressionNode initValNode = null;
-		if (this.getChildCount() > 3) {
-			// N.B. we assume this is a LiteralNode,
-			// but ExpressionNode supports the required method
-			// and allows the syntax to be generalized later.
-			initValNode = (ExpressionNode) this.getChild(3);
+		// N.B. we assume this is a LiteralNode,
+		// but ExpressionNode supports the required method
+		// and allows the syntax to be generalized later.
+		ExpressionNode initValNode = getInitialValueNode();
+		if (initValNode != null) {
+			// Perform general semantic check of init value
+			initValNode.check(context, state);
+
+			PlexilDataType arrayType = getVariableType();
+			PlexilDataType elementType = null; 
+			if (arrayType != null) 
+				elementType = arrayType.arrayElementType();
+
 			if (initValNode.getDataType().isArray()) {
-				if (!initValNode.assumeType(arrayType, state)) {
+				if (arrayType != null
+					&& !initValNode.assumeType(arrayType, state)) {
 					// assumeType() already reported the cause of the failure 
 				}
 
 				// Check size < declared max
+				String sizeString = getArraySizeString();
+				int size = LiteralNode.parseIntegerValue(sizeString);
 				if (initValNode.getChildCount() > size) {
 					state.addDiagnostic(initValNode,
 										"For array variable \"" + varName
@@ -107,7 +148,8 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 				}
 			}
 			// Check scalar init value type consistency
-			else if (!initValNode.assumeType(elementType, state)) {
+			else if (elementType != null 
+					 && !initValNode.assumeType(elementType, state)) {
 				state.addDiagnostic(initValNode,
 									"For array variable \"" + varName
 									+ "\": Initial value's type, "
@@ -116,8 +158,6 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 									+ elementType.typeName(),
 									Severity.ERROR);
 			}
-			// Perform general semantic check of init value
-			initValNode.check(context, state);
 		}
 	}
 

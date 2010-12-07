@@ -67,12 +67,11 @@ IN_KYWD = 'In';
 IN_OUT_KYWD = 'InOut';
 
 // Types
+ANY_KYWD = 'Any';
 BOOLEAN_KYWD = 'Boolean';
 INTEGER_KYWD = 'Integer';
 REAL_KYWD = 'Real';
 STRING_KYWD = 'String';
-BLOB_KYWD = 'BLOB';
-TIME_KYWD = 'Time';
 
 // node types
 UPDATE_KYWD = 'Update';
@@ -188,6 +187,7 @@ ASTERISK = '*';
 SLASH = '/';
 PERCENT = '%';
 HASHPAREN = '#(';
+ELLIPSIS = '...';
 
 SEMICOLON = ';';
 COMMA = ',';
@@ -461,11 +461,26 @@ interfaceDeclaration : in | inOut ;
 // So this may only be of use in library node definitions.
 
 in : 
-    IN_KYWD^ typeName? NCNAME (COMMA! NCNAME)* SEMICOLON!
+    IN_KYWD^ 
+      ( (NCNAME (COMMA! NCNAME)*)
+	  | interfaceDeclarations
+      ) 
+    SEMICOLON!
   ;
 
 inOut :
-    IN_OUT_KYWD^ typeName? NCNAME (COMMA! NCNAME)* SEMICOLON!
+    IN_OUT_KYWD^
+      ( (NCNAME (COMMA! NCNAME)*)
+	  | interfaceDeclarations
+      ) 
+    SEMICOLON!
+  ;
+
+interfaceDeclarations :
+    tn=typeName!
+    ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
+    | scalarVariableDecl[$tn.start]
+    )+
   ;
 
 variable : NCNAME<VariableNode> ;
