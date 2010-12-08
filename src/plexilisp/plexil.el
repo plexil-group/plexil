@@ -1280,6 +1280,12 @@
         (list (xml "Units" (plexil-infer-type units)))
         (list (xml "Tolerance" (plexil-infer-type tolerance))))))
 
+(pdefine pl (WaitWithTolerance wait-with-tolerance)
+         (units tolerance &optional name) 2 node
+  ;; (real + xml) * (real + xml) * opt(string) -> xml
+  "Waits given number of time units with given tolerance."
+  (plexil-wait units name tolerance))
+
 
 (pdefine-syntax pl (SynchronousCommand synchronous-command)
                 (&optional name-or-first-form &rest forms) 1 node
@@ -1303,13 +1309,15 @@
             (if the-name (list (plexil-nodeid the-name)))
             (if the-forms (mapcar (lambda (x) (plexil-nodify x t)) the-forms))))))
 
+(pdefine pl (timeout Timeout) (exp) 1 clause
+  ;; xml -> xml
+  "Specify a timeout clause, whose argument should be a numeric expression."
+  (xml "Timeout" (plexil-infer-type exp)))
 
-(pdefine pl (WaitWithTolerance wait-with-tolerance)
-         (units tolerance &optional name) 2 node
-  ;; (real + xml) * (real + xml) * opt(string) -> xml
-  "Waits given number of time units with given tolerance."
-  (plexil-wait units name tolerance))
-
+(pdefine pl (tolerance Tolerance) (exp) 1 clause
+  ;; xml -> xml
+  "Specify a tolerance value, whose argument should be a real number or variable."
+  (xml "Tolerance" (plexil-infer-type exp)))
              
 (pdefine-syntax pl (let Let) (vars form &rest forms) 1 node
   ("Declares variables that are lexically scoped to the enclosing forms, "
