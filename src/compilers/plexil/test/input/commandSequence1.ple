@@ -1,0 +1,7 @@
+Command A;
+Command B (Integer);
+
+{
+  A();
+  B(0);        
+}
