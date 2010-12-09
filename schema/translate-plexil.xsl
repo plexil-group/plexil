@@ -835,7 +835,9 @@
                     <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
                   </NodeId>
                   <StartCondition>
-                    <xsl:copy-of select= "$known-test"/>
+                    <xsl:call-template name= "node-finished">
+                      <xsl:with-param name= "id" select="tr:prefix('SynchronousCommandCommand')"/>
+                    </xsl:call-template>
                   </StartCondition>
                   <NodeBody>
                     <Assignment>

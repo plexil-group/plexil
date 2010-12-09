@@ -53,14 +53,12 @@
                      <Node NodeType="Assignment" epx="aux">
                         <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
                         <StartCondition>
-                           <IsKnown>
-                              <ArrayElement>
-                                 <Name>ep2cp_return</Name>
-                                 <Index>
-                                    <IntegerValue>0</IntegerValue>
-                                 </Index>
-                              </ArrayElement>
-                           </IsKnown>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                            <Assignment>
