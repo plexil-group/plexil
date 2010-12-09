@@ -45,7 +45,12 @@
                                  <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
                                  <EndCondition>
                                     <IsKnown>
-                                       <ArrayVariable>ep2cp_return</ArrayVariable>
+                                       <ArrayElement>
+                                          <Name>ep2cp_return</Name>
+                                          <Index>
+                                             <IntegerValue>0</IntegerValue>
+                                          </Index>
+                                       </ArrayElement>
                                     </IsKnown>
                                  </EndCondition>
                                  <NodeBody>
@@ -61,7 +66,12 @@
                                  <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
                                  <StartCondition>
                                     <IsKnown>
-                                       <ArrayVariable>ep2cp_return</ArrayVariable>
+                                       <ArrayElement>
+                                          <Name>ep2cp_return</Name>
+                                          <Index>
+                                             <IntegerValue>0</IntegerValue>
+                                          </Index>
+                                       </ArrayElement>
                                     </IsKnown>
                                  </StartCondition>
                                  <NodeBody>

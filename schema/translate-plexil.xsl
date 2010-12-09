@@ -726,6 +726,21 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+    <xsl:variable name= "known-test">    
+      <xsl:choose>
+        <xsl:when test= "not(Command/ArrayVariable)">
+          <IsKnown><xsl:copy-of select= "$decl"/></IsKnown>
+        </xsl:when>
+        <xsl:otherwise>
+          <IsKnown>
+            <ArrayElement>
+              <Name><xsl:value-of select= "$return"/></Name>
+              <Index><IntegerValue>0</IntegerValue></Index>
+          </ArrayElement>
+          </IsKnown>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <Node NodeType="NodeList" epx="SynchronousCommand">
       <xsl:choose>
         <xsl:when test= "$ordered">
@@ -804,7 +819,7 @@
                     <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
                   </NodeId>
                   <EndCondition>
-                    <IsKnown><xsl:copy-of select= "$decl"/></IsKnown>
+                    <xsl:copy-of select= "$known-test"/>
                   </EndCondition>
                   <NodeBody>
                     <Command>
@@ -820,7 +835,7 @@
                     <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
                   </NodeId>
                   <StartCondition>
-                    <IsKnown><xsl:copy-of select= "$decl"/></IsKnown>
+                    <xsl:copy-of select= "$known-test"/>
                   </StartCondition>
                   <NodeBody>
                     <Assignment>
