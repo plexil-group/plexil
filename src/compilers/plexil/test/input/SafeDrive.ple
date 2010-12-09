@@ -1,5 +1,7 @@
 Command Rover.Drive (Integer);
 Command Rover.TakePicture;
+Command pprint(...);
+Boolean Lookup Rover.WheelStuck;
 
 SafeDrive:
 {
