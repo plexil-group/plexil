@@ -27,11 +27,13 @@ PLEXIL_HOME			?= ../../../..
 
 VALID_TESTS	:= array-add array-complex \
  basic-wait-test \
- concurrenceOfAssignments emptyNodeWithVariables \
- Increment ifWithClauseIds interface-test \
+ commandSequence1 concurrenceOfAssignments \
+ emptyNodeWithVariables \
+ ifWithClauseIds Increment interface-test \
  literal-format-test \
- minimal minimalCommand minimalCommandWithNodeId \
- sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse
+ minimal minimalCommand minimalCommandWithNodeId minimalWithNodeId \
+ SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse
+
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
 
 all: setup valid-tests syntax-error-tests semantic-error-tests
