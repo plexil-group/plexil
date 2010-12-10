@@ -75,6 +75,8 @@ public class EqualityNode extends ExpressionNode
 			result = "NE";
 
 		PlexilDataType lhsType = ((ExpressionNode) this.getChild(0)).getDataType();
+		if (lhsType == PlexilDataType.ANY_TYPE) 
+			lhsType = ((ExpressionNode) this.getChild(1)).getDataType();
 		if (lhsType == PlexilDataType.INTEGER_TYPE
 			|| lhsType == PlexilDataType.REAL_TYPE)
 			result = result + "Numeric";
