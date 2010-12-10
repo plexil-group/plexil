@@ -7,7 +7,8 @@
                (integer "run-length" 160)
                (real-array "actual" 5)
                (real "start-time")
-               (boolean "debug" true))
+               (boolean "debug" true)
+               (boolean "runtime-error" false))
     ;; Record the start time of the run...
     (assignment (realvar "start-time") (lookup-now "time"))
     ;; Poll for the current state and react accordingly
@@ -16,10 +17,14 @@
         (variables (real "elapsed-time"))
         (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
         (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
-        (assignment (array-element "actual" 0) 0) ;for use iin the end-condition
-        (action "get-states"
-          (end-condition (not (= (array-element "actual" 0) 0)))
-          (command-with-return (arrayvar "actual") "get-current-state" (intvar "period")))
+        (if (boolvar "runtime-error")
+            (sequence "error-sequence"
+              (assignment (array-element "actual" 0) 0) ;for use iin the end-condition
+              (action "get-states"
+                (end-condition (not (= (array-element "actual" 0) 0)))
+                (command-with-return (arrayvar "actual") "get-current-state" (intvar "period"))))
+          (synchronous-command "get-states"
+            (command-with-return (arrayvar "actual") "get-current-state" (intvar "period"))))
         (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")
         (sequence "decel-1"
           (variables (real "kps-decel" -1.21) (real "delta"))
