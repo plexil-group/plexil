@@ -35,6 +35,7 @@ import net.n3.nanoxml.*;
 public class CommandNode extends ExpressionNode
 {
 	private GlobalDeclaration m_commandDeclaration = null;
+	private ArgumentListNode m_parameters = null;
 
 	public CommandNode(int ttype)
 	{
@@ -47,6 +48,9 @@ public class CommandNode extends ExpressionNode
 	public void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
 		PlexilTreeNode nameAST = this.getChild(0);
+		if (this.getChildCount() > 1)
+			m_parameters = (ArgumentListNode) this.getChild(1);
+
 		if (nameAST.getType() == PlexilLexer.COMMAND_KYWD) {
 			// Literal command name - 
 			// Check that name is defined as a command
@@ -73,33 +77,31 @@ public class CommandNode extends ExpressionNode
 
 				// We have a valid command declaration
 				// Check parameter list
-				Vector<PlexilDataType> parmTypes = m_commandDeclaration.getParameterTypes();
-				PlexilTreeNode parmsAST = this.getParameters();
-				if (parmTypes == null) {
+				Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
+				if (parmSpecs == null) {
 					// No parameters expected
-					if (parmsAST != null) {
-						state.addDiagnostic(parmsAST,
+					if (m_parameters != null) {
+						state.addDiagnostic(m_parameters,
 											"Command \"" + name + "\" expects 0 parameters, but "
-											+ String.valueOf(parmsAST.getChildCount() + " were supplied"),
+											+ String.valueOf(m_parameters.getChildCount() + " were supplied"),
 											Severity.ERROR);
 					}
 				}
 				else {
 					// Parameters expected
-					if (parmsAST == null) {
+					if (m_parameters == null) {
 						// None supplied
 						state.addDiagnostic(nameNode,
 											"Command \"" + name + "\" expects "
-											+ String.valueOf(parmTypes.size()) + " parameters, but none were supplied",
+											+ String.valueOf(parmSpecs.size()) + " parameters, but none were supplied",
 											Severity.ERROR);
 					}
-					else if (parmsAST.getChildCount() != parmTypes.size()) {
-						// Wrong number supplied
-						state.addDiagnostic(nameNode,
-											"Command \"" + name + "\" expects "
-											+ String.valueOf(parmTypes.size()) + " parameters, but "
-											+ String.valueOf(parmsAST.getChildCount()) + " were supplied",
-											Severity.ERROR);
+					else {
+						m_parameters.earlyCheckArgumentList(context,
+															state,
+															"Command",
+															name,
+															parmSpecs);
 					}
 					// Parameter type checking done in checkTypeConsistency() below
 				}
@@ -126,24 +128,11 @@ public class CommandNode extends ExpressionNode
 		}
 
 		if (m_commandDeclaration != null) {
-			// We have a valid command declaration
 			// Check parameter list
-			Vector<PlexilDataType> parmTypes = m_commandDeclaration.getParameterTypes();
-			PlexilTreeNode parmsAST = this.getParameters();
-			if (parmTypes != null
-				&& parmsAST != null
-				&& parmsAST.getChildCount() == parmTypes.size()) {
-				// Check supplied expression types against declared
-				for (int i = 0; i < parmsAST.getChildCount(); i++) {
-					ExpressionNode parm = (ExpressionNode) parmsAST.getChild(i);
-					if (!parm.assumeType(parmTypes.elementAt(i), state)) {
-						state.addDiagnostic(parm,
-											"Command parameter is not of expected type "
-											+ parmTypes.elementAt(i).typeName(),
-											Severity.ERROR);
-					}
-				}
-			}
+			String cmdName = m_commandDeclaration.getName();
+			Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
+			if (parmSpecs != null && m_parameters != null)
+				m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
 		}
 
 		// TODO: Check resources
@@ -197,10 +186,14 @@ public class CommandNode extends ExpressionNode
 			nameXML.addChild(stringVal);
 		}
 		else {
-			// TODO: Command name expression
+			// Command name expression
+			nameXML.addChild(commandName.getXML());
 		}
 
-		// TODO: handle parameters
+		// Handle parameters
+		if (m_parameters != null) {
+			commandBody.addChild(m_parameters.getXML());
+		}
 	}
 
 	protected String getXMLElementName() { return "Node"; }
@@ -209,13 +202,6 @@ public class CommandNode extends ExpressionNode
 	private boolean isCommandNameLiteral()
 	{
 		return this.getChild(0).getType() == PlexilLexer.COMMAND_KYWD;
-	}
-
-	private PlexilTreeNode getParameters()
-	{
-		if (this.getChildCount() < 2)
-			return null;
-		return this.getChild(1);
 	}
 
 	// TODO: Implement!

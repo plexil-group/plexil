@@ -34,7 +34,7 @@ import net.n3.nanoxml.*;
 
 public class LookupNode extends ExpressionNode
 {
-	private PlexilTreeNode m_arguments = null;
+	private ArgumentListNode m_arguments = null;
 	private ExpressionNode m_tolerance = null;
 	private GlobalDeclaration m_state = null;
 
@@ -59,7 +59,7 @@ public class LookupNode extends ExpressionNode
 		if (this.getChildCount() > 1) {
 			PlexilTreeNode secondKid = this.getChild(1);
 			if (secondKid.getType() == PlexilLexer.ARGUMENT_LIST) {
-				m_arguments = secondKid;
+				m_arguments = (ArgumentListNode) secondKid;
 				m_tolerance = (ExpressionNode) this.getChild(2);
 			}
 			else 
@@ -74,6 +74,8 @@ public class LookupNode extends ExpressionNode
 									+ " must be a variable reference or a literal",
 									Severity.ERROR);
 			}
+			// Do additional checks
+			m_tolerance.earlyCheck(context, state);
 		}
 
 		PlexilTreeNode invocation = this.getChild(0);
@@ -94,11 +96,11 @@ public class LookupNode extends ExpressionNode
 				m_dataType = m_state.getReturnType();
 
 				// Check arglist
-				Vector<PlexilDataType> argTypes = m_state.getParameterTypes();
-				if (argTypes == null) {
+				Vector<VariableName> argSpecs = m_state.getParameterVariables();
+				if (argSpecs == null) {
 					if (m_arguments != null) {
 						state.addDiagnostic(invocation,
-											"State name \"" + stateName + "\" requires 0 parameters, but "
+											"State \"" + stateName + "\" requires 0 parameters, but "
 											+ Integer.toString(m_arguments.getChildCount()) + " were supplied",
 											Severity.ERROR);
 					}
@@ -108,23 +110,25 @@ public class LookupNode extends ExpressionNode
 					// State takes parameters
 					if (m_arguments == null) {
 						state.addDiagnostic(invocation,
-											"State name \"" + stateName + "\" requires "
-											+ Integer.toString(argTypes.size())
+											"State \"" + stateName + "\" requires "
+											+ Integer.toString(argSpecs.size())
 											+ " parameters, but none were supplied",
 											Severity.ERROR);
 					}
 					// Check arg count
-					else if (argTypes.size() != m_arguments.getChildCount()) {
-						state.addDiagnostic(invocation,
-											"State name \"" + stateName
-											+ "\" requires " + Integer.toString(argTypes.size())
-											+ " parameters, but " + Integer.toString(m_arguments.getChildCount())
-											+ " were supplied",
-											Severity.ERROR);
+					else {
+						m_arguments.earlyCheckArgumentList(context,
+														   state,
+														   "State",
+														   stateName,
+														   argSpecs);
 					}
 				}
-			}
-		}
+			} // end state is declared
+		} // end state is a literal
+
+		// Do recursive checks as well
+		this.earlyCheckChildren(context, state);
 	}
 
 	public void check(NodeContext context, CompilerState state)
@@ -132,23 +136,15 @@ public class LookupNode extends ExpressionNode
 		if (m_state != null) {
 			// Check arglist
 			// Formal vs. actual counts have already been done in checkSelf()
-			Vector<PlexilDataType> argTypes = m_state.getParameterTypes();
-			if (argTypes != null
-				&& m_arguments != null
-				&& argTypes.size() == m_arguments.getChildCount()) {
+			Vector<VariableName> argSpecs = m_state.getParameterVariables();
+			if (argSpecs != null
+				&& m_arguments != null) {
 				// Check arg types
-				for (int i = 0; i < argTypes.size(); i++) {
-					PlexilDataType argType = argTypes.elementAt(i);
-					ExpressionNode actualParam = (ExpressionNode) m_arguments.getChild(i);
-					if (!actualParam.assumeType(argType, state)) {
-						state.addDiagnostic(actualParam,
-											"Parameter " + Integer.toString(i+1)
-											+ " to state \"" + m_state.getName()
-											+ "\" has type " + actualParam.getDataType().typeName()
-											+ ", instead of expected type " + argType.typeName(),
-											Severity.ERROR);
-					}
-				}
+				m_arguments.checkArgumentList(context,
+											  state,
+											  "state",
+											  m_state.getName(),
+											  argSpecs);
 			}
 
 			// Type check tolerance if supplied and if state name is known
@@ -162,7 +158,7 @@ public class LookupNode extends ExpressionNode
 				}
 			}
 		}
-		// Now do recursive checks
+		// Do recursive checks
 		this.checkChildren(context, state);
 	}
 
@@ -173,11 +169,11 @@ public class LookupNode extends ExpressionNode
 		// Add state
 		IXMLElement nameXML = new XMLElement("Name");
 		m_xml.addChild(nameXML);
-		if (m_state != null) {
+		if (this.getChild(0).getType() == PlexilLexer.STATE_NAME) {
 			// literal name
 			IXMLElement literalNameXML = new XMLElement("StringValue");
 			nameXML.addChild(literalNameXML);
-			literalNameXML.setContent(m_state.getName());
+			literalNameXML.setContent(this.getChild(0).getChild(0).getText());
 		}
 		else // name expression
 			nameXML.addChild(this.getChild(0).getXML());
@@ -191,10 +187,7 @@ public class LookupNode extends ExpressionNode
 
 		// Add parameters
 		if (m_arguments != null) {
-			IXMLElement argXML = new XMLElement("Arguments");
-			m_xml.addChild(argXML);
-			for (int i = 0; i < m_arguments.getChildCount(); i++) 
-				argXML.addChild(m_arguments.getChild(i).getXML());
+			m_xml.addChild(m_arguments.getXML());
 		}
 
 	}

@@ -281,8 +281,8 @@ commandDeclaration :
 	  )
     |
       // return value variant
-      ( rt=typeName COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
-         -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec? ^(RETURNS_KYWD ^($rt)))
+      ( returnTypeName COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
+         -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec? returnTypeName)
       )
     )
   ;
@@ -292,25 +292,46 @@ commandDeclaration :
 lookupDeclaration : 
     (
       // old style single return syntax
-      rt=typeName LOOKUP_KYWD sn=NCNAME paramsSpec? SEMICOLON
-      -> ^(LOOKUP_KYWD $sn ^(RETURNS_KYWD ^($rt)) paramsSpec?)
+      ( returnTypeName LOOKUP_KYWD sn=NCNAME paramsSpec? SEMICOLON
+        -> ^(LOOKUP_KYWD<LookupDeclarationNode> $sn returnTypeName paramsSpec?)
+	  )
     |
       // multiple return syntax
-      LOOKUP_KYWD sn=NCNAME ps=paramsSpec? RETURNS_KYWD rs=returnsSpec SEMICOLON
-      -> ^(LOOKUP_KYWD $sn returnsSpec paramsSpec?)
+      ( LOOKUP_KYWD sn=NCNAME ps=paramsSpec? RETURNS_KYWD rs=returnsSpec SEMICOLON
+        -> ^(LOOKUP_KYWD<LookupDeclarationNode> $sn returnsSpec paramsSpec?)
+      )
     )
   ;
 
 paramsSpec :
-         LPAREN ( paramSpec ( COMMA paramSpec )* )? RPAREN
-         -> ^(PARAMETERS paramSpec*)
+    LPAREN paramsSpecGuts? RPAREN
+  -> ^(PARAMETERS paramsSpecGuts?)
+ ;
+
+paramsSpecGuts :
+      ( paramSpec ( COMMA! paramSpec )* )
+      | ELLIPSIS
  ;
 
 returnsSpec :
         paramSpec ( COMMA paramSpec )*
         -> ^(RETURNS_KYWD paramSpec+) ;
 
-paramSpec : typeName^ NCNAME? ;
+paramSpec : paramTypeName^ NCNAME? ;
+
+paramTypeName : 
+    ANY_KYWD
+  | BOOLEAN_KYWD
+  | INTEGER_KYWD
+  | REAL_KYWD
+  | STRING_KYWD
+ ;
+
+returnTypeName :
+    typeName
+    -> ^(RETURNS_KYWD typeName)
+ ;
+
 
 typeName :
     BOOLEAN_KYWD
@@ -427,13 +448,13 @@ nodeAttribute :
 nodeCondition : conditionKywd^ expression SEMICOLON! ;
 
 conditionKywd :
-    END_CONDITION_KYWD<ConditionNode>
-  | INVARIANT_CONDITION_KYWD<ConditionNode>
-  | POST_CONDITION_KYWD<ConditionNode>
-  | PRE_CONDITION_KYWD<ConditionNode>
-  | REPEAT_CONDITION_KYWD<ConditionNode>
-  | SKIP_CONDITION_KYWD<ConditionNode>
-  | START_CONDITION_KYWD<ConditionNode>
+    END_CONDITION_KYWD
+  | INVARIANT_CONDITION_KYWD
+  | POST_CONDITION_KYWD
+  | PRE_CONDITION_KYWD
+  | REPEAT_CONDITION_KYWD
+  | SKIP_CONDITION_KYWD
+  | START_CONDITION_KYWD
  ;
 
 resource :
@@ -480,7 +501,12 @@ interfaceDeclarations :
     tn=typeName!
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
     | scalarVariableDecl[$tn.start]
-    )+
+    )
+	( COMMA!
+      ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
+      | scalarVariableDecl[$tn.start]
+      )
+	)*
   ;
 
 variable : NCNAME<VariableNode> ;

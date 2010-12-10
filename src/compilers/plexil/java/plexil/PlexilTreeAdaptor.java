@@ -83,7 +83,20 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.UNCHECKED_SEQUENCE_KYWD:
 			return new BlockNode(payload);
 
+			// Conditions
+		case PlexilLexer.END_CONDITION_KYWD:
+		case PlexilLexer.INVARIANT_CONDITION_KYWD:
+		case PlexilLexer.POST_CONDITION_KYWD:
+		case PlexilLexer.PRE_CONDITION_KYWD:
+		case PlexilLexer.REPEAT_CONDITION_KYWD:
+		case PlexilLexer.SKIP_CONDITION_KYWD:
+		case PlexilLexer.START_CONDITION_KYWD:
+			return new ConditionNode(payload);
+
 			// Other syntactic features
+		case PlexilLexer.ARGUMENT_LIST:
+			return new ArgumentListNode(payload);
+
 		case PlexilLexer.FOR_KYWD:
 			return new ForNode(payload);
 
@@ -93,6 +106,15 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.IN_KYWD:
 		case PlexilLexer.IN_OUT_KYWD:
 			return new InterfaceDeclNode(payload);
+
+		case PlexilLexer.LIBRARY_ACTION_KYWD:
+			return new LibraryDeclarationNode(payload);
+
+		case PlexilLexer.PARAMETERS:
+			return new ParameterSpecNode(payload);
+
+		case PlexilLexer.RETURNS_KYWD:
+			return new ReturnSpecNode(payload);
 
 		case PlexilLexer.WAIT_KYWD:
 			return new WaitNode(payload);
@@ -121,7 +143,6 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.FALSE_KYWD:
 		case PlexilLexer.INT:
 		case PlexilLexer.DOUBLE:
-		case PlexilLexer.STATE_NAME:
 			return new LiteralNode(payload);
 
 		case PlexilLexer.ARRAY_LITERAL:

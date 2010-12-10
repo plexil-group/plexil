@@ -32,61 +32,55 @@ import org.antlr.runtime.tree.*;
 
 import net.n3.nanoxml.*;
 
-public class CommandDeclarationNode extends PlexilTreeNode
+public class LookupDeclarationNode extends PlexilTreeNode
 {
-	public CommandDeclarationNode(Token t)
+	public LookupDeclarationNode(Token t)
 	{
 		super(t);
 	}
 
 	// structure is:
-	// ^(COMMAND_KYWD NCNAME paramsSpec? returnsSpec? resourcesList?)
+	// ^(LOOKUP_KYWD NCNAME returnsSpec paramsSpec?)
 
 	public void earlyCheck(NodeContext context, CompilerState state)
 	{
 		// check that name is not already defined
-		String cmdName = this.getChild(0).getText();
-		if (GlobalContext.getGlobalContext().isCommandName(cmdName)) {
+		String lookupName = this.getChild(0).getText();
+		if (GlobalContext.getGlobalContext().isCommandName(lookupName)) {
 			// Report duplicate definition
 			state.addDiagnostic(this.getChild(0),
-								"Command \"" + cmdName + "\" is already defined",
+								"Lookup \"" + lookupName + "\" is already defined",
 								Severity.ERROR);
 		}
 
+		// Parse return spec
+		ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
+		returnAST.earlyCheck(context, state); // for effect
+		Vector<VariableName> returnSpecs = returnAST.getReturnVector();
+
 		// Parse parameter list, if supplied
 		Vector<VariableName> parmSpecs = null;
-		ParameterSpecNode parmAST = getParameters();
+		ParameterSpecNode parmAST = (ParameterSpecNode) this.getChild(2);
 		if (parmAST != null) {
 			parmAST.earlyCheck(context, state); // for effect
 			parmSpecs = parmAST.getParameterVector();
-			if (parmSpecs != null) {
-				for (VariableName vn : parmSpecs) {
-					if (vn instanceof InterfaceVariableName) {
-						state.addDiagnostic(vn.getDeclaration(),
-											(vn.isAssignable() ? "InOut" : "In")
-											+ " declaration is illegal in command parameter declarations",
-											Severity.ERROR);
-					}
+			for (VariableName vn : parmSpecs) {
+				if (vn instanceof InterfaceVariableName) {
+					state.addDiagnostic(vn.getDeclaration(),
+										(vn.isAssignable() ? "InOut" : "In")
+										+ " declaration is illegal in lookup parameter declarations",
+										Severity.ERROR);
 				}
 			}
 		}
 
-		// Parse return type, if supplied
-		Vector<VariableName> returnSpecs = null;
-		ReturnSpecNode returnAST = (ReturnSpecNode) getReturn();
-		if (returnAST != null) {
-			returnAST.earlyCheck(context, state); // for effect
-			returnSpecs = returnAST.getReturnVector();
-		}
-
-		// TODO: Handle resource list
-
 		// Define in global environment
-		GlobalContext.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpecs);
+		GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
 	}
 
 	public void constructXML()
 	{
+
 		super.constructXML();
 
 		// add name
@@ -95,54 +89,15 @@ public class CommandDeclarationNode extends PlexilTreeNode
 		nameXML.setContent(nameTree.getText());
 		m_xml.addChild(nameXML);
 
-		if (this.getChildCount() > 1) {
-			// Add return spec(s) if provided
-			ReturnSpecNode returnSpec = getReturn();
-			if (returnSpec != null) {
-				returnSpec.constructReturnXML(m_xml);
-			}
+		// Add return spec
+		((ReturnSpecNode) this.getChild(1)).constructReturnXML(m_xml);
 
-			// Add parameter spec(s) if provided
-			// Skip it if any of the parameters is an Any or wildcard,
-			// as there's no legal way to represent them in Plexil XML
-			ParameterSpecNode parametersSpec = getParameters();
-			if (parametersSpec != null && !parametersSpec.containsAnyType()) {
-				parametersSpec.constructParameterXML(m_xml);
-			}
-
-			// TODO: add resource list if provided
-			PlexilTreeNode resourceList = getResourceList();
-			if (resourceList != null) {
-			}
-		}
-	}
-
-	public String getXMLElementName() { return "CommandDeclaration"; }
-
-	protected ParameterSpecNode getParameters()
-	{
-		if (this.getChildCount() < 2)
-			return null;
-		if (this.getChild(1).getType() != PlexilLexer.PARAMETERS)
-			return null;
-		return (ParameterSpecNode) this.getChild(1);
-	}
-
-	protected ReturnSpecNode getReturn()
-	{
-		if (this.getChildCount() < 2)
-			return null;
-		for (int i = 1; i < this.getChildCount(); i++) {
-			if (this.getChild(i).getType() == PlexilLexer.RETURNS_KYWD)
-				return (ReturnSpecNode) this.getChild(i);
-		}
-		return null; // not found
-	}
-
-	protected PlexilTreeNode getResourceList()
-	{
-		// *** TODO: implement!
-		return null;
+		// Add parameter spec(s) if provided
+		// Skip it if any of the parameters is an Any or wildcard,
+		// as there's no legal way to represent them in Plexil XML
+		ParameterSpecNode parametersSpec = (ParameterSpecNode) this.getChild(2);
+		if (parametersSpec != null && !parametersSpec.containsAnyType()) 
+			parametersSpec.constructParameterXML(m_xml);
 	}
 
 }

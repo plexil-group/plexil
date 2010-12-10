@@ -25,63 +25,63 @@
 
 package plexil;
 
+import java.util.Vector;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import net.n3.nanoxml.*;
 
-public class ConditionNode extends PlexilTreeNode
+public class LibraryDeclarationNode extends PlexilTreeNode
 {
-
-	public ConditionNode(Token t)
+	public LibraryDeclarationNode(Token t)
 	{
 		super(t);
 	}
 
-	public void checkSelf(NodeContext context, CompilerState myState)
+	// structure is:
+	// ^(LIBRARY_ACTION_KYWD NCNAME interfaceSpec?)
+
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		ExpressionNode exp = (ExpressionNode) this.getChild(0);
-		if (exp.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
-			myState.addDiagnostic(exp,
-								  this.getToken().getText() + " expression is not Boolean",
-								  Severity.ERROR);
+		// check that name is not already defined
+		String libraryName = this.getChild(0).getText();
+		if (GlobalContext.getGlobalContext().isCommandName(libraryName)) {
+			// Report duplicate definition
+			state.addDiagnostic(this.getChild(0),
+								"Library action \"" + libraryName + "\" is already defined",
+								Severity.ERROR);
 		}
+
+		// Parse parameter list, if supplied
+		Vector<VariableName> ifSpecs = null;
+		ParameterSpecNode ifVarAST = (ParameterSpecNode) this.getChild(1);
+		if (ifVarAST != null) {
+			ifVarAST.earlyCheck(context, state); // for effect
+			ifSpecs = ifVarAST.getParameterVector();
+			for (VariableName vn : ifSpecs) {
+				if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
+					state.addDiagnostic(vn.getDeclaration(),
+										"Illegal type for library action interface variable",
+										Severity.ERROR);
+				}
+			}
+		}
+
+		// Define in global environment
+		GlobalContext.getGlobalContext().addLibraryNode(this, libraryName, ifSpecs);
 	}
 
 	public void constructXML()
 	{
 		super.constructXML();
-		// Add expression
-		m_xml.addChild(this.getChild(0).getXML());
+		IXMLElement nameXML = new XMLElement("Name");
+		nameXML.setContent(this.getChild(1).getText());
+		m_xml.addChild(nameXML);
+		if (this.getChildCount() > 1)
+			m_xml.addChild(this.getChild(1).getXML());
 	}
 
-	public String getXMLElementName()
-	{
-		switch (this.getType()) {
-		case PlexilLexer.END_CONDITION_KYWD:
-			return "EndCondition";
-
-		case PlexilLexer.INVARIANT_CONDITION_KYWD:
-			return "InvariantCondition";
-
-		case PlexilLexer.POST_CONDITION_KYWD:
-			return "PostCondition";
-
-		case PlexilLexer.PRE_CONDITION_KYWD:
-			return "PreCondition";
-
-		case PlexilLexer.REPEAT_CONDITION_KYWD:
-			return "RepeatCondition";
-
-		case PlexilLexer.SKIP_CONDITION_KYWD:
-			return "SkipCondition";
-
-		case PlexilLexer.START_CONDITION_KYWD:
-			return "StartCondition";
-
-		default:
-			return null;
-		}
-	}
+	public String getXMLElementName() { return "LibraryNodeDeclaration"; }
 
 }

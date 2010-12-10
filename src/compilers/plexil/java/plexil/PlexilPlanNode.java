@@ -52,7 +52,10 @@ public class PlexilPlanNode extends PlexilTreeNode
 	{
 		super.constructXML();
 		for (int i = 0; i < this.getChildCount(); i++) {
-			m_xml.addChild(this.getChild(i).getXML());
+			// Allow for declarations to return null.
+			IXMLElement childXML = this.getChild(i).getXML();
+			if (childXML != null)
+				m_xml.addChild(childXML);
 		}
 	}
 

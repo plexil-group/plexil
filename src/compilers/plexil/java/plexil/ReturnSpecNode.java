@@ -25,63 +25,40 @@
 
 package plexil;
 
+import java.util.Vector;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import net.n3.nanoxml.*;
 
-public class ConditionNode extends PlexilTreeNode
+public class ReturnSpecNode extends PlexilTreeNode
 {
+	private Vector<VariableName> m_returnSpecs = new Vector<VariableName>();
 
-	public ConditionNode(Token t)
+	public ReturnSpecNode(Token t)
 	{
 		super(t);
 	}
 
-	public void checkSelf(NodeContext context, CompilerState myState)
+	public Vector<VariableName> getReturnVector() { return m_returnSpecs; }
+
+	public void earlyCheck(NodeContext context, CompilerState state)
 	{
-		ExpressionNode exp = (ExpressionNode) this.getChild(0);
-		if (exp.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
-			myState.addDiagnostic(exp,
-								  this.getToken().getText() + " expression is not Boolean",
-								  Severity.ERROR);
+		for (int retnIdx = 0; retnIdx < this.getChildCount(); retnIdx++) {
+			PlexilTreeNode retn = this.getChild(retnIdx);
+			String typeName = retn.getToken().getText();
+			String nam = "_return_" + retnIdx;
+			m_returnSpecs.add(new VariableName(retn,
+											   nam,
+											   PlexilDataType.findByName(typeName)));
 		}
 	}
 
-	public void constructXML()
+	public void constructReturnXML(IXMLElement parent)
 	{
-		super.constructXML();
-		// Add expression
-		m_xml.addChild(this.getChild(0).getXML());
-	}
-
-	public String getXMLElementName()
-	{
-		switch (this.getType()) {
-		case PlexilLexer.END_CONDITION_KYWD:
-			return "EndCondition";
-
-		case PlexilLexer.INVARIANT_CONDITION_KYWD:
-			return "InvariantCondition";
-
-		case PlexilLexer.POST_CONDITION_KYWD:
-			return "PostCondition";
-
-		case PlexilLexer.PRE_CONDITION_KYWD:
-			return "PreCondition";
-
-		case PlexilLexer.REPEAT_CONDITION_KYWD:
-			return "RepeatCondition";
-
-		case PlexilLexer.SKIP_CONDITION_KYWD:
-			return "SkipCondition";
-
-		case PlexilLexer.START_CONDITION_KYWD:
-			return "StartCondition";
-
-		default:
-			return null;
-		}
+		for (VariableName vn : m_returnSpecs)
+			parent.addChild(vn.makeGlobalDeclarationElement("Return"));
 	}
 
 }

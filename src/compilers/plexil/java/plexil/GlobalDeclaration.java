@@ -43,67 +43,13 @@ public class GlobalDeclaration extends PlexilName
     public GlobalDeclaration(PlexilTreeNode declaration,
 							 String myName,
                              NameType declType,
-                             PlexilTreeNode parmAST,
-                             PlexilTreeNode returnAST)
+                             Vector<VariableName> paramSpecs,
+                             Vector<VariableName> returnSpecs)
     {
         super(myName, declType, declaration);
         m_declarationType = declType;
-        m_paramSpecs = null;
-        if (parmAST != null) {
-			m_paramSpecs = new Vector<VariableName>();
-			for (int parmIdx = 0; parmIdx < parmAST.getChildCount(); parmIdx++) {
-				PlexilTreeNode parm = parmAST.getChild(parmIdx);
-				String typeName = parm.getToken().getText();
-				PlexilTreeNode parmName = parm.getChild(1);
-				String nam =
-					(parmName == null) ? ("_" + m_declarationType.plexilName + "_param_" + parmIdx)
-					: parmName.getText();
-				VariableName newParmVar = null;
-				switch (parm.getType()) {
-					// In and InOut are only valid for library node declarations
-				case PlexilLexer.IN_KYWD:
-					newParmVar = new InterfaceVariableName(parm,
-														   nam,
-														   false,
-														   PlexilDataType.findByName(typeName));
-					break;
-
-				case PlexilLexer.IN_OUT_KYWD:
-					newParmVar = new InterfaceVariableName(parm,
-														   nam,
-														   true,
-														   PlexilDataType.findByName(typeName));
-					break;
-
-				case PlexilLexer.BOOLEAN_KYWD:
-				case PlexilLexer.INTEGER_KYWD:
-				case PlexilLexer.REAL_KYWD:
-				case PlexilLexer.STRING_KYWD:
-					newParmVar = new VariableName(parm,
-												  nam,
-												  PlexilDataType.findByName(typeName));
-					break;
-
-				default:
-					System.out.println("Invalid parameter descriptor token type " + parm.getType());
-					break;
-				}
-
-				m_paramSpecs.add(newParmVar);
-			}
-		}
-        m_returnSpecs = null;
-        if (returnAST != null) {
-			m_returnSpecs = new Vector<VariableName>();
-			for (int retnIdx = 0; retnIdx < returnAST.getChildCount(); retnIdx++) {
-				PlexilTreeNode retn = returnAST.getChild(retnIdx);
-				String typeName = retn.getToken().getText();
-				String nam = "_" + m_declarationType.plexilName + "_return_" + retnIdx;
-				m_returnSpecs.add(new VariableName(retn,
-												   nam,
-												   PlexilDataType.findByName(typeName)));
-			}
-		}
+        m_paramSpecs = paramSpecs;
+        m_returnSpecs = returnSpecs;
     }
 
     // returns first return type or null

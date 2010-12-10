@@ -229,7 +229,7 @@ public class LiteralNode extends ExpressionNode
     {
 		super.constructXML();
 		String txt = this.getToken().getText();
-		if (getToken().getType() == PlexilLexer.INT) {
+		if (this.getType() == PlexilLexer.INT) {
 			m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
 		}
 		else {

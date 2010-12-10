@@ -150,7 +150,8 @@ public class VariableName extends PlexilName
     public IXMLElement makeGlobalDeclarationElement(String elementType)
     {
         IXMLElement result = new XMLElement(elementType);
-        result.setContent(getName());
+		if (m_name != null) 
+			result.setContent(getName());
         result.setAttribute("Type", getVariableType().typeName());
         return result;
     }

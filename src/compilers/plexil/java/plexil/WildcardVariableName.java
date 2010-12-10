@@ -25,63 +25,13 @@
 
 package plexil;
 
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
-
-import net.n3.nanoxml.*;
-
-public class ConditionNode extends PlexilTreeNode
+public class WildcardVariableName extends VariableName
 {
+	public static final String s_wildcardName = "_WILD_PARAMETERS_";
 
-	public ConditionNode(Token t)
+	public WildcardVariableName(PlexilTreeNode decl)
 	{
-		super(t);
-	}
-
-	public void checkSelf(NodeContext context, CompilerState myState)
-	{
-		ExpressionNode exp = (ExpressionNode) this.getChild(0);
-		if (exp.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
-			myState.addDiagnostic(exp,
-								  this.getToken().getText() + " expression is not Boolean",
-								  Severity.ERROR);
-		}
-	}
-
-	public void constructXML()
-	{
-		super.constructXML();
-		// Add expression
-		m_xml.addChild(this.getChild(0).getXML());
-	}
-
-	public String getXMLElementName()
-	{
-		switch (this.getType()) {
-		case PlexilLexer.END_CONDITION_KYWD:
-			return "EndCondition";
-
-		case PlexilLexer.INVARIANT_CONDITION_KYWD:
-			return "InvariantCondition";
-
-		case PlexilLexer.POST_CONDITION_KYWD:
-			return "PostCondition";
-
-		case PlexilLexer.PRE_CONDITION_KYWD:
-			return "PreCondition";
-
-		case PlexilLexer.REPEAT_CONDITION_KYWD:
-			return "RepeatCondition";
-
-		case PlexilLexer.SKIP_CONDITION_KYWD:
-			return "SkipCondition";
-
-		case PlexilLexer.START_CONDITION_KYWD:
-			return "StartCondition";
-
-		default:
-			return null;
-		}
+		super(decl, s_wildcardName, PlexilDataType.ANY_TYPE);
 	}
 
 }

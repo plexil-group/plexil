@@ -81,8 +81,8 @@ public class GlobalContext
 	// TODO: handle resource list
     public void addCommandName(PlexilTreeNode declaration,
 							   String name, 
-                               PlexilTreeNode parm_spec,
-                               PlexilTreeNode return_spec)
+                               Vector<VariableName> parm_spec,
+                               Vector<VariableName> return_spec)
     {
         commands.put(name, 
                      new GlobalDeclaration(declaration,
@@ -105,8 +105,8 @@ public class GlobalContext
 
     public void addLookupName(PlexilTreeNode declaration, 
 							  String name, 
-                              PlexilTreeNode parm_spec,
-                              PlexilTreeNode return_spec)
+                              Vector<VariableName> parm_spec,
+                              Vector<VariableName> return_spec)
     {
         lookups.put(name, 
                     new GlobalDeclaration(declaration,
@@ -129,7 +129,7 @@ public class GlobalContext
 
     public void addLibraryNode(PlexilTreeNode declaration,
 							   String name,
-							   PlexilTreeNode parm_spec)
+							   Vector<VariableName> parm_spec)
     {
         libraryNodes.put(name, 
                          new GlobalDeclaration(declaration,
