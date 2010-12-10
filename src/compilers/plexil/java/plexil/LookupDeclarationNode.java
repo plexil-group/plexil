@@ -100,4 +100,6 @@ public class LookupDeclarationNode extends PlexilTreeNode
 			parametersSpec.constructParameterXML(m_xml);
 	}
 
+	public String getXMLElementName() { return "StateDeclaration"; }
+
 }
