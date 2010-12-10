@@ -32,6 +32,7 @@ VALID_TESTS	:= array-add array-complex \
  ifWithClauseIds Increment interface-test \
  literal-format-test \
  minimal minimalCommand minimalCommandWithNodeId minimalWithNodeId \
+ on-command-test on-message-test \
  SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse
 
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)

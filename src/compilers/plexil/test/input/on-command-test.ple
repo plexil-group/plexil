@@ -1,0 +1,14 @@
+Command HaltAndCatchFire;
+Command ExecuteProgrammerImmediate;
+
+on-command-test:
+Concurrence
+{
+	String hcfName = "HCF";
+
+	OnCommand hcfName
+      HaltAndCatchFire();
+
+	OnCommand "EPI"
+      ExecuteProgrammerImmediate();
+}
