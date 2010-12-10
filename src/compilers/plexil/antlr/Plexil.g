@@ -328,12 +328,12 @@ paramTypeName :
  ;
 
 returnTypeName :
-    typeName
-    -> ^(RETURNS_KYWD typeName)
+    baseTypeName
+    -> ^(RETURNS_KYWD baseTypeName)
  ;
 
 
-typeName :
+baseTypeName :
     BOOLEAN_KYWD
   | INTEGER_KYWD
   | REAL_KYWD
@@ -349,7 +349,7 @@ libraryInterfaceSpec :
     -> ^(PARAMETERS libraryParamSpec+)
  ;
 
-libraryParamSpec : ( IN_KYWD^ | IN_OUT_KYWD^ ) typeName NCNAME ;
+libraryParamSpec : ( IN_KYWD^ | IN_OUT_KYWD^ ) baseTypeName NCNAME ;
 
 //
 // Actions
@@ -377,12 +377,12 @@ simpleAction :
 
 forAction :
     FOR_KYWD 
-    LPAREN typeName NCNAME EQUALS loopvarinit=expression
+    LPAREN baseTypeName NCNAME EQUALS loopvarinit=expression
     SEMICOLON endtest=expression
     SEMICOLON loopvarupdate=expression
     RPAREN
     action
-    -> ^(FOR_KYWD ^(VARIABLE_DECLARATION typeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
+    -> ^(FOR_KYWD ^(VARIABLE_DECLARATION baseTypeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
  ;
 
 ifAction :
@@ -395,9 +395,6 @@ ifAction :
 onCommandAction : 
     ON_COMMAND_KYWD^ expression action
  ;
- 
-incomingParam : typeName NCNAME 
- ;
 
 onMessageAction :
     ON_MESSAGE_KYWD^ expression action
@@ -406,7 +403,6 @@ onMessageAction :
 whileAction :
     WHILE_KYWD^ expression action
  ;
-
 
 waitBuiltin :
 	WAIT_KYWD^ expression (COMMA! (variable|INT|DOUBLE))? SEMICOLON!
@@ -498,7 +494,7 @@ inOut :
   ;
 
 interfaceDeclarations :
-    tn=typeName!
+    tn=baseTypeName!
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
     | scalarVariableDecl[$tn.start]
     )
@@ -512,7 +508,7 @@ interfaceDeclarations :
 variable : NCNAME<VariableNode> ;
 
 variableDeclaration : 
-    tn=typeName
+    tn=baseTypeName
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
     | scalarVariableDecl[$tn.start]
     )+
