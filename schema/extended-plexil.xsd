@@ -327,7 +327,7 @@ that are translated into Core PLEXIL for execution.
   <!-- Command action that waits for its return value or status handle -->
   <xsd:element name="SynchronousCommand">
     <xsd:complexType>
-      <xsd:all>
+      <xsd:sequence>
         <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name= "Timeout" minOccurs= "0">
           <xsd:complexType>
@@ -336,7 +336,7 @@ that are translated into Core PLEXIL for execution.
         </xsd:element>
         <xsd:element ref="Tolerance" minOccurs="0"/>
         <xsd:element ref="Command"/>
-      </xsd:all>
+      </xsd:sequence>
     <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>

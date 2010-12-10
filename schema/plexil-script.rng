@@ -2,11 +2,15 @@
 <grammar ns="" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
     <start>
         <choice>
-            <ref name="CommandAck"/>
-            <ref name="CommandAbort"/>
-            <ref name="InitialState"/>
+            <ref name="Command"/>
+            <ref name="Simultaneous"/>
+            <ref name="Script"/>
             <ref name="Param"/>
             <ref name="State"/>
+            <ref name="InitialState"/>
+            <ref name="CommandAbort"/>
+            <ref name="UpdateAck"/>
+            <ref name="CommandAck"/>
             <choice>
                 <notAllowed/>
                 <element name="PLEXILScript">
@@ -16,100 +20,8 @@
                     <ref name="Script"/>
                 </element>
             </choice>
-            <ref name="Simultaneous"/>
-            <ref name="Command"/>
-            <ref name="UpdateAck"/>
-            <ref name="Script"/>
         </choice>
     </start>
-    <define name="CommandAck">
-        <choice>
-            <notAllowed/>
-            <element name="CommandAck">
-                <ref name="command-type"/>
-            </element>
-        </choice>
-    </define>
-    <define name="UpdateAck">
-        <choice>
-            <notAllowed/>
-            <element name="UpdateAck">
-                <optional>
-                    <attribute name="name">
-                        <data type="string"/>
-                    </attribute>
-                </optional>
-            </element>
-        </choice>
-    </define>
-    <define name="Command">
-        <choice>
-            <notAllowed/>
-            <element name="Command">
-                <ref name="command-type"/>
-            </element>
-        </choice>
-    </define>
-    <define name="Simultaneous">
-        <choice>
-            <notAllowed/>
-            <element name="Simultaneous">
-                <zeroOrMore>
-                    <choice>
-                        <ref name="State"/>
-                        <ref name="UpdateAck"/>
-                        <ref name="Command"/>
-                        <ref name="CommandAck"/>
-                        <ref name="CommandAbort"/>
-                    </choice>
-                </zeroOrMore>
-            </element>
-        </choice>
-    </define>
-    <define name="Script">
-        <choice>
-            <notAllowed/>
-            <element name="Script">
-                <zeroOrMore>
-                    <choice>
-                        <ref name="State"/>
-                        <ref name="UpdateAck"/>
-                        <ref name="Command"/>
-                        <ref name="CommandAck"/>
-                        <ref name="CommandAbort"/>
-                        <ref name="Simultaneous"/>
-                    </choice>
-                </zeroOrMore>
-            </element>
-        </choice>
-    </define>
-    <define name="string">
-        <data type="string"/>
-    </define>
-    <define name="command-type">
-        <group>
-            <optional>
-                <ref name="type"/>
-            </optional>
-            <optional>
-                <attribute name="name">
-                    <data type="string"/>
-                </attribute>
-            </optional>
-            <zeroOrMore>
-                <ref name="Param"/>
-            </zeroOrMore>
-            <oneOrMore>
-                <choice>
-                    <notAllowed/>
-                    <element name="Result">
-                        <ref name="string"/>
-                    </element>
-                </choice>
-            </oneOrMore>
-        </group>
-        <empty/>
-    </define>
     <define name="CommandAbort">
         <choice>
             <notAllowed/>
@@ -141,6 +53,42 @@
             </element>
         </choice>
     </define>
+    <define name="Param">
+        <choice>
+            <notAllowed/>
+            <element name="Param">
+                <optional>
+                    <ref name="type"/>
+                </optional>
+                <data type="string"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Command">
+        <choice>
+            <notAllowed/>
+            <element name="Command">
+                <ref name="command-type"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Script">
+        <choice>
+            <notAllowed/>
+            <element name="Script">
+                <zeroOrMore>
+                    <choice>
+                        <ref name="State"/>
+                        <ref name="UpdateAck"/>
+                        <ref name="Command"/>
+                        <ref name="CommandAck"/>
+                        <ref name="CommandAbort"/>
+                        <ref name="Simultaneous"/>
+                    </choice>
+                </zeroOrMore>
+            </element>
+        </choice>
+    </define>
     <define name="InitialState">
         <choice>
             <notAllowed/>
@@ -151,28 +99,80 @@
             </element>
         </choice>
     </define>
+    <define name="command-type">
+        <group>
+            <optional>
+                <ref name="type"/>
+            </optional>
+            <optional>
+                <attribute name="name">
+                    <data type="string"/>
+                </attribute>
+            </optional>
+            <zeroOrMore>
+                <ref name="Param"/>
+            </zeroOrMore>
+            <oneOrMore>
+                <choice>
+                    <notAllowed/>
+                    <element name="Result">
+                        <ref name="string"/>
+                    </element>
+                </choice>
+            </oneOrMore>
+        </group>
+        <empty/>
+    </define>
+    <define name="string">
+        <data type="string"/>
+    </define>
     <define name="type">
         <attribute name="type">
             <choice>
+                <value type="NMTOKEN">real</value>
                 <value type="NMTOKEN">int-array</value>
                 <value type="NMTOKEN">string-array</value>
-                <value type="NMTOKEN">real-array</value>
-                <value type="NMTOKEN">string</value>
-                <value type="NMTOKEN">bool-array</value>
                 <value type="NMTOKEN">int</value>
-                <value type="NMTOKEN">real</value>
+                <value type="NMTOKEN">string</value>
                 <value type="NMTOKEN">bool</value>
+                <value type="NMTOKEN">bool-array</value>
+                <value type="NMTOKEN">real-array</value>
             </choice>
         </attribute>
     </define>
-    <define name="Param">
+    <define name="CommandAck">
         <choice>
             <notAllowed/>
-            <element name="Param">
+            <element name="CommandAck">
+                <ref name="command-type"/>
+            </element>
+        </choice>
+    </define>
+    <define name="UpdateAck">
+        <choice>
+            <notAllowed/>
+            <element name="UpdateAck">
                 <optional>
-                    <ref name="type"/>
+                    <attribute name="name">
+                        <data type="string"/>
+                    </attribute>
                 </optional>
-                <data type="string"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Simultaneous">
+        <choice>
+            <notAllowed/>
+            <element name="Simultaneous">
+                <zeroOrMore>
+                    <choice>
+                        <ref name="State"/>
+                        <ref name="UpdateAck"/>
+                        <ref name="Command"/>
+                        <ref name="CommandAck"/>
+                        <ref name="CommandAbort"/>
+                    </choice>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
