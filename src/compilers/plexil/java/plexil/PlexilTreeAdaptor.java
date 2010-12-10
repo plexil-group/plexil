@@ -110,6 +110,10 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.LIBRARY_ACTION_KYWD:
 			return new LibraryDeclarationNode(payload);
 
+		case PlexilLexer.ON_COMMAND_KYWD:
+		case PlexilLexer.ON_MESSAGE_KYWD:
+			return new OnCommandNode(payload);
+
 		case PlexilLexer.PARAMETERS:
 			return new ParameterSpecNode(payload);
 

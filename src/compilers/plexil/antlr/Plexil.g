@@ -393,14 +393,14 @@ ifAction :
  ;
 
 onCommandAction : 
-  ON_COMMAND_KYWD^ NCNAME LPAREN! paramsSpec? RPAREN! action
+    ON_COMMAND_KYWD^ expression action
  ;
  
 incomingParam : typeName NCNAME 
  ;
 
 onMessageAction :
-  ON_MESSAGE_KYWD^ expression action
+    ON_MESSAGE_KYWD^ expression action
  ;
 
 whileAction :
