@@ -44,7 +44,10 @@ public class Compiler
 		// Pass 1: Parse plan
 		PlexilTreeNode plan1 = pass1(state);
 		if (plan1 == null) {
-			System.out.println("Translation exited with errors.");
+			for (Diagnostic d : state.getDiagnostics()) {
+				System.err.println(d.toString());
+			}
+			System.out.println("Syntax error(s) detected. Compilation aborted.");
 			System.exit(-1);
 		}
 		if (state.debug) {
@@ -65,6 +68,10 @@ public class Compiler
 
 		// Pass 3: semantic checks
 		if (!pass3(plan1, state)) {
+			for (Diagnostic d : state.getDiagnostics()) {
+				System.err.println(d.toString());
+			}
+			System.out.println("Semantic error(s) detected. Compilation aborted.");
 			System.exit(-1);
 		}
 		if (state.debug)
@@ -75,14 +82,14 @@ public class Compiler
 
 		// Pass 4: generate Extended Plexil XML
 		if (!pass4(plan1, state)) {
-			System.err.println("Internal error: XML generation failed");
+			System.out.println("Internal error: XML generation failed. Compilation aborted.");
 			System.exit(-1);
 		}
 
 		// Pass 5: translate Extended Plexil to Core Plexil
 		if (!state.epxOnly) {
 			if (!pass5(plan1, state)) {
-				System.err.println("Internal error: translation from Extended Plexil XML failed");
+				System.out.println("Internal error: translation from Extended Plexil XML failed. Compilation aborted.");
 				System.exit(-1);
 			}
 		}
@@ -101,7 +108,10 @@ public class Compiler
 		try {
 			PlexilParser.plexilPlan_return planReturn = 
 				parser.plexilPlan();
-			return (PlexilTreeNode) planReturn.getTree();
+			if (state.maxErrorSeverity() <= 0)
+				return (PlexilTreeNode) planReturn.getTree();
+			else
+				return null;
 		}
 		catch (RecognitionException x) {
 			System.out.println("First pass error: " + x);
@@ -131,9 +141,6 @@ public class Compiler
 		GlobalContext gcontext = GlobalContext.getGlobalContext();
 		plan.earlyCheck(gcontext, state);
 		plan.check(gcontext, state);
-		for (Diagnostic d : state.getDiagnostics()) {
-			System.err.println(d.toString());
-		}
 		return state.maxErrorSeverity() <= 0;
 	}
 

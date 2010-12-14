@@ -247,13 +247,37 @@ package plexil;
 {
     GlobalContext m_globalContext = new GlobalContext();
     NodeContext m_context = m_globalContext;
+    Stack<String> m_paraphrases = new Stack<String>();
+
+	// Overrides to enhance error reporting
+	public String getErrorMessage(RecognitionException e,
+		   		  				  String[] tokenNames)
+	{
+	  String msg = super.getErrorMessage(e, tokenNames);
+	  if (m_paraphrases.size() > 0) {
+		 msg = msg + " " + m_paraphrases.peek();
+	  }
+      return msg;
+	}
+
+	public void displayRecognitionError(String[] tokenNames,
+										RecognitionException e)
+	{
+	  CompilerState.getCompilerState().addDiagnostic((PlexilTreeNode) e.node,
+													 getErrorHeader(e) + " " + getErrorMessage(e, tokenNames),
+													 Severity.ERROR);
+	}
+
 }
 
 ///////////////////////////
 // *** BEGIN GRAMMAR *** //
 ///////////////////////////
 
-plexilPlan :
+plexilPlan
+@init { m_paraphrases.push("in plan"); }
+@after { m_paraphrases.pop(); }
+ :
     declarations? action EOF
     -> ^(PLEXIL<PlexilPlanNode> declarations? action)
  ;
@@ -273,7 +297,10 @@ declaration :
 // return type may be null!
 // *** TODO: add resource lists ***
 
-commandDeclaration :
+commandDeclaration
+@init { m_paraphrases.push("in command declaration"); }
+@after { m_paraphrases.pop(); }
+ :
     ( 
       // no-return-value variant
       ( COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
@@ -289,7 +316,10 @@ commandDeclaration :
 
 // should generate #(LOOKUP_KYWD stateName (returnsSpec)* (paramsSpec)*)
 
-lookupDeclaration : 
+lookupDeclaration
+@init { m_paraphrases.push("in lookup declaration"); }
+@after { m_paraphrases.pop(); }
+ : 
     (
       // old style single return syntax
       ( returnTypeName LOOKUP_KYWD sn=NCNAME paramsSpec? SEMICOLON
@@ -340,7 +370,10 @@ baseTypeName :
   | STRING_KYWD
  ;
 
-libraryActionDeclaration :
+libraryActionDeclaration
+@init { m_paraphrases.push("in library action declaration"); }
+@after { m_paraphrases.pop(); }
+ :
     LIBRARY_ACTION_KYWD^ NCNAME libraryInterfaceSpec? SEMICOLON!
 ;
 
@@ -355,7 +388,10 @@ libraryParamSpec : ( IN_KYWD^ | IN_OUT_KYWD^ ) baseTypeName NCNAME ;
 // Actions
 // 
 
-action :
+action
+@init { m_paraphrases.push("in action"); }
+@after { m_paraphrases.pop(); }
+ :
     (actionId=NCNAME COLON)?
 	rest=baseAction
     -> ^(ACTION $actionId? $rest)
@@ -375,7 +411,10 @@ simpleAction :
   | waitBuiltin
  ;
 
-forAction :
+forAction
+@init { m_paraphrases.push("in \"for\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
     FOR_KYWD 
     LPAREN baseTypeName NCNAME EQUALS loopvarinit=expression
     SEMICOLON endtest=expression
@@ -385,33 +424,51 @@ forAction :
     -> ^(FOR_KYWD ^(VARIABLE_DECLARATION baseTypeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
  ;
 
-ifAction :
+ifAction
+@init { m_paraphrases.push("in \"if\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
     IF_KYWD^ expression action
     (ELSEIF_KYWD! expression action)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!
  ;
 
-onCommandAction : 
+onCommandAction
+@init { m_paraphrases.push("in \"OnCommand\" statement"); }
+@after { m_paraphrases.pop(); }
+ : 
     ON_COMMAND_KYWD^ expression action
  ;
 
-onMessageAction :
+onMessageAction
+@init { m_paraphrases.push("in \"OnMessage\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
     ON_MESSAGE_KYWD^ expression action
  ;
 
-whileAction :
+whileAction
+@init { m_paraphrases.push("in \"while\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
     WHILE_KYWD^ expression action
  ;
 
-waitBuiltin :
+waitBuiltin
+@init { m_paraphrases.push("in \"Wait\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
 	WAIT_KYWD^ expression (COMMA! (variable|INT|DOUBLE))? SEMICOLON!
  ;
 
 // *** N.B. The supported schema does not require the strict sequencing of
 // the elements inside a block, nor does the XML parser.
 
-block : 
+block
+@init { m_paraphrases.push("in block"); }
+@after { m_paraphrases.pop(); }
+ : 
     (variant=sequenceVariantKywd LBRACE -> $variant
      | LBRACE -> BLOCK)
     comment?
@@ -441,7 +498,11 @@ nodeAttribute :
   | resourcePriority
   | permissions ;
 
-nodeCondition : conditionKywd^ expression SEMICOLON! ;
+nodeCondition
+@init { m_paraphrases.push("in condition"); }
+@after { m_paraphrases.pop(); }
+ :
+    conditionKywd^ expression SEMICOLON! ;
 
 conditionKywd :
     END_CONDITION_KYWD
@@ -453,7 +514,10 @@ conditionKywd :
   | START_CONDITION_KYWD
  ;
 
-resource :
+resource
+@init { m_paraphrases.push("in resource"); }
+@after { m_paraphrases.pop(); }
+ :
     RESOURCE_KYWD^ NAME_KYWD! EQUALS! expression
         ( COMMA!
           ( LOWER_BOUND_KYWD EQUALS! expression
@@ -465,11 +529,20 @@ resource :
         SEMICOLON!
  ;
 
-resourcePriority : RESOURCE_PRIORITY_KYWD^ expression SEMICOLON! ;
+resourcePriority
+@init { m_paraphrases.push("in resource priority"); }
+@after { m_paraphrases.pop(); }
+ : RESOURCE_PRIORITY_KYWD^ expression SEMICOLON! ;
 
-priority : PRIORITY_KYWD^ INT SEMICOLON! ;
+priority
+@init { m_paraphrases.push("in priority"); }
+@after { m_paraphrases.pop(); }
+ : PRIORITY_KYWD^ INT SEMICOLON! ;
 
-permissions : PERMISSIONS_KYWD^ STRING SEMICOLON! ;
+permissions
+@init { m_paraphrases.push("in permissions"); }
+@after { m_paraphrases.pop(); }
+ : PERMISSIONS_KYWD^ STRING SEMICOLON! ;
 
 interfaceDeclaration : in | inOut ;
 
@@ -477,7 +550,10 @@ interfaceDeclaration : in | inOut ;
 // are automatically in/out interface vars for all of that node's descendants.
 // So this may only be of use in library node definitions.
 
-in : 
+in
+@init { m_paraphrases.push("in \"In\" declaration"); }
+@after { m_paraphrases.pop(); }
+ : 
     IN_KYWD^ 
       ( (NCNAME (COMMA! NCNAME)*)
 	  | interfaceDeclarations
@@ -485,7 +561,10 @@ in :
     SEMICOLON!
   ;
 
-inOut :
+inOut
+@init { m_paraphrases.push("in \"InOut\" declaration"); }
+@after { m_paraphrases.pop(); }
+ :
     IN_OUT_KYWD^
       ( (NCNAME (COMMA! NCNAME)*)
 	  | interfaceDeclarations
@@ -507,7 +586,10 @@ interfaceDeclarations :
 
 variable : NCNAME<VariableNode> ;
 
-variableDeclaration : 
+variableDeclaration
+@init { m_paraphrases.push("in variable declaration"); }
+@after { m_paraphrases.pop(); }
+ : 
     tn=baseTypeName
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
     | scalarVariableDecl[$tn.start]
@@ -545,7 +627,10 @@ arrayReference :
     -> ^(ARRAY_REF variable expression)
   ;
 
-commandInvocation :
+commandInvocation
+@init { m_paraphrases.push("in command"); }
+@after { m_paraphrases.pop(); }
+ :
     ( NCNAME -> ^(COMMAND_KYWD NCNAME)
     | LPAREN expression RPAREN -> expression
     )
@@ -560,7 +645,10 @@ argumentList :
 
 argument : expression ;
 
-assignment :
+assignment
+@init { m_paraphrases.push("in assignment statement"); }
+@after { m_paraphrases.pop(); }
+ :
     assignmentLHS EQUALS assignmentRHS SEMICOLON
     -> ^(ASSIGNMENT assignmentLHS assignmentRHS)
  ;
@@ -585,7 +673,11 @@ assignmentRHS :
 // Update nodes
 //
 
-update : UPDATE_KYWD^ ( pair ( COMMA! pair )* )? SEMICOLON! ;
+update
+@init { m_paraphrases.push("in \"Update\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
+    UPDATE_KYWD^ ( pair ( COMMA! pair )* )? SEMICOLON! ;
 
 //
 // Request nodes
@@ -593,7 +685,10 @@ update : UPDATE_KYWD^ ( pair ( COMMA! pair )* )? SEMICOLON! ;
 // Note that the node name need not be known
 //
 
-request : REQUEST_KYWD^ NCNAME ( pair ( COMMA! pair )* )? SEMICOLON! ;
+request
+@init { m_paraphrases.push("in \"Request\" statement"); }
+@after { m_paraphrases.pop(); }
+ : REQUEST_KYWD^ NCNAME ( pair ( COMMA! pair )* )? SEMICOLON! ;
 
 // common to both update and request nodes
 
@@ -603,7 +698,10 @@ pair : NCNAME EQUALS! expression ;
 // Library Call nodes
 //
 
-libraryCall :
+libraryCall
+@init { m_paraphrases.push("in library action call"); }
+@after { m_paraphrases.pop(); }
+ :
   LIBRARY_CALL_KYWD^ libraryNodeIdRef ( aliasSpecs )? SEMICOLON! ;
 
 libraryNodeIdRef : NCNAME ;
@@ -640,7 +738,10 @@ nodeParameterName : NCNAME ;
 // Precedence taken from Harbison & Steele, 1995
 //
 
-expression : logicalOr ;
+expression
+@init { m_paraphrases.push("in expression"); }
+@after { m_paraphrases.pop(); }
+ : logicalOr ;
 
 // 1 sequential evaluation (,) - not implemented here
 // 2 assignment (=, +=, and friends) - not implemented here
@@ -896,7 +997,10 @@ lookupExpr : lookupOnChange | lookupNow | lookup ;
 // #(LOOKUP_ON_CHANGE_KYWD lookupInvocation (tolerance)? )
 // N.b. tolerance is optional
 
-lookupOnChange :
+lookupOnChange
+@init { m_paraphrases.push("in \"LookupOnChange\" expression"); }
+@after { m_paraphrases.pop(); }
+ :
        LOOKUP_ON_CHANGE_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
 ;
 
@@ -905,7 +1009,10 @@ tolerance : realValue | variable ;
 // should produce an AST of the form
 // #(LOOKUP_NOW_KYWD stateNameExp (argumentList)? )
 
-lookupNow :
+lookupNow
+@init { m_paraphrases.push("in \"LookupNow\" expression"); }
+@after { m_paraphrases.pop(); }
+ :
     LOOKUP_NOW_KYWD^ LPAREN! lookupInvocation RPAREN! ;
 
 // new generic lookup
@@ -913,7 +1020,10 @@ lookupNow :
 // #(LOOKUP_KYWD lookupInvocation (tolerance)? )
 // N.b. tolerance is optional
 
-lookup :
+lookup
+@init { m_paraphrases.push("in \"Lookup\" expression"); }
+@after { m_paraphrases.pop(); }
+ :
     LOOKUP_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
   ;
 
