@@ -91,7 +91,7 @@ public class AssignmentNode extends PlexilTreeNode
 			// This is really a Command node, 
 			// so insert LHS into RHS's XML in the appropriate place
 			m_xml = rhs.getXML();
-			IXMLElement body = m_xml.getChildAtIndex(0);
+			IXMLElement body = m_xml.getFirstChildNamed("NodeBody");
 			XMLElement command = (XMLElement) body.getChildAtIndex(0);
 			// Find Name element and insert LHS in front of it
 			for (int i = 0; i < command.getChildrenCount(); i++) {
