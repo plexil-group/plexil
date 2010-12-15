@@ -1,4 +1,4 @@
-LibraryNode Increment (In Integer x, InOut Integer result);
+LibraryAction Increment (In Integer x, InOut Integer result);
 
 LibraryCallTest:
 {
