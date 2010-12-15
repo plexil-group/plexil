@@ -92,7 +92,6 @@ public class CompilerState
 	// don't get the state passed into them need to generate diagnostics.
 	public static CompilerState getCompilerState() { return s_instance; }
 
-	// TODO: add EPX-only option
 	public boolean parseArgs()
 	{
 		int i = 0; // index of arg being processed
@@ -189,7 +188,6 @@ public class CompilerState
 		}
 	}
 
-	// TODO: use temporary directory if user only wants analysis phases
 	public File getEpxFile()
 	{
 		if (m_outfile == null) {
@@ -206,7 +204,6 @@ public class CompilerState
 			return replaceFileExtension(m_outfile, "epx");
 	}
 
-	// TODO: extend to return null if user only wants analysis phases
 	public File getOutputFile()
 	{
 		if (m_outfile == null) {

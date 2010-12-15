@@ -35,9 +35,6 @@ import java.util.Vector;
 // A singleton class to represent the global plan environment in the translator.
 //
 
-// TODO:
-//  - Handle overloading (?)
-
 public class GlobalContext
     extends NodeContext
 {

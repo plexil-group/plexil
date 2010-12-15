@@ -82,8 +82,6 @@ public class ActionNode extends PlexilTreeNode
 		IXMLElement nodeIdElt = new XMLElement("NodeId");
 		nodeIdElt.setContent(m_nodeId);
 		((XMLElement) m_xml).insertChild(nodeIdElt, 0);
-		// TODO: Construct and insert variable declarations from context
-		
 	}
 
 }
