@@ -106,11 +106,7 @@ public class VariableDeclNode extends PlexilTreeNode
 	 */
 	public void check(NodeContext context, CompilerState state)
 	{
-		PlexilDataType type = m_variable.getVariableType();
-		PlexilTreeNode varNameNode = this.getChild(1);
-	
 		// If supplied, check initial value for type conflict
-		// Track success of this check separately
 		ExpressionNode initValNode = null;
 		if (this.getChildCount() > 2) {
 			// check initial value for type conflict
@@ -118,6 +114,7 @@ public class VariableDeclNode extends PlexilTreeNode
 			// but ExpressionNode supports the required method
 			// and allows the syntax to be generalized later.
 			initValNode = (ExpressionNode) this.getChild(2);
+			PlexilDataType type = getVariableType();
 			// FIXME: any chance initValNode could be null?
 			PlexilDataType initType = initValNode.getDataType();
 			// Allow integer initial val for real var (but not the other way around)
@@ -132,10 +129,10 @@ public class VariableDeclNode extends PlexilTreeNode
 			}
 			else {
 				state.addDiagnostic(initValNode,
-									  "For variable \"" + varNameNode.getText()
-									  + "\": Initial value type " + initType.typeName()
-									  + " is incompatible with variable type " + type.typeName(),
-									  Severity.ERROR);
+									"For variable \"" + this.getChild(1).getText()
+									+ "\": Initial value type " + initType.typeName()
+									+ " is incompatible with variable type " + type.typeName(),
+									Severity.ERROR);
 			}
 			// now that correct type is enforced, check it
 			initValNode.check(context, state);
