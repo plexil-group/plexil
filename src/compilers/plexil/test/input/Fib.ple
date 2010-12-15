@@ -1,0 +1,22 @@
+// Compute Fibonacci(n)
+
+Fib: {
+  In Integer n;
+  InOut Integer result;
+
+  Integer n = 5;
+  Integer result;
+
+  if n < 2 result = n;
+  else {
+    Integer s1 = 0;
+    Integer s2 = 1;
+    result = 1;
+    for (Integer i = 2; i <= n; i + 1) Concurrence {
+      result = s1 + s2;
+      s2 = result;
+      s1 = s2;
+    }
+  }
+  endif
+}
