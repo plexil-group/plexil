@@ -1,11 +1,8 @@
 // Compute Fibonacci(n)
 
 Fib: {
-  In Integer n;
+  In Integer n = 5;
   InOut Integer result;
-
-  Integer n = 5;
-  Integer result;
 
   if n < 2 result = n;
   else {
