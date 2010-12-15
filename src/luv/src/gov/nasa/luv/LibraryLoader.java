@@ -289,7 +289,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
                 if (clear == 0) {
                     // clear text preview area
                 	Luv.getLuv().getLibLoad().dyn_tree.clear();
-                    Luv.getLuv().getLibLoad().getPreview().setText(null);                    
+                    Luv.getLuv().getLibLoad().getPreview().setText(null);
+                    nodes.removeAll(nodes);
+                    nodes.add(new CheckNode(new File(Constants.PLEXIL_HOME+System.getProperty("file.separator")+"examples"+System.getProperty("file.separator"))));
                     // TODO: remove libraries loaded
                     
                 }
