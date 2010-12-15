@@ -435,6 +435,7 @@ ifAction
     (ELSEIF_KYWD! expression action)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!
+    SEMICOLON!?
  ;
 
 onCommandAction
