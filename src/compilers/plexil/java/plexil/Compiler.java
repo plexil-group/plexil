@@ -154,7 +154,7 @@ public class Compiler
 				System.err.println("Unable to create Extended Plexil output stream");
 				return false;
 			}
-			writer.write(planXML);
+			writer.write(planXML, state.prettyPrintEpx);
 			return true;
 		}
 		catch (Exception e) {

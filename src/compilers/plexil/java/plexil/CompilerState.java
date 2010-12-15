@@ -46,6 +46,7 @@ public class CompilerState
 	public boolean debug = false;
 	public boolean epxOnly = false;
 	public boolean keepEpx = false;
+	public boolean prettyPrintEpx = false;
 	public boolean semanticsOnly = false;
 	public boolean syntaxOnly = false;
 
@@ -108,23 +109,25 @@ public class CompilerState
 				System.out.println("PlexilCompiler version 1.0.0d1");
 				System.exit(0);
 			}
-			else if (m_args[i].equals("--debug")) {
+			else if (m_args[i].equals("-d") || m_args[i].equals("--debug")) {
 				debug = true;
 			}
-			else if (m_args[i].equals("--epx-only")) {
+			else if (m_args[i].equals("-e") || m_args[i].equals("--epx-only")) {
 				epxOnly = true;
 				keepEpx = true;
+				prettyPrintEpx = true;
 			}
-			else if (m_args[i].equals("--keep-epx")) {
+			else if (m_args[i].equals("-k") || m_args[i].equals("--keep-epx")) {
 				keepEpx = true;
+				prettyPrintEpx = true;
 			}
 			else if (m_args[i].equals("-o")) {
 				m_outfile = new File(m_args[++i]);
 			}
-			else if (m_args[i].equals("--semantics-only")) {
+			else if (m_args[i].equals("-m") || m_args[i].equals("--semantics-only")) {
 				semanticsOnly = true;
 			}
-			else if (m_args[i].equals("--syntax-only")) {
+			else if (m_args[i].equals("-s") || m_args[i].equals("--syntax-only")) {
 				syntaxOnly = true;
 			}
 			else {
@@ -143,14 +146,14 @@ public class CompilerState
 	{
 		System.out.println("Usage:  PlexilCompiler [options] [sourcefile]");
 		System.out.println("Options: ");
-		System.out.println("  -h, --help         Prints this message and exits");
-		System.out.println("  -o filename        Writes output to filename");
-		System.out.println("  -v, --version      Prints version number and exits");
-		System.out.println("  --debug            Enable debug output to standard-error stream");
-		System.out.println("  --epx-only         Do not translate output to Core Plexil XML");
-		System.out.println("  --keep-epx         Do not delete Extended Plexil XML intermediate file");
-		System.out.println("  --semantics-only   Perform syntax and semantic checks, but do not generate code");
-		System.out.println("  --syntax-only      Perform surface syntax parsing only");
+		System.out.println("  -h, --help            Prints this message and exits");
+		System.out.println("  -o filename           Writes output to filename");
+		System.out.println("  -v, --version         Prints version number and exits");
+		System.out.println("  -d, --debug           Enable debug output to standard-error stream");
+		System.out.println("  -e, --epx-only        Do not translate output to Core Plexil XML");
+		System.out.println("  -k, --keep-epx        Do not delete Extended Plexil XML intermediate file");
+		System.out.println("  -m, --semantics-only  Perform syntax and semantic checks, but do not generate code");
+		System.out.println("  -s, --syntax-only     Perform surface syntax parsing only");
 	}
 
 	public CharStream openInputFile(File f)
