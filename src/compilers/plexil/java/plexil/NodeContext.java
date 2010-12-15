@@ -47,6 +47,7 @@ public class NodeContext
     protected PlexilTreeNode m_resourcePriorityAST = null;
     protected IXMLElement m_resourcePriorityXML = null;
     protected Vector<PlexilTreeNode> m_resources = new Vector<PlexilTreeNode>();
+	protected int m_generatedIdCount = 0;
 
     public NodeContext(NodeContext previous, String name)
     {
@@ -165,9 +166,8 @@ public class NodeContext
     // Creates a locally unique node name based on this node's name
     public String generateChildNodeName()
     {
-        int childCount = m_children.size() + 1;
         return ((m_nodeName == null) ? "__ANONYMOUS_NODE" : m_nodeName)
-            + "__CHILD__" + childCount;
+            + "__CHILD__" + m_generatedIdCount++;
     }
 
     //
