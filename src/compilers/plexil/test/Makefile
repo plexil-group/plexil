@@ -28,9 +28,11 @@ PLEXIL_HOME			?= ../../../..
 VALID_TESTS	:= array-add array-complex \
  basic-wait-test \
  commandSequence1 concurrenceOfAssignments \
+ DriveToSchool \
  emptyNodeWithVariables \
+ Fib FibTest \
  ifWithClauseIds Increment interface-test \
- literal-format-test \
+ LibraryCall1 literal-format-test \
  minimal minimalCommand minimalCommandWithNodeId minimalWithNodeId \
  on-command-test on-message-test \
  SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse sync-cmd-test
