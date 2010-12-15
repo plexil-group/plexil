@@ -120,6 +120,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.RETURNS_KYWD:
 			return new ReturnSpecNode(payload);
 
+		case PlexilLexer.SYNCHRONOUS_COMMAND_KYWD:
+			return new SynchronousCommandNode(payload);
+
 		case PlexilLexer.WAIT_KYWD:
 			return new WaitNode(payload);
 

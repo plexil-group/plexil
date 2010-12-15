@@ -154,6 +154,8 @@ NODE_WAITING_KYWD = 'NodeWaiting';
 CONCURRENCE_KYWD = 'Concurrence';
 ON_COMMAND_KYWD = 'OnCommand';
 ON_MESSAGE_KYWD = 'OnMessage';
+SYNCHRONOUS_COMMAND_KYWD = 'SynchronousCommand';
+TIMEOUT_KYWD = 'Timeout';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
 WAIT_KYWD = 'Wait';
@@ -408,6 +410,7 @@ simpleAction :
   | libraryCall
   | request
   | update
+  | synchCmd
   | waitBuiltin
  ;
 
@@ -453,6 +456,16 @@ whileAction
 @after { m_paraphrases.pop(); }
  :
     WHILE_KYWD^ expression action
+ ;
+
+synchCmd
+@init { m_paraphrases.push("in \"SynchronousCommand\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
+    SYNCHRONOUS_COMMAND_KYWD^
+    ( commandWithAssignment | commandInvocation )
+	( TIMEOUT_KYWD! expression ( COMMA! expression )? )?
+	SEMICOLON!
  ;
 
 waitBuiltin
@@ -636,6 +649,15 @@ commandInvocation
     )
     LPAREN argumentList? RPAREN
     -> ^(COMMAND<CommandNode> $commandInvocation argumentList?)
+ ;
+
+// Used only in synchCmd
+commandWithAssignment
+@init { m_paraphrases.push("in command"); }
+@after { m_paraphrases.pop(); }
+ :
+    assignmentLHS EQUALS commandInvocation
+	-> ^(ASSIGNMENT assignmentLHS commandInvocation)    
  ;
 
 argumentList : 
