@@ -173,8 +173,6 @@ public class CommandNode extends ExpressionNode
 
 		// TODO: handle resource list
 
-		// TODO: handle return value
-
 		// Add name (expression)
 		PlexilTreeNode commandName = this.getChild(0);
 		IXMLElement nameXML = new XMLElement("Name");
@@ -202,12 +200,6 @@ public class CommandNode extends ExpressionNode
 	private boolean isCommandNameLiteral()
 	{
 		return this.getChild(0).getType() == PlexilLexer.COMMAND_KYWD;
-	}
-
-	// TODO: Implement!
-	private PlexilTreeNode getReturnVariable()
-	{
-		return null;
 	}
 
 }
