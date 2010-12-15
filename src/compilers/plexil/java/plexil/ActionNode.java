@@ -69,7 +69,7 @@ public class ActionNode extends PlexilTreeNode
 		}
 		else {
 			// Gensym a name but don't log it, since it never appeared in the source
-			m_nodeId = context.generateChildNodeName();
+			m_nodeId = context.generateChildNodeName(firstChild.getToken().getText());
 		}
 	}
 
