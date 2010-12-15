@@ -1,10 +1,11 @@
 LibraryAction Increment (In Integer x, InOut Integer result);
+Command pprint(...);
 
 LibraryCallTest:
 {
   Integer result;
-  Increment (x=1, result=result);
+  LibraryCall Increment (x=1, result=result);
   pprint ("Increment(1) =", result);
-  Increment (x=result, result=result);
+  LibraryCall Increment (x=result, result=result);
   pprint ("Increment(2) =", result);
 }
