@@ -39,9 +39,9 @@ public class ExecSelect extends JPanel {
 	 */	
 	private JFrame frame;
 	private static ExecSelect exec;	
-	private JButton planBut, configBut, scriptBut, saveBut, cancelBut, defaultBut;
+	private JButton planBut, configBut, scriptBut, saveBut, cancelBut, defaultScriptBut, defaultConfigBut, libBut;
 	private JRadioButton plexilExec, plexilTest, plexilSim;
-	private JLabel planLab, configLab, scriptLab;
+	private JLabel planLab, configLab, scriptLab;	
 	private ArrayList<JButton> buttonList;
 	private HashMap<JButton, Integer> recentDirMap;
 	private HashMap<JButton, JLabel> objMap;
@@ -58,6 +58,10 @@ public class ExecSelect extends JPanel {
 		
 	public JButton getSaveBut() {
 		return saveBut;
+	}
+	
+	public JButton getDefaultScriptBut() {
+		return defaultScriptBut;
 	}
 	
 	public int getMode() {
@@ -108,6 +112,21 @@ public class ExecSelect extends JPanel {
 		planBut = new JButton(action.choosePlanAction);
 		planBut.addActionListener(new ButtonFileListener());
 		planLab = new JLabel("");
+		libBut = new JButton("Libraries");
+		libBut.addActionListener(new ActionListener() {
+               
+            public void actionPerformed(ActionEvent e)
+            {                
+            	try{
+                LibraryLoader lib = new LibraryLoader("Library");
+                lib.open();
+            	}catch(IOException ex)
+            	{
+            		ex.printStackTrace();
+            	}
+            	
+            }
+        });   
 		configBut = new JButton(action.chooseConfigAction);
 		configBut.addActionListener(new ButtonFileListener());
 		configBut.setEnabled(false);
@@ -121,12 +140,15 @@ public class ExecSelect extends JPanel {
 		saveBut.addActionListener(new SaveButtonListener());
 		cancelBut = new JButton("Cancel");
 		cancelBut.addActionListener(new ButtonListener());
-		defaultBut = new JButton("Use Default Script");
-		defaultBut.addActionListener(new ButtonListener());		
+		defaultScriptBut = new JButton("Use Default");
+		defaultScriptBut.addActionListener(new ButtonListener(defaultScriptBut));
+		defaultConfigBut = new JButton("Use Default");
+		defaultConfigBut.addActionListener(new ButtonListener(defaultConfigBut));
+		defaultConfigBut.setVisible(false);
 		
 		patternPanel = new JPanel();
 		
-		dirChooser = new JFileChooser()
+		dirChooser = new JFileChooser(Constants.PLEXIL_HOME)
 		{
 		    {
 			setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -184,26 +206,37 @@ public class ExecSelect extends JPanel {
 		patternPanel.setLayout(gridbag);
 		c = new GridBagConstraints();		
 		c.fill = GridBagConstraints.HORIZONTAL;
+		int row = 0;
 		
-		setGridbag(plexilExec, 0, 0, 1, 1, 1, 1);
-		setGridbag(plexilTest, 1, 0, 1, 1, 1, 1);
-		setGridbag(plexilSim, 2, 0, 1, 1, 1, 1);
+		setGridbag(plexilExec, 0, row, 1, 1, 1, 1);
+		setGridbag(plexilTest, 1, row, 1, 1, 1, 1);
+		setGridbag(plexilSim, 2, row, 1, 1, 1, 1);
 		
-		setGridbag(planBut, 0, 1, 1, 1, 1, 1);
-		setGridbag(planLab, 1, 1, 1, 5, 1, 1);
+		row++;//1
+		setGridbag(planBut, 0, row, 1, 1, 1, 1);
+		setGridbag(planLab, 1, row, 1, 5, 1, 1);
 		setupButton(planBut, planLab, planFilter, RECENT_PLAN);
 		
-		setGridbag(configBut, 0, 2, 1, 1, 1, 1);
-		setGridbag(configLab, 1, 2, 1, 5, 1, 1);
+		row++;//2
+		setGridbag(libBut, 0, row, 1, 1, 1, 1);
+		setupButton(libBut, planLab, planFilter, RECENT_LIB);		
+			
+		row++;//3
+		setGridbag(configBut, 0, row, 1, 1, 1, 1);
+		setGridbag(configLab, 1, row, 1, 5, 1, 1);		
+		setGridbag(defaultConfigBut, 2, row, 1, 10, 1, 1);		
 		setupButton(configBut, configLab, configFilter, RECENT_SUPP);
-		
-		setGridbag(scriptBut, 0, 3, 1, 1, 1, 1);
-		setGridbag(scriptLab, 1, 3, 1, 5, 1, 1);		
-		setupButton(scriptBut, scriptLab, scriptFilter, RECENT_SUPP);		
 				
-		setGridbag(saveBut, 0, 5, 10, 10, 1, 10);
-		setGridbag(cancelBut, 1, 5, 10, 10, 1, 10);
-		setGridbag(defaultBut, 2, 5, 10, 10, 1, 10);
+		row++;//4
+		setGridbag(scriptBut, 0, row, 1, 1, 1, 1);
+		setGridbag(scriptLab, 1, row, 1, 5, 1, 1);
+		setGridbag(defaultScriptBut, 2, row, 1, 10, 1, 1);
+		setupButton(scriptBut, scriptLab, scriptFilter, RECENT_SUPP);						
+		
+		row+=3;//6
+		//setGridbag(defaultBut, 0, row, 10, 10, 1, 10);
+		setGridbag(cancelBut, 1, row, 10, 10, 1, 10);		
+		setGridbag(saveBut, 2, row, 10, 10, 1, 10);
 	}
 	
 	/*
@@ -315,16 +348,14 @@ public class ExecSelect extends JPanel {
             config = new File(suppnm);
             if (config.exists()) {                     
                 getSettings().initializeSuppLabel(configLab);
-                getSettings().setSuppToolTip(configLab);
-                defaultBut.setText("Use Default Config");
+                getSettings().setSuppToolTip(configLab);                
             }
         } else
         {            
            	script = new File(suppnm);
             if (script.exists()) {
                 getSettings().initializeSuppLabel(scriptLab);
-                getSettings().setSuppToolTip(scriptLab);
-                defaultBut.setText("Use Default Script");
+                getSettings().setSuppToolTip(scriptLab);                
             }
         }
 	}
@@ -392,7 +423,11 @@ public class ExecSelect extends JPanel {
 	}
 	
 	class ButtonListener implements ActionListener {
+		private JButton but;
 		ButtonListener(){			
+		}
+		ButtonListener(JButton but){	
+			this.but = but;
 		}
 		
 		public void actionPerformed(ActionEvent e){		
@@ -406,7 +441,7 @@ public class ExecSelect extends JPanel {
 				setInputs(simSet, backSim.getPlanLocation(), backSim.getSuppLocation());				
 				setRadioMode(modeTemp);
 			}
-			if(e.getActionCommand().equals("Use Default Script"))
+			if(e.getActionCommand().equals("Use Default") && but.equals(Luv.getLuv().getExecSelect().getDefaultScriptBut()))
 			{								
 					try{
 					script = Luv.getLuv().getFileHandler().searchForScriptPath(getSettings().getPlanLocation().replaceAll(".*/",""));
@@ -423,7 +458,7 @@ public class ExecSelect extends JPanel {
 				refresh();
 				Luv.getLuv().getStatusMessageHandler().showStatus("Default Script");
 			}
-			if(e.getActionCommand().equals("Use Default Config"))
+			if(e.getActionCommand().equals("Use Default") && !but.equals(Luv.getLuv().getExecSelect().getDefaultScriptBut()))
 			{				
 				getSettings().setSuppLocation(Constants.DEFAULT_CONFIG_PATH+Constants.DEFAULT_CONFIG_NAME);
 				refresh();
@@ -630,7 +665,8 @@ public class ExecSelect extends JPanel {
 					JButton[] on={planBut, configBut};
 					handleButtons(on, true);
 					handleVisibleButtons(on, true);
-					defaultBut.setVisible(true);
+					defaultScriptBut.setVisible(false);
+					defaultConfigBut.setVisible(true);
 					JButton[] off={scriptBut};
 					handleButtons(off, false);		
 					handleVisibleButtons(off, false);
@@ -647,7 +683,8 @@ public class ExecSelect extends JPanel {
 					JButton[] on={planBut, scriptBut};
 					handleButtons(on, true);
 					handleVisibleButtons(on, true);
-					defaultBut.setVisible(true);
+					defaultScriptBut.setVisible(true);
+					defaultConfigBut.setVisible(false);
 					JButton[] off={configBut};
 					handleButtons(off, false);
 					handleVisibleButtons(off, false);
@@ -666,7 +703,8 @@ public class ExecSelect extends JPanel {
 					handleVisibleButtons(on, true);
 					JButton[] off={configBut};
 					handleButtons(off, false);
-					defaultBut.setVisible(false);
+					defaultScriptBut.setVisible(false);
+					defaultConfigBut.setVisible(false);
 					handleVisibleButtons(off, false);
 					refresh();
 				}
@@ -688,7 +726,7 @@ public class ExecSelect extends JPanel {
 		}
 	}
 	
-	class PlexilFilter extends FileFilter {
+	public class PlexilFilter extends FileFilter {
 		
 		private String descr;
 		private String[] filter;

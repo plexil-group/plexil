@@ -158,12 +158,28 @@ public class FileHandler
      */
     public File searchForLibrary(String libraryName) throws InterruptedIOException 
     {      
-        String directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR));
+    	String directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR));    	
         
         File library = new File(directory + System.getProperty("file.separator") + libraryName + ".plx");
             
-        if (!library.exists()) {  
-            library = new File(directory + System.getProperty("file.separator") + libraryName + ".xml");
+        if (!library.exists()) {
+        	//algorithm to use user defined libraries
+        	for(File testName : Luv.getLuv().getLibLoad().getLibraryList())
+        	{
+        		String libraryTestName = testName.getName();
+        		if(!library.exists())
+        		{
+	        		if(testName.isDirectory())
+	        			library = new File(testName + System.getProperty("file.separator") + libraryName + ".xml");
+	        		for(int i = 0; i<Constants.FILE_EXTENSIONS.length;i++)
+	        			libraryTestName = libraryTestName.replaceAll("."+Constants.FILE_EXTENSIONS[i], "");
+	        		if(testName.isFile() && libraryTestName.equals(libraryName))
+	        			library = testName;
+        		}
+        	}
+        	
+        	if (!library.exists())
+        		library = new File(directory + System.getProperty("file.separator") + libraryName + ".xml");
             
             if (!library.exists()) {
                 directory = Luv.getLuv().getProperty(LoadRecentAction.defineRecentPlan(LoadRecentAction.RECENT_DIR));

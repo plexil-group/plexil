@@ -220,8 +220,8 @@ public class LuvActionHandler {
 
                 public void actionPerformed(ActionEvent e) {
                     String info =
-                            "Application:   Plexil Version 1.5.0 (c) 2006-2010 Universities Space Research Association\n" +
-                            "Website:   http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution\n" +
+                            "Application:   " + Constants.PLEXIL_COPYRIGHT +
+                            "Website:   "+ Constants.PLEXIL_WEBSITE + "\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
                             "Userdir:    " + System.getProperty("user.dir") + "\n";

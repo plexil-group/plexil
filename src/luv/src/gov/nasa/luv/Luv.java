@@ -25,11 +25,13 @@
  */
 package gov.nasa.luv;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JMenu;
 import javax.swing.JSeparator;
@@ -72,6 +74,7 @@ public class Luv extends JFrame {
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
     private LuvPortGUI portGui;
+    private LibraryLoader libLoad;
     private ExecSelect execSelect;
     private RegexModelFilter regexFilter;
     private int luvPort;
@@ -218,8 +221,7 @@ public class Luv extends JFrame {
     		port = def_port;
     		statusMessageHandler.showChangeOnPort("Attempting last resort port " + port, 2000);
     	}
-    	
-    	///System.out.println("PORT: " + port);
+    	    	
     	statusMessageHandler.showChangeOnPort("Listening on port " + port);    	     	
     	return port;    	
     }
@@ -233,7 +235,7 @@ public class Luv extends JFrame {
 
         properties = new Properties(PROPERTIES_FILE_LOCATION) {
 
-            {
+			{
                 define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
                 define(PROP_ARRAY_MAX_CHARS, PROP_ARRAY_MAX_CHARS_DEF);
                 define(PROP_WIN_LOC, PROP_WIN_LOC_DEF);
@@ -294,7 +296,7 @@ public class Luv extends JFrame {
         hideOrShowWindow = new HideOrShowWindow();
         debugWindow = new DebugWindow();
         execSelect = new ExecSelect();
-        portGui = new LuvPortGUI();
+        portGui = new LuvPortGUI();                
 
         createCFGFileWindow = new CreateCFGFileWindow();
         sourceWindow = new SourceWindow();
@@ -305,6 +307,14 @@ public class Luv extends JFrame {
         viewMenu = new JMenu("View");
         debugMenu = new JMenu("Debug");
         execSelect.loadFromPersistence();
+        
+        
+        try{
+        libLoad = new LibraryLoader("Load Libraries");
+        }catch (FileNotFoundException e)
+        {
+        	e.printStackTrace();
+        }        
     }
 
     private void constructFrame(Container frame) {
@@ -313,8 +323,17 @@ public class Luv extends JFrame {
         setBackground(properties.getColor(PROP_WIN_BCLR));
 
         // add view panel with start logo
-        JLabel startLogo = new JLabel(getIcon(START_LOGO));
-        viewHandler.getViewPanel().add(startLogo);
+        JPanel logoPane = new JPanel();
+        logoPane.setLayout(new BorderLayout());
+        logoPane.setBackground(Color.WHITE);
+        JLabel title = new JLabel("<html>                         " + "Plan Execution Interchange Language 1.5<br>" 
+        		+ Constants.PLEXIL_WEBSITE + "</html>", SwingConstants.CENTER);
+        JLabel startLogo = new JLabel(getIcon(START_LOGO), SwingConstants.CENTER);
+        JLabel startCopyRight = new JLabel(Constants.PLEXIL_COPYRIGHT, SwingConstants.CENTER);
+        logoPane.add(startLogo, BorderLayout.PAGE_START);
+        logoPane.add(title, BorderLayout.CENTER);
+        logoPane.add(startCopyRight, BorderLayout.PAGE_END);
+        viewHandler.getViewPanel().add(logoPane);        
         frame.add(viewHandler.getViewPanel(), CENTER);
 
         // create a menu bar
@@ -511,7 +530,13 @@ public class Luv extends JFrame {
      *  @return the current instance of the Listener Port GUI */
     public LuvPortGUI getPortGUI() {
         return portGui;
-    }    
+    }
+    
+    /** Returns the current instance of the Listener Port GUI.
+     *  @return the current instance of the Listener Port GUI */
+    public LibraryLoader getLibLoad() {
+        return libLoad;
+    }
     
     /** Returns the current instance of the Executive GUI.
      *  @return the current instance of the Executive GUI */
