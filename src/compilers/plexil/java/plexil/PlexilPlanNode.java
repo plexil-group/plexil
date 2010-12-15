@@ -38,14 +38,6 @@ public class PlexilPlanNode extends PlexilTreeNode
 	}
 
 	/**
-	 * @brief Perform a recursive semantic check.
-	 */
-	public void earlyCheckSelf(NodeContext context, CompilerState myState)
-	{
-		// TODO: implement!
-	}
-
-	/**
 	 * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
 	 */
 	protected void constructXML()
