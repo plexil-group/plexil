@@ -1,7 +1,10 @@
 Command A;
 Command B (Integer);
+Integer Command C;
 
 {
+  Integer i;
   A();
-  B(0);        
+  B(0);
+  i = C();
 }
