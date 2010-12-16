@@ -519,7 +519,7 @@ public class FileHandler
 		    Object[] options = 
 			{
 			    "I will locate library",
-			    "Cancel loading plan"
+			    "Skip library"
 			};
 
 		    // show the options

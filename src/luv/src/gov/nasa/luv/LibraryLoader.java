@@ -141,11 +141,11 @@ public class LibraryLoader extends JFrame implements ItemListener {
     private void createButtons() {
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ButtonActionListener());
-        JButton libButton = new JButton("Library...");
+        JButton libButton = new JButton("Add Library");
         libButton.addActionListener(new ButtonActionListener());
         JButton clearButton = new JButton("Clear Libraries");
         clearButton.addActionListener(new ButtonActionListener());
-        JButton createCFGButton = new JButton("Ok");
+        JButton createCFGButton = new JButton("OK");
         createCFGButton.addActionListener(new ButtonActionListener());
 
         // file location message
@@ -259,7 +259,7 @@ public class LibraryLoader extends JFrame implements ItemListener {
         public void actionPerformed(ActionEvent ev) {
             if (ev.getActionCommand().equals("Cancel")) {
                 frame.setVisible(false);
-            } else if (ev.getActionCommand().equals("Library...")) {            	
+            } else if (ev.getActionCommand().equals("Add Library")) {            	
             	JFileChooser fc = new JFileChooser(Constants.PLEXIL_HOME);//new File(Luv.getLuv().getProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR)))
             	ExecSelect.PlexilFilter pf = Luv.getLuv().getExecSelect().new PlexilFilter("PLX");
             	if(pf != null)
@@ -295,7 +295,7 @@ public class LibraryLoader extends JFrame implements ItemListener {
                     // TODO: remove libraries loaded
                     
                 }
-            } else if (ev.getActionCommand().equals("Ok")) {
+            } else if (ev.getActionCommand().equals("OK")) {
             	Luv.getLuv().getLibLoad().getPreview().setText("");
                 ArrayList<File> parentSelected = new ArrayList<File>();
                 
@@ -314,7 +314,8 @@ public class LibraryLoader extends JFrame implements ItemListener {
                         	Luv.getLuv().getLibLoad().getPreview().append(selected.getAbsolutePath() + "\n");                        	
                         }                        
                     //}                
-                }//end while               
+                }//end while
+                frame.setVisible(false);
             }
         }
 

@@ -310,7 +310,7 @@ public class Luv extends JFrame {
         
         
         try{
-        libLoad = new LibraryLoader("Load Libraries");
+        libLoad = new LibraryLoader("Libraries");
         }catch (FileNotFoundException e)
         {
         	e.printStackTrace();
@@ -326,13 +326,14 @@ public class Luv extends JFrame {
         JPanel logoPane = new JPanel();
         logoPane.setLayout(new BorderLayout());
         logoPane.setBackground(Color.WHITE);
-        JLabel title = new JLabel("<html>                         " + "Plan Execution Interchange Language 1.5<br>" 
-        		+ Constants.PLEXIL_WEBSITE + "</html>", SwingConstants.CENTER);
+        JLabel title = new JLabel("<html>                         " + "<font size=+1>Plan Execution Interchange Language</font><br>" 
+        		+ Constants.PLEXIL_VERSION + "<br><br>" + Constants.PLEXIL_WEBSITE + "<br><br>" + Constants.PLEXIL_COPYRIGHT 
+        		+ "<br></html>", SwingConstants.CENTER);
         JLabel startLogo = new JLabel(getIcon(START_LOGO), SwingConstants.CENTER);
-        JLabel startCopyRight = new JLabel(Constants.PLEXIL_COPYRIGHT, SwingConstants.CENTER);
+        //JLabel startCopyRight = new JLabel(Constants.PLEXIL_COPYRIGHT, SwingConstants.CENTER);
         logoPane.add(startLogo, BorderLayout.PAGE_START);
         logoPane.add(title, BorderLayout.CENTER);
-        logoPane.add(startCopyRight, BorderLayout.PAGE_END);
+        //logoPane.add(startCopyRight, BorderLayout.PAGE_END);
         viewHandler.getViewPanel().add(logoPane);        
         frame.add(viewHandler.getViewPanel(), CENTER);
 

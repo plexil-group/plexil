@@ -220,7 +220,7 @@ public class LuvActionHandler {
 
                 public void actionPerformed(ActionEvent e) {
                     String info =
-                            "Application:   " + Constants.PLEXIL_COPYRIGHT +
+                            "Application:   PLEXIL " + Constants.PLEXIL_VERSION + " " + Constants.PLEXIL_COPYRIGHT +
                             "Website:   "+ Constants.PLEXIL_WEBSITE + "\n" +
                             "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
                             "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
