@@ -76,7 +76,7 @@ public class LibraryDeclarationNode extends PlexilTreeNode
 	{
 		super.constructXML();
 		IXMLElement nameXML = new XMLElement("Name");
-		nameXML.setContent(this.getChild(1).getText());
+		nameXML.setContent(this.getChild(0).getText());
 		m_xml.addChild(nameXML);
 		if (this.getChildCount() > 1)
 			m_xml.addChild(this.getChild(1).getXML());
