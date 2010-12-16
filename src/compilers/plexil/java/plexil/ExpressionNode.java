@@ -71,6 +71,13 @@ public class ExpressionNode extends PlexilTreeNode
 
 	// Default method.  
 	// Variables and array references should override this method.
+	public boolean isAssignable()
+	{
+		return false;
+	}
+
+	// Default method.  
+	// Variables and array references should override this method.
 	public void checkAssignable(NodeContext context, CompilerState myState)
 	{
 		myState.addDiagnostic(this,

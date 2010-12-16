@@ -84,6 +84,13 @@ public class ArrayReferenceNode extends VariableNode
 
 	protected String getXMLElementName() { return "ArrayElement"; }
 
+	public boolean isAssignable()
+	{
+		// defer to the variable
+		VariableNode variableNode = (VariableNode) this.getChild(0);
+		return variableNode.isAssignable();
+	}
+
 	public void checkAssignable(NodeContext context, CompilerState state)
 	{
 		// defer to the variable
