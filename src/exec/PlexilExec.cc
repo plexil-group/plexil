@@ -123,7 +123,7 @@ namespace PLEXIL {
   PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
   {
     checkError(!nodeName.empty(),
-	       "PlexilExec::hasLibrary: Node name is empty");
+	       "PlexilExec::getLibrary: Node name is empty");
     for (std::vector<PlexilNodeId>::const_iterator it = m_libraries.begin();
 		 it != m_libraries.end();
 		 it++) {
