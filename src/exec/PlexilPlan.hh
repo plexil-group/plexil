@@ -636,7 +636,7 @@ namespace PLEXIL {
            // construct a library node call body with the name of the
            // library node
         
-        PlexilLibNodeCallBody(std::string libNodeName) : PlexilNodeBody() 
+        PlexilLibNodeCallBody(const std::string& libNodeName) : PlexilNodeBody() 
         {
            setLibNodeName(libNodeName);
         }
@@ -656,7 +656,7 @@ namespace PLEXIL {
         }
            // add an alias pair to the library call
 
-        void addAlias(std::string param, PlexilExprId value)
+        void addAlias(const std::string& param, PlexilExprId value)
         {
            PlexilExprId &alias = m_aliases[LabelStr(param)];
            checkError(!alias.isId(), "Alias '" << param
@@ -666,7 +666,7 @@ namespace PLEXIL {
         }
            // setter for library node name
 
-        void setLibNodeName(std::string libNodeName) 
+        void setLibNodeName(const std::string& libNodeName) 
         {
            m_libNodeName = libNodeName;
         }
