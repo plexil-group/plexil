@@ -35,6 +35,7 @@ VALID_TESTS	:= array-add array-complex \
  LibraryCall1 literal-format-test \
  minimal minimalCommand minimalCommandWithNodeId minimalWithNodeId \
  on-command-test on-message-test \
+ PrintFib \
  SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse sync-cmd-test
 
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
