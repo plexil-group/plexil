@@ -1280,13 +1280,6 @@
         (list (xml "Units" (plexil-infer-type units)))
         (list (xml "Tolerance" (plexil-infer-type tolerance))))))
 
-(pdefine pl (WaitWithTolerance wait-with-tolerance)
-         (units tolerance &optional name) 2 node
-  ;; (real + xml) * (real + xml) * opt(string) -> xml
-  "Waits given number of time units with given tolerance."
-  (plexil-wait units name tolerance))
-
-
 (pdefine-syntax pl (SynchronousCommand synchronous-command)
                 (&optional name-or-first-form &rest forms) 1 node
   ;; opt(string) * list(xml) -> xml
