@@ -267,30 +267,33 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener)
 	return -1;
   }
 
-  // Check whether all libraries for this plan are loaded
-  // and try to load those that aren't
-  vector<string> libs = root->getLibraryReferences();
-  // N.B. libs is potentially growing during this operation!
-  for (vector<string>::iterator it = libs.begin();
-	   it != libs.end();
-	   it++) {
-	PlexilNodeId libroot = exec->getLibrary(*it);
-	if (libroot.isNoId()) {
-	  // Try to load the library
-	  libroot = PlexilXmlParser::findLibraryNode(*it, libraryPaths);
+  {
+	// Check whether all libraries for this plan are loaded
+	// and try to load those that aren't
+	vector<string> libs = root->getLibraryReferences();
+	// N.B. libs is likely growing during this operation, 
+	// so we can't use a traditional iterator.
+	for (unsigned int i = 0; i < libs.size(); i++) {
+	  const std::string& libname = libs[i];
+
+	  PlexilNodeId libroot = exec->getLibrary(libname);
 	  if (libroot.isNoId()) {
-		warn("Adding plan " << planName
-			 << " failed because library " << *it
-			 << " could not be loaded");
-		return -1;
+		// Try to load the library
+		libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
+		if (libroot.isNoId()) {
+		  warn("Adding plan " << planName
+			   << " failed because library " << libname
+			   << " could not be loaded");
+		  return -1;
+		}
+
+		// add the library node
+		exec->addLibraryNode(libroot);
 	  }
 
-	  // add the library node
-	  exec->addLibraryNode(libroot);
+	  // Make note of any dependencies in the library itself
+	  libroot->getLibraryReferences(libs);
 	}
-
-	// Make note of any dependencies in the library itself
-	libroot->getLibraryReferences(libs);
   }
 
   if (!exec->addPlan(root)) {

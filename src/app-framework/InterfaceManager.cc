@@ -1293,17 +1293,17 @@ namespace PLEXIL
 	// Check whether all libraries for this plan are loaded
 	// and try to load those that aren't
 	std::vector<std::string> libs = planStruct->getLibraryReferences();
-	// N.B. libs is potentially growing during this operation!
-	for (std::vector<std::string>::iterator it = libs.begin();
-		 it != libs.end();
-		 it++) {
-	  PlexilNodeId libroot = m_exec->getLibrary(*it);
+	// N.B. libs is likely growing during this operation, 
+	// so we can't use a traditional iterator.
+	for (unsigned int i = 0; i < libs.size(); i++) {
+	  const std::string& libname = libs[i];
+	  PlexilNodeId libroot = m_exec->getLibrary(libname);
 	  if (libroot.isNoId()) {
 		// Try to load the library
-		libroot = PlexilXmlParser::findLibraryNode(*it, m_libraryPath);
+		libroot = PlexilXmlParser::findLibraryNode(libname, m_libraryPath);
 		if (libroot.isNoId()) {
 		  debugMsg("InterfaceManager:handleAddPlan", 
-				   " Plan references unloaded library node \"" << *it << "\"");
+				   " Plan references unloaded library node \"" << libname << "\"");
 		  result = false;
 		}
 
