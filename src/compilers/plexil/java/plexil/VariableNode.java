@@ -39,6 +39,11 @@ public class VariableNode extends ExpressionNode
 		super(t);
 	}
 
+	public VariableName getVariableName()
+	{
+		return m_variable;
+	}
+
 	/**
 	 * @brief Prepare for the semantic check.
 	 */

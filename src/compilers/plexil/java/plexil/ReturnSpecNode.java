@@ -47,11 +47,29 @@ public class ReturnSpecNode extends PlexilTreeNode
 	{
 		for (int retnIdx = 0; retnIdx < this.getChildCount(); retnIdx++) {
 			PlexilTreeNode retn = this.getChild(retnIdx);
-			String typeName = retn.getToken().getText();
 			String nam = "_return_" + retnIdx;
-			m_returnSpecs.add(new VariableName(retn,
-											   nam,
-											   PlexilDataType.findByName(typeName)));
+			if (retn.getType() == PlexilLexer.ARRAY_TYPE) {
+				String typeName = retn.getChild(0).getText();
+				PlexilTreeNode sizeSpec = retn.getChild(1);
+				int arySize = LiteralNode.parseIntegerValue(sizeSpec.getText());
+				if (arySize < 0) {
+					state.addDiagnostic(sizeSpec,
+										"Array size may not be negative",
+										Severity.ERROR);
+					arySize = 0; // to support further checking
+				}
+				m_returnSpecs.add(new VariableName(retn,
+												   nam,
+												   PlexilDataType.findByName(typeName).arrayType(),
+												   sizeSpec.getText(),
+												   null));
+			}
+			else {
+				String typeName = retn.getToken().getText();
+				m_returnSpecs.add(new VariableName(retn,
+												   nam,
+												   PlexilDataType.findByName(typeName)));
+			}
 		}
 	}
 

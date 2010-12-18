@@ -42,6 +42,12 @@ public class CommandNode extends ExpressionNode
 		super(new CommonToken(ttype, "COMMAND"));
 	}
 
+	// N.B. Only valid after earlyCheckSelf()
+	public GlobalDeclaration getCommand()
+	{
+		return m_commandDeclaration;
+	}
+
 	// AST is:
 	// (COMMAND ((COMMAND_NAME NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 

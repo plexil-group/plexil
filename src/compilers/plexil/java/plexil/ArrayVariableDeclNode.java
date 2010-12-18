@@ -52,9 +52,9 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 		return (LiteralNode) this.getChild(2);
 	}
 
-	public String getArraySizeString()
+	public int getArraySize()
 	{
-		return this.getChild(2).getText();
+		return LiteralNode.parseIntegerValue(this.getChild(2).getText());
 	}
 
 	public ExpressionNode getInitialValueNode()
@@ -77,7 +77,7 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 			m_variable = context.declareArrayVariable(this,
 													  nameNode,
 													  getVariableType(),
-													  getArraySizeString(),
+													  getArraySizeNode().getText(),
 													  getInitialValueNode());
 	}
 
@@ -94,12 +94,11 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 		}
 
 		// Check max size for non-negative integer
-		String sizeString = getArraySizeString();
-		int size = LiteralNode.parseIntegerValue(sizeString);
+		int size = getArraySize();
 		if (size < 0) {
 			state.addDiagnostic(getArraySizeNode(),
 								"For array variable \"" + getNameNode().getText()
-								+ "\": size " + sizeString + " is negative",
+								+ "\": size " + getArraySizeNode().getText() + " is negative",
 								Severity.ERROR);
 		}
 
@@ -136,7 +135,7 @@ public class ArrayVariableDeclNode extends VariableDeclNode
 				}
 
 				// Check size < declared max
-				String sizeString = getArraySizeString();
+				String sizeString = getArraySizeNode().getText();
 				int size = LiteralNode.parseIntegerValue(sizeString);
 				if (initValNode.getChildCount() > size) {
 					state.addDiagnostic(initValNode,

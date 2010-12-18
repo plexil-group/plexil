@@ -43,6 +43,12 @@ public class LookupNode extends ExpressionNode
 		super(t);
 	}
 
+	// N.B. Only valid after earlyCheck().
+	public GlobalDeclaration getState()
+	{
+		return m_state;
+	}
+
 	//
 	// LookupNow is (LOOKUP_KYWD lookupNameExp argumentList?)
 	// LookupOnChange is (LOOKUP_ON_CHANGE_KYWD lookupNameExp argumentList? tolerance?)

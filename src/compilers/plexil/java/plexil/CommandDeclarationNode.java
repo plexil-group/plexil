@@ -77,7 +77,7 @@ public class CommandDeclarationNode extends PlexilTreeNode
 		if (returnAST != null) {
 			returnAST.earlyCheck(context, state); // for effect
 			returnSpecs = returnAST.getReturnVector();
-		}
+		} 
 
 		// TODO: Handle resource list
 

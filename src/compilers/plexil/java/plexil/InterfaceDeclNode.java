@@ -139,7 +139,7 @@ public class InterfaceDeclNode extends PlexilTreeNode
 														  nameNode,
 														  isInOut,
 														  varType,
-														  adecl.getArraySizeString(),
+														  adecl.getArraySizeNode().getText(),
 														  adecl.getInitialValueNode());
 				}
 				else {
@@ -174,9 +174,8 @@ public class InterfaceDeclNode extends PlexilTreeNode
 				if (varType.isArray()) {
 					// Check length against existing
 					ArrayVariableDeclNode adecl = (ArrayVariableDeclNode) declNode;
-					String syzString = adecl.getArraySizeString();
-				    int syz = LiteralNode.parseIntegerValue(syzString);
-					int oldSyz = LiteralNode.parseIntegerValue(var.getMaxSize());
+				    int syz = adecl.getArraySize();
+					int oldSyz = var.getMaxSize();
 					if (syz != oldSyz) {
 						state.addDiagnostic(declNode,
 											this.getToken().getText()

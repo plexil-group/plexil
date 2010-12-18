@@ -207,6 +207,7 @@ PLEXIL; // top node of parse tree
 ACTION;
 ALIASES;
 ARGUMENT_LIST;
+ARRAY_TYPE;
 ARRAY_LITERAL;
 ARRAY_REF;
 ARRAY_VARIABLE_DECLARATION;
@@ -289,13 +290,15 @@ declarations :
     declaration+
     -> ^(GLOBAL_DECLARATIONS<GlobalDeclarationsNode> declaration+) ;
 
-declaration :
+declaration
+options { k=5; } // handles initial ambiguity for array typed decls
+ :
     commandDeclaration
   | lookupDeclaration
   | libraryActionDeclaration
  ;
 
-// should generate ^(COMMAND_KYWD NCNAME (returnsSpec)? (paramsSpec)?)
+// should generate ^(COMMAND_KYWD NCNAME (RETURNS_KYWD paramSpec)? (paramsSpec)?)
 // return type may be null!
 // *** TODO: add resource lists ***
 
@@ -310,29 +313,21 @@ commandDeclaration
 	  )
     |
       // return value variant
-      ( returnTypeName COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
-         -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec? returnTypeName)
+      ( returnType COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
+         -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec? returnType)
       )
     )
   ;
 
-// should generate #(LOOKUP_KYWD stateName (returnsSpec)* (paramsSpec)*)
+// should generate #(LOOKUP_KYWD stateName (RETURNS_KYWD paramSpec)? (paramsSpec)*)
 
 lookupDeclaration
 @init { m_paraphrases.push("in lookup declaration"); }
 @after { m_paraphrases.pop(); }
  : 
-    (
-      // old style single return syntax
-      ( returnTypeName LOOKUP_KYWD sn=NCNAME paramsSpec? SEMICOLON
-        -> ^(LOOKUP_KYWD<LookupDeclarationNode> $sn returnTypeName paramsSpec?)
-	  )
-    |
-      // multiple return syntax
-      ( LOOKUP_KYWD sn=NCNAME ps=paramsSpec? RETURNS_KYWD rs=returnsSpec SEMICOLON
-        -> ^(LOOKUP_KYWD<LookupDeclarationNode> $sn returnsSpec paramsSpec?)
-      )
-    )
+    // old style single return syntax
+    returnType LOOKUP_KYWD NCNAME paramsSpec? SEMICOLON
+    -> ^(LOOKUP_KYWD<LookupDeclarationNode> NCNAME returnType paramsSpec?)
   ;
 
 paramsSpec :
@@ -345,11 +340,15 @@ paramsSpecGuts :
       | ELLIPSIS
  ;
 
-returnsSpec :
-        paramSpec ( COMMA paramSpec )*
-        -> ^(RETURNS_KYWD paramSpec+) ;
-
-paramSpec : paramTypeName^ NCNAME? ;
+paramSpec
+options { k = 2; }
+ : 
+    (baseTypeName LBRACKET) =>
+      baseTypeName LBRACKET INT RBRACKET -> ^(ARRAY_TYPE baseTypeName INT)
+  | (baseTypeName NCNAME LBRACKET) =>
+      baseTypeName NCNAME LBRACKET INT RBRACKET -> ^(ARRAY_TYPE baseTypeName INT NCNAME)
+  | paramTypeName^ NCNAME?
+ ;
 
 paramTypeName : 
     ANY_KYWD
@@ -359,11 +358,15 @@ paramTypeName :
   | STRING_KYWD
  ;
 
-returnTypeName :
-    baseTypeName
-    -> ^(RETURNS_KYWD baseTypeName)
+returnType :
+    returnTypeSpec -> ^(RETURNS_KYWD returnTypeSpec)
  ;
 
+returnTypeSpec :
+    (baseTypeName LBRACKET) =>
+      baseTypeName LBRACKET INT RBRACKET -> ^(ARRAY_TYPE baseTypeName INT)
+  | baseTypeName
+ ;
 
 baseTypeName :
     BOOLEAN_KYWD
@@ -607,7 +610,12 @@ variableDeclaration
     tn=baseTypeName
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
     | scalarVariableDecl[$tn.start]
-    )+
+    )
+    ( COMMA 
+	  ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
+	  | scalarVariableDecl[$tn.start]
+	  )
+	)*
     SEMICOLON
     -> ^(VARIABLE_DECLARATIONS scalarVariableDecl* arrayVariableDecl*)
   ;

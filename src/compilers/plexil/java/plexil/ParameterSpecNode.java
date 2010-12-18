@@ -53,6 +53,7 @@ public class ParameterSpecNode extends PlexilTreeNode
 		for (int parmIdx = 0; parmIdx < this.getChildCount(); parmIdx++) {
 			String typeName = null;
 			PlexilTreeNode nameSpec = null;
+			String sizeSpec = null;
 
 			PlexilTreeNode parm = this.getChild(parmIdx);
 			int parmType = parm.getType();
@@ -62,6 +63,19 @@ public class ParameterSpecNode extends PlexilTreeNode
 				// ^(In|InOut typeName NCNAME)
 				typeName = parm.getChild(0).getText();
 				nameSpec = parm.getChild(1);
+			}
+			else if (parmType == PlexilLexer.ARRAY_TYPE) {
+				// ^(ARRAY_TYPE eltTypeName INT NCNAME?)
+				typeName = parm.getChild(0).getText();
+				sizeSpec = parm.getChild(1).getText();
+				nameSpec = parm.getChild(2); // may be null
+				// check spec'd size
+				int arySiz = LiteralNode.parseIntegerValue(sizeSpec);
+				if (arySiz < 0) {
+					state.addDiagnostic(parm.getChild(1),
+										"Array size must not be negative",
+										Severity.ERROR);
+				}
 			}
 			else {
 				// typeName or ^(typeName NCNAME)
@@ -110,6 +124,13 @@ public class ParameterSpecNode extends PlexilTreeNode
 													   true,
 													   PlexilDataType.findByName(typeName));
 				break;
+
+			case PlexilLexer.ARRAY_TYPE:
+				newParmVar = new VariableName(parm,
+											  nam,
+											  PlexilDataType.findByName(typeName).arrayType(),
+											  sizeSpec,
+											  null);
 
 			case PlexilLexer.ANY_KYWD:
 			case PlexilLexer.BOOLEAN_KYWD:

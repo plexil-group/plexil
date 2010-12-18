@@ -38,7 +38,7 @@ public class VariableName extends PlexilName
 {
     protected PlexilDataType m_variableType;
     protected ExpressionNode m_initialValue;
-    protected String m_maxSize; // for arrays only
+    protected int m_maxSize = -1; // for arrays only, -1 = uninitialized
 
     // this variant used only in global declarations
 
@@ -47,7 +47,7 @@ public class VariableName extends PlexilName
         super(myName, NameType.VARIABLE_NAME, decl);
         m_variableType = varType;
         m_initialValue = null;
-        m_maxSize = null;
+        m_maxSize = -1;
     }
 
     // used in local variable declarations in tree parser
@@ -57,7 +57,7 @@ public class VariableName extends PlexilName
         super(myName, NameType.VARIABLE_NAME, decl);
         m_variableType = varType;
         m_initialValue = initVal;
-        m_maxSize = null;
+        m_maxSize = -1;
     }
 
     // used in local array variable declarations
@@ -70,7 +70,7 @@ public class VariableName extends PlexilName
     {
         super(myName, NameType.VARIABLE_NAME, decl);
         m_variableType = varType;
-        m_maxSize = maxSize;
+        m_maxSize = LiteralNode.parseIntegerValue(maxSize);
         m_initialValue = initVal;
     }
 
@@ -88,7 +88,7 @@ public class VariableName extends PlexilName
         return m_initialValue;
     }
 
-    public String getMaxSize()
+    public int getMaxSize()
     {
         return m_maxSize;
     }
@@ -145,14 +145,25 @@ public class VariableName extends PlexilName
     // For code generation purposes
     // Subclasses may override this method
 
-    // *** to do: array vars ***
-
     public IXMLElement makeGlobalDeclarationElement(String elementType)
     {
         IXMLElement result = new XMLElement(elementType);
-		if (m_name != null) 
-			result.setContent(getName());
-        result.setAttribute("Type", getVariableType().typeName());
+		if (m_name != null) {
+			IXMLElement nameXML = new XMLElement("Name");
+			nameXML.setContent(getName());
+			result.addChild(nameXML);
+		}
+		IXMLElement typeXML = new XMLElement("Type");
+		result.addChild(typeXML);
+		if (m_variableType.isArray()) {
+			typeXML.setContent(m_variableType.arrayElementType().typeName());
+			IXMLElement sizeXML = new XMLElement("MaxSize");
+			sizeXML.setContent(Integer.toString(m_maxSize));
+			result.addChild(sizeXML);
+		}
+		else {
+			typeXML.setContent(getVariableTypeName());
+		}
         return result;
     }
 
@@ -183,7 +194,7 @@ public class VariableName extends PlexilName
 
         if (isArray()) {
             IXMLElement xsize = new XMLElement("MaxSize");
-            xsize.setContent(m_maxSize);
+            xsize.setContent(Integer.toString(m_maxSize));
             result.addChild(xsize);
         }
 

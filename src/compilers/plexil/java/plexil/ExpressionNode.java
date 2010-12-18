@@ -113,6 +113,23 @@ public class ExpressionNode extends PlexilTreeNode
 	}
 
 	/**
+	 * @brief Establish bindings and do initial checks of this node's children.
+	 * @note Derived classes should override this as applicable.
+	 */
+	public void earlyCheckChildren(NodeContext context, CompilerState state)
+	{
+		for (int i = 0; i < this.getChildCount(); i++) {
+			PlexilTreeNode child = this.getChild(i);
+			if (child instanceof CommandNode)
+				state.addDiagnostic(child,
+									"Commands may not be used in expressions",
+									Severity.ERROR);
+			child.earlyCheck(context, state);
+		}
+	}
+
+
+	/**
 	 * @brief Check the expression for type consistency.
 	 * @note This is a default method.  Derived classes should override it.
 	 */

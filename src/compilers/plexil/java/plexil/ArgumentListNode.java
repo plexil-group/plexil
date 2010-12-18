@@ -93,6 +93,7 @@ public class ArgumentListNode extends PlexilTreeNode
 									+ reqdType.typeName(),
 									Severity.ERROR);
 			}
+			// TODO: array size checks
 		}
 	}
 

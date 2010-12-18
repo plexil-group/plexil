@@ -71,7 +71,38 @@ public class AssignmentNode extends PlexilTreeNode
 		else if (lhsType != null) {
 			if (lhsType == rhsType
 				|| (lhsType.isNumeric() && rhsType.isNumeric())) {
-				// it's all good
+				// All OK so far
+				if (lhsType.isArray()) {
+					// *** TODO *** Check array dimensions if applicable
+					// LHS must be array var
+					// RHS can only be command, lookup, or variable (at present)
+					VariableName lhsVar = ((VariableNode) lhs).getVariableName();
+					VariableName rhsVar = null;
+					if (rhs instanceof VariableNode)
+						rhsVar = ((VariableNode) rhs).getVariableName();
+					else if (rhs instanceof LookupNode) {
+						// Get return variable if known
+						GlobalDeclaration stateDecl = ((LookupNode) rhs).getState();
+						if (stateDecl != null)
+							rhsVar = stateDecl.getReturnVariable();
+					}
+					else if (rhs instanceof CommandNode) {
+						// Get return variable if known
+						GlobalDeclaration cmdDecl = ((CommandNode) rhs).getCommand();
+						if (cmdDecl != null)
+							rhsVar = cmdDecl.getReturnVariable();
+					}
+					if (lhsVar != null && rhsVar != null) {
+						if (lhsVar.getMaxSize() < rhsVar.getMaxSize()) {
+							state.addDiagnostic(rhs,
+												"Can't assign an array of max size "
+												+ Integer.toString(rhsVar.getMaxSize())
+												+ " to an array variable of max size "
+												+ Integer.toString(lhsVar.getMaxSize()),
+												Severity.ERROR);
+						}
+					}
+				}
 			}
 			else {
 				state.addDiagnostic(rhs,
