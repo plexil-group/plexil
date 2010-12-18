@@ -138,11 +138,12 @@ element.  It is used as an included schema only.
 
   <xsd:element name="Parameter">
     <xsd:complexType>
-      <xsd:simpleContent>
-        <xsd:extension base="NCNameOrEmpty">
-          <xsd:attribute name="Type" type="TypeValues" use="required"/>
-        </xsd:extension>
-      </xsd:simpleContent>
+      <xsd:sequence>
+        <xsd:element name="Name" type="xsd:NCName" minOccurs="0" />
+        <xsd:element name="Type" type="AtomicTypeValues"/>
+		<!-- MaxSize indicates an array value, Type is the element type -->
+        <xsd:element name="MaxSize" type="xsd:nonNegativeInteger" minOccurs="0" />
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 
@@ -150,11 +151,12 @@ element.  It is used as an included schema only.
     <!-- KMD: not sure about the motivation for 'nillable'.  Assuming it
          is for declaring a void return explicitly. -->
     <xsd:complexType>
-      <xsd:simpleContent>
-        <xsd:extension base="NCNameOrEmpty">
-          <xsd:attribute name="Type" type="TypeValues" use="required"/>
-        </xsd:extension>
-      </xsd:simpleContent>
+      <xsd:sequence>
+        <xsd:element name="Name" type="xsd:NCName" minOccurs="0" />
+        <xsd:element name="Type" type="AtomicTypeValues" />
+		<!-- MaxSize indicates an array value, Type is the element type -->
+        <xsd:element name="MaxSize" type="xsd:nonNegativeInteger" minOccurs="0" />
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 
