@@ -125,7 +125,8 @@
                 preceding-sibling::UncheckedSequence|preceding-sibling::If|
                 preceding-sibling::While|preceding-sibling::For|
                 preceding-sibling::Try|preceding-sibling::Concurrence|
-                preceding-sibling::OnCommand|preceding-sibling::OnMessage">
+                preceding-sibling::OnCommand|preceding-sibling::OnMessage|
+                preceding-sibling::SynchronousCommand|preceding-sibling::Wait">
         <StartCondition>
           <AND>
             <xsl:choose>
@@ -160,7 +161,8 @@
                   preceding-sibling::UncheckedSequence|preceding-sibling::If|
                   preceding-sibling::While|preceding-sibling::For|
                   preceding-sibling::Try|preceding-sibling::Concurrence|
-                  preceding-sibling::OnCommand|preceding-sibling::OnMessage">
+                  preceding-sibling::OnCommand|preceding-sibling::OnMessage|
+                  preceding-sibling::SynchronousCommand|preceding-sibling::Wait">
           <SkipCondition>
             <AND>
               <xsl:choose>
