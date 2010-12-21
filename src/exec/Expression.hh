@@ -125,13 +125,17 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, UNKNOWN_STR, PLEXIL::UNKNOWN_STR());
 
     static ExpressionId& UNKNOWN_EXP();
+
     /**
      * @brief Generic constructor for Expressions.  Does nothing but initialze base data
      *        structures.  Expressions are inactive by default and must be activated.
-     * @param expr Configuration data.
+     * @param node Node connector to the owning node.
      */
-    Expression(PlexilExpr* expr, const NodeConnectorId& node);
+    Expression(const NodeConnectorId& node);
 
+    /**
+     * @brief Default constructor for Expressions.
+     */
     Expression();
 
     /**
@@ -324,12 +328,18 @@ namespace PLEXIL {
      */
     EssentialVariable();
 
-    EssentialVariable(PlexilExpr* expr, const NodeConnectorId& node);
+    EssentialVariable(const NodeConnectorId& node);
 
     /**
      * @brief Destructor.
      */
     virtual ~EssentialVariable();
+    
+    /**
+     * @brief Check to make sure a value is appropriate for this expression.
+     * @param value The new value for this variable.
+     */
+    virtual bool checkValue(const double value) = 0;
 
     /**
      * @brief Sets the value of this variable.  Will throw an error if the variable was
@@ -351,7 +361,8 @@ namespace PLEXIL {
   };
 
   /**
-   *  A class representing a variable with a single value.
+   * An abstract base class representing a variable with a single value.
+   * Derived classes are specialized by value type.
    */
   class Variable : public EssentialVariable {
   public:
@@ -376,7 +387,7 @@ namespace PLEXIL {
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
     Variable(const PlexilExprId& expr, const NodeConnectorId& node,
-	     const bool isConst = false);
+			 const bool isConst = false);
 
     virtual ~Variable();
 
@@ -492,7 +503,7 @@ namespace PLEXIL {
      * @param expr The PlexilExpr for this expression.
      * @param node The scope in which this expression is evaluated.
      */
-    Calculable(PlexilExpr* expr, const NodeConnectorId& node);
+    Calculable(const PlexilExprId& expr, const NodeConnectorId& node);
 
     virtual ~Calculable();
 
@@ -564,6 +575,7 @@ namespace PLEXIL {
   class WrapperListener;
   /**
    * Class to provide a constant interface over some other variable.
+   * Used in TimepointVariable.
    */
   class ConstVariableWrapper : public Variable {
   public:
@@ -599,18 +611,30 @@ namespace PLEXIL {
 
   /**
    * Class to provide an interface that doesn't propagate activation/deactivation messages.
-   * 
+   * Used in Node::createConditions().
    */
   class TransparentWrapper : public Expression {
   public:
+
+    TransparentWrapper(const ExpressionId& exp, const NodeConnectorId& node);
+
+	// This variant used only in unit tests
     TransparentWrapper(const ExpressionId& exp);
+
     ~TransparentWrapper();
     void setValue(const double value);
     std::string toString() const;
     std::string valueString() const;
     bool checkValue(const double value);
+
   private:
+
+	// Deliberately not implemented
     TransparentWrapper();
+	TransparentWrapper& operator=(const TransparentWrapper&);
+
+	void commonInit(const ExpressionId& exp);
+
     void handleActivate(const bool changed);
     void handleDeactivate(const bool changed);
     void handleChange(const ExpressionId& expression);

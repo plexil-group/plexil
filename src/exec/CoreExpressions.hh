@@ -395,7 +395,12 @@ namespace PLEXIL {
   class DerivedVariable : public EssentialVariable
   {
   public:
-    DerivedVariable(const PlexilExprId& expr, const NodeConnectorId& node);
+	/**
+	 * @brief Constructor.
+	 */
+    DerivedVariable();
+
+    DerivedVariable(const NodeConnectorId& node);
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -407,7 +412,6 @@ namespace PLEXIL {
     
   private:
     // deliberately unimplemented
-    DerivedVariable();
     DerivedVariable(const DerivedVariable &);
     DerivedVariable & operator=(const DerivedVariable &);
 
@@ -518,6 +522,110 @@ namespace PLEXIL {
     ExpressionId m_index;
     bool m_deleteIndex;
     DerivedVariableListener m_listener;
+  };
+
+  class AliasVariable : public DerivedVariable
+  {
+  public:
+	/**
+	 * @brief Constructor. Creates a variable that indirects to another variable.
+	 * @param name The name of this variable in the node that constructed the alias.
+	 * @param node The node which owns this alias.
+	 * @param original The original variable for this alias.
+	 * @param isConst True if assignments to the alias are forbidden.
+	 */
+	AliasVariable(const std::string& name, 
+				  const NodeConnectorId& nodeConnector,
+				  Id<EssentialVariable> original,
+				  const bool isConst = false);
+
+	virtual ~AliasVariable();
+
+    /**
+     * @brief Get a string representation of this Expression.
+     * @return The string representation.
+     */
+    std::string toString() const;
+
+    /**
+     * @brief Set the value of this expression back to the initial value with which it was
+     *        created.
+     */
+    virtual void reset();
+
+    /**
+     * @brief Retrieve the value type of this Expression.
+     * @return The value type of this Expression.
+     */
+    virtual PlexilType getValueType() const;
+    
+    /**
+     * @brief Check to make sure a value is appropriate for this expression.
+     */
+    virtual bool checkValue(const double val);
+
+    /**
+     * @brief Sets the value of this variable.  Will throw an error if the variable was
+     *        constructed with isConst == true.
+     * @param value The new value for this variable.
+     */
+    virtual void setValue(const double value);
+
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @param exp The changed subexpression.
+     */
+    virtual void handleChange(const ExpressionId& exp);
+
+    /**
+     * @brief Gets the const-ness of this variable.
+     * @return True if this variable is const, false otherwise.
+     */
+    bool isConst() const {return m_isConst;}
+
+    /**
+     * @brief Get the name of this alias, as declared in the node that owns it.
+     */
+    const std::string& getName() const { return m_name; }
+
+    /**
+     * @brief Get the target variable of this alias.
+     */
+	const Id<EssentialVariable>& getOriginalVariable() const { return m_originalVariable; }
+	  
+
+  protected:
+
+    /**
+     * @brief Handle the activation of the expression.
+     * @param changed True if the call to activate actually caused a change from inactive to
+     *                active.
+     */
+    virtual void handleActivate(const bool changed);
+
+    /**
+     * @brief Handle the deactivation of the expression
+     * @param changed True if the call to deactivate actually caused a change from active to
+     *                inactive.
+     */
+    virtual void handleDeactivate(const bool changed);
+
+    /**
+     * @brief Handle additional behaviors for the reset() call.
+     */
+    virtual void handleReset();
+
+  private:
+	
+	// Deliberately unimplemented
+	AliasVariable();
+	AliasVariable(const AliasVariable&);
+	AliasVariable& operator=(const AliasVariable&);
+
+	Id<EssentialVariable> m_originalVariable;
+	DerivedVariableListener m_listener;
+	const std::string& m_name;
+	bool m_isConst;
   };
 
 

@@ -56,7 +56,7 @@ namespace PLEXIL {
     m_exp->handleChange(exp);
   }
 
-  Expression::Expression(PlexilExpr* /* expr */, const NodeConnectorId& node)
+  Expression::Expression(const NodeConnectorId& node)
     : m_id(this),
       m_activeCount(0), 
       m_value(UNKNOWN()), 
@@ -172,7 +172,7 @@ namespace PLEXIL {
 
   void Expression::lock() {
     checkError(!isLocked(), toString() << " already locked.");
-    checkError(isActive(), toString() << " inactive.");
+    checkError(isActive(), "Attempt to lock inactive expression " << toString());
     m_lock = true;
     m_savedValue = m_value;
     handleLock();
@@ -221,8 +221,8 @@ namespace PLEXIL {
   {
   }
 
-  EssentialVariable::EssentialVariable(PlexilExpr* expr, const NodeConnectorId& node)
-    : Expression(expr, node)
+  EssentialVariable::EssentialVariable(const NodeConnectorId& node)
+    : Expression(node)
   {
   }
 
@@ -255,7 +255,7 @@ namespace PLEXIL {
   //
 
   Variable::Variable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
-    : EssentialVariable(expr, node), m_isConst(isConst), m_name(expr->name())
+    : EssentialVariable(node), m_isConst(isConst), m_name(expr->name())
   {
     check_error(Id<PlexilValue>::convertable(expr));
   }
@@ -279,6 +279,9 @@ namespace PLEXIL {
     }
   }
 
+  /**
+   * @brief Ensure that, if a variable is constant, it is never really deactivated
+   */
   void Variable::handleDeactivate(const bool changed) {
     if(this->isConst() && changed)
       m_activeCount++;
@@ -325,11 +328,13 @@ namespace PLEXIL {
 
   Calculable::Calculable() : Expression(), m_listener(getId()) {}
 
-  Calculable::Calculable(PlexilExpr* expr, const NodeConnectorId& node)
-    : Expression(expr, node), m_listener(getId()) {
+  Calculable::Calculable(const PlexilExprId& expr, const NodeConnectorId& node)
+    : Expression(node), m_listener(getId())
+  {
     const std::vector<PlexilExprId>& subExprs = expr->subExprs();
-    for(std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); it != subExprs.end();
-	++it) {
+    for (std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); 
+		 it != subExprs.end();
+		 ++it) {
       bool garbage = false;
       ExpressionId subExpr = getSubexpression(*it, node, garbage);
       addSubexpression(subExpr, garbage);
@@ -480,8 +485,25 @@ namespace PLEXIL {
     publishChange();
   }
 
+  // This variant used only in unit tests
   TransparentWrapper::TransparentWrapper(const ExpressionId& exp)
-    : Expression(), m_listener(*this), m_exp(exp) {
+    : Expression(), m_listener(*this), m_exp(exp) 
+  {
+	commonInit(exp);
+  }
+
+  TransparentWrapper::TransparentWrapper(const ExpressionId& exp, const NodeConnectorId& node)
+    : Expression(node), m_listener(*this), m_exp(exp) 
+  {
+	commonInit(exp);
+  }
+
+  TransparentWrapper::~TransparentWrapper(){
+    m_exp->removeListener(m_listener.getId());
+  }
+
+  void TransparentWrapper::commonInit(const ExpressionId& exp)
+  {
     debugMsg("TransparentWrapper:TransparentWrapper",
 	     "Constructing a transparent wrapper around " << exp->toString());
     m_exp->addListener(m_listener.getId());
@@ -489,14 +511,6 @@ namespace PLEXIL {
     m_value = exp->getValue();
     debugMsg("TransparentWrapper:TransparentWrapper",
 	     "Constructed " << toString());
-  }
-
-  TransparentWrapper::TransparentWrapper() : Expression(), m_listener(*this) {
-    check_error(ALWAYS_FAIL, "Should never call this.");
-  }
-
-  TransparentWrapper::~TransparentWrapper(){
-    m_exp->removeListener(m_listener.getId());
   }
 
   void TransparentWrapper::setValue(const double value) {
@@ -603,10 +617,26 @@ namespace PLEXIL {
     factoryMap().clear();
   }
 
+  // Used below in Expression::UNKNOWN_EXP().
+  class UnknownVariable : public Variable
+  {
+  public:
+	UnknownVariable() : Variable(true) {}
+	~UnknownVariable() {}
+
+	// Don't assign to this variable!
+	bool checkValue(const double /* value */) { return false; }
+	
+  private:
+	// Deliberately unimplemented
+	UnknownVariable(const UnknownVariable&);
+	UnknownVariable& operator=(const UnknownVariable&);
+  };
+
   ExpressionId& Expression::UNKNOWN_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new Variable(true))->getId();
+      sl_exp = (new UnknownVariable())->getId();
     return sl_exp;
   }
 

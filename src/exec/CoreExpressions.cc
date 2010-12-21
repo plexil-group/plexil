@@ -406,7 +406,7 @@ namespace PLEXIL
 
   ArrayElement::ArrayElement(const PlexilExprId& expr, 
                              const NodeConnectorId& node)
-    : DerivedVariable(expr, node),
+    : DerivedVariable(node),
       m_deleteIndex(false),
       m_listener(getId())
   {
@@ -530,6 +530,120 @@ namespace PLEXIL
     if (index == Expression::UNKNOWN())
       return Expression::UNKNOWN();
     return m_arrayVariable->lookupValue((unsigned long) index);
+  }
+
+  /**
+   * @brief Constructor. Creates a variable that indirects to another variable.
+   * @param name The name of this variable in the node that constructed the alias.
+   * @param nodeConnector The node connector of the node which owns this alias.
+   * @param original The original variable for this alias.
+   * @param isConst True if assignments to the alias are forbidden.
+   */
+  AliasVariable::AliasVariable(const std::string& name, 
+							   const NodeConnectorId& nodeConnector,
+							   Id<EssentialVariable> original,
+							   const bool isConst)
+	: DerivedVariable(nodeConnector),
+	  m_originalVariable(original),
+	  m_listener(getId()),
+	  m_name(name),
+	  m_isConst(isConst)
+  {
+	// Check original, node for validity
+	assertTrue(original.isValid(),
+			   "Invalid variable ID passed to AliasVariable constructor");
+	assertTrue(nodeConnector.isValid(),
+			   "Invalid node connector ID passed to AliasVariable constructor");
+	m_originalVariable->addListener(m_listener.getId());
+	m_value = m_originalVariable->getValue();
+  }
+
+  AliasVariable::~AliasVariable()
+  {
+	assertTrue(m_originalVariable.isValid(),
+			   "Original variable ID invalid in AliasVariable destructor");
+	m_originalVariable->removeListener(m_listener.getId());
+  }
+
+  /**
+   * @brief Get a string representation of this Expression.
+   * @return The string representation.
+   */
+  std::string AliasVariable::toString() const
+  {
+	std::ostringstream str;
+	str << Expression::toString()
+		<< "AliasVariable " << m_name
+		<< ", aliased to " << m_originalVariable->toString()
+		<< ")";
+	return str.str();
+  }
+
+  /**
+   * @brief Set the value of this expression back to the initial value with which it was
+   *        created.
+   */
+  void AliasVariable::reset()
+  { 
+	// *** FIXME: should this do anything at all??
+	// m_originalVariable->reset(); 
+  }
+
+  /**
+   * @brief Retrieve the value type of this Expression.
+   * @return The value type of this Expression.
+   * @note Delegates to original.
+   */
+  PlexilType AliasVariable::getValueType() const
+  {
+	return m_originalVariable->getValueType();
+  }
+
+  bool AliasVariable::checkValue(const double val)
+  {
+	return m_originalVariable->checkValue(val);
+  }	
+
+  /**
+   * @brief Sets the value of this variable.  Will throw an error if the variable was
+   *        constructed with isConst == true.
+   * @param value The new value for this variable.
+   */
+  void AliasVariable::setValue(const double value)
+  {
+    checkError(!isConst(),
+			   "Attempted to assign value " << Expression::valueToString(value)
+			   << " to read-only alias variable " << toString());
+	m_originalVariable->setValue(value);
+  }
+
+  void AliasVariable::handleChange(const ExpressionId& exp)
+  {
+	if (exp == m_originalVariable) {
+	  // propagate value from original
+	  internalSetValue(m_originalVariable->getValue());
+	}
+  }
+
+  void AliasVariable::handleActivate(const bool changed)
+  {
+	if (changed) {
+	  m_originalVariable->activate();
+	  // refresh value from original
+	  internalSetValue(m_originalVariable->getValue());
+	}
+  }
+
+  // *** FIXME: Inhibit deactivatation if const?
+  void AliasVariable::handleDeactivate(const bool changed)
+  {
+	if (changed) {
+	  m_originalVariable->deactivate();
+	}
+  }
+
+  void AliasVariable::handleReset()
+  {
   }
 
   StringVariable::StringVariable(const bool isConst) : Variable(isConst) {}
@@ -1396,11 +1510,15 @@ namespace PLEXIL
     return retval.str();
   }
 
-  DerivedVariable::DerivedVariable(const PlexilExprId& expr, const NodeConnectorId& node)
-    : EssentialVariable(expr, node)
+  DerivedVariable::DerivedVariable()
+    : EssentialVariable()
   {
   }
 
+  DerivedVariable::DerivedVariable(const NodeConnectorId& node)
+    : EssentialVariable(node)
+  {
+  }
 
   DerivedVariableListener::DerivedVariableListener(const ExpressionId& exp)
     : ExpressionListener(), m_exp(exp)
