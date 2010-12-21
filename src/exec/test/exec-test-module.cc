@@ -74,7 +74,7 @@ public:
 
 class AllocationExpression : public Expression {
 public:
-  AllocationExpression(PlexilExpr* expr, const NodeId node) : Expression(expr, node) {
+  AllocationExpression(PlexilExpr* /* expr */, const NodeId node) : Expression(node) {
     setValue(10);
   }
   //double getValue() {return 10;}
