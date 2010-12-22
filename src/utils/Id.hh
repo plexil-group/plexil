@@ -269,7 +269,12 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     template <class X>
     inline operator X* () const {
-      return(static_cast<X*>(m_ptr));
+	  X* result = dynamic_cast<X*>(m_ptr);
+#ifndef PLEXIL_FAST	  
+	  assertTrueMsg(result != 0,
+					"Id<" << typeid(T).name() << ">::operator" << typeid(X).name() << "*: Invalid pointer cast");
+#endif
+	  return result;
     }
 
     /**
@@ -446,7 +451,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
 
     template <class X>
     inline void copyAndCastFromId(const Id<X>& org) {
-      m_ptr = (T*) org.operator->();
+      m_ptr = dynamic_cast<T*>(org.operator->());
 #ifndef PLEXIL_FAST
       if (org.isNoId()) {
         m_key = 0;
