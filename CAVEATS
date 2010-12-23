@@ -1,9 +1,5 @@
 This file, plexil/CAVEATS, lists known bugs and issues in the PLEXIL system.
 
-
-Moderate problems
------------------
-
 Plexil Viewer: 
 
  * Multiple actions with the same name (Node ID) will not show correct status
@@ -16,14 +12,6 @@ Plexil Viewer:
    distinguish between "normal" and Core Plexil plan view, always showing the
    latter.
 
- * In the "Select Configuration" window, the "Use Default Script" button always
-   selects the empty simulation script, rather than a more appropriate default
-   if one exists.
-
-
-Minor problems
---------------
-
 Robosim: The (graphical) robot simulator does not always
 shut down cleanly.
 
@@ -35,8 +23,8 @@ Plexil to XML translator ('plexilc'):
 
  * Node timepoints cannot be assigned to variables.
 
-Sometimes, the Plexil executive outputs the following error when a plan
-finishes.  It has no effect on plan execution but does crash the executive:
+In multiple-executive applications, the Plexil executive sometimes crashes after
+completion of plan execution, with the following message:
 
   Assertion failed: (false), function handleAssert, file Error.cc, line 89.
   terminate called after throwing an instance of 'SocketException'

@@ -10,20 +10,29 @@ distributions only]
 Release Notes
 -------------
 
-Next release
+1.6  (December 2010)
  - Plexil executive and interface
-   * variable updates from command return values are now published (e.g. show up
+   * New "utility" interface adapter, which introduces built-in commands to
+     PLEXIL.  The first such commands are for printing from a plan (print, pprint).
+   * Variable updates from command return values are now published (e.g. display
      in Plexil Viewer)
  - Plexil Viewer:
    * fixed and enhanced the Configuration Dialog 
+   * added an interface for selecting library plans
+   * misc fixes and enhancements
  - Plexilisp:
-   * fixed bug in Wait, added WaitWithTolerance
+   * added the SynchronousCommand (synchronous-command) form
+   * revised the Wait form, adding a tolerance parameter
    * fixed bug in handling of newlines in strings
-   * fixed bug in When
- - Schemas
+ - Plexil XML schemas
+   * Added Wait and SynchronousCommand (user syntax to come in next release)
    * fixed XSD schemas to work with xmllint
    * added file locator attributes to aid in source debugging
    * added Relax NG versions of some schemas
+ - Plexil syntax
+   * A major revision of Plexil's user syntax is largely implemented in this
+     release, though is still in a refinement and testing phase and not yet
+     documented or officially supported.
 
 
 1.5  (October 2010)
