@@ -190,6 +190,22 @@ public class LoadRecentAction extends LuvAction
         return recentScript;
     }
     
+    /**
+     * Gets the Plexil Library with the specified index.
+     * 
+     * @param index indicates which Plexil Library the user wants to load
+     * @return the Plexil Library to load
+     */
+    public static String getRecentLib(int index)
+    {
+        String recentLib = UNKNOWN;
+        
+        if (Luv.getLuv().getProperties().getProperty(defineRecentLib(RECENT_DIR) + index) != null)
+        	recentLib = Luv.getLuv().getProperties().getProperty(defineRecentLib(RECENT_DIR) + index);  
+        
+        return recentLib;
+    }
+    
     // given a recent plan index, the description used for the recent menu item tooltip
     private static String getRecentMenuDescription(int index)
     {

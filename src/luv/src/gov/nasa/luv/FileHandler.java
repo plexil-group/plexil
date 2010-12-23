@@ -170,7 +170,7 @@ public class FileHandler
         		if(!library.exists())
         		{
 	        		if(testName.isDirectory())
-	        			library = new File(testName + System.getProperty("file.separator") + libraryName + ".xml");
+	        			library = new File(testName + System.getProperty("file.separator") + libraryName + ".plx");
 	        		for(int i = 0; i<Constants.FILE_EXTENSIONS.length;i++)
 	        			libraryTestName = libraryTestName.replaceAll("."+Constants.FILE_EXTENSIONS[i], "");
 	        		if(testName.isFile() && libraryTestName.equals(libraryName))
@@ -545,9 +545,9 @@ public class FileHandler
 			// if the user doesn't want to load any libraries,
 			// halt the link operation now
 		    case 1:
-			Luv.getLuv().getLuvStateHandler().startState();
 			retry = false;
 			stopSearchForMissingLibs = true;
+			
 			break;
 		    }
 		}

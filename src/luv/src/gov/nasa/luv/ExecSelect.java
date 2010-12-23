@@ -119,6 +119,8 @@ public class ExecSelect extends JPanel {
             {                
             	try{
                 LibraryLoader lib = new LibraryLoader("Library");
+                lib.removeAllNodes();
+                lib.selectLibraries();
                 lib.open();
             	}catch(IOException ex)
             	{
@@ -163,18 +165,23 @@ public class ExecSelect extends JPanel {
      * Defines recent plan and supplements from viewer preference hidden file
      */
 	public void loadFromPersistence() {
-		String planName = "", suppName = "";
+		String planName = "", suppName = "", libName = "";
 		AppSettings m_app = null;
 		int currMode = mode;		 		
 		for(int i=1;i<4;i++)
 		{
 			mode = i;
 			planName = LoadRecentAction.getRecentPlan(1) == Constants.UNKNOWN ? "" : LoadRecentAction.getRecentPlan(1);
-			 suppName = LoadRecentAction.getRecentScript(1) == Constants.UNKNOWN ? "" : LoadRecentAction.getRecentScript(1);
+			 suppName = LoadRecentAction.getRecentScript(1) == Constants.UNKNOWN ? "" : LoadRecentAction.getRecentScript(1);			 
 			 switch (i) {
 			 case PLEXIL_EXEC: m_app = execSet; break;
 			 case PLEXIL_TEST: m_app = testSet; break;
 			 case PLEXIL_SIM: m_app = simSet; break;			 
+			 }
+			 for(int j=0;j<Constants.PROP_FILE_RECENT_COUNT_DEF;j++)
+			 {
+				 libName = LoadRecentAction.getRecentLib(j) == Constants.UNKNOWN ? "" : LoadRecentAction.getRecentLib(j);
+				 m_app.getLibArray().add(libName);
 			 }
 			setInputs(m_app, planName, suppName);	
 		}		 		
@@ -821,16 +828,21 @@ public class ExecSelect extends JPanel {
 		private String suppName = "";		
 		private String planLocation = "";
 		private String suppLocation = "";	
-		private PlexilFilter filter = null;		
+		private PlexilFilter filter = null;
+		private ArrayList<String> libArray = null; 
 		AppSettings(String name, String supp){
 			this.name = name;
 			this.suppName = supp;
+			libArray = new ArrayList<String>();
 		}
 		public String getName() {
 			return name;
 		}		
 		public String getSuppName() {
 			return suppName;
+		}
+		public ArrayList<String> getLibArray() {
+			return libArray;
 		}
 		public void setSuppName(String suppName) {
 			this.suppName = suppName;

@@ -45,8 +45,8 @@ import javax.swing.tree.TreeSelectionModel;
  *
  * http://devdaily.com/java/swing/tame/
  * 
-@author Nobuo Tamemasa
-@version 1.0 01/11/99
+@author Jason Ho
+@version 1.0 12/23/10
 */
 
 public class LibraryLoader extends JFrame implements ItemListener {
@@ -64,9 +64,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
     public LibraryLoader() {
     }
 
-    /** Construct an DebugCFGWindow. 
+    /** Construct an LibraryLoader. 
      *
-     * @param title the title of this DebugCFGWindow
+     * @param title the title of this LibraryLoader
      */
     public LibraryLoader(String title) throws FileNotFoundException {
         super(title);
@@ -86,39 +86,30 @@ public class LibraryLoader extends JFrame implements ItemListener {
         }
     }
 
-    private void createCheckList() throws FileNotFoundException {
-        ArrayList<File> list = new ArrayList<File>();       
-        //TODO:Load persistence state from private file
-        list.add(new File("/home/jho4"));
-        
+    /*
+     * Initializes checklist and tree
+     */
+    private void createCheckList() throws FileNotFoundException {               
         // attach each flag to a check box
         nodes = new ArrayList<CheckNode>();
 
         // root node
-        nodes.add(new CheckNode(new File(Constants.PLEXIL_HOME+System.getProperty("file.separator")+"examples"+System.getProperty("file.separator"))));
-        for (int a = 1; a < list.size(); a++) {
-            nodes.add(new CheckNode(list.get(a)));
-            nodes.get(0).add(nodes.get(a));
-        }
+        nodes.add(new CheckNode(new File(Constants.PLEXIL_HOME+System.getProperty("file.separator")+"examples"+System.getProperty("file.separator"))));        
 
         dyn_tree = new DynamicTree();
         dyn_tree.addObject(nodes.get(0));
                 
-        // place check boxes into check box tree
+        // place check boxes into check box tree        
         
-        main_tree = new JTree(nodes.get(0));
-        
-        main_tree.setCellRenderer(new CheckRenderer());
-        main_tree.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.SINGLE_TREE_SELECTION);
-        main_tree.addMouseListener(new NodeSelectionListener(main_tree));
-        
-        checkBoxList = new JScrollPane(main_tree);        
-        //checkBoxList = new JScrollPane(dyn_tree);
+        //checkBoxList = new JScrollPane(main_tree);        
+        checkBoxList = new JScrollPane(dyn_tree);
         checkBoxList.setPreferredSize(new Dimension(450, 50));
         
     }
 
+    /*
+     * Builds display window for loaded libraries
+     */
     private void createPreviewArea() throws FileNotFoundException {
         preview = new JTextArea();
         preview.setPreferredSize(new Dimension(435, 50));
@@ -127,6 +118,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
         previewArea = new JScrollPane(preview);
     }
 
+    /*
+     * Message to User Section
+     */
     private void createTopSection() {
         JLabel topMessage = new JLabel();
         topMessage.setText(getTopMessage());
@@ -138,6 +132,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
         topSection.add(topMessage);
     }
 
+    /*
+     * Button Initialization
+     */
     private void createButtons() {
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ButtonActionListener());
@@ -148,17 +145,10 @@ public class LibraryLoader extends JFrame implements ItemListener {
         JButton createCFGButton = new JButton("OK");
         createCFGButton.addActionListener(new ButtonActionListener());
 
-        // file location message
-///        JLabel locationMessage = new JLabel();
-///        locationMessage.setText("Debug CFG file location: ");
-///        locationMessage.setFont(locationMessage.getFont().deriveFont(
-///                Font.PLAIN, 12.0f));
-
         // Panel to hold buttons and file location message
         buttonPane = new JPanel();
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
         buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-//        buttonPane.add(locationMessage);
         buttonPane.add(Box.createHorizontalGlue());
         buttonPane.add(cancelButton);
         buttonPane.add(Box.createHorizontalStrut(3));
@@ -170,6 +160,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
         buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
     }
     
+    /*
+     * Adds library file
+     */
     private void addLibrary(File lib) {
     	if(lib != null)
     	{
@@ -180,37 +173,49 @@ public class LibraryLoader extends JFrame implements ItemListener {
     	
     	}
     }
-
-    private ArrayList<File> selectLibraries() throws FileNotFoundException {
-        ArrayList<File> lines = new ArrayList<File>();
-
-        //TODO: refactor file to get libraries from memory
-        /*
-        if (new File(DEBUG_CFG_FILE).exists()) {
-            Scanner scanner = new Scanner(new File(DEBUG_CFG_FILE));
-
-            try {
-                String line;
-
-                while (scanner.hasNextLine()) {
-                    line = scanner.nextLine().trim();
-                    lines.add(line);
-                }
-            } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
-                        "ERROR: exception occurred while reading " + DEBUG_CFG_FILE);
-            } finally {
-                scanner.close();
-            }
-        }
-		*/
-
-        return lines;
+    
+    /*
+     * Removes all check nodes
+     */
+    public void removeAllNodes(){
+    	Luv.getLuv().getLibLoad().dyn_tree.clear();
+        Luv.getLuv().getLibLoad().getPreview().setText(null);
+        nodes.removeAll(nodes);
+        nodes.add(new CheckNode(new File(Constants.PLEXIL_HOME+System.getProperty("file.separator")+"examples"+System.getProperty("file.separator"))));
     }
 
+    /*
+     * Acquires all library directories from persistent state and loads them
+     */
+    protected void selectLibraries() throws FileNotFoundException {                        
+        ArrayList<String> libArr = Luv.getLuv().getExecSelect().getSettings().getLibArray();
+        ArrayList<String> uniqArr = new ArrayList<String>();
+        boolean dup = false;
+        
+        for(int i = 0; i<libArr.size();i++)
+        	if(!libArr.get(i).equals(""))
+        	{
+        		for(int j=0; j<uniqArr.size(); j++)
+        		{
+        			if(uniqArr.get(j).equals(libArr.get(i)))
+        				dup = true;
+        		}        		
+        		if(!dup)
+        		{
+        			Luv.getLuv().getLibLoad().addLibrary(new File(libArr.get(i)));
+        			uniqArr.add(libArr.get(i));
+        		}
+        		
+        	}
+        
+    }
+
+    /*
+     * Display text for libraries
+     */
     private void setPreviewOfLibraries() throws FileNotFoundException {
         ArrayList<File> lines = new ArrayList<File>();
-        lines = selectLibraries();
+        //TODO: Initialize Libraries
 
         if (!lines.isEmpty()) {
             preview.setText("");
@@ -224,6 +229,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
         }
     }
 
+    /*
+     * Allows for future message handling to user
+     */
     private String getTopMessage() {
         StringBuffer sb = new StringBuffer();
 
@@ -235,10 +243,16 @@ public class LibraryLoader extends JFrame implements ItemListener {
         return sb.toString();
     }
     
+    /*
+     * Expose preview window
+     */
     public JTextArea getPreview(){
     	return preview;
     }
     
+    /*
+     * Expose library list of directories
+     */
     public ArrayList<File> getLibraryList() {
     	File selected = null;    	
     	ArrayList<File> list = new ArrayList<File>();
@@ -251,6 +265,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
     	return list;
     }
 
+    /*
+     * Button class for add, cancel, select, clear
+     */
     class ButtonActionListener implements ActionListener {    	
 
         ButtonActionListener() {
@@ -288,11 +305,7 @@ public class LibraryLoader extends JFrame implements ItemListener {
 
                 if (clear == 0) {
                     // clear text preview area
-                	Luv.getLuv().getLibLoad().dyn_tree.clear();
-                    Luv.getLuv().getLibLoad().getPreview().setText(null);
-                    nodes.removeAll(nodes);
-                    nodes.add(new CheckNode(new File(Constants.PLEXIL_HOME+System.getProperty("file.separator")+"examples"+System.getProperty("file.separator"))));
-                    // TODO: remove libraries loaded
+                	Luv.getLuv().getLibLoad().removeAllNodes();                    
                     
                 }
             } else if (ev.getActionCommand().equals("OK")) {
@@ -304,7 +317,6 @@ public class LibraryLoader extends JFrame implements ItemListener {
                 while (it.hasNext()) {
                     CheckNode node = it.next();
 
-                    //TODO: Reformat to push libraries into Execution Handler
                     //if (node.isSelected()) {
                                                 
                         if(node.getUserObject() instanceof File)
@@ -349,6 +361,9 @@ public class LibraryLoader extends JFrame implements ItemListener {
         }
     }
     
+    /*
+     * Custom node selection handler
+     */
     public class NodeSelectionListener extends MouseAdapter {
 
         JTree tree;
