@@ -4,10 +4,8 @@ See http://sourceforge.net/projects/plexil for information about this
 software, including its user manuals.  There is more information in the 
 README files found in each subdirectory of this directory.
 
-The 'Versions' file describes previous releases of Plexil.  
-
-The newest features in Plexil (not yet released in as a binary distribution, but
-present in the latest SVN revision of Plexil) are as follows:
+The 'Versions' file describes previous releases of Plexil, as well as the latest
+features not yet released in a binary distribution.
 
 
 
