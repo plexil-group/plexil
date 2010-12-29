@@ -1,6 +1,6 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
-1.6  (December 2010)
+1.6  (December 2010, SVN revision 1959)
  - Plexil executive and interface
    * New "utility" interface adapter, which introduces built-in commands to
      PLEXIL.  The first such commands are for printing from a plan (print, pprint).
