@@ -18,11 +18,13 @@
         (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
         (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
         (if (boolvar "runtime-error")
+            ;; Working with no error...
             (sequence "error-sequence"
               (assignment (array-element "actual" 0) 0) ;for use iin the end-condition
               (action "get-states"
                 (end-condition (not (= (array-element "actual" 0) 0)))
                 (command-with-return (arrayvar "actual") "get-current-state" (intvar "period"))))
+          ;; Always prints the previous array, not the updated one...
           (synchronous-command "get-states"
             (command-with-return (arrayvar "actual") "get-current-state" (intvar "period"))))
         (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")
