@@ -1,9 +1,8 @@
 ;; File: $SVNROOT/examples/multi-exec/agents/sim.pli
 
 (plexil-plan
-  (declarations
-    (library-node-declaration "state-request")
-    (library-node-declaration "get-state"))
+  ;;(declarations
+  ;;  (library-node-declaration "state-request"))
   (concurrently "sim"
     (variables
       (string "name" "sim")

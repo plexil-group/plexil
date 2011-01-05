@@ -2,7 +2,7 @@
 
 (plexil-plan
   (sequence "state-request"
-    (interface (inout (real-array "actual" 5) (string "name" "sim") (boolean "debug" true)))
+    (interface (inout (real-array "actual" 5) (string "name" "state-request") (boolean "debug" true)))
     (on-command "get-current-state" ((integer "elapsed-time"))
       (sequence "update-state"
         ;; 1 nm = 6076.11549
