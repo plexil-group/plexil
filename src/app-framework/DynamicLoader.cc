@@ -99,7 +99,7 @@ namespace PLEXIL
     return func;
   }
 
-  char *DynamicLoader::getError() {
+  const char *DynamicLoader::getError() {
     return dlerror();
   }
 }

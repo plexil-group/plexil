@@ -78,7 +78,7 @@ namespace PLEXIL
      * @return NULL if no errors have occured since startup; a human readable string
      * describing the most recent error otherwise.
      */
-    static char *getError();
+    static const char *getError();
 
   };
 
