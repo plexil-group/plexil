@@ -48,7 +48,8 @@ namespace PLEXIL
       }
 
     // this may not be implemented, skip it if not
-#if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT >= 0
+	// Android claims it is, but lies
+#if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT >= 0 && !defined(PLEXIL_ANDROID)
     rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
     if (rv != 0)
       {

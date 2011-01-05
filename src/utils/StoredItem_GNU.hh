@@ -37,16 +37,36 @@
 
 #include "KeySource.hh"
 
-#include <ext/hash_map>
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
-# include <hash_fun.h>
+// Which files are included is dependent on the version of the 
+// GNU libstdc++ installation, not the compiler.
+// The macro __GLIBCXX__ (or __GLIBCPP__ for older versions) contains that information.
+
+#ifdef PLEXIL_ANDROID
+// Oddball Android 2.2 (maybe earlier as well)
+# define _GLIBCXX_PERMIT_BACKWARD_HASH 1
+# include <ext/hash_map>
+# include <backward/hash_fun.h>
 #else
-# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-#  include <ext/hash_fun.h>
-# else
+// Location of the required include files depends on the libstdc++ version.
+# if defined (__GLIBCXX__)
+// +++ ADD LATEST REVISIONS HERE +++
+#  if __GLIBCXX__ >= 20080306 && __GLIBCXX__ != 20080519
+// GCC 4.3.0 (20080306) through at least 4.5.2
+#   include <backward/hash_map>
+#   include <backward/hash_fun.h>
+#  else
+// GCC 3.4.0 through 4.2.4 (20080519)
+#   include <ext/hash_map>
+#   include <ext/hash_fun.h>
+#  endif
+# elif defined (__GLIBCPP__)
+// GCC 3.00 through 3.3.6 (20050503)
+#  include <ext/hash_map>
 #  include <ext/stl_hash_fun.h>
-# endif
+# else
+#  error "Unable to determine GNU libstdc++ version."
+# endif // defined (__GLIBCXX__)
 #endif
 
 namespace PLEXIL
