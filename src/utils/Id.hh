@@ -163,6 +163,36 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
     }
 
     /**
+     * @brief Initial construction to wrap ptr for derived classes.
+     * @param ptr The pointer to create a new Id for.
+	 * @param baseId Existing Id of base class object.
+     * @see Id::noId()
+     */
+	template <class X>
+    inline Id(T* ptr, const Id<X>& baseId) {
+#ifndef PLEXIL_FAST
+      check_error(ptr != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for 0 pointer.",
+                  IdErr::IdMgrInvalidItemPtrError());
+	  check_error(baseId.isValid(),
+				  std::string("Cannot generate an Id<") + typeid(T).name() + "> when Id of base class object is invalid.",
+				  IdErr::IdMgrInvalidItemPtrError());
+	  const ID_POINTER_TYPE basePtr = (ID_POINTER_TYPE) baseId.operator->();
+	  if (basePtr == (ID_POINTER_TYPE) ptr) {
+		// Pointers are equal, reuse key
+		// No need to check it because we tested base for validity above
+		m_key = IdTable::getKey(basePtr);
+	  }
+	  else {
+		// Generate new key for derived class pointer
+		m_key = IdTable::insert((ID_POINTER_TYPE)(ptr), typeid(T).name());
+		check_error(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
+					IdErr::IdMgrInvalidItemPtrError());
+	  }
+#endif
+      m_ptr = ptr;
+    }
+
+    /**
      * @brief Copy constructor.
      * @param org The constant reference to original Id from which to copy.
      */
@@ -269,6 +299,10 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     template <class X>
     inline operator X* () const {
+#ifndef PLEXIL_FAST
+	  if (isNoId())
+		return 0;
+#endif
 	  X* result = dynamic_cast<X*>(m_ptr);
 #ifndef PLEXIL_FAST	  
 	  assertTrueMsg(result != 0,
@@ -447,6 +481,29 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
       m_ptr = 0;
     }
 
+    /**
+     * @brief Clear the IdTable entry for a pointer to instance of a derived class.
+	 * @param Id of the base class object.
+     * @note Will cause an error if either Id is not valid.
+     * @see IdTable::release()
+     */
+	template <class X>
+    inline void removeDerived(const Id<X>& baseId) {
+#ifndef PLEXIL_FAST
+      check_error(isValid(), std::string("Cannot remove an invalid Id<") + typeid(T).name() + ">.",
+                  IdErr::IdMgrInvalidItemPtrError());
+	  check_error(baseId.isValid(),
+				   std::string("Cannot remove Id<") + typeid(T).name()
+				  + "> when base Id<" + typeid(X).name() + "> is invalid.",
+                  IdErr::IdMgrInvalidItemPtrError());
+	  if (((ID_POINTER_TYPE) m_ptr) != (ID_POINTER_TYPE) baseId.operator->())
+		// Base differs from derived, remove derived
+		IdTable::remove((ID_POINTER_TYPE) m_ptr);
+      m_key = 0;
+#endif
+      m_ptr = 0;
+    }
+
   private:
 
     template <class X>
@@ -457,7 +514,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
         m_key = 0;
         return;
       }
-      check_error(Id<T>::convertable(org), std::string("Invalid cast from Id<") + typeid(X).name() + "> to Id<" + typeid(T).name() + ">.",
+      check_error(m_ptr != 0, std::string("Invalid cast from Id<") + typeid(X).name() + "> to Id<" + typeid(T).name() + ">.",
                   IdErr::IdMgrInvalidItemPtrError());
       m_key = IdTable::getKey((ID_POINTER_TYPE) m_ptr);
       check_error(m_key != 0, std::string("Cannot create an Id<") + typeid(X).name() + "> for this address since no instance is present.",

@@ -330,6 +330,30 @@ public:
   }
 };
 
+class Poot : public virtual Root
+{
+public:
+  Poot() {} 
+};
+
+class Doot : public virtual Root
+{
+public:
+  Doot() {} 
+};
+
+class PootDoot : public Poot, public Doot
+{
+public:
+  PootDoot() {}
+};
+
+class DootPoot : public Doot, public Poot
+{
+public:
+  DootPoot() {}
+};
+
 void overloadFunc(const Id<Bing>& /* arg */) {
   assertTrue(true);
 }
@@ -349,6 +373,7 @@ private:
   static bool testDoubleConversion();
   static bool testCastingSupport();
   static bool testBadAllocationErrorHandling();
+  static bool testVirtualInheritance();
   static bool testBadIdUsage();
   static bool testIdConversion();
   static bool testConstId();
@@ -362,6 +387,7 @@ bool IdTests::test() {
   runTest(testCastingSupport);
   runTest(testTypicalConversionsAndComparisons);
   runTest(testBadAllocationErrorHandling);
+  runTest(testVirtualInheritance);
   runTest(testBadIdUsage);
   runTest(testIdConversion);
   runTest(testConstId);
@@ -510,6 +536,141 @@ bool IdTests::testBadAllocationErrorHandling()
 #endif
 
   return(success);
+}
+
+bool IdTests::testVirtualInheritance()
+{
+  bool success = true;
+
+  PootDoot* pootdoot = new PootDoot();
+
+  // ID of base 
+  Id<Root> pootdootRoot(dynamic_cast<Root*>(pootdoot));
+  assertTrue(pootdootRoot.isValid());
+
+  // ID of supers
+  Id<Poot> pootdootPoot(dynamic_cast<Poot*>(pootdoot), pootdootRoot);
+  assertTrue(pootdootPoot.isValid());
+  Id<Doot> pootdootDoot(dynamic_cast<Doot*>(pootdoot), pootdootRoot);
+  assertTrue(pootdootDoot.isValid());
+
+  // ID of derived class
+  Id<PootDoot> pootdootPootDoot(pootdoot, pootdootRoot);
+  assertTrue(pootdootPootDoot.isValid());
+
+#ifndef PLEXIL_FAST
+  // Check the checks
+  std::cout << std::endl;
+
+  // Basic allocation
+  Error::doThrowExceptions();
+  try {
+    Error::doNotDisplayErrors();
+    Id<PootDoot> pdId0((PootDoot*) 0, Id<Root>::noId());
+    assertTrue(false, "Id<PootDoot> pdId0((PootDoot*) 0, Id<Root>::noId()); failed to error out.");
+    success = false;
+    Error::doDisplayErrors();
+  }
+  catch (Error& e) {
+    Error::doDisplayErrors();
+    // Path of Id.hh may vary depending on where test is run from.
+    // Match only the filename and not the full path
+    std::string pathMsg = e.getFile();
+    int end = pathMsg.length();
+    std::string name = "Id.hh";
+    int start = pathMsg.find(name);
+    if (start >= 0) {
+      std::string fileMsg = pathMsg.substr(start, end);
+      e.setFile(fileMsg);
+    }
+    __z__(e, Error("ptr != 0", "Cannot generate an Id<8PootDoot> for 0 pointer.", "Id.hh", 0), success);
+  }
+
+  // Invalid base Id
+  try {
+    Error::doNotDisplayErrors();
+	Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId());
+	assertTrue(false, "Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId()); failed to throw an error.");
+	success = false;
+	Error::doDisplayErrors();
+  }
+  catch (Error& e) {
+    Error::doDisplayErrors();
+    // Path of Id.hh may vary depending on where test is run from.
+    // Match only the filename and not the full path
+    std::string pathMsg = e.getFile();
+    int end = pathMsg.length();
+    std::string name = "Id.hh";
+    int start = pathMsg.find(name);
+    if (start >= 0) {
+      std::string fileMsg = pathMsg.substr(start, end);
+      e.setFile(fileMsg);
+    }
+    __z__(e, Error("baseId.isValid()", "Cannot generate an Id<8PootDoot> when Id of base class object is invalid.", "Id.hh", 0), success);
+  }
+
+  // Detection of duplicate Id
+  // This can fail if the superclass pointer is equal to the derived pointer.
+  try {
+    Error::doNotDisplayErrors();
+	Id<PootDoot> duplicateId(pootdoot, pootdootDoot);
+	assertTrue(false, "Id<PootDoot> duplicateId(pootdoot, pootdootDoot); failed to throw an error.");
+	success = false;
+	Error::doDisplayErrors();
+  }
+  catch (Error& e) {
+    Error::doDisplayErrors();
+    // Path of Id.hh may vary depending on where test is run from.
+    // Match only the filename and not the full path
+    std::string pathMsg = e.getFile();
+    int end = pathMsg.length();
+    std::string name = "Id.hh";
+    int start = pathMsg.find(name);
+    if (start >= 0) {
+      std::string fileMsg = pathMsg.substr(start, end);
+      e.setFile(fileMsg);
+    }
+    __z__(e, Error("m_key != 0", "Cannot generate an Id<8PootDoot> for a pointer that has not been cleaned up.", "Id.hh", 0), success);
+  }
+  Error::doNotThrowExceptions();
+  std::cout << std::endl;
+#endif
+
+  // Upcasts to root
+  assertTrue(pootdootRoot == Id<Root>(pootdootPoot));
+  assertTrue(pootdootRoot == Id<Root>(pootdootDoot));
+  assertTrue(pootdootRoot == Id<Root>(pootdootPootDoot));
+
+  // To supers
+  assertTrue(pootdootPoot == Id<Poot>(pootdootPootDoot));
+  assertTrue(pootdootDoot == Id<Doot>(pootdootPootDoot));
+
+  // Downcasts
+
+  // Base to supers
+  assertTrue(pootdootPoot == Id<Poot>(pootdootRoot));
+  assertTrue(pootdootDoot == Id<Doot>(pootdootRoot));
+
+  // All supers to derived
+  assertTrue(pootdootPootDoot == Id<PootDoot>(pootdootRoot));
+  assertTrue(pootdootPootDoot == Id<PootDoot>(pootdootPoot));
+  assertTrue(pootdootPootDoot == Id<PootDoot>(pootdootDoot));
+
+  // Remove
+  pootdootPootDoot.removeDerived(pootdootRoot);
+  assertTrue(pootdootPootDoot.isNoId());
+  pootdootDoot.removeDerived(pootdootRoot);
+  assertTrue(pootdootDoot.isNoId());
+  pootdootPoot.removeDerived(pootdootRoot);
+  assertTrue(pootdootPoot.isNoId());
+
+  // Release
+  pootdoot = 0; // zero pointer here to be safe
+
+  pootdootRoot.release();
+  assertTrue(pootdootRoot.isNoId());
+
+  return success;
 }
 
 bool IdTests::testBadIdUsage() {
