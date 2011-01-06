@@ -503,8 +503,6 @@ namespace PLEXIL
         typ = m_valueQueue.dequeue(stateKey, newStateValues,
                                    exp, newExpValue,
                                    plan, parent);
-        // opportunity to cancel thread here
-        pthread_testcancel();
         switch (typ)
           {
           case queueEntry_EMPTY:
@@ -635,9 +633,6 @@ namespace PLEXIL
           }
 
         firstTime = false;
-
-        // Allow an opportunity to quit here
-        pthread_testcancel();
       }
   }
 

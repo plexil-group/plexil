@@ -275,16 +275,28 @@ namespace PLEXIL
     bool setApplicationState(const ApplicationState& newState);
 
 	/**
-	 * @brief Establish signal handling environment for exec main loop thread.
+	 * @brief Establish signal handling environment for exec worker thread.
 	 * @return True if successful, false otherwise.
 	 */
-	bool initializeSignalHandling();
+	bool initializeWorkerSignalHandling();
 
 	/**
-	 * @brief Restore previous signal handling environment for exec main loop thread.
+	 * @brief Restore previous signal handling environment for exec worker thread.
 	 * @return True if successful, false otherwise.
 	 */
-	bool restoreSignalHandling();
+	bool restoreWorkerSignalHandling();
+
+	/**
+	 * @brief Establish signal handling environment for main thread.
+	 * @return True if successful, false otherwise.
+	 */
+	bool initializeMainSignalHandling();
+
+	/**
+	 * @brief Restore previous signal handling environment for main thread.
+	 * @return True if successful, false otherwise.
+	 */
+	bool restoreMainSignalHandling();
 
   private:
 
@@ -327,6 +339,9 @@ namespace PLEXIL
 	// Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
 
+	// Flag for halting the Exec thread
+	bool m_stop;
+
 	// Flag for suspend/resume
 	bool m_suspended;
 
@@ -335,8 +350,11 @@ namespace PLEXIL
 	//
 	size_t m_nBlockedSignals;
 	int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
-	sigset_t m_sigset;
-	sigset_t m_restoreSigset;
+	sigset_t m_workerSigset;
+	sigset_t m_restoreWorkerSigset;
+	sigset_t m_mainSigset;
+	sigset_t m_restoreMainSigset;
+	struct sigaction m_restoreUSR2Handler;
 
   };
 

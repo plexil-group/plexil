@@ -55,6 +55,7 @@ namespace PLEXIL
       m_sem(),
       m_state(APP_UNINITED),
       m_runExecInBkgndOnly(true),
+	  m_stop(false),
       m_suspended(false),
 	  m_nBlockedSignals(0)
   {
@@ -158,6 +159,10 @@ namespace PLEXIL
     // Clear suspended flag just in case
     m_suspended = false;
 
+	// Set up signal handling in main thread
+	assertTrueMsg(initializeMainSignalHandling(),
+				  "ExecApplication::run: failed to initialize main thread signal handling");
+
     // Start the event listener thread
     return spawnExecThread();
   }
@@ -209,28 +214,33 @@ namespace PLEXIL
 
     // Stop the Exec
     debugMsg("ExecApplication:stop", " Halting top level thread");
-
-    // Need to call PTHREAD_CANCEL_ASYNCHRONOUS since the wait loop 
-    // does not quit on EINTR.
-    int dummy;
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &dummy);
-
-    int status = pthread_cancel(m_execThread);
-    if (status != 0)
-      {
-        debugMsg("ExecApplication:stop",
-                 " pthread_cancel() failed, error = " << status);
-        return false;
-      }
+	m_stop = true;
+	int status = m_sem.post();
+	assertTrueMsg(status == 0,
+				  "ExecApplication::stop: semaphore post failed, status = "
+				  << status);
     sleep(1);
+
+	if (m_stop) {
+	  // Exec thread failed to acknowledge stop - resort to stronger measures
+	  status = pthread_kill(m_execThread, SIGUSR2);
+	  assertTrueMsg(status == 0,
+				  "ExecApplication::stop: pthread_kill failed, status = "
+				  << status);
+	  sleep(1);
+	}
+
     status = pthread_join(m_execThread, NULL);
-    if (status != 0)
-      {
+    if (status != 0) {
         debugMsg("ExecApplication:stop", 
                  " pthread_join() failed, error = " << status);
         return false;
       }
     debugMsg("ExecApplication:stop", " Top level thread halted");
+
+	// Restore signal handling
+	assertTrueMsg(restoreMainSignalHandling(),
+				  "ExecApplication::stop: failed to restore signal handling for main thread");
     
     return setApplicationState(APP_STOPPED);
   }
@@ -380,21 +390,25 @@ namespace PLEXIL
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Thread started");
 
 	// set up signal handling environment for this thread
-	assertTrueMsg(initializeSignalHandling(),
+	assertTrueMsg(initializeWorkerSignalHandling(),
 				  "ExecApplication::runInternal: Fatal error: signal handling initialization failed."); 
 
     // must step exec once to initialize time
     runExec(true);
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Initial step complete");
 
-    while (waitForExternalEvent())
-      {
-        runExec(false);
-      }
+    while (waitForExternalEvent()) {
+	  if (m_stop) {
+		debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Received stop request");
+		m_stop = false; // acknowledge stop request
+		break;
+	  }
+	  runExec(false);
+	}
 
 	// restore old signal handlers for this thread
 	// don't bother to check for errors
-	restoreSignalHandling();
+	restoreWorkerSignalHandling();
 
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
   }
@@ -420,8 +434,6 @@ namespace PLEXIL
         debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
         m_exec.step();
         debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
-        // give an opportunity to cancel thread here
-        pthread_testcancel();
       }
     condDebugMsg(!m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
     condDebugMsg(m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") Suspended");
@@ -443,18 +455,16 @@ namespace PLEXIL
 	int status;
     do {
       status = m_sem.wait();
-      if (status == 0)
-        {
-          condDebugMsg(!m_suspended, 
-                       "ExecApplication:wait",
-                       " (" << pthread_self() << ") acquired semaphore, processing external event");
-          condDebugMsg(m_suspended, 
-                       "ExecApplication:wait",
-                       " Application is suspended, ignoring external event");
-        }
-	  // give an opportunity to cancel thread here
-	  pthread_testcancel();
-    } while (m_suspended);
+      if (status == 0) {
+		condDebugMsg(!m_suspended, 
+					 "ExecApplication:wait",
+					 " (" << pthread_self() << ") acquired semaphore, processing external event");
+		condDebugMsg(m_suspended, 
+					 "ExecApplication:wait",
+					 " Application is suspended, ignoring external event");
+	  }
+    } 
+	while (m_suspended);
     return (status == 0);
   }
 
@@ -486,8 +496,8 @@ namespace PLEXIL
    */
   void
   ExecApplication::waitForShutdown() {
-	int waitStatus;
-    while ((waitStatus == m_shutdownSem.wait()) != PLEXIL_SEMAPHORE_STATUS_INTERRUPTED)
+	int waitStatus = PLEXIL_SEMAPHORE_STATUS_INTERRUPTED;
+    while ((waitStatus = m_shutdownSem.wait()) == PLEXIL_SEMAPHORE_STATUS_INTERRUPTED)
 	  continue;
 	if (waitStatus == 0)
 	  m_shutdownSem.post(); // pass it on to the next, if any
@@ -624,10 +634,26 @@ namespace PLEXIL
   // Signal handling
   //
 
+  /**
+   * @brief Dummy signal handler function for signals we process.
+   * @note This should never be called!
+   */
+  void dummySignalHandler(int /* signo */) {}
+
+  /**
+   * @brief Handler for asynchronous kill of Exec thread
+   * @param signo The signal.
+   */
+  void emergencyStop(int signo) 
+  {
+	debugMsg("ExecApplication:stop", "Received signal " << signo);
+	pthread_exit((void *) 0);
+  }
+
   // Prevent the Exec run thread from seeing the signals listed below.
   // Applications are free to deal with them in other ways.
 
-  bool ExecApplication::initializeSignalHandling()
+  bool ExecApplication::initializeWorkerSignalHandling()
   {
 	static int signumsToIgnore[EXEC_APPLICATION_MAX_N_SIGNALS] =
 	  {
@@ -637,16 +663,16 @@ namespace PLEXIL
 		SIGTERM,  // kill
 		SIGALRM,  // timer interrupt, used by (e.g.) Darwin time adapter
 		SIGUSR1,  // user defined
-		SIGUSR2,  // user defined
+		0,
 		0
 	  };
 
 	//
 	// Generate the mask
 	//
-	int errnum = sigemptyset(&m_sigset);
+	int errnum = sigemptyset(&m_workerSigset);
 	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeSignalHandling", " sigemptyset returned " << errnum);
+	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigemptyset returned " << errnum);
 	  return false;
 	}
 	for (m_nBlockedSignals = 0;
@@ -654,38 +680,103 @@ namespace PLEXIL
 		 m_nBlockedSignals++) {
 	  int sig = signumsToIgnore[m_nBlockedSignals];
 	  m_blockedSignals[m_nBlockedSignals] = sig; // save to restore it later
-	  errnum = sigaddset(&m_sigset, sig);
+	  errnum = sigaddset(&m_workerSigset, sig);
 	  if (errnum != 0) {
-		debugMsg("ExecApplication:initializeSignalHandling", " sigaddset returned " << errnum);
+		debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaddset returned " << errnum);
 		return false;
 	  }
 	}
 	// Set the mask for this thread
-	errnum = pthread_sigmask(SIG_BLOCK, &m_sigset, &m_restoreSigset);
+	errnum = pthread_sigmask(SIG_BLOCK, &m_workerSigset, &m_restoreWorkerSigset);
 	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeSignalHandling", " pthread_sigmask returned " << errnum);
+	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " pthread_sigmask returned " << errnum);
 	  return false;
 	}
-	   
-	debugMsg("ExecApplication:initializeSignalHandling", " complete");
+
+	// Add a handler for SIGUSR2 for killing the thread
+	struct sigaction sa;
+	sigemptyset(&sa.sa_mask); // *** is this enough?? ***
+	sa.sa_flags = 0;
+	sa.sa_handler = emergencyStop;
+
+	errnum = sigaction(SIGUSR2, &sa, &m_restoreUSR2Handler);
+	if (errnum != 0) {
+	  debugMsg("TimingService:initializeWorkerSignalHandling", " sigaction returned " << errnum);
+	  return errnum;
+	}
+
+	debugMsg("ExecApplication:initializeWorkerSignalHandling", " complete");
 	return true;
   }
 
-  bool ExecApplication::restoreSignalHandling()
+  bool ExecApplication::restoreWorkerSignalHandling()
   {
+	//
+	// Restore old SIGUSR2 handler
+	// 
+	int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, NULL);
+	if (errnum != 0) {
+	  debugMsg("TimingService:restoreWorkerSignalHandling", " sigaction returned " << errnum);
+	  return errnum;
+	}
+
 	//
 	// Restore old mask
 	//
-	int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreSigset, NULL);
+	errnum = pthread_sigmask(SIG_SETMASK, &m_restoreWorkerSigset, NULL);
 	if (errnum != 0) { 
-	  debugMsg("ExecApplication:restoreSignalHandling", " failed; sigprocmask returned " << errnum);
+	  debugMsg("ExecApplication:restoreWorkerSignalHandling", " failed; sigprocmask returned " << errnum);
 	  return false;
 	}
 
 	// flag as complete
 	m_nBlockedSignals = 0;
 
-	debugMsg("ExecApplication:restoreSignalHandling", " complete");
+	debugMsg("ExecApplication:restoreWorkerSignalHandling", " complete");
+	return true;
+  }
+
+  // Prevent the main thread from seeing the worker loop kill signal.
+
+  bool ExecApplication::initializeMainSignalHandling()
+  {
+	//
+	// Generate the mask
+	//
+	int errnum = sigemptyset(&m_mainSigset);
+	if (errnum != 0) {
+	  debugMsg("ExecApplication:initializeMainSignalHandling", " sigemptyset returned " << errnum);
+	  return false;
+	}
+	errnum = sigaddset(&m_mainSigset, SIGUSR2);
+	if (errnum != 0) {
+	  debugMsg("ExecApplication:initializeMainSignalHandling", " sigaddset returned " << errnum);
+	  return false;
+	}
+
+	// Set the mask for this thread
+	errnum = pthread_sigmask(SIG_BLOCK, &m_mainSigset, &m_restoreMainSigset);
+	if (errnum != 0) {
+	  debugMsg("ExecApplication:initializeMainSignalHandling", " pthread_sigmask returned " << errnum);
+	  return false;
+	}
+
+	debugMsg("ExecApplication:initializeMainSignalHandling", " complete");
+	return true;
+  }
+
+  bool ExecApplication::restoreMainSignalHandling()
+  {
+	//
+	// Restore old mask
+	//
+	int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, NULL);
+	if (errnum != 0) { 
+	  debugMsg("ExecApplication:restoreMainSignalHandling", " failed; sigprocmask returned " << errnum);
+	  return false;
+	}
+
+	debugMsg("ExecApplication:restoreMainSignalHandling", " complete");
 	return true;
   }
 
