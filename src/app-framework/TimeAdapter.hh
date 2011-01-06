@@ -28,7 +28,8 @@
 #define TIME_ADAPTER_H
 
 #include <unistd.h>
-#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L)
+// sigh, Android only defines _POSIX_TIMERS as 1
+#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
 // POSIX timers are supported
 #define TIME_ADAPTER_CLASS PosixTimeAdapter
 #include "PosixTimeAdapter.hh"
