@@ -30,6 +30,5 @@ using namespace PLEXIL;
 
 int main (int argc, char** argv)
 {
-  ExecTestRunner runner;
-  return runner.run (argc, argv);
+  ExecTestRunner::run(argc, argv);
 }

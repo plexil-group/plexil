@@ -29,8 +29,6 @@
 
 namespace PLEXIL {
 
-class ExecListener;
-
 /*
    * @brief This class provides the mechanism to run the Plexil application
    * called "Test Executive", which executes a plan in lock step with a
@@ -38,11 +36,15 @@ class ExecListener;
 */
 class ExecTestRunner 
 {
- public:
-  // using default constructor, destructor, assignment, and copy methods
-  
+public:
   /* @brief Run the Test Executive with arguments passed in the command line. */
-  int run (int argc, char** argv, const ExecListener* = 0);
+  static int run (int argc, char** argv);
+
+private:
+  // You may not instantiate this class!
+  ExecTestRunner();
+  ExecTestRunner(const ExecTestRunner&);
+  ExecTestRunner& operator=(const ExecTestRunner&);
 };
 
 }

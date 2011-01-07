@@ -49,7 +49,7 @@ using std::vector;
 
 namespace PLEXIL {
 
-int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener) 
+int ExecTestRunner::run(int argc, char** argv) 
 {
   string scriptName("error");
   string planName("error");
@@ -300,10 +300,6 @@ int ExecTestRunner::run(int argc, char** argv, const ExecListener* listener)
 	warn("Adding plan " << planName << " failed");
 	return -1;
   }
-
-  // Add listener if specified
-  if (listener)
-    ((PlexilExec*) exec)->addListener(listener->getId());
 
   // load script
 
