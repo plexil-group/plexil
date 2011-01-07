@@ -30,8 +30,8 @@
 
 using std::list;
 using std::cout;
-using std::cerr;
 using std::endl;
+using std::flush;
 
 namespace PLEXIL {
 
@@ -40,9 +40,9 @@ static void print_aux (const list<double>& args, bool pretty)
   for (list<double>::const_iterator iter = args.begin();
        iter != args.end();
        iter++) {
-    cout << Expression::valueToString(*iter) << (pretty ? " " : "");
+    cout << Expression::valueToString(*iter) << (pretty ? " " : "") << flush;
   }
-  if (pretty) cout << endl;
+  if (pretty) cout << endl << flush;
 }
 
 void print (const list<double>& args)
