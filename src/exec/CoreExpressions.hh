@@ -88,6 +88,12 @@ namespace PLEXIL {
     void setValue(const double value);
 
     /**
+     * @brief Set the value of this expression back to the initial value with which it was
+     *        created.
+     */
+    void reset();
+
+    /**
      * @brief Set one element of this array from the given value.
      * @note Value must be an array or UNKNOWN.
      * @note Index must be less than maximum length
@@ -121,6 +127,7 @@ namespace PLEXIL {
   private:
     size_t              m_maxSize;
     PlexilType          m_type;
+    std::vector<double>	m_initialVector;
 
     /**
      * @brief Check to make sure a value is appropriate for this variable.

@@ -43,7 +43,10 @@ namespace PLEXIL
   ArrayVariable::ArrayVariable(unsigned maxSize,
 			       PlexilType type,
                                const bool isConst)
-    : Variable(isConst), m_maxSize(maxSize), m_type(type)
+    : Variable(isConst),
+      m_maxSize(maxSize), 
+      m_type(type),
+      m_initialVector()
   {
     debugMsg("ArrayVariable", " constructor, no initial elements");
     StoredArray array(m_maxSize, Expression::UNKNOWN());
@@ -54,7 +57,10 @@ namespace PLEXIL
 			       PlexilType type, 
                                std::vector<double>& values, 
 			       const bool isConst)
-    : Variable(isConst), m_maxSize(maxSize), m_type(type)
+    : Variable(isConst),
+      m_maxSize(maxSize),
+      m_type(type),
+      m_initialVector(values)
   {
     debugMsg("ArrayVariable", " constructor, " << values.size() << " initial elements");
     StoredArray array(m_maxSize, Expression::UNKNOWN());
@@ -81,38 +87,31 @@ namespace PLEXIL
     setValue(array.getKey());
 
     // convert strings to doubles for internal storage
-    std::vector<double> convertedValues;
     const std::vector<std::string>& values = arrayValue->values();
-
     for (std::vector<std::string>::const_iterator value = values.begin();
-         value != values.end(); ++value)
-      {
-        double convertedValue;
-        if (m_type == STRING)
-          convertedValue = (double)LabelStr(*value);
-        else if (m_type == BOOLEAN)
-          {
-            if (compareIgnoreCase(*value, "true") || 
-                (strcmp(value->c_str(), "1") == 0))
-              convertedValue = 1;
-            else if (compareIgnoreCase(*value, "false") || 
-                     (strcmp(value->c_str(), "0") == 0))
-              convertedValue = 0;
-            else
-              checkError(false, "Invalid boolean value \"" << *value << "\"");
-          }
-        else
-          {
-            std::istringstream valueStream(*value);
-            valueStream >> convertedValue;
-          }
-        convertedValues.push_back(convertedValue);
+         value != values.end(); ++value) {
+      double convertedValue;
+      if (m_type == STRING)
+	convertedValue = (double)LabelStr(*value);
+      else if (m_type == BOOLEAN) {
+	if (compareIgnoreCase(*value, "true") || 
+	    (strcmp(value->c_str(), "1") == 0))
+	  convertedValue = 1;
+	else if (compareIgnoreCase(*value, "false") || 
+		 (strcmp(value->c_str(), "0") == 0))
+	  convertedValue = 0;
+	else
+	  checkError(false, "Invalid boolean value \"" << *value << "\"");
       }
+      else {
+	std::istringstream valueStream(*value);
+	valueStream >> convertedValue;
+      }
+      m_initialVector.push_back(convertedValue);
+    }
 
-    // set values
-
-    setValues(convertedValues);
-    m_initialValue = m_value;
+    // Store the converted values
+    setValues(m_initialVector);
   }
 
   // 
@@ -123,9 +122,36 @@ namespace PLEXIL
   ArrayVariable::~ArrayVariable()
   {
     StoredArray theArray(m_value);
+    m_value = Expression::UNKNOWN();
     theArray.unregister();
   }
 
+
+  /**
+   * @brief Set the value of this expression back to the initial value with which it was
+   *        created.
+   */
+  void ArrayVariable::reset()
+  {
+    // Check that array storage is allocated
+    if (m_value == Expression::UNKNOWN()) {
+      // Reallocate to original size
+      // N.B. can only get here if array var was assigned UNKNOWN somehow
+      StoredArray newArray(m_maxSize, Expression::UNKNOWN());
+      m_value = newArray.getKey();
+    }
+
+    if (m_initialVector.empty()) {
+      // Clear the array
+      StoredArray myArray(m_value);
+      for (size_t i = 0; i < myArray.size(); i++)
+	myArray[i] = Expression::UNKNOWN();
+      publishChange();
+    }
+    else {
+      setValues(m_initialVector);
+    }
+  }
 
   // set the value of this array
 
