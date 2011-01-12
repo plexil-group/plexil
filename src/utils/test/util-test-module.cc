@@ -88,7 +88,7 @@
       throw Error::GeneralUnknownError(); \
     } \
   } \
-  catch (Error err) { \
+  catch (Error &err) { \
     err.print(std::cout); \
   } \
 }
@@ -101,7 +101,7 @@
   else \
     std::cout << #test << " FAILED." << std::endl; \
   }\
-  catch (Error err){\
+  catch (Error &err){\
    err.print(std::cout);\
   }\
   }
@@ -146,7 +146,7 @@ private:
       warn("Warning messages working");
       Error::setStream(std::cerr);
     } 
-    catch (Error e) {
+    catch (Error &e) {
       __x__(e);
       success = false;
     }
@@ -160,7 +160,7 @@ private:
       __y__("check_error(var == 2) did not throw an exception");
       success = false;
     } 
-    catch (Error e) {
+    catch (Error &e) {
       Error::doDisplayErrors();
       __z__(e, Error("var == 2", __FILE__, __LINE__ - 5), success);
     }
@@ -170,7 +170,7 @@ private:
       __y__("check_error(var == 2, blah) did not throw an exception");
       success = false;
     } 
-    catch (Error e) {
+    catch (Error &e) {
       Error::doDisplayErrors();
       __z__(e, Error("var == 2", "check_error(var == 2)", __FILE__, __LINE__ - 5), success);
     }
@@ -180,7 +180,7 @@ private:
       __y__("check_error(var == 2, Error(blah)) did not throw an exception");
       success = false;
     } 
-    catch (Error e) {
+    catch (Error &e) {
       Error::doDisplayErrors();
       __z__(e, Error("var == 2", "check_error(var == 2)", __FILE__, __LINE__ - 5), success);
     }
@@ -190,7 +190,7 @@ private:
       __y__("check_error(var == 2, TestError::BadThing()) did not throw an exception");
       success = false;
     }
-    catch (Error e) {
+    catch (Error &e) {
       Error::doDisplayErrors();
       //!!Should, perhaps, be:
       //__z__(e, Error(TestError::BadThing(), __FILE__, __LINE__ - 7), success);
@@ -511,7 +511,7 @@ bool IdTests::testBadAllocationErrorHandling()
     assertTrue(false, "Id<Foo> fId0((Foo*) 0); failed to error out.");
     success = false;
   }
-  catch (Error e) {
+  catch (Error &e) {
     Error::doDisplayErrors();
     // Path of Id.hh may vary depending on where test is run from.
     // Match only the filename and not the full path
@@ -685,12 +685,12 @@ bool IdTests::testBadIdUsage() {
     assertTrue(false, "Id<Bing> bingId = barId; failed to error out.");
     success = false;
   }
-  catch (Error e) {
+  catch (Error &e) {
     Error::doDisplayErrors();
     if (e.getType() == "Error")
       assertTrue(false);
   }
-  catch (IdErr idErr) {
+  catch (IdErr &idErr) {
     Error::doDisplayErrors();
     std::cerr << "Caught expected IdErr::IdMgrInvalidItemPtrError" << std::endl;
     // No operator==() implemented ...
@@ -859,7 +859,7 @@ class StoredArrayTests
 		  }
 	      }
 	  }
-	catch (Error e)
+	catch (Error &e)
 	  {
             std::cout << "Caught expected exception: ";
             e.print(std::cout);
