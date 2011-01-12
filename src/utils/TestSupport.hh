@@ -52,7 +52,7 @@
       throw Error::GeneralUnknownError(); \
     } \
   } \
-  catch (Error err){ \
+  catch (Error &err){ \
    err.print(std::cout); \
   }\
   }
@@ -65,7 +65,7 @@
   else \
     std::cout << #test << " FAILED." << std::endl; \
   }\
-  catch (Error err){\
+  catch (Error &err){\
    err.print(std::cout);\
   }\
   }
