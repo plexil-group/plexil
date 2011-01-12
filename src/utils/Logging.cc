@@ -44,32 +44,43 @@ int Logging::ENABLE_LOGGING = 0; // enable messages to log file
 int Logging::ENABLE_E_PROMPT = 0; // enable error prompt messages
 int Logging::ENABLE_W_PROMPT = 0; // enable warning prompt messages
 
-char * Logging::LOG_TIME = "";
 int Logging::NEW_LOG_SESSION = 1;
-char * Logging::FILE_NAME = "";
 
-int Logging::handle_message(int msg_type, const char * file, int line, const char * msg) {
-        char fullmsg[1024];
-        sprintf(fullmsg, "%s: %s:%i: %s", get_msg_type(msg_type), file, line, msg);
-
-	switch (msg_type) {
-	case ERROR:
-		print_error(fullmsg);
-		break;
-	case WARNING:
-	        print_warning(fullmsg);
-		break;
-        default:
-		print_unknown(fullmsg);
-		break;
-	}
-
-	return 0;
+//* Allocate and return a copy of the given string.
+char* allocateCopy(const char* str)
+{
+  size_t len = strlen(str);
+  char* result = (char*) new char[len+1];
+  strcpy(result, str);
+  return result;
 }
 
-int Logging::print_error(char * fullmsg) {
+char Logging::LOG_TIME[26] = "";
+char * Logging::FILE_NAME = allocateCopy("universalexec.log");
+
+int Logging::handle_message(int msg_type, const char * file, int line, const char * msg) 
+{
+  char fullmsg[1024];
+  snprintf(fullmsg, 1024, "%s: %s:%i: %s", get_msg_type(msg_type), file, line, msg);
+
+  switch (msg_type) {
+  case ERROR:
+	print_error(fullmsg);
+	break;
+  case WARNING:
+	print_warning(fullmsg);
+	break;
+  default:
+	print_unknown(fullmsg);
+	break;
+  }
+
+  return 0;
+}
+
+int Logging::print_error(const char * fullmsg) {
 	// write message to console
-        Error::getStream() << fullmsg << "\n";
+        Error::getStream() << fullmsg << '\n';
 
 	// write message to logfile if enabled
 	if (Logging::ENABLE_LOGGING)
@@ -82,9 +93,9 @@ int Logging::print_error(char * fullmsg) {
 	return 0;
 }
 
-int Logging::print_warning(char * fullmsg) {
+int Logging::print_warning(const char * fullmsg) {
 	// write message to console
-        Error::getStream() << fullmsg << "\n";
+        Error::getStream() << fullmsg << '\n';
 
 	// write message to logfile if enabled
 	if (Logging::ENABLE_LOGGING)
@@ -96,9 +107,9 @@ int Logging::print_warning(char * fullmsg) {
 	return 0;
 }
 
-void Logging::print_unknown(char * fullmsg) {
+void Logging::print_unknown(const char * fullmsg) {
 	// write message to console
-        Error::getStream() << fullmsg << "\n";
+        Error::getStream() << fullmsg << '\n';
 
 	if (Logging::ENABLE_LOGGING)
 		print_to_log(fullmsg);
@@ -157,13 +168,16 @@ void Logging::prompt_user() {
 	} while (1);
 }
 
-void Logging::set_log_file_name(char * file) {
-	if (file == NULL)
-		file = "universalexec.log";
-	Logging::FILE_NAME = file;
+void Logging::set_log_file_name(const char * file) 
+{
+  if (file == NULL)
+	file = "universalexec.log";
+  char* oldFileName = FILE_NAME;
+  FILE_NAME = allocateCopy(file);
+  delete oldFileName;
 }
 
-char* Logging::get_msg_type(int msg) {
+const char* Logging::get_msg_type(int msg) {
 	switch (msg) {
 	case ERROR:
 		return "ERROR";
@@ -174,16 +188,16 @@ char* Logging::get_msg_type(int msg) {
 	}
 }
 
-void Logging::set_date_time() {
-	time_t rawtime;
-	struct tm * timeinfo;
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	Logging::LOG_TIME = asctime(timeinfo);
-	int i = 0;
-	while (Logging::LOG_TIME[i++] != '\n')
-		;
-	Logging::LOG_TIME[i - 1] = '\0';
+void Logging::set_date_time() 
+{
+  time_t rawtime;
+  struct tm * timeinfo;
+  time(&rawtime);
+  timeinfo = localtime(&rawtime);
+  strcpy(LOG_TIME, asctime(timeinfo));
+  char* retn = strchr(LOG_TIME, '\n');
+  if (retn != 0)
+	*retn = '\0';
 }
 
 #ifdef PLATFORM_HAS_EXECINFO_H
