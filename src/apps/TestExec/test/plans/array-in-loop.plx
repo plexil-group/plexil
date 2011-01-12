@@ -17,192 +17,167 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="While">
-               <NodeId>ep2cp_While_d1e33</NodeId>
+            <Node NodeType="NodeList" epx="For">
+               <NodeId>ep2cp_For_d1e33</NodeId>
                <VariableDeclarations>
                   <DeclareVariable>
-                     <Name>ep2cp_test</Name>
-                     <Type>Boolean</Type>
+                     <Name>i</Name>
+                     <Type>Integer</Type>
+                     <InitialValue>
+                        <IntegerValue>0</IntegerValue>
+                     </InitialValue>
                   </DeclareVariable>
                </VariableDeclarations>
                <NodeBody>
                   <NodeList>
                      <Node NodeType="NodeList" epx="aux">
-                        <NodeId>ep2cp_WhileBody</NodeId>
+                        <NodeId>ep2cp_ForLoop</NodeId>
+                        <RepeatCondition>
+                           <LT>
+                              <IntegerVariable>i</IntegerVariable>
+                              <IntegerValue>3</IntegerValue>
+                           </LT>
+                        </RepeatCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node NodeType="Assignment" epx="aux">
-                                 <NodeId>ep2cp_WhileSetup</NodeId>
-                                 <NodeBody>
-                                    <Assignment>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                       <BooleanRHS>
-                                          <BooleanValue>1</BooleanValue>
-                                       </BooleanRHS>
-                                    </Assignment>
-                                 </NodeBody>
-                              </Node>
                               <Node NodeType="NodeList" epx="aux">
-                                 <NodeId>ep2cp_WhileTrue</NodeId>
-                                 <StartCondition>
-                                    <AND>
-                                       <EQInternal>
-                                          <NodeStateVariable>
-                                             <NodeId>ep2cp_WhileSetup</NodeId>
-                                          </NodeStateVariable>
-                                          <NodeStateValue>FINISHED</NodeStateValue>
-                                       </EQInternal>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                    </AND>
-                                 </StartCondition>
-                                 <SkipCondition>
-                                    <NOT>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                    </NOT>
-                                 </SkipCondition>
-                                 <RepeatCondition>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </RepeatCondition>
+                                 <NodeId>ep2cp_ForDo</NodeId>
                                  <NodeBody>
                                     <NodeList>
-                                       <Node NodeType="NodeList" epx="aux">
-                                          <NodeId>ep2cp_WhileAction</NodeId>
+                                       <Node NodeType="NodeList" epx="Try">
+                                          <NodeId>A</NodeId>
+                                          <VariableDeclarations>
+                                             <DeclareArray>
+                                                <Name>array1</Name>
+                                                <Type>Integer</Type>
+                                                <MaxSize>5</MaxSize>
+                                             </DeclareArray>
+                                          </VariableDeclarations>
+                                          <PostCondition>
+                                             <AND>
+                                                <OR>
+                                                   <EQInternal>
+                                                      <NodeOutcomeVariable>
+                                                         <NodeId>BUG</NodeId>
+                                                      </NodeOutcomeVariable>
+                                                      <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                                                   </EQInternal>
+                                                   <EQInternal>
+                                                      <NodeOutcomeVariable>
+                                                         <NodeId>plexilisp_Name_1</NodeId>
+                                                      </NodeOutcomeVariable>
+                                                      <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                                                   </EQInternal>
+                                                </OR>
+                                             </AND>
+                                          </PostCondition>
+                                          <EndCondition>
+                                             <OR>
+                                                <EQInternal>
+                                                   <NodeOutcomeVariable>
+                                                      <NodeId>BUG</NodeId>
+                                                   </NodeOutcomeVariable>
+                                                   <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                                                </EQInternal>
+                                                <EQInternal>
+                                                   <NodeOutcomeVariable>
+                                                      <NodeId>plexilisp_Name_1</NodeId>
+                                                   </NodeOutcomeVariable>
+                                                   <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                                                </EQInternal>
+                                                <AND>
+                                                   <EQInternal>
+                                                      <NodeStateVariable>
+                                                         <NodeId>BUG</NodeId>
+                                                      </NodeStateVariable>
+                                                      <NodeStateValue>FINISHED</NodeStateValue>
+                                                   </EQInternal>
+                                                   <EQInternal>
+                                                      <NodeStateVariable>
+                                                         <NodeId>plexilisp_Name_1</NodeId>
+                                                      </NodeStateVariable>
+                                                      <NodeStateValue>FINISHED</NodeStateValue>
+                                                   </EQInternal>
+                                                </AND>
+                                             </OR>
+                                          </EndCondition>
                                           <NodeBody>
                                              <NodeList>
-                                                <Node NodeType="NodeList" epx="Try">
-                                                   <NodeId>A</NodeId>
-                                                   <VariableDeclarations>
-                                                      <DeclareArray>
-                                                         <Name>array1</Name>
-                                                         <Type>Integer</Type>
-                                                         <MaxSize>5</MaxSize>
-                                                      </DeclareArray>
-                                                   </VariableDeclarations>
-                                                   <PostCondition>
-                                                      <AND>
-                                                         <OR>
-                                                            <EQInternal>
-                                                               <NodeOutcomeVariable>
-                                                                  <NodeId>BUG</NodeId>
-                                                               </NodeOutcomeVariable>
-                                                               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                                            </EQInternal>
-                                                            <EQInternal>
-                                                               <NodeOutcomeVariable>
-                                                                  <NodeId>plexilisp_Name_1</NodeId>
-                                                               </NodeOutcomeVariable>
-                                                               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                                            </EQInternal>
-                                                         </OR>
-                                                      </AND>
-                                                   </PostCondition>
-                                                   <EndCondition>
-                                                      <OR>
-                                                         <EQInternal>
-                                                            <NodeOutcomeVariable>
-                                                               <NodeId>BUG</NodeId>
-                                                            </NodeOutcomeVariable>
-                                                            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                                         </EQInternal>
-                                                         <EQInternal>
-                                                            <NodeOutcomeVariable>
-                                                               <NodeId>plexilisp_Name_1</NodeId>
-                                                            </NodeOutcomeVariable>
-                                                            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                                         </EQInternal>
-                                                         <AND>
-                                                            <EQInternal>
-                                                               <NodeStateVariable>
-                                                                  <NodeId>BUG</NodeId>
-                                                               </NodeStateVariable>
-                                                               <NodeStateValue>FINISHED</NodeStateValue>
-                                                            </EQInternal>
-                                                            <EQInternal>
-                                                               <NodeStateVariable>
-                                                                  <NodeId>plexilisp_Name_1</NodeId>
-                                                               </NodeStateVariable>
-                                                               <NodeStateValue>FINISHED</NodeStateValue>
-                                                            </EQInternal>
-                                                         </AND>
-                                                      </OR>
-                                                   </EndCondition>
+                                                <Node NodeType="Assignment">
+                                                   <NodeId>BUG</NodeId>
+                                                   <PreCondition>
+                                                      <NOT>
+                                                         <IsKnown>
+                                                            <ArrayElement>
+                                                               <Name>array1</Name>
+                                                               <Index>
+                                                                  <IntegerValue>0</IntegerValue>
+                                                               </Index>
+                                                            </ArrayElement>
+                                                         </IsKnown>
+                                                      </NOT>
+                                                   </PreCondition>
                                                    <NodeBody>
-                                                      <NodeList>
-                                                         <Node NodeType="Assignment">
-                                                            <NodeId>BUG</NodeId>
-                                                            <PreCondition>
-                                                               <NOT>
-                                                                  <IsKnown>
-                                                                     <ArrayElement>
-                                                                        <Name>array1</Name>
-                                                                        <Index>
-                                                                           <IntegerValue>0</IntegerValue>
-                                                                        </Index>
-                                                                     </ArrayElement>
-                                                                  </IsKnown>
-                                                               </NOT>
-                                                            </PreCondition>
-                                                            <NodeBody>
-                                                               <Assignment>
-                                                                  <ArrayElement>
-                                                                     <Name>array1</Name>
-                                                                     <Index>
-                                                                        <IntegerValue>0</IntegerValue>
-                                                                     </Index>
-                                                                  </ArrayElement>
-                                                                  <NumericRHS>
-                                                                     <IntegerValue>1</IntegerValue>
-                                                                  </NumericRHS>
-                                                               </Assignment>
-                                                            </NodeBody>
-                                                         </Node>
-                                                         <Node NodeType="Assignment">
-                                                            <NodeId>plexilisp_Name_1</NodeId>
-                                                            <StartCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeId>BUG</NodeId>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                               </AND>
-                                                            </StartCondition>
-                                                            <NodeBody>
-                                                               <Assignment>
-                                                                  <BooleanVariable>success</BooleanVariable>
-                                                                  <BooleanRHS>
-                                                                     <BooleanValue>0</BooleanValue>
-                                                                  </BooleanRHS>
-                                                               </Assignment>
-                                                            </NodeBody>
-                                                         </Node>
-                                                      </NodeList>
+                                                      <Assignment>
+                                                         <ArrayElement>
+                                                            <Name>array1</Name>
+                                                            <Index>
+                                                               <IntegerValue>0</IntegerValue>
+                                                            </Index>
+                                                         </ArrayElement>
+                                                         <NumericRHS>
+                                                            <IntegerValue>1</IntegerValue>
+                                                         </NumericRHS>
+                                                      </Assignment>
+                                                   </NodeBody>
+                                                </Node>
+                                                <Node NodeType="Assignment">
+                                                   <NodeId>plexilisp_Name_1</NodeId>
+                                                   <StartCondition>
+                                                      <AND>
+                                                         <EQInternal>
+                                                            <NodeStateVariable>
+                                                               <NodeId>BUG</NodeId>
+                                                            </NodeStateVariable>
+                                                            <NodeStateValue>FINISHED</NodeStateValue>
+                                                         </EQInternal>
+                                                      </AND>
+                                                   </StartCondition>
+                                                   <NodeBody>
+                                                      <Assignment>
+                                                         <BooleanVariable>success</BooleanVariable>
+                                                         <BooleanRHS>
+                                                            <BooleanValue>0</BooleanValue>
+                                                         </BooleanRHS>
+                                                      </Assignment>
                                                    </NodeBody>
                                                 </Node>
                                              </NodeList>
                                           </NodeBody>
                                        </Node>
-                                       <Node NodeType="Assignment" epx="aux">
-                                          <NodeId>ep2cp_WhileRetest</NodeId>
-                                          <StartCondition>
-                                             <EQInternal>
-                                                <NodeStateVariable>
-                                                   <NodeId>ep2cp_WhileAction</NodeId>
-                                                </NodeStateVariable>
-                                                <NodeStateValue>FINISHED</NodeStateValue>
-                                             </EQInternal>
-                                          </StartCondition>
-                                          <NodeBody>
-                                             <Assignment>
-                                                <BooleanVariable>ep2cp_test</BooleanVariable>
-                                                <BooleanRHS>
-                                                   <BooleanValue>1</BooleanValue>
-                                                </BooleanRHS>
-                                             </Assignment>
-                                          </NodeBody>
-                                       </Node>
                                     </NodeList>
+                                 </NodeBody>
+                              </Node>
+                              <Node NodeType="Assignment" epx="aux">
+                                 <NodeId>ep2cp_ForLoopUpdater</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>ep2cp_ForDo</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                                 <NodeBody>
+                                    <Assignment>
+                                       <IntegerVariable>i</IntegerVariable>
+                                       <NumericRHS>
+                                          <ADD>
+                                             <IntegerVariable>i</IntegerVariable>
+                                             <IntegerValue>1</IntegerValue>
+                                          </ADD>
+                                       </NumericRHS>
+                                    </Assignment>
                                  </NodeBody>
                               </Node>
                            </NodeList>

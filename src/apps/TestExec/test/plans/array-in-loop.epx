@@ -15,10 +15,28 @@
     <InvariantCondition>
       <BooleanVariable>success</BooleanVariable>
     </InvariantCondition>
-    <While>
+    <For>
+      <LoopVariable>
+        <DeclareVariable>
+          <Name>i</Name>
+          <Type>Integer</Type>
+          <InitialValue>
+            <IntegerValue>0</IntegerValue>
+          </InitialValue>
+        </DeclareVariable>
+      </LoopVariable>
       <Condition>
-        <BooleanValue>1</BooleanValue>
+        <LT>
+          <IntegerVariable>i</IntegerVariable>
+          <IntegerValue>3</IntegerValue>
+        </LT>
       </Condition>
+      <LoopVariableUpdate>
+        <ADD>
+          <IntegerVariable>i</IntegerVariable>
+          <IntegerValue>1</IntegerValue>
+        </ADD>
+      </LoopVariableUpdate>
       <Action>
         <Try>
           <NodeId>A</NodeId>
@@ -70,6 +88,6 @@
           </Node>
         </Try>
       </Action>
-    </While>
+    </For>
   </Concurrence>
 </PlexilPlan>
