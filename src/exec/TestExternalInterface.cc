@@ -455,15 +455,15 @@ namespace PLEXIL
     debugMsg("Test:testOutput", "Looking up immediately "
              << StateCache::toString(state));
     m_statesByKey.insert(std::make_pair(key, state));
-    StateMap::iterator it = m_states.find(state);
-    if (it == m_states.end())
-      {
+    StateMap::const_iterator it = m_states.find(state);
+    if (it == m_states.end()) {
         debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
         it = m_states.insert(
                              std::make_pair(state, Expression::UNKNOWN())).first;
       }
-    debugMsg("Test:testOutput", "Returning value " << m_states[state]);
-    double value = m_states[state];
+    double value = it->second;
+    debugMsg("Test:testOutput", "Returning value "
+			 << Expression::valueToString(value));
     if (dest.size() < 1)
       dest.push_back(value);
     else
