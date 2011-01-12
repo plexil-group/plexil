@@ -48,7 +48,8 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  test-node-name-scope test-repeat-condition \
  variables1 \
  whitespace1 \
- uninitialized-assignment
+ uninitialized-assignment \
+ array-in-loop
 
 LIBRARY_TESTS	:= library-call-with-array
 
