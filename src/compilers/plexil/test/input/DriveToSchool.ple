@@ -19,20 +19,22 @@ DriveToSchool:
 {
   StartCar:
   {
-    Try {
+    Try
+    {
       KeyStart:
       {
         PostCondition Lookup (car_started);
         PrimeAccelerator:
         {
-          for ( Integer count = 0; count < 3; count + 1 ) {
+          for ( Integer count = 0; count < 3; count + 1 )
+          {
             PressAccelerator: { depress_accelerator(); }
           }
         }
       }
-            
-      TurnKeyCombo:
-      Concurrence {
+
+      TurnKeyCombo: Concurrence 
+      {
         // Depress clutch while turning key
         DepressClutch: { depress_clutch(); }	      
         TurnKey:  
@@ -44,7 +46,8 @@ DriveToSchool:
         }	      	    
       }
 
-      PushStart: {
+      PushStart:
+      {
         PostCondition Lookup (car_started);
         push_start();
       }
@@ -61,21 +64,24 @@ DriveToSchool:
   DriveUntilAtSchool:
   {
     while ( !Lookup (at_school) )
-    Concurrence {
-       HandleRain:
-       {
-         if ( Lookup (raining) )
-           Concurrence {
-             Wipers: { turn_on_wipers(); }
-             Lights: { turn_on_lights(); }
-           }
-         endif
-       }
-       DriveABit:
-       {
-         EndCondition Lookup (at_school);
-         drive_a_bit();
-       }    
-     }  // end of While Loop
-   } // end of DriveUntilAtSchool
-}
+    KeepDriving: Concurrence
+    {
+      HandleRain:
+      {
+        if ( Lookup (raining) )
+          Concurrence
+          {
+            Wipers: { turn_on_wipers(); }
+            Lights: { turn_on_lights(); }
+          }
+        endif
+      }
+
+      DriveABit:
+      {
+        EndCondition Lookup (at_school);
+        drive_a_bit();
+      }    
+    }  // end of KeepDriving
+  } // end of DriveUntilAtSchool
+} // end of DriveToSchool
