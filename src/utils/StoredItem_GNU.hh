@@ -51,12 +51,13 @@
 // Location of the required include files depends on the libstdc++ version.
 # if defined (__GLIBCXX__)
 // +++ ADD LATEST REVISIONS HERE +++
-#  if __GLIBCXX__ >= 20080306 && __GLIBCXX__ != 20080519
+#  if __GLIBCXX__ >= 20080306 && __GLIBCXX__ != 20080519 && __GLIBCXX__ != 20080704
 // GCC 4.3.0 (20080306) through at least 4.5.2
 #   include <backward/hash_map>
 #   include <backward/hash_fun.h>
 #  else
 // GCC 3.4.0 through 4.2.4 (20080519)
+// Red Hat uses a bastard version of 4.1.2 (20080704)
 #   include <ext/hash_map>
 #   include <ext/hash_fun.h>
 #  endif
