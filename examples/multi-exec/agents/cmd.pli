@@ -20,7 +20,7 @@
         (if (boolvar "runtime-error")
             ;; Working with no error...
             (sequence "error-sequence"
-              (assignment (array-element "actual" 0) 0) ;for use iin the end-condition
+              (assignment (array-element "actual" 0) 0) ;for use in the end-condition
               (action "get-states"
                 (end-condition (not (= (array-element "actual" 0) 0)))
                 (command-with-return (arrayvar "actual") "get-current-state" (intvar "period"))))
