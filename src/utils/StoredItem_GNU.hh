@@ -35,42 +35,11 @@
  * @ingroup Utils
  */
 
+#include "GNU_hash_map.hh"
 #include "KeySource.hh"
 
 #ifndef STORED_ITEM_NO_MUTEX
 #include "ThreadMutex.hh"
-#endif
-
-// Which files are included is dependent on the version of the 
-// GNU libstdc++ installation, not the compiler.
-// The macro __GLIBCXX__ (or __GLIBCPP__ for older versions) contains that information.
-
-#ifdef PLEXIL_ANDROID
-// Oddball Android 2.2 (maybe earlier as well)
-# define _GLIBCXX_PERMIT_BACKWARD_HASH 1
-# include <ext/hash_map>
-# include <backward/hash_fun.h>
-#else
-// Location of the required include files depends on the libstdc++ version.
-# if defined (__GLIBCXX__)
-// +++ ADD LATEST REVISIONS HERE +++
-#  if __GLIBCXX__ >= 20080306 && __GLIBCXX__ != 20080519 && __GLIBCXX__ != 20080704
-// GCC 4.3.0 (20080306) through at least 4.5.2
-#   include <backward/hash_map>
-#   include <backward/hash_fun.h>
-#  else
-// GCC 3.4.0 through 4.2.4 (20080519)
-// Red Hat uses a bastard version of 4.1.2 (20080704)
-#   include <ext/hash_map>
-#   include <ext/hash_fun.h>
-#  endif
-# elif defined (__GLIBCPP__)
-// GCC 3.00 through 3.3.6 (20050503)
-#  include <ext/hash_map>
-#  include <ext/stl_hash_fun.h>
-# else
-#  error "Unable to determine GNU libstdc++ version."
-# endif // defined (__GLIBCXX__)
 #endif
 
 namespace PLEXIL
