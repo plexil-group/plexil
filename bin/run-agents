@@ -241,7 +241,7 @@ fi
 if [ "$ipc_running" = "" ] ;
 then
     echo "Starting IPC..."
-    xterm ipc &
+    xterm -g 164x20 -T "IPC" ipc &
     sleep 2;
 else
     echo " " ; echo "IPC already running..."
