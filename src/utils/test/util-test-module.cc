@@ -263,6 +263,41 @@ private:
   }
 };
 
+class MutexTest
+{
+public:
+  static bool test()
+  {
+    runTest(testGuard);
+    return true;
+  }
+
+  static bool testGuard()
+  {
+    bool result = true;
+    ThreadMutex m;
+    try {
+      ThreadMutexGuard mg(m);
+      Error::doThrowExceptions();
+      assertTrue(0 == 1, "This assertion is supposed to fail");
+      std::cout << "ERROR: Failed to throw exception" << std::endl;
+      result = false;
+    }
+    catch (Error& e) {
+      std::cout << "Caught expected exception" << std::endl;
+      if (m.trylock())
+	result = result && true;
+      else {
+	std::cout << "Throwing failed to run guard destructor" << std::endl;
+	result = false;
+      }
+      m.unlock();
+    }
+    return result;
+  }
+
+};
+
 /**
  * Support classes to enable testing
  * Foo: Basic allocation and deallocation.
@@ -840,7 +875,8 @@ class StoredArrayTests
 
       static bool testKeyspace()
       {
-	size_t keySpace = KeySource<uint16_t>::totalKeys();
+#define KEYSPACE_KEY_T uint8_t	
+	size_t keySpace = KeySource<KEYSPACE_KEY_T>::totalKeys();
 	std::cout << "key space: " << keySpace << std::endl;
 	try
 	  {
@@ -849,12 +885,12 @@ class StoredArrayTests
             for (size_t i = 0; i < keySpace + 1; ++i)
 	      {
 		double j = 7;
-		StoredItem<uint16_t, double> x(j);
+		StoredItem<KEYSPACE_KEY_T, double> x(j);
 		// cut down on output a bit
 		if ((i & 0xFF) == 0)
 		  {
 		    std::cout << "created key: " << (i + 1)
-			      << " available: " << KeySource<uint16_t>::availableKeys()
+			      << " available: " << KeySource<KEYSPACE_KEY_T>::availableKeys()
 			      << "\r" << std::flush;
 		  }
 	      }
@@ -865,11 +901,11 @@ class StoredArrayTests
             e.print(std::cout);
 	    // cleanup
 	    std::cout << "\nCleaning up...";
-	    for (size_t i = KeySource<uint16_t>::keyMin(); i < KeySource<uint16_t>::keyMax(); ++i)
+	    for (size_t i = KeySource<KEYSPACE_KEY_T>::keyMin(); i < KeySource<KEYSPACE_KEY_T>::keyMax(); ++i)
 	      {
-		if (!StoredItem<uint16_t, double>::isKey(i))
+		if (!StoredItem<KEYSPACE_KEY_T, double>::isKey(i))
 		  break;
-		StoredItem<uint16_t, double>x(i);
+		StoredItem<KEYSPACE_KEY_T, double>x(i);
 		x.unregister();
 	      }
             std::cout << " done." << std::endl;
@@ -878,6 +914,7 @@ class StoredArrayTests
 
 	// should never get here
 	return false;
+#undef KEYSPACE_KEY_T
       }
 
       
@@ -1177,6 +1214,7 @@ void UtilModuleTests::runTests(std::string /* path */) {
   
   runTestSuite(ErrorTest::test);
   runTestSuite(DebugTest::test);
+  runTestSuite(MutexTest::test);
   runTestSuite(IdTests::test);
   runTestSuite(StoredArrayTests::test);
   runTestSuite(LabelTests::test);
