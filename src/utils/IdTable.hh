@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,18 +37,6 @@
 //  ownership of the software is hereby transferred.  This notice shall
 //  remain on all copies of the software.
 
-#ifndef _H_IdTable
-#define _H_IdTable
-
-#include <map>
-#include <stdint.h> // for uintptr_t
-#include "ThreadMutex.hh"
-
-#ifdef ID_TABLE_DEBUG
-#include <iostream>
-#include <string>
-#endif
-
 /**
  * @file IdTable.hh
  * @author Conor McGann
@@ -56,6 +44,19 @@
  * @date  July, 2003
  * @see Id, IdManager
 */
+
+#ifndef _H_IdTable
+#define _H_IdTable
+
+#include <stdint.h> // for uintptr_t
+
+#include "generic_hash_map.hh"
+#include "ThreadMutex.hh"
+
+#ifdef ID_TABLE_DEBUG
+#include <iostream>
+#include <string>
+#endif
 
 // Use these macros instead of explicit type names to help with portability
 #define ID_POINTER_TYPE uintptr_t
@@ -99,11 +100,15 @@ namespace PLEXIL {
 
     IdTable();
 
+    typedef PLEXIL_HASH_MAP(ID_POINTER_TYPE, ID_KEY_TYPE) IdTableMap;
+    typedef std::pair<ID_POINTER_TYPE, ID_KEY_TYPE> IdTablePair;
+
+    //* The main map from pointers to their keys.
     ThreadMutex m_mutex;
-    std::map<ID_POINTER_TYPE, ID_KEY_TYPE> m_collection;
+    IdTableMap m_collection;
 
 #ifdef ID_TABLE_DEBUG
-    std::map<std::string, ID_SIZE_TYPE> m_typeCnts;
+    PLEXIL_HASH_MAP(std::string, ID_SIZE_TYPE) m_typeCnts;
 #endif
 
   };

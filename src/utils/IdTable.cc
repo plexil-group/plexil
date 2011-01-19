@@ -74,12 +74,12 @@ namespace PLEXIL {
 #ifdef ID_TABLE_DEBUG
     debugMsg("IdTable:insert", "id,key:" << id << ", " << *sl_nextId << ")");
 #endif
-    std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = instance.m_collection.find(id);
+    IdTableMap::iterator it = instance.m_collection.find(id);
     if (it != instance.m_collection.end())
       return(0); /* Already in table. */
-    instance.m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, *sl_nextId));
+    instance.m_collection.insert(IdTablePair(id, *sl_nextId));
 #ifdef ID_TABLE_DEBUG
-    std::map<std::string, ID_SIZE_TYPE>::iterator tCit = instance.m_typeCnts.find(baseType);
+    PLEXIL_HASH_MAP(std::string, ID_SIZE_TYPE)::iterator tCit = instance.m_typeCnts.find(baseType);
     if (tCit == instance.m_typeCnts.end())
       instance.m_typeCnts.insert(std::pair<std::string, ID_SIZE_TYPE>(baseType, 1));
     else
@@ -92,7 +92,7 @@ namespace PLEXIL {
     IdTable& instance(getInstance());
     ThreadMutexGuard guard(instance.m_mutex);
 
-    std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = instance.m_collection.find(id);
+    IdTableMap::iterator it = instance.m_collection.find(id);
     if (it != instance.m_collection.end())
       return(it->second);
     else
@@ -120,7 +120,7 @@ namespace PLEXIL {
 #ifdef ID_TABLE_DEBUG
   void IdTable::printTypeCnts(std::ostream& os) {
     os << "Id instances by type: ";
-    for (std::map<std::string, uintptr_t>::iterator it = getInstance().m_typeCnts.begin();
+    for (PLEXIL_HASH_MAP(std::string, ID_SIZE_TYPE)::iterator it = getInstance().m_typeCnts.begin();
          it != getInstance().m_typeCnts.end();
          ++it)
       os << "  " << it->second << "  " << it->first << '\n';
@@ -132,7 +132,7 @@ namespace PLEXIL {
     IdTable& instance(getInstance());
     ThreadMutexGuard guard(instance.m_mutex);
     os << "Id Contents:";
-    for (std::map<uintptr_t, uintptr_t>::iterator it = instance.m_collection.begin();
+    for (IdTableMap::iterator it = instance.m_collection.begin();
          it != instance.m_collection.end();
          ++it)
       os << " (" << it->first << ", " << it->second << ')';
