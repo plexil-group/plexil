@@ -64,50 +64,57 @@ namespace PLEXIL {
 
   ID_KEY_TYPE IdTable::insert(ID_POINTER_TYPE id, const char* baseType) {
     static ID_KEY_TYPE* sl_nextId = NULL;
+    
+    IdTable& instance(getInstance());
+    ThreadMutexGuard guard(instance.m_mutex);
+
     if (sl_nextId == NULL)
       sl_nextId = new ID_KEY_TYPE(1);
 
-    debugMsg("IdTable:insert", "id,key:" << id << ", " << *sl_nextId << ")");
-    std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = getInstance().m_collection.find(id);
-    if (it != getInstance().m_collection.end())
-      return(0); /* Already in table. */
-    getInstance().m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, *sl_nextId));
 #ifdef ID_TABLE_DEBUG
-    std::map<std::string, ID_SIZE_TYPE>::iterator tCit = getInstance().m_typeCnts.find(baseType);
-    if (tCit == getInstance().m_typeCnts.end())
-      getInstance().m_typeCnts.insert(std::pair<std::string, ID_SIZE_TYPE>(baseType, 1));
+    debugMsg("IdTable:insert", "id,key:" << id << ", " << *sl_nextId << ")");
+#endif
+    std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = instance.m_collection.find(id);
+    if (it != instance.m_collection.end())
+      return(0); /* Already in table. */
+    instance.m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, *sl_nextId));
+#ifdef ID_TABLE_DEBUG
+    std::map<std::string, ID_SIZE_TYPE>::iterator tCit = instance.m_typeCnts.find(baseType);
+    if (tCit == instance.m_typeCnts.end())
+      instance.m_typeCnts.insert(std::pair<std::string, ID_SIZE_TYPE>(baseType, 1));
     else
       tCit->second++;
 #endif
     return((*sl_nextId)++);
   }
 
-  bool IdTable::allocated(ID_POINTER_TYPE id) {
-    return(getInstance().m_collection.find(id) != getInstance().m_collection.end());
-  }
-
   ID_KEY_TYPE IdTable::getKey(ID_POINTER_TYPE id) {
-    std::map<uintptr_t, uintptr_t>::iterator it = getInstance().m_collection.find(id);
-    if (it != getInstance().m_collection.end())
+    IdTable& instance(getInstance());
+    ThreadMutexGuard guard(instance.m_mutex);
+
+    std::map<ID_POINTER_TYPE, ID_KEY_TYPE>::iterator it = instance.m_collection.find(id);
+    if (it != instance.m_collection.end())
       return(it->second);
     else
       return(0);
   }
 
   void IdTable::remove(ID_POINTER_TYPE id) {
+    IdTable& instance(getInstance());
+    ThreadMutexGuard guard(instance.m_mutex);
+
     // N.B. sl_key is only used in debug message output;
     // the risk of harm from thread collision here is very low.
+#ifdef ID_TABLE_DEBUG
     static ID_KEY_TYPE sl_key;
-    debugMsg("IdTable:remove", "<" << id << ", " << (sl_key = getInstance().m_collection.find(id)->second) << ">");
-    getInstance().m_collection.erase(id);
+    debugMsg("IdTable:remove", "<" << id << ", " << (sl_key = instance.m_collection.find(id)->second) << ">");
+#endif
+    instance.m_collection.erase(id);
   }
 
   size_t IdTable::size() {
+    ThreadMutexGuard guard(getInstance().m_mutex);
     return(getInstance().m_collection.size());
-  }
-
-  std::map<uintptr_t, uintptr_t> IdTable::getCollection() {
-    return(getInstance().m_collection);
   }
 
 #ifdef ID_TABLE_DEBUG
@@ -122,9 +129,11 @@ namespace PLEXIL {
 #endif
 
   void IdTable::output(std::ostream& os) {
+    IdTable& instance(getInstance());
+    ThreadMutexGuard guard(instance.m_mutex);
     os << "Id Contents:";
-    for (std::map<uintptr_t, uintptr_t>::iterator it = getInstance().m_collection.begin();
-         it != getInstance().m_collection.end();
+    for (std::map<uintptr_t, uintptr_t>::iterator it = instance.m_collection.begin();
+         it != instance.m_collection.end();
          ++it)
       os << " (" << it->first << ", " << it->second << ')';
     os << std::endl;

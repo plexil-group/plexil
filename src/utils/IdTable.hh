@@ -42,6 +42,7 @@
 
 #include <map>
 #include <stdint.h> // for uintptr_t
+#include "ThreadMutex.hh"
 
 #ifdef ID_TABLE_DEBUG
 #include <iostream>
@@ -76,7 +77,6 @@ namespace PLEXIL {
   class IdTable {
   public:
     static size_t size();
-    static std::map<ID_POINTER_TYPE, ID_KEY_TYPE> getCollection();
     static IdTable& getInstance();
 
 #ifdef ID_TABLE_DEBUG
@@ -86,15 +86,20 @@ namespace PLEXIL {
     static void printTypeCnts(std::ostream& os);
 #endif
 
+    // Used only in regression test
     static void output(std::ostream& os);
+
     static ID_KEY_TYPE insert(ID_POINTER_TYPE id, const char* baseType);
-    static bool allocated(ID_POINTER_TYPE id);
     static ID_KEY_TYPE getKey(ID_POINTER_TYPE id);
     static void remove(ID_POINTER_TYPE id);
 
     ~IdTable(); // deallocating statics requires public access on beos
+
   private:
+
     IdTable();
+
+    ThreadMutex m_mutex;
     std::map<ID_POINTER_TYPE, ID_KEY_TYPE> m_collection;
 
 #ifdef ID_TABLE_DEBUG
