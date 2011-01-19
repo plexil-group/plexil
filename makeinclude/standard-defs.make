@@ -69,6 +69,15 @@ PURIFY		= purify
 CC	        := gcc
 CXX	        := g++
 
+# Get compiler version - presumes gcc
+CXX_VERSION := $(shell $(CXX) -dumpversion)
+CXX_MAJOR_VERSION := $(firstword $(subst ., ,$(CXX_VERSION)))
+CXX_MINOR_VERSION := $(word 2,$(subst ., ,$(CXX_VERSION)))
+CXX_PATCH_VERSION := $(word 3,$(subst ., ,$(CXX_VERSION)))
+# for debug use
+#CXX_VERSION_DUMMY := $(info C++ version is $(CXX_MAJOR_VERSION) $(CXX_MINOR_VERSION) $(CXX_PATCH_VERSION))
+
+
 ##### C++ compiler options.
 
 # KMD: Need proper flags for warning suppression...
