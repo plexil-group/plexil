@@ -168,26 +168,26 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
 	 * @param baseId Existing Id of base class object.
      * @see Id::noId()
      */
-	template <class X>
+    template <class X>
     inline Id(T* ptr, const Id<X>& baseId) {
 #ifndef PLEXIL_FAST
       check_error(ptr != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for 0 pointer.",
                   IdErr::IdMgrInvalidItemPtrError());
-	  check_error(baseId.isValid(),
-				  std::string("Cannot generate an Id<") + typeid(T).name() + "> when Id of base class object is invalid.",
-				  IdErr::IdMgrInvalidItemPtrError());
-	  const ID_POINTER_TYPE basePtr = (ID_POINTER_TYPE) baseId.operator->();
-	  if (basePtr == (ID_POINTER_TYPE) ptr) {
-		// Pointers are equal, reuse key
-		// No need to check it because we tested base for validity above
-		m_key = IdTable::getKey(basePtr);
-	  }
-	  else {
-		// Generate new key for derived class pointer
-		m_key = IdTable::insert((ID_POINTER_TYPE)(ptr), typeid(T).name());
-		check_error(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
-					IdErr::IdMgrInvalidItemPtrError());
-	  }
+      check_error(baseId.isValid(),
+		  std::string("Cannot generate an Id<") + typeid(T).name() + "> when Id of base class object is invalid.",
+		  IdErr::IdMgrInvalidItemPtrError());
+      const ID_POINTER_TYPE basePtr = (ID_POINTER_TYPE) baseId.operator->();
+      if (basePtr == (ID_POINTER_TYPE) ptr) {
+	// Pointers are equal, reuse key
+	// No need to check it because we tested base for validity above
+	m_key = baseId.getKey();
+      }
+      else {
+	// Generate new key for derived class pointer
+	m_key = IdTable::insert((ID_POINTER_TYPE)(ptr), typeid(T).name());
+	check_error(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
+		    IdErr::IdMgrInvalidItemPtrError());
+      }
 #endif
       m_ptr = ptr;
     }
@@ -267,6 +267,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @brief Equality test for mixed types. No casting used
      * @param org An Id of a possibly different type.
      * @return true if the addresses match
+     * @note May fail in the face of multiple inheritance.
      */
     template <class X>
     inline bool equals(const Id<X>& org) const{
@@ -283,6 +284,18 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
       copyAndCastFromId(org);
       return(*this);
     }
+
+#ifndef PLEXIL_FAST
+    /**
+     * @brief Get the key of this instance.
+     * @return The key value of the instance
+     * @note Needed by constructor for subclasses.
+     */
+    inline const ID_KEY_TYPE& getKey() const 
+    {
+      return m_key;
+    }
+#endif
 
     /**
      * @brief Overload dereferencing operator to obtain the original pointer.
