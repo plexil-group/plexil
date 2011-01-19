@@ -39,10 +39,6 @@
 #include <stack>
 #include "Error.hh"
 
-#ifndef STORED_ITEM_NO_MUTEX
-#include "ThreadMutex.hh"
-#endif
-
 // defined in vxWorksCommon.h,
 // and they interfere with numeric_limits methods of the same name
 #undef min
@@ -80,11 +76,6 @@ namespace PLEXIL
 
     static const key_t next()
     {
-#ifndef STORED_ITEM_NO_MUTEX
-      // make key generation thread safe
-      ThreadMutexGuard guard(getMutex());
-#endif
-
       key_t sl_key;
 
 #ifdef STORED_ITEM_REUSE_KEYS
@@ -150,12 +141,6 @@ namespace PLEXIL
 #ifdef STORED_ITEM_REUSE_KEYS
     inline static void unregister(key_t& key)
     {
-
-#ifndef STORED_ITEM_NO_MUTEX
-      // make key generation thread safe
-      ThreadMutexGuard guard(getMutex());
-#endif // STORED_ITEM_NO_MUTEX
-
       keyPool().push(key);
     }
 #else
@@ -264,20 +249,6 @@ namespace PLEXIL
 	sl_nextKey = new key_t(keyMin());
       return *sl_nextKey;
     }
-
-#ifndef STORED_ITEM_NO_MUTEX
-    /**
-     * @brief The mutex for thread safing.
-     */
-         
-    static ThreadMutex& getMutex()
-    {
-      static ThreadMutex* sl_mutex = NULL;
-      if (sl_mutex == NULL)
-	sl_mutex = new ThreadMutex();
-      return *sl_mutex;
-    }
-#endif
 
 #ifdef STORED_ITEM_REUSE_KEYS
     /**

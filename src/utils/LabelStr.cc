@@ -44,9 +44,9 @@ namespace PLEXIL
             //check_error(sl_called, "Should only register UNKNOWN string once.");
             if(!sl_called) 
             {
-               StoredString::handleInsertion(KeySource<double>::infinity(), 
-                                             new std::string("UNKNOWN"));
-               sl_called = true;
+	      StoredString::insertItemAtKey(new std::string("UNKNOWN"),
+					    KeySource<double>::infinity());
+	      sl_called = true;
             }
          }
    };
@@ -60,10 +60,7 @@ namespace PLEXIL
    // define the empty label
 
    DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
-   DEFINE_GLOBAL_CONST(LabelStr, UNKNOWN_STR,
-                  (std::numeric_limits<double>::has_infinity ?
-                      std::numeric_limits<double>::infinity() :
-                      std::numeric_limits<double>::max()));
+   DEFINE_GLOBAL_CONST(LabelStr, UNKNOWN_STR, KeySource<double>::infinity());
 
    LabelStr::LabelStr()
    {

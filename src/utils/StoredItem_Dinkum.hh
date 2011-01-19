@@ -39,6 +39,10 @@
 #include <hash_map>
 #include <cstdint>
 
+#ifndef STORED_ITEM_NO_MUTEX
+#include "ThreadMutex.hh"
+#endif
+
 namespace PLEXIL
 {
 
@@ -150,13 +154,13 @@ namespace PLEXIL
     }
 
     /**
-     * @brief This constructor which optinally copies the passed
+     * @brief This constructor which optionally copies the passed
      * item into a permanent location while the StoredItem is
-     * created.  The passed item should be discarded is copyItem is
+     * created.  The passed item should be discarded if copyItem is
      * true.
      *
      * @param item A pointer to value of the item, which will be
-     * stored, or optionally copied before it's store.
+     * stored, or optionally copied before it's stored.
      *
      * @param copyItem If true, indicates that the item is not
      * currently stored in a permanent location and should be
@@ -228,7 +232,7 @@ namespace PLEXIL
      */
     bool operator <(const StoredItem& item) const
     {
-      return toItem() < item.toItem();
+      return getItem() < item.getItem();
     }
 
     /**
@@ -237,15 +241,7 @@ namespace PLEXIL
 
     bool operator >(const StoredItem& item) const
     {
-      return toItem() > item.toItem();
-    }
-
-    /**
-     * @brief Return the represented item.
-     */
-    const item_t& toItem() const
-    {
-      return(getItem(m_key));
+      return getItem() > item.getItem();
     }
 
     /**
@@ -264,6 +260,9 @@ namespace PLEXIL
      */
     static unsigned int getSize()
     {
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
       checkError(itemStore().size() == keyStore().size(), 
 		 "itemStore size " << itemStore().size() << 
 		 " does not match key store size " << keyStore().size());
@@ -275,7 +274,10 @@ namespace PLEXIL
      */
     static bool isKey(key_t key)
     {
-      return(itemStore().find(key) != itemStore().end());
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
+      return isKeyInternal(key);
     }
          
     /**
@@ -283,6 +285,9 @@ namespace PLEXIL
      */
     static bool isItem(item_t* item)
     {
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
       return(keyStore().find(item) != keyStore().end());
     }
          
@@ -325,15 +330,17 @@ namespace PLEXIL
 
     static const key_t ensureKey(item_t* item, bool copyItem)
     {
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
+
       // if item is already in the system, return its key
       keyConstIterator_t ki = keyStore().find(item);
       if (ki != keyStore().end())
-	{
-	  return ki->second;
-	}
+	return ki->second;
             
       // allocate a key for this item
-
+      // can throw an exception if key values are exhausted
       const key_t key = KeySource<key_t>::next();
 
       // insert the item
@@ -356,20 +363,65 @@ namespace PLEXIL
 
     static void unregister(key_t& key)
     {
-      assertTrueMsg(isKey(key), "Invalid key " << key << " provided.");
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
+      assertTrueMsg(isKeyInternal(key), "Invalid key " << key << " provided.");
       delete handleRemoval(key);
       KeySource<key_t>::unregister(key);
       key = KeySource<key_t>::unassigned();
     }
 
     /**
+     * @brief Obtain the item from the key.
+     * @param key The key_t valued encoding of the item
+     * @return a reference to the original item held in the item store.
+     * @see s_itemStore
+     */
+    static item_t& getItem(key_t key)
+    {
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
+      const itemIterator_t& it = itemStore().find(key);
+      check_error(it != itemStore().end());
+      return *it->second;
+    }
+
+    /**
+     * @brief Insert the given item with the given key.
+     * @param item (Pointer to) the item.
+     * @param key The desired key for the item.
+     * @note Used by LabelStr initialization for UNKNOWN_STR
+     */
+
+    static void insertItemAtKey(item_t* item, key_t key)
+    {
+#ifndef STORED_ITEM_NO_MUTEX
+      ThreadMutexGuard guard(mutex());
+#endif
+      handleInsertion(key, item);
+    }
+
+  private:
+
+    /**
      * @brief The key value used as a proxy for the original item.
      * @note The only instance data.
      * @see handleInsertion.
-     * @note Can't be const, sigh...
      */
-
     key_t m_key;
+
+    /**
+     * @brief Check whether the given key is valid.
+     * @param key The putative key.
+     * @return True if valid, false otherwise.
+     * @note In a multi-threaded environment, must be called with mutex locked.
+     */
+    inline static bool isKeyInternal(key_t key)
+    {
+      return itemStore().find(key) != itemStore().end();
+    }
 
     /**
      * @brief Constructs an entry in itemStore to allow lookup
@@ -377,7 +429,7 @@ namespace PLEXIL
      *
      * @param key The key_t value encoding for the given item
      * @param item the item for which the key has been encoded.
-     * @see s_itemStore, getItem()
+     * @note In a multi-threaded environment, must be called with mutex locked.
      */
     static void handleInsertion(const key_t key, item_t* item)
     {
@@ -391,32 +443,21 @@ namespace PLEXIL
      *
      * @param key The key_t value encoding for the given item.
      * @return The item associated with the key.
-     * @see s_itemStore, getItem()
+     * @note In a multi-threaded environment, must be called with mutex locked.
      */
 
     static item_t* handleRemoval(key_t key)
     {
-      item_t* item = &getItem(key);
-      itemStore().erase(key);
+      itemIterator_t it = itemStore().find(key);
+      check_error(it != itemStore().end());
+      item_t* item = *it->second;
+      itemStore().erase(it);
       keyStore().erase(item);
       return item;
     }
 
     /**
-     * @brief Obtain the item from the key.
-     * @param key The key_t valued encoding of the item
-     * @return a reference to the original item held in the item store.
-     * @see s_itemStore
-     */
-    static item_t& getItem(key_t key)
-    {
-      const itemIterator_t& it = itemStore().find(key);
-      check_error(it != itemStore().end());
-      return *it->second;
-    }
-
-    /**
-     * @brief Map keys to keys for key retrieval - i.e. toKey().
+     * @brief Map keys to keys for key retrieval - i.e. getKey().
      */
     static keyStore_t& keyStore()
     {
@@ -427,7 +468,7 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Map keys to items for item retrieval - i.e. toItem(). 
+     * @brief Map keys to items for item retrieval - i.e. getItem(). 
      */
     static itemStore_t& itemStore()
     {
@@ -438,6 +479,19 @@ namespace PLEXIL
 	}
       return *sl_itemStore;
     }
+
+
+#ifndef STORED_ITEM_NO_MUTEX
+    /**
+     * @brief Get the mutex for this store.
+     */
+    static ThreadMutex& mutex()
+    {
+      static ThreadMutex sl_mutex;
+      return sl_mutex;
+    }
+#endif
+
   };
 }
 #endif
