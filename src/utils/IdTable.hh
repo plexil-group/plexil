@@ -41,9 +41,12 @@
 #define _H_IdTable
 
 #include <map>
+#include <stdint.h> // for uintptr_t
+
+#ifdef ID_TABLE_DEBUG
 #include <iostream>
 #include <string>
-#include <stdint.h> // for uintptr_t
+#endif
 
 /**
  * @file IdTable.hh
@@ -76,10 +79,12 @@ namespace PLEXIL {
     static std::map<ID_POINTER_TYPE, ID_KEY_TYPE> getCollection();
     static IdTable& getInstance();
 
+#ifdef ID_TABLE_DEBUG
     /**
      * Print the number of times each type has been allocated.
      */
     static void printTypeCnts(std::ostream& os);
+#endif
 
     static void output(std::ostream& os);
     static ID_KEY_TYPE insert(ID_POINTER_TYPE id, const char* baseType);
@@ -91,7 +96,11 @@ namespace PLEXIL {
   private:
     IdTable();
     std::map<ID_POINTER_TYPE, ID_KEY_TYPE> m_collection;
+
+#ifdef ID_TABLE_DEBUG
     std::map<std::string, ID_SIZE_TYPE> m_typeCnts;
+#endif
+
   };
 }
 

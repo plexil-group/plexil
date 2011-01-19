@@ -72,11 +72,13 @@ namespace PLEXIL {
     if (it != getInstance().m_collection.end())
       return(0); /* Already in table. */
     getInstance().m_collection.insert(std::pair<ID_POINTER_TYPE, ID_KEY_TYPE>(id, *sl_nextId));
+#ifdef ID_TABLE_DEBUG
     std::map<std::string, ID_SIZE_TYPE>::iterator tCit = getInstance().m_typeCnts.find(baseType);
     if (tCit == getInstance().m_typeCnts.end())
       getInstance().m_typeCnts.insert(std::pair<std::string, ID_SIZE_TYPE>(baseType, 1));
     else
       tCit->second++;
+#endif
     return((*sl_nextId)++);
   }
 
@@ -108,6 +110,7 @@ namespace PLEXIL {
     return(getInstance().m_collection);
   }
 
+#ifdef ID_TABLE_DEBUG
   void IdTable::printTypeCnts(std::ostream& os) {
     os << "Id instances by type: ";
     for (std::map<std::string, uintptr_t>::iterator it = getInstance().m_typeCnts.begin();
@@ -116,6 +119,7 @@ namespace PLEXIL {
       os << "  " << it->second << "  " << it->first << '\n';
     os << std::endl;
   }
+#endif
 
   void IdTable::output(std::ostream& os) {
     os << "Id Contents:";
