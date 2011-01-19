@@ -101,7 +101,7 @@ namespace PLEXIL {
   protected:
   private:
     NodeId m_node;
-    LabelStr m_cond;
+    const LabelStr& m_cond;
   };
 
   class RealNodeConnector : public NodeConnector {
@@ -1236,7 +1236,7 @@ namespace PLEXIL {
 
     debugMsg("Node:checkConditions",
 	     "Checking condition change for node " << m_nodeId.toString());
-    LabelStr toState = getDestState();
+    const LabelStr& toState(getDestState());
     debugMsg("Node:checkConditions",
 	     "Can (possibly) transition to " << toState.toString());
     if(toState != m_lastQuery) {
@@ -1253,24 +1253,25 @@ namespace PLEXIL {
     checkError(!m_transitioning,
 	       "Node " << m_nodeId.toString() << " is already transitioning.");
     m_transitioning = true;
-    LabelStr prevState = getState();
+    LabelStr prevState(getState());
     m_stateManager->transition(m_id);
+    LabelStr newState(getState());
     debugMsg("Node:transition", "Transitioning '" << m_nodeId.toString() <<
-	     "' from " << prevState.toString() << " to " << getState().toString());
-    condDebugMsg((getState() == StateVariable::FINISHED()),
+	     "' from " << prevState.toString() << " to " << newState.toString());
+    condDebugMsg((newState == StateVariable::FINISHED()),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
-    condDebugMsg((getState() == StateVariable::ITERATION_ENDED()),
+    condDebugMsg((newState == StateVariable::ITERATION_ENDED()),
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
     debugMsg("Node:times",
 	     "Setting end time " << (prevState.toString() + ".END") << " = " << time);
     debugMsg("Node:times",
-	     "Setting start time " << (getState().toString() + ".START") << " = " << time);
+	     "Setting start time " << (newState.toString() + ".START") << " = " << time);
     m_variablesByName[LabelStr(prevState.toString() + ".END")]->setValue(time);
-    m_variablesByName[LabelStr(getState().toString() + ".START")]->setValue(time);
+    m_variablesByName[LabelStr(newState.toString() + ".START")]->setValue(time);
     m_transitioning = false;
     checkConditions();
   }
@@ -1281,7 +1282,11 @@ namespace PLEXIL {
     return m_variablesByName.find(name)->second;
   }
 
-  const LabelStr Node::getState() {
+  const LabelStr Node::getState() const {
+    return m_stateVariable->getValue();
+  }
+
+  double Node::getStateDouble() const {
     return m_stateVariable->getValue();
   }
 
@@ -1586,10 +1591,6 @@ namespace PLEXIL {
     ((Variable*)m_variablesByName[OUTCOME()])->reset();
     ((Variable*)m_variablesByName[FAILURE_TYPE()])->reset();
     ((Variable*)m_variablesByName[COMMAND_HANDLE()])->reset();
-
-    std::vector<std::string> suffix;
-    suffix.push_back("START");
-    suffix.push_back("END");
 
     //reset timepoints
     for (std::vector<double>::const_iterator it = ALL_TIMEPOINTS().begin();

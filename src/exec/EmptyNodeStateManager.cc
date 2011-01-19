@@ -42,7 +42,7 @@ namespace PLEXIL
       checkError(node->getType() == Node::EMPTY(),
 		 "Expected empty node, got " <<
 		 node->getType().toString());
-      checkError(node->getState() == StateVariable::EXECUTING(),
+      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
 		 "Node " << node->getNodeId().toString() << " in state " <<
 		 node->getState().toString() << " not EXECUTING.");
       checkError(node->isAncestorInvariantConditionActive(),
@@ -84,7 +84,7 @@ namespace PLEXIL
       checkError(node->getType() == Node::EMPTY(),
 		 "Expected empty node, got " <<
 		 node->getType().toString());
-      checkError(node->getState() == StateVariable::EXECUTING(),
+      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
 		 "In state '" << node->getState().toString() << "', not EXECUTING.");
       checkError(destState == StateVariable::FINISHED() ||
 		 destState == StateVariable::ITERATION_ENDED(),

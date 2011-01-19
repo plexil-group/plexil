@@ -183,9 +183,15 @@ namespace PLEXIL {
 
     /**
      * @brief Gets the current state of this node.
-     * @return the current node state.
+     * @return the current node state as a LabelStr.
      */
-    const LabelStr getState();
+    const LabelStr getState() const;
+
+    /**
+     * @brief Gets the current state of this node.
+     * @return the current node state as a double (LabelStr key).
+     */
+    double getStateDouble() const;
 
     /**
      * @brief Sets the state variable to the new state.

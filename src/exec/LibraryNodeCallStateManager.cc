@@ -42,7 +42,7 @@ namespace PLEXIL
          {
             checkError(node->getType() == Node::LIBRARYNODECALL(),
                        "Expected library node call, got " << node->getType().toString());
-            checkError(node->getState() == StateVariable::EXECUTING(),
+            checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
                        "Node " << node->getNodeId().toString() << " in state " <<
                        node->getState().toString() << " not EXECUTING.");
             checkError(node->isAncestorInvariantConditionActive(),
@@ -87,7 +87,7 @@ namespace PLEXIL
          {
             checkError(node->getType() == Node::LIBRARYNODECALL(),
                        "Expected library node call, got " << node->getType().toString());
-            checkError(node->getState() == StateVariable::FAILING(),
+            checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
                        "Node " << node->getNodeId().toString() << " in state " <<
                        node->getState().toString() << " not FAILING.");
             checkError(node->isChildrenWaitingOrFinishedConditionActive(),
@@ -127,7 +127,7 @@ namespace PLEXIL
          {
             checkError(node->getType() == Node::LIBRARYNODECALL(),
                        "Expected library node call, got " << node->getType().toString());
-            checkError(node->getState() == StateVariable::FINISHING(),
+            checkError(node->getStateDouble() == StateVariable::FINISHING().getKey(),
                        "Node " << node->getNodeId().toString() << " in state " <<
                        node->getState().toString() << " not FINISHING.");
             checkError(node->isAncestorInvariantConditionActive(),
@@ -185,7 +185,7 @@ namespace PLEXIL
          {
             checkError(node->getType() == Node::LIBRARYNODECALL(),
                        "Expected library node call, got " << node->getType().toString());
-            checkError(node->getState() == StateVariable::EXECUTING(),
+            checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
                        "In state '" << node->getState().toString() << "', not EXECUTING.");
             checkError(destState == StateVariable::FINISHING() ||
                        destState == StateVariable::FAILING(),
@@ -238,7 +238,7 @@ namespace PLEXIL
          {
             checkError(node->getType() == Node::LIBRARYNODECALL(),
                        "Expected library node call, got " << node->getType().toString());
-            checkError(node->getState() == StateVariable::FAILING(),
+            checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
                        "In state '" << node->getState().toString() << "', not FAILING.");
             checkError(destState == StateVariable::ITERATION_ENDED() ||
                        destState == StateVariable::FINISHED(),
@@ -270,7 +270,7 @@ namespace PLEXIL
          {
             checkError(node->getType() == Node::LIBRARYNODECALL(),
                        "Expected library node call, got " << node->getType().toString());
-            checkError(node->getState() == StateVariable::FINISHING(),
+            checkError(node->getStateDouble() == StateVariable::FINISHING().getKey(),
                        "In state '" << node->getState().toString() << "', not FINISHING.");
             checkError(destState == StateVariable::ITERATION_ENDED() ||
                        destState == StateVariable::FAILING(),

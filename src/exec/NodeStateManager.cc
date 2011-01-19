@@ -79,7 +79,7 @@ namespace PLEXIL {
 
   const LabelStr& NodeStateManager::getDestState(NodeId& node) {
     check_error(node.isValid());
-    std::map<double, StateComputerId>::iterator it = m_stateComputers.find(node->getState());
+    std::map<double, StateComputerId>::iterator it = m_stateComputers.find(node->getStateDouble());
     checkError(it != m_stateComputers.end(),
 	       "No state computer for node '" << node->getNodeId().toString() << "' from state '" << node->getState().toString() << "'");
     checkError(it->second.isValid(),
@@ -91,22 +91,24 @@ namespace PLEXIL {
   // Its logic has been absorbed into transition() below to avoid redundant calls to getDestState().
   bool NodeStateManager::canTransition(NodeId& node) {
     check_error(node.isValid());
-    LabelStr toState = getDestState(node);
-    return toState != StateVariable::UNKNOWN() && toState != StateVariable::NO_STATE() && toState != node->getState();
+    const LabelStr& toState(getDestState(node));
+    return toState != StateVariable::UNKNOWN()
+      && toState != StateVariable::NO_STATE()
+      && toState.getKey() != node->getStateDouble();
   }
 
   // Inline canTransition() to save a bunch of work.
   // Can skip the NodeId valid check because getDestState() does it for us.
   void NodeStateManager::transition(NodeId& node) {
-    LabelStr destState = getDestState(node);
+    const LabelStr& destState(getDestState(node));
     checkError(destState != StateVariable::UNKNOWN()
 	       && destState != StateVariable::NO_STATE()
-	       && destState != node->getState(),
+	       && destState.getKey() != node->getStateDouble(),
 	       "Attempted to transition node " << node->getNodeId().toString() <<
 	       " when it is ineligible.");
 
     std::map<double, TransitionHandlerId>::iterator fromIt =
-      m_transitionHandlers.find(node->getState());
+      m_transitionHandlers.find(node->getStateDouble());
     checkError(fromIt != m_transitionHandlers.end(),
 	       "No transition handler for node " << node->getNodeId().toString() <<
 	       " from state " << node->getState().toString());

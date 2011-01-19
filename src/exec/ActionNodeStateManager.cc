@@ -41,7 +41,7 @@ namespace PLEXIL {
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
-      checkError(node->getState() == StateVariable::EXECUTING(),
+      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
 		 "Node " << node->getNodeId().toString() << " in state " <<
 		 node->getState().toString() << " not EXECUTING.");
       checkError(node->isAncestorInvariantConditionActive(),
@@ -122,7 +122,7 @@ namespace PLEXIL {
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
 
-      checkError(node->getState() == StateVariable::EXECUTING(),
+      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
 		 "In state '" << node->getState().toString() << "', not EXECUTING.");
       checkError(destState == StateVariable::FINISHED() ||
 		 destState == StateVariable::FAILING() ||
@@ -196,7 +196,7 @@ namespace PLEXIL {
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
-      checkError(node->getState() == StateVariable::FAILING(),
+      checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
 		 "Node " << node->getNodeId().toString() << " in state " <<
 		 node->getState().toString() << " not FAILING.");
       checkError(node->isAbortCompleteConditionActive(),
@@ -234,7 +234,7 @@ namespace PLEXIL {
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
 
-      checkError(node->getState() == StateVariable::FAILING(),
+      checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
 		 "In state '" << node->getState().toString() << "', not FAILING.");
       checkError(destState == StateVariable::FINISHED() ||
 		 destState == StateVariable::ITERATION_ENDED(),

@@ -229,7 +229,7 @@ namespace PLEXIL {
       }
       else {
 	if ((node->getType() == Node::ASSIGNMENT()) &&
-	    node->getState() != StateVariable::EXECUTING()) {
+	    node->getStateDouble() != StateVariable::EXECUTING().getKey()) {
 	  debugMsg("PlexilExec:handleConditionsChanged",
 		   "Removing node from resource contention.");
 	  removeFromResourceContention(node);
@@ -276,7 +276,7 @@ namespace PLEXIL {
   }
 
   void PlexilExec::handleNeedsExecution(const NodeId node) {
-    checkError(node->getState() == StateVariable::EXECUTING(),
+    checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
 	       "Executive told to handle execution for node '" <<
 	       node->getNodeId().toString() << "', but it's in state '" <<
 	       node->getState().toString() << "'");
@@ -582,7 +582,7 @@ namespace PLEXIL {
 	  NodeId node = *conflictIt;
       
 	  check_error(node.isValid());
-	  checkError(node->getState() == StateVariable::EXECUTING() ||
+	  checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey() ||
 		     node->getDestState() == StateVariable::EXECUTING(),
 		     "Error: node '" << node->getNodeId().toString() <<
 		     " is neither executing nor is it eligible to do so, yet it is in the " <<

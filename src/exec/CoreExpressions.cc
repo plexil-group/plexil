@@ -1849,7 +1849,7 @@ namespace PLEXIL
     ++m_total;
     node->getStateVariable()->addListener(m_listener.getId());
     if(m_constructed) {
-      if(node->getState() == StateVariable::FINISHED())
+      if(node->getStateDouble() == StateVariable::FINISHED().getKey())
 	incrementCount(node->getStateVariable());
       else if(getValue() == BooleanVariable::TRUE())
 	internalSetValue(BooleanVariable::FALSE());
@@ -1990,9 +1990,9 @@ namespace PLEXIL
     ++m_total;
     node->getStateVariable()->addListener(m_listener.getId());
     if(m_constructed) {
-	  LabelStr state = node->getState();
-      if(state == StateVariable::WAITING() ||
-		 state == StateVariable::FINISHED())
+	  double state = node->getStateDouble();
+	  if (state == StateVariable::WAITING().getKey() ||
+	      state == StateVariable::FINISHED().getKey())
 	incrementCount(node->getStateVariable());
       else if(getValue() == BooleanVariable::TRUE())
 	internalSetValue(BooleanVariable::FALSE());
