@@ -4,7 +4,7 @@ Command pprint(...);
 LibraryCallTest:
 {
   Integer result;
-  PostCondition (result == 3);
+  PostCondition result == 3;
   LibraryCall Increment (x=1, result=result);
   pprint ("Increment(1) =", result);
   LibraryCall Increment (x=result, result=result);
