@@ -92,6 +92,21 @@ namespace PLEXIL {
       UNKNOWN_TYPE, INTEGER, REAL, BOOLEAN, BLOB, ARRAY, STRING, TIME, 
       NODE_STATE, NODE_OUTCOME, FAILURE_TYPE, COMMAND_HANDLE,
     };
+
+  /**
+   * @brief Node state enumeration.
+   * @note Must be in same order as StateVariable::ALL_STATES(). See CoreExpressions.cc.
+   */
+  enum NodeState {
+    INACTIVE_STATE = 0,
+    WAITING_STATE,
+    EXECUTING_STATE,
+    FINISHING_STATE,
+    FINISHED_STATE,
+    FAILING_STATE,
+    ITERATION_ENDED_STATE,
+    NODE_STATE_MAX
+  };
 }
 
 #endif
