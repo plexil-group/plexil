@@ -1028,6 +1028,44 @@ namespace PLEXIL
     return sl_exp;
   }
 
+  const LabelStr& StateVariable::nodeStateToLabelStr(const NodeState& state)
+  {
+    switch (state) {
+    case INACTIVE_STATE:
+      return INACTIVE();
+      break;
+
+    case WAITING_STATE:
+      return WAITING();
+      break;
+
+    case EXECUTING_STATE:
+      return EXECUTING();
+      break;
+
+    case FINISHING_STATE:
+      return FINISHING();
+      break;
+
+    case FINISHED_STATE:
+      return FINISHED();
+      break;
+
+    case FAILING_STATE:
+      return FAILING();
+      break;
+
+    case ITERATION_ENDED_STATE:
+      return ITERATION_ENDED();
+      break;
+
+    default:
+      return NO_STATE();
+      break;
+    }
+  }
+
+
   OutcomeVariable::OutcomeVariable(const bool isConst) : Variable(isConst) {}
   OutcomeVariable::OutcomeVariable(const double value, const bool isConst)
     : Variable(isConst) {

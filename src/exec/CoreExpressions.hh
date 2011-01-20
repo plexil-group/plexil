@@ -295,6 +295,10 @@ namespace PLEXIL {
     static ExpressionId& FAILING_EXP();
     static ExpressionId& ITERATION_ENDED_EXP();
     static ExpressionId& NO_STATE_EXP();
+
+    static const LabelStr& nodeStateToLabelStr(const NodeState& state);
+
+    // Constructors
     StateVariable(const bool isConst = false);
     StateVariable(const double value, const bool isConst = false);
     StateVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
