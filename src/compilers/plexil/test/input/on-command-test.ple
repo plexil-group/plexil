@@ -9,6 +9,9 @@ Concurrence
 
   OnCommand hcfName HaltAndCatchFire();
   OnCommand "EPI" ExecuteProgrammerImmediate();
-  OnCommand "Sum" 
+  OnCommand "Three" 
     Increment: { SendReturnValues(3); }
+  OnCommand "Sum" (Integer number1, Integer number2) 
+    Increment: { SendReturnValues(number + number2); }
+
 }
