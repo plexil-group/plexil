@@ -1,18 +1,14 @@
 Command HaltAndCatchFire;
 Command ExecuteProgrammerImmediate;
+Command SendReturnValues (Any);
 
 on-command-test:
 Concurrence
 {
-	String hcfName = "HCF";
+  String hcfName = "HCF";
 
-	OnCommand hcfName
-      HaltAndCatchFire();
-
-	OnCommand "EPI"
-      ExecuteProgrammerImmediate();
-
-  OnCommand "Sum" (Integer number1, Integer number2) 
-    Increment: { SendReturnValues(number + number2); }
-
+  OnCommand hcfName HaltAndCatchFire();
+  OnCommand "EPI" ExecuteProgrammerImmediate();
+  OnCommand "Sum" 
+    Increment: { SendReturnValues(3); }
 }
