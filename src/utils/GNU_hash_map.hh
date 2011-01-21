@@ -65,4 +65,33 @@
 # endif // defined (__GLIBCXX__)
 #endif
 
+#include "KeySource.hh"
+
+_GLIBCXX_BEGIN_NAMESPACE(__gnu_cxx)
+
+// Define a hash function for double
+// Borrowed from StoredItem
+
+template<>
+struct hash<double>
+{
+      size_t
+      operator()(double __x) const
+  {
+    // stolen from __stl_hash_string
+    // but doesn't produce regression test output in right order
+    /*
+    unsigned long __h = 0;
+    const char* __s = reinterpret_cast<const char*>(&__x);
+    for (size_t i = 0; i < sizeof(__x); i++)
+      __h = 5 * __h + *(__s++);
+    return size_t(__h);
+    */
+
+    return (size_t) (__x / PLEXIL::KeySource<double>::increment()); // StoredItem version
+  }
+};
+
+_GLIBCXX_END_NAMESPACE
+    
 #endif // PLEXIL_GNU_HASH_MAP_HH
