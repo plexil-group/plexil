@@ -1317,6 +1317,11 @@ namespace PLEXIL {
     ((StateVariable*) m_stateVariable)->setNodeState(newValue);
   }
 
+  double Node::getCurrentStateStartTime() const
+  {
+    return m_startTimepoints[m_state]->getValue();
+  }
+
   const ExpressionId& Node::getStateVariable() {
     return m_stateVariable;
   }

@@ -201,6 +201,12 @@ namespace PLEXIL {
     void setState(NodeState newValue);
 
     /**
+     * @brief Gets the time at which this node entered its current state.
+     * @return Time value as a double.
+     */
+    double getCurrentStateStartTime() const;
+
+    /**
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.
      */
