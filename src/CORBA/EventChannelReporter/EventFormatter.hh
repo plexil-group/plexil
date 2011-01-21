@@ -80,7 +80,7 @@ namespace PLEXIL
       m_id.remove();
     }
 
-    virtual CORBA::Any_ptr formatTransition(const LabelStr& prevState,
+    virtual CORBA::Any_ptr formatTransition(NodeState prevState,
 					    const NodeId& node) const = 0;
 
     virtual CORBA::Any_ptr formatPlan(const PlexilNodeId& plan,

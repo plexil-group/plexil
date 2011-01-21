@@ -298,7 +298,7 @@ namespace PLEXIL
    * @note The current state is accessible via the node.
    */
   void
-  EventChannelExecListener::implementNotifyNodeTransition(const LabelStr& prevState,
+  EventChannelExecListener::implementNotifyNodeTransition(NodeState prevState,
                                                           const NodeId& node) const
   {
 
