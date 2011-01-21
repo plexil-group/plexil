@@ -115,7 +115,7 @@ namespace PLEXIL
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      */
-    void implementNotifyNodeTransition(const LabelStr& prevState, 
+    void implementNotifyNodeTransition(NodeState prevState, 
 									   const NodeId& node) const
 	{
 	  EssentialLuvListener::implementNotifyNodeTransition(prevState, node);

@@ -918,9 +918,11 @@ namespace PLEXIL
   StateVariable::StateVariable(const bool isConst) : Variable(INACTIVE(), isConst) {}
 
   StateVariable::StateVariable(const double value, const bool isConst)
-    : Variable(value, isConst) {
+    : Variable(value, isConst) 
+  {
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+	       "Attempted to initialize a state variable with invalid value "
+	       << Expression::valueToString(value));
   }
 
   StateVariable::StateVariable(const PlexilExprId& expr, const NodeConnectorId& node,
@@ -932,12 +934,17 @@ namespace PLEXIL
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+	       "Attempted to initialize a state variable with invalid value "
+	       << Expression::valueToString(value));
   }
 
+  // N.B. Depends on ALL_STATES() matching order of NodeState enumeration.
   bool StateVariable::checkValue(const double val) {
-    return val == INACTIVE() || val == WAITING() || val == EXECUTING() ||
-      val == FINISHING() || val == FINISHED() || val == FAILING() || val == ITERATION_ENDED();
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; s++) {
+      if (val == ALL_STATES()[s])
+	return true;
+    }
+    return false;
   }
 
   std::string StateVariable::toString() const {
@@ -947,19 +954,27 @@ namespace PLEXIL
     return retval.str();
   }
 
-  const std::set<double>& StateVariable::ALL_STATES() {
-    static std::set<double>* allStates = NULL;
-    if (allStates == NULL) 
-      {
-	allStates = new std::set<double>;
-	allStates->insert(INACTIVE());
-	allStates->insert(WAITING());
-	allStates->insert(EXECUTING());
-	allStates->insert(FINISHING());
-	allStates->insert(FINISHED());
-	allStates->insert(FAILING());
-	allStates->insert(ITERATION_ENDED());
-      }
+  void StateVariable::setNodeState(NodeState newValue)
+  {
+    checkError(newValue < NO_NODE_STATE,
+	       "Attempted to set an invalid NodeState value");
+    this->setValue(ALL_STATES()[newValue].getKey());
+  }
+
+  const std::vector<LabelStr>& StateVariable::ALL_STATES() {
+    static std::vector<LabelStr>* allStates = NULL;
+    if (allStates == NULL) {
+      allStates = new std::vector<LabelStr>();
+      allStates->reserve(NODE_STATE_MAX);
+      allStates->push_back(INACTIVE());
+      allStates->push_back(WAITING());
+      allStates->push_back(EXECUTING());
+      allStates->push_back(FINISHING());
+      allStates->push_back(FINISHED());
+      allStates->push_back(FAILING());
+      allStates->push_back(ITERATION_ENDED());
+      allStates->push_back(NO_STATE());
+    }
     return *allStates;
   }
 
@@ -1028,41 +1043,17 @@ namespace PLEXIL
     return sl_exp;
   }
 
-  const LabelStr& StateVariable::nodeStateToLabelStr(const NodeState& state)
+  const LabelStr& StateVariable::nodeStateName(NodeState state)
   {
-    switch (state) {
-    case INACTIVE_STATE:
-      return INACTIVE();
-      break;
+    return ALL_STATES()[state];
+  }
 
-    case WAITING_STATE:
-      return WAITING();
-      break;
-
-    case EXECUTING_STATE:
-      return EXECUTING();
-      break;
-
-    case FINISHING_STATE:
-      return FINISHING();
-      break;
-
-    case FINISHED_STATE:
-      return FINISHED();
-      break;
-
-    case FAILING_STATE:
-      return FAILING();
-      break;
-
-    case ITERATION_ENDED_STATE:
-      return ITERATION_ENDED();
-      break;
-
-    default:
-      return NO_STATE();
-      break;
-    }
+  NodeState StateVariable::nodeStateFromName(double nameAsLabelStrKey)
+  {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++)
+      if (ALL_STATES()[s].getKey() == nameAsLabelStrKey)
+	return (NodeState) s;
+    return NO_NODE_STATE;
   }
 
 
@@ -1243,39 +1234,6 @@ namespace PLEXIL
   {
   }
 
-  NaryExpression::NaryExpression(ExpressionList& children)
-    : Calculable()
-  {
-    for (ExpressionListItr it = children.begin(); it != children.end(); ++it)
-      addSubexpression(*it, false);
-  }
-
-  NaryExpression::NaryExpression(ExpressionList& children,
-                                 std::list<bool>& garbage)
-    : Calculable()
-  {
-    // children and garbage should be isomorphic
-
-    checkError(children.size() == garbage.size(),
-               "Expression and garbage list size missmatch.");
-
-    // get iterators
-
-    std::list<bool>::iterator garbageItr = garbage.begin();
-    ExpressionListItr childrenItr = children.begin();
-
-    // run through children expressions and associated
-    // garbage indicators and add them as sub expresssions
-
-    while (childrenItr != children.end() && 
-           garbageItr != garbage.end())
-      {
-        addSubexpression(*childrenItr, *garbageItr);
-        ++childrenItr;
-        ++garbageItr;
-      }
-  }
-
   NaryExpression::NaryExpression(const ExpressionId& a, const ExpressionId& b)
     : Calculable()
   {
@@ -1309,7 +1267,7 @@ namespace PLEXIL
      
     // compute and store values for all subexpressions
      
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
         value = (*child)->getValue();
@@ -1344,7 +1302,7 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
          
@@ -1374,7 +1332,7 @@ namespace PLEXIL
       
     // compute and store values for all subexpressions
       
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
         value = (*child)->getValue();
@@ -1410,7 +1368,7 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
          
@@ -1438,7 +1396,7 @@ namespace PLEXIL
       
     // compute and store values for all subexpressions
       
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
         double value = (*child)->getValue();
@@ -1489,7 +1447,7 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
          
@@ -1509,7 +1467,7 @@ namespace PLEXIL
   double Concatenation::recalculate()
   {   
     std::ostringstream retval; 
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
         double value = (*child)->getValue();
@@ -1534,7 +1492,7 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << NaryExpression::toString() << "(";
-    for (ExpressionListConstItr child = m_subexpressions.begin();
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); ++child)
       {
          
@@ -1887,7 +1845,7 @@ namespace PLEXIL
     ++m_total;
     node->getStateVariable()->addListener(m_listener.getId());
     if(m_constructed) {
-      if(node->getStateDouble() == StateVariable::FINISHED().getKey())
+      if(node->getStateName() == StateVariable::FINISHED())
 	incrementCount(node->getStateVariable());
       else if(getValue() == BooleanVariable::TRUE())
 	internalSetValue(BooleanVariable::FALSE());
@@ -2028,9 +1986,9 @@ namespace PLEXIL
     ++m_total;
     node->getStateVariable()->addListener(m_listener.getId());
     if(m_constructed) {
-	  double state = node->getStateDouble();
-	  if (state == StateVariable::WAITING().getKey() ||
-	      state == StateVariable::FINISHED().getKey())
+      const LabelStr& state = node->getStateName();
+      if (state == StateVariable::WAITING() ||
+	  state == StateVariable::FINISHED())
 	incrementCount(node->getStateVariable());
       else if(getValue() == BooleanVariable::TRUE())
 	internalSetValue(BooleanVariable::FALSE());

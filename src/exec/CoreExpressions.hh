@@ -286,7 +286,7 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, NO_STATE,
 			       "NO_STATE"); /*<! The non-state.  Nothing should *ever* be in
 					      this state.*/
-    static const std::set<double>& ALL_STATES();
+    static const std::vector<LabelStr>& ALL_STATES();
     static ExpressionId& INACTIVE_EXP();
     static ExpressionId& WAITING_EXP();
     static ExpressionId& EXECUTING_EXP();
@@ -296,13 +296,16 @@ namespace PLEXIL {
     static ExpressionId& ITERATION_ENDED_EXP();
     static ExpressionId& NO_STATE_EXP();
 
-    static const LabelStr& nodeStateToLabelStr(const NodeState& state);
+    static const LabelStr& nodeStateName(NodeState state);
+    static NodeState nodeStateFromName(double nameAsLabelStrKey);
 
     // Constructors
     StateVariable(const bool isConst = false);
     StateVariable(const double value, const bool isConst = false);
     StateVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
     std::string toString() const;
+
+    void setNodeState(NodeState newValue);
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -718,9 +721,6 @@ namespace PLEXIL {
   public:
     NaryExpression(const PlexilExprId& expr, 
                    const NodeConnectorId& node);
-    NaryExpression(ExpressionList& children);
-    NaryExpression(ExpressionList& children,
-                   std::list<bool>& garbage);
     NaryExpression(const ExpressionId& a, const ExpressionId& b);
     NaryExpression(const ExpressionId& a, bool aGarbage,
                    const ExpressionId& b, bool bGarbage);

@@ -31,6 +31,7 @@
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
 #include "PlexilPlan.hh"
+#include "generic_hash_map.hh"
 
 #include <list>
 #include <map>
@@ -45,7 +46,7 @@ namespace PLEXIL {
   class NodeStateManager;
   typedef Id<NodeStateManager> NodeStateManagerId;
 
-   typedef std::map<double, ExpressionId> ExpressionMap;
+  typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
 
   class NodeConnector {
   public:
@@ -123,7 +124,8 @@ namespace PLEXIL {
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    Node(const LabelStr& type, const LabelStr& name, const LabelStr& state, const bool skip, const bool start, const bool pre,
+    Node(const LabelStr& type, const LabelStr& name, const NodeState state,
+	 const bool skip, const bool start, const bool pre,
 	 const bool invariant, const bool post, const bool end, const bool repeat,
 	 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 	 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
@@ -179,24 +181,24 @@ namespace PLEXIL {
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.
      * @return The destination state.
      */
-    const LabelStr& getDestState();
+    NodeState getDestState();
 
     /**
-     * @brief Gets the current state of this node.
-     * @return the current node state as a LabelStr.
+     * @brief Gets the name of the current state of this node.
+     * @return the current node state name as a LabelStr const reference.
      */
-    const LabelStr getState() const;
+    const LabelStr& getStateName() const;
 
     /**
      * @brief Gets the current state of this node.
      * @return the current node state as a double (LabelStr key).
      */
-    double getStateDouble() const;
+    NodeState getState() const;
 
     /**
      * @brief Sets the state variable to the new state.
      */
-    void setState(double newValue);
+    void setState(NodeState newValue);
 
     /**
      * @brief Gets the state variable representing the state of this node.
@@ -431,7 +433,8 @@ namespace PLEXIL {
      */
     void setConditionDefaults();
 
-    static const std::vector<double>& ALL_TIMEPOINTS();
+    static const std::vector<double>& START_TIMEPOINT_NAMES();
+    static const std::vector<double>& END_TIMEPOINT_NAMES();
 
     NodeId m_id; /*<! The Id for this node*/
     ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
@@ -439,15 +442,16 @@ namespace PLEXIL {
     NodeConnectorId m_connector;
     PlexilNodeId m_node;
     bool sl_called, m_cleanedConditions, m_cleanedVars, m_transitioning;
-    LabelStr m_lastQuery;
     double m_priority; /*<! The priority of this node */
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
-	NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
-    std::map<double, ExpressionId> m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
+    NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
+    ExpressionMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
 							Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
 							I'll stick all variables in here, just to be safe.*/
     std::list<ExpressionId> m_localVariables; /*<! Variables created in this node*/
+    ExpressionId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
+    ExpressionId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
     ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
     ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
     std::set<unsigned int> m_garbageConditions; /*<! Indices of conditions to be cleaned up. */
@@ -461,7 +465,9 @@ namespace PLEXIL {
     ExpressionId m_interruptEndCond;
     ExpressionId m_conjunctCondition;
     ExpressionId m_allCommandHandleValues;
-    ExpressionId m_stateVariable;
+    ExpressionId m_stateVariable; /*<! Expression copy of the actual state of the node. */
+    NodeState m_state; /*<! The actual state of the node. */
+    NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
   };
 
   class Assignment {
@@ -537,7 +543,7 @@ namespace PLEXIL {
 
   class Update {
   public:
-    Update(const NodeId& node, const std::map<double, ExpressionId>& pairs, const ExpressionId ack,
+    Update(const NodeId& node, const ExpressionMap& pairs, const ExpressionId ack,
 	   const std::list<ExpressionId>& garbage);
     ~Update();
     UpdateId& getId() {return m_id;}
@@ -552,7 +558,7 @@ namespace PLEXIL {
   private:
     UpdateId m_id;
     NodeId m_source;
-    std::map<double, ExpressionId> m_pairs;
+    ExpressionMap m_pairs;
     ExpressionId m_ack;
     std::list<ExpressionId> m_garbage;
     std::map<double, double> m_valuePairs;

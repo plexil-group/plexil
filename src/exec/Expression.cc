@@ -342,9 +342,9 @@ namespace PLEXIL {
   }
 
   Calculable::~Calculable() {
-    for(std::list<ExpressionId>::iterator it = m_subexpressions.begin();
+    for(ExpressionVectorIter it = m_subexpressions.begin();
 	it != m_subexpressions.end(); ++it) {
-      ExpressionId expr = *it;
+      ExpressionId& expr = *it;
       check_error(expr.isValid());
       expr->removeListener(m_listener.getId());
     }
@@ -353,7 +353,7 @@ namespace PLEXIL {
 
    bool Calculable::containsSubexpression(const ExpressionId& expr)
    {
-      for(std::list<ExpressionId>::iterator it = m_subexpressions.begin();
+      for(ExpressionVectorIter it = m_subexpressions.begin();
           it != m_subexpressions.end(); ++it)
       {
          if (expr.equals(*it))
@@ -371,7 +371,15 @@ namespace PLEXIL {
    }
 
   void Calculable::removeSubexpression(const ExpressionId& expr) {
-    m_subexpressions.remove(expr);
+    // this is necessary because std::vector doesn't have a find() method!
+    for (ExpressionVectorIter it = m_subexpressions.begin();
+	 it != m_subexpressions.end();
+	 it++) {
+      if (*it == expr) {
+	m_subexpressions.erase(it);
+	break;
+      }
+    }
     m_garbage.erase(expr);
     expr->removeListener(m_listener.getId());
   }
@@ -401,9 +409,9 @@ namespace PLEXIL {
     if(!changed)
       return;
     m_listener.activate();
-    for(std::list<ExpressionId>::iterator it = m_subexpressions.begin();
+    for(ExpressionVectorIter it = m_subexpressions.begin();
 	it != m_subexpressions.end(); ++it) {
-      ExpressionId expr = *it;
+      ExpressionId& expr = *it;
       check_error(expr.isValid());
       expr->activate();
     }
@@ -414,9 +422,9 @@ namespace PLEXIL {
     if(!changed)
       return;
     m_listener.deactivate();
-    for(std::list<ExpressionId>::iterator it = m_subexpressions.begin();
+    for(ExpressionVectorIter it = m_subexpressions.begin();
 	it != m_subexpressions.end(); ++it) {
-      ExpressionId expr = *it;
+      ExpressionId& expr = *it;
       check_error(expr.isValid());
       expr->deactivate();
     }

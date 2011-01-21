@@ -54,7 +54,7 @@ namespace PLEXIL
    * @note The current state is accessible via the node.
    */
   void 
-  ExecListener::notifyOfTransition(const LabelStr& prevState, 
+  ExecListener::notifyOfTransition(NodeState prevState, 
                                    const NodeId& node) const
   {
     if (m_filter.isNoId()
@@ -185,13 +185,13 @@ namespace PLEXIL
 
   /**
    * @brief Determine whether this node transition event should be reported.
-   * @param prevState The LabelStr naming the node's previous state.
+   * @param prevState The node's previous state.
    * @param node Smart pointer to the node that changed state.
    * @return true to notify on this event, false to ignore it.
    * @note The default method simply returns true.
    */
   bool 
-  ExecListenerFilter::reportNodeTransition(const LabelStr& /* prevState */, 
+  ExecListenerFilter::reportNodeTransition(NodeState /* prevState */, 
                                            const NodeId& /* node */)
   {
     return true;

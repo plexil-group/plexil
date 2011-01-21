@@ -35,13 +35,13 @@ namespace PLEXIL {
   class BindingExecutingStateComputer : public StateComputer {
   public:
     BindingExecutingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
+    NodeState getDestState(NodeId& node) {
       checkError(node->getType() == Node::ASSIGNMENT(),
 		 "Expected assignment node, got " <<
 		 node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
+      checkError(node->getState() == EXECUTING_STATE,
 		 "Node " << node->getNodeId().toString() << " in state " <<
-		 node->getState().toString() << " not EXECUTING.");
+		 node->getStateName().toString() << " not EXECUTING.");
       checkError(node->isAncestorInvariantConditionActive(),
 		 "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isInvariantConditionActive(),
@@ -59,36 +59,37 @@ namespace PLEXIL {
 	 BooleanVariable::FALSE())
       {
 	debugMsg("Node:getDestState", "Destination: FINISHED. Ancestor invariant false.");
-	return StateVariable::FINISHED();
+	return FINISHED_STATE;
       }
       else if(node->getInvariantCondition()->getValue() ==
 	      BooleanVariable::FALSE()) 
       {
 	debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  Invariant false.");
-	return StateVariable::ITERATION_ENDED();
+	return ITERATION_ENDED_STATE;
       }
       else if(node->getEndCondition()->getValue() ==
 	      BooleanVariable::TRUE()) 
       {
 	debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  End condition true.");
-	return StateVariable::ITERATION_ENDED();
+	return ITERATION_ENDED_STATE;
       }
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class BindingExecutingTransitionHandler : public TransitionHandler {
   public:
     BindingExecutingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
+    void transitionFrom(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::ASSIGNMENT(),
 		 "Expected assignment node, got " <<
 		 node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
-		 "In state '" << node->getState().toString() << "', not EXECUTING.");
-      checkError(destState == StateVariable::ITERATION_ENDED() ||
-		 destState == StateVariable::FINISHED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(node->getState() == EXECUTING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not EXECUTING.");
+      checkError(destState == ITERATION_ENDED_STATE ||
+		 destState == FINISHED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       bool abort = false;
       if (node->getAncestorInvariantCondition()->getValue() ==
@@ -125,12 +126,13 @@ namespace PLEXIL {
       deactivateExecutable(node);
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
+    void transitionTo(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::ASSIGNMENT(),
 		 "Expected assignment node, got " <<
 		 node->getType().toString());
-      checkError(destState == StateVariable::EXECUTING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'.");
+      checkError(destState == EXECUTING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'.");
 
       node->activateAncestorInvariantCondition();
       node->activateInvariantCondition();
@@ -143,8 +145,8 @@ namespace PLEXIL {
   };
 
   VarBindingStateManager::VarBindingStateManager() : DefaultStateManager() {
-    addStateComputer(StateVariable::EXECUTING(), (new BindingExecutingStateComputer())->getId());
-    addTransitionHandler(StateVariable::EXECUTING(),
+    addStateComputer(EXECUTING_STATE, (new BindingExecutingStateComputer())->getId());
+    addTransitionHandler(EXECUTING_STATE,
 			 (new BindingExecutingTransitionHandler())->getId());
   }
 }

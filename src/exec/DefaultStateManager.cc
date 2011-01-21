@@ -34,8 +34,8 @@ namespace PLEXIL {
   class DefaultInactiveStateComputer : public StateComputer {
   public:
     DefaultInactiveStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
-      checkError(node->getStateDouble() == StateVariable::INACTIVE().getKey(), "In state '" << node->getState().toString() << "', not INACTIVE.");
+    NodeState getDestState(NodeId& node) {
+      checkError(node->getState() == INACTIVE_STATE, "In state '" << node->getStateName().toString() << "', not INACTIVE.");
       checkError(node->isParentExecutingConditionActive(), "Parent executing for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isParentFinishedConditionActive(), "Parent finished for " << node->getNodeId().toString() << " is inactive.");
 
@@ -45,22 +45,22 @@ namespace PLEXIL {
 	condDebugMsg(node->getParentFinishedCondition()->getValue() ==
 		     BooleanVariable::TRUE(),
 		     "Node:getDestState", "PARENT_FINISHED_CONDITION true.");
-	return StateVariable::FINISHED();
+	return FINISHED_STATE;
       }
       if(node->getParentExecutingCondition()->getValue() == BooleanVariable::TRUE()) {
 	debugMsg("Node:getDestState", "Destination: WAITING.  PARENT_EXECUTING_CONDITION true");
-	return StateVariable::WAITING();
+	return WAITING_STATE;
       }
       debugMsg("Node:getDestState", "Destination: no state.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class DefaultWaitingStateComputer : public StateComputer {
   public:
     DefaultWaitingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
-      checkError(node->getStateDouble() == StateVariable::WAITING().getKey(), "In state '" << node->getState().toString() << "', not WAITING.");
+    NodeState getDestState(NodeId& node) {
+      checkError(node->getState() == WAITING_STATE, "In state '" << node->getStateName().toString() << "', not WAITING.");
       checkError(node->isAncestorInvariantConditionActive(), "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isAncestorEndConditionActive(), "Ancestor end for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isSkipConditionActive(), "Skip for " << node->getNodeId().toString() << " is inactive.");
@@ -77,29 +77,29 @@ namespace PLEXIL {
                       "Node:getDestState", "ANCESTOR_END_CONDITION true.");
          condDebugMsg(node->getSkipCondition()->getValue() == BooleanVariable::TRUE(),
                       "Node:getDestState", "SKIP_CONDITION true.");
-	        return StateVariable::FINISHED();
+	        return FINISHED_STATE;
       }
       if(node->getStartCondition()->getValue() == BooleanVariable::TRUE()) {
 	if(node->getPreCondition()->getValue() == BooleanVariable::TRUE()) {
 	  debugMsg("Node:getDestState", "Destination: EXECUTING.  START_CONDITION and PRE_CONDITION are both true.");
-	  return StateVariable::EXECUTING();
+	  return EXECUTING_STATE;
 	}
 	else {
 	  debugMsg("Node:getDestState", "Destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
-	  return StateVariable::ITERATION_ENDED();
+	  return ITERATION_ENDED_STATE;
 	}
       }
       debugMsg("Node:getDestState", "Destination: no state.  START_CONDITION false or unknown");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class DefaultIterationEndedStateComputer : public StateComputer {
   public:
     DefaultIterationEndedStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
-      checkError(node->getStateDouble() == StateVariable::ITERATION_ENDED().getKey(),
-		 "Node " << node->getNodeId().toString() << " in state " << node->getState().toString() << " not ITERATION_ENDED.");
+    NodeState getDestState(NodeId& node) {
+      checkError(node->getState() == ITERATION_ENDED_STATE,
+		 "Node " << node->getNodeId().toString() << " in state " << node->getStateName().toString() << " not ITERATION_ENDED.");
       checkError(node->isAncestorInvariantConditionActive(), "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isAncestorEndConditionActive(), "Ancestor end for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isRepeatConditionActive(), "Repeat for " << node->getNodeId().toString() << " is inactive.");
@@ -115,53 +115,54 @@ namespace PLEXIL {
                       "Node:getDestState", "ANCESTOR_END true.");
          condDebugMsg(node->getRepeatCondition()->getValue() == BooleanVariable::FALSE(),
                       "Node:getDestState", "REPEAT_CONDITION false.");
-         return StateVariable::FINISHED();
+         return FINISHED_STATE;
       }
       if(node->getRepeatCondition()->getValue() == BooleanVariable::TRUE()) {
 	debugMsg("Node:getDestState", "'" << node->getNodeId().toString() << "' destination: WAITING.  REPEAT_UNTIL true.");
-	return StateVariable::WAITING();
+	return WAITING_STATE;
       }
       debugMsg("Node:getDestState", "'" << node->getNodeId().toString() << "' destination: no state.  ANCESTOR_END false or unknown and REPEAT unknown.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class DefaultFinishedStateComputer : public StateComputer {
   public:
     DefaultFinishedStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
-      checkError(node->getStateDouble() == StateVariable::FINISHED().getKey(),
-		 "Node " << node->getNodeId().toString() << " in state " << node->getState().toString() << " not ITERATION_ENDED.");
+    NodeState getDestState(NodeId& node) {
+      checkError(node->getState() == FINISHED_STATE,
+		 "Node " << node->getNodeId().toString() << " in state " << node->getStateName().toString() << " not ITERATION_ENDED.");
       checkError(node->isParentWaitingConditionActive(), "Parent waiting for " << node->getNodeId().toString() << " is inactive.");
 
       if(node->getParentWaitingCondition()->getValue() == BooleanVariable::TRUE()) {
 	debugMsg("Node:getDestState", "Destination: INACTIVE.  PARENT_WAITING true.");
-	return StateVariable::INACTIVE();
+	return INACTIVE_STATE;
       }
       debugMsg("Node:getDestState", "Destination: no state.  PARENT_WAITING false or unknown.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class DefaultInactiveTransitionHandler : public TransitionHandler {
   public:
     DefaultInactiveTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
-      checkError(node->getStateDouble() == StateVariable::INACTIVE().getKey(),
-		 "In state '" << node->getState().toString() << "', not INACTIVE.");
-      checkError(destState == StateVariable::WAITING() ||
-		 destState == StateVariable::FINISHED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+    void transitionFrom(NodeId& node, NodeState destState) {
+      checkError(node->getState() == INACTIVE_STATE,
+		 "In state '" << node->getStateName().toString() << "', not INACTIVE.");
+      checkError(destState == WAITING_STATE ||
+		 destState == FINISHED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->deactivateParentExecutingCondition();
       node->deactivateParentFinishedCondition();
-      if(destState == StateVariable::FINISHED())
+      if(destState == FINISHED_STATE)
 	node->getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
     }
-    void transitionTo(NodeId& node, const LabelStr& destState) {
-      checkError(destState == StateVariable::INACTIVE(),
+    void transitionTo(NodeId& node, NodeState destState) {
+      checkError(destState == INACTIVE_STATE,
 		 "Attempted to transition to INACTIVE with computed dest state '" <<
-		 destState.toString());
+		 StateVariable::nodeStateName(destState).toString());
       node->activateParentExecutingCondition();
       node->activateParentFinishedCondition();
 
@@ -172,13 +173,14 @@ namespace PLEXIL {
   class DefaultWaitingTransitionHandler : public TransitionHandler {
   public:
     DefaultWaitingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
-      checkError(node->getStateDouble() == StateVariable::WAITING().getKey(),
-		 "In state '" << node->getState().toString() << "', not WAITING.");
-      checkError(destState == StateVariable::FINISHED() ||
-		 destState == StateVariable::EXECUTING() ||
-		 destState == StateVariable::ITERATION_ENDED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+    void transitionFrom(NodeId& node, NodeState destState) {
+      checkError(node->getState() == WAITING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not WAITING.");
+      checkError(destState == FINISHED_STATE ||
+		 destState == EXECUTING_STATE ||
+		 destState == ITERATION_ENDED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->deactivateStartCondition();
       node->deactivateSkipCondition();
@@ -186,18 +188,18 @@ namespace PLEXIL {
       node->deactivateAncestorInvariantCondition();
       node->deactivatePreCondition();
 
-      if(destState == StateVariable::FINISHED())
+      if(destState == FINISHED_STATE)
 	node->getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
-      else if(destState == StateVariable::ITERATION_ENDED()) {
+      else if(destState == ITERATION_ENDED_STATE) {
 	node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
 	node->getFailureTypeVariable()->setValue(FailureVariable::PRE_CONDITION_FAILED());
       }
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
-      checkError(destState == StateVariable::WAITING(),
+    void transitionTo(NodeId& node, NodeState destState) {
+      checkError(destState == WAITING_STATE,
 		 "Attempted to transition to WAITING with computed dest state '" <<
-		 destState.toString());
+		 StateVariable::nodeStateName(destState).toString());
 
 
       node->activateStartCondition();
@@ -213,12 +215,13 @@ namespace PLEXIL {
   class DefaultIterationEndedTransitionHandler : public TransitionHandler {
   public:
     DefaultIterationEndedTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
-      checkError(node->getStateDouble() == StateVariable::ITERATION_ENDED().getKey(),
-		 "In state '" << node->getState().toString() << "', not ITERATION_ENDED.");
-      checkError(destState == StateVariable::FINISHED() ||
-		 destState == StateVariable::WAITING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+    void transitionFrom(NodeId& node, NodeState destState) {
+      checkError(node->getState() == ITERATION_ENDED_STATE,
+		 "In state '" << node->getStateName().toString() << "', not ITERATION_ENDED.");
+      checkError(destState == FINISHED_STATE ||
+		 destState == WAITING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
 	 BooleanVariable::FALSE()) 
@@ -231,13 +234,14 @@ namespace PLEXIL {
       node->deactivateAncestorEndCondition();
       node->deactivateAncestorInvariantCondition();
 
-      if(destState == StateVariable::WAITING())
+      if(destState == WAITING_STATE)
 	handleReset(node);
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
-      checkError(destState == StateVariable::ITERATION_ENDED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+    void transitionTo(NodeId& node, NodeState destState) {
+      checkError(destState == ITERATION_ENDED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->activateRepeatCondition();
       node->activateAncestorEndCondition();
@@ -250,19 +254,21 @@ namespace PLEXIL {
   class DefaultFinishedTransitionHandler : public TransitionHandler {
   public:
     DefaultFinishedTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
-      checkError(node->getStateDouble() == StateVariable::FINISHED().getKey(),
-		 "In state '" << node->getState().toString() << "', not FINISHED.");
-      checkError(destState == StateVariable::INACTIVE(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+    void transitionFrom(NodeId& node, NodeState destState) {
+      checkError(node->getState() == FINISHED_STATE,
+		 "In state '" << node->getStateName().toString() << "', not FINISHED.");
+      checkError(destState == INACTIVE_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->deactivateParentWaitingCondition();
       handleReset(node);
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
-      checkError(destState == StateVariable::FINISHED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+    void transitionTo(NodeId& node, NodeState destState) {
+      checkError(destState == FINISHED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->activateParentWaitingCondition();
       node->setState(destState);
@@ -271,22 +277,22 @@ namespace PLEXIL {
 
   DefaultStateManager::DefaultStateManager() : NodeStateManager() {
     //have defaults for INACTIVE, WAITING,
-    addStateComputer(StateVariable::INACTIVE(), (new DefaultInactiveStateComputer())->getId());
-    addTransitionHandler(StateVariable::INACTIVE(), (new DefaultInactiveTransitionHandler())->getId());
-    addStateComputer(StateVariable::WAITING(), (new DefaultWaitingStateComputer())->getId());
-    addTransitionHandler(StateVariable::WAITING(), (new DefaultWaitingTransitionHandler())->getId());
-    addStateComputer(StateVariable::ITERATION_ENDED(), (new DefaultIterationEndedStateComputer())->getId());
-    addTransitionHandler(StateVariable::ITERATION_ENDED(), (new DefaultIterationEndedTransitionHandler())->getId());
-    addStateComputer(StateVariable::FINISHED(), (new DefaultFinishedStateComputer())->getId());
-    addTransitionHandler(StateVariable::FINISHED(), (new DefaultFinishedTransitionHandler())->getId());
+    addStateComputer(INACTIVE_STATE, (new DefaultInactiveStateComputer())->getId());
+    addTransitionHandler(INACTIVE_STATE, (new DefaultInactiveTransitionHandler())->getId());
+    addStateComputer(WAITING_STATE, (new DefaultWaitingStateComputer())->getId());
+    addTransitionHandler(WAITING_STATE, (new DefaultWaitingTransitionHandler())->getId());
+    addStateComputer(ITERATION_ENDED_STATE, (new DefaultIterationEndedStateComputer())->getId());
+    addTransitionHandler(ITERATION_ENDED_STATE, (new DefaultIterationEndedTransitionHandler())->getId());
+    addStateComputer(FINISHED_STATE, (new DefaultFinishedStateComputer())->getId());
+    addTransitionHandler(FINISHED_STATE, (new DefaultFinishedTransitionHandler())->getId());
 
     //need to specialize EXECUTING (for list, cmd/update/request, assignment, function calls), FAILING (list, cmd/update/request),
     // FINISHING (just for lists)
-//     addStateComputer(StateVariable::EXECUTING(), (new StateComputerError())->getId());
-//     addStateComputer(StateVariable::FAILING(), (new StateComputerError())->getId());
-//     addStateComputer(StateVariable::FINISHING(), (new StateComputerError())->getId());
-//     addTransitionHandler(StateVariable::EXECUTING(), (new TransitionHandlerError())->getId());
-//     addTransitionHandler(StateVariable::FAILING(), (new TransitionHandlerError())->getId());
-//     addTransitionHandler(StateVariable::FINISHING(), (new TransitionHandlerError())->getId());
+//     addStateComputer(EXECUTING_STATE, (new StateComputerError())->getId());
+//     addStateComputer(FAILING_STATE, (new StateComputerError())->getId());
+//     addStateComputer(FINISHING_STATE, (new StateComputerError())->getId());
+//     addTransitionHandler(EXECUTING_STATE, (new TransitionHandlerError())->getId());
+//     addTransitionHandler(FAILING_STATE, (new TransitionHandlerError())->getId());
+//     addTransitionHandler(FINISHING_STATE, (new TransitionHandlerError())->getId());
   }
 }

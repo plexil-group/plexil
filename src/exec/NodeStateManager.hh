@@ -49,7 +49,7 @@ namespace PLEXIL {
     StateComputer() : m_id(this) {}
     virtual ~StateComputer() {m_id.remove();}
     const StateComputerId& getId() const {return m_id;}
-    virtual const LabelStr& getDestState(NodeId& node) = 0;
+    virtual NodeState getDestState(NodeId& node) = 0;
   protected:
   private:
     StateComputerId m_id;
@@ -63,11 +63,11 @@ namespace PLEXIL {
     /**
      * @brief Handle the node exiting this state.
      */
-    virtual void transitionFrom(NodeId& node, const LabelStr& destState) = 0;
+    virtual void transitionFrom(NodeId& node, NodeState destState) = 0;
     /**
      * @brief Handle the node entering this state.
      */
-    virtual void transitionTo(NodeId& node, const LabelStr& destState) = 0;
+    virtual void transitionTo(NodeId& node, NodeState destState) = 0;
   protected:
     static void deactivateExecutable(NodeId& node);
     static void handleExecution(NodeId& node);
@@ -86,16 +86,16 @@ namespace PLEXIL {
     NodeStateManager();
     ~NodeStateManager();
     const NodeStateManagerId& getId() const {return m_id;}
-    const LabelStr& getDestState(NodeId& node);
+    NodeState getDestState(NodeId& node);
     bool canTransition(NodeId& node);
     void transition(NodeId& node);
-    void addStateComputer(const LabelStr& fromState, const StateComputerId& cmp);
-    void addTransitionHandler(const LabelStr& fromState, const TransitionHandlerId& trans);
+    void addStateComputer(NodeState fromState, const StateComputerId& cmp);
+    void addTransitionHandler(NodeState fromState, const TransitionHandlerId& trans);
 
   private:
     NodeStateManagerId m_id;
-    std::map<double, StateComputerId> m_stateComputers;
-    std::map<double, TransitionHandlerId> m_transitionHandlers;
+    StateComputerId m_stateComputers[NODE_STATE_MAX];
+    TransitionHandlerId m_transitionHandlers[NODE_STATE_MAX];
 
     static std::map<double, NodeStateManagerId>& registeredManagers();
   };
@@ -103,14 +103,14 @@ namespace PLEXIL {
   class StateComputerError : public StateComputer {
   public:
     StateComputerError() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node);
+    NodeState getDestState(NodeId& node);
   };
 
   class TransitionHandlerError : public TransitionHandler {
   public:
     TransitionHandlerError() : TransitionHandler() {}
-    void transitionTo(NodeId& node, const LabelStr& destState);
-    void transitionFrom(NodeId& node, const LabelStr& destState);
+    void transitionTo(NodeId& node, NodeState destState);
+    void transitionFrom(NodeId& node, NodeState destState);
   };
 
 #define REGISTER_STATE_MANAGER(CLASS, TYPE) {NodeStateManager::registerStateManager(LabelStr(#TYPE), (new CLASS())->getId());}

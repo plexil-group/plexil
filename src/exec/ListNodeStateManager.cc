@@ -35,12 +35,12 @@ namespace PLEXIL {
   class ListExecutingStateComputer : public StateComputer {
   public:
     ListExecutingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
+    NodeState getDestState(NodeId& node) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
+      checkError(node->getState() == EXECUTING_STATE,
 		 "Node " << node->getNodeId().toString() << " in state " <<
-		 node->getState().toString() << " not EXECUTING.");
+		 node->getStateName().toString() << " not EXECUTING.");
       checkError(node->isAncestorInvariantConditionActive(),
 		 "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isInvariantConditionActive(),
@@ -58,28 +58,28 @@ namespace PLEXIL {
          condDebugMsg(node->getInvariantCondition()->getValue() == BooleanVariable::FALSE(),
                       "Node:getDestState",
                       "List node and INVARIANT_CONDITION false.");
-         return StateVariable::FAILING();
+         return FAILING_STATE;
       }
       if(node->getEndCondition()->getValue() == BooleanVariable::TRUE()) {
 	debugMsg("Node:getDestState",
 		 "Destination: FINISHING.  List node and END_CONDITION true.");
-	return StateVariable::FINISHING();
+	return FINISHING_STATE;
       }
       debugMsg("Node:getDestState",
 	       "Destination: no state.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class ListFailingStateComputer : public StateComputer {
   public:
     ListFailingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
+    NodeState getDestState(NodeId& node) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
+      checkError(node->getState() == FAILING_STATE,
 		 "Node " << node->getNodeId().toString() << " in state " <<
-		 node->getState().toString() << " not FAILING.");
+		 node->getStateName().toString() << " not FAILING.");
       checkError(node->isChildrenWaitingOrFinishedConditionActive(),
 		 "Children waiting or finished for " << node->getNodeId().toString() <<
 		 " is inactive.");
@@ -91,16 +91,16 @@ namespace PLEXIL {
 	  debugMsg("Node:getDestState",
 		   "Destination: FINISHED.  List node and ALL_CHILDREN_WAITING_OR_FINISHED" <<
 		   " true and parent failed.");
-	  return StateVariable::FINISHED();
+	  return FINISHED_STATE;
 	}
 	else {
 	  debugMsg("Node:getDestState",
 		   "Destination: ITERATION_ENDED.  List node and self-failure.");
-	  return StateVariable::ITERATION_ENDED();
+	  return ITERATION_ENDED_STATE;
 	}
       }
       debugMsg("Node:getDestState", "Destination: no state.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
@@ -108,12 +108,12 @@ namespace PLEXIL {
   class ListFinishingStateComputer : public StateComputer {
   public:
     ListFinishingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
+    NodeState getDestState(NodeId& node) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::FINISHING().getKey(),
+      checkError(node->getState() == FINISHING_STATE,
 		 "Node " << node->getNodeId().toString() << " in state " <<
-		 node->getState().toString() << " not FINISHING.");
+		 node->getStateName().toString() << " not FINISHING.");
       checkError(node->isAncestorInvariantConditionActive(),
 		 "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isInvariantConditionActive(),
@@ -133,7 +133,7 @@ namespace PLEXIL {
          condDebugMsg(node->getInvariantCondition()->getValue() == BooleanVariable::FALSE(),
                       "Node:getDestState",
                       "List node and INVARIANT_CONDITION false.");
-         return StateVariable::FAILING();
+         return FAILING_STATE;
       }
       if(node->getChildrenWaitingOrFinishedCondition()->getValue() ==
 	 BooleanVariable::TRUE()) {
@@ -144,31 +144,32 @@ namespace PLEXIL {
 	  debugMsg("Node:getDestState",
 		   "Destination: FINISHED.  List node, ALL_CHILDREN_WAITING_OR_FINISHED " <<
 		   "true and POST_CONDITION false or unknown.");
-	  return StateVariable::ITERATION_ENDED();
+	  return ITERATION_ENDED_STATE;
 	}
 
 	debugMsg("Node:getDestState",
 		 "Destination: ITERATION_ENDED.  List node and " <<
 		 "ALL_CHILDREN_WAITING_OR_FINISHED and POST_CONDITION true.");
-	return StateVariable::ITERATION_ENDED();
+	return ITERATION_ENDED_STATE;
       }
       debugMsg("Node:getDestState",
 	       "Destination: no state. ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class ListExecutingTransitionHandler : public TransitionHandler {
   public:
     ListExecutingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
+    void transitionFrom(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
-		 "In state '" << node->getState().toString() << "', not EXECUTING.");
-      checkError(destState == StateVariable::FINISHING() ||
-		 destState == StateVariable::FAILING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(node->getState() == EXECUTING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not EXECUTING.");
+      checkError(destState == FINISHING_STATE ||
+		 destState == FAILING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
 	 BooleanVariable::FALSE())
@@ -185,7 +186,7 @@ namespace PLEXIL {
       
 
       node->deactivateAncestorInvariantCondition();
-      if(destState != StateVariable::FINISHING())
+      if(destState != FINISHING_STATE)
 		node->deactivateInvariantCondition();
       node->deactivateEndCondition();
       // Any variables declared in this node also need to be deactivated.
@@ -193,11 +194,12 @@ namespace PLEXIL {
       deactivateExecutable(node);
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
+    void transitionTo(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(destState == StateVariable::EXECUTING(),
-		 "Attempting to transition to inavlid state '" << destState.toString() << "'");
+      checkError(destState == EXECUTING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->activateAncestorInvariantCondition();
       node->activateInvariantCondition();
@@ -212,23 +214,25 @@ namespace PLEXIL {
   class ListFailingTransitionHandler : public TransitionHandler {
   public:
     ListFailingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
+    void transitionFrom(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
-		 "In state '" << node->getState().toString() << "', not FAILING.");
-      checkError(destState == StateVariable::ITERATION_ENDED() ||
-		 destState == StateVariable::FINISHED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(node->getState() == FAILING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not FAILING.");
+      checkError(destState == ITERATION_ENDED_STATE ||
+		 destState == FINISHED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->deactivateChildrenWaitingOrFinishedCondition();
       
     }
-    void transitionTo(NodeId& node, const LabelStr& destState) {
+    void transitionTo(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(destState == StateVariable::FAILING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(destState == FAILING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
       
       node->activateChildrenWaitingOrFinishedCondition();
 
@@ -240,14 +244,15 @@ namespace PLEXIL {
   class ListFinishingTransitionHandler : public TransitionHandler {
   public:
     ListFinishingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
+    void transitionFrom(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::FINISHING().getKey(),
-		 "In state '" << node->getState().toString() << "', not FINISHING.");
-      checkError(destState == StateVariable::ITERATION_ENDED() ||
-		 destState == StateVariable::FAILING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(node->getState() == FINISHING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not FINISHING.");
+      checkError(destState == ITERATION_ENDED_STATE ||
+		 destState == FAILING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
           BooleanVariable::FALSE())
@@ -275,11 +280,12 @@ namespace PLEXIL {
       node->deactivatePostCondition();
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
+    void transitionTo(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::LIST(),
 		 "Expected node list, got " << node->getType().toString());
-      checkError(destState == StateVariable::FINISHING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'.");
+      checkError(destState == FINISHING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'.");
 
       node->activateAncestorInvariantCondition();
       node->activateChildrenWaitingOrFinishedCondition();
@@ -290,16 +296,16 @@ namespace PLEXIL {
   };
 
   ListNodeStateManager::ListNodeStateManager() : DefaultStateManager() {
-    addStateComputer(StateVariable::EXECUTING(), (new ListExecutingStateComputer())->getId());
-    addTransitionHandler(StateVariable::EXECUTING(),
+    addStateComputer(EXECUTING_STATE, (new ListExecutingStateComputer())->getId());
+    addTransitionHandler(EXECUTING_STATE,
 			 (new ListExecutingTransitionHandler())->getId());
 
-    addStateComputer(StateVariable::FAILING(), (new ListFailingStateComputer())->getId());
-    addTransitionHandler(StateVariable::FAILING(),
+    addStateComputer(FAILING_STATE, (new ListFailingStateComputer())->getId());
+    addTransitionHandler(FAILING_STATE,
 			 (new ListFailingTransitionHandler())->getId());
 
-    addStateComputer(StateVariable::FINISHING(), (new ListFinishingStateComputer())->getId());
-    addTransitionHandler(StateVariable::FINISHING(),
+    addStateComputer(FINISHING_STATE, (new ListFinishingStateComputer())->getId());
+    addTransitionHandler(FINISHING_STATE,
 			 (new ListFinishingTransitionHandler())->getId());
   }
 

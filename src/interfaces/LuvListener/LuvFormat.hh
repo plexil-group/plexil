@@ -29,6 +29,7 @@
 
 #include "ConstantMacros.hh"
 #include "Id.hh"
+#include "ExecDefs.hh" // for NodeState
 #include <iosfwd>
 #include <string>
 
@@ -101,7 +102,7 @@ namespace PLEXIL {
 	 * @param node The node.
 	 */
 	static void formatTransition(std::ostream& s, 
-								 const LabelStr& prevState,
+								 NodeState prevState,
 								 const NodeId& node);
 
 	/**

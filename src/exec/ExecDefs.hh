@@ -76,9 +76,9 @@ namespace PLEXIL {
   typedef Id<Update> UpdateId;
 
   typedef std::pair<double, std::vector<double> > State;
-  typedef std::list<ExpressionId> ExpressionList;
-  typedef std::list<ExpressionId>::iterator ExpressionListItr;
-  typedef std::list<ExpressionId>::const_iterator ExpressionListConstItr;
+  typedef std::vector<ExpressionId> ExpressionVector;
+  typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
+  typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
   typedef double StateKey;
   typedef double LookupKey;
@@ -105,6 +105,7 @@ namespace PLEXIL {
     FINISHED_STATE,
     FAILING_STATE,
     ITERATION_ENDED_STATE,
+    NO_NODE_STATE,
     NODE_STATE_MAX
   };
 }

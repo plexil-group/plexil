@@ -567,7 +567,7 @@ namespace PLEXIL {
 
     SubexpressionListener m_listener; /*<! For incoming message notifications (other expressions' values have changed) */
     //std::list<ExpressionListenerId> m_incomingListeners;
-    std::list<ExpressionId> m_subexpressions; /*<! The set of subexpressions.*/
+    ExpressionVector m_subexpressions; /*<! The subexpressions.*/
     std::set<ExpressionId> m_garbage;
   };
 

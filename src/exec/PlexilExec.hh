@@ -238,7 +238,7 @@ namespace PLEXIL
      */
     void quiescenceLoop(const int depth, const unsigned int stop, const double time);
 
-    inline void publishTransition(const LabelStr& oldState, const NodeId& node);
+    inline void publishTransition(NodeState oldState, const NodeId& node);
     void publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent);
     void publishAddLibrary(const PlexilNodeId& libNode);
     void publishAssignment(const ExpressionId & dest,

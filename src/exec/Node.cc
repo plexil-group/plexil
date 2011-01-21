@@ -176,14 +176,15 @@ namespace PLEXIL {
     : m_id(this), m_exec(exec), m_parent(parent),
       m_connector((new RealNodeConnector(m_id))->getId()), m_node(node), sl_called(false),
       m_cleanedConditions(false), m_cleanedVars(false), m_transitioning(false),
-      m_lastQuery(StateVariable::UNKNOWN()), m_priority(WORST_PRIORITY)
+      m_priority(WORST_PRIORITY),
+      m_state(INACTIVE_STATE), m_lastQuery(NO_NODE_STATE)
   {
      m_nodeId = LabelStr(node->nodeId());
 
      m_priority = node->priority();
 
      m_nodeType = nodeTypeToLabelStr(node->nodeType());
-	 m_stateManager = NodeStateManager::getStateManager(m_nodeType);
+     m_stateManager = NodeStateManager::getStateManager(m_nodeType);
 
      debugMsg("Node:node", "Creating node '" << m_nodeId.toString() << "'");
      commonInit();
@@ -226,7 +227,7 @@ namespace PLEXIL {
   }
 
   // Used only by module test
-  Node::Node(const LabelStr& type, const LabelStr& name, const LabelStr& state,
+  Node::Node(const LabelStr& type, const LabelStr& name, const NodeState state,
 	     const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
 	     const bool end, const bool repeat, const bool ancestorInvariant,
 	     const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
@@ -234,9 +235,11 @@ namespace PLEXIL {
 	     const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec)
     : m_id(this), m_exec(exec), m_parent(NodeId::noId()), m_node(PlexilNodeId::noId()),
       sl_called(false), m_cleanedConditions(false), m_cleanedVars(false),
-      m_transitioning(false), m_lastQuery(StateVariable::UNKNOWN()) {
+      m_transitioning(false),
+      m_state(state), m_lastQuery(NO_NODE_STATE)
+  {
     m_nodeType = type;
-	m_stateManager = NodeStateManager::getStateManager(m_nodeType);
+    m_stateManager = NodeStateManager::getStateManager(m_nodeType);
     m_nodeId = name;
     commonInit();
     double conds[15] = {SKIP_CONDITION(), START_CONDITION(), PRE_CONDITION(), INVARIANT_CONDITION(),
@@ -248,7 +251,6 @@ namespace PLEXIL {
     bool values[15] = {skip, start, pre, invariant, post, end, repeat, ancestorInvariant,
 		       ancestorEnd, parentExecuting, childrenFinished, commandAbort,
 		       parentWaiting, parentFinished, cmdHdlRcvdCondition};
-    m_variablesByName[STATE()]->setValue(state);
     for (unsigned int i = 0; i < 15; i++) {
       debugMsg("Node:node",
 	       "Creating internal variable " << LabelStr(conds[i]).toString() <<
@@ -366,6 +368,7 @@ namespace PLEXIL {
     //instantiate state/outcome/failure variables
     m_variablesByName[STATE()] = m_stateVariable = (new StateVariable())->getId();
     m_stateVariable->activate();
+    ((StateVariable*) m_stateVariable)->setNodeState(m_state);
 
     m_variablesByName[OUTCOME()] = (new OutcomeVariable())->getId();
     m_variablesByName[OUTCOME()]->activate();
@@ -383,12 +386,18 @@ namespace PLEXIL {
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
-    for(std::vector<double>::const_iterator it = ALL_TIMEPOINTS().begin();
-	it != ALL_TIMEPOINTS().end();
-	++it) {
-      m_variablesByName[*it] = (new RealVariable())->getId();
-      m_variablesByName[*it]->activate();
-      m_garbage.insert(*it);
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+      ExpressionId stp = (new RealVariable())->getId();
+      double stpName = START_TIMEPOINT_NAMES()[s];
+      m_startTimepoints[s] = m_variablesByName[stpName] = stp;
+      stp->activate();
+      m_garbage.insert(stpName);
+
+      ExpressionId etp = (new RealVariable())->getId();
+      const LabelStr& etpName = END_TIMEPOINT_NAMES()[s];
+      m_endTimepoints[s] = m_variablesByName[etpName] = etp;
+      etp->activate();
+      m_garbage.insert(etpName);
     }
     setConditionDefaults();
   }
@@ -661,7 +670,7 @@ namespace PLEXIL {
 	       " node '" << m_nodeId.toString() << "'");
     
     PlexilUpdateId update = body->update();
-    std::map<double, ExpressionId> updatePairs;
+    ExpressionMap updatePairs;
     std::list<ExpressionId> garbage;
 
     if(update.isValid()) {
@@ -1231,47 +1240,58 @@ namespace PLEXIL {
   }
 
   void Node::checkConditions() {
+    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
+	       "Node state not synchronized for node " << m_nodeId.toString()
+	       << "; node state = " << m_state
+	       << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
+
     if(m_transitioning)
       return;
 
     debugMsg("Node:checkConditions",
 	     "Checking condition change for node " << m_nodeId.toString());
-    const LabelStr& toState(getDestState());
+    NodeState toState(getDestState());
     debugMsg("Node:checkConditions",
-	     "Can (possibly) transition to " << toState.toString());
-    if(toState != m_lastQuery) {
-      if((toState != StateVariable::UNKNOWN() && toState != StateVariable::NO_STATE()) ||
-	 ((toState == StateVariable::UNKNOWN() || toState == StateVariable::NO_STATE()) &&
-	  (m_lastQuery != StateVariable::UNKNOWN() &&
-	   m_lastQuery != StateVariable::NO_STATE())))
+	     "Can (possibly) transition to " << StateVariable::nodeStateName(toState).toString());
+    if (toState != m_lastQuery) {
+      if (toState != NO_NODE_STATE ||
+	  (toState == NO_NODE_STATE &&
+	   m_lastQuery != NO_NODE_STATE))
 	m_exec->handleConditionsChanged(m_id);
       m_lastQuery = toState;
     }
   }
 
   void Node::transition(const double time) {
+    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
+	       "Node state not synchronized for node " << m_nodeId.toString()
+	       << "; node state = " << m_state
+	       << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
     checkError(!m_transitioning,
 	       "Node " << m_nodeId.toString() << " is already transitioning.");
     m_transitioning = true;
-    LabelStr prevState(getState());
+    NodeState prevState(getState());
     m_stateManager->transition(m_id);
-    LabelStr newState(getState());
+    NodeState newState(getState());
     debugMsg("Node:transition", "Transitioning '" << m_nodeId.toString() <<
-	     "' from " << prevState.toString() << " to " << newState.toString());
-    condDebugMsg((newState == StateVariable::FINISHED()),
+	     "' from " << StateVariable::nodeStateName(prevState).toString() <<
+	     " to " << StateVariable::nodeStateName(newState).toString());
+    condDebugMsg((newState == FINISHED_STATE),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
-    condDebugMsg((newState == StateVariable::ITERATION_ENDED()),
+    condDebugMsg((newState == ITERATION_ENDED_STATE),
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
     debugMsg("Node:times",
-	     "Setting end time " << (prevState.toString() + ".END") << " = " << time);
+	     "Setting end time " << LabelStr(END_TIMEPOINT_NAMES()[prevState]).toString()
+	     << " = " << time);
     debugMsg("Node:times",
-	     "Setting start time " << (newState.toString() + ".START") << " = " << time);
-    m_variablesByName[LabelStr(prevState.toString() + ".END")]->setValue(time);
-    m_variablesByName[LabelStr(newState.toString() + ".START")]->setValue(time);
+	     "Setting start time " << LabelStr(START_TIMEPOINT_NAMES()[newState]).toString()
+	     << " = " << time);
+    m_endTimepoints[prevState]->setValue(time);
+    m_startTimepoints[newState]->setValue(time);
     m_transitioning = false;
     checkConditions();
   }
@@ -1282,16 +1302,19 @@ namespace PLEXIL {
     return m_variablesByName.find(name)->second;
   }
 
-  const LabelStr Node::getState() const {
-    return m_stateVariable->getValue();
+  const LabelStr& Node::getStateName() const {
+    return StateVariable::ALL_STATES()[m_state];
   }
 
-  double Node::getStateDouble() const {
-    return m_stateVariable->getValue();
+  NodeState Node::getState() const {
+    return m_state;
   }
 
-  void Node::setState(double newValue) {
-	m_stateVariable->setValue(newValue);
+  void Node::setState(NodeState newValue) {
+    checkError(newValue < NO_NODE_STATE,
+	       "Attempted to set an invalid NodeState value");
+    m_state = newValue;
+    ((StateVariable*) m_stateVariable)->setNodeState(newValue);
   }
 
   const ExpressionId& Node::getStateVariable() {
@@ -1335,7 +1358,7 @@ namespace PLEXIL {
     debugMsg("Node:findVariable",
 			 " for node '" << m_nodeId.toString()
 			 << "', searching for variable '" << name.toString() << "'");
-    std::map<double, ExpressionId>::const_iterator it = m_variablesByName.find(name);
+    ExpressionMap::const_iterator it = m_variablesByName.find(name);
     checkError(it != m_variablesByName.end(),
 	       "No variable named \"" << name.toString() << "\" in node " <<
 	       m_nodeId.toString());
@@ -1416,7 +1439,7 @@ namespace PLEXIL {
       }
       else 
       {
-         std::map<double, ExpressionId>::const_iterator it =
+         ExpressionMap::const_iterator it =
             m_variablesByName.find(LabelStr(ref->name()));
          
          checkError(it != m_variablesByName.end(),
@@ -1494,7 +1517,7 @@ namespace PLEXIL {
 //       return node->getInternalVariable(LabelStr(name));
 //     }
 //     else {
-//       std::map<double, ExpressionId>::iterator it =
+//       ExpressionMap::iterator it =
 // 	m_variablesByName.find(LabelStr(ref->name()));
 //       checkError(it != m_variablesByName.end(),
 // 		 "Can't find variable " << ref->name() << " in node " << m_nodeId.toString());
@@ -1504,7 +1527,7 @@ namespace PLEXIL {
 //   }
   //cheesy hack?
   CommandId& Node::getCommand() {
-    if(getState() == StateVariable::EXECUTING())
+    if(m_state == EXECUTING_STATE)
       m_command->activate();
     if(m_command.isValid()) {
       m_command->fixValues();
@@ -1514,7 +1537,7 @@ namespace PLEXIL {
   }
 
   UpdateId& Node::getUpdate() {
-    if(getState() == StateVariable::EXECUTING())
+    if(m_state == EXECUTING_STATE)
       m_update->activate();
     if(m_update.isValid())
       m_update->fixValues();
@@ -1525,16 +1548,17 @@ namespace PLEXIL {
 
   AssignmentId& Node::getAssignment() {
     check_error(getType() == ASSIGNMENT());
-    if(getState() == StateVariable::EXECUTING())
+    if(m_state == EXECUTING_STATE)
       m_assignment->activate();
     m_assignment->fixValue();
     return m_assignment;
   }
 
-  const LabelStr& Node::getDestState() {
+  NodeState Node::getDestState() 
+  {
     debugMsg("Node:getDestState",
 	     "Getting destination state for " << m_nodeId.toString() << " from state " <<
-	     getState().toString());
+	     getStateName().toString());
     return m_stateManager->getDestState(m_id);
   }
 
@@ -1593,10 +1617,9 @@ namespace PLEXIL {
     ((Variable*)m_variablesByName[COMMAND_HANDLE()])->reset();
 
     //reset timepoints
-    for (std::vector<double>::const_iterator it = ALL_TIMEPOINTS().begin();
-	it != ALL_TIMEPOINTS().end();
-	++it) {
-      ((Variable*)m_variablesByName[*it])->reset();
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+      ((Variable*) m_startTimepoints[s])->reset();
+      ((Variable*) m_endTimepoints[s])->reset();
     }
 
     for(std::list<ExpressionId>::const_iterator it = m_localVariables.begin();
@@ -1630,7 +1653,7 @@ namespace PLEXIL {
 
   /* old version
   void Node::lockConditions() {
-    for(std::map<double, ExpressionId>::iterator it = m_conditionsByName.begin();
+    for(ExpressionMap::iterator it = m_conditionsByName.begin();
 	it != m_conditionsByName.end(); ++it) {
       ExpressionId expr = it->second;
       check_error(expr.isValid());
@@ -1700,11 +1723,9 @@ namespace PLEXIL {
     std::ostringstream retval;
 
     retval << indentStr.str() << m_nodeId.toString() << "{" << std::endl;
-    retval << indentStr.str() << " State: " << m_variablesByName[STATE()]->toString() <<
-      " (" <<
-      m_variablesByName[LabelStr(LabelStr(m_variablesByName[STATE()]->getValue()).toString() + ".START")]->getValue() <<
-      ")" << std::endl;
-    if(m_variablesByName[STATE()]->getValue() == StateVariable::FINISHED()) {
+    retval << indentStr.str() << " State: " << m_stateVariable->toString() <<
+      " (" << m_startTimepoints[m_state]->getValue() << ")" << std::endl;
+    if(m_state == FINISHED_STATE) {
       retval << indentStr.str() << " Outcome: " << m_variablesByName[OUTCOME()]->toString() <<
 	std::endl;
       if(m_variablesByName[FAILURE_TYPE()]->getValue() != OutcomeVariable::UNKNOWN())
@@ -1713,7 +1734,7 @@ namespace PLEXIL {
       if(m_variablesByName[COMMAND_HANDLE()]->getValue() != CommandHandleVariable::UNKNOWN())
 	retval << indentStr.str() << " Command handle: " <<
 	  m_variablesByName[COMMAND_HANDLE()]->toString() << std::endl;
-      for(std::map<double, ExpressionId>::iterator it = m_variablesByName.begin();
+      for(ExpressionMap::iterator it = m_variablesByName.begin();
 	  it != m_variablesByName.end(); ++it) {
 	if(it->first == STATE() || it->first == OUTCOME() || it->first == FAILURE_TYPE() 
            || it->first == COMMAND_HANDLE() ||
@@ -1723,12 +1744,12 @@ namespace PLEXIL {
 	  (*it).second->toString() << std::endl;
       }
     }
-    else if(m_variablesByName[STATE()]->getValue() != StateVariable::INACTIVE()) {
+    else if(m_state != INACTIVE_STATE) {
       for(unsigned int i = 0; i < conditionIndexMax; ++i) {
 	retval << indentStr.str() << " " << getConditionName(i).toString() << ": " <<
 	  m_conditions[i]->toString() << std::endl;
       }
-      for(std::map<double, ExpressionId>::iterator it = m_variablesByName.begin();
+      for(ExpressionMap::iterator it = m_variablesByName.begin();
 	  it != m_variablesByName.end(); ++it) {
 	if(it->first == STATE() || it->first == OUTCOME() || it->first == FAILURE_TYPE() 
            || LabelStr(it->first).countElements(".") > 1)
@@ -1744,24 +1765,38 @@ namespace PLEXIL {
     return retval.str();
   }
 
-  // Static "constant"
-  const std::vector<double>& Node::ALL_TIMEPOINTS() {
-    static std::vector<double>* allTimepoints = NULL;
-    if (allTimepoints == NULL) {
-      allTimepoints = new std::vector<double>;
-      for (std::set<double>::const_iterator it = StateVariable::ALL_STATES().begin();
+  // Static "constants"
+  const std::vector<double>& Node::START_TIMEPOINT_NAMES() {
+    static std::vector<double>* startNames = NULL;
+    if (startNames == NULL) {
+      startNames = new std::vector<double>();
+      startNames->reserve(NODE_STATE_MAX);
+      for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
 	   it != StateVariable::ALL_STATES().end(); 
 	   ++it) {
-	const std::string& state = LabelStr(*it).toString();
+	const std::string& state = it->toString();
 	LabelStr startName(state + ".START");
-	allTimepoints->push_back(startName);
-	LabelStr endName(state + ".END");
-	allTimepoints->push_back(endName);
+	startNames->push_back(startName.getKey());
       }
     }
-    return *allTimepoints;
+    return *startNames;
   }
 
+  const std::vector<double>& Node::END_TIMEPOINT_NAMES() {
+    static std::vector<double>* endNames = NULL;
+    if (endNames == NULL) {
+      endNames = new std::vector<double>();
+      endNames->reserve(NODE_STATE_MAX);
+      for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
+	   it != StateVariable::ALL_STATES().end(); 
+	   ++it) {
+	const std::string& state = it->toString();
+	LabelStr endName(state + ".END");
+	endNames->push_back(endName.getKey());
+      }
+    }
+    return *endNames;
+  }
 
 
   Command::Command(const ExpressionId nameExpr, 
@@ -1897,7 +1932,7 @@ namespace PLEXIL {
     return m_destName.toString();
   }
 
-  Update::Update(const NodeId& node, const std::map<double, ExpressionId>& pairs,
+  Update::Update(const NodeId& node, const ExpressionMap& pairs,
 		 const ExpressionId ack, const std::list<ExpressionId>& garbage)
     : m_id(this), m_source(node), m_pairs(pairs), m_ack(ack), m_garbage(garbage) {}
 
@@ -1909,7 +1944,7 @@ namespace PLEXIL {
   }
 
   void Update::fixValues() {
-    for(std::map<double, ExpressionId>::iterator it = m_pairs.begin(); it != m_pairs.end();
+    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end();
 	++it) {
       check_error(it->second.isValid());
       std::map<double, double>::iterator valuePairIt =
@@ -1931,15 +1966,13 @@ namespace PLEXIL {
   }
 
   void Update::activate() {
-    for(std::map<double, ExpressionId>::iterator it = m_pairs.begin(); it != m_pairs.end();
-	++it) {
+    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
       it->second->activate();
     }
   }
 
   void Update::deactivate() {
-    for(std::map<double, ExpressionId>::iterator it = m_pairs.begin(); it != m_pairs.end();
-	++it) {
+    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
       it->second->deactivate();
     }
   }

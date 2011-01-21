@@ -35,15 +35,15 @@ namespace PLEXIL {
   class ActionExecutingStateComputer : public StateComputer {
   public:
     ActionExecutingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
+    NodeState getDestState(NodeId& node) {
       checkError(node->getType() == Node::COMMAND() ||
 		 node->getType() == Node::UPDATE() ||
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
+      checkError(node->getState() == EXECUTING_STATE,
 		 "Node " << node->getNodeId().toString() << " in state " <<
-		 node->getState().toString() << " not EXECUTING.");
+		 node->getStateName().toString() << " not EXECUTING.");
       checkError(node->isAncestorInvariantConditionActive(),
 		 "Ancestor invariant for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isInvariantConditionActive(),
@@ -60,14 +60,14 @@ namespace PLEXIL {
             debugMsg("Node:getDestState",
                      "Destination: FINISHED.  Ancestor invariant condition false and end " <<
                      "condition true.. ");
-            return StateVariable::FINISHED();
+            return FINISHED_STATE;
          }
          else 
          {
             debugMsg("Node:getDestState",
                      "Destination: FAILING.  Ancestor invariant condition false and end " <<
                      "condition false or unknown.");
-            return StateVariable::FAILING();
+            return FAILING_STATE;
 	}
       }
       if (node->getInvariantCondition()->getValue() == 
@@ -77,14 +77,14 @@ namespace PLEXIL {
             debugMsg("Node:getDestState",
                      "Destination: ITERATION_ENDED.  Invariant condition false and end " <<
                      "condition true.. ");
-            return StateVariable::ITERATION_ENDED();
+            return ITERATION_ENDED_STATE;
          }
          else 
          {
             debugMsg("Node:getDestState",
                      "Destination: FAILING.  Invariant condition false and end condition " <<
                      "false or unknown.");
-            return StateVariable::FAILING();
+            return FAILING_STATE;
          }
       }
 
@@ -97,7 +97,7 @@ namespace PLEXIL {
 
       if(node->getEndCondition()->getValue() == BooleanVariable::TRUE()) 
         {
-          return StateVariable::ITERATION_ENDED();
+          return ITERATION_ENDED_STATE;
         }
       
       debugMsg("Node:getDestState",
@@ -108,26 +108,27 @@ namespace PLEXIL {
                "  Invariant: " << node->getInvariantCondition()->toString() 
                << std::endl <<
                "  End: " << node->getEndCondition()->toString());
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class ActionExecutingTransitionHandler : public TransitionHandler {
   public:
     ActionExecutingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
+    void transitionFrom(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::COMMAND() ||
 		 node->getType() == Node::UPDATE() ||
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
 
-      checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
-		 "In state '" << node->getState().toString() << "', not EXECUTING.");
-      checkError(destState == StateVariable::FINISHED() ||
-		 destState == StateVariable::FAILING() ||
-		 destState == StateVariable::ITERATION_ENDED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(node->getState() == EXECUTING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not EXECUTING.");
+      checkError(destState == FINISHED_STATE ||
+		 destState == FAILING_STATE ||
+		 destState == ITERATION_ENDED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
           BooleanVariable::FALSE())
@@ -166,15 +167,15 @@ namespace PLEXIL {
       deactivateExecutable(node);
     }
 
-    void transitionTo(NodeId& node, const LabelStr& destState) {
+    void transitionTo(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::COMMAND() ||
 		 node->getType() == Node::UPDATE() ||
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
 
-      checkError(destState == StateVariable::EXECUTING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(destState == EXECUTING_STATE,
+		 "Attempting to transition to invalid state '" << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->activateAncestorInvariantCondition();
       node->activateInvariantCondition();
@@ -190,15 +191,15 @@ namespace PLEXIL {
   class ActionFailingStateComputer : public StateComputer {
   public:
     ActionFailingStateComputer() : StateComputer() {}
-    const LabelStr& getDestState(NodeId& node) {
+    NodeState getDestState(NodeId& node) {
       checkError(node->getType() == Node::COMMAND() ||
 		 node->getType() == Node::UPDATE() ||
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
-      checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
+      checkError(node->getState() == FAILING_STATE,
 		 "Node " << node->getNodeId().toString() << " in state " <<
-		 node->getState().toString() << " not FAILING.");
+		 node->getStateName().toString() << " not FAILING.");
       checkError(node->isAbortCompleteConditionActive(),
 		 "Abort complete for " << node->getNodeId().toString() << " is inactive.");
 
@@ -209,49 +210,51 @@ namespace PLEXIL {
 	  debugMsg("Node:getDestState",
 		   "Destination: FINISHED.  Command/Update/Request node abort complete, " <<
 		   "and parent failed.");
-	  return StateVariable::FINISHED();
+	  return FINISHED_STATE;
 	}
 	else {
 	  debugMsg("Node:getDestState",
 		   "Destination: FINISHED.  Command/Update/Request node abort complete.");
-	  return StateVariable::ITERATION_ENDED();
+	  return ITERATION_ENDED_STATE;
 	}
       }
 
       debugMsg("Node:getDestState",
 	       "Destination: no state.");
-      return StateVariable::NO_STATE();
+      return NO_NODE_STATE;
     }
   };
 
   class ActionFailingTransitionHandler : public TransitionHandler {
   public:
     ActionFailingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, const LabelStr& destState) {
+    void transitionFrom(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::COMMAND() ||
 		 node->getType() == Node::UPDATE() ||
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
 
-      checkError(node->getStateDouble() == StateVariable::FAILING().getKey(),
-		 "In state '" << node->getState().toString() << "', not FAILING.");
-      checkError(destState == StateVariable::FINISHED() ||
-		 destState == StateVariable::ITERATION_ENDED(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(node->getState() == FAILING_STATE,
+		 "In state '" << node->getStateName().toString() << "', not FAILING.");
+      checkError(destState == FINISHED_STATE ||
+		 destState == ITERATION_ENDED_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->deactivateAbortCompleteCondition();
 
     }
-    void transitionTo(NodeId& node, const LabelStr& destState) {
+    void transitionTo(NodeId& node, NodeState destState) {
       checkError(node->getType() == Node::COMMAND() ||
 		 node->getType() == Node::UPDATE() ||
 		 node->getType() == Node::REQUEST(),
 		 "Expected command, update, or request node, got " <<
 		 node->getType().toString());
 
-      checkError(destState == StateVariable::FAILING(),
-		 "Attempting to transition to invalid state '" << destState.toString() << "'");
+      checkError(destState == FAILING_STATE,
+		 "Attempting to transition to invalid state '"
+		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->activateAbortCompleteCondition();
 
@@ -260,9 +263,9 @@ namespace PLEXIL {
   };
 
   ActionNodeStateManager::ActionNodeStateManager() : DefaultStateManager() {
-    addStateComputer(StateVariable::EXECUTING(), (new ActionExecutingStateComputer())->getId());
-    addTransitionHandler(StateVariable::EXECUTING(), (new ActionExecutingTransitionHandler())->getId());
-    addStateComputer(StateVariable::FAILING(), (new ActionFailingStateComputer())->getId());
-    addTransitionHandler(StateVariable::FAILING(), (new ActionFailingTransitionHandler())->getId());
+    addStateComputer(EXECUTING_STATE, (new ActionExecutingStateComputer())->getId());
+    addTransitionHandler(EXECUTING_STATE, (new ActionExecutingTransitionHandler())->getId());
+    addStateComputer(FAILING_STATE, (new ActionFailingStateComputer())->getId());
+    addTransitionHandler(FAILING_STATE, (new ActionFailingTransitionHandler())->getId());
   }
 }

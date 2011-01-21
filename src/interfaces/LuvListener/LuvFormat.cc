@@ -148,13 +148,13 @@ namespace PLEXIL {
    * @param node The node.
    */
   void LuvFormat::formatTransition(std::ostream& s, 
-								   const LabelStr& prevState,
+								   NodeState prevState,
 								   const NodeId& node) {
 
 	simpleStartTag(s, NODE_STATE_UPDATE_TAG());
 
 	// add state
-	simpleTextElement(s, NODE_STATE_TAG(), node->getState().c_str());
+	simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
 
 	// add outcome
 	simpleTextElement(s, NODE_OUTCOME_TAG(), node->getOutcome().c_str());

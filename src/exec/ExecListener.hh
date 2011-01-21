@@ -27,7 +27,7 @@
 #ifndef _H_ExecListener
 #define _H_ExecListener
 
-#include "Id.hh"
+#include "ExecDefs.hh"
 #include "LabelStr.hh"
 
 namespace PLEXIL
@@ -71,7 +71,7 @@ namespace PLEXIL
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      */
-    virtual void notifyOfTransition(const LabelStr& prevState, 
+    virtual void notifyOfTransition(NodeState prevState, 
                                     const NodeId& node) const;
 
     /**
@@ -170,7 +170,7 @@ namespace PLEXIL
      * @note The current state is accessible via the node.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyNodeTransition(const LabelStr& /* prevState */,
+    virtual void implementNotifyNodeTransition(NodeState /* prevState */,
                                                const NodeId& /* node */) const
     {
     }
@@ -243,7 +243,7 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportNodeTransition(const LabelStr& prevState, 
+    virtual bool reportNodeTransition(NodeState prevState, 
                                       const NodeId& node);
 
     /**

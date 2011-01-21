@@ -62,7 +62,7 @@ namespace PLEXIL {
    * @note The current state is accessible via the node.
    */
   void 
-  EssentialLuvListener::implementNotifyNodeTransition(const LabelStr& prevState, 
+  EssentialLuvListener::implementNotifyNodeTransition(NodeState prevState, 
 													  const NodeId& node) const 
   {
 	if (m_socket != NULL) {

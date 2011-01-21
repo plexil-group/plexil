@@ -199,7 +199,7 @@ namespace PLEXIL {
          planit++)
       {
         NodeId root = *planit;
-        if (root->getState() == StateVariable::FINISHED())
+        if (root->getState() == FINISHED_STATE)
           result = true;
         else
           return false; // some node is not finished
@@ -214,9 +214,8 @@ namespace PLEXIL {
     debugMsg("PlexilExec:handleConditionsChanged",
 	     "Node " << node->getNodeId().toString() << " had a relevant condition change.");
 
-    const LabelStr& destState = node->getDestState();
-    if (destState == StateVariable::UNKNOWN() ||
-	destState == StateVariable::NO_STATE()) {
+    NodeState destState = node->getDestState();
+    if (destState == NO_NODE_STATE) {
       debugMsg("PlexilExec:handleConditionsChanged",
 	       "Node '" << node->getNodeId().toString() <<
 	       "' was previously eligible to transition but isn't now.");
@@ -229,7 +228,7 @@ namespace PLEXIL {
       }
       else {
 	if ((node->getType() == Node::ASSIGNMENT()) &&
-	    node->getStateDouble() != StateVariable::EXECUTING().getKey()) {
+	    node->getState() != EXECUTING_STATE) {
 	  debugMsg("PlexilExec:handleConditionsChanged",
 		   "Removing node from resource contention.");
 	  removeFromResourceContention(node);
@@ -240,7 +239,7 @@ namespace PLEXIL {
     debugMsg("PlexilExec:handleConditionsChanged",
 	     "Considering node '" << node->getNodeId().toString() << "' for state transition.");
     if (node->getType() == Node::ASSIGNMENT()) {
-      if (destState == StateVariable::EXECUTING()) {
+      if (destState == EXECUTING_STATE) {
 	//if it's an assignment node and it's eligible to execute
 	//add it to contention consideration
 	debugMsg("PlexilExec:handleConditionsChanged",
@@ -276,10 +275,10 @@ namespace PLEXIL {
   }
 
   void PlexilExec::handleNeedsExecution(const NodeId node) {
-    checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey(),
+    checkError(node->getState() == EXECUTING_STATE,
 	       "Executive told to handle execution for node '" <<
 	       node->getNodeId().toString() << "', but it's in state '" <<
-	       node->getState().toString() << "'");
+	       node->getStateName().toString() << "'");
     debugMsg("PlexilExec:handleNeedsExecution",
 	     "Storing action for node '" << node->getNodeId().toString() <<
 	     "' of type '" << node->getType().toString() << 
@@ -296,7 +295,7 @@ namespace PLEXIL {
     check_error(node->getType() == Node::ASSIGNMENT());
     //this check may be too restrictive, since we'll probably use this method
     //to remove nodes when they get batch-executed.
-    //check_error(node->getDestState() != NODE::EXECUTING());
+    //check_error(node->getDestState() != EXECUTING_STATE);
 
     ExpressionId exp = node->getAssignmentVariable();
 
@@ -334,7 +333,7 @@ namespace PLEXIL {
 
   void PlexilExec::addToResourceContention(const NodeId node) {
     check_error(node->getType() == Node::ASSIGNMENT());
-    check_error(node->getDestState() == StateVariable::EXECUTING());
+    check_error(node->getDestState() == EXECUTING_STATE);
 
     ExpressionId exp = node->getAssignmentVariable();
     check_error(exp.isValid());
@@ -446,7 +445,7 @@ namespace PLEXIL {
 	debugMsg("PlexilExec:step",
 		 "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
 		 "] Transitioning node " << node->getNodeId().toString());
-	LabelStr oldState = node->getState();
+	NodeState oldState = node->getState();
 	node->transition(quiescenceTime);
 	publishTransition(oldState, node);
 	transitionedNodes.insert(node);
@@ -514,7 +513,7 @@ namespace PLEXIL {
 		 "[" << m_cycleNum << ":" << depth << ":" << stepNum << "]" <<
 		 " Transitioning node '" << node->getNodeId().toString() << "' (" << pos <<
 		 ")");
-	LabelStr oldState = node->getState();
+	NodeState oldState = node->getState();
 	node->transition(quiescenceTime);
 	publishTransition(oldState, node);
 	transitionedNodes.insert(node);
@@ -582,14 +581,14 @@ namespace PLEXIL {
 	  NodeId node = *conflictIt;
       
 	  check_error(node.isValid());
-	  checkError(node->getStateDouble() == StateVariable::EXECUTING().getKey() ||
-		     node->getDestState() == StateVariable::EXECUTING(),
+	  checkError(node->getState() == EXECUTING_STATE ||
+		     node->getDestState() == EXECUTING_STATE,
 		     "Error: node '" << node->getNodeId().toString() <<
 		     " is neither executing nor is it eligible to do so, yet it is in the " <<
 		     "conflict map.");
 
 	  // Found one that is scheduled to for execution
-	  if (node->getDestState() == StateVariable::EXECUTING())
+	  if (node->getDestState() == EXECUTING_STATE)
 	    ++conflictCounter;
 
 	  // If more than one node is sceduled for execution, we have a resource contention.
@@ -600,14 +599,14 @@ namespace PLEXIL {
 	  nodeToExecute = node;
 	}
 
-      if(nodeToExecute->getDestState() == StateVariable::EXECUTING() && inQueue(nodeToExecute) == -1) {
+      if(nodeToExecute->getDestState() == EXECUTING_STATE && inQueue(nodeToExecute) == -1) {
 	debugMsg("PlexilExec:resolveResourceConflicts",
 		 "Node '" << nodeToExecute->getNodeId().toString() <<
 		 "' has best priority.  Adding it to be executed in position " << m_queuePos);
 	m_stateChangeQueue.insert(std::pair<unsigned int, NodeId>(m_queuePos++, nodeToExecute));
       }
       else {
-	condDebugMsg(nodeToExecute->getState() == StateVariable::EXECUTING(),
+	condDebugMsg(nodeToExecute->getState() == EXECUTING_STATE,
 		     "PlexilExec:resolveResourceConflicts",
 		     "Node for " << it->first << " already executing.  Nothing to resolve.");
 	condDebugMsg(inQueue(nodeToExecute) != -1,
@@ -653,7 +652,7 @@ namespace PLEXIL {
     return -1;
   }
 
-  void PlexilExec::publishTransition(const LabelStr& prevState, const NodeId& node) {
+  void PlexilExec::publishTransition(NodeState prevState, const NodeId& node) {
     for(std::vector<ExecListenerId>::iterator it = m_listeners.begin(); it != m_listeners.end();
 	++it) {
       ExecListenerId listener = *it;
