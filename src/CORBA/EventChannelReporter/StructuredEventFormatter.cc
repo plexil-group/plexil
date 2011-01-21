@@ -76,13 +76,12 @@ namespace PLEXIL
     pushEvent->header.variable_header[0].value <<= eventId();
     pushEvent->header.variable_header[1].name = "timestamp";
     // format as integer for now
-    // *** FIXME: add getStateStartTime() method to Node
     pushEvent->header.variable_header[1].value <<= 
-      (CORBA::Long) floor(node->findVariable(node->getStateName().toString() + ".START")->getValue());
+      (CORBA::Long) floor(node->getCurrentStateStartTime());
 
-    const LabelStr& nodeState = node->getStateName();
-    bool nodeFinished = (StateVariable::FINISHED() == nodeState);
-    bool nodeExecuting = (StateVariable::EXECUTING() == nodeState);
+    NodeState nodeState = node->getState();
+    bool nodeFinished = (FINISHED_STATE == nodeState);
+    bool nodeExecuting = (EXECUTING_STATE == nodeState);
 
     // Estimate buffer space needed
     int dataLength = 5;
@@ -113,7 +112,7 @@ namespace PLEXIL
     pushEvent->filterable_data[i].name = "nodeType";
     pushEvent->filterable_data[i++].value <<= node->getType().toString().c_str();
     pushEvent->filterable_data[i].name = "executionStatus";
-    pushEvent->filterable_data[i++].value <<= nodeState.toString().c_str();
+    pushEvent->filterable_data[i++].value <<= node->getStateName().c_str();
     pushEvent->filterable_data[i].name = "primitive";
     pushEvent->filterable_data[i++].value <<= 
       (node->getType() == Node::LIST()) ? "F" : "T";

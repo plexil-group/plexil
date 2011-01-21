@@ -116,10 +116,10 @@ namespace PLEXIL
     // Output as integer for now
     std::string timestamp = 
       to_string<long>
-      ((long) floor((node->findVariable (node->getStateName().toString() + ".START"))->getValue()));
+      ((long) floor(node->getCurrentStateStartTime()));
 
     NodeId parent = node->getParent();
-    const LabelStr& nodeState = node->getStateName();
+    NodeState nodeState = node->getState();
     
     std::string body =
       element ("sender", "UnivExec") +
@@ -127,11 +127,11 @@ namespace PLEXIL
 			element ("parentId",
 				 parent ? parent->getNodeId().toString() : "0") +
       element ("nodeType", node->getType().toString()) +
-      element ("executionStatus", nodeState.toString()) +
+       element ("executionStatus", node->getStateName().toString()) +
       element ("primitive", ((node->getType() == Node::LIST()) ? "F" : "T"));
 
-    bool nodeFinished = (StateVariable::FINISHED() == nodeState);
-    bool nodeExecuting = (StateVariable::EXECUTING() == nodeState);
+    bool nodeFinished = (FINISHED_STATE == nodeState);
+    bool nodeExecuting = (EXECUTING_STATE == nodeState);
     if (nodeFinished)
       body = body + element ("resultStatus", node->getOutcome().toString());
 
