@@ -11,4 +11,8 @@ Concurrence
 
 	OnCommand "EPI"
       ExecuteProgrammerImmediate();
+
+  OnCommand "Sum" (Integer number1, Integer number2) 
+    Increment: { SendReturnValues(number + number2); }
+
 }
