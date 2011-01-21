@@ -48,13 +48,13 @@
 #ifndef _H_IdTable
 #define _H_IdTable
 
+#include <iostream>
 #include <stdint.h> // for uintptr_t
 
 #include "generic_hash_map.hh"
 #include "ThreadMutex.hh"
 
 #ifdef ID_TABLE_DEBUG
-#include <iostream>
 #include <string>
 #endif
 
