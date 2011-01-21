@@ -285,7 +285,7 @@ namespace PLEXIL
   }
 
   void
-  NotificationChannelExecListener::implementNotifyNodeTransition(const LabelStr& prevState,
+  NotificationChannelExecListener::implementNotifyNodeTransition(NodeState prevState,
 								 const NodeId& node) const
   {
     checkError(this->isConnected(),

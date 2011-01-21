@@ -61,7 +61,7 @@ namespace PLEXIL
   }
 
   CosNotification::StructuredEvent *
-  StructuredEventFormatter::formatTransitionStructured(const LabelStr& prevState,
+  StructuredEventFormatter::formatTransitionStructured(NodeState prevState,
 						       const NodeId& node) const
   {
     CosNotification::StructuredEvent * pushEvent
@@ -76,10 +76,11 @@ namespace PLEXIL
     pushEvent->header.variable_header[0].value <<= eventId();
     pushEvent->header.variable_header[1].name = "timestamp";
     // format as integer for now
+    // *** FIXME: add getStateStartTime() method to Node
     pushEvent->header.variable_header[1].value <<= 
-      (CORBA::Long) floor(node->findVariable(node->getState().toString() + ".START")->getValue());
+      (CORBA::Long) floor(node->findVariable(node->getStateName().toString() + ".START")->getValue());
 
-    const LabelStr& nodeState = node->getState();
+    const LabelStr& nodeState = node->getStateName();
     bool nodeFinished = (StateVariable::FINISHED() == nodeState);
     bool nodeExecuting = (StateVariable::EXECUTING() == nodeState);
 
@@ -175,7 +176,7 @@ namespace PLEXIL
   }
 
   CORBA::Any_ptr 
-  StructuredEventFormatter::formatTransition(const LabelStr& prevState,
+  StructuredEventFormatter::formatTransition(NodeState prevState,
 					     const NodeId& node) const
   {
     CORBA::Any_ptr pushAny = new CORBA::Any();

@@ -41,11 +41,11 @@ namespace PLEXIL
     StructuredEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr, const std::string & domainName);
     virtual ~StructuredEventFormatter();
 
-    virtual CORBA::Any_ptr formatTransition(const LabelStr& prevState,
+    virtual CORBA::Any_ptr formatTransition(NodeState prevState,
 					    const NodeId& node) const;
 
     virtual CosNotification::StructuredEvent *
-    formatTransitionStructured(const LabelStr& prevState,
+    formatTransitionStructured(NodeState prevState,
 			       const NodeId& node) const;
 
     virtual CORBA::Any_ptr formatPlan(const PlexilNodeId& plan,

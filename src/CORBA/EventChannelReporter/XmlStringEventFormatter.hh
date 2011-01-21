@@ -38,7 +38,7 @@ namespace PLEXIL
     XmlStringEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr);
     virtual ~XmlStringEventFormatter();
 
-    virtual CORBA::Any_ptr formatTransition(const LabelStr& prevState,
+    virtual CORBA::Any_ptr formatTransition(NodeState prevState,
 					    const NodeId& node) const;
 
     virtual CORBA::Any_ptr formatPlan(const PlexilNodeId& plan,
@@ -49,7 +49,7 @@ namespace PLEXIL
     // API for derived classes
     
     virtual const std::string
-    transitionXmlString(const LabelStr& prevState, const NodeId& node) const;
+    transitionXmlString(NodeState prevState, const NodeId& node) const;
 
     virtual const std::string
     planXmlString(const PlexilNodeId& plan, const LabelStr& parent) const;

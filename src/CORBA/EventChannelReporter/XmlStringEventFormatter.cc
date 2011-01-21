@@ -55,7 +55,7 @@ namespace PLEXIL
   }
 
   CORBA::Any_ptr 
-  XmlStringEventFormatter::formatTransition(const LabelStr& prevState,
+  XmlStringEventFormatter::formatTransition(NodeState prevState,
 					    const NodeId& node) const
   {
     const std::string xmlString = 
@@ -110,16 +110,16 @@ namespace PLEXIL
 
   // Default method
   const std::string 
-  XmlStringEventFormatter::transitionXmlString(const LabelStr& prevState,
+  XmlStringEventFormatter::transitionXmlString(NodeState prevState,
 					       const NodeId& node) const
   {
     // Output as integer for now
     std::string timestamp = 
       to_string<long>
-      ((long) floor((node->findVariable (node->getState().toString() + ".START"))->getValue()));
+      ((long) floor((node->findVariable (node->getStateName().toString() + ".START"))->getValue()));
 
     NodeId parent = node->getParent();
-    const LabelStr& nodeState = node->getState();
+    const LabelStr& nodeState = node->getStateName();
     
     std::string body =
       element ("sender", "UnivExec") +
