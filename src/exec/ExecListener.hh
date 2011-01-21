@@ -171,9 +171,7 @@ namespace PLEXIL
      * @note The default method does nothing.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               const NodeId& /* node */) const
-    {
-    }
+                                               const NodeId& /* node */) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
@@ -182,18 +180,14 @@ namespace PLEXIL
      * @note The default method does nothing.
      */
     virtual void implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
-                                        const LabelStr& /* parent */) const
-    {
-    }
+                                        const LabelStr& /* parent */) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddLibrary(const PlexilNodeId& /* libNode */) const
-    {
-    }
+    virtual void implementNotifyAddLibrary(const PlexilNodeId& /* libNode */) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.
@@ -203,10 +197,7 @@ namespace PLEXIL
      */
     virtual void implementNotifyAssignment(const ExpressionId & /* dest */,
                                            const std::string& /* destName */,
-                                           const double& /* value */) const
-    {
-    }
-    
+                                           const double& /* value */) const;
 
   private:
 

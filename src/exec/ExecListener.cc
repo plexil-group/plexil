@@ -25,6 +25,7 @@
 */
 
 #include "ExecListener.hh"
+#include "Debug.hh"
 #include "Expression.hh"
 
 namespace PLEXIL
@@ -88,12 +89,12 @@ namespace PLEXIL
       this->implementNotifyAddLibrary(libNode);
   }
 
-    /**
-     * @brief Notify that a variable assignment has been performed.
-     * @param dest The Expression being assigned to.
-     * @param destName A LabelStr that names the destination.
-     * @param value The value (in internal Exec representation) being assigned.
-     */
+  /**
+   * @brief Notify that a variable assignment has been performed.
+   * @param dest The Expression being assigned to.
+   * @param destName A LabelStr that names the destination.
+   * @param value The value (in internal Exec representation) being assigned.
+   */
   void
   ExecListener::notifyOfAssignment(const ExpressionId & dest,
                                    const std::string& destName,
@@ -164,6 +165,58 @@ namespace PLEXIL
   }
 
   //
+  // Default methods to be overridden by derived classes
+  //
+
+  /**
+   * @brief Notify that a node has changed state.
+   * @param prevState The old state.
+   * @param node The node that has transitioned.
+   * @note The current state is accessible via the node.
+   * @note The default method does nothing.
+   */
+  void ExecListener::implementNotifyNodeTransition(NodeState /* prevState */,
+						   const NodeId& /* node */) const
+  {
+    debugMsg("ExecListener:implementNotifyNodeTransition", " default method called");
+  }
+
+  /**
+   * @brief Notify that a plan has been received by the Exec.
+   * @param plan The intermediate representation of the plan.
+   * @param parent The name of the parent node under which this plan will be inserted.
+   * @note The default method does nothing.
+   */
+  void ExecListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
+					    const LabelStr& /* parent */) const
+  {
+    debugMsg("ExecListener:implementNotifyAddPlan", " default method called");
+  }
+
+  /**
+   * @brief Notify that a library node has been received by the Exec.
+   * @param libNode The intermediate representation of the plan.
+   * @note The default method does nothing.
+   */
+  void ExecListener::implementNotifyAddLibrary(const PlexilNodeId& /* libNode */) const
+  {
+    debugMsg("ExecListener:implementNotifyAddLibrary", " default method called");
+  }
+
+  /**
+   * @brief Notify that a variable assignment has been performed.
+   * @param dest The Expression being assigned to.
+   * @param destName A string naming the destination.
+   * @param value The value (in internal Exec representation) being assigned.
+   */
+  void ExecListener::implementNotifyAssignment(const ExpressionId & /* dest */,
+					       const std::string& /* destName */,
+					       const double& /* value */) const
+  {
+    debugMsg("ExecListener:implementNotifyAssignment", " default method called");
+  }
+
+  //
   // ExecListenerFilter methods
   //
 
@@ -223,12 +276,12 @@ namespace PLEXIL
     return true;
   }
 
-    /**
-     * @brief Determine whether this variable assignment should be reported.
-     * @param dest The Expression being assigned to.
-     * @param destName A LabelStr that names the destination.
-     * @param value The value (in internal Exec representation) being assigned.
-     */
+  /**
+   * @brief Determine whether this variable assignment should be reported.
+   * @param dest The Expression being assigned to.
+   * @param destName A LabelStr that names the destination.
+   * @param value The value (in internal Exec representation) being assigned.
+   */
   bool 
   ExecListenerFilter::reportAssignment(const ExpressionId & /* dest */,
                                        const std::string& /* destName */,
