@@ -110,8 +110,8 @@ public class Luv extends JFrame {
 
     /** Creates a new instance of the Luv application. */
     private static void runApp(String[] args) {
-        // if we're on a mac, use mac style menus
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        // In MacOS, don't use system menu bar
+        System.setProperty("apple.laf.useScreenMenuBar", "false");
              
         try {
             new Luv(args);
@@ -137,32 +137,27 @@ public class Luv extends JFrame {
         luvStateHandler.startState();        
         
         handlePort(args);        	    
-        
     }
     
     /** Manages initial port configuration for viewer.
      * 
      * @param port argument from command line 
      */
-    private void handlePort(String[] args){
+    private void handlePort(String[] args)
+    {
     	LuvTempFile.cleanupPorts();
-    	
     	luvPort = definePort(args);
-    	
-	    luvServer = new LuvSocketServer(luvPort);
-        
+        luvServer = new LuvSocketServer(luvPort);
         //Script handles socket connections, temp file only for timing difference
         LuvTempFile.deleteTempFile();
-        
         portFile = new LuvTempFile();
     }
     
     /** class which Deletes temp file assocated with viewer port prior to shutting down.
      */
-    private class MyShutdownHook extends Thread {
-    	public void run() {    		
-    		LuvTempFile.deleteTempFile();
-    	}
+    private class MyShutdownHook extends Thread
+    {
+    	public void run() { LuvTempFile.deleteTempFile(); }
     }
 
     /** 
@@ -176,21 +171,20 @@ public class Luv extends JFrame {
     	tempArry[0] = port;
     	luvPrevPort = luvPort;
     	int tempPort = definePort(tempArry);
-    	try{
-    		LuvSocketServer temp = new LuvSocketServer(tempPort);
-    		if(!LuvTempFile.checkPort(tempPort) && temp != null)
-    		{
-	    		luvServer.stopServer();
-	    		LuvTempFile.deleteTempFile();
-	    		luvPort = tempPort;
-	    		luvServer = temp;
-	    		portFile = new LuvTempFile();
-    		}
-    	}catch(Exception e)
-    	{    		
-    		statusMessageHandler.displayErrorMessage(e, "Error occured while changing to port " + tempPort);    		
+    	try {
+            LuvSocketServer temp = new LuvSocketServer(tempPort);
+            if (!LuvTempFile.checkPort(tempPort) && temp != null) {
+                luvServer.stopServer();
+                LuvTempFile.deleteTempFile();
+                luvPort = tempPort;
+                luvServer = temp;
+                portFile = new LuvTempFile();
+            }
     	}
-    	
+        catch(Exception e)
+            {    		
+    		statusMessageHandler.displayErrorMessage(e, "Error occured while changing to port " + tempPort);    		
+            }
     }
     
     /** 
@@ -226,56 +220,53 @@ public class Luv extends JFrame {
     	return port;    	
     }
 
-    private void init() {
+    private void init()
+    {
         theLuv = this;
-                
         Runtime.getRuntime().addShutdownHook(new MyShutdownHook());
-
         currentPlan = new Model("dummy");
+        properties = new Properties (PROPERTIES_FILE_LOCATION)
+            {
+                {
+                    define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
+                    define(PROP_ARRAY_MAX_CHARS, PROP_ARRAY_MAX_CHARS_DEF);
+                    define(PROP_WIN_LOC, PROP_WIN_LOC_DEF);
+                    define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);
+                    define(PROP_WIN_BCLR, PROP_WIN_BCLR_DEF);
+                    define(PROP_DBWIN_LOC, PROP_DBWIN_LOC_DEF);
+                    define(PROP_DBWIN_SIZE, PROP_DBWIN_SIZE_DEF);
 
-        properties = new Properties(PROPERTIES_FILE_LOCATION) {
+                    define(PROP_NODEINFOWIN_LOC, PROP_NODEINFOWIN_LOC_DEF);
+                    define(PROP_NODEINFOWIN_SIZE, PROP_NODEINFOWIN_SIZE_DEF);
+                    define(PROP_FINDWIN_LOC, PROP_FINDWIN_LOC_DEF);
+                    define(PROP_FINDWIN_SIZE, PROP_FINDWIN_SIZE_DEF);
+                    define(PROP_HIDESHOWWIN_LOC, PROP_HIDESHOWWIN_LOC_DEF);
+                    define(PROP_HIDESHOWWIN_SIZE, PROP_HIDESHOWWIN_SIZE_DEF);
+                    define(PROP_CFGWIN_LOC, PROP_CFGWIN_LOC_DEF);
+                    define(PROP_CFGWIN_SIZE, PROP_CFGWIN_SIZE_DEF);
 
-			{
-                define(PROP_FILE_RECENT_COUNT, PROP_FILE_RECENT_COUNT_DEF);
-                define(PROP_ARRAY_MAX_CHARS, PROP_ARRAY_MAX_CHARS_DEF);
-                define(PROP_WIN_LOC, PROP_WIN_LOC_DEF);
-                define(PROP_WIN_SIZE, PROP_WIN_SIZE_DEF);
-                define(PROP_WIN_BCLR, PROP_WIN_BCLR_DEF);
-                define(PROP_DBWIN_LOC, PROP_DBWIN_LOC_DEF);
-                define(PROP_DBWIN_SIZE, PROP_DBWIN_SIZE_DEF);
-
-                define(PROP_NODEINFOWIN_LOC, PROP_NODEINFOWIN_LOC_DEF);
-                define(PROP_NODEINFOWIN_SIZE, PROP_NODEINFOWIN_SIZE_DEF);
-                define(PROP_FINDWIN_LOC, PROP_FINDWIN_LOC_DEF);
-                define(PROP_FINDWIN_SIZE, PROP_FINDWIN_SIZE_DEF);
-                define(PROP_HIDESHOWWIN_LOC, PROP_HIDESHOWWIN_LOC_DEF);
-                define(PROP_HIDESHOWWIN_SIZE, PROP_HIDESHOWWIN_SIZE_DEF);
-                define(PROP_CFGWIN_LOC, PROP_CFGWIN_LOC_DEF);
-                define(PROP_CFGWIN_SIZE, PROP_CFGWIN_SIZE_DEF);
-
-                define(PROP_NET_SERVER_PORT, PROP_NET_SERVER_PORT_DEF);
+                    define(PROP_NET_SERVER_PORT, PROP_NET_SERVER_PORT_DEF);
                 
-                define(PROP_FILE_EXEC_RECENT_PLAN_DIR,
-                        getProperty(PROP_FILE_EXEC_RECENT_PLAN_BASE + 1, UNKNOWN));
-                define(PROP_FILE_EXEC_RECENT_CONFIG_DIR,
-                        getProperty(PROP_FILE_EXEC_RECENT_CONFIG_BASE + 1, UNKNOWN));
-                define(PROP_FILE_TEST_RECENT_PLAN_DIR,
-                        getProperty(PROP_FILE_TEST_RECENT_PLAN_BASE + 1, UNKNOWN));
-                define(PROP_FILE_TEST_RECENT_SCRIPT_DIR,
-                        getProperty(PROP_FILE_TEST_RECENT_SCRIPT_BASE + 1, UNKNOWN));
-                define(PROP_FILE_SIM_RECENT_PLAN_DIR,
-                        getProperty(PROP_FILE_SIM_RECENT_PLAN_BASE + 1, UNKNOWN));
-                define(PROP_FILE_SIM_RECENT_SCRIPT_DIR,
-                        getProperty(PROP_FILE_SIM_RECENT_SCRIPT_BASE + 1, UNKNOWN));
-                
-                
-                
-                define(PROP_HIDE_SHOW_LIST,
-                        getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_HIDE_SHOW_LIST));
-                define(PROP_SEARCH_LIST,
-                        getProperty(PROP_SEARCH_LIST, UNKNOWN).equals(UNKNOWN) ? "" : getProperty(PROP_SEARCH_LIST));
-            }
-        };
+                    define(PROP_FILE_EXEC_RECENT_PLAN_DIR,
+                           getProperty(PROP_FILE_EXEC_RECENT_PLAN_BASE + 1, UNKNOWN));
+                    define(PROP_FILE_EXEC_RECENT_CONFIG_DIR,
+                           getProperty(PROP_FILE_EXEC_RECENT_CONFIG_BASE + 1, UNKNOWN));
+                    define(PROP_FILE_TEST_RECENT_PLAN_DIR,
+                           getProperty(PROP_FILE_TEST_RECENT_PLAN_BASE + 1, UNKNOWN));
+                    define(PROP_FILE_TEST_RECENT_SCRIPT_DIR,
+                           getProperty(PROP_FILE_TEST_RECENT_SCRIPT_BASE + 1, UNKNOWN));
+                    define(PROP_FILE_SIM_RECENT_PLAN_DIR,
+                           getProperty(PROP_FILE_SIM_RECENT_PLAN_BASE + 1, UNKNOWN));
+                    define(PROP_FILE_SIM_RECENT_SCRIPT_DIR,
+                           getProperty(PROP_FILE_SIM_RECENT_SCRIPT_BASE + 1, UNKNOWN));
+                    define(PROP_HIDE_SHOW_LIST,
+                           getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN).equals(UNKNOWN) ? ""
+                           : getProperty(PROP_HIDE_SHOW_LIST));
+                    define(PROP_SEARCH_LIST,
+                           getProperty(PROP_SEARCH_LIST, UNKNOWN).equals(UNKNOWN) ? ""
+                           : getProperty(PROP_SEARCH_LIST));
+                }
+            };
 
         allowBreaks = false;
         appMode = PLEXIL_TEST; //default is testExec
@@ -309,15 +300,17 @@ public class Luv extends JFrame {
         execSelect.loadFromPersistence();
         
         
-        try{
-        libLoad = new LibraryLoader("Libraries");
-        }catch (FileNotFoundException e)
-        {
+        try {
+            libLoad = new LibraryLoader("Libraries");
+        }
+        catch (FileNotFoundException e)
+            {
         	e.printStackTrace();
-        }        
+            }        
     }
 
-    private void constructFrame(Container frame) {
+    private void constructFrame (Container frame)
+    {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setBackground(properties.getColor(PROP_WIN_BCLR));
