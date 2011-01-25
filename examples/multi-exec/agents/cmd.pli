@@ -2,16 +2,16 @@
 
 (plexil-plan
   (sequence "cmd"
-    (variables (string "name" "cmd")
-               (integer "period" 2)
-               (integer "run-length" 160)
-               (real-array "actual" 5)
+    (variables (string "name" "cmd")      ;agent name
+               (integer "period" 2)       ;polling period
+               (integer "run-length" 160) ;seconds
+               (real-array "actual" 5)    ;dist(ft) alt(ft) speed(kts) vspeed(ft/s) angle(deg)
                (real "start-time"))
     ;; Record the start time of the run...
     (assignment (realvar "start-time") (lookup-now "time"))
     ;; Poll for the current state and react accordingly
     (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
-      (sequence "get-current-state"
+      (sequence "sense-and-react"
         (variables (real "elapsed-time"))
         ;; (1) Get the current time and print it for debugging/continuity
         (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
@@ -36,9 +36,8 @@
           (assignment (realvar "kps-delta") (* (realvar "kps-decel") (realvar "period")))
           (assignment (realvar "dps-delta") (* (realvar "dps") (realvar "period")))
           (command "set-speed" (realvar "kps-delta"))
-          (action "set-angle"
-            (if (> 59.8 (array-element "actual" 4))
-                (command "set-angle" (realvar "dps-delta")))))
+          (if (> 59.8 (array-element "actual" 4))
+              (command "set-angle" (realvar "dps-delta"))))
         ;; (5) Sleep for a short while
         (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .1 "Wait")))
     ;; Halt the system when done
