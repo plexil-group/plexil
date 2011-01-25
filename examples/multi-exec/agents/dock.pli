@@ -1,0 +1,30 @@
+;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
+
+(plexil-plan
+  (sequence "dock"
+    (variables (string "name" "dock")      ;agent name
+               (integer "period" 2)       ;polling period
+               (integer "run-length" 10) ;seconds
+               (real-array "actual" 4 100 0 1 0) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
+               (real "start-time"))
+    ;; Record the start time of the run...
+    (assignment (realvar "start-time") (lookup-now "time"))
+    ;; Poll for the current state and react accordingly
+    (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
+      (sequence "send-telemetry"
+        (variables (real "elapsed-time"))
+        ;; ( ) Get the current time and print it for debugging/continuity
+        (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
+        (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
+        ;; ( ) Get the current state from the simulator and print it
+        (command "print" "[" (stringvar "name") "] send: " (arrayvar "actual") "\n")
+        ;; ( ) Broadcast the current state
+        (command "broadcast-telemetry" (arrayvar "actual"))
+        ;; ( ) Sleep for a short while
+        (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .1 "Wait")))
+    ;; Halt the system when done
+    (action "Quit"
+      (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
+      (command "SendMessage" "Quit"))))
+
+;; EOF

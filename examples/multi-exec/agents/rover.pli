@@ -1,0 +1,19 @@
+;; File: $SVNROOT/examples/multi-exec/agents/sim.pli
+
+(plexil-plan
+  (concurrently "rover"
+    (variables
+      (string "name" "rover")
+      (real-array "actual" 4) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
+      (boolean "debug" true))
+    (invariant-condition (not (finished "QuitCommand")))
+    ;; Handle incoming telemetry
+    (action "recv-telemetry"
+      (repeat-condition true)
+      (on-command "broadcast-telemetry" ((arrayvar "actual"))
+        (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")))
+    (action "QuitCommand"
+      (on-message "Quit"
+        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
+
+;; EOF

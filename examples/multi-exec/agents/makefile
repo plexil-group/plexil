@@ -15,6 +15,10 @@ run:
 	@echo " "
 	$(RUN_AGENTS) $(OPTS) $(CMD_LINE)
 
-.PHONY: run
+docking:
+	@echo " "
+	$(RUN_AGENTS) $(OPS) dock rover
+
+.PHONY: run docking
 
 # EOF
