@@ -774,7 +774,7 @@ namespace PLEXIL
       }
       case (int) PlexilMsgType_StringArray: {
         const PlexilStringArrayMsg* param = reinterpret_cast<const PlexilStringArrayMsg*> (*it);
-        StoredArray array(param->arraySize);
+        StoredArray array(param->arraySize, 0.0);
         for (int j = 0; j < param->arraySize; j++) {
           array[j] = LabelStr(param->stringArray[j]).getKey();
         }
@@ -783,11 +783,12 @@ namespace PLEXIL
       }
       case (int) PlexilMsgType_NumericArray: {
         const PlexilNumericArrayMsg* param = reinterpret_cast<const PlexilNumericArrayMsg*> (*it);
-        StoredArray array(param->arraySize);
+        StoredArray array(param->arraySize, 0.0);
         for (int j = 0; j < param->arraySize; j++) {
           array[j] = param->doubleArray[j];
         }
         m_messageQueues.addMessage(paramLbl, array.getKey());
+	break;
       }
       default: { //assume string
         const PlexilStringValueMsg* param = reinterpret_cast<const PlexilStringValueMsg*> (*it);
