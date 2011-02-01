@@ -4,7 +4,7 @@
   (sequence "dock"
     (variables (string "name" "dock")      ;agent name
                (integer "period" 2)       ;polling period
-               (integer "run-length" 10) ;seconds
+               (integer "run-length" 0) ;seconds
                (real-array "actual" 4 100 0 1 0) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
                (real "start-time"))
     ;; Record the start time of the run...
