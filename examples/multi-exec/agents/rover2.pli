@@ -1,0 +1,14 @@
+;; File: $SVNROOT/examples/multi-exec/agents/rover2.pli
+
+(plexil-plan
+  (concurrently "rover"
+    (variables
+      (string "name" "rover")
+      (real-array "actual" 4) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
+      (boolean "debug" true))
+    ;; Handle incoming telemetry
+    (action "recv-telemetry"
+      (on-command "broadcast-telemetry" ((arrayvar "actual"))
+        (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")))))
+
+;; EOF
