@@ -4,13 +4,11 @@
   (sequence "dock"
     (variables (string "name" "dock")      ;agent name
                (integer "period" 2)       ;polling period
-               (integer "run-length" 10) ;seconds
+               (integer "run-length" 1) ;seconds
                (real-array "actual" 4 100 0 1 0) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
                (real "start-time"))
     ;; Record the start time of the run...
     (assignment (realvar "start-time") (lookup-now "time"))
-    ;; Announce that we are up and running
-    (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
     ;; Poll for the current state and react accordingly
     (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
       (sequence "send-telemetry"
@@ -21,9 +19,7 @@
         ;; ( ) Get the current state from the simulator and print it
         (command "print" "[" (stringvar "name") "] send: " (arrayvar "actual") "\n")
         ;; ( ) Broadcast the current state
-        (command "broadcast-telemetry"
-                 (array-element "actual" 0) (array-element "actual" 1)
-                 (array-element "actual" 2) (array-element "actual" 3))
+        (command "broadcast-telemetry" (arrayvar "actual"))
         ;; ( ) Sleep for a short while
         (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .1 "Wait")))
     ;; Halt the system when done

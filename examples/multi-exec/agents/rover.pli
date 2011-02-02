@@ -7,11 +7,18 @@
       (real-array "actual" 4) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
       (boolean "debug" true))
     (invariant-condition (not (finished "QuitCommand")))
+    ;; Announce that we are up and running
+    (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
     ;; Handle incoming telemetry
     (action "recv-telemetry"
       (repeat-condition true)
-      (on-command "broadcast-telemetry" ((arrayvar "actual"))
-        (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")))
+      (on-command "broadcast-telemetry" ((real "dist") (real "alt") (real "speed") (real "angle"))
+        (sequence "stuff-that-should-happen-automatically"
+          (assignment (array-element "actual" 0) (realvar "dist"))
+          (assignment (array-element "actual" 1) (realvar "alt"))
+          (assignment (array-element "actual" 2) (realvar "speed"))
+          (assignment (array-element "actual" 3) (realvar "angle"))
+          (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n"))))
     (action "QuitCommand"
       (on-message "Quit"
         (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
