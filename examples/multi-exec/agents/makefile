@@ -17,7 +17,7 @@ run:
 
 docking:
 	@echo " "
-	$(RUN_AGENTS) $(OPS) dock rover
+	$(RUN_AGENTS) $(OPTS) dock rover
 
 .PHONY: run docking
 
