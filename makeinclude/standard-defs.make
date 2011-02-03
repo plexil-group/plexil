@@ -70,13 +70,12 @@ CC	        := gcc
 CXX	        := g++
 
 # Get compiler version - presumes gcc
-CXX_VERSION := $(shell $(CXX) -dumpversion)
-CXX_MAJOR_VERSION := $(firstword $(subst ., ,$(CXX_VERSION)))
-CXX_MINOR_VERSION := $(word 2,$(subst ., ,$(CXX_VERSION)))
-CXX_PATCH_VERSION := $(word 3,$(subst ., ,$(CXX_VERSION)))
+CXX_VERSION = $(shell $(CXX) -dumpversion)
+CXX_MAJOR_VERSION = $(firstword $(subst ., ,$(CXX_VERSION)))
+CXX_MINOR_VERSION = $(word 2,$(subst ., ,$(CXX_VERSION)))
+CXX_PATCH_VERSION = $(word 3,$(subst ., ,$(CXX_VERSION)))
 # for debug use
-#CXX_VERSION_DUMMY := $(info C++ version is $(CXX_MAJOR_VERSION) $(CXX_MINOR_VERSION) $(CXX_PATCH_VERSION))
-
+#CXX_VERSION_DUMMY = $(info C++ version is $(CXX_MAJOR_VERSION) $(CXX_MINOR_VERSION) $(CXX_PATCH_VERSION))
 
 ##### C++ compiler options.
 
@@ -99,7 +98,6 @@ CXX_PATCH_VERSION := $(word 3,$(subst ., ,$(CXX_VERSION)))
 # -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
 DEFINES			:= -DTIXML_USE_STL -D__STDC_LIMIT_MACROS
 
-#STANDARD_CFLAGS		= -multigot $(SKIP_WARNINGS)
 STANDARD_CFLAGS		:=
 STANDARD_CXXFLAGS	:=
 
