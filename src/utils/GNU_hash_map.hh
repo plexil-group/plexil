@@ -67,7 +67,8 @@
 
 #include "KeySource.hh"
 
-_GLIBCXX_BEGIN_NAMESPACE(__gnu_cxx)
+namespace __gnu_cxx
+{
 
 // Define a hash function for double
 // Borrowed from StoredItem
@@ -92,6 +93,6 @@ struct hash<double>
   }
 };
 
-_GLIBCXX_END_NAMESPACE
+} // end namespace __gnu_cxx
     
 #endif // PLEXIL_GNU_HASH_MAP_HH
