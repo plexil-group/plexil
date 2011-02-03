@@ -19,10 +19,6 @@ dock:
 	@echo " "
 	$(RUN_AGENTS) $(OPTS) rover dock
 
-dock2:
-	@echo " "
-	$(RUN_AGENTS) $(OPTS) rover2 -c rover.xml dock2.plx -c dock.xml
-
-.PHONY: run docking
+.PHONY: run dock
 
 # EOF
