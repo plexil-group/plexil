@@ -4,7 +4,7 @@
   (sequence "dock"
     (variables (string "name" "dock")      ;agent name
                (integer "period" 2)       ;polling period
-               (integer "run-length" 1) ;seconds
+               (integer "run-length" 10) ;seconds
                (real-array "actual" 4 100 0 1 0) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
                (real "start-time"))
     ;; Record the start time of the run...
@@ -15,6 +15,9 @@
         (variables (real "elapsed-time"))
         ;; ( ) Get the current time and print it for debugging/continuity
         (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
+        ;; Update the array
+        (assignment (array-element "actual" 1) (intvar "i"))
+        ;; Print the current contents of the array
         (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
         ;; ( ) Get the current state from the simulator and print it
         (command "print" "[" (stringvar "name") "] send: " (arrayvar "actual") "\n")
