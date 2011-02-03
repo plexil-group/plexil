@@ -399,7 +399,7 @@ namespace PLEXIL
    * @brief Helper function for converting message names into the proper format given the command type and a user-defined id.
    */
   double IpcAdapter::formatMessageName(const LabelStr& name, const LabelStr& command, int id) {
-    std::stringstream ss;
+    std::ostringstream ss;
     if (command == RECEIVE_COMMAND_COMMAND()) {
       ss << COMMAND_PREFIX() << name.toString();
     }
@@ -754,7 +754,7 @@ namespace PLEXIL
     //only support one parameter, the id
     //TODO: support more parameters
     const PlexilStringValueMsg* header = (const PlexilStringValueMsg*) msgs[0];
-    std::stringstream uid;
+    std::ostringstream uid;
     uid << ((int) header->header.serial) << SERIAL_UID_SEPERATOR() << header->header.senderUID;
     LabelStr uid_lbl(uid.str());
     debugMsg("IpcAdapter:handleCommandSequence",
@@ -778,6 +778,8 @@ namespace PLEXIL
         for (int j = 0; j < param->arraySize; j++) {
           array[j] = LabelStr(param->stringArray[j]).getKey();
         }
+        debugMsg("IpcAdapter:handleCommandSequence",
+                 " Sending string array parameter " << array.toString() << " to the command queue");
         m_messageQueues.addMessage(paramLbl, array.getKey());
         break;
       }
@@ -787,6 +789,8 @@ namespace PLEXIL
         for (int j = 0; j < param->arraySize; j++) {
           array[j] = param->doubleArray[j];
         }
+        debugMsg("IpcAdapter:handleCommandSequence",
+                 " Sending numeric array parameter " << array.toString() << " to the command queue");
         m_messageQueues.addMessage(paramLbl, array.getKey());
 	break;
       }
