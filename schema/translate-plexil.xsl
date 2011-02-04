@@ -1422,6 +1422,7 @@
       <xsl:copy-of select="@ColNo" />
       <VariableDeclarations>
         <xsl:copy-of select="VariableDeclarations/DeclareVariable" />
+        <xsl:copy-of select="VariableDeclarations/DeclareArray"/> <!-- Arrays are variables too -->
         <DeclareVariable>
           <Name>
             <xsl:value-of select="tr:prefix('hdl')" />
@@ -1470,7 +1471,7 @@
         <xsl:with-param name="args" select="$arg_dec" />
       </xsl:call-template>
       <!-- Cmd get parameters nodes -->
-      <xsl:for-each select="VariableDeclarations/DeclareVariable">
+      <xsl:for-each select="VariableDeclarations/DeclareVariable | VariableDeclarations/DeclareArray">
         <Node NodeType="Command" epx="aux">
           <NodeId>
             <xsl:value-of
@@ -1478,16 +1479,33 @@
           </NodeId>
           <EndCondition>
             <IsKnown>
-              <xsl:element name='{concat(Type/text(), "Variable")}'>
-                <xsl:value-of select="Name/text()" />
-              </xsl:element>
+              <xsl:choose>
+                <xsl:when test="MaxSize"> <!-- Arrays -->
+                  <ArrayElement>
+                    <Name><xsl:value-of select="Name"/></Name>
+                    <Index><IntegerValue>0</IntegerValue></Index>
+                  </ArrayElement>
+                </xsl:when>
+                <xsl:otherwise> <!-- Scalars -->
+                  <xsl:element name='{concat(Type/text(), "Variable")}'>
+                    <xsl:value-of select="Name/text()" />
+                  </xsl:element>
+                </xsl:otherwise>
+              </xsl:choose>
             </IsKnown>
           </EndCondition>
           <NodeBody>
             <Command>
-              <xsl:element name='{concat(Type/text(), "Variable")}'>
-                <xsl:value-of select="Name/text()" />
-              </xsl:element>
+              <xsl:choose>
+                <xsl:when test="MaxSize"> <!-- Arrays -->
+                  <ArrayVariable><xsl:value-of select="Name"/></ArrayVariable>
+                </xsl:when>
+                <xsl:otherwise> <!-- Scalars -->
+                  <xsl:element name='{concat(Type/text(), "Variable")}'>
+                    <xsl:value-of select="Name/text()" />
+                  </xsl:element>
+                </xsl:otherwise>
+              </xsl:choose>
               <Name>
                 <StringValue>GetParameter</StringValue>
               </Name>
