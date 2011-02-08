@@ -33,8 +33,15 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml
 LIB_PATH	+=
 LIBS		+= tinyxml $(PTHREAD_LIB)
 
-SRC		:= $(wildcard *.cc)
-INC		:= $(SRC:.cc=.hh) ConstantMacros.hh Id.hh TestSupport.hh utils_main_page.hh
+SRC		:= Debug.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
+ RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
+ ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc \
+ Utils.cc XMLUtils.cc
+#SRC		:= $(wildcard *.cc)
+INC		:= $(SRC:.cc=.hh) \
+ generic_hash_map.hh ConstantMacros.hh Id.hh \
+ StoredItem.hh StoredItem_Dinkum.hh StoredItem_GNU.hh \
+ TestSupport.hh utils_main_page.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
