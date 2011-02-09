@@ -1,10 +1,27 @@
-;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
+;; File: $SVNROOT/examples/multi-exec/agents/dock.pli
 
 (plexil-plan
+  ;; The "dock" sits and waits for requests to dock from particular rovers,
+  ;; and can handle multiple rovers (4 bays?, more?)
+  ;;    request := rover-id dock-type urgency
+  ;;   response := rover-id dock-no dist(ft) h-error(deg) v-error(deg) speed(ft/s)
+  ;; A "rover" requests docking information periodically until the dock responds,
+  ;; after which the dock periodically broadcasts the telemetry (response) to the
+  ;; rover (which it is expected follow as closely as it can).
+  ;; After the rover has docked, both the rover and dock execute their own post
+  ;; docking procedures, exchanging docking done message, and opening their inner
+  ;; hatches.
+  ;;
+  ;; The dock has N bays.  If one or more have been requested, then we loop through
+  ;; the bays sending "sensed" telemetry related to the rover assigned to the bay
+  ;; in question (i.e., dist, angle, speed).  Telemetry is pushed until docking is
+  ;; achieved, then post-docking procedures/checks are run, finally the dock hatch
+  ;; is opened.
+  ;;
   (sequence "dock"
-    (variables (string "name" "dock")      ;agent name
+    (variables (string "name" "dock")     ;agent name
                (integer "period" 2)       ;polling period
-               (integer "run-length" 10) ;seconds
+               (integer "run-length" 10)  ;seconds
                (real-array "actual" 4 100 0 1 0) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
                (real "start-time"))
     ;; Record the start time of the run...
