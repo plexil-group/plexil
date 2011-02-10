@@ -212,7 +212,7 @@ namespace PLEXIL
 	      tv = &(where->second);
 	    where++;
 	  }
-	checkError(tv == NULL,
+	checkError(tv != NULL,
 		   "LookupOnChange: Internal error: couldn't find smallest tolerance");
 	// tv now points to timeval of smallest tolerance
 	if (timevalGreater(*tv, m_lastItimerval.it_interval))
