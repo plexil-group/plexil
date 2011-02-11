@@ -1,22 +1,35 @@
 ;; File: $SVNROOT/examples/multi-exec/agents/rover.pli
 
 (plexil-plan
-  (concurrently "rover"
-    (variables
-      (string "name" "rover")
-      (real-array "actual" 4) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
-      (boolean "debug" true))
-    (invariant-condition (not (finished "QuitCommand")))
-    ;; Announce that we are up and running
+  ;; (1) send a docking request
+  ;; (2) use the bay-status messages to dock
+  ;; (3) quit when docked
+  (sequence "rover-docking"
+    (variables (string "name" "rvr1")
+               (real "rover-id" 7)
+               (real-array "request" 3 0 0 0) ;rvr-id[0], dock-type(TBD)[1] urgency(TBD)[2]
+               (boolean "docked" false))
     (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
-    ;; Handle incoming telemetry
-    (sequence "recv-telemetry"
-      (repeat-condition true)
-      (on-command "broadcast-telemetry" ((real-array "return" 4))
-        (assignment (arrayvar "actual") (arrayvar "return")))
-      (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n"))
-    (action "QuitCommand"
-      (on-message "Quit"
-        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
+    (assignment (array-element "request" 0) (realvar "rover-id"))
+    (wait 5 "wait-to-start")
+    ;; (1) send the docking request
+    (command "docking-request" (arrayvar "request"))
+    (command "print" "\n[" (stringvar "name") "] sent: " (arrayvar "request"))
+    ;; (2) respond to the bay-status messages
+    (action "dock"
+      (repeat-condition (not (boolvar "docked")))
+      (on-command "bay-status" ((real-array "bay-status" 6))
+        (sequence "handle-bay-status"
+          (start-condition (= (array-element "request" 0) (array-element "bay-status" 1)))
+          (action "docked"
+            ;; We are docked when we are 0 feet from the dock...
+            (skip-condition (not (= 0 (array-element "bay-status" 2))))
+            (assignment (boolvar "docked") true))
+          (command "print" "\n[" (stringvar "name") "] recv: " (arrayvar "bay-status")))))
+    ;; (3) Stop the run
+    (sequence "Quit"
+      (wait 5 "wait-to-quit")
+      (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
+      (command "SendMessage" "Quit"))))
 
 ;; EOF

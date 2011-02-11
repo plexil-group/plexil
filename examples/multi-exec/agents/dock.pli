@@ -17,35 +17,102 @@
   ;; in question (i.e., dist, angle, speed).  Telemetry is pushed until docking is
   ;; achieved, then post-docking procedures/checks are run, finally the dock hatch
   ;; is opened.
-  ;;
-  (sequence "dock"
-    (variables (string "name" "dock")     ;agent name
-               (integer "period" 2)       ;polling period
-               (integer "run-length" 10)  ;seconds
-               (real-array "actual" 4 100 0 1 0) ;dist(ft) alt(ft) speed(ft/s) angle(deg)
-               (real "start-time"))
-    ;; Record the start time of the run...
+  (concurrently "wait-for-docking-request"
+    (variables
+      (string "name" "dock")
+      (real "start-time")               ;time the dock started up
+      (real "now")                      ;current time
+      (real "then")                     ;time of last update cycle
+      (integer "period" 2)              ;periodicity of update cycles
+      (real "start-dist" 50)            ;distance(ft) at which to start the docking procedure
+      (real "initial-speed" 2)          ;initial approach speed(ft/sec)
+      (real "intermediate-speed" 1)     ;intermediate approach speed(ft/sec)
+      (real "final-speed" .2)           ;final approach speed(ft/sec)
+      (real-array "bay1" 6 1 0 0 0 0 0) ;bay-id[0], rover-id[1], dist(ft)[2], speed(ft/sec)[3], angle(deg)[4], time(sec)[5]
+      (real-array "bay2" 6 2 0 0 0 0 0)
+      (real-array "bay3" 6 3 0 0 0 0 0)
+      (real-array "bay4" 6 4 0 0 0 0 0))
+    (invariant-condition (not (finished "QuitCommand")))
+    ;; Record the start time of this run
     (assignment (realvar "start-time") (lookup-now "time"))
     ;; Announce that we are up and running
-    (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
-    ;; Poll for the current state and react accordingly
-    (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
-      (sequence "send-telemetry"
-        (variables (real "elapsed-time"))
-        ;; ( ) Get the current time and print it for debugging/continuity
-        (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
-        ;; Update the array before printing and sending it.
-        (assignment (array-element "actual" 1) (intvar "i"))
-        (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
-        ;; ( ) Get the current state from the simulator and print it
-        (command "print" "[" (stringvar "name") "] send: " (arrayvar "actual") "\n")
-        ;; ( ) Broadcast the current state
-        (command "broadcast-telemetry" (arrayvar "actual"))
-        ;; ( ) Sleep for a short while
-        (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .1 "Wait")))
-    ;; Halt the system when done
-    (action "Quit"
-      (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
-      (command "SendMessage" "Quit"))))
+    ;; (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
+    ;; (1) wait for a docking request, and when one is received, register it with
+    ;;     the telementry loop (so that it will be appropriately serviced)
+    (sequence "docking-request"
+      (variables (real "rover-id"))
+      (repeat-condition true)           ;always open for business
+      (on-command "docking-request" ((real-array "request" 3))
+        (sequence "handle-docking-request"
+          (assignment (realvar "now") (- (lookup-now "time") (realvar "start-time")))
+          (command "print" "\n[" (stringvar "name") " (" (realvar "now") ")] recv: " (arrayvar "request"))
+          (assignment (realvar "rover-id") (array-element "request" 0)) ;grab the rover-id
+          ;; Need to add default case for all bays in use...
+          (try "assign-rover-to-bay"
+            (action "use-bay1"
+              (start-condition (= 0 (array-element "bay1" 1)))
+              (assignment (array-element "bay1" 1) (realvar "rover-id"))
+              (assignment (array-element "bay1" 2) (realvar "start-dist"))) ;initial approach distance
+            (action "use-bay2"
+              (start-condition (= 0 (array-element "bay2" 1)))
+              (assignment (array-element "bay2" 1) (realvar "rover-id")))
+            (action "use-bay3"
+              (start-condition (= 0 (array-element "bay3" 1)))
+              (assignment (array-element "bay3" 1) (realvar "rover-id")))
+            (action "use-bay4"
+              (start-condition (= 0 (array-element "bay4" 1)))
+              (assignment (array-element "bay4" 1) (realvar "rover-id")))))))
+    ;; (2) the telemetry/status loop spins and services any/all registered docking
+    ;; requests every "period" seconds
+    (sequence "update-bay-status"
+      (repeat-condition true)
+      ;; Look up the time and write it out for debugging
+      (assignment (realvar "now") (- (lookup-now "time") (realvar "start-time")))
+      (command "print" "\n\n[" (stringvar "name") " (" (realvar "now") ")]")
+      (action "update-bay1"
+        ;; bring the rover in at "initial-speed" ft/sec down to 30', then "intermediate-speed" to 10', etc.
+        (skip-condition (or (= 0 (array-element "bay1" 1))  ;no rover assigned to this bay yet
+                            (= 0 (array-element "bay1" 2)))) ;rover is already docked
+        (action "set-start-of-approach"
+          (skip-condition (not (= 0 (array-element "bay1" 5))))
+          (assignment (array-element "bay1" 5) (realvar "now")))
+        (try "set-speed-for-distance"
+          (action "inital-approach"
+            ;; dist < 30, skip
+            (skip-condition (> 30 (array-element "bay1" 2)))
+            (assignment (array-element "bay1" 3) (realvar "initial-speed"))) ;ft/sec
+          (action "intermediate-approach"
+            ;; if dist > 30 or dist < 10, skip
+            (skip-condition (or (<= 30 (array-element "bay1" 2))
+                                (>= 10 (array-element "bay1" 2))))
+            (assignment (array-element "bay1" 3) (realvar "intermediate-speed"))) ;ft/sec
+          (action "final-approach"
+            ;; if dist > 10, skip
+            (skip-condition (<= 10 (array-element "bay1" 2)))
+            (assignment (array-element "bay1" 3) (realvar "final-speed")))) ;ft/sec
+        ;; Set the updated distance based on the speed
+        ;; dist = dist - speed * (- now then) (i.e., time-since-last-update)
+        (sequence "calculate-dist"
+          (variables (real "dist"))
+          (assignment (realvar "dist") (- (array-element "bay1" 2) ;dist
+                                          (* (array-element "bay1" 3) ;ft/sec
+                                             (- (realvar "now") (realvar "then"))))) ;seconds
+          (if (<= 0 (realvar "dist"))   ;if dist < 0, use 0
+              (assignment (array-element "bay1" 2) (realvar "dist"))
+            (assignment (array-element "bay1" 2) 0)))
+        ;; Send the new status out
+        (command "bay-status" (arrayvar "bay1"))
+        (command "print" "\n[" (stringvar "name") " (bay1)] sent: " (arrayvar "bay1")))
+      (action "update-bay2"
+        (skip-condition (= 0.0 (array-element "bay2" 1)))
+        (assignment (array-element "bay2" 2) 100)              ;pretend the rover is 100' away
+        (command "bay-status" (arrayvar "bay2"))
+        (command "print" "[" (stringvar "name") " (bay2)] sent: " (arrayvar "bay2")))
+      (assignment (realvar "then") (realvar "now")) ;rember when the last cycle finished
+      (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .05 "Wait"))
+    ;; Quit when asked to
+    (action "QuitCommand"
+      (on-message "Quit"
+        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
 
 ;; EOF
