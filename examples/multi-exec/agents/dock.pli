@@ -25,9 +25,10 @@
       (real "then")                     ;time of last update cycle
       (integer "period" 2)              ;periodicity of update cycles
       (real "start-dist" 50)            ;distance(ft) at which to start the docking procedure
-      (real "initial-speed" 2)          ;initial approach speed(ft/sec)
-      (real "intermediate-speed" 1)     ;intermediate approach speed(ft/sec)
-      (real "final-speed" .2)           ;final approach speed(ft/sec)
+      ;;(real "initial-speed" 2)          ;initial approach speed(ft/sec)
+      ;;(real "intermediate-speed" 1)     ;intermediate approach speed(ft/sec)
+      ;;(real "final-speed" .2)           ;final approach speed(ft/sec)
+      (real-array "speeds" 3 2 1 .2) ;initial(ft/sec)[0] intermediate(ft/sec)[1] final(ft-sec)[2]
       (real-array "bay1" 6 1 0 0 0 0 0) ;bay-id[0], rover-id[1], dist(ft)[2], speed(ft/sec)[3], angle(deg)[4], time(sec)[5]
       (real-array "bay2" 6 2 0 0 0 0 0)
       (real-array "bay3" 6 3 0 0 0 0 0)
@@ -64,50 +65,65 @@
               (assignment (array-element "bay4" 1) (realvar "rover-id")))))))
     ;; (2) the telemetry/status loop spins and services any/all registered docking
     ;; requests every "period" seconds
-    (sequence "update-bay-status"
+    (sequence "update-bays"
       (repeat-condition true)
-      ;; Look up the time and write it out for debugging
       (assignment (realvar "now") (- (lookup-now "time") (realvar "start-time")))
       (command "print" "\n\n[" (stringvar "name") " (" (realvar "now") ")]")
-      (action "update-bay1"
-        ;; bring the rover in at "initial-speed" ft/sec down to 30', then "intermediate-speed" to 10', etc.
-        (skip-condition (or (= 0 (array-element "bay1" 1))  ;no rover assigned to this bay yet
-                            (= 0 (array-element "bay1" 2)))) ;rover is already docked
-        (action "set-start-of-approach"
-          (skip-condition (not (= 0 (array-element "bay1" 5))))
-          (assignment (array-element "bay1" 5) (realvar "now")))
-        (try "set-speed-for-distance"
-          (action "inital-approach"
-            ;; dist < 30, skip
-            (skip-condition (> 30 (array-element "bay1" 2)))
-            (assignment (array-element "bay1" 3) (realvar "initial-speed"))) ;ft/sec
-          (action "intermediate-approach"
-            ;; if dist > 30 or dist < 10, skip
-            (skip-condition (or (<= 30 (array-element "bay1" 2))
-                                (>= 10 (array-element "bay1" 2))))
-            (assignment (array-element "bay1" 3) (realvar "intermediate-speed"))) ;ft/sec
-          (action "final-approach"
-            ;; if dist > 10, skip
-            (skip-condition (<= 10 (array-element "bay1" 2)))
-            (assignment (array-element "bay1" 3) (realvar "final-speed")))) ;ft/sec
-        ;; Set the updated distance based on the speed
-        ;; dist = dist - speed * (- now then) (i.e., time-since-last-update)
-        (sequence "calculate-dist"
-          (variables (real "dist"))
-          (assignment (realvar "dist") (- (array-element "bay1" 2) ;dist
-                                          (* (array-element "bay1" 3) ;ft/sec
-                                             (- (realvar "now") (realvar "then"))))) ;seconds
-          (if (<= 0 (realvar "dist"))   ;if dist < 0, use 0
-              (assignment (array-element "bay1" 2) (realvar "dist"))
-            (assignment (array-element "bay1" 2) 0)))
-        ;; Send the new status out
-        (command "bay-status" (arrayvar "bay1"))
-        (command "print" "\n[" (stringvar "name") " (bay1)] sent: " (arrayvar "bay1")))
-      (action "update-bay2"
-        (skip-condition (= 0.0 (array-element "bay2" 1)))
-        (assignment (array-element "bay2" 2) 100)              ;pretend the rover is 100' away
-        (command "bay-status" (arrayvar "bay2"))
-        (command "print" "[" (stringvar "name") " (bay2)] sent: " (arrayvar "bay2")))
+      (library-call-node (call "update-bay"
+                               (alias "bay" (arrayvar "bay1"))
+                               (alias "speeds" (arrayvar "speeds"))
+                               (alias "start-time" (realvar "start-time"))
+                               (alias "now" (realvar "now"))))
+      (library-call-node (call "update-bay"
+                               (alias "bay" (arrayvar "bay2"))
+                               (alias "speeds" (arrayvar "speeds"))
+                               (alias "start-time" (realvar "start-time"))
+                               (alias "now" (realvar "now"))))
+    ;;(sequence "update-bay-status"
+    ;;  (repeat-condition true)
+    ;;  ;; Look up the time and write it out for debugging
+    ;;  (assignment (realvar "now") (- (lookup-now "time") (realvar "start-time")))
+    ;;  (command "print" "\n\n[" (stringvar "name") " (" (realvar "now") ")]")
+    ;;  (action "update-bay1"
+    ;;    ;; bring the rover in at "initial-speed" ft/sec down to 30', then "intermediate-speed" to 10', etc.
+    ;;    (skip-condition (or (= 0 (array-element "bay1" 1))  ;no rover assigned to this bay yet
+    ;;                        (= 0 (array-element "bay1" 2)))) ;rover is already docked
+    ;;    (action "set-start-of-approach"
+    ;;      (skip-condition (not (= 0 (array-element "bay1" 5))))
+    ;;      (assignment (array-element "bay1" 5) (realvar "now")))
+    ;;    (try "set-speed-for-distance"
+    ;;      (action "inital-approach"
+    ;;        ;; dist < 30, skip
+    ;;        (skip-condition (> 30 (array-element "bay1" 2)))
+    ;;        (assignment (array-element "bay1" 3) (realvar "initial-speed"))) ;ft/sec
+    ;;      (action "intermediate-approach"
+    ;;        ;; if dist > 30 or dist < 10, skip
+    ;;        (skip-condition (or (<= 30 (array-element "bay1" 2))
+    ;;                           (>= 10 (array-element "bay1" 2))))
+    ;;        (assignment (array-element "bay1" 3) (realvar "intermediate-speed"))) ;ft/sec
+    ;;      (action "final-approach"
+    ;;        ;; if dist > 10, skip
+    ;;        (skip-condition (<= 10 (array-element "bay1" 2)))
+    ;;        (assignment (array-element "bay1" 3) (realvar "final-speed")))) ;ft/sec
+    ;;    ;; Set the updated distance based on the speed
+    ;;    ;; dist = dist - speed * (- now then) (i.e., time-since-last-update)
+    ;;    (sequence "calculate-dist"
+    ;;      (variables (real "dist"))
+    ;;      (assignment (realvar "dist") (- (array-element "bay1" 2) ;dist
+    ;;                                      (* (array-element "bay1" 3) ;ft/sec
+    ;;                                         (- (realvar "now") (realvar "then"))))) ;seconds
+    ;;      (if (<= 0 (realvar "dist"))   ;if dist < 0, use 0
+    ;;          (assignment (array-element "bay1" 2) (realvar "dist"))
+    ;;        (assignment (array-element "bay1" 2) 0)))
+    ;;    ;; Send the new status out
+    ;;    (command "bay-status" (arrayvar "bay1"))
+    ;;    (command "print" "\n[" (stringvar "name") " (bay1)] sent: " (arrayvar "bay1")))
+      
+    ;;  (action "update-bay2"
+    ;;    (skip-condition (= 0.0 (array-element "bay2" 1)))
+    ;;    (assignment (array-element "bay2" 2) 100)              ;pretend the rover is 100' away
+    ;;    (command "bay-status" (arrayvar "bay2"))
+    ;;    (command "print" "[" (stringvar "name") " (bay2)] sent: " (arrayvar "bay2")))
       (assignment (realvar "then") (realvar "now")) ;rember when the last cycle finished
       (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .05 "Wait"))
     ;; Quit when asked to
