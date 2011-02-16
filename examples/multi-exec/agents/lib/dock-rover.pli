@@ -7,7 +7,8 @@
     (interface (inout (string "name")
                       (real "rover-id")
                       (boolean "docked")
-                      (real-array "request" 3 0 0 0)))
+                      (real-array "request" 3 0 0 0)
+                      (boolean "send-quit" false)))
     (variables (real "bay"))
     (assignment (array-element "request" 0) (realvar "rover-id")) ;set the request to this rover
     (wait 5 "wait-to-start")
@@ -20,29 +21,20 @@
       (repeat-condition (not (boolvar "docked")))
       (on-command "bay-status" ((real-array "bay-status" 6))
         (sequence "handle-bay-status"
-          (start-condition (= (array-element "request" 0) (array-element "bay-status" 1)))
+          ;;(start-condition (= (array-element "request" 0) (array-element "bay-status" 1)))
+          (skip-condition (not (= (array-element "request" 0) (array-element "bay-status" 1))))
           (action "docked"
             ;; We are docked when we are 0 feet from the dock...
             (skip-condition (not (= 0 (array-element "bay-status" 2))))
             (assignment (realvar "bay") (array-element "bay-status" 0))
             (assignment (boolvar "docked") true))
           (command "print" "\n[" (stringvar "name") "] recv: " (arrayvar "bay-status")))))
-    (command "print" "\n\n[" (stringvar "name") " (" (realvar "rover-id") ") docked in bay " (realvar "bay") "\n")
+    (command "print" "\n\n[" (stringvar "name") "] docked in bay " (realvar "bay") "\n")
     ;; (3) Stop the run
     (sequence "Quit"
+      (skip-condition (not (boolvar "send-quit")))
       (wait 5 "wait-to-quit")
       (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
       (command "SendMessage" "Quit"))))
-
-;; (plexil-plan
-;;   (sequence "bay-status-handler"
-;;     (interface (inout (string "name") (real "rover-id") (boolean "docked")))
-;;     (on-command "bay-status" ((real-array "bay-status" 6))
-;;       (sequence "handle-bay-status"
-;;         (start-condition (= (intvar "rover-id") (array-element "bay-status" 1)))
-;;         (action "docked"
-;;           (skip-condition (not (= 0 (array-element "bay-status" 2))))
-;;           (assignment (boolvar "docked") true))
-;;         (command "print" "\n[" (stringvar "name") " rvr" (intvar "rover-id") "] recv: " (arrayvar "bay-status"))))))
 
 ;; EOF
