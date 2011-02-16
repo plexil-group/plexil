@@ -41,16 +41,17 @@
 #include "StoredArray.hh"
 #include "Utils.hh"
 
-#include <limits>
 #include <list>
 #include <map>
 #include <set>
 
 // Common constants used only in expressions
 
-#define PLUS_INFINITY (PLEXIL::g_infiniteTime())
+// The most positive legal "integer" value.
+#define PLUS_INFINITY (INT32_MAX)
 
-#define MINUS_INFINITY (-PLEXIL::g_infiniteTime())
+// The most negative legal "integer" value.
+#define MINUS_INFINITY (INT32_MIN)
 
 #define REAL_PLUS_INFINITY (PLEXIL::g_maxReal())
 

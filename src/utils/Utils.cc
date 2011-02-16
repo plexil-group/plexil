@@ -71,13 +71,6 @@ namespace PLEXIL {
      return true;
    }
 
-  //
-  // *** BEWARE!! ***
-  // INT_MAX != LONG_MAX on most 64-bit systems!
-  // The integer quantities here are meant to be 32 bit!
-  // 
-  DEFINE_GLOBAL_CONST(int32_t, g_maxInt, (INT32_MAX/8)); /*!< Same as max finite time */
-  DEFINE_GLOBAL_CONST(int32_t, g_infiniteTime, (g_maxInt() + 1));
   DEFINE_GLOBAL_CONST(double, g_epsilon, 0.00001);
   DEFINE_GLOBAL_CONST(double, g_maxReal, ((double) DBL_MAX));
   DEFINE_GLOBAL_CONST(double, UNKNOWN,
