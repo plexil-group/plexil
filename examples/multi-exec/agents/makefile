@@ -17,7 +17,7 @@ run:
 
 dock:
 	@echo " "
-	$(RUN_AGENTS) $(OPTS) dock rover
+	$(RUN_AGENTS) $(OPTS) dock -l update-bay rover -l dock-robot
 
 .PHONY: run dock
 
