@@ -1,0 +1,45 @@
+;; File: $SVNROOT/examples/multi-exec/agents/lib/update-bay.pli
+
+(plexil-plan
+  (sequence "update-bay"
+    (interface (inout (real-array "bay" 6) ;bay-id[0] rover-id[1] dist(ft)[2] speed(ft/sec)[3] angle(deg)[4] time(sec)[5]
+                      (real-array "speeds" 3) ;initial(ft/sec)[0] intermediate(ft/sec)[1] final(ft-sec)[2]
+                      (real "start-time")
+                      (real "now")))
+    (action "update-bay-internal"
+      ;; Only update this bay if it has an assign rover docking
+      (skip-condition (or (= 0 (array-element "bay" 1))  ;no rover assigned to this bay yet
+                          (= 0 (array-element "bay" 2)))) ;rover is already docked -- no update needed
+      ;; bring the rover in at "initial-speed" ft/sec down to 30', then "intermediate-speed" to 10', etc.
+      (action "set-start-of-approach"
+        (skip-condition (not (= 0 (array-element "bay" 5))))
+        (assignment (array-element "bay" 5) (realvar "now")))
+      (try "set-speed-for-distance"
+        (action "inital-approach"
+          ;; dist < 30, skip
+          (skip-condition (> 30 (array-element "bay" 2)))
+          (assignment (array-element "bay" 3) (array-element "speeds" 0))) ;ft/sec
+        (action "intermediate-approach"
+          ;; if dist > 30 or dist < 10, skip
+          (skip-condition (or (<= 30 (array-element "bay" 2))
+                              (>= 10 (array-element "bay" 2))))
+          (assignment (array-element "bay" 3) (array-element "speeds" 1))) ;ft/sec
+        (action "final-approach"
+          ;; if dist > 10, skip
+          (skip-condition (<= 10 (array-element "bay" 2)))
+          (assignment (array-element "bay" 3) (array-element "speeds" 2)))) ;ft/sec
+      ;; Set the updated distance based on the speed
+      ;; dist = dist - speed * (- now then) (i.e., time-since-last-update)
+      (sequence "calculate-dist"
+        (variables (real "dist"))
+        (assignment (realvar "dist") (- (array-element "bay" 2) ;dist
+                                        (* (array-element "bay" 3) ;ft/sec
+                                           (- (realvar "now") (realvar "then"))))) ;seconds
+        (if (<= 0 (realvar "dist"))   ;if dist < 0, use 0
+            (assignment (array-element "bay" 2) (realvar "dist"))
+          (assignment (array-element "bay" 2) 0)))
+      ;; Send the new status out
+      (command "bay-status" (arrayvar "bay"))
+      (command "print" "\n[" (stringvar "name") " (bay" (array-element "bay" 0) ")] sent: " (arrayvar "bay")))))
+
+;; EOF
