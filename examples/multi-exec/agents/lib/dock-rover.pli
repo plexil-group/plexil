@@ -6,9 +6,9 @@
   (sequence "dock-rover"
     (interface (inout (string "name")
                       (real "rover-id")
-                      (boolean "docked")
-                      (real-array "request" 3 0 0 0)
-                      (boolean "send-quit" false)))
+                      (boolean "docked" false) ;default is that we are not docked
+                      (real-array "request" 3) ;rover-id[0] action(1=dock,0=Mn-dock)[1] urgency(unused)[2]
+                      (boolean "send-quit" false))) ;default is not to send quit message
     (variables (real "bay"))
     (assignment (array-element "request" 0) (realvar "rover-id")) ;set the request to this rover
     (wait 5 "wait-to-start")
@@ -30,6 +30,10 @@
             (assignment (boolvar "docked") true))
           (command "print" "\n[" (stringvar "name") "] recv: " (arrayvar "bay-status")))))
     (command "print" "\n\n[" (stringvar "name") "] docked in bay " (realvar "bay") "\n")
+    ;; ( ) Stay awhile, then un-dock and leave
+    (wait 10 "wait-before-un-docking")
+    (assignment (array-element "request" 1) 0) ;un-dock request
+    (command "docking-request" (arrayvar "request"))
     ;; (3) Stop the run
     (sequence "Quit"
       (skip-condition (not (boolvar "send-quit")))

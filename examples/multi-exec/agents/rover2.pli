@@ -12,4 +12,5 @@
                              (alias "docked" (boolvar "docked"))
                              (alias "request" (arrayvar "request"))
                              (alias "send-quit" true)))))
+
 ;; EOF
