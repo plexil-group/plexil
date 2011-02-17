@@ -1,10 +1,11 @@
 ;; File: $SVNROOT/examples/multi-exec/agents/lib/update-bay.pli
 
 (plexil-plan
+  ;;(real-array "bay" 6) ;bay-id[0] rover-id[1] dist(ft)[2] speed(ft/sec)[3] action[4] time(sec)[5]
+  ;;(real-array "speeds" 3) ;initial(ft/sec)[0] intermediate(ft/sec)[1] final(ft-sec)[2]
+  ;;(real-array "times" 3))) ;start-time(sec)[0] now(sec)[1] then(sec)[2]
   (sequence "update-bay"
-    (interface (inout (real-array "bay" 6) ;bay-id[0] rover-id[1] dist(ft)[2] speed(ft/sec)[3] action[4] time(sec)[5]
-                      (real-array "speeds" 3) ;initial(ft/sec)[0] intermediate(ft/sec)[1] final(ft-sec)[2]
-                      (real-array "times" 3))) ;start-time(sec)[0] now(sec)[1] then(sec)[2]
+    (interface (inout (real-array "bay" 6)))
     (sequence "update-bay-internal"
       ;; Only update this bay if it has an assign rover docking
       (skip-condition (or (= 0 (array-element "bay" 1))  ;no rover assigned to this bay yet
