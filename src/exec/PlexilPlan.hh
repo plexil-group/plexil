@@ -173,14 +173,14 @@ namespace PLEXIL {
     void setInterface(const PlexilInterfaceId& intf) { m_intf = intf;}
 
     /**
-     * @brief Recurse into given node and ink library calls found therein.
+     * @brief Recurse into given node and link library calls found therein.
      */
-    bool link(const std::vector<PlexilNodeId>& libraries);
+    bool link(const std::map<std::string, PlexilNodeId>& libraries);
 
   private:
 
     // Internal methods
-    bool link(const std::vector<PlexilNodeId>& libraries, PlexilNodeSet& seen);
+    bool link(const std::map<std::string, PlexilNodeId>& libraries, PlexilNodeSet& seen);
 
     PlexilNodeType m_nodeType;
     int m_lineNo;

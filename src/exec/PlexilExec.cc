@@ -120,17 +120,15 @@ namespace PLEXIL {
    * @param nodeName The name of the library node.
    * @return The library node, or noId() if not found.
    */
-  PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
+  const PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
   {
     checkError(!nodeName.empty(),
 	       "PlexilExec::getLibrary: Node name is empty");
-    for (std::vector<PlexilNodeId>::const_iterator it = m_libraries.begin();
-		 it != m_libraries.end();
-		 it++) {
-      if (nodeName == (*it)->nodeId())
-		return *it;
-    }
-    return PlexilNodeId::noId();
+    std::map<std::string, PlexilNodeId>::const_iterator it = 
+      m_libraries.find(nodeName);
+    if (it == m_libraries.end())
+      return PlexilNodeId::noId();
+    else return it->second;
   }
 
   /**
@@ -139,7 +137,7 @@ namespace PLEXIL {
    * @return True if the node is already defined, false otherwise.
    */
   bool PlexilExec::hasLibrary(const std::string& nodeName) const {
-	return getLibrary(nodeName).isId();
+    return getLibrary(nodeName).isId();
   }
 
   // Add a new library node
@@ -149,8 +147,8 @@ namespace PLEXIL {
 
   void PlexilExec::addLibraryNode(const PlexilNodeId& libNode) {
     checkError(!libNode->nodeId().empty(),
-	       "Library node must have non-null node ID");
-    m_libraries.push_back(libNode);
+	       "Library node must have valid node ID");
+    m_libraries[libNode->nodeId()] = libNode;
     debugMsg("PlexilExec:addLibrary",
 	     "Added library node " << libNode->nodeId());
     publishAddLibrary(libNode);

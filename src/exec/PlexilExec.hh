@@ -122,7 +122,7 @@ namespace PLEXIL
      * @param nodeName The name of the library node.
      * @return The library node, or noId() if not found.
      */
-	PlexilNodeId getLibrary(const std::string& nodeName) const;
+    const PlexilNodeId getLibrary(const std::string& nodeName) const;
 
     /**
      * @brief Add the plan under the node named by the parent.
@@ -262,7 +262,7 @@ namespace PLEXIL
                                                                                                   Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                                                                   in state EXECUTING gets added to the end of the queue. */
     std::vector<ExecListenerId> m_listeners;
-    std::vector<PlexilNodeId> m_libraries;
+    std::map<std::string, PlexilNodeId> m_libraries;
   };
 }
 
