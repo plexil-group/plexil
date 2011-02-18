@@ -274,7 +274,8 @@ int ExecTestRunner::run(int argc, char** argv)
 	// N.B. libs is likely growing during this operation, 
 	// so we can't use a traditional iterator.
 	for (unsigned int i = 0; i < libs.size(); i++) {
-	  const std::string& libname = libs[i];
+	  // COPY the string because its location may change out from under us!
+	  const std::string libname(libs[i]);
 
 	  PlexilNodeId libroot = exec->getLibrary(libname);
 	  if (libroot.isNoId()) {
