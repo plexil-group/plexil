@@ -39,25 +39,24 @@ namespace PLEXIL
 
    namespace Cache
    {
-      Lookup::Lookup(const ExpressionId& _source, const Expressions& _dest, 
-                     const StateKey& key)
-         : source(_source), dest(_dest), state(key), m_id(this) {}
-
-      Lookup::~Lookup()
-      {
-         m_id.remove();
-      }
-
-      ChangeLookup::ChangeLookup(const ExpressionId& _source, 
-                                 const Expressions& _dest,
-                                 const StateKey& key, 
-                                 const std::vector<double>& _tolerances)
-         : Lookup(_source, _dest, key), tolerances(_tolerances)
+      Lookup::Lookup(const ExpressionId& _source, 
+		     const Expressions& _dest, 
+                     const StateKey& key, 
+		     const std::vector<double>& _tolerances)
+	: source(_source),
+	  dest(_dest), 
+	  state(key),
+	  tolerances(_tolerances),
+	  m_id(this) 
       {
          previousValues.insert(previousValues.end(), _dest.size(), 
                                Expression::UNKNOWN());
       }
 
+      Lookup::~Lookup()
+      {
+         m_id.remove();
+      }
    }
 
    StateCache::StateCache() : m_id(this), m_inQuiescence(false), 
@@ -94,8 +93,7 @@ namespace PLEXIL
          condDebugMsg(!newState, "StateCache:lookupNow",
                       "Out-of-date state, so performing external lookup.");
 
-         Cache::LookupId lookup = (new Cache::ChangeLookup(source, dest, key,
-                                                           tolerances))->getId();
+         Cache::LookupId lookup = (new Cache::Lookup(source, dest, key, tolerances))->getId();
          std::multimap<StateKey, Cache::LookupId>::iterator it =
             m_lookups.insert(std::make_pair(key, lookup));
          std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
@@ -155,8 +153,7 @@ namespace PLEXIL
       StateKey key;
       bool newState = keyForState(state, key);
 
-      Cache::LookupId lookup = (new Cache::ChangeLookup(source, dest, key,
-                                                        tolerances))->getId();
+      Cache::LookupId lookup = (new Cache::Lookup(source, dest, key, tolerances))->getId();
 
       std::multimap<StateKey, Cache::LookupId>::iterator it =
          m_lookups.insert(std::make_pair(key, lookup));
@@ -191,7 +188,7 @@ namespace PLEXIL
                continue;
             (*destIt)->setValue(*valueIt);
          }
-         ((Cache::ChangeLookup*)lookup)->previousValues = currentValues->second;
+         lookup->previousValues = currentValues->second;
       }
    }
 
@@ -249,11 +246,6 @@ namespace PLEXIL
       checkError(it != m_states.end(), "No known state for key " << key);
 
       internalStateUpdate(key, values);
-      //i'm not sure who should be responsible for stepping the exec
-      //bool changedValues = internalStateUpdate(key, values);
-      //     if(changedValues)
-      //       Interfaces::execFunctional()->stepExec();
-
    }
 
 
@@ -298,25 +290,16 @@ namespace PLEXIL
       bool retval = false;
       while (it != m_lookups.end() && it->first == key)
       {
-         Cache::LookupId l = it->second;
-         check_error(l.isValid());
-
-         if (Id<Cache::ChangeLookup>::convertable(l))
-         {
-            Cache::ChangeLookup* lookup = (Cache::ChangeLookup*) l;
-            retval = updateChangeLookup(lookup, values) || retval;
-         }
-         else
-         {
-            checkError(ALWAYS_FAIL, "Bizarre... lookup stored not of type ChangeLookup.");
-         }
+         Cache::LookupId lookup = it->second;
+         check_error(lookup.isValid());
+	 retval = updateChangeLookup(lookup, values) || retval;
          ++it;
       }
 
       return retval;
    }
 
-   bool StateCache::updateChangeLookup(Cache::ChangeLookup* lookup, 
+   bool StateCache::updateChangeLookup(Cache::LookupId lookup, 
                                        const std::vector<double>& values)
    {
       bool needsUpdate = false;

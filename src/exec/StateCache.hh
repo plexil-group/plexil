@@ -48,27 +48,20 @@ namespace PLEXIL
     class Lookup 
     {
     public:
-      Lookup(const ExpressionId& _source, const Expressions& _dest, 
-             const StateKey& key);
+      Lookup(const ExpressionId& _source, 
+	     const Expressions& _dest,
+	     const StateKey& key, 
+	     const std::vector<double>& _tolerances);
       virtual ~Lookup();
       LookupId& getId(){return m_id;}
             
       ExpressionId source;
       Expressions dest;
       StateKey state;
-    private:
-      LookupId m_id;
-            
-    };
-      
-    class ChangeLookup : public Lookup 
-    {
-    public:
-      ChangeLookup(const ExpressionId& _source, const Expressions& _dest,
-                   const StateKey& key, 
-                   const std::vector<double>& _tolerances);
       std::vector<double> tolerances;
       std::vector<double> previousValues;
+    private:
+      LookupId m_id;
     };
   }
    
@@ -268,7 +261,7 @@ namespace PLEXIL
      * @param values The values to update to.
      */
 
-    bool updateChangeLookup(Cache::ChangeLookup* lookup, 
+    bool updateChangeLookup(Cache::LookupId lookup, 
                             const std::vector<double>& values);
          
     /**
