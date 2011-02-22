@@ -58,6 +58,11 @@ namespace PLEXIL {
     // Methods simply forward to real PlexilExec
     //
 
+    void notifyNodeConditionChanged(NodeId node)
+    {
+      m_exec->notifyNodeConditionChanged(node);
+    }
+
     void handleConditionsChanged(const NodeId& node) 
     {
       m_exec->handleConditionsChanged(node);
@@ -203,6 +208,12 @@ namespace PLEXIL {
           return false; // some node is not finished
       }
     return result;
+  }
+
+  void PlexilExec::notifyNodeConditionChanged(NodeId node)
+  {
+    debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId().toString());
+    m_nodesToConsider.push_back(node);
   }
 
   //as a possible optimization, if we spend a lot of time searching through this list,
@@ -403,6 +414,17 @@ namespace PLEXIL {
 
     unsigned int stepCount = 0;
     while(true) {
+      do {
+	// Evaluate conditions of nodes reporting a change
+	std::vector<NodeId> changedNodes(m_nodesToConsider);
+	m_nodesToConsider.clear();
+	for (std::vector<NodeId>::iterator nodeIt = changedNodes.begin();
+	     nodeIt != changedNodes.end();
+	     nodeIt++)
+	  (*nodeIt)->checkConditions();
+      }
+      while (!m_nodesToConsider.empty());
+
       resolveResourceConflicts();
       if(m_stateChangeQueue.empty())
 	break;

@@ -184,6 +184,25 @@ namespace PLEXIL {
     return true;
   }
 
+  std::string Lookup::stateToString(const State& state)
+  {
+    std::ostringstream os;
+    os << LabelStr(state.first).toString();
+    if (!state.second.empty()) {
+      os << "(";
+      size_t i = 0;
+      size_t len = state.second.size();
+      while (i < len) {
+	os << Expression::valueToString(state.second[i]);
+	i++;
+	if (i < len)
+	  os << ", ";
+      }
+      os << ")";
+    }
+    return os.str();
+  }
+
   void Lookup::registerLookup() 
   {
     handleRegistration();
@@ -213,7 +232,7 @@ namespace PLEXIL {
     if (!isStateCurrent())
       {
 	debugMsg("LookupNow:handleChange",
-		 " state changed, updating state cache");
+		 " state changed  updating state cache");
         const State oldState(m_state);
         updateState();
         handleRegistrationChange(oldState);
@@ -222,18 +241,28 @@ namespace PLEXIL {
 
   void LookupNow::handleRegistration() 
   {
-    m_cache->lookupNow(m_id, m_dest, m_state);
+    debugMsg("LookupNow:handleRegistration", 
+	     " for state " << stateToString(m_state));
+    m_cache->registerLookupNow(m_id, m_dest, m_state);
   }
 
-  // Simply reinvokes StateCache::lookupNow().
+  // *** To do:
+  //  - optimize by adding specific method for this case to StateCache class
 
-  void LookupNow::handleRegistrationChange(const State& /* oldState */)
+  void LookupNow::handleRegistrationChange(const State& oldState)
   {
-    m_cache->lookupNow(m_id, m_dest, m_state);
+    debugMsg("LookupNow:handleRegistrationChange", 
+	     " old state was " << stateToString(oldState)
+	     << ",\n new state is " << stateToString(m_state));
+    m_cache->unregisterLookupNow(m_id);
+    m_cache->registerLookupNow(m_id, m_dest, m_state);
   }
 
   void LookupNow::handleUnregistration() 
   {
+    debugMsg("LookupNow:handleUnregistration", 
+	     " for state " << stateToString(m_state));
+    m_cache->unregisterLookupNow(m_id);
   }
 
   std::string LookupNow::toString() const {
@@ -285,11 +314,15 @@ namespace PLEXIL {
   }
 
   void LookupOnChange::handleRegistration() {
+    debugMsg("LookupOnChange:handleRegistration", 
+	     " for state " << stateToString(m_state));
     m_tolerance->activate();
     m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
   }
 
   void LookupOnChange::handleUnregistration() {
+    debugMsg("LookupOnChange:handleUnregistration",
+	     " for state " << stateToString(m_state));
     m_tolerance->deactivate();
     m_cache->unregisterChangeLookup(m_id);
   }
@@ -309,8 +342,11 @@ namespace PLEXIL {
   // *** To do:
   //  - optimize by adding specific method for this case to StateCache class
 
-  void LookupOnChange::handleRegistrationChange(const State& /* oldState */)
+  void LookupOnChange::handleRegistrationChange(const State& oldState)
   {
+    debugMsg("LookupOnChange:handleRegistrationChange", 
+	     " old state was " << stateToString(oldState)
+	     << ",\n new state is " << stateToString(m_state));
     m_cache->unregisterChangeLookup(m_id);
     m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
   }

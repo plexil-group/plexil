@@ -52,6 +52,11 @@ namespace PLEXIL {
      */
     virtual void handleChange(const ExpressionId& exp) = 0;
 
+    /**
+     * @brief Get a printable representation of the state.
+     */
+    static std::string stateToString(const State&);
+
   protected:
     /**
      * @brief Check subexpression values to see if m_state is still current.

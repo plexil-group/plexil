@@ -96,7 +96,7 @@ namespace PLEXIL {
 	       m_cond.toString() << " may have changed value in " <<
 	       m_node->getNodeId().toString());
 
-      m_node->checkConditions();
+      m_node->conditionChanged();
     }
   protected:
   private:
@@ -174,8 +174,9 @@ namespace PLEXIL {
 
   Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
     : m_id(this), m_exec(exec), m_parent(parent),
-      m_connector((new RealNodeConnector(m_id))->getId()), m_node(node), sl_called(false),
-      m_cleanedConditions(false), m_cleanedVars(false), m_transitioning(false),
+      m_connector((new RealNodeConnector(m_id))->getId()), m_node(node),
+      m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
+      m_transitioning(false), m_checkConditionsPending(false),
       m_priority(WORST_PRIORITY),
       m_state(INACTIVE_STATE), m_lastQuery(NO_NODE_STATE)
   {
@@ -234,8 +235,8 @@ namespace PLEXIL {
 	     const bool commandAbort, const bool parentWaiting, 
 	     const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec)
     : m_id(this), m_exec(exec), m_parent(NodeId::noId()), m_node(PlexilNodeId::noId()),
-      sl_called(false), m_cleanedConditions(false), m_cleanedVars(false),
-      m_transitioning(false),
+      m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
+      m_transitioning(false), m_checkConditionsPending(false),
       m_state(state), m_lastQuery(NO_NODE_STATE)
   {
     m_nodeType = type;
@@ -472,8 +473,8 @@ namespace PLEXIL {
   }
 
   void Node::postInit() {
-    checkError(!sl_called, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
-    sl_called = true;
+    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
+    m_postInitCalled = true;
 
     debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
     //create conditions and listeners
@@ -1239,7 +1240,22 @@ namespace PLEXIL {
     }
   }
 
+  /**
+   * @brief Notifies the node that one of its conditions has changed.
+   */
+  void Node::conditionChanged()
+  {
+    if (m_checkConditionsPending)
+      return;
+    m_exec->notifyNodeConditionChanged(m_id);
+    m_checkConditionsPending = true;
+  }
+
+  /**
+   * @brief Evaluates the conditions to see if the node is eligible to transition.
+   */
   void Node::checkConditions() {
+    m_checkConditionsPending = false;
     checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
 	       "Node state not synchronized for node " << m_nodeId.toString()
 	       << "; node state = " << m_state
@@ -1280,6 +1296,10 @@ namespace PLEXIL {
                  "Node:outcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
+    condDebugMsg((newState == FINISHED_STATE && getOutcome() == OutcomeVariable::FAILURE()),
+                 "Node:failure",
+                 "Failure type of '" << m_nodeId.toString() <<
+                 "' is " << getFailureType().toString());
     condDebugMsg((newState == ITERATION_ENDED_STATE),
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId.toString() <<

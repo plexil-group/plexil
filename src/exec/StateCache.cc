@@ -75,27 +75,31 @@ namespace PLEXIL
       m_id.remove();
    }
    
-   void StateCache::lookupNow(const ExpressionId& source, Expressions& dest,
-                              const State& state)
+   void StateCache::registerLookupNow(const ExpressionId& source,
+				      Expressions& dest,
+				      const State& state)
    {
       check_error(m_inQuiescence, "Lookup outside of quiescence!");
       debugMsg("StateCache:lookupNow", "Looking up value for state " <<
                toString(state) << " because of " << source->toString());
 
-      std::vector<double> tolerances(dest.size(), 0);
+      std::vector<double> tolerances(dest.size(), 0.0); // dummy tolerances
       StateKey key;
       bool newState = keyForState(state, key);
+      Cache::LookupId lookup = (new Cache::Lookup(source, dest, key, tolerances))->getId();
 
-      if (newState || m_states.find(key)->second.second < m_quiescenceCount)
-      {
-         condDebugMsg(newState, "StateCache:lookupNow",
+      // Register the lookup for updates as long as it's active
+      std::multimap<StateKey, Cache::LookupId>::iterator it =
+	m_lookups.insert(std::make_pair(key, lookup));
+      m_lookupsByExpression.insert(std::make_pair(source, lookup));
+
+      if (newState || m_states.find(key)->second.second < m_quiescenceCount) {
+         condDebugMsg(newState, "StateCache:registerLookupNow",
                       "New state, so performing external lookup.");
-         condDebugMsg(!newState, "StateCache:lookupNow",
+         condDebugMsg(!newState, "StateCache:registerLookupNow",
                       "Out-of-date state, so performing external lookup.");
 
-         Cache::LookupId lookup = (new Cache::Lookup(source, dest, key, tolerances))->getId();
-         std::multimap<StateKey, Cache::LookupId>::iterator it =
-            m_lookups.insert(std::make_pair(key, lookup));
+
          std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
 
          // if this is a new state or we haven't looked the state up this
@@ -107,13 +111,9 @@ namespace PLEXIL
             getExternalInterface()->lookupNow(key, values);
 
          internalStateUpdate(key, values);
-
-         delete (Cache::Lookup*) lookup;
-         m_lookups.erase(it);
       }
-      //otherwise, return the values we've got
-      else
-      {
+      // not new and the cached values are current - return 'em
+      else {
          std::map<StateKey, std::vector<double> >::iterator currentValues = 
             m_values.find(key);
          check_error(currentValues != m_values.end());
@@ -123,7 +123,6 @@ namespace PLEXIL
 
          // if this isn't a new state, then make sure the destination is
          // the right size
-
          checkError(currentValues->second.size() == dest.size(),
                     "Destination size mismatch for state " << 
                     LabelStr(state.first).toString() <<
@@ -132,8 +131,7 @@ namespace PLEXIL
          std::vector<double>::iterator valueIt = currentValues->second.begin();
          for (Expressions::iterator destIt = dest.begin();
               valueIt != currentValues->second.end() && destIt != dest.end();
-              ++valueIt, ++destIt)
-         {
+              ++valueIt, ++destIt) {
             if (destIt->isNoId())
                continue;
             (*destIt)->setValue(*valueIt);
@@ -195,7 +193,8 @@ namespace PLEXIL
    void StateCache::internalUnregisterLookup(const ExpressionId& source)
    {
       check_error(source.isValid());
-      checkError(m_lookupsByExpression.find(source) != m_lookupsByExpression.end(), "No stored lookup for " << source->toString());
+      checkError(m_lookupsByExpression.find(source) != m_lookupsByExpression.end(),
+		 "No stored lookup for " << source->toString());
       Cache::LookupId lookup = m_lookupsByExpression.find(source)->second;
       std::multimap<StateKey, Cache::LookupId>::iterator it = m_lookups.find(lookup->state);
       checkError(it != m_lookups.end(), "No state -> lookup entry for " << source->toString());
@@ -215,6 +214,12 @@ namespace PLEXIL
       check_error(m_inQuiescence, "Lookup outside of quiescence!");
       internalUnregisterLookup(source);
       getExternalInterface()->unregisterChangeLookup((LookupKey) source);
+   }
+
+   void StateCache::unregisterLookupNow(const ExpressionId& source)
+   {
+      check_error(m_inQuiescence, "Lookup outside of quiescence!");
+      internalUnregisterLookup(source);
    }
 
    void StateCache::updateState(const State& state, const std::vector<double>& values)
@@ -270,17 +275,15 @@ namespace PLEXIL
          m_values.find(key);
       if (valueIt == m_values.end())
          m_values.insert(std::make_pair(key, values));
-      else
-      {
-         checkError(
-            valueIt->second.size() == values.size(),
-            "Received a different number of values for state "
-            << toString(stateIt->second.first)
-            << " than previously.  Expected "
-            << valueIt->second.size()
-            << ", but got "
-            << values.size());
-         valueIt->second = values;
+      else {
+	checkError(valueIt->second.size() == values.size(),
+		   "Received a different number of values for state "
+		   << toString(stateIt->second.first)
+		   << " than previously.  Expected "
+		   << valueIt->second.size()
+		   << ", but got "
+		   << values.size());
+	valueIt->second = values;
       }
 
 
@@ -292,68 +295,65 @@ namespace PLEXIL
       {
          Cache::LookupId lookup = it->second;
          check_error(lookup.isValid());
-	 retval = updateChangeLookup(lookup, values) || retval;
+	 retval = updateLookup(lookup, values) || retval;
          ++it;
       }
 
       return retval;
    }
 
-   bool StateCache::updateChangeLookup(Cache::LookupId lookup, 
-                                       const std::vector<double>& values)
-   {
-      bool needsUpdate = false;
-      check_error(lookup->tolerances.size() == values.size());
-      check_error(lookup->previousValues.size() == values.size());
-      check_error(lookup->dest.size() == values.size());
+  // N.B. Lookup need not be a change lookup.
+  bool StateCache::updateLookup(Cache::LookupId lookup, 
+				const std::vector<double>& values)
+  {
+    bool needsUpdate = false;
+    check_error(lookup->tolerances.size() == values.size());
+    check_error(lookup->previousValues.size() == values.size());
+    check_error(lookup->dest.size() == values.size());
 
+    debugMsg("StateCache:updateState", 
+	     "Seeing if change lookup " << lookup->source->toString() <<
+	     " needs updating from " << toString(lookup->previousValues) <<
+	     " to " << toString(values));
+    for (std::vector<double>::size_type i = (std::vector<double>::size_type) 0;
+	 i < values.size();
+	 ++i) {
+      if (differenceMagnitude(lookup->previousValues[i], values[i]) >= 
+	  lookup->tolerances[i]) {
+	condDebugMsg(lookup->previousValues[i] == Expression::UNKNOWN() &&
+		     values[i] != Expression::UNKNOWN(),
+		     "StateCache:updateState", 
+		     "Updating because the previous value is"
+		     " UNKNOWN and the new value is not.");
+	condDebugMsg(!(lookup->previousValues[i] == Expression::UNKNOWN() && 
+		       values[i] != Expression::UNKNOWN()) &&
+		     fabs(lookup->previousValues[i] - values[i]) >= lookup->tolerances[i],
+		     "StateCache:updateState",
+		     "Updating because the difference between value " <<
+		     i << " (old: " << lookup->previousValues[i] <<
+		     ", new: " << values[i] <<
+		     ") is greater than or equal to the tolerance (" << 
+		     lookup->tolerances[i] << ")");
+	needsUpdate = true;
+	break;
+      }
       debugMsg("StateCache:updateState", 
-               "Seeing if change lookup " << lookup->source->toString() <<
-               " needs updating from " << toString(lookup->previousValues) <<
-               " to " << toString(values));
-      for (std::vector<double>::size_type i = (std::vector<double>::size_type) 0;
-           i < values.size(); ++i)
-      {
-         if (differenceMagnitude(lookup->previousValues[i], values[i]) >= 
-             lookup->tolerances[i])
-         {
-            condDebugMsg(lookup->previousValues[i] == Expression::UNKNOWN() &&
-                         values[i] != Expression::UNKNOWN(),
-                         "StateCache:updateState", 
-                         "Updating because the previous value is"
-                         " UNKNOWN and the new value is not.");
-            condDebugMsg(!(lookup->previousValues[i] == Expression::UNKNOWN() && 
-                           values[i] != Expression::UNKNOWN()) &&
-                         fabs(lookup->previousValues[i] - values[i]) >= 
-                         lookup->tolerances[i], "StateCache:updateState",
-                         "Updating because the difference between value " <<
-                         i << " (old: " << lookup->previousValues[i] <<
-                         ", new: " << values[i] <<
-                         ") is greater than or equal to the tolerance (" << 
-                         lookup->tolerances[i] << ")");
-            needsUpdate = true;
-            break;
-         }
-         debugMsg("StateCache:updateState", 
-                  "Not updating.  All changes are within the tolerance.");
+	       "Not updating.  All changes are within the tolerance.");
+    }
+    if (needsUpdate) {
+      debugMsg("StateCache:updateState", "Updating change lookup " <<
+	       lookup->source->toString() << " from " <<
+	       toString(lookup->previousValues) << " to " << toString(values));
+      for (std::vector<double>::size_type i = (std::vector<double>::size_type)0;
+	   i < values.size();
+	   ++i) {
+	if (lookup->dest[i].isValid())
+	  lookup->dest[i]->setValue(values[i]);
+	lookup->previousValues[i] = values[i];
       }
-      if (needsUpdate)
-      {
-         debugMsg("StateCache:updateState", "Updating change lookup " <<
-                  lookup->source->toString() << " from " <<
-                  toString(lookup->previousValues) << " to " << toString(values));
-         for (std::vector<double>::size_type i = (std::vector<double>::size_type)0;
-              i < values.size(); ++i)
-         {
-            if (lookup->dest[i].isValid())
-            {
-               lookup->dest[i]->setValue(values[i]);
-            }
-            lookup->previousValues[i] = values[i];
-         }
-      }
-      return needsUpdate;
-   }
+    }
+    return needsUpdate;
+  }
 
   /**
    * @brief Find the unique key for a state.

@@ -50,6 +50,7 @@ namespace PLEXIL
     ExecConnector() : m_id(this) {}
     virtual ~ExecConnector() {m_id.remove();}
     const ExecConnectorId& getId() const {return m_id;}
+    virtual void notifyNodeConditionChanged(NodeId node) = 0;
     virtual void handleConditionsChanged(const NodeId& node) = 0;
     virtual void handleNeedsExecution(const NodeId& node) = 0;
     virtual const StateCacheId& getStateCache() = 0;
@@ -173,6 +174,13 @@ namespace PLEXIL
 
   protected:
     friend class RealExecConnector;
+
+    /**
+     * @brief Handle the fact that a node's conditions may have changed (it is eligible for state change).
+     * @param node The node which is eligible for state change.
+     */
+    void notifyNodeConditionChanged(NodeId node);
+
     /**
      * @brief Handle the fact that a node's relevant conditions have changed (it is eligible for state change).
      * Adds assignment nodes that are eligible for execution to the resource conflict map.
@@ -251,6 +259,7 @@ namespace PLEXIL
     StateCacheId m_cache;
     ExternalInterfaceId m_interface;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
+    std::vector<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     //std::list<NodeId> m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
     std::map<unsigned int, NodeId> m_stateChangeQueue;
     std::vector<AssignmentId> m_assignmentsToExecute;

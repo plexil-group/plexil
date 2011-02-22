@@ -242,6 +242,14 @@ namespace PLEXIL {
 
     UpdateId& getUpdate();
 
+    /**
+     * @brief Notifies the node that one of its conditions has changed.
+     */
+    void conditionChanged();
+
+    /**
+     * @brief Evaluates the conditions to see if the node is eligible to transition.
+     */
     void checkConditions();
 
     std::string toString(const unsigned int indent = 0);
@@ -447,7 +455,7 @@ namespace PLEXIL {
     NodeId m_parent; /*<! The parent of this node.*/
     NodeConnectorId m_connector;
     PlexilNodeId m_node;
-    bool sl_called, m_cleanedConditions, m_cleanedVars, m_transitioning;
+    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
     double m_priority; /*<! The priority of this node */
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/

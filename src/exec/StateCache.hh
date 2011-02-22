@@ -109,12 +109,13 @@ namespace PLEXIL
     /**
      * FUNCTIONS FOR THE EXECUTIVE TO CALL
      */
-         
+
     /**
-     * @brief Perform an immediate lookup on a value.  If a value
-     *        hasn't been gotten in this quiescence, a lookup will
-     *        be performed on the outside world, otherwise the
-     *        cached value is returned.
+     * @brief Perform an immediate lookup on a value, and register it for updates 
+     *        while it is active.
+     *        If a value hasn't been gotten in this quiescence, a lookup will
+     *        be performed on the outside world, otherwise the cached value
+     *        is stored in the destination expressions.
      *
      * @param source The Id of the LookupNow expression.
      * @param dest A vector of the expressions into which the
@@ -122,8 +123,12 @@ namespace PLEXIL
      * @param state The state being looked up.
      * @see handleQuiescenceStarted, handleQuiescenceEnded
      */
-    void lookupNow(const ExpressionId& source, Expressions& dest,
-                   const State& state);
+    void registerLookupNow(const ExpressionId& source, Expressions& dest, const State& state);
+         
+    /**
+     * @brief Un-register a lookup with the external world. Stop future updates of this expression.
+     */
+    void unregisterLookupNow(const ExpressionId& source);
          
     /**
      * @brief Register a change lookup with the external world.
@@ -261,8 +266,8 @@ namespace PLEXIL
      * @param values The values to update to.
      */
 
-    bool updateChangeLookup(Cache::LookupId lookup, 
-                            const std::vector<double>& values);
+    bool updateLookup(Cache::LookupId lookup, 
+		      const std::vector<double>& values);
          
     /**
      * @brief Remove a lookup from internal data structures.

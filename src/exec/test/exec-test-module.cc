@@ -1038,6 +1038,7 @@ public:
     m_cache.setExternalInterface(TestInterface::instance()->getId()); // static_cast didn't work here, grumble
   }
 
+  void notifyNodeConditionChanged(NodeId /* node */) {}
   void handleConditionsChanged(const NodeId& /* node */) {}
   void handleNeedsExecution(const NodeId& /* node */) {}
   const StateCacheId& getStateCache() {return m_cache.getId();}
@@ -1224,6 +1225,7 @@ private:
 class TransitionExecConnector : public ExecConnector {
 public:
   TransitionExecConnector() : ExecConnector(), m_executed(false) {}
+  void notifyNodeConditionChanged(NodeId /* node */) {}
   void handleConditionsChanged(const NodeId& /* node */) {}
   void handleNeedsExecution(const NodeId& node) {assertTrue(node->getState() == EXECUTING_STATE); m_executed = true;}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
@@ -2352,23 +2354,29 @@ private:
 
     //single lookup for new state
     assertTrue(destVar.getValue() == Expression::UNKNOWN());
-    cache.lookupNow(destVar.getId(), dest, st);
+    cache.registerLookupNow(destVar.getId(), dest, st);
     assertTrue(iface.lookupNowCalled());
     assertTrue(destVar.getValue() == 1);
+    cache.unregisterLookupNow(destVar.getId());
 
     //re-lookup for same state in same quiescence
     iface.setValue(st, 2, cache.getId(), false);
     iface.clearLookupNowCalled();
-    cache.lookupNow(destVar.getId(), dest, st);
+    cache.registerLookupNow(destVar.getId(), dest, st);
     assertTrue(!iface.lookupNowCalled());
     assertTrue(destVar.getValue() == 1);
+    cache.unregisterLookupNow(destVar.getId());
 
     //re-lookup for same state in next quiescence
     cache.handleQuiescenceEnded();
     cache.handleQuiescenceStarted();
-    cache.lookupNow(destVar.getId(), dest, st);
+    cache.registerLookupNow(destVar.getId(), dest, st);
     assertTrue(iface.lookupNowCalled());
     assertTrue(destVar.getValue() == 2);
+    cache.unregisterLookupNow(destVar.getId());
+
+    // *** TODO: Add test for updating LookupNow that 
+    // *** remains active across multiple quiescence cycles
 
     return true;
   }
@@ -2413,12 +2421,13 @@ private:
     cache.handleQuiescenceStarted();
     cache.handleQuiescenceEnded();
     cache.handleQuiescenceStarted();
-    cache.lookupNow(nowDestVar.getId(), nowDest, st);
+    cache.registerLookupNow(nowDestVar.getId(), nowDest, st);
     assertTrue(nowDestVar.getValue() == 3);
     assertTrue(destVar1.getValue() == 3);
     assertTrue(destVar2.getValue() == 3);
 
     //unregister
+    cache.unregisterLookupNow(nowDestVar.getId());
     cache.unregisterChangeLookup(destVar2.getId());
     cache.handleQuiescenceEnded();
     iface.setValue(st, 5, cache.getId());
