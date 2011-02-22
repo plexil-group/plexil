@@ -2,15 +2,15 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 SimpleTask{
- State: (id_271[au](INACTIVE): state(INACTIVE)) (inf)
+ State: (id_261[au](INACTIVE): state(INACTIVE)) (inf)
   C1{
-   State: (id_321[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_313[au](INACTIVE): state(INACTIVE)) (inf)
   }
   C2{
-   State: (id_373[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_367[au](INACTIVE): state(INACTIVE)) (inf)
   }
   C3{
-   State: (id_424[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_420[au](INACTIVE): state(INACTIVE)) (inf)
   }
 }
 
@@ -30,6 +30,13 @@ SimpleTask{
 [PlexilExec:step][1:1] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][1:1:0] Transitioning node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
+[PlexilExec:handleNeedsExecution]Storing action for node 'SimpleTask' of type 'NodeList' to be executed.
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
+[PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 3
@@ -39,23 +46,22 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 5
-[PlexilExec:handleNeedsExecution]Storing action for node 'SimpleTask' of type 'NodeList' to be executed.
-[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:step][1:2] State change queue: C1 C2 C3 
 [PlexilExec:lock]Locking node C1
 [PlexilExec:lock]Locking node C2
 [PlexilExec:lock]Locking node C3
 [PlexilExec:step][1:2:0] Transitioning node C1
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 6
 [PlexilExec:step][1:2:1] Transitioning node C2
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 7
 [PlexilExec:step][1:2:2] Transitioning node C3
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 8
@@ -67,113 +73,120 @@ SimpleTask{
 [PlexilExec:lock]Locking node C2
 [PlexilExec:lock]Locking node C3
 [PlexilExec:step][1:3:0] Transitioning node C1
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:handleNeedsExecution]Storing action for node 'C1' of type 'Command' to be executed.
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
 [PlexilExec:step][1:3:1] Transitioning node C2
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:handleNeedsExecution]Storing action for node 'C2' of type 'Command' to be executed.
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
 [PlexilExec:step][1:3:2] Transitioning node C3
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:unlock]Unlocking node C3
-[Test:testOutput]Executing c1(20) into (id_369[au](-1): int) with ack (id_509[au](UNKNOWN): string)
+[Test:testOutput]Executing c1(20) into (id_363[au](-1): int) with ack (id_507[au](UNKNOWN): string)
 [Test:testOutput]Permission to execute c2 has been denied by the resource arbiter.
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 9
-[Test:testOutput]Executing c3() into noId with ack (id_590[au](UNKNOWN): string)
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[Test:testOutput]Executing c3() into noId with ack (id_588[au](UNKNOWN): string)
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleTask{
- State: (id_271[au](EXECUTING): state(EXECUTING)) (0)
- SkipCondition: (id_289[au](0): boolean)
- StartCondition: (id_291[au](1): boolean)
- EndCondition: (id_476[au](0): childrenFinished(0:3))
- InvariantCondition: (id_295[au](1): boolean)
- PreCondition: (id_297[au](1): boolean)
- PostCondition: (id_299[au](1): boolean)
- RepeatCondition: (id_301[au](0): boolean)
- AncestorInvariantCondition: (id_303[au](1): boolean)
- AncestorEndCondition: (id_305[au](0): boolean)
- ParentExecutingCondition: (id_307[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_473[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
- AbortCompleteCondition: (id_311[au](UNKNOWN): boolean)
- ParentWaitingCondition: (id_313[au](0): boolean)
- ParentFinishedCondition: (id_315[au](0): boolean)
- CommandHandleReceivedCondition: (id_317[au](1): boolean)
- command_handle: (id_274[au](UNKNOWN):  command_handle)
+ State: (id_261[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_281[au](0): boolean)
+ StartCondition: (id_283[au](1): boolean)
+ EndCondition: (id_474[au](0): childrenFinished(0:3))
+ InvariantCondition: (id_287[au](1): boolean)
+ PreCondition: (id_289[au](1): boolean)
+ PostCondition: (id_291[au](1): boolean)
+ RepeatCondition: (id_293[au](0): boolean)
+ AncestorInvariantCondition: (id_295[au](1): boolean)
+ AncestorEndCondition: (id_297[au](0): boolean)
+ ParentExecutingCondition: (id_299[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_471[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_303[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_305[au](0): boolean)
+ ParentFinishedCondition: (id_307[au](0): boolean)
+ CommandHandleReceivedCondition: (id_309[au](1): boolean)
+ command_handle: (id_264[au](UNKNOWN):  command_handle)
   C1{
-   State: (id_321[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: (id_339[au](0): boolean)
-   StartCondition: (id_341[au](1): boolean)
-   EndCondition: (id_516[au](0): ((id_512[au](0): interruptibleCommandHandleValues((id_509[au](UNKNOWN): string))) || (id_514[au](0): ((id_510[au](0): isknown((id_509[au](UNKNOWN): string))) && (id_500[au](0): ((id_502[au](10): int) == (id_369[au](-1): int)))))
-   InvariantCondition: (id_345[au](1): boolean)
-   PreCondition: (id_347[au](1): boolean)
-   PostCondition: (id_503[au](UNKNOWN): (id_506[au](UNKNOWN): ((id_324[au](UNKNOWN):  command_handle) == (id_505[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: (id_351[au](0): boolean)
-   AncestorInvariantCondition: (id_483[au](1): (TransparentWrapper(id_479[auT]{1}((id_303[au](1): boolean)) && TransparentWrapper(id_481[auT]{1}((id_295[au](1): boolean)))
-   AncestorEndCondition: (id_489[iu](UNKNOWN): (TransparentWrapper(id_485[iuT]{0}((id_305[au](0): boolean)) || TransparentWrapper(id_487[iuT]{0}((id_476[au](0): childrenFinished(0:3))))
-   ParentExecutingCondition: (id_492[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_491[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_359[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_508[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_495[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_494[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_498[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_497[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_520[au](0): ((id_518[au](0): allCommandHandleValues((id_509[au](UNKNOWN): string))) && (id_367[au](1): boolean))
-   command_handle: (id_324[au](UNKNOWN):  command_handle)
-   returnValue: (id_369[au](-1): int)
-   head_priority: (id_370[au](20): int)
+   State: (id_313[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_333[au](0): boolean)
+   StartCondition: (id_335[au](1): boolean)
+   EndCondition: (id_514[au](0): ((id_510[au](0): interruptibleCommandHandleValues((id_507[au](UNKNOWN): string))) || (id_512[au](0): ((id_508[au](0): isknown((id_507[au](UNKNOWN): string))) && (id_498[au](0): ((id_500[au](10): int) == (id_363[au](-1): int)))))
+   InvariantCondition: (id_339[au](1): boolean)
+   PreCondition: (id_341[au](1): boolean)
+   PostCondition: (id_501[au](UNKNOWN): (id_504[au](UNKNOWN): ((id_316[au](UNKNOWN):  command_handle) == (id_503[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_345[au](0): boolean)
+   AncestorInvariantCondition: (id_481[au](1): (TransparentWrapper(id_477[auT]{1}((id_295[au](1): boolean)) && TransparentWrapper(id_479[auT]{1}((id_287[au](1): boolean)))
+   AncestorEndCondition: (id_487[iu](UNKNOWN): (TransparentWrapper(id_483[iuT]{0}((id_297[au](0): boolean)) || TransparentWrapper(id_485[iuT]{0}((id_474[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_490[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_489[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_353[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_506[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_493[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_492[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_496[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_495[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_518[au](0): ((id_516[au](0): allCommandHandleValues((id_507[au](UNKNOWN): string))) && (id_361[au](1): boolean))
+   command_handle: (id_316[au](UNKNOWN):  command_handle)
+   returnValue: (id_363[au](-1): int)
+   head_priority: (id_364[au](20): int)
   }
   C2{
-   State: (id_373[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: (id_391[au](0): boolean)
-   StartCondition: (id_393[au](1): boolean)
-   EndCondition: (id_557[au](1): ((id_553[au](1): interruptibleCommandHandleValues((id_550[au](COMMAND_DENIED): string))) || (id_555[au](1): ((id_551[au](1): isknown((id_550[au](COMMAND_DENIED): string))) && (id_395[au](1): boolean)))
-   InvariantCondition: (id_397[au](1): boolean)
-   PreCondition: (id_399[au](1): boolean)
-   PostCondition: (id_544[au](0): (id_547[au](0): ((id_376[au](COMMAND_DENIED):  command_handle) == (id_546[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: (id_403[au](0): boolean)
-   AncestorInvariantCondition: (id_530[au](1): (TransparentWrapper(id_526[auT]{1}((id_303[au](1): boolean)) && TransparentWrapper(id_528[auT]{1}((id_295[au](1): boolean)))
-   AncestorEndCondition: (id_536[iu](UNKNOWN): (TransparentWrapper(id_532[iuT]{0}((id_305[au](0): boolean)) || TransparentWrapper(id_534[iuT]{0}((id_476[au](0): childrenFinished(0:3))))
-   ParentExecutingCondition: (id_538[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_491[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_411[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_549[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_540[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_494[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_542[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_497[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_561[au](1): ((id_559[au](1): allCommandHandleValues((id_550[au](COMMAND_DENIED): string))) && (id_419[au](1): boolean))
-   command_handle: (id_376[au](COMMAND_DENIED):  command_handle)
-   v_priority2: (id_421[au](25): int)
+   State: (id_367[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_387[au](0): boolean)
+   StartCondition: (id_389[au](1): boolean)
+   EndCondition: (id_555[au](1): ((id_551[au](1): interruptibleCommandHandleValues((id_548[au](COMMAND_DENIED): string))) || (id_553[au](1): ((id_549[au](1): isknown((id_548[au](COMMAND_DENIED): string))) && (id_391[au](1): boolean)))
+   InvariantCondition: (id_393[au](1): boolean)
+   PreCondition: (id_395[au](1): boolean)
+   PostCondition: (id_542[au](UNKNOWN): (id_545[au](UNKNOWN): ((id_370[au](UNKNOWN):  command_handle) == (id_544[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_399[au](0): boolean)
+   AncestorInvariantCondition: (id_528[au](1): (TransparentWrapper(id_524[auT]{1}((id_295[au](1): boolean)) && TransparentWrapper(id_526[auT]{1}((id_287[au](1): boolean)))
+   AncestorEndCondition: (id_534[iu](UNKNOWN): (TransparentWrapper(id_530[iuT]{0}((id_297[au](0): boolean)) || TransparentWrapper(id_532[iuT]{0}((id_474[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_536[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_489[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_407[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_547[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_538[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_492[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_540[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_495[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_559[au](1): ((id_557[au](1): allCommandHandleValues((id_548[au](COMMAND_DENIED): string))) && (id_415[au](1): boolean))
+   command_handle: (id_370[au](UNKNOWN):  command_handle)
+   v_priority2: (id_417[au](25): int)
   }
   C3{
-   State: (id_424[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: (id_442[au](0): boolean)
-   StartCondition: (id_444[au](1): boolean)
-   EndCondition: (id_597[au](0): ((id_593[au](0): interruptibleCommandHandleValues((id_590[au](UNKNOWN): string))) || (id_595[au](0): ((id_591[au](0): isknown((id_590[au](UNKNOWN): string))) && (id_446[au](1): boolean)))
-   InvariantCondition: (id_448[au](1): boolean)
-   PreCondition: (id_450[au](1): boolean)
-   PostCondition: (id_584[au](UNKNOWN): (id_587[au](UNKNOWN): ((id_427[au](UNKNOWN):  command_handle) == (id_586[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: (id_454[au](0): boolean)
-   AncestorInvariantCondition: (id_570[au](1): (TransparentWrapper(id_566[auT]{1}((id_303[au](1): boolean)) && TransparentWrapper(id_568[auT]{1}((id_295[au](1): boolean)))
-   AncestorEndCondition: (id_576[iu](UNKNOWN): (TransparentWrapper(id_572[iuT]{0}((id_305[au](0): boolean)) || TransparentWrapper(id_574[iuT]{0}((id_476[au](0): childrenFinished(0:3))))
-   ParentExecutingCondition: (id_578[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_491[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_462[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_589[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_580[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_494[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_582[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_497[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_601[au](0): ((id_599[au](0): allCommandHandleValues((id_590[au](UNKNOWN): string))) && (id_470[au](1): boolean))
-   command_handle: (id_427[au](UNKNOWN):  command_handle)
-   mem_priority2: (id_472[au](30): int)
+   State: (id_420[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_440[au](0): boolean)
+   StartCondition: (id_442[au](1): boolean)
+   EndCondition: (id_595[au](0): ((id_591[au](0): interruptibleCommandHandleValues((id_588[au](UNKNOWN): string))) || (id_593[au](0): ((id_589[au](0): isknown((id_588[au](UNKNOWN): string))) && (id_444[au](1): boolean)))
+   InvariantCondition: (id_446[au](1): boolean)
+   PreCondition: (id_448[au](1): boolean)
+   PostCondition: (id_582[au](UNKNOWN): (id_585[au](UNKNOWN): ((id_423[au](UNKNOWN):  command_handle) == (id_584[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_452[au](0): boolean)
+   AncestorInvariantCondition: (id_568[au](1): (TransparentWrapper(id_564[auT]{1}((id_295[au](1): boolean)) && TransparentWrapper(id_566[auT]{1}((id_287[au](1): boolean)))
+   AncestorEndCondition: (id_574[iu](UNKNOWN): (TransparentWrapper(id_570[iuT]{0}((id_297[au](0): boolean)) || TransparentWrapper(id_572[iuT]{0}((id_474[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_576[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_489[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_460[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_587[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_578[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_492[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_580[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_495[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_599[au](0): ((id_597[au](0): allCommandHandleValues((id_588[au](UNKNOWN): string))) && (id_468[au](1): boolean))
+   command_handle: (id_423[au](UNKNOWN):  command_handle)
+   mem_priority2: (id_470[au](30): int)
   }
 }
 
 [Test:testOutput]Sending command ACK c1(20) = (string)COMMAND_SENT_TO_SYSTEM
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 9
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:step][2:0] State change queue: C2 
 [PlexilExec:lock]Locking node C2
 [PlexilExec:step][2:0:0] Transitioning node C2
@@ -184,86 +197,89 @@ SimpleTask{
 [PlexilExec:step][2:1] State change queue: C2 
 [PlexilExec:lock]Locking node C2
 [PlexilExec:step][2:1:0] Transitioning node C2
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleTask{
- State: (id_271[au](EXECUTING): state(EXECUTING)) (0)
- SkipCondition: (id_289[au](0): boolean)
- StartCondition: (id_291[au](1): boolean)
- EndCondition: (id_476[au](0): childrenFinished(1:3))
- InvariantCondition: (id_295[au](1): boolean)
- PreCondition: (id_297[au](1): boolean)
- PostCondition: (id_299[au](1): boolean)
- RepeatCondition: (id_301[au](0): boolean)
- AncestorInvariantCondition: (id_303[au](1): boolean)
- AncestorEndCondition: (id_305[au](0): boolean)
- ParentExecutingCondition: (id_307[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_473[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
- AbortCompleteCondition: (id_311[au](UNKNOWN): boolean)
- ParentWaitingCondition: (id_313[au](0): boolean)
- ParentFinishedCondition: (id_315[au](0): boolean)
- CommandHandleReceivedCondition: (id_317[au](1): boolean)
- command_handle: (id_274[au](UNKNOWN):  command_handle)
+ State: (id_261[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_281[au](0): boolean)
+ StartCondition: (id_283[au](1): boolean)
+ EndCondition: (id_474[au](0): childrenFinished(1:3))
+ InvariantCondition: (id_287[au](1): boolean)
+ PreCondition: (id_289[au](1): boolean)
+ PostCondition: (id_291[au](1): boolean)
+ RepeatCondition: (id_293[au](0): boolean)
+ AncestorInvariantCondition: (id_295[au](1): boolean)
+ AncestorEndCondition: (id_297[au](0): boolean)
+ ParentExecutingCondition: (id_299[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_471[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_303[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_305[au](0): boolean)
+ ParentFinishedCondition: (id_307[au](0): boolean)
+ CommandHandleReceivedCondition: (id_309[au](1): boolean)
+ command_handle: (id_264[au](UNKNOWN):  command_handle)
   C1{
-   State: (id_321[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: (id_339[au](0): boolean)
-   StartCondition: (id_341[au](1): boolean)
-   EndCondition: (id_516[au](0): ((id_512[au](0): interruptibleCommandHandleValues((id_509[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_514[au](0): ((id_510[au](1): isknown((id_509[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_500[au](0): ((id_502[au](10): int) == (id_369[au](-1): int)))))
-   InvariantCondition: (id_345[au](1): boolean)
-   PreCondition: (id_347[au](1): boolean)
-   PostCondition: (id_503[au](1): (id_506[au](1): ((id_324[au](COMMAND_SENT_TO_SYSTEM):  command_handle) == (id_505[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: (id_351[au](0): boolean)
-   AncestorInvariantCondition: (id_483[au](1): (TransparentWrapper(id_479[auT]{1}((id_303[au](1): boolean)) && TransparentWrapper(id_481[auT]{1}((id_295[au](1): boolean)))
-   AncestorEndCondition: (id_489[iu](UNKNOWN): (TransparentWrapper(id_485[iuT]{0}((id_305[au](0): boolean)) || TransparentWrapper(id_487[iuT]{0}((id_476[au](0): childrenFinished(1:3))))
-   ParentExecutingCondition: (id_492[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_491[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_359[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_508[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_495[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_494[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_498[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_497[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_520[au](1): ((id_518[au](1): allCommandHandleValues((id_509[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_367[au](1): boolean))
-   command_handle: (id_324[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_369[au](-1): int)
-   head_priority: (id_370[au](20): int)
+   State: (id_313[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_333[au](0): boolean)
+   StartCondition: (id_335[au](1): boolean)
+   EndCondition: (id_514[au](0): ((id_510[au](0): interruptibleCommandHandleValues((id_507[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_512[au](0): ((id_508[au](1): isknown((id_507[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_498[au](0): ((id_500[au](10): int) == (id_363[au](-1): int)))))
+   InvariantCondition: (id_339[au](1): boolean)
+   PreCondition: (id_341[au](1): boolean)
+   PostCondition: (id_501[au](1): (id_504[au](1): ((id_316[au](COMMAND_SENT_TO_SYSTEM):  command_handle) == (id_503[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_345[au](0): boolean)
+   AncestorInvariantCondition: (id_481[au](1): (TransparentWrapper(id_477[auT]{1}((id_295[au](1): boolean)) && TransparentWrapper(id_479[auT]{1}((id_287[au](1): boolean)))
+   AncestorEndCondition: (id_487[iu](UNKNOWN): (TransparentWrapper(id_483[iuT]{0}((id_297[au](0): boolean)) || TransparentWrapper(id_485[iuT]{0}((id_474[au](0): childrenFinished(1:3))))
+   ParentExecutingCondition: (id_490[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_489[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_353[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_506[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_493[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_492[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_496[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_495[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_518[au](1): ((id_516[au](1): allCommandHandleValues((id_507[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_361[au](1): boolean))
+   command_handle: (id_316[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_363[au](-1): int)
+   head_priority: (id_364[au](20): int)
   }
   C2{
-   State: (id_373[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_374[au](FAILURE):  outcome)
-   Failure type: (id_375[au](POST_CONDITION_FAILED):  failure)
-   Command handle: (id_376[au](COMMAND_DENIED):  command_handle)
-   v_priority2: (id_421[au](25): int)
+   State: (id_367[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_368[au](FAILURE):  outcome)
+   Failure type: (id_369[au](POST_CONDITION_FAILED):  failure)
+   Command handle: (id_370[au](COMMAND_DENIED):  command_handle)
+   v_priority2: (id_417[au](25): int)
   }
   C3{
-   State: (id_424[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: (id_442[au](0): boolean)
-   StartCondition: (id_444[au](1): boolean)
-   EndCondition: (id_597[au](0): ((id_593[au](0): interruptibleCommandHandleValues((id_590[au](UNKNOWN): string))) || (id_595[au](0): ((id_591[au](0): isknown((id_590[au](UNKNOWN): string))) && (id_446[au](1): boolean)))
-   InvariantCondition: (id_448[au](1): boolean)
-   PreCondition: (id_450[au](1): boolean)
-   PostCondition: (id_584[au](UNKNOWN): (id_587[au](UNKNOWN): ((id_427[au](UNKNOWN):  command_handle) == (id_586[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: (id_454[au](0): boolean)
-   AncestorInvariantCondition: (id_570[au](1): (TransparentWrapper(id_566[auT]{1}((id_303[au](1): boolean)) && TransparentWrapper(id_568[auT]{1}((id_295[au](1): boolean)))
-   AncestorEndCondition: (id_576[iu](UNKNOWN): (TransparentWrapper(id_572[iuT]{0}((id_305[au](0): boolean)) || TransparentWrapper(id_574[iuT]{0}((id_476[au](0): childrenFinished(1:3))))
-   ParentExecutingCondition: (id_578[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_491[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_462[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_589[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_580[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_494[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_582[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_497[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_601[au](0): ((id_599[au](0): allCommandHandleValues((id_590[au](UNKNOWN): string))) && (id_470[au](1): boolean))
-   command_handle: (id_427[au](UNKNOWN):  command_handle)
-   mem_priority2: (id_472[au](30): int)
+   State: (id_420[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_440[au](0): boolean)
+   StartCondition: (id_442[au](1): boolean)
+   EndCondition: (id_595[au](0): ((id_591[au](0): interruptibleCommandHandleValues((id_588[au](UNKNOWN): string))) || (id_593[au](0): ((id_589[au](0): isknown((id_588[au](UNKNOWN): string))) && (id_444[au](1): boolean)))
+   InvariantCondition: (id_446[au](1): boolean)
+   PreCondition: (id_448[au](1): boolean)
+   PostCondition: (id_582[au](UNKNOWN): (id_585[au](UNKNOWN): ((id_423[au](UNKNOWN):  command_handle) == (id_584[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_452[au](0): boolean)
+   AncestorInvariantCondition: (id_568[au](1): (TransparentWrapper(id_564[auT]{1}((id_295[au](1): boolean)) && TransparentWrapper(id_566[auT]{1}((id_287[au](1): boolean)))
+   AncestorEndCondition: (id_574[iu](UNKNOWN): (TransparentWrapper(id_570[iuT]{0}((id_297[au](0): boolean)) || TransparentWrapper(id_572[iuT]{0}((id_474[au](0): childrenFinished(1:3))))
+   ParentExecutingCondition: (id_576[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_489[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_460[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_587[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_578[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_492[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_580[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_495[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_599[au](0): ((id_597[au](0): allCommandHandleValues((id_588[au](UNKNOWN): string))) && (id_468[au](1): boolean))
+   command_handle: (id_423[au](UNKNOWN):  command_handle)
+   mem_priority2: (id_470[au](30): int)
   }
 }
 
 [Test:testOutput]Sending command ACK c3() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 11
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 3
+[PlexilExec:notifyNodeConditionChanged] for node C3
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 11
 [PlexilExec:step][3:0] State change queue: C3 
 [PlexilExec:lock]Locking node C3
 [PlexilExec:step][3:0:0] Transitioning node C3
@@ -274,72 +290,74 @@ SimpleTask{
 [PlexilExec:step][3:1] State change queue: C3 
 [PlexilExec:lock]Locking node C3
 [PlexilExec:step][3:1:0] Transitioning node C3
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
 [PlexilExec:unlock]Unlocking node C3
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 SimpleTask{
- State: (id_271[au](EXECUTING): state(EXECUTING)) (0)
- SkipCondition: (id_289[au](0): boolean)
- StartCondition: (id_291[au](1): boolean)
- EndCondition: (id_476[au](0): childrenFinished(2:3))
- InvariantCondition: (id_295[au](1): boolean)
- PreCondition: (id_297[au](1): boolean)
- PostCondition: (id_299[au](1): boolean)
- RepeatCondition: (id_301[au](0): boolean)
- AncestorInvariantCondition: (id_303[au](1): boolean)
- AncestorEndCondition: (id_305[au](0): boolean)
- ParentExecutingCondition: (id_307[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_473[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
- AbortCompleteCondition: (id_311[au](UNKNOWN): boolean)
- ParentWaitingCondition: (id_313[au](0): boolean)
- ParentFinishedCondition: (id_315[au](0): boolean)
- CommandHandleReceivedCondition: (id_317[au](1): boolean)
- command_handle: (id_274[au](UNKNOWN):  command_handle)
+ State: (id_261[au](EXECUTING): state(EXECUTING)) (0)
+ SkipCondition: (id_281[au](0): boolean)
+ StartCondition: (id_283[au](1): boolean)
+ EndCondition: (id_474[au](0): childrenFinished(2:3))
+ InvariantCondition: (id_287[au](1): boolean)
+ PreCondition: (id_289[au](1): boolean)
+ PostCondition: (id_291[au](1): boolean)
+ RepeatCondition: (id_293[au](0): boolean)
+ AncestorInvariantCondition: (id_295[au](1): boolean)
+ AncestorEndCondition: (id_297[au](0): boolean)
+ ParentExecutingCondition: (id_299[au](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_471[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ AbortCompleteCondition: (id_303[au](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_305[au](0): boolean)
+ ParentFinishedCondition: (id_307[au](0): boolean)
+ CommandHandleReceivedCondition: (id_309[au](1): boolean)
+ command_handle: (id_264[au](UNKNOWN):  command_handle)
   C1{
-   State: (id_321[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: (id_339[au](0): boolean)
-   StartCondition: (id_341[au](1): boolean)
-   EndCondition: (id_516[au](0): ((id_512[au](0): interruptibleCommandHandleValues((id_509[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_514[au](0): ((id_510[au](1): isknown((id_509[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_500[au](0): ((id_502[au](10): int) == (id_369[au](-1): int)))))
-   InvariantCondition: (id_345[au](1): boolean)
-   PreCondition: (id_347[au](1): boolean)
-   PostCondition: (id_503[au](1): (id_506[au](1): ((id_324[au](COMMAND_SENT_TO_SYSTEM):  command_handle) == (id_505[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: (id_351[au](0): boolean)
-   AncestorInvariantCondition: (id_483[au](1): (TransparentWrapper(id_479[auT]{1}((id_303[au](1): boolean)) && TransparentWrapper(id_481[auT]{1}((id_295[au](1): boolean)))
-   AncestorEndCondition: (id_489[iu](UNKNOWN): (TransparentWrapper(id_485[iuT]{0}((id_305[au](0): boolean)) || TransparentWrapper(id_487[iuT]{0}((id_476[au](0): childrenFinished(2:3))))
-   ParentExecutingCondition: (id_492[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_491[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_359[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_508[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_495[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_494[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_498[iu](UNKNOWN): ((id_271[au](EXECUTING): state(EXECUTING)) == (id_497[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_520[au](1): ((id_518[au](1): allCommandHandleValues((id_509[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_367[au](1): boolean))
-   command_handle: (id_324[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_369[au](-1): int)
-   head_priority: (id_370[au](20): int)
+   State: (id_313[au](EXECUTING): state(EXECUTING)) (0)
+   SkipCondition: (id_333[au](0): boolean)
+   StartCondition: (id_335[au](1): boolean)
+   EndCondition: (id_514[au](0): ((id_510[au](0): interruptibleCommandHandleValues((id_507[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_512[au](0): ((id_508[au](1): isknown((id_507[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_498[au](0): ((id_500[au](10): int) == (id_363[au](-1): int)))))
+   InvariantCondition: (id_339[au](1): boolean)
+   PreCondition: (id_341[au](1): boolean)
+   PostCondition: (id_501[au](1): (id_504[au](1): ((id_316[au](COMMAND_SENT_TO_SYSTEM):  command_handle) == (id_503[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
+   RepeatCondition: (id_345[au](0): boolean)
+   AncestorInvariantCondition: (id_481[au](1): (TransparentWrapper(id_477[auT]{1}((id_295[au](1): boolean)) && TransparentWrapper(id_479[auT]{1}((id_287[au](1): boolean)))
+   AncestorEndCondition: (id_487[iu](UNKNOWN): (TransparentWrapper(id_483[iuT]{0}((id_297[au](0): boolean)) || TransparentWrapper(id_485[iuT]{0}((id_474[au](0): childrenFinished(2:3))))
+   ParentExecutingCondition: (id_490[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_489[au](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_353[au](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_506[iu](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_493[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_492[au](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_496[iu](UNKNOWN): ((id_261[au](EXECUTING): state(EXECUTING)) == (id_495[au](FINISHED): state(FINISHED))))
+   CommandHandleReceivedCondition: (id_518[au](1): ((id_516[au](1): allCommandHandleValues((id_507[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_361[au](1): boolean))
+   command_handle: (id_316[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_363[au](-1): int)
+   head_priority: (id_364[au](20): int)
   }
   C2{
-   State: (id_373[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_374[au](FAILURE):  outcome)
-   Failure type: (id_375[au](POST_CONDITION_FAILED):  failure)
-   Command handle: (id_376[au](COMMAND_DENIED):  command_handle)
-   v_priority2: (id_421[au](25): int)
+   State: (id_367[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_368[au](FAILURE):  outcome)
+   Failure type: (id_369[au](POST_CONDITION_FAILED):  failure)
+   Command handle: (id_370[au](COMMAND_DENIED):  command_handle)
+   v_priority2: (id_417[au](25): int)
   }
   C3{
-   State: (id_424[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_425[au](SUCCESS):  outcome)
-   Command handle: (id_427[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   mem_priority2: (id_472[au](30): int)
+   State: (id_420[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_421[au](SUCCESS):  outcome)
+   Command handle: (id_423[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   mem_priority2: (id_470[au](30): int)
   }
 }
 
 [Test:testOutput]Sending command result c1(20) = 10
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 13
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 4
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 13
 [PlexilExec:step][4:0] State change queue: C1 
 [PlexilExec:lock]Locking node C1
 [PlexilExec:step][4:0:0] Transitioning node C1
@@ -350,15 +368,18 @@ SimpleTask{
 [PlexilExec:step][4:1] State change queue: C1 
 [PlexilExec:lock]Locking node C1
 [PlexilExec:step][4:1:0] Transitioning node C1
-[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 15
+[PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
 [PlexilExec:unlock]Unlocking node C1
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 15
 [PlexilExec:step][4:2] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][4:2:0] Transitioning node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 16
@@ -379,27 +400,27 @@ SimpleTask{
 [PlexilExec:cycle]==>End cycle 4
 [PlexilExec:printPlan]
 SimpleTask{
- State: (id_271[au](FINISHED): state(FINISHED)) (0)
- Outcome: (id_272[au](SUCCESS):  outcome)
+ State: (id_261[au](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_262[au](SUCCESS):  outcome)
   C1{
-   State: (id_321[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_322[au](SUCCESS):  outcome)
-   Command handle: (id_324[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_369[iu](10): int)
-   head_priority: (id_370[au](20): int)
+   State: (id_313[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_314[au](SUCCESS):  outcome)
+   Command handle: (id_316[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   returnValue: (id_363[iu](10): int)
+   head_priority: (id_364[au](20): int)
   }
   C2{
-   State: (id_373[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_374[au](FAILURE):  outcome)
-   Failure type: (id_375[au](POST_CONDITION_FAILED):  failure)
-   Command handle: (id_376[au](COMMAND_DENIED):  command_handle)
-   v_priority2: (id_421[au](25): int)
+   State: (id_367[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_368[au](FAILURE):  outcome)
+   Failure type: (id_369[au](POST_CONDITION_FAILED):  failure)
+   Command handle: (id_370[au](COMMAND_DENIED):  command_handle)
+   v_priority2: (id_417[au](25): int)
   }
   C3{
-   State: (id_424[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_425[au](SUCCESS):  outcome)
-   Command handle: (id_427[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   mem_priority2: (id_472[au](30): int)
+   State: (id_420[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_421[au](SUCCESS):  outcome)
+   Command handle: (id_423[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
+   mem_priority2: (id_470[au](30): int)
   }
 }
 
