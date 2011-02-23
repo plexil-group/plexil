@@ -22,7 +22,7 @@
     (variables
       (string "name" "dock")             ;agent name
       (real-array "times" 3)             ;start-time(sec)[0] now(sec)[1] then(sec)[2]
-      (integer "period" 2)               ;periodicity of update cycles
+      (real "period" 2.0)                ;periodicity of update cycles
       (real "initial-distance" 30)       ;initial distance from dock to rover
       (real-array "speeds" 3 2 1 .2)     ;initial(ft/sec)[0] intermediate(ft/sec)[1] final(ft-sec)[2]
       (real-array "bay1" 6 1 0 0 0 0 0)  ;bay-id[0], rover-id[1], dist(ft)[2], speed(ft/sec)[3], action[4], time(sec)[5]
@@ -44,11 +44,11 @@
           (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
           (command "print" "\n[" (stringvar "name") " (" (array-element "times" 1) ")] recv: " (arrayvar "request"))
           (assignment (realvar "rover-id") (array-element "request" 0)) ;grab the rover-id
-          ;; If this is an un-docking request, record it
+          ;; Handle both docking and un-docking requests
           (try "request-type"
             (action "handle-un-docking-request"
-              (skip-condition (= 1 (array-element "request" 1))) ;action(1=dock,0=un-dock)
               ;; This is an un-docking request, so now find which bay it applies to and update the record
+              (skip-condition (= 1 (array-element "request" 1))) ;action(1=dock,0=un-dock)
               (try "update-bay-record"
                 (action "un-dock-from-bay1"
                   (skip-condition (not (= 1 (array-element "bay1" 0))))
@@ -88,8 +88,12 @@
       (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay2"))))
       (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay3"))))
       (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay4"))))
-      (assignment (array-element "times" 2) (array-element "times" 1)) ;remember when the last cycle finished
-      (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .05 "Wait"))
+      ;;remember when the last cycle finished -- used in update-bay.pli
+      (assignment (array-element "times" 2) (array-element "times" 1))
+      ;; So that we don't keep precessing forward on the close, just try to wake up at about the same
+      ;; place with each "period" second boundary (i.e., (mod "now")).  Tolerance should be small enough
+      ;; to make this fairly accurate, but large enough not to cause undue polling (one hopes).
+      (wait-with-tolerance (- (realvar "period") (- 1 (mod (lookup-now "time") 1))) .075 "Wait"))
     ;; Quit when asked to
     (action "QuitCommand"
       (on-message "Quit"
