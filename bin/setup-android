@@ -1,0 +1,118 @@
+#!/bin/bash
+# File: $SVNROOT/bin/setup-android
+# Note: Script to run two Plexil agent systems using IPC
+
+debug=
+android_bin_dir=/data/local
+android_lib_dir=$android_bin_dir
+android_plan_dir=$android_bin_dir
+android_env_file=android.env
+android_apk_file=plexil-debug.apk
+#android_project=plexil
+
+function usage ()
+{
+cat <<EOF
+
+Usage:      `basename $0` [options]
+
+Options:    
+
+Examples:   `basename $0`
+
+Notes:      
+
+EOF
+exit
+}
+
+function android-env ()
+{
+cat <<EOF
+# Android Environment
+export LD_LIBRARY_PATH=$android_bin_dir
+#export PATH=\$PATH:.
+run-plan()
+{
+  script=\$1.psx
+  if [ ! -e \$1.psx ] ; then script=empty.psx ; fi
+  echo "./TestExec -s \$script -p \$1.plx"
+  ./TestExec -s \$script -p \$1.plx
+}
+EOF
+} > $android_env_file
+chmod +x $android_env_file
+
+if [ ! -e "AndroidManifest.xml" ] ; then
+    echo " "
+    echo "Not in project directory."
+    usage
+fi
+
+if [ ! -e "../plexil/Android.mk" ] ; then
+    echo " "
+    echo "Can't see plexil directory."
+    usage
+fi
+
+# Just use ANDROID_SDK and ANDROID_NDK in the user's environemnt
+
+if [ ! -z $ANDROID_NDK ] ; then
+    ndk-build V=1
+fi
+
+if [ ! -z $ANDROID_SDK ] ; then
+    ant debug
+fi
+
+# see of the emulator is running
+emulator=`adb devices`
+emulator=`echo $emulator | awk '{ print $5 }'`
+if [ -z $emulator ] ; then
+    echo " "
+    echo "Android emulator not running.  Giving up."
+    #emulator -avd $android_project &
+    echo " "
+    exit -1
+else
+    echo " "
+    echo "Using $emulator"
+    echo " "
+fi
+
+# copy the libraries and executables over
+
+echo " "
+echo "Copying libraries and executables to $emulator:$android_bin_dir"
+
+for file in `ls libs/armeabi/*` ;
+do
+    echo "copying $file"
+    adb wait-for-device push $file $android_bin_dir 2> /dev/null ;
+done
+
+# copy the plans over
+
+echo " "
+echo "Copying Plexil plans and scripts to $emulator:$android_plan_dir"
+
+for file in `ls ../plexil/examples/*.[pc][lsf][gx]` ;
+do
+    echo "copying $file"
+    adb push $file $android_plan_dir 2> /dev/null ;
+done
+
+# copy android.evn over
+
+echo " "
+echo "Copying android.env to $emulator:$android_bin_dir"
+android-env
+adb push $android_env_file $android_bin_dir 2> /dev/null
+rm $android_env_file
+
+echo " "
+echo "Installing $android_apk_file on $emulator"
+adb install bin/$android_apk_file
+echo " "
+
+# EOF
