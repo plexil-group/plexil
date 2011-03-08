@@ -35,4 +35,5 @@ LOCAL_SRC_FILES := tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp
 LOCAL_CPPFLAGS  := -DTIXML_USE_STL
 LOCAL_EXPORT_CPPFLAGS  := -DTIXML_USE_STL
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)

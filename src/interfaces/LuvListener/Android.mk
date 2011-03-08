@@ -39,6 +39,8 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../Sockets \
  $(LOCAL_PATH)/../../../third-party/tinyxml \
  $(LOCAL_PATH)/../../utils \
  $(LOCAL_PATH)/../../exec
-LOCAL_SHARED_LIBRARIES := PlexilSockets tinyxml PlexilUtils PlexilExec
+#LOCAL_SHARED_LIBRARIES := PlexilSockets tinyxml PlexilUtils PlexilExec
+LOCAL_STATIC_LIBRARIES := PlexilSockets tinyxml PlexilUtils PlexilExec
 
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)

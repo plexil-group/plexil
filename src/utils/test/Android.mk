@@ -37,7 +37,8 @@ LOCAL_CPPFLAGS :=
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../third-party/tinyxml \
  $(LOCAL_PATH)/..
-LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils
+#LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils
+LOCAL_STATIC_LIBRARIES := tinyxml PlexilUtils stdc++
 LOCAL_LDLIBS := 
 
 include $(BUILD_SHARED_LIBRARY)

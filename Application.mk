@@ -28,7 +28,7 @@
 
 # More to come
 APP_MODULES := tinyxml PlexilUtils PlexilExec PlexilSockets EssentialLuvListener PlexilAppFramework
-APP_MODULES += android-tests utils-module-tests exec-module-tests TestExec
+APP_MODULES += PlexilTester utils-module-tests exec-module-tests TestExec
 
 APP_OPTIM := debug
 
