@@ -28,24 +28,45 @@
 #include "ScopedOstreamRedirect.hh"
 #include "exec-test-module.hh"
 #include <iostream>
+#include <iomanip>
 #include <fstream>
+#include <sstream>
+#include <time.h>
 
 using PLEXIL::JNIUtils;
 
 std::string *logFileName(const char* dirname)
 {
-  std::string *result = new std::string(dirname);
-  *result = *result + std::string("/") + std::string("date") + std::string(".log");
-  return result;
+	// Get current time and decode it in the local timeframe
+	time_t now;
+	time(&now);
+	struct tm nowtm;
+	localtime_r(&now, &nowtm);
+
+	std::ostringstream fnameBuilder;
+	fnameBuilder << dirname << "/exec-module-test-"
+			<< nowtm.tm_year + 1900
+			<< '-'
+			<< std::setw(2) << std::setfill('0')
+			<< nowtm.tm_mon + 1 << '-'
+			<< std::setw(2) << nowtm.tm_mday << '_'
+			<< std::setw(2) << nowtm.tm_hour << ':'
+			<< std::setw(2) << nowtm.tm_min << ':'
+			<< std::setw(2) << nowtm.tm_sec
+			<< ".log";
+	return new std::string(fnameBuilder.str());
 }
 
 extern "C"
-jint Java_gov_nasa_plexil_ExecModuleTest_run(JNIEnv *env, jobject /* java_this */)
+jint Java_gov_nasa_plexil_ExecModuleTest_run(JNIEnv *env, jobject /* java_this */, jstring logDirJstring)
 {
   JNIUtils::initialize(env);
+  char* logDir = JNIUtils::getJavaStringCopy(logDirJstring);
+  if (logDir == NULL)
+	return -1;
 
   // Route cout and cerr to a log file.
-  std::string* logName = logFileName("/data/data/gov.nasa.plexil/logs");
+  std::string* logName = logFileName(logDir);
   std::ofstream log(logName->c_str());
   if (log.fail())
 	return -1;
@@ -54,6 +75,7 @@ jint Java_gov_nasa_plexil_ExecModuleTest_run(JNIEnv *env, jobject /* java_this *
 
   ExecModuleTests::runTests();
   delete logName;
+  delete logDir;
   return 0;
 }
 
