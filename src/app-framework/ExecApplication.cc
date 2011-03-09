@@ -159,9 +159,11 @@ namespace PLEXIL
     // Clear suspended flag just in case
     m_suspended = false;
 
+#ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
 	// Set up signal handling in main thread
 	assertTrueMsg(initializeMainSignalHandling(),
 				  "ExecApplication::run: failed to initialize main thread signal handling");
+#endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     // Start the event listener thread
     return spawnExecThread();
@@ -238,9 +240,11 @@ namespace PLEXIL
       }
     debugMsg("ExecApplication:stop", " Top level thread halted");
 
+#ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
 	// Restore signal handling
 	assertTrueMsg(restoreMainSignalHandling(),
 				  "ExecApplication::stop: failed to restore signal handling for main thread");
+#endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
     
     return setApplicationState(APP_STOPPED);
   }
@@ -448,8 +452,10 @@ namespace PLEXIL
    */
   bool ExecApplication::waitForExternalEvent()
   {
+#ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
 	assertTrueMsg(m_nBlockedSignals != 0,
 				  "ExecApplication::waitForExternalEvent: fatal error: signal handling not initialized.:");
+#endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     debugMsg("ExecApplication:wait", " (" << pthread_self() << ") waiting for external event");
 	int status;
@@ -666,11 +672,13 @@ namespace PLEXIL
 		0,
 		0
 	  };
+	int errnum = 0;
 
+#ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
 	//
 	// Generate the mask
 	//
-	int errnum = sigemptyset(&m_workerSigset);
+	errnum = sigemptyset(&m_workerSigset);
 	if (errnum != 0) {
 	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigemptyset returned " << errnum);
 	  return false;
@@ -692,6 +700,7 @@ namespace PLEXIL
 	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " pthread_sigmask returned " << errnum);
 	  return false;
 	}
+#endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
 	// Add a handler for SIGUSR2 for killing the thread
 	struct sigaction sa;
@@ -720,6 +729,7 @@ namespace PLEXIL
 	  return errnum;
 	}
 
+#ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
 	//
 	// Restore old mask
 	//
@@ -728,6 +738,7 @@ namespace PLEXIL
 	  debugMsg("ExecApplication:restoreWorkerSignalHandling", " failed; sigprocmask returned " << errnum);
 	  return false;
 	}
+#endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
 	// flag as complete
 	m_nBlockedSignals = 0;
@@ -772,7 +783,7 @@ namespace PLEXIL
 	//
 	int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, NULL);
 	if (errnum != 0) { 
-	  debugMsg("ExecApplication:restoreMainSignalHandling", " failed; sigprocmask returned " << errnum);
+	  debugMsg("ExecApplication:restoreMainSignalHandling", " failed; pthread_sigmask returned " << errnum);
 	  return false;
 	}
 
