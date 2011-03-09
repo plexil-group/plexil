@@ -28,10 +28,10 @@
 
 # More to come
 APP_MODULES := tinyxml PlexilUtils PlexilExec PlexilSockets EssentialLuvListener PlexilAppFramework
-APP_MODULES += PlexilTester utils-module-tests exec-module-tests TestExec
+APP_MODULES += PlexilTester utils-module-tests exec-module-tests TestExec UniversalExec
 
 APP_OPTIM := debug
 
 # C++ compiler options
 APP_STL := gnustl_static
-APP_CPPFLAGS := -DPLEXIL_ANDROID -DPLATFORM_HAS_TR1_UNORDERED_MAP -DPLATFORM_HAS_GNU_HASH_MAP -fexceptions -frtti
+APP_CPPFLAGS := -DPLEXIL_ANDROID -DBROKEN_ANDROID_PTHREAD_SIGMASK -DPLATFORM_HAS_TR1_UNORDERED_MAP -DPLATFORM_HAS_GNU_HASH_MAP -fexceptions -frtti
