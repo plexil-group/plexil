@@ -96,7 +96,7 @@ if [ "$sanity_check" != "List" ] ; then
     echo " "
     exit -1
 elif [ -z $emulator ] ; then
-    echo "Android emulator shown in list of adb devices.  Giving up."
+    echo "Android emulator not shown in list of adb devices.  Giving up."
     echo " "
     exit -1
 elif [ "$status" = "offline" ] ; then
