@@ -58,7 +58,7 @@ std::string *logFileName(const char* dirname)
 }
 
 extern "C"
-jint Java_gov_nasa_plexil_ExecModuleTest_run(JNIEnv *env, jobject /* java_this */, jstring logDirJstring)
+jint Java_gov_nasa_plexil_android_ExecModuleTest_run(JNIEnv *env, jobject /* java_this */, jstring logDirJstring)
 {
   JNIUtils::initialize(env);
   char* logDir = JNIUtils::getJavaStringCopy(logDirJstring);

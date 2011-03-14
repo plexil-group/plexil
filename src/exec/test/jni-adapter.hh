@@ -30,6 +30,6 @@
 #include <jni.h>
 
 extern "C"
-jint Java_gov_nasa_plexil_ExecModuleTest_run(JNIEnv *env, jobject /* java_this */, jstring workingDirPath);
+jint Java_gov_nasa_plexil_android_ExecModuleTest_run(JNIEnv *env, jobject /* java_this */, jstring workingDirPath);
 
 #endif // EXEC_MODULE_TEST_JNI_ADAPTER_HH
