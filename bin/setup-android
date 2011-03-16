@@ -8,7 +8,7 @@ android_bin_dir=/data/local
 android_lib_dir=$android_bin_dir
 android_plan_dir=$android_bin_dir
 android_env_file=android.env
-android_apk_file=plexil-debug.apk
+android_apk_file=ExecModuleTester-debug.apk
 #android_project=plexil
 
 function usage ()
@@ -62,12 +62,6 @@ done
 if [ ! -e "AndroidManifest.xml" ] ; then
     echo " "
     echo "Not in project directory (AndroidManifest.xml not found).  Giving up."
-    usage
-fi
-
-if [ ! -e "../plexil/Android.mk" ] ; then
-    echo " "
-    echo "Can't see plexil directory (../plexil/Android.mk not found).  Giving up."
     usage
 fi
 
