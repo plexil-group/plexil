@@ -71,9 +71,9 @@ if [ ! -z $ANDROID_NDK ] ; then
     ndk-build V=$verbose
 fi
 
-if [ ! -z $ANDROID_SDK ] ; then
-    ant debug
-fi
+#if [ ! -z $ANDROID_SDK ] ; then
+#    ant debug
+#fi
 
 echo " "
 echo "checking for Android emulator..."
@@ -99,7 +99,6 @@ elif [ "$status" = "offline" ] ; then
     exit -1
 else
     echo "Using $emulator"
-echo " "
 fi
 
 # copy the libraries and executables over
@@ -133,11 +132,14 @@ adb push $android_env_file $android_bin_dir 2> /dev/null
 rm $android_env_file
 echo " "
 
-if [ "$load_apk" = "1" ] ; then
-    echo " "
-    echo "Installing $android_apk_file on $emulator"
-    adb install bin/$android_apk_file
-    echo " "
+#adb install -r bin/$android_apk_file
+
+if [ ! -z $ANDROID_SDK ] ; then
+    if [ "$load_apk" = "1" ] ; then
+        ant install
+    else
+        ant debug
+    fi
 fi
 
 # EOF
