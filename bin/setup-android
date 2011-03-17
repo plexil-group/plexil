@@ -16,7 +16,8 @@ cat <<EOF
 
 Usage:      $script_name [options]
 
-Options:    -v     := verbose ndk-build output
+Options:    -v  := verbose ndk-build output
+            -n  := don't install the apk file on the emulator
 
 Examples:   $script_name
 
@@ -48,7 +49,11 @@ fi
 
 until [ -z $1 ] ;
 do
-    if [ "$1" = "-v" ] ; then verbose=1 ; shift ; fi
+    if [ "$1" = "-v" ] ; then verbose=1 ; shift ;
+    elif [ "$1" = "-n" ] ; then load_apk= ; shift ;
+    elif [ "$1" = "-vn" ] || [ "$1" = "-nv" ] ; then verbose=1 ; load_apk= ; shift ;
+    else echo " " ; echo "Unrecognized option: \"$1\"" ; usage ;
+    fi
 done
 
 if [ ! -e "AndroidManifest.xml" ] ; then
@@ -74,7 +79,7 @@ echo " "
 echo "checking for Android emulator..."
 echo " "
 
-# see of the emulator is running
+# see if the emulator is running
 devices=`adb devices`
 sanity_check=`echo $devices | awk '{ print $1 }'`
 emulator=`echo $devices | awk '{ print $5 }'`
