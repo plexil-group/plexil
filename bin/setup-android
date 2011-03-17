@@ -8,8 +8,7 @@ android_bin_dir=/data/local
 android_lib_dir=$android_bin_dir
 android_plan_dir=$android_bin_dir
 android_env_file=android.env
-android_apk_file=ExecModuleTester-debug.apk
-#android_project=plexil
+load_apk=1
 
 function usage ()
 {
@@ -17,8 +16,7 @@ cat <<EOF
 
 Usage:      $script_name [options]
 
-Options:    -v   := verbose output
-            -l   := load $android_apk_file
+Options:    -v     := verbose ndk-build output
 
 Examples:   $script_name
 
@@ -48,15 +46,9 @@ if [ "$1" = "-h" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ] ; then
     usage
 fi
 
-if [ "$1" = "-v" ] ; then
-    verbose=1
-fi
-
 until [ -z $1 ] ;
 do
     if [ "$1" = "-v" ] ; then verbose=1 ; shift ; fi
-    if [ "$1" = "-l" ] ; then load_apk=1 ; shift ; fi
-    if [ "$1" = "-lv" ] || [ "$1" = "-vl" ] ; then verbose=1 ; load_apk=1 ; shift ; fi
 done
 
 if [ ! -e "AndroidManifest.xml" ] ; then
@@ -68,6 +60,9 @@ fi
 # Just use ANDROID_SDK and ANDROID_NDK in the user's environemnt
 
 if [ ! -z $ANDROID_NDK ] ; then
+    echo " "
+    echo "Running ndk-build..."
+    echo " "
     ndk-build V=$verbose
 fi
 
@@ -104,7 +99,8 @@ fi
 # copy the libraries and executables over
 
 echo " "
-echo "Copying libraries and executables to $emulator:$android_bin_dir"
+echo "Copying libraries and executables to $emulator:$android_bin_dir..."
+echo " "
 
 for file in `ls libs/armeabi/*` ;
 do
@@ -115,7 +111,8 @@ done
 # copy the plans over
 
 echo " "
-echo "Copying Plexil plans and scripts to $emulator:$android_plan_dir"
+echo "Copying Plexil plans and scripts to $emulator:$android_plan_dir..."
+echo " "
 
 for file in `ls ../plexil/examples/*.[pc][lsf][gx]` ;
 do
@@ -126,20 +123,22 @@ done
 # copy android.evn over
 android-env
 chmod +x $android_env_file
-echo " "
-echo "Copying android.env to $emulator:$android_bin_dir"
+echo "Copying android.env to $emulator:$android_bin_dir..."
 adb push $android_env_file $android_bin_dir 2> /dev/null
 rm $android_env_file
-echo " "
-
-#adb install -r bin/$android_apk_file
 
 if [ ! -z $ANDROID_SDK ] ; then
+    echo " "
     if [ "$load_apk" = "1" ] ; then
+        echo "Running ant install..."
+        echo " "
         ant install
     else
+        echo "Running ant debug..."
+        echo " "
         ant debug
     fi
+    echo " "
 fi
 
 # EOF
