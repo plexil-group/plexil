@@ -33,6 +33,7 @@
 #include <vector>
 #include <limits>
 #include <cmath>
+#include <iomanip> // for setprecision()
 
 namespace PLEXIL
 {
@@ -468,7 +469,8 @@ namespace PLEXIL
       {
          std::vector<double> time(1, 0);
          getExternalInterface()->lookupNow(m_timeState, time);
-         checkError(m_values.find(m_timeState)->second[0] <= time[0], "Time has regressed from " << m_values.find(m_timeState)->second[0] << " to " << time[0]);
+         checkError(m_values.find(m_timeState)->second[0] <= time[0],
+					"Time has regressed from " << std::setprecision(15) << m_values.find(m_timeState)->second[0] << " to " << time[0]);
          internalStateUpdate(m_timeState, time);
       }
       std::map<StateKey, std::vector<double> >::iterator it = m_values.find(m_timeState);
@@ -521,12 +523,7 @@ namespace PLEXIL
          {
            if (i > 0)
              str << ", ";
-           if (LabelStr::isString(values[i]))
-             str << LabelStr(values[i]).toString();
-           else if (StoredArray::isKey(values[i]))
-             str << StoredArray(values[i]).toString();
-           else
-             str << values[i];
+		   str << Expression::valueToString(values[i]);
          }
       }
       return str.str();
