@@ -39,6 +39,7 @@
 #include "StateCache.hh"
 #include <cerrno>
 #include <cmath> // for modf
+#include <iomanip> // for setprecision()
 
 namespace PLEXIL
 {
@@ -226,7 +227,7 @@ namespace PLEXIL
     assertTrueMsg(status == 0,
                   "lookupNow: clock_gettime() failed, errno = " << errno);
     double tym = timespecToDouble(ts);
-    debugMsg("PosixTimeAdapter:getCurrentTime", " returning" << tym);
+    debugMsg("PosixTimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
   }
 
