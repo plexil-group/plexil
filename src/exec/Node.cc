@@ -42,6 +42,7 @@
 #include <algorithm> // for find_if
 #include <vector>
 #include <sstream>
+#include <iomanip> // for setprecision
 
 namespace PLEXIL {
   const std::vector<double>& Node::ALL_CONDITIONS() {
@@ -1306,14 +1307,14 @@ namespace PLEXIL {
                  "' is " << getOutcome().toString());
     debugMsg("Node:times",
 	     "Setting end time " << LabelStr(END_TIMEPOINT_NAMES()[prevState]).toString()
-	     << " = " << time);
+			 << " = " << std::setprecision(15) << time);
     debugMsg("Node:times",
 	     "Setting start time " << LabelStr(START_TIMEPOINT_NAMES()[newState]).toString()
-	     << " = " << time);
+			 << " = " << std::setprecision(15) << time);
     m_endTimepoints[prevState]->setValue(time);
     m_startTimepoints[newState]->setValue(time);
     m_transitioning = false;
-    checkConditions();
+    conditionChanged(); // was checkConditions();
   }
 
   const ExpressionId& Node::getInternalVariable(const LabelStr& name) {
@@ -1591,7 +1592,7 @@ namespace PLEXIL {
     checkError(m_listeners[idx].isId() && m_conditions[idx].isId(),
 			   "No condition/listener pair exists for '" << getConditionName(idx).toString() << "'");
     debugMsg("Node:activatePair",
-			 "Activating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString());
+			 "Activating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString() << "'");
     m_listeners[idx]->activate();
     m_conditions[idx]->activate();
   }
@@ -1600,7 +1601,7 @@ namespace PLEXIL {
     checkError(m_listeners[idx].isId() && m_conditions[idx].isId(),
 			   "No condition/listener pair exists for '" << getConditionName(idx).toString() << "'");
     debugMsg("Node:deactivatePair",
-			 "Deactivating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString());
+			 "Deactivating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString() << "'");
     m_conditions[idx]->deactivate();
     if (m_listeners[idx]->isActive())
       m_listeners[idx]->deactivate();
