@@ -30,6 +30,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <iomanip> // for setprecision()
 
 namespace PLEXIL {
 
@@ -161,7 +162,7 @@ namespace PLEXIL {
       return std::string("-inf");
 	else {
 	  std::ostringstream str;
-      str << val;
+      str << std::setprecision(15) << val;
 	  return str.str();
 	}
   }
