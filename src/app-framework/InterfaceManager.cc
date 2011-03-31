@@ -311,31 +311,34 @@ namespace PLEXIL
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
          it++) {
-      success = (*it)->initialize();
-      if (!success)
-        {
+	  InterfaceAdapterId a = *it;
+      success = a->initialize();
+      if (!success) {
           debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
+		  m_adapters.erase(it);
+		  delete (InterfaceAdapter*) a;
           return false;
-        }
+	  }
     }
     for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          it++) {
-      success = (*it)->initialize();
-      if (!success)
-        {
-          debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
-          return false;
-        }
+	  ExecListenerId l = *it;
+      success = l->initialize();
+      if (!success) {
+		debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
+		m_listeners.erase(it);
+		delete (ExecListener*) l;
+		return false;
+	  }
     }
 
     if (m_execController.isId()) {
       success = m_execController->initialize();
-      if (!success)
-        {
-          debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
-          return false;
-        }
+      if (!success) {
+		debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
+		return false;
+	  }
     }
 
     return success;
@@ -742,8 +745,8 @@ namespace PLEXIL
           {
             debugMsg("InterfaceManager:verboseLookupNow",
                      " Ignoring stale time update - new value "
-                     << dest[0] << " is not greater than cached value "
-                     << m_currentTime);
+                     << Expression::valueToString(dest[0]) << " is not greater than cached value "
+                     << Expression::valueToString(m_currentTime));
           }
         else
           {
