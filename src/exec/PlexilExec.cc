@@ -180,7 +180,7 @@ namespace PLEXIL {
          "Added plan: " << std::endl << root->toString());
     debugMsg("Time", "Time to initialize plan: " << clock() - time1);
     publishAddPlan(plan, parent);
-    root->checkConditions();
+	notifyNodeConditionChanged(root);
     m_cache->handleQuiescenceEnded();
     return true;
   }
@@ -413,77 +413,80 @@ namespace PLEXIL {
     debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
 
     unsigned int stepCount = 0;
+
+	// BEGIN QUIESCENCE LOOP
     while(true) {
       do {
-	// Evaluate conditions of nodes reporting a change
-	std::vector<NodeId> changedNodes(m_nodesToConsider);
-	m_nodesToConsider.clear();
-	for (std::vector<NodeId>::iterator nodeIt = changedNodes.begin();
-	     nodeIt != changedNodes.end();
-	     nodeIt++)
-	  (*nodeIt)->checkConditions();
+		// Evaluate conditions of nodes reporting a change
+		std::vector<NodeId> changedNodes(m_nodesToConsider);
+		m_nodesToConsider.clear();
+		for (std::vector<NodeId>::iterator nodeIt = changedNodes.begin();
+			 nodeIt != changedNodes.end();
+			 nodeIt++)
+		  (*nodeIt)->checkConditions();
       }
       while (!m_nodesToConsider.empty());
 
       resolveResourceConflicts();
       if(m_stateChangeQueue.empty())
-	break;
+		break; // exit quiescence loop
       std::list<NodeId> transitioningNodes;
       std::transform(m_stateChangeQueue.begin(), m_stateChangeQueue.end(),
-		     std::back_insert_iterator<std::list<NodeId> >(transitioningNodes),
-		     select2nd<std::map<unsigned int, NodeId>::value_type>());
+					 std::back_insert_iterator<std::list<NodeId> >(transitioningNodes),
+					 select2nd<std::map<unsigned int, NodeId>::value_type>());
       m_stateChangeQueue.clear();
 
       std::ostringstream out;
       for(std::list<NodeId>::const_iterator it = transitioningNodes.begin();
-	  it != transitioningNodes.end(); ++it) {
-	out << (*it)->getNodeId().toString() << " ";
+		  it != transitioningNodes.end(); ++it) {
+		out << (*it)->getNodeId().toString() << " ";
       }
       debugMsg("PlexilExec:step",
-	       "[" << m_cycleNum << ":" << stepCount << "] State change queue: " << out.str());
+			   "[" << m_cycleNum << ":" << stepCount << "] State change queue: " << out.str());
 
       unsigned int microStepCount = 0;
       std::set<NodeId> transitionedNodes;
 
       //lock the nodes into their current transitioning states
       for(std::list<NodeId>::iterator it = transitioningNodes.begin();
-	  it != transitioningNodes.end(); ++it) {
-	NodeId node = *it;
-	check_error(node.isValid());
-	debugMsg("PlexilExec:lock",
-		 "Locking node " << node->getNodeId().toString());
-	node->lockConditions();
+		  it != transitioningNodes.end(); ++it) {
+		NodeId node = *it;
+		check_error(node.isValid());
+		debugMsg("PlexilExec:lock",
+				 "Locking node " << node->getNodeId().toString());
+		node->lockConditions();
       }
       //transition them
       for(std::list<NodeId>::iterator it = transitioningNodes.begin();
-	  it != transitioningNodes.end(); ++it) {
-	NodeId node = *it;
-	check_error(node.isValid());
-	checkError(transitionedNodes.find(node) == transitionedNodes.end(),
-		   "Node " << node->getNodeId().toString() <<
-		   " already transitioned in this step.");
-	debugMsg("PlexilExec:step",
-		 "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
-		 "] Transitioning node " << node->getNodeId().toString());
-	NodeState oldState = node->getState();
-	node->transition(quiescenceTime);
-	publishTransition(oldState, node);
-	transitionedNodes.insert(node);
-	++microStepCount;
+		  it != transitioningNodes.end(); ++it) {
+		NodeId node = *it;
+		check_error(node.isValid());
+		checkError(transitionedNodes.find(node) == transitionedNodes.end(),
+				   "Node " << node->getNodeId().toString() <<
+				   " already transitioned in this step.");
+		debugMsg("PlexilExec:step",
+				 "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
+				 "] Transitioning node " << node->getNodeId().toString());
+		NodeState oldState = node->getState();
+		node->transition(quiescenceTime);
+		publishTransition(oldState, node);
+		transitionedNodes.insert(node);
+		++microStepCount;
       }
       //unlock the nodes
       for(std::list<NodeId>::iterator it = transitioningNodes.begin();
-	  it != transitioningNodes.end(); ++it) {
-	NodeId node = *it;
-	check_error(node.isValid());
-	debugMsg("PlexilExec:unlock",
-		 "Unlocking node " << node->getNodeId().toString());
-	node->unlockConditions();
+		  it != transitioningNodes.end(); ++it) {
+		NodeId node = *it;
+		check_error(node.isValid());
+		debugMsg("PlexilExec:unlock",
+				 "Unlocking node " << node->getNodeId().toString());
+		node->unlockConditions();
       }
 
       performAssignments();
       ++stepCount;
     }
+	// END QUIESCENCE LOOP
 
     std::list<CommandId> commands(m_commandsToExecute.begin(), m_commandsToExecute.end());
     m_commandsToExecute.clear();
@@ -503,6 +506,8 @@ namespace PLEXIL {
     //
   }
 
+
+  // *** N.B. Only caller is itself? ***
 
   void PlexilExec::quiescenceLoop(const int depth, const unsigned int stop,
 				  const double quiescenceTime) {
@@ -736,7 +741,8 @@ namespace PLEXIL {
   void PlexilExec::removeListener(const ExecListenerId& listener) {
     std::vector<ExecListenerId>::iterator it =
       std::find(m_listeners.begin(), m_listeners.end(), listener);
-    check_error(it != m_listeners.end());
-    m_listeners.erase(it);
+	// Ignore it if we don't already know about it
+    if (it != m_listeners.end())
+	  m_listeners.erase(it);
   }
 }
