@@ -180,7 +180,7 @@ namespace PLEXIL {
          "Added plan: " << std::endl << root->toString());
     debugMsg("Time", "Time to initialize plan: " << clock() - time1);
     publishAddPlan(plan, parent);
-	notifyNodeConditionChanged(root);
+    root->conditionChanged();
     m_cache->handleQuiescenceEnded();
     return true;
   }
