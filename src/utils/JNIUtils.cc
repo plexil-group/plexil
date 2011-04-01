@@ -35,14 +35,31 @@
 
 namespace PLEXIL {
 
-  /**
-   * @brief Initialize the JNI utils.
-   * @param The JNIEnv pointer.
-   */
-  void JNIUtils::initialize(JNIEnv *env)
+  JNIUtils::JNIUtils(JNIEnv* env)
+	: m_env(env)
   {
-	getJNIEnv() = env;
+	assertTrueMsg(m_env != NULL,
+				  "JNIUtils constructor: JNI environment is NULL");
   }
+
+  JNIUtils::JNIUtils(const JNIUtils& other)
+	: m_env(other.m_env)
+  {
+	assertTrueMsg(m_env != NULL,
+				  "JNIUtils constructor: JNI environment is NULL");
+  }
+
+  JNIUtils::~JNIUtils()
+  {
+  }
+
+  JNIUtils& JNIUtils::operator=(const JNIUtils& orig)
+  {
+	m_env = orig.m_env;
+	assertTrueMsg(m_env != NULL,
+				  "JNIUtils::operator=: JNI environment is NULL");
+  }
+
 
   /**
    * @brief Returns a freshly allocated copy of the Java string.
@@ -51,13 +68,12 @@ namespace PLEXIL {
    */
   char* JNIUtils::getJavaStringCopy(jstring javaString)
   {
-	JNIEnv* &env(getJNIEnv());
-	assertTrueMsg(env != NULL,
-				  "getJavaStringCopy called before JNIUtils initialized");
+	if (javaString == NULL)
+	  return NULL;
 
-	jsize utflen = env->GetStringUTFLength(javaString);
+	jsize utflen = m_env->GetStringUTFLength(javaString);
 	char* ourString = new char[utflen + 1];
-	env->GetStringUTFRegion(javaString, 0, env->GetStringLength(javaString), ourString);
+	m_env->GetStringUTFRegion(javaString, 0, m_env->GetStringLength(javaString), ourString);
 	ourString[utflen] = '\0'; // to be safe
 	return ourString;
   }
@@ -72,12 +88,8 @@ namespace PLEXIL {
    */
   bool JNIUtils::getArgcArgv(jobjectArray javaArgv, int &argcReturn, char** &argvReturn)
   {
-	JNIEnv* &env(getJNIEnv());
-	assertTrueMsg(env != NULL,
-				  "getJavaStringCopy called before JNIUtils initialized");
-
 	// Get argv length
-	int argc = env->GetArrayLength(javaArgv);
+	int argc = m_env->GetArrayLength(javaArgv);
 
 	// Allocate and initialize argv
 	char** argv = new char*[argc + 1];
@@ -86,7 +98,7 @@ namespace PLEXIL {
 	   
 	// Copy the strings
 	for (unsigned int i = 0; i < argc; i++) {
-	  jstring java_string = (jstring) env->GetObjectArrayElement(javaArgv, i);
+	  jstring java_string = (jstring) m_env->GetObjectArrayElement(javaArgv, i);
 	  if (java_string == NULL) {
 		debugMsg("JNIUtils:getArgcArgv", "GetObjectArrayElement returned NULL");
 		// FIXME: clean up all allocated structures here
@@ -100,14 +112,30 @@ namespace PLEXIL {
 	return true;
   }
 
+
   /**
-   * @brief Get the JNIEnv object.
-   * @return A reference to the singleton JNIEnv pointer.
+   * @brief Constructs a Java String object from the given C char* object.
+   * @param cstr Pointer to a C character string.
+   * @return A freshly allocated Java jstring object.
    */
-  JNIEnv*& JNIUtils::getJNIEnv()
+  jstring JNIUtils::makeJavaString(const char* cstr)
   {
-	static JNIEnv* sl_env = NULL;
-	return sl_env;
+	return m_env->NewStringUTF(cstr);
+  }
+
+
+  /**
+   * @brief Constructs a Java array of String objects.
+   * @param size The number of elements in the array.
+   * @return A freshly allocated Java string array object.
+   */
+  jobjectArray JNIUtils::makeJavaStringArray(jsize size)
+  {
+	jclass stringClass = m_env->FindClass("java/lang/String");
+	// TODO: improve exception reporting
+	assertTrueMsg(stringClass != NULL,
+				  "FindClass failed to find Java string class");
+	return m_env->NewObjectArray(size, stringClass, NULL);
   }
 
 }

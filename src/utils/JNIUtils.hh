@@ -36,25 +36,29 @@
 namespace PLEXIL {
 
   /**
-   * @brief A data-less class whose static methods allow access to Java objects.
+   * @brief A class whose static methods facilitate access to Java objects.
    */ 
 
   class JNIUtils
   {
   public:
 
-	/**
-	 * @brief Initialize the JNI utils.
-	 * @param The JNIEnv pointer.
-	 */
-	static void initialize(JNIEnv *env);
+	// Constructors
+	JNIUtils(JNIEnv* env);
+	JNIUtils(const JNIUtils&);
+
+	// Destructor
+	~JNIUtils();
+
+	// Assignment
+	JNIUtils& operator=(const JNIUtils&);
 
 	/**
 	 * @brief Returns a freshly allocated copy of the Java string.
 	 * @param javaString The JNI string object.
 	 * @return A freshly allocated copy of the Java string, or NULL.
 	 */
-	static char* getJavaStringCopy(jstring javaString);
+	char* getJavaStringCopy(jstring javaString);
 
 	/**
 	 * @brief Returns a freshly allocated copy of the Java string.
@@ -64,22 +68,32 @@ namespace PLEXIL {
 	 * Both the strings and the string array are freshly allocated and must be deleted by the caller.
 	 * @return true if the operation was successful, false otherwise.
 	 */
-	static bool getArgcArgv(jobjectArray javaArgv, int &argcReturn, char** &argvReturn);
+	bool getArgcArgv(jobjectArray javaArgv, int &argcReturn, char** &argvReturn);
+
+	/**
+	 * @brief Constructs a Java String object from the given C char* object.
+	 * @param cstr Pointer to a C character string.
+	 * @return A freshly allocated Java jstring object.
+	 */
+	jstring makeJavaString(const char* cstr);
+
+	/**
+	 * @brief Constructs a Java array of String objects.
+	 * @param size The number of elements in the array.
+	 * @return A freshly allocated Java string array object.
+	 */
+	jobjectArray makeJavaStringArray(jsize size);
+
+	//* Accessor.
+	JNIEnv* getEnv() { return m_env; }
 
   private:
 
-	/**
-	 * @brief Get the JNIEnv object.
-	 * @return A reference to the singleton JNIEnv pointer.
-	 */
-	static JNIEnv*& getJNIEnv();
-
 	// Deliberately unimplemented
 	JNIUtils(); 
-	JNIUtils(const JNIUtils&);
-	JNIUtils& operator=(const JNIUtils&);
-	~JNIUtils();
 
+	//* A pointer to the JNI environment object.
+	JNIEnv* m_env;
   }; // class JNIUtils
 
 } // namespace PLEXIL
