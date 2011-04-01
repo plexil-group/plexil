@@ -67,9 +67,8 @@ namespace PLEXIL
       {
         APP_UNINITED,
         APP_INITED,
-        APP_INTERFACES_STARTED,
+        APP_READY,
         APP_RUNNING,
-        APP_SUSPENDED,
         APP_STOPPED,
         APP_SHUTDOWN
       };
@@ -131,6 +130,14 @@ namespace PLEXIL
      */
     virtual bool startInterfaces();
 
+	/**
+	 * @brief Step the Exec once.
+	 * @return true if successful, false otherwise.
+	 * @note Can only be called in APP_READY state.
+	 * @note Can be called when application is suspended.
+	 */
+	virtual bool step();
+
     /**
      * @brief Runs the initialized Exec.
      * @return true if successful, false otherwise.
@@ -140,12 +147,15 @@ namespace PLEXIL
     /**
      * @brief Suspends the running Exec.
      * @return true if successful, false otherwise.
+	 * @note Can only be suspended from APP_RUNNING state.
      */
     virtual bool suspend();
 
     /**
      * @brief Resumes a suspended Exec.
      * @return true if successful, false otherwise.
+	 * @note Can only resume from suspended state, i.e. 
+	 *   application state is APP_READY and isSuspended() is true.
      */
     virtual bool resume();
 
@@ -223,6 +233,16 @@ namespace PLEXIL
 	 * @return The name of the state as a const char*.
 	 */
 	static const char* getApplicationStateName(ApplicationState state);
+
+	/**
+	 * @brief Query whether the Exec has been suspended. 
+	 * @return True if suspended, false otherwise.
+	 * @note Can only be suspended from APP_RUNNING.
+	 */
+	bool isSuspended() const
+	{
+	  return m_suspended;
+	}
 
   protected:
 

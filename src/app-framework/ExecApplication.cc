@@ -143,8 +143,35 @@ namespace PLEXIL
         return false;
       }
       
-    return setApplicationState(APP_INTERFACES_STARTED);
+    return setApplicationState(APP_READY);
   }
+
+
+  /**
+   * @brief Step the Exec once.
+   * @return true if successful, false otherwise.
+   */
+  bool ExecApplication::step()
+  {
+    if (m_state != APP_READY)
+      return false;
+
+	{
+	  RTMutexGuard guard(m_execMutex);
+	  debugMsg("ExecApplication:step", " (" << pthread_self() << ") Checking interface queue");
+	  if (m_interface.processQueue()) {
+		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Stepping exec");
+		m_exec.step();
+		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Step complete");
+	  }
+	  else {
+		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Queue processed, no step required.");
+	  }
+	}
+
+	return true;
+  }
+
 
   /**
    * @brief Runs the initialized Exec.
@@ -153,7 +180,7 @@ namespace PLEXIL
 
   bool ExecApplication::run()
   {
-    if (m_state != APP_INTERFACES_STARTED)
+    if (m_state != APP_READY)
       return false;
 
     // Clear suspended flag just in case
@@ -175,6 +202,9 @@ namespace PLEXIL
    */
   bool ExecApplication::suspend()
   {
+	if (m_state == APP_READY)
+	  return true; // already paused
+
     if (m_state != APP_RUNNING)
       return false;
 
@@ -182,7 +212,7 @@ namespace PLEXIL
     m_suspended = true;
     
     // *** NYI: wait here til current step completes ***
-    return setApplicationState(APP_SUSPENDED);
+    return setApplicationState(APP_READY);
   }
 
   /**
@@ -191,7 +221,8 @@ namespace PLEXIL
    */
   bool ExecApplication::resume()
   {
-    if (m_state != APP_SUSPENDED)
+	// Can only resume if ready and suspended
+    if (m_state != APP_READY || !m_suspended)
       return false;
 
     // Resume the Exec
@@ -208,7 +239,7 @@ namespace PLEXIL
   bool ExecApplication::stop()
   {
     if (m_state != APP_RUNNING
-        && m_state != APP_SUSPENDED)
+        && m_state != APP_READY)
       return false;
 
     // Stop interfaces
@@ -300,7 +331,7 @@ namespace PLEXIL
    */
   bool ExecApplication::addLibrary(TiXmlDocument * libraryXml)
   {
-    if (m_state != APP_RUNNING)
+    if (m_state != APP_RUNNING && m_state != APP_READY)
       return false;
 
     // grab the library itself from the document
@@ -333,7 +364,7 @@ namespace PLEXIL
    */
   bool ExecApplication::addPlan(TiXmlDocument * planXml)
   {
-    if (m_state != APP_RUNNING)
+    if (m_state != APP_RUNNING && m_state != APP_READY)
       return false;
 
     // grab the plan itself from the document
@@ -525,13 +556,12 @@ namespace PLEXIL
 	  break;
 
 	case APP_INITED:
-	case APP_INTERFACES_STARTED:
+	case APP_READY:
 	  // Shut down interfaces
 	  m_interface.shutdown();
 	  break;
 
 	case APP_RUNNING:
-	case APP_SUSPENDED:
 	  stop();
 	  // fall through to shutdown
 
@@ -577,17 +607,17 @@ namespace PLEXIL
         m_state = newState;
         break;
 
-      case APP_INTERFACES_STARTED:
-        if (m_state != APP_INITED) {
+      case APP_READY:
+        if (m_state != APP_INITED && m_state != APP_RUNNING) {
 		  debugMsg("ExecApplication:setApplicationState",
-				   " Illegal application state transition to APP_INTERFACES_STARTED");
+				   " Illegal application state transition to APP_READY");
 		  return false;
 		}
         m_state = newState;
         break;
 
       case APP_RUNNING:
-        if (m_state != APP_INTERFACES_STARTED && m_state != APP_SUSPENDED) {
+        if (m_state != APP_READY) {
 		  debugMsg("ExecApplication::setApplicationState", 
 				   " Illegal application state transition to APP_RUNNING");
 		  return false;
@@ -595,17 +625,8 @@ namespace PLEXIL
         m_state = newState;
         break;
 
-      case APP_SUSPENDED:
-        if (m_state != APP_RUNNING) {
-		  debugMsg("ExecApplication::setApplicationState", 
-				   " Illegal application state transition to APP_SUSPENDED");
-		  return false;
-		}
-        m_state = newState;
-        break;
-
       case APP_STOPPED:
-        if (m_state != APP_RUNNING && m_state != APP_SUSPENDED) {
+        if (m_state != APP_RUNNING && m_state != APP_READY) {
 		  debugMsg("ExecApplication::setApplicationState", 
 				   " Illegal application state transition to APP_STOPPED");
 		  return false;
@@ -812,16 +833,12 @@ namespace PLEXIL
 	  return "APP_INITED";
 	  break;
 
-	case APP_INTERFACES_STARTED:
-	  return "APP_INTERFACES_STARTED";
+	case APP_READY:
+	  return "APP_READY";
 	  break;
 
 	case APP_RUNNING:
 	  return "APP_RUNNING";
-	  break;
-
-	case APP_SUSPENDED:
-	  return "APP_SUSPENDED";
 	  break;
 
 	case APP_STOPPED:
