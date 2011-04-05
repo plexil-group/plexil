@@ -366,7 +366,7 @@ namespace PLEXIL
          success && it != m_listeners.end();
          it++)
       {
-        if (success = (*it)->start())
+        if ((success = (*it)->start()))
           m_exec->addListener(*it);
       }
     condDebugMsg(!success, 
