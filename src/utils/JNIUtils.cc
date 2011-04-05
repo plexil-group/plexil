@@ -36,7 +36,8 @@
 namespace PLEXIL {
 
   JNIUtils::JNIUtils(JNIEnv* env)
-	: m_env(env)
+	: m_env(env),
+	  m_stringClass(NULL)
   {
 	assertTrueMsg(m_env != NULL,
 				  "JNIUtils constructor: JNI environment is NULL");
@@ -131,11 +132,12 @@ namespace PLEXIL {
    */
   jobjectArray JNIUtils::makeJavaStringArray(jsize size)
   {
-	jclass stringClass = m_env->FindClass("java/lang/String");
-	// TODO: improve exception reporting
-	assertTrueMsg(stringClass != NULL,
+	if (m_stringClass == NULL)
+	  m_stringClass = m_env->FindClass("java/lang/String");
+	assertTrueMsg(m_stringClass != NULL,
 				  "FindClass failed to find Java string class");
-	return m_env->NewObjectArray(size, stringClass, NULL);
+
+	return m_env->NewObjectArray(size, m_stringClass, NULL);
   }
 
 }

@@ -94,6 +94,9 @@ namespace PLEXIL {
 
 	//* A pointer to the JNI environment object.
 	JNIEnv* m_env;
+
+	//* The Java string class.
+	jclass m_stringClass;
   }; // class JNIUtils
 
 } // namespace PLEXIL
