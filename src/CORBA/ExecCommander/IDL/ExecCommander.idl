@@ -35,7 +35,7 @@ module gov {
 
 	  enum CommandStatus {OK, FAILED, WRONG_STATE, IO_ERROR, PLAN_PARSE_ERROR};
 
-	  enum ExecState {STATE_UNKNOWN, INITED, INTERFACES_STARTED, RUNNING, SUSPENDED, STOPPED, SHUTDOWN};
+	  enum ExecState {STATE_UNKNOWN, INITED, READY, RUNNING, STOPPED, SHUTDOWN};
 
 	  interface ExecutionControl {
 		CommandStatus start();

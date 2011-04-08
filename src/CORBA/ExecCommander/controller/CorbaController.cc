@@ -103,7 +103,7 @@ namespace PLEXIL {
 
   CommandStatus CorbaController::resume() 
     throw (CORBA::SystemException) {
-	if (getApplication().getApplicationState() != ExecApplication::APP_SUSPENDED)
+	if (getApplication().getApplicationState() != ExecApplication::APP_READY)
 	  return WRONG_STATE;
 	return (getApplication().resume() ? OK : FAILED);
   }
@@ -111,7 +111,7 @@ namespace PLEXIL {
   CommandStatus CorbaController::stop() 
     throw (CORBA::SystemException){
 	ExecApplication::ApplicationState s = getApplication().getApplicationState();
-	if (s != ExecApplication::APP_RUNNING && s != ExecApplication::APP_SUSPENDED)
+	if (s != ExecApplication::APP_RUNNING && s != ExecApplication::APP_READY)
 	  return WRONG_STATE;
 	return (getApplication().stop() ? OK : FAILED);
   }
@@ -247,16 +247,12 @@ namespace PLEXIL {
 	  return INITED;
 	  break;
 
-	case ExecApplication::APP_INTERFACES_STARTED:
-	  return INTERFACES_STARTED;
+	case ExecApplication::APP_READY:
+	  return READY;
 	  break;
 
 	case ExecApplication::APP_RUNNING:
 	  return RUNNING;
-	  break;
-
-	case ExecApplication::APP_SUSPENDED:
-	  return SUSPENDED;
 	  break;
 
 	case ExecApplication::APP_STOPPED:
