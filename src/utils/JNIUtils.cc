@@ -52,6 +52,9 @@ namespace PLEXIL {
 
   JNIUtils::~JNIUtils()
   {
+	// Clean up JNI ref
+	if (m_stringClass != NULL)
+	  m_env->DeleteLocalRef(m_stringClass);
   }
 
   JNIUtils& JNIUtils::operator=(const JNIUtils& orig)
