@@ -46,6 +46,11 @@ public class AssignmentNode extends PlexilTreeNode
         lhs.earlyCheck(context, state);
         lhs.checkAssignable(context, state);
         rhs.earlyCheck(context, state);
+
+        if (rhs instanceof CommandNode) {
+            // Change this to a command tree node
+            getToken().setType(PlexilLexer.COMMAND);
+        }
     }
 
     public void check(NodeContext context, CompilerState state)
