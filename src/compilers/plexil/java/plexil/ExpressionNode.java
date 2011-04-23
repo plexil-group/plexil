@@ -32,146 +32,146 @@ import plexil.PlexilTreeNode;
 
 public class ExpressionNode extends PlexilTreeNode
 {
-	// May be overridden in derived classes
-	protected PlexilDataType m_dataType = PlexilDataType.VOID_TYPE;
+    // May be overridden in derived classes
+    protected PlexilDataType m_dataType = PlexilDataType.VOID_TYPE;
 
-	//
-	// Constructors
-	//
-	public ExpressionNode()
-	{
-		super();
-	}
+    //
+    // Constructors
+    //
+    public ExpressionNode()
+    {
+        super();
+    }
 
-	public ExpressionNode(ExpressionNode node)
-	{
-		super(node);
-		m_dataType = node.m_dataType;
-	}
+    public ExpressionNode(ExpressionNode node)
+    {
+        super(node);
+        m_dataType = node.m_dataType;
+    }
 
-	public ExpressionNode(PlexilTreeNode node)
-	{
-		super(node);
-	}
+    public ExpressionNode(PlexilTreeNode node)
+    {
+        super(node);
+    }
 
-	public ExpressionNode(Token t)
-	{
-		super(t);
-	}
+    public ExpressionNode(Token t)
+    {
+        super(t);
+    }
 
-	protected void setDataType(PlexilDataType dtype)
-	{
-		m_dataType = dtype;
-	}
+    protected void setDataType(PlexilDataType dtype)
+    {
+        m_dataType = dtype;
+    }
 
-	public PlexilDataType getDataType()
-	{
-		return m_dataType;
-	}
+    public PlexilDataType getDataType()
+    {
+        return m_dataType;
+    }
 
-	// Default method.  
-	// Variables and array references should override this method.
-	public boolean isAssignable()
-	{
-		return false;
-	}
+    // Default method.  
+    // Variables and array references should override this method.
+    public boolean isAssignable()
+    {
+        return false;
+    }
 
-	// Default method.  
-	// Variables and array references should override this method.
-	public void checkAssignable(NodeContext context, CompilerState myState)
-	{
-		myState.addDiagnostic(this,
-							  "Expression may not be assigned to",
-							  Severity.ERROR);
-	}
+    // Default method.  
+    // Variables and array references should override this method.
+    public void checkAssignable(NodeContext context, CompilerState myState)
+    {
+        myState.addDiagnostic(this,
+                              "Expression may not be assigned to",
+                              Severity.ERROR);
+    }
 
-	// Lookup expressions can override this if needed (?)
-	public String assignmentRHSElementName()
-	{
-		if (m_dataType.isNumeric())
-			return "NumericRHS";
-		else if (m_dataType.isArray())
-			return "ArrayRHS";
-		else if (m_dataType == PlexilDataType.STRING_TYPE)
-			return "StringRHS";
-		else if (m_dataType == PlexilDataType.BOOLEAN_TYPE)
-			return "BooleanRHS";
-		else 
-			return "ERROR_RHS";
-	}
+    // Lookup expressions can override this if needed (?)
+    public String assignmentRHSElementName()
+    {
+        if (m_dataType.isNumeric())
+            return "NumericRHS";
+        else if (m_dataType.isArray())
+            return "ArrayRHS";
+        else if (m_dataType == PlexilDataType.STRING_TYPE)
+            return "StringRHS";
+        else if (m_dataType == PlexilDataType.BOOLEAN_TYPE)
+            return "BooleanRHS";
+        else 
+            return "ERROR_RHS";
+    }
 
-	/**
-	 * @brief Perform a recursive semantic check.
-	 * @note The top level check comes first because it establishes types for the children.
-	 * @note Derived classes should override this where appropriate.
-	 */
-	public void check(NodeContext context, CompilerState myState)
-	{
-		checkSelf(context, myState); // can establish types for children
-		checkChildren(context, myState);
-		checkTypeConsistency(context, myState);
-	}
+    /**
+     * @brief Perform a recursive semantic check.
+     * @note The top level check comes first because it establishes types for the children.
+     * @note Derived classes should override this where appropriate.
+     */
+    public void check(NodeContext context, CompilerState myState)
+    {
+        checkSelf(context, myState); // can establish types for children
+        checkChildren(context, myState);
+        checkTypeConsistency(context, myState);
+    }
 
-	/**
-	 * @brief Establish bindings and do initial checks of this node's children.
-	 * @note Derived classes should override this as applicable.
-	 */
-	public void earlyCheckChildren(NodeContext context, CompilerState state)
-	{
-		for (int i = 0; i < this.getChildCount(); i++) {
-			PlexilTreeNode child = this.getChild(i);
-			if (child instanceof CommandNode)
-				state.addDiagnostic(child,
-									"Commands may not be used in expressions",
-									Severity.ERROR);
-			child.earlyCheck(context, state);
-		}
-	}
+    /**
+     * @brief Establish bindings and do initial checks of this node's children.
+     * @note Derived classes should override this as applicable.
+     */
+    public void earlyCheckChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i++) {
+            PlexilTreeNode child = this.getChild(i);
+            if (child instanceof CommandNode)
+                state.addDiagnostic(child,
+                                    "Commands may not be used in expressions",
+                                    Severity.ERROR);
+            child.earlyCheck(context, state);
+        }
+    }
 
 
-	/**
-	 * @brief Check the expression for type consistency.
-	 * @note This is a default method.  Derived classes should override it.
-	 */
-	protected void checkTypeConsistency(NodeContext context, CompilerState myState)
-	{
-	}
+    /**
+     * @brief Check the expression for type consistency.
+     * @note This is a default method.  Derived classes should override it.
+     */
+    protected void checkTypeConsistency(NodeContext context, CompilerState myState)
+    {
+    }
 
-	/**
-	 * @brief Persuade the expression to assume the specified data type
-	 * @return true if the expression can consistently assume the specified type, false otherwise.
-	 * @note This is a default method.  Derived classes should override it.
-	 */
-	protected boolean assumeType(PlexilDataType t, CompilerState myState)
-	{
-		// If target type is Void, Error, or underspec'd array, fail.
-		if (t == PlexilDataType.VOID_TYPE
-			|| t == PlexilDataType.ERROR_TYPE
-			|| t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
-			myState.addDiagnostic(null,
-								  "Internal error: ExpressionNode.assumeType called with illegal first argument of "
-								  + t.typeName(),
-								  Severity.FATAL);
-			return false;
-		}
+    /**
+     * @brief Persuade the expression to assume the specified data type
+     * @return true if the expression can consistently assume the specified type, false otherwise.
+     * @note This is a default method.  Derived classes should override it.
+     */
+    protected boolean assumeType(PlexilDataType t, CompilerState myState)
+    {
+        // If target type is Void, Error, or underspec'd array, fail.
+        if (t == PlexilDataType.VOID_TYPE
+            || t == PlexilDataType.ERROR_TYPE
+            || t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+            myState.addDiagnostic(null,
+                                  "Internal error: ExpressionNode.assumeType called with illegal first argument of "
+                                  + t.typeName(),
+                                  Severity.FATAL);
+            return false;
+        }
 
-		// If target type is Any, succeed.
-		if (t == PlexilDataType.ANY_TYPE)
-			return true;
+        // If target type is Any, succeed.
+        if (t == PlexilDataType.ANY_TYPE)
+            return true;
 
-		// If our type is Void, fail.
-		if (m_dataType == PlexilDataType.VOID_TYPE)
-			return false;
+        // If our type is Void, fail.
+        if (m_dataType == PlexilDataType.VOID_TYPE)
+            return false;
 
-		// If our type is Any, assume the requested type
-		if (m_dataType == PlexilDataType.ANY_TYPE) {
-			m_dataType = t;
-			return true;
-		}
+        // If our type is Any, assume the requested type
+        if (m_dataType == PlexilDataType.ANY_TYPE) {
+            m_dataType = t;
+            return true;
+        }
 
-		// Otherwise don't change anything
-		return (m_dataType == t)
-			|| (t.isNumeric() && m_dataType.isNumeric()); // *** FIXME: too general?
-	}
+        // Otherwise don't change anything
+        return (m_dataType == t)
+            || (t.isNumeric() && m_dataType.isNumeric()); // *** FIXME: too general?
+    }
 
 }
