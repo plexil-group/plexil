@@ -1,28 +1,28 @@
 /* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 package plexil;
 
@@ -42,20 +42,20 @@ public class NodeContext
     protected NodeContext m_parentContext;
     protected Vector<VariableName> m_variables = new Vector<VariableName>();
     protected Vector<NodeContext> m_children = new Vector<NodeContext>();
-	protected Map<String, PlexilTreeNode> m_childIds = new TreeMap<String, PlexilTreeNode>();
+    protected Map<String, PlexilTreeNode> m_childIds = new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
     protected PlexilTreeNode m_resourcePriorityAST = null;
     protected IXMLElement m_resourcePriorityXML = null;
     protected Vector<PlexilTreeNode> m_resources = new Vector<PlexilTreeNode>();
-	private static int s_generatedIdCount = 0;
+    private static int s_generatedIdCount = 0;
 
     public NodeContext(NodeContext previous, String name)
     {
         m_parentContext = previous;
-		m_nodeName = name;
+        m_nodeName = name;
         if (previous != null) {
-			previous.addChildNode(this);
-		}
+            previous.addChildNode(this);
+        }
     }
 
     public boolean isGlobalContext()
@@ -73,10 +73,10 @@ public class NodeContext
         m_children.add(child);
     }
 
-	public void setNodeName(String name)
-	{
-		m_nodeName = name;
-	}
+    public void setNodeName(String name)
+    {
+        m_nodeName = name;
+    }
 
     public String getNodeName()
     {
@@ -105,29 +105,29 @@ public class NodeContext
         return (m_nodeName != null) && isRootContext();
     }
 
-	public boolean isChildNodeId(String name)
-	{
+    public boolean isChildNodeId(String name)
+    {
         if (name == null)
             return false;
-		if (m_childIds.containsKey(name))
-			return true;
-		return false;
-	}
+        if (m_childIds.containsKey(name))
+            return true;
+        return false;
+    }
 
-	public PlexilTreeNode getChildNodeId(String name)
-	{
+    public PlexilTreeNode getChildNodeId(String name)
+    {
         if (name == null)
             return null;
-		return m_childIds.get(name);
-	}
+        return m_childIds.get(name);
+    }
 
-	public void addChildNodeId(PlexilTreeNode nameNode)
-	{
+    public void addChildNodeId(PlexilTreeNode nameNode)
+    {
         if (nameNode == null)
             return;
-		String name = nameNode.getText();
-		m_childIds.put(name, nameNode);
-	}
+        String name = nameNode.getText();
+        m_childIds.put(name, nameNode);
+    }
 
     // *** this won't find library nodes!
     // Only finds nodes in the current tree.
@@ -137,29 +137,29 @@ public class NodeContext
             return null;
         PlexilTreeNode result = null;
         try {
-			result = getRootContext().findNodeInternal(name);
-		}
+            result = getRootContext().findNodeInternal(name);
+        }
         catch (Exception e) {
-		}
+        }
         return result;
     }
 
     protected PlexilTreeNode findNodeInternal(String name)
     {
         // check self
-		// FIXME: implement (?)
+        // FIXME: implement (?)
 
-		// check children
-		if (m_childIds.containsKey(name))
-			return m_childIds.get(name);
+        // check children
+        if (m_childIds.containsKey(name))
+            return m_childIds.get(name);
 
         // recurse down child contexts
         for (NodeContext child : m_children) {
-			PlexilTreeNode result = 
-				child.findNodeInternal(name);
-			if (result != null)
-				return result;
-		}
+            PlexilTreeNode result = 
+                child.findNodeInternal(name);
+            if (result != null)
+                return result;
+        }
         return null;
     }
 
@@ -203,52 +203,52 @@ public class NodeContext
         m_resourcePriorityXML = priority;
     }
 
-	// This is for the library node case, for scalars
+    // This is for the library node case, for scalars
     public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
-													  PlexilTreeNode nameNode,
-													  boolean isInOut,
-													  PlexilDataType typ)
+                                                      PlexilTreeNode nameNode,
+                                                      boolean isInOut,
+                                                      PlexilDataType typ)
     {
         InterfaceVariableName var = 
-			new InterfaceVariableName(declaration, nameNode.getText(), isInOut, typ);
-		m_variables.add(var);
-		return var;
+            new InterfaceVariableName(declaration, nameNode.getText(), isInOut, typ);
+        m_variables.add(var);
+        return var;
     }
 
-	// This is for the library node case, for arrays
+    // This is for the library node case, for arrays
     public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
-													  PlexilTreeNode nameNode,
-													  boolean isInOut,
-													  PlexilDataType typ,
-													  String maxSize,
-													  ExpressionNode initVal)
+                                                      PlexilTreeNode nameNode,
+                                                      boolean isInOut,
+                                                      PlexilDataType typ,
+                                                      String maxSize,
+                                                      ExpressionNode initVal)
     {
         InterfaceVariableName var = 
-			new InterfaceVariableName(declaration, 
-									  nameNode.getText(),
-									  isInOut,
-									  typ,
-									  maxSize,
-									  initVal);
-		m_variables.add(var);
-		return var;
+            new InterfaceVariableName(declaration, 
+                                      nameNode.getText(),
+                                      isInOut,
+                                      typ,
+                                      maxSize,
+                                      initVal);
+        m_variables.add(var);
+        return var;
     }
 
-	// This version is for the case where the declaration restricts an existing variable.
+    // This version is for the case where the declaration restricts an existing variable.
     public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
-													  PlexilTreeNode nameNode,
-													  boolean isInOut,
-													  PlexilDataType typ,
-													  VariableName original)
+                                                      PlexilTreeNode nameNode,
+                                                      boolean isInOut,
+                                                      PlexilDataType typ,
+                                                      VariableName original)
     {
         InterfaceVariableName var = 
-			new InterfaceVariableName(declaration, 
-									  nameNode.getText(),
-									  isInOut,
-									  original);
-		m_variables.add(var);
-		return var;
-	}
+            new InterfaceVariableName(declaration, 
+                                      nameNode.getText(),
+                                      isInOut,
+                                      original);
+        m_variables.add(var);
+        return var;
+    }
 
     // Caller is responsible for creating the 3 vectors
     public void getNodeVariables(Vector<VariableName> localVarsResult,
@@ -259,23 +259,23 @@ public class NodeContext
         inVarsResult.removeAllElements();
         inOutVarsResult.removeAllElements();
         for (VariableName var : m_variables) {
-			if (var.isLocal())
-				localVarsResult.add(var);
-			else if (var.isAssignable())
-				inOutVarsResult.add((InterfaceVariableName) var);
-			else
-				inVarsResult.add((InterfaceVariableName) var);
-		}
+            if (var.isLocal())
+                localVarsResult.add(var);
+            else if (var.isAssignable())
+                inOutVarsResult.add((InterfaceVariableName) var);
+            else
+                inVarsResult.add((InterfaceVariableName) var);
+        }
     }
 
     public VariableName addVariable(PlexilTreeNode declaration,
-									PlexilTreeNode nameNode,
-									PlexilDataType varType,
-									ExpressionNode initialValueExpr)
+                                    PlexilTreeNode nameNode,
+                                    PlexilDataType varType,
+                                    ExpressionNode initialValueExpr)
     {
-		VariableName result = new VariableName(declaration, nameNode.getText(), varType, initialValueExpr);
-		m_variables.add(result);
-		return result;
+        VariableName result = new VariableName(declaration, nameNode.getText(), varType, initialValueExpr);
+        m_variables.add(result);
+        return result;
     }
 
     //
@@ -283,51 +283,51 @@ public class NodeContext
     //
 
     public VariableName declareArrayVariable(PlexilTreeNode declaration,
-											 PlexilTreeNode nameNode, 
-											 PlexilDataType arrayType,
-											 String maxSize,
-											 ExpressionNode initialValueExpr)
+                                             PlexilTreeNode nameNode, 
+                                             PlexilDataType arrayType,
+                                             String maxSize,
+                                             ExpressionNode initialValueExpr)
     {
-		if (checkVariableName(nameNode)) {
-			VariableName result = 
-				new VariableName(declaration, nameNode.getText(), arrayType, maxSize, initialValueExpr);
-			m_variables.add(result);
-			return result;
-		}
-		else 
-			return null;
+        if (checkVariableName(nameNode)) {
+            VariableName result = 
+                new VariableName(declaration, nameNode.getText(), arrayType, maxSize, initialValueExpr);
+            m_variables.add(result);
+            return result;
+        }
+        else 
+            return null;
     }
 
-	// Returns true if name is not in direct conflict with other names in this context.
-	// Adds diagnostics to myState if required
+    // Returns true if name is not in direct conflict with other names in this context.
+    // Adds diagnostics to myState if required
     public boolean checkVariableName(PlexilTreeNode nameNode)
     {
-		boolean success = true;
-		String name = nameNode.getText();
+        boolean success = true;
+        String name = nameNode.getText();
         VariableName existing = findLocalVariable(name);
         if (existing != null) {
-			// error - duplicate variable name in node
-			CompilerState.getCompilerState().addDiagnostic(nameNode,
-														   "Variable name \"" + name
-														   + "\" is already declared in this context",
-														   Severity.ERROR);
-			CompilerState.getCompilerState().addDiagnostic(existing.getDeclaration(),
-														   "Variable \"" + name
-														   + "\" previously declared here",
-														   Severity.NOTE);
-			success = false;
-		}
+            // error - duplicate variable name in node
+            CompilerState.getCompilerState().addDiagnostic(nameNode,
+                                                           "Variable name \"" + name
+                                                           + "\" is already declared in this context",
+                                                           Severity.ERROR);
+            CompilerState.getCompilerState().addDiagnostic(existing.getDeclaration(),
+                                                           "Variable \"" + name
+                                                           + "\" previously declared here",
+                                                           Severity.NOTE);
+            success = false;
+        }
         if (m_parentContext != null) {
-			VariableName shadowedVar =
-				m_parentContext.findInheritedVariable(name);
-			if (shadowedVar != null)
-				// warn of conflict
-				CompilerState.getCompilerState().addDiagnostic(nameNode,
-															   "Local variable \"" + name
-															   + "\" shadows an inherited variable",
-															   Severity.WARNING);
-		}
-		return success;
+            VariableName shadowedVar =
+                m_parentContext.findInheritedVariable(name);
+            if (shadowedVar != null)
+                // warn of conflict
+                CompilerState.getCompilerState().addDiagnostic(nameNode,
+                                                               "Local variable \"" + name
+                                                               + "\" shadows an inherited variable",
+                                                               Severity.WARNING);
+        }
+        return success;
     }
 
     protected VariableName findLocalVariable(String name)
