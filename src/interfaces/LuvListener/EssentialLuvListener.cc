@@ -63,7 +63,7 @@ namespace PLEXIL {
    */
   void 
   EssentialLuvListener::implementNotifyNodeTransition(NodeState prevState, 
-													  const NodeId& node) const 
+                                                      const NodeId& node) const 
   {
 	if (m_socket != NULL) {
 	  std::ostringstream s;
@@ -80,7 +80,7 @@ namespace PLEXIL {
    */
   void
   EssentialLuvListener::implementNotifyAddPlan(const PlexilNodeId& plan, 
-											   const LabelStr& parent) const 
+                                               const LabelStr& parent) const 
   {
 	if (m_socket != NULL) {
 	  sendPlanInfo();
@@ -118,8 +118,8 @@ namespace PLEXIL {
    */
   void 
   EssentialLuvListener::implementNotifyAssignment(const ExpressionId & dest,
-												  const std::string& destName,
-												  const double& value) const
+                                                  const std::string& destName,
+                                                  const double& value) const
   {
 	if (m_socket != NULL) {
 	  std::ostringstream s;
@@ -139,8 +139,8 @@ namespace PLEXIL {
    */
   bool
   EssentialLuvListener::openSocket(uint16_t port, 
-								   const char* host, 
-								   bool ignoreFailure) 
+                                   const char* host, 
+                                   bool ignoreFailure) 
   {
 	try {
 	  debugMsg("LuvListener:start",
