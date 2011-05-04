@@ -260,7 +260,7 @@ namespace PLEXIL
     assertTrueMsg(status == 0,
                   "lookupNow: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
-    debugMsg("DarwinTimeAdapter:getCurrentTime", " returning" << tym);
+    debugMsg("DarwinTimeAdapter:getCurrentTime", " returning " << Expression::valueToString(tym));
     return tym;
   }
 
@@ -412,6 +412,8 @@ namespace PLEXIL
     // report the current time and kick-start the Exec
     std::vector<double> timeVector = std::vector<double>(1);
     timeVector[0] = getCurrentTime();
+	debugMsg("DarwinTimeAdapter:lookupOnChange",
+			 " timer timeout at " << Expression::valueToString(timeVector[0]));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeStateKey(),
                                       timeVector);
     m_execInterface.notifyOfExternalEvent();
