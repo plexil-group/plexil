@@ -561,8 +561,8 @@ namespace PLEXIL
                           debugMsg("InterfaceManager:processQueue",
                                    " (" << pthread_self()
                                    << ") Ignoring stale time update - new value "
-                                   << newStateValues[0] << " is not greater than cached value "
-                                   << m_currentTime);
+                                   << Expression::valueToString(newStateValues[0]) << " is not greater than cached value "
+                                   << Expression::valueToString(m_currentTime));
                         }
                       else
                         {
@@ -704,7 +704,10 @@ namespace PLEXIL
     m_exec->getStateCache()->stateForKey(key, state);
     const LabelStr& stateName(state.first);
     debugMsg("InterfaceManager:registerChangeLookup",
-             " for unique ID " << source << " of '" << stateName.toString() << "'");
+			 " of '" << stateName.toString() << "'");
+    condDebugMsg(tolerances.at(0) != 0.0,
+				 "InterfaceManager:registerChangeLookup",
+				 " tolerance = " << Expression::valueToString(tolerances.at(0)));
 
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
