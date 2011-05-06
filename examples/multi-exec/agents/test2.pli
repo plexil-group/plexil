@@ -1,13 +1,47 @@
+;; The plan I would like to write is this:
+;;
+;; (plexil-plan
+;;   (sequence "Node1"
+;;     (variables (integer "var1"))
+;;     (sequence "Command1"                ;command-node "Command1"
+;;       (variables (string "var2" "test2"))
+;;       (command "foo" (stringvar "var2")))
+;;     (assignment (intvar "var1") 4) ;if the node is unnamed, use the node type, not the generated name
+;;     (command-node
+;;         (variables (boolean "var3" false))
+;;       (command "foo3" (boolvar "var3")))))
+;;
+;; and have it be able to produce debugging output like this:
+;;
+;; [2011-05-04T09:00:00.000] Node1 (int var1=UNKNOWN): EXECUTING
+;; [2011-05-04T09:00:00.000] Node1/Command1 (string var2="test2"): EXECUTING
+;; [2011-05-04T09:00:00.000] Node1/Command1 (string var2="test2"): command ("foo" "test2")
+;; [2011-05-04T09:00:00.000] Node1/Command1 (string var2="test2"): FINISHED
+;; [2011-05-04T09:00:00.000] Node1/assignment: EXECUTING
+;; [2011-05-04T09:00:00.000] Node1/assignment: assignment var1 = 4
+;; [2011-05-04T09:00:00.000] Node1/assignment: FINISHED
+;; [2011-05-04T09:00:00.000] Node1/command (bool var3=0): EXECUTING
+;; [2011-05-04T09:00:00.000] Node1/command (bool var3=0): command ("foo3" 0)
+;; [2011-05-04T09:00:00.000] Node1/command (bool var3=0): FINISHED
+;; [2011-05-04t09:00:00.000] Node1 (int var1=4): FINISHED
+;;
+;; where the debugging output BNF is something like this sketch:
+;;
 ;; [<time-stamp>] <node-signature>: <action> | EXECUTING | FINISHED
-;;  <time-stamp> := (ISO 8601) YYYY-MM-DDTHH:MM:SS.SSS
-;;  <node-signature> := <node-name-or-type> [(<local-var>*)]
-;;  <action>            ;= node-type? <parameters>
+;;
+;;  <time-stamp>        := <utc-date> | <met>
+;;  <iso-8601-utc>      := YYYY-MM-DDTHH:MM:SS.SSS[Z]
+;;  <iso-8601-met>      := P[[YYYY]-[MM]-[DD]]T[hh]:[mm]:[ss.sss][Z]
+;;  <node-signature>    := <node-name-or-type> [(<local-var>*[, <local-var>])]
+;;  <action>            ;= <node-type> (<parameter>*)
 ;;  <node-name-or-type> := "name" | "type" (e.g., "Node1", "command", "sequence", etc.)
-;;  <local-var>         := <type> <name>=<value>[, <local-var>]
+;;  <local-var>         := <type> <varname>=<value>
 ;;  <type>              := string | integer | boolean | real | real-array | etc.
-;;  <name>              := "name"
-;;  <value>             := UNKNOWN | "str-value" | int | true | false | 3.14159 | etc.
-;;  
+;;  <varname>           := "the-name-of-the-variable"
+;;  <value>             := UNKNOWN | "a" | int | true | false | 3.14159 | etc.
+;;  <parameter>         := <value>
+;;
+;; And here is what I currently have to do to get close to this output:
 
 (plexil-plan
   (sequence "Node1"
