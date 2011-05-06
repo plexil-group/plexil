@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -212,77 +212,6 @@ namespace PLEXIL
     ExecListenerFilterId m_filter;
     
   };
-
-  //* Abstract base class for defining transition event filters
-  class ExecListenerFilter
-  {
-  public:
-    /**
-     * @brief Constructor.
-     */
-    ExecListenerFilter();
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~ExecListenerFilter();
-
-    /**
-     * @brief Determine whether this node transition event should be reported.
-     * @param prevState The LabelStr naming the node's previous state.
-     * @param node Smart pointer to the node that changed state.
-     * @return true to notify on this event, false to ignore it.
-     * @note The default method simply returns true.
-     */
-    virtual bool reportNodeTransition(NodeState prevState, 
-                                      const NodeId& node);
-
-    /**
-     * @brief Determine whether this AddPlan event should be reported.
-     * @param plan Smart pointer to the plan's intermediate representation.
-     * @param parent The LabelStr naming the new plan's parent node.
-     * @return true to notify on this event, false to ignore it.
-     * @note The default method simply returns true.
-     */
-    virtual bool reportAddPlan(const PlexilNodeId& plan,
-			       const LabelStr& parent);
-
-    /**
-     * @brief Determine whether this AddLibraryNode event should be reported.
-     * @param plan Smart pointer to the library's intermediate representation.
-     * @return true to notify on this event, false to ignore it.
-     * @note The default method simply returns true.
-     */
-    virtual bool reportAddLibrary(const PlexilNodeId& plan);
-
-    /**
-     * @brief Determine whether this variable assignment should be reported.
-     * @param dest The Expression being assigned to.
-     * @param destName A string naming the destination.
-     * @param value The value (in internal Exec representation) being assigned.
-     */
-    virtual bool reportAssignment(const ExpressionId & dest,
-                                  const std::string& destName,
-                                  const double& value) const;
-
-    inline const ExecListenerFilterId getId() const
-    {
-      return m_id;
-    }
-
-  private:
-    //
-    // Deliberately unimplemented
-    //
-    ExecListenerFilter(const ExecListenerFilter &);
-    ExecListenerFilter& operator=(const ExecListenerFilter &);
-
-    //
-    // Member variables
-    //
-    ExecListenerFilterId m_id;
-  };
-
 }
 
 #endif // _H_ExecListener

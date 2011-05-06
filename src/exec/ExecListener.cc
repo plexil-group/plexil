@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,7 @@
 */
 
 #include "ExecListener.hh"
+#include "ExecListenerFilter.hh"
 #include "Debug.hh"
 #include "Expression.hh"
 
@@ -215,79 +216,4 @@ namespace PLEXIL
   {
     debugMsg("ExecListener:implementNotifyAssignment", " default method called");
   }
-
-  //
-  // ExecListenerFilter methods
-  //
-
-  /**
-   * @brief Constructor.
-   */
-  ExecListenerFilter::ExecListenerFilter()
-    : m_id(this)
-  {
-  }
-
-  /**
-   * @brief Destructor.
-   */
-  ExecListenerFilter::~ExecListenerFilter()
-  {
-    m_id.remove();
-  }
-
-  /**
-   * @brief Determine whether this node transition event should be reported.
-   * @param prevState The node's previous state.
-   * @param node Smart pointer to the node that changed state.
-   * @return true to notify on this event, false to ignore it.
-   * @note The default method simply returns true.
-   */
-  bool 
-  ExecListenerFilter::reportNodeTransition(NodeState /* prevState */, 
-                                           const NodeId& /* node */)
-  {
-    return true;
-  }
-
-  /**
-   * @brief Determine whether this AddPlan event should be reported.
-   * @param plan Smart pointer to the plan's intermediate representation.
-   * @param parent The LabelStr naming the new plan's parent node.
-   * @return true to notify on this event, false to ignore it.
-   * @note The default method simply returns true.
-   */
-  bool
-  ExecListenerFilter::reportAddPlan(const PlexilNodeId& /* plan */,
-                                    const LabelStr& /* parent */)
-  {
-    return true;
-  }
-
-  /**
-   * @brief Determine whether this AddLibraryNode event should be reported.
-   * @param plan Smart pointer to the library's intermediate representation.
-   * @return true to notify on this event, false to ignore it.
-   * @note The default method simply returns true.
-   */
-  bool 
-  ExecListenerFilter::reportAddLibrary(const PlexilNodeId& /* plan */)
-  {
-    return true;
-  }
-
-  /**
-   * @brief Determine whether this variable assignment should be reported.
-   * @param dest The Expression being assigned to.
-   * @param destName A LabelStr that names the destination.
-   * @param value The value (in internal Exec representation) being assigned.
-   */
-  bool 
-  ExecListenerFilter::reportAssignment(const ExpressionId & /* dest */,
-                                       const std::string& /* destName */,
-                                       const double& /* value */) const
-  {
-    return true;
-  }
-
 }
