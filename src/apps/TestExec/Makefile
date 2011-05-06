@@ -29,9 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 EXECUTABLE	:= TestExec
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../../interfaces/Sockets ../../interfaces/LuvListener  ../../utils ../../exec
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../../interfaces/Sockets ../../interfaces/LuvListener ../../app-framework  ../../utils ../../exec
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilSockets LuvListener PlexilUtils PlexilExec $(PTHREAD_LIB)
+LIBS		+= tinyxml PlexilSockets LuvListener PlexilUtils PlexilExec PlexilAppFramework $(PTHREAD_LIB)
 
 SRC		:= ExecTestRunner.cc exec-test-runner.cc TestLuvListener.cc
 INC		:= ExecTestRunner.hh TestLuvListener.hh
