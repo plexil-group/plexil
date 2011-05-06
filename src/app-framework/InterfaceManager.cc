@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecController.hh"
-#include "ExecListener.hh"
+#include "PlanDebugListener.hh"
 #include "ExecListenerFactory.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
@@ -94,8 +94,10 @@ namespace PLEXIL
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 
-    // Every application should have access to the LUV Listener
+    // Every application should have access to the Plexil Viewer (formerly LUV)
+    // and Plan Debug Listeners
     REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
+    REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
 
     // Every application has access to the default adapter configuration
     REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");

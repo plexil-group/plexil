@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 */
 
 #include "ManagedExecListener.hh"
-
 #include "ExecListenerFactory.hh"
+#include "ExecListenerFilterFactory.hh"
 #include "InterfaceSchema.hh"
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
@@ -36,8 +36,17 @@
 namespace PLEXIL
 {
   //
-  // ManagedExecListenerFilter
+  // ManagedExecListener
   //
+
+  /**
+   * @brief Default constructor.
+   */
+  ManagedExecListener::ManagedExecListener()
+    : ExecListener(),
+      m_xml(NULL),
+      m_manager(NULL)
+  { }
 
   /**
    * @brief Constructor from configuration XML.
@@ -46,7 +55,7 @@ namespace PLEXIL
 					   InterfaceManagerBase & mgr)
     : ExecListener(),
       m_xml(xml),
-      m_manager(mgr)
+      m_manager(&mgr)
   {
     if (xml != NULL)
       {
@@ -80,26 +89,11 @@ namespace PLEXIL
   {
   }
 
-  //
-  // ManagedExecListenerFilter
-  //
-
-  /**
-   * @brief Constructor from configuration XML.
-   */
-  ManagedExecListenerFilter::ManagedExecListenerFilter(const TiXmlElement* xml,
-						       InterfaceManagerBase & mgr)
-    : ExecListenerFilter(),
-      m_xml(xml),
-      m_manager(mgr)
-  {
-  }
-
-  /**
-   * @brief Destructor from configuration XML.
-   */
-  ManagedExecListenerFilter::~ManagedExecListenerFilter()
-  {
+  InterfaceManagerBase & ManagedExecListener::getManager() const
+  { 
+    assertTrue(m_manager != NULL,
+               "ManagedExecListener's InterfaceManagerBase is null!");
+    return *m_manager; 
   }
 
 }
