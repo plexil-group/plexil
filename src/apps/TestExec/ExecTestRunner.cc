@@ -27,6 +27,7 @@
 #include "Logging.hh"
 #include "PlexilExec.hh"
 #include "ExecListener.hh"
+#include "PlanDebugListener.hh"
 #include "TestExternalInterface.hh"
 #include "SocketException.h"
 #include "CoreExpressions.hh"
@@ -204,6 +205,11 @@ int ExecTestRunner::run(int argc, char** argv)
   TestExternalInterface intf;
   PlexilExecId exec = (new PlexilExec())->getId();
   intf.setExec(exec);
+
+  // add the debug listener
+
+  PlanDebugListener debug_listener;
+  exec->addListener (debug_listener.getId());
 
   // if a Plexil Viwer is to be attached
 
