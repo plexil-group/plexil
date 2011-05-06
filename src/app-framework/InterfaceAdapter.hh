@@ -27,7 +27,6 @@
 #ifndef INTERFACE_ADAPTER_H
 #define INTERFACE_ADAPTER_H
 
-#include "Id.hh"
 #include "ExecDefs.hh"
 #include <list>
 #include <map>
