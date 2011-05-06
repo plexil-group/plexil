@@ -4,5 +4,6 @@
   <DefaultAdapter/>
  </Adapter>
  <Adapter AdapterType="OSNativeTime"/>
- <!-- Listener ListenerType="LuvListener"/ -->
+ <Listener ListenerType="LuvListener"/>
+ <Listener ListenerType="PlanDebugListener"/>
 </Interfaces>
