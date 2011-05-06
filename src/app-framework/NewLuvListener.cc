@@ -44,7 +44,7 @@ namespace PLEXIL
   // create a listener given configuration XML
 
   NewLuvListener::NewLuvListener(const TiXmlElement* xml,
-								 InterfaceManagerBase& mgr)
+                                 InterfaceManagerBase& mgr)
     : EssentialLuvListener(),
       ManagedExecListener(xml, mgr),
 	  m_hostname(NULL),
