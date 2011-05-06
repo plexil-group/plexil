@@ -41,7 +41,7 @@ all: TestExec UniversalExec IpcAdapter standard-plexil checker plexilsim robosim
 # convenience target for A4O project
 A4O: exec-core app-framework corba luv standard-plexil IpcAdapter plexilsim
 
-TestExec: exec-core LuvListener luv
+TestExec: exec-core app-framework LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
 plexilsim: utils ipc IpcUtils
@@ -138,7 +138,13 @@ corba-utils: utils
 #   Note: The indirection forces recreation of TAGS file in
 #   MacOS, which is case-insensitive.
 #
-tags: newtags
+tags: alltags
 
-newtags:
-	@ find . \( -name "*.cc" -or -name "*.hh" -or -name "*.xml" -or -name Makefile \) | etags -
+ctags: 
+	@ find . \( -name "*.cc" -or -name "*.hh" -or -name Makefile \) | etags -
+
+jtags:
+	@ find . \( -name "*.java" \) | etags -
+
+alltags:
+	@ find . \( -name "*.cc" -or -name "*.hh" -or -name "*.java" -or -name "*.xml" -or -name Makefile \) | etags -
