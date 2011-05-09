@@ -6,21 +6,26 @@
                (integer "period" 2)       ;polling period
                (integer "run-length" 160) ;seconds
                (real-array "actual" 5)    ;dist(ft) alt(ft) speed(kts) vspeed(ft/s) angle(deg)
-               (real "start-time"))
+               (real "run-start-time"))   ;start time of the current test run
     ;; Record the start time of the run...
-    (assignment (realvar "start-time") (lookup-now "time"))
-    ;; Poll for the current state and react accordingly
+    (assignment (realvar "run-start-time") (lookup-now "time"))
+    ;; Poll for the current state every "period" seconds and react accordingly
     (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
       (sequence "sense-and-react"
-        (variables (real "elapsed-time"))
-        ;; (1) Get the current time and print it for debugging/continuity
-        (assignment (realvar "elapsed-time") (- (lookup-now "time") (realvar "start-time")))
-        (command "print" "\n[" (stringvar "name") "] elapsed-time: " (intvar "i") " (" (realvar "elapsed-time") ")\n")
-        ;; (2) Get the current state from the simulator and print it
+        (variables (real "run-elapsed-time")  ;elapsed time of the current test run
+                   (real "loop-start-time")   ;start time of the current loop iteration
+                   (real "loop-elapsed-time") ;elapsed time of the current loop iteration
+                   (real "tolerance" 0.01))   ;experimentally determined tolerance for wait and execution time
+        ;; (1) Record the start time of this loop iteration
+        (assignment (realvar "loop-start-time") (lookup-now "time"))
+        ;; (2) Get the current time and print it for debugging/continuity
+        (assignment (realvar "run-elapsed-time") (- (realvar "loop-start-time") (realvar "run-start-time")))
+        (command "print" "\n[" (stringvar "name") "] run-elapsed-time: " (intvar "i") " (" (realvar "run-elapsed-time") ")\n")
+        ;; (3) Get the current state from the simulator and print it
         (synchronous-command "get-states"
           (command-with-return (arrayvar "actual") "get-current-state" (intvar "period")))
         (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")
-        ;; (3) Command deceleration as appropriate
+        ;; (4) Command deceleration as appropriate
         (sequence "decel-1"
           (variables (real "kps-decel" -1.21) (real "delta"))
           (skip-condition (or (< 70036.0 (array-element "actual" 0))
@@ -28,7 +33,7 @@
                               (> 180.0 (array-element "actual" 2)))) ;target speed
           (assignment (realvar "delta") (* (realvar "kps-decel") (realvar "period")))
           (command "set-speed" (realvar "delta")))
-        ;; (4) Command deceleration and rotor angle as appropriate
+        ;; (5) Command deceleration and rotor angle as appropriate
         (sequence "decel-2"
           (variables (real "kps-decel" -1.1666) (real "kps-delta") (real "dps" 1.2) (real "dps-delta"))
           (skip-condition (or (<= 42796.0 (array-element "actual" 0))
@@ -38,8 +43,11 @@
           (command "set-speed" (realvar "kps-delta"))
           (if (> 59.8 (array-element "actual" 4))
               (command "set-angle" (realvar "dps-delta"))))
-        ;; (5) Sleep for a short while
-        (wait-with-tolerance (- (intvar "period") (mod (lookup-now "time") 1)) .1 "Wait")))
+        ;; (6) Make an effort to determine how long execution of the current loop iteration  will take up to the wait
+        (assignment (realvar "loop-elapsed-time") (+ (realvar "tolerance")
+                                                     (- (lookup-now "time") (realvar "loop-start-time"))))
+        ;; (7) Sleep until next-loop-start (less the time spent in execution for this loop iteration)
+        (wait-with-tolerance (- (intvar "period") (realvar "loop-elapsed-time")) (realvar "tolerance") "Wait")))
     ;; Halt the system when done
     (action "Quit"
       (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
