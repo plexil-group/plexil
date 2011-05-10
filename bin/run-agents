@@ -12,6 +12,7 @@ Usage:      `basename $0` [options] <agent1> [-c <config>] [-l <lib>] [-L <lib_d
 
 Options:    -v -viewer  := start the Plexil Viewer
             -x -xterms  := run the execs in xterms (if your system has them)
+            -i -ipc     := run IPC in an xterm (rather than in the background)
 
 Examples:   `basename $0` -x sim cmd -l get-int -l get-real
 
@@ -40,6 +41,8 @@ has_xterm=`which xterm`
 use_xterm=no
 use_viewer=no
 ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
+run_ipc_in_background=yes
+ipc_pid=
 
 # Show the usage message and/or set up the "mode" to run in
 until [ -z $1 ] ;
@@ -49,6 +52,7 @@ do
     if [ "$1" = "-v" ] || [ "$1" = "-viewer" ] ; then use_viewer=yes ; shift ;
     elif [ "$1" = "-x" ] || [ "$1" = "-xterm" ] || [ "$1" = "-xterms" ] ; then use_xterm=yes ; shift ;
     elif [ "$1" = "-vx" ] || [ "$1" = "-xv" ] ; then use_xterm=yes ; use_viewer=yes ; shift ;
+    elif [ "$1" = "-i" ] || [ "$1" = "-ipc" ] ; then run_ipc_in_background=no ; shift ;
     elif [ "$1" = "-c" ] ; then
         if [ -z $com1 ] ; then shift ; com1=$1 ; shift;
         else shift ; com2=$1 ; shift ;
@@ -237,12 +241,20 @@ then
     fi
 fi
 
-# start IPC/central in an xterm if necessary
+# start IPC/central if necessary
 if [ "$ipc_running" = "" ] ;
 then
+    echo ' '
     echo "Starting IPC..."
-    xterm -g 172x20 -T "IPC" ipc &
-    sleep 2;
+    if [ "$run_ipc_in_background" = "no" ] ; then
+        xterm -g 172x20 -T "IPC" ipc &
+    else
+        central -L -s &
+        ipc_pid=$!
+        echo "Running IPC in the background (pid: $ipc_pid)..."
+        echo ' '
+    fi
+    sleep 3;
 else
     echo " " ; echo "IPC already running..."
 fi
@@ -264,6 +276,16 @@ then
     $cmd2
 else
     xterm -e $cmd2
+fi
+
+kill_ipc_timeout=20
+
+if [ "$run_ipc_in_background" = "yes" ] ;
+then
+    echo ' '
+    read -t $kill_ipc_timeout -p "Press [Return] to kill ipc ($kill_ipc_timeout second timeout): "
+    kill -9 "$ipc_pid"
+    echo ' '
 fi
 
 # EOF
