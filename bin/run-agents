@@ -282,7 +282,6 @@ kill_ipc_timeout=20
 
 if [ "$run_ipc_in_background" = "yes" ] ;
 then
-    echo ' '
     read -t $kill_ipc_timeout -p "Press [Return] to kill ipc ($kill_ipc_timeout second timeout): "
     kill -9 "$ipc_pid"
     echo ' '

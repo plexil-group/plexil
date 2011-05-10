@@ -19,6 +19,9 @@ dock:
 	@echo " "
 	$(RUN_AGENTS) $(OPTS) dock -l setup-bay -l update-bay rover -l dock-rover
 
-.PHONY: run dock
+clean:
+	$(RM) x_ipc.log.*
+
+.PHONY: run dock clean
 
 # EOF
