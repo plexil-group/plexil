@@ -47,7 +47,16 @@
         (assignment (realvar "loop-elapsed-time") (+ (realvar "tolerance")
                                                      (- (lookup-now "time") (realvar "loop-start-time"))))
         ;; (7) Sleep until next-loop-start (less the time spent in execution for this loop iteration)
-        (wait-with-tolerance (- (intvar "period") (realvar "loop-elapsed-time")) (realvar "tolerance") "Wait")))
+        ;;     This idiom wonders a fair amount, slowly accumulating errors (circa 5-6% at 0.01 tolerance)
+        ;; (wait-with-tolerance (- (intvar "period") (realvar "loop-elapsed-time")) (realvar "tolerance") "Wait")
+        ;; (7) Sleep until the next "period" boundary
+        (empty-node "wake-up-on-time-boundary"
+          ;; now - run-start > i + period - tolerance (Note that the error rate is constant and < tolerance)
+          (end-condition (> (- (lookup-on-change-with-tolerance "time" (realvar "tolerance"))
+                               (realvar "run-start-time"))
+                            (- (+ (intvar "i") (intvar "period"))
+                               (realvar "tolerance")))))
+        ))
     ;; Halt the system when done
     (action "Quit"
       (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
