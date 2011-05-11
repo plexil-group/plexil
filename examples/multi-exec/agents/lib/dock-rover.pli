@@ -1,4 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/lib/dock-rover.pli
+;; File: plexil/examples/multi-exec/agents/lib/dock-rover.pli
 
 (plexil-plan
   ;; (1) send a docking request
@@ -11,8 +11,8 @@
                       (boolean "send-quit" false))) ;default is not to send quit message
     (variables (real "bay"))
     (assignment (array-element "request" 0) (realvar "rover-id")) ;set the request to this rover
-    (wait 5 "wait-to-start")
     (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
+    (wait 5 "wait-to-start")
     ;; (1) send the docking request
     (command "docking-request" (arrayvar "request"))
     (command "print" "\n[" (stringvar "name") "] sent: " (arrayvar "request"))
@@ -34,6 +34,7 @@
     (wait 10 "wait-before-un-docking")
     (assignment (array-element "request" 1) 0) ;un-dock request
     (command "docking-request" (arrayvar "request"))
+    (wait 5 "wait-after-un-docking")
     ;; (3) Stop the run
     (sequence "Quit"
       (skip-condition (not (boolvar "send-quit")))

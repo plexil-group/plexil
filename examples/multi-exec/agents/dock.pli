@@ -23,6 +23,7 @@
       (string "name" "dock")             ;agent name
       (real-array "times" 3)             ;start-time(sec)[0] now(sec)[1] then(sec)[2]
       (real "period" 2.0)                ;periodicity of update cycles
+      (integer "boundary" 0)
       (real "initial-distance" 30)       ;initial distance from dock to rover
       (real-array "speeds" 3 2 1 .2)     ;initial(ft/sec)[0] intermediate(ft/sec)[1] final(ft-sec)[2]
       (real-array "bay1" 6 1 0 0 0 0 0)  ;bay-id[0], rover-id[1], dist(ft)[2], speed(ft/sec)[3], action[4], time(sec)[5]
@@ -82,6 +83,10 @@
     ;; requests every "period" seconds
     (sequence "update-bays"
       (repeat-condition true)
+      ;; mod (now - start-time) period < 2 * tolerance
+      (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" 0.01) (array-element "times" 0))
+                               (intvar "period"))
+                          0.02)) ;twice the tolerance (i.e., 2 * latency), or wakeups will be skipped
       (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
       (command "print" "\n\n[" (stringvar "name") " (" (array-element "times" 1) ")]")
       (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay1"))))
@@ -90,10 +95,8 @@
       (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay4"))))
       ;;remember when the last cycle finished -- used in update-bay.pli
       (assignment (array-element "times" 2) (array-element "times" 1))
-      ;; So that we don't keep precessing forward on the close, just try to wake up at about the same
-      ;; place with each "period" second boundary (i.e., (mod "now")).  Tolerance should be small enough
-      ;; to make this fairly accurate, but large enough not to cause undue polling (one hopes).
-      (wait-with-tolerance (- (realvar "period") (- 1 (mod (lookup-now "time") 1))) .075 "Wait"))
+      ;; Without this (2 * tolerance) wait, this sequence will run more than one iteration per "period"
+      (wait .02))
     ;; Quit when asked to
     (action "QuitCommand"
       (on-message "Quit"
