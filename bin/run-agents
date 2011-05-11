@@ -249,7 +249,7 @@ then
     if [ "$run_ipc_in_background" = "no" ] ; then
         xterm -g 172x20 -T "IPC" ipc &
     else
-        central -L -s &
+        central -s -L -f/dev/null &
         ipc_pid=$!
         echo "Running IPC in the background (pid: $ipc_pid)..."
         echo ' '
