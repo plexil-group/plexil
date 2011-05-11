@@ -1,4 +1,4 @@
-;; File: $SVNROOT/examples/multi-exec/agents/cmd.pli
+;; File: plexil/examples/multi-exec/agents/cmd.pli
 
 (plexil-plan
   (sequence "cmd"
@@ -12,13 +12,15 @@
     ;; Poll for the current state every "period" seconds and react accordingly
     (for (integer "i" 0) (>= (intvar "run-length") (intvar "i")) (+ (intvar "i") (intvar "period"))
       (sequence "sense-and-react"
-        (variables (real "run-elapsed-time")  ;elapsed time of the current test run
-                   (real "loop-start-time")   ;start time of the current loop iteration
-                   (real "loop-elapsed-time") ;elapsed time of the current loop iteration
-                   (real "tolerance" 0.01))   ;experimentally determined tolerance for wait and execution time
+        (variables (real "run-elapsed-time") ;elapsed time of the current test run
+                   (real "loop-start-time")) ;start time of the current loop iteration
+        ;; Start this interation after "period" second boundaries (i.e., now - run-start >= i)
+        (start-condition (>= (- (lookup-on-change-with-tolerance "time" 0.01)
+                                (realvar "run-start-time"))
+                             (intvar "i"))) ;to center on boundary, use (- (intvar "i") 0.01)
         ;; (1) Record the start time of this loop iteration
         (assignment (realvar "loop-start-time") (lookup-now "time"))
-        ;; (2) Get the current time and print it for debugging/continuity
+        ;; (2) Get the current elapsed time and print it for debugging/continuity
         (assignment (realvar "run-elapsed-time") (- (realvar "loop-start-time") (realvar "run-start-time")))
         (command "print" "\n[" (stringvar "name") "] run-elapsed-time: " (intvar "i") " (" (realvar "run-elapsed-time") ")\n")
         ;; (3) Get the current state from the simulator and print it
@@ -42,21 +44,7 @@
           (assignment (realvar "dps-delta") (* (realvar "dps") (realvar "period")))
           (command "set-speed" (realvar "kps-delta"))
           (if (> 59.8 (array-element "actual" 4))
-              (command "set-angle" (realvar "dps-delta"))))
-        ;; (6) Make an effort to determine how long execution of the current loop iteration  will take up to the wait
-        (assignment (realvar "loop-elapsed-time") (+ (realvar "tolerance")
-                                                     (- (lookup-now "time") (realvar "loop-start-time"))))
-        ;; (7) Sleep until next-loop-start (less the time spent in execution for this loop iteration)
-        ;;     This idiom wonders a fair amount, slowly accumulating errors (circa 5-6% at 0.01 tolerance)
-        ;; (wait-with-tolerance (- (intvar "period") (realvar "loop-elapsed-time")) (realvar "tolerance") "Wait")
-        ;; (7) Sleep until the next "period" boundary
-        (empty-node "wake-up-on-time-boundary"
-          ;; now - run-start > i + period - tolerance (Note that the error rate is constant and < tolerance)
-          (end-condition (> (- (lookup-on-change-with-tolerance "time" (realvar "tolerance"))
-                               (realvar "run-start-time"))
-                            (- (+ (intvar "i") (intvar "period"))
-                               (realvar "tolerance")))))
-        ))
+              (command "set-angle" (realvar "dps-delta"))))))
     ;; Halt the system when done
     (action "Quit"
       (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
