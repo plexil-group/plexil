@@ -19,6 +19,9 @@ dock:
 	@echo " "
 	$(RUN_AGENTS) $(OPTS) dock -l setup-bay -l update-bay rover -l dock-rover
 
+test2: test2.plx
+	plexilexec -p test2.plx
+
 .PHONY: run dock
 
 # EOF
