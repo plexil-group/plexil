@@ -31,7 +31,7 @@
 ;;
 ;;  <time-stamp>        := <utc-date> | <met>
 ;;  <iso-8601-utc>      := YYYY-MM-DDTHH:MM:SS.SSS[Z]
-;;  <iso-8601-met>      := P[[YYYY]-[MM]-[DD]]T[hh]:[mm]:[ss.sss][Z]
+;;  <iso-8601-met>      := P[[YYYY]-[MM]-[DD]]T[hh]:[mm]:[ss.sss]
 ;;  <node-signature>    := <node-name-or-type> [(<local-var>*[, <local-var>])]
 ;;  <action>            ;= <node-type> (<parameter>*)
 ;;  <node-name-or-type> := "name" | "type" (e.g., "Node1", "command", "sequence", etc.)
