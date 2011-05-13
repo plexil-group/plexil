@@ -82,7 +82,7 @@ namespace PLEXIL
      * @brief Get the InterfaceManager that owns this instance.
      * @return A InterfaceManagerBase &.
      */
-    inline InterfaceManagerBase & getManager() const;
+    InterfaceManagerBase & getManager() const;
 
     //
     // API to be implemented by derived classes
