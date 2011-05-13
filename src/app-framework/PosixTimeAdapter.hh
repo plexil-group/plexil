@@ -188,6 +188,9 @@ namespace PLEXIL
 
     LookupTimerMap m_lookupTimerMap;
     sigevent m_sigevent;
+
+    // Speed hack for timerTimeout()
+    std::vector<double> m_timeVector;
   };
 
 }

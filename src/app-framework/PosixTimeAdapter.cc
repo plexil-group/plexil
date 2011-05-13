@@ -48,7 +48,8 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface)
+    : InterfaceAdapter(execInterface),
+      m_timeVector(1, 0.0)
   {
     initSigevent();
   }
@@ -61,7 +62,8 @@ namespace PLEXIL
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface, 
                                      const TiXmlElement * xml)
-    : InterfaceAdapter(execInterface, xml)
+    : InterfaceAdapter(execInterface, xml),
+      m_timeVector(1, 0.0)
   {
     initSigevent();
   }
@@ -291,10 +293,9 @@ namespace PLEXIL
    */
   void PosixTimeAdapter::timerTimeout()
   {
-    std::vector<double> timeVector = std::vector<double>(1);
-    timeVector[0] = getCurrentTime();
+    m_timeVector[0] = getCurrentTime();
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeStateKey(),
-                                      timeVector);
+                                      m_timeVector);
     m_execInterface.notifyOfExternalEvent();
   }
 
