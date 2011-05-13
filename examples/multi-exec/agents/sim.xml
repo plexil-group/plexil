@@ -9,4 +9,5 @@
       <Lookup name="x" type="Integer" value="1"/>
     </ExternalLookups>
   </Adapter>
+  <Listener ListenerType="PlanDebugListener"/>
 </Interfaces>

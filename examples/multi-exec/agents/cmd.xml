@@ -8,4 +8,5 @@
     <LookupNames>x</LookupNames>
     <DefaultCommandAdapter/>
   </Adapter>
+  <Listener ListenerType="PlanDebugListener"/>
 </Interfaces>

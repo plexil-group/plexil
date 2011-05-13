@@ -7,4 +7,5 @@
     <CommandNames>ReceiveMessage, UpdateLookup,  ReceiveCommand, SendReturnValue, GetParameter</CommandNames> 
     <DefaultCommandAdapter/>
   </Adapter>
+  <Listener ListenerType="PlanDebugListener"/>
 </Interfaces>
