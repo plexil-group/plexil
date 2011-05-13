@@ -48,7 +48,8 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface)
+    : InterfaceAdapter(execInterface),
+	  m_timeVector(1, 0)
   {
     commonInit();
   }
@@ -61,7 +62,8 @@ namespace PLEXIL
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface, 
 				       const TiXmlElement * xml)
-    : InterfaceAdapter(execInterface, xml)
+    : InterfaceAdapter(execInterface, xml),
+	  m_timeVector(1, 0)
   {
     commonInit();
   }
@@ -410,12 +412,11 @@ namespace PLEXIL
   void DarwinTimeAdapter::timerTimeout()
   {
     // report the current time and kick-start the Exec
-    std::vector<double> timeVector = std::vector<double>(1);
-    timeVector[0] = getCurrentTime();
+    m_timeVector[0] = getCurrentTime();
 	debugMsg("DarwinTimeAdapter:lookupOnChange",
-			 " timer timeout at " << Expression::valueToString(timeVector[0]));
+			 " timer timeout at " << Expression::valueToString(m_timeVector[0]));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeStateKey(),
-                                      timeVector);
+                                      m_timeVector);
     m_execInterface.notifyOfExternalEvent();
   }
 

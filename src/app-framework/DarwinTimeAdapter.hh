@@ -221,6 +221,9 @@ namespace PLEXIL
     // Storage for system call parameters
     itimerval m_disableItimerval;
     itimerval m_lastItimerval;
+
+	// Storage for current time in timerTimeout()
+	std::vector<double> m_timeVector;
   };
 
 }
