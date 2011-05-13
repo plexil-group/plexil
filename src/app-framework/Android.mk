@@ -48,6 +48,7 @@ LOCAL_SRC_FILES := AdapterConfiguration.cc \
  ManagedExecListener.cc \
  NewLuvListener.cc \
  PosixTimeAdapter.cc \
+ ValueQueue.cc \
  UtilityAdapter.cc
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := -D'LIB_EXT="$(SUFSHARE)"'
