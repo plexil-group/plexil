@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 #include "ExternalInterface.hh"
 #include "AdapterExecInterface.hh"
 #include "PlexilPlan.hh"
+#include "ValueQueue.hh"
 
 // STL
-#include <queue>
 #include <set>
 #include <vector>
 
@@ -210,6 +210,24 @@ namespace PLEXIL
      * @note Should only be called with exec locked by the current thread.
      */
     bool processQueue();
+
+	/**
+	 * @brief Insert a mark in the value queue.
+	 * @return The sequence number of the mark.
+	 */
+	unsigned int markQueue()
+	{
+	  return m_valueQueue.mark();
+	}
+
+	/**
+	 * @brief Get the sequence number of the most recently processed mark.
+	 * @return The sequence number, 0 if no marks have yet been processed.
+	 */
+	unsigned int getLastMark() const
+	{
+	  return m_lastMark;
+	}
 
     //
     // API for exec
@@ -514,10 +532,14 @@ namespace PLEXIL
     bool isLibraryLoaded(const std::string& libName) const;
 
     /**
-     * @brief Notify the executive that it should run one cycle.  This should be sent after
-     each batch of lookup and command return data.
+     * @brief Notify the executive that it should run one cycle.
     */
     void notifyOfExternalEvent();
+
+    /**
+     * @brief Run the exec and wait until all events in the queue have been processed.
+	 */
+	void notifyAndWaitForCompletion();
 
     StateCacheId getStateCache() const;
 
@@ -615,183 +637,6 @@ namespace PLEXIL
     //
 
     //
-    // Value queue
-    //
-
-    /**
-     * @brief Represents the type of a ValueQueue::QueueEntry instance.
-     */
-    enum QueueEntryType
-      {
-	queueEntry_EMPTY,
-	queueEntry_MARK,
-	queueEntry_LOOKUP_VALUES,
-	queueEntry_RETURN_VALUE,
-	queueEntry_PLAN,
-	queueEntry_LIBRARY,
-	queueEntry_ERROR
-      };
-
-    /**
-     * @brief A private internal class where the InterfaceManager temporarily
-     *        stores the results of asynchronous operations on the world outside
-     *        the Exec.
-     */
-    class ValueQueue
-    {
-    public:
-      ValueQueue();
-      ~ValueQueue();
-
-      // Inserts the new expression/value pair into the queue
-      void enqueue(const ExpressionId & exp, double newValue);
-      void enqueue(const StateKey & stateKey, const std::vector<double> & newValues);
-      void enqueue(PlexilNodeId newPlan, const LabelStr & parent);
-      void enqueue(PlexilNodeId newlibraryNode);
-
-      /**
-       * @brief Atomically check head of queue and dequeue if appropriate
-       * @return Type of entry dequeued; queueEntry_EMPTY and queueEntry_MARK
-       * indicate nothing of interest was dequeued
-       */
-      QueueEntryType dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
-			     ExpressionId& exp, double& newExpValue,
-			     PlexilNodeId& plan, LabelStr& planParent);
-
-      // returns true iff the queue is empty
-      bool isEmpty() const;
-
-      // inserts a marker expression into the queue
-      void mark();
-
-      // Remove queue head and ignore (presumably a mark)
-      void pop();
-
-    private:
-      // deliberately unimplemented
-      ValueQueue(const ValueQueue &);
-      ValueQueue & operator=(const ValueQueue &);
-
-      //
-      // Internal methods
-      //
-
-      //
-      // Member variables
-      //
-
-      DECLARE_STATIC_CLASS_CONST(State, 
-				 NULL_STATE_KEY,
-				 State(0.0, std::vector<double>()));
-
-      /**
-       * @brief Represents one entry in a ValueQueue.  
-       *        A private class internal to ValueQueue.
-       */
-      class QueueEntry
-      {
-      public:
-        /*
-         * @brief Constructor for a QueueEntry representing a command return value.
-         */
-	QueueEntry(const ExpressionId & exp,
-		   double val)
-	  : expression(exp),
-	    stateKey(),
-	    values(1, val),
-	    plan(),
-	    parent(),
-	    type(queueEntry_RETURN_VALUE)
-	{
-	}
-
-        /*
-         * @brief Constructor for a QueueEntry representing a single LookupOnChange return value.
-         */
-	QueueEntry(const StateKey & st,
-		   double val)
-	  : expression(),
-	    stateKey(st),
-	    values(1, val),
-	    plan(),
-	    parent(),
-	    type(queueEntry_LOOKUP_VALUES)
-	{
-	}
-
-        /*
-         * @brief Constructor for a QueueEntry representing multiple return values
-         *        for a LookupOnChange.
-         */
-	QueueEntry(const StateKey& st,
-		   const std::vector<double> vals)
-	  : expression(),
-	    stateKey(st),
-	    values(vals),
-	    plan(),
-	    parent(),
-	    type(queueEntry_LOOKUP_VALUES)
-	{
-	}
-
-        /*
-         * @brief Constructor for a QueueEntry representing an external command
-         *        to add a new plan or library node.
-         */
-	QueueEntry(PlexilNodeId newPlan, 
-		   const LabelStr& parentNode,
-                   const QueueEntryType typ)
-	  : expression(),
-	    stateKey(),
-	    values(),
-	    plan(newPlan),
-	    parent(parentNode),
-	    type(typ)
-	{
-          assertTrue((typ == queueEntry_PLAN) || (typ == queueEntry_LIBRARY),
-                     "QueueEntry constructor: invalid entry type for plan or library");
-	}
-
-        /*
-         * @brief Constructor for an empty QueueEntry of an arbitrary QueueEntryType.
-         */
-	QueueEntry(QueueEntryType typ)
-	  : expression(),
-	    stateKey(),
-	    values(),
-	    plan(),
-	    parent(),
-	    type(typ)
-	{
-	}
-
-        /*
-         * @brief Destructor.
-         */
-	~QueueEntry()
-	{
-	}
-	
-	ExpressionId expression;
-	StateKey stateKey;
-	std::vector<double> values;
-	PlexilNodeId plan;
-	LabelStr parent;
-	QueueEntryType type;
-      };
-
-      /** The actual queue data structure. */
-      std::queue<QueueEntry> m_queue;
-
-      /** 
-       * @brief Pointer to a mutex to prevent collisions between threads.
-       * @note Implemented as a pointer so isEmpty() can be const.
-       */
-      ThreadMutex * m_mutex;
-
-    };
-
-    //
     // State cache
     //
     // The state cache is always updated by the exec thread.  Older 
@@ -845,6 +690,8 @@ namespace PLEXIL
     //* Holds the most recent idea of the current time
     double m_currentTime;
 
+	//* Most recent mark processed.
+	unsigned int m_lastMark;
   };
 
 }

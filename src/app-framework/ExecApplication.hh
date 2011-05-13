@@ -184,6 +184,16 @@ namespace PLEXIL
     virtual void notifyExec();
 
     /**
+     * @brief Notify the executive and wait for all queue entries to be processed.
+	 */
+    virtual void notifyAndWaitForCompletion();
+
+	/**
+	 * @brief Notify the application that a queue mark was processed.
+	 */
+	virtual void markProcessed();
+
+    /**
      * @brief Add a library as an XML document.
      * @return true if successful, false otherwise.
      */
@@ -349,6 +359,9 @@ namespace PLEXIL
 
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;
+
+	// Semaphore for notifyAndWaitForCompletion()
+	ThreadSemaphore m_markSem;
 
 	// Semaphore for notifying external threads that the application is shut down
 	ThreadSemaphore m_shutdownSem;

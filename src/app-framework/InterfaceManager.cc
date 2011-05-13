@@ -84,7 +84,8 @@ namespace PLEXIL
       m_destToCmdMap(),
       m_raInterface(),
       m_execController(),
-      m_currentTime(std::numeric_limits<double>::min())
+      m_currentTime(std::numeric_limits<double>::min()),
+	  m_lastMark(0)
   {
 
     // Every application has access to the dummy and utility adapters
@@ -496,153 +497,143 @@ namespace PLEXIL
     double newExpValue;
     PlexilNodeId plan;
     LabelStr parent;
+	unsigned int sequence;
     QueueEntryType typ;
 
-    bool firstTime = true;
+	bool needsStep = false;
 
-    while (true)
-      {
-        // get next entry
-        debugMsg("InterfaceManager:processQueue",
-                 " (" << pthread_self() << ") getting next entry");
-        typ = m_valueQueue.dequeue(stateKey, newStateValues,
-                                   exp, newExpValue,
-                                   plan, parent);
-        switch (typ)
-          {
-          case queueEntry_EMPTY:
-            if (firstTime)
-              {
-                debugMsg("InterfaceManager:processQueue",
-                         " (" << pthread_self() << ") queue empty at entry, returning false");
-                return false;
-              }
-            debugMsg("InterfaceManager:processQueue",
-                     " (" << pthread_self() << ") reached end of queue without finding mark, returning true");
-            return true;
-            break;
+    while (true) {
+	  // get next entry
+	  debugMsg("InterfaceManager:processQueue",
+			   " (" << pthread_self() << ") Fetch next queue entry");
+	  typ = m_valueQueue.dequeue(stateKey, newStateValues,
+								 exp, newExpValue,
+								 plan, parent,
+								 sequence);
+	  switch (typ) {
+	  case queueEntry_EMPTY:
+		debugMsg("InterfaceManager:processQueue",
+				 " (" << pthread_self() << ") Queue empty, returning " << (needsStep ? "true" : "false"));
+		return needsStep;
+		break;
 
-          case queueEntry_MARK:
-            // Exit loop now, whether or not queue is empty
-            debugMsg("InterfaceManager:processQueue",
-                     " (" << pthread_self() << ") Received mark, returning true");
-            return true;
-            break;
+	  case queueEntry_MARK:
+		// Store sequence number and notify application
+		m_lastMark = sequence;
+		m_application.markProcessed();
+		debugMsg("InterfaceManager:processQueue",
+				 " (" << pthread_self() << ") Received mark, returning " << (needsStep ? "true" : "false"));
+		return needsStep;
+		break;
 
-          case queueEntry_LOOKUP_VALUES:
-            // State -- update all listeners
-            {
-              // state for debugging only
-              State state;
-              bool stateFound =
-                m_exec->getStateCache()->stateForKey(stateKey, state);
-              if (stateFound)
-                {
-                  debugMsg("InterfaceManager:processQueue",
-                           " (" << pthread_self()
-                           << ") Handling state change for '"
-                           << getText(state)
-                           << "', " << newStateValues.size()
-                           << " new value(s)");
+	  case queueEntry_LOOKUP_VALUES:
+		// State -- update all listeners
+		{
+		  // state for debugging only
+		  State state;
+		  bool stateFound =
+			m_exec->getStateCache()->stateForKey(stateKey, state);
+		  if (stateFound) {
+			debugMsg("InterfaceManager:processQueue",
+					 " (" << pthread_self()
+					 << ") Handling state change for '"
+					 << getText(state)
+					 << "', " << newStateValues.size()
+					 << " new value(s)");
 
-                  if (newStateValues.size() == 0)
-                    {
-                      debugMsg("InterfaceManager:processQueue",
-                               "(" << pthread_self()
-                               << ") Ignoring empty state change vector for '"
-                               << getText(state)
-                               << "'");
-                      break;
-                    }
+			if (newStateValues.size() == 0) {
+			  debugMsg("InterfaceManager:processQueue",
+					   "(" << pthread_self()
+					   << ") Ignoring empty state change vector for '"
+					   << getText(state)
+					   << "'");
+			  break;
+			}
 
-                  // If this is a time state update message, check if it's stale
-                  if (stateKey == m_exec->getStateCache()->getTimeStateKey())
-                    {
-                      if (newStateValues[0] <= m_currentTime)
-                        {
-                          debugMsg("InterfaceManager:processQueue",
-                                   " (" << pthread_self()
-                                   << ") Ignoring stale time update - new value "
-                                   << Expression::valueToString(newStateValues[0]) << " is not greater than cached value "
-                                   << Expression::valueToString(m_currentTime));
-                        }
-                      else
-                        {
-                          debugMsg("InterfaceManager:processQueue",
-                                   " (" << pthread_self()
-                                   << ") setting current time to "
-                                   << Expression::valueToString(newStateValues[0]));
-                          m_currentTime = newStateValues[0];
-                          m_exec->getStateCache()->updateState(stateKey, newStateValues);
-                        }
-                    }
-                  else
-                    {
-                      // General case, update state cache
-                      m_exec->getStateCache()->updateState(stateKey, newStateValues);
-                    }
-                }
-              else
-                {
-                  // State not found -- possibly stale update
-                  debugMsg("InterfaceManager:processQueue", 
-                           " (" << pthread_self()
-                           << ") ignoring lookup for nonexistent state, key = "
-                           << stateKey);
-                }
-              break;
-            }
+			// If this is a time state update message, check if it's stale
+			if (stateKey == m_exec->getStateCache()->getTimeStateKey()) {
+			  if (newStateValues[0] <= m_currentTime) {
+				debugMsg("InterfaceManager:processQueue",
+						 " (" << pthread_self()
+						 << ") Ignoring stale time update - new value "
+						 << Expression::valueToString(newStateValues[0]) << " is not greater than cached value "
+						 << Expression::valueToString(m_currentTime));
+			  }
+			  else {
+				debugMsg("InterfaceManager:processQueue",
+						 " (" << pthread_self()
+						 << ") setting current time to "
+						 << Expression::valueToString(newStateValues[0]));
+				m_currentTime = newStateValues[0];
+				m_exec->getStateCache()->updateState(stateKey, newStateValues);
+			  }
+			}
+			else {
+			  // General case, update state cache
+			  m_exec->getStateCache()->updateState(stateKey, newStateValues);
+			}
+			needsStep = true;
+		  }
+		  else {
+			// State not found -- possibly stale update
+			debugMsg("InterfaceManager:processQueue", 
+					 " (" << pthread_self()
+					 << ") ignoring lookup for nonexistent state, key = "
+					 << stateKey);
+		  }
+		  break;
+		}
 
-          case queueEntry_RETURN_VALUE:
-            // Expression -- update the expression only.  Note that this could
-            // be either an assignment OR command return value.
-            debugMsg("InterfaceManager:processQueue",
-                     " (" << pthread_self()
-                     << ") Updating expression " << exp
-                     << ", new value is '" << Expression::valueToString(newExpValue) << "'");
+	  case queueEntry_RETURN_VALUE:
+		// Expression -- update the expression only.  Note that this could
+		// be either an assignment OR command return value.
+		debugMsg("InterfaceManager:processQueue",
+				 " (" << pthread_self()
+				 << ") Updating expression " << exp
+				 << ", new value is '" << Expression::valueToString(newExpValue) << "'");
 
-            // Handle potential command return value.
-            this->maybePublishCommandReturnValue (exp, newExpValue);
-            this->releaseResourcesAtCommandTermination(exp);
+		// Handle potential command return value.
+		this->maybePublishCommandReturnValue(exp, newExpValue);
+		this->releaseResourcesAtCommandTermination(exp);
 
-            exp->setValue(newExpValue);
-            break;
+		exp->setValue(newExpValue);
+		needsStep = true;
+		break;
 
-          case queueEntry_PLAN:
-            // Plan -- add the plan
-            debugMsg("InterfaceManager:processQueue",
-                     " (" << pthread_self() << ") Received plan");
-            if (!getExec()->addPlan(plan, parent)) {
-              debugMsg("InterfaceManager:processQueue",
-                       " (" << pthread_self() << ") addPlan failed!");
-              // TODO: report back to whoever enqueued it
-            }
-            break;
+	  case queueEntry_PLAN:
+		// Plan -- add the plan
+		debugMsg("InterfaceManager:processQueue",
+				 " (" << pthread_self() << ") Received plan");
+		if (!getExec()->addPlan(plan, parent)) {
+		  debugMsg("InterfaceManager:processQueue",
+				   " (" << pthread_self() << ") addPlan failed!");
+		  // TODO: report back to whoever enqueued it
+		}
+		needsStep = true;
+		break;
 
-          case queueEntry_LIBRARY:
-            // Library -- add the library
+	  case queueEntry_LIBRARY:
+		// Library -- add the library
 
-            debugMsg("InterfaceManager:processQueue",
-                     " (" << pthread_self() << ") Received library");
-            // *** TODO: check here for duplicates ***
-            getExec()->addLibraryNode(plan);
-            // no need to step here
-            break;
+		debugMsg("InterfaceManager:processQueue",
+				 " (" << pthread_self() << ") Received library");
+		// *** TODO: check here for duplicates ***
+		getExec()->addLibraryNode(plan);
+		// no need to step here
+		break;
 
-          default:
-            // error
-            checkError(ALWAYS_FAIL,
-                       "InterfaceManager:processQueue: Invalid entry type "
-                       << typ);
-            break;
-          }
-
-        firstTime = false;
-      }
+	  default:
+		// error
+		checkError(ALWAYS_FAIL,
+				   "InterfaceManager:processQueue: Invalid entry type "
+				   << typ);
+		break;
+	  }
+	}
   }
 
-  void InterfaceManager::maybePublishCommandReturnValue (const ExpressionId& dest,
-                                                         const double& value)
+  void InterfaceManager::maybePublishCommandReturnValue(const ExpressionId& dest,
+														const double& value)
   {
     // If the destination is a command destination, publish it (as an
     // assignment), otherwise do nothing.
@@ -1288,6 +1279,9 @@ namespace PLEXIL
   InterfaceManager::handleAddPlan(PlexilNodeId planStruct,
                                   const LabelStr& parent)
   {
+	checkError(planStruct.isId(),
+			   "InterfaceManager::handleAddPlan: Invalid PlexilNodeId");
+
     debugMsg("InterfaceManager:handleAddPlan", " entered");
 
     // Determine if there are any unloaded libraries
@@ -1308,9 +1302,9 @@ namespace PLEXIL
 		if (libroot.isNoId()) {
 		  debugMsg("InterfaceManager:handleAddPlan", 
 				   " Plan references unloaded library node \"" << libname << "\"");
-		  result = false;
+		  return false;
 		}
-
+		
 		// add the library node
 		handleAddLibrary(libroot);
 	  }
@@ -1334,6 +1328,8 @@ namespace PLEXIL
   void
   InterfaceManager::handleAddLibrary(PlexilNodeId planStruct)
   {
+	checkError(planStruct.isId(),
+			   "InterfaceManager::handleAddLibrary: Invalid PlexilNodeId");
     debugMsg("InterfaceManager:handleAddLibrary", " entered");
     m_valueQueue.enqueue(planStruct);
   }
@@ -1349,15 +1345,12 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive that it should run one cycle.  
-   This should be sent after each batch of lookup and command
-   return data.
   */
   void
   InterfaceManager::notifyOfExternalEvent()
   {
     debugMsg("InterfaceManager:notify",
              " (" << pthread_self() << ") received external event");
-    m_valueQueue.mark();
     m_application.notifyExec();
   }
 
@@ -1490,115 +1483,6 @@ namespace PLEXIL
       return NULL;
     else
       return it->second;
-  }
-
-
-  //
-  // ValueQueue implementation
-  //
-
-  //
-  // *** To do:
-  //  - reimplement queue data structures to reduce copying
-  //
-  
-  InterfaceManager::ValueQueue::ValueQueue()
-    : m_queue(),
-      m_mutex(new ThreadMutex())
-  {
-  }
-
-  InterfaceManager::ValueQueue::~ValueQueue()
-  {
-    delete m_mutex;
-  }
-
-  void InterfaceManager::ValueQueue::enqueue(const ExpressionId & exp,
-                                             double newValue)
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    m_queue.push(QueueEntry(exp, newValue));
-  }
-
-  void InterfaceManager::ValueQueue::enqueue(const StateKey& key, 
-                                             const std::vector<double> & newValues)
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    m_queue.push(QueueEntry(key, newValues));
-  }
-
-  void InterfaceManager::ValueQueue::enqueue(PlexilNodeId newPlan,
-                                             const LabelStr & parent)
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    m_queue.push(QueueEntry(newPlan, parent, queueEntry_PLAN));
-  }
-
-  void InterfaceManager::ValueQueue::enqueue(PlexilNodeId newLibraryNode)
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    m_queue.push(QueueEntry(newLibraryNode, EMPTY_LABEL(), queueEntry_LIBRARY));
-  }
-
-  InterfaceManager::QueueEntryType
-  InterfaceManager::ValueQueue::dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
-                                        ExpressionId& exp, double& newExpValue,
-                                        PlexilNodeId& plan, LabelStr& planParent)
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    if (m_queue.empty())
-      return queueEntry_EMPTY;
-    QueueEntry e = m_queue.front();
-    switch (e.type)
-      {
-      case queueEntry_MARK: // do nothing
-        break;
-
-      case queueEntry_LOOKUP_VALUES:
-        stateKey = e.stateKey;
-        newStateValues = e.values;
-        break;
-
-      case queueEntry_RETURN_VALUE:
-        checkError(e.values.size() == 1,
-                   "InterfaceManager:dequeue: Invalid number of values for return value entry");
-        exp = e.expression;
-        newExpValue = e.values[0];
-        break;
-
-      case queueEntry_PLAN:
-        planParent = e.parent;
-        // fall thru to library case
-
-      case queueEntry_LIBRARY:
-        plan = e.plan;
-        break;
-
-      default:
-        assertTrue(ALWAYS_FAIL,
-                   "InterfaceManager:dequeue: Invalid queue entry");
-        break;
-      }
-    m_queue.pop();
-    return e.type;
-  }
-
-  void InterfaceManager::ValueQueue::pop()
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    m_queue.pop();
-  }
-
-  bool InterfaceManager::ValueQueue::isEmpty() const
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    return m_queue.empty();
-  }
-    
-  void InterfaceManager::ValueQueue::mark()
-  {
-    ThreadMutexGuard guard(*m_mutex);
-    m_queue.push(QueueEntry(queueEntry_MARK));
   }
 
 }

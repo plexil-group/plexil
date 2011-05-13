@@ -53,6 +53,8 @@ namespace PLEXIL
       m_execThread(),
       m_execMutex(),
       m_sem(),
+	  m_markSem(),
+	  m_shutdownSem(),
       m_state(APP_UNINITED),
       m_runExecInBkgndOnly(true),
 	  m_stop(false),
@@ -354,7 +356,7 @@ namespace PLEXIL
 
     m_interface.handleAddLibrary(root);
     debugMsg("ExecApplication:addLibrary", " Library added, stepping exec");
-    m_interface.notifyOfExternalEvent();
+    notifyAndWaitForCompletion();
     return true;
   }
 
@@ -386,7 +388,7 @@ namespace PLEXIL
       }
 
     if (!m_interface.handleAddPlan(root, EMPTY_LABEL())) {
-      debugMsg("ExecApplication:addPlan", " Plan was not added due to references to unloaded libraries");
+	  std::cerr << "Plan loading failed due to missing library node(s)" << std::endl;
       return false;
     }
 
@@ -865,26 +867,50 @@ namespace PLEXIL
   void
   ExecApplication::notifyExec()
   {
-    if (m_runExecInBkgndOnly || m_execMutex.isLocked())
-      {
-        // Some thread currently owns the exec. Could be this thread.
-        // runExec() could notice, or not.
-        // Post to semaphore to ensure event is not lost.
-        int status = m_sem.post();
-        assertTrueMsg(status == 0,
-					  "notifyExec: semaphore post failed, status = "
-					  << status);
-		debugMsg("ExecApplication:notify",
-				 " (" << pthread_self() << ") released semaphore");
-      }
-    else
-      {
-		// Exec is idle, so run it
-		// If another thread grabs it first, no worries.
-		debugMsg("ExecApplication:notify",
-				 " (" << pthread_self() << ") exec was idle, stepping it");
-		this->runExec();
-      }
+    if (m_runExecInBkgndOnly || m_execMutex.isLocked()) {
+	  // Some thread currently owns the exec. Could be this thread.
+	  // runExec() could notice, or not.
+	  // Post to semaphore to ensure event is not lost.
+	  int status = m_sem.post();
+	  assertTrueMsg(status == 0,
+					"notifyExec: semaphore post failed, status = "
+					<< status);
+	  debugMsg("ExecApplication:notify",
+			   " (" << pthread_self() << ") released semaphore");
+	}
+    else {
+	  // Exec is idle, so run it
+	  // If another thread grabs it first, no worries.
+	  debugMsg("ExecApplication:notify",
+			   " (" << pthread_self() << ") exec was idle, stepping it");
+	  this->runExec();
+	}
+  }
+
+  /**
+   * @brief Run the exec and wait until all events in the queue have been processed. 
+  */
+  void
+  ExecApplication::notifyAndWaitForCompletion()
+  {
+    debugMsg("ExecApplication:notifyAndWait",
+             " (" << pthread_self() << ") received external event");
+	unsigned int sequence = m_interface.markQueue();
+	notifyExec();
+	while (m_interface.getLastMark() < sequence) {
+	  m_markSem.wait();
+	  m_markSem.post(); // in case it's not our mark and we got there first
+	}
+  }
+
+
+  /**
+   * @brief Notify the application that a queue mark was processed.
+   */
+  void
+  ExecApplication::markProcessed()
+  {
+	m_markSem.post();
   }
 
 }
