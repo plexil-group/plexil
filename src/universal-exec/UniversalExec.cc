@@ -212,37 +212,44 @@ int main (int argc, char** argv)
 	return -1;
   }
 
+  // Below this point, must be careful to shut down gracefully
+  bool error = false;
+
   // if specified on command line, load Plexil libraries
   for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
        libraryName != libraryNames.end();
        ++libraryName) {
+	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
     TiXmlDocument libraryXml(*libraryName);
     if (!libraryXml.LoadFile()) {
       std::cout << "XML error parsing library '" << *libraryName << "': "
                 << libraryXml.ErrorDesc() << " line " << libraryXml.ErrorRow()
                 << " column " << libraryXml.ErrorCol() << std::endl;
-      return -1;
+	  error = true;
     }
-
-    if (!_app.addLibrary(&libraryXml)) {
+	else if (!_app.addLibrary(&libraryXml)) {
       std::cout << "ERROR: unable to add library " << *libraryName << std::endl;
-      return -1;
+	  error = true;
     }
   }
 
   // load the plan
-  if (planName != "error") {
+  if (!error && planName != "error") {
     TiXmlDocument plan(planName);
     if (!plan.LoadFile()) {
       std::cout << "Error parsing plan '" << planName << "': "
                 << plan.ErrorDesc() << " line " << plan.ErrorRow()
                 << " column " << plan.ErrorCol() << std::endl;
-      return -1;
+	  error = true;
     }
-    _app.addPlan(&plan);
+    else if (!_app.addPlan(&plan)) {
+	  std::cout << "Unable to load plan '" << planName << "', exiting" << std::endl;
+	  error = true;
+	}
   }
 
-  _app.waitForPlanFinished();
+  if (!error)
+	_app.waitForPlanFinished();
 
   // clean up
   if (!_app.stop()) {
@@ -255,5 +262,5 @@ int main (int argc, char** argv)
 	return -1;
   }
 
-  return 0;
+  return (error ? -1 : 0);
 }
