@@ -257,6 +257,7 @@ then
     sleep 3;
 else
     echo " " ; echo "IPC already running..."
+    run_ipc_in_background=no
 fi
 
 # Start the agents
