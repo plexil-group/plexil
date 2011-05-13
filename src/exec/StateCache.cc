@@ -60,9 +60,15 @@ namespace PLEXIL
       }
    }
 
-   StateCache::StateCache() : m_id(this), m_inQuiescence(false), 
-                              m_quiescenceCount(0), m_timeState(-1)
+   StateCache::StateCache() 
+	 : m_id(this),
+	   m_inQuiescence(false), 
+	   m_quiescenceCount(0)
    {
+	 // Initialize the 'time' state
+	 State timeState;
+	 timeState.first = LabelStr("time").getKey();
+	 keyForState(timeState, m_timeState);
    }
 
    StateCache::~StateCache()
@@ -420,14 +426,6 @@ namespace PLEXIL
       check_error(!m_inQuiescence);
       m_inQuiescence = true;
 
-      bool firstTimeQuery = false;
-      if (firstTimeQuery = (m_timeState == -1))
-      {
-         State timeState;
-         timeState.first = LabelStr("time");
-         keyForState(timeState, m_timeState);
-      }
-
       std::map<StateKey, std::pair<State, int> >::iterator timeIt = m_states.find(m_timeState);
       check_error(timeIt != m_states.end());
 
@@ -438,7 +436,7 @@ namespace PLEXIL
          return;
 
       std::vector<double> time(1, 0);
-      if (firstTimeQuery)
+      if (timeIt->second.second == -1) // i.e. uninitialized
          getExternalInterface()->lookupNow(timeIt->second.first, m_timeState, time);
       else
          getExternalInterface()->lookupNow(m_timeState, time);
@@ -450,7 +448,6 @@ namespace PLEXIL
          m_values.insert(std::make_pair(m_timeState, time));
       else
          valueIt->second = time;
-
 
       internalStateUpdate(m_timeState, time);
    }
@@ -487,9 +484,7 @@ namespace PLEXIL
 
    const StateKey& StateCache::getTimeStateKey() const
    {
-      std::map<StateKey, std::pair<State, int> >::const_iterator it = m_states.find(m_timeState);
-      checkError(it != m_states.end(), "No state found for time!");
-      return (*it).first;
+	 return m_timeState;
    }
 
    double StateCache::differenceMagnitude(const double x, const double y) const
