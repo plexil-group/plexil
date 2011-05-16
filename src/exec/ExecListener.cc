@@ -50,18 +50,13 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Notify that a node has changed state.
-   * @param prevState The old state.
-   * @param node The node that has transitioned.
-   * @note The current state is accessible via the node.
+   * @brief Notify that nodes have changed state.
+   * @param Vector of node state transition info.
    */
-  void 
-  ExecListener::notifyOfTransition(NodeState prevState, 
-                                   const NodeId& node) const
+  void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
   {
-    if (m_filter.isNoId()
-        || m_filter->reportNodeTransition(prevState, node))
-      this->implementNotifyNodeTransition(prevState, node);
+	debugMsg("ExecListener::notifyOfTransitions", " reporting " << transitions.size() << " transitions");
+	this->implementNotifyNodeTransitions(transitions);
   }
 
   /**
@@ -168,6 +163,31 @@ namespace PLEXIL
   //
   // Default methods to be overridden by derived classes
   //
+
+
+  /**
+   * @brief Notify that nodes have changed state.
+   * @param Vector of node state transition info.
+   * @note Current states are accessible via the node.
+   * @note This default method is a convenience for backward compatibility.
+   */
+  void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions) const
+  {
+    debugMsg("ExecListener:implementNotifyNodeTransitions", " default method called");
+    if (m_filter.isNoId()) {
+	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
+		   it != transitions.end();
+		   it++) 
+		this->implementNotifyNodeTransition(it->oldState, it->node);
+	}
+	else {
+	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
+		   it != transitions.end();
+		   it++)
+		if (m_filter->reportNodeTransition(it->oldState, it->node))
+		  this->implementNotifyNodeTransition(it->oldState, it->node);
+	}
+  }
 
   /**
    * @brief Notify that a node has changed state.

@@ -461,9 +461,15 @@ namespace PLEXIL {
 				 "Locking node " << node->getNodeId().toString());
 		node->lockConditions();
       }
+
+	  // Initialize transition report list
+	  std::vector<NodeTransition> transitionsToPublish;
+	  transitionsToPublish.reserve(transitioningNodes.size());
+
       //transition them
-      for(std::list<NodeId>::iterator it = transitioningNodes.begin();
-		  it != transitioningNodes.end(); ++it) {
+      for (std::list<NodeId>::iterator it = transitioningNodes.begin();
+		   it != transitioningNodes.end();
+		   ++it) {
 		NodeId node = *it;
 		check_error(node.isValid());
 		checkError(transitionedNodes.find(node) == transitionedNodes.end(),
@@ -474,10 +480,14 @@ namespace PLEXIL {
 				 "] Transitioning node " << node->getNodeId().toString());
 		NodeState oldState = node->getState();
 		node->transition(quiescenceTime);
-		publishTransition(oldState, node);
+		NodeTransition t = {node, oldState};
+		transitionsToPublish.push_back(t);
 		transitionedNodes.insert(node);
 		++microStepCount;
       }
+	  // publish the transitions
+	  publishNodeTransitions(transitionsToPublish);
+
       //unlock the nodes
       for(std::list<NodeId>::iterator it = transitioningNodes.begin();
 		  it != transitioningNodes.end(); ++it) {
@@ -509,52 +519,6 @@ namespace PLEXIL {
     //
     // *** END CRITICAL SECTION ***
     //
-  }
-
-
-  // *** N.B. Only caller is itself? ***
-
-  void PlexilExec::quiescenceLoop(const int depth, const unsigned int stop,
-				  const double quiescenceTime) {
-    resolveResourceConflicts();
-    int stepNum = 0;
-    if(!m_stateChangeQueue.empty() && m_stateChangeQueue.rbegin()->first > stop) {
-      unsigned int nextStop = m_stateChangeQueue.rbegin()->first;
-      std::set<NodeId> transitionedNodes;
-      debugMsg("PlexilExec:step",
-	       "[" << m_cycleNum << ":" << depth << "] Starting with stop index " << stop <<
-	       " and state change queue: " << stateChangeQueueStr());
-      std::map<unsigned int, NodeId>::iterator it = m_stateChangeQueue.end();
-      --it;
-
-      while(!m_stateChangeQueue.empty() && it->first > stop) {
-	unsigned int pos = it->first;
-	NodeId node = it->second;
-	check_error(node.isValid());
-	checkError(transitionedNodes.find(it->second) == transitionedNodes.end(),
-		   "Node '" << node->getNodeId().toString() << "' (" << pos <<
-		   ") already transitioned in this loop.");
-	bool emptied = (it == m_stateChangeQueue.begin());
-	if(!emptied)
-	  --it;
-	debugMsg("PlexilExec:step", "Erasing node at position: " << pos);
-	m_stateChangeQueue.erase(pos);
-	debugMsg("PlexilExec:step",
-		 "[" << m_cycleNum << ":" << depth << ":" << stepNum << "]" <<
-		 " Transitioning node '" << node->getNodeId().toString() << "' (" << pos <<
-		 ")");
-	NodeState oldState = node->getState();
-	node->transition(quiescenceTime);
-	publishTransition(oldState, node);
-	transitionedNodes.insert(node);
-	resolveResourceConflicts();
-	stepNum++;
-	if(emptied)
-	  break;
-      }
-      performAssignments();
-      quiescenceLoop(depth + 1, nextStop, quiescenceTime);
-    }
   }
 
   void PlexilExec::performAssignments() 
@@ -682,12 +646,14 @@ namespace PLEXIL {
     return -1;
   }
 
-  void PlexilExec::publishTransition(NodeState prevState, const NodeId& node) {
-    for(std::vector<ExecListenerId>::iterator it = m_listeners.begin(); it != m_listeners.end();
-	++it) {
-      ExecListenerId listener = *it;
+  void PlexilExec::publishNodeTransitions(const std::vector<NodeTransition>& transitions) const
+  {
+    for (std::vector<ExecListenerId>::const_iterator it = m_listeners.begin();
+		 it != m_listeners.end();
+		 ++it) {
+      const ExecListenerId listener = *it;
       check_error(listener.isValid());
-      (*it)->notifyOfTransition(prevState, node);
+      listener->notifyOfTransitions(transitions);
     }
   }
 

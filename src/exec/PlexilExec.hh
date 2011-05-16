@@ -238,15 +238,7 @@ namespace PLEXIL
      */
     int inQueue(const NodeId node) const;
 
-    /**
-     * @brief The loop that performs quiescence.  This function is recursive.
-     * @param depth The current depth of quiescence (used mostly for output).
-     * @param stop The position in the state change queue at which this loop should terminate.
-     * @param time
-     */
-    void quiescenceLoop(const int depth, const unsigned int stop, const double time);
-
-    inline void publishTransition(NodeState oldState, const NodeId& node);
+    void publishNodeTransitions(const std::vector<NodeTransition>& transitions) const;
     void publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent);
     void publishAddLibrary(const PlexilNodeId& libNode);
     void publishAssignment(const ExpressionId & dest,

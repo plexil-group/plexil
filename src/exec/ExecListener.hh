@@ -65,14 +65,12 @@ namespace PLEXIL
     // API to Exec
     //
 
-    /**
-     * @brief Notify that a node has changed state.
-     * @param prevState The old state.
-     * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
-     */
-    virtual void notifyOfTransition(NodeState prevState, 
-                                    const NodeId& node) const;
+	/**
+	 * @brief Notify that nodes have changed state.
+	 * @param Vector of node state transition info.
+	 * @note Current states are accessible via the node.
+	 */
+	virtual void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
@@ -163,12 +161,22 @@ namespace PLEXIL
     // API to be implemented by subclasses
     //
 
+	/**
+	 * @brief Notify that nodes have changed state.
+	 * @param Vector of node state transition info.
+	 * @note Current states are accessible via the node.
+	 * @note ExecListener provides a default method for backward commpatibility.
+	 *       Derived classes may implement their own method.
+	 */
+	virtual void implementNotifyNodeTransitions(const std::vector<NodeTransition>& /* transitions */) const;
+
     /**
      * @brief Notify that a node has changed state.
      * @param prevState The old state.
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      * @note The default method does nothing.
+	 * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
                                                const NodeId& /* node */) const;
@@ -199,17 +207,21 @@ namespace PLEXIL
                                            const std::string& /* destName */,
                                            const double& /* value */) const;
 
+	//
+	// Member variables for derived classes to use
+	//
+
+    /**
+     * @brief The ID of this instance's filter.
+     */
+    ExecListenerFilterId m_filter;
+
   private:
 
     /**
      * @brief The ID of this instance.
      */
     ExecListenerId m_id;
-
-    /**
-     * @brief The ID of this instance's filter.
-     */
-    ExecListenerFilterId m_filter;
     
   };
 }

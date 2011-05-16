@@ -108,6 +108,16 @@ namespace PLEXIL {
     NO_NODE_STATE,
     NODE_STATE_MAX
   };
+
+
+  /**
+   * @brief A data structure for reporting node state transitions.
+   */
+  struct NodeTransition {
+	NodeId node;
+	NodeState oldState;
+  };
+
 }
 
 #endif
