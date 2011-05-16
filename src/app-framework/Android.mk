@@ -41,15 +41,19 @@ LOCAL_SRC_FILES := AdapterConfiguration.cc \
  DynamicLoader.cc \
  ExecApplication.cc \
  ExecListenerFactory.cc \
+ ExecListenerFilterFactory.cc \
  InterfaceAdapter.cc \
  InterfaceManager.cc \
  InterfaceManagerBase.cc \
  InterfaceSchema.cc \
  ManagedExecListener.cc \
+ ManagedExecListenerFilter.cc \
+ PlanDebugListener.cc \
  NewLuvListener.cc \
  PosixTimeAdapter.cc \
  ValueQueue.cc \
  UtilityAdapter.cc
+
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := -D'LIB_EXT="$(SUFSHARE)"'
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)

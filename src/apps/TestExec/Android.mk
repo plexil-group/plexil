@@ -39,9 +39,10 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../third-party/tinyxml \
  $(LOCAL_PATH)/../../utils \
  $(LOCAL_PATH)/../../exec \
  $(LOCAL_PATH)/../../interfaces/Sockets \
- $(LOCAL_PATH)/../../interfaces/LuvListener
+ $(LOCAL_PATH)/../../interfaces/LuvListener \
+ $(LOCAL_PATH)/../../app-framework
 #LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils PlexilExec PlexilSockets EssentialLuvListener
-LOCAL_STATIC_LIBRARIES := stdc++ tinyxml PlexilExec PlexilUtils EssentialLuvListener PlexilSockets
+LOCAL_STATIC_LIBRARIES := stdc++ tinyxml PlexilExec PlexilUtils EssentialLuvListener PlexilSockets PlexilAppFramework
 LOCAL_LDLIBS := 
 
 include $(BUILD_EXECUTABLE)
