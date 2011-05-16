@@ -55,7 +55,7 @@ namespace PLEXIL
    */
   void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
   {
-	debugMsg("ExecListener::notifyOfTransitions", " reporting " << transitions.size() << " transitions");
+	debugMsg("ExecListener:notifyOfTransitions", " reporting " << transitions.size() << " transitions");
 	this->implementNotifyNodeTransitions(transitions);
   }
 
