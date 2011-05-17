@@ -48,8 +48,6 @@
 ;; Ending current run
 ;;
 ;; To run as an App in Android
-;; add `"<Adapter AdapterType=\"Utility\"/>" + ' as line 60 of ExecServiceTester.java
-;;   or replace the given string with the contents of timed-iteration.xml (or dummy-config.xml)
 ;; copy timed-iteration.plx android/assets/test/Android-plans
 ;; % cd android
 ;; % setup-android
