@@ -1,0 +1,5 @@
+<Interfaces>
+  <Adapter AdapterType="Utility"/>
+  <Adapter AdapterType="OSNativeTime"/>
+  <Listener ListenerType="PlanDebugListener"/>
+</Interfaces>

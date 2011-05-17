@@ -1,0 +1,94 @@
+;; File: examples/multi-exec/agents/test3.pli
+
+;; Interestingly, this produces quite different results in Mac OS X and on Android.
+
+;; For both Mac OS X and Android, compile the model in your favorite way.
+
+;; To run it on a Mac
+;;
+;; % universalExec -p timed-iteration.plx -c timed-iteration.xml
+;;
+;; Reading interface configuration from timed-iteration.xml
+;; Initializing application
+;; Starting interfaces
+;; Socket.cpp(59) MARK
+;; Starting the exec
+;; elapsed-time: 0
+;; elapsed-time: 1.0019211769104
+;; elapsed-time: 2.00377202033997
+;; elapsed-time: 3.00537014007568
+;; elapsed-time: 4.00698399543762
+;; elapsed-time: 5.0085711479187
+;; elapsed-time: 6.01022410392761
+;; elapsed-time: 7.01177906990051
+;; elapsed-time: 8.01336312294006
+;; elapsed-time: 9.01492810249329
+;; elapsed-time: 10.0164811611176
+;; Ending current run
+
+;; To run it on Android from the command line
+;;
+;; % adb push timed-iteration.plx /data/local
+;; % adb push timed-iteration.xml /data/local
+;; % adb shell
+;; # cd /data/local
+;; # ./UniversalExec -p timed-iteration.plx -c timed-iteration.xml -d /dev/null
+;;
+;; Reading interface configuration from timed-iteration.xml
+;; Initializing application
+;; Starting interfaces
+;; /Users/cplaunt/work/android/jni/plexil/src/interfaces/Sockets/Socket.cpp(59) MARK
+;; Starting the exec
+;; elapsed-time: 0
+;; elapsed-time: 2.00825524330139
+;; elapsed-time: 4.01521015167236
+;; elapsed-time: 6.01130437850952
+;; elapsed-time: 8.00377249717712
+;; elapsed-time: 10.0055906772614
+;; Ending current run
+;;
+;; To run as an App in Android
+;; add `"<Adapter AdapterType=\"Utility\"/>" + ' as line 60 of ExecServiceTester.java
+;;   or replace the given string with the contents of timed-iteration.xml (or dummy-config.xml)
+;; copy timed-iteration.plx android/assets/test/Android-plans
+;; % cd android
+;; % setup-android
+;; emulator -> Menu -> Plexil -> timed-iteration.plx
+;; This will produce various slightly unpredictable output
+
+(plexil-plan
+  (sequence "setup-for-periodic-iteration"
+    (variables (real "run-start-time")    ;start time of this run (in seconds)
+               (integer "period" 1)       ;seconds
+               (real "elapsed-time")      ;seconds
+               (integer "run-length" 10)  ;seconds
+               (real "tolerance" 0.01)    ;polling rate for wakeups
+               (boolean "continue" true))
+    (assignment-node "record-run-start-time"
+      (assignment (realvar "run-start-time") (lookup-now "time")))
+    (sequence "periodic-execution"
+      (variables (real "iteration-start-time"))
+      (repeat-condition (boolvar "continue"))
+      ;; nod (now - run-start-time) period < period + (2 * tolerance)
+      (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" (realvar "tolerance"))
+                                  (realvar "run-start-time"))
+                               (intvar "period"))
+                           (* 2 (realvar "tolerance"))))
+      ;; Lookup the current time
+      (assignment-node "record-interation-start-time"
+        (assignment (realvar "iteration-start-time") (lookup-now "time")))
+      ;; Record the elapsed time so far
+      (assignment-node "record-elapsed-time"
+        (assignment (realvar "elapsed-time") (- (realvar "iteration-start-time") (realvar "run-start-time"))))
+      ;; Do something interesting with it
+      (command-node "do-something-interesting"
+        (command "print" "elapsed-time: " (realvar "elapsed-time") "\n"))
+      ;; Sleep briefly so that we don't repeat this node more than once per period
+      (wait (* 2 (realvar "tolerance")) "once-per-period-only")
+      ;; Stop the current test run if and when appropriate
+      (sequence "maybe-end-this-run"
+        (skip-condition (< (realvar "elapsed-time") (intvar "run-length")))
+        (assignment-node "set-contiue-to-false"
+          (assignment (boolvar "continue") false))
+        (command-node "end-run-notification"
+          (command "print" "Ending current run\n"))))))
