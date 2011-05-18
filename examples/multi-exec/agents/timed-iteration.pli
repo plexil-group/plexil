@@ -1,31 +1,11 @@
 ;; File: examples/multi-exec/agents/test3.pli
 
-;; Interestingly, this produces quite different results in Mac OS X and on Android.
-
 ;; For both Mac OS X and Android, compile the model in your favorite way.
 
 ;; To run it on a Mac
 ;;
 ;; % universalExec -p timed-iteration.plx -c timed-iteration.xml
 ;;
-;; Reading interface configuration from timed-iteration.xml
-;; Initializing application
-;; Starting interfaces
-;; Socket.cpp(59) MARK
-;; Starting the exec
-;; elapsed-time: 0
-;; elapsed-time: 1.0019211769104
-;; elapsed-time: 2.00377202033997
-;; elapsed-time: 3.00537014007568
-;; elapsed-time: 4.00698399543762
-;; elapsed-time: 5.0085711479187
-;; elapsed-time: 6.01022410392761
-;; elapsed-time: 7.01177906990051
-;; elapsed-time: 8.01336312294006
-;; elapsed-time: 9.01492810249329
-;; elapsed-time: 10.0164811611176
-;; Ending current run
-
 ;; To run it on Android from the command line
 ;;
 ;; % adb push timed-iteration.plx /data/local
@@ -33,19 +13,6 @@
 ;; % adb shell
 ;; # cd /data/local
 ;; # ./UniversalExec -p timed-iteration.plx -c timed-iteration.xml -d /dev/null
-;;
-;; Reading interface configuration from timed-iteration.xml
-;; Initializing application
-;; Starting interfaces
-;; /Users/cplaunt/work/android/jni/plexil/src/interfaces/Sockets/Socket.cpp(59) MARK
-;; Starting the exec
-;; elapsed-time: 0
-;; elapsed-time: 2.00825524330139
-;; elapsed-time: 4.01521015167236
-;; elapsed-time: 6.01130437850952
-;; elapsed-time: 8.00377249717712
-;; elapsed-time: 10.0055906772614
-;; Ending current run
 ;;
 ;; To run as an App in Android
 ;; copy timed-iteration.plx android/assets/test/Android-plans
