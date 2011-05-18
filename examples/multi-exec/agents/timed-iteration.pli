@@ -82,7 +82,7 @@
       (command-node "do-something-interesting"
         (command "print" "elapsed-time: " (realvar "elapsed-time") "\n"))
       ;; Sleep briefly so that we don't repeat this node more than once per period
-      (wait (* 2 (realvar "tolerance")) "once-per-period-only")
+      (wait-with-tolerance (* 2 (realvar "tolerance")) (realvar "tolerance") "once-per-period-only")
       ;; Stop the current test run if and when appropriate
       (sequence "maybe-end-this-run"
         (skip-condition (< (realvar "elapsed-time") (intvar "run-length")))
