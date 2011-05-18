@@ -24,7 +24,7 @@
 (plexil-plan
   (sequence "setup-for-periodic-iteration"
     (variables (real "run-start-time")    ;start time of this run (in seconds)
-               (integer "period" 1)       ;seconds
+               (real "period" 0.5)       ;seconds
                (real "elapsed-time")      ;seconds
                (integer "run-length" 10)  ;seconds
                (real "tolerance" 0.01)    ;polling rate for wakeups
@@ -37,7 +37,7 @@
       ;; nod (now - run-start-time) period < period + (2 * tolerance)
       (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" (realvar "tolerance"))
                                   (realvar "run-start-time"))
-                               (intvar "period"))
+                               (realvar "period"))
                            (* 2 (realvar "tolerance"))))
       ;; Lookup the current time
       (assignment-node "record-interation-start-time"
