@@ -1354,6 +1354,15 @@ namespace PLEXIL
     m_application.notifyExec();
   }
 
+  /**
+   * @brief Notify the executive that it should run one cycle.  
+  */
+  void
+  InterfaceManager::notifyAndWaitForCompletion()
+  {
+    m_application.notifyAndWaitForCompletion();
+  }
+
   //
   // Utility accessors
   //

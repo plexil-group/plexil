@@ -309,6 +309,11 @@ namespace PLEXIL
     virtual void notifyOfExternalEvent() = 0;
 
     /**
+     * @brief Run the exec and wait until all events in the queue have been processed.
+	 */
+	virtual void notifyAndWaitForCompletion() = 0;
+
+    /**
      * @brief Get the state cache for this instance of the interface.
      * @note This function is deprecated.  Use 
     */
