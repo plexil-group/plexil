@@ -96,7 +96,7 @@
       ;;remember when the last cycle finished -- used in update-bay.pli
       (assignment (array-element "times" 2) (array-element "times" 1))
       ;; Without this (2 * tolerance) wait, this sequence will run more than one iteration per "period"
-      (wait .02))
+      (wait-with-tolerance 0.02 0.01))
     ;; Quit when asked to
     (action "QuitCommand"
       (on-message "Quit"
