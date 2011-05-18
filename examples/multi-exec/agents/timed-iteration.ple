@@ -1,39 +1,4 @@
-// (plexil-plan
-//   (sequence "setup-for-periodic-iteration"
-//     (variables (real "run-start-time")    ;start time of this run (in seconds)
-//                (real "period" 0.5)       ;seconds
-//                (real "elapsed-time")      ;seconds
-//                (integer "run-length" 10)  ;seconds
-//                (real "tolerance" 0.01)    ;polling rate for wakeups
-//                (boolean "continue" true))
-//     (assignment-node "record-run-start-time"
-//       (assignment (realvar "run-start-time") (lookup-now "time")))
-//     (sequence "periodic-execution"
-//       (variables (real "iteration-start-time"))
-//       (repeat-condition (boolvar "continue"))
-//       ;; (mod (- now run-start-time) period) < (* 2 tolerance)
-//       (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" (realvar "tolerance"))
-//                                   (realvar "run-start-time"))
-//                                (realvar "period"))
-//                            (* 2 (realvar "tolerance"))))
-//       ;; Lookup the current time
-//       (assignment-node "record-interation-start-time"
-//         (assignment (realvar "iteration-start-time") (lookup-now "time")))
-//       ;; Record the elapsed time so far
-//       (assignment-node "record-elapsed-time"
-//         (assignment (realvar "elapsed-time") (- (realvar "iteration-start-time") (realvar "run-start-time"))))
-//       ;; Do something interesting with it
-//       (command-node "do-something-interesting"
-//         (command "print" "elapsed-time: " (realvar "elapsed-time") "\n"))
-//       ;; Sleep briefly so that we don't repeat this node more than once per period
-//       (wait-with-tolerance (* 2 (realvar "tolerance")) (realvar "tolerance") "once-per-period-only")
-//       ;; Stop the current test run if and when appropriate
-//       (sequence "maybe-end-this-run"
-//         (skip-condition (< (realvar "elapsed-time") (intvar "run-length")))
-//         (assignment-node "set-contiue-to-false"
-//           (assignment (boolvar "continue") false))
-//         (command-node "end-run-notification"
-//           (command "print" "Ending current run\n"))))))
+// File: plexil/examples/multi-exec/agents/timed-iteration.ple
 
 Command pprint(...);
 Real Lookup time;
