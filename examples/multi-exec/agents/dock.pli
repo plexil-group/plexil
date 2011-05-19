@@ -30,7 +30,7 @@
       (real-array "bay2" 6 2 0 0 0 0 0)
       (real-array "bay3" 6 3 0 0 0 0 0)
       (real-array "bay4" 6 4 0 0 0 0 0))
-    (invariant-condition (not (finished "QuitCommand")))
+    (end-condition (finished "QuitCommand"))
     ;; Record the start time of this run
     (assignment (array-element "times" 0) (lookup-now "time"))
     ;; Announce that we are up and running
@@ -40,6 +40,7 @@
     (sequence "docking-request"
       (variables (real "rover-id"))
       (repeat-condition true)           ;always open for business
+      (end-condition (finished "QuitCommand"))
       (on-command "docking-request" ((real-array "request" 3)) ;rover-id[0] action(1=dock,0=un-dock)[1] urgency(unused)[2]
         (sequence "handle-request"
           (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
