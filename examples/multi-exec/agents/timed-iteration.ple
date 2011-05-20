@@ -1,3 +1,4 @@
+// -*- Mode: java -*-
 // File: plexil/examples/multi-exec/agents/timed-iteration.ple
 
 Command pprint(...);
@@ -5,28 +6,28 @@ Real Lookup time;
 
 Timed-iteration:
 {
-  Real run_start_time;
-  Real period = 0.5;
-  Real elapsed_time;
-  Integer run_length = 10;
-  Real tolerance = 0.01;
-  Boolean continue = true;
-  record-run-start-time: run_start_time = Lookup(time);
-  periodic-iteration:
-  {
-    Real iteration_start_time;
-    RepeatCondition continue;
-    // ((now - run-start-time) % period) < (2 * tolerance)
-    StartCondition (((LookupOnChange(time, tolerance) - run_start_time) % period) < (2 * tolerance));
-    record-iteration-start-time: iteration_start_time = Lookup(time);
-    record-elapsed_time: elapsed_time = iteration_start_time - run_start_time;
-    print-elapsed-time: pprint("elapsed_time: ", elapsed_time);
-    wait-a-bit: Wait (2 * tolerance), tolerance;
-    conditionally-end-iteration:
+    Real run_start_time;
+    Real period = 0.5;
+    Real elapsed_time;
+    Integer run_length = 10;
+    Real tolerance = 0.01;
+    Boolean continue = true;
+    record-run-start-time: run_start_time = Lookup(time);
+    periodic-iteration:
     {
-      SkipCondition elapsed_time <= run_length;
-      signal-end-of-iteration: continue = false;
-      notify-end-of-iteration: pprint("Ending periodic iteration");
+        Real iteration_start_time;
+        RepeatCondition continue;
+        // ((now - run-start-time) % period) < (2 * tolerance)
+        StartCondition (((LookupOnChange(time, tolerance) - run_start_time) % period) < (2 * tolerance));
+        record-iteration-start-time: iteration_start_time = Lookup(time);
+        record-elapsed_time: elapsed_time = iteration_start_time - run_start_time;
+        print-elapsed-time: pprint("elapsed_time: ", elapsed_time);
+        wait-a-bit: Wait (2 * tolerance), tolerance;
+        conditionally-end-iteration:
+        {
+            SkipCondition elapsed_time <= run_length;
+            signal-end-of-iteration: continue = false;
+            notify-end-of-iteration: pprint("Ending periodic iteration");
+        }
     }
-  }
 }
