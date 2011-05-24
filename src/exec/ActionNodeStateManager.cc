@@ -136,7 +136,7 @@ namespace PLEXIL {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
          if(node->getEndCondition()->getValue() != BooleanVariable::TRUE())
-	  handleAbort(node);
+		   node->abort();
       }
       else if (node->getInvariantCondition()->getValue() ==
                BooleanVariable::FALSE()) 
@@ -144,7 +144,7 @@ namespace PLEXIL {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
          if(node->getEndCondition()->getValue() != BooleanVariable::TRUE())
-            handleAbort(node);
+            node->abort();
       }
       else if(node->getEndCondition()->getValue() ==
 	      BooleanVariable::TRUE()) {
@@ -164,7 +164,7 @@ namespace PLEXIL {
       node->deactivateAncestorInvariantCondition();
       node->deactivatePostCondition();
       node->deactivateCommandHandleReceivedCondition();
-      deactivateExecutable(node);
+      node->deactivateExecutable();
     }
 
     void transitionTo(NodeId& node, NodeState destState) {
@@ -184,7 +184,7 @@ namespace PLEXIL {
       node->activateCommandHandleReceivedCondition();
 
       node->setState(destState);
-      handleExecution(node);
+	  node->execute();
     }
   };
 

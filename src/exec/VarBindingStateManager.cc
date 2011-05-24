@@ -117,13 +117,13 @@ namespace PLEXIL {
       }
 
       if(abort)
-	handleAbort(node);
+		node->abort();
 
       node->deactivateAncestorInvariantCondition();
       node->deactivateInvariantCondition();
       node->deactivateEndCondition();
       node->deactivatePostCondition();
-      deactivateExecutable(node);
+      node->deactivateExecutable();
     }
 
     void transitionTo(NodeId& node, NodeState destState) {
@@ -140,7 +140,7 @@ namespace PLEXIL {
       node->activatePostCondition();
 
       node->setState(destState);
-      handleExecution(node);
+      node->execute();
     }
   };
 

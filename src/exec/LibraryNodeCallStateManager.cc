@@ -210,7 +210,7 @@ namespace PLEXIL
             if (destState != FINISHING_STATE)
 			  node->deactivateInvariantCondition();
             node->deactivateEndCondition();
-            deactivateExecutable(node);
+            node->deactivateExecutable();
          }
 
          void transitionTo(NodeId& node, NodeState destState)
@@ -226,7 +226,7 @@ namespace PLEXIL
             node->activateEndCondition();
 
             node->setState(destState);
-            handleExecution(node);
+            node->execute();
          }
 
    };

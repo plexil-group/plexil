@@ -287,6 +287,12 @@ namespace PLEXIL {
 
     double getAcknowledgementValue() const;
 
+	// Called from the transition handler
+    void execute();
+    void reset();
+    void abort();
+    void deactivateExecutable();
+
 	// Activate a condition
     void activateSkipCondition()                      { return activatePair(skipIdx); }
     void activateStartCondition()                     { return activatePair(startIdx); }
@@ -396,17 +402,9 @@ namespace PLEXIL {
 
     void getVarsFromParent();
 
-    void execute();
-
-    void reset();
-
-    void abort();
-
     void lockConditions();
 
     void unlockConditions();
-
-    void deactivateExecutable();
 
     void cleanUpConditions();
 

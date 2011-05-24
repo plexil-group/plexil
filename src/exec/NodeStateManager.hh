@@ -68,12 +68,7 @@ namespace PLEXIL {
      * @brief Handle the node entering this state.
      */
     virtual void transitionTo(NodeId& node, NodeState destState) = 0;
-  protected:
-    static void deactivateExecutable(NodeId& node);
-    static void handleExecution(NodeId& node);
-    static void handleReset(NodeId& node);
-    static void handleAbort(NodeId& node);
-    static bool checkConditions(const NodeId& node, const std::set<double>& active);
+
   private:
     TransitionHandlerId m_id;
   };

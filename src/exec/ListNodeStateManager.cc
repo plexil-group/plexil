@@ -191,7 +191,7 @@ namespace PLEXIL {
       node->deactivateEndCondition();
       // Any variables declared in this node also need to be deactivated.
       // Chucko 17 Dec 2009
-      deactivateExecutable(node);
+      node->deactivateExecutable();
     }
 
     void transitionTo(NodeId& node, NodeState destState) {
@@ -206,7 +206,7 @@ namespace PLEXIL {
       node->activateEndCondition();
 
       node->setState(destState);
-      handleExecution(node);
+	  node->execute();
     }
 
   };

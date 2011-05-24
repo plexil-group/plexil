@@ -41,18 +41,6 @@ namespace PLEXIL {
     return *sl_map;
   }
 
-  void TransitionHandler::handleExecution(NodeId& node) {node->execute();}
-  void TransitionHandler::handleReset(NodeId& node) {node->reset();}
-  void TransitionHandler::handleAbort(NodeId& node) {node->abort();}
-  void TransitionHandler::deactivateExecutable(NodeId& node) {node->deactivateExecutable();}
-
-  bool TransitionHandler::checkConditions(const NodeId& /* node */,
-					  const std::set<double>& active) {
-    std::vector<double> inactive(Node::ALL_CONDITIONS().size() - active.size());
-    // *** FIXME: FINISH THIS ***
-    return true;
-  }
-
   void NodeStateManager::registerStateManager(const LabelStr& nodeType, const NodeStateManagerId manager) {
     check_error(manager.isValid());
     checkError(registeredManagers().find(nodeType) == registeredManagers().end(), "State manager already registered for node type '" << nodeType.toString() << "'");

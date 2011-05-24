@@ -235,7 +235,7 @@ namespace PLEXIL {
       node->deactivateAncestorInvariantCondition();
 
       if(destState == WAITING_STATE)
-	handleReset(node);
+		node->reset();
     }
 
     void transitionTo(NodeId& node, NodeState destState) {
@@ -262,7 +262,7 @@ namespace PLEXIL {
 		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       node->deactivateParentWaitingCondition();
-      handleReset(node);
+      node->reset();
     }
 
     void transitionTo(NodeId& node, NodeState destState) {
