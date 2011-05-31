@@ -57,6 +57,15 @@ namespace PLEXIL {
    */
   const char* getTextChild (const TiXmlElement& element);
 
+  /**
+   * @brief Helper method to test if a char* is a valid Boolean value.
+   */
+  bool isXmlBoolean(const char* data);
+
+  /**
+   * @brief Helper method to test if a char* is numeric. If it is, will write it to data.
+   */
+  bool isXmlBoolean(const char* data, bool& value);
 
   /**
    * @brief Helper method to test if a char* is numeric.

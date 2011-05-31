@@ -58,6 +58,27 @@ namespace PLEXIL {
     return element.FirstChild()->ToText()->Value();
   }
 
+  bool isXmlBoolean(const char* data)
+  {
+	bool dummy;
+	return isXmlBoolean(data, dummy);
+  }
+
+  bool isXmlBoolean(const char* data, bool& value)
+  {
+	if (strcmp(data, "0")
+		|| strcmp(data, "false")) {
+	  value = false;
+	  return true;
+	}
+	else if (strcmp(data, "1")
+			 || strcmp(data, "true")) {
+	  value = true;
+	  return true;
+	}
+	return false;
+  }
+
   bool isNumber(const char* data){
     double dummy;
     return isNumber(data, dummy);
