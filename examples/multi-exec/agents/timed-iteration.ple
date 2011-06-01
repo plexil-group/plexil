@@ -18,9 +18,9 @@ Timed-iteration:
         Real iteration_start_time;
         RepeatCondition continue;
         // ((now - run-start-time) % period) < (2 * tolerance)
-        StartCondition (((LookupOnChange(time, tolerance) - run_start_time) % period) < (2 * tolerance));
+        StartCondition ((LookupOnChange(time, tolerance) - run_start_time) % period) < (2 * tolerance);
         record-iteration-start-time: iteration_start_time = Lookup(time);
-        record-elapsed_time: elapsed_time = iteration_start_time - run_start_time;
+        record-elapsed-time: elapsed_time = iteration_start_time - run_start_time;
         print-elapsed-time: pprint("elapsed_time: ", elapsed_time);
         wait-a-bit: Wait (2 * tolerance), tolerance;
         conditionally-end-iteration:
