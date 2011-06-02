@@ -34,7 +34,7 @@ LIB_PATH	+=
 LIBS		+= tinyxml $(PTHREAD_LIB)
 
 SRC		:= Debug.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
- RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
+ ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
  ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc \
  Utils.cc XMLUtils.cc
 #SRC		:= $(wildcard *.cc)
