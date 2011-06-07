@@ -656,6 +656,22 @@
                    (if val
                        (list (xml "InitialValue" (xml "StringValue" val))))))))
 
+(pdefine pl (Duration duration) (name &optional val) 2 nil ; string * opt(ISO 8601 Duration) -> xml
+  "Declare an ISO 8601 duration variable, with optional initial value."
+  (xml "DeclareVariable"
+       (cons (xml "Name" name)
+             (cons (xml "Type" "Duration")
+                   (if val
+                       (list (xml "InitialValue" (xml "DurationValue" val))))))))
+
+(pdefine pl (Date date) (name &optional val) 2 nil ; string * opt(ISO 8601 Date) -> xml
+  "Declare an ISO 8601  date variable, with optional initial value."
+  (xml "DeclareVariable"
+       (cons (xml "Name" name)
+             (cons (xml "Type" "Date")
+                   (if val
+                       (list (xml "InitialValue" (xml "DateValue" val))))))))
+
 (pdefine pl (IntArray int-array) (name size &rest values) 2 nil
          ;; string * int * list(int + xml) -> xml
   "Declare an integer array with given name, size, and initial values."
@@ -756,6 +772,14 @@
 (pdefine pl (ArrayVariable arrayvar) (name) 1 nil             ; string -> xml
   ""
   (xml "ArrayVariable" name nil 'array))
+
+(pdefine pl (DateVariable datevar) (name) 1 nil                ; string -> xml
+  ""
+  (xml "DateVariable" name nil 'real))
+
+(pdefine pl (DurationVariable durvar durationvar) (name) 1 nil ; string -> xml
+  ""
+  (xml "DurationVariable" name nil 'real))
 
 (pdefine pl (ArrayElement array-element) (name index) 2 nil
   ;; string * (int + xml) -> xml
@@ -995,6 +1019,13 @@
    "this makes your file more readable.")
   (xml "StringValue" (concat str (apply #'concat strs)) nil 'string))
 
+(pdefine pl (DateValue dateval) (val) 1 nil                ; string  * ISO 8601 Date -> xml
+  ""
+  (xml "DateValue" val nil 'real))
+
+(pdefine pl (DurationValue durationval durval) (val) 1 nil ; string * ISO 8601 Duration -> xml
+  ""
+  (xml "DurationValue" val nil 'real))
 
 ;;; Syntactic Sugar
 
