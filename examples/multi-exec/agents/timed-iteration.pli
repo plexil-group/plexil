@@ -1,32 +1,44 @@
-;; File: plexil/examples/multi-exec/agents/test3.pli
+;; File: examples/multi-exec/agents/timed-iteration.pli
 
 (plexil-plan
   (sequence "time-iteration"
-    (variables (real "run-start-time")    ;start time of this run (in seconds)
-               (real "period" 0.5)       ;seconds
-               (real "elapsed-time")      ;seconds
-               (integer "run-length" 10)  ;seconds
-               (real "tolerance" 0.01)    ;polling rate for wakeups
+    (variables (date "run-start-time")
+               (date "plan-start" "2011-06-07T09:59:00.000")
+               (duration "period" "PT0.5S")
+               (duration "elapsed-time" "PT0.0S")
+               (duration "start-delta")
+               (duration "run-length" "PT10.0S")
+               (duration "tolerance" "PT0.01S")
                (boolean "continue" true))
     (assignment-node "record-run-start-time"
-      (assignment (realvar "run-start-time") (lookup-now "time")))
+      (assignment (datevar "run-start-time") (lookup-now "time")))
+    (assignment-node "find-plan-start-time"
+      (assignment (durvar "start-delta") (- (datevar "plan-start") (datevar "run-start-time"))))
+    (assignment-node "find-plan-end-time"
+      (assignment (durvar "run-length") (+ (durvar "run-length") (durvar "start-delta"))))
+    (command-node "report-plan-start-time"
+      (command "pprint" "plan starts in" (durvar "start-delta") "seconds"))
+    (sequence "wait-for-start-time"
+      (start-condition (< (datevar "plan-start") (lookup-on-change-with-tolerance "time" (durvar "tolerance"))))
+      (command-node "report-plan-start"
+        (command "pprint" "Plan starting...")))
     (sequence "periodic-iteration"
       (variables (real "iteration-start-time"))
       (repeat-condition (boolvar "continue"))
       ;; ((now - run-start-time) % period) < (2 * tolerance)
-      (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" (realvar "tolerance"))
-                                  (realvar "run-start-time"))
-                               (realvar "period"))
-                           (* 2 (realvar "tolerance"))))
+      (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" (durvar "tolerance"))
+                                  (datevar "run-start-time"))
+                               (durvar "period"))
+                           (* 2 (durvar "tolerance"))))
       (assignment-node "record-interation-start-time"
         (assignment (realvar "iteration-start-time") (lookup-now "time")))
       (assignment-node "record-elapsed-time"
-        (assignment (realvar "elapsed-time") (- (realvar "iteration-start-time") (realvar "run-start-time"))))
+        (assignment (durvar "elapsed-time") (- (realvar "iteration-start-time") (datevar "run-start-time"))))
       (command-node "print-elapsed-time"
-        (command "pprint" "elapsed-time: " (realvar "elapsed-time")))
-      (wait-with-tolerance (* 2 (realvar "tolerance")) (realvar "tolerance") "wait-a-bit")
+        (command "pprint" "elapsed-time: " (durvar "elapsed-time")))
+      (wait-with-tolerance (* 2 (durvar "tolerance")) (durvar "tolerance") "wait-a-bit")
       (sequence "conditionally-end-iteration"
-        (skip-condition (<= (realvar "elapsed-time") (intvar "run-length")))
+        (skip-condition (<= (durvar "elapsed-time") (durvar "run-length")))
         (assignment-node "signal-end-of-iteration"
           (assignment (boolvar "continue") false))
         (command-node "notify-end-of-iteration"
