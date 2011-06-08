@@ -27,21 +27,22 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<xsl:transform version="2.0" xmlns:tr="extended-plexil-translator"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:transform version="2.0"
+               xmlns:tr="extended-plexil-translator"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+               exclude-result-prefixes="xs">
 
-  <xsl:output method="xml" indent="yes" />
+  <xsl:output method="xml" indent="yes"/>
 
-  <!--
-    To Do incorporate into run-te (?) add checks for all node states?
-    add all node failure types to transition diagrams Implementation:
-    copy comments (hard) use copy-of in local variables
-  -->
+  <!-- To Do incorporate into run-te (?) add checks for all node
+       states?  add all node failure types to transition diagrams
+       Implementation:  copy comments (hard) use copy-of in local
+       variables -->
 
-  <!-- This is the "overriding copy idiom", from "XSLT
-       Cookbook" by Sal Mangano.  It is the identity
-       transform, covering all elements that are not
-       explicitly handled elsewhere. -->
+  <!-- This is the "overriding copy idiom", from "XSLT Cookbook" by
+       Sal Mangano.  It is the identity transform, covering all
+       elements that are not explicitly handled elsewhere. -->
 
   <xsl:template match= "node() | @*">
     <xsl:copy>
@@ -49,23 +50,22 @@
     </xsl:copy>
   </xsl:template>
 
-
-<!-- Abstraction for Action constructs.  Unfortunately, this
-     is not allowed in 'select' attributes, so the actions are
-     enumerated there. -->
+  <!-- Abstraction for Action constructs.  Unfortunately, this is not
+       allowed in 'select' attributes, so the actions are enumerated
+       there. -->
 
   <xsl:key name="action"
-    match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|
-           OnCommand|Wait|SynchronousCommand"
-    use="." />
+           match="Node|Concurrence|Sequence|UncheckedSequence|Try|If|While|For|OnMessage|
+                  OnCommand|Wait|SynchronousCommand"
+           use="."/>
 
   <!-- Entry point -->
   <xsl:template match="PlexilPlan">
     <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <!-- 0 or 1 expected -->
-      <xsl:copy-of select="GlobalDeclarations" />
+      <xsl:copy-of select="GlobalDeclarations"/>
       <!-- 1 expected -->
-      <xsl:apply-templates select="key('action', *)" />
+      <xsl:apply-templates select="key('action', *)"/>
     </PlexilPlan>
   </xsl:template>
 
@@ -88,7 +88,8 @@
       <xsl:copy-of select="@LineNo" />
       <xsl:copy-of select="@ColNo" />
       <xsl:copy-of select="NodeId" />
-      <xsl:copy-of select="VariableDeclarations" />
+      <!-- <xsl:copy-of select="VariableDeclarations" /> -->
+      <xsl:apply-templates select="VariableDeclarations"/>
       <xsl:copy-of select="Priority" />
       <xsl:copy-of select="Permissions" />
       <xsl:copy-of select="Interface" />
@@ -102,10 +103,9 @@
         </xsl:otherwise>
       </xsl:choose>
       <!-- Elements that may need translation -->
-      <xsl:apply-templates
-        select="RepeatCondition|PreCondition|PostCondition|
-                InvariantCondition|EndCondition" />
-      <xsl:apply-templates select="NodeBody" /> 
+      <xsl:apply-templates select="RepeatCondition|PreCondition|PostCondition|
+                                   InvariantCondition|EndCondition" />
+      <xsl:apply-templates select="NodeBody" />
     <!-- Handle skip condition -->
     <xsl:choose>
       <xsl:when test="$ordered">
@@ -600,7 +600,8 @@
   <xsl:template match="Wait">
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses"/>
-      <xsl:copy-of select="VariableDeclarations"/>
+      <!-- ;<xsl:copy-of select="VariableDeclarations"/> -->
+      <xsl:apply-templates select="VariableDeclarations"/>
       <xsl:apply-templates select="StartCondition"/>
       <xsl:apply-templates select="RepeatCondition"/>
       <xsl:apply-templates select="PreCondition"/>
@@ -614,7 +615,8 @@
   <xsl:template match="Wait" mode= "ordered">
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses"/>
-      <xsl:copy-of select="VariableDeclarations"/>
+      <!-- <xsl:copy-of select="VariableDeclarations"/> -->
+      <xsl:apply-templates select="VariableDeclarations"/>
       <xsl:call-template name="ordered-start-condition"/>
       <xsl:apply-templates select="RepeatCondition"/>
       <xsl:apply-templates select="PreCondition"/>
@@ -645,12 +647,13 @@
         </Name>
         <xsl:choose>
           <xsl:when test= "Tolerance">
-            <xsl:copy-of select="Tolerance"/>
+            <!-- <xsl:copy-of select="Tolerance"/> -->
+            <xsl:apply-templates select="Tolerance"/>
           </xsl:when>
           <xsl:otherwise>
             <Tolerance>
               <RealValue>1.0</RealValue>
-            </Tolerance>                  
+            </Tolerance>
           </xsl:otherwise>
         </xsl:choose>
       </LookupOnChange>
@@ -675,7 +678,7 @@
         <xsl:call-template name= "command-with-return"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name= "command-without-return"/>        
+        <xsl:call-template name= "command-without-return"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -705,7 +708,7 @@
     <xsl:param name= "ordered"/>
     <xsl:variable name= "return" select= "tr:prefix('return')"/>
     <!-- Hack to save array name, iff command's return is an array -->
-    <xsl:variable name= "array_name" select= "Command/ArrayVariable"/>    
+    <xsl:variable name= "array_name" select= "Command/ArrayVariable"/>
     <xsl:variable name= "decl">
       <xsl:choose>
         <xsl:when test= "Command/IntegerVariable">
@@ -724,11 +727,11 @@
           <ArrayVariable><xsl:value-of select="$return"/></ArrayVariable>
         </xsl:when>
         <xsl:otherwise>
-          <error>Unrecognized variable type in SynchronousCommand</error>              
+          <error>Unrecognized variable type in SynchronousCommand</error>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name= "known-test">    
+    <xsl:variable name= "known-test">
       <xsl:choose>
         <xsl:when test= "not(Command/ArrayVariable)">
           <IsKnown><xsl:copy-of select= "$decl"/></IsKnown>
@@ -739,7 +742,7 @@
               <Name><xsl:value-of select= "$return"/></Name>
               <Index><IntegerValue>0</IntegerValue></Index>
           </ArrayElement>
-          </IsKnown>          
+          </IsKnown>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -749,7 +752,7 @@
           <xsl:call-template name= "standard-preamble-ordered"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name= "standard-preamble"/>          
+          <xsl:call-template name= "standard-preamble"/>
         </xsl:otherwise>
       </xsl:choose>
       <NodeBody>
@@ -803,7 +806,7 @@
                   </DeclareArray>
                 </xsl:when>
                 <xsl:otherwise>
-                  <error>Unrecognized variable type in SynchronousCommand</error>              
+                  <error>Unrecognized variable type in SynchronousCommand</error>
                 </xsl:otherwise>
               </xsl:choose>
             </VariableDeclarations>
@@ -863,7 +866,7 @@
                           <ArrayRHS><xsl:copy-of select="$decl"/></ArrayRHS>
                         </xsl:when>
                         <xsl:otherwise>
-                          <error>Unrecognized variable type in SynchronousCommand</error>              
+                          <error>Unrecognized variable type in SynchronousCommand</error>
                         </xsl:otherwise>
                       </xsl:choose>
                     </Assignment>
@@ -885,7 +888,7 @@
           <xsl:call-template name= "standard-preamble-ordered"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name= "standard-preamble"/>          
+          <xsl:call-template name= "standard-preamble"/>
         </xsl:otherwise>
       </xsl:choose>
       <NodeBody>
@@ -960,7 +963,8 @@
     <xsl:apply-templates select="InvariantCondition"/>
     <xsl:apply-templates select="EndCondition"/>
     <xsl:apply-templates select="SkipCondition"/>
-    <xsl:copy-of select="VariableDeclarations"/>
+    <!-- <xsl:copy-of select="VariableDeclarations"/> -->
+    <xsl:apply-templates select="VariableDeclarations"/>
   </xsl:template>
 
   <xsl:template name= "standard-preamble-ordered">
@@ -972,7 +976,8 @@
     <xsl:apply-templates select="InvariantCondition"/>
     <xsl:call-template name= "wait-end-condition"/>
     <xsl:call-template name="ordered-skip-condition"/>
-    <xsl:copy-of select="VariableDeclarations"/>
+    <!-- <xsl:copy-of select="VariableDeclarations"/> -->
+    <xsl:apply-templates select="VariableDeclarations"/>
   </xsl:template>
 
 
@@ -994,7 +999,8 @@
       <xsl:when test="$declare-test">
         <!-- declare a "test" variable in addition to existing -->
         <VariableDeclarations>
-          <xsl:copy-of select="VariableDeclarations/*" />
+          <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
+          <xsl:apply-templates select="VariableDeclarations/*"/>
           <xsl:call-template name="declare-variable">
             <xsl:with-param name="name" select="tr:prefix('test')" />
             <xsl:with-param name="type" select="'Boolean'" />
@@ -1004,12 +1010,14 @@
       <xsl:when test="$declare-for">
         <!-- declare the for loop's variable -->
         <VariableDeclarations>
-          <xsl:copy-of select="VariableDeclarations/*" />
+          <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
+          <xsl:apply-templates select="VariableDeclarations/*"/>
           <xsl:copy-of select="LoopVariable/*" />
         </VariableDeclarations>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:copy-of select="VariableDeclarations" />
+        <!-- <xsl:copy-of select="VariableDeclarations" /> -->
+        <xsl:apply-templates select="VariableDeclarations"/>
       </xsl:otherwise>
     </xsl:choose>
     <!-- Handle start condition -->
@@ -1224,10 +1232,12 @@
     </xsl:element>
   </xsl:template>
 
-  <!-- These expressions are deep copied. -->
-  <xsl:template
-    match="BooleanVariable|BooleanValue|LookupNow|LookupOnChange|ArrayElement">
-    <xsl:copy-of select="." />
+  <!-- These expressions are deep copied. (But must also be processed
+       for dates and durations) -->
+  <xsl:template match="BooleanVariable|BooleanValue|LookupOnChange|LookupNow|ArrayElement">
+    <xsl:copy>
+      <xsl:apply-templates/>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template match="Finished">
@@ -1342,6 +1352,7 @@
     <xsl:apply-templates select="$Msg_staging"
       mode="ordered" />
   </xsl:template>
+
   <xsl:template name="OnMessage-staging">
     <Sequence>
       <xsl:copy-of select="@FileName" />
@@ -1421,8 +1432,11 @@
       <xsl:copy-of select="@LineNo" />
       <xsl:copy-of select="@ColNo" />
       <VariableDeclarations>
-        <xsl:copy-of select="VariableDeclarations/DeclareVariable" />
-        <xsl:copy-of select="VariableDeclarations/DeclareArray"/> <!-- Arrays are variables too -->
+        <!-- <xsl:copy-of select="VariableDeclarations/DeclareVariable" /> -->
+        <xsl:apply-templates select="VariableDeclarations/DeclareVariable"/>
+        <!-- Arrays are variables too -->
+        <!-- <xsl:copy-of select="VariableDeclarations/DeclareArray"/> -->
+        <xsl:apply-templates select="VariableDeclarations/DeclareArray"/>
         <DeclareVariable>
           <Name>
             <xsl:value-of select="tr:prefix('hdl')" />
@@ -1434,10 +1448,10 @@
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
       </xsl:variable>
-<!-- This invariant condition can create an out-of-scope node reference,
-     e.g. when the OnCommand occurs inside a While.  The purpose and usefulness
-     of this condition is questionable to begin with, so we're trying without
-     it...
+      <!-- This invariant condition can create an out-of-scope node reference,
+           e.g. when the OnCommand occurs inside a While.  The purpose and usefulness
+           of this condition is questionable to begin with, so we're trying without
+           it...
       <xsl:if test="not($parent_id='')">
         <InvariantCondition>
           <AND>
@@ -1451,8 +1465,7 @@
             </EQInternal>
           </AND>
         </InvariantCondition>
-      </xsl:if>
- -->
+      </xsl:if> -->
       <xsl:copy-of select="NodeId" />
       <!-- Cmd wait node -->
       <xsl:variable name="hdl_dec">
@@ -1806,7 +1819,8 @@
           <Name>
             <xsl:apply-templates select= "Name/*"/>
           </Name>
-          <xsl:copy-of select="Tolerance"/>
+          <!-- <xsl:copy-of select="Tolerance"/> -->
+          <xsl:apply-templates select="Tolerance"/>
           <xsl:if test= "Arguments">
             <Arguments>
               <xsl:apply-templates select= "Arguments/*"/>
@@ -1817,6 +1831,45 @@
     </xsl:choose>
   </xsl:template>
 
+
+  <!-- Dates and Durations (handled rather naively as real values) -->
+
+  <!-- Some Epochs http://en.wikipedia.org/wiki/Epoch_(reference_date) -->
+  <xsl:variable name="UTC" select="xs:dateTime('1900-01-01T00:00:00Z')"/> <!-- Julian day 2415021 (DJD+1?) -->
+  <xsl:variable name="Unix" select="xs:dateTime('1970-01-01T00:00:00Z')"/> <!-- Julian day 2440587.5 -->
+  <xsl:variable name="CPS" select="xs:dateTime('1990-12-24T00:00:00Z')"/> <!-- Julian day 2448250 -->
+  <xsl:variable name="J2000" select="xs:dateTime('2000-01-01T11:58:55.816Z')"/> <!-- Julian date 2451545.0 TT -->
+
+  <!-- Use this epoch -->
+  <xsl:variable name="epoch" select="$Unix"/>
+
+  <xsl:template match="Type[.='Date' or .='Duration']">
+    <!-- Dates and Durations are represented as "real" values -->
+    <Type>Real</Type>
+  </xsl:template>
+
+  <xsl:template match="DurationVariable|DateVariable">
+    <!-- Dates and Durations are represented as "real" variables -->
+    <RealVariable><xsl:value-of select="."/></RealVariable>
+  </xsl:template>
+
+  <xsl:template match="DateValue">
+    <!-- A Date is the number of seconds since the start of the epoch used on this platform -->
+    <RealValue>
+      <xsl:value-of select="tr:seconds(xs:dateTime(.) - xs:dateTime($epoch))"/>
+    </RealValue>
+  </xsl:template>
+
+  <xsl:template match="DurationValue">
+    <!-- A Duration is the number of seconds in the ISO 8601 duration -->
+    <RealValue><xsl:value-of select="tr:seconds(.)"/></RealValue>
+  </xsl:template>
+
+  <!-- Return the (total) number of seconds in and ISO 8601 duration -->
+  <xsl:function name="tr:seconds">
+    <xsl:param name="duration"/>
+    <xsl:value-of select="xs:dayTimeDuration($duration) div xs:dayTimeDuration('PT1.0S')"/>
+  </xsl:function>
 
   <!-- Functions -->
 
