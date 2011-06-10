@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -160,7 +160,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         final JCheckBox cmdBox = new JCheckBox("Show " + COMMAND + " Nodes", isBoxChecked(COMMAND)); 
         final JCheckBox updateBox = new JCheckBox("Show " + UPDATE + " Nodes", isBoxChecked(UPDATE)); 
         final JCheckBox emptyBox = new JCheckBox("Show " + EMPTY + " Nodes", isBoxChecked(EMPTY)); 
-        final JCheckBox funcBox = new JCheckBox("Show " + FUNCCALL + " Nodes", isBoxChecked(FUNCCALL));
         final JCheckBox listBox = new JCheckBox("Show " + NODELIST + " Nodes", isBoxChecked(NODELIST)); 
         final JCheckBox libBox = new JCheckBox("Show " + LIBRARYNODECALL + " Nodes", isBoxChecked(LIBRARYNODECALL));
         final JCheckBox ifBox = new JCheckBox("Show " + IF + " Actions", isBoxChecked(IF));
@@ -177,7 +176,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         cmdBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         updateBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         emptyBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        funcBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         listBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         libBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
         ifBox.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -198,8 +196,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         checkBoxSide.add(cmdBox); 
         iconSide.add(new JLabel(getIcon(EMPTY), JLabel.LEFT));
         checkBoxSide.add(emptyBox);
-        iconSide.add(new JLabel(getIcon(FUNCCALL), JLabel.LEFT));
-        checkBoxSide.add(funcBox);
         iconSide.add(new JLabel(getIcon(LIBRARYNODECALL), JLabel.LEFT));
         checkBoxSide.add(libBox);
         iconSide.add(new JLabel(getIcon(UPDATE), JLabel.LEFT));
@@ -282,17 +278,6 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                     Luv.getLuv().setProperty(EMPTY, "SHOW");
                     Luv.getLuv().setProperty(THEN_EMPTY, "SHOW");
                     Luv.getLuv().setProperty(ELSE_EMPTY, "SHOW");
-                }
-                Luv.getLuv().getViewHandler().refreshRegexView();
-            }
-        });
-        funcBox.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                if (!funcBox.isSelected()) {
-                    Luv.getLuv().setProperty(FUNCCALL, "HIDE");
-                }
-                else {
-                    Luv.getLuv().setProperty(FUNCCALL, "SHOW");
                 }
                 Luv.getLuv().getViewHandler().refreshRegexView();
             }
