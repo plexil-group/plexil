@@ -63,7 +63,7 @@ namespace PLEXIL {
   bool isXmlBoolean(const char* data);
 
   /**
-   * @brief Helper method to test if a char* is numeric. If it is, will write it to data.
+   * @brief Helper method to test if a char* is a valid Boolean value. If it is, will write it to value.
    */
   bool isXmlBoolean(const char* data, bool& value);
 
@@ -73,9 +73,40 @@ namespace PLEXIL {
   bool isNumber(const char* data);
 
   /**
-   * @brief Helper method to test if a char* is numeric. If it is, will write it to data.
+   * @brief Helper method to test if a char* is numeric. If it is, will write it to value.
    */
   bool isNumber(const char* data, double& value);
+
+  /**
+   * @brief Helper method to test if a char* is a valid 32-bit integer value.
+   */
+  bool isInt32(const char* data);
+
+  /**
+   * @brief Helper method to test if a char* is a valid 32-bit integer value. If it is, will write it to value.
+   */
+  bool isInt32(const char* data, int32_t& value);
+
+  /**
+   * @brief Helper method to test if a char* is a valid 64-bit integer value.
+   */
+  bool isInt64(const char* data);
+
+  /**
+   * @brief Helper method to test if a char* is a valid 64-bit integer value. If it is, will write it to value.
+   */
+  bool isInt64(const char* data, int64_t& value);
+
+  /**
+   * @brief Helper method to test if a char* is a valid 64-bit hexBinary value.
+   */
+  bool isHexBinary(const char* data);
+
+  /**
+   * @brief Helper method to test if a char* is a valid hexBinary value. If it is, will write it to value.
+   */
+  bool isHexBinary(const char* data, uint64_t& value);
+
 }
 
 #endif

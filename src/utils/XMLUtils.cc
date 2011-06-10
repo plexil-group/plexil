@@ -31,8 +31,10 @@
  * @author Conor McGann
  */
 
+#include <cerrno>
 #include <fstream>
 #include <sstream>
+
 
 namespace PLEXIL {
 
@@ -94,4 +96,78 @@ namespace PLEXIL {
     else
       return false;
   }
+
+
+  /**
+   * @brief Helper method to test if a char* is a valid integer value.
+   */
+  bool isInt32(const char* data)
+  {
+	int32_t dummy;
+	return isInt32(data, dummy);
+  }
+
+  /**
+   * @brief Helper method to test if a char* is a valid integer value. If it is, will write it to value.
+   */
+  bool isInt32(const char* data, int32_t& value)
+  {
+	char* pEnd;
+	value = strtol(data, &pEnd, 10);
+	if (errno == EINVAL     // conversion could not be performed
+		|| pEnd == data     // string did not start with digits
+		|| *pEnd != '\0'     // junk after number
+		|| errno == ERANGE) // too large to represent as long
+	  return false;
+	else return true;
+  }
+
+  /**
+   * @brief Helper method to test if a char* is a valid integer value.
+   */
+  bool isInt64(const char* data)
+  {
+	int64_t dummy;
+	return isInt64(data, dummy);
+  }
+
+  /**
+   * @brief Helper method to test if a char* is a valid integer value. If it is, will write it to value.
+   */
+  bool isInt64(const char* data, int64_t& value)
+  {
+	char* pEnd;
+	value = strtoll(data, &pEnd, 10);
+	if (errno == EINVAL     // conversion could not be performed
+		|| pEnd == data     // string did not start with digits
+		|| *pEnd != '\0'     // junk after number
+		|| errno == ERANGE) // too large to represent as long
+	  return false;
+	else return true;
+  }
+
+  /**
+   * @brief Helper method to test if a char* is a valid 64-bit hexBinary value.
+   */
+  bool isHexBinary(const char* data)
+  {
+	uint64_t dummy;
+	return isHexBinary(data, dummy);
+  }
+
+  /**
+   * @brief Helper method to test if a char* is a valid 64-bit hexBinary value. If it is, will write it to value.
+   */
+  bool isHexBinary(const char* data, uint64_t& value)
+  {
+	char* pEnd;
+	value = strtoll(data, &pEnd, 16);
+	if (errno == EINVAL     // conversion could not be performed
+		|| pEnd == data     // string did not start with digits
+		|| *pEnd != '\0'     // junk after number
+		|| errno == ERANGE) // too large to represent as long
+	  return false;
+	else return true;
+  }
+
 }
