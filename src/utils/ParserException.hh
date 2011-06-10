@@ -41,7 +41,7 @@
     { \
       std::ostringstream whatstr; \
       whatstr << msg; \
-      throw ParserException(whatstr.str().c_str(), __FILE__, __LINE__);	\
+      throw PLEXIL::ParserException(whatstr.str().c_str(), __FILE__, __LINE__);	\
     } \
 }
 
@@ -58,7 +58,7 @@
       std::ostringstream whatstr; \
       whatstr << msg; \
 	  const TiXmlDocument* _my_errorDoc = loc->GetDocument(); \
-      throw ParserException(whatstr.str().c_str(), (_my_errorDoc == 0 ? "" : _my_errorDoc->Value()), loc->Row()); \
+      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc == 0 ? "" : _my_errorDoc->Value()), loc->Row()); \
     } \
 }
 
