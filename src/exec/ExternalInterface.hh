@@ -91,7 +91,7 @@ namespace PLEXIL {
 
 
     virtual void registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances, 
-				      std::vector<double>& dest);
+									  std::vector<double>& dest);
 
     /**
      * @brief Register a change lookup on an existing state.
@@ -123,18 +123,12 @@ namespace PLEXIL {
      */
     virtual void unregisterChangeLookup(const LookupKey& dest);
 
-    //this batches the set of actions from quiescence completion.  calls PlexilExecutive::step() at the end
-    //assignments must be performed first.
-    //though it only takes a list of commands as an argument at the moment, it will eventually take function calls and the like
-    //so the name remains "batchActions"
-    virtual void batchActions(std::list<CommandId>& commands);
+    //@ Perform the set of actions from quiescence completion.
+    virtual void batchActions(std::list<CommandId>& commands) = 0;
+
+	// This batches planner updates.
+	// The default method does nothing.
     virtual void updatePlanner(std::list<UpdateId>& updates);
-
-    //executes a command with the given arguments
-    //this base version looks up the command name and the correct argument types
-    //and passes the information to internalExecuteCommand, which is overridden in base classes
-    virtual void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
@@ -152,11 +146,13 @@ namespace PLEXIL {
     virtual void addPlan(PlexilNode* node, const LabelStr& parent = EMPTY_LABEL());
     void setExec(const PlexilExecId exec);
 
+	// Returns the current time.
+	// The default method always returns 0.
     virtual double currentTime();
+
     virtual ~ExternalInterface();
+
   protected:
-    //virtual void internalExecuteCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest) = 0;
-    //virtual void internalInvokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest) = 0;
 
     //this should eventually take a domain description as well
     ExternalInterface();

@@ -72,18 +72,9 @@ namespace PLEXIL {
   void ExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
   {}
 
-  void ExternalInterface::batchActions(std::list<CommandId>& /* commands */)
-  {}
-
   void ExternalInterface::updatePlanner(std::list<UpdateId>& /* updates */)
   {}
   
-  void ExternalInterface::executeCommand(const LabelStr& /* name */,
-					 const std::list<double>& /* args */,
-					 ExpressionId /* dest */,
-					 ExpressionId /* ack */)
-  {}
-
   void ExternalInterface::invokeAbort(const LabelStr& /* cmdName */,
 				      const std::list<double>& /* cmdArgs */,
 				      ExpressionId /* abrtAck */,
@@ -100,4 +91,5 @@ namespace PLEXIL {
   {}
 
   double ExternalInterface::currentTime() {return 0.0;}
+
 }
