@@ -965,6 +965,10 @@ public:
     registerChangeLookup(source, m_states[key], key, tolerances, fakeDest);
   }
 
+  void batchActions(std::list<CommandId>& commands)
+  {
+  }
+
   void watch(const LabelStr& name, ExpressionId expr) {
     if(m_exprs.find(expr) == m_exprs.end()) {
       expr->addListener(m_listener.getId());
@@ -2309,6 +2313,11 @@ public:
     m_states.insert(std::make_pair(key, state));
     dest[0] = m_values[state];
   }
+
+  void batchActions(std::list<CommandId>& commands)
+  {
+  }
+
   bool lookupNowCalled() {return m_lookupNowCalled;}
   void clearLookupNowCalled() {m_lookupNowCalled = false;}
   void setValue(const State& state, const double& value, StateCacheId cache, bool update = true) {
