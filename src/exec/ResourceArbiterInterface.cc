@@ -503,12 +503,13 @@ namespace PLEXIL {
          it != acceptCmds.end(); ++it)
       {
         CommandId cmd = *it;
+		std::string name = cmd->getName().toString();
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
-                 "Accepted command: " << cmd->getName().toString() 
+                 "Accepted command: " << name
                  << " uses resources:");
         for (std::set<ChildResourceNode, ResourceComparator>::const_iterator resIter = 
-               m_cmdResMap[LabelStr(cmd->getName()).toString()].begin();
-             resIter != m_cmdResMap[LabelStr(cmd->getName()).toString()].end(); ++resIter)
+               m_cmdResMap[name].begin();
+             resIter != m_cmdResMap[name].end(); ++resIter)
           debugMsg("ResourceArbiterInterface:printAcceptedCommands", resIter->name);
       }
   }
