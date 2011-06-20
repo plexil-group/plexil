@@ -503,7 +503,7 @@ namespace PLEXIL {
          it != acceptCmds.end(); ++it)
       {
         CommandId cmd = *it;
-		std::string name = cmd->getName().toString();
+		const std::string& name = cmd->getName().toString();
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
                  "Accepted command: " << name
                  << " uses resources:");
