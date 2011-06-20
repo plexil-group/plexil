@@ -519,16 +519,18 @@ namespace PLEXIL {
             const LabelStr& dest_name,
 			const ExpressionId ack,
 			const std::list<ExpressionId>& garbage,
-            const ResourceList& resource);
+            const ResourceList& resource,
+			const NodeId& parent);
     ~Command();
 
     CommandId& getId() {return m_id;}
-    const LabelStr& getName();
     ExpressionId& getDest() {return m_dest;}
     ExpressionId& getAck() {return m_ack;}
-    const std::list<double>& getArgValues() {return m_argValues;}
+    const std::list<double>& getArgValues() const {return m_argValues;}
     const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
-    const std::string& getDestName();
+	const NodeId& getNode() const { return m_node; }
+	LabelStr getName() const;
+    const std::string& getDestName() const;
 
     void activate();
     void deactivate();
@@ -541,7 +543,6 @@ namespace PLEXIL {
 
   private:
     CommandId m_id;
-    LabelStr m_name;
     ExpressionId m_nameExpr;
     std::list<ExpressionId> m_args;
     ExpressionId m_dest;
@@ -551,6 +552,7 @@ namespace PLEXIL {
     std::list<double> m_argValues;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
+	NodeId m_node; // backpointer to parent
   };
 
   class Update {

@@ -662,7 +662,7 @@ namespace PLEXIL {
     debugMsg("Node:createCommand",
 	     "Creating command '" << name.toString() << "' for node '" <<
 	     m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, dest, dest_name, m_ack, garbage, resourceList))->getId();
+    m_command = (new Command(nameExpr, args, dest, dest_name, m_ack, garbage, resourceList, getId()))->getId();
     check_error(m_command.isValid());
   }
 
@@ -1831,7 +1831,8 @@ namespace PLEXIL {
                    const LabelStr& dest_name,
 				   const ExpressionId ack,
 				   const std::list<ExpressionId>& garbage,
-                   const ResourceList& resource)
+                   const ResourceList& resource,
+				   const NodeId& parent)
     : m_id(this),
 	  m_nameExpr(nameExpr),
 	  m_args(args),
@@ -1839,7 +1840,8 @@ namespace PLEXIL {
       m_destName(dest_name),
 	  m_ack(ack), 
       m_garbage(garbage),
-	  m_resourceList(resource)
+	  m_resourceList(resource),
+	  m_node(parent)
   {}
 
   Command::~Command() {
@@ -1851,10 +1853,10 @@ namespace PLEXIL {
     m_id.remove();
   }
 
-   const LabelStr& Command::getName() 
-   {
-      return m_name = LabelStr(m_nameExpr->getValue());
-   }
+  LabelStr Command::getName() const
+  {
+	return LabelStr(m_nameExpr->getValue()); 
+  }
 
   void Command::fixValues() {
     m_argValues.clear();
@@ -1918,7 +1920,7 @@ namespace PLEXIL {
     }
   }
 
-  const std::string& Command::getDestName() {
+  const std::string& Command::getDestName() const {
     return m_destName.toString();
   }
 
