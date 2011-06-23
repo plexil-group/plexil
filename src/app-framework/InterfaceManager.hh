@@ -589,11 +589,8 @@ namespace PLEXIL
     // Internal functionality
     //
 
-    // executes a command with the given arguments
-    void executeCommand(const LabelStr& name,
-			const std::list<double>& args,
-			ExpressionId dest,
-			ExpressionId ack);
+	// Executes a command.
+	void executeCommand(CommandId cmd);
 
     // rejects a command due to non-availability of resources
     void rejectCommand(const LabelStr& name,

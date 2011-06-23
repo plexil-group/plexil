@@ -161,6 +161,13 @@ namespace PLEXIL
 				   const std::map<double, double>& valuePairs,
 				   ExpressionId ack);
 
+	/**
+     * @brief Execute a command with the requested arguments.
+     * @param cmd The Command instance.
+	 * @note The default method calls the method below.
+	 */
+	virtual void executeCommand(CommandId cmd);
+
     /**
      * @brief Execute a command with the requested arguments.
      * @param name The LabelString representing the command name.

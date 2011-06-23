@@ -29,6 +29,7 @@
 #include "Expression.hh"
 #include "LabelStr.hh"
 #include "StateCache.hh"
+#include "Node.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #ifndef TIXML_USE_STL
@@ -101,6 +102,11 @@ namespace PLEXIL
 	       "InterfaceAdapter::updatePlanner: default method called!");
   }
 
+  // This default method is a wrapper for backward compatibility.
+  void InterfaceAdapter::executeCommand(CommandId cmd)
+  {
+	this->executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
+  }
 
   // executes a command with the given arguments
   void InterfaceAdapter::executeCommand(const LabelStr& /* name */,
@@ -109,7 +115,7 @@ namespace PLEXIL
 					ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::executeCommand: default method called!");
+			   "InterfaceAdapter::executeCommand: default method called!");
   }
 
 

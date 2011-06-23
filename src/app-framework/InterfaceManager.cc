@@ -817,39 +817,33 @@ namespace PLEXIL
 
     for (std::list<CommandId>::const_iterator it = commands.begin();
          it != commands.end();
-         it++)
-      {
-        CommandId cmd = *it;
+         it++) {
+	  CommandId cmd = *it;
 
-        if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end()))
-          {
-            condDebugMsg(resourceArbiterExists,
-                         "InterfaceManager:batchActions", 
-                         " Permission to execute " << cmd->getName().toString()
-                         << " has been granted by the resource arbiter.");
-            // Maintain a <acks, cmdId> map of commands
-            m_ackToCmdMap[cmd->getAck()] = cmd;
-            // Maintain a <dest, cmdId> map
-            m_destToCmdMap[cmd->getDest()] = cmd;
+	  if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end())) {
+		condDebugMsg(resourceArbiterExists,
+					 "InterfaceManager:batchActions", 
+					 " Permission to execute " << cmd->getName().toString()
+					 << " has been granted by the resource arbiter.");
+		// Maintain a <acks, cmdId> map of commands
+		m_ackToCmdMap[cmd->getAck()] = cmd;
+		// Maintain a <dest, cmdId> map
+		m_destToCmdMap[cmd->getDest()] = cmd;
             
-            this->executeCommand(cmd->getName(),
-                                 cmd->getArgValues(),
-                                 cmd->getDest(),
-                                 cmd->getAck());
-          }
-        else
-          {
-            commandRejected = true;
-            debugMsg("InterfaceManager:batchActions ", 
-                     "Permission to execute " << cmd->getName().toString()
-                     << " has been denied by the resource arbiter.");
+		executeCommand(cmd);
+	  }
+	  else {
+		commandRejected = true;
+		debugMsg("InterfaceManager:batchActions ", 
+				 "Permission to execute " << cmd->getName().toString()
+				 << " has been denied by the resource arbiter.");
             
-            this->rejectCommand(cmd->getName(),
-                                cmd->getArgValues(),
-                                cmd->getDest(),
-                                cmd->getAck());
-          }
-      }
+		this->rejectCommand(cmd->getName(),
+							cmd->getArgValues(),
+							cmd->getDest(),
+							cmd->getAck());
+	  }
+	}
 
     if (commandRejected)
       this->notifyOfExternalEvent();
@@ -904,15 +898,13 @@ namespace PLEXIL
   // *** To do:
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
   void
-  InterfaceManager::executeCommand(const LabelStr& name,
-                                   const std::list<double>& args,
-                                   ExpressionId dest,
-                                   ExpressionId ack)
+  InterfaceManager::executeCommand(CommandId cmd)
   {
-    InterfaceAdapterId intf = getCommandInterface(name);
+	LabelStr name(cmd->getName());
+    InterfaceAdapterId intf = getCommandInterface(cmd->getName());
     assertTrueMsg(!intf.isNoId(),
                   "executeCommand: null interface adapter for command " << name.toString());
-    intf->executeCommand(name, args, dest, ack);
+    intf->executeCommand(cmd);
   }
 
   // rejects a command due to non-availability of resources
