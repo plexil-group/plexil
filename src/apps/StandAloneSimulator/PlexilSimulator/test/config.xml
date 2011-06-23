@@ -4,7 +4,6 @@
   <LookupNames>time</LookupNames>
  </Adapter>
  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
-  <DefaultCommandAdapter/>
-  <LookupNames>x</LookupNames>
+  <DefaultAdapter/>
  </Adapter>
 </Interfaces>
