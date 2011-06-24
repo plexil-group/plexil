@@ -144,6 +144,12 @@ namespace PLEXIL
 	const std::vector<std::string>& getLibraryPath() const;
 
 	/**
+	 * @brief Get the search path for plan files.
+	 * @return A reference to the plan search path.
+	 */
+	const std::vector<std::string>& getPlanPath() const;
+
+	/**
 	 * @brief Add the specified directory name to the end of the library node loading path.
 	 * @param libdir The directory name.
 	 */
@@ -154,6 +160,18 @@ namespace PLEXIL
 	 * @param libdirs The vector of directory names.
 	 */
 	void addLibraryPath(const std::vector<std::string>& libdirs);
+
+	/**
+	 * @brief Add the specified directory name to the end of the plan loading path.
+	 * @param libdir The directory name.
+	 */
+	void addPlanPath(const std::string& libdir);
+
+	/**
+	 * @brief Add the specified directory names to the end of the plan loading path.
+	 * @param libdirs The vector of directory names.
+	 */
+	void addPlanPath(const std::vector<std::string>& libdirs);
 
     /**
      * @brief Constructs interface adapters from the provided XML.
@@ -681,8 +699,9 @@ namespace PLEXIL
 	//* The exec controller
 	ExecControllerId m_execController;
 
-	//* List of directory names for library node search path
+	//* List of directory names for plan file search paths
 	std::vector<std::string> m_libraryPath;
+	std::vector<std::string> m_planPath;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;

@@ -239,6 +239,18 @@ namespace PLEXIL
 			  delete path;
 			}
 		  }
+		else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
+			// Add to plan path
+			const char* pathstring = element->GetText();
+			if (pathstring != NULL) {
+			  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+			  for (std::vector<std::string>::const_iterator it = path->begin();
+				   it != path->end();
+				   it++)
+				m_planPath.push_back(*it);
+			  delete path;
+			}
+		  }
         else {
             debugMsg("InterfaceManager:constructInterfaces",
                      " ignoring unrecognized XML element \""
@@ -282,6 +294,15 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Get the search path for plans.
+   * @return A reference to the plan search path.
+   */
+  const std::vector<std::string>& InterfaceManager::getPlanPath() const
+  {
+	return m_planPath;
+  }
+
+  /**
    * @brief Add the specified directory name to the end of the library node loading path.
    * @param libdir The directory name.
    */
@@ -300,6 +321,28 @@ namespace PLEXIL
 		 it != libdirs.end();
 		 it++) {
 	  m_libraryPath.push_back(*it);
+	}
+  }
+
+  /**
+   * @brief Add the specified directory name to the end of the plan loading path.
+   * @param libdir The directory name.
+   */
+  void InterfaceManager::addPlanPath(const std::string& libdir)
+  {
+	m_planPath.push_back(libdir);
+  }
+
+  /**
+   * @brief Add the specified directory names to the end of the plan loading path.
+   * @param libdirs The vector of directory names.
+   */
+  void InterfaceManager::addPlanPath(const std::vector<std::string>& libdirs)
+  {
+	for (std::vector<std::string>::const_iterator it = libdirs.begin();
+		 it != libdirs.end();
+		 it++) {
+	  m_planPath.push_back(*it);
 	}
   }
 

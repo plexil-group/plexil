@@ -279,6 +279,12 @@ namespace PLEXIL
 	virtual const std::vector<std::string>& getLibraryPath() const = 0;
 
 	/**
+	 * @brief Get the search path for plans.
+	 * @return A reference to the plan search path.
+	 */
+	virtual const std::vector<std::string>& getPlanPath() const = 0;
+
+	/**
 	 * @brief Add the specified directory name to the end of the library node loading path.
 	 * @param libdir The directory name.
 	 */
@@ -295,6 +301,18 @@ namespace PLEXIL
      * @return True if loaded, false otherwise.
      */
     virtual bool isLibraryLoaded(const std::string& libName) const = 0;
+
+	/**
+	 * @brief Add the specified directory name to the end of the plan loading path.
+	 * @param libdir The directory name.
+	 */
+	virtual void addPlanPath(const std::string& libdir) = 0;
+
+	/**
+	 * @brief Add the specified directory names to the end of the plan loading path.
+	 * @param libdirs The vector of directory names.
+	 */
+	virtual void addPlanPath(const std::vector<std::string>& libdirs) = 0;
 
     /**
      * @brief Notify the executive of a new library node.
