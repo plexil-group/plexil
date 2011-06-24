@@ -73,6 +73,27 @@ namespace PLEXIL
 	static PlexilNodeId findLibraryNode(const std::string& name,
 										const std::vector<std::string>& path);
 
+	/*
+	 * @brief Load the named plan from a file on the given path.
+	 * @param name Name of the node.
+	 * @param fileName Name of the file.
+	 * @param path Vector of places to search for the file.
+	 * @return The loaded node, or noId() if not found or error.
+	 */
+	static PlexilNodeId findPlan(const std::string& name,
+								 const std::string& fileName,
+								 const std::vector<std::string>& path);
+
+	/*
+	 * @brief Load the named plan from a file in the given directory.
+	 * @param name Name of the desired node.
+	 * @param filename Candidate file for this node.
+	 * @return The loaded node, or noId() if not found or error.
+	 */
+	static PlexilNodeId loadPlanNamed(const std::string& name,
+									  const std::string& filename)
+	  throw(ParserException);
+
 	// Deprecated.
     static PlexilNodeId parse(const std::string& str, bool isFile)
       throw(ParserException);
@@ -117,16 +138,6 @@ namespace PLEXIL
 	PlexilXmlParser(const PlexilXmlParser&);
 	PlexilXmlParser& operator=(const PlexilXmlParser&);
 	~PlexilXmlParser();
-
-	/*
-	 * @brief Load the named library node from a file in the given directory.
-	 * @param name Name of the node.
-	 * @param filename Candidate file for this node.
-	 * @return The loaded node, or noId() if not found or error.
-	 */
-	static PlexilNodeId findLibraryNodeInternal(const std::string& name,
-												const std::string& filename)
-	  throw(ParserException);
 
     static PlexilInterfaceId parseDeprecatedInterface(const TiXmlElement* intf)
       throw(ParserException);

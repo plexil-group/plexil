@@ -754,23 +754,39 @@ namespace PLEXIL
   PlexilNodeId PlexilXmlParser::findLibraryNode(const std::string& name,
 												const std::vector<std::string>& path)
   {
-	PlexilNodeId result;
-	TiXmlDocument doc();
+	return findPlan(name, name, path);
+  }
 
+  /*
+   * @brief Load the named plan from a file on the given path.
+   * @param name Name of the node.
+   * @param fileName Name of the file, with or without the ".plx" suffix.
+   * @param path Vector of places to search for the file.
+   * @return The loaded node, or noId() if not found or error.
+   */
+  PlexilNodeId PlexilXmlParser::findPlan(const std::string& name,
+										 const std::string& fileName,
+										 const std::vector<std::string>& path)
+  {
+	PlexilNodeId result;
 	std::vector<std::string>::const_iterator it = path.begin();
+	std::string fileNameWithSuffix = fileName;
+	// TODO: add suffix if lacking
+	if (fileNameWithSuffix.compare(fileNameWithSuffix.length() - 4, 4, ".plx") != 0)
+	  fileNameWithSuffix += ".plx";
+
 	// Find the first occurrence of the library in this path
-	while (result.isNoId() && it != path.end())
-	  {
-		std::string filename = *it + "/" + name + std::string(".plx");
+	while (result.isNoId() && it != path.end()) {
+	  std::string candidateFile = *it + "/" + fileNameWithSuffix;
 		try {
-		  result = findLibraryNodeInternal(name, filename);
+		  result = loadPlanNamed(name, candidateFile);
 		  if (result.isId())
 			return result;
 		}
 		catch (ParserException& p) {
-		  debugMsg("PlexilXmlParser:findLibraryNode", 
-				   " failed due to error in  " 
-				   << filename
+		  debugMsg("PlexilXmlParser:findPlan", 
+				   " failed due to error in " 
+				   << candidateFile
 				   << ":\n"
 				   << p.what());
 		  return PlexilNodeId::noId();
@@ -779,28 +795,27 @@ namespace PLEXIL
 	  }
 
 	// check current working directory
-	std::string filename = name + std::string(".plx");
 	try {
-	  return findLibraryNodeInternal(name, filename);
+	  return loadPlanNamed(name, fileNameWithSuffix);
 	}
 	catch (ParserException& p) {
 	  debugMsg("PlexilXmlParser:findLibraryNode", 
-			   " failed due to error in  " 
-			   << filename
+			   " failed due to error in " 
+			   << fileNameWithSuffix
 			   << ":\n"
 			   << p.what());
 	  return PlexilNodeId::noId();
 	}
   }
 
-	/*
-	 * @brief Load the named library node from a file in the given directory.
-	 * @param name Name of the node.
-	 * @param filename Candidate file for this node.
-	 * @return The loaded node, or noId() if not found or error.
-	 */
-  PlexilNodeId PlexilXmlParser::findLibraryNodeInternal(const std::string& name, 
-														const std::string& filename)
+  /*
+   * @brief Load the named plan from a file in the given directory.
+   * @param name Name of the desired node.
+   * @param filename Candidate file for this node.
+   * @return The loaded node, or noId() if not found or error.
+   */
+  PlexilNodeId PlexilXmlParser::loadPlanNamed(const std::string& name, 
+											  const std::string& filename)
 	  throw(ParserException)
   {
 	TiXmlDocument doc(filename);
@@ -808,7 +823,7 @@ namespace PLEXIL
 	  checkParserException(doc.ErrorId() == TiXmlBase::TIXML_ERROR_OPENING_FILE,
 						   "Error reading XML file " << filename
 						   << ": " << doc.ErrorDesc());
-	  debugMsg("PlexilXmlParser:findLibraryNode", 
+	  debugMsg("PlexilXmlParser:loadPlanNamed", 
 			   " unable to open file " << filename);
 	  return PlexilNodeId::noId();
 	}
@@ -818,7 +833,7 @@ namespace PLEXIL
 						 "Error: File " << filename
 						 << " contains node ID \"" << result->nodeId()
 						 << "\", not \"" << name << "\"");
-	debugMsg("PlexilXmlParser:findLibraryNode",
+	debugMsg("PlexilXmlParser:loadPlanNamed",
 			 " successfully loaded node " << name << " from " << filename);
 	return result;
   }
