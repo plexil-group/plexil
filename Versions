@@ -1,6 +1,7 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
 Latest changes:
+ - Added support for Android operating system
  - refactored README file, added Versions file
 
 1.6  (December 2010, SVN revision 1959)
