@@ -37,6 +37,7 @@ LOCAL_SRC_FILES := Debug.cc \
  JNIUtils.cc \
  LabelStr.cc \
  Logging.cc \
+ ParserException.cc \
  RecursiveThreadMutex.cc \
  StoredArray.cc \
  TestData.cc \

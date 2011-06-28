@@ -45,7 +45,6 @@ LOCAL_SRC_FILES := ActionNodeStateManager.cc \
  ListNodeStateManager.cc \
  Node.cc \
  NodeStateManager.cc \
- ParserException.cc \
  PlexilExec.cc \
  PlexilPlan.cc \
  PlexilXmlParser.cc \
