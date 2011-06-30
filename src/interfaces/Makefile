@@ -30,12 +30,12 @@ plexil-default: all
 all:
 	$(MAKE) -C Sockets
 	$(MAKE) -C LuvListener
+	$(MAKE) -C IpcUtils
 	$(MAKE) -C IpcAdapter
-	$(MAKE) -c IpcUtils
 
 clean:
 	$(MAKE) -C Sockets $@
 	$(MAKE) -C LuvListener $@
 	$(MAKE) -C IpcAdapter $@
-	$(MAKE) -c IpcUtils $@
+	$(MAKE) -C IpcUtils $@
 
