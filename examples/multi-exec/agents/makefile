@@ -17,6 +17,9 @@ dock:
 test2: test2.plx
 	plexilexec -p test2.plx
 
-.PHONY: cmd dock test2
+udp:
+	$(MAKE) -C ../../../src/interfaces/UdpAdapter
+
+.PHONY: cmd dock test2 udp
 
 # EOF

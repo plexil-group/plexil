@@ -2,6 +2,7 @@
 // File: plexil/examples/multi-exec/agents/timed-iteration.ple
 
 Command pprint(...);
+Command SendMessage(String);
 Real Lookup time;
 
 Timed-iteration:
@@ -30,4 +31,5 @@ Timed-iteration:
             notify-end-of-iteration: pprint("Ending periodic iteration");
         }
     }
+    test-command: SendMessage("Quit");
 }

@@ -3,7 +3,7 @@
 (plexil-plan
   (sequence "timed-iteration"
     (variables (date "run-start-time")
-               (date "earliest-start" "2011-06-07T14:24:00.000")
+               (date "earliest-start" "2011-06-30T13:36:00.000")
                (date "latest-start")
                (duration "period" "PT0.5S")
                (duration "elapsed-time" "PT0.0S")

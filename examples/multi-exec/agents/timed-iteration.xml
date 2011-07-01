@@ -1,5 +1,6 @@
 <Interfaces>
   <Adapter AdapterType="Utility"/>
+  <Adapter AdapterType="UdpAdapter"/>
   <Adapter AdapterType="OSNativeTime"/>
-  <Listener ListenerType="PlanDebugListener"/>
+  <!-- <Listener ListenerType="PlanDebugListener"/> -->
 </Interfaces>
