@@ -25,11 +25,12 @@
 */
 
 #include "UdpAdapter.hh"
-
-#include "Debug.hh"
-#include "CoreExpressions.hh"
+#include "Debug.hh"             // debugMsg
+#include "CoreExpressions.hh"   // BooleanVariable, etc.
+#include "Node.hh"              // struct PLEXIL::Node
 #include "AdapterExecInterface.hh"
-#include "Node.hh"
+//#include "Error.hh"
+//#include "PlexilXmlParser.h"
 
 namespace PLEXIL
 {
@@ -64,9 +65,10 @@ namespace PLEXIL
   bool UdpAdapter::initialize()
   {
     debugMsg("UdpAdapter::initialize", " called");
-    this->registerAdapter();
-    //m_execInterface.defaultRegisterAdapter(getID());
-    //debugMsg("UdpAdapter::initialize", " done");
+    //this->registerAdapter();
+    //m_execInterface.defaultRegisterAdapter(getId());
+    m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
+    debugMsg("UdpAdapter::initialize", " done");
     return true;
   }
 
@@ -148,13 +150,12 @@ namespace PLEXIL
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void UdpAdapter::executeCommand(const LabelStr& /* name */,
-                                  const std::list<double>& /* args */,
-                                  ExpressionId /* dest */,
-                                  ExpressionId ack)
+  void UdpAdapter::executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
   {
-    debugMsg("UdpAdapter::executeCommand(name, args, dest, ack)", " called");
-    debugMsg("ExternalInterface:udp", " executeCommand called");
+    debugMsg("UdpAdapter::executeCommand", " called for " << name.c_str());
+    //debugMsg("ExternalInterface:udp", " executeCommand called");
+    if (name == SEND_MESSAGE_COMMAND())
+      executeSendMessageCommand(args, dest, ack);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
   }
@@ -169,5 +170,29 @@ namespace PLEXIL
     debugMsg("ExternalInterface:udp", " invokeAbort called");
     m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
     m_execInterface.notifyOfExternalEvent();
+  }
+
+  //
+  // Implementation methods
+  //
+
+  /**
+   * @brief handles SEND_MESSAGE_COMMAND commands from the exec
+   */
+  void UdpAdapter::executeSendMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
+  {
+    // Check for one argument, the message
+    assertTrueMsg(args.size() == 1, "UdpAdapter: The SendMessage command requires exactly one argument");
+    assertTrueMsg(LabelStr::isString(args.front()),
+                  "UdpAdapter: The argument to the SendMessage command, "
+                  << Expression::valueToString(args.front())
+                  << ", is not a string");
+    LabelStr theMessage(args.front());
+    debugMsg("UdpAdapter::executeSendMessageCommand", " SendMessage(\"" << theMessage.c_str() << "\")");
+    //assertTrue(m_ipcFacade.publishMessage(theMessage) != IpcFacade::ERROR_SERIAL(), "Message publish failed");
+    // store ack
+    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
+    m_execInterface.notifyOfExternalEvent();
+    debugMsg("UdpAdapter::executeSendMessageCommand", " message \"" << theMessage.c_str() << "\" sent.");
   }
 }

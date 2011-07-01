@@ -24,10 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UDP_ADAPTER_H
-#define UDP_ADAPTER_H
-
 #include "InterfaceAdapter.hh"
+#include "LabelStr.hh"
+//#include "ExecListener.hh"
+//#include "AdapterExecInterface.hh"
+//#include "ExecListener.hh"
 
 //
 // Forward references w/o namespace
@@ -37,12 +38,17 @@ class TiXmlElement;
 
 namespace PLEXIL
 {
-  /*!
-    \brief A UDP InterfaceAdapter for testing purposes
-  */
   class UdpAdapter : public InterfaceAdapter
   {
   public:
+    // Static Class Constants
+
+    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
 
     /**
      * @brief Base constructor.
@@ -52,77 +58,71 @@ namespace PLEXIL
     /**
      * @brief Constructor w/ configuration XML.
      */
-    UdpAdapter(AdapterExecInterface& execInterface,
-                 const TiXmlElement* xml);
+    UdpAdapter(AdapterExecInterface& execInterface, const TiXmlElement* xml);
 
     /**
      * @brief Destructor.
      */
-    ~UdpAdapter();
+    virtual ~UdpAdapter();
 
     /**
      * @brief Initialize and register the adapter, possibly using its configuration data.
      * @return true if successful, false otherwise.
      */
-    bool initialize();
+    virtual bool initialize();
 
     /**
      * @brief Starts the adapter, possibly using its configuration data.  
      * @return true if successful, false otherwise.
      */
-    bool start();
+    virtual bool start();
 
     /**
      * @brief Stops the adapter.  
      * @return true if successful, false otherwise.
      */
-    bool stop();
+    virtual bool stop();
 
     /**
      * @brief Resets the adapter.  
      * @return true if successful, false otherwise.
      */
-    bool reset();
+    virtual bool reset();
 
     /**
      * @brief Shuts down the adapter, releasing any of its resources.
      * @return true if successful, false otherwise.
      */
-    bool shutdown();
+    virtual bool shutdown();
 
-    virtual void registerChangeLookup(const LookupKey& uniqueId,
-				      const StateKey& stateKey,
-				      const std::vector<double>& tolerances);
+    virtual void registerChangeLookup(const LookupKey& uniqueId, const StateKey& stateKey, const std::vector<double>& tolerances);
 
     virtual void unregisterChangeLookup(const LookupKey& uniqueId);
 
-    void lookupNow(const StateKey& stateKey,
-		   std::vector<double>& dest);
+    virtual void lookupNow(const StateKey& stateKey, std::vector<double>& dest);
 
-    void sendPlannerUpdate(const NodeId& node,
-			   const std::map<double, double>& valuePairs,
-			   ExpressionId ack);
+    virtual void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
 
     // executes a command with the given arguments
-    void executeCommand(const LabelStr& name,
-			const std::list<double>& args,
-			ExpressionId dest,
-			ExpressionId ack);
+    virtual void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
     //abort the given command with the given arguments.  store the abort-complete into ack
-    void invokeAbort(const LabelStr& name, 
-		     const std::list<double>& args, 
-		     ExpressionId dest,
-		     ExpressionId ack);
-    
+    void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+
   private:
     // deliberately unimplemented
     UdpAdapter();
     UdpAdapter(const UdpAdapter &);
     UdpAdapter& operator=(const UdpAdapter &);
 
+    //
+    // Implementation methods
+    //
+
+    /**
+     * @brief handles SEND_MESSAGE_COMMAND commands from the exec
+     */
+    void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+
   };
-
 }
-
-#endif // UDP_ADAPTER_H
