@@ -32,7 +32,6 @@ namespace PLEXIL
     : InterfaceAdapter(execInterface, xml)
   {
     assertTrue(xml != NULL, "XML config file not found in UdpAdapter::UdpAdapter constructor");
-    //debugMsg("UdpAdapter::UdpAdapter", " Using " << xml->Attribute("AdapterType"));
     debugMsg("UdpAdapter::UdpAdapter", " Using " << xml->Attribute("AdapterType"));
   }
 
