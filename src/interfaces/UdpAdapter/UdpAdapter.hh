@@ -10,6 +10,19 @@ class TiXmlElement;
 
 namespace PLEXIL
 {
+  class UdpMessage
+  {
+  public:
+    std::string name;
+    std::string type;
+    std::list<std::string> parameters;
+    std::string host;
+    int port;
+    UdpMessage() : name(""), type(""), parameters(NULL), host(""), port(0) {}
+  };
+
+  typedef std::map<std::string,UdpMessage> MessageMap;
+
   class UdpAdapter : public InterfaceAdapter
   {
   public:
@@ -41,8 +54,13 @@ namespace PLEXIL
     void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
     // executes a command with the given arguments
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    //abort the given command with the given arguments.  store the abort-complete into ack
+    // abort the given command with the given arguments.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+
+    // somewhere to hang the messages and default ports
+    int m_default_outgoing_port;
+    int m_default_incoming_port;
+    MessageMap m_messages;
 
   private:
     // deliberately unimplemented
@@ -53,12 +71,13 @@ namespace PLEXIL
     //
     // Implementation methods
     //
-
-    /**
-     * @brief handles SEND_MESSAGE_COMMAND commands from the exec
-     */
     void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-
+   
+    //
+    // XML Support
+    //
+    void parseMessageDefinitions(const TiXmlElement* xml);
+    void printMessageDefinitions();
   };
 }
 

@@ -45,13 +45,14 @@ namespace PLEXIL
   bool UdpAdapter::initialize()
   {
     debugMsg("UdpAdapter::initialize", " called");
-
     // Parse the message definitions in the XML configuration
     const TiXmlElement* xml = this->getXml();
     debugMsg("UdpAdapter::initialize", " xml = " << *xml);
-
+    // parse the XML message definitions
+    parseMessageDefinitions(xml);
     //this->registerAdapter();
     //m_execInterface.defaultRegisterAdapter(getId());
+    printMessageDefinitions();
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
     debugMsg("UdpAdapter::initialize", " done");
     return true;
@@ -165,6 +166,75 @@ namespace PLEXIL
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeSendMessageCommand", " message \"" << theMessage.c_str() << "\" sent.");
+  }
+
+  //
+  // XML Support
+  //
+
+  void UdpAdapter::parseMessageDefinitions(const TiXmlElement* xml)
+  { // Walk this <Message/> element
+    m_messages.clear();         // clear the old messages (if any)
+    const char* default_incoming_port = NULL;
+    const char* default_outgoing_port = NULL;
+    default_incoming_port = xml->Attribute("default_incoming_port");
+    default_outgoing_port = xml->Attribute("default_outgoing_port");
+    if ( default_incoming_port ) m_default_incoming_port = atoi(default_incoming_port);
+    if ( default_outgoing_port ) m_default_outgoing_port = atoi(default_outgoing_port);
+    for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
+      {
+        UdpMessage msg;
+        std::string name;
+        std::string type;        // was: const char* type = NULL; std::string works with "+" below, c strings don't.
+        const char* host = NULL; // needed for bool test below
+        const char* port = NULL; // needed for bool test below
+        msg.name = name = child->Attribute("name"); // for debugging message below
+        msg.type = type = child->Attribute("type"); // for debugging message below
+        host = child->Attribute("host");
+        port = child->Attribute("port");
+        // must be either incoming or outgoing
+        assertTrue((type=="outgoing" || type=="incoming"),
+                   "type '" + type + "' is not one of 'incoming' or 'outgoing' in <Message name=\"" + name + "\"/>");
+        msg.host = host ? host : "localhost";   // record the host given or a default
+        // use either the given port, the (appropriate) default port, or singal an error
+        if (type=="incoming")
+          {
+            assertTrue((default_incoming_port || port),
+                       "No port given, and no default port for incoming <Message name=\"" + name + "\"/>");
+          }
+        else
+          {
+            assertTrue((default_outgoing_port || port),
+                       "No port given, and no default port for outgoing <Message name=\"" + name + "\"/>");
+          }
+        msg.port = port ? atoi(port) : (type=="incoming") ? m_default_incoming_port : m_default_outgoing_port;
+        //assertTrue(msg.port != NULL, "foo");
+        //atoi(NULL);
+        if ( port ) msg.port = atoi(port); // record the port if there is one
+        // Walk the <Parameter/> elements of this <Message/>, if any
+        for (const TiXmlElement* param = child->FirstChildElement(); param != NULL; param = param->NextSiblingElement())
+          {
+            msg.parameters.push_back(param->Attribute("type"));   // record the type
+            msg.parameters.push_back(param->Attribute("length")); // and length
+          }
+        m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
+      }
+  }
+  
+  void UdpAdapter::printMessageDefinitions()
+  { // print all of the stuff in m_message for debugging
+    MessageMap::iterator msg;
+    for (msg=m_messages.begin(); msg != m_messages.end(); msg++)
+      {
+        std::cout << "Message: name: " << (*msg).first;
+        std::list<std::string>::iterator param;
+        std::cout << ", Parameters:";
+        for (param=(*msg).second.parameters.begin(); param != (*msg).second.parameters.end(); param++)
+          {
+            std::cout << " " << (*param); // alternating type and length values
+          }
+        std::cout << ", host: " << (*msg).second.host << ", port: " << (*msg).second.port << std::endl;
+      }
   }
 }
 
