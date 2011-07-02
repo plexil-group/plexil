@@ -1,6 +1,15 @@
 <Interfaces>
   <Adapter AdapterType="Utility"/>
-  <Adapter AdapterType="UdpAdapter"/>
+  <Adapter AdapterType="UdpAdapter" default_incoming_port="9876" default_outgoing_port="8031">
+    <Message type="incoming" name="test1">
+      <Parameter type="int" length="4"/>
+      <Parameter type="float" length="4"/>
+    </Message>
+    <Message type="outgoing" name="test_message" host="tilt" port="9875"/>
+    <Message type="outgoing" name="set_sytem" host="pinball">
+      <Parameter type="string" length="32"/>
+    </Message>
+  </Adapter>
   <Adapter AdapterType="OSNativeTime"/>
   <!-- <Listener ListenerType="PlanDebugListener"/> -->
 </Interfaces>
