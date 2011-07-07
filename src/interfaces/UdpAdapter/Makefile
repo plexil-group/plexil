@@ -43,3 +43,11 @@ include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
+
+all: outgoingMsg
+
+outgoingMsg:
+	g++ outgoingMsg.cc -o outgoingMsg
+
+cleaner: clean
+	$(RM) outgoingMsg
