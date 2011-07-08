@@ -331,6 +331,12 @@ namespace PLEXIL
 	 */
 	virtual void notifyAndWaitForCompletion() = 0;
 
+	/**
+	 * @brief Get the Exec's idea of the current time.
+	 * @return Seconds since the epoch as a double float.
+	 */
+    virtual double currentTime() = 0;
+
     /**
      * @brief Get the state cache for this instance of the interface.
      * @note This function is deprecated.  Use 
