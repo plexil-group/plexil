@@ -45,7 +45,8 @@ LOCAL_SRC_FILES := Debug.cc \
  ThreadSemaphore.cc \
  ThreadSpawn.cc \
  Utils.cc \
- XMLUtils.cc
+ XMLUtils.cc \
+ stricmp.c
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := -DPLEXIL_USE_POSIX_SEMAPHORES -DPLATFORM_HAS_GNU_HASH_MAP -D__STDC_LIMIT_MACROS
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
