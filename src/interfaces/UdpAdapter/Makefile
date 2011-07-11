@@ -44,10 +44,13 @@ ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
 
-all: outgoingMsg
+all: outgoingMsg udp-utils
 
 outgoingMsg:
 	g++ outgoingMsg.cc -o outgoingMsg
 
+udp-utils:
+	g++ udp-utils.cc -o udp-utils
+
 cleaner: clean
-	$(RM) outgoingMsg
+	$(RM) outgoingMsg udp-utils
