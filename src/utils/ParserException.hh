@@ -58,7 +58,7 @@
       std::ostringstream whatstr; \
       whatstr << msg; \
 	  const TiXmlDocument* _my_errorDoc = loc->GetDocument(); \
-      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc == 0 ? "" : _my_errorDoc->Value()), loc->Row()); \
+      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc == 0 ? "" : _my_errorDoc->Value()), loc->Row(), loc->Column()); \
     } \
 }
 
@@ -70,9 +70,9 @@ namespace PLEXIL
   public:
     ParserException() throw();
 
-    ParserException(const char* msg, const char* m_file, const int& m_line) throw();
+    ParserException(const char* msg, const char* filename, const int& line, const int& col = 0) throw();
 
-    ParserException(const ParserException&, const char* m_file, const int& m_line) throw();
+    ParserException(const ParserException&, const char* filename, const int& line, const int& col = 0) throw();
 
     ParserException& operator=(const ParserException&) throw();
 
@@ -94,6 +94,7 @@ namespace PLEXIL
     const char * m_what;
     std::string m_file; /**<The source file in which the error was detected (__FILE__). */
     int m_line; /**<The source line on which the error detected (__LINE__). */
+	int m_col; /**<The source column on which the error detected (__COL__). */
   };
 
 }
