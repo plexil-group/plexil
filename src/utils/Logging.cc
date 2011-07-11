@@ -78,6 +78,26 @@ int Logging::handle_message(int msg_type, const char * file, int line, const cha
   return 0;
 }
 
+int Logging::handle_message(int msg_type, const char * file, int line, int col, const char * msg) 
+{
+  char fullmsg[1024];
+  snprintf(fullmsg, 1024, "%s: %s:%i:%i: %s", get_msg_type(msg_type), file, line, col, msg);
+
+  switch (msg_type) {
+  case ERROR:
+	print_error(fullmsg);
+	break;
+  case WARNING:
+	print_warning(fullmsg);
+	break;
+  default:
+	print_unknown(fullmsg);
+	break;
+  }
+
+  return 0;
+}
+
 int Logging::print_error(const char * fullmsg) {
 	// write message to console
         Error::getStream() << fullmsg << '\n';
