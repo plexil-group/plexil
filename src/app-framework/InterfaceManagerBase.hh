@@ -67,6 +67,12 @@ namespace PLEXIL
      */
     virtual void* getProperty(const std::string& name) = 0;
 
+	/**
+	 * @brief Get the Exec's idea of the current time.
+	 * @return Seconds since the epoch as a double float.
+	 */
+    virtual double currentTime() = 0;
+
     //
     // Static utility functions
     //
