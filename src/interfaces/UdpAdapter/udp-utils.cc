@@ -89,30 +89,42 @@ void number_to_network_bytes(int number, int total_bits, unsigned char* buffer, 
 
 int main()
 {
-  unsigned char* bytes1 = new unsigned char[4];
-  unsigned char* bytes2 = new unsigned char[4];
-  bytes1[0] = 0x91;        // 145
+  unsigned char* bytes1 = new unsigned char[32];
+  unsigned char* bytes2 = new unsigned char[32];
+
+  bytes1[0] = 0x91;                   // 145
   bytes1[1] = 0x16;                   //  22
   bytes1[2] = 0x4D;                   //  77
   bytes1[3] = 0xE4;                   // 228
 
-  //std::cout << "#(" << bytes1[0] << " " << bytes1[1] << " " << bytes1[2] << " " << bytes1[3] << ")" << std::endl;
+  printf("\nbytes1==#(%d %d %d %d %d %d %d %d)\n",
+         bytes1[0], bytes1[1], bytes1[2], bytes1[3], bytes1[4], bytes1[5], bytes1[6], bytes1[7]);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
-  printf("\nbytes1==#(%d %d %d %d)\n", bytes1[0], bytes1[1], bytes1[2], bytes1[3]);
   // read the network bytes and extract the 32 bit integer
   int temp = network_bytes_to_number(bytes1, 0, 32, true, true);
   std::cout << "-1860809244 == " << temp << std::endl << std::endl;
   // convert the 32 bit integer back to a byte stream
   number_to_network_bytes(temp, 32, bytes2, 0, true);
-  printf("bytes1==#(%d %d %d %d)\n", bytes1[0], bytes1[1], bytes1[2], bytes1[3]);
-  printf("bytes2==#(%d %d %d %d)\n\n", bytes2[0], bytes2[1], bytes2[2], bytes2[3]);
+  printf("\nbytes1==#(%d %d %d %d %d %d %d %d)\n",
+         bytes1[0], bytes1[1], bytes1[2], bytes1[3], bytes1[4], bytes1[5], bytes1[6], bytes1[7]);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
   // convert a subset of the network bytes
   temp = network_bytes_to_number(bytes1, 1, 16, true, true);
   std::cout << "5709 == " << temp << std::endl;
-  // and write them back shifted to the right 1 place
-  number_to_network_bytes(5709, 16, bytes2, 2, true);
-  printf("bytes2==#(%d %d %d %d)\n", bytes2[0], bytes2[1], bytes2[2], bytes2[3]);
+
+  // and write them back shifted to the next 32 bit boundary
+  number_to_network_bytes(temp, 16, bytes2, 4, true);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
+
+  // and write them back again shifted to the next 16 bit boundary
+  number_to_network_bytes(temp, 16, &bytes2[6], 0, true);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
   
   delete[] bytes1;
   delete[] bytes2;
