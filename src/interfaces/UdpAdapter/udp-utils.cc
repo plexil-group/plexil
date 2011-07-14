@@ -7,6 +7,20 @@
 #include <math.h>             // pow()
 
 //
+// Forward declarations
+//
+
+long int float_to_long_int (float num);
+float long_int_to_float (long int num);
+int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug);
+int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug);
+void encode_long_int(long int num, unsigned char* buffer, int start_index, bool hton);
+long int decode_long_int(unsigned char* buffer, int start_index, bool ntoh);
+void encode_float(float num, unsigned char* buffer, int start_index, bool hton);
+float decode_float(unsigned char* buffer, int start_index, bool ntoh);
+void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
+
+//
 // 32 bit versions of float and int conversions
 //
 
@@ -75,7 +89,7 @@ int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bi
 //                      number i value value cursor (elt buffer cursor)))))
 //   buffer)
 
-void number_to_network_bytes(int number, int total_bits, unsigned char* buffer, int start_index, bool debug=false)
+void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug=false)
 {
   int i = total_bits - 8;
   int cursor = start_index;
@@ -87,15 +101,75 @@ void number_to_network_bytes(int number, int total_bits, unsigned char* buffer, 
     }
 }
 
+void encode_long_int(long int num, unsigned char* buffer, int start_index, bool hton=true)
+// Encode a 32 bit integer
+{
+  number_to_network_bytes(num, buffer, start_index, 32, false);
+  if (hton) reverse_bytes(buffer, start_index, 4, false);
+}
+
+long int decode_long_int(unsigned char* buffer, int start_index, bool ntoh=true)
+// Decode a 32 bit integer from the network bytes, optionally reversing them (network to host)
+{
+  long int temp_int = 0;
+  unsigned char* temp = new unsigned char[4]; // don't meddle with the incoming buffer
+  for (int i = 0 ; i < 4 ; i++)
+    {
+      temp[i] = buffer[start_index++];
+    }
+  if (ntoh) reverse_bytes(temp, 0, 4, false);
+  temp_int = network_bytes_to_number(temp, 0, 32, false, false);
+  delete temp;
+  return temp_int;
+}
+
+void encode_float(float num, unsigned char* buffer, int start_index, bool hton=true)
+// Encode a 32 bit float
+{
+  long int temp = float_to_long_int(num);
+  number_to_network_bytes(temp, buffer, start_index, 32, false);
+  if (hton) reverse_bytes(buffer, start_index, 4, false); // reverse the bytes in the buffer
+}
+
+float decode_float(unsigned char* buffer, int start_index, bool ntoh=true)
+// Get the 32 bit int, then coerse it to a 32 bit float
+{
+  long int temp = decode_long_int(buffer, start_index, ntoh);
+  return long_int_to_float(temp);
+}
+
+void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug=false)
+// Reverse the bytes in the buffer from start_index for num_bytes
+{
+  unsigned char* temp = new unsigned char[num_bytes];
+  int cursor = 0;
+  // Copy the bytes into a temp buffer
+  for (int i = start_index ; i < start_index + num_bytes ; i++)
+    {
+      if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
+      temp[cursor++] = buffer[i];
+    }
+  // Copy them back in the reverse order
+  for (int i = start_index ; i < start_index + num_bytes ; i++)
+    {
+      buffer[i] = temp[--cursor];
+      if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
+    }
+  delete temp;
+}
+
 int main()
 {
   unsigned char* bytes1 = new unsigned char[32];
   unsigned char* bytes2 = new unsigned char[32];
+  bool debug=false;
 
   bytes1[0] = 0x91;                   // 145
   bytes1[1] = 0x16;                   //  22
   bytes1[2] = 0x4D;                   //  77
   bytes1[3] = 0xE4;                   // 228
+
+  printf("\nBasic encoding/decoding/shifting\n");
 
   printf("\nbytes1==#(%d %d %d %d %d %d %d %d)\n",
          bytes1[0], bytes1[1], bytes1[2], bytes1[3], bytes1[4], bytes1[5], bytes1[6], bytes1[7]);
@@ -103,28 +177,58 @@ int main()
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
   // read the network bytes and extract the 32 bit integer
-  int temp = network_bytes_to_number(bytes1, 0, 32, true, true);
+  int temp = network_bytes_to_number(bytes1, 0, 32, true, debug);
   std::cout << "-1860809244 == " << temp << std::endl << std::endl;
   // convert the 32 bit integer back to a byte stream
-  number_to_network_bytes(temp, 32, bytes2, 0, true);
-  printf("\nbytes1==#(%d %d %d %d %d %d %d %d)\n",
+  number_to_network_bytes(temp, bytes2, 0, 32, debug);
+  printf("bytes1==#(%d %d %d %d %d %d %d %d)\n",
          bytes1[0], bytes1[1], bytes1[2], bytes1[3], bytes1[4], bytes1[5], bytes1[6], bytes1[7]);
   printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
   // convert a subset of the network bytes
-  temp = network_bytes_to_number(bytes1, 1, 16, true, true);
+  temp = network_bytes_to_number(bytes1, 1, 16, true, debug);
   std::cout << "5709 == " << temp << std::endl;
 
   // and write them back shifted to the next 32 bit boundary
-  number_to_network_bytes(temp, 16, bytes2, 4, true);
-  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
+  number_to_network_bytes(temp, bytes2, 4, 16, debug);
+  printf("\nbytes2==#(%d %d %d %d %d %d %d %d)\n",
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
   // and write them back again shifted to the next 16 bit boundary
-  number_to_network_bytes(temp, 16, &bytes2[6], 0, true);
+  number_to_network_bytes(temp, &bytes2[6], 0, 16, debug);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
+
+  // reverse some of the bytes
+  reverse_bytes(bytes2, 0, 4, debug);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
+
+  printf("\nEncode and decode floats\n\n");
+
+  float pif = 3.14159;
+  int pii = float_to_long_int(pif);
+  pif = long_int_to_float(pii);
+  printf("pif=%f, pii=%d\n\n", pif, pii);
+
+  encode_float(pif, bytes2, 0, true);
+  printf("encode_float(%f, bytes2, 0, true)\n", pif);
+  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n",
+         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
+
+  encode_long_int(pii, bytes2, 0, true);
+  printf("encode_long_int(%d, bytes2, 0, true)\n", pii);
   printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
+
+  pii = decode_long_int(bytes2, 0, true);
+  printf("pii=decode_long_int(bytes2, 0, true)\n");
+  printf("pif=%f, pii=%d\n", pif, pii);
+
+  pif = decode_float(bytes2, 0, true);
+  printf("pig=decode_float(bytes2, 0, true)\n");
+  printf("pif=%f, pii=%d\n\n", pif, pii);
   
   delete[] bytes1;
   delete[] bytes2;
