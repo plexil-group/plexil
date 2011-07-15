@@ -130,13 +130,21 @@ namespace PLEXIL
      */
     virtual bool startInterfaces();
 
-	/**
-	 * @brief Step the Exec once.
-	 * @return true if successful, false otherwise.
-	 * @note Can only be called in APP_READY state.
-	 * @note Can be called when application is suspended.
-	 */
-	virtual bool step();
+    /**
+     * @brief Step the Exec once.
+     * @return true if successful, false otherwise.
+     * @note Can only be called in APP_READY state.
+     * @note Can be called when application is suspended.
+     */
+    virtual bool step();
+
+    /**
+     * @brief Step the Exec until the queue is empty.
+     * @return true if successful, false otherwise.
+     * @note Can only be called in APP_READY state.
+     * @note Can be called when application is suspended.
+     */
+    virtual bool stepUntilQuiescent();
 
     /**
      * @brief Runs the initialized Exec.

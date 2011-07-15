@@ -174,6 +174,28 @@ namespace PLEXIL
 	return true;
   }
 
+  /**
+   * @brief Step the Exec until the queue is empty.
+   * @return true if successful, false otherwise.
+   */
+  bool ExecApplication::stepUntilQuiescent()
+  {
+    if (m_state != APP_READY)
+      return false;
+
+    {
+      RTMutexGuard guard(m_execMutex);
+      debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Checking interface queue");
+      while (m_interface.processQueue()) {
+	debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Stepping exec");
+	m_exec.step();
+      }
+    }
+    debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") completed, interface queue empty.");
+
+    return true;
+  }
+
 
   /**
    * @brief Runs the initialized Exec.
