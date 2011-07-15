@@ -14,11 +14,11 @@ long int float_to_long_int (float num);
 float long_int_to_float (long int num);
 int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug);
 int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug);
-void encode_long_int(long int num, unsigned char* buffer, int start_index, bool hton);
-long int decode_long_int(unsigned char* buffer, int start_index, bool ntoh);
-void encode_float(float num, unsigned char* buffer, int start_index, bool hton);
-float decode_float(unsigned char* buffer, int start_index, bool ntoh);
-void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
+void encode_long_int(long int num, unsigned char* buffer, int start_index);
+long int decode_long_int(unsigned char* buffer, int start_index);
+void encode_float(float num, unsigned char* buffer, int start_index);
+float decode_float(unsigned char* buffer, int start_index);
+//void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
 
 //
 // 32 bit versions of float and int conversions
@@ -101,62 +101,52 @@ void number_to_network_bytes(int number, unsigned char* buffer, int start_index,
     }
 }
 
-void encode_long_int(long int num, unsigned char* buffer, int start_index, bool hton=true)
-// Encode a 32 bit integer
+void encode_long_int(long int long_int, unsigned char* buffer, int start_index)
+// Encode a 32 bit integer (in network byte order)
 {
-  number_to_network_bytes(num, buffer, start_index, 32, false);
-  if (hton) reverse_bytes(buffer, start_index, 4, false);
+  number_to_network_bytes(htonl(long_int), buffer, start_index, 32, false);
 }
 
-long int decode_long_int(unsigned char* buffer, int start_index, bool ntoh=true)
-// Decode a 32 bit integer from the network bytes, optionally reversing them (network to host)
+long int decode_long_int(unsigned char* buffer, int start_index)
+// Decode a 32 bit integer from the network bytes in host byte order
 {
-  long int temp_int = 0;
-  unsigned char* temp = new unsigned char[4]; // don't meddle with the incoming buffer
-  for (int i = 0 ; i < 4 ; i++)
-    {
-      temp[i] = buffer[start_index++];
-    }
-  if (ntoh) reverse_bytes(temp, 0, 4, false);
-  temp_int = network_bytes_to_number(temp, 0, 32, false, false);
-  delete temp;
-  return temp_int;
+  ntohl(network_bytes_to_number(buffer, 0, 32, false, false));
 }
 
-void encode_float(float num, unsigned char* buffer, int start_index, bool hton=true)
-// Encode a 32 bit float
+void encode_float(float num, unsigned char* buffer, int start_index)
+// Encode a 32 bit float in network byte order
 {
-  long int temp = float_to_long_int(num);
+  long int temp = htonl(float_to_long_int(num));
   number_to_network_bytes(temp, buffer, start_index, 32, false);
-  if (hton) reverse_bytes(buffer, start_index, 4, false); // reverse the bytes in the buffer
 }
 
-float decode_float(unsigned char* buffer, int start_index, bool ntoh=true)
-// Get the 32 bit int, then coerse it to a 32 bit float
+float decode_float(unsigned char* buffer, int start_index)
+// Decode a 32 bit float from network byte order
 {
-  long int temp = decode_long_int(buffer, start_index, ntoh);
+  // ntohl called in decode_long_int
+  long int temp = decode_long_int(buffer, start_index);
   return long_int_to_float(temp);
 }
 
-void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug=false)
-// Reverse the bytes in the buffer from start_index for num_bytes
-{
-  unsigned char* temp = new unsigned char[num_bytes];
-  int cursor = 0;
-  // Copy the bytes into a temp buffer
-  for (int i = start_index ; i < start_index + num_bytes ; i++)
-    {
-      if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
-      temp[cursor++] = buffer[i];
-    }
-  // Copy them back in the reverse order
-  for (int i = start_index ; i < start_index + num_bytes ; i++)
-    {
-      buffer[i] = temp[--cursor];
-      if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
-    }
-  delete temp;
-}
+// void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug=false)
+// // Reverse the bytes in the buffer from start_index for num_bytes
+// {
+//   unsigned char* temp = new unsigned char[num_bytes];
+//   int cursor = 0;
+//   // Copy the bytes into a temp buffer
+//   for (int i = start_index ; i < start_index + num_bytes ; i++)
+//     {
+//       if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
+//       temp[cursor++] = buffer[i];
+//     }
+//   // Copy them back in the reverse order
+//   for (int i = start_index ; i < start_index + num_bytes ; i++)
+//     {
+//       buffer[i] = temp[--cursor];
+//       if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
+//     }
+//   delete temp;
+// }
 
 int main()
 {
@@ -169,7 +159,7 @@ int main()
   bytes1[2] = 0x4D;                   //  77
   bytes1[3] = 0xE4;                   // 228
 
-  printf("\nBasic encoding/decoding/shifting\n");
+  printf("\nBasic encoding, decoding, and shifting\n");
 
   printf("\nbytes1==#(%d %d %d %d %d %d %d %d)\n",
          bytes1[0], bytes1[1], bytes1[2], bytes1[3], bytes1[4], bytes1[5], bytes1[6], bytes1[7]);
@@ -201,33 +191,33 @@ int main()
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
   // reverse some of the bytes
-  reverse_bytes(bytes2, 0, 4, debug);
-  printf("bytes2==#(%d %d %d %d %d %d %d %d)\n",
-         bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
+  //reverse_bytes(bytes2, 0, 4, debug);
+  //printf("bytes2==#(%d %d %d %d %d %d %d %d)\n",
+  //       bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
-  printf("\nEncode and decode floats\n\n");
+  printf("\nEncode and decode floats and long ints\n\n");
 
   float pif = 3.14159;
   int pii = float_to_long_int(pif);
   pif = long_int_to_float(pii);
   printf("pif=%f, pii=%d\n\n", pif, pii);
 
-  encode_float(pif, bytes2, 0, true);
-  printf("encode_float(%f, bytes2, 0, true)\n", pif);
+  encode_float(pif, bytes2, 0);
+  printf("encode_float(%f, bytes2, 0)\n", pif);
   printf("bytes2==#(%d %d %d %d %d %d %d %d)\n",
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
-  encode_long_int(pii, bytes2, 0, true);
-  printf("encode_long_int(%d, bytes2, 0, true)\n", pii);
+  encode_long_int(pii, bytes2, 0);
+  printf("encode_long_int(%d, bytes2, 0)\n", pii);
   printf("bytes2==#(%d %d %d %d %d %d %d %d)\n\n",
          bytes2[0], bytes2[1], bytes2[2], bytes2[3], bytes2[4], bytes2[5], bytes2[6], bytes2[7]);
 
-  pii = decode_long_int(bytes2, 0, true);
-  printf("pii=decode_long_int(bytes2, 0, true)\n");
+  pii = decode_long_int(bytes2, 0);
+  printf("pii=decode_long_int(bytes2, 0)\n");
   printf("pif=%f, pii=%d\n", pif, pii);
 
-  pif = decode_float(bytes2, 0, true);
-  printf("pig=decode_float(bytes2, 0, true)\n");
+  pif = decode_float(bytes2, 0);
+  printf("pig=decode_float(bytes2, 0)\n");
   printf("pif=%f, pii=%d\n\n", pif, pii);
   
   delete[] bytes1;

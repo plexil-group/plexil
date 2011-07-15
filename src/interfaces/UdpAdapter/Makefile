@@ -32,7 +32,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                     ../../utils ../../exec ../../app-framework
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilAppFramework
+LIBS		+= tinyxml PlexilUtils PlexilExec PlexilAppFramework libc
 
 SRC		:= UdpAdapter.cc
 INC		:= UdpAdapter.hh
