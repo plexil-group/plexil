@@ -44,13 +44,15 @@ ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
 
+CC_LIBS := -lstdc++
+
 all: outgoingMsg udp-utils
 
 outgoingMsg:
-	g++ outgoingMsg.cc -o outgoingMsg
+	$(CC) outgoingMsg.cc -o outgoingMsg $(CC_LIBS)
 
 udp-utils:
-	g++ udp-utils.cc -o udp-utils
+	$(CC) udp-utils.cc -o udp-utils $(CC_LIBS)
 
 cleaner: clean
 	$(RM) outgoingMsg udp-utils
