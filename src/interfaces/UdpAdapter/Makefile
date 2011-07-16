@@ -32,10 +32,10 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                     ../../utils ../../exec ../../app-framework
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilAppFramework c
+LIBS		+= tinyxml PlexilUtils PlexilExec PlexilAppFramework
 
-SRC		:= UdpAdapter.cc
-INC		:= UdpAdapter.hh
+SRC		:= UdpAdapter.cc udp-utils.cc
+INC		:= UdpAdapter.hh udp-utils.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
@@ -44,15 +44,13 @@ ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
 
-CC_LIBS := -lstdc++
+TARGETS := outgoingMsg udp-tests
+OBJECTS := udp-utils.o
 
-all: outgoingMsg udp-utils
+all: $(TARGETS)
 
-outgoingMsg:
-	$(CC) outgoingMsg.cc -o outgoingMsg $(CC_LIBS)
-
-udp-utils:
-	$(CC) udp-utils.cc -o udp-utils $(CC_LIBS)
+$(TARGETS): $(OBJECTS)
+	$(CC) $@.cc -o $@ $^ -lstdc++
 
 cleaner: clean
-	$(RM) outgoingMsg udp-utils
+	$(RM) $(TARGETS) *.o
