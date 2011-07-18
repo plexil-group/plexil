@@ -50,7 +50,7 @@ OBJECTS := udp-utils.o
 all: $(TARGETS)
 
 $(TARGETS): $(OBJECTS)
-	$(CC) $@.cc -o $@ $^ -lstdc++
+	$(CC) -Wall $@.cc -o $@ $^ -lstdc++
 
 cleaner: clean
 	$(RM) $(TARGETS) *.o
