@@ -42,7 +42,7 @@ namespace PLEXIL
       }
     if (is_signed && (value >= pow(2.0,total_bits)/2.0))
       {
-        value -= pow(2.0, total_bits);
+        value -= (int) pow(2.0, total_bits);
       }
     return value;
   }
@@ -68,7 +68,9 @@ namespace PLEXIL
   long int decode_long_int(unsigned char* buffer, int start_index)
   // Decode a 32 bit integer from the network bytes in host byte order
   {
-    ntohl(network_bytes_to_number(buffer, 0, 32, false, false));
+    long int temp;
+    temp = network_bytes_to_number(buffer, 0, 32, false, false);
+    return ntohl(temp);
   }
 
   void encode_float(float num, unsigned char* buffer, int start_index)

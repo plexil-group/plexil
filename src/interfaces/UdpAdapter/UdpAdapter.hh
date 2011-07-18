@@ -18,7 +18,7 @@ namespace PLEXIL
     std::list<std::string> parameters;
     std::string host;
     int port;
-    UdpMessage() : name(""), type(""), parameters(NULL), host(""), port(0) {}
+    UdpMessage() : name(""), type(""), parameters(), host(""), port(0) {}
   };
 
   typedef std::map<std::string,UdpMessage> MessageMap;

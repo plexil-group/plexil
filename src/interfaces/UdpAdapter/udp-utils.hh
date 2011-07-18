@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>           // cout
 #include <math.h>             // pow()
+#include <arpa/inet.h>        // htonl
 
 namespace PLEXIL
 {
