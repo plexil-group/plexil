@@ -9,10 +9,10 @@
       <Parameter type="string" length="4"/>
     </Message>
     <Message type="outgoing" name="test_command" host="pinball">
-      <Parameter name="name" type="string" length="12">test_command</Parameter>
-      <Parameter name="arg1" type="int" length="4"/>
-      <Parameter name="arg2" type="float" length="4"/>      
-      <Parameter name="arg3" type="string" length="32"/>
+      <Parameter name="name" type="string" length="4"/>
+      <Parameter type="int" length="4"/>
+      <Parameter type="float" length="4"/>      
+      <Parameter type="string" length="16"/>
     </Message>
   </Adapter>
   <Adapter AdapterType="OSNativeTime"/>
