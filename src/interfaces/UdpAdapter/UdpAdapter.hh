@@ -4,24 +4,33 @@
 
 #include "InterfaceAdapter.hh"
 #include "LabelStr.hh"
+#include "udp-utils.hh"
 
-// Forward references w/o namespace
-class TiXmlElement;
+class TiXmlElement;             // Forward references (w/o namespace)
 
 namespace PLEXIL
 {
+  class Parameter
+  {
+  public:
+    std::string name;
+    std::string type;
+    int len;                    // 0 == variable length (i.e., char[])
+  };
+
   class UdpMessage
   {
   public:
     std::string name;
     std::string type;
-    std::list<std::string> parameters;
+    std::list<Parameter> parameters;
+    int len;
     std::string host;
     int port;
-    UdpMessage() : name(""), type(""), parameters(), host(""), port(0) {}
+    UdpMessage() : name(""), type(""), parameters(), len(0), host(""), port(0) {}
   };
 
-  typedef std::map<std::string,UdpMessage> MessageMap;
+  typedef std::map<std::string, UdpMessage> MessageMap;
 
   class UdpAdapter : public InterfaceAdapter
   {
@@ -29,6 +38,7 @@ namespace PLEXIL
     // Static Class Constants
 
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
+    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
@@ -71,6 +81,7 @@ namespace PLEXIL
     //
     // Implementation methods
     //
+    void executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
    
     //
@@ -78,6 +89,8 @@ namespace PLEXIL
     //
     void parseMessageDefinitions(const TiXmlElement* xml);
     void printMessageDefinitions();
+    void buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug);
+    void printMessageContent(const LabelStr& name, const std::list<double>& args);
   };
 }
 

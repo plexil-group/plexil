@@ -54,6 +54,7 @@ namespace PLEXIL
     //m_execInterface.defaultRegisterAdapter(getId());
     printMessageDefinitions();
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
+    m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
     debugMsg("UdpAdapter::initialize", " done");
     return true;
   }
@@ -130,6 +131,8 @@ namespace PLEXIL
     debugMsg("UdpAdapter::executeCommand", " called for " << name.c_str());
     if (name == SEND_MESSAGE_COMMAND())
       executeSendMessageCommand(args, dest, ack);
+    if (name == SEND_UDP_MESSAGE_COMMAND())
+      executeSendUdpMessageCommand(args, dest, ack);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
   }
@@ -149,6 +152,34 @@ namespace PLEXIL
   //
   // Implementation methods
   //
+
+  // SEND_UDP_MESSAGE_COMMAND
+  void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
+  {
+    // First arg is message name (which better match one of the defined messages...)
+    assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first paramater to SendUdpMessage command, "
+                  << Expression::valueToString(args.front()) << ", is not a string");
+    // Lookup the appropriate message in m_messages
+    // Walk the parameters and encode them in the buffer to be sent out
+    // Send the buffer to the given host:port
+    LabelStr msgName(args.front());
+    // Lookup the appropriate message in m_messages
+    MessageMap::iterator msg;
+    msg=m_messages.find(msgName.c_str());
+    // Set up the outgoing UDP buffer to be sent
+    int length = (*msg).second.len;
+    unsigned char* udp_buffer = new unsigned char[length];
+    memset((char *)udp_buffer, 0, length); // zero out the buffer
+    buildUdpBuffer(udp_buffer, (*msg).second, args, false);
+    //debugMsg("UdpAdapter::executeSendUdpMessageCommand", " length: " << length);
+    printMessageContent(msgName, args);
+    //debugMsg("UdpAdapter::executeSendUdpMessageCommand", " SendUdpMessage(\"" << msgName.c_str() << "\")");
+    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
+    m_execInterface.notifyOfExternalEvent();
+    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " message \"" << msgName.c_str() << "\" sent.");
+    // Clean up some just (one hopes)
+    delete udp_buffer;
+  }
 
   // SEND_MESSAGE_COMMAND
   void UdpAdapter::executeSendMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
@@ -188,6 +219,7 @@ namespace PLEXIL
         std::string type;        // was: const char* type = NULL; std::string works with "+" below, c strings don't.
         const char* host = NULL; // needed for bool test below
         const char* port = NULL; // needed for bool test below
+        const char* len = NULL;
         msg.name = name = child->Attribute("name"); // for debugging message below
         msg.type = type = child->Attribute("type"); // for debugging message below
         host = child->Attribute("host");
@@ -214,8 +246,20 @@ namespace PLEXIL
         // Walk the <Parameter/> elements of this <Message/>, if any
         for (const TiXmlElement* param = child->FirstChildElement(); param != NULL; param = param->NextSiblingElement())
           {
-            msg.parameters.push_back(param->Attribute("type"));   // record the type
-            msg.parameters.push_back(param->Attribute("length")); // and length
+            Parameter arg;
+            const char* param_name = NULL;
+            param_name = param->Attribute("name");
+            // what about strings? -- fixed length to start with I guess
+            len = param->Attribute("length");
+            assertTrue((len), "No parameter length given for <Message name=\"" + name + "\"/>");
+            arg.len = atoi(len);
+            //std::cout << "here" << std::endl;
+            if (param_name) arg.name = param_name; // only assign it if it exists
+            arg.type = param->Attribute("type");
+            msg.len += arg.len;
+            msg.parameters.push_back(arg);
+            //msg.parameters.push_back(param->Attribute("type"));   // record the type
+            //msg.parameters.push_back(param->Attribute("length")); // and length
           }
         m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
       }
@@ -226,16 +270,97 @@ namespace PLEXIL
     MessageMap::iterator msg;
     for (msg=m_messages.begin(); msg != m_messages.end(); msg++)
       {
-        std::cout << "Message: name: " << (*msg).first;
-        std::list<std::string>::iterator param;
+        std::cout << "Message: " << (*msg).first;
+        std::cout << " (" << (*msg).second.type << ")";
+        std::list<Parameter>::iterator param;
         std::cout << ", Parameters:";
         for (param=(*msg).second.parameters.begin(); param != (*msg).second.parameters.end(); param++)
           {
-            std::cout << " " << (*param); // alternating type and length values
+            //std::cout << " " << (*param); // alternating type and length values
+            std::cout << " \"" << (*param).name << "\"";
+            std::cout << " " << (*param).type;
+            std::cout << " " << (*param).len << ",";
           }
+        std::cout << " length: " << (*msg).second.len;
         std::cout << ", host: " << (*msg).second.host << ", port: " << (*msg).second.port << std::endl;
       }
   }
+
+  void UdpAdapter::buildUdpBuffer(unsigned char* buffer,
+                                  const UdpMessage& msg,
+                                  const std::list<double>& args,
+                                  bool debug)
+  {
+    //print_buffer(buffer, msg.len);
+    std::list<double>::const_iterator it;
+    std::list<Parameter>::const_iterator param;
+    int start_index = 0;        // where in the buffer to write
+    // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
+    for (param=msg.parameters.begin(), it=args.begin() ; param != msg.parameters.end() ; param++, it++)
+      {
+        int len = (*param).len;
+        std::string type = (*param).type;
+        double plexil_val = *it;
+        // The parameter passed will be one of these two
+        std::string str_val;
+        double num_val;
+        if (debug) std::cout << "start_index: " << start_index << ", ";
+        // Only encode 32 bit entities
+        if (type.compare("int") == 0)
+          {
+            if (debug) std::cout << "int: " << plexil_val;
+            encode_long_int(plexil_val, buffer, start_index);
+          }
+        else if (type.compare("float") == 0)
+          {
+            if (debug) std::cout << "float: " << plexil_val;
+            encode_float(plexil_val, buffer, start_index);
+          }
+        else if (type.compare("bool") == 0) // these are 64 bits in Plexil
+          {
+            if (debug) std::cout << "bool: " << plexil_val;
+            encode_long_int(plexil_val, buffer, start_index);
+          }
+        else
+          {
+            if (debug) std::cout << "string: \"" << LabelStr(plexil_val).c_str() << "\"";
+            std::string str = LabelStr(plexil_val).c_str();
+            //str.copy((char*)&buffer[start_index], str.length(), 0);
+            encode_string(str, buffer, start_index);
+          }
+        if (debug) std::cout << std::endl;
+        start_index += len;
+      }
+    if (debug) print_buffer(buffer, msg.len);
+  }
+
+  void UdpAdapter::printMessageContent(const LabelStr& name, const std::list<double>& args)
+  {
+    //debugMsg("UdpAdapter::printMessageContent", " args.size() == " << args.size());
+    std::list<double>::const_iterator it;
+    std::cout << "Message: " << name.c_str() << ", Params:";
+    for (it=args.begin(); it != args.end(); it++)
+      {
+        // Real, Integer, Boolean, String (and Array, maybe...)
+        // Integers and Booleans are represented as Real (oops...)
+        double param = *it;
+        std::string str;
+        double num;
+        std::cout << " ";
+        if (LabelStr::isString(param)) // Extract strings
+          {
+            str = LabelStr(param).c_str();
+            std::cout << "\"" << str << "\"";
+          }
+        else // Extract numbers (bool, float, int)
+          {
+            num = param;
+            std::cout << num;
+          }
+      }
+    std::cout << std::endl;
+  }
+
 }
 
 // Register the UdpAdapter

@@ -14,10 +14,14 @@ namespace PLEXIL
   int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug);
   void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug);
   void encode_long_int(long int num, unsigned char* buffer, int start_index);
+  void encode_short_int(long int num, unsigned char* buffer, int start_index);
   long int decode_long_int(unsigned char* buffer, int start_index);
+  short int decode_short_int(unsigned char* buffer, int start_index);
   void encode_float(float num, unsigned char* buffer, int start_index);
   float decode_float(unsigned char* buffer, int start_index);
+  void encode_string(const std::string str, unsigned char* buffer, int start_index);
   int udp_tests(void);
+  void print_buffer(unsigned char* buffer, int bytes);
   //void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
 }
 

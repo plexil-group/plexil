@@ -65,12 +65,26 @@ namespace PLEXIL
     number_to_network_bytes(htonl(long_int), buffer, start_index, 32, false);
   }
 
+  void encode_short_int(long int long_int, unsigned char* buffer, int start_index)
+  // Encode a 16 bit integer (in network byte order)
+  {
+    number_to_network_bytes(htons(long_int), buffer, start_index, 16, false);
+  }
+
   long int decode_long_int(unsigned char* buffer, int start_index)
   // Decode a 32 bit integer from the network bytes in host byte order
   {
     long int temp;
     temp = network_bytes_to_number(buffer, 0, 32, false, false);
     return ntohl(temp);
+  }
+
+  short int decode_short_int(unsigned char* buffer, int start_index)
+  // Decode a 32 bit integer from the network bytes in host byte order
+  {
+    long int temp;
+    temp = network_bytes_to_number(buffer, 0, 16, false, false);
+    return ntohs(temp);
   }
 
   void encode_float(float num, unsigned char* buffer, int start_index)
@@ -88,25 +102,21 @@ namespace PLEXIL
     return long_int_to_float(temp);
   }
 
-  // void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug=false)
-  // // Reverse the bytes in the buffer from start_index for num_bytes
-  // {
-  //   unsigned char* temp = new unsigned char[num_bytes];
-  //   int cursor = 0;
-  //   // Copy the bytes into a temp buffer
-  //   for (int i = start_index ; i < start_index + num_bytes ; i++)
-  //     {
-  //       if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
-  //       temp[cursor++] = buffer[i];
-  //     }
-  //   // Copy them back in the reverse order
-  //   for (int i = start_index ; i < start_index + num_bytes ; i++)
-  //     {
-  //       buffer[i] = temp[--cursor];
-  //       if (debug) printf("cursor=%d, i=%d, temp[%d]=%d, buffer[%d]=%d\n", cursor, i, cursor, temp[cursor], i, buffer[i]);
-  //     }
-  //   delete temp;
-  // }
+  void encode_string(const std::string str, unsigned char* buffer, int start_index)
+  {
+    str.copy((char*)&buffer[start_index], str.length(), 0);
+  }
+
+  void print_buffer(unsigned char* buffer, int bytes)
+  {
+    printf("#(");
+    for (int i = 0 ; i < bytes ; i++)
+      {
+        if (i != 0) printf(" ");
+        printf("%d", (unsigned int) buffer[i]);
+      }
+    printf(")\n");
+  }
 }
 
 // EOF
