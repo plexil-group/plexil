@@ -9,9 +9,10 @@
       <Parameter type="string" length="4"/>
     </Message>
     <Message type="outgoing" name="test_command" host="pinball">
-      <Parameter name="name" type="string" length="4"/>
+      <Parameter name="name" type="string" length="16"/>
       <Parameter type="int" length="4"/>
       <Parameter type="float" length="4"/>      
+      <Parameter type="bool" length="1"/>
       <Parameter type="string" length="16"/>
     </Message>
   </Adapter>

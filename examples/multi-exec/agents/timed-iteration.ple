@@ -32,6 +32,6 @@ Timed-iteration:
             notify-end-of-iteration: pprint("Ending periodic iteration");
         }
     }
-    test-udp: SendUdpMessage("test_command", run_length, elapsed_time, "just a test");
+    test-udp: SendUdpMessage("test_command", run_length, elapsed_time, true, "just a test");
     test-command: SendMessage("Quit");
 }
