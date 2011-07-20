@@ -5,9 +5,14 @@
       <Parameter type="int" length="4"/>
       <Parameter type="float" length="4"/>
     </Message>
-    <Message type="outgoing" name="test_message" host="tilt" port="9875"/>
-    <Message type="outgoing" name="set_sytem" host="pinball">
-      <Parameter type="string" length="32"/>
+    <Message type="outgoing" name="test_message" host="tilt" port="9875">
+      <Parameter type="string" length="4"/>
+    </Message>
+    <Message type="outgoing" name="test_command" host="pinball">
+      <Parameter name="name" type="string" length="12">test_command</Parameter>
+      <Parameter name="arg1" type="int" length="4"/>
+      <Parameter name="arg2" type="float" length="4"/>      
+      <Parameter name="arg3" type="string" length="32"/>
     </Message>
   </Adapter>
   <Adapter AdapterType="OSNativeTime"/>
