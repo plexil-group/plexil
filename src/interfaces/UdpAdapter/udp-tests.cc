@@ -48,6 +48,15 @@ int main()
   printf("bytes2==");
   print_buffer(bytes2, 8);
 
+  printf("\nEncode and decode strings\n\n");
+
+  printf("encode_string(\"I am\", bytes1, 0);\n");
+  encode_string("I am", bytes1, 0);
+  printf("bytes1==");
+  print_buffer(bytes1, 8);
+  std::string str = decode_string(bytes1, 0, 8);
+  printf("decode_string(bytes1, 0, 8); == \"%s\"\n", str.c_str());
+  
   printf("\nEncode and decode floats and long ints\n\n");
 
   float pif = 3.14159;

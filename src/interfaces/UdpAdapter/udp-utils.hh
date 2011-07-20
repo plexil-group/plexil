@@ -20,6 +20,7 @@ namespace PLEXIL
   void encode_float(float num, unsigned char* buffer, int start_index);
   float decode_float(unsigned char* buffer, int start_index);
   void encode_string(const std::string str, unsigned char* buffer, int start_index);
+  std::string decode_string(unsigned char* buffer, int start_index, int length);
   int udp_tests(void);
   void print_buffer(unsigned char* buffer, int bytes);
   //void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);

@@ -104,7 +104,21 @@ namespace PLEXIL
 
   void encode_string(const std::string str, unsigned char* buffer, int start_index)
   {
+    // Note that this DOES NOT encode a c string.  You can do that on your own.
     str.copy((char*)&buffer[start_index], str.length(), 0);
+  }
+
+  std::string decode_string(unsigned char* buffer, int start_index, int length)
+  {
+    // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
+    std::string str;
+    for (int i = start_index ; i < length ; i++ )
+      {
+        unsigned char c = buffer[i];
+        if (c == 0) break;
+        str += c;
+      }
+    return str;
   }
 
   void print_buffer(unsigned char* buffer, int bytes)

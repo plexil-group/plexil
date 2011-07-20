@@ -160,20 +160,18 @@ namespace PLEXIL
     assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first paramater to SendUdpMessage command, "
                   << Expression::valueToString(args.front()) << ", is not a string");
     // Lookup the appropriate message in m_messages
-    // Walk the parameters and encode them in the buffer to be sent out
-    // Send the buffer to the given host:port
     LabelStr msgName(args.front());
-    // Lookup the appropriate message in m_messages
     MessageMap::iterator msg;
     msg=m_messages.find(msgName.c_str());
     // Set up the outgoing UDP buffer to be sent
-    int length = (*msg).second.len;
+    int length = msg->second.len;
     unsigned char* udp_buffer = new unsigned char[length];
-    memset((char *)udp_buffer, 0, length); // zero out the buffer
-    buildUdpBuffer(udp_buffer, (*msg).second, args, false);
-    //debugMsg("UdpAdapter::executeSendUdpMessageCommand", " length: " << length);
-    printMessageContent(msgName, args);
-    //debugMsg("UdpAdapter::executeSendUdpMessageCommand", " SendUdpMessage(\"" << msgName.c_str() << "\")");
+    memset((char*)udp_buffer, 0, length); // zero out the buffer
+    // Walk the parameters and encode them in the buffer to be sent out
+    buildUdpBuffer(udp_buffer, msg->second, args, true);
+    //printMessageContent(msgName, args);
+    // Send the buffer to the given host:port
+    // publishUdpMessage(buffer, msg->second);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " message \"" << msgName.c_str() << "\" sent.");
@@ -270,19 +268,19 @@ namespace PLEXIL
     MessageMap::iterator msg;
     for (msg=m_messages.begin(); msg != m_messages.end(); msg++)
       {
-        std::cout << "Message: " << (*msg).first;
-        std::cout << " (" << (*msg).second.type << ")";
+        std::cout << "Message: " << msg->first;
+        std::cout << " (" << msg->second.type << ")";
         std::list<Parameter>::iterator param;
         std::cout << ", Parameters:";
-        for (param=(*msg).second.parameters.begin(); param != (*msg).second.parameters.end(); param++)
+        for (param=msg->second.parameters.begin(); param != msg->second.parameters.end(); param++)
           {
             //std::cout << " " << (*param); // alternating type and length values
-            std::cout << " \"" << (*param).name << "\"";
-            std::cout << " " << (*param).type;
-            std::cout << " " << (*param).len << ",";
+            std::cout << " \"" << param->name << "\"";
+            std::cout << " " << param->type;
+            std::cout << " " << param->len << ",";
           }
-        std::cout << " length: " << (*msg).second.len;
-        std::cout << ", host: " << (*msg).second.host << ", port: " << (*msg).second.port << std::endl;
+        std::cout << " length: " << msg->second.len;
+        std::cout << ", host: " << msg->second.host << ", port: " << msg->second.port << std::endl;
       }
   }
 
@@ -298,8 +296,8 @@ namespace PLEXIL
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
     for (param=msg.parameters.begin(), it=args.begin() ; param != msg.parameters.end() ; param++, it++)
       {
-        int len = (*param).len;
-        std::string type = (*param).type;
+        int len = param->len;
+        std::string type = param->type;
         double plexil_val = *it;
         // The parameter passed will be one of these two
         std::string str_val;
