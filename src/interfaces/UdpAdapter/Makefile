@@ -44,7 +44,7 @@ ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
 
-TARGETS := outgoingMsg udp-tests
+TARGETS := udp-tests
 OBJECTS := udp-utils.o
 
 all: $(TARGETS)

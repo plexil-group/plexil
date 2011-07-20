@@ -19,6 +19,9 @@ int main()
 
   printf("\nBasic encoding, decoding, and shifting\n");
 
+  printf("\nsizeof(short int): %lu, sizeof(int): %lu, sizeof(long int): %lu, sizeof(float): %lu\n",
+         sizeof(short int), sizeof(int), sizeof(long int), sizeof(float));
+
   printf("\nbytes1==");
   print_buffer(bytes1, 8);
   printf("bytes2==");
@@ -81,6 +84,17 @@ int main()
   pif = decode_float(bytes2, 0);
   printf("\npif=decode_float(bytes2, 0)\n");
   printf("pif=%f, pii=%d\n\n", pif, pii);
+
+  printf("\nSend some UDP buffers\n\n");
+
+  int status = 0;
+  //int local_port = 9876;
+  char remote_host[] = "localhost";
+  int remote_port = 8031;
+
+  encode_string("This is yet another test", bytes1, 4);
+
+  status = send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
 
   delete[] bytes1;
   delete[] bytes2;

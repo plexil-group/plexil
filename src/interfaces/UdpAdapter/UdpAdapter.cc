@@ -157,21 +157,25 @@ namespace PLEXIL
   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
   {
     // First arg is message name (which better match one of the defined messages...)
-    assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first paramater to SendUdpMessage command, "
+    assertTrueMsg(LabelStr::isString(args.front()),
+                  "UdpAdapter: the first paramater to SendUdpMessage command, "
                   << Expression::valueToString(args.front()) << ", is not a string");
-    // Lookup the appropriate message in m_messages
+    // Lookup the appropriate message in the message definitions in m_messages
     LabelStr msgName(args.front());
+    //printMessageContent(msgName, args);
     MessageMap::iterator msg;
     msg=m_messages.find(msgName.c_str());
     // Set up the outgoing UDP buffer to be sent
     int length = msg->second.len;
-    unsigned char* udp_buffer = new unsigned char[length];
+    unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
     memset((char*)udp_buffer, 0, length); // zero out the buffer
     // Walk the parameters and encode them in the buffer to be sent out
     buildUdpBuffer(udp_buffer, msg->second, args, true);
-    //printMessageContent(msgName, args);
     // Send the buffer to the given host:port
-    // publishUdpMessage(buffer, msg->second);
+    int status = -1;
+    status = publishUdpMessage(udp_buffer, msg->second);
+    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " publishUdpMessage returned " << status);
+    // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " message \"" << msgName.c_str() << "\" sent.");
@@ -238,8 +242,6 @@ namespace PLEXIL
                        "No port given, and no default port for outgoing <Message name=\"" + name + "\"/>");
           }
         msg.port = port ? atoi(port) : (type=="incoming") ? m_default_incoming_port : m_default_outgoing_port;
-        //assertTrue(msg.port != NULL, "foo");
-        //atoi(NULL);
         if ( port ) msg.port = atoi(port); // record the port if there is one
         // Walk the <Parameter/> elements of this <Message/>, if any
         for (const TiXmlElement* param = child->FirstChildElement(); param != NULL; param = param->NextSiblingElement())
@@ -249,15 +251,13 @@ namespace PLEXIL
             param_name = param->Attribute("name");
             // what about strings? -- fixed length to start with I guess
             len = param->Attribute("length");
-            assertTrue((len), "No parameter length given for <Message name=\"" + name + "\"/>");
+            assertTrue((len), "No parameter length given in <Message name=\"" + name + "\"/>");
             arg.len = atoi(len);
-            //std::cout << "here" << std::endl;
+            assertTrue((arg.len > 0), "Zero length parameter given in <Message name=\"" + name + "\"/>");
             if (param_name) arg.name = param_name; // only assign it if it exists
             arg.type = param->Attribute("type");
             msg.len += arg.len;
             msg.parameters.push_back(arg);
-            //msg.parameters.push_back(param->Attribute("type"));   // record the type
-            //msg.parameters.push_back(param->Attribute("length")); // and length
           }
         m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
       }
@@ -284,24 +284,29 @@ namespace PLEXIL
       }
   }
 
-  void UdpAdapter::buildUdpBuffer(unsigned char* buffer,
-                                  const UdpMessage& msg,
-                                  const std::list<double>& args,
-                                  bool debug)
+  int UdpAdapter::publishUdpMessage(const unsigned char* buffer, const UdpMessage& msg)
   {
-    //print_buffer(buffer, msg.len);
+    int status = 0; // return status
+    //struct hostent *h; // remote host to send to
+    debugMsg("UdpAdapter::publishUdpMessage", " lenght: " << msg.len);
+    debugMsg("UdpAdapter::publishUdpMessage", " host: " << msg.host << ", port: " << msg.port);
+    //host = gethostbyname(msg.host);
+    //assertTrue((host), "gethostbyname couldn't find %s (errorno == %d)", msg.host, errno);
+    return status;
+  }
+
+  int UdpAdapter::buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug)
+  {
     std::list<double>::const_iterator it;
     std::list<Parameter>::const_iterator param;
     int start_index = 0;        // where in the buffer to write
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
-    for (param=msg.parameters.begin(), it=args.begin() ; param != msg.parameters.end() ; param++, it++)
+    for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(), it != args.end(); param++, it++)
       {
         int len = param->len;
         std::string type = param->type;
         double plexil_val = *it;
         // The parameter passed will be one of these two
-        std::string str_val;
-        double num_val;
         if (debug) std::cout << "start_index: " << start_index << ", ";
         // Only encode 32 bit entities
         if (type.compare("int") == 0)
@@ -323,13 +328,13 @@ namespace PLEXIL
           {
             if (debug) std::cout << "string: \"" << LabelStr(plexil_val).c_str() << "\"";
             std::string str = LabelStr(plexil_val).c_str();
-            //str.copy((char*)&buffer[start_index], str.length(), 0);
             encode_string(str, buffer, start_index);
           }
         if (debug) std::cout << std::endl;
         start_index += len;
       }
     if (debug) print_buffer(buffer, msg.len);
+    return start_index;
   }
 
   void UdpAdapter::printMessageContent(const LabelStr& name, const std::list<double>& args)
