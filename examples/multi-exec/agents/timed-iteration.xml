@@ -5,10 +5,10 @@
       <Parameter type="int" length="4"/>
       <Parameter type="float" length="4"/>
     </Message>
-    <Message type="outgoing" name="test_message" host="tilt" port="9875">
+    <Message type="outgoing" name="test_message" host="127.0.0.1" port="9875">
       <Parameter type="string" length="4"/>
     </Message>
-    <Message type="outgoing" name="test_command" host="pinball">
+    <Message type="outgoing" name="test_command" host="localhost">
       <Parameter name="name" type="string" length="16"/>
       <Parameter type="int" length="4"/>
       <Parameter type="float" length="4"/>      
