@@ -12,7 +12,7 @@ namespace PLEXIL
 {
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
-  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size);
+  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
 
   long int float_to_long_int (float num);
   float long_int_to_float (long int num);

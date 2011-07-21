@@ -89,9 +89,9 @@ namespace PLEXIL
     //
     void parseMessageDefinitions(const TiXmlElement* xml);
     void printMessageDefinitions();
-    int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug);
+    int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug=false);
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
-    int publishUdpMessage(const unsigned char* buffer, const UdpMessage& msg);
+    int publishUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
   };
 }
 

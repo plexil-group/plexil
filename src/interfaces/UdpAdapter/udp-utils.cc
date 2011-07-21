@@ -133,7 +133,7 @@ namespace PLEXIL
   }
 
 
-  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size)
+  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
     // Set the local port
     struct sockaddr_in local_addr = {};
@@ -147,7 +147,19 @@ namespace PLEXIL
     peer_addr.sin_port = htons(peer_port);
     peer_addr.sin_family = AF_INET;
 
-    if (!inet_aton(peer_host, (struct in_addr *)&peer_addr.sin_addr.s_addr))
+    // handle either "localhost" or "127.0.0.1" addresses
+    hostent *host_ip = gethostbyname(peer_host);
+    if (host_ip == NULL) 
+      {
+        perror("send_message_connect: gethostbyname failed");
+        return -1;
+      }
+
+    in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
+    std::string ip_addr = inet_ntoa(*network_ip_address);
+    if (debug) printf("  send_message_bind: peer_host==%s, ip_addr==%s\n", peer_host, ip_addr.c_str());
+
+    if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
         perror("inet_aton() return -1 (peer_host bad IP adress format?)");
         return -1;
@@ -167,15 +179,9 @@ namespace PLEXIL
         return -1;
       }
 
-    if(0)
-      {
-        printf("sizeof(short int): %lu, sizeof(int): %lu, sizeof(long int): %lu, sizeof(float): %lu",
-               sizeof(short int), sizeof(int), sizeof(long int), sizeof(float));
-      }
-
     ssize_t bytes_sent = 0;
     bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*)&peer_addr, sizeof(peer_addr));
-    printf("sent %ld bytes\n", (long)bytes_sent);
+    if (debug) printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
     close(sock);
     return bytes_sent;
   }
@@ -197,7 +203,7 @@ namespace PLEXIL
 
     in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
     std::string ip_addr = inet_ntoa(*network_ip_address);
-    if (debug) printf("peer_host: %s, ip_addr: %s\n", peer_host, ip_addr.c_str());
+    if (debug) printf("  send_message_connect: peer_host==%s, ip_addr==%s\n", peer_host, ip_addr.c_str());
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
@@ -221,7 +227,7 @@ namespace PLEXIL
 
     ssize_t bytes_sent = 0;
     bytes_sent = send(sock, buffer, size, 0);
-    if (debug) printf("sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
+    if (debug) printf("  send_message_connect: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
     close(sock);
     return bytes_sent;
   }

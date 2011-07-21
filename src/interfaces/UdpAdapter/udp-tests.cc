@@ -83,18 +83,21 @@ int main()
 
   pif = decode_float(bytes2, 0);
   printf("\npif=decode_float(bytes2, 0)\n");
-  printf("pif=%f, pii=%d\n\n", pif, pii);
+  printf("pif=%f, pii=%d\n", pif, pii);
 
   printf("\nSend some UDP buffers\n\n");
 
   int status = 0;
-  //int local_port = 9876;
+  int local_port = 9876;
   char remote_host[] = "localhost";
   int remote_port = 8031;
 
-  encode_string("This is yet another test", bytes1, 4);
+  encode_string("This is yet another test", bytes1, 6);
 
   status = send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
+  status = send_message_bind(local_port, remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
+
+  printf("\nDone.\n\n");
 
   delete[] bytes1;
   delete[] bytes2;
