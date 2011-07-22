@@ -37,6 +37,7 @@
 
 #include "tinyxml.h"
 #include "LabelStr.hh"
+#include <stdint.h> // for uint64_t - NOT <cstdint>
 
 namespace PLEXIL {
 
