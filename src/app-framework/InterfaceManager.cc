@@ -1319,6 +1319,21 @@ namespace PLEXIL
 
     debugMsg("InterfaceManager:handleAddPlan", " entered");
 
+	// Check for null
+	if (planStruct.isNoId()) {
+	  debugMsg("InterfaceManager:handleAddPlan", 
+			   " failed; PlexilNodeId is null");
+	  return false;
+	}
+
+	// Check whether plan is a library w/o a caller
+	PlexilInterfaceId interface = planStruct->interface();
+	if (interface.isId()) {
+	  debugMsg("InterfaceManager:handleAddPlan", 
+			   " for " << planStruct->nodeId() << " failed; root node may not have interface variables");
+	  return false;
+	}
+
     // Determine if there are any unloaded libraries
     bool result = true;
 
