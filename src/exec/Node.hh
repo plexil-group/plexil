@@ -206,6 +206,18 @@ namespace PLEXIL {
      */
     double getCurrentStateStartTime() const;
 
+    //Isaac
+    double getCurrentStateEndTime() const;
+
+    //Isaac - get local variables ExpressionMap
+    ExpressionMap getLocalVariablesByName() { return m_variablesByName; }
+    
+    //Isaac - get local variables
+    std::list<ExpressionId> getLocalVariables() { return m_localVariables; }
+
+    //Isaac - get children
+    std::list<NodeId> getChildren() { return m_children; }
+
     /**
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.

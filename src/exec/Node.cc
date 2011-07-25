@@ -1343,6 +1343,11 @@ namespace PLEXIL {
     return m_startTimepoints[m_state]->getValue();
   }
 
+  double Node::getCurrentStateEndTime() const
+  {
+    return m_endTimepoints[m_state]->getValue();
+  }
+
   const ExpressionId& Node::getStateVariable() {
     return m_stateVariable;
   }
