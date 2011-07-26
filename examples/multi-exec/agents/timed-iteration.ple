@@ -4,6 +4,7 @@
 Command pprint(...);
 Command SendMessage(String);
 Command SendUdpMessage(...);
+Command ReceiveUdpMessage(...);
 Real Lookup time;
 
 Timed-iteration:
@@ -32,6 +33,7 @@ Timed-iteration:
             notify-end-of-iteration: pprint("Ending periodic iteration");
         }
     }
-    test-udp: SendUdpMessage("test_command", run_length, elapsed_time, true, "just a test");
-    test-command: SendMessage("Quit");
+    udp-send-test: SendUdpMessage("send_test", run_length, elapsed_time, true, "just a test");
+    temp-test: SendMessage("Quit");
+    udp-recv-test: ReceiveUdpMessage("recv_test", run_length, tolerance);
 }
