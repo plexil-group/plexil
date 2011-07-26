@@ -3,6 +3,7 @@
 // Date: Fri Jul 15 18:01:22 2011
 
 #include "udp-utils.hh"
+#include "ThreadSpawn.hh"
 
 using namespace PLEXIL;
 
@@ -85,17 +86,31 @@ int main()
   printf("\npif=decode_float(bytes2, 0)\n");
   printf("pif=%f, pii=%d\n", pif, pii);
 
-  printf("\nSend some UDP buffers\n\n");
+  printf("\nSend and receive some UDP buffers\n\n");
 
   int status = 0;
   int local_port = 9876;
   char remote_host[] = "localhost";
   int remote_port = 8031;
 
-  encode_string("This is yet another test", bytes1, 6);
+  encode_string("  This is yet another test  ", bytes1, 0);
+
+  input_params the_params = { 8031, bytes2, 32, true };
+  input_params* params = &the_params;
+
+  pthread_t thread_handle;
+  threadSpawn((THREAD_FUNC_PTR) wait_for_input, params, thread_handle);
 
   status = send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
-  status = send_message_bind(local_port, remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
+  status = send_message_bind(local_port, remote_host, remote_port+1, (const char*)bytes1, 4*sizeof(bytes1), true);
+
+  // Wait for wait_for_input to return
+  int myErrno = pthread_join(thread_handle, NULL);
+  if (myErrno != 0) printf("pthread_join(thread_handle) returned %d\n", myErrno);
+
+  printf("\n");
+  print_buffer(bytes1, 32, true);
+  print_buffer(bytes2, 32, true);
 
   printf("\nDone.\n\n");
 

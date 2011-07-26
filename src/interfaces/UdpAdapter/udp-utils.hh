@@ -11,8 +11,17 @@
 namespace PLEXIL
 {
 
+  struct input_params
+  {
+    int local_port;
+    unsigned char* buffer;
+    size_t size;
+    bool debug;
+  };
+
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
   int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
+  void wait_for_input(input_params* params);
 
   long int float_to_long_int (float num);
   float long_int_to_float (long int num);
@@ -27,7 +36,7 @@ namespace PLEXIL
   void encode_string(const std::string str, unsigned char* buffer, int start_index);
   std::string decode_string(unsigned char* buffer, int start_index, int length);
   int udp_tests(void);
-  void print_buffer(unsigned char* buffer, int bytes);
+  void print_buffer(unsigned char* buffer, int bytes, bool fancy=false);
   //void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
 }
 

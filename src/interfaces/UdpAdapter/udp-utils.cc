@@ -121,13 +121,18 @@ namespace PLEXIL
     return str;
   }
 
-  void print_buffer(unsigned char* buffer, int bytes)
+  void print_buffer(unsigned char* buffer, int bytes, bool fancy)
   {
     printf("#(");
     for (int i = 0 ; i < bytes ; i++)
       {
-        if (i != 0) printf(" ");
-        printf("%d", (unsigned int) buffer[i]);
+        if (i != 0) printf(" "); // print a space prior to the char to ease reading
+        {
+          if ((fancy==true) && ((32 < buffer[i]) || (buffer[i] > 126)))
+            printf("%c", (unsigned int) buffer[i]);
+          else
+            printf("%d", (unsigned int) buffer[i]);
+        }
       }
     printf(")\n");
   }
@@ -135,6 +140,7 @@ namespace PLEXIL
 
   int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
+    if (debug) printf("  send_message_bind(%d, %s, %d, buffer, %d) called\n", local_port, peer_host, peer_port, (int) size);
     // Set the local port
     struct sockaddr_in local_addr = {};
     memset((char *) &local_addr, 0, sizeof(local_addr));
@@ -161,33 +167,34 @@ namespace PLEXIL
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
-        perror("inet_aton() return -1 (peer_host bad IP adress format?)");
+        perror("inet_aton() returned -1 (peer_host bad IP adress format?)");
         return -1;
       }
 
     int sock = socket(local_addr.sin_family, SOCK_DGRAM, 0);
     if (sock == -1)
       {
-        perror("socket() return -1");
+        perror("socket() returned -1");
         return -1;
       }
 
-    int bind_err = bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr));
+    int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
     if (bind_err < 0)
       {
-        perror("bind() returned -1");
+        perror("send_message_bind: bind() returned -1");
         return -1;
       }
 
     ssize_t bytes_sent = 0;
-    bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*)&peer_addr, sizeof(peer_addr));
-    if (debug) printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
+    bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*) &peer_addr, sizeof(peer_addr));
+    if (debug) printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long) bytes_sent, peer_host, peer_port);
     close(sock);
     return bytes_sent;
   }
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
+    if (debug) printf("  send_message_connect(%s, %d, buffer, %d) called\n", peer_host, peer_port, (int) size);
     struct sockaddr_in peer_addr = {};
     memset((char *) &peer_addr, 0, sizeof(peer_addr));
     peer_addr.sin_port = htons(peer_port);
@@ -207,14 +214,14 @@ namespace PLEXIL
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
-        perror("inet_aton() return -1 (peer_host bad IP adress format?)");
+        perror("inet_aton() returned -1 (peer_host bad IP adress format?)");
         return -1;
       }
 
     int sock = socket(peer_addr.sin_family, SOCK_DGRAM, 0);
     if (sock == -1)
       {
-        perror("socket() return -1");
+        perror("socket() returned -1");
         return -1;
       }
 
@@ -231,6 +238,52 @@ namespace PLEXIL
     close(sock);
     return bytes_sent;
   }
+
+  void wait_for_input(input_params* params)
+  //(int local_port, unsigned char* buffer, size_t size, bool debug)
+  {
+    if (params->debug) printf("  wait_for_input(%d, buffer, %d) called\n", params->local_port, (int) params->size);
+    // Set up an appropriate local address (port)
+    struct sockaddr_in local_addr = {};
+    memset((char *) &local_addr, 0, sizeof(local_addr));
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_addr.s_addr = INADDR_ANY;
+    local_addr.sin_port = htons(params->local_port);
+    // Set up the storage for the peer address
+    struct sockaddr_in peer_addr = {};
+    memset((char *) &peer_addr, 0, sizeof(peer_addr));
+
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sock == -1)
+      {
+        perror("socket() returned -1");
+        //return -1;
+      }
+
+    // bind to the socket
+    int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
+    if (bind_err < 0)
+      {
+        perror("wait_for_input: bind() returned -1");
+        //return -1;
+      }
+
+    // read from the socket
+    socklen_t slen = sizeof(struct sockaddr_in);
+    int bytes_read = recvfrom(sock, params->buffer, params->size, 0, (struct sockaddr *) &peer_addr, &slen);
+    if (bytes_read == -1)
+      {
+        perror("wait_for_input: recvfrom returned -1");
+        close(sock);
+        //return -1;
+      }
+    if (params->debug) printf("  wait_for_input(%d, buffer, %d): received %d bytes from %s:%d\n",
+                              params->local_port, (int) params->size,
+                              bytes_read, inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
+    close(sock);
+    //return 0;
+  }
+
 }
 
 // EOF
