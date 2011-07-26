@@ -23,12 +23,13 @@ namespace PLEXIL
   public:
     std::string name;
     std::string type;
-    std::list<Parameter> parameters;
+    std::list<Parameter> parameters; // message parameters
+    std::list<double> variables; // internal Plexil variables (args)
     int len;
     std::string host;
     int port;
     pthread_t thread;
-    UdpMessage() : name(""), type(""), parameters(), len(0), host(""), port(0), thread(NULL) {}
+    UdpMessage() : name(""), type(""), parameters(), variables(), len(0), host(""), port(0), thread(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
@@ -86,6 +87,7 @@ namespace PLEXIL
     void executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    //void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
    
     //
     // XML Support

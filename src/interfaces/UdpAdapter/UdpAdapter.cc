@@ -129,13 +129,15 @@ namespace PLEXIL
   // Execute a Plexil Command
   void UdpAdapter::executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
   {
-    debugMsg("UdpAdapter::executeCommand", " called for " << name.c_str());
+    debugMsg("UdpAdapter::executeCommand", " called for " << name.toString());
     if (name == SEND_MESSAGE_COMMAND())
       executeSendMessageCommand(args, dest, ack);
     if (name == SEND_UDP_MESSAGE_COMMAND())
       executeSendUdpMessageCommand(args, dest, ack);
     if (name == RECEIVE_UDP_MESSAGE_COMMAND())
       executeReceiveUdpCommand(args, dest, ack);
+    //if (name == GET_PARAMETER_COMMAND())
+    //  executeGetParameterCommand(args, dest, ack);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
@@ -170,11 +172,36 @@ namespace PLEXIL
     // Lookup the appropriate message in the message definitions in m_messages
     LabelStr msgName(args.front());
     debugMsg("UdpAdapter::executeReceiveUdpMessageCommand", " called for " << msgName.c_str());
+    debugMsg("UdpAdapter::executeReceiveUdpMessageCommand", " ack==" << ack);
     // Set up the expectation (dest) for the message on which this node is waiting
+    MessageMap::iterator msg;
+    msg=m_messages.find(msgName.c_str()); // get the appropriate message definition
+    assertTrueMsg((msg->second.parameters.size()+1==args.size()), "executeReceiveUdpMessageCommand, parameters and args do not"
+                  << " match, parameters.size()==" << msg->second.parameters.size() << ", args.size()==" << args.size());
+    // Record the variables that will be filled in when this message is received XXXX
+    std::list<double>::const_iterator it;
+    for(it = ++args.begin() ; it != args.end() ; it++) // skip the message name
+      {
+        msg->second.variables.push_back(*it);
+      }
     // Set up the listener for this message.  Once set up, the listener will call handleValueChange
     // and notifyOfExternalEvent event if/when the expected message (and its parameters) is received.
+
+    // dest==noId is correct -- dest is only used for a return value!
+    // the args list is also correct -- I have to keep the list around and reset their values with
+    // the message parameters (I think)
+
+    debugMsg("UdpAdapter::executeReceiveUdpMessageCommand", " dest==" << dest
+             << ", args.size()==" << args.size());
+    //std::list<double>::const_iterator it;
+    std::cout << "  args:";
+    for(it = args.begin() ; it != args.end() ; it++)
+      {
+        std::cout << " " << Expression::valueToString(*it);
+      }
+    std::cout << std::endl;
   }
-    
+
   // SEND_UDP_MESSAGE_COMMAND
   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
   {
@@ -205,6 +232,15 @@ namespace PLEXIL
     // Clean up some (one hopes)
     delete udp_buffer;
   }
+
+  // GET_PARAMETER_COMMAND
+  //void UdpAdapter::executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+  //{
+  //  assertTrueMsg(args.size() == 1 || args.size() == 2,
+  //                "UdpAdapter: The " << GET_PARAMETER_COMMAND().c_str() << " command requires either one or two arguments");
+  //  LabelStr command(args.front());
+  //  debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << command.c_str() << "\" registered.");
+  //}
 
   // SEND_MESSAGE_COMMAND
   void UdpAdapter::executeSendMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
