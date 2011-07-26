@@ -55,6 +55,7 @@ namespace PLEXIL
     printMessageDefinitions();
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
+    m_execInterface.registerCommandInterface(LabelStr(RECEIVE_UDP_MESSAGE_COMMAND()), getId());
     debugMsg("UdpAdapter::initialize", " done");
     return true;
   }
@@ -133,6 +134,8 @@ namespace PLEXIL
       executeSendMessageCommand(args, dest, ack);
     if (name == SEND_UDP_MESSAGE_COMMAND())
       executeSendUdpMessageCommand(args, dest, ack);
+    if (name == RECEIVE_UDP_MESSAGE_COMMAND())
+      executeReceiveUdpCommand(args, dest, ack);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
@@ -154,6 +157,24 @@ namespace PLEXIL
   // Implementation methods
   //
 
+  // RECEIVE_UDP_MESSAGE_COMMAND
+  void UdpAdapter::executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+  {
+    // Called when node _starts_ executing, so, record the message and args so that they can be filled in
+    // if and when a UDP message comes in the fulfill this expectation.
+    // First arg is message name (which better match one of the defined messages...)
+    assertTrueMsg(LabelStr::isString(args.front()),
+                  "UdpAdapter: the first paramater to ReceiveUdpMessage command, "
+                  << Expression::valueToString(args.front()) << ", is not a string");
+    // bool debug = true;
+    // Lookup the appropriate message in the message definitions in m_messages
+    LabelStr msgName(args.front());
+    debugMsg("UdpAdapter::executeReceiveUdpMessageCommand", " called for " << msgName.c_str());
+    // Set up the expectation (dest) for the message on which this node is waiting
+    // Set up the listener for this message.  Once set up, the listener will call handleValueChange
+    // and notifyOfExternalEvent event if/when the expected message (and its parameters) is received.
+  }
+    
   // SEND_UDP_MESSAGE_COMMAND
   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
   {
@@ -282,7 +303,8 @@ namespace PLEXIL
             std::cout << " " << param->len << ",";
           }
         std::cout << " length: " << msg->second.len;
-        std::cout << ", host: " << msg->second.host << ", port: " << msg->second.port << std::endl;
+        std::cout << ", host: " << msg->second.host << ", port: " << msg->second.port;
+        std::cout << ", thread: " << msg->second.thread << std::endl;
       }
   }
 

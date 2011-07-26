@@ -27,7 +27,8 @@ namespace PLEXIL
     int len;
     std::string host;
     int port;
-    UdpMessage() : name(""), type(""), parameters(), len(0), host(""), port(0) {}
+    pthread_t thread;
+    UdpMessage() : name(""), type(""), parameters(), len(0), host(""), port(0), thread(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
@@ -39,6 +40,7 @@ namespace PLEXIL
 
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
+    DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_UDP_MESSAGE_COMMAND, "ReceiveUdpMessage")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
@@ -82,6 +84,7 @@ namespace PLEXIL
     // Implementation methods
     //
     void executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
    
     //
