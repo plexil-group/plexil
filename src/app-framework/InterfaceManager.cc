@@ -1233,7 +1233,16 @@ namespace PLEXIL
   InterfaceManager::handleValueChange(const StateKey& key, 
                                       const std::vector<double>& values)
   {
-    debugMsg("InterfaceManager:handleValueChange", " for lookup values entered");
+	State state;
+	bool found = stateForKey(key, state);
+	if (found) {
+	  debugMsg("InterfaceManager:handleValueChange",
+			   " for state " << LabelStr(state.first).toString()
+			   << ", new value = " << Expression::valueToString(values.front()));
+	}
+	else {
+	  debugMsg("InterfaceManager:handleValueChange", " for unknown lookup");
+	}
     m_valueQueue.enqueue(key, values);
   }
 

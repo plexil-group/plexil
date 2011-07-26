@@ -137,22 +137,25 @@ namespace PLEXIL
   InterfaceAdapter::registerAsynchLookup(const LookupKey& uniqueId,
 					 const StateKey& key)
   {
-    StateToLookupMap::iterator it =
-      m_asynchLookups.find(key);
-    if (it == m_asynchLookups.end())
-      {
-	debugMsg("InterfaceAdapter:registerAsynchLookup",
-		 " for state key " << key << "; new lookup for unique ID " << uniqueId);
-	std::set<LookupKey> theSet;
-	theSet.insert(uniqueId);
-	m_asynchLookups.insert(std::pair<StateKey, std::set<LookupKey> >(key, theSet));
-      }
-    else
-      {
-	debugMsg("InterfaceAdapter:registerAsynchLookup",
-		 " for state key " << key << "; adding unique ID " << uniqueId << " to existing lookup");
-	(*it).second.insert(uniqueId);
-      }
+	// Get debugging info, and sanity check while we're at it
+	State state;
+	checkError(m_execInterface.stateForKey(key, state),
+			   "InterfaceAdapter::registerAsynchLookup: no state found for state key " << key);
+    StateToLookupMap::iterator it = m_asynchLookups.find(key);
+    if (it == m_asynchLookups.end()) {
+	  debugMsg("InterfaceAdapter:registerAsynchLookup",
+			   " for state " << LabelStr(state.first).toString()
+			   << "; new lookup for unique ID " << uniqueId);
+	  std::set<LookupKey> theSet;
+	  theSet.insert(uniqueId);
+	  m_asynchLookups.insert(std::pair<StateKey, std::set<LookupKey> >(key, theSet));
+	}
+    else {
+	  debugMsg("InterfaceAdapter:registerAsynchLookup",
+			   " for state " << LabelStr(state.first).toString()
+			   << "; adding unique ID " << uniqueId << " to existing lookup");
+	  (*it).second.insert(uniqueId);
+	}
   }
 
   void
