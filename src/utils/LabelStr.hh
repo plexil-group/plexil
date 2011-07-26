@@ -30,6 +30,7 @@
 #include "ConstantMacros.hh"
 #include "Error.hh"
 #include <string>
+#include <vector>
 #include "StoredItem.hh"
 
 /**
@@ -46,7 +47,39 @@ namespace PLEXIL
   DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
   DECLARE_GLOBAL_CONST(LabelStr, UNKNOWN_STR);
 
-#ifdef PLATFORM_HAS_GNU_HASH_MAP
+#if defined(PLATFORM_HAS_TR1_UNORDERED_MAP)
+  // specialized hash function for pointers to string
+
+  class StringHashFunction
+  {
+  public:
+    size_t operator()(const std::string* str) const
+    {
+      return std::tr1::hash<std::string>()(*str);
+    }
+  };
+
+  // specialized equal operator for pointers to strings
+
+  struct StringEqualOoperator : public std::binary_function<
+    const std::string*,
+    const std::string*,
+    bool>
+  {
+    bool operator()(const std::string* s1, const std::string* s2) const
+    { 
+      return *s1 == *s2;
+    }
+  };
+   
+  // 
+
+  typedef StoredItem<
+    double, 
+    const std::string, 
+    StringHashFunction, 
+    StringEqualOoperator> StoredString;
+#elif defined(PLATFORM_HAS_GNU_HASH_MAP)
   // specialized hash function for pointers to string
 
   class StringHashFunction
@@ -78,9 +111,8 @@ namespace PLEXIL
     const std::string, 
     StringHashFunction, 
     StringEqualOoperator> StoredString;
-#endif // PLATFORM_HAS_GNU_HASH_MAP
 
-#ifdef PLATFORM_HAS_DINKUM_HASH_MAP
+#elif defined(PLATFORM_HAS_DINKUM_HASH_MAP)
   // specialized hash_compare class for pointers to string
   class StringPointerCompare
     : public std::hash_compare<std::string const *>

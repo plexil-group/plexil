@@ -32,13 +32,15 @@
 
 //#define STORED_ITEM_REUSE_KEYS
 
-#ifdef PLATFORM_HAS_GNU_HASH_MAP
+#if defined(PLATFORM_HAS_TR1_UNORDERED_MAP)
+// C++0x TR1 unordered_map
+#include "StoredItem_TR1.hh"
+#elif defined(PLATFORM_HAS_GNU_HASH_MAP)
 #include "StoredItem_GNU.hh"
-#else
-#ifdef PLATFORM_HAS_DINKUM_HASH_MAP
+#elif defined(PLATFORM_HAS_DINKUM_HASH_MAP)
 #include "StoredItem_Dinkum.hh"
 #else
-#include "StoredItem_native.hh"
-#endif // PLATFORM_HAS_DINKUM_HASH_MAP
-#endif // PLATFORM_HAS_GNU_HASH_MAP
+# error "Unable to find hash_map or equivalent class for this platform."
+#endif
+
 #endif // _H_StoredItem

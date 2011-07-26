@@ -35,6 +35,7 @@
  */
 
 #include "StoredItem.hh"
+#include <vector>
 
 namespace PLEXIL
 {
