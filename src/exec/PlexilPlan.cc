@@ -120,7 +120,6 @@ namespace PLEXIL {
       return PLEXIL::COMMAND_HANDLE;
       
     // default case
-    checkError(ALWAYS_FAIL, "Invalid value type name '" << str << "'");
     return PLEXIL::UNKNOWN_TYPE;
   }
 
@@ -316,10 +315,7 @@ namespace PLEXIL {
   PlexilValue::PlexilValue(const PlexilType& type, const std::string& value)
     : PlexilExpr(), m_type(type), m_value(value)
   {
-    checkError(!value.empty() || type == STRING,
-	       "PlexilValue constructor: attempt to construct empty "
-	       << PlexilParser::valueTypeString(type)
-	       << " value");
+	// FIXME: this allocates a string that could be a constant
     setName(PlexilParser::valueTypeString(m_type) + "Value");
   }
 

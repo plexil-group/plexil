@@ -390,24 +390,24 @@ namespace PLEXIL
 
 	  checkTagSuffix(VAL_TAG, xml);
 
-	  // get value (which could be empty)
-
-	  string tag;
-	  if (xml->Value() != NULL)
-		tag = xml->ValueStr();
-
 	  // establish value type
+	  const string& tag = xml->ValueStr();
+	  const string typnam = tag.substr(0, tag.size() - VAL_TAG.size());
+	  PlexilType typ = PlexilParser::parseValueType(typnam);
+	  checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+									   xml,
+									   "Unrecognized value type name \"" << typnam << "\"");
 
-	  string type = tag.substr(0, tag.size() - VAL_TAG.size());
+	  // check for empty value
+	  if (xml->FirstChild() == NULL || xml->FirstChild()->Value() == NULL) {
+		checkParserExceptionWithLocation(typ == STRING,
+										 xml->FirstChild(),
+										 "Empty value is not valid for \"" << tag << "\"");
+		return (new PlexilValue(typ, string()))->getId();
+	  }
 
-	  // establish the value (could be empty)
-
-	  string value;
-	  if (xml->FirstChild() != NULL && xml->FirstChild()->Value() != NULL)
-		value = xml->FirstChild()->Value();
-
-	  // return new value
-	  return (new PlexilValue(PlexilXmlParser::parseValueType(type), value))->getId();
+	  // return new (non-empty) value
+	  return (new PlexilValue(typ, xml->FirstChild()->ValueStr()))->getId();
 	}
   };
 
@@ -422,7 +422,11 @@ namespace PLEXIL
 
 	  // confirm that we have an element type
 	  checkAttr(TYPE_TAG, xml);
-	  string valueType(xml->Attribute(TYPE_TAG.c_str()));
+	  const string& valueType(*(xml->Attribute(TYPE_TAG)));
+	  PlexilType valtyp = PlexilParser::parseValueType(valueType);
+	  checkParserExceptionWithLocation(valtyp != UNKNOWN_TYPE,
+									   xml, // *** should be the attribute object
+									   "Unknown array element Type value \"" << valueType << "\"");
 
 	  // gather elements
 	  std::vector<string> values;
@@ -432,11 +436,10 @@ namespace PLEXIL
 		checkTagSuffix(VAL_TAG, thisElement);
 		// Check type
 		const string& thisElementTag = thisElement->ValueStr();
-		string thisElementType = thisElementTag.substr(0, thisElementTag.size() - VAL_TAG.size());
-		checkParserExceptionWithLocation(thisElementType == valueType,
+		checkParserExceptionWithLocation(0 == thisElementTag.compare(0, valueType.size(), valueType),
 										 thisElement,
-										 "XML parsing error: Array element type '" << thisElementTag
-										 << "' in array value of type '" << valueType << "'");
+										 "Element type mismatch: element type \"" << thisElementTag
+										 << "\" in array value of type \"" << valueType << "\"");
 
 		// Get array element value
 		const char* thisElementValue = thisElement->GetText();
@@ -455,9 +458,7 @@ namespace PLEXIL
 	  }
 
 	  // return new value
-	  return (new PlexilArrayValue(PlexilXmlParser::parseValueType(valueType),
-								   values.size(),
-								   values))->getId();
+	  return (new PlexilArrayValue(valtyp, values.size(), values))->getId();
 	}
   };
 
@@ -469,13 +470,16 @@ namespace PLEXIL
 	PlexilExprId parse(const TiXmlElement* xml) throw(ParserException) {
 	  checkTagSuffix(VAR_TAG, xml);
 	  checkNotEmpty(xml);
+	  const string& tag = xml->ValueStr();
+	  const string typnam = tag.substr(0, tag.size() - VAR_TAG.size());
+	  PlexilType typ = PlexilParser::parseValueType(typnam);
+	  checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+									   xml,
+									   "Unknown variable type \"" << typnam << "\"");
+
 	  PlexilVarRef* retval = new PlexilVarRef();
 	  retval->setName(xml->FirstChild()->ValueStr());
-	  const char* varStart;
-	  if ((varStart = strstr(xml->Value(), VAR_TAG.c_str())) != xml->Value()) {
-		string type(xml->Value(), varStart - xml->Value());
-		retval->setType(PlexilParser::parseValueType(type));
-	  }
+	  retval->setType(typ);
 	  return retval->getId();
 	}
   };
@@ -1130,7 +1134,11 @@ namespace PLEXIL
 
 	child = child->NextSiblingElement();
 	checkTag(TYPE_TAG, child);
-	const string& type = child->FirstChild()->ValueStr();
+	const string& typnam = child->FirstChild()->ValueStr();
+	PlexilType typ = PlexilParser::parseValueType(typnam);
+	checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+									 child->FirstChild(),
+									 "Unknown type name \"" << typnam << "\"");
 
 	// extract array max size
 
@@ -1142,7 +1150,7 @@ namespace PLEXIL
 	maxSizeStr >> maxSize;
 
 	debugMsg("PlexilXmlParser:parseArrayDeclaration",
-			 " for array " << name << ", element type " << type << ", size " << maxSize);
+			 " for array " << name << ", element type " << typnam << ", size " << maxSize);
 
 	// if present, extract initial values
 
@@ -1154,9 +1162,9 @@ namespace PLEXIL
 		checkTagSuffix(VAL_TAG, child);
 		const string& initValTag = child->ValueStr();
 		string initValType = initValTag.substr(0, initValTag.size() - VAL_TAG.size());
-		checkParserExceptionWithLocation(type == initValType,
+		checkParserExceptionWithLocation(typnam == initValType,
 										 child,
-										 "XML parsing error: Initial value of " << type << " array variable \'" <<
+										 "XML parsing error: Initial value of " << typnam << " array variable \'" <<
 										 name << "\' of incorrect type \'" << initValType << "\'");
 		const string& initVal = child->FirstChild()->ValueStr();
 		initVals.push_back(initVal);
@@ -1164,7 +1172,7 @@ namespace PLEXIL
 				 " element value \"" << initVal << "\"");
 		checkParserExceptionWithLocation(initVals.size() <= maxSize,
 										 child->FirstChild(),
-										 "XML parsing error: Number of initial values of " << type <<
+										 "XML parsing error: Number of initial values of " << typnam <<
 										 " array variable \'" << name <<
 										 "\' exceeds maximum of " << maxSize);
 	  } while ((child = child->NextSiblingElement()) != NULL);
@@ -1172,19 +1180,16 @@ namespace PLEXIL
 
 	// add variable to returned variable set
 
-	PlexilVar* result =
-	  new PlexilArrayVar(name, 
-						 PlexilParser::parseValueType(type),
-						 maxSize,
-						 initVals);
+	PlexilVar* result = new PlexilArrayVar(name, typ, maxSize, initVals);
 	debugMsg("PlexilXmlParser:parseArrayDeclaration", " succeeded");
 	return result;
   }
 
   // parse an atomic or string declaration
 
-  PlexilVar* PlexilXmlParser::parseAtomicOrStringDeclaration(
-															 const TiXmlElement* decl) throw(ParserException) {
+  PlexilVar* PlexilXmlParser::parseAtomicOrStringDeclaration(const TiXmlElement* decl) 
+	throw(ParserException) 
+  {
 	checkTag(DECL_VAR_TAG, decl);
 
 	// extract name
@@ -1197,7 +1202,11 @@ namespace PLEXIL
 
 	child = child->NextSiblingElement();
 	checkTag(TYPE_TAG, child);
-	const string& type = child->FirstChild()->ValueStr();
+	const string& typnam = child->FirstChild()->ValueStr();
+	PlexilType typ = PlexilParser::parseValueType(typnam);
+	checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+									 child->FirstChild(),
+									 "Unknown type name \"" << typnam << "\"");
 
 	// if present, create variable with initial value
 
@@ -1207,18 +1216,17 @@ namespace PLEXIL
 	  checkTagSuffix(VAL_TAG, child);
 	  const string& initValTag = child->ValueStr();
 	  string initValType = initValTag.substr(0, initValTag.size() - VAL_TAG.size());
-	  checkParserExceptionWithLocation(type == initValType,
+	  checkParserExceptionWithLocation(typnam == initValType,
 									   child,
-									   "XML parsing error: Initial value of " << type << " variable \'" <<
+									   "XML parsing error: Initial value of " << typnam << " variable \'" <<
 									   name << "\' of incorrect type \'" <<
 									   initValType << "\'");
-	  return new PlexilVar(name, PlexilParser::parseValueType(type),
-						   child->FirstChild()->ValueStr());
+	  return new PlexilVar(name, typ, child->FirstChild()->ValueStr());
 	}
 
 	// otherwise create variable with the value unknown
 
-	return new PlexilVar(name, PlexilParser::parseValueType(type));
+	return new PlexilVar(name, typ);
   }
 
   // parse a deprecated declaration
@@ -1227,7 +1235,12 @@ namespace PLEXIL
 	throw(ParserException) {
 	checkTagPrefix(DECL_TAG, decl);
 	const string& tag = decl->ValueStr();
-	PlexilType type = parseValueType(tag.substr(DECL_TAG.size()));
+	const string typnam = tag.substr(DECL_TAG.size());
+	PlexilType type = parseValueType(typnam);
+	checkParserExceptionWithLocation(type != UNKNOWN_TYPE,
+									 decl,
+									 "Unknown type name \"" << typnam << "\" in declaration \"" << tag << "\"");
+
 	string name;
 	string value;
 
