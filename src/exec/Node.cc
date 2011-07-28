@@ -84,7 +84,8 @@ namespace PLEXIL {
 		  cName.toString() << " is not a valid condition name");
   }
 
-  LabelStr Node::getConditionName(unsigned int idx) {
+  LabelStr Node::getConditionName(unsigned int idx)
+  {
     return LabelStr(ALL_CONDITIONS()[idx]);
   }
 
@@ -179,6 +180,7 @@ namespace PLEXIL {
       m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
       m_transitioning(false), m_checkConditionsPending(false),
       m_priority(WORST_PRIORITY),
+	  m_sortedVariableNames(new std::vector<double>()),
       m_state(INACTIVE_STATE), m_lastQuery(NO_NODE_STATE)
   {
      m_nodeId = LabelStr(node->nodeId());
@@ -190,6 +192,7 @@ namespace PLEXIL {
 
      debugMsg("Node:node", "Creating node '" << m_nodeId.toString() << "'");
      commonInit();
+	 setConditionDefaults();
 
         //instantiate declared variables
 
@@ -238,32 +241,25 @@ namespace PLEXIL {
     : m_id(this), m_exec(exec), m_parent(NodeId::noId()), m_node(PlexilNodeId::noId()),
       m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
       m_transitioning(false), m_checkConditionsPending(false),
+	  m_sortedVariableNames(new std::vector<double>()),
       m_state(state), m_lastQuery(NO_NODE_STATE)
   {
     m_nodeType = type;
     m_stateManager = NodeStateManager::getStateManager(m_nodeType);
     m_nodeId = name;
     commonInit();
-    double conds[15] = {SKIP_CONDITION(), START_CONDITION(), PRE_CONDITION(), INVARIANT_CONDITION(),
-			POST_CONDITION(), END_CONDITION(), REPEAT_CONDITION(),
-			ANCESTOR_INVARIANT_CONDITION(), ANCESTOR_END_CONDITION(),
-			PARENT_EXECUTING_CONDITION(), CHILDREN_WAITING_OR_FINISHED(),
-			ABORT_COMPLETE(), PARENT_WAITING_CONDITION(),
-			PARENT_FINISHED_CONDITION(), COMMAND_HANDLE_RECEIVED_CONDITION()};
-    bool values[15] = {skip, start, pre, invariant, post, end, repeat, ancestorInvariant,
+	// N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
+    bool values[15] = {skip, start, end, invariant, pre, post, repeat, ancestorInvariant,
 		       ancestorEnd, parentExecuting, childrenFinished, commandAbort,
 		       parentWaiting, parentFinished, cmdHdlRcvdCondition};
     for (unsigned int i = 0; i < 15; i++) {
       debugMsg("Node:node",
-	       "Creating internal variable " << LabelStr(conds[i]).toString() <<
+			   "Creating internal variable " << LabelStr(ALL_CONDITIONS()[i]).toString() <<
 	       " with value " << values[i] << " for node " << m_nodeId.toString());
-      unsigned int ix = getConditionIndex(conds[i]);
-      m_conditions[ix]->removeListener(m_listeners[ix]);
-      delete (Expression*) m_conditions[ix];
       ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
-      m_conditions[ix] = expr;
-      expr->addListener(m_listeners[ix]);
-      m_garbageConditions.insert(ix);
+      m_conditions[i] = expr;
+      expr->addListener(m_listeners[i]);
+      m_garbageConditions.insert(i);
     }
     if (m_nodeType == COMMAND())
       m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
@@ -272,6 +268,7 @@ namespace PLEXIL {
   }
 
   Node::~Node() {
+	delete m_sortedVariableNames;
     delete (RealNodeConnector*) m_connector;
     cleanUpConditions();
     cleanUpVars();
@@ -401,71 +398,45 @@ namespace PLEXIL {
       etp->activate();
       m_garbage.insert(etpName);
     }
-    setConditionDefaults();
+
+	// construct condition listeners (but not conditions)
+	for (int i = 0; i < conditionIndexMax; i++) {
+	  m_listeners[i] = 
+		(new ConditionChangeListener(m_id, ALL_CONDITIONS()[i]))->getId();
+	}
   }
 
   void Node::setConditionDefaults() {
     m_conditions[skipIdx] = 
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listeners[skipIdx] =
-      (new ConditionChangeListener(m_id, SKIP_CONDITION()))->getId();
     m_conditions[startIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[startIdx] =
-      (new ConditionChangeListener(m_id, START_CONDITION()))->getId();
     m_conditions[endIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[endIdx] =
-      (new ConditionChangeListener(m_id, END_CONDITION()))->getId();
     m_conditions[invariantIdx] =
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[invariantIdx] =
-      (new ConditionChangeListener(m_id, INVARIANT_CONDITION()))->getId();
     m_conditions[preIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[preIdx] =
-      (new ConditionChangeListener(m_id, PRE_CONDITION()))->getId();
     m_conditions[postIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[postIdx] =
-      (new ConditionChangeListener(m_id, POST_CONDITION()))->getId();
     m_conditions[repeatIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listeners[repeatIdx] =
-      (new ConditionChangeListener(m_id, REPEAT_CONDITION()))->getId();
     m_conditions[ancestorInvariantIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[ancestorInvariantIdx] =
-      (new ConditionChangeListener(m_id, ANCESTOR_INVARIANT_CONDITION()))->getId();
     m_conditions[ancestorEndIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listeners[ancestorEndIdx] =
-      (new ConditionChangeListener(m_id, ANCESTOR_END_CONDITION()))->getId();
     m_conditions[parentExecutingIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[parentExecutingIdx] =
-      (new ConditionChangeListener(m_id, PARENT_EXECUTING_CONDITION()))->getId();
     m_conditions[childrenWaitingOrFinishedIdx] =
       (new BooleanVariable(BooleanVariable::UNKNOWN(), true))->getId();
-    m_listeners[childrenWaitingOrFinishedIdx] =
-      (new ConditionChangeListener(m_id, CHILDREN_WAITING_OR_FINISHED()))->getId();
     m_conditions[abortCompleteIdx] =
       (new BooleanVariable(BooleanVariable::UNKNOWN(), true))->getId();
-    m_listeners[abortCompleteIdx] =
-      (new ConditionChangeListener(m_id, CHILDREN_WAITING_OR_FINISHED()))->getId();
     m_conditions[parentWaitingIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listeners[parentWaitingIdx] =
-      (new ConditionChangeListener(m_id, PARENT_WAITING_CONDITION()))->getId();
     m_conditions[parentFinishedIdx] =
       (new BooleanVariable(BooleanVariable::FALSE(), true))->getId();
-    m_listeners[parentFinishedIdx] =
-      (new ConditionChangeListener(m_id, PARENT_FINISHED_CONDITION()))->getId();
     m_conditions[commandHandleReceivedIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
-    m_listeners[commandHandleReceivedIdx] =
-      (new ConditionChangeListener(m_id, COMMAND_HANDLE_RECEIVED_CONDITION()))->getId();
-
 
     m_listeners[parentExecutingIdx]->activate();
     m_listeners[parentFinishedIdx]->activate();
@@ -1317,7 +1288,7 @@ namespace PLEXIL {
     conditionChanged(); // was checkConditions();
   }
 
-  const ExpressionId& Node::getInternalVariable(const LabelStr& name) {
+  const ExpressionId& Node::getInternalVariable(const LabelStr& name) const {
     checkError(m_variablesByName.find(name) != m_variablesByName.end(),
 	       "No variable named " << name.toString() << " in " << m_nodeId.toString());
     return m_variablesByName.find(name)->second;
@@ -1356,7 +1327,7 @@ namespace PLEXIL {
     return getOutcomeVariable()->getValue();
   }
 
-  const ExpressionId& Node::getOutcomeVariable() {
+  const ExpressionId& Node::getOutcomeVariable() const {
     return getInternalVariable(OUTCOME());
   }
 
@@ -1364,7 +1335,7 @@ namespace PLEXIL {
     return getFailureTypeVariable()->getValue();
   }
 
-  const ExpressionId& Node::getFailureTypeVariable() {
+  const ExpressionId& Node::getFailureTypeVariable() const {
     return getInternalVariable(FAILURE_TYPE());
   }
 
@@ -1372,7 +1343,7 @@ namespace PLEXIL {
     return getCommandHandleVariable()->getValue();
   }
 
-  const ExpressionId& Node::getCommandHandleVariable() {
+  const ExpressionId& Node::getCommandHandleVariable() const {
     return getInternalVariable(COMMAND_HANDLE());
   }
 
@@ -1747,53 +1718,100 @@ namespace PLEXIL {
       }
   }
 
-  std::string Node::toString(const unsigned int indent) {
-    std::ostringstream indentStr;
-    for(unsigned int i = 0; i < indent; i++)
-      indentStr << " ";
+  std::string Node::toString(const unsigned int indent)
+  {
     std::ostringstream retval;
-
-    retval << indentStr.str() << m_nodeId.toString() << "{" << std::endl;
-    retval << indentStr.str() << " State: " << m_stateVariable->toString() <<
-      " (" << m_startTimepoints[m_state]->getValue() << ")" << std::endl;
-    if(m_state == FINISHED_STATE) {
-      retval << indentStr.str() << " Outcome: " << m_variablesByName[OUTCOME()]->toString() <<
-	std::endl;
-      if(m_variablesByName[FAILURE_TYPE()]->getValue() != OutcomeVariable::UNKNOWN())
-	retval << indentStr.str() << " Failure type: " <<
-	  m_variablesByName[FAILURE_TYPE()]->toString() << std::endl;
-      if(m_variablesByName[COMMAND_HANDLE()]->getValue() != CommandHandleVariable::UNKNOWN())
-	retval << indentStr.str() << " Command handle: " <<
-	  m_variablesByName[COMMAND_HANDLE()]->toString() << std::endl;
-      for(ExpressionMap::iterator it = m_variablesByName.begin();
-	  it != m_variablesByName.end(); ++it) {
-	if(it->first == STATE() || it->first == OUTCOME() || it->first == FAILURE_TYPE() 
-           || it->first == COMMAND_HANDLE() ||
-	   LabelStr(it->first).countElements(".") > 1)
-	  continue;
-	retval << indentStr.str() << " " << LabelStr(it->first).toString() << ": " <<
-	  (*it).second->toString() << std::endl;
-      }
-    }
-    else if(m_state != INACTIVE_STATE) {
-      for(unsigned int i = 0; i < conditionIndexMax; ++i) {
-	retval << indentStr.str() << " " << getConditionName(i).toString() << ": " <<
-	  m_conditions[i]->toString() << std::endl;
-      }
-      for(ExpressionMap::iterator it = m_variablesByName.begin();
-	  it != m_variablesByName.end(); ++it) {
-	if(it->first == STATE() || it->first == OUTCOME() || it->first == FAILURE_TYPE() 
-           || LabelStr(it->first).countElements(".") > 1)
-	  continue;
-	retval << indentStr.str() << " " << LabelStr(it->first).toString() << ": " <<
-	  (*it).second->toString() << std::endl;
-      }
-    }
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
-      retval << (*it)->toString(indent + 2);
-    }
-    retval << indentStr.str() << "}" << std::endl;
+	print(retval, indent);
     return retval.str();
+  }
+
+  std::ostream& operator<<(std::ostream& stream, const Node& node)
+  {
+	node.print(stream, 0);
+	return stream;
+  }
+
+  void Node::print(std::ostream& stream, const unsigned int indent) const
+  {
+    std::string indentStr(indent, ' ');
+
+    stream << indentStr << m_nodeId.toString() << "{\n";
+    stream << indentStr << " State: " << m_stateVariable->toString() <<
+      " (" << m_startTimepoints[m_state]->getValue() << ")\n";
+    if (m_state == FINISHED_STATE) {
+      stream << indentStr << " Outcome: " << getOutcomeVariable()->toString() << '\n';
+      if (getFailureTypeVariable()->getValue() != Expression::UNKNOWN())
+		stream << indentStr << " Failure type: " <<
+		  getFailureTypeVariable()->toString() << '\n';
+	  // Print variables, starting with command handle
+      if (getCommandHandleVariable()->getValue() != Expression::UNKNOWN())
+		stream << indentStr << " Command handle: " <<
+		  getCommandHandleVariable()->toString() << '\n';
+	  printVariables(stream, indent);
+    }
+    else if (m_state != INACTIVE_STATE) {
+	  // Print conditions
+      for (unsigned int i = 0; i < conditionIndexMax; ++i) {
+		stream << indentStr << " " << getConditionName(i).toString() << ": " <<
+		  m_conditions[i]->toString() << '\n';
+      }
+	  // Print variables, starting with command handle (if appropriate)
+      if (getType() == COMMAND()) {
+		stream << indentStr << " Command handle: " <<
+		  getCommandHandleVariable()->toString() << '\n';
+	  }
+	  printVariables(stream, indent);
+    }
+	// print children
+    for (std::list<NodeId>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+      stream << (*it)->toString(indent + 2);
+    }
+    stream << indentStr << "}" << std::endl;
+  }
+
+  // Print variables
+  // TODO: sort by name
+  void Node::printVariables(std::ostream& stream, const unsigned int indent) const
+  {
+    std::string indentStr(indent, ' ');
+	ensureSortedVariableNames(); // for effect
+	for (std::vector<double>::const_iterator it = m_sortedVariableNames->begin();
+		 it != m_sortedVariableNames->end();
+		 it++) {
+	  stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
+		getInternalVariable(LabelStr(*it))->toString() << '\n';
+	}
+  }
+
+  // Helper used below
+  bool labelStrLessThan(double a, double b)
+  {
+	return LabelStr(a).toString() < LabelStr(b).toString();
+  }
+
+  void Node::ensureSortedVariableNames() const
+  {
+	checkError(m_sortedVariableNames != NULL,
+			   "Internal error: m_sortedVariableNames is null!");
+	if (m_sortedVariableNames->empty()) {
+	  // Collect the variable names
+	  for (ExpressionMap::const_iterator it = m_variablesByName.begin();
+		   it != m_variablesByName.end();
+		   it++) {
+		double nameKey = it->first;
+		if (nameKey == STATE().getKey()
+			|| nameKey == OUTCOME().getKey()
+			|| nameKey == FAILURE_TYPE().getKey()
+			|| nameKey == COMMAND_HANDLE().getKey()
+			|| LabelStr(nameKey).countElements(".") > 1)
+		  continue;
+		m_sortedVariableNames->push_back(it->first);
+	  }
+	  // Sort the names
+	  std::sort(m_sortedVariableNames->begin(),
+				m_sortedVariableNames->end(),
+				labelStrLessThan);
+	}
   }
 
   // Static "constants"

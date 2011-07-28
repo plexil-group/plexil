@@ -225,20 +225,19 @@ namespace PLEXIL {
     const ExpressionId& getStateVariable();
 
     const LabelStr getOutcome();
-    const ExpressionId& getOutcomeVariable();
-
+    const ExpressionId& getOutcomeVariable() const;
     
     const LabelStr getFailureType();
-    const ExpressionId& getFailureTypeVariable();
+    const ExpressionId& getFailureTypeVariable() const;
 
     const LabelStr getCommandHandle();
-    const ExpressionId& getCommandHandleVariable();
+    const ExpressionId& getCommandHandleVariable() const;
 
     /**
      * @brief Gets the type of this node (node list, assignment, or command).
      * @return The type of this node.
      */
-    const LabelStr& getType() {return m_nodeType;}
+    const LabelStr& getType() const {return m_nodeType;}
 
     /**
      * @brief Gets the assignment to be performed by this node.  Evaluates the RHS.
@@ -265,6 +264,7 @@ namespace PLEXIL {
     void checkConditions();
 
     std::string toString(const unsigned int indent = 0);
+	void print(std::ostream& stream, const unsigned int indent = 0) const;
 
     /**
      * @brief Looks up a variable by reference.
@@ -390,7 +390,7 @@ namespace PLEXIL {
     } conditionIndex;
 
     static unsigned int getConditionIndex(const LabelStr& cName);
-    LabelStr getConditionName(unsigned int idx);
+    static LabelStr getConditionName(unsigned int idx);
 
     void createCommand(const PlexilCommandBody* body);
 
@@ -422,7 +422,7 @@ namespace PLEXIL {
 
     void cleanUpVars();
 
-    const ExpressionId& getInternalVariable(const LabelStr& name);
+    const ExpressionId& getInternalVariable(const LabelStr& name) const;
 
     // Listener accessors
     ExpressionListenerId& getSkipListener()                      { return m_listeners[skipIdx]; }
@@ -460,6 +460,9 @@ namespace PLEXIL {
     static const std::vector<double>& START_TIMEPOINT_NAMES();
     static const std::vector<double>& END_TIMEPOINT_NAMES();
 
+	void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
+	void ensureSortedVariableNames() const;
+
     NodeId m_id; /*<! The Id for this node*/
     ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
     NodeId m_parent; /*<! The parent of this node.*/
@@ -473,6 +476,7 @@ namespace PLEXIL {
     ExpressionMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
 							Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
 							I'll stick all variables in here, just to be safe.*/
+	std::vector<double>* m_sortedVariableNames;
     std::list<ExpressionId> m_localVariables; /*<! Variables created in this node*/
     ExpressionId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
     ExpressionId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
@@ -493,6 +497,9 @@ namespace PLEXIL {
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
   };
+
+  std::ostream& operator<<(std::ostream& strm, const Node& node);
+
 
   class Assignment {
   public:
