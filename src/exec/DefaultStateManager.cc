@@ -34,6 +34,8 @@ namespace PLEXIL {
   class DefaultInactiveStateComputer : public StateComputer {
   public:
     DefaultInactiveStateComputer() : StateComputer() {}
+
+	// Node::setConditionDefaults() and Node::createConditions() need to track this method.
     NodeState getDestState(NodeId& node) {
       checkError(node->getState() == INACTIVE_STATE, "In state '" << node->getStateName().toString() << "', not INACTIVE.");
       checkError(node->isParentExecutingConditionActive(), "Parent executing for " << node->getNodeId().toString() << " is inactive.");
