@@ -214,7 +214,7 @@ namespace PLEXIL {
 	}
 	else {
 	  debugMsg("Node:getDestState",
-		   "Destination: FINISHED.  Command/Update/Request node abort complete.");
+		   "Destination: ITERATION_ENDED.  Command/Update/Request node abort complete.");
 	  return ITERATION_ENDED_STATE;
 	}
       }
