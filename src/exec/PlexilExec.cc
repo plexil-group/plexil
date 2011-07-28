@@ -513,7 +513,7 @@ namespace PLEXIL {
 
     debugMsg("PlexilExec:cycle", "==>End cycle " << m_cycleNum);
     for(std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
-      debugMsg("PlexilExec:printPlan", std::endl << (*it)->toString());
+      debugMsg("PlexilExec:printPlan", std::endl << **it);
     }
     m_cache->handleQuiescenceEnded();
     //
