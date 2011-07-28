@@ -438,10 +438,10 @@ namespace PLEXIL {
     m_conditions[commandHandleReceivedIdx] = 
       (new BooleanVariable(BooleanVariable::TRUE(), true))->getId();
 
+	// These are the only conditions we care about in the INACTIVE state.
+	// See DefaultStateManager.cc, specifically DefaultInactiveStateComputer::getDestState().
     m_listeners[parentExecutingIdx]->activate();
     m_listeners[parentFinishedIdx]->activate();
-//     m_listeners[ancestorEndIdx]->activate();
-//     m_listeners[ancestorInvariantIdx]->activate();
   }
 
   void Node::postInit() {
@@ -698,7 +698,7 @@ namespace PLEXIL {
 						 (new TransparentWrapper(m_parent->getCondition(END_CONDITION()),
 												 m_connector))->getId(),
 						 true))->getId();
-      ExpressionId ancestorExecuting =
+      ExpressionId parentExecuting =
 	(new Equality(m_parent->getStateVariable(),
 		      StateVariable::EXECUTING_EXP()))->getId();
       ExpressionId parentWaiting =
@@ -708,58 +708,41 @@ namespace PLEXIL {
 	(new Equality(m_parent->getStateVariable(),
 		      StateVariable::FINISHED_EXP()))->getId();
 
-      ExpressionListenerId ancestorInvariantListener =
-	m_listeners[ancestorInvariantIdx];
-//       if(!ancestorInvariantListener->isActive())
-// 	ancestorInvariantListener->activate();
-      ExpressionListenerId ancestorEndListener =
-	m_listeners[ancestorEndIdx];
-//       if(!ancestorEndListener->isActive())
-// 	ancestorEndListener->activate();
-      ExpressionListenerId ancestorExecutingListener =
-	m_listeners[parentExecutingIdx];
-      if(!ancestorExecutingListener->isActive())
-	ancestorExecutingListener->activate();
-      ExpressionListenerId parentWaitingListener =
-	m_listeners[parentWaitingIdx];
-      ExpressionListenerId parentFinishedListener =
-	m_listeners[parentFinishedIdx];
-      if(!parentFinishedListener->isActive())
-	parentFinishedListener->activate();
+      ExpressionListenerId ancestorInvariantListener = m_listeners[ancestorInvariantIdx];
+      ExpressionListenerId ancestorEndListener = m_listeners[ancestorEndIdx];
+      ExpressionListenerId parentExecutingListener = m_listeners[parentExecutingIdx];
+      ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
+      ExpressionListenerId parentFinishedListener = m_listeners[parentFinishedIdx];
 
-      m_conditions[ancestorInvariantIdx]->removeListener(ancestorInvariantListener);
+	  // Replace default ancestor invariant condition with real one
       delete (Expression*) m_conditions[ancestorInvariantIdx];
-
-      //ancestorInvariant->activate();
       ancestorInvariant->addListener(ancestorInvariantListener);
 
-      m_conditions[ancestorEndIdx]->removeListener(ancestorEndListener);
+	  // Replace default ancestor end condition with real one
       delete (Expression*) m_conditions[ancestorEndIdx];
-
-      //ancestorEnd->activate();
       ancestorEnd->addListener(ancestorEndListener);
 
-      m_conditions[parentExecutingIdx]->removeListener(ancestorExecutingListener);
+	  // Replace default parent executing condition with real one
       delete (Expression*) m_conditions[parentExecutingIdx];
+      parentExecuting->activate(); //activate this right off so we can start executing
+      parentExecuting->addListener(parentExecutingListener);
 
-      ancestorExecuting->activate(); //activate this right off so we can start executing
-      ancestorExecuting->addListener(ancestorExecutingListener);
-
-      m_conditions[parentWaitingIdx]->removeListener(parentWaitingListener);
+	  // Replace default parent waiting condition with real one
       delete (Expression*) m_conditions[parentWaitingIdx];
       parentWaiting->addListener(parentWaitingListener);
 
-      m_conditions[parentFinishedIdx]->removeListener(parentFinishedListener);
+	  // Replace default parent finished condition with real one
       delete (Expression*) m_conditions[parentFinishedIdx];
       parentFinished->activate();
       parentFinished->addListener(parentFinishedListener);
 
       m_conditions[ancestorInvariantIdx] = ancestorInvariant;
       m_conditions[ancestorEndIdx] = ancestorEnd;
-      m_conditions[parentExecutingIdx] = ancestorExecuting;
+      m_conditions[parentExecutingIdx] = parentExecuting;
       m_conditions[parentWaitingIdx] = parentWaiting;
       m_conditions[parentFinishedIdx] = parentFinished;
 
+	  // Mark these for deletion
       m_garbageConditions.insert(ancestorInvariantIdx);
       m_garbageConditions.insert(parentExecutingIdx);
       m_garbageConditions.insert(parentWaitingIdx);
