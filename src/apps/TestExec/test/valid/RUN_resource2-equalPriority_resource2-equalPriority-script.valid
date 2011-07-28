@@ -94,7 +94,6 @@ SimpleTask{
  ParentWaitingCondition: (id_297[au](0): boolean)
  ParentFinishedCondition: (id_299[au](0): boolean)
  CommandHandleReceivedCondition: (id_301[au](1): boolean)
- command_handle: (id_256[au](UNKNOWN):  command_handle)
   PickupObject{
    State: (id_305[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: (id_325[au](0): boolean)
@@ -112,9 +111,9 @@ SimpleTask{
    ParentWaitingCondition: (id_432[iu](UNKNOWN): ((id_253[au](EXECUTING): state(EXECUTING)) == (id_431[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_435[iu](UNKNOWN): ((id_253[au](EXECUTING): state(EXECUTING)) == (id_434[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_457[au](0): ((id_455[au](0): allCommandHandleValues((id_446[au](UNKNOWN): string))) && (id_353[au](1): boolean))
-   command_handle: (id_308[au](UNKNOWN):  command_handle)
-   returnValue: (id_355[au](-1): int)
+   Command handle: (id_308[au](UNKNOWN):  command_handle)
    priority20: (id_356[au](20): int)
+   returnValue: (id_355[au](-1): int)
   }
   ProcessImage{
    State: (id_359[au](EXECUTING): state(EXECUTING)) (0)
@@ -133,7 +132,7 @@ SimpleTask{
    ParentWaitingCondition: (id_480[iu](UNKNOWN): ((id_253[au](EXECUTING): state(EXECUTING)) == (id_431[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_482[iu](UNKNOWN): ((id_253[au](EXECUTING): state(EXECUTING)) == (id_434[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_501[au](1): ((id_499[au](1): allCommandHandleValues((id_490[au](COMMAND_DENIED): string))) && (id_407[au](1): boolean))
-   command_handle: (id_362[au](UNKNOWN):  command_handle)
+   Command handle: (id_362[au](UNKNOWN):  command_handle)
    mem_priority2: (id_409[au](20): int)
   }
 }
@@ -182,7 +181,6 @@ SimpleTask{
  ParentWaitingCondition: (id_297[au](0): boolean)
  ParentFinishedCondition: (id_299[au](0): boolean)
  CommandHandleReceivedCondition: (id_301[au](1): boolean)
- command_handle: (id_256[au](UNKNOWN):  command_handle)
   PickupObject{
    State: (id_305[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: (id_325[au](0): boolean)
@@ -200,9 +198,9 @@ SimpleTask{
    ParentWaitingCondition: (id_432[iu](UNKNOWN): ((id_253[au](EXECUTING): state(EXECUTING)) == (id_431[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_435[iu](UNKNOWN): ((id_253[au](EXECUTING): state(EXECUTING)) == (id_434[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_457[au](1): ((id_455[au](1): allCommandHandleValues((id_446[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_353[au](1): boolean))
-   command_handle: (id_308[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_355[au](-1): int)
+   Command handle: (id_308[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
    priority20: (id_356[au](20): int)
+   returnValue: (id_355[au](-1): int)
   }
   ProcessImage{
    State: (id_359[au](FINISHED): state(FINISHED)) (0)
@@ -271,8 +269,8 @@ SimpleTask{
    State: (id_305[au](FINISHED): state(FINISHED)) (0)
    Outcome: (id_306[au](SUCCESS):  outcome)
    Command handle: (id_308[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_355[iu](10): int)
    priority20: (id_356[au](20): int)
+   returnValue: (id_355[iu](10): int)
   }
   ProcessImage{
    State: (id_359[au](FINISHED): state(FINISHED)) (0)

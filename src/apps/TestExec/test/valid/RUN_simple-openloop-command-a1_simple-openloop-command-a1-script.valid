@@ -71,7 +71,6 @@ SimpleDrive{
  ParentWaitingCondition: (id_265[au](0): boolean)
  ParentFinishedCondition: (id_267[au](0): boolean)
  CommandHandleReceivedCondition: (id_269[au](1): boolean)
- command_handle: (id_224[au](UNKNOWN):  command_handle)
   Drive{
    State: (id_273[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: (id_293[au](0): boolean)
@@ -89,7 +88,7 @@ SimpleDrive{
    ParentWaitingCondition: (id_345[iu](UNKNOWN): ((id_221[au](EXECUTING): state(EXECUTING)) == (id_344[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_348[iu](UNKNOWN): ((id_221[au](EXECUTING): state(EXECUTING)) == (id_347[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_367[au](0): ((id_365[au](0): allCommandHandleValues((id_356[au](UNKNOWN): string))) && (id_321[au](1): boolean))
-   command_handle: (id_276[au](UNKNOWN):  command_handle)
+   Command handle: (id_276[au](UNKNOWN):  command_handle)
   }
 }
 

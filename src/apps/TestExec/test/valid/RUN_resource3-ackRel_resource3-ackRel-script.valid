@@ -116,7 +116,6 @@ SimpleTask{
  ParentWaitingCondition: (id_312[au](0): boolean)
  ParentFinishedCondition: (id_314[au](0): boolean)
  CommandHandleReceivedCondition: (id_316[au](1): boolean)
- command_handle: (id_271[au](UNKNOWN):  command_handle)
   C1{
    State: (id_320[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: (id_340[au](0): boolean)
@@ -134,9 +133,9 @@ SimpleTask{
    ParentWaitingCondition: (id_500[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_503[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_525[au](0): ((id_523[au](0): allCommandHandleValues((id_514[au](UNKNOWN): string))) && (id_368[au](1): boolean))
-   command_handle: (id_323[au](UNKNOWN):  command_handle)
-   returnValue: (id_370[au](-1): int)
+   Command handle: (id_323[au](UNKNOWN):  command_handle)
    mem_priority: (id_371[au](20): int)
+   returnValue: (id_370[au](-1): int)
   }
   C2{
    State: (id_374[au](EXECUTING): state(EXECUTING)) (0)
@@ -155,7 +154,7 @@ SimpleTask{
    ParentWaitingCondition: (id_547[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_549[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_573[au](1): ((id_571[au](1): allCommandHandleValues((id_562[au](COMMAND_DENIED): string))) && (id_422[au](1): boolean))
-   command_handle: (id_377[au](UNKNOWN):  command_handle)
+   Command handle: (id_377[au](UNKNOWN):  command_handle)
    v_priority2: (id_424[au](15): int)
   }
   C3{
@@ -175,7 +174,7 @@ SimpleTask{
    ParentWaitingCondition: (id_592[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_594[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_613[au](0): ((id_611[au](0): allCommandHandleValues((id_602[au](UNKNOWN): string))) && (id_475[au](1): boolean))
-   command_handle: (id_430[au](UNKNOWN):  command_handle)
+   Command handle: (id_430[au](UNKNOWN):  command_handle)
    v_priority: (id_477[au](10): int)
   }
 }
@@ -235,7 +234,6 @@ SimpleTask{
  ParentWaitingCondition: (id_312[au](0): boolean)
  ParentFinishedCondition: (id_314[au](0): boolean)
  CommandHandleReceivedCondition: (id_316[au](1): boolean)
- command_handle: (id_271[au](UNKNOWN):  command_handle)
   C1{
    State: (id_320[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: (id_340[au](0): boolean)
@@ -253,9 +251,9 @@ SimpleTask{
    ParentWaitingCondition: (id_500[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_503[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_525[au](1): ((id_523[au](1): allCommandHandleValues((id_514[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_368[au](1): boolean))
-   command_handle: (id_323[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_370[au](-1): int)
+   Command handle: (id_323[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
    mem_priority: (id_371[au](20): int)
+   returnValue: (id_370[au](-1): int)
   }
   C2{
    State: (id_374[au](EXECUTING): state(EXECUTING)) (0)
@@ -274,7 +272,7 @@ SimpleTask{
    ParentWaitingCondition: (id_547[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_549[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_573[au](1): ((id_571[au](1): allCommandHandleValues((id_562[au](COMMAND_DENIED): string))) && (id_422[au](1): boolean))
-   command_handle: (id_377[au](UNKNOWN):  command_handle)
+   Command handle: (id_377[au](UNKNOWN):  command_handle)
    v_priority2: (id_424[au](15): int)
   }
   C3{
@@ -294,7 +292,7 @@ SimpleTask{
    ParentWaitingCondition: (id_592[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_594[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_613[au](0): ((id_611[au](0): allCommandHandleValues((id_602[au](UNKNOWN): string))) && (id_475[au](1): boolean))
-   command_handle: (id_430[au](UNKNOWN):  command_handle)
+   Command handle: (id_430[au](UNKNOWN):  command_handle)
    v_priority: (id_477[au](10): int)
   }
 }
@@ -369,7 +367,6 @@ SimpleTask{
  ParentWaitingCondition: (id_312[au](0): boolean)
  ParentFinishedCondition: (id_314[au](0): boolean)
  CommandHandleReceivedCondition: (id_316[au](1): boolean)
- command_handle: (id_271[au](UNKNOWN):  command_handle)
   C1{
    State: (id_320[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: (id_340[au](0): boolean)
@@ -387,9 +384,9 @@ SimpleTask{
    ParentWaitingCondition: (id_500[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_503[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_525[au](1): ((id_523[au](1): allCommandHandleValues((id_514[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_368[au](1): boolean))
-   command_handle: (id_323[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_370[au](-1): int)
+   Command handle: (id_323[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
    mem_priority: (id_371[au](20): int)
+   returnValue: (id_370[au](-1): int)
   }
   C2{
    State: (id_374[au](EXECUTING): state(EXECUTING)) (0)
@@ -408,7 +405,7 @@ SimpleTask{
    ParentWaitingCondition: (id_547[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_549[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_573[au](0): ((id_571[au](0): allCommandHandleValues((id_562[au](UNKNOWN): string))) && (id_422[au](1): boolean))
-   command_handle: (id_377[au](UNKNOWN):  command_handle)
+   Command handle: (id_377[au](UNKNOWN):  command_handle)
    v_priority2: (id_424[au](15): int)
   }
   C3{
@@ -461,13 +458,12 @@ SimpleTask{
  ParentWaitingCondition: (id_312[au](0): boolean)
  ParentFinishedCondition: (id_314[au](0): boolean)
  CommandHandleReceivedCondition: (id_316[au](1): boolean)
- command_handle: (id_271[au](UNKNOWN):  command_handle)
   C1{
    State: (id_320[au](FINISHED): state(FINISHED)) (0)
    Outcome: (id_321[au](SUCCESS):  outcome)
    Command handle: (id_323[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_370[iu](10): int)
    mem_priority: (id_371[au](20): int)
+   returnValue: (id_370[iu](10): int)
   }
   C2{
    State: (id_374[au](EXECUTING): state(EXECUTING)) (0)
@@ -486,7 +482,7 @@ SimpleTask{
    ParentWaitingCondition: (id_547[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_499[au](WAITING): state(WAITING))))
    ParentFinishedCondition: (id_549[iu](UNKNOWN): ((id_268[au](EXECUTING): state(EXECUTING)) == (id_502[au](FINISHED): state(FINISHED))))
    CommandHandleReceivedCondition: (id_573[au](0): ((id_571[au](0): allCommandHandleValues((id_562[au](UNKNOWN): string))) && (id_422[au](1): boolean))
-   command_handle: (id_377[au](UNKNOWN):  command_handle)
+   Command handle: (id_377[au](UNKNOWN):  command_handle)
    v_priority2: (id_424[au](15): int)
   }
   C3{
@@ -557,8 +553,8 @@ SimpleTask{
    State: (id_320[au](FINISHED): state(FINISHED)) (0)
    Outcome: (id_321[au](SUCCESS):  outcome)
    Command handle: (id_323[au](COMMAND_SENT_TO_SYSTEM):  command_handle)
-   returnValue: (id_370[iu](10): int)
    mem_priority: (id_371[au](20): int)
+   returnValue: (id_370[iu](10): int)
   }
   C2{
    State: (id_374[au](FINISHED): state(FINISHED)) (0)
