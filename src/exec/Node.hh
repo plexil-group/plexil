@@ -216,7 +216,7 @@ namespace PLEXIL {
     std::list<ExpressionId> getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
-    std::list<NodeId> getChildren() { return m_children; }
+    const std::list<NodeId>& getChildren() { return m_children; }
 
     /**
      * @brief Gets the state variable representing the state of this node.
