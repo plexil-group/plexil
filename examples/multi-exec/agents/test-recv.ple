@@ -1,0 +1,12 @@
+// -*- Mode: C++ -*-
+// File: plexil/examples/multi-exec/agents/test-recv.ple
+
+test-recv:
+{
+  OnCommand recv_test (Integer arg1, Real arg2)
+  {
+    Command pprint ("test-recv: arg1==", arg1, ", arg2==", arg2);
+  }
+}
+
+// EOF

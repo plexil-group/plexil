@@ -1,0 +1,11 @@
+// -*- Mode: C++ -*-
+// File: plexil/examples/multi-exec/agents/test-send.ple
+
+test-send:
+{
+  Integer arg1 = 3;
+  Real arg2 = 0.01;
+  Command recv_test (arg1, arg2);
+}
+
+// EOF
