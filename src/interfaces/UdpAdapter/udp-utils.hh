@@ -17,6 +17,7 @@ namespace PLEXIL
     unsigned char* buffer;
     size_t size;
     bool debug;
+    void* self;
   };
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);

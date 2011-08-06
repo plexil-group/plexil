@@ -12,6 +12,8 @@ class TiXmlElement;             // Forward references (w/o namespace)
 
 namespace PLEXIL
 {
+  //void* waitForUdpMessage(udp_thread_params* params);
+
   class Parameter
   {
   public:
@@ -26,12 +28,13 @@ namespace PLEXIL
     std::string name;
     std::string type;
     std::list<Parameter> parameters; // message value parameters
-    std::list<double> variables;     // references to the internal Plexil variables
+    //std::list<double> variables;     // references to the internal Plexil variables
     int len;
     std::string host;
     int port;
-    pthread_t thread;
-    UdpMessage() : name(""), type(""), parameters(), variables(), len(0), host(""), port(0), thread(NULL) {}
+    //pthread_t thread; // thread doesn't make sense -- one definition, many messages
+    void* self;
+    UdpMessage() : name(""), type(""), parameters(), len(0), host(""), port(0), self(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
@@ -110,6 +113,8 @@ namespace PLEXIL
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
+    //static void* waitForUdpMessage(udp_thread_params* params);
+    static void* waitForUdpMessage(UdpMessage* msg);
     int handleUdpMessage();
     double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
     double formatMessageName(const LabelStr& name, const LabelStr& command);

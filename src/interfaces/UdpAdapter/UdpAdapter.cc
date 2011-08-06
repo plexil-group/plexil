@@ -360,7 +360,7 @@ namespace PLEXIL
           }
         std::cout << std::endl << "         length: " << msg->second.len;
         std::cout << ", host: " << msg->second.host << ", port: " << msg->second.port;
-        std::cout << ", thread: " << msg->second.thread << std::endl;
+        //std::cout << ", thread: " << msg->second.thread << std::endl;
       }
   }
 
@@ -373,33 +373,42 @@ namespace PLEXIL
     msg=m_messages.find(name.c_str());
     assertTrueMsg(msg != m_messages.end(),
                   "UdpAdapter::startUdpMessageReceiver: no message found for " << name.c_str());
-    int port = msg->second.port;
-    size_t size = msg->second.len;
-    int status = 0; // return status
-    //debugMsg("UdpAdapter::startUdpMessageReceiver", " msg->second.thread==" << msg->second.thread);
-    assertTrueMsg(msg->second.thread == NULL,
-                  "UdpAdapter::startUdpMessageReceiver: thread is not NULL for " << name.c_str());
+    //assertTrueMsg(msg->second.thread == NULL,
+    //              "UdpAdapter::startUdpMessageReceiver: thread is not NULL for " << name.c_str());
+    msg->second.name = name.c_str();
+    msg->second.self = (void*) this; // pass a reference to "this" UdpAdapter for later use
+    pthread_t thread_handle;
+    // Set up the receiver.  This needs to be wrapped in a further layer I think.
+    threadSpawn((THREAD_FUNC_PTR) waitForUdpMessage, &msg->second, thread_handle);
+    // Check to see if the thread got started
+    assertTrueMsg(thread_handle != NULL, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
+    //msg->second.thread = thread_handle; // record the thread
+    debugMsg("UdpAdapter::startUdpMessageReceiver", " for " << name.toString() << " done");
+    return 0;
+  }
+
+  void* UdpAdapter::waitForUdpMessage(UdpMessage* msg)
+  {
+    debugMsg("UdpAdapter::waitForUdpMessage", " called for " << msg->name);
+    int port = msg->port;
+    size_t size = msg->len;
     udp_thread_params params;
     params.local_port = port;
     params.buffer = new unsigned char[size];
     params.size = size;
     params.debug = true;
     udp_thread_params* param_ptr = &params;
-    pthread_t thread_handle;
-    // debugMsg("UdpAdapter::startUdpMessageReceiver", " params: " << params.local_port << ", " << params.size);
-    // Finally, set up the receiver.  This needs to be wrapped in a further layer I think.
-    threadSpawn((THREAD_FUNC_PTR) wait_for_input_on_thread, param_ptr, thread_handle);
-    assertTrueMsg(thread_handle != NULL, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
-    msg->second.thread = thread_handle;
-    // XXXX, No, this isn't when to call this.  When the message is received down in the bowels is when...
-    // status = handleUdpMessage(msg->second, params.buffer, size, params.debug);
-    // delete[] params.buffer;
-    debugMsg("UdpAdapter::startUdpMessageReceiver", " for " << name.toString() << " done");
-    return status;
+    //debugMsg("UdpAdapter::waitForUdpMessage", " params: " << params.local_port << ", " << params.size);
+    wait_for_input_on_thread(&params);
+    // When the message has been received, tell the UdpAdapter about it
+    UdpAdapter* udpAdapter = reinterpret_cast<UdpAdapter*>(msg->self);
+    udpAdapter->handleUdpMessage();
+    delete[] params.buffer;     // release the input buffer
   }
 
   int UdpAdapter::handleUdpMessage()
   {
+    // Handle a UDP message once it has indeed arrived.
     debugMsg("UdpAdapter::handleUdpMessage", " called");
     return 0;
   }
