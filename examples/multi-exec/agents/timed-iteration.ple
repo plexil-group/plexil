@@ -33,7 +33,8 @@ Timed-iteration:
             notify-end-of-iteration: pprint("Ending periodic iteration");
         }
     }
-    udp-send-test: SendUdpMessage("send_test", run_length, elapsed_time, true, "just a test");
-    temp-test: SendMessage("Quit");
-    udp-recv-test: ReceiveUdpMessage("recv_test", run_length, tolerance);
+    udp-send-test: SendUdpMessage("recv_test", run_length, tolerance);
+    //udp-send-test: SendUdpMessage("send_test", run_length, elapsed_time, true, "just a test");
+    //temp-test: SendMessage("Quit");
+    //udp-recv-test: ReceiveUdpMessage("recv_test", run_length, tolerance);
 }
