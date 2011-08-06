@@ -34,8 +34,8 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
 LIB_PATH	+=
 LIBS		+= tinyxml PlexilUtils PlexilExec PlexilAppFramework
 
-SRC		:= UdpAdapter.cc udp-utils.cc
-INC		:= UdpAdapter.hh udp-utils.hh
+SRC		:= UdpAdapter.cc udp-utils.cc MessageQueueMap.cc
+INC		:= UdpAdapter.hh udp-utils.hh MessageQueueMap.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 

@@ -22,14 +22,17 @@
 namespace PLEXIL
 {
   // Constructor
-  //UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface) : InterfaceAdapter(execInterface)
-  //{
-  //  debugMsg("UdpAdapter::UdpAdapter(execInterface)", " called");
-  //}
+  UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface)
+    : InterfaceAdapter(execInterface),
+      m_messageQueues(execInterface)                                                                
+  {
+    debugMsg("UdpAdapter::UdpAdapter(execInterface)", " called");
+  }
 
   // Constructor
   UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, const TiXmlElement* xml)
-    : InterfaceAdapter(execInterface, xml)
+    : InterfaceAdapter(execInterface, xml),
+      m_messageQueues(execInterface)
   {
     assertTrue(xml != NULL, "XML config file not found in UdpAdapter::UdpAdapter constructor");
     debugMsg("UdpAdapter::UdpAdapter", " Using " << xml->Attribute("AdapterType"));
@@ -56,6 +59,7 @@ namespace PLEXIL
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(RECEIVE_UDP_MESSAGE_COMMAND()), getId());
+    m_execInterface.registerCommandInterface(LabelStr(RECEIVE_COMMAND_COMMAND()), getId());
     debugMsg("UdpAdapter::initialize", " done");
     return true;
   }
@@ -64,6 +68,7 @@ namespace PLEXIL
   bool UdpAdapter::start()
   {
     debugMsg("UdpAdapter::start()", " called");
+    // Start the UDP listener thread
     return true;
   }
 
@@ -71,6 +76,7 @@ namespace PLEXIL
   bool UdpAdapter::stop()
   {
     debugMsg("UdpAdapter::stop()", " called");
+    // Stop the UDP listener thread
     return true;
   }
 
@@ -129,13 +135,15 @@ namespace PLEXIL
   // Execute a Plexil Command
   void UdpAdapter::executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
   {
-    debugMsg("UdpAdapter::executeCommand", " " << name.toString() << ", dest==" << dest << ", ack==" << ack);
+    debugMsg("UdpAdapter::executeCommand", " " << name.toString() << " (dest==" << dest << ", ack==" << ack << ")");
     if (name == SEND_MESSAGE_COMMAND())
       executeSendMessageCommand(args, dest, ack);
     else if (name == SEND_UDP_MESSAGE_COMMAND())
       executeSendUdpMessageCommand(args, dest, ack);
     else if (name == RECEIVE_UDP_MESSAGE_COMMAND())
       executeReceiveUdpCommand(args, dest, ack);
+    else if (name == RECEIVE_COMMAND_COMMAND())
+      executeReceiveCommandCommand(args, dest, ack);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
@@ -156,6 +164,25 @@ namespace PLEXIL
   //
   // Implementation methods
   //
+
+  // RECEIVE_COMMAND_COMMAND
+  void UdpAdapter::executeReceiveCommandCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+  {
+    assertTrueMsg(args.size() == 1,
+                  "UdpAdapter: The " << RECEIVE_COMMAND_COMMAND().c_str() << " command requires exactly one argument");
+    assertTrueMsg(LabelStr::isString(args.front()),
+                  "UdpAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND().c_str()
+                  << " command, " << Expression::valueToString(args.front())
+                  << ", is not a string");
+    LabelStr command(formatMessageName(args.front(), RECEIVE_COMMAND_COMMAND()));
+    m_messageQueues.addRecipient(command, ack, dest);
+    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
+    m_execInterface.notifyOfExternalEvent();
+    // Set up the thread on which the message may/will eventually be received
+    int status = -1;
+    status = startUdpMessageReceiver(LabelStr(args.front()), dest, ack);
+    debugMsg("UdpAdapter::executeCommand", " message handler for \"" << command.c_str() << "\" registered.");
+  }
 
   // RECEIVE_UDP_MESSAGE_COMMAND
   void UdpAdapter::executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
@@ -216,8 +243,8 @@ namespace PLEXIL
     buildUdpBuffer(udp_buffer, msg->second, args, debug);
     // Send the buffer to the given host:port
     int status = -1;
-    status = publishUdpMessage(udp_buffer, msg->second, debug);
-    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " publishUdpMessage returned " << status << " (bytes sent)");
+    status = sendUdpMessage(udp_buffer, msg->second, debug);
+    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " sendUdpMessage returned " << status << " (bytes sent)");
     // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
     m_execInterface.notifyOfExternalEvent();
@@ -314,7 +341,7 @@ namespace PLEXIL
         m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
       }
   }
-  
+
   void UdpAdapter::printMessageDefinitions()
   { // print all of the stuff in m_message for debugging
     MessageMap::iterator msg;
@@ -331,16 +358,56 @@ namespace PLEXIL
             std::cout << " " << param->type;
             std::cout << " " << param->len << ",";
           }
-        std::cout << " length: " << msg->second.len;
+        std::cout << std::endl << "         length: " << msg->second.len;
         std::cout << ", host: " << msg->second.host << ", port: " << msg->second.port;
         std::cout << ", thread: " << msg->second.thread << std::endl;
       }
   }
 
-  int UdpAdapter::publishUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug)
+  int UdpAdapter::startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack)
+  {
+    debugMsg("UdpAdapter::startUdpMessageReceiver",
+             " entered for " << name.toString() << ", dest==" << dest << ", ack==" << ack);
+    // Find the message definition to get the message port and size
+    MessageMap::iterator msg;
+    msg=m_messages.find(name.c_str());
+    assertTrueMsg(msg != m_messages.end(),
+                  "UdpAdapter::startUdpMessageReceiver: no message found for " << name.c_str());
+    int port = msg->second.port;
+    size_t size = msg->second.len;
+    int status = 0; // return status
+    //debugMsg("UdpAdapter::startUdpMessageReceiver", " msg->second.thread==" << msg->second.thread);
+    assertTrueMsg(msg->second.thread == NULL,
+                  "UdpAdapter::startUdpMessageReceiver: thread is not NULL for " << name.c_str());
+    udp_thread_params params;
+    params.local_port = port;
+    params.buffer = new unsigned char[size];
+    params.size = size;
+    params.debug = true;
+    udp_thread_params* param_ptr = &params;
+    pthread_t thread_handle;
+    // debugMsg("UdpAdapter::startUdpMessageReceiver", " params: " << params.local_port << ", " << params.size);
+    // Finally, set up the receiver.  This needs to be wrapped in a further layer I think.
+    threadSpawn((THREAD_FUNC_PTR) wait_for_input_on_thread, param_ptr, thread_handle);
+    assertTrueMsg(thread_handle != NULL, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
+    msg->second.thread = thread_handle;
+    // XXXX, No, this isn't when to call this.  When the message is received down in the bowels is when...
+    // status = handleUdpMessage(msg->second, params.buffer, size, params.debug);
+    // delete[] params.buffer;
+    debugMsg("UdpAdapter::startUdpMessageReceiver", " for " << name.toString() << " done");
+    return status;
+  }
+
+  int UdpAdapter::handleUdpMessage()
+  {
+    debugMsg("UdpAdapter::handleUdpMessage", " called");
+    return 0;
+  }
+
+  int UdpAdapter::sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug)
   {
     int status = 0; // return status
-    debugMsg("UdpAdapter::publishUdpMessage", " sending " << msg.len << " bytes to " << msg.host << ":" << msg.port);
+    debugMsg("UdpAdapter::sendUdpMessage", " sending " << msg.len << " bytes to " << msg.host << ":" << msg.port);
     status = send_message_connect(msg.host.c_str(), msg.port, (const char*) buffer, msg.len, debug);
     return status;
   }
@@ -420,6 +487,35 @@ namespace PLEXIL
           }
       }
     std::cout << std::endl;
+  }
+
+  double UdpAdapter::formatMessageName(const LabelStr& name, const LabelStr& command, int id)
+  {
+    std::ostringstream ss;
+    if (command == RECEIVE_COMMAND_COMMAND())
+      {
+        ss << COMMAND_PREFIX() << name.toString();
+      }
+    else if (command == GET_PARAMETER_COMMAND())
+      {
+        ss << PARAM_PREFIX() << name.toString();
+      }
+    else
+      {
+        ss << name.getKey();
+      }
+    ss << '_' << id;
+    return LabelStr(ss.str()).getKey();
+  }
+
+  double UdpAdapter::formatMessageName(const LabelStr& name, const LabelStr& command)
+  {
+    return formatMessageName(name, command, 0);
+  }
+
+  double UdpAdapter::formatMessageName(const char* name, const LabelStr& command)
+  {
+    return formatMessageName(LabelStr(name), command, 0);
   }
 
 }

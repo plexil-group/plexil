@@ -4,7 +4,9 @@
 
 #include "InterfaceAdapter.hh"
 #include "LabelStr.hh"
+#include "MessageQueueMap.hh"
 #include "udp-utils.hh"
+#include "ThreadSpawn.hh"
 
 class TiXmlElement;             // Forward references (w/o namespace)
 
@@ -23,8 +25,8 @@ namespace PLEXIL
   public:
     std::string name;
     std::string type;
-    std::list<Parameter> parameters; // message parameters
-    std::list<double> variables; // internal Plexil variables (args)
+    std::list<Parameter> parameters; // message value parameters
+    std::list<double> variables;     // references to the internal Plexil variables
     int len;
     std::string host;
     int port;
@@ -39,12 +41,19 @@ namespace PLEXIL
   public:
     // Static Class Constants
 
+    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "__COMMAND__")
+    //DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "__MESSAGE__")
+    //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "__LOOKUP__")
+    //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "__LOOKUP_ON_CHANGE__")
+    DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "__PARAMETER__")
+    DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPERATOR, ":")
+
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
     DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_UDP_MESSAGE_COMMAND, "ReceiveUdpMessage")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
+    DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
+    DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
 
@@ -52,6 +61,7 @@ namespace PLEXIL
     //UdpAdapter(AdapterExecInterface& execInterface);
 
     // Constructor/Destructor
+    UdpAdapter(AdapterExecInterface& execInterface);
     UdpAdapter(AdapterExecInterface& execInterface, const TiXmlElement* xml);
     virtual ~UdpAdapter();
 
@@ -74,6 +84,7 @@ namespace PLEXIL
     int m_default_outgoing_port;
     int m_default_incoming_port;
     MessageMap m_messages;
+    MessageQueueMap m_messageQueues;
 
   private:
     // deliberately unimplemented
@@ -87,6 +98,7 @@ namespace PLEXIL
     void executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeReceiveCommandCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     //void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
    
     //
@@ -96,8 +108,13 @@ namespace PLEXIL
     void printMessageDefinitions();
     int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug=false);
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
-    int publishUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
-  };
+    int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
+    int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
+    int handleUdpMessage();
+    double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
+    double formatMessageName(const LabelStr& name, const LabelStr& command);
+    double formatMessageName(const char* name, const LabelStr& command);
+ };
 }
 
 extern "C"

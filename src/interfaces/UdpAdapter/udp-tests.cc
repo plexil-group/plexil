@@ -95,8 +95,8 @@ int main()
 
   encode_string("  This is yet another test  ", bytes1, 0);
 
-  input_params the_params = { 8031, bytes2, 32, true };
-  input_params* params = &the_params;
+  udp_thread_params the_params = { 8031, bytes2, 32, true };
+  udp_thread_params* params = &the_params;
 
   pthread_t thread_handle;
   threadSpawn((THREAD_FUNC_PTR) wait_for_input_on_thread, params, thread_handle);

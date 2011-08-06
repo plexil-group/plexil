@@ -239,7 +239,7 @@ namespace PLEXIL
     return bytes_sent;
   }
 
-  void wait_for_input_on_thread(input_params* params)
+  void wait_for_input_on_thread(udp_thread_params* params)
   {
     wait_for_input(params->local_port, params->buffer, params->size, params->debug);
   }
