@@ -52,9 +52,9 @@ namespace PLEXIL
     debugMsg("UdpAdapter::initialize", " called");
     // Parse the message definitions in the XML configuration
     const TiXmlElement* xml = this->getXml();
-    debugMsg("UdpAdapter::initialize", " xml = " << *xml);
+    // debugMsg("UdpAdapter::initialize", " xml = " << *xml);
     // parse the XML message definitions
-    parseMessageDefinitions(xml);
+    parseMessageDefinitions(xml); // also calls registerCommandInterface for each message
     //this->registerAdapter();
     //m_execInterface.defaultRegisterAdapter(getId());
     if (m_debug) printMessageDefinitions();
@@ -144,14 +144,16 @@ namespace PLEXIL
       executeSendMessageCommand(args, dest, ack);
     else if (name == SEND_UDP_MESSAGE_COMMAND())
       executeSendUdpMessageCommand(args, dest, ack);
-    else if (name == RECEIVE_UDP_MESSAGE_COMMAND())
+    else if (name == RECEIVE_UDP_MESSAGE_COMMAND()) // SendUdpCommand("cmd_name", arg1, ...); XXXX
       executeReceiveUdpCommand(args, dest, ack);
     else if (name == RECEIVE_COMMAND_COMMAND())
-      executeReceiveCommandCommand(args, dest, ack);
+      executeReceiveCommandCommand(args, dest, ack); // OnCommand cmd_name (arg1, ...); XXXX
     else if (name == GET_PARAMETER_COMMAND())
       executeGetParameterCommand(args, dest, ack);
     else if (name == SEND_RETURN_VALUE_COMMAND())
       executeSendReturnValueCommand(args, dest, ack);
+    else
+      executeDefaultCommand(name, args, dest, ack); // Command cmd_name (arg1, ...); XXXX
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
@@ -170,6 +172,30 @@ namespace PLEXIL
   // Implementation methods
   //
 
+  // Default UDP command handler
+  void UdpAdapter::executeDefaultCommand(const LabelStr& msgName, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+  {
+    debugMsg("UdpAdapter::executeDefaultCommand", " called for \"" << msgName.c_str() << "\" with " << args.size() << " args");
+    ThreadMutexGuard guard(m_cmdMutex);
+    MessageMap::iterator msg;
+    msg=m_messages.find(msgName.c_str());
+    // Set up the outgoing UDP buffer to be sent
+    int length = msg->second.len;
+    unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
+    memset((char*)udp_buffer, 0, length); // zero out the buffer
+    // Walk the parameters and encode them in the buffer to be sent out
+    buildUdpBuffer(udp_buffer, msg->second, args, false, m_debug);
+    // Send the buffer to the given host:port
+    int status = -1;
+    status = sendUdpMessage(udp_buffer, msg->second, m_debug);
+    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " sendUdpMessage returned " << status << " (bytes sent)");
+    // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
+    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
+    m_execInterface.notifyOfExternalEvent();
+    // Clean up some (one hopes)
+    delete udp_buffer;
+  }
+
   // RECEIVE_COMMAND_COMMAND
   void UdpAdapter::executeReceiveCommandCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
   {
@@ -186,7 +212,7 @@ namespace PLEXIL
     // Set up the thread on which the message may/will eventually be received
     int status = -1;
     status = startUdpMessageReceiver(LabelStr(args.front()), dest, ack);
-    debugMsg("UdpAdapter::executeCommand", " message handler for \"" << command.c_str() << "\" registered.");
+    debugMsg("UdpAdapter::executeReceiveCommandCommand", " message handler for \"" << command.c_str() << "\" registered.");
   }
 
   // RECEIVE_UDP_MESSAGE_COMMAND
@@ -289,7 +315,7 @@ namespace PLEXIL
     m_messageQueues.addRecipient(command, ack, dest);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("UdpAdapter::executeCommand", " message handler for \"" << command.c_str() << "\" registered.");
+    debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << command.c_str() << "\" registered.");
   }
 
   // SEND_RETURN_VALUE_COMMAND
@@ -377,6 +403,7 @@ namespace PLEXIL
             msg.parameters.push_back(arg);
           }
         m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
+        m_execInterface.registerCommandInterface(LabelStr(name), getId()); // register name with executeCommand
       }
   }
 
@@ -528,29 +555,31 @@ namespace PLEXIL
     return status;
   }
 
-  int UdpAdapter::buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug)
+  int UdpAdapter::buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args,
+                                 bool skip_arg, bool debug)
   {
     std::list<double>::const_iterator it;
     std::list<Parameter>::const_iterator param;
     int start_index = 0; // where in the buffer to write
     // Do what error checking we can, since we absolutely know that planners foul this up.
-    //debugMsg("UdpAdapter::buildUdpBuffer", " args.size()==" << args.size() << ", parameters.size()==" << msg.parameters.size());
-    assertTrueMsg((args.size() == 1 + msg.parameters.size()),
+    debugMsg("UdpAdapter::buildUdpBuffer", " args.size()==" << args.size() << ", parameters.size()==" << msg.parameters.size());
+    assertTrueMsg((args.size() == skip_arg ? 0 : 1 + msg.parameters.size()),
                   "the message definition given in the XML configuration file does not match the command used"
                   << " in the plan for <Message name=\"" << LabelStr(args.front()).c_str() << "\"/>");
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
     //for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(), it != args.end(); param++, it++)
-    for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++)
+    for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++, it++)
       {
-        it++; // Plexil adds the "command name" to the args of commands, so we must carefully skip it here XXXX
+        //it++; // Plexil adds the "command name" to the args of commands, so we must carefully skip it here XXXX
+        if (skip_arg) { it++; skip_arg = false; } // only skip the first arg
         int len = param->len;
         std::string type = param->type;
         double plexil_val = *it;
-        std::cout << "plexil_val: " << Expression::valueToString(plexil_val) << std::endl;
+        // if (debug) std::cout << "plexil_val: " << Expression::valueToString(plexil_val) << std::endl;
         // The parameter passed will be one of these two
         if (debug) std::cout << "  start_index: " << start_index << ", ";
         // Encode only 32 bit entities (i.e., no 64 bit reals/ints)
-        // XXXX need to look at len to do this correctly
+        // XXXX need to check min/max floats/ints for out of 32 bit range
         if (type.compare("int") == 0)
           {
             assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
@@ -562,9 +591,10 @@ namespace PLEXIL
           }
         else if (type.compare("float") == 0)
           {
+            float temp = plexil_val;
             assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
-            if (debug) std::cout << "float: " << plexil_val;
-            encode_float(plexil_val, buffer, start_index);
+            if (debug) std::cout << "float: " << temp;
+            encode_float(temp, buffer, start_index);
           }
         else if (type.compare("bool") == 0) // these are 64 bits in Plexil
           {

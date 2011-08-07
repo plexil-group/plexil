@@ -83,6 +83,7 @@ namespace PLEXIL
     // abort the given command with the given arguments.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
+    ThreadMutex m_cmdMutex;
     bool m_debug; // show debugging output
 
     // somewhere to hang the messages and default ports
@@ -106,13 +107,14 @@ namespace PLEXIL
     void executeReceiveCommandCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendReturnValueCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeDefaultCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
    
     //
     // XML Support
     //
     void parseMessageDefinitions(const TiXmlElement* xml);
     void printMessageDefinitions();
-    int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool debug=false);
+    int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool skip_arg=false, bool debug=false);
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
