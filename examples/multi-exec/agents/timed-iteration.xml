@@ -2,7 +2,7 @@
   <Adapter AdapterType="Utility"/>
   <Adapter AdapterType="UdpAdapter" default_incoming_port="9876" default_outgoing_port="8031">
     <Message type="outgoing" name="recv_test">
-      <Parameter type="string" length="9"/>
+      <Parameter type="string" length="4"/>
       <Parameter type="int" length="4"/>
       <Parameter type="float" length="4"/>
     </Message>

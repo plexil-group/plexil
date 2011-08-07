@@ -3,9 +3,10 @@
 
 test-send:
 {
-  Integer arg1 = 3;
-  Real arg2 = 0.01;
-  Command recv_test (arg1, arg2);
+  String arg1 = "KUFO";
+  Integer arg2 = 3;
+  Real arg3 = 3.14159;
+  Command recv_test (arg1, arg2, arg3);
 }
 
 // EOF
