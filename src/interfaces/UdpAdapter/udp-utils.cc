@@ -29,7 +29,7 @@ namespace PLEXIL
     return *(float *) y;
   }
 
-  int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed=true, bool debug=false)
+  int network_bytes_to_number(const unsigned char* buffer, int start_index, int total_bits, bool is_signed=true, bool debug)
   {
     int value = 0;
     int i = total_bits - 8;
@@ -47,7 +47,7 @@ namespace PLEXIL
     return value;
   }
 
-  void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug=false)
+  void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug)
   {
     int i = total_bits - 8;
     int cursor = start_index;
@@ -71,19 +71,19 @@ namespace PLEXIL
     number_to_network_bytes(htons(long_int), buffer, start_index, 16, false);
   }
 
-  long int decode_long_int(unsigned char* buffer, int start_index)
+  long int decode_long_int(const unsigned char* buffer, int start_index)
   // Decode a 32 bit integer from the network bytes in host byte order
   {
     long int temp;
-    temp = network_bytes_to_number(buffer, 0, 32, false, false);
+    temp = network_bytes_to_number(buffer, start_index, 32, false, false);
     return ntohl(temp);
   }
 
-  short int decode_short_int(unsigned char* buffer, int start_index)
+  short int decode_short_int(const unsigned char* buffer, int start_index)
   // Decode a 32 bit integer from the network bytes in host byte order
   {
     long int temp;
-    temp = network_bytes_to_number(buffer, 0, 16, false, false);
+    temp = network_bytes_to_number(buffer, start_index, 16, false, false);
     return ntohs(temp);
   }
 
@@ -94,7 +94,7 @@ namespace PLEXIL
     number_to_network_bytes(temp, buffer, start_index, 32, false);
   }
 
-  float decode_float(unsigned char* buffer, int start_index)
+  float decode_float(const unsigned char* buffer, int start_index)
   // Decode a 32 bit float from network byte order
   {
     // ntohl called in decode_long_int
@@ -108,7 +108,7 @@ namespace PLEXIL
     str.copy((char*)&buffer[start_index], str.length(), 0);
   }
 
-  std::string decode_string(unsigned char* buffer, int start_index, int length)
+  std::string decode_string(const unsigned char* buffer, int start_index, int length)
   {
     // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
     std::string str;
@@ -121,7 +121,7 @@ namespace PLEXIL
     return str;
   }
 
-  void print_buffer(unsigned char* buffer, int bytes, bool fancy)
+  void print_buffer(const unsigned char* buffer, int bytes, bool fancy)
   {
     printf("#(");
     for (int i = 0 ; i < bytes ; i++)

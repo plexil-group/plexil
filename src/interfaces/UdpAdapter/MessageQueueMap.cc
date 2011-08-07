@@ -98,7 +98,7 @@ void MessageQueueMap::addMessage(const LabelStr& message) {
     pq->m_messageQueue.clear();
   pq->m_messageQueue.push_back(message.getKey());
   updateQueue( pq);
-  debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
+  debugMsg("MessageQueueMap:addMessage", " Message \"" << pq->m_name.c_str() << "\" added");
 }
 
 /**
@@ -115,7 +115,7 @@ void MessageQueueMap::addMessage(const LabelStr& message, double param) {
   pq->m_messageQueue.push_back(param);
   updateQueue( pq);
   debugMsg("MessageQueueMap:addMessage",
-	   "Message \"" << pq->m_name.c_str() << "\" added, value = " << Expression::valueToString(param));
+	   " Message \"" << pq->m_name.c_str() << "\" added, value = \"" << Expression::valueToString(param) << "\"");
 }
 
 /**

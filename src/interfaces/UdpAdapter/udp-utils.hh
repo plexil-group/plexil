@@ -17,7 +17,6 @@ namespace PLEXIL
     unsigned char* buffer;
     size_t size;
     bool debug;
-    void* self;
   };
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
@@ -27,18 +26,18 @@ namespace PLEXIL
 
   long int float_to_long_int (float num);
   float long_int_to_float (long int num);
-  int network_bytes_to_number(unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug);
-  void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug);
+  int network_bytes_to_number(const unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug=false);
+  void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug=false);
   void encode_long_int(long int num, unsigned char* buffer, int start_index);
   void encode_short_int(long int num, unsigned char* buffer, int start_index);
-  long int decode_long_int(unsigned char* buffer, int start_index);
-  short int decode_short_int(unsigned char* buffer, int start_index);
+  long int decode_long_int(const unsigned char* buffer, int start_index);
+  short int decode_short_int(const unsigned char* buffer, int start_index);
   void encode_float(float num, unsigned char* buffer, int start_index);
-  float decode_float(unsigned char* buffer, int start_index);
+  float decode_float(const unsigned char* buffer, int start_index);
   void encode_string(const std::string str, unsigned char* buffer, int start_index);
-  std::string decode_string(unsigned char* buffer, int start_index, int length);
+  std::string decode_string(const unsigned char* buffer, int start_index, int length);
   int udp_tests(void);
-  void print_buffer(unsigned char* buffer, int bytes, bool fancy=false);
+  void print_buffer(const unsigned char* buffer, int bytes, bool fancy=false);
   //void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
 }
 

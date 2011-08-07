@@ -34,7 +34,7 @@ namespace PLEXIL
     int port;
     //pthread_t thread; // thread doesn't make sense -- one definition, many messages
     void* self;
-    UdpMessage() : name(""), type(""), parameters(), len(0), host(""), port(0), self(NULL) {}
+    UdpMessage() : name(), type(""), parameters(), len(0), host(""), port(0), self(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
@@ -57,7 +57,7 @@ namespace PLEXIL
     //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
     DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
     DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
+    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
 
     // Constructor
@@ -83,6 +83,8 @@ namespace PLEXIL
     // abort the given command with the given arguments.  store the abort-complete into ack
     void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
+    bool m_debug; // show debugging output
+
     // somewhere to hang the messages and default ports
     int m_default_outgoing_port;
     int m_default_incoming_port;
@@ -102,7 +104,8 @@ namespace PLEXIL
     void executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeReceiveCommandCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    //void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeSendReturnValueCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
    
     //
     // XML Support
@@ -113,9 +116,8 @@ namespace PLEXIL
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
-    //static void* waitForUdpMessage(udp_thread_params* params);
-    static void* waitForUdpMessage(UdpMessage* msg);
-    int handleUdpMessage();
+    static void* waitForUdpMessage(const UdpMessage* msg);
+    int handleUdpMessage(const UdpMessage* msg, const unsigned char* buffer, bool debug=false);
     double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
     double formatMessageName(const LabelStr& name, const LabelStr& command);
     double formatMessageName(const char* name, const LabelStr& command);
