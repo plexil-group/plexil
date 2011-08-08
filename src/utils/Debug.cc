@@ -49,6 +49,8 @@
 #include <algorithm>
 #include <functional>
 
+using std::string;
+
 /**
  * @class DebugConfig
  * @brief Used to perform default allocation, based on 'Debug.cfg'.
@@ -74,16 +76,16 @@ private:
   }
 };
 
-DebugMessage::DebugMessage(const std::string& file,
+DebugMessage::DebugMessage(const string& file,
                            const int& line,
-                           const std::string& marker,
+                           const string& marker,
                            const bool& enabled)
   : m_file(file), m_line(line), m_marker(marker),
     m_enabled(enabled) {
 }
 
-DebugMessage *DebugMessage::addMsg(const std::string &file, const int& line,
-                                   const std::string &marker) {
+DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
+                                   const string &marker) {
   DebugConfig::init();
   check_error(line > 0, "debug messages must have positive line numbers",
               DebugErr::DebugMessageError());
@@ -107,8 +109,8 @@ DebugMessage *DebugMessage::addMsg(const std::string &file, const int& line,
   return(msg);
 }
 
-DebugMessage *DebugMessage::findMsg(const std::string &file,
-                                    const std::string &pattern) {
+DebugMessage *DebugMessage::findMsg(const string &file,
+                                    const string &pattern) {
   typedef std::list<DebugMessage*>::const_iterator LDMPCI;
   LDMPCI iter = std::find_if(allMsgs().begin(),
                              allMsgs().end(),
@@ -118,8 +120,8 @@ DebugMessage *DebugMessage::findMsg(const std::string &file,
   return(*iter);
 }
 
-void DebugMessage::findMatchingMsgs(const std::string &file,
-                                    const std::string &pattern,
+void DebugMessage::findMatchingMsgs(const string &file,
+                                    const string &pattern,
                                     std::list<DebugMessage*> &matches) {
   std::for_each(allMsgs().begin(), allMsgs().end(), GetMatches(file, pattern, matches));
 }
@@ -136,8 +138,8 @@ void DebugMessage::enableAll() {
                 std::mem_fun(&DebugMessage::enable));
 }
 
-void DebugMessage::enableMatchingMsgs(const std::string& file,
-                                      const std::string& pattern) {
+void DebugMessage::enableMatchingMsgs(const string& file,
+                                      const string& pattern) {
   if (file.length() < 1 && pattern.length() < 1) {
     enableAll();
     return;
@@ -149,8 +151,8 @@ void DebugMessage::enableMatchingMsgs(const std::string& file,
                 EnableMatches(dp));
 }
 
-void DebugMessage::disableMatchingMsgs(const std::string& file,
-				       const std::string& pattern) {
+void DebugMessage::disableMatchingMsgs(const string& file,
+				       const string& pattern) {
   if(file.length() < 1 && pattern.length() < 1)
     return;
 
@@ -161,37 +163,50 @@ void DebugMessage::disableMatchingMsgs(const std::string& file,
 		DisableMatches(dp));
 }
 
-bool DebugMessage::readConfigFile(std::istream& is) {
+bool DebugMessage::readConfigFile(std::istream& is)
+{
+  static const string sl_whitespace(" \f\n\r\t\v");
+  static const string sl_comment(";#/");
+
   check_error(is.good(), "cannot read debug config from invalid/error'd stream",
               DebugErr::DebugConfigError());
-  std::string input;
+
+  string input;
   while (is.good() && !is.eof()) {
     getline(is, input);
     if (input.empty())
       continue;
-    std::string::size_type i = 0;
-    std::string::size_type len = input.length();
-    while (i < len && isspace(input[i]))
-      i++;
-    if (input[i] == ';' || input[i] == '#' || input[i] == '/')
-      continue; // input is a comment
-    input = input.substr(i); // after white space
-    i = input.find_first_of(";#/");
-    input = input.substr(0, i); // chop off comment
-    i = input.length();
-    while (i > 0 && isspace(input[i - 1]))
-      --i;
-    if (i <= 0)
-      continue; // should be impossible
-    input = input.substr(0, i);
-    i = input.find(":");
-    std::string pattern;
-    if (i < input.length() && input[i] == ':') {
-      pattern = input.substr(i + 1);
-      input = input.substr(0, i);
+    string::size_type len = input.length();
+
+	// Find leftmost non-blank character
+    string::size_type left = input.find_first_not_of(sl_whitespace);
+	if (left == string::npos)
+	  continue; // line is all whitespace
+
+	// Find trailing comment, if any
+	string::size_type comment = input.find_first_of(sl_comment, left);
+	if (comment == left)
+	  continue; // line is a comment
+
+	// Trim whitespace before comment
+	if (comment != string::npos)
+	  comment--; // start search just before comment
+	string::size_type right = input.find_last_not_of(sl_whitespace, comment);
+	right++; // point just past last non-blank char
+
+	string::size_type colon = input.find(":", left);
+	string content;
+    string pattern;
+	if (colon == string::npos || colon > right) {
+	  content = input.substr(left, right - left);
+	}
+	else {
+	  content = input.substr(left, colon - left);
+      pattern = input.substr(colon + 1, right - colon - 1);
     }
-    enableMatchingMsgs(input, pattern);
+    enableMatchingMsgs(content, pattern);
   }
+
   check_error(is.eof(), "error while reading debug config file",
               DebugErr::DebugConfigError());
   return(is.eof());
