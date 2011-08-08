@@ -54,7 +54,7 @@ namespace PLEXIL
     const TiXmlElement* xml = this->getXml();
     // debugMsg("UdpAdapter::initialize", " xml = " << *xml);
     // parse the XML message definitions
-    parseMessageDefinitions(xml); // also calls registerCommandInterface for each message
+    parseXmlMessageDefinitions(xml); // also calls registerCommandInterface for each message
     //this->registerAdapter();
     //m_execInterface.defaultRegisterAdapter(getId());
     if (m_debug) printMessageDefinitions();
@@ -179,6 +179,9 @@ namespace PLEXIL
     ThreadMutexGuard guard(m_cmdMutex);
     MessageMap::iterator msg;
     msg=m_messages.find(msgName.c_str());
+    // Check for an obviously bogus port
+    assertTrueMsg(msg->second.peer_port != 0,
+                  "executeDefaultCommand: bad peer port (0) given for " << msgName.c_str() << " message");
     // Set up the outgoing UDP buffer to be sent
     int length = msg->second.len;
     unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
@@ -230,26 +233,6 @@ namespace PLEXIL
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered.");
-    // Set up the expectation (dest) for the message on which this node is waiting
-    //MessageMap::iterator msg;
-    //msg=m_messages.find(msgName.c_str()); // get the appropriate message definition
-    //assertTrueMsg((msg->second.parameters.size()==1+args.size()), "executeReceiveUdpMessageCommand, parameters and args do not"
-    //              << " match, parameters.size()==" << msg->second.parameters.size() << ", args.size()==" << args.size());
-    // Record the variables that will be filled in when this message is received XXXX
-    //std::list<double>::const_iterator it;
-    //std::cout << "  args:";
-    //for(it = args.begin() ; it != args.end() ; it++) // skip the message name
-    //  {
-    //    msg->second.variables.push_back(*it);
-    //    std::cout << " " << Expression::valueToString(*it);
-    //  }
-    //std::cout << std::endl;
-    // Set up the listener for this message.  Once set up, the listener will call handleValueChange
-    // and notifyOfExternalEvent event if/when the expected message (and its parameters) is received.
-
-    // dest==noId is correct -- dest is only used for a return value!
-    // the args list is also correct -- I have to keep the list around and reset their values with
-    // the message parameters (I think)
   }
 
   // SEND_UDP_MESSAGE_COMMAND
@@ -347,58 +330,105 @@ namespace PLEXIL
   // XML Support
   //
 
-  void UdpAdapter::parseMessageDefinitions(const TiXmlElement* xml)
-  { // Walk this <Message/> element
+  void UdpAdapter::parseXmlMessageDefinitions(const TiXmlElement* xml)
+  // Parse and verify the given Adapter configuration
+  {
     m_messages.clear();         // clear the old messages (if any)
-    const char* default_incoming_port = NULL;
-    const char* default_outgoing_port = NULL;
-    default_incoming_port = xml->Attribute("default_incoming_port");
-    default_outgoing_port = xml->Attribute("default_outgoing_port");
-    if ( default_incoming_port ) m_default_incoming_port = atoi(default_incoming_port);
-    if ( default_outgoing_port ) m_default_outgoing_port = atoi(default_outgoing_port);
+    const char* default_local_port = NULL;
+    const char* default_peer_port = NULL;
+    default_local_port = xml->Attribute("default_local_port");
+    default_peer_port = xml->Attribute("default_peer_port");
+    if (default_local_port) m_default_local_port = atoi(default_local_port);
+    if (default_peer_port) m_default_peer_port = atoi(default_peer_port);
     for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
       {
         UdpMessage msg;
-        std::string name;
-        std::string type;        // was: const char* type = NULL; std::string works with "+" below, c strings don't.
-        const char* host = NULL; // needed for bool test below
-        const char* port = NULL; // needed for bool test below
+        //std::string name;        // the Plexil command name
+        const char* name = NULL;       // the Plexil command name
+        const char* peer = NULL;       // needed for bool test below
+        const char* local_port = NULL; // needed for bool test below
+        const char* peer_port = NULL;
         const char* len = NULL;
-        msg.name = name = child->Attribute("name"); // for debugging message below
-        msg.type = type = child->Attribute("type"); // for debugging message below
-        host = child->Attribute("host");
-        port = child->Attribute("port");
-        // must be either incoming or outgoing
-        assertTrue((type=="outgoing" || type=="incoming"),
-                   "type '" + type + "' is not one of 'incoming' or 'outgoing' in <Message name=\"" + name + "\"/>");
-        msg.host = host ? host : "localhost";   // record the host given or a default
-        // use either the given port, the (appropriate) default port, or singal an error
-        if (type=="incoming")
-          {
-            assertTrue((default_incoming_port || port),
-                       "No port given, and no default port for incoming <Message name=\"" + name + "\"/>");
-          }
-        else
-          {
-            assertTrue((default_outgoing_port || port),
-                       "No port given, and no default port for outgoing <Message name=\"" + name + "\"/>");
-          }
-        msg.port = port ? atoi(port) : (type=="incoming") ? m_default_incoming_port : m_default_outgoing_port;
-        if ( port ) msg.port = atoi(port); // record the port if there is one
+        name = child->Attribute("name"); // name is required
+        assertTrueMsg(name, "parseXmlMessageDefinitions: no name given in <Message/>");
+        //msg.name = name = child->Attribute("name"); // for debugging message below
+        msg.name = name;
+        //msg.type = type = child->Attribute("type"); // for debugging message below
+        peer = child->Attribute("peer");
+        local_port = child->Attribute("local_port");
+        peer_port = child->Attribute("peer_port");
+        msg.peer = peer ? peer : "localhost";   // record the host given or a default
+        // Check for either the given port or the (appropriate) default port, or singal an error
+        //assertTrueMsg((default_local_port || local_port || default_peer_port || peer_port),
+        //              "parseXmlMessageDefinitions: no local or peer ports given for <Message name=\""
+        //              << name.c_str() << "\"/>");
+        // Warn about possible run time errors (planners may simply not use a message I suppose)
+        if (!(default_local_port || local_port))
+          std::cout << "Warning: no default or message specific local port given for <Message name=\""
+                    << name << "\"/>\n         this will cause a run time error if " 
+                    << name << "is called to send an outgoing command/message\n";
+        if (!(default_peer_port || peer_port))
+          std::cout << "Warning: no default or message specific peer port given for <Message name=\""
+                    << name << "\"/>\n         this will cause a run time error if " 
+                    << name << "is called to receive an incoming command/message\n";
+        msg.local_port = local_port ? atoi(local_port) : m_default_local_port;
+        msg.peer_port = peer_port ? atoi(peer_port) : m_default_peer_port;
         // Walk the <Parameter/> elements of this <Message/>, if any
         for (const TiXmlElement* param = child->FirstChildElement(); param != NULL; param = param->NextSiblingElement())
           {
             Parameter arg;
-            const char* param_name = NULL;
-            param_name = param->Attribute("name");
-            // what about strings? -- fixed length to start with I guess
-            len = param->Attribute("length");
-            assertTrue((len), "No parameter length given in <Message name=\"" + name + "\"/>");
+            const char* param_desc = NULL;
+            const char* param_type = NULL;
+            // const char* param_text = NULL;
+            // param_text = param->GetText();
+            // if (param_text) printf("\n\nparam_text: %s\n\n", param_text);
+            // Get the description (it is exists)
+            param_desc = param->Attribute("desc");
+            if (param_desc) arg.desc = param_desc; // only assign it if it exists
+            // Get the type, which is required
+            param_type = param->Attribute("type");
+            assertTrueMsg(param_type, "parseXmlMessageDefinitions: no type for parameter given in <Message name=\""
+                          << name << "\"/>");
+            arg.type = param_type;
+            // Get the length, which is required
+            len = param->Attribute("bytes");
+            assertTrueMsg(len, "parseXmlMessageDefinitions: no parameter length (in bytes) given in <Message name=\""
+                          << name << "\"/>");
             arg.len = atoi(len);
-            assertTrue((arg.len > 0), "Zero length parameter given in <Message name=\"" + name + "\"/>");
-            if (param_name) arg.name = param_name; // only assign it if it exists
-            arg.type = param->Attribute("type");
-            // XXXX Error checking needed to enforce types and lengths!
+            assertTrueMsg((arg.len > 0),
+                          "parseXmlMessageDefinitions: zero length (in bytes) parameter given in <Message name=\""
+                          << name << "\"/>");
+            // Do some error checking for reasonble/usable encoding/decoding byte lengths
+            if (arg.type.compare("int") == 0)
+              {
+                assertTrueMsg((arg.len==2 || arg.len==4),
+                              "parseXmlMessageDefinitions: integers must be 2 or 4 bytes, not " << arg.len
+                              << " (in <Message name=\"" << name << "\"/>)");
+              }
+            else if (arg.type.compare("float") == 0)
+              {
+                assertTrueMsg((arg.len==2 || arg.len==4),
+                              "parseXmlMessageDefinitions: floats must be 2 or 4 bytes, not " << arg.len
+                              << " (in <Message name=\"" << name << "\"/>)");
+              }
+            else if (arg.type.compare("bool") == 0)
+              {
+                assertTrueMsg((arg.len==1 || arg.len==2 || arg.len==4),
+                              "parseXmlMessageDefinitions: bools must be 1, 2 or 4 bytes, not " << arg.len
+                              << " (in <Message name=\"" << name << "\"/>)");
+              }
+            // what about strings? -- fixed length to start with I suppose...
+            else if (arg.type.compare("string") == 0)
+              {
+                assertTrueMsg(arg.len>=1,
+                              "parseXmlMessageDefinitions: floats must be 1 byte or longer (in <Message name=\""
+                              << name << "\"/>)");
+              }
+            else
+              {
+                assertTrueMsg(0, "parseXmlMessageDefinitions: unknown parameter type \"" << arg.type
+                              << "\" (in <Message name=\"" << name << "\"/>)");
+              }
             msg.len += arg.len;
             msg.parameters.push_back(arg);
           }
@@ -411,20 +441,20 @@ namespace PLEXIL
   {
     // print all of the stuff in m_message for debugging
     MessageMap::iterator msg;
-    for (msg=m_messages.begin(); msg != m_messages.end(); msg++)
+    int i = 0;
+    for (msg=m_messages.begin(); msg != m_messages.end(); msg++, i++)
       {
         std::cout << "Message: " << msg->first;
-        std::cout << " (" << msg->second.type << ")";
         std::list<Parameter>::iterator param;
-        std::cout << ", Parameters:";
         for (param=msg->second.parameters.begin(); param != msg->second.parameters.end(); param++)
           {
-            std::cout << " \"" << param->name << "\"";
-            std::cout << " " << param->type;
-            std::cout << " " << param->len << ",";
+            std::string temp = param->desc.empty() ? "(no description)" :  param->desc;
+            std::cout << "\n         ";
+            std::cout << param->len << " byte " << param->type << " " << temp;
           }
-        std::cout << std::endl << "         length: " << msg->second.len;
-        std::cout << ", host: " << msg->second.host << ", port: " << msg->second.port;
+        std::cout << std::endl << "         length: " << msg->second.len << " (bytes)";
+        std::cout << ", peer: " << msg->second.peer << ", peer_port: " << msg->second.peer_port;
+        std::cout << ", local_port: " << msg->second.local_port;
         std::cout << std::endl;
       }
   }
@@ -439,8 +469,9 @@ namespace PLEXIL
     msg=m_messages.find(name.c_str());
     assertTrueMsg(msg != m_messages.end(),
                   "UdpAdapter::startUdpMessageReceiver: no message found for " << name.c_str());
-    //assertTrueMsg(msg->second.thread == NULL,
-    //              "UdpAdapter::startUdpMessageReceiver: thread is not NULL for " << name.c_str());
+    // Check for a bogus local port
+    assertTrueMsg(msg->second.local_port != 0,
+                  "startUdpMessageReceiver: bad local port (0) given for " << name.c_str() << " message");
     msg->second.name = name.c_str();
     msg->second.self = (void*) this; // pass a reference to "this" UdpAdapter for later use
     pthread_t thread_handle;
@@ -458,10 +489,10 @@ namespace PLEXIL
     debugMsg("UdpAdapter::waitForUdpMessage", " called for " << msg->name);
     // A pointer to the adapter
     UdpAdapter* udpAdapter = reinterpret_cast<UdpAdapter*>(msg->self);
-    int port = msg->port;
+    int local_port = msg->local_port;
     size_t size = msg->len;
     udp_thread_params params;
-    params.local_port = port;
+    params.local_port = local_port;
     params.buffer = new unsigned char[size];
     params.size = size;
     params.debug = udpAdapter->m_debug; // see if debugging is enabled
@@ -550,8 +581,8 @@ namespace PLEXIL
   int UdpAdapter::sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug)
   {
     int status = 0; // return status
-    debugMsg("UdpAdapter::sendUdpMessage", " sending " << msg.len << " bytes to " << msg.host << ":" << msg.port);
-    status = send_message_connect(msg.host.c_str(), msg.port, (const char*) buffer, msg.len, debug);
+    debugMsg("UdpAdapter::sendUdpMessage", " sending " << msg.len << " bytes to " << msg.peer << ":" << msg.peer_port);
+    status = send_message_connect(msg.peer.c_str(), msg.peer_port, (const char*) buffer, msg.len, debug);
     return status;
   }
 

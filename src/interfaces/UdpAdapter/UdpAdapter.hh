@@ -17,24 +17,22 @@ namespace PLEXIL
   class Parameter
   {
   public:
-    std::string name;
-    std::string type;
+    std::string desc;           // optional parameter description
+    std::string type;           // int|float|bool|string
     int len;                    // 0 == variable length (i.e., char[])
   };
 
   class UdpMessage
   {
   public:
-    std::string name;
-    std::string type;
+    std::string name;                // the Plexil Command name
+    int len;                         // the length of the message in bytes
     std::list<Parameter> parameters; // message value parameters
-    //std::list<double> variables;     // references to the internal Plexil variables
-    int len;
-    std::string host;
-    int port;
-    //pthread_t thread; // thread doesn't make sense -- one definition, many messages
-    void* self;
-    UdpMessage() : name(), type(""), parameters(), len(0), host(""), port(0), self(NULL) {}
+    int local_port;                  // local port on which to receive
+    std::string peer;                // peer to which to send
+    int peer_port;                   // port to which to send
+    void* self;                      // reference to the UdpAdapter for use in message decoding
+    UdpMessage() : name(), len(0), parameters(), peer(""), local_port(0), peer_port(0), self(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
@@ -87,8 +85,8 @@ namespace PLEXIL
     bool m_debug; // show debugging output
 
     // somewhere to hang the messages and default ports
-    int m_default_outgoing_port;
-    int m_default_incoming_port;
+    int m_default_peer_port;
+    int m_default_local_port;
     MessageMap m_messages;
     MessageQueueMap m_messageQueues;
 
@@ -112,7 +110,7 @@ namespace PLEXIL
     //
     // XML Support
     //
-    void parseMessageDefinitions(const TiXmlElement* xml);
+    void parseXmlMessageDefinitions(const TiXmlElement* xml);
     void printMessageDefinitions();
     int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool skip_arg=false, bool debug=false);
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
