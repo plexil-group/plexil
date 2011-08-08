@@ -392,11 +392,10 @@ namespace PLEXIL
 
 	  // establish value type
 	  const string& tag = xml->ValueStr();
-	  const string typnam = tag.substr(0, tag.size() - VAL_TAG.size());
-	  PlexilType typ = PlexilParser::parseValueType(typnam);
+	  PlexilType typ = PlexilParser::parseValueTypePrefix(tag, tag.size() - VAL_TAG.size());
 	  checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
 									   xml,
-									   "Unrecognized value type name \"" << typnam << "\"");
+									   "Unrecognized value type \"" << tag << "\"");
 
 	  // check for empty value
 	  if (xml->FirstChild() == NULL || xml->FirstChild()->Value() == NULL) {
@@ -471,11 +470,10 @@ namespace PLEXIL
 	  checkTagSuffix(VAR_TAG, xml);
 	  checkNotEmpty(xml);
 	  const string& tag = xml->ValueStr();
-	  const string typnam = tag.substr(0, tag.size() - VAR_TAG.size());
-	  PlexilType typ = PlexilParser::parseValueType(typnam);
+	  PlexilType typ = PlexilParser::parseValueTypePrefix(tag, tag.size() - VAR_TAG.size());
 	  checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
 									   xml,
-									   "Unknown variable type \"" << typnam << "\"");
+									   "Unknown variable type \"" << tag << "\"");
 
 	  PlexilVarRef* retval = new PlexilVarRef();
 	  retval->setName(xml->FirstChild()->ValueStr());
@@ -1135,7 +1133,7 @@ namespace PLEXIL
 	child = child->NextSiblingElement();
 	checkTag(TYPE_TAG, child);
 	const string& typnam = child->FirstChild()->ValueStr();
-	PlexilType typ = PlexilParser::parseValueType(typnam);
+	PlexilType typ = parseValueType(typnam);
 	checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
 									 child->FirstChild(),
 									 "Unknown type name \"" << typnam << "\"");
@@ -1161,11 +1159,10 @@ namespace PLEXIL
 	  do {
 		checkTagSuffix(VAL_TAG, child);
 		const string& initValTag = child->ValueStr();
-		string initValType = initValTag.substr(0, initValTag.size() - VAL_TAG.size());
-		checkParserExceptionWithLocation(typnam == initValType,
+		checkParserExceptionWithLocation(0 == initValTag.compare(0, initValTag.size() - VAL_TAG.size(), typnam),
 										 child,
 										 "XML parsing error: Initial value of " << typnam << " array variable \'" <<
-										 name << "\' of incorrect type \'" << initValType << "\'");
+										 name << "\' of incorrect type \'" << initValTag << "\'");
 		const string& initVal = child->FirstChild()->ValueStr();
 		initVals.push_back(initVal);
 		debugMsg("PlexilXmlParser:parseArrayDeclaration",
@@ -1203,7 +1200,7 @@ namespace PLEXIL
 	child = child->NextSiblingElement();
 	checkTag(TYPE_TAG, child);
 	const string& typnam = child->FirstChild()->ValueStr();
-	PlexilType typ = PlexilParser::parseValueType(typnam);
+	PlexilType typ = parseValueType(typnam);
 	checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
 									 child->FirstChild(),
 									 "Unknown type name \"" << typnam << "\"");
@@ -1215,12 +1212,10 @@ namespace PLEXIL
 	  child = child->FirstChildElement();
 	  checkTagSuffix(VAL_TAG, child);
 	  const string& initValTag = child->ValueStr();
-	  string initValType = initValTag.substr(0, initValTag.size() - VAL_TAG.size());
-	  checkParserExceptionWithLocation(typnam == initValType,
+	  checkParserExceptionWithLocation(0 == initValTag.compare(0, initValTag.size() - VAL_TAG.size(), typnam),
 									   child,
 									   "XML parsing error: Initial value of " << typnam << " variable \'" <<
-									   name << "\' of incorrect type \'" <<
-									   initValType << "\'");
+									   name << "\' of incorrect type \'" << initValTag << "\'");
 	  return new PlexilVar(name, typ, child->FirstChild()->ValueStr());
 	}
 
@@ -1602,7 +1597,7 @@ namespace PLEXIL
 	TiXmlElement* name = namedTextElement(NAME_TAG, var->name());
 	retval->LinkEndChild(name);
 	TiXmlElement* type = namedTextElement(TYPE_TAG,
-										  PlexilParser::valueTypeString(var->type()));
+										  valueTypeString(var->type()));
 	retval->LinkEndChild(type);
 
 	if (var->isArray()) {
@@ -1614,7 +1609,7 @@ namespace PLEXIL
 
 	  // initial values
 	  TiXmlElement* vals = element(INITIALVAL_TAG);
-	  string valueTag = PlexilParser::valueTypeString(arrayVar->type())
+	  string valueTag = valueTypeString(arrayVar->type())
 		+ VAL_TAG;
 	  const std::vector<string>& values =
 		((PlexilArrayValue *) arrayVar->value())->values();
@@ -1704,8 +1699,7 @@ namespace PLEXIL
 	throw(ParserException) {
 	if (Id<PlexilInternalVar>::convertable(ref->getId()))
 	  return PlexilXmlParser::toXml((PlexilInternalVar*) ref);
-	return namedTextElement((ref->typed() ? PlexilParser::valueTypeString(
-																		  ref->type()) + VAR_TAG : VAR_TAG), ref->name());
+	return namedTextElement((ref->typed() ? valueTypeString(ref->type()) + VAR_TAG : VAR_TAG), ref->name());
   }
 
   TiXmlElement* PlexilXmlParser::toXml(const PlexilOp* op) throw(ParserException) {
@@ -1740,7 +1734,7 @@ namespace PLEXIL
 
   TiXmlElement* PlexilXmlParser::toXml(const PlexilValue* val)
 	throw(ParserException) {
-	return namedTextElement(PlexilParser::valueTypeString(val->type())
+	return namedTextElement(valueTypeString(val->type())
 							+ VAL_TAG, val->value());
   }
 
