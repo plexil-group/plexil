@@ -114,7 +114,13 @@ namespace PLEXIL {
     static PlexilNodeType parseNodeType(const std::string & typeName);
     static const std::string& nodeTypeString(PlexilNodeType nodeType);
 
-    static PlexilType parseValueType(const std::string& typeStr);
+
+	static PlexilType parseValueTypePrefix(const std::string & str, 
+										   std::string::size_type prefixLen);
+    inline static PlexilType parseValueType(const std::string& typeStr)
+	{
+	  return parseValueTypePrefix(typeStr, typeStr.length());
+	}
     static const std::string& valueTypeString(const PlexilType& type);
 
   private:

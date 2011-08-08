@@ -94,33 +94,65 @@ namespace PLEXIL {
     return *errorReturn;
   }
 
-  PlexilType PlexilParser::parseValueType(const std::string & str)
+  PlexilType
+  PlexilParser::parseValueTypePrefix(const std::string & str, 
+									 std::string::size_type prefixLen)
   {
-    if (str == INTEGER_STR())
-      return PLEXIL::INTEGER;
-    if (str == REAL_STR())
-      return PLEXIL::REAL;
-    if (str == BOOL_STR())
-      return PLEXIL::BOOLEAN;
-    if (str == BLOB_STR())
-      return PLEXIL::BLOB;
-    if (str == ARRAY_STR())
-      return PLEXIL::ARRAY;
-    if (str == STRING_STR())
-      return PLEXIL::STRING;
-    if (str == TIME_STR())
-      return PLEXIL::TIME;
-    if (str == NODE_STATE_STR())
-      return PLEXIL::NODE_STATE;
-    if (str == NODE_OUTCOME_STR())
-      return PLEXIL::NODE_OUTCOME;
-    if (str == NODE_FAILURE_STR())
-      return PLEXIL::FAILURE_TYPE;
-    if (str == NODE_COMMAND_HANDLE_STR())
-      return PLEXIL::COMMAND_HANDLE;
+	switch (prefixLen) {
+	case 4: 
+	  if (0 == str.compare(0, prefixLen, REAL_STR()))
+		return PLEXIL::REAL;
+	  else if (0 == str.compare(0, prefixLen, TIME_STR()))
+		return PLEXIL::TIME;
+	  else if (0 == str.compare(0, prefixLen, BLOB_STR()))
+		return PLEXIL::BLOB;
+	  else 
+		return PLEXIL::UNKNOWN_TYPE;
+
+	case 5:
+	  if (0 == str.compare(0, prefixLen, ARRAY_STR()))
+		return PLEXIL::ARRAY;
+	  else
+		return PLEXIL::UNKNOWN_TYPE;
+
+	case 6:
+	  if (0 == str.compare(0, prefixLen, STRING_STR()))
+		return PLEXIL::STRING;
+	  else
+		return PLEXIL::UNKNOWN_TYPE;
+
+	case 7:
+	  if (0 == str.compare(0, prefixLen, INTEGER_STR()))
+		return PLEXIL::INTEGER;
+	  else if (0 == str.compare(0, prefixLen, BOOL_STR()))
+		return PLEXIL::BOOLEAN;
+	  else
+		return PLEXIL::UNKNOWN_TYPE;
+
+	case 9:
+	  if (0 == str.compare(0, prefixLen, NODE_STATE_STR()))
+		return PLEXIL::NODE_STATE;
+	  else
+		return PLEXIL::UNKNOWN_TYPE;
+
+	case 11:
+	  if (0 == str.compare(0, prefixLen, NODE_OUTCOME_STR()))
+		return PLEXIL::NODE_OUTCOME;
+	  else if (0 == str.compare(0, prefixLen, NODE_FAILURE_STR()))
+		return PLEXIL::FAILURE_TYPE;
+	  else
+		return PLEXIL::UNKNOWN_TYPE;
+
+	case 17:
+	  if (0 == str.compare(0, prefixLen, NODE_COMMAND_HANDLE_STR()))
+		return PLEXIL::COMMAND_HANDLE;
+	  else
+		return PLEXIL::UNKNOWN_TYPE;
       
-    // default case
-    return PLEXIL::UNKNOWN_TYPE;
+	  // default case
+	default:
+	  return PLEXIL::UNKNOWN_TYPE;
+	}
   }
 
   const std::string& PlexilParser::valueTypeString(const PlexilType& typ)
