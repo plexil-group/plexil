@@ -208,6 +208,8 @@ namespace PLEXIL
                   "UdpAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND().c_str()
                   << " command, " << Expression::valueToString(args.front())
                   << ", is not a string");
+    LabelStr msgName(args.front());
+    debugMsg("UdpAdapter::executeReceiveCommandCommand", " called for " << msgName.c_str());
     LabelStr command(formatMessageName(args.front(), RECEIVE_COMMAND_COMMAND()));
     m_messageQueues.addRecipient(command, ack, dest);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
@@ -253,7 +255,7 @@ namespace PLEXIL
     unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
     memset((char*)udp_buffer, 0, length); // zero out the buffer
     // Walk the parameters and encode them in the buffer to be sent out
-    buildUdpBuffer(udp_buffer, msg->second, args, m_debug);
+    buildUdpBuffer(udp_buffer, msg->second, args, true, m_debug);
     // Send the buffer to the given host:port
     int status = -1;
     status = sendUdpMessage(udp_buffer, msg->second, m_debug);
@@ -594,9 +596,11 @@ namespace PLEXIL
     int start_index = 0; // where in the buffer to write
     // Do what error checking we can, since we absolutely know that planners foul this up.
     debugMsg("UdpAdapter::buildUdpBuffer", " args.size()==" << args.size() << ", parameters.size()==" << msg.parameters.size());
-    assertTrueMsg((args.size() == skip_arg ? 0 : 1 + msg.parameters.size()),
-                  "the message definition given in the XML configuration file does not match the command used"
-                  << " in the plan for <Message name=\"" << LabelStr(args.front()).c_str() << "\"/>");
+    int param_count = msg.parameters.size();
+    if (skip_arg) param_count++;
+    assertTrueMsg((args.size() == param_count),
+                  "the " << param_count << " paramaters defined in the XML configuration file do not match the "
+                  << args.size() << " paramaters used in the plan for <Message name=\"" << msg.name << "\"/>");
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
     //for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(), it != args.end(); param++, it++)
     for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++, it++)
@@ -630,6 +634,8 @@ namespace PLEXIL
         else if (type.compare("bool") == 0) // these are 64 bits in Plexil
           {
             assertTrueMsg((len==1 || len==2 || len==4), "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
+            assertTrueMsg((plexil_val == false || plexil_val == true), "buildUdpBuffer: Booleans must be either true ("
+                          << true << ") or false (" << false << ")" << ", not " << plexil_val);
             if (debug) std::cout << "bool: " << plexil_val;
             if (len==1)
               number_to_network_bytes(plexil_val, buffer, start_index, 8);
