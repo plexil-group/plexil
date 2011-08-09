@@ -480,7 +480,7 @@ namespace PLEXIL
     // Set up the receiver.  This needs to be wrapped in a further layer I think.
     threadSpawn((THREAD_FUNC_PTR) waitForUdpMessage, &msg->second, thread_handle);
     // Check to see if the thread got started
-    assertTrueMsg(thread_handle != NULL, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
+    assertTrueMsg(thread_handle != 0, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
     //msg->second.thread = thread_handle; // record the thread
     debugMsg("UdpAdapter::startUdpMessageReceiver", " for " << name.toString() << " done");
     return 0;
@@ -620,9 +620,9 @@ namespace PLEXIL
             assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
             if (debug) std::cout << "int: " << plexil_val;
             if (len==2)
-              encode_short_int(plexil_val, buffer, start_index);
+              encode_short_int((int)plexil_val, buffer, start_index);
             else
-              encode_long_int(plexil_val, buffer, start_index);
+              encode_long_int((int)plexil_val, buffer, start_index);
           }
         else if (type.compare("float") == 0)
           {
@@ -638,11 +638,11 @@ namespace PLEXIL
                           << true << ") or false (" << false << ")" << ", not " << plexil_val);
             if (debug) std::cout << "bool: " << plexil_val;
             if (len==1)
-              number_to_network_bytes(plexil_val, buffer, start_index, 8);
+              number_to_network_bytes((int)plexil_val, buffer, start_index, 8);
             else if (len==2)
-              encode_short_int(plexil_val, buffer, start_index);
+              encode_short_int((int)plexil_val, buffer, start_index);
             else
-              encode_long_int(plexil_val, buffer, start_index);
+              encode_long_int((int)plexil_val, buffer, start_index);
           }
         else
           {
