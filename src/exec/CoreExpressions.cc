@@ -905,7 +905,7 @@ namespace PLEXIL
   ExpressionId& BooleanVariable::FALSE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new BooleanVariable(FALSE(), false))->getId();
+      sl_exp = (new BooleanVariable(FALSE(), true))->getId();
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
