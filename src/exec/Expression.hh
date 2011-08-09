@@ -208,13 +208,13 @@ namespace PLEXIL {
      * @brief Add a listener for changes to this Expression's value.
      * @param id The Id of the listener to notify.
      */
-    void addListener(ExpressionListenerId id);
+    virtual void addListener(ExpressionListenerId id);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param id The Id of the listener to remove.
      */
-    void removeListener(ExpressionListenerId id);
+    virtual void removeListener(ExpressionListenerId id);
 
     /**
      * @brief Get a string representation of this Expression.
@@ -426,8 +426,9 @@ namespace PLEXIL {
     /**
      * @brief Make this variable const post-construction.  This can't be undone, otherwise
      *        const-ness is pretty meaningless.
+	 * @note Doesn't seem to be used anywhere.
      */
-    void setConst() {m_isConst = true;}
+    void setConst();
 
     /**
      * @brief Get the name of this variable, as declared in the node that owns it.
@@ -436,6 +437,20 @@ namespace PLEXIL {
     {
       return m_name;
     }
+
+    /**
+     * @brief Add a listener for changes to this Expression's value.
+     * @param id The Id of the listener to notify.
+	 * @note Overrides method on Expression base class.
+     */
+    virtual void addListener(ExpressionListenerId id);
+
+    /**
+     * @brief Remove a listener from this Expression.
+     * @param id The Id of the listener to remove.
+	 * @note Overrides method on Expression base class.
+     */
+    virtual void removeListener(ExpressionListenerId id);
 
   protected:
     /**

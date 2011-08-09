@@ -327,6 +327,43 @@ namespace PLEXIL {
     }
   }
 
+  /**
+   * @brief Make this variable const post-construction.  This can't be undone, otherwise
+   *        const-ness is pretty meaningless.
+   * @note Doesn't seem to be used anywhere.
+   */
+  void Variable::setConst()
+  {
+	warn("Variable::setConst called on " << toString());
+	m_isConst = true;
+  }
+
+  /**
+   * @brief Add a listener for changes to this Expression's value.
+   * @param id The Id of the listener to notify.
+   * @note Overrides method on Expression base class.
+   * @note This is an optimization for heavily used constants, which by definition
+   * will never change value, thus don't need to propagate changes.
+   */
+  void Variable::addListener(ExpressionListenerId id)
+  {
+	if (!m_isConst)
+	  Expression::addListener(id);
+  }
+
+  /**
+   * @brief Remove a listener from this Expression.
+   * @param id The Id of the listener to remove.
+   * @note Overrides method on Expression base class.
+   * @note This is an optimization for heavily used constants, which by definition
+   * will never change value, thus don't need to propagate changes.
+   */
+  void Variable::removeListener(ExpressionListenerId id)
+  {
+	if (!m_isConst)
+	  Expression::removeListener(id);
+  }
+
   Calculable::Calculable() : Expression(), m_listener(getId()) {}
 
   Calculable::Calculable(const PlexilExprId& expr, const NodeConnectorId& node)
