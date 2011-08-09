@@ -1,0 +1,31 @@
+<Interfaces>
+  <Adapter AdapterType="Utility"/>
+  <Adapter AdapterType="OSNativeTime"/>
+  <Adapter AdapterType="UdpAdapter" default_local_port="9876" default_peer="localhost" default_peer_port="9876">
+    <Message name="recv_test" local_port="8031" peer_port="8031">
+      <Parameter desc="message_id" type="string" bytes="3"/>
+      <Parameter desc="verified" type="bool" bytes="1"/>
+      <Parameter type="int" bytes="4"/>
+      <Parameter desc="arg3" type="float" bytes="4"/>
+    </Message>
+    <Message name="acfs-state-request" peer_port="9874">
+      <Parameter desc="AIRCRAFT STATE REQUEST" type="string" bytes="22"/>
+      <!-- <Parameter type="string" bytes="22">AIRCRAFT STATE REQUEST</Parameter> -->
+    </Message>
+    <Message name="acfs-state" local_port="9875">
+      <Parameter desc="message type" type="int" bytes="4"/>
+      <Parameter desc="latitude" type="float" bytes="4"/>
+      <Parameter desc="longitude" type="float" bytes="4"/>
+      <Parameter desc="altitude (feet MSL)" type="float" bytes="4"/>
+      <Parameter desc="calculated air speed (knots)" type="float" bytes="4"/>
+      <Parameter desc="true air speed (knots)" type="float" bytes="4"/>
+      <Parameter desc="ground speed (knots)" type="float" bytes="4"/>
+      <Parameter desc="true heading (decimal degrees)" type="float" bytes="4"/>
+      <Parameter desc="magnetic heading (decimal degrees)" type="float" bytes="4"/>
+      <Parameter desc="track (decimal degrees)" type="float" bytes="4"/>
+      <Parameter desc="vertical speed (ft/second)" type="float" bytes="4"/>
+      <Parameter desc="flight path angle (decimal degrees)" type="float" bytes="4"/>
+      <Parameter desc="bank angle (decimal degrees)" type="float" bytes="4"/>
+    </Message>
+  </Adapter>
+</Interfaces>

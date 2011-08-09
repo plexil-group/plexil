@@ -4,9 +4,10 @@
 test-recv:
 {
   OnCommand recv_test (String arg1, Boolean arg2, Integer arg3, Real arg4)
+  //OnCommand recv_test (Integer arg1, Real arg2)
   {
     Command print ("test-recv: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4, "\n");
+    //Command pprint ("test-recv: arg1==", arg1, ", arg2==", arg2);
   }
 }
-
 // EOF

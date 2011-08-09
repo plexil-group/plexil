@@ -4,7 +4,7 @@
 Command pprint(...);
 Command recv_test(...);
 //Command SendMessage(String);
-//Command SendUdpMessage(...);
+Command SendUdpMessage(...);
 //Command ReceiveUdpMessage(...);
 Real Lookup time;
 
@@ -15,7 +15,7 @@ Timed-iteration:
     Real elapsed_time;
     Integer run_length = 5;
     Real tolerance = 0.01;
-    String apt_id = "KSFO";
+    String apt_id = "PDU";
     Boolean continue = true;
     record-run-start-time: run_start_time = Lookup(time);
     periodic-iteration:
@@ -35,8 +35,8 @@ Timed-iteration:
             notify-end-of-iteration: pprint("Ending periodic iteration");
         }
     }
-    //udp-send-test: SendUdpMessage("recv_test", apt_id, run_length, tolerance);
-    udp-send-test: recv_test (apt_id, run_length, tolerance);
+    udp-send-test1: SendUdpMessage("recv_test", apt_id, false, run_length, tolerance);
+    udp-send-test2: recv_test (apt_id, true, run_length + 1, elapsed_time);
     //temp-test: SendMessage("Quit");
     //udp-recv-test: OnUdpMessage("recv_test", apt_id, run_length, tolerance);
     //udp-recv-test: ReceiveUdpMessage("recv_test", run_length, tolerance);
