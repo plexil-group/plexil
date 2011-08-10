@@ -168,7 +168,6 @@ namespace PLEXIL {
     void setColNo(int n) {m_colNo = n;}
 
     void setNodeId(const std::string& id) {m_nodeId = id;}
-    void setNodeType(const std::string& type) {m_nodeType = PlexilParser::parseNodeType(type);}
     void setNodeType(PlexilNodeType type) {m_nodeType = type;}
     void setPriority(double priority) {m_priority = priority;}
     void setPermissions(const std::string& permissions) {m_permissions = permissions;}

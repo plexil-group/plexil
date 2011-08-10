@@ -49,10 +49,8 @@ namespace PLEXIL {
       return NodeType_Empty;
     else if (typeName == LIBRARYNODECALL())
       return NodeType_LibraryNodeCall;
-    
-    checkError(ALWAYS_FAIL,
-               "No node type named \"" << typeName << '\"');
-    return NodeType_error;
+	else
+	  return NodeType_error;
   }
 
   const std::string& PlexilParser::nodeTypeString(PlexilNodeType nodeType)
@@ -263,6 +261,7 @@ namespace PLEXIL {
 
     case NodeType_LibraryNodeCall: {
       const Id<PlexilLibNodeCallBody> callBody = (const Id<PlexilLibNodeCallBody>) m_nodeBody;
+	  // FIXME: move check up into XML parser
       checkError(callBody.isId(),
 		 "PlexilNode::getLibraryReferences: node is not a library call node");
       insertUnique(refs, callBody->libNodeName());
@@ -271,6 +270,7 @@ namespace PLEXIL {
 
     case NodeType_NodeList: {
       const Id<PlexilListBody> listBody = (const Id<PlexilListBody>) m_nodeBody;
+	  // FIXME: move check up into XML parser
       checkError(listBody.isId(),
 		 "PlexilNode::getLibraryReferences: node is not a list node");
       const std::vector<PlexilNodeId>& kids = listBody->children();
@@ -403,10 +403,6 @@ namespace PLEXIL {
     : PlexilVar(name, type, new PlexilArrayValue(type, maxSize, values)),
       m_maxSize(maxSize)
   {
-    checkError(values.size() <= m_maxSize,
-	       "Number of initial values of " << type << 
-	       " array variable \'" << name << 
-	       "\' exceeds maximun of " << m_maxSize);
   }
    
   PlexilArrayVar::~PlexilArrayVar() 

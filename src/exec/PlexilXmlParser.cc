@@ -790,11 +790,13 @@ namespace PLEXIL
 										 const string& fileName,
 										 const std::vector<string>& path)
   {
+	debugMsg("PlexilXmlParser:findPlan", "(\"" << name << "\", \"" << fileName << "\")");
 	PlexilNodeId result;
 	std::vector<string>::const_iterator it = path.begin();
 	string fileNameWithSuffix = fileName;
-	// TODO: add suffix if lacking
-	if (fileNameWithSuffix.compare(fileNameWithSuffix.length() - 4, 4, ".plx") != 0)
+	// add suffix if lacking
+	if (fileName.length() <= 4 ||
+		fileName.compare(fileName.length() - 4, 4, ".plx") != 0)
 	  fileNameWithSuffix += ".plx";
 
 	// Find the first occurrence of the library in this path
@@ -840,6 +842,7 @@ namespace PLEXIL
 											  const string& filename)
 	  throw(ParserException)
   {
+	debugMsg("PlexilXmlParser:loadPlanNamed", "(\"" << name << "\", \"" << filename << "\")");
 	TiXmlDocument doc(filename);
 	if (!doc.LoadFile()) {
 	  checkParserException(doc.ErrorId() == TiXmlBase::TIXML_ERROR_OPENING_FILE,
@@ -938,7 +941,13 @@ namespace PLEXIL
 	// node type required
 
 	checkAttr(NODETYPE_ATTR, xml);
-	retval->setNodeType(*(xml->Attribute(NODETYPE_ATTR)));
+	PlexilNodeType ntype = parseNodeType(*(xml->Attribute(NODETYPE_ATTR)));
+	checkParserExceptionWithLocation(ntype != NodeType_error,
+									 xml, // FIXME: better location would help
+									 "XML parsing error: " << NODETYPE_ATTR
+									 << " attribute value \"" << *(xml->Attribute(NODETYPE_ATTR))
+									 << "\" is not a valid node type");
+	retval->setNodeType(ntype);
 
 	// file name, line, col optional
 	const string* fname = xml->Attribute(FILENAME_ATTR);
