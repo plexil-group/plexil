@@ -1420,13 +1420,16 @@
 
   <xsl:template match="OnCommand" mode="ordered">
     <xsl:variable name="Cmd_staging">
-      <xsl:call-template name="OnCommand-staging" />
+      <xsl:call-template name="OnCommand-staging">
+        <xsl:with-param name="ordered" select="'true'"/>
+      </xsl:call-template>
     </xsl:variable>
     <xsl:apply-templates select="$Cmd_staging"
       mode="ordered" />
   </xsl:template>
 
   <xsl:template name="OnCommand-staging">
+    <xsl:param name="ordered"/>
     <Sequence>
       <xsl:copy-of select="@FileName" />
       <xsl:copy-of select="@LineNo" />
@@ -1444,6 +1447,16 @@
           <Type>String</Type>
         </DeclareVariable>
       </VariableDeclarations>
+      <!-- Handle the StartCondition.  Can be either explicit, or as part of a Sequence -->
+      <!-- What about all of the other conditions??? XXXX -->
+      <xsl:choose>
+        <xsl:when test="$ordered">
+          <xsl:call-template name="ordered-start-condition"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="StartCondition"/>  
+        </xsl:otherwise>
+      </xsl:choose>
       <!-- Find parent node and set invariant, if exists -->
       <xsl:variable name="parent_id">
         <xsl:call-template name="parent-id-value" />
