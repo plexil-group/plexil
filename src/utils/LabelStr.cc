@@ -78,7 +78,7 @@ namespace PLEXIL
       StoredString(&label, true)
    {
 #ifndef PLEXIL_FAST
-      m_chars = label.c_str();
+	 m_chars = StoredString::getItem().c_str();
 #endif
    }
 
@@ -86,7 +86,7 @@ namespace PLEXIL
       StoredString(new std::string(label), false)
    {
 #ifndef PLEXIL_FAST
-      m_chars = label;
+	 m_chars = StoredString::getItem().c_str();
 #endif
    }
 
@@ -96,18 +96,18 @@ namespace PLEXIL
       check_error(isKey(key), "Invalid key provided.");
 
 #ifndef PLEXIL_FAST
-      m_chars = toString().c_str();
+      m_chars = StoredString::getItem().c_str();
 #endif
    }
 
    const std::string& LabelStr::toString() const
    {
-      return getItem();
+	 return StoredString::getItem();
    }
 
    const char* LabelStr::c_str() const
    {
-      return toString().c_str();
+	 return StoredString::getItem().c_str();
    }
 
 #ifndef PLEXIL_FAST
