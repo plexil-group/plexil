@@ -1059,8 +1059,8 @@ private:
 class LookupTestNodeConnector : public NodeConnector {
 public:
   LookupTestNodeConnector() : NodeConnector() {}
-  const ExpressionId& findVariable(const PlexilVarRef* /* var */) const {return ExpressionId::noId();}
-  const ExpressionId& findVariable(const LabelStr& /* name */) const {return ExpressionId::noId();}
+  const ExpressionId& findVariable(const PlexilVarRef* /* var */) {return ExpressionId::noId();}
+  const ExpressionId& findVariable(const LabelStr& /* name */, bool /* recursive */) {return ExpressionId::noId();}
   const NodeId& getNode() const { return NodeId::noId(); }
   const ExecConnectorId& getExec() {
     return m_exec.getId();
