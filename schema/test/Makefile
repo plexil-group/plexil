@@ -39,7 +39,7 @@ REST =  UncheckedSequence1 UncheckedSequence2 \
 	Concurrence1 Concurrence2 Concurrence3 Concurrence4 Concurrence5 \
 	Try1 Try2 Try3 Try4 If1 If2 If3  While1 While2 While3 For1 For2 For3 \
 	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
-	OnCommandSequence Lookup1 Lookup2 Wait1 Wait2 Wait3
+	OnCommandSequence OnCommandStartCondition Lookup1 Lookup2 Wait1 Wait2 Wait3
 
 TESTS = $(SYNCH) $(REST)
 
