@@ -113,14 +113,14 @@ namespace PLEXIL {
     {
     }
 
-    const ExpressionId& findVariable(const PlexilVarRef* ref) const
+    const ExpressionId& findVariable(const PlexilVarRef* ref)
     {
       return m_node->findVariable(ref);
     }
 
-    const ExpressionId& findVariable(const LabelStr& name) const
+    const ExpressionId& findVariable(const LabelStr& name, bool recursive = false)
     {
-      return m_node->findVariable(name);
+      return m_node->findVariable(name, recursive);
     }
 
     const ExecConnectorId& getExec()
@@ -202,11 +202,6 @@ namespace PLEXIL {
 
      getVarsFromInterface(node->interface());
 
-        // inherit all variables from parent which
-        // do not already appear in this node 
-
-     getVarsFromParent();
-
         //instantiate child nodes, if any (have to create assignments and commands after
         //everything else
         //because they could refer to internal variables of other nodes)
@@ -214,9 +209,10 @@ namespace PLEXIL {
      if(m_nodeType == LIST()) 
      {
         debugMsg("Node:node", "Creating child nodes.");
-	checkError(Id<PlexilListBody>::convertable(node->body()),
-		   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
-		   "list body.");
+		// FIXME: push this check up into XML parser
+		checkError(Id<PlexilListBody>::convertable(node->body()),
+				   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
+				   "list body.");
         createChildNodes((PlexilListBody*) node->body());
      }
         // create library call node
@@ -224,9 +220,10 @@ namespace PLEXIL {
      if(m_nodeType == LIBRARYNODECALL()) 
      {
         debugMsg("Node:node", "Creating library node call.");
-	checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
-		   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
-		   "library node call body.");
+		// FIXME: push this check up into XML parser
+		checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
+				   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
+				   "library node call body.");
         createLibraryNode(node);
      }
   }
@@ -267,6 +264,7 @@ namespace PLEXIL {
       m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
   }
 
+  // FIXME: Doesn't seem to delete local variables, command, update, or assignment
   Node::~Node() {
 	delete m_sortedVariableNames;
     delete (RealNodeConnector*) m_connector;
@@ -357,24 +355,28 @@ namespace PLEXIL {
 
   void Node::commonInit() {
     debugMsg("Node:node", "Instantiating internal variables...");
-    //instantiate state/outcome/failure variables
-    m_variablesByName[STATE()] = m_stateVariable = (new StateVariable())->getId();
+    // Instantiate state/outcome/failure variables
+	// The contortions with getKey() are an attempt to minimize LabelStr copying
+    m_variablesByName[STATE().getKey()] = m_stateVariable = (new StateVariable())->getId();
     m_stateVariable->activate();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
 
-    m_variablesByName[OUTCOME()] = (new OutcomeVariable())->getId();
-    m_variablesByName[OUTCOME()]->activate();
+	ExpressionId outcomeVariable = (new OutcomeVariable())->getId();
+    m_variablesByName[OUTCOME().getKey()] = outcomeVariable;
+    outcomeVariable->activate();
 
-    m_variablesByName[FAILURE_TYPE()] = (new FailureVariable())->getId();
-    m_variablesByName[FAILURE_TYPE()]->activate();
+	ExpressionId failureVariable = (new FailureVariable())->getId();
+    m_variablesByName[FAILURE_TYPE().getKey()] = failureVariable;
+    failureVariable->activate();
 
-    m_variablesByName[COMMAND_HANDLE()] = (new CommandHandleVariable())->getId();
-    m_variablesByName[COMMAND_HANDLE()]->activate();
+	ExpressionId commandHandle = (new CommandHandleVariable())->getId();
+    m_variablesByName[COMMAND_HANDLE().getKey()] = commandHandle;
+    commandHandle->activate();
 
-    m_garbage.insert(STATE());
-    m_garbage.insert(OUTCOME());
-    m_garbage.insert(FAILURE_TYPE());
-    m_garbage.insert(COMMAND_HANDLE());
+    m_garbage.insert(STATE().getKey());
+    m_garbage.insert(OUTCOME().getKey());
+    m_garbage.insert(FAILURE_TYPE().getKey());
+    m_garbage.insert(COMMAND_HANDLE().getKey());
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
@@ -443,6 +445,7 @@ namespace PLEXIL {
     //create assignment/command
     if(m_nodeType == COMMAND()) {
       debugMsg("Node:postInit", "Creating command for node '" << m_nodeId.toString() << "'");
+	  // FIXME: push this check up into XML parser
       checkError(Id<PlexilCommandBody>::convertable(m_node->body()),
 		 "Node is a command node but doesn't have a command body.");
       createCommand((PlexilCommandBody*)m_node->body());
@@ -450,29 +453,29 @@ namespace PLEXIL {
     else if(m_nodeType == ASSIGNMENT()) {
       debugMsg("Node:postInit",
 	       "Creating assignment for node '" << m_nodeId.toString() << "'");
+	  // FIXME: push this check up into XML parser
       checkError(Id<PlexilAssignmentBody>::convertable(m_node->body()),
 		 "Node is an assignment node but doesn't have an assignment body.");
       createAssignment((PlexilAssignmentBody*)m_node->body());
     }
     else if(m_nodeType == UPDATE()) {
       debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
+	  // FIXME: push this check up into XML parser
       checkError(Id<PlexilUpdateBody>::convertable(m_node->body()),
 		 "Node is an update node but doesn't have an update body.");
       createUpdate((PlexilUpdateBody*)m_node->body());
     }
 
     //call postInit on all children
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->postInit();
   }
 
 
-  void Node::createAssignment(const PlexilAssignmentBody* body) {
-    checkError(m_nodeType == ASSIGNMENT(),
-	       "Attempted to create an assignment for a(n) " << m_nodeType.toString() <<
-	       " node '" << m_nodeId.toString() << "'");
-
+  void Node::createAssignment(const PlexilAssignmentBody* body) 
+  {
     //we still only support one variable on the LHS
+	// FIXME: push this check up into XML parser
     checkError(body->dest().size() >= 1,
 	       "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
@@ -482,6 +485,7 @@ namespace PLEXIL {
     if (Id<PlexilVarRef>::convertable(destExpr)) {
       destName = destExpr->name();
       dest = findVariable((Id<PlexilVarRef>) destExpr);
+	  // FIXME: push this check up into XML parser
       checkError(dest.isValid(),
                  "Dest variable '" << destName <<
                  "' not found in assignment node '" << m_nodeId.toString() << "'");
@@ -508,7 +512,8 @@ namespace PLEXIL {
       deleteLhs = true;
     }
     else {
-      checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
+	  // FIXME: push this check up into XML parser 
+	  checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
     }
 
     ExpressionId rhs;
@@ -528,11 +533,9 @@ namespace PLEXIL {
 
   void Node::createCommand(const PlexilCommandBody* command) 
   {
-     checkError(m_nodeType == COMMAND(),
-                "Attempted to create a command for a(n) " << m_nodeType.toString() <<
-                " node '" << m_nodeId.toString() << "'");
-     checkError(command->state()->nameExpr().isValid(),
-                "Attempt to create command with invalid name expression");
+	// FIXME: push this check up into XML parser
+	checkError(command->state()->nameExpr().isValid(),
+			   "Attempt to create command with invalid name expression");
 
     PlexilStateId state = command->state();
     ExpressionId nameExpr = ExpressionFactory::createInstance(
@@ -547,6 +550,7 @@ namespace PLEXIL {
        if(Id<PlexilVarRef>::convertable(*it)) 
        {
           argExpr = findVariable(*it);
+		  // FIXME: push this check up into XML parser
           checkError(argExpr.isValid(),
                      "Unknown variable '" << (*it)->name() <<
                      "' in argument list for command '" << nameExpr->getValue() <<
@@ -570,6 +574,7 @@ namespace PLEXIL {
         if (Id<PlexilVarRef>::convertable(destExpr))
           {
             dest = findVariable((Id<PlexilVarRef>) destExpr);
+			// FIXME: push this check up into XML parser
             checkError(dest.isValid(),
                        "Unknown destination variable '" << dest_name <<
                        "' in command '" << name.toString() << "' in node '" <<
@@ -602,6 +607,7 @@ namespace PLEXIL {
 		  ExpressionId resExpr;
 		  if (Id<PlexilVarRef>::convertable(resItr->second)) {
 			resExpr = findVariable(resItr->second);
+			// FIXME: push this check up into XML parser
 			checkError(resExpr.isValid(),
 					   "Unknown variable '" << resItr->second->name() <<
 					   "' in resource list for command '" << nameExpr->getValue() <<
@@ -625,11 +631,8 @@ namespace PLEXIL {
     check_error(m_command.isValid());
   }
 
-  void Node::createUpdate(const PlexilUpdateBody* body) {
-    checkError(m_nodeType == UPDATE(),
-	       "Attempted to create an update for a(n) " << m_nodeType.toString() <<
-	       " node '" << m_nodeId.toString() << "'");
-    
+  void Node::createUpdate(const PlexilUpdateBody* body) 
+  {
     PlexilUpdateId update = body->update();
     ExpressionMap updatePairs;
     std::list<ExpressionId> garbage;
@@ -644,6 +647,7 @@ namespace PLEXIL {
 
 	if(Id<PlexilVarRef>::convertable(foo)) {
 	  valueExpr = findVariable(foo);
+	  // FIXME: push this check up into XML parser
 	  checkError(valueExpr.isValid(),
 		     "Unknown variable " << foo->name() << " in update for node " <<
 		     m_nodeId.toString());
@@ -742,7 +746,7 @@ namespace PLEXIL {
 	  unsigned int condIdx = getConditionIndex(condName);
 
 	  // Delete existing condition if required
-	  // (e.g. explicit override of end condition for list node)
+	  // (e.g. explicit override of default end condition for list or library call node)
 	  if (m_garbageConditions.find(condIdx) != m_garbageConditions.end()) {
 		m_conditions[condIdx]->removeListener(m_listeners[condIdx]);
 		delete (Expression*) m_conditions[condIdx];
@@ -957,10 +961,12 @@ namespace PLEXIL {
 
             // find the expression form
             const Id<Expression>& varExp = findVariable(alias->second);
+			// FIXME: push this check up into XML parser
             checkError(varExp.isId(), "Unknown variable '" 
                        << alias->second->name()
                        << "' referenced in call to '" << libNode->nodeId() << "' from '"
                        << getNodeId().toString() << "'");
+			// FIXME: push this check up into XML parser
             checkError(Id<Variable>::convertable(varExp)
 					   || Id<AliasVariable>::convertable(varExp),
 					   "Expression not a variable '" 
@@ -1038,40 +1044,6 @@ namespace PLEXIL {
       m_garbageConditions.insert(endIdx);    
    }
 
-   // extract variable from parent which are not already present in this node
-
-   void Node::getVarsFromParent()
-   {
-	 // if there is no parent, we're done
-	 if (!m_parent.isId())
-	   return;
-
-	 // debug message
-	 debugMsg("Node:getVarsFromParent", 
-			  " for node '" << m_nodeId.toString() 
-			  << "': importing variables from parent '"
-			  << m_parent->m_nodeId.toString() << "'");
-
-	 // have a look at the variables in the parent
-      ExpressionMap& parentVars = m_parent->m_variablesByName;
-      for (ExpressionMap::const_iterator parentVar = parentVars.begin();
-           parentVar != parentVars.end(); ++parentVar)
-      {
-         LabelStr parentVarName(parentVar->first);
-
-            // if the variable does not exist locally, add it
-            // otherwise ignore it, locals mask
-
-         if (m_variablesByName.find(parentVarName) == m_variablesByName.end()) {
-		   debugMsg("Node:getVarsFromParent",
-					" for node '" << m_nodeId.toString()
-					<< "': adding '" << parentVarName.c_str()
-					<< "' from parent '" << m_parent->m_nodeId.toString() << "'");
-            m_variablesByName[parentVarName] = parentVar->second;
-		 }
-      }
-   }
-
    void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
    {
       if (!intf.isValid())
@@ -1087,9 +1059,11 @@ namespace PLEXIL {
       {
 		PlexilVarRef* varRef = *it;
 		ExpressionId expr = m_parent->findVariable(varRef);
+		// FIXME: push this check up into XML parser
 		checkError(expr.isId(),
 				   "No variable named '" << varRef->name() <<
 				   "' in parent of node '" << m_nodeId.toString() << "'");
+		// FIXME: push this check up into XML parser
 		checkError(Id<Variable>::convertable(expr)
 				   || Id<AliasVariable>::convertable(expr),
 				   "Expression named '" << varRef->name() <<
@@ -1118,6 +1092,7 @@ namespace PLEXIL {
           it != intf->inOut().end(); ++it) 
       {
          ExpressionId expr = m_parent->findVariable(*it);
+		 // FIXME: push this check up into XML parser
          checkError(expr.isId(),
                     "No variable named '" << (*it)->name() <<
                     "' in parent of node '" << m_nodeId.toString() << "'");
@@ -1320,178 +1295,127 @@ namespace PLEXIL {
     double m_name;
   };
 
-  const ExpressionId& Node::findVariable(const LabelStr& name) const
+  // Searches ancestors when required
+  const ExpressionId& Node::findVariable(const LabelStr& name, bool recursive)
   {
     debugMsg("Node:findVariable",
 			 " for node '" << m_nodeId.toString()
-			 << "', searching for variable '" << name.toString() << "'");
-    ExpressionMap::const_iterator it = m_variablesByName.find(name);
-    checkError(it != m_variablesByName.end(),
-	       "No variable named \"" << name.toString() << "\" in node " <<
-	       m_nodeId.toString());
-    return (it == m_variablesByName.end() ? ExpressionId::noId() : it->second);
+			 << "', searching by name for \"" << name.toString() << "\"");
+    ExpressionMap::const_iterator it = m_variablesByName.find(name.getKey());
+	if (it != m_variablesByName.end()) {
+	  debugMsg("Node:findVariable",
+			   " Returning " << it->second->toString());
+	  return it ->second;
+	}
+
+	// Not found locally - try ancestors if possible
+	// Stop at library call nodes, as interfaces there are explicit
+	if (m_parent.isId()
+		&& m_parent->m_nodeType != LIBRARYNODECALL()) {
+	  const ExpressionId& result = m_parent->findVariable(name, true);
+	  if (result.isId()) {
+		// Found it - cache for later reuse
+		m_variablesByName[name.getKey()] = result;
+		return result;
+	  }
+	  // Not found 
+	  else if (recursive)
+		return ExpressionId::noId(); // so that error happens at approriate level
+	  // else fall through to failure
+	}
+
+	// FIXME: push this check up into XML parser
+	checkError(ALWAYS_FAIL,
+			   "No variable named \"" << name.toString() << "\" accessible from node " <<
+			   m_nodeId.toString());
+	return ExpressionId::noId();
   }
    
-   const ExpressionId& Node::findVariable(const PlexilVarRef* ref) const
+   const ExpressionId& Node::findVariable(const PlexilVarRef* ref)
    {
-      debugMsg("Node:findVariable",
-			   " for node '" << m_nodeId.toString()
-			   << "', searching for variable '" << ref->name() << "'");
+	 debugMsg("Node:findVariable",
+			  " for node '" << m_nodeId.toString()
+			  << "', searching for variable '" << ref->name() << "'");
       
-      if(Id<PlexilInternalVar>::convertable(ref->getId())) 
-      {
-         PlexilInternalVar* var = (PlexilInternalVar*) ref;
-         PlexilNodeRef* nodeRef = var->ref();
-         NodeId node = NodeId::noId();
+	 if (Id<PlexilInternalVar>::convertable(ref->getId())) {
+	   PlexilInternalVar* var = (PlexilInternalVar*) ref;
+	   PlexilNodeRef* nodeRef = var->ref();
+	   NodeId node = NodeId::noId();
          
-         switch(nodeRef->dir()) 
-         {
-            case PlexilNodeRef::SELF:
-               node = m_id;
-               break;
-            case PlexilNodeRef::PARENT:
-               checkError(m_parent.isValid(),
-                          "Parent node reference in root node " << 
-                          m_nodeId.toString());
-               node = m_parent;
-               break;
-            case PlexilNodeRef::CHILD:
-            {
-               checkError(m_nodeType == Node::LIST(),
-                          "Child internal variable reference in node " << 
-                          m_nodeId.toString() <<
-                          " which isn't a list node.");
-               std::list<NodeId>::const_iterator it =
-                  std::find_if(m_children.begin(), m_children.end(),
-                               NodeIdEq(LabelStr(nodeRef->name())));
-               checkError(it != m_children.end(),
-                          "No child named '" << nodeRef->name() << 
-                          "' in " << m_nodeId.toString());
-               node = *it;
-               break;
-            }
-            case PlexilNodeRef::SIBLING: 
-            {
-               checkError(m_parent.isValid(),
-                          "Parent node reference in root node " << 
-                          m_nodeId.toString());
-               std::list<NodeId>::const_iterator it =
-                  std::find_if(m_parent->m_children.begin(), 
-                               m_parent->m_children.end(),
-                               NodeIdEq(LabelStr(nodeRef->name())));
-               checkError(it != m_parent->m_children.end(),
-                          "No sibling named '" << nodeRef->name() << 
-                          "' of " << m_nodeId.toString());
-               node = *it;
-               break;
-            }
-            case PlexilNodeRef::NO_DIR:
-            default:
-               checkError(ALWAYS_FAIL,
-                          "Invalid direction in node reference from " <<
-                          m_nodeId.toString());
-               return ExpressionId::noId();
-         }
-         std::string name;
-         if(Id<PlexilTimepointVar>::convertable(var->getId())) 
-         {
-            PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
-            name = tp->state() + "." + tp->timepoint();
-         }
-         else
-            name = var->name();
-         debugMsg("Node:findVariable", 
-                  " Found internal variable \"" << name << "\"");
-         return node->getInternalVariable(LabelStr(name));
-      }
-      else 
-      {
-         ExpressionMap::const_iterator it =
-            m_variablesByName.find(LabelStr(ref->name()));
-         
-         checkError(it != m_variablesByName.end(),
-                    "Can't find variable " << ref->name() << 
-                    " in node " << m_nodeId.toString());
-         if (it == m_variablesByName.end())
-           {
-             debugMsg("Node:findVariable", " not found, returning noId()");
-             return ExpressionId::noId();
-           }
-         debugMsg("Node:findVariable",
-                  " Returning regular variable " << it->second->toString());
-         return it->second;
-      }
-      return ExpressionId::noId();
-  }
+	   switch(nodeRef->dir()) {
+	   case PlexilNodeRef::SELF:
+		 node = m_id;
+		 break;
 
-//   const ExpressionId& Node::_findVariable(const PlexilVarId& ref) 
-//   {
-//      debugMsg("Node:findVariable",
-//               "Searching for variable '" << var->name() << " in node "
-//               << m_nodeId.toString());
-     
-//      if (Id<PlexilInternalVar>::convertable(ref->getId())) 
-//      {
-//         PlexilInternalVar* var = (PlexilInternalVar*) ref;
-//         PlexilNodeRef* nodeRef = var->ref();
-//         NodeId node = NodeId::noId();
+	   case PlexilNodeRef::PARENT:
+		 // FIXME: push this check up into XML parser
+		 checkError(m_parent.isValid(),
+					"Parent node reference in root node " << 
+					m_nodeId.toString());
+		 node = m_parent;
+		 break;
 
-//       switch(nodeRef->dir()) {
-//       case PlexilNodeRef::SELF:
-// 	node = m_id;
-// 	break;
-//       case PlexilNodeRef::PARENT:
-// 	checkError(m_parent.isValid(),
-// 		   "Parent node reference in root node " << m_nodeId.toString());
-// 	node = m_parent;
-// 	break;
-//       case PlexilNodeRef::CHILD: {
-// 	checkError(m_nodeType == Node::LIST(),
-// 		   "Child internal variable reference in node " << m_nodeId.toString() <<
-// 		   " which isn't a list node.");
-// 	std::list<NodeId>::iterator it =
-// 	  std::find_if(m_children.begin(), m_children.end(),
-// 		       NodeIdEq(LabelStr(nodeRef->name())));
-// 	checkError(it != m_children.end(),
-// 		   "No child named '" << nodeRef->name() << "' in " << m_nodeId.toString());
-// 	node = *it;
-// 	break;
-//       }
-//       case PlexilNodeRef::SIBLING: {
-// 	checkError(m_parent.isValid(),
-// 		   "Parent node reference in root node " << m_nodeId.toString());
-// 	std::list<NodeId>::iterator it =
-// 	  std::find_if(m_parent->m_children.begin(), m_parent->m_children.end(),
-// 		       NodeIdEq(LabelStr(nodeRef->name())));
-// 	checkError(it != m_parent->m_children.end(),
-// 		   "No sibling named '" << nodeRef->name() << "' of " << m_nodeId.toString());
-// 	node = *it;
-// 	break;
-//       }
-//       case PlexilNodeRef::NO_DIR:
-//       default:
-// 	checkError(ALWAYS_FAIL,
-// 		   "Invalid direction in node reference from " << m_nodeId.toString());
-// 	return ExpressionId::noId();
-//       }
-//       std::string name;
-//       if(Id<PlexilTimepointVar>::convertable(var->getId())) {
-// 	PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
-// 	name = tp->state() + "." + tp->timepoint();
-//       }
-//       else
-// 	name = var->name();
-//       return node->getInternalVariable(LabelStr(name));
-//     }
-//     else {
-//       ExpressionMap::iterator it =
-// 	m_variablesByName.find(LabelStr(ref->name()));
-//       checkError(it != m_variablesByName.end(),
-// 		 "Can't find variable " << ref->name() << " in node " << m_nodeId.toString());
-//       return (it == m_variablesByName.end() ? ExpressionId::noId() : it->second);
-//     }
-//     return ExpressionId::noId();
-//   }
+	   case PlexilNodeRef::CHILD:
+		 {
+		   // FIXME: push this check up into XML parser
+		   checkError(m_nodeType == Node::LIST(),
+					  "Child internal variable reference in node " << 
+					  m_nodeId.toString() <<
+					  " which isn't a list node.");
+		   std::list<NodeId>::const_iterator it =
+			 std::find_if(m_children.begin(), m_children.end(),
+						  NodeIdEq(LabelStr(nodeRef->name())));
+		   // FIXME: push this check up into XML parser
+		   checkError(it != m_children.end(),
+					  "No child named '" << nodeRef->name() << 
+					  "' in " << m_nodeId.toString());
+		   node = *it;
+		   break;
+		 }
+
+	   case PlexilNodeRef::SIBLING: 
+		 {
+		   // FIXME: push this check up into XML parser
+		   checkError(m_parent.isValid(),
+					  "Sibling node reference in root node " << 
+					  m_nodeId.toString());
+		   std::list<NodeId>::const_iterator it =
+			 std::find_if(m_parent->m_children.begin(), 
+						  m_parent->m_children.end(),
+						  NodeIdEq(LabelStr(nodeRef->name())));
+		   // FIXME: push this check up into XML parser
+		   checkError(it != m_parent->m_children.end(),
+					  "No sibling named '" << nodeRef->name() << 
+					  "' of " << m_nodeId.toString());
+		   node = *it;
+		   break;
+		 }
+
+	   case PlexilNodeRef::NO_DIR:
+	   default:
+		 // FIXME: catch this error in XML parsing
+		 checkError(ALWAYS_FAIL,
+					"Invalid direction in node reference from " <<
+					m_nodeId.toString());
+		 return ExpressionId::noId();
+	   }
+
+	   std::string name;
+	   if(Id<PlexilTimepointVar>::convertable(var->getId())) {
+		 PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
+		 name = tp->state() + "." + tp->timepoint();
+	   }
+	   else
+		 name = var->name();
+	   debugMsg("Node:findVariable", 
+				" Found internal variable \"" << name << "\"");
+	   return node->getInternalVariable(LabelStr(name));
+	 }
+	 else {
+	   return findVariable(LabelStr(ref->name()));
+	 }
+   }
+
   //cheesy hack?
   CommandId& Node::getCommand() {
     if(m_state == EXECUTING_STATE)
@@ -1735,7 +1659,6 @@ namespace PLEXIL {
   }
 
   // Print variables
-  // TODO: sort by name
   void Node::printVariables(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');

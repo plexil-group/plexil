@@ -53,8 +53,8 @@ namespace PLEXIL {
     NodeConnector() : m_id(this) {}
     virtual ~NodeConnector() {m_id.remove();}
     const NodeConnectorId& getId() const {return m_id;}
-    virtual const ExpressionId& findVariable(const PlexilVarRef* ref) const = 0;
-    virtual const ExpressionId& findVariable(const LabelStr& name) const = 0;
+    virtual const ExpressionId& findVariable(const PlexilVarRef* ref) = 0;
+    virtual const ExpressionId& findVariable(const LabelStr& name, bool recursive = false) = 0;
     virtual const NodeId& getNode() const = 0;
     virtual const ExecConnectorId& getExec() = 0;
   protected:
@@ -269,11 +269,9 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by reference.
      */
-//    const ExpressionId& _findVariable(const PlexilVarId& var);
+    const ExpressionId& findVariable(const PlexilVarRef* ref);
 
-    const ExpressionId& findVariable(const PlexilVarRef* ref) const;
-
-    const ExpressionId& findVariable(const LabelStr& name) const;
+    const ExpressionId& findVariable(const LabelStr& name, bool recursive = false);
 
     const ExecConnectorId& getExec() {return m_exec;}
 
@@ -411,8 +409,6 @@ namespace PLEXIL {
     void createDeclaredVars(const std::vector<PlexilVarId>& vars);
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
-
-    void getVarsFromParent();
 
     void lockConditions();
 
