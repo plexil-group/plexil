@@ -54,3 +54,4 @@ $(TARGETS): $(OBJECTS)
 
 cleaner: clean
 	$(RM) $(TARGETS) *.o
+	$(MAKE) -C demo cleaner

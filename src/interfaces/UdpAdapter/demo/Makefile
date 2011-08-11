@@ -2,8 +2,6 @@
 # File: plexil/examples/multi-exec/agents/makefile
 # Note: makefile for the test multi-agent applications
 
-include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
-
 ifeq ($(shell uname),Darwin)
   DYLIB=dylib
 else
@@ -11,6 +9,8 @@ else
 endif
 
 OPTS= -no-ipc #-v -x -vx -d
+
+include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
 
 demo: ../UdpAdapter.$(DYLIB)
 	@echo ' '
