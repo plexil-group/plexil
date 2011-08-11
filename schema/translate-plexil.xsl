@@ -993,33 +993,41 @@
     <xsl:param name="declare-for" />
     <xsl:param name="success-invariant" />
     <xsl:param name="try-clauses" />
-    <xsl:call-template name= "basic-clauses"/>
+    <xsl:param name="skip-basic-clauses"/>
+    <xsl:param name="skip-variable-declarations"/>
+    <!-- Conditionally include the basic clauses -->
+    <xsl:if test="$skip-basic-clauses != 'true'">
+      <xsl:call-template name="basic-clauses"/>
+    </xsl:if>
     <!-- Special case translations -->
-    <xsl:choose>
-      <xsl:when test="$declare-test">
-        <!-- declare a "test" variable in addition to existing -->
-        <VariableDeclarations>
-          <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
-          <xsl:apply-templates select="VariableDeclarations/*"/>
-          <xsl:call-template name="declare-variable">
-            <xsl:with-param name="name" select="tr:prefix('test')" />
-            <xsl:with-param name="type" select="'Boolean'" />
-          </xsl:call-template>
-        </VariableDeclarations>
-      </xsl:when>
-      <xsl:when test="$declare-for">
-        <!-- declare the for loop's variable -->
-        <VariableDeclarations>
-          <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
-          <xsl:apply-templates select="VariableDeclarations/*"/>
-          <xsl:copy-of select="LoopVariable/*" />
-        </VariableDeclarations>
-      </xsl:when>
-      <xsl:otherwise>
-        <!-- <xsl:copy-of select="VariableDeclarations" /> -->
-        <xsl:apply-templates select="VariableDeclarations"/>
-      </xsl:otherwise>
-    </xsl:choose>
+    <!-- Conditionally include the variable declarations -->
+    <xsl:if test="$skip-variable-declarations != 'true'">
+      <xsl:choose>
+        <xsl:when test="$declare-test">
+          <!-- declare a "test" variable in addition to existing -->
+          <VariableDeclarations>
+            <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
+            <xsl:apply-templates select="VariableDeclarations/*"/>
+            <xsl:call-template name="declare-variable">
+              <xsl:with-param name="name" select="tr:prefix('test')" />
+              <xsl:with-param name="type" select="'Boolean'" />
+            </xsl:call-template>
+          </VariableDeclarations>
+        </xsl:when>
+        <xsl:when test="$declare-for">
+          <!-- declare the for loop's variable -->
+          <VariableDeclarations>
+            <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
+            <xsl:apply-templates select="VariableDeclarations/*"/>
+            <xsl:copy-of select="LoopVariable/*" />
+          </VariableDeclarations>
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- <xsl:copy-of select="VariableDeclarations" /> -->
+          <xsl:apply-templates select="VariableDeclarations"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
     <!-- Handle start condition -->
     <xsl:choose>
       <xsl:when test="$mode = 'ordered'">
@@ -1447,14 +1455,20 @@
           <Type>String</Type>
         </DeclareVariable>
       </VariableDeclarations>
-      <!-- Handle the StartCondition.  Can be either explicit, or as part of a Sequence -->
-      <!-- What about all of the other conditions??? XXXX -->
+      <!-- Handle the OnCommand node conditions -->
       <xsl:choose>
         <xsl:when test="$ordered">
-          <xsl:call-template name="ordered-start-condition"/>
+          <xsl:call-template name="translate-nose-clauses">
+            <xsl:with-param name="skip-basic-clauses" select="'true'"/>
+            <xsl:with-param name="skip-variable-declarations" select="'true'"/>
+            <xsl:with-param name="mode" select="'ordered'"/>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="StartCondition"/>  
+          <xsl:call-template name="translate-nose-clauses">
+            <xsl:with-param name="skip-basic-clauses" select="'true'"/>
+            <xsl:with-param name="skip-variable-declarations" select="'true'"/>
+          </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
       <!-- Find parent node and set invariant, if exists -->
