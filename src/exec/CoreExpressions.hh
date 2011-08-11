@@ -232,6 +232,7 @@ namespace PLEXIL {
   public:
     static ExpressionId& TRUE_EXP();
     static ExpressionId& FALSE_EXP();
+    static ExpressionId& UNKNOWN_EXP(); // used in Node condition defaults
     DECLARE_STATIC_CLASS_CONST(double, TRUE, 1.0);
     DECLARE_STATIC_CLASS_CONST(double, FALSE, 0.0);
 
