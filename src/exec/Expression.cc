@@ -231,7 +231,7 @@ namespace PLEXIL {
   {
   }
 
-  // Used only in Expression::UNKNOWN_EXP()
+  // Used in Expression::UNKNOWN_EXP(), and by various derived constructors
 
   Variable::Variable(const bool isConst)
     : EssentialVariable(), m_isConst(isConst), m_initialValue(UNKNOWN()), m_name("anonymous") 
