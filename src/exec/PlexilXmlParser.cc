@@ -996,10 +996,17 @@ namespace PLEXIL
 
 	// conditions optional
 
-	for (const TiXmlElement* conditionsXml = xml->FirstChildElement(); conditionsXml
-		   != NULL; conditionsXml = conditionsXml->NextSiblingElement()) {
+	for (const TiXmlElement* conditionsXml = xml->FirstChildElement(); 
+		 conditionsXml != NULL;
+		 conditionsXml = conditionsXml->NextSiblingElement()) {
 	  if (!testTagSuffix(COND_TAG, conditionsXml))
 		continue;
+
+	  // Check here so we don't blow up when we load the plan
+	  checkParserExceptionWithLocation(isValidConditionName(conditionsXml->ValueStr()),
+									   conditionsXml,
+									   "XML parsing error: " << conditionsXml->ValueStr()
+									   << " is not a valid condition name");
 	  retval->addCondition(conditionsXml->ValueStr(), 
 						   parseExpr(conditionsXml->FirstChildElement()));
 	}
@@ -1023,6 +1030,17 @@ namespace PLEXIL
 	}
 
 	return retval;
+  }
+  
+  bool PlexilXmlParser::isValidConditionName(const string& name)
+  {
+	return name == START_CONDITION_TAG()
+	  || name == REPEAT_CONDITION_TAG()
+	  || name == PRE_CONDITION_TAG()
+	  || name == POST_CONDITION_TAG()
+	  || name == INVARIANT_CONDITION_TAG()
+	  || name == END_CONDITION_TAG()
+	  || name == SKIP_CONDITION_TAG();
   }
 
   PlexilInterfaceId PlexilXmlParser::parseDeprecatedInterface(

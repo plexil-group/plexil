@@ -139,6 +139,8 @@ namespace PLEXIL
 	PlexilXmlParser& operator=(const PlexilXmlParser&);
 	~PlexilXmlParser();
 
+	static bool isValidConditionName(const std::string& name);
+
     static PlexilInterfaceId parseDeprecatedInterface(const TiXmlElement* intf)
       throw(ParserException);
     static PlexilInterfaceId parseInterface(const TiXmlElement* intf)
