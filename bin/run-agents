@@ -13,6 +13,7 @@ Usage:      `basename $0` [options] <agent1> [-c <config>] [-l <lib>] [-L <lib_d
 Options:    -v -viewer  := start the Plexil Viewer
             -x -xterms  := run the execs in xterms (if your system has them)
             -i -ipc     := run IPC in an xterm (rather than in the background)
+            -n -no-ipc  := do not run IPC at all
 
 Examples:   `basename $0` -x sim cmd -l get-int -l get-real
 
@@ -43,6 +44,7 @@ use_viewer=no
 ipc_running=`ps aux | egrep "ipc|central" | grep -v grep`
 run_ipc_in_background=yes
 ipc_pid=
+no_ipc=
 
 # Show the usage message and/or set up the "mode" to run in
 until [ -z $1 ] ;
@@ -53,6 +55,7 @@ do
     elif [ "$1" = "-x" ] || [ "$1" = "-xterm" ] || [ "$1" = "-xterms" ] ; then use_xterm=yes ; shift ;
     elif [ "$1" = "-vx" ] || [ "$1" = "-xv" ] ; then use_xterm=yes ; use_viewer=yes ; shift ;
     elif [ "$1" = "-i" ] || [ "$1" = "-ipc" ] ; then run_ipc_in_background=no ; shift ;
+    elif [ "$1" = "-n" ] || [ "$1" = "-no-ipc" ] ; then no_ipc=yes ; shift ;
     elif [ "$1" = "-c" ] ; then
         if [ -z $com1 ] ; then shift ; com1=$1 ; shift;
         else shift ; com2=$1 ; shift ;
@@ -227,7 +230,7 @@ then
 fi
 
 # Either start IPC/central in an xterm, or make sure it is already running
-if [ "$has_xterm" = "" ] ;
+if [ "$has_xterm" = "" ] && [ "$no_ipc" != "yes" ];
 then
     echo " "
     if [ "$ipc_running" = "" ] ;
@@ -242,22 +245,25 @@ then
 fi
 
 # start IPC/central if necessary
-if [ "$ipc_running" = "" ] ;
+if [ "$no_ipc" != "yes" ] ;
 then
-    echo ' '
-    echo "Starting IPC..."
-    if [ "$run_ipc_in_background" = "no" ] ; then
-        xterm -g 172x20 -T "IPC" ipc &
-    else
-        central -s -L -f/dev/null &
-        ipc_pid=$!
-        echo "Running IPC in the background (pid: $ipc_pid)..."
+    if [ "$ipc_running" = "" ] ;
+    then
         echo ' '
+        echo "Starting IPC..."
+        if [ "$run_ipc_in_background" = "no" ] ; then
+            xterm -g 172x20 -T "IPC" ipc &
+        else
+            central -s -L -f/dev/null &
+            ipc_pid=$!
+            echo "Running IPC in the background (pid: $ipc_pid)..."
+            echo ' '
+        fi
+        sleep 3;
+    else
+        echo " " ; echo "IPC already running..."
+        run_ipc_in_background=no
     fi
-    sleep 3;
-else
-    echo " " ; echo "IPC already running..."
-    run_ipc_in_background=no
 fi
 
 # Start the agents
@@ -281,7 +287,7 @@ fi
 
 kill_ipc_timeout=20
 
-if [ "$run_ipc_in_background" = "yes" ] ;
+if [ "$run_ipc_in_background" = "yes" ] && [ "$no_ipc" != "yes" ];
 then
     read -t $kill_ipc_timeout -p "Press [Return] to kill ipc ($kill_ipc_timeout second timeout): "
     kill -9 "$ipc_pid"
