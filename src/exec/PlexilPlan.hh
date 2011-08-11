@@ -106,6 +106,15 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, NODE_FAILURE_STR, "NodeFailure");
     DECLARE_STATIC_CLASS_CONST(std::string, NODE_COMMAND_HANDLE_STR, "NodeCommandHandle");
 
+	// condition names
+	DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION_TAG, "StartCondition");
+	DECLARE_STATIC_CLASS_CONST(std::string, REPEAT_CONDITION_TAG, "RepeatCondition");
+	DECLARE_STATIC_CLASS_CONST(std::string, PRE_CONDITION_TAG, "PreCondition");
+	DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION_TAG, "PostCondition");
+	DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION_TAG, "InvariantCondition");
+	DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION_TAG, "EndCondition");
+	DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION_TAG, "SkipCondition");
+
     DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
 
     // miscellaneous constants
