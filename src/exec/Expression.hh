@@ -763,7 +763,30 @@ namespace PLEXIL {
     {return (new FactoryType(expr, node))->getId();}
   };
 
-#define REGISTER_EXPRESSION(CLASS,NAME) {new PLEXIL::ConcreteExpressionFactory<CLASS>(#NAME);}
+
+  /**
+   * @brief Variant of above for constant values.
+   */
+  template<class FactoryType>
+  class ConstantExpressionFactory : public ExpressionFactory {
+  public:
+    ConstantExpressionFactory(const LabelStr& name) : ExpressionFactory(name) {}
+  private:
+    /**
+     * @brief Instantiates a new Expression of the appropriate type.
+     * @param expr The PlexilExprId for the instantiated Expression.
+     * @param node
+     * @return The Id for the new Expression.
+     */
+
+    ExpressionId create(const PlexilExprId& expr,
+			const NodeConnectorId& node = NodeConnectorId::noId()) const
+    {return (new FactoryType(expr, node, true))->getId();}
+  };
+
 }
+
+#define REGISTER_EXPRESSION(CLASS,NAME) {new PLEXIL::ConcreteExpressionFactory<CLASS>(#NAME);}
+#define REGISTER_CONSTANT_EXPRESSION(CLASS,NAME) {new PLEXIL::ConstantExpressionFactory<CLASS>(#NAME);}
 
 #endif
