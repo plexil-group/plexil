@@ -489,10 +489,6 @@ namespace PLEXIL {
     ExpressionId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     std::list<NodeId> m_children; /*<! Child nodes.*/
     std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
-    ExpressionId m_extraEndCond;
-    ExpressionId m_interruptEndCond;
-    ExpressionId m_conjunctCondition;
-    ExpressionId m_allCommandHandleValues;
     ExpressionId m_stateVariable; /*<! Expression copy of the actual state of the node. */
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
