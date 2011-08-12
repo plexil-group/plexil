@@ -19,11 +19,6 @@ namespace PLEXIL
     bool debug;
   };
 
-  int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
-  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
-  void wait_for_input_on_thread(udp_thread_params* params);
-  void wait_for_input(int local_port, unsigned char* buffer, size_t size, bool debug=false);
-
   long int float_to_long_int (float num);
   float long_int_to_float (long int num);
   int network_bytes_to_number(const unsigned char* buffer, int start_index, int total_bits, bool is_signed, bool debug=false);
@@ -38,7 +33,11 @@ namespace PLEXIL
   std::string decode_string(const unsigned char* buffer, int start_index, int length);
   int udp_tests(void);
   void print_buffer(const unsigned char* buffer, int bytes, bool fancy=false);
-  //void reverse_bytes(unsigned char* buffer, int start_index, int num_bytes, bool debug);
+
+  int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
+  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
+  int wait_for_input_on_thread(udp_thread_params* params);
+  int wait_for_input(int local_port, unsigned char* buffer, size_t size, bool debug=false);
 }
 
 // EOF

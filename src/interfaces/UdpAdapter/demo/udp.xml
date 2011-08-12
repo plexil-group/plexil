@@ -6,7 +6,7 @@
       <Parameter desc="message_id" type="string" bytes="3"/>
       <Parameter desc="verified" type="bool" bytes="1"/>
       <Parameter type="int" bytes="4"/>
-      <Parameter desc="arg3" type="float" bytes="4"/>
+      <Parameter desc="arg4" type="float" bytes="4"/>
     </Message>
   </Adapter>
 </Interfaces>
