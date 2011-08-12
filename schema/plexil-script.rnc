@@ -13,50 +13,10 @@ start =
   | CommandAck
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
-Script =
-  notAllowed
-  | element Script {
-      (State
-       | UpdateAck
-       | Command
-       | CommandAck
-       | CommandAbort
-       | Simultaneous)*
-    }
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
 Simultaneous =
   notAllowed
   | element Simultaneous {
       (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-Command =
-  notAllowed
-  | element Command { command-type }
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
-InitialState =
-  notAllowed
-  | element InitialState { State* }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
     }
 type =
   attribute type {
@@ -69,12 +29,52 @@ type =
     | xsd:NMTOKEN "bool-array"
     | xsd:NMTOKEN "real-array"
   }
+CommandAck =
+  notAllowed
+  | element CommandAck { command-type }
+CommandAbort =
+  notAllowed
+  | element CommandAbort { command-type }
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+\string = xsd:string
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+Param =
+  notAllowed
+  | element Param { type?, xsd:string }
+Script =
+  notAllowed
+  | element Script {
+      (State
+       | UpdateAck
+       | Command
+       | CommandAck
+       | CommandAbort
+       | Simultaneous)*
+    }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
 UpdateAck =
   notAllowed
   | element UpdateAck {
       attribute name { xsd:string }?
     }
-\string = xsd:string
+Command =
+  notAllowed
+  | element Command { command-type }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

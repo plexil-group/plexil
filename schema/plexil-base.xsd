@@ -202,7 +202,6 @@ element.  It is used as an included schema only.
         <xsd:element ref="EndCondition" minOccurs="0"/>
         <xsd:element ref="SkipCondition" minOccurs="0"/>
         <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
-        <xsd:element name="Permissions" type="xsd:string" minOccurs="0"/>
         <xsd:element ref="Interface" minOccurs="0"/>
         <xsd:element ref="VariableDeclarations" minOccurs="0"/>
         <xsd:element ref="NodeBody" minOccurs="0"/>

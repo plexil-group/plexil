@@ -161,7 +161,6 @@ namespace PLEXIL {
     const PlexilInterfaceId& interface() const {return m_intf;}
     const std::vector<PlexilVarId>& declarations() const {return m_declarations;}
     const std::map<std::string, PlexilExprId>& conditions() const {return m_conditions;}
-    const std::string& permissions() const {return m_permissions;}
     const PlexilNodeBodyId& body() const {return m_nodeBody;}
 
     /**
@@ -179,7 +178,6 @@ namespace PLEXIL {
     void setNodeId(const std::string& id) {m_nodeId = id;}
     void setNodeType(PlexilNodeType type) {m_nodeType = type;}
     void setPriority(double priority) {m_priority = priority;}
-    void setPermissions(const std::string& permissions) {m_permissions = permissions;}
     void addVariable(const PlexilVarId& var) {m_declarations.push_back(var);}
     void addCondition(const std::string& name, const PlexilExprId& expr)
     {m_conditions.insert(std::make_pair(name, expr));}
@@ -207,7 +205,6 @@ namespace PLEXIL {
 
     std::string m_fileName;
     std::string m_nodeId;
-    std::string m_permissions;
     std::vector<PlexilVarId> m_declarations;
     std::map<std::string, PlexilExprId> m_conditions;
   };

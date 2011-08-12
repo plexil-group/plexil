@@ -39,7 +39,6 @@ namespace PLEXIL
   const string NODE_TAG("Node");
   const string NODEID_TAG("NodeId");
   const string PRIORITY_TAG("Priority");
-  const string PERMISSIONS_TAG("Permissions");
   const string INTERFACE_TAG("Interface");
   const string VAR_DECLS_TAG("VariableDeclarations");
   const string DECL_VAR_TAG("DeclareVariable");
@@ -976,12 +975,6 @@ namespace PLEXIL
 	  }
 	}
 
-	// permissions optional
-
-	const TiXmlElement* permissionsXml = xml->FirstChildElement(PERMISSIONS_TAG);
-	if (permissionsXml != NULL)
-	  retval->setPermissions(permissionsXml->FirstChild()->ValueStr());
-
 	// interface optional
 
 	const TiXmlElement* interfaceXml = xml->FirstChildElement(INTERFACE_TAG);
@@ -1565,8 +1558,6 @@ namespace PLEXIL
 	  retval->SetAttribute(COLNO_ATTR, col);
 
 	retval->LinkEndChild(namedTextElement(NODEID_TAG, node->nodeId()));
-	retval->LinkEndChild(namedTextElement(PERMISSIONS_TAG,
-										  node->permissions()));
 	retval->LinkEndChild(namedNumberElement(PRIORITY_TAG, node->priority()));
 
 	if (node->interface().isValid())
