@@ -60,7 +60,7 @@ namespace PLEXIL
     if (m_debug) printMessageDefinitions();
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
-    m_execInterface.registerCommandInterface(LabelStr(RECEIVE_UDP_MESSAGE_COMMAND()), getId());
+    //m_execInterface.registerCommandInterface(LabelStr(RECEIVE_UDP_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(RECEIVE_COMMAND_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(GET_PARAMETER_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(SEND_RETURN_VALUE_COMMAND()), getId());
@@ -144,8 +144,8 @@ namespace PLEXIL
       executeSendMessageCommand(args, dest, ack);
     else if (name == SEND_UDP_MESSAGE_COMMAND())
       executeSendUdpMessageCommand(args, dest, ack);
-    else if (name == RECEIVE_UDP_MESSAGE_COMMAND()) // SendUdpCommand("cmd_name", arg1, ...); XXXX
-      executeReceiveUdpCommand(args, dest, ack);
+    //else if (name == RECEIVE_UDP_MESSAGE_COMMAND()) // SendUdpCommand("cmd_name", arg1, ...); XXXX
+    //  executeReceiveUdpCommand(args, dest, ack);
     else if (name == RECEIVE_COMMAND_COMMAND())
       executeReceiveCommandCommand(args, dest, ack); // OnCommand cmd_name (arg1, ...); XXXX
     else if (name == GET_PARAMETER_COMMAND())
@@ -220,22 +220,22 @@ namespace PLEXIL
     debugMsg("UdpAdapter::executeReceiveCommandCommand", " message handler for \"" << command.c_str() << "\" registered.");
   }
 
-  // RECEIVE_UDP_MESSAGE_COMMAND
-  void UdpAdapter::executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
-  {
-    // Called when node _starts_ executing, so, record the message and args so that they can be filled in
-    // if and when a UDP message comes in the fulfill this expectation.
-    // First arg is message name (which better match one of the defined messages...)
-    assertTrueMsg(LabelStr::isString(args.front()),
-                  "UdpAdapter: the first paramater to ReceiveUdpMessage command, "
-                  << Expression::valueToString(args.front()) << ", is not a string");
-    LabelStr command(args.front());
-    debugMsg("UdpAdapter::executeReceiveUdpCommand", " " << command.c_str() << ", dest==" << dest
-             << ", ack==" << ack << ", args.size()==" << args.size());
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
-    m_execInterface.notifyOfExternalEvent();
-    debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered.");
-  }
+//   // RECEIVE_UDP_MESSAGE_COMMAND
+//   void UdpAdapter::executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+//   {
+//     // Called when node _starts_ executing, so, record the message and args so that they can be filled in
+//     // if and when a UDP message comes in the fulfill this expectation.
+//     // First arg is message name (which better match one of the defined messages...)
+//     assertTrueMsg(LabelStr::isString(args.front()),
+//                   "UdpAdapter: the first paramater to ReceiveUdpMessage command, "
+//                   << Expression::valueToString(args.front()) << ", is not a string");
+//     LabelStr command(args.front());
+//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " " << command.c_str() << ", dest==" << dest
+//              << ", ack==" << ack << ", args.size()==" << args.size());
+//     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
+//     m_execInterface.notifyOfExternalEvent();
+//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered.");
+//   }
 
   // SEND_UDP_MESSAGE_COMMAND
   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
@@ -276,10 +276,19 @@ namespace PLEXIL
                   "UdpAdapter: The first argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, "
                   << Expression::valueToString(args.front())
                   << ", is not a string");
-    //LabelStr command(args.front());
     debugMsg("UdpAdapter::executeGetParameterCommand",
              " " << LabelStr(args.front()).c_str() << ", dest==" << dest << ", ack==" << ack);
-    //debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << command.c_str() << "\" registered.");
+    // Extract the message name and try to verify the number of parameters defined vs the number of args used
+    std::string msgName = LabelStr(args.front()).toString();
+    size_t pos;
+    pos = msgName.find(":");
+    msgName = msgName.substr(0, pos);
+    MessageMap::iterator msg;
+    msg=m_messages.find(msgName);
+    assertTrueMsg(msg != m_messages.end(), "UdpAdapter::executeGetParameterCommand: no message found for " << msgName);
+    int params = msg->second.parameters.size();
+    debugMsg("UdpAdapter::executeGetParameterCommand", " msgName==" << msgName);
+    debugMsg("UdpAdapter::executeGetParameterCommand", " params==" << params);
     std::list<double>::const_iterator it = ++args.begin();
     int id;
     if (it == args.end())
@@ -290,11 +299,17 @@ namespace PLEXIL
       {
         id = static_cast<int> (*it);
         assertTrueMsg(id == *it,
-                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, " << *it
+                      "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, " << *it
                       << ", is not an integer");
         assertTrueMsg(id >= 0,
-                      "IpcAdapter: The second argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, " << *it
+                      "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, " << *it
                       << ", is not a valid index");
+        // Brute strength error check for the plan using a message/command with to many arguments.
+        // The intent is that this might be discovered during development.
+        assertTrueMsg(id < params,
+                      "UdpAdapter: the message \"" << msgName << "\" is defined to have " << params
+                      << " parameters in the configuration file, but is being used in the plan with "
+                      << id+1 << " arguments");
       }
     LabelStr command(formatMessageName(args.front(), GET_PARAMETER_COMMAND(), id));
     m_messageQueues.addRecipient(command, ack, dest);
@@ -500,9 +515,9 @@ namespace PLEXIL
     params.debug = udpAdapter->m_debug; // see if debugging is enabled
     udp_thread_params* param_ptr = &params;
     //debugMsg("UdpAdapter::waitForUdpMessage", " params: " << params.local_port << ", " << params.size);
-    wait_for_input_on_thread(&params);
+    int status = wait_for_input_on_thread(&params);
     // When the message has been received, tell the UdpAdapter about it and its contents
-    int status = udpAdapter->handleUdpMessage(msg, params.buffer, params.debug);
+    status = udpAdapter->handleUdpMessage(msg, params.buffer, params.debug);
     assertTrueMsg(status==0, "waitForUdpMessage call to handleUdpMessage returned " << status);
     delete[] params.buffer;     // release the input buffer
   }
@@ -516,7 +531,7 @@ namespace PLEXIL
     // (1) addMessage for expected message
     static int counter = 1;     // gensym counter
     std::ostringstream unique_id;
-    unique_id << msgDef->name << "_msg_parameter:" << counter++;
+    unique_id << msgDef->name << ":msg_parameter:" << counter++;
     LabelStr msg_label(unique_id.str());
     debugMsg("UdpAdapter::handleUdpMessage", " adding \"" << msgDef->name << "\" to the command queue");
     const LabelStr& msg_name(formatMessageName(msgDef->name, RECEIVE_COMMAND_COMMAND()));
