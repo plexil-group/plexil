@@ -32,10 +32,12 @@ all:
 	$(MAKE) -C LuvListener
 	$(MAKE) -C IpcUtils
 	$(MAKE) -C IpcAdapter
+	$(MAKE) -C GanttListener
 
 clean:
 	$(MAKE) -C Sockets $@
 	$(MAKE) -C LuvListener $@
 	$(MAKE) -C IpcAdapter $@
 	$(MAKE) -C IpcUtils $@
+	$(MAKE) -C GanttListener $@
 

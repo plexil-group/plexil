@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,10 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter standard-plexil checker plexilsim robosim
+all: TestExec UniversalExec IpcAdapter GanttListener standard-plexil checker plexilsim robosim
 
 # convenience target for A4O project
-A4O: exec-core app-framework corba luv standard-plexil IpcAdapter plexilsim
+A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener plexilsim
 
 # convenience target for ASA project
 asa ASA: exec-core app-framework luv standard-plexil
@@ -77,6 +77,9 @@ exec-core: utils
 IpcAdapter: app-framework IpcUtils
 	$(MAKE) -C src/interfaces/IpcAdapter
 
+GanttListener: utils exec-core app-framework
+	$(MAKE) -C src/interfaces/GanttListener
+
 IpcUtils: ipc
 	$(MAKE) -C src/interfaces/IpcUtils
 
@@ -107,6 +110,7 @@ clean: clean-ipc
 	-$(MAKE) -C src/interfaces/IpcAdapter $@
 	-$(MAKE) -C src/interfaces/IpcUtils $@
 	-$(MAKE) -C src/interfaces/LuvListener $@
+	-$(MAKE) -C src/interfaces/GanttListener $@
 	-$(MAKE) -C src/interfaces/Sockets $@
 	-$(MAKE) -C src/CORBA $@
 	-$(MAKE) -C src/app-framework $@
