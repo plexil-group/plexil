@@ -921,7 +921,8 @@ namespace PLEXIL
   }
 
   PlexilNodeId PlexilXmlParser::parseNode(const TiXmlElement* xml)
-	throw(ParserException) {
+	throw(ParserException) 
+  {
 	checkTag(NODE_TAG, xml);
 	PlexilNodeId retval = (new PlexilNode())->getId();
 
@@ -1004,21 +1005,90 @@ namespace PLEXIL
 						   parseExpr(conditionsXml->FirstChildElement()));
 	}
 
-	// node body optional
-
+	// node body
 	const TiXmlElement* bodyXml = xml->FirstChildElement(BODY_TAG);
 	if (bodyXml == NULL) {
 	  checkParserExceptionWithLocation(retval->nodeType() == NodeType_Empty,
 									   xml,
-									   "XML parsing error: " << retval->nodeTypeString() << " node '" << retval->nodeId() <<
-									   "' missing <NodeBody> element. '" << retval->nodeTypeString() <<
-									   "' nodes must contain a '" << retval->nodeTypeString() <<
-									   "' as a <NodeBody> element.");
+									   "XML parsing error: " << retval->nodeTypeString()
+									   << " node \"" << retval->nodeId() <<
+									   "\" lacks a <NodeBody> element.");
 	}
 	else {
 	  const TiXmlElement* realBodyXml = bodyXml->FirstChildElement();
 	  if (realBodyXml != NULL) {
-		retval->setBody(parseBody(realBodyXml));
+		PlexilNodeBodyId bodyStruct = parseBody(realBodyXml);
+
+		// Check that body is of correct type
+		switch (retval->nodeType()) {
+		case NodeType_NodeList:
+		  // check for PlexilListBody
+		  checkParserExceptionWithLocation(NULL != (PlexilListBody*) bodyStruct,
+										   realBodyXml,
+										   "XML parsing error: Body of " << retval->nodeTypeString()
+										   << " node \"" << retval->nodeId()
+										   << "\" contains a " << realBodyXml->Value() << " element.")
+			break;
+
+		case NodeType_Command:
+		  // check for PlexilCommandBody
+		  checkParserExceptionWithLocation(NULL != (PlexilCommandBody*) bodyStruct,
+										   realBodyXml,
+										   "XML parsing error: Body of " << retval->nodeTypeString()
+										   << " node \"" << retval->nodeId()
+										   << "\" contains a " << realBodyXml->Value() << " element.")
+			break;
+
+		case NodeType_Assignment:
+		  // check for PlexilAssignmentBody
+		  checkParserExceptionWithLocation(NULL != (PlexilAssignmentBody*) bodyStruct,
+										   realBodyXml,
+										   "XML parsing error: Body of " << retval->nodeTypeString()
+										   << " node \"" << retval->nodeId()
+										   << "\" contains a " << realBodyXml->Value() << " element.")
+			break;
+
+		case NodeType_Update:
+		  // check for PlexilUpdateBody
+		  checkParserExceptionWithLocation(NULL != (PlexilUpdateBody*) bodyStruct,
+										   realBodyXml,
+										   "XML parsing error: Body of " << retval->nodeTypeString()
+										   << " node \"" << retval->nodeId()
+										   << "\" contains a " << realBodyXml->Value() << " element.")
+			break;
+
+		case NodeType_Request:
+		  // check for PlexilRequestBody
+		  checkParserExceptionWithLocation(NULL != (PlexilRequestBody*) bodyStruct,
+										   realBodyXml,
+										   "XML parsing error: Body of " << retval->nodeTypeString()
+										   << " node \"" << retval->nodeId()
+										   << "\" contains a " << realBodyXml->Value() << " element.")
+			break;
+
+		case NodeType_LibraryNodeCall:
+		  // check for PlexilLibNodeCallBody
+		  checkParserExceptionWithLocation(NULL != (PlexilLibNodeCallBody*) bodyStruct,
+										   realBodyXml,
+										   "XML parsing error: Body of " << retval->nodeTypeString()
+										   << " node \"" << retval->nodeId()
+										   << "\" contains a " << realBodyXml->Value() << " element.")
+			break;
+
+		case NodeType_Empty:
+		  checkParserExceptionWithLocation(ALWAYS_FAIL,
+										   bodyXml,
+										   "XML parsing error: Empty node \"" << retval->nodeId()
+										   << "\" may not contain a " << bodyXml->Value() << " element.")
+			break;
+
+		default:
+		  checkParserExceptionWithLocation(ALWAYS_FAIL,
+										   xml,
+										   "XML parser internal error: Invalid node type while parsing node body");
+		  break;
+		}
+		retval->setBody(bodyStruct);
 	  }
 	}
 
