@@ -209,7 +209,7 @@ namespace PLEXIL {
      if(m_nodeType == LIST()) 
      {
         debugMsg("Node:node", "Creating child nodes.");
-		// FIXME: push this check up into XML parser
+		// XML parser should have checked for this
 		checkError(Id<PlexilListBody>::convertable(node->body()),
 				   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
 				   "list body.");
@@ -220,7 +220,7 @@ namespace PLEXIL {
      if(m_nodeType == LIBRARYNODECALL()) 
      {
         debugMsg("Node:node", "Creating library node call.");
-		// FIXME: push this check up into XML parser
+		// XML parser should have checked for this
 		checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
 				   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
 				   "library node call body.");
@@ -445,7 +445,7 @@ namespace PLEXIL {
     //create assignment/command
     if(m_nodeType == COMMAND()) {
       debugMsg("Node:postInit", "Creating command for node '" << m_nodeId.toString() << "'");
-	  // FIXME: push this check up into XML parser
+	  // XML parser should have checked for this
       checkError(Id<PlexilCommandBody>::convertable(m_node->body()),
 		 "Node is a command node but doesn't have a command body.");
       createCommand((PlexilCommandBody*)m_node->body());
@@ -453,14 +453,14 @@ namespace PLEXIL {
     else if(m_nodeType == ASSIGNMENT()) {
       debugMsg("Node:postInit",
 	       "Creating assignment for node '" << m_nodeId.toString() << "'");
-	  // FIXME: push this check up into XML parser
+	  // XML parser should have checked for this
       checkError(Id<PlexilAssignmentBody>::convertable(m_node->body()),
 		 "Node is an assignment node but doesn't have an assignment body.");
       createAssignment((PlexilAssignmentBody*)m_node->body());
     }
-    else if(m_nodeType == UPDATE()) {
+    else if (m_nodeType == UPDATE()) {
       debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
-	  // FIXME: push this check up into XML parser
+	  // XML parser should have checked for this
       checkError(Id<PlexilUpdateBody>::convertable(m_node->body()),
 		 "Node is an update node but doesn't have an update body.");
       createUpdate((PlexilUpdateBody*)m_node->body());
@@ -533,7 +533,6 @@ namespace PLEXIL {
 
   void Node::createCommand(const PlexilCommandBody* command) 
   {
-	// FIXME: push this check up into XML parser
 	checkError(command->state()->nameExpr().isValid(),
 			   "Attempt to create command with invalid name expression");
 
