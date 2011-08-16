@@ -81,7 +81,7 @@ function addModBox() {
        	'<div id="TokenHeightSlider"></div>',
 	  	'<div id="scaleradio">',
 			'<label for="scaleradio" class="ui-widget">Scale down: </label>',
-			'<input type="radio" id="scale1" value="1000" name="radio" /><label for="scale1">0.01x</label>',
+			'<input type="radio" id="scale1" value="1000" name="radio" /><label for="scale1">0.001x</label>',
 			'<input type="radio" id="scale2" value="100" name="radio" /><label for="scale2">0.01x</label>',
 			'<input type="radio" id="scale3" value="10" name="radio" /><label for="scale3">0.1x</label>',
 			'<input type="radio" id="scale4" value="1" name="radio" checked="checked" /><label for="scale4">1x</label>',

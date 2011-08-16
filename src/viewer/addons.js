@@ -48,6 +48,7 @@ function callReadyFunc() {
 	* showPixelsCookie - parsed as int, perserve getPixelsPerTimeIncrement() - value from UI, defined in main
 	* showHeightCookie - parsed as int, perserve getTokenHeight() - value from UI, defined in main
 	* showScaleCookie - parsed as int, perserve getScaling() - value from UI, defined in main
+	* showCustomCookie - parsed as string, specific nodes to hide, defined in detailsBox
 **/
 
 function provideGenCookie() {
@@ -102,4 +103,56 @@ for (i=0;i<ARRcookies.length;i++)
 function deleteCookie(name) {
 document.cookie = name +
 '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
+}
+
+/** determines if a custom node matches a token value **/
+function isCustomNode(temp, temp2, temp3) {
+	var isCustom = false;
+	if(getCookie("showCustomCookie") == null || getCookie("showCustomCookie")=='') return isCustom;
+	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
+	for(var i = 0; i < customNodesArray.length; i++) {
+		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('+') == -1) {
+			if((temp == customNodesArray[i]) || (temp2 == customNodesArray[i]) || (temp3 == customNodesArray[i]))
+				isCustom = true;
+			if((temp.indexOf(customNodesArray[i]) != -1) || (temp2.indexOf(customNodesArray[i]) != -1) || (temp3.indexOf(customNodesArray[i]) != -1))
+				isCustom = true;
+		}
+		else if(customNodesArray[i].indexOf('*') != -1) {
+			isCustom = handleReferenceString(customNodesArray[i], temp, temp2, temp3);
+		}
+	}
+	return isCustom;
+}
+
+/** handles reference strings/wildcard * in custom node specifications **/
+function handleReferenceString(string, temp, temp2, temp3) {
+	var stars = new Array();
+	var finalBool = false;
+	for(var i = 0; i < string.length; i++) {
+		if(string.charAt(i) == '*') {
+			stars.push(i);
+		}
+	}
+	var start = 0;
+	var boolVals = new Array();
+	for(var i = 0; i < stars.length+1; i++) {
+		if(string.substring(start, stars[i]) != '') {
+			if((temp.indexOf(string.substring(start, stars[i])) != -1) || (temp2.indexOf(string.substring(start, stars[i])) != -1) || (temp3.indexOf(string.substring(start, stars[i])) != -1)) {
+				boolVals.push(true);
+			}
+			else {
+				boolVals.push(false);
+			}
+		}
+		start = stars[i]+1;
+	}
+	for(var i = 0; i < boolVals.length; i++) {
+		if(boolVals[i]) {
+			finalBool = true;
+		}
+		else {
+			finalBool = false;
+		}
+	}
+	return finalBool;
 }

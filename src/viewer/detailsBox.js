@@ -139,7 +139,8 @@ function setupFooter(numberOfTokens) {
 						'<button id="expandedNodes">Toggle timeline/expanded</button>',
 						'<button id="optionsBox">Toggle options box</button>',
 						'<button id="reset">Resize</button>',
-						'<button id="defaultvals">Reset to default</button>'
+						'<button id="defaultvals">Reset to default</button>',
+						'<button id="customNodes">Hide specific nodes</button>'
 						].join(''));
 	$('#closeDialogs').click(function() {
 								for(var i = 0; i < numberOfTokens; i++) {
@@ -172,8 +173,36 @@ function setupFooter(numberOfTokens) {
 								 deleteCookie("showPixelsCookie");
 								 deleteCookie("showHeightCookie");
 								 deleteCookie("showScaleCookie");
+								 deleteCookie("showCustomCookie");
 								 window.location.reload();
 								 });
+	$('#customNodes').click(function() {
+									 $('#gantt').append([
+														'<div id="customNodesBox">',
+														'Specify nodes (separate with commas):<br>',
+														'<textarea id="customNodesText" cols="40" rows="8" /><br>',
+														'<button id="customNodesButton">Submit</button>',
+														'<button id="customNodesClearButton">Show all nodes</button>',
+														'</div>'
+														].join(''));
+									 $('#customNodesBox').dialog({
+																autoOpen:false,
+																height:250,
+																width:400,
+																title:'Hide specific nodes',
+																});
+									 $('#customNodesBox').dialog("open");
+									 $('#customNodesButton').click(function() {
+																			performCustomNodes();
+																			window.location.reload();
+																			});
+									 $('#customNodesClearButton').click(function() {
+																			deleteCookie("showCustomCookie");
+																			window.location.reload();
+																			});
+									 $('#customNodesText').val(getCookie("showCustomCookie"));
+									 });
+
 }
 
 //get a global copy of the tokens
@@ -248,4 +277,54 @@ function toggleCookiesExpanded() {
     }
 	window.location.reload();
 }
+
+/** handling specific nodes to hide **/
+var customNodesArray = new Array();
+
+/** repack the user's input to CSV string to package into cookie **/
+function performCustomNodes() {
+	var getVal = $('#customNodesText').val();
+	var copy = getVal;
+	var final;
+	customNodesArray = unpackCSVString(copy);
+	final = packCSVString(customNodesArray);
+	storeCustomNodesCookie(final);
+}
+
+/** package an array into CSV string
+ * @param array
+ * @param string
+**/
+function packCSVString(valArray) {
+	var string = "";
+	for(var i = 0; i < valArray.length; i++) {
+		string = string + valArray[i] + ',';
+	}
+	string = string.substring(0, string.length-1);
+	return string;
+}
+
+/** unpackage CSV string into an array 
+ * @param string
+ * @return array
+**/
+function unpackCSVString(copy) {
+	var valArray = new Array();
+	var commas = new Array();
+	var start = 0;
 	
+	for(var i = 0; i < copy.length; i++) {
+		if(copy.charAt(i) == ',') commas.push(i);
+	}
+	for(var i = 0; i < commas.length+1; i++) {
+		valArray[i] = copy.substring(start,commas[i]);
+		if(copy.charAt(commas[i]+1) == " ") start = commas[i]+2;
+		else start = commas[i]+1;
+	}
+	return valArray;
+}
+
+//set showCustomCookie to CSV string of specific nodes
+function storeCustomNodesCookie(final) {
+	setCookie("showCustomCookie", final, 365);
+}

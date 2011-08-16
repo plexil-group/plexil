@@ -127,15 +127,20 @@ function convertTokens(rawTokens) {
 					{
 						if((temp.indexOf("__CHILD__") == -1) && (temp2.indexOf("__CHILD__") == -1) && temp3.indexOf("__CHILD__"))
 						{
-							result.push(token);
+							if(!isCustomNode(temp, temp2, temp3)) {
+								result.push(token);
+							}
 						}
 					}
 				}
 			}
 			else
 			{
-				result.push(token);
-			}	
+				if(!isCustomNode(temp, temp2, temp3)) {
+					result.push(token);
+				}
+				//result.push(token);
+			}
 		}		
 	}
 	return result;	
