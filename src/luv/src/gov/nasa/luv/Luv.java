@@ -80,6 +80,9 @@ public class Luv extends JFrame {
     private int luvPort;
     private int luvPrevPort = 0;
     private int pid;
+
+    //Gantt Viewer
+    private OpenGanttViewer openGanttViewer;
     
     //Luv SocketServer
     private LuvSocketServer luvServer;
@@ -287,7 +290,10 @@ public class Luv extends JFrame {
         hideOrShowWindow = new HideOrShowWindow();
         debugWindow = new DebugWindow();
         execSelect = new ExecSelect();
-        portGui = new LuvPortGUI();                
+        portGui = new LuvPortGUI();    
+
+	//Gantt Viewer
+	openGanttViewer = new OpenGanttViewer();
 
         createCFGFileWindow = new CreateCFGFileWindow();
         sourceWindow = new SourceWindow();
@@ -466,6 +472,13 @@ public class Luv extends JFrame {
         return theLuv;
     }
     
+    /** Gantt Viewer
+     *  Opens the Gantt Viewer in a browser.
+     *  @return OpenGanttViewer */
+    public OpenGanttViewer getGanttViewer() {
+	return openGanttViewer;
+    }
+
     /** Returns the current instance of the Luv temp port file. 
      *  @return the current instance of the Luv temp port file */
     public static LuvTempFile getPortFile() {
@@ -795,13 +808,16 @@ public class Luv extends JFrame {
         viewMenu.add(new JSeparator());
         viewMenu.add(LuvActionHandler.extendedViewAction);
         viewMenu.add(new JSeparator());
-        viewMenu.add(LuvActionHandler.viewSourceAction);        
+        viewMenu.add(LuvActionHandler.viewSourceAction);
+	//to accomodate Gantt Viewer 8/15/11
+	viewMenu.add(new JSeparator());
+	viewMenu.add(LuvActionHandler.luvGanttViewerAction);        
 
         menuBar.add(debugMenu);
         debugMenu.add(LuvActionHandler.luvDebugWindowAction);
         debugMenu.add(LuvActionHandler.luvServerAction);
         debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
-        debugMenu.add(LuvActionHandler.aboutWindowAction);        
+        debugMenu.add(LuvActionHandler.aboutWindowAction);   
     }
 
     /** Sets the title of the Luv application. */
