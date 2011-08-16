@@ -47,7 +47,19 @@ import static gov.nasa.luv.Constants.*;
  */
 public class LuvActionHandler {
 
-    /** Action to open and view a plan. */
+    /** Action to show the Gantt Viewer. */
+    public static LuvAction luvGanttViewerAction =
+		new LuvAction("Show Gantt Viewer",
+			      "Show viewer window with timeline/Gantt views of a plan post-execution.",
+			      VK_V,
+			      META_MASK) {
+		    public void actionPerformed(ActionEvent e) {	
+			Luv.getLuv().getGanttViewer().openURL();
+		    }
+	};
+	/** **/
+	
+	/** Action to open and view a plan. */
     public static LuvAction openPlanAction =
             new LuvAction("Open Plan",
             "Open a plexil plan file.",
