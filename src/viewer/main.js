@@ -31,8 +31,10 @@ $(document).ready(getSetup);
 
 //initialize cookies and organize and clean divs
 function getSetup() {
-	setCookie("showPixelsCookie",20,365);
-	setCookie("showHeightCookie",15,365);
+	if(getCookie("showPixelsCookie") == null || getCookie("showPixelsCookie") == "")
+		setCookie("showPixelsCookie",20,365);
+	if(getCookie("showHeightCookie") == null || getCookie("showHeightCookie") == "")
+		setCookie("showHeightCookie",15,365);
 	if(getCookie("showScaleCookie") == null || getCookie("showScaleCookie") == "")
 		setCookie("showScaleCookie",1,365);
 	addModBox();
@@ -156,7 +158,7 @@ function getScaling() {
 //jquery slider setup
 function buildPixelsPerTimeIncrementSlider() {
     $("#PixelsPerTimeIncrementSlider").slider({
-	value:20,
+	value: getPixelsPerTimeIncrementForSlider(),
 	min: 2,
 	max: 100,
 	step: 2,
@@ -170,7 +172,7 @@ function buildPixelsPerTimeIncrementSlider() {
 //jquery slider setup
 function buildTokenHeightSlider() {
     $("#TokenHeightSlider").slider({
-	value: 15,
+	value: getTokenHeightForSlider(),
 	min: 5,
 	max: 50,
 	step: 5,
@@ -189,4 +191,18 @@ function buildScaleRadio() {
 //jquery button setup
 function buildSubmitButton() {
 	$("button","#ModBoxButton").button();
+}
+
+//get cookie value showPixelsCookie for slider
+function getPixelsPerTimeIncrementForSlider() {
+	if(getCookie("showPixelsCookie") == null || getCookie("showPixelsCookie") == "")
+		return 20;
+	else return getCookie("showPixelsCookie");
+}
+
+//get cookie value showHeightCookie for slider
+function getTokenHeightForSlider() {
+	if(getCookie("showHeightCookie") == null || getCookie("showHeightCookie") == "")
+		return 15;
+	else return getCookie("showHeightCookie");
 }
