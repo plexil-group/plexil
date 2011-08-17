@@ -353,7 +353,7 @@ namespace PLEXIL
 	  thisLocalVarsVectorValues.push_back(tempValueString);
 	}
 	vector<string> fullStrings;
-	
+
 	//first local variable key should always be state; this makes sure it is
 	int myCount = 0;
 	while(thisLocalVarsVectorKeys.size() > prevLocalVarsVector.size() 
@@ -378,7 +378,7 @@ namespace PLEXIL
 	  else smallerSize = thisLocalVarsVectorKeys.size();
 	  for(int i = 0; i < smallerSize; i++) {
 	      //filter out local variables that are UNKNOWN at beginning of execution and at end of execution
-	      if(prevLocalVarsVector[i] != "UNKNOWN" && thisLocalVarsVectorValues[i] != "UNKNOWN") {
+	      if(prevLocalVarsVector[i] != "UNKNOWN" || thisLocalVarsVectorValues[i] != "UNKNOWN") {
 		string tempFullString;
 		//bolden final local variable values that changed during execution of node
 		if(prevLocalVarsVector[i] != thisLocalVarsVectorValues[i]) {
