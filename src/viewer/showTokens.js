@@ -199,6 +199,7 @@ function showTokenSet(tokens, parentDiv) {
 
 		// compute left offset
 		leftOffset = timeStepIncrement * tokens[i].start;
+		leftOffset = timeStepIncrement * tokens[i].startDomain;
 		//leftOffset = timeStepIncrement * tokens[i].start *plexilscaling;
 		leftOffset = leftOffset / myscaling;
 		leftOffset++; // move over one pixel so tokens end on grid lines
