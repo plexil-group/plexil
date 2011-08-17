@@ -379,7 +379,7 @@ element.  It is used as an included schema only.
       <xsd:element ref="RealVariable"/>
       <xsd:element ref="BooleanVariable"/>
       <xsd:element ref="StringVariable"/>
-      <xsd:element name="ArrayVariable" type="xsd:NCName"/>
+      <xsd:element ref="ArrayVariable"/>
       <xsd:element ref="ArrayElement"/>
     </xsd:choice>
   </xsd:group>
@@ -400,6 +400,7 @@ element.  It is used as an included schema only.
   <xsd:element name="RealVariable" type="xsd:NCName"/>
   <xsd:element name="BooleanVariable" type="xsd:NCName"/>
   <xsd:element name="StringVariable" type="xsd:NCName"/>
+  <xsd:element name="ArrayVariable" type="xsd:NCName"/>
 
   <xsd:element name="DeclareVariable">
     <xsd:complexType>
@@ -461,13 +462,11 @@ element.  It is used as an included schema only.
   <xsd:element name="Arguments">
     <xsd:complexType>
       <xsd:choice maxOccurs="unbounded">
-        <xsd:element ref="IntegerValue"/>
-        <xsd:element ref="RealValue"/>
-        <xsd:element ref="BooleanValue"/>
-        <xsd:element ref="ArrayValue"/> <!-- NOTE: NOT YET SUPPORTED (in development as of 5/7/10) -->
-        <!-- Note: should also support ArrayElement -->
-        <xsd:group ref="StringExpression"/>
-        <xsd:group ref="DeclaredVariable"/>
+		<xsd:group ref="BooleanExpression"/>
+		<xsd:group ref="NumericExpression"/>
+		<xsd:group ref="StringExpression"/>
+		<xsd:element ref="ArrayVariable"/>
+        <!-- <xsd:element ref="ArrayValue"/>  NOTE: NOT YET SUPPORTED (in development as of 5/7/10) -->
       </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
@@ -603,7 +602,7 @@ element.  It is used as an included schema only.
   <xsd:element name="ArrayRHS">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element name="ArrayVariable" type="xsd:NCName"/>
+        <xsd:element ref="ArrayVariable"/>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
