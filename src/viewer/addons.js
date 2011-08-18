@@ -111,10 +111,11 @@ function isCustomNode(temp, temp2, temp3) {
 	if(getCookie("showCustomCookie") == null || getCookie("showCustomCookie")=='') return isCustom;
 	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
 	for(var i = 0; i < customNodesArray.length; i++) {
-		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('+') == -1) {
-			if((temp == customNodesArray[i]) || (temp2 == customNodesArray[i]) || (temp3 == customNodesArray[i]))
-				isCustom = true;
-			if((temp.indexOf(customNodesArray[i]) != -1) || (temp2.indexOf(customNodesArray[i]) != -1) || (temp3.indexOf(customNodesArray[i]) != -1))
+		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('?') == -1) {
+			if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
+																				  //|| ((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
+																				  //|| ((temp3 == customNodesArray[i]) && (temp3.length == customNodesArray[i].length))
+																				  )
 				isCustom = true;
 		}
 		else if(customNodesArray[i].indexOf('*') != -1) {
@@ -155,4 +156,13 @@ function handleReferenceString(string, temp, temp2, temp3) {
 		}
 	}
 	return finalBool;
+}
+
+/** alerters for debugging **/
+var alerter = 0;
+function alertonce(string) {
+	if(alerter == 0) {
+		alert(string);
+	}
+	alerter++;
 }
