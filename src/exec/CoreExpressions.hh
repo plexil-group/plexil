@@ -44,7 +44,7 @@ namespace PLEXIL {
    * PlexilType getValueType() const
    * void setValue(const double val)
    * std::string toString() const
-   * std::string valueString() const
+   * std::string valueString() const (BUT SHOULD RESPECT m_active!!)
    * void handleLock()
    * void handleUnlock()
    * void handleActivate(const bool changed)
@@ -183,7 +183,6 @@ namespace PLEXIL {
     RealVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		 const bool isConst = false);
     std::string toString() const;
-    std::string valueString() const;
     /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
@@ -206,7 +205,6 @@ namespace PLEXIL {
     IntegerVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
     std::string toString() const;
-    std::string valueString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -241,7 +239,6 @@ namespace PLEXIL {
     BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
     std::string toString() const;
-    std::string valueString() const;
     static bool falseOrUnknown(double value) {return value != TRUE();}
 
     /**
@@ -650,10 +647,10 @@ namespace PLEXIL {
    *
    * Calculables SHOULD override
    * toString
-   * valueString
    * recalculate
    *
    * Calculables MAY override
+   * valueString
    * setValue
    * handleLock
    * handleUnlock

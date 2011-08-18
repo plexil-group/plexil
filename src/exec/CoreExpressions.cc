@@ -706,7 +706,7 @@ namespace PLEXIL
 
   std::string StringVariable::toString() const {
     std::ostringstream retval;
-    retval << Expression::toString();
+    retval << Variable::toString();
     retval << "string)";
     return retval.str();
   }
@@ -734,16 +734,11 @@ namespace PLEXIL
   std::string RealVariable::toString() const 
   {
     std::ostringstream retval;
-    retval << Expression::toString();
+    retval << Variable::toString();
     retval << "real)";
     return retval.str();
   }
    
-  std::string RealVariable::valueString() const 
-  {
-	return valueToString(getValue());
-  }
-
   bool RealVariable::checkValue(const double val) {
     return (val >= REAL_MINUS_INFINITY && val <= REAL_PLUS_INFINITY) ||
       val == Expression::UNKNOWN();
@@ -751,8 +746,11 @@ namespace PLEXIL
 
   ExpressionId& RealVariable::ZERO_EXP() {
     static ExpressionId sl_zero_exp;
-    if (sl_zero_exp.isNoId())
-      sl_zero_exp = (new RealVariable(0.0, true))->getId();
+    if (sl_zero_exp.isNoId()) {
+	  Variable* var = new RealVariable(0.0, true);
+	  var->setName("Real constant 0");
+      sl_zero_exp = var->getId();
+	}
     if(!sl_zero_exp->isActive())
       sl_zero_exp->activate();
     return sl_zero_exp;
@@ -760,8 +758,11 @@ namespace PLEXIL
 
   ExpressionId& RealVariable::ONE_EXP() {
     static ExpressionId sl_one_exp;
-    if (sl_one_exp.isNoId())
-      sl_one_exp = (new RealVariable(1.0, true))->getId();
+    if (sl_one_exp.isNoId()) {
+	  Variable* var = new RealVariable(1.0, true);
+	  var->setName("Real constant 1");
+      sl_one_exp = var->getId();
+	}
     if(!sl_one_exp->isActive())
       sl_one_exp->activate();
     return sl_one_exp;
@@ -769,8 +770,11 @@ namespace PLEXIL
 
   ExpressionId& RealVariable::MINUS_ONE_EXP() {
     static ExpressionId sl_minus_one_exp;
-    if (sl_minus_one_exp.isNoId())
-      sl_minus_one_exp = (new RealVariable(-1.0, true))->getId();
+    if (sl_minus_one_exp.isNoId()) {
+	  Variable* var = new RealVariable(-1.0, true);
+	  var->setName("Real constant -1");
+      sl_minus_one_exp = var->getId();
+	}
     if(!sl_minus_one_exp->isActive())
       sl_minus_one_exp->activate();
     return sl_minus_one_exp;
@@ -794,26 +798,9 @@ namespace PLEXIL
 
   std::string IntegerVariable::toString() const {
     std::ostringstream retval;
-    retval << Expression::toString();
+    retval << Variable::toString();
     retval << "int)";
     return retval.str();
-  }
-
-  // FIXME: Shouldn't these be PLUS_INFINTIY, MINUS_INFINITY?!
-
-  // Specialized for integer values.
-  std::string IntegerVariable::valueString() const {
-    if (m_value == Expression::UNKNOWN())
-      return std::string("UNKNOWN");
-    else if (m_value == REAL_PLUS_INFINITY)
-      return std::string("inf");
-    else if (m_value == REAL_MINUS_INFINITY)
-      return std::string("-inf");
-    else {
-	  std::ostringstream retval;
-      retval << (int32_t) m_value;
-	  return retval.str();
-	}
   }
 
   bool IntegerVariable::checkValue(const double val) {
@@ -829,8 +816,11 @@ namespace PLEXIL
   ExpressionId& IntegerVariable::ZERO_EXP()
   {
     static ExpressionId sl_zero_exp;
-    if (sl_zero_exp.isNoId())
-      sl_zero_exp = (new IntegerVariable(0.0, true))->getId();
+    if (sl_zero_exp.isNoId()) {
+	  Variable* var = new IntegerVariable(0.0, true);
+	  var->setName("Integer constant 0");
+      sl_zero_exp = var->getId();
+	}
     if(!sl_zero_exp->isActive())
       sl_zero_exp->activate();
     return sl_zero_exp;
@@ -839,8 +829,11 @@ namespace PLEXIL
   ExpressionId& IntegerVariable::ONE_EXP()
   {
     static ExpressionId sl_one_exp;
-    if (sl_one_exp.isNoId())
-      sl_one_exp = (new IntegerVariable(1.0, true))->getId();
+    if (sl_one_exp.isNoId()) {
+	  Variable* var = new IntegerVariable(1.0, true);
+	  var->setName("Integer constant 1");
+      sl_one_exp = var->getId();
+	}
     if(!sl_one_exp->isActive())
       sl_one_exp->activate();
     return sl_one_exp;
@@ -849,8 +842,11 @@ namespace PLEXIL
   ExpressionId& IntegerVariable::MINUS_ONE_EXP()
   {
     static ExpressionId sl_minus_one_exp;
-    if (sl_minus_one_exp.isNoId())
-      sl_minus_one_exp = (new IntegerVariable(-1.0, true))->getId();
+    if (sl_minus_one_exp.isNoId()) {
+	  Variable* var = new IntegerVariable(-1.0, true);
+	  var->setName("Integer constant -1");
+      sl_minus_one_exp = var->getId();
+	}
     if(!sl_minus_one_exp->isActive())
       sl_minus_one_exp->activate();
     return sl_minus_one_exp;
@@ -872,21 +868,9 @@ namespace PLEXIL
 
   std::string BooleanVariable::toString() const {
     std::ostringstream retval;
-    retval << Expression::toString();
+    retval << Variable::toString();
     retval << "boolean)";
     return retval.str();
-  }
-
-  // Specialized for Boolean values.
-  // *** FIXME: should this return "true" or "false" instead of "0" or "1"?
-  std::string BooleanVariable::valueString() const {
-    if (m_value == Expression::UNKNOWN())
-      return std::string("UNKNOWN");
-    else {
-	  std::ostringstream retval;
-      retval << m_value;
-	  return retval.str();
-	}
   }
 
   bool BooleanVariable::checkValue(const double val) {
@@ -895,8 +879,11 @@ namespace PLEXIL
 
   ExpressionId& BooleanVariable::TRUE_EXP() {
     static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new BooleanVariable(TRUE(), true))->getId();
+    if (sl_exp.isNoId()) {
+	  Variable* var = new BooleanVariable(TRUE(), true);
+	  var->setName("Boolean constant true");
+      sl_exp = var->getId();
+	}
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
@@ -904,8 +891,11 @@ namespace PLEXIL
 
   ExpressionId& BooleanVariable::FALSE_EXP() {
     static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new BooleanVariable(FALSE(), true))->getId();
+    if (sl_exp.isNoId()) {
+	  Variable* var = new BooleanVariable(FALSE(), true);
+	  var->setName("Boolean constant false");
+      sl_exp = var->getId();
+	}
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
@@ -913,8 +903,11 @@ namespace PLEXIL
 
   ExpressionId& BooleanVariable::UNKNOWN_EXP() {
     static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new BooleanVariable(UNKNOWN(), true))->getId();
+    if (sl_exp.isNoId()) {
+	  Variable* var = new BooleanVariable(UNKNOWN(), true);
+	  var->setName("Boolean constant unknown");
+      sl_exp = var->getId();
+	}
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
