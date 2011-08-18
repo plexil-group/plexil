@@ -449,7 +449,7 @@ SimpleDrive{
   NextWaypoint{
    State: (id_314[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: Boolean constant false (id_271[au](0): boolean)
-   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_RCVD_BY_SYSTEM):  command_handle) == (id_418[iu](UNKNOWN):  command_handle))))
+   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_RCVD_BY_SYSTEM):  command_handle) == (id_418[iu](COMMAND_RCVD_BY_SYSTEM):  command_handle))))
    EndCondition: (id_429[au](0): ((id_423[au](0): interruptibleCommandHandleValues(anonymous (id_422[au](UNKNOWN): string))) || (id_427[au](0): ((id_425[au](0): isknown(anonymous (id_422[au](UNKNOWN): string))) && Boolean constant true (id_272[au](1): boolean)))
    InvariantCondition: Boolean constant true (id_272[au](1): boolean)
    PreCondition: Boolean constant true (id_272[au](1): boolean)
@@ -513,7 +513,7 @@ SimpleDrive{
   NextWaypoint{
    State: (id_314[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: Boolean constant false (id_271[au](0): boolean)
-   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_RCVD_BY_SYSTEM):  command_handle) == (id_418[iu](UNKNOWN):  command_handle))))
+   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_RCVD_BY_SYSTEM):  command_handle) == (id_418[iu](COMMAND_RCVD_BY_SYSTEM):  command_handle))))
    EndCondition: (id_429[au](0): ((id_423[au](0): interruptibleCommandHandleValues(anonymous (id_422[au](UNKNOWN): string))) || (id_427[au](0): ((id_425[au](0): isknown(anonymous (id_422[au](UNKNOWN): string))) && Boolean constant true (id_272[au](1): boolean)))
    InvariantCondition: Boolean constant true (id_272[au](1): boolean)
    PreCondition: Boolean constant true (id_272[au](1): boolean)
@@ -580,7 +580,7 @@ SimpleDrive{
   NextWaypoint{
    State: (id_314[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: Boolean constant false (id_271[au](0): boolean)
-   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_SUCCESS):  command_handle) == (id_418[iu](UNKNOWN):  command_handle))))
+   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_SUCCESS):  command_handle) == (id_418[iu](COMMAND_RCVD_BY_SYSTEM):  command_handle))))
    EndCondition: (id_429[au](0): ((id_423[au](0): interruptibleCommandHandleValues(anonymous (id_422[au](UNKNOWN): string))) || (id_427[au](0): ((id_425[au](0): isknown(anonymous (id_422[au](UNKNOWN): string))) && Boolean constant true (id_272[au](1): boolean)))
    InvariantCondition: Boolean constant true (id_272[au](1): boolean)
    PreCondition: Boolean constant true (id_272[au](1): boolean)
@@ -644,7 +644,7 @@ SimpleDrive{
   NextWaypoint{
    State: (id_314[au](EXECUTING): state(EXECUTING)) (0)
    SkipCondition: Boolean constant false (id_271[au](0): boolean)
-   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_SUCCESS):  command_handle) == (id_418[iu](UNKNOWN):  command_handle))))
+   StartCondition: (id_416[iu](UNKNOWN): (id_419[iu](UNKNOWN): ((id_280[au](COMMAND_SUCCESS):  command_handle) == (id_418[iu](COMMAND_RCVD_BY_SYSTEM):  command_handle))))
    EndCondition: (id_429[au](0): ((id_423[au](0): interruptibleCommandHandleValues(anonymous (id_422[au](UNKNOWN): string))) || (id_427[au](0): ((id_425[au](0): isknown(anonymous (id_422[au](UNKNOWN): string))) && Boolean constant true (id_272[au](1): boolean)))
    InvariantCondition: Boolean constant true (id_272[au](1): boolean)
    PreCondition: Boolean constant true (id_272[au](1): boolean)
