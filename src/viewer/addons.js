@@ -121,6 +121,8 @@ function isCustomNode(temp, temp2, temp3) {
 	if(getCookie("showCustomCookie") == null || getCookie("showCustomCookie")=='') return isCustom;
 	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
 	for(var i = 0; i < customNodesArray.length; i++) {
+		while(customNodesArray[i].charAt(0) == " ") customNodesArray[i] = customNodesArray[i].substring(1);
+		while(customNodesArray[i].charAt(customNodesArray[i].length-1) == " ") customNodesArray[i] = customNodesArray[i].substring(0, customNodesArray[i].length-1);
 		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('?') == -1) {
 			if(getCookie("showLineCookie") == "false") {
 				if(((temp == customNodesArray[i]) && (temp.length == customNodesArray[i].length))) 
