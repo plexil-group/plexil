@@ -75,22 +75,25 @@ function checkIfDefaultFile() {
 function addModBox() {
    $("#mod").append([
 	'<form id="target">',
-		'<label for="PixelsPerTimeIncrementAmount" class="ui-widget">Pixels per time increment:</label>',
+		'<label for="PixelsPerTimeIncrementAmount">Pixels per time increment:</label>',
 		'<input type="text" id = "PixelsPerTimeIncrementAmount" style="border:0;background-color:gainsboro"/>',
     	'<div id="PixelsPerTimeIncrementSlider"></div>',
-       	'<label for="TokenHeightAmount" class="ui-widget">Token height:</label>',
+       	'<label for="TokenHeightAmount">Token height:</label>',
 		'<input type="text" id = "TokenHeightAmount" style="border:0;background-color:gainsboro;" />',
        	'<div id="TokenHeightSlider"></div>',
 	  	'<div id="scaleradio">',
-			'<label for="scaleradio" class="ui-widget">Scale down: </label>',
+			'<label for="scaleradio">Scale down: </label>',
+			'<small>',
 			'<input type="radio" id="scale1" value="1000" name="radio" /><label for="scale1">0.001x</label>',
 			'<input type="radio" id="scale2" value="100" name="radio" /><label for="scale2">0.01x</label>',
 			'<input type="radio" id="scale3" value="10" name="radio" /><label for="scale3">0.1x</label>',
 			'<input type="radio" id="scale4" value="1" name="radio" checked="checked" /><label for="scale4">1x</label>',
+			'</small>',
 		'</div>',
-	   	'<button id="ModBoxButton" class="ui-widget ui-button-text">Update Display</button>',
+	   	'<small><button id="ModBoxButton">Update Display</button></small>',
 	'</form>'
     ].join(''));
+   $('#ModBoxButton').button();
     //shows how to modify css display characteristics, use for details boxes
     $('#submitButton').css('display','');
     buildPixelsPerTimeIncrementSlider();

@@ -130,6 +130,9 @@ function convertTokens(rawTokens) {
 							if(!isCustomNode(temp, temp2, temp3)) {
 								result.push(token);
 							}
+							else {
+								customNodesUnhideArray.push(temp2);
+							}
 						}
 					}
 				}
@@ -139,7 +142,9 @@ function convertTokens(rawTokens) {
 				if(!isCustomNode(temp, temp2, temp3)) {
 					result.push(token);
 				}
-				//result.push(token);
+				else {
+					customNodesUnhideArray.push(temp2);
+				}
 			}
 		}		
 	}

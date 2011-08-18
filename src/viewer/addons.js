@@ -105,6 +105,16 @@ document.cookie = name +
 '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
 }
 
+function deleteAllCookies() {
+	deleteCookie("showGenCookie");
+	deleteCookie("showLineCookie");
+ 	deleteCookie("showFileCookie");
+ 	deleteCookie("showPixelsCookie");
+	deleteCookie("showHeightCookie");
+	deleteCookie("showScaleCookie");
+	deleteCookie("showCustomCookie");
+}
+
 /** determines if a custom node matches a token value **/
 function isCustomNode(temp, temp2, temp3) {
 	var isCustom = false;
@@ -112,11 +122,17 @@ function isCustomNode(temp, temp2, temp3) {
 	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
 	for(var i = 0; i < customNodesArray.length; i++) {
 		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('?') == -1) {
-			if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
-																				  //|| ((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
-																				  //|| ((temp3 == customNodesArray[i]) && (temp3.length == customNodesArray[i].length))
-																				  )
-				isCustom = true;
+			if(getCookie("showLineCookie") == "false") {
+				if(((temp == customNodesArray[i]) && (temp.length == customNodesArray[i].length))) 
+					isCustom = true;
+			}
+			else {
+				if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
+																				 	 //|| ((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
+																				  	 //|| ((temp3 == customNodesArray[i]) && (temp3.length == customNodesArray[i].length))
+																				 	 )
+					isCustom = true;
+			}
 		}
 		else if(customNodesArray[i].indexOf('*') != -1) {
 			isCustom = handleReferenceString(customNodesArray[i], temp, temp2, temp3);

@@ -134,14 +134,22 @@ function createDialogBoxes(tokens) {
 //footer is actually a fixed header; setup events
 function setupFooter(numberOfTokens) {
 	$('#footer').append([
-						'<button id="closeDialogs">Close all dialogs</button>',
+						'<small><small><button id="closeDialogs">Close all dialogs</button>',
 						'<button id="generatedNodes">Toggle generated nodes</button>',
 						'<button id="expandedNodes">Toggle timeline/expanded</button>',
 						'<button id="optionsBox">Toggle options box</button>',
 						'<button id="reset">Resize</button>',
 						'<button id="defaultvals">Reset to default</button>',
-						'<button id="customNodes">Hide specific nodes</button>'
+						'<button id="customNodes">Hide specific nodes</button></small></small>',
+						//'<button id="closeWindow">Close window</button>'
 						].join(''));
+	$('#closeDialogs').button();
+	$('#generatedNodes').button();
+	$('#expandedNodes').button();
+	$('#optionsBox').button();
+	$('#reset').button();
+	$('#defaultvals').button();
+	$('#customNodes').button();
 	$('#closeDialogs').click(function() {
 								for(var i = 0; i < numberOfTokens; i++) {
 									$('#dialogBox'+i).dialog("close");
@@ -159,27 +167,21 @@ function setupFooter(numberOfTokens) {
 	$('#optionsBox').click(function() {
 									if($('#mod').css('display') == 'none') {
 										$('#mod').show();
-										$('#gantt').css('top','180px');
+										$('#gantt').css('top','195px');
 									}
 									else {
 										$('#mod').css('display','none');
-										$('#gantt').css('top','20px');
+										$('#gantt').css('top','25px');
 									}
 									});
 	$('#defaultvals').click(function() {
-								 deleteCookie("showGenCookie");
-								 deleteCookie("showLineCookie");
-								 deleteCookie("showFileCookie");
-								 deleteCookie("showPixelsCookie");
-								 deleteCookie("showHeightCookie");
-								 deleteCookie("showScaleCookie");
-								 deleteCookie("showCustomCookie");
+								 deleteAllCookies();
 								 window.location.reload();
 								 });
 	$('#customNodes').click(function() {
 									 $('#gantt').append([
 														'<div id="customNodesBox">',
-														'Specify nodes (separate with commas):<br>',
+														'Specify nodes (separate with commas; no spaces):<br>',
 														'<textarea id="customNodesText" cols="40" rows="8" /><br>',
 														'<button id="customNodesButton">Submit</button>',
 														'<button id="customNodesClearButton">Show all nodes</button>',
@@ -202,6 +204,11 @@ function setupFooter(numberOfTokens) {
 																			});
 									 $('#customNodesText').val(getCookie("showCustomCookie"));
 									 });
+	$('#closeWindow').click(function() {
+									 deleteAllCookies();
+									 window.close();
+									 });
+														 
 
 }
 
@@ -280,6 +287,7 @@ function toggleCookiesExpanded() {
 
 /** handling specific nodes to hide **/
 var customNodesArray = new Array();
+var customNodesUnhideArray = new Array();
 
 /** repack the user's input to CSV string to package into cookie **/
 function performCustomNodes() {
