@@ -1112,7 +1112,8 @@ namespace PLEXIL {
     {
        // get the variable name
 
-       LabelStr name((*it)->name());
+	  const std::string& name = (*it)->name();
+	  LabelStr nameLabel(name);
 
        // if it's an array, make me an array
        
@@ -1123,13 +1124,14 @@ namespace PLEXIL {
                                                                  m_connector);
           //CHECK FOR DUPLICATE NAMES
 
-          m_variablesByName[name] = varId;
+          m_variablesByName[nameLabel] = varId;
+		  ((Variable*) varId)->setName(name);
           m_localVariables.push_back(varId);
           debugMsg("Node:createDeclaredVars",
                    " for node '" << m_nodeId.toString()
 				   << "': created array variable "
                    << varId->toString()  << " as '"
-				   << name.c_str() << "'");
+				   << name << "'");
        }
        // otherwise create a non-array variable
 
@@ -1140,13 +1142,14 @@ namespace PLEXIL {
                                                                  m_connector);
           //CHECK FOR DUPLICATE NAMES
 
-          m_variablesByName[name] = varId;
+          m_variablesByName[nameLabel] = varId;
+		  ((Variable*) varId)->setName(name);
           m_localVariables.push_back(varId);
           debugMsg("Node:createDeclaredVars",
                    " for node '" << m_nodeId.toString()
 				   << "': created variable " 
 				   << varId->toString() << " as '"
-				   << name.c_str() << "'");
+				   << name << "'");
        }
     }
   }
