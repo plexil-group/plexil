@@ -509,6 +509,7 @@ namespace PLEXIL
 	  checkTag(ASSN_TAG, xml);
 	  PlexilAssignmentBody* retval = new PlexilAssignmentBody();
 	  parseDest(xml, retval);
+	  // FIXME: add check for (at least) one destination variable here
 	  const TiXmlElement* rhs = NULL;
 	  for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child
 			 = child->NextSiblingElement()) {
@@ -873,7 +874,7 @@ namespace PLEXIL
 	checkParserException(doc.LoadFile(),
 						 "Error reading XML file " << str << ": " << doc.ErrorDesc());
 	TiXmlElement* root = doc.RootElement();
-	checkParserException(root != NULL, "No root node in file " << str);
+	checkParserException(root != NULL, "XML parsing error: No XML document in file " << str);
 	PlexilNodeId result = parse(root);
 	if (result->fileName().empty())
 	  result->setFileName(str);
@@ -883,8 +884,6 @@ namespace PLEXIL
   PlexilNodeId PlexilXmlParser::parse(const char* text)
 	throw(ParserException) 
   {
-	registerParsers();
-
 	// First parse the XML itself
 	TiXmlDocument doc;
 	doc.LoadFile(text);
@@ -894,7 +893,7 @@ namespace PLEXIL
 						 << ") XML parsing error: " << doc.ErrorDesc());
 
 	TiXmlElement* root = doc.RootElement();
-	PlexilNodeId result = parseNode(root);
+	PlexilNodeId result = parse(root);
 	return result;
   }
 
@@ -904,11 +903,16 @@ namespace PLEXIL
 	registerParsers();
 	// strip away PlexilPlan wrapper, if any
 	if (testTag(PLEXIL_PLAN_TAG, xml)) {
+	  // TODO: parse global declarations
 	  const TiXmlElement* node = xml->FirstChildElement(NODE_TAG);
-	  checkParserException(node != NULL, "No root node in " << xml);
+	  checkParserExceptionWithLocation(node != NULL,
+									   xml,
+									   "XML parsing error: No root node found");
 	  xml = node;
 	}
-	return parseNode(xml);
+	PlexilNodeId result = parseNode(xml);
+	// FIXME: Add post-parse checks (e.g. node and variable accessibility) here
+	return result;
   }
 
   PlexilExprId PlexilXmlParser::parseExpr(const TiXmlElement* xml)
