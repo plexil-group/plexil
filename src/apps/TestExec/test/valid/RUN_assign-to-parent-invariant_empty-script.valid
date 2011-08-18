@@ -2,9 +2,9 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 Parent{
- State: (id_230[au](INACTIVE): state(INACTIVE)) (inf)
+ State: (id_231[au](INACTIVE): state(INACTIVE)) (inf)
   Child{
-   State: (id_283[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_272[au](INACTIVE): state(INACTIVE)) (inf)
   }
 }
 
@@ -52,7 +52,7 @@ Parent{
 [PlexilExec:handleNeedsExecution]Storing action for node 'Child' of type 'Assignment' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node Child
 [PlexilExec:unlock]Unlocking node Child
-[Test:testOutput]Assigning 'step_failed' ((id_280[au](0): boolean)) to 1
+[Test:testOutput]Assigning 'step_failed' (step_failed (id_269[au](0): boolean)) to 1
 [PlexilExec:notifyNodeConditionChanged] for node Parent
 [PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Child' for state transition.
@@ -94,15 +94,15 @@ Parent{
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Parent{
- State: (id_230[au](FINISHED): state(FINISHED)) (0)
- Outcome: (id_231[au](FAILURE):  outcome)
- Failure type: (id_232[au](INVARIANT_CONDITION_FAILED):  failure)
- step_failed: (id_280[iu](UNKNOWN): boolean)
+ State: (id_231[au](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_232[au](FAILURE):  outcome)
+ Failure type: (id_233[au](INVARIANT_CONDITION_FAILED):  failure)
+ step_failed: step_failed (id_269[iu](UNKNOWN): boolean)
   Child{
-   State: (id_283[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_284[au](FAILURE):  outcome)
-   Failure type: (id_285[au](PARENT_FAILED):  failure)
-   step_failed: (id_280[iu](UNKNOWN): boolean)
+   State: (id_272[au](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_273[au](FAILURE):  outcome)
+   Failure type: (id_274[au](PARENT_FAILED):  failure)
+   step_failed: step_failed (id_269[iu](UNKNOWN): boolean)
   }
 }
 
