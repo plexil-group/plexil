@@ -150,6 +150,11 @@ function setupFooter(numberOfTokens) {
 	$('#reset').button();
 	$('#defaultvals').button();
 	$('#customNodes').button();
+	$('#footer').append([
+						 '<a href="http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Viewing_Plan_Execution#Temporal_Plan_Viewer" id="help" target="blank">',
+						 'Help',
+						 '</a>'
+						 ].join(''));
 	$('#closeDialogs').click(function() {
 								for(var i = 0; i < numberOfTokens; i++) {
 									$('#dialogBox'+i).dialog("close");

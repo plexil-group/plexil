@@ -312,4 +312,18 @@ body {
 	display:none;
 }
 
+#help {
+	position:fixed;
+	left:97%;
+	font-size:12px;
+	color:white;
+	font-family:Helvetica;
+	top:7px;
+	text-decoration:none;
+}
+
+#help:hover {
+	text-decoration:underline;
+}
+
 /* End Token Details */
