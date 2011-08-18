@@ -269,7 +269,7 @@ namespace PLEXIL {
     str << m_name << " (" << getId() << "[" 
 	<< (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") 
 	<< "](" 
-	<< valueString() << "): ";
+	<< valueToString(m_value) << "): ";
     return str.str();
   }
 
