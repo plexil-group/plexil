@@ -273,6 +273,17 @@ namespace PLEXIL {
     return str.str();
   }
 
+  /**
+   * @brief Get a string representation of the value of this Variable.
+   * @return The string representation.
+   * @note This method always uses the stored value whether or not the variable is active,
+   *       unlike the base class method.
+   */
+  std::string Variable::valueString() const
+  {
+	return valueToString(m_value);
+  }
+
   void Variable::reset() {
     if(!isConst()) {
       internalSetValue(m_initialValue);
@@ -325,17 +336,6 @@ namespace PLEXIL {
       checkError(checkValue(m_value), 
 				 "Invalid " << PlexilParser::valueTypeString(val->type()) << " '" << Expression::valueToString(m_value) << "'");
     }
-  }
-
-  /**
-   * @brief Make this variable const post-construction.  This can't be undone, otherwise
-   *        const-ness is pretty meaningless.
-   * @note Doesn't seem to be used anywhere.
-   */
-  void Variable::setConst()
-  {
-	warn("Variable::setConst called on " << toString());
-	m_isConst = true;
   }
 
   /**

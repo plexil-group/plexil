@@ -399,6 +399,14 @@ namespace PLEXIL {
     std::string toString() const;
 
     /**
+     * @brief Get a string representation of the value of this Variable.
+     * @return The string representation.
+	 * @note This method always uses the stored value whether or not the variable is active,
+	 *       unlike the base class method.
+     */
+    virtual std::string valueString() const;
+
+    /**
      * @brief Set the value of this expression back to the initial value with which it was
      *        created.
      */
@@ -422,13 +430,6 @@ namespace PLEXIL {
      * @return The initial value of this variable.
      */
     double initialValue() const {return m_initialValue;}
-
-    /**
-     * @brief Make this variable const post-construction.  This can't be undone, otherwise
-     *        const-ness is pretty meaningless.
-	 * @note Doesn't seem to be used anywhere.
-     */
-    void setConst();
 
 	/**
 	 * @brief Set the name of this variable.
