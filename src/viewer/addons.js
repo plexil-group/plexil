@@ -148,7 +148,7 @@ function isCustomNode(temp, temp2, temp3) {
 
 /** handles reference strings/wildcard * in custom node specifications **/
 function handleReferenceString(string, temp, temp2, temp3) {
-	alertonce('entered handle ref');
+	//alertonce('entered handle ref');
 	var stars = new Array();
 	var finalBool = false;
 	for(var i = 0; i < string.length; i++) {
