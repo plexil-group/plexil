@@ -126,7 +126,7 @@ function isCustomNode(temp, temp2, temp3) {
 	//END DEBUG 8/18/11
 		while(customNodesArray[i].charAt(0) == " ") customNodesArray[i] = customNodesArray[i].substring(1);
 		while(customNodesArray[i].charAt(customNodesArray[i].length-1) == " ") customNodesArray[i] = customNodesArray[i].substring(0, customNodesArray[i].length-1);
-		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('?') == -1) {
+		if((customNodesArray[i].indexOf('*') == -1) && (customNodesArray[i].indexOf('+') == -1) && (customNodesArray[i].indexOf('?') == -1)) {
 			if(getCookie("showLineCookie") == "false") {
 				if(((temp == customNodesArray[i]) && (temp.length == customNodesArray[i].length))) 
 					isCustom = true;
@@ -148,6 +148,7 @@ function isCustomNode(temp, temp2, temp3) {
 
 /** handles reference strings/wildcard * in custom node specifications **/
 function handleReferenceString(string, temp, temp2, temp3) {
+	alertonce('entered handle ref');
 	var stars = new Array();
 	var finalBool = false;
 	for(var i = 0; i < string.length; i++) {
@@ -240,7 +241,6 @@ function keepUnhideChecks() {
 
 function finishUnhideChecks() {
 	var cookie = getCookie("showCustomCookie");
-	alert(cookie);
 	for(var i = 0; i < customUnhideChecks.length; i++) {
 		//alert(customUnhideChecks[i]);
 		cookie = cookie.substring(0, cookie.indexOf(customUnhideChecks[i])) + cookie.substring(cookie.indexOf(customUnhideChecks[i])+customUnhideChecks[i].length+1);
