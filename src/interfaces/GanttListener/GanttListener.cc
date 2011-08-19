@@ -94,6 +94,7 @@ namespace PLEXIL
     string localvariables;
     string children;
     vector<string> localvarsvector;
+    vector<string> nodetreevector; // 8/19/11
   };
 
   //all the nodes
@@ -237,11 +238,28 @@ namespace PLEXIL
       actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
 
       //executingIndex is currently unused
+      /** 8/19/11 **/
+      NodeId currentNode = nodeId;
+      vector<string> nodeTreeStrings;
+      while(currentNode->getParent().isId()) {
+	NodeId newNode = currentNode->getParent();
+	currentNode = newNode;
+	nodeTreeStrings.push_back(currentNode->getNodeId().toString());
+      }
+      /** **/
       for(int i=0; i<nodes.size(); i++) {
 	//give looping nodes the same ID
-	if(myId == nodes[i].name && myType == nodes[i].type && myVal == nodes[i].val) {
-	  actualId = nodes[i].id;
-	  executingIndex = i;
+	if(myId == nodes[i].name && myType == nodes[i].type && myVal == nodes[i].val && myParent == nodes[i].parent) {
+	  /** 8/19/11 **/
+	  bool isCertifiedLoop = true; //
+	  for(int j = 0; j < nodeTreeStrings.size(); j++) { //
+	    if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) isCertifiedLoop = false; //
+	  } //
+	  if(isCertifiedLoop) { //
+	    actualId = nodes[i].id;
+	    executingIndex = i;
+	  } //
+	  /** **/
 	}
       }
 
@@ -297,6 +315,9 @@ namespace PLEXIL
       temp.children = myChildren;
       temp.localvariables = myLocalVars;
       temp.localvarsvector = myLocalVariableMapValues;
+      /** 8/19/11 **/
+      temp.nodetreevector = nodeTreeStrings;
+      /** **/
       nodes.push_back(temp);
     }
 
