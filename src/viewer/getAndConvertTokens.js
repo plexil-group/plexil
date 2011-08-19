@@ -131,7 +131,7 @@ function convertTokens(rawTokens) {
 								result.push(token);
 							}
 							else {
-								customNodesUnhideArray.push(temp2);
+								doCustomUnhide(temp, temp2);
 							}
 						}
 					}
@@ -143,7 +143,7 @@ function convertTokens(rawTokens) {
 					result.push(token);
 				}
 				else {
-					customNodesUnhideArray.push(temp2);
+					doCustomUnhide(temp, temp2);
 				}
 			}
 		}		

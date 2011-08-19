@@ -27,6 +27,16 @@
 * Originally authored by Swanson, Keith J. (ARC-TI)
 */
 
+$(document).append([
+					'<div id="loading">',
+					'Loading',
+					'</div>'
+					].join(''));
+
+$(window).load(function(){  
+      $("#loading").hide();  
+});  
+
 $(document).ready(getSetup);
 
 //initialize cookies and organize and clean divs

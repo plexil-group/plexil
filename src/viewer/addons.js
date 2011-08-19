@@ -121,6 +121,9 @@ function isCustomNode(temp, temp2, temp3) {
 	if(getCookie("showCustomCookie") == null || getCookie("showCustomCookie")=='') return isCustom;
 	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
 	for(var i = 0; i < customNodesArray.length; i++) {
+		//DEBUG 8/18/11
+		while(customNodesArray[i].charAt(0) == "\n") customNodesArray[i] = customNodesArray[i].substring(1);
+	//END DEBUG 8/18/11
 		while(customNodesArray[i].charAt(0) == " ") customNodesArray[i] = customNodesArray[i].substring(1);
 		while(customNodesArray[i].charAt(customNodesArray[i].length-1) == " ") customNodesArray[i] = customNodesArray[i].substring(0, customNodesArray[i].length-1);
 		if(customNodesArray[i].indexOf('*') == -1 && customNodesArray[i].indexOf('+') == -1 && customNodesArray[i].indexOf('?') == -1) {
@@ -174,6 +177,76 @@ function handleReferenceString(string, temp, temp2, temp3) {
 		}
 	}
 	return finalBool;
+}
+
+function doCustomUnhide(temp, temp2) {
+	var isInc = false;
+	for(var i = 0; i < customNodesUnhideArray.length; i++) {
+		if(customNodesUnhideArray[i] == temp2) isInc = true;
+	}
+	if(!isInc) customNodesUnhideArray.push(temp2);
+	$('#gantt').append([
+								 '<div id="customNodesUnhideBox">',
+								 '<table border="0">',
+								 '<tr>',
+								 '<td width="150"><strong>Node name</td>',
+								 //'<td><strong>Unhide</td>',
+								 '</tr>',
+								 ].join(''));
+	for(var i = 0; i < customNodesUnhideArray.length; i++) {
+		$('#customNodesUnhideBox').append([
+									 '<tr>',
+									 '<td>&nbsp;',
+									 customNodesUnhideArray[i],
+									 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+									 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>',
+									 //'<td><input type="checkbox" value="',
+									 //customNodesUnhideArray[i],
+									 //'"/></td>',
+									 '</tr>',
+									 ].join(''));
+	}
+	$('#customNodesUnhideBox').append([
+								 '</table>',
+								 '</div>',
+								 ].join(''));
+	/**
+	$('#customNodesUnhideBox').append([
+									   '<button id="customNodesUnhideButton">',
+									   'Unhide selected',
+									   '</button>',
+									   ].join(''));
+	**/
+	$('#customNodesUnhideBox').dialog({
+								autoOpen:false,
+								height:250,
+								width:400,
+								title:'Hidden nodes',
+								});
+	$('#customNodesUnhideBox').dialog("close");
+	//$(":checkbox").click(keepUnhideChecks);
+	/**
+	$('#customNodesUnhideButton').click(function() {
+												 finishUnhideChecks();
+												 });
+	**/
+}
+
+var customUnhideChecks = new Array();
+function keepUnhideChecks() {
+	var n = $("input:checkbox:checked").val();
+	customUnhideChecks.push(n);
+}
+
+function finishUnhideChecks() {
+	var cookie = getCookie("showCustomCookie");
+	alert(cookie);
+	for(var i = 0; i < customUnhideChecks.length; i++) {
+		//alert(customUnhideChecks[i]);
+		cookie = cookie.substring(0, cookie.indexOf(customUnhideChecks[i])) + cookie.substring(cookie.indexOf(customUnhideChecks[i])+customUnhideChecks[i].length+1);
+	}
+	setCookie("showCustomCookie",cookie);
+	//alertonce(getCookie("showCustomCookie"));
 }
 
 /** alerters for debugging **/

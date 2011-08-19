@@ -190,12 +190,13 @@ function setupFooter(numberOfTokens) {
 														'<textarea id="customNodesText" cols="40" rows="8" /><br>',
 														'<button id="customNodesButton">Submit</button>',
 														'<button id="customNodesClearButton">Show all nodes</button>',
+														'<button id="listHiddenNodesButton">List hidden nodes</button>',
 														'</div>'
 														].join(''));
 									 $('#customNodesBox').dialog({
 																autoOpen:false,
-																height:250,
-																width:400,
+																height:300,
+																width:460,
 																title:'Hide specific nodes',
 																});
 									 $('#customNodesBox').dialog("open");
@@ -208,7 +209,13 @@ function setupFooter(numberOfTokens) {
 																			window.location.reload();
 																			});
 									 $('#customNodesText').val(getCookie("showCustomCookie"));
-									 });
+									 $('#listHiddenNodesButton').click(function() {	
+															$('#customNodesUnhideBox').dialog("open");
+																				});
+									 $('#customNodesBox').append('<div id="customNodesUnhideArea"></div>');
+									 }); 
+									
+	//only supported in Safari
 	$('#closeWindow').click(function() {
 									 deleteAllCookies();
 									 window.close();
