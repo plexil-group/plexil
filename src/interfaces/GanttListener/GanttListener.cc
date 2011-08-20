@@ -253,7 +253,9 @@ namespace PLEXIL
 	  /** 8/19/11 **/
 	  bool isCertifiedLoop = true; //
 	  for(int j = 0; j < nodeTreeStrings.size(); j++) { //
-	    if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) isCertifiedLoop = false; //
+	    if(nodes[i].nodetreevector.size() == 0) {
+	      if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) isCertifiedLoop = false; //
+	    }
 	  } //
 	  if(isCertifiedLoop) { //
 	    actualId = nodes[i].id;
