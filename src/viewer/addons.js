@@ -145,10 +145,7 @@ function doExactNode(temp, temp2, temp3) {
 					isCustom = true;
 			}
 			else {
-				if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
-																				 	 //|| ((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
-																				  	 //|| ((temp3 == customNodesArray[i]) && (temp3.length == customNodesArray[i].length))
-																				 	 )
+				if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)))
 					isCustom = true;
 			}
 		}
@@ -162,9 +159,9 @@ function doRegularExpression(temp,temp2,temp3) {
 	for(var i = 0; i < customNodesArray.length; i++) {
 		if(customNodesArray[i].indexOf('*') != -1) {
 			if(getCookie("showLineCookie") == "false")
-				isRegExp = handleReferenceString(customNodesArray[i], temp, temp, temp3);
+				isRegExp = handleRegularExpression(customNodesArray[i], temp, temp, temp3);
 			else
-				isRegExp = handleReferenceString(customNodesArray[i], temp, temp2, temp3);
+				isRegExp = handleRegularExpression(customNodesArray[i], temp, temp2, temp3);
 			if(isRegExp) return isRegExp;
 		}
 	}
@@ -172,7 +169,7 @@ function doRegularExpression(temp,temp2,temp3) {
 }
 
 /** handles regular expression/wildcard * in custom node specifications **/
-function handleReferenceString(string, temp, temp2, temp3) {
+function handleRegularExpression(string, temp, temp2, temp3) {
 	var stars = new Array();
 	var finalBool = true;
 	for(var i = 0; i < string.length; i++) {
@@ -180,12 +177,7 @@ function handleReferenceString(string, temp, temp2, temp3) {
 			stars.push(i);
 		}
 	}
-	//stars.reverse();
-	//
-	//for(var i = 0; i < stars.length; i++) alert(stars[i]);
-	//
 	var start = 0;
-	//8/19/11
 	var constructStrings = new Array();
 	for(var i = 0; i < stars.length; i++) {
 		var newstring = string.substring(start, stars[i]);
@@ -197,7 +189,8 @@ function handleReferenceString(string, temp, temp2, temp3) {
 		constructStrings.push(newstring);
 	}
 	var tempBools = new Array();
-	if(temp2.length < string.length) tempBools.push(false);
+	//string must contain all construct strings for the function to return true, indicating a target node
+	if(temp2.length != string.length) tempBools.push(false);
 	for(var i = 0; i < constructStrings.length; i++) {
 		if(temp2.indexOf(constructStrings[i]) != -1) {
 			tempBools.push(true);
@@ -208,31 +201,9 @@ function handleReferenceString(string, temp, temp2, temp3) {
 		if(tempBools[i] == false) finalBool = false;
 	}
 	return finalBool;
-	/**
-	var boolVals = new Array();
-	for(var i = 0; i < stars.length+1; i++) {
-		if(string.substring(start, stars[i]) != '') {
-			if((temp.indexOf(string.substring(start, stars[i])) != -1) || (temp2.indexOf(string.substring(start, stars[i])) != -1) || (temp3.indexOf(string.substring(start, stars[i])) != -1)) {
-				boolVals.push(true);
-			}
-			else {
-				boolVals.push(false);
-			}
-		}
-		start = stars[i]+1;
-	}
-	for(var i = 0; i < boolVals.length; i++) {
-		if(boolVals[i]) {
-			finalBool = true;
-		}
-		else {
-			finalBool = false;
-		}
-	}
-	return finalBool;
-	**/
 }
 
+/** lists nodes that are hidden **/
 function doCustomUnhide(temp, temp2) {
 	var isInc = false;
 	for(var i = 0; i < customNodesUnhideArray.length; i++) {
@@ -244,7 +215,6 @@ function doCustomUnhide(temp, temp2) {
 								 '<table border="0">',
 								 '<tr>',
 								 '<td width="150"><strong>Node name</td>',
-								 //'<td><strong>Unhide</td>',
 								 '</tr>',
 								 ].join(''));
 	for(var i = 0; i < customNodesUnhideArray.length; i++) {
@@ -254,9 +224,6 @@ function doCustomUnhide(temp, temp2) {
 									 customNodesUnhideArray[i],
 									 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 									 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>',
-									 //'<td><input type="checkbox" value="',
-									 //customNodesUnhideArray[i],
-									 //'"/></td>',
 									 '</tr>',
 									 ].join(''));
 	}
@@ -264,13 +231,6 @@ function doCustomUnhide(temp, temp2) {
 								 '</table>',
 								 '</div>',
 								 ].join(''));
-	/**
-	$('#customNodesUnhideBox').append([
-									   '<button id="customNodesUnhideButton">',
-									   'Unhide selected',
-									   '</button>',
-									   ].join(''));
-	**/
 	$('#customNodesUnhideBox').dialog({
 								autoOpen:false,
 								height:250,
@@ -278,33 +238,9 @@ function doCustomUnhide(temp, temp2) {
 								title:'Hidden nodes',
 								});
 	$('#customNodesUnhideBox').dialog("close");
-	//$(":checkbox").click(keepUnhideChecks);
-	/**
-	$('#customNodesUnhideButton').click(function() {
-												 finishUnhideChecks();
-												 });
-	**/
 }
 
-/**
-var customUnhideChecks = new Array();
-function keepUnhideChecks() {
-	var n = $("input:checkbox:checked").val();
-	customUnhideChecks.push(n);
-}
-
-function finishUnhideChecks() {
-	var cookie = getCookie("showCustomCookie");
-	for(var i = 0; i < customUnhideChecks.length; i++) {
-		//alert(customUnhideChecks[i]);
-		cookie = cookie.substring(0, cookie.indexOf(customUnhideChecks[i])) + cookie.substring(cookie.indexOf(customUnhideChecks[i])+customUnhideChecks[i].length+1);
-	}
-	setCookie("showCustomCookie",cookie);
-	//alertonce(getCookie("showCustomCookie"));
-}
-**/
-
-/** alerters for debugging **/
+/** alerter for debugging **/
 var alerter = 0;
 function alertonce(string) {
 	if(alerter == 0) {

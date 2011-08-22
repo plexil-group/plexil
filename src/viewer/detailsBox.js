@@ -141,7 +141,6 @@ function setupFooter(numberOfTokens) {
 						'<button id="reset">Resize</button>',
 						'<button id="defaultvals">Reset to default</button>',
 						'<button id="customNodes">Hide specific nodes</button></small></small>',
-						//'<button id="closeWindow">Close window</button>'
 						].join(''));
 	$('#closeDialogs').button();
 	$('#generatedNodes').button();
@@ -214,14 +213,6 @@ function setupFooter(numberOfTokens) {
 																				});
 									 $('#customNodesBox').append('<div id="customNodesUnhideArea"></div>');
 									 }); 
-									
-	//only supported in Safari
-	$('#closeWindow').click(function() {
-									 deleteAllCookies();
-									 window.close();
-									 });
-														 
-
 }
 
 //get a global copy of the tokens
