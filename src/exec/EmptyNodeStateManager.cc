@@ -25,10 +25,10 @@
 */
 
 #include "EmptyNodeStateManager.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
-#include "Variables.hh"
 
 namespace PLEXIL
 {
@@ -53,19 +53,19 @@ namespace PLEXIL
 		 "End for " << node->getNodeId().toString() << " is inactive.");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
-          BooleanVariable::FALSE())
+          BooleanVariable::FALSE_VALUE())
       {
          debugMsg("Node:getDestState", "Destination: FINISHED. Ancestor invariant false.");
          return FINISHED_STATE;
       }
       else if(node->getInvariantCondition()->getValue() ==
-	      BooleanVariable::FALSE())
+	      BooleanVariable::FALSE_VALUE())
       {
          debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  Invariant false.");
          return ITERATION_ENDED_STATE;
       }
       else if(node->getEndCondition()->getValue() ==
-	      BooleanVariable::TRUE())
+	      BooleanVariable::TRUE_VALUE())
 	{
 	  debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  End condition true.");
 	  return ITERATION_ENDED_STATE;
@@ -92,19 +92,19 @@ namespace PLEXIL
 		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
-          BooleanVariable::FALSE())
+          BooleanVariable::FALSE_VALUE())
       {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
       }
       else if (node->getInvariantCondition()->getValue() ==
-               BooleanVariable::FALSE())
+               BooleanVariable::FALSE_VALUE())
       {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
       }
-      else if(node->getEndCondition()->getValue() == BooleanVariable::TRUE()) {
-	if(node->getPostCondition()->getValue() == BooleanVariable::TRUE())
+      else if(node->getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	if(node->getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE())
 	  node->getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
 	else {
 	  node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());

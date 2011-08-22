@@ -25,6 +25,7 @@
 */
 
 #include "Calculables.hh"
+#include "BooleanVariable.hh"
 #include "ExpressionFactory.hh"
 #include "Variables.hh"
 
@@ -36,7 +37,7 @@ namespace PLEXIL
   //
 
   bool LogicalNegation::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -135,7 +136,7 @@ namespace PLEXIL
   }
 
   bool IsKnown::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE();
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
   }
 
   std::string IsKnown::toString() const {
@@ -157,8 +158,8 @@ namespace PLEXIL
   bool Conjunction::checkValue(const double val)
   {
     return 
-      val == BooleanVariable::TRUE() || 
-      val == BooleanVariable::FALSE() ||
+      val == BooleanVariable::TRUE_VALUE() || 
+      val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -167,7 +168,7 @@ namespace PLEXIL
     // result is assumed to be true. from this point
     // the result may only be demoted to UNKNOWN or false
      
-    double result = BooleanVariable::TRUE();
+    double result = BooleanVariable::TRUE_VALUE();
     double value = 0;
      
     // compute and store values for all subexpressions
@@ -185,9 +186,9 @@ namespace PLEXIL
 	
         // if the value is false, the expression is false, we're done
         
-        if (value == BooleanVariable::FALSE())
+        if (value == BooleanVariable::FALSE_VALUE())
           {	    
-            result = BooleanVariable::FALSE();
+            result = BooleanVariable::FALSE_VALUE();
             break;
           }
 	  
@@ -222,8 +223,8 @@ namespace PLEXIL
   bool Disjunction::checkValue(const double val)
   {
     return 
-      val == BooleanVariable::TRUE() || 
-      val == BooleanVariable::FALSE() ||
+      val == BooleanVariable::TRUE_VALUE() || 
+      val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
   
@@ -232,7 +233,7 @@ namespace PLEXIL
     // result is assumed to be false. from this point
     // the result may only be demoted to UNKNOWN or true
       
-    double result = BooleanVariable::FALSE();
+    double result = BooleanVariable::FALSE_VALUE();
     double value = 0;
       
     // compute and store values for all subexpressions
@@ -250,9 +251,9 @@ namespace PLEXIL
 	
         // if the value is true, the expression is true, we're done
          
-        if (value == BooleanVariable::TRUE())
+        if (value == BooleanVariable::TRUE_VALUE())
           {
-            result = BooleanVariable::TRUE();
+            result = BooleanVariable::TRUE_VALUE();
             break;
           }
 	  
@@ -288,8 +289,8 @@ namespace PLEXIL
   bool ExclusiveDisjunction::checkValue(const double val)
   {
     return 
-      val == BooleanVariable::TRUE() || 
-      val == BooleanVariable::FALSE() ||
+      val == BooleanVariable::TRUE_VALUE() || 
+      val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
   
@@ -338,10 +339,10 @@ namespace PLEXIL
 
         else
           result = 
-            (result == BooleanVariable::TRUE() && 
-             *value == BooleanVariable::FALSE()) ||
-            (result == BooleanVariable::FALSE() && 
-             *value == BooleanVariable::TRUE());
+            (result == BooleanVariable::TRUE_VALUE() && 
+             *value == BooleanVariable::FALSE_VALUE()) ||
+            (result == BooleanVariable::FALSE_VALUE() && 
+             *value == BooleanVariable::TRUE_VALUE());
       }
     // return the result
       
@@ -414,7 +415,7 @@ namespace PLEXIL
   //
 
   bool Equality::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -438,7 +439,7 @@ namespace PLEXIL
   }
 
   bool Inequality::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -463,7 +464,7 @@ namespace PLEXIL
   }
 
   bool LessThan::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -488,7 +489,7 @@ namespace PLEXIL
   }
 
   bool LessEqual::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -510,7 +511,7 @@ namespace PLEXIL
   }
 
   bool GreaterThan::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -532,7 +533,7 @@ namespace PLEXIL
   }
 
   bool GreaterEqual::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 

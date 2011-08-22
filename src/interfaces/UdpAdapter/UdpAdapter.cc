@@ -4,6 +4,7 @@
 
 #include "UdpAdapter.hh"
 #include "Debug.hh"             // debugMsg
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"   // BooleanVariable, etc.
 #include "Node.hh"              // struct PLEXIL::Node
 #include "AdapterExecInterface.hh"
@@ -132,7 +133,7 @@ namespace PLEXIL
 	     " faking acknowledgment of update node '"
 	     << node->getNodeId().toString()
 	     << "'");
-    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
+    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -164,7 +165,7 @@ namespace PLEXIL
   {
     debugMsg("UdpAdapter::invokeAbort(name, args, dest, ack)", " called");
     debugMsg("ExternalInterface:udp", " invokeAbort called");
-    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
+    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 

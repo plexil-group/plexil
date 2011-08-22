@@ -214,42 +214,6 @@ namespace PLEXIL
     bool checkValue(const double val);
   };
 
-#ifdef TRUE
-#undef TRUE
-#endif
-#ifdef FALSE
-#undef FALSE
-#endif
-
-  //this class represents boolean values
-  //from the <BooleanValue> XML
-  class BooleanVariable : public VariableImpl {
-  public:
-    static ExpressionId& TRUE_EXP();
-    static ExpressionId& FALSE_EXP();
-    static ExpressionId& UNKNOWN_EXP(); // used in Node condition defaults
-    DECLARE_STATIC_CLASS_CONST(double, TRUE, 1.0);
-    DECLARE_STATIC_CLASS_CONST(double, FALSE, 0.0);
-
-    BooleanVariable(const bool isConst = false);
-    BooleanVariable(const double value, const bool isConst = false);
-    BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-		    const bool isConst = false);
-    std::string toString() const;
-    static bool falseOrUnknown(double value) {return value != TRUE();}
-
-    /**
-     * @brief Retrieve the value type of this Expression.
-     * @return The value type of this Expression.
-     */
-    virtual PlexilType getValueType() const { return BOOLEAN; }
-
-  protected:
-  private:
-    bool checkValue(const double val);
-  };
-
-
   // Access to an element of an array
 
   class ArrayElement : public DerivedVariable

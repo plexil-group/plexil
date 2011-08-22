@@ -29,6 +29,7 @@
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "PlexilXmlParser.hh"
 #include "StoredArray.hh"
@@ -386,7 +387,7 @@ namespace PLEXIL
     debugMsg("IpcAdapter:invokeAbort",
              "Aborting command listener " << theMessage.c_str() << " with ack " << (double) cmdAck << std::endl);
     m_messageQueues.removeRecipient(theMessage, cmdAck);
-    m_execInterface.handleValueChange(abrtAck, BooleanVariable::TRUE());
+    m_execInterface.handleValueChange(abrtAck, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 

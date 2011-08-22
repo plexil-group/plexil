@@ -25,11 +25,11 @@
 */
 
 #include "ActionNodeStateManager.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
 #include "NodeStateManager.hh"
-#include "Variables.hh"
 
 namespace PLEXIL {
 
@@ -54,9 +54,9 @@ namespace PLEXIL {
 
 
       if (node->getAncestorInvariantCondition()->getValue() == 
-          BooleanVariable::FALSE())
+          BooleanVariable::FALSE_VALUE())
       {
-         if (node->getEndCondition()->getValue() == BooleanVariable::TRUE()) 
+         if (node->getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) 
          {
             debugMsg("Node:getDestState",
                      "Destination: FINISHED.  Ancestor invariant condition false and end " <<
@@ -72,9 +72,9 @@ namespace PLEXIL {
 	}
       }
       if (node->getInvariantCondition()->getValue() == 
-          BooleanVariable::FALSE())
+          BooleanVariable::FALSE_VALUE())
       {
-         if (node->getEndCondition()->getValue() == BooleanVariable::TRUE()) {
+         if (node->getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
             debugMsg("Node:getDestState",
                      "Destination: ITERATION_ENDED.  Invariant condition false and end " <<
                      "condition true.. ");
@@ -91,12 +91,12 @@ namespace PLEXIL {
 
       if ((node->getType() == Node::COMMAND()) && 
           (node->getCommandHandleReceivedCondition()->getValue() ==
-           BooleanVariable::TRUE()))
+           BooleanVariable::TRUE_VALUE()))
         {
           node->getCommandHandleVariable()->setValue(node->getAcknowledgementValue());
         }
 
-      if(node->getEndCondition()->getValue() == BooleanVariable::TRUE()) 
+      if(node->getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) 
         {
           return ITERATION_ENDED_STATE;
         }
@@ -132,24 +132,24 @@ namespace PLEXIL {
 		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
-          BooleanVariable::FALSE())
+          BooleanVariable::FALSE_VALUE())
       {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-         if(node->getEndCondition()->getValue() != BooleanVariable::TRUE())
+         if(node->getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
 		   node->abort();
       }
       else if (node->getInvariantCondition()->getValue() ==
-               BooleanVariable::FALSE()) 
+               BooleanVariable::FALSE_VALUE()) 
       {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-         if(node->getEndCondition()->getValue() != BooleanVariable::TRUE())
+         if(node->getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
             node->abort();
       }
       else if(node->getEndCondition()->getValue() ==
-	      BooleanVariable::TRUE()) {
-	if(node->getPostCondition()->getValue() != BooleanVariable::TRUE()) {
+	      BooleanVariable::TRUE_VALUE()) {
+	if(node->getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
           node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
 	  node->getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
 	}
@@ -205,7 +205,7 @@ namespace PLEXIL {
 		 "Abort complete for " << node->getNodeId().toString() << " is inactive.");
 
 
-      if(node->getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE()) {
+      if(node->getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	if(node->findVariable(Node::FAILURE_TYPE())->getValue() ==
 	   FailureVariable::PARENT_FAILED()) {
 	  debugMsg("Node:getDestState",

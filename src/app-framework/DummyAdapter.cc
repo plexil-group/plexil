@@ -27,10 +27,10 @@
 #include "DummyAdapter.hh"
 
 #include "AdapterExecInterface.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
-#include "Variables.hh"
 
 namespace PLEXIL
 {
@@ -135,7 +135,7 @@ namespace PLEXIL
 	     << node->getNodeId().toString()
 	     << "'");
     m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE());
+				      BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -158,7 +158,7 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:dummy", " invokeAbort called");
     m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE());
+				      BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 

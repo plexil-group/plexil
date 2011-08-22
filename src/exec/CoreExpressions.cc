@@ -26,10 +26,11 @@
 
 
 #include "CoreExpressions.hh"
+#include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "Debug.hh"
 #include "Node.hh"
-#include "Variables.hh"
+//#include "Variables.hh"
 
 #include <cmath> // for fabs()
 #include <list>
@@ -316,8 +317,8 @@ namespace PLEXIL
     if(m_constructed) {
       if(node->getStateName() == StateVariable::FINISHED())
 	incrementCount(node->getStateVariable());
-      else if(getValue() == BooleanVariable::TRUE())
-	internalSetValue(BooleanVariable::FALSE());
+      else if(getValue() == BooleanVariable::TRUE_VALUE())
+	internalSetValue(BooleanVariable::FALSE_VALUE());
     }
   }
 
@@ -335,7 +336,7 @@ namespace PLEXIL
 	debugMsg("AllChildrenFinished:increment",
 		 "Counted " << m_count << " children finished of " << m_total <<
 		 ".  Setting TRUE.");
-	internalSetValue(BooleanVariable::TRUE());
+	internalSetValue(BooleanVariable::TRUE_VALUE());
       }
     }
     m_lastValues[expr] = expr->getValue();
@@ -352,10 +353,10 @@ namespace PLEXIL
       m_count--;
       checkError(m_count <= m_total,
 		 "Error: somehow counted more nodes in finished than were actually there.");
-      if(getValue() == BooleanVariable::TRUE()) {
+      if(getValue() == BooleanVariable::TRUE_VALUE()) {
 	debugMsg("AllChildrenFinished:decrement",
 		 m_count << " children of " << m_total << " are FINISHED.  Setting FALSE.");
-	internalSetValue(BooleanVariable::FALSE());
+	internalSetValue(BooleanVariable::FALSE_VALUE());
       }
     }
     m_lastValues[expr] = expr->getValue();
@@ -394,18 +395,18 @@ namespace PLEXIL
       debugMsg("AllChildrenFinished:recalculate",
 	       "Counted " << m_count << " of " << m_total <<
 	       " children FINISHED.  Setting TRUE.");
-      return BooleanVariable::TRUE();
+      return BooleanVariable::TRUE_VALUE();
     }
     else {
       debugMsg("AllChildrenFinished:recalculate",
 	       "Counted " << m_count << " of " << m_total <<
 	       " children FINISHED.  Setting FALSE.");
-      return BooleanVariable::FALSE();
+      return BooleanVariable::FALSE_VALUE();
     }
   }
 
   bool AllChildrenFinishedCondition::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -459,8 +460,8 @@ namespace PLEXIL
       if (state == StateVariable::WAITING() ||
 	  state == StateVariable::FINISHED())
 	incrementCount(node->getStateVariable());
-      else if(getValue() == BooleanVariable::TRUE())
-	internalSetValue(BooleanVariable::FALSE());
+      else if(getValue() == BooleanVariable::TRUE_VALUE())
+	internalSetValue(BooleanVariable::FALSE_VALUE());
     }
   }
 
@@ -473,7 +474,7 @@ namespace PLEXIL
       checkError(m_count <= m_total,
 		 "Error: somehow counted more nodes in waiting or finished than were actually there.");
       if(m_count == m_total)
-	internalSetValue(BooleanVariable::TRUE());
+	internalSetValue(BooleanVariable::TRUE_VALUE());
     }
     m_lastValues[expr] = expr->getValue();
   }
@@ -486,8 +487,8 @@ namespace PLEXIL
       m_count--;
       checkError(m_count <= m_total,
 		 "Error: somehow counted more nodes in waiting or finished than were actually there.");
-      if(getValue() == BooleanVariable::TRUE())
-	internalSetValue(BooleanVariable::FALSE());
+      if(getValue() == BooleanVariable::TRUE_VALUE())
+	internalSetValue(BooleanVariable::FALSE_VALUE());
     }
     m_lastValues[expr] = expr->getValue();
   }
@@ -523,13 +524,13 @@ namespace PLEXIL
 	       "Error: somehow counted more nodes in waiting or finished (" << m_count <<
 	       ") than were actually there (" << m_total << ").");
     if(m_count == m_total)
-      return BooleanVariable::TRUE();
+      return BooleanVariable::TRUE_VALUE();
     else
-      return BooleanVariable::FALSE();
+      return BooleanVariable::FALSE_VALUE();
   }
 
   bool AllChildrenWaitingOrFinishedCondition::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -614,7 +615,7 @@ namespace PLEXIL
   double InternalCondition::recalculate() {return m_expr->getValue();}
 
   bool InternalCondition::checkValue(const double val) {
-    return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
   }
 
@@ -659,7 +660,7 @@ namespace PLEXIL
 
   bool InterruptibleCommandHandleValues::checkValue(const double val)
   {
-	return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE();
+	return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
   }
 
   AllCommandHandleValues::AllCommandHandleValues(const PlexilExprId& expr, const NodeConnectorId& node)
@@ -692,7 +693,7 @@ namespace PLEXIL
 
   bool AllCommandHandleValues::checkValue(const double val)
   {
-	return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE();
+	return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
   }
 
 }

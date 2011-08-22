@@ -27,6 +27,7 @@
 #include "exec-test-module.hh"
 
 #include "ActionNodeStateManager.hh"
+#include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
@@ -163,14 +164,14 @@ private:
     var.addListener(listener);
 
     //active, unlocked
-    var.setValue(BooleanVariable::TRUE());
+    var.setValue(BooleanVariable::TRUE_VALUE());
     assertTrue(changed);
-    assertTrue(var.getValue() == BooleanVariable::TRUE());
+    assertTrue(var.getValue() == BooleanVariable::TRUE_VALUE());
 
     //inactive, unlocked
     changed = false;
     var.deactivate();
-    var.setValue(BooleanVariable::FALSE());
+    var.setValue(BooleanVariable::FALSE_VALUE());
     assertTrue(!changed);
     assertTrue(var.getValue() == BooleanVariable::UNKNOWN());
 
@@ -178,12 +179,12 @@ private:
     var.activate();
     assertTrue(!changed);
     var.lock();
-    var.setValue(BooleanVariable::TRUE());
+    var.setValue(BooleanVariable::TRUE_VALUE());
     assertTrue(!changed);
-    assertTrue(var.getValue() == BooleanVariable::FALSE());
+    assertTrue(var.getValue() == BooleanVariable::FALSE_VALUE());
     var.unlock();
     assertTrue(changed);
-    assertTrue(var.getValue() == BooleanVariable::TRUE());
+    assertTrue(var.getValue() == BooleanVariable::TRUE_VALUE());
 
     var.removeListener(listener);
     delete (ExpressionListener*) listener;
@@ -238,15 +239,15 @@ private:
     c8.activate();
     Conjunction c9(BooleanVariable::TRUE_EXP(), BooleanVariable::TRUE_EXP());
     c9.activate();
-    assertTrue(c1.getValue() == BooleanVariable::FALSE());
-    assertTrue(c2.getValue() == BooleanVariable::FALSE());
-    assertTrue(c3.getValue() == BooleanVariable::FALSE());
-    assertTrue(c4.getValue() == BooleanVariable::FALSE());
+    assertTrue(c1.getValue() == BooleanVariable::FALSE_VALUE());
+    assertTrue(c2.getValue() == BooleanVariable::FALSE_VALUE());
+    assertTrue(c3.getValue() == BooleanVariable::FALSE_VALUE());
+    assertTrue(c4.getValue() == BooleanVariable::FALSE_VALUE());
     assertTrue(c5.getValue() == BooleanVariable::UNKNOWN());
     assertTrue(c6.getValue() == BooleanVariable::UNKNOWN());
-    assertTrue(c7.getValue() == BooleanVariable::FALSE());
+    assertTrue(c7.getValue() == BooleanVariable::FALSE_VALUE());
     assertTrue(c8.getValue() == BooleanVariable::UNKNOWN());
-    assertTrue(c9.getValue() == BooleanVariable::TRUE());
+    assertTrue(c9.getValue() == BooleanVariable::TRUE_VALUE());
 
     //test proper responses to changes in subexpressions
     ExpressionId expr1 = (new BooleanVariable())->getId();
@@ -262,17 +263,17 @@ private:
     c10->activate();
 
     assertTrue(c10->getValue() == BooleanVariable::UNKNOWN()); //conjunction is unknown
-    expr1->setValue(BooleanVariable::FALSE()); //this should make it false
+    expr1->setValue(BooleanVariable::FALSE_VALUE()); //this should make it false
     assertTrue(changed);
-    assertTrue(c10->getValue() == BooleanVariable::FALSE());
+    assertTrue(c10->getValue() == BooleanVariable::FALSE_VALUE());
     changed = false;
-    expr2->setValue(BooleanVariable::TRUE()); //this should have no effect
+    expr2->setValue(BooleanVariable::TRUE_VALUE()); //this should have no effect
     assertTrue(!changed);
-    assertTrue(c10->getValue() == BooleanVariable::FALSE());
+    assertTrue(c10->getValue() == BooleanVariable::FALSE_VALUE());
     changed = false;
-    expr1->setValue(BooleanVariable::TRUE()); //this should make it true
+    expr1->setValue(BooleanVariable::TRUE_VALUE()); //this should make it true
     assertTrue(changed);
-    assertTrue(c10->getValue() == BooleanVariable::TRUE());
+    assertTrue(c10->getValue() == BooleanVariable::TRUE_VALUE());
 
     c10->removeListener(listener);
     delete (Conjunction*) c10;
@@ -296,23 +297,23 @@ private:
     Disjunction d8(BooleanVariable::TRUE_EXP(), BooleanVariable::UNKNOWN_EXP());
     Disjunction d9(BooleanVariable::TRUE_EXP(), BooleanVariable::TRUE_EXP());
     d1.activate();
-    assertTrue(d1.getValue() == BooleanVariable::FALSE());
+    assertTrue(d1.getValue() == BooleanVariable::FALSE_VALUE());
     d2.activate();
     assertTrue(d2.getValue() == BooleanVariable::UNKNOWN());
     d3.activate();
-    assertTrue(d3.getValue() == BooleanVariable::TRUE());
+    assertTrue(d3.getValue() == BooleanVariable::TRUE_VALUE());
     d4.activate();
     assertTrue(d4.getValue() == BooleanVariable::UNKNOWN());
     d5.activate();
     assertTrue(d5.getValue() == BooleanVariable::UNKNOWN());
     d6.activate();
-    assertTrue(d6.getValue() == BooleanVariable::TRUE());
+    assertTrue(d6.getValue() == BooleanVariable::TRUE_VALUE());
     d7.activate();
-    assertTrue(d7.getValue() == BooleanVariable::TRUE());
+    assertTrue(d7.getValue() == BooleanVariable::TRUE_VALUE());
     d8.activate();
-    assertTrue(d8.getValue() == BooleanVariable::TRUE());
+    assertTrue(d8.getValue() == BooleanVariable::TRUE_VALUE());
     d9.activate();
-    assertTrue(d9.getValue() == BooleanVariable::TRUE());
+    assertTrue(d9.getValue() == BooleanVariable::TRUE_VALUE());
 
     //test proper responses to changes in subexpressions
 
@@ -329,17 +330,17 @@ private:
     d10->addListener(listener);
 
     assertTrue(d10->getValue() == BooleanVariable::UNKNOWN());
-    expr1->setValue(BooleanVariable::FALSE()); //should have no effect
+    expr1->setValue(BooleanVariable::FALSE_VALUE()); //should have no effect
     assertTrue(!changed);
     assertTrue(d10->getValue() == BooleanVariable::UNKNOWN());
     changed = false;
-    expr2->setValue(BooleanVariable::FALSE()); //should be false
+    expr2->setValue(BooleanVariable::FALSE_VALUE()); //should be false
     assertTrue(changed);
-    assertTrue(d10->getValue() == BooleanVariable::FALSE());
+    assertTrue(d10->getValue() == BooleanVariable::FALSE_VALUE());
     changed = false;
-    expr1->setValue(BooleanVariable::TRUE()); //should be true
+    expr1->setValue(BooleanVariable::TRUE_VALUE()); //should be true
     assertTrue(changed);
-    assertTrue(d10->getValue() == BooleanVariable::TRUE());
+    assertTrue(d10->getValue() == BooleanVariable::TRUE_VALUE());
 
     d10->removeListener(listener);
     delete (Disjunction*) d10;
@@ -363,11 +364,11 @@ private:
     ExclusiveDisjunction d8(BooleanVariable::TRUE_EXP(), BooleanVariable::UNKNOWN_EXP());
     ExclusiveDisjunction d9(BooleanVariable::TRUE_EXP(), BooleanVariable::TRUE_EXP());
     d1.activate();
-    assertTrue(d1.getValue() == BooleanVariable::FALSE());
+    assertTrue(d1.getValue() == BooleanVariable::FALSE_VALUE());
     d2.activate();
     assertTrue(d2.getValue() == BooleanVariable::UNKNOWN());
     d3.activate();
-    assertTrue(d3.getValue() == BooleanVariable::TRUE());
+    assertTrue(d3.getValue() == BooleanVariable::TRUE_VALUE());
     d4.activate();
     assertTrue(d4.getValue() == BooleanVariable::UNKNOWN());
     d5.activate();
@@ -375,11 +376,11 @@ private:
     d6.activate();
     assertTrue(d6.getValue() == BooleanVariable::UNKNOWN());
     d7.activate();
-    assertTrue(d7.getValue() == BooleanVariable::TRUE());
+    assertTrue(d7.getValue() == BooleanVariable::TRUE_VALUE());
     d8.activate();
     assertTrue(d8.getValue() == BooleanVariable::UNKNOWN());
     d9.activate();
-    assertTrue(d9.getValue() == BooleanVariable::FALSE());
+    assertTrue(d9.getValue() == BooleanVariable::FALSE_VALUE());
 
     //test proper responses to changes in subexpressions
 
@@ -396,17 +397,17 @@ private:
     d10->addListener(listener);
 
     assertTrue(d10->getValue() == BooleanVariable::UNKNOWN());
-    expr1->setValue(BooleanVariable::FALSE()); //should have no effect
+    expr1->setValue(BooleanVariable::FALSE_VALUE()); //should have no effect
     assertTrue(!changed);
     assertTrue(d10->getValue() == BooleanVariable::UNKNOWN());
     changed = false;
-    expr2->setValue(BooleanVariable::FALSE()); //should be false
+    expr2->setValue(BooleanVariable::FALSE_VALUE()); //should be false
     assertTrue(changed);
-    assertTrue(d10->getValue() == BooleanVariable::FALSE());
+    assertTrue(d10->getValue() == BooleanVariable::FALSE_VALUE());
     changed = false;
-    expr1->setValue(BooleanVariable::TRUE()); //should be true
+    expr1->setValue(BooleanVariable::TRUE_VALUE()); //should be true
     assertTrue(changed);
-    assertTrue(d10->getValue() == BooleanVariable::TRUE());
+    assertTrue(d10->getValue() == BooleanVariable::TRUE_VALUE());
 
     d10->removeListener(listener);
     delete (ExclusiveDisjunction*) d10;
@@ -529,9 +530,9 @@ private:
     n1.activate();
     assertTrue(n1.getValue() == BooleanVariable::UNKNOWN());
     n2.activate();
-    assertTrue(n2.getValue() == BooleanVariable::TRUE());
+    assertTrue(n2.getValue() == BooleanVariable::TRUE_VALUE());
     n3.activate();
-    assertTrue(n3.getValue() == BooleanVariable::FALSE());
+    assertTrue(n3.getValue() == BooleanVariable::FALSE_VALUE());
     return true;
   }
 
@@ -542,9 +543,9 @@ private:
     Equality e4(BooleanVariable::UNKNOWN_EXP(), BooleanVariable::UNKNOWN_EXP());
 
     e1.activate();
-    assertTrue(e1.getValue() == BooleanVariable::FALSE());
+    assertTrue(e1.getValue() == BooleanVariable::FALSE_VALUE());
     e2.activate();
-    assertTrue(e2.getValue() == BooleanVariable::TRUE());
+    assertTrue(e2.getValue() == BooleanVariable::TRUE_VALUE());
     e3.activate();
     assertTrue(e3.getValue() == BooleanVariable::UNKNOWN());
     e4.activate();
@@ -563,9 +564,9 @@ private:
     Inequality i7(BooleanVariable::UNKNOWN_EXP(), BooleanVariable::UNKNOWN_EXP());
 
     i1.activate();
-    assertTrue(i1.getValue() == BooleanVariable::TRUE());
+    assertTrue(i1.getValue() == BooleanVariable::TRUE_VALUE());
     i2.activate();
-    assertTrue(i2.getValue() == BooleanVariable::FALSE());
+    assertTrue(i2.getValue() == BooleanVariable::FALSE_VALUE());
     i3.activate();
     assertTrue(i3.getValue() == BooleanVariable::UNKNOWN());
     i4.activate();
@@ -594,13 +595,13 @@ private:
     Equality e7(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ZERO_EXP());
 
     e1.activate();
-    assertTrue(e1.getValue() == BooleanVariable::TRUE());
+    assertTrue(e1.getValue() == BooleanVariable::TRUE_VALUE());
     e2.activate();
-    assertTrue(e2.getValue() == BooleanVariable::FALSE());
+    assertTrue(e2.getValue() == BooleanVariable::FALSE_VALUE());
     e3.activate();
-    assertTrue(e3.getValue() == BooleanVariable::FALSE());
+    assertTrue(e3.getValue() == BooleanVariable::FALSE_VALUE());
     e4.activate();
-    assertTrue(e4.getValue() == BooleanVariable::TRUE());
+    assertTrue(e4.getValue() == BooleanVariable::TRUE_VALUE());
     e5.activate();
     assertTrue(e5.getValue() == BooleanVariable::UNKNOWN());
     e6.activate();
@@ -621,13 +622,13 @@ private:
     Inequality i7(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ZERO_EXP());
 
     i1.activate();
-    assertTrue(i1.getValue() == BooleanVariable::FALSE());
+    assertTrue(i1.getValue() == BooleanVariable::FALSE_VALUE());
     i2.activate();
-    assertTrue(i2.getValue() == BooleanVariable::TRUE());
+    assertTrue(i2.getValue() == BooleanVariable::TRUE_VALUE());
     i3.activate();
-    assertTrue(i3.getValue() == BooleanVariable::TRUE());
+    assertTrue(i3.getValue() == BooleanVariable::TRUE_VALUE());
     i4.activate();
-    assertTrue(i4.getValue() == BooleanVariable::FALSE());
+    assertTrue(i4.getValue() == BooleanVariable::FALSE_VALUE());
     i5.activate();
     assertTrue(i5.getValue() == BooleanVariable::UNKNOWN());
     i6.activate();
@@ -647,11 +648,11 @@ private:
     LessThan l6(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ZERO_EXP());
     
     l1.activate();
-    assertTrue(l1.getValue() == BooleanVariable::FALSE());
+    assertTrue(l1.getValue() == BooleanVariable::FALSE_VALUE());
     l2.activate();
-    assertTrue(l2.getValue() == BooleanVariable::TRUE());
+    assertTrue(l2.getValue() == BooleanVariable::TRUE_VALUE());
     l3.activate();
-    assertTrue(l3.getValue() == BooleanVariable::FALSE());
+    assertTrue(l3.getValue() == BooleanVariable::FALSE_VALUE());
     l4.activate();
     assertTrue(l4.getValue() == BooleanVariable::UNKNOWN());
     l5.activate();
@@ -671,11 +672,11 @@ private:
     LessEqual l6(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ZERO_EXP());
 
     l1.activate();
-    assertTrue(l1.getValue() == BooleanVariable::TRUE());
+    assertTrue(l1.getValue() == BooleanVariable::TRUE_VALUE());
     l2.activate();
-    assertTrue(l2.getValue() == BooleanVariable::TRUE());
+    assertTrue(l2.getValue() == BooleanVariable::TRUE_VALUE());
     l3.activate();
-    assertTrue(l3.getValue() == BooleanVariable::FALSE());
+    assertTrue(l3.getValue() == BooleanVariable::FALSE_VALUE());
     l4.activate();
     assertTrue(l4.getValue() == BooleanVariable::UNKNOWN());
     l5.activate();
@@ -695,11 +696,11 @@ private:
     GreaterThan g6(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ZERO_EXP());
 
     g1.activate();
-    assertTrue(g1.getValue() == BooleanVariable::FALSE());
+    assertTrue(g1.getValue() == BooleanVariable::FALSE_VALUE());
     g2.activate();
-    assertTrue(g2.getValue() == BooleanVariable::FALSE());
+    assertTrue(g2.getValue() == BooleanVariable::FALSE_VALUE());
     g3.activate();
-    assertTrue(g3.getValue() == BooleanVariable::TRUE());
+    assertTrue(g3.getValue() == BooleanVariable::TRUE_VALUE());
     g4.activate();
     assertTrue(g4.getValue() == BooleanVariable::UNKNOWN());
     g5.activate();
@@ -719,11 +720,11 @@ private:
     GreaterEqual g6(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ZERO_EXP());
 
     g1.activate();
-    assertTrue(g1.getValue() == BooleanVariable::TRUE());
+    assertTrue(g1.getValue() == BooleanVariable::TRUE_VALUE());
     g2.activate();
-    assertTrue(g2.getValue() == BooleanVariable::FALSE());
+    assertTrue(g2.getValue() == BooleanVariable::FALSE_VALUE());
     g3.activate();
-    assertTrue(g3.getValue() == BooleanVariable::TRUE());
+    assertTrue(g3.getValue() == BooleanVariable::TRUE_VALUE());
     g4.activate();
     assertTrue(g4.getValue() == BooleanVariable::UNKNOWN());
     g5.activate();
@@ -889,7 +890,7 @@ private:
 
 
     c1.activate();
-    assertTrue(c1.getValue() == BooleanVariable::TRUE());
+    assertTrue(c1.getValue() == BooleanVariable::TRUE_VALUE());
 
     t4.activate();
     assertTrue(c1.getValue() == t4.getValue());
@@ -898,7 +899,7 @@ private:
 
     c2.activate();
 
-    assertTrue(c2.getValue() == BooleanVariable::TRUE());
+    assertTrue(c2.getValue() == BooleanVariable::TRUE_VALUE());
 
     return true;
   }
@@ -1288,7 +1289,7 @@ private:
 		       TestNodeFactory::createNode(Node::REQUEST(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId())};
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for(int i = 0; i < 5; i++) {
       NodeId node = nodes[i];
@@ -1325,7 +1326,7 @@ private:
     DefaultStateManager manager;
     TransitionExecConnector con;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[5] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE(), Node::REQUEST()};
     
     for(int parentFinished = 0; parentFinished < 3; ++parentFinished) {
@@ -1370,7 +1371,7 @@ private:
     DefaultStateManager manager;
     NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", WAITING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 //NodeState destState = manager.getDestState(node);
     //node->deactivateParentExecutingCondition();
      node->activateSkipCondition();
@@ -1423,7 +1424,7 @@ private:
   static bool waitingTransTest() {
     TransitionExecConnector con;
     DefaultStateManager manager;
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[5] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE(), Node::REQUEST()};
     std::map<double, NodeStateManager*> managers;
     managers.insert(std::make_pair(Node::ASSIGNMENT(), new VarBindingStateManager()));
@@ -1470,7 +1471,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		}/*else if  (skip == IDX_TRUE) {
 		    assertTrue(state == FINISHED_STATE);
 		    assertTrue(node->getOutcome() == OutcomeVariable::SKIPPED());
-		    assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PRE_CONDITION_FALSE());
+		    assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PRE_CONDITION_FALSE_VALUE());
 		    assertTrue(node->getRepeatCondition()->isActive());
 		    assertTrue(node->getAncestorEndCondition()->isActive());
 		  }*/
@@ -1510,7 +1511,7 @@ for(int skip = 0; skip < 3; ++skip) {
     DefaultStateManager manager;
     NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", ITERATION_ENDED_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
 
     //node->deactivateParentExecutingCondition();
@@ -1551,7 +1552,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     DefaultStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[5] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE(), Node::REQUEST()};
 
     for(int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
@@ -1606,7 +1607,7 @@ for(int skip = 0; skip < 3; ++skip) {
     DefaultStateManager manager;
     NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", FINISHED_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     node->activateParentWaitingCondition();
     for(int parentWaiting = 0; parentWaiting < 3; ++parentWaiting) {
@@ -1627,7 +1628,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     DefaultStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[5] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE(), Node::REQUEST()};
 
     for(int parentWaiting = 0; parentWaiting < 3; ++parentWaiting) {
@@ -1666,7 +1667,7 @@ for(int skip = 0; skip < 3; ++skip) {
     ListNodeStateManager manager;
     NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     node->activateAncestorInvariantCondition();
     node->activateEndCondition();
@@ -1702,7 +1703,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ListNodeStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for(int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
       for(int invariant = 0; invariant < 3; ++invariant) {
@@ -1763,7 +1764,7 @@ for(int skip = 0; skip < 3; ++skip) {
     ListNodeStateManager manager;
     NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", FAILING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     double failureTypes[2] = {FailureVariable::PRE_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
 
@@ -1797,7 +1798,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ListNodeStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureType[2] = {FailureVariable::INVARIANT_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
 
     for(int children = 0; children < 3; ++children) {
@@ -1846,7 +1847,7 @@ for(int skip = 0; skip < 3; ++skip) {
     ListNodeStateManager manager;
     NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     node->activateAncestorInvariantCondition();
     node->activateChildrenWaitingOrFinishedCondition();
     node->activateInvariantCondition();
@@ -1893,7 +1894,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ListNodeStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for(int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
       for(int invariant = 0; invariant < 3; ++invariant) {
@@ -1962,7 +1963,7 @@ for(int skip = 0; skip < 3; ++skip) {
 
     NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE,
 											  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
 
 	node->activateEndCondition();
@@ -2003,7 +2004,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     VarBindingStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr type = Node::ASSIGNMENT();
 
     for(int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
@@ -2081,7 +2082,7 @@ for(int skip = 0; skip < 3; ++skip) {
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
 		       TestNodeFactory::createNode(Node::REQUEST(), "test", EXECUTING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId())};
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for(int i = 0; i < 3; i++) {
       nodes[i]->activateEndCondition();
@@ -2133,7 +2134,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ActionNodeStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[3] = {Node::COMMAND(), Node::UPDATE(), Node::REQUEST()};
 
     for(int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
@@ -2222,7 +2223,7 @@ for(int skip = 0; skip < 3; ++skip) {
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
 		       TestNodeFactory::createNode(Node::REQUEST(), "test", FAILING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId())};
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     double failureTypes[2] = {FailureVariable::PRE_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
     for(int i = 0; i < 3; i++) {
       nodes[i]->activateAbortCompleteCondition();
@@ -2253,7 +2254,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ActionNodeStateManager manager;
 
-    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE(), BooleanVariable::TRUE()};
+    double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[3] = {Node::COMMAND(), Node::UPDATE(), Node::REQUEST()};
     LabelStr failureTypes[2] = {FailureVariable::PRE_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
 

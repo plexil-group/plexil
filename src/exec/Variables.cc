@@ -740,67 +740,6 @@ namespace PLEXIL
     return sl_minus_one_exp;
   }
 
-  BooleanVariable::BooleanVariable(const bool isConst) : VariableImpl(isConst){}
-  BooleanVariable::BooleanVariable(const double value, const bool isConst)
-    : VariableImpl(value, isConst) {
-    checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
-  }
-
-  BooleanVariable::BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool /* isConst */)
-    : VariableImpl(expr, node) {
-    checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
-    commonNumericInit((PlexilValue*)expr);
-  }
-
-  std::string BooleanVariable::toString() const {
-    std::ostringstream retval;
-    retval << VariableImpl::toString();
-    retval << "boolean)";
-    return retval.str();
-  }
-
-  bool BooleanVariable::checkValue(const double val) {
-    return val == UNKNOWN() || val == FALSE() || val == TRUE();
-  }
-
-  ExpressionId& BooleanVariable::TRUE_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId()) {
-	  VariableImpl* var = new BooleanVariable(TRUE(), true);
-	  var->setName("Boolean constant true");
-      sl_exp = var->getId();
-	}
-    if(!sl_exp->isActive())
-      sl_exp->activate();
-    return sl_exp;
-  }
-
-  ExpressionId& BooleanVariable::FALSE_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId()) {
-	  VariableImpl* var = new BooleanVariable(FALSE(), true);
-	  var->setName("Boolean constant false");
-      sl_exp = var->getId();
-	}
-    if(!sl_exp->isActive())
-      sl_exp->activate();
-    return sl_exp;
-  }
-
-  ExpressionId& BooleanVariable::UNKNOWN_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId()) {
-	  VariableImpl* var = new BooleanVariable(UNKNOWN(), true);
-	  var->setName("Boolean constant unknown");
-      sl_exp = var->getId();
-	}
-    if(!sl_exp->isActive())
-      sl_exp->activate();
-    return sl_exp;
-  }
-
   TimepointVariable::TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node)
     : ConstVariableWrapper() {
     checkError(Id<PlexilTimepointVar>::convertable(expr),

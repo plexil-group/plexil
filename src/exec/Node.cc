@@ -29,6 +29,7 @@
 // Resolve use of m_garbage with respect to conditions
 
 #include "Node.hh"
+#include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"

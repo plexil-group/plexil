@@ -36,6 +36,7 @@
 #include "AdapterConfiguration.hh"
 #include "AdapterConfigurationFactory.hh"
 #include "AdapterFactory.hh"
+#include "BooleanVariable.hh"
 #include "ControllerFactory.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
@@ -57,7 +58,6 @@
 #include "StateCache.hh"
 #include "TimeAdapter.hh"
 #include "UtilityAdapter.hh"
-#include "Variables.hh"
 
 #include <limits>
 #include <sstream>
@@ -915,7 +915,7 @@ namespace PLEXIL
              it != updates.end();
              it++)
           handleValueChange((*it)->getAck(),
-                            BooleanVariable::TRUE());
+                            BooleanVariable::TRUE_VALUE());
         notifyOfExternalEvent();
       }
     else

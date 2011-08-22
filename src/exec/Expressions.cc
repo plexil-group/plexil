@@ -25,6 +25,7 @@
 */
 
 #include "Expressions.hh"
+#include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"

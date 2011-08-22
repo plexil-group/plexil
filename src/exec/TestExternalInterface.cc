@@ -26,6 +26,7 @@
 
 #include "TestExternalInterface.hh"
 
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "LabelStr.hh"
@@ -34,7 +35,6 @@
 #include "PlexilXmlParser.hh"
 #include "StateCache.hh"
 #include "StoredArray.hh"
-#include "Variables.hh"
 #include "XMLUtils.hh"
 #include "plan-utils.hh"
 
@@ -153,7 +153,7 @@ namespace PLEXIL
                          getText(command));
               debugMsg("Test:testOutput", "Acknowledging abort into " << 
                        it->second->toString());
-              it->second->setValue(BooleanVariable::TRUE());
+              it->second->setValue(BooleanVariable::TRUE_VALUE());
               m_abortingCommands.erase(it);
             }
 
@@ -167,7 +167,7 @@ namespace PLEXIL
               checkError(it != m_waitingUpdates.end(),
                          "No update from node " << name.toString() << 
                          " waiting for acknowledgement.");
-              it->second->getAck()->setValue(BooleanVariable::TRUE());
+              it->second->getAck()->setValue(BooleanVariable::TRUE_VALUE());
               m_waitingUpdates.erase(it);
             }
 

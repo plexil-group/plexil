@@ -25,10 +25,10 @@
 */
 
 #include "DefaultStateManager.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
-#include "Variables.hh"
 
 namespace PLEXIL {
 
@@ -43,14 +43,14 @@ namespace PLEXIL {
       checkError(node->isParentFinishedConditionActive(), "Parent finished for " << node->getNodeId().toString() << " is inactive.");
 
       if(node->getParentFinishedCondition()->getValue() ==
-	 BooleanVariable::TRUE()) {
+	 BooleanVariable::TRUE_VALUE()) {
 	debugMsg("Node:getDestState", "Destination: FINISHED.");
 	condDebugMsg(node->getParentFinishedCondition()->getValue() ==
-		     BooleanVariable::TRUE(),
+		     BooleanVariable::TRUE_VALUE(),
 		     "Node:getDestState", "PARENT_FINISHED_CONDITION true.");
 	return FINISHED_STATE;
       }
-      if(node->getParentExecutingCondition()->getValue() == BooleanVariable::TRUE()) {
+      if(node->getParentExecutingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	debugMsg("Node:getDestState", "Destination: WAITING.  PARENT_EXECUTING_CONDITION true");
 	return WAITING_STATE;
       }
@@ -69,21 +69,21 @@ namespace PLEXIL {
       checkError(node->isSkipConditionActive(), "Skip for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isStartConditionActive(), "Start for " << node->getNodeId().toString() << " is inactive.");
 
-      if (node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE() ||
-          node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE() ||
-          node->getSkipCondition()->getValue() == BooleanVariable::TRUE())
+      if (node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
+          node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE() ||
+          node->getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE())
       {
          debugMsg("Node:getDestState", "Destination: FINISHED.");
-         condDebugMsg(node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE(),
+         condDebugMsg(node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
                       "Node:getDestState", "ANCESTOR_INVARIANT_CONDITION false.");
-         condDebugMsg(node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE(),
+         condDebugMsg(node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE(),
                       "Node:getDestState", "ANCESTOR_END_CONDITION true.");
-         condDebugMsg(node->getSkipCondition()->getValue() == BooleanVariable::TRUE(),
+         condDebugMsg(node->getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE(),
                       "Node:getDestState", "SKIP_CONDITION true.");
 	        return FINISHED_STATE;
       }
-      if(node->getStartCondition()->getValue() == BooleanVariable::TRUE()) {
-	if(node->getPreCondition()->getValue() == BooleanVariable::TRUE()) {
+      if(node->getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	if(node->getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  debugMsg("Node:getDestState", "Destination: EXECUTING.  START_CONDITION and PRE_CONDITION are both true.");
 	  return EXECUTING_STATE;
 	}
@@ -107,20 +107,20 @@ namespace PLEXIL {
       checkError(node->isAncestorEndConditionActive(), "Ancestor end for " << node->getNodeId().toString() << " is inactive.");
       checkError(node->isRepeatConditionActive(), "Repeat for " << node->getNodeId().toString() << " is inactive.");
 
-      if (node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE() ||
-          node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE() ||
-          node->getRepeatCondition()->getValue() == BooleanVariable::FALSE()) 
+      if (node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
+          node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE() ||
+          node->getRepeatCondition()->getValue() == BooleanVariable::FALSE_VALUE()) 
       {
          debugMsg("Node:getDestState", "'" << node->getNodeId().toString() << "' destination: FINISHED.");
-         condDebugMsg(node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE(),
+         condDebugMsg(node->getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
                       "Node:getDestState", "ANCESTOR_INVARIANT false.");
-         condDebugMsg(node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE(),
+         condDebugMsg(node->getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE(),
                       "Node:getDestState", "ANCESTOR_END true.");
-         condDebugMsg(node->getRepeatCondition()->getValue() == BooleanVariable::FALSE(),
+         condDebugMsg(node->getRepeatCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
                       "Node:getDestState", "REPEAT_CONDITION false.");
          return FINISHED_STATE;
       }
-      if(node->getRepeatCondition()->getValue() == BooleanVariable::TRUE()) {
+      if(node->getRepeatCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	debugMsg("Node:getDestState", "'" << node->getNodeId().toString() << "' destination: WAITING.  REPEAT_UNTIL true.");
 	return WAITING_STATE;
       }
@@ -137,7 +137,7 @@ namespace PLEXIL {
 		 "Node " << node->getNodeId().toString() << " in state " << node->getStateName().toString() << " not ITERATION_ENDED.");
       checkError(node->isParentWaitingConditionActive(), "Parent waiting for " << node->getNodeId().toString() << " is inactive.");
 
-      if(node->getParentWaitingCondition()->getValue() == BooleanVariable::TRUE()) {
+      if(node->getParentWaitingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	debugMsg("Node:getDestState", "Destination: INACTIVE.  PARENT_WAITING true.");
 	return INACTIVE_STATE;
       }
@@ -227,7 +227,7 @@ namespace PLEXIL {
 		 << StateVariable::nodeStateName(destState).toString() << "'");
 
       if (node->getAncestorInvariantCondition()->getValue() ==
-	 BooleanVariable::FALSE()) 
+	 BooleanVariable::FALSE_VALUE()) 
       {
          node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
          node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
