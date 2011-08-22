@@ -248,6 +248,20 @@ namespace PLEXIL {
     m_stateManager = NodeStateManager::getStateManager(m_nodeType);
     m_nodeId = name;
     commonInit();
+
+	// Activate internal variables
+    m_stateVariable->activate();
+    m_variablesByName[OUTCOME().getKey()]->activate();
+    m_variablesByName[FAILURE_TYPE().getKey()]->activate();
+    m_variablesByName[COMMAND_HANDLE().getKey()]->activate();
+
+	// Activate timepoints
+	// TODO: figure out if they should be inactive until entering the corresponding state
+	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+	  m_startTimepoints[s]->activate();
+	  m_endTimepoints[s]->activate();
+	}
+
 	// N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
     bool values[15] = {skip, start, end, invariant, pre, post, repeat, ancestorInvariant,
 		       ancestorEnd, parentExecuting, childrenFinished, commandAbort,
@@ -361,20 +375,16 @@ namespace PLEXIL {
     // Instantiate state/outcome/failure variables
 	// The contortions with getKey() are an attempt to minimize LabelStr copying
     m_variablesByName[STATE().getKey()] = m_stateVariable = (new StateVariable())->getId();
-    m_stateVariable->activate();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
 
 	ExpressionId outcomeVariable = (new OutcomeVariable())->getId();
     m_variablesByName[OUTCOME().getKey()] = outcomeVariable;
-    outcomeVariable->activate();
 
 	ExpressionId failureVariable = (new FailureVariable())->getId();
     m_variablesByName[FAILURE_TYPE().getKey()] = failureVariable;
-    failureVariable->activate();
 
 	ExpressionId commandHandle = (new CommandHandleVariable())->getId();
     m_variablesByName[COMMAND_HANDLE().getKey()] = commandHandle;
-    commandHandle->activate();
 
     m_garbage.insert(STATE().getKey());
     m_garbage.insert(OUTCOME().getKey());
@@ -387,13 +397,11 @@ namespace PLEXIL {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
-      stp->activate();
       m_garbage.insert(stpName);
 
       ExpressionId etp = (new RealVariable())->getId();
       const LabelStr& etpName = END_TIMEPOINT_NAMES()[s];
       m_endTimepoints[s] = m_variablesByName[etpName] = etp;
-      etp->activate();
       m_garbage.insert(etpName);
     }
 
@@ -415,12 +423,45 @@ namespace PLEXIL {
     m_conditions[postIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[repeatIdx] = BooleanVariable::FALSE_EXP();
 
-	// These will be overridden in any non-root node
+	// These will be overridden in any non-root node,
+	// but they depend on user-specified conditions,
+	// so do these in createConditions() below.
     m_conditions[ancestorInvariantIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[ancestorEndIdx] = BooleanVariable::FALSE_EXP();
-    m_conditions[parentExecutingIdx] = BooleanVariable::TRUE_EXP();
-    m_conditions[parentWaitingIdx] = BooleanVariable::FALSE_EXP();
-    m_conditions[parentFinishedIdx] = BooleanVariable::FALSE_EXP();
+
+	if (m_parent.isId()) {
+	  // These conditions only depend on the node state variable,
+	  // which is already initialized.
+	  ExpressionId parentExecuting =
+		(new Equality(m_parent->getStateVariable(),
+					  StateVariable::EXECUTING_EXP()))->getId();
+	  ExpressionListenerId parentExecutingListener = m_listeners[parentExecutingIdx];
+	  parentExecuting->addListener(parentExecutingListener);
+	  m_conditions[parentExecutingIdx] = parentExecuting;
+	  m_garbageConditions.insert(parentExecutingIdx);
+
+	  ExpressionId parentWaiting =
+		(new Equality(m_parent->getStateVariable(),
+					  StateVariable::WAITING_EXP()))->getId();
+	  ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
+	  parentWaiting->addListener(parentWaitingListener);
+	  m_conditions[parentWaitingIdx] = parentWaiting;
+	  m_garbageConditions.insert(parentWaitingIdx);
+
+	  ExpressionId parentFinished =
+		(new Equality(m_parent->getStateVariable(),
+					  StateVariable::FINISHED_EXP()))->getId();
+	  ExpressionListenerId parentFinishedListener = m_listeners[parentFinishedIdx];
+	  parentFinished->addListener(parentFinishedListener);
+	  m_conditions[parentFinishedIdx] = parentFinished;
+	  m_garbageConditions.insert(parentFinishedIdx);
+	}
+	else {
+	  // Dummies for root node
+	  m_conditions[parentExecutingIdx] = BooleanVariable::TRUE_EXP();
+	  m_conditions[parentWaitingIdx] = BooleanVariable::FALSE_EXP();
+	  m_conditions[parentFinishedIdx] = BooleanVariable::FALSE_EXP();
+	}
 
 	// This will be overridden in any node with children (List or LibraryNodeCall)
     m_conditions[childrenWaitingOrFinishedIdx] = BooleanVariable::UNKNOWN_EXP();
@@ -430,11 +471,6 @@ namespace PLEXIL {
 
 	// This will be overridden in Command nodes
     m_conditions[commandHandleReceivedIdx] = BooleanVariable::TRUE_EXP();
-
-	// These are the only conditions we care about in the INACTIVE state.
-	// See DefaultStateManager.cc, specifically DefaultInactiveStateComputer::getDestState().
-    m_listeners[parentExecutingIdx]->activate();
-    m_listeners[parentFinishedIdx]->activate();
   }
 
   void Node::postInit() {
@@ -666,6 +702,35 @@ namespace PLEXIL {
     m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
   }
 
+  // Make the node (and its children, if any) active.
+  void Node::activate()
+  {
+	// Activate internal variables
+    m_stateVariable->activate();
+	// TODO: figure out if these should be activated on entering EXECUTING state
+    m_variablesByName[OUTCOME().getKey()]->activate();
+    m_variablesByName[FAILURE_TYPE().getKey()]->activate();
+    m_variablesByName[COMMAND_HANDLE().getKey()]->activate();
+
+	// Activate timepoints
+	// TODO: figure out if they should be inactive until entering the corresponding state
+	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+	  m_startTimepoints[s]->activate();
+	  m_endTimepoints[s]->activate();
+	}
+
+	// These are the only conditions we care about in the INACTIVE state.
+	// See DefaultStateManager.cc, specifically DefaultInactiveStateComputer::getDestState().
+	m_conditions[parentExecutingIdx]->activate();
+    m_listeners[parentExecutingIdx]->activate();
+	m_conditions[parentFinishedIdx]->activate();
+    m_listeners[parentFinishedIdx]->activate();
+	
+    // Activate all children
+    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+      (*it)->activate();
+  }
+
   ExpressionId& Node::getCondition(const LabelStr& name) {
     return m_conditions[getConditionIndex(name)];
   }
@@ -685,6 +750,12 @@ namespace PLEXIL {
 						 (new TransparentWrapper(m_parent->getCondition(INVARIANT_CONDITION()),
 												 m_connector))->getId(),
 						 true))->getId();
+	  ExpressionListenerId ancestorInvariantListener = m_listeners[ancestorInvariantIdx];
+	  // Replace default ancestor invariant condition with real one
+	  ancestorInvariant->addListener(ancestorInvariantListener);
+	  m_conditions[ancestorInvariantIdx] = ancestorInvariant;
+	  m_garbageConditions.insert(ancestorInvariantIdx);
+
 	  ExpressionId ancestorEnd =
 		(new Disjunction((new TransparentWrapper(m_parent->getCondition(ANCESTOR_END_CONDITION()),
 												 m_connector))->getId(),
@@ -692,51 +763,12 @@ namespace PLEXIL {
 						 (new TransparentWrapper(m_parent->getCondition(END_CONDITION()),
 												 m_connector))->getId(),
 						 true))->getId();
-	  ExpressionId parentExecuting =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::EXECUTING_EXP()))->getId();
-	  ExpressionId parentWaiting =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::WAITING_EXP()))->getId();
-	  ExpressionId parentFinished =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::FINISHED_EXP()))->getId();
-
-	  ExpressionListenerId ancestorInvariantListener = m_listeners[ancestorInvariantIdx];
 	  ExpressionListenerId ancestorEndListener = m_listeners[ancestorEndIdx];
-	  ExpressionListenerId parentExecutingListener = m_listeners[parentExecutingIdx];
-	  ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
-	  ExpressionListenerId parentFinishedListener = m_listeners[parentFinishedIdx];
-
-	  // Replace default ancestor invariant condition with real one
-	  ancestorInvariant->addListener(ancestorInvariantListener);
-
 	  // Replace default ancestor end condition with real one
 	  ancestorEnd->addListener(ancestorEndListener);
-
-	  // Replace default parent executing condition with real one
-	  parentExecuting->activate(); //activate this right off so we can start executing
-	  parentExecuting->addListener(parentExecutingListener);
-
-	  // Replace default parent waiting condition with real one
-	  parentWaiting->addListener(parentWaitingListener);
-
-	  // Replace default parent finished condition with real one
-	  parentFinished->activate();
-	  parentFinished->addListener(parentFinishedListener);
-
-	  m_conditions[ancestorInvariantIdx] = ancestorInvariant;
 	  m_conditions[ancestorEndIdx] = ancestorEnd;
-	  m_conditions[parentExecutingIdx] = parentExecuting;
-	  m_conditions[parentWaitingIdx] = parentWaiting;
-	  m_conditions[parentFinishedIdx] = parentFinished;
-
-	  // Mark these for deletion
-	  m_garbageConditions.insert(ancestorInvariantIdx);
-	  m_garbageConditions.insert(parentExecutingIdx);
-	  m_garbageConditions.insert(parentWaitingIdx);
-	  m_garbageConditions.insert(parentFinishedIdx);
 	  m_garbageConditions.insert(ancestorEndIdx);
+
 	}
 
 	// Add user-specified conditions

@@ -126,6 +126,13 @@ namespace PLEXIL {
      */
     virtual ~Node();
 
+    // create conditions, assignments, and commands.
+	// We have to do this late because they could refer to internal variables of other nodes.
+    void postInit();
+
+	// Make the node active.
+	void activate();
+
     const NodeId& getId() const {return m_id;}
 
     /**
@@ -349,8 +356,6 @@ namespace PLEXIL {
     friend class StateComputer;
     friend class TransitionHandler;
 
-    //create conditions, assignments, and commands.  We have to do this late because they could refer to internal variables of other nodes.
-    void postInit();
     void commonInit();
 
   private:
