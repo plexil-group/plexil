@@ -166,28 +166,47 @@ namespace PLEXIL {
   }
 
   // Add a plan
+  // Currently parent is ignored
 
-  bool PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) {
-    //currently parent is ignored!
+  bool PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) 
+  {
+	// Try to link any library calls
     if (!plan->link(m_libraries)) {
       debugMsg("PlexilExec:addPlan", " library linking failed");
       return false;
     }
 
+	// Try to construct the node, 
+	// and catch any errors that may occur
+	NodeId root;
+	bool wasThrowEnabled = Error::throwEnabled();
+	try {
+	  if (!wasThrowEnabled)
+		Error::doThrowExceptions();
+	  root = (new Node(plan, m_connector))->getId();
+	  check_error(root.isValid());
+	  root->postInit();
+	}
+	catch (const Error& e) {
+	  if (!wasThrowEnabled)
+		Error::doNotThrowExceptions();
+	  debugMsg("PlexilExec:addPlan", " failed: " << e);
+	  return false;
+	}
+	if (!wasThrowEnabled)
+	  Error::doNotThrowExceptions();
+
     // after this point any failures are likely to be fatal!
     //not actually quiesceing, but causing the new nodes to look at the current known world state
     m_cache->handleQuiescenceStarted();
-    clock_t time1 = clock();
-    NodeId root = (new Node(plan, m_connector))->getId();
-    check_error(root.isValid());
     m_plan.push_back(root);
-    root->postInit();
+	root->activate();
     debugMsg("PlexilExec:addPlan",
-         "Added plan: " << std::endl << root->toString());
-    debugMsg("Time", "Time to initialize plan: " << clock() - time1);
+			 "Added plan: " << std::endl << root->toString());
     publishAddPlan(plan, parent);
     root->conditionChanged();
     m_cache->handleQuiescenceEnded();
+
     return true;
   }
 
