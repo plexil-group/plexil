@@ -26,12 +26,12 @@
 
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
-#include "Expression.hh"
+#include "Debug.hh"
+#include "Error.hh"
 #include "LabelStr.hh"
 #include "StateCache.hh"
 #include "Node.hh"
-#include "Debug.hh"
-#include "Error.hh"
+#include "Variable.hh"
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif

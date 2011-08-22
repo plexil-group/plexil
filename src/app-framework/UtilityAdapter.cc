@@ -26,9 +26,8 @@
 
 #include <iostream>
 #include "AdapterFactory.hh"
-#include "CoreExpressions.hh"
 #include "AdapterExecInterface.hh"
-#include "Expression.hh"
+#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "UtilityAdapter.hh"
 #include "plan-utils.hh"

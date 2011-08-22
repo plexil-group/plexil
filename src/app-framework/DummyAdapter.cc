@@ -26,10 +26,11 @@
 
 #include "DummyAdapter.hh"
 
-#include "Debug.hh"
-#include "CoreExpressions.hh"
 #include "AdapterExecInterface.hh"
+#include "CoreExpressions.hh"
+#include "Debug.hh"
 #include "Node.hh"
+#include "Variables.hh"
 
 namespace PLEXIL
 {

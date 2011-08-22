@@ -26,9 +26,10 @@
 
 #include "LuvFormat.hh"
 #include "Expression.hh"
-#include "PlexilPlan.hh"
 #include "Node.hh"
+#include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
+#include "Variable.hh"
 
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
