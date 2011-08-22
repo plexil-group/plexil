@@ -113,12 +113,12 @@ namespace PLEXIL {
     {
     }
 
-    const ExpressionId& findVariable(const PlexilVarRef* ref)
+    const VariableId& findVariable(const PlexilVarRef* ref)
     {
       return m_node->findVariable(ref);
     }
 
-    const ExpressionId& findVariable(const LabelStr& name, bool recursive = false)
+    const VariableId& findVariable(const LabelStr& name, bool recursive = false)
     {
       return m_node->findVariable(name, recursive);
     }
@@ -271,7 +271,7 @@ namespace PLEXIL {
     cleanUpConditions();
     cleanUpVars();
 
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
       delete (Node*) (*it);
     }
 
@@ -298,7 +298,7 @@ namespace PLEXIL {
     }
  
     // Clean up children
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpConditions();
 
     // Clean up conditions
@@ -342,7 +342,7 @@ namespace PLEXIL {
       if(m_variablesByName.find(*it) != m_variablesByName.end()) {
 	debugMsg("Node:cleanUpVars",
 		 "<" << m_nodeId.toString() << "> Removing " << LabelStr(*it).toString());
-	delete (Expression*) m_variablesByName.find(*it)->second;
+	delete (Variable*) m_variablesByName.find(*it)->second;
 	m_variablesByName.erase(*it);
       }
     }
@@ -467,7 +467,7 @@ namespace PLEXIL {
     }
 
     //call postInit on all children
-    for (std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->postInit();
   }
 
@@ -479,7 +479,7 @@ namespace PLEXIL {
     checkError(body->dest().size() >= 1,
 	       "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
-    ExpressionId dest;
+    VariableId dest;
     LabelStr destName;
     bool deleteLhs = false;
     if (Id<PlexilVarRef>::convertable(destExpr)) {
@@ -491,9 +491,11 @@ namespace PLEXIL {
                  "' not found in assignment node '" << m_nodeId.toString() << "'");
     }
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-      dest = ExpressionFactory::createInstance(destExpr->name(),
-                                               destExpr,
-                                               m_connector);
+      dest =
+		(VariableId)
+		ExpressionFactory::createInstance(destExpr->name(),
+										  destExpr,
+										  m_connector);
       // *** beef this up later ***
 	  PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
 	  debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
@@ -516,17 +518,12 @@ namespace PLEXIL {
 	  checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
     }
 
-    ExpressionId rhs;
     bool deleteRhs = false;
-    if (Id<PlexilVarRef>::convertable(body->RHS())) {
-      rhs = findVariable(body->RHS());
-    }
-    else {
-      rhs = ExpressionFactory::createInstance(body->RHS()->name(), body->RHS(),
-					      m_connector);
-      deleteRhs = true;
-    }
-
+    ExpressionId rhs =
+      ExpressionFactory::createInstance(body->RHS()->name(), 
+										body->RHS(),
+										m_connector,
+										deleteRhs);
     m_assignment =
       (new Assignment(dest, rhs, m_ack, destName, deleteLhs, deleteRhs))->getId();
   }
@@ -537,11 +534,15 @@ namespace PLEXIL {
 			   "Attempt to create command with invalid name expression");
 
     PlexilStateId state = command->state();
-    ExpressionId nameExpr = ExpressionFactory::createInstance(
-       state->nameExpr()->name(), state->nameExpr(), m_connector);
+    std::vector<ExpressionId> garbage;
+	bool nameIsGarbage = false;
+    ExpressionId nameExpr = 
+	  ExpressionFactory::createInstance(state->nameExpr()->name(), 
+										state->nameExpr(), 
+										m_connector,
+										nameIsGarbage);
     LabelStr name(nameExpr->getValue());
     std::list<ExpressionId> args;
-    std::list<ExpressionId> garbage;
     for(std::vector<PlexilExprId>::const_iterator it = state->args().begin();
 	it != state->args().end(); ++it) 
     {
@@ -564,27 +565,26 @@ namespace PLEXIL {
        args.push_back(argExpr);
     }
     
-    ExpressionId dest;
+    VariableId destVar;
     LabelStr dest_name = "";
-    if (!command->dest().empty())
-      {
+    if (!command->dest().empty()) {
         const PlexilExprId& destExpr = command->dest()[0]->getId();
         dest_name = destExpr->name();
         if (Id<PlexilVarRef>::convertable(destExpr))
           {
-            dest = findVariable((Id<PlexilVarRef>) destExpr);
+            destVar = findVariable((Id<PlexilVarRef>) destExpr);
 			// FIXME: push this check up into XML parser
-            checkError(dest.isValid(),
+            checkError(destVar.isValid(),
                        "Unknown destination variable '" << dest_name <<
                        "' in command '" << name.toString() << "' in node '" <<
                        m_nodeId.toString() << "'");
           }
         else if (Id<PlexilArrayElement>::convertable(destExpr))
           {
-            dest = ExpressionFactory::createInstance(destExpr->name(),
-                                                     destExpr,
-                                                     m_connector);
-            garbage.push_back(dest);
+            destVar = ExpressionFactory::createInstance(destExpr->name(),
+														destExpr,
+														m_connector);
+            garbage.push_back(destVar);
           }
         else {
           checkError(ALWAYS_FAIL, "Invalid left-hand side for a command");
@@ -595,38 +595,37 @@ namespace PLEXIL {
     ResourceList resourceList;
     const std::vector<PlexilResourceId>& plexilResourceList = command->getResource();
     for(std::vector<PlexilResourceId>::const_iterator resListItr = plexilResourceList.begin();
-        resListItr != plexilResourceList.end(); ++resListItr)
-      {
-        ResourceMap resourceMap;
+        resListItr != plexilResourceList.end(); ++resListItr) {
+	  ResourceMap resourceMap;
 
-        const PlexilResourceMap& resources = (*resListItr)->getResourceMap();
-        for (PlexilResourceMap::const_iterator resItr = resources.begin();
-			 resItr != resources.end();
-			 ++resItr) {
-		  ExpressionId resExpr;
-		  if (Id<PlexilVarRef>::convertable(resItr->second)) {
-			resExpr = findVariable(resItr->second);
-			// FIXME: push this check up into XML parser
-			checkError(resExpr.isValid(),
-					   "Unknown variable '" << resItr->second->name() <<
-					   "' in resource list for command '" << nameExpr->getValue() <<
-					   "' in node '" << m_nodeId.toString() << "'");
-		  }
-		  else {
-			resExpr = ExpressionFactory::createInstance(resItr->second->name(), 
-														resItr->second, m_connector);
-			garbage.push_back(resExpr);
-			check_error(resExpr.isValid());
-		  }
-		  resourceMap[resItr->first] = resExpr;
+	  const PlexilResourceMap& resources = (*resListItr)->getResourceMap();
+	  for (PlexilResourceMap::const_iterator resItr = resources.begin();
+		   resItr != resources.end();
+		   ++resItr) {
+		ExpressionId resExpr;
+		if (Id<PlexilVarRef>::convertable(resItr->second)) {
+		  resExpr = findVariable(resItr->second);
+		  // FIXME: push this check up into XML parser
+		  checkError(resExpr.isValid(),
+					 "Unknown variable '" << resItr->second->name() <<
+					 "' in resource list for command '" << nameExpr->getValue() <<
+					 "' in node '" << m_nodeId.toString() << "'");
 		}
-        resourceList.push_back(resourceMap);
-      }
+		else {
+		  resExpr = ExpressionFactory::createInstance(resItr->second->name(), 
+													  resItr->second, m_connector);
+		  check_error(resExpr.isValid());
+		  garbage.push_back(resExpr);
+		}
+		resourceMap[resItr->first] = resExpr;
+	  }
+	  resourceList.push_back(resourceMap);
+	}
 
     debugMsg("Node:createCommand",
 	     "Creating command '" << name.toString() << "' for node '" <<
 	     m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, dest, dest_name, m_ack, garbage, resourceList, getId()))->getId();
+    m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
     check_error(m_command.isValid());
   }
 
@@ -638,26 +637,26 @@ namespace PLEXIL {
 
     if(update.isValid()) {
       for(std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
-	    update->pairs().begin(); it != update->pairs().end(); ++it) {
-	LabelStr nameStr(it->first);
-	PlexilExprId foo = it->second;
-	debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
-	ExpressionId valueExpr = ExpressionId::noId();
+			update->pairs().begin(); it != update->pairs().end(); ++it) {
+		LabelStr nameStr(it->first);
+		PlexilExprId foo = it->second;
+		debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
+		ExpressionId valueExpr = ExpressionId::noId();
 
-	if(Id<PlexilVarRef>::convertable(foo)) {
-	  valueExpr = findVariable(foo);
-	  // FIXME: push this check up into XML parser
-	  checkError(valueExpr.isValid(),
-		     "Unknown variable " << foo->name() << " in update for node " <<
-		     m_nodeId.toString());
-	}      
-	else {
-	  valueExpr =
-	    ExpressionFactory::createInstance(foo->name(), foo, m_connector);
-	  garbage.push_back(valueExpr);
-	  check_error(valueExpr.isValid());
-	}
-	updatePairs.insert(std::make_pair((double) nameStr, valueExpr));
+		if(Id<PlexilVarRef>::convertable(foo)) {
+		  valueExpr = findVariable(foo);
+		  // FIXME: push this check up into XML parser
+		  checkError(valueExpr.isValid(),
+					 "Unknown variable " << foo->name() << " in update for node " <<
+					 m_nodeId.toString());
+		}      
+		else {
+		  valueExpr =
+			ExpressionFactory::createInstance(foo->name(), foo, m_connector);
+		  garbage.push_back(valueExpr);
+		  check_error(valueExpr.isValid());
+		}
+		updatePairs.insert(std::make_pair((double) nameStr, valueExpr));
       }
     }
 
@@ -767,7 +766,7 @@ namespace PLEXIL {
 
 	if (m_nodeType == COMMAND()) {
 	  // Construct command-aborted condition
-	  ExpressionId commandAbort = (new BooleanVariable())->getId();
+	  VariableId commandAbort = (new BooleanVariable())->getId();
 	  ExpressionListenerId abortListener = m_listeners[abortCompleteIdx];
 	  commandAbort->addListener(abortListener);
 	  m_conditions[abortCompleteIdx] = commandAbort;
@@ -835,62 +834,60 @@ namespace PLEXIL {
   //  - and it doesn't have a default value, signal an error.
   // libNode is only used for error message generation.
 
-   void Node::testLibraryNodeParameters(
-      const PlexilNodeId& libNode, 
-      const std::vector<PlexilVarRef*>& interfaceVars,
-      PlexilAliasMap& aliases)
+   void Node::testLibraryNodeParameters(const PlexilNodeId& libNode, 
+										const std::vector<PlexilVarRef*>& interfaceVars,
+										PlexilAliasMap& aliases)
    {
-      // check each variable in the interface to ensure it is
-      // referenced in the alias list
+	 // check each variable in the interface to ensure it is
+	 // referenced in the alias list
       
-      for (std::vector<PlexilVarRef*>::const_iterator var = interfaceVars.begin();
-           var != interfaceVars.end(); ++var)
-      {
-	// get var label and matching value in alias list
-	LabelStr varLabel((*var)->name());
-	PlexilExprId& aliasValue = aliases[varLabel];
+	 for (std::vector<PlexilVarRef*>::const_iterator var = interfaceVars.begin();
+		  var != interfaceVars.end(); ++var) {
+	   // get var label and matching value in alias list
+	   LabelStr varLabel((*var)->name());
+	   PlexilExprId& aliasValue = aliases[varLabel];
 
-	// check that variable referenced in alias list         
-	// if it is missing then check whether formal parameter has a default value
-	if (!aliasValue.isId())
-	  {
-	    if ((*var)->defaultValue().isId())
-	      {
-		// check that the default value is valid
-		checkError(Id<PlexilValue>::convertable((*var)->defaultValue()), 
-			   "Expected PlexilValue.");
-		const Id<PlexilValue>& defaultValue = 
-		  (Id<PlexilValue>&)(*var)->defaultValue();
-		checkError(defaultValue->value() != "UNKNOWN",
-			   "Interface variable '" << 
-			   varLabel.toString() <<
-			   "' in library node '" << libNode->nodeId() << 
-			   "' missing in call from '" << getNodeId().toString() <<
-			   "' and no default is specified");
+	   // check that variable referenced in alias list         
+	   // if it is missing then check whether formal parameter has a default value
+	   if (!aliasValue.isId()) {
+		 if ((*var)->defaultValue().isId()) {
+		   // check that the default value is valid
+		   checkError(Id<PlexilValue>::convertable((*var)->defaultValue()), 
+					  "Expected PlexilValue.");
+		   const Id<PlexilValue>& defaultValue = 
+			 (Id<PlexilValue>&)(*var)->defaultValue();
+		   checkError(defaultValue->value() != "UNKNOWN",
+					  "Interface variable '" << 
+					  varLabel.toString() <<
+					  "' in library node '" << libNode->nodeId() << 
+					  "' missing in call from '" << getNodeId().toString() <<
+					  "' and no default is specified");
           
-		// construct variable with default value
-		debugMsg("Node:testLibraryNodeParameters", 
-				 "Constructing defaulted interface variable " << varLabel.c_str());
-		m_variablesByName[varLabel] = 
-		  ExpressionFactory::createInstance(PlexilParser::valueTypeString((*var)->type()) + "Value",
-						    defaultValue->getId(),
-						    m_connector);
-	      }
-	    else
-	      {
-                // no default value provided
-		checkError(ALWAYS_FAIL,
-			   "Interface variable '" << 
-			   varLabel.toString() <<
-			   "' in library node '" << libNode->nodeId() << 
-			   "' missing in call from '" << getNodeId().toString() <<
-			   "' and no default is specified");
-	      }
-	  }
+		   // construct variable with default value
+		   debugMsg("Node:testLibraryNodeParameters", 
+					"Constructing defaulted interface variable " << varLabel.c_str());
+		   VariableId newVar =
+			 (VariableId)
+			 ExpressionFactory::createInstance(PlexilParser::valueTypeString((*var)->type()) + "Value",
+											   defaultValue->getId(),
+											   m_connector);
+		   m_variablesByName[varLabel] = newVar;
+		   m_localVariables.push_back(newVar);
+		 }
+		 else {
+		   // no default value provided
+		   checkError(ALWAYS_FAIL,
+					  "Interface variable '" << 
+					  varLabel.toString() <<
+					  "' in library node '" << libNode->nodeId() << 
+					  "' missing in call from '" << getNodeId().toString() <<
+					  "' and no default is specified");
+		 }
+	   }
 
-	// remove value for alias copy for later checking
-	aliases.erase(varLabel);
-      }
+	   // remove value for alias copy for later checking
+	   aliases.erase(varLabel);
+	 }
    }
 
    void Node::createLibraryNode(const PlexilNodeId& node)
@@ -959,22 +956,19 @@ namespace PLEXIL {
                        << "' referenced in '" << getNodeId().toString() << "'");
 
             // find the expression form
-            const Id<Expression>& varExp = findVariable(alias->second);
+            VariableId var = findVariable(alias->second);
 			// FIXME: push this check up into XML parser
-            checkError(varExp.isId(), "Unknown variable '" 
+            checkError(var.isId(), "Unknown variable '" 
                        << alias->second->name()
                        << "' referenced in call to '" << libNode->nodeId() << "' from '"
                        << getNodeId().toString() << "'");
 			// FIXME: push this check up into XML parser
-            checkError(Id<Variable>::convertable(varExp)
-					   || Id<AliasVariable>::convertable(varExp),
+            checkError(Id<VariableImpl>::convertable(var)
+					   || Id<AliasVariable>::convertable(var),
 					   "Expression not a variable '" 
                        << alias->second->name()
                        << "' referenced in call to '" << libNode->nodeId() << "' from '"
                        << getNodeId().toString() << "'");
-
-            // convert expression to variable
-            const Id<EssentialVariable>& var = (const Id<EssentialVariable>&)varExp;
 
 			if (iVar->type() == ARRAY) {
 			  // check for array element type match
@@ -1016,11 +1010,13 @@ namespace PLEXIL {
                      " Constructing variable for " << value->name()
                      << " literal with value " << value->value() 
                      << " as library node interface variable " << paramName.c_str());
-            ExpressionId varId = 
+            VariableId varId = 
+			  (VariableId)
               ExpressionFactory::createInstance(value->name(),
                                                 value->getId(),
                                                 m_connector);
             m_variablesByName[paramName] = varId;
+			m_localVariables.push_back(varId);
          }
          else
             checkError(false, 
@@ -1057,13 +1053,13 @@ namespace PLEXIL {
 		   ++it) 
       {
 		PlexilVarRef* varRef = *it;
-		ExpressionId expr = m_parent->findVariable(varRef);
+		VariableId expr = m_parent->findVariable(varRef);
 		// FIXME: push this check up into XML parser
 		checkError(expr.isId(),
 				   "No variable named '" << varRef->name() <<
 				   "' in parent of node '" << m_nodeId.toString() << "'");
 		// FIXME: push this check up into XML parser
-		checkError(Id<Variable>::convertable(expr)
+		checkError(Id<VariableImpl>::convertable(expr)
 				   || Id<AliasVariable>::convertable(expr),
 				   "Expression named '" << varRef->name() <<
 				   "' in parent of node '" << m_nodeId.toString() <<
@@ -1071,10 +1067,10 @@ namespace PLEXIL {
 
 
 		// Generate a constant alias for this variable
-		ExpressionId alias =
+		VariableId alias =
 		  (new AliasVariable(varRef->name(),
 							 m_connector,
-							 (Id<EssentialVariable>) expr,
+							 (Id<Variable>) expr,
 							 true))->getId();
 
 		// add alias to this node
@@ -1090,7 +1086,7 @@ namespace PLEXIL {
       for(std::vector<PlexilVarRef*>::const_iterator it = intf->inOut().begin();
           it != intf->inOut().end(); ++it) 
       {
-         ExpressionId expr = m_parent->findVariable(*it);
+         VariableId expr = m_parent->findVariable(*it);
 		 // FIXME: push this check up into XML parser
          checkError(expr.isId(),
                     "No variable named '" << (*it)->name() <<
@@ -1120,12 +1116,15 @@ namespace PLEXIL {
        if (Id<PlexilArrayVar>::convertable((*it)->getId()))
        {
           PlexilValue* value = (*it)->value();
-          ExpressionId varId = ExpressionFactory::createInstance(value->name(), value->getId(),
-                                                                 m_connector);
-          //CHECK FOR DUPLICATE NAMES
+          VariableId varId =
+			(VariableId)
+			ExpressionFactory::createInstance(value->name(), 
+											  value->getId(),
+											  m_connector);
+          // FIXME: CHECK FOR DUPLICATE NAMES
 
           m_variablesByName[nameLabel] = varId;
-		  ((Variable*) varId)->setName(name);
+		  ((VariableImpl*) varId)->setName(name);
           m_localVariables.push_back(varId);
           debugMsg("Node:createDeclaredVars",
                    " for node '" << m_nodeId.toString()
@@ -1138,12 +1137,15 @@ namespace PLEXIL {
        else
        {
           PlexilValue* value = (*it)->value();
-          ExpressionId varId = ExpressionFactory::createInstance(value->name(), value->getId(),
-                                                                 m_connector);
-          //CHECK FOR DUPLICATE NAMES
+          VariableId varId =
+			(VariableId)
+			ExpressionFactory::createInstance(value->name(), 
+											  value->getId(),
+											  m_connector);
+          // FIXME: CHECK FOR DUPLICATE NAMES
 
           m_variablesByName[nameLabel] = varId;
-		  ((Variable*) varId)->setName(name);
+		  ((VariableImpl*) varId)->setName(name);
           m_localVariables.push_back(varId);
           debugMsg("Node:createDeclaredVars",
                    " for node '" << m_nodeId.toString()
@@ -1230,7 +1232,7 @@ namespace PLEXIL {
     conditionChanged(); // was checkConditions();
   }
 
-  const ExpressionId& Node::getInternalVariable(const LabelStr& name) const {
+  const VariableId& Node::getInternalVariable(const LabelStr& name) const{
     checkError(m_variablesByName.find(name) != m_variablesByName.end(),
 	       "No variable named " << name.toString() << " in " << m_nodeId.toString());
     return m_variablesByName.find(name)->second;
@@ -1261,7 +1263,7 @@ namespace PLEXIL {
     return m_endTimepoints[m_state]->getValue();
   }
 
-  const ExpressionId& Node::getStateVariable() {
+  const VariableId& Node::getStateVariable() {
     return m_stateVariable;
   }
 
@@ -1269,7 +1271,7 @@ namespace PLEXIL {
     return getOutcomeVariable()->getValue();
   }
 
-  const ExpressionId& Node::getOutcomeVariable() const {
+  const VariableId& Node::getOutcomeVariable() const {
     return getInternalVariable(OUTCOME());
   }
 
@@ -1277,7 +1279,7 @@ namespace PLEXIL {
     return getFailureTypeVariable()->getValue();
   }
 
-  const ExpressionId& Node::getFailureTypeVariable() const {
+  const VariableId& Node::getFailureTypeVariable() const {
     return getInternalVariable(FAILURE_TYPE());
   }
 
@@ -1285,7 +1287,7 @@ namespace PLEXIL {
     return getCommandHandleVariable()->getValue();
   }
 
-  const ExpressionId& Node::getCommandHandleVariable() const {
+  const VariableId& Node::getCommandHandleVariable() const {
     return getInternalVariable(COMMAND_HANDLE());
   }
 
@@ -1298,12 +1300,12 @@ namespace PLEXIL {
   };
 
   // Searches ancestors when required
-  const ExpressionId& Node::findVariable(const LabelStr& name, bool recursive)
+  const VariableId& Node::findVariable(const LabelStr& name, bool recursive)
   {
     debugMsg("Node:findVariable",
 			 " for node '" << m_nodeId.toString()
 			 << "', searching by name for \"" << name.toString() << "\"");
-    ExpressionMap::const_iterator it = m_variablesByName.find(name.getKey());
+    VariableMap::const_iterator it = m_variablesByName.find(name.getKey());
 	if (it != m_variablesByName.end()) {
 	  debugMsg("Node:findVariable",
 			   " Returning " << it->second->toString());
@@ -1314,7 +1316,7 @@ namespace PLEXIL {
 	// Stop at library call nodes, as interfaces there are explicit
 	if (m_parent.isId()
 		&& m_parent->m_nodeType != LIBRARYNODECALL()) {
-	  const ExpressionId& result = m_parent->findVariable(name, true);
+	  const VariableId& result = m_parent->findVariable(name, true);
 	  if (result.isId()) {
 		// Found it - cache for later reuse
 		m_variablesByName[name.getKey()] = result;
@@ -1322,7 +1324,7 @@ namespace PLEXIL {
 	  }
 	  // Not found 
 	  else if (recursive)
-		return ExpressionId::noId(); // so that error happens at approriate level
+		return VariableId::noId(); // so that error happens at approriate level
 	  // else fall through to failure
 	}
 
@@ -1330,10 +1332,10 @@ namespace PLEXIL {
 	checkError(ALWAYS_FAIL,
 			   "No variable named \"" << name.toString() << "\" accessible from node " <<
 			   m_nodeId.toString());
-	return ExpressionId::noId();
+	return VariableId::noId();
   }
    
-   const ExpressionId& Node::findVariable(const PlexilVarRef* ref)
+   const VariableId& Node::findVariable(const PlexilVarRef* ref)
    {
 	 debugMsg("Node:findVariable",
 			  " for node '" << m_nodeId.toString()
@@ -1364,7 +1366,7 @@ namespace PLEXIL {
 					  "Child internal variable reference in node " << 
 					  m_nodeId.toString() <<
 					  " which isn't a list node.");
-		   std::list<NodeId>::const_iterator it =
+		   std::vector<NodeId>::const_iterator it =
 			 std::find_if(m_children.begin(), m_children.end(),
 						  NodeIdEq(LabelStr(nodeRef->name())));
 		   // FIXME: push this check up into XML parser
@@ -1381,7 +1383,7 @@ namespace PLEXIL {
 		   checkError(m_parent.isValid(),
 					  "Sibling node reference in root node " << 
 					  m_nodeId.toString());
-		   std::list<NodeId>::const_iterator it =
+		   std::vector<NodeId>::const_iterator it =
 			 std::find_if(m_parent->m_children.begin(), 
 						  m_parent->m_children.end(),
 						  NodeIdEq(LabelStr(nodeRef->name())));
@@ -1399,7 +1401,7 @@ namespace PLEXIL {
 		 checkError(ALWAYS_FAIL,
 					"Invalid direction in node reference from " <<
 					m_nodeId.toString());
-		 return ExpressionId::noId();
+		 return VariableId::noId();
 	   }
 
 	   std::string name;
@@ -1437,7 +1439,7 @@ namespace PLEXIL {
     return m_update;
   }
 
-  const ExpressionId& Node::getAssignmentVariable() const {return m_assignment->getDest();}
+  const VariableId& Node::getAssignmentVariable() const {return m_assignment->getDest();}
 
   AssignmentId& Node::getAssignment() {
     check_error(getType() == ASSIGNMENT());
@@ -1493,7 +1495,7 @@ namespace PLEXIL {
   void Node::execute() {
     debugMsg("Node:execute", "Executing node " << m_nodeId.toString());
     // activate local variables
-    for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
+    for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
          vit++)
       {
@@ -1515,14 +1517,15 @@ namespace PLEXIL {
       ((Variable*) m_endTimepoints[s])->reset();
     }
 
-    for(std::list<ExpressionId>::const_iterator it = m_localVariables.begin();
-	it != m_localVariables.end(); ++it) {
-      ((Variable*)(*it))->reset();
-    }
+    for (std::vector<VariableId>::const_iterator it = m_localVariables.begin();
+		 it != m_localVariables.end();
+		 ++it)
+      (*it)->reset();
     
-    if(getType() == COMMAND() || getType() == UPDATE() ||
-       getType() == REQUEST())
-      ((Variable*)m_ack)->reset();
+    if (getType() == COMMAND()
+		|| getType() == UPDATE()
+		|| getType() == REQUEST())
+      m_ack->reset();
   }
 
   void Node::abort() {
@@ -1601,12 +1604,10 @@ namespace PLEXIL {
     else if(getType() == Node::UPDATE() && m_update.isValid())
       m_update->deactivate();
     // deactivate local variables
-    for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
+    for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
          vit++)
-      {
-        (*vit)->deactivate();
-      }
+	  (*vit)->deactivate();
   }
 
   std::string Node::toString(const unsigned int indent)
@@ -1654,7 +1655,7 @@ namespace PLEXIL {
 	  printVariables(stream, indent);
     }
 	// print children
-    for (std::list<NodeId>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for(std::vector<NodeId>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
       stream << (*it)->toString(indent + 2);
     }
     stream << indentStr << "}" << std::endl;
@@ -1685,7 +1686,7 @@ namespace PLEXIL {
 			   "Internal error: m_sortedVariableNames is null!");
 	if (m_sortedVariableNames->empty()) {
 	  // Collect the variable names
-	  for (ExpressionMap::const_iterator it = m_variablesByName.begin();
+	  for (VariableMap::const_iterator it = m_variablesByName.begin();
 		   it != m_variablesByName.end();
 		   it++) {
 		double nameKey = it->first;
@@ -1740,10 +1741,10 @@ namespace PLEXIL {
 
   Command::Command(const ExpressionId nameExpr, 
 				   const std::list<ExpressionId>& args,
-				   const ExpressionId dest,
+				   const VariableId dest,
                    const LabelStr& dest_name,
-				   const ExpressionId ack,
-				   const std::list<ExpressionId>& garbage,
+				   const VariableId ack,
+				   const std::vector<ExpressionId>& garbage,
                    const ResourceList& resource,
 				   const NodeId& parent)
     : m_id(this),
@@ -1758,11 +1759,10 @@ namespace PLEXIL {
   {}
 
   Command::~Command() {
-    for (std::list<ExpressionId>::const_iterator it = m_garbage.begin();
+    for (std::vector<ExpressionId>::const_iterator it = m_garbage.begin();
 		 it != m_garbage.end();
 		 ++it)
       delete (Expression*) (*it);
-    m_nameExpr.remove();
     m_id.remove();
   }
 
@@ -1837,9 +1837,12 @@ namespace PLEXIL {
     return m_destName.toString();
   }
 
-  Assignment::Assignment(const ExpressionId lhs, const ExpressionId rhs,
-			 const ExpressionId ack, const LabelStr& lhsName, 
-                         const bool deleteLhs, const bool deleteRhs)
+  Assignment::Assignment(const VariableId lhs, 
+						 const ExpressionId rhs,
+						 const VariableId ack, 
+						 const LabelStr& lhsName, 
+                         const bool deleteLhs, 
+						 const bool deleteRhs)
     : m_id(this), m_lhs(lhs), m_rhs(rhs), m_ack(ack), 
       m_value(Expression::UNKNOWN()),
       m_destName(lhsName),
@@ -1873,8 +1876,10 @@ namespace PLEXIL {
     return m_destName.toString();
   }
 
-  Update::Update(const NodeId& node, const ExpressionMap& pairs,
-		 const ExpressionId ack, const std::list<ExpressionId>& garbage)
+  Update::Update(const NodeId& node, 
+				 const ExpressionMap& pairs,
+				 const VariableId ack,
+				 const std::list<ExpressionId>& garbage)
     : m_id(this), m_source(node), m_pairs(pairs), m_ack(ack), m_garbage(garbage) {}
 
   Update::~Update() {

@@ -187,7 +187,7 @@ namespace PLEXIL {
 	// format variable name
 	simpleStartTag(s, VARIABLE_TAG());
 	// get path to node, if any
-	const NodeId node = dest->getNode();
+	const NodeId node = ((VariableId) dest)->getNode();
 	if (node.isId()) 
 	  formatNodePath(s, node);
 

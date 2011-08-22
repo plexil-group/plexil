@@ -78,7 +78,7 @@ public:
 
 class AllocationExpression : public Expression {
 public:
-  AllocationExpression(PlexilExpr* /* expr */, const NodeId node) : Expression(node) {
+  AllocationExpression(PlexilExpr* /* expr */, const NodeId /* node */) : Expression() {
     setValue(10);
   }
   //double getValue() {return 10;}
@@ -1059,8 +1059,10 @@ private:
 class LookupTestNodeConnector : public NodeConnector {
 public:
   LookupTestNodeConnector() : NodeConnector() {}
-  const ExpressionId& findVariable(const PlexilVarRef* /* var */) {return ExpressionId::noId();}
-  const ExpressionId& findVariable(const LabelStr& /* name */, bool /* recursive */) {return ExpressionId::noId();}
+  const VariableId& findVariable(const PlexilVarRef* /* var */)
+  { return VariableId::noId(); }
+  const VariableId& findVariable(const LabelStr& /* name */, bool /* recursive */ = false)
+  { return VariableId::noId(); }
   const NodeId& getNode() const { return NodeId::noId(); }
   const ExecConnectorId& getExec() {
     return m_exec.getId();
@@ -1107,6 +1109,7 @@ private:
     LookupNow l1(test1.getId(), node.getId());
     LookupNow l2(test2.getId(), node.getId());
     LookupNow l3(test3.getId(), node.getId());
+
     node.getExec()->getStateCache()->handleQuiescenceStarted();
     l1.activate();
     l2.activate();

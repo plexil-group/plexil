@@ -41,7 +41,7 @@ namespace PLEXIL {
   //  - implement multiple return values from lookups
 
   Lookup::Lookup(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Variable(false), 
+    : VariableImpl(false), 
       m_cache(node->getExec()->getStateCache()),
       m_dest(1, m_id),
       m_state(Expression::UNKNOWN(),
@@ -54,10 +54,15 @@ namespace PLEXIL {
      PlexilState* state = lookup->state();
      
      // create the correct form of the expression for this name
+	 bool nameExprIsNew = false;
      m_stateNameExpr = 
        ExpressionFactory::createInstance(state->nameExpr()->name(), 
-                                         state->nameExpr(), node);
+                                         state->nameExpr(),
+										 node,
+										 nameExprIsNew);
      m_stateNameExpr->addListener(m_listener.getId());
+	 if (nameExprIsNew)
+	   m_garbage.push_back(m_stateNameExpr);
 
      // handle argument lookup
      getArguments(state->args(), node);
@@ -73,37 +78,29 @@ namespace PLEXIL {
       (*it)->removeListener(m_listener.getId());
 
     // safe to delete anything in the garbage
+	// possibly including state name expr
     for (std::vector<ExpressionId>::iterator it = m_garbage.begin(); 
          it != m_garbage.end();
-         ++it)
+         ++it) {
       delete (*it).operator->();
-
-    // N.B. Can't delete state name expression because it may be shared
-    // (e.g. variable references)
-    m_stateNameExpr.remove();
+	}
   }
 
   void Lookup::getArguments(const std::vector<PlexilExprId>& args,
 			    const NodeConnectorId& node) 
   {
-    for (std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) 
-      {
-        ExpressionId param;
-        if (Id<PlexilVarRef>::convertable(*it))
-          {
-            param = node->findVariable((PlexilVarRef*)*it);
-          }
-        else 
-          {
-            param = ExpressionFactory::createInstance((*it)->name(), *it, node);
-            check_error(param.isValid());
-            m_garbage.push_back(param);
-          }
-	m_params.push_back(param);
-        param->addListener(m_listener.getId());
-	debugMsg("Lookup:getArguments",
-		 " " << toString() << " added listener for " << param->toString());
-      }
+    for (std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) {
+	  bool wasConstructed = false; 
+	  ExpressionId param =
+		ExpressionFactory::createInstance((*it)->name(), *it, node, wasConstructed);
+	  check_error(param.isValid());
+	  if (wasConstructed)
+		m_garbage.push_back(param);
+	  m_params.push_back(param);
+	  param->addListener(m_listener.getId());
+	  debugMsg("Lookup:getArguments",
+			   " " << toString() << " added listener for " << param->toString());
+	}
   }
 
   void Lookup::handleActivate(const bool changed) 
@@ -226,6 +223,10 @@ namespace PLEXIL {
     checkError(Id<PlexilLookupNow>::convertable(expr), "Expected LookupNow.");
   }
 
+  LookupNow::~LookupNow()
+  {
+  }
+
   void LookupNow::handleChange(const ExpressionId& /* exp */)
   {
     // need to notify state cache if cached lookup is no longer valid
@@ -283,18 +284,16 @@ namespace PLEXIL {
 
     if(lookup->tolerances().empty())
       m_tolerance = RealVariable::ZERO_EXP();
-    else 
-      {
-        if(Id<PlexilVarRef>::convertable(lookup->tolerances()[0]))
-          m_tolerance = node->findVariable((PlexilVarRef*)lookup->tolerances()[0]);
-        else
-          {
-            m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
-                                                            lookup->tolerances()[0]);
-            m_garbage.push_back(m_tolerance);
-          }
-        m_tolerance->addListener(m_listener.getId());
-      }
+    else {
+	  bool wasCreated = false;
+	  m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
+													  lookup->tolerances()[0],
+													  node,
+													  wasCreated);
+	  if (wasCreated)
+		m_garbage.push_back(m_tolerance);
+	  m_tolerance->addListener(m_listener.getId());
+	}
   }
 
   LookupOnChange::~LookupOnChange()

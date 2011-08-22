@@ -36,6 +36,7 @@
 #include <list>
 #include <map>
 #include <set>
+#include <vector>
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
@@ -47,14 +48,15 @@ namespace PLEXIL {
   typedef Id<NodeStateManager> NodeStateManagerId;
 
   typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
+  typedef PLEXIL_HASH_MAP(double, VariableId) VariableMap;
 
   class NodeConnector {
   public:
     NodeConnector() : m_id(this) {}
     virtual ~NodeConnector() {m_id.remove();}
     const NodeConnectorId& getId() const {return m_id;}
-    virtual const ExpressionId& findVariable(const PlexilVarRef* ref) = 0;
-    virtual const ExpressionId& findVariable(const LabelStr& name, bool recursive = false) = 0;
+    virtual const VariableId& findVariable(const PlexilVarRef* ref) = 0;
+    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false) = 0;
     virtual const NodeId& getNode() const = 0;
     virtual const ExecConnectorId& getExec() = 0;
   protected:
@@ -169,7 +171,7 @@ namespace PLEXIL {
     /**
      * @brief Accessor for the assigned variable.
      */
-    const ExpressionId& getAssignmentVariable() const;
+    const VariableId& getAssignmentVariable() const;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -210,28 +212,28 @@ namespace PLEXIL {
     double getCurrentStateEndTime() const;
 
     //Isaac - get local variables ExpressionMap
-    ExpressionMap getLocalVariablesByName() { return m_variablesByName; }
+    const VariableMap& getLocalVariablesByName() { return m_variablesByName; }
     
     //Isaac - get local variables
-    std::list<ExpressionId> getLocalVariables() { return m_localVariables; }
+    const std::vector<VariableId> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
-    const std::list<NodeId>& getChildren() { return m_children; }
+    const std::vector<NodeId>& getChildren() { return m_children; }
 
     /**
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.
      */
-    const ExpressionId& getStateVariable();
+    const VariableId& getStateVariable();
 
     const LabelStr getOutcome();
-    const ExpressionId& getOutcomeVariable() const;
-    
+    const VariableId& getOutcomeVariable() const;
+
     const LabelStr getFailureType();
-    const ExpressionId& getFailureTypeVariable() const;
+    const VariableId& getFailureTypeVariable() const;
 
     const LabelStr getCommandHandle();
-    const ExpressionId& getCommandHandleVariable() const;
+    const VariableId& getCommandHandleVariable() const;
 
     /**
      * @brief Gets the type of this node (node list, assignment, or command).
@@ -269,9 +271,9 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by reference.
      */
-    const ExpressionId& findVariable(const PlexilVarRef* ref);
+    const VariableId& findVariable(const PlexilVarRef* ref);
 
-    const ExpressionId& findVariable(const LabelStr& name, bool recursive = false);
+    const VariableId& findVariable(const LabelStr& name, bool recursive = false);
 
     const ExecConnectorId& getExec() {return m_exec;}
 
@@ -418,7 +420,7 @@ namespace PLEXIL {
 
     void cleanUpVars();
 
-    const ExpressionId& getInternalVariable(const LabelStr& name) const;
+    const VariableId& getInternalVariable(const LabelStr& name) const;
 
     // Listener accessors
     ExpressionListenerId& getSkipListener()                      { return m_listeners[skipIdx]; }
@@ -469,11 +471,11 @@ namespace PLEXIL {
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
     NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
-    ExpressionMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
-							Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
-							I'll stick all variables in here, just to be safe.*/
+    VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
+	     Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
+		 I'll stick all variables in here, just to be safe.*/
 	std::vector<double>* m_sortedVariableNames;
-    std::list<ExpressionId> m_localVariables; /*<! Variables created in this node*/
+    std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
     ExpressionId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
     ExpressionId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
     ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
@@ -482,10 +484,10 @@ namespace PLEXIL {
     AssignmentId m_assignment;
     CommandId m_command; /*<! The command to be performed. */
     UpdateId m_update;
-    ExpressionId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
-    std::list<NodeId> m_children; /*<! Child nodes.*/
+    VariableId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
+    std::vector<NodeId> m_children; /*<! Child nodes.*/
     std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
-    ExpressionId m_stateVariable; /*<! Expression copy of the actual state of the node. */
+    VariableId m_stateVariable;
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
   };
@@ -495,11 +497,15 @@ namespace PLEXIL {
 
   class Assignment {
   public:
-    Assignment(const ExpressionId lhs, const ExpressionId rhs, const ExpressionId ack,
-	       const LabelStr& lhsName, const bool deleteLhs, const bool deleteRhs);
+    Assignment(const VariableId lhs,
+			   const ExpressionId rhs, 
+			   const VariableId ack,
+			   const LabelStr& lhsName,
+			   const bool deleteLhs, 
+			   const bool deleteRhs);
     ~Assignment();
     AssignmentId& getId() {return m_id;}
-    ExpressionId& getDest() {return m_lhs;}
+    VariableId& getDest() {return m_lhs;}
     ExpressionId& getAck() {return m_ack;}
     double getValue(){return m_value;}
     void activate();
@@ -510,7 +516,8 @@ namespace PLEXIL {
     void fixValue();
   private:
     AssignmentId m_id;
-    ExpressionId m_lhs, m_rhs, m_ack;
+	VariableId m_lhs;
+    ExpressionId m_rhs, m_ack;
     double m_value;
     LabelStr m_destName;
     bool m_deleteLhs, m_deleteRhs;
@@ -526,17 +533,17 @@ namespace PLEXIL {
   public:
     Command(const ExpressionId nameExpr, 
 			const std::list<ExpressionId>& args, 
-            const ExpressionId dest,
+            const VariableId dest,
             const LabelStr& dest_name,
-			const ExpressionId ack,
-			const std::list<ExpressionId>& garbage,
+			const VariableId ack,
+			const std::vector<ExpressionId>& garbage,
             const ResourceList& resource,
 			const NodeId& parent);
     ~Command();
 
     CommandId& getId() {return m_id;}
-    ExpressionId& getDest() {return m_dest;}
-    ExpressionId& getAck() {return m_ack;}
+    VariableId& getDest() {return m_dest;}
+    VariableId& getAck() {return m_ack;}
     const std::list<double>& getArgValues() const {return m_argValues;}
     const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
 	const NodeId& getNode() const { return m_node; }
@@ -556,10 +563,10 @@ namespace PLEXIL {
     CommandId m_id;
     ExpressionId m_nameExpr;
     std::list<ExpressionId> m_args;
-    ExpressionId m_dest;
+    VariableId m_dest;
     LabelStr m_destName;
-    ExpressionId m_ack;
-    std::list<ExpressionId> m_garbage;
+    VariableId m_ack;
+    std::vector<ExpressionId> m_garbage;
     std::list<double> m_argValues;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
@@ -568,11 +575,13 @@ namespace PLEXIL {
 
   class Update {
   public:
-    Update(const NodeId& node, const ExpressionMap& pairs, const ExpressionId ack,
-	   const std::list<ExpressionId>& garbage);
+    Update(const NodeId& node, 
+		   const ExpressionMap& pairs, 
+		   const VariableId ack,
+		   const std::list<ExpressionId>& garbage);
     ~Update();
     UpdateId& getId() {return m_id;}
-    ExpressionId& getAck() {return m_ack;}
+    VariableId& getAck() {return m_ack;}
     const std::map<double, double>& getPairs() {return m_valuePairs;}
     void activate();
     void deactivate();
@@ -584,7 +593,7 @@ namespace PLEXIL {
     UpdateId m_id;
     NodeId m_source;
     ExpressionMap m_pairs;
-    ExpressionId m_ack;
+    VariableId m_ack;
     std::list<ExpressionId> m_garbage;
     std::map<double, double> m_valuePairs;
   };

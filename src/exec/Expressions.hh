@@ -34,7 +34,7 @@
 #include <set>
 
 namespace PLEXIL {
-  class Lookup : public Variable {
+  class Lookup : public VariableImpl {
   public:
     Lookup(const PlexilExprId& expr, const NodeConnectorId& node);
     virtual ~Lookup();
@@ -119,6 +119,7 @@ namespace PLEXIL {
   class LookupNow : public Lookup {
   public:
     LookupNow(const PlexilExprId& expr, const NodeConnectorId& node);
+	virtual ~LookupNow();
     std::string toString() const;
  
     void handleChange(const ExpressionId& exp);

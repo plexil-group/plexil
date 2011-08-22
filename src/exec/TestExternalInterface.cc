@@ -239,7 +239,7 @@ namespace PLEXIL
   {
     if (expr != ExpressionId::noId())
       {
-        checkError(Id<Variable>::convertable(expr),
+        checkError(Id<VariableImpl>::convertable(expr),
                    "Expected string or atomic variable in \'" <<
                    source << "\'");
         expr->setValue(value);

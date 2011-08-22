@@ -40,30 +40,31 @@
 namespace PLEXIL 
 {
 
-  ArrayVariable::ArrayVariable(unsigned maxSize,
-			       PlexilType type,
+  ArrayVariable::ArrayVariable(unsigned long maxSize,
+							   PlexilType type,
                                const bool isConst)
-    : Variable(isConst),
-      m_maxSize(maxSize), 
+    : EssentialArrayVariable(), 
+	  VariableImpl(isConst), 
+	  m_maxSize(maxSize), 
       m_type(type),
       m_initialVector()
   {
     debugMsg("ArrayVariable", " constructor, no initial elements");
-    StoredArray array(m_maxSize, Expression::UNKNOWN());
+    StoredArray array(m_maxSize, UNKNOWN());
     setValue(array.getKey());
   }
 
-  ArrayVariable::ArrayVariable(unsigned maxSize, 
-			       PlexilType type, 
+  ArrayVariable::ArrayVariable(unsigned long maxSize, 
+							   PlexilType type, 
                                std::vector<double>& values, 
-			       const bool isConst)
-    : Variable(isConst),
-      m_maxSize(maxSize),
-      m_type(type),
+							   const bool isConst)
+    : EssentialArrayVariable(),
+	  VariableImpl(isConst),
+	  m_maxSize(maxSize),
       m_initialVector(values)
   {
     debugMsg("ArrayVariable", " constructor, " << values.size() << " initial elements");
-    StoredArray array(m_maxSize, Expression::UNKNOWN());
+    StoredArray array(m_maxSize, UNKNOWN());
     setValue(array.getKey());
     setValues(values);
   }
@@ -71,7 +72,8 @@ namespace PLEXIL
   ArrayVariable::ArrayVariable(const PlexilExprId& expr, 
                                const NodeConnectorId& node,
                                const bool isConst)
-    : Variable(expr, node, isConst)
+    : EssentialArrayVariable(node),
+	  VariableImpl(expr, node, isConst)
   {
     debugMsg("ArrayVariable", " constructor from intermediate representation");
 
@@ -83,7 +85,7 @@ namespace PLEXIL
     // init the local type and array
     m_type = arrayValue->type();
     m_maxSize = arrayValue->maxSize();
-    StoredArray array(m_maxSize, Expression::UNKNOWN());
+    StoredArray array(m_maxSize, UNKNOWN());
     setValue(array.getKey());
 
     // convert strings to doubles for internal storage
@@ -160,10 +162,10 @@ namespace PLEXIL
     // if the value is unknown, then set the value of the
     // array as a whole to unknown, and free the old storage.
 
-    if (value == Expression::UNKNOWN())
+    if (value == UNKNOWN())
       {
         double oldValue = m_value;
-        Variable::setValue(value);
+        VariableImpl::setValue(value);
 
         // dispose of old array if it's not the saved initial value
         // (needed for Variable::reset())
@@ -178,20 +180,20 @@ namespace PLEXIL
     // currently unknown, then create a new array of m_maxSize,
     // copy source array to it, and set value to the new array
 
-    else if (m_value == Expression::UNKNOWN())
+    else if (m_value == UNKNOWN())
       {
         // create a copy of the array
-        StoredArray newArray(m_maxSize, Expression::UNKNOWN());
+        StoredArray newArray(m_maxSize, UNKNOWN());
         StoredArray sourceArray(value);
         checkError(newArray.size() >= sourceArray.size(),
                    "Source array size " << sourceArray.size() <<
                    ", exceeds target size " << newArray.size() << ".");
-        for (size_t i = 0; i < sourceArray.size(); i++)
+        for (unsigned long i = 0; i < sourceArray.size(); i++)
           {
             newArray[i] = sourceArray[i];
           }
 
-        Variable::setValue(newArray.getKey());
+        VariableImpl::setValue(newArray.getKey());
       }
 
     // just copy from the other array
@@ -225,7 +227,7 @@ namespace PLEXIL
     // fill out the rest of the array with "UNKNOWN"
 
     while (index < m_maxSize)
-      array[index++] = Expression::UNKNOWN();
+      array[index++] = UNKNOWN();
 
     // publish change
 
@@ -259,7 +261,7 @@ namespace PLEXIL
     // fill out the rest of the array with "UNKNOWN"
 
     while (index < array.size())
-      array[index++] = Expression::UNKNOWN();
+      array[index++] = UNKNOWN();
 
     debugMsg("ArrayVariable:setValues", 
              " result is " << array.toString());
@@ -295,14 +297,14 @@ namespace PLEXIL
   void ArrayVariable::setElementValue(unsigned index, const double value)
   {
     // lotsa potential errors to check
-    checkError(!isConst(),
+    checkError(!VariableImpl::isConst(),
                "Attempted to set element value " << value << " to " << toString());
     checkError(checkElementValue(value),
                "Attempted to assign an invalid value to an array element");
     checkError(checkIndex(index),
                "Array index " << index << " exceeds bound of " 
                << m_maxSize);
-    checkError(m_value != Expression::UNKNOWN(),
+    checkError(m_value != UNKNOWN(),
                "Attempted to assign an array element in an UNKNOWN array");
 
     // set the element
@@ -315,13 +317,13 @@ namespace PLEXIL
 
   // lookup a value in an array variable
 
-  double ArrayVariable::lookupValue(unsigned long index)
+  double ArrayVariable::lookupValue(unsigned long index) const
   {
     checkError(checkIndex(index),
                "Array index " << index << " exceeds bound of " 
                << m_maxSize);
-    return m_value == Expression::UNKNOWN()
-      ? Expression::UNKNOWN()
+    return m_value == UNKNOWN()
+      ? UNKNOWN()
       : StoredArray(m_value)[index];
   }
 
@@ -329,7 +331,7 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << Expression::toString();
-    if (m_value == Expression::UNKNOWN())
+    if (m_value == UNKNOWN())
       {
         retval << "Array: <uninited, max size = " << m_maxSize << ">";
       }
@@ -342,7 +344,7 @@ namespace PLEXIL
             const double& value = array.at(i);
             if (i != 0)
               retval << ", ";
-            if (value == Expression::UNKNOWN())
+            if (value == UNKNOWN())
               retval << "<unknown>";
             else
               {
@@ -383,7 +385,7 @@ namespace PLEXIL
 
   bool ArrayVariable::checkValue(const double val)
   {
-    if (val == Expression::UNKNOWN())
+    if (val == UNKNOWN())
       return true;
     if (StoredArray::isKey(val))
       {
@@ -403,14 +405,14 @@ namespace PLEXIL
     switch (m_type)
       {
       case INTEGER:
-        return val == Expression::UNKNOWN() ||
+        return val == UNKNOWN() ||
           ((val >= MINUS_INFINITY && val <= PLUS_INFINITY) &&
            val == (double) (int32_t) val);
       case REAL:
         return (val >= REAL_MINUS_INFINITY && val <= REAL_PLUS_INFINITY) ||
-          val == Expression::UNKNOWN();
+          val == UNKNOWN();
       case BOOLEAN:
-        return val == Expression::UNKNOWN() || val == 0.0 || val == 1.0;
+        return val == UNKNOWN() || val == 0.0 || val == 1.0;
       case STRING:
         return LabelStr::isString(val);
       case BLOB:
@@ -446,11 +448,11 @@ namespace PLEXIL
     const std::string & name = arrayElement->getArrayName();
     PlexilVarRef arrayRef;
     arrayRef.setName(name);
-    ExpressionId arrayVar = node->findVariable(&arrayRef);
-    checkError(ArrayVariableId::convertable(arrayVar),
+    VariableId arrayVar = node->findVariable(&arrayRef);
+    checkError(EssentialArrayVariableId::convertable(arrayVar),
                "Expected Array Variable but found: " << 
                arrayVar->toString());
-    m_arrayVariable = (ArrayVariableId) arrayVar;    
+    m_arrayVariable = (EssentialArrayVariableId) arrayVar;    
     m_arrayVariable->addListener(m_listener.getId());
 
     // initialize index expression
@@ -494,6 +496,10 @@ namespace PLEXIL
            << "[" << m_index->toString() << "])";
     return retval.str();
   }
+
+  // *** FIXME: is this the right approach?
+  void ArrayElement::reset()
+  {}
 
   void ArrayElement::setValue(const double value)
   {
@@ -553,8 +559,8 @@ namespace PLEXIL
   double ArrayElement::recalculate()
   {
     double index = m_index->getValue();
-    if (index == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if (index == UNKNOWN())
+      return UNKNOWN();
     return m_arrayVariable->lookupValue((unsigned long) index);
   }
 
@@ -567,7 +573,7 @@ namespace PLEXIL
    */
   AliasVariable::AliasVariable(const std::string& name, 
 							   const NodeConnectorId& nodeConnector,
-							   Id<EssentialVariable> original,
+							   VariableId original,
 							   const bool isConst)
 	: DerivedVariable(nodeConnector),
 	  m_originalVariable(original),
@@ -672,29 +678,29 @@ namespace PLEXIL
   {
   }
 
-  StringVariable::StringVariable(const bool isConst) : Variable(isConst) {}
+  StringVariable::StringVariable(const bool isConst) : VariableImpl(isConst) {}
 
   StringVariable::StringVariable(const std::string& value, const bool isConst)
-    : Variable(LabelStr(value), isConst) {}
+    : VariableImpl(LabelStr(value), isConst) {}
 
   StringVariable::StringVariable(const char* value, const bool isConst)
-    : Variable(LabelStr(value), isConst) {}
+    : VariableImpl(LabelStr(value), isConst) {}
 
   StringVariable::StringVariable(const double value, const bool isConst)
-    : Variable(value, isConst) {
+    : VariableImpl(value, isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
 
   StringVariable::StringVariable(const LabelStr& value, const bool isConst)
-    : Variable(value, isConst) {
+    : VariableImpl(value, isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
 
   StringVariable::StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 				 const bool isConst)
-    : Variable(expr, node, isConst) {
+    : VariableImpl(expr, node, isConst) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::STRING,
@@ -706,7 +712,7 @@ namespace PLEXIL
 
   std::string StringVariable::toString() const {
     std::ostringstream retval;
-    retval << Variable::toString();
+    retval << VariableImpl::toString();
     retval << "string)";
     return retval.str();
   }
@@ -715,17 +721,18 @@ namespace PLEXIL
     return LabelStr::isString(val);
   }
 
-  RealVariable::RealVariable(const bool isConst) : Variable(isConst) {}
+  RealVariable::RealVariable(const bool isConst) : VariableImpl(isConst) {}
 
   RealVariable::RealVariable(const double value, const bool isConst)
-    : Variable(value, isConst) 
+    : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
   }
 
   RealVariable::RealVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-                             const bool isConst) : Variable(expr, node, isConst) 
+                             const bool isConst)
+	: VariableImpl(expr, node, isConst) 
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     commonNumericInit((PlexilValue*)expr);
@@ -734,20 +741,20 @@ namespace PLEXIL
   std::string RealVariable::toString() const 
   {
     std::ostringstream retval;
-    retval << Variable::toString();
+    retval << VariableImpl::toString();
     retval << "real)";
     return retval.str();
   }
    
   bool RealVariable::checkValue(const double val) {
     return (val >= REAL_MINUS_INFINITY && val <= REAL_PLUS_INFINITY) ||
-      val == Expression::UNKNOWN();
+      val == UNKNOWN();
   }
 
   ExpressionId& RealVariable::ZERO_EXP() {
     static ExpressionId sl_zero_exp;
     if (sl_zero_exp.isNoId()) {
-	  Variable* var = new RealVariable(0.0, true);
+	  VariableImpl* var = new RealVariable(0.0, true);
 	  var->setName("Real constant 0");
       sl_zero_exp = var->getId();
 	}
@@ -759,7 +766,7 @@ namespace PLEXIL
   ExpressionId& RealVariable::ONE_EXP() {
     static ExpressionId sl_one_exp;
     if (sl_one_exp.isNoId()) {
-	  Variable* var = new RealVariable(1.0, true);
+	  VariableImpl* var = new RealVariable(1.0, true);
 	  var->setName("Real constant 1");
       sl_one_exp = var->getId();
 	}
@@ -771,7 +778,7 @@ namespace PLEXIL
   ExpressionId& RealVariable::MINUS_ONE_EXP() {
     static ExpressionId sl_minus_one_exp;
     if (sl_minus_one_exp.isNoId()) {
-	  Variable* var = new RealVariable(-1.0, true);
+	  VariableImpl* var = new RealVariable(-1.0, true);
 	  var->setName("Real constant -1");
       sl_minus_one_exp = var->getId();
 	}
@@ -780,10 +787,10 @@ namespace PLEXIL
     return sl_minus_one_exp;
   }
 
-  IntegerVariable::IntegerVariable(const bool isConst) : Variable(isConst) {}
+  IntegerVariable::IntegerVariable(const bool isConst) : VariableImpl(isConst) {}
 
   IntegerVariable::IntegerVariable(const double value, const bool isConst)
-    : Variable(value, isConst) 
+    : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
@@ -791,20 +798,22 @@ namespace PLEXIL
   }
 
   IntegerVariable::IntegerVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst) : Variable(expr, node, isConst) {
+				   const bool isConst)
+	: VariableImpl(expr, node, isConst) 
+  {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     commonNumericInit((PlexilValue*)expr);
   }
 
   std::string IntegerVariable::toString() const {
     std::ostringstream retval;
-    retval << Variable::toString();
+    retval << VariableImpl::toString();
     retval << "int)";
     return retval.str();
   }
 
   bool IntegerVariable::checkValue(const double val) {
-    if (val == Expression::UNKNOWN())
+    if (val == UNKNOWN())
       return true;
     if (val < MINUS_INFINITY || val > PLUS_INFINITY)
       return false;
@@ -817,7 +826,7 @@ namespace PLEXIL
   {
     static ExpressionId sl_zero_exp;
     if (sl_zero_exp.isNoId()) {
-	  Variable* var = new IntegerVariable(0.0, true);
+	  VariableImpl* var = new IntegerVariable(0.0, true);
 	  var->setName("Integer constant 0");
       sl_zero_exp = var->getId();
 	}
@@ -830,7 +839,7 @@ namespace PLEXIL
   {
     static ExpressionId sl_one_exp;
     if (sl_one_exp.isNoId()) {
-	  Variable* var = new IntegerVariable(1.0, true);
+	  VariableImpl* var = new IntegerVariable(1.0, true);
 	  var->setName("Integer constant 1");
       sl_one_exp = var->getId();
 	}
@@ -843,7 +852,7 @@ namespace PLEXIL
   {
     static ExpressionId sl_minus_one_exp;
     if (sl_minus_one_exp.isNoId()) {
-	  Variable* var = new IntegerVariable(-1.0, true);
+	  VariableImpl* var = new IntegerVariable(-1.0, true);
 	  var->setName("Integer constant -1");
       sl_minus_one_exp = var->getId();
 	}
@@ -852,35 +861,35 @@ namespace PLEXIL
     return sl_minus_one_exp;
   }
 
-  BooleanVariable::BooleanVariable(const bool isConst) : Variable(isConst){}
+  BooleanVariable::BooleanVariable(const bool isConst) : VariableImpl(isConst){}
   BooleanVariable::BooleanVariable(const double value, const bool isConst)
-    : Variable(value, isConst) {
+    : VariableImpl(value, isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
 
   BooleanVariable::BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 				   const bool /* isConst */)
-    : Variable(expr, node) {
+    : VariableImpl(expr, node) {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     commonNumericInit((PlexilValue*)expr);
   }
 
   std::string BooleanVariable::toString() const {
     std::ostringstream retval;
-    retval << Variable::toString();
+    retval << VariableImpl::toString();
     retval << "boolean)";
     return retval.str();
   }
 
   bool BooleanVariable::checkValue(const double val) {
-    return val == Expression::UNKNOWN() || val == FALSE() || val == TRUE();
+    return val == UNKNOWN() || val == FALSE() || val == TRUE();
   }
 
   ExpressionId& BooleanVariable::TRUE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId()) {
-	  Variable* var = new BooleanVariable(TRUE(), true);
+	  VariableImpl* var = new BooleanVariable(TRUE(), true);
 	  var->setName("Boolean constant true");
       sl_exp = var->getId();
 	}
@@ -892,7 +901,7 @@ namespace PLEXIL
   ExpressionId& BooleanVariable::FALSE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId()) {
-	  Variable* var = new BooleanVariable(FALSE(), true);
+	  VariableImpl* var = new BooleanVariable(FALSE(), true);
 	  var->setName("Boolean constant false");
       sl_exp = var->getId();
 	}
@@ -904,7 +913,7 @@ namespace PLEXIL
   ExpressionId& BooleanVariable::UNKNOWN_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId()) {
-	  Variable* var = new BooleanVariable(UNKNOWN(), true);
+	  VariableImpl* var = new BooleanVariable(UNKNOWN(), true);
 	  var->setName("Boolean constant unknown");
       sl_exp = var->getId();
 	}
@@ -917,18 +926,21 @@ namespace PLEXIL
   // StateVariable
   //
 
-  StateVariable::StateVariable(const bool isConst) : Variable(INACTIVE(), isConst) {}
+  StateVariable::StateVariable(const bool isConst) : VariableImpl(INACTIVE(), isConst) {}
 
   StateVariable::StateVariable(const double value, const bool isConst)
-    : Variable(value, isConst) 
+    : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
 	       "Attempted to initialize a state variable with invalid value "
 	       << Expression::valueToString(value));
   }
 
-  StateVariable::StateVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-			       const bool isConst) : Variable(expr, node, isConst) {
+  StateVariable::StateVariable(const PlexilExprId& expr, 
+							   const NodeConnectorId& node,
+							   const bool isConst)
+	: VariableImpl(expr, node, isConst) 
+  {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_STATE,
@@ -1059,14 +1071,16 @@ namespace PLEXIL
   }
 
 
-  OutcomeVariable::OutcomeVariable(const bool isConst) : Variable(isConst) {}
+  OutcomeVariable::OutcomeVariable(const bool isConst) : VariableImpl(isConst) {}
   OutcomeVariable::OutcomeVariable(const double value, const bool isConst)
-    : Variable(isConst) {
+    : VariableImpl(isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
   OutcomeVariable::OutcomeVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst) : Variable(expr, node, isConst) {
+				   const bool isConst)
+	: VariableImpl(expr, node, isConst)
+  {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_OUTCOME,
@@ -1089,16 +1103,19 @@ namespace PLEXIL
   }
 
 
-  FailureVariable::FailureVariable(const bool isConst) : Variable(isConst) {}
+  FailureVariable::FailureVariable(const bool isConst) : VariableImpl(isConst) {}
 
   FailureVariable::FailureVariable(const double value, const bool isConst)
-    : Variable(value, isConst) {
+    : VariableImpl(value, isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
 
-  FailureVariable::FailureVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst) : Variable(expr, node, isConst) {
+  FailureVariable::FailureVariable(const PlexilExprId& expr, 
+								   const NodeConnectorId& node,
+								   const bool isConst)
+	: VariableImpl(expr, node, isConst)
+  {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::FAILURE_TYPE,
@@ -1124,14 +1141,17 @@ namespace PLEXIL
 	  || val == PARENT_FAILED();
   }
 
-  CommandHandleVariable::CommandHandleVariable(const bool isConst) : Variable(isConst) {}
+  CommandHandleVariable::CommandHandleVariable(const bool isConst) : VariableImpl(isConst) {}
   CommandHandleVariable::CommandHandleVariable(const double value, const bool isConst)
-    : Variable(isConst) {
+    : VariableImpl(isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
-  CommandHandleVariable::CommandHandleVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-                                               const bool isConst) : Variable(expr, node, isConst) {
+  CommandHandleVariable::CommandHandleVariable(const PlexilExprId& expr, 
+											   const NodeConnectorId& node,
+                                               const bool isConst)
+	: VariableImpl(expr, node, isConst)
+  {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::COMMAND_HANDLE,
@@ -1179,14 +1199,14 @@ namespace PLEXIL
 
   double LogicalNegation::recalculate() {
     double v = m_e->getValue();
-    checkError(v == 1.0 || v == 0.0 || v == Expression::UNKNOWN(),
+    checkError(v == 1.0 || v == 0.0 || v == UNKNOWN(),
 	       "Invalid value in logical negation: " << v);
     if (v == 1.0)
       return 0.0;
     else if (v == 0.0)
       return 1.0;
-    else if (v == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    else if (v == UNKNOWN())
+      return UNKNOWN();
     check_error(ALWAYS_FAIL);
     return -1.0;
   }
@@ -1479,9 +1499,9 @@ namespace PLEXIL
         checkError(checkValue(value), "Invalid concatenation value: " << value);
 
         // if a sub expression is UNKNOWN return UNKNOWN
-        if (value == Expression::UNKNOWN()){
+        if (value == UNKNOWN()){
           // LabelStr ls2 (value);
-          return Expression::UNKNOWN();
+          return UNKNOWN();
         }
         LabelStr ls1 (value);
         retval << ls1.toString();
@@ -1520,8 +1540,8 @@ namespace PLEXIL
     double v2 = m_b->getValue();
 
     double value;
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      value = Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      value = UNKNOWN();
     else
       value = (double) (v1 == v2);
     return value;
@@ -1534,32 +1554,6 @@ namespace PLEXIL
     return retval.str();
   }
 
-  DerivedVariable::DerivedVariable()
-    : EssentialVariable()
-  {
-  }
-
-  DerivedVariable::DerivedVariable(const NodeConnectorId& node)
-    : EssentialVariable(node)
-  {
-  }
-
-  DerivedVariableListener::DerivedVariableListener(const ExpressionId& exp)
-    : ExpressionListener(), m_exp(exp)
-  {
-    checkError(Id<DerivedVariable>::convertable(exp),
-               "Attempt to create a DerivedVariableListener instance with invalid expression type");
-  }
-
-  void DerivedVariableListener::notifyValueChanged(const ExpressionId& exp)
-  {
-    // prevent infinite loop
-    if (m_exp != exp)
-      {
-        ((Id<DerivedVariable>) m_exp)->handleChange(exp);
-      }
-  }
-
   bool Inequality::checkValue(const double val) {
     return val == BooleanVariable::TRUE() || val == BooleanVariable::FALSE() ||
       val == BooleanVariable::UNKNOWN();
@@ -1570,8 +1564,8 @@ namespace PLEXIL
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
     double value;
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      value = Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      value = UNKNOWN();
     else
       value = (double) (v1 != v2);
     return value;
@@ -1595,8 +1589,8 @@ namespace PLEXIL
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
     double value;
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      value = Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      value = UNKNOWN();
     else
       value = (double) (v1 < v2);
     return value;
@@ -1619,8 +1613,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
     return (double) (v1 <= v2);
   }
 
@@ -1641,8 +1635,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
     return (double) (v1 > v2);
   }
 
@@ -1663,8 +1657,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
     return (double) (v1 >= v2);
   }
 
@@ -1685,8 +1679,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if (v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if (v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
     return (double) (v1 + v2);
   }
 
@@ -1715,8 +1709,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
     return (double) (v1 - v2);
   }
 
@@ -1746,8 +1740,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
     return (double) (v1 * v2);
   }
 
@@ -1776,8 +1770,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
 
     check_error(v2 != 0.0, "Attempt to divide by zero");
 
@@ -1802,8 +1796,8 @@ namespace PLEXIL
   {
     double v1 = m_a->getValue();
     double v2 = m_b->getValue();
-    if(v1 == Expression::UNKNOWN() || v2 == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
+    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
 
     check_error(v2 != 0.0, "Attempt to divide by zero");
 
@@ -1824,9 +1818,9 @@ namespace PLEXIL
   }
 
 
-  AllChildrenFinishedCondition::AllChildrenFinishedCondition(std::list<NodeId>& children)
+  AllChildrenFinishedCondition::AllChildrenFinishedCondition(std::vector<NodeId>& children)
     : Calculable(), m_listener(*this), m_total(0), m_count(0), m_constructed(false) {
-    for(std::list<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {
+    for(std::vector<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {
       NodeId child = *it;
       check_error(child.isValid());
       addChild(child);
@@ -1836,7 +1830,7 @@ namespace PLEXIL
   }
 
   AllChildrenFinishedCondition::~AllChildrenFinishedCondition() {
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
       NodeId child = *it;
       child->getStateVariable()->removeListener(m_listener.getId());
     }
@@ -1856,7 +1850,7 @@ namespace PLEXIL
 
   void AllChildrenFinishedCondition::incrementCount(const ExpressionId& expr) {
     if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = Expression::UNKNOWN();
+      m_lastValues[expr] = UNKNOWN();
     if(expr->getValue() == StateVariable::FINISHED() &&
        m_lastValues[expr] != StateVariable::FINISHED()) {
       debugMsg("AllChildrenFinished:increment",
@@ -1876,7 +1870,7 @@ namespace PLEXIL
 
   void AllChildrenFinishedCondition::decrementCount(const ExpressionId& expr) {
     if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = Expression::UNKNOWN();
+      m_lastValues[expr] = UNKNOWN();
     if(expr->getValue() != StateVariable::FINISHED() &&
        m_lastValues[expr] == StateVariable::FINISHED()) {
       debugMsg("AllChildrenFinished:decrement",
@@ -1908,13 +1902,13 @@ namespace PLEXIL
 
   double AllChildrenFinishedCondition::recalculate() {
     m_count = 0;
-    for(std::list<NodeId>::const_iterator it = m_children.begin(); it != m_children.end();
+    for(std::vector<NodeId>::const_iterator it = m_children.begin(); it != m_children.end();
 	++it) {
       NodeId child = *it;
       check_error(child.isValid());
       ExpressionId expr = child->getStateVariable();
       if(m_lastValues.find(expr) == m_lastValues.end())
-	m_lastValues[expr] = Expression::UNKNOWN();
+	m_lastValues[expr] = UNKNOWN();
       m_lastValues[expr] = expr->getValue();
 
       if(m_lastValues[expr] == StateVariable::FINISHED())
@@ -1965,9 +1959,9 @@ namespace PLEXIL
 
   /***************************/
 
-  AllChildrenWaitingOrFinishedCondition::AllChildrenWaitingOrFinishedCondition(std::list<NodeId>& children)
+  AllChildrenWaitingOrFinishedCondition::AllChildrenWaitingOrFinishedCondition(std::vector<NodeId>& children)
     : Calculable(), m_listener(*this), m_total(0), m_count(0), m_constructed(false) {
-    for(std::list<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {
+    for(std::vector<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {
       NodeId child = *it;
       check_error(child.isValid());
       addChild(child);
@@ -1977,7 +1971,7 @@ namespace PLEXIL
   }
 
   AllChildrenWaitingOrFinishedCondition::~AllChildrenWaitingOrFinishedCondition() {
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
       NodeId child = *it;
       child->getStateVariable()->removeListener(m_listener.getId());
     }
@@ -1999,7 +1993,7 @@ namespace PLEXIL
 
   void AllChildrenWaitingOrFinishedCondition::incrementCount(const ExpressionId& expr) {
     if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = Expression::UNKNOWN();
+      m_lastValues[expr] = UNKNOWN();
     if((expr->getValue() == StateVariable::WAITING() || expr->getValue() == StateVariable::FINISHED()) &&
        !(m_lastValues[expr] == StateVariable::WAITING() || m_lastValues[expr] == StateVariable::FINISHED())) {
       m_count++;
@@ -2013,7 +2007,7 @@ namespace PLEXIL
 
   void AllChildrenWaitingOrFinishedCondition::decrementCount(const ExpressionId& expr) {
     if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = Expression::UNKNOWN();
+      m_lastValues[expr] = UNKNOWN();
     if(!(expr->getValue() == StateVariable::WAITING() || expr->getValue() == StateVariable::FINISHED()) &&
        (m_lastValues[expr] == StateVariable::WAITING() || m_lastValues[expr] == StateVariable::FINISHED())) {
       m_count--;
@@ -2039,13 +2033,13 @@ namespace PLEXIL
 
   double AllChildrenWaitingOrFinishedCondition::recalculate() {
     m_count = 0;
-    for(std::list<NodeId>::const_iterator it = m_children.begin(); it != m_children.end();
+    for(std::vector<NodeId>::const_iterator it = m_children.begin(); it != m_children.end();
 	++it) {
       NodeId child = *it;
       check_error(child.isValid());
       ExpressionId expr = child->getStateVariable();
       if(m_lastValues.find(expr) == m_lastValues.end())
-	m_lastValues[expr] = Expression::UNKNOWN();
+	m_lastValues[expr] = UNKNOWN();
       m_lastValues[expr] = expr->getValue();
 
       if(m_lastValues[expr] == StateVariable::WAITING() ||
@@ -2157,11 +2151,6 @@ namespace PLEXIL
     retval << m_expr->toString();
     retval << ")";
     return retval.str();
-  }
-
-  TimepointVariable::TimepointVariable(const PlexilExprId& /* xml */)
-    : ConstVariableWrapper() {
-    checkError(ALWAYS_FAIL, "Timepoint references require a node argument.");
   }
 
   TimepointVariable::TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node)

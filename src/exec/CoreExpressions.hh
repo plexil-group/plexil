@@ -53,12 +53,16 @@ namespace PLEXIL {
    *
    */
 
-  class ArrayVariable : public Variable 
+  class ArrayVariable :
+	public EssentialArrayVariable,
+	public VariableImpl // ???
   {
   public:
-    ArrayVariable(unsigned maxSize, PlexilType type, 
+    ArrayVariable(unsigned long maxSize, 
+				  PlexilType type, 
                   const bool isConst = false);
-    ArrayVariable(unsigned maxSize, PlexilType type, 
+    ArrayVariable(unsigned long maxSize, 
+				  PlexilType type, 
                   std::vector<double>& values,
                   const bool isConst = false);
     ArrayVariable(const PlexilExprId& expr, 
@@ -68,8 +72,8 @@ namespace PLEXIL {
     virtual ~ArrayVariable();
 
     std::string toString() const;
-    double lookupValue(unsigned long index);
-    unsigned maxSize() {return m_maxSize;}
+    double lookupValue(unsigned long index) const;
+    unsigned long maxSize() const {return m_maxSize;}
 
     /**
      * @brief Set the contents of this array from the given values.
@@ -104,13 +108,7 @@ namespace PLEXIL {
      * @brief Retrieve the element type of this array.
      * @return The element type of this array.
      */
-    const PlexilType& getElementType() { return m_type; }
-
-    /**
-     * @brief Retrieve the value type of this Expression.
-     * @return The value type of this Expression.
-     */
-    virtual PlexilType getValueType() const { return ARRAY; }
+    PlexilType getElementType() const { return m_type; }
 
     /**
      * @brief Check to make sure an element value is appropriate for this array.
@@ -124,8 +122,16 @@ namespace PLEXIL {
     virtual void handleElementChanged(const ExpressionId& elt);
 
   protected:
+
+    /**
+     * @brief Notify listeners that an element has changed.
+     * @param elt The changed element expression.
+     */
+    virtual void publishElementChange(const ExpressionId& elt);
+
   private:
-    size_t              m_maxSize;
+
+    unsigned long       m_maxSize;
     PlexilType          m_type;
     std::vector<double>	m_initialVector;
 
@@ -140,17 +146,11 @@ namespace PLEXIL {
     bool checkIndex(const unsigned index) const 
     { return index < m_maxSize; }
 
-
-    /**
-     * @brief Notify listeners that an element has changed.
-     * @param elt The changed element expression.
-     */
-    virtual void publishElementChange(const ExpressionId& elt);
   };
 
   typedef Id<ArrayVariable> ArrayVariableId;
 
-  class StringVariable : public Variable {
+  class StringVariable : public VariableImpl {
   public:
     StringVariable(const bool isConst = false);
     StringVariable(const std::string& value, const bool isConst = false);
@@ -172,7 +172,7 @@ namespace PLEXIL {
     bool checkValue(const double val);
   };
 
-  class RealVariable : public Variable {
+  class RealVariable : public VariableImpl {
   public:
     static ExpressionId& ZERO_EXP();
     static ExpressionId& ONE_EXP();
@@ -194,7 +194,7 @@ namespace PLEXIL {
     bool checkValue(const double val);
   };
 
-  class IntegerVariable : public Variable {
+  class IntegerVariable : public VariableImpl {
   public:
     static ExpressionId& ZERO_EXP();
     static ExpressionId& ONE_EXP();
@@ -226,7 +226,7 @@ namespace PLEXIL {
 
   //this class represents boolean values
   //from the <BooleanValue> XML
-  class BooleanVariable : public Variable {
+  class BooleanVariable : public VariableImpl {
   public:
     static ExpressionId& TRUE_EXP();
     static ExpressionId& FALSE_EXP();
@@ -257,7 +257,7 @@ namespace PLEXIL {
   // State variable
   //
 
-  class StateVariable : public Variable {
+  class StateVariable : public VariableImpl {
   public:
     //state names
     DECLARE_STATIC_CLASS_CONST(LabelStr, INACTIVE,
@@ -316,7 +316,7 @@ namespace PLEXIL {
     bool checkValue(const double val);
   };
 
-  class OutcomeVariable : public Variable {
+  class OutcomeVariable : public VariableImpl {
   public:
     DECLARE_STATIC_CLASS_CONST(LabelStr, SUCCESS, "SUCCESS"); /*<! A successful node execution (post-condition is true after finishing).*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, FAILURE, "FAILURE"); /*<! Failure (with some failure type).*/
@@ -338,7 +338,7 @@ namespace PLEXIL {
     bool checkValue(const double val);
   };
 
-  class FailureVariable : public Variable {
+  class FailureVariable : public VariableImpl {
   public:
     //failure types (one for each condition, command failure)
     DECLARE_STATIC_CLASS_CONST(LabelStr, PRE_CONDITION_FAILED,
@@ -372,7 +372,7 @@ namespace PLEXIL {
     bool checkValue(const double val);
   };
 
-  class CommandHandleVariable : public Variable {
+  class CommandHandleVariable : public VariableImpl {
   public:
     DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_SENT_TO_SYSTEM, "COMMAND_SENT_TO_SYSTEM"); 
     DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_ACCEPTED, "COMMAND_ACCEPTED");
@@ -400,64 +400,6 @@ namespace PLEXIL {
   };
 
 
-  /**
-   *  An abstract base class representing any "variable" expression that depends upon another variable,
-   *  including but not limited to array elements, aliases, etc.
-   */
-  class DerivedVariable : public EssentialVariable
-  {
-  public:
-	/**
-	 * @brief Constructor.
-	 */
-    DerivedVariable();
-
-    DerivedVariable(const NodeConnectorId& node);
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @param exp The changed subexpression.
-     */
-    virtual void handleChange(const ExpressionId& exp) = 0;
-    
-  protected:
-    
-  private:
-    // deliberately unimplemented
-    DerivedVariable(const DerivedVariable &);
-    DerivedVariable & operator=(const DerivedVariable &);
-
-  };
-
-  /**
-   *   A class for notifying derived variables (e.g. array variables,
-   *   variable aliases, etc.) of changes in sub-expressions.
-   */
-  class DerivedVariableListener : public ExpressionListener {
-  public:
-
-    /**
-     * @brief Constructor.
-     * @param exp The expression to be notified of any changes.
-     */
-    DerivedVariableListener(const ExpressionId& exp);
-
-    /**
-     * @brief Notifies the destination expression of a value change.
-     * @param exp The expression which has changed.
-     */
-    void notifyValueChanged(const ExpressionId& exp);
-
-  private:
-
-    // deliberately unimplemented
-    DerivedVariableListener();
-    DerivedVariableListener(const DerivedVariableListener&);
-    DerivedVariableListener& operator=(const DerivedVariableListener&);
-
-    ExpressionId m_exp; /*<! The destination expression for notifications. */
-  };
-
   // Access to an element of an array
 
   class ArrayElement : public DerivedVariable
@@ -476,6 +418,12 @@ namespace PLEXIL {
     virtual ~ArrayElement();
 
     std::string toString() const;
+
+    /**
+     * @brief Set the value of this expression back to the initial value with which it was
+     *        created.
+     */
+    virtual void reset();
 
     /**
      * @brief Sets the value of the array element.  
@@ -530,7 +478,7 @@ namespace PLEXIL {
      */
     bool checkValue(const double value);
 
-    ArrayVariableId m_arrayVariable;
+    EssentialArrayVariableId m_arrayVariable;
     ExpressionId m_index;
     bool m_deleteIndex;
     DerivedVariableListener m_listener;
@@ -548,7 +496,7 @@ namespace PLEXIL {
 	 */
 	AliasVariable(const std::string& name, 
 				  const NodeConnectorId& nodeConnector,
-				  Id<EssentialVariable> original,
+				  VariableId original,
 				  const bool isConst = false);
 
 	virtual ~AliasVariable();
@@ -603,7 +551,7 @@ namespace PLEXIL {
     /**
      * @brief Get the target variable of this alias.
      */
-	const Id<EssentialVariable>& getOriginalVariable() const { return m_originalVariable; }
+	const VariableId& getOriginalVariable() const { return m_originalVariable; }
 	  
 
   protected:
@@ -634,7 +582,7 @@ namespace PLEXIL {
 	AliasVariable(const AliasVariable&);
 	AliasVariable& operator=(const AliasVariable&);
 
-	Id<EssentialVariable> m_originalVariable;
+	VariableId m_originalVariable;
 	DerivedVariableListener m_listener;
 	const std::string& m_name;
 	bool m_isConst;
@@ -1128,8 +1076,8 @@ namespace PLEXIL {
 
   class AllChildrenFinishedCondition : public Calculable {
   public:
-    AllChildrenFinishedCondition(std::list<NodeId>& children);
-    ~AllChildrenFinishedCondition();
+    AllChildrenFinishedCondition(std::vector<NodeId>& children);
+    virtual ~AllChildrenFinishedCondition();
     std::string toString() const;
     void addChild(const NodeId& node);
     double recalculate();
@@ -1162,14 +1110,14 @@ namespace PLEXIL {
     unsigned int m_total;
     unsigned int m_count;
     bool m_constructed;
-    std::list<NodeId> m_children;
+    std::vector<NodeId> m_children;
     std::map<ExpressionId, double> m_lastValues;
   };
 
   class AllChildrenWaitingOrFinishedCondition : public Calculable {
   public:
-    AllChildrenWaitingOrFinishedCondition(std::list<NodeId>& children);
-    ~AllChildrenWaitingOrFinishedCondition();
+    AllChildrenWaitingOrFinishedCondition(std::vector<NodeId>& children);
+    virtual ~AllChildrenWaitingOrFinishedCondition();
     std::string toString() const;
     double recalculate();
     void addChild(const NodeId& node);
@@ -1203,7 +1151,7 @@ namespace PLEXIL {
     unsigned int m_total;
     unsigned int m_count;
     bool m_constructed;
-    std::list<NodeId> m_children;
+    std::vector<NodeId> m_children;
     std::map<ExpressionId, double> m_lastValues;
   };
 
@@ -1212,7 +1160,7 @@ namespace PLEXIL {
   public:
     InternalCondition(const PlexilExprId& expr);
     InternalCondition(const PlexilExprId& expr, const NodeConnectorId& node);
-    ~InternalCondition();
+    virtual ~InternalCondition();
     double recalculate();
     std::string toString() const;
 
@@ -1227,9 +1175,9 @@ namespace PLEXIL {
     ExpressionId m_first, m_second, m_expr;
   };
 
-  class TimepointVariable : public ConstVariableWrapper {
+  class TimepointVariable : public ConstVariableWrapper 
+  {
   public:
-    TimepointVariable(const PlexilExprId& expr);
     TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node);
 
     /**
@@ -1237,7 +1185,12 @@ namespace PLEXIL {
      * @return The value type of this Expression.
      */
     virtual PlexilType getValueType() const { return TIME; }
-    
+
+  private:
+	// Deliberately unimplemented
+	TimepointVariable();
+	TimepointVariable(const TimepointVariable&);
+	TimepointVariable& operator=(const TimepointVariable&);
   };
 
 }

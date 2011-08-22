@@ -45,6 +45,12 @@ namespace PLEXIL {
   class ExpressionListener;
   typedef Id<ExpressionListener> ExpressionListenerId;
 
+  class Variable;
+  typedef Id<Variable> VariableId;
+
+  class EssentialArrayVariable;
+  typedef Id<EssentialArrayVariable> EssentialArrayVariableId;
+
   class Node;
   typedef Id<Node> NodeId;
 

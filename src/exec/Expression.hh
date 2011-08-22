@@ -123,19 +123,12 @@ namespace PLEXIL {
 
     //redirects for old usage.
     DECLARE_STATIC_CLASS_CONST(double, UNKNOWN, PLEXIL::UNKNOWN());
-    DECLARE_STATIC_CLASS_CONST(LabelStr, UNKNOWN_STR, PLEXIL::UNKNOWN_STR());
 
     static ExpressionId& UNKNOWN_EXP();
 
     /**
      * @brief Generic constructor for Expressions.  Does nothing but initialze base data
      *        structures.  Expressions are inactive by default and must be activated.
-     * @param node Node connector to the owning node.
-     */
-    Expression(const NodeConnectorId& node);
-
-    /**
-     * @brief Default constructor for Expressions.
      */
     Expression();
 
@@ -147,19 +140,13 @@ namespace PLEXIL {
     const ExpressionId& getId() const {return m_id;}
 
     /**
-     * @brief Get the node that owns this expression.
-     * @return The NodeId of the parent node; may be noId.
-     */
-    const NodeId& getNode() const;
-
-    /**
      * @brief Retrieve the value of this Expression.  This may cause recalculation, lookup of
      *        a value, or something similar.  This is a double because it is easy to
      *        represent other values this way (integers cast freely, reals are doubles, and
      *        the LabelStr facility gives us strings as doubles).
      * @return The value of this Expression.
      */
-    double getValue() const;
+    virtual double getValue() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -313,34 +300,45 @@ namespace PLEXIL {
     bool m_lock; /*<! The lock for this expression */
     bool m_ignoreCachedValue; /*<! Disregard the m_value that has been cached when deciding to publissh a change*/
     std::list<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
-    const NodeConnectorId m_nodeConnector; /*<! Tracks the node that owns this expression */
   };
 
   /**
-   *  An abstract base class representing anything that behaves like a variable,
-   *  including but not limited to actual variables, array elements, etc.
+   * An abstract base class representing anything that can be on the left side
+   * of an assignment, including but not limited to actual variables, 
+   * variable aliases, array elements, etc.
    */
 
-  class EssentialVariable : public Expression
+  class Variable :
+	public virtual Expression
   {
   public:
     /**
-     * @brief Constructor.
+     * @brief Default constructor.
      */
-    EssentialVariable();
+    Variable();
 
-    EssentialVariable(const NodeConnectorId& node);
+    /**
+     * @brief Constructor.
+	 * @param node NodeConnectorId to the owning object.
+     */
+    Variable(const NodeConnectorId& node);
 
     /**
      * @brief Destructor.
      */
-    virtual ~EssentialVariable();
+    virtual ~Variable();
     
     /**
      * @brief Check to make sure a value is appropriate for this expression.
      * @param value The new value for this variable.
      */
     virtual bool checkValue(const double value) = 0;
+
+    /**
+     * @brief Set the value of this expression back to the initial value with which it was
+     *        created.
+     */
+    virtual void reset() = 0;
 
     /**
      * @brief Sets the value of this variable.  Will throw an error if the variable was
@@ -355,31 +353,190 @@ namespace PLEXIL {
      */
     virtual bool isConst() const = 0;
 
+    /**
+     * @brief Get the node that owns this expression.
+     * @return The NodeId of the parent node; may be noId.
+	 * @note Used by LuvFormat::formatAssignment().  
+     */
+    const NodeId& getNode() const;
+
+    const VariableId& getId() const {return m_evid;}
+
   protected:
 
   private:
+    const NodeConnectorId m_nodeConnector; /*<! Tracks the node that owns this expression */
+	VariableId m_evid;
+  };
 
+  /**
+   * An abstract base class representing a variable-like object
+   * which stores an array.
+   */
+  class EssentialArrayVariable :
+	public virtual Variable
+  {
+  public:
+	EssentialArrayVariable();
+
+	EssentialArrayVariable(const NodeConnectorId& node);
+
+	~EssentialArrayVariable();
+
+	/**
+	 * @brief Get the maximum size of this array.
+	 */
+    virtual unsigned long maxSize() const = 0;
+
+	/**
+	 * @brief Get the element at the given index.
+	 */
+    virtual double lookupValue(unsigned long index) const = 0;
+
+    /**
+     * @brief Set one element of this array from the given value.
+     * @note Value must be an array or UNKNOWN.
+     * @note Index must be less than maximum length
+     */
+    virtual void setElementValue(unsigned index, const double value) = 0;
+
+    /**
+     * @brief Retrieve the element type of this array.
+     * @return The element type of this array.
+     */
+    virtual PlexilType getElementType() const = 0;
+
+    /**
+     * @brief Check to make sure an element value is appropriate for this array.
+     */
+    virtual bool checkElementValue(const double val) = 0;
+
+    /**
+     * @brief Retrieve the value type of this Expression.
+     * @return The value type of this Expression.
+     */
+    virtual PlexilType getValueType() const { return ARRAY; }
+
+    /**
+     * @brief Notify this array that an element's value has changed.
+     * @param elt The changed element.
+     */
+    virtual void handleElementChanged(const ExpressionId& elt) = 0; 
+
+	const Id<EssentialArrayVariable>& getId() const { return m_eavid; }
+
+  protected:
+
+  private:
+	// deliberately unimplemented
+	EssentialArrayVariable(const EssentialArrayVariable&);
+	EssentialArrayVariable& operator=(const EssentialArrayVariable&);
+
+	Id<EssentialArrayVariable> m_eavid;
+  };
+
+  typedef Id<EssentialArrayVariable> EssentialArrayVariableId;
+
+  /**
+   *  An abstract base class representing any "variable" expression that depends upon another variable,
+   *  including but not limited to array elements, aliases, etc.
+   */
+  class DerivedVariable :
+	public virtual Variable
+  {
+  public:
+	/**
+	 * @brief Constructor.
+	 */
+    DerivedVariable();
+
+    DerivedVariable(const NodeConnectorId& node);
+
+	/**
+	 * @brief Destructor.
+	 */
+    ~DerivedVariable();
+	
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @param exp The changed subexpression.
+	 * @note This is to let the derived variable know when the objects 
+	 *       from which it is derived have changed.
+     */
+    virtual void handleChange(const ExpressionId& exp) = 0;
+
+	const Id<DerivedVariable> getId() const { return m_derid; }
+    
+  protected:
+    
+  private:
+    // deliberately unimplemented
+    DerivedVariable(const DerivedVariable &);
+    DerivedVariable & operator=(const DerivedVariable &);
+
+	Id<DerivedVariable> m_derid;
+  };
+
+  /**
+   *   A class for notifying derived variables (e.g. array variables,
+   *   variable aliases, etc.) of changes in sub-expressions.
+   */
+  class DerivedVariableListener :
+	public ExpressionListener 
+  {
+  public:
+
+    /**
+     * @brief Constructor.
+     * @param exp The expression to be notified of any changes.
+     */
+    DerivedVariableListener(const Id<DerivedVariable>& exp)
+	  : ExpressionListener(),
+		m_exp(exp)
+	{}
+
+    /**
+     * @brief Notifies the destination expression of a value change.
+     * @param exp The expression which has changed.
+     */
+    void notifyValueChanged(const ExpressionId& exp)
+	{
+	  // prevent infinite loop
+	  if (exp != (ExpressionId) m_exp)
+        m_exp->handleChange(exp);
+	}
+
+  private:
+
+    // deliberately unimplemented
+    DerivedVariableListener();
+    DerivedVariableListener(const DerivedVariableListener&);
+    DerivedVariableListener& operator=(const DerivedVariableListener&);
+
+    Id<DerivedVariable> m_exp; /*<! The destination expression for notifications. */
   };
 
   /**
    * An abstract base class representing a variable with a single value.
    * Derived classes are specialized by value type.
    */
-  class Variable : public EssentialVariable {
+  class VariableImpl : 
+	public virtual Variable
+  {
   public:
 
     /**
      * @brief Constructor.  Creates a variable that is initially UNKNOWN.
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
-    Variable(const bool isConst = false);
+    VariableImpl(const bool isConst = false);
 
     /**
      * @brief Constructor.  Creates a variable with a given value.
      * @param value The initial value of the variable.
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
-    Variable(const double value, const bool isConst = false);
+    VariableImpl(const double value, const bool isConst = false);
 
     /**
      * @brief Constructor.  Creates a variable from XML.
@@ -387,10 +544,10 @@ namespace PLEXIL {
      * @param node A connection back to the node that created this variable.
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
-    Variable(const PlexilExprId& expr, const NodeConnectorId& node,
-			 const bool isConst = false);
+    VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node,
+				 const bool isConst = false);
 
-    virtual ~Variable();
+    virtual ~VariableImpl();
 
     /**
      * @brief Get a string representation of this Expression.
@@ -597,42 +754,40 @@ namespace PLEXIL {
   };
 
 
-  class WrapperListener;
   /**
    * Class to provide a constant interface over some other variable.
-   * Used in TimepointVariable.
+   * Used only in TimepointVariable.
    */
-  class ConstVariableWrapper : public Variable {
+  class ConstVariableWrapper : public DerivedVariable {
   public:
-    ConstVariableWrapper(const ExpressionId& exp);
+    ConstVariableWrapper(const VariableId& exp);
     ConstVariableWrapper();
-    ~ConstVariableWrapper();
-    double getValue() const;
-    void setValue(const double value);
-    std::string valueString() const;
+    virtual ~ConstVariableWrapper();
+    virtual double getValue() const;
+	virtual PlexilType getValueType() const;
+    virtual void setValue(const double value);
+    virtual std::string valueString() const;
+	virtual bool isConst() const { return true; }
+	virtual void reset();
+
   protected:
-    friend class WrapperListener;
     void handleChange(const ExpressionId& expr);
-    void setWrapped(const ExpressionId& expr);
+    void setWrapped(const VariableId& expr);
+
   private:
-    bool checkValue(const double val);
+	// deliberately unimplemented
+	ConstVariableWrapper(const ConstVariableWrapper&);
+	ConstVariableWrapper& operator=(const ConstVariableWrapper&);
+
+    virtual bool checkValue(const double val);
     void handleActivate(const bool changed);
     void handleDeactivate(const bool changed);
 
-    class WrapperListener : public ExpressionListener {
-    public:
-      WrapperListener(ConstVariableWrapper* wrapper)
-	: ExpressionListener(), m_wrapper(wrapper) {}
-      void notifyValueChanged(const ExpressionId& expression) {
-	m_wrapper->handleChange(expression);
-      }
-    private:
-      ConstVariableWrapper* m_wrapper;
-    };
-
     ExpressionId m_exp;
-    WrapperListener m_listener;
+	DerivedVariableListener m_listener;
   };
+
+  class WrapperListener;
 
   /**
    * Class to provide an interface that doesn't propagate activation/deactivation messages.
@@ -646,7 +801,7 @@ namespace PLEXIL {
 	// This variant used only in unit tests
     TransparentWrapper(const ExpressionId& exp);
 
-    ~TransparentWrapper();
+    virtual ~TransparentWrapper();
     void setValue(const double value);
     std::string toString() const;
     std::string valueString() const;

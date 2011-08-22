@@ -57,18 +57,6 @@ namespace PLEXIL {
     m_exp->handleChange(exp);
   }
 
-  Expression::Expression(const NodeConnectorId& node)
-    : m_id(this),
-      m_activeCount(0), 
-      m_value(UNKNOWN()), 
-      m_savedValue(UNKNOWN()),
-      m_dirty(false), 
-      m_lock(false), 
-      m_ignoreCachedValue(false),
-      m_nodeConnector(node)
-  {
-  }
-
   Expression::Expression()
     : m_id(this),
       m_activeCount(0), 
@@ -76,8 +64,7 @@ namespace PLEXIL {
       m_savedValue(UNKNOWN()),
       m_dirty(false), 
       m_lock(false), 
-      m_ignoreCachedValue(false),
-      m_nodeConnector(NodeConnectorId::noId())
+      m_ignoreCachedValue(false)
   {
   }
 
@@ -89,17 +76,6 @@ namespace PLEXIL {
 
   double Expression::getValue() const {
     return (isActive() ? m_value : UNKNOWN());
-  }
-
-  /**
-   * @brief Get the node that owns this expression.
-   * @return The NodeId of the parent node; may be noId.
-   */
-  const NodeId& Expression::getNode() const 
-  { 
-    if (m_nodeConnector.isNoId())
-      return NodeId::noId();
-    return m_nodeConnector->getNode();
   }
 
   void Expression::setValue(const double val) {
@@ -216,25 +192,90 @@ namespace PLEXIL {
     }
   }
 
-
-  EssentialVariable::EssentialVariable()
-    : Expression()
+  /**
+   * @brief Constructor.
+   */
+  Variable::Variable()
+	: Expression(),
+	  m_nodeConnector(NodeConnectorId::noId()),
+	  m_evid(this, Expression::getId())
   {
   }
 
-  EssentialVariable::EssentialVariable(const NodeConnectorId& node)
-    : Expression(node)
+  Variable::Variable(const NodeConnectorId& node)
+	: Expression(),
+	  m_nodeConnector(node),
+	  m_evid(this, Expression::getId())
+  {}
+
+  /**
+   * @brief Destructor.
+   */
+  Variable::~Variable() 
+  {
+	m_evid.removeDerived(Expression::getId());
+  }
+
+  /**
+   * @brief Get the node that owns this expression.
+   * @return The NodeId of the parent node; may be noId.
+   * @note Used by LuvFormat::formatAssignment().  
+   */
+  const NodeId& Variable::getNode() const
+  { 
+	if (m_nodeConnector.isNoId())
+	  return NodeId::noId();
+	else
+	  return m_nodeConnector->getNode();
+  }
+
+  EssentialArrayVariable::EssentialArrayVariable()
+	: Variable(),
+	  m_eavid(this, Variable::getId())
   {
   }
 
-  EssentialVariable::~EssentialVariable()
+  EssentialArrayVariable::EssentialArrayVariable(const NodeConnectorId& node)
+	: Variable(node),
+	  m_eavid(this, Variable::getId())
   {
   }
+
+  EssentialArrayVariable::~EssentialArrayVariable()
+  {
+	m_eavid.removeDerived(Variable::getId());
+  }
+
+  /**
+   * @brief Default constructor.
+   */
+  DerivedVariable::DerivedVariable()
+	: Variable(),
+	  m_derid(this, Variable::getId())
+	{} 
+
+  /**
+   * @brief Constructor.
+   */
+  DerivedVariable::DerivedVariable(const NodeConnectorId& node)
+	: Variable(node),
+	  m_derid(this, Variable::getId())
+  {}
+
+
+  /**
+   * @brief Destructor.
+   */
+  DerivedVariable::~DerivedVariable()
+  {
+	m_derid.removeDerived(Variable::getId());
+  }
+
 
   // Used in Expression::UNKNOWN_EXP(), and by various derived constructors
 
-  Variable::Variable(const bool isConst)
-    : EssentialVariable(), m_isConst(isConst), m_initialValue(UNKNOWN()), m_name("anonymous") 
+  VariableImpl::VariableImpl(const bool isConst)
+    : Variable(), m_isConst(isConst), m_initialValue(UNKNOWN()), m_name("anonymous") 
   {
     if(this->isConst())
       m_activeCount++;
@@ -242,8 +283,8 @@ namespace PLEXIL {
 
   // Used only in Lookup::Lookup(const StateCacheId&, const LabelStr&, std::list<double>&)
 
-  Variable::Variable(const double value, const bool isConst)
-    : EssentialVariable(), m_isConst(isConst), m_initialValue(value), m_name("anonymous") 
+  VariableImpl::VariableImpl(const double value, const bool isConst)
+    : Variable(), m_isConst(isConst), m_initialValue(value), m_name("anonymous") 
   {
     m_value = m_initialValue;
     if(this->isConst())
@@ -255,15 +296,15 @@ namespace PLEXIL {
   // uses PlexilVar prototype
   //
 
-  Variable::Variable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
-    : EssentialVariable(node), m_isConst(isConst), m_name(expr->name())
+  VariableImpl::VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
+    : Variable(node), m_isConst(isConst), m_name(expr->name())
   {
     check_error(Id<PlexilValue>::convertable(expr));
   }
 
-  Variable::~Variable() {}
+  VariableImpl::~VariableImpl() {}
 
-  std::string Variable::toString() const 
+  std::string VariableImpl::toString() const 
   {
     std::ostringstream str;
     str << m_name << " (" << getId() << "[" 
@@ -279,12 +320,12 @@ namespace PLEXIL {
    * @note This method always uses the stored value whether or not the variable is active,
    *       unlike the base class method.
    */
-  std::string Variable::valueString() const
+  std::string VariableImpl::valueString() const
   {
 	return valueToString(m_value);
   }
 
-  void Variable::reset() {
+  void VariableImpl::reset() {
     if(!isConst()) {
       internalSetValue(m_initialValue);
       handleReset();
@@ -294,21 +335,21 @@ namespace PLEXIL {
   /**
    * @brief Ensure that, if a variable is constant, it is never really deactivated
    */
-  void Variable::handleDeactivate(const bool changed) {
+  void VariableImpl::handleDeactivate(const bool changed) {
     if(this->isConst() && changed)
       m_activeCount++;
   }
 
-  void Variable::setValue(const double value) {
+  void VariableImpl::setValue(const double value) {
     checkError(!isConst(),
 			   "Attempted to assign value " << Expression::valueToString(value)
 			   << " to read-only variable " << toString());
     internalSetValue(value);
   }
 
-  void Variable::commonNumericInit(PlexilValue* val) {
+  void VariableImpl::commonNumericInit(PlexilValue* val) {
     if(val->value() == "UNKNOWN")
-      m_initialValue = m_value = Expression::UNKNOWN();
+      m_initialValue = m_value = UNKNOWN();
     else if(val->value() == "INF" || val->value() == "Inf" ||
 	    val->value() == "inf") {
       if(val->type() == INTEGER)
@@ -345,7 +386,7 @@ namespace PLEXIL {
    * @note This is an optimization for heavily used constants, which by definition
    * will never change value, thus don't need to propagate changes.
    */
-  void Variable::addListener(ExpressionListenerId id)
+  void VariableImpl::addListener(ExpressionListenerId id)
   {
 	if (!m_isConst)
 	  Expression::addListener(id);
@@ -358,7 +399,7 @@ namespace PLEXIL {
    * @note This is an optimization for heavily used constants, which by definition
    * will never change value, thus don't need to propagate changes.
    */
-  void Variable::removeListener(ExpressionListenerId id)
+  void VariableImpl::removeListener(ExpressionListenerId id)
   {
 	if (!m_isConst)
 	  Expression::removeListener(id);
@@ -367,7 +408,7 @@ namespace PLEXIL {
   Calculable::Calculable() : Expression(), m_listener(getId()) {}
 
   Calculable::Calculable(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Expression(node), m_listener(getId())
+    : Expression(), m_listener(getId())
   {
     const std::vector<PlexilExprId>& subExprs = expr->subExprs();
     for (std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); 
@@ -468,20 +509,21 @@ namespace PLEXIL {
     }
   }
 
-  ConstVariableWrapper::ConstVariableWrapper(const ExpressionId& exp)
-    : Variable(true), m_exp(exp), m_listener(this) {
+  ConstVariableWrapper::ConstVariableWrapper(const VariableId& exp)
+    : DerivedVariable(), m_exp(exp), m_listener(this) 
+  {
     m_exp->addListener(m_listener.getId());
   }
 
   ConstVariableWrapper::ConstVariableWrapper()
-    : Variable(true), m_listener(this) {}
+    : DerivedVariable(), m_listener(this) {}
 
   ConstVariableWrapper::~ConstVariableWrapper() {
     checkError(m_exp.isValid(), "Got to destructor without a valid wrapped variable.");
     m_exp->removeListener(m_listener.getId());
   }
 
-  void ConstVariableWrapper::setWrapped(const ExpressionId& expr) {
+  void ConstVariableWrapper::setWrapped(const VariableId& expr) {
     checkError(m_exp.isInvalid(),
 	       "Attmpted to set wrapped variable to " << expr->toString() <<
 	       " when already wrapping " << m_exp->toString());
@@ -491,42 +533,61 @@ namespace PLEXIL {
     m_exp->addListener(m_listener.getId());
   }
 
-  double ConstVariableWrapper::getValue() const {
+  double ConstVariableWrapper::getValue() const 
+  {
     checkError(m_exp.isValid(), "Got to getValue without a valid wrapped variable.");
     return m_exp->getValue();
   }
 
+  PlexilType ConstVariableWrapper::getValueType() const 
+  {
+    checkError(m_exp.isValid(), "Got to getValueType without a valid wrapped variable.");
+    return m_exp->getValueType();
+  }
 
-  std::string ConstVariableWrapper::valueString() const {
+  void ConstVariableWrapper::setValue(const double /* value */) 
+  {
+    checkError(ALWAYS_FAIL,
+			   "Attempted to set the value of a const expression.");
+  }
+
+  std::string ConstVariableWrapper::valueString() const 
+  {
     checkError(m_exp.isValid(), "Got to valueString without a valid wrapped variable.");
     std::ostringstream str;
     str << "const " << m_exp->valueString();
     return str.str();
   }
 
-  void ConstVariableWrapper::setValue(const double /* value */) {
+  void ConstVariableWrapper::reset()
+  {
     checkError(ALWAYS_FAIL,
-	       "Attempted to set the value of a const expression.");
+			   "Attempted to reset a const expression.");
   }
 
-  bool ConstVariableWrapper::checkValue(const double /* val */) {
+  bool ConstVariableWrapper::checkValue(const double /* val */) 
+  {
     checkError(ALWAYS_FAIL,
-	       "Attempted to check an incoming value for const expresssion " << toString());
+			   "Attempted to check an incoming value for const expresssion " << toString());
     return false;
   }
 
-  void ConstVariableWrapper::handleActivate(const bool /* changed */) {
+  void ConstVariableWrapper::handleActivate(const bool /* changed */) 
+  {
     checkError(m_exp.isValid(), "Got to handleActivate without a valid wrapped variable.");
     m_listener.activate();
     m_exp->activate();
   }
-  void ConstVariableWrapper::handleDeactivate(const bool /* changed */) {
+
+  void ConstVariableWrapper::handleDeactivate(const bool /* changed */) 
+  {
     checkError(m_exp.isValid(), "Got to handleDeactivate without a valid wrapped variable.");
     m_listener.deactivate();
     m_exp->deactivate();
   }
 
-  void ConstVariableWrapper::handleChange(const ExpressionId& /* expr */) {
+  void ConstVariableWrapper::handleChange(const ExpressionId& /* expr */) 
+  {
     checkError(m_exp.isValid(), "Got to handleChange without a valid wrapped variable.");
     publishChange();
   }
@@ -539,7 +600,7 @@ namespace PLEXIL {
   }
 
   TransparentWrapper::TransparentWrapper(const ExpressionId& exp, const NodeConnectorId& node)
-    : Expression(node), m_listener(*this), m_exp(exp) 
+    : Expression(), m_listener(*this), m_exp(exp) 
   {
 	commonInit(exp);
   }
@@ -664,10 +725,10 @@ namespace PLEXIL {
   }
 
   // Used below in Expression::UNKNOWN_EXP().
-  class UnknownVariable : public Variable
+  class UnknownVariable : public VariableImpl
   {
   public:
-	UnknownVariable() : Variable(true) {}
+	UnknownVariable() : VariableImpl(true) {}
 	~UnknownVariable() {}
 
 	// Don't assign to this variable!
