@@ -30,6 +30,7 @@
 #include "ConstantMacros.hh"
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
+#include "NodeConnector.hh"
 #include "PlexilPlan.hh"
 #include "generic_hash_map.hh"
 
@@ -49,20 +50,6 @@ namespace PLEXIL {
 
   typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
   typedef PLEXIL_HASH_MAP(double, VariableId) VariableMap;
-
-  class NodeConnector {
-  public:
-    NodeConnector() : m_id(this) {}
-    virtual ~NodeConnector() {m_id.remove();}
-    const NodeConnectorId& getId() const {return m_id;}
-    virtual const VariableId& findVariable(const PlexilVarRef* ref) = 0;
-    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false) = 0;
-    virtual const NodeId& getNode() const = 0;
-    virtual const ExecConnectorId& getExec() = 0;
-  protected:
-  private:
-    NodeConnectorId m_id;
-  };
 
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.

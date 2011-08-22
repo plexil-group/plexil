@@ -25,10 +25,11 @@
 */
 
 #include "ActionNodeStateManager.hh"
-#include "NodeStateManager.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
-#include "CommandHandle.hh"
+#include "Node.hh"
+#include "NodeStateManager.hh"
+#include "Variables.hh"
 
 namespace PLEXIL {
 

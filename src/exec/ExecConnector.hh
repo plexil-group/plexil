@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,17 +24,32 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_Expressions
-#define _H_Expressions
+#ifndef EXEC_CONNECTOR_HH
+#define EXEC_CONNECTOR_HH
 
-namespace PLEXIL {
+#include "ExecDefs.hh"
+
+namespace PLEXIL
+{
 
   /**
-   * @brief Performs registration of the default expression classes.
+   * @brief Class for managing the messages from nodes to the executive.  Primarily to facilitate testing.
    */
-
-  extern void initializeExpressions();
+  class ExecConnector {
+  public:
+    ExecConnector() : m_id(this) {}
+    virtual ~ExecConnector() {m_id.remove();}
+    const ExecConnectorId& getId() const {return m_id;}
+    virtual void notifyNodeConditionChanged(NodeId node) = 0;
+    virtual void handleConditionsChanged(const NodeId& node) = 0;
+    virtual void handleNeedsExecution(const NodeId& node) = 0;
+    virtual const StateCacheId& getStateCache() = 0;
+    virtual const ExternalInterfaceId& getExternalInterface() = 0;
+  protected:
+  private:
+    ExecConnectorId m_id;
+  };
 
 }
 
-#endif
+#endif // EXEC_CONNECTOR_HH

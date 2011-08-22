@@ -43,24 +43,6 @@ namespace PLEXIL
   // *** ExecListener now has its own file ***
 
   /**
-   * @brief Class for managing the messages from nodes to the executive.  Primarily to facilitate testing.
-   */
-  class ExecConnector {
-  public:
-    ExecConnector() : m_id(this) {}
-    virtual ~ExecConnector() {m_id.remove();}
-    const ExecConnectorId& getId() const {return m_id;}
-    virtual void notifyNodeConditionChanged(NodeId node) = 0;
-    virtual void handleConditionsChanged(const NodeId& node) = 0;
-    virtual void handleNeedsExecution(const NodeId& node) = 0;
-    virtual const StateCacheId& getStateCache() = 0;
-    virtual const ExternalInterfaceId& getExternalInterface() = 0;
-  protected:
-  private:
-    ExecConnectorId m_id;
-  };
-
-  /**
    * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
    */
   struct NodeConflictComparator {

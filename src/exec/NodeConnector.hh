@@ -24,17 +24,33 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_Expressions
-#define _H_Expressions
+#ifndef NODE_CONNECTOR_HH
+#define NODE_CONNECTOR_HH
 
-namespace PLEXIL {
+#include "ExecDefs.hh"
+#include "LabelStr.hh"
+#include "PlexilPlan.hh"
 
-  /**
-   * @brief Performs registration of the default expression classes.
-   */
+namespace PLEXIL
+{
 
-  extern void initializeExpressions();
+  class NodeConnector 
+  {
+  public:
+    NodeConnector() : m_id(this) {}
+    virtual ~NodeConnector() {m_id.remove();}
+	
+    const NodeConnectorId& getId() const {return m_id;}
 
-}
+    virtual const VariableId& findVariable(const PlexilVarRef* ref) = 0;
+    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false) = 0;
+    virtual const NodeId& getNode() const = 0;
+    virtual const ExecConnectorId& getExec() = 0;
 
-#endif
+  private:
+    NodeConnectorId m_id;
+  };
+
+} // namespace PLEXIL
+
+#endif // NODE_CONNECTOR_HH

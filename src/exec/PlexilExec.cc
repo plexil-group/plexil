@@ -25,13 +25,14 @@
 */
 
 #include "PlexilExec.hh"
-#include "ExecListener.hh"
-#include "Node.hh"
-#include "Expression.hh"
-#include "CoreExpressions.hh"
-#include "ExternalInterface.hh"
 #include "Debug.hh"
+#include "ExecConnector.hh"
+#include "ExecListener.hh"
+#include "Expression.hh"
+#include "ExternalInterface.hh"
+#include "Node.hh"
 #include "StateCache.hh"
+#include "Variable.hh"
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator

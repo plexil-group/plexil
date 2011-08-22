@@ -28,7 +28,6 @@
 #define _H_ActionNodeStateManager
 
 #include "DefaultStateManager.hh"
-#include "Node.hh"
 
 namespace PLEXIL {
   //for command, update, and request nodes

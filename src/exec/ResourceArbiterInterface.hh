@@ -29,7 +29,7 @@
 
 #include "Id.hh"
 #include "ExecDefs.hh"
-#include "Node.hh"
+#include "Node.hh" // for Command
 
 namespace PLEXIL {
 

@@ -28,6 +28,7 @@
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
+#include "Variables.hh"
 
 namespace PLEXIL {
 

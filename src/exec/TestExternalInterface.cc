@@ -25,17 +25,19 @@
 */
 
 #include "TestExternalInterface.hh"
-#include "Expression.hh"
-#include "PlexilExec.hh"
-#include "Node.hh"
+
+#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "LabelStr.hh"
-#include "CoreExpressions.hh"
-#include "XMLUtils.hh"
-#include "StateCache.hh"
+#include "Node.hh"
+#include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
-#include "CommandHandle.hh"
+#include "StateCache.hh"
+#include "StoredArray.hh"
+#include "Variables.hh"
+#include "XMLUtils.hh"
 #include "plan-utils.hh"
+
 #include <limits>
 #include <sstream>
 #include <cmath>

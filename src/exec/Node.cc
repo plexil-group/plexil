@@ -29,15 +29,17 @@
 // Resolve use of m_garbage with respect to conditions
 
 #include "Node.hh"
-#include "Expression.hh"
+#include "Calculables.hh"
 #include "CoreExpressions.hh"
-#include "Expressions.hh"
-#include "XMLUtils.hh"
-#include "PlexilExec.hh"
-#include "ExternalInterface.hh"
 #include "Debug.hh"
+#include "ExecConnector.hh"
+#include "Expressions.hh"
+#include "ExpressionFactory.hh"
+#include "ExternalInterface.hh"
 #include "NodeStateManager.hh"
-#include "CommandHandle.hh"
+#include "PlexilExec.hh"
+#include "Variables.hh"
+#include "XMLUtils.hh"
 
 #include <algorithm> // for find_if
 #include <vector>

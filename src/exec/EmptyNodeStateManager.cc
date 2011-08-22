@@ -25,10 +25,10 @@
 */
 
 #include "EmptyNodeStateManager.hh"
+#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
-#include "Expression.hh"
-#include "CoreExpressions.hh"
+#include "Variables.hh"
 
 namespace PLEXIL
 {
