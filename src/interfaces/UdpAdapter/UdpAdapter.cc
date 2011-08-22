@@ -34,7 +34,7 @@ namespace PLEXIL
   UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, const TiXmlElement* xml)
     : InterfaceAdapter(execInterface, xml),
       m_messageQueues(execInterface),
-      m_debug(true)
+      m_debug(false)
   {
     assertTrue(xml != NULL, "XML config file not found in UdpAdapter::UdpAdapter constructor");
     debugMsg("UdpAdapter::UdpAdapter", " Using " << xml->Attribute("AdapterType"));
@@ -351,46 +351,51 @@ namespace PLEXIL
   // Parse and verify the given Adapter configuration
   {
     m_messages.clear();         // clear the old messages (if any)
-    const char* default_local_port = NULL;
+    // First, set up the internal debugging output
+    const char* debug = NULL;
+    debug = xml->Attribute("debug");
+    assertTrueMsg((debug == NULL || strcasecmp(debug, "true") == 0 || strcasecmp(debug, "false") == 0),
+                  "parseXmlMessageDefinitions: debug must be a boolean, not " << debug);
+    if (debug && strcasecmp(debug, "true") == 0) m_debug = true;
+    // Now, do the real work of parsing the XML UDP Configuration
+    const char* default_local_port = NULL; // char* NULL allows for a boolean test below...
     const char* default_peer_port = NULL;
+    const char* default_peer = NULL;
     default_local_port = xml->Attribute("default_local_port");
     default_peer_port = xml->Attribute("default_peer_port");
+    default_peer = xml->Attribute("default_peer");
     if (default_local_port) m_default_local_port = atoi(default_local_port);
     if (default_peer_port) m_default_peer_port = atoi(default_peer_port);
+    if (default_peer) m_default_peer = default_peer;
+    // Walk the messages
     for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
       {
         UdpMessage msg;
-        //std::string name;        // the Plexil command name
         const char* name = NULL;       // the Plexil command name
-        const char* peer = NULL;       // needed for bool test below
-        const char* local_port = NULL; // needed for bool test below
+        const char* peer = NULL;       // needed for bool test below (i.e., it is optional)
+        const char* local_port = NULL;
         const char* peer_port = NULL;
         const char* len = NULL;
-        name = child->Attribute("name"); // name is required
+        name = child->Attribute("name"); // name is required, hence...
         assertTrueMsg(name, "parseXmlMessageDefinitions: no name given in <Message/>");
-        //msg.name = name = child->Attribute("name"); // for debugging message below
         msg.name = name;
-        //msg.type = type = child->Attribute("type"); // for debugging message below
         peer = child->Attribute("peer");
         local_port = child->Attribute("local_port");
         peer_port = child->Attribute("peer_port");
-        msg.peer = peer ? peer : "localhost";   // record the host given or a default
-        // Check for either the given port or the (appropriate) default port, or singal an error
-        //assertTrueMsg((default_local_port || local_port || default_peer_port || peer_port),
-        //              "parseXmlMessageDefinitions: no local or peer ports given for <Message name=\""
-        //              << name.c_str() << "\"/>");
+        // Use either the given peer, the default_peer, or "localhost"
+        msg.peer = peer ? peer : (default_peer ? m_default_peer : "localhost");
         // Warn about possible run time errors (planners may simply not use a message I suppose)
         if (!(default_local_port || local_port))
           std::cout << "Warning: no default or message specific local port given for <Message name=\""
-                    << name << "\"/>\n         this will cause a run time error if " 
-                    << name << "is called to send an outgoing command/message\n";
+                    << name << "\"/>\n         this will cause a run time error if "
+                    << name << "it is called to send an outgoing command/message\n";
         if (!(default_peer_port || peer_port))
           std::cout << "Warning: no default or message specific peer port given for <Message name=\""
-                    << name << "\"/>\n         this will cause a run time error if " 
-                    << name << "is called to receive an incoming command/message\n";
+                    << name << "\"/>\n         this will cause a run time error if "
+                    << name << "it is called to receive an incoming command/message\n";
         msg.local_port = local_port ? atoi(local_port) : m_default_local_port;
         msg.peer_port = peer_port ? atoi(peer_port) : m_default_peer_port;
-        // Walk the <Parameter/> elements of this <Message/>, if any
+        // Walk the <Parameter/> elements of this <Message/>
         for (const TiXmlElement* param = child->FirstChildElement(); param != NULL; param = param->NextSiblingElement())
           {
             Parameter arg;
@@ -399,10 +404,10 @@ namespace PLEXIL
             // const char* param_text = NULL;
             // param_text = param->GetText();
             // if (param_text) printf("\n\nparam_text: %s\n\n", param_text);
-            // Get the description (it is exists)
+            // Get the description (if any)
             param_desc = param->Attribute("desc");
             if (param_desc) arg.desc = param_desc; // only assign it if it exists
-            // Get the type, which is required
+            // Get the (required) type
             param_type = param->Attribute("type");
             assertTrueMsg(param_type, "parseXmlMessageDefinitions: no type for parameter given in <Message name=\""
                           << name << "\"/>");
@@ -458,18 +463,18 @@ namespace PLEXIL
   {
     // print all of the stuff in m_message for debugging
     MessageMap::iterator msg;
+    std::string indent = "             ";
     int i = 0;
     for (msg=m_messages.begin(); msg != m_messages.end(); msg++, i++)
       {
-        std::cout << "Message: " << msg->first;
+        std::cout << "UDP Message: " << msg->first;
         std::list<Parameter>::iterator param;
         for (param=msg->second.parameters.begin(); param != msg->second.parameters.end(); param++)
           {
-            std::string temp = param->desc.empty() ? "(no description)" :  param->desc;
-            std::cout << "\n         ";
-            std::cout << param->len << " byte " << param->type << " " << temp;
+            std::string temp = param->desc.empty() ? " (no description)" : " (" + param->desc + ")";
+            std::cout << "\n" << indent << param->len << " byte " << param->type << temp;
           }
-        std::cout << std::endl << "         length: " << msg->second.len << " (bytes)";
+        std::cout << std::endl << indent << "length: " << msg->second.len << " (bytes)";
         std::cout << ", peer: " << msg->second.peer << ", peer_port: " << msg->second.peer_port;
         std::cout << ", local_port: " << msg->second.local_port;
         std::cout << std::endl;
@@ -625,15 +630,14 @@ namespace PLEXIL
         int len = param->len;
         std::string type = param->type;
         double plexil_val = *it;
-        // if (debug) std::cout << "plexil_val: " << Expression::valueToString(plexil_val) << std::endl;
         // The parameter passed will be one of these two
-        if (debug) std::cout << "  start_index: " << start_index << ", ";
+        if (debug) std::cout << "  buildUdpBuffer: encoding ";
         // Encode only 32 bit entities (i.e., no 64 bit reals/ints)
         // XXXX need to check min/max floats/ints for out of 32 bit range
         if (type.compare("int") == 0)
           {
             assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
-            if (debug) std::cout << "int: " << plexil_val;
+            if (debug) std::cout << len << " byte int starting at " << start_index;
             if (len==2)
               encode_short_int((int)plexil_val, buffer, start_index);
             else
@@ -643,7 +647,7 @@ namespace PLEXIL
           {
             float temp = plexil_val;
             assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
-            if (debug) std::cout << "float: " << temp;
+            if (debug) std::cout << len << " byte float starting at " << start_index;
             encode_float(temp, buffer, start_index);
           }
         else if (type.compare("bool") == 0) // these are 64 bits in Plexil
@@ -651,7 +655,7 @@ namespace PLEXIL
             assertTrueMsg((len==1 || len==2 || len==4), "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
             assertTrueMsg((plexil_val == false || plexil_val == true), "buildUdpBuffer: Booleans must be either true ("
                           << true << ") or false (" << false << ")" << ", not " << plexil_val);
-            if (debug) std::cout << "bool: " << plexil_val;
+            if (debug) std::cout << len << " byte bool starting at " << start_index;
             if (len==1)
               number_to_network_bytes((int)plexil_val, buffer, start_index, 8);
             else if (len==2)
@@ -664,7 +668,7 @@ namespace PLEXIL
             std::string str = LabelStr(plexil_val).c_str();
             assertTrueMsg(str.length()==len, "buildUdpBuffer: Declared string length (" << len <<
                           ") and actual length (" << str.length() << " do not match");
-            if (debug) std::cout << "string: \"" << LabelStr(plexil_val).c_str() << "\"";
+            if (debug) std::cout << len << " byte string starting at " << start_index;
             encode_string(str, buffer, start_index);
           }
         if (debug) std::cout << std::endl;
@@ -672,7 +676,7 @@ namespace PLEXIL
       }
     if (debug)
       {
-        std::cout << "  buffer: ";
+        std::cout << "  buildUdpBuffer: buffer: ";
         print_buffer(buffer, msg.len);
       }
     return start_index;

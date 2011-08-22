@@ -189,7 +189,6 @@ namespace PLEXIL
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
-    if (debug) printf("  send_message_connect(%s, %d, buffer, %d) called\n", peer_host, peer_port, (int) size);
     struct sockaddr_in peer_addr = {};
     memset((char *) &peer_addr, 0, sizeof(peer_addr));
     peer_addr.sin_port = htons(peer_port);
@@ -205,7 +204,6 @@ namespace PLEXIL
 
     in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
     std::string ip_addr = inet_ntoa(*network_ip_address);
-    if (debug) printf("  send_message_connect: peer_host==%s, ip_addr==%s\n", peer_host, ip_addr.c_str());
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {

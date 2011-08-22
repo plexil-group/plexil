@@ -85,8 +85,9 @@ namespace PLEXIL
     bool m_debug; // show debugging output
 
     // somewhere to hang the messages and default ports
-    int m_default_peer_port;
     int m_default_local_port;
+    int m_default_peer_port;
+    std::string m_default_peer;
     MessageMap m_messages;
     MessageQueueMap m_messageQueues;
 
