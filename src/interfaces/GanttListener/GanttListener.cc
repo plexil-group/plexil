@@ -37,6 +37,9 @@
 #include <stdlib.h>
 #include "InterfaceManager.hh"
 #include "ExecDefs.hh"
+//8/22/11
+#include <time.h> //
+#include <ctime> //
 
 #include "AdapterFactory.hh"
 #include "CoreExpressions.hh"
@@ -130,6 +133,22 @@ namespace PLEXIL
   string plexilGanttDirectory;
   string myHTMLFile;
 
+  /** 8/22/11 Time **/
+  string getTime() {
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
+
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+
+    strftime (buffer,80,"%b%d_%Y_%I.%M.%S%p",timeinfo);
+    puts (buffer);
+    string myTime (buffer);
+    return myTime;
+  }
+  /** **/
+
   /** get working directory and environment variables **/
   void getCurrentWorkingDirectory() {
     char cCurrentPath[FILENAME_MAX];
@@ -152,6 +171,11 @@ namespace PLEXIL
 
   /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
   void createHTMLFile(string nodeName) {
+    //8/22/11
+    string tempName = uniqueFileName;
+    string tempFullName = getTime() + "_" + tempName;
+    //cout << endl << "vvvv NEW NAME vvvv" << endl << tempFullName << endl << "^^^^ ^^^^" << endl;
+    uniqueFileName = getTime() + "_" + tempName; //
     string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + "_" + nodeName + ".html";
     string myTokenFileName = "json/" + uniqueFileName + "_" + nodeName + ".js";
     string htmlFile = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"> \n <html lang=\"en\"> \n <head> \n <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"> \n <title>Gantt Temporal Plan Viewer</title> \n <meta name=\"author\" content=\"By Madan, Isaac A. (ARC-TI); originally authored by Swanson, Keith J. (ARC-TI)\"> \n \n <!-- jQuery is required --> \n <script src=\""+plexilGanttDirectory+"jq/jquery-1.6.2.js\" type=\"text/javascript\"></script> \n <link type=\"text/css\" href=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.css\" rel=\"Stylesheet\" /> \n <script type=\"text/javascript\" src=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.min.js\"></script> \n \n <!-- Load data locally --> \n <script src=\""+plexilGanttDirectory+"addons.js\" type=\"text/javascript\"></script> \n \n <!-- Application code --> \n <script src=\""+plexilGanttDirectory+myTokenFileName+"\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"getAndConvertTokens.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"showTokens.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"detailsBox.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"grid.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"sizing.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"main.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"shortcuts.js\" type=\"text/javascript\"></script> \n \n <!-- My styles --> \n <link rel=\"stylesheet\" href=\""+plexilGanttDirectory+"styles.css\" type=\"text/css\"> \n </head> \n <body> \n \n <!-- Layout --> \n <div id=\"footer\"></div> \n <div id=\"mod\"></div> \n <div id=\"gantt\"></div> \n </body> \n </html>";
@@ -238,7 +262,6 @@ namespace PLEXIL
       actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
 
       //executingIndex is currently unused
-      /** 8/19/11 **/
       NodeId currentNode = nodeId;
       vector<string> nodeTreeStrings;
       while(currentNode->getParent().isId()) {
@@ -246,22 +269,19 @@ namespace PLEXIL
 	currentNode = newNode;
 	nodeTreeStrings.push_back(currentNode->getNodeId().toString());
       }
-      /** **/
       for(int i=0; i<nodes.size(); i++) {
 	//give looping nodes the same ID
 	if(myId == nodes[i].name && myType == nodes[i].type && myVal == nodes[i].val && myParent == nodes[i].parent) {
-	  /** 8/19/11 **/
-	  bool isCertifiedLoop = true; //
-	  for(int j = 0; j < nodeTreeStrings.size(); j++) { //
+	  bool isCertifiedLoop = true;
+	  for(int j = 0; j < nodeTreeStrings.size(); j++) {
 	    if(nodes[i].nodetreevector.size() == 0) {
-	      if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) isCertifiedLoop = false; //
+	      if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) isCertifiedLoop = false;
 	    }
-	  } //
-	  if(isCertifiedLoop) { //
+	  }
+	  if(isCertifiedLoop) {
 	    actualId = nodes[i].id;
 	    executingIndex = i;
-	  } //
-	  /** **/
+	  }
 	}
       }
 
