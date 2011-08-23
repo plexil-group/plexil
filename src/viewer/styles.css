@@ -326,4 +326,8 @@ body {
 	text-decoration:underline;
 }
 
+a:visited {
+	color:#00F;
+}
+
 /* End Token Details */

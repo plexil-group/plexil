@@ -92,22 +92,21 @@ function groupAndShowTokens(tokens) {
 			firstPredicateToken = (j===0) || !sameOP(tokensOfObject[j], tokensOfObject[j-1]);
 			if (firstPredicateToken) {
 				if (futureOPsim(tokensOfObject.slice(j))) {
-					//Isaac -- match line 75
+					//match line 75
 					$(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
 					
 					// plan and sim tokens for this predicate
-					$(objectColumnRow).append("<div class='predicateTitle predicateTitleDoubleHeight'>" +
-						tokensOfObject[j].predicateName + "</div>");	
+					$(objectColumnRow).append("<div class='predicateTitle'>" + "<a href=\"#\" onclick=\"$(\'#.tokenColumn\').scrollLeft(" + (getPixelsPerTimeIncrement() * tokensOfObject[j].startDomain) + ");\">" +
+							tokensOfObject[j].predicateName + "</a>" + "</div>");	
 					tokenRowsCount = tokenRowsCount + 2;
 				} else {
-					//Isaac -- match line 66
+					//match line 66
 					$(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
 					
 					// only plan or sim tokens for this predicate
-					//Isaac 7/21/11
 					if(showExpanded == "true") {
-						$(objectColumnRow).append("<div class='predicateTitle'>" +
-							tokensOfObject[j].predicateName + "</div>");
+						$(objectColumnRow).append("<div class='predicateTitle'>" + "<a href=\"#\" onclick=\"$(\'.tokenColumn\').scrollLeft(" + (getPixelsPerTimeIncrement()*tokensOfObject[j].startDomain) + ")\">" +
+							tokensOfObject[j].predicateName + "</a>" + "</div>");
 						tokenRowsCount++;
 					}
 					else {
@@ -188,8 +187,6 @@ function showTokenSet(tokens, parentDiv) {
 
 		// compute line width
 		lineWidth = timeStepIncrement * (tokens[i].end - tokens[i].start);
-		//alert(tokens[i].endDomain + " && " + tokens[i].startDomain);
-		//8/2/11 Isaac
 		lineWidth = timeStepIncrement * (tokens[i].endDomain - tokens[i].startDomain);
 		//lineWidth = timeStepIncrement * (tokens[i].endDomain*plexilscaling - tokens[i].startDomain*plexilscaling);
 		lineWidth = lineWidth - (tokenBorderOffset * 2);
@@ -224,7 +221,6 @@ function showTokenSet(tokens, parentDiv) {
 		
 		// If there's a single domain parameter, show its value in tokenLine and
 		// force the values to be vertically aligned within the token.
-		//Isaac 7/20/11
 		if(convertInfinities(tokens[i].durationDomain) != 0)
 		{
 			//if (tokens[i].domainParameters.length === 1) { // a single domain parameter

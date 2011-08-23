@@ -85,7 +85,6 @@ function drawGridSection(parentDiv) {
 function drawGridLines(gridSection) {
 	// configuration
 	var numGridLines	= GRID_SETTINGS.maxTimeIncrements + 1; // +1 since we start drawing at zero
-	//8/2/11 Isaac
 	numGridLines = GRID_SETTINGS.maxTimeIncrements + 1;
 	//numGridLines = plexilscaling * GRID_SETTINGS.maxTimeIncrements + 1;
 	var width = getPixelsPerTimeIncrement();
