@@ -143,29 +143,27 @@ namespace PLEXIL {
   const LabelStr& 
   Node::nodeTypeToLabelStr(PlexilNodeType nodeType)
   {
-    switch(nodeType)
-      {
+    switch(nodeType) {
       case NodeType_NodeList:
         return LIST();
-        break;
+
       case NodeType_Command:
         return COMMAND();
-        break;
+
       case NodeType_Assignment:
         return ASSIGNMENT();
-        break;
+
       case NodeType_Update:
         return UPDATE();
-        break;
+
       case NodeType_Request:
         return REQUEST();
-        break;
+
       case NodeType_Empty:
         return EMPTY();
-        break;
+
       case NodeType_LibraryNodeCall:
         return LIBRARYNODECALL();
-        break;
 
         // fall thru case
       default:
@@ -176,100 +174,92 @@ namespace PLEXIL {
     return EMPTY_LABEL();
   }
 
-
   Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
-    : m_id(this), m_exec(exec), m_parent(parent),
-      m_connector((new RealNodeConnector(m_id))->getId()), m_node(node),
-      m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
-      m_transitioning(false), m_checkConditionsPending(false),
-      m_priority(WORST_PRIORITY),
+    : m_id(this),
+	  m_parent(parent),
+	  m_exec(exec),
+      m_connector((new RealNodeConnector(m_id))->getId()),
+	  m_node(node),
+	  m_nodeId(node->nodeId()),
+	  m_nodeType(nodeTypeToLabelStr(node->nodeType())), // Can throw exception
 	  m_sortedVariableNames(new std::vector<double>()),
-      m_state(INACTIVE_STATE), m_lastQuery(NO_NODE_STATE)
+      m_priority(node->priority()),
+      m_state(INACTIVE_STATE),
+	  m_lastQuery(NO_NODE_STATE),
+      m_postInitCalled(false),
+	  m_cleanedConditions(false),
+	  m_cleanedVars(false),
+      m_transitioning(false),
+	  m_checkConditionsPending(false)
   {
-     m_nodeId = LabelStr(node->nodeId());
+	debugMsg("Node:node", "Creating node \"" << node->nodeId() << "\"");
 
-     m_priority = node->priority();
+	m_stateManager = NodeStateManager::getStateManager(m_nodeType);
+	commonInit();
+	setConditionDefaults();
 
-     m_nodeType = nodeTypeToLabelStr(node->nodeType());
-     m_stateManager = NodeStateManager::getStateManager(m_nodeType);
+	// Instantiate declared variables
+	createDeclaredVars(node->declarations());
 
-     debugMsg("Node:node", "Creating node '" << m_nodeId.toString() << "'");
-     commonInit();
-	 setConditionDefaults();
+	// get interface variables
+	getVarsFromInterface(node->interface());
 
-        //instantiate declared variables
+	if (m_nodeType == LIST()) {
+	  // Instantiate child nodes, if any
+	  debugMsg("Node:node", "Creating child nodes.");
+	  // XML parser should have checked for this
+	  checkError(Id<PlexilListBody>::convertable(node->body()),
+				 "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
+				 "list body.");
+	  createChildNodes((PlexilListBody*) node->body());
+	}
 
-     createDeclaredVars(node->declarations());
-
-        //get interface variables
-
-     getVarsFromInterface(node->interface());
-
-        //instantiate child nodes, if any (have to create assignments and commands after
-        //everything else
-        //because they could refer to internal variables of other nodes)
-
-     if(m_nodeType == LIST()) 
-     {
-        debugMsg("Node:node", "Creating child nodes.");
-		// XML parser should have checked for this
-		checkError(Id<PlexilListBody>::convertable(node->body()),
-				   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
-				   "list body.");
-        createChildNodes((PlexilListBody*) node->body());
-     }
-        // create library call node
-
-     if(m_nodeType == LIBRARYNODECALL()) 
-     {
-        debugMsg("Node:node", "Creating library node call.");
-		// XML parser should have checked for this
-		checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
-				   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
-				   "library node call body.");
-        createLibraryNode(node);
-     }
+	else if (m_nodeType == LIBRARYNODECALL()) {
+	  // Create library call node
+	  debugMsg("Node:node", "Creating library node call.");
+	  // XML parser should have checked for this
+	  checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
+				 "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
+				 "library node call body.");
+	  createLibraryNode(node);
+	}
   }
 
   // Used only by module test
   Node::Node(const LabelStr& type, const LabelStr& name, const NodeState state,
-	     const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
-	     const bool end, const bool repeat, const bool ancestorInvariant,
-	     const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
-	     const bool commandAbort, const bool parentWaiting, 
-	     const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec)
-    : m_id(this), m_exec(exec), m_parent(NodeId::noId()), m_node(PlexilNodeId::noId()),
-      m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
-      m_transitioning(false), m_checkConditionsPending(false),
+			 const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
+			 const bool end, const bool repeat, const bool ancestorInvariant,
+			 const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
+			 const bool commandAbort, const bool parentWaiting, 
+			 const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec)
+    : m_id(this),
+	  m_parent(NodeId::noId()),
+	  m_exec(exec),
+	  m_node(PlexilNodeId::noId()),
+	  m_nodeId(name),
+	  m_nodeType(type),
 	  m_sortedVariableNames(new std::vector<double>()),
-      m_state(state), m_lastQuery(NO_NODE_STATE)
+      m_state(state),
+	  m_lastQuery(NO_NODE_STATE),
+      m_postInitCalled(false), 
+	  m_cleanedConditions(false), 
+	  m_cleanedVars(false),
+      m_transitioning(false), 
+	  m_checkConditionsPending(false)
   {
-    m_nodeType = type;
     m_stateManager = NodeStateManager::getStateManager(m_nodeType);
-    m_nodeId = name;
     commonInit();
-
-	// Activate internal variables
-    m_stateVariable->activate();
-    m_variablesByName[OUTCOME().getKey()]->activate();
-    m_variablesByName[FAILURE_TYPE().getKey()]->activate();
-    m_variablesByName[COMMAND_HANDLE().getKey()]->activate();
-
-	// Activate timepoints
-	// TODO: figure out if they should be inactive until entering the corresponding state
-	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
-	  m_startTimepoints[s]->activate();
-	  m_endTimepoints[s]->activate();
-	}
+	activateInternalVariables();
 
 	// N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
-    bool values[15] = {skip, start, end, invariant, pre, post, repeat, ancestorInvariant,
-		       ancestorEnd, parentExecuting, childrenFinished, commandAbort,
-		       parentWaiting, parentFinished, cmdHdlRcvdCondition};
-    for (unsigned int i = 0; i < 15; i++) {
+    bool values[conditionIndexMax] =
+	  {skip, start, end, invariant, pre, post, repeat, ancestorInvariant,
+	   ancestorEnd, parentExecuting, childrenFinished, commandAbort,
+	   parentWaiting, parentFinished, cmdHdlRcvdCondition};
+    for (unsigned int i = 0; i < conditionIndexMax; i++) {
       debugMsg("Node:node",
 			   "Creating internal variable " << LabelStr(ALL_CONDITIONS()[i]).toString() <<
-	       " with value " << values[i] << " for node " << m_nodeId.toString());
+			   " with value " << values[i] << " for node " << m_nodeId.toString());
       ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
       m_conditions[i] = expr;
       expr->addListener(m_listeners[i]);
@@ -345,27 +335,48 @@ namespace PLEXIL {
   }
 
   void Node::cleanUpVars() {
-    checkError(m_cleanedConditions,
-	       "Have to clean up variables before conditions can be cleaned.");
-    if(m_cleanedVars)
+    if (m_cleanedVars)
       return;
+    checkError(m_cleanedConditions,
+			   "Have to clean up variables before conditions can be cleaned.");
 
 	debugMsg("Node:cleanUpVars", " for " << m_nodeId.toString());
 
-    // unset state variable prior to variable-by-name cleanup
-    m_stateVariable = ExpressionId::noId();
-
-    for(std::set<double>::iterator it = m_garbage.begin(); it != m_garbage.end(); ++it) {
-      if(m_variablesByName.find(*it) != m_variablesByName.end()) {
-	debugMsg("Node:cleanUpVars",
-		 "<" << m_nodeId.toString() << "> Removing " << LabelStr(*it).toString());
-	delete (Variable*) m_variablesByName.find(*it)->second;
-	m_variablesByName.erase(*it);
+	// Delete user-spec'd variables
+    for (std::set<double>::iterator it = m_garbage.begin(); it != m_garbage.end(); ++it) {
+      if (m_variablesByName.find(*it) != m_variablesByName.end()) {
+		debugMsg("Node:cleanUpVars",
+				 "<" << m_nodeId.toString() << "> Removing " << LabelStr(*it).toString());
+		delete (Variable*) m_variablesByName.find(*it)->second;
+		m_variablesByName.erase(*it);
       }
     }
 
-    if(m_ack.isValid())
-      delete (Expression*) m_ack;
+	// Clear map
+	m_variablesByName.clear();
+
+	// Delete timepoint variables
+	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+	  delete (Variable*) m_startTimepoints[s];
+	  delete (Variable*) m_endTimepoints[s];
+	  m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
+	}
+
+	// Delete internal variables
+	if (m_commandHandleVariable.isId()) {
+	  delete (Variable*) m_commandHandleVariable;
+	  m_commandHandleVariable = VariableId::noId();
+	}
+    if (m_ack.isId()) {
+      delete (Variable*) m_ack;
+	  m_ack = VariableId::noId();
+	}
+	delete (Variable*) m_outcomeVariable;
+	m_outcomeVariable = VariableId::noId();
+	delete (Variable*) m_failureTypeVariable;
+	m_failureTypeVariable = VariableId::noId();
+	delete (Variable*) m_stateVariable;
+	m_stateVariable = VariableId::noId();
 
     m_cleanedVars = true;
   }
@@ -377,19 +388,11 @@ namespace PLEXIL {
     m_variablesByName[STATE().getKey()] = m_stateVariable = (new StateVariable())->getId();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
 
-	ExpressionId outcomeVariable = (new OutcomeVariable())->getId();
-    m_variablesByName[OUTCOME().getKey()] = outcomeVariable;
-
-	ExpressionId failureVariable = (new FailureVariable())->getId();
-    m_variablesByName[FAILURE_TYPE().getKey()] = failureVariable;
-
-	ExpressionId commandHandle = (new CommandHandleVariable())->getId();
-    m_variablesByName[COMMAND_HANDLE().getKey()] = commandHandle;
-
-    m_garbage.insert(STATE().getKey());
-    m_garbage.insert(OUTCOME().getKey());
-    m_garbage.insert(FAILURE_TYPE().getKey());
-    m_garbage.insert(COMMAND_HANDLE().getKey());
+	m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable = (new OutcomeVariable())->getId();
+    m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable = (new FailureVariable())->getId();
+	if (m_nodeType == COMMAND()) {
+	  m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable = (new CommandHandleVariable())->getId();
+	}
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
@@ -397,12 +400,10 @@ namespace PLEXIL {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
-      m_garbage.insert(stpName);
 
       ExpressionId etp = (new RealVariable())->getId();
       const LabelStr& etpName = END_TIMEPOINT_NAMES()[s];
       m_endTimepoints[s] = m_variablesByName[etpName] = etp;
-      m_garbage.insert(etpName);
     }
 
 	// construct condition listeners (but not conditions)
@@ -706,18 +707,7 @@ namespace PLEXIL {
   void Node::activate()
   {
 	// Activate internal variables
-    m_stateVariable->activate();
-	// TODO: figure out if these should be activated on entering EXECUTING state
-    m_variablesByName[OUTCOME().getKey()]->activate();
-    m_variablesByName[FAILURE_TYPE().getKey()]->activate();
-    m_variablesByName[COMMAND_HANDLE().getKey()]->activate();
-
-	// Activate timepoints
-	// TODO: figure out if they should be inactive until entering the corresponding state
-	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
-	  m_startTimepoints[s]->activate();
-	  m_endTimepoints[s]->activate();
-	}
+	activateInternalVariables();
 
 	// These are the only conditions we care about in the INACTIVE state.
 	// See DefaultStateManager.cc, specifically DefaultInactiveStateComputer::getDestState().
@@ -729,6 +719,24 @@ namespace PLEXIL {
     // Activate all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->activate();
+  }
+
+  void Node::activateInternalVariables()
+  {
+	// Activate internal variables
+    m_stateVariable->activate();
+	// TODO: figure out if these should be activated on entering EXECUTING state
+    m_outcomeVariable->activate();
+    m_failureTypeVariable->activate();
+	if (m_commandHandleVariable.isId())
+	  m_commandHandleVariable->activate();
+
+	// Activate timepoints
+	// TODO: figure out if they should be inactive until entering the corresponding state
+	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+	  m_startTimepoints[s]->activate();
+	  m_endTimepoints[s]->activate();
+	}
   }
 
   ExpressionId& Node::getCondition(const LabelStr& name) {
@@ -843,11 +851,25 @@ namespace PLEXIL {
 	}
   }
 
-  void Node::createChildNodes(const PlexilListBody* body) {
-    checkError(m_nodeType == LIST(), "Attempted to create child nodes for a non-list node.");
-    for(std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
-	it != body->children().end(); ++it)
-      m_children.push_back((new Node(*it, m_exec, m_id))->getId());
+  void Node::createChildNodes(const PlexilListBody* body) 
+  {
+    // checkError(m_nodeType == LIST(), "Attempted to create child nodes for a non-list node.");
+	try {
+	  for (std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
+		   it != body->children().end(); 
+		   ++it)
+		m_children.push_back((new Node(*it, m_exec, m_id))->getId());
+	}
+	catch (const Error& e) {
+	  debugMsg("Node:node", " Error creating child nodes: " << e);
+	  // Clean up 
+	  while (!m_children.empty()) {
+		delete (Node*) m_children.back();
+		m_children.pop_back();
+	  }
+	  // Rethrow so that outer error handler can deal with this as well
+	  throw;
+	}
 
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
     ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
@@ -1298,32 +1320,19 @@ namespace PLEXIL {
     return m_endTimepoints[m_state]->getValue();
   }
 
-  const VariableId& Node::getStateVariable() {
-    return m_stateVariable;
-  }
-
   const LabelStr Node::getOutcome() {
-    return getOutcomeVariable()->getValue();
-  }
-
-  const VariableId& Node::getOutcomeVariable() const {
-    return getInternalVariable(OUTCOME());
+    return m_outcomeVariable->getValue();
   }
 
   const LabelStr Node::getFailureType() {
-    return getFailureTypeVariable()->getValue();
-  }
-
-  const VariableId& Node::getFailureTypeVariable() const {
-    return getInternalVariable(FAILURE_TYPE());
+    return m_failureTypeVariable->getValue();
   }
 
   const LabelStr Node::getCommandHandle() {
-    return getCommandHandleVariable()->getValue();
-  }
-
-  const VariableId& Node::getCommandHandleVariable() const {
-    return getInternalVariable(COMMAND_HANDLE());
+	if (m_commandHandleVariable.isId())
+	  return m_commandHandleVariable->getValue();
+	else 
+	  return Expression::UNKNOWN();
   }
 
   class NodeIdEq {
@@ -1541,15 +1550,17 @@ namespace PLEXIL {
 
   void Node::reset() {
     debugMsg("Node:reset", "Re-setting node " << m_nodeId.toString());
+
     //reset outcome and failure type
-    ((Variable*)m_variablesByName[OUTCOME()])->reset();
-    ((Variable*)m_variablesByName[FAILURE_TYPE()])->reset();
-    ((Variable*)m_variablesByName[COMMAND_HANDLE()])->reset();
+	m_outcomeVariable->reset();
+	m_failureTypeVariable->reset();
+	if (m_commandHandleVariable.isId())
+	  m_commandHandleVariable->reset();
 
     //reset timepoints
     for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
-      ((Variable*) m_startTimepoints[s])->reset();
-      ((Variable*) m_endTimepoints[s])->reset();
+      m_startTimepoints[s]->reset();
+      m_endTimepoints[s]->reset();
     }
 
     for (std::vector<VariableId>::const_iterator it = m_localVariables.begin();
@@ -1666,14 +1677,14 @@ namespace PLEXIL {
     stream << indentStr << " State: " << m_stateVariable->toString() <<
       " (" << m_startTimepoints[m_state]->getValue() << ")\n";
     if (m_state == FINISHED_STATE) {
-      stream << indentStr << " Outcome: " << getOutcomeVariable()->toString() << '\n';
-      if (getFailureTypeVariable()->getValue() != Expression::UNKNOWN())
+      stream << indentStr << " Outcome: " << m_outcomeVariable->toString() << '\n';
+      if (m_failureTypeVariable->getValue() != Expression::UNKNOWN())
 		stream << indentStr << " Failure type: " <<
-		  getFailureTypeVariable()->toString() << '\n';
+		  m_failureTypeVariable->toString() << '\n';
 	  // Print variables, starting with command handle
-      if (getCommandHandleVariable()->getValue() != Expression::UNKNOWN())
+      if (m_nodeType == COMMAND() && m_commandHandleVariable->getValue() != Expression::UNKNOWN())
 		stream << indentStr << " Command handle: " <<
-		  getCommandHandleVariable()->toString() << '\n';
+		  m_commandHandleVariable->toString() << '\n';
 	  printVariables(stream, indent);
     }
     else if (m_state != INACTIVE_STATE) {
@@ -1683,9 +1694,9 @@ namespace PLEXIL {
 		  m_conditions[i]->toString() << '\n';
       }
 	  // Print variables, starting with command handle (if appropriate)
-      if (getType() == COMMAND()) {
+      if (m_nodeType == COMMAND()) {
 		stream << indentStr << " Command handle: " <<
-		  getCommandHandleVariable()->toString() << '\n';
+		  m_commandHandleVariable->toString() << '\n';
 	  }
 	  printVariables(stream, indent);
     }

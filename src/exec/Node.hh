@@ -218,16 +218,16 @@ namespace PLEXIL {
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.
      */
-    const VariableId& getStateVariable();
+    const VariableId& getStateVariable() const { return m_stateVariable; }
 
     const LabelStr getOutcome();
-    const VariableId& getOutcomeVariable() const;
+    const VariableId& getOutcomeVariable() const { return m_outcomeVariable; }
 
     const LabelStr getFailureType();
-    const VariableId& getFailureTypeVariable() const;
+    const VariableId& getFailureTypeVariable() const { return m_failureTypeVariable; }
 
     const LabelStr getCommandHandle();
-    const VariableId& getCommandHandleVariable() const;
+    const VariableId& getCommandHandleVariable() const { return m_commandHandleVariable; }
 
     /**
      * @brief Gets the type of this node (node list, assignment, or command).
@@ -358,6 +358,9 @@ namespace PLEXIL {
 
     void commonInit();
 
+	// Make the node's internal variables active.
+	void activateInternalVariables();
+
   private:
 
     // N.B.: These need to match the order of ALL_CONDITIONS()
@@ -454,12 +457,11 @@ namespace PLEXIL {
 	void ensureSortedVariableNames() const;
 
     NodeId m_id; /*<! The Id for this node*/
-    ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
     NodeId m_parent; /*<! The parent of this node.*/
+    std::vector<NodeId> m_children; /*<! Child nodes.*/
+    ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
     NodeConnectorId m_connector;
     PlexilNodeId m_node;
-    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
-    double m_priority; /*<! The priority of this node */
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
     NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
@@ -468,20 +470,24 @@ namespace PLEXIL {
 		 I'll stick all variables in here, just to be safe.*/
 	std::vector<double>* m_sortedVariableNames;
     std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
-    ExpressionId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
-    ExpressionId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
+    std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
+    std::set<unsigned int> m_garbageConditions; /*<! Indices of conditions to be cleaned up. */
     ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
     ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
-    std::set<unsigned int> m_garbageConditions; /*<! Indices of conditions to be cleaned up. */
+    VariableId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
+    VariableId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
     AssignmentId m_assignment;
     CommandId m_command; /*<! The command to be performed. */
     UpdateId m_update;
     VariableId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
-    std::vector<NodeId> m_children; /*<! Child nodes.*/
-    std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
     VariableId m_stateVariable;
+	VariableId m_outcomeVariable;
+	VariableId m_failureTypeVariable;
+	VariableId m_commandHandleVariable;
+    double m_priority; /*<! The priority of this node */
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
+    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
