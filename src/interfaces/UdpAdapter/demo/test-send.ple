@@ -14,7 +14,7 @@ test-send:
   }
   SendCommand:
   {
-    Command recv_test (arg1, arg2, arg3, arg4); // Send the UDP message
+    Command test_udp_msg (arg1, arg2, arg3, arg4); // Send the UDP message
   }
 }
 

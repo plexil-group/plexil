@@ -521,6 +521,7 @@ namespace PLEXIL
     udp_thread_params* param_ptr = &params;
     //debugMsg("UdpAdapter::waitForUdpMessage", " params: " << params.local_port << ", " << params.size);
     int status = wait_for_input_on_thread(&params);
+    assertTrueMsg(status==0, "waitForUdpMessage call to wait_for_input_on_thread returned " << status);
     // When the message has been received, tell the UdpAdapter about it and its contents
     status = udpAdapter->handleUdpMessage(msg, params.buffer, params.debug);
     assertTrueMsg(status==0, "waitForUdpMessage call to handleUdpMessage returned " << status);

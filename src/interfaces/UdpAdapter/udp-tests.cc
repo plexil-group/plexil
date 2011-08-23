@@ -102,6 +102,7 @@ int main()
   threadSpawn((THREAD_FUNC_PTR) wait_for_input_on_thread, params, thread_handle);
 
   status = send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true);
+  usleep(100);
   status = send_message_bind(local_port, remote_host, remote_port+1, (const char*)bytes1, 4*sizeof(bytes1), true);
 
   // Wait for wait_for_input to return
