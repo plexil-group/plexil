@@ -190,12 +190,21 @@ function handleRegularExpression(string, temp, temp2, temp3) {
 	}
 	var tempBools = new Array();
 	//string must contain all construct strings for the function to return true, indicating a target node
-	if(temp2.length != string.length) tempBools.push(false);
+	if(temp2.length < string.length) tempBools.push(false);
 	for(var i = 0; i < constructStrings.length; i++) {
-		if(temp2.indexOf(constructStrings[i]) != -1) {
+		if((temp2.indexOf(constructStrings[i]) != -1)) {
 			tempBools.push(true);
-		}
+		} 
 		else tempBools.push(false);
+	}
+	for(var i = 0; i < constructStrings.length-1; i++) {
+		var tempString = constructStrings[i] + constructStrings[i+1];
+		if(temp2.indexOf(tempString) != -1)
+			tempBools.push(false);
+	}
+	if(string[string.length-1] != '*') {
+		if(string[string.length-1] != temp2[temp2.length-1])
+			tempBools.push(false);
 	}
 	for(var i = 0; i < tempBools.length; i++) {
 		if(tempBools[i] == false) finalBool = false;
