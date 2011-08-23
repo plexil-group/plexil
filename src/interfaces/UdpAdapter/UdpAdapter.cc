@@ -634,10 +634,10 @@ namespace PLEXIL
         // The parameter passed will be one of these two
         if (debug) std::cout << "  buildUdpBuffer: encoding ";
         // Encode only 32 bit entities (i.e., no 64 bit reals/ints)
-        // XXXX need to check min/max floats/ints for out of 32 bit range
         if (type.compare("int") == 0)
           {
             assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
+            // Large ints are caught in Expression.cc:337
             if (debug) std::cout << len << " byte int starting at " << start_index;
             if (len==2)
               encode_short_int((int)plexil_val, buffer, start_index);
@@ -648,6 +648,10 @@ namespace PLEXIL
           {
             float temp = plexil_val;
             assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
+            // Catch really big floats
+            assertTrueMsg((FLT_MIN <= plexil_val) && (FLT_MAX >= plexil_val),
+                          "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
+                          ", not " << plexil_val);
             if (debug) std::cout << len << " byte float starting at " << start_index;
             encode_float(temp, buffer, start_index);
           }

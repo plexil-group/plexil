@@ -5,8 +5,8 @@ test-send:
 {
   String arg1 = "UDP";
   Boolean arg2 = false;
-  Integer arg3 = 3;
-  Real arg4 = 3.14159;
+  Integer arg3 = 3;             //  -2147483649, 2147483648
+  Real arg4 = 3.14159;          //  1.17e-38, 3.5e+38
   NodeList:
   SendSetup:
   {
