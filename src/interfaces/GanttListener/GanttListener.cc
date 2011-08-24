@@ -22,6 +22,8 @@
 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* By Madan, Isaac A.
 */
 
 #include <iomanip> // for setprecision
@@ -80,8 +82,8 @@ namespace PLEXIL
   // structured approach including listener filters and a different user
   // interface may be in order.
 
-  string fullTemplate = "empty";
-  string myCloser = "];";
+  static string fullTemplate = "empty";
+  static string myCloser = "];";
 
   //nodes
   struct nodeObj {
@@ -100,46 +102,47 @@ namespace PLEXIL
   };
 
   //all the nodes
-  vector<nodeObj> nodes;
+  static vector<nodeObj> nodes;
 
   //these values get reassigned for each node
-  string myId;
-  int myStartValint;
-  double myStartValdbl;
-  int myEndValint;
-  double myEndValdbl;
-  int myDurationValint;
-  double myDurationValdbl;
-  string myType;
-  string myVal;
-  string myParent;
-  string myLocalVars;
-  string myChildren;
+  static string myId;
+  static int myStartValint;
+  static double myStartValdbl;
+  static int myEndValint;
+  static double myEndValdbl;
+  static int myDurationValint;
+  static double myDurationValdbl;
+  static string myType;
+  static string myVal;
+  static string myParent;
+  static string myLocalVars;
+  static string myChildren;
 
-  string myLocalVarsAfter;
+  static string myLocalVarsAfter;
 
-  double nodeCounter = 0;
-  double actualId = -1;
-  double startTime = -1;
+  static double nodeCounter = 0;
+  static double actualId = -1;
+  static double startTime = -1;
 
-  int index;
-  int executingIndex;
+  static int index;
+  static int executingIndex;
 
-  string myDirectory;
-  string uniqueFileName;
-  string ganttDirectory;
-  string plexilDirectory;
-  string plexilGanttDirectory;
-  string myHTMLFile;
+  static string myDirectory;
+  static string uniqueFileName;
+  static string ganttDirectory;
+  static string plexilDirectory;
+  static string plexilGanttDirectory;
+  static string myHTMLFile;
 
+  /** get the current time for the file name
+   * example formatting Aug22_2011_01.28.42PM 
+   **/
   string getTime() {
     time_t rawtime;
     struct tm * timeinfo;
     char buffer [80];
-
     time ( &rawtime );
     timeinfo = localtime ( &rawtime );
-
     strftime (buffer,80,"%b%d_%Y_%I.%M.%S%p",timeinfo);
     puts (buffer);
     string myTime (buffer);
@@ -160,10 +163,8 @@ namespace PLEXIL
     plexilDirectory = pPath;
 
     /** get Viewer directory under PLEXIL_HOME **/
-    string pgPath;
-    pgPath = pPath + "/src/viewer";
+    string pgPath = pPath + "/src/viewer";
     plexilGanttDirectory = pgPath + "/";
-    //plexilGanttDirectory = "../../../../../../../../../../../../../../../.." + plexilGanttDirectory;
   }
 
   /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
@@ -172,7 +173,39 @@ namespace PLEXIL
     uniqueFileName = getTime();
     string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + "_" + nodeName + ".html";
     string myTokenFileName = "json/" + uniqueFileName + "_" + nodeName + ".js";
-    string htmlFile = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"> \n <html lang=\"en\"> \n <head> \n <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"> \n <title>Gantt Temporal Plan Viewer</title> \n <meta name=\"author\" content=\"By Madan, Isaac A. (ARC-TI); originally authored by Swanson, Keith J. (ARC-TI)\"> \n \n <!-- jQuery is required --> \n <script src=\""+plexilGanttDirectory+"jq/jquery-1.6.2.js\" type=\"text/javascript\"></script> \n <link type=\"text/css\" href=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.css\" rel=\"Stylesheet\" /> \n <script type=\"text/javascript\" src=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.min.js\"></script> \n \n <!-- Load data locally --> \n <script src=\""+plexilGanttDirectory+"addons.js\" type=\"text/javascript\"></script> \n \n <!-- Application code --> \n <script src=\""+plexilGanttDirectory+myTokenFileName+"\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"getAndConvertTokens.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"showTokens.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"detailsBox.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"grid.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"sizing.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"main.js\" type=\"text/javascript\"></script> \n <script src=\""+plexilGanttDirectory+"shortcuts.js\" type=\"text/javascript\"></script> \n \n <!-- My styles --> \n <link rel=\"stylesheet\" href=\""+plexilGanttDirectory+"styles.css\" type=\"text/css\"> \n </head> \n <body> \n \n <!-- Layout --> \n <div id=\"footer\"></div> \n <div id=\"mod\"></div> \n <div id=\"gantt\"></div> \n </body> \n </html>";
+    string lineBreak = "\n ";
+    string htmlFile = 
+      "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"+lineBreak+
+      "<html lang=\"en\"> "+lineBreak+
+      "<head> "+lineBreak+
+      "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"> "+lineBreak+
+      "<title>Gantt Temporal Plan Viewer</title> "+lineBreak+
+      "<meta name=\"author\" content=\"By Madan, Isaac A. (ARC-TI); originally authored by Swanson, Keith J. (ARC-TI)\"> "+lineBreak+lineBreak+
+      "<!-- jQuery is required --> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"jq/jquery-1.6.2.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<link type=\"text/css\" href=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.css\" rel=\"Stylesheet\" /> "+lineBreak+
+      "<script type=\"text/javascript\" src=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.min.js\"></script> "+lineBreak+lineBreak+
+      "<!-- Load code first --> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"addons.js\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
+      "<!-- Load data locally --> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+myTokenFileName+"\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
+      "<!-- Application code --> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"getAndConvertTokens.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"showTokens.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"detailsBox.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"grid.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"sizing.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"main.js\" type=\"text/javascript\"></script> "+lineBreak+
+      "<script src=\""+plexilGanttDirectory+"shortcuts.js\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
+      "<!-- My styles --> "+lineBreak+
+      "<link rel=\"stylesheet\" href=\""+plexilGanttDirectory+"styles.css\" type=\"text/css\"> "+lineBreak+
+      "</head> \n <body> "+lineBreak+lineBreak+
+      "<!-- Layout --> "+lineBreak+
+      "<div id=\"footer\"></div> "+lineBreak+
+      "<div id=\"mod\"></div> "+lineBreak+
+      "<div id=\"gantt\"></div> "+lineBreak+
+      "</body> "+lineBreak+
+      "</html>";
 
     ofstream myfile;
     myfile.open(htmlFileName.c_str());
@@ -202,16 +235,13 @@ namespace PLEXIL
                                             const LabelStr& parent) const 
   {
     getCurrentWorkingDirectory();
-    startTime = ( (InterfaceManager&) getManager()).currentTime();
-    startTime = startTime;
-    int startTimeint = startTime;
-    startTime = (int) startTime;
+    startTime = (int) ( (InterfaceManager&) getManager()).currentTime();
     std::ostringstream uFileName;
     uFileName.precision(10);
     uFileName << startTime;
     uniqueFileName = uFileName.str();
     fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-    //temporary reassignment
+    //reset startTime; it will be set when first node executes
     startTime = -1;
   }
 
@@ -224,7 +254,7 @@ namespace PLEXIL
   void GanttListener::
   implementNotifyNodeTransition (NodeState prevState, const NodeId& nodeId) const
   {
-    //temporary until deciding method for startTime
+    //startTime is when first node executes
     if(startTime == -1) startTime = nodeId->getCurrentStateStartTime();
 
     //make sure the temporary variables are cleaned out
@@ -238,9 +268,7 @@ namespace PLEXIL
     const NodeState& newState = nodeId->getState();
     if(newState == EXECUTING_STATE) {    
       myId = nodeId->getNodeId().toString();
-      myStartValdbl= nodeId->getCurrentStateStartTime();
-      myStartValdbl= myStartValdbl - startTime;
-      myStartValdbl = myStartValdbl*100;
+      myStartValdbl= ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
       myType = nodeId->getType().toString();
       myVal = nodeId->getStateName().toString();
       myParent = "none";
@@ -252,7 +280,7 @@ namespace PLEXIL
       }
 
       //increase nodeCounter for ID value
-      nodeCounter = nodeCounter + 1;
+      nodeCounter += 1;
       actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
 
       //executingIndex is currently unused
@@ -356,9 +384,7 @@ namespace PLEXIL
 	  }
 	}
       }
-      myEndValdbl = nodeId->getCurrentStateStartTime();
-      myEndValdbl = myEndValdbl - startTime;
-      myEndValdbl = myEndValdbl*100;
+      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime)*100;
       myDurationValdbl = myEndValdbl - nodes[index].start;
       //doesn't exist until node is finished     
       string myOutcome = nodeId->getOutcome().toString();
