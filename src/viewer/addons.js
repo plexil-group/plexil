@@ -249,6 +249,27 @@ function doCustomUnhide(temp, temp2) {
 	$('#customNodesUnhideBox').dialog("close");
 }
 
+/** return value to main for checked scale radio box **/
+function manageRadioScaleChecked(boxname) {
+	var desiredVal = getCookie("showScaleCookie");
+	if(desiredVal == null) {
+		if(boxname == 4)
+			return "checked = \"checked\"";
+		else
+			return " ";
+	}
+	else if(desiredVal == "1000" && boxname == 1)
+		return "checked = \"checked\"";
+	else if(desiredVal == "100" && boxname == 2)
+		return "checked = \"checked\"";
+	else if(desiredVal == "10" && boxname == 3)
+		return "checked = \"checked\"";
+	else if(desiredVal == "1" && boxname == 4)
+		return "checked = \"checked\"";
+	else
+		return " ";
+}
+
 /** alerter for debugging **/
 var alerter = 0;
 function alertonce(string) {
