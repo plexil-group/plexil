@@ -100,6 +100,16 @@ void UtilityAdapter::executeCommand (const LabelStr& command_name,
   m_execInterface.notifyOfExternalEvent();
 }
 
+void UtilityAdapter::invokeAbort(const LabelStr& command_name, 
+                                 const std::list<double>& /* args */, 
+                                 ExpressionId /* cmd_ack */,
+                                 ExpressionId /* ack */)
+{
+  std::string name = command_name.toString();
+  debugMsg("UtilityAdapter", "Aborting " << name << " command!");  
+  std::cerr << "UtilityAdapter: Aborting " << name << " command!" << std::endl;
+}
+
 extern "C" {
   void initUtilityAdapter() {
     REGISTER_ADAPTER(UtilityAdapter, "UtilityAdapter");

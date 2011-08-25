@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,11 @@ public:
                        const std::list<double>& args,
                        ExpressionId dest,
                        ExpressionId ack);
+
+  void invokeAbort (const LabelStr& name, 
+                    const std::list<double>& args, 
+                    ExpressionId cmd_ack,
+                    ExpressionId ack);
 };
 
 extern "C" {
