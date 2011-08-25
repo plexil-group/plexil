@@ -253,7 +253,7 @@ function doCustomUnhide(temp, temp2) {
 function manageRadioScaleChecked(boxname) {
 	var desiredVal = getCookie("showScaleCookie");
 	if(desiredVal == null) {
-		if(boxname == 4)
+		if(boxname == 3)
 			return "checked = \"checked\"";
 		else
 			return " ";

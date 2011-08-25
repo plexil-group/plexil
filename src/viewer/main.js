@@ -36,7 +36,7 @@ function getSetup() {
 	if(getCookie("showHeightCookie") == null || getCookie("showHeightCookie") == "")
 		setCookie("showHeightCookie",15,365);
 	if(getCookie("showScaleCookie") == null || getCookie("showScaleCookie") == "")
-		setCookie("showScaleCookie",1,365);
+		setCookie("showScaleCookie",10,365);
 	addModBox();
 	$('#gantt').empty();
 	$('#footer').empty();
@@ -114,7 +114,7 @@ function addModBox() {
 	   	'<small><button id="ModBoxButton">Update Display</button></small>',
 	'</form>'
     ].join(''));
-   $('#ModBoxButton').button();
+    $('#ModBoxButton').button();
     //shows how to modify css display characteristics, use for details boxes
     $('#submitButton').css('display','');
     buildPixelsPerTimeIncrementSlider();

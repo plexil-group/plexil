@@ -41,14 +41,14 @@ var GRID_SETTINGS = {
 }
 
 function drawGrid() {
-	computeMaxTimeIncrements();
+    computeMaxTimeIncrements();
 // was	// $(".gHS").each(function(idx, el) {drawGridSection(el)});
-	$("div.tokenColumnRow").each(function(idx, el) {drawGridSection(el)});	
+	$("div.tokenColumnRow").each(function(idx, el) {drawGridSection(el)});
 	drawGridHeader(); // not yet done...
 	// now we know how big to make the token column width
-	sizeTokenColumn();	
+	sizeTokenColumn();
 	sizeObjectColumn();  // TODO move this into sizing? and call from elsewhere
-	sizeGantt();
+ 	sizeGantt();
 }
 
 /* 
@@ -87,6 +87,9 @@ function drawGridLines(gridSection) {
 	var numGridLines	= GRID_SETTINGS.maxTimeIncrements + 1; // +1 since we start drawing at zero
 	numGridLines = GRID_SETTINGS.maxTimeIncrements + 1;
 	//numGridLines = plexilscaling * GRID_SETTINGS.maxTimeIncrements + 1;
+	var remainder = numGridLines%10;
+	numGridLines = numGridLines/getScaling();
+	if(numGridLines < 10) numGridLines = 20 + remainder;
 	var width = getPixelsPerTimeIncrement();
 	//var width			= GRID_SETTINGS.pixelsPerTimeIncrement;
 	// internal
