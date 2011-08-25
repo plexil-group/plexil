@@ -136,6 +136,8 @@ namespace PLEXIL
 
   /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
+   * deprecated method due to verbose file naming; file name currently contains system time
+   * uncomment line in createHTMLFile to use
    **/
   string getTime() {
     time_t rawtime;
@@ -170,7 +172,8 @@ namespace PLEXIL
   /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
   void createHTMLFile(string nodeName) {
     string tempName = uniqueFileName;
-    uniqueFileName = getTime();
+    //uncomment the following line to set filename to the format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
+    //uniqueFileName = getTime();
     string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + "_" + nodeName + ".html";
     string myTokenFileName = "json/" + uniqueFileName + "_" + nodeName + ".js";
     string lineBreak = "\n ";
@@ -295,11 +298,19 @@ namespace PLEXIL
 	//give looping nodes the same ID
 	if(myId == nodes[i].name && myType == nodes[i].type && myVal == nodes[i].val && myParent == nodes[i].parent) {
 	  bool isCertifiedLoop = true;
-	  for(int j = 0; j < nodeTreeStrings.size(); j++) {
-	    if(nodes[i].nodetreevector.size() == 0) {
-	      if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) isCertifiedLoop = false;
+	  if((nodes[i].nodetreevector.size() > 0) && (nodes[i].nodetreevector.size() == nodeTreeStrings.size())) {
+	      for(int j = 0; j < nodeTreeStrings.size(); j++) {
+		//8/25/11 DEBUG
+		cout << endl << "&&&& NODES &&&&" << endl << myId << " ::: " << j << " ::: " << nodeTreeStrings[j] << endl << "&&&& &&&&" << endl;
+		//
+		if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) {
+		  isCertifiedLoop = false;
+		}
+	      }
 	    }
-	  }
+	    else {
+	      isCertifiedLoop = false;
+	    }
 	  if(isCertifiedLoop) {
 	    actualId = nodes[i].id;
 	    executingIndex = i;
