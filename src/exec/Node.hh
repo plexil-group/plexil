@@ -397,7 +397,7 @@ namespace PLEXIL {
 
     void createChildNodes(const PlexilListBody* body);
 
-    void createLibraryNode(const PlexilNodeId& node);
+    void createLibraryNode();
 
     void testLibraryNodeParameters(const PlexilNodeId& libNode, 
                                    const std::vector<PlexilVarRef*>& interfaceVars,
