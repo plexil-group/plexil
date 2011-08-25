@@ -354,7 +354,7 @@ namespace PLEXIL {
 
     void handleActivate(const bool changed);
     void handleDeactivate(const bool changed);
-    void handleChange(const ExpressionId& expression);
+    virtual void handleChange(const ExpressionId& expression);
 
     class WrapperListener : public ExpressionListener {
     public:
