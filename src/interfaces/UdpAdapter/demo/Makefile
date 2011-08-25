@@ -1,6 +1,6 @@
 # -*- Mode: Makefile -*-
 # File: plexil/src/interfaces/UdpAdapter/demo/Makefile
-# Note: makefile for the UdpAdapter demo
+# Note: Makefile for the UdpAdapter demo
 
 ifeq ($(shell uname),Darwin)
   DYLIB=dylib

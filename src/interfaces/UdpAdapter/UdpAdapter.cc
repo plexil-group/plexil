@@ -158,7 +158,7 @@ namespace PLEXIL
     thread=m_activeThreads.find(msgName.c_str()); // recorded by startUdpMessageReceiver
     assertTrueMsg(thread != m_activeThreads.end(), "UdpAdapter::invokeAbort: no thread found for " << msgName);
     int status = pthread_cancel(thread->second);
-    assertTrueMsg(status == 0, "UdpAdapter::invokeAbort: pthread_join(" << thread->second << ") returned " << status);
+    assertTrueMsg(status == 0, "UdpAdapter::invokeAbort: pthread_cancel(" << thread->second << ") returned " << status);
     debugMsg("UdpAdapter::invokeAbort", " " << msgName.c_str() << " listener thread (" << thread->second << ") cancelled");
     m_activeThreads.erase(thread);
     // Let the exec know that we believe things are cleaned up
@@ -229,7 +229,7 @@ namespace PLEXIL
 //     // if and when a UDP message comes in the fulfill this expectation.
 //     // First arg is message name (which better match one of the defined messages...)
 //     assertTrueMsg(LabelStr::isString(args.front()),
-//                   "UdpAdapter: the first paramater to ReceiveUdpMessage command, "
+//                   "UdpAdapter: the first parameter to ReceiveUdpMessage command, "
 //                   << Expression::valueToString(args.front()) << ", is not a string");
 //     LabelStr command(args.front());
 //     debugMsg("UdpAdapter::executeReceiveUdpCommand", " " << command.c_str() << ", dest==" << dest
@@ -243,7 +243,7 @@ namespace PLEXIL
   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
   {
     // First arg is message name (which better match one of the defined messages...)
-    assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first paramater to SendUdpMessage command, "
+    assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first parameter to SendUdpMessage command, "
                   << Expression::valueToString(args.front()) << ", is not a string");
     // Lookup the appropriate message in the message definitions in m_messages
     LabelStr msgName(args.front());
@@ -419,7 +419,7 @@ namespace PLEXIL
             assertTrueMsg((arg.len > 0),
                           "parseXmlMessageDefinitions: zero length (in bytes) parameter given in <Message name=\""
                           << name << "\"/>");
-            // Do some error checking for reasonble/usable encoding/decoding byte lengths
+            // Do some error checking for reasonable/usable encoding/decoding byte lengths
             if (arg.type.compare("int") == 0)
               {
                 assertTrueMsg((arg.len==2 || arg.len==4),
@@ -435,7 +435,7 @@ namespace PLEXIL
             else if (arg.type.compare("bool") == 0)
               {
                 assertTrueMsg((arg.len==1 || arg.len==2 || arg.len==4),
-                              "parseXmlMessageDefinitions: bools must be 1, 2 or 4 bytes, not " << arg.len
+                              "parseXmlMessageDefinitions: booleans must be 1, 2 or 4 bytes, not " << arg.len
                               << " (in <Message name=\"" << name << "\"/>)");
               }
             // what about strings? -- fixed length to start with I suppose...
@@ -622,8 +622,8 @@ namespace PLEXIL
     int param_count = msg.parameters.size();
     if (skip_arg) param_count++;
     assertTrueMsg((args.size() == param_count),
-                  "the " << param_count << " paramaters defined in the XML configuration file do not match the "
-                  << args.size() << " paramaters used in the plan for <Message name=\"" << msg.name << "\"/>");
+                  "the " << param_count << " parameters defined in the XML configuration file do not match the "
+                  << args.size() << " para-maters used in the plan for <Message name=\"" << msg.name << "\"/>");
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
     for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++, it++)
       {

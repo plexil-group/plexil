@@ -162,7 +162,7 @@ namespace PLEXIL
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
-        perror("inet_aton() returned -1 (peer_host bad IP adress format?)");
+        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
         return -1;
       }
 
@@ -207,7 +207,7 @@ namespace PLEXIL
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
-        perror("inet_aton() returned -1 (peer_host bad IP adress format?)");
+        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
         return -1;
       }
 
