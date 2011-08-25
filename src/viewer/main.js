@@ -53,8 +53,29 @@ function getSetup() {
 
 //build grid top down
 function startUp() {
-	var allTokens = getAndConvertTokens();
+	//8/24/11
+	var data = "data" + myHTMLFilePathString;
+	var error = false;
+	if(localStorage.getItem(data) == null) {
+		var jsonTokens = getAndConvertTokens();
+		try {
+			localStorage.setItem(data, JSON.stringify(jsonTokens));
+		}
+		catch(e) {
+			error = true;
+		}
+	}
+	if(!error) {
+		var content = localStorage.getItem(data);
+		var allTokens = JSON.parse(content);
+	}
+	else {
+		var allTokens = getAndConvertTokens();
+	}
 	showTokens(allTokens);
+	//
+	//var allTokens = getAndConvertTokens();
+	//showTokens(allTokens);
 	drawGrid(); 
 	attachEvents();
 }

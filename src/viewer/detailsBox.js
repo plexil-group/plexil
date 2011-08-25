@@ -180,6 +180,7 @@ function setupFooter(numberOfTokens) {
 									});
 	$('#defaultvals').click(function() {
 								 deleteAllCookies();
+								 localStorage.clear();
 								 window.location.reload();
 								 });
 	$('#customNodes').click(function() {
