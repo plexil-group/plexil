@@ -91,16 +91,14 @@ namespace PLEXIL
    * @brief Default constructor.
    */
   DerivedVariable::DerivedVariable()
-	: Variable(),
-	  m_derid(this, Variable::getId())
+	: Variable()
 	{} 
 
   /**
    * @brief Constructor.
    */
   DerivedVariable::DerivedVariable(const NodeConnectorId& node)
-	: Variable(node),
-	  m_derid(this, Variable::getId())
+	: Variable(node)
   {}
 
 
@@ -109,7 +107,6 @@ namespace PLEXIL
    */
   DerivedVariable::~DerivedVariable()
   {
-	m_derid.removeDerived(Variable::getId());
   }
 
 
@@ -143,7 +140,9 @@ namespace PLEXIL
     check_error(Id<PlexilValue>::convertable(expr));
   }
 
-  VariableImpl::~VariableImpl() {}
+  VariableImpl::~VariableImpl()
+  {
+  }
 
   std::string VariableImpl::toString() const 
   {
