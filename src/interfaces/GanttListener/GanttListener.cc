@@ -301,7 +301,7 @@ namespace PLEXIL
 	  if((nodes[i].nodetreevector.size() > 0) && (nodes[i].nodetreevector.size() == nodeTreeStrings.size())) {
 	      for(int j = 0; j < nodeTreeStrings.size(); j++) {
 		//8/25/11 DEBUG
-		cout << endl << "&&&& NODES &&&&" << endl << myId << " ::: " << j << " ::: " << nodeTreeStrings[j] << endl << "&&&& &&&&" << endl;
+		//cout << endl << "&&&& NODES &&&&" << endl << myId << " ::: " << j << " ::: " << nodeTreeStrings[j] << endl << "&&&& &&&&" << endl;
 		//
 		if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) {
 		  isCertifiedLoop = false;
