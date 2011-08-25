@@ -111,7 +111,7 @@ namespace PLEXIL
 
 	EssentialArrayVariable(const NodeConnectorId& node);
 
-	~EssentialArrayVariable();
+	virtual ~EssentialArrayVariable();
 
 	/**
 	 * @brief Get the maximum size of this array.
@@ -176,16 +176,19 @@ namespace PLEXIL
   {
   public:
 	/**
-	 * @brief Constructor.
+	 * @brief Default constructor.
 	 */
     DerivedVariable();
 
+	/**
+	 * @brief Constructor.
+	 */
     DerivedVariable(const NodeConnectorId& node);
 
 	/**
 	 * @brief Destructor.
 	 */
-    ~DerivedVariable();
+    virtual ~DerivedVariable();
 	
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -194,8 +197,6 @@ namespace PLEXIL
 	 *       from which it is derived have changed.
      */
     virtual void handleChange(const ExpressionId& exp) = 0;
-
-	const Id<DerivedVariable> getId() const { return m_derid; }
     
   protected:
     
@@ -203,8 +204,6 @@ namespace PLEXIL
     // deliberately unimplemented
     DerivedVariable(const DerivedVariable &);
     DerivedVariable & operator=(const DerivedVariable &);
-
-	Id<DerivedVariable> m_derid;
   };
 
   /**
@@ -220,7 +219,7 @@ namespace PLEXIL
      * @brief Constructor.
      * @param exp The expression to be notified of any changes.
      */
-    DerivedVariableListener(const Id<DerivedVariable>& exp)
+    DerivedVariableListener(const ExpressionId& exp)
 	  : ExpressionListener(),
 		m_exp(exp)
 	{}
@@ -243,7 +242,7 @@ namespace PLEXIL
     DerivedVariableListener(const DerivedVariableListener&);
     DerivedVariableListener& operator=(const DerivedVariableListener&);
 
-    Id<DerivedVariable> m_exp; /*<! The destination expression for notifications. */
+    ExpressionId m_exp; /*<! The destination expression for notifications. */
   };
 
   /**
@@ -393,7 +392,7 @@ namespace PLEXIL
 	virtual void reset();
 
   protected:
-    void handleChange(const ExpressionId& expr);
+    virtual void handleChange(const ExpressionId& expr);
     void setWrapped(const VariableId& expr);
 
   private:
