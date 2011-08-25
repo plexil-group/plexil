@@ -141,7 +141,7 @@ namespace PLEXIL
       executeDefaultCommand(name, args, dest, ack); // Command cmd_name (arg1, ...); XXXX
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
+    //debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
   }
 
   // Abort the given command with the given arguments.  Store the abort-complete into dest
@@ -151,16 +151,25 @@ namespace PLEXIL
     assertTrueMsg(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
     assertTrueMsg(LabelStr::isString(cmdArgs.front()), "UdpAdapter: The argument to the ReceiveMessage abort, "
                   << Expression::valueToString(cmdArgs.front()) << ", is not a string");
-    LabelStr msgName(cmdArgs.front());
+    LabelStr msgName(cmdArgs.front()); // The defined message name, needed for looking up the thread and socket
+    int status;                        // The return status of the calls to pthread_cancel() and close()
     debugMsg("UdpAdapter::invokeAbort", " called for " << msgName.c_str() << ", " << dest << ", " << cmdAck);
-    // Find the active thread for this message, cancel and erase it
+    // First, find the active thread for this message, cancel and erase it
     ThreadMap::iterator thread;
     thread=m_activeThreads.find(msgName.c_str()); // recorded by startUdpMessageReceiver
     assertTrueMsg(thread != m_activeThreads.end(), "UdpAdapter::invokeAbort: no thread found for " << msgName);
-    int status = pthread_cancel(thread->second);
+    status = pthread_cancel(thread->second);
     assertTrueMsg(status == 0, "UdpAdapter::invokeAbort: pthread_cancel(" << thread->second << ") returned " << status);
     debugMsg("UdpAdapter::invokeAbort", " " << msgName.c_str() << " listener thread (" << thread->second << ") cancelled");
-    m_activeThreads.erase(thread);
+    m_activeThreads.erase(thread); // erase the cancelled thread
+    // Second, find the open socket for this message and close it
+    SocketMap::iterator socket;
+    socket=m_activeSockets.find(msgName.c_str()); // recorded by startUdpMessageReceiver
+    assertTrueMsg(socket != m_activeSockets.end(), "UdpAdapter::invokeAbort: no socket found for " << msgName);
+    status = close(socket->second);
+    assertTrueMsg(status == 0, "UdpAdapter::invokeAbort: close(" << socket->second << ") returned " << status);
+    debugMsg("UdpAdapter::invokeAbort", " " << msgName.c_str() << " socket (" << socket->second << ") closed");
+    m_activeSockets.erase(socket); // erase the closed socket
     // Let the exec know that we believe things are cleaned up
     m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmdAck);
     m_execInterface.handleValueChange(dest, BooleanVariable::TRUE());
@@ -483,6 +492,7 @@ namespace PLEXIL
   // Start a UDP Message Handler for a node waiting on a UDP message
   int UdpAdapter::startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack)
   {
+    //ThreadMutexGuard guard(m_cmdMutex);
     debugMsg("UdpAdapter::startUdpMessageReceiver",
              " entered for " << name.toString() << ", dest==" << dest << ", ack==" << ack);
     // Find the message definition to get the message port and size
@@ -495,32 +505,38 @@ namespace PLEXIL
                   "startUdpMessageReceiver: bad local port (0) given for " << name.c_str() << " message");
     msg->second.name = name.c_str();
     msg->second.self = (void*) this; // pass a reference to "this" UdpAdapter for later use
+    // Try to set up the socket so that we can close it later if the thread is cancelled
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    assertTrueMsg(sock > 0, "UdpAdapter::startUdpMessageReceiver: call to socket() failed");
+    msg->second.sock = sock; // pass the socket descriptor to waitForUdpMessage, which will then reset it
     pthread_t thread_handle;
-    // Set up the receiver.  This needs to be wrapped in a further layer I think.
+    // Spawn the listener thread
     threadSpawn((THREAD_FUNC_PTR) waitForUdpMessage, &msg->second, thread_handle);
-    // Check to see if the thread got started
+    // Check to see if the thread got started correctly
     assertTrueMsg(thread_handle != 0, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
     debugMsg("UdpAdapter::startUdpMessageReceiver",
              " " << name.toString() << " listener thread (" << thread_handle << ") spawned");
-    // Record the thread in case it has to be cancelled later (in invokeAbort)
+    // Record the thread and socket in case they have to be cancelled and closed later (in invokeAbort)
     m_activeThreads[name.c_str()]=thread_handle;
+    m_activeSockets[name.c_str()]=sock;
     return 0;
   }
 
-  void* UdpAdapter::waitForUdpMessage(const UdpMessage* msg)
+  void* UdpAdapter::waitForUdpMessage(UdpMessage* msg)
   {
     debugMsg("UdpAdapter::waitForUdpMessage", " called for " << msg->name);
     // A pointer to the adapter
     UdpAdapter* udpAdapter = reinterpret_cast<UdpAdapter*>(msg->self);
-    int local_port = msg->local_port;
+    //int local_port = msg->local_port;
     size_t size = msg->len;
     udp_thread_params params;
-    params.local_port = local_port;
+    params.local_port = msg->local_port;
     params.buffer = new unsigned char[size];
     params.size = size;
     params.debug = udpAdapter->m_debug; // see if debugging is enabled
+    params.sock = msg->sock; // The socket opened in startUdpMessageReceiver
+    msg->sock = 0;           // Reset the temporary socket descriptor in the UdpMessage
     udp_thread_params* param_ptr = &params;
-    //debugMsg("UdpAdapter::waitForUdpMessage", " params: " << params.local_port << ", " << params.size);
     int status = wait_for_input_on_thread(&params);
     assertTrueMsg(status==0, "waitForUdpMessage call to wait_for_input_on_thread returned " << status);
     // When the message has been received, tell the UdpAdapter about it and its contents

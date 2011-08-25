@@ -235,11 +235,11 @@ namespace PLEXIL
   int wait_for_input_on_thread(udp_thread_params* params)
   {
     int status;
-    status = wait_for_input(params->local_port, params->buffer, params->size, params->debug);
+    status = wait_for_input(params->local_port, params->buffer, params->size, params->sock, params->debug);
     return status;
   }
 
-  int wait_for_input(int local_port, unsigned char* buffer, size_t size, bool debug)
+  int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
   {
     if (debug) printf("  wait_for_input(%d, buffer, %d) called\n", local_port, (int) size);
     // Set up an appropriate local address (port)
@@ -251,13 +251,10 @@ namespace PLEXIL
     // Set up the storage for the peer address
     struct sockaddr_in peer_addr = {};
     memset((char *) &peer_addr, 0, sizeof(peer_addr));
-
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock < 0)
-      {
-        perror("socket() returned -1");
-        return sock;
-      }
+    // Since the socket must be closed by the thread which spawned this thread, socket creating has
+    // moved up to UdpAdapter::startUdpMessageReceiver
+    // int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    // if (sock < 0) { perror("socket() returned -1"); return sock; }
 
     // Bind to the socket
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));

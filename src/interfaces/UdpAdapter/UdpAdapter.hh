@@ -30,12 +30,14 @@ namespace PLEXIL
     int local_port;                  // local port on which to receive
     std::string peer;                // peer to which to send
     int peer_port;                   // port to which to send
+    int sock;                        // socket to use -- only meaningful in call to waitForUdpMessage
     void* self;                      // reference to the UdpAdapter for use in message decoding
-    UdpMessage() : name(), len(0), parameters(), peer(""), local_port(0), peer_port(0), self(NULL) {}
+    UdpMessage() : name(), len(0), parameters(), peer(""), local_port(0), peer_port(0), sock(0), self(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
   typedef std::map<std::string, pthread_t> ThreadMap;
+  typedef std::map<std::string, int> SocketMap;
 
   class UdpAdapter : public InterfaceAdapter
   {
@@ -91,6 +93,7 @@ namespace PLEXIL
     MessageMap m_messages;
     MessageQueueMap m_messageQueues;
     ThreadMap m_activeThreads;
+    SocketMap m_activeSockets;
 
   private:
     // Deliberately unimplemented
@@ -122,7 +125,7 @@ namespace PLEXIL
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
-    static void* waitForUdpMessage(const UdpMessage* msg);
+    static void* waitForUdpMessage(UdpMessage* msg);
     int handleUdpMessage(const UdpMessage* msg, const unsigned char* buffer, bool debug=false);
     double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
     double formatMessageName(const LabelStr& name, const LabelStr& command);
