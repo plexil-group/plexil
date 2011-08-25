@@ -9,11 +9,6 @@
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"    // initUdpAdapter
 
-//#include "Error.hh"
-//#include "PlexilXmlParser.h"
-//#include "ExecListenerFactory.hh"
-
-// for UdpAdapter constructor
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif
@@ -52,11 +47,8 @@ namespace PLEXIL
     debugMsg("UdpAdapter::initialize", " called");
     // Parse the message definitions in the XML configuration
     const TiXmlElement* xml = this->getXml();
-    // debugMsg("UdpAdapter::initialize", " xml = " << *xml);
     // parse the XML message definitions
     parseXmlMessageDefinitions(xml); // also calls registerCommandInterface for each message
-    //this->registerAdapter();
-    //m_execInterface.defaultRegisterAdapter(getId());
     if (m_debug) printMessageDefinitions();
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
@@ -79,7 +71,7 @@ namespace PLEXIL
   // Stop method
   bool UdpAdapter::stop()
   {
-    debugMsg("UdpAdapter::stop()", " called");
+    debugMsg("UdpAdapter::stop", " called");
     // Stop the UDP listener thread
     return true;
   }
@@ -87,14 +79,14 @@ namespace PLEXIL
   // Reset method
   bool UdpAdapter::reset()
   {
-    debugMsg("UdpAdapter::reset()", " called");
+    debugMsg("UdpAdapter::reset", " called");
     return true;
   }
 
   // Shutdown method
   bool UdpAdapter::shutdown()
   {
-    debugMsg("UdpAdapter::shutdown()", " called");
+    debugMsg("UdpAdapter::shutdown", " called");
     return true;
   }
 
@@ -102,36 +94,29 @@ namespace PLEXIL
                                         const StateKey& /* stateKey */,
                                         const std::vector<double>& /* tolerances */)
   {
-    debugMsg("UdpAdapter::registerChangeLookup(Lookupkey, Statekey, tolerances)", " called");
+    debugMsg("UdpAdapter::registerChangeLookup", " called");
     debugMsg("ExternalInterface:udp", " registerChangeLookup called");
   }
 
   void UdpAdapter::unregisterChangeLookup(const LookupKey& /* uniqueId */)
   {
-    debugMsg("UdpAdapter::unregisterChangeLookup(LookupKey)", " called");
+    debugMsg("UdpAdapter::unregisterChangeLookup", " called");
     debugMsg("ExternalInterface:udp", " unregisterChangeLookup called");
   }
 
-  void UdpAdapter::lookupNow(const StateKey& /* key */,
-                             std::vector<double>& dest)
+  void UdpAdapter::lookupNow(const StateKey& /* key */, std::vector<double>& dest)
   {
-    debugMsg("UdpAdapter::lookupNow(StateKey, dest)", " called");
+    debugMsg("UdpAdapter::lookupNow", " called");
     debugMsg("ExternalInterface:udp", " lookupNow called; returning UNKNOWN");
     dest[0] = Expression::UNKNOWN();
   }
 
-  void UdpAdapter::sendPlannerUpdate(const NodeId& node,
-                                     const std::map<double, double>& /* valuePairs */,
-                                     ExpressionId ack)
+  void UdpAdapter::sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack)
   {
-    debugMsg("UdpAdapter::sendPlannerUpdate(node, valuePairs, ack)", " called");
+    debugMsg("UdpAdapter::sendPlannerUpdate", " called");
     debugMsg("ExternalInterface:udp", " sendPlannerUpdate called");
-
     // acknowledge updates
-    debugMsg("ExternalInterface:udp",
-	     " faking acknowledgment of update node '"
-	     << node->getNodeId().toString()
-	     << "'");
+    debugMsg("ExternalInterface:udp", " faking acknowledgment of update node '" << node->getNodeId().toString() << "'");
     m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
     m_execInterface.notifyOfExternalEvent();
   }
@@ -159,12 +144,26 @@ namespace PLEXIL
     debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
   }
 
-  //abort the given command with the given arguments.  store the abort-complete into dest
-  void UdpAdapter::invokeAbort(const LabelStr&, const std::list<double>&, ExpressionId, ExpressionId ack)
+  // Abort the given command with the given arguments.  Store the abort-complete into dest
+  void UdpAdapter::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId dest, ExpressionId cmdAck)
   {
-    debugMsg("UdpAdapter::invokeAbort(name, args, dest, ack)", " called");
-    debugMsg("ExternalInterface:udp", " invokeAbort called");
-    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
+    assertTrueMsg(cmdName == RECEIVE_COMMAND_COMMAND(), "UdpAdapter: Only ReceiveCommand commands can be aborted");
+    assertTrueMsg(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
+    assertTrueMsg(LabelStr::isString(cmdArgs.front()), "UdpAdapter: The argument to the ReceiveMessage abort, "
+                  << Expression::valueToString(cmdArgs.front()) << ", is not a string");
+    LabelStr msgName(cmdArgs.front());
+    debugMsg("UdpAdapter::invokeAbort", " called for " << msgName.c_str() << ", " << dest << ", " << cmdAck);
+    // Find the active thread for this message, cancel and erase it
+    ThreadMap::iterator thread;
+    thread=m_activeThreads.find(msgName.c_str()); // recorded by startUdpMessageReceiver
+    assertTrueMsg(thread != m_activeThreads.end(), "UdpAdapter::invokeAbort: no thread found for " << msgName);
+    int status = pthread_cancel(thread->second);
+    assertTrueMsg(status == 0, "UdpAdapter::invokeAbort: pthread_join(" << thread->second << ") returned " << status);
+    debugMsg("UdpAdapter::invokeAbort", " " << msgName.c_str() << " listener thread (" << thread->second << ") cancelled");
+    m_activeThreads.erase(thread);
+    // Let the exec know that we believe things are cleaned up
+    m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmdAck);
+    m_execInterface.handleValueChange(dest, BooleanVariable::TRUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -173,7 +172,10 @@ namespace PLEXIL
   //
 
   // Default UDP command handler
-  void UdpAdapter::executeDefaultCommand(const LabelStr& msgName, const std::list<double>& args, ExpressionId dest, ExpressionId ack)
+  void UdpAdapter::executeDefaultCommand(const LabelStr& msgName,
+                                         const std::list<double>& args,
+                                         ExpressionId dest,
+                                         ExpressionId ack)
   {
     debugMsg("UdpAdapter::executeDefaultCommand", " called for \"" << msgName.c_str() << "\" with " << args.size() << " args");
     ThreadMutexGuard guard(m_cmdMutex);
@@ -241,8 +243,7 @@ namespace PLEXIL
   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
   {
     // First arg is message name (which better match one of the defined messages...)
-    assertTrueMsg(LabelStr::isString(args.front()),
-                  "UdpAdapter: the first paramater to SendUdpMessage command, "
+    assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first paramater to SendUdpMessage command, "
                   << Expression::valueToString(args.front()) << ", is not a string");
     // Lookup the appropriate message in the message definitions in m_messages
     LabelStr msgName(args.front());
@@ -274,8 +275,7 @@ namespace PLEXIL
                   "UdpAdapter: The " << GET_PARAMETER_COMMAND().c_str() << " command requires either one or two arguments");
     assertTrueMsg(LabelStr::isString(args.front()),
                   "UdpAdapter: The first argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, "
-                  << Expression::valueToString(args.front())
-                  << ", is not a string");
+                  << Expression::valueToString(args.front()) << ", is not a string");
     debugMsg("UdpAdapter::executeGetParameterCommand",
              " " << LabelStr(args.front()).c_str() << ", dest==" << dest << ", ack==" << ack);
     // Extract the message name and try to verify the number of parameters defined vs the number of args used
@@ -336,7 +336,6 @@ namespace PLEXIL
                   << ", is not a string");
     LabelStr theMessage(args.front());
     debugMsg("UdpAdapter::executeSendMessageCommand", " SendMessage(\"" << theMessage.c_str() << "\")");
-    //assertTrue(m_ipcFacade.publishMessage(theMessage) != IpcFacade::ERROR_SERIAL(), "Message publish failed");
     // store ack
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
     m_execInterface.notifyOfExternalEvent();
@@ -501,8 +500,10 @@ namespace PLEXIL
     threadSpawn((THREAD_FUNC_PTR) waitForUdpMessage, &msg->second, thread_handle);
     // Check to see if the thread got started
     assertTrueMsg(thread_handle != 0, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
-    //msg->second.thread = thread_handle; // record the thread
-    debugMsg("UdpAdapter::startUdpMessageReceiver", " for " << name.toString() << " done");
+    debugMsg("UdpAdapter::startUdpMessageReceiver",
+             " " << name.toString() << " listener thread (" << thread_handle << ") spawned");
+    // Record the thread in case it has to be cancelled later (in invokeAbort)
+    m_activeThreads[name.c_str()]=thread_handle;
     return 0;
   }
 
@@ -553,7 +554,8 @@ namespace PLEXIL
         const LabelStr& param_label(formatMessageName(msg_label, GET_PARAMETER_COMMAND(), i));
         int len = param->len;   // number of bytes to read
         std::string type = param->type; // type to decode
-        if (debug) std::cout << "  handleUdpMessage: decoding " << len << " byte " << type << " starting at " << offset << std::endl;
+        if (debug) std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
+                             << " starting at " << offset << std::endl;
         if (type.compare("int") == 0)
           {
             assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
@@ -623,10 +625,8 @@ namespace PLEXIL
                   "the " << param_count << " paramaters defined in the XML configuration file do not match the "
                   << args.size() << " paramaters used in the plan for <Message name=\"" << msg.name << "\"/>");
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
-    //for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(), it != args.end(); param++, it++)
     for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++, it++)
       {
-        //it++; // Plexil adds the "command name" to the args of commands, so we must carefully skip it here XXXX
         if (skip_arg) { it++; skip_arg = false; } // only skip the first arg
         int len = param->len;
         std::string type = param->type;
@@ -689,7 +689,7 @@ namespace PLEXIL
 
   void UdpAdapter::printMessageContent(const LabelStr& name, const std::list<double>& args)
   {
-    //debugMsg("UdpAdapter::printMessageContent", " args.size() == " << args.size());
+    // Print the content of a message
     std::list<double>::const_iterator it;
     std::cout << "Message: " << name.c_str() << ", Params:";
     for (it=args.begin(); it != args.end(); it++)

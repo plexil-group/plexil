@@ -1,6 +1,6 @@
 # -*- Mode: Makefile -*-
-# File: plexil/examples/multi-exec/agents/makefile
-# Note: makefile for the test multi-agent applications
+# File: plexil/src/interfaces/UdpAdapter/demo/Makefile
+# Note: makefile for the UdpAdapter demo
 
 ifeq ($(shell uname),Darwin)
   DYLIB=dylib
@@ -15,6 +15,10 @@ include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
 demo: ../UdpAdapter.$(DYLIB)
 	@echo ' '
 	$(RUN_AGENTS) $(OPTS) test-recv -c udp test-send -c udp
+
+timeout: ../UdpAdapter.$(DYLIB) test-recv.plx
+	@echo ' '
+	plexilexec -p test-recv.plx -c udp.xml
 
 ../UdpAdapter.$(DYLIB):
 	$(MAKE) -C ../

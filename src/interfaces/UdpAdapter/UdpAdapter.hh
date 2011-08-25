@@ -12,7 +12,6 @@ class TiXmlElement;             // Forward references (w/o namespace)
 
 namespace PLEXIL
 {
-  //void* waitForUdpMessage(udp_thread_params* params);
 
   class Parameter
   {
@@ -36,6 +35,7 @@ namespace PLEXIL
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
+  typedef std::map<std::string, pthread_t> ThreadMap;
 
   class UdpAdapter : public InterfaceAdapter
   {
@@ -76,23 +76,24 @@ namespace PLEXIL
     void unregisterChangeLookup(const LookupKey& uniqueId);
     void lookupNow(const StateKey& stateKey, std::vector<double>& dest);
     void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
-    // executes a command with the given arguments
+    // Executes a command with the given arguments
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    // abort the given command with the given arguments.  store the abort-complete into ack
+    // Abort the given command with the given arguments.  Store the abort-complete into ack
     void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
     ThreadMutex m_cmdMutex;
-    bool m_debug; // show debugging output
+    bool m_debug; // Show debugging output
 
-    // somewhere to hang the messages and default ports
+    // Somewhere to hang the messages and default ports
     int m_default_local_port;
     int m_default_peer_port;
     std::string m_default_peer;
     MessageMap m_messages;
     MessageQueueMap m_messageQueues;
+    ThreadMap m_activeThreads;
 
   private:
-    // deliberately unimplemented
+    // Deliberately unimplemented
     UdpAdapter();
     UdpAdapter(const UdpAdapter &);
     UdpAdapter& operator=(const UdpAdapter &);
@@ -113,7 +114,11 @@ namespace PLEXIL
     //
     void parseXmlMessageDefinitions(const TiXmlElement* xml);
     void printMessageDefinitions();
-    int buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::list<double>& args, bool skip_arg=false, bool debug=false);
+    int buildUdpBuffer(unsigned char* buffer,
+                       const UdpMessage& msg,
+                       const std::list<double>& args,
+                       bool skip_arg=false,
+                       bool debug=false);
     void printMessageContent(const LabelStr& name, const std::list<double>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);

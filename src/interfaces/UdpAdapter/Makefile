@@ -52,6 +52,11 @@ all: $(TARGETS)
 $(TARGETS): $(OBJECTS)
 	$(CC) -Wall $@.cc -o $@ $^ -lstdc++ -lPlexilUtils -ltinyxml -I../../utils -L../../utils -L../../../lib
 
+demo:
+	$(MAKE) -C demo demo
+
 cleaner: clean
 	$(RM) $(TARGETS) *.o
 	$(MAKE) -C demo cleaner
+
+.PHONY : demo
