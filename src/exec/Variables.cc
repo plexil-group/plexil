@@ -467,8 +467,7 @@ namespace PLEXIL
   {
     check_error(m_arrayVariable.isValid());
     m_arrayVariable->removeListener(m_listener.getId());
-    if (m_deleteIndex)
-      {
+    if (m_deleteIndex) {
         check_error(m_index.isValid());
         m_index->removeListener(m_listener.getId());
       }
