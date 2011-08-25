@@ -412,7 +412,7 @@ namespace PLEXIL {
     void unlockConditions();
 
     void cleanUpConditions();
-
+	void cleanUpNodeBody();
     void cleanUpVars();
 
     const VariableId& getInternalVariable(const LabelStr& name) const;
@@ -470,7 +470,6 @@ namespace PLEXIL {
 		 I'll stick all variables in here, just to be safe.*/
 	std::vector<double>* m_sortedVariableNames;
     std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
-    std::set<double> m_garbage; /*<! Expression names (conditions, internal variables, timepoint variables) to be cleaned up. */
     std::set<unsigned int> m_garbageConditions; /*<! Indices of conditions to be cleaned up. */
     ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
     ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
