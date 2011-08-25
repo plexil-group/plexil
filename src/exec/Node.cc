@@ -271,16 +271,21 @@ namespace PLEXIL {
       m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
   }
 
-  // FIXME: Doesn't seem to delete local variables, command, update, or assignment
   Node::~Node() {
 	delete m_sortedVariableNames;
     delete (RealNodeConnector*) m_connector;
-    cleanUpConditions();
-    cleanUpVars();
 
+	// Remove anything that refers to variables, either ours or another node's
+    cleanUpConditions();
+	cleanUpNodeBody();
+
+	// Delete children
     for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
       delete (Node*) (*it);
     }
+
+	// NOW safe to delete variables
+    cleanUpVars();
 
     m_id.remove();
   }
@@ -318,20 +323,26 @@ namespace PLEXIL {
       m_conditions[*it] = ExpressionId::noId();
     }
 
-    if(m_assignment.isValid()) {
+    m_cleanedConditions = true;
+  }
+
+  void Node::cleanUpNodeBody()
+  {
+    if (m_assignment.isId()) {
       debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing assignment.");
       delete (Assignment*) m_assignment;
+	  m_assignment = AssignmentId::noId();
     }
-    if(m_command.isValid()) {
+    if(m_command.isId()) {
       debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing command.");
       delete (Command*) m_command;
+	  m_command = CommandId::noId();
     }
-    if(m_update.isValid()) {
+    if(m_update.isId()) {
       debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing update.");
       delete (Update*) m_update;
+	  m_update = UpdateId::noId();
     }
-
-    m_cleanedConditions = true;
   }
 
   void Node::cleanUpVars() {
@@ -342,18 +353,16 @@ namespace PLEXIL {
 
 	debugMsg("Node:cleanUpVars", " for " << m_nodeId.toString());
 
-	// Delete user-spec'd variables
-    for (std::set<double>::iterator it = m_garbage.begin(); it != m_garbage.end(); ++it) {
-      if (m_variablesByName.find(*it) != m_variablesByName.end()) {
-		debugMsg("Node:cleanUpVars",
-				 "<" << m_nodeId.toString() << "> Removing " << LabelStr(*it).toString());
-		delete (Variable*) m_variablesByName.find(*it)->second;
-		m_variablesByName.erase(*it);
-      }
-    }
-
 	// Clear map
 	m_variablesByName.clear();
+
+	// Delete user-spec'd variables
+    for (std::vector<VariableId>::iterator it = m_localVariables.begin(); it != m_localVariables.end(); ++it) {
+	  debugMsg("Node:cleanUpVars",
+			   "<" << m_nodeId.toString() << "> Removing " << ((VariableImpl*)(*it))->getName());
+	  delete (Variable*) (*it);
+    }
+	m_localVariables.clear();
 
 	// Delete timepoint variables
 	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
@@ -581,6 +590,9 @@ namespace PLEXIL {
 										state->nameExpr(), 
 										m_connector,
 										nameIsGarbage);
+	if (nameIsGarbage)
+	  garbage.push_back(nameExpr);
+
     LabelStr name(nameExpr->getValue());
     std::list<ExpressionId> args;
     for(std::vector<PlexilExprId>::const_iterator it = state->args().begin();
@@ -791,6 +803,7 @@ namespace PLEXIL {
 	  if (m_garbageConditions.find(condIdx) != m_garbageConditions.end()) {
 		m_conditions[condIdx]->removeListener(m_listeners[condIdx]);
 		delete (Expression*) m_conditions[condIdx];
+		m_garbageConditions.erase(condIdx);
 	  }
 	  ExpressionId expr = ExpressionId::noId();
 	  if(Id<PlexilVarRef>::convertable(it->second)) {
@@ -1137,6 +1150,7 @@ namespace PLEXIL {
 				 << alias->toString()
 				 << " as '" << varRef->name()
 				 << "'"); 
+		m_localVariables.push_back(alias);
 		m_variablesByName[LabelStr(varRef->name())] = alias;
       }
       
@@ -1161,17 +1175,13 @@ namespace PLEXIL {
    }
 
   void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
-    for(std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it)
-    {
-       // get the variable name
-
+    for (std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it) {
+	  // get the variable name
 	  const std::string& name = (*it)->name();
 	  LabelStr nameLabel(name);
 
        // if it's an array, make me an array
-       
-       if (Id<PlexilArrayVar>::convertable((*it)->getId()))
-       {
+       if (Id<PlexilArrayVar>::convertable((*it)->getId())) {
           PlexilValue* value = (*it)->value();
           VariableId varId =
 			(VariableId)
@@ -1189,10 +1199,9 @@ namespace PLEXIL {
                    << varId->toString()  << " as '"
 				   << name << "'");
        }
-       // otherwise create a non-array variable
 
-       else
-       {
+       // otherwise create a non-array variable
+       else {
           PlexilValue* value = (*it)->value();
           VariableId varId =
 			(VariableId)
@@ -1807,8 +1816,9 @@ namespace PLEXIL {
   Command::~Command() {
     for (std::vector<ExpressionId>::const_iterator it = m_garbage.begin();
 		 it != m_garbage.end();
-		 ++it)
+		 ++it) {
       delete (Expression*) (*it);
+	}
     m_id.remove();
   }
 
@@ -1898,7 +1908,7 @@ namespace PLEXIL {
 
   Assignment::~Assignment() {
     if(m_deleteLhs)
-      delete (Expression*) m_lhs;
+      delete (Variable*) m_lhs;
     if(m_deleteRhs)
       delete (Expression*) m_rhs;
     m_id.remove();
