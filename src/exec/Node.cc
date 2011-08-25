@@ -263,7 +263,7 @@ namespace PLEXIL {
       ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
       m_conditions[i] = expr;
       expr->addListener(m_listeners[i]);
-      m_garbageConditions.insert(i);
+      m_garbageConditions[i] = true;
     }
     if (m_nodeType == COMMAND())
       m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
@@ -314,14 +314,14 @@ namespace PLEXIL {
       (*it)->cleanUpConditions();
 
     // Clean up conditions
-    for (std::set<unsigned int>::iterator it = m_garbageConditions.begin();
-		 it != m_garbageConditions.end();
-		 ++it) {
-      debugMsg("Node:cleanUpConds",
-			   "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(*it).toString());
-      delete (Expression*) m_conditions[*it];
-      m_conditions[*it] = ExpressionId::noId();
-    }
+    for (unsigned int i = 0; i < conditionIndexMax; i++) {
+      if (m_garbageConditions[i]) {
+		debugMsg("Node:cleanUpConds",
+				 "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(i).toString());
+		delete (Expression*) m_conditions[i];
+		m_conditions[i] = ExpressionId::noId();
+	  }
+	}
 
     m_cleanedConditions = true;
   }
@@ -416,9 +416,11 @@ namespace PLEXIL {
     }
 
 	// construct condition listeners (but not conditions)
-	for (int i = 0; i < conditionIndexMax; i++) {
+	// and initialize m_garbageConditions
+	for (size_t i = 0; i < conditionIndexMax; i++) {
 	  m_listeners[i] = 
 		(new ConditionChangeListener(m_id, ALL_CONDITIONS()[i]))->getId();
+	  m_garbageConditions[i] = false;
 	}
   }
 
@@ -448,7 +450,7 @@ namespace PLEXIL {
 	  ExpressionListenerId parentExecutingListener = m_listeners[parentExecutingIdx];
 	  parentExecuting->addListener(parentExecutingListener);
 	  m_conditions[parentExecutingIdx] = parentExecuting;
-	  m_garbageConditions.insert(parentExecutingIdx);
+	  m_garbageConditions[parentExecutingIdx] = true;
 
 	  ExpressionId parentWaiting =
 		(new Equality(m_parent->getStateVariable(),
@@ -456,7 +458,7 @@ namespace PLEXIL {
 	  ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
 	  parentWaiting->addListener(parentWaitingListener);
 	  m_conditions[parentWaitingIdx] = parentWaiting;
-	  m_garbageConditions.insert(parentWaitingIdx);
+	  m_garbageConditions[parentWaitingIdx] = true;
 
 	  ExpressionId parentFinished =
 		(new Equality(m_parent->getStateVariable(),
@@ -464,7 +466,7 @@ namespace PLEXIL {
 	  ExpressionListenerId parentFinishedListener = m_listeners[parentFinishedIdx];
 	  parentFinished->addListener(parentFinishedListener);
 	  m_conditions[parentFinishedIdx] = parentFinished;
-	  m_garbageConditions.insert(parentFinishedIdx);
+	  m_garbageConditions[parentFinishedIdx] = true;
 	}
 	else {
 	  // Dummies for root node
@@ -774,7 +776,7 @@ namespace PLEXIL {
 	  // Replace default ancestor invariant condition with real one
 	  ancestorInvariant->addListener(ancestorInvariantListener);
 	  m_conditions[ancestorInvariantIdx] = ancestorInvariant;
-	  m_garbageConditions.insert(ancestorInvariantIdx);
+	  m_garbageConditions[ancestorInvariantIdx] = true;;
 
 	  ExpressionId ancestorEnd =
 		(new Disjunction((new TransparentWrapper(m_parent->getCondition(ANCESTOR_END_CONDITION()),
@@ -787,7 +789,7 @@ namespace PLEXIL {
 	  // Replace default ancestor end condition with real one
 	  ancestorEnd->addListener(ancestorEndListener);
 	  m_conditions[ancestorEndIdx] = ancestorEnd;
-	  m_garbageConditions.insert(ancestorEndIdx);
+	  m_garbageConditions[ancestorEndIdx] = true;
 
 	}
 
@@ -800,10 +802,10 @@ namespace PLEXIL {
 
 	  // Delete existing condition if required
 	  // (e.g. explicit override of default end condition for list or library call node)
-	  if (m_garbageConditions.find(condIdx) != m_garbageConditions.end()) {
+	  if (m_garbageConditions[condIdx]) {
 		m_conditions[condIdx]->removeListener(m_listeners[condIdx]);
 		delete (Expression*) m_conditions[condIdx];
-		m_garbageConditions.erase(condIdx);
+		m_garbageConditions[condIdx] = false;
 	  }
 	  ExpressionId expr = ExpressionId::noId();
 	  if(Id<PlexilVarRef>::convertable(it->second)) {
@@ -813,7 +815,7 @@ namespace PLEXIL {
 		expr = ExpressionFactory::createInstance(it->second->name(), 
 												 it->second,
 												 m_connector);
-		m_garbageConditions.insert(condIdx);
+		m_garbageConditions[condIdx] = true;
 	  }
 	  ExpressionListenerId condListener = m_listeners[condIdx];
 	  m_conditions[condIdx] = expr;
@@ -834,12 +836,12 @@ namespace PLEXIL {
 	  ExpressionId conjunctCondition = (new Conjunction((new IsKnown(m_ack))->getId(),
 														true, 
 														m_conditions[endIdx],
-														m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
+														m_garbageConditions[endIdx]))->getId();
 	  ExpressionId realEndCondition =
 		(new Disjunction(interruptEndCond, true, conjunctCondition, true))->getId();
 	  realEndCondition->addListener(m_listeners[endIdx]);
 	  m_conditions[endIdx] = realEndCondition;
-	  m_garbageConditions.insert(endIdx);
+	  m_garbageConditions[endIdx] = true;
           
 	  // Listen to any change in the command handle so that the internal variable 
 	  // CommandHandleVariable can be updated
@@ -847,7 +849,7 @@ namespace PLEXIL {
 	  commandHandleCondition->ignoreCachedValue();
 	  commandHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
 	  m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
-	  m_garbageConditions.insert(commandHandleReceivedIdx);
+	  m_garbageConditions[commandHandleReceivedIdx] = true;
 	}
 	else if (m_nodeType == ASSIGNMENT() || m_nodeType == UPDATE()) {
 	  // Construct real end condition
@@ -857,10 +859,10 @@ namespace PLEXIL {
 		(new Conjunction(m_ack,
 						 false, 
 						 m_conditions[endIdx],
-						 m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
+						 m_garbageConditions[endIdx]))->getId();
 	  realEndCondition->addListener(m_listeners[endIdx]);
 	  m_conditions[endIdx] = realEndCondition;
-	  m_garbageConditions.insert(endIdx);
+	  m_garbageConditions[endIdx] = true;
 	}
   }
 
@@ -888,13 +890,13 @@ namespace PLEXIL {
     ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
     cond->addListener(listener);
     m_conditions[childrenWaitingOrFinishedIdx] = cond;
-    m_garbageConditions.insert(childrenWaitingOrFinishedIdx);
+    m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
 
     ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
     listener = m_listeners[endIdx];
     endCond->addListener(listener);
     m_conditions[endIdx] = endCond;
-    m_garbageConditions.insert(endIdx);
+    m_garbageConditions[endIdx] = true;
   }
 
   // Check aliases against interfaceVars.
@@ -1100,13 +1102,13 @@ namespace PLEXIL {
       ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
       cond->addListener(listener);
       m_conditions[childrenWaitingOrFinishedIdx] = cond;
-      m_garbageConditions.insert(childrenWaitingOrFinishedIdx);
+      m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
 
       ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
       listener = m_listeners[endIdx];
       endCond->addListener(listener);
       m_conditions[endIdx] = endCond;
-      m_garbageConditions.insert(endIdx);    
+      m_garbageConditions[endIdx] = true;
    }
 
    void Node::getVarsFromInterface(const PlexilInterfaceId& intf)

@@ -470,7 +470,6 @@ namespace PLEXIL {
 		 I'll stick all variables in here, just to be safe.*/
 	std::vector<double>* m_sortedVariableNames;
     std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
-    std::set<unsigned int> m_garbageConditions; /*<! Indices of conditions to be cleaned up. */
     ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
     ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
     VariableId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
@@ -486,6 +485,7 @@ namespace PLEXIL {
     double m_priority; /*<! The priority of this node */
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
+	bool m_garbageConditions[conditionIndexMax]; /*<! Flags for conditions to delete. */
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
   };
 
