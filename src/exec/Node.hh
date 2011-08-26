@@ -365,6 +365,7 @@ namespace PLEXIL {
 
     // N.B.: These need to match the order of ALL_CONDITIONS()
     enum {
+	  // User specified conditions
       skipIdx = 0,
       startIdx,
       endIdx,
@@ -372,13 +373,16 @@ namespace PLEXIL {
       preIdx,
       postIdx,
       repeatIdx,
+	  // Internal conditions for all nodes
       ancestorInvariantIdx,
       ancestorEndIdx,
       parentExecutingIdx,
-      childrenWaitingOrFinishedIdx,
-      abortCompleteIdx,
       parentWaitingIdx,
       parentFinishedIdx,
+	  // Only for list or library call nodes
+      childrenWaitingOrFinishedIdx,
+	  // Only for command nodes
+      abortCompleteIdx,
       commandHandleReceivedIdx,
 
       conditionIndexMax

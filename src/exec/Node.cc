@@ -55,6 +55,7 @@ namespace PLEXIL {
       {
 		// *** N.B.: Order MUST agree with enum conditionIndex!
 		sl_allConds = new std::vector<double>();
+		// User specified conditions
 		sl_allConds->push_back(SKIP_CONDITION());
 		sl_allConds->push_back(START_CONDITION());
 		sl_allConds->push_back(END_CONDITION());
@@ -62,13 +63,16 @@ namespace PLEXIL {
 		sl_allConds->push_back(PRE_CONDITION());
 		sl_allConds->push_back(POST_CONDITION());
 		sl_allConds->push_back(REPEAT_CONDITION());
+		// Internal conditions for all nodes
 		sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
 		sl_allConds->push_back(ANCESTOR_END_CONDITION());
 		sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
-		sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
-		sl_allConds->push_back(ABORT_COMPLETE());
 		sl_allConds->push_back(PARENT_WAITING_CONDITION());
 		sl_allConds->push_back(PARENT_FINISHED_CONDITION());
+		// Only for list or library call nodes
+		sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
+		// Only for command nodes
+		sl_allConds->push_back(ABORT_COMPLETE());
 		sl_allConds->push_back(COMMAND_HANDLE_RECEIVED_CONDITION());
 		// inexpensive sanity check
 		assertTrue(sl_allConds->size() == conditionIndexMax,
@@ -259,9 +263,9 @@ namespace PLEXIL {
 
 	// N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
     bool values[conditionIndexMax] =
-	  {skip, start, end, invariant, pre, post, repeat, ancestorInvariant,
-	   ancestorEnd, parentExecuting, childrenFinished, commandAbort,
-	   parentWaiting, parentFinished, cmdHdlRcvdCondition};
+	  {skip, start, end, invariant, pre, post, repeat,
+	   ancestorInvariant, ancestorEnd, parentExecuting, parentWaiting, parentFinished, 
+	   childrenFinished, commandAbort, cmdHdlRcvdCondition};
     for (unsigned int i = 0; i < conditionIndexMax; i++) {
       debugMsg("Node:node",
 			   "Creating internal variable " << LabelStr(ALL_CONDITIONS()[i]).toString() <<
