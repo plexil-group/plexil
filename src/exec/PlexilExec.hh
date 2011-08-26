@@ -154,6 +154,25 @@ namespace PLEXIL
                                const double& value);
 
 
+	//
+	// API to Node classes
+	//
+
+	/**
+	 * @brief Schedule this assignment for execution.
+	 */
+	void enqueueAssignment(const AssignmentId& assign);
+
+	/**
+	 * @brief Schedule this command for execution.
+	 */
+	void enqueueCommand(const CommandId& cmd);
+
+	/**
+	 * @brief Schedule this update for execution.
+	 */
+	void enqueueUpdate(const UpdateId& update);
+
   protected:
     friend class RealExecConnector;
 
@@ -169,13 +188,6 @@ namespace PLEXIL
      * @param node The node which is eligible for state change.
      */
     void handleConditionsChanged(const NodeId node);
-
-    /**
-     * @brief Handle the fact that a node has transitioned to EXECUTING.  Adds
-     * whatever the node is supposed to do (assign, execute a command) to a list to be batched to the external interface.
-     * @param node The node which has transitioned to state EXECUTING.
-     */
-    void handleNeedsExecution(const NodeId node);
 
     //const ExpressionId& findVariable(const LabelStr& name);
 

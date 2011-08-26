@@ -1052,7 +1052,10 @@ public:
 
   void notifyNodeConditionChanged(NodeId /* node */) {}
   void handleConditionsChanged(const NodeId& /* node */) {}
-  void handleNeedsExecution(const NodeId& /* node */) {}
+  void enqueueAssignment(const AssignmentId& /* assign */) {}
+  void enqueueCommand(const CommandId& /* cmd */) {}
+  void enqueueUpdate(const UpdateId& /* update */) {}
+  void notifyExecuted(const NodeId& /* node */) {}
   const StateCacheId& getStateCache() {return m_cache.getId();}
   const ExternalInterfaceId& getExternalInterface() 
   {
@@ -1242,7 +1245,11 @@ public:
   TransitionExecConnector() : ExecConnector(), m_executed(false) {}
   void notifyNodeConditionChanged(NodeId /* node */) {}
   void handleConditionsChanged(const NodeId& /* node */) {}
-  void handleNeedsExecution(const NodeId& node) {assertTrue(node->getState() == EXECUTING_STATE); m_executed = true;}
+  void enqueueAssignment(const AssignmentId& /* assign */) {}
+  void enqueueCommand(const CommandId& /* cmd */) {}
+  void enqueueUpdate(const UpdateId& /* update */) {}
+  // Replacement for handleNeedsExecution()
+  void notifyExecuted(const NodeId& node) {assertTrue(node->getState() == EXECUTING_STATE); m_executed = true;}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
   const ExternalInterfaceId& getExternalInterface() {return ExternalInterfaceId::noId();}
   bool executed() {return m_executed;}

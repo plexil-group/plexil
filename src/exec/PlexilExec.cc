@@ -70,11 +70,35 @@ namespace PLEXIL {
       m_exec->handleConditionsChanged(node);
     }
 
-    void handleNeedsExecution(const NodeId& node) 
-    {
-      m_exec->handleNeedsExecution(node);
-    }
-    
+	/**
+	 * @brief Schedule this assignment for execution.
+	 */
+	void enqueueAssignment(const AssignmentId& assign)
+	{
+	  m_exec->enqueueAssignment(assign);
+	}
+
+	/**
+	 * @brief Schedule this command for execution.
+	 */
+	void enqueueCommand(const CommandId& cmd)
+	{
+	  m_exec->enqueueCommand(cmd);
+	}
+
+	/**
+	 * @brief Schedule this update for execution.
+	 */
+	void enqueueUpdate(const UpdateId& update)
+	{
+	  m_exec->enqueueUpdate(update);
+	}
+
+	/**
+	 * @brief Needed for stupid unit test
+	 */
+	void notifyExecuted(const NodeId& node) {}
+	
     //const ExpressionId& findVariable(const LabelStr& name) {return m_exec->findVariable(name);}
 
     const StateCacheId& getStateCache() 
@@ -247,83 +271,90 @@ namespace PLEXIL {
   void PlexilExec::handleConditionsChanged(const NodeId node) {
     check_error(node.isValid());
     debugMsg("PlexilExec:handleConditionsChanged",
-	     "Node " << node->getNodeId().toString() << " had a relevant condition change.");
+			 "Node " << node->getNodeId().toString() << " had a relevant condition change.");
 
     NodeState destState = node->getDestState();
     if (destState == NO_NODE_STATE) {
       debugMsg("PlexilExec:handleConditionsChanged",
-	       "Node '" << node->getNodeId().toString() <<
-	       "' was previously eligible to transition but isn't now.");
+			   "Node '" << node->getNodeId().toString() <<
+			   "' was previously eligible to transition but isn't now.");
       int idx = inQueue(node);
       if (idx != -1) {
-	debugMsg("PlexilExec:handleConditionsChanged",
-		 "Removing " << node->getNodeId().toString() <<
-		 " from the state change queue.");
-	m_stateChangeQueue.erase(idx);
+		debugMsg("PlexilExec:handleConditionsChanged",
+				 "Removing " << node->getNodeId().toString() <<
+				 " from the state change queue.");
+		m_stateChangeQueue.erase(idx);
       }
       else {
-	if ((node->getType() == Node::ASSIGNMENT()) &&
-	    node->getState() != EXECUTING_STATE) {
-	  debugMsg("PlexilExec:handleConditionsChanged",
-		   "Removing node from resource contention.");
-	  removeFromResourceContention(node);
-	}
+		if ((node->getType() == Node::ASSIGNMENT()) &&
+			node->getState() != EXECUTING_STATE) {
+		  debugMsg("PlexilExec:handleConditionsChanged",
+				   "Removing node from resource contention.");
+		  removeFromResourceContention(node);
+		}
       }
       return;
     }
     debugMsg("PlexilExec:handleConditionsChanged",
-	     "Considering node '" << node->getNodeId().toString() << "' for state transition.");
+			 "Considering node '" << node->getNodeId().toString() << "' for state transition.");
     if (node->getType() == Node::ASSIGNMENT()) {
       if (destState == EXECUTING_STATE) {
-	//if it's an assignment node and it's eligible to execute
-	//add it to contention consideration
-	debugMsg("PlexilExec:handleConditionsChanged",
-		 "Node '" << node->getNodeId().toString() <<
-		 "' is an assignment node that could be executing.  Adding it to the " <<
-		 "resource contention list ");
-	addToResourceContention(node);
-	//remove it from the state change queue
-	int it = inQueue(node);
-	if(it != -1) {
-	  debugMsg("PlexilExec:handleConditionsChanged",
-		   "Node '" << node->getNodeId().toString() <<
-		   "' is in the state change queue.  Removing it.");
-	  m_stateChangeQueue.erase(it);
-	}
-	return;
+		//if it's an assignment node and it's eligible to execute
+		//add it to contention consideration
+		debugMsg("PlexilExec:handleConditionsChanged",
+				 "Node '" << node->getNodeId().toString() <<
+				 "' is an assignment node that could be executing.  Adding it to the " <<
+				 "resource contention list ");
+		addToResourceContention(node);
+		//remove it from the state change queue
+		int it = inQueue(node);
+		if(it != -1) {
+		  debugMsg("PlexilExec:handleConditionsChanged",
+				   "Node '" << node->getNodeId().toString() <<
+				   "' is in the state change queue.  Removing it.");
+		  m_stateChangeQueue.erase(it);
+		}
+		return;
       }
       else {
-	debugMsg("PlexilExec:handleConditionsChanged",
-		 "Node '" << node->getNodeId().toString() <<
-		 "' is an assignment node that is no longer possibly executing.  " <<
-		 "Removing it from resource contention.");
-	removeFromResourceContention(node);
+		debugMsg("PlexilExec:handleConditionsChanged",
+				 "Node '" << node->getNodeId().toString() <<
+				 "' is an assignment node that is no longer possibly executing.  " <<
+				 "Removing it from resource contention.");
+		removeFromResourceContention(node);
       }
     }
 
     if (inQueue(node) == -1) {
       debugMsg("PlexilExec:handleConditionsChanged",
-	       "Placing node '" << node->getNodeId().toString() <<
-	       "' on the state change queue in position " << m_queuePos);
+			   "Placing node '" << node->getNodeId().toString() <<
+			   "' on the state change queue in position " << m_queuePos);
       m_stateChangeQueue.insert(std::pair<unsigned int, NodeId>(m_queuePos++, node));
     }
   }
 
-  void PlexilExec::handleNeedsExecution(const NodeId node) {
-    checkError(node->getState() == EXECUTING_STATE,
-	       "Executive told to handle execution for node '" <<
-	       node->getNodeId().toString() << "', but it's in state '" <<
-	       node->getStateName().toString() << "'");
-    debugMsg("PlexilExec:handleNeedsExecution",
-	     "Storing action for node '" << node->getNodeId().toString() <<
-	     "' of type '" << node->getType().toString() << 
-             "' to be executed.");
-    if(node->getType() == Node::ASSIGNMENT())
-      m_assignmentsToExecute.push_back(node->getAssignment());
-    else if(node->getType() == Node::COMMAND())
-      m_commandsToExecute.push_back(node->getCommand());
-    else if(node->getType() == Node::UPDATE())
-      m_updatesToExecute.push_back(node->getUpdate());
+  /**
+   * @brief Schedule this assignment for execution.
+   */
+  void PlexilExec::enqueueAssignment(const AssignmentId& assign)
+  {
+      m_assignmentsToExecute.push_back(assign);
+  }
+
+  /**
+   * @brief Schedule this command for execution.
+   */
+  void PlexilExec::enqueueCommand(const CommandId& cmd)
+  {
+      m_commandsToExecute.push_back(cmd);
+  }
+
+  /**
+   * @brief Schedule this update for execution.
+   */
+  void PlexilExec::enqueueUpdate(const UpdateId& update)
+  {
+      m_updatesToExecute.push_back(update);
   }
 
   void PlexilExec::removeFromResourceContention(const NodeId node) {

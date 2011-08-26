@@ -275,10 +275,23 @@ namespace PLEXIL {
       expr->addListener(m_listeners[i]);
       m_garbageConditions[i] = true;
     }
+
+	// Construct ack
     if (m_nodeType == COMMAND())
       m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
     else
       m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
+
+	// Construct stuff as required for unit test
+	if (m_nodeType == ASSIGNMENT()) {
+	  createDummyAssignment();
+	  if (state == EXECUTING_STATE)
+		m_assignment->activate();
+	}
+    else if (m_nodeType == COMMAND())
+	  createDummyCommand();
+    else if (m_nodeType == UPDATE())
+	  createDummyUpdate();
   }
 
   void Node::commonInit() {
@@ -979,6 +992,15 @@ namespace PLEXIL {
       (new Assignment(dest, rhs, m_ack, destName, deleteLhs, deleteRhs))->getId();
   }
 
+  // Unit test variant of above
+  void Node::createDummyAssignment() 
+  {
+    VariableId dest = (new BooleanVariable(BooleanVariable::FALSE_VALUE()))->getId();
+	LabelStr destName("dummy");
+    m_assignment =
+      (new Assignment(dest, BooleanVariable::TRUE_EXP(), m_ack, destName, true, false))->getId();
+  }
+
   void Node::createCommand(const PlexilCommandBody* command) 
   {
 	checkError(command->state()->nameExpr().isValid(),
@@ -1066,6 +1088,26 @@ namespace PLEXIL {
     check_error(m_command.isValid());
   }
 
+  // Unit test variant of above
+  void Node::createDummyCommand() 
+  {
+    ExpressionId nameExpr = (new StringVariable("dummy", true))->getId();
+    std::vector<ExpressionId> garbage;
+	garbage.push_back(nameExpr);
+    LabelStr name(nameExpr->getValue());
+	// Empty arglist
+    std::list<ExpressionId> args;
+    
+	// No destination variable
+    VariableId destVar;
+    LabelStr dest_name;
+
+    // No resource
+    ResourceList resourceList;
+    m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
+    check_error(m_command.isValid());
+  }
+
   void Node::createUpdate(const PlexilUpdateBody* body) 
   {
     PlexilUpdateId update = body->update();
@@ -1093,6 +1135,14 @@ namespace PLEXIL {
       }
     }
 
+    m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
+  }
+
+  // Unit test variant
+  void Node::createDummyUpdate() 
+  {
+    ExpressionMap updatePairs;
+    std::list<ExpressionId> garbage;
     m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
   }
 
@@ -1527,16 +1577,40 @@ namespace PLEXIL {
     return listenActive && condActive;
   }
 
-  void Node::execute() {
+  void Node::execute() 
+  {
     debugMsg("Node:execute", "Executing node " << m_nodeId.toString());
     // activate local variables
     for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
-         vit++)
-      {
-        (*vit)->activate();
-      }
-    m_exec->handleNeedsExecution(m_id);
+         vit++) {
+	  (*vit)->activate();
+	}
+	handleExecution();
+  }
+
+  void Node::handleExecution()
+  {
+    checkError(m_state == EXECUTING_STATE,
+			   "Node \"" << m_nodeId.toString()
+			   << "\" told to handle execution, but it's in state '" <<
+			   getStateName().toString() << "'");
+	// legacy message for unit test
+    debugMsg("PlexilExec:handleNeedsExecution",
+			 "Storing action for node '" << m_nodeId.toString() <<
+			 "' of type '" << m_nodeType.toString() << 
+             "' to be executed.");
+
+	// Here only to placate the unit test
+	m_exec->notifyExecuted(getId());
+
+    if (m_nodeType == ASSIGNMENT()) {
+      m_exec->enqueueAssignment(getAssignment());
+	}
+    else if (m_nodeType == COMMAND())
+	  m_exec->enqueueCommand(getCommand());
+    else if (m_nodeType == UPDATE())
+      m_exec->enqueueUpdate(getUpdate());
   }
 
   void Node::reset() {
@@ -1567,11 +1641,15 @@ namespace PLEXIL {
 
   void Node::abort() {
     debugMsg("Node:abort", "Aborting node " << m_nodeId.toString());
-    if(getType() == Node::COMMAND() && m_command.isValid())
-      m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
-                                                  m_command->getArgValues(),
-                                                  m_conditions[abortCompleteIdx],
-                                                  m_command->m_ack);
+    if(getType() == Node::COMMAND() && m_command.isValid()) {
+	  // Handle stupid unit test
+	  if (m_exec->getExternalInterface().isId()) {
+		m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
+													m_command->getArgValues(),
+													m_conditions[abortCompleteIdx],
+													m_command->m_ack);
+	  }
+	}
     else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
       m_assignment->getDest()->setValue(Expression::UNKNOWN());
     else {
@@ -1900,7 +1978,8 @@ namespace PLEXIL {
     m_value = m_rhs->getValue();
   }
 
-  void Assignment::activate() {
+  void Assignment::activate() 
+  {
     m_rhs->activate();
     m_lhs->activate();
   }

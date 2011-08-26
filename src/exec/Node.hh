@@ -359,7 +359,12 @@ namespace PLEXIL {
     void commonInit();
 
 	// Make the node's internal variables active.
-	void activateInternalVariables();
+	virtual void activateInternalVariables();
+
+	/**
+	 * @brief Perform whatever action is necessary for execution.
+	 */
+	virtual void handleExecution();
 
   private:
 
@@ -391,11 +396,14 @@ namespace PLEXIL {
     static unsigned int getConditionIndex(const LabelStr& cName);
     static LabelStr getConditionName(unsigned int idx);
 
-    void createCommand(const PlexilCommandBody* body);
-
     void createAssignment(const PlexilAssignmentBody* body);
-
+    void createCommand(const PlexilCommandBody* body);
     void createUpdate(const PlexilUpdateBody* body);
+
+	// Unit test support
+    void createDummyCommand(); // unit test variant
+    void createDummyAssignment(); // unit test variant
+    void createDummyUpdate(); // unit test variant
 
     void createConditions(const std::map<std::string, PlexilExprId>& conds);
 

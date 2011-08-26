@@ -42,7 +42,27 @@ namespace PLEXIL
     const ExecConnectorId& getId() const {return m_id;}
     virtual void notifyNodeConditionChanged(NodeId node) = 0;
     virtual void handleConditionsChanged(const NodeId& node) = 0;
-    virtual void handleNeedsExecution(const NodeId& node) = 0;
+
+	/**
+	 * @brief Schedule this assignment for execution.
+	 */
+	virtual void enqueueAssignment(const AssignmentId& assign) = 0;
+
+	/**
+	 * @brief Schedule this command for execution.
+	 */
+	virtual void enqueueCommand(const CommandId& cmd) = 0;
+
+	/**
+	 * @brief Schedule this update for execution.
+	 */
+	virtual void enqueueUpdate(const UpdateId& update) = 0;
+
+	/**
+	 * @brief Needed for stupid unit test
+	 */
+	virtual void notifyExecuted(const NodeId& node) = 0;
+
     virtual const StateCacheId& getStateCache() = 0;
     virtual const ExternalInterfaceId& getExternalInterface() = 0;
   protected:
