@@ -35,12 +35,13 @@
 #include <fstream>;
 #include <vector>;
 #include <cmath>;
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>;
+#include <stdlib.h>;
 #include "InterfaceManager.hh"
 #include "ExecDefs.hh"
-#include <time.h>
-#include <ctime>
+#include <time.h>;
+#include <ctime>;
+#include <map>;
 
 #include "AdapterFactory.hh"
 #include "CoreExpressions.hh"
@@ -65,6 +66,7 @@ using std::string;
 using std::endl;
 using std::vector;
 using std::list;
+using std::map;
 
 namespace PLEXIL
 {
@@ -98,7 +100,6 @@ namespace PLEXIL
     string localvariables;
     string children;
     vector<string> localvarsvector;
-    vector<string> nodetreevector;
   };
 
   //all the nodes
@@ -120,6 +121,7 @@ namespace PLEXIL
 
   static string myLocalVarsAfter;
 
+  //these values are modified throughout plan execution
   static double nodeCounter = 0;
   static double actualId = -1;
   static double startTime = -1;
@@ -133,6 +135,9 @@ namespace PLEXIL
   static string plexilDirectory;
   static string plexilGanttDirectory;
   static string myHTMLFile;
+
+  static map<NodeId, int> stateMap;
+  static map<NodeId, int> counterMap;
 
   /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -188,11 +193,10 @@ namespace PLEXIL
       "<script src=\""+plexilGanttDirectory+"jq/jquery-1.6.2.js\" type=\"text/javascript\"></script> "+lineBreak+
       "<link type=\"text/css\" href=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.css\" rel=\"Stylesheet\" /> "+lineBreak+
       "<script type=\"text/javascript\" src=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.min.js\"></script> "+lineBreak+lineBreak+
-      "<!-- Load code first --> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"addons.js\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
       "<!-- Load data locally --> "+lineBreak+
       "<script src=\""+plexilGanttDirectory+myTokenFileName+"\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
-      "<!-- Application code --> "+lineBreak+
+      "<!-- Application code --> "+lineBreak+      
+      "<script src=\""+plexilGanttDirectory+"addons.js\" type=\"text/javascript\"></script> "+lineBreak+
       "<script src=\""+plexilGanttDirectory+"getAndConvertTokens.js\" type=\"text/javascript\"></script> "+lineBreak+
       "<script src=\""+plexilGanttDirectory+"showTokens.js\" type=\"text/javascript\"></script> "+lineBreak+
       "<script src=\""+plexilGanttDirectory+"detailsBox.js\" type=\"text/javascript\"></script> "+lineBreak+
@@ -269,7 +273,7 @@ namespace PLEXIL
     
     //get state
     const NodeState& newState = nodeId->getState();
-    if(newState == EXECUTING_STATE) {    
+    if(newState == EXECUTING_STATE) {  
       myId = nodeId->getNodeId().toString();
       myStartValdbl= ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
       myType = nodeId->getType().toString();
@@ -286,36 +290,14 @@ namespace PLEXIL
       nodeCounter += 1;
       actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
 
+      //determine if a node looping; assign prior ID for loops and a new one for non loops
       //executingIndex is currently unused
-      NodeId currentNode = nodeId;
-      vector<string> nodeTreeStrings;
-      while(currentNode->getParent().isId()) {
-	NodeId newNode = currentNode->getParent();
-	currentNode = newNode;
-	nodeTreeStrings.push_back(currentNode->getNodeId().toString());
+      stateMap[nodeId] += 1;
+      if(stateMap[nodeId] > 1) {
+	actualId = counterMap[nodeId];
       }
-      for(int i=0; i<nodes.size(); i++) {
-	//give looping nodes the same ID
-	if(myId == nodes[i].name && myType == nodes[i].type && myVal == nodes[i].val && myParent == nodes[i].parent) {
-	  bool isCertifiedLoop = true;
-	  if((nodes[i].nodetreevector.size() > 0) && (nodes[i].nodetreevector.size() == nodeTreeStrings.size())) {
-	      for(int j = 0; j < nodeTreeStrings.size(); j++) {
-		//8/25/11 DEBUG
-		//cout << endl << "&&&& NODES &&&&" << endl << myId << " ::: " << j << " ::: " << nodeTreeStrings[j] << endl << "&&&& &&&&" << endl;
-		//
-		if(nodeTreeStrings[j] != nodes[i].nodetreevector[j]) {
-		  isCertifiedLoop = false;
-		}
-	      }
-	    }
-	    else {
-	      isCertifiedLoop = false;
-	    }
-	  if(isCertifiedLoop) {
-	    actualId = nodes[i].id;
-	    executingIndex = i;
-	  }
-	}
+      else {
+	counterMap[nodeId] = actualId;
       }
 
       //get local variables from map in state 'EXECUTING'
@@ -370,7 +352,6 @@ namespace PLEXIL
       temp.children = myChildren;
       temp.localvariables = myLocalVars;
       temp.localvarsvector = myLocalVariableMapValues;
-      temp.nodetreevector = nodeTreeStrings;
       nodes.push_back(temp);
     }
 
