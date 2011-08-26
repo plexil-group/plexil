@@ -70,7 +70,7 @@ namespace PLEXIL {
 
   enum PlexilNodeType
     {
-      NodeType_uninitialized,
+      NodeType_uninitialized = 0,
       NodeType_NodeList,
       NodeType_Command,
       NodeType_Assignment,

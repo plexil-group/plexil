@@ -43,6 +43,7 @@
 #include "ListNodeStateManager.hh"
 #include "Lookup.hh"
 #include "Node.hh"
+#include "NodeFactory.hh"
 #include "PlexilExec.hh"
 #include "PlexilPlan.hh"
 #include "StateCache.hh"
@@ -1278,15 +1279,15 @@ private:
   static bool inactiveDestTest() {
     TransitionExecConnector con;
     DefaultStateManager manager;
-    NodeId nodes[5] = {TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", INACTIVE_STATE,
+    NodeId nodes[5] = {NodeFactory::createNode(Node::ASSIGNMENT(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::COMMAND(), "test", INACTIVE_STATE,
+		       NodeFactory::createNode(Node::COMMAND(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::LIST(), "test", INACTIVE_STATE,
+		       NodeFactory::createNode(Node::LIST(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::UPDATE(), "test", INACTIVE_STATE,
+		       NodeFactory::createNode(Node::UPDATE(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::REQUEST(), "test", INACTIVE_STATE,
+		       NodeFactory::createNode(Node::REQUEST(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId())};
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1332,7 +1333,7 @@ private:
     for(int parentFinished = 0; parentFinished < 3; ++parentFinished) {
       for(int parentExecuting = 0; parentExecuting < 3; ++parentExecuting) {
 	for(int i = 0; i < 5; i++) {
-	  NodeId node = TestNodeFactory::createNode(types[i], "test", INACTIVE_STATE,
+	  NodeId node = NodeFactory::createNode(types[i], "test", INACTIVE_STATE,
 						    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	  node->activateParentExecutingCondition();
 	  node->activateParentFinishedCondition();
@@ -1369,7 +1370,7 @@ private:
   static bool waitingDestTest() {
     TransitionExecConnector con;
     DefaultStateManager manager;
-    NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", WAITING_STATE,
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", WAITING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 //NodeState destState = manager.getDestState(node);
@@ -1441,7 +1442,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	    for(int i = 0; i < 5; i++) {
 	      NodeStateManager& manager = *(managers.find(types[i])->second);
 	      TransitionExecConnector con;
-	      NodeId node = TestNodeFactory::createNode(types[i], "test", WAITING_STATE,
+	      NodeId node = NodeFactory::createNode(types[i], "test", WAITING_STATE,
 							false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
          node->activateSkipCondition();
 	      node->activateStartCondition();
@@ -1509,7 +1510,7 @@ for(int skip = 0; skip < 3; ++skip) {
   static bool iterationEndedDestTest() {
     TransitionExecConnector con;
     DefaultStateManager manager;
-    NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", ITERATION_ENDED_STATE,
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", ITERATION_ENDED_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1560,7 +1561,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	for(int repeat = 0; repeat < 3; ++repeat) {
 	  for(int i = 0; i < 5; i++) {
 	    TransitionExecConnector con;
-	    NodeId node = TestNodeFactory::createNode(types[i], "test", ITERATION_ENDED_STATE,
+	    NodeId node = NodeFactory::createNode(types[i], "test", ITERATION_ENDED_STATE,
 						      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	    node->activateRepeatCondition();
 	    node->activateAncestorEndCondition();
@@ -1605,7 +1606,7 @@ for(int skip = 0; skip < 3; ++skip) {
   static bool finishedDestTest() {
     TransitionExecConnector con;
     DefaultStateManager manager;
-    NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", FINISHED_STATE,
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", FINISHED_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1634,7 +1635,7 @@ for(int skip = 0; skip < 3; ++skip) {
     for(int parentWaiting = 0; parentWaiting < 3; ++parentWaiting) {
       for(int i = 0; i < 5; i++) {
 	TransitionExecConnector con;
-	NodeId node = TestNodeFactory::createNode(types[i], "test", FINISHED_STATE,
+	NodeId node = NodeFactory::createNode(types[i], "test", FINISHED_STATE,
 						  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	node->activateParentWaitingCondition();
 	node->getParentWaitingCondition()->setValue(values[parentWaiting]);
@@ -1665,7 +1666,7 @@ for(int skip = 0; skip < 3; ++skip) {
   static bool listExecutingDestTest() {
     TransitionExecConnector con;
     ListNodeStateManager manager;
-    NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE,
+    NodeId node = NodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1710,7 +1711,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	for(int end = 0; end < 3; ++end) {
 	  for(int post = 0; post < 3; ++post) {
 	    TransitionExecConnector con;
-	    NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE,
+	    NodeId node = NodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE,
 						      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	    node->activateAncestorInvariantCondition();
 	    node->activateInvariantCondition();
@@ -1762,7 +1763,7 @@ for(int skip = 0; skip < 3; ++skip) {
   static bool listFailingDestTest() {
     TransitionExecConnector con;
     ListNodeStateManager manager;
-    NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", FAILING_STATE,
+    NodeId node = NodeFactory::createNode(Node::LIST(), "test", FAILING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1804,7 +1805,7 @@ for(int skip = 0; skip < 3; ++skip) {
     for(int children = 0; children < 3; ++children) {
       for(int i = 0; i < 2; ++i) {
 	TransitionExecConnector con;
-	NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", FAILING_STATE,
+	NodeId node = NodeFactory::createNode(Node::LIST(), "test", FAILING_STATE,
 						  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	node->activateChildrenWaitingOrFinishedCondition();
 	node->getChildrenWaitingOrFinishedCondition()->setValue(values[children]);
@@ -1845,7 +1846,7 @@ for(int skip = 0; skip < 3; ++skip) {
   static bool listFinishingDestTest() {
     TransitionExecConnector con;
     ListNodeStateManager manager;
-    NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE,
+    NodeId node = NodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     node->activateAncestorInvariantCondition();
@@ -1902,7 +1903,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	  for(int post = 0; post < 3; ++post) {
 
 	    TransitionExecConnector con;
-	    NodeId node = TestNodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE,
+	    NodeId node = NodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE,
 						      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	    node->activateAncestorInvariantCondition();
 	    node->activateInvariantCondition();
@@ -1961,7 +1962,7 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     VarBindingStateManager manager;
 
-    NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE,
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE,
 											  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -2013,7 +2014,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		  for(int post = 0; post < 3; ++post) {
 
 			TransitionExecConnector con;
-			NodeId node = TestNodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE,
+			NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE,
 													  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 			node->activateAncestorInvariantCondition();
 			node->activateInvariantCondition();
@@ -2076,11 +2077,11 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ActionNodeStateManager manager;
 
-    NodeId nodes[3] = {TestNodeFactory::createNode(Node::COMMAND(), "test", EXECUTING_STATE,
+    NodeId nodes[3] = {NodeFactory::createNode(Node::COMMAND(), "test", EXECUTING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::UPDATE(), "test", EXECUTING_STATE,
+		       NodeFactory::createNode(Node::UPDATE(), "test", EXECUTING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::REQUEST(), "test", EXECUTING_STATE,
+		       NodeFactory::createNode(Node::REQUEST(), "test", EXECUTING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId())};
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -2143,7 +2144,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	  for(int post = 0; post < 3; ++post) {
 	    for(int i = 0; i < 3; i++) {
 	      TransitionExecConnector con;
-	      NodeId node = TestNodeFactory::createNode(types[i], "test", EXECUTING_STATE,
+	      NodeId node = NodeFactory::createNode(types[i], "test", EXECUTING_STATE,
 							false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	      node->activateAncestorInvariantCondition();
 	      node->activateInvariantCondition();
@@ -2217,11 +2218,11 @@ for(int skip = 0; skip < 3; ++skip) {
     TransitionExecConnector con;
     ActionNodeStateManager manager;
 
-    NodeId nodes[3] = {TestNodeFactory::createNode(Node::COMMAND(), "test", FAILING_STATE,
+    NodeId nodes[3] = {NodeFactory::createNode(Node::COMMAND(), "test", FAILING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::UPDATE(), "test", FAILING_STATE,
+		       NodeFactory::createNode(Node::UPDATE(), "test", FAILING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
-		       TestNodeFactory::createNode(Node::REQUEST(), "test", FAILING_STATE,
+		       NodeFactory::createNode(Node::REQUEST(), "test", FAILING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId())};
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     double failureTypes[2] = {FailureVariable::PRE_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
@@ -2262,7 +2263,7 @@ for(int skip = 0; skip < 3; ++skip) {
       for(int failure = 0; failure < 2; ++failure) {
 	for(int i = 0; i < 3; i++) {
 	  TransitionExecConnector con;
-	  NodeId node = TestNodeFactory::createNode(types[i], "test", FAILING_STATE,
+	  NodeId node = NodeFactory::createNode(types[i], "test", FAILING_STATE,
 						    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
 	  node->activateAbortCompleteCondition();
 	  node->getAbortCompleteCondition()->setValue(values[abort]);

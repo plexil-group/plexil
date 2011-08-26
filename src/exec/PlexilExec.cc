@@ -31,6 +31,7 @@
 #include "Expression.hh"
 #include "ExternalInterface.hh"
 #include "Node.hh"
+#include "NodeFactory.hh"
 #include "StateCache.hh"
 #include "Variable.hh"
 
@@ -183,7 +184,7 @@ namespace PLEXIL {
 	try {
 	  if (!wasThrowEnabled)
 		Error::doThrowExceptions();
-	  root = (new Node(plan, m_connector))->getId();
+	  root = NodeFactory::createNode(plan, m_connector);
 	  check_error(root.isValid());
 	  root->postInit();
 	}

@@ -37,6 +37,7 @@
 #include "Expressions.hh"
 #include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
+#include "NodeFactory.hh"
 #include "NodeStateManager.hh"
 #include "PlexilExec.hh"
 #include "Variables.hh"
@@ -586,7 +587,7 @@ namespace PLEXIL {
 	  for (std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
 		   it != body->children().end(); 
 		   ++it)
-		m_children.push_back((new Node(*it, m_exec, m_id))->getId());
+		m_children.push_back(NodeFactory::createNode(*it, m_exec, m_id));
 	}
 	catch (const Error& e) {
 	  debugMsg("Node:node", " Error creating child nodes: " << e);
@@ -744,7 +745,7 @@ namespace PLEXIL {
 				   << "' in: " << getNodeId().toString());
 	}
       
-	m_children.push_back((new Node(body->libNode(), m_exec, m_id))->getId());
+	m_children.push_back(NodeFactory::createNode(body->libNode(), m_exec, m_id));
 
 	// Construct conditions
 	ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
