@@ -1505,34 +1505,7 @@ namespace PLEXIL {
 	}
   }
 
-  //cheesy hack?
-  CommandId& Node::getCommand() {
-    if(m_state == EXECUTING_STATE)
-      m_command->activate();
-    if(m_command.isValid()) {
-      m_command->fixValues();
-      m_command->fixResourceValues();
-    }
-    return m_command;
-  }
-
-  UpdateId& Node::getUpdate() {
-    if(m_state == EXECUTING_STATE)
-      m_update->activate();
-    if(m_update.isValid())
-      m_update->fixValues();
-    return m_update;
-  }
-
   const VariableId& Node::getAssignmentVariable() const {return m_assignment->getDest();}
-
-  AssignmentId& Node::getAssignment() {
-    check_error(getType() == ASSIGNMENT());
-    if(m_state == EXECUTING_STATE)
-      m_assignment->activate();
-    m_assignment->fixValue();
-    return m_assignment;
-  }
 
   NodeState Node::getDestState() 
   {
@@ -1605,12 +1578,27 @@ namespace PLEXIL {
 	m_exec->notifyExecuted(getId());
 
     if (m_nodeType == ASSIGNMENT()) {
-      m_exec->enqueueAssignment(getAssignment());
+	  checkError(m_assignment.isValid(),
+				 "Node::handleExecution: Assignment is invalid");
+	  m_assignment->activate();
+	  m_assignment->fixValue();
+      m_exec->enqueueAssignment(m_assignment);
 	}
-    else if (m_nodeType == COMMAND())
-	  m_exec->enqueueCommand(getCommand());
-    else if (m_nodeType == UPDATE())
-      m_exec->enqueueUpdate(getUpdate());
+    else if (m_nodeType == COMMAND()) {
+	  checkError(m_command.isValid(),
+				 "Node::handleExecution: Command is invalid");
+      m_command->activate();
+      m_command->fixValues();
+      m_command->fixResourceValues();
+	  m_exec->enqueueCommand(m_command);
+	}
+    else if (m_nodeType == UPDATE()) {
+	  checkError(m_update.isValid(),
+				 "Node::handleExecution: Update is invalid");
+      m_update->activate();
+	  m_update->fixValues();
+      m_exec->enqueueUpdate(m_update);
+	}
   }
 
   void Node::reset() {

@@ -236,20 +236,6 @@ namespace PLEXIL {
     const LabelStr& getType() const {return m_nodeType;}
 
     /**
-     * @brief Gets the assignment to be performed by this node.  Evaluates the RHS.
-     * @return The <destination, value> pair.
-     */
-    AssignmentId& getAssignment();
-
-    /**
-     * @brief Gets the command to be executed by this node.  The arguments are evaluated by the external interface.
-     * @return The structure representing the command
-     */
-    CommandId& getCommand();
-
-    UpdateId& getUpdate();
-
-    /**
      * @brief Notifies the node that one of its conditions has changed.
      */
     void conditionChanged();
