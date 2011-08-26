@@ -31,12 +31,12 @@ $(document).ready(getSetup);
 
 //initialize cookies and organize and clean divs
 function getSetup() {
-	if(getCookie("showPixelsCookie") == null || getCookie("showPixelsCookie") == "")
-		setCookie("showPixelsCookie",20,365);
-	if(getCookie("showHeightCookie") == null || getCookie("showHeightCookie") == "")
-		setCookie("showHeightCookie",15,365);
-	if(getCookie("showScaleCookie") == null || getCookie("showScaleCookie") == "")
-		setCookie("showScaleCookie",10,365);
+	if(getCookie("showPixelsCookie"+myHTMLFilePathString) == null || getCookie("showPixelsCookie"+myHTMLFilePathString) == "")
+		setCookie("showPixelsCookie"+myHTMLFilePathString,20,365);
+	if(getCookie("showHeightCookie"+myHTMLFilePathString) == null || getCookie("showHeightCookie"+myHTMLFilePathString) == "")
+		setCookie("showHeightCookie"+myHTMLFilePathString,15,365);
+	if(getCookie("showScaleCookie"+myHTMLFilePathString) == null || getCookie("showScaleCookie"+myHTMLFilePathString) == "")
+		setCookie("showScaleCookie"+myHTMLFilePathString,10,365);
 	addModBox();
 	$('#gantt').empty();
 	$('#footer').empty();
@@ -53,29 +53,8 @@ function getSetup() {
 
 //build grid top down
 function startUp() {
-	//8/24/11
-	var data = "data" + myHTMLFilePathString;
-	var error = false;
-	if(localStorage.getItem(data) == null) {
-		var jsonTokens = getAndConvertTokens();
-		try {
-			localStorage.setItem(data, JSON.stringify(jsonTokens));
-		}
-		catch(e) {
-			error = true;
-		}
-	}
-	if(!error) {
-		var content = localStorage.getItem(data);
-		var allTokens = JSON.parse(content);
-	}
-	else {
-		var allTokens = getAndConvertTokens();
-	}
+	var allTokens = getAndConvertTokens();
 	showTokens(allTokens);
-	//
-	//var allTokens = getAndConvertTokens();
-	//showTokens(allTokens);
 	drawGrid(); 
 	attachEvents();
 }
@@ -128,51 +107,51 @@ function getDisplayCookies() {
 	var pixelsliderval = $('#PixelsPerTimeIncrementSlider').slider("value");
 	var heightslidervalval = $('#TokenHeightSlider').slider("value");
 	var scaleradioval = $(":checked").val();
-	setCookie("showHeightCookie",heightslidervalval,365);
-	setCookie("showPixelsCookie",pixelsliderval,365);
-	setCookie("showScaleCookie",scaleradioval,365);
+	setCookie("showHeightCookie"+myHTMLFilePathString,heightslidervalval,365);
+	setCookie("showPixelsCookie"+myHTMLFilePathString,pixelsliderval,365);
+	setCookie("showScaleCookie"+myHTMLFilePathString,scaleradioval,365);
 }
 
 /** get values from the sliders and set cookies to their values **/
 
 //pixels per time increment is the spacing between the grid lines
 function getPixelsPerTimeIncrement() {
-	var temp = getCookie("showPixelsCookie");
+	var temp = getCookie("showPixelsCookie"+myHTMLFilePathString);
 	var tempval = $('#PixelsPerTimeIncrementSlider').slider("value");
 	if(temp != null && temp != "") {
 		return parseInt(temp);
 	}
 	else {
-		setCookie("showPixelsCookie",tempval,365);
-		var newtemp = getCookie("showPixelsCookie");
+		setCookie("showPixelsCookie"+myHTMLFilePathString,tempval,365);
+		var newtemp = getCookie("showPixelsCookie"+myHTMLFilePathString);
 		return parseInt(newtemp);
 	}
 }
 
 //token height is the spacing in pixels between token lines
 function getTokenHeight() {
-	var temp = getCookie("showHeightCookie");
+	var temp = getCookie("showHeightCookie"+myHTMLFilePathString);
 	var tempval = $('#TokenHeightSlider').slider("value");
 	if(temp != null && temp != "") {
 		return parseInt(temp);
 	}
 	else {
-		setCookie("showHeightCookie",tempval,365);
-		var newtemp = getCookie("showHeightCookie");
+		setCookie("showHeightCookie"+myHTMLFilePathString,tempval,365);
+		var newtemp = getCookie("showHeightCookie"+myHTMLFilePathString);
 		return parseInt(newtemp);
 	}
 }
 
 //scaling is the zoom in powers of ten; the values that the grid lines represent
 function getScaling() {
-	var temp = getCookie("showScaleCookie");
+	var temp = getCookie("showScaleCookie"+myHTMLFilePathString);
 	var tempval = $(":checked").val();
 	if(temp != null && temp != "") {
 		return parseInt(temp);
 	}
 	else {
-		setCookie("showScaleCookie",tempval,365);
-		var newtemp = getCookie("showScaleCookie");
+		setCookie("showScaleCookie"+myHTMLFilePathString,tempval,365);
+		var newtemp = getCookie("showScaleCookie"+myHTMLFilePathString);
 		return parseInt(newtemp);
 	}
 }
@@ -219,14 +198,14 @@ function buildSubmitButton() {
 
 //get cookie value showPixelsCookie for slider
 function getPixelsPerTimeIncrementForSlider() {
-	if(getCookie("showPixelsCookie") == null || getCookie("showPixelsCookie") == "")
+	if(getCookie("showPixelsCookie"+myHTMLFilePathString) == null || getCookie("showPixelsCookie"+myHTMLFilePathString) == "")
 		return 20;
-	else return getCookie("showPixelsCookie");
+	else return getCookie("showPixelsCookie"+myHTMLFilePathString);
 }
 
 //get cookie value showHeightCookie for slider
 function getTokenHeightForSlider() {
-	if(getCookie("showHeightCookie") == null || getCookie("showHeightCookie") == "")
+	if(getCookie("showHeightCookie"+myHTMLFilePathString) == null || getCookie("showHeightCookie"+myHTMLFilePathString) == "")
 		return 15;
-	else return getCookie("showHeightCookie");
+	else return getCookie("showHeightCookie"+myHTMLFilePathString);
 }

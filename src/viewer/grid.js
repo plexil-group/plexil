@@ -87,9 +87,9 @@ function drawGridLines(gridSection) {
 	var numGridLines	= GRID_SETTINGS.maxTimeIncrements + 1; // +1 since we start drawing at zero
 	numGridLines = GRID_SETTINGS.maxTimeIncrements + 1;
 	//numGridLines = plexilscaling * GRID_SETTINGS.maxTimeIncrements + 1;
-	var remainder = numGridLines%10;
 	numGridLines = numGridLines/getScaling();
-	if(numGridLines < 10) numGridLines = 20 + remainder;
+	if(numGridLines < 10) numGridLines += 30;
+	else numGridLines += 5;
 	var width = getPixelsPerTimeIncrement();
 	//var width			= GRID_SETTINGS.pixelsPerTimeIncrement;
 	// internal

@@ -41,7 +41,7 @@ function callReadyFunc() {
 	numtimes++;
 }
 
-/** COOKIES
+/** COOKIES - myHTMLFilePathString has been added to all cookie identifiers in order to make each cookie unique per session
 	* showGenCookie - boolean, toggle generated nodes
 	* showLineCookie - boolean, toggle timeline/expanded
 	* showFileCookie - string, file name of plan, deprecated and no longer in use
@@ -52,25 +52,25 @@ function callReadyFunc() {
 **/
 
 function provideGenCookie() {
-	var temp = getCookie("showGenCookie");
+	var temp = getCookie("showGenCookie"+myHTMLFilePathString);
 	if(temp != null && temp != "") {
 		return temp;
 	}
 	else {
-		setCookie("showGenCookie","false",365);
-		var newtemp = getCookie("showGenCookie");
+		setCookie("showGenCookie"+myHTMLFilePathString,"false",365);
+		var newtemp = getCookie("showGenCookie"+myHTMLFilePathString);
 		return newtemp;
 	}
 }
 
 function provideLineCookie() {
-	var temp = getCookie("showLineCookie");
+	var temp = getCookie("showLineCookie"+myHTMLFilePathString);
 	if(temp != null && temp != "") {
 		return temp;
 	}
 	else {
-		setCookie("showLineCookie","true",365);
-		var newtemp = getCookie("showLineCookie");
+		setCookie("showLineCookie"+myHTMLFilePathString,"true",365);
+		var newtemp = getCookie("showLineCookie"+myHTMLFilePathString);
 		return newtemp;
 	}
 }
@@ -106,17 +106,17 @@ document.cookie = name +
 }
 
 function deleteAllCookies() {
-	deleteCookie("showGenCookie");
-	deleteCookie("showLineCookie");
- 	deleteCookie("showFileCookie");
- 	deleteCookie("showPixelsCookie");
-	deleteCookie("showHeightCookie");
-	deleteCookie("showScaleCookie");
-	deleteCookie("showCustomCookie");
+	deleteCookie("showGenCookie"+myHTMLFilePathString);
+	deleteCookie("showLineCookie"+myHTMLFilePathString);
+ 	deleteCookie("showFileCookie"+myHTMLFilePathString);
+ 	deleteCookie("showPixelsCookie"+myHTMLFilePathString);
+	deleteCookie("showHeightCookie"+myHTMLFilePathString);
+	deleteCookie("showScaleCookie"+myHTMLFilePathString);
+	deleteCookie("showCustomCookie"+myHTMLFilePathString);
 }
 
 function initializeCustomNodesArray() {
-	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
+	customNodesArray = unpackCSVString(getCookie("showCustomCookie"+myHTMLFilePathString));
 	for(var i = 0; i < customNodesArray.length; i++) {
 		while(customNodesArray[i].charAt(0) == "\n") customNodesArray[i] = customNodesArray[i].substring(1);
 		while(customNodesArray[i].charAt(0) == " ") customNodesArray[i] = customNodesArray[i].substring(1);
@@ -136,11 +136,11 @@ function isCustomNode(temp, temp2, temp3) {
 /** checks custom node specifications for exact matches **/
 function doExactNode(temp, temp2, temp3) {
 	var isCustom = false;
-	if(getCookie("showCustomCookie") == null || getCookie("showCustomCookie") =='') return isCustom;
+	if(getCookie("showCustomCookie"+myHTMLFilePathString) == null || getCookie("showCustomCookie"+myHTMLFilePathString) =='') return isCustom;
 	else initializeCustomNodesArray();
 	for(var i = 0; i < customNodesArray.length; i++) {
 		if((customNodesArray[i].indexOf('*') == -1) && (customNodesArray[i].indexOf('+') == -1) && (customNodesArray[i].indexOf('?') == -1)) {
-			if(getCookie("showLineCookie") == "false") {
+			if(getCookie("showLineCookie"+myHTMLFilePathString) == "false") {
 				if(((temp == customNodesArray[i]) && (temp.length == customNodesArray[i].length))) 
 					isCustom = true;
 			}
@@ -158,7 +158,7 @@ function doRegularExpression(temp,temp2,temp3) {
 	var isRegExp = false;
 	for(var i = 0; i < customNodesArray.length; i++) {
 		if(customNodesArray[i].indexOf('*') != -1) {
-			if(getCookie("showLineCookie") == "false")
+			if(getCookie("showLineCookie"+myHTMLFilePathString) == "false")
 				isRegExp = handleRegularExpression(customNodesArray[i], temp, temp, temp3);
 			else
 				isRegExp = handleRegularExpression(customNodesArray[i], temp, temp2, temp3);
@@ -170,6 +170,7 @@ function doRegularExpression(temp,temp2,temp3) {
 
 /** handles regular expression/wildcard * in custom node specifications **/
 function handleRegularExpression(string, temp, temp2, temp3) {
+	//alert(string);
 	var stars = new Array();
 	var finalBool = true;
 	for(var i = 0; i < string.length; i++) {
@@ -182,7 +183,8 @@ function handleRegularExpression(string, temp, temp2, temp3) {
 	for(var i = 0; i < stars.length; i++) {
 		var newstring = string.substring(start, stars[i]);
 		start = stars[i]+1;
-		constructStrings.push(newstring);
+		if(newstring != "" && newstring != null)
+			constructStrings.push(newstring);
 	}
 	if(start != string.length) {
 		var newstring = string.substring(start);
@@ -251,7 +253,7 @@ function doCustomUnhide(temp, temp2) {
 
 /** return value to main for checked scale radio box **/
 function manageRadioScaleChecked(boxname) {
-	var desiredVal = getCookie("showScaleCookie");
+	var desiredVal = getCookie("showScaleCookie"+myHTMLFilePathString);
 	if(desiredVal == null) {
 		if(boxname == 3)
 			return "checked = \"checked\"";

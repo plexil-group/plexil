@@ -202,13 +202,14 @@ function setupFooter(numberOfTokens) {
 									 $('#customNodesBox').dialog("open");
 									 $('#customNodesButton').click(function() {
 																			performCustomNodes();
+																			localStorage.clear();
 																			window.location.reload();
 																			});
 									 $('#customNodesClearButton').click(function() {
-																			deleteCookie("showCustomCookie");
+																			deleteCookie("showCustomCookie"+myHTMLFilePathString);
 																			window.location.reload();
 																			});
-									 $('#customNodesText').val(getCookie("showCustomCookie"));
+									 $('#customNodesText').val(getCookie("showCustomCookie"+myHTMLFilePathString));
 									 $('#listHiddenNodesButton').click(function() {	
 															$('#customNodesUnhideBox').dialog("open");
 																				});
@@ -264,27 +265,27 @@ function loopTracker(tokens) {
 /** cookie togglers  (switch value back and forth) **/
 
 function toggleCookiesGenerated() {
-	var temp = getCookie("showGenCookie");
+	var temp = getCookie("showGenCookie"+myHTMLFilePathString);
 	if (temp == "true")
   	{
-  		setCookie("showGenCookie","false",365);
+  		setCookie("showGenCookie"+myHTMLFilePathString,"false",365);
   	}
 	else 
   	{
-    	setCookie("showGenCookie","true",365);
+    	setCookie("showGenCookie"+myHTMLFilePathString,"true",365);
 	}
 	window.location.reload();
 }
 
 function toggleCookiesExpanded() {
-	var temp = getCookie("showLineCookie");
+	var temp = getCookie("showLineCookie"+myHTMLFilePathString);
 	if (temp == "true")
   	{
-  		setCookie("showLineCookie","false",365);
+  		setCookie("showLineCookie"+myHTMLFilePathString,"false",365);
   	}
 	else 
   	{
-    	setCookie("showLineCookie","true",365);
+    	setCookie("showLineCookie"+myHTMLFilePathString,"true",365);
     }
 	window.location.reload();
 }
@@ -336,7 +337,7 @@ function unpackCSVString(copy) {
 	return valArray;
 }
 
-//set showCustomCookie to CSV string of specific nodes
+//set showCustomCookie+myHTMLFilePathString to CSV string of specific nodes
 function storeCustomNodesCookie(final) {
-	setCookie("showCustomCookie", final, 365);
+	setCookie("showCustomCookie"+myHTMLFilePathString, final, 365);
 }
