@@ -108,7 +108,7 @@ namespace PLEXIL
   {
     // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
     std::string str;
-    for (int i = start_index ; i < length ; i++ )
+    for (int i = start_index ; i < start_index + length ; i++ )
       {
         unsigned char c = buffer[i];
         if (c == 0) break;

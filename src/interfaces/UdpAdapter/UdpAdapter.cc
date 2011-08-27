@@ -409,6 +409,7 @@ namespace PLEXIL
             Parameter arg;
             const char* param_desc = NULL;
             const char* param_type = NULL;
+            const char* param_elements = NULL;
             // const char* param_text = NULL;
             // param_text = param->GetText();
             // if (param_text) printf("\n\nparam_text: %s\n\n", param_text);
@@ -428,30 +429,42 @@ namespace PLEXIL
             assertTrueMsg((arg.len > 0),
                           "parseXmlMessageDefinitions: zero length (in bytes) parameter given in <Message name=\""
                           << name << "\"/>");
+            // Get the number of elements for the array types
+            int size = 1;
+            param_elements = param->Attribute("elements");
+            if (param_elements) size = atoi(param_elements);
+            arg.elements = size;
             // Do some error checking for reasonable/usable encoding/decoding byte lengths
-            if (arg.type.compare("int") == 0)
+            if (arg.type.find("array") != -1)
+              {
+                //printf("\nsize==%d, find==%d\n", size, arg.type.find("array"));
+                assertTrueMsg(param_elements,
+                              "parseXmlMessageDefinitions: arrays must have a size element, "
+                              << "<Message=\"" << name << "\"/> does not");
+              }
+            if ((arg.type.compare("int") == 0) || (arg.type.compare("int-array") == 0))
               {
                 assertTrueMsg((arg.len==2 || arg.len==4),
                               "parseXmlMessageDefinitions: integers must be 2 or 4 bytes, not " << arg.len
                               << " (in <Message name=\"" << name << "\"/>)");
               }
-            else if (arg.type.compare("float") == 0)
+            else if ((arg.type.compare("float") == 0) || (arg.type.compare("float-array") == 0))
               {
                 assertTrueMsg((arg.len==2 || arg.len==4),
                               "parseXmlMessageDefinitions: floats must be 2 or 4 bytes, not " << arg.len
                               << " (in <Message name=\"" << name << "\"/>)");
               }
-            else if (arg.type.compare("bool") == 0)
+            else if ((arg.type.compare("bool") == 0) || (arg.type.compare("bool-array") == 0))
               {
                 assertTrueMsg((arg.len==1 || arg.len==2 || arg.len==4),
                               "parseXmlMessageDefinitions: booleans must be 1, 2 or 4 bytes, not " << arg.len
                               << " (in <Message name=\"" << name << "\"/>)");
               }
             // what about strings? -- fixed length to start with I suppose...
-            else if (arg.type.compare("string") == 0)
+            else if ((arg.type.compare("string") == 0) || (arg.type.compare("string-array") == 0))
               {
                 assertTrueMsg(arg.len>=1,
-                              "parseXmlMessageDefinitions: floats must be 1 byte or longer (in <Message name=\""
+                             "parseXmlMessageDefinitions: strings must be 1 byte or longer (in <Message name=\""
                               << name << "\"/>)");
               }
             else
@@ -459,7 +472,7 @@ namespace PLEXIL
                 assertTrueMsg(0, "parseXmlMessageDefinitions: unknown parameter type \"" << arg.type
                               << "\" (in <Message name=\"" << name << "\"/>)");
               }
-            msg.len += arg.len;
+            msg.len += arg.len * size; // only arrays are not of size 1
             msg.parameters.push_back(arg);
           }
         m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
@@ -480,7 +493,16 @@ namespace PLEXIL
         for (param=msg->second.parameters.begin(); param != msg->second.parameters.end(); param++)
           {
             std::string temp = param->desc.empty() ? " (no description)" : " (" + param->desc + ")";
-            std::cout << "\n" << indent << param->len << " byte " << param->type << temp;
+            if (param->elements == 1)
+              {
+                std::cout << "\n" << indent << param->len << " byte " << param->type << temp;
+              }
+            else
+              {
+                size_t pos = param->type.find("-");
+                std::cout << "\n" << indent << param->elements << " element array of " << param->len << " byte "
+                          << param->type.substr(0, pos) << "s" << temp;
+              }
           }
         std::cout << std::endl << indent << "length: " << msg->second.len << " (bytes)";
         std::cout << ", peer: " << msg->second.peer << ", peer_port: " << msg->second.peer_port;
@@ -569,49 +591,112 @@ namespace PLEXIL
       {
         const LabelStr& param_label(formatMessageName(msg_label, GET_PARAMETER_COMMAND(), i));
         int len = param->len;   // number of bytes to read
+        int size = param->elements; // size of the array, or 1 for scalars
         std::string type = param->type; // type to decode
-        if (debug) std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
-                             << " starting at " << offset << std::endl;
+        if (debug)
+          if (size==1)
+            {
+              std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
+                        << " starting at buffer[" << offset << "]" << std::endl;
+            }
+          else
+            {
+              size_t pos = type.find("-"); // remove the "-array" from the type
+              std::cout << "  handleUdpMessage: decoding " << size << " element array of " << len
+                        << " byte " << type.substr(0, pos) << "s starting at buffer[" << offset
+                        << "]" << std::endl;
+            }
         if (type.compare("int") == 0)
           {
             assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
             int num;
-            if (len == 2)
-              num = decode_short_int(buffer, offset);
-            else if (len == 4)
-              num = decode_long_int(buffer, offset);
-            debugMsg("UdpAdapter::handleUdpMessage", " sending numeric (integer) parameter " << num);
+            num = (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
+            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (integer) parameter " << num);
             m_messageQueues.addMessage(param_label, (double) num);
             offset += len;
+          }
+        else if (type.compare("int-array") == 0)
+          {
+            assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
+            StoredArray array(size, 0.0);
+            for (int i = 0 ; i < size ; i++)
+              {
+                array[i] = (double) (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
+                offset += len;
+              }
+            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (integer) array " << array.toString());
+            m_messageQueues.addMessage(param_label, array.getKey());
           }
         else if (type.compare("float") == 0)
           {
             assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
             float num;
             num = decode_float(buffer, offset);
-            debugMsg("UdpAdapter::handleUdpMessage", " sending numeric (real) parameter " << num);
+            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (real) parameter " << num);
             m_messageQueues.addMessage(param_label, (double) num);
             offset += len;
+          }
+        else if (type.compare("float-array") == 0)
+          {
+            assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
+            StoredArray array(size, 0.0);
+            for (int i = 0 ; i < size ; i++)
+              {
+                array[i] = decode_float(buffer, offset);
+                offset += len;
+              }
+            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (real) array " << array.toString());
+            m_messageQueues.addMessage(param_label, array.getKey());
           }
         else if (type.compare("bool") == 0)
           {
             assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
             int num;
-            if (len==1)
-              num = network_bytes_to_number(buffer, offset, 8, false);
-            else if (len==2)
-              num = decode_short_int(buffer, offset);
-            else if (len==4)
-              num == decode_long_int(buffer, offset);
-            debugMsg("UdpAdapter::handleUdpMessage", " sending numeric (boolean) parameter " << num);
+            switch (len)
+              {
+              case 1: num = network_bytes_to_number(buffer, offset, 8, false); break;
+              case 2: num = decode_short_int(buffer, offset); break;
+              default: num = decode_long_int(buffer, offset);
+              }
+            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (boolean) parameter " << num);
             m_messageQueues.addMessage(param_label, (double) num);
             offset += len;
           }
-        else //string
+        else if (type.compare("bool-array") == 0)
+          {
+            assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
+            StoredArray array(size, 0.0);
+            for (int i = 0 ; i < size ; i++)
+              {
+                switch (len)
+                  {
+                  case 1: array[i] = (double) network_bytes_to_number(buffer, offset, 8, false); break;
+                  case 2: array[i] = (double) decode_short_int(buffer, offset); break;
+                  default: array[i] = (double) decode_long_int(buffer, offset);
+                  }
+                offset += len;
+              }
+            debugMsg("UdpAdapter::handleUdpMessage", " queueing boolean array " << array.toString());
+            m_messageQueues.addMessage(param_label, array.getKey());
+          }
+        else if (type.compare("string-array") == 0)
+          {
+            // XXXX For unknown reasons, OnCommand(... String arg); is unable to receive this (inlike int and float arrays)
+            StoredArray array(size, 0.0);
+            for (int i = 0 ; i < size ; i++)
+              {
+                std::string str = decode_string(buffer, offset, len);
+                array[i] = LabelStr(str).getKey();
+                offset += len;
+              }
+            debugMsg("UdpAdapter::handleUdpMessage", " queuing string array " << array.toString());
+            m_messageQueues.addMessage(param_label, array.getKey());
+          }
+        else // string or die
           {
             assertTrueMsg(!type.compare("string"), "handleUdpMessage: unknown parameter type " << type.c_str());
             std::string str = decode_string(buffer, offset, len);
-            debugMsg("UdpAdapter::handleUdpMessage", " sending string parameter " << str);
+            debugMsg("UdpAdapter::handleUdpMessage", " queuing string parameter " << str);
             m_messageQueues.addMessage(param_label, LabelStr(str).getKey());
             offset += len;
           }
@@ -654,46 +739,131 @@ namespace PLEXIL
           {
             assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
             // Large ints are caught in Expression.cc:337
-            if (debug) std::cout << len << " byte int starting at " << start_index;
+            if (debug) std::cout << len << " byte int starting at buffer[" << start_index << "]";
             if (len==2)
               encode_short_int((int)plexil_val, buffer, start_index);
             else
               encode_long_int((int)plexil_val, buffer, start_index);
+            start_index += len;
+          }
+        else if (type.compare("int-array") == 0)
+          {
+            assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
+            int size = param->elements; // XXXX
+            if (debug) std::cout << size << " element array of " << len << " byte ints starting at [" << start_index << "]";
+            StoredArray array(plexil_val);
+            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual array sizes differ: "
+                          << size << " was delcared, but " << array.size() << " is being used in the plan");
+            for (int i = 0 ; i < size ; i++)
+              {
+                int temp = (int)array[i];
+                (len==2) ? encode_short_int(temp, buffer, start_index) : encode_long_int(temp, buffer, start_index);
+                start_index += len;
+              }
+          }
+        else if (type.compare("float-array") == 0)
+          {
+            assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
+            int size = param->elements;
+            assertTrueMsg(size >= 1, "buildUdpBuffer: all scalars and arrays must be of at least size 1, not " << size);
+            if (debug) std::cout << size << " element array of " << len << " byte floats starting at buffer["
+                                 << start_index << "]";
+            StoredArray array(plexil_val);
+            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual (float) array sizes differ: "
+                          << size << " was delcared, but " << array.size() << " is being used in the plan");
+            for (int i = 0 ; i < size ; i++)
+              {
+                float temp = array[i];
+                assertTrueMsg(FLT_MIN <= temp <= FLT_MAX,
+                              //(FLT_MIN <= temp) && (FLT_MAX >= temp),
+                              "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
+                              ", " << temp << " is not");
+                encode_float(temp, buffer, start_index);
+                start_index += len;
+              }
           }
         else if (type.compare("float") == 0)
           {
             float temp = plexil_val;
             assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
             // Catch really big floats
-            assertTrueMsg((FLT_MIN <= plexil_val) && (FLT_MAX >= plexil_val),
+            assertTrueMsg(FLT_MIN <= plexil_val <= FLT_MAX,
+                          //(FLT_MIN <= plexil_val) && (FLT_MAX >= plexil_val),
                           "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
                           ", not " << plexil_val);
-            if (debug) std::cout << len << " byte float starting at " << start_index;
+            if (debug) std::cout << len << " byte float starting at buffer[" << start_index << "]";
             encode_float(temp, buffer, start_index);
+            start_index += len;
+          }
+        else if (type.compare("bool-array") == 0)
+          {
+            assertTrueMsg((len==1 || len==2 || len==4), "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
+            int size = param->elements;
+            if (debug) std::cout << size << " element array of " << len << " byte booleans starting at buffer["
+                                 << start_index << "]";
+            StoredArray array(plexil_val);
+            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual (boolean) array sizes differ: "
+                          << size << " was delcared, but " << array.size() << " is being used in the plan");
+            for (int i = 0 ; i < size ; i++)
+              {
+                int temp = (int)array[i];
+                assertTrueMsg((temp == false || temp == true), "buildUdpBuffer: Booleans must be either true ("
+                          << true << ") or false (" << false << ")" << ", not " << temp);
+                switch (len)
+                  {
+                  case 1: number_to_network_bytes(temp, buffer, start_index, 8, false); break;
+                  case 2: encode_short_int(temp, buffer, start_index); break;
+                  default: encode_long_int(temp, buffer, start_index);
+                  }
+                start_index += len;
+              }
           }
         else if (type.compare("bool") == 0) // these are 64 bits in Plexil
           {
             assertTrueMsg((len==1 || len==2 || len==4), "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
             assertTrueMsg((plexil_val == false || plexil_val == true), "buildUdpBuffer: Booleans must be either true ("
                           << true << ") or false (" << false << ")" << ", not " << plexil_val);
-            if (debug) std::cout << len << " byte bool starting at " << start_index;
-            if (len==1)
-              number_to_network_bytes((int)plexil_val, buffer, start_index, 8);
-            else if (len==2)
-              encode_short_int((int)plexil_val, buffer, start_index);
-            else
-              encode_long_int((int)plexil_val, buffer, start_index);
+            if (debug) std::cout << len << " byte bool starting at buffer[" << start_index << "]";
+            switch (len)
+              {
+              case 1: number_to_network_bytes((int)plexil_val, buffer, start_index, 8, false); break;
+              case 2: encode_short_int((int)plexil_val, buffer, start_index); break;
+              default: encode_long_int((int)plexil_val, buffer, start_index);
+              }
+            start_index += len;
+          }
+        else if (type.compare("string-array") == 0)
+          {
+            int size = param->elements;
+            if (debug) std::cout << size << " element array of " << len << " byte strings starting at buffer["
+                                 << start_index << "]";
+            StoredArray array(plexil_val);
+            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual (string) array sizes differ: "
+                          << size << " was delcared, but " << array.size() << " is being used in the plan");
+            for (int i = 0 ; i < size ; i++)
+              {
+                std::string str = LabelStr(array[i]).c_str();
+                // XXXX Plexil will gladly insert "UNKNOWN" in this array, which may not be what is wanted
+                assertTrueMsg(str.length()<=len, "buildUdpBuffer: declared string length (" << len <<
+                              ") and actual length (" << str.length() << ", " << str.c_str() <<
+                              ") used in the plan are not compatible");
+                encode_string(str, buffer, start_index);
+                start_index += len;
+              }                
           }
         else
           {
+            assertTrueMsg(!type.compare("string"), "buildUdpBuffer: unknown parameter type " << type.c_str());
             std::string str = LabelStr(plexil_val).c_str();
-            assertTrueMsg(str.length()==len, "buildUdpBuffer: Declared string length (" << len <<
-                          ") and actual length (" << str.length() << " do not match");
-            if (debug) std::cout << len << " byte string starting at " << start_index;
+            // XXXX Plexil will gladly insert "UNKNOWN" in this array, which may not be what is wanted
+            assertTrueMsg(str.length()<=len, "buildUdpBuffer: declared string length (" << len <<
+                          ") and actual length (" << str.length() << ", " << str.c_str() <<
+                          ") used in the plan are not compatible");
+            if (debug) std::cout << len << " byte string starting at buffer[" << start_index << "]";
             encode_string(str, buffer, start_index);
+            start_index += len;
           }
         if (debug) std::cout << std::endl;
-        start_index += len;
       }
     if (debug)
       {

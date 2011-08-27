@@ -3,10 +3,15 @@
   <Adapter AdapterType="OSNativeTime"/>
   <Adapter AdapterType="UdpAdapter" debug="true" default_local_port="9876" default_peer_port="9876">
     <Message name="test_udp_msg" local_port="8031" peer_port="8031">
-      <Parameter desc="message_id" type="string" bytes="3"/>
-      <Parameter desc="verified" type="bool" bytes="1"/>
-      <Parameter type="int" bytes="4"/>
-      <Parameter desc="arg4" type="float" bytes="4"/>
+      <Parameter type="string" bytes="3" desc="message_id"/>
+      <Parameter type="bool" bytes="1" desc="some_flag"/>
+      <Parameter type="int" bytes="4" desc="num_widgets"/>
+      <Parameter type="float" bytes="4" desc="arg4"/>
+      <Parameter type="int-array" elements="3" bytes="2" desc="16 bit ints"/>
+      <Parameter type="float-array" elements="3" bytes="4" desc="32 bit floats"/>
+      <Parameter type="bool-array" elements="3" bytes="1"/>
+      <!-- Plexil will gladly insert "UNKNOWN" in strings, so be very careful -->
+      <Parameter type="string-array" elements="3" bytes="3"/>
     </Message>
   </Adapter>
 </Interfaces>

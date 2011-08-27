@@ -17,8 +17,9 @@ namespace PLEXIL
   {
   public:
     std::string desc;           // optional parameter description
-    std::string type;           // int|float|bool|string
-    int len;                    // 0 == variable length (i.e., char[])
+    std::string type;           // int|float|bool|string|int-array|float-array|string-array|bool-array
+    int len;                    // number of bytes for type (or array element)
+    int elements;               // number of elements in the array (non-array types are 0 or 1?)
   };
 
   class UdpMessage
