@@ -131,7 +131,7 @@ namespace PLEXIL {
     void postInit();
 
 	// Make the node active.
-	void activate();
+	virtual void activate();
 
     const NodeId& getId() const {return m_id;}
 
@@ -161,11 +161,6 @@ namespace PLEXIL {
      * @brief Commit a state transition based on the statuses of various conditions.  See the various state graphs.
      */
     void transition(const double time = 0.0);
-
-    /**
-     * @brief Accessor for the assigned variable.
-     */
-    const VariableId& getAssignmentVariable() const;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -226,8 +221,8 @@ namespace PLEXIL {
     const LabelStr getFailureType();
     const VariableId& getFailureTypeVariable() const { return m_failureTypeVariable; }
 
-    const LabelStr getCommandHandle();
-    const VariableId& getCommandHandleVariable() const { return m_commandHandleVariable; }
+    virtual const LabelStr getCommandHandle();
+    virtual const VariableId& getCommandHandleVariable() const { return VariableId::noId(); }
 
     /**
      * @brief Gets the type of this node (node list, assignment, or command).
@@ -257,6 +252,15 @@ namespace PLEXIL {
 
     const ExecConnectorId& getExec() {return m_exec;}
 
+    /**
+     * @brief Accessor for an assignment node's assigned variable.
+	 * @note The default method returns an invalid pointer.
+     */
+    virtual const VariableId& getAssignmentVariable() const 
+	{
+	  return VariableId::noId();
+	}
+
     // Condition accessors
     ExpressionId& getSkipCondition()                      { return m_conditions[skipIdx]; }
     ExpressionId& getStartCondition()                     { return m_conditions[startIdx]; }
@@ -282,8 +286,8 @@ namespace PLEXIL {
 	// Called from the transition handler
     void execute();
     void reset();
-    void abort();
-    void deactivateExecutable();
+    virtual void abort();
+    virtual void deactivateExecutable();
 
 	// Activate a condition
     void activateSkipCondition()                      { return activatePair(skipIdx); }
@@ -342,18 +346,6 @@ namespace PLEXIL {
     friend class StateComputer;
     friend class TransitionHandler;
 
-    void commonInit();
-
-	// Make the node's internal variables active.
-	virtual void activateInternalVariables();
-
-	/**
-	 * @brief Perform whatever action is necessary for execution.
-	 */
-	virtual void handleExecution();
-
-  private:
-
     // N.B.: These need to match the order of ALL_CONDITIONS()
     enum {
 	  // User specified conditions
@@ -382,13 +374,71 @@ namespace PLEXIL {
     static unsigned int getConditionIndex(const LabelStr& cName);
     static LabelStr getConditionName(unsigned int idx);
 
-    void createAssignment(const PlexilAssignmentBody* body);
-    void createCommand(const PlexilCommandBody* body);
-    void createUpdate(const PlexilUpdateBody* body);
+    void commonInit();
 
+	// Specific behaviors for derived classes
+	virtual void specializedPostInit();
+	virtual void createSpecializedConditions();
+	virtual void specializedActivateInternalVariables();
+	virtual void specializedHandleExecution();
+	virtual void specializedDeactivateExecutable();
+	virtual void specializedReset();
+
+	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
+
+
+	// Make the node's internal variables active.
+	virtual void activateInternalVariables();
+
+	// Deactivate the local variables
+	void deactivateLocalVariables();
+
+	/**
+	 * @brief Perform whatever action is necessary for execution.
+	 */
+	virtual void handleExecution();
+
+	// Phases of destructor
+	// Not useful if called from base class destructor!
+    virtual void cleanUpConditions();
+    virtual void cleanUpVars();
+	virtual void cleanUpNodeBody();
+
+	//
+	// Common state
+	//
+    NodeId m_id; /*<! The Id for this node*/
+    NodeId m_parent; /*<! The parent of this node.*/
+    std::vector<NodeId> m_children; /*<! Child nodes.*/
+    ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
+    NodeConnectorId m_connector;
+    PlexilNodeId m_node;
+    LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
+    LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
+    NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
+    VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
+	     Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
+		 I'll stick all variables in here, just to be safe.*/
+	std::vector<double>* m_sortedVariableNames;
+    std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
+    ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
+    ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
+    VariableId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
+    VariableId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
+    VariableId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
+    VariableId m_stateVariable;
+	VariableId m_outcomeVariable;
+	VariableId m_failureTypeVariable;
+    double m_priority; /*<! The priority of this node */
+    NodeState m_state; /*<! The actual state of the node. */
+    NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
+	bool m_garbageConditions[conditionIndexMax]; /*<! Flags for conditions to delete. */
+    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
+
+  private:
+
+    void createUpdate(const PlexilUpdateBody* body);
 	// Unit test support
-    void createDummyCommand(); // unit test variant
-    void createDummyAssignment(); // unit test variant
     void createDummyUpdate(); // unit test variant
 
     void createConditions(const std::map<std::string, PlexilExprId>& conds);
@@ -408,10 +458,6 @@ namespace PLEXIL {
     void lockConditions();
 
     void unlockConditions();
-
-    void cleanUpConditions();
-	void cleanUpNodeBody();
-    void cleanUpVars();
 
     const VariableId& getInternalVariable(const LabelStr& name) const;
 
@@ -454,119 +500,11 @@ namespace PLEXIL {
 	void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
 	void ensureSortedVariableNames() const;
 
-    NodeId m_id; /*<! The Id for this node*/
-    NodeId m_parent; /*<! The parent of this node.*/
-    std::vector<NodeId> m_children; /*<! Child nodes.*/
-    ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
-    NodeConnectorId m_connector;
-    PlexilNodeId m_node;
-    LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
-    LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
-    NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
-    VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
-	     Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
-		 I'll stick all variables in here, just to be safe.*/
-	std::vector<double>* m_sortedVariableNames;
-    std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
-    ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
-    ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
-    VariableId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
-    VariableId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
-    AssignmentId m_assignment;
-    CommandId m_command; /*<! The command to be performed. */
     UpdateId m_update;
-    VariableId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
-    VariableId m_stateVariable;
-	VariableId m_outcomeVariable;
-	VariableId m_failureTypeVariable;
-	VariableId m_commandHandleVariable;
-    double m_priority; /*<! The priority of this node */
-    NodeState m_state; /*<! The actual state of the node. */
-    NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
-	bool m_garbageConditions[conditionIndexMax]; /*<! Flags for conditions to delete. */
-    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
 
-
-  class Assignment {
-  public:
-    Assignment(const VariableId lhs,
-			   const ExpressionId rhs, 
-			   const VariableId ack,
-			   const LabelStr& lhsName,
-			   const bool deleteLhs, 
-			   const bool deleteRhs);
-    ~Assignment();
-    AssignmentId& getId() {return m_id;}
-    VariableId& getDest() {return m_lhs;}
-    ExpressionId& getAck() {return m_ack;}
-    double getValue(){return m_value;}
-    void activate();
-    void deactivate();
-    const std::string& getDestName();
-  protected:
-    friend class Node;
-    void fixValue();
-  private:
-    AssignmentId m_id;
-	VariableId m_lhs;
-    ExpressionId m_rhs, m_ack;
-    double m_value;
-    LabelStr m_destName;
-    bool m_deleteLhs, m_deleteRhs;
-  };
-
-  // *** TODO: replace ResourceMap and ResourceValues with structs or classes
-  typedef std::map<std::string, ExpressionId> ResourceMap;
-  typedef std::vector<ResourceMap> ResourceList;
-  typedef std::map<std::string, double> ResourceValues;
-  typedef std::vector<ResourceValues> ResourceValuesList;
-
-  class Command {
-  public:
-    Command(const ExpressionId nameExpr, 
-			const std::list<ExpressionId>& args, 
-            const VariableId dest,
-            const LabelStr& dest_name,
-			const VariableId ack,
-			const std::vector<ExpressionId>& garbage,
-            const ResourceList& resource,
-			const NodeId& parent);
-    ~Command();
-
-    CommandId& getId() {return m_id;}
-    VariableId& getDest() {return m_dest;}
-    VariableId& getAck() {return m_ack;}
-    const std::list<double>& getArgValues() const {return m_argValues;}
-    const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
-	const NodeId& getNode() const { return m_node; }
-	LabelStr getName() const;
-    const std::string& getDestName() const;
-
-    void activate();
-    void deactivate();
-
-  protected:
-    friend class Node;
-
-    void fixValues();
-    void fixResourceValues();
-
-  private:
-    CommandId m_id;
-    ExpressionId m_nameExpr;
-    std::list<ExpressionId> m_args;
-    VariableId m_dest;
-    LabelStr m_destName;
-    VariableId m_ack;
-    std::vector<ExpressionId> m_garbage;
-    std::list<double> m_argValues;
-    ResourceList m_resourceList;
-    ResourceValuesList m_resourceValuesList;
-	NodeId m_node; // backpointer to parent
-  };
 
   class Update {
   public:

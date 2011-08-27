@@ -25,12 +25,13 @@
 */
 
 #include "PlexilExec.hh"
+#include "AssignmentNode.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
 #include "ExecListener.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
-#include "Node.hh"
+// #include "Node.hh" // redundant?
 #include "NodeFactory.hh"
 #include "StateCache.hh"
 #include "Variable.hh"
@@ -641,7 +642,7 @@ namespace PLEXIL {
 	  checkError(conflictCounter < 2,
 		     "Error: node '" << node->getNodeId().toString() << " and the node "
 		     << nodeToExecute->getNodeId().toString() << " are in contention over variable "
-		     << node->getAssignmentVariable()->toString() << " and have equal priority.");
+				 << node->getAssignmentVariable()->toString() << " and have equal priority.");
 	  nodeToExecute = node;
 	}
 

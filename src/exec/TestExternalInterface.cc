@@ -27,10 +27,11 @@
 #include "TestExternalInterface.hh"
 
 #include "BooleanVariable.hh"
+#include "CommandNode.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "LabelStr.hh"
-#include "Node.hh"
+// #include "Node.hh" // redundant?
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
 #include "StateCache.hh"

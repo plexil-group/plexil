@@ -277,20 +277,10 @@ namespace PLEXIL {
     }
 
 	// Construct ack
-    if (m_nodeType == COMMAND())
-      m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
-    else
-      m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
+	m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
 
 	// Construct stuff as required for unit test
-	if (m_nodeType == ASSIGNMENT()) {
-	  createDummyAssignment();
-	  if (state == EXECUTING_STATE)
-		m_assignment->activate();
-	}
-    else if (m_nodeType == COMMAND())
-	  createDummyCommand();
-    else if (m_nodeType == UPDATE())
+    if (m_nodeType == UPDATE())
 	  createDummyUpdate();
   }
 
@@ -303,9 +293,6 @@ namespace PLEXIL {
 
 	m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable = (new OutcomeVariable())->getId();
     m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable = (new FailureVariable())->getId();
-	if (m_nodeType == COMMAND()) {
-	  m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable = (new CommandHandleVariable())->getId();
-	}
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
@@ -554,36 +541,14 @@ namespace PLEXIL {
 	  m_conditions[condIdx]->addListener(m_listeners[condIdx]);
 	}
 
-	if (m_nodeType == COMMAND()) {
-	  // Construct command-aborted condition
-	  VariableId commandAbort = (new BooleanVariable())->getId();
-	  ExpressionListenerId abortListener = m_listeners[abortCompleteIdx];
-	  commandAbort->addListener(abortListener);
-	  m_conditions[abortCompleteIdx] = commandAbort;
-	  m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
-          
-	  // Construct real end condition
-	  m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-	  ExpressionId interruptEndCond = (new InterruptibleCommandHandleValues(m_ack))->getId();
-	  ExpressionId conjunctCondition = (new Conjunction((new IsKnown(m_ack))->getId(),
-														true, 
-														m_conditions[endIdx],
-														m_garbageConditions[endIdx]))->getId();
-	  ExpressionId realEndCondition =
-		(new Disjunction(interruptEndCond, true, conjunctCondition, true))->getId();
-	  realEndCondition->addListener(m_listeners[endIdx]);
-	  m_conditions[endIdx] = realEndCondition;
-	  m_garbageConditions[endIdx] = true;
-          
-	  // Listen to any change in the command handle so that the internal variable 
-	  // CommandHandleVariable can be updated
-	  ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
-	  commandHandleCondition->ignoreCachedValue();
-	  commandHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
-	  m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
-	  m_garbageConditions[commandHandleReceivedIdx] = true;
-	}
-	else if (m_nodeType == ASSIGNMENT() || m_nodeType == UPDATE()) {
+	// Let the derived class do its thing
+	createSpecializedConditions();
+  }
+
+  // Default method
+  void Node::createSpecializedConditions()
+  {
+	if (m_nodeType == UPDATE()) {
 	  // Construct real end condition
 	  m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
 	  m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
@@ -780,11 +745,11 @@ namespace PLEXIL {
 
   Node::~Node() 
   {
-	delete m_sortedVariableNames;
-    delete (RealNodeConnector*) m_connector;
 
 	// Remove anything that refers to variables, either ours or another node's
     cleanUpConditions();
+
+	// FIXME: this really needs to be called from specialized destructors
 	cleanUpNodeBody();
 
 	// Delete children
@@ -795,6 +760,8 @@ namespace PLEXIL {
 	// Now safe to delete variables
     cleanUpVars();
 
+	delete m_sortedVariableNames;
+    delete (RealNodeConnector*) m_connector;
     m_id.remove();
   }
 
@@ -836,16 +803,6 @@ namespace PLEXIL {
 
   void Node::cleanUpNodeBody()
   {
-    if (m_assignment.isId()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing assignment.");
-      delete (Assignment*) m_assignment;
-	  m_assignment = AssignmentId::noId();
-    }
-    if(m_command.isId()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing command.");
-      delete (Command*) m_command;
-	  m_command = CommandId::noId();
-    }
     if(m_update.isId()) {
       debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing update.");
       delete (Update*) m_update;
@@ -853,7 +810,8 @@ namespace PLEXIL {
     }
   }
 
-  void Node::cleanUpVars() {
+  void Node::cleanUpVars() 
+  {
     if (m_cleanedVars)
       return;
     checkError(m_cleanedConditions,
@@ -880,10 +838,6 @@ namespace PLEXIL {
 	}
 
 	// Delete internal variables
-	if (m_commandHandleVariable.isId()) {
-	  delete (Variable*) m_commandHandleVariable;
-	  m_commandHandleVariable = VariableId::noId();
-	}
     if (m_ack.isId()) {
       delete (Variable*) m_ack;
 	  m_ack = VariableId::noId();
@@ -898,7 +852,8 @@ namespace PLEXIL {
     m_cleanedVars = true;
   }
 
-  void Node::postInit() {
+  void Node::postInit() 
+  {
     checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
     m_postInitCalled = true;
 
@@ -907,22 +862,13 @@ namespace PLEXIL {
     createConditions(m_node->conditions());
 
     //create assignment/command
-    if(m_nodeType == COMMAND()) {
-      debugMsg("Node:postInit", "Creating command for node '" << m_nodeId.toString() << "'");
-	  // XML parser should have checked for this
-      checkError(Id<PlexilCommandBody>::convertable(m_node->body()),
-				 "Node is a command node but doesn't have a command body.");
-      createCommand((PlexilCommandBody*)m_node->body());
-    }
-    else if(m_nodeType == ASSIGNMENT()) {
-      debugMsg("Node:postInit",
-			   "Creating assignment for node '" << m_nodeId.toString() << "'");
-	  // XML parser should have checked for this
-      checkError(Id<PlexilAssignmentBody>::convertable(m_node->body()),
-				 "Node is an assignment node but doesn't have an assignment body.");
-      createAssignment((PlexilAssignmentBody*)m_node->body());
-    }
-    else if (m_nodeType == UPDATE()) {
+	specializedPostInit();
+  }
+
+  // Default method
+  void Node::specializedPostInit()
+  {
+    if (m_nodeType == UPDATE()) {
       debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
 	  // XML parser should have checked for this
       checkError(Id<PlexilUpdateBody>::convertable(m_node->body()),
@@ -931,182 +877,10 @@ namespace PLEXIL {
     }
 
     //call postInit on all children
-    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->postInit();
   }
 
-
-  void Node::createAssignment(const PlexilAssignmentBody* body) 
-  {
-    //we still only support one variable on the LHS
-	// FIXME: push this check up into XML parser
-    checkError(body->dest().size() >= 1,
-			   "Need at least one destination variable in assignment.");
-    const PlexilExprId& destExpr = (body->dest())[0]->getId();
-    VariableId dest;
-    LabelStr destName;
-    bool deleteLhs = false;
-    if (Id<PlexilVarRef>::convertable(destExpr)) {
-      destName = destExpr->name();
-      dest = findVariable((Id<PlexilVarRef>) destExpr);
-	  // FIXME: push this check up into XML parser
-      checkError(dest.isValid(),
-                 "Dest variable '" << destName <<
-                 "' not found in assignment node '" << m_nodeId.toString() << "'");
-    }
-    else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-      dest =
-		(VariableId)
-		ExpressionFactory::createInstance(destExpr->name(),
-										  destExpr,
-										  m_connector);
-      // *** beef this up later ***
-	  PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
-	  debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-	  int e_index = dest->toString().find(": ", dest->toString().length()-15);
-	  int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
-	  int diff_index = e_index - b_index;
-	  std::string m_index = " ";
-	  if(e_index != std::string::npos)
-		{
-
-		  m_index = dest->toString().substr(e_index-diff_index,diff_index);
-		}
-	  debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
-	  const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
-	  destName = LabelStr(m_str);
-      deleteLhs = true;
-    }
-    else {
-	  // FIXME: push this check up into XML parser 
-	  checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
-    }
-
-    bool deleteRhs = false;
-    ExpressionId rhs =
-      ExpressionFactory::createInstance(body->RHS()->name(), 
-										body->RHS(),
-										m_connector,
-										deleteRhs);
-    m_assignment =
-      (new Assignment(dest, rhs, m_ack, destName, deleteLhs, deleteRhs))->getId();
-  }
-
-  // Unit test variant of above
-  void Node::createDummyAssignment() 
-  {
-    VariableId dest = (new BooleanVariable(BooleanVariable::FALSE_VALUE()))->getId();
-	LabelStr destName("dummy");
-    m_assignment =
-      (new Assignment(dest, BooleanVariable::TRUE_EXP(), m_ack, destName, true, false))->getId();
-  }
-
-  void Node::createCommand(const PlexilCommandBody* command) 
-  {
-	checkError(command->state()->nameExpr().isValid(),
-			   "Attempt to create command with invalid name expression");
-
-    PlexilStateId state = command->state();
-    std::vector<ExpressionId> garbage;
-	bool wasCreated = false;
-    ExpressionId nameExpr = 
-	  ExpressionFactory::createInstance(state->nameExpr()->name(), 
-										state->nameExpr(), 
-										m_connector,
-										wasCreated);
-	if (wasCreated)
-	  garbage.push_back(nameExpr);
-
-    LabelStr name(nameExpr->getValue());
-    std::list<ExpressionId> args;
-    for (std::vector<PlexilExprId>::const_iterator it = state->args().begin();
-		 it != state->args().end(); 
-		 ++it) {
-	  ExpressionId argExpr =
-		ExpressionFactory::createInstance((*it)->name(), *it, m_connector, wasCreated);
-	  check_error(argExpr.isValid());
-	  args.push_back(argExpr);
-	  if (wasCreated)
-		garbage.push_back(argExpr);
-    }
-    
-    VariableId destVar;
-    LabelStr dest_name = "";
-    if (!command->dest().empty()) {
-	  const PlexilExprId& destExpr = command->dest()[0]->getId();
-	  dest_name = destExpr->name();
-	  if (Id<PlexilVarRef>::convertable(destExpr))
-		{
-		  destVar = findVariable((Id<PlexilVarRef>) destExpr);
-		  // FIXME: push this check up into XML parser
-		  checkError(destVar.isValid(),
-					 "Unknown destination variable '" << dest_name <<
-					 "' in command '" << name.toString() << "' in node '" <<
-					 m_nodeId.toString() << "'");
-		}
-	  else if (Id<PlexilArrayElement>::convertable(destExpr))
-		{
-		  destVar = ExpressionFactory::createInstance(destExpr->name(),
-													  destExpr,
-													  m_connector);
-		  garbage.push_back(destVar);
-		}
-	  else {
-		checkError(ALWAYS_FAIL, "Invalid left-hand side for a command");
-	  }
-	}
-
-    // Resource
-    ResourceList resourceList;
-    const std::vector<PlexilResourceId>& plexilResourceList = command->getResource();
-    for(std::vector<PlexilResourceId>::const_iterator resListItr = plexilResourceList.begin();
-        resListItr != plexilResourceList.end(); ++resListItr) {
-	  ResourceMap resourceMap;
-
-	  const PlexilResourceMap& resources = (*resListItr)->getResourceMap();
-	  for (PlexilResourceMap::const_iterator resItr = resources.begin();
-		   resItr != resources.end();
-		   ++resItr) {
-		bool wasCreated = false;
-		ExpressionId resExpr
-		  = ExpressionFactory::createInstance(resItr->second->name(), 
-											  resItr->second, 
-											  m_connector,
-											  wasCreated);
-		check_error(resExpr.isValid());
-		resourceMap[resItr->first] = resExpr;
-		if (wasCreated)
-		  garbage.push_back(resExpr);
-	  }
-	  resourceList.push_back(resourceMap);
-	}
-
-    debugMsg("Node:createCommand",
-			 "Creating command '" << name.toString() << "' for node '" <<
-			 m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
-    check_error(m_command.isValid());
-  }
-
-  // Unit test variant of above
-  void Node::createDummyCommand() 
-  {
-    ExpressionId nameExpr = (new StringVariable("dummy", true))->getId();
-    std::vector<ExpressionId> garbage;
-	garbage.push_back(nameExpr);
-    LabelStr name(nameExpr->getValue());
-	// Empty arglist
-    std::list<ExpressionId> args;
-    
-	// No destination variable
-    VariableId destVar;
-    LabelStr dest_name;
-
-    // No resource
-    ResourceList resourceList;
-    m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
-    check_error(m_command.isValid());
-  }
 
   void Node::createUpdate(const PlexilUpdateBody* body) 
   {
@@ -1171,8 +945,6 @@ namespace PLEXIL {
 	// TODO: figure out if these should be activated on entering EXECUTING state
     m_outcomeVariable->activate();
     m_failureTypeVariable->activate();
-	if (m_commandHandleVariable.isId())
-	  m_commandHandleVariable->activate();
 
 	// Activate timepoints
 	// TODO: figure out if they should be inactive until entering the corresponding state
@@ -1180,6 +952,13 @@ namespace PLEXIL {
 	  m_startTimepoints[s]->activate();
 	  m_endTimepoints[s]->activate();
 	}
+
+	specializedActivateInternalVariables();
+  }
+
+  // Default method
+  void Node::specializedActivateInternalVariables()
+  {
   }
 
   ExpressionId& Node::getCondition(const LabelStr& name) {
@@ -1369,11 +1148,9 @@ namespace PLEXIL {
     return m_failureTypeVariable->getValue();
   }
 
+  // Default method
   const LabelStr Node::getCommandHandle() {
-	if (m_commandHandleVariable.isId())
-	  return m_commandHandleVariable->getValue();
-	else 
-	  return Expression::UNKNOWN();
+	return Expression::UNKNOWN();
   }
 
   class NodeIdEq {
@@ -1505,8 +1282,6 @@ namespace PLEXIL {
 	}
   }
 
-  const VariableId& Node::getAssignmentVariable() const {return m_assignment->getDest();}
-
   NodeState Node::getDestState() 
   {
     debugMsg("Node:getDestState",
@@ -1577,22 +1352,13 @@ namespace PLEXIL {
 	// Here only to placate the unit test
 	m_exec->notifyExecuted(getId());
 
-    if (m_nodeType == ASSIGNMENT()) {
-	  checkError(m_assignment.isValid(),
-				 "Node::handleExecution: Assignment is invalid");
-	  m_assignment->activate();
-	  m_assignment->fixValue();
-      m_exec->enqueueAssignment(m_assignment);
-	}
-    else if (m_nodeType == COMMAND()) {
-	  checkError(m_command.isValid(),
-				 "Node::handleExecution: Command is invalid");
-      m_command->activate();
-      m_command->fixValues();
-      m_command->fixResourceValues();
-	  m_exec->enqueueCommand(m_command);
-	}
-    else if (m_nodeType == UPDATE()) {
+	specializedHandleExecution();
+  }
+
+  // default method
+  void Node::specializedHandleExecution()
+  {
+	if (m_nodeType == UPDATE()) {
 	  checkError(m_update.isValid(),
 				 "Node::handleExecution: Update is invalid");
       m_update->activate();
@@ -1607,8 +1373,6 @@ namespace PLEXIL {
     //reset outcome and failure type
 	m_outcomeVariable->reset();
 	m_failureTypeVariable->reset();
-	if (m_commandHandleVariable.isId())
-	  m_commandHandleVariable->reset();
 
     //reset timepoints
     for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
@@ -1620,34 +1384,24 @@ namespace PLEXIL {
 		 it != m_localVariables.end();
 		 ++it)
       (*it)->reset();
-    
-    if (getType() == COMMAND()
-		|| getType() == UPDATE()
+
+	specializedReset();
+  }
+
+  // Default method
+  void Node::specializedReset()
+  {
+    if (getType() == UPDATE()
 		|| getType() == REQUEST())
       m_ack->reset();
   }
 
-  void Node::abort() {
+  // Default method
+  void Node::abort() 
+  {
     debugMsg("Node:abort", "Aborting node " << m_nodeId.toString());
-    if(getType() == Node::COMMAND() && m_command.isValid()) {
-	  // Handle stupid unit test
-	  if (m_exec->getExternalInterface().isId()) {
-		m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
-													m_command->getArgValues(),
-													m_conditions[abortCompleteIdx],
-													m_command->m_ack);
-	  }
-	}
-    else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
-      m_assignment->getDest()->setValue(Expression::UNKNOWN());
-    else {
-      condDebugMsg(getType() == Node::COMMAND() && m_command.isInvalid(),
-				   "Warning", "Invalid command id in " << m_nodeId.toString());
-      condDebugMsg(getType() == Node::ASSIGNMENT() && m_assignment.isInvalid(),
-				   "Warning", "Invalid assignment id in " << m_nodeId.toString());
-      debugMsg("Warning", "No abort for node type " << getType().toString() << " yet.");
-      //checkError(ALWAYS_FAIL, "No abort currently for node type " << getType().toString());
-    }
+	debugMsg("Warning", "No abort for node type " << getType().toString() << " yet.");
+	//checkError(ALWAYS_FAIL, "No abort currently for node type " << getType().toString());
   }
 
   /* old version
@@ -1699,14 +1453,21 @@ namespace PLEXIL {
     }
   }
 
-  void Node::deactivateExecutable() {
-    if(getType() == Node::COMMAND() && m_command.isValid())
-      m_command->deactivate();
-    else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
-      m_assignment->deactivate();
-    else if(getType() == Node::UPDATE() && m_update.isValid())
+  void Node::deactivateExecutable() 
+  {
+	specializedDeactivateExecutable();
+	deactivateLocalVariables();
+  }
+
+  // Default method
+  void Node::specializedDeactivateExecutable()
+  {
+    if (getType() == Node::UPDATE() && m_update.isValid())
       m_update->deactivate();
-    // deactivate local variables
+  }
+
+  void Node::deactivateLocalVariables()
+  {
     for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
          vit++)
@@ -1739,9 +1500,7 @@ namespace PLEXIL {
 		stream << indentStr << " Failure type: " <<
 		  m_failureTypeVariable->toString() << '\n';
 	  // Print variables, starting with command handle
-      if (m_nodeType == COMMAND() && m_commandHandleVariable->getValue() != Expression::UNKNOWN())
-		stream << indentStr << " Command handle: " <<
-		  m_commandHandleVariable->toString() << '\n';
+	  printCommandHandle(stream, indent, false);
 	  printVariables(stream, indent);
     }
     else if (m_state != INACTIVE_STATE) {
@@ -1751,10 +1510,7 @@ namespace PLEXIL {
 		  m_conditions[i]->toString() << '\n';
       }
 	  // Print variables, starting with command handle (if appropriate)
-      if (m_nodeType == COMMAND()) {
-		stream << indentStr << " Command handle: " <<
-		  m_commandHandleVariable->toString() << '\n';
-	  }
+	  printCommandHandle(stream, indent, true);
 	  printVariables(stream, indent);
     }
 	// print children
@@ -1775,6 +1531,11 @@ namespace PLEXIL {
 	  stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
 		getInternalVariable(LabelStr(*it))->toString() << '\n';
 	}
+  }
+
+  // Default method does nothing
+  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent, bool always) const
+  {
   }
 
   // Helper used below
@@ -1841,145 +1602,6 @@ namespace PLEXIL {
     return *endNames;
   }
 
-
-  Command::Command(const ExpressionId nameExpr, 
-				   const std::list<ExpressionId>& args,
-				   const VariableId dest,
-                   const LabelStr& dest_name,
-				   const VariableId ack,
-				   const std::vector<ExpressionId>& garbage,
-                   const ResourceList& resource,
-				   const NodeId& parent)
-    : m_id(this),
-	  m_nameExpr(nameExpr),
-	  m_args(args),
-	  m_dest(dest),
-      m_destName(dest_name),
-	  m_ack(ack), 
-      m_garbage(garbage),
-	  m_resourceList(resource),
-	  m_node(parent)
-  {}
-
-  Command::~Command() {
-    for (std::vector<ExpressionId>::const_iterator it = m_garbage.begin();
-		 it != m_garbage.end();
-		 ++it) {
-      delete (Expression*) (*it);
-	}
-    m_id.remove();
-  }
-
-  LabelStr Command::getName() const
-  {
-	return LabelStr(m_nameExpr->getValue()); 
-  }
-
-  void Command::fixValues() {
-    m_argValues.clear();
-    for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      m_argValues.push_back(expr->getValue());
-    }
-  }
-
-  void Command::fixResourceValues()
-  {
-    m_resourceValuesList.clear();
-    for(ResourceList::const_iterator resListIter = m_resourceList.begin();
-		resListIter != m_resourceList.end();
-		++resListIter)
-      {
-        ResourceValues resValues;
-        for(ResourceMap::const_iterator resIter = resListIter->begin();
-            resIter != resListIter->end();
-			++resIter) {
-		  ExpressionId expr = resIter->second;
-		  check_error(expr.isValid());
-		  resValues[resIter->first] = expr->getValue();
-		}
-        m_resourceValuesList.push_back(resValues);
-      }
-  }
-
-  //more error checking here
-  void Command::activate() {
-	m_nameExpr->activate();
-    if(m_dest != ExpressionId::noId())
-      m_dest->activate();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->activate();
-    }
-    for (ResourceList::const_iterator resListIter = m_resourceList.begin();
-		 resListIter != m_resourceList.end();
-		 ++resListIter) {
-	  for (ResourceMap::const_iterator resIter = resListIter->begin();
-		   resIter != resListIter->end();
-		   ++resIter) {
-		ExpressionId expr = resIter->second;
-		check_error(expr.isValid());
-		expr->activate();
-	  }
-	}
-  }
-
-  void Command::deactivate() {
-	m_nameExpr->deactivate();
-    if(m_dest != ExpressionId::noId())
-      m_dest->deactivate();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->deactivate();
-    }
-  }
-
-  const std::string& Command::getDestName() const {
-    return m_destName.toString();
-  }
-
-  Assignment::Assignment(const VariableId lhs, 
-						 const ExpressionId rhs,
-						 const VariableId ack, 
-						 const LabelStr& lhsName, 
-                         const bool deleteLhs, 
-						 const bool deleteRhs)
-    : m_id(this), m_lhs(lhs), m_rhs(rhs), m_ack(ack), 
-      m_value(Expression::UNKNOWN()),
-      m_destName(lhsName),
-      m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
-  {
-  }
-
-  Assignment::~Assignment() {
-    if(m_deleteLhs)
-      delete (Variable*) m_lhs;
-    if(m_deleteRhs)
-      delete (Expression*) m_rhs;
-    m_id.remove();
-  }
-
-  void Assignment::fixValue() {
-    m_value = m_rhs->getValue();
-  }
-
-  void Assignment::activate() 
-  {
-    m_rhs->activate();
-    m_lhs->activate();
-  }
-
-  void Assignment::deactivate() {
-    m_rhs->deactivate();
-    m_lhs->deactivate();
-  }
-
-  const std::string& Assignment::getDestName() {
-    return m_destName.toString();
-  }
 
   Update::Update(const NodeId& node, 
 				 const ExpressionMap& pairs,

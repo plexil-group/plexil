@@ -38,6 +38,7 @@
 #include "AdapterFactory.hh"
 #include "BooleanVariable.hh"
 #include "ControllerFactory.hh"
+#include "CommandNode.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "DefaultAdapterConfiguration.hh"
@@ -50,7 +51,7 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "NewLuvListener.hh"
-#include "Node.hh"
+// #include "Node.hh" // redundant?
 #include "PlanDebugListener.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
