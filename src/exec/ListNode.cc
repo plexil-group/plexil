@@ -45,6 +45,10 @@ namespace PLEXIL
 					 const NodeId& parent)
 	: Node(node, exec, parent)
   {
+	checkError(node->nodeType() == NodeType_NodeList,
+			   "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
+			   << "\" for a ListNode");
+
 	// Instantiate child nodes, if any
 	debugMsg("Node:node", "Creating child nodes.");
 	// XML parser should have checked for this
@@ -70,6 +74,8 @@ namespace PLEXIL
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
 		   exec)
   {
+	checkError(type == LIST(),
+			   "Invalid node type \"" << type.toString() << "\" for a ListNode");
   }
 
   void ListNode::createChildNodes(const PlexilListBody* body) 

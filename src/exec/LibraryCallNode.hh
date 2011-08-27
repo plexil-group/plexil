@@ -24,15 +24,15 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef LIST_NODE_HH
-#define LIST_NODE_HH
+#ifndef LIBRARY_CALL_NODE_HH
+#define LIBRARY_CALL_NODE_HH
 
 #include "Node.hh"
 
 namespace PLEXIL
 {
 
-  class ListNode : public Node
+  class LibraryCallNode : public Node
   {
   public:
 
@@ -42,29 +42,30 @@ namespace PLEXIL
      * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    ListNode(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent = NodeId::noId());
+    LibraryCallNode(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    ListNode(const LabelStr& type, const LabelStr& name, const NodeState state,
-			 const bool skip, const bool start, const bool pre,
-			 const bool invariant, const bool post, const bool end, const bool repeat,
-			 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-			 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-			 const bool parentFinished, const bool cmdHdlRcvdCondition,
-			 const ExecConnectorId& exec = ExecConnectorId::noId());
+    LibraryCallNode(const LabelStr& type, const LabelStr& name, const NodeState state,
+					const bool skip, const bool start, const bool pre,
+					const bool invariant, const bool post, const bool end, const bool repeat,
+					const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
+					const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
+					const bool parentFinished, const bool cmdHdlRcvdCondition,
+					const ExecConnectorId& exec = ExecConnectorId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
-    virtual ~ListNode();
+    virtual ~LibraryCallNode();
 
-    virtual const std::vector<NodeId>& getChildren() const { return m_children; }
+    virtual const std::vector<NodeId>& getChildren() const 
+	{
+	  return m_children; 
+	}
 
   protected:
-
-	virtual NodeId findChild(const LabelStr& childName) const;
 
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit();
@@ -76,7 +77,11 @@ namespace PLEXIL
 
   private:
 
-    void createChildNodes(const PlexilListBody* body);
+    void createLibraryNode();
+
+    void testLibraryNodeParameters(const PlexilNodeId& libNode, 
+                                   const std::vector<PlexilVarRef*>& interfaceVars,
+                                   PlexilAliasMap& aliases);
 
     std::vector<NodeId> m_children; /*<! Vector of child node. */
 
@@ -84,4 +89,5 @@ namespace PLEXIL
 
 }
 
-#endif // LIST_NODE_HH
+#endif // LIBRARY_CALL_NODE_HH
+

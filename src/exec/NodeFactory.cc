@@ -27,6 +27,7 @@
 #include "NodeFactory.hh"
 #include "AssignmentNode.hh"
 #include "CommandNode.hh"
+#include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "UpdateNode.hh"
 // #include "Node.hh" // redundant?
@@ -135,7 +136,7 @@ namespace PLEXIL
 	REGISTER_NODE_FACTORY(UpdateNode, NodeType_Update);
 	REGISTER_NODE_FACTORY(Node, NodeType_Request); // soon to go away
 	REGISTER_NODE_FACTORY(Node, NodeType_Empty);
-	REGISTER_NODE_FACTORY(Node, NodeType_LibraryNodeCall);
+	REGISTER_NODE_FACTORY(LibraryCallNode, NodeType_LibraryNodeCall);
 	sl_registered = true;
   }
 

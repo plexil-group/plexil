@@ -207,7 +207,7 @@ namespace PLEXIL {
     const std::vector<VariableId> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
-    virtual const std::vector<NodeId>& getChildren() const { return m_children; }
+    virtual const std::vector<NodeId>& getChildren() const;
 
     /**
      * @brief Gets the state variable representing the state of this node.
@@ -353,6 +353,7 @@ namespace PLEXIL {
     bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
 
   protected:
+	friend class LibraryCallNode;
 	friend class ListNode;
 
     friend class PlexilExec;
@@ -426,7 +427,6 @@ namespace PLEXIL {
 	//
     NodeId m_id; /*<! The Id for this node*/
     NodeId m_parent; /*<! The parent of this node.*/
-    std::vector<NodeId> m_children; /*<! Child nodes.*/
     ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
     NodeConnectorId m_connector;
     PlexilNodeId m_node;
@@ -455,12 +455,6 @@ namespace PLEXIL {
   private:
 
     void createConditions(const std::map<std::string, PlexilExprId>& conds);
-
-    void createLibraryNode();
-
-    void testLibraryNodeParameters(const PlexilNodeId& libNode, 
-                                   const std::vector<PlexilVarRef*>& interfaceVars,
-                                   PlexilAliasMap& aliases);
 
     void createDeclaredVars(const std::vector<PlexilVarId>& vars);
 

@@ -44,6 +44,9 @@ namespace PLEXIL
 						 const NodeId& parent)
 	: Node(node, exec, parent)
   {
+	checkError(node->nodeType() == NodeType_Update,
+			   "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
+			   << "\" for an UpdateNode");
   }
 
   /**
@@ -62,9 +65,11 @@ namespace PLEXIL
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
 		   exec)
   {
+	checkError(type == UPDATE(),
+			   "Invalid node type \"" << type.toString() << "\" for an UpdateNode");
+
 	// Construct stuff as required for unit test
-    if (m_nodeType == UPDATE())
-	  createDummyUpdate();
+	createDummyUpdate();
   }
 
   /**

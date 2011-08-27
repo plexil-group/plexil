@@ -213,16 +213,6 @@ namespace PLEXIL {
 
 	// get interface variables
 	getVarsFromInterface(node->interface());
-
-	if (m_nodeType == LIBRARYNODECALL()) {
-	  // Create library call node
-	  debugMsg("Node:node", "Creating library node call.");
-	  // XML parser should have checked for this
-	  checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
-				 "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
-				 "library node call body.");
-	  createLibraryNode(); // constructs default end condition
-	}
   }
 
   // Used only by module test
@@ -544,168 +534,12 @@ namespace PLEXIL {
   {
   }
 
-  void Node::createLibraryNode()
-  {
-	// get node body
-	const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*) m_node->body();
-	checkError(body != NULL,
-			   "Node " << m_nodeId.toString() << ": createLibraryNode: Node has no library node call body");
-      
-	// get the lib node and its interface
-	const PlexilNodeId& libNode = body->libNode();
-	const PlexilInterfaceId& libInterface = libNode->interface();
-      
-	// if there is no interface, there must be no variables
-	if (libInterface.isNoId()) {
-	  checkError(body->aliases().size() == 0,
-				 "Variable aliases in '" << m_nodeId.toString() <<
-				 "' do not match interface in '" << 
-				 libNode->nodeId() << "'");
-	}
-      
-	// otherwise check variables in interface
-	else {
-	  // make a copy of the alias map
-	  PlexilAliasMap aliasesCopy(body->aliases());
-
-	  // check whether all "In" variables in the interface are referenced in the alias list
-	  testLibraryNodeParameters(libNode, libInterface->in(), aliasesCopy);
-
-	  // check whether all "InOut" variables in the interface are referenced in the alias list
-	  testLibraryNodeParameters(libNode, libInterface->inOut(), aliasesCopy);
-
-	  // check that every veriable in alias list has been referenced
-	  // or has a default value
-	  checkError(aliasesCopy.size() == 0, "Unknown variable '"
-				 << LabelStr(aliasesCopy.begin()->first).toString() 
-				 << "' passed in call to '" << libNode->nodeId() << "' from '"
-				 << getNodeId().toString() << "'");
-	}
-
-	// link aliases to variables or values
-	for (PlexilAliasMap::const_iterator alias = body->aliases().begin();
-		 alias != body->aliases().end();
-		 ++alias) {
-	  LabelStr paramName(alias->first);
-         
-	  // if this is a variable reference, look it up
-	  if (Id<PlexilVarRef>::convertable(alias->second)) {
-		const PlexilVarRef* paramVar = alias->second;
-            
-		// find variable in interface
-		const PlexilVarRef* iVar = libInterface->findVar(paramName.toString());
-		checkError(iVar != NULL,
-				   "Variable '" << paramName.toString()
-				   << "' referenced in '" << getNodeId().toString()
-				   << "' does not appear in interface of '" 
-				   << libNode->nodeId() << "' ");
-            
-		// check type
-		checkError(iVar->type() == paramVar->type(), 
-				   "Variable type mismatch between formal parameter '" 
-				   << iVar->name() << "' (" << iVar->type() << ") and actual variable '" 
-				   << paramVar->name() << "' (" << paramVar->type() << ") "
-				   << "' referenced in '" << getNodeId().toString() << "'");
-
-		// find the expression form
-		VariableId var = findVariable(alias->second);
-		// FIXME: push this check up into XML parser
-		checkError(var.isId(), "Unknown variable '" 
-				   << alias->second->name()
-				   << "' referenced in call to '" << libNode->nodeId() << "' from '"
-				   << getNodeId().toString() << "'");
-		// FIXME: push this check up into XML parser
-		checkError(Id<VariableImpl>::convertable(var)
-				   || Id<AliasVariable>::convertable(var),
-				   "Expression not a variable '" 
-				   << alias->second->name()
-				   << "' referenced in call to '" << libNode->nodeId() << "' from '"
-				   << getNodeId().toString() << "'");
-
-		if (iVar->type() == ARRAY) {
-		  // check for array element type match
-		  // iVar should have variable definition
-		  const PlexilArrayVarId ivarDef = (const PlexilArrayVarId&) iVar->variable();
-		  checkError(ivarDef.isId(), 
-					 "Internal error: interface array variable '" << paramName.c_str()
-					 << "' is missing its variable definition");
-		  const Id<ArrayVariable> arrayVar = (const Id<ArrayVariable>&) var;
-		  checkError(arrayVar.isId(),
-					 "Internal error: variable '" << alias->second->name()
-					 << "' doesn't seem to be an array variable");
-		  checkError(arrayVar->getElementType() == ivarDef->elementType(),
-					 "Array variable type mismatch between formal parameter '"
-					 << iVar->name() << "' (" << ivarDef->elementType() 
-					 << ") and actual variable '" << paramVar->name()
-					 << "' (" << arrayVar->getElementType()
-					 << ") referenced in '" << getNodeId().toString() << "'");
-		}
-
-		// check that read only variables appear in the the In interface
-		checkError(!var->isConst() || libInterface->findInVar(paramName.toString()),
-				   "Constant variable '" << alias->second->name()
-				   << "' referenced in '" << getNodeId().toString() 
-				   << "' is aliased to '" <<  iVar->name()
-				   << "' declared as InOut in '" << libNode->nodeId() << "'");
-
-		// add this variable to node
-		debugMsg("Node:createLibraryNode",
-				 " aliasing parameter variable " << paramName.c_str() << " to actual variable " << paramVar->name());
-		m_variablesByName[paramName] = var;
-	  }
-         
-	  // if this is a value, create a local variable for it
-	  else if (Id<PlexilValue>::convertable(alias->second))
-		{
-		  Id<PlexilValue> value = (Id<PlexilValue>)alias->second;
-		  debugMsg("Node:createLibraryNode",
-				   " Constructing variable for " << value->name()
-				   << " literal with value " << value->value() 
-				   << " as library node interface variable " << paramName.c_str());
-		  VariableId varId = 
-			(VariableId)
-			ExpressionFactory::createInstance(value->name(),
-											  value->getId(),
-											  m_connector);
-		  m_variablesByName[paramName] = varId;
-		  m_localVariables.push_back(varId);
-		}
-	  else
-		checkError(false, 
-				   "Unexpected expression type '" << alias->second->name()
-				   << "' in: " << getNodeId().toString());
-	}
-      
-	m_children.push_back(NodeFactory::createNode(body->libNode(), m_exec, m_id));
-
-	// Construct conditions
-	ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-	ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
-	cond->addListener(listener);
-	m_conditions[childrenWaitingOrFinishedIdx] = cond;
-	m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
-
-	ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-	listener = m_listeners[endIdx];
-	endCond->addListener(listener);
-	m_conditions[endIdx] = endCond;
-	m_garbageConditions[endIdx] = true;
-  }
-
   Node::~Node() 
   {
 	debugMsg("Node:~Node", " base class destructor for " << m_nodeId.toString());
 
 	// Remove anything that refers to variables, either ours or another node's
     cleanUpConditions();
-
-	// FIXME: this really needs to be called from specialized destructors
-	cleanUpNodeBody();
-
-	// Delete children
-    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
-      delete (Node*) (*it);
-    }
 
 	// Now safe to delete variables
     cleanUpVars();
@@ -753,8 +587,6 @@ namespace PLEXIL {
   // Default method.
   void Node::cleanUpChildConditions()
   {
-    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->cleanUpConditions();
   }
 
   // Default method.
@@ -820,9 +652,6 @@ namespace PLEXIL {
   // Default method
   void Node::specializedPostInit()
   {
-    //call postInit on all children
-    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->postInit();
   }
 
   // Make the node (and its children, if any) active.
@@ -844,9 +673,6 @@ namespace PLEXIL {
   // Default method
   void Node::specializedActivate()
   {
-    // Activate all children
-    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->activate();
   }
 
   void Node::activateInternalVariables()
@@ -876,72 +702,16 @@ namespace PLEXIL {
     return m_conditions[getConditionIndex(name)];
   }
 
+  // Default method.
+  const std::vector<NodeId>& Node::getChildren() const
+  {
+	static std::vector<NodeId> sl_emptyNodeVec;
+	return sl_emptyNodeVec;
+  }
+
   double Node::getAcknowledgementValue() const 
   {
     return ((Variable*)m_ack)->getValue();
-  }
-
-  // Check aliases against interfaceVars.
-  // Remove all that are found from aliases.
-  // If a variable exists in interfaceVars but not aliases:
-  //  - and it has a default value, generate the variable with the default value;
-  //  - and it doesn't have a default value, signal an error.
-  // libNode is only used for error message generation.
-
-  void Node::testLibraryNodeParameters(const PlexilNodeId& libNode, 
-									   const std::vector<PlexilVarRef*>& interfaceVars,
-									   PlexilAliasMap& aliases)
-  {
-	// check each variable in the interface to ensure it is
-	// referenced in the alias list
-      
-	for (std::vector<PlexilVarRef*>::const_iterator var = interfaceVars.begin();
-		 var != interfaceVars.end(); ++var) {
-	  // get var label and matching value in alias list
-	  LabelStr varLabel((*var)->name());
-	  PlexilExprId& aliasValue = aliases[varLabel];
-
-	  // check that variable referenced in alias list         
-	  // if it is missing then check whether formal parameter has a default value
-	  if (!aliasValue.isId()) {
-		if ((*var)->defaultValue().isId()) {
-		  // check that the default value is valid
-		  checkError(Id<PlexilValue>::convertable((*var)->defaultValue()), 
-					 "Expected PlexilValue.");
-		  const Id<PlexilValue>& defaultValue = 
-			(Id<PlexilValue>&)(*var)->defaultValue();
-		  checkError(defaultValue->value() != "UNKNOWN",
-					 "Interface variable '" << 
-					 varLabel.toString() <<
-					 "' in library node '" << libNode->nodeId() << 
-					 "' missing in call from '" << getNodeId().toString() <<
-					 "' and no default is specified");
-          
-		  // construct variable with default value
-		  debugMsg("Node:testLibraryNodeParameters", 
-				   "Constructing defaulted interface variable " << varLabel.c_str());
-		  VariableId newVar =
-			(VariableId)
-			ExpressionFactory::createInstance(PlexilParser::valueTypeString((*var)->type()) + "Value",
-											  defaultValue->getId(),
-											  m_connector);
-		  m_variablesByName[varLabel] = newVar;
-		  m_localVariables.push_back(newVar);
-		}
-		else {
-		  // no default value provided
-		  checkError(ALWAYS_FAIL,
-					 "Interface variable '" << 
-					 varLabel.toString() <<
-					 "' in library node '" << libNode->nodeId() << 
-					 "' missing in call from '" << getNodeId().toString() <<
-					 "' and no default is specified");
-		}
-	  }
-
-	  // remove value for alias copy for later checking
-	  aliases.erase(varLabel);
-	}
   }
 
   /**
@@ -1074,6 +844,7 @@ namespace PLEXIL {
 
 	// Not found locally - try ancestors if possible
 	// Stop at library call nodes, as interfaces there are explicit
+	// FIXME: Figure out how to implement firewall by subclassing
 	if (m_parent.isId()
 		&& m_parent->m_nodeType != LIBRARYNODECALL()) {
 	  const VariableId& result = m_parent->findVariable(name, true);
@@ -1094,7 +865,7 @@ namespace PLEXIL {
 			   m_nodeId.toString());
 	return VariableId::noId();
   }
-   
+
   const VariableId& Node::findVariable(const PlexilVarRef* ref)
   {
 	debugMsg("Node:findVariable",
@@ -1168,24 +939,10 @@ namespace PLEXIL {
 	}
   }
 
-
-  // FIXME: Delete this
-  class NodeIdEq {
-  public:
-    NodeIdEq(const double name) : m_name(name) {}
-    bool operator()(const NodeId& node) {return node->getNodeId() == m_name;}
-  private:
-    double m_name;
-  };
-
   // Default method
   NodeId Node::findChild(const LabelStr& childName) const
   {
-	std::vector<NodeId>::const_iterator it =
-	  std::find_if(m_children.begin(), m_children.end(), NodeIdEq(childName));
-	if (it == m_children.end())
-	  return NodeId::noId();
-	return *it;
+	return NodeId::noId();
   }
 
   NodeState Node::getDestState() 
