@@ -48,8 +48,8 @@ $n = 0;
 $m = 0;
 foreach $temp (@lines2){
   $line1 = @lines1[$n];
-  $line1 =~ s/(\(id_)[0-9]{3,4}(\[)/\1\2/g;
-  $temp =~ s/(\(id_)[0-9]{3,4}(\[)/\1\2/g;
+  $line1 =~ s/(\(id_)[0-9]{2,4}(\[)/\1\2/g;
+  $temp =~ s/(\(id_)[0-9]{2,4}(\[)/\1\2/g;
  if ($line1 ne $temp){   
       if ($m == 0){
           print DIF "\n";
