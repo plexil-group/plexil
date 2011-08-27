@@ -28,6 +28,7 @@
 #define _H_ExecDefs
 
 #include "Id.hh"
+#include "generic_hash_map.hh"
 
 #include <vector>
 #include <list>
@@ -86,6 +87,7 @@ namespace PLEXIL {
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
+  typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
   typedef double StateKey;
   typedef double LookupKey;
 

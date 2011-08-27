@@ -48,7 +48,6 @@ namespace PLEXIL {
   class NodeStateManager;
   typedef Id<NodeStateManager> NodeStateManagerId;
 
-  typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
   typedef PLEXIL_HASH_MAP(double, VariableId) VariableMap;
 
   /**

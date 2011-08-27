@@ -25,7 +25,7 @@
 */
 
 #include "ResourceArbiterInterface.hh"
-#include "CommandNode.hh"
+#include "Command.hh"
 #include "Debug.hh"
 #include <queue>
 #include <fstream>

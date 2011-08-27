@@ -93,57 +93,6 @@ namespace PLEXIL
 	VariableId m_commandHandleVariable;
   };
 
-
-  // *** TODO: replace ResourceMap and ResourceValues with structs or classes
-  typedef std::map<std::string, ExpressionId> ResourceMap;
-  typedef std::vector<ResourceMap> ResourceList;
-  typedef std::map<std::string, double> ResourceValues;
-  typedef std::vector<ResourceValues> ResourceValuesList;
-
-  class Command {
-  public:
-    Command(const ExpressionId nameExpr, 
-			const std::list<ExpressionId>& args, 
-            const VariableId dest,
-            const LabelStr& dest_name,
-			const VariableId ack,
-			const std::vector<ExpressionId>& garbage,
-            const ResourceList& resource,
-			const NodeId& parent);
-    ~Command();
-
-    CommandId& getId() {return m_id;}
-    VariableId& getDest() {return m_dest;}
-    VariableId& getAck() {return m_ack;}
-    const std::list<double>& getArgValues() const {return m_argValues;}
-    const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
-	const NodeId& getNode() const { return m_node; }
-	LabelStr getName() const;
-    const std::string& getDestName() const;
-
-    void activate();
-    void deactivate();
-
-  protected:
-    friend class CommandNode;
-
-    void fixValues();
-    void fixResourceValues();
-
-  private:
-    CommandId m_id;
-    ExpressionId m_nameExpr;
-    std::list<ExpressionId> m_args;
-    VariableId m_dest;
-    LabelStr m_destName;
-    VariableId m_ack;
-    std::vector<ExpressionId> m_garbage;
-    std::list<double> m_argValues;
-    ResourceList m_resourceList;
-    ResourceValuesList m_resourceValuesList;
-	NodeId m_node; // backpointer to parent
-  };
-
 }
 
 #endif // COMMAND_NODE_HH

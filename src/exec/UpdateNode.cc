@@ -30,6 +30,7 @@
 #include "Debug.hh"
 #include "ExecConnector.hh"
 #include "ExpressionFactory.hh"
+#include "Update.hh"
 
 namespace PLEXIL
 {
@@ -174,53 +175,6 @@ namespace PLEXIL
   void UpdateNode::specializedReset()
   {
 	m_ack->reset();
-  }
-
-  Update::Update(const NodeId& node, 
-				 const ExpressionMap& pairs,
-				 const VariableId ack,
-				 const std::list<ExpressionId>& garbage)
-    : m_id(this), m_source(node), m_pairs(pairs), m_ack(ack), m_garbage(garbage) {}
-
-  Update::~Update() {
-    for(std::list<ExpressionId>::const_iterator it = m_garbage.begin(); it != m_garbage.end();
-		++it)
-      delete (Expression*) (*it);
-    m_id.remove();
-  }
-
-  void Update::fixValues() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end();
-		++it) {
-      check_error(it->second.isValid());
-      std::map<double, double>::iterator valuePairIt =
-		m_valuePairs.find(it->first);
-      if (valuePairIt == m_valuePairs.end())
-		{
-		  // new pair, safe to insert
-		  m_valuePairs.insert(std::make_pair(it->first, it->second->getValue()));
-		}
-      else
-		{
-		  // recycle old pair
-		  valuePairIt->second = it->second->getValue();
-		}
-      debugMsg("Update:fixValues",
-			   " fixing pair '" << LabelStr(it->first).toString() << "', "
-			   << it->second->getValue());
-    }
-  }
-
-  void Update::activate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      it->second->activate();
-    }
-  }
-
-  void Update::deactivate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      it->second->deactivate();
-    }
   }
 
 }

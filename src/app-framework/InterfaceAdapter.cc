@@ -26,11 +26,11 @@
 
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
-#include "CommandNode.hh"
+#include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "LabelStr.hh"
-// #include "Node.hh" // redundant?
+#include "Node.hh"
 #include "StateCache.hh"
 #include "Variable.hh"
 #ifndef TIXML_USE_STL

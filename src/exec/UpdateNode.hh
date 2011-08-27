@@ -78,33 +78,6 @@ namespace PLEXIL
     UpdateId m_update;
   };
 
-  class Update {
-  public:
-    Update(const NodeId& node, 
-		   const ExpressionMap& pairs, 
-		   const VariableId ack,
-		   const std::list<ExpressionId>& garbage);
-    ~Update();
-    UpdateId& getId() {return m_id;}
-    VariableId& getAck() {return m_ack;}
-    const std::map<double, double>& getPairs() {return m_valuePairs;}
-    void activate();
-    void deactivate();
-    const NodeId& getSource() {return m_source;}
-
-  protected:
-    friend class UpdateNode;
-    void fixValues();
-
-  private:
-    UpdateId m_id;
-    NodeId m_source;
-    ExpressionMap m_pairs;
-    VariableId m_ack;
-    std::list<ExpressionId> m_garbage;
-    std::map<double, double> m_valuePairs;
-  };
-
 }
 
 #endif // UPDATE_NODE_HH
