@@ -75,6 +75,10 @@ namespace PLEXIL
 	virtual void cleanUpChildConditions();
 	virtual void cleanUpNodeBody();
 
+	virtual NodeState getDestStateFromExecuting();
+	virtual NodeState getDestStateFromFailing();
+	virtual NodeState getDestStateFromFinishing();
+
 	virtual void transitionFromExecuting(NodeState toState);
 	virtual void transitionFromFinishing(NodeState toState);
 	virtual void transitionFromFailing(NodeState toState);

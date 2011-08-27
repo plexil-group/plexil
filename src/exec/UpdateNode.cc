@@ -159,9 +159,86 @@ namespace PLEXIL
   }
 
   //
-  // Transition handlers
+  // Next-state logic
   //
 
+  NodeState UpdateNode::getDestStateFromExecuting()
+  {
+	checkError(isAncestorInvariantConditionActive(),
+			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isEndConditionActive(),
+			   "End for " << getNodeId().toString() << " is inactive.");
+
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+            debugMsg("Node:getDestState",
+                     "Destination: FINISHED.  Ancestor invariant condition false and end " <<
+                     "condition true.. ");
+            return FINISHED_STATE;
+		  }
+		else {
+		  debugMsg("Node:getDestState",
+				   "Destination: FAILING.  Ancestor invariant condition false and end " <<
+				   "condition false or unknown.");
+		  return FAILING_STATE;
+		}
+      }
+	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+		  debugMsg("Node:getDestState",
+				   "Destination: ITERATION_ENDED.  Invariant condition false and end " <<
+				   "condition true.. ");
+		  return ITERATION_ENDED_STATE;
+		}
+		else {
+            debugMsg("Node:getDestState",
+                     "Destination: FAILING.  Invariant condition false and end condition " <<
+                     "false or unknown.");
+            return FAILING_STATE;
+		  }
+      }
+
+	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+		return ITERATION_ENDED_STATE;
+	}
+      
+	debugMsg("Node:getDestState",
+			 "Destination from EXECUTING: no state.\n  Ancestor invariant: " 
+			 << getAncestorInvariantCondition()->toString() 
+			 << "\n  Invariant: " << getInvariantCondition()->toString() 
+			 << "\n  End: " << getEndCondition()->toString());
+	return NO_NODE_STATE;
+  }
+
+  NodeState UpdateNode::getDestStateFromFailing()
+  {
+	checkError(isAbortCompleteConditionActive(),
+			   "Abort complete for " << getNodeId().toString() << " is inactive.");
+
+	if (getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (findVariable(Node::FAILURE_TYPE())->getValue() ==
+		  FailureVariable::PARENT_FAILED()) {
+		debugMsg("Node:getDestState",
+				 "Destination: FINISHED.  Command/Update/Request node abort complete, " <<
+				 "and parent failed.");
+		return FINISHED_STATE;
+	  }
+	  else {
+		debugMsg("Node:getDestState",
+				 "Destination: ITERATION_ENDED.  Command/Update/Request node abort complete.");
+		return ITERATION_ENDED_STATE;
+	  }
+	}
+
+	debugMsg("Node:getDestState", "Destination: no state.");
+	return NO_NODE_STATE;
+  }
+
+  //
+  // Transition handlers
+  //
 
   void UpdateNode::transitionFromExecuting(NodeState destState)
   {

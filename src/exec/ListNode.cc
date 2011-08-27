@@ -146,7 +146,6 @@ namespace PLEXIL
       (*it)->cleanUpConditions();
   }
 
-  // Currently duplicated from Node.cc
   class NodeIdEq {
   public:
     NodeIdEq(const double name) : m_name(name) {}
@@ -169,6 +168,106 @@ namespace PLEXIL
     //call postInit on all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->postInit();
+  }
+
+  //
+  // Next-state logic
+  //
+
+  NodeState ListNode::getDestStateFromExecuting()
+  {
+	checkError(isAncestorInvariantConditionActive(),
+			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isEndConditionActive(),
+			   "End for " << getNodeId().toString() << " is inactive.");
+      
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
+		getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState", "Destination: FAILING.");
+	  condDebugMsg(getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
+				   "Node:getDestState",
+				   "List node and ANCESTOR_INVARIANT_CONDITION false.");
+	  condDebugMsg(getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
+				   "Node:getDestState",
+				   "List node and INVARIANT_CONDITION false.");
+	  return FAILING_STATE;
+	}
+	if(getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   "Destination: FINISHING.  List node and END_CONDITION true.");
+	  return FINISHING_STATE;
+	}
+	debugMsg("Node:getDestState",
+			 "Destination: no state.");
+	return NO_NODE_STATE;
+  }
+
+  NodeState ListNode::getDestStateFromFailing()
+  {
+	checkError(isChildrenWaitingOrFinishedConditionActive(),
+			   "Children waiting or finished for " << getNodeId().toString() <<
+			   " is inactive.");
+
+	if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PARENT_FAILED()) {
+		debugMsg("Node:getDestState",
+				 "Destination: FINISHED.  List node and ALL_CHILDREN_WAITING_OR_FINISHED" <<
+				 " true and parent failed.");
+		return FINISHED_STATE;
+	  }
+	  else {
+		debugMsg("Node:getDestState",
+				 "Destination: ITERATION_ENDED.  List node and self-failure.");
+		return ITERATION_ENDED_STATE;
+	  }
+	}
+	debugMsg("Node:getDestState", "Destination: no state.");
+	return NO_NODE_STATE;
+  }
+
+  NodeState ListNode::getDestStateFromFinishing()
+  {
+	checkError(isAncestorInvariantConditionActive(),
+			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isChildrenWaitingOrFinishedConditionActive(),
+			   "Children waiting or finished for " << getNodeId().toString() <<
+			   " is inactive.");
+
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
+		getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   "Destination: FAILING.");
+	  condDebugMsg(getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
+				   "Node:getDestState",
+				   "List node and ANCESTOR_INVARIANT_CONDITION false.");
+	  condDebugMsg(getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
+				   "Node:getDestState",
+				   "List node and INVARIANT_CONDITION false.");
+	  return FAILING_STATE;
+	}
+	if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (!getPostCondition()->isActive())
+		getPostCondition()->activate();
+
+	  if (BooleanVariable::falseOrUnknown(getPostCondition()->getValue())) {
+		debugMsg("Node:getDestState",
+				 "Destination: FINISHED.  List node, ALL_CHILDREN_WAITING_OR_FINISHED " <<
+				 "true and POST_CONDITION false or unknown.");
+		return ITERATION_ENDED_STATE;
+	  }
+
+	  debugMsg("Node:getDestState",
+			   "Destination: ITERATION_ENDED.  List node and " <<
+			   "ALL_CHILDREN_WAITING_OR_FINISHED and POST_CONDITION true.");
+	  return ITERATION_ENDED_STATE;
+	}
+	debugMsg("Node:getDestState",
+			 "Destination: no state. ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
+	return NO_NODE_STATE;
   }
 
   //
@@ -198,7 +297,6 @@ namespace PLEXIL
 	  deactivateInvariantCondition();
 	deactivateEndCondition();
 	// Any variables declared in this node also need to be deactivated.
-	// Chucko 17 Dec 2009
 	deactivateExecutable();
   }
 

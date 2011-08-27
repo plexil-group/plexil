@@ -26,21 +26,16 @@
 
 #include "exec-test-module.hh"
 
-#include "ActionNodeStateManager.hh"
 #include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
-#include "DefaultStateManager.hh"
-#include "EmptyNodeStateManager.hh"
 #include "ExecConnector.hh"
 #include "ExecDefs.hh"
 #include "Expression.hh"
 #include "ExpressionFactory.hh"
 #include "Expressions.hh"
 #include "ExternalInterface.hh"
-#include "LibraryNodeCallStateManager.hh"
-#include "ListNodeStateManager.hh"
 #include "Lookup.hh"
 #include "Node.hh"
 #include "NodeFactory.hh"
@@ -48,7 +43,6 @@
 #include "PlexilPlan.hh"
 #include "StateCache.hh"
 #include "TestSupport.hh"
-#include "VarBindingStateManager.hh"
 #include "Variables.hh"
 #include "XMLUtils.hh"
 
@@ -1285,7 +1279,6 @@ public:
 private:
   static bool inactiveDestTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
     NodeId nodes[4] = {NodeFactory::createNode(Node::ASSIGNMENT(), "test", INACTIVE_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
 		       NodeFactory::createNode(Node::COMMAND(), "test", INACTIVE_STATE,
@@ -1305,7 +1298,7 @@ private:
 	node->getParentFinishedCondition()->setValue(values[parentFinished]);
 	for(int parentExecuting = 0; parentExecuting < 3; ++parentExecuting) {
 	  node->getParentExecutingCondition()->setValue(values[parentExecuting]);
-	  NodeState destState = manager.getDestState(node);
+	  NodeState destState = node->getDestState();
 	  if(destState != node->getState()) {
 	    debugMsg("UnitTest:inactiveDestTest",
 		     "Parent finished: " << parentFinished << " Parent executing: " <<
@@ -1329,7 +1322,6 @@ private:
   }
 
   static bool inactiveTransTest() {
-    DefaultStateManager manager;
     TransitionExecConnector con;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1345,8 +1337,8 @@ private:
 	  node->getParentExecutingCondition()->setValue(values[parentExecuting]);
 	  node->getParentFinishedCondition()->setValue(values[parentFinished]);
 	  
-	  if(manager.canTransition(node)) {
-	    manager.transition(node);
+	  if(node->canTransition()) {
+	    node->transition();
 	    NodeState state = node->getState();
 	    assertTrue(!node->getParentExecutingCondition()->isActive());
 	    if(parentFinished == IDX_TRUE) {
@@ -1374,11 +1366,10 @@ private:
 
   static bool waitingDestTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
     NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", WAITING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
-//NodeState destState = manager.getDestState(node);
+//NodeState destState = node->getDestState();
     //node->deactivateParentExecutingCondition();
      node->activateSkipCondition();
     node->activateStartCondition();
@@ -1395,7 +1386,7 @@ private:
 	  node->getStartCondition()->setValue(values[start]);
 	  for(int pre = 0; pre < 3; ++pre) {
 	    node->getPreCondition()->setValue(values[pre]);
-	    NodeState destState = manager.getDestState(node);
+	    NodeState destState = node->getDestState();
 	    debugMsg("UnitTest:waitingDestTest: Destination",
 		     " state is " << StateVariable::nodeStateName(destState).toString());
 	    if(ancestorInvariant == IDX_FALSE) {
@@ -1429,14 +1420,8 @@ private:
 
   static bool waitingTransTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[4] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE()};
-    std::map<double, NodeStateManager*> managers;
-    managers.insert(std::make_pair(Node::ASSIGNMENT(), new VarBindingStateManager()));
-    managers.insert(std::make_pair(Node::COMMAND(), new ActionNodeStateManager()));
-    managers.insert(std::make_pair(Node::LIST(), new ListNodeStateManager()));
-    managers.insert(std::make_pair(Node::UPDATE(), new ActionNodeStateManager()));
 
     for(int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
       for(int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
@@ -1444,7 +1429,6 @@ for(int skip = 0; skip < 3; ++skip) {
 	for(int start = 0; start < 3; ++start) {
 	  for(int pre = 0; pre < 3; ++pre) {
 	    for(int i = 0; i < 4; i++) {
-	      NodeStateManager& manager = *(managers.find(types[i])->second);
 	      TransitionExecConnector con;
 	      NodeId node = NodeFactory::createNode(types[i], "test", WAITING_STATE,
 							false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
@@ -1464,8 +1448,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		       " ancestor end = " << values[ancestorEnd] << " skip = " << values[skip] << 
              " start = " << values[start] << " pre = " << values[pre] );
 
-	      if(manager.canTransition(node)) {
-		manager.transition(node);
+	      if(node->canTransition()) {
+		node->transition();
 		NodeState state = node->getState();
 
 
@@ -1507,13 +1491,11 @@ for(int skip = 0; skip < 3; ++skip) {
 	}
       }
     }
-    cleanup(managers);
     return true;
   }
 
   static bool iterationEndedDestTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
     NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", ITERATION_ENDED_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1530,7 +1512,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	node->getAncestorEndCondition()->setValue(values[ancestorEnd]);
 	for(int repeat = 0; repeat < 3; ++repeat) {
 	  node->getRepeatCondition()->setValue(values[repeat]);
-	  NodeState destState = manager.getDestState(node);
+	  NodeState destState = node->getDestState();
 	  if(ancestorInvariant == IDX_FALSE) {
 	    assertTrue(destState == FINISHED_STATE);
 	  }
@@ -1555,7 +1537,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool iterationEndedTransTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[4] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE()};
@@ -1578,8 +1559,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		     "Testing node type " << types[i].toString() << " with ancestor invariant = " << values[ancestorInvariant] <<
 		     " ancestor end = " << values[ancestorEnd] << " repeat = " << values[repeat]);
 
-	    if(manager.canTransition(node)) {
-	      manager.transition(node);
+	    if(node->canTransition()) {
+	      node->transition();
 	      NodeState state = node->getState();
 
 	      //should probably check to make sure the reset happened here
@@ -1609,7 +1590,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool finishedDestTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
     NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", FINISHED_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1617,7 +1597,7 @@ for(int skip = 0; skip < 3; ++skip) {
     node->activateParentWaitingCondition();
     for(int parentWaiting = 0; parentWaiting < 3; ++parentWaiting) {
       node->getParentWaitingCondition()->setValue(values[parentWaiting]);
-      NodeState destState = manager.getDestState(node);
+      NodeState destState = node->getDestState();
       if(parentWaiting == IDX_TRUE) {
 	assertTrue(destState == INACTIVE_STATE);
       }
@@ -1631,7 +1611,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool finishedTransTest() {
     TransitionExecConnector con;
-    DefaultStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[4] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE()};
@@ -1647,8 +1626,8 @@ for(int skip = 0; skip < 3; ++skip) {
 	debugMsg("UnitTest:finishedTransition",
 		 "Testing node type " << types[i].toString() << " with parent waiting = " << values[parentWaiting]);
 
-	if(manager.canTransition(node)) {
-	  manager.transition(node);
+	if(node->canTransition()) {
+	  node->transition();
 	  NodeState state = node->getState();
 
 
@@ -1669,7 +1648,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool listExecutingDestTest() {
     TransitionExecConnector con;
-    ListNodeStateManager manager;
     NodeId node = NodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1683,7 +1661,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	node->getInvariantCondition()->setValue(values[invariant]);
 	for(int end = 0; end < 3; ++end) {
 	  node->getEndCondition()->setValue(values[end]);
-	  NodeState destState = manager.getDestState(node);
+	  NodeState destState = node->getDestState();
 	  if(ancestorInvariant == IDX_FALSE) {
 	    assertTrue(destState == FAILING_STATE);
 	  }
@@ -1706,7 +1684,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool listExecutingTransTest() {
     TransitionExecConnector con;
-    ListNodeStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1730,8 +1707,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		     "Testing with ancestor invariant = " << values[ancestorInvariant] << " invariant = " << values[invariant] << " end = " <<
 		     values[end] << " post = " << values[post]);
 
-	    if(manager.canTransition(node)) {
-	      manager.transition(node);
+	    if(node->canTransition()) {
+	      node->transition();
 	      NodeState state = node->getState();
 	      assertTrue(node->getChildrenWaitingOrFinishedCondition()->isActive());
 	      if(ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
@@ -1766,7 +1743,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool listFailingDestTest() {
     TransitionExecConnector con;
-    ListNodeStateManager manager;
     NodeId node = NodeFactory::createNode(Node::LIST(), "test", FAILING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1779,7 +1755,7 @@ for(int skip = 0; skip < 3; ++skip) {
       node->getChildrenWaitingOrFinishedCondition()->setValue(values[children]);
       for(int failure = 0; failure < 2; ++failure) {
 	node->findVariable(Node::FAILURE_TYPE())->setValue(failureTypes[failure]);
-	NodeState destState = manager.getDestState(node);
+	NodeState destState = node->getDestState();
 
 	if(children == IDX_TRUE) {
 	  if(failure == 0) {
@@ -1801,7 +1777,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool listFailingTransTest() {
     TransitionExecConnector con;
-    ListNodeStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureType[2] = {FailureVariable::INVARIANT_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
@@ -1818,8 +1793,8 @@ for(int skip = 0; skip < 3; ++skip) {
 	debugMsg("UnitTest:listFailingTrans",
 		 "Testing with children waiting or finished = " << values[children] << " failure type = " << failureType[i].toString());
 
-	if(manager.canTransition(node)) {
-	  manager.transition(node);
+	if(node->canTransition()) {
+	  node->transition();
 	  NodeState state = node->getState();
 
 	  if(children == IDX_TRUE) {
@@ -1849,7 +1824,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool listFinishingDestTest() {
     TransitionExecConnector con;
-    ListNodeStateManager manager;
     NodeId node = NodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE,
 					      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
@@ -1866,7 +1840,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	  node->getChildrenWaitingOrFinishedCondition()->setValue(values[children]);
 	  for(int post = 0; post < 3; ++post) {
 	    node->getPostCondition()->setValue(values[post]);
-	    NodeState destState = manager.getDestState(node);
+	    NodeState destState = node->getDestState();
 
 	    debugMsg("UnitTest:listFinishingDest",
 		     "Testing with ancestor invariant = " <<
@@ -1897,7 +1871,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool listFinishingTransTest() {
     TransitionExecConnector con;
-    ListNodeStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1922,8 +1895,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		     "Testing with ancestor invariant = " << values[ancestorInvariant] << " invariant = " << values[invariant] << " children waiting or finished = " <<
 		     values[children] << " post = " << values[post]);
 
-	    if(manager.canTransition(node)) {
-	      manager.transition(node);
+	    if(node->canTransition()) {
+	      node->transition();
 	      NodeState state = node->getState();
 
 	      if(ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
@@ -1964,7 +1937,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool bindingExecutingDestTest() {
     TransitionExecConnector con;
-    VarBindingStateManager manager;
 
     NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE,
 											  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId());
@@ -1983,7 +1955,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		  node->getEndCondition()->setValue(values[end]);
 		  for(int post = 0; post < 3; ++post) {
 			node->getPostCondition()->setValue(values[post]);
-			NodeState destState = manager.getDestState(node);
+			NodeState destState = node->getDestState();
 
 			if(ancestorInvariant == IDX_FALSE) {
 			  assertTrue(destState == FINISHED_STATE);
@@ -2007,7 +1979,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool bindingExecutingTransTest() {
     TransitionExecConnector con;
-    VarBindingStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr type = Node::ASSIGNMENT();
@@ -2033,8 +2004,8 @@ for(int skip = 0; skip < 3; ++skip) {
 					 "Testing type " << Node::ASSIGNMENT().toString() << " with parent waiting = " << values[ancestorInvariant] << " invariant = " << values[invariant] <<
 					 " end = " << values[end] << " post = " << values[post]);
 
-			if(manager.canTransition(node)) {
-			  manager.transition(node);
+			if(node->canTransition()) {
+			  node->transition();
 			  NodeState state = node->getState();
 
 			  if(ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
@@ -2079,7 +2050,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool actionExecutingDestTest() {
     TransitionExecConnector con;
-    ActionNodeStateManager manager;
 
     NodeId nodes[2] = {NodeFactory::createNode(Node::COMMAND(), "test", EXECUTING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
@@ -2101,7 +2071,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	    nodes[i]->getEndCondition()->setValue(values[end]);
 	    for(int post = 0; post < 3; ++post) {
 	      nodes[i]->getPostCondition()->setValue(values[post]);
-	      NodeState destState = manager.getDestState(nodes[i]);
+	      NodeState destState = nodes[i]->getDestState();
 
 	      if(ancestorInvariant == IDX_FALSE) {
 		if(end == IDX_TRUE) {
@@ -2136,7 +2106,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool actionExecutingTransTest() {
     TransitionExecConnector con;
-    ActionNodeStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[2] = {Node::COMMAND(), Node::UPDATE()};
@@ -2162,8 +2131,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		       "Testing node type " << types[i].toString() << " with ancestor invariant = " << values[ancestorInvariant] <<
 		       " invariant = " << values[invariant] << " end = " << values[end] << " post = " << values[post]);
 
-	      if(manager.canTransition(node)) {
-		manager.transition(node);
+	      if(node->canTransition()) {
+		node->transition();
 		NodeState state = node->getState();
 		if(ancestorInvariant == IDX_FALSE) {
 		  assertTrue(node->getOutcome() == OutcomeVariable::FAILURE());
@@ -2219,7 +2188,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool actionFailingDestTest() {
     TransitionExecConnector con;
-    ActionNodeStateManager manager;
 
     NodeId nodes[2] = {NodeFactory::createNode(Node::COMMAND(), "test", FAILING_STATE,
 						   false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, con.getId()),
@@ -2233,7 +2201,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	nodes[i]->getAbortCompleteCondition()->setValue(values[abortComplete]);
 	for(int failure = 0; failure < 2; ++failure) {
 	  nodes[i]->findVariable(Node::FAILURE_TYPE())->setValue(failureTypes[failure]);
-	  NodeState destState = manager.getDestState(nodes[i]);
+	  NodeState destState = nodes[i]->getDestState();
 	  if(abortComplete == IDX_TRUE) {
 	    if(failure == 1) {
 	      assertTrue(destState == FINISHED_STATE);
@@ -2254,7 +2222,6 @@ for(int skip = 0; skip < 3; ++skip) {
 
   static bool actionFailingTransTest() {
     TransitionExecConnector con;
-    ActionNodeStateManager manager;
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[2] = {Node::COMMAND(), Node::UPDATE()};
@@ -2273,8 +2240,8 @@ for(int skip = 0; skip < 3; ++skip) {
 	  debugMsg("UnitTest:finishedTransition",
 		   "Testing node type " << types[i].toString() << " with abort complete = " << values[abort] << " failure type = " << failureTypes[failure].toString());
 
-	  if(manager.canTransition(node)) {
-	    manager.transition(node);
+	  if(node->canTransition()) {
+	    node->transition();
 	    NodeState state = node->getState();
 
 	    if(abort == IDX_TRUE) {
@@ -2494,13 +2461,6 @@ void ExecModuleTests::runTests() {
   REGISTER_EXPRESSION(LookupOnChange, LookupOnChange);
   REGISTER_EXPRESSION(AbsoluteValue, ABS);
   REGISTER_EXPRESSION(TimepointVariable, NodeTimepointValue);
-  REGISTER_STATE_MANAGER(VarBindingStateManager, Assignment);
-  REGISTER_STATE_MANAGER(ActionNodeStateManager, Command);
-  REGISTER_STATE_MANAGER(ActionNodeStateManager, Update);
-  REGISTER_STATE_MANAGER(ActionNodeStateManager, Request);
-  REGISTER_STATE_MANAGER(ListNodeStateManager, NodeList);
-  REGISTER_STATE_MANAGER(LibraryNodeCallStateManager, LibraryNodeCall);
-  REGISTER_STATE_MANAGER(EmptyNodeStateManager, Empty);
   //these are to make sure that the id count gets captured properly
   BooleanVariable::FALSE_EXP();
   BooleanVariable::TRUE_EXP();

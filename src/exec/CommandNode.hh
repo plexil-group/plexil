@@ -78,6 +78,9 @@ namespace PLEXIL
 	virtual void specializedDeactivateExecutable();
 	virtual void specializedReset();
 
+	virtual NodeState getDestStateFromExecuting();
+	virtual NodeState getDestStateFromFailing();
+
 	virtual void transitionFromExecuting(NodeState toState);
 	virtual void transitionFromFailing(NodeState toState);
 

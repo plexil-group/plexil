@@ -33,7 +33,6 @@
 #include "CoreExpressions.hh"
 #include "Expressions.hh"
 #include "Debug.hh"
-#include "StateManagerInit.hh"
 #include "PlexilXmlParser.hh"
 #include <time.h>
 #include "Node.hh"
@@ -195,7 +194,6 @@ int ExecTestRunner::run(int argc, char** argv)
     DebugMessage::readConfigFile(config);
 
   initializeExpressions();
-  initializeStateManagers();
 
   // always preserve white space in XML
   TiXmlBase::SetCondenseWhiteSpace(false);

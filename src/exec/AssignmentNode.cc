@@ -178,6 +178,44 @@ namespace PLEXIL
 	return m_assignment->getDest();
   }
 
+  //
+  // Next-state logic
+  //
+
+  NodeState AssignmentNode::getDestStateFromExecuting()
+  {
+	checkError(isAncestorInvariantConditionActive(),
+			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
+	checkError(isEndConditionActive(),
+			   "End for " << getNodeId().toString() << " is inactive.");
+
+	debugMsg("Node:getDestState",
+			 "VarBinding:EXECUTING" << std::endl <<
+			 getAncestorInvariantCondition()->toString() << std::endl <<
+			 getInvariantCondition()->toString() << std::endl <<
+			 getEndCondition()->toString());
+
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState", "Destination: FINISHED. Ancestor invariant false.");
+	  return FINISHED_STATE;
+	}
+	else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  Invariant false.");
+	  return ITERATION_ENDED_STATE;
+	}
+	else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  End condition true.");
+	  return ITERATION_ENDED_STATE;
+	}
+	return NO_NODE_STATE;
+  }
+
+  //
+  // Transition handlers
+  //
+
   void AssignmentNode::transitionFromExecuting(NodeState destState)
   {
 	checkError(destState == ITERATION_ENDED_STATE ||

@@ -38,7 +38,6 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "PlexilXmlParser.hh"
-#include "StateManagerInit.hh"
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif
@@ -113,7 +112,6 @@ namespace PLEXIL
 
     // Initialize Exec static data structures
     initializeExpressions();
-    initializeStateManagers();
 
     // Construct interfaces
     if (!m_interface.constructInterfaces(configXml))

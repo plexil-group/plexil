@@ -29,7 +29,6 @@
 #include "CoreExpressions.hh"
 #include "Expressions.hh"
 #include "Debug.hh"
-#include "StateManagerInit.hh"
 #include "PlexilXmlParser.hh"
 
 // CORBA stuff
@@ -103,7 +102,6 @@ int main(int argc, char** argv)
   // basic initialization
 
   initializeExpressions();
-  initializeStateManagers();
 
   // if specified on command line, load libraries
 

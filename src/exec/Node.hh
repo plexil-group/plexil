@@ -44,10 +44,6 @@
 
 namespace PLEXIL {
 
-  // forward reference
-  class NodeStateManager;
-  typedef Id<NodeStateManager> NodeStateManagerId;
-
   typedef PLEXIL_HASH_MAP(double, VariableId) VariableMap;
 
   /**
@@ -156,8 +152,14 @@ namespace PLEXIL {
      */
     NodeId& getParent() {return m_parent; }
 
+	/**
+	 * @brief Ask whether this node can transition now.
+	 */
+	bool canTransition();
+
     /**
-     * @brief Commit a state transition based on the statuses of various conditions.  See the various state graphs.
+     * @brief Commit a state transition based on the statuses of various conditions.
+	 * @note See the various state graphs.
      */
     void transition(const double time = 0.0);
 
@@ -299,18 +301,8 @@ namespace PLEXIL {
     ExpressionId& getParentFinishedCondition()            { return m_conditions[parentFinishedIdx]; }
     ExpressionId& getCommandHandleReceivedCondition()     { return m_conditions[commandHandleReceivedIdx]; }
 
-	// Should only be used by LuvListener.
-    ExpressionId& getCondition(const LabelStr& name);
-
-    double getAcknowledgementValue() const;
-
-	// Called from the transition handler
-    void execute();
-    void reset();
-    virtual void abort();
-    virtual void deactivateExecutable();
-
 	// Activate a condition
+	// These are public only to appease the module test
     void activateSkipCondition()                      { return activatePair(skipIdx); }
     void activateStartCondition()                     { return activatePair(startIdx); }
     void activateEndCondition()                       { return activatePair(endIdx); }
@@ -327,39 +319,10 @@ namespace PLEXIL {
     void activateParentFinishedCondition()            { return activatePair(parentFinishedIdx); }
     void activateCommandHandleReceivedCondition()     { return activatePair(commandHandleReceivedIdx); }
 
-	// Deactivate a condition
-    void deactivateSkipCondition()                      { return deactivatePair(skipIdx); }
-    void deactivateStartCondition()                     { return deactivatePair(startIdx); }
-    void deactivateEndCondition()                       { return deactivatePair(endIdx); }
-    void deactivateInvariantCondition()                 { return deactivatePair(invariantIdx); }
-    void deactivatePreCondition()                       { return deactivatePair(preIdx); }
-    void deactivatePostCondition()                      { return deactivatePair(postIdx); }
-    void deactivateRepeatCondition()                    { return deactivatePair(repeatIdx); }
-    void deactivateAncestorInvariantCondition()         { return deactivatePair(ancestorInvariantIdx); }
-    void deactivateAncestorEndCondition()               { return deactivatePair(ancestorEndIdx); }
-    void deactivateParentExecutingCondition()           { return deactivatePair(parentExecutingIdx); }
-    void deactivateChildrenWaitingOrFinishedCondition() { return deactivatePair(childrenWaitingOrFinishedIdx); }
-    void deactivateAbortCompleteCondition()             { return deactivatePair(abortCompleteIdx); }
-    void deactivateParentWaitingCondition()             { return deactivatePair(parentWaitingIdx); }
-    void deactivateParentFinishedCondition()            { return deactivatePair(parentFinishedIdx); }
-    void deactivateCommandHandleReceivedCondition()     { return deactivatePair(commandHandleReceivedIdx); }
+	// Should only be used by LuvListener.
+    ExpressionId& getCondition(const LabelStr& name);
 
-	// Test whether a condition is active
-    bool isSkipConditionActive()                      { return pairActive(skipIdx); }
-    bool isStartConditionActive()                     { return pairActive(startIdx); }
-    bool isEndConditionActive()                       { return pairActive(endIdx); }
-    bool isInvariantConditionActive()                 { return pairActive(invariantIdx); }
-    bool isPreConditionActive()                       { return pairActive(preIdx); }
-    bool isPostConditionActive()                      { return pairActive(postIdx); }
-    bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
-    bool isAncestorInvariantConditionActive()         { return pairActive(ancestorInvariantIdx); }
-    bool isAncestorEndConditionActive()               { return pairActive(ancestorEndIdx); }
-    bool isParentExecutingConditionActive()           { return pairActive(parentExecutingIdx); }
-    bool isChildrenWaitingOrFinishedConditionActive() { return pairActive(childrenWaitingOrFinishedIdx); }
-    bool isAbortCompleteConditionActive()             { return pairActive(abortCompleteIdx); }
-    bool isParentWaitingConditionActive()             { return pairActive(parentWaitingIdx); }
-    bool isParentFinishedConditionActive()            { return pairActive(parentFinishedIdx); }
-    bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
+    double getAcknowledgementValue() const;
 
   protected:
 	friend class LibraryCallNode;
@@ -400,6 +363,46 @@ namespace PLEXIL {
 
     void commonInit();
 
+	// Called from the transition handler
+    void execute();
+    void reset();
+    virtual void abort();
+    virtual void deactivateExecutable();
+
+	// Deactivate a condition
+    void deactivateSkipCondition()                      { return deactivatePair(skipIdx); }
+    void deactivateStartCondition()                     { return deactivatePair(startIdx); }
+    void deactivateEndCondition()                       { return deactivatePair(endIdx); }
+    void deactivateInvariantCondition()                 { return deactivatePair(invariantIdx); }
+    void deactivatePreCondition()                       { return deactivatePair(preIdx); }
+    void deactivatePostCondition()                      { return deactivatePair(postIdx); }
+    void deactivateRepeatCondition()                    { return deactivatePair(repeatIdx); }
+    void deactivateAncestorInvariantCondition()         { return deactivatePair(ancestorInvariantIdx); }
+    void deactivateAncestorEndCondition()               { return deactivatePair(ancestorEndIdx); }
+    void deactivateParentExecutingCondition()           { return deactivatePair(parentExecutingIdx); }
+    void deactivateChildrenWaitingOrFinishedCondition() { return deactivatePair(childrenWaitingOrFinishedIdx); }
+    void deactivateAbortCompleteCondition()             { return deactivatePair(abortCompleteIdx); }
+    void deactivateParentWaitingCondition()             { return deactivatePair(parentWaitingIdx); }
+    void deactivateParentFinishedCondition()            { return deactivatePair(parentFinishedIdx); }
+    void deactivateCommandHandleReceivedCondition()     { return deactivatePair(commandHandleReceivedIdx); }
+
+	// Test whether a condition is active
+    bool isSkipConditionActive()                      { return pairActive(skipIdx); }
+    bool isStartConditionActive()                     { return pairActive(startIdx); }
+    bool isEndConditionActive()                       { return pairActive(endIdx); }
+    bool isInvariantConditionActive()                 { return pairActive(invariantIdx); }
+    bool isPreConditionActive()                       { return pairActive(preIdx); }
+    bool isPostConditionActive()                      { return pairActive(postIdx); }
+    bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
+    bool isAncestorInvariantConditionActive()         { return pairActive(ancestorInvariantIdx); }
+    bool isAncestorEndConditionActive()               { return pairActive(ancestorEndIdx); }
+    bool isParentExecutingConditionActive()           { return pairActive(parentExecutingIdx); }
+    bool isChildrenWaitingOrFinishedConditionActive() { return pairActive(childrenWaitingOrFinishedIdx); }
+    bool isAbortCompleteConditionActive()             { return pairActive(abortCompleteIdx); }
+    bool isParentWaitingConditionActive()             { return pairActive(parentWaitingIdx); }
+    bool isParentFinishedConditionActive()            { return pairActive(parentFinishedIdx); }
+    bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
+
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit();
 	virtual void createSpecializedConditions();
@@ -409,6 +412,15 @@ namespace PLEXIL {
 	virtual void specializedHandleExecution();
 	virtual void specializedDeactivateExecutable();
 	virtual void specializedReset();
+
+	// *** are these const? ***
+	virtual NodeState getDestStateFromInactive();
+	virtual NodeState getDestStateFromWaiting();
+	virtual NodeState getDestStateFromExecuting();
+	virtual NodeState getDestStateFromFinishing();
+	virtual NodeState getDestStateFromFinished();
+	virtual NodeState getDestStateFromFailing();
+	virtual NodeState getDestStateFromIterationEnded();
 
 	virtual void transitionFromInactive(NodeState toState);
 	virtual void transitionFromWaiting(NodeState toState);
@@ -456,7 +468,6 @@ namespace PLEXIL {
     PlexilNodeId m_node;
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
-    NodeStateManagerId m_stateManager; /*<! The state manager for this node type. */
     VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
 	     Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
 		 I'll stick all variables in here, just to be safe.*/

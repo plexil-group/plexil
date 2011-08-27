@@ -70,6 +70,9 @@ namespace PLEXIL
 	virtual void specializedReset();
 	virtual void cleanUpNodeBody();
 
+	virtual NodeState getDestStateFromExecuting();
+	virtual NodeState getDestStateFromFailing();
+
 	virtual void transitionFromExecuting(NodeState toState);
 	virtual void transitionFromFailing(NodeState toState);
 
