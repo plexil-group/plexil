@@ -164,18 +164,22 @@ namespace PLEXIL
 
     /** get PLEXIL_HOME **/
     string pPath;
-    pPath = getenv ("PLEXIL_HOME");
-    if (pPath=="")
-      pPath = "error";
+    try {
+      pPath = getenv ("PLEXIL_HOME");
+    }
+    catch(int e) {
+      debugMsg("GanttViewer:printErrors", "PLEXIL_HOME is not defined");
+    }
     plexilDirectory = pPath;
 
     /** get Viewer directory under PLEXIL_HOME **/
     string pgPath = pPath + "/src/viewer";
     plexilGanttDirectory = pgPath + "/";
+    debugMsg("GanttViewer:printProgress", "Current working directory set");
   }
 
   /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
-  void createHTMLFile(string nodeName) {
+  void createHTMLFile(const string& nodeName) {
     string tempName = uniqueFileName;
     //uncomment the following line to set filename to the format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
     //uniqueFileName = getTime();
@@ -220,16 +224,18 @@ namespace PLEXIL
     myfile.close();
 
     myHTMLFile = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
+    debugMsg("GanttViewer:printProgress", "HTML file written to "+htmlFileName);
   }
      
 
   /** generate the JSON tokens file at the end of a plan's execution so that it can be parsed by Javascript in the Viewer **/
-  void deliverAsFile(string fullTemplate, string myCloser, string nodeName) {
+  void deliverAsFile(const string& fullTemplate, const string& myCloser, const string& nodeName) {
     ofstream myfile;
     uniqueFileName = plexilGanttDirectory + "/json/" + uniqueFileName + "_" + nodeName + ".js";
     myfile.open(uniqueFileName.c_str());
     myfile << fullTemplate << myCloser << myHTMLFile;
     myfile.close();
+    debugMsg("GanttViewer:printProgress", "JSON tokens file written to "+uniqueFileName);
   }
 
   /** executed when the plan is added 
@@ -250,6 +256,7 @@ namespace PLEXIL
     fullTemplate = "var rawPlanTokensFromFile=\n[\n";
     //reset startTime; it will be set when first node executes
     startTime = -1;
+    debugMsg("GanttViewer:printProgress", "GanttListener notified of plan; start time for filename set");
   }
 
   /** executed when nodes transition state
@@ -532,11 +539,13 @@ namespace PLEXIL
 
   //add JSON object to existing array
   fullTemplate = fullTemplate + newTemplate;
-
+  debugMsg("GanttViewer:printProgress", "Token added for node "+myEntity+"."+myPredicate);
+  
   // if it is the last token, create HTML and add the tokens to the js file
   if(myNumber == "1") { 
     createHTMLFile(myNodeNameLower);
     deliverAsFile(fullTemplate, myCloser, myNodeNameLower); 
+    debugMsg("GanttViewer:printProgress","finished gathering data; JSON and HTML stored");
   }
   }
   }
