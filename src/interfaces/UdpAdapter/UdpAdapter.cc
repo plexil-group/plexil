@@ -228,7 +228,7 @@ namespace PLEXIL
     // Set up the thread on which the message may/will eventually be received
     int status = -1;
     status = startUdpMessageReceiver(LabelStr(args.front()), dest, ack);
-    debugMsg("UdpAdapter::executeReceiveCommandCommand", " message handler for \"" << command.c_str() << "\" registered.");
+    debugMsg("UdpAdapter::executeReceiveCommandCommand", " message handler for \"" << command.c_str() << "\" registered");
   }
 
 //   // RECEIVE_UDP_MESSAGE_COMMAND
@@ -245,7 +245,7 @@ namespace PLEXIL
 //              << ", ack==" << ack << ", args.size()==" << args.size());
 //     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
 //     m_execInterface.notifyOfExternalEvent();
-//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered.");
+//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered");
 //   }
 
   // SEND_UDP_MESSAGE_COMMAND
@@ -287,17 +287,16 @@ namespace PLEXIL
                   << Expression::valueToString(args.front()) << ", is not a string");
     debugMsg("UdpAdapter::executeGetParameterCommand",
              " " << LabelStr(args.front()).c_str() << ", dest==" << dest << ", ack==" << ack);
-    // Extract the message name and try to verify the number of parameters defined vs the number of args used
+    // Extract the message name and try to verify the number of parameters defined vs the number of args used in the plan
     std::string msgName = LabelStr(args.front()).toString();
     size_t pos;
     pos = msgName.find(":");
     msgName = msgName.substr(0, pos);
     MessageMap::iterator msg;
     msg=m_messages.find(msgName);
-    assertTrueMsg(msg != m_messages.end(), "UdpAdapter::executeGetParameterCommand: no message found for " << msgName);
+    assertTrueMsg(msg != m_messages.end(), "UdpAdapter::executeGetParameterCommand: no message definition found for " << msgName);
     int params = msg->second.parameters.size();
-    debugMsg("UdpAdapter::executeGetParameterCommand", " msgName==" << msgName);
-    debugMsg("UdpAdapter::executeGetParameterCommand", " params==" << params);
+    //debugMsg("UdpAdapter::executeGetParameterCommand", " msgName==" << msgName << ", params==" << params);
     std::list<double>::const_iterator it = ++args.begin();
     int id;
     if (it == args.end())
@@ -317,14 +316,14 @@ namespace PLEXIL
         // The intent is that this might be discovered during development.
         assertTrueMsg(id < params,
                       "UdpAdapter: the message \"" << msgName << "\" is defined to have " << params
-                      << " parameters in the configuration file, but is being used in the plan with "
+                      << " parameters in the XML configuration file, but is being used in the plan with "
                       << id+1 << " arguments");
       }
     LabelStr command(formatMessageName(args.front(), GET_PARAMETER_COMMAND(), id));
     m_messageQueues.addRecipient(command, ack, dest);
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM().getKey());
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << command.c_str() << "\" registered.");
+    debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << command.c_str() << "\" registered");
   }
 
   // SEND_RETURN_VALUE_COMMAND
@@ -530,6 +529,7 @@ namespace PLEXIL
     // Try to set up the socket so that we can close it later if the thread is cancelled
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     assertTrueMsg(sock > 0, "UdpAdapter::startUdpMessageReceiver: call to socket() failed");
+    debugMsg("UdpAdapter::startUdpMessageReceiver", " " << name.toString() << " socket (" << sock << ") opened");
     msg->second.sock = sock; // pass the socket descriptor to waitForUdpMessage, which will then reset it
     pthread_t thread_handle;
     // Spawn the listener thread
@@ -696,7 +696,7 @@ namespace PLEXIL
           {
             assertTrueMsg(!type.compare("string"), "handleUdpMessage: unknown parameter type " << type.c_str());
             std::string str = decode_string(buffer, offset, len);
-            debugMsg("UdpAdapter::handleUdpMessage", " queuing string parameter " << str);
+            debugMsg("UdpAdapter::handleUdpMessage", " queuing string parameter \"" << str << "\"");
             m_messageQueues.addMessage(param_label, LabelStr(str).getKey());
             offset += len;
           }
