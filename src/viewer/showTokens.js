@@ -96,7 +96,9 @@ function groupAndShowTokens(tokens) {
 					$(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
 					
 					// plan and sim tokens for this predicate
-					$(objectColumnRow).append("<div class='predicateTitle'>" + "<a href=\"#\" onclick=\"$(\'#.tokenColumn\').scrollLeft(" + (getPixelsPerTimeIncrement() * tokensOfObject[j].startDomain) + ");\">" +
+					$(objectColumnRow).append("<div class='predicateTitle'>" + "<a onclick=\"$(\'.tokenColumn\').scrollLeft(" + 
+							(getPixelsPerTimeIncrement()*tokensOfObject[j].start) +
+							"); var topScroll = $(document).scrollTop(); $(document).scrollTop(topScroll);\">" +
 							tokensOfObject[j].predicateName + "</a>" + "</div>");	
 					tokenRowsCount = tokenRowsCount + 2;
 				} else {
@@ -105,7 +107,9 @@ function groupAndShowTokens(tokens) {
 					
 					// only plan or sim tokens for this predicate
 					if(showExpanded == "true") {
-						$(objectColumnRow).append("<div class='predicateTitle'>" + "<a href=\"#\" onclick=\"$(\'.tokenColumn\').scrollLeft(" + (getPixelsPerTimeIncrement()*tokensOfObject[j].startDomain) + ")\">" +
+						$(objectColumnRow).append("<div class='predicateTitle'>" + "<a onclick=\"$(\'.tokenColumn\').scrollLeft(" + 
+							(getPixelsPerTimeIncrement()*tokensOfObject[j].start) + 
+							"); var topScroll = $(document).scrollTop(); $(document).scrollTop(topScroll);\">" +
 							tokensOfObject[j].predicateName + "</a>" + "</div>");
 						tokenRowsCount++;
 					}
