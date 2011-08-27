@@ -72,6 +72,7 @@ namespace PLEXIL
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit();
 	virtual void createSpecializedConditions();
+	virtual void createConditionWrappers();
 	virtual void specializedActivateInternalVariables();
 	virtual void specializedHandleExecution();
 	virtual void specializedDeactivateExecutable();

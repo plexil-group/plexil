@@ -214,17 +214,7 @@ namespace PLEXIL {
 	// get interface variables
 	getVarsFromInterface(node->interface());
 
-	if (m_nodeType == LIST()) {
-	  // Instantiate child nodes, if any
-	  debugMsg("Node:node", "Creating child nodes.");
-	  // XML parser should have checked for this
-	  checkError(Id<PlexilListBody>::convertable(node->body()),
-				 "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
-				 "list body.");
-	  createChildNodes((PlexilListBody*) node->body()); // constructs default end condition
-	}
-
-	else if (m_nodeType == LIBRARYNODECALL()) {
+	if (m_nodeType == LIBRARYNODECALL()) {
 	  // Create library call node
 	  debugMsg("Node:node", "Creating library node call.");
 	  // XML parser should have checked for this
@@ -514,6 +504,9 @@ namespace PLEXIL {
 	  m_garbageConditions[ancestorEndIdx] = true;
 	}
 
+	// Let the derived class do its thing
+	createSpecializedConditions();
+
 	// Add user-specified conditions
 	for (std::map<std::string, PlexilExprId>::const_iterator it = conds.begin(); 
 		 it != conds.end(); 
@@ -537,8 +530,8 @@ namespace PLEXIL {
 	  m_conditions[condIdx]->addListener(m_listeners[condIdx]);
 	}
 
-	// Let the derived class do its thing
-	createSpecializedConditions();
+	// Create conditions that may wrap user-defined conditions
+	createConditionWrappers();
   }
 
   // Default method
@@ -546,36 +539,9 @@ namespace PLEXIL {
   {
   }
 
-  void Node::createChildNodes(const PlexilListBody* body) 
+  // Default method
+  void Node::createConditionWrappers()
   {
-	try {
-	  for (std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
-		   it != body->children().end(); 
-		   ++it)
-		m_children.push_back(NodeFactory::createNode(*it, m_exec, m_id));
-	}
-	catch (const Error& e) {
-	  debugMsg("Node:node", " Error creating child nodes: " << e);
-	  // Clean up 
-	  while (!m_children.empty()) {
-		delete (Node*) m_children.back();
-		m_children.pop_back();
-	  }
-	  // Rethrow so that outer error handler can deal with this as well
-	  throw;
-	}
-
-    ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
-    cond->addListener(listener);
-    m_conditions[childrenWaitingOrFinishedIdx] = cond;
-    m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
-
-    ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-    listener = m_listeners[endIdx];
-    endCond->addListener(listener);
-    m_conditions[endIdx] = endCond;
-    m_garbageConditions[endIdx] = true;
   }
 
   void Node::createLibraryNode()
@@ -728,6 +694,7 @@ namespace PLEXIL {
 
   Node::~Node() 
   {
+	debugMsg("Node:~Node", " base class destructor for " << m_nodeId.toString());
 
 	// Remove anything that refers to variables, either ours or another node's
     cleanUpConditions();
@@ -736,7 +703,7 @@ namespace PLEXIL {
 	cleanUpNodeBody();
 
 	// Delete children
-    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
       delete (Node*) (*it);
     }
 
@@ -768,8 +735,7 @@ namespace PLEXIL {
     }
  
     // Clean up children
-    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->cleanUpConditions();
+	cleanUpChildConditions();
 
     // Clean up conditions
     for (unsigned int i = 0; i < conditionIndexMax; i++) {
@@ -782,6 +748,13 @@ namespace PLEXIL {
 	}
 
     m_cleanedConditions = true;
+  }
+
+  // Default method.
+  void Node::cleanUpChildConditions()
+  {
+    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+      (*it)->cleanUpConditions();
   }
 
   // Default method.
@@ -852,7 +825,6 @@ namespace PLEXIL {
       (*it)->postInit();
   }
 
-
   // Make the node (and its children, if any) active.
   void Node::activate()
   {
@@ -866,6 +838,12 @@ namespace PLEXIL {
 	m_conditions[parentFinishedIdx]->activate();
     m_listeners[parentFinishedIdx]->activate();
 	
+	specializedActivate();
+  }
+
+  // Default method
+  void Node::specializedActivate()
+  {
     // Activate all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->activate();
@@ -1081,14 +1059,6 @@ namespace PLEXIL {
     return m_failureTypeVariable->getValue();
   }
 
-  class NodeIdEq {
-  public:
-    NodeIdEq(const double name) : m_name(name) {}
-    bool operator()(const NodeId& node) {return node->getNodeId() == m_name;}
-  private:
-    double m_name;
-  };
-
   // Searches ancestors when required
   const VariableId& Node::findVariable(const LabelStr& name, bool recursive)
   {
@@ -1151,19 +1121,11 @@ namespace PLEXIL {
 
 	  case PlexilNodeRef::CHILD:
 		{
+		  node = findChild(LabelStr(nodeRef->name()));
 		  // FIXME: push this check up into XML parser
-		  checkError(m_nodeType == Node::LIST(),
-					 "Child internal variable reference in node " << 
-					 m_nodeId.toString() <<
-					 " which isn't a list node.");
-		  std::vector<NodeId>::const_iterator it =
-			std::find_if(m_children.begin(), m_children.end(),
-						 NodeIdEq(LabelStr(nodeRef->name())));
-		  // FIXME: push this check up into XML parser
-		  checkError(it != m_children.end(),
+		  checkError(node.isId(),
 					 "No child named '" << nodeRef->name() << 
 					 "' in " << m_nodeId.toString());
-		  node = *it;
 		  break;
 		}
 
@@ -1173,15 +1135,11 @@ namespace PLEXIL {
 		  checkError(m_parent.isValid(),
 					 "Sibling node reference in root node " << 
 					 m_nodeId.toString());
-		  std::vector<NodeId>::const_iterator it =
-			std::find_if(m_parent->m_children.begin(), 
-						 m_parent->m_children.end(),
-						 NodeIdEq(LabelStr(nodeRef->name())));
+		  node = m_parent->findChild(LabelStr(nodeRef->name()));
 		  // FIXME: push this check up into XML parser
-		  checkError(it != m_parent->m_children.end(),
+		  checkError(node.isId(),
 					 "No sibling named '" << nodeRef->name() << 
 					 "' of " << m_nodeId.toString());
-		  node = *it;
 		  break;
 		}
 
@@ -1208,6 +1166,26 @@ namespace PLEXIL {
 	else {
 	  return findVariable(LabelStr(ref->name()));
 	}
+  }
+
+
+  // FIXME: Delete this
+  class NodeIdEq {
+  public:
+    NodeIdEq(const double name) : m_name(name) {}
+    bool operator()(const NodeId& node) {return node->getNodeId() == m_name;}
+  private:
+    double m_name;
+  };
+
+  // Default method
+  NodeId Node::findChild(const LabelStr& childName) const
+  {
+	std::vector<NodeId>::const_iterator it =
+	  std::find_if(m_children.begin(), m_children.end(), NodeIdEq(childName));
+	if (it == m_children.end())
+	  return NodeId::noId();
+	return *it;
   }
 
   NodeState Node::getDestState() 
@@ -1288,7 +1266,8 @@ namespace PLEXIL {
   {
   }
 
-  void Node::reset() {
+  void Node::reset()
+  {
     debugMsg("Node:reset", "Re-setting node " << m_nodeId.toString());
 
     //reset outcome and failure type
@@ -1432,7 +1411,7 @@ namespace PLEXIL {
 	  printVariables(stream, indent);
     }
 	// print children
-    for(std::vector<NodeId>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for (std::vector<NodeId>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
       stream << (*it)->toString(indent + 2);
     }
     stream << indentStr << "}" << std::endl;

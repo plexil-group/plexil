@@ -27,6 +27,7 @@
 #include "NodeFactory.hh"
 #include "AssignmentNode.hh"
 #include "CommandNode.hh"
+#include "ListNode.hh"
 #include "UpdateNode.hh"
 // #include "Node.hh" // redundant?
 
@@ -128,8 +129,7 @@ namespace PLEXIL
 	if (sl_registered)
 	  return;
 
-	// Only one Node class at this time... this will change!
-	REGISTER_NODE_FACTORY(Node, NodeType_NodeList);
+	REGISTER_NODE_FACTORY(ListNode, NodeType_NodeList);
 	REGISTER_NODE_FACTORY(CommandNode, NodeType_Command);
 	REGISTER_NODE_FACTORY(AssignmentNode, NodeType_Assignment);
 	REGISTER_NODE_FACTORY(UpdateNode, NodeType_Update);

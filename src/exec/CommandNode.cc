@@ -140,6 +140,17 @@ namespace PLEXIL
 	m_conditions[abortCompleteIdx] = commandAbort;
 	m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
           
+	// Listen to any change in the command handle so that the internal variable 
+	// CommandHandleVariable can be updated
+	ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
+	commandHandleCondition->ignoreCachedValue();
+	commandHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
+	m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
+	m_garbageConditions[commandHandleReceivedIdx] = true;
+  }
+
+  void CommandNode::createConditionWrappers()
+  {
 	// Construct real end condition
 	m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
 	ExpressionId interruptEndCond = (new InterruptibleCommandHandleValues(m_ack))->getId();
@@ -152,14 +163,6 @@ namespace PLEXIL
 	realEndCondition->addListener(m_listeners[endIdx]);
 	m_conditions[endIdx] = realEndCondition;
 	m_garbageConditions[endIdx] = true;
-          
-	// Listen to any change in the command handle so that the internal variable 
-	// CommandHandleVariable can be updated
-	ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
-	commandHandleCondition->ignoreCachedValue();
-	commandHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
-	m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
-	m_garbageConditions[commandHandleReceivedIdx] = true;
   }
 
   // TODO: figure out if this should be activated on entering EXECUTING state

@@ -207,7 +207,7 @@ namespace PLEXIL {
     const std::vector<VariableId> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
-    const std::vector<NodeId>& getChildren() { return m_children; }
+    virtual const std::vector<NodeId>& getChildren() const { return m_children; }
 
     /**
      * @brief Gets the state variable representing the state of this node.
@@ -353,6 +353,8 @@ namespace PLEXIL {
     bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
 
   protected:
+	friend class ListNode;
+
     friend class PlexilExec;
     friend class InternalCondition;
     friend class StateComputer;
@@ -385,12 +387,15 @@ namespace PLEXIL {
 
     static unsigned int getConditionIndex(const LabelStr& cName);
     static LabelStr getConditionName(unsigned int idx);
+	virtual NodeId findChild(const LabelStr& childName) const;
 
     void commonInit();
 
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit();
 	virtual void createSpecializedConditions();
+	virtual void createConditionWrappers();
+	virtual void specializedActivate();
 	virtual void specializedActivateInternalVariables();
 	virtual void specializedHandleExecution();
 	virtual void specializedDeactivateExecutable();
@@ -413,6 +418,7 @@ namespace PLEXIL {
 	// Not useful if called from base class destructor!
     virtual void cleanUpConditions();
     virtual void cleanUpVars();
+	virtual void cleanUpChildConditions();
 	virtual void cleanUpNodeBody();
 
 	//
@@ -449,8 +455,6 @@ namespace PLEXIL {
   private:
 
     void createConditions(const std::map<std::string, PlexilExprId>& conds);
-
-    void createChildNodes(const PlexilListBody* body);
 
     void createLibraryNode();
 
@@ -507,7 +511,6 @@ namespace PLEXIL {
 	void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
 	void ensureSortedVariableNames() const;
 
-    UpdateId m_update;
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
