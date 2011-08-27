@@ -24,10 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//
-// *** TODO ***
-// Resolve use of m_garbage with respect to conditions
-
 #include "Node.hh"
 #include "BooleanVariable.hh"
 #include "Calculables.hh"
@@ -790,6 +786,262 @@ namespace PLEXIL {
     conditionChanged(); // was checkConditions();
   }
 
+  // Empty node method 
+  void Node::transitionFrom(NodeState destState)
+  {
+	switch (m_state) {
+	case INACTIVE_STATE:
+	  transitionFromInactive(destState);
+	  break;
+
+	case WAITING_STATE:
+	  transitionFromWaiting(destState);
+	  break;
+
+	case EXECUTING_STATE:
+	  transitionFromExecuting(destState);
+	  break;
+
+	case FINISHING_STATE:
+	  transitionFromFinishing(destState);
+	  break;
+
+	case FINISHED_STATE:
+	  transitionFromFinished(destState);
+	  break;
+
+	case FAILING_STATE:
+	  transitionFromFailing(destState);
+	  break;
+
+	case ITERATION_ENDED_STATE:
+	  transitionFromIterationEnded(destState);
+	  break;
+
+	default:
+	  checkError(ALWAYS_FAIL,
+				 "Node::transitionFrom: Invalid node state " << m_state);
+	}
+  }
+
+  // Empty node method 
+  void Node::transitionTo(NodeState destState)
+  {
+	switch (destState) {
+	case INACTIVE_STATE:
+	  transitionToInactive();
+	  break;
+
+	case WAITING_STATE:
+	  transitionToWaiting();
+	  break;
+
+	case EXECUTING_STATE:
+	  transitionToExecuting();
+	  break;
+
+	case FINISHING_STATE:
+	  transitionToFinishing();
+	  break;
+
+	case FINISHED_STATE:
+	  transitionToFinished();
+	  break;
+
+	case FAILING_STATE:
+	  transitionToFailing();
+	  break;
+
+	case ITERATION_ENDED_STATE:
+	  transitionToIterationEnded();
+	  break;
+
+	default:
+	  checkError(ALWAYS_FAIL,
+				 "Node::transitionTo: Invalid destination state " << destState);
+	}
+
+	setState(destState);
+  }
+
+  // Default method
+  void Node::transitionFromInactive(NodeState destState)
+  {
+	checkError(destState == WAITING_STATE ||
+			   destState == FINISHED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateParentExecutingCondition();
+	deactivateParentFinishedCondition();
+	if (destState == FINISHED_STATE)
+	  getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
+  }
+
+  // Default method
+  void Node::transitionFromWaiting(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == EXECUTING_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateStartCondition();
+	deactivateSkipCondition();
+	deactivateAncestorEndCondition();
+	deactivateAncestorInvariantCondition();
+	deactivatePreCondition();
+
+	if (destState == FINISHED_STATE)
+	  getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
+	else if (destState == ITERATION_ENDED_STATE) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PRE_CONDITION_FAILED());
+	}
+  }
+
+  // Empty node method
+  void Node::transitionFromExecuting(NodeState destState)
+  {
+	checkError(m_nodeType == Node::EMPTY(),
+			   "Expected empty node, got " <<
+			   m_nodeType.toString());
+	checkError(destState == FINISHED_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+      }
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+      }
+	else if(getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if(getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE())
+		getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	  else {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	  }
+	}
+	else {
+	  checkError(ALWAYS_FAIL, "Shouldn't get here.");
+	}
+
+	deactivateAncestorInvariantCondition();
+	deactivateInvariantCondition();
+	deactivateEndCondition();
+	deactivatePostCondition();
+  }
+
+  // Default method
+  void Node::transitionFromFinishing(NodeState destState)
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition from FINISHING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionFromFinished(NodeState destState)
+  {
+	checkError(destState == INACTIVE_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateParentWaitingCondition();
+	reset();
+  }
+
+  // Default method
+  void Node::transitionFromFailing(NodeState destState)
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition from FAILING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionFromIterationEnded(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == WAITING_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	}
+
+	deactivateRepeatCondition();
+	deactivateAncestorEndCondition();
+	deactivateAncestorInvariantCondition();
+
+	if (destState == WAITING_STATE)
+	  reset();
+  }
+
+
+  // Default method
+  void Node::transitionToInactive()
+  {
+	activateParentExecutingCondition();
+	activateParentFinishedCondition();
+  }
+
+  // Default method
+  void Node::transitionToWaiting()
+  {
+	activateStartCondition();
+	activatePreCondition();
+	activateSkipCondition();
+	activateAncestorEndCondition();
+	activateAncestorInvariantCondition();
+  }
+
+  // Empty node method
+  void Node::transitionToExecuting()
+  {
+	checkError(getType() == Node::EMPTY(),
+			   "Expected empty node, got " << getType().toString());
+
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+	activatePostCondition();
+  }
+
+  // Default method
+  void Node::transitionToFinishing()
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition to FINISHING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionToFinished()
+  {
+	activateParentWaitingCondition();
+  }
+
+  // Default method
+  void Node::transitionToFailing()
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition to FAILING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionToIterationEnded() 
+  {
+	activateRepeatCondition();
+	activateAncestorEndCondition();
+	activateAncestorInvariantCondition();
+  }
+
   const VariableId& Node::getInternalVariable(const LabelStr& name) const{
     checkError(m_variablesByName.find(name) != m_variablesByName.end(),
 			   "No variable named " << name.toString() << " in " << m_nodeId.toString());
@@ -804,9 +1056,12 @@ namespace PLEXIL {
     return m_state;
   }
 
+  // Some transition handlers call this twice.
   void Node::setState(NodeState newValue) {
     checkError(newValue < NO_NODE_STATE,
 			   "Attempted to set an invalid NodeState value");
+	if (newValue == m_state)
+	  return;
     m_state = newValue;
     ((StateVariable*) m_stateVariable)->setNodeState(newValue);
   }

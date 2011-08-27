@@ -38,9 +38,6 @@ namespace PLEXIL {
   class StateComputer;
   typedef Id<StateComputer> StateComputerId;
 
-  class TransitionHandler;
-  typedef Id<TransitionHandler> TransitionHandlerId;
-
   class NodeStateManager;
   typedef Id<NodeStateManager> NodeStateManagerId;
 
@@ -55,24 +52,6 @@ namespace PLEXIL {
     StateComputerId m_id;
   };
 
-  class TransitionHandler {
-  public:
-    TransitionHandler() : m_id(this) {}
-    virtual ~TransitionHandler(){m_id.remove();}
-    const TransitionHandlerId& getId() const {return m_id;}
-    /**
-     * @brief Handle the node exiting this state.
-     */
-    virtual void transitionFrom(NodeId& node, NodeState destState) = 0;
-    /**
-     * @brief Handle the node entering this state.
-     */
-    virtual void transitionTo(NodeId& node, NodeState destState) = 0;
-
-  private:
-    TransitionHandlerId m_id;
-  };
-
   class NodeStateManager {
   public:
     static void registerStateManager(const LabelStr& nodeType, const NodeStateManagerId manager);
@@ -85,12 +64,10 @@ namespace PLEXIL {
     bool canTransition(NodeId& node);
     void transition(NodeId& node);
     void addStateComputer(NodeState fromState, const StateComputerId& cmp);
-    void addTransitionHandler(NodeState fromState, const TransitionHandlerId& trans);
 
   private:
     NodeStateManagerId m_id;
     StateComputerId m_stateComputers[NODE_STATE_MAX];
-    TransitionHandlerId m_transitionHandlers[NODE_STATE_MAX];
 
     static std::map<double, NodeStateManagerId>& registeredManagers();
   };
@@ -99,13 +76,6 @@ namespace PLEXIL {
   public:
     StateComputerError() : StateComputer() {}
     NodeState getDestState(NodeId& node);
-  };
-
-  class TransitionHandlerError : public TransitionHandler {
-  public:
-    TransitionHandlerError() : TransitionHandler() {}
-    void transitionTo(NodeId& node, NodeState destState);
-    void transitionFrom(NodeId& node, NodeState destState);
   };
 
 #define REGISTER_STATE_MANAGER(CLASS, TYPE) {NodeStateManager::registerStateManager(LabelStr(#TYPE), (new CLASS())->getId());}

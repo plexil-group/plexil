@@ -146,156 +146,17 @@ namespace PLEXIL {
     }
   };
 
-  class DefaultInactiveTransitionHandler : public TransitionHandler {
-  public:
-    DefaultInactiveTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, NodeState destState) {
-      checkError(node->getState() == INACTIVE_STATE,
-		 "In state '" << node->getStateName().toString() << "', not INACTIVE.");
-      checkError(destState == WAITING_STATE ||
-		 destState == FINISHED_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      node->deactivateParentExecutingCondition();
-      node->deactivateParentFinishedCondition();
-      if(destState == FINISHED_STATE)
-	node->getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
-    }
-    void transitionTo(NodeId& node, NodeState destState) {
-      checkError(destState == INACTIVE_STATE,
-		 "Attempted to transition to INACTIVE with computed dest state '" <<
-		 StateVariable::nodeStateName(destState).toString());
-      node->activateParentExecutingCondition();
-      node->activateParentFinishedCondition();
-
-      node->setState(destState);
-    }
-  };
-
-  class DefaultWaitingTransitionHandler : public TransitionHandler {
-  public:
-    DefaultWaitingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, NodeState destState) {
-      checkError(node->getState() == WAITING_STATE,
-		 "In state '" << node->getStateName().toString() << "', not WAITING.");
-      checkError(destState == FINISHED_STATE ||
-		 destState == EXECUTING_STATE ||
-		 destState == ITERATION_ENDED_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      node->deactivateStartCondition();
-      node->deactivateSkipCondition();
-      node->deactivateAncestorEndCondition();
-      node->deactivateAncestorInvariantCondition();
-      node->deactivatePreCondition();
-
-      if(destState == FINISHED_STATE)
-	node->getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
-      else if(destState == ITERATION_ENDED_STATE) {
-	node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	node->getFailureTypeVariable()->setValue(FailureVariable::PRE_CONDITION_FAILED());
-      }
-    }
-
-    void transitionTo(NodeId& node, NodeState destState) {
-      checkError(destState == WAITING_STATE,
-		 "Attempted to transition to WAITING with computed dest state '" <<
-		 StateVariable::nodeStateName(destState).toString());
-
-
-      node->activateStartCondition();
-      node->activatePreCondition();
-      node->activateSkipCondition();
-      node->activateAncestorEndCondition();
-      node->activateAncestorInvariantCondition();
-
-      node->setState(destState);
-    }
-  };
-
-  class DefaultIterationEndedTransitionHandler : public TransitionHandler {
-  public:
-    DefaultIterationEndedTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, NodeState destState) {
-      checkError(node->getState() == ITERATION_ENDED_STATE,
-		 "In state '" << node->getStateName().toString() << "', not ITERATION_ENDED.");
-      checkError(destState == FINISHED_STATE ||
-		 destState == WAITING_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      if (node->getAncestorInvariantCondition()->getValue() ==
-	 BooleanVariable::FALSE_VALUE()) 
-      {
-         node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-         node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-      }
-
-      node->deactivateRepeatCondition();
-      node->deactivateAncestorEndCondition();
-      node->deactivateAncestorInvariantCondition();
-
-      if(destState == WAITING_STATE)
-		node->reset();
-    }
-
-    void transitionTo(NodeId& node, NodeState destState) {
-      checkError(destState == ITERATION_ENDED_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      node->activateRepeatCondition();
-      node->activateAncestorEndCondition();
-      node->activateAncestorInvariantCondition();
-
-      node->setState(destState);
-    }
-  };
-
-  class DefaultFinishedTransitionHandler : public TransitionHandler {
-  public:
-    DefaultFinishedTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, NodeState destState) {
-      checkError(node->getState() == FINISHED_STATE,
-		 "In state '" << node->getStateName().toString() << "', not FINISHED.");
-      checkError(destState == INACTIVE_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      node->deactivateParentWaitingCondition();
-      node->reset();
-    }
-
-    void transitionTo(NodeId& node, NodeState destState) {
-      checkError(destState == FINISHED_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      node->activateParentWaitingCondition();
-      node->setState(destState);
-    }
-  };
-
   DefaultStateManager::DefaultStateManager() : NodeStateManager() {
     //have defaults for INACTIVE, WAITING,
     addStateComputer(INACTIVE_STATE, (new DefaultInactiveStateComputer())->getId());
-    addTransitionHandler(INACTIVE_STATE, (new DefaultInactiveTransitionHandler())->getId());
     addStateComputer(WAITING_STATE, (new DefaultWaitingStateComputer())->getId());
-    addTransitionHandler(WAITING_STATE, (new DefaultWaitingTransitionHandler())->getId());
     addStateComputer(ITERATION_ENDED_STATE, (new DefaultIterationEndedStateComputer())->getId());
-    addTransitionHandler(ITERATION_ENDED_STATE, (new DefaultIterationEndedTransitionHandler())->getId());
     addStateComputer(FINISHED_STATE, (new DefaultFinishedStateComputer())->getId());
-    addTransitionHandler(FINISHED_STATE, (new DefaultFinishedTransitionHandler())->getId());
 
     //need to specialize EXECUTING (for list, cmd/update/request, assignment, function calls), FAILING (list, cmd/update/request),
     // FINISHING (just for lists)
-//     addStateComputer(EXECUTING_STATE, (new StateComputerError())->getId());
-//     addStateComputer(FAILING_STATE, (new StateComputerError())->getId());
-//     addStateComputer(FINISHING_STATE, (new StateComputerError())->getId());
-//     addTransitionHandler(EXECUTING_STATE, (new TransitionHandlerError())->getId());
-//     addTransitionHandler(FAILING_STATE, (new TransitionHandlerError())->getId());
-//     addTransitionHandler(FINISHING_STATE, (new TransitionHandlerError())->getId());
+	//     addStateComputer(EXECUTING_STATE, (new StateComputerError())->getId());
+	//     addStateComputer(FAILING_STATE, (new StateComputerError())->getId());
+	//     addStateComputer(FINISHING_STATE, (new StateComputerError())->getId());
   }
 }

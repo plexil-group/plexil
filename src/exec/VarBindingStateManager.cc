@@ -78,76 +78,7 @@ namespace PLEXIL {
     }
   };
 
-  class BindingExecutingTransitionHandler : public TransitionHandler {
-  public:
-    BindingExecutingTransitionHandler() : TransitionHandler() {}
-    void transitionFrom(NodeId& node, NodeState destState) {
-      checkError(node->getType() == Node::ASSIGNMENT(),
-		 "Expected assignment node, got " <<
-		 node->getType().toString());
-      checkError(node->getState() == EXECUTING_STATE,
-		 "In state '" << node->getStateName().toString() << "', not EXECUTING.");
-      checkError(destState == ITERATION_ENDED_STATE ||
-		 destState == FINISHED_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      bool abort = false;
-      if (node->getAncestorInvariantCondition()->getValue() ==
-	 BooleanVariable::FALSE_VALUE()) 
-      {
-	node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-	abort = true;
-      }
-      else if (node->getInvariantCondition()->getValue() ==
-	      BooleanVariable::FALSE_VALUE()) 
-      {
-         node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-         node->getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-         abort = true;
-      }
-      else if(node->getPostCondition()->getValue() ==
-	      BooleanVariable::TRUE_VALUE()) {
-	node->getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
-      }
-      else {
-	node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	node->getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
-	abort = true;
-      }
-
-      if(abort)
-		node->abort();
-
-      node->deactivateAncestorInvariantCondition();
-      node->deactivateInvariantCondition();
-      node->deactivateEndCondition();
-      node->deactivatePostCondition();
-      node->deactivateExecutable();
-    }
-
-    void transitionTo(NodeId& node, NodeState destState) {
-      checkError(node->getType() == Node::ASSIGNMENT(),
-		 "Expected assignment node, got " <<
-		 node->getType().toString());
-      checkError(destState == EXECUTING_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'.");
-
-      node->activateAncestorInvariantCondition();
-      node->activateInvariantCondition();
-      node->activateEndCondition();
-      node->activatePostCondition();
-
-      node->setState(destState);
-      node->execute();
-    }
-  };
-
   VarBindingStateManager::VarBindingStateManager() : DefaultStateManager() {
     addStateComputer(EXECUTING_STATE, (new BindingExecutingStateComputer())->getId());
-    addTransitionHandler(EXECUTING_STATE,
-			 (new BindingExecutingTransitionHandler())->getId());
   }
 }

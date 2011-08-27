@@ -25,6 +25,7 @@
 */
 
 #include "LibraryCallNode.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -330,6 +331,97 @@ namespace PLEXIL
 	endCond->addListener(listener);
 	m_conditions[endIdx] = endCond;
 	m_garbageConditions[endIdx] = true;
+  }
+
+  //
+  // Transition handlers
+  //
+
+  void LibraryCallNode::transitionFromExecuting(NodeState destState)
+  {
+	checkError(destState == FINISHING_STATE ||
+			   destState == FAILING_STATE,
+			   "Attempting to transition to invalid state '"
+		       << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	}
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+	}
+
+	deactivateAncestorInvariantCondition();
+	if (destState != FINISHING_STATE)
+	  deactivateInvariantCondition();
+	deactivateEndCondition();
+	deactivateExecutable();
+  }
+
+  void LibraryCallNode::transitionFromFailing(NodeState destState)
+  {
+	checkError(destState == ITERATION_ENDED_STATE ||
+			   destState == FINISHED_STATE,
+			   "Attempting to transition to invalid state '"
+		       << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateChildrenWaitingOrFinishedCondition();
+  }
+
+  void LibraryCallNode::transitionFromFinishing(NodeState destState)
+  {
+	checkError(destState == ITERATION_ENDED_STATE ||
+			   destState == FAILING_STATE,
+			   "Attempting to transition to invalid state '"
+		       << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	}
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+	}
+	else if (getPostCondition()->getValue() ==
+			 BooleanVariable::TRUE_VALUE())
+	  getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	else {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	}
+
+	deactivateAncestorInvariantCondition();
+	deactivateInvariantCondition();
+	deactivateChildrenWaitingOrFinishedCondition();
+	deactivatePostCondition();
+  }
+
+  void LibraryCallNode::transitionToExecuting()
+  {
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+
+	setState(EXECUTING_STATE);
+	execute();
+  }
+
+  void LibraryCallNode::transitionToFinishing()
+  {
+	activateAncestorInvariantCondition();
+	activateChildrenWaitingOrFinishedCondition();
+	activatePostCondition();
+  }
+
+  void LibraryCallNode::transitionToFailing()
+  {
+	activateChildrenWaitingOrFinishedCondition();
   }
 
   void LibraryCallNode::specializedActivate()

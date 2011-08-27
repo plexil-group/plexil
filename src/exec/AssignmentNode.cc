@@ -27,6 +27,7 @@
 #include "AssignmentNode.hh"
 #include "BooleanVariable.hh"
 #include "Calculables.hh"
+#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
 #include "ExpressionFactory.hh"
@@ -175,6 +176,57 @@ namespace PLEXIL
   const VariableId& AssignmentNode::getAssignmentVariable() const
   {
 	return m_assignment->getDest();
+  }
+
+  void AssignmentNode::transitionFromExecuting(NodeState destState)
+  {
+	checkError(destState == ITERATION_ENDED_STATE ||
+			   destState == FINISHED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	bool aborting = false;
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+		aborting = true;
+      }
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+		aborting = true;
+      }
+	else if (getPostCondition()->getValue() ==
+			 BooleanVariable::TRUE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	}
+	else {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	  aborting = true;
+	}
+
+	if (aborting)
+	  abort();
+
+	deactivateAncestorInvariantCondition();
+	deactivateInvariantCondition();
+	deactivateEndCondition();
+	deactivatePostCondition();
+	deactivateExecutable();
+  }
+
+  void AssignmentNode::transitionToExecuting()
+  {
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+	activatePostCondition();
+
+	setState(EXECUTING_STATE);
+	execute();
   }
 
   void AssignmentNode::specializedHandleExecution()

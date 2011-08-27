@@ -77,6 +77,9 @@ namespace PLEXIL
     virtual void specializedDeactivateExecutable();
 	virtual void cleanUpNodeBody();
 
+	virtual void transitionFromExecuting(NodeState toState);
+	virtual void transitionToExecuting();
+
   private:
 
     void createAssignment(const PlexilAssignmentBody* body);

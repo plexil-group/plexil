@@ -74,6 +74,14 @@ namespace PLEXIL
 	virtual void cleanUpChildConditions();
 	virtual void cleanUpNodeBody();
 
+	virtual void transitionFromExecuting(NodeState toState);
+	virtual void transitionFromFinishing(NodeState toState);
+	virtual void transitionFromFailing(NodeState toState);
+
+	virtual void transitionToExecuting();
+	virtual void transitionToFinishing();
+	virtual void transitionToFailing();
+
   private:
 
     void createChildNodes(const PlexilListBody* body);

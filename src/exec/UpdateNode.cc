@@ -27,6 +27,7 @@
 #include "UpdateNode.hh"
 #include "BooleanVariable.hh"
 #include "Calculables.hh"
+#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
 #include "ExpressionFactory.hh"
@@ -156,6 +157,77 @@ namespace PLEXIL
 	m_conditions[endIdx] = realEndCondition;
 	m_garbageConditions[endIdx] = true;
   }
+
+  //
+  // Transition handlers
+  //
+
+
+  void UpdateNode::transitionFromExecuting(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == FAILING_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+		abort();
+	}
+	else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+		abort();
+	}
+	else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	  }
+	  else
+		getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	}
+	else {
+	  checkError(ALWAYS_FAIL, "Should never get here.");
+	}
+
+	deactivateEndCondition();
+	deactivateInvariantCondition();
+	deactivateAncestorInvariantCondition();
+	deactivatePostCondition();
+	deactivateExecutable();
+  }
+
+  void UpdateNode::transitionFromFailing(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	deactivateAbortCompleteCondition();
+  }
+
+  void UpdateNode::transitionToExecuting()
+  {
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+	activatePostCondition();
+
+	setState(EXECUTING_STATE);
+	execute();
+  }
+
+  void UpdateNode::transitionToFailing()
+  {
+	activateAbortCompleteCondition();
+  }
+
 
   void UpdateNode::specializedHandleExecution()
   {

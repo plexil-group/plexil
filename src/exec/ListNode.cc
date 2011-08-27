@@ -25,6 +25,7 @@
 */
 
 #include "ListNode.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -168,6 +169,100 @@ namespace PLEXIL
     //call postInit on all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->postInit();
+  }
+
+  //
+  // Transition handlers
+  //
+
+  void ListNode::transitionFromExecuting(NodeState destState)
+  {
+	checkError(destState == FINISHING_STATE ||
+			   destState == FAILING_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+      }
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+      }
+      
+	deactivateAncestorInvariantCondition();
+	if (destState != FINISHING_STATE)
+	  deactivateInvariantCondition();
+	deactivateEndCondition();
+	// Any variables declared in this node also need to be deactivated.
+	// Chucko 17 Dec 2009
+	deactivateExecutable();
+  }
+
+  void ListNode::transitionFromFailing(NodeState destState)
+  {
+	checkError(destState == ITERATION_ENDED_STATE ||
+			   destState == FINISHED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	deactivateChildrenWaitingOrFinishedCondition();
+  }
+
+  void ListNode::transitionFromFinishing(NodeState destState)
+  {
+	checkError(destState == ITERATION_ENDED_STATE ||
+			   destState == FAILING_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+      }
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+      }
+	else if (getPostCondition()->getValue() ==
+			BooleanVariable::TRUE_VALUE())
+	  getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	else {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	}
+
+	deactivateAncestorInvariantCondition();
+	deactivateInvariantCondition();
+	deactivateChildrenWaitingOrFinishedCondition();
+	deactivatePostCondition();
+  }
+
+  void ListNode::transitionToExecuting()
+  {
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+
+	setState(EXECUTING_STATE);
+	execute();
+  }
+
+  void ListNode::transitionToFailing()
+  {
+	activateChildrenWaitingOrFinishedCondition();
+  }
+
+  void ListNode::transitionToFinishing()
+  {
+	activateAncestorInvariantCondition();
+	activateChildrenWaitingOrFinishedCondition();
+	activatePostCondition();
   }
 
   void ListNode::specializedActivate()

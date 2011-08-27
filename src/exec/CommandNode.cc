@@ -166,6 +166,77 @@ namespace PLEXIL
 	m_garbageConditions[endIdx] = true;
   }
 
+  //
+  // Transition handlers
+  //
+
+  void CommandNode::transitionFromExecuting(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == FAILING_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+		abort();
+	}
+	else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+		abort();
+	}
+	else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	  }
+	  else
+		getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	}
+	else {
+	  checkError(ALWAYS_FAIL, "Should never get here.");
+	}
+
+	deactivateEndCondition();
+	deactivateInvariantCondition();
+	deactivateAncestorInvariantCondition();
+	deactivatePostCondition();
+	deactivateCommandHandleReceivedCondition();
+	deactivateExecutable();
+  }
+
+  void CommandNode::transitionFromFailing(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	deactivateAbortCompleteCondition();
+  }
+
+  void CommandNode::transitionToExecuting()
+  {
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+	activatePostCondition();
+	activateCommandHandleReceivedCondition();
+
+	setState(EXECUTING_STATE);
+	execute();
+  }
+
+  void CommandNode::transitionToFailing()
+  {
+	activateAbortCompleteCondition();
+  }
+
   // TODO: figure out if this should be activated on entering EXECUTING state
   void CommandNode::specializedActivateInternalVariables()
   {

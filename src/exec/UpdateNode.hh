@@ -70,6 +70,12 @@ namespace PLEXIL
 	virtual void specializedReset();
 	virtual void cleanUpNodeBody();
 
+	virtual void transitionFromExecuting(NodeState toState);
+	virtual void transitionFromFailing(NodeState toState);
+
+	virtual void transitionToExecuting();
+	virtual void transitionToFailing();
+
   private:
 
     void createUpdate(const PlexilUpdateBody* body);

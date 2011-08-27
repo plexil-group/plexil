@@ -78,6 +78,12 @@ namespace PLEXIL
 	virtual void specializedDeactivateExecutable();
 	virtual void specializedReset();
 
+	virtual void transitionFromExecuting(NodeState toState);
+	virtual void transitionFromFailing(NodeState toState);
+
+	virtual void transitionToExecuting();
+	virtual void transitionToFailing();
+
 	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
 
 	// Not useful if called from base class destructor!

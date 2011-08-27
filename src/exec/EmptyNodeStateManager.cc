@@ -74,75 +74,8 @@ namespace PLEXIL
     }
   };
 
-  class EmptyNodeExecutingTransitionHandler : public TransitionHandler
-  {
-  public:
-    EmptyNodeExecutingTransitionHandler() : TransitionHandler()
-    {}
-
-    void transitionFrom(NodeId& node, NodeState destState) {
-      checkError(node->getType() == Node::EMPTY(),
-		 "Expected empty node, got " <<
-		 node->getType().toString());
-      checkError(node->getState() == EXECUTING_STATE,
-		 "In state '" << node->getStateName().toString() << "', not EXECUTING.");
-      checkError(destState == FINISHED_STATE ||
-		 destState == ITERATION_ENDED_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'");
-
-      if (node->getAncestorInvariantCondition()->getValue() ==
-          BooleanVariable::FALSE_VALUE())
-      {
-         node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-         node->getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-      }
-      else if (node->getInvariantCondition()->getValue() ==
-               BooleanVariable::FALSE_VALUE())
-      {
-         node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-         node->getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-      }
-      else if(node->getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	if(node->getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE())
-	  node->getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
-	else {
-	  node->getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	  node->getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
-	}
-      }
-      else {
-	checkError(ALWAYS_FAIL, "Shouldn't get here.");
-      }
-
-      node->deactivateAncestorInvariantCondition();
-      node->deactivateInvariantCondition();
-      node->deactivateEndCondition();
-      node->deactivatePostCondition();
-    }
-
-    void transitionTo(NodeId& node, NodeState destState)
-    {
-      checkError(node->getType() == Node::EMPTY(),
-		 "Expected empty node, got " <<
-		 node->getType().toString());
-
-      checkError(destState == EXECUTING_STATE,
-		 "Attempting to transition to invalid state '"
-		 << StateVariable::nodeStateName(destState).toString() << "'.");
-
-      node->activateAncestorInvariantCondition();
-      node->activateInvariantCondition();
-      node->activateEndCondition();
-      node->activatePostCondition();
-      node->setState(destState);
-    }
-  };
-
   EmptyNodeStateManager::EmptyNodeStateManager() : DefaultStateManager()
   {
     addStateComputer(EXECUTING_STATE, (new EmptyNodeExecutingStateComputer())->getId());
-    addTransitionHandler(EXECUTING_STATE,
-			 (new EmptyNodeExecutingTransitionHandler())->getId());
   }
 }

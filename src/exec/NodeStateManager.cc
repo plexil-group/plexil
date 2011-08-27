@@ -57,7 +57,6 @@ namespace PLEXIL {
   {
     for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
       m_stateComputers[s] = (new StateComputerError())->getId();
-      m_transitionHandlers[s] = (new TransitionHandlerError())->getId();
     }
   }
 
@@ -66,11 +65,6 @@ namespace PLEXIL {
       StateComputerId cmp = m_stateComputers[s];
       m_stateComputers[s] = StateComputerId::noId();
       delete (StateComputer*) cmp;
-    }
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
-      TransitionHandlerId cmp = m_transitionHandlers[s];
-      m_transitionHandlers[s] = TransitionHandlerId::noId();
-      delete (TransitionHandler*) cmp;
     }
     m_id.remove();
   }
@@ -100,21 +94,8 @@ namespace PLEXIL {
 	       "Attempted to transition node " << node->getNodeId().toString() <<
 	       " when it is ineligible.");
 
-    const TransitionHandlerId& fromHandler = m_transitionHandlers[node->getState()];
-    checkError(fromHandler.isValid(),
-	       "Invalid transition handler for node " << node->getNodeId().toString() <<
-	       " from state " << node->getStateName().toString());
-
-    const TransitionHandlerId& toHandler = m_transitionHandlers[destState];
-    checkError(toHandler.isValid(),
-	       "Invalid transition handler for node " << node->getNodeId().toString() <<
-	       " to state " << StateVariable::nodeStateName(destState).toString());
-
-    debugMsg("NodeStateManager:transition",
-	     "(" << getId() << ")" << node->getNodeId().toString() << ": " <<
-	     node->getStateName().toString() << " -> " << StateVariable::nodeStateName(destState).toString());
-    fromHandler->transitionFrom(node, destState);
-    toHandler->transitionTo(node, destState);
+	node->transitionFrom(destState);
+	node->transitionTo(destState);
   }
 
   void NodeStateManager::addStateComputer(NodeState fromState,
@@ -138,39 +119,8 @@ namespace PLEXIL {
     }
   }
 
-  void NodeStateManager::addTransitionHandler(NodeState fromState, 
-					      const TransitionHandlerId& trans) {
-    check_error(trans.isValid());
-    check_error(fromState < NODE_STATE_MAX);
-
-    TransitionHandlerId oldTrans = m_transitionHandlers[fromState];
-    if (oldTrans.isId()) {
-      debugMsg("NodeStateManager:addTransitionHandler", getId()
-	       << " Replacing transition handler for state " << StateVariable::nodeStateName(fromState).toString());
-      delete (TransitionHandler*) oldTrans;
-      m_transitionHandlers[fromState] = trans;
-    }
-    else {
-      debugMsg("NodeStateManager:addTransitionHandler", getId()
-	       << " Adding new transition handler for state " << StateVariable::nodeStateName(fromState).toString());
-      m_transitionHandlers[fromState] = trans;
-    }
-  }
-
   NodeState StateComputerError::getDestState(NodeId& node) {
     checkError(ALWAYS_FAIL, "Attempted to compute destination state for node " << node->getNodeId().toString() << " of type " << node->getType());
     return NO_NODE_STATE;
-  }
-
-  void TransitionHandlerError::transitionTo(NodeId& node, NodeState /* destState */) {
-    checkError(ALWAYS_FAIL,
-	       "Attempted to transition node '" << node->getNodeId().toString() <<
-	       "' of type " << node->getType().toString());
-  }
-
-  void TransitionHandlerError::transitionFrom(NodeId& node, NodeState /* destState */) {
-    checkError(ALWAYS_FAIL,
-	       "Attempted to transition node '" << node->getNodeId().toString() <<
-	       "' of type " << node->getType().toString());
   }
 }

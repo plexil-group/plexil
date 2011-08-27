@@ -162,6 +162,16 @@ namespace PLEXIL {
     void transition(const double time = 0.0);
 
     /**
+     * @brief Handle the node exiting its current state.
+     */
+	virtual void transitionFrom(NodeState destState);
+
+    /**
+     * @brief Handle the node entering this new state.
+     */
+	virtual void transitionTo(NodeState destState);
+
+    /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
      * @return the priority of this node.
      */
@@ -358,7 +368,6 @@ namespace PLEXIL {
     friend class PlexilExec;
     friend class InternalCondition;
     friend class StateComputer;
-    friend class TransitionHandler;
 
     // N.B.: These need to match the order of ALL_CONDITIONS()
     enum {
@@ -400,6 +409,22 @@ namespace PLEXIL {
 	virtual void specializedHandleExecution();
 	virtual void specializedDeactivateExecutable();
 	virtual void specializedReset();
+
+	virtual void transitionFromInactive(NodeState toState);
+	virtual void transitionFromWaiting(NodeState toState);
+	virtual void transitionFromExecuting(NodeState toState);
+	virtual void transitionFromFinishing(NodeState toState);
+	virtual void transitionFromFinished(NodeState toState);
+	virtual void transitionFromFailing(NodeState toState);
+	virtual void transitionFromIterationEnded(NodeState toState);
+
+	virtual void transitionToInactive();
+	virtual void transitionToWaiting();
+	virtual void transitionToExecuting();
+	virtual void transitionToFinishing();
+	virtual void transitionToFinished();
+	virtual void transitionToFailing();
+	virtual void transitionToIterationEnded(); 
 
 	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
 
