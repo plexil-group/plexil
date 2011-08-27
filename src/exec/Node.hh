@@ -221,8 +221,29 @@ namespace PLEXIL {
     const LabelStr getFailureType();
     const VariableId& getFailureTypeVariable() const { return m_failureTypeVariable; }
 
-    virtual const LabelStr getCommandHandle();
-    virtual const VariableId& getCommandHandleVariable() const { return VariableId::noId(); }
+    /**
+     * @brief Accessor for a command node's command handle (acknowledgement) value.
+     */
+    virtual const LabelStr getCommandHandle()
+	{
+	  return UNKNOWN_STR();
+	}
+
+    /**
+     * @brief Accessor for a command node's command handle (acknowledgement) variable.
+     */
+    virtual const VariableId& getCommandHandleVariable() const
+	{
+	  return VariableId::noId(); 
+	}
+
+    /**
+     * @brief Accessor for an assignment node's assigned variable.
+     */
+    virtual const VariableId& getAssignmentVariable() const 
+	{
+	  return VariableId::noId();
+	}
 
     /**
      * @brief Gets the type of this node (node list, assignment, or command).
@@ -251,15 +272,6 @@ namespace PLEXIL {
     const VariableId& findVariable(const LabelStr& name, bool recursive = false);
 
     const ExecConnectorId& getExec() {return m_exec;}
-
-    /**
-     * @brief Accessor for an assignment node's assigned variable.
-	 * @note The default method returns an invalid pointer.
-     */
-    virtual const VariableId& getAssignmentVariable() const 
-	{
-	  return VariableId::noId();
-	}
 
     // Condition accessors
     ExpressionId& getSkipCondition()                      { return m_conditions[skipIdx]; }
@@ -386,7 +398,6 @@ namespace PLEXIL {
 
 	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
 
-
 	// Make the node's internal variables active.
 	virtual void activateInternalVariables();
 
@@ -436,10 +447,6 @@ namespace PLEXIL {
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
 
   private:
-
-    void createUpdate(const PlexilUpdateBody* body);
-	// Unit test support
-    void createDummyUpdate(); // unit test variant
 
     void createConditions(const std::map<std::string, PlexilExprId>& conds);
 
@@ -505,31 +512,6 @@ namespace PLEXIL {
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
 
-
-  class Update {
-  public:
-    Update(const NodeId& node, 
-		   const ExpressionMap& pairs, 
-		   const VariableId ack,
-		   const std::list<ExpressionId>& garbage);
-    ~Update();
-    UpdateId& getId() {return m_id;}
-    VariableId& getAck() {return m_ack;}
-    const std::map<double, double>& getPairs() {return m_valuePairs;}
-    void activate();
-    void deactivate();
-    const NodeId& getSource() {return m_source;}
-  protected:
-    friend class Node;
-    void fixValues();
-  private:
-    UpdateId m_id;
-    NodeId m_source;
-    ExpressionMap m_pairs;
-    VariableId m_ack;
-    std::list<ExpressionId> m_garbage;
-    std::map<double, double> m_valuePairs;
-  };
 
 }
 

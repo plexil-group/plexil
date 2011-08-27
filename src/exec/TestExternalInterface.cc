@@ -36,6 +36,7 @@
 #include "PlexilXmlParser.hh"
 #include "StateCache.hh"
 #include "StoredArray.hh"
+#include "UpdateNode.hh"
 #include "XMLUtils.hh"
 #include "plan-utils.hh"
 

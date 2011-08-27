@@ -278,10 +278,6 @@ namespace PLEXIL {
 
 	// Construct ack
 	m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
-
-	// Construct stuff as required for unit test
-    if (m_nodeType == UPDATE())
-	  createDummyUpdate();
   }
 
   void Node::commonInit() {
@@ -548,19 +544,6 @@ namespace PLEXIL {
   // Default method
   void Node::createSpecializedConditions()
   {
-	if (m_nodeType == UPDATE()) {
-	  // Construct real end condition
-	  m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-	  m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
-	  ExpressionId realEndCondition =
-		(new Conjunction(m_ack,
-						 false, 
-						 m_conditions[endIdx],
-						 m_garbageConditions[endIdx]))->getId();
-	  realEndCondition->addListener(m_listeners[endIdx]);
-	  m_conditions[endIdx] = realEndCondition;
-	  m_garbageConditions[endIdx] = true;
-	}
   }
 
   void Node::createChildNodes(const PlexilListBody* body) 
@@ -801,13 +784,9 @@ namespace PLEXIL {
     m_cleanedConditions = true;
   }
 
+  // Default method.
   void Node::cleanUpNodeBody()
   {
-    if(m_update.isId()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing update.");
-      delete (Update*) m_update;
-	  m_update = UpdateId::noId();
-    }
   }
 
   void Node::cleanUpVars() 
@@ -868,57 +847,11 @@ namespace PLEXIL {
   // Default method
   void Node::specializedPostInit()
   {
-    if (m_nodeType == UPDATE()) {
-      debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
-	  // XML parser should have checked for this
-      checkError(Id<PlexilUpdateBody>::convertable(m_node->body()),
-				 "Node is an update node but doesn't have an update body.");
-      createUpdate((PlexilUpdateBody*)m_node->body());
-    }
-
     //call postInit on all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->postInit();
   }
 
-
-  void Node::createUpdate(const PlexilUpdateBody* body) 
-  {
-    PlexilUpdateId update = body->update();
-    ExpressionMap updatePairs;
-    std::list<ExpressionId> garbage;
-
-    if (update.isValid()) {
-      for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
-			 update->pairs().begin();
-		   it != update->pairs().end();
-		   ++it) {
-		LabelStr nameStr(it->first);
-		debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
-		PlexilExprId foo = it->second;
-		bool wasCreated = false;
-		ExpressionId valueExpr = 
-		  ExpressionFactory::createInstance(foo->name(),
-											foo,
-											m_connector,
-											wasCreated);
-		check_error(valueExpr.isValid());
-		if (wasCreated)
-		  garbage.push_back(valueExpr);
-		updatePairs.insert(std::make_pair((double) nameStr, valueExpr));
-      }
-    }
-
-    m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
-  }
-
-  // Unit test variant
-  void Node::createDummyUpdate() 
-  {
-    ExpressionMap updatePairs;
-    std::list<ExpressionId> garbage;
-    m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
-  }
 
   // Make the node (and its children, if any) active.
   void Node::activate()
@@ -1148,11 +1081,6 @@ namespace PLEXIL {
     return m_failureTypeVariable->getValue();
   }
 
-  // Default method
-  const LabelStr Node::getCommandHandle() {
-	return Expression::UNKNOWN();
-  }
-
   class NodeIdEq {
   public:
     NodeIdEq(const double name) : m_name(name) {}
@@ -1358,13 +1286,6 @@ namespace PLEXIL {
   // default method
   void Node::specializedHandleExecution()
   {
-	if (m_nodeType == UPDATE()) {
-	  checkError(m_update.isValid(),
-				 "Node::handleExecution: Update is invalid");
-      m_update->activate();
-	  m_update->fixValues();
-      m_exec->enqueueUpdate(m_update);
-	}
   }
 
   void Node::reset() {
@@ -1391,8 +1312,7 @@ namespace PLEXIL {
   // Default method
   void Node::specializedReset()
   {
-    if (getType() == UPDATE()
-		|| getType() == REQUEST())
+    if (getType() == REQUEST())
       m_ack->reset();
   }
 
@@ -1462,8 +1382,6 @@ namespace PLEXIL {
   // Default method
   void Node::specializedDeactivateExecutable()
   {
-    if (getType() == Node::UPDATE() && m_update.isValid())
-      m_update->deactivate();
   }
 
   void Node::deactivateLocalVariables()
@@ -1602,51 +1520,4 @@ namespace PLEXIL {
     return *endNames;
   }
 
-
-  Update::Update(const NodeId& node, 
-				 const ExpressionMap& pairs,
-				 const VariableId ack,
-				 const std::list<ExpressionId>& garbage)
-    : m_id(this), m_source(node), m_pairs(pairs), m_ack(ack), m_garbage(garbage) {}
-
-  Update::~Update() {
-    for(std::list<ExpressionId>::const_iterator it = m_garbage.begin(); it != m_garbage.end();
-		++it)
-      delete (Expression*) (*it);
-    m_id.remove();
-  }
-
-  void Update::fixValues() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end();
-		++it) {
-      check_error(it->second.isValid());
-      std::map<double, double>::iterator valuePairIt =
-		m_valuePairs.find(it->first);
-      if (valuePairIt == m_valuePairs.end())
-		{
-		  // new pair, safe to insert
-		  m_valuePairs.insert(std::make_pair(it->first, it->second->getValue()));
-		}
-      else
-		{
-		  // recycle old pair
-		  valuePairIt->second = it->second->getValue();
-		}
-      debugMsg("Update:fixValues",
-			   " fixing pair '" << LabelStr(it->first).toString() << "', "
-			   << it->second->getValue());
-    }
-  }
-
-  void Update::activate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      it->second->activate();
-    }
-  }
-
-  void Update::deactivate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      it->second->deactivate();
-    }
-  }
 }

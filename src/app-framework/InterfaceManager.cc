@@ -58,6 +58,7 @@
 #include "ResourceArbiterInterface.hh"
 #include "StateCache.hh"
 #include "TimeAdapter.hh"
+#include "UpdateNode.hh"
 #include "UtilityAdapter.hh"
 
 #include <limits>

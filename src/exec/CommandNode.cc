@@ -96,7 +96,7 @@ namespace PLEXIL
 	// Redundant with base class destructor
 	cleanUpConditions();
 	cleanUpNodeBody();
-	cleanUpVars();
+	// cleanUpVars(); // base destructor should handle this
 
 	// Now safe to delete command handle
 	delete (Variable*) m_commandHandleVariable;
