@@ -25,6 +25,7 @@
 */
 
 #include "PlexilExec.hh"
+#include "Assignment.hh"
 #include "AssignmentNode.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
@@ -577,19 +578,12 @@ namespace PLEXIL {
   void PlexilExec::performAssignments() 
   {
     for(std::vector<AssignmentId>::iterator it = m_assignmentsToExecute.begin();
-	it != m_assignmentsToExecute.end(); ++it) 
-      {
-	AssignmentId assn = *it;
-	check_error(assn.isValid());
-	ExpressionId exp = assn->getDest();
-	check_error(exp.isValid());
-	double value = assn->getValue();
-	debugMsg("Test:testOutput", "Assigning '" << assn->getDestName() <<
-		 "' (" << exp->toString() << ") to " << Expression::valueToString(value));
-	exp->setValue(value);
-        publishAssignment(exp, assn->getDestName(), value);
-	assn->getAck()->setValue(1);
-      }
+	it != m_assignmentsToExecute.end(); ++it) {
+	  AssignmentId assn = *it;
+	  check_error(assn.isValid());
+	  assn->execute();
+	  publishAssignment(assn->getDest(), assn->getDestName(), assn->getValue());
+	}
     m_assignmentsToExecute.clear();
   }
 
@@ -734,11 +728,11 @@ namespace PLEXIL {
       }
   }
 
-  void PlexilExec::publishCommandReturn (const ExpressionId& dest,
-                                         const std::string& destName,
-                                         const double& value)
+  void PlexilExec::publishCommandReturn(const ExpressionId& dest,
+										const std::string& destName,
+										const double& value)
   {
-    publishAssignment (dest, destName, value);
+    publishAssignment(dest, destName, value);
   }
 
 

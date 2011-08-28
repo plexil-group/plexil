@@ -90,36 +90,6 @@ namespace PLEXIL
     AssignmentId m_assignment;
   };
 
-  class Assignment {
-  public:
-    Assignment(const VariableId lhs,
-			   const ExpressionId rhs, 
-			   const VariableId ack,
-			   const LabelStr& lhsName,
-			   const bool deleteLhs, 
-			   const bool deleteRhs);
-    ~Assignment();
-    AssignmentId& getId() {return m_id;}
-    VariableId& getDest() {return m_lhs;}
-    ExpressionId& getAck() {return m_ack;}
-    double getValue(){return m_value;}
-    void activate();
-    void deactivate();
-    const std::string& getDestName();
-
-  protected:
-    friend class AssignmentNode;
-    void fixValue();
-
-  private:
-    AssignmentId m_id;
-	VariableId m_lhs;
-    ExpressionId m_rhs, m_ack;
-    double m_value;
-    LabelStr m_destName;
-    bool m_deleteLhs, m_deleteRhs;
-  };
-
 }
 
 #endif // ASSIGNMENT_NODE_HH

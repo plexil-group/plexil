@@ -25,6 +25,7 @@
 */
 
 #include "AssignmentNode.hh"
+#include "Assignment.hh"
 #include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "CoreExpressions.hh"
@@ -298,46 +299,6 @@ namespace PLEXIL
       delete (Assignment*) m_assignment;
 	  m_assignment = AssignmentId::noId();
     }
-  }
-
-  Assignment::Assignment(const VariableId lhs, 
-						 const ExpressionId rhs,
-						 const VariableId ack, 
-						 const LabelStr& lhsName, 
-                         const bool deleteLhs, 
-						 const bool deleteRhs)
-    : m_id(this), m_lhs(lhs), m_rhs(rhs), m_ack(ack), 
-      m_value(Expression::UNKNOWN()),
-      m_destName(lhsName),
-      m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
-  {
-  }
-
-  Assignment::~Assignment() {
-    if(m_deleteLhs)
-      delete (Variable*) m_lhs;
-    if(m_deleteRhs)
-      delete (Expression*) m_rhs;
-    m_id.remove();
-  }
-
-  void Assignment::fixValue() {
-    m_value = m_rhs->getValue();
-  }
-
-  void Assignment::activate() 
-  {
-    m_rhs->activate();
-    m_lhs->activate();
-  }
-
-  void Assignment::deactivate() {
-    m_rhs->deactivate();
-    m_lhs->deactivate();
-  }
-
-  const std::string& Assignment::getDestName() {
-    return m_destName.toString();
   }
 
 }
