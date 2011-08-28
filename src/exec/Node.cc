@@ -185,7 +185,6 @@ namespace PLEXIL {
 	  m_nodeId(node->nodeId()),
 	  m_nodeType(nodeTypeToLabelStr(node->nodeType())), // Can throw exception
 	  m_sortedVariableNames(new std::vector<double>()),
-      m_priority(node->priority()),
       m_state(INACTIVE_STATE),
 	  m_lastQuery(NO_NODE_STATE),
       m_postInitCalled(false),

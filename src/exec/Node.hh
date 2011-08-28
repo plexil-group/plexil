@@ -175,8 +175,9 @@ namespace PLEXIL {
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
      * @return the priority of this node.
+	 * @note Default method; only assignment nodes care about priority.
      */
-    double getPriority() const {return m_priority;}
+    virtual double getPriority() const {return WORST_PRIORITY;}
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.
@@ -448,7 +449,6 @@ namespace PLEXIL {
     VariableId m_stateVariable;
 	VariableId m_outcomeVariable;
 	VariableId m_failureTypeVariable;
-    double m_priority; /*<! The priority of this node. */
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
 	bool m_garbageConditions[conditionIndexMax]; /*<! Flags for conditions to delete. */

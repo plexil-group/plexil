@@ -40,7 +40,8 @@ namespace PLEXIL
 								 const ExecConnectorId& exec,
 								 const NodeId& parent)
 	: Node(nodeProto, exec, parent),
-	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
+	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
+	  m_priority(nodeProto->priority())
   {
 	checkError(nodeProto->nodeType() == NodeType_Assignment,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())

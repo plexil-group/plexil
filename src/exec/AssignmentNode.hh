@@ -65,6 +65,12 @@ namespace PLEXIL
      */
     const VariableId& getAssignmentVariable() const;
 
+    /**
+     * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
+     * @return the priority of this node.
+     */
+    virtual double getPriority() const {return m_priority;}
+
 	// Called from the transition handler
     virtual void abort();
 	
@@ -89,6 +95,7 @@ namespace PLEXIL
 
     AssignmentId m_assignment;
     VariableId m_ack; /*<! The destination for acknowledgement of the assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
+    double m_priority; /*<! The priority of this node. */
   };
 
 }
