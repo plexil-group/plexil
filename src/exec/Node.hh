@@ -232,22 +232,6 @@ namespace PLEXIL {
     const VariableId& getFailureTypeVariable() const { return m_failureTypeVariable; }
 
     /**
-     * @brief Accessor for a command node's command handle (acknowledgement) value.
-     */
-    virtual const LabelStr getCommandHandle()
-	{
-	  return UNKNOWN_STR();
-	}
-
-    /**
-     * @brief Accessor for a command node's command handle (acknowledgement) variable.
-     */
-    virtual const VariableId& getCommandHandleVariable() const
-	{
-	  return VariableId::noId(); 
-	}
-
-    /**
      * @brief Accessor for an assignment node's assigned variable.
      */
     virtual const VariableId& getAssignmentVariable() const 

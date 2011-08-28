@@ -113,14 +113,6 @@ namespace PLEXIL
     }
   }
 
-  const LabelStr CommandNode::getCommandHandle()
-  {
-	if (m_commandHandleVariable.isId())
-	  return m_commandHandleVariable->getValue();
-	else 
-	  return Expression::UNKNOWN();
-  }
-
   // Specific behaviors for derived classes
   void CommandNode::specializedPostInit()
   {

@@ -58,12 +58,6 @@ namespace PLEXIL
      */
     virtual ~CommandNode();
 
-    virtual const LabelStr getCommandHandle();
-    virtual const VariableId& getCommandHandleVariable() const 
-	{
-	  return m_commandHandleVariable; 
-	}
-
 	// Called from the transition handler
     virtual void abort();
 
