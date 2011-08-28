@@ -34,8 +34,6 @@ class TiXmlElement;
 
 namespace PLEXIL
 {
-  class InterfaceManagerBase;
-
   // Provides output from execution useful for debugging a Plexil plan.
 
   class PlanDebugListener : public ExecListener

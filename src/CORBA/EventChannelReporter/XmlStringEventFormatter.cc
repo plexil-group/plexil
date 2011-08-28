@@ -45,8 +45,8 @@
 namespace PLEXIL
 {
 
-  XmlStringEventFormatter::XmlStringEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr)
-    : EventFormatter(xml, mgr)
+  XmlStringEventFormatter::XmlStringEventFormatter(const TiXmlElement* xml)
+    : EventFormatter(xml)
   {
   }
 

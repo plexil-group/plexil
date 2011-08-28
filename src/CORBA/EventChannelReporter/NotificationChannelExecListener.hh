@@ -41,8 +41,7 @@ namespace PLEXIL
 					  public BaseEventChannelExecListener
   {
   public:
-    NotificationChannelExecListener(const TiXmlElement* xml,
-				    InterfaceManagerBase & mgr);
+    NotificationChannelExecListener(const TiXmlElement* xml);
     virtual ~NotificationChannelExecListener();
 
     virtual bool isConnected() const;

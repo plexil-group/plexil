@@ -27,7 +27,6 @@
 #include "ExecListenerFilterFactory.hh"
 #include "Debug.hh"
 #include "DynamicLoader.hh"
-#include "InterfaceManagerBase.hh"
 #include "InterfaceSchema.hh"
 
 #ifndef TIXML_USE_STL
@@ -41,13 +40,11 @@ namespace PLEXIL
    * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
    *        the given configuration XML.
    * @param xml The configuration XML specifying the ExecListenerFilter.
-   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new ExecListenerFilter.
    */
 
   ExecListenerFilterId 
-  ExecListenerFilterFactory::createInstance(const TiXmlElement* xml,
-                                            InterfaceManagerBase & mgr)
+  ExecListenerFilterFactory::createInstance(const TiXmlElement* xml)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
@@ -63,7 +60,7 @@ namespace PLEXIL
            << *xml);
 
     // Make it
-    return createInstance(LabelStr(filterType), xml, mgr);
+    return createInstance(LabelStr(filterType), xml);
   }
 
 
@@ -72,14 +69,12 @@ namespace PLEXIL
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListenerFilter constructor.
-   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new ExecListenerFilter.
    */
 
   ExecListenerFilterId 
   ExecListenerFilterFactory::createInstance(const LabelStr& name,
-                                            const TiXmlElement* xml,
-                        InterfaceManagerBase & mgr)
+                                            const TiXmlElement* xml)
   {
     std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name.getKey());
     if (it == factoryMap().end())
@@ -107,7 +102,7 @@ namespace PLEXIL
                   << name.c_str() << "\".");
       return ExecListenerFilterId::noId();
     }
-    ExecListenerFilterId retval = it->second->create(xml, mgr);
+    ExecListenerFilterId retval = it->second->create(xml);
     debugMsg("ExecListenerFilterFactory:createInstance",
              " Created Exec listener filter " << name.c_str());
     return retval;

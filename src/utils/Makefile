@@ -33,7 +33,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml
 LIB_PATH	+=
 LIBS		+= tinyxml $(PTHREAD_LIB)
 
-SRC		:= Debug.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
+SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
  ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc \
  Utils.cc XMLUtils.cc stricmp.c
@@ -44,6 +44,9 @@ INC		:= $(SRC:.cc=.hh) \
  stricmp.h TestSupport.hh utils_main_page.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
+
+# for DynamicLoader
+DEFINES += -D'LIB_EXT="$(SUFSHARE)"'
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)

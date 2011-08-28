@@ -30,6 +30,9 @@
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
 
+// Forward reference w/o namespace
+class TiXmlElement;
+
 namespace PLEXIL
 {
   // Forward references
@@ -54,9 +57,23 @@ namespace PLEXIL
     ExecListenerFilter();
 
     /**
+     * @brief Constructor from configuration XML.
+     */
+    ExecListenerFilter(const TiXmlElement* xml);
+
+    /**
      * @brief Destructor.
      */
     virtual ~ExecListenerFilter();
+
+    /**
+     * @brief Get the configuration XML of this instance.
+     * @return A pointer to the XML element.
+     */
+    const TiXmlElement* getXml() const
+    {
+      return m_xml;
+    }
 
     /**
      * @brief Determine whether this node transition event should be reported.
@@ -112,6 +129,11 @@ namespace PLEXIL
     // Member variables
     //
     ExecListenerFilterId m_id;
+
+    /**
+     * @brief The configuration XML used at construction time.
+     */
+    const TiXmlElement* m_xml;
   };
 
 }

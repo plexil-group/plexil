@@ -25,7 +25,6 @@
 */
 
 #include "StructuredEventFormatter.hh"
-#include "InterfaceManagerBase.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
@@ -35,16 +34,15 @@
 namespace PLEXIL
 {
 
-  StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr)
-    : EventFormatter(xml, mgr),
+  StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml)
+    : EventFormatter(xml),
       m_eventDomainName("_no_domain_name_")
   {
   }
 
   StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml, 
-						     InterfaceManagerBase& mgr, 
 						     const std::string & domainName)
-    : EventFormatter(xml, mgr),
+    : EventFormatter(xml),
       m_eventDomainName(domainName)
   {
   }

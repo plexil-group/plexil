@@ -26,8 +26,10 @@
 
 #include "ExecListener.hh"
 #include "ExecListenerFilter.hh"
+#include "ExecListenerFilterFactory.hh"
 #include "Debug.hh"
 #include "Expression.hh"
+#include "InterfaceSchema.hh"
 #ifndef TIXML_USE_STL
 #define TIXML_USE_STL
 #endif
@@ -47,13 +49,33 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Default constructor.
+   * @brief Constructor from configuration XML.
    */
   ExecListener::ExecListener(const TiXmlElement* xml)
     : ExecListenerBase(xml),
 	  m_id(this, ExecListenerBase::getId()), 
       m_filter()
   {
+    if (xml != NULL) {
+	  const TiXmlElement * filterSpec = xml->FirstChildElement(InterfaceSchema::FILTER_TAG());
+	  if (filterSpec != NULL) {
+		// Construct specified event filter
+              
+		const char* filterType = filterSpec->Attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+		assertTrueMsg(filterType != NULL,
+					  "ExecListener constructor: invalid XML: <"
+					  << InterfaceSchema::FILTER_TAG()
+					  << "> element without a "
+					  << InterfaceSchema::FILTER_TYPE_ATTR()
+					  << " attribute");
+		ExecListenerFilterId f = 
+		  ExecListenerFilterFactory::createInstance(LabelStr(filterType),
+													filterSpec);
+		assertTrue(f.isId(),
+				   "ExecListener constructor: failed to construct filter");
+		m_filter = f;
+	  }
+	}
   }
 
   /**

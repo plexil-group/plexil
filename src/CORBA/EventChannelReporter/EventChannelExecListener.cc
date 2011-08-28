@@ -37,9 +37,8 @@
 
 namespace PLEXIL
 {
-  BaseEventChannelExecListener::BaseEventChannelExecListener(const TiXmlElement* xml,
-                                                             InterfaceManagerBase & mgr)
-    : ManagedExecListener(xml, mgr),
+  BaseEventChannelExecListener::BaseEventChannelExecListener(const TiXmlElement* xml)
+    : ExecListener(xml),
       m_formatter()
   {
     // Get formatter spec from XML
@@ -63,9 +62,8 @@ namespace PLEXIL
     m_formatter = fmtr;
   }
 
-  EventChannelExecListener::EventChannelExecListener(const TiXmlElement* xml,
-                                                     InterfaceManagerBase & mgr)
-    : BaseEventChannelExecListener(xml, mgr),
+  EventChannelExecListener::EventChannelExecListener(const TiXmlElement* xml)
+    : BaseEventChannelExecListener(xml),
       POA_CosEventComm::PushSupplier(),
       m_isConnected(false)
   {
@@ -82,7 +80,7 @@ namespace PLEXIL
   }
 
   //
-  // ManagedExecListener API
+  // ExecListener API
   //
 
   /**

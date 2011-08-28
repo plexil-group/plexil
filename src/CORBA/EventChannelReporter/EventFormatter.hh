@@ -35,8 +35,6 @@
 
 #include "Id.hh"
 #include "Node.hh"
-#include "InterfaceManagerBase.hh"
-
 
 // ACE/TAO includes
 #include "tao/Version.h"
@@ -68,10 +66,9 @@ namespace PLEXIL
 			       EVENT_FORMATTER_TYPE,
 			       "EventFormatterType");
 
-    EventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr)
+    EventFormatter(const TiXmlElement* xml)
       : m_id(this),
-	m_xml(xml),
-	m_manager(mgr)
+	m_xml(xml)
     {
     }
 
@@ -96,11 +93,6 @@ namespace PLEXIL
       return m_xml;
     }
 
-    InterfaceManagerBase& getManager() const
-    {
-      return m_manager;
-    }
-
   private:
     // deliberately unimplemented
     EventFormatter();
@@ -110,7 +102,6 @@ namespace PLEXIL
     // private member variables
     EventFormatterId m_id;
     const TiXmlElement* m_xml;
-    InterfaceManagerBase& m_manager;
   };
 
 }

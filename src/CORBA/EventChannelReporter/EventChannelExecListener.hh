@@ -27,7 +27,7 @@
 #ifndef EC_EXEC_LISTENER_H
 #define EC_EXEC_LISTENER_H
 
-#include "ManagedExecListener.hh" // for ManagedExecListener
+#include "ExecListener.hh" // for ExecListener
 #include "orbsvcs/CosEventChannelAdminC.h" 
 #include "orbsvcs/CosEventCommS.h" 
 
@@ -40,7 +40,7 @@ namespace PLEXIL
   class EventFormatter;
   typedef Id<EventFormatter> EventFormatterId;
 
-  class BaseEventChannelExecListener : public ManagedExecListener
+  class BaseEventChannelExecListener : public ExecListener
   {
   public:
     virtual ~BaseEventChannelExecListener();
@@ -58,8 +58,7 @@ namespace PLEXIL
 
   protected:
     // Only for use by derived classes
-    BaseEventChannelExecListener(const TiXmlElement* xml,
-				 InterfaceManagerBase & mgr);
+    BaseEventChannelExecListener(const TiXmlElement* xml);
 
     EventFormatterId m_formatter;
 
@@ -74,8 +73,7 @@ namespace PLEXIL
 				   public POA_CosEventComm::PushSupplier
   {
   public:
-    EventChannelExecListener(const TiXmlElement* xml,
-			     InterfaceManagerBase & mgr);
+    EventChannelExecListener(const TiXmlElement* xml);
     virtual ~EventChannelExecListener();
 
     virtual bool isConnected() const;
@@ -109,7 +107,7 @@ namespace PLEXIL
     implementNotifyAddPlan(const PlexilNodeId& plan, const LabelStr& parent) const;
 
     //
-    // ManagedExecListener API
+    // ExecListener API
     //
 
 

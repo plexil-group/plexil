@@ -42,8 +42,6 @@ INC		:= $(SRC:.cc=.hh) TimeAdapter.hh ExecController.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 
-DEFINES += -D'LIB_EXT="$(SUFSHARE)"'
-
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend

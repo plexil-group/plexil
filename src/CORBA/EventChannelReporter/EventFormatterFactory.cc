@@ -47,13 +47,11 @@ namespace PLEXIL
    * @brief Creates a new EventFormatter instance with the type associated with the name and
    *        the given configuration XML.
    * @param xml The configuration XML specifying the EventFormatter.
-   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new EventFormatter.
    */
 
   EventFormatterId 
-  EventFormatterFactory::createInstance(const TiXmlElement* xml,
-					InterfaceManagerBase & mgr)
+  EventFormatterFactory::createInstance(const TiXmlElement* xml)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
@@ -89,7 +87,7 @@ namespace PLEXIL
 
     assertTrueMsg(it != factoryMap().end(),
 		  "Error: No exec formatter factory registered for name \"" << formatterType << "\".");
-    EventFormatterId retval = it->second->create(xml, mgr);
+    EventFormatterId retval = it->second->create(xml);
     debugMsg("EventFormatterFactory:createInstance", " Created Exec formatter " << formatterType);
     return retval;
   }
@@ -145,13 +143,11 @@ namespace PLEXIL
    * @brief Creates a new StructuredEventFormatter instance with the type associated with the name and
    *        the given configuration XML.
    * @param xml The configuration XML specifying the StructuredEventFormatter.
-   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new StructuredEventFormatter.
    */
 
   StructuredEventFormatterId 
-  StructuredEventFormatterFactory::createInstance(const TiXmlElement* xml,
-					InterfaceManagerBase & mgr)
+  StructuredEventFormatterFactory::createInstance(const TiXmlElement* xml)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
@@ -187,7 +183,7 @@ namespace PLEXIL
 
     assertTrueMsg(it != factoryMap().end(),
 		  "Error: No structured event formatter factory registered for name \"" << formatterType << "\".");
-    StructuredEventFormatterId retval = it->second->create(xml, mgr);
+    StructuredEventFormatterId retval = it->second->create(xml);
     debugMsg("StructuredEventFormatterFactory:createInstance", " Created structured formatter " << formatterType);
     return retval;
   }
