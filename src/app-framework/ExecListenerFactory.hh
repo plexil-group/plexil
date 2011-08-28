@@ -42,7 +42,6 @@ namespace PLEXIL
 
   class ExecListener;
   typedef Id<ExecListener> ExecListenerId;
-  class InterfaceManagerBase;
 
   /**
    * @brief Factory class for ExecListener instances.
@@ -56,25 +55,21 @@ namespace PLEXIL
      * @brief Creates a new ExecListener instance with the type associated with the name and
      *        the given configuration XML.
      * @param xml The configuration XML specifying the ExecListener.
-     * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
      * @return The Id for the new ExecListener.
      */
 
-    static ExecListenerId createInstance(const TiXmlElement* xml,
-					 InterfaceManagerBase & mgr);
+    static ExecListenerId createInstance(const TiXmlElement* xml);
 
     /**
      * @brief Creates a new ExecListener instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
      * @param xml The configuration XML to be passed to the ExecListener constructor.
-     * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
      * @return The Id for the new ExecListener.
      */
 
     static ExecListenerId createInstance(const LabelStr& name, 
-                                         const TiXmlElement* xml,
-					 InterfaceManagerBase & mgr);
+                                         const TiXmlElement* xml);
 
     /**
      * @brief Checks whether or not the given ExecListenerFactory is registered.
@@ -106,11 +101,9 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
      * @param xml The configuration XML for the instantiated listener.
-     * @param mgr Reference to the owning InterfaceManager instance.
      * @return The Id for the new ExecListener.
      */
-    virtual ExecListenerId create(const TiXmlElement* xml,
-					InterfaceManagerBase & mgr) const = 0;
+    virtual ExecListenerId create(const TiXmlElement* xml) const = 0;
 
     ExecListenerFactory(const LabelStr& name)
       : m_name(name)
@@ -157,10 +150,9 @@ namespace PLEXIL
      * @return The Id for the new ExecListener.
      */
 
-    ExecListenerId create(const TiXmlElement* xml,
-			  InterfaceManagerBase & mgr) const
+    ExecListenerId create(const TiXmlElement* xml) const
     {
-      ExecListenerId result = (new ListenerType(xml, mgr))->getId();
+      ExecListenerId result = (new ListenerType(xml))->getId();
       return result;
     }
   };

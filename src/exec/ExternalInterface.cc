@@ -38,7 +38,7 @@ namespace PLEXIL {
     m_id.remove();
   }
 
-  void ExternalInterface::setExec(const PlexilExecId exec)
+  void ExternalInterface::setExec(const PlexilExecId& exec)
   {
     m_exec = exec;
     m_exec->setExternalInterface(m_id);

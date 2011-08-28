@@ -27,8 +27,6 @@
 #ifndef _H_InterfaceManager
 #define _H_InterfaceManager
 
-#include "ExecDefs.hh"
-#include "Expression.hh"
 #include "ExternalInterface.hh"
 #include "AdapterExecInterface.hh"
 #include "PlexilPlan.hh"
@@ -62,6 +60,9 @@ namespace PLEXIL
 
   class ExecController;
   typedef Id<ExecController> ExecControllerId;
+
+  class ExecListenerHub;
+  typedef Id<ExecListenerHub> ExecListenerHubId;
 
   /**
    * @brief A concrete derived class implementing the APIs of the
@@ -113,6 +114,11 @@ namespace PLEXIL
     {
       return m_adapterConfig;
     }
+	
+	/**
+	 * @brief Set the Exec.
+	 */
+    virtual void setExec(const PlexilExecId& exec);
 
     //
     // API for all related objects
@@ -677,8 +683,8 @@ namespace PLEXIL
     //* The queue
     ValueQueue m_valueQueue;
 
-    //* Vector of all known ExecListener instances
-    std::vector<ExecListenerId> m_listeners;
+    //* ExecListener hub
+    ExecListenerHubId m_listenerHub;
 
     //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapterId> m_adapters;

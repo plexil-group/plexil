@@ -28,7 +28,6 @@
 #include "Debug.hh"
 #include "DynamicLoader.hh"
 #include "ExecListener.hh"
-#include "InterfaceManagerBase.hh"
 #include "InterfaceSchema.hh"
 
 #ifndef TIXML_USE_STL
@@ -46,13 +45,11 @@ namespace PLEXIL
    * @brief Creates a new ExecListener instance with the type associated with the name and
    *        the given configuration XML.
    * @param xml The configuration XML specifying the ExecListener.
-   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new ExecListener.
    */
 
   ExecListenerId 
-  ExecListenerFactory::createInstance(const TiXmlElement* xml,
-                      InterfaceManagerBase & mgr)
+  ExecListenerFactory::createInstance(const TiXmlElement* xml)
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
@@ -68,7 +65,7 @@ namespace PLEXIL
            << *xml);
 
     // Make it
-    return createInstance(LabelStr(listenerType), xml, mgr);
+    return createInstance(LabelStr(listenerType), xml);
   }
 
   /**
@@ -76,14 +73,12 @@ namespace PLEXIL
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListener constructor.
-   * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
    * @return The Id for the new ExecListener.
    */
 
   ExecListenerId 
   ExecListenerFactory::createInstance(const LabelStr& name,
-                                      const TiXmlElement* xml,
-                      InterfaceManagerBase & mgr)
+                                      const TiXmlElement* xml)
   {
     std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name.getKey());
     if (it == factoryMap().end())
@@ -109,7 +104,7 @@ namespace PLEXIL
                " No exec listener factory registered for name \"" << name.c_str() << "\"");
       return ExecListenerId::noId();
     }
-    ExecListenerId retval = it->second->create(xml, mgr);
+    ExecListenerId retval = it->second->create(xml);
     debugMsg("ExecListenerFactory:createInstance", " Created Exec listener " << name.c_str());
     return retval;
   }

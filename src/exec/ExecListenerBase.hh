@@ -24,69 +24,108 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ManagedExecListener
-#define _H_ManagedExecListener
+#ifndef EXEC_LISTENER_BASE_HH
+#define EXEC_LISTENER_BASE_HH
 
-#include "ExecListener.hh"
+#include "ExecDefs.hh"
+#include "LabelStr.hh"
 
-// Forward reference w/o namespace
+// forward reference w/o namespace
 class TiXmlElement;
 
 namespace PLEXIL
 {
 
-  // Forward reference w/o namespace
-  class InterfaceManagerBase;
+  // Forward references
+  class PlexilNode;
+  typedef Id<PlexilNode> PlexilNodeId;
+  class ExecListenerBase;
+  typedef Id<ExecListenerBase> ExecListenerBaseId;
 
   /**
-   * @brief An abstract base class, derived from ExecListener, which supports
-   *        automatic management by the InterfaceManager class.
-   * @see Class ExecListener
+   * @brief An abstract base class for notifying the outside world of plan events.
    */
-  class ManagedExecListener :
-    public ExecListener
+  class ExecListenerBase
   {
-  public:
+  public: 
 
     /**
-     * @brief Default constructor, for use when there's no XML
-     *        description or Interface Manager involved.
+     * @brief Default constructor.
+     */
+	ExecListenerBase()
+	  : m_xml(NULL),
+		m_baseId(this)
+	{
+	}
+
+    /**
+     * @brief Constructor from configuration XML
      * @param xml Pointer to the (shared) configuration XML describing this listener.
-     * @param mgr Pointer to the owning manager.
      */
-    ManagedExecListener();
+	ExecListenerBase(const TiXmlElement* xml)
+	  : m_xml(xml),
+		m_baseId(this)
+	{
+	}
+
+	virtual ~ExecListenerBase()
+	{
+	  m_baseId.remove();
+	}
+
+	const ExecListenerBaseId& getId() const 
+	{
+	  return m_baseId;
+	}
+
+	const TiXmlElement* getXml() const
+	{
+	  return m_xml;
+	}
+
+	//
+	// API to Exec
+	//
+
+	/**
+	 * @brief Notify that nodes have changed state.
+	 * @param Vector of node state transition info.
+	 * @note Current states are accessible via the node.
+	 */
+	virtual void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const = 0;
 
     /**
-     * @brief Constructor from configuration XML and owning manager.
-     * @param xml Pointer to the (shared) configuration XML describing this listener.
-     * @param mgr A reference to the owning manager.
+     * @brief Notify that a plan has been received by the Exec.
+     * @param plan The intermediate representation of the plan.
+     * @param parent The name of the parent node under which this plan will be inserted.
      */
-    ManagedExecListener(const TiXmlElement* xml,
-			InterfaceManagerBase & mgr);
+    virtual void notifyOfAddPlan(const PlexilNodeId& plan, 
+                                 const LabelStr& parent) const = 0;
 
     /**
-     * @brief Destructor.
+     * @brief Notify that a library node has been received by the Exec.
+     * @param libNode The intermediate representation of the plan.
      */
-    virtual ~ManagedExecListener();
+    virtual void notifyOfAddLibrary(const PlexilNodeId& libNode) const = 0;
+
+    //not sure if anybody wants this
+    //virtual void notifyOfConditionChange(const NodeId& node,
+    //                                     const LabelStr& condition,
+    //                                     const bool value) const;
 
     /**
-     * @brief Get the configuration XML of this instance.
-     * @return A pointer to the XML element.
+     * @brief Notify that a variable assignment has been performed.
+     * @param dest The Expression being assigned to.
+     * @param destName A string naming the destination.
+     * @param value The value (in internal Exec representation) being assigned.
      */
-    inline const TiXmlElement* getXml() const
-    { 
-      return m_xml; 
-    }
+    virtual void notifyOfAssignment(const ExpressionId & dest,
+                                    const std::string& destName,
+                                    const double& value) const = 0;
 
-    /**
-     * @brief Get the InterfaceManager that owns this instance.
-     * @return A InterfaceManagerBase &.
-     */
-    InterfaceManagerBase & getManager() const;
-
-    //
-    // API to be implemented by derived classes
-    //
+	//
+	// Interface management API
+	//
 
     /**
      * @brief Perform listener-specific initialization.
@@ -118,28 +157,13 @@ namespace PLEXIL
      */
     virtual bool shutdown() = 0;
 
+  protected:
+	const TiXmlElement* m_xml;
+
   private:
-    //
-    // Deliberately unimplemented
-    //
-    ManagedExecListener(const ManagedExecListener&);
-    ManagedExecListener& operator= (const ManagedExecListener&);
-    
-    //
-    // Member variables
-    //
-
-    /**
-     * @brief The configuration XML used at construction time.
-     */
-    const TiXmlElement* m_xml;
-
-    /**
-     * @brief The InterfaceManager instance that owns this listener.
-     */
-    InterfaceManagerBase* m_manager;
+	ExecListenerBaseId m_baseId;
   };
 
 }
 
-#endif // _H_ManagedExecListener
+#endif // EXEC_LISTENER_BASE_HH

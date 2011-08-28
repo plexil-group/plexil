@@ -33,9 +33,8 @@ namespace PLEXIL
 {
   PlanDebugListener::PlanDebugListener () { }
 
-  PlanDebugListener::PlanDebugListener (const TiXmlElement* xml,
-                                        InterfaceManagerBase& mgr)
-    : ManagedExecListener (xml, mgr)
+  PlanDebugListener::PlanDebugListener (const TiXmlElement* xml)
+    : ExecListener (xml)
   { }
 
   PlanDebugListener::~PlanDebugListener () { }

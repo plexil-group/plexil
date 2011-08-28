@@ -26,7 +26,7 @@
 
 #include "Logging.hh"
 #include "PlexilExec.hh"
-#include "ExecListener.hh"
+#include "ExecListenerHub.hh"
 #include "PlanDebugListener.hh"
 #include "TestExternalInterface.hh"
 #include "SocketException.h"
@@ -38,7 +38,7 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "ExecTestRunner.hh"
-#include "TestLuvListener.hh"
+#include "LuvListener.hh"
 #include <fstream>
 #include <string>
 
@@ -57,8 +57,8 @@ int ExecTestRunner::run(int argc, char** argv)
   vector<string> libraryNames;
   vector<string> libraryPaths;
   bool luvRequest = false;
-  string luvHost = EssentialLuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = EssentialLuvListener::LUV_DEFAULT_PORT();
+  string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
+  int luvPort = LuvListener::LUV_DEFAULT_PORT();
   bool luvBlock = false;
   string
     usage(
@@ -203,25 +203,28 @@ int ExecTestRunner::run(int argc, char** argv)
   TestExternalInterface intf;
   PlexilExecId exec = (new PlexilExec())->getId();
   intf.setExec(exec);
+  ExecListenerHub hub;
+  exec->setExecListenerHub(hub.getId());
 
   // add the debug listener
 
   PlanDebugListener debug_listener;
-  exec->addListener (debug_listener.getId());
+  hub.addListener((new PlanDebugListener())->getId());
 
   // if a Plexil Viwer is to be attached
 
   if (luvRequest) {
     // create and add luv listener
-    TestLuvListener* ll = 
-      new TestLuvListener(luvHost, luvPort, luvBlock);
+    LuvListener* ll = 
+      new LuvListener(luvHost, luvPort, luvBlock);
     if (ll->isConnected()) {
-      exec->addListener(ll->getId());
+      hub.addListener(ll->getId());
     }
     else {
       warn("WARNING: Unable to connect to Plexil Viewer: " << endl
            << "  address: " << luvHost << ":" << luvPort << endl
            << "Execution will continue without the viewer.");
+	  delete ll;
     }
   }
 

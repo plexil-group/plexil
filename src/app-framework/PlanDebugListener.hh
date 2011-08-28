@@ -28,7 +28,7 @@
 #define _H_PlanDebugListener
 
 #include "ExecDefs.hh"
-#include "ManagedExecListener.hh"
+#include "ExecListener.hh"
 
 class TiXmlElement;
 
@@ -38,12 +38,12 @@ namespace PLEXIL
 
   // Provides output from execution useful for debugging a Plexil plan.
 
-  class PlanDebugListener : public ManagedExecListener
+  class PlanDebugListener : public ExecListener
   {
   public:
 
     PlanDebugListener();
-    PlanDebugListener (const TiXmlElement* xml, InterfaceManagerBase& mgr);
+    PlanDebugListener(const TiXmlElement* xml);
     virtual ~PlanDebugListener();
 
     // These methods have no special function.

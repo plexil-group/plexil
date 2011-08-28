@@ -144,7 +144,7 @@ namespace PLEXIL {
     virtual void addPlan(const TiXmlElement& plan, const LabelStr& parent = EMPTY_LABEL())
       throw(ParserException);
     virtual void addPlan(PlexilNode* node, const LabelStr& parent = EMPTY_LABEL());
-    void setExec(const PlexilExecId exec);
+    virtual void setExec(const PlexilExecId& exec);
 
 	// Returns the current time.
 	// The default method always returns 0.

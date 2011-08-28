@@ -39,8 +39,10 @@ namespace PLEXIL
   // Forward references
   class ExternalInterface;
   typedef Id<ExternalInterface> ExternalInterfaceId;
-
-  // *** ExecListener now has its own file ***
+  class ExecListenerBase;
+  typedef Id<ExecListenerBase> ExecListenerBaseId;
+  class ExecListenerHub;
+  typedef Id<ExecListenerHub> ExecListenerHubId;
 
   /**
    * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
@@ -122,15 +124,25 @@ namespace PLEXIL
      */
     void step();
 
+	/**
+	 * @brief Set the ExecListenerHub instance.
+	 */
+	void setExecListenerHub(const ExecListenerHubId& hub)
+	{
+	  m_listener = hub;
+	}
+
     /**
      * @brief Adds an ExecListener for publication of node transition events.
+	 * @note Convenience method for backward compatibility.
      */
-    void addListener(const ExecListenerId& listener);
+    void addListener(const ExecListenerBaseId& listener);
 
     /**
      * @brief Removes an ExecListener.
+	 * @note Convenience method for backward compatibility.
      */
-    void removeListener(const ExecListenerId& listener);
+    void removeListener(const ExecListenerBaseId& listener);
 
     /**
      * @brief accessor for the state cache.
@@ -149,9 +161,9 @@ namespace PLEXIL
      * particular the TestExternalInterface) don't have access to the listeners,
      * yet are responsible for assigning the return values of commands.
      */
-    void publishCommandReturn (const ExpressionId& dest,
-                               const std::string& destName,
-                               const double& value);
+    void publishCommandReturn(const ExpressionId& dest,
+							  const std::string& destName,
+							  const double& value);
 
 
 	//
@@ -232,13 +244,6 @@ namespace PLEXIL
      */
     int inQueue(const NodeId node) const;
 
-    void publishNodeTransitions(const std::vector<NodeTransition>& transitions) const;
-    void publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent);
-    void publishAddLibrary(const PlexilNodeId& libNode);
-    void publishAssignment(const ExpressionId & dest,
-                           const std::string& destName,
-                           const double& value);
-
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
     ExecConnectorId m_connector;
@@ -256,7 +261,7 @@ namespace PLEXIL
                                                                                                   The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
                                                                                                   Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                                                                   in state EXECUTING gets added to the end of the queue. */
-    std::vector<ExecListenerId> m_listeners;
+    ExecListenerHubId m_listener;
     std::map<std::string, PlexilNodeId> m_libraries;
   };
 }

@@ -35,7 +35,7 @@
 #include "Debug.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
-#include "NewLuvListener.hh"
+#include "LuvListener.hh"
 
 using namespace PLEXIL;
 
@@ -47,8 +47,8 @@ int main (int argc, char** argv)
   std::vector<std::string> libraryNames;
   std::vector<std::string> libraryPath;
   bool luvRequest = false;
-  std::string luvHost = PLEXIL::NewLuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = PLEXIL::NewLuvListener::LUV_DEFAULT_PORT();
+  std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
+  int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
   bool luvBlock = false;
   std::string
       usage(
@@ -177,7 +177,7 @@ int main (int argc, char** argv)
   // if a luv view is to be attached,
   // add dummy element for LuvListener
   if (luvRequest) {
-      configElt->LinkEndChild(PLEXIL::NewLuvListener::constructConfigurationXml(luvBlock,
+      configElt->LinkEndChild(PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
 										luvHost.c_str(), 
 										luvPort));
     }

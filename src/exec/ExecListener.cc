@@ -28,6 +28,10 @@
 #include "ExecListenerFilter.hh"
 #include "Debug.hh"
 #include "Expression.hh"
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
+#include "tinyxml.h"
 
 namespace PLEXIL
 {
@@ -36,7 +40,18 @@ namespace PLEXIL
    * @brief Default constructor.
    */
   ExecListener::ExecListener()
-    : m_id(this), 
+    : ExecListenerBase(),
+	  m_id(this, ExecListenerBase::getId()), 
+      m_filter()
+  {
+  }
+
+  /**
+   * @brief Default constructor.
+   */
+  ExecListener::ExecListener(const TiXmlElement* xml)
+    : ExecListenerBase(xml),
+	  m_id(this, ExecListenerBase::getId()), 
       m_filter()
   {
   }
@@ -46,7 +61,7 @@ namespace PLEXIL
    */
   ExecListener::~ExecListener() 
   { 
-    m_id.remove(); 
+    m_id.removeDerived(ExecListenerBase::getId()); 
   }
 
   /**

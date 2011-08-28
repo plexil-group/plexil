@@ -48,7 +48,7 @@
 #ifndef _H_IdTable
 #define _H_IdTable
 
-#include <iostream>
+#include <iosfwd>
 #include <stdint.h> // for uintptr_t
 
 #include "generic_hash_map.hh"

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,12 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef Essential_Luv_Listener_hh
-#define Essential_Luv_Listener_hh
+#ifndef LUV_LISTENER_HH
+#define LUV_LISTENER_HH
 
 #include "ConstantMacros.hh"
 #include "Id.hh"
 #include "ExecDefs.hh" // for NodeState
+#include "ExecListener.hh"
 
 #include <string>
 
@@ -37,25 +38,15 @@
 
 class Socket;
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
   // forward references in namespace PLEXIL
-  class LabelStr;
-
-  class Expression;
-  typedef Id<Expression> ExpressionId;
-
-  class Node;
-  typedef Id<Node> NodeId;
-
-  class PlexilNode;
-  typedef Id<PlexilNode> PlexilNodeId;
 
   /**
-   * @brief Base class for an Exec listener which supports the Plexil Viewer (nee' LUV).
-   * @note Does NOT derive from ExecListener due to a conflict with ManagedExecListener in the app framework
+   * @brief An Exec listener which supports the Plexil Viewer (nee' LUV).
    */
-  class EssentialLuvListener
+  class LuvListener : public ExecListener
   {
   public:
     //
@@ -66,14 +57,32 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(char*, LUV_DEFAULT_HOSTNAME, "localhost");
     DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 65400);
 
+    // Configuration XML
+    DECLARE_STATIC_CLASS_CONST(char*, LUV_HOSTNAME_ATTR, "HostName");
+    DECLARE_STATIC_CLASS_CONST(char*, LUV_PORT_ATTR, "Port");
+    DECLARE_STATIC_CLASS_CONST(char*, LUV_BLOCKING_ATTR, "Blocking");
+    DECLARE_STATIC_CLASS_CONST(char*, IGNORE_CONNECT_FAILURE_ATTR, "IgnoreConnectFailure");
+
+    // Literal strings (yes, this is redundant with LuvFormat.hh)
+    DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");
+    DECLARE_STATIC_CLASS_CONST(char*, FALSE_STR, "false");
+
     // End-of-message marker
     DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
 
-	//* Default constructor.
-	EssentialLuvListener();
+    /**
+     * @brief Constructor from configuration XML.
+     */
+    LuvListener(const TiXmlElement* xml);
+
+	//* Constructor from TestExec.
+	LuvListener(const std::string& host, 
+				const uint16_t port, 
+				const bool block = false,
+				const bool ignoreConnectionFailure = true);
 
 	//* Destructor.
-	virtual ~EssentialLuvListener();
+	virtual ~LuvListener();
 
     /**
      * @brief Notify that a node has changed state.
@@ -109,6 +118,55 @@ namespace PLEXIL {
 								   const std::string& destName,
 								   const double& value) const;
 
+    /**
+     * @brief Perform listener-specific initialization.
+     * @return true if successful, false otherwise.
+     */
+    bool initialize();
+
+    /**
+     * @brief Perform listener-specific startup.
+     * @return true if successful, false otherwise.
+     */
+    bool start();
+
+    /**
+     * @brief Perform listener-specific actions to stop.
+     * @return true if successful, false otherwise.
+     */
+    bool stop();
+
+    /**
+     * @brief Perform listener-specific actions to reset to initialized state.
+     * @return true if successful, false otherwise.
+     */
+    bool reset();
+
+    /**
+     * @brief Perform listener-specific actions to shut down.
+     * @return true if successful, false otherwise.
+     */
+    bool shutdown();
+
+	//* Report whether the listener is connected to the viewer.
+	bool isConnected();
+
+    /**
+     * @brief Construct the appropriate configuration XML for the desired settings.
+     * @param block true if the Exec should block until the user steps forward, false otherwise.
+     * @param hostname The host name where the Luv instance is running.
+     * @param port The port number for the Luv instance.
+     */
+    static TiXmlElement* constructConfigurationXml(const bool& block = false,
+						   const char* hostname = LUV_DEFAULT_HOSTNAME(),
+						   const unsigned int port = LUV_DEFAULT_PORT());
+
+  private:
+
+	// deliberately unimplemented
+	LuvListener();
+	LuvListener(const LuvListener&);
+	LuvListener& operator=(const LuvListener&);
 
 	/**
 	 * @brief Open the socket connection to the viewer.
@@ -124,17 +182,6 @@ namespace PLEXIL {
 	//* Close the socket.
 	void closeSocket();
 
-	//* Report whether the listener is connected to the viewer.
-	bool isConnected();
-
-	//* Sets whether the Exec should block until the viewer has acknowledged.
-	void setBlock(bool newValue);
-
-	//* Returns the current value of the blocking flag.
-	bool getBlock();
-
-  protected:
-
 	//* Send a plan info header to the viewer.
 	void sendPlanInfo() const;
 
@@ -148,16 +195,12 @@ namespace PLEXIL {
 	// Member variables
 	//
     Socket* m_socket;
+	const char* m_host;
+	uint16_t m_port;
     bool m_block;
-
-  private:
-
-	// deliberately unimplemented
-	EssentialLuvListener(const EssentialLuvListener&);
-	EssentialLuvListener& operator=(const EssentialLuvListener&);
-
+    bool m_ignoreConnectFailure;
   };
 
 }
 
-#endif // Essential_Luv_Listener_hh
+#endif // LUV_LISTENER_HH

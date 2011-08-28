@@ -26,13 +26,13 @@
 
 #include "PlexilExec.hh"
 #include "Assignment.hh"
-#include "AssignmentNode.hh"
+// #include "AssignmentNode.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
-#include "ExecListener.hh"
+#include "ExecListenerHub.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
-// #include "Node.hh" // redundant?
+#include "Node.hh" // redundant?
 #include "NodeFactory.hh"
 #include "StateCache.hh"
 #include "Variable.hh"
@@ -189,7 +189,8 @@ namespace PLEXIL {
     m_libraries[libNode->nodeId()] = libNode;
     debugMsg("PlexilExec:addLibrary",
 			 "Added library node \"" << libNode->nodeId() << "\"");
-    publishAddLibrary(libNode);
+	if (m_listener.isValid())
+	  m_listener->notifyOfAddLibrary(libNode);
   }
 
   // Add a plan
@@ -230,7 +231,8 @@ namespace PLEXIL {
 	root->activate();
     debugMsg("PlexilExec:addPlan",
 			 "Added plan: " << std::endl << root->toString());
-    publishAddPlan(plan, parent);
+	if (m_listener.isValid())
+	  m_listener->notifyOfAddPlan(plan, parent);
     root->conditionChanged();
     m_cache->handleQuiescenceEnded();
 
@@ -540,7 +542,8 @@ namespace PLEXIL {
 		++microStepCount;
       }
 	  // publish the transitions
-	  publishNodeTransitions(transitionsToPublish);
+	  if (m_listener.isValid())
+		m_listener->notifyOfTransitions(transitionsToPublish);
 
       //unlock the nodes
       for(std::list<NodeId>::iterator it = transitioningNodes.begin();
@@ -582,7 +585,8 @@ namespace PLEXIL {
 	  AssignmentId assn = *it;
 	  check_error(assn.isValid());
 	  assn->execute();
-	  publishAssignment(assn->getDest(), assn->getDestName(), assn->getValue());
+	  if (m_listener.isValid())
+		m_listener->notifyOfAssignment(assn->getDest(), assn->getDestName(), assn->getValue());
 	}
     m_assignmentsToExecute.clear();
   }
@@ -693,74 +697,25 @@ namespace PLEXIL {
     return -1;
   }
 
-  void PlexilExec::publishNodeTransitions(const std::vector<NodeTransition>& transitions) const
-  {
-    for (std::vector<ExecListenerId>::const_iterator it = m_listeners.begin();
-		 it != m_listeners.end();
-		 ++it) {
-      const ExecListenerId listener = *it;
-      check_error(listener.isValid());
-      listener->notifyOfTransitions(transitions);
-    }
-  }
-
-  void PlexilExec::publishAddLibrary(const PlexilNodeId& libNode) 
-  {
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-	 it != m_listeners.end();
-	 ++it)
-      {
-	ExecListenerId listener = *it;
-	check_error(listener.isValid());
-	(*it)->notifyOfAddLibrary(libNode);
-      }
-  }
-
-  void PlexilExec::publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent) 
-  {
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-	 it != m_listeners.end();
-	 ++it)
-      {
-	ExecListenerId listener = *it;
-	check_error(listener.isValid());
-	(*it)->notifyOfAddPlan(plan, parent);
-      }
-  }
-
   void PlexilExec::publishCommandReturn(const ExpressionId& dest,
 										const std::string& destName,
 										const double& value)
   {
-    publishAssignment(dest, destName, value);
+	if (m_listener.isValid())
+	  m_listener->notifyOfAssignment(dest, destName, value);
   }
 
-
-  void PlexilExec::publishAssignment(const ExpressionId & dest,
-                                     const std::string& destName,
-                                     const double& value)
+  // Convenience method for backward compatibility
+  void PlexilExec::addListener(const ExecListenerBaseId& listener) 
   {
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-	 it != m_listeners.end();
-	 ++it)
-      {
-	ExecListenerId listener = *it;
-	check_error(listener.isValid());
-	(*it)->notifyOfAssignment(dest, destName, value);
-      }
+    check_error(m_listener.isValid());
+    m_listener->addListener(listener);
   }
 
-  void PlexilExec::addListener(const ExecListenerId& listener) {
-    check_error(std::find(m_listeners.begin(), m_listeners.end(),
-			  listener) == m_listeners.end());
-    m_listeners.push_back(listener);
-  }
-
-  void PlexilExec::removeListener(const ExecListenerId& listener) {
-    std::vector<ExecListenerId>::iterator it =
-      std::find(m_listeners.begin(), m_listeners.end(), listener);
-	// Ignore it if we don't already know about it
-    if (it != m_listeners.end())
-	  m_listeners.erase(it);
+  // Convenience method for backward compatibility
+  void PlexilExec::removeListener(const ExecListenerBaseId& listener) 
+  {
+    check_error(m_listener.isValid());
+    m_listener->removeListener(listener);
   }
 }

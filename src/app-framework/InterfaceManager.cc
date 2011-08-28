@@ -48,9 +48,10 @@
 #include "ExecApplication.hh"
 #include "ExecController.hh"
 #include "ExecListenerFactory.hh"
+#include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "NewLuvListener.hh"
+#include "LuvListener.hh"
 #include "Node.hh"
 #include "PlanDebugListener.hh"
 #include "PlexilExec.hh"
@@ -79,7 +80,7 @@ namespace PLEXIL
       m_application(app),
       m_adapterConfig(),
       m_valueQueue(),
-      m_listeners(),
+      m_listenerHub((new ExecListenerHub())->getId()),
       m_adapters(),
       m_lookupAdapterMap(),
       m_ackToCmdMap(),
@@ -89,7 +90,6 @@ namespace PLEXIL
       m_currentTime(std::numeric_limits<double>::min()),
 	  m_lastMark(0)
   {
-
     // Every application has access to the dummy and utility adapters
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
     REGISTER_ADAPTER(UtilityAdapter, "Utility");
@@ -99,7 +99,7 @@ namespace PLEXIL
 
     // Every application should have access to the Plexil Viewer (formerly LUV)
     // and Plan Debug Listeners
-    REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
     REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
 
     // Every application has access to the default adapter configuration
@@ -112,13 +112,8 @@ namespace PLEXIL
   InterfaceManager::~InterfaceManager()
   {
     // unregister and delete listeners
-    std::vector<ExecListenerId>::iterator lit = m_listeners.begin();
-    while (lit != m_listeners.end()) {
-      ExecListenerId l = *lit;
-      lit = m_listeners.erase(lit);
-      m_exec->removeListener(l);
-      delete (ExecListener*) l;
-    }
+	m_exec->setExecListenerHub(ExecListenerHubId::noId());
+	delete (ExecListenerHub*) m_listenerHub; // deletes listeners too
 
     // unregister and delete adapters
     // *** kludge for buggy std::set template ***
@@ -139,6 +134,12 @@ namespace PLEXIL
       m_execController->controllerShutdown();
       delete m_execController.operator->();
     }
+  }
+
+  void InterfaceManager::setExec(const PlexilExecId& exec)
+  {
+	ExternalInterface::setExec(exec);
+	exec->setExecListenerHub(m_listenerHub);
   }
 
   //
@@ -207,15 +208,14 @@ namespace PLEXIL
         else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
             // Construct an ExecListener instance and attach it to the Exec
             ExecListenerId listener = 
-              ExecListenerFactory::createInstance(element,
-                                                  (AdapterExecInterface&) *this);
+              ExecListenerFactory::createInstance(element);
             if (!listener.isId()) {
               debugMsg("InterfaceManager:constructInterfaces",
                        " failed to construct listener from XML:\n"
                        << *element);
               return false;
             }
-            m_listeners.push_back(listener);
+            m_listenerHub->addListener(listener);
           }
         else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
             // Construct an ExecController instance and attach it to the application
@@ -282,8 +282,7 @@ namespace PLEXIL
    */
   void InterfaceManager::addExecListener(const ExecListenerId& listener)
   {
-    m_listeners.push_back(listener);
-    m_exec->addListener(listener);
+    m_listenerHub->addListener(listener);
   }
 
   /**
@@ -368,17 +367,10 @@ namespace PLEXIL
           return false;
 	  }
     }
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++) {
-	  ExecListenerId l = *it;
-      success = l->initialize();
-      if (!success) {
-		debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
-		m_listeners.erase(it);
-		delete (ExecListener*) l;
+	success = m_listenerHub->initialize();
+	if (!success) {
+	  debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
 		return false;
-	  }
     }
 
     if (m_execController.isId()) {
@@ -404,19 +396,12 @@ namespace PLEXIL
          success && it != m_adapters.end();
          it++)
       success = (*it)->start();
-    if (!success)
-      {
-        debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
-        return false;
-      }
+    if (!success) {
+	  debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
+	  return false;
+	}
 
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      {
-        if ((success = (*it)->start()))
-          m_exec->addListener(*it);
-      }
+	success = m_listenerHub->start();
     condDebugMsg(!success, 
                  "InterfaceManager:start", " failed to start all Exec listeners, returning false");
     return success;
@@ -433,13 +418,11 @@ namespace PLEXIL
     // halt adapters
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+         it != m_adapters.end();
          it++)
-      success = (*it)->stop();
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      success = (*it)->stop();
+      success = (*it)->stop() && success;
+
+	success = m_listenerHub->stop() && success;
 
 	debugMsg("InterfaceManager:stop", " completed");
     return success;
@@ -461,13 +444,11 @@ namespace PLEXIL
 
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+         it != m_adapters.end();
          it++)
-      success = (*it)->reset();
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      success = (*it)->reset();
+      success = (*it)->reset() && success;
+
+	success = m_listenerHub->reset() && success;
 	debugMsg("InterfaceManager:reset", " completed");
     return success;
   }
@@ -492,13 +473,10 @@ namespace PLEXIL
 
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+         it != m_adapters.end();
          it++)
-      success = (*it)->shutdown();
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      success = (*it)->shutdown();
+      success = (*it)->shutdown() && success;
+	success = m_listenerHub->shutdown() && success;
 
     // Clean up
     // *** NYI ***
@@ -518,9 +496,7 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:resetQueue", " entered");
     while (!m_valueQueue.isEmpty())
-      {
-        m_valueQueue.pop();
-      }
+	  m_valueQueue.pop();
   }
     
     
@@ -688,14 +664,7 @@ namespace PLEXIL
       CommandId cmdId = iter->second;
       std::string destName = cmdId->getDestName();
 
-      for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-           it != m_listeners.end();
-           ++it)
-        {
-          ExecListenerId listener = *it;
-          check_error(listener.isValid());
-          (*it)->notifyOfAssignment(dest, destName, value);
-        }
+	  m_listenerHub->notifyOfAssignment(dest, destName, value);
     }
   }
 

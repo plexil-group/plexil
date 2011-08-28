@@ -35,7 +35,6 @@
 #include <cmath>;
 #include <stdio.h>
 #include <stdlib.h>
-#include "InterfaceManager.hh"
 #include "ExecDefs.hh"
 
 #include "AdapterFactory.hh"
@@ -66,9 +65,8 @@ namespace PLEXIL
 {
   GanttListener::GanttListener () { }
 
-  GanttListener::GanttListener (const TiXmlElement* xml,
-                                        InterfaceManagerBase& mgr)
-    : ManagedExecListener (xml, mgr)
+  GanttListener::GanttListener (const TiXmlElement* xml)
+    : ExecListener(xml)
   { }
 
   GanttListener::~GanttListener () { }
@@ -184,8 +182,9 @@ namespace PLEXIL
                                             const LabelStr& parent) const 
   {
     getCurrentWorkingDirectory();
-    startTime = ( (InterfaceManager&) getManager()).currentTime();
-    startTime = startTime;
+	// FIXME: Get time from someplace!
+    // startTime = ( (InterfaceManager&) getManager()).currentTime();
+    startTime = 0;
     int startTimeint = startTime;
     startTime = (int) startTime;
     std::ostringstream uFileName;
