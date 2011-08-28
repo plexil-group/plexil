@@ -75,7 +75,6 @@ namespace PLEXIL {
       NodeType_Command,
       NodeType_Assignment,
       NodeType_Update,
-      NodeType_Request,
       NodeType_Empty,
       NodeType_LibraryNodeCall,
       NodeType_error
@@ -89,7 +88,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND, "Command");
     DECLARE_STATIC_CLASS_CONST(std::string, ASSIGNMENT, "Assignment");
     DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(std::string, REQUEST, "Request");
     DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
     DECLARE_STATIC_CLASS_CONST(std::string, LIBRARYNODECALL, "LibraryNodeCall");
 
@@ -599,19 +597,6 @@ namespace PLEXIL {
 
     void setUpdate(const PlexilUpdateId& update) {m_update = update;}
   private:
-    PlexilUpdateId m_update;
-  };
-
-  class PlexilRequestBody : public PlexilNodeBody {
-  public:
-    PlexilRequestBody() : PlexilNodeBody() {}
-    const PlexilNodeRefId& parent() const {return m_parent;}
-    const PlexilUpdateId& update() const {return m_update;}
-
-    void setParent(PlexilNodeRefId parent) {m_parent = parent;}
-    void setUpdate(PlexilUpdateId update) {m_update = update;}
-  private:
-    PlexilNodeRefId m_parent;
     PlexilUpdateId m_update;
   };
 

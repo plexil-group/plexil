@@ -69,7 +69,6 @@ namespace PLEXIL
   const string STATEVAL_TAG("NodeStateValue");
   const string TIMEPOINT_TAG("Timepoint");
   const string UPDATE_TAG("Update");
-  const string REQ_TAG("Request");
   const string PAIR_TAG("Pair");
   const string COND_TAG("Condition");
 
@@ -664,23 +663,6 @@ namespace PLEXIL
 	}
   };
 
-  class PlexilRequestParser: public PlexilPairsParser {
-  public:
-	PlexilRequestParser() : PlexilPairsParser() {}
-    ~PlexilRequestParser() {} 
-
-	PlexilNodeBodyId parse(const TiXmlElement* xml) throw(ParserException) {
-	  checkTag(REQ_TAG, xml);
-	  PlexilRequestBody* retval = new PlexilRequestBody();
-	  if (xml->FirstChildElement(PAIR_TAG) != NULL)
-		retval->setUpdate(parsePairs(xml));
-	  const TiXmlElement* ref = xml->FirstChildElement(NODEREF_TAG);
-	  if (ref != NULL)
-		retval->setParent(PlexilXmlParser::parseNodeRef(ref));
-	  return retval->getId();
-	}
-  };
-
   void PlexilXmlParser::registerParsers() 
   {
 	if (s_init) {
@@ -692,7 +674,6 @@ namespace PLEXIL
 										   new PlexilLibraryNodeCallParser()));
 	  s_bodyParsers->insert(std::make_pair(CMD_TAG, new PlexilCommandParser()));
 	  s_bodyParsers->insert(std::make_pair(UPDATE_TAG, new PlexilUpdateParser()));
-	  s_bodyParsers->insert(std::make_pair(REQ_TAG, new PlexilRequestParser()));
 
 	  s_exprParsers = new std::map<string, PlexilExprParser*>();
 	  PlexilExprParser* varRef = new PlexilVarRefParser();
@@ -1055,15 +1036,6 @@ namespace PLEXIL
 		case NodeType_Update:
 		  // check for PlexilUpdateBody
 		  checkParserExceptionWithLocation(NULL != (PlexilUpdateBody*) bodyStruct,
-										   realBodyXml,
-										   "XML parsing error: Body of " << retval->nodeTypeString()
-										   << " node \"" << retval->nodeId()
-										   << "\" contains a " << realBodyXml->Value() << " element.")
-			break;
-
-		case NodeType_Request:
-		  // check for PlexilRequestBody
-		  checkParserExceptionWithLocation(NULL != (PlexilRequestBody*) bodyStruct,
 										   realBodyXml,
 										   "XML parsing error: Body of " << retval->nodeTypeString()
 										   << " node \"" << retval->nodeId()
@@ -1763,8 +1735,6 @@ namespace PLEXIL
 	TiXmlElement* realBody;
 	if (Id<PlexilListBody>::convertable(body))
 	  realBody = toXml((PlexilListBody*) body);
-	else if (Id<PlexilRequestBody>::convertable(body))
-	  realBody = toXml((PlexilRequestBody*) body);
 	else if (Id<PlexilUpdateBody>::convertable(body))
 	  realBody = toXml((PlexilUpdateBody*) body);
 	else if (Id<PlexilAssignmentBody>::convertable(body))
@@ -1836,15 +1806,6 @@ namespace PLEXIL
 	for (std::vector<PlexilNodeId>::const_iterator it =
 		   body->children().begin(); it != body->children().end(); ++it)
 	  retval->LinkEndChild(toXml(*it));
-	return retval;
-  }
-
-  TiXmlElement* PlexilXmlParser::toXml(const PlexilRequestBody* body)
-	throw(ParserException) {
-	TiXmlElement* retval = element(REQ_TAG);
-	if (body->parent().isValid())
-	  retval->LinkEndChild(toXml(body->parent()));
-	toXml(body->update(), retval);
 	return retval;
   }
 

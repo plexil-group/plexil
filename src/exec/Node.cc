@@ -161,9 +161,6 @@ namespace PLEXIL {
 	case NodeType_Update:
 	  return UPDATE();
 
-	case NodeType_Request:
-	  return REQUEST();
-
 	case NodeType_Empty:
 	  return EMPTY();
 
@@ -339,7 +336,7 @@ namespace PLEXIL {
 	// This will be overridden in any node with children (List or LibraryNodeCall)
     m_conditions[childrenWaitingOrFinishedIdx] = BooleanVariable::UNKNOWN_EXP();
 
-	// This will be overridden in Command, Update, Request nodes
+	// This will be overridden in Command and Update nodes
     m_conditions[abortCompleteIdx] = BooleanVariable::UNKNOWN_EXP();
 
 	// This will be overridden in Command nodes
@@ -1502,8 +1499,6 @@ namespace PLEXIL {
   // Default method
   void Node::specializedReset()
   {
-    if (getType() == REQUEST())
-      m_ack->reset();
   }
 
   // Default method

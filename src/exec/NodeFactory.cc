@@ -134,7 +134,6 @@ namespace PLEXIL
 	REGISTER_NODE_FACTORY(CommandNode, NodeType_Command);
 	REGISTER_NODE_FACTORY(AssignmentNode, NodeType_Assignment);
 	REGISTER_NODE_FACTORY(UpdateNode, NodeType_Update);
-	REGISTER_NODE_FACTORY(Node, NodeType_Request); // soon to go away
 	REGISTER_NODE_FACTORY(Node, NodeType_Empty);
 	REGISTER_NODE_FACTORY(LibraryCallNode, NodeType_LibraryNodeCall);
 	sl_registered = true;

@@ -92,7 +92,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, LIST, "NodeList");
     DECLARE_STATIC_CLASS_CONST(LabelStr, LIBRARYNODECALL, "LibraryNodeCall");
     DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, REQUEST, "Request");
     DECLARE_STATIC_CLASS_CONST(LabelStr, EMPTY, "Empty");
 
     static const LabelStr& nodeTypeToLabelStr(PlexilNodeType nodeType);
@@ -285,6 +284,7 @@ namespace PLEXIL {
     const ExecConnectorId& getExec() {return m_exec;}
 
     // Condition accessors
+	// These are public only to appease the module test
     ExpressionId& getSkipCondition()                      { return m_conditions[skipIdx]; }
     ExpressionId& getStartCondition()                     { return m_conditions[startIdx]; }
     ExpressionId& getEndCondition()                       { return m_conditions[endIdx]; }
@@ -330,7 +330,6 @@ namespace PLEXIL {
 
     friend class PlexilExec;
     friend class InternalCondition;
-    friend class StateComputer;
 
     // N.B.: These need to match the order of ALL_CONDITIONS()
     enum {
@@ -440,17 +439,6 @@ namespace PLEXIL {
 
 	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
 
-	// Make the node's internal variables active.
-	virtual void activateInternalVariables();
-
-	// Deactivate the local variables
-	void deactivateLocalVariables();
-
-	/**
-	 * @brief Perform whatever action is necessary for execution.
-	 */
-	virtual void handleExecution();
-
 	// Phases of destructor
 	// Not useful if called from base class destructor!
     virtual void cleanUpConditions();
@@ -463,25 +451,23 @@ namespace PLEXIL {
 	//
     NodeId m_id; /*<! The Id for this node*/
     NodeId m_parent; /*<! The parent of this node.*/
-    ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed)*/
-    NodeConnectorId m_connector;
-    PlexilNodeId m_node;
+    ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed) */
+    NodeConnectorId m_connector; /*<! Used by expressions that refer to node internal variables. */
+    PlexilNodeId m_node; /*<! The PlexilNode from which this was created. */
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
-    LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements.*/
-    VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface.
-	     Should there be an expression type for handling 'in' variables (i.e. a wrapper that fails on setValue)?
-		 I'll stick all variables in here, just to be safe.*/
-	std::vector<double>* m_sortedVariableNames;
-    std::vector<VariableId> m_localVariables; /*<! Variables created in this node*/
-    ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions.*/
-    ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate*/
+    LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements. */
+    VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface. */
+	std::vector<double>* m_sortedVariableNames; /*<! Convenience for printing. */
+    std::vector<VariableId> m_localVariables; /*<! Variables created in this node. */
+    ExpressionId m_conditions[conditionIndexMax]; /*<! The condition expressions. */
+    ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate. */
     VariableId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
     VariableId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
     VariableId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     VariableId m_stateVariable;
 	VariableId m_outcomeVariable;
 	VariableId m_failureTypeVariable;
-    double m_priority; /*<! The priority of this node */
+    double m_priority; /*<! The priority of this node. */
     NodeState m_state; /*<! The actual state of the node. */
     NodeState m_lastQuery; /*<! The state of the node the last time checkConditions() was called. */
 	bool m_garbageConditions[conditionIndexMax]; /*<! Flags for conditions to delete. */
@@ -499,24 +485,18 @@ namespace PLEXIL {
 
     void unlockConditions();
 
-    const VariableId& getInternalVariable(const LabelStr& name) const;
+	// Make the node's internal variables active.
+	virtual void activateInternalVariables();
 
-    // Listener accessors
-    ExpressionListenerId& getSkipListener()                      { return m_listeners[skipIdx]; }
-    ExpressionListenerId& getStartListener()                     { return m_listeners[startIdx]; }
-    ExpressionListenerId& getEndListener()                       { return m_listeners[endIdx]; }
-    ExpressionListenerId& getInvariantListener()                 { return m_listeners[invariantIdx]; }
-    ExpressionListenerId& getPreListener()                       { return m_listeners[preIdx]; }
-    ExpressionListenerId& getPostListener()                      { return m_listeners[postIdx]; }
-    ExpressionListenerId& getRepeatListener()                    { return m_listeners[repeatIdx]; }
-    ExpressionListenerId& getAncestorInvariantListener()         { return m_listeners[ancestorInvariantIdx]; }
-    ExpressionListenerId& getAncestorEndListener()               { return m_listeners[ancestorEndIdx]; }
-    ExpressionListenerId& getParentExecutingListener()           { return m_listeners[parentExecutingIdx]; }
-    ExpressionListenerId& getChildrenWaitingOrFinishedListener() { return m_listeners[childrenWaitingOrFinishedIdx]; }
-    ExpressionListenerId& getAbortCompleteListener()             { return m_listeners[abortCompleteIdx]; }
-    ExpressionListenerId& getParentWaitingListener()             { return m_listeners[parentWaitingIdx]; }
-    ExpressionListenerId& getParentFinishedListener()            { return m_listeners[parentFinishedIdx]; }
-    ExpressionListenerId& getCommandHandleReceivedListener()     { return m_listeners[commandHandleReceivedIdx]; }
+	// Deactivate the local variables
+	void deactivateLocalVariables();
+
+	/**
+	 * @brief Perform whatever action is necessary for execution.
+	 */
+	virtual void handleExecution();
+
+    const VariableId& getInternalVariable(const LabelStr& name) const;
 
 	//
 	// Internal versions

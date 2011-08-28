@@ -233,13 +233,13 @@ namespace PLEXIL
 	  if (findVariable(Node::FAILURE_TYPE())->getValue() ==
 		  FailureVariable::PARENT_FAILED()) {
 		debugMsg("Node:getDestState",
-				 "Destination: FINISHED.  Command/Update/Request node abort complete, " <<
+				 "Destination: FINISHED.  Command node abort complete, " <<
 				 "and parent failed.");
 		return FINISHED_STATE;
 	  }
 	  else {
 		debugMsg("Node:getDestState",
-				 "Destination: ITERATION_ENDED.  Command/Update/Request node abort complete.");
+				 "Destination: ITERATION_ENDED.  Command node abort complete.");
 		return ITERATION_ENDED_STATE;
 	  }
 	}

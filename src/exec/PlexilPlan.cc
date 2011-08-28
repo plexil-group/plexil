@@ -43,8 +43,6 @@ namespace PLEXIL {
       return NodeType_Assignment;
     else if (typeName == UPDATE())
       return NodeType_Update;
-    else if (typeName == REQUEST())
-      return NodeType_Request;
     else if (typeName == EMPTY())
       return NodeType_Empty;
     else if (typeName == LIBRARYNODECALL())
@@ -72,9 +70,6 @@ namespace PLEXIL {
         break;
       case NodeType_Update:
         return PlexilParser::UPDATE();
-        break;
-      case NodeType_Request:
-        return PlexilParser::REQUEST();
         break;
       case NodeType_Empty:
         return PlexilParser::EMPTY();

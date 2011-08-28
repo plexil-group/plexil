@@ -213,7 +213,6 @@ element.  It is used as an included schema only.
             <xsd:enumeration value="Command"/>
             <xsd:enumeration value="Assignment"/>
             <xsd:enumeration value="Update"/>
-            <xsd:enumeration value="Request"/>
             <xsd:enumeration value="Empty"/>
             <xsd:enumeration value="LibraryNodeCall"/>
           </xsd:restriction>
@@ -239,7 +238,6 @@ element.  It is used as an included schema only.
         <xsd:element ref="Command"/>
         <xsd:element ref="Assignment"/>
         <xsd:element ref="Update"/>
-        <xsd:element ref="Request"/>
         <xsd:element ref="LibraryNodeCall"/>
       </xsd:choice>
     </xsd:complexType>
@@ -491,17 +489,6 @@ element.  It is used as an included schema only.
           <xsd:element ref="LookupNow"/>
         </xsd:choice>
       </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="Request">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="NodeId" minOccurs="0"/>
-        <!-- the context -->
-        <xsd:element ref="Pair" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 

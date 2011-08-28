@@ -186,8 +186,6 @@ namespace PLEXIL
       throw(ParserException);
     static TiXmlElement* toXml(const PlexilListBody* ref)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilRequestBody* ref)
-      throw(ParserException);
     static TiXmlElement* toXml(const PlexilUpdateBody* ref)
       throw(ParserException);
     static TiXmlElement* toXml(const PlexilAssignmentBody* ref)
