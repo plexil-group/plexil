@@ -96,11 +96,19 @@ struct timeval operator- (const struct timeval& t1, const struct timeval& t2)
   return time;
 }
 
-struct timeval doubleToTimeval(const double& d)
+void doubleToTimeval(double d, timeval& result)
 {
-  double wholesec, fracsec;
-  fracsec = modf(d, &wholesec);
-  timeval result = {(int) wholesec, (int) (fracsec * ONE_MILLION_DOUBLE)};
+  double seconds = 0;
+  double fraction = modf(d, &seconds);
+
+  result.tv_sec = (time_t) seconds;
+  result.tv_usec = (long) (fraction * ONE_MILLION_DOUBLE);
+}
+
+struct timeval doubleToTimeval(double d)
+{
+  timeval result;
+  doubleToTimeval(d, result);
   return result;
 }
 

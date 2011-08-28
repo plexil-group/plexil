@@ -37,6 +37,7 @@
 #include "Error.hh"
 #include "StateCache.hh"
 #include "ThreadSpawn.hh"
+#include "timeval-utils.hh"
 #include <cerrno>
 #include <cmath> // for modf
 #include <mach/kern_return.h> // for KERN_ABORTED
@@ -264,32 +265,6 @@ namespace PLEXIL
     double tym = timevalToDouble(tv);
     debugMsg("DarwinTimeAdapter:getCurrentTime", " returning " << Expression::valueToString(tym));
     return tym;
-  }
-
-  /**
-   * @brief Convert a timeval value into a double.
-   * @param ts Reference to a constant timeval instance.
-   * @return The timeval value converted to a double float.
-   */
-  double DarwinTimeAdapter::timevalToDouble(const timeval& ts)
-  {
-    return ((double) ts.tv_sec) +
-      ((double) ts.tv_usec) / 1.0e6;
-  }
-
-  /**
-   * @brief Convert a double value into a timeval.
-   * @param tym The double to be converted.
-   * @param result Reference to a writable timeval instance.
-   */
-
-  void DarwinTimeAdapter::doubleToTimeval(double tym, timeval& result)
-  {
-    double seconds = 0;
-    double fraction = modf(tym, &seconds);
-
-    result.tv_sec = (time_t) seconds;
-    result.tv_usec = (long) (fraction * 1.0e6);
   }
 
   //

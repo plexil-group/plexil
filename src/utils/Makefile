@@ -35,7 +35,7 @@ LIBS		+= tinyxml $(PTHREAD_LIB)
 
 SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
- ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc \
+ ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc timeval-utils.cc \
  Utils.cc XMLUtils.cc stricmp.c
 #SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh) \

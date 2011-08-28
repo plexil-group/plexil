@@ -137,20 +137,6 @@ namespace PLEXIL
     static double getCurrentTime();
 
     /**
-     * @brief Convert a timeval value into a double.
-     * @param ts Reference to a constant timeval instance.
-     * @return The timeval value converted to a double float.
-     */
-    static double timevalToDouble(const timeval& ts);
-
-    /**
-     * @brief Convert a double value into a timeval.
-     * @param tym The double to be converted.
-     * @param result Reference to a writable timeval instance.
-     */
-    static void doubleToTimeval(double tym, timeval& result);
-
-    /**
      * @brief Compare two timevals, return true iff they are equal.
      */
     inline static bool timevalEqual(const timeval& tv1, const timeval& tv2)

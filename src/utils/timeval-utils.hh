@@ -40,7 +40,10 @@ struct timeval operator+ (const struct timeval& t1, const struct timeval& t2);
 struct timeval operator- (const struct timeval& t1, const struct timeval& t2);
 
 //* @brief Conversion operator
-struct timeval doubleToTimeval(const double& d);
+struct timeval doubleToTimeval(double d);
+
+//* @brief Conversion operator
+void doubleToTimeval(double d, struct timeval& result);
 
 //* @brief Conversion operator
 double timevalToDouble(const struct timeval& tv);
