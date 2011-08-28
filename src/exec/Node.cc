@@ -245,9 +245,6 @@ namespace PLEXIL {
       expr->addListener(m_listeners[i]);
       m_garbageConditions[i] = true;
     }
-
-	// Construct ack
-	m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
   }
 
   void Node::commonInit() {
@@ -612,10 +609,6 @@ namespace PLEXIL {
 	}
 
 	// Delete internal variables
-    if (m_ack.isId()) {
-      delete (Variable*) m_ack;
-	  m_ack = VariableId::noId();
-	}
 	delete (Variable*) m_outcomeVariable;
 	m_outcomeVariable = VariableId::noId();
 	delete (Variable*) m_failureTypeVariable;
@@ -697,11 +690,6 @@ namespace PLEXIL {
   {
 	static std::vector<NodeId> sl_emptyNodeVec;
 	return sl_emptyNodeVec;
-  }
-
-  double Node::getAcknowledgementValue() const 
-  {
-    return ((Variable*)m_ack)->getValue();
   }
 
   /**

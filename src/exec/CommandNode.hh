@@ -92,6 +92,9 @@ namespace PLEXIL
 	// Not useful if called from base class destructor!
 	virtual void cleanUpNodeBody();
 
+	// Used in command handle processing - to be deleted.
+    double getAcknowledgementValue() const;
+
   private:
 
     void createCommand(const PlexilCommandBody* body);
@@ -99,6 +102,7 @@ namespace PLEXIL
     void createDummyCommand(); // unit test variant
 
     CommandId m_command; /*<! The command to be performed. */
+    VariableId m_ack; /*<! The destination for acknowledgement of the command.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
 	VariableId m_commandHandleVariable;
   };
 

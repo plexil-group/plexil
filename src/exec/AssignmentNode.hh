@@ -88,6 +88,7 @@ namespace PLEXIL
     void createDummyAssignment(); // unit test variant
 
     AssignmentId m_assignment;
+    VariableId m_ack; /*<! The destination for acknowledgement of the assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
   };
 
 }

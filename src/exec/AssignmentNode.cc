@@ -39,7 +39,8 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(const PlexilNodeId& nodeProto, 
 								 const ExecConnectorId& exec,
 								 const NodeId& parent)
-	: Node(nodeProto, exec, parent)
+	: Node(nodeProto, exec, parent),
+	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
 	checkError(nodeProto->nodeType() == NodeType_Assignment,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
@@ -70,7 +71,8 @@ namespace PLEXIL
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec)
+		   exec),
+	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
 	checkError(type == ASSIGNMENT(),
 			   "Invalid node type \"" << type.toString() << "\" for an AssignmentNode");
@@ -81,7 +83,10 @@ namespace PLEXIL
 
   AssignmentNode::~AssignmentNode()
   {
+	cleanUpConditions();
 	cleanUpNodeBody();
+	delete (Variable*) m_ack;
+	m_ack = VariableId::noId();
   }
 
   void AssignmentNode::specializedPostInit()
@@ -98,7 +103,6 @@ namespace PLEXIL
   {
 	// Construct real end condition
 	m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-	m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
 	ExpressionId realEndCondition =
 	  (new Conjunction(m_ack,
 					   false, 

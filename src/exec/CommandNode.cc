@@ -47,6 +47,7 @@ namespace PLEXIL
 						   const ExecConnectorId& exec, 
 						   const NodeId& parent)
 	: Node(nodeProto, exec, parent),
+	  m_ack((new StringVariable(StringVariable::UNKNOWN()))->getId()),
 	  m_commandHandleVariable((new CommandHandleVariable())->getId())
   {
 	checkError(nodeProto->nodeType() == NodeType_Command,
@@ -72,6 +73,7 @@ namespace PLEXIL
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
 		   exec),
+	  m_ack((new StringVariable(StringVariable::UNKNOWN()))->getId()),
 	  m_commandHandleVariable((new CommandHandleVariable())->getId())
   {
 	checkError(type == COMMAND(),
@@ -79,11 +81,6 @@ namespace PLEXIL
 
 	// Make command handle accessible
 	m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
-
-	// Construct ack variable
-	// FIXME: have to delete the one created by default constructor first!
-	delete (Variable*) m_ack;
-	m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
 
 	// Create dummy command for unit test
 	createDummyCommand();
@@ -99,7 +96,9 @@ namespace PLEXIL
 	cleanUpNodeBody();
 	// cleanUpVars(); // base destructor should handle this
 
-	// Now safe to delete command handle
+	// Now safe to delete ack and command handle
+	delete (Variable*) m_ack;
+	m_ack = VariableId::noId();
 	delete (Variable*) m_commandHandleVariable;
 	m_commandHandleVariable = VariableId::noId();
   }
@@ -139,7 +138,6 @@ namespace PLEXIL
 	ExpressionListenerId abortListener = m_listeners[abortCompleteIdx];
 	commandAbort->addListener(abortListener);
 	m_conditions[abortCompleteIdx] = commandAbort;
-	m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
           
 	// Listen to any change in the command handle so that the internal variable 
 	// CommandHandleVariable can be updated
@@ -465,6 +463,11 @@ namespace PLEXIL
     ResourceList resourceList;
     m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
     check_error(m_command.isValid());
+  }
+
+  double CommandNode::getAcknowledgementValue() const 
+  {
+    return ((Variable*)m_ack)->getValue();
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, 

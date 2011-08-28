@@ -85,6 +85,7 @@ namespace PLEXIL
     void createDummyUpdate(); // unit test variant
 
     UpdateId m_update;
+    VariableId m_ack; /*<! The destination for acknowledgement of the update.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
   };
 
 }

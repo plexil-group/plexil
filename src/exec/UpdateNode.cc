@@ -44,7 +44,8 @@ namespace PLEXIL
   UpdateNode::UpdateNode(const PlexilNodeId& node, 
 						 const ExecConnectorId& exec, 
 						 const NodeId& parent)
-	: Node(node, exec, parent)
+	: Node(node, exec, parent),
+	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
 	checkError(node->nodeType() == NodeType_Update,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
@@ -65,7 +66,8 @@ namespace PLEXIL
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec)
+		   exec),
+	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
 	checkError(type == UPDATE(),
 			   "Invalid node type \"" << type.toString() << "\" for an UpdateNode");
@@ -82,8 +84,8 @@ namespace PLEXIL
 	// Redundant with base class destructor
 	cleanUpConditions();
 	cleanUpNodeBody();
-	// cleanUpVars(); // base destructor should handle this
-
+	delete (Variable*) m_ack;
+	m_ack = VariableId::noId();
   }
 
   void UpdateNode::cleanUpNodeBody()
@@ -147,7 +149,6 @@ namespace PLEXIL
   {
 	// Construct real end condition
 	m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-	m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
 	ExpressionId realEndCondition =
 	  (new Conjunction(m_ack,
 					   false, 

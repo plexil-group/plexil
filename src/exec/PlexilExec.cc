@@ -26,13 +26,12 @@
 
 #include "PlexilExec.hh"
 #include "Assignment.hh"
-// #include "AssignmentNode.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
 #include "ExecListenerHub.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
-#include "Node.hh" // redundant?
+#include "Node.hh"
 #include "NodeFactory.hh"
 #include "StateCache.hh"
 #include "Variable.hh"

@@ -322,8 +322,6 @@ namespace PLEXIL {
 	// Should only be used by LuvListener.
     ExpressionId& getCondition(const LabelStr& name);
 
-    double getAcknowledgementValue() const;
-
   protected:
 	friend class LibraryCallNode;
 	friend class ListNode;
@@ -463,7 +461,6 @@ namespace PLEXIL {
     ExpressionListenerId m_listeners[conditionIndexMax]; /*<! Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate. */
     VariableId m_startTimepoints[NODE_STATE_MAX]; /*<! Timepoint start variables indexed by state. */
     VariableId m_endTimepoints[NODE_STATE_MAX]; /*<! Timepoint end variables indexed by state. */
-    VariableId m_ack; /*<! The destination for acknowledgement of the command/assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     VariableId m_stateVariable;
 	VariableId m_outcomeVariable;
 	VariableId m_failureTypeVariable;
