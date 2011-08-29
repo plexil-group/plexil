@@ -1101,50 +1101,47 @@
   (xml "ParentFailed" (plexil-nodeid id)))
 
 (pdefine pl (CommandFailed command-failed) (id) 1 nil
-  ("Did the command fail?"
+  ("Did the command fail? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_FAILED"))
 
 (pdefine pl (CommandSucceeded command-succeeded) (id) 1 nil
-  ("Did the command succeed?"
+  ("Did the command succeed? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_SUCCESS"))
 
 (pdefine pl (CommandAborted command-aborted) (id) 1 nil
-  ("Did the command get aborted?"
+  ("Did the command get aborted? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_ABORTED"))
 
 (pdefine pl (CommandAbortFailed command-abort-failed) (id) 1 nil
-  ("Did the command abort fail?"
+  ("Did the command abort fail? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_ABORT_FAILED"))
 
 (pdefine pl (CommandAccepted command-accepted) (id) 1 nil
-  ("Was the command accepted?"
+  ("Was the command accepted? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_ACCEPTED"))
 
 (pdefine pl (CommandDenied command-denied) (id) 1 nil
-  ("Was the command denied?"
+  ("Was the command denied? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_DENIED"))
 
 (pdefine pl (CommandSentToSystem command-sent-to-system) (id) 1 nil
-  ("Was the command sent to the external system?"
+  ("Was the command sent to the external system? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_SENT_TO_SYSTEM"))
 
 (pdefine pl (CommandSentToSystem command-sent-to-system) (id) 1 nil
-  ("Was the command received by the external system?"
+  ("Was the command received by the external system? "
    "Valid for command nodes only, and you must pass in the ID of this node.")
   (plexil-command-status id "COMMAND_RCVD_BY_SYSTEM"))
 
-
-
-
 (defun plexil-command-status (id handle)
-  (xml "NEInternal"
+  (xml "EQInternal"
        (list (xml "NodeCommandHandleVariable"
                   (plexil-nodeid id))
              (xml "NodeCommandHandleValue" handle))))
