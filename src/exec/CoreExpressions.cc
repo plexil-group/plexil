@@ -115,7 +115,11 @@ namespace PLEXIL
   // StateVariable
   //
 
-  StateVariable::StateVariable(const bool isConst) : VariableImpl(INACTIVE(), isConst) {}
+  StateVariable::StateVariable(const std::string& name)
+	: VariableImpl(INACTIVE(), false)
+  {
+	setName(name);
+  }
 
   StateVariable::StateVariable(const double value, const bool isConst)
     : VariableImpl(value, isConst) 
@@ -259,12 +263,18 @@ namespace PLEXIL
   }
 
 
-  OutcomeVariable::OutcomeVariable(const bool isConst) : VariableImpl(isConst) {}
+  OutcomeVariable::OutcomeVariable(const std::string& name)
+	: VariableImpl(false)
+  {
+	setName(name);
+  }
+
   OutcomeVariable::OutcomeVariable(const double value, const bool isConst)
     : VariableImpl(isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
+
   OutcomeVariable::OutcomeVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 				   const bool isConst)
 	: VariableImpl(expr, node, isConst)
@@ -290,7 +300,11 @@ namespace PLEXIL
   }
 
 
-  FailureVariable::FailureVariable(const bool isConst) : VariableImpl(isConst) {}
+  FailureVariable::FailureVariable(const std::string& name)
+	: VariableImpl(false)
+  {
+	setName(name);
+  }
 
   FailureVariable::FailureVariable(const double value, const bool isConst)
     : VariableImpl(value, isConst) {
@@ -327,12 +341,18 @@ namespace PLEXIL
 	  || val == PARENT_FAILED();
   }
 
-  CommandHandleVariable::CommandHandleVariable(const bool isConst) : VariableImpl(isConst) {}
+  CommandHandleVariable::CommandHandleVariable(const std::string& name)
+	: VariableImpl()
+  {
+	setName(name);
+  }
+
   CommandHandleVariable::CommandHandleVariable(const double value, const bool isConst)
     : VariableImpl(isConst) {
     checkError(checkValue(value),
 	       "Attempted to initialize a variable with an invalid value.");
   }
+
   CommandHandleVariable::CommandHandleVariable(const PlexilExprId& expr, 
 											   const NodeConnectorId& node,
                                                const bool isConst)

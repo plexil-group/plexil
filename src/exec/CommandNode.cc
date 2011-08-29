@@ -48,15 +48,14 @@ namespace PLEXIL
 						   const NodeId& parent)
 	: Node(nodeProto, exec, parent),
 	  m_ack((new StringVariable(StringVariable::UNKNOWN()))->getId()),
-	  m_commandHandleVariable((new CommandHandleVariable())->getId())
+	  m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
   {
 	checkError(nodeProto->nodeType() == NodeType_Command,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
 			   << "\" for a CommandNode");
 
-	// Make ack and command handle pretty
+	// Make ack pretty
 	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
-	((VariableImpl*) m_commandHandleVariable)->setName(m_nodeId.toString());
 	// Make command handle accessible
 	m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
   }
@@ -77,14 +76,13 @@ namespace PLEXIL
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
 		   exec),
 	  m_ack((new StringVariable(StringVariable::UNKNOWN()))->getId()),
-	  m_commandHandleVariable((new CommandHandleVariable())->getId())
+	  m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
   {
 	checkError(type == COMMAND(),
 			   "Invalid node type \"" << type.toString() << "\" for a CommandNode");
 
-	// Make command handle pretty
+	// Make ack pretty
 	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
-	((VariableImpl*) m_commandHandleVariable)->setName(m_nodeId.toString());
 	// Make command handle accessible
 	m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
 

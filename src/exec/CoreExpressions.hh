@@ -125,7 +125,7 @@ namespace PLEXIL {
     static NodeState nodeStateFromName(double nameAsLabelStrKey);
 
     // Constructors
-    StateVariable(const bool isConst = false);
+    StateVariable(const std::string& name);
     StateVariable(const double value, const bool isConst = false);
     StateVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
     void print(std::ostream& s) const;
@@ -149,7 +149,7 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, FAILURE, "FAILURE"); /*<! Failure (with some failure type).*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, SKIPPED, "SKIPPED"); /*<! The node was skipped without executing (the ancestor-invariant was false or the parent's end was true before*/
 
-    OutcomeVariable(const bool isConst = false);
+    OutcomeVariable(const std::string& name);
     OutcomeVariable(const double value, const bool isConst = false);
     OutcomeVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
     void print(std::ostream& s) const;
@@ -182,7 +182,7 @@ namespace PLEXIL {
 							       executing).*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_FAILED, "PARENT_FAILED");
 
-    FailureVariable(const bool isConst = false);
+    FailureVariable(const std::string& name);
     FailureVariable(const double value, const bool isConst = false);
     FailureVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
@@ -210,7 +210,7 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_ABORT_FAILED, "COMMAND_ABORT_FAILED");
     DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_SUCCESS, "COMMAND_SUCCESS");
 
-    CommandHandleVariable(const bool isConst = false);
+    CommandHandleVariable(const std::string& name);
     CommandHandleVariable(const double value, const bool isConst = false);
     CommandHandleVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
     void print(std::ostream& s) const;

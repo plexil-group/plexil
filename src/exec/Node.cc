@@ -248,15 +248,15 @@ namespace PLEXIL {
     debugMsg("Node:node", "Instantiating internal variables...");
     // Instantiate state/outcome/failure variables
 	// The contortions with getKey() are an attempt to minimize LabelStr copying
-    m_variablesByName[STATE().getKey()] = m_stateVariable = (new StateVariable())->getId();
+    m_variablesByName[STATE().getKey()] = m_stateVariable =
+	  (new StateVariable(m_nodeId.toString()))->getId();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
-	((StateVariable*) m_stateVariable)->setName(m_nodeId.toString());
 
-	m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable = (new OutcomeVariable())->getId();
-	((OutcomeVariable*) m_outcomeVariable)->setName(m_nodeId.toString());
+	m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable =
+	  (new OutcomeVariable(m_nodeId.toString()))->getId();
 
-    m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable = (new FailureVariable())->getId();
-	((FailureVariable*) m_failureTypeVariable)->setName(m_nodeId.toString());
+    m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable =
+	  (new FailureVariable(m_nodeId.toString()))->getId();
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
