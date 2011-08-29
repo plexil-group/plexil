@@ -120,7 +120,7 @@ namespace PLEXIL
   public:
     LookupNow(const PlexilExprId& expr, const NodeConnectorId& node);
 	virtual ~LookupNow();
-    std::string toString() const;
+    void print(std::ostream& s) const;
  
     void handleChange(const ExpressionId& exp);
 
@@ -142,7 +142,7 @@ namespace PLEXIL
     LookupOnChange(const PlexilExprId& expr, const NodeConnectorId& node);
     virtual ~LookupOnChange();
 
-    std::string toString() const;
+    void print(std::ostream& s) const;
  
     void handleChange(const ExpressionId& exp);
 

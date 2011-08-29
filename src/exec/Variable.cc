@@ -144,14 +144,10 @@ namespace PLEXIL
   {
   }
 
-  std::string VariableImpl::toString() const 
+  void VariableImpl::print(std::ostream& s) const 
   {
-    std::ostringstream str;
-    str << m_name << " (" << getId() << "[" 
-	<< (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") 
-	<< "](" 
-	<< valueToString(m_value) << "): ";
-    return str.str();
+	s << m_name << " ";
+	Expression::print(s);
   }
 
   /**
@@ -365,14 +361,12 @@ namespace PLEXIL
    * @brief Get a string representation of this Expression.
    * @return The string representation.
    */
-  std::string AliasVariable::toString() const
+  void AliasVariable::print(std::ostream& s) const
   {
-	std::ostringstream str;
-	str << Expression::toString()
-		<< "AliasVariable " << m_name
-		<< ", aliased to " << m_originalVariable->toString()
-		<< ")";
-	return str.str();
+	Expression::print(s);
+	s << "AliasVariable " << m_name
+	  << ", aliased to " << *m_originalVariable
+	  << ")";
   }
 
   /**

@@ -264,14 +264,14 @@ namespace PLEXIL
     m_cache->unregisterLookupNow(m_id);
   }
 
-  std::string LookupNow::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "LookupNow(" << m_stateNameExpr->getValue() << "(";
-    for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
-      retval << ", " << (*it)->toString();
-    retval << ")))";
-    return retval.str();
+  void LookupNow::print(std::ostream& s) const
+  {
+	Expression::print(s);
+	s << "LookupNow(" << m_stateNameExpr->getValue() << '(';
+    for (std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
+      s << ", " << **it;
+	s << ")))";
+
   }
 
   LookupOnChange::LookupOnChange(const PlexilExprId& expr, const NodeConnectorId& node)
@@ -299,15 +299,13 @@ namespace PLEXIL
     m_tolerance->removeListener(m_listener.getId());
   }
 
-  std::string LookupOnChange::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "LookupOnChange(" << m_stateNameExpr->getValue() << "(";
-    for(std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end();
-	++it)
-      retval << ", " << (*it)->toString();
-    retval << "), " << m_tolerance->toString() << "))";
-    return retval.str();
+  void LookupOnChange::print(std::ostream& s) const 
+  {
+	Expression::print(s);
+	s << "LookupOnChange(" << m_stateNameExpr->getValue() << "(";
+    for (std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
+      s << ", " << **it;
+    s << "), " << *m_tolerance << "))";
   }
 
   void LookupOnChange::handleRegistration() {

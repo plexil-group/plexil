@@ -65,7 +65,7 @@ namespace PLEXIL
     {
     }
 
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -85,7 +85,7 @@ namespace PLEXIL
   public:
     AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node);
     AbsoluteValue(ExpressionId e);
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double recalculate();
     bool checkValue(const double val);
     /**
@@ -102,7 +102,7 @@ namespace PLEXIL
   public:
     SquareRoot(const PlexilExprId& expr, const NodeConnectorId& node);
     SquareRoot(ExpressionId e);
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double recalculate();
     bool checkValue(const double val);
 
@@ -119,7 +119,7 @@ namespace PLEXIL
   public:
     IsKnown(const PlexilExprId& expr, const NodeConnectorId& node);
     IsKnown(ExpressionId e);
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double recalculate();
     bool checkValue(const double val);
 
@@ -141,7 +141,6 @@ namespace PLEXIL
     Conjunction(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : NaryExpression(a, aGarbage, b, bGarbage) {}
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -150,6 +149,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "&&"; }
+
   private:
     bool checkValue(const double value);
   };
@@ -170,7 +171,6 @@ namespace PLEXIL
       : NaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -179,6 +179,7 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "||"; }
 
   private:
     bool checkValue(const double value);
@@ -196,7 +197,6 @@ namespace PLEXIL
       : NaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -205,6 +205,7 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "^^"; }
 
   private:
     bool checkValue(const double value);
@@ -218,7 +219,6 @@ namespace PLEXIL
     Concatenation(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : NaryExpression(a, aGarbage, b, bGarbage) {}
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -227,6 +227,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return STRING; }
 
   protected:
+    const char* operatorString() const { return "+"; }
+
   private:
     bool checkValue(const double value);
   };
@@ -243,7 +245,6 @@ namespace PLEXIL
     Equality(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -252,6 +253,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "=="; }
+
   private:
     bool checkValue(const double value);
   };
@@ -270,7 +273,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -279,6 +281,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "!="; }
+
   private:
     bool checkValue(const double value);
   };
@@ -297,7 +301,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -306,6 +309,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "<"; }
+
   private:
     bool checkValue(const double value);
   };
@@ -324,7 +329,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -333,6 +337,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return "<="; }
+
   private:
     bool checkValue(const double value);
   };
@@ -351,7 +357,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -360,6 +365,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return ">"; }
+
   private:
     bool checkValue(const double value);
   };
@@ -378,7 +385,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -387,6 +393,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+    const char* operatorString() const { return ">="; }
+
   private:
     bool checkValue(const double value);
   };
@@ -410,7 +418,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -419,6 +426,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
+    const char* operatorString() const { return "+"; }
+
   private:
     bool checkValue(const double /* value */) {return true;}
   };
@@ -437,7 +446,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -446,6 +454,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
+    const char* operatorString() const { return "-"; }
+
   private:
     bool checkValue(const double /* value */) {return true;}
   };
@@ -464,7 +474,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -473,6 +482,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
+    const char* operatorString() const { return "*"; }
+
   private:
     bool checkValue(const double /* value */) {return true;}
   };
@@ -491,7 +502,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -500,6 +510,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
+    const char* operatorString() const { return "/"; }
+
   private:
     bool checkValue(const double /* value */) {return true;}
   };
@@ -519,7 +531,6 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     double recalculate();
-    std::string toString() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -528,6 +539,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
+    const char* operatorString() const { return "%"; }
+
   private:
     bool checkValue(const double /* value */) {return true;}
   };

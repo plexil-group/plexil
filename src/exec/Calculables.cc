@@ -55,13 +55,10 @@ namespace PLEXIL
     return -1.0;
   }
 
-  std::string LogicalNegation::toString() const
+  void LogicalNegation::print(std::ostream& s) const
   {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "!" << m_e->toString();
-    retval << ")";
-    return retval.str();
+    Expression::print(s);
+	s << "!" << *m_e << ")";
   }
 
   AbsoluteValue::AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node)
@@ -82,12 +79,10 @@ namespace PLEXIL
     return fabs(v);
   }
 
-  std::string AbsoluteValue::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "abs(" << m_e->toString();
-    retval << "))";
-    return retval.str();
+  void AbsoluteValue::print(std::ostream& s) const 
+  {
+	Expression::print(s);
+	s << "abs(" << *m_e << "))";
   }
 
   PlexilType AbsoluteValue::getValueType() const
@@ -113,12 +108,10 @@ namespace PLEXIL
     return val >= 0;
   }
 
-  std::string SquareRoot::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "sqrt(" << m_e->toString();
-    retval << "))";
-    return retval.str();
+  void SquareRoot::print(std::ostream& s) const 
+  {
+	Expression::print(s);
+    s << "sqrt(" << *m_e << "))";
   }
 
 
@@ -139,12 +132,9 @@ namespace PLEXIL
     return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
   }
 
-  std::string IsKnown::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "isknown(" << m_e->toString();
-    retval << "))";
-    return retval.str();
+  void IsKnown::print(std::ostream& s) const {
+	Expression::print(s);
+    s << "isknown(" << *m_e << "))";
   }
 
   //
@@ -203,22 +193,6 @@ namespace PLEXIL
      
     return result;
   }
-   
-  std::string Conjunction::toString() const
-  {
-    std::ostringstream retval;
-    retval << NaryExpression::toString() << "(";
-    for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-         
-        retval << (*child)->toString() << 
-          (*child != m_subexpressions.back()
-           ? " && " 
-           : ")");
-      }
-    return retval.str();
-  }
 
   bool Disjunction::checkValue(const double val)
   {
@@ -267,23 +241,6 @@ namespace PLEXIL
     // return the result
       
     return result;
-  }
-
-
-  std::string Disjunction::toString() const
-  {
-    std::ostringstream retval;
-    retval << NaryExpression::toString() << "(";
-    for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-         
-        retval << (*child)->toString() << 
-          (*child != m_subexpressions.back()
-           ? " || " 
-           : ")");
-      }
-    return retval.str();
   }
 
   bool ExclusiveDisjunction::checkValue(const double val)
@@ -349,22 +306,6 @@ namespace PLEXIL
     return result;
   }
 
-  std::string ExclusiveDisjunction::toString() const
-  {
-    std::ostringstream retval;
-    retval << NaryExpression::toString() << "(";
-    for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-         
-        retval << (*child)->toString() << 
-          (*child != m_subexpressions.back()
-           ? " ^^ " 
-           : ")");
-      }
-    return retval.str();
-  }
-
   bool Concatenation::checkValue(const double val)
   {
     return LabelStr::isString(val);
@@ -394,22 +335,6 @@ namespace PLEXIL
     return retvalLabel.getKey();
   }
 
-  std::string Concatenation::toString() const
-  {
-    std::ostringstream retval;
-    retval << NaryExpression::toString() << "(";
-    for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-         
-        retval << (*child)->toString() << 
-          (*child != m_subexpressions.back()
-           ? " + " 
-           : ")");
-      }
-    return retval.str();
-  }
-
   //
   // Comparisons
   //
@@ -431,13 +356,6 @@ namespace PLEXIL
     return value;
   }
 
-  std::string Equality::toString() const {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " == " << m_b->toString() << "))";
-    return retval.str();
-  }
-
   bool Inequality::checkValue(const double val) {
     return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
@@ -453,14 +371,6 @@ namespace PLEXIL
     else
       value = (double) (v1 != v2);
     return value;
-  }
-
-  std::string Inequality::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " != " << m_b->toString() << "))";
-    return retval.str();
   }
 
   bool LessThan::checkValue(const double val) {
@@ -480,14 +390,6 @@ namespace PLEXIL
     return value;
   }
 
-  std::string LessThan::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " < " << m_b->toString() << "))";
-    return retval.str();
-  }
-
   bool LessEqual::checkValue(const double val) {
     return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
@@ -500,14 +402,6 @@ namespace PLEXIL
     if(v1 == UNKNOWN() || v2 == UNKNOWN())
       return UNKNOWN();
     return (double) (v1 <= v2);
-  }
-
-  std::string LessEqual::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " <= " << m_b->toString() << "))";
-    return retval.str();
   }
 
   bool GreaterThan::checkValue(const double val) {
@@ -524,14 +418,6 @@ namespace PLEXIL
     return (double) (v1 > v2);
   }
 
-  std::string GreaterThan::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " > " << m_b->toString() << "))";
-    return retval.str();
-  }
-
   bool GreaterEqual::checkValue(const double val) {
     return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
       val == BooleanVariable::UNKNOWN();
@@ -546,14 +432,6 @@ namespace PLEXIL
     return (double) (v1 >= v2);
   }
 
-  std::string GreaterEqual::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " >= " << m_b->toString() << "))";
-    return retval.str();
-  }
-
 
   //
   // Arithmetic expressions
@@ -566,14 +444,6 @@ namespace PLEXIL
     if (v1 == UNKNOWN() || v2 == UNKNOWN())
       return UNKNOWN();
     return (double) (v1 + v2);
-  }
-
-  std::string Addition::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " + " << m_b->toString() << "))";
-    return retval.str();
   }
 
   PlexilType Addition::getValueType() const
@@ -598,15 +468,6 @@ namespace PLEXIL
     return (double) (v1 - v2);
   }
 
-
-  std::string Subtraction::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " - " << m_b->toString() << "))";
-    return retval.str();
-  }
-
   PlexilType Subtraction::getValueType() const
   {
     PlexilType aType = m_a->getValueType();
@@ -627,14 +488,6 @@ namespace PLEXIL
     if(v1 == UNKNOWN() || v2 == UNKNOWN())
       return UNKNOWN();
     return (double) (v1 * v2);
-  }
-
-  std::string Multiplication::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " * " << m_b->toString() << "))";
-    return retval.str();
   }
 
   PlexilType Multiplication::getValueType() const
@@ -662,14 +515,6 @@ namespace PLEXIL
     return (double) (v1 / v2);
   }
 
-  std::string Division::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " / " << m_b->toString() << "))";
-    return retval.str();
-  }
-
   PlexilType Division::getValueType() const
   {
     return REAL;
@@ -686,14 +531,6 @@ namespace PLEXIL
     check_error(v2 != 0.0, "Attempt to divide by zero");
 
     return (double) fmod (v1, v2);
-  }
-
-  std::string Modulo::toString() const
-  {
-    std::ostringstream retval;
-    retval << BinaryExpression::toString();
-    retval << "(" << m_a->toString() << " % " << m_b->toString() << "))";
-    return retval.str();
   }
 
   PlexilType Modulo::getValueType() const

@@ -47,7 +47,7 @@ namespace PLEXIL
     BooleanVariable(const double value, const bool isConst = false);
     BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
     static bool falseOrUnknown(double value) {return value != TRUE_VALUE();}
 
     /**

@@ -269,21 +269,7 @@ namespace PLEXIL
   void ArrayVariable::handleElementChanged(const ExpressionId & elt)
   {
     debugMsg("ArrayVariable:handleElementChanged", " for " << getId());
-    publishElementChange(elt);
-  }
-
-  void ArrayVariable::publishElementChange(const ExpressionId & elt)
-  {
-    if (!isActive())
-      return;
-    for (std::list<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
-         it != m_outgoingListeners.end(); ++it)
-      {
-        check_error((*it).isValid());
-        if ((*it)->isActive())
-          debugMsg("ArrayVariable:publishElementChanged", " notifying " << (*it)->getId());
-          (*it)->notifyValueChanged(elt);
-      }
+	publishChange();
   }
 
   // set an element value in an array variable
@@ -320,58 +306,52 @@ namespace PLEXIL
       : StoredArray(m_value)[index];
   }
 
-  std::string ArrayVariable::toString() const 
+  void ArrayVariable::print(std::ostream& s) const 
   {
-    std::ostringstream retval;
-    retval << Expression::toString();
+	VariableImpl::print(s);
     if (m_value == UNKNOWN())
-      {
-        retval << "Array: <uninited, max size = " << m_maxSize << ">";
-      }
-    else
-      {
-        StoredArray array(m_value);
-        retval << "Array: [";
-        for (unsigned i = 0; i < array.size(); ++i)
-          {
-            const double& value = array.at(i);
-            if (i != 0)
-              retval << ", ";
-            if (value == UNKNOWN())
-              retval << "<unknown>";
-            else
-              {
-                switch (m_type)
-                  {
-                  case INTEGER:
-                    retval << (int32_t) value;
-                    break;
-                  case REAL:
-                    retval << value;
-                    break;
-                  case BOOLEAN:
-                    retval << (value ? "true" : "false");
-                    break;
-                  case STRING:
-                    retval << "\"" << LabelStr(value).toString() << "\"";
-                    break;
-                  case BLOB:
-                    checkError(ALWAYS_FAIL, "Blobs not supported in arrays.");
-                    break;
-                  case ARRAY:
-                    checkError(ALWAYS_FAIL, "Arrarys of arrays not supported.");
-                    break;
-                  case TIME:
-                    checkError(ALWAYS_FAIL, "TimePoints not supported in arrays.");
-                    break;
-                  default:
-                    retval << value << "(Unknown type: " << m_type << ")";
-                  }
-              }
-          }
-        retval << "])";
-      }
-    return retval.str();
+	  s << "Array: <uninited, max size = " << m_maxSize << ">";
+    else {
+	  StoredArray array(m_value);
+	  s << "Array: [";
+	  for (size_t i = 0; i < array.size(); ++i) {
+		const double& value = array.at(i);
+		if (i != 0)
+		  s << ", ";
+		if (value == UNKNOWN())
+		  s << "<unknown>";
+		else
+		  {
+			switch (m_type)
+			  {
+			  case INTEGER:
+				s << (int32_t) value;
+				break;
+			  case REAL:
+				s << value;
+				break;
+			  case BOOLEAN:
+				s << (value ? "true" : "false");
+				break;
+			  case STRING:
+				s << "\"" << LabelStr(value).toString() << "\"";
+				break;
+			  case BLOB:
+				checkError(ALWAYS_FAIL, "Blobs not supported in arrays.");
+				break;
+			  case ARRAY:
+				checkError(ALWAYS_FAIL, "Arrarys of arrays not supported.");
+				break;
+			  case TIME:
+				checkError(ALWAYS_FAIL, "TimePoints not supported in arrays.");
+				break;
+			  default:
+				s << value << "(Unknown type: " << m_type << ")";
+			  }
+		  }
+	  }
+	  s << "])";
+	}
   }
 
   // confirm that new value to assign is valid
@@ -480,13 +460,11 @@ namespace PLEXIL
     return m_arrayVariable->checkElementValue(val);
   }
 
-  std::string ArrayElement::toString() const
+  void ArrayElement::print(std::ostream& s) const
   {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "ArrayElement: " << m_arrayVariable->toString()
-           << "[" << m_index->toString() << "])";
-    return retval.str();
+	Expression::print(s);
+	s << "ArrayElement: " << *m_arrayVariable // *** FIXME: this is probably too verbose ***
+	  << "[" << *m_index << "])";
   }
 
   // *** FIXME: is this the right approach?
@@ -588,11 +566,10 @@ namespace PLEXIL
   }
 
 
-  std::string StringVariable::toString() const {
-    std::ostringstream retval;
-    retval << VariableImpl::toString();
-    retval << "string)";
-    return retval.str();
+  void StringVariable::print(std::ostream& s) const 
+  {
+	VariableImpl::print(s);
+	s << "string)";
   }
 
   bool StringVariable::checkValue(const double val) {
@@ -616,12 +593,10 @@ namespace PLEXIL
     commonNumericInit((PlexilValue*)expr);
   }
 
-  std::string RealVariable::toString() const 
+  void RealVariable::print(std::ostream& s) const 
   {
-    std::ostringstream retval;
-    retval << VariableImpl::toString();
-    retval << "real)";
-    return retval.str();
+	VariableImpl::print(s);
+    s << "real)";
   }
    
   bool RealVariable::checkValue(const double val) {
@@ -683,11 +658,10 @@ namespace PLEXIL
     commonNumericInit((PlexilValue*)expr);
   }
 
-  std::string IntegerVariable::toString() const {
-    std::ostringstream retval;
-    retval << VariableImpl::toString();
-    retval << "int)";
-    return retval.str();
+  void IntegerVariable::print(std::ostream& s) const
+  {
+	VariableImpl::print(s);
+	s << "int)";
   }
 
   bool IntegerVariable::checkValue(const double val) {

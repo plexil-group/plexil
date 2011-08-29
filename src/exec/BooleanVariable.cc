@@ -50,12 +50,10 @@ namespace PLEXIL
     commonNumericInit((PlexilValue*)expr);
   }
 
-  std::string BooleanVariable::toString() const
+  void BooleanVariable::print(std::ostream& s) const
   {
-    std::ostringstream retval;
-    retval << VariableImpl::toString();
-    retval << "boolean)";
-    return retval.str();
+	VariableImpl::print(s);
+    s << "boolean)";
   }
 
   bool BooleanVariable::checkValue(const double val)

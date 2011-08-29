@@ -50,7 +50,7 @@ namespace PLEXIL {
 
     virtual ~TransparentWrapper();
     void setValue(const double value);
-    std::string toString() const;
+    void print(std::ostream& s) const;
     std::string valueString() const;
     bool checkValue(const double value);
 
@@ -128,7 +128,7 @@ namespace PLEXIL {
     StateVariable(const bool isConst = false);
     StateVariable(const double value, const bool isConst = false);
     StateVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     void setNodeState(NodeState newValue);
 
@@ -152,7 +152,7 @@ namespace PLEXIL {
     OutcomeVariable(const bool isConst = false);
     OutcomeVariable(const double value, const bool isConst = false);
     OutcomeVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -186,7 +186,7 @@ namespace PLEXIL {
     FailureVariable(const double value, const bool isConst = false);
     FailureVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -213,7 +213,7 @@ namespace PLEXIL {
     CommandHandleVariable(const bool isConst = false);
     CommandHandleVariable(const double value, const bool isConst = false);
     CommandHandleVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -230,7 +230,7 @@ namespace PLEXIL {
   public:
     AllChildrenFinishedCondition(std::vector<NodeId>& children);
     virtual ~AllChildrenFinishedCondition();
-    std::string toString() const;
+    void print(std::ostream& s) const;
     void addChild(const NodeId& node);
     double recalculate();
 
@@ -270,7 +270,7 @@ namespace PLEXIL {
   public:
     AllChildrenWaitingOrFinishedCondition(std::vector<NodeId>& children);
     virtual ~AllChildrenWaitingOrFinishedCondition();
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double recalculate();
     void addChild(const NodeId& node);
 
@@ -314,7 +314,7 @@ namespace PLEXIL {
     InternalCondition(const PlexilExprId& expr, const NodeConnectorId& node);
     virtual ~InternalCondition();
     double recalculate();
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -332,7 +332,7 @@ namespace PLEXIL {
     InterruptibleCommandHandleValues(const PlexilExprId& expr, const NodeConnectorId& node);
     InterruptibleCommandHandleValues(ExpressionId e);
 
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double recalculate();
     bool checkValue(const double val);
     
@@ -351,7 +351,7 @@ namespace PLEXIL {
     AllCommandHandleValues(const PlexilExprId& expr, const NodeConnectorId& node);
     AllCommandHandleValues(ExpressionId e);
 
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double recalculate();
     bool checkValue(const double val);
     

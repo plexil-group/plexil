@@ -24,6 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// *** TEMPORARY ***
+//#define EXPRESSION_PRINT_STATISTICS 1
+
 #include "Expression.hh"
 #include "Debug.hh"
 #include "ExpressionFactory.hh"
@@ -90,6 +93,14 @@ namespace PLEXIL {
     m_activeCount++;
     debugMsg("Expression:activate", "Activating " << getId());
     handleActivate(changed);
+#ifdef EXPRESSION_PRINT_STATISTICS
+	static int sl_highWaterMark = 0;
+	if (m_activeCount > sl_highWaterMark) {
+	  sl_highWaterMark = m_activeCount;
+	  std::cout << "Expression::activate: new max active count = " << sl_highWaterMark
+				<< " for " << toString() << std::endl;
+	}
+#endif
   }
 
   void Expression::deactivate() {
@@ -107,22 +118,42 @@ namespace PLEXIL {
        m_outgoingListeners.end())
       return;
     m_outgoingListeners.push_back(id);
+#ifdef EXPRESSION_PRINT_STATISTICS
+	static int sl_highWaterMark = 0;
+	if (m_outgoingListeners.size() > sl_highWaterMark) {
+	  sl_highWaterMark = m_outgoingListeners.size();
+	  std::cout << "Expression::addListener: new max # listeners = " << sl_highWaterMark
+				<< " for " << toString() << std::endl;
+	}
+#endif
   }
 
   void Expression::removeListener(ExpressionListenerId id) {
     check_error(id.isValid());
-    std::list<ExpressionListenerId>::iterator it = std::find(m_outgoingListeners.begin(),
-							     m_outgoingListeners.end(), id);
+    std::vector<ExpressionListenerId>::iterator it = 
+	  std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), id);
     if(it == m_outgoingListeners.end())
       return;
     m_outgoingListeners.erase(it);
   }
 
+  void Expression::print(std::ostream& s) const
+  {
+    s << "(" << getId()
+	  << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u")
+	  << "](" << valueString() << "): ";
+  }
+
   std::string Expression::toString() const {
     std::ostringstream str;
-    str << "(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
-      "](" << valueString() << "): ";
+	print(str);
     return str.str();
+  }
+
+  std::ostream& operator<<(std::ostream& s, const Expression& e)
+  {
+	e.print(s);
+	return s;
   }
 
   // Much-needed static member function to construct the One True Printed Representation of a value.
@@ -187,7 +218,7 @@ namespace PLEXIL {
   void Expression::publishChange() {
     if(!isActive())
       return;
-    for(std::list<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
+    for(std::vector<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
 	it != m_outgoingListeners.end(); ++it) {
       check_error((*it).isValid());
       if((*it)->isActive())

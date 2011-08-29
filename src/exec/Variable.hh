@@ -282,7 +282,7 @@ namespace PLEXIL
      * @brief Get a string representation of this Expression.
      * @return The string representation.
      */
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Get a string representation of the value of this Variable.
@@ -429,7 +429,7 @@ namespace PLEXIL
      * @brief Get a string representation of this Expression.
      * @return The string representation.
      */
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Set the value of this expression back to the initial value with which it was

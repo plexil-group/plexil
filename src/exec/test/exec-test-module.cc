@@ -83,8 +83,7 @@ public:
   AllocationExpression(PlexilExpr* /* expr */, const NodeId /* node */) : Expression() {
     setValue(10);
   }
-  //double getValue() {return 10;}
-  std::string toString() const {return "AllocationExpression";}
+  void print(std::ostream& s) const { s << "AllocationExpression"; }
 private:
   bool checkValue(const double /* val */){return true;}
 };

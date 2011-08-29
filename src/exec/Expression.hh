@@ -202,11 +202,17 @@ namespace PLEXIL {
      */
     virtual void removeListener(ExpressionListenerId id);
 
+	/**
+	 * @brief Print the object to the given stream.
+	 * @param s The output stream.
+	 */
+	virtual void print(std::ostream& s) const;
+
     /**
      * @brief Get a string representation of this Expression.
      * @return The string representation.
      */
-    virtual std::string toString() const;
+	std::string toString() const;
 
     /**
      * @brief Get a string representation of the value of this Expression.
@@ -298,8 +304,10 @@ namespace PLEXIL {
     bool m_dirty; /*<! Marks whether or not this expression needs re-calculation.*/
     bool m_lock; /*<! The lock for this expression */
     bool m_ignoreCachedValue; /*<! Disregard the m_value that has been cached when deciding to publissh a change*/
-    std::list<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
+    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
   };
+
+  std::ostream& operator<<(std::ostream& s, const Expression& e);
 
   /**
    *  A class for notifying expressions of changes in sub-expressions.

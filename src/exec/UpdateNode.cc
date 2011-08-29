@@ -50,6 +50,9 @@ namespace PLEXIL
 	checkError(node->nodeType() == NodeType_Update,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
 			   << "\" for an UpdateNode");
+
+	// Make ack variable pretty
+	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
   }
 
   /**
@@ -71,6 +74,9 @@ namespace PLEXIL
   {
 	checkError(type == UPDATE(),
 			   "Invalid node type \"" << type.toString() << "\" for an UpdateNode");
+
+	// Make ack variable pretty
+	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
 
 	// Construct stuff as required for unit test
 	createDummyUpdate();

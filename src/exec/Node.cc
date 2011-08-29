@@ -250,9 +250,13 @@ namespace PLEXIL {
 	// The contortions with getKey() are an attempt to minimize LabelStr copying
     m_variablesByName[STATE().getKey()] = m_stateVariable = (new StateVariable())->getId();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
+	((StateVariable*) m_stateVariable)->setName(m_nodeId.toString());
 
 	m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable = (new OutcomeVariable())->getId();
+	((OutcomeVariable*) m_outcomeVariable)->setName(m_nodeId.toString());
+
     m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable = (new FailureVariable())->getId();
+	((FailureVariable*) m_failureTypeVariable)->setName(m_nodeId.toString());
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
@@ -1617,7 +1621,7 @@ namespace PLEXIL {
 		 it != m_sortedVariableNames->end();
 		 it++) {
 	  stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
-		getInternalVariable(LabelStr(*it))->toString() << '\n';
+		*(getInternalVariable(LabelStr(*it))) << '\n';
 	}
   }
 

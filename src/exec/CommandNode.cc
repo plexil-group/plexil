@@ -54,6 +54,9 @@ namespace PLEXIL
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
 			   << "\" for a CommandNode");
 
+	// Make ack and command handle pretty
+	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+	((VariableImpl*) m_commandHandleVariable)->setName(m_nodeId.toString());
 	// Make command handle accessible
 	m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
   }
@@ -79,6 +82,9 @@ namespace PLEXIL
 	checkError(type == COMMAND(),
 			   "Invalid node type \"" << type.toString() << "\" for a CommandNode");
 
+	// Make command handle pretty
+	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+	((VariableImpl*) m_commandHandleVariable)->setName(m_nodeId.toString());
 	// Make command handle accessible
 	m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
 

@@ -180,6 +180,12 @@ namespace PLEXIL
     addSubexpression(b, bGarbage);
   }
 
+  void BinaryExpression::print(std::ostream& s) const
+  {
+	Expression::print(s);
+	s << "(" << *m_a << ' ' << operatorString() << ' ' << *m_b << "))";
+  }
+
   //
   // N-Ary expressions
   //
@@ -203,6 +209,21 @@ namespace PLEXIL
   {
     addSubexpression(a, aGarbage);
     addSubexpression(b, bGarbage);
+  }
+
+  void NaryExpression::print(std::ostream& s) const
+  {
+	Expression::print(s);
+	s << "(";
+    for (ExpressionVectorConstIter child = m_subexpressions.begin();
+         child != m_subexpressions.end(); 
+		 ++child) {
+	  s << **child;
+	  if (*child != m_subexpressions.back())
+		s << ' ' << operatorString() << ' ';
+	  else
+		s << "))";
+	}
   }
 
 }

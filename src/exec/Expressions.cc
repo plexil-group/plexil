@@ -74,10 +74,10 @@ namespace PLEXIL {
 	  REGISTER_EXPRESSION(ArrayVariable, ArrayValue);
 	  REGISTER_EXPRESSION(Concatenation, Concat);
 	  REGISTER_EXPRESSION(StringVariable, StringVariable);
-	  REGISTER_EXPRESSION(StateVariable, NodeStateValue);
-	  REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeValue);
-	  REGISTER_EXPRESSION(FailureVariable, NodeFailureValue);
-	  REGISTER_EXPRESSION(CommandHandleVariable, NodeCommandHandleValue);
+	  REGISTER_CONSTANT_EXPRESSION(StateVariable, NodeStateValue);
+	  REGISTER_CONSTANT_EXPRESSION(OutcomeVariable, NodeOutcomeValue);
+	  REGISTER_CONSTANT_EXPRESSION(FailureVariable, NodeFailureValue);
+	  REGISTER_CONSTANT_EXPRESSION(CommandHandleVariable, NodeCommandHandleValue);
 	  REGISTER_EXPRESSION(InternalCondition, EQInternal);
 	  REGISTER_EXPRESSION(InternalCondition, NEInternal);
 	  REGISTER_EXPRESSION(LookupNow, LookupNow);

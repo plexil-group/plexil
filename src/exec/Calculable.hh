@@ -151,8 +151,12 @@ namespace PLEXIL
     BinaryExpression(const PlexilExprId& expr, const NodeConnectorId& node);
     BinaryExpression(const ExpressionId& a, const ExpressionId& b);
     BinaryExpression(const ExpressionId& a, bool aGarbage, const ExpressionId& b,
-		     bool bGarbage);
+					 bool bGarbage);
+	void print(std::ostream& s) const;
+
   protected:
+	virtual const char* operatorString() const = 0;
+	
     ExpressionId m_a;
     ExpressionId m_b;
   private:
@@ -167,7 +171,11 @@ namespace PLEXIL
     NaryExpression(const ExpressionId& a, const ExpressionId& b);
     NaryExpression(const ExpressionId& a, bool aGarbage,
                    const ExpressionId& b, bool bGarbage);
+	void print(std::ostream& s) const;
+
   protected:
+	virtual const char* operatorString() const = 0;
+
   private:
   };
 

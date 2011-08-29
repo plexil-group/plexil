@@ -82,11 +82,10 @@ namespace PLEXIL
     return m_exp->checkValue(value);
   }
 
-  std::string TransparentWrapper::toString() const {
-    std::ostringstream str;
-    str << "TransparentWrapper(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
-       "T]{" << valueString() <<"}(" << m_exp->toString() << ")";
-    return str.str();
+  void TransparentWrapper::print(std::ostream& s) const
+  {
+	s << "TransparentWrapper(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
+	  "T]{" << valueString() <<"}(" << m_exp->toString() << "))";
   }
 
   std::string TransparentWrapper::valueString() const {
@@ -151,11 +150,10 @@ namespace PLEXIL
     return false;
   }
 
-  std::string StateVariable::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "state(" << LabelStr(m_value).toString() << "))";
-    return retval.str();
+  void StateVariable::print(std::ostream& s) const 
+  {
+	VariableImpl::print(s);
+    s << "state)";
   }
 
   void StateVariable::setNodeState(NodeState newValue)
@@ -285,11 +283,10 @@ namespace PLEXIL
     return (val == UNKNOWN() || val == SUCCESS() || val == FAILURE() || val == SKIPPED());
   }
 
-  std::string OutcomeVariable::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << " outcome)";
-    return retval.str();
+  void OutcomeVariable::print(std::ostream& s) const
+  {
+	VariableImpl::print(s);
+	s << "outcome)";
   }
 
 
@@ -316,11 +313,10 @@ namespace PLEXIL
 	       "Attempted to initialize a variable with an invalid value.");
   }
 
-  std::string FailureVariable::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << " failure)";
-    return retval.str();
+  void FailureVariable::print(std::ostream& s) const
+  {
+	VariableImpl::print(s);
+    s << "failure)";
   }
 
   bool FailureVariable::checkValue(const double val) {
@@ -356,11 +352,10 @@ namespace PLEXIL
     return (val == UNKNOWN() || val == COMMAND_SENT_TO_SYSTEM() || val == COMMAND_ACCEPTED() || val == COMMAND_RCVD_BY_SYSTEM() || val == COMMAND_SUCCESS() || val == COMMAND_DENIED() || val == COMMAND_FAILED());
   }
 
-  std::string CommandHandleVariable::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << " command_handle)";
-    return retval.str();
+  void CommandHandleVariable::print(std::ostream& s) const 
+  {
+    VariableImpl::print(s);
+    s << "command_handle)";
   }
 
   AllChildrenFinishedCondition::AllChildrenFinishedCondition(std::vector<NodeId>& children)
@@ -495,11 +490,10 @@ namespace PLEXIL
       m_cond.decrementCount(expression);
   }
 
-  std::string AllChildrenFinishedCondition::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "childrenFinished(" << m_count << ":" << m_total << "))";
-    return retval.str();
+  void AllChildrenFinishedCondition::print(std::ostream& s) const 
+  {
+	Expression::print(s);
+    s << "childrenFinished(" << m_count << ":" << m_total << "))";
   }
 
   /***************************/
@@ -620,11 +614,10 @@ namespace PLEXIL
       m_cond.decrementCount(expression);
   }
 
-  std::string AllChildrenWaitingOrFinishedCondition::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << "childrenWaitingOrFinished(" << m_count << ":" << m_total << "))";
-    return retval.str();
+  void AllChildrenWaitingOrFinishedCondition::print(std::ostream& s) const
+  {
+	Expression::print(s);
+    s << "childrenWaitingOrFinished(" << m_count << ":" << m_total << "))";
   }
 
   /*
@@ -690,12 +683,10 @@ namespace PLEXIL
       val == BooleanVariable::UNKNOWN();
   }
 
-  std::string InternalCondition::toString() const {
-    std::ostringstream retval;
-    retval << Expression::toString();
-    retval << m_expr->toString();
-    retval << ")";
-    return retval.str();
+  void InternalCondition::print(std::ostream& s) const 
+  {
+	Expression::print(s);
+	s << *m_expr << ")";
   }
 
   InterruptibleCommandHandleValues::InterruptibleCommandHandleValues(const PlexilExprId& expr, 
@@ -709,13 +700,10 @@ namespace PLEXIL
   {
   }
 
-  std::string InterruptibleCommandHandleValues::toString() const 
+  void InterruptibleCommandHandleValues::print(std::ostream& s) const 
   {
-	std::ostringstream retval;
-	retval << Expression::toString();
-	retval << "interruptibleCommandHandleValues(" << m_e->toString();
-	retval << "))";
-	return retval.str();
+	Expression::print(s);
+	s << "interruptibleCommandHandleValues(" << *m_e << "))";
   }
 
   double InterruptibleCommandHandleValues::recalculate()
@@ -738,13 +726,10 @@ namespace PLEXIL
 	: UnaryExpression(expr, node) {}
   AllCommandHandleValues::AllCommandHandleValues(ExpressionId e) : UnaryExpression(e) {}
 
-  std::string AllCommandHandleValues::toString() const 
+  void AllCommandHandleValues::print(std::ostream& s) const 
   {
-	std::ostringstream retval;
-	retval << Expression::toString();
-	retval << "allCommandHandleValues(" << m_e->toString();
-	retval << "))";
-	return retval.str();
+	Expression::print(s);
+	s << "allCommandHandleValues(" << *m_e << "))";
   }
 
   double AllCommandHandleValues::recalculate()

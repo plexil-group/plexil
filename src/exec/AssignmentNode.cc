@@ -46,6 +46,9 @@ namespace PLEXIL
 	checkError(nodeProto->nodeType() == NodeType_Assignment,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
 			   << "\" for an AssignmentNode");
+
+	// Make ack variable pretty
+	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
   }
 
   // Used only by module test
@@ -77,6 +80,11 @@ namespace PLEXIL
   {
 	checkError(type == ASSIGNMENT(),
 			   "Invalid node type \"" << type.toString() << "\" for an AssignmentNode");
+
+	// Make ack variable pretty
+	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+
+	// Create Assignment object
 	createDummyAssignment();
 	if (state == EXECUTING_STATE)
 	  m_assignment->activate();

@@ -40,7 +40,7 @@ namespace PLEXIL
    * destructor
    * PlexilType getValueType() const
    * void setValue(const double val)
-   * std::string toString() const
+   * void print(std::ostream& s) const
    * std::string valueString() const (BUT SHOULD RESPECT m_active!!)
    * void handleLock()
    * void handleUnlock()
@@ -68,7 +68,7 @@ namespace PLEXIL
 
     virtual ~ArrayVariable();
 
-    std::string toString() const;
+    void print(std::ostream& s) const;
     double lookupValue(unsigned long index) const;
     unsigned long maxSize() const {return m_maxSize;}
 
@@ -120,12 +120,6 @@ namespace PLEXIL
 
   protected:
 
-    /**
-     * @brief Notify listeners that an element has changed.
-     * @param elt The changed element expression.
-     */
-    virtual void publishElementChange(const ExpressionId& elt);
-
   private:
 
     unsigned long       m_maxSize;
@@ -156,7 +150,7 @@ namespace PLEXIL
     StringVariable(const LabelStr& value, const bool isConst = false);
     StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		   const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -179,7 +173,7 @@ namespace PLEXIL
     RealVariable(const double value, const bool isConst = false);
     RealVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		 const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
     /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
@@ -201,7 +195,7 @@ namespace PLEXIL
     IntegerVariable(const double value, const bool isConst = false);
     IntegerVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -231,7 +225,7 @@ namespace PLEXIL
      */
     virtual ~ArrayElement();
 
-    std::string toString() const;
+    void print(std::ostream& s) const;
 
     /**
      * @brief Set the value of this expression back to the initial value with which it was
