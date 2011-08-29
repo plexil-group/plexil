@@ -324,52 +324,6 @@ namespace PLEXIL {
   };
 
 
-  class WrapperListener;
-
-  /**
-   * Class to provide an interface that doesn't propagate activation/deactivation messages.
-   * Used in Node::createConditions().
-   */
-  class TransparentWrapper : public Expression {
-  public:
-
-    TransparentWrapper(const ExpressionId& exp, const NodeConnectorId& node);
-
-	// This variant used only in unit tests
-    TransparentWrapper(const ExpressionId& exp);
-
-    virtual ~TransparentWrapper();
-    void setValue(const double value);
-    std::string toString() const;
-    std::string valueString() const;
-    bool checkValue(const double value);
-
-  private:
-
-	// Deliberately not implemented
-    TransparentWrapper();
-	TransparentWrapper& operator=(const TransparentWrapper&);
-
-	void commonInit(const ExpressionId& exp);
-
-    void handleActivate(const bool changed);
-    void handleDeactivate(const bool changed);
-    virtual void handleChange(const ExpressionId& expression);
-
-    class WrapperListener : public ExpressionListener {
-    public:
-      WrapperListener(TransparentWrapper& wrapper) : ExpressionListener(), m_wrapper(wrapper) {}
-      void notifyValueChanged(const ExpressionId& expression) {
-	m_wrapper.handleChange(expression);
-      }
-    private:
-      TransparentWrapper& m_wrapper;
-    };
-
-    WrapperListener m_listener;
-    ExpressionId m_exp;
-  };
-
 }
 
 #endif
