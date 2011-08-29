@@ -44,25 +44,20 @@ namespace PLEXIL
   {
   public:
     // Static Class Constants
-
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "__COMMAND__")
-    //DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "__MESSAGE__")
-    //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "__LOOKUP__")
-    //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "__LOOKUP_ON_CHANGE__")
     DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "__PARAMETER__")
-    //DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPARATOR, ":")
-
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
-    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_UDP_MESSAGE_COMMAND, "ReceiveUdpMessage")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
     DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
     DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
     DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
+    //DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "__MESSAGE__")
+    //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "__LOOKUP__")
+    //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "__LOOKUP_ON_CHANGE__")
+    //DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPARATOR, ":")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_UDP_MESSAGE_COMMAND, "ReceiveUdpMessage")
+    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
     //DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
-
-    // Constructor
-    //UdpAdapter(AdapterExecInterface& execInterface);
 
     // Constructor/Destructor
     UdpAdapter(AdapterExecInterface& execInterface);
@@ -87,7 +82,7 @@ namespace PLEXIL
     ThreadMutex m_cmdMutex;
     bool m_debug; // Show debugging output
 
-    // Somewhere to hang the messages and default ports
+    // Somewhere to hang the messages, default ports and peers, threads and sockets
     int m_default_local_port;
     int m_default_peer_port;
     std::string m_default_peer;

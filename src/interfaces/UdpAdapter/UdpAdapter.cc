@@ -51,7 +51,7 @@ namespace PLEXIL
     parseXmlMessageDefinitions(xml); // also calls registerCommandInterface for each message
     if (m_debug) printMessageDefinitions();
     m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
-    m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
+    //m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
     //m_execInterface.registerCommandInterface(LabelStr(RECEIVE_UDP_MESSAGE_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(RECEIVE_COMMAND_COMMAND()), getId());
     m_execInterface.registerCommandInterface(LabelStr(GET_PARAMETER_COMMAND()), getId());
@@ -127,8 +127,8 @@ namespace PLEXIL
     debugMsg("UdpAdapter::executeCommand", " " << name.toString() << " (dest==" << dest << ", ack==" << ack << ")");
     if (name == SEND_MESSAGE_COMMAND())
       executeSendMessageCommand(args, dest, ack);
-    else if (name == SEND_UDP_MESSAGE_COMMAND())
-      executeSendUdpMessageCommand(args, dest, ack);
+    //else if (name == SEND_UDP_MESSAGE_COMMAND())
+    //  executeSendUdpMessageCommand(args, dest, ack);
     //else if (name == RECEIVE_UDP_MESSAGE_COMMAND()) // SendUdpCommand("cmd_name", arg1, ...); XXXX
     //  executeReceiveUdpCommand(args, dest, ack);
     else if (name == RECEIVE_COMMAND_COMMAND())
@@ -202,7 +202,7 @@ namespace PLEXIL
     // Send the buffer to the given host:port
     int status = -1;
     status = sendUdpMessage(udp_buffer, msg->second, m_debug);
-    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " sendUdpMessage returned " << status << " (bytes sent)");
+    debugMsg("UdpAdapter::executeDefaultCommand", " sendUdpMessage returned " << status << " (bytes sent)");
     // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
     m_execInterface.notifyOfExternalEvent();
@@ -248,34 +248,34 @@ namespace PLEXIL
 //     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered");
 //   }
 
-  // SEND_UDP_MESSAGE_COMMAND
-  void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
-  {
-    // First arg is message name (which better match one of the defined messages...)
-    assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first parameter to SendUdpMessage command, "
-                  << Expression::valueToString(args.front()) << ", is not a string");
-    // Lookup the appropriate message in the message definitions in m_messages
-    LabelStr msgName(args.front());
-    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " called for " << msgName.c_str());
-    //printMessageContent(msgName, args);
-    MessageMap::iterator msg;
-    msg=m_messages.find(msgName.c_str());
-    // Set up the outgoing UDP buffer to be sent
-    int length = msg->second.len;
-    unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
-    memset((char*)udp_buffer, 0, length); // zero out the buffer
-    // Walk the parameters and encode them in the buffer to be sent out
-    buildUdpBuffer(udp_buffer, msg->second, args, true, m_debug);
-    // Send the buffer to the given host:port
-    int status = -1;
-    status = sendUdpMessage(udp_buffer, msg->second, m_debug);
-    debugMsg("UdpAdapter::executeSendUdpMessageCommand", " sendUdpMessage returned " << status << " (bytes sent)");
-    // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
-    m_execInterface.notifyOfExternalEvent();
-    // Clean up some (one hopes)
-    delete udp_buffer;
-  }
+//  // SEND_UDP_MESSAGE_COMMAND
+//   void UdpAdapter::executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId /* dest */, ExpressionId ack)
+//   {
+//     // First arg is message name (which better match one of the defined messages...)
+//     assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first parameter to SendUdpMessage command, "
+//                   << Expression::valueToString(args.front()) << ", is not a string");
+//     // Lookup the appropriate message in the message definitions in m_messages
+//     LabelStr msgName(args.front());
+//     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " called for " << msgName.c_str());
+//     //printMessageContent(msgName, args);
+//     MessageMap::iterator msg;
+//     msg=m_messages.find(msgName.c_str());
+//     // Set up the outgoing UDP buffer to be sent
+//     int length = msg->second.len;
+//     unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
+//     memset((char*)udp_buffer, 0, length); // zero out the buffer
+//     // Walk the parameters and encode them in the buffer to be sent out
+//     buildUdpBuffer(udp_buffer, msg->second, args, true, m_debug);
+//     // Send the buffer to the given host:port
+//     int status = -1;
+//     status = sendUdpMessage(udp_buffer, msg->second, m_debug);
+//     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " sendUdpMessage returned " << status << " (bytes sent)");
+//     // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
+//     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS().getKey());
+//     m_execInterface.notifyOfExternalEvent();
+//     // Clean up some (one hopes)
+//     delete udp_buffer;
+//  }
 
   // GET_PARAMETER_COMMAND
   void UdpAdapter::executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack)
