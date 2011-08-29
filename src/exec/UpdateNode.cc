@@ -98,13 +98,13 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void UpdateNode::specializedPostInit()
+  void UpdateNode::specializedPostInit(const PlexilNodeId& node)
   {
 	debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
 	// XML parser should have checked for this
-	checkError(Id<PlexilUpdateBody>::convertable(m_node->body()),
+	checkError(Id<PlexilUpdateBody>::convertable(node->body()),
 			   "Node is an update node but doesn't have an update body.");
-	createUpdate((PlexilUpdateBody*)m_node->body());
+	createUpdate((PlexilUpdateBody*) node->body());
   }
 
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 

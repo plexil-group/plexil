@@ -114,13 +114,13 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void CommandNode::specializedPostInit()
+  void CommandNode::specializedPostInit(const PlexilNodeId& node)
   {
 	debugMsg("Node:postInit", "Creating command for node '" << m_nodeId.toString() << "'");
 	// XML parser should have checked for this
-	checkError(Id<PlexilCommandBody>::convertable(m_node->body()),
+	checkError(Id<PlexilCommandBody>::convertable(node->body()),
 			   "Node is a command node but doesn't have a command body.");
-	createCommand((PlexilCommandBody*)m_node->body());
+	createCommand((PlexilCommandBody*)node->body());
   }
 
   void CommandNode::createSpecializedConditions()

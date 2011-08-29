@@ -77,7 +77,7 @@ namespace PLEXIL
   protected:
 
 	// Specific behaviors for derived classes
-	virtual void specializedPostInit();
+	virtual void specializedPostInit(const PlexilNodeId& node);
 	virtual void createSpecializedConditions();
 	virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();

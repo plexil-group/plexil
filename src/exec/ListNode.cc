@@ -163,11 +163,20 @@ namespace PLEXIL
 	return *it;
   }
 
-  void ListNode::specializedPostInit()
+  void ListNode::specializedPostInit(const PlexilNodeId& node)
   {
     //call postInit on all children
-    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->postInit();
+	const PlexilListBody* body = (const PlexilListBody*) node->body();
+	check_error(body != NULL);
+	std::vector<NodeId>::iterator it = m_children.begin();
+	std::vector<PlexilNodeId>::const_iterator pit = body->children().begin();	
+	while (it != m_children.end() && pit != body->children().end()) {
+	  (*it)->postInit(*pit);
+	  it++;
+	  pit++;
+	}
+	checkError(it == m_children.end() && pit == body->children().end(),
+			   "Node:postInit: mismatch between PlexilNode and list node children");
   }
 
   //

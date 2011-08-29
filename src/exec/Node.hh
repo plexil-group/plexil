@@ -122,22 +122,12 @@ namespace PLEXIL {
 
     // create conditions, assignments, and commands.
 	// We have to do this late because they could refer to internal variables of other nodes.
-    void postInit();
+    void postInit(const PlexilNodeId& node);
 
 	// Make the node active.
 	virtual void activate();
 
     const NodeId& getId() const {return m_id;}
-
-    /**
-     * @brief Accessor for PlexilNode.
-     * @return This node's contained PlexilNode
-     */
-
-    const PlexilNodeId & getPlexilNode()
-    {
-       return m_node;
-    }
         
     /**
      * @brief Accessor for the NodeId as it was written in the XML.
@@ -386,7 +376,7 @@ namespace PLEXIL {
     bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
 
 	// Specific behaviors for derived classes
-	virtual void specializedPostInit();
+	virtual void specializedPostInit(const PlexilNodeId& node);
 	virtual void createSpecializedConditions();
 	virtual void createConditionWrappers();
 	virtual void specializedActivate();
@@ -436,7 +426,6 @@ namespace PLEXIL {
     NodeId m_parent; /*<! The parent of this node.*/
     ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed) */
     NodeConnectorId m_connector; /*<! Used by expressions that refer to node internal variables. */
-    PlexilNodeId m_node; /*<! The PlexilNode from which this was created. */
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements. */
     VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface. */

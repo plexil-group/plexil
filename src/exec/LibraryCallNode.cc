@@ -54,10 +54,11 @@ namespace PLEXIL
 	// Create library call node
 	debugMsg("Node:node", "Creating library node call.");
 	// XML parser should have checked for this
-	checkError(Id<PlexilLibNodeCallBody>::convertable(nodeProto->body()),
+	const PlexilLibNodeCallBody* body = nodeProto->body();
+	checkError(body != NULL,
 			   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
 			   "library node call body.");
-	createLibraryNode(); // constructs default end condition
+	createLibraryNode(body); // constructs default end condition
   }
 
   /**
@@ -111,10 +112,9 @@ namespace PLEXIL
 	m_children.clear();
   }
 
-  void LibraryCallNode::createLibraryNode()
+  void LibraryCallNode::createLibraryNode(const PlexilLibNodeCallBody* body)
   {
 	// get node body
-	const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*) m_node->body();
 	checkError(body != NULL,
 			   "Node " << m_nodeId.toString() << ": createLibraryNode: Node has no library node call body");
       
@@ -310,11 +310,15 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void LibraryCallNode::specializedPostInit()
+  void LibraryCallNode::specializedPostInit(const PlexilNodeId& node)
   {
-    // call postInit on the child
-    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->postInit();
+	// Get node body
+	const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*) node->body();
+	check_error(body != NULL);
+	// get the lib node 
+	const PlexilNodeId& libNode = body->libNode();
+    //call postInit on the child
+	m_children.front()->postInit(body->libNode());
   }
 
   void LibraryCallNode::createSpecializedConditions()

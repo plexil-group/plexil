@@ -68,7 +68,7 @@ namespace PLEXIL
   protected:
 
 	// Specific behaviors for derived classes
-	virtual void specializedPostInit();
+	virtual void specializedPostInit(const PlexilNodeId& node);
 	virtual void createSpecializedConditions();
 	virtual void specializedActivate();
 
@@ -89,7 +89,7 @@ namespace PLEXIL
 
   private:
 
-    void createLibraryNode();
+    void createLibraryNode(const PlexilLibNodeCallBody* body);
 
     void testLibraryNodeParameters(const PlexilNodeId& libNode, 
                                    const std::vector<PlexilVarRef*>& interfaceVars,

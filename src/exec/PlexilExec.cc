@@ -212,7 +212,7 @@ namespace PLEXIL {
 		Error::doThrowExceptions();
 	  root = NodeFactory::createNode(plan, m_connector);
 	  check_error(root.isValid());
-	  root->postInit();
+	  root->postInit(plan);
 	}
 	catch (const Error& e) {
 	  if (!wasThrowEnabled)

@@ -90,14 +90,14 @@ namespace PLEXIL
 	m_ack = VariableId::noId();
   }
 
-  void AssignmentNode::specializedPostInit()
+  void AssignmentNode::specializedPostInit(const PlexilNodeId& node)
   {
 	debugMsg("Node:postInit",
 			 "Creating assignment for node '" << m_nodeId.toString() << "'");
 	// XML parser should have checked for this
-	checkError(Id<PlexilAssignmentBody>::convertable(m_node->body()),
+	checkError(Id<PlexilAssignmentBody>::convertable(node->body()),
 			   "Node is an assignment node but doesn't have an assignment body.");
-	createAssignment((PlexilAssignmentBody*) m_node->body());
+	createAssignment((PlexilAssignmentBody*) node->body());
   }
 
   void AssignmentNode::createSpecializedConditions()

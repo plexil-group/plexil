@@ -181,7 +181,6 @@ namespace PLEXIL {
 	  m_parent(parent),
 	  m_exec(exec),
       m_connector((new RealNodeConnector(m_id))->getId()),
-	  m_node(node),
 	  m_nodeId(node->nodeId()),
 	  m_nodeType(nodeTypeToLabelStr(node->nodeType())), // Can throw exception
 	  m_sortedVariableNames(new std::vector<double>()),
@@ -215,7 +214,6 @@ namespace PLEXIL {
     : m_id(this),
 	  m_parent(NodeId::noId()),
 	  m_exec(exec),
-	  m_node(PlexilNodeId::noId()),
 	  m_nodeId(name),
 	  m_nodeType(type),
 	  m_sortedVariableNames(new std::vector<double>()),
@@ -618,21 +616,21 @@ namespace PLEXIL {
     m_cleanedVars = true;
   }
 
-  void Node::postInit() 
+  void Node::postInit(const PlexilNodeId& node) 
   {
     checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
     m_postInitCalled = true;
 
     debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
     //create conditions and listeners
-    createConditions(m_node->conditions());
+    createConditions(node->conditions());
 
     //create assignment/command
-	specializedPostInit();
+	specializedPostInit(node);
   }
 
   // Default method
-  void Node::specializedPostInit()
+  void Node::specializedPostInit(const PlexilNodeId& node)
   {
   }
 
