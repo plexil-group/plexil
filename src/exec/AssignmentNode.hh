@@ -81,6 +81,8 @@ namespace PLEXIL
 	virtual void createSpecializedConditions();
 	virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
+	virtual void specializedReset();
+
 	virtual void cleanUpNodeBody();
 
 	virtual NodeState getDestStateFromExecuting();

@@ -291,6 +291,11 @@ namespace PLEXIL
 	  debugMsg("Warning", "Invalid assignment id in " << m_nodeId.toString());
   }
 
+  void AssignmentNode::specializedReset()
+  {
+	m_ack->reset();
+  }
+
   void AssignmentNode::specializedDeactivateExecutable() 
   {
 	if (m_assignment.isValid())
