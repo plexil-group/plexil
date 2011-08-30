@@ -226,53 +226,54 @@ namespace PLEXIL {
     bool checkValue(const double val);
   };
 
-  class AllChildrenFinishedCondition : public Calculable {
+  class AllChildrenFinishedCondition : public Calculable 
+  {
   public:
-    AllChildrenFinishedCondition(std::vector<NodeId>& children);
-    virtual ~AllChildrenFinishedCondition();
-    void print(std::ostream& s) const;
-    void addChild(const NodeId& node);
-    double recalculate();
+	AllChildrenFinishedCondition(const std::vector<NodeId>& children);
+	virtual ~AllChildrenFinishedCondition();
+	void print(std::ostream& s) const;
+	double recalculate();
 
-    /**
-     * @brief Retrieve the value type of this Expression.
-     * @return The value type of this Expression.
-     */
-    virtual PlexilType getValueType() const { return BOOLEAN; }
+	/**
+	 * @brief Retrieve the value type of this Expression.
+	 * @return The value type of this Expression.
+	 */
+	virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
-    friend class FinishedListener;
-    void incrementCount(const ExpressionId& expr);
-    void decrementCount(const ExpressionId& expr);
+	friend class FinishedListener;
+	void incrementCount();
+	void decrementCount();
+
   private:
-    class FinishedListener : public ExpressionListener {
-    public:
-      FinishedListener(AllChildrenFinishedCondition& cond);
-      void notifyValueChanged(const ExpressionId& expression);
-    protected:
-    private:
-      AllChildrenFinishedCondition& m_cond;
-    };
+	class FinishedListener : public ExpressionListener 
+	{
+	public:
+	  FinishedListener(AllChildrenFinishedCondition& cond);
+	  void notifyValueChanged(const ExpressionId& expression);
+	  void setLastValue(double value) { m_lastValue = value; }
+	private:
+	  AllChildrenFinishedCondition& m_cond;
+	  double m_lastValue;
+	};
 
-    bool checkValue(const double val);
-    void handleActivate(const bool changed);
-    void handleDeactivate(const bool changed);
+	bool checkValue(const double val);
+	void handleActivate(const bool changed);
+	void handleDeactivate(const bool changed);
 
-    FinishedListener m_listener;
-    unsigned int m_total;
-    unsigned int m_count;
-    bool m_constructed;
-    std::vector<NodeId> m_children;
-    std::map<ExpressionId, double> m_lastValues;
+	const unsigned int m_total;
+	unsigned int m_count;
+	std::vector<VariableId> m_stateVariables;
+	std::vector<ExpressionListenerId> m_childListeners;
   };
 
-  class AllChildrenWaitingOrFinishedCondition : public Calculable {
+  class AllChildrenWaitingOrFinishedCondition : public Calculable 
+  {
   public:
-    AllChildrenWaitingOrFinishedCondition(std::vector<NodeId>& children);
+    AllChildrenWaitingOrFinishedCondition(const std::vector<NodeId>& children);
     virtual ~AllChildrenWaitingOrFinishedCondition();
     void print(std::ostream& s) const;
     double recalculate();
-    void addChild(const NodeId& node);
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -282,29 +283,29 @@ namespace PLEXIL {
 
   protected:
     friend class WaitingOrFinishedListener;
-    void incrementCount(const ExpressionId& expr);
-    void decrementCount(const ExpressionId& expr);
-  private:
+    void incrementCount();
+    void decrementCount();
 
-    class WaitingOrFinishedListener : public ExpressionListener {
+  private:
+    class WaitingOrFinishedListener : public ExpressionListener 
+	{
     public:
       WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond);
       void notifyValueChanged(const ExpressionId& expression);
-    protected:
+	  void setLastValue(double value) { m_lastValue = value; }
     private:
       AllChildrenWaitingOrFinishedCondition& m_cond;
+	  double m_lastValue;
     };
 
     bool checkValue(const double val);
     void handleActivate(const bool changed);
     void handleDeactivate(const bool changed);
 
-    WaitingOrFinishedListener m_listener;
-    unsigned int m_total;
+    const unsigned int m_total;
     unsigned int m_count;
-    bool m_constructed;
-    std::vector<NodeId> m_children;
-    std::map<ExpressionId, double> m_lastValues;
+    std::vector<VariableId> m_stateVariables;
+	std::vector<ExpressionListenerId> m_childListeners;
   };
 
   //used for EQInternal and NEQInternal

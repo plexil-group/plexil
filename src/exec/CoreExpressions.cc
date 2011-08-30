@@ -378,106 +378,87 @@ namespace PLEXIL
     s << "command_handle)";
   }
 
-  AllChildrenFinishedCondition::AllChildrenFinishedCondition(std::vector<NodeId>& children)
-    : Calculable(), m_listener(*this), m_total(0), m_count(0), m_constructed(false) {
-    for(std::vector<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {
-      NodeId child = *it;
+  AllChildrenFinishedCondition::AllChildrenFinishedCondition(const std::vector<NodeId>& children)
+    : Calculable(), 
+	  m_total(children.size()),
+	  m_count(0),
+	  m_stateVariables(children.size(), VariableId::noId()),
+	  m_childListeners(children.size(), ExpressionListenerId::noId())
+  {
+    for (size_t i = 0; i < m_total; i++) {
+      const NodeId& child = children[i];
       check_error(child.isValid());
-      addChild(child);
+	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
+	  check_error(sv.isValid());
+	  ExpressionListenerId listener = m_childListeners[i] = (new FinishedListener(*this))->getId();
+	  sv->addListener(listener);
     }
     internalSetValue(recalculate());
-    m_constructed = true;
   }
 
-  AllChildrenFinishedCondition::~AllChildrenFinishedCondition() {
-    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
-      NodeId child = *it;
-      child->getStateVariable()->removeListener(m_listener.getId());
+  AllChildrenFinishedCondition::~AllChildrenFinishedCondition() 
+  {
+	for (size_t i = 0; i < m_total; i++) {
+      m_stateVariables[i]->removeListener(m_childListeners[i]);
+	  delete (ExpressionListener*) m_childListeners[i];
     }
   }
 
-  void AllChildrenFinishedCondition::addChild(const NodeId& node) {
-    m_children.push_back(node);
-    ++m_total;
-    node->getStateVariable()->addListener(m_listener.getId());
-    if(m_constructed) {
-      if(node->getStateName() == StateVariable::FINISHED())
-	incrementCount(node->getStateVariable());
-      else if(getValue() == BooleanVariable::TRUE_VALUE())
-	internalSetValue(BooleanVariable::FALSE_VALUE());
-    }
+  void AllChildrenFinishedCondition::incrementCount() 
+  {
+	m_count++;
+	checkError(m_count <= m_total,
+			   "Internal error: somehow counted more nodes in finished than were actually there.");
+	if (m_count == m_total) {
+	  debugMsg("AllChildrenFinished:increment",
+			   "Counted " << m_count << " children finished of " << m_total <<
+			   ".  Setting TRUE.");
+	  internalSetValue(BooleanVariable::TRUE_VALUE());
+	}
   }
 
-  void AllChildrenFinishedCondition::incrementCount(const ExpressionId& expr) {
-    if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = UNKNOWN();
-    if(expr->getValue() == StateVariable::FINISHED() &&
-       m_lastValues[expr] != StateVariable::FINISHED()) {
-      debugMsg("AllChildrenFinished:increment",
-	       "State var " << expr->toString() << " is now FINISHED.  Incrementing count.");
-      m_count++;
-      checkError(m_count <= m_total,
-		 "Error: somehow counted more nodes in finished than were actually there.");
-      if(m_count == m_total) {
-	debugMsg("AllChildrenFinished:increment",
-		 "Counted " << m_count << " children finished of " << m_total <<
-		 ".  Setting TRUE.");
-	internalSetValue(BooleanVariable::TRUE_VALUE());
-      }
-    }
-    m_lastValues[expr] = expr->getValue();
+  void AllChildrenFinishedCondition::decrementCount()
+  {
+	checkError(m_count > 0,
+			   "Internal error: somehow counted more nodes unfinished than were actually there.");
+	m_count--;
+	if (getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("AllChildrenFinished:decrement",
+			   m_count << " children of " << m_total << " are FINISHED.  Setting FALSE.");
+	  internalSetValue(BooleanVariable::FALSE_VALUE());
+	}
   }
 
-  void AllChildrenFinishedCondition::decrementCount(const ExpressionId& expr) {
-    if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = UNKNOWN();
-    if(expr->getValue() != StateVariable::FINISHED() &&
-       m_lastValues[expr] == StateVariable::FINISHED()) {
-      debugMsg("AllChildrenFinished:decrement",
-	       "State var " << expr->toString() <<
-	       " is no longer FINISHED.  Decrementing count.");
-      m_count--;
-      checkError(m_count <= m_total,
-		 "Error: somehow counted more nodes in finished than were actually there.");
-      if(getValue() == BooleanVariable::TRUE_VALUE()) {
-	debugMsg("AllChildrenFinished:decrement",
-		 m_count << " children of " << m_total << " are FINISHED.  Setting FALSE.");
-	internalSetValue(BooleanVariable::FALSE_VALUE());
-      }
-    }
-    m_lastValues[expr] = expr->getValue();
-  }
-
-  void AllChildrenFinishedCondition::handleActivate(const bool changed) {
-    if(changed)
-      m_listener.activate();
+  void AllChildrenFinishedCondition::handleActivate(const bool changed)
+  {
+    if (changed) {
+	  for (size_t i = 0 ; i < m_total; i++)
+		m_childListeners[i]->activate();
+	}
     Calculable::handleActivate(changed);
   }
 
-  void AllChildrenFinishedCondition::handleDeactivate(const bool changed) {
-    if(changed)
-      m_listener.deactivate();
+  void AllChildrenFinishedCondition::handleDeactivate(const bool changed)
+  {
+    if (changed) {
+	  for (size_t i = 0 ; i < m_total; i++)
+		m_childListeners[i]->deactivate();
+	}
     Calculable::handleDeactivate(changed);
   }
 
-  double AllChildrenFinishedCondition::recalculate() {
+  double AllChildrenFinishedCondition::recalculate()
+  {
     m_count = 0;
-    for(std::vector<NodeId>::const_iterator it = m_children.begin(); it != m_children.end();
-	++it) {
-      NodeId child = *it;
-      check_error(child.isValid());
-      ExpressionId expr = child->getStateVariable();
-      if(m_lastValues.find(expr) == m_lastValues.end())
-	m_lastValues[expr] = UNKNOWN();
-      m_lastValues[expr] = expr->getValue();
-
-      if(m_lastValues[expr] == StateVariable::FINISHED())
-	++m_count;
+    for (size_t i = 0; i < m_total; i++) {
+	  VariableId sv = m_stateVariables[i];
+      check_error(sv.isValid());
+	  double value = sv->getValue();
+	  ((FinishedListener*) m_childListeners[i])->setLastValue(value);
+      if (value == StateVariable::FINISHED())
+		++m_count;
     }
-    checkError(m_count <= m_total,
-	       "Error: somehow counted more nodes in waiting or finished (" << m_count <<
-	       ") than were actually there (" << m_total << ").");
-    if(m_count == m_total) {
+    if (m_count == m_total) {
       debugMsg("AllChildrenFinished:recalculate",
 	       "Counted " << m_count << " of " << m_total <<
 	       " children FINISHED.  Setting TRUE.");
@@ -497,17 +478,25 @@ namespace PLEXIL
   }
 
   AllChildrenFinishedCondition::FinishedListener::FinishedListener(AllChildrenFinishedCondition& cond)
-    : ExpressionListener(), m_cond(cond) {}
+    : ExpressionListener(), m_cond(cond), m_lastValue(UNKNOWN())
+  {
+  }
 
   void
   AllChildrenFinishedCondition::FinishedListener::notifyValueChanged(const ExpressionId& expression) 
   {
-    checkError(dynamic_cast<const StateVariable*>((const Expression*)expression) != NULL,
-	       "Finished listener not listening on a state variable.");
-    if(expression->getValue() == StateVariable::FINISHED())
-      m_cond.incrementCount(expression);
-    else
-      m_cond.decrementCount(expression);
+	double newValue = expression->getValue();
+    if (newValue == StateVariable::FINISHED() && m_lastValue != newValue) {
+      debugMsg("AllChildrenFinished:increment",
+			   "State var " << expression->toString() << " is now FINISHED.  Incrementing count.");
+      m_cond.incrementCount();
+	}
+    else if (m_lastValue == StateVariable::FINISHED() && m_lastValue != newValue) {
+	  debugMsg("AllChildrenFinished:decrement",
+			   "State var " << expression->toString() << " is no longer FINISHED.  Decrementing count.");
+      m_cond.decrementCount();
+	}
+	m_lastValue = newValue;
   }
 
   void AllChildrenFinishedCondition::print(std::ostream& s) const 
@@ -518,100 +507,98 @@ namespace PLEXIL
 
   /***************************/
 
-  AllChildrenWaitingOrFinishedCondition::AllChildrenWaitingOrFinishedCondition(std::vector<NodeId>& children)
-    : Calculable(), m_listener(*this), m_total(0), m_count(0), m_constructed(false) {
-    for(std::vector<NodeId>::iterator it = children.begin(); it != children.end(); ++it) {
-      NodeId child = *it;
+  AllChildrenWaitingOrFinishedCondition::AllChildrenWaitingOrFinishedCondition(const std::vector<NodeId>& children)
+    : Calculable(),
+	  m_total(children.size()),
+	  m_count(0),
+	  m_stateVariables(children.size(), VariableId::noId()),
+	  m_childListeners(children.size(), ExpressionListenerId::noId())
+  {
+    for (size_t i = 0; i < m_total; i++) {
+      const NodeId& child = children[i];
       check_error(child.isValid());
-      addChild(child);
+	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
+	  check_error(sv.isValid());
+	  ExpressionListenerId listener = m_childListeners[i] = (new WaitingOrFinishedListener(*this))->getId();
+	  sv->addListener(listener);
     }
     internalSetValue(recalculate());
-    m_constructed = true;
   }
 
-  AllChildrenWaitingOrFinishedCondition::~AllChildrenWaitingOrFinishedCondition() {
-    for(std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
-      NodeId child = *it;
-      child->getStateVariable()->removeListener(m_listener.getId());
+  AllChildrenWaitingOrFinishedCondition::~AllChildrenWaitingOrFinishedCondition()
+  {
+	for (size_t i = 0; i < m_total; i++) {
+      m_stateVariables[i]->removeListener(m_childListeners[i]);
+	  delete (ExpressionListener*) m_childListeners[i];
     }
   }
 
-  void AllChildrenWaitingOrFinishedCondition::addChild(const NodeId& node) {
-    m_children.push_back(node);
-    ++m_total;
-    node->getStateVariable()->addListener(m_listener.getId());
-    if(m_constructed) {
-      const LabelStr& state = node->getStateName();
-      if (state == StateVariable::WAITING() ||
-	  state == StateVariable::FINISHED())
-	incrementCount(node->getStateVariable());
-      else if(getValue() == BooleanVariable::TRUE_VALUE())
-	internalSetValue(BooleanVariable::FALSE_VALUE());
-    }
+  void AllChildrenWaitingOrFinishedCondition::incrementCount()
+  {
+	m_count++;
+	checkError(m_count <= m_total,
+			   "Internal error: somehow counted more nodes in finished than were actually there.");
+	if (m_count == m_total) {
+	  debugMsg("AllChildrenWaitingOrFinished:increment",
+			   "Counted " << m_count << " children waiting or finished of " << m_total <<
+			   ".  Setting TRUE.");
+	  internalSetValue(BooleanVariable::TRUE_VALUE());
+	}
   }
 
-  void AllChildrenWaitingOrFinishedCondition::incrementCount(const ExpressionId& expr) {
-    if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = UNKNOWN();
-    if((expr->getValue() == StateVariable::WAITING() || expr->getValue() == StateVariable::FINISHED()) &&
-       !(m_lastValues[expr] == StateVariable::WAITING() || m_lastValues[expr] == StateVariable::FINISHED())) {
-      m_count++;
-      checkError(m_count <= m_total,
-		 "Error: somehow counted more nodes in waiting or finished than were actually there.");
-      if(m_count == m_total)
-	internalSetValue(BooleanVariable::TRUE_VALUE());
-    }
-    m_lastValues[expr] = expr->getValue();
+  void AllChildrenWaitingOrFinishedCondition::decrementCount()
+  {
+	checkError(m_count > 0,
+			   "Internal error: somehow counted more nodes unfinished than were actually there.");
+	m_count--;
+	if (getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("AllChildrenWaitingOrFinished:decrement",
+			   m_count << " children of " << m_total << " are WAITING or FINISHED.  Setting FALSE.");
+	  internalSetValue(BooleanVariable::FALSE_VALUE());
+	}
   }
 
-  void AllChildrenWaitingOrFinishedCondition::decrementCount(const ExpressionId& expr) {
-    if(m_lastValues.find(expr) == m_lastValues.end())
-      m_lastValues[expr] = UNKNOWN();
-    if(!(expr->getValue() == StateVariable::WAITING() || expr->getValue() == StateVariable::FINISHED()) &&
-       (m_lastValues[expr] == StateVariable::WAITING() || m_lastValues[expr] == StateVariable::FINISHED())) {
-      m_count--;
-      checkError(m_count <= m_total,
-		 "Error: somehow counted more nodes in waiting or finished than were actually there.");
-      if(getValue() == BooleanVariable::TRUE_VALUE())
-	internalSetValue(BooleanVariable::FALSE_VALUE());
-    }
-    m_lastValues[expr] = expr->getValue();
-  }
-
-  void AllChildrenWaitingOrFinishedCondition::handleActivate(const bool changed) {
-    if(changed)
-      m_listener.activate();
+  void AllChildrenWaitingOrFinishedCondition::handleActivate(const bool changed)
+  {
+    if (changed) {
+	  for (size_t i = 0 ; i < m_total; i++)
+		m_childListeners[i]->activate();
+	}
     Calculable::handleActivate(changed);
   }
 
-  void AllChildrenWaitingOrFinishedCondition::handleDeactivate(const bool changed) {
-    if(changed)
-      m_listener.deactivate();
+  void AllChildrenWaitingOrFinishedCondition::handleDeactivate(const bool changed)
+  {
+    if (changed) {
+	  for (size_t i = 0 ; i < m_total; i++)
+		m_childListeners[i]->deactivate();
+	}
     Calculable::handleDeactivate(changed);
   }
 
-  double AllChildrenWaitingOrFinishedCondition::recalculate() {
+  double AllChildrenWaitingOrFinishedCondition::recalculate()
+  {
     m_count = 0;
-    for(std::vector<NodeId>::const_iterator it = m_children.begin(); it != m_children.end();
-	++it) {
-      NodeId child = *it;
-      check_error(child.isValid());
-      ExpressionId expr = child->getStateVariable();
-      if(m_lastValues.find(expr) == m_lastValues.end())
-	m_lastValues[expr] = UNKNOWN();
-      m_lastValues[expr] = expr->getValue();
-
-      if(m_lastValues[expr] == StateVariable::WAITING() ||
-	 m_lastValues[expr] == StateVariable::FINISHED())
-	++m_count;
+    for (size_t i = 0; i < m_total; i++) {
+	  VariableId sv = m_stateVariables[i];
+      check_error(sv.isValid());
+	  double value = sv->getValue();
+	  ((WaitingOrFinishedListener*) m_childListeners[i])->setLastValue(value);
+      if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
+		++m_count;
     }
-    checkError(m_count <= m_total,
-	       "Error: somehow counted more nodes in waiting or finished (" << m_count <<
-	       ") than were actually there (" << m_total << ").");
-    if(m_count == m_total)
+    if (m_count == m_total) {
+      debugMsg("AllChildrenWaitingOrFinished:recalculate",
+	       "Counted " << m_count << " of " << m_total <<
+	       " children WAITING or FINISHED.  Setting TRUE.");
       return BooleanVariable::TRUE_VALUE();
-    else
+    }
+    else {
+      debugMsg("AllChildrenWaitingOrFinished:recalculate",
+	       "Counted " << m_count << " of " << m_total <<
+	       " children WAITING or FINISHED.  Setting FALSE.");
       return BooleanVariable::FALSE_VALUE();
+    }
   }
 
   bool AllChildrenWaitingOrFinishedCondition::checkValue(const double val) {
@@ -620,18 +607,27 @@ namespace PLEXIL
   }
 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond)
-    : ExpressionListener(), m_cond(cond) {}
+    : ExpressionListener(), m_cond(cond), m_lastValue(UNKNOWN())
+  {
+  }
 
   void 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::notifyValueChanged(const ExpressionId& expression)
   {
-    checkError(dynamic_cast<StateVariable*>((Expression*)expression) != NULL,
-	       "Waiting or finished listener not listening on a state variable.");
-    if(expression->getValue() == StateVariable::WAITING() ||
-       expression->getValue() == StateVariable::FINISHED())
-      m_cond.incrementCount(expression);
-    else
-      m_cond.decrementCount(expression);
+	bool was = m_lastValue == StateVariable::WAITING() || m_lastValue == StateVariable::FINISHED();
+	double newValue = expression->getValue();
+	bool is = newValue == StateVariable::WAITING() || newValue == StateVariable::FINISHED();
+    if (is && !was) {
+      debugMsg("AllChildrenWaitingOrFinished:increment",
+			   "State var " << expression->toString() << " is now WAITING or FINISHED.  Incrementing count.");
+      m_cond.incrementCount();
+	}
+    else if (was && !is) {
+	  debugMsg("AllChildrenWaitingOrFinished:decrement",
+			   "State var " << expression->toString() << " is no longer WAITING orFINISHED.  Decrementing count.");
+      m_cond.decrementCount();
+	}
+	m_lastValue = newValue;
   }
 
   void AllChildrenWaitingOrFinishedCondition::print(std::ostream& s) const
