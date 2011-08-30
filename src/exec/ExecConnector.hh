@@ -41,7 +41,7 @@ namespace PLEXIL
     virtual ~ExecConnector() {m_id.remove();}
     const ExecConnectorId& getId() const {return m_id;}
     virtual void notifyNodeConditionChanged(NodeId node) = 0;
-    virtual void handleConditionsChanged(const NodeId& node) = 0;
+    virtual void handleConditionsChanged(const NodeId& node, NodeState newState) = 0;
 
 	/**
 	 * @brief Schedule this assignment for execution.

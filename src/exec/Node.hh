@@ -150,7 +150,7 @@ namespace PLEXIL {
      * @brief Commit a state transition based on the statuses of various conditions.
 	 * @note See the various state graphs.
      */
-    void transition(const double time = 0.0);
+    void transition(NodeState destState, const double time = 0.0);
 
     /**
      * @brief Handle the node exiting its current state.

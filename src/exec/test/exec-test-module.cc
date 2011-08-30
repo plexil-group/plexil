@@ -1044,7 +1044,7 @@ public:
   }
 
   void notifyNodeConditionChanged(NodeId /* node */) {}
-  void handleConditionsChanged(const NodeId& /* node */) {}
+  void handleConditionsChanged(const NodeId& /* node */, NodeState /* newState */) {}
   void enqueueAssignment(const AssignmentId& /* assign */) {}
   void enqueueCommand(const CommandId& /* cmd */) {}
   void enqueueUpdate(const UpdateId& /* update */) {}
@@ -1237,7 +1237,7 @@ class TransitionExecConnector : public ExecConnector {
 public:
   TransitionExecConnector() : ExecConnector(), m_executed(false) {}
   void notifyNodeConditionChanged(NodeId /* node */) {}
-  void handleConditionsChanged(const NodeId& /* node */) {}
+  void handleConditionsChanged(const NodeId& /* node */, NodeState /* newState */) {}
   void enqueueAssignment(const AssignmentId& /* assign */) {}
   void enqueueCommand(const CommandId& /* cmd */) {}
   void enqueueUpdate(const UpdateId& /* update */) {}
@@ -1337,7 +1337,7 @@ private:
 	  node->getParentFinishedCondition()->setValue(values[parentFinished]);
 	  
 	  if(node->canTransition()) {
-	    node->transition();
+	    node->transition(node->getDestState());
 	    NodeState state = node->getState();
 	    assertTrue(!node->getParentExecutingCondition()->isActive());
 	    if(parentFinished == IDX_TRUE) {
@@ -1448,7 +1448,7 @@ for(int skip = 0; skip < 3; ++skip) {
              " start = " << values[start] << " pre = " << values[pre] );
 
 	      if(node->canTransition()) {
-		node->transition();
+		node->transition(node->getDestState());
 		NodeState state = node->getState();
 
 
@@ -1559,7 +1559,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		     " ancestor end = " << values[ancestorEnd] << " repeat = " << values[repeat]);
 
 	    if(node->canTransition()) {
-	      node->transition();
+	      node->transition(node->getDestState());
 	      NodeState state = node->getState();
 
 	      //should probably check to make sure the reset happened here
@@ -1626,7 +1626,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		 "Testing node type " << types[i].toString() << " with parent waiting = " << values[parentWaiting]);
 
 	if(node->canTransition()) {
-	  node->transition();
+	  node->transition(node->getDestState());
 	  NodeState state = node->getState();
 
 
@@ -1707,7 +1707,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		     values[end] << " post = " << values[post]);
 
 	    if(node->canTransition()) {
-	      node->transition();
+	      node->transition(node->getDestState());
 	      NodeState state = node->getState();
 	      assertTrue(node->getChildrenWaitingOrFinishedCondition()->isActive());
 	      if(ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
@@ -1793,7 +1793,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		 "Testing with children waiting or finished = " << values[children] << " failure type = " << failureType[i].toString());
 
 	if(node->canTransition()) {
-	  node->transition();
+	  node->transition(node->getDestState());
 	  NodeState state = node->getState();
 
 	  if(children == IDX_TRUE) {
@@ -1895,7 +1895,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		     values[children] << " post = " << values[post]);
 
 	    if(node->canTransition()) {
-	      node->transition();
+	      node->transition(node->getDestState());
 	      NodeState state = node->getState();
 
 	      if(ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
@@ -2004,7 +2004,7 @@ for(int skip = 0; skip < 3; ++skip) {
 					 " end = " << values[end] << " post = " << values[post]);
 
 			if(node->canTransition()) {
-			  node->transition();
+			  node->transition(node->getDestState());
 			  NodeState state = node->getState();
 
 			  if(ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
@@ -2131,7 +2131,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		       " invariant = " << values[invariant] << " end = " << values[end] << " post = " << values[post]);
 
 	      if(node->canTransition()) {
-		node->transition();
+		node->transition(node->getDestState());
 		NodeState state = node->getState();
 		if(ancestorInvariant == IDX_FALSE) {
 		  assertTrue(node->getOutcome() == OutcomeVariable::FAILURE());
@@ -2240,7 +2240,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		   "Testing node type " << types[i].toString() << " with abort complete = " << values[abort] << " failure type = " << failureTypes[failure].toString());
 
 	  if(node->canTransition()) {
-	    node->transition();
+	    node->transition(node->getDestState());
 	    NodeState state = node->getState();
 
 	    if(abort == IDX_TRUE) {

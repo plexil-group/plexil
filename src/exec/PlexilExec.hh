@@ -199,7 +199,7 @@ namespace PLEXIL
      * Adds assignment nodes that are eligible for execution to the resource conflict map.
      * @param node The node which is eligible for state change.
      */
-    void handleConditionsChanged(const NodeId node);
+    void handleConditionsChanged(const NodeId& node, NodeState newState);
 
     //const ExpressionId& findVariable(const LabelStr& name);
 
@@ -244,6 +244,8 @@ namespace PLEXIL
      */
     int inQueue(const NodeId node) const;
 
+	typedef std::map<unsigned int, NodeTransition> StateChangeQueue;
+
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
     ExecConnectorId m_connector;
@@ -252,7 +254,7 @@ namespace PLEXIL
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     std::vector<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     //std::list<NodeId> m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
-    std::map<unsigned int, NodeId> m_stateChangeQueue;
+    StateChangeQueue m_stateChangeQueue;
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;

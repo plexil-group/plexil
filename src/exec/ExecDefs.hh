@@ -123,7 +123,11 @@ namespace PLEXIL {
    */
   struct NodeTransition {
 	NodeId node;
-	NodeState oldState;
+	NodeState state;
+	// default constructor
+	NodeTransition() : node(), state(INACTIVE_STATE) {}
+	// trivial constructor
+	NodeTransition(const NodeId& nod, NodeState stat) : node(nod), state(stat) {}
   };
 
 }

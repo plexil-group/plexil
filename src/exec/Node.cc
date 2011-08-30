@@ -722,7 +722,7 @@ namespace PLEXIL {
       if (toState != NO_NODE_STATE ||
 		  (toState == NO_NODE_STATE &&
 		   m_lastQuery != NO_NODE_STATE))
-		m_exec->handleConditionsChanged(m_id);
+		m_exec->handleConditionsChanged(m_id, toState);
       m_lastQuery = toState;
     }
   }
@@ -928,7 +928,7 @@ namespace PLEXIL {
     return toState != NO_NODE_STATE && toState != m_state;
   }
 
-  void Node::transition(const double time) 
+  void Node::transition(NodeState destState, const double time) 
   {
     checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
 			   "Node state not synchronized for node " << m_nodeId.toString()
@@ -939,7 +939,6 @@ namespace PLEXIL {
 
     m_transitioning = true;
     NodeState prevState = m_state;
-	NodeState destState = getDestState();
     checkError(destState != NO_NODE_STATE
 			   && destState != m_state,
 			   "Attempted to transition node " << m_nodeId.toString() <<

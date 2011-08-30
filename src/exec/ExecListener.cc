@@ -215,14 +215,14 @@ namespace PLEXIL
 	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
 		   it != transitions.end();
 		   it++) 
-		this->implementNotifyNodeTransition(it->oldState, it->node);
+		this->implementNotifyNodeTransition(it->state, it->node);
 	}
 	else {
 	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
 		   it != transitions.end();
 		   it++)
-		if (m_filter->reportNodeTransition(it->oldState, it->node))
-		  this->implementNotifyNodeTransition(it->oldState, it->node);
+		if (m_filter->reportNodeTransition(it->state, it->node))
+		  this->implementNotifyNodeTransition(it->state, it->node);
 	}
   }
 

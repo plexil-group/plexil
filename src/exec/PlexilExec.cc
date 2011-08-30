@@ -66,9 +66,9 @@ namespace PLEXIL {
       m_exec->notifyNodeConditionChanged(node);
     }
 
-    void handleConditionsChanged(const NodeId& node) 
+    void handleConditionsChanged(const NodeId& node, NodeState newState) 
     {
-      m_exec->handleConditionsChanged(node);
+      m_exec->handleConditionsChanged(node, newState);
     }
 
 	/**
@@ -271,12 +271,12 @@ namespace PLEXIL {
 
   //as a possible optimization, if we spend a lot of time searching through this list,
   //it should be faster to search the list backwards.
-  void PlexilExec::handleConditionsChanged(const NodeId node) {
+  void PlexilExec::handleConditionsChanged(const NodeId& node, NodeState destState) 
+  {
     check_error(node.isValid());
     debugMsg("PlexilExec:handleConditionsChanged",
 			 "Node " << node->getNodeId().toString() << " had a relevant condition change.");
 
-    NodeState destState = node->getDestState();
     if (destState == NO_NODE_STATE) {
       debugMsg("PlexilExec:handleConditionsChanged",
 			   "Node '" << node->getNodeId().toString() <<
@@ -332,7 +332,7 @@ namespace PLEXIL {
       debugMsg("PlexilExec:handleConditionsChanged",
 			   "Placing node '" << node->getNodeId().toString() <<
 			   "' on the state change queue in position " << m_queuePos);
-      m_stateChangeQueue.insert(std::pair<unsigned int, NodeId>(m_queuePos++, node));
+      m_stateChangeQueue[m_queuePos++] = NodeTransition(node, destState);
     }
   }
 
@@ -483,23 +483,25 @@ namespace PLEXIL {
 		for (std::vector<NodeId>::iterator nodeIt = changedNodes.begin();
 			 nodeIt != changedNodes.end();
 			 nodeIt++)
-		  (*nodeIt)->checkConditions();
+		  (*nodeIt)->checkConditions(); // modifies m_stateChangeQueue, m_resourceConflicts
       }
       while (!m_nodesToConsider.empty());
 
+	  // Sort out (literally) Assignment nodes by priority
       resolveResourceConflicts();
+
       if(m_stateChangeQueue.empty())
 		break; // exit quiescence loop
-      std::list<NodeId> transitioningNodes;
+      std::list<NodeTransition> transitioningNodes;
       std::transform(m_stateChangeQueue.begin(), m_stateChangeQueue.end(),
-					 std::back_insert_iterator<std::list<NodeId> >(transitioningNodes),
-					 select2nd<std::map<unsigned int, NodeId>::value_type>());
+					 std::back_insert_iterator<std::list<NodeTransition> >(transitioningNodes),
+					 select2nd<StateChangeQueue::value_type>());
       m_stateChangeQueue.clear();
 
       std::ostringstream out;
-      for(std::list<NodeId>::const_iterator it = transitioningNodes.begin();
+      for(std::list<NodeTransition>::const_iterator it = transitioningNodes.begin();
 		  it != transitioningNodes.end(); ++it) {
-		out << (*it)->getNodeId().toString() << " ";
+		out << it->node->getNodeId().toString() << " ";
       }
       debugMsg("PlexilExec:step",
 			   "[" << m_cycleNum << ":" << stepCount << "] State change queue: " << out.str());
@@ -508,9 +510,9 @@ namespace PLEXIL {
       std::set<NodeId> transitionedNodes;
 
       //lock the nodes into their current transitioning states
-      for(std::list<NodeId>::iterator it = transitioningNodes.begin();
+      for(std::list<NodeTransition>::iterator it = transitioningNodes.begin();
 		  it != transitioningNodes.end(); ++it) {
-		NodeId node = *it;
+		const NodeId& node = it->node;
 		check_error(node.isValid());
 		debugMsg("PlexilExec:lock",
 				 "Locking node " << node->getNodeId().toString());
@@ -522,10 +524,10 @@ namespace PLEXIL {
 	  transitionsToPublish.reserve(transitioningNodes.size());
 
       //transition them
-      for (std::list<NodeId>::iterator it = transitioningNodes.begin();
+      for (std::list<NodeTransition>::iterator it = transitioningNodes.begin();
 		   it != transitioningNodes.end();
 		   ++it) {
-		NodeId node = *it;
+		const NodeId& node = it->node;
 		check_error(node.isValid());
 		checkError(transitionedNodes.find(node) == transitionedNodes.end(),
 				   "Node " << node->getNodeId().toString() <<
@@ -534,9 +536,8 @@ namespace PLEXIL {
 				 "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
 				 "] Transitioning node " << node->getNodeId().toString());
 		NodeState oldState = node->getState();
-		node->transition(quiescenceTime);
-		NodeTransition t = {node, oldState};
-		transitionsToPublish.push_back(t);
+		node->transition(it->state, quiescenceTime);
+		transitionsToPublish.push_back(NodeTransition(node, oldState));
 		transitionedNodes.insert(node);
 		++microStepCount;
       }
@@ -545,9 +546,9 @@ namespace PLEXIL {
 		m_listener->notifyOfTransitions(transitionsToPublish);
 
       //unlock the nodes
-      for(std::list<NodeId>::iterator it = transitioningNodes.begin();
+      for(std::list<NodeTransition>::iterator it = transitioningNodes.begin();
 		  it != transitioningNodes.end(); ++it) {
-		NodeId node = *it;
+		const NodeId& node = it->node;
 		check_error(node.isValid());
 		debugMsg("PlexilExec:unlock",
 				 "Unlocking node " << node->getNodeId().toString());
@@ -625,17 +626,17 @@ namespace PLEXIL {
 	  NodeId node = *conflictIt;
       
 	  check_error(node.isValid());
-	  checkError(node->getState() == EXECUTING_STATE ||
-		     node->getDestState() == EXECUTING_STATE,
-		     "Error: node '" << node->getNodeId().toString() <<
-		     " is neither executing nor is it eligible to do so, yet it is in the " <<
-		     "conflict map.");
 
 	  // Found one that is scheduled to for execution
 	  if (node->getDestState() == EXECUTING_STATE)
 	    ++conflictCounter;
+	  else 
+		checkError(node->getState() == EXECUTING_STATE,
+				   "Error: node '" << node->getNodeId().toString() <<
+				   " is neither executing nor is it eligible to do so, yet it is in the " <<
+				   "conflict map.");
 
-	  // If more than one node is sceduled for execution, we have a resource contention.
+	  // If more than one node is scheduled for execution, we have a resource contention.
 	  checkError(conflictCounter < 2,
 		     "Error: node '" << node->getNodeId().toString() << " and the node "
 		     << nodeToExecute->getNodeId().toString() << " are in contention over variable "
@@ -647,7 +648,7 @@ namespace PLEXIL {
 	debugMsg("PlexilExec:resolveResourceConflicts",
 		 "Node '" << nodeToExecute->getNodeId().toString() <<
 		 "' has best priority.  Adding it to be executed in position " << m_queuePos);
-	m_stateChangeQueue.insert(std::pair<unsigned int, NodeId>(m_queuePos++, nodeToExecute));
+	m_stateChangeQueue[m_queuePos++] = NodeTransition(nodeToExecute, EXECUTING_STATE);
       }
       else {
 	condDebugMsg(nodeToExecute->getState() == EXECUTING_STATE,
@@ -680,18 +681,18 @@ namespace PLEXIL {
 
   std::string PlexilExec::stateChangeQueueStr() {
     std::ostringstream retval;
-    for(std::map<unsigned int, NodeId>::const_iterator it = m_stateChangeQueue.begin();
+    for(StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
 	it != m_stateChangeQueue.end(); ++it) {
-      check_error(it->second.isValid());
-      retval << "(" << it->first << ")'" << it->second->getNodeId().toString() << "' ";
+      check_error(it->second.node.isValid());
+      retval << "(" << it->first << ")'" << it->second.node->getNodeId().toString() << "' ";
     }
     return retval.str();
   }
 
   int PlexilExec::inQueue(const NodeId node) const {
-    for(std::map<unsigned int, NodeId>::const_iterator it = m_stateChangeQueue.begin();
+    for(StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
 	it != m_stateChangeQueue.end(); ++it)
-      if(it->second == node)
+      if(it->second.node == node)
 	return it->first;
     return -1;
   }
