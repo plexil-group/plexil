@@ -383,14 +383,14 @@ namespace PLEXIL
 	  m_total(children.size()),
 	  m_count(0),
 	  m_stateVariables(children.size(), VariableId::noId()),
-	  m_childListeners(children.size(), ExpressionListenerId::noId())
+	  m_childListeners(children.size(), NULL)
   {
     for (size_t i = 0; i < m_total; i++) {
       const NodeId& child = children[i];
       check_error(child.isValid());
 	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
 	  check_error(sv.isValid());
-	  ExpressionListenerId listener = m_childListeners[i] = (new FinishedListener(*this))->getId();
+	  ExpressionListenerId listener = (m_childListeners[i] = new FinishedListener(*this))->getId();
 	  sv->addListener(listener);
     }
     internalSetValue(recalculate());
@@ -399,8 +399,8 @@ namespace PLEXIL
   AllChildrenFinishedCondition::~AllChildrenFinishedCondition() 
   {
 	for (size_t i = 0; i < m_total; i++) {
-      m_stateVariables[i]->removeListener(m_childListeners[i]);
-	  delete (ExpressionListener*) m_childListeners[i];
+      m_stateVariables[i]->removeListener(m_childListeners[i]->getId());
+	  delete m_childListeners[i];
     }
   }
 
@@ -454,7 +454,7 @@ namespace PLEXIL
 	  VariableId sv = m_stateVariables[i];
       check_error(sv.isValid());
 	  double value = sv->getValue();
-	  ((FinishedListener*) m_childListeners[i])->setLastValue(value);
+	  m_childListeners[i]->setLastValue(value);
       if (value == StateVariable::FINISHED())
 		++m_count;
     }
@@ -512,14 +512,14 @@ namespace PLEXIL
 	  m_total(children.size()),
 	  m_count(0),
 	  m_stateVariables(children.size(), VariableId::noId()),
-	  m_childListeners(children.size(), ExpressionListenerId::noId())
+	  m_childListeners(children.size(), NULL)
   {
     for (size_t i = 0; i < m_total; i++) {
       const NodeId& child = children[i];
       check_error(child.isValid());
 	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
 	  check_error(sv.isValid());
-	  ExpressionListenerId listener = m_childListeners[i] = (new WaitingOrFinishedListener(*this))->getId();
+	  ExpressionListenerId listener = (m_childListeners[i] = new WaitingOrFinishedListener(*this))->getId();
 	  sv->addListener(listener);
     }
     internalSetValue(recalculate());
@@ -528,8 +528,8 @@ namespace PLEXIL
   AllChildrenWaitingOrFinishedCondition::~AllChildrenWaitingOrFinishedCondition()
   {
 	for (size_t i = 0; i < m_total; i++) {
-      m_stateVariables[i]->removeListener(m_childListeners[i]);
-	  delete (ExpressionListener*) m_childListeners[i];
+      m_stateVariables[i]->removeListener(m_childListeners[i]->getId());
+	  delete m_childListeners[i];
     }
   }
 
@@ -583,7 +583,7 @@ namespace PLEXIL
 	  VariableId sv = m_stateVariables[i];
       check_error(sv.isValid());
 	  double value = sv->getValue();
-	  ((WaitingOrFinishedListener*) m_childListeners[i])->setLastValue(value);
+	  m_childListeners[i]->setLastValue(value);
       if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
 		++m_count;
     }

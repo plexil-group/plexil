@@ -264,7 +264,7 @@ namespace PLEXIL {
 	const unsigned int m_total;
 	unsigned int m_count;
 	std::vector<VariableId> m_stateVariables;
-	std::vector<ExpressionListenerId> m_childListeners;
+	std::vector<FinishedListener*> m_childListeners;
   };
 
   class AllChildrenWaitingOrFinishedCondition : public Calculable 
@@ -305,7 +305,7 @@ namespace PLEXIL {
     const unsigned int m_total;
     unsigned int m_count;
     std::vector<VariableId> m_stateVariables;
-	std::vector<ExpressionListenerId> m_childListeners;
+	std::vector<WaitingOrFinishedListener*> m_childListeners;
   };
 
   //used for EQInternal and NEQInternal
