@@ -458,24 +458,20 @@ namespace PLEXIL {
 	  // Construct ancestor invariant and ancestor end
 	  // Both were previously set to constants in setConditionDefaults()
 	  ExpressionId ancestorInvariant =
-		(new Conjunction((new TransparentWrapper(m_parent->getAncestorInvariantCondition(),
-												 m_connector))->getId(),
-						 true,
-						 (new TransparentWrapper(m_parent->getInvariantCondition(),
-												 m_connector))->getId(),
-						 true))->getId();
+		(new Conjunction(m_parent->getAncestorInvariantCondition(),
+						 false,
+						 m_parent->getInvariantCondition(),
+						 false))->getId();
 	  ExpressionListenerId ancestorInvariantListener = m_listeners[ancestorInvariantIdx];
 	  ancestorInvariant->addListener(ancestorInvariantListener);
 	  m_conditions[ancestorInvariantIdx] = ancestorInvariant;
 	  m_garbageConditions[ancestorInvariantIdx] = true;;
 
 	  ExpressionId ancestorEnd =
-		(new Disjunction((new TransparentWrapper(m_parent->getAncestorEndCondition(),
-												 m_connector))->getId(),
-						 true,
-						 (new TransparentWrapper(m_parent->getEndCondition(),
-												 m_connector))->getId(),
-						 true))->getId();
+		(new Disjunction(m_parent->getAncestorEndCondition(),
+						 false,
+						 m_parent->getEndCondition(),
+						 false))->getId();
 	  ExpressionListenerId ancestorEndListener = m_listeners[ancestorEndIdx];
 	  ancestorEnd->addListener(ancestorEndListener);
 	  m_conditions[ancestorEndIdx] = ancestorEnd;
