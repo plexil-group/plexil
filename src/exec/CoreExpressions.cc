@@ -61,31 +61,31 @@ namespace PLEXIL
   void TransparentWrapper::commonInit(const ExpressionId& exp)
   {
     debugMsg("TransparentWrapper:TransparentWrapper",
-	     "Constructing a transparent wrapper around " << exp->toString());
+	     "Constructing a transparent wrapper around " << *exp);
     m_exp->addListener(m_listener.getId());
        //m_listener.activate();
     m_value = exp->getValue();
     debugMsg("TransparentWrapper:TransparentWrapper",
-	     "Constructed " << toString());
+	     "Constructed " << *this);
   }
 
   void TransparentWrapper::setValue(const double value) {
     debugMsg("TransparentWrapper:setValue",
-			 "Setting " << toString() << " to value " << Expression::valueToString(value));
+			 "Setting " << *this << " to value " << Expression::valueToString(value));
     internalSetValue(value);
     m_exp->setValue(value);
   }
 
   bool TransparentWrapper::checkValue(const double value) {
     debugMsg("TransparentWrapper:checkValue",
-			 "Checking " << toString() << " value " << Expression::valueToString(value));
+			 "Checking " << *this << " value " << Expression::valueToString(value));
     return m_exp->checkValue(value);
   }
 
   void TransparentWrapper::print(std::ostream& s) const
   {
 	s << "TransparentWrapper(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
-	  "T]{" << valueString() <<"}(" << m_exp->toString() << "))";
+	  "T]{" << valueString() <<"}(" << m_exp << "))";
   }
 
   std::string TransparentWrapper::valueString() const {
@@ -106,8 +106,8 @@ namespace PLEXIL
 
   void TransparentWrapper::handleChange(const ExpressionId& expression) {
     debugMsg("TransparentWrapper:handleChange",
-	     "Changing from wrapped value of " << toString() << " to " <<
-	     expression->toString());
+			 "Changing wrapped value of " << *this << " to " <<
+			 expression->valueString());
     internalSetValue(expression->getValue());
   }
 
@@ -488,12 +488,12 @@ namespace PLEXIL
 	double newValue = expression->getValue();
     if (newValue == StateVariable::FINISHED() && m_lastValue != newValue) {
       debugMsg("AllChildrenFinished:increment",
-			   "State var " << expression->toString() << " is now FINISHED.  Incrementing count.");
+			   "State var " << *expression << " is now FINISHED.  Incrementing count.");
       m_cond.incrementCount();
 	}
     else if (m_lastValue == StateVariable::FINISHED() && m_lastValue != newValue) {
 	  debugMsg("AllChildrenFinished:decrement",
-			   "State var " << expression->toString() << " is no longer FINISHED.  Decrementing count.");
+			   "State var " << *expression << " is no longer FINISHED.  Decrementing count.");
       m_cond.decrementCount();
 	}
 	m_lastValue = newValue;
@@ -619,12 +619,12 @@ namespace PLEXIL
 	bool is = newValue == StateVariable::WAITING() || newValue == StateVariable::FINISHED();
     if (is && !was) {
       debugMsg("AllChildrenWaitingOrFinished:increment",
-			   "State var " << expression->toString() << " is now WAITING or FINISHED.  Incrementing count.");
+			   "State var " << *expression << " is now WAITING or FINISHED.  Incrementing count.");
       m_cond.incrementCount();
 	}
     else if (was && !is) {
 	  debugMsg("AllChildrenWaitingOrFinished:decrement",
-			   "State var " << expression->toString() << " is no longer WAITING orFINISHED.  Decrementing count.");
+			   "State var " << *expression << " is no longer WAITING orFINISHED.  Decrementing count.");
       m_cond.decrementCount();
 	}
 	m_lastValue = newValue;
@@ -664,7 +664,7 @@ namespace PLEXIL
       bool garbage = false;
       ExpressionId subExpr = getSubexpression(*it, node, garbage);
       debugMsg("InternalCondition:InternalCondition",
-	       "Adding " << subExpr->toString() << " as " << (garbage ? "" : "non-") << " garbage.");
+			   "Adding " << *subExpr << " as " << (garbage ? "" : "non-") << " garbage.");
       if(garbage)
 	m_garbage.insert(subExpr);
       if(first) {

@@ -220,6 +220,19 @@ namespace PLEXIL {
      */
     virtual std::string valueString() const;
 
+	/**
+	 * @brief Print the value to the given stream.
+	 * @param s The output stream.
+	 * @param value The value.
+	 */
+	static void formatValue(std::ostream& s, const double value);
+
+	/**
+	 * @brief Print the expression's value to the given stream.
+	 * @param s The output stream.
+	 */
+	virtual void printValue(std::ostream& s) const;
+
     /**
      * @brief Get a string representation of the double value.
      * @return The string representation.

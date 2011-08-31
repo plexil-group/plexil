@@ -291,6 +291,12 @@ namespace PLEXIL
      */
     void print(std::ostream& s) const;
 
+	/**
+	 * @brief Print the variable's value to the given stream.
+	 * @param s The output stream.
+	 */
+	virtual void printValue(std::ostream& s) const;
+
     /**
      * @brief Get a string representation of the value of this Variable.
      * @return The string representation.

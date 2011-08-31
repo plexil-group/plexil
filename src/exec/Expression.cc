@@ -141,7 +141,9 @@ namespace PLEXIL {
   {
     s << "(" << getId()
 	  << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u")
-	  << "](" << valueString() << "): ";
+	  << "](";
+	printValue(s);
+	s << "): ";
   }
 
   std::string Expression::toString() const {
@@ -156,25 +158,39 @@ namespace PLEXIL {
 	return s;
   }
 
-  // Much-needed static member function to construct the One True Printed Representation of a value.
+  // Much-needed static member function to print the One True Printed Representation of a value.
 
-  std::string Expression::valueToString(const double val) {
+  void Expression::formatValue(std::ostream& s, const double val) 
+  {
 	if (val == UNKNOWN())
-	  return std::string("UNKNOWN");
+	  s << "UNKNOWN";
     else if (LabelStr::isString(val))
-      return std::string(LabelStr(val).toString());
+      s << LabelStr(val).toString();
     else if (StoredArray::isKey(val))
-      return StoredArray(val).toString();
+	  s << StoredArray(val).toString();
 	// below this point must be a number
     else if (val == REAL_PLUS_INFINITY)
-      return std::string("inf");
+      s << "inf";
     else if (val == REAL_MINUS_INFINITY)
-      return std::string("-inf");
+      s << "-inf";
 	else {
-	  std::ostringstream str;
-      str << std::setprecision(15) << val;
-	  return str.str();
+	  // Print floats with max precision - they may be times.
+      s << std::setprecision(15) << val;
 	}
+  }
+
+  // Much-needed static member function to construct the One True Printed Representation of a value.
+
+  std::string Expression::valueToString(const double value) 
+  {
+	std::ostringstream str;
+	formatValue(str, value);
+	return str.str();
+  }
+
+  void Expression::printValue(std::ostream& s) const
+  {
+	formatValue(s, getValue());
   }
 
   std::string Expression::valueString() const {

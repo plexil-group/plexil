@@ -151,6 +151,15 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Print the expression's value to the given stream.
+   * @param s The output stream.
+   */
+  void VariableImpl::printValue(std::ostream& s) const
+  {
+	Expression::formatValue(s, m_value);
+  }
+
+  /**
    * @brief Get a string representation of the value of this Variable.
    * @return The string representation.
    * @note This method always uses the stored value whether or not the variable is active,

@@ -309,49 +309,7 @@ namespace PLEXIL
   void ArrayVariable::print(std::ostream& s) const 
   {
 	VariableImpl::print(s);
-    if (m_value == UNKNOWN())
-	  s << "Array: <uninited, max size = " << m_maxSize << ">";
-    else {
-	  StoredArray array(m_value);
-	  s << "Array: [";
-	  for (size_t i = 0; i < array.size(); ++i) {
-		const double& value = array.at(i);
-		if (i != 0)
-		  s << ", ";
-		if (value == UNKNOWN())
-		  s << "<unknown>";
-		else
-		  {
-			switch (m_type)
-			  {
-			  case INTEGER:
-				s << (int32_t) value;
-				break;
-			  case REAL:
-				s << value;
-				break;
-			  case BOOLEAN:
-				s << (value ? "true" : "false");
-				break;
-			  case STRING:
-				s << "\"" << LabelStr(value).toString() << "\"";
-				break;
-			  case BLOB:
-				checkError(ALWAYS_FAIL, "Blobs not supported in arrays.");
-				break;
-			  case ARRAY:
-				checkError(ALWAYS_FAIL, "Arrarys of arrays not supported.");
-				break;
-			  case TIME:
-				checkError(ALWAYS_FAIL, "TimePoints not supported in arrays.");
-				break;
-			  default:
-				s << value << "(Unknown type: " << m_type << ")";
-			  }
-		  }
-	  }
-	  s << "])";
-	}
+	s << "array)"; // contents already printed!
   }
 
   // confirm that new value to assign is valid
