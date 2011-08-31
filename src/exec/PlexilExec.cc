@@ -360,85 +360,83 @@ namespace PLEXIL {
       m_updatesToExecute.push_back(update);
   }
 
-  void PlexilExec::removeFromResourceContention(const NodeId node) {
-    check_error(node->getType() == Node::ASSIGNMENT());
+  // Assumes node is a valid ID and points to an Assignment node
+  void PlexilExec::removeFromResourceContention(const NodeId& node) 
+  {
     //this check may be too restrictive, since we'll probably use this method
     //to remove nodes when they get batch-executed.
     //check_error(node->getDestState() != EXECUTING_STATE);
 
     VariableId exp = node->getAssignmentVariable()->getBaseVariable();
-
     check_error(exp.isValid());
-    VariableConflictMap::iterator conflict =
-      m_resourceConflicts.find(exp);
-    if(conflict == m_resourceConflicts.end())
+
+    VariableConflictMap::iterator conflict = m_resourceConflicts.find(exp);
+    if (conflict == m_resourceConflicts.end())
       return;
 
-    std::multiset<NodeId, NodeConflictComparator>& conflictSet = conflict->second;
-    std::multiset<NodeId, NodeConflictComparator>::const_iterator conflictSetIter;
+	// Remove node from the conflict set.
+	// If there are multiple nodes with the same priority, find() may not point us at the one we want
+	VariableConflictSet& conflictSet = conflict->second;
+	VariableConflictSet::iterator conflictIt = conflictSet.find(node);
+	if (conflictIt == conflictSet.end())
+	  return; // already removed
 
-    if((conflictSetIter = conflictSet.find(node)) != conflictSet.end())
-      {
-        size_t count = conflictSet.count(node);
-        //        debugMsg("PlexilExec:removeFromResourceContention", "There are " << count << " similar items in the"
-        //                 << " set.");
-        bool found = false;
-        
-        for (size_t i = 0; !found && (i < count); ++i, ++conflictSetIter)
-          {
-            if (node == *conflictSetIter)
-              found = true;
-          }
-        if (found)
-          {
-            conflictSet.erase(node);
-          }
-      }
-    if(conflictSet.empty())
-      {
-        m_resourceConflicts.erase(exp);
-      }
+	if ((*conflictIt) != node) {
+	  bool found = false;
+	  conflictIt++;
+	  while (conflictIt != conflictSet.end()
+			 && (*conflictIt)->getPriority() == node->getPriority()) {
+		if (*conflictIt == node) {
+		  found = true;
+		  break;
+		}
+	  }
+	  if (!found)
+		return;
+	}
+	// Found it, delete it
+	conflictSet.erase(conflictIt);
+
+    if (conflict->second.empty())
+	  m_resourceConflicts.erase(exp);
   }
 
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
-  void PlexilExec::addToResourceContention(const NodeId node) {
+  void PlexilExec::addToResourceContention(const NodeId& node) {
     VariableId exp = node->getAssignmentVariable()->getBaseVariable();
     check_error(exp.isValid());
 
     debugMsg("PlexilExec:addToResourceContention",
 	     "Adding node '" << node->getNodeId().toString() << "' to resource contention.");
-    VariableConflictMap::iterator resourceIt =
-      m_resourceConflicts.find(exp);
-    if(resourceIt == m_resourceConflicts.end()) {
-      m_resourceConflicts.insert(std::make_pair(exp,
-						std::multiset<NodeId, NodeConflictComparator>()));
+    VariableConflictMap::iterator resourceIt = m_resourceConflicts.find(exp);
+    if (resourceIt == m_resourceConflicts.end()) {
+      m_resourceConflicts.insert(std::make_pair(exp, VariableConflictSet()));
       resourceIt = m_resourceConflicts.find(exp);
     }
-    std::multiset<NodeId, NodeConflictComparator>& conflictSet = resourceIt->second;
 
-    std::multiset<NodeId, NodeConflictComparator>::iterator conflictSetIter;
-
+    VariableConflictSet& conflictSet = resourceIt->second;
+    VariableConflictSet::iterator conflictSetIter;
     //HACK.  maybe.  maybe not.
-    if((conflictSetIter = conflictSet.find(node)) != conflictSet.end()) {
+    if ((conflictSetIter = conflictSet.find(node)) != conflictSet.end()) {
 
       // There could be multiple nodes with the same priority,
       size_t count = conflictSet.count(node);
+	  // Removing this invalidates the regression tests. Bugger.
       debugMsg("PlexilExec:addToResourceContention", "There are " << count << " similar items in the"
                << " set.");
       bool found = false;
-      
-      for (size_t i = 0; !found && (i < count); ++i, ++conflictSetIter)
-        {
-          if (node == *conflictSetIter)
-            found = true;
-        }
-      if (found)
-        {
-          debugMsg("PlexilExec:addToResourceContention",
-                   "Skipping node '" << node->getNodeId().toString() <<
-                   "' because it's already in the set.");
-          return;
-        }
+      for (size_t i = 0; !found && (i < count); ++i, ++conflictSetIter) {
+		if (node == *conflictSetIter) {
+		  found = true;
+		  break;
+		}
+	  }
+      if (found) {
+		debugMsg("PlexilExec:addToResourceContention",
+				 "Skipping node '" << node->getNodeId().toString() <<
+				 "' because it's already in the set.");
+		return;
+	  }
     }
     conflictSet.insert(node);
   }
@@ -607,12 +605,12 @@ namespace PLEXIL {
   //  error
   void PlexilExec::resolveResourceConflicts() {
     for(VariableConflictMap::iterator it = m_resourceConflicts.begin();	it != m_resourceConflicts.end(); ++it) {
-      std::multiset<NodeId, NodeConflictComparator>& conflictSet = it->second;
+      VariableConflictSet& conflictSet = it->second;
       checkError(!conflictSet.empty(),
 		 "Resource conflict set for " << it->first->toString() << " is empty.");
 
       //we only have to look at all the nodes with the highest priority
-      std::multiset<NodeId, NodeConflictComparator>::iterator conflictIt = conflictSet.begin(); 
+      VariableConflictSet::iterator conflictIt = conflictSet.begin(); 
       size_t count = conflictSet.count(*conflictIt);
 
       NodeId nodeToExecute;
@@ -635,8 +633,8 @@ namespace PLEXIL {
 
 	  // If more than one node is scheduled for execution, we have a resource contention.
 	  checkError(conflictCounter < 2,
-		     "Error: node '" << node->getNodeId().toString() << " and the node "
-		     << nodeToExecute->getNodeId().toString() << " are in contention over variable "
+				 "Error: nodes '" << node->getNodeId().toString() << "' and '"
+				 << nodeToExecute->getNodeId().toString() << "' are in contention over variable "
 				 << node->getAssignmentVariable()->getBaseVariable()->toString() << " and have equal priority.");
 	  nodeToExecute = node;
 	}

@@ -28,8 +28,9 @@
 #define _H_PlexilExec
 
 #include "ExecDefs.hh"
-#include "PlexilPlan.hh"
+#include "generic_hash_map.hh"
 #include "LabelStr.hh"
+#include "PlexilPlan.hh"
 
 #include <list>
 #include <set>
@@ -219,14 +220,14 @@ namespace PLEXIL
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
      * @param node The assignment node.
      */
-    void addToResourceContention(const NodeId node);
+    void addToResourceContention(const NodeId& node);
 
     /**
      * @brief Removes a node from consideration for resource contention.  This is usually because some condition has changed that makes the node no longer
      * eligible for execution.
      * @param node The assignment node.
      */
-    void removeFromResourceContention(const NodeId node);
+    void removeFromResourceContention(const NodeId& node);
 
     /**
      * @brief Gets a stringified version of the current state change queue.
@@ -245,7 +246,8 @@ namespace PLEXIL
     int inQueue(const NodeId node) const;
 
 	typedef std::map<unsigned int, NodeTransition> StateChangeQueue;
-	typedef std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > VariableConflictMap;
+	typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
+	typedef std::map<ExpressionId, VariableConflictSet> VariableConflictMap;
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
     ExecConnectorId m_connector;
