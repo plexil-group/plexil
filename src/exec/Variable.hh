@@ -92,6 +92,13 @@ namespace PLEXIL
 
     const VariableId& getId() const {return m_evid;}
 
+	/**
+	 * @brief Get the real variable for which this may be a proxy.
+	 * @return The VariableId of the base variable
+	 * @note Used by the assignment node conflict resolution logic.
+	 */
+	virtual const VariableId& getBaseVariable() const = 0;
+
   protected:
 
   private:
@@ -347,6 +354,16 @@ namespace PLEXIL
      */
     virtual void removeListener(ExpressionListenerId id);
 
+	/**
+	 * @brief Get the real variable for which this may be a proxy.
+	 * @return The VariableId of the base variable
+	 * @note Used by the assignment node conflict resolution logic.
+	 */
+	virtual const VariableId& getBaseVariable() const
+	{
+	  return Variable::getId(); 
+	}
+
   protected:
     /**
      * @brief Handle additional behaviors for the reset() call.
@@ -390,6 +407,16 @@ namespace PLEXIL
     virtual std::string valueString() const;
 	virtual bool isConst() const { return true; }
 	virtual void reset();
+
+	/**
+	 * @brief Get the real variable for which this may be a proxy.
+	 * @return The VariableId of the base variable
+	 * @note Used by the assignment node conflict resolution logic.
+	 */
+	virtual const VariableId& getBaseVariable() const
+	{
+	  return m_exp;
+	}
 
   protected:
     virtual void handleChange(const ExpressionId& expr);
@@ -472,11 +499,15 @@ namespace PLEXIL
      */
     const std::string& getName() const { return m_name; }
 
-    /**
-     * @brief Get the target variable of this alias.
-     */
-	const VariableId& getOriginalVariable() const { return m_originalVariable; }
-	  
+	/**
+	 * @brief Get the real variable for which this may be a proxy.
+	 * @return The VariableId of the base variable
+	 * @note Used by the assignment node conflict resolution logic.
+	 */
+	virtual const VariableId& getBaseVariable() const
+	{
+	  return m_originalVariable->getBaseVariable();
+	}
 
   protected:
 

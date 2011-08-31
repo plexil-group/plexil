@@ -272,6 +272,16 @@ namespace PLEXIL
 
     double recalculate();
 
+	/**
+	 * @brief Get the real variable for which this may be a proxy.
+	 * @return The VariableId of the base variable
+	 * @note Used by the assignment node conflict resolution logic.
+	 */
+	virtual const VariableId& getBaseVariable() const
+	{
+	  return m_arrayVariable->getBaseVariable();
+	}
+
   protected:
 
   private:

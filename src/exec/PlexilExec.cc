@@ -366,10 +366,10 @@ namespace PLEXIL {
     //to remove nodes when they get batch-executed.
     //check_error(node->getDestState() != EXECUTING_STATE);
 
-    ExpressionId exp = node->getAssignmentVariable();
+    VariableId exp = node->getAssignmentVariable()->getBaseVariable();
 
     check_error(exp.isValid());
-    std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> >::iterator conflict =
+    VariableConflictMap::iterator conflict =
       m_resourceConflicts.find(exp);
     if(conflict == m_resourceConflicts.end())
       return;
@@ -400,16 +400,14 @@ namespace PLEXIL {
       }
   }
 
+  // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
   void PlexilExec::addToResourceContention(const NodeId node) {
-    check_error(node->getType() == Node::ASSIGNMENT());
-    check_error(node->getDestState() == EXECUTING_STATE);
-
-    ExpressionId exp = node->getAssignmentVariable();
+    VariableId exp = node->getAssignmentVariable()->getBaseVariable();
     check_error(exp.isValid());
 
     debugMsg("PlexilExec:addToResourceContention",
 	     "Adding node '" << node->getNodeId().toString() << "' to resource contention.");
-    std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> >::iterator resourceIt =
+    VariableConflictMap::iterator resourceIt =
       m_resourceConflicts.find(exp);
     if(resourceIt == m_resourceConflicts.end()) {
       m_resourceConflicts.insert(std::make_pair(exp,
@@ -608,8 +606,7 @@ namespace PLEXIL {
   // else
   //  error
   void PlexilExec::resolveResourceConflicts() {
-    for(std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> >::iterator it =
-	  m_resourceConflicts.begin();	it != m_resourceConflicts.end(); ++it) {
+    for(VariableConflictMap::iterator it = m_resourceConflicts.begin();	it != m_resourceConflicts.end(); ++it) {
       std::multiset<NodeId, NodeConflictComparator>& conflictSet = it->second;
       checkError(!conflictSet.empty(),
 		 "Resource conflict set for " << it->first->toString() << " is empty.");
@@ -640,7 +637,7 @@ namespace PLEXIL {
 	  checkError(conflictCounter < 2,
 		     "Error: node '" << node->getNodeId().toString() << " and the node "
 		     << nodeToExecute->getNodeId().toString() << " are in contention over variable "
-				 << node->getAssignmentVariable()->toString() << " and have equal priority.");
+				 << node->getAssignmentVariable()->getBaseVariable()->toString() << " and have equal priority.");
 	  nodeToExecute = node;
 	}
 

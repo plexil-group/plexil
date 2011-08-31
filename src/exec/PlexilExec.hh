@@ -245,7 +245,7 @@ namespace PLEXIL
     int inQueue(const NodeId node) const;
 
 	typedef std::map<unsigned int, NodeTransition> StateChangeQueue;
-
+	typedef std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > VariableConflictMap;
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
     ExecConnectorId m_connector;
@@ -253,16 +253,15 @@ namespace PLEXIL
     ExternalInterfaceId m_interface;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     std::vector<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    //std::list<NodeId> m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
-    StateChangeQueue m_stateChangeQueue;
+    StateChangeQueue m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
-    std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
-                                                                                                  The nodes in the sets are assignment nodes which can assign values to the variable.
-                                                                                                  The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
-                                                                                                  Essentially, at each quiescence cycle, the first node in each set that isn't already
-                                                                                                  in state EXECUTING gets added to the end of the queue. */
+    VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
+											   The nodes in the sets are assignment nodes which can assign values to the variable.
+											   The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
+											   Essentially, at each quiescence cycle, the first node in each set that isn't already
+											   in state EXECUTING gets added to the end of the queue. */
     ExecListenerHubId m_listener;
     std::map<std::string, PlexilNodeId> m_libraries;
   };

@@ -15,6 +15,7 @@
          <NodeList>
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_0</NodeId>
+			 <Priority>0</Priority>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
@@ -31,6 +32,7 @@
 		   </Node>
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_1</NodeId>
+			 <Priority>1</Priority>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
@@ -47,6 +49,7 @@
 		   </Node>
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_2</NodeId>
+			 <Priority>2</Priority>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
@@ -63,6 +66,7 @@
 		   </Node>
 		   <Node NodeType="Assignment">
 			 <NodeId>set_array_3</NodeId>
+			 <Priority>3</Priority>
 			 <NodeBody>
 			   <Assignment>
 				 <ArrayElement>
