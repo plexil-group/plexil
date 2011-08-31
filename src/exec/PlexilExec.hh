@@ -247,7 +247,7 @@ namespace PLEXIL
 
 	typedef std::map<unsigned int, NodeTransition> StateChangeQueue;
 	typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
-	typedef std::map<ExpressionId, VariableConflictSet> VariableConflictMap;
+	typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
     ExecConnectorId m_connector;
