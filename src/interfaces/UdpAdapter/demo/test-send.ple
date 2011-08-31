@@ -11,17 +11,37 @@ test-send:
     Real arg6[3] = #(36.0 -104.7 25000.0);
     Boolean arg7[3] = #(true true false);
     String arg8[3] = #("foo" "baz" "bar");
+    Real run_start_time;
 
-    NodeList:
+    //NodeList:
+    Sequence:
+
+    RecordStartTime:
+    {
+        Assignment: run_start_time = Lookup(time);
+    }
+
     ReportParameters:
     {
         Command print ("\ntest-send: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
                        ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
     }
-    SendUdpCommand:
+    SendUdpCommand1:
     {
-        StartCondition: ReportParameters.state == FINISHED;
+        //StartCondition: ReportParameters.state == FINISHED;
         Command test_udp_msg (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message
+    }
+    SendUdpCommand2:
+    {
+        StartCondition: LookupOnChange(time, 1) > run_start_time + 2;
+        //StartCondition: ReportParameters.state == FINISHED;
+        Command test_udp_msg (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message
+    }
+    SendQuitCommand:
+    {
+        StartCondition: LookupOnChange(time, 1) > run_start_time + 4;
+        //StartCondition: LookupOnChange(time, 1) > SendUdpCommand.FINISHED.END + 2;
+        Command quit("quit");
     }
 }
 

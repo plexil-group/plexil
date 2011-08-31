@@ -5,6 +5,7 @@ test-recv:
 {
     Real run_start_time;
     Integer timeout = 5;
+    Boolean continue = true;
 
     Sequence:
 
@@ -19,7 +20,9 @@ test-recv:
 
         WaitForCommand:  // Wait for an incoming UDP message or time out
         {
-            InvariantCondition: LookupOnChange(time, 1) < run_start_time + timeout;
+            RepeatCondition: continue;
+            //InvariantCondition: LookupOnChange(time, 1) < run_start_time + timeout;
+            InvariantCondition: continue == true;
             OnCommand test_udp_msg (String arg1, Boolean arg2, Integer arg3, Real arg4, Integer arg5, Real arg6)
             {
                 Command print ("\ntest-recv: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
@@ -27,12 +30,20 @@ test-recv:
             }
         }
 
-        ReportTimeoutFailure: // Report a timeout if such occurs
+        ReceiveQuitMessage:
         {
-            StartCondition: WaitForCommand.state == FINISHED;
-            SkipCondition: WaitForCommand.outcome != FAILURE;
-            Command print ("\ntest-recv: WaitForCommand timed out after ", timeout, " seconds\n\n");
+            OnCommand quit (String junk)
+            {
+                Assignment: continue = false;
+            }
         }
+
+        //ReportTimeoutFailure: // Report a timeout if such occurs
+        //{
+        //    StartCondition: WaitForCommand.state == FINISHED;
+        //    SkipCondition: WaitForCommand.outcome != FAILURE;
+        //    Command print ("\ntest-recv: WaitForCommand timed out after ", timeout, " seconds\n\n");
+        //}
     }
 }
 

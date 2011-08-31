@@ -13,5 +13,8 @@
       <!-- Plexil will gladly insert "UNKNOWN" in strings, which is 7 bytes long, so be very careful -->
       <Parameter type="string-array" elements="3" bytes="3"/>
     </Message>
+    <Message name="quit" local_port="8032" peer_port="8032">
+      <Parameter type="string" bytes="4"/>
+    </Message>
   </Adapter>
 </Interfaces>
