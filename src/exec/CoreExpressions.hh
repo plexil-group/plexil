@@ -250,6 +250,7 @@ namespace PLEXIL {
 	{
 	public:
 	  FinishedListener(AllChildrenFinishedCondition& cond);
+	  FinishedListener(const FinishedListener& orig);
 	  void notifyValueChanged(const ExpressionId& expression);
 	  void setLastValue(double value) { m_lastValue = value; }
 	private:
@@ -264,7 +265,7 @@ namespace PLEXIL {
 	const unsigned int m_total;
 	unsigned int m_count;
 	std::vector<VariableId> m_stateVariables;
-	std::vector<FinishedListener*> m_childListeners;
+	std::vector<FinishedListener> m_childListeners;
   };
 
   class AllChildrenWaitingOrFinishedCondition : public Calculable 
@@ -291,6 +292,7 @@ namespace PLEXIL {
 	{
     public:
       WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond);
+      WaitingOrFinishedListener(const WaitingOrFinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
 	  void setLastValue(double value) { m_lastValue = value; }
     private:
@@ -305,7 +307,7 @@ namespace PLEXIL {
     const unsigned int m_total;
     unsigned int m_count;
     std::vector<VariableId> m_stateVariables;
-	std::vector<WaitingOrFinishedListener*> m_childListeners;
+	std::vector<WaitingOrFinishedListener> m_childListeners;
   };
 
   //used for EQInternal and NEQInternal

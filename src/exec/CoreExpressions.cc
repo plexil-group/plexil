@@ -383,15 +383,14 @@ namespace PLEXIL
 	  m_total(children.size()),
 	  m_count(0),
 	  m_stateVariables(children.size(), VariableId::noId()),
-	  m_childListeners(children.size(), NULL)
+	  m_childListeners(children.size(), FinishedListener(*this))
   {
     for (size_t i = 0; i < m_total; i++) {
       const NodeId& child = children[i];
       check_error(child.isValid());
 	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
 	  check_error(sv.isValid());
-	  ExpressionListenerId listener = (m_childListeners[i] = new FinishedListener(*this))->getId();
-	  sv->addListener(listener);
+	  sv->addListener(m_childListeners[i].getId());
     }
     internalSetValue(recalculate());
   }
@@ -399,8 +398,7 @@ namespace PLEXIL
   AllChildrenFinishedCondition::~AllChildrenFinishedCondition() 
   {
 	for (size_t i = 0; i < m_total; i++) {
-      m_stateVariables[i]->removeListener(m_childListeners[i]->getId());
-	  delete m_childListeners[i];
+      m_stateVariables[i]->removeListener(m_childListeners[i].getId());
     }
   }
 
@@ -433,7 +431,7 @@ namespace PLEXIL
   {
     if (changed) {
 	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i]->activate();
+		m_childListeners[i].activate();
 	}
     Calculable::handleActivate(changed);
   }
@@ -442,7 +440,7 @@ namespace PLEXIL
   {
     if (changed) {
 	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i]->deactivate();
+		m_childListeners[i].deactivate();
 	}
     Calculable::handleDeactivate(changed);
   }
@@ -454,7 +452,7 @@ namespace PLEXIL
 	  VariableId sv = m_stateVariables[i];
       check_error(sv.isValid());
 	  double value = sv->getValue();
-	  m_childListeners[i]->setLastValue(value);
+	  m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED())
 		++m_count;
     }
@@ -479,6 +477,11 @@ namespace PLEXIL
 
   AllChildrenFinishedCondition::FinishedListener::FinishedListener(AllChildrenFinishedCondition& cond)
     : ExpressionListener(), m_cond(cond), m_lastValue(UNKNOWN())
+  {
+  }
+
+  AllChildrenFinishedCondition::FinishedListener::FinishedListener(const FinishedListener& orig)
+    : ExpressionListener(), m_cond(orig.m_cond), m_lastValue(UNKNOWN())
   {
   }
 
@@ -512,15 +515,14 @@ namespace PLEXIL
 	  m_total(children.size()),
 	  m_count(0),
 	  m_stateVariables(children.size(), VariableId::noId()),
-	  m_childListeners(children.size(), NULL)
+	  m_childListeners(children.size(), WaitingOrFinishedListener(*this))
   {
     for (size_t i = 0; i < m_total; i++) {
       const NodeId& child = children[i];
       check_error(child.isValid());
 	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
 	  check_error(sv.isValid());
-	  ExpressionListenerId listener = (m_childListeners[i] = new WaitingOrFinishedListener(*this))->getId();
-	  sv->addListener(listener);
+	  sv->addListener(m_childListeners[i].getId());
     }
     internalSetValue(recalculate());
   }
@@ -528,8 +530,7 @@ namespace PLEXIL
   AllChildrenWaitingOrFinishedCondition::~AllChildrenWaitingOrFinishedCondition()
   {
 	for (size_t i = 0; i < m_total; i++) {
-      m_stateVariables[i]->removeListener(m_childListeners[i]->getId());
-	  delete m_childListeners[i];
+      m_stateVariables[i]->removeListener(m_childListeners[i].getId());
     }
   }
 
@@ -562,7 +563,7 @@ namespace PLEXIL
   {
     if (changed) {
 	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i]->activate();
+		m_childListeners[i].activate();
 	}
     Calculable::handleActivate(changed);
   }
@@ -571,7 +572,7 @@ namespace PLEXIL
   {
     if (changed) {
 	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i]->deactivate();
+		m_childListeners[i].deactivate();
 	}
     Calculable::handleDeactivate(changed);
   }
@@ -583,7 +584,7 @@ namespace PLEXIL
 	  VariableId sv = m_stateVariables[i];
       check_error(sv.isValid());
 	  double value = sv->getValue();
-	  m_childListeners[i]->setLastValue(value);
+	  m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
 		++m_count;
     }
@@ -608,6 +609,11 @@ namespace PLEXIL
 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond)
     : ExpressionListener(), m_cond(cond), m_lastValue(UNKNOWN())
+  {
+  }
+
+  AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::WaitingOrFinishedListener(const WaitingOrFinishedListener& orig)
+    : ExpressionListener(), m_cond(orig.m_cond), m_lastValue(UNKNOWN())
   {
   }
 
