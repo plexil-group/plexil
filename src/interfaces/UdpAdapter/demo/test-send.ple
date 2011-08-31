@@ -1,28 +1,28 @@
-// -*- Mode: C++ -*-
+// -*- Mode: Java -*-
 // File: plexil/src/interfaces/UdpAdapter/demo/test-send.ple
 
 test-send:
 {
-  String arg1 = "CA";           // intentionally shorter than declared in udp.xml (for testing)
-  Boolean arg2 = false;
-  Integer arg3 = 3;             // -2147483649, 2147483648
-  Real arg4 = 3.14159;          // 1.17e-38, 3.5e+38
-  Integer arg5[3] = #(9 8 7);   // easy to read in the buffer when debugging
-  Real arg6[3] = #(36.0 -104.7 25000.0);
-  Boolean arg7[3] = #(true true false);
-  String arg8[3] = #("foo" "baz" "bar");
+    String arg1 = "CA";           // intentionally shorter than declared in udp.xml (for testing)
+    Boolean arg2 = false;
+    Integer arg3 = 3;             // -2147483649, 2147483648
+    Real arg4 = 3.14159;          // 1.17e-38, 3.5e+38
+    Integer arg5[3] = #(9 8 7);   // easy to read in the buffer when debugging
+    Real arg6[3] = #(36.0 -104.7 25000.0);
+    Boolean arg7[3] = #(true true false);
+    String arg8[3] = #("foo" "baz" "bar");
 
-  NodeList:
-  ReportParameters:
-  {
-    Command print ("\ntest-send: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
-                   ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
-  }
-  SendUdpCommand:
-  {
-    StartCondition: ReportParameters.state == FINISHED;
-    Command test_udp_msg (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message
-  }
+    NodeList:
+    ReportParameters:
+    {
+        Command print ("\ntest-send: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
+                       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+    }
+    SendUdpCommand:
+    {
+        StartCondition: ReportParameters.state == FINISHED;
+        Command test_udp_msg (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message
+    }
 }
 
 // EOF
