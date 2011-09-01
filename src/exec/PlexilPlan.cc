@@ -360,36 +360,53 @@ namespace PLEXIL {
 	m_variable = var;
 	this->setName(var->name());
 	setType(var->type());
-	setDefaultValue(var->value()->getId());
+	if (var->value() != NULL) {
+	  setDefaultValue(var->value()->getId());
+	}
+  }
+   
+  PlexilVar::PlexilVar(const std::string& name, const PlexilType& type)
+    : PlexilExpr(),
+	  m_type(type),
+      m_varId(this, PlexilExpr::getId()), 
+      m_value(NULL)
+  {
+	setName(name);
   }
    
   PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
-		       const std::string& value)
-    : m_lineNo(0), 
-      m_colNo(0), 
-      m_type(type),
-      m_id(this), 
-      m_name(name), 
+					   const std::string& value)
+    : PlexilExpr(),
+	  m_type(type),
+      m_varId(this, PlexilExpr::getId()), 
       m_value(new PlexilValue(type, value))
   {
+	setName(name);
   }
    
   PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
 		       PlexilValue* value)
-    : m_lineNo(0),
-      m_colNo(0),
-      m_type(type),
-      m_id(this),
-      m_name(name),
+    : PlexilExpr(),
+	  m_type(type),
+      m_varId(this, PlexilExpr::getId()),
       m_value(value)
   {
+	setName(name);
   }
    
   PlexilVar::~PlexilVar()
   {
-    m_id.remove();
+    m_varId.removeDerived(PlexilExpr::getId());
   }
    
+
+  PlexilArrayVar::PlexilArrayVar(const std::string& name, 
+				 const PlexilType& type, 
+				 const unsigned maxSize)
+    : PlexilVar(name, type, NULL),
+      m_maxSize(maxSize)
+  {
+  }
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
 				 const PlexilType& type, 

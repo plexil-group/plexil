@@ -275,7 +275,7 @@ namespace PLEXIL
 					 "Expected PlexilValue.");
 		  const Id<PlexilValue>& defaultValue = 
 			(Id<PlexilValue>&)(*var)->defaultValue();
-		  checkError(defaultValue->value() != "UNKNOWN",
+		  checkError(defaultValue->type() == STRING || !defaultValue->value().empty(),
 					 "Interface variable '" << 
 					 varLabel.toString() <<
 					 "' in library node '" << libNode->nodeId() << 

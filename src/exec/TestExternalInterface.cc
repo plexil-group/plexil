@@ -353,10 +353,16 @@ namespace PLEXIL
             str << param->FirstChild()->Value();
             str >> value;
           }
-        else
-          value = (param->FirstChild() != NULL)
-            ? LabelStr(param->FirstChild()->Value())
-            : LabelStr();
+		// string case ?
+        else if (param->FirstChild() == NULL) {
+          value = LabelStr();
+		}
+		else if (param->FirstChild()->ValueStr() == "UNKNOWN") {
+		  value = Expression::UNKNOWN();
+		}
+		else {
+		  value = LabelStr(param->FirstChild()->Value());
+		}
 
         dest.push_back(value);
         param = param->NextSiblingElement("Param");

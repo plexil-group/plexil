@@ -68,45 +68,63 @@ namespace PLEXIL
     : EssentialArrayVariable(node),
 	  VariableImpl(expr, node, isConst)
   {
+	assertTrueMsg(expr.isValid(), "Attempt to create an ArrayVariable from an invalid Id");
+
     debugMsg("ArrayVariable", " constructor from intermediate representation");
 
-    // confirm that we have a an array
-    checkError(Id<PlexilArrayValue>::convertable(expr),
-               "Expected an array value.");
-    PlexilArrayValue* arrayValue = (PlexilArrayValue*)expr;
+    // confirm that we have a an array variable
+	const PlexilArrayValue* arrayValue = NULL;
+    if (Id<PlexilArrayVar>::convertable(expr)) {
+	  const Id<PlexilArrayVar> var = (const Id<PlexilArrayVar>) expr;
+	  m_type = var->elementType();
+	  m_maxSize = var->maxSize();
+	  if (var->value() != NULL) {
+		arrayValue = dynamic_cast<const PlexilArrayValue*>(var->value());
+		assertTrueMsg(arrayValue != NULL,
+					  "Array variable initial value is not a PlexilArrayValue");
+	  }
+	}
+    else if (Id<PlexilArrayValue>::convertable(expr)) {
+	  arrayValue = (const PlexilArrayValue*) expr;
+	  m_type = arrayValue->type();
+	  m_maxSize = arrayValue->maxSize();
+	}
+	else {
+	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilArrayVar or PlexilArrayValue");
+	}
 
     // init the local type and array
-    m_type = arrayValue->type();
-    m_maxSize = arrayValue->maxSize();
     StoredArray array(m_maxSize, UNKNOWN());
     setValue(array.getKey());
 
-    // convert strings to doubles for internal storage
-    const std::vector<std::string>& values = arrayValue->values();
-    for (std::vector<std::string>::const_iterator value = values.begin();
-         value != values.end(); ++value) {
-      double convertedValue;
-      if (m_type == STRING)
-	convertedValue = (double)LabelStr(*value);
-      else if (m_type == BOOLEAN) {
-	if (compareIgnoreCase(*value, "true") || 
-	    (strcmp(value->c_str(), "1") == 0))
-	  convertedValue = 1;
-	else if (compareIgnoreCase(*value, "false") || 
-		 (strcmp(value->c_str(), "0") == 0))
-	  convertedValue = 0;
-	else
-	  checkError(false, "Invalid boolean value \"" << *value << "\"");
-      }
-      else {
-	std::istringstream valueStream(*value);
-	valueStream >> convertedValue;
-      }
-      m_initialVector.push_back(convertedValue);
-    }
+	if (arrayValue != NULL) {
+	  // convert strings to doubles for internal storage
+	  const std::vector<std::string>& values = arrayValue->values();
+	  for (std::vector<std::string>::const_iterator value = values.begin();
+		   value != values.end(); ++value) {
+		double convertedValue;
+		if (m_type == STRING)
+		  convertedValue = (double)LabelStr(*value);
+		else if (m_type == BOOLEAN) {
+		  if (compareIgnoreCase(*value, "true") || 
+			  (strcmp(value->c_str(), "1") == 0))
+			convertedValue = 1;
+		  else if (compareIgnoreCase(*value, "false") || 
+				   (strcmp(value->c_str(), "0") == 0))
+			convertedValue = 0;
+		  else
+			checkError(false, "Invalid boolean value \"" << *value << "\"");
+		}
+		else {
+		  std::istringstream valueStream(*value);
+		  valueStream >> convertedValue;
+		}
+		m_initialVector.push_back(convertedValue);
+	  }
 
-    // Store the converted values
-    setValues(m_initialVector);
+	  // Store the converted values
+	  setValues(m_initialVector);
+	}
   }
 
   // 
@@ -345,7 +363,7 @@ namespace PLEXIL
       case BOOLEAN:
         return val == UNKNOWN() || val == 0.0 || val == 1.0;
       case STRING:
-        return LabelStr::isString(val);
+        return val == UNKNOWN() || LabelStr::isString(val);
       case BLOB:
         checkError(ALWAYS_FAIL, "Blobs not supported in arrays.");
       case ARRAY:
@@ -514,13 +532,33 @@ namespace PLEXIL
 
   StringVariable::StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 				 const bool isConst)
-    : VariableImpl(expr, node, isConst) {
-    checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
-    PlexilValue* val = (PlexilValue*) expr;
-    checkError(val->type() == PLEXIL::STRING,
-	       "Expected a String value.  Got " << PlexilParser::valueTypeString(val->type()));
+    : VariableImpl(expr, node, isConst) 
+  {
+	assertTrueMsg(expr.isValid(), "Attempt to create a StringVariable from an invalid Id");
+	const PlexilValue* value = NULL;
+	if (Id<PlexilVar>::convertable(expr)) {
+	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+	  assertTrueMsg(var->type() == STRING,
+					"Attempt to create a StringVariable from a non-STRING PlexilVar");
+	  value = var->value();
+	}
+	else if (Id<PlexilValue>::convertable(expr)) {
+	  value = (const PlexilValue*) expr;
+	  assertTrueMsg(isConst, "Attempt to create a StringValue that is not const");
+	}
+	else {
+	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+	}
 
-    m_initialValue = m_value = (double)LabelStr(val->value());
+	if (value == NULL) {
+	  m_initialValue = m_value = UNKNOWN();
+	}
+	else {
+	  assertTrueMsg(value->type() == STRING,
+					"Attempt to create a StringVariable from a non-STRING PlexilValue");
+	  m_initialValue = m_value = (double) LabelStr(value->value());
+	}
   }
 
 
@@ -531,7 +569,7 @@ namespace PLEXIL
   }
 
   bool StringVariable::checkValue(const double val) {
-    return LabelStr::isString(val);
+    return val == UNKNOWN() || LabelStr::isString(val);
   }
 
   RealVariable::RealVariable(const bool isConst) : VariableImpl(isConst) {}
@@ -547,8 +585,26 @@ namespace PLEXIL
                              const bool isConst)
 	: VariableImpl(expr, node, isConst) 
   {
-    checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
-    commonNumericInit((PlexilValue*)expr);
+	assertTrueMsg(expr.isValid(), "Attempt to create a RealVariable from an invalid Id");
+	const PlexilValue* value = NULL;
+	if (Id<PlexilVar>::convertable(expr)) {
+	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+	  assertTrueMsg(var->type() == REAL,
+					"Attempt to create a RealVariable from a non-REAL PlexilVar");
+	  value = var->value();
+	}
+	else if (Id<PlexilValue>::convertable(expr)) {
+	  value = (const PlexilValue*) expr;
+	  assertTrueMsg(isConst, "Attempt to create a RealValue that is not const");
+	}
+	else {
+	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+	}
+
+	assertTrueMsg(value == NULL || value->type() == REAL,
+				  "Attempt to create a RealVariable from a non-REAL PlexilVar");
+	commonNumericInit(value);
   }
 
   void RealVariable::print(std::ostream& s) const 
@@ -612,8 +668,26 @@ namespace PLEXIL
 				   const bool isConst)
 	: VariableImpl(expr, node, isConst) 
   {
-    checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
-    commonNumericInit((PlexilValue*)expr);
+	assertTrueMsg(expr.isValid(), "Attempt to create an IntegerVariable from an invalid Id");
+	const PlexilValue* value = NULL;
+	if (Id<PlexilVar>::convertable(expr)) {
+	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+	  assertTrueMsg(var->type() == INTEGER,
+					"Attempt to create an IntegerVariable from a non-INTEGER PlexilVar");
+	  value = var->value();
+	}
+	else if (Id<PlexilValue>::convertable(expr)) {
+	  value = (const PlexilValue*) expr;
+	  assertTrueMsg(isConst, "Attempt to create an IntegerValue that is not const");
+	}
+	else {
+	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+	}
+
+	assertTrueMsg(value == NULL || value->type() == INTEGER,
+				  "Attempt to create an IntegerVariable from a non-INTEGER PlexilVar");
+	commonNumericInit(value);
   }
 
   void IntegerVariable::print(std::ostream& s) const

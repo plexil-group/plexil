@@ -1282,6 +1282,10 @@ namespace PLEXIL
 									   child,
 									   "XML parsing error: Initial value of " << typnam << " variable \'" <<
 									   name << "\' of incorrect type \'" << initValTag << "\'");
+	  checkParserExceptionWithLocation(typ == STRING || !child->FirstChild()->ValueStr().empty(),
+									   child->FirstChild(),
+									   "XML parsing error: Initial value of " << typnam << " variable \'" <<
+									   name << "\' may not be empty");
 	  return new PlexilVar(name, typ, child->FirstChild()->ValueStr());
 	}
 

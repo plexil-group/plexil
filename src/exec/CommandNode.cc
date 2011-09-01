@@ -372,7 +372,6 @@ namespace PLEXIL
 	if (wasCreated)
 	  garbage.push_back(nameExpr);
 
-    LabelStr name(nameExpr->getValue());
     std::list<ExpressionId> args;
     for (std::vector<PlexilExprId>::const_iterator it = state->args().begin();
 		 it != state->args().end(); 
@@ -395,7 +394,7 @@ namespace PLEXIL
 		// FIXME: push this check up into XML parser
 		checkError(destVar.isValid(),
 				   "Unknown destination variable '" << dest_name <<
-				   "' in command '" << name.toString() << "' in node '" <<
+				   "' in command in node '" <<
 				   m_nodeId.toString() << "'");
 	  }
 	  else if (Id<PlexilArrayElement>::convertable(destExpr)) {
@@ -435,8 +434,9 @@ namespace PLEXIL
 	}
 
     debugMsg("Node:createCommand",
-			 "Creating command '" << name.toString() << "' for node '" <<
-			 m_nodeId.toString() << "'");
+			 "Creating command"
+			 << (nameExpr->getValue() == UNKNOWN() ? "" : " '" + LabelStr(nameExpr->getValue()).toString() + "'")
+			 << " for node '" << m_nodeId.toString() << "'");
     m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
     check_error(m_command.isValid());
   }

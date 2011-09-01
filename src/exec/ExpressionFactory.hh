@@ -94,7 +94,7 @@ namespace PLEXIL
     static void registerFinder(const LabelStr& name, ExpressionFactory* factory);
 
     virtual ExpressionId create(const PlexilExprId& expr,
-				const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
+								const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
     ExpressionFactory(const LabelStr& name)
       : m_name(name) {registerFactory(m_name, this);}
 
@@ -124,8 +124,8 @@ namespace PLEXIL
      * @return The Id for the new Expression.
      */
 
-    ExpressionId create(const PlexilExprId& expr,
-			const NodeConnectorId& node = NodeConnectorId::noId()) const
+    virtual ExpressionId create(const PlexilExprId& expr,
+								const NodeConnectorId& node = NodeConnectorId::noId()) const
     {return (new FactoryType(expr, node))->getId();}
   };
 
@@ -145,8 +145,8 @@ namespace PLEXIL
      * @return The Id for the new Expression.
      */
 
-    ExpressionId create(const PlexilExprId& expr,
-			const NodeConnectorId& node = NodeConnectorId::noId()) const
+    virtual ExpressionId create(const PlexilExprId& expr,
+								const NodeConnectorId& node = NodeConnectorId::noId()) const
     {return (new FactoryType(expr, node, true))->getId();}
   };
 

@@ -43,11 +43,29 @@ namespace PLEXIL
   }
 
   BooleanVariable::BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool /* isConst */)
+				   const bool isConst)
     : VariableImpl(expr, node)
   {
-    checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
-    commonNumericInit((PlexilValue*)expr);
+	assertTrueMsg(expr.isValid(), "Attempt to create a BooleanVariable from an invalid Id");
+	const PlexilValue* value = NULL;
+	if (Id<PlexilVar>::convertable(expr)) {
+	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+	  assertTrueMsg(var->type() == BOOLEAN,
+					"Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
+	  value = var->value();
+	}
+	else if (Id<PlexilValue>::convertable(expr)) {
+	  value = (const PlexilValue*) expr;
+	  assertTrueMsg(isConst, "Attempt to create a BooleanValue that is not const");
+	}
+	else {
+	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+	}
+
+	assertTrueMsg(value == NULL || value->type() == BOOLEAN,
+				  "Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
+	commonNumericInit(value);
   }
 
   void BooleanVariable::print(std::ostream& s) const

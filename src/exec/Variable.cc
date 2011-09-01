@@ -137,7 +137,7 @@ namespace PLEXIL
   VariableImpl::VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
     : Variable(node), m_isConst(isConst), m_name(expr->name())
   {
-    check_error(Id<PlexilValue>::convertable(expr));
+    check_error(Id<PlexilVar>::convertable(expr) || Id<PlexilValue>::convertable(expr));
   }
 
   VariableImpl::~VariableImpl()
@@ -192,8 +192,9 @@ namespace PLEXIL
     internalSetValue(value);
   }
 
-  void VariableImpl::commonNumericInit(PlexilValue* val) {
-    if(val->value() == "UNKNOWN")
+  void VariableImpl::commonNumericInit(const PlexilValue* val) 
+  {
+    if (val == NULL)
       m_initialValue = m_value = UNKNOWN();
     else if(val->value() == "INF" || val->value() == "Inf" ||
 	    val->value() == "inf") {

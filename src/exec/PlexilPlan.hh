@@ -385,38 +385,32 @@ namespace PLEXIL {
          std::vector<std::string> m_values;
    };
 
-  class PlexilVar {
+  class PlexilVar : public PlexilExpr {
   public:
-    PlexilVar(const std::string& name, const PlexilType& type,
-	      const std::string& value = "UNKNOWN");
-    PlexilVar(const std::string& name, const PlexilType& type,
-	      PlexilValue* value);
+	PlexilVar(const std::string& name, const PlexilType& type);
+    PlexilVar(const std::string& name, const PlexilType& type, const std::string& value);
+    PlexilVar(const std::string& name, const PlexilType& type, PlexilValue* value);
     virtual ~PlexilVar();
 
     virtual bool isArray() const {return false;}
 
-    const PlexilVarId& getId() const {return m_id;}
-    const std::string& name() const {return m_name;}
+    const PlexilVarId& getId() const {return m_varId;}
     virtual const PlexilType& type() const {return m_type;}
-    PlexilValue* value() const {return m_value;}
-    int lineNo() const {return m_lineNo;}
-    int colNo() const {return m_colNo;}
-    void setLineNo(int n) {m_lineNo = n;}
-    void setColNo(int n) {m_colNo = n;}
+    const PlexilValue* value() const {return m_value;}
 
   protected:
     PlexilType m_type;
 
   private:
-    int m_lineNo;
-    int m_colNo;
-    PlexilVarId m_id;
-    std::string m_name;
+    PlexilVarId m_varId;
     PlexilValue* m_value;
   };
   
    class PlexilArrayVar : public PlexilVar {
    public:
+     PlexilArrayVar(const std::string& name, 
+		    const PlexilType& type, 
+		    const unsigned maxSize);
      PlexilArrayVar(const std::string& name, 
 		    const PlexilType& type, 
 		    const unsigned maxSize, 

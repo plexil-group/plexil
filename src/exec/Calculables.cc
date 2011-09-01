@@ -308,7 +308,7 @@ namespace PLEXIL
 
   bool Concatenation::checkValue(const double val)
   {
-    return LabelStr::isString(val);
+    return val == UNKNOWN() || LabelStr::isString(val);
   }
 
   double Concatenation::recalculate()

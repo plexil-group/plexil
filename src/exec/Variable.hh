@@ -386,7 +386,7 @@ namespace PLEXIL
      *        various forms of infinity, etc.) for numeric expressions.
      * @param val The XML representing the value of this variable.
      */
-    void commonNumericInit(PlexilValue* val);
+    void commonNumericInit(const PlexilValue* val);
 
     //
     // Private member variables

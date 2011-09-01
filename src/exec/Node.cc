@@ -343,50 +343,28 @@ namespace PLEXIL {
 
   void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
     for (std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it) {
+	  const PlexilVarId var = *it;
 	  // get the variable name
 	  const std::string& name = (*it)->name();
 	  LabelStr nameLabel(name);
+	  VariableId varId =
+		(VariableId)
+		ExpressionFactory::createInstance(PlexilParser::valueTypeString(var->type()), 
+										  var,
+										  m_connector);
+	  // FIXME: CHECK FOR DUPLICATE NAMES
 
-	  // if it's an array, make me an array
-	  if (Id<PlexilArrayVar>::convertable((*it)->getId())) {
-		PlexilValue* value = (*it)->value();
-		VariableId varId =
-		  (VariableId)
-		  ExpressionFactory::createInstance(value->name(), 
-											value->getId(),
-											m_connector);
-		// FIXME: CHECK FOR DUPLICATE NAMES
-
-		m_variablesByName[nameLabel] = varId;
-		((VariableImpl*) varId)->setName(name);
-		m_localVariables.push_back(varId);
-		debugMsg("Node:createDeclaredVars",
-				 " for node '" << m_nodeId.toString()
-				 << "': created array variable "
-				 << varId->toString()  << " as '"
-				 << name << "'");
-	  }
-
-	  // otherwise create a non-array variable
-	  else {
-		PlexilValue* value = (*it)->value();
-		VariableId varId =
-		  (VariableId)
-		  ExpressionFactory::createInstance(value->name(), 
-											value->getId(),
-											m_connector);
-		// FIXME: CHECK FOR DUPLICATE NAMES
-
-		m_variablesByName[nameLabel] = varId;
-		((VariableImpl*) varId)->setName(name);
-		m_localVariables.push_back(varId);
-		debugMsg("Node:createDeclaredVars",
-				 " for node '" << m_nodeId.toString()
-				 << "': created variable " 
-				 << varId->toString() << " as '"
-				 << name << "'");
-	  }
-    }
+	  m_variablesByName[nameLabel] = varId;
+	  ((VariableImpl*) varId)->setName(name);
+	  m_localVariables.push_back(varId);
+	  debugMsg("Node:createDeclaredVars",
+			   " for node '" << m_nodeId.toString()
+			   << "': created " 
+			   << (varId->getValueType() == ARRAY ? "array " : "")
+			   << "variable " 
+			   << varId->toString() << " as '"
+			   << name << "'");
+	}
   }
 
   void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
