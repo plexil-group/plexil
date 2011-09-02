@@ -51,7 +51,7 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  uninitialized-assignment \
  array-in-loop
 
-LIBRARY_TESTS	:= library-call-with-array
+LIBRARY_TESTS	:=  Increment-test library-call-with-array
 
 # Tests which run to success and require a script of the same name
 SAME_NAME_SCRIPT_TESTS	:= array1 array3 array4 array8 atomic-assignment \
