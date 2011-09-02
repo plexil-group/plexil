@@ -40,7 +40,7 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  empty1 empty2 empty3 empty4 empty-string1 \
  failure-type1 failure-type2 failure-type3 failure-type4 \
  grandparent-access-plan \
- iteration-ended1 invariant1 isKnown1 \
+ interface1 iteration-ended1 invariant1 isKnown1 \
  modulo1 \
  repeat1 repeat3 repeat4 \
  simple-assignment skip1 skip2 \
