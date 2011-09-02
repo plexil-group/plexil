@@ -6,44 +6,71 @@ test-recv:
     Real run_start_time;
     Integer timeout = 5;
     Boolean continue = true;
-
-    Sequence:
-
+    Boolean send_ack = true;
+    // Allow the plan to succeed whether it is ended by a Quit message or a timeout
+    UncheckedSequence:
     RecordStartTime:
     {
         Assignment: run_start_time = Lookup(time);
     }
-
     WaitForTimeoutOrCommand:
     {
+        InvariantCondition: continue == true;
         Concurrence:
-
         WaitForCommand:  // Wait for an incoming UDP message or time out
         {
             RepeatCondition: continue;
-            //InvariantCondition: LookupOnChange(time, 1) < run_start_time + timeout;
-            InvariantCondition: continue == true;
-            OnCommand test_udp_msg (String arg1, Boolean arg2, Integer arg3, Real arg4, Integer arg5, Real arg6)
+            Sequence:
+            ReceiveCommand:
+            {   //OnCommand does not allow arrays, so arg7 and arg8 are simply left off
+                OnCommand test_udp_msg (String arg1, Boolean arg2, Integer arg3, Real arg4, Integer arg5, Real arg6)
+                {
+                    Sequence:
+                    ReportMessage:
+                    {
+                        Command print ("\ntest-recv: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
+                                       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", ", arg8==", "\n\n");
+                    }
+                    CheckForSendAck:
+                    {
+                        Assignment: send_ack = arg2;
+                    }
+                }
+            }
+            SendCommandAck:
             {
-                Command print ("\ntest-recv: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
-                               ", arg5==", arg5, ", arg6==", arg6, ", arg7==", ", arg8==", "\n\n");
+                SkipCondition: send_ack != true;
+                Command test_udp_ack ("ack");
             }
         }
-
-        ReceiveQuitMessage:
+        HandleTimeout:
         {
-            OnCommand quit (String junk)
+            StartCondition: LookupOnChange(time, 1) > run_start_time + timeout;
+            UncheckedSequence:
+            ReportTimeout:
+            {
+                Command print ("\ntest-recv: timed out after ", timeout, " seconds\n\n");
+            }
+            SignalTimeout:
             {
                 Assignment: continue = false;
             }
         }
-
-        //ReportTimeoutFailure: // Report a timeout if such occurs
-        //{
-        //    StartCondition: WaitForCommand.state == FINISHED;
-        //    SkipCondition: WaitForCommand.outcome != FAILURE;
-        //    Command print ("\ntest-recv: WaitForCommand timed out after ", timeout, " seconds\n\n");
-        //}
+        HandleQuitMessage:
+        {
+            OnCommand quit (String junk)
+            {
+                UncheckedSequence:
+                ReportQuitReceived:
+                {
+                    Command print ("\ntest-recv: received Quit command\n\n");
+                }
+                SignalQuit:
+                {
+                    Assignment: continue = false;
+                }
+            }
+        }
     }
 }
 

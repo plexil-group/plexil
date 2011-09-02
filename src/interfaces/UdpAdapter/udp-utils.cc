@@ -176,6 +176,9 @@ namespace PLEXIL
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
     if (bind_err < 0)
       {
+        //char buf[50];
+        //sprintf(buf, "send_message_bind: bind() returned -1 for %d", local_port);
+        //perror(buf);
         perror("send_message_bind: bind() returned -1");
         return -1;
       }
@@ -260,7 +263,10 @@ namespace PLEXIL
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
     if (bind_err < 0)
       {
-        perror("wait_for_input: bind() returned -1");
+        char buf[50];
+        sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
+        perror(buf);
+        //perror("wait_for_input: bind() returned -1");
         return bind_err;
       }
 

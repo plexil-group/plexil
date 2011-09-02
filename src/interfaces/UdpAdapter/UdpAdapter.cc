@@ -147,13 +147,14 @@ namespace PLEXIL
   // Abort the given command with the given arguments.  Store the abort-complete into dest
   void UdpAdapter::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId dest, ExpressionId cmdAck)
   {
+    LabelStr msgName(cmdArgs.front()); // The defined message name, needed for looking up the thread and socket
+    debugMsg("UdpAdapter::invokeAbort", " called for " << cmdName.c_str() << " (" << msgName.c_str() <<
+             "), " << dest << ", " << cmdAck);
     assertTrueMsg(cmdName == RECEIVE_COMMAND_COMMAND(), "UdpAdapter: Only ReceiveCommand commands can be aborted");
     assertTrueMsg(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
     assertTrueMsg(LabelStr::isString(cmdArgs.front()), "UdpAdapter: The argument to the ReceiveMessage abort, "
                   << Expression::valueToString(cmdArgs.front()) << ", is not a string");
-    LabelStr msgName(cmdArgs.front()); // The defined message name, needed for looking up the thread and socket
     int status;                        // The return status of the calls to pthread_cancel() and close()
-    debugMsg("UdpAdapter::invokeAbort", " called for " << msgName.c_str() << ", " << dest << ", " << cmdAck);
     // First, find the active thread for this message, cancel and erase it
     ThreadMap::iterator thread;
     thread=m_activeThreads.find(msgName.c_str()); // recorded by startUdpMessageReceiver

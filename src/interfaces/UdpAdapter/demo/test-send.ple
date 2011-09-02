@@ -4,7 +4,7 @@
 test-send:
 {
     String arg1 = "CA";           // intentionally shorter than declared in udp.xml (for testing)
-    Boolean arg2 = false;
+    //Boolean arg2 = false;       // set to "true" to request an "ack" from the other agent
     Integer arg3 = 3;             // -2147483649, 2147483648
     Real arg4 = 3.14159;          // 1.17e-38, 3.5e+38
     Integer arg5[3] = #(9 8 7);   // easy to read in the buffer when debugging
@@ -13,7 +13,6 @@ test-send:
     String arg8[3] = #("foo" "baz" "bar");
     Real run_start_time;
 
-    //NodeList:
     Sequence:
 
     RecordStartTime:
@@ -21,27 +20,47 @@ test-send:
         Assignment: run_start_time = Lookup(time);
     }
 
-    ReportParameters:
-    {
-        Command print ("\ntest-send: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
-                       ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
-    }
     SendUdpCommand1:
     {
-        //StartCondition: ReportParameters.state == FINISHED;
-        Command test_udp_msg (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message
+        Sequence:
+        ReportParameters:
+        {
+            Command print ("\ntest-send: arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
+                           ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+        }
+        SendCommand:
+        {
+            Command test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
+        }
     }
+
     SendUdpCommand2:
     {
         StartCondition: LookupOnChange(time, 1) > run_start_time + 2;
-        //StartCondition: ReportParameters.state == FINISHED;
-        Command test_udp_msg (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message
+        //StartCondition: LookupOnChange(time, 1) > SendUdpCommand1.FINISHED.END + 2; // why doesn't this work?
+        Concurrence:
+        ReportParameters:
+        {
+            //StartCondition: LookupOnChange(time, 1) > run_start_time + 2;
+            Command print ("\ntest-send: arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
+                           ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+        }
+        WaitForAck:
+        {
+            StartCondition: ReportParameters.state == FINISHED;
+            OnCommand test_udp_ack (String ack) {}
+        }
+        SendCommand:
+        {
+            StartCondition: WaitForAck.state == EXECUTING;
+            Command test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
+        }
     }
+
     SendQuitCommand:
     {
-        StartCondition: LookupOnChange(time, 1) > run_start_time + 4;
-        //StartCondition: LookupOnChange(time, 1) > SendUdpCommand.FINISHED.END + 2;
-        Command quit("quit");
+        StartCondition: SendUdpCommand2.state == FINISHED;
+        Command quit("quit");   // Send a Quit command
     }
 }
 

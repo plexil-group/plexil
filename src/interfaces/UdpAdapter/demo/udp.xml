@@ -4,7 +4,7 @@
   <Adapter AdapterType="UdpAdapter" debug="true" default_local_port="9876" default_peer_port="9876">
     <Message name="test_udp_msg" local_port="8031" peer_port="8031">
       <Parameter type="string" bytes="3" desc="message_id"/>
-      <Parameter type="bool" bytes="1" desc="some_flag"/>
+      <Parameter type="bool" bytes="1" desc="Send ack flag"/>
       <Parameter type="int" bytes="4" desc="num_widgets"/>
       <Parameter type="float" bytes="4" desc="arg4"/>
       <Parameter type="int-array" elements="3" bytes="2" desc="16 bit ints"/>
@@ -14,6 +14,9 @@
       <Parameter type="string-array" elements="3" bytes="3"/>
     </Message>
     <Message name="quit" local_port="8032" peer_port="8032">
+      <Parameter type="string" bytes="4"/>
+    </Message>
+    <Message name="test_udp_ack" local_port="8033" peer_port="8033">
       <Parameter type="string" bytes="4"/>
     </Message>
   </Adapter>
