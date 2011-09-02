@@ -3,10 +3,10 @@
 
 test-recv:
 {
-    Real run_start_time;
-    Integer timeout = 5;
-    Boolean continue = true;
-    Boolean send_ack = true;
+    Real run_start_time;        // When this run started
+    Integer timeout = 5;        // Time out the run
+    Boolean continue = true;    // Repeat the HandleCommand node
+    Boolean send_ack = true;    // If true, send an ack for test_udp_msg
     // Allow the plan to succeed whether it is ended by a Quit message or a timeout
     UncheckedSequence:
     RecordStartTime:
@@ -17,7 +17,7 @@ test-recv:
     {
         InvariantCondition: continue == true;
         Concurrence:
-        WaitForCommand:  // Wait for an incoming UDP message or time out
+        HandleCommand:
         {
             RepeatCondition: continue;
             Sequence:
@@ -26,12 +26,12 @@ test-recv:
                 OnCommand test_udp_msg (String arg1, Boolean arg2, Integer arg3, Real arg4, Integer arg5, Real arg6)
                 {
                     Sequence:
-                    ReportMessage:
+                    ReportCommand:
                     {
-                        Command print ("\ntest-recv: arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
+                        Command print ("\ntest-recv: received arg1==", arg1, ", arg2==", arg2, ", arg3==", arg3, ", arg4==", arg4,
                                        ", arg5==", arg5, ", arg6==", arg6, ", arg7==", ", arg8==", "\n\n");
                     }
-                    CheckForSendAck:
+                    CheckForAckRequest:
                     {
                         Assignment: send_ack = arg2;
                     }
@@ -40,7 +40,15 @@ test-recv:
             SendCommandAck:
             {
                 SkipCondition: send_ack != true;
-                Command test_udp_ack ("ack");
+                Sequence:
+                ReportSendingAck:
+                {
+                    Command print ("\ntest-recv: sending ack\n\n");
+                }
+                SendAck:
+                {
+                    Command ack_msg ("ack");
+                }
             }
         }
         HandleTimeout:
@@ -58,12 +66,12 @@ test-recv:
         }
         HandleQuitMessage:
         {
-            OnCommand quit (String junk)
+            OnCommand quit_msg (String junk)
             {
                 UncheckedSequence:
                 ReportQuitReceived:
                 {
-                    Command print ("\ntest-recv: received Quit command\n\n");
+                    Command print ("\ntest-recv: received quit command\n\n");
                 }
                 SignalQuit:
                 {

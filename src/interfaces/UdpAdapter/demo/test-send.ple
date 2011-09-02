@@ -8,7 +8,7 @@ test-send:
     Integer arg3 = 3;             // -2147483649, 2147483648
     Real arg4 = 3.14159;          // 1.17e-38, 3.5e+38
     Integer arg5[3] = #(9 8 7);   // easy to read in the buffer when debugging
-    Real arg6[3] = #(36.0 -104.7 25000.0);
+    Real arg6[3] = #(36.0 -104.7 25000.0); // test arrays
     Boolean arg7[3] = #(true true false);
     String arg8[3] = #("foo" "baz" "bar");
     Real run_start_time;
@@ -25,7 +25,7 @@ test-send:
         Sequence:
         ReportParameters:
         {
-            Command print ("\ntest-send: arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
+            Command print ("\ntest-send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
                            ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
         }
         SendCommand:
@@ -41,14 +41,16 @@ test-send:
         Concurrence:
         ReportParameters:
         {
-            //StartCondition: LookupOnChange(time, 1) > run_start_time + 2;
-            Command print ("\ntest-send: arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
+            Command print ("\ntest-send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
                            ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
         }
         WaitForAck:
         {
             StartCondition: ReportParameters.state == FINISHED;
-            OnCommand test_udp_ack (String ack) {}
+            OnCommand ack_msg (String ack)
+            {
+                Command print ("\ntest-send: received ack\n\n");
+            }
         }
         SendCommand:
         {
@@ -60,7 +62,15 @@ test-send:
     SendQuitCommand:
     {
         StartCondition: SendUdpCommand2.state == FINISHED;
-        Command quit("quit");   // Send a Quit command
+        Sequence:
+        ReportSendQuit:
+        {
+            Command print ("\ntest-send: sending quit command\n\n");
+        }
+        SendQuit:
+        {
+            Command quit_msg ("quit");   // Send a Quit command
+        }
     }
 }
 
