@@ -254,7 +254,7 @@ namespace PLEXIL {
      */
     const VariableId& findVariable(const PlexilVarRef* ref);
 
-    const VariableId& findVariable(const LabelStr& name, bool recursive = false);
+    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
 
     const ExecConnectorId& getExec() {return m_exec;}
 
@@ -450,6 +450,8 @@ namespace PLEXIL {
     void createDeclaredVars(const std::vector<PlexilVarId>& vars);
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
+	VariableId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+	VariableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
     void lockConditions();
 

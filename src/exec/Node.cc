@@ -201,7 +201,8 @@ namespace PLEXIL {
 	createDeclaredVars(node->declarations());
 
 	// get interface variables
-	getVarsFromInterface(node->interface());
+	if (node->interface().isId())
+	  getVarsFromInterface(node->interface());
   }
 
   // Used only by module test
@@ -369,65 +370,151 @@ namespace PLEXIL {
 
   void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
   {
-	if (!intf.isValid())
-	  return;
-      
+	check_error(intf.isValid());
 	debugMsg("Node:getVarsFromInterface",
 			 "Getting interface vars for node '" << m_nodeId.toString() << "'");
-	checkError(m_parent.isId(), "Bizarre.  An interface on a parentless node.");
-	//CHECK FOR DUPLICATE NAMES
+	assertTrueMsg(m_parent.isId(),
+				  "Node \"" << m_nodeId
+				  << "\" has an Interface but no parent; may be a library node without a caller.");
+
+	bool parentIsLibCall = m_parent->getType() == LIBRARYNODECALL();
+
+	// Process In variables
 	for (std::vector<PlexilVarRef*>::const_iterator it = intf->in().begin();
 		 it != intf->in().end();
 		 ++it) {
-		PlexilVarRef* varRef = *it;
-		VariableId expr = m_parent->findVariable(varRef);
-		// FIXME: push this check up into XML parser
-		checkError(expr.isId(),
-				   "No variable named '" << varRef->name() <<
-				   "' in parent of node '" << m_nodeId.toString() << "'");
-		// FIXME: push this check up into XML parser
-		checkError(Id<VariableImpl>::convertable(expr)
-				   || Id<AliasVariable>::convertable(expr),
-				   "Expression named '" << varRef->name() <<
-				   "' in parent of node '" << m_nodeId.toString() <<
-				   "' is not a variable.");
+	  PlexilVarRef* varRef = *it;
 
-		// Generate a constant alias for this variable
-		VariableId alias =
-		  (new AliasVariable(varRef->name(),
-							 m_connector,
-							 (Id<Variable>) expr,
-							 true))->getId();
+	  // Check for duplicate name
+	  double nameKey = LabelStr(varRef->name()).getKey();
+	  assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
+					"In node \"" << m_nodeId.toString()
+					<< ": 'In' variable name \"" << varRef->name() << "\" is already in use");
 
-		// add alias to this node
-		debugMsg("Node:getVarsFromInterface", 
-				 " for node " << m_nodeId.c_str()
-				 << ": Adding In variable "
-				 << alias->toString()
-				 << " as '" << varRef->name()
-				 << "'"); 
-		m_localVariables.push_back(alias);
-		m_variablesByName[LabelStr(varRef->name())] = alias;
-      }
+	  VariableId expr = getInVariable(varRef, parentIsLibCall);
+	  check_error(expr.isValid());
+
+	  // make it accessible
+	  debugMsg("Node:getVarsFromInterface", 
+			   " for node \"" << m_nodeId.c_str()
+			   << "\": Adding In variable " << expr->toString()
+			   << " as \"" << varRef->name() << "\""); 
+	  m_variablesByName[nameKey] = expr;
+	}
       
 	for (std::vector<PlexilVarRef*>::const_iterator it = intf->inOut().begin();
 		 it != intf->inOut().end();
 		 ++it) {
-	  VariableId expr = m_parent->findVariable(*it);
-	  // FIXME: push this check up into XML parser
-	  checkError(expr.isId(),
-				 "No variable named '" << (*it)->name() <<
-				 "' in parent of node '" << m_nodeId.toString() << "'");
+	  PlexilVarRef* varRef = *it;
+
+	  // Check for duplicate name
+	  double nameKey = LabelStr(varRef->name()).getKey();
+	  assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
+					"In node \"" << m_nodeId.toString()
+					<< ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
+
+	  VariableId expr = getInOutVariable(varRef, parentIsLibCall);
+	  check_error(expr.isValid());
          
-	  // add variable to this node
+	  // make it accessible
 	  debugMsg("Node:getVarsFromInterface", 
-			   " for node '" << m_nodeId.c_str()
-			   << "': Adding InOut variable "
-			   << expr->toString()
-			   << " as '" << (*it)->name()
-			   << "'"); 
-	  m_variablesByName[LabelStr((*it)->name())] = expr;
+			   " for node \"" << m_nodeId.c_str()
+			   << "\": Adding InOut variable " << expr->toString()
+			   << " as \"" << varRef->name() << "\""); 
+	  m_variablesByName[nameKey] = expr;
 	}
+  }
+
+  VariableId Node::getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  {
+	// Get the variable from the parent
+	// findVariable(..., true) tells LibraryCallNode to only search alias vars
+	VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
+	if (expr.isId()) {
+	  if (!parentIsLibCall) {
+		// Construct const wrapper
+		if (expr->isArray()) {
+		  expr =
+			(new ArrayAliasVariable(varRef->name(), m_connector, expr, false, true))->getId();
+		}
+		else {
+		  expr =
+			(new AliasVariable(varRef->name(), m_connector, expr, false, true))->getId();
+		}
+		debugMsg("Node::getInVariable",
+				 " Node \"" << m_nodeId.toString()
+				 << "\": Constructed const alias wrapper for \"" << varRef->name()
+				 << "\" to variable " << *expr);
+		m_localVariables.push_back(expr);
+	  }
+	}
+	else {
+	  if (parentIsLibCall) {
+		// Get default, if any
+		PlexilExprId defaultVal = varRef->defaultValue();
+		if (defaultVal.isId()) {
+		  if (Id<PlexilVarRef>::convertable(defaultVal)) {
+			// Get a reference to the variable
+			expr = findVariable((PlexilVarRef*) defaultVal);
+		  }
+		  else {
+			// construct constant local "variable" with default value
+			bool wasConstructed = false;
+			expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Value"),
+													 defaultVal,
+													 m_connector,
+													 wasConstructed);
+			if (wasConstructed)
+			  m_localVariables.push_back(expr);
+		  }
+		}
+	  }
+
+	  assertTrueMsg(expr.isId(),
+					"In node \"" << m_nodeId.toString()
+					<< "\" 'In' interface: Parent has no variable "
+					<< (parentIsLibCall ? "or alias " : "")
+					<< "named \"" << varRef->name() << "\""
+					<< (parentIsLibCall ? ", and no default value is defined" : ""));
+	}
+	return expr;
+  }
+
+  VariableId Node::getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  {
+	// Get the variable from the parent
+	// findVariable(..., true) tells LibraryCallNode to only search alias vars
+	VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
+	if (expr.isNoId()) {
+	  if (parentIsLibCall) {
+		// Get default, if any
+		PlexilExprId defaultVal = varRef->defaultValue();
+		if (defaultVal.isId()) {
+		  if (Id<PlexilVarRef>::convertable(defaultVal)) {
+			// Get a reference to the variable
+			expr = findVariable((PlexilVarRef*) defaultVal);
+		  }
+		  else {
+			// construct local "variable" with default value
+			bool wasConstructed = false;
+			expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Variable"),
+													 defaultVal,
+													 m_connector,
+													 wasConstructed);
+			if (wasConstructed)
+			  m_localVariables.push_back(expr);
+		  }
+		}
+	  }
+
+	  assertTrueMsg(expr.isId(),
+					"In node \"" << m_nodeId.toString()
+					<< "\" 'InOut' interface: Parent has no variable "
+					<< (parentIsLibCall ? "or alias " : "")
+					<< "named \"" << varRef->name() << "\""
+					<< (parentIsLibCall ? ", and no default value is defined" : ""));
+	}
+	return expr;
   }
 
   void Node::createConditions(const std::map<std::string, PlexilExprId>& conds) 
@@ -571,7 +658,7 @@ namespace PLEXIL {
 	// Delete user-spec'd variables
     for (std::vector<VariableId>::iterator it = m_localVariables.begin(); it != m_localVariables.end(); ++it) {
 	  debugMsg("Node:cleanUpVars",
-			   "<" << m_nodeId.toString() << "> Removing " << ((VariableImpl*)(*it))->getName());
+			   "<" << m_nodeId.toString() << "> Removing " << **it);
 	  delete (Variable*) (*it);
     }
 	m_localVariables.clear();

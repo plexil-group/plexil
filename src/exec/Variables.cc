@@ -36,7 +36,7 @@ namespace PLEXIL
   ArrayVariable::ArrayVariable(unsigned long maxSize,
 							   PlexilType type,
                                const bool isConst)
-    : EssentialArrayVariable(), 
+    : ArrayVariableBase(), 
 	  VariableImpl(isConst), 
 	  m_maxSize(maxSize), 
       m_type(type),
@@ -51,7 +51,7 @@ namespace PLEXIL
 							   PlexilType type, 
                                std::vector<double>& values, 
 							   const bool isConst)
-    : EssentialArrayVariable(),
+    : ArrayVariableBase(),
 	  VariableImpl(isConst),
 	  m_maxSize(maxSize),
       m_initialVector(values)
@@ -65,7 +65,7 @@ namespace PLEXIL
   ArrayVariable::ArrayVariable(const PlexilExprId& expr, 
                                const NodeConnectorId& node,
                                const bool isConst)
-    : EssentialArrayVariable(node),
+    : ArrayVariableBase(node),
 	  VariableImpl(expr, node, isConst)
   {
 	assertTrueMsg(expr.isValid(), "Attempt to create an ArrayVariable from an invalid Id");
@@ -282,14 +282,6 @@ namespace PLEXIL
     publishChange();
   }
 
-  // Propagate changes from elements
-
-  void ArrayVariable::handleElementChanged(const ExpressionId & elt)
-  {
-    debugMsg("ArrayVariable:handleElementChanged", " for " << getId());
-	publishChange();
-  }
-
   // set an element value in an array variable
   void ArrayVariable::setElementValue(unsigned index, const double value)
   {
@@ -383,7 +375,7 @@ namespace PLEXIL
 
   ArrayElement::ArrayElement(const PlexilExprId& expr, 
                              const NodeConnectorId& node)
-    : DerivedVariable(node),
+    : Variable(node),
       m_deleteIndex(false),
       m_listener(getId())
   {
@@ -398,10 +390,10 @@ namespace PLEXIL
     PlexilVarRef arrayRef;
     arrayRef.setName(name);
     VariableId arrayVar = node->findVariable(&arrayRef);
-    checkError(EssentialArrayVariableId::convertable(arrayVar),
+    checkError(ArrayVariableId::convertable(arrayVar),
                "Expected Array Variable but found: " << 
                arrayVar->toString());
-    m_arrayVariable = (EssentialArrayVariableId) arrayVar;    
+    m_arrayVariable = (ArrayVariableId) arrayVar;    
     m_arrayVariable->addListener(m_listener.getId());
 
     // initialize index expression
@@ -458,16 +450,6 @@ namespace PLEXIL
   PlexilType ArrayElement::getValueType() const
   {
     return m_arrayVariable->getElementType();
-  }
-
-  /**
-   * @brief Notify listeners that the value of this expression has changed.
-   */
-
-  void ArrayElement::publishChange()
-  {
-    Expression::publishChange();
-    m_arrayVariable->handleElementChanged(getId());
   }
 
   /**
@@ -746,11 +728,14 @@ namespace PLEXIL
   }
 
   TimepointVariable::TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node)
-    : ConstVariableWrapper() {
+    : AliasVariable(expr->name(),
+					node,
+					node->findVariable((PlexilVarRef*)expr),
+					false,
+					true)
+  {
     checkError(Id<PlexilTimepointVar>::convertable(expr),
 	       "Expected NodeTimepoint element, got " << expr->name());
-
-    setWrapped(node->findVariable((PlexilVarRef*)expr));
   }
 
 }

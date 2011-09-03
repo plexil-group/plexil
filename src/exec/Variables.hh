@@ -51,7 +51,7 @@ namespace PLEXIL
    */
 
   class ArrayVariable :
-	public EssentialArrayVariable,
+	public ArrayVariableBase,
 	public VariableImpl // ???
   {
   public:
@@ -112,12 +112,6 @@ namespace PLEXIL
      */
     bool checkElementValue(const double val);
 
-    /**
-     * @brief Notify this array that an element's value has changed.
-     * @param elt The changed element.
-     */
-    virtual void handleElementChanged(const ExpressionId& elt);
-
   protected:
 
   private:
@@ -138,8 +132,6 @@ namespace PLEXIL
     { return index < m_maxSize; }
 
   };
-
-  typedef Id<ArrayVariable> ArrayVariableId;
 
   class StringVariable : public VariableImpl {
   public:
@@ -210,7 +202,7 @@ namespace PLEXIL
 
   // Access to an element of an array
 
-  class ArrayElement : public DerivedVariable
+  class ArrayElement : public Variable
   {
   public:
     /**
@@ -256,11 +248,6 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
     /**
-     * @brief Notify listeners that the value of this expression has changed.
-     */
-    virtual void publishChange();
-
-    /**
      * @brief Notify this expression that a subexpression's value has changed.
      * @param exp The changed subexpression.
      */
@@ -296,13 +283,13 @@ namespace PLEXIL
      */
     bool checkValue(const double value);
 
-    EssentialArrayVariableId m_arrayVariable;
+    ArrayVariableId m_arrayVariable;
     ExpressionId m_index;
     bool m_deleteIndex;
     DerivedVariableListener m_listener;
   };
 
-  class TimepointVariable : public ConstVariableWrapper 
+  class TimepointVariable : public AliasVariable
   {
   public:
     TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node);

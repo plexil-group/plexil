@@ -70,45 +70,30 @@ namespace PLEXIL
 	  return m_nodeConnector->getNode();
   }
 
-  EssentialArrayVariable::EssentialArrayVariable()
+  //
+  // ArrayVariableBase
+  //
+
+  ArrayVariableBase::ArrayVariableBase()
 	: Variable(),
-	  m_eavid(this, Variable::getId())
+	  m_avid(this, Variable::getId())
   {
   }
 
-  EssentialArrayVariable::EssentialArrayVariable(const NodeConnectorId& node)
+  ArrayVariableBase::ArrayVariableBase(const NodeConnectorId& node)
 	: Variable(node),
-	  m_eavid(this, Variable::getId())
+	  m_avid(this, Variable::getId())
   {
   }
 
-  EssentialArrayVariable::~EssentialArrayVariable()
+  ArrayVariableBase::~ArrayVariableBase()
   {
-	m_eavid.removeDerived(Variable::getId());
+	m_avid.removeDerived(Variable::getId());
   }
 
-  /**
-   * @brief Default constructor.
-   */
-  DerivedVariable::DerivedVariable()
-	: Variable()
-	{} 
-
-  /**
-   * @brief Constructor.
-   */
-  DerivedVariable::DerivedVariable(const NodeConnectorId& node)
-	: Variable(node)
-  {}
-
-
-  /**
-   * @brief Destructor.
-   */
-  DerivedVariable::~DerivedVariable()
-  {
-  }
-
+  //
+  // VariableImpl
+  //
 
   // Used in Expression::UNKNOWN_EXP(), and by various derived constructors
 
@@ -251,88 +236,9 @@ namespace PLEXIL
 	  Expression::removeListener(id);
   }
 
-  ConstVariableWrapper::ConstVariableWrapper(const VariableId& exp)
-    : DerivedVariable(), m_exp(exp), m_listener(this) 
-  {
-    m_exp->addListener(m_listener.getId());
-  }
-
-  ConstVariableWrapper::ConstVariableWrapper()
-    : DerivedVariable(), m_listener(this) {}
-
-  ConstVariableWrapper::~ConstVariableWrapper() {
-    checkError(m_exp.isValid(), "Got to destructor without a valid wrapped variable.");
-    m_exp->removeListener(m_listener.getId());
-  }
-
-  void ConstVariableWrapper::setWrapped(const VariableId& expr) {
-    checkError(m_exp.isInvalid(),
-	       "Attmpted to set wrapped variable to " << expr->toString() <<
-	       " when already wrapping " << m_exp->toString());
-    checkError(expr.isValid(),
-	       "Attempted to set an invalid wrapped variable.");
-    m_exp = expr;
-    m_exp->addListener(m_listener.getId());
-  }
-
-  double ConstVariableWrapper::getValue() const 
-  {
-    checkError(m_exp.isValid(), "Got to getValue without a valid wrapped variable.");
-    return m_exp->getValue();
-  }
-
-  PlexilType ConstVariableWrapper::getValueType() const 
-  {
-    checkError(m_exp.isValid(), "Got to getValueType without a valid wrapped variable.");
-    return m_exp->getValueType();
-  }
-
-  void ConstVariableWrapper::setValue(const double /* value */) 
-  {
-    checkError(ALWAYS_FAIL,
-			   "Attempted to set the value of a const expression.");
-  }
-
-  std::string ConstVariableWrapper::valueString() const 
-  {
-    checkError(m_exp.isValid(), "Got to valueString without a valid wrapped variable.");
-    std::ostringstream str;
-    str << "const " << m_exp->valueString();
-    return str.str();
-  }
-
-  void ConstVariableWrapper::reset()
-  {
-    checkError(ALWAYS_FAIL,
-			   "Attempted to reset a const expression.");
-  }
-
-  bool ConstVariableWrapper::checkValue(const double /* val */) 
-  {
-    checkError(ALWAYS_FAIL,
-			   "Attempted to check an incoming value for const expresssion " << toString());
-    return false;
-  }
-
-  void ConstVariableWrapper::handleActivate(const bool /* changed */) 
-  {
-    checkError(m_exp.isValid(), "Got to handleActivate without a valid wrapped variable.");
-    m_listener.activate();
-    m_exp->activate();
-  }
-
-  void ConstVariableWrapper::handleDeactivate(const bool /* changed */) 
-  {
-    checkError(m_exp.isValid(), "Got to handleDeactivate without a valid wrapped variable.");
-    m_listener.deactivate();
-    m_exp->deactivate();
-  }
-
-  void ConstVariableWrapper::handleChange(const ExpressionId& /* expr */) 
-  {
-    checkError(m_exp.isValid(), "Got to handleChange without a valid wrapped variable.");
-    publishChange();
-  }
+  //
+  // AliasVariable
+  // 
 
   /**
    * @brief Constructor. Creates a variable that indirects to another variable.
@@ -341,30 +247,34 @@ namespace PLEXIL
    * @param original The original variable for this alias.
    * @param isConst True if assignments to the alias are forbidden.
    */
-  AliasVariable::AliasVariable(const std::string& name, 
+  AliasVariable::AliasVariable(const std::string& name,
 							   const NodeConnectorId& nodeConnector,
-							   VariableId original,
-							   const bool isConst)
-	: DerivedVariable(nodeConnector),
-	  m_originalVariable(original),
+							   const ExpressionId& original,
+							   bool expIsGarbage,
+							   bool isConst)
+	: Variable(nodeConnector),
+	  m_originalExpression(original),
 	  m_listener(getId()),
 	  m_name(name),
+	  m_isGarbage(expIsGarbage),
 	  m_isConst(isConst)
   {
 	// Check original, node for validity
 	assertTrue(original.isValid(),
-			   "Invalid variable ID passed to AliasVariable constructor");
+			   "Invalid expression ID passed to AliasVariable constructor");
 	assertTrue(nodeConnector.isValid(),
 			   "Invalid node connector ID passed to AliasVariable constructor");
-	m_originalVariable->addListener(m_listener.getId());
-	m_value = m_originalVariable->getValue();
+	m_originalExpression->addListener(m_listener.getId());
+	m_value = m_originalExpression->getValue();
   }
 
   AliasVariable::~AliasVariable()
   {
-	assertTrue(m_originalVariable.isValid(),
-			   "Original variable ID invalid in AliasVariable destructor");
-	m_originalVariable->removeListener(m_listener.getId());
+	assertTrue(m_originalExpression.isValid(),
+			   "Original expression ID invalid in AliasVariable destructor");
+	m_originalExpression->removeListener(m_listener.getId());
+	if (m_isGarbage)
+	  delete (Expression*) m_originalExpression;
   }
 
   /**
@@ -375,7 +285,7 @@ namespace PLEXIL
   {
 	Expression::print(s);
 	s << "AliasVariable " << m_name
-	  << ", aliased to " << *m_originalVariable
+	  << ", aliased to " << *m_originalExpression
 	  << ")";
   }
 
@@ -386,7 +296,7 @@ namespace PLEXIL
   void AliasVariable::reset()
   { 
 	// *** FIXME: should this do anything at all??
-	// m_originalVariable->reset(); 
+	// m_originalExpression->reset(); 
   }
 
   /**
@@ -396,12 +306,12 @@ namespace PLEXIL
    */
   PlexilType AliasVariable::getValueType() const
   {
-	return m_originalVariable->getValueType();
+	return m_originalExpression->getValueType();
   }
 
   bool AliasVariable::checkValue(const double val)
   {
-	return m_originalVariable->checkValue(val);
+	return m_originalExpression->checkValue(val);
   }	
 
   /**
@@ -411,39 +321,192 @@ namespace PLEXIL
    */
   void AliasVariable::setValue(const double value)
   {
-    checkError(!isConst(),
-			   "Attempted to assign value " << Expression::valueToString(value)
-			   << " to read-only alias variable " << toString());
-	m_originalVariable->setValue(value);
+	assertTrueMsg(!m_isConst,
+				  "setValue() called on read-only alias " << *this);
+	m_originalExpression->setValue(value);
   }
 
   void AliasVariable::handleChange(const ExpressionId& exp)
   {
-	if (exp == m_originalVariable) {
+	if (exp == m_originalExpression) {
 	  // propagate value from original
-	  internalSetValue(m_originalVariable->getValue());
+	  internalSetValue(m_originalExpression->getValue());
 	}
+  }
+
+  const VariableId& AliasVariable::getBaseVariable() const
+  {
+	if (VariableId::convertable(m_originalExpression))
+	  return ((VariableId) m_originalExpression)->getBaseVariable();
+	else
+	  return Variable::getId();
   }
 
   void AliasVariable::handleActivate(const bool changed)
   {
 	if (changed) {
-	  m_originalVariable->activate();
+	  m_originalExpression->activate();
 	  // refresh value from original
-	  internalSetValue(m_originalVariable->getValue());
+	  internalSetValue(m_originalExpression->getValue());
 	}
   }
 
-  // *** FIXME: Inhibit deactivatation if const?
   void AliasVariable::handleDeactivate(const bool changed)
   {
 	if (changed) {
-	  m_originalVariable->deactivate();
+	  m_originalExpression->deactivate();
 	}
   }
 
   void AliasVariable::handleReset()
   {
+	// FIXME: do something
+  }
+
+  //
+  // ArrayAliasVariable
+  //
+
+  ArrayAliasVariable::ArrayAliasVariable(const std::string& name,
+										 const NodeConnectorId& nodeConnector,
+										 const ExpressionId& exp,
+										 bool expIsGarbage,
+										 bool isConst)
+	: ArrayVariableBase(nodeConnector),
+	  m_originalArray((ArrayVariableId) exp),
+	  m_listener(getId()),
+	  m_name(name),
+	  m_isGarbage(expIsGarbage),
+	  m_isConst(isConst)
+  {
+	// Check original, node for validity
+	assertTrueMsg(m_originalArray.isId(),
+				  "Invalid array passed to ArrayAliasVariable constructor");
+	assertTrue(nodeConnector.isValid(),
+			   "Invalid node connector ID passed to AliasVariable constructor");
+	m_originalArray->addListener(m_listener.getId());
+	m_value = m_originalArray->getValue();
+  }
+
+  ArrayAliasVariable::~ArrayAliasVariable()
+  {
+	assertTrue(m_originalArray.isValid(),
+			   "Original expression ID invalid in AliasVariable destructor");
+	m_originalArray->removeListener(m_listener.getId());
+	if (m_isGarbage)
+	  delete (Expression*) m_originalArray;
+  }
+
+  /**
+   * @brief Get a string representation of this Expression.
+   * @return The string representation.
+   */
+  void ArrayAliasVariable::print(std::ostream& s) const
+  {
+	Expression::print(s);
+	s << "ArrayAliasVariable " << m_name
+	  << ", aliased to " << *m_originalArray
+	  << ")";
+  }
+
+  /**
+   * @brief Set the value of this expression back to the initial value with which it was
+   *        created.
+   */
+  void ArrayAliasVariable::reset()
+  { 
+	// *** FIXME: should this do anything at all??
+	// m_originalArray->reset(); 
+  }
+
+  /**
+   * @brief Retrieve the value type of this Expression.
+   * @return The value type of this Expression.
+   * @note Delegates to original.
+   */
+  PlexilType ArrayAliasVariable::getValueType() const
+  {
+	return m_originalArray->getValueType();
+  }
+
+  bool ArrayAliasVariable::checkValue(const double val)
+  {
+	return m_originalArray->checkValue(val);
+  }	
+
+  /**
+   * @brief Sets the value of this variable.  Will throw an error if the variable was
+   *        constructed with isConst == true.
+   * @param value The new value for this variable.
+   */
+  void ArrayAliasVariable::setValue(const double value)
+  {
+	assertTrueMsg(!m_isConst,
+				  "setValue() called on read-only alias " << *this);
+	m_originalArray->setValue(value);
+  }
+
+  void ArrayAliasVariable::handleChange(const ExpressionId& exp)
+  {
+	if (exp == m_originalArray) {
+	  // propagate value from original
+	  internalSetValue(m_originalArray->getValue());
+	}
+  }
+
+  const VariableId& ArrayAliasVariable::getBaseVariable() const
+  {
+	if (VariableId::convertable(m_originalArray))
+	  return ((VariableId) m_originalArray)->getBaseVariable();
+	else
+	  return Variable::getId();
+  }
+
+  void ArrayAliasVariable::handleActivate(const bool changed)
+  {
+	if (changed) {
+	  m_originalArray->activate();
+	  // refresh value from original
+	  internalSetValue(m_originalArray->getValue());
+	}
+  }
+
+  void ArrayAliasVariable::handleDeactivate(const bool changed)
+  {
+	if (changed) {
+	  m_originalArray->deactivate();
+	}
+  }
+
+  void ArrayAliasVariable::handleReset()
+  {
+	// FIXME: do something
+  }
+
+  unsigned long ArrayAliasVariable::maxSize() const
+  {
+	return m_originalArray->maxSize();
+  }
+
+  double ArrayAliasVariable::lookupValue(unsigned long index) const
+  {
+	return m_originalArray->lookupValue(index);
+  }
+
+  void ArrayAliasVariable::setElementValue(unsigned /* index */, const double /* value */)
+  {
+	assertTrueMsg(!isConst(),
+				  "Attempt to call setElementValue() on const array alias " << *this);
+  }
+
+  PlexilType ArrayAliasVariable::getElementType() const
+  {
+	return m_originalArray->getElementType();
+  }
+
+  bool ArrayAliasVariable::checkElementValue(const double val)
+  {
+	return m_originalArray->checkElementValue(val);
   }
 
 }

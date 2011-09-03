@@ -77,7 +77,7 @@ namespace PLEXIL {
   Expression::~Expression() {
     checkError(m_outgoingListeners.empty(),
 	       "Error: Expression '" << toString() << "' still has outgoing listeners.");
-    m_id.remove();
+	m_id.remove();
   }
 
   double Expression::getValue() const {

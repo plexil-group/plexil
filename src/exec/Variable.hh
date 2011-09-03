@@ -110,15 +110,15 @@ namespace PLEXIL
    * An abstract base class representing a variable-like object
    * which stores an array.
    */
-  class EssentialArrayVariable :
+  class ArrayVariableBase :
 	public virtual Variable
   {
   public:
-	EssentialArrayVariable();
+	ArrayVariableBase();
 
-	EssentialArrayVariable(const NodeConnectorId& node);
+	ArrayVariableBase(const NodeConnectorId& node);
 
-	virtual ~EssentialArrayVariable();
+	virtual ~ArrayVariableBase();
 
 	/**
 	 * @brief Get the maximum size of this array.
@@ -154,63 +154,22 @@ namespace PLEXIL
      */
     virtual PlexilType getValueType() const { return ARRAY; }
 
-    /**
-     * @brief Notify this array that an element's value has changed.
-     * @param elt The changed element.
-     */
-    virtual void handleElementChanged(const ExpressionId& elt) = 0; 
+	/**
+	 * @brief Report whether the expression is an array.
+	 * @return True if an array, false otherwise.
+	 */
+	virtual bool isArray() const { return true; }
 
-	const Id<EssentialArrayVariable>& getId() const { return m_eavid; }
+	const ArrayVariableId& getArrayId() const { return m_avid; }
 
   protected:
 
   private:
 	// deliberately unimplemented
-	EssentialArrayVariable(const EssentialArrayVariable&);
-	EssentialArrayVariable& operator=(const EssentialArrayVariable&);
+	ArrayVariableBase(const ArrayVariableBase&);
+	ArrayVariableBase& operator=(const ArrayVariableBase&);
 
-	Id<EssentialArrayVariable> m_eavid;
-  };
-
-  typedef Id<EssentialArrayVariable> EssentialArrayVariableId;
-
-  /**
-   *  An abstract base class representing any "variable" expression that depends upon another variable,
-   *  including but not limited to array elements, aliases, etc.
-   */
-  class DerivedVariable :
-	public virtual Variable
-  {
-  public:
-	/**
-	 * @brief Default constructor.
-	 */
-    DerivedVariable();
-
-	/**
-	 * @brief Constructor.
-	 */
-    DerivedVariable(const NodeConnectorId& node);
-
-	/**
-	 * @brief Destructor.
-	 */
-    virtual ~DerivedVariable();
-	
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @param exp The changed subexpression.
-	 * @note This is to let the derived variable know when the objects 
-	 *       from which it is derived have changed.
-     */
-    virtual void handleChange(const ExpressionId& exp) = 0;
-    
-  protected:
-    
-  private:
-    // deliberately unimplemented
-    DerivedVariable(const DerivedVariable &);
-    DerivedVariable & operator=(const DerivedVariable &);
+	ArrayVariableId m_avid;
   };
 
   /**
@@ -398,63 +357,21 @@ namespace PLEXIL
     std::string m_name; /*<! The name under which this variable was declared */
   };
 
-  /**
-   * Class to provide a constant interface over some other variable.
-   * Currently used only in TimepointVariable.
-   */
-  class ConstVariableWrapper : public DerivedVariable {
-  public:
-    ConstVariableWrapper(const VariableId& exp);
-    ConstVariableWrapper();
-    virtual ~ConstVariableWrapper();
-    virtual double getValue() const;
-	virtual PlexilType getValueType() const;
-    virtual void setValue(const double value);
-    virtual std::string valueString() const;
-	virtual bool isConst() const { return true; }
-	virtual void reset();
-
-	/**
-	 * @brief Get the real variable for which this may be a proxy.
-	 * @return The VariableId of the base variable
-	 * @note Used by the assignment node conflict resolution logic.
-	 */
-	virtual const VariableId& getBaseVariable() const
-	{
-	  return m_exp;
-	}
-
-  protected:
-    virtual void handleChange(const ExpressionId& expr);
-    void setWrapped(const VariableId& expr);
-
-  private:
-	// deliberately unimplemented
-	ConstVariableWrapper(const ConstVariableWrapper&);
-	ConstVariableWrapper& operator=(const ConstVariableWrapper&);
-
-    virtual bool checkValue(const double val);
-    void handleActivate(const bool changed);
-    void handleDeactivate(const bool changed);
-
-    VariableId m_exp;
-	DerivedVariableListener m_listener;
-  };
-
-  class AliasVariable : public DerivedVariable
+  class AliasVariable : virtual public Variable
   {
   public:
 	/**
-	 * @brief Constructor. Creates a variable that indirects to another variable.
+	 * @brief Constructor. Creates a variable-like object that wraps another expression.
 	 * @param name The name of this variable in the node that constructed the alias.
 	 * @param node The node which owns this alias.
-	 * @param original The original variable for this alias.
+	 * @param original The original expression for this alias.
 	 * @param isConst True if assignments to the alias are forbidden.
 	 */
 	AliasVariable(const std::string& name, 
 				  const NodeConnectorId& nodeConnector,
-				  VariableId original,
-				  const bool isConst = false);
+				  const ExpressionId& exp,
+				  bool expIsGarbage,
+				  bool isConst);
 
 	virtual ~AliasVariable();
 
@@ -510,10 +427,7 @@ namespace PLEXIL
 	 * @return The VariableId of the base variable
 	 * @note Used by the assignment node conflict resolution logic.
 	 */
-	virtual const VariableId& getBaseVariable() const
-	{
-	  return m_originalVariable->getBaseVariable();
-	}
+	virtual const VariableId& getBaseVariable() const;
 
   protected:
 
@@ -543,11 +457,119 @@ namespace PLEXIL
 	AliasVariable(const AliasVariable&);
 	AliasVariable& operator=(const AliasVariable&);
 
-	VariableId m_originalVariable;
+	ExpressionId m_originalExpression;
 	DerivedVariableListener m_listener;
 	const std::string& m_name;
-	bool m_isConst;
+	bool m_isGarbage, m_isConst;
   };
+
+
+  // C++ sucks at multiple inheritance.
+  class ArrayAliasVariable :
+	public virtual ArrayVariableBase
+  {
+  public:
+	ArrayAliasVariable(const std::string& name, 
+					   const NodeConnectorId& nodeConnector,
+					   const ExpressionId& exp,
+					   bool expIsGarbage,
+					   bool isConst);
+    virtual ~ArrayAliasVariable();
+
+    /**
+     * @brief Get a string representation of this Expression.
+     * @return The string representation.
+     */
+    void print(std::ostream& s) const;
+
+    /**
+     * @brief Set the value of this expression back to the initial value with which it was
+     *        created.
+     */
+    virtual void reset();
+
+    /**
+     * @brief Retrieve the value type of this Expression.
+     * @return The value type of this Expression.
+     */
+    virtual PlexilType getValueType() const;
+    
+    /**
+     * @brief Check to make sure a value is appropriate for this expression.
+     */
+    virtual bool checkValue(const double val);
+
+    /**
+     * @brief Sets the value of this variable.  Will throw an error if the variable was
+     *        constructed with isConst == true.
+     * @param value The new value for this variable.
+     */
+    virtual void setValue(const double value);
+
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @param exp The changed subexpression.
+     */
+    virtual void handleChange(const ExpressionId& exp);
+
+    /**
+     * @brief Gets the const-ness of this variable.
+     * @return True if this variable is const, false otherwise.
+     */
+    bool isConst() const {return m_isConst;}
+
+    /**
+     * @brief Get the name of this alias, as declared in the node that owns it.
+     */
+    const std::string& getName() const { return m_name; }
+
+	/**
+	 * @brief Get the real variable for which this may be a proxy.
+	 * @return The VariableId of the base variable
+	 * @note Used by the assignment node conflict resolution logic.
+	 */
+	virtual const VariableId& getBaseVariable() const;
+
+	// ArrayVariable API
+	virtual unsigned long maxSize() const;
+	virtual double lookupValue(unsigned long index) const;
+    virtual void setElementValue(unsigned index, const double value);
+    virtual PlexilType getElementType() const;
+    virtual bool checkElementValue(const double val);
+
+  protected:
+
+    /**
+     * @brief Handle the activation of the expression.
+     * @param changed True if the call to activate actually caused a change from inactive to
+     *                active.
+     */
+    virtual void handleActivate(const bool changed);
+
+    /**
+     * @brief Handle the deactivation of the expression
+     * @param changed True if the call to deactivate actually caused a change from active to
+     *                inactive.
+     */
+    virtual void handleDeactivate(const bool changed);
+
+    /**
+     * @brief Handle additional behaviors for the reset() call.
+     */
+    virtual void handleReset();
+
+  private:
+	// deliberately unimplemented
+	ArrayAliasVariable();
+	ArrayAliasVariable(const ArrayAliasVariable&);
+	ArrayAliasVariable& operator=(const ArrayAliasVariable&);
+
+	ArrayVariableId m_originalArray;
+	DerivedVariableListener m_listener;
+	const std::string& m_name;
+	bool m_isGarbage, m_isConst;
+  };
+
 
 }
 

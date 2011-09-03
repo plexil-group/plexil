@@ -49,8 +49,8 @@ namespace PLEXIL {
   class Variable;
   typedef Id<Variable> VariableId;
 
-  class EssentialArrayVariable;
-  typedef Id<EssentialArrayVariable> EssentialArrayVariableId;
+  class ArrayVariableBase;
+  typedef Id<ArrayVariableBase> ArrayVariableId;
 
   class Node;
   typedef Id<Node> NodeId;

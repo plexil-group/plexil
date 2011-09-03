@@ -65,6 +65,8 @@ namespace PLEXIL
 	  return m_children; 
 	}
 
+	virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
+
   protected:
 
 	// Specific behaviors for derived classes
@@ -91,12 +93,13 @@ namespace PLEXIL
 
     void createLibraryNode(const PlexilLibNodeCallBody* body);
 
-    void testLibraryNodeParameters(const PlexilNodeId& libNode, 
-                                   const std::vector<PlexilVarRef*>& interfaceVars,
-                                   PlexilAliasMap& aliases);
+    void createAliases(const PlexilNodeId& libNode, 
+					   const std::vector<PlexilVarRef*>& interfaceVars,
+					   PlexilAliasMap& aliases,
+					   bool isIn);
 
     std::vector<NodeId> m_children; /*<! Vector of child node. */
-
+	VariableMap m_aliasVariables;
   };
 
 }

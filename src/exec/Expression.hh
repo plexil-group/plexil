@@ -154,6 +154,13 @@ namespace PLEXIL {
      */
     virtual PlexilType getValueType() const { return PLEXIL::UNKNOWN_TYPE; }
 
+	/**
+	 * @brief Report whether the expression is an array.
+	 * @return True if an array, false otherwise.
+	 * @note This default method returns false.
+	 */
+	virtual bool isArray() const { return false; }
+
     /**
      * @brief Set the value for this expression.  This may cause notifications to fire, which
      *        may in turn cause other Expressions to change value.
