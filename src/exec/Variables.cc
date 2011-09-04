@@ -286,7 +286,7 @@ namespace PLEXIL
   {
     // lotsa potential errors to check
     checkError(!VariableImpl::isConst(),
-               "Attempted to set element value " << value << " to " << toString());
+               "Attempted to set element value " << value << " of const array " << *this);
     checkError(checkElementValue(value),
                "Attempted to set element of " << PlexilParser::valueTypeString(getElementType())
 			   << " array variable to invalid value \"" << valueToString(value) << "\"");
@@ -298,10 +298,10 @@ namespace PLEXIL
 
     // set the element
     StoredArray theArray(m_value);
-    theArray[index] = value;
-
-    // publish change
-    publishChange();
+	if (value != theArray[index]) {
+	  theArray[index] = value;
+	  publishChange();
+	}
   }
 
   // lookup a value in an array variable
