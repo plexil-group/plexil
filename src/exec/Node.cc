@@ -431,7 +431,8 @@ namespace PLEXIL {
 	// findVariable(..., true) tells LibraryCallNode to only search alias vars
 	VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
 	if (expr.isId()) {
-	  if (!parentIsLibCall) {
+	  // Try to avoid constructing alias var
+	  if (!parentIsLibCall && !expr->isConst()) {
 		// Construct const wrapper
 		if (expr->isArray()) {
 		  expr =
@@ -449,6 +450,7 @@ namespace PLEXIL {
 	  }
 	}
 	else {
+	  // FIXME: should we generate default even if not a library call?
 	  if (parentIsLibCall) {
 		// Get default, if any
 		PlexilExprId defaultVal = varRef->defaultValue();
@@ -472,8 +474,8 @@ namespace PLEXIL {
 
 	  assertTrueMsg(expr.isId(),
 					"In node \"" << m_nodeId.toString()
-					<< "\" 'In' interface: Parent has no variable "
-					<< (parentIsLibCall ? "or alias " : "")
+					<< "\" 'In' interface: Parent has no "
+					<< (parentIsLibCall ? "alias " : "variable ")
 					<< "named \"" << varRef->name() << "\""
 					<< (parentIsLibCall ? ", and no default value is defined" : ""));
 	}
@@ -485,7 +487,16 @@ namespace PLEXIL {
 	// Get the variable from the parent
 	// findVariable(..., true) tells LibraryCallNode to only search alias vars
 	VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
-	if (expr.isNoId()) {
+	if (expr.isId()) {
+	  assertTrueMsg(!expr->isConst(),
+					"In node \"" << m_nodeId.toString()
+					<< "\" 'InOut' interface: "
+					<< (parentIsLibCall ? "Alias for \"" : "Variable \"")
+					<< varRef->name() << "\", "
+					<< *expr << ", is read-only");
+	}
+	else {
+	  // FIXME: should we generate default even if not a library call?
 	  if (parentIsLibCall) {
 		// Get default, if any
 		PlexilExprId defaultVal = varRef->defaultValue();
@@ -509,8 +520,8 @@ namespace PLEXIL {
 
 	  assertTrueMsg(expr.isId(),
 					"In node \"" << m_nodeId.toString()
-					<< "\" 'InOut' interface: Parent has no variable "
-					<< (parentIsLibCall ? "or alias " : "")
+					<< "\" 'InOut' interface: Parent has no "
+					<< (parentIsLibCall ? "alias " : "variable ")
 					<< "named \"" << varRef->name() << "\""
 					<< (parentIsLibCall ? ", and no default value is defined" : ""));
 	}
