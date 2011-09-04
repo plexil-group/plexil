@@ -126,6 +126,11 @@ namespace PLEXIL
     void step();
 
 	/**
+	 * @brief Returns true if the Exec needs to be stepped.
+	 */
+	bool needsStep() const;
+
+	/**
 	 * @brief Set the ExecListenerHub instance.
 	 */
 	void setExecListenerHub(const ExecListenerHubId& hub)

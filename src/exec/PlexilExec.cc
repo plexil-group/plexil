@@ -269,6 +269,11 @@ namespace PLEXIL {
     m_nodesToConsider.push_back(node);
   }
 
+  bool PlexilExec::needsStep() const
+  {
+	return !m_nodesToConsider.empty();
+  }
+
   //as a possible optimization, if we spend a lot of time searching through this list,
   //it should be faster to search the list backwards.
   void PlexilExec::handleConditionsChanged(const NodeId& node, NodeState destState) 
@@ -551,10 +556,11 @@ namespace PLEXIL {
 		node->unlockConditions();
       }
 
-      performAssignments();
       ++stepCount;
     }
 	// END QUIESCENCE LOOP
+
+	performAssignments();
 
     std::list<CommandId> commands(m_commandsToExecute.begin(), m_commandsToExecute.end());
     m_commandsToExecute.clear();
