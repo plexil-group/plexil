@@ -104,7 +104,7 @@ namespace PLEXIL
 		   value != values.end(); ++value) {
 		double convertedValue;
 		if (m_type == STRING)
-		  convertedValue = (double)LabelStr(*value);
+		  convertedValue = LabelStr(*value).getKey();
 		else if (m_type == BOOLEAN) {
 		  if (compareIgnoreCase(*value, "true") || 
 			  (strcmp(value->c_str(), "1") == 0))
@@ -113,7 +113,8 @@ namespace PLEXIL
 				   (strcmp(value->c_str(), "0") == 0))
 			convertedValue = 0;
 		  else
-			checkError(false, "Invalid boolean value \"" << *value << "\"");
+			checkError(false, 
+					   "Attempt to initialize Boolean array variable with invalid value \"" << *value << "\"");
 		}
 		else {
 		  std::istringstream valueStream(*value);
@@ -226,12 +227,10 @@ namespace PLEXIL
     // set all the values
       
     for (std::vector<double>::iterator value = values.begin();
-         value != values.end(); ++value)
-      {
-	debugMsg("ArrayVariable::setValues", 
-		 " checking element value " << plexilValueToString(*value));
+         value != values.end(); ++value) {
         checkError(checkElementValue(*value),
-                   "Attempted to initialize a variable with an invalid value.");
+                   "Attempted to set element of " << PlexilParser::valueTypeString(getElementType())
+				   << " array variable to invalid value \"" << valueToString(*value) << "\"");
         array[index++] = *value;
       }
 
@@ -261,13 +260,13 @@ namespace PLEXIL
       
     // set all the values
       
-    while (index < source.size())
-      {
-        double value = source[index];
-        checkError(checkElementValue(value),
-                   "Attempted to initialize a variable with an invalid value.");
-        array[index++] = value;
-      }
+    while (index < source.size()) {
+	  double value = source[index];
+	  checkError(checkElementValue(value),
+				 "Attempted to set element of " << PlexilParser::valueTypeString(getElementType())
+				 << " array variable to invalid value \"" << valueToString(value) << "\"");
+	  array[index++] = value;
+	}
 
     // fill out the rest of the array with "UNKNOWN"
 
@@ -289,7 +288,8 @@ namespace PLEXIL
     checkError(!VariableImpl::isConst(),
                "Attempted to set element value " << value << " to " << toString());
     checkError(checkElementValue(value),
-               "Attempted to assign an invalid value to an array element");
+               "Attempted to set element of " << PlexilParser::valueTypeString(getElementType())
+			   << " array variable to invalid value \"" << valueToString(value) << "\"");
     checkError(checkIndex(index),
                "Array index " << index << " exceeds bound of " 
                << m_maxSize);
@@ -503,13 +503,13 @@ namespace PLEXIL
   StringVariable::StringVariable(const double value, const bool isConst)
     : VariableImpl(value, isConst) {
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+			   "Attempted to initialize string variable to an invalid value \"" << valueToString(value) << "\"");
   }
 
   StringVariable::StringVariable(const LabelStr& value, const bool isConst)
     : VariableImpl(value, isConst) {
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+			   "Attempted to initialize string variable to an invalid value \"" << value.toString() << "\"");
   }
 
   StringVariable::StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
@@ -560,7 +560,7 @@ namespace PLEXIL
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-               "Attempted to initialize a variable with an invalid value.");
+               "Attempted to initialize a Real variable with invalid value \"" << valueToString(value) << "\"");
   }
 
   RealVariable::RealVariable(const PlexilExprId& expr, const NodeConnectorId& node,
@@ -642,7 +642,7 @@ namespace PLEXIL
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+			   "Attempted to initialize an Integer variable to invalid value \"" << valueToString(value) << "\"");
 
   }
 

@@ -44,7 +44,7 @@ namespace PLEXIL
   double LogicalNegation::recalculate() {
     double v = m_e->getValue();
     checkError(v == 1.0 || v == 0.0 || v == UNKNOWN(),
-	       "Invalid value in logical negation: " << v);
+			   "Invalid value in logical negation: " << Expression::valueToString(v));
     if (v == 1.0)
       return 0.0;
     else if (v == 0.0)
@@ -267,7 +267,8 @@ namespace PLEXIL
          
         // validate values (your and important part of things!)
          
-        checkError(checkValue(value), "Invalid exclusive or value: " << value);
+        checkError(checkValue(value),
+				   "Invalid exclusive or value: " << Expression::valueToString(value));
       }
     // confirm we've got enough values
 
@@ -321,7 +322,8 @@ namespace PLEXIL
         // values.push_back(value);
         
         // validate values (you look ma'valouse!)
-        checkError(checkValue(value), "Invalid concatenation value: " << value);
+        checkError(checkValue(value),
+				   "Invalid concatenation value: " << Expression::valueToString(value));
 
         // if a sub expression is UNKNOWN return UNKNOWN
         if (value == UNKNOWN()){

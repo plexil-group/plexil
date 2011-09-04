@@ -39,7 +39,7 @@ namespace PLEXIL
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+			   "Attempted to initialize a Boolean variable to an invalid value \"" << valueToString(value) << "\"");
   }
 
   BooleanVariable::BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
