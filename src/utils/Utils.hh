@@ -58,11 +58,6 @@ namespace PLEXIL {
   std::string toString(double value);
 
   /**
-   * @brief Utility to convert PLEXIL internal representation to string
-   */
-  std::string plexilValueToString(double value);
-
-  /**
    * @brief Case insensitive string compare.
    */
   bool compareIgnoreCase(const std::string & s1,
