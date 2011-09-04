@@ -267,7 +267,7 @@ namespace PLEXIL
   void LookupNow::print(std::ostream& s) const
   {
 	Expression::print(s);
-	s << "LookupNow(" << m_stateNameExpr->getValue() << '(';
+	s << "LookupNow(" << m_stateNameExpr->valueString() << '(';
     for (std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
       s << ", " << **it;
 	s << ")))";
@@ -302,7 +302,7 @@ namespace PLEXIL
   void LookupOnChange::print(std::ostream& s) const 
   {
 	Expression::print(s);
-	s << "LookupOnChange(" << m_stateNameExpr->getValue() << "(";
+	s << "LookupOnChange(" << m_stateNameExpr->valueString() << "(";
     for (std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
       s << ", " << **it;
     s << "), " << *m_tolerance << "))";
