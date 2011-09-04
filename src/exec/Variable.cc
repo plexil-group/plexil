@@ -283,9 +283,11 @@ namespace PLEXIL
    */
   void AliasVariable::print(std::ostream& s) const
   {
+	s << m_name << " ";
 	Expression::print(s);
-	s << "AliasVariable " << m_name
-	  << ", aliased to " << *m_originalExpression
+	s << (isConst() ? "const " : "") 
+	  << "AliasVariable for "
+	  << *m_originalExpression
 	  << ")";
   }
 
@@ -373,28 +375,20 @@ namespace PLEXIL
 										 bool expIsGarbage,
 										 bool isConst)
 	: ArrayVariableBase(nodeConnector),
-	  m_originalArray((ArrayVariableId) exp),
-	  m_listener(getId()),
-	  m_name(name),
-	  m_isGarbage(expIsGarbage),
-	  m_isConst(isConst)
+	  AliasVariable(name, nodeConnector, exp, expIsGarbage, isConst),
+	  m_originalArray((ArrayVariableId) exp)
   {
 	// Check original, node for validity
 	assertTrueMsg(m_originalArray.isId(),
 				  "Invalid array passed to ArrayAliasVariable constructor");
 	assertTrue(nodeConnector.isValid(),
 			   "Invalid node connector ID passed to AliasVariable constructor");
-	m_originalArray->addListener(m_listener.getId());
-	m_value = m_originalArray->getValue();
   }
 
   ArrayAliasVariable::~ArrayAliasVariable()
   {
 	assertTrue(m_originalArray.isValid(),
 			   "Original expression ID invalid in AliasVariable destructor");
-	m_originalArray->removeListener(m_listener.getId());
-	if (m_isGarbage)
-	  delete (Expression*) m_originalArray;
   }
 
   /**
@@ -403,84 +397,17 @@ namespace PLEXIL
    */
   void ArrayAliasVariable::print(std::ostream& s) const
   {
+	s << getName() << " ";
 	Expression::print(s);
-	s << "ArrayAliasVariable " << m_name
-	  << ", aliased to " << *m_originalArray
+	s << (isConst() ? "const " : "") 
+	  << "ArrayAliasVariable for "
+	  << *m_originalArray
 	  << ")";
   }
 
-  /**
-   * @brief Set the value of this expression back to the initial value with which it was
-   *        created.
-   */
-  void ArrayAliasVariable::reset()
-  { 
-	// *** FIXME: should this do anything at all??
-	// m_originalArray->reset(); 
-  }
-
-  /**
-   * @brief Retrieve the value type of this Expression.
-   * @return The value type of this Expression.
-   * @note Delegates to original.
-   */
   PlexilType ArrayAliasVariable::getValueType() const
   {
 	return m_originalArray->getValueType();
-  }
-
-  bool ArrayAliasVariable::checkValue(const double val)
-  {
-	return m_originalArray->checkValue(val);
-  }	
-
-  /**
-   * @brief Sets the value of this variable.  Will throw an error if the variable was
-   *        constructed with isConst == true.
-   * @param value The new value for this variable.
-   */
-  void ArrayAliasVariable::setValue(const double value)
-  {
-	assertTrueMsg(!m_isConst,
-				  "setValue() called on read-only alias " << *this);
-	m_originalArray->setValue(value);
-  }
-
-  void ArrayAliasVariable::handleChange(const ExpressionId& exp)
-  {
-	if (exp == m_originalArray) {
-	  // propagate value from original
-	  internalSetValue(m_originalArray->getValue());
-	}
-  }
-
-  const VariableId& ArrayAliasVariable::getBaseVariable() const
-  {
-	if (VariableId::convertable(m_originalArray))
-	  return ((VariableId) m_originalArray)->getBaseVariable();
-	else
-	  return Variable::getId();
-  }
-
-  void ArrayAliasVariable::handleActivate(const bool changed)
-  {
-	if (changed) {
-	  m_originalArray->activate();
-	  // refresh value from original
-	  internalSetValue(m_originalArray->getValue());
-	}
-  }
-
-  void ArrayAliasVariable::handleDeactivate(const bool changed)
-  {
-	if (changed) {
-	  m_originalArray->deactivate();
-	}
-  }
-
-  void ArrayAliasVariable::handleReset()
-  {
-	// FIXME: do something
   }
 
   unsigned long ArrayAliasVariable::maxSize() const

@@ -450,6 +450,7 @@ namespace PLEXIL
      */
     virtual void handleReset();
 
+
   private:
 	
 	// Deliberately unimplemented
@@ -457,6 +458,7 @@ namespace PLEXIL
 	AliasVariable(const AliasVariable&);
 	AliasVariable& operator=(const AliasVariable&);
 
+	// Private member variables
 	ExpressionId m_originalExpression;
 	DerivedVariableListener m_listener;
 	const std::string& m_name;
@@ -464,9 +466,9 @@ namespace PLEXIL
   };
 
 
-  // C++ sucks at multiple inheritance.
   class ArrayAliasVariable :
-	public virtual ArrayVariableBase
+	public ArrayVariableBase,
+	public AliasVariable
   {
   public:
 	ArrayAliasVariable(const std::string& name, 
@@ -482,53 +484,8 @@ namespace PLEXIL
      */
     void print(std::ostream& s) const;
 
-    /**
-     * @brief Set the value of this expression back to the initial value with which it was
-     *        created.
-     */
-    virtual void reset();
-
-    /**
-     * @brief Retrieve the value type of this Expression.
-     * @return The value type of this Expression.
-     */
-    virtual PlexilType getValueType() const;
-    
-    /**
-     * @brief Check to make sure a value is appropriate for this expression.
-     */
-    virtual bool checkValue(const double val);
-
-    /**
-     * @brief Sets the value of this variable.  Will throw an error if the variable was
-     *        constructed with isConst == true.
-     * @param value The new value for this variable.
-     */
-    virtual void setValue(const double value);
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @param exp The changed subexpression.
-     */
-    virtual void handleChange(const ExpressionId& exp);
-
-    /**
-     * @brief Gets the const-ness of this variable.
-     * @return True if this variable is const, false otherwise.
-     */
-    bool isConst() const {return m_isConst;}
-
-    /**
-     * @brief Get the name of this alias, as declared in the node that owns it.
-     */
-    const std::string& getName() const { return m_name; }
-
-	/**
-	 * @brief Get the real variable for which this may be a proxy.
-	 * @return The VariableId of the base variable
-	 * @note Used by the assignment node conflict resolution logic.
-	 */
-	virtual const VariableId& getBaseVariable() const;
+	// Defined in multiple superclasses
+	PlexilType getValueType() const;
 
 	// ArrayVariable API
 	virtual unsigned long maxSize() const;
@@ -539,25 +496,6 @@ namespace PLEXIL
 
   protected:
 
-    /**
-     * @brief Handle the activation of the expression.
-     * @param changed True if the call to activate actually caused a change from inactive to
-     *                active.
-     */
-    virtual void handleActivate(const bool changed);
-
-    /**
-     * @brief Handle the deactivation of the expression
-     * @param changed True if the call to deactivate actually caused a change from active to
-     *                inactive.
-     */
-    virtual void handleDeactivate(const bool changed);
-
-    /**
-     * @brief Handle additional behaviors for the reset() call.
-     */
-    virtual void handleReset();
-
   private:
 	// deliberately unimplemented
 	ArrayAliasVariable();
@@ -565,9 +503,6 @@ namespace PLEXIL
 	ArrayAliasVariable& operator=(const ArrayAliasVariable&);
 
 	ArrayVariableId m_originalArray;
-	DerivedVariableListener m_listener;
-	const std::string& m_name;
-	bool m_isGarbage, m_isConst;
   };
 
 
