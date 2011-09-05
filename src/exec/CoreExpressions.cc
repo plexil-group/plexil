@@ -115,12 +115,14 @@ namespace PLEXIL
   // StateVariable
   //
 
+  // Called from Node::commonInit().
   StateVariable::StateVariable(const std::string& name)
 	: VariableImpl(INACTIVE(), false)
   {
 	setName(name);
   }
 
+  // Used only to construct class constants. See ALL_STATES() below.
   StateVariable::StateVariable(const double value, const bool isConst)
     : VariableImpl(value, isConst) 
   {
@@ -129,12 +131,14 @@ namespace PLEXIL
 	       << Expression::valueToString(value));
   }
 
+  // ExpressionFactory entry point. Should only be used to construct literals.
   StateVariable::StateVariable(const PlexilExprId& expr, 
 							   const NodeConnectorId& node,
 							   const bool isConst)
 	: VariableImpl(expr, node, isConst) 
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
+    checkError(isConst, "Cannot construct a freestanding NodeStateVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_STATE,
 	       "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
@@ -263,23 +267,21 @@ namespace PLEXIL
   }
 
 
+  // Called only by Node::commonInit().
   OutcomeVariable::OutcomeVariable(const std::string& name)
 	: VariableImpl(false)
   {
 	setName(name);
   }
 
-  OutcomeVariable::OutcomeVariable(const double value, const bool isConst)
-    : VariableImpl(isConst) {
-    checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
-  }
-
-  OutcomeVariable::OutcomeVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst)
+  // ExpressionFactory entry point. Should only be used to construct literals.
+  OutcomeVariable::OutcomeVariable(const PlexilExprId& expr, 
+								   const NodeConnectorId& node,
+								   const bool isConst)
 	: VariableImpl(expr, node, isConst)
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
+    checkError(isConst, "Cannot construct a freestanding NodeOutcomeVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_OUTCOME,
 	       "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
@@ -300,24 +302,21 @@ namespace PLEXIL
   }
 
 
+  // Called only from Node::commonInit().
   FailureVariable::FailureVariable(const std::string& name)
 	: VariableImpl(false)
   {
 	setName(name);
   }
 
-  FailureVariable::FailureVariable(const double value, const bool isConst)
-    : VariableImpl(value, isConst) {
-    checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
-  }
-
+  // ExpressionFactory entry point. Should only be used to construct literals.
   FailureVariable::FailureVariable(const PlexilExprId& expr, 
 								   const NodeConnectorId& node,
 								   const bool isConst)
 	: VariableImpl(expr, node, isConst)
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
+    checkError(isConst, "Cannot construct a freestanding NodeFailureTypeVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::FAILURE_TYPE,
 	       "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
@@ -341,24 +340,21 @@ namespace PLEXIL
 	  || val == PARENT_FAILED();
   }
 
+  // Called only from CommandNode constructors.
   CommandHandleVariable::CommandHandleVariable(const std::string& name)
 	: VariableImpl()
   {
 	setName(name);
   }
 
-  CommandHandleVariable::CommandHandleVariable(const double value, const bool isConst)
-    : VariableImpl(isConst) {
-    checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
-  }
-
+  // ExpressionFactory entry point. Should only be used to construct literals.
   CommandHandleVariable::CommandHandleVariable(const PlexilExprId& expr, 
 											   const NodeConnectorId& node,
                                                const bool isConst)
 	: VariableImpl(expr, node, isConst)
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
+    checkError(isConst, "Cannot construct a freestanding NodeCommandHandleVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::COMMAND_HANDLE,
 	       "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
