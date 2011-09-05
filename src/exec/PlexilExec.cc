@@ -524,8 +524,6 @@ namespace PLEXIL {
 	  AssignmentId assn = *it;
 	  check_error(assn.isValid());
 	  assn->execute();
-	  if (m_listener.isValid())
-		m_listener->notifyOfAssignment(assn->getDest(), assn->getDestName(), assn->getValue());
 	}
     m_assignmentsToExecute.clear();
   }
@@ -633,14 +631,6 @@ namespace PLEXIL {
       if(it->second.node == node)
 	return it->first;
     return -1;
-  }
-
-  void PlexilExec::publishCommandReturn(const ExpressionId& dest,
-										const std::string& destName,
-										const double& value)
-  {
-	if (m_listener.isValid())
-	  m_listener->notifyOfAssignment(dest, destName, value);
   }
 
   // Convenience method for backward compatibility

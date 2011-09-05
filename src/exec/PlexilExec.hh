@@ -170,17 +170,6 @@ namespace PLEXIL
      */
     bool allPlansFinished() const;
 
-    /**
-     * @brief Publish a command's return value to the listeners.  This is a
-     * (temporary?) hack to work around the fact that some interfaces (in
-     * particular the TestExternalInterface) don't have access to the listeners,
-     * yet are responsible for assigning the return values of commands.
-     */
-    void publishCommandReturn(const ExpressionId& dest,
-							  const std::string& destName,
-							  const double& value);
-
-
 	//
 	// API to Node classes
 	//
