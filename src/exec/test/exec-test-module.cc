@@ -1054,6 +1054,7 @@ public:
   {
     return TestInterface::instance()->getId(); // static_cast didn't work here, grumble
   }
+  const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
 
 private:
   StateCache m_cache;
@@ -1245,6 +1246,7 @@ public:
   void notifyExecuted(const NodeId& node) {assertTrue(node->getState() == EXECUTING_STATE); m_executed = true;}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
   const ExternalInterfaceId& getExternalInterface() {return ExternalInterfaceId::noId();}
+  const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
   bool executed() {return m_executed;}
 private:
   bool m_executed;

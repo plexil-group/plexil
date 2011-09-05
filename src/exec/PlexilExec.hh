@@ -27,7 +27,7 @@
 #ifndef _H_PlexilExec
 #define _H_PlexilExec
 
-#include "ExecDefs.hh"
+#include "ExecConnector.hh"
 #include "generic_hash_map.hh"
 #include "LabelStr.hh"
 #include "PlexilPlan.hh"
@@ -56,7 +56,8 @@ namespace PLEXIL
    * @brief The core PLEXIL executive.  Instantiate it with the XML representation for a plan, instantiate
    * an external interface, and it should start doing things the moment an event comes in.
    */
-  class PlexilExec {
+  class PlexilExec : public ExecConnector
+  {
   public:
     /**
      * @brief Constructor.  Instantiates the entire plan from parsed XML.
@@ -138,6 +139,14 @@ namespace PLEXIL
 	  m_listener = hub;
 	}
 
+	/**
+	 * @brief Get the ExecListenerHub instance.
+	 */
+	const ExecListenerHubId& getExecListenerHub() const
+	{
+	  return m_listener;
+	}
+
     /**
      * @brief Adds an ExecListener for publication of node transition events.
 	 * @note Convenience method for backward compatibility.
@@ -191,6 +200,13 @@ namespace PLEXIL
 	 */
 	void enqueueUpdate(const UpdateId& update);
 
+	/**
+	 * @brief Needed for stupid unit test
+	 */
+	virtual void notifyExecuted(const NodeId& node) 
+	{
+	}
+
   protected:
     friend class RealExecConnector;
 
@@ -206,9 +222,6 @@ namespace PLEXIL
      * @param node The node which is eligible for state change.
      */
     void handleConditionsChanged(const NodeId& node, NodeState newState);
-
-    //const ExpressionId& findVariable(const LabelStr& name);
-
 
   private:
 
@@ -255,7 +268,6 @@ namespace PLEXIL
 	typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
-    ExecConnectorId m_connector;
     StateCacheId m_cache;
     ExternalInterfaceId m_interface;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/

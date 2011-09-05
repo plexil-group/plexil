@@ -50,91 +50,28 @@ namespace PLEXIL {
     return (x->getPriority() < y->getPriority() ? true : false);
   }
 
-  class RealExecConnector : public ExecConnector 
-  {
-  public:
-    RealExecConnector(const PlexilExecId& exec) 
-      : m_exec(exec)
-    {}
-
-    //
-    // Methods simply forward to real PlexilExec
-    //
-
-    void notifyNodeConditionChanged(NodeId node)
-    {
-      m_exec->notifyNodeConditionChanged(node);
-    }
-
-    void handleConditionsChanged(const NodeId& node, NodeState newState) 
-    {
-      m_exec->handleConditionsChanged(node, newState);
-    }
-
-	/**
-	 * @brief Schedule this assignment for execution.
-	 */
-	void enqueueAssignment(const AssignmentId& assign)
-	{
-	  m_exec->enqueueAssignment(assign);
-	}
-
-	/**
-	 * @brief Schedule this command for execution.
-	 */
-	void enqueueCommand(const CommandId& cmd)
-	{
-	  m_exec->enqueueCommand(cmd);
-	}
-
-	/**
-	 * @brief Schedule this update for execution.
-	 */
-	void enqueueUpdate(const UpdateId& update)
-	{
-	  m_exec->enqueueUpdate(update);
-	}
-
-	/**
-	 * @brief Needed for stupid unit test
-	 */
-	void notifyExecuted(const NodeId& node) {}
-	
-    //const ExpressionId& findVariable(const LabelStr& name) {return m_exec->findVariable(name);}
-
-    const StateCacheId& getStateCache() 
-    {
-      return m_exec->getStateCache();
-    }
-
-    const ExternalInterfaceId& getExternalInterface() 
-    { 
-      return m_exec->getExternalInterface(); 
-    }
-
-  private:
-    PlexilExecId m_exec;
-  };
-
   PlexilExec::PlexilExec(PlexilNodeId& plan)
-    : m_id(this), m_cycleNum(0), m_queuePos(1),
-      m_connector((new RealExecConnector(m_id))->getId()),
+    : ExecConnector(),
+	  m_id(this, ExecConnector::getId()),
+	  m_cycleNum(0), m_queuePos(1),
       m_cache((new StateCache())->getId()) {
     addPlan(plan, EMPTY_LABEL());
     //is it really this simple?
   }
 
   PlexilExec::PlexilExec()
-    : m_id(this), m_cycleNum(0), m_queuePos(1),
-      m_connector((new RealExecConnector(m_id))->getId()),
+    : ExecConnector(),
+	  m_id(this, ExecConnector::getId()),
+	  m_cycleNum(0), m_queuePos(1),
       m_cache((new StateCache())->getId())
   {}
 
-  PlexilExec::~PlexilExec() {
+  PlexilExec::~PlexilExec() 
+  {
     for(std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
     delete (StateCache*) m_cache;
-    m_id.remove();
+    m_id.removeDerived(ExecConnector::getId());
   }
 
   /**
@@ -210,7 +147,7 @@ namespace PLEXIL {
 	try {
 	  if (!wasThrowEnabled)
 		Error::doThrowExceptions();
-	  root = NodeFactory::createNode(plan, m_connector);
+	  root = NodeFactory::createNode(plan, getId());
 	  check_error(root.isValid());
 	  root->postInit(plan);
 	}

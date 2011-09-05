@@ -65,7 +65,8 @@ namespace PLEXIL
 
     virtual const StateCacheId& getStateCache() = 0;
     virtual const ExternalInterfaceId& getExternalInterface() = 0;
-  protected:
+	virtual const ExecListenerHubId& getExecListenerHub() const = 0;
+
   private:
     ExecConnectorId m_id;
   };
