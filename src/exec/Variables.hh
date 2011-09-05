@@ -242,6 +242,13 @@ namespace PLEXIL
     }
 
     /**
+     * @brief Get the node that owns this expression.
+     * @return The NodeId of the parent node; may be noId.
+	 * @note Used by LuvFormat::formatAssignment().  
+     */
+    const NodeId& getNode() const { return m_node; }
+
+    /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
      */
@@ -285,6 +292,7 @@ namespace PLEXIL
 
     ArrayVariableId m_arrayVariable;
     ExpressionId m_index;
+	const NodeId m_node;
     bool m_deleteIndex;
     DerivedVariableListener m_listener;
   };

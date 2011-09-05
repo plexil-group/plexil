@@ -26,6 +26,7 @@
 
 #include "Variables.hh"
 #include "Debug.hh"
+#include "ExecListenerHub.hh"
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
 #include "StoredArray.hh"
@@ -65,7 +66,7 @@ namespace PLEXIL
   ArrayVariable::ArrayVariable(const PlexilExprId& expr, 
                                const NodeConnectorId& node,
                                const bool isConst)
-    : ArrayVariableBase(node),
+    : ArrayVariableBase(),
 	  VariableImpl(expr, node, isConst)
   {
 	assertTrueMsg(expr.isValid(), "Attempt to create an ArrayVariable from an invalid Id");
@@ -302,6 +303,13 @@ namespace PLEXIL
 	  theArray[index] = value;
 	  publishChange();
 	}
+	if (m_hub) {
+	  std::ostringstream s;
+	  s << m_name << '[' << index << ']';
+	  m_hub->notifyOfAssignment(Expression::getId(),
+								s.str(),
+								value);
+	}
   }
 
   // lookup a value in an array variable
@@ -375,7 +383,8 @@ namespace PLEXIL
 
   ArrayElement::ArrayElement(const PlexilExprId& expr, 
                              const NodeConnectorId& node)
-    : Variable(node),
+    : Variable(),
+	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
       m_deleteIndex(false),
       m_listener(getId())
   {
