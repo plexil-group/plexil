@@ -1309,12 +1309,23 @@ namespace PLEXIL {
     return m_endTimepoints[m_state]->getValue();
   }
 
-  const LabelStr Node::getOutcome() {
-    return m_outcomeVariable->getValue();
+  const LabelStr Node::getOutcome() 
+  {
+	double key = m_outcomeVariable->getValue();
+	if (key != Expression::UNKNOWN())
+	  return LabelStr(key);
+	else {
+	  return LabelStr("UNKNOWN");
+	}
   }
 
   const LabelStr Node::getFailureType() {
-    return m_failureTypeVariable->getValue();
+	double key = m_failureTypeVariable->getValue();
+	if (key != Expression::UNKNOWN())
+	  return LabelStr(key);
+	else {
+	  return LabelStr("UNKNOWN");
+	}
   }
 
   // Searches ancestors when required
@@ -1667,6 +1678,16 @@ namespace PLEXIL {
   // Default method does nothing
   void Node::printCommandHandle(std::ostream& stream, const unsigned int indent, bool always) const
   {
+  }
+
+  const ExecListenerHubId& Node::getExecListenerHub() const
+  {
+	if (m_exec.isNoId()) {
+	  static ExecListenerHubId sl_hubNoId;
+	  return sl_hubNoId;
+	}
+	else
+	  return m_exec->getExecListenerHub();
   }
 
   // Helper used below

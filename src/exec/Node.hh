@@ -139,6 +139,8 @@ namespace PLEXIL {
 
 	const NodeId& getNode() const { return m_id; }
 
+    const ExecListenerHubId& getExecListenerHub() const;
+
 
     // create conditions, assignments, and commands.
 	// We have to do this late because they could refer to internal variables of other nodes.
