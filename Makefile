@@ -44,7 +44,7 @@ A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener 
 # convenience target for ASA project
 asa ASA: exec-core app-framework luv standard-plexil
 
-TestExec: exec-core app-framework LuvListener luv
+TestExec: exec-core PlanDebugListener LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
 plexilsim: utils ipc IpcUtils
@@ -86,7 +86,10 @@ IpcUtils: ipc
 LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener
 
-app-framework: exec-core sockets LuvListener
+PlanDebugListener: exec-core
+	$(MAKE) -C src/interfaces/PlanDebugListener
+
+app-framework: exec-core sockets LuvListener PlanDebugListener
 	$(MAKE) -C src/app-framework
 
 sockets:
