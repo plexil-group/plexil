@@ -25,6 +25,7 @@
 */
 
 #include "LibraryCallNode.hh"
+#include "Array.hh"
 #include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"

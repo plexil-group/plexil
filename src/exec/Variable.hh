@@ -104,70 +104,6 @@ namespace PLEXIL
   };
 
   /**
-   * An abstract base class representing a variable-like object
-   * which stores an array.
-   */
-  class ArrayVariableBase :
-	public virtual Variable
-  {
-  public:
-	ArrayVariableBase();
-
-	virtual ~ArrayVariableBase();
-
-	/**
-	 * @brief Get the maximum size of this array.
-	 */
-    virtual unsigned long maxSize() const = 0;
-
-	/**
-	 * @brief Get the element at the given index.
-	 */
-    virtual double lookupValue(unsigned long index) const = 0;
-
-    /**
-     * @brief Set one element of this array from the given value.
-     * @note Value must be an array or UNKNOWN.
-     * @note Index must be less than maximum length
-     */
-    virtual void setElementValue(unsigned index, const double value) = 0;
-
-    /**
-     * @brief Retrieve the element type of this array.
-     * @return The element type of this array.
-     */
-    virtual PlexilType getElementType() const = 0;
-
-    /**
-     * @brief Check to make sure an element value is appropriate for this array.
-     */
-    virtual bool checkElementValue(const double val) = 0;
-
-    /**
-     * @brief Retrieve the value type of this Expression.
-     * @return The value type of this Expression.
-     */
-    virtual PlexilType getValueType() const { return ARRAY; }
-
-	/**
-	 * @brief Report whether the expression is an array.
-	 * @return True if an array, false otherwise.
-	 */
-	virtual bool isArray() const { return true; }
-
-	const ArrayVariableId& getArrayId() const { return m_avid; }
-
-  protected:
-
-  private:
-	// deliberately unimplemented
-	ArrayVariableBase(const ArrayVariableBase&);
-	ArrayVariableBase& operator=(const ArrayVariableBase&);
-
-	ArrayVariableId m_avid;
-  };
-
-  /**
    *   A class for notifying derived variables (e.g. array variables,
    *   variable aliases, etc.) of changes in sub-expressions.
    */
@@ -475,47 +411,6 @@ namespace PLEXIL
 	const std::string& m_name;
 	bool m_isGarbage, m_isConst;
   };
-
-
-  class ArrayAliasVariable :
-	public ArrayVariableBase,
-	public AliasVariable
-  {
-  public:
-	ArrayAliasVariable(const std::string& name, 
-					   const NodeConnectorId& nodeConnector,
-					   const ExpressionId& exp,
-					   bool expIsGarbage,
-					   bool isConst);
-    virtual ~ArrayAliasVariable();
-
-    /**
-     * @brief Get a string representation of this Expression.
-     * @return The string representation.
-     */
-    void print(std::ostream& s) const;
-
-	// Defined in multiple superclasses
-	PlexilType getValueType() const;
-
-	// ArrayVariable API
-	virtual unsigned long maxSize() const;
-	virtual double lookupValue(unsigned long index) const;
-    virtual void setElementValue(unsigned index, const double value);
-    virtual PlexilType getElementType() const;
-    virtual bool checkElementValue(const double val);
-
-  protected:
-
-  private:
-	// deliberately unimplemented
-	ArrayAliasVariable();
-	ArrayAliasVariable(const ArrayAliasVariable&);
-	ArrayAliasVariable& operator=(const ArrayAliasVariable&);
-
-	ArrayVariableId m_originalArray;
-  };
-
 
 }
 

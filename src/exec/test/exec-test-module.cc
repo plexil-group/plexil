@@ -26,6 +26,7 @@
 
 #include "exec-test-module.hh"
 
+#include "Array.hh"
 #include "BooleanVariable.hh"
 #include "Calculables.hh"
 #include "CoreExpressions.hh"

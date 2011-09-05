@@ -30,9 +30,6 @@
 #include "ExecListenerHub.hh"
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
-#include "StoredArray.hh"
-// *** TEMPORARY ***
-#include "Node.hh"
 
 namespace PLEXIL
 {
@@ -52,21 +49,6 @@ namespace PLEXIL
   Variable::~Variable() 
   {
 	m_evid.removeDerived(Expression::getId());
-  }
-
-  //
-  // ArrayVariableBase
-  //
-
-  ArrayVariableBase::ArrayVariableBase()
-	: Variable(),
-	  m_avid(this, Variable::getId())
-  {
-  }
-
-  ArrayVariableBase::~ArrayVariableBase()
-  {
-	m_avid.removeDerived(Variable::getId());
   }
 
   //
@@ -115,9 +97,6 @@ namespace PLEXIL
 	  m_hub(isConst ? ExecListenerHubId::noId() : node->getExec()->getExecListenerHub()),
 	  m_name(expr->name())
   {
-	// *** TEMPORARY ***
-	debugMsg("VariableImpl:VariableImpl",
-			 " node = " << (node.isId() ? node->getNode()->getNodeId().toString() : "noId"));
     check_error(Id<PlexilVar>::convertable(expr) || Id<PlexilValue>::convertable(expr));
   }
 
@@ -370,77 +349,6 @@ namespace PLEXIL
   void AliasVariable::handleReset()
   {
 	// FIXME: do something
-  }
-
-  //
-  // ArrayAliasVariable
-  //
-
-  ArrayAliasVariable::ArrayAliasVariable(const std::string& name,
-										 const NodeConnectorId& nodeConnector,
-										 const ExpressionId& exp,
-										 bool expIsGarbage,
-										 bool isConst)
-	: ArrayVariableBase(),
-	  AliasVariable(name, nodeConnector, exp, expIsGarbage, isConst),
-	  m_originalArray((ArrayVariableId) exp)
-  {
-	// Check original, node for validity
-	assertTrueMsg(m_originalArray.isId(),
-				  "Invalid array passed to ArrayAliasVariable constructor");
-	assertTrue(nodeConnector.isValid(),
-			   "Invalid node connector ID passed to AliasVariable constructor");
-  }
-
-  ArrayAliasVariable::~ArrayAliasVariable()
-  {
-	assertTrue(m_originalArray.isValid(),
-			   "Original expression ID invalid in AliasVariable destructor");
-  }
-
-  /**
-   * @brief Get a string representation of this Expression.
-   * @return The string representation.
-   */
-  void ArrayAliasVariable::print(std::ostream& s) const
-  {
-	s << getName() << " ";
-	Expression::print(s);
-	s << (isConst() ? "const " : "") 
-	  << "ArrayAliasVariable for "
-	  << *m_originalArray
-	  << ")";
-  }
-
-  PlexilType ArrayAliasVariable::getValueType() const
-  {
-	return m_originalArray->getValueType();
-  }
-
-  unsigned long ArrayAliasVariable::maxSize() const
-  {
-	return m_originalArray->maxSize();
-  }
-
-  double ArrayAliasVariable::lookupValue(unsigned long index) const
-  {
-	return m_originalArray->lookupValue(index);
-  }
-
-  void ArrayAliasVariable::setElementValue(unsigned /* index */, const double /* value */)
-  {
-	assertTrueMsg(!isConst(),
-				  "Attempt to call setElementValue() on const array alias " << *this);
-  }
-
-  PlexilType ArrayAliasVariable::getElementType() const
-  {
-	return m_originalArray->getElementType();
-  }
-
-  bool ArrayAliasVariable::checkElementValue(const double val)
-  {
-	return m_originalArray->checkElementValue(val);
   }
 
 }
