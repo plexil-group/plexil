@@ -26,9 +26,13 @@
 
 #include "Variable.hh"
 #include "Debug.hh"
+#include "ExecConnector.hh"
+#include "ExecListenerHub.hh"
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
 #include "StoredArray.hh"
+// *** TEMPORARY ***
+#include "Node.hh"
 
 namespace PLEXIL
 {
@@ -38,16 +42,9 @@ namespace PLEXIL
    */
   Variable::Variable()
 	: Expression(),
-	  m_nodeConnector(NodeConnectorId::noId()),
 	  m_evid(this, Expression::getId())
   {
   }
-
-  Variable::Variable(const NodeConnectorId& node)
-	: Expression(),
-	  m_nodeConnector(node),
-	  m_evid(this, Expression::getId())
-  {}
 
   /**
    * @brief Destructor.
@@ -57,31 +54,12 @@ namespace PLEXIL
 	m_evid.removeDerived(Expression::getId());
   }
 
-  /**
-   * @brief Get the node that owns this expression.
-   * @return The NodeId of the parent node; may be noId.
-   * @note Used by LuvFormat::formatAssignment().  
-   */
-  const NodeId& Variable::getNode() const
-  { 
-	if (m_nodeConnector.isNoId())
-	  return NodeId::noId();
-	else
-	  return m_nodeConnector->getNode();
-  }
-
   //
   // ArrayVariableBase
   //
 
   ArrayVariableBase::ArrayVariableBase()
 	: Variable(),
-	  m_avid(this, Variable::getId())
-  {
-  }
-
-  ArrayVariableBase::ArrayVariableBase(const NodeConnectorId& node)
-	: Variable(node),
 	  m_avid(this, Variable::getId())
   {
   }
@@ -98,7 +76,12 @@ namespace PLEXIL
   // Used in Expression::UNKNOWN_EXP(), and by various derived constructors
 
   VariableImpl::VariableImpl(const bool isConst)
-    : Variable(), m_isConst(isConst), m_initialValue(UNKNOWN()), m_name("anonymous") 
+    : Variable(),
+	  m_isConst(isConst),
+	  m_initialValue(UNKNOWN()),
+	  m_node(NodeId::noId()),
+	  m_hub(ExecListenerHubId::noId()),
+	  m_name("anonymous") 
   {
     if(this->isConst())
       m_activeCount++;
@@ -107,7 +90,12 @@ namespace PLEXIL
   // Used only in Lookup::Lookup(const StateCacheId&, const LabelStr&, std::list<double>&)
 
   VariableImpl::VariableImpl(const double value, const bool isConst)
-    : Variable(), m_isConst(isConst), m_initialValue(value), m_name("anonymous") 
+    : Variable(),
+	  m_isConst(isConst),
+	  m_initialValue(value),
+	  m_node(NodeId::noId()),
+	  m_hub(ExecListenerHubId::noId()),
+	  m_name("anonymous")
   {
     m_value = m_initialValue;
     if(this->isConst())
@@ -120,8 +108,16 @@ namespace PLEXIL
   //
 
   VariableImpl::VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
-    : Variable(node), m_isConst(isConst), m_name(expr->name())
+    : Variable(),
+	  m_isConst(isConst),
+	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
+	  // We won't be reporting assignments to a constant variable.
+	  m_hub(isConst ? ExecListenerHubId::noId() : node->getExec()->getExecListenerHub()),
+	  m_name(expr->name())
   {
+	// *** TEMPORARY ***
+	debugMsg("VariableImpl:VariableImpl",
+			 " node = " << (node.isId() ? node->getNode()->getNodeId().toString() : "noId"));
     check_error(Id<PlexilVar>::convertable(expr) || Id<PlexilValue>::convertable(expr));
   }
 
@@ -159,6 +155,11 @@ namespace PLEXIL
     if(!isConst()) {
       internalSetValue(m_initialValue);
       handleReset();
+	  if (m_hub.isId()) {
+		m_hub->notifyOfAssignment(Expression::getId(),
+								  m_name,
+								  m_initialValue);
+	  }
     }
   }
 
@@ -175,6 +176,11 @@ namespace PLEXIL
 			   "Attempted to assign value " << Expression::valueToString(value)
 			   << " to read-only variable " << toString());
     internalSetValue(value);
+	if (m_hub.isId()) {
+	  m_hub->notifyOfAssignment(Expression::getId(),
+								m_name,
+								value);
+	}
   }
 
   void VariableImpl::commonNumericInit(const PlexilValue* val) 
@@ -252,9 +258,10 @@ namespace PLEXIL
 							   const ExpressionId& original,
 							   bool expIsGarbage,
 							   bool isConst)
-	: Variable(nodeConnector),
+	: Variable(),
 	  m_originalExpression(original),
 	  m_listener(getId()),
+	  m_node(nodeConnector.isId() ? nodeConnector->getNode() : NodeId::noId()),
 	  m_name(name),
 	  m_isGarbage(expIsGarbage),
 	  m_isConst(isConst)
@@ -374,7 +381,7 @@ namespace PLEXIL
 										 const ExpressionId& exp,
 										 bool expIsGarbage,
 										 bool isConst)
-	: ArrayVariableBase(nodeConnector),
+	: ArrayVariableBase(),
 	  AliasVariable(name, nodeConnector, exp, expIsGarbage, isConst),
 	  m_originalArray((ArrayVariableId) exp)
   {

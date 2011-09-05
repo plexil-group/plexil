@@ -48,12 +48,6 @@ namespace PLEXIL
     Variable();
 
     /**
-     * @brief Constructor.
-	 * @param node NodeConnectorId to the owning object.
-     */
-    Variable(const NodeConnectorId& node);
-
-    /**
      * @brief Destructor.
      */
     virtual ~Variable();
@@ -87,8 +81,12 @@ namespace PLEXIL
      * @brief Get the node that owns this expression.
      * @return The NodeId of the parent node; may be noId.
 	 * @note Used by LuvFormat::formatAssignment().  
+	 * @note Default method.
      */
-    const NodeId& getNode() const;
+    virtual const NodeId& getNode() const
+	{
+	  return NodeId::noId(); 
+	}
 
     const VariableId& getId() const {return m_evid;}
 
@@ -102,7 +100,6 @@ namespace PLEXIL
   protected:
 
   private:
-    const NodeConnectorId m_nodeConnector; /*<! Tracks the node that owns this expression */
 	VariableId m_evid;
   };
 
@@ -115,8 +112,6 @@ namespace PLEXIL
   {
   public:
 	ArrayVariableBase();
-
-	ArrayVariableBase(const NodeConnectorId& node);
 
 	virtual ~ArrayVariableBase();
 
@@ -284,6 +279,13 @@ namespace PLEXIL
     bool isConst() const {return m_isConst;}
 
     /**
+     * @brief Get the node that owns this expression.
+     * @return The NodeId of the parent node; may be noId.
+	 * @note Used by LuvFormat::formatAssignment().  
+     */
+    const NodeId& getNode() const { return m_node; }
+
+    /**
      * @brief Gets the initial value of this variable.
      * @return The initial value of this variable.
      */
@@ -348,12 +350,13 @@ namespace PLEXIL
     void commonNumericInit(const PlexilValue* val);
 
     //
-    // Private member variables
+    // Shared member variables
     //
 
     bool m_isConst; /*<! Flag indicating the const-ness of this variable */
     double m_initialValue; /*<! The initial value of the expression */
     const NodeId m_node; /*<! The node that owns this variable */
+	const ExecListenerHubId m_hub; /*<! Listener for publishing assignment notifications. */
     std::string m_name; /*<! The name under which this variable was declared */
   };
 
@@ -418,6 +421,13 @@ namespace PLEXIL
     bool isConst() const {return m_isConst;}
 
     /**
+     * @brief Get the node that owns this expression.
+     * @return The NodeId of the parent node; may be noId.
+	 * @note Used by LuvFormat::formatAssignment().  
+     */
+    const NodeId& getNode() const { return m_node; }
+
+    /**
      * @brief Get the name of this alias, as declared in the node that owns it.
      */
     const std::string& getName() const { return m_name; }
@@ -461,6 +471,7 @@ namespace PLEXIL
 	// Private member variables
 	ExpressionId m_originalExpression;
 	DerivedVariableListener m_listener;
+	const NodeId m_node;
 	const std::string& m_name;
 	bool m_isGarbage, m_isConst;
   };
