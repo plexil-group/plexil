@@ -47,7 +47,7 @@ namespace PLEXIL
 						   const ExecConnectorId& exec, 
 						   const NodeId& parent)
 	: Node(nodeProto, exec, parent),
-	  m_ack((new StringVariable(StringVariable::UNKNOWN()))->getId()),
+	  m_ack((new StringVariable(Expression::UNKNOWN()))->getId()),
 	  m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
   {
 	checkError(nodeProto->nodeType() == NodeType_Command,
@@ -75,7 +75,7 @@ namespace PLEXIL
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
 		   exec),
-	  m_ack((new StringVariable(StringVariable::UNKNOWN()))->getId()),
+	  m_ack((new StringVariable(Expression::UNKNOWN()))->getId()),
 	  m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
   {
 	checkError(type == COMMAND(),
