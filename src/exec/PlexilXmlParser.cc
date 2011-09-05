@@ -1656,8 +1656,6 @@ namespace PLEXIL
 	return retval;
   }
 
-  // *** add support for array vars ***
-
   TiXmlElement* PlexilXmlParser::toXml(const PlexilVarId& var)
 	throw(ParserException) {
 	TiXmlElement* retval = element(string(var->isArray() ? DECL_ARRAY_TAG
@@ -1686,7 +1684,8 @@ namespace PLEXIL
 		vals->LinkEndChild(namedTextElement(valueTag, *it));
 	  }
 	  retval->LinkEndChild(vals);
-	} else {
+	} 
+	else if (var->value() != NULL) {
 	  // initial value
 	  retval->LinkEndChild(toXml(var->value()->getId()));
 	}
