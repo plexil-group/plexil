@@ -242,7 +242,6 @@ namespace PLEXIL
         if ((iter = m_destToCmdMap.find (expr)) != m_destToCmdMap.end()) {
           CommandId cmdId = iter->second;
           std::string destName = cmdId->getDestName();
-          m_exec->publishCommandReturn (expr, destName, value);
           m_destToCmdMap.erase(iter);
         }
         else std::cerr << "Error in TestExternalInterface: "
