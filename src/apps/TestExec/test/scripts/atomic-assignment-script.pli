@@ -1,5 +1,0 @@
-(plexil-script
-  (script
-    (command-ack "check" "string" "COMMAND_SUCCESS"
-      (param 1 "int")
-      (param 0 "int"))))
