@@ -353,10 +353,11 @@ namespace PLEXIL {
 		ExpressionFactory::createInstance(PlexilParser::valueTypeString(var->type()), 
 										  var,
 										  m_connector);
-	  // FIXME: CHECK FOR DUPLICATE NAMES
-
-	  m_variablesByName[nameLabel] = varId;
-	  ((VariableImpl*) varId)->setName(name);
+	  // Check for duplicate names
+	  // FIXME: push up into XML parser
+	  assertTrueMsg(m_variablesByName.find(nameLabel.getKey()) == m_variablesByName.end(),
+					"Node \"" << m_nodeId.toString() << "\" already has a variable named \"" << name << "\"");
+	  m_variablesByName[nameLabel.getKey()] = varId;
 	  m_localVariables.push_back(varId);
 	  debugMsg("Node:createDeclaredVars",
 			   " for node '" << m_nodeId.toString()
@@ -388,7 +389,7 @@ namespace PLEXIL {
 	  // Check for duplicate name
 	  double nameKey = LabelStr(varRef->name()).getKey();
 	  assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
-					"In node \"" << m_nodeId.toString()
+					"Node \"" << m_nodeId.toString()
 					<< ": 'In' variable name \"" << varRef->name() << "\" is already in use");
 
 	  VariableId expr = getInVariable(varRef, parentIsLibCall);
@@ -410,7 +411,7 @@ namespace PLEXIL {
 	  // Check for duplicate name
 	  double nameKey = LabelStr(varRef->name()).getKey();
 	  assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
-					"In node \"" << m_nodeId.toString()
+					"Node \"" << m_nodeId.toString()
 					<< ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
 
 	  VariableId expr = getInOutVariable(varRef, parentIsLibCall);
