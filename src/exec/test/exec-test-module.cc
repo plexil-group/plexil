@@ -1070,6 +1070,7 @@ public:
   { return VariableId::noId(); }
   const NodeId& getNode() const { return NodeId::noId(); }
   const ExecConnectorId& getExec() const { return m_exec.getId(); }
+  const ExecListenerHubId& getExecListenerHub() const { return m_exec.getExecListenerHub(); }
 private:
   LookupTestExecConnector m_exec;
 };
