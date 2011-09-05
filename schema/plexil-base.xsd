@@ -509,6 +509,9 @@ element.  It is used as an included schema only.
       <xsd:sequence>
         <xsd:element name="NodeParameter" type="xsd:NCName"/>
         <xsd:choice>
+		  <xsd:group ref="BooleanExpression"/>
+		  <xsd:group ref="NumericExpression"/>
+		  <xsd:group ref="StringExpression"/>
           <xsd:group ref="Value"/>
           <xsd:group ref="DeclaredVariable"/>
         </xsd:choice>
