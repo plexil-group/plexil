@@ -1069,9 +1069,7 @@ public:
   const VariableId& findVariable(const LabelStr& /* name */, bool /* recursive */ = false)
   { return VariableId::noId(); }
   const NodeId& getNode() const { return NodeId::noId(); }
-  const ExecConnectorId& getExec() {
-    return m_exec.getId();
-  }
+  const ExecConnectorId& getExec() const { return m_exec.getId(); }
 private:
   LookupTestExecConnector m_exec;
 };

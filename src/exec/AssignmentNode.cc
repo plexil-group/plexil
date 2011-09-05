@@ -145,7 +145,7 @@ namespace PLEXIL
 		(VariableId)
 		ExpressionFactory::createInstance(destExpr->name(),
 										  destExpr,
-										  m_connector);
+										  NodeConnector::getId());
       // *** beef this up later ***
 	  PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
 	  debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
@@ -172,7 +172,7 @@ namespace PLEXIL
     ExpressionId rhs =
       ExpressionFactory::createInstance(body->RHS()->name(), 
 										body->RHS(),
-										m_connector,
+										NodeConnector::getId(),
 										deleteRhs);
     m_assignment =
       (new Assignment(dest, rhs, m_ack, destName, deleteLhs, deleteRhs))->getId();

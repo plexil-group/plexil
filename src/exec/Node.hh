@@ -54,7 +54,8 @@ namespace PLEXIL {
    * responses to the various conditions changing value, accessors for the node information and the conditions, there should
    * be error checking in all of the state transitions for node types (FAILING, for instance, can only be occupied by list nodes).
    */
-  class Node {
+  class Node : public NodeConnector
+  {
   public:
     //condition names
     DECLARE_STATIC_CLASS_CONST(LabelStr, SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition.*/
@@ -119,6 +120,25 @@ namespace PLEXIL {
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~Node();
+
+	//
+	// NodeConnector API to expressions
+	//
+
+    /**
+     * @brief Looks up a variable by reference.
+     */
+    const VariableId& findVariable(const PlexilVarRef* ref);
+
+    /**
+     * @brief Looks up a variable by name.
+     */
+    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
+
+    const ExecConnectorId& getExec() const { return m_exec; }
+
+	const NodeId& getNode() const { return m_id; }
+
 
     // create conditions, assignments, and commands.
 	// We have to do this late because they could refer to internal variables of other nodes.
@@ -248,15 +268,6 @@ namespace PLEXIL {
 
     std::string toString(const unsigned int indent = 0);
 	void print(std::ostream& stream, const unsigned int indent = 0) const;
-
-    /**
-     * @brief Looks up a variable by reference.
-     */
-    const VariableId& findVariable(const PlexilVarRef* ref);
-
-    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
-
-    const ExecConnectorId& getExec() {return m_exec;}
 
     // Condition accessors
 	// These are public only to appease the module test
@@ -425,7 +436,6 @@ namespace PLEXIL {
     NodeId m_id; /*<! The Id for this node*/
     NodeId m_parent; /*<! The parent of this node.*/
     ExecConnectorId m_exec; /*<! The executive (to notify it about condition changes and whether it needs to be executed) */
-    NodeConnectorId m_connector; /*<! Used by expressions that refer to node internal variables. */
     LabelStr m_nodeId;  /*<! the NodeId from the xml.*/
     LabelStr m_nodeType; /*<! The node type (either directly from the Node element or determined by the sub-elements. */
     VariableMap m_variablesByName; /*<! Locally declared variables or references to variables gotten through an interface. */

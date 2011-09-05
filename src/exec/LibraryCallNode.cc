@@ -188,7 +188,7 @@ namespace PLEXIL
 			if (actualVar->isArray()) {
 			  actualVar = 
 				(new ArrayAliasVariable((*var)->name(),
-										m_connector,
+										NodeConnector::getId(),
 										(ExpressionId) actualVar,
 										false,
 										isIn))->getId();
@@ -196,7 +196,7 @@ namespace PLEXIL
 			else {
 			  actualVar = 
 				(new AliasVariable((*var)->name(),
-								   m_connector,
+								   NodeConnector::getId(),
 								   (ExpressionId) actualVar,
 								   false,
 								   isIn))->getId();
@@ -219,11 +219,11 @@ namespace PLEXIL
 		  // Construct the expression
 		  bool wasCreated = false;
 		  ExpressionId expr =
-			ExpressionFactory::createInstance(aliasValue->name(), aliasValue, m_connector, wasCreated);
+			ExpressionFactory::createInstance(aliasValue->name(), aliasValue, NodeConnector::getId(), wasCreated);
 
 		  // Construct a wrapper for it
 		  actualVar = (new AliasVariable((*var)->name(),
-										 m_connector,
+										 NodeConnector::getId(),
 										 expr,
 										 wasCreated,
 										 isIn))->getId();
@@ -244,11 +244,11 @@ namespace PLEXIL
 		  // Construct the expression
 		  bool wasCreated = false;
 		  ExpressionId expr =
-			ExpressionFactory::createInstance(aliasValue->name(), aliasValue, m_connector, wasCreated);
+			ExpressionFactory::createInstance(aliasValue->name(), aliasValue, NodeConnector::getId(), wasCreated);
 
 		  // Construct a const wrapper for it
 		  actualVar = 
-			(new AliasVariable((*var)->name(), m_connector, expr, wasCreated, isIn))->getId();
+			(new AliasVariable((*var)->name(), NodeConnector::getId(), expr, wasCreated, isIn))->getId();
 		  debugMsg("LibraryCallNode:createAliases",
 				   " Node \"" << m_nodeId.toString()
 				   << "\": Constructed alias wrapper for \"" << (*var)->name()

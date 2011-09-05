@@ -367,7 +367,7 @@ namespace PLEXIL
     ExpressionId nameExpr = 
 	  ExpressionFactory::createInstance(state->nameExpr()->name(), 
 										state->nameExpr(), 
-										m_connector,
+										NodeConnector::getId(),
 										wasCreated);
 	if (wasCreated)
 	  garbage.push_back(nameExpr);
@@ -377,7 +377,7 @@ namespace PLEXIL
 		 it != state->args().end(); 
 		 ++it) {
 	  ExpressionId argExpr =
-		ExpressionFactory::createInstance((*it)->name(), *it, m_connector, wasCreated);
+		ExpressionFactory::createInstance((*it)->name(), *it, NodeConnector::getId(), wasCreated);
 	  check_error(argExpr.isValid());
 	  args.push_back(argExpr);
 	  if (wasCreated)
@@ -400,7 +400,7 @@ namespace PLEXIL
 	  else if (Id<PlexilArrayElement>::convertable(destExpr)) {
 		destVar = ExpressionFactory::createInstance(destExpr->name(),
 													destExpr,
-													m_connector);
+													NodeConnector::getId());
 		garbage.push_back(destVar);
 	  }
 	  else {
@@ -423,7 +423,7 @@ namespace PLEXIL
 		ExpressionId resExpr
 		  = ExpressionFactory::createInstance(resItr->second->name(), 
 											  resItr->second, 
-											  m_connector,
+											  NodeConnector::getId(),
 											  wasCreated);
 		check_error(resExpr.isValid());
 		resourceMap[resItr->first] = resExpr;

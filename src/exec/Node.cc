@@ -113,38 +113,6 @@ namespace PLEXIL {
     const LabelStr& m_cond;
   };
 
-  class RealNodeConnector : public NodeConnector
-  {
-  public:
-    RealNodeConnector(const NodeId& node) 
-	: NodeConnector(), m_node(node) 
-    {
-    }
-
-    const VariableId& findVariable(const PlexilVarRef* ref)
-    {
-      return m_node->findVariable(ref);
-    }
-
-    const VariableId& findVariable(const LabelStr& name, bool recursive = false)
-    {
-      return m_node->findVariable(name, recursive);
-    }
-
-    const ExecConnectorId& getExec()
-    {
-      return m_node->getExec();
-    }
-
-    const NodeId& getNode() const
-    {
-      return m_node;
-    }
-
-  private:
-    NodeId m_node;
-  };
-
   const LabelStr& 
   Node::nodeTypeToLabelStr(PlexilNodeType nodeType)
   {
@@ -177,10 +145,10 @@ namespace PLEXIL {
   }
 
   Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
-    : m_id(this),
+    : NodeConnector(),
+	  m_id(this, NodeConnector::getId()),
 	  m_parent(parent),
 	  m_exec(exec),
-      m_connector((new RealNodeConnector(m_id))->getId()),
 	  m_nodeId(node->nodeId()),
 	  m_nodeType(nodeTypeToLabelStr(node->nodeType())), // Can throw exception
 	  m_sortedVariableNames(new std::vector<double>()),
@@ -212,7 +180,8 @@ namespace PLEXIL {
 			 const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
 			 const bool commandAbort, const bool parentWaiting, 
 			 const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec)
-    : m_id(this),
+    : NodeConnector(),
+	  m_id(this, NodeConnector::getId()),
 	  m_parent(NodeId::noId()),
 	  m_exec(exec),
 	  m_nodeId(name),
@@ -352,7 +321,7 @@ namespace PLEXIL {
 		(VariableId)
 		ExpressionFactory::createInstance(PlexilParser::valueTypeString(var->type()), 
 										  var,
-										  m_connector);
+										  NodeConnector::getId());
 	  // Check for duplicate names
 	  // FIXME: push up into XML parser
 	  assertTrueMsg(m_variablesByName.find(nameLabel.getKey()) == m_variablesByName.end(),
@@ -437,11 +406,11 @@ namespace PLEXIL {
 		// Construct const wrapper
 		if (expr->isArray()) {
 		  expr =
-			(new ArrayAliasVariable(varRef->name(), m_connector, expr, false, true))->getId();
+			(new ArrayAliasVariable(varRef->name(), NodeConnector::getId(), expr, false, true))->getId();
 		}
 		else {
 		  expr =
-			(new AliasVariable(varRef->name(), m_connector, expr, false, true))->getId();
+			(new AliasVariable(varRef->name(), NodeConnector::getId(), expr, false, true))->getId();
 		}
 		debugMsg("Node::getInVariable",
 				 " Node \"" << m_nodeId.toString()
@@ -465,7 +434,7 @@ namespace PLEXIL {
 			bool wasConstructed = false;
 			expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Value"),
 													 defaultVal,
-													 m_connector,
+													 NodeConnector::getId(),
 													 wasConstructed);
 			if (wasConstructed)
 			  m_localVariables.push_back(expr);
@@ -511,7 +480,7 @@ namespace PLEXIL {
 			bool wasConstructed = false;
 			expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Variable"),
 													 defaultVal,
-													 m_connector,
+													 NodeConnector::getId(),
 													 wasConstructed);
 			if (wasConstructed)
 			  m_localVariables.push_back(expr);
@@ -576,7 +545,7 @@ namespace PLEXIL {
 	  m_conditions[condIdx] = 
 		ExpressionFactory::createInstance(it->second->name(), 
 										  it->second,
-										  m_connector, 
+										  NodeConnector::getId(), 
 										  m_garbageConditions[condIdx]);
 	  m_conditions[condIdx]->addListener(m_listeners[condIdx]);
 	}
@@ -606,8 +575,7 @@ namespace PLEXIL {
     cleanUpVars();
 
 	delete m_sortedVariableNames;
-    delete (RealNodeConnector*) m_connector;
-    m_id.remove();
+    m_id.removeDerived(NodeConnector::getId());
   }
 
   void Node::cleanUpConditions() 
@@ -1364,7 +1332,6 @@ namespace PLEXIL {
 
 	// Not found locally - try ancestors if possible
 	// Stop at library call nodes, as interfaces there are explicit
-	// FIXME: Figure out how to implement firewall by subclassing
 	if (m_parent.isId()
 		&& m_parent->m_nodeType != LIBRARYNODECALL()) {
 	  const VariableId& result = m_parent->findVariable(name, true);

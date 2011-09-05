@@ -147,7 +147,7 @@ namespace PLEXIL {
 	try {
 	  if (!wasThrowEnabled)
 		Error::doThrowExceptions();
-	  root = NodeFactory::createNode(plan, getId());
+	  root = NodeFactory::createNode(plan, ExecConnector::getId());
 	  check_error(root.isValid());
 	  root->postInit(plan);
 	}

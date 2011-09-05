@@ -45,7 +45,7 @@ namespace PLEXIL
     virtual const VariableId& findVariable(const PlexilVarRef* ref) = 0;
     virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false) = 0;
     virtual const NodeId& getNode() const = 0;
-    virtual const ExecConnectorId& getExec() = 0;
+    virtual const ExecConnectorId& getExec() const = 0;
 
   private:
     NodeConnectorId m_id;

@@ -131,7 +131,7 @@ namespace PLEXIL
 		ExpressionId valueExpr = 
 		  ExpressionFactory::createInstance(foo->name(),
 											foo,
-											m_connector,
+											NodeConnector::getId(),
 											wasCreated);
 		check_error(valueExpr.isValid());
 		if (wasCreated)
