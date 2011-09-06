@@ -13,7 +13,7 @@ test-send:
     String arg8[3] = #("foo" "baz" "bar");
     Real run_start_time;
 
-    Sequence:
+    UncheckedSequence:
 
     RecordStartTime:
     {
@@ -38,6 +38,7 @@ test-send:
     {
         StartCondition: LookupOnChange(time, 1) > run_start_time + 2;
         //StartCondition: LookupOnChange(time, 1) > SendUdpCommand1.FINISHED.END + 2; // why doesn't this work?
+        InvariantCondition: WaitForAck.state != FAILING;
         Concurrence:
         ReportParameters:
         {
@@ -47,6 +48,7 @@ test-send:
         WaitForAck:
         {
             StartCondition: ReportParameters.state == FINISHED;
+            InvariantCondition: LookupOnChange(time, 1) < run_start_time + 4;
             OnCommand ack_msg (String ack)
             {
                 Command print ("\ntest-send: received ack\n\n");
