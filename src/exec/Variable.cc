@@ -29,7 +29,7 @@
 #include "ExecConnector.hh"
 #include "ExecListenerHub.hh"
 #include "ExpressionFactory.hh"
-#include "NodeConnector.hh"
+#include "Node.hh"
 
 namespace PLEXIL
 {
@@ -62,7 +62,6 @@ namespace PLEXIL
 	  m_isConst(isConst),
 	  m_initialValue(UNKNOWN()),
 	  m_node(NodeId::noId()),
-	  m_hub(ExecListenerHubId::noId()),
 	  m_name("anonymous") 
   {
     if(this->isConst())
@@ -76,7 +75,6 @@ namespace PLEXIL
 	  m_isConst(isConst),
 	  m_initialValue(value),
 	  m_node(NodeId::noId()),
-	  m_hub(ExecListenerHubId::noId()),
 	  m_name("anonymous")
   {
     m_value = m_initialValue;
@@ -93,8 +91,6 @@ namespace PLEXIL
     : Variable(),
 	  m_isConst(isConst),
 	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
-	  // We won't be reporting assignments to a constant variable.
-	  m_hub(isConst ? ExecListenerHubId::noId() : node->getExec()->getExecListenerHub()),
 	  m_name(expr->name())
   {
     check_error(Id<PlexilVar>::convertable(expr) || Id<PlexilValue>::convertable(expr));
@@ -134,11 +130,9 @@ namespace PLEXIL
     if(!isConst()) {
       internalSetValue(m_initialValue);
       handleReset();
-	  if (m_hub.isId()) {
-		m_hub->notifyOfAssignment(Expression::getId(),
-								  m_name,
-								  m_initialValue);
-	  }
+	  ExecListenerHubId hub = getExecListenerHub();
+	  if (hub.isId())
+		hub->notifyOfAssignment(Expression::getId(), m_name, m_initialValue);
     }
   }
 
@@ -155,11 +149,9 @@ namespace PLEXIL
 			   "Attempted to assign value " << Expression::valueToString(value)
 			   << " to read-only variable " << toString());
     internalSetValue(value);
-	if (m_hub.isId()) {
-	  m_hub->notifyOfAssignment(Expression::getId(),
-								m_name,
-								value);
-	}
+	ExecListenerHubId hub = getExecListenerHub();
+	if (hub.isId()) 
+	  hub->notifyOfAssignment(Expression::getId(), m_name, value);
   }
 
   void VariableImpl::commonNumericInit(const PlexilValue* val) 
@@ -220,6 +212,17 @@ namespace PLEXIL
 	if (!m_isConst)
 	  Expression::removeListener(id);
   }
+
+  const ExecListenerHubId& VariableImpl::getExecListenerHub()
+  {
+	if (m_node.isId())
+	  return m_node->getExecListenerHub();
+	else {
+	  static const ExecListenerHubId sl_noId;
+	  return sl_noId;
+	}
+  }
+
 
   //
   // AliasVariable

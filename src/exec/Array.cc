@@ -390,12 +390,11 @@ namespace PLEXIL
 	  theArray[index] = value;
 	  publishChange();
 	}
-	if (m_hub) {
+	ExecListenerHubId hub = getExecListenerHub();
+	if (hub.isId()) {
 	  std::ostringstream s;
-	  s << m_name << '[' << index << ']';
-	  m_hub->notifyOfAssignment(Expression::getId(),
-								s.str(),
-								value);
+	  s << m_name << '[' << index << ']'; // FIXME: this is unlikely to be right
+	  hub->notifyOfAssignment(Expression::getId(), s.str(), value);
 	}
   }
 
