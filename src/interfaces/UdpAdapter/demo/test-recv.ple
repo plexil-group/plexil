@@ -53,6 +53,7 @@ test-recv:
         }
         HandleTimeout:
         {
+            Priority: 1;        // high number := low priority
             StartCondition: LookupOnChange(time, 1) > run_start_time + timeout;
             UncheckedSequence:
             ReportTimeout:
@@ -66,6 +67,7 @@ test-recv:
         }
         HandleQuitMessage:
         {
+            Priority: 0;        // low number := high priority
             OnCommand quit_msg (String junk)
             {
                 UncheckedSequence:
