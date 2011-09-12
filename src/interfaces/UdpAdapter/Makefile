@@ -55,5 +55,3 @@ $(TARGETS): $(OBJECTS)
 cleaner: clean
 	$(RM) $(TARGETS) *.o
 	$(MAKE) -C demo clean
-
-.PHONY : demo

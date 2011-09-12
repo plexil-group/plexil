@@ -1,14 +1,38 @@
 // -*- Mode: Java -*-
-// File: plexil/src/interfaces/UdpAdapter/demo/test-send.ple
+/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 test-send:
 {
-    String arg1 = "CA";           // intentionally shorter than declared in udp.xml (for testing)
-    //Boolean arg2 = false;       // set to "true" to request an "ack" from the other agent
-    Integer arg3 = 3;             // -2147483649, 2147483648
-    Real arg4 = 3.14159;          // 1.17e-38, 3.5e+38
-    Integer arg5[3] = #(9 8 7);   // easy to read in the buffer when debugging
-    Real arg6[3] = #(36.0 -104.7 25000.0); // test arrays
+    String arg1 = "CA";                    // intentionally shorter than declared in udp.xml (for testing)
+    //Boolean arg2 = false;                // set to "true" to request an "ack" from the other agent
+    Integer arg3 = 3;                      // 23 bits: -2147483649, 2147483648; 16 bits: -32768, 32767
+    Real arg4 = 3.14159;                   // 1.17e-38, 3.5e+38
+    Integer arg5[3] = #(9 8 7);            // test arrays
+    Real arg6[3] = #(36.0 -104.7 25000.0);
     Boolean arg7[3] = #(true true false);
     String arg8[3] = #("foo" "baz" "bar");
     Real run_start_time;
