@@ -96,7 +96,7 @@ namespace PLEXIL {
   class ConditionChangeListener : public ExpressionListener 
   {
   public:
-    ConditionChangeListener(const NodeId& node, const LabelStr& cond)
+    ConditionChangeListener(Node& node, const LabelStr& cond)
       : ExpressionListener(), m_node(node), m_cond(cond) 
 	{
 	}
@@ -105,12 +105,12 @@ namespace PLEXIL {
 	{
       debugMsg("Node:conditionChange",
 			   m_cond.toString() << " may have changed value in " <<
-			   m_node->getNodeId().toString());
-      m_node->conditionChanged();
+			   m_node.getNodeId().toString());
+      m_node.conditionChanged();
     }
 
   private:
-    NodeId m_node;
+    Node& m_node;
     const LabelStr& m_cond;
   };
 
@@ -245,7 +245,7 @@ namespace PLEXIL {
 	// and initialize m_garbageConditions
 	for (size_t i = 0; i < conditionIndexMax; i++) {
 	  m_listeners[i] = 
-		(new ConditionChangeListener(m_id, ALL_CONDITIONS()[i]))->getId();
+		(new ConditionChangeListener(*this, ALL_CONDITIONS()[i]))->getId();
 	  m_garbageConditions[i] = false;
 	}
   }
