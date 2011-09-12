@@ -210,7 +210,6 @@ public:
     runTest(testIntegerMultiplication);
     runTest(testIntegerDivision);
 
-    runTest(testTransparentWrapper);
     return true;
   }
 private:
@@ -849,53 +848,6 @@ private:
     assertTrue(d8.getValue() == IntegerVariable::UNKNOWN());
     d9.activate();
     assertTrue(d9.getValue() == IntegerVariable::UNKNOWN());
-    return true;
-  }
-
-  static bool testTransparentWrapper() {
-    //simulating structure
-    //Parent
-    //  Child1
-    //    Child1-1
-    BooleanVariable v1((double)true); //Parent ancestor invariant
-    BooleanVariable v2((double)true); //Parent invariant
-    BooleanVariable v3((double)true); //Child1 invariant
-
-    TransparentWrapper t1(v1.getId());
-    TransparentWrapper t2(v2.getId());
-    TransparentWrapper t3(v3.getId());
-
-    Conjunction c1(t1.getId(), t2.getId()); //Child1 ancestor invariant
-
-    TransparentWrapper t4(c1.getId());
-
-    Conjunction c2(t3.getId(), t4.getId()); //Child1-1 ancestor invariant
-
-    v1.activate();
-    v2.activate(); //Parent's invariant and ancestor invariant get activated first
-
-    c1.activate();
-    v3.activate(); //Child1's invariant and ancestor invariant get activated next
-
-    c2.activate(); //Child1-1's ancestor invariant gets activated last
-
-    assertTrue(t1.getValue() == v1.getValue());
-    assertTrue(t2.getValue() == v2.getValue());
-    assertTrue(t3.getValue() == v3.getValue());
-
-
-    c1.activate();
-    assertTrue(c1.getValue() == BooleanVariable::TRUE_VALUE());
-
-    t4.activate();
-    assertTrue(c1.getValue() == t4.getValue());
-    
-
-
-    c2.activate();
-
-    assertTrue(c2.getValue() == BooleanVariable::TRUE_VALUE());
-
     return true;
   }
 
