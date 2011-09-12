@@ -112,7 +112,6 @@ namespace PLEXIL
     void removeSubexpression(const ExpressionId& exp);
 
     SubexpressionListener m_listener; /*<! For incoming message notifications (other expressions' values have changed) */
-    //std::list<ExpressionListenerId> m_incomingListeners;
     ExpressionVector m_subexpressions; /*<! The subexpressions.*/
     std::set<ExpressionId> m_garbage;
   };
