@@ -264,13 +264,13 @@ namespace PLEXIL
    bool StateCache::internalStateUpdate(const StateKey& key,
                                         const std::vector<double>& values)
    {
-      check_error(m_states.find(key) != m_states.end());
-      debugMsg("StateCache:updateState",
-               "Updating state " << toString(m_states[key].first) <<
-               " with values " << toString(values));
-
       std::map<StateKey, std::pair<State, int> >::iterator stateIt =
          m_states.find(key);
+      check_error(stateIt != m_states.end());
+      debugMsg("StateCache:updateState",
+               "Updating state " << toString(stateIt->second.first) <<
+               " with values " << toString(values));
+
       checkError(stateIt->second.second <= m_quiescenceCount,
                  "Synchronization error.  State " <<
                  toString(stateIt->second.first) <<
