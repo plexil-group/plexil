@@ -128,7 +128,8 @@ namespace PLEXIL
     void notifyValueChanged(const ExpressionId& exp)
 	{
 	  // prevent infinite loop
-	  if (exp != (ExpressionId) m_exp)
+	  // FIXME: how is infinite loop possible? any other way to break it?
+	  if (exp != m_exp)
         m_exp->handleChange(exp);
 	}
 

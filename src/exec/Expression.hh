@@ -339,7 +339,7 @@ namespace PLEXIL {
      * @brief Constructor.
      * @param exp The expression to be notified of any changes.
      */
-    SubexpressionListener(const ExpressionId& exp);
+    SubexpressionListener(Expression& parent);
 
     /**
      * @brief Notifies the destination expression of a value change.
@@ -348,7 +348,12 @@ namespace PLEXIL {
     void notifyValueChanged(const ExpressionId& exp);
 
   private:
-    Expression* m_exp; /*<! The destination expression for notifications. */
+	// Deliberately unimplemented
+	SubexpressionListener();
+	SubexpressionListener(const SubexpressionListener&);
+	SubexpressionListener& operator=(const SubexpressionListener&);
+
+    Expression& m_exp; /*<! The destination expression for notifications. */
   };
 
 

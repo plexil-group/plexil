@@ -34,7 +34,7 @@
 namespace PLEXIL
 {
 
-  class Lookup : public VariableImpl {
+  class Lookup : public Expression {
   public:
     Lookup(const PlexilExprId& expr, const NodeConnectorId& node);
     virtual ~Lookup();

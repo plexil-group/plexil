@@ -56,11 +56,11 @@ namespace PLEXIL {
     m_activeCount--;
   }
 
-  SubexpressionListener::SubexpressionListener(const ExpressionId& exp)
-    : ExpressionListener(), m_exp(exp) {}
+  SubexpressionListener::SubexpressionListener(Expression& parent)
+    : ExpressionListener(), m_exp(parent) {}
 
   void SubexpressionListener::notifyValueChanged(const ExpressionId& exp) {
-    m_exp->handleChange(exp);
+    m_exp.handleChange(exp);
   }
 
   Expression::Expression()

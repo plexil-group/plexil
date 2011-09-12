@@ -31,10 +31,10 @@
 namespace PLEXIL
 {
 
-  Calculable::Calculable() : Expression(), m_listener(getId()) {}
+  Calculable::Calculable() : Expression(), m_listener((Expression&) *this) {}
 
   Calculable::Calculable(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Expression(), m_listener(getId())
+    : Expression(), m_listener((Expression&) *this)
   {
     const std::vector<PlexilExprId>& subExprs = expr->subExprs();
     for (std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); 

@@ -39,13 +39,13 @@ namespace PLEXIL
   //  - implement multiple return values from lookups
 
   Lookup::Lookup(const PlexilExprId& expr, const NodeConnectorId& node)
-    : VariableImpl(false), 
+    : Expression(),
       m_cache(node->getExec()->getStateCache()),
       m_dest(1, m_id),
       m_state(Expression::UNKNOWN(),
               std::vector<double>(((PlexilLookup*)expr)->state()->args().size(),
                                   Expression::UNKNOWN())),
-      m_listener(m_id)
+      m_listener((Expression&) *this)
   {
      checkError(Id<PlexilLookup>::convertable(expr), "Expected a lookup.");
      PlexilLookup* lookup = (PlexilLookup*) expr;
