@@ -45,6 +45,20 @@
 #include <iomanip> // for setprecision
 
 namespace PLEXIL {
+
+  ConditionChangeListener::ConditionChangeListener(Node& node, const LabelStr& cond)
+	: ExpressionListener(), m_node(node), m_cond(cond) 
+  {
+  }
+
+  void ConditionChangeListener::notifyValueChanged(const ExpressionId& /* expression */) 
+  {
+	debugMsg("Node:conditionChange",
+			 m_cond.toString() << " may have changed value in " <<
+			 m_node.getNodeId().toString());
+	m_node.conditionChanged();
+  }
+
   const std::vector<double>& Node::ALL_CONDITIONS() {
     static std::vector<double>* sl_allConds = NULL;
     if (sl_allConds == NULL)
@@ -92,27 +106,6 @@ namespace PLEXIL {
   {
     return LabelStr(ALL_CONDITIONS()[idx]);
   }
-
-  class ConditionChangeListener : public ExpressionListener 
-  {
-  public:
-    ConditionChangeListener(Node& node, const LabelStr& cond)
-      : ExpressionListener(), m_node(node), m_cond(cond) 
-	{
-	}
-  
-	void notifyValueChanged(const ExpressionId& /* expression */) 
-	{
-      debugMsg("Node:conditionChange",
-			   m_cond.toString() << " may have changed value in " <<
-			   m_node.getNodeId().toString());
-      m_node.conditionChanged();
-    }
-
-  private:
-    Node& m_node;
-    const LabelStr& m_cond;
-  };
 
   const LabelStr& 
   Node::nodeTypeToLabelStr(PlexilNodeType nodeType)
@@ -210,6 +203,7 @@ namespace PLEXIL {
 			   " with value " << values[i] << " for node " << m_nodeId.toString());
       ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
       m_conditions[i] = expr;
+	  m_listeners[i] = (new ConditionChangeListener(*this, ALL_CONDITIONS()[i]))->getId();
       expr->addListener(m_listeners[i]);
       m_garbageConditions[i] = true;
     }
@@ -241,17 +235,23 @@ namespace PLEXIL {
       m_endTimepoints[s] = m_variablesByName[etpName] = etp;
     }
 
-	// construct condition listeners (but not conditions)
-	// and initialize m_garbageConditions
+	// initialize m_garbageConditions
 	for (size_t i = 0; i < conditionIndexMax; i++) {
-	  m_listeners[i] = 
-		(new ConditionChangeListener(*this, ALL_CONDITIONS()[i]))->getId();
 	  m_garbageConditions[i] = false;
 	}
   }
 
   // Use existing Boolean constants for the condition defaults
-  void Node::setConditionDefaults() {
+  void Node::setConditionDefaults() 
+  {
+	// Construct common condition listeners
+	// Listeners for node-type-specific conditions constructed in
+	// createSpecializedConditions()
+	for (size_t i = 0; i < childrenWaitingOrFinishedIdx; i++) {
+	  m_listeners[i] = 
+		(new ConditionChangeListener(*this, ALL_CONDITIONS()[i]))->getId();
+	}
+
 	// These may be user-specified
 	// End condition will be overridden 
     m_conditions[skipIdx] = BooleanVariable::FALSE_EXP();
@@ -301,15 +301,6 @@ namespace PLEXIL {
 	  m_conditions[parentWaitingIdx] = BooleanVariable::FALSE_EXP();
 	  m_conditions[parentFinishedIdx] = BooleanVariable::FALSE_EXP();
 	}
-
-	// This will be overridden in any node with children (List or LibraryNodeCall)
-    m_conditions[childrenWaitingOrFinishedIdx] = BooleanVariable::UNKNOWN_EXP();
-
-	// This will be overridden in Command and Update nodes
-    m_conditions[abortCompleteIdx] = BooleanVariable::UNKNOWN_EXP();
-
-	// This will be overridden in Command nodes
-    m_conditions[commandHandleReceivedIdx] = BooleanVariable::TRUE_EXP();
   }
 
   void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
@@ -1466,11 +1457,15 @@ namespace PLEXIL {
   bool Node::pairActive(unsigned int idx) {
     checkError(idx < conditionIndexMax,
 			   "Invalid condition index " << idx);
+	if (m_listeners[idx].isNoId())
+	  return false;
     bool listenActive = m_listeners[idx]->isActive();
     condDebugMsg(!listenActive, 
 				 "Node:pairActive",
 				 "Listener for " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
 				 " is inactive.");
+	checkError(m_conditions[idx].isId(),
+			   "Node " << m_nodeId.toString() << " has a listener but no condition expression for " << getConditionName(idx).toString());
     bool condActive = m_conditions[idx]->isActive();
     condDebugMsg(!condActive, 
 				 "Node:pairActive",
@@ -1549,47 +1544,36 @@ namespace PLEXIL {
 	//checkError(ALWAYS_FAIL, "No abort currently for node type " << getType().toString());
   }
 
-  /* old version
-	 void Node::lockConditions() {
-	 for(ExpressionMap::iterator it = m_conditionsByName.begin();
-	 it != m_conditionsByName.end(); ++it) {
-	 ExpressionId expr = it->second;
-	 check_error(expr.isValid());
-	 if(pairActive(it->first) && !expr->isLocked()) {
-	 debugMsg("Node:lockConditions",
-	 "In " << m_nodeId.toString() << ", locking " <<
-	 LabelStr(it->first).toString() << " " << expr->toString());
-	 expr->lock();
-	 }
-	 }
-	 }
-  */
-
   // Optimized version
   // N.B. we omit the validity check on the condition expression
   // because this is a critical path method in the inner loop of the Exec.
-  void Node::lockConditions() {
+  void Node::lockConditions() 
+  {
     for (unsigned int i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId expr = m_conditions[i];
-      checkError(m_listeners[i].isId(), // isValid() ??
-				 "Node::lockConditions: no listener named " << getConditionName(i).toString());
-      if (m_listeners[i]->isActive()
-		  && expr->isActive()
-		  && !expr->isLocked()) {
-		debugMsg("Node:lockConditions",
-				 "In " << m_nodeId.toString() << ", locking " <<
-				 getConditionName(i).toString() << " " << expr->toString());
-		expr->lock();
-      }
-    }
+	  ExpressionListenerId listener = m_listeners[i];
+      if (m_listeners[i].isId()
+		  && m_listeners[i]->isActive()) {
+		ExpressionId expr = m_conditions[i];
+		checkError(expr.isId(),
+				   "Node::lockConditions: condition " << getConditionName(i).toString()
+				   << " is null in node " << m_nodeId.toString());
+		if (expr->isActive()
+			&& !expr->isLocked()) {
+		  debugMsg("Node:lockConditions",
+				   "In " << m_nodeId.toString() << ", locking " <<
+				   getConditionName(i).toString() << " " << expr->toString());
+		  expr->lock();
+		}
+	  }
+	}
   }
 
   // As above, skip the Id validity check because this is a critical path function.
-  void Node::unlockConditions() {
+  void Node::unlockConditions() 
+  {
     for (unsigned int i = 0; i < conditionIndexMax; ++i) {
       ExpressionId expr = m_conditions[i];
-      // check_error(expr.isValid());
-      if(expr->isLocked()) {
+      if (expr.isId() && expr->isLocked()) {
 		debugMsg("Node:unlockConditions",
 				 "In " << m_nodeId.toString() << ", unlocking " <<
 				 getConditionName(i).toString() << " " << expr->toString());
@@ -1649,8 +1633,10 @@ namespace PLEXIL {
     else if (m_state != INACTIVE_STATE) {
 	  // Print conditions
       for (unsigned int i = 0; i < conditionIndexMax; ++i) {
-		stream << indentStr << " " << getConditionName(i).toString() << ": " <<
-		  m_conditions[i]->toString() << '\n';
+		if (m_conditions[i].isId()) {
+		  stream << indentStr << " " << getConditionName(i).toString() << ": " <<
+			m_conditions[i]->toString() << '\n';
+		}
       }
 	  // Print variables, starting with command handle (if appropriate)
 	  printCommandHandle(stream, indent, true);

@@ -131,15 +131,19 @@ namespace PLEXIL
   {
 	// Construct command-aborted condition
 	VariableId commandAbort = (new BooleanVariable())->getId();
-	ExpressionListenerId abortListener = m_listeners[abortCompleteIdx];
+	ExpressionListenerId abortListener = m_listeners[abortCompleteIdx] =
+	  (new ConditionChangeListener((Node&) *this, ALL_CONDITIONS()[abortCompleteIdx]))->getId();
 	commandAbort->addListener(abortListener);
 	m_conditions[abortCompleteIdx] = commandAbort;
+	m_garbageConditions[abortCompleteIdx] = true;
           
 	// Listen to any change in the command handle so that the internal variable 
 	// CommandHandleVariable can be updated
 	ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
 	commandHandleCondition->ignoreCachedValue();
-	commandHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
+	ExpressionListenerId cmdHandleListener = m_listeners[commandHandleReceivedIdx] = 
+	  (new ConditionChangeListener((Node&) *this, ALL_CONDITIONS()[commandHandleReceivedIdx]))->getId();
+	commandHandleCondition->addListener(cmdHandleListener);
 	m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
 	m_garbageConditions[commandHandleReceivedIdx] = true;
   }

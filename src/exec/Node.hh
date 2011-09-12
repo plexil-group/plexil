@@ -29,6 +29,7 @@
 
 #include "ConstantMacros.hh"
 #include "ExecDefs.hh"
+#include "Expression.hh"
 #include "LabelStr.hh"
 #include "NodeConnector.hh"
 #include "PlexilPlan.hh"
@@ -66,14 +67,14 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition.*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, REPEAT_CONDITION, "RepeatCondition"); /*<! The name for the node's repeat condition.*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
-													condition (parent.invariant && parent.ancestor-invariant).*/
+																										condition (parent.invariant && parent.ancestor-invariant).*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*<! The name for the ancestor-end condition
-											    (parent.end || parent.ancestor-end).*/
+																							(parent.end || parent.ancestor-end).*/
 
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_EXECUTING_CONDITION, "ParentExecutingCondition"); /*<! The name for the ancestor-executing condition
-												    (checked in state INACTIVE, transitions to state WAITING)*/
+																									(checked in state INACTIVE, transitions to state WAITING)*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_FINISHED_CONDITION, "ParentFinishedCondition"); /*<! The name for the ancestor-executing condition
-												    (checked in state INACTIVE, transitions to state WAITING)*/
+																								  (checked in state INACTIVE, transitions to state WAITING)*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, CHILDREN_WAITING_OR_FINISHED, "AllChildrenWaitingOrFinishedCondition"); /*<! The name for the node's all-children-waiting-or-finished condition.*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, ABORT_COMPLETE, "AbortCompleteCondition"); /*<! The name for the command-abort-complete condition.*/
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_WAITING_CONDITION, "ParentWaitingCondition");
@@ -109,12 +110,12 @@ namespace PLEXIL {
      * @brief Alternate constructor.  Used only by Exec test module.
      */
     Node(const LabelStr& type, const LabelStr& name, const NodeState state,
-	 const bool skip, const bool start, const bool pre,
-	 const bool invariant, const bool post, const bool end, const bool repeat,
-	 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-	 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-	 const bool parentFinished, const bool cmdHdlRcvdCondition,
-	 const ExecConnectorId& exec = ExecConnectorId::noId());
+		 const bool skip, const bool start, const bool pre,
+		 const bool invariant, const bool post, const bool end, const bool repeat,
+		 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
+		 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
+		 const bool parentFinished, const bool cmdHdlRcvdCondition,
+		 const ExecConnectorId& exec = ExecConnectorId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -508,6 +509,21 @@ namespace PLEXIL {
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
 
+  class ConditionChangeListener : public ExpressionListener 
+  {
+  public:
+	ConditionChangeListener(Node& node, const LabelStr& cond);
+	void notifyValueChanged(const ExpressionId& /* expression */);
+
+  private:
+	// Deliberately unimplemented
+	ConditionChangeListener();
+	ConditionChangeListener(const ConditionChangeListener&);
+	ConditionChangeListener& operator=(const ConditionChangeListener&);
+
+    Node& m_node;
+    const LabelStr& m_cond;
+  };
 
 }
 

@@ -103,7 +103,8 @@ namespace PLEXIL
   void ListNode::createSpecializedConditions()
   {
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
+    ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx] =
+	  (new ConditionChangeListener((Node&) *this, ALL_CONDITIONS()[childrenWaitingOrFinishedIdx]))->getId();
     cond->addListener(listener);
     m_conditions[childrenWaitingOrFinishedIdx] = cond;
     m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
