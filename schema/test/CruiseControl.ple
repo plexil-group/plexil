@@ -1,0 +1,19 @@
+CruiseControl:
+{
+  Integer distance = 10;
+  Boolean cruise_enabled = false;
+
+  Sequence
+    Enter:
+    {
+      Assignment: distance = 7;
+    }
+
+    Drive:
+    {
+      While ( distance > 0 )
+      {
+          Assignment: distance = distance - 1;
+      }
+    }
+}

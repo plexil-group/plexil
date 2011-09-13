@@ -40,9 +40,9 @@ REST =  UncheckedSequence1 UncheckedSequence2 \
 	Try1 Try2 Try3 Try4 If1 If2 If3  While1 While2 While3 For1 For2 For3 \
 	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
 	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
-	Lookup1 Lookup2 Wait1 Wait2 Wait3
+	Lookup1 Lookup2 Wait1 Wait2 Wait3 CruiseControl
 
-TESTS = $(SYNCH) $(REST)
+TESTS = $(SYNCH) $(REST) 
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$

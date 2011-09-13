@@ -1,0 +1,57 @@
+  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/extended-plexil.xsd" FileName="CruiseControl.ple">
+      <Sequence FileName="CruiseControl.ple" LineNo="2" ColNo="1">
+          <NodeId>CruiseControl</NodeId>
+          <VariableDeclarations>
+              <DeclareVariable>
+                  <Name>distance</Name>
+                  <Type>Integer</Type>
+                  <InitialValue>
+                      <IntegerValue>10</IntegerValue>
+                  </InitialValue>
+              </DeclareVariable>
+              <DeclareVariable>
+                  <Name>cruise_enabled</Name>
+                  <Type>Boolean</Type>
+                  <InitialValue>
+                      <BooleanValue>false</BooleanValue>
+                  </InitialValue>
+              </DeclareVariable>
+          </VariableDeclarations>
+          <Node FileName="CruiseControl.ple" LineNo="8" ColNo="5" NodeType="Assignment">
+              <NodeId>Enter</NodeId>
+              <NodeBody>
+                  <Assignment>
+                      <IntegerVariable>distance</IntegerVariable>
+                      <NumericRHS>
+                          <IntegerValue>7</IntegerValue>
+                      </NumericRHS>
+                  </Assignment>
+              </NodeBody>
+          </Node>
+          <While FileName="CruiseControl.ple" LineNo="13" ColNo="5">
+              <NodeId>Drive</NodeId>
+              <Condition>
+                  <GT>
+                      <IntegerVariable>distance</IntegerVariable>
+                      <IntegerValue>0</IntegerValue>
+                  </GT>
+              </Condition>
+              <Action>
+                  <Node FileName="CruiseControl.ple" LineNo="15" ColNo="7" NodeType="Assignment">
+                      <NodeId>Drive__CHILD__1</NodeId>
+                      <NodeBody>
+                          <Assignment>
+                              <IntegerVariable>distance</IntegerVariable>
+                              <NumericRHS>
+                                  <SUB>
+                                      <IntegerVariable>distance</IntegerVariable>
+                                      <IntegerValue>1</IntegerValue>
+                                  </SUB>
+                              </NumericRHS>
+                          </Assignment>
+                      </NodeBody>
+                  </Node>
+              </Action>
+          </While>
+      </Sequence>
+  </PlexilPlan>

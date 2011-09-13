@@ -435,11 +435,16 @@
                   </AND>
                 </StartCondition>
                 <SkipCondition>
-                  <NOT>
-                    <BooleanVariable>
-                      <xsl:value-of select="tr:prefix('test')" />
-                    </BooleanVariable>
-                  </NOT>
+                  <AND>
+                    <xsl:call-template name="node-finished">
+                      <xsl:with-param name="id" select="$setup-id" />
+                    </xsl:call-template>
+                    <NOT>
+                      <BooleanVariable>
+                        <xsl:value-of select="tr:prefix('test')" />
+                      </BooleanVariable>
+                    </NOT>
+                  </AND>
                 </SkipCondition>
                 <RepeatCondition>
                   <BooleanVariable>
