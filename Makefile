@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter GanttListener standard-plexil checker plexilsim robosim
+all: TestExec UniversalExec IpcAdapter GanttListener UdpAdapter standard-plexil checker plexilsim robosim
 
 # convenience target for A4O project
 A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener plexilsim
@@ -79,6 +79,9 @@ IpcAdapter: app-framework IpcUtils
 
 GanttListener: utils exec-core app-framework
 	$(MAKE) -C src/interfaces/GanttListener
+
+UdpAdapter: utils exec-core app-framework
+	$(MAKE) -C src/interfaces/UdpAdapter
 
 IpcUtils: ipc
 	$(MAKE) -C src/interfaces/IpcUtils
