@@ -2,19 +2,23 @@ This directory contains PLEXIL's temporal viewer for plans.
 
 To use the viewer:
 
-1. 	Run 'make' in plexil/src/interfaces/GanttListener to build the Listener for the application
+1. Run 'make' in plexil/src/interfaces/GanttListener to build
+   the Listener for the application.
 
-2. 	Add '<Listener ListenerType="GanttListener" />' to an interface configuration XML file 
-   	associated with any plan(s) you wish to test with the viewer
+2. Add '<Listener ListenerType="GanttListener" />' to an
+   interface configuration XML file associated with any
+   plan(s) you wish to test with the viewer.
 
-3. 	Run the plans you want to test with the viewer
+3. Run the plans you want to test with the viewer.
 
-4. 	Open the HTML file that is stored in the same directory that you run plans from; each HTML
-   	file corresponds to the execution of a single plan. It is recommended that you use Mozilla
-   	Firefox or Safari; Google Chrome is not supported. The naming convention for HTML files is
-	'Gantt_x_y.html' where 'x' is the system time of the plan's execution and 'y' is the name of
-	root node in the executed plan. JSON files associated with each plan are stored in
-	plexil/src/viewer/json with the naming convention 'x_y.html' where 'x' and 'y' are as stated
-	above.
-   
+4. Open the HTML file that is stored in the same directory
+   that you run plans from; each HTML file corresponds to the
+   execution of a single plan. 
 
+NOTE: It is recommended that you use Mozilla Firefox or
+Safari. Google Chrome is not supported. The naming convention
+for HTML files is 'Gantt_x_y.html' where 'x' is the system
+time of the plan's execution and 'y' is the name of root node
+in the executed plan. JSON files associated with each plan are
+stored in plexil/src/viewer/json with the naming convention
+'x_y.html' where 'x' and 'y' are as stated above.
