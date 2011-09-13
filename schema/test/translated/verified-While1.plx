@@ -47,9 +47,17 @@
                            </AND>
                         </StartCondition>
                         <SkipCondition>
-                           <NOT>
-                              <BooleanVariable>ep2cp_test</BooleanVariable>
-                           </NOT>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeId>ep2cp_WhileSetup</NodeId>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                              <NOT>
+                                 <BooleanVariable>ep2cp_test</BooleanVariable>
+                              </NOT>
+                           </AND>
                         </SkipCondition>
                         <RepeatCondition>
                            <BooleanVariable>ep2cp_test</BooleanVariable>
