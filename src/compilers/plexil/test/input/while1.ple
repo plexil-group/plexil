@@ -1,0 +1,4 @@
+Boolean Lookup Rover.WheelStuck;
+Command Rover.driveOneMeter();
+
+while (! Lookup(Rover.WheelStuck)) Rover.driveOneMeter();

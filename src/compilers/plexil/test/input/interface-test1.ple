@@ -1,0 +1,7 @@
+Test:
+{
+  In Integer x, y;
+  InOut String z;
+
+  Integer a, b;
+}

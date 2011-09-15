@@ -1,0 +1,11 @@
+Command A;
+Command B (Integer);
+Command C (Real);
+
+UncheckedSequence 
+{
+  A ();
+  B (0);        
+  C (2.3);
+  A ();  
+}

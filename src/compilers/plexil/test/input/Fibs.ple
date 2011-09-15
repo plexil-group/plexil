@@ -1,0 +1,24 @@
+// Compute and print Fibonacci(n) for various values.
+//  - Illustrates a hierarchy of library calls.
+
+// Exercise: in a loop (with a "quit" command) get arguments from the user by
+// writing a suitable command and interface adapter.
+
+LibraryNode PrintFib(In Integer n);
+
+Fibs: {
+  Integer n = 0;
+  PrintFib (n = n);
+
+  n = 1;
+  PrintFib (n = n);
+
+  n = 2;
+  PrintFib (n = n);
+
+  n = 2;
+  PrintFib (n = n);
+
+  n = 5;
+  PrintFib (n = n);
+}
