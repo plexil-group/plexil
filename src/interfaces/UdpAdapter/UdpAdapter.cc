@@ -24,6 +24,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <limits.h>
 #include "UdpAdapter.hh"
 #include "Debug.hh"             // debugMsg
 #include "CoreExpressions.hh"   // BooleanVariable, etc.
