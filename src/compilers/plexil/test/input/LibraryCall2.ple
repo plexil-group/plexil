@@ -4,6 +4,7 @@ Command pprint(...);
 
 LibraryCallTest:
 {
+  Comment "A simple example involving two library actions.";
   Integer result;
   PostCondition result == 1;
   LibraryCall Increment (x=1, result=result);
