@@ -166,7 +166,7 @@ public class NodeContext
     // Creates a locally unique node name based on the child's type
     public String generateChildNodeName(String prefix)
     {
-        return prefix + s_generatedIdCount++;
+        return prefix +  "__" + s_generatedIdCount++;
     }
 
     //
