@@ -1,0 +1,5 @@
+<PlexilPlan LineNo="1" ColNo="1">
+    <Node NodeType="Empty" LineNo="0" ColNo="0">
+        <NodeId>DoNothing</NodeId>
+    </Node>
+</PlexilPlan>
