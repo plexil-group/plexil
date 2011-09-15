@@ -158,6 +158,7 @@ SYNCHRONOUS_COMMAND_KYWD = 'SynchronousCommand';
 TIMEOUT_KYWD = 'Timeout';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
+SEQUENCE_KYWD = 'Sequence';
 WAIT_KYWD = 'Wait';
 
 ELSE_KYWD = 'else';
@@ -498,6 +499,7 @@ block
 
 sequenceVariantKywd : 
     CONCURRENCE_KYWD
+  | SEQUENCE_KYWD
   | UNCHECKED_SEQUENCE_KYWD
   | TRY_KYWD
  ;
@@ -542,7 +544,7 @@ resource
   		  | RELEASE_AT_TERM_KYWD EQUALS! expression
  		  | PRIORITY_KYWD EQUALS! pe=expression
           )
-        )+
+        )*
         SEMICOLON!
  ;
 

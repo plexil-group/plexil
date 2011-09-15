@@ -200,7 +200,8 @@ update :
  ;
 
 block :
-    ^((BLOCK | CONCURRENCE_KYWD | UNCHECKED_SEQUENCE_KYWD | TRY_KYWD)
+    ^((BLOCK | CONCURRENCE_KYWD | SEQUENCE_KYWD
+       | UNCHECKED_SEQUENCE_KYWD | TRY_KYWD)
       comment?
       nodeDeclaration*
 	  nodeAttribute*

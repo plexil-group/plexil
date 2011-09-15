@@ -81,6 +81,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.CONCURRENCE_KYWD:
 		case PlexilLexer.TRY_KYWD:
 		case PlexilLexer.UNCHECKED_SEQUENCE_KYWD:
+		case PlexilLexer.SEQUENCE_KYWD:
 			return new BlockNode(payload);
 
 			// Conditions
