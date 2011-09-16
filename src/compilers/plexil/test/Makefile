@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,11 @@
 
 PLEXIL_HOME			?= ../../../..
 
+SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
+	      command0 command1 command2 command3 command4
+
+# The VALID_TEST* macros are used by the original test framework.  
+
 VALID_TESTS	:= array-add array-complex \
  basic-wait-test \
  commandSequence1 concurrenceOfAssignments \
@@ -39,6 +44,9 @@ VALID_TESTS	:= array-add array-complex \
  SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse sync-cmd-test
 
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
+TESTS	         := $(SMALL_TESTS)
+
+default: test
 
 all: setup valid-tests syntax-error-tests semantic-error-tests
 
@@ -53,6 +61,36 @@ valid-tests: $(VALID_TEST_FILES) | output setup
 		if [ $$? -ne 0 ] ; then failure=1 ; fi; \
 	done ; \
 	exit $${failure}
+
+# Temporary file
+DIFF = /tmp/plexil-$$$$
+
+test:
+	@ echo Translating Standard Plexil tests...
+	@ for i in $(TESTS); do \
+	        ../PlexilCompiler --epx-only -o output/$$i.epx input/$$i.ple ; \
+		diff output/$$i.epx output/valid-$$i.epx \
+		  > $(DIFF) ; \
+		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
+		if [ $$diffsize -eq 0 ] ; then \
+		  echo "     Verified $$i.epx" ; \
+		else \
+		  echo WARNING: $$i.epx does not verify! ; \
+		fi ; \
+	  done
+	@ echo Finished.
+
+# For developers: Check the current output agains the benchmarks.
+checkall:
+	@ for i in $(TESTS); do \
+		./check $$i ; \
+	  done
+
+# For developers: Bless the current output, making it the new benchmark.
+passall:
+	@ for i in $(TESTS); do \
+		./pass $$i ; \
+	  done
 
 syntax-error-tests:
 

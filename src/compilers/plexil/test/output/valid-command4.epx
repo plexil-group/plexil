@@ -1,0 +1,34 @@
+<PlexilPlan LineNo="1" ColNo="5">
+    <GlobalDeclarations LineNo="1" ColNo="5">
+        <CommandDeclaration LineNo="1" ColNo="5">
+            <Name>get_speed</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Real</Type>
+            </Return>
+            <Parameter>
+                <Type>String</Type>
+            </Parameter>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Node LineNo="5" ColNo="10" NodeType="Command">
+        <NodeId>GetSpeed</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="4" ColNo="2">
+                <Name>speed</Name>
+                <Type>Real</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <NodeBody>
+            <Command>
+                <RealVariable>speed</RealVariable>
+                <Name>
+                    <StringValue>get_speed</StringValue>
+                </Name>
+                <Arguments LineNo="5" ColNo="20">
+                    <StringValue>car1</StringValue>
+                </Arguments>
+            </Command>
+        </NodeBody>
+    </Node>
+</PlexilPlan>
