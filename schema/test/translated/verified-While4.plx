@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Sequence" FileName="CruiseControl.ple" LineNo="2"
-         ColNo="1">
-      <NodeId>CruiseControl</NodeId>
+   <Node NodeType="NodeList" epx="Sequence" FileName="While4.ple" LineNo="2" ColNo="1">
+      <NodeId>testwhile</NodeId>
       <VariableDeclarations>
               <DeclareVariable>
                   <Name>distance</Name>
                   <Type>Integer</Type>
                   <InitialValue>
-                      <IntegerValue>10</IntegerValue>
-                  </InitialValue>
-              </DeclareVariable>
-              <DeclareVariable>
-                  <Name>cruise_enabled</Name>
-                  <Type>Boolean</Type>
-                  <InitialValue>
-                      <BooleanValue>false</BooleanValue>
+                      <IntegerValue>5</IntegerValue>
                   </InitialValue>
               </DeclareVariable>
           </VariableDeclarations>
@@ -32,7 +24,7 @@
                   </EQInternal>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Drive</NodeId>
+                        <NodeId>Advance</NodeId>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
@@ -42,20 +34,19 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="Assignment" FileName="CruiseControl.ple" LineNo="8" ColNo="5">
+            <Node NodeType="Assignment" FileName="While4.ple" LineNo="8" ColNo="5">
                <NodeId>Enter</NodeId>
                <NodeBody>
                   <Assignment>
                       <IntegerVariable>distance</IntegerVariable>
                       <NumericRHS>
-                          <IntegerValue>7</IntegerValue>
+                          <IntegerValue>3</IntegerValue>
                       </NumericRHS>
                   </Assignment>
               </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="While" FileName="CruiseControl.ple" LineNo="13"
-                  ColNo="5">
-               <NodeId>Drive</NodeId>
+            <Node NodeType="NodeList" epx="While" FileName="While4.ple" LineNo="13" ColNo="5">
+               <NodeId>Advance</NodeId>
                <VariableDeclarations>
                   <DeclareVariable>
                      <Name>ep2cp_test</Name>
@@ -127,8 +118,8 @@
                                           <NodeId>ep2cp_WhileAction</NodeId>
                                           <NodeBody>
                                              <NodeList>
-                                                <Node NodeType="Assignment" FileName="CruiseControl.ple" LineNo="15" ColNo="7">
-                                                   <NodeId>Drive__CHILD__1</NodeId>
+                                                <Node NodeType="Assignment" FileName="While4.ple" LineNo="15" ColNo="7">
+                                                   <NodeId>Advance__CHILD__1</NodeId>
                                                    <NodeBody>
                                                       <Assignment>
                                                          <IntegerVariable>distance</IntegerVariable>

@@ -1,15 +1,15 @@
-CruiseControl:
+testwhile:
 {
-  Integer distance = 10;
-  Boolean cruise_enabled = false;
+  Integer distance = 5;
 
   Sequence
+
     Enter:
     {
-      Assignment: distance = 7;
+      Assignment: distance = 3;
     }
 
-    Drive:
+    Advance:
     {
       While ( distance > 0 )
       {
