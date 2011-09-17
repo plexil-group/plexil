@@ -1,5 +1,8 @@
 CopyReals:
 {
-  In Integer size, Array (?)
+  In Integer size;
+  In Real source[5];
+  InOut Real dest[5];
 
+  dest = source;
 }

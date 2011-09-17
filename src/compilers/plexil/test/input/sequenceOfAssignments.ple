@@ -1,7 +1,0 @@
-{
-  Integer a = 0;
-  Integer b = 1;
-
-  a = b;
-  b = a + 1;
-}

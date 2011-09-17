@@ -26,7 +26,13 @@
 PLEXIL_HOME			?= ../../../..
 
 SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
-	      command0 command1 command2 command3 command4
+	      command0 command1 command2 command3 command4 \
+	      sequence0 sequence1 sequence2 sequence3 \
+	      assignment0 assignment1 assignment2 \
+	      concurrence0 concurrence1 concurrence1 concurrence2 concurrence3 \
+	      Fibs LibraryCall2 array-copy CopyReals
+
+TESTS	         := $(SMALL_TESTS)
 
 # The VALID_TEST* macros are used by the original test framework.  
 
@@ -44,7 +50,6 @@ VALID_TESTS	:= array-add array-complex \
  SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse sync-cmd-test
 
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
-TESTS	         := $(SMALL_TESTS)
 
 default: test
 
