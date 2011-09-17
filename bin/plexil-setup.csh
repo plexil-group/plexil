@@ -43,7 +43,8 @@ else
 
     # Mac
     setenv DYLD_LIBRARY_PATH $_plexil_libpath
-    setenv DYLD_BIND_AT_LAUNCH YES
+	# Seems to clobber SG's svn binary
+    #setenv DYLD_BIND_AT_LAUNCH YES
 
     unset _plexil_libpath
 endif

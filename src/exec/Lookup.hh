@@ -103,7 +103,6 @@ namespace PLEXIL
     ExpressionId m_stateNameExpr;
     std::vector<ExpressionId> m_params;
     std::vector<ExpressionId> m_garbage;
-    Expressions m_dest;
     State m_state;
     SubexpressionListener m_listener;
 
@@ -124,8 +123,6 @@ namespace PLEXIL
  
     void handleChange(const ExpressionId& exp);
 
-  protected:
-
   private:
     // Deliberately unimplemented
     LookupNow();
@@ -145,8 +142,6 @@ namespace PLEXIL
     void print(std::ostream& s) const;
  
     void handleChange(const ExpressionId& exp);
-
-  protected:
 
   private:
     // Deliberately unimplemented

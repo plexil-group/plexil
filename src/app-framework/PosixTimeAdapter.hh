@@ -102,12 +102,12 @@ namespace PLEXIL
      * @brief Register one LookupOnChange.
      * @param uniqueId The unique ID of this lookup.
      * @param stateKey The state key for this lookup.
-     * @param tolerances A vector of tolerances for the LookupOnChange.
+     * @param tolerance The tolerance for the LookupOnChange.
      */
 
     void registerChangeLookup(const LookupKey& uniqueId,
                               const StateKey& stateKey,
-                              const std::vector<double>& tolerances);
+							  double tolerance);
 
     /**
      * @brief Terminate one LookupOnChange.
@@ -119,11 +119,10 @@ namespace PLEXIL
     /**
      * @brief Perform an immediate lookup of the requested state.
      * @param stateKey The state key for this lookup.
-     * @param dest A (reference to a) vector of doubles where the result is to be stored.
-     */
+     * @return The current value for this lookup.
+	 */
 
-    void lookupNow(const StateKey& stateKey,
-                   std::vector<double>& dest);
+    double lookupNow(const StateKey& stateKey);
 
     //
     // Static member functions
@@ -188,9 +187,6 @@ namespace PLEXIL
 
     LookupTimerMap m_lookupTimerMap;
     sigevent m_sigevent;
-
-    // Speed hack for timerTimeout()
-    std::vector<double> m_timeVector;
   };
 
 }

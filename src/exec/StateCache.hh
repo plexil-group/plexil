@@ -27,43 +27,66 @@
 #ifndef _H_StateCache
 #define _H_StateCache
 
+#include "ConstantMacros.hh"
 #include "ExecDefs.hh"
+#include "Expression.hh"
+//#include "generic_hash_map.hh"
 
-/*
-  ExecIntf::lookupNow() -> StateCache::lookupNow() ->
-  ExecIntf::performLookup -> ExecIntf::updateState ->
-  StateCache::updateState
-*/
+#include <map>
+#include <set>
+
 namespace PLEXIL 
 {
   // Forward references
   class ExternalInterface;
-  typedef Id<ExternalInterface> ExternalInterfaceId;
+  DECLARE_ID(ExternalInterface);
 
-  namespace Cache 
+  class LookupDesc;
+  DECLARE_ID(LookupDesc);
+
+  class CacheEntry;
+  DECLARE_ID(CacheEntry);
+
+  //
+  // Helper class
+  //
+
+  class LookupDesc 
   {
-    class Lookup;
-    typedef Id<Lookup> LookupId;
-      
-    class Lookup 
-    {
-    public:
-      Lookup(const ExpressionId& _source, 
-	     const Expressions& _dest,
-	     const StateKey& key, 
-	     const std::vector<double>& _tolerances);
-      virtual ~Lookup();
-      LookupId& getId(){return m_id;}
-            
-      ExpressionId source;
-      Expressions dest;
-      StateKey state;
-      std::vector<double> tolerances;
-      std::vector<double> previousValues;
-    private:
-      LookupId m_id;
-    };
-  }
+  public:
+	LookupDesc(const CacheEntryId& _entry,
+			   const ExpressionId& _expr, 
+			   double _tolerance,
+			   bool isChangeLookup)
+	  : tolerance(_tolerance),
+		previousValue(Expression::UNKNOWN()),
+		entry(_entry),
+		dest(_expr),
+		changeLookup(isChangeLookup),
+		m_id(this)
+	{
+	}
+	
+	virtual ~LookupDesc()
+	{
+	  m_id.remove();
+	}
+
+	const LookupDescId& getId() const
+	{
+	  return m_id;
+	}
+
+	State state;
+	double tolerance;
+	double previousValue;
+	CacheEntryId entry;
+	ExpressionId dest;
+	bool changeLookup;
+
+  private:
+	LookupDescId m_id;
+  };
    
   /**
    * @brief The cache for state in the external world.  Handles
@@ -72,7 +95,7 @@ namespace PLEXIL
   class StateCache 
   {
   public:
-         
+
     /**
      * @brief Utility function for stringifying a State.
      * @param state The state
@@ -80,16 +103,6 @@ namespace PLEXIL
      */
 
     static std::string toString(const State& state);
-         
-    /**
-     * @brief Utility function for stringifying a vector of values,
-     *        some of which may be double-ed LabelStrs.
-     *
-     * @param values The vector of values
-     * @return A comma-delimited string
-     */
-
-    static std::string toString(const std::vector<double>& values);
 
     StateCache();
     ~StateCache();
@@ -107,7 +120,7 @@ namespace PLEXIL
     }
 
     /**
-     * FUNCTIONS FOR THE EXECUTIVE TO CALL
+     * FUNCTIONS FOR EXPRESSIONS TO CALL
      */
 
     /**
@@ -117,13 +130,11 @@ namespace PLEXIL
      *        be performed on the outside world, otherwise the cached value
      *        is stored in the destination expressions.
      *
-     * @param source The Id of the LookupNow expression.
-     * @param dest A vector of the expressions into which the
-     *             values returned by the lookup will be stored.
+     * @param expr The Id of the LookupNow expression.
      * @param state The state being looked up.
      * @see handleQuiescenceStarted, handleQuiescenceEnded
      */
-    void registerLookupNow(const ExpressionId& source, Expressions& dest, const State& state);
+    void registerLookupNow(const ExpressionId& expr, const State& state);
          
     /**
      * @brief Un-register a lookup with the external world. Stop future updates of this expression.
@@ -134,17 +145,14 @@ namespace PLEXIL
      * @brief Register a change lookup with the external world.
      *        Performs an immediate lookup in manner of lookupNow.
      *
-     * @param source The Id of the LookupOnChange expression.
-     * @param dest A vector of the expressions into which the
-     *        values returned by the lookup will be stored.
+     * @param expr The Id of the LookupOnChange expression.
      * @param state The state being watched.
-     * @param tolerances A vector of the tolerances beyond which
-     *                   the destinations should be informed of the
-     *                   change.
+     * @param tolerance A tolerance beyond which the expression
+	 *                  should be informed of the change.
      */
-    void registerChangeLookup(const ExpressionId& source, 
-                              Expressions& dest, const State& state, 
-                              const std::vector<double>& tolerances);
+    void registerChangeLookup(const ExpressionId& expr, 
+                              const State& state, 
+                              double tolerance);
          
     /**
      * @brief Un-register a change lookup with the external world
@@ -154,27 +162,18 @@ namespace PLEXIL
     void unregisterChangeLookup(const ExpressionId& source);
          
     /**
-     * FUNCTIONS FOR THE EXTERNALINTERFACE TO CALL
+     * FUNCTIONS FOR THE EXTERNAL INTERFACE TO CALL
      */
          
     /**
-     * @brief Update a state in the cache with values in the
+     * @brief Update a state in the cache with a value from the
      *        external world.  Will cause updates of lookups on the
-     *        state.  @param key The key of the state being updated
-     *        (primarily to save bandwidth) @param values The new
-     *        values for the state.
+     *        state.  
+	 * @param state The state being updated 
+	 * @param value The new value for the state.
+	 * @note Apparently only used by the Exec regression tester and TestExec.
      */
-    void updateState(const StateKey& key, const std::vector<double>& values);
-         
-         
-    /**
-     * @brief Update a state in the cache with values in the
-     *        external world.  Will cause updates of lookups on the
-     *        state.  @param state The state being updated @param
-     *        values The new values for the state.
-     */
-    void updateState(const State& state, const std::vector<double>& values);
-         
+    void updateState(const State& state, double value);
          
     /**
      * @brief Put the cache in a state that is ready for lookup registration
@@ -207,73 +206,36 @@ namespace PLEXIL
      */
     const State& getTimeState() const;
          
-    /**
-     * @brief Get the state key used to identify time.
-     * @return The key.
-     */
-    const StateKey& getTimeStateKey() const;
-
-    /**
-     * @brief Find the unique key for a state.
-     * @param state The state.
-     * @param key The key associated with this state.
-     * @return True if the key was found.
-     */
-    bool findStateKey(const State& state, StateKey& key);
-         
-    /**
-     * @brief Get a unique key for a state, creating a new key for a new state.
-     * @param state The state.
-     * @param key The key.
-     * @return True if a new key had to be generated.
-     */
-    bool keyForState(const State& state, StateKey& key);
-         
-    /**
-     * @brief Get (a copy of) the State for this StateKey.
-     * @param key The key to look up.
-     * @param state The state associated with the key.
-     * @return True if the key is found, false otherwise.
-     */
-    bool stateForKey(const StateKey& key, State& state) const;
-         
-    /**
-     * @brief Get the name of this state as a string.
-     * @param key The key to look up.
-     * @return Pointer to name string; may be NULL.
-     */
-    const char* stateNameForKey(const StateKey& key) const;
-         
-  protected:
   private:
+	  
+	/**
+	 * @brief Generate or find the cache entry for this state.
+	 * @param state The state being looked up.
+	 * @param entry Pointer to the CacheEntry for the state.
+	 */
+
+	CacheEntryId ensureCacheEntry(const State& state);
          
     /**
-     * @brief Update lookups on a given state with the given
-     *        values.
-     *
-     * @param key The key for the state.
-     * @param values The values for the update.
+     * @brief Update lookups on a given state with the given value.
+     * @param entry Pointer to the CacheEntry for this state. 
+     * @param value The new value.
+	 * @return True if the update moved the thresholds, false otherwise.
      */
 
-    bool internalStateUpdate(const StateKey& key, 
-                             const std::vector<double>& values);
-         
-    /**
-     * @brief Conditionally update a change lookup if its
-     *        tolerances are exceeded.
-     *
-     * @param lookup The lookup to possibly update.
-     * @param values The values to update to.
-     */
-
-    bool updateLookup(Cache::LookupId lookup, 
-		      const std::vector<double>& values);
+    bool internalStateUpdate(const CacheEntryId& entry, double value);
          
     /**
      * @brief Remove a lookup from internal data structures.
      * @param source The un-registered lookup.
+	 * @return the CacheEntryId corresponding to the removed lookup
      */
-    void internalUnregisterLookup(const ExpressionId& source);
+	CacheEntryId internalUnregisterLookup(const ExpressionId& source);
+
+	/**
+	 * @brief Get the current time and update all subscribers.
+	 */
+	void updateTimeState();
          
     /**
      * @brief Compute the magnitude of the difference between x and y.
@@ -284,18 +246,19 @@ namespace PLEXIL
      *         them is UNKNOWN, the magnitude is inf.  Otherwise,
      *         it's abs(x - y).
      */
-    double differenceMagnitude(const double x, const double y) const;
-         
+    static double differenceMagnitude(const double x, const double y);
+
+	typedef std::map<State, CacheEntryId> StateCacheMap;
+	typedef std::map<ExpressionId, LookupDescId> ExpressionToLookupMap;
+
+	StateCacheMap m_states; /*<! All data relevant to the cached states */
+    ExpressionToLookupMap m_lookupsByExpression; /*<! A map from the lookup expressions to the interal lookup data structures*/
     StateCacheId m_id; /*<! The Id for this cache. */
     ExternalInterfaceId m_interface;  /*<! The Id of the external interface. */
+	CacheEntryId m_timeEntry; /*<! Pointer to the time entry in the cache. */
+    State m_timeState; /*<! The universal time state. */
     bool m_inQuiescence; /*<! Flag indicating whether or not the exec is quiescing. */
     int m_quiescenceCount; /*<! A count of the number of times handleQuiescenceStarted has been called.  Used for synchronization and looking up out-of-date values.*/
-    StateKey m_timeState; /*<! The key for the universal time state. */
-    std::map<StateKey, std::pair<State, int> > m_states; /*<! A map of state keys to a pair of a state and the last quiescence the state was updated. */
-    std::map<State, StateKey> m_keysByState; /*<! A map of states to their generated keys. */
-    std::map<StateKey, std::vector<double> > m_values; /*<! A map of StateKeys to the latest values gotten for those states. */
-    std::multimap<StateKey, Cache::LookupId> m_lookups; /*<! A map from StateKeys to the lookups on those states. */
-    std::map<ExpressionId, Cache::LookupId> m_lookupsByExpression; /*<! A map from the lookup expressions to the interal lookup data structures*/
   };
 }
 

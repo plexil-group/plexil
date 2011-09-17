@@ -25,502 +25,405 @@
 */
 
 #include "StateCache.hh"
-#include "ExternalInterface.hh"
+
+#include "Debug.hh"
 #include "Expression.hh"
 #include "Expressions.hh"
-#include "Debug.hh"
-//#include "Interfaces.hh"
-#include <vector>
-#include <limits>
-#include <cmath>
+#include "ExternalInterface.hh"
+
+#include <cmath> // for fabs()
 #include <iomanip> // for setprecision()
+#include <limits>
 
 namespace PLEXIL
 {
 
-   namespace Cache
-   {
-      Lookup::Lookup(const ExpressionId& _source, 
-		     const Expressions& _dest, 
-                     const StateKey& key, 
-		     const std::vector<double>& _tolerances)
-	: source(_source),
-	  dest(_dest), 
-	  state(key),
-	  tolerances(_tolerances),
-	  m_id(this) 
-      {
-         previousValues.insert(previousValues.end(), _dest.size(), 
-                               Expression::UNKNOWN());
-      }
-
-      Lookup::~Lookup()
-      {
-         m_id.remove();
-      }
-   }
-
-   StateCache::StateCache() 
-	 : m_id(this),
-	   m_inQuiescence(false), 
-	   m_quiescenceCount(0)
-   {
-	 // Initialize the 'time' state
-	 State timeState;
-	 timeState.first = LabelStr("time").getKey();
-	 keyForState(timeState, m_timeState);
-   }
-
-   StateCache::~StateCache()
-   {
-      for (std::map<ExpressionId, Cache::LookupId>::iterator it = 
-              m_lookupsByExpression.begin(); 
-           it != m_lookupsByExpression.end(); ++it)
-      {
-         delete (Cache::Lookup*) it->second;
-      }
-      m_id.remove();
-   }
-   
-   void StateCache::registerLookupNow(const ExpressionId& source,
-				      Expressions& dest,
-				      const State& state)
-   {
-      check_error(m_inQuiescence, "Lookup outside of quiescence!");
-      debugMsg("StateCache:lookupNow", "Looking up value for state " <<
-               toString(state) << " because of " << source->toString());
-
-      std::vector<double> tolerances(dest.size(), 0.0); // dummy tolerances
-      StateKey key;
-      bool newState = keyForState(state, key);
-      Cache::LookupId lookup = (new Cache::Lookup(source, dest, key, tolerances))->getId();
-
-      // Register the lookup for updates as long as it's active
-      std::multimap<StateKey, Cache::LookupId>::iterator it =
-	m_lookups.insert(std::make_pair(key, lookup));
-      m_lookupsByExpression.insert(std::make_pair(source, lookup));
-
-      if (newState || m_states.find(key)->second.second < m_quiescenceCount) {
-         condDebugMsg(newState, "StateCache:registerLookupNow",
-                      "New state, so performing external lookup.");
-         condDebugMsg(!newState, "StateCache:registerLookupNow",
-                      "Out-of-date state, so performing external lookup.");
-
-
-         std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
-
-         // if this is a new state or we haven't looked the state up this
-         // quiescence, perform the request and update the state
-
-         if (newState)
-            getExternalInterface()->lookupNow(state, key, values);
-         else
-            getExternalInterface()->lookupNow(key, values);
-
-         internalStateUpdate(key, values);
-      }
-      // not new and the cached values are current - return 'em
-      else {
-         std::map<StateKey, std::vector<double> >::iterator currentValues = 
-            m_values.find(key);
-         check_error(currentValues != m_values.end());
-         debugMsg("StateCache:lookupNow", 
-                  "Already have up-to-date values for state, so using those ("
-                  << toString(currentValues->second) << ")");
-
-         // if this isn't a new state, then make sure the destination is
-         // the right size
-         checkError(currentValues->second.size() == dest.size(),
-                    "Destination size mismatch for state " << 
-                    LabelStr(state.first).toString() <<
-                    ".  Expected " << currentValues->second.size() << 
-                    ", got " << dest.size());
-         std::vector<double>::iterator valueIt = currentValues->second.begin();
-         for (Expressions::iterator destIt = dest.begin();
-              valueIt != currentValues->second.end() && destIt != dest.end();
-              ++valueIt, ++destIt) {
-            if (destIt->isNoId())
-               continue;
-            (*destIt)->setValue(*valueIt);
-         }
-      }
-   }
-
-   void StateCache::registerChangeLookup(const ExpressionId& source,
-                                         Expressions& dest,
-                                         const State& state,
-                                         const std::vector<double>& tolerances)
-   {
-      check_error(m_inQuiescence, "Lookup outside of quiescence!");
-      debugMsg("StateCache:registerChangeLookup", "Registering change lookup " <<
-               source->toString() << " for state " << toString(state) <<
-               " with tolerances (" << toString(tolerances) << ")");
-      StateKey key;
-      bool newState = keyForState(state, key);
-
-      Cache::LookupId lookup = (new Cache::Lookup(source, dest, key, tolerances))->getId();
-
-      std::multimap<StateKey, Cache::LookupId>::iterator it =
-         m_lookups.insert(std::make_pair(key, lookup));
-      m_lookupsByExpression.insert(std::make_pair(source, lookup));
-
-      if (newState || m_states.find(key)->second.second < m_quiescenceCount)
-      {
-         condDebugMsg(newState, "StateCache:registerChangeLookup",
-                      "New state, so performing external lookup.");
-         condDebugMsg(m_states.find(key)->second.second < m_quiescenceCount,
-                      "StateCache:registerChangeLookup",
-                      "Out-of-date state, so performing external lookup.");
-
-         std::vector<double> values(lookup->dest.size(), Expression::UNKNOWN());
-         getExternalInterface()->registerChangeLookup(
-            (LookupKey) source, state, key, tolerances, values);
-         internalStateUpdate(key, values);
-      }
-      else
-      {
-         getExternalInterface()->registerChangeLookup((LookupKey) source,
-                                                             key, tolerances);
-         std::map<StateKey, std::vector<double> >::iterator currentValues =
-            m_values.find(key);
-         check_error(currentValues != m_values.end());
-         debugMsg("StateCache:registerChangeLookup", "Already have up-to-date values for state, so using those (" <<
-                  toString(currentValues->second) << ")");
-         std::vector<double>::iterator valueIt = currentValues->second.begin();
-         for (Expressions::iterator destIt = dest.begin(); valueIt != currentValues->second.end() && destIt != dest.end(); ++valueIt, ++destIt)
-         {
-            if (destIt->isNoId())
-               continue;
-            (*destIt)->setValue(*valueIt);
-         }
-         lookup->previousValues = currentValues->second;
-      }
-   }
-
-   void StateCache::internalUnregisterLookup(const ExpressionId& source)
-   {
-      check_error(source.isValid());
-      checkError(m_lookupsByExpression.find(source) != m_lookupsByExpression.end(),
-		 "No stored lookup for " << source->toString());
-      Cache::LookupId lookup = m_lookupsByExpression.find(source)->second;
-      std::multimap<StateKey, Cache::LookupId>::iterator it = m_lookups.find(lookup->state);
-      checkError(it != m_lookups.end(), "No state -> lookup entry for " << source->toString());
-      while (it != m_lookups.end() && it->first == lookup->state)
-      {
-         if (it->second == lookup)
-            break;
-         ++it;
-      }
-      m_lookups.erase(it);
-      m_lookupsByExpression.erase(source);
-      delete (Cache::Lookup*) lookup;
-   }
-
-   void StateCache::unregisterChangeLookup(const ExpressionId& source)
-   {
-      check_error(m_inQuiescence, "Lookup outside of quiescence!");
-      internalUnregisterLookup(source);
-      getExternalInterface()->unregisterChangeLookup((LookupKey) source);
-   }
-
-   void StateCache::unregisterLookupNow(const ExpressionId& source)
-   {
-      check_error(m_inQuiescence, "Lookup outside of quiescence!");
-      internalUnregisterLookup(source);
-   }
-
-   void StateCache::updateState(const State& state, const std::vector<double>& values)
-   {
-      check_error(!m_inQuiescence);
-      if (m_keysByState.find(state) == m_keysByState.end())
-      {
-         debugMsg("StateCache:updateState",
-                  "Got the following update, but nobody cares: " << toString(state) << " = " <<
-                  toString(values));
-         return;
-      }
-      StateKey key;
-      bool newState = keyForState(state, key);
-      //should newState be an error?
-      if (newState)
-      {
-         debugMsg("StateCache:updateState", "No values for state " << toString(state) << " so storing a bunch of UNKNOWNs.");
-         m_values.insert(std::make_pair(key, std::vector<double>(values.size(), Expression::UNKNOWN())));
-      }
-      updateState(key, values);
-   }
-
-   void StateCache::updateState(const StateKey& key, const std::vector<double>& values)
-   {
-      check_error(!m_inQuiescence);
-
-      std::map<StateKey, std::pair<State, int> >::iterator it = m_states.find(key);
-      checkError(it != m_states.end(), "No known state for key " << key);
-
-      internalStateUpdate(key, values);
-   }
-
-
-   bool StateCache::internalStateUpdate(const StateKey& key,
-                                        const std::vector<double>& values)
-   {
-      std::map<StateKey, std::pair<State, int> >::iterator stateIt =
-         m_states.find(key);
-      check_error(stateIt != m_states.end());
-      debugMsg("StateCache:updateState",
-               "Updating state " << toString(stateIt->second.first) <<
-               " with values " << toString(values));
-
-      checkError(stateIt->second.second <= m_quiescenceCount,
-                 "Synchronization error.  State " <<
-                 toString(stateIt->second.first) <<
-                 " was upated in a future quiescence.  Current: " <<
-                 m_quiescenceCount << " update: " << stateIt->second.second);
-      stateIt->second.second = m_quiescenceCount;
-
-      std::map<StateKey, std::vector<double> >::iterator valueIt =
-         m_values.find(key);
-      if (valueIt == m_values.end())
-         m_values.insert(std::make_pair(key, values));
-      else {
-	checkError(valueIt->second.size() == values.size(),
-		   "Received a different number of values for state "
-		   << toString(stateIt->second.first)
-		   << " than previously.  Expected "
-		   << valueIt->second.size()
-		   << ", but got "
-		   << values.size());
-	valueIt->second = values;
-      }
-
-
-      std::multimap<StateKey, Cache::LookupId>::iterator it = m_lookups.find(key);
-
-      //should it be an error if we receive a state update without any lookups?
-      bool retval = false;
-      while (it != m_lookups.end() && it->first == key)
-      {
-         Cache::LookupId lookup = it->second;
-         check_error(lookup.isValid());
-	 retval = updateLookup(lookup, values) || retval;
-         ++it;
-      }
-
-      return retval;
-   }
-
-  // N.B. Lookup need not be a change lookup.
-  bool StateCache::updateLookup(Cache::LookupId lookup, 
-				const std::vector<double>& values)
+  //
+  // Helper function
+  //
+  double differenceMagnitude(double x, double y)
   {
-    bool needsUpdate = false;
-    check_error(lookup->tolerances.size() == values.size());
-    check_error(lookup->previousValues.size() == values.size());
-    check_error(lookup->dest.size() == values.size());
-
-    debugMsg("StateCache:updateState", 
-	     "Seeing if change lookup " << lookup->source->toString() <<
-	     " needs updating from " << toString(lookup->previousValues) <<
-	     " to " << toString(values));
-    for (std::vector<double>::size_type i = (std::vector<double>::size_type) 0;
-	 i < values.size();
-	 ++i) {
-      if (differenceMagnitude(lookup->previousValues[i], values[i]) >= 
-	  lookup->tolerances[i]) {
-	condDebugMsg(lookup->previousValues[i] == Expression::UNKNOWN() &&
-		     values[i] != Expression::UNKNOWN(),
-		     "StateCache:updateState", 
-		     "Updating because the previous value is"
-		     " UNKNOWN and the new value is not.");
-	condDebugMsg(!(lookup->previousValues[i] == Expression::UNKNOWN() && 
-		       values[i] != Expression::UNKNOWN()) &&
-		     fabs(lookup->previousValues[i] - values[i]) >= lookup->tolerances[i],
-		     "StateCache:updateState",
-		     "Updating because the difference between value " <<
-		     i << " (old: " << lookup->previousValues[i] <<
-		     ", new: " << values[i] <<
-		     ") is greater than or equal to the tolerance (" << 
-		     lookup->tolerances[i] << ")");
-	needsUpdate = true;
-	break;
-      }
-      debugMsg("StateCache:updateState", 
-	       "Not updating.  All changes are within the tolerance.");
-    }
-    if (needsUpdate) {
-      debugMsg("StateCache:updateState", "Updating change lookup " <<
-	       lookup->source->toString() << " from " <<
-	       toString(lookup->previousValues) << " to " << toString(values));
-      for (std::vector<double>::size_type i = (std::vector<double>::size_type)0;
-	   i < values.size();
-	   ++i) {
-	if (lookup->dest[i].isValid())
-	  lookup->dest[i]->setValue(values[i]);
-	lookup->previousValues[i] = values[i];
-      }
-    }
-    return needsUpdate;
+	if (x == Expression::UNKNOWN()) {
+	  if (y == Expression::UNKNOWN())
+		return 0;
+	  else
+		return std::numeric_limits<double>::max();
+	}
+	else if (y == Expression::UNKNOWN())
+	  return std::numeric_limits<double>::max();
+	else
+	  return fabs(x - y);
   }
 
-  /**
-   * @brief Find the unique key for a state.
-   * @param state The state.
-   * @param key The key associated with this state.
-   * @return True if the key was found.
-   */
-  bool StateCache::findStateKey(const State& state, StateKey& key)
+  //
+  // Helper classes
+  //
+
+  class CacheEntry
   {
-    std::map<State, StateKey>::const_iterator it = m_keysByState.find(state);
-    if (it != m_keysByState.end())
-      {
-	debugMsg("StateCache:findStateKey", " found state \"" << toString(state) << "\", key " << it->second);
-	key = it->second;
-	return true;
-      }
+  public:
+	CacheEntry(const State& s)
+	: state(s),
+	  value(Expression::UNKNOWN()),
+	  highThreshold(Expression::UNKNOWN()),
+	  lowThreshold(Expression::UNKNOWN()),
+	  lastQuiescence(-1),
+	  subscribed(false),
+	  m_id(this)
+	{
+	}
 
-    debugMsg("StateCache:findStateKey", " state \"" << toString(state) << "\" not found");
-    return false;
-  }
+	~CacheEntry()
+	{
+	  m_id.remove();
+	}
 
-   bool StateCache::keyForState(const State& state, StateKey& key)
-   {
-     std::map<State, StateKey>::const_iterator it = m_keysByState.find(state);
-     if (it != m_keysByState.end())
-       {
-         debugMsg("StateCache:keyForState", " Already have a key for state \"" << toString(state) << "\": " << it->second);
-         key = it->second;
-         return false;
-       }
+	const CacheEntryId & getId() const
+	{
+	  return m_id; 
+	}
 
-     static double* sl_stateKey = NULL;
-     if (sl_stateKey == NULL)
-       sl_stateKey = new double(std::numeric_limits<double>::min());
 
-     debugMsg("StateCache:keyForState", " Allocating key for state \"" << toString(state) << "\": " << sl_stateKey);
-     key = *sl_stateKey;
-     (*sl_stateKey) += 2 * EPSILON;
-     m_keysByState.insert(std::make_pair(state, key));
-     m_states.insert(std::make_pair(key, std::make_pair(state, -1)));
-     return true;
-   }
+	/**
+	 * @brief Returns true if any change lookups are active on this state.
+	 */
+	bool activeChangeLookups() const
+	{
+	  for (std::set<LookupDescId>::const_iterator it = lookups.begin();
+		   it != lookups.end();
+		   it++) {
+		if ((*it)->changeLookup)
+		  return true;
+	  }
+	  return false;
+	}
 
-   bool StateCache::stateForKey(const StateKey& key, State& state) const
-   {
-      std::map<StateKey, std::pair<State, int> >::const_iterator it = m_states.find(key);
-      if (it == m_states.end())
-         return false;
-      state = (*it).second.first;
-      return true;
-   }
+	/**
+	 * @brief Update all lookups with the new value.
+	 * @param newValue The latest value for this state.
+	 * @param quiescenceCount The current quiescence count.
+	 * @return True if the thresholds have changed, false otherwise.
+	 */
+	bool update(double newValue, int quiescenceCount)
+	{
+	  value = newValue;
+	  lastQuiescence = quiescenceCount;
 
-  const char* StateCache::stateNameForKey(const StateKey& key) const
-  {
-    State state;
-    if (stateForKey(key, state))
-      return LabelStr(state.first).c_str();
-    return NULL;
+	  for (std::set<LookupDescId>::const_iterator lit = lookups.begin();
+		   lit != lookups.end();
+		   lit++) {
+		LookupDescId lookup = *lit;
+		// check_error(lookup.isValid()); // *** only if paranoid
+		updateLookup(lookup, value);
+	  }
+
+	  return calculateThresholds();
+	}
+
+	// N.B. Lookup need not be a change lookup.
+	void updateLookup(LookupDescId lookup, double value)
+	{
+	  if (differenceMagnitude(lookup->previousValue, value) < lookup->tolerance) {
+		debugMsg("StateCache:updateState", 
+				 "Not updating. All changes are within the tolerance.");
+		return;
+	  }
+	  if (lookup->previousValue == Expression::UNKNOWN()
+		  && value != Expression::UNKNOWN()) {
+		  debugMsg("StateCache:updateState", "Updating because the previous value is UNKNOWN.");
+	  }
+	  else {
+		debugMsg("StateCache:updateState",
+				 "Updating because the change in value exceeds tolerance " << 
+				 Expression::valueToString(lookup->tolerance));
+	  }
+	  check_error(lookup->dest.isValid());
+	  debugMsg("StateCache:updateState", "Updating change lookup " <<
+			   lookup->dest->toString() << " from " <<
+			   Expression::valueToString(lookup->previousValue)
+			   << " to " << Expression::valueToString(value));
+	  lookup->dest->setValue(value);
+	  lookup->previousValue = value;
+	}
+
+	bool calculateThresholds()
+	{
+	  double oldHigh = highThreshold;
+	  double oldLow = lowThreshold;
+	  highThreshold = lowThreshold = Expression::UNKNOWN();
+
+	  for (std::set<LookupDescId>::const_iterator lit = lookups.begin();
+		   lit != lookups.end();
+		   lit++) {
+		LookupDescId lookup = *lit;
+		// check_error(lookup.isValid()); // *** only if paranoid
+		if (lookup->changeLookup && lookup->tolerance != 0.0) {
+		  // Update thresholds based on lookup's last value
+		  double hi = lookup->previousValue + lookup->tolerance;
+		  if (highThreshold == Expression::UNKNOWN()
+			  || hi < highThreshold) {
+			highThreshold = hi;
+		  }
+		  double lo = lookup->previousValue - lookup->tolerance;
+		  if (lowThreshold == Expression::UNKNOWN()
+			  || lo > lowThreshold) {
+			lowThreshold = lo;
+		  }
+		}
+	  }
+
+	  return (highThreshold != oldHigh || lowThreshold != oldLow);
+	}
+
+	State state;
+	std::set<LookupDescId> lookups;
+	double value;
+	double highThreshold;
+	double lowThreshold;
+	int lastQuiescence;
+	bool subscribed;
+
+  private:
+	CacheEntryId m_id;
   };
 
-   void StateCache::handleQuiescenceStarted()
-   {
-      check_error(!m_inQuiescence);
-      m_inQuiescence = true;
+  StateCache::StateCache() 
+	: m_id(this),
+	  m_inQuiescence(false), 
+	  m_quiescenceCount(0)
+  {
+	// Initialize the time state
+	m_timeState.first = LabelStr("time").getKey();
+	m_timeEntry = ensureCacheEntry(m_timeState);
+	m_timeEntry->value = 0.0;
+  }
 
-      std::map<StateKey, std::pair<State, int> >::iterator timeIt = m_states.find(m_timeState);
-      check_error(timeIt != m_states.end());
+  // FIXME: should this unsubscribe from interface?
+  StateCache::~StateCache()
+  {
+	// Delete states
+	m_timeEntry = CacheEntryId::noId();
+	for (StateCacheMap::const_iterator it = m_states.begin();
+		 it != m_states.end();
+		 it++) {
+	  delete (CacheEntry*) it->second;
+	}
+	m_states.clear();
 
-      checkError(timeIt->second.second <= m_quiescenceCount,
-                 "Synchronization error.  'time' state has a quiescence count greater than the cache's (" << timeIt->second.second << " > " << m_quiescenceCount << ")");
+	// Delete lookups
+	for (ExpressionToLookupMap::iterator it = 
+		   m_lookupsByExpression.begin(); 
+		 it != m_lookupsByExpression.end();
+		 ++it) {
+	  delete (LookupDesc*) it->second;
+	}
+	m_lookupsByExpression.clear();
 
-      if (timeIt->second.second == m_quiescenceCount)
-         return;
+	m_id.remove();
+  }
+   
+  void StateCache::registerLookupNow(const ExpressionId& expr,
+									 const State& state)
+  {
+	check_error(m_inQuiescence, "Lookup outside of quiescence!");
+	debugMsg("StateCache:lookupNow",
+			 "Looking up value for state " << toString(state)
+			 << " because of " << expr->toString());
 
-      std::vector<double> time(1, 0);
-      if (timeIt->second.second == -1) // i.e. uninitialized
-         getExternalInterface()->lookupNow(timeIt->second.first, m_timeState, time);
-      else
-         getExternalInterface()->lookupNow(m_timeState, time);
+	// Register the lookup for updates as long as it's active
+	CacheEntryId entry = ensureCacheEntry(state);
+	LookupDescId lookup = (new LookupDesc(entry, expr, 0.0, false))->getId();
+	m_lookupsByExpression[expr] = lookup;
+	entry->lookups.insert(lookup);
 
-      timeIt->second.second = m_quiescenceCount;
+	if (entry->lastQuiescence < m_quiescenceCount) {
+	  debugMsg("StateCache:registerLookupNow",
+			   (entry->lastQuiescence == -1 ? "New" : "Stale")
+			   << " state, so performing external lookup.");
+	  // Perform the lookup and propagate to anyone else listening to this state
+	  // Tell interface if the thresholds moved in the process
+	  if (internalStateUpdate(entry, m_interface->lookupNow(entry->state))) 
+		m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
+	}
+	// state is known and the cached value is current - return it
+	else {
+	  debugMsg("StateCache:lookupNow", 
+			   "Already have up-to-date value for state, so using that ("
+			   << Expression::valueToString(entry->value) << ")");
 
-      std::map<StateKey, std::vector<double> >::iterator valueIt = m_values.find(m_timeState);
-      if (valueIt == m_values.end())
-         m_values.insert(std::make_pair(m_timeState, time));
-      else
-         valueIt->second = time;
+	  expr->setValue(entry->value);
+	}
+  }
 
-      internalStateUpdate(m_timeState, time);
-   }
+  void StateCache::registerChangeLookup(const ExpressionId& expr,
+										const State& state,
+										double tolerance)
+  {
+	check_error(m_inQuiescence, "Lookup outside of quiescence!");
+	debugMsg("StateCache:registerChangeLookup", "Registering change lookup " <<
+			 expr->toString() << " for state " << toString(state) <<
+			 " with tolerance (" << Expression::valueToString(tolerance) << ")");
 
-   void StateCache::handleQuiescenceEnded()
-   {
-      check_error(m_inQuiescence);
-      m_quiescenceCount++;
-      m_inQuiescence = false;
-   }
+	CacheEntryId entry = ensureCacheEntry(state);
+	LookupDescId lookup = (new LookupDesc(entry, expr, tolerance, true))->getId();
+	m_lookupsByExpression[expr] = lookup;
+	entry->lookups.insert(lookup);
 
-   double StateCache::currentTime()
-   {
-      check_error(m_timeState != -1);
-      if (!m_inQuiescence)
-      {
-         std::vector<double> time(1, 0);
-         getExternalInterface()->lookupNow(m_timeState, time);
-         checkError(m_values.find(m_timeState)->second[0] <= time[0],
-					"Time has regressed from " << std::setprecision(15) << m_values.find(m_timeState)->second[0] << " to " << time[0]);
-         internalStateUpdate(m_timeState, time);
-      }
-      std::map<StateKey, std::vector<double> >::iterator it = m_values.find(m_timeState);
-      check_error(it != m_values.end());
-      return it->second[0];
-   }
+	if (!entry->subscribed) {
+	  // Tell the external interface to listen for changes on this state
+	  // FIXME: allow for exception here?
+	  m_interface->subscribe(entry->state);
+	  entry->subscribed = true;
+	}
 
-   const State& StateCache::getTimeState() const
-   {
-      std::map<StateKey, std::pair<State, int> >::const_iterator it = m_states.find(m_timeState);
-      checkError(it != m_states.end(), "No state found for time!");
-      return (*it).second.first;
-   }
+	bool thresholdUpdate = false;
+	// Update the current value of the expression if needed
+	if (entry->lastQuiescence < m_quiescenceCount) {
+	  debugMsg("StateCache:registerChangeLookup",
+			   (entry->lastQuiescence == -1 ? "New" : "Stale")
+			   << " state, so performing external lookup.");
+	  thresholdUpdate = 
+		internalStateUpdate(entry, m_interface->lookupNow(entry->state));
+	}
+	else {
+	  debugMsg("StateCache:registerChangeLookup",
+			   "Already have up-to-date value for state, so using that (" <<
+			   Expression::valueToString(entry->value) << ")");
+	  lookup->previousValue = entry->value;
+	  expr->setValue(entry->value);
+	  thresholdUpdate = entry->calculateThresholds();
+	}
+	// Update thresholds if required
+	if (thresholdUpdate)
+	  m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
 
-   const StateKey& StateCache::getTimeStateKey() const
-   {
-	 return m_timeState;
-   }
+  }
 
-   double StateCache::differenceMagnitude(const double x, const double y) const
-   {
-      if (x == Expression::UNKNOWN())
-      {
-         if (y == Expression::UNKNOWN())
-            return 0;
-         else
-            return std::numeric_limits<double>::max();
-      }
-      else if (y == Expression::UNKNOWN())
-         return std::numeric_limits<double>::max();
-      else
-         return fabs(x - y);
-   }
+  // FIXME: potential for race conditions on CacheEntry lookups?
 
-   std::string StateCache::toString(const State& state)
-   {
-      std::ostringstream str;
-      str << LabelStr(state.first).toString() << "(" << toString(state.second) << ")";
-      return str.str();
-   }
+  CacheEntryId StateCache::internalUnregisterLookup(const ExpressionId& source)
+  {
+	check_error(m_inQuiescence, "Lookup outside of quiescence!");
+	check_error(source.isValid());
+	ExpressionToLookupMap::iterator eit = m_lookupsByExpression.find(source);
+	checkError(eit != m_lookupsByExpression.end(),
+			   "No stored lookup for " << source->toString());
+	LookupDescId lookup = eit->second;
+	CacheEntryId entry = lookup->entry;
+	checkError(entry.isId(), "No state entry for " << source->toString());
+	entry->lookups.erase(lookup);
+	m_lookupsByExpression.erase(eit);
+	delete (LookupDesc*) lookup;
+	return entry;
+  }
 
-   std::string StateCache::toString(const std::vector<double>& values)
-   {
-      std::ostringstream str;
-      if (!values.empty())
-      {
-         for (std::vector<double>::size_type i = 0; i < values.size(); ++i)
-         {
-           if (i > 0)
-             str << ", ";
-		   str << Expression::valueToString(values[i]);
-         }
-      }
-      return str.str();
-   }
+  void StateCache::unregisterChangeLookup(const ExpressionId& source)
+  {
+	CacheEntryId entry = internalUnregisterLookup(source);
+	check_error(entry.isId());
+	if (!entry->activeChangeLookups()) {
+	  m_interface->unsubscribe(entry->state);
+	}
+  }
+
+  void StateCache::unregisterLookupNow(const ExpressionId& source)
+  {
+	internalUnregisterLookup(source);
+  }
+
+  void StateCache::updateState(const State& state, double value)
+  {
+	check_error(!m_inQuiescence);
+	StateCacheMap::const_iterator it = m_states.find(state);
+	if (it == m_states.end()) {
+	  debugMsg("StateCache:updateState",
+			   "Received update for unknown state " << toString(state));
+	  return;
+	}
+	CacheEntryId entry = it->second;
+	if (internalStateUpdate(entry, value))
+	  m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
+  }
+
+  bool StateCache::internalStateUpdate(const CacheEntryId& entry,
+									   double value)
+  {
+	debugMsg("StateCache:updateState",
+			 "Updating state " << toString(entry->state) <<
+			 " with value " << Expression::valueToString(value));
+	return entry->update(value, m_quiescenceCount);
+  }
+
+
+  /**
+   * @brief Find or create the cache entry for this state.
+   * @param state The state being looked up.
+   * @return Pointer to the CacheEntryId for the state.
+   */
+
+  CacheEntryId StateCache::ensureCacheEntry(const State& state)
+  {
+	StateCacheMap::const_iterator it = m_states.find(state);
+	if (it != m_states.end()) {
+	  debugMsg("StateCache:ensureCacheEntry", " Found existing state " << toString(state));
+	  return it->second;
+	}
+
+	// Create new entry
+	debugMsg("StateCache:ensureCacheEntry",
+			 " Allocating cache entry for state " << toString(state));
+	CacheEntryId entry = m_states[state] = (new CacheEntry(state))->getId();
+	return entry;
+  }
+
+  void StateCache::handleQuiescenceStarted()
+  {
+	check_error(!m_inQuiescence);
+	m_inQuiescence = true;
+	if (m_timeEntry->lastQuiescence < m_quiescenceCount)
+	  updateTimeState();
+  }
+
+  void StateCache::handleQuiescenceEnded()
+  {
+	check_error(m_inQuiescence);
+	m_quiescenceCount++;
+	checkError(m_quiescenceCount > 0, "Quiescence counter wrapped around!");
+	m_inQuiescence = false;
+  }
+
+  double StateCache::currentTime()
+  {
+	if (!m_inQuiescence) 
+	  updateTimeState();
+	return m_timeEntry->value;
+  }
+
+  void StateCache::updateTimeState()
+  {
+	double time = m_interface->lookupNow(m_timeState);
+	checkError(m_timeEntry->value <= time,
+			   "Time has regressed from " << std::setprecision(15) << m_timeEntry->value << " to " << time);
+	if (internalStateUpdate(m_timeEntry, time))
+	  m_interface->setThresholds(m_timeState, m_timeEntry->highThreshold, m_timeEntry->lowThreshold);
+  }
+
+  const State& StateCache::getTimeState() const
+  {
+	return m_timeState;
+  }
+
+  std::string StateCache::toString(const State& state)
+  {
+	std::ostringstream str;
+	str << LabelStr(state.first).toString() << "(";
+	for (size_t i = 0; i < state.second.size(); i++) {
+	  if (i != 0)
+		str << ", ";
+	  str << Expression::valueToString(state.second[i]);
+	}
+	str << ")";
+	return str.str();
+  }
+
 }

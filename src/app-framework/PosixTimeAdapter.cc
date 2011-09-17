@@ -48,8 +48,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface),
-      m_timeVector(1, 0.0)
+    : InterfaceAdapter(execInterface)
   {
     initSigevent();
   }
@@ -62,8 +61,7 @@ namespace PLEXIL
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface, 
                                      const TiXmlElement * xml)
-    : InterfaceAdapter(execInterface, xml),
-      m_timeVector(1, 0.0)
+    : InterfaceAdapter(execInterface, xml)
   {
     initSigevent();
   }
@@ -140,17 +138,15 @@ namespace PLEXIL
    * @brief Register one LookupOnChange.
    * @param uniqueId The unique ID of this lookup.
    * @param stateKey The state key for this lookup.
-   * @param tolerances A vector of tolerances for the LookupOnChange.
+   * @param tolerance The tolerance for the LookupOnChange.
    */
   void PosixTimeAdapter::registerChangeLookup(const LookupKey& uniqueId,
                                               const StateKey& stateKey,
-                                              const std::vector<double>& tolerances)
+                                              double tolerance)
   {
     assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
                   "PosixTimeAdaptor only implements lookups for \"time\"");
-    assertTrueMsg(tolerances.size() == 1,
-                  "Wrong number of tolerances for LookupOnChange(\"time\")");
-    assertTrueMsg(tolerances[0] > 0,
+    assertTrueMsg(tolerance > 0,
                   "LookupOnChange(\"time\") requires a positive tolerance");
     checkError(m_lookupTimerMap.find(uniqueId) == m_lookupTimerMap.end(),
                "Internal error: lookup key already in use!");
@@ -166,7 +162,7 @@ namespace PLEXIL
     // Set up a timer to repeat at the specified tolerance
     // *** N.B. Tolerance is assumed to be in seconds ***
     itimerspec tymrSpec;
-    doubleToTimespec(tolerances[0], tymrSpec.it_interval);
+    doubleToTimespec(tolerance, tymrSpec.it_interval);
     tymrSpec.it_value = tymrSpec.it_interval;
     status = timer_settime(tymr,
                            0, // flags: ~TIMER_ABSTIME
@@ -203,15 +199,13 @@ namespace PLEXIL
   /**
    * @brief Perform an immediate lookup of the requested state.
    * @param stateKey The state key for this lookup.
-   * @param dest A (reference to a) vector of doubles where the result is to be stored.
+   * @return The current value for this lookup.
    */
-  void PosixTimeAdapter::lookupNow(const StateKey& stateKey,
-                                   std::vector<double>& dest)
+  double PosixTimeAdapter::lookupNow(const StateKey& stateKey)
   {
     assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
                   "PosixTimeAdaptor only implements lookups for \"time\"");
-    dest.resize(1);
-    dest[0] = getCurrentTime();
+	return getCurrentTime();
   }
 
   //
@@ -293,9 +287,11 @@ namespace PLEXIL
    */
   void PosixTimeAdapter::timerTimeout()
   {
-    m_timeVector[0] = getCurrentTime();
+    double time = getCurrentTime();
+	debugMsg("PosixTimeAdapter:lookupOnChange",
+			 " timer timeout at " << Expression::valueToString(time));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeStateKey(),
-                                      m_timeVector);
+                                      time);
     m_execInterface.notifyOfExternalEvent();
   }
 

@@ -80,12 +80,11 @@ namespace PLEXIL
 		{
 		  parseState(*scriptElement, name, args, value);
 		  State st(name, args);
-		  std::vector<double> stateValues(1, value);
 		  m_states[st] = value;
 		  debugMsg("Test:testOutput", "Processing event: " <<
 				   StateCache::toString(st)
-				   << " = " << StateCache::toString(stateValues));
-		  m_exec->getStateCache()->updateState(st, stateValues);
+				   << " = " << Expression::valueToString(value));
+		  m_exec->getStateCache()->updateState(st, value);
 		}
 
 	  // parse command
@@ -195,8 +194,7 @@ namespace PLEXIL
 			  m_states[st] = value;
 			  debugMsg("Test:testOutput", "Processing simultaneous event: " <<
 					   StateCache::toString(st) << " = " << value);
-			  m_exec->getStateCache()->updateState(
-												   st, std::vector<double>(1, value));
+			  m_exec->getStateCache()->updateState(st, value);
 			  args.clear();
 			  stateUpdates = stateUpdates->NextSiblingElement("State");
 			}
@@ -419,67 +417,41 @@ namespace PLEXIL
     return value;
   }
 
-  void TestExternalInterface::registerChangeLookup(const LookupKey& /* source */,
-                                                   const State& state, 
-                                                   const StateKey& key,
-                                                   const std::vector<double>& tolerances,
-                                                   std::vector<double>& dest)
-  {
-    debugMsg("Test:testOutput", "Registering change lookup " 
-             << StateCache::toString(state) << " with tolerances " 
-             << StateCache::toString(tolerances));
-    m_statesByKey.insert(std::make_pair(key, state));
-
-    //ignore source, because we don't care about bandwidth here
-    StateMap::iterator it = m_states.find(state);
-    if (it == m_states.end())
-      {
-        std::pair<UniqueThing, double> p = 
-          std::make_pair(state, Expression::UNKNOWN());
-        it = m_states.insert(p).first;
-      }
-    dest[0] = m_states[state];
-  }
-
-  void TestExternalInterface::registerChangeLookup(
-                                                   const LookupKey& source, const StateKey& key, 
-                                                   const std::vector<double>& tolerances)
-  {
-    std::vector<double> fakeDest(1, 0);
-    registerChangeLookup(source, m_statesByKey[key], key, tolerances, fakeDest);
-  }
-
-  void TestExternalInterface::lookupNow(const State& state, const StateKey& key,
-                                        std::vector<double>& dest)
+  double TestExternalInterface::lookupNow(const State& state)
   {
     debugMsg("Test:testOutput", "Looking up immediately "
              << StateCache::toString(state));
-    m_statesByKey.insert(std::make_pair(key, state));
     StateMap::const_iterator it = m_states.find(state);
     if (it == m_states.end()) {
-        debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
-        it = m_states.insert(
-                             std::make_pair(state, Expression::UNKNOWN())).first;
-      }
+	  debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
+	  it = m_states.insert(std::make_pair(state, Expression::UNKNOWN())).first;
+	}
     double value = it->second;
     debugMsg("Test:testOutput", "Returning value "
 			 << Expression::valueToString(value));
-    if (dest.size() < 1)
-      dest.push_back(value);
-    else
-      dest[0] = value;
+	return value;
   }
 
-  void TestExternalInterface::lookupNow(const StateKey& key, 
-                                        std::vector<double>& dest)
+  void TestExternalInterface::subscribe(const State& state)
   {
-    checkError(m_statesByKey.find(key) != m_statesByKey.end(),
-               "No state known for key " << key);
-    lookupNow(m_statesByKey[key], key, dest);
+    debugMsg("Test:testOutput",
+			 "Registering change lookup for " << StateCache::toString(state));
+
+    //ignore source, because we don't care about bandwidth here
+    StateMap::iterator it = m_states.find(state);
+    if (it == m_states.end()) {
+	  std::pair<UniqueThing, double> p = 
+		std::make_pair(state, Expression::UNKNOWN());
+	  it = m_states.insert(p).first;
+	}
   }
 
+  void TestExternalInterface::unsubscribe(const State& /* state */)
+  {}
 
-  void TestExternalInterface::unregisterChangeLookup(const LookupKey& /* dest */)
+  void TestExternalInterface::setThresholds(const State& /* state */,
+											double /* highThreshold */,
+											double /* lowThreshold */)
   {}
 
   void TestExternalInterface::batchActions(std::list<CommandId>& commands)
@@ -627,11 +599,6 @@ namespace PLEXIL
       }
     return retval.str();
   }
-
-  void TestExternalInterface::addPlan(const TiXmlElement& /* plan */,
-				      const LabelStr& /* parent */)
-    throw(ParserException)
-  {}
 
   double TestExternalInterface::currentTime()
   {

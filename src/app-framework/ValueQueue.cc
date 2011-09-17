@@ -66,18 +66,18 @@ namespace PLEXIL
 	QueueEntryId e = allocate();
 	e->type = queueEntry_RETURN_VALUE;
 	e->expression = exp;
-	e->values.push_back(newValue);
+	e->value = newValue;
 	insert(e);
   }
 
-  void ValueQueue::enqueue(const StateKey& key, 
-						   const std::vector<double> & newValues)
+  void ValueQueue::enqueue(const State& state, 
+						   double newValue)
   {
     ThreadMutexGuard guard(*m_mutex);
 	QueueEntryId e = allocate();
 	e->type = queueEntry_LOOKUP_VALUES;
-	e->stateKey = key;
-	e->values = newValues;
+	e->state = state;
+	e->value = newValue;
 	insert(e);
   }
 
@@ -102,9 +102,11 @@ namespace PLEXIL
   }
 
   QueueEntryType
-  ValueQueue::dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
-					  ExpressionId& exp, double& newExpValue,
-					  PlexilNodeId& plan, LabelStr& planParent,
+  ValueQueue::dequeue(double& newValue,
+					  State& state,
+					  ExpressionId& exp,
+					  PlexilNodeId& plan,
+					  LabelStr& planParent,
 					  unsigned int& sequence)
   {
     ThreadMutexGuard guard(*m_mutex);
@@ -119,15 +121,13 @@ namespace PLEXIL
 	  break;
 
 	case queueEntry_LOOKUP_VALUES:
-	  stateKey = e->stateKey;
-	  newStateValues = e->values;
+	  newValue = e->value;
+	  state = e->state;
 	  break;
 
 	case queueEntry_RETURN_VALUE:
-	  checkError(e->values.size() == 1,
-				 "ValueQueue::dequeue: Invalid number of values for return value entry");
+	  newValue = e->value;
 	  exp = e->expression;
-	  newExpValue = e->values[0];
 	  break;
 
 	case queueEntry_PLAN:

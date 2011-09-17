@@ -62,7 +62,7 @@ namespace PLEXIL
 
 	// Inserts the new expression/value pair into the queue
 	void enqueue(const ExpressionId & exp, double newValue);
-	void enqueue(const StateKey & stateKey, const std::vector<double> & newValues);
+	void enqueue(const State & state, double newValue);
 	void enqueue(PlexilNodeId newPlan, const LabelStr & parent);
 	void enqueue(PlexilNodeId newlibraryNode);
 
@@ -71,9 +71,11 @@ namespace PLEXIL
 	 * @return Type of entry dequeued; queueEntry_EMPTY and queueEntry_MARK
 	 * indicate nothing of interest was dequeued
 	 */
-	QueueEntryType dequeue(StateKey& stateKey, std::vector<double>& newStateValues,
-						   ExpressionId& exp, double& newExpValue,
-						   PlexilNodeId& plan, LabelStr& planParent,
+	QueueEntryType dequeue(double& newValue, 
+						   State& state,
+						   ExpressionId& exp,
+						   PlexilNodeId& plan,
+						   LabelStr& planParent,
 						   unsigned int& sequence);
 
 	// returns true iff the queue is empty
@@ -130,9 +132,9 @@ namespace PLEXIL
 		: id(this),
 		  next(),
 		  type(queueEntry_EMPTY),
+		  value(),
 		  expression(),
-		  stateKey(),
-		  values(),
+		  state(),
 		  plan(),
 		  parent(EMPTY_LABEL()),
 		  sequence(0)
@@ -154,13 +156,14 @@ namespace PLEXIL
 		// Only clear the fields that were active
 		switch (type) {
 		case queueEntry_RETURN_VALUE:
+		  value = Expression::UNKNOWN();
 		  expression = ExpressionId::noId();
-		  values.clear();
 		  break;
 			
 		case queueEntry_LOOKUP_VALUES:
-		  stateKey = 0.0;
-		  values.clear();
+		  value = Expression::UNKNOWN();
+		  state.first = Expression::UNKNOWN();
+		  state.second.clear();
 		  break;
 
 		case queueEntry_PLAN:
@@ -190,9 +193,9 @@ namespace PLEXIL
 	  QueueEntryId next; //* Link to the next queue (or free list) entry.
 	  QueueEntryType type; //* What kind of queue entry this is.
 	  // Data for value queue
+	  double value; //* The value being returned.
 	  ExpressionId expression; //* The expression to which this value belongs for command returns.
-	  StateKey stateKey; //* The state to which this value belongs for lookup returns.
-	  std::vector<double> values; //* The values being returned.
+	  State state; //* The state to which this value belongs for lookup returns.
 	  // Data for plan queue
 	  PlexilNodeId plan; //* The intermediate representation of this plan or library node.
 	  LabelStr parent; //* The parent node ID under which to store the plan (NYI).

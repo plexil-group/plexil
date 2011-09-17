@@ -33,7 +33,7 @@ LIB_PATH	+=
 LIBS		+= PlexilUtils tinyxml
 
 SRC		:= $(wildcard *.cc)
-INC		:= $(SRC:.cc=.hh) ExecConnector.hh ExecDefs.hh NodeConnector.hh PlexilResource.hh
+INC		:= $(SRC:.cc=.hh) ExecConnector.hh ExecDefs.hh ExternalInterface.hh NodeConnector.hh PlexilResource.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
 

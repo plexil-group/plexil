@@ -49,8 +49,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface),
-	  m_timeVector(1, 0)
+    : InterfaceAdapter(execInterface)
   {
     commonInit();
   }
@@ -63,8 +62,7 @@ namespace PLEXIL
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface, 
 				       const TiXmlElement * xml)
-    : InterfaceAdapter(execInterface, xml),
-	  m_timeVector(1, 0)
+    : InterfaceAdapter(execInterface, xml)
   {
     commonInit();
   }
@@ -108,11 +106,8 @@ namespace PLEXIL
     // Disable the timer
     stopTimer();
 
-	// Exit the timer thread
+	// FIXME (?): stop the timer thread
 
-
-    // Clear the map
-    m_lookupToleranceMap.clear();
 
     return true;
   }
@@ -136,116 +131,73 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register one LookupOnChange.
-   * @param uniqueId The unique ID of this lookup.
-   * @param stateKey The state key for this lookup.
-   * @param tolerances A vector of tolerances for the LookupOnChange.
-   */
-  void DarwinTimeAdapter::registerChangeLookup(const LookupKey& uniqueId,
-					       const StateKey& stateKey,
-					       const std::vector<double>& tolerances)
-  {
-    assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
-                  "DarwinTimeAdaptor only implements lookups for \"time\"");
-    assertTrueMsg(tolerances.size() == 1,
-                  "Wrong number of tolerances for LookupOnChange(\"time\")");
-    assertTrueMsg(tolerances[0] > 0,
-                  "LookupOnChange(\"time\") requires a positive tolerance");
-    checkError(m_lookupToleranceMap.find(uniqueId) == m_lookupToleranceMap.end(),
-               "Internal error: lookup key already in use!");
-
-    // (Maybe) set up a timer to repeat at the specified tolerance
-    timeval tolval;
-    doubleToTimeval(tolerances[0], tolval);
-
-    if (m_lookupToleranceMap.empty()) {
-	  // If this is the first LookupOnChange, start the timer
-	  m_lastItimerval.it_value = tolval;
-	  m_lastItimerval.it_interval = tolval;
-	  assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
-					"LookupOnChange: setitimer failed, errno = " << errno);
-	}
-    else if (timevalLess(tolval, m_lastItimerval.it_interval)) {
-	  // New tolerance is smaller than old - 
-	  // Get the current timer setting and update
-	  assertTrueMsg(0 == getitimer(ITIMER_REAL, &m_lastItimerval),
-					"LookupOnChange: getitimer failed, errno = " << errno);
-	  m_lastItimerval.it_interval = tolval;
-	  // Only set it_value if remaining delay is greater than new
-	  if (timevalGreater(m_lastItimerval.it_value, tolval))
-		m_lastItimerval.it_value = tolval;
-	  assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
-					"LookupOnChange: setitimer failed, errno = " << errno);
-	}
-    // else do nothing, smallest existing tolerance is smaller than new
-
-    // Add it to the map
-    m_lookupToleranceMap[uniqueId] = tolval;
-  }
-
-  /**
-   * @brief Terminate one LookupOnChange.
-   * @param uniqueId The unique ID of the lookup to be terminated.
-   */
-  void DarwinTimeAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
-  {
-    LookupToleranceMap::iterator where = m_lookupToleranceMap.find(uniqueId);
-    if (where == m_lookupToleranceMap.end())
-      {
-        return; // no such lookup, or already unregistered
-      }
-
-    // Delete the map entry
-    m_lookupToleranceMap.erase(where);
-
-    // If map is empty, stop itimer
-    if (m_lookupToleranceMap.empty())
-      {
-	stopTimer();
-      }
-    // If not, find the remaining lookup with the smallest tolerance
-    // and reset the timer if necessary
-    else
-      {
-	where = m_lookupToleranceMap.begin();
-	const timeval* tv = NULL;
-	while (where != m_lookupToleranceMap.end())
-	  {
-	    if (tv == NULL || timevalLess(where->second, *tv))
-	      tv = &(where->second);
-	    where++;
-	  }
-	checkError(tv != NULL,
-		   "LookupOnChange: Internal error: couldn't find smallest tolerance");
-	// tv now points to timeval of smallest tolerance
-	if (timevalGreater(*tv, m_lastItimerval.it_interval))
-	  {
-	    // Old interval was smaller - 
-	    // set new longer interval, but preserve existing timer value
-	    int status = getitimer(ITIMER_REAL, &m_lastItimerval);
-	    assertTrueMsg(status == 0,
-			  "LookupOnChange: getitimer failed, errno = " << errno);
-	    m_lastItimerval.it_interval = *tv;
-	    status = setitimer(ITIMER_REAL, &m_lastItimerval, NULL);
-	    assertTrueMsg(status == 0,
-			  "LookupOnChange: setitimer failed, errno = " << errno);
-	  }
-      }
-  }
-
-  /**
    * @brief Perform an immediate lookup of the requested state.
-   * @param stateKey The state key for this lookup.
-   * @param dest A (reference to a) vector of doubles where the result is to be stored.
+   * @param state The state for this lookup.
+   * @return The current value of the lookup.
    */
-  void DarwinTimeAdapter::lookupNow(const StateKey& stateKey,
-				    std::vector<double>& dest)
+  double DarwinTimeAdapter::lookupNow(const State& state)
   {
-    assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
-                  "DarwinTimeAdaptor does not implement lookups for state \""
-		  << m_execInterface.getStateCache()->stateNameForKey(stateKey) << "\"");
-    dest.resize(1);
-    dest[0] = getCurrentTime();
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "DarwinTimeAdaptor does not implement lookups for state "
+				  << LabelStr(state.first).toString());
+	return getCurrentTime();
+  }
+
+  /**
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
+   */
+  void DarwinTimeAdapter::subscribe(const State& state)
+  {
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "DarwinTimeAdaptor does not implement lookups for state "
+				  << LabelStr(state.first).toString());
+  }
+
+  /**
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   * @param state The state.
+   */
+  void DarwinTimeAdapter::unsubscribe(const State& state)
+  {
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "DarwinTimeAdaptor does not implement lookups for state "
+				  << LabelStr(state.first).toString());
+	stopTimer();
+  }
+
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   */
+  void DarwinTimeAdapter::setThresholds(const State& state, double hi, double /* lo */)
+  {
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "DarwinTimeAdaptor does not implement lookups for state "
+				  << LabelStr(state.first).toString());
+
+	// Get high threshold as a timeval
+	timeval hiTime = doubleToTimeval(hi);
+
+	// Get the current time
+    timeval now;
+    int status = gettimeofday(&now, NULL);
+    assertTrueMsg(status == 0,
+                  "TimeAdapter::setThresholds: gettimeofday() failed, errno = " << errno);
+
+	if (hiTime < now) {
+	  // Already past the scheduled time, submit wakeup
+	  timerTimeout();
+	  return;
+	}
+
+	// Set the timer 
+	m_lastItimerval.it_value = hiTime - now;
+	m_lastItimerval.it_interval = m_disableItimerval.it_interval; // i.e. 0
+	assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
+				  "TimeAdapter::setThresholds: setitimer failed, errno = " << errno);
   }
 
   //
@@ -387,11 +339,10 @@ namespace PLEXIL
   void DarwinTimeAdapter::timerTimeout()
   {
     // report the current time and kick-start the Exec
-    m_timeVector[0] = getCurrentTime();
+    double time = getCurrentTime();
 	debugMsg("DarwinTimeAdapter:lookupOnChange",
-			 " timer timeout at " << Expression::valueToString(m_timeVector[0]));
-    m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeStateKey(),
-                                      m_timeVector);
+			 " timer timeout at " << Expression::valueToString(time));
+    m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(), time);
     m_execInterface.notifyOfExternalEvent();
   }
 

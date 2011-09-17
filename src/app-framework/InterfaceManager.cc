@@ -512,8 +512,8 @@ namespace PLEXIL
 
     // Potential optimization (?): these could be member variables
     // Can't use static as that would cause collisions between multiple instances
-    StateKey stateKey;
-    std::vector<double> newStateValues;
+    double newValue;
+    State state;
     ExpressionId exp;
     double newExpValue;
     PlexilNodeId plan;
@@ -527,9 +527,11 @@ namespace PLEXIL
 	  // get next entry
 	  debugMsg("InterfaceManager:processQueue",
 			   " (" << pthread_self() << ") Fetch next queue entry");
-	  typ = m_valueQueue.dequeue(stateKey, newStateValues,
-								 exp, newExpValue,
-								 plan, parent,
+	  typ = m_valueQueue.dequeue(newValue, 
+								 state,
+								 exp,
+								 plan,
+								 parent,
 								 sequence);
 	  switch (typ) {
 	  case queueEntry_EMPTY:
@@ -550,58 +552,35 @@ namespace PLEXIL
 	  case queueEntry_LOOKUP_VALUES:
 		// State -- update all listeners
 		{
-		  // state for debugging only
 		  State state;
-		  bool stateFound =
-			m_exec->getStateCache()->stateForKey(stateKey, state);
-		  if (stateFound) {
-			debugMsg("InterfaceManager:processQueue",
-					 " (" << pthread_self()
-					 << ") Handling state change for '"
-					 << getText(state)
-					 << "', " << newStateValues.size()
-					 << " new value(s)");
+		  debugMsg("InterfaceManager:processQueue",
+				   " (" << pthread_self()
+				   << ") Handling state change for "
+				   << StateCache::toString(state));
 
-			if (newStateValues.size() == 0) {
+		  // If this is a time state update message, check if it's stale
+		  if (state == m_exec->getStateCache()->getTimeState()) {
+			if (newValue <= m_currentTime) {
 			  debugMsg("InterfaceManager:processQueue",
-					   "(" << pthread_self()
-					   << ") Ignoring empty state change vector for '"
-					   << getText(state)
-					   << "'");
-			  break;
-			}
-
-			// If this is a time state update message, check if it's stale
-			if (stateKey == m_exec->getStateCache()->getTimeStateKey()) {
-			  if (newStateValues[0] <= m_currentTime) {
-				debugMsg("InterfaceManager:processQueue",
-						 " (" << pthread_self()
-						 << ") Ignoring stale time update - new value "
-						 << Expression::valueToString(newStateValues[0]) << " is not greater than cached value "
-						 << Expression::valueToString(m_currentTime));
-			  }
-			  else {
-				debugMsg("InterfaceManager:processQueue",
-						 " (" << pthread_self()
-						 << ") setting current time to "
-						 << Expression::valueToString(newStateValues[0]));
-				m_currentTime = newStateValues[0];
-				m_exec->getStateCache()->updateState(stateKey, newStateValues);
-			  }
+					   " (" << pthread_self()
+					   << ") Ignoring stale time update - new value "
+					   << Expression::valueToString(newValue) << " is not greater than cached value "
+					   << Expression::valueToString(m_currentTime));
 			}
 			else {
-			  // General case, update state cache
-			  m_exec->getStateCache()->updateState(stateKey, newStateValues);
+			  debugMsg("InterfaceManager:processQueue",
+					   " (" << pthread_self()
+					   << ") setting current time to "
+					   << Expression::valueToString(newValue));
+			  m_currentTime = newValue;
+			  m_exec->getStateCache()->updateState(state, newValue);
 			}
-			needsStep = true;
 		  }
 		  else {
-			// State not found -- possibly stale update
-			debugMsg("InterfaceManager:processQueue", 
-					 " (" << pthread_self()
-					 << ") ignoring lookup for nonexistent state, key = "
-					 << stateKey);
+			// General case, update state cache
+			m_exec->getStateCache()->updateState(state, newValue);
 		  }
+		  needsStep = true;
 		  break;
 		}
 
@@ -611,13 +590,12 @@ namespace PLEXIL
 		debugMsg("InterfaceManager:processQueue",
 				 " (" << pthread_self()
 				 << ") Updating expression " << exp
-				 << ", new value is '" << Expression::valueToString(newExpValue) << "'");
+				 << ", new value is '" << Expression::valueToString(newValue) << "'");
 
 		// Handle potential command return value.
-		this->maybePublishCommandReturnValue(exp, newExpValue);
 		this->releaseResourcesAtCommandTermination(exp);
 
-		exp->setValue(newExpValue);
+		exp->setValue(newValue);
 		needsStep = true;
 		break;
 
@@ -653,163 +631,86 @@ namespace PLEXIL
 	}
   }
 
-  void InterfaceManager::maybePublishCommandReturnValue(const ExpressionId& dest,
-														const double& value)
-  {
-    // If the destination is a command destination, publish it (as an
-    // assignment), otherwise do nothing.
-
-    std::map<ExpressionId, CommandId>::iterator iter;
-    if ((iter = m_destToCmdMap.find (dest)) != m_destToCmdMap.end()) {
-      CommandId cmdId = iter->second;
-      std::string destName = cmdId->getDestName();
-
-	  m_listenerHub->notifyOfAssignment(dest, destName, value);
-    }
-  }
-
-
-  /**
-   * @brief Register a change lookup on a new state, expecting values back.
-   * @param source The unique key for this lookup.
-   * @param state The state
-   * @param key The key for the state to be used in future communications about the state.
-   * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-   * @param dest The destination for the current values for the state.
-   */
-
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void
-  InterfaceManager::registerChangeLookup(const LookupKey& source,
-                                         const State& state,
-                                         const StateKey& key,
-                                         const std::vector<double>& tolerances, 
-                                         std::vector<double>& dest)
-  {
-    // Do an immediate lookup for effect
-    lookupNow(state, key, dest);
-    // Defer to method below
-    registerChangeLookup(source, key, tolerances);
-  }
-
-  /**
-   * @brief Register a change lookup on an existing state.
-   * @param source The unique key for this lookup.
-   * @param key The key for the state.
-   * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-   */
-
-  // *** To do:
-  //  - optimize for multiple lookups on same state, e.g. time?
-  void
-  InterfaceManager::registerChangeLookup(const LookupKey& source,
-                                         const StateKey& key, 
-                                         const std::vector<double>& tolerances)
-  {
-    // Extract state name and arglist
-    State state;
-    m_exec->getStateCache()->stateForKey(key, state);
-    const LabelStr& stateName(state.first);
-    debugMsg("InterfaceManager:registerChangeLookup",
-			 " of '" << stateName.toString() << "'");
-    condDebugMsg(tolerances.at(0) != 0.0,
-				 "InterfaceManager:registerChangeLookup",
-				 " tolerance = " << Expression::valueToString(tolerances.at(0)));
-
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-                  "registerChangeLookup: No interface adapter found for lookup '"
-                  << stateName.toString() << "'");
-
-    m_lookupAdapterMap.insert(std::pair<LookupKey, InterfaceAdapterId>(source, adapter));
-    // for convenience of adapter implementors
-    adapter->registerAsynchLookup(source, key);
-    adapter->registerChangeLookup(source, key, tolerances);
-  }
-
   /**
    * @brief Perform an immediate lookup on a new state.
-   * @param state The state
    * @param key The key for the state to be used in future communications about the state.
-   * @param dest The destination for the current values for the state.
    */
 
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void 
-  InterfaceManager::lookupNow(const State& state,
-                              const StateKey& key,
-                              std::vector<double>& dest)
+  double
+  InterfaceManager::lookupNow(const State& state)
   {
     const LabelStr& stateName(state.first);
-    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "'");
+    debugMsg("InterfaceManager:lookupNow", " of " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
                   "lookupNow: No interface adapter found for lookup '"
                   << stateName.toString() << "'");
 
-    adapter->lookupNow(key, dest);
+    double result = adapter->lookupNow(state);
     // update internal idea of time if required
-    if (key == m_exec->getStateCache()->getTimeStateKey())
-      {
-        if (dest[0] <= m_currentTime)
-          {
-            debugMsg("InterfaceManager:verboseLookupNow",
-                     " Ignoring stale time update - new value "
-                     << Expression::valueToString(dest[0]) << " is not greater than cached value "
-                     << Expression::valueToString(m_currentTime));
-          }
-        else
-          {
-            debugMsg("InterfaceManager:verboseLookupNow",
-                     " setting current time to "
-                     << Expression::valueToString(dest[0]));
-            m_currentTime = dest[0];
-          }
+    if (state == m_exec->getStateCache()->getTimeState()) {
+        if (result <= m_currentTime) {
+		  debugMsg("InterfaceManager:verboseLookupNow",
+				   " Ignoring stale time update - new value "
+				   << Expression::valueToString(result) << " is not greater than cached value "
+				   << Expression::valueToString(m_currentTime));
+		}
+        else {
+		  debugMsg("InterfaceManager:verboseLookupNow",
+				   " setting current time to "
+				   << Expression::valueToString(result));
+		  m_currentTime = result;
+		}
       }
 
-    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' complete");
+    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' returning " << Expression::valueToString(result));
+	return result;
   }
 
   /**
-   * @brief Perform an immediate lookup on an existing state.
-   * @param key The key for the state.
-   * @param dest The destination for the current values for the state.
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
    */
-
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void 
-  InterfaceManager::lookupNow(const StateKey& key, std::vector<double>& dest)
+  void InterfaceManager::subscribe(const State& state)
   {
-    // Extract state name and arglist
-    State state;
-    m_exec->getStateCache()->stateForKey(key, state);
-    // Defer to method above
-    lookupNow(state, key, dest);
-  }
-
-  /**
-   * @brief Inform the FL that a lookup should no longer receive updates.
-   */
-  void
-  InterfaceManager::unregisterChangeLookup(const LookupKey& dest)
-  {
-    debugMsg("InterfaceManager:unregisterChangeLookup", " for unique ID " << dest);
-    LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
-    if (it == m_lookupAdapterMap.end())
-      {
-        debugMsg("InterfaceManager:unregisterChangeLookup", 
-                 " no lookup found for key " << dest);
-        return;
-      }
-
-    InterfaceAdapterId adapter = (*it).second;
+    const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:subscribe", " to state " << StateCache::toString(state));
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
-                  "unregisterChangeLookup: Internal Error: No interface adapter found for lookup key '"
-                  << dest << "'");
+                  "subscribe: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
+	adapter->subscribe(state);
+  }
 
-    adapter->unregisterChangeLookup(dest);
-    adapter->unregisterAsynchLookup(dest);
-    m_lookupAdapterMap.erase(dest);
+  /**
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   */
+  void InterfaceManager::unsubscribe(const State& state)
+  {
+    const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:unsubscribe", " to state " << StateCache::toString(state));
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+                  "unsubscribe: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
+	adapter->unsubscribe(state);
+  }
+
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   */
+  void InterfaceManager::setThresholds(const State& state, double hi, double lo)
+  {
+    const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:setThresholds", " for state " << StateCache::toString(state));
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+                  "setThresholds: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
+	adapter->setThresholds(state, hi, lo);
   }
 
   // this batches the set of commands from quiescence completion.
@@ -885,7 +786,7 @@ namespace PLEXIL
         for (std::list<UpdateId>::const_iterator it = updates.begin();
              it != updates.end();
              it++)
-          handleValueChange((*it)->getAck(),
+          handleValueChange((ExpressionId) (*it)->getAck(),
                             BooleanVariable::TRUE_VALUE());
         notifyOfExternalEvent();
       }
@@ -1196,25 +1097,17 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Notify of the availability of new values for a lookup.
-   * @param key The state key for the new values.
-   * @param values The new values.
+   * @brief Notify of the availability of a new value for a lookup.
+   * @param state The state for the new value.
+   * @param value The new value.
    */
   void
-  InterfaceManager::handleValueChange(const StateKey& key, 
-                                      const std::vector<double>& values)
+  InterfaceManager::handleValueChange(const State& state, double value)
   {
-	State state;
-	bool found = stateForKey(key, state);
-	if (found) {
-	  debugMsg("InterfaceManager:handleValueChange",
-			   " for state " << LabelStr(state.first).toString()
-			   << ", new value = " << Expression::valueToString(values.front()));
-	}
-	else {
-	  debugMsg("InterfaceManager:handleValueChange", " for unknown lookup");
-	}
-    m_valueQueue.enqueue(key, values);
+	debugMsg("InterfaceManager:handleValueChange",
+			 " for state " << LabelStr(state.first).toString()
+			 << ", new value = " << Expression::valueToString(value));
+    m_valueQueue.enqueue(state, value);
   }
 
   /**
@@ -1401,42 +1294,6 @@ namespace PLEXIL
   InterfaceManager::getStateCache() const
   { 
     return m_exec->getStateCache(); 
-  }
-
-  /**
-   * @brief Look up the unique key for a state.
-   * @param state The state.
-   * @param key The key associated with this state.
-   * @return True if the key was found.
-   */
-  bool
-  InterfaceManager::findStateKey(const State& state, StateKey& key)
-  {
-    return m_exec->getStateCache()->findStateKey(state, key);
-  }
-
-  /**
-   * @brief Get a unique key for a state, creating a new key for a new state.
-   * @param state The state.
-   * @param key The key.
-   * @return True if a new key had to be generated.
-   */
-  bool
-  InterfaceManager::keyForState(const State& state, StateKey& key)
-  {
-    return m_exec->getStateCache()->keyForState(state, key);
-  }
-
-  /**
-   * @brief Get (a copy of) the State for this StateKey.
-   * @param key The key to look up.
-   * @param state The state associated with the key.
-   * @return True if the key is found, false otherwise.
-   */
-  bool
-  InterfaceManager::stateForKey(const StateKey& key, State& state) const
-  {
-    return m_exec->getStateCache()->stateForKey(key, state);
   }
 
   /**

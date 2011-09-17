@@ -883,44 +883,53 @@ public:
     m_cache = cache;
   }
 
-  void lookupNow(const State& state, const StateKey& key, std::vector<double>& dest) {
-    m_states.insert(std::make_pair(key, state));
-    if(state.first == LabelStr("test1")) {
-      dest[0] = 0.0;
+  double lookupNow(const State& state) {
+    if (state.first == LabelStr("test1")) {
+      return 0.0;
     }
-    if(state.first == LabelStr("test2")) {
+    else if (state.first == LabelStr("test2")) {
       check_error(state.second.size() == 1);
       LabelStr param(state.second[0]);
       if(param == LabelStr("high"))
-	dest[0] = 1.0;
+		return 1.0;
       else if(param == LabelStr("low"))
-	dest[0] = -1.0;
+		return -1.0;
     }
+    else if (state.first == LabelStr("time")) {
+	  return 0.0;
+	}
+	else {
+	  return m_changingExprs[state.first]->getValue();
+	}
   }
 
-  void lookupNow(const StateKey& key, std::vector<double>& dest) {
-    lookupNow(m_states[key], key, dest);
-  }
-
-  void registerChangeLookup(const LookupKey& /* source */,
-			    const State& state,
-			    const StateKey& key,
-			    const std::vector<double>& /* tolerances */,
-                            std::vector<double>& dest) {
-    m_states.insert(std::make_pair(key, state));
-    dest[0] = m_changingExprs[state.first]->getValue();
-    //     m_listeningExprs.insert(std::make_pair(m_changingExprs[state.first], (ExpressionId) source));
-    //     m_tolerances.insert(std::make_pair((ExpressionId) source, tolerances[0]));
-    //     m_cachedValues.insert(std::make_pair((ExpressionId) source, m_changingExprs[state.first]->getValue()));
-    //     ((
-  }
-  void registerChangeLookup(const LookupKey& source, const StateKey& key, const std::vector<double>& tolerances) {
-    std::vector<double> fakeDest(1, 0);
-    registerChangeLookup(source, m_states[key], key, tolerances, fakeDest);
-  }
-
-  void batchActions(std::list<CommandId>& commands)
+  void subscribe(const State& /* state */)
   {
+  }
+
+  void unsubscribe(const State& /* state */)
+  {
+  }
+
+  void setThresholds(const State& /* state */, double /* hi */, double /* lo */)
+  {
+  }
+
+  void batchActions(std::list<CommandId>& /* commands */)
+  {
+  }
+
+  void updatePlanner(std::list<UpdateId>& /* updates */)
+  {
+  }
+
+  void invokeAbort(const LabelStr& /* cmdName */, const std::list<double>& /* cmdArgs */, ExpressionId /* abrtAck */, ExpressionId /* cmdAck */)
+  {
+  }
+
+  double currentTime()
+  {
+	return 0.0;
   }
 
   void watch(const LabelStr& name, ExpressionId expr) {
@@ -931,6 +940,7 @@ public:
     m_changingExprs.insert(std::pair<double, ExpressionId>(name, expr));
     m_exprsToStateName.insert(std::make_pair(expr, name));
   }
+
   void unwatch(const LabelStr& name, ExpressionId expr) {
     if(m_exprs.find(expr) != m_exprs.end()) {
       m_exprs.erase(expr);
@@ -955,11 +965,10 @@ protected:
 
   void notifyValueChanged(ExpressionId expression)
   {
-    std::vector<double> values(1, expression->getValue());
     std::multimap<ExpressionId, double>::const_iterator it = m_exprsToStateName.find(expression);
     while(it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second, std::vector<double>());
-      m_cache->updateState(st, values);
+      m_cache->updateState(st, expression->getValue());
       ++it;
     }
   }
@@ -982,7 +991,6 @@ private:
   std::multimap<ExpressionId, ExpressionId> m_listeningExprs; //map of changing expressions to listening expressions
   std::map<ExpressionId, double> m_tolerances; //map of dest expressions to tolerances
   std::map<ExpressionId, double> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
-  std::map<StateKey, State> m_states;
   ChangeListener m_listener;
   StateCacheId m_cache;
 };
@@ -2223,31 +2231,43 @@ for(int skip = 0; skip < 3; ++skip) {
 
 class CacheTestInterface : public ExternalInterface {
 public:
-  CacheTestInterface() : ExternalInterface(), m_lookupNowCalled(false) {}
-  void lookupNow(const State& state, const StateKey& key, std::vector<double>& dest) {
-    check_error(!dest.empty());
-    m_states.insert(std::make_pair(key, state));
-    dest[0] = m_values[state];
+  CacheTestInterface(const StateCacheId& cache)
+  : ExternalInterface(), m_cache(cache), m_lookupNowCalled(false)
+  {}
+
+  double lookupNow(const State& state) 
+  {
     m_lookupNowCalled = true;
-  }
-  void lookupNow(const StateKey& key, std::vector<double>& dest) {
-    check_error(!dest.empty());
-    check_error(m_states.find(key) != m_states.end());
-    dest[0] = m_values[m_states[key]];
-    m_lookupNowCalled = true;
-  }
-  void registerChangeLookup(const LookupKey& /* source */,
-			    const State& state,
-			    const StateKey& key,
-			    const std::vector<double>& /* tolerances */,
-			    std::vector<double>& dest) {
-    check_error(!dest.empty());
-    m_states.insert(std::make_pair(key, state));
-    dest[0] = m_values[state];
+    return m_values[state];
   }
 
-  void batchActions(std::list<CommandId>& commands)
+  void subscribe(const State& /* state */)
   {
+  }
+
+  void unsubscribe(const State& /* state */)
+  {
+  }
+
+  void setThresholds(const State& /* state */, double /* hi */, double /* lo */)
+  {
+  }
+
+  void batchActions(std::list<CommandId>& /* commands */)
+  {
+  }
+
+  void updatePlanner(std::list<UpdateId>& /* updates */)
+  {
+  }
+
+  void invokeAbort(const LabelStr& /* cmdName */, const std::list<double>& /* cmdArgs */, ExpressionId /* abrtAck */, ExpressionId /* cmdAck */)
+  {
+  }
+
+  double currentTime()
+  {
+	return 0.0;
   }
 
   bool lookupNowCalled() {return m_lookupNowCalled;}
@@ -2258,15 +2278,14 @@ public:
       m_values.insert(std::make_pair(state, value));
     else
       it->second = value;
-    std::vector<double> values(1, value);
     if(update)
-      cache->updateState(state, values);
+      cache->updateState(state, value);
   }
 protected:
 private:
-  bool m_lookupNowCalled;
-  std::map<StateKey, State> m_states;
   std::map<State, double> m_values;
+  StateCacheId m_cache;
+  bool m_lookupNowCalled;
 };
 
 class StateCacheTest {
@@ -2278,15 +2297,12 @@ public:
   }
 private:
   static bool testLookupNow() {
-    CacheTestInterface iface;
     StateCache cache;
+    CacheTestInterface iface(cache.getId());
     cache.setExternalInterface(iface.getId());
 
     IntegerVariable destVar;
     destVar.activate();
-
-    Expressions dest;
-    dest.push_back(destVar.getId());
 
     State st(LabelStr("foo"), std::vector<double>());
 
@@ -2295,7 +2311,7 @@ private:
 
     //single lookup for new state
     assertTrue(destVar.getValue() == Expression::UNKNOWN());
-    cache.registerLookupNow(destVar.getId(), dest, st);
+    cache.registerLookupNow(destVar.getId(), st);
     assertTrue(iface.lookupNowCalled());
     assertTrue(destVar.getValue() == 1);
     cache.unregisterLookupNow(destVar.getId());
@@ -2303,7 +2319,7 @@ private:
     //re-lookup for same state in same quiescence
     iface.setValue(st, 2, cache.getId(), false);
     iface.clearLookupNowCalled();
-    cache.registerLookupNow(destVar.getId(), dest, st);
+    cache.registerLookupNow(destVar.getId(), st);
     assertTrue(!iface.lookupNowCalled());
     assertTrue(destVar.getValue() == 1);
     cache.unregisterLookupNow(destVar.getId());
@@ -2311,7 +2327,7 @@ private:
     //re-lookup for same state in next quiescence
     cache.handleQuiescenceEnded();
     cache.handleQuiescenceStarted();
-    cache.registerLookupNow(destVar.getId(), dest, st);
+    cache.registerLookupNow(destVar.getId(), st);
     assertTrue(iface.lookupNowCalled());
     assertTrue(destVar.getValue() == 2);
     cache.unregisterLookupNow(destVar.getId());
@@ -2323,29 +2339,22 @@ private:
   }
 
   static bool testChangeLookup() {
-    CacheTestInterface iface;
     StateCache cache;
+    CacheTestInterface iface(cache.getId());
     cache.setExternalInterface(iface.getId());
 
     IntegerVariable destVar1, destVar2;
     destVar1.activate();
     destVar2.activate();
 
-    Expressions dest1;
-    dest1.push_back(destVar1.getId());
-    Expressions dest2;
-    dest2.push_back(destVar2.getId());
-    std::vector<double> tol1(1, 1);
-    std::vector<double> tol2(1, 2);
-
     State st(LabelStr("foo"), std::vector<double>());
 
     //lookup
     iface.setValue(st, 1, cache.getId(), false);
     cache.handleQuiescenceStarted();
-    cache.registerChangeLookup(destVar1.getId(), dest1, st, tol1);
+    cache.registerChangeLookup(destVar1.getId(), st, 1);
     assertTrue(destVar1.getValue() == 1);
-    cache.registerChangeLookup(destVar2.getId(), dest2, st, tol2);
+    cache.registerChangeLookup(destVar2.getId(), st, 2);
     assertTrue(destVar2.getValue() == 1);
     cache.handleQuiescenceEnded();
 
@@ -2357,12 +2366,11 @@ private:
     //lookupNow triggering change
     IntegerVariable nowDestVar;
     nowDestVar.activate();
-    Expressions nowDest(1, nowDestVar.getId());
     iface.setValue(st, 3, cache.getId(), false);
     cache.handleQuiescenceStarted();
     cache.handleQuiescenceEnded();
     cache.handleQuiescenceStarted();
-    cache.registerLookupNow(nowDestVar.getId(), nowDest, st);
+    cache.registerLookupNow(nowDestVar.getId(), st);
     assertTrue(nowDestVar.getValue() == 3);
     assertTrue(destVar1.getValue() == 3);
     assertTrue(destVar2.getValue() == 3);

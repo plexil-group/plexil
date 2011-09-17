@@ -41,7 +41,6 @@ namespace PLEXIL
   Lookup::Lookup(const PlexilExprId& expr, const NodeConnectorId& node)
     : Expression(),
       m_cache(node->getExec()->getStateCache()),
-      m_dest(1, m_id),
       m_state(Expression::UNKNOWN(),
               std::vector<double>(((PlexilLookup*)expr)->state()->args().size(),
                                   Expression::UNKNOWN())),
@@ -242,7 +241,7 @@ namespace PLEXIL
   {
     debugMsg("LookupNow:handleRegistration", 
 	     " for state " << stateToString(m_state));
-    m_cache->registerLookupNow(m_id, m_dest, m_state);
+    m_cache->registerLookupNow(m_id, m_state);
   }
 
   // *** To do:
@@ -254,7 +253,7 @@ namespace PLEXIL
 	     " old state was " << stateToString(oldState)
 	     << ",\n new state is " << stateToString(m_state));
     m_cache->unregisterLookupNow(m_id);
-    m_cache->registerLookupNow(m_id, m_dest, m_state);
+    m_cache->registerLookupNow(m_id, m_state);
   }
 
   void LookupNow::handleUnregistration() 
@@ -310,9 +309,9 @@ namespace PLEXIL
 
   void LookupOnChange::handleRegistration() {
     debugMsg("LookupOnChange:handleRegistration", 
-	     " for state " << stateToString(m_state));
+			 " for state " << stateToString(m_state));
     m_tolerance->activate();
-    m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
+    m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue());
   }
 
   void LookupOnChange::handleUnregistration() {
@@ -343,7 +342,7 @@ namespace PLEXIL
 	     " old state was " << stateToString(oldState)
 	     << ",\n new state is " << stateToString(m_state));
     m_cache->unregisterChangeLookup(m_id);
-    m_cache->registerChangeLookup(m_id, m_dest, m_state, std::vector<double>(1, m_tolerance->getValue()));
+    m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue());
   }
 
 }

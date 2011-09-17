@@ -74,25 +74,29 @@ namespace PLEXIL
   // Default methods for InterfaceManager API
   //
 
-  void InterfaceAdapter::registerChangeLookup(const LookupKey& /* uniqueId */,
-					      const StateKey& /* stateKey */,
-					      const std::vector<double>& /* tolerances */)
+  double InterfaceAdapter::lookupNow(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::registerChangeLookup: default method called!");
+			   "InterfaceAdapter::lookupNow: default method called!");
+	return Expression::UNKNOWN();
   }
 
-  void InterfaceAdapter::unregisterChangeLookup(const LookupKey& /* uniqueId */)
+  void InterfaceAdapter::subscribe(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::unregisterChangeLookup: default method called!");
+			   "InterfaceAdapter::subscribe: default method called!");
   }
 
-  void InterfaceAdapter::lookupNow(const StateKey& /* key */,
-				   std::vector<double>& /* dest */)
+  void InterfaceAdapter::unsubscribe(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::lookupNow: default method called!");
+			   "InterfaceAdapter::unsubscribe: default method called!");
+  }
+
+  void InterfaceAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
+  {
+    assertTrue(ALWAYS_FAIL,
+			   "InterfaceAdapter::setThresholds: default method called!");
   }
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
@@ -102,6 +106,7 @@ namespace PLEXIL
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::updatePlanner: default method called!");
   }
+
 
   // This default method is a wrapper for backward compatibility.
   void InterfaceAdapter::executeCommand(CommandId cmd)
@@ -128,122 +133,6 @@ namespace PLEXIL
   {
     assertTrue(ALWAYS_FAIL,
 	       "InterfaceAdapter::invokeAbort: default method called!");
-  }
-
-  //
-  // Methods to facilitate implementations
-  //
-
-  void
-  InterfaceAdapter::registerAsynchLookup(const LookupKey& uniqueId,
-					 const StateKey& key)
-  {
-	// Get debugging info, and sanity check while we're at it
-	State state;
-	checkError(m_execInterface.stateForKey(key, state),
-			   "InterfaceAdapter::registerAsynchLookup: no state found for state key " << key);
-    StateToLookupMap::iterator it = m_asynchLookups.find(key);
-    if (it == m_asynchLookups.end()) {
-	  debugMsg("InterfaceAdapter:registerAsynchLookup",
-			   " for state " << LabelStr(state.first).toString()
-			   << "; new lookup for unique ID " << uniqueId);
-	  std::set<LookupKey> theSet;
-	  theSet.insert(uniqueId);
-	  m_asynchLookups.insert(std::pair<StateKey, std::set<LookupKey> >(key, theSet));
-	}
-    else {
-	  debugMsg("InterfaceAdapter:registerAsynchLookup",
-			   " for state " << LabelStr(state.first).toString()
-			   << "; adding unique ID " << uniqueId << " to existing lookup");
-	  (*it).second.insert(uniqueId);
-	}
-  }
-
-  void
-  InterfaceAdapter::unregisterAsynchLookup(const LookupKey& uniqueId)
-  {
-    debugMsg("InterfaceAdapter:unregisterAsynchLookup",
-	     " for unique ID " << uniqueId);
-    StateToLookupMap::iterator tableIt =
-      m_asynchLookups.begin();
-    for (; tableIt != m_asynchLookups.end(); tableIt++)
-      {
-	std::set<LookupKey> & theSet = tableIt->second;
-	std::set<LookupKey>::iterator setIt = theSet.find(uniqueId);
-	if (setIt != theSet.end())
-	  {
-	    // Found it -- is it the only member?
-	    if (theSet.size() == 1)
-	      {
-		// delete entry from table
-		debugMsg("InterfaceAdapter:unregisterAsynchLookup",
-			 " deleting last lookup for state " << tableIt->first);
-		m_asynchLookups.erase(tableIt);
-	      }
-	    else
-	      {
-		// delete unique ID from entry
-		debugMsg("InterfaceAdapter:unregisterAsynchLookup",
-			 " deleting lookup for state with remaining lookups");
-		theSet.erase(setIt);
-	      }
-	    return; // done in either case
-	  }
-      }
-    // Warn, don't barf.
-    debugMsg("InterfaceAdapter:unregisterAsynchLookup",
-	     " Unique ID " << uniqueId << " not found.");
-  }
-    
-  InterfaceAdapter::StateToLookupMap::const_iterator 
-  InterfaceAdapter::getAsynchLookupsBegin()
-  {
-    return m_asynchLookups.begin();
-  }
-  
-  InterfaceAdapter::StateToLookupMap::const_iterator
-  InterfaceAdapter::getAsynchLookupsEnd()
-  {
-    return m_asynchLookups.end();
-  }
-
-  InterfaceAdapter::StateToLookupMap::const_iterator
-  InterfaceAdapter::findStateKey(const StateKey& key)
-  {
-    return m_asynchLookups.find(key);
-  }
-
-  bool
-  InterfaceAdapter::isStateKeySubscribed(const StateKey& key) const
-  {
-    return m_asynchLookups.find(key) != m_asynchLookups.end();
-  }
-
-  InterfaceAdapter::StateToLookupMap::const_iterator
-  InterfaceAdapter::findLookupKey(const LookupKey& key)
-  {
-    StateToLookupMap::const_iterator it =
-      m_asynchLookups.begin();
-    while (it != m_asynchLookups.end())
-      {
-	const std::set<LookupKey>& keys = it->second;
-	if (keys.find(key) != keys.end())
-	  return it;
-	it++;
-      }
-    return m_asynchLookups.end();
-  }
-
-  bool 
-  InterfaceAdapter::getState(const StateKey& key, State& state)
-  {
-    return m_execInterface.getStateCache()->stateForKey(key, state);
-  }
-
-  bool
-  InterfaceAdapter::getStateKey(const State& state, StateKey& key)
-  {
-    return !m_execInterface.getStateCache()->keyForState(state, key);
   }
 
   /**

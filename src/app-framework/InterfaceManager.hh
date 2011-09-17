@@ -263,54 +263,30 @@ namespace PLEXIL
     void resetQueue();
 
     /**
-     * @brief Register a change lookup on a new state, expecting values back.
-     * @param source The unique key for this lookup.
-     * @param state The state
-     * @param key The key for the state to be used in future communications about the state.
-     * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
-     */
-    void registerChangeLookup(const LookupKey& source,
-			      const State& state,
-			      const StateKey& key,
-			      const std::vector<double>& tolerances, 
-			      std::vector<double>& dest);
-
-    /**
-     * @brief Register a change lookup on an existing state.
-     * @param source The unique key for this lookup.
-     * @param key The key for the state.
-     * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-     */
-    void registerChangeLookup(const LookupKey& source,
-			      const StateKey& key, 
-			      const std::vector<double>& tolerances);
-
-    /**
-     * @brief Perform an immediate lookup on a new state.
-     * @param state The state
-     * @param key The key for the state to be used in future communications about the state.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
-     */
-    void lookupNow(const State& state,
-		   const StateKey& key,
-		   std::vector<double>& dest);
-
-    /**
      * @brief Perform an immediate lookup on an existing state.
-     * @param key The key for the state.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
+     * @param state The state.
+	 * @return The current value of the state or UNKNOWN().
      */
-    void lookupNow(const StateKey& key, 
-		   std::vector<double>& dest);
+    double lookupNow(const State& state);
+
+	/**
+	 * @brief Inform the interface that it should report changes in value of this state.
+	 * @param state The state.
+	 */
+	void subscribe(const State& state);
 
     /**
-     * @brief Inform the FL that a lookup should no longer receive updates.
+     * @brief Inform the interface that a lookup should no longer receive updates.
      */
-    void unregisterChangeLookup(const LookupKey& dest);
+	void unsubscribe(const State& state);
+
+	/**
+	 * @brief Advise the interface of the current thresholds to use when reporting this state.
+	 * @param state The state.
+	 * @param hi The upper threshold, at or above which to report changes.
+	 * @param lo The lower threshold, at or below which to report changes.
+	 */
+	void setThresholds(const State& state, double hi, double lo);
 
     //this batches the set of actions from quiescence completion.  calls PlexilExecutive::step() at the end
     //assignments must be performed first.
@@ -490,20 +466,18 @@ namespace PLEXIL
     ResourceArbiterInterfaceId getResourceArbiterInterface() const {return m_raInterface;}
 
     /**
-     * @brief Notify of the availability of new values for a lookup.
-     * @param key The state key for the new values.
-     * @param values The new values.
+     * @brief Notify of the availability of a new value for a lookup.
+     * @param state The state for the new value.
+     * @param value The new value.
      */
-    void handleValueChange(const StateKey& key, 
-			   const std::vector<double>& values);
+    void handleValueChange(const State& state, double value);
 
     /**
      * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
      * @param exp The expression whose value is being returned.
      * @param value The new value of the expression.
      */
-    void handleValueChange(const ExpressionId & exp,
-			   double value);
+    void handleValueChange(const ExpressionId & exp, double value);
 
     /**
      * @brief Tells the external interface to expect a return value from this command.
@@ -578,30 +552,6 @@ namespace PLEXIL
     }
 
     /**
-     * @brief Look up the unique key for a state.
-     * @param state The state.
-     * @param key The key associated with this state.
-     * @return True if the key was found.
-     */
-    bool findStateKey(const State& state, StateKey& key);
-
-    /**
-     * @brief Get a unique key for a state, creating a new key for a new state.
-     * @param state The state.
-     * @param key The key.
-     * @return True if a new key had to be generated.
-     */
-    bool keyForState(const State& state, StateKey& key);
-
-    /**
-     * @brief Get (a copy of) the State for this StateKey.
-     * @param key The key to look up.
-     * @param state The state associated with the key.
-     * @return True if the key is found, false otherwise.
-     */
-    bool stateForKey(const StateKey& key, State& state) const;
-
-    /**
      * @brief Clears the interface adapter registry.
      */
     void clearAdapterRegistry();
@@ -635,10 +585,6 @@ namespace PLEXIL
     InterfaceManager();
     InterfaceManager(const InterfaceManager &);
     InterfaceManager & operator=(const InterfaceManager &);
-
-    void maybePublishCommandReturnValue (const ExpressionId & dest,
-                                         const double& value);
-
 
     /**
      * @brief update the resoruce arbiter interface that an ack or return value
