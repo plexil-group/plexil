@@ -58,7 +58,7 @@ namespace PLEXIL
     m_listener(*this),
     m_cmdMutex(),
     m_pendingLookupSerial(0),
-    m_pendingLookupDestination(NULL),
+    m_pendingLookupResult(Expression::UNKNOWN()),
     m_externalLookups()
   {
     debugMsg("IpcAdapter:IpcAdapter", " configuration XML not provided");
@@ -77,7 +77,7 @@ namespace PLEXIL
     m_listener(*this),
     m_cmdMutex(),
     m_pendingLookupSerial(0),
-    m_pendingLookupDestination(NULL),
+    m_pendingLookupResult(Expression::UNKNOWN()),
     m_externalLookups()
   {
     condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
@@ -198,86 +198,20 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register one LookupOnChange.
-   * @param uniqueId The unique ID of this lookup.
-   * @param stateKey The state key for this lookup.
-   * @param tolerances A vector of tolerances for the LookupOnChange.
+   * @brief Perform an immediate lookup on an existing state.
+   * @param state The state.
+   * @return The current value for the state.
    */
 
-  void IpcAdapter::registerChangeLookup(const LookupKey& /* uniqueId */,
-                                        const StateKey& stateKey,
-                                        const std::vector<double>& /* tolerances */) {
-    State state;
-    assertTrueMsg(getState(stateKey, state),
-                  "IpcAdapter::registerChangeLookup: Internal error: state not found!");
-    LabelStr nameLabel(state.first);
-    const std::vector<double>& params = state.second;
-    size_t nParams = params.size();
-    debugMsg("IpcAdapter:registerChangeLookup",
-             " for state " << AdapterExecInterface::getText(state));
-
-    // Set up to receive this lookup
-    m_activeChangeLookupListeners[nameLabel.toString()] = stateKey;
-    // *** TODO: implement receiving planner update
-  }
-
-  /**
-   * @brief Terminate one LookupOnChange.
-   * @param uniqueId The unique ID of the lookup to be terminated.
-   */
-
-  void IpcAdapter::unregisterChangeLookup(const LookupKey& uniqueId) {
-    debugMsg("IpcAdapter:unregisterChangeLookup", " entered");
-    StateToLookupMap::const_iterator sit = this->findLookupKey(uniqueId);
-    assertTrueMsg(sit != this->getAsynchLookupsEnd(),
-                  "IpcAdapter::unregisterChangeLookup: internal error: no state key registered for lookup!");
-
-    debugMsg("IpcAdapter:unregisterChangeLookup", " found state key");
-
-    // Ignore this unless we're removing the last change lookup for this state
-    if (sit->second.size() > 1) {
-      debugMsg("IpcAdapter:unregisterChangeLookup",
-               " there are still active change lookups for this state, ignoring");
-
-      return;
-    }
-
-    StateKey key = sit->first;
-    State state;
-    getState(key, state);
-    LabelStr nameLabel(state.first);
-    const std::string& name = nameLabel.toString();
-
-    debugMsg("IpcAdapter:unregisterChangeLookup", " for " << name);
-
-    // Stop looking for this lookup
-    ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name);
-    assertTrueMsg(it != m_activeChangeLookupListeners.end(),
-                  "IpcAdapter::unregisterChangeLookup: internal error: can't find change lookup \""
-                  << name << "\"");
-    m_activeChangeLookupListeners.erase(it);
-    // *** TODO: implement receiving planner update
-    debugMsg("IpcAdapter:unregisterChangeLookup", " completed");
-  }
-
-  /**
-   * @brief Perform an immediate lookup of the requested state.
-   * @param stateKey The state key for this lookup.
-   * @param dest A (reference to a) vector of doubles where the result is to be stored.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-   */
-
-  void IpcAdapter::lookupNow(const StateKey& stateKey, std::vector<double>& dest) {
-    State state;
-    assertTrueMsg(getState(stateKey, state),
-                  "IpcAdapter::lookupNow: Internal error: state not found!");
+  double IpcAdapter::lookupNow(const State& state) 
+  {
     LabelStr nameLabel(state.first);
     ExternalLookupMap::iterator it = m_externalLookups.find(state.first);
     if (it != m_externalLookups.end()) {
       debugMsg("IpcAdapter:lookupNow",
                " returning external lookup " << nameLabel.toString()
                << " with internal value " << it->second);
-      dest.assign(1, it->second);
+	  return it->second;
     }
     else {
       const std::vector<double>& params = state.second;
@@ -291,7 +225,7 @@ namespace PLEXIL
       for (std::vector<double>::const_iterator it = params.begin(); it != params.end(); it++) {
         paramList.push_back((*it));
       }
-      m_pendingLookupDestination = &dest;
+      m_pendingLookupResult = Expression::UNKNOWN();
       m_cmdMutex.lock();
       size_t sep_pos = nameLabel.toString().find_first_of(TRANSACTION_ID_SEPARATOR_CHAR);
       //decide to direct or publish lookup
@@ -312,10 +246,64 @@ namespace PLEXIL
 	  assertTrueMsg(errnum == 0,
 					"IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
 
+	  double result = m_pendingLookupResult;
+
       // Clean up
       m_pendingLookupSerial = 0;
-      m_pendingLookupDestination = NULL;
+      m_pendingLookupResult = NULL;
+	  return m_pendingLookupResult;
     }
+  }
+
+  /**
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
+   */
+
+  void IpcAdapter::subscribe(const State& state)
+  {
+    LabelStr nameLabel(state.first);
+    const std::vector<double>& params = state.second;
+    size_t nParams = params.size();
+    debugMsg("IpcAdapter:subscribe",
+             " for state " << AdapterExecInterface::getText(state));
+
+    // Set up to receive this lookup
+    m_activeChangeLookupListeners[nameLabel.toString()] = state;
+    // *** TODO: implement receiving planner update
+  }
+
+  /**
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   * @param state The state.
+   */
+
+  void IpcAdapter::unsubscribe(const State& state)
+  {
+    LabelStr nameLabel(state.first);
+    const std::string& name = nameLabel.toString();
+    debugMsg("IpcAdapter:unsubscribe", " for " << name);
+
+    // Stop looking for this lookup
+    ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name);
+    assertTrueMsg(it != m_activeChangeLookupListeners.end(),
+                  "IpcAdapter::unsubscribe: internal error: can't find change lookup \""
+                  << name << "\"");
+    m_activeChangeLookupListeners.erase(it);
+    // *** TODO: implement receiving planner update
+    debugMsg("IpcAdapter:unsubscribe", " completed");
+  }
+
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   * @note This is a no-op for IpcAdapter.
+   */
+
+  void IpcAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
+  {
   }
 
   /**
@@ -813,25 +801,19 @@ namespace PLEXIL
 
   void IpcAdapter::handleTelemetryValuesSequence(const std::vector<const PlexilMsgBase*>& msgs) {
     const PlexilStringValueMsg* tv = (const PlexilStringValueMsg*) msgs[0];
-    State state(LabelStr(tv->stringValue), std::vector<double>(0));
-    StateKey key;
-    if (!m_execInterface.findStateKey(state, key)) {
-      debugMsg("IpcAdapter:handleTelemetryValuesSequence",
-               " state \"" << tv->stringValue << "\" is unknown, ignoring");
-      return;
-    }
+    State state(LabelStr(tv->stringValue).getKey(), std::vector<double>(0));
 
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
              " state \"" << tv->stringValue << "\" found, processing");
     size_t nValues = msgs[0]->count;
-    std::vector<double> values(nValues);
-    for (size_t i = 1; i <= nValues; i++) {
-      if (msgs[i]->msgType == PlexilMsgType_NumericValue)
-        values[i - 1] = ((const PlexilNumericValueMsg*) msgs[i])->doubleValue;
-      else
-        values[i - 1] = LabelStr(((const PlexilStringValueMsg*) msgs[i])->stringValue).getKey();
-    }
-    m_execInterface.handleValueChange(key, values);
+	checkError(nValues == 1,
+			   "Telemetry values message only supports 1 value, but received " << nValues);
+    double value;
+	if (msgs[1]->msgType == PlexilMsgType_NumericValue)
+	  value = ((const PlexilNumericValueMsg*) msgs[1])->doubleValue;
+	else
+	  value = LabelStr(((const PlexilStringValueMsg*) msgs[1])->stringValue).getKey();
+    m_execInterface.handleValueChange(state, value);
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -847,23 +829,20 @@ namespace PLEXIL
       // LookupNow for which we are awaiting data
       debugMsg("IpcAdapter:handleReturnValuesSequence",
                " processing value(s) for a pending LookupNow");
-      size_t nExpected = m_pendingLookupDestination->size();
-      assertTrueMsg(nExpected == 1,
-                    "IpcAdapter::handleReturnValuesSequence: Exec expects " << nExpected
-                    << " values; multiple return values for LookupNow not yet implemented");
-      (*m_pendingLookupDestination)[0] = parseReturnValues(msgs);
+      m_pendingLookupResult = parseReturnValue(msgs);
       // *** TODO: check for error
       m_lookupSem.post();
       return;
     }
 
+	// FIXME: no one ever inserts to m_changeLookups!
     IpcChangeLookupMap::const_iterator it = m_changeLookups.find(rv->requestSerial);
     if (it != m_changeLookups.end()) {
       // Active LookupOnChange
       debugMsg("IpcAdapter:handleReturnValuesSequence",
                " processing value(s) for an active LookupOnChange");
-      const StateKey& key = it->second;
-      m_execInterface.handleValueChange(key, parseReturnValues(msgs));
+      const State& state = it->second;
+      m_execInterface.handleValueChange(state, parseReturnValue(msgs));
       m_execInterface.notifyOfExternalEvent();
       return;
     }
@@ -879,13 +858,13 @@ namespace PLEXIL
                       << nValues);
         debugMsg("IpcAdapter:handleReturnValuesSequence",
                  " processing command acknowledgment for expression " << dest);
-        m_execInterface.handleValueChange(ack, parseReturnValues(msgs));
+        m_execInterface.handleValueChange(ack, parseReturnValue(msgs));
         m_execInterface.notifyOfExternalEvent();
       }
       else if (dest.isId()) {
         debugMsg("IpcAdapter:handleReturnValuesSequence",
                  " processing command return value for expression " << dest);
-        m_execInterface.handleValueChange(dest, parseReturnValues(msgs));
+        m_execInterface.handleValueChange(dest, parseReturnValue(msgs));
         m_execInterface.notifyOfExternalEvent();
       }
       else {
@@ -923,7 +902,7 @@ namespace PLEXIL
   /**
    * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
    */
-  double IpcAdapter::parseReturnValues(const std::vector<const PlexilMsgBase*>& msgs) {
+  double IpcAdapter::parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs) {
     size_t nValues = msgs[0]->count;
     checkError(nValues == 1, "PlexilMsgType_ReturnValue may only have one parameter");
     double value;
@@ -948,14 +927,14 @@ namespace PLEXIL
       std::vector<double> num_array(msg->arraySize);
       for (int i = 0; i < msg->arraySize; i++) {
         num_array[i] = msg->doubleArray[i];
-        debugMsg("IpcAdapter:parseReturnValues",
+        debugMsg("IpcAdapter:parseReturnValue",
                  " processing array numeric value: " << msg->doubleArray[i]);
       }
       value = StoredArray(num_array).getKey();
       break;
     }
     default:
-      assertTrueMsg(ALWAYS_FAIL, "IpcAdapter:parseReturnValues: Unknown parameter type "
+      assertTrueMsg(ALWAYS_FAIL, "IpcAdapter:parseReturnValue: Unknown parameter type "
                     << msgs[1]->msgType)
         ;
     }
