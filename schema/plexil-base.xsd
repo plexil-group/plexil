@@ -509,11 +509,21 @@ element.  It is used as an included schema only.
       <xsd:sequence>
         <xsd:element name="NodeParameter" type="xsd:NCName"/>
         <xsd:choice>
-		  <xsd:group ref="BooleanExpression"/>
-		  <xsd:group ref="NumericExpression"/>
-		  <xsd:group ref="StringExpression"/>
           <xsd:group ref="Value"/>
           <xsd:group ref="DeclaredVariable"/>
+		  <xsd:group ref="LookupGroup"/>
+		  <!-- xsd:group ref="BooleanExpression"/ -->
+		  <xsd:group ref="LogicalOperator"/>
+		  <xsd:group ref="Equality"/>
+		  <xsd:group ref="NumericComparison"/>
+		  <xsd:element ref="IsKnown"/>
+		  <!-- xsd:group ref="NumericExpression"/ -->
+		  <xsd:group ref="ArithmeticOperator"/>
+		  <xsd:element ref="NodeTimepointValue"/>
+		  <xsd:element name="ArraySize" type="xsd:NCName"/>
+		  <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
+		  <!-- xsd:group ref="StringExpression"/ -->
+		  <xsd:group ref="StringOperator"/>
         </xsd:choice>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
@@ -616,15 +626,28 @@ element.  It is used as an included schema only.
 
   <xsd:group name="BooleanExpression">
     <xsd:choice>
+	  <xsd:group ref="LogicalOperator"/>
+	  <xsd:group ref="Equality"/>
+	  <xsd:group ref="NumericComparison"/>
+      <xsd:group ref="LookupGroup"/>
+      <xsd:element ref="IsKnown"/>
+      <xsd:element ref="BooleanVariable"/>
+      <xsd:element ref="BooleanValue"/>
+      <xsd:element ref="ArrayElement"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:group name="LogicalOperator">
+	<xsd:choice>
       <xsd:element ref="OR"/>
       <xsd:element ref="XOR"/>
       <xsd:element ref="AND"/>
       <xsd:element ref="NOT"/>
-      <xsd:element ref="IsKnown"/>
-      <xsd:element ref="GT"/>
-      <xsd:element ref="GE"/>
-      <xsd:element ref="LT"/>
-      <xsd:element ref="LE"/>
+	</xsd:choice>
+  </xsd:group>
+
+  <xsd:group name="Equality">
+	<xsd:choice>
       <xsd:element ref="EQBoolean"/>
       <xsd:element ref="EQNumeric"/>
       <xsd:element ref="EQInternal"/>
@@ -633,11 +656,16 @@ element.  It is used as an included schema only.
       <xsd:element ref="NENumeric"/>
       <xsd:element ref="NEInternal"/>
       <xsd:element ref="NEString"/>
-      <xsd:element ref="BooleanVariable"/>
-      <xsd:element ref="BooleanValue"/>
-      <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
+	</xsd:choice>
+  </xsd:group>
+
+  <xsd:group name="NumericComparison">
+	<xsd:choice>
+      <xsd:element ref="GT"/>
+      <xsd:element ref="GE"/>
+      <xsd:element ref="LT"/>
+      <xsd:element ref="LE"/>
+	</xsd:choice>
   </xsd:group>
 
   <xsd:element name="IsKnown">
@@ -894,10 +922,16 @@ element.  It is used as an included schema only.
     <xsd:choice>
       <xsd:element ref="StringVariable"/>
       <xsd:element ref="StringValue"/>
-      <xsd:element ref="Concat"/>
+      <xsd:group ref="StringOperator"/>
       <xsd:group ref="LookupGroup"/>
       <xsd:element ref="ArrayElement"/>
     </xsd:choice>
+  </xsd:group>
+
+  <xsd:group name="StringOperator">
+	<xsd:choice>
+      <xsd:element ref="Concat"/>
+	</xsd:choice>
   </xsd:group>
 
   <xsd:element name="Concat">
@@ -909,6 +943,22 @@ element.  It is used as an included schema only.
 
   <xsd:group name="NumericExpression">
     <xsd:choice>
+	  <xsd:group ref="ArithmeticOperator"/>
+      <xsd:element ref="IntegerVariable"/>
+      <xsd:element ref="RealVariable"/>
+      <xsd:element ref="IntegerValue"/>
+      <xsd:element ref="RealValue"/>
+      <xsd:group ref="LookupGroup"/>
+      <xsd:element ref="NodeTimepointValue"/>
+      <!-- read operations for arrays-->
+      <xsd:element name="ArraySize" type="xsd:NCName"/>
+      <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
+      <xsd:element ref="ArrayElement"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:group name="ArithmeticOperator">
+	<xsd:choice>
       <xsd:element ref="ADD"/>
       <xsd:element ref="SUB"/>
       <xsd:element ref="MUL"/>
@@ -916,18 +966,7 @@ element.  It is used as an included schema only.
       <xsd:element ref="MOD"/>
       <xsd:element ref="SQRT"/>
       <xsd:element ref="ABS"/>
-      <xsd:element ref="IntegerVariable"/>
-      <xsd:element ref="RealVariable"/>
-      <xsd:element ref="IntegerValue"/>
-      <xsd:element ref="RealValue"/>
-      <xsd:group ref="LookupGroup"/>
-      <!-- only for lookups that return ONE value -->
-      <xsd:element ref="NodeTimepointValue"/>
-      <!-- read operations for arrays-->
-      <xsd:element name="ArraySize" type="xsd:NCName"/>
-      <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
-      <xsd:element ref="ArrayElement"/>
-    </xsd:choice>
+	</xsd:choice>
   </xsd:group>
 
   <xsd:element name="ArrayElement">
