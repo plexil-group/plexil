@@ -160,9 +160,12 @@ namespace PLEXIL
 	  RTMutexGuard guard(m_execMutex);
 	  debugMsg("ExecApplication:step", " (" << pthread_self() << ") Checking interface queue");
 	  if (m_interface.processQueue()) {
-		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Stepping exec");
-		m_exec.step();
-		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Step complete");
+		do {
+		  debugMsg("ExecApplication:step", " (" << pthread_self() << ") Stepping exec");
+		  m_exec.step();
+		}
+		while (m_exec.needsStep());
+		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Step complete and all nodes quiescent");
 	  }
 	  else {
 		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Queue processed, no step required.");
@@ -480,18 +483,15 @@ namespace PLEXIL
   ExecApplication::runExec(bool stepFirst)
   {
     RTMutexGuard guard(m_execMutex);
-    if (stepFirst)
-      {
-        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
-        m_exec.step();
-        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
-      }
-    while (!m_suspended && m_interface.processQueue())
-      {
-        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
-        m_exec.step();
-        debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Step complete");
-      }
+    if (stepFirst) {
+	  debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec because stepFirst is set");
+	  m_exec.step();
+	}
+    while (!m_suspended && 
+		   (m_exec.needsStep() || m_interface.processQueue())) {
+	  debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
+	  m_exec.step();
+	}
     condDebugMsg(!m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
     condDebugMsg(m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") Suspended");
   }
