@@ -1,13 +1,117 @@
-// -*- Mode: C++ -*-
-// File: plexil/src/interfaces/UdpAdapter/demo/test-send.ple
+// -*- Mode: Java -*-
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 test-send:
 {
-  String arg1 = "UDP";
-  Boolean arg2 = false;
-  Integer arg3 = 3;
-  Real arg4 = 3.14159;
-  Command recv_test (arg1, arg2, arg3, arg4); // Send the UDP message
+    String arg1 = "CA";                    // intentionally shorter than declared in udp.xml (for testing)
+    //Boolean arg2 = false;                // set to "true" to request an "ack" from the other agent
+    Integer arg3 = 3;                      // 23 bits: -2147483649, 2147483648; 16 bits: -32768, 32767
+    Real arg4 = 3.14159;                   // 1.17e-38, 3.5e+38
+    Integer arg5[3] = #(9 8 7);            // test arrays
+    Real arg6[3] = #(36.0 -104.7 25000.0);
+    Boolean arg7[3] = #(true true false);
+    String arg8[3] = #("foo" "baz" "bar");
+    Real run_start_time;
+    Boolean ackTimedOut = false;
+
+    UncheckedSequence:
+
+    RecordStartTime:
+    {
+        Assignment: run_start_time = Lookup(time);
+    }
+
+    SendUdpCommand1:
+    {
+        Sequence:
+        ReportParameters:
+        {
+            Command print ("\ntest-send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
+                           ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+        }
+        SendCommand:
+        {
+            Command test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
+        }
+    }
+
+    SendUdpCommand2:
+    {
+        StartCondition: Lookup(time, 1) > run_start_time + 2;
+        //StartCondition: Lookup(time, 1) > SendUdpCommand1.FINISHED.END + 2; // why doesn't this work?
+        InvariantCondition: ackTimedOut == false;
+        Concurrence:
+        ReportParameters:
+        {
+            Command print ("\ntest-send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
+                           ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+        }
+        HandleAck:
+        {
+            StartCondition: ReportParameters.state == FINISHED;
+            OnCommand ack_msg (String ack)
+            {
+                Command print ("\ntest-send: received ack\n\n");
+            }
+        }
+        HandleTimeout:
+        {
+            StartCondition: Lookup(time, 1) > run_start_time + 4;
+            SkipCondition: HandleAck.state == FINISHED;
+            UncheckedSequence:
+            ReportTimeout:
+            {
+                Command print ("\ntest-send: ack timed out\n\n");
+            }
+            SignalTimeout:
+            {
+                Assignment: ackTimedOut = true;
+            }
+        }
+        SendCommand:
+        {
+            StartCondition: HandleAck.state == EXECUTING;
+            Command test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
+        }
+    }
+
+    SendQuitCommand:
+    {
+        StartCondition: SendUdpCommand2.state == FINISHED;
+        Sequence:
+        ReportSendQuit:
+        {
+            Command print ("\ntest-send: sending quit command\n\n");
+        }
+        SendQuit:
+        {
+            Command quit_msg ("quit");   // Send a Quit command
+        }
+    }
 }
 
 // EOF

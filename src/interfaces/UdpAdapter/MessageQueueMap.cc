@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,7 @@ void MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionI
   PairingQueue* pq = getQueue(message);
   for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
     if (it->m_ack.equals(ack)) {
+      debugMsg("MessageQueueMap::removeRecipient", " Removing recipient for \"" << pq->m_name.c_str() << "\"");
       it = pq->m_recipientQueue.erase(it);
       //this increments the iterator, so check for the end immediately
       if (it == pq->m_recipientQueue.end())

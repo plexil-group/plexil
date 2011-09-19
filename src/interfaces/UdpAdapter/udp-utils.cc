@@ -1,7 +1,30 @@
-// -*- Mode: C++ -*-
-// File: plexil/src/interfaces/UdpAdapter/udp-utils.cc
-// Date: Thu Jul  7 16:56:50 2011
+/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
+#include <string.h>
 #include "udp-utils.hh"
 
 namespace PLEXIL
@@ -108,7 +131,7 @@ namespace PLEXIL
   {
     // This decoder stops at \0 or length, which ever comes first.  The \0 is never included.
     std::string str;
-    for (int i = start_index ; i < length ; i++ )
+    for (int i = start_index ; i < start_index + length ; i++ )
       {
         unsigned char c = buffer[i];
         if (c == 0) break;
@@ -162,7 +185,7 @@ namespace PLEXIL
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
-        perror("inet_aton() returned -1 (peer_host bad IP adress format?)");
+        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
         return -1;
       }
 
@@ -176,6 +199,9 @@ namespace PLEXIL
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
     if (bind_err < 0)
       {
+        //char buf[50];
+        //sprintf(buf, "send_message_bind: bind() returned -1 for %d", local_port);
+        //perror(buf);
         perror("send_message_bind: bind() returned -1");
         return -1;
       }
@@ -189,7 +215,6 @@ namespace PLEXIL
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
-    if (debug) printf("  send_message_connect(%s, %d, buffer, %d) called\n", peer_host, peer_port, (int) size);
     struct sockaddr_in peer_addr = {};
     memset((char *) &peer_addr, 0, sizeof(peer_addr));
     peer_addr.sin_port = htons(peer_port);
@@ -205,11 +230,10 @@ namespace PLEXIL
 
     in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
     std::string ip_addr = inet_ntoa(*network_ip_address);
-    if (debug) printf("  send_message_connect: peer_host==%s, ip_addr==%s\n", peer_host, ip_addr.c_str());
 
     if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
       {
-        perror("inet_aton() returned -1 (peer_host bad IP adress format?)");
+        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
         return -1;
       }
 
@@ -237,11 +261,11 @@ namespace PLEXIL
   int wait_for_input_on_thread(udp_thread_params* params)
   {
     int status;
-    status = wait_for_input(params->local_port, params->buffer, params->size, params->debug);
+    status = wait_for_input(params->local_port, params->buffer, params->size, params->sock, params->debug);
     return status;
   }
 
-  int wait_for_input(int local_port, unsigned char* buffer, size_t size, bool debug)
+  int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
   {
     if (debug) printf("  wait_for_input(%d, buffer, %d) called\n", local_port, (int) size);
     // Set up an appropriate local address (port)
@@ -253,19 +277,19 @@ namespace PLEXIL
     // Set up the storage for the peer address
     struct sockaddr_in peer_addr = {};
     memset((char *) &peer_addr, 0, sizeof(peer_addr));
-
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock < 0)
-      {
-        perror("socket() returned -1");
-        return sock;
-      }
+    // Since the socket must be closed by the thread which spawned this thread, socket creating has
+    // moved up to UdpAdapter::startUdpMessageReceiver
+    // int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    // if (sock < 0) { perror("socket() returned -1"); return sock; }
 
     // Bind to the socket
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
     if (bind_err < 0)
       {
-        perror("wait_for_input: bind() returned -1");
+        char buf[50];
+        sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
+        perror(buf);
+        //perror("wait_for_input: bind() returned -1");
         return bind_err;
       }
 
