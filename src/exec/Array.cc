@@ -510,10 +510,10 @@ namespace PLEXIL
   {
     check_error(m_arrayVariable.isValid());
     m_arrayVariable->removeListener(m_listener.getId());
-    if (m_deleteIndex) {
-        check_error(m_index.isValid());
-        m_index->removeListener(m_listener.getId());
-      }
+	check_error(m_index.isValid());
+	m_index->removeListener(m_listener.getId());
+	if (m_deleteIndex)
+	  delete (Expression*) m_index;
   }
 
   // confirm that new value to assign is valid
