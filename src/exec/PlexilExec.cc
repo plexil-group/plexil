@@ -519,6 +519,8 @@ namespace PLEXIL {
 
   void PlexilExec::performAssignments() 
   {
+	debugMsg("PlexilExec:performAssignments",
+			 " performing " << m_assignmentsToExecute.size() <<  " assignments");
     for(std::vector<AssignmentId>::iterator it = m_assignmentsToExecute.begin();
 	it != m_assignmentsToExecute.end(); ++it) {
 	  AssignmentId assn = *it;
