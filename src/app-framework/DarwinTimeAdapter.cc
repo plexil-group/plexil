@@ -152,6 +152,7 @@ namespace PLEXIL
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "DarwinTimeAdaptor does not implement lookups for state "
 				  << LabelStr(state.first).toString());
+	debugMsg("DarwinTimeAdapter:subscribe", " complete");
   }
 
   /**
@@ -164,6 +165,7 @@ namespace PLEXIL
                   "DarwinTimeAdaptor does not implement lookups for state "
 				  << LabelStr(state.first).toString());
 	stopTimer();
+	debugMsg("DarwinTimeAdapter:unsubscribe", " complete");
   }
 
   /**
@@ -185,10 +187,12 @@ namespace PLEXIL
     timeval now;
     int status = gettimeofday(&now, NULL);
     assertTrueMsg(status == 0,
-                  "TimeAdapter::setThresholds: gettimeofday() failed, errno = " << errno);
+                  "DarwinTimeAdapter::setThresholds: gettimeofday() failed, errno = " << errno);
 
 	if (hiTime < now) {
 	  // Already past the scheduled time, submit wakeup
+	  debugMsg("DarwinTimeAdapter:setThresholds",
+			   " new value " << Expression::valueToString(hi) << " is in past, waking up Exec");
 	  timerTimeout();
 	  return;
 	}
@@ -197,7 +201,8 @@ namespace PLEXIL
 	m_lastItimerval.it_value = hiTime - now;
 	m_lastItimerval.it_interval = m_disableItimerval.it_interval; // i.e. 0
 	assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
-				  "TimeAdapter::setThresholds: setitimer failed, errno = " << errno);
+				  "DarwinTimeAdapter::setThresholds: setitimer failed, errno = " << errno);
+	debugMsg("DarwinTimeAdapter:setThresholds", " timer set for " << Expression::valueToString(hi));
   }
 
   //
@@ -213,7 +218,7 @@ namespace PLEXIL
     timeval tv;
     int status = gettimeofday(&tv, NULL);
     assertTrueMsg(status == 0,
-                  "lookupNow: gettimeofday() failed, errno = " << errno);
+                  "DarwinTimeAdapter::getCurrentTime: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
     debugMsg("DarwinTimeAdapter:getCurrentTime", " returning " << Expression::valueToString(tym));
     return tym;
@@ -340,8 +345,7 @@ namespace PLEXIL
   {
     // report the current time and kick-start the Exec
     double time = getCurrentTime();
-	debugMsg("DarwinTimeAdapter:lookupOnChange",
-			 " timer timeout at " << Expression::valueToString(time));
+	debugMsg("DarwinTimeAdapter:timerTimeout", " at " << Expression::valueToString(time));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(), time);
     m_execInterface.notifyOfExternalEvent();
   }
