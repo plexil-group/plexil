@@ -552,7 +552,6 @@ namespace PLEXIL
 	  case queueEntry_LOOKUP_VALUES:
 		// State -- update all listeners
 		{
-		  State state;
 		  debugMsg("InterfaceManager:processQueue",
 				   " (" << pthread_self()
 				   << ") Handling state change for "
