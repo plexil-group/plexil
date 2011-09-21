@@ -2,15 +2,15 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 SimpleTask{
- State: SimpleTask (id_61[au](INACTIVE): state) (inf)
+ State: SimpleTask (id_62[au](INACTIVE): state) (inf)
   C1{
-   State: C1 (id_116[au](INACTIVE): state) (inf)
+   State: C1 (id_117[au](INACTIVE): state) (inf)
   }
   C2{
-   State: C2 (id_187[au](INACTIVE): state) (inf)
+   State: C2 (id_188[au](INACTIVE): state) (inf)
   }
   C3{
-   State: C3 (id_250[au](INACTIVE): state) (inf)
+   State: C3 (id_251[au](INACTIVE): state) (inf)
   }
 }
 
@@ -93,84 +93,85 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
+[PlexilExec:performAssignments] performing 0 assignments
 [Test:testOutput]Permission to execute c1 has been denied by the resource arbiter.
 [PlexilExec:notifyNodeConditionChanged] for node C1
-[Test:testOutput]Executing c2() into noId with ack C2 ack (id_245[au](UNKNOWN): string)
+[Test:testOutput]Executing c2() into noId with ack C2 ack (id_246[au](UNKNOWN): string)
 [Test:testOutput]Permission to execute c3 has been denied by the resource arbiter.
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_61[au](EXECUTING): state) (0)
- SkipCondition: Boolean constant false (id_111[au](0): boolean)
- StartCondition: Boolean constant true (id_113[au](1): boolean)
- EndCondition: (id_317[au](0): childrenFinished(0:3))
- InvariantCondition: Boolean constant true (id_113[au](1): boolean)
- PreCondition: Boolean constant true (id_113[au](1): boolean)
- PostCondition: Boolean constant true (id_113[au](1): boolean)
- RepeatCondition: Boolean constant false (id_111[au](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_113[au](1): boolean)
- AncestorEndCondition: Boolean constant false (id_111[au](0): boolean)
- ParentExecutingCondition: Boolean constant true (id_113[au](1): boolean)
- ParentWaitingCondition: Boolean constant false (id_111[au](0): boolean)
- ParentFinishedCondition: Boolean constant false (id_111[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_310[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: SimpleTask (id_62[au](EXECUTING): state) (0)
+ SkipCondition: Boolean constant false (id_112[au](0): boolean)
+ StartCondition: Boolean constant true (id_114[au](1): boolean)
+ EndCondition: (id_318[au](0): childrenFinished(0:3))
+ InvariantCondition: Boolean constant true (id_114[au](1): boolean)
+ PreCondition: Boolean constant true (id_114[au](1): boolean)
+ PostCondition: Boolean constant true (id_114[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_112[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_114[au](1): boolean)
+ AncestorEndCondition: Boolean constant false (id_112[au](0): boolean)
+ ParentExecutingCondition: Boolean constant true (id_114[au](1): boolean)
+ ParentWaitingCondition: Boolean constant false (id_112[au](0): boolean)
+ ParentFinishedCondition: Boolean constant false (id_112[au](0): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_311[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
   C1{
-   State: C1 (id_116[au](EXECUTING): state) (0)
-   SkipCondition: Boolean constant false (id_111[au](0): boolean)
-   StartCondition: Boolean constant true (id_113[au](1): boolean)
-   EndCondition: (id_349[au](1): ((id_343[au](1): interruptibleCommandHandleValues(C1 ack (id_182[au](COMMAND_DENIED): string))) || (id_347[au](0): ((id_345[au](1): isknown(C1 ack (id_182[au](COMMAND_DENIED): string))) && (id_333[au](0): (IntegerValue (id_335[au](10): int) == returnValue (id_178[au](-1): int)))))))
-   InvariantCondition: Boolean constant true (id_113[au](1): boolean)
-   PreCondition: Boolean constant true (id_113[au](1): boolean)
-   PostCondition: (id_337[au](UNKNOWN): (id_341[au](UNKNOWN): (C1 (id_184[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_339[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
-   RepeatCondition: Boolean constant false (id_111[au](0): boolean)
-   AncestorInvariantCondition: (id_323[au](1): (Boolean constant true (id_113[au](1): boolean)))Boolean constant true (id_113[au](1): boolean)))
-   AncestorEndCondition: (id_325[iu](UNKNOWN): (Boolean constant false (id_111[au](0): boolean) || (id_317[au](0): childrenFinished(0:3))))
-   ParentExecutingCondition: (id_168[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_166[au](EXECUTING): state)))
-   ParentWaitingCondition: (id_172[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_170[au](WAITING): state)))
-   ParentFinishedCondition: (id_176[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_174[au](FINISHED): state)))
-   AbortCompleteCondition: anonymous (id_327[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_330[au](1): allCommandHandleValues(C1 ack (id_182[au](COMMAND_DENIED): string)))
-   Command handle: C1 (id_184[au](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_180[au](10): int)
-   returnValue: returnValue (id_178[au](-1): int)
+   State: C1 (id_117[au](EXECUTING): state) (0)
+   SkipCondition: Boolean constant false (id_112[au](0): boolean)
+   StartCondition: Boolean constant true (id_114[au](1): boolean)
+   EndCondition: (id_350[au](1): ((id_344[au](1): interruptibleCommandHandleValues(C1 ack (id_183[au](COMMAND_DENIED): string))) || (id_348[au](0): ((id_346[au](1): isknown(C1 ack (id_183[au](COMMAND_DENIED): string))) && (id_334[au](0): (IntegerValue (id_336[au](10): int) == returnValue (id_179[au](-1): int)))))))
+   InvariantCondition: Boolean constant true (id_114[au](1): boolean)
+   PreCondition: Boolean constant true (id_114[au](1): boolean)
+   PostCondition: (id_338[au](UNKNOWN): (id_342[au](UNKNOWN): (C1 (id_185[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_340[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   RepeatCondition: Boolean constant false (id_112[au](0): boolean)
+   AncestorInvariantCondition: (id_324[au](1): (Boolean constant true (id_114[au](1): boolean)))Boolean constant true (id_114[au](1): boolean)))
+   AncestorEndCondition: (id_326[iu](UNKNOWN): (Boolean constant false (id_112[au](0): boolean) || (id_318[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_169[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_167[au](EXECUTING): state)))
+   ParentWaitingCondition: (id_173[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_171[au](WAITING): state)))
+   ParentFinishedCondition: (id_177[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_175[au](FINISHED): state)))
+   AbortCompleteCondition: anonymous (id_328[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_331[au](1): allCommandHandleValues(C1 ack (id_183[au](COMMAND_DENIED): string)))
+   Command handle: C1 (id_185[au](UNKNOWN): command_handle)
+   mem_priority: mem_priority (id_181[au](10): int)
+   returnValue: returnValue (id_179[au](-1): int)
   }
   C2{
-   State: C2 (id_187[au](EXECUTING): state) (0)
-   SkipCondition: Boolean constant false (id_111[au](0): boolean)
-   StartCondition: Boolean constant true (id_113[au](1): boolean)
-   EndCondition: (id_384[au](0): ((id_378[au](0): interruptibleCommandHandleValues(C2 ack (id_245[au](UNKNOWN): string))) || (id_382[au](0): ((id_380[au](0): isknown(C2 ack (id_245[au](UNKNOWN): string))) && Boolean constant true (id_113[au](1): boolean)))))
-   InvariantCondition: Boolean constant true (id_113[au](1): boolean)
-   PreCondition: Boolean constant true (id_113[au](1): boolean)
-   PostCondition: (id_372[au](UNKNOWN): (id_376[au](UNKNOWN): (C2 (id_247[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_374[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
-   RepeatCondition: Boolean constant false (id_111[au](0): boolean)
-   AncestorInvariantCondition: (id_362[au](1): (Boolean constant true (id_113[au](1): boolean)))Boolean constant true (id_113[au](1): boolean)))
-   AncestorEndCondition: (id_364[iu](UNKNOWN): (Boolean constant false (id_111[au](0): boolean) || (id_317[au](0): childrenFinished(0:3))))
-   ParentExecutingCondition: (id_237[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_166[au](EXECUTING): state)))
-   ParentWaitingCondition: (id_239[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_170[au](WAITING): state)))
-   ParentFinishedCondition: (id_241[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_174[au](FINISHED): state)))
-   AbortCompleteCondition: anonymous (id_366[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_369[au](0): allCommandHandleValues(C2 ack (id_245[au](UNKNOWN): string)))
-   Command handle: C2 (id_247[au](UNKNOWN): command_handle)
-   mem_priority2: mem_priority2 (id_243[au](20): int)
+   State: C2 (id_188[au](EXECUTING): state) (0)
+   SkipCondition: Boolean constant false (id_112[au](0): boolean)
+   StartCondition: Boolean constant true (id_114[au](1): boolean)
+   EndCondition: (id_385[au](0): ((id_379[au](0): interruptibleCommandHandleValues(C2 ack (id_246[au](UNKNOWN): string))) || (id_383[au](0): ((id_381[au](0): isknown(C2 ack (id_246[au](UNKNOWN): string))) && Boolean constant true (id_114[au](1): boolean)))))
+   InvariantCondition: Boolean constant true (id_114[au](1): boolean)
+   PreCondition: Boolean constant true (id_114[au](1): boolean)
+   PostCondition: (id_373[au](UNKNOWN): (id_377[au](UNKNOWN): (C2 (id_248[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_375[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   RepeatCondition: Boolean constant false (id_112[au](0): boolean)
+   AncestorInvariantCondition: (id_363[au](1): (Boolean constant true (id_114[au](1): boolean)))Boolean constant true (id_114[au](1): boolean)))
+   AncestorEndCondition: (id_365[iu](UNKNOWN): (Boolean constant false (id_112[au](0): boolean) || (id_318[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_238[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_167[au](EXECUTING): state)))
+   ParentWaitingCondition: (id_240[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_171[au](WAITING): state)))
+   ParentFinishedCondition: (id_242[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_175[au](FINISHED): state)))
+   AbortCompleteCondition: anonymous (id_367[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_370[au](0): allCommandHandleValues(C2 ack (id_246[au](UNKNOWN): string)))
+   Command handle: C2 (id_248[au](UNKNOWN): command_handle)
+   mem_priority2: mem_priority2 (id_244[au](20): int)
   }
   C3{
-   State: C3 (id_250[au](EXECUTING): state) (0)
-   SkipCondition: Boolean constant false (id_111[au](0): boolean)
-   StartCondition: Boolean constant true (id_113[au](1): boolean)
-   EndCondition: (id_417[au](1): ((id_411[au](1): interruptibleCommandHandleValues(C3 ack (id_306[au](COMMAND_DENIED): string))) || (id_415[au](1): ((id_413[au](1): isknown(C3 ack (id_306[au](COMMAND_DENIED): string))) && Boolean constant true (id_113[au](1): boolean)))))
-   InvariantCondition: Boolean constant true (id_113[au](1): boolean)
-   PreCondition: Boolean constant true (id_113[au](1): boolean)
-   PostCondition: (id_405[au](UNKNOWN): (id_409[au](UNKNOWN): (C3 (id_308[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_407[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
-   RepeatCondition: Boolean constant false (id_111[au](0): boolean)
-   AncestorInvariantCondition: (id_395[au](1): (Boolean constant true (id_113[au](1): boolean)))Boolean constant true (id_113[au](1): boolean)))
-   AncestorEndCondition: (id_397[iu](UNKNOWN): (Boolean constant false (id_111[au](0): boolean) || (id_317[au](0): childrenFinished(0:3))))
-   ParentExecutingCondition: (id_300[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_166[au](EXECUTING): state)))
-   ParentWaitingCondition: (id_302[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_170[au](WAITING): state)))
-   ParentFinishedCondition: (id_304[iu](UNKNOWN): (SimpleTask (id_61[au](EXECUTING): state) == anonymous (id_174[au](FINISHED): state)))
-   AbortCompleteCondition: anonymous (id_399[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_402[au](1): allCommandHandleValues(C3 ack (id_306[au](COMMAND_DENIED): string)))
-   Command handle: C3 (id_308[au](UNKNOWN): command_handle)
+   State: C3 (id_251[au](EXECUTING): state) (0)
+   SkipCondition: Boolean constant false (id_112[au](0): boolean)
+   StartCondition: Boolean constant true (id_114[au](1): boolean)
+   EndCondition: (id_418[au](1): ((id_412[au](1): interruptibleCommandHandleValues(C3 ack (id_307[au](COMMAND_DENIED): string))) || (id_416[au](1): ((id_414[au](1): isknown(C3 ack (id_307[au](COMMAND_DENIED): string))) && Boolean constant true (id_114[au](1): boolean)))))
+   InvariantCondition: Boolean constant true (id_114[au](1): boolean)
+   PreCondition: Boolean constant true (id_114[au](1): boolean)
+   PostCondition: (id_406[au](UNKNOWN): (id_410[au](UNKNOWN): (C3 (id_309[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_408[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   RepeatCondition: Boolean constant false (id_112[au](0): boolean)
+   AncestorInvariantCondition: (id_396[au](1): (Boolean constant true (id_114[au](1): boolean)))Boolean constant true (id_114[au](1): boolean)))
+   AncestorEndCondition: (id_398[iu](UNKNOWN): (Boolean constant false (id_112[au](0): boolean) || (id_318[au](0): childrenFinished(0:3))))
+   ParentExecutingCondition: (id_301[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_167[au](EXECUTING): state)))
+   ParentWaitingCondition: (id_303[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_171[au](WAITING): state)))
+   ParentFinishedCondition: (id_305[iu](UNKNOWN): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_175[au](FINISHED): state)))
+   AbortCompleteCondition: anonymous (id_400[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_403[au](1): allCommandHandleValues(C3 ack (id_307[au](COMMAND_DENIED): string)))
+   Command handle: C3 (id_309[au](UNKNOWN): command_handle)
   }
 }
 
@@ -259,30 +260,31 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
+[PlexilExec:performAssignments] performing 0 assignments
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_61[au](FINISHED): state) (0)
- Outcome: SimpleTask (id_63[au](SUCCESS): outcome)
+ State: SimpleTask (id_62[au](FINISHED): state) (0)
+ Outcome: SimpleTask (id_64[au](SUCCESS): outcome)
   C1{
-   State: C1 (id_116[au](FINISHED): state) (0)
-   Outcome: C1 (id_118[au](FAILURE): outcome)
-   Failure type: C1 (id_120[au](POST_CONDITION_FAILED): failure)
-   Command handle: C1 (id_184[au](COMMAND_DENIED): command_handle)
-   mem_priority: mem_priority (id_180[au](10): int)
-   returnValue: returnValue (id_178[iu](-1): int)
+   State: C1 (id_117[au](FINISHED): state) (0)
+   Outcome: C1 (id_119[au](FAILURE): outcome)
+   Failure type: C1 (id_121[au](POST_CONDITION_FAILED): failure)
+   Command handle: C1 (id_185[au](COMMAND_DENIED): command_handle)
+   mem_priority: mem_priority (id_181[au](10): int)
+   returnValue: returnValue (id_179[iu](-1): int)
   }
   C2{
-   State: C2 (id_187[au](FINISHED): state) (0)
-   Outcome: C2 (id_189[au](SUCCESS): outcome)
-   Command handle: C2 (id_247[au](COMMAND_SENT_TO_SYSTEM): command_handle)
-   mem_priority2: mem_priority2 (id_243[au](20): int)
+   State: C2 (id_188[au](FINISHED): state) (0)
+   Outcome: C2 (id_190[au](SUCCESS): outcome)
+   Command handle: C2 (id_248[au](COMMAND_SENT_TO_SYSTEM): command_handle)
+   mem_priority2: mem_priority2 (id_244[au](20): int)
   }
   C3{
-   State: C3 (id_250[au](FINISHED): state) (0)
-   Outcome: C3 (id_252[au](FAILURE): outcome)
-   Failure type: C3 (id_254[au](POST_CONDITION_FAILED): failure)
-   Command handle: C3 (id_308[au](COMMAND_DENIED): command_handle)
+   State: C3 (id_251[au](FINISHED): state) (0)
+   Outcome: C3 (id_253[au](FAILURE): outcome)
+   Failure type: C3 (id_255[au](POST_CONDITION_FAILED): failure)
+   Command handle: C3 (id_309[au](COMMAND_DENIED): command_handle)
   }
 }
 
