@@ -753,7 +753,7 @@ namespace PLEXIL
 
 	errnum = sigaction(SIGUSR2, &sa, &m_restoreUSR2Handler);
 	if (errnum != 0) {
-	  debugMsg("TimingService:initializeWorkerSignalHandling", " sigaction returned " << errnum);
+	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaction returned " << errnum);
 	  return errnum;
 	}
 
@@ -768,7 +768,7 @@ namespace PLEXIL
 	// 
 	int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, NULL);
 	if (errnum != 0) {
-	  debugMsg("TimingService:restoreWorkerSignalHandling", " sigaction returned " << errnum);
+	  debugMsg("ExecApplication:restoreWorkerSignalHandling", " sigaction returned " << errnum);
 	  return errnum;
 	}
 
