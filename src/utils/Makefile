@@ -31,7 +31,7 @@ LIBRARY		:= PlexilUtils
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml
 LIB_PATH	+=
-LIBS		+= tinyxml $(PTHREAD_LIB)
+LIBS		+= tinyxml $(PTHREAD_LIB) dl
 
 SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
