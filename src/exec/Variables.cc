@@ -30,6 +30,8 @@
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
 
+#include <cmath> // for fabs()
+
 namespace PLEXIL
 {
 

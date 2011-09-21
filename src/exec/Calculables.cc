@@ -29,6 +29,8 @@
 #include "ExpressionFactory.hh"
 #include "Variables.hh"
 
+#include <cmath>
+
 namespace PLEXIL
 {
 

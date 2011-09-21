@@ -32,6 +32,8 @@
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
 
+#include <cstring> // for strcmp()
+
 namespace PLEXIL
 {
 

@@ -39,7 +39,7 @@
 #include "Variables.hh"
 #include "XMLUtils.hh"
 
-#include <algorithm> // for find_if
+#include <algorithm> // for sort
 #include <vector>
 #include <sstream>
 #include <iomanip> // for setprecision

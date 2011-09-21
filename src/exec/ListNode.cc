@@ -32,6 +32,8 @@
 #include "ExecConnector.hh"
 #include "NodeFactory.hh"
 
+#include <algorithm> // for find_if
+
 namespace PLEXIL
 {
 
