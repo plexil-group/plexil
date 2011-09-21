@@ -31,16 +31,16 @@
 #include "Node.hh"
 #include "Debug.hh"
 #include "ExecListenerFactory.hh"
-#include <iostream>;
-#include <fstream>;
-#include <vector>;
-#include <cmath>;
-#include <stdio.h>;
-#include <stdlib.h>;
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
 #include "ExecDefs.hh"
-#include <time.h>;
-#include <ctime>;
-#include <map>;
+#include <time.h>
+#include <ctime>
+#include <map>
 
 #include "AdapterFactory.hh"
 #include "CoreExpressions.hh"
