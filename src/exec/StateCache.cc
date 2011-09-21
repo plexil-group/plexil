@@ -68,7 +68,6 @@ namespace PLEXIL
 	  highThreshold(Expression::UNKNOWN()),
 	  lowThreshold(Expression::UNKNOWN()),
 	  lastQuiescence(-1),
-	  subscribed(false),
 	  m_id(this)
 	{
 	}
@@ -148,31 +147,50 @@ namespace PLEXIL
 
 	bool calculateThresholds()
 	{
-	  double oldHigh = highThreshold;
-	  double oldLow = lowThreshold;
-	  highThreshold = lowThreshold = Expression::UNKNOWN();
+	  debugMsg("CacheEntry:calculateThresholds",
+			   " for " << LabelStr(state.first).toString() << ", " << lookups.size() << " active lookups");
+	  double newHi = Expression::UNKNOWN();
+	  double newLo = Expression::UNKNOWN();
 
 	  for (std::set<LookupDescId>::const_iterator lit = lookups.begin();
 		   lit != lookups.end();
 		   lit++) {
 		LookupDescId lookup = *lit;
 		// check_error(lookup.isValid()); // *** only if paranoid
+		condDebugMsg(!lookup->changeLookup,
+					 "CacheEntry:calculateThresholds",
+					 " entry is not a change lookup");
 		if (lookup->changeLookup && lookup->tolerance != 0.0) {
 		  // Update thresholds based on lookup's last value
 		  double hi = lookup->previousValue + lookup->tolerance;
-		  if (highThreshold == Expression::UNKNOWN()
-			  || hi < highThreshold) {
-			highThreshold = hi;
+		  if (newHi == Expression::UNKNOWN()
+			  || hi < newHi) {
+			debugMsg("CacheEntry:calculateThresholds",
+					 " updating high threshold to " << Expression::valueToString(hi));
+			newHi = hi;
 		  }
 		  double lo = lookup->previousValue - lookup->tolerance;
-		  if (lowThreshold == Expression::UNKNOWN()
-			  || lo > lowThreshold) {
-			lowThreshold = lo;
+		  if (newLo == Expression::UNKNOWN()
+			  || lo > newLo) {
+			debugMsg("CacheEntry:calculateThresholds",
+					 " updating low threshold to " << Expression::valueToString(lo));
+			newLo = lo;
 		  }
 		}
 	  }
 
-	  return (highThreshold != oldHigh || lowThreshold != oldLow);
+	  bool changed = false;
+	  if (newHi != Expression::UNKNOWN()
+		  && newHi != highThreshold) {
+		highThreshold = newHi;
+		changed = true;
+	  }
+	  if (newLo != Expression::UNKNOWN()
+		  && newLo != lowThreshold) {
+		lowThreshold = newLo;
+		changed = true;
+	  }
+	  return changed;
 	}
 
 	State state;
@@ -181,7 +199,6 @@ namespace PLEXIL
 	double highThreshold;
 	double lowThreshold;
 	int lastQuiescence;
-	bool subscribed;
 
   private:
 	CacheEntryId m_id;
@@ -241,8 +258,9 @@ namespace PLEXIL
 			   (entry->lastQuiescence == -1 ? "New" : "Stale")
 			   << " state, so performing external lookup.");
 	  // Perform the lookup and propagate to anyone else listening to this state
-	  // Tell interface if the thresholds moved in the process
-	  if (internalStateUpdate(entry, m_interface->lookupNow(entry->state))) 
+	  // Tell interface if change thresholds moved in the process
+	  if (internalStateUpdate(entry, m_interface->lookupNow(entry->state))
+		  && entry->activeChangeLookups())
 		m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
 	}
 	// state is known and the cached value is current - return it
@@ -265,15 +283,14 @@ namespace PLEXIL
 			 " with tolerance (" << Expression::valueToString(tolerance) << ")");
 
 	CacheEntryId entry = ensureCacheEntry(state);
+	bool wasSubscribed = entry->activeChangeLookups();
 	LookupDescId lookup = (new LookupDesc(entry, expr, tolerance, true))->getId();
 	m_lookupsByExpression[expr] = lookup;
 	entry->lookups.insert(lookup);
-
-	if (!entry->subscribed) {
+	if (!wasSubscribed) {
 	  // Tell the external interface to listen for changes on this state
 	  // FIXME: allow for exception here?
 	  m_interface->subscribe(entry->state);
-	  entry->subscribed = true;
 	}
 
 	bool thresholdUpdate = false;
@@ -294,9 +311,12 @@ namespace PLEXIL
 	  thresholdUpdate = entry->calculateThresholds();
 	}
 	// Update thresholds if required
-	if (thresholdUpdate)
+	if (!wasSubscribed || thresholdUpdate) {
 	  m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
-
+	}
+	else {
+	  debugMsg("StateCache:registerChangeLookup", " not updating thresholds");
+	}
   }
 
   // FIXME: potential for race conditions on CacheEntry lookups?
@@ -319,10 +339,13 @@ namespace PLEXIL
 
   void StateCache::unregisterChangeLookup(const ExpressionId& source)
   {
+	debugMsg("StateCache:unregisterChangeLookup",
+			 " Removing change lookup " << source->toString());
 	CacheEntryId entry = internalUnregisterLookup(source);
 	check_error(entry.isId());
 	if (!entry->activeChangeLookups()) {
 	  m_interface->unsubscribe(entry->state);
+	  entry->highThreshold = entry->lowThreshold = Expression::UNKNOWN();
 	}
   }
 
@@ -341,7 +364,7 @@ namespace PLEXIL
 	  return;
 	}
 	CacheEntryId entry = it->second;
-	if (internalStateUpdate(entry, value))
+	if (internalStateUpdate(entry, value) && entry->activeChangeLookups())
 	  m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
   }
 
