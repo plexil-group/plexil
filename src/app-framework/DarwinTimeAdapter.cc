@@ -108,7 +108,7 @@ namespace PLEXIL
 
 	// FIXME (?): stop the timer thread
 
-
+	debugMsg("DarwinTimeAdapter:stop", " complete");
     return true;
   }
 
@@ -202,7 +202,8 @@ namespace PLEXIL
 	m_lastItimerval.it_interval = m_disableItimerval.it_interval; // i.e. 0
 	assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
 				  "DarwinTimeAdapter::setThresholds: setitimer failed, errno = " << errno);
-	debugMsg("DarwinTimeAdapter:setThresholds", " timer set for " << Expression::valueToString(hi));
+	debugMsg("DarwinTimeAdapter:setThresholds",
+			 " timer set for " << Expression::valueToString(hi));
   }
 
   //
