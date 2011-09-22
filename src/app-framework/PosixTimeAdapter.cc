@@ -187,7 +187,7 @@ namespace PLEXIL
 		  "PosixTimeAdapter::setThresholds: clock_gettime() failed, errno = " << errno);
 
     // Set up a timer to go off at the high time
-    itimerspec tymrSpec;
+    itimerspec tymrSpec = {{0, 0}, {0, 0}};
     tymrSpec.it_value = doubleToTimespec(hi) - now;
     if (tymrSpec.it_value.tv_nsec < 0 || tymrSpec.it_value.tv_sec < 0) {
       // Already past the scheduled time, submit wakeup
