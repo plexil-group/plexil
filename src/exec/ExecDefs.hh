@@ -91,8 +91,6 @@ namespace PLEXIL {
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
   typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
-  typedef double StateKey;
-  typedef double LookupKey;
 
     /**
      * @brief Variable type enumerator.  An enumeration of plexil variable types.

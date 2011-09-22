@@ -82,7 +82,6 @@ namespace PLEXIL
       m_valueQueue(),
       m_listenerHub((new ExecListenerHub())->getId()),
       m_adapters(),
-      m_lookupAdapterMap(),
       m_ackToCmdMap(),
       m_destToCmdMap(),
       m_raInterface(),
@@ -457,7 +456,6 @@ namespace PLEXIL
    * @brief Clears the interface adapter registry.
    */
   void InterfaceManager::clearAdapterRegistry() {
-    m_lookupAdapterMap.clear();
     m_adapterConfig->clearAdapterRegistry();
   }
 

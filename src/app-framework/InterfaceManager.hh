@@ -635,9 +635,7 @@ namespace PLEXIL
     //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapterId> m_adapters;
 
-    // Maps by lookup key
-    typedef std::map<LookupKey, InterfaceAdapterId> LookupAdapterMap;
-    LookupAdapterMap m_lookupAdapterMap;
+    // Maps
     std::map<ExpressionId, CommandId> m_ackToCmdMap;
     std::map<ExpressionId, CommandId> m_destToCmdMap;
 
