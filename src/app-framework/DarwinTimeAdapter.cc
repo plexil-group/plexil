@@ -51,7 +51,6 @@ namespace PLEXIL
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface)
     : InterfaceAdapter(execInterface)
   {
-    commonInit();
   }
 
   /**
@@ -64,7 +63,6 @@ namespace PLEXIL
 				       const TiXmlElement * xml)
     : InterfaceAdapter(execInterface, xml)
   {
-    commonInit();
   }
 
   /**
@@ -189,7 +187,10 @@ namespace PLEXIL
     assertTrueMsg(status == 0,
                   "DarwinTimeAdapter::setThresholds: gettimeofday() failed, errno = " << errno);
 
-	if (hiTime < now) {
+	// Compute the interval
+	itimerval myItimerval = {{0, 0}, {0, 0}};
+	myItimerval.it_value = hiTime - now;
+	if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
 	  // Already past the scheduled time, submit wakeup
 	  debugMsg("DarwinTimeAdapter:setThresholds",
 			   " new value " << Expression::valueToString(hi) << " is in past, waking up Exec");
@@ -198,9 +199,7 @@ namespace PLEXIL
 	}
 
 	// Set the timer 
-	m_lastItimerval.it_value = hiTime - now;
-	m_lastItimerval.it_interval = m_disableItimerval.it_interval; // i.e. 0
-	assertTrueMsg(0 == setitimer(ITIMER_REAL, &m_lastItimerval, NULL),
+	assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
 				  "DarwinTimeAdapter::setThresholds: setitimer failed, errno = " << errno);
 	debugMsg("DarwinTimeAdapter:setThresholds",
 			 " timer set for " << Expression::valueToString(hi));
@@ -234,31 +233,12 @@ namespace PLEXIL
   void dummyHandlerFunction(int /* signo */) {}
 
   /**
-   * @brief Helper for constructor methods.
-   */
-
-  void DarwinTimeAdapter::commonInit()
-  {
-    // Zero the last timer setting
-    m_lastItimerval.it_value.tv_sec = 0;
-    m_lastItimerval.it_value.tv_usec = 0;
-    m_lastItimerval.it_interval.tv_sec = 0;
-    m_lastItimerval.it_interval.tv_usec = 0;
-
-    // Zero the timer-disable settings
-    m_disableItimerval.it_value.tv_sec = 0;
-    m_disableItimerval.it_value.tv_usec = 0;
-    m_disableItimerval.it_interval.tv_sec = 0;
-    m_disableItimerval.it_interval.tv_usec = 0;
-  }
-
-
-  /**
    * @brief Stop the timer.
    */
   void DarwinTimeAdapter::stopTimer()
   {
-    int status = setitimer(ITIMER_REAL, &m_disableItimerval, NULL);
+	static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
+    int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
     assertTrueMsg(status == 0,
 		  "DarwinTimeAdapter::stopTimer: call to setitimer() failed, errno = " << errno);
   }

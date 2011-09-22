@@ -175,11 +175,6 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Helper for constructor methods.
-     */
-    void commonInit();
-
-    /**
      * @brief Stop the timer.
      */
     void stopTimer();
@@ -201,10 +196,6 @@ namespace PLEXIL
 
 	// Wait thread
 	pthread_t m_waitThread;
-
-    // Storage for system call parameters
-    itimerval m_disableItimerval;
-    itimerval m_lastItimerval;
   };
 
 }
