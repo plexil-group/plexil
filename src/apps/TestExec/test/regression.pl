@@ -87,22 +87,23 @@ close(F2);
     $n = 0;
     $k = 0;
     foreach $line1 (@lines1){
-        if ($line1 =~ m/Added plan:/){         
+        if ($line1 =~ m/Added plan:/){
             if (@lines1[$n+1] =~ m/^(.*)\{$/){
                 $rootNode = $1;
                 $count = @lines1;
                 for ($i = $count-1; $i > 0; $i--){
                     if(@lines1[$i] =~ m/PlexilExec:printPlan/){
-                         $k = 1; 
+                         $k = 1;
                         if (@lines1[$i+1] =~ m/^$rootNode\{$/){
-                            if (@lines1[$i+3] =~ m/Outcome:/){
-                                if ($1 == "SUCCESS"){
+                            if (@lines1[$i+3] =~ m/^ Outcome: $rootNode \(id_[0-9]{2,4}\[au\]\((.*)\): outcome/){
+							  $outcome = $1;
+                                if ($outcome eq "SUCCESS"){
                                     print DIF "\nTEST PASSED: ", $testName, "\n";
                                     $i = 0;
                                 }else{
                                     print DIF "\n";
-                                    print DIF "\n*** TEST FAILED:  ", $testName, " ***\n  ------- root node outcome = ", $1, "\n";
-                                    print "\nTEST FAILED:  ", $testName, "\n  ------- root node outcome = ", $1, "\n";
+                                    print DIF "\n*** TEST FAILED:  ", $testName, " ***\n  ------- root node outcome = ", $outcome, "\n";
+                                    print "\nTEST FAILED:  ", $testName, "\n  ------- root node outcome = ", $outcome, "\n";
                                     $i = 0;
                                 }
                             }else{
