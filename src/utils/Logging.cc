@@ -58,10 +58,10 @@ char* allocateCopy(const char* str)
 char Logging::LOG_TIME[26] = "";
 char * Logging::FILE_NAME = allocateCopy("universalexec.log");
 
-int Logging::handle_message(int msg_type, const char * file, int line, const char * msg) 
+int Logging::handle_message(int msg_type, const char * file, int offset, const char * msg) 
 {
   char fullmsg[1024];
-  snprintf(fullmsg, 1024, "%s: %s:%i: %s", get_msg_type(msg_type), file, line, msg);
+  snprintf(fullmsg, 1024, "%s: %s:%i: %s", get_msg_type(msg_type), file, offset, msg);
 
   switch (msg_type) {
   case ERROR:
