@@ -45,20 +45,18 @@ namespace PLEXIL
 				 const char* libPath)
   {
     std::string libName;
-    if (libPath == NULL)
-      {
-	// construct library name from module name
-	libName = "lib" + std::string(moduleName);
-	debugMsg("DynamicLoader:loadModule",
-		 " no library name provided for module \""
-		 << moduleName << "\", using default value of \""
-		 << libName << "\"");
-      }
-    else
-      {
-	// use provided name
-	libName = libPath;
-      }
+    if (libPath == NULL || *libPath == '\0') {
+	  // construct library name from module name
+	  libName = "lib" + std::string(moduleName);
+	  debugMsg("DynamicLoader:loadModule",
+			   " no library name provided for module \""
+			   << moduleName << "\", using default value of \""
+			   << libName << "\"");
+	}
+    else {
+	  // use provided name
+	  libName = libPath;
+	}
 
     // append file extension
     libName += LIB_EXT;
@@ -68,18 +66,17 @@ namespace PLEXIL
     std::string funcName = (std::string("init") + moduleName);
     void (*func)();
     *(void **)(&func) = DynamicLoader::getDynamicSymbol(libName.c_str(), funcName.c_str());
-    if (func == 0)
-      {
-	debugMsg("DynamicLoader:loadModule", 
-			 " Failed to load library " << libPath);
-	return false;
-      }
+    if (func == 0) {
+	  debugMsg("DynamicLoader:loadModule", 
+			   " Failed to load library " << libPath);
+	  return false;
+	}
 
     // Call init function
     (*func)();
 
     debugMsg("DynamicLoader:loadModule",
-	     " successfully loaded \"" << moduleName << "\"");
+			 " successfully loaded \"" << moduleName << "\"");
     return true;
   }
 
