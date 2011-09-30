@@ -161,105 +161,105 @@ namespace PLEXIL
    * @param configXml The XML element used for interface configuration.
    * @return true if successful, false otherwise.
    */
-  bool InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
+  bool InterfaceManager::constructInterfaces(const pugi::xml_node& configXml)
   {
-    if (configXml == NULL) {
+    if (configXml.empty()) {
       debugMsg("InterfaceManager:constructInterfaces", " configuration is NULL, nothing to construct");
       return true;
     }
 
-    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << *configXml);
-    const char* elementType = configXml->Value();
+    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << configXml);
+    const char* elementType = configXml.name();
     if (!strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0) {
       debugMsg("InterfaceManager:constructInterfaces",
                " invalid configuration XML: \n"
-               << *configXml);
+               << configXml);
       return false;
     }
     const char* configType =
-      configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
-    if (configType == 0) {
+      configXml.attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR()).value();
+    if (*configType == '\0') {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
-    } else {
+    } 
+	else {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
     }
     m_adapterConfig->getId();
 
     // Walk the children of the configuration XML element
     // and register the adapter according to the data found there
-    const TiXmlElement* element = configXml->FirstChildElement();
-    while (element != 0) {
-        debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
-        const char* elementType = element->Value();
-        if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
-            // Construct the adapter
-            InterfaceAdapterId adapter = 
-              AdapterFactory::createInstance(element,
-                                             *((AdapterExecInterface*)this));
-            if (!adapter.isId()) {
-              debugMsg("InterfaceManager:constructInterfaces",
-                       " failed to construct adapter from XML:\n"
-                       << *element);
-              return false;
-            }
-            m_adapters.insert(adapter);
-          }
-        else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
-            // Construct an ExecListener instance and attach it to the Exec
-            ExecListenerId listener = 
-              ExecListenerFactory::createInstance(element);
-            if (!listener.isId()) {
-              debugMsg("InterfaceManager:constructInterfaces",
-                       " failed to construct listener from XML:\n"
-                       << *element);
-              return false;
-            }
-            m_listenerHub->addListener(listener);
-          }
-        else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
-            // Construct an ExecController instance and attach it to the application
-            ExecControllerId controller = 
-              ControllerFactory::createInstance(element, m_application);
-            if (!controller.isId()) {
-              debugMsg("InterfaceManager:constructInterfaces", 
-                       " failed to construct controller from XML:\n"
-                       << *element);
-              return false;
-            }
-            m_execController = controller;
-          }
-		else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
-			// Add to library path
-			const char* pathstring = element->GetText();
-			if (pathstring != NULL) {
-			  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-			  for (std::vector<std::string>::const_iterator it = path->begin();
-				   it != path->end();
-				   it++)
-				m_libraryPath.push_back(*it);
-			  delete path;
-			}
-		  }
-		else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
-			// Add to plan path
-			const char* pathstring = element->GetText();
-			if (pathstring != NULL) {
-			  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-			  for (std::vector<std::string>::const_iterator it = path->begin();
-				   it != path->end();
-				   it++)
-				m_planPath.push_back(*it);
-			  delete path;
-			}
-		  }
-        else {
-            debugMsg("InterfaceManager:constructInterfaces",
-                     " ignoring unrecognized XML element \""
-                     << elementType << "\"");
-          }
+    pugi::xml_node element = configXml.first_child();
+    while (!element.empty()) {
+	  debugMsg("InterfaceManager:constructInterfaces", " found element " << element.name());
+	  const char* elementType = element.name();
+	  if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
+		// Construct the adapter
+		InterfaceAdapterId adapter = 
+		  AdapterFactory::createInstance(element,
+										 *((AdapterExecInterface*)this));
+		if (!adapter.isId()) {
+		  debugMsg("InterfaceManager:constructInterfaces",
+				   " failed to construct adapter type \""
+				   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+				   << "\"");
+		  return false;
+		}
+		m_adapters.insert(adapter);
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
+		// Construct an ExecListener instance and attach it to the Exec
+		ExecListenerId listener = 
+		  ExecListenerFactory::createInstance(element);
+		if (!listener.isId()) {
+		  debugMsg("InterfaceManager:constructInterfaces",
+				   " failed to construct listener from XML");
+		  return false;
+		}
+		m_listenerHub->addListener(listener);
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
+		// Construct an ExecController instance and attach it to the application
+		ExecControllerId controller = 
+		  ControllerFactory::createInstance(element, m_application);
+		if (!controller.isId()) {
+		  debugMsg("InterfaceManager:constructInterfaces", 
+				   " failed to construct controller from XML");
+		  return false;
+		}
+		m_execController = controller;
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
+		// Add to library path
+		const char* pathstring = element.child_value();
+		if (*pathstring != '\0') {
+		  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+		  for (std::vector<std::string>::const_iterator it = path->begin();
+			   it != path->end();
+			   it++)
+			m_libraryPath.push_back(*it);
+		  delete path;
+		}
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
+		// Add to plan path
+		const char* pathstring = element.child_value();
+		if (pathstring != '\0') {
+		  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+		  for (std::vector<std::string>::const_iterator it = path->begin();
+			   it != path->end();
+			   it++)
+			m_planPath.push_back(*it);
+		  delete path;
+		}
+	  }
+	  else {
+		debugMsg("InterfaceManager:constructInterfaces",
+				 " ignoring unrecognized XML element \""
+				 << elementType << "\"");
+	  }
 
-        element = element->NextSiblingElement();
-      }
+	  element = element.next_sibling();
+	}
 
     debugMsg("InterfaceManager:constructInterfaces", " done.");
     return true;
@@ -1148,28 +1148,27 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive of a new plan.
-   * @param planXml The TinyXML representation of the new plan.
+   * @param planXml The XML representation of the new plan.
    * @param parent Label string naming the parent node.
    * @return False if the plan references unloaded libraries, true otherwise.
    */
   bool
-  InterfaceManager::handleAddPlan(TiXmlElement * planXml,
+  InterfaceManager::handleAddPlan(const pugi::xml_node& planXml,
                                   const LabelStr& parent)
     throw(ParserException)
   {
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
-    checkParserException(planXml->FirstChild() != NULL
-                         && planXml->FirstChild()->Value() != NULL
-                         && !(std::string(planXml->FirstChild()->Value()).empty())
-                         && planXml->FirstChildElement() != NULL
-                         && planXml->FirstChildElement("Node") != NULL,
-                         "<" << planXml->Value() << "> is not a valid Plexil XML plan");
+	// Assumes we are starting from the PlexilPlan element.
+    checkParserException(!planXml.first_child().empty()
+                         && *(planXml.first_child().name()) != '\0'
+                         && planXml.child("Node") != NULL,
+                         "<" << planXml.name() << "> is not a valid Plexil XML plan");
 
     // parse the plan
     PlexilNodeId root =
-      PlexilXmlParser::parse(planXml->FirstChildElement("Node")); // can also throw ParserException
+      PlexilXmlParser::parse(planXml.child("Node")); // can also throw ParserException
 
     return this->handleAddPlan(root, parent);
   }

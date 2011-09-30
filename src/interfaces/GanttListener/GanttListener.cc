@@ -71,7 +71,7 @@ namespace PLEXIL
 {
   GanttListener::GanttListener () { }
 
-  GanttListener::GanttListener (const TiXmlElement* xml)
+  GanttListener::GanttListener (const pugi::xml_node& xml)
     : ExecListener(xml)
   { }
 

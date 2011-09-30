@@ -35,7 +35,7 @@ namespace PLEXIL
   class XmlStringEventFormatter : public EventFormatter
   {
   public:
-    XmlStringEventFormatter(const TiXmlElement* xml);
+    XmlStringEventFormatter(const pugi::xml_node& xml);
     virtual ~XmlStringEventFormatter();
 
     virtual CORBA::Any_ptr formatTransition(NodeState prevState,

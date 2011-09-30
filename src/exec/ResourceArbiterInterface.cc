@@ -27,12 +27,23 @@
 #include "ResourceArbiterInterface.hh"
 #include "Command.hh"
 #include "Debug.hh"
+#include "resource-tags.hh"
+
 #include <queue>
 #include <fstream>
 #include <cmath>
 #include <cctype>
 
 namespace PLEXIL {
+
+  //
+  // String constants
+  //
+  const std::string RESOURCE_NAME_STR(RESOURCE_NAME_TAG);
+  const std::string RESOURCE_PRIORITY_STR(RESOURCE_PRIORITY_TAG);
+  const std::string RESOURCE_LOWER_BOUND_STR(RESOURCE_LOWER_BOUND_TAG);
+  const std::string RESOURCE_UPPER_BOUND_STR(RESOURCE_UPPER_BOUND_TAG);
+  const std::string RESOURCE_RELEASE_AT_TERMINATION_STR(RESOURCE_RELEASE_AT_TERMINATION_TAG);
 
   bool ResourceComparator::operator() (const ChildResourceNode& x, const ChildResourceNode& y) const
   {
@@ -73,7 +84,7 @@ namespace PLEXIL {
 	  if (resList.size() > 0) {
 		// Sort commands by priority
 			
-		ResourceValues::const_iterator prioIt = resList.begin()->find(RESOURCEPRIORITY_TAG);
+		ResourceValues::const_iterator prioIt = resList.begin()->find(RESOURCE_PRIORITY_STR);
 		assertTrueMsg(prioIt != resList.begin()->end(), "ResourcePriority not found");
 		int priority = (int) prioIt->second;
 		m_prioritySortedCommands.insert(std::make_pair(priority, cmd));
@@ -84,7 +95,7 @@ namespace PLEXIL {
 		for (ResourceValuesList::const_iterator resListIter = resList.begin();
 			 resListIter != resList.end();
 			 ++resListIter) {
-		  ResourceValues::const_iterator nameit = resListIter->find(RESOURCENAME_TAG);
+		  ResourceValues::const_iterator nameit = resListIter->find(RESOURCE_NAME_STR);
 		  assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
 		  std::string resName = LabelStr(nameit->second).toString();
 		  // Flatten out the hierarchy into a vector ChildResourceNode with scaled weights
@@ -298,15 +309,15 @@ namespace PLEXIL {
   void ResourceArbiterInterface::determineAllChildResources(const ResourceValues& res,
 															std::vector<ChildResourceNode>& flattenedRes)
   {
-	ResourceValues::const_iterator nameit = res.find(RESOURCENAME_TAG);
+	ResourceValues::const_iterator nameit = res.find(RESOURCE_NAME_STR);
 	assertTrueMsg(nameit != res.end(), "ResourceName not found");
     std::string resName = LabelStr(nameit->second).toString();
 
-    double scale = (res.find(RESOURCEUPPERBOUND_TAG) != res.end()) ? 
-      (double) (res.find(RESOURCEUPPERBOUND_TAG)->second) : 1.0;
+    double scale = (res.find(RESOURCE_UPPER_BOUND_STR) != res.end()) ? 
+      (double) (res.find(RESOURCE_UPPER_BOUND_STR)->second) : 1.0;
 
-    bool release = (res.find(RESOURCERELEASEATTERMINATION_TAG) != res.end()) 
-      ? (bool) res.find(RESOURCERELEASEATTERMINATION_TAG)->second : true;
+    bool release = (res.find(RESOURCE_RELEASE_AT_TERMINATION_STR) != res.end()) 
+      ? (bool) res.find(RESOURCE_RELEASE_AT_TERMINATION_STR)->second : true;
     // Push the root in to the flattened vector
     flattenedRes.push_back(ChildResourceNode(scale, resName, release));
     // Push all the children into a queue (uses a std::vector).
@@ -468,14 +479,14 @@ namespace PLEXIL {
             for (ResourceValuesList::const_iterator resListIter = resList.begin();
                  resListIter != resList.end();
 				 ++resListIter) {
-			  ResourceValues::const_iterator nameit = resListIter->find(RESOURCENAME_TAG);
+			  ResourceValues::const_iterator nameit = resListIter->find(RESOURCE_NAME_STR);
 			  assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
 			  std::string resName = LabelStr(nameit->second).toString();
-			  double ubound = (resListIter->find(RESOURCEUPPERBOUND_TAG) != resListIter->end()) ? 
-				(double) (resListIter->find(RESOURCEUPPERBOUND_TAG)->second) : 1.0;
-			  double lbound = (resListIter->find(RESOURCELOWERBOUND_TAG) != resListIter->end()) ? 
-				(double) (resListIter->find(RESOURCELOWERBOUND_TAG)->second) : 1.0;
-			  ResourceValues::const_iterator prioIt = resListIter->find(RESOURCEPRIORITY_TAG);
+			  double ubound = (resListIter->find(RESOURCE_UPPER_BOUND_STR) != resListIter->end()) ? 
+				(double) (resListIter->find(RESOURCE_UPPER_BOUND_STR)->second) : 1.0;
+			  double lbound = (resListIter->find(RESOURCE_LOWER_BOUND_STR) != resListIter->end()) ? 
+				(double) (resListIter->find(RESOURCE_LOWER_BOUND_STR)->second) : 1.0;
+			  ResourceValues::const_iterator prioIt = resListIter->find(RESOURCE_PRIORITY_STR);
 			  assertTrueMsg(prioIt != resListIter->end(), "ResourcePriority not found");
 			  int priority = static_cast<int>(prioIt->second);
 			  debugMsg("ResourceArbiterInterface:printResourceCommandMap", 

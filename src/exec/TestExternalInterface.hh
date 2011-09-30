@@ -30,13 +30,15 @@
 #include "ExecDefs.hh"
 #include "ExternalInterface.hh"
 #include "ResourceArbiterInterface.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
 #include <iostream>
 #include <map>
 #include <set>
+
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL {
 
@@ -52,7 +54,7 @@ namespace PLEXIL {
   class TestExternalInterface : public ExternalInterface {
   public:
     TestExternalInterface();
-    void run(const TiXmlElement& input)
+    void run(const pugi::xml_node& input)
       throw(ParserException);
 
     double lookupNow(const State& state);
@@ -85,25 +87,25 @@ namespace PLEXIL {
     std::string getText(const UniqueThing& c, double v);
     std::string getText(const UniqueThing& c,
                         const std::vector<double>& vals);
-    void handleInitialState(const TiXmlElement& input);
+    void handleInitialState(const pugi::xml_node& input);
 
-        void setVariableValue(std::string source,
-                              ExpressionId expr,
-                              double& value);
+	void setVariableValue(std::string source,
+						  ExpressionId expr,
+						  double& value);
         
-        void parseState(const TiXmlElement& state, 
-                        LabelStr& name, 
-                        std::vector<double>& args, 
-                        double& value);
+	void parseState(const pugi::xml_node& state, 
+					LabelStr& name, 
+					std::vector<double>& args, 
+					double& value);
 
-        void parseCommand(const TiXmlElement& cmd, 
-                          LabelStr& name, 
-                          std::vector<double>& args, 
-                          double& value);
+	void parseCommand(const pugi::xml_node& cmd, 
+					  LabelStr& name, 
+					  std::vector<double>& args, 
+					  double& value);
 
-    void parseParams(const TiXmlElement& root, std::vector<double>& dest);
-    double parseValues(std::string type, const TiXmlElement* valXml);
-    double parseValue(std::string type, std::string valStr);
+    void parseParams(const pugi::xml_node& root, std::vector<double>& dest);
+    double parseValues(const std::string& type, pugi::xml_node valXml);
+    double parseValue(const std::string& type, std::string valStr);
 
     std::map<double, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables

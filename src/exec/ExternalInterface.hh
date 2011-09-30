@@ -31,10 +31,6 @@
 #include "Expression.hh"
 #include "ParserException.hh"
 #include "PlexilExec.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
 
 /**
    TODO:

@@ -27,14 +27,9 @@
 #ifndef EVENT_FORMATTER_H
 #define EVENT_FORMATTER_H
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-
-#include "tinyxml.h"
-
 #include "Id.hh"
 #include "Node.hh"
+#include "pugixml.hpp"
 
 // ACE/TAO includes
 #include "tao/Version.h"
@@ -66,7 +61,7 @@ namespace PLEXIL
 			       EVENT_FORMATTER_TYPE,
 			       "EventFormatterType");
 
-    EventFormatter(const TiXmlElement* xml)
+    EventFormatter(const pugi::xml_node& xml)
       : m_id(this),
 	m_xml(xml)
     {
@@ -88,7 +83,7 @@ namespace PLEXIL
       return m_id;
     }
 
-    const TiXmlElement* getXml() const
+    const pugi::xml_node& getXml() const
     {
       return m_xml;
     }
@@ -101,7 +96,7 @@ namespace PLEXIL
     
     // private member variables
     EventFormatterId m_id;
-    const TiXmlElement* m_xml;
+    const pugi::xml_node m_xml;
   };
 
 }

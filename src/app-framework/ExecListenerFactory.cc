@@ -30,10 +30,7 @@
 #include "ExecListener.hh"
 #include "InterfaceSchema.hh"
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -49,20 +46,20 @@ namespace PLEXIL
    */
 
   ExecListenerId 
-  ExecListenerFactory::createInstance(const TiXmlElement* xml)
+  ExecListenerFactory::createInstance(const pugi::xml_node& xml)
   {
     // Can't do anything without the spec
-    assertTrueMsg(xml != NULL,
-          "ExecListenerFactory::createInstance: null configuration XML");
+    assertTrueMsg(!xml.empty(),
+				  "ExecListenerFactory::createInstance: null configuration XML");
 
     // Get the kind of listener to make
     const char* listenerType = 
-      xml->Attribute(InterfaceSchema::LISTENER_TYPE_ATTR());
-    checkError(listenerType != 0,
-           "ExecListenerFactory::createInstance: no "
-           << InterfaceSchema::LISTENER_TYPE_ATTR()
-           << " attribute for listener XML:\n"
-           << *xml);
+      xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value();
+    checkError(*listenerType != '\0',
+			   "ExecListenerFactory::createInstance: no "
+			   << InterfaceSchema::LISTENER_TYPE_ATTR()
+			   << " attribute for listener XML:\n"
+			   << *xml);
 
     // Make it
     return createInstance(LabelStr(listenerType), xml);
@@ -78,26 +75,25 @@ namespace PLEXIL
 
   ExecListenerId 
   ExecListenerFactory::createInstance(const LabelStr& name,
-                                      const TiXmlElement* xml)
+                                      const pugi::xml_node& xml)
   {
     std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name.getKey());
-    if (it == factoryMap().end())
-      {
-        debugMsg("ExecListenerFactory:createInstance", 
-                 "Attempting to dynamically load listener type \""
-                 << name.c_str() << "\"");
-        // Attempt to dynamically load library
-        const char* libCPath =
-          xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-        if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-          debugMsg("ExecListenerFactory:createInstance", 
-                   " unable to load module for listener type \""
-                   << name.c_str() << "\"");
-          return ExecListenerId::noId();
-        }
-        // See if it's registered now
-        it = factoryMap().find(name.getKey());
-      }
+    if (it == factoryMap().end()) {
+	  debugMsg("ExecListenerFactory:createInstance", 
+			   "Attempting to dynamically load listener type \""
+			   << name.c_str() << "\"");
+	  // Attempt to dynamically load library
+	  const char* libCPath =
+		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+		debugMsg("ExecListenerFactory:createInstance", 
+				 " unable to load module for listener type \""
+				 << name.c_str() << "\"");
+		return ExecListenerId::noId();
+	  }
+	  // See if it's registered now
+	  it = factoryMap().find(name.getKey());
+	}
 
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 

@@ -49,16 +49,15 @@
  * @def checkParserExceptionWithLocation
  * @brief If the condition is false, throw a ParserException
  * @param cond The condition to test; if false, throw the exception
- * @param loc A TiXmlNode* with the location of the exception
+ * @param loc A pugi::xml_node with the location of the exception
  * @param msg An expression which writes the required message to a stream
  */
 #define checkParserExceptionWithLocation(cond, loc, msg) {	\
-  if (!(cond)) \
-    { \
+  if (!(cond)) { \
       std::ostringstream whatstr; \
       whatstr << msg; \
-	  const TiXmlDocument* _my_errorDoc = loc->GetDocument(); \
-      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc == 0 ? "" : _my_errorDoc->Value()), loc->Row(), loc->Column()); \
+	  pugi::xml_node _my_errorDoc = loc.root();							\
+      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc.empty() ? "" : _my_errorDoc.name()), loc.offset_debug()); \
     } \
 }
 
@@ -70,31 +69,21 @@ namespace PLEXIL
   public:
     ParserException() throw();
 
-    ParserException(const char* msg, const char* filename, const int& line, const int& col = 0) throw();
+    ParserException(const char* msg, const char* filename, const int& offset = 0) throw();
 
-    ParserException(const ParserException&, const char* filename, const int& line, const int& col = 0) throw();
+	// *** where is this used??
+    ParserException(const ParserException&, const char* filename, const int& offset = 0) throw();
 
     ParserException& operator=(const ParserException&) throw();
 
     virtual ~ParserException() throw();
 
     virtual const char *what() const throw();
-    
-    // if line and column are 0 or 1, then do not report line and column
-    const char * validXMLLineAndColumn(std::string str) {       
-    if ((str.compare(0, 18, "(line 0, column 0)") == 0) ||
-    	    (str.compare(0, 18, "(line 1, column 1)") == 0)) {
-    		str = str.substr(19, str.length());
-    		}
 
-    	return str.c_str();
-    }
-    
   private:
     const char * m_what;
     std::string m_file; /**<The source file in which the error was detected (__FILE__). */
-    int m_line; /**<The source line on which the error detected (__LINE__). */
-	int m_col; /**<The source column on which the error detected (__COL__). */
+	int m_offset; /**< The character offset of the error */
   };
 
 }

@@ -33,10 +33,6 @@
 #include "Node.hh"
 #include "StateCache.hh"
 #include "Variable.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
 
 namespace PLEXIL
 {
@@ -47,13 +43,13 @@ namespace PLEXIL
 
   InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface)
     : m_execInterface(execInterface),
-      m_xml(NULL),
+      m_xml(),
       m_id(this)
   {
   }
 
   InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface, 
-				     const TiXmlElement* xml)
+									 const pugi::xml_node& xml)
     : m_execInterface(execInterface),
       m_xml(xml),
       m_id(this)

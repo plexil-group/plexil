@@ -36,8 +36,11 @@
 #include <set>
 #include <vector>
 
-// Forward reference in global namespace
-class TiXmlElement;
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL 
 {
@@ -184,7 +187,7 @@ namespace PLEXIL
      * @param configXml The XML element used for interface configuration.
 	 * @return true if successful, false otherwise.
      */
-    bool constructInterfaces(const TiXmlElement * configXml);
+    bool constructInterfaces(const pugi::xml_node& configXml);
 
     /**
      * @brief Add an externally constructed interface adapter.
@@ -504,8 +507,8 @@ namespace PLEXIL
      * @return False if the plan references unloaded libraries, true otherwise.
      * @note This is deprecated, use the PlexilNodeId variant instead.
      */
-    bool handleAddPlan(TiXmlElement * planXml,
-		       const LabelStr& parent)
+    bool handleAddPlan(const pugi::xml_node& planXml,
+					   const LabelStr& parent)
       throw(ParserException);
 
     /**

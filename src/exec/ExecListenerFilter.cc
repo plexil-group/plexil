@@ -27,10 +27,6 @@
 #include "ExecListenerFilter.hh"
 #include "Debug.hh"
 #include "Expression.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
 
 namespace PLEXIL
 {
@@ -39,14 +35,14 @@ namespace PLEXIL
    */
   ExecListenerFilter::ExecListenerFilter()
     : m_id(this),
-	  m_xml(NULL)
+	  m_xml()
   {
   }
 
   /**
    * @brief Constructor from configuration XML.
    */
-  ExecListenerFilter::ExecListenerFilter(const TiXmlElement* xml)
+  ExecListenerFilter::ExecListenerFilter(const pugi::xml_node& xml)
     : m_id(this),
 	  m_xml(xml)
   {

@@ -37,11 +37,7 @@
 #include <cstring>
 #include <string>
 #include <sstream>
-
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 namespace PLEXIL 
 {
@@ -67,9 +63,9 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    * @param execInterface Reference to the parent AdapterExecInterface object.
-   * @param xml A const pointer to the TiXmlElement describing this adapter
+   * @param xml A const reference to the XML element describing this adapter
    */
-  IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface, const TiXmlElement * xml) :
+  IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml) :
     InterfaceAdapter(execInterface, xml),
     m_ipcFacade(),
     m_messageQueues(execInterface),
@@ -81,7 +77,7 @@ namespace PLEXIL
     m_externalLookups()
   {
     condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
-    condDebugMsg(xml != NULL, "IpcAdapter:IpcAdapter", " configuration XML = " << *xml);
+    condDebugMsg(xml != NULL, "IpcAdapter:IpcAdapter", " configuration XML = " << xml);
   }
 
   /**
@@ -102,36 +98,27 @@ namespace PLEXIL
     debugMsg("IpcAdapter:initialize", " called");
 
     // Get taskName, serverName from XML, if supplied
-    const char* taskName = NULL;
-    const char* serverName = NULL;
-    const char* acceptDuplicatesStr = NULL;
+    const char* taskName = "";
+    const char* serverName = "";
+	pugi::xml_attribute acceptDuplicates;
 
-    const TiXmlElement* xml = this->getXml();
-    if (xml != NULL) {
-      taskName = xml->Attribute("TaskName");
-      serverName = xml->Attribute("Server");
-      acceptDuplicatesStr = xml->Attribute("AllowDuplicateMessages");
-      parseExternalLookups(xml->FirstChildElement("ExternalLookups"));
+    const pugi::xml_node& xml = this->getXml();
+    if (!xml.empty()) {
+      taskName = xml.attribute("TaskName").value();
+      serverName = xml.attribute("Server").value();
+      acceptDuplicates = xml.attribute("AllowDuplicateMessages");
+      parseExternalLookups(xml.child("ExternalLookups"));
     }
 
     // Use defaults if necessary
-    if (serverName == NULL) {
+    if (*serverName == '\0') {
       serverName = "localhost";
     }
-    if (taskName == NULL) {
+    if (*taskName == '\0') {
       taskName = m_ipcFacade.getUID().c_str();
     }
-    if (acceptDuplicatesStr != NULL) {
-      if (std::strcmp(acceptDuplicatesStr, "true") == 0) {
-        m_messageQueues.setAllowDuplicateMessages(true);
-      } 
-      else if (std::strcmp(acceptDuplicatesStr, "false") == 0) {
-        m_messageQueues.setAllowDuplicateMessages(false);
-      } 
-      else {
-        assertTrueMsg(ALWAYS_FAIL, "IpcAdapter: " << acceptDuplicatesStr << " invalid for \"AllowDuplicateMessages\"."
-                      << " Must be 'true' or 'false'.");
-      }
+    if (!acceptDuplicates.empty()) {
+	  m_messageQueues.setAllowDuplicateMessages(acceptDuplicates.as_bool());
     } 
     else {
       //debugging only. set to true for release
@@ -601,27 +588,27 @@ namespace PLEXIL
     debugMsg("IpcAdapter:executeCommand", " command \"" << name.c_str() << "\" sent.");
   }
 
-  void IpcAdapter::parseExternalLookups(const TiXmlElement* external) {
+  void IpcAdapter::parseExternalLookups(const pugi::xml_node& external) {
     if (external != NULL) {
 
       //process external lookups
-      const TiXmlElement* lookup = external->FirstChildElement("Lookup");
-      const char* name = NULL;
-      const char* type = NULL;
-      const char* def = NULL;
+      pugi::xml_node lookup = external.child("Lookup");
+      const char* name = "";
+      const char* type = "";
+      const char* def = "";
       while (lookup != 0) {
-        name = lookup->Attribute("name");
-        type = lookup->Attribute("type");
-        def = lookup->Attribute("value");
+        name = lookup.attribute("name").value();
+        type = lookup.attribute("type").value();
+        def = lookup.attribute("value").value();
         debugMsg("IpcAdapter:parseExternalLookups",
                  "External Lookup: name=\"" << name
                  << "\" type=\"" <<type
                  << "\" default=\"" << def << "\"");
-        assertTrueMsg(name != NULL,
+        assertTrueMsg(*name != '\0',
                       "IpcAdapter:parseExternalLookups: Lookup element attribute 'name' missing");
-        assertTrueMsg(type != NULL,
+        assertTrueMsg(*type != '\0',
                       "IpcAdapter:parseExternalLookups: Lookup element attribute 'type' missing");
-        assertTrueMsg(def != NULL,
+        assertTrueMsg(*def != '\0',
                       "IpcAdapter:parseExternalLookups: Lookup element attribute 'value' missing");
         m_execInterface.registerLookupInterface(LabelStr(name), getId());
         if (strcmp(type, "String") == 0) {
@@ -634,7 +621,7 @@ namespace PLEXIL
                         << "\" is not valid for type " << type);
           m_externalLookups.insert(std::pair<double, double>(LabelStr(name).getKey(), d));
         }
-        lookup = lookup->NextSiblingElement("Lookup");
+        lookup = lookup.next_sibling("Lookup");
       }
     }
   }

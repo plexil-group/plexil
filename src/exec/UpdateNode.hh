@@ -60,6 +60,14 @@ namespace PLEXIL
      */
     virtual ~UpdateNode();
 
+	/**
+	 * @brief Get the node's update structure.
+	 */
+	const UpdateId& getUpdate()
+	{
+	  return m_update; 
+	}
+
   protected:
 
 	// Specific behaviors for derived classes

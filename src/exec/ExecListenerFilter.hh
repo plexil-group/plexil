@@ -29,9 +29,7 @@
 
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
-
-// Forward reference w/o namespace
-class TiXmlElement;
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -59,7 +57,7 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      */
-    ExecListenerFilter(const TiXmlElement* xml);
+    ExecListenerFilter(const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -68,9 +66,9 @@ namespace PLEXIL
 
     /**
      * @brief Get the configuration XML of this instance.
-     * @return A pointer to the XML element.
+     * @return A const reference to the XML element.
      */
-    const TiXmlElement* getXml() const
+    const pugi::xml_node& getXml() const
     {
       return m_xml;
     }
@@ -133,7 +131,7 @@ namespace PLEXIL
     /**
      * @brief The configuration XML used at construction time.
      */
-    const TiXmlElement* m_xml;
+    const pugi::xml_node m_xml;
   };
 
 }

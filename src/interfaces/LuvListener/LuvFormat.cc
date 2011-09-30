@@ -31,10 +31,7 @@
 #include "PlexilXmlParser.hh"
 #include "Variable.hh"
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 #include <iostream>
 
@@ -216,8 +213,8 @@ namespace PLEXIL {
 							 const LabelStr& /* parent */) {
 	// create a PLEXIL Plan wrapper and stick the plan in it
 	simpleStartTag(s, PLEXIL_PLAN_TAG());
-	TiXmlElement* planXml = PlexilXmlParser::toXml(plan);
-	s << *planXml;
+	pugi::xml_document* planXml = PlexilXmlParser::toXml(plan);
+	planXml->save(s, " ", PUGI_FORMAT_OPTIONS());
 	delete planXml;
 	endTag(s, PLEXIL_PLAN_TAG());
   }
@@ -231,8 +228,8 @@ namespace PLEXIL {
 								const PlexilNodeId& libNode) {
 	// create a PLEXIL Library wrapper and stick the library node in it
 	simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-	TiXmlElement* libXml = PlexilXmlParser::toXml(libNode);
-	s << *libXml;
+	pugi::xml_document* libXml = PlexilXmlParser::toXml(libNode);
+	libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
 	delete libXml;
 	endTag(s, PLEXIL_LIBRARY_TAG());
   }

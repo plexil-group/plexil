@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter GanttListener standard-plexil checker plexilsim robosim
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener standard-plexil checker plexilsim robosim
 
 # convenience target for A4O project
 A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener plexilsim
@@ -53,7 +53,7 @@ plexilsim: utils ipc IpcUtils
 robosim: UniversalExec IpcAdapter
 	$(MAKE) -C src/apps/robosim
 
-UniversalExec: exec-core app-framework
+universal-exec UniversalExec: exec-core app-framework
 	$(MAKE) -C src/universal-exec
 
 checker:
@@ -65,10 +65,10 @@ luv:
 standard-plexil:
 	(cd src/standard-plexil && ant install)
 
-tinyxml:
-	$(MAKE) -C third-party/tinyxml -f Makefile.plexil
+pugixml:
+	$(MAKE) -C third-party/pugixml/src
 
-utils: tinyxml
+utils: pugixml
 	$(MAKE) -C src/utils
 
 exec-core: utils
@@ -76,6 +76,9 @@ exec-core: utils
 
 IpcAdapter: app-framework IpcUtils
 	$(MAKE) -C src/interfaces/IpcAdapter
+
+UdpAdapter: app-framework
+	$(MAKE) -C src/interfaces/UdpAdapter
 
 GanttListener: utils exec-core app-framework
 	$(MAKE) -C src/interfaces/GanttListener
@@ -107,7 +110,7 @@ clean-ipc:
 	-$(RM) lib/libipc.*
 
 clean: clean-ipc
-	-$(MAKE) -C third-party/tinyxml $@
+	-$(MAKE) -C third-party/pugixml/src $@
 	-$(MAKE) -C src/utils $@
 	-$(MAKE) -C src/exec $@
 	-$(MAKE) -C src/interfaces/IpcAdapter $@

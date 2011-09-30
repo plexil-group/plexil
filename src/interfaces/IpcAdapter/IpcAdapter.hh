@@ -36,7 +36,6 @@
 // Forward declarations outside of namespace
 struct PlexilMsgBase;
 struct PlexilStringValueMsg;
-class TiXmlElement;
 
 #define TRANSACTION_ID_SEPARATOR_CHAR ':'
 
@@ -72,10 +71,10 @@ public:
   /**
    * @brief Constructor from configuration XML.
    * @param execInterface Reference to the parent AdapterExecInterface object.
-   * @param xml A const pointer to the TiXmlElement describing this adapter
-   * @note The instance maintains a shared pointer to the TiXmlElement.
+   * @param xml A const reference to the XML element describing this adapter
+   * @note The instance maintains a shared pointer to the XML.
    */
-  IpcAdapter(AdapterExecInterface& execInterface, const TiXmlElement * xml);
+  IpcAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml);
 
   /**
    * @brief Destructor.
@@ -231,7 +230,7 @@ private:
    * @brief Parses external lookups from xml and puts them in the lookup map.
    * If external is NULL, does nothing.
    */
-  void parseExternalLookups(const TiXmlElement* external);
+  void parseExternalLookups(const pugi::xml_node& external);
 
   /**
    * @brief Handler function as seen by adapter.

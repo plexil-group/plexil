@@ -29,9 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 EXECUTABLE	:= AppFrameworkTest
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../../utils ../../exec .. ../../interfaces/Sockets
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src ../../utils ../../exec .. ../../interfaces/Sockets
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
+LIBS		+= pugixml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
 
 SRC		:= testMain.cc
 INC		:=

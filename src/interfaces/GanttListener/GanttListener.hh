@@ -32,8 +32,6 @@
 #include "ExecDefs.hh"
 #include "ExecListener.hh"
 
-class TiXmlElement;
-
 namespace PLEXIL
 {
   // Provides output from execution useful for debugging a Plexil plan.
@@ -43,7 +41,7 @@ namespace PLEXIL
   public:
 
     GanttListener();
-    GanttListener (const TiXmlElement* xml);
+    GanttListener (const pugi::xml_node& xml);
     virtual ~GanttListener();
 
     // These methods have no special function.

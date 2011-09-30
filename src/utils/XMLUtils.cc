@@ -32,33 +32,9 @@
  */
 
 #include <cerrno>
-#include <fstream>
-#include <sstream>
 
-
-namespace PLEXIL {
-
-  LabelStr extractData(const TiXmlElement& configData, const LabelStr& argName){
-    const char * data = configData.Attribute(argName.c_str());
-    checkError(data != NULL, "No attribute '" << argName.toString() << "' in " << configData);
-    return data;
-  }
-
-  TiXmlElement* initXml(const std::string& xmlStr) {
-    std::istringstream is(xmlStr);
-    TiXmlElement* root = new TiXmlElement("");
-    is >> (*root);
-    return root;
-  }
-
-  const char* getTextChild (const TiXmlElement& element) {
-    check_error(element.FirstChild(), "FirstChild is empty.");
-    //    check_error(element.FirstChild()->ToComment(), "FirstChild->ToComment is empty");
-    check_error(element.FirstChild()->ToText(), "FirstChild->ToText is empty.");
-    check_error(element.FirstChild()->ToText()->Value(), "FirstChild->ToText->Value is empty.");
-
-    return element.FirstChild()->ToText()->Value();
-  }
+namespace PLEXIL 
+{
 
   bool isXmlBoolean(const char* data)
   {
@@ -88,10 +64,10 @@ namespace PLEXIL {
 
   bool isNumber(const char* data, double& value){
     char * pEnd;
-    value = strtod (data, &pEnd);
+    value = strtod(data, &pEnd);
 
     // If successful then quit now
-    if(pEnd != data)
+    if (pEnd != data)
       return true;
     else
       return false;

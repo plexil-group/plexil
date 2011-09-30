@@ -29,9 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 EXECUTABLE	= utils-module-tests
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ..
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src ..
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils
+LIBS		+= pugixml PlexilUtils
 
 SRC = util-test-module.cc module-tests.cc
 INC = util-test-module.hh

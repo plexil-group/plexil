@@ -31,9 +31,6 @@
 #include "orbsvcs/CosEventChannelAdminC.h" 
 #include "orbsvcs/CosEventCommS.h" 
 
-// Forward reference w/o namespace
-class TiXmlElement;
-
 namespace PLEXIL
 {
   // forward references
@@ -58,7 +55,7 @@ namespace PLEXIL
 
   protected:
     // Only for use by derived classes
-    BaseEventChannelExecListener(const TiXmlElement* xml);
+    BaseEventChannelExecListener(const pugi::xml_node& xml);
 
     EventFormatterId m_formatter;
 
@@ -73,7 +70,7 @@ namespace PLEXIL
 				   public POA_CosEventComm::PushSupplier
   {
   public:
-    EventChannelExecListener(const TiXmlElement* xml);
+    EventChannelExecListener(const pugi::xml_node& xml);
     virtual ~EventChannelExecListener();
 
     virtual bool isConnected() const;

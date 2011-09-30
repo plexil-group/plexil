@@ -29,12 +29,6 @@
 
 #include "InterfaceAdapter.hh"
 
-//
-// Forward references w/o namespace
-//
-
-class TiXmlElement;
-
 namespace PLEXIL
 {
   /*!
@@ -53,7 +47,7 @@ namespace PLEXIL
      * @brief Constructor w/ configuration XML.
      */
     DummyAdapter(AdapterExecInterface& execInterface,
-                 const TiXmlElement* xml);
+                 const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.

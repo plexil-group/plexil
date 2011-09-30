@@ -33,10 +33,7 @@
 #include "Debug.hh"
 #include "ExecApplication.hh"
 #include "InterfaceSchema.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -137,28 +134,28 @@ int main(int argc, char** argv)
     }
 
   // get configuration file, if provided
-  TiXmlDocument* configDoc = NULL;
+  pugi::xml_document configDoc;
   if (configFilename != NULL)
     {
       std::cout << "Reading interface configuration from "
                 << configFilename
                 << std::endl;
-      configDoc = new TiXmlDocument(configFilename);
-      if (!configDoc->LoadFile())
+	  pugi::xml_parse_result result = configDoc.load_file(configFilename);
+      if (result.status != pugi::status_ok)
         {
           std::cout << "ERROR: unable to load configuration file "
                     << configFilename
                     << ":\n "
-                    << configDoc->ErrorDesc()
+                    << result.description()
                     << std::endl;
           return -1;
         }
     }
 
   // get Interfaces element
-  TiXmlElement* configElt = NULL;
-  if (configDoc != NULL)
-    configElt = configDoc->FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+  pugi::xml_node configElt;
+  if (configDoc)
+    configElt = configDoc.child(PLEXIL::InterfaceSchema::INTERFACES_TAG());
 
   // construct the application
   PLEXIL::ExecApplication app;
@@ -198,26 +195,24 @@ int main(int argc, char** argv)
       std::cout << "Reading library node from file "
                 << libFilename
                 << std::endl;
-      TiXmlDocument* libDoc = new TiXmlDocument(libFilename);
-      if (!libDoc->LoadFile())
+	  pugi::xml_document libDoc;
+	  pugi::xml_parse_result result = libDoc.load_file(libFilename);
+      if (result.status != pugi::status_ok)
         {
           std::cout << "ERROR: unable to load library XML from file "
                     << libFilename
                     << ":\n "
-                    << libDoc->ErrorDesc()
+                    << result.description()
                     << std::endl;
-          delete libDoc;
           return -1;
         }
-      if (!app.addLibrary(libDoc))
+      if (!app.addLibrary(&libDoc))
         {
           std::cout << "ERROR: unable to add library "
                     << libFilename
                     << std::endl;
-          delete libDoc;
           return -1;
         }
-      delete libDoc;
       libiter++;
     }
   
@@ -231,28 +226,26 @@ int main(int argc, char** argv)
     }
   
   std::cout << "Reading plan from " << planFilename << std::endl;
-  TiXmlDocument* planDoc = new TiXmlDocument(planFilename);
-  if (!planDoc->LoadFile())
+  pugi::xml_document planDoc;
+  pugi::xml_parse_result result = planDoc.load_file(planFilename);
+  if (result.status != pugi::status_ok)
     {
       std::cout << "ERROR: unable to load plan XML from file "
                 << planFilename
                 << ":\n "
-                << planDoc->ErrorDesc()
+                << result.description()
                 << std::endl;
-      delete planDoc;
       return -1;
     }
 
   std::cout << "Executing plan" << std::endl;
-  if (!app.addPlan(planDoc))
+  if (!app.addPlan(&planDoc))
     {
       std::cout << "ERROR: unable to add plan "
                 << planFilename
                 << std::endl;
-      delete planDoc;
       return -1;
     }
-  delete planDoc;
 
   // wait til exec quiescent (NYI)
   app.waitForPlanFinished();

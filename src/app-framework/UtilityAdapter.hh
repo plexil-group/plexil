@@ -41,7 +41,7 @@ namespace PLEXIL {
 class UtilityAdapter : public InterfaceAdapter
 {
 public:
-  UtilityAdapter (AdapterExecInterface&, const TiXmlElement*&);
+  UtilityAdapter (AdapterExecInterface&, const pugi::xml_node&);
 
   bool initialize();
   bool start();

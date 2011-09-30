@@ -31,8 +31,11 @@
 #include "LabelStr.hh"
 #include <map>
 
-// Forward reference w/o namespace
-class TiXmlElement;
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -58,7 +61,7 @@ namespace PLEXIL
      * @return The Id for the new ExecListener.
      */
 
-    static ExecListenerId createInstance(const TiXmlElement* xml);
+    static ExecListenerId createInstance(const pugi::xml_node& xml);
 
     /**
      * @brief Creates a new ExecListener instance with the type associated with the name and
@@ -69,7 +72,7 @@ namespace PLEXIL
      */
 
     static ExecListenerId createInstance(const LabelStr& name, 
-                                         const TiXmlElement* xml);
+                                         const pugi::xml_node& xml);
 
     /**
      * @brief Checks whether or not the given ExecListenerFactory is registered.
@@ -103,7 +106,7 @@ namespace PLEXIL
      * @param xml The configuration XML for the instantiated listener.
      * @return The Id for the new ExecListener.
      */
-    virtual ExecListenerId create(const TiXmlElement* xml) const = 0;
+    virtual ExecListenerId create(const pugi::xml_node& xml) const = 0;
 
     ExecListenerFactory(const LabelStr& name)
       : m_name(name)
@@ -150,7 +153,7 @@ namespace PLEXIL
      * @return The Id for the new ExecListener.
      */
 
-    ExecListenerId create(const TiXmlElement* xml) const
+    ExecListenerId create(const pugi::xml_node& xml) const
     {
       ExecListenerId result = (new ListenerType(xml))->getId();
       return result;

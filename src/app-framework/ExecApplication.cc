@@ -38,10 +38,7 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "PlexilXmlParser.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -63,9 +60,6 @@ namespace PLEXIL
     // connect exec and interface manager
     m_exec.setExternalInterface(m_interface.getId());
     m_interface.setExec(m_exec.getId());
-
-    // Tell tinyxml to respect whitespace
-    TiXmlBase::SetCondenseWhiteSpace(false);
   }
 
   ExecApplication::~ExecApplication()
@@ -97,10 +91,10 @@ namespace PLEXIL
    * @note The caller must ensure that all adapter and listener factories
    *       have been created and registered before this call.
    */
-  bool ExecApplication::initialize(const TiXmlElement * configXml)
+  bool ExecApplication::initialize(const pugi::xml_node& configXml)
   {
-    condDebugMsg(configXml == NULL, "ExecApplication:initialize", " configuration is NULL");
-    condDebugMsg(configXml != NULL, "ExecApplication:initialize", " configuration = " << *configXml);
+    condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is NULL");
+    condDebugMsg(!configXml.empty(), "ExecApplication:initialize", " configuration = " << configXml);
 
     if (m_state != APP_UNINITED)
       return false;
@@ -354,14 +348,14 @@ namespace PLEXIL
    * @brief Add a library as an XML document.
    * @return true if successful, false otherwise.
    */
-  bool ExecApplication::addLibrary(TiXmlDocument * libraryXml)
+  bool ExecApplication::addLibrary(const pugi::xml_document* libraryXml)
   {
     if (m_state != APP_RUNNING && m_state != APP_READY)
       return false;
 
     // grab the library itself from the document
-    TiXmlElement* plexilXml = libraryXml->FirstChildElement("PlexilPlan");
-    if (plexilXml == NULL) {
+	pugi::xml_node plexilXml = libraryXml->document_element();
+    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), "PlexilPlan")) {
 	  std::cerr << "Error parsing library from XML: No \"PlexilPlan\" tag found" << std::endl;
 	  return false;
 	}
@@ -369,7 +363,7 @@ namespace PLEXIL
     // parse XML into node structure
     PlexilNodeId root;
     try {
-      root = PlexilXmlParser::parse(plexilXml->FirstChildElement("Node"));
+      root = PlexilXmlParser::parse(plexilXml.child("Node"));
     }
     catch (const ParserException& e)
       {
@@ -387,14 +381,14 @@ namespace PLEXIL
    * @brief Add a plan as an XML document.
    * @return true if successful, false otherwise.
    */
-  bool ExecApplication::addPlan(TiXmlDocument * planXml)
+  bool ExecApplication::addPlan(const pugi::xml_document* planXml)
   {
     if (m_state != APP_RUNNING && m_state != APP_READY)
       return false;
 
     // grab the plan itself from the document
-    TiXmlElement* plexilXml = planXml->FirstChildElement("PlexilPlan");
-    if (plexilXml == NULL) {
+	pugi::xml_node plexilXml = planXml->document_element();
+    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), "PlexilPlan")) {
 	  std::cerr << "Error parsing plan from XML: No \"PlexilPlan\" tag found" << std::endl;
 	  return false;
 	}
@@ -402,13 +396,12 @@ namespace PLEXIL
     // parse XML into node structure
     PlexilNodeId root;
     try {
-      root = PlexilXmlParser::parse(plexilXml->FirstChildElement("Node"));
+      root = PlexilXmlParser::parse(plexilXml.child("Node"));
     }
-    catch (const ParserException& e)
-      {
-        std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
-        return false;
-      }
+    catch (const ParserException& e) {
+	  std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
+	  return false;
+	}
 
     if (!m_interface.handleAddPlan(root, EMPTY_LABEL())) {
 	  std::cerr << "Plan loading failed due to missing library node(s)" << std::endl;

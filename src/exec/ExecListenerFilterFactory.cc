@@ -28,11 +28,7 @@
 #include "Debug.hh"
 #include "DynamicLoader.hh"
 #include "InterfaceSchema.hh"
-
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -44,20 +40,23 @@ namespace PLEXIL
    */
 
   ExecListenerFilterId 
-  ExecListenerFilterFactory::createInstance(const TiXmlElement* xml)
+  ExecListenerFilterFactory::createInstance(const pugi::xml_node& xml)
   {
     // Can't do anything without the spec
-    assertTrueMsg(xml != NULL,
-          "ExecListenerFilterFactory::createInstance: null configuration XML");
+    assertTrueMsg(!xml.empty(),
+				  "ExecListenerFilterFactory::createInstance: null configuration XML");
 
     // Get the kind of filter to make
-    const char* filterType = 
-      xml->Attribute(InterfaceSchema::FILTER_TYPE_ATTR());
-    checkError(filterType != 0,
-           "ExecListenerFilterFactory::createInstance: no "
-           << InterfaceSchema::FILTER_TYPE_ATTR()
-           << " attribute for filter XML:\n"
-           << *xml);
+	pugi::xml_attribute filterTypeAttr = xml.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+    checkError(!filterTypeAttr.empty(),
+			   "ExecListenerFilterFactory::createInstance: no "
+			   << InterfaceSchema::FILTER_TYPE_ATTR()
+			   << " attribute for filter XML");
+    const char* filterType = filterTypeAttr.value();
+    checkError(*filterType != '\0',
+			   "ExecListenerFilterFactory::createInstance: "
+			   << InterfaceSchema::FILTER_TYPE_ATTR()
+			   << " attribute for filter XML is empty");
 
     // Make it
     return createInstance(LabelStr(filterType), xml);
@@ -74,27 +73,26 @@ namespace PLEXIL
 
   ExecListenerFilterId 
   ExecListenerFilterFactory::createInstance(const LabelStr& name,
-                                            const TiXmlElement* xml)
+                                            const pugi::xml_node& xml)
   {
     std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name.getKey());
-    if (it == factoryMap().end())
-      {
-    debugMsg("ExecListenerFilterFactory:createInstance", 
-         "Attempting to dynamically load filter type \""
-         << name.c_str() << "\"");
-    // Attempt to dynamically load library
-    const char* libCPath =
-      xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-    if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-      debugMsg("ExecListenerFilterFactory:createInstance",
-               " unable to load module for filter type \""
-               << name.c_str() << "\"");
-      return ExecListenerFilterId::noId();
-    }
+    if (it == factoryMap().end()) {
+	  debugMsg("ExecListenerFilterFactory:createInstance", 
+			   "Attempting to dynamically load filter type \""
+			   << name.c_str() << "\"");
+	  // Attempt to dynamically load library
+	  const char* libCPath =
+		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+		debugMsg("ExecListenerFilterFactory:createInstance",
+				 " unable to load module for filter type \""
+				 << name.c_str() << "\"");
+		return ExecListenerFilterId::noId();
+	  }
 
-    // See if it's registered now
-    it = factoryMap().find(name.getKey());
-      }
+	  // See if it's registered now
+	  it = factoryMap().find(name.getKey());
+	}
 
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFilterFactory:createInstance", 

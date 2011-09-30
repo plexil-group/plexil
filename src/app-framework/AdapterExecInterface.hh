@@ -32,8 +32,11 @@
 #include "ParserException.hh"
 #include "InterfaceManagerBase.hh"
 
-// forward references w/o namespace
-class TiXmlElement;
+// forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -257,8 +260,8 @@ namespace PLEXIL
      * @return False if the plan references unloaded libraries, true otherwise.
      * @note This is deprecated, use the PlexilNodeId variant instead.
      */
-    virtual bool handleAddPlan(TiXmlElement * planXml,
-			       const LabelStr& parent)
+    virtual bool handleAddPlan(const pugi::xml_node& planXml,
+							   const LabelStr& parent)
       throw(ParserException)
       = 0;
 

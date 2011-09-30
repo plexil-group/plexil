@@ -31,32 +31,12 @@
  * @author Conor McGann
  */
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-
-#include "tinyxml.h"
 #include "LabelStr.hh"
 #include <stdint.h> // for uint64_t - NOT <cstdint>
 
 namespace PLEXIL {
 
 #define IS_TAG(x) (strcmp (tagName, x) == 0)
-
-  /**
-   * @brief Utility to extract an argument from an xml element
-   */
-  LabelStr extractData(const TiXmlElement& element, const LabelStr& argName);
-
-  /**
-   * @brief Helper function to parse a given XML string
-   */
-  TiXmlElement* initXml(const std::string& xmlStr);
-
-  /**
-   * @brief Extract text at this node, adding error checks
-   */
-  const char* getTextChild (const TiXmlElement& element);
 
   /**
    * @brief Helper method to test if a char* is a valid Boolean value.

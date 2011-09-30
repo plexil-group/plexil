@@ -29,9 +29,6 @@
 
 #include "ExecListenerBase.hh"
 
-// Forward reference w/o namespace
-class TiXmlElement;
-
 namespace PLEXIL
 {
   // Forward references
@@ -57,7 +54,7 @@ namespace PLEXIL
      * @brief Constructor from configuration XML
      * @param xml Pointer to the (shared) configuration XML describing this listener.
      */
-    ExecListener(const TiXmlElement* xml);
+    ExecListener(const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.

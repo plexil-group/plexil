@@ -30,8 +30,6 @@
 #include "udp-utils.hh"
 #include "ThreadSpawn.hh"
 
-class TiXmlElement;             // Forward references (w/o namespace)
-
 namespace PLEXIL
 {
 
@@ -40,19 +38,19 @@ namespace PLEXIL
   public:
     std::string desc;           // optional parameter description
     std::string type;           // int|float|bool|string|int-array|float-array|string-array|bool-array
-    int len;                    // number of bytes for type (or array element)
-    int elements;               // number of elements in the array (non-array types are 0 or 1?)
+    unsigned int len;           // number of bytes for type (or array element)
+    unsigned int elements;      // number of elements in the array (non-array types are 0 or 1?)
   };
 
   class UdpMessage
   {
   public:
     std::string name;                // the Plexil Command name
-    int len;                         // the length of the message in bytes
+    unsigned int len;                         // the length of the message in bytes
     std::list<Parameter> parameters; // message value parameters
-    int local_port;                  // local port on which to receive
+    unsigned int local_port;                  // local port on which to receive
     std::string peer;                // peer to which to send
-    int peer_port;                   // port to which to send
+    unsigned int peer_port;                   // port to which to send
     int sock;                        // socket to use -- only meaningful in call to waitForUdpMessage
     void* self;                      // reference to the UdpAdapter for use in message decoding
     UdpMessage() : name(), len(0), parameters(), peer(""), local_port(0), peer_port(0), sock(0), self(NULL) {}
@@ -83,7 +81,7 @@ namespace PLEXIL
 
     // Constructor/Destructor
     UdpAdapter(AdapterExecInterface& execInterface);
-    UdpAdapter(AdapterExecInterface& execInterface, const TiXmlElement* xml);
+    UdpAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml);
     virtual ~UdpAdapter();
 
     // InterfaceAdapter API
@@ -105,8 +103,8 @@ namespace PLEXIL
     bool m_debug; // Show debugging output
 
     // Somewhere to hang the messages, default ports and peers, threads and sockets
-    int m_default_local_port;
-    int m_default_peer_port;
+    unsigned int m_default_local_port;
+    unsigned int m_default_peer_port;
     std::string m_default_peer;
     MessageMap m_messages;
     MessageQueueMap m_messageQueues;
@@ -133,7 +131,7 @@ namespace PLEXIL
     //
     // XML Support
     //
-    void parseXmlMessageDefinitions(const TiXmlElement* xml);
+    void parseXmlMessageDefinitions(const pugi::xml_node& xml);
     void printMessageDefinitions();
     int buildUdpBuffer(unsigned char* buffer,
                        const UdpMessage& msg,

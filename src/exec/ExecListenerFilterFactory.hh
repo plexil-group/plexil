@@ -31,8 +31,11 @@
 #include "LabelStr.hh"
 #include <map>
 
-// Forward reference w/o namespace
-class TiXmlElement;
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -60,7 +63,7 @@ namespace PLEXIL
      * @return The Id for the new ExecListenerFilter.
      */
 
-    static ExecListenerFilterId createInstance(const TiXmlElement* xml);
+    static ExecListenerFilterId createInstance(const pugi::xml_node& xml);
 
     /**
      * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
@@ -71,7 +74,7 @@ namespace PLEXIL
      */
 
     static ExecListenerFilterId createInstance(const LabelStr& name, 
-                                               const TiXmlElement* xml);
+                                               const pugi::xml_node& xml);
 
     /**
      * @brief Deallocate all factories
@@ -97,7 +100,7 @@ namespace PLEXIL
      * @param xml The configuration XML for the instantiated filter
      * @return The Id for the new ExecListenerFilter.
      */
-    virtual ExecListenerFilterId create(const TiXmlElement* xml) const = 0;
+    virtual ExecListenerFilterId create(const pugi::xml_node& xml) const = 0;
 
     ExecListenerFilterFactory(const LabelStr& name)
       : m_name(name)
@@ -144,7 +147,7 @@ namespace PLEXIL
      * @return The Id for the new ExecListenerFilter.
      */
 
-    ExecListenerFilterId create(const TiXmlElement* xml) const
+    ExecListenerFilterId create(const pugi::xml_node& xml) const
     {
       ExecListenerFilterId result = (new FilterType(xml))->getId();
       return result;

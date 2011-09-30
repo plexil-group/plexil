@@ -31,11 +31,7 @@
 #include "DynamicLoader.hh"
 #include "InterfaceSchema.hh"
 #include "EventFormatterSchema.hh"
-
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -51,20 +47,19 @@ namespace PLEXIL
    */
 
   EventFormatterId 
-  EventFormatterFactory::createInstance(const TiXmlElement* xml)
+  EventFormatterFactory::createInstance(const pugi::xml_node& xml)
   {
     // Can't do anything without the spec
-    assertTrueMsg(xml != NULL,
+    assertTrueMsg(!xml.empty(),
 		  "EventFormatterFactory::createInstance: null configuration XML");
 
     // Get the kind of listener to make
     const char* formatterType = 
-      xml->Attribute(EventFormatterSchema::EVENT_FORMATTER_TYPE_ATTRIBUTE());
-    checkError(formatterType != 0,
+      xml.attribute(EventFormatterSchema::EVENT_FORMATTER_TYPE_ATTRIBUTE()).value();
+    checkError(*formatterType != '\0',
 	       "EventFormatterFactory::createInstance: no "
 	       << EventFormatterSchema::EVENT_FORMATTER_TYPE_ATTRIBUTE()
-	       << " attribute for formatter XML:\n"
-	       << *xml);
+	       << " attribute for formatter XML");
 
     // See if this is a known type
     LabelStr name(formatterType);
@@ -76,7 +71,7 @@ namespace PLEXIL
 		 << formatterType << "\"");
 	// Attempt to dynamically load library
 	const char* libCPath =
-	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+	  xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
 	assertTrueMsg(DynamicLoader::loadModule(formatterType, libCPath),
 		      "EventFormatterFactory::createInstance: unable to load module for formatter type \""
 		      << formatterType << "\"");
@@ -147,20 +142,19 @@ namespace PLEXIL
    */
 
   StructuredEventFormatterId 
-  StructuredEventFormatterFactory::createInstance(const TiXmlElement* xml)
+  StructuredEventFormatterFactory::createInstance(const pugi::xml_node& xml)
   {
     // Can't do anything without the spec
-    assertTrueMsg(xml != NULL,
+    assertTrueMsg(!xml.empty(),
 		  "StructuredEventFormatterFactory::createInstance: null configuration XML");
 
     // Get the kind of listener to make
     const char* formatterType = 
-      xml->Attribute(EventFormatterSchema::STRUCTURED_FORMATTER_TYPE_ATTRIBUTE());
-    checkError(formatterType != 0,
+      xml.attribute(EventFormatterSchema::STRUCTURED_FORMATTER_TYPE_ATTRIBUTE()).value();
+    checkError(*formatterType != '\0',
 	       "StructuredEventFormatterFactory::createInstance: no "
 	       << EventFormatterSchema::STRUCTURED_FORMATTER_TYPE_ATTRIBUTE()
-	       << " attribute for formatter XML:\n"
-	       << *xml);
+	       << " attribute for formatter XML");
 
     // See if this is a known type
     LabelStr name(formatterType);
@@ -172,7 +166,7 @@ namespace PLEXIL
 		 << formatterType << "\"");
 	// Attempt to dynamically load library
 	const char* libCPath =
-	  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+	  xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
 	assertTrueMsg(DynamicLoader::loadModule(formatterType, libCPath),
 		      "StructuredEventFormatterFactory::createInstance: unable to load module for structured formatter type \""
 		      << formatterType << "\"");

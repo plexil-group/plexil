@@ -28,13 +28,12 @@
 #define INTERFACE_ADAPTER_H
 
 #include "ExecDefs.hh"
+#include "pugixml.hpp"
+
 #include <list>
 #include <map>
 #include <set>
 #include <vector>
-
-// forward references without namespace
-class TiXmlElement;
 
 namespace PLEXIL
 {
@@ -72,11 +71,11 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      * @param execInterface Reference to the parent AdapterExecInterface object.
-     * @param xml A const pointer to the TiXmlElement describing this adapter
-     * @note The instance maintains a shared pointer to the TiXmlElement.
+     * @param xml Const reference to the XML element describing this adapter
+     * @note The instance maintains a shared reference to the XML.
      */
     InterfaceAdapter(AdapterExecInterface& execInterface, 
-		     const TiXmlElement * xml);
+					 const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -213,7 +212,7 @@ namespace PLEXIL
     /**
      * @brief Get the configuration XML for this instance.
      */
-    const TiXmlElement* getXml()
+    const pugi::xml_node& getXml()
     {
       return m_xml;
     }
@@ -245,7 +244,7 @@ namespace PLEXIL
     // Member variables
     //
 
-    const TiXmlElement * m_xml;
+    const pugi::xml_node m_xml;
     InterfaceAdapterId m_id;
   };
 

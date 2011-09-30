@@ -73,7 +73,7 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      */
-    LuvListener(const TiXmlElement* xml);
+    LuvListener(const pugi::xml_node& xml);
 
 	//* Constructor from TestExec.
 	LuvListener(const std::string& host, 
@@ -157,9 +157,9 @@ namespace PLEXIL
      * @param hostname The host name where the Luv instance is running.
      * @param port The port number for the Luv instance.
      */
-    static TiXmlElement* constructConfigurationXml(const bool& block = false,
-						   const char* hostname = LUV_DEFAULT_HOSTNAME(),
-						   const unsigned int port = LUV_DEFAULT_PORT());
+    static pugi::xml_document* constructConfigurationXml(const bool& block = false,
+														 const char* hostname = LUV_DEFAULT_HOSTNAME(),
+														 const unsigned int port = LUV_DEFAULT_PORT());
 
   private:
 

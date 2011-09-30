@@ -29,9 +29,7 @@
 
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
-
-// forward reference w/o namespace
-class TiXmlElement;
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -53,16 +51,16 @@ namespace PLEXIL
      * @brief Default constructor.
      */
 	ExecListenerBase()
-	  : m_xml(NULL),
+	  : m_xml(),
 		m_baseId(this)
 	{
 	}
 
     /**
      * @brief Constructor from configuration XML
-     * @param xml Pointer to the (shared) configuration XML describing this listener.
+     * @param xml Reference to the (shared) configuration XML describing this listener.
      */
-	ExecListenerBase(const TiXmlElement* xml)
+	ExecListenerBase(const pugi::xml_node& xml)
 	  : m_xml(xml),
 		m_baseId(this)
 	{
@@ -78,7 +76,7 @@ namespace PLEXIL
 	  return m_baseId;
 	}
 
-	const TiXmlElement* getXml() const
+	const pugi::xml_node& getXml() const
 	{
 	  return m_xml;
 	}
@@ -158,7 +156,7 @@ namespace PLEXIL
     virtual bool shutdown() = 0;
 
   protected:
-	const TiXmlElement* m_xml;
+	const pugi::xml_node m_xml;
 
   private:
 	ExecListenerBaseId m_baseId;

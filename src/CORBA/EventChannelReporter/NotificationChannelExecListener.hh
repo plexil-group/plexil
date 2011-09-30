@@ -41,7 +41,7 @@ namespace PLEXIL
 					  public BaseEventChannelExecListener
   {
   public:
-    NotificationChannelExecListener(const TiXmlElement* xml);
+    NotificationChannelExecListener(const pugi::xml_node& xml);
     virtual ~NotificationChannelExecListener();
 
     virtual bool isConnected() const;

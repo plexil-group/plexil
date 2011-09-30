@@ -35,7 +35,7 @@
 namespace PLEXIL {
 
 UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-                     const TiXmlElement*& configXml) :
+							   const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("UtilityAdapter", " created.");

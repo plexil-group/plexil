@@ -33,8 +33,6 @@
 #include <sys/time.h>
 #include <map>
 
-// forward reference w/o namespace
-
 namespace PLEXIL
 {
 
@@ -54,11 +52,11 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      * @param execInterface Reference to the parent AdapterExecInterface object.
-     * @param xml A const pointer to the TiXmlElement describing this adapter
-     * @note The instance maintains a shared pointer to the TiXmlElement.
+     * @param xml An XML element describing this adapter
+     * @note The instance maintains a shared pointer to the XML element.
      */
     DarwinTimeAdapter(AdapterExecInterface& execInterface, 
-                     const TiXmlElement * xml);
+					  const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.

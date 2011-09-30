@@ -29,9 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= PlanDebugListener
 
 # External dependencies
-INC_DIRS	+= ../../utils ../../exec 
+INC_DIRS	+= ../../utils ../../exec $(PLEXIL_HOME)/third-party/pugixml/src
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec
+LIBS		+= pugixml PlexilUtils PlexilExec
 
 INC		:= PlanDebugListener.hh
 SRC		:= $(INC:.hh=.cc)

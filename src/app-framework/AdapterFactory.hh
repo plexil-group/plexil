@@ -31,8 +31,11 @@
 #include "LabelStr.hh"
 #include <map>
 
-// Forward reference w/o namespace
-class TiXmlElement;
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -61,7 +64,7 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
-    static InterfaceAdapterId createInstance(const TiXmlElement* xml,
+    static InterfaceAdapterId createInstance(const pugi::xml_node& xml,
                                              AdapterExecInterface& execInterface);
 
 
@@ -75,7 +78,7 @@ namespace PLEXIL
      */
 
     static InterfaceAdapterId createInstance(const LabelStr& name, 
-                                             const TiXmlElement* xml,
+                                             const pugi::xml_node& xml,
                                              AdapterExecInterface& execInterface);
 
     /**
@@ -90,7 +93,7 @@ namespace PLEXIL
      */
 
     static InterfaceAdapterId createInstance(const LabelStr& name,
-                                             const TiXmlElement* xml,
+                                             const pugi::xml_node& xml,
                                              AdapterExecInterface& execInterface,
                                              bool& wasCreated);
 
@@ -128,7 +131,7 @@ namespace PLEXIL
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new InterfaceAdapter.
      */
-    virtual InterfaceAdapterId create(const TiXmlElement* xml,
+    virtual InterfaceAdapterId create(const pugi::xml_node& xml,
                                       AdapterExecInterface& execInterface,
                                       bool& wasCreated) const = 0;
 
@@ -180,7 +183,7 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.
      */
 
-    InterfaceAdapterId create(const TiXmlElement* xml,
+    InterfaceAdapterId create(const pugi::xml_node& xml,
                               AdapterExecInterface& execInterface,
                               bool& wasCreated) const
     {

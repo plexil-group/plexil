@@ -195,9 +195,6 @@ int ExecTestRunner::run(int argc, char** argv)
 
   initializeExpressions();
 
-  // always preserve white space in XML
-  TiXmlBase::SetCondenseWhiteSpace(false);
-
   // create the exec
 
   TestExternalInterface intf;
@@ -233,19 +230,19 @@ int ExecTestRunner::run(int argc, char** argv)
   for (vector<string>::const_iterator libraryName = libraryNames.begin(); 
 	   libraryName != libraryNames.end();
 	   ++libraryName) {
-    TiXmlDocument libraryXml(*libraryName);
-	if (!libraryXml.LoadFile()) {
+	pugi::xml_document libraryXml;
+	pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+	if (parseResult.status != pugi::status_ok) {
 	  warn("XML error parsing library file '" << *libraryName
-		   << "' (line " << libraryXml.ErrorRow() << ", column " << libraryXml.ErrorCol()
-		   << "):\n" << libraryXml.ErrorDesc());
+		   << "' (offset " << parseResult.offset
+		   << "):\n" << parseResult.description());
 	  return -1;
 	}
 
     PlexilNodeId libnode;
     try {
       libnode =
-        PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
-							   ->FirstChildElement("Node"));
+        PlexilXmlParser::parse(libraryXml.document_element().child("PlexilPlan").child("Node"));
     } 
 	catch (ParserException& e) {
 	  warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
@@ -256,23 +253,26 @@ int ExecTestRunner::run(int argc, char** argv)
   }
 
   // Load the plan
-  TiXmlDocument plan(planName);
-  if (!plan.LoadFile()) {
+  pugi::xml_document plan;
+  pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+  if (parseResult.status != pugi::status_ok) {
 	warn("XML error parsing plan file '" << planName
-		 << "' (line " << plan.ErrorRow() << ", column " << plan.ErrorCol()
-		 << "):\n" << plan.ErrorDesc());
+		 << "' (offset " << parseResult.offset
+		 << "):\n" << parseResult.description());
 	return -1;
   }
 
   PlexilNodeId root;
-  try {
+  // *** TEMPORARY *** Comment out error handling
+  //try {
 	root =
-	  PlexilXmlParser::parse(plan.FirstChildElement("PlexilPlan")
-							 ->FirstChildElement("Node"));
-  } catch (ParserException& e) {
-	warn("XML error parsing plan '" << planName << "':\n" << e.what());
-	return -1;
-  }
+	  PlexilXmlParser::parse(plan.document_element().child("Node"));
+	//  }
+	//  catch (ParserException& e) {
+	//	warn("XML error parsing plan '" << planName << "':\n" << e.what());
+	//	return -1;
+	//  }
+  // End *** TEMPORARY *** Comment out error handling
 
   {
 	// Check whether all libraries for this plan are loaded
@@ -311,22 +311,24 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // load script
 
-  TiXmlDocument script(scriptName);
-  if (!script.LoadFile()) {
+  pugi::xml_document script;
+  parseResult = script.load_file(scriptName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+  if (parseResult.status != pugi::status_ok) {
     checkParserException(false,
-                         "(line " << script.ErrorRow() << ", column " << script.ErrorCol()
-                         << ") XML error parsing script '" << scriptName << "': " << script.ErrorDesc());
+                         "(offset " << parseResult.offset
+                         << ") XML error parsing script '" << scriptName << "': "
+						 << parseResult.description());
     return -1;
   }
   // execute plan
 
   clock_t time = clock();
-  TiXmlElement* scriptElement = script.FirstChildElement("PLEXILScript");
-  if (scriptElement == 0) {
+  pugi::xml_node scriptElement = script.child("PLEXILScript");
+  if (scriptElement.empty()) {
     warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
     return -1;
   }
-  intf.run(*scriptElement);
+  intf.run(scriptElement);
   debugMsg("Time", "Time spent in execution: " << clock() - time);
 
   // clean up

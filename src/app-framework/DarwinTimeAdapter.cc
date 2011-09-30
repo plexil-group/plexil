@@ -56,11 +56,11 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    * @param execInterface Reference to the parent AdapterExecInterface object.
-   * @param xml A const pointer to the TiXmlElement describing this adapter
-   * @note The instance maintains a shared pointer to the TiXmlElement.
+   * @param xml A const reference to the XML element describing this adapter
+   * @note The instance maintains a shared pointer to the XML.
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface, 
-				       const TiXmlElement * xml)
+									   const pugi::xml_node& xml)
     : InterfaceAdapter(execInterface, xml)
   {
   }

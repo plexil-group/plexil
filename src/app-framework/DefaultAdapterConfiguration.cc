@@ -61,81 +61,45 @@ void DefaultAdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId adap
   debugMsg("DefaultAdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
   // Walk the children of the configuration XML element
   // and register the adapter according to the data found there
-  const TiXmlElement* element = adapter->getXml()->FirstChildElement();
-  while (element != 0) {
-    const char* elementType = element->Value();
+  pugi::xml_node element = adapter->getXml().first_child();
+  while (!element.empty()) {
+    const char* elementType = element.name();
     // look for text as the only child of this element
     // to use below
-    const TiXmlNode* firstChild = element->FirstChild();
-    const TiXmlText* text = 0;
-    if (firstChild != 0)
-      text = firstChild->ToText();
+    const pugi::xml_node firstChild = element.first_child();
+    const char* text = NULL;
+    if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
+      text = firstChild.value();
 
     if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0) {
       setDefaultInterface(adapter);
-      // warn if children found
-      if (text != 0) {
-        warn("registerInterface: extraneous text in "
-            << InterfaceSchema::DEFAULT_ADAPTER_TAG()
-            << " ignored");
-      } else if (firstChild != 0) {
-        warn("registerInterface: extraneous XML element(s) in "
-            << InterfaceSchema::DEFAULT_ADAPTER_TAG()
-            << " ignored");
-      }
-    } else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()) == 0) {
+    } 
+	else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()) == 0) {
       setDefaultCommandInterface(adapter);
-      // warn if children found
-      if (text != 0) {
-        warn("registerInterface: extraneous text in "
-            << InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()
-            << " ignored");
-      } else if (firstChild != 0) {
-        warn("registerInterface: extraneous XML element(s) in "
-            << InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()
-            << " ignored");
-      }
     }
-    if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()) == 0) {
+    else if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()) == 0) {
       setDefaultLookupInterface(adapter);
-      // warn if children found
-      if (text != 0) {
-        warn("registerInterface: extraneous text in "
-            << InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()
-            << " ignored");
-      } else if (firstChild != 0) {
-        warn("registerInterface: extraneous XML element(s) in "
-            << InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()
-            << " ignored");
-      }
-    } else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0) {
+    }
+	else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0) {
       registerPlannerUpdateInterface(adapter);
-      // warn if children found
-      if (text != 0) {
-        warn("registerInterface: extraneous text in "
-            << InterfaceSchema::PLANNER_UPDATE_TAG()
-            << " ignored");
-      } else if (firstChild != 0) {
-        warn("registerInterface: extraneous XML element(s) in "
-            << InterfaceSchema::PLANNER_UPDATE_TAG()
-            << " ignored");
-      }
-    } else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0) {
-      checkError(text != 0,
-          "registerAdapter: Invalid configuration XML: "
-          << InterfaceSchema::COMMAND_NAMES_TAG()
-          << " requires one or more comma-separated command names");
-      std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text->Value());
+    }
+	else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0) {
+      checkError(*text != '\0',
+				 "registerAdapter: Invalid configuration XML: "
+				 << InterfaceSchema::COMMAND_NAMES_TAG()
+				 << " requires one or more comma-separated command names");
+      std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
       for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); it++) {
         registerCommandInterface(LabelStr(*it), adapter);
       }
       delete cmdNames;
-    } else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
-      checkError(text != 0,
-          "registerAdapter: Invalid configuration XML: "
-          << InterfaceSchema::LOOKUP_NAMES_TAG()
-          << " requires one or more comma-separated lookup names");
-      std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text->Value());
+    } 
+	else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
+      checkError(*text != '\0',
+				 "registerAdapter: Invalid configuration XML: "
+				 << InterfaceSchema::LOOKUP_NAMES_TAG()
+				 << " requires one or more comma-separated lookup names");
+      std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
       for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); it++) {
         registerLookupInterface(LabelStr(*it), adapter);
       }
@@ -143,7 +107,7 @@ void DefaultAdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId adap
     }
     // ignore other tags, they're for adapter's use
 
-    element = element->NextSiblingElement();
+    element = element.next_sibling();
   }
 }
 

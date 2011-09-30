@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   PlanDebugListener::PlanDebugListener () { }
 
-  PlanDebugListener::PlanDebugListener (const TiXmlElement* xml)
+  PlanDebugListener::PlanDebugListener (const pugi::xml_node& xml)
     : ExecListener (xml)
   { }
 

@@ -61,6 +61,14 @@ namespace PLEXIL
 	// Called from the transition handler
     virtual void abort();
 
+	/**
+	 * @brief Get the node's command.
+	 */
+	const CommandId& getCommand()
+	{
+	  return m_command; 
+	}
+
   protected:
 
 	// Specific behaviors for derived classes

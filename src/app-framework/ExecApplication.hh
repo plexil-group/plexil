@@ -43,9 +43,12 @@
 
 #define EXEC_APPLICATION_MAX_N_SIGNALS 8
 
-// Forward references in global namespace
-class TiXmlDocument;
-class TiXmlElement;
+// Forward references
+namespace pugi
+{
+  class xml_document;
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -122,7 +125,7 @@ namespace PLEXIL
      * @note The caller must ensure that all adapter and listener factories
      *       have been created and registered before this call.
      */
-    virtual bool initialize(const TiXmlElement * configXml);
+    virtual bool initialize(const pugi::xml_node& configXml);
 
     /**
      * @brief Start all the interfaces prior to execution.
@@ -205,13 +208,13 @@ namespace PLEXIL
      * @brief Add a library as an XML document.
      * @return true if successful, false otherwise.
      */
-    virtual bool addLibrary(TiXmlDocument* libXml);
+    virtual bool addLibrary(const pugi::xml_document* libXml);
 
     /**
      * @brief Add a plan as an XML document.
      * @return true if successful, false otherwise.
      */
-    virtual bool addPlan(TiXmlDocument* planXml);
+    virtual bool addPlan(const pugi::xml_document* planXml);
 
     /**
      * @brief Suspend the current thread until the plan finishes executing.

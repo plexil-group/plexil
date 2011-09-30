@@ -30,10 +30,6 @@
 #include "Debug.hh"
 #include "Expression.hh"
 #include "InterfaceSchema.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
 
 namespace PLEXIL
 {
@@ -51,23 +47,30 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    */
-  ExecListener::ExecListener(const TiXmlElement* xml)
+  ExecListener::ExecListener(const pugi::xml_node& xml)
     : ExecListenerBase(xml),
 	  m_id(this, ExecListenerBase::getId()), 
       m_filter()
   {
-    if (xml != NULL) {
-	  const TiXmlElement * filterSpec = xml->FirstChildElement(InterfaceSchema::FILTER_TAG());
-	  if (filterSpec != NULL) {
+    if (!xml.empty()) {
+	  pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
+	  if (!filterSpec.empty()) {
 		// Construct specified event filter
               
-		const char* filterType = filterSpec->Attribute(InterfaceSchema::FILTER_TYPE_ATTR());
-		assertTrueMsg(filterType != NULL,
+		pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+		assertTrueMsg(!filterTypeAttr.empty(),
 					  "ExecListener constructor: invalid XML: <"
 					  << InterfaceSchema::FILTER_TAG()
-					  << "> element without a "
+					  << "> element missing a "
 					  << InterfaceSchema::FILTER_TYPE_ATTR()
 					  << " attribute");
+		const char* filterType = filterTypeAttr.value();
+		assertTrueMsg(*filterType != '\0',
+					  "ExecListener constructor: invalid XML: <"
+					  << InterfaceSchema::FILTER_TAG()
+					  << "> element's "
+					  << InterfaceSchema::FILTER_TYPE_ATTR()
+					  << " attribute is empty");
 		ExecListenerFilterId f = 
 		  ExecListenerFilterFactory::createInstance(LabelStr(filterType),
 													filterSpec);

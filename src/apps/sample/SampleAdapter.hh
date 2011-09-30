@@ -38,7 +38,7 @@
 class SampleAdapter : public PLEXIL::InterfaceAdapter
 {
 public:
-  SampleAdapter (PLEXIL::AdapterExecInterface&, const TiXmlElement*&);
+  SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
 
   bool initialize();
   bool start();

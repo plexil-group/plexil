@@ -146,41 +146,50 @@ int main (int argc, char** argv)
     DebugMessage::readConfigFile(dbgConfig);
 
   // get interface configuration file, if provided
-  TiXmlDocument* configDoc = NULL;
+  pugi::xml_document configDoc;
   if (!interfaceConfig.empty()) {
     std::cout << "Reading interface configuration from " << interfaceConfig << std::endl;
-    configDoc = new TiXmlDocument(interfaceConfig);
-    if (!configDoc->LoadFile()) {
+	pugi::xml_parse_result parseResult = configDoc.load_file(interfaceConfig.c_str());
+    if (parseResult.status != pugi::status_ok) {
       std::cout << "WARNING: unable to load interface configuration file " 
                 << interfaceConfig 
                 << ":\n " 
-                << configDoc->ErrorDesc()
+                << parseResult.description()
                 << "\nContinuing without interface configuration" << std::endl;
-      delete configDoc;
-      configDoc = NULL;
     }
+	debugMsg("UniversalExec", " got configuration XML starting with " << configDoc.document_element().name());
   }
 
   // get Interfaces element
-  TiXmlElement* configElt = NULL;
-  if (configDoc == NULL) {
-      configElt = new TiXmlElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
-      // Add a time adapter
-      TiXmlElement* timeElt = new TiXmlElement(PLEXIL::InterfaceSchema::ADAPTER_TAG());
-      timeElt->SetAttribute("AdapterType", "OSNativeTime");
-      configElt->LinkEndChild(timeElt);
-    }
+  pugi::xml_node configElt;
+  if (configDoc.empty()) {
+	// Construct default interface XML
+	configElt = configDoc.append_child(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+	// Add a time adapter
+	pugi::xml_node timeElt = configElt.append_child(PLEXIL::InterfaceSchema::ADAPTER_TAG());
+	timeElt.append_attribute("AdapterType").set_value("OSNativeTime");
+  }
   else {
-      configElt = configDoc->FirstChildElement(PLEXIL::InterfaceSchema::INTERFACES_TAG());
-    }
+	configElt = configDoc.child(PLEXIL::InterfaceSchema::INTERFACES_TAG());
+	if (configElt.empty()) {
+      std::cout << "ERROR: configuration XML lacks \"" << PLEXIL::InterfaceSchema::INTERFACES_TAG()
+				<< "\" element; unable to initialize application"
+                << std::endl;
+      return -1;
+	}
+  }
 
   // if a luv view is to be attached,
   // add dummy element for LuvListener
   if (luvRequest) {
-      configElt->LinkEndChild(PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
-										luvHost.c_str(), 
-										luvPort));
-    }
+	pugi::xml_document* luvConfig = 
+	  PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
+													 luvHost.c_str(), 
+													 luvPort);	
+	// FIXME: add null check?
+	configElt.append_copy(luvConfig->document_element());
+	delete luvConfig;
+  }
 
   // construct the application
   PLEXIL::ExecApplication _app;
@@ -220,11 +229,12 @@ int main (int argc, char** argv)
        libraryName != libraryNames.end();
        ++libraryName) {
 	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
-    TiXmlDocument libraryXml(*libraryName);
-    if (!libraryXml.LoadFile()) {
-      std::cout << "XML error parsing library '" << *libraryName << "': "
-                << libraryXml.ErrorDesc() << " line " << libraryXml.ErrorRow()
-                << " column " << libraryXml.ErrorCol() << std::endl;
+	pugi::xml_document libraryXml;
+	pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str());
+    if (parseResult.status != pugi::status_ok) {
+      std::cout << "XML error parsing library " << *libraryName
+				<< " (offset " << parseResult.offset << "): "
+                << parseResult.description() << std::endl;
 	  error = true;
     }
 	else if (!_app.addLibrary(&libraryXml)) {
@@ -235,11 +245,12 @@ int main (int argc, char** argv)
 
   // load the plan
   if (!error && planName != "error") {
-    TiXmlDocument plan(planName);
-    if (!plan.LoadFile()) {
-      std::cout << "Error parsing plan '" << planName << "': "
-                << plan.ErrorDesc() << " line " << plan.ErrorRow()
-                << " column " << plan.ErrorCol() << std::endl;
+	pugi::xml_document plan;
+	pugi::xml_parse_result parseResult = plan.load_file(planName.c_str());
+    if (parseResult.status != pugi::status_ok) {
+      std::cout << "Error parsing plan " << planName
+				<< " (offset " << parseResult.offset << "): "
+                << parseResult.description() << std::endl;
 	  error = true;
     }
     else if (!_app.addPlan(&plan)) {

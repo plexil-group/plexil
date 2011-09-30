@@ -25,22 +25,26 @@
 */
 
 #include "StructuredEventFormatter.hh"
+#include "Command.hh"
+#include "CommandNode.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
+#include "Update.hh"
+#include "UpdateNode.hh"
 
 #include <cmath> // for floor()
 
 namespace PLEXIL
 {
 
-  StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml)
+  StructuredEventFormatter::StructuredEventFormatter(const pugi::xml_node& xml)
     : EventFormatter(xml),
       m_eventDomainName("_no_domain_name_")
   {
   }
 
-  StructuredEventFormatter::StructuredEventFormatter(const TiXmlElement* xml, 
+  StructuredEventFormatter::StructuredEventFormatter(const pugi::xml_node& xml, 
 						     const std::string & domainName)
     : EventFormatter(xml),
       m_eventDomainName(domainName)
@@ -89,11 +93,11 @@ namespace PLEXIL
     // command if appropriate
     if ((node->getType() == Node::COMMAND()) &&
 	(nodeFinished || nodeExecuting))
-      dataLength += 2 + node->getCommand()->getArgValues().size();
+      dataLength += 2 + ((CommandNode*) node)->getCommand()->getArgValues().size();
     // planner update if appropriate
     if ((node->getType() == Node::UPDATE()) && 
 	(nodeFinished || nodeExecuting))
-      dataLength += 1 + 2 * node->getUpdate()->getPairs().size();
+      dataLength += 1 + 2 * ((UpdateNode*) node)->getUpdate()->getPairs().size();
 
     debugMsg("ExecListener:formatTransition",
 	     " expecting " << dataLength << " name/value pairs");
@@ -125,7 +129,7 @@ namespace PLEXIL
     if ((node->getType() == Node::COMMAND()) &&
 	(nodeFinished || nodeExecuting))
       {
-	CommandId cmd = node->getCommand();
+		CommandId cmd = ((CommandNode*) node)->getCommand();
 	checkError(!cmd.isNoId(),
 		   "formatTransition: command is null!");
 
@@ -151,7 +155,7 @@ namespace PLEXIL
     if ((node->getType() == Node::UPDATE()) && 
 	(nodeFinished || nodeExecuting))
       {
-	const std::map<double, double>& bindings = node->getUpdate()->getPairs();
+		const std::map<double, double>& bindings = ((UpdateNode*) node)->getUpdate()->getPairs();
 	pushEvent->filterable_data[i].name = "bindingDimension";
 	pushEvent->filterable_data[i++].value <<= (CORBA::ULong) bindings.size();
 	for (std::map<double,double>::const_iterator it = bindings.begin();
@@ -207,8 +211,8 @@ namespace PLEXIL
     pushEvent->filterable_data[1].name = "planBody";
     std::ostringstream planStream;
     {
-      const TiXmlElement* xmlPlan = PlexilXmlParser::toXml(plan);
-      planStream << xmlPlan;
+      const pugi::xml_document* xmlPlan = PlexilXmlParser::toXml(plan);
+      xmlPlan->save(planStream, "", pugi::format_raw | pugi::format_no_declaration);
       delete xmlPlan;
     }
     pushEvent->filterable_data[1].value <<= planStream.str().c_str();

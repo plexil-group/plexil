@@ -35,18 +35,13 @@
 
 #include <sstream>
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
-
 namespace PLEXIL
 {
 
   /**
    * @brief Constructor from configuration XML.
    */
-  LuvListener::LuvListener(const TiXmlElement* xml)
+  LuvListener::LuvListener(const pugi::xml_node& xml)
 	: ExecListener(xml),
 	  m_socket(NULL),
 	  m_host(LUV_DEFAULT_HOSTNAME()),
@@ -85,22 +80,26 @@ namespace PLEXIL
   bool LuvListener::initialize()
   {
     // parse XML to find host, port, blocking flag
-    const TiXmlElement* xml = this->getXml();
-	if (xml == NULL)
+    const pugi::xml_node& xml = this->getXml();
+	if (xml.empty())
 	  // Have to presume that things were constructed correctly
 	  return true;
 
-    m_host = xml->Attribute(LUV_HOSTNAME_ATTR());
-    if (m_host == NULL) {
+	pugi::xml_attribute hostAttr = xml.attribute(LUV_HOSTNAME_ATTR());
+    if (hostAttr.empty()) {
 	  debugMsg("LuvListener:initialize",
 			   " no " << LUV_HOSTNAME_ATTR()
 			   << " attribute found, using default host " << LUV_DEFAULT_HOSTNAME());
 	  m_host = LUV_DEFAULT_HOSTNAME();
 	}
+	else {
+	  // FIXME: add sanity check?
+	  m_host = hostAttr.value();
+	}
 
-    int rawPort = 0;
-    const char* dummy = xml->Attribute(LUV_PORT_ATTR(), &rawPort);
-    if (dummy == NULL) {
+
+	pugi::xml_attribute portAttr = xml.attribute(LUV_PORT_ATTR());
+    if (portAttr.empty()) {
 	  debugMsg("LuvListener:initialize",
 			   " no " << LUV_PORT_ATTR()
 			   << " attribute found, using default port " << LUV_DEFAULT_PORT());
@@ -109,32 +108,30 @@ namespace PLEXIL
     else {
 	  // Should range check here
 	  // *** NYI ***
-	  m_port = (uint16_t) rawPort;
+	  m_port = (uint16_t) portAttr.as_uint();
 	}
 
-    dummy = xml->Attribute(LUV_BLOCKING_ATTR());
-    if (dummy == NULL) {
+	pugi::xml_attribute blockAttr = xml.attribute(LUV_BLOCKING_ATTR());
+    if (blockAttr.empty()) {
 	  debugMsg("LuvListener:initialize",
 			   " no " << LUV_BLOCKING_ATTR()
 			   << " attribute found, using default \"false\"");
 	  m_block = false;
 	}
-    else if (strcmp(dummy, TRUE_STR()) == 0)
-	  m_block = true;
-    else
-	  m_block =false;
+    else {
+	  m_block = blockAttr.as_bool();
+	}
 
-    dummy = xml->Attribute(IGNORE_CONNECT_FAILURE_ATTR());
-    if (dummy == NULL) {
+	pugi::xml_attribute ignoreFailAttr = xml.attribute(IGNORE_CONNECT_FAILURE_ATTR());
+    if (ignoreFailAttr.empty()) {
 	  debugMsg("LuvListener:initialize",
 			   " no " << IGNORE_CONNECT_FAILURE_ATTR()
 			   << " attribute found, using default \"true\"");
 	  m_ignoreConnectFailure = true;
 	}
-    else if (strcmp(dummy, FALSE_STR()) == 0)
-	  m_ignoreConnectFailure = false;
-    else
-	  m_ignoreConnectFailure = true;
+    else {
+	  m_ignoreConnectFailure = ignoreFailAttr.as_bool();
+	}
 
     return true; 
   }
@@ -187,16 +184,16 @@ namespace PLEXIL
    * @param hostname The host name where the Luv instance is running.
    * @param port The port number for the Luv instance.
    */
-  TiXmlElement* LuvListener::constructConfigurationXml(const bool& block,
-													   const char* hostname,
-													   const unsigned int port)
+  pugi::xml_document* LuvListener::constructConfigurationXml(const bool& block,
+															 const char* hostname,
+															 const unsigned int port)
   {
-    TiXmlElement* result = new TiXmlElement("Listener");
-    result->SetAttribute("ListenerType", "LuvListener");
-    result->SetAttribute(LUV_BLOCKING_ATTR(),
-						 block ? "true" : "false");
-    result->SetAttribute(LUV_HOSTNAME_ATTR(), hostname);
-    result->SetAttribute(LUV_PORT_ATTR(), port);
+	pugi::xml_document* result = new pugi::xml_document();
+	pugi::xml_node toplevel = result->append_child("Listener");
+    toplevel.append_attribute("ListenerType").set_value("LuvListener");
+    toplevel.append_attribute(LUV_BLOCKING_ATTR()).set_value(block);
+    toplevel.append_attribute(LUV_HOSTNAME_ATTR()).set_value(hostname);
+    toplevel.append_attribute(LUV_PORT_ATTR()).set_value(port);
     return result;
   }
 

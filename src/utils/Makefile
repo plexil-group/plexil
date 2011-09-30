@@ -29,9 +29,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= PlexilUtils
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src
 LIB_PATH	+=
-LIBS		+= tinyxml $(PTHREAD_LIB) dl
+LIBS		+= pugixml $(PTHREAD_LIB) dl
 
 SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \

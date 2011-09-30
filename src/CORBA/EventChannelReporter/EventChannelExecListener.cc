@@ -37,19 +37,18 @@
 
 namespace PLEXIL
 {
-  BaseEventChannelExecListener::BaseEventChannelExecListener(const TiXmlElement* xml)
+  BaseEventChannelExecListener::BaseEventChannelExecListener(const pugi::xml_node& xml)
     : ExecListener(xml),
       m_formatter()
   {
     // Get formatter spec from XML
-    if (this->getXml() == NULL)
+    if (this->getXml().empty())
       return;
-    const TiXmlElement* formatterXml = 
-      this->getXml()->FirstChildElement(EventFormatterSchema::EVENT_FORMATTER_TAG());
-    if (formatterXml == NULL)
+    const pugi::xml_node formatterXml = 
+      this->getXml().child(EventFormatterSchema::EVENT_FORMATTER_TAG());
+    if (formatterXml.empty())
       return;
-    m_formatter = EventFormatterFactory::createInstance(formatterXml,
-                                                        this->getManager());
+    m_formatter = EventFormatterFactory::createInstance(formatterXml);
   }
 
   BaseEventChannelExecListener::~BaseEventChannelExecListener()
@@ -62,7 +61,7 @@ namespace PLEXIL
     m_formatter = fmtr;
   }
 
-  EventChannelExecListener::EventChannelExecListener(const TiXmlElement* xml)
+  EventChannelExecListener::EventChannelExecListener(const pugi::xml_node& xml)
     : BaseEventChannelExecListener(xml),
       POA_CosEventComm::PushSupplier(),
       m_isConnected(false)
@@ -90,7 +89,7 @@ namespace PLEXIL
   bool EventChannelExecListener::initialize()
   {
     // Some checks before we get rolling
-    if (this->getXml() == NULL)
+    if (this->getXml().empty())
       {
         // can't get channel name from nonexistent XML, so fail
         debugMsg("EventChannelExecListener:initialize",
@@ -100,8 +99,8 @@ namespace PLEXIL
 
     // Extract event channel name from XML
     const char* channelName =
-      this->getXml()->Attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE());
-    if (channelName == NULL)
+      this->getXml().attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()).value();
+    if (*channelName == '\0')
       {
         // can't connect without a channel name, so fail
         debugMsg("EventChannelExecListener:initialize",
@@ -123,7 +122,7 @@ namespace PLEXIL
     if (isConnected())
       return true; // already done
 
-    if (this->getXml() == NULL)
+    if (this->getXml().empty())
       {
         // can't get channel name from nonexistent XML, so fail
         debugMsg("EventChannelExecListener:start",
@@ -133,8 +132,8 @@ namespace PLEXIL
 
     // Extract event channel name from XML
     const char* channelName =
-      this->getXml()->Attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE());
-    if (channelName == NULL)
+      this->getXml().attribute(EventFormatterSchema::EVENT_CHANNEL_NAME_ATTRIBUTE()).value();
+    if (*channelName == '\0')
       {
         // can't connect without a channel name, so fail
         debugMsg("EventChannelExecListener:initialize",

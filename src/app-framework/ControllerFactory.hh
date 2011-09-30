@@ -31,8 +31,11 @@
 #include "LabelStr.hh"
 #include <map>
 
-// Forward reference w/o namespace
-class TiXmlElement;
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -61,7 +64,7 @@ namespace PLEXIL
      * @return The Id for the new ExecController.  May not be unique.
      */
 
-    static ExecControllerId createInstance(const TiXmlElement* xml,
+    static ExecControllerId createInstance(const pugi::xml_node& xml,
                                              ExecApplication& app);
 
 
@@ -75,7 +78,7 @@ namespace PLEXIL
      */
 
     static ExecControllerId createInstance(const LabelStr& name, 
-                                             const TiXmlElement* xml,
+                                             const pugi::xml_node& xml,
                                              ExecApplication& app);
 
     /**
@@ -90,7 +93,7 @@ namespace PLEXIL
      */
 
     static ExecControllerId createInstance(const LabelStr& name,
-                                             const TiXmlElement* xml,
+                                             const pugi::xml_node& xml,
                                              ExecApplication& app,
                                              bool& wasCreated);
 
@@ -128,7 +131,7 @@ namespace PLEXIL
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new ExecController.
      */
-    virtual ExecControllerId create(const TiXmlElement* xml,
+    virtual ExecControllerId create(const pugi::xml_node& xml,
                                       ExecApplication& app,
                                       bool& wasCreated) const = 0;
 
@@ -180,7 +183,7 @@ namespace PLEXIL
      * @return The Id for the new ExecController.
      */
 
-    ExecControllerId create(const TiXmlElement* xml,
+    ExecControllerId create(const pugi::xml_node& xml,
                               ExecApplication& app,
                               bool& wasCreated) const
     {

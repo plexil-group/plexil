@@ -151,7 +151,7 @@ static void receive (const string& state_name, bool val, int arg1, int arg2)
 
 
 SampleAdapter::SampleAdapter(PLEXIL::AdapterExecInterface& execInterface,
-                     const TiXmlElement*& configXml) :
+							 const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("SampleAdapter", " created.");

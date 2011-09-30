@@ -28,9 +28,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= PlexilExec
 
 # External dependencies
-INC_DIRS	+= ../utils $(PLEXIL_HOME)/third-party/tinyxml
+INC_DIRS	+= ../utils $(PLEXIL_HOME)/third-party/pugixml/src
 LIB_PATH	+=
-LIBS		+= PlexilUtils tinyxml
+LIBS		+= PlexilUtils pugixml
 
 SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh) ExecConnector.hh ExecDefs.hh ExternalInterface.hh NodeConnector.hh PlexilResource.hh
