@@ -115,9 +115,12 @@ namespace PLEXIL {
          conditionName != allConditions.end();
 		 ++conditionName) {
 	  LabelStr cname(*conditionName);
-	  simpleTextElement(s, 
-						cname.c_str(), 
-						node->getCondition(cname)->valueString().c_str());
+	  ExpressionId cond = node->getCondition(cname);
+	  if (cond.isId()) {
+		simpleTextElement(s, 
+						  cname.c_str(), 
+						  cond->valueString().c_str());
+	  }
 	}
 
 	endTag(s, LuvFormat::CONDITIONS_TAG());
