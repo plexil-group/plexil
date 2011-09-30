@@ -1682,7 +1682,13 @@ namespace PLEXIL
   void PlexilXmlParser::toXml(const PlexilExprId& exprId, xml_node& parent)
 	throw(ParserException)
   {
-	const PlexilExpr* expr = exprId.operator->();
+	toXml(exprId.operator->(), parent);
+  }
+
+  void PlexilXmlParser::toXml(const PlexilExpr* expr, xml_node& parent)
+	throw(ParserException)
+  {
+
 	if (0 != dynamic_cast<const PlexilVarRef*> (expr))
 	  toXml((const PlexilVarRef*) expr, parent);
 	else if (0 != dynamic_cast<const PlexilOp*> (expr))
@@ -1693,7 +1699,8 @@ namespace PLEXIL
 	  toXml((const PlexilLookup*) expr, parent);
 	else if (0 != dynamic_cast<const PlexilValue*> (expr))
 	  toXml((const PlexilValue*) expr, parent);
-	checkParserException(ALWAYS_FAIL, "Should never get here.");
+	else
+	  checkParserException(ALWAYS_FAIL, "Should never get here.");
 
 	// *** FIXME: add source locators to called fns above ***
   }
@@ -1713,7 +1720,8 @@ namespace PLEXIL
 	  toXml((PlexilCommandBody*) body, retval);
 	else if (Id<PlexilLibNodeCallBody>::convertable(body))
 	  toXml((PlexilLibNodeCallBody*) body, retval);
-	checkParserException(realBody != NULL, "Unknown body type.");
+	else
+	  checkParserException(realBody != NULL, "Unknown body type.");
 
 	// *** FIXME: add source locators to called fns above ***
 	addSourceLocators(retval, body);

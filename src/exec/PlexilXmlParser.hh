@@ -181,6 +181,8 @@ namespace PLEXIL
       throw(ParserException);
     static void toXml(const PlexilExprId& expr, pugi::xml_node& parent)
       throw(ParserException);
+    static void toXml(const PlexilExpr* expr, pugi::xml_node& parent)
+      throw(ParserException);
     static void toXml(const PlexilNodeBodyId& body, pugi::xml_node& parent)
       throw(ParserException);
     static void toXml(const PlexilVarRef* ref, pugi::xml_node& parent)
