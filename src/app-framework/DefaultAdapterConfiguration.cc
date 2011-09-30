@@ -33,10 +33,9 @@
 #include "DefaultAdapterConfiguration.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
-#include "Id.hh"
-#include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "DefaultAdapterConfiguration.hh"
+
+#include <cstring>
 
 namespace PLEXIL {
 

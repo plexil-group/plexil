@@ -62,6 +62,7 @@
 #include "Update.hh"
 #include "UtilityAdapter.hh"
 
+#include <cstring>
 #include <limits>
 #include <sstream>
 

@@ -40,6 +40,8 @@
 #include "PlexilXmlParser.hh"
 #include "pugixml.hpp"
 
+#include <cstring>
+
 namespace PLEXIL
 {
   ExecApplication::ExecApplication()

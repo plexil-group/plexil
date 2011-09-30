@@ -29,6 +29,7 @@
 #include "Debug.hh"
 #include "resource-tags.hh"
 
+#include <cstring>
 #include <set>
 #include <sstream>
 

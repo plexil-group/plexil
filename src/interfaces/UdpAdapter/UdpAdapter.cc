@@ -32,8 +32,10 @@
 #include "Node.hh"              // struct PLEXIL::Node
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"    // initUdpAdapter
+#include "stricmp.h"
 
 #include "pugixml.hpp"
+#include <cstring>
 
 namespace PLEXIL
 {
@@ -380,9 +382,9 @@ namespace PLEXIL
     m_messages.clear();         // clear the old messages (if any)
     // First, set up the internal debugging output
     const char* debug = xml.attribute("debug").value();
-    assertTrueMsg((*debug == '\0' || strcasecmp(debug, "true") == 0 || strcasecmp(debug, "false") == 0),
+    assertTrueMsg((*debug == '\0' || stricmp(debug, "true") == 0 || stricmp(debug, "false") == 0),
                   "parseXmlMessageDefinitions: debug must be a boolean, not " << debug);
-    if (*debug && strcasecmp(debug, "true") == 0) m_debug = true;
+    if (*debug && stricmp(debug, "true") == 0) m_debug = true;
     // Now, do the real work of parsing the XML UDP Configuration
 	const pugi::xml_attribute default_local_port = xml.attribute("default_local_port");
     const pugi::xml_attribute default_peer_port = xml.attribute("default_peer_port");

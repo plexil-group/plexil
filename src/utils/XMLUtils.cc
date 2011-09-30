@@ -32,6 +32,8 @@
  */
 
 #include <cerrno>
+#include <cstring>
+#include <cstdlib>
 
 namespace PLEXIL 
 {

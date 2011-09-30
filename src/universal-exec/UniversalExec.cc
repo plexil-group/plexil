@@ -24,9 +24,6 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fstream>
-#include <time.h>
-
 #include "ExecApplication.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
@@ -36,6 +33,9 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "LuvListener.hh"
+
+#include <cstring>
+#include <fstream>
 
 using namespace PLEXIL;
 

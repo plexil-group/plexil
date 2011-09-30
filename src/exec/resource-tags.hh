@@ -41,4 +41,4 @@ namespace PLEXIL
   extern const char *RESOURCE_RELEASE_AT_TERMINATION_TAG; // = "ResourceReleaseAtTermination";
 }
 
-#endif; // RESOURCE_TAGS_HH
+#endif // RESOURCE_TAGS_HH

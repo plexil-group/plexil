@@ -30,7 +30,6 @@
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "UpdateNode.hh"
-// #include "Node.hh" // redundant?
 
 namespace PLEXIL
 {

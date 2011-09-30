@@ -34,11 +34,12 @@
 #include "Expressions.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
-#include <time.h>
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "ExecTestRunner.hh"
 #include "LuvListener.hh"
+
+#include <cstring>
 #include <fstream>
 #include <string>
 

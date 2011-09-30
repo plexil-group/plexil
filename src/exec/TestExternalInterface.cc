@@ -42,9 +42,10 @@
 
 #include "pugixml.hpp"
 
+#include <cmath>
+#include <cstring>
 #include <limits>
 #include <sstream>
-#include <cmath>
 
 namespace PLEXIL
 {
