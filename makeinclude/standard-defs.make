@@ -79,24 +79,11 @@ CXX_PATCH_VERSION = $(word 3,$(subst ., ,$(CXX_VERSION)))
 
 ##### C++ compiler options.
 
-# KMD: Need proper flags for warning suppression...
-# Note: we do not normally skip any warnings.  The exceptions for now are:
-# 1355: extra trailing ';'
-# 1009: A "/*" appears inside a comment.
-# 3322: omission of explicit return type (pervasive in X11 files)
-# 1356: nonstandard member constant declaration
-# 1401: qualified name in class member declaration
-# 1375: base class destructor not virtual
-# 1201: trailing comma
-# 1234: "access control not specified (public by default)" -- found in some STL
-# SKIP_WARNINGS = -woff 1355,1009,3322,1356,1375,1401,1201,1234
-
 # Compiler options
 
 # Defines
-# -DTIXML_USE_STL ensures that any inclusion of tinyxml.h gets the STL types.
 # -D__STDC_LIMIT_MACROS directs system include file stdint.h to define the C99 INTnn_MAX/MIN macros.
-DEFINES			:= -DTIXML_USE_STL -D__STDC_LIMIT_MACROS
+DEFINES			:= -D__STDC_LIMIT_MACROS
 
 STANDARD_CFLAGS		:=
 STANDARD_CXXFLAGS	:=
