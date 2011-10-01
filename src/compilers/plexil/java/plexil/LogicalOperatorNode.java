@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,58 +30,58 @@ import org.antlr.runtime.tree.*;
 
 public class LogicalOperatorNode extends ExpressionNode
 {
-	public LogicalOperatorNode(Token t)
-	{
-		super(t);
-		m_dataType = PlexilDataType.BOOLEAN_TYPE;
-	}
+    public LogicalOperatorNode(Token t)
+    {
+        super(t);
+        m_dataType = PlexilDataType.BOOLEAN_TYPE;
+    }
 
-	public LogicalOperatorNode(LogicalOperatorNode n)
-	{
-		super(n);
-		m_dataType = PlexilDataType.BOOLEAN_TYPE;
-	}
+    public LogicalOperatorNode(LogicalOperatorNode n)
+    {
+        super(n);
+        m_dataType = PlexilDataType.BOOLEAN_TYPE;
+    }
 
-	// May have 1 or more args; all must be boolean
-	public void check(NodeContext context, CompilerState myState)
-	{
-		for (int i = 0; i < this.getChildCount(); i++) {
-			ExpressionNode operand = (ExpressionNode) this.getChild(i);
-			if (!operand.assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
-				myState.addDiagnostic(operand,
-									  "The operand to the " + this.getToken().getText() + " operator is not Boolean",
-									  Severity.ERROR);
-			}
+    // May have 1 or more args; all must be boolean
+    public void check(NodeContext context, CompilerState myState)
+    {
+        for (int i = 0; i < this.getChildCount(); i++) {
+            ExpressionNode operand = (ExpressionNode) this.getChild(i);
+            if (!operand.assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
+                myState.addDiagnostic(operand,
+                                      "The operand to the " + this.getToken().getText() + " operator is not Boolean",
+                                      Severity.ERROR);
+            }
 
-			// run semantic checks on operand even if it failed type check
-			operand.check(context, myState);
-		}
-	}
+            // run semantic checks on operand even if it failed type check
+            operand.check(context, myState);
+        }
+    }
 
-	public void constructXML()
-	{
-		super.constructXML();
-		for (int i = 0; i < this.getChildCount(); i++) {
-			m_xml.addChild(this.getChild(i).getXML());
-		}
-	}
+    public void constructXML()
+    {
+        super.constructXML();
+        for (int i = 0; i < this.getChildCount(); i++) {
+            m_xml.addChild(this.getChild(i).getXML());
+        }
+    }
 
-	public String getXMLElementName()
-	{
-		switch (this.getType()) {
-			// these have synonyms which don't match the required name
-		case PlexilLexer.AND_KYWD:
-			return "AND";
+    public String getXMLElementName()
+    {
+        switch (this.getType()) {
+            // these have synonyms which don't match the required name
+        case PlexilLexer.AND_KYWD:
+            return "AND";
 			
-		case PlexilLexer.OR_KYWD:
-			return "OR";
+        case PlexilLexer.OR_KYWD:
+            return "OR";
 
-		case PlexilLexer.NOT_KYWD:
-			return "NOT";
+        case PlexilLexer.NOT_KYWD:
+            return "NOT";
 
-		default:
-			return this.getToken().getText();
-		}
-	}
+        default:
+            return this.getToken().getText();
+        }
+    }
 
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,34 +27,34 @@ package plexil;
 
 public class Diagnostic
 {
-	private Severity m_severity;
-	private String m_message;
-	private PlexilTreeNode m_location;
+    private Severity m_severity;
+    private String m_message;
+    private PlexilTreeNode m_location;
 
-	public Diagnostic(PlexilTreeNode location, String message, Severity severity)
-	{
-		m_location = location;
-		m_message = message;
-		m_severity = severity;
-	}
+    public Diagnostic(PlexilTreeNode location, String message, Severity severity)
+    {
+        m_location = location;
+        m_message = message;
+        m_severity = severity;
+    }
 
-	public String toString()
-	{
-		if (m_location == null) {
-			return
-				m_severity.toString() + ": "
-				+ m_message;
-		}
-		else {
-			return
-				m_severity.toString() + ": "
-				// TODO: file name goes here
-				+ "line " + String.valueOf(m_location.getLine()) + ':'
-				+ String.valueOf(m_location.getCharPositionInLine()) + ": "
-				+ m_message;
-		}
-	}
+    public String toString()
+    {
+        if (m_location == null) {
+            return
+                m_severity.toString() + ": "
+                + m_message;
+        }
+        else {
+            return
+                m_severity.toString() + ": "
+                // TODO: file name goes here
+                + "line " + String.valueOf(m_location.getLine()) + ':'
+                + String.valueOf(m_location.getCharPositionInLine()) + ": "
+                + m_message;
+        }
+    }
 
-	public int severity() { return m_severity.rank; }
+    public int severity() { return m_severity.rank; }
 
 }

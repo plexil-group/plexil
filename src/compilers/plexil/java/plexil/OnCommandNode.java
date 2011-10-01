@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,33 +32,32 @@ import net.n3.nanoxml.*;
 
 public class OnCommandNode extends PlexilTreeNode
 {
-	public OnCommandNode(Token t)
-	{
-		super(t);
-	}
+    public OnCommandNode(Token t)
+    {
+        super(t);
+    }
 
-	public void checkSelf(NodeContext context, CompilerState state)
-	{
-		ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
-		if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
-			state.addDiagnostic(nameExp,
-								"The name expression to the " + this.getToken().getText()
-								+ " statement was not a string expression",
-								Severity.ERROR);
-		}
-	}
+    public void checkSelf(NodeContext context, CompilerState state)
+    {
+        ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
+        if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
+            state.addDiagnostic(nameExp,
+                                "The name expression to the " + this.getToken().getText()
+                                + " statement was not a string expression",
+                                Severity.ERROR);
+        }
+    }
 
-	public void constructXML()
-	{
-		super.constructXML();
-		IXMLElement nameXML = new XMLElement();
-		if (this.getType() == PlexilLexer.ON_COMMAND_KYWD)
-			nameXML.setName("Name");
-		else
-			nameXML.setName("Message");
-		m_xml.addChild(nameXML);
-		nameXML.addChild(this.getChild(0).getXML());
-		m_xml.addChild(this.getChild(1).getXML());
-	}
-
+    public void constructXML()
+    {
+        super.constructXML();
+        IXMLElement nameXML = new XMLElement();
+        if (this.getType() == PlexilLexer.ON_COMMAND_KYWD)
+            nameXML.setName("Name");
+        else
+            nameXML.setName("Message");
+        m_xml.addChild(nameXML);
+        nameXML.addChild(this.getChild(0).getXML());
+        m_xml.addChild(this.getChild(1).getXML());
+    }
 }

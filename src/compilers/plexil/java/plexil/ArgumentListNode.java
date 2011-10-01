@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,78 +32,78 @@ import org.antlr.runtime.tree.*;
 
 public class ArgumentListNode extends PlexilTreeNode
 {
-	public ArgumentListNode(Token t)
-	{
-		super(t);
-	}
+    public ArgumentListNode(Token t)
+    {
+        super(t);
+    }
 
-	public void earlyCheckArgumentList(NodeContext context,
-									   CompilerState state, 
-									   String callType,
-									   String callName,
-									   Vector<VariableName> paramSpec)
-	{
-		// Check number of arguments only
-		boolean wildcardSeen = false;
-		for (int i = 0; i < this.getChildCount(); i++) {
-			if (i >= paramSpec.size()) {
-				state.addDiagnostic(this.getChild(i),
-									callType + " \"" + callName +
-									"\" expects " + Integer.toString(paramSpec.size())
-									+ " parameters, but " + Integer.toString(this.getChildCount()) 
-									+ " were supplied",
-									Severity.ERROR);
-				break; // no point in checking further
-			}
-			if (paramSpec.elementAt(i) instanceof WildcardVariableName) {
-				wildcardSeen = true;
-				break; // no need to check further
-			}
-			if (paramSpec.size() < this.getChildCount()
-				&& !wildcardSeen) {
-				state.addDiagnostic(this.getChild(i),
-									callType + " \"" + callName +
-									"\" expects " + Integer.toString(paramSpec.size())
-									+ " parameters, but " + Integer.toString(this.getChildCount()) 
-									+ " were supplied",
-									Severity.ERROR);
-			}
-		}
-	}
+    public void earlyCheckArgumentList(NodeContext context,
+                                       CompilerState state, 
+                                       String callType,
+                                       String callName,
+                                       Vector<VariableName> paramSpec)
+    {
+        // Check number of arguments only
+        boolean wildcardSeen = false;
+        for (int i = 0; i < this.getChildCount(); i++) {
+            if (i >= paramSpec.size()) {
+                state.addDiagnostic(this.getChild(i),
+                                    callType + " \"" + callName +
+                                    "\" expects " + Integer.toString(paramSpec.size())
+                                    + " parameters, but " + Integer.toString(this.getChildCount()) 
+                                    + " were supplied",
+                                    Severity.ERROR);
+                break; // no point in checking further
+            }
+            if (paramSpec.elementAt(i) instanceof WildcardVariableName) {
+                wildcardSeen = true;
+                break; // no need to check further
+            }
+            if (paramSpec.size() < this.getChildCount()
+                && !wildcardSeen) {
+                state.addDiagnostic(this.getChild(i),
+                                    callType + " \"" + callName +
+                                    "\" expects " + Integer.toString(paramSpec.size())
+                                    + " parameters, but " + Integer.toString(this.getChildCount()) 
+                                    + " were supplied",
+                                    Severity.ERROR);
+            }
+        }
+    }
 
-	public void checkArgumentList(NodeContext context,
-								  CompilerState state, 
-								  String callType,
-								  String callName,
-								  Vector<VariableName> paramSpec)
-	{
-		// Check types of arguments only
-		for (int i = 0; i < this.getChildCount(); i++) {
-			if (i >= paramSpec.size()
-				|| paramSpec.elementAt(i) instanceof WildcardVariableName) 
-				break; // no further checking possible or needed
+    public void checkArgumentList(NodeContext context,
+                                  CompilerState state, 
+                                  String callType,
+                                  String callName,
+                                  Vector<VariableName> paramSpec)
+    {
+        // Check types of arguments only
+        for (int i = 0; i < this.getChildCount(); i++) {
+            if (i >= paramSpec.size()
+                || paramSpec.elementAt(i) instanceof WildcardVariableName) 
+                break; // no further checking possible or needed
 
-			PlexilDataType reqdType = paramSpec.elementAt(i).getVariableType();
-			ExpressionNode parm = (ExpressionNode) this.getChild(i);
-			if (!parm.assumeType(reqdType, state)) {
-				state.addDiagnostic(parm,
-									"Parameter " + Integer.toString(i+1)
-									+ " to " + callType + " \"" + callName
-									+ "\" is not of the expected type "
-									+ reqdType.typeName(),
-									Severity.ERROR);
-			}
-			// TODO: array size checks
-		}
-	}
+            PlexilDataType reqdType = paramSpec.elementAt(i).getVariableType();
+            ExpressionNode parm = (ExpressionNode) this.getChild(i);
+            if (!parm.assumeType(reqdType, state)) {
+                state.addDiagnostic(parm,
+                                    "Parameter " + Integer.toString(i+1)
+                                    + " to " + callType + " \"" + callName
+                                    + "\" is not of the expected type "
+                                    + reqdType.typeName(),
+                                    Severity.ERROR);
+            }
+            // TODO: array size checks
+        }
+    }
 
-	public void constructXML()
-	{
-		super.constructXML();
-		for (int i = 0; i < this.getChildCount(); i++) 
-			m_xml.addChild(this.getChild(i).getXML());
-	}
+    public void constructXML()
+    {
+        super.constructXML();
+        for (int i = 0; i < this.getChildCount(); i++) 
+            m_xml.addChild(this.getChild(i).getXML());
+    }
 
-	public String getXMLElementName() { return "Arguments"; }
+    public String getXMLElementName() { return "Arguments"; }
 
 }

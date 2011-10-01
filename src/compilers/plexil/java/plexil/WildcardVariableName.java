@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,11 @@ package plexil;
 
 public class WildcardVariableName extends VariableName
 {
-	public static final String s_wildcardName = "_WILD_PARAMETERS_";
+    public static final String s_wildcardName = "_WILD_PARAMETERS_";
 
-	public WildcardVariableName(PlexilTreeNode decl)
-	{
-		super(decl, s_wildcardName, PlexilDataType.ANY_TYPE);
-	}
+    public WildcardVariableName(PlexilTreeNode decl)
+    {
+        super(decl, s_wildcardName, PlexilDataType.ANY_TYPE);
+    }
 
 }

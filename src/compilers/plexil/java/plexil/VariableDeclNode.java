@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,111 +32,111 @@ import net.n3.nanoxml.*;
 
 public class VariableDeclNode extends PlexilTreeNode
 {
-	protected VariableName m_variable = null;
+    protected VariableName m_variable = null;
 
-	// for use by derived classes
-	public VariableDeclNode(Token t)
-	{
-		super(t);
-	}
+    // for use by derived classes
+    public VariableDeclNode(Token t)
+    {
+        super(t);
+    }
 
-	// Required by (e.g.) ForNode code generation
-	public VariableName getVariableName() { return m_variable; }
+    // Required by (e.g.) ForNode code generation
+    public VariableName getVariableName() { return m_variable; }
 
-	// Required by interface variable parsing
-	public void setVariableName(VariableName v) { m_variable = v; }
+    // Required by interface variable parsing
+    public void setVariableName(VariableName v) { m_variable = v; }
 
-	//
-	// Next several utilities are required by InterfaceDeclNode as well as internally
-	// 
+    //
+    // Next several utilities are required by InterfaceDeclNode as well as internally
+    // 
 
-	// Works for ArrayVariableDeclNode too.
-	public PlexilTreeNode getNameNode()
-	{ 
-		return this.getChild(1); 
-	}
+    // Works for ArrayVariableDeclNode too.
+    public PlexilTreeNode getNameNode()
+    { 
+        return this.getChild(1); 
+    }
 
-	public PlexilDataType getVariableType()
-	{
-		return PlexilDataType.findByName(this.getChild(0).getText());
-	}
+    public PlexilDataType getVariableType()
+    {
+        return PlexilDataType.findByName(this.getChild(0).getText());
+    }
 
-	public ExpressionNode getInitialValueNode()
-	{
-		if (this.getChildCount() > 2)
-			return (ExpressionNode) this.getChild(2);
-		else 
-			return null;
-	}
+    public ExpressionNode getInitialValueNode()
+    {
+        if (this.getChildCount() > 2)
+            return (ExpressionNode) this.getChild(2);
+        else 
+            return null;
+    }
 
-	// Various places expect the variable to be defined early
-	public void earlyCheck(NodeContext context, CompilerState state)
-	{
-		earlyCheckCommon(context, state);	
-		// Check for name conflict (issues diagnostics on failure)
-		PlexilTreeNode nameNode = getNameNode();
-		if (context.checkVariableName(nameNode))
-			m_variable = context.addVariable(this, 
-											 nameNode,
-											 getVariableType(),
-											 getInitialValueNode());
-	}
+    // Various places expect the variable to be defined early
+    public void earlyCheck(NodeContext context, CompilerState state)
+    {
+        earlyCheckCommon(context, state);	
+        // Check for name conflict (issues diagnostics on failure)
+        PlexilTreeNode nameNode = getNameNode();
+        if (context.checkVariableName(nameNode))
+            m_variable = context.addVariable(this, 
+                                             nameNode,
+                                             getVariableType(),
+                                             getInitialValueNode());
+    }
 
-	// Also called by InterfaceDeclNode
-	public void earlyCheckCommon(NodeContext context, CompilerState state)
-	{
-		// Check that type is valid - should be enforced by parser already
-		if (getVariableType() == null) {
-			state.addDiagnostic(this.getChild(0),
-								"Internal error: \"" + this.getChild(0).getText() + "\" is not a valid type name",
-								Severity.FATAL);
-		}
+    // Also called by InterfaceDeclNode
+    public void earlyCheckCommon(NodeContext context, CompilerState state)
+    {
+        // Check that type is valid - should be enforced by parser already
+        if (getVariableType() == null) {
+            state.addDiagnostic(this.getChild(0),
+                                "Internal error: \"" + this.getChild(0).getText() + "\" is not a valid type name",
+                                Severity.FATAL);
+        }
 
-		ExpressionNode initValNode = null;
-		if (this.getChildCount() > 2)
-			initValNode = (ExpressionNode) this.getChild(2);
+        ExpressionNode initValNode = null;
+        if (this.getChildCount() > 2)
+            initValNode = (ExpressionNode) this.getChild(2);
 
-		if (this.getChildCount() > 2)
-			initValNode.earlyCheck(context, state);
-	}
+        if (this.getChildCount() > 2)
+            initValNode.earlyCheck(context, state);
+    }
 
-	/**
-	 * @brief Override PlexilTreeNode.check
-	 * @return true if check is successful, false otherwise.
-	 */
-	public void check(NodeContext context, CompilerState state)
-	{
-		// If supplied, check initial value for type conflict
-		ExpressionNode initValNode = null;
-		if (this.getChildCount() > 2) {
-			// check initial value for type conflict
-			// N.B. we assume this is a LiteralNode,
-			// but ExpressionNode supports the required method
-			// and allows the syntax to be generalized later.
-			initValNode = (ExpressionNode) this.getChild(2);
-			PlexilDataType type = getVariableType();
-			// FIXME: any chance initValNode could be null?
-			PlexilDataType initType = initValNode.getDataType();
-			// Allow integer initial val for real var (but not the other way around)
-			if (initType == type
-				|| (type == PlexilDataType.REAL_TYPE
-					&& initType.isNumeric()
-					&& initValNode.assumeType(type, state)) // N.B. side effect on initial value type!
-				|| (type == PlexilDataType.BOOLEAN_TYPE
-					&& initValNode.assumeType(type, state)) // N.B. side effect on initial value type!
-				) {
-				// initial value type is consistent
-			}
-			else {
-				state.addDiagnostic(initValNode,
-									"For variable \"" + this.getChild(1).getText()
-									+ "\": Initial value type " + initType.typeName()
-									+ " is incompatible with variable type " + type.typeName(),
-									Severity.ERROR);
-			}
-			// now that correct type is enforced, check it
-			initValNode.check(context, state);
-		}
-	}
+    /**
+     * @brief Override PlexilTreeNode.check
+     * @return true if check is successful, false otherwise.
+     */
+    public void check(NodeContext context, CompilerState state)
+    {
+        // If supplied, check initial value for type conflict
+        ExpressionNode initValNode = null;
+        if (this.getChildCount() > 2) {
+            // check initial value for type conflict
+            // N.B. we assume this is a LiteralNode,
+            // but ExpressionNode supports the required method
+            // and allows the syntax to be generalized later.
+            initValNode = (ExpressionNode) this.getChild(2);
+            PlexilDataType type = getVariableType();
+            // FIXME: any chance initValNode could be null?
+            PlexilDataType initType = initValNode.getDataType();
+            // Allow integer initial val for real var (but not the other way around)
+            if (initType == type
+                || (type == PlexilDataType.REAL_TYPE
+                    && initType.isNumeric()
+                    && initValNode.assumeType(type, state)) // N.B. side effect on initial value type!
+                || (type == PlexilDataType.BOOLEAN_TYPE
+                    && initValNode.assumeType(type, state)) // N.B. side effect on initial value type!
+                ) {
+                // initial value type is consistent
+            }
+            else {
+                state.addDiagnostic(initValNode,
+                                    "For variable \"" + this.getChild(1).getText()
+                                    + "\": Initial value type " + initType.typeName()
+                                    + " is incompatible with variable type " + type.typeName(),
+                                    Severity.ERROR);
+            }
+            // now that correct type is enforced, check it
+            initValNode.check(context, state);
+        }
+    }
 
 }

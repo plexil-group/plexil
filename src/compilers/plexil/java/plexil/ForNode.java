@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,113 +35,113 @@ import net.n3.nanoxml.*;
 
 public class ForNode extends PlexilTreeNode
 {
-	NodeContext m_context = null;
+    NodeContext m_context = null;
 
-	public ForNode(Token t)
-	{
-		super(t);
-	}
+    public ForNode(Token t)
+    {
+        super(t);
+    }
 
-	/**
-	 * @brief Get the containing name binding context for this branch of the parse tree.
-	 * @return A NodeContext instance, or the global context.
-	 */
-	public NodeContext getContext()
-	{
-		return m_context;
-	}
+    /**
+     * @brief Get the containing name binding context for this branch of the parse tree.
+     * @return A NodeContext instance, or the global context.
+     */
+    public NodeContext getContext()
+    {
+        return m_context;
+    }
 
-	/**
-	 * @brief Prepare for the semantic check.
-	 */
-	public void earlyCheck(NodeContext parentContext, CompilerState state)
-	{
-		earlyCheckSelf(parentContext, state);
-		for (int i = 0; i < this.getChildCount(); i++)
-			this.getChild(i).earlyCheck(m_context, state);
-	}
+    /**
+     * @brief Prepare for the semantic check.
+     */
+    public void earlyCheck(NodeContext parentContext, CompilerState state)
+    {
+        earlyCheckSelf(parentContext, state);
+        for (int i = 0; i < this.getChildCount(); i++)
+            this.getChild(i).earlyCheck(m_context, state);
+    }
 
-	public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
-	{
-		// See if we have a node ID
-		String nodeId = null;
-		PlexilTreeNode parent = this.getParent();
-		if (parent != null && parent instanceof ActionNode) {
-			nodeId = ((ActionNode) parent).getNodeId();
-		}
-		else {
-			// should never happen
-			state.addDiagnostic(this,
-								"Internal error: ForNode instance has no parent ActionNode",
-								Severity.FATAL);
-		}
-		m_context = new NodeContext(parentContext, nodeId);
-	}
+    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    {
+        // See if we have a node ID
+        String nodeId = null;
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null && parent instanceof ActionNode) {
+            nodeId = ((ActionNode) parent).getNodeId();
+        }
+        else {
+            // should never happen
+            state.addDiagnostic(this,
+                                "Internal error: ForNode instance has no parent ActionNode",
+                                Severity.FATAL);
+        }
+        m_context = new NodeContext(parentContext, nodeId);
+    }
 
-	/**
-	 * @brief Perform a recursive semantic check.
-	 * @return true if check is successful, false otherwise.
-	 * @note Uses new binding context for action.
-	 */
-	public void check(NodeContext parentContext, CompilerState myState)
-	{
-		checkChildren(m_context, myState);
-		checkSelf(parentContext, myState);
-	}
+    /**
+     * @brief Perform a recursive semantic check.
+     * @return true if check is successful, false otherwise.
+     * @note Uses new binding context for action.
+     */
+    public void check(NodeContext parentContext, CompilerState myState)
+    {
+        checkChildren(m_context, myState);
+        checkSelf(parentContext, myState);
+    }
 
-	// format is:
-	// ^(FOR_KYWD (VARIABLE_DECLARATION typeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
-	public void checkSelf(NodeContext context, CompilerState myState)
-	{
-		PlexilTreeNode loopVarDecl = this.getChild(0);
-		PlexilTreeNode typeNode = loopVarDecl.getChild(0);
-		PlexilDataType loopVarType = PlexilDataType.findByName(typeNode.getText());
-		PlexilTreeNode loopVarName = loopVarDecl.getChild(1);
-		if (!loopVarType.isNumeric()) {
-			myState.addDiagnostic(typeNode,
-								  "\"for\" loop variable type is not numeric",
-								  Severity.ERROR);
-		}
-		// other checks will be handled by VariableDeclNode via checkChildren()
+    // format is:
+    // ^(FOR_KYWD (VARIABLE_DECLARATION typeName NCNAME $loopvarinit) $endtest $loopvarupdate action)
+    public void checkSelf(NodeContext context, CompilerState myState)
+    {
+        PlexilTreeNode loopVarDecl = this.getChild(0);
+        PlexilTreeNode typeNode = loopVarDecl.getChild(0);
+        PlexilDataType loopVarType = PlexilDataType.findByName(typeNode.getText());
+        PlexilTreeNode loopVarName = loopVarDecl.getChild(1);
+        if (!loopVarType.isNumeric()) {
+            myState.addDiagnostic(typeNode,
+                                  "\"for\" loop variable type is not numeric",
+                                  Severity.ERROR);
+        }
+        // other checks will be handled by VariableDeclNode via checkChildren()
 
-		ExpressionNode whileTest = (ExpressionNode) this.getChild(1);
-		if (whileTest.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
-			myState.addDiagnostic(whileTest,
-								  "\"for\" loop test expression is not Boolean",
-								  Severity.ERROR);
-		}
+        ExpressionNode whileTest = (ExpressionNode) this.getChild(1);
+        if (whileTest.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
+            myState.addDiagnostic(whileTest,
+                                  "\"for\" loop test expression is not Boolean",
+                                  Severity.ERROR);
+        }
 
-		ExpressionNode loopVarUpdate = (ExpressionNode) this.getChild(2);
-		if (!loopVarUpdate.getDataType().isNumeric()) {
-			myState.addDiagnostic(typeNode,
-								  "\"for\" loop variable update expression is not a numeric expression",
-								  Severity.ERROR);
-		}
-	}
+        ExpressionNode loopVarUpdate = (ExpressionNode) this.getChild(2);
+        if (!loopVarUpdate.getDataType().isNumeric()) {
+            myState.addDiagnostic(typeNode,
+                                  "\"for\" loop variable update expression is not a numeric expression",
+                                  Severity.ERROR);
+        }
+    }
 
-	protected void constructXML()
-	{
-		super.constructXML();
+    protected void constructXML()
+    {
+        super.constructXML();
 
-		IXMLElement loopVar = new XMLElement("LoopVariable");
-		m_xml.addChild(loopVar);
-		// Get the declaration from the VariableName, not the declaration AST
-		VariableName var = ((VariableDeclNode) this.getChild(0)).getVariableName();
-		loopVar.addChild(var.makeDeclarationXML());
+        IXMLElement loopVar = new XMLElement("LoopVariable");
+        m_xml.addChild(loopVar);
+        // Get the declaration from the VariableName, not the declaration AST
+        VariableName var = ((VariableDeclNode) this.getChild(0)).getVariableName();
+        loopVar.addChild(var.makeDeclarationXML());
 
-		IXMLElement condition = new XMLElement("Condition");
-		m_xml.addChild(condition);
-		condition.addChild(this.getChild(1).getXML());
+        IXMLElement condition = new XMLElement("Condition");
+        m_xml.addChild(condition);
+        condition.addChild(this.getChild(1).getXML());
 
-		IXMLElement loopVarUpdate = new XMLElement("LoopVariableUpdate");
-		m_xml.addChild(loopVarUpdate);
-		loopVarUpdate.addChild(this.getChild(2).getXML());
+        IXMLElement loopVarUpdate = new XMLElement("LoopVariableUpdate");
+        m_xml.addChild(loopVarUpdate);
+        loopVarUpdate.addChild(this.getChild(2).getXML());
 
-		IXMLElement action = new XMLElement("Action");
-		m_xml.addChild(action);
-		action.addChild(this.getChild(3).getXML());
-	}
+        IXMLElement action = new XMLElement("Action");
+        m_xml.addChild(action);
+        action.addChild(this.getChild(3).getXML());
+    }
 
-	protected String getXMLElementName() { return "For"; }
+    protected String getXMLElementName() { return "For"; }
 
 }

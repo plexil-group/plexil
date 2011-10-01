@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,61 +32,61 @@ import net.n3.nanoxml.*;
 
 class WaitNode extends PlexilTreeNode
 {
-	public WaitNode(Token t)
-	{
-		super(t);
-	}
+    public WaitNode(Token t)
+    {
+        super(t);
+    }
 
-	public void check(NodeContext context, CompilerState myState)
-	{
-		ExpressionNode delayExp = (ExpressionNode) this.getChild(0);
-		// Check whether delay can be persuaded to be numeric
-		if (!delayExp.assumeType(PlexilDataType.REAL_TYPE, myState)) {
-			myState.addDiagnostic(delayExp,
-								  "The delay argument to the Wait builtin, \""
-								  + delayExp.getText()
-								  + "\", is not a numeric expression",
-								  Severity.ERROR);
-		}
-		// check the delay expression for other faults
-		delayExp.check(context, myState);
+    public void check(NodeContext context, CompilerState myState)
+    {
+        ExpressionNode delayExp = (ExpressionNode) this.getChild(0);
+        // Check whether delay can be persuaded to be numeric
+        if (!delayExp.assumeType(PlexilDataType.REAL_TYPE, myState)) {
+            myState.addDiagnostic(delayExp,
+                                  "The delay argument to the Wait builtin, \""
+                                  + delayExp.getText()
+                                  + "\", is not a numeric expression",
+                                  Severity.ERROR);
+        }
+        // check the delay expression for other faults
+        delayExp.check(context, myState);
 
-		if (this.getChildCount() > 1) {
-			ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
-			if (toleranceExp instanceof LiteralNode
-				&& toleranceExp.assumeType(PlexilDataType.REAL_TYPE, myState)) {
-				// it's good
-			}
-			else if (toleranceExp instanceof VariableNode
-					 && toleranceExp.getType() == PlexilLexer.NCNAME // i.e. a simple variable reference
-					 && toleranceExp.getDataType() == PlexilDataType.REAL_TYPE) {
-				// that's good too
-			}
-			else {
-				myState.addDiagnostic(toleranceExp,
-									  "The tolerance argument to the Wait builtin, \""
-									  + toleranceExp.getText()
-									  + "\", is not a Real variable reference or a literal number",
-									  Severity.ERROR);
-			}
-			// check the delay expression for other faults
-			toleranceExp.check(context, myState);
-		}
-	}
+        if (this.getChildCount() > 1) {
+            ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
+            if (toleranceExp instanceof LiteralNode
+                && toleranceExp.assumeType(PlexilDataType.REAL_TYPE, myState)) {
+                // it's good
+            }
+            else if (toleranceExp instanceof VariableNode
+                     && toleranceExp.getType() == PlexilLexer.NCNAME // i.e. a simple variable reference
+                     && toleranceExp.getDataType() == PlexilDataType.REAL_TYPE) {
+                // that's good too
+            }
+            else {
+                myState.addDiagnostic(toleranceExp,
+                                      "The tolerance argument to the Wait builtin, \""
+                                      + toleranceExp.getText()
+                                      + "\", is not a Real variable reference or a literal number",
+                                      Severity.ERROR);
+            }
+            // check the delay expression for other faults
+            toleranceExp.check(context, myState);
+        }
+    }
 
-	protected void constructXML()
-	{
-		super.constructXML();
-		IXMLElement unitsElt = new XMLElement("Units");
-		m_xml.addChild(unitsElt);
-		unitsElt.addChild(this.getChild(0).getXML());
-		if (this.getChildCount() > 1) {
-			IXMLElement toleranceElt = new XMLElement("Tolerance");
-			m_xml.addChild(toleranceElt);
-			toleranceElt.addChild(this.getChild(1).getXML());
-		}
-	}
+    protected void constructXML()
+    {
+        super.constructXML();
+        IXMLElement unitsElt = new XMLElement("Units");
+        m_xml.addChild(unitsElt);
+        unitsElt.addChild(this.getChild(0).getXML());
+        if (this.getChildCount() > 1) {
+            IXMLElement toleranceElt = new XMLElement("Tolerance");
+            m_xml.addChild(toleranceElt);
+            toleranceElt.addChild(this.getChild(1).getXML());
+        }
+    }
 
-	protected String getXMLElementName() { return "Wait"; }
+    protected String getXMLElementName() { return "Wait"; }
 
 }

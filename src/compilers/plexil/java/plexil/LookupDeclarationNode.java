@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,72 +34,72 @@ import net.n3.nanoxml.*;
 
 public class LookupDeclarationNode extends PlexilTreeNode
 {
-	public LookupDeclarationNode(Token t)
-	{
-		super(t);
-	}
+    public LookupDeclarationNode(Token t)
+    {
+        super(t);
+    }
 
-	// structure is:
-	// ^(LOOKUP_KYWD NCNAME returnsSpec paramsSpec?)
+    // structure is:
+    // ^(LOOKUP_KYWD NCNAME returnsSpec paramsSpec?)
 
-	public void earlyCheck(NodeContext context, CompilerState state)
-	{
-		// check that name is not already defined
-		String lookupName = this.getChild(0).getText();
-		if (GlobalContext.getGlobalContext().isCommandName(lookupName)) {
-			// Report duplicate definition
-			state.addDiagnostic(this.getChild(0),
-								"Lookup \"" + lookupName + "\" is already defined",
-								Severity.ERROR);
-		}
+    public void earlyCheck(NodeContext context, CompilerState state)
+    {
+        // check that name is not already defined
+        String lookupName = this.getChild(0).getText();
+        if (GlobalContext.getGlobalContext().isCommandName(lookupName)) {
+            // Report duplicate definition
+            state.addDiagnostic(this.getChild(0),
+                                "Lookup \"" + lookupName + "\" is already defined",
+                                Severity.ERROR);
+        }
 
-		// Parse return spec
-		ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
-		returnAST.earlyCheck(context, state); // for effect
-		Vector<VariableName> returnSpecs = returnAST.getReturnVector();
+        // Parse return spec
+        ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
+        returnAST.earlyCheck(context, state); // for effect
+        Vector<VariableName> returnSpecs = returnAST.getReturnVector();
 
-		// Parse parameter list, if supplied
-		Vector<VariableName> parmSpecs = null;
-		ParameterSpecNode parmAST = (ParameterSpecNode) this.getChild(2);
-		if (parmAST != null) {
-			parmAST.earlyCheck(context, state); // for effect
-			parmSpecs = parmAST.getParameterVector();
-			for (VariableName vn : parmSpecs) {
-				if (vn instanceof InterfaceVariableName) {
-					state.addDiagnostic(vn.getDeclaration(),
-										(vn.isAssignable() ? "InOut" : "In")
-										+ " declaration is illegal in lookup parameter declarations",
-										Severity.ERROR);
-				}
-			}
-		}
+        // Parse parameter list, if supplied
+        Vector<VariableName> parmSpecs = null;
+        ParameterSpecNode parmAST = (ParameterSpecNode) this.getChild(2);
+        if (parmAST != null) {
+            parmAST.earlyCheck(context, state); // for effect
+            parmSpecs = parmAST.getParameterVector();
+            for (VariableName vn : parmSpecs) {
+                if (vn instanceof InterfaceVariableName) {
+                    state.addDiagnostic(vn.getDeclaration(),
+                                        (vn.isAssignable() ? "InOut" : "In")
+                                        + " declaration is illegal in lookup parameter declarations",
+                                        Severity.ERROR);
+                }
+            }
+        }
 
-		// Define in global environment
-		GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
-	}
+        // Define in global environment
+        GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
+    }
 
-	public void constructXML()
-	{
+    public void constructXML()
+    {
 
-		super.constructXML();
+        super.constructXML();
 
-		// add name
-		PlexilTreeNode nameTree = this.getChild(0);
-		IXMLElement nameXML = new XMLElement("Name");
-		nameXML.setContent(nameTree.getText());
-		m_xml.addChild(nameXML);
+        // add name
+        PlexilTreeNode nameTree = this.getChild(0);
+        IXMLElement nameXML = new XMLElement("Name");
+        nameXML.setContent(nameTree.getText());
+        m_xml.addChild(nameXML);
 
-		// Add return spec
-		((ReturnSpecNode) this.getChild(1)).constructReturnXML(m_xml);
+        // Add return spec
+        ((ReturnSpecNode) this.getChild(1)).constructReturnXML(m_xml);
 
-		// Add parameter spec(s) if provided
-		// Skip it if any of the parameters is an Any or wildcard,
-		// as there's no legal way to represent them in Plexil XML
-		ParameterSpecNode parametersSpec = (ParameterSpecNode) this.getChild(2);
-		if (parametersSpec != null && !parametersSpec.containsAnyType()) 
-			parametersSpec.constructParameterXML(m_xml);
-	}
+        // Add parameter spec(s) if provided
+        // Skip it if any of the parameters is an Any or wildcard,
+        // as there's no legal way to represent them in Plexil XML
+        ParameterSpecNode parametersSpec = (ParameterSpecNode) this.getChild(2);
+        if (parametersSpec != null && !parametersSpec.containsAnyType()) 
+            parametersSpec.constructParameterXML(m_xml);
+    }
 
-	public String getXMLElementName() { return "StateDeclaration"; }
+    public String getXMLElementName() { return "StateDeclaration"; }
 
 }

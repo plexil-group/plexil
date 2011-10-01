@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,54 +34,54 @@ import net.n3.nanoxml.*;
 
 public class LibraryDeclarationNode extends PlexilTreeNode
 {
-	public LibraryDeclarationNode(Token t)
-	{
-		super(t);
-	}
+    public LibraryDeclarationNode(Token t)
+    {
+        super(t);
+    }
 
-	// structure is:
-	// ^(LIBRARY_ACTION_KYWD NCNAME interfaceSpec?)
+    // structure is:
+    // ^(LIBRARY_ACTION_KYWD NCNAME interfaceSpec?)
 
-	public void earlyCheck(NodeContext context, CompilerState state)
-	{
-		// check that name is not already defined
-		String libraryName = this.getChild(0).getText();
-		if (GlobalContext.getGlobalContext().isCommandName(libraryName)) {
-			// Report duplicate definition
-			state.addDiagnostic(this.getChild(0),
-								"Library action \"" + libraryName + "\" is already defined",
-								Severity.ERROR);
-		}
+    public void earlyCheck(NodeContext context, CompilerState state)
+    {
+        // check that name is not already defined
+        String libraryName = this.getChild(0).getText();
+        if (GlobalContext.getGlobalContext().isCommandName(libraryName)) {
+            // Report duplicate definition
+            state.addDiagnostic(this.getChild(0),
+                                "Library action \"" + libraryName + "\" is already defined",
+                                Severity.ERROR);
+        }
 
-		// Parse parameter list, if supplied
-		Vector<VariableName> ifSpecs = null;
-		ParameterSpecNode ifVarAST = (ParameterSpecNode) this.getChild(1);
-		if (ifVarAST != null) {
-			ifVarAST.earlyCheck(context, state); // for effect
-			ifSpecs = ifVarAST.getParameterVector();
-			for (VariableName vn : ifSpecs) {
-				if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
-					state.addDiagnostic(vn.getDeclaration(),
-										"Illegal type for library action interface variable",
-										Severity.ERROR);
-				}
-			}
-		}
+        // Parse parameter list, if supplied
+        Vector<VariableName> ifSpecs = null;
+        ParameterSpecNode ifVarAST = (ParameterSpecNode) this.getChild(1);
+        if (ifVarAST != null) {
+            ifVarAST.earlyCheck(context, state); // for effect
+            ifSpecs = ifVarAST.getParameterVector();
+            for (VariableName vn : ifSpecs) {
+                if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
+                    state.addDiagnostic(vn.getDeclaration(),
+                                        "Illegal type for library action interface variable",
+                                        Severity.ERROR);
+                }
+            }
+        }
 
-		// Define in global environment
-		GlobalContext.getGlobalContext().addLibraryNode(this, libraryName, ifSpecs);
-	}
+        // Define in global environment
+        GlobalContext.getGlobalContext().addLibraryNode(this, libraryName, ifSpecs);
+    }
 
-	public void constructXML()
-	{
-		super.constructXML();
-		IXMLElement nameXML = new XMLElement("Name");
-		nameXML.setContent(this.getChild(0).getText());
-		m_xml.addChild(nameXML);
-		if (this.getChildCount() > 1)
-			m_xml.addChild(this.getChild(1).getXML());
-	}
+    public void constructXML()
+    {
+        super.constructXML();
+        IXMLElement nameXML = new XMLElement("Name");
+        nameXML.setContent(this.getChild(0).getText());
+        m_xml.addChild(nameXML);
+        if (this.getChildCount() > 1)
+            m_xml.addChild(this.getChild(1).getXML());
+    }
 
-	public String getXMLElementName() { return "LibraryNodeDeclaration"; }
+    public String getXMLElementName() { return "LibraryNodeDeclaration"; }
 
 }

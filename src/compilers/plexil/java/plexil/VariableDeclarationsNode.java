@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@ import net.n3.nanoxml.*;
 
 public class VariableDeclarationsNode extends PlexilTreeNode
 {
-	public VariableDeclarationsNode(int ttype)
-	{
-		super(new CommonToken(ttype, "VARIABLE_DECLARATIONS"));
-	}
+    public VariableDeclarationsNode(int ttype)
+    {
+        super(new CommonToken(ttype, "VARIABLE_DECLARATIONS"));
+    }
 
 }

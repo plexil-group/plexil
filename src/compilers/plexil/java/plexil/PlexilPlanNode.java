@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,33 +32,33 @@ import net.n3.nanoxml.*;
 
 public class PlexilPlanNode extends PlexilTreeNode
 {
-	public PlexilPlanNode(int ttype)
-	{
-		super(new CommonToken(ttype, "PLEXIL"));
-	}
+    public PlexilPlanNode(int ttype)
+    {
+        super(new CommonToken(ttype, "PLEXIL"));
+    }
 
-	/**
-	 * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-	 */
-	protected void constructXML()
-	{
-		super.constructXML();
-		for (int i = 0; i < this.getChildCount(); i++) {
-			// Allow for declarations to return null.
-			IXMLElement childXML = this.getChild(i).getXML();
-			if (childXML != null)
-				m_xml.addChild(childXML);
-		}
-	}
+    /**
+     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
+     */
+    protected void constructXML()
+    {
+        super.constructXML();
+        for (int i = 0; i < this.getChildCount(); i++) {
+            // Allow for declarations to return null.
+            IXMLElement childXML = this.getChild(i).getXML();
+            if (childXML != null)
+                m_xml.addChild(childXML);
+        }
+    }
 
-	/**
-	 * @brief Get the string to use for the XML element's name.
-	 * @return A non-null String.
-	 * @note This is a base method. Derived classes should override it as required.
-	 */
-	protected String getXMLElementName()
-	{
-		return "PlexilPlan";
-	}
+    /**
+     * @brief Get the string to use for the XML element's name.
+     * @return A non-null String.
+     * @note This is a base method. Derived classes should override it as required.
+     */
+    protected String getXMLElementName()
+    {
+        return "PlexilPlan";
+    }
 
 }

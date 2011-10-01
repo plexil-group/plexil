@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,77 +32,77 @@ import net.n3.nanoxml.*;
 
 public class VariableNode extends ExpressionNode
 {
-	private VariableName m_variable = null;
+    private VariableName m_variable = null;
 
-	public VariableNode(Token t)
-	{
-		super(t);
-	}
+    public VariableNode(Token t)
+    {
+        super(t);
+    }
 
-	public VariableName getVariableName()
-	{
-		return m_variable;
-	}
+    public VariableName getVariableName()
+    {
+        return m_variable;
+    }
 
-	/**
-	 * @brief Prepare for the semantic check.
-	 */
-	public void earlyCheck(NodeContext context, CompilerState state)
-	{
-		// Get variable from context, if possible
-		m_variable = context.findVariable(this.getText());
-		if (m_variable == null) {
-			state.addDiagnostic(this,
-								  "Variable \"" + this.getText() + "\" is not declared",
-								  Severity.ERROR);
-		}
-		else {
+    /**
+     * @brief Prepare for the semantic check.
+     */
+    public void earlyCheck(NodeContext context, CompilerState state)
+    {
+        // Get variable from context, if possible
+        m_variable = context.findVariable(this.getText());
+        if (m_variable == null) {
+            state.addDiagnostic(this,
+                                "Variable \"" + this.getText() + "\" is not declared",
+                                Severity.ERROR);
+        }
+        else {
 
-			m_dataType = m_variable.getVariableType();
-		}
-	}
+            m_dataType = m_variable.getVariableType();
+        }
+    }
 
-	protected void constructXML()
-	{
-		super.constructXML();
-		m_xml.setContent(this.getText());
-	}
+    protected void constructXML()
+    {
+        super.constructXML();
+        m_xml.setContent(this.getText());
+    }
 
-	protected String getXMLElementName()
-	{
-		return m_dataType.typeName() + "Variable";
-	}
+    protected String getXMLElementName()
+    {
+        return m_dataType.typeName() + "Variable";
+    }
 
-	// Source locators are not allowed on variable elements.
-	protected void addSourceLocatorAttributes() {}
+    // Source locators are not allowed on variable elements.
+    protected void addSourceLocatorAttributes() {}
 
-	public boolean isAssignable()
-	{
-		if (m_variable == null)
-			return true; // no way to know
-		else 
-			return m_variable.isAssignable();
-	}
+    public boolean isAssignable()
+    {
+        if (m_variable == null)
+            return true; // no way to know
+        else 
+            return m_variable.isAssignable();
+    }
 
-	public void checkAssignable(NodeContext context, CompilerState state)
-	{
-		if (m_variable == null
-			|| m_variable.isAssignable())
-			return;
-		// we have a variable and it's not assignable
-		state.addDiagnostic(this,
-							"Variable \"" + this.getText() + "\" is declared In",
-							Severity.ERROR);
-		state.addDiagnostic(m_variable.getDeclaration(),
-							"Variable \"" + this.getText() + "\" declared In here",
-							Severity.NOTE);
-	}
+    public void checkAssignable(NodeContext context, CompilerState state)
+    {
+        if (m_variable == null
+            || m_variable.isAssignable())
+            return;
+        // we have a variable and it's not assignable
+        state.addDiagnostic(this,
+                            "Variable \"" + this.getText() + "\" is declared In",
+                            Severity.ERROR);
+        state.addDiagnostic(m_variable.getDeclaration(),
+                            "Variable \"" + this.getText() + "\" declared In here",
+                            Severity.NOTE);
+    }
 
-	public PlexilTreeNode getDeclaration() 
-	{
-		if (m_variable == null)
-			return null;
-		return m_variable.getDeclaration();
-	}
+    public PlexilTreeNode getDeclaration() 
+    {
+        if (m_variable == null)
+            return null;
+        return m_variable.getDeclaration();
+    }
 
 }

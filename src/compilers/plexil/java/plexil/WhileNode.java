@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,86 +35,86 @@ import net.n3.nanoxml.*;
 
 public class WhileNode extends PlexilTreeNode
 {
-	private NodeContext m_bodyContext = null;
+    private NodeContext m_bodyContext = null;
 
-	public WhileNode(Token t)
-	{
-		super(t);
-	}
+    public WhileNode(Token t)
+    {
+        super(t);
+    }
 
-	public WhileNode(WhileNode n)
-	{
-		super(n);
-	}
+    public WhileNode(WhileNode n)
+    {
+        super(n);
+    }
 
-	//
-	// N.B. The extra complexity in the checking logic is to ensure the body
-	// is contained in a separate name binding context from the while loop
-	// as a whole.
-	//
+    //
+    // N.B. The extra complexity in the checking logic is to ensure the body
+    // is contained in a separate name binding context from the while loop
+    // as a whole.
+    //
 
-	/**
-	 * @brief Prepare for the semantic check.
-	 */
-	public void earlyCheck(NodeContext parentContext, CompilerState state)
-	{
-		earlyCheckSelf(parentContext, state);
-		this.getChild(0).earlyCheck(parentContext, state); // while-test expression
-		this.getChild(1).earlyCheck(m_bodyContext, state); // body
-	}
+    /**
+     * @brief Prepare for the semantic check.
+     */
+    public void earlyCheck(NodeContext parentContext, CompilerState state)
+    {
+        earlyCheckSelf(parentContext, state);
+        this.getChild(0).earlyCheck(parentContext, state); // while-test expression
+        this.getChild(1).earlyCheck(m_bodyContext, state); // body
+    }
 
-	public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
-	{
-		// See if we have a node ID
-		String nodeId = null;
-		PlexilTreeNode parent = this.getParent();
-		if (parent != null && parent instanceof ActionNode) {
-			nodeId = ((ActionNode) parent).getNodeId();
-		}
-		else {
-			// should never happen
-			state.addDiagnostic(this,
-								"Internal error: WhileNode instance has no parent ActionNode",
-								Severity.FATAL);
-		}
-		// Construct body binding context
-		// FIXME: change suffix to match generated code!
-		m_bodyContext = new NodeContext(parentContext, nodeId + "_WHILE_BODY");
-	}
+    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    {
+        // See if we have a node ID
+        String nodeId = null;
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null && parent instanceof ActionNode) {
+            nodeId = ((ActionNode) parent).getNodeId();
+        }
+        else {
+            // should never happen
+            state.addDiagnostic(this,
+                                "Internal error: WhileNode instance has no parent ActionNode",
+                                Severity.FATAL);
+        }
+        // Construct body binding context
+        // FIXME: change suffix to match generated code!
+        m_bodyContext = new NodeContext(parentContext, nodeId + "_WHILE_BODY");
+    }
 
-	/**
-	 * @brief Semantic check.
-	 * @note Uses separate context for body.
-	 */
-	public void check(NodeContext parentContext, CompilerState state)
-	{
-		checkSelf(parentContext, state);
-		this.getChild(0).check(parentContext, state); // while test
-		this.getChild(1).check(m_bodyContext, state); // body
-	}
+    /**
+     * @brief Semantic check.
+     * @note Uses separate context for body.
+     */
+    public void check(NodeContext parentContext, CompilerState state)
+    {
+        checkSelf(parentContext, state);
+        this.getChild(0).check(parentContext, state); // while test
+        this.getChild(1).check(m_bodyContext, state); // body
+    }
 
-	public void checkSelf(NodeContext context, CompilerState state)
-	{
-		ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
-		if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
-			state.addDiagnostic(whileTest,
-								  "\"while\" test expression is not Boolean",
-								  Severity.ERROR);
-		}
-	}
+    public void checkSelf(NodeContext context, CompilerState state)
+    {
+        ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
+        if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
+            state.addDiagnostic(whileTest,
+                                "\"while\" test expression is not Boolean",
+                                Severity.ERROR);
+        }
+    }
 
-	protected void constructXML()
-	{
-		super.constructXML();
-		IXMLElement condition = new XMLElement("Condition");
-		m_xml.addChild(condition);
-		condition.addChild(this.getChild(0).getXML());
+    protected void constructXML()
+    {
+        super.constructXML();
+        IXMLElement condition = new XMLElement("Condition");
+        m_xml.addChild(condition);
+        condition.addChild(this.getChild(0).getXML());
 
-		IXMLElement action = new XMLElement("Action");
-		m_xml.addChild(action);
-		action.addChild(this.getChild(1).getXML());
-	}
+        IXMLElement action = new XMLElement("Action");
+        m_xml.addChild(action);
+        action.addChild(this.getChild(1).getXML());
+    }
 
-	protected String getXMLElementName() { return "While"; }
+    protected String getXMLElementName() { return "While"; }
 
 }
