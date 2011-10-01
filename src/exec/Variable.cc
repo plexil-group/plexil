@@ -177,8 +177,7 @@ namespace PLEXIL
     else if(val->type() == BOOLEAN && val->value() == "false")
       m_initialValue = m_value = false;
     else {
-      std::stringstream str;
-      str << val->value();
+      std::istringstream str(val->value());
       double value;
       str >> value;
       m_initialValue = m_value = value;

@@ -89,7 +89,7 @@ namespace PLEXIL {
                         const std::vector<double>& vals);
     void handleInitialState(const pugi::xml_node& input);
 
-	void setVariableValue(std::string source,
+	void setVariableValue(const std::string& source,
 						  ExpressionId expr,
 						  double& value);
         
@@ -105,7 +105,7 @@ namespace PLEXIL {
 
     void parseParams(const pugi::xml_node& root, std::vector<double>& dest);
     double parseValues(const std::string& type, pugi::xml_node valXml);
-    double parseValue(const std::string& type, std::string valStr);
+    double parseValue(const std::string& type, const std::string& valStr);
 
     std::map<double, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables

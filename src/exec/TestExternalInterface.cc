@@ -39,8 +39,8 @@
 #include "Update.hh"
 #include "XMLUtils.hh"
 #include "plan-utils.hh"
-
 #include "pugixml.hpp"
+#include "stricmp.h"
 
 #include <cmath>
 #include <cstring>
@@ -221,7 +221,7 @@ namespace PLEXIL
 
   // map values from script into a variable expression
 
-  void TestExternalInterface::setVariableValue(std::string source,
+  void TestExternalInterface::setVariableValue(const std::string& source,
                                                ExpressionId expr,
                                                double& value)
   {
@@ -328,8 +328,7 @@ namespace PLEXIL
 		  (strcmp(param.attribute("type").value(), "int") == 0 ||
 		   strcmp(param.attribute("type").value(), "real") == 0 ||
 		   strcmp(param.attribute("type").value(), "bool") == 0)) {
-		std::stringstream str;
-		str << param.first_child().value();
+		std::istringstream str(param.first_child().value());
 		str >> value;
 	  }
 	  // string case
@@ -368,7 +367,7 @@ namespace PLEXIL
   // parse in value
 
   double TestExternalInterface::parseValue(const std::string& type, 
-                                           std::string valStr)
+                                           const std::string& valStr)
   {
     double value;
 
@@ -377,18 +376,16 @@ namespace PLEXIL
 	}
     else if (type == "int" || type == "real" ||
              type == "int-array" || type == "real-array") {
-	  std::stringstream ss;
-	  ss << valStr;
+	  std::istringstream ss(valStr);
 	  ss >> value;
 	}
     else if (type == "bool" || type == "bool-array") {
-	  if (valStr == "true" || valStr == "TRUE" || valStr == "True")
+	  if (0 == stricmp(valStr.c_str(), "true"))
 		value = 1;
-	  else if (valStr == "false" || valStr == "FALSE" || valStr == "False")
+	  else if (0 == stricmp(valStr.c_str(), "false"))
 		value = 0;
 	  else {
-		std::stringstream ss;
-		ss << valStr;
+		std::istringstream ss(valStr);
 		ss >> value;
 	  }
 	}
