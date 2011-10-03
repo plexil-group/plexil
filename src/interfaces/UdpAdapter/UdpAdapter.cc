@@ -129,7 +129,7 @@ namespace PLEXIL
   {
     debugMsg("UdpAdapter::lookupNow", " called");
     debugMsg("ExternalInterface:udp", " lookupNow called; returning UNKNOWN");
-	return Expression::UNKNOWN();
+    return Expression::UNKNOWN();
   }
 
   void UdpAdapter::sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack)
@@ -386,14 +386,14 @@ namespace PLEXIL
                   "parseXmlMessageDefinitions: debug must be a boolean, not " << debug);
     if (*debug && stricmp(debug, "true") == 0) m_debug = true;
     // Now, do the real work of parsing the XML UDP Configuration
-	const pugi::xml_attribute default_local_port = xml.attribute("default_local_port");
+    const pugi::xml_attribute default_local_port = xml.attribute("default_local_port");
     const pugi::xml_attribute default_peer_port = xml.attribute("default_peer_port");
     const char* default_peer = xml.attribute("default_peer").value();
     if (default_local_port) m_default_local_port = default_local_port.as_uint();
     if (default_peer_port) m_default_peer_port = default_peer_port.as_uint();
     if (*default_peer) m_default_peer = default_peer;
     // Walk the messages
-	for (pugi::xml_node child = xml.first_child(); !child.empty(); child = child.next_sibling())
+    for (pugi::xml_node child = xml.first_child(); !child.empty(); child = child.next_sibling())
       {
         UdpMessage msg;
         const char* name = child.attribute("name").value(); // name is required, hence...
@@ -401,8 +401,8 @@ namespace PLEXIL
         msg.name = name;
         const char* peer = child.attribute("peer").value(); // needed for bool test below (i.e., it is optional)
 
-		pugi::xml_attribute local_port = child.attribute("local_port");
-		pugi::xml_attribute peer_port = child.attribute("peer_port");
+        pugi::xml_attribute local_port = child.attribute("local_port");
+        pugi::xml_attribute peer_port = child.attribute("peer_port");
         // Use either the given peer, the default_peer, or "localhost"
         msg.peer = *peer ? peer : (*default_peer ? m_default_peer : "localhost");
         // Warn about possible run time errors (planners may simply not use a message I suppose)
@@ -421,16 +421,16 @@ namespace PLEXIL
           {
             Parameter arg;
             // Get the description (if any)
-			pugi::xml_attribute param_desc = param.attribute("desc");
+            pugi::xml_attribute param_desc = param.attribute("desc");
             if (param_desc)
-			  arg.desc = param_desc.value(); // only assign it if it exists
+              arg.desc = param_desc.value(); // only assign it if it exists
             // Get the (required) type
             const char* param_type = param.attribute("type").value();
             assertTrueMsg(*param_type, "parseXmlMessageDefinitions: no type for parameter given in <Message name=\""
                           << name << "\"/>");
             arg.type = param_type;
             // Get the length, which is required
-			pugi::xml_attribute len = param.attribute("bytes");
+            pugi::xml_attribute len = param.attribute("bytes");
             assertTrueMsg(len, "parseXmlMessageDefinitions: no parameter length (in bytes) given in <Message name=\""
                           << name << "\"/>");
             arg.len = len.as_uint();
@@ -439,7 +439,7 @@ namespace PLEXIL
                           << name << "\"/>");
             // Get the number of elements for the array types
             int size = 1;
-			pugi::xml_attribute param_elements = param.attribute("elements");
+            pugi::xml_attribute param_elements = param.attribute("elements");
             if (param_elements) size = param_elements.as_uint();
             arg.elements = size;
             // Do some error checking for reasonable/usable encoding/decoding byte lengths
@@ -880,7 +880,7 @@ namespace PLEXIL
                               ") used in the plan are not compatible");
                 encode_string(str, buffer, start_index);
                 start_index += len;
-              }                
+              }
           }
         else
           {

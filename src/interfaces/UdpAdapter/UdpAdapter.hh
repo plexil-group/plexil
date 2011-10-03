@@ -91,8 +91,8 @@ namespace PLEXIL
     bool reset();
     bool shutdown();
     double lookupNow(const State& stateKey);
-	void subscribe(const State& state);
-	void unsubscribe(const State& state);
+    void subscribe(const State& state);
+    void unsubscribe(const State& state);
     void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
     // Executes a command with the given arguments
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
@@ -127,7 +127,7 @@ namespace PLEXIL
     void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeSendReturnValueCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     void executeDefaultCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-   
+
     //
     // XML Support
     //
@@ -146,7 +146,7 @@ namespace PLEXIL
     double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
     double formatMessageName(const LabelStr& name, const LabelStr& command);
     double formatMessageName(const char* name, const LabelStr& command);
- };
+  };
 }
 
 extern "C"
