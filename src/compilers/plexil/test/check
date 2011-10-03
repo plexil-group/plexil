@@ -1,1 +1,1 @@
-diff output/verified-$1.epx output/$1.epx
+diff output/valid-$1.epx output/$1.epx
