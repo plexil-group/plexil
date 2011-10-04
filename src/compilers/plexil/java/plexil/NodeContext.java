@@ -42,7 +42,8 @@ public class NodeContext
     protected NodeContext m_parentContext;
     protected Vector<VariableName> m_variables = new Vector<VariableName>();
     protected Vector<NodeContext> m_children = new Vector<NodeContext>();
-    protected Map<String, PlexilTreeNode> m_childIds = new TreeMap<String, PlexilTreeNode>();
+    protected Map<String, PlexilTreeNode> m_childIds =
+        new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
     protected PlexilTreeNode m_resourcePriorityAST = null;
     protected IXMLElement m_resourcePriorityXML = null;
@@ -107,24 +108,20 @@ public class NodeContext
 
     public boolean isChildNodeId(String name)
     {
-        if (name == null)
-            return false;
-        if (m_childIds.containsKey(name))
-            return true;
+        if (name == null) return false;
+        if (m_childIds.containsKey(name)) return true;
         return false;
     }
 
     public PlexilTreeNode getChildNodeId(String name)
     {
-        if (name == null)
-            return null;
+        if (name == null) return null;
         return m_childIds.get(name);
     }
 
     public void addChildNodeId(PlexilTreeNode nameNode)
     {
-        if (nameNode == null)
-            return;
+        if (nameNode == null) return;
         String name = nameNode.getText();
         m_childIds.put(name, nameNode);
     }
@@ -133,8 +130,7 @@ public class NodeContext
     // Only finds nodes in the current tree.
     public PlexilTreeNode findNode(String name)
     {
-        if (name == null)
-            return null;
+        if (name == null) return null;
         PlexilTreeNode result = null;
         try {
             result = getRootContext().findNodeInternal(name);
@@ -234,7 +230,8 @@ public class NodeContext
         return var;
     }
 
-    // This version is for the case where the declaration restricts an existing variable.
+    // This version is for the case where the declaration restricts an existing
+    // variable.
     public InterfaceVariableName addInterfaceVariable(PlexilTreeNode declaration,
                                                       PlexilTreeNode nameNode,
                                                       boolean isInOut,
@@ -273,7 +270,8 @@ public class NodeContext
                                     PlexilDataType varType,
                                     ExpressionNode initialValueExpr)
     {
-        VariableName result = new VariableName(declaration, nameNode.getText(), varType, initialValueExpr);
+        VariableName result = new VariableName(declaration, nameNode.getText(),
+                                               varType, initialValueExpr);
         m_variables.add(result);
         return result;
     }
@@ -290,7 +288,8 @@ public class NodeContext
     {
         if (checkVariableName(nameNode)) {
             VariableName result = 
-                new VariableName(declaration, nameNode.getText(), arrayType, maxSize, initialValueExpr);
+                new VariableName(declaration, nameNode.getText(), arrayType,
+                                 maxSize, initialValueExpr);
             m_variables.add(result);
             return result;
         }
@@ -307,14 +306,13 @@ public class NodeContext
         VariableName existing = findLocalVariable(name);
         if (existing != null) {
             // error - duplicate variable name in node
-            CompilerState.getCompilerState().addDiagnostic(nameNode,
-                                                           "Variable name \"" + name
-                                                           + "\" is already declared in this context",
-                                                           Severity.ERROR);
-            CompilerState.getCompilerState().addDiagnostic(existing.getDeclaration(),
-                                                           "Variable \"" + name
-                                                           + "\" previously declared here",
-                                                           Severity.NOTE);
+            CompilerState.getCompilerState().addDiagnostic
+                (nameNode,
+                 "Variable name \"" + name + "\" is already declared in this context",
+                 Severity.ERROR);
+            CompilerState.getCompilerState().addDiagnostic
+                (existing.getDeclaration(),
+                 "Variable \"" + name + "\" previously declared here", Severity.NOTE);
             success = false;
         }
         if (m_parentContext != null) {
@@ -322,10 +320,10 @@ public class NodeContext
                 m_parentContext.findInheritedVariable(name);
             if (shadowedVar != null)
                 // warn of conflict
-                CompilerState.getCompilerState().addDiagnostic(nameNode,
-                                                               "Local variable \"" + name
-                                                               + "\" shadows an inherited variable",
-                                                               Severity.WARNING);
+                CompilerState.getCompilerState().addDiagnostic
+                    (nameNode,
+                     "Local variable \"" + name + "\" shadows an inherited variable",
+                     Severity.WARNING);
         }
         return success;
     }
