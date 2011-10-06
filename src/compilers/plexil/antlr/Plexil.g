@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -446,14 +446,14 @@ onCommandAction
 @init { m_paraphrases.push("in \"OnCommand\" statement"); }
 @after { m_paraphrases.pop(); }
  : 
-    ON_COMMAND_KYWD^ expression action
+    ON_COMMAND_KYWD^ NCNAME paramsSpec? action
  ;
 
 onMessageAction
 @init { m_paraphrases.push("in \"OnMessage\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-    ON_MESSAGE_KYWD^ expression action
+    ON_MESSAGE_KYWD<OnMessageNode>^ expression action
  ;
 
 whileAction
@@ -924,7 +924,7 @@ oneArgFn :
  ;
 
 isKnownExp :
-   IS_KNOWN_KYWD^ 
+   IS_KNOWN_KYWD<IsKnownNode>^ 
    LPAREN!
    ( 
      (NCNAME PERIOD STATE_KYWD) => nodeStateVariable

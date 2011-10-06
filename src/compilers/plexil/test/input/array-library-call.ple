@@ -1,4 +1,4 @@
-LibraryAction CopyReals (In Integer size, In Real source[5], InOut Real dest[5]);
+LibraryAction CopyReals (In Integer size, In Real[] source, InOut Real[] dest);
 Command pprint (...);
 
 {

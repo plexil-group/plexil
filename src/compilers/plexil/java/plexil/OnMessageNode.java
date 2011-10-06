@@ -30,54 +30,25 @@ import org.antlr.runtime.tree.*;
 
 import net.n3.nanoxml.*;
 
-public class OnCommandNode extends PlexilTreeNode
+public class OnMessageNode extends PlexilTreeNode
 {
-    public OnCommandNode(Token t)
+    public OnMessageNode(Token t)
     {
         super(t);
     }
 
     public void checkSelf(NodeContext context, CompilerState state)
     {
-        /*  This causes crash.  Not sure what to really check here.
-        ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
-        if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
-            state.addDiagnostic
-            (nameExp,
-            "The name expression to the " + this.getToken().getText()
-            + " statement was not a string expression",
-            Severity.ERROR);
-            }
-        */
+        // TBD
     }
 
     public void constructXML()
     {
         super.constructXML();
-
-        // Construct the name element, but don't output it yet.  Only literal
-        // names are supported at present.
-        //
-        IXMLElement name = new XMLElement ("Name");
-        IXMLElement stringVal = new XMLElement ("StringValue");
-        stringVal.setContent(this.getChild (0).getText());
-        name.addChild (stringVal);
-
-        // Second child: parameters (optional), or action
-        PlexilTreeNode second = this.getChild (1);
-
-
-        if (second.getType() == PlexilLexer.PARAMETERS) {
-            // Parameters are output first, followed by name
-            m_xml.addChild (second.getXML());
-            m_xml.addChild (name);            
-            // And we now know the third child is the action
-            m_xml.addChild (this.getChild(2).getXML());
-        } else {
-            // the second AST child was the action, which follows name
-            m_xml.addChild (name);
-            m_xml.addChild (second.getXML());
-        }
+        IXMLElement messageXML = new XMLElement();
+        messageXML.setName("Message");
+        m_xml.addChild(messageXML);
+        messageXML.addChild(this.getChild(0).getXML());
+        m_xml.addChild(this.getChild(1).getXML());
     }
 }
-

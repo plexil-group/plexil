@@ -69,7 +69,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.LESS:
         case PlexilLexer.LEQ:
             return new RelationalNode(payload);
-
+            
             // Lookups
         case PlexilLexer.LOOKUP_KYWD:
         case PlexilLexer.LOOKUP_NOW_KYWD:
@@ -115,7 +115,6 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
             return new LibraryCallNode(payload);
 
         case PlexilLexer.ON_COMMAND_KYWD:
-        case PlexilLexer.ON_MESSAGE_KYWD:
             return new OnCommandNode(payload);
 
         case PlexilLexer.PARAMETERS:
