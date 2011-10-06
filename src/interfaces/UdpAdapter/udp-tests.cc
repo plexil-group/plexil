@@ -117,7 +117,10 @@ int main()
 
   encode_string("  This is yet another test  ", bytes1, 0);
 
-  udp_thread_params the_params = { 8031, bytes2, 32, true };
+  // Socket for the thread waiting for input
+  int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  // Parameters for the thread waiting for input
+  udp_thread_params the_params = { 8031, bytes2, 32, sock, true };
   udp_thread_params* params = &the_params;
 
   pthread_t thread_handle;
