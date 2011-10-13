@@ -73,12 +73,12 @@ namespace PLEXIL {
 		sl_allConds->push_back(PRE_CONDITION());
 		sl_allConds->push_back(POST_CONDITION());
 		sl_allConds->push_back(REPEAT_CONDITION());
-		// Internal conditions for all nodes
-		sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
+		// Conditions on parent
 		sl_allConds->push_back(ANCESTOR_END_CONDITION());
+		sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
 		sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
-		sl_allConds->push_back(PARENT_WAITING_CONDITION());
 		sl_allConds->push_back(PARENT_FINISHED_CONDITION());
+		sl_allConds->push_back(PARENT_WAITING_CONDITION());
 		// Only for list or library call nodes
 		sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
 		// Only for command nodes
@@ -195,7 +195,7 @@ namespace PLEXIL {
 	// N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
     bool values[conditionIndexMax] =
 	  {skip, start, end, invariant, pre, post, repeat,
-	   ancestorInvariant, ancestorEnd, parentExecuting, parentWaiting, parentFinished, 
+	   ancestorEnd, ancestorInvariant, parentExecuting, parentFinished, parentWaiting, 
 	   childrenFinished, commandAbort, cmdHdlRcvdCondition};
     for (unsigned int i = 0; i < conditionIndexMax; i++) {
       debugMsg("Node:node",
@@ -207,6 +207,13 @@ namespace PLEXIL {
       expr->addListener(m_listeners[i]);
       m_garbageConditions[i] = true;
     }
+	// KLUDGE to deal with kludgey unit test
+	m_conditions[ancestorInvariantIdx]->activate();
+	m_conditions[ancestorEndIdx]->activate();
+	m_conditions[parentExecutingIdx]->activate();
+	m_conditions[parentFinishedIdx]->activate();
+	m_conditions[parentWaitingIdx]->activate();
+	// TODO: same for ancestor end & ancestor invariant
   }
 
   void Node::commonInit() {
@@ -265,35 +272,31 @@ namespace PLEXIL {
 	// These will be overridden in any non-root node,
 	// but they depend on user-specified conditions,
 	// so do these in createConditions() below.
-    m_conditions[ancestorInvariantIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[ancestorEndIdx] = BooleanVariable::FALSE_EXP();
+    m_conditions[ancestorInvariantIdx] = BooleanVariable::TRUE_EXP();
 
 	if (m_parent.isId()) {
-	  // These conditions only depend on the node state variable,
-	  // which is already initialized.
-	  ExpressionId parentExecuting =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::EXECUTING_EXP()))->getId();
+	  // Get these condition expressions from the parent
+	  ExpressionId parentExecuting = m_parent->getExecutingExpression();
+	  assertTrueMsg(parentExecuting.isId(),
+					"Internal error: Parent of node " << m_nodeId.c_str() << " is not a list or library call node!");
 	  ExpressionListenerId parentExecutingListener = m_listeners[parentExecutingIdx];
 	  parentExecuting->addListener(parentExecutingListener);
 	  m_conditions[parentExecutingIdx] = parentExecuting;
-	  m_garbageConditions[parentExecutingIdx] = true;
 
-	  ExpressionId parentWaiting =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::WAITING_EXP()))->getId();
-	  ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
-	  parentWaiting->addListener(parentWaitingListener);
-	  m_conditions[parentWaitingIdx] = parentWaiting;
-	  m_garbageConditions[parentWaitingIdx] = true;
-
-	  ExpressionId parentFinished =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::FINISHED_EXP()))->getId();
+	  ExpressionId parentFinished = m_parent->getFinishedExpression();
+	  assertTrueMsg(parentFinished.isId(),
+					"Internal error: Parent of node " << m_nodeId.c_str() << " is not a list or library call node!");
 	  ExpressionListenerId parentFinishedListener = m_listeners[parentFinishedIdx];
 	  parentFinished->addListener(parentFinishedListener);
 	  m_conditions[parentFinishedIdx] = parentFinished;
-	  m_garbageConditions[parentFinishedIdx] = true;
+
+	  ExpressionId parentWaiting = m_parent->getWaitingExpression();
+	  assertTrueMsg(parentWaiting.isId(),
+					"Internal error: Parent of node " << m_nodeId.c_str() << " is not a list or library call node!");
+	  ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
+	  parentWaiting->addListener(parentWaitingListener);
+	  m_conditions[parentWaitingIdx] = parentWaiting;
 	}
 	else {
 	  // Dummies for root node
@@ -495,25 +498,17 @@ namespace PLEXIL {
 	if (m_parent.isId()) {
 	  // Construct ancestor invariant and ancestor end
 	  // Both were previously set to constants in setConditionDefaults()
-	  ExpressionId ancestorInvariant =
-		(new Conjunction(m_parent->getAncestorInvariantCondition(),
-						 false,
-						 m_parent->getInvariantCondition(),
-						 false))->getId();
-	  ExpressionListenerId ancestorInvariantListener = m_listeners[ancestorInvariantIdx];
-	  ancestorInvariant->addListener(ancestorInvariantListener);
+	  ExpressionId ancestorInvariant = m_parent->getAncestorInvariantExpression();
+	  assertTrueMsg(ancestorInvariant.isId(),
+					"Internal error: Parent of node " << m_nodeId.c_str() << " is not a list or library call node!");
+	  ancestorInvariant->addListener(m_listeners[ancestorInvariantIdx]);
 	  m_conditions[ancestorInvariantIdx] = ancestorInvariant;
-	  m_garbageConditions[ancestorInvariantIdx] = true;;
 
-	  ExpressionId ancestorEnd =
-		(new Disjunction(m_parent->getAncestorEndCondition(),
-						 false,
-						 m_parent->getEndCondition(),
-						 false))->getId();
-	  ExpressionListenerId ancestorEndListener = m_listeners[ancestorEndIdx];
-	  ancestorEnd->addListener(ancestorEndListener);
+	  ExpressionId ancestorEnd = m_parent->getAncestorEndExpression();
+	  assertTrueMsg(ancestorInvariant.isId(),
+					"Internal error: Parent of node " << m_nodeId.c_str() << " is not a list or library call node!");
+	  ancestorEnd->addListener(m_listeners[ancestorEndIdx]);
 	  m_conditions[ancestorEndIdx] = ancestorEnd;
-	  m_garbageConditions[ancestorEndIdx] = true;
 	}
 
 	// Let the derived class do its thing
@@ -588,9 +583,6 @@ namespace PLEXIL {
 		m_listeners[i] = ExpressionListenerId::noId();
       }
     }
- 
-    // Clean up children
-	cleanUpChildConditions();
 
     // Clean up conditions
     for (unsigned int i = 0; i < conditionIndexMax; i++) {
@@ -603,11 +595,6 @@ namespace PLEXIL {
 	}
 
     m_cleanedConditions = true;
-  }
-
-  // Default method.
-  void Node::cleanUpChildConditions()
-  {
   }
 
   // Default method.
@@ -812,17 +799,17 @@ namespace PLEXIL {
 			   "Parent finished for " << m_nodeId.toString() << " is inactive.");
 
 	if (getParentFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: FINISHED.");
-	  condDebugMsg(getParentFinishedCondition()->getValue() ==
-				   BooleanVariable::TRUE_VALUE(),
-				   "Node:getDestState", "PARENT_FINISHED_CONDITION true.");
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  PARENT_FINISHED_CONDITION true.");
 	  return FINISHED_STATE;
 	}
 	if (getParentExecutingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: WAITING.  PARENT_EXECUTING_CONDITION true");
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: WAITING.  PARENT_EXECUTING_CONDITION true");
 	  return WAITING_STATE;
 	}
-	debugMsg("Node:getDestState", "Destination: no state.");
+	debugMsg("Node:getDestState", 
+			 " '" << m_nodeId.toString() << "' destination: no state.");
 	return NO_NODE_STATE;
   }
 
@@ -834,39 +821,41 @@ namespace PLEXIL {
 	checkError(isSkipConditionActive(), "Skip for " << m_nodeId.toString() << " is inactive.");
 	checkError(isStartConditionActive(), "Start for " << m_nodeId.toString() << " is inactive.");
 
-	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
-		getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE() ||
-		getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: FINISHED.");
-	  condDebugMsg(getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
-				   "Node:getDestState", "ANCESTOR_INVARIANT_CONDITION false.");
-	  condDebugMsg(getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE(),
-				   "Node:getDestState", "ANCESTOR_END_CONDITION true.");
-	  condDebugMsg(getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE(),
-				   "Node:getDestState", "SKIP_CONDITION true.");
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_INVARIANT_CONDITION false.");
+	  return FINISHED_STATE;
+	}
+	if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_END_CONDITION true.");
+	  return FINISHED_STATE;
+	}
+	if (getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  SKIP_CONDITION true.");
 	  return FINISHED_STATE;
 	}
 	if (getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  if (getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-		debugMsg("Node:getDestState", "Destination: EXECUTING.  START_CONDITION and PRE_CONDITION are both true.");
+		debugMsg("Node:getDestState",
+				 " '" << m_nodeId.toString() << "' destination: EXECUTING.  START_CONDITION and PRE_CONDITION are both true.");
 		return EXECUTING_STATE;
 	  }
 	  else {
-		debugMsg("Node:getDestState", "Destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
+		debugMsg("Node:getDestState",
+				 " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
 		return ITERATION_ENDED_STATE;
 	  }
 	}
-	debugMsg("Node:getDestState", "Destination: no state.  START_CONDITION false or unknown");
+	debugMsg("Node:getDestState",
+			 " '" << m_nodeId.toString() << "' destination: no state.  START_CONDITION false or unknown");
 	return NO_NODE_STATE;
   }
 
-  // Empty node method
+  // Default method
   NodeState Node::getDestStateFromExecuting()
   {
-	checkError(getType() == Node::EMPTY(),
-			   "Expected empty node, got " <<
-			   getType().toString());
-
 	checkError(isAncestorInvariantConditionActive(),
 			   "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
 	checkError(isInvariantConditionActive(),
@@ -875,15 +864,18 @@ namespace PLEXIL {
 			   "End for " << m_nodeId.toString() << " is inactive.");
 
 	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: FINISHED. Ancestor invariant false.");
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  Ancestor invariant false.");
 	  return FINISHED_STATE;
 	}
-	else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  Invariant false.");
+	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED.  Invariant false.");
 	  return ITERATION_ENDED_STATE;
 	}
-	else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: ITERATION_ENDED.  End condition true.");
+	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED.  End condition true.");
 	  return ITERATION_ENDED_STATE;
 	}
 	return NO_NODE_STATE;
@@ -905,10 +897,12 @@ namespace PLEXIL {
 			   "Parent waiting for " << m_nodeId.toString() << " is inactive.");
 
 	if (getParentWaitingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: INACTIVE.  PARENT_WAITING true.");
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: INACTIVE.  PARENT_WAITING true.");
 	  return INACTIVE_STATE;
 	}
-	debugMsg("Node:getDestState", "Destination: no state.  PARENT_WAITING false or unknown.");
+	debugMsg("Node:getDestState",
+			 " '" << m_nodeId.toString() << "' destination: no state.  PARENT_WAITING false or unknown.");
 	return NO_NODE_STATE;
   }
 
@@ -931,25 +925,28 @@ namespace PLEXIL {
 	checkError(isRepeatConditionActive(),
 			   "Repeat for " << m_nodeId.toString() << " is inactive.");
 
-	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
-		getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE() ||
-		getRepeatCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  debugMsg("Node:getDestState", "'" << m_nodeId.toString() << "' destination: FINISHED.");
-	  condDebugMsg(getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
-				   "Node:getDestState", "ANCESTOR_INVARIANT false.");
-	  condDebugMsg(getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE(),
-				   "Node:getDestState", "ANCESTOR_END true.");
-	  condDebugMsg(getRepeatCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
-				   "Node:getDestState", "REPEAT_CONDITION false.");
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_INVARIANT false.");
+	  return FINISHED_STATE;
+	}
+	if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_END true.");
+	  return FINISHED_STATE;
+	}
+	if (getRepeatCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  REPEAT_CONDITION false.");
 	  return FINISHED_STATE;
 	}
 	if (getRepeatCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  debugMsg("Node:getDestState",
-			   "'" << m_nodeId.toString() << "' destination: WAITING.  REPEAT_UNTIL true.");
+			   " '" << m_nodeId.toString() << "' destination: WAITING.  REPEAT_UNTIL true.");
 	  return WAITING_STATE;
 	}
 	debugMsg("Node:getDestState",
-			 "'" << m_nodeId.toString() << "' destination: no state.  ANCESTOR_END false or unknown and REPEAT unknown.");
+			 " '" << m_nodeId.toString() << "' destination: no state.  ANCESTOR_END false or unknown and REPEAT unknown.");
 	return NO_NODE_STATE;
   }
 

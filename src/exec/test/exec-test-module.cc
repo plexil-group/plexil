@@ -1301,18 +1301,18 @@ private:
 	  if(node->canTransition()) {
 	    node->transition(node->getDestState());
 	    NodeState state = node->getState();
-	    assertTrue(!node->getParentExecutingCondition()->isActive());
+	    assertTrue(!node->isParentExecutingConditionActive());
 	    if(parentFinished == IDX_TRUE) {
 	      assertTrue(state == FINISHED_STATE);
 	      assertTrue(node->getOutcome() == OutcomeVariable::SKIPPED());
-	      assertTrue(!node->getParentExecutingCondition()->isActive());
-	      assertTrue(node->getParentWaitingCondition()->isActive());
+	      assertTrue(!node->isParentExecutingConditionActive());
+	      assertTrue(node->isParentWaitingConditionActive());
 	    }
 	    else if(parentExecuting == IDX_TRUE) {
 	      assertTrue(state == WAITING_STATE);
 	      assertTrue(node->getStartCondition()->isActive());
-	      assertTrue(node->getAncestorEndCondition()->isActive());
-	      assertTrue(node->getAncestorInvariantCondition()->isActive());
+	      assertTrue(node->isAncestorEndConditionActive());
+	      assertTrue(node->isAncestorInvariantConditionActive());
 	    }
 	    else {
 	      assertTrue(false);
@@ -1417,16 +1417,16 @@ for(int skip = 0; skip < 3; ++skip) {
 		if(ancestorInvariant == IDX_FALSE || ancestorEnd == IDX_TRUE || skip == IDX_TRUE) {
 		  assertTrue(state == FINISHED_STATE);
 		  assertTrue(node->getOutcome() == OutcomeVariable::SKIPPED());
-		  assertTrue(node->getParentWaitingCondition()->isActive());
+		  assertTrue(node->isParentWaitingConditionActive());
 		}/*else if  (skip == IDX_TRUE) {
 		    assertTrue(state == FINISHED_STATE);
 		    assertTrue(node->getOutcome() == OutcomeVariable::SKIPPED());
 		    assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PRE_CONDITION_FALSE_VALUE());
 		    assertTrue(node->getRepeatCondition()->isActive());
-		    assertTrue(node->getAncestorEndCondition()->isActive());
+		    assertTrue(node->isAncestorEndConditionActive());
 		  }*/
 		else if(start == IDX_TRUE) {
-		  assertTrue(node->getAncestorInvariantCondition()->isActive());
+		  assertTrue(node->isAncestorInvariantConditionActive());
 		  if(pre == IDX_TRUE) {
 		    assertTrue(state == EXECUTING_STATE);
 		    assertTrue(node->getInvariantCondition()->isActive());
@@ -1438,7 +1438,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		    assertTrue(node->getOutcome() == OutcomeVariable::FAILURE());
 		    assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PRE_CONDITION_FAILED());
 		    assertTrue(node->getRepeatCondition()->isActive());
-		    assertTrue(node->getAncestorEndCondition()->isActive());
+		    assertTrue(node->isAncestorEndConditionActive());
 		  }
 		}
 		else {
@@ -1531,7 +1531,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		  assertTrue(node->getOutcome() == OutcomeVariable::FAILURE());
 		  assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PARENT_FAILED());
 		}
-		assertTrue(node->getParentWaitingCondition()->isActive());
+		assertTrue(node->isParentWaitingConditionActive());
 	      }
 	      else if(repeat == IDX_TRUE) {
 		assertTrue(state == WAITING_STATE);
@@ -1594,8 +1594,8 @@ for(int skip = 0; skip < 3; ++skip) {
 
 	  if(parentWaiting == IDX_TRUE) {
 	    assertTrue(state == INACTIVE_STATE);
-	    assertTrue(node->getParentFinishedCondition()->isActive());
-	    assertTrue(node->getParentExecutingCondition()->isActive());
+	    assertTrue(node->isParentFinishedConditionActive());
+	    assertTrue(node->isParentExecutingConditionActive());
 	  }
 	  else {
 	    assertTrue(false);
@@ -1688,7 +1688,7 @@ for(int skip = 0; skip < 3; ++skip) {
 	      else if(end == IDX_TRUE) {
 		assertTrue(state == FINISHING_STATE);
 		assertTrue(node->getInvariantCondition()->isActive());
-		assertTrue(node->getAncestorInvariantCondition()->isActive());
+		assertTrue(node->isAncestorInvariantConditionActive());
 	      }
 	      else {
 		assertTrue(false);
@@ -1761,13 +1761,13 @@ for(int skip = 0; skip < 3; ++skip) {
 	  if(children == IDX_TRUE) {
 	    if(i == 0) {
 	      assertTrue(state == ITERATION_ENDED_STATE);
-	      assertTrue(node->getAncestorInvariantCondition()->isActive());
-	      assertTrue(node->getAncestorEndCondition()->isActive());
+	      assertTrue(node->isAncestorInvariantConditionActive());
+	      assertTrue(node->isAncestorEndConditionActive());
 	      assertTrue(node->getRepeatCondition()->isActive());
 	    }
 	    else if(i == 1) {
 	      assertTrue(state == FINISHED_STATE);
-	      assertTrue(node->getParentWaitingCondition()->isActive());
+	      assertTrue(node->isParentWaitingConditionActive());
 	    }
 	    else {
 	      assertTrue(false);
@@ -1873,8 +1873,8 @@ for(int skip = 0; skip < 3; ++skip) {
 	      }
 	      else if(children == IDX_TRUE) {
 		assertTrue(state == ITERATION_ENDED_STATE);
-		assertTrue(node->getAncestorInvariantCondition()->isActive());
-		assertTrue(node->getAncestorEndCondition()->isActive());
+		assertTrue(node->isAncestorInvariantConditionActive());
+		assertTrue(node->isAncestorEndConditionActive());
 		assertTrue(node->getRepeatCondition()->isActive());
 		if(post == IDX_TRUE) {
 		  assertTrue(node->getOutcome() == OutcomeVariable::SUCCESS());
@@ -1974,14 +1974,14 @@ for(int skip = 0; skip < 3; ++skip) {
 				if(ancestorInvariant == IDX_FALSE) {
 				  assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PARENT_FAILED());
 				  assertTrue(state == FINISHED_STATE);
-				  assertTrue(node->getParentWaitingCondition()->isActive());
+				  assertTrue(node->isParentWaitingConditionActive());
 				}
 				else if(invariant == IDX_FALSE) {
 				  assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::INVARIANT_CONDITION_FAILED());
 				  assertTrue(state == ITERATION_ENDED_STATE);
 				  assertTrue(node->getRepeatCondition()->isActive());
-				  assertTrue(node->getAncestorEndCondition()->isActive());
-				  assertTrue(node->getAncestorInvariantCondition()->isActive());
+				  assertTrue(node->isAncestorEndConditionActive());
+				  assertTrue(node->isAncestorInvariantConditionActive());
 				}
 			  }
 			  else if(end == IDX_TRUE) {
@@ -1994,8 +1994,8 @@ for(int skip = 0; skip < 3; ++skip) {
 				}
 				assertTrue(state == ITERATION_ENDED_STATE);
 				assertTrue(node->getRepeatCondition()->isActive());
-				assertTrue(node->getAncestorEndCondition()->isActive());
-				assertTrue(node->getAncestorInvariantCondition()->isActive());
+				assertTrue(node->isAncestorEndConditionActive());
+				assertTrue(node->isAncestorInvariantConditionActive());
 			  }
 			  else {
 				assertTrue(false);
@@ -2100,7 +2100,7 @@ for(int skip = 0; skip < 3; ++skip) {
 		  assertTrue(node->findVariable(Node::FAILURE_TYPE())->getValue() == FailureVariable::PARENT_FAILED());
 		  if(end == IDX_TRUE) {
 		    assertTrue(state == FINISHED_STATE);
-		    assertTrue(node->getParentWaitingCondition()->isActive());
+		    assertTrue(node->isParentWaitingConditionActive());
 		  }
 		  else {
 		    assertTrue(state == FAILING_STATE);
@@ -2113,8 +2113,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		  if(end == IDX_TRUE) {
 		    assertTrue(state == ITERATION_ENDED_STATE);
 		    assertTrue(node->getRepeatCondition()->isActive());
-		    assertTrue(node->getAncestorEndCondition()->isActive());
-		    assertTrue(node->getAncestorInvariantCondition()->isActive());
+		    assertTrue(node->isAncestorEndConditionActive());
+		    assertTrue(node->isAncestorInvariantConditionActive());
 		  }
 		  else {
 		    assertTrue(state == FAILING_STATE);
@@ -2124,8 +2124,8 @@ for(int skip = 0; skip < 3; ++skip) {
 		else if(end == IDX_TRUE) {
 		  assertTrue(state == ITERATION_ENDED_STATE);
 		  assertTrue(node->getRepeatCondition()->isActive());
-		  assertTrue(node->getAncestorEndCondition()->isActive());
-		  assertTrue(node->getAncestorInvariantCondition()->isActive());
+		  assertTrue(node->isAncestorEndConditionActive());
+		  assertTrue(node->isAncestorInvariantConditionActive());
 		  if(post == IDX_TRUE) {
 		    assertTrue(node->getOutcome() == OutcomeVariable::SUCCESS());
 		  }
@@ -2208,13 +2208,13 @@ for(int skip = 0; skip < 3; ++skip) {
 	    if(abort == IDX_TRUE) {
 	      if(failure == 1) {
 		assertTrue(state == FINISHED_STATE);
-		assertTrue(node->getParentWaitingCondition()->isActive());
+		assertTrue(node->isParentWaitingConditionActive());
 	      }
 	      else {
 		assertTrue(state == ITERATION_ENDED_STATE);
 		assertTrue(node->getRepeatCondition()->isActive());
-		assertTrue(node->getAncestorEndCondition()->isActive());
-		assertTrue(node->getAncestorInvariantCondition()->isActive());
+		assertTrue(node->isAncestorEndConditionActive());
+		assertTrue(node->isAncestorInvariantConditionActive());
 	      }
 	    }
 	    else {

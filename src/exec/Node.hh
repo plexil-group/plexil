@@ -281,32 +281,54 @@ namespace PLEXIL {
     ExpressionId& getPreCondition()                       { return m_conditions[preIdx]; }
     ExpressionId& getPostCondition()                      { return m_conditions[postIdx]; }
     ExpressionId& getRepeatCondition()                    { return m_conditions[repeatIdx]; }
-    ExpressionId& getAncestorInvariantCondition()         { return m_conditions[ancestorInvariantIdx]; }
     ExpressionId& getAncestorEndCondition()               { return m_conditions[ancestorEndIdx]; }
+    ExpressionId& getAncestorInvariantCondition()         { return m_conditions[ancestorInvariantIdx]; }
     ExpressionId& getParentExecutingCondition()           { return m_conditions[parentExecutingIdx]; }
+    ExpressionId& getParentFinishedCondition()            { return m_conditions[parentFinishedIdx]; }
+    ExpressionId& getParentWaitingCondition()             { return m_conditions[parentWaitingIdx]; }
     ExpressionId& getChildrenWaitingOrFinishedCondition() { return m_conditions[childrenWaitingOrFinishedIdx]; }
     ExpressionId& getAbortCompleteCondition()             { return m_conditions[abortCompleteIdx]; }
-    ExpressionId& getParentWaitingCondition()             { return m_conditions[parentWaitingIdx]; }
-    ExpressionId& getParentFinishedCondition()            { return m_conditions[parentFinishedIdx]; }
     ExpressionId& getCommandHandleReceivedCondition()     { return m_conditions[commandHandleReceivedIdx]; }
 
 	// Activate a condition
 	// These are public only to appease the module test
-    void activateSkipCondition()                      { return activatePair(skipIdx); }
-    void activateStartCondition()                     { return activatePair(startIdx); }
-    void activateEndCondition()                       { return activatePair(endIdx); }
-    void activateInvariantCondition()                 { return activatePair(invariantIdx); }
-    void activatePreCondition()                       { return activatePair(preIdx); }
-    void activatePostCondition()                      { return activatePair(postIdx); }
-    void activateRepeatCondition()                    { return activatePair(repeatIdx); }
-    void activateAncestorInvariantCondition()         { return activatePair(ancestorInvariantIdx); }
-    void activateAncestorEndCondition()               { return activatePair(ancestorEndIdx); }
-    void activateParentExecutingCondition()           { return activatePair(parentExecutingIdx); }
-    void activateChildrenWaitingOrFinishedCondition() { return activatePair(childrenWaitingOrFinishedIdx); }
-    void activateAbortCompleteCondition()             { return activatePair(abortCompleteIdx); }
-    void activateParentWaitingCondition()             { return activatePair(parentWaitingIdx); }
-    void activateParentFinishedCondition()            { return activatePair(parentFinishedIdx); }
-    void activateCommandHandleReceivedCondition()     { return activatePair(commandHandleReceivedIdx); }
+    void activateSkipCondition()                      { activatePair(skipIdx); }
+    void activateStartCondition()                     { activatePair(startIdx); }
+    void activateEndCondition()                       { activatePair(endIdx); }
+    void activateInvariantCondition()                 { activatePair(invariantIdx); }
+    void activatePreCondition()                       { activatePair(preIdx); }
+    void activatePostCondition()                      { activatePair(postIdx); }
+    void activateRepeatCondition()                    { activatePair(repeatIdx); }
+	// These are special because parent owns the condition expression
+    void activateAncestorEndCondition()               { m_listeners[ancestorEndIdx]->activate(); }
+    void activateAncestorInvariantCondition()         { m_listeners[ancestorInvariantIdx]->activate(); }
+    void activateParentExecutingCondition()           { m_listeners[parentExecutingIdx]->activate(); }
+    void activateParentWaitingCondition()             { m_listeners[parentWaitingIdx]->activate(); }
+    void activateParentFinishedCondition()            { m_listeners[parentFinishedIdx]->activate(); }
+	// These are for specialized node types
+    void activateChildrenWaitingOrFinishedCondition() { activatePair(childrenWaitingOrFinishedIdx); }
+    void activateAbortCompleteCondition()             { activatePair(abortCompleteIdx); }
+    void activateCommandHandleReceivedCondition()     { activatePair(commandHandleReceivedIdx); }
+
+	// Test whether a condition is active
+	// These are public only to appease the module test
+    bool isSkipConditionActive()                      { return pairActive(skipIdx); }
+    bool isStartConditionActive()                     { return pairActive(startIdx); }
+    bool isEndConditionActive()                       { return pairActive(endIdx); }
+    bool isInvariantConditionActive()                 { return pairActive(invariantIdx); }
+    bool isPreConditionActive()                       { return pairActive(preIdx); }
+    bool isPostConditionActive()                      { return pairActive(postIdx); }
+    bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
+	// These are special because parent owns the condition expression
+    bool isAncestorEndConditionActive()               { return m_listeners[ancestorEndIdx]->isActive(); }
+    bool isAncestorInvariantConditionActive()         { return m_listeners[ancestorInvariantIdx]->isActive(); }
+    bool isParentExecutingConditionActive()           { return m_listeners[parentExecutingIdx]->isActive(); }
+    bool isParentFinishedConditionActive()            { return m_listeners[parentFinishedIdx]->isActive(); }
+    bool isParentWaitingConditionActive()             { return m_listeners[parentWaitingIdx]->isActive(); }
+	// These are for specialized node types
+    bool isChildrenWaitingOrFinishedConditionActive() { return pairActive(childrenWaitingOrFinishedIdx); }
+    bool isAbortCompleteConditionActive()             { return pairActive(abortCompleteIdx); }
+    bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
 
 	// Should only be used by LuvListener.
     ExpressionId& getCondition(const LabelStr& name);
@@ -328,12 +350,12 @@ namespace PLEXIL {
       preIdx,
       postIdx,
       repeatIdx,
-	  // Internal conditions for all nodes
-      ancestorInvariantIdx,
+	  // Conditions on parent
       ancestorEndIdx,
+      ancestorInvariantIdx,
       parentExecutingIdx,
-      parentWaitingIdx,
       parentFinishedIdx,
+      parentWaitingIdx,
 	  // Only for list or library call nodes
       childrenWaitingOrFinishedIdx,
 	  // Only for command nodes
@@ -356,38 +378,23 @@ namespace PLEXIL {
     virtual void deactivateExecutable();
 
 	// Deactivate a condition
-    void deactivateSkipCondition()                      { return deactivatePair(skipIdx); }
-    void deactivateStartCondition()                     { return deactivatePair(startIdx); }
-    void deactivateEndCondition()                       { return deactivatePair(endIdx); }
-    void deactivateInvariantCondition()                 { return deactivatePair(invariantIdx); }
-    void deactivatePreCondition()                       { return deactivatePair(preIdx); }
-    void deactivatePostCondition()                      { return deactivatePair(postIdx); }
-    void deactivateRepeatCondition()                    { return deactivatePair(repeatIdx); }
-    void deactivateAncestorInvariantCondition()         { return deactivatePair(ancestorInvariantIdx); }
-    void deactivateAncestorEndCondition()               { return deactivatePair(ancestorEndIdx); }
-    void deactivateParentExecutingCondition()           { return deactivatePair(parentExecutingIdx); }
-    void deactivateChildrenWaitingOrFinishedCondition() { return deactivatePair(childrenWaitingOrFinishedIdx); }
-    void deactivateAbortCompleteCondition()             { return deactivatePair(abortCompleteIdx); }
-    void deactivateParentWaitingCondition()             { return deactivatePair(parentWaitingIdx); }
-    void deactivateParentFinishedCondition()            { return deactivatePair(parentFinishedIdx); }
-    void deactivateCommandHandleReceivedCondition()     { return deactivatePair(commandHandleReceivedIdx); }
-
-	// Test whether a condition is active
-    bool isSkipConditionActive()                      { return pairActive(skipIdx); }
-    bool isStartConditionActive()                     { return pairActive(startIdx); }
-    bool isEndConditionActive()                       { return pairActive(endIdx); }
-    bool isInvariantConditionActive()                 { return pairActive(invariantIdx); }
-    bool isPreConditionActive()                       { return pairActive(preIdx); }
-    bool isPostConditionActive()                      { return pairActive(postIdx); }
-    bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
-    bool isAncestorInvariantConditionActive()         { return pairActive(ancestorInvariantIdx); }
-    bool isAncestorEndConditionActive()               { return pairActive(ancestorEndIdx); }
-    bool isParentExecutingConditionActive()           { return pairActive(parentExecutingIdx); }
-    bool isChildrenWaitingOrFinishedConditionActive() { return pairActive(childrenWaitingOrFinishedIdx); }
-    bool isAbortCompleteConditionActive()             { return pairActive(abortCompleteIdx); }
-    bool isParentWaitingConditionActive()             { return pairActive(parentWaitingIdx); }
-    bool isParentFinishedConditionActive()            { return pairActive(parentFinishedIdx); }
-    bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
+    void deactivateSkipCondition()                      { deactivatePair(skipIdx); }
+    void deactivateStartCondition()                     { deactivatePair(startIdx); }
+    void deactivateEndCondition()                       { deactivatePair(endIdx); }
+    void deactivateInvariantCondition()                 { deactivatePair(invariantIdx); }
+    void deactivatePreCondition()                       { deactivatePair(preIdx); }
+    void deactivatePostCondition()                      { deactivatePair(postIdx); }
+    void deactivateRepeatCondition()                    { deactivatePair(repeatIdx); }
+	// These are special because parent owns the condition expression
+    void deactivateAncestorEndCondition()               { m_listeners[ancestorEndIdx]->deactivate(); }
+    void deactivateAncestorInvariantCondition()         { m_listeners[ancestorInvariantIdx]->deactivate(); }
+    void deactivateParentExecutingCondition()           { m_listeners[parentExecutingIdx]->deactivate(); }
+    void deactivateParentFinishedCondition()            { m_listeners[parentFinishedIdx]->deactivate(); }
+    void deactivateParentWaitingCondition()             { m_listeners[parentWaitingIdx]->deactivate(); }
+	// These are for specialized node types
+    void deactivateChildrenWaitingOrFinishedCondition() { deactivatePair(childrenWaitingOrFinishedIdx); }
+    void deactivateAbortCompleteCondition()             { deactivatePair(abortCompleteIdx); }
+    void deactivateCommandHandleReceivedCondition()     { deactivatePair(commandHandleReceivedIdx); }
 
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit(const PlexilNodeId& node);
@@ -426,11 +433,18 @@ namespace PLEXIL {
 
 	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
 
+	// Common expressions shared by children's conditions
+	// The default methods return noId().
+	virtual const ExpressionId& getAncestorEndExpression() const { return ExpressionId::noId(); }
+	virtual const ExpressionId& getAncestorInvariantExpression() const { return ExpressionId::noId(); }
+	virtual const ExpressionId& getExecutingExpression() const { return ExpressionId::noId(); }
+	virtual const ExpressionId& getFinishedExpression() const { return ExpressionId::noId(); }
+	virtual const ExpressionId& getWaitingExpression() const { return ExpressionId::noId(); }
+
 	// Phases of destructor
 	// Not useful if called from base class destructor!
     virtual void cleanUpConditions();
     virtual void cleanUpVars();
-	virtual void cleanUpChildConditions();
 	virtual void cleanUpNodeBody();
 
 	//

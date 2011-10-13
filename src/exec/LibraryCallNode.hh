@@ -72,8 +72,10 @@ namespace PLEXIL
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit(const PlexilNodeId& node);
 	virtual void createSpecializedConditions();
+	virtual void createConditionWrappers();
 	virtual void specializedActivate();
 
+	virtual void cleanUpConditions();
 	virtual void cleanUpChildConditions();
 	virtual void cleanUpNodeBody();
 
@@ -89,6 +91,13 @@ namespace PLEXIL
 	virtual void transitionToFinishing();
 	virtual void transitionToFailing();
 
+	// Common expressions shared by children's conditions
+	virtual const ExpressionId& getAncestorEndExpression() const { return m_ancestorEndExpression; }
+	virtual const ExpressionId& getAncestorInvariantExpression() const { return m_ancestorInvariantExpression; }
+	virtual const ExpressionId& getExecutingExpression() const { return m_executingExpression; }
+	virtual const ExpressionId& getFinishedExpression() const { return m_finishedExpression; }
+	virtual const ExpressionId& getWaitingExpression() const { return m_waitingExpression; }
+
   private:
 
     void createLibraryNode(const PlexilLibNodeCallBody* body);
@@ -98,8 +107,16 @@ namespace PLEXIL
 					   PlexilAliasMap& aliases,
 					   bool isIn);
 
-    std::vector<NodeId> m_children; /*<! Vector of child node. */
 	VariableMap m_aliasVariables;
+
+    std::vector<NodeId> m_children; /*<! Vector of child node. */
+
+	// Expressions shared among children
+	ExpressionId m_ancestorInvariantExpression;
+	ExpressionId m_ancestorEndExpression;
+	ExpressionId m_executingExpression;
+	ExpressionId m_finishedExpression;
+	ExpressionId m_waitingExpression;
   };
 
 }

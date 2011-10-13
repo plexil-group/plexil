@@ -85,8 +85,6 @@ namespace PLEXIL
 
 	virtual void cleanUpNodeBody();
 
-	virtual NodeState getDestStateFromExecuting();
-
 	virtual void transitionFromExecuting(NodeState toState);
 	virtual void transitionToExecuting();
 

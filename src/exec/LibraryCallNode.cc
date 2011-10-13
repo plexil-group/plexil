@@ -27,6 +27,7 @@
 #include "LibraryCallNode.hh"
 #include "Array.hh"
 #include "BooleanVariable.hh"
+#include "Calculables.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -46,7 +47,13 @@ namespace PLEXIL
   LibraryCallNode::LibraryCallNode(const PlexilNodeId& nodeProto, 
 								   const ExecConnectorId& exec, 
 								   const NodeId& parent)
-	: Node(nodeProto, exec, parent)
+	: Node(nodeProto, exec, parent),
+	  m_executingExpression((new Equality(m_stateVariable,
+										  StateVariable::EXECUTING_EXP()))->getId()),
+	  m_finishedExpression((new Equality(m_stateVariable,
+										 StateVariable::FINISHED_EXP()))->getId()),
+	  m_waitingExpression((new Equality(m_stateVariable,
+										StateVariable::WAITING_EXP()))->getId())
   {
 	checkError(nodeProto->nodeType() == NodeType_LibraryNodeCall,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
@@ -76,10 +83,22 @@ namespace PLEXIL
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec)
+		   exec),
+	  m_executingExpression((new Equality(m_stateVariable,
+										  StateVariable::EXECUTING_EXP()))->getId()),
+	  m_finishedExpression((new Equality(m_stateVariable,
+										 StateVariable::FINISHED_EXP()))->getId()),
+	  m_waitingExpression((new Equality(m_stateVariable,
+										StateVariable::EXECUTING_EXP()))->getId())
   {
 	checkError(type == LIBRARYNODECALL(),
 			   "Invalid node type \"" << type.toString() << "\" for a LibraryCallNode");
+
+	// Prop up stupid unit test
+	if (state == EXECUTING_STATE || state == FINISHING_STATE || state == FAILING_STATE) {
+	  m_ancestorEndExpression->activate();
+	  m_ancestorInvariantExpression->activate();
+	}
   }
 
   /**
@@ -89,11 +108,52 @@ namespace PLEXIL
   {
 	debugMsg("LibraryCallNode:~LibraryCallNode", " destructor for " << m_nodeId.toString());
 
-	// Redundant with base class destructor
 	cleanUpConditions();
 	cleanUpNodeBody();
 	cleanUpVars(); // flush alias vars
+  }
 
+  void LibraryCallNode::cleanUpConditions() 
+  {
+    if (m_cleanedConditions)
+      return;
+
+	debugMsg("ListNode:cleanUpConditions", " for " << m_nodeId.toString());
+
+	cleanUpChildConditions();
+
+	// These reference invariant/end conditions and must be cleaned up before them
+	delete (Expression*) m_ancestorEndExpression;
+	delete (Expression*) m_ancestorInvariantExpression;
+
+	// Clean up shared state expressions now that children no longer reference them
+	delete (Expression*) m_executingExpression;
+	delete (Expression*) m_finishedExpression;
+	delete (Expression*) m_waitingExpression;
+
+    // Clean up condition listeners
+    for (unsigned int i = 0; i < conditionIndexMax; i++) {
+      if (m_listeners[i].isId()) {
+		debugMsg("Node:cleanUpConds",
+				 "<" << m_nodeId.toString() << "> Removing condition listener for " <<
+				 getConditionName(i).toString());
+		m_conditions[i]->removeListener(m_listeners[i]);
+		delete (ExpressionListener*) m_listeners[i];
+		m_listeners[i] = ExpressionListenerId::noId();
+      }
+    }
+
+    // Clean up conditions
+    for (unsigned int i = 0; i < conditionIndexMax; i++) {
+      if (m_garbageConditions[i]) {
+		debugMsg("Node:cleanUpConds",
+				 "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(i).toString());
+		delete (Expression*) m_conditions[i];
+		m_conditions[i] = ExpressionId::noId();
+	  }
+	}
+
+    m_cleanedConditions = true;
   }
 
   void LibraryCallNode::cleanUpChildConditions()
@@ -297,7 +357,7 @@ namespace PLEXIL
 	// Construct conditions
 	ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
 	ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx] = 
-	  (new ConditionChangeListener((Node&) *this, ALL_CONDITIONS()[childrenWaitingOrFinishedIdx]))->getId();
+	  (new ConditionChangeListener((Node&) *this, CHILDREN_WAITING_OR_FINISHED()))->getId();
 	cond->addListener(listener);
 	m_conditions[childrenWaitingOrFinishedIdx] = cond;
 	m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
@@ -307,6 +367,23 @@ namespace PLEXIL
 	endCond->addListener(listener);
 	m_conditions[endIdx] = endCond;
 	m_garbageConditions[endIdx] = true;
+  }
+
+  // Create the ancestor end and ancestor invariant conditions shared between children
+  void LibraryCallNode::createConditionWrappers()
+  {
+	// TODO: Micro-optimization for root node possible
+	// Would require 'created' flag for each of these expressions
+	m_ancestorInvariantExpression =
+		(new Conjunction(getAncestorInvariantCondition(),
+						 false,
+						 getInvariantCondition(),
+						 false))->getId();
+	m_ancestorEndExpression =
+		(new Disjunction(getAncestorEndCondition(),
+						 false,
+						 getEndCondition(),
+						 false))->getId();
   }
 
   //
@@ -322,22 +399,19 @@ namespace PLEXIL
 	checkError(isEndConditionActive(),
 			   "End for " << getNodeId().toString() << " is inactive.");
 
-	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
-		getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  debugMsg("Node:getDestState", "Destination: FAILING.");
-	  condDebugMsg(getAncestorInvariantCondition()->getValue() == 
-				   BooleanVariable::FALSE_VALUE(),
-				   "Node:getDestState",
-				   "Library node call and ANCESTOR_INVARIANT_CONDITION false or unknown.");
-	  condDebugMsg(getInvariantCondition()->getValue() ==
-				   BooleanVariable::FALSE_VALUE(),
-				   "Node:getDestState",
-				   "Library node call and INVARIANT_CONDITION false or unknown.");
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FAILING.  Library node call and ANCESTOR_INVARIANT_CONDITION false.");
+	  return FAILING_STATE;
+	}
+	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FAILING.  Library node call and INVARIANT_CONDITION false.");
 	  return FAILING_STATE;
 	}
 	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  debugMsg("Node:getDestState",
-			   "Destination: FINISHING.  Library node call and END_CONDITION true.");
+			   " '" << m_nodeId.toString() << "' destination: FINISHING.  Library node call and END_CONDITION true.");
 	  return FINISHING_STATE;
 	}
 	debugMsg("Node:getDestState", "Destination: no state.");
@@ -353,17 +427,20 @@ namespace PLEXIL
 	if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  if (getFailureTypeVariable()->getValue() == FailureVariable::PARENT_FAILED()) {
 		debugMsg("Node:getDestState",
-				 "Destination: FINISHED.  List node and ALL_CHILDREN_WAITING_OR_FINISHED" <<
+				 " '" << m_nodeId.toString() <<
+				 "' destination: FINISHED.  Library node call and ALL_CHILDREN_WAITING_OR_FINISHED" <<
 				 " true and parent failed.");
 		return FINISHED_STATE;
 	  }
 	  else {
 		debugMsg("Node:getDestState",
-				 "Destination: ITERATION_ENDED.  List node and self-failure.");
+				 " '" << m_nodeId.toString() <<
+				 "' destination: ITERATION_ENDED.  Library node call and self-failure.");
 		return ITERATION_ENDED_STATE;
 	  }
 	}
-	debugMsg("Node:getDestState", "Destination: no state.");
+	debugMsg("Node:getDestState",
+			 " '" << m_nodeId.toString() << "' destination: no state.");
 	return NO_NODE_STATE;
   }
 
@@ -377,40 +454,38 @@ namespace PLEXIL
 			   "Children waiting or finished for " << getNodeId().toString() <<
 			   " is inactive.");
 
-	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE() ||
-		getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE())
-	  {
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' Destination: FAILING.  Library node call and ANCESTOR_INVARIANT_CONDITION false.");
+	  return FAILING_STATE;
+	}
+	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' Destination: FAILING.  Library node call and INVARIANT_CONDITION false.");
+	  return FAILING_STATE;
+	}
+	if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (!getPostCondition()->isActive())
+		getPostCondition()->activate();
+
+	  if (BooleanVariable::falseOrUnknown(getPostCondition()->getValue())) {
 		debugMsg("Node:getDestState",
-				 "Destination: FAILING.");
-		condDebugMsg(getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
-					 "Node:getDestState",
-					 "List node and ANCESTOR_INVARIANT_CONDITION false.");
-		condDebugMsg(getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE(),
-					 "Node:getDestState",
-					 "List node and INVARIANT_CONDITION false.");
-		return FAILING_STATE;
+				 " '" << m_nodeId.toString() << 
+				 "' destination: FINISHED.  Library node call, ALL_CHILDREN_WAITING_OR_FINISHED " <<
+				 "true and POST_CONDITION false or unknown.");
+		return ITERATION_ENDED_STATE;
 	  }
-	if (getChildrenWaitingOrFinishedCondition()->getValue() ==
-		BooleanVariable::TRUE_VALUE())
-	  {
-		if (!getPostCondition()->isActive())
-		  getPostCondition()->activate();
-
-		if (BooleanVariable::falseOrUnknown(getPostCondition()->getValue()))
-		  {
-			debugMsg("Node:getDestState",
-					 "Destination: FINISHED.  List node, ALL_CHILDREN_WAITING_OR_FINISHED " <<
-					 "true and POST_CONDITION false or unknown.");
-			return ITERATION_ENDED_STATE;
-		  }
-
+	  else {
 		debugMsg("Node:getDestState",
-				 "Destination: ITERATION_ENDED.  List node and " <<
+				 " '" << m_nodeId.toString() << 
+				 "' destination: ITERATION_ENDED.  Library node call and " <<
 				 "ALL_CHILDREN_WAITING_OR_FINISHED and POST_CONDITION true.");
 		return ITERATION_ENDED_STATE;
 	  }
+	}
 	debugMsg("Node:getDestState",
-			 "Destination: no state. ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
+			   " '" << m_nodeId.toString() << 
+			 "' destination: no state. Library node call and ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
 	return NO_NODE_STATE;
   }
 
@@ -450,7 +525,11 @@ namespace PLEXIL
 			   destState == FINISHED_STATE,
 			   "Attempting to transition to invalid state '"
 		       << StateVariable::nodeStateName(destState).toString() << "'");
+
 	deactivateChildrenWaitingOrFinishedCondition();
+
+	m_ancestorEndExpression->deactivate();
+	m_ancestorInvariantExpression->deactivate();
   }
 
   void LibraryCallNode::transitionFromFinishing(NodeState destState)
@@ -482,6 +561,11 @@ namespace PLEXIL
 	deactivateInvariantCondition();
 	deactivateChildrenWaitingOrFinishedCondition();
 	deactivatePostCondition();
+
+	if (destState == ITERATION_ENDED_STATE) {
+	  m_ancestorEndExpression->deactivate();
+	  m_ancestorInvariantExpression->deactivate();
+	}
   }
 
   void LibraryCallNode::transitionToExecuting()
@@ -489,6 +573,9 @@ namespace PLEXIL
 	activateAncestorInvariantCondition();
 	activateInvariantCondition();
 	activateEndCondition();
+
+	m_ancestorEndExpression->activate();
+	m_ancestorInvariantExpression->activate();
 
 	setState(EXECUTING_STATE);
 	execute();
@@ -508,6 +595,11 @@ namespace PLEXIL
 
   void LibraryCallNode::specializedActivate()
   {
+	// Activate shared state expressions
+	m_executingExpression->activate();
+	m_finishedExpression->activate();
+	m_waitingExpression->activate();
+
     // Activate all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->activate();

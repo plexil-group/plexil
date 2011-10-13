@@ -132,7 +132,7 @@ namespace PLEXIL
 	// Construct command-aborted condition
 	VariableId commandAbort = (new BooleanVariable())->getId();
 	ExpressionListenerId abortListener = m_listeners[abortCompleteIdx] =
-	  (new ConditionChangeListener((Node&) *this, ALL_CONDITIONS()[abortCompleteIdx]))->getId();
+	  (new ConditionChangeListener((Node&) *this, ABORT_COMPLETE()))->getId();
 	commandAbort->addListener(abortListener);
 	m_conditions[abortCompleteIdx] = commandAbort;
 	m_garbageConditions[abortCompleteIdx] = true;
@@ -142,7 +142,7 @@ namespace PLEXIL
 	ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
 	commandHandleCondition->ignoreCachedValue();
 	ExpressionListenerId cmdHandleListener = m_listeners[commandHandleReceivedIdx] = 
-	  (new ConditionChangeListener((Node&) *this, ALL_CONDITIONS()[commandHandleReceivedIdx]))->getId();
+	  (new ConditionChangeListener((Node&) *this, COMMAND_HANDLE_RECEIVED_CONDITION()))->getId();
 	commandHandleCondition->addListener(cmdHandleListener);
 	m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
 	m_garbageConditions[commandHandleReceivedIdx] = true;
@@ -180,13 +180,15 @@ namespace PLEXIL
 	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
             debugMsg("Node:getDestState",
-                     "Destination: FINISHED.  Ancestor invariant condition false and end " <<
-                     "condition true.. ");
+					 " '" << m_nodeId.toString() << 
+                     "' destination: FINISHED.  Command node, ancestor invariant condition false and end " <<
+                     "condition true.");
             return FINISHED_STATE;
 		  }
 		else {
 		  debugMsg("Node:getDestState",
-				   "Destination: FAILING.  Ancestor invariant condition false and end " <<
+				   " '" << m_nodeId.toString() << 
+				   "' destination: FAILING.  Command node, ancestor invariant condition false and end " <<
 				   "condition false or unknown.");
 		  return FAILING_STATE;
 		}
@@ -194,28 +196,33 @@ namespace PLEXIL
 	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 		  debugMsg("Node:getDestState",
-				   "Destination: ITERATION_ENDED.  Invariant condition false and end " <<
-				   "condition true.. ");
+				   " '" << m_nodeId.toString() << 
+				   "' destination: ITERATION_ENDED.  Command node, invariant false and end true.");
 		  return ITERATION_ENDED_STATE;
 		}
 		else {
             debugMsg("Node:getDestState",
-                     "Destination: FAILING.  Invariant condition false and end condition " <<
-                     "false or unknown.");
+					 " '" << m_nodeId.toString() << 
+                     "' destination: FAILING.  Command node, invariant false and end false or unknown.");
             return FAILING_STATE;
 		  }
       }
 
+	// FIXME: Command handle logic doesn't belong here!
 	if ((getCommandHandleReceivedCondition()->getValue() == BooleanVariable::TRUE_VALUE())) {
 		m_commandHandleVariable->setValue(getAcknowledgementValue());
 	  }
 
 	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-		return ITERATION_ENDED_STATE;
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << 
+			   "' destination: ITERATION_ENDED.  Command node, end condition true.");
+	  return ITERATION_ENDED_STATE;
 	}
       
 	debugMsg("Node:getDestState",
-			 "Destination from EXECUTING: no state.\n  Ancestor invariant: " 
+			 " '" << m_nodeId.toString() << 
+			 "' destination from EXECUTING: no state.\n  Ancestor invariant: " 
 			 << getAncestorInvariantCondition()->toString() 
 			 << "\n  Invariant: " << getInvariantCondition()->toString() 
 			 << "\n  End: " << getEndCondition()->toString());
@@ -228,21 +235,23 @@ namespace PLEXIL
 			   "Abort complete for " << getNodeId().toString() << " is inactive.");
 
 	if (getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  if (findVariable(Node::FAILURE_TYPE())->getValue() ==
-		  FailureVariable::PARENT_FAILED()) {
+	  if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_FAILED()) {
 		debugMsg("Node:getDestState",
-				 "Destination: FINISHED.  Command node abort complete, " <<
+				 " '" << m_nodeId.toString() << 
+				 "' destination: FINISHED.  Command node abort complete, " <<
 				 "and parent failed.");
 		return FINISHED_STATE;
 	  }
 	  else {
 		debugMsg("Node:getDestState",
-				 "Destination: ITERATION_ENDED.  Command node abort complete.");
+				 " '" << m_nodeId.toString() << 
+				 "' destination: ITERATION_ENDED.  Command node abort complete.");
 		return ITERATION_ENDED_STATE;
 	  }
 	}
 
-	debugMsg("Node:getDestState", "Destination: no state.");
+	debugMsg("Node:getDestState",
+				 " '" << m_nodeId.toString() << "' destination: no state.");
 	return NO_NODE_STATE;
   }
 
@@ -259,24 +268,24 @@ namespace PLEXIL
 			   << StateVariable::nodeStateName(destState).toString() << "'");
 
 	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	  m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+	  m_failureTypeVariable->setValue(FailureVariable::PARENT_FAILED());
 	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
 		abort();
 	}
 	else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	  getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+	  m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+	  m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
 	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
 		abort();
 	}
 	else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  if (getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
-		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-		getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+		m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+		m_failureTypeVariable->setValue(FailureVariable::POST_CONDITION_FAILED());
 	  }
 	  else
-		getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+		m_outcomeVariable->setValue(OutcomeVariable::SUCCESS());
 	}
 	else {
 	  checkError(ALWAYS_FAIL, "Should never get here.");
