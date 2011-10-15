@@ -70,7 +70,8 @@ namespace PLEXIL
 							 const bool parentWaiting = false,
 							 const bool parentFinished = false,
 							 const bool cmdHdlRcvdCondition = false,
-							 const ExecConnectorId& exec = ExecConnectorId::noId());
+							 const ExecConnectorId& exec = ExecConnectorId::noId(),
+							 const NodeId& parent = NodeId::noId());
 
 	static void ensureNodeFactoriesRegistered();
 
@@ -94,7 +95,8 @@ namespace PLEXIL
 						  const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 						  const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 						  const bool parentFinished, const bool cmdHdlRcvdCondition,
-						  const ExecConnectorId& exec = ExecConnectorId::noId()) const = 0;
+						  const ExecConnectorId& exec = ExecConnectorId::noId(),
+						  const NodeId& parent = NodeId::noId()) const = 0;
 
 	PlexilNodeType m_nodeType;
 
@@ -147,7 +149,7 @@ namespace PLEXIL
 				  const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 				  const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 				  const bool parentFinished, const bool cmdHdlRcvdCondition,
-				  const ExecConnectorId& exec) const
+				  const ExecConnectorId& exec, const NodeId& parent) const
 	{
 	  // Shouldn't happen
 	  checkError(PlexilParser::parseNodeType(type.toString()) == m_nodeType,
@@ -159,7 +161,7 @@ namespace PLEXIL
 							ancestorInvariant, ancestorEnd, parentExecuting,
 							childrenFinished, commandAbort, parentWaiting,
 							parentFinished, cmdHdlRcvdCondition,
-							exec))->getId();
+							exec, parent))->getId();
 	}
 
   };

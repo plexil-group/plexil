@@ -51,7 +51,8 @@ namespace PLEXIL
 				const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 				const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 				const bool parentFinished, const bool cmdHdlRcvdCondition,
-				const ExecConnectorId& exec = ExecConnectorId::noId());
+				const ExecConnectorId& exec = ExecConnectorId::noId(),
+				const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.

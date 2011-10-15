@@ -53,7 +53,8 @@ namespace PLEXIL
 			 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 			 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 			 const bool parentFinished, const bool cmdHdlRcvdCondition,
-			 const ExecConnectorId& exec = ExecConnectorId::noId());
+			 const ExecConnectorId& exec = ExecConnectorId::noId(),
+			 const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -88,25 +89,12 @@ namespace PLEXIL
 	virtual void transitionToFinishing();
 	virtual void transitionToFailing();
 
-	// Common expressions shared by children's conditions
-	virtual const ExpressionId& getAncestorEndExpression() const { return m_ancestorEndExpression; }
-	virtual const ExpressionId& getAncestorInvariantExpression() const { return m_ancestorInvariantExpression; }
-	virtual const ExpressionId& getExecutingExpression() const { return m_executingExpression; }
-	virtual const ExpressionId& getFinishedExpression() const { return m_finishedExpression; }
-	virtual const ExpressionId& getWaitingExpression() const { return m_waitingExpression; }
+	// Shared with derived class LibraryCallNode
+    std::vector<NodeId> m_children; /*<! Vector of child nodes. */
 
   private:
 
-    void createChildNodes(const PlexilListBody* body);
-
-    std::vector<NodeId> m_children; /*<! Vector of child node. */
-
-	// Expressions shared among children
-	ExpressionId m_ancestorInvariantExpression;
-	ExpressionId m_ancestorEndExpression;
-	ExpressionId m_executingExpression;
-	ExpressionId m_finishedExpression;
-	ExpressionId m_waitingExpression;
+	void createChildNodes(const PlexilListBody* body);
 
   };
 

@@ -47,25 +47,32 @@ namespace PLEXIL
   ListNode::ListNode(const PlexilNodeId& node, 
 					 const ExecConnectorId& exec, 
 					 const NodeId& parent)
-	: Node(node, exec, parent),
-	  m_executingExpression((new Equality(m_stateVariable,
-										  StateVariable::EXECUTING_EXP()))->getId()),
-	  m_finishedExpression((new Equality(m_stateVariable,
-										 StateVariable::FINISHED_EXP()))->getId()),
-	  m_waitingExpression((new Equality(m_stateVariable,
-										StateVariable::WAITING_EXP()))->getId())
+	: Node(node, exec, parent)
   {
-	checkError(node->nodeType() == NodeType_NodeList,
+	checkError(node->nodeType() == NodeType_NodeList || node->nodeType() == NodeType_LibraryNodeCall,
 			   "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
 			   << "\" for a ListNode");
 
+	// Initialize parent-state conditions for childrens' use
+	m_conditions[parentExecutingIdx] = 
+	  (new Equality(m_stateVariable, StateVariable::EXECUTING_EXP()))->getId();
+	m_conditions[parentFinishedIdx] =
+	  (new Equality(m_stateVariable, StateVariable::FINISHED_EXP()))->getId();
+	m_conditions[parentWaitingIdx] = 
+	  (new Equality(m_stateVariable, StateVariable::WAITING_EXP()))->getId();
+	m_garbageConditions[parentExecutingIdx] = true;
+	m_garbageConditions[parentFinishedIdx] = true;
+	m_garbageConditions[parentWaitingIdx] = true;
+
 	// Instantiate child nodes, if any
-	debugMsg("Node:node", "Creating child nodes.");
-	// XML parser should have checked for this
-	checkError(Id<PlexilListBody>::convertable(node->body()),
-			   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
-			   "list body.");
-	createChildNodes((PlexilListBody*) node->body()); // constructs default end condition
+	if (node->nodeType() == NodeType_NodeList) {
+	  debugMsg("Node:node", "Creating child nodes.");
+	  // XML parser should have checked for this
+	  checkError(Id<PlexilListBody>::convertable(node->body()),
+				 "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
+				 "list body.");
+	  createChildNodes((PlexilListBody*) node->body()); // constructs default end condition
+	}
   }
 
   /**
@@ -77,23 +84,25 @@ namespace PLEXIL
 					 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 					 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 					 const bool parentFinished, const bool cmdHdlRcvdCondition,
-					 const ExecConnectorId& exec)
+					 const ExecConnectorId& exec,
+					 const NodeId& parent)
 	: Node(type, name, state, 
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec),
-	  // dummies
-	  m_ancestorEndExpression((new BooleanVariable(BooleanVariable::FALSE_VALUE()))->getId()), 
-	  m_ancestorInvariantExpression((new BooleanVariable(BooleanVariable::TRUE_VALUE()))->getId())
+		   exec, parent)
   {
-	checkError(type == LIST(),
+	checkError(type == LIST() || type == LIBRARYNODECALL(),
 			   "Invalid node type \"" << type.toString() << "\" for a ListNode");
 
-	// Prop up stupid unit test
+	// Activate parent-state conditions as required
+	m_conditions[parentExecutingIdx]->activate();
+	m_conditions[parentFinishedIdx]->activate();
+	m_conditions[parentWaitingIdx]->activate();
+
 	if (state == EXECUTING_STATE || state == FINISHING_STATE || state == FAILING_STATE) {
-	  m_ancestorEndExpression->activate();
-	  m_ancestorInvariantExpression->activate();
+	  m_conditions[ancestorEndIdx]->activate();
+	  m_conditions[ancestorInvariantIdx]->activate();
 	}
   }
 
@@ -121,34 +130,38 @@ namespace PLEXIL
   void ListNode::createSpecializedConditions()
   {
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx] =
-	  (new ConditionChangeListener((Node&) *this, CHILDREN_WAITING_OR_FINISHED()))->getId();
-    cond->addListener(listener);
+    cond->addListener(makeConditionListener(childrenWaitingOrFinishedIdx));
     m_conditions[childrenWaitingOrFinishedIdx] = cond;
     m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
 
     ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-    listener = m_listeners[endIdx];
-    endCond->addListener(listener);
+    endCond->addListener(makeConditionListener(endIdx));
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
   }
 
-  // Create the ancestor end and ancestor invariant conditions shared between children
+  // Create the ancestor end and ancestor invariant conditions required by children
   void ListNode::createConditionWrappers()
   {
-	// TODO: Micro-optimization for root node possible
-	// Would require 'created' flag for each of these expressions
-	m_ancestorInvariantExpression =
-		(new Conjunction(getAncestorInvariantCondition(),
-						 false,
-						 getInvariantCondition(),
-						 false))->getId();
-	m_ancestorEndExpression =
-		(new Disjunction(getAncestorEndCondition(),
+	if (m_parent) {
+	  m_conditions[ancestorEndIdx] =
+		(new Disjunction(getAncestorEndCondition(), // from parent
 						 false,
 						 getEndCondition(),
 						 false))->getId();
+	  m_conditions[ancestorInvariantIdx] =
+		(new Conjunction(getAncestorInvariantCondition(), // from parent
+						 false,
+						 getInvariantCondition(),
+						 false))->getId();
+	  m_garbageConditions[ancestorEndIdx] = true;
+	  m_garbageConditions[ancestorInvariantIdx] = true;
+	}
+	else {
+	  // Simply reuse existing conditions
+	  m_conditions[ancestorEndIdx] = m_conditions[endIdx];
+	  m_conditions[ancestorInvariantIdx] = m_conditions[invariantIdx];
+	}
   }
 
   /**
@@ -172,38 +185,8 @@ namespace PLEXIL
 
 	cleanUpChildConditions();
 
-	// These reference invariant/end conditions and must be cleaned up before them
-	delete (Expression*) m_ancestorEndExpression;
-	delete (Expression*) m_ancestorInvariantExpression;
-
-	// Clean up shared state expressions now that children no longer reference them
-	delete (Expression*) m_executingExpression;
-	delete (Expression*) m_finishedExpression;
-	delete (Expression*) m_waitingExpression;
-
-    // Clean up condition listeners
-    for (unsigned int i = 0; i < conditionIndexMax; i++) {
-      if (m_listeners[i].isId()) {
-		debugMsg("Node:cleanUpConds",
-				 "<" << m_nodeId.toString() << "> Removing condition listener for " <<
-				 getConditionName(i).toString());
-		m_conditions[i]->removeListener(m_listeners[i]);
-		delete (ExpressionListener*) m_listeners[i];
-		m_listeners[i] = ExpressionListenerId::noId();
-      }
-    }
-
-    // Clean up conditions
-    for (unsigned int i = 0; i < conditionIndexMax; i++) {
-      if (m_garbageConditions[i]) {
-		debugMsg("Node:cleanUpConds",
-				 "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(i).toString());
-		delete (Expression*) m_conditions[i];
-		m_conditions[i] = ExpressionId::noId();
-	  }
-	}
-
-    m_cleanedConditions = true;
+	// Defer to base class
+	Node::cleanUpConditions();
   }
 
   void ListNode::cleanUpNodeBody()
@@ -248,9 +231,7 @@ namespace PLEXIL
 	std::vector<NodeId>::iterator it = m_children.begin();
 	std::vector<PlexilNodeId>::const_iterator pit = body->children().begin();	
 	while (it != m_children.end() && pit != body->children().end()) {
-	  (*it)->postInit(*pit);
-	  it++;
-	  pit++;
+	  (*it++)->postInit(*pit++);
 	}
 	checkError(it == m_children.end() && pit == body->children().end(),
 			   "Node:postInit: mismatch between PlexilNode and list node children");
@@ -264,22 +245,23 @@ namespace PLEXIL
   {
 	checkError(isAncestorInvariantConditionActive(),
 			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isInvariantConditionActive(),
-			   "Invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isEndConditionActive(),
-			   "End for " << getNodeId().toString() << " is inactive.");
-      
 	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 	  debugMsg("Node:getDestState",
 			   " '" << m_nodeId.toString() << "' destination: FAILING.  List node and ANCESTOR_INVARIANT_CONDITION false.");
 	  return FAILING_STATE;
 	}
+
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
 	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 	  debugMsg("Node:getDestState",
 			   " '" << m_nodeId.toString() << "' destination: FAILING.  List node and INVARIANT_CONDITION false.");
 	  return FAILING_STATE;
 	}
-	if(getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+
+	checkError(isEndConditionActive(),
+			   "End for " << getNodeId().toString() << " is inactive.");
+	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  debugMsg("Node:getDestState",
 			   " '" << m_nodeId.toString() << "' destination: FINISHING.  List node and END_CONDITION true.");
 	  return FINISHING_STATE;
@@ -317,22 +299,23 @@ namespace PLEXIL
   {
 	checkError(isAncestorInvariantConditionActive(),
 			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isInvariantConditionActive(),
-			   "Invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isChildrenWaitingOrFinishedConditionActive(),
-			   "Children waiting or finished for " << getNodeId().toString() <<
-			   " is inactive.");
-
 	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 	  debugMsg("Node:getDestState",
 			   " '" << m_nodeId.toString() << "' destination: FAILING.  List node and ANCESTOR_INVARIANT_CONDITION false.");
 	  return FAILING_STATE;
 	}
+
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
 	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 	  debugMsg("Node:getDestState",
 			   " '" << m_nodeId.toString() << "' destination: FAILING.  List node and INVARIANT_CONDITION false.");
 	  return FAILING_STATE;
 	}
+
+	checkError(isChildrenWaitingOrFinishedConditionActive(),
+			   "Children waiting or finished for " << getNodeId().toString() <<
+			   " is inactive.");
 	if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 	  if (!getPostCondition()->isActive())
 		getPostCondition()->activate();
@@ -394,8 +377,8 @@ namespace PLEXIL
 
 	deactivateChildrenWaitingOrFinishedCondition();
 
-	m_ancestorEndExpression->deactivate();
-	m_ancestorInvariantExpression->deactivate();
+	m_conditions[ancestorEndIdx]->deactivate();
+	m_conditions[ancestorInvariantIdx]->deactivate();
   }
 
   void ListNode::transitionFromFinishing(NodeState destState)
@@ -429,8 +412,8 @@ namespace PLEXIL
 	deactivatePostCondition();
 
 	if (destState == ITERATION_ENDED_STATE) {
-	  m_ancestorEndExpression->deactivate();
-	  m_ancestorInvariantExpression->deactivate();
+	  m_conditions[ancestorEndIdx]->deactivate();
+	  m_conditions[ancestorInvariantIdx]->deactivate();
 	}
   }
 
@@ -440,8 +423,8 @@ namespace PLEXIL
 	activateInvariantCondition();
 	activateEndCondition();
 
-	m_ancestorEndExpression->activate();
-	m_ancestorInvariantExpression->activate();
+	m_conditions[ancestorEndIdx]->activate();
+	m_conditions[ancestorInvariantIdx]->activate();
 
 	setState(EXECUTING_STATE);
 	execute();
@@ -461,10 +444,10 @@ namespace PLEXIL
 
   void ListNode::specializedActivate()
   {
-	// Activate shared state expressions
-	m_executingExpression->activate();
-	m_finishedExpression->activate();
-	m_waitingExpression->activate();
+	// Activate parent-state conditions
+	m_conditions[parentExecutingIdx]->activate();
+	m_conditions[parentFinishedIdx]->activate();
+	m_conditions[parentWaitingIdx]->activate();
 
     // Activate all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)

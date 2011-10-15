@@ -69,12 +69,13 @@ namespace PLEXIL
 						   const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 						   const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 						   const bool parentFinished, const bool cmdHdlRcvdCondition,
-						   const ExecConnectorId& exec)
+						   const ExecConnectorId& exec,
+						   const NodeId& parent)
 	: Node(type, name, state, 
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec),
+		   exec, parent),
 	  m_ack((new StringVariable(Expression::UNKNOWN()))->getId()),
 	  m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
   {
@@ -88,6 +89,11 @@ namespace PLEXIL
 
 	// Create dummy command for unit test
 	createDummyCommand();
+
+	if (state == EXECUTING_STATE) {
+	  activateCommandHandleReceivedCondition();
+	}
+
   }
 
   /**
@@ -131,9 +137,7 @@ namespace PLEXIL
   {
 	// Construct command-aborted condition
 	VariableId commandAbort = (new BooleanVariable())->getId();
-	ExpressionListenerId abortListener = m_listeners[abortCompleteIdx] =
-	  (new ConditionChangeListener((Node&) *this, ABORT_COMPLETE()))->getId();
-	commandAbort->addListener(abortListener);
+	commandAbort->addListener(makeConditionListener(abortCompleteIdx));
 	m_conditions[abortCompleteIdx] = commandAbort;
 	m_garbageConditions[abortCompleteIdx] = true;
           
@@ -141,17 +145,18 @@ namespace PLEXIL
 	// CommandHandleVariable can be updated
 	ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
 	commandHandleCondition->ignoreCachedValue();
-	ExpressionListenerId cmdHandleListener = m_listeners[commandHandleReceivedIdx] = 
-	  (new ConditionChangeListener((Node&) *this, COMMAND_HANDLE_RECEIVED_CONDITION()))->getId();
-	commandHandleCondition->addListener(cmdHandleListener);
+	commandHandleCondition->addListener(makeConditionListener(commandHandleReceivedIdx));
 	m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
 	m_garbageConditions[commandHandleReceivedIdx] = true;
   }
 
   void CommandNode::createConditionWrappers()
   {
-	// Construct real end condition
-	m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
+	// Construct real end condition by wrapping existing
+	if (m_listeners[endIdx].isId())
+	  m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
+	else
+	  makeConditionListener(endIdx); // for effect
 	ExpressionId interruptEndCond = (new InterruptibleCommandHandleValues(m_ack))->getId();
 	ExpressionId conjunctCondition = (new Conjunction((new IsKnown(m_ack))->getId(),
 													  true, 
@@ -172,8 +177,6 @@ namespace PLEXIL
   {
 	checkError(isAncestorInvariantConditionActive(),
 			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isInvariantConditionActive(),
-			   "Invariant for " << getNodeId().toString() << " is inactive.");
 	checkError(isEndConditionActive(),
 			   "End for " << getNodeId().toString() << " is inactive.");
 
@@ -193,6 +196,9 @@ namespace PLEXIL
 		  return FAILING_STATE;
 		}
       }
+
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
 	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 		  debugMsg("Node:getDestState",
@@ -209,6 +215,8 @@ namespace PLEXIL
       }
 
 	// FIXME: Command handle logic doesn't belong here!
+	checkError(isCommandHandleReceivedConditionActive(),
+			   "Command handle received condition for " << getNodeId().toString() << " is inactive.");
 	if ((getCommandHandleReceivedCondition()->getValue() == BooleanVariable::TRUE_VALUE())) {
 		m_commandHandleVariable->setValue(getAcknowledgementValue());
 	  }

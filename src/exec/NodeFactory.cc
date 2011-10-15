@@ -99,7 +99,8 @@ namespace PLEXIL
 								 const bool parentWaiting,
 								 const bool parentFinished,
 								 const bool cmdHdlRcvdCondition,
-								 const ExecConnectorId& exec)
+								 const ExecConnectorId& exec,
+								 const NodeId& parent)
   {
 	PlexilNodeType nodeType = PlexilParser::parseNodeType(type.toString());
 	checkError(nodeType > NodeType_uninitialized
@@ -116,7 +117,7 @@ namespace PLEXIL
 									parentExecuting, childrenFinished,
 									commandAbort, parentWaiting, parentFinished,
 									cmdHdlRcvdCondition,
-									exec);
+									exec, parent);
 	// common post process here?
 	return result;
   }

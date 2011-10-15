@@ -70,12 +70,13 @@ namespace PLEXIL
 								 const bool parentWaiting, 
 								 const bool parentFinished,
 								 const bool cmdHdlRcvdCondition,
-								 const ExecConnectorId& exec)
+								 const ExecConnectorId& exec,
+								 const NodeId& parent)
 	: Node(type, name, state, 
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec),
+		   exec, parent),
 	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
 	checkError(type == ASSIGNMENT(),
@@ -110,14 +111,13 @@ namespace PLEXIL
 
   void AssignmentNode::createSpecializedConditions()
   {
-	// Construct real end condition
-	m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
+	// Construct default end condition
 	ExpressionId realEndCondition =
 	  (new Conjunction(m_ack,
 					   false, 
 					   m_conditions[endIdx],
 					   m_garbageConditions[endIdx]))->getId();
-	realEndCondition->addListener(m_listeners[endIdx]);
+	realEndCondition->addListener(makeConditionListener(endIdx));
 	m_conditions[endIdx] = realEndCondition;
 	m_garbageConditions[endIdx] = true;
   }

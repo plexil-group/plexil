@@ -64,12 +64,13 @@ namespace PLEXIL
 						 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 						 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 						 const bool parentFinished, const bool cmdHdlRcvdCondition,
-						 const ExecConnectorId& exec)
+						 const ExecConnectorId& exec,
+						 const NodeId& parent)
 	: Node(type, name, state, 
 		   skip, start, pre, invariant, post, end, repeat,
 		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
 		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec),
+		   exec, parent),
 	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
 	checkError(type == UPDATE(),
@@ -153,14 +154,13 @@ namespace PLEXIL
 
   void UpdateNode::createSpecializedConditions()
   {
-	// Construct real end condition
-	m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
+	// Construct default end condition
 	ExpressionId realEndCondition =
 	  (new Conjunction(m_ack,
 					   false, 
 					   m_conditions[endIdx],
 					   m_garbageConditions[endIdx]))->getId();
-	realEndCondition->addListener(m_listeners[endIdx]);
+	realEndCondition->addListener(makeConditionListener(endIdx));
 	m_conditions[endIdx] = realEndCondition;
 	m_garbageConditions[endIdx] = true;
   }
@@ -173,8 +173,6 @@ namespace PLEXIL
   {
 	checkError(isAncestorInvariantConditionActive(),
 			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isInvariantConditionActive(),
-			   "Invariant for " << getNodeId().toString() << " is inactive.");
 	checkError(isEndConditionActive(),
 			   "End for " << getNodeId().toString() << " is inactive.");
 
@@ -192,6 +190,9 @@ namespace PLEXIL
 		return FAILING_STATE;
 	  }
 	}
+
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << getNodeId().toString() << " is inactive.");
 	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
 		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
 		  debugMsg("Node:getDestState",

@@ -27,12 +27,12 @@
 #ifndef LIBRARY_CALL_NODE_HH
 #define LIBRARY_CALL_NODE_HH
 
-#include "Node.hh"
+#include "ListNode.hh"
 
 namespace PLEXIL
 {
 
-  class LibraryCallNode : public Node
+  class LibraryCallNode : public ListNode
   {
   public:
 
@@ -53,17 +53,13 @@ namespace PLEXIL
 					const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
 					const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
 					const bool parentFinished, const bool cmdHdlRcvdCondition,
-					const ExecConnectorId& exec = ExecConnectorId::noId());
+					const ExecConnectorId& exec = ExecConnectorId::noId(),
+					const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~LibraryCallNode();
-
-    virtual const std::vector<NodeId>& getChildren() const 
-	{
-	  return m_children; 
-	}
 
 	virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
 
@@ -71,32 +67,6 @@ namespace PLEXIL
 
 	// Specific behaviors for derived classes
 	virtual void specializedPostInit(const PlexilNodeId& node);
-	virtual void createSpecializedConditions();
-	virtual void createConditionWrappers();
-	virtual void specializedActivate();
-
-	virtual void cleanUpConditions();
-	virtual void cleanUpChildConditions();
-	virtual void cleanUpNodeBody();
-
-	virtual NodeState getDestStateFromExecuting();
-	virtual NodeState getDestStateFromFailing();
-	virtual NodeState getDestStateFromFinishing();
-
-	virtual void transitionFromExecuting(NodeState toState);
-	virtual void transitionFromFinishing(NodeState toState);
-	virtual void transitionFromFailing(NodeState toState);
-
-	virtual void transitionToExecuting();
-	virtual void transitionToFinishing();
-	virtual void transitionToFailing();
-
-	// Common expressions shared by children's conditions
-	virtual const ExpressionId& getAncestorEndExpression() const { return m_ancestorEndExpression; }
-	virtual const ExpressionId& getAncestorInvariantExpression() const { return m_ancestorInvariantExpression; }
-	virtual const ExpressionId& getExecutingExpression() const { return m_executingExpression; }
-	virtual const ExpressionId& getFinishedExpression() const { return m_finishedExpression; }
-	virtual const ExpressionId& getWaitingExpression() const { return m_waitingExpression; }
 
   private:
 
@@ -108,15 +78,6 @@ namespace PLEXIL
 					   bool isIn);
 
 	VariableMap m_aliasVariables;
-
-    std::vector<NodeId> m_children; /*<! Vector of child node. */
-
-	// Expressions shared among children
-	ExpressionId m_ancestorInvariantExpression;
-	ExpressionId m_ancestorEndExpression;
-	ExpressionId m_executingExpression;
-	ExpressionId m_finishedExpression;
-	ExpressionId m_waitingExpression;
   };
 
 }
