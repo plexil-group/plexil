@@ -24,7 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// *** TEMPORARY ***
 //#define EXPRESSION_PRINT_STATISTICS 1
 
 #include "Expression.hh"
@@ -65,9 +64,9 @@ namespace PLEXIL {
 
   Expression::Expression()
     : m_id(this),
-      m_activeCount(0), 
       m_value(UNKNOWN()), 
       m_savedValue(UNKNOWN()),
+      m_activeCount(0), 
       m_dirty(false), 
       m_lock(false), 
       m_ignoreCachedValue(false)
@@ -91,7 +90,7 @@ namespace PLEXIL {
   void Expression::activate() {
     bool changed = (m_activeCount == 0);
     m_activeCount++;
-    debugMsg("Expression:activate", "Activating " << getId());
+    // debugMsg("Expression:activate", "Activating " << getId());
     handleActivate(changed);
 #ifdef EXPRESSION_PRINT_STATISTICS
 	static int sl_highWaterMark = 0;
@@ -108,7 +107,7 @@ namespace PLEXIL {
 	       "Attempted to deactivate expression " << getId() << " too many times.");
     bool changed = (m_activeCount == 1);
     m_activeCount--;
-    debugMsg("Expression:deactivate", "Deactivating " << getId());
+    // debugMsg("Expression:deactivate", "Deactivating " << getId());
     handleDeactivate(changed);
   }
 

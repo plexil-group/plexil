@@ -317,14 +317,14 @@ namespace PLEXIL {
      */
     virtual void handleDeactivate(const bool /* changed */) {}
 
+    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
     ExpressionId m_id; /*<! The Id for this Expression */
-    unsigned int m_activeCount;
     double m_value; /*<! The value of this expression*/
     double m_savedValue; /*<! The latest value computed for this expression while it was locked. */
+    unsigned int m_activeCount;
     bool m_dirty; /*<! Marks whether or not this expression needs re-calculation.*/
     bool m_lock; /*<! The lock for this expression */
     bool m_ignoreCachedValue; /*<! Disregard the m_value that has been cached when deciding to publissh a change*/
-    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
   };
 
   std::ostream& operator<<(std::ostream& s, const Expression& e);
