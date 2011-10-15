@@ -401,11 +401,6 @@ namespace PLEXIL
 		return (new PlexilValue(typ, string()))->getId();
 	  }
 
-	  // *** TEMPORARY ***
-	  condDebugMsg(typ == STRING,
-				   "PlexilValueParser:parse",
-				   "got StringValue \"" << xml.first_child().value() << "\"");
-
 	  // return new (non-empty) value
 	  return (new PlexilValue(typ, xml.first_child().value()))->getId();
 	}
