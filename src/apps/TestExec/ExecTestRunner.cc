@@ -264,16 +264,14 @@ int ExecTestRunner::run(int argc, char** argv)
   }
 
   PlexilNodeId root;
-  // *** TEMPORARY *** Comment out error handling
-  //try {
+  try {
 	root =
 	  PlexilXmlParser::parse(plan.document_element().child("Node"));
-	//  }
-	//  catch (ParserException& e) {
-	//	warn("XML error parsing plan '" << planName << "':\n" << e.what());
-	//	return -1;
-	//  }
-  // End *** TEMPORARY *** Comment out error handling
+  }
+  catch (ParserException& e) {
+	warn("XML error parsing plan '" << planName << "':\n" << e.what());
+	return -1;
+  }
 
   {
 	// Check whether all libraries for this plan are loaded
