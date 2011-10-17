@@ -1,7 +1,10 @@
 Test:
 {
   In Integer x, y;
-  InOut String z;
+  InOut String s;
 
-  Integer a, b;
+  Integer z;
+
+  z = x + y;
+  s = "foo";
 }

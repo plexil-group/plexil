@@ -1,0 +1,17 @@
+<PlexilPlan LineNo="2" ColNo="4">
+    <Sequence LineNo="2" ColNo="4">
+        <NodeId>BLOCK__0</NodeId>
+        <Node NodeType="Empty" LineNo="2" ColNo="12">
+            <NodeId>Root</NodeId>
+            <StartCondition LineNo="2" ColNo="12">
+                <EQString LineNo="2" ColNo="41">
+                    <Concat LineNo="2" ColNo="33">
+                        <StringValue>foo</StringValue>
+                        <StringValue>bar</StringValue>
+                    </Concat>
+                    <StringValue>foobar</StringValue>
+                </EQString>
+            </StartCondition>
+        </Node>
+    </Sequence>
+</PlexilPlan>
