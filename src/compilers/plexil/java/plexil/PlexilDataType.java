@@ -132,7 +132,8 @@ public final class PlexilDataType
 
     // Internal data types - users can create literals, access, and compare,
     // but not store as variables or otherwise manipulate
-    public static final PlexilDataType COMMAND_HANDLE_TYPE = new PlexilDataType("COMMAND_HANDLE_TYPE", "CommandHandle", false);
+    public static final PlexilDataType COMMAND_HANDLE_TYPE =
+        new PlexilDataType("COMMAND_HANDLE_TYPE", "NodeCommandHandle", false);
     public static final PlexilDataType NODE_STATE_TYPE = new PlexilDataType("NODE_STATE_TYPE", "NodeState", false);
     public static final PlexilDataType NODE_OUTCOME_TYPE = new PlexilDataType("NODE_OUTCOME_TYPE", "NodeOutcome", false);
     public static final PlexilDataType NODE_FAILURE_TYPE = new PlexilDataType("NODE_FAILURE_TYPE", "NodeFailure", false);
