@@ -40,6 +40,7 @@ public class OnMessageNode extends PlexilTreeNode
     public void checkSelf(NodeContext context, CompilerState state)
     {
         // TBD
+        // see that the expression is a string expression
     }
 
     public void constructXML()
