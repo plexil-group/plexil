@@ -79,11 +79,13 @@ REQUEST_KYWD = 'Request';
 LIBRARY_CALL_KYWD = 'LibraryCall';
 LIBRARY_ACTION_KYWD = 'LibraryAction';
 
+// node variables
 STATE_KYWD = 'state';
 OUTCOME_KYWD = 'outcome';
 COMMAND_HANDLE_KYWD = 'command_handle';
 FAILURE_KYWD = 'failure';
 
+// node states
 WAITING_STATE_KYWD = 'WAITING';
 EXECUTING_STATE_KYWD = 'EXECUTING';
 FINISHING_STATE_KYWD = 'FINISHING';
@@ -933,6 +935,7 @@ isKnownExp :
    | (NCNAME PERIOD nodeStateKywd) => nodeTimepointValue
    | (NCNAME LBRACKET) => arrayReference
    | variable
+   | lookupExpr
    )
    RPAREN! ;
 
@@ -972,12 +975,14 @@ messageReceivedExp :
 // *** Want nodeStateKywd to turn into a LiteralNode but can't figure out how
 nodeState : nodeStateVariable | nodeStateKywd ;
 
-nodeStateVariable : NCNAME PERIOD! STATE_KYWD^ ;
+nodeStateVariable : nodeId PERIOD! STATE_KYWD<NodeVariableNode>^ ;
+
+nodeId : NCNAME;
 
 // *** Want nodeOutcomeKywd to turn into a LiteralNode but can't figure out how
 nodeOutcome : nodeOutcomeVariable | nodeOutcomeKywd ;
 
-nodeOutcomeVariable : NCNAME PERIOD! OUTCOME_KYWD^ ;
+nodeOutcomeVariable : NCNAME PERIOD! OUTCOME_KYWD<NodeVariableNode>^ ;
 
 nodeOutcomeKywd :
     SUCCESS_OUTCOME_KYWD
@@ -988,7 +993,7 @@ nodeOutcomeKywd :
 // *** Want nodeCommandHandleKywd to turn into a LiteralNode but can't figure out how
 nodeCommandHandle : nodeCommandHandleVariable | nodeCommandHandleKywd ;
 
-nodeCommandHandleVariable : NCNAME PERIOD! COMMAND_HANDLE_KYWD^ ;
+nodeCommandHandleVariable : NCNAME PERIOD! COMMAND_HANDLE_KYWD<NodeVariableNode>^ ;
 
 nodeCommandHandleKywd :
     COMMAND_ABORTED_KYWD
@@ -1004,7 +1009,7 @@ nodeCommandHandleKywd :
 // *** Want nodeFailureKywd to turn into a LiteralNode but can't figure out how
 nodeFailure : nodeFailureVariable | nodeFailureKywd ;
 
-nodeFailureVariable : NCNAME PERIOD! FAILURE_KYWD^ ;
+nodeFailureVariable : NCNAME PERIOD! FAILURE_KYWD<NodeVariableNode>^ ;
 
 nodeFailureKywd :
     PRE_CONDITION_FAILED_KYWD
@@ -1183,7 +1188,16 @@ INT_OR_DOUBLE
 // *** ensure this does not conflict with keywords! ***
 
 NCNAME :
-    (Letter|'_') (Letter|Digit|PERIOD|MINUS|'_')*
+
+// *** KMD: disallowing dots for now, as this breaks a number of rules above.
+// Figure out a way to support them again.  Consider these cases:
+//   foo.bar
+//   foo.start
+//   foo.bar.start
+//   foo.start.start
+//   start
+//  (Letter|'_') (Letter|Digit|PERIOD|MINUS|'_')*
+  (Letter|'_') (Letter|Digit|MINUS|'_')*
   ;
 
 fragment Letter : 'a'..'z'|'A'..'Z' ;
