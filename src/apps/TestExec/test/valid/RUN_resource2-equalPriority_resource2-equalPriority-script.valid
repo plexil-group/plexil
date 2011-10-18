@@ -4,10 +4,10 @@
 SimpleTask{
  State: SimpleTask (id_52[au](INACTIVE): state) (inf)
   PickupObject{
-   State: PickupObject (id_119[au](INACTIVE): state) (inf)
+   State: PickupObject (id_107[au](INACTIVE): state) (inf)
   }
   ProcessImage{
-   State: ProcessImage (id_178[au](INACTIVE): state) (inf)
+   State: ProcessImage (id_157[au](INACTIVE): state) (inf)
   }
 }
 
@@ -73,64 +73,64 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments
-[Test:testOutput]Executing pickup_object(20) into returnValue (id_169[au](-1): int) with ack PickupObject ack (id_173[au](UNKNOWN): string)
+[Test:testOutput]Executing pickup_object(20) into returnValue (id_148[au](-1): int) with ack PickupObject ack (id_152[au](UNKNOWN): string)
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleTask{
  State: SimpleTask (id_52[au](EXECUTING): state) (0)
- SkipCondition: Boolean constant false (id_102[au](0): boolean)
- StartCondition: Boolean constant true (id_104[au](1): boolean)
- EndCondition: (id_240[au](0): childrenFinished(0:2))
- InvariantCondition: Boolean constant true (id_104[au](1): boolean)
- PreCondition: Boolean constant true (id_104[au](1): boolean)
- PostCondition: Boolean constant true (id_104[au](1): boolean)
- RepeatCondition: Boolean constant false (id_102[au](0): boolean)
- AncestorEndCondition: Boolean constant false (id_102[au](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_104[au](1): boolean)
- ParentExecutingCondition: Boolean constant true (id_104[au](1): boolean)
- ParentFinishedCondition: Boolean constant false (id_102[au](0): boolean)
- ParentWaitingCondition: Boolean constant false (id_102[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_234[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ AncestorEndCondition: Boolean constant false (id_90[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_92[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_90[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_90[au](0): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_204[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ SkipCondition: Boolean constant false (id_90[au](0): boolean)
+ StartCondition: Boolean constant true (id_92[au](1): boolean)
+ EndCondition: (id_210[au](0): childrenFinished(0:2))
+ InvariantCondition: Boolean constant true (id_92[au](1): boolean)
+ PreCondition: Boolean constant true (id_92[au](1): boolean)
+ PostCondition: Boolean constant true (id_92[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_90[au](0): boolean)
   PickupObject{
-   State: PickupObject (id_119[au](EXECUTING): state) (0)
-   SkipCondition: Boolean constant false (id_102[au](0): boolean)
-   StartCondition: Boolean constant true (id_104[au](1): boolean)
-   EndCondition: (id_271[au](0): ((id_265[au](0): interruptibleCommandHandleValues(PickupObject ack (id_173[au](UNKNOWN): string))) || (id_269[au](0): ((id_267[au](0): isknown(PickupObject ack (id_173[au](UNKNOWN): string))) && (id_255[au](0): (IntegerValue (id_257[au](10): int) == returnValue (id_169[au](-1): int)))))))
-   InvariantCondition: Boolean constant true (id_104[au](1): boolean)
-   PreCondition: Boolean constant true (id_104[au](1): boolean)
-   PostCondition: (id_259[au](UNKNOWN): (id_263[au](UNKNOWN): (PickupObject (id_175[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_261[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
-   RepeatCondition: Boolean constant false (id_102[au](0): boolean)
-   AncestorEndCondition: (id_247[au](0): (Boolean constant false (id_102[au](0): boolean) || (id_240[au](0): childrenFinished(0:2))))
-   AncestorInvariantCondition: (id_245[au](1): (Boolean constant true (id_104[au](1): boolean)))Boolean constant true (id_104[au](1): boolean)))
-   ParentExecutingCondition: (id_108[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_106[au](EXECUTING): state)))
-   ParentFinishedCondition: (id_112[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_110[au](FINISHED): state)))
-   ParentWaitingCondition: (id_116[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_114[au](WAITING): state)))
-   AbortCompleteCondition: anonymous (id_249[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_252[au](0): allCommandHandleValues(PickupObject ack (id_173[au](UNKNOWN): string)))
-   Command handle: PickupObject (id_175[au](UNKNOWN): command_handle)
-   priority20: priority20 (id_171[au](20): int)
-   returnValue: returnValue (id_169[au](-1): int)
+   State: PickupObject (id_107[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_210[au](0): childrenFinished(0:2))
+   AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
+   ParentExecutingCondition: (id_96[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_94[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_100[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_98[au](FINISHED): state)))
+   ParentWaitingCondition: (id_104[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_102[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_90[au](0): boolean)
+   StartCondition: Boolean constant true (id_92[au](1): boolean)
+   EndCondition: (id_242[au](0): ((id_236[au](0): interruptibleCommandHandleValues(PickupObject ack (id_152[au](UNKNOWN): string))) || (id_240[au](0): ((id_238[au](0): isknown(PickupObject ack (id_152[au](UNKNOWN): string))) && (id_225[au](0): (IntegerValue (id_227[au](10): int) == returnValue (id_148[au](-1): int)))))))
+   InvariantCondition: Boolean constant true (id_92[au](1): boolean)
+   PreCondition: Boolean constant true (id_92[au](1): boolean)
+   PostCondition: (id_230[au](UNKNOWN): (id_234[au](UNKNOWN): (PickupObject (id_154[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_232[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   RepeatCondition: Boolean constant false (id_90[au](0): boolean)
+   AbortCompleteCondition: anonymous (id_218[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_221[au](0): allCommandHandleValues(PickupObject ack (id_152[au](UNKNOWN): string)))
+   Command handle: PickupObject (id_154[au](UNKNOWN): command_handle)
+   priority20: priority20 (id_150[au](20): int)
+   returnValue: returnValue (id_148[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_178[au](EXECUTING): state) (0)
-   SkipCondition: Boolean constant false (id_102[au](0): boolean)
-   StartCondition: Boolean constant true (id_104[au](1): boolean)
-   EndCondition: (id_304[au](1): ((id_298[au](1): interruptibleCommandHandleValues(ProcessImage ack (id_230[au](COMMAND_DENIED): string))) || (id_302[au](1): ((id_300[au](1): isknown(ProcessImage ack (id_230[au](COMMAND_DENIED): string))) && Boolean constant true (id_104[au](1): boolean)))))
-   InvariantCondition: Boolean constant true (id_104[au](1): boolean)
-   PreCondition: Boolean constant true (id_104[au](1): boolean)
-   PostCondition: (id_292[au](UNKNOWN): (id_296[au](UNKNOWN): (ProcessImage (id_232[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_294[au](COMMAND_DENIED): command_handle))))
-   RepeatCondition: Boolean constant false (id_102[au](0): boolean)
-   AncestorEndCondition: (id_247[au](0): (Boolean constant false (id_102[au](0): boolean) || (id_240[au](0): childrenFinished(0:2))))
-   AncestorInvariantCondition: (id_245[au](1): (Boolean constant true (id_104[au](1): boolean)))Boolean constant true (id_104[au](1): boolean)))
-   ParentExecutingCondition: (id_108[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_106[au](EXECUTING): state)))
-   ParentFinishedCondition: (id_112[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_110[au](FINISHED): state)))
-   ParentWaitingCondition: (id_116[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_114[au](WAITING): state)))
-   AbortCompleteCondition: anonymous (id_286[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_289[au](1): allCommandHandleValues(ProcessImage ack (id_230[au](COMMAND_DENIED): string)))
-   Command handle: ProcessImage (id_232[au](UNKNOWN): command_handle)
-   mem_priority2: mem_priority2 (id_228[au](20): int)
+   State: ProcessImage (id_157[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_210[au](0): childrenFinished(0:2))
+   AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
+   ParentExecutingCondition: (id_96[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_94[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_100[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_98[au](FINISHED): state)))
+   ParentWaitingCondition: (id_104[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_102[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_90[au](0): boolean)
+   StartCondition: Boolean constant true (id_92[au](1): boolean)
+   EndCondition: (id_279[au](1): ((id_273[au](1): interruptibleCommandHandleValues(ProcessImage ack (id_200[au](COMMAND_DENIED): string))) || (id_277[au](1): ((id_275[au](1): isknown(ProcessImage ack (id_200[au](COMMAND_DENIED): string))) && Boolean constant true (id_92[au](1): boolean)))))
+   InvariantCondition: Boolean constant true (id_92[au](1): boolean)
+   PreCondition: Boolean constant true (id_92[au](1): boolean)
+   PostCondition: (id_266[au](UNKNOWN): (id_270[au](UNKNOWN): (ProcessImage (id_202[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_268[au](COMMAND_DENIED): command_handle))))
+   RepeatCondition: Boolean constant false (id_90[au](0): boolean)
+   AbortCompleteCondition: anonymous (id_259[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_262[au](1): allCommandHandleValues(ProcessImage ack (id_200[au](COMMAND_DENIED): string)))
+   Command handle: ProcessImage (id_202[au](UNKNOWN): command_handle)
+   mem_priority2: mem_priority2 (id_198[au](20): int)
   }
 }
 
@@ -164,44 +164,44 @@ SimpleTask{
 [PlexilExec:printPlan]
 SimpleTask{
  State: SimpleTask (id_52[au](EXECUTING): state) (0)
- SkipCondition: Boolean constant false (id_102[au](0): boolean)
- StartCondition: Boolean constant true (id_104[au](1): boolean)
- EndCondition: (id_240[au](0): childrenFinished(1:2))
- InvariantCondition: Boolean constant true (id_104[au](1): boolean)
- PreCondition: Boolean constant true (id_104[au](1): boolean)
- PostCondition: Boolean constant true (id_104[au](1): boolean)
- RepeatCondition: Boolean constant false (id_102[au](0): boolean)
- AncestorEndCondition: Boolean constant false (id_102[au](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_104[au](1): boolean)
- ParentExecutingCondition: Boolean constant true (id_104[au](1): boolean)
- ParentFinishedCondition: Boolean constant false (id_102[au](0): boolean)
- ParentWaitingCondition: Boolean constant false (id_102[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_234[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ AncestorEndCondition: Boolean constant false (id_90[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_92[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_90[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_90[au](0): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_204[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ SkipCondition: Boolean constant false (id_90[au](0): boolean)
+ StartCondition: Boolean constant true (id_92[au](1): boolean)
+ EndCondition: (id_210[au](0): childrenFinished(1:2))
+ InvariantCondition: Boolean constant true (id_92[au](1): boolean)
+ PreCondition: Boolean constant true (id_92[au](1): boolean)
+ PostCondition: Boolean constant true (id_92[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_90[au](0): boolean)
   PickupObject{
-   State: PickupObject (id_119[au](EXECUTING): state) (0)
-   SkipCondition: Boolean constant false (id_102[au](0): boolean)
-   StartCondition: Boolean constant true (id_104[au](1): boolean)
-   EndCondition: (id_271[au](0): ((id_265[au](0): interruptibleCommandHandleValues(PickupObject ack (id_173[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_269[au](0): ((id_267[au](1): isknown(PickupObject ack (id_173[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_255[au](0): (IntegerValue (id_257[au](10): int) == returnValue (id_169[au](-1): int)))))))
-   InvariantCondition: Boolean constant true (id_104[au](1): boolean)
-   PreCondition: Boolean constant true (id_104[au](1): boolean)
-   PostCondition: (id_259[au](1): (id_263[au](1): (PickupObject (id_175[au](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_261[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
-   RepeatCondition: Boolean constant false (id_102[au](0): boolean)
-   AncestorEndCondition: (id_247[au](0): (Boolean constant false (id_102[au](0): boolean) || (id_240[au](0): childrenFinished(1:2))))
-   AncestorInvariantCondition: (id_245[au](1): (Boolean constant true (id_104[au](1): boolean)))Boolean constant true (id_104[au](1): boolean)))
-   ParentExecutingCondition: (id_108[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_106[au](EXECUTING): state)))
-   ParentFinishedCondition: (id_112[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_110[au](FINISHED): state)))
-   ParentWaitingCondition: (id_116[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_114[au](WAITING): state)))
-   AbortCompleteCondition: anonymous (id_249[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_252[au](1): allCommandHandleValues(PickupObject ack (id_173[au](COMMAND_SENT_TO_SYSTEM): string)))
-   Command handle: PickupObject (id_175[au](COMMAND_SENT_TO_SYSTEM): command_handle)
-   priority20: priority20 (id_171[au](20): int)
-   returnValue: returnValue (id_169[au](-1): int)
+   State: PickupObject (id_107[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_210[au](0): childrenFinished(1:2))
+   AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
+   ParentExecutingCondition: (id_96[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_94[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_100[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_98[au](FINISHED): state)))
+   ParentWaitingCondition: (id_104[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_102[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_90[au](0): boolean)
+   StartCondition: Boolean constant true (id_92[au](1): boolean)
+   EndCondition: (id_242[au](0): ((id_236[au](0): interruptibleCommandHandleValues(PickupObject ack (id_152[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_240[au](0): ((id_238[au](1): isknown(PickupObject ack (id_152[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_225[au](0): (IntegerValue (id_227[au](10): int) == returnValue (id_148[au](-1): int)))))))
+   InvariantCondition: Boolean constant true (id_92[au](1): boolean)
+   PreCondition: Boolean constant true (id_92[au](1): boolean)
+   PostCondition: (id_230[au](1): (id_234[au](1): (PickupObject (id_154[au](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_232[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   RepeatCondition: Boolean constant false (id_90[au](0): boolean)
+   AbortCompleteCondition: anonymous (id_218[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_221[au](1): allCommandHandleValues(PickupObject ack (id_152[au](COMMAND_SENT_TO_SYSTEM): string)))
+   Command handle: PickupObject (id_154[au](COMMAND_SENT_TO_SYSTEM): command_handle)
+   priority20: priority20 (id_150[au](20): int)
+   returnValue: returnValue (id_148[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_178[au](FINISHED): state) (0)
-   Outcome: ProcessImage (id_180[au](SUCCESS): outcome)
-   Command handle: ProcessImage (id_232[au](COMMAND_DENIED): command_handle)
-   mem_priority2: mem_priority2 (id_228[au](20): int)
+   State: ProcessImage (id_157[au](FINISHED): state) (0)
+   Outcome: ProcessImage (id_159[au](SUCCESS): outcome)
+   Command handle: ProcessImage (id_202[au](COMMAND_DENIED): command_handle)
+   mem_priority2: mem_priority2 (id_198[au](20): int)
   }
 }
 
@@ -224,14 +224,14 @@ SimpleTask{
 [PlexilExec:step][3:1] State change queue: PickupObject 
 [PlexilExec:lock]Locking node PickupObject
 [PlexilExec:step][3:1:0] Transitioning node PickupObject
-[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:unlock]Unlocking node PickupObject
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 11
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
 [PlexilExec:step][3:2] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][3:2:0] Transitioning node SimpleTask
@@ -262,17 +262,17 @@ SimpleTask{
  State: SimpleTask (id_52[au](FINISHED): state) (0)
  Outcome: SimpleTask (id_54[au](SUCCESS): outcome)
   PickupObject{
-   State: PickupObject (id_119[au](FINISHED): state) (0)
-   Outcome: PickupObject (id_121[au](SUCCESS): outcome)
-   Command handle: PickupObject (id_175[au](COMMAND_SENT_TO_SYSTEM): command_handle)
-   priority20: priority20 (id_171[au](20): int)
-   returnValue: returnValue (id_169[iu](10): int)
+   State: PickupObject (id_107[au](FINISHED): state) (0)
+   Outcome: PickupObject (id_109[au](SUCCESS): outcome)
+   Command handle: PickupObject (id_154[au](COMMAND_SENT_TO_SYSTEM): command_handle)
+   priority20: priority20 (id_150[au](20): int)
+   returnValue: returnValue (id_148[iu](10): int)
   }
   ProcessImage{
-   State: ProcessImage (id_178[au](FINISHED): state) (0)
-   Outcome: ProcessImage (id_180[au](SUCCESS): outcome)
-   Command handle: ProcessImage (id_232[au](COMMAND_DENIED): command_handle)
-   mem_priority2: mem_priority2 (id_228[au](20): int)
+   State: ProcessImage (id_157[au](FINISHED): state) (0)
+   Outcome: ProcessImage (id_159[au](SUCCESS): outcome)
+   Command handle: ProcessImage (id_202[au](COMMAND_DENIED): command_handle)
+   mem_priority2: mem_priority2 (id_198[au](20): int)
   }
 }
 
