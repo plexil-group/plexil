@@ -7,17 +7,11 @@ Concurrence
 {
 
   String hcfName = "HCF";
+  OnCommand hcfName HaltAndCatchFire();
 
-// Not supported (string variable/expression for command name)
-//    OnCommand hcfName HaltAndCatchFire();
-
-    OnCommand EPI ExecuteProgrammerImmediate();
-    OnCommand Three Increment: { SendReturnValues(3); }
-    OnCommand Sum (Integer number1, Integer number2)
-          Sum: { SendReturnValues(3); }
-
-// Not supported (variables -- they get void type)
-//      Sum: { SendReturnValues(number1); }
-//      Sum: { SendReturnValues(number1 + number2); }
+  OnCommand "EPI" ExecuteProgrammerImmediate();
+  OnCommand "Three" Increment: { SendReturnValues(3); }
+  OnCommand "Sum" (Integer number1, Integer number2)
+    Sum: { SendReturnValues(number1 + number2); }
 
 }
