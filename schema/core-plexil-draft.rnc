@@ -482,7 +482,7 @@ ABS =
   | element ABS { SourceLocators, NumericExpression }
 Interface =
   notAllowed
-  | element Interface { In? & InOut? }
+  | element Interface { SourceLocators, (In? & InOut?) }
 In =
   notAllowed
   | element In { SourceLocators, (DeclareVariable | DeclareArray)+ }

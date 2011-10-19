@@ -1021,6 +1021,7 @@
         <choice>
             <notAllowed/>
             <element name="Interface">
+                <ref name="SourceLocators"/>
                 <interleave>
                     <optional>
                         <ref name="In"/>

@@ -615,7 +615,7 @@ DeclareVariable =
     }
 Interface =
   notAllowed
-  | element Interface { In? & InOut? }
+  | element Interface { SourceLocators, (In? & InOut?) }
 LE =
   notAllowed
   | element LE { SourceLocators, NumericExpression, NumericExpression }
