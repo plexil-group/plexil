@@ -25,6 +25,8 @@
 
 package plexil;
 
+import java.util.Vector;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
@@ -32,52 +34,138 @@ import net.n3.nanoxml.*;
 
 public class OnCommandNode extends PlexilTreeNode
 {
+    // Name binding context
+	NodeContext m_context = null;
+
     public OnCommandNode(Token t)
     {
         super(t);
     }
 
+    /**
+     * @brief Get the containing name binding context for this branch of the parse tree.
+     * @return A NodeContext instance, or the global context.
+     */
+    public NodeContext getContext()
+    {
+        return m_context;
+    }
+
+	// structure is:
+	// ^(ON_COMMAND_KYWD expression paramsSpec? action)
+
+	public void earlyCheck(NodeContext parentContext, CompilerState state)
+	{
+		// Check command name expression
+		getChild(0).earlyCheck(parentContext, state);
+
+        // get node ID
+        String nodeId = null;
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null && parent instanceof ActionNode) {
+            nodeId = ((ActionNode) parent).getNodeId();
+        }
+        else {
+            // should never happen
+            state.addDiagnostic(this,
+                                "Internal error: OnCommandNode instance has no parent ActionNode",
+                                Severity.FATAL);
+        }
+
+		// Construct a context
+		// Generated context name includes the command name
+		m_context = new NodeContext(parentContext, nodeId + "_ON_COMMAND");
+
+        // Parse parameter list, if supplied
+        ParameterSpecNode parmAST = getParameters();
+        if (parmAST != null) {
+            parmAST.earlyCheck(m_context, state); // for effect
+            Vector<VariableName> parmSpecs = parmAST.getParameterVector();
+            if (parmSpecs != null) {
+                for (VariableName vn : parmSpecs) {
+					// Check that it is not an interface variable
+					if (!vn.isLocal()) {
+						state.addDiagnostic(vn.getDeclaration(),
+											"Parameter \"" + vn.getName() + "\" to OnCommand was declared " +
+											(vn.isAssignable() ? "InOut" : "In"),
+											Severity.ERROR);
+					}
+					// add to context
+					// TODO: added checks (e.g. duplicate names)?
+					m_context.addVariable(vn);
+				}
+			}
+		}
+
+		// Check body with parameter variables defined
+		getBody().earlyCheck(m_context, state);
+	}
+
+	public void check(NodeContext parentContext, CompilerState state)
+	{
+		checkSelf(parentContext, state);
+		getChild(0).check(parentContext, state); // name expression
+		// Check parameter list
+		ParameterSpecNode specs = getParameters();
+		if (specs != null)
+			specs.check(parentContext, state);
+		getBody().check(m_context, state);
+	}
+
     public void checkSelf(NodeContext context, CompilerState state)
     {
-        /*  This causes crash.  Not sure what to really check here.
+		// Coerce name expression to string
         ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
         if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
-            state.addDiagnostic
-            (nameExp,
-            "The name expression to the " + this.getToken().getText()
-            + " statement was not a string expression",
-            Severity.ERROR);
-            }
-        */
+            state.addDiagnostic(nameExp,
+								"The name expression to the " + this.getToken().getText()
+								+ " statement was not a string expression",
+								Severity.ERROR);
+		}
     }
 
     public void constructXML()
     {
         super.constructXML();
 
-        // Construct the name element, but don't output it yet.  Only literal
-        // names are supported at present.
-        //
+        // Construct the name element, but don't output it yet.
         IXMLElement name = new XMLElement ("Name");
-        IXMLElement stringVal = new XMLElement ("StringValue");
-        stringVal.setContent(this.getChild (0).getText());
-        name.addChild (stringVal);
+		name.addChild(this.getChild(0).getXML());
 
         // Second child: parameters (optional), or action
-        PlexilTreeNode second = this.getChild (1);
-
-
-        if (second.getType() == PlexilLexer.PARAMETERS) {
+        ParameterSpecNode parms = getParameters();
+		Vector<VariableName> parmSpecs = null;
+        if (parms == null
+			|| (parmSpecs = parms.getParameterVector()) == null) {
+			// No parameter declarations
+            m_xml.addChild(name);
+            m_xml.addChild(getBody().getXML());
+        } 
+		else {
             // Parameters are output first, followed by name
-            m_xml.addChild (second.getXML());
-            m_xml.addChild (name);            
-            // And we now know the third child is the action
-            m_xml.addChild (this.getChild(2).getXML());
-        } else {
-            // the second AST child was the action, which follows name
-            m_xml.addChild (name);
-            m_xml.addChild (second.getXML());
+			IXMLElement decls = new XMLElement("VariableDeclarations");
+			for (VariableName vn : parmSpecs) {
+				decls.addChild(vn.makeDeclarationXML());
+			}
+            m_xml.addChild(decls);
+            m_xml.addChild(name);
+            m_xml.addChild(getBody().getXML());
         }
     }
+
+    protected ParameterSpecNode getParameters()
+    {
+        if (this.getChild(1).getType() != PlexilLexer.PARAMETERS)
+            return null;
+        return (ParameterSpecNode) this.getChild(1);
+    }
+
+	protected PlexilTreeNode getBody()
+	{
+		if (this.getChild(1).getType() == PlexilLexer.PARAMETERS)
+			return (PlexilTreeNode) this.getChild(2);
+		return (PlexilTreeNode) this.getChild(1);
+	}
+
 }
 
