@@ -131,7 +131,7 @@ ifAction :
 onCommandAction :
     ^(ON_COMMAND_KYWD
       { /* push new variable binding context */ }
-      NCNAME
+      expression
       paramsSpec?
       { /* create new local variables */ }
       action)

@@ -448,7 +448,7 @@ onCommandAction
 @init { m_paraphrases.push("in \"OnCommand\" statement"); }
 @after { m_paraphrases.pop(); }
  : 
-    ON_COMMAND_KYWD^ NCNAME paramsSpec? action
+    ON_COMMAND_KYWD^ expression paramsSpec? action
  ;
 
 onMessageAction
