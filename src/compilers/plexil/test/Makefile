@@ -30,34 +30,28 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
 	      sequence0 sequence1 sequence2 sequence3 \
 	      assignment0 assignment1 assignment2 \
 	      concurrence0 concurrence1 concurrence1 concurrence2 concurrence3 \
-	      Fibs LibraryCall2 array-copy CopyReals \
-		  on-command1 on-command2 isKnown1 \
+	      Fibs Fib PrintFib FibTest LibraryCall1 LibraryCall2 \
+	      array-copy CopyReals \
+              on-command1 on-command2 isKnown1 for1 for2 \
 	      on-message1 on-message2 concat1 nodeState1 nodeState2 \
 	      nodeOutcome1 command-handle1 interface-test interface-test1 \
-	      DriveToSchool Resource1 SafeDrive PrintFib sync-cmd-test \
-	      simpleIf simpleIfThenElse simpleAssignment
+	      DriveToSchool Resource1 SafeDrive sync-cmd-test \
+	      simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
+              Decrement Increment Sum RoboSimSimple2 \
+              array-add array-complex array-copy  basic-wait-test boolean1 \
+	      duplicate-node-name ifWithClauseIds \
+              library-call1 library-node1 literal-format-test
 
-BROKEN       =
+BROKEN       =  array-library-call
 INVALID_BUT_PASS  = on-message3
 
 TESTS	         := $(SMALL_TESTS)
-
 #TESTS	         := 
+
 
 # The VALID_TEST* macros are used by the original test framework.  
 
-VALID_TESTS	:= array-add array-complex \
- basic-wait-test \
- commandSequence1 concurrenceOfAssignments \
- DriveToSchool \
- emptyNodeWithVariables \
- Fib FibTest \
- ifWithClauseIds Increment interface-test \
- LibraryCall1 literal-format-test \
- minimal minimalCommand minimalCommandWithNodeId minimalWithNodeId \
- on-command-test on-message-test \
- PrintFib \
- SafeDrive sequenceOfAssignments simpleAssignment simpleIf simpleIfThenElse sync-cmd-test
+VALID_TESTS	:= $(TESTS)
 
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
 

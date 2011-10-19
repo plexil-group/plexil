@@ -3,8 +3,8 @@ Command bar;
 Command baz;
 
 ifWithClauseIds:
-if true
-TrueClause: foo();
-elseif 2 == 2 ElseifClause: bar();
-else FalseClause: bar();
+  if true
+    TrueClause: foo();
+  elseif 2 == 2 ElseifClause: bar();
+  else FalseClause: bar();
 endif

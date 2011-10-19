@@ -1,0 +1,33 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Node LineNo="5" ColNo="1" NodeType="Assignment">
+        <NodeId>F</NodeId>
+        <Interface>
+            <In>
+                <DeclareVariable LineNo="3" ColNo="4">
+                    <Name>i</Name>
+                    <Type>Integer</Type>
+                </DeclareVariable>
+            </In>
+            <InOut>
+                <DeclareVariable LineNo="4" ColNo="7">
+                    <Name>j</Name>
+                    <Type>Integer</Type>
+                </DeclareVariable>
+            </InOut>
+        </Interface>
+        <NodeBody>
+            <Assignment>
+                <IntegerVariable>j</IntegerVariable>
+                <NumericRHS>
+                    <ADD LineNo="5" ColNo="11">
+                        <MUL LineNo="5" ColNo="7">
+                            <IntegerVariable>j</IntegerVariable>
+                            <IntegerVariable>j</IntegerVariable>
+                        </MUL>
+                        <IntegerVariable>i</IntegerVariable>
+                    </ADD>
+                </NumericRHS>
+            </Assignment>
+        </NodeBody>
+    </Node>
+</PlexilPlan>

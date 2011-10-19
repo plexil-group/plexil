@@ -1,7 +1,5 @@
 // Sum the integers up to N
 
-// Exercise: get N from the user by writing a suitable command and interface adapter.
-
 Command pprint (...);
 
 Sum: {

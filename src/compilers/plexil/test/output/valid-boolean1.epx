@@ -1,0 +1,17 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Node NodeType="Empty" LineNo="3" ColNo="4">
+        <NodeId>Root</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="3" ColNo="4">
+                <Name>x</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <StartCondition LineNo="4" ColNo="4">
+            <EQNumeric LineNo="4" ColNo="20">
+                <IntegerVariable>x</IntegerVariable>
+                <IntegerVariable>x</IntegerVariable>
+            </EQNumeric>
+        </StartCondition>
+    </Node>
+</PlexilPlan>
