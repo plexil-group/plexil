@@ -1,0 +1,279 @@
+<PlexilPlan LineNo="2" ColNo="8">
+    <GlobalDeclarations LineNo="2" ColNo="8">
+        <StateDeclaration LineNo="2" ColNo="8">
+            <Name>at_school</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Boolean</Type>
+            </Return>
+        </StateDeclaration>
+        <StateDeclaration LineNo="3" ColNo="8">
+            <Name>no_passengers</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Boolean</Type>
+            </Return>
+        </StateDeclaration>
+        <StateDeclaration LineNo="4" ColNo="8">
+            <Name>car_started</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Boolean</Type>
+            </Return>
+        </StateDeclaration>
+        <StateDeclaration LineNo="5" ColNo="8">
+            <Name>raining</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Boolean</Type>
+            </Return>
+        </StateDeclaration>
+        <CommandDeclaration LineNo="8" ColNo="0">
+            <Name>depress_accelerator</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="9" ColNo="0">
+            <Name>depress_clutch</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="10" ColNo="0">
+            <Name>turn_key</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="11" ColNo="0">
+            <Name>push_start</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="12" ColNo="0">
+            <Name>select_radio</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="13" ColNo="0">
+            <Name>select_CD</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="14" ColNo="0">
+            <Name>turn_on_wipers</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="15" ColNo="0">
+            <Name>turn_on_lights</Name>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="16" ColNo="0">
+            <Name>drive_a_bit</Name>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Sequence LineNo="20" ColNo="2">
+        <NodeId>DriveToSchool</NodeId>
+        <Sequence LineNo="22" ColNo="4">
+            <NodeId>StartCar</NodeId>
+            <Try LineNo="22" ColNo="4">
+                <NodeId>Try__0</NodeId>
+                <Sequence LineNo="26" ColNo="8">
+                    <NodeId>KeyStart</NodeId>
+                    <PostCondition LineNo="26" ColNo="8">
+                        <Lookup LineNo="26" ColNo="22">
+                            <Name>
+                                <StringValue>car_started</StringValue>
+                            </Name>
+                        </Lookup>
+                    </PostCondition>
+                    <Sequence LineNo="29" ColNo="10">
+                        <NodeId>PrimeAccelerator</NodeId>
+                        <For LineNo="29" ColNo="10">
+                            <NodeId>for__1</NodeId>
+                            <LoopVariable>
+                                <DeclareVariable LineNo="29" ColNo="16">
+                                    <Name>count</Name>
+                                    <Type>Integer</Type>
+                                    <InitialValue>
+                                        <IntegerValue>0</IntegerValue>
+                                    </InitialValue>
+                                </DeclareVariable>
+                            </LoopVariable>
+                            <Condition>
+                                <LT LineNo="29" ColNo="41">
+                                    <IntegerVariable>count</IntegerVariable>
+                                    <IntegerValue>3</IntegerValue>
+                                </LT>
+                            </Condition>
+                            <LoopVariableUpdate>
+                                <ADD LineNo="29" ColNo="52">
+                                    <IntegerVariable>count</IntegerVariable>
+                                    <IntegerValue>1</IntegerValue>
+                                </ADD>
+                            </LoopVariableUpdate>
+                            <Action>
+                                <Sequence LineNo="31" ColNo="12">
+                                    <NodeId>BLOCK__2</NodeId>
+                                    <Node LineNo="31" ColNo="32" NodeType="Command">
+                                        <NodeId>PressAccelerator</NodeId>
+                                        <NodeBody>
+                                            <Command>
+                                                <Name>
+                                                    <StringValue>depress_accelerator</StringValue>
+                                                </Name>
+                                            </Command>
+                                        </NodeBody>
+                                    </Node>
+                                </Sequence>
+                            </Action>
+                        </For>
+                    </Sequence>
+                </Sequence>
+                <Concurrence LineNo="36" ColNo="20">
+                    <NodeId>TurnKeyCombo</NodeId>
+                    <Node LineNo="39" ColNo="25" NodeType="Command">
+                        <NodeId>DepressClutch</NodeId>
+                        <NodeBody>
+                            <Command>
+                                <Name>
+                                    <StringValue>depress_clutch</StringValue>
+                                </Name>
+                            </Command>
+                        </NodeBody>
+                    </Node>
+                    <Node LineNo="45" ColNo="10" NodeType="Command">
+                        <NodeId>TurnKey</NodeId>
+                        <EndCondition LineNo="44" ColNo="10">
+                            <LookupOnChange LineNo="44" ColNo="23">
+                                <Name>
+                                    <StringValue>car_started</StringValue>
+                                </Name>
+                            </LookupOnChange>
+                        </EndCondition>
+                        <NodeBody>
+                            <Command>
+                                <Name>
+                                    <StringValue>turn_key</StringValue>
+                                </Name>
+                            </Command>
+                        </NodeBody>
+                    </Node>
+                </Concurrence>
+                <Node LineNo="52" ColNo="8" NodeType="Command">
+                    <NodeId>PushStart</NodeId>
+                    <PostCondition LineNo="51" ColNo="8">
+                        <Lookup LineNo="51" ColNo="22">
+                            <Name>
+                                <StringValue>car_started</StringValue>
+                            </Name>
+                        </Lookup>
+                    </PostCondition>
+                    <NodeBody>
+                        <Command>
+                            <Name>
+                                <StringValue>push_start</StringValue>
+                            </Name>
+                        </Command>
+                    </NodeBody>
+                </Node>
+            </Try>
+        </Sequence>
+        <Sequence LineNo="59" ColNo="4">
+            <NodeId>SelectStation</NodeId>
+            <If LineNo="59" ColNo="4">
+                <NodeId>if__7</NodeId>
+                <Condition>
+                    <Lookup LineNo="59" ColNo="9">
+                        <Name>
+                            <StringValue>no_passengers</StringValue>
+                        </Name>
+                    </Lookup>
+                </Condition>
+                <Then>
+                    <Node LineNo="59" ColNo="43" NodeType="Command">
+                        <NodeId>Radio</NodeId>
+                        <NodeBody>
+                            <Command>
+                                <Name>
+                                    <StringValue>select_radio</StringValue>
+                                </Name>
+                            </Command>
+                        </NodeBody>
+                    </Node>
+                </Then>
+                <Else>
+                    <Node LineNo="60" ColNo="15" NodeType="Command">
+                        <NodeId>CD</NodeId>
+                        <NodeBody>
+                            <Command>
+                                <Name>
+                                    <StringValue>select_CD</StringValue>
+                                </Name>
+                            </Command>
+                        </NodeBody>
+                    </Node>
+                </Else>
+            </If>
+        </Sequence>
+        <Sequence LineNo="66" ColNo="4">
+            <NodeId>DriveUntilAtSchool</NodeId>
+            <While LineNo="66" ColNo="4">
+                <NodeId>while__10</NodeId>
+                <Condition>
+                    <NOT LineNo="66" ColNo="12">
+                        <Lookup LineNo="66" ColNo="13">
+                            <Name>
+                                <StringValue>at_school</StringValue>
+                            </Name>
+                        </Lookup>
+                    </NOT>
+                </Condition>
+                <Action>
+                    <Concurrence LineNo="67" ColNo="17">
+                        <NodeId>KeepDriving</NodeId>
+                        <Sequence LineNo="71" ColNo="8">
+                            <NodeId>HandleRain</NodeId>
+                            <If LineNo="71" ColNo="8">
+                                <NodeId>if__11</NodeId>
+                                <Condition>
+                                    <Lookup LineNo="71" ColNo="13">
+                                        <Name>
+                                            <StringValue>raining</StringValue>
+                                        </Name>
+                                    </Lookup>
+                                </Condition>
+                                <Then>
+                                    <Concurrence LineNo="72" ColNo="10">
+                                        <NodeId>Concurrence__12</NodeId>
+                                        <Node LineNo="74" ColNo="22" NodeType="Command">
+                                            <NodeId>Wipers</NodeId>
+                                            <NodeBody>
+                                                <Command>
+                                                    <Name>
+                                                        <StringValue>turn_on_wipers</StringValue>
+                                                    </Name>
+                                                </Command>
+                                            </NodeBody>
+                                        </Node>
+                                        <Node LineNo="75" ColNo="22" NodeType="Command">
+                                            <NodeId>Lights</NodeId>
+                                            <NodeBody>
+                                                <Command>
+                                                    <Name>
+                                                        <StringValue>turn_on_lights</StringValue>
+                                                    </Name>
+                                                </Command>
+                                            </NodeBody>
+                                        </Node>
+                                    </Concurrence>
+                                </Then>
+                            </If>
+                        </Sequence>
+                        <Node LineNo="83" ColNo="8" NodeType="Command">
+                            <NodeId>DriveABit</NodeId>
+                            <EndCondition LineNo="82" ColNo="8">
+                                <Lookup LineNo="82" ColNo="21">
+                                    <Name>
+                                        <StringValue>at_school</StringValue>
+                                    </Name>
+                                </Lookup>
+                            </EndCondition>
+                            <NodeBody>
+                                <Command>
+                                    <Name>
+                                        <StringValue>drive_a_bit</StringValue>
+                                    </Name>
+                                </Command>
+                            </NodeBody>
+                        </Node>
+                    </Concurrence>
+                </Action>
+            </While>
+        </Sequence>
+    </Sequence>
+</PlexilPlan>

@@ -1,19 +1,19 @@
-Command Rover.Drive (Integer);
-Command Rover.TakePicture;
+Command Drive (Integer);
+Command TakePicture;
 Command pprint(...);
-Boolean Lookup Rover.WheelStuck;
+Boolean Lookup WheelStuck;
 
 SafeDrive:
 {
   Integer pictures = 0;
-  EndCondition Lookup(Rover.WheelStuck) || pictures == 10;
+  EndCondition Lookup(WheelStuck) || pictures == 10;
 
-  while (! Lookup(Rover.WheelStuck)) 
+  while (! Lookup(WheelStuck)) 
   {
-    OneMeter: { Rover.Drive(1); }
+    OneMeter: { Drive(1); }
     TakePic: {
       StartCondition pictures < 10;
-      Rover.TakePicture();
+      TakePicture();
     }
     Counter: {
       PreCondition pictures < 10;
