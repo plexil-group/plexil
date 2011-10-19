@@ -130,7 +130,7 @@ element.  It is used as an included schema only.
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element name="Name" type="xsd:NCName"/>
-        <xsd:element name="Interface"/>
+        <xsd:element ref="Interface"/>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
