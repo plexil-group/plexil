@@ -1,0 +1,34 @@
+Integer Command c1;
+Integer Command c2;
+Integer Command c3;
+
+SimpleTask: Concurrence
+{
+  C1: {
+    Integer returnValue = -1;
+    EndCondition returnValue == 10;
+    PostCondition C1.command_handle == COMMAND_SUCCESS;
+    ResourcePriority 20;
+    Resource Name = "sys_memory", LowerBound = 0.8, UpperBound = 0.8;
+    returnValue = c1();
+  }
+
+  C2: {
+    Integer mem_priority = 30;
+    Integer returnValue = -1;
+    PostCondition C2.command_handle == COMMAND_SUCCESS;
+    EndCondition returnValue == 10;
+    ResourcePriority 30;
+    Resource Name = "sys_memory", LowerBound = 0.3, UpperBound = 0.3;
+    returnValue = c2();
+  }
+  C3: {
+    Integer returnValue = -1;
+    PostCondition C3.command_handle == COMMAND_SUCCESS;
+    EndCondition returnValue == 10;
+    ResourcePriority 40;
+    Resource Name = "sys_memory", LowerBound = -0.1, UpperBound = -0.1;
+    returnValue = c3();
+  }
+}
+

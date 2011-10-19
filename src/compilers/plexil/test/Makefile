@@ -35,18 +35,18 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
               on-command1 on-command2 isKnown1 for1 for2 \
 	      on-message1 on-message2 concat1 nodeState1 nodeState2 \
 	      nodeOutcome1 command-handle1 interface-test interface-test1 \
-	      DriveToSchool SafeDrive sync-cmd-test \
+	      DriveToSchool SafeDrive CruiseControl sync-cmd-test \
 	      simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
-              Decrement Increment Sum RoboSimSimple2 \
+              Decrement Increment Sum RoboSimSimple2 SimpleDrive \
               array-add array-complex array-copy  basic-wait-test boolean1 \
-	      duplicate-node-name ifWithClauseIds \
+	      duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
               library-call1 library-node1 literal-format-test if2 if3
 
-BROKEN       =  array-library-call resource0 Resource1
+BROKEN       =  array-library-call resource0 Resource1 Resource2 Resource3 Resource4
 INVALID_BUT_PASS  = on-message3
 
 TESTS	         := $(SMALL_TESTS)
-#TESTS	         := 
+#TESTS	         := Resource3 Resource4
 
 
 # The VALID_TEST* macros are used by the original test framework.  
