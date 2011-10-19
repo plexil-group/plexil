@@ -168,6 +168,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.INACTIVE_STATE_KYWD:
         case PlexilLexer.ITERATION_ENDED_STATE_KYWD:
         case PlexilLexer.WAITING_STATE_KYWD:
+        case PlexilLexer.SUCCESS_OUTCOME_KYWD:
+        case PlexilLexer.FAILURE_OUTCOME_KYWD:
+        case PlexilLexer.SKIPPED_OUTCOME_KYWD:
             return new LiteralNode(payload);
 
         case PlexilLexer.ARRAY_LITERAL:
