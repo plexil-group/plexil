@@ -265,6 +265,12 @@ public class NodeContext
         }
     }
 
+	// Added to support OnCommand.
+	public void addVariable(VariableName v)
+	{
+		m_variables.add(v);
+	}
+
     public VariableName addVariable(PlexilTreeNode declaration,
                                     PlexilTreeNode nameNode,
                                     PlexilDataType varType,
