@@ -498,7 +498,7 @@ DeclareArray =
     }
 Interface =
   notAllowed
-  | element Interface { In? & InOut? }
+  | element Interface { SourceLocators, (In? & InOut?) }
 MUL =
   notAllowed
   | element MUL {
