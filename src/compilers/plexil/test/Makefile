@@ -40,13 +40,14 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
               Decrement Increment Sum RoboSimSimple2 SimpleDrive \
               array-add array-complex array-copy  basic-wait-test boolean1 \
 	      duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
-              library-call1 library-node1 LibraryCallWithArray literal-format-test if2 if3
+              library-call1 library-node1 LibraryCallWithArray literal-format-test \
+	      if2 if3 test-recv test-send
 
-BROKEN       =  array-library-call resource0 Resource1 Resource2 Resource3 Resource4
+BROKEN       =  array-library-call resource0 Resource1 Resource2 Resource3 Resource4 time-lookup-test
 INVALID_BUT_PASS  = on-message3
 
 TESTS	         := $(SMALL_TESTS)
-#TESTS	         := Resource3 Resource4
+#TESTS	         := 
 
 
 # The VALID_TEST* macros are used by the original test framework.  
