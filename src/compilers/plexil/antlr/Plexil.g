@@ -567,7 +567,7 @@ resourcePriority
 priority
 @init { m_paraphrases.push("in priority"); }
 @after { m_paraphrases.pop(); }
- : PRIORITY_KYWD^ INT SEMICOLON! ;
+ : PRIORITY_KYWD<PriorityNode>^ INT SEMICOLON! ;
 
 permissions
 @init { m_paraphrases.push("in permissions"); }
