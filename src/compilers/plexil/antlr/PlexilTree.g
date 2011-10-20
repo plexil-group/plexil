@@ -86,7 +86,7 @@ libraryActionDeclaration :
     ^(LIBRARY_ACTION_KYWD NCNAME libraryParamsSpec?)
  ;
 
-libraryParamsSpec : ^(PARAMETERS ((IN_KYWD | IN_OUT_KYWD) typeName NCNAME)+ ) ;
+libraryParamsSpec : ^(PARAMETERS ( (IN_KYWD | IN_OUT_KYWD) typeName NCNAME INT? )* ) ;
 
 //
 // Actions
@@ -96,6 +96,21 @@ action :
     ^(ACTION
       (id=NCNAME
        { /* check that id is unique in current context */ } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       )?
 	  actionBody)
  ;

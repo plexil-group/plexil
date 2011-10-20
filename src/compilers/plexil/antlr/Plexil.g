@@ -385,12 +385,21 @@ libraryActionDeclaration
     LIBRARY_ACTION_KYWD^ NCNAME libraryInterfaceSpec? SEMICOLON!
 ;
 
-libraryInterfaceSpec :
+libraryInterfaceSpec
+@init { m_paraphrases.push("in library action interface declaration"); }
+@after { m_paraphrases.pop(); }
+ :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
     -> ^(PARAMETERS libraryParamSpec+)
  ;
 
-libraryParamSpec : ( IN_KYWD^ | IN_OUT_KYWD^ ) baseTypeName NCNAME ;
+libraryParamSpec :
+ ( IN_KYWD^ | IN_OUT_KYWD^ )
+ baseTypeName
+ ( (NCNAME LBRACKET) => NCNAME LBRACKET! INT RBRACKET! 
+ | NCNAME
+ )
+ ;
 
 //
 // Actions

@@ -59,10 +59,12 @@ public class ParameterSpecNode extends PlexilTreeNode
             int parmType = parm.getType();
             if (parmType == PlexilLexer.IN_KYWD
                 || parmType == PlexilLexer.IN_OUT_KYWD) {
-                // Library interface spec -
-                // ^(In|InOut typeName NCNAME)
-                typeName = parm.getChild(0).getText();
-                nameSpec = parm.getChild(1);
+                // Library interface spec
+                // ^((In | InOut) typename NCNAME INT?)
+				typeName = parm.getChild(0).getText();
+				nameSpec = parm.getChild(1);
+				if (parm.getChild(2) != null)
+					sizeSpec = parm.getChild(2).getText(); // array dimension
             }
             else if (parmType == PlexilLexer.ARRAY_TYPE) {
                 // ^(ARRAY_TYPE eltTypeName INT NCNAME?)
@@ -112,17 +114,24 @@ public class ParameterSpecNode extends PlexilTreeNode
             switch (parmType) {
                 // In and InOut are only valid for library node declarations
             case PlexilLexer.IN_KYWD:
-                newParmVar = new InterfaceVariableName(parm,
-                                                       nam,
-                                                       false,
-                                                       PlexilDataType.findByName(typeName));
-                break;
-
             case PlexilLexer.IN_OUT_KYWD:
-                newParmVar = new InterfaceVariableName(parm,
-                                                       nam,
-                                                       true,
-                                                       PlexilDataType.findByName(typeName));
+				if (sizeSpec != null) {
+					// Array case
+					newParmVar = 
+						new InterfaceVariableName(parm,
+												  nam,
+												  parmType == PlexilLexer.IN_OUT_KYWD,
+												  PlexilDataType.findByName(typeName),
+												  sizeSpec,
+												  null);
+				}
+				else {
+					newParmVar =
+						new InterfaceVariableName(parm,
+												  nam,
+												  parmType == PlexilLexer.IN_OUT_KYWD,
+												  PlexilDataType.findByName(typeName));
+				}
                 break;
 
             case PlexilLexer.ARRAY_TYPE:
