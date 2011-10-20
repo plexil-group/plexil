@@ -63,8 +63,16 @@ public class ParameterSpecNode extends PlexilTreeNode
                 // ^((In | InOut) typename NCNAME INT?)
 				typeName = parm.getChild(0).getText();
 				nameSpec = parm.getChild(1);
-				if (parm.getChild(2) != null)
+				if (parm.getChild(2) != null) {
 					sizeSpec = parm.getChild(2).getText(); // array dimension
+					// check spec'd size
+					int arySiz = LiteralNode.parseIntegerValue(sizeSpec);
+					if (arySiz < 0) {
+						state.addDiagnostic(parm.getChild(1),
+											"Array size must not be negative",
+											Severity.ERROR);
+					}
+				}
             }
             else if (parmType == PlexilLexer.ARRAY_TYPE) {
                 // ^(ARRAY_TYPE eltTypeName INT NCNAME?)
@@ -121,7 +129,7 @@ public class ParameterSpecNode extends PlexilTreeNode
 						new InterfaceVariableName(parm,
 												  nam,
 												  parmType == PlexilLexer.IN_OUT_KYWD,
-												  PlexilDataType.findByName(typeName),
+												  PlexilDataType.findByName(typeName).arrayType(),
 												  sizeSpec,
 												  null);
 				}
