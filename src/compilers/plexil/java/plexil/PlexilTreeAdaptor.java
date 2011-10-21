@@ -179,6 +179,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.STRING:
             return new StringLiteralNode(payload);
 
+		case PlexilLexer.NODE_TIMEPOINT_VALUE:
+			return new NodeVariableNode(payload);
+
         default:
             return new PlexilTreeNode(payload);
         }
