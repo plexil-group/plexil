@@ -137,6 +137,12 @@ public class CompilerState
             ++i;
         }
 
+		if (i >= m_args.length) {
+			// No file name supplied
+			usage();
+			System.exit(1);
+		}
+
         // whatever's left must be the source file name(s)
         m_infile = new File(m_args[i]);
         return true;
