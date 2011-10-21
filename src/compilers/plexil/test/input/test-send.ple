@@ -1,7 +1,6 @@
 Real Lookup time;
 Command print (...);
-//Command test_udp_msg (String, Boolean, Integer, Real, Integer[3], Real[3], Boolean[3], String[3]);
-Command test_udp_msg (...);
+Command test_udp_msg (String, Boolean, Integer, Real, Integer[3], Real[3], Boolean[3], String[3]);
 Command quit_msg (String);
 
 test-send: UncheckedSequence
