@@ -148,6 +148,7 @@ public class ParameterSpecNode extends PlexilTreeNode
                                               PlexilDataType.findByName(typeName).arrayType(),
                                               sizeSpec,
                                               null);
+				break;
 
             case PlexilLexer.ANY_KYWD:
             case PlexilLexer.BOOLEAN_KYWD:
