@@ -77,9 +77,10 @@ DIFF = /tmp/plexil-$$$$
 
 test:
 	@ echo Translating Standard Plexil tests...
+	@ $(RM) -f output/*.epx
 	@ for i in $(TESTS); do \
 	        ../PlexilCompiler --epx-only -o output/$$i.epx input/$$i.ple ; \
-		diff output/$$i.epx output/valid-$$i.epx \
+		diff output/$$i.epx valid/valid-$$i.epx \
 		  > $(DIFF) ; \
 		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
 		if [ $$diffsize -eq 0 ] ; then \
@@ -111,4 +112,4 @@ output:
 
 clean:
 #	-$(RM) -r output
-	-$(RM) tempRegressionResults input/*.epx input/*.plx
+	-$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
