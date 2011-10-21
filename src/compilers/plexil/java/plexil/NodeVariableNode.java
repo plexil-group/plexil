@@ -33,23 +33,32 @@ public class NodeVariableNode extends ExpressionNode
 {
     private void setType ()
     {
-        String type = this.getToken().getText();
+		switch (this.getToken().getType()) {
+		case PlexilLexer.COMMAND_HANDLE_KYWD:
+			m_dataType = PlexilDataType.COMMAND_HANDLE_TYPE;
+			break;
 
-        // ** KMD: obviate the magic strings!
-        if (type.contentEquals ("command_handle")) {
-            m_dataType = PlexilDataType.COMMAND_HANDLE_TYPE;
-        }
-        else if (type.contentEquals ("outcome")) {
-            m_dataType = PlexilDataType.NODE_OUTCOME_TYPE;
-        }
-        else if (type.contentEquals ("state")) {
-            m_dataType = PlexilDataType.NODE_STATE_TYPE;
-        }
-        else if (type.contentEquals ("failure")) {
-            m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
-        }
-        // * KMD: good enough?
-        else m_dataType = PlexilDataType.ERROR_TYPE;
+		case PlexilLexer.OUTCOME_KYWD:
+			m_dataType = PlexilDataType.NODE_OUTCOME_TYPE;
+			break;
+
+		case PlexilLexer.STATE_KYWD:
+			m_dataType = PlexilDataType.NODE_STATE_TYPE;
+			break;
+
+		case PlexilLexer.FAILURE_KYWD:
+			m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
+			break;
+
+		case PlexilLexer.NODE_TIMEPOINT_VALUE:
+			// FIXME: need a time type
+			m_dataType = PlexilDataType.REAL_TYPE;
+			break;
+
+		default:
+			m_dataType = PlexilDataType.ERROR_TYPE;
+			break;
+		}
     }
 
     public NodeVariableNode(Token t)
@@ -80,24 +89,39 @@ public class NodeVariableNode extends ExpressionNode
         IXMLElement id = new XMLElement ("NodeId");
         id.setContent (this.getChild(0).getText());
         m_xml.addChild (id);
+
+		if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE) {
+			IXMLElement state = new XMLElement("NodeStateValue");
+			state.setContent(this.getChild(1).getText());
+			m_xml.addChild(state);
+
+			IXMLElement tp = new XMLElement("Timepoint");
+			tp.setContent(this.getChild(2).getText());
+			m_xml.addChild(tp);
+		}
     }
 
     public String getXMLElementName()
     {
-        if (m_dataType == PlexilDataType.NODE_STATE_TYPE) {
-            return "NodeStateVariable";
-        }
-        else if (m_dataType == PlexilDataType.NODE_OUTCOME_TYPE) {
-            return "NodeOutcomeVariable";
-        }
-        else if (m_dataType == PlexilDataType.COMMAND_HANDLE_TYPE) {
+		switch (this.getToken().getType()) {
+		case PlexilLexer.COMMAND_HANDLE_KYWD:
             return "NodeCommandHandleVariable";
-        }
-        else if (m_dataType == PlexilDataType.NODE_FAILURE_TYPE) {
+
+		case PlexilLexer.OUTCOME_KYWD:
+            return "NodeOutcomeVariable";
+
+		case PlexilLexer.STATE_KYWD:
+            return "NodeStateVariable";
+
+		case PlexilLexer.FAILURE_KYWD:
             return "NodeFailureVariable";
-        }
-        // * KMD: do better here?
-        else return "ERROR";
+
+		case PlexilLexer.NODE_TIMEPOINT_VALUE:
+			return "NodeTimepointValue";
+
+		default:
+			return "ERROR";
+		}
     }
 
 }
