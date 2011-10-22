@@ -284,7 +284,6 @@ nodeAttribute :
   | permissions
   | priority
   | resource
-  | resourcePriority
  ;
 
 nodeCondition : 
@@ -321,10 +320,6 @@ resourceOption :
       { /* check that expression is numeric */ }
     | ( RELEASE_AT_TERM_KYWD expression )
       { /* check that expression is Boolean */ }
- ;
-
-resourcePriority :
-    ^(RESOURCE_PRIORITY_KYWD expression) /* check that expression is numeric? */
  ;
 
 ///////////////////

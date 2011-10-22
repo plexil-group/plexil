@@ -53,7 +53,6 @@ RETURNS_KYWD = 'Returns';
 
 // Resources
 RESOURCE_KYWD = 'Resource';
-RESOURCE_PRIORITY_KYWD = 'ResourcePriority';
 NAME_KYWD = 'Name';
 UPPER_BOUND_KYWD = 'UpperBound';
 LOWER_BOUND_KYWD = 'LowerBound';
@@ -525,7 +524,6 @@ nodeAttribute :
     nodeCondition
   | priority
   | resource
-  | resourcePriority
   | permissions ;
 
 nodeCondition
@@ -558,11 +556,6 @@ resource
         )*
         SEMICOLON!
  ;
-
-resourcePriority
-@init { m_paraphrases.push("in resource priority"); }
-@after { m_paraphrases.pop(); }
- : RESOURCE_PRIORITY_KYWD^ expression SEMICOLON! ;
 
 priority
 @init { m_paraphrases.push("in priority"); }
