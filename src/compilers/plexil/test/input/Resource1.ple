@@ -8,9 +8,8 @@ SimpleTask: Concurrence
     Integer returnValue = -1;
     EndCondition returnValue == 10;
     PostCondition C1.command_handle == COMMAND_SUCCESS;
-    ResourcePriority 20;
-    Resource Name = "sys_memory";
-    Resource Name = "arm";
+    Resource Name = "sys_memory", Priority = 20;
+    Resource Name = "arm", Priority = 20;
     returnValue = c1();
   }
 
@@ -20,8 +19,7 @@ SimpleTask: Concurrence
     RepeatCondition C2.command_handle == COMMAND_DENIED;
     PostCondition C2.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
-    ResourcePriority mem_priority;
-    Resource Name = "sys_memory";
+    Resource Name = "sys_memory", Priority = mem_priority;
     returnValue = c2();
   }
   C3: {
@@ -29,8 +27,7 @@ SimpleTask: Concurrence
     Integer vision_priority = 10;
     PostCondition C3.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
-    ResourcePriority vision_priority;
-    Resource Name = "vision_system";
+    Resource Name = "vision_system", Priority = vision_priority;
     returnValue = c3();
   }
 }
