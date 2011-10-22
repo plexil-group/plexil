@@ -170,7 +170,6 @@ public class BlockNode extends PlexilTreeNode
                     break;
 
                 case PlexilLexer.RESOURCE_KYWD:
-                case PlexilLexer.RESOURCE_PRIORITY_KYWD:
                     m_resources.add(child);
                     break;
 
@@ -259,17 +258,24 @@ public class BlockNode extends PlexilTreeNode
             m_xml.addChild(n.getXML());
         }
 
-        // TODO: Add resources
-        if (isCommandNode()) {
-            for (PlexilTreeNode n : m_resources) {
-            }
-        }
 
         if (isSimpleNode()) {
             // All above have been added after original body,
             // so move body to last place
             IXMLElement bodyXML = m_xml.getChildAtIndex(0);
             m_xml.removeChildAtIndex(0);
+
+			// Add command resources, if required
+			if (isCommandNode()) {
+				if (!m_resources.isEmpty()) {
+					IXMLElement rlist = new XMLElement("ResourceList");
+					for (PlexilTreeNode n : m_resources)
+						rlist.addChild(n.getXML());
+					XMLElement commandXml = (XMLElement) bodyXML.getChildAtIndex(0);
+					commandXml.insertChild(rlist, 0);
+				}
+			}
+
             m_xml.addChild(bodyXML);
         }
         else {

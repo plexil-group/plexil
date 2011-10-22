@@ -120,6 +120,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.PARAMETERS:
             return new ParameterSpecNode(payload);
 
+		case PlexilLexer.RESOURCE_KYWD:
+			return new ResourceNode(payload);
+
         case PlexilLexer.RETURNS_KYWD:
             return new ReturnSpecNode(payload);
 
@@ -144,6 +147,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
         case PlexilLexer.ARRAY_VARIABLE_DECLARATION:
             return new ArrayVariableDeclNode(payload);
+
+		case PlexilLexer.NODE_TIMEPOINT_VALUE:
+			return new NodeVariableNode(payload);
 
         case PlexilLexer.VARIABLE_DECLARATION:
             return new VariableDeclNode(payload);
@@ -178,9 +184,6 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
         case PlexilLexer.STRING:
             return new StringLiteralNode(payload);
-
-		case PlexilLexer.NODE_TIMEPOINT_VALUE:
-			return new NodeVariableNode(payload);
 
         default:
             return new PlexilTreeNode(payload);
