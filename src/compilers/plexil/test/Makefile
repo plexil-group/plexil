@@ -41,14 +41,19 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
               array-add array-complex array-copy  basic-wait-test boolean1 \
 	      duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
               library-call1 library-node1 LibraryCallWithArray literal-format-test \
-	      if2 if3 test-recv test-send time-lookup-test \
-		  resource0 Resource1 Resource2 Resource3 Resource4 
+	      if2 if3 test-recv test-send time-lookup-test expr1 try1 \
+              resource0 Resource1 Resource2 Resource3 Resource4 tolerance1
 
-BROKEN       =  array-library-call 
+BROKEN       =  array-library-call \
+	        comment1 invariantFail1 succeeded1 waiting1 executing1 update1 update2 update3 \
+	        iterationSucceeded1 iterationEnded1 iterationFailed1 finished1 failed1 skipped1 \
+	        preconditionFailed1 inactive1 \
+                expr2 expr3
+
 INVALID_BUT_PASS  = on-message3
 
 TESTS	         := $(SMALL_TESTS)
-#TESTS	         := 
+#TESTS	         :=
 
 
 # The VALID_TEST* macros are used by the original test framework.  

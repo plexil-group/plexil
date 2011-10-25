@@ -1,0 +1,34 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Try LineNo="1" ColNo="0">
+        <NodeId>Try__0</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="3" ColNo="2">
+                <Name>x</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <Node NodeType="Empty" LineNo="5" ColNo="7">
+            <NodeId>A</NodeId>
+            <PreCondition LineNo="5" ColNo="7">
+                <BooleanValue>false</BooleanValue>
+            </PreCondition>
+        </Node>
+        <Node NodeType="Empty" LineNo="6" ColNo="7">
+            <NodeId>B</NodeId>
+            <PostCondition LineNo="6" ColNo="7">
+                <BooleanValue>false</BooleanValue>
+            </PostCondition>
+        </Node>
+        <Node LineNo="7" ColNo="5" NodeType="Assignment">
+            <NodeId>C</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>x</IntegerVariable>
+                    <NumericRHS>
+                        <IntegerValue>1</IntegerValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+    </Try>
+</PlexilPlan>

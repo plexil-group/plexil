@@ -27,25 +27,24 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-import org.antlr.runtime.Token;
 import net.n3.nanoxml.*;
 
-public class PriorityNode extends PlexilTreeNode
+public class CommentNode extends PlexilTreeNode
 {
-    public PriorityNode(Token t)
+    public CommentNode(Token t)
     {
         super(t);
-        //        m_dataType = PlexilDataType.INTEGER_TYPE;
     }
 
-    public PriorityNode(PriorityNode n)
+    public CommentNode(CommentNode n)
     {
         super(n);
-        //        m_dataType = PlexilDataType.INTEGER_TYPE;
     }
 
     public void check(NodeContext context, CompilerState state)
     {
+        /*
+        // *** KMD: check that Priority is a natural number.
         super.check (context, state);
         int p = Integer.parseInt (this.getChild(0).getText());
         if (p < 0) {
@@ -53,6 +52,7 @@ public class PriorityNode extends PlexilTreeNode
                                 "Priority value is negative; must be non-negative",
                                 Severity.ERROR);
         }
+        */
     }
 
     protected void addSourceLocatorAttributes()
@@ -60,15 +60,15 @@ public class PriorityNode extends PlexilTreeNode
         // Don't.
     }
 
-    public void constructXML()
+    protected void constructXML()
     {
         super.constructXML();
         m_xml.setContent (this.getChild(0).getText());
     }
 
-    public String getXMLElementName()
+    protected String getXMLElementName()
     {
-        return "Priority";
+        return "Comment";
     }
 
 }
