@@ -1,0 +1,4 @@
+{
+  Post NodeInvariantFailed (A);
+  A: { Invariant false;}
+}

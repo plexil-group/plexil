@@ -1,0 +1,4 @@
+{
+  Integer i;
+  i = 3 mod 2;
+}
