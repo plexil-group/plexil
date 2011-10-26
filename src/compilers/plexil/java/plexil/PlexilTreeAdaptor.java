@@ -45,6 +45,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.ABS_KYWD:
         case PlexilLexer.ASTERISK:
         case PlexilLexer.MINUS:
+		case PlexilLexer.MOD_KYWD:
         case PlexilLexer.PERCENT:
         case PlexilLexer.PLUS:
         case PlexilLexer.SLASH:

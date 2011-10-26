@@ -874,6 +874,7 @@ multOp :
     ASTERISK
   | SLASH
   | PERCENT
+  | MOD_KYWD
  ;
 
 // 14 casts - not in the Plexil language

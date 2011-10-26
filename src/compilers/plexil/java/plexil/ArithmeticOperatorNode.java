@@ -45,7 +45,6 @@ public class ArithmeticOperatorNode extends ExpressionNode
         super(new CommonToken(ttype, getTokenString(ttype)));
     }
 
-    // I *think* this is only needed for ABS_KYWD...
     private static String getTokenString(int ttype)
     {
         switch (ttype) {
@@ -253,6 +252,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
             return "DIV";
 
         case PlexilLexer.PERCENT:
+		case PlexilLexer.MOD_KYWD:
             return "MOD";
 
         default:
