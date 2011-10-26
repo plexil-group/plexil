@@ -1,4 +1,6 @@
 {
   Integer i;
+  Integer j;
   i = 3 mod 2;
+  j = 4 % i;  
 }
