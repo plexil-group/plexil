@@ -215,7 +215,7 @@ public class BlockNode extends PlexilTreeNode
 
         // Add comment
         if (m_comment != null) {
-            IXMLElement comment = m_comment.getChild(1).getXML();
+            IXMLElement comment = m_comment.getChild(0).getXML();
             comment.setName("Comment");
             m_xml.addChild(comment);
         }
