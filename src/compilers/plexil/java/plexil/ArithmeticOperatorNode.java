@@ -237,23 +237,29 @@ public class ArithmeticOperatorNode extends ExpressionNode
     public String getXMLElementName()
     {
         switch (this.getType()) {
-        case PlexilLexer.PLUS:
-            if (m_dataType == PlexilDataType.STRING_TYPE)
-                return "Concat";
-            else return "ADD";
-			
-        case PlexilLexer.MINUS:
-            return "SUB";
+		case PlexilLexer.ABS_KYWD:
+			return "ABS";
 
         case PlexilLexer.ASTERISK:
             return "MUL";
 
+        case PlexilLexer.MINUS:
+            return "SUB";
+
+		case PlexilLexer.MOD_KYWD:
+        case PlexilLexer.PERCENT:
+            return "MOD";
+
+        case PlexilLexer.PLUS:
+            if (m_dataType == PlexilDataType.STRING_TYPE)
+                return "Concat";
+            else return "ADD";
+
         case PlexilLexer.SLASH:
             return "DIV";
 
-        case PlexilLexer.PERCENT:
-		case PlexilLexer.MOD_KYWD:
-            return "MOD";
+		case PlexilLexer.SQRT_KYWD:
+			return "SQRT";
 
         default:
             return this.getToken().getText();
