@@ -96,21 +96,6 @@ action :
     ^(ACTION
       (id=NCNAME
        { /* check that id is unique in current context */ } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       )?
 	  actionBody)
  ;
@@ -478,7 +463,7 @@ binaryOp :
   | DEQUALS | NEQUALS
   | GREATER | GEQ | LESS | LEQ
   | PLUS | MINUS
-  | ASTERISK | SLASH | PERCENT
+  | ASTERISK | SLASH | PERCENT | MOD_KYWD
  ;
 
 unaryOp :
