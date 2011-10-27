@@ -45,7 +45,8 @@ else
 
     # Mac
     export DYLD_LIBRARY_PATH=$_plexil_libpath
-    export DYLD_BIND_AT_LAUNCH=YES
+	# Breaks Code TI's 'svn' installation
+    #export DYLD_BIND_AT_LAUNCH=YES
 
     unset _plexil_libpath
 
