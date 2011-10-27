@@ -68,6 +68,7 @@ element.  It is used as an included schema only.
 
   <xsd:complexType name="node-reference">
     <xsd:group ref= "NodeReference"/>
+	<xsd:attributeGroup ref="SourceLocators"/>
   </xsd:complexType>
 
   <xsd:element name="NodeId" type="xsd:NCName"/>

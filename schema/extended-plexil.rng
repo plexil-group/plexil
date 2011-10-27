@@ -19,12 +19,7 @@
             <ref name="ResourceList"/>
             <ref name="NOT"/>
             <ref name="Finished"/>
-            <choice>
-                <notAllowed/>
-                <element name="IterationFailed">
-                    <ref name="node-reference"/>
-                </element>
-            </choice>
+            <ref name="IterationFailed"/>
             <ref name="Waiting"/>
             <ref name="RealVariable"/>
             <ref name="InOut"/>
@@ -149,12 +144,7 @@
                     <ref name="Action"/>
                 </element>
             </choice>
-            <choice>
-                <notAllowed/>
-                <element name="IterationSucceeded">
-                    <ref name="node-reference"/>
-                </element>
-            </choice>
+            <ref name="IterationSucceeded"/>
             <ref name="EQBoolean"/>
             <ref name="Name"/>
             <ref name="NEBoolean"/>
@@ -184,6 +174,15 @@
             <ref name="StringVariable"/>
             <ref name="ArrayVariable"/>
             <ref name="ArrayElement"/>
+        </choice>
+    </define>
+    <define name="MessageReceived">
+        <choice>
+            <notAllowed/>
+            <element name="MessageReceived">
+                <ref name="SourceLocators"/>
+                <ref name="StringExpression"/>
+            </element>
         </choice>
     </define>
     <define name="SynchronousCommand">
@@ -240,6 +239,14 @@
             </element>
         </choice>
     </define>
+    <define name="SequenceType">
+        <oneOrMore>
+            <ref name="NodeClauses"/>
+        </oneOrMore>
+        <zeroOrMore>
+            <ref name="Action"/>
+        </zeroOrMore>
+    </define>
     <define name="SourceLocators">
         <optional>
             <attribute name="ColNo">
@@ -257,37 +264,10 @@
             </attribute>
         </optional>
     </define>
-    <define name="NodeClauses">
-        <choice>
-            <ref name="NodeId"/>
-            <empty/>
-            <choice>
-                <notAllowed/>
-                <element name="Comment">
-                    <ref name="string"/>
-                </element>
-            </choice>
-            <ref name="StartCondition"/>
-            <ref name="RepeatCondition"/>
-            <ref name="PreCondition"/>
-            <ref name="PostCondition"/>
-            <ref name="InvariantCondition"/>
-            <ref name="EndCondition"/>
-            <ref name="SkipCondition"/>
-            <choice>
-                <notAllowed/>
-                <element name="Priority">
-                    <ref name="nonNegativeInteger"/>
-                </element>
-            </choice>
-            <ref name="Interface"/>
-            <ref name="VariableDeclarations"/>
-        </choice>
-    </define>
-    <define name="ParentFailed">
+    <define name="PreconditionFailed">
         <choice>
             <notAllowed/>
-            <element name="ParentFailed">
+            <element name="PreconditionFailed">
                 <ref name="node-reference"/>
             </element>
         </choice>
@@ -377,6 +357,21 @@
                 <ref name="SourceLocators"/>
                 <ref name="NumericExpression"/>
                 <ref name="NumericExpression"/>
+            </element>
+        </choice>
+    </define>
+    <define name="Lookup">
+        <choice>
+            <notAllowed/>
+            <element name="Lookup">
+                <ref name="SourceLocators"/>
+                <ref name="Name"/>
+                <optional>
+                    <ref name="Tolerance"/>
+                </optional>
+                <optional>
+                    <ref name="Arguments"/>
+                </optional>
             </element>
         </choice>
     </define>
@@ -548,14 +543,6 @@
             </element>
         </choice>
     </define>
-    <define name="SequenceType">
-        <oneOrMore>
-            <ref name="NodeClauses"/>
-        </oneOrMore>
-        <zeroOrMore>
-            <ref name="Action"/>
-        </zeroOrMore>
-    </define>
     <define name="PostCondition">
         <choice>
             <notAllowed/>
@@ -582,6 +569,14 @@
                 <optional>
                     <ref name="ResourceList"/>
                 </optional>
+            </element>
+        </choice>
+    </define>
+    <define name="ParentFailed">
+        <choice>
+            <notAllowed/>
+            <element name="ParentFailed">
+                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
@@ -701,6 +696,14 @@
             </element>
         </choice>
     </define>
+    <define name="Skipped">
+        <choice>
+            <notAllowed/>
+            <element name="Skipped">
+                <ref name="node-reference"/>
+            </element>
+        </choice>
+    </define>
     <define name="Return">
         <choice>
             <notAllowed/>
@@ -718,14 +721,6 @@
                         <ref name="nonNegativeInteger"/>
                     </element>
                 </optional>
-            </element>
-        </choice>
-    </define>
-    <define name="PreconditionFailed">
-        <choice>
-            <notAllowed/>
-            <element name="PreconditionFailed">
-                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
@@ -749,12 +744,11 @@
             </element>
         </choice>
     </define>
-    <define name="MessageReceived">
+    <define name="PostconditionFailed">
         <choice>
             <notAllowed/>
-            <element name="MessageReceived">
-                <ref name="SourceLocators"/>
-                <ref name="StringExpression"/>
+            <element name="PostconditionFailed">
+                <ref name="node-reference"/>
             </element>
         </choice>
     </define>
@@ -788,10 +782,10 @@
             </element>
         </choice>
     </define>
-    <define name="InvariantFailed">
+    <define name="IterationFailed">
         <choice>
             <notAllowed/>
-            <element name="InvariantFailed">
+            <element name="IterationFailed">
                 <ref name="node-reference"/>
             </element>
         </choice>
@@ -832,10 +826,10 @@
             </element>
         </choice>
     </define>
-    <define name="Failed">
+    <define name="IterationSucceeded">
         <choice>
             <notAllowed/>
-            <element name="Failed">
+            <element name="IterationSucceeded">
                 <ref name="node-reference"/>
             </element>
         </choice>
@@ -1077,14 +1071,6 @@
             </element>
         </choice>
     </define>
-    <define name="Skipped">
-        <choice>
-            <notAllowed/>
-            <element name="Skipped">
-                <ref name="node-reference"/>
-            </element>
-        </choice>
-    </define>
     <define name="StringExpression">
         <choice>
             <ref name="StringVariable"/>
@@ -1092,6 +1078,41 @@
             <ref name="Concat"/>
             <ref name="LookupGroup"/>
             <ref name="ArrayElement"/>
+        </choice>
+    </define>
+    <define name="NodeClauses">
+        <choice>
+            <ref name="NodeId"/>
+            <empty/>
+            <choice>
+                <notAllowed/>
+                <element name="Comment">
+                    <ref name="string"/>
+                </element>
+            </choice>
+            <ref name="StartCondition"/>
+            <ref name="RepeatCondition"/>
+            <ref name="PreCondition"/>
+            <ref name="PostCondition"/>
+            <ref name="InvariantCondition"/>
+            <ref name="EndCondition"/>
+            <ref name="SkipCondition"/>
+            <choice>
+                <notAllowed/>
+                <element name="Priority">
+                    <ref name="nonNegativeInteger"/>
+                </element>
+            </choice>
+            <ref name="Interface"/>
+            <ref name="VariableDeclarations"/>
+        </choice>
+    </define>
+    <define name="Failed">
+        <choice>
+            <notAllowed/>
+            <element name="Failed">
+                <ref name="node-reference"/>
+            </element>
         </choice>
     </define>
     <define name="Executing">
@@ -1437,21 +1458,6 @@
             </element>
         </choice>
     </define>
-    <define name="Lookup">
-        <choice>
-            <notAllowed/>
-            <element name="Lookup">
-                <ref name="SourceLocators"/>
-                <ref name="Name"/>
-                <optional>
-                    <ref name="Tolerance"/>
-                </optional>
-                <optional>
-                    <ref name="Arguments"/>
-                </optional>
-            </element>
-        </choice>
-    </define>
     <define name="EQNumeric">
         <choice>
             <notAllowed/>
@@ -1536,10 +1542,10 @@
             </element>
         </choice>
     </define>
-    <define name="PostconditionFailed">
+    <define name="InvariantFailed">
         <choice>
             <notAllowed/>
-            <element name="PostconditionFailed">
+            <element name="InvariantFailed">
                 <ref name="node-reference"/>
             </element>
         </choice>
@@ -1656,7 +1662,9 @@
             <ref name="Waiting"/>
             <ref name="Inactive"/>
             <ref name="Succeeded"/>
+            <ref name="IterationSucceeded"/>
             <ref name="Failed"/>
+            <ref name="IterationFailed"/>
             <ref name="Skipped"/>
             <ref name="InvariantFailed"/>
             <ref name="PreconditionFailed"/>
@@ -1769,6 +1777,13 @@
             </element>
         </choice>
     </define>
+    <define name="node-reference">
+        <group>
+            <ref name="SourceLocators"/>
+            <ref name="NodeReference"/>
+        </group>
+        <empty/>
+    </define>
     <define name="BooleanVariable">
         <choice>
             <notAllowed/>
@@ -1776,10 +1791,6 @@
                 <ref name="NCName"/>
             </element>
         </choice>
-    </define>
-    <define name="node-reference">
-        <ref name="NodeReference"/>
-        <empty/>
     </define>
     <define name="RealVariable">
         <choice>
