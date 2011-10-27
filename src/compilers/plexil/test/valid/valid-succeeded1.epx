@@ -1,0 +1,13 @@
+<PlexilPlan LineNo="2" ColNo="2">
+    <Sequence LineNo="2" ColNo="2">
+        <NodeId>BLOCK__0</NodeId>
+        <PostCondition LineNo="2" ColNo="2">
+            <Succeeded LineNo="2" ColNo="7">
+                <NodeId>A</NodeId>
+            </Succeeded>
+        </PostCondition>
+        <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <NodeId>A</NodeId>
+        </Node>
+    </Sequence>
+</PlexilPlan>
