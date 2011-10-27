@@ -49,7 +49,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
 
 BROKEN       =  array-library-call
 
-INVALID_BUT_PASS  = on-message3
+ERROR_EXPECTED  = on-message3
 
 TESTS	         := $(SMALL_TESTS)
 #TESTS	         :=
