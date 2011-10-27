@@ -43,7 +43,8 @@ public class ConditionNode extends PlexilTreeNode
         ExpressionNode exp = (ExpressionNode) this.getChild(0);
         if (exp.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
             myState.addDiagnostic(exp,
-                                  this.getToken().getText() + " expression is not Boolean",
+                                  this.getToken().getText() + " expression type is "
+								  + exp.getDataType().typeName() + ", not Boolean",
                                   Severity.ERROR);
         }
     }

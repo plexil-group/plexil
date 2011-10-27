@@ -95,6 +95,30 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.START_CONDITION_KYWD:
             return new ConditionNode(payload);
 
+			// Node ref directions
+		case PlexilLexer.CHILD_KYWD:
+		case PlexilLexer.PARENT_KYWD:
+		case PlexilLexer.SELF_KYWD:
+		case PlexilLexer.SIBLING_KYWD:
+			return new NodeRefNode(payload);
+
+			// Node state predicates
+		case PlexilLexer.NODE_EXECUTING_KYWD:
+		case PlexilLexer.NODE_FAILED_KYWD:
+		case PlexilLexer.NODE_FINISHED_KYWD:
+		case PlexilLexer.NODE_INACTIVE_KYWD:
+		case PlexilLexer.NODE_INVARIANT_FAILED_KYWD:
+		case PlexilLexer.NODE_ITERATION_ENDED_KYWD:
+		case PlexilLexer.NODE_ITERATION_FAILED_KYWD:
+		case PlexilLexer.NODE_ITERATION_SUCCEEDED_KYWD:
+		case PlexilLexer.NODE_PARENT_FAILED_KYWD:
+		case PlexilLexer.NODE_POSTCONDITION_FAILED_KYWD:
+		case PlexilLexer.NODE_PRECONDITION_FAILED_KYWD:
+		case PlexilLexer.NODE_SKIPPED_KYWD:
+		case PlexilLexer.NODE_SUCCEEDED_KYWD:
+		case PlexilLexer.NODE_WAITING_KYWD:
+			return new NodeStatePredicateNode(payload);
+
             // Other syntactic features
         case PlexilLexer.ARGUMENT_LIST:
             return new ArgumentListNode(payload);

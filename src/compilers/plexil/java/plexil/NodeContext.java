@@ -45,9 +45,6 @@ public class NodeContext
     protected Map<String, PlexilTreeNode> m_childIds =
         new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
-    protected PlexilTreeNode m_resourcePriorityAST = null;
-    protected IXMLElement m_resourcePriorityXML = null;
-    protected Vector<PlexilTreeNode> m_resources = new Vector<PlexilTreeNode>();
     private static int s_generatedIdCount = 0;
 
     public NodeContext(NodeContext previous, String name)
@@ -163,40 +160,6 @@ public class NodeContext
     public String generateChildNodeName(String prefix)
     {
         return prefix +  "__" + s_generatedIdCount++;
-    }
-
-    //
-    // Resources and resource priority
-    //
-
-    public Vector<PlexilTreeNode> getResources()
-    {
-        return m_resources;
-    }
-
-    public void addResource(PlexilTreeNode resourceAST)
-    {
-        m_resources.add(resourceAST);
-    }
-
-    public PlexilTreeNode getResourcePriorityAST()
-    {
-        return m_resourcePriorityAST;
-    }
-
-    public void setResourcePriorityAST(PlexilTreeNode priority)
-    {
-        m_resourcePriorityAST = priority;
-    }
-
-    public IXMLElement getResourcePriorityXML()
-    {
-        return m_resourcePriorityXML;
-    }
-
-    public void setResourcePriorityXML(IXMLElement priority)
-    {
-        m_resourcePriorityXML = priority;
     }
 
     // This is for the library node case, for scalars
