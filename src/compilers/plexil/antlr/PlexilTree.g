@@ -341,14 +341,23 @@ arrayReference :
  ;
 
 internalVariableReference :
-    ( ^(COMMAND_HANDLE_KYWD nodeId=NCNAME) { /* check that node is a COMMAND node */ }
-    | ^(nodeStatePredicate nodeId=NCNAME) { /* check that node exists */ }
-    | ^(FAILURE_KYWD nodeId=NCNAME) { /* check that node exists */ }
-    | ^(OUTCOME_KYWD nodeId=NCNAME) { /* check that node exists */ }
-    | ^(STATE_KYWD nodeId=NCNAME) { /* check that node exists */ }
-    | ^(NODE_TIMEPOINT_VALUE nodeId=NCNAME nodeStateKywd timepoint) { /* check that node exists */ }
+    ( ^(COMMAND_HANDLE_KYWD nodeReference) { /* check that node is a COMMAND node */ }
+    | ^(nodeStatePredicate nodeReference) { /* check that node exists */ }
+    | ^(FAILURE_KYWD nodeReference) { /* check that node exists */ }
+    | ^(OUTCOME_KYWD nodeReference) { /* check that node exists */ }
+    | ^(STATE_KYWD nodeReference) { /* check that node exists */ }
+    | ^(NODE_TIMEPOINT_VALUE nodeReference nodeStateKywd timepoint) { /* check that node exists */ }
     )
  ;
+
+nodeReference :
+    SELF_KYWD
+  | PARENT_KYWD
+  | NCNAME
+  | ^(CHILD_KYWD NCNAME)
+  | ^(SIBLING_KYWD NCNAME)
+ ;
+  
 
 timepoint : START_KYWD | END_KYWD ;
 
