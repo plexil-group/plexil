@@ -81,7 +81,9 @@ that are translated into Core PLEXIL for execution.
         <xsd:element ref="Waiting"/>
         <xsd:element ref="Inactive"/>
         <xsd:element ref="Succeeded"/>
+        <xsd:element ref="IterationSucceeded"/>
         <xsd:element ref="Failed"/>
+		<xsd:element ref="IterationFailed"/>
         <xsd:element ref="Skipped"/>
         <xsd:element ref="InvariantFailed"/>
         <xsd:element ref="PreconditionFailed"/>
