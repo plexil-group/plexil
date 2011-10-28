@@ -49,7 +49,9 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
 
 BROKEN       =  array-library-call
 
-ERROR_EXPECTED  = on-message3
+SYNTAX_ERROR_TESTS   = array-library-call
+
+SEMANTIC_ERROR_TESTS = on-message3
 
 TESTS	         := $(SMALL_TESTS)
 #TESTS	         :=
@@ -68,19 +70,20 @@ all: setup valid-tests syntax-error-tests semantic-error-tests
 setup:
 	-$(RM) tempRegressionResults
 
-valid-tests: $(VALID_TEST_FILES) | output setup
+valid-tests: $(VALID_TEST_FILES) output | setup
+	@ failure=0 ; \
 	touch tempRegressionResults ; \
-	for tf in $(VALID_TEST_FILES) ; do \
-		echo $${tf} ; \
-		./validate $${tf} 2>> tempRegressionResults ; \
-		if [ $$? -ne 0 ] ; then failure=1 ; fi; \
+	echo '--- Begin valid-file tests ---' >> tempRegressionResults ; \
+	for f in $(VALID_TEST_FILES) ; do \
+		./validate $$f 2>> tempRegressionResults ; \
+		if [ $$? -ne 0 ] ; then failure=1 ; echo $$f: validation failed ; fi; \
 	done ; \
 	exit $${failure}
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$
 
-test:
+test: output
 	@ echo Translating Standard Plexil tests...
 	@ $(RM) -f output/*.epx
 	@ for i in $(TESTS); do \
@@ -108,9 +111,27 @@ passall:
 		./pass $$i ; \
 	  done
 
-syntax-error-tests:
+syntax-error-tests: output
+	@ syntactic_failure=0; \
+	touch tempRegressionResults ; \
+	echo '--- Begin syntax error tests ---' >> tempRegressionResults ; \
+	for f in $(SYNTAX_ERROR_TESTS) ; do \
+		echo $$f >> tempRegressionResults ; \
+		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
+		if [ $$? -eq 0 ] ; then syntactic_failure=1 ; echo $$f.ple: failed to detect expected syntax error ; fi ; \
+	done ; \
+	exit $${syntactic_failure}
 
-semantic-error-tests:
+semantic-error-tests: output
+	@ semantic_failure=0; \
+	touch tempRegressionResults ; \
+	echo '--- Begin semantic error tests ---' >> tempRegressionResults ; \
+	for f in $(SEMANTIC_ERROR_TESTS) ; do \
+		echo $$f >> tempRegressionResults ; \
+		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
+		if [ $$? -eq 0 ] ; then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
+	done ; \
+	exit $${semantic_failure}
 
 output:
 	-mkdir -p output
