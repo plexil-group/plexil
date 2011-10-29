@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,18 @@ public class CommandNode extends ExpressionNode
     {
         super(new CommonToken(ttype, "COMMAND"));
     }
+
+    public CommandNode(CommandNode n)
+    {
+        super(n);
+		m_commandDeclaration = n.m_commandDeclaration;
+		m_parameters = n.m_parameters;
+    }
+
+	public Tree dupNode()
+	{
+		return new CommandNode(this);
+	}
 
     // N.B. Only valid after earlyCheckSelf()
     public GlobalDeclaration getCommand()

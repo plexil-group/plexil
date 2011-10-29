@@ -1,0 +1,19 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Concurrence LineNo="1" ColNo="0">
+        <NodeId>Concurrence__0</NodeId>
+        <Node NodeType="Empty" LineNo="3" ColNo="7">
+            <NodeId>A</NodeId>
+            <RepeatCondition LineNo="3" ColNo="7">
+                <BooleanValue>true</BooleanValue>
+            </RepeatCondition>
+        </Node>
+        <Node NodeType="Empty" LineNo="4" ColNo="7">
+            <NodeId>B</NodeId>
+            <StartCondition LineNo="4" ColNo="7">
+                <IterationSucceeded LineNo="4" ColNo="13">
+                    <NodeId>A</NodeId>
+                </IterationSucceeded>
+            </StartCondition>
+        </Node>
+    </Concurrence>
+</PlexilPlan>

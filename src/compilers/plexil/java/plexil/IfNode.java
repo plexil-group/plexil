@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,165 +34,176 @@ import net.n3.nanoxml.*;
 
 public class IfNode extends PlexilTreeNode
 {
-	private Vector<NodeContext> m_bodyContexts = null;
+    private Vector<NodeContext> m_bodyContexts = null;
 
-	public IfNode(Token t)
+    public IfNode(Token t)
+    {
+        super(t);
+    }
+
+	public IfNode(IfNode n)
 	{
-		super(t);
+		super(n);
+		m_bodyContexts = n.m_bodyContexts;
 	}
 
-	//
-	// N.B. The extra complexity in the checking logic is to ensure each consequent body
-	// is contained in a separate name binding context from the if statement as a whole.
-	//
-
-	/**
-	 * @brief Prepare for the semantic check.
-	 */
-	public void earlyCheck(NodeContext parentContext, CompilerState state)
+	public Tree dupNode()
 	{
-		earlyCheckSelf(parentContext, state);
-		this.getChild(0).earlyCheck(parentContext, state); // test
-
-		// See if we have a node ID
-		String nodeId = null;
-		PlexilTreeNode parent = this.getParent();
-		if (parent != null && parent instanceof ActionNode) {
-			nodeId = ((ActionNode) parent).getNodeId();
-		}
-		else {
-			// should never happen
-			state.addDiagnostic(this,
-								"Internal error: IfNode instance has no parent ActionNode",
-								Severity.FATAL);
-		}
-
-		// Allocate context vector
-		int nContexts = (getChildCount() + 1) / 2;
-		m_bodyContexts = new Vector<NodeContext>(nContexts);
-
-		// Construct contexts for clauses
-		// FIXME: change suffixes to match generated code!
-		NodeContext tempCtxt = new NodeContext(parentContext, nodeId + "_THEN_CLAUSE");
-		m_bodyContexts.add(tempCtxt);
-		getChild(1).earlyCheck(tempCtxt, state); // then body
-
-		int nkids = this.getChildCount();
-		for (int i = 2; i < nkids; i += 2) {
-			if (nkids - i > 1) {
-				// Elseif test & clause
-				getChild(i).earlyCheck(parentContext, state); // elseif test
-				tempCtxt = new NodeContext(parentContext, nodeId + "_ELSEIF_CLAUSE_" + Integer.toString(i / 2));
-				m_bodyContexts.add(tempCtxt);
-				getChild(i + 1).earlyCheck(tempCtxt, state); // elseif body
-			}
-			else {
-				// Final else clause
-				tempCtxt = new NodeContext(parentContext, nodeId + "_ELSE_CLAUSE");
-				m_bodyContexts.add(tempCtxt);
-				getChild(i).earlyCheck(tempCtxt, state); // else body
-			}
-		}
+		return new IfNode(this);
 	}
 
-	/**
-	 * @brief Semantic check.
-	 * @note Uses separate contexts for then and else bodies.
-	 */
-	public void check(NodeContext parentContext, CompilerState myState)
-	{
-		checkSelf(parentContext, myState);
-		getChild(0).check(parentContext, myState); // test
-		getChild(1).check(m_bodyContexts.elementAt(0), myState); // then body
-		int nkids = getChildCount();
-		int ctxt = 1;
-		for (int i = 2; i < nkids; i += 2) {
-			if (nkids - i > 1) {
-				// Elseif test & clause
-				getChild(i).check(parentContext, myState); // elseif test
-				getChild(i + 1).check(m_bodyContexts.elementAt(ctxt), myState); // elseif body
-			}
-			else {
-				// Final else clause
-				getChild(i).check(m_bodyContexts.elementAt(ctxt), myState); // else body
-			}
-			ctxt++;
-		}
-	}
+    //
+    // N.B. The extra complexity in the checking logic is to ensure each consequent body
+    // is contained in a separate name binding context from the if statement as a whole.
+    //
 
-	public void checkSelf(NodeContext context, CompilerState myState)
-	{
-		// Assert Boolean type on tests
-		if (!((ExpressionNode) getChild(0)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
-			myState.addDiagnostic(getChild(0),
-								  "If test expression is not Boolean",
-								  Severity.ERROR);
-		}
-		// Type check remaining tests
-		int nkids = getChildCount();
-		for (int i = 2; i < nkids; i += 2) {
-			if (nkids - i > 1) {
-				// Elseif test & clause
-				if (!((ExpressionNode)getChild(i)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
-					myState.addDiagnostic(getChild(i),
-										  "ElseIf test expression is not Boolean",
-										  Severity.ERROR);
-				}
-				else {
-					// final else clause
-				}
-			}
-		}
-	}
+    /**
+     * @brief Prepare for the semantic check.
+     */
+    public void earlyCheck(NodeContext parentContext, CompilerState state)
+    {
+        earlyCheckSelf(parentContext, state);
+        this.getChild(0).earlyCheck(parentContext, state); // test
 
-	protected void constructXML()
-	{
-		super.constructXML(); // constructs "If" element
+        // See if we have a node ID
+        String nodeId = null;
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null && parent instanceof ActionNode) {
+            nodeId = ((ActionNode) parent).getNodeId();
+        }
+        else {
+            // should never happen
+            state.addDiagnostic(this,
+                                "Internal error: IfNode instance has no parent ActionNode",
+                                Severity.FATAL);
+        }
 
-		// Insert if-condition
-		IXMLElement condition = new XMLElement("Condition");
-		condition.addChild(getChild(0).getXML());
-		m_xml.addChild(condition);
+        // Allocate context vector
+        int nContexts = (getChildCount() + 1) / 2;
+        m_bodyContexts = new Vector<NodeContext>(nContexts);
 
-		// Insert then clause
-		IXMLElement consequent = new XMLElement("Then");
-		consequent.addChild(getChild(1).getXML());
-		m_xml.addChild(consequent);
+        // Construct contexts for clauses
+        // FIXME: change suffixes to match generated code!
+        NodeContext tempCtxt = new NodeContext(parentContext, nodeId + "_THEN_CLAUSE");
+        m_bodyContexts.add(tempCtxt);
+        getChild(1).earlyCheck(tempCtxt, state); // then body
 
-		IXMLElement parent = m_xml;
-		int nkids = getChildCount();
-		for (int i = 2; i < nkids; i += 2) {
-			// Generate an Else
-			IXMLElement elseClause = new XMLElement("Else");
-			parent.addChild(elseClause);
+        int nkids = this.getChildCount();
+        for (int i = 2; i < nkids; i += 2) {
+            if (nkids - i > 1) {
+                // Elseif test & clause
+                getChild(i).earlyCheck(parentContext, state); // elseif test
+                tempCtxt = new NodeContext(parentContext, nodeId + "_ELSEIF_CLAUSE_" + Integer.toString(i / 2));
+                m_bodyContexts.add(tempCtxt);
+                getChild(i + 1).earlyCheck(tempCtxt, state); // elseif body
+            }
+            else {
+                // Final else clause
+                tempCtxt = new NodeContext(parentContext, nodeId + "_ELSE_CLAUSE");
+                m_bodyContexts.add(tempCtxt);
+                getChild(i).earlyCheck(tempCtxt, state); // else body
+            }
+        }
+    }
 
-			// Handle ElseIf
-			if (nkids - i > 1) {
-				// Elseif test & clause
-				// Construct new IF
-				IXMLElement elseifNode = new XMLElement("If");
-				elseClause.addChild(elseifNode);
+    /**
+     * @brief Semantic check.
+     * @note Uses separate contexts for then and else bodies.
+     */
+    public void check(NodeContext parentContext, CompilerState myState)
+    {
+        checkSelf(parentContext, myState);
+        getChild(0).check(parentContext, myState); // test
+        getChild(1).check(m_bodyContexts.elementAt(0), myState); // then body
+        int nkids = getChildCount();
+        int ctxt = 1;
+        for (int i = 2; i < nkids; i += 2) {
+            if (nkids - i > 1) {
+                // Elseif test & clause
+                getChild(i).check(parentContext, myState); // elseif test
+                getChild(i + 1).check(m_bodyContexts.elementAt(ctxt), myState); // elseif body
+            }
+            else {
+                // Final else clause
+                getChild(i).check(m_bodyContexts.elementAt(ctxt), myState); // else body
+            }
+            ctxt++;
+        }
+    }
 
-				// Insert elseif-condition
-				condition = new XMLElement("Condition");
-				condition.addChild(getChild(i).getXML());
-				elseifNode.addChild(condition);
+    public void checkSelf(NodeContext context, CompilerState myState)
+    {
+        // Assert Boolean type on tests
+        if (!((ExpressionNode) getChild(0)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
+            myState.addDiagnostic(getChild(0),
+                                  "If test expression is not Boolean",
+                                  Severity.ERROR);
+        }
+        // Type check remaining tests
+        int nkids = getChildCount();
+        for (int i = 2; i < nkids; i += 2) {
+            if (nkids - i > 1) {
+                // Elseif test & clause
+                if (!((ExpressionNode)getChild(i)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
+                    myState.addDiagnostic(getChild(i),
+                                          "ElseIf test expression is not Boolean",
+                                          Severity.ERROR);
+                }
+                else {
+                    // final else clause
+                }
+            }
+        }
+    }
 
-				// Insert then clause
-				consequent = new XMLElement("Then");
-				consequent.addChild(getChild(i + 1).getXML());
-				elseifNode.addChild(consequent);
+    protected void constructXML()
+    {
+        super.constructXML(); // constructs "If" element
 
-				// prepare for next iteration
-				parent = elseifNode;
-			}
-			// Handle final else, if any
-			else {
-				elseClause.addChild(getChild(i).getXML());
-			}
-		}
-	}
+        // Insert if-condition
+        IXMLElement condition = new XMLElement("Condition");
+        condition.addChild(getChild(0).getXML());
+        m_xml.addChild(condition);
 
-	protected String getXMLElementName() { return "If"; }
+        // Insert then clause
+        IXMLElement consequent = new XMLElement("Then");
+        consequent.addChild(getChild(1).getXML());
+        m_xml.addChild(consequent);
+
+        IXMLElement parent = m_xml;
+        int nkids = getChildCount();
+        for (int i = 2; i < nkids; i += 2) {
+            // Generate an Else
+            IXMLElement elseClause = new XMLElement("Else");
+            parent.addChild(elseClause);
+
+            // Handle ElseIf
+            if (nkids - i > 1) {
+                // Elseif test & clause
+                // Construct new IF
+                IXMLElement elseifNode = new XMLElement("If");
+                elseClause.addChild(elseifNode);
+
+                // Insert elseif-condition
+                condition = new XMLElement("Condition");
+                condition.addChild(getChild(i).getXML());
+                elseifNode.addChild(condition);
+
+                // Insert then clause
+                consequent = new XMLElement("Then");
+                consequent.addChild(getChild(i + 1).getXML());
+                elseifNode.addChild(consequent);
+
+                // prepare for next iteration
+                parent = elseifNode;
+            }
+            // Handle final else, if any
+            else {
+                elseClause.addChild(getChild(i).getXML());
+            }
+        }
+    }
+
+    protected String getXMLElementName() { return "If"; }
 
 }

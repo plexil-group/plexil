@@ -1,0 +1,101 @@
+<PlexilPlan LineNo="1" ColNo="8">
+    <GlobalDeclarations LineNo="1" ColNo="8">
+        <StateDeclaration LineNo="1" ColNo="8">
+            <Name>At</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Boolean</Type>
+            </Return>
+            <Parameter>
+                <Type>String</Type>
+            </Parameter>
+        </StateDeclaration>
+        <CommandDeclaration LineNo="2" ColNo="0">
+            <Name>drive</Name>
+            <Parameter>
+                <Type>Real</Type>
+            </Parameter>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="3" ColNo="0">
+            <Name>takeSample</Name>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Sequence LineNo="7" ColNo="2">
+        <NodeId>SimpleDrive</NodeId>
+        <PostCondition LineNo="7" ColNo="2">
+            <EQInternal LineNo="7" ColNo="35">
+                <NodeOutcomeVariable>
+                    <NodeId>TakeSample</NodeId>
+                </NodeOutcomeVariable>
+                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+        </PostCondition>
+        <Node LineNo="12" ColNo="4" NodeType="Command">
+            <NodeId>Drive</NodeId>
+            <PreCondition LineNo="9" ColNo="4">
+                <NOT LineNo="9" ColNo="17">
+                    <Lookup LineNo="9" ColNo="21">
+                        <Name>
+                            <StringValue>At</StringValue>
+                        </Name>
+                        <Arguments LineNo="9" ColNo="31">
+                            <StringValue>Rock</StringValue>
+                        </Arguments>
+                    </Lookup>
+                </NOT>
+            </PreCondition>
+            <RepeatCondition LineNo="10" ColNo="4">
+                <NOT LineNo="10" ColNo="20">
+                    <Lookup LineNo="10" ColNo="24">
+                        <Name>
+                            <StringValue>At</StringValue>
+                        </Name>
+                        <Arguments LineNo="10" ColNo="34">
+                            <StringValue>Rock</StringValue>
+                        </Arguments>
+                    </Lookup>
+                </NOT>
+            </RepeatCondition>
+            <EndCondition LineNo="11" ColNo="4">
+                <Lookup LineNo="11" ColNo="17">
+                    <Name>
+                        <StringValue>At</StringValue>
+                    </Name>
+                    <Arguments LineNo="11" ColNo="27">
+                        <StringValue>Rock</StringValue>
+                    </Arguments>
+                </Lookup>
+            </EndCondition>
+            <NodeBody>
+                <Command>
+                    <Name>
+                        <StringValue>drive</StringValue>
+                    </Name>
+                    <Arguments LineNo="12" ColNo="10">
+                        <RealValue>1.0</RealValue>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+        <Node LineNo="16" ColNo="4" NodeType="Command">
+            <NodeId>TakeSample</NodeId>
+            <InvariantCondition LineNo="15" ColNo="4">
+                <Lookup LineNo="15" ColNo="23">
+                    <Name>
+                        <StringValue>At</StringValue>
+                    </Name>
+                    <Arguments LineNo="15" ColNo="33">
+                        <StringValue>Rock</StringValue>
+                    </Arguments>
+                </Lookup>
+            </InvariantCondition>
+            <NodeBody>
+                <Command>
+                    <Name>
+                        <StringValue>takeSample</StringValue>
+                    </Name>
+                </Command>
+            </NodeBody>
+        </Node>
+    </Sequence>
+</PlexilPlan>

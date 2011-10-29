@@ -1,0 +1,110 @@
+<PlexilPlan LineNo="1" ColNo="8">
+    <GlobalDeclarations LineNo="1" ColNo="8">
+        <CommandDeclaration LineNo="1" ColNo="8">
+            <Name>DoIt</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Boolean</Type>
+            </Return>
+            <Parameter>
+                <Type>Integer</Type>
+            </Parameter>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="2" ColNo="8">
+            <Name>GetX</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Integer</Type>
+            </Return>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="3" ColNo="0">
+            <Name>inform</Name>
+            <Parameter>
+                <Type>String</Type>
+            </Parameter>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Concurrence LineNo="5" ColNo="6">
+        <NodeId>Root</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="7" ColNo="2">
+                <Name>x</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <Node LineNo="10" ColNo="4" NodeType="Command">
+            <NodeId>Inform</NodeId>
+            <NodeBody>
+                <Command>
+                    <Name>
+                        <StringValue>inform</StringValue>
+                    </Name>
+                    <Arguments LineNo="10" ColNo="11">
+                        <StringValue>Plan executing...</StringValue>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+        <Node LineNo="15" ColNo="8" NodeType="Command">
+            <NodeId>Init</NodeId>
+            <NodeBody>
+                <Command>
+                    <IntegerVariable>x</IntegerVariable>
+                    <Name>
+                        <StringValue>GetX</StringValue>
+                    </Name>
+                </Command>
+            </NodeBody>
+        </Node>
+        <Sequence LineNo="20" ColNo="4">
+            <NodeId>Commence</NodeId>
+            <VariableDeclarations>
+                <DeclareVariable LineNo="20" ColNo="4">
+                    <Name>result</Name>
+                    <Type>Boolean</Type>
+                </DeclareVariable>
+            </VariableDeclarations>
+            <PostCondition LineNo="23" ColNo="4">
+                <BooleanVariable>result</BooleanVariable>
+            </PostCondition>
+            <SynchronousCommand LineNo="24" ColNo="4">
+                <NodeId>SynchronousCommand__2</NodeId>
+                <Command>
+                    <BooleanVariable>result</BooleanVariable>
+                    <Name>
+                        <StringValue>DoIt</StringValue>
+                    </Name>
+                    <Arguments LineNo="24" ColNo="37">
+                        <IntegerVariable>x</IntegerVariable>
+                    </Arguments>
+                </Command>
+            </SynchronousCommand>
+        </Sequence>
+        <Node LineNo="30" ColNo="4" NodeType="Command">
+            <NodeId>InformSuccess</NodeId>
+            <NodeBody>
+                <Command>
+                    <Name>
+                        <StringValue>inform</StringValue>
+                    </Name>
+                    <Arguments LineNo="30" ColNo="11">
+                        <StringValue>Operation succeeded!</StringValue>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+        <Node LineNo="36" ColNo="4" NodeType="Command">
+            <NodeId>InformFailure</NodeId>
+            <NodeBody>
+                <Command>
+                    <Name>
+                        <StringValue>inform</StringValue>
+                    </Name>
+                    <Arguments LineNo="36" ColNo="11">
+                        <StringValue>Operation failed!</StringValue>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+    </Concurrence>
+</PlexilPlan>

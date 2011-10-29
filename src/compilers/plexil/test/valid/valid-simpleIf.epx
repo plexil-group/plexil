@@ -1,0 +1,25 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <GlobalDeclarations LineNo="1" ColNo="0">
+        <CommandDeclaration LineNo="1" ColNo="0">
+            <Name>foo</Name>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <If LineNo="4" ColNo="0">
+        <NodeId>simpleIf</NodeId>
+        <Condition>
+            <BooleanValue>true</BooleanValue>
+        </Condition>
+        <Then>
+            <Node LineNo="4" ColNo="8" NodeType="Command">
+                <NodeId>COMMAND__0</NodeId>
+                <NodeBody>
+                    <Command>
+                        <Name>
+                            <StringValue>foo</StringValue>
+                        </Name>
+                    </Command>
+                </NodeBody>
+            </Node>
+        </Then>
+    </If>
+</PlexilPlan>

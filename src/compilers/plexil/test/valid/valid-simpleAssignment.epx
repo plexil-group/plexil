@@ -1,0 +1,19 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Node LineNo="4" ColNo="2" NodeType="Assignment">
+        <NodeId>simpleAssignment</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="3" ColNo="2">
+                <Name>i</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <NodeBody>
+            <Assignment>
+                <IntegerVariable>i</IntegerVariable>
+                <NumericRHS>
+                    <IntegerValue>2</IntegerValue>
+                </NumericRHS>
+            </Assignment>
+        </NodeBody>
+    </Node>
+</PlexilPlan>

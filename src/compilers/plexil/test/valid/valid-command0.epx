@@ -1,0 +1,17 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <GlobalDeclarations LineNo="1" ColNo="0">
+        <CommandDeclaration LineNo="1" ColNo="0">
+            <Name>stop</Name>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Node LineNo="3" ColNo="2" NodeType="Command">
+        <NodeId>BLOCK__0</NodeId>
+        <NodeBody>
+            <Command>
+                <Name>
+                    <StringValue>stop</StringValue>
+                </Name>
+            </Command>
+        </NodeBody>
+    </Node>
+</PlexilPlan>

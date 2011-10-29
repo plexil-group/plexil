@@ -1,0 +1,17 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Concurrence LineNo="1" ColNo="6">
+        <NodeId>Root</NodeId>
+        <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <NodeId>One</NodeId>
+        </Node>
+        <Concurrence LineNo="4" ColNo="7">
+            <NodeId>Two</NodeId>
+            <Concurrence LineNo="6" ColNo="9">
+                <NodeId>One</NodeId>
+                <Node NodeType="Empty" LineNo="0" ColNo="0">
+                    <NodeId>Two</NodeId>
+                </Node>
+            </Concurrence>
+        </Concurrence>
+    </Concurrence>
+</PlexilPlan>

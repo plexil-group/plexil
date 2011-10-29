@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,8 @@
 
 package plexil;
 
+import java.util.Vector;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
@@ -32,33 +34,149 @@ import net.n3.nanoxml.*;
 
 public class OnCommandNode extends PlexilTreeNode
 {
-	public OnCommandNode(Token t)
+    // Name binding context
+	NodeContext m_context = null;
+
+    public OnCommandNode(Token t)
+    {
+        super(t);
+    }
+
+    public OnCommandNode(OnCommandNode n)
+    {
+        super(n);
+		m_context = n.m_context;
+    }
+
+	public Tree dupNode()
 	{
-		super(t);
+		return new OnCommandNode(this);
 	}
 
-	public void checkSelf(NodeContext context, CompilerState state)
+    /**
+     * @brief Get the containing name binding context for this branch of the parse tree.
+     * @return A NodeContext instance, or the global context.
+     */
+    public NodeContext getContext()
+    {
+        return m_context;
+    }
+
+	// structure is:
+	// ^(ON_COMMAND_KYWD expression paramsSpec? action)
+
+	public void earlyCheck(NodeContext parentContext, CompilerState state)
 	{
-		ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
-		if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
-			state.addDiagnostic(nameExp,
+		// Check command name expression
+		getChild(0).earlyCheck(parentContext, state);
+
+        // get node ID
+        String nodeId = null;
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null && parent instanceof ActionNode) {
+            nodeId = ((ActionNode) parent).getNodeId();
+        }
+        else {
+            // should never happen
+            state.addDiagnostic(this,
+                                "Internal error: OnCommandNode instance has no parent ActionNode",
+                                Severity.FATAL);
+        }
+
+		// Construct a context
+		// Generated context name includes the command name
+		m_context = new NodeContext(parentContext, nodeId + "_ON_COMMAND");
+
+        // Parse parameter list, if supplied
+        ParameterSpecNode parmAST = getParameters();
+        if (parmAST != null) {
+            parmAST.earlyCheck(m_context, state); // for effect
+            Vector<VariableName> parmSpecs = parmAST.getParameterVector();
+            if (parmSpecs != null) {
+                for (VariableName vn : parmSpecs) {
+					// Check that it is not an interface variable
+					if (!vn.isLocal()) {
+						state.addDiagnostic(vn.getDeclaration(),
+											"Parameter \"" + vn.getName() + "\" to OnCommand was declared " +
+											(vn.isAssignable() ? "InOut" : "In"),
+											Severity.ERROR);
+					}
+					// add to context
+					// TODO: added checks (e.g. duplicate names)?
+					m_context.addVariable(vn);
+				}
+			}
+		}
+
+		// Check body with parameter variables defined
+		getBody().earlyCheck(m_context, state);
+	}
+
+	public void check(NodeContext parentContext, CompilerState state)
+	{
+		checkSelf(parentContext, state);
+		getChild(0).check(parentContext, state); // name expression
+		// Check parameter list
+		ParameterSpecNode specs = getParameters();
+		if (specs != null)
+			specs.check(parentContext, state);
+		getBody().check(m_context, state);
+	}
+
+    public void checkSelf(NodeContext context, CompilerState state)
+    {
+		// Coerce name expression to string
+        ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
+        if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
+            state.addDiagnostic(nameExp,
 								"The name expression to the " + this.getToken().getText()
 								+ " statement was not a string expression",
 								Severity.ERROR);
 		}
-	}
+    }
 
-	public void constructXML()
+    public void constructXML()
+    {
+        super.constructXML();
+
+        // Construct the name element, but don't output it yet.
+        IXMLElement name = new XMLElement ("Name");
+		name.addChild(this.getChild(0).getXML());
+
+        // Second child: parameters (optional), or action
+        ParameterSpecNode parms = getParameters();
+		Vector<VariableName> parmSpecs = null;
+        if (parms == null
+			|| (parmSpecs = parms.getParameterVector()) == null) {
+			// No parameter declarations
+            m_xml.addChild(name);
+            m_xml.addChild(getBody().getXML());
+        } 
+		else {
+            // Parameters are output first, followed by name
+			IXMLElement decls = new XMLElement("VariableDeclarations");
+			for (VariableName vn : parmSpecs) {
+				decls.addChild(vn.makeDeclarationXML());
+			}
+            m_xml.addChild(decls);
+            m_xml.addChild(name);
+            m_xml.addChild(getBody().getXML());
+        }
+    }
+
+    protected ParameterSpecNode getParameters()
+    {
+        if (this.getChild(1).getType() != PlexilLexer.PARAMETERS)
+            return null;
+        return (ParameterSpecNode) this.getChild(1);
+    }
+
+	protected PlexilTreeNode getBody()
 	{
-		super.constructXML();
-		IXMLElement nameXML = new XMLElement();
-		if (this.getType() == PlexilLexer.ON_COMMAND_KYWD)
-			nameXML.setName("Name");
-		else
-			nameXML.setName("Message");
-		m_xml.addChild(nameXML);
-		nameXML.addChild(this.getChild(0).getXML());
-		m_xml.addChild(this.getChild(1).getXML());
+		if (this.getChild(1).getType() == PlexilLexer.PARAMETERS)
+			return (PlexilTreeNode) this.getChild(2);
+		return (PlexilTreeNode) this.getChild(1);
 	}
 
 }
+

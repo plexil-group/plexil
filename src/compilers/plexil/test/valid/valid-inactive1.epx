@@ -1,0 +1,16 @@
+<PlexilPlan LineNo="2" ColNo="2">
+    <Sequence LineNo="2" ColNo="2">
+        <NodeId>BLOCK__0</NodeId>
+        <Node NodeType="Empty" LineNo="2" ColNo="7">
+            <NodeId>A</NodeId>
+            <StartCondition LineNo="2" ColNo="7">
+                <Inactive LineNo="2" ColNo="13">
+                    <NodeId>B</NodeId>
+                </Inactive>
+            </StartCondition>
+        </Node>
+        <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <NodeId>B</NodeId>
+        </Node>
+    </Sequence>
+</PlexilPlan>

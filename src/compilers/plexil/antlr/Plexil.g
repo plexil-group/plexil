@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,6 @@ RETURNS_KYWD = 'Returns';
 
 // Resources
 RESOURCE_KYWD = 'Resource';
-RESOURCE_PRIORITY_KYWD = 'ResourcePriority';
 NAME_KYWD = 'Name';
 UPPER_BOUND_KYWD = 'UpperBound';
 LOWER_BOUND_KYWD = 'LowerBound';
@@ -79,11 +78,13 @@ REQUEST_KYWD = 'Request';
 LIBRARY_CALL_KYWD = 'LibraryCall';
 LIBRARY_ACTION_KYWD = 'LibraryAction';
 
+// node variables
 STATE_KYWD = 'state';
 OUTCOME_KYWD = 'outcome';
 COMMAND_HANDLE_KYWD = 'command_handle';
 FAILURE_KYWD = 'failure';
 
+// node states
 WAITING_STATE_KYWD = 'WAITING';
 EXECUTING_STATE_KYWD = 'EXECUTING';
 FINISHING_STATE_KYWD = 'FINISHING';
@@ -134,6 +135,12 @@ IS_KNOWN_KYWD = 'isKnown';
 SQRT_KYWD = 'sqrt';
 MOD_KYWD = 'mod';
 
+// NodeRef directions
+CHILD_KYWD = 'Child';
+PARENT_KYWD = 'Parent';
+SELF_KYWD = 'Self';
+SIBLING_KYWD = 'Sibling';
+
 // Node state predicates (Extended Plexil)
 NODE_EXECUTING_KYWD = 'NodeExecuting';
 NODE_FAILED_KYWD = 'NodeFailed';
@@ -158,6 +165,7 @@ SYNCHRONOUS_COMMAND_KYWD = 'SynchronousCommand';
 TIMEOUT_KYWD = 'Timeout';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
+SEQUENCE_KYWD = 'Sequence';
 WAIT_KYWD = 'Wait';
 
 ELSE_KYWD = 'else';
@@ -382,12 +390,21 @@ libraryActionDeclaration
     LIBRARY_ACTION_KYWD^ NCNAME libraryInterfaceSpec? SEMICOLON!
 ;
 
-libraryInterfaceSpec :
+libraryInterfaceSpec
+@init { m_paraphrases.push("in library action interface declaration"); }
+@after { m_paraphrases.pop(); }
+ :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
     -> ^(PARAMETERS libraryParamSpec+)
  ;
 
-libraryParamSpec : ( IN_KYWD^ | IN_OUT_KYWD^ ) baseTypeName NCNAME ;
+libraryParamSpec :
+ ( IN_KYWD^ | IN_OUT_KYWD^ )
+ baseTypeName
+ ( (NCNAME LBRACKET) => NCNAME LBRACKET! INT RBRACKET! 
+ | NCNAME
+ )
+ ;
 
 //
 // Actions
@@ -445,14 +462,14 @@ onCommandAction
 @init { m_paraphrases.push("in \"OnCommand\" statement"); }
 @after { m_paraphrases.pop(); }
  : 
-    ON_COMMAND_KYWD^ expression action
+    ON_COMMAND_KYWD^ expression paramsSpec? action
  ;
 
 onMessageAction
 @init { m_paraphrases.push("in \"OnMessage\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-    ON_MESSAGE_KYWD^ expression action
+    ON_MESSAGE_KYWD<OnMessageNode>^ expression action
  ;
 
 whileAction
@@ -498,6 +515,7 @@ block
 
 sequenceVariantKywd : 
     CONCURRENCE_KYWD
+  | SEQUENCE_KYWD
   | UNCHECKED_SEQUENCE_KYWD
   | TRY_KYWD
  ;
@@ -512,7 +530,6 @@ nodeAttribute :
     nodeCondition
   | priority
   | resource
-  | resourcePriority
   | permissions ;
 
 nodeCondition
@@ -542,19 +559,14 @@ resource
   		  | RELEASE_AT_TERM_KYWD EQUALS! expression
  		  | PRIORITY_KYWD EQUALS! pe=expression
           )
-        )+
+        )*
         SEMICOLON!
  ;
-
-resourcePriority
-@init { m_paraphrases.push("in resource priority"); }
-@after { m_paraphrases.pop(); }
- : RESOURCE_PRIORITY_KYWD^ expression SEMICOLON! ;
 
 priority
 @init { m_paraphrases.push("in priority"); }
 @after { m_paraphrases.pop(); }
- : PRIORITY_KYWD^ INT SEMICOLON! ;
+ : PRIORITY_KYWD<PriorityNode>^ INT SEMICOLON! ;
 
 permissions
 @init { m_paraphrases.push("in permissions"); }
@@ -868,6 +880,7 @@ multOp :
     ASTERISK
   | SLASH
   | PERCENT
+  | MOD_KYWD
  ;
 
 // 14 casts - not in the Plexil language
@@ -901,13 +914,20 @@ quantity :
   | lookupExpr
   | messageReceivedExp
   | nodeStatePredicateExp
-  | (NCNAME PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
-  | (NCNAME PERIOD FAILURE_KYWD) => nodeFailureVariable
-  | (NCNAME PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
-  | (NCNAME PERIOD STATE_KYWD) => nodeStateVariable
-  | (NCNAME PERIOD nodeStateKywd) => nodeTimepointValue
+  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
+  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD FAILURE_KYWD) => nodeFailureVariable
+  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
+  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD STATE_KYWD) => nodeStateVariable
+  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD nodeStateKywd) => nodeTimepointValue
   | (NCNAME LBRACKET) => arrayReference
   | variable
+// These are for the nodeRef variants
+  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
+  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD FAILURE_KYWD) => nodeFailureVariable
+  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
+  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD STATE_KYWD) => nodeStateVariable
+  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD nodeStateKywd) => nodeTimepointValue
+  | arrayReference
   | literalValue
   | nodeCommandHandleKywd
   | nodeFailureKywd
@@ -922,17 +942,7 @@ oneArgFn :
  ;
 
 isKnownExp :
-   IS_KNOWN_KYWD^ 
-   LPAREN!
-   ( 
-     (NCNAME PERIOD STATE_KYWD) => nodeStateVariable
-   | (NCNAME PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
-   | (NCNAME PERIOD FAILURE_KYWD) => nodeFailureVariable
-   | (NCNAME PERIOD nodeStateKywd) => nodeTimepointValue
-   | (NCNAME LBRACKET) => arrayReference
-   | variable
-   )
-   RPAREN! ;
+   IS_KNOWN_KYWD<IsKnownNode>^ LPAREN! quantity RPAREN! ;
 
 nodeStatePredicate :
     NODE_EXECUTING_KYWD
@@ -951,7 +961,7 @@ nodeStatePredicate :
   | NODE_WAITING_KYWD
  ;
 
-nodeStatePredicateExp : nodeStatePredicate^ LPAREN! NCNAME RPAREN! ;
+nodeStatePredicateExp : nodeStatePredicate^ LPAREN! nodeReference RPAREN! ;
 
 nodeStateKywd : 
      EXECUTING_STATE_KYWD
@@ -967,15 +977,13 @@ messageReceivedExp :
   MESSAGE_RECEIVED_KYWD^ LPAREN! STRING RPAREN!
  ;
 
-// *** Want nodeStateKywd to turn into a LiteralNode but can't figure out how
 nodeState : nodeStateVariable | nodeStateKywd ;
 
-nodeStateVariable : NCNAME PERIOD! STATE_KYWD^ ;
+nodeStateVariable : nodeReference PERIOD! STATE_KYWD<NodeVariableNode>^ ;
 
-// *** Want nodeOutcomeKywd to turn into a LiteralNode but can't figure out how
 nodeOutcome : nodeOutcomeVariable | nodeOutcomeKywd ;
 
-nodeOutcomeVariable : NCNAME PERIOD! OUTCOME_KYWD^ ;
+nodeOutcomeVariable : nodeReference PERIOD! OUTCOME_KYWD<NodeVariableNode>^ ;
 
 nodeOutcomeKywd :
     SUCCESS_OUTCOME_KYWD
@@ -983,10 +991,9 @@ nodeOutcomeKywd :
   | SKIPPED_OUTCOME_KYWD
 ;
 
-// *** Want nodeCommandHandleKywd to turn into a LiteralNode but can't figure out how
 nodeCommandHandle : nodeCommandHandleVariable | nodeCommandHandleKywd ;
 
-nodeCommandHandleVariable : NCNAME PERIOD! COMMAND_HANDLE_KYWD^ ;
+nodeCommandHandleVariable : nodeReference PERIOD! COMMAND_HANDLE_KYWD<NodeVariableNode>^ ;
 
 nodeCommandHandleKywd :
     COMMAND_ABORTED_KYWD
@@ -999,10 +1006,9 @@ nodeCommandHandleKywd :
   | COMMAND_SUCCESS_KYWD
  ;
 
-// *** Want nodeFailureKywd to turn into a LiteralNode but can't figure out how
 nodeFailure : nodeFailureVariable | nodeFailureKywd ;
 
-nodeFailureVariable : NCNAME PERIOD! FAILURE_KYWD^ ;
+nodeFailureVariable : nodeReference PERIOD! FAILURE_KYWD<NodeVariableNode>^ ;
 
 nodeFailureKywd :
     PRE_CONDITION_FAILED_KYWD
@@ -1012,11 +1018,23 @@ nodeFailureKywd :
  ;
 
 nodeTimepointValue :
-   NCNAME PERIOD nodeStateKywd PERIOD timepoint
-   -> ^(NODE_TIMEPOINT_VALUE NCNAME nodeStateKywd timepoint)
+   nodeReference PERIOD nodeStateKywd PERIOD timepoint
+   -> ^(NODE_TIMEPOINT_VALUE nodeReference nodeStateKywd timepoint)
  ;
 
 timepoint : START_KYWD | END_KYWD ;
+
+nodeReference : 
+    nodeId
+  | CHILD_KYWD^ LPAREN! NCNAME RPAREN!
+  | SIBLING_KYWD^ LPAREN! NCNAME RPAREN!
+ ;
+
+nodeId : 
+    SELF_KYWD
+  | PARENT_KYWD
+  | NCNAME 
+ ;
 
 //
 // Lookups
@@ -1181,7 +1199,16 @@ INT_OR_DOUBLE
 // *** ensure this does not conflict with keywords! ***
 
 NCNAME :
-    (Letter|'_') (Letter|Digit|PERIOD|MINUS|'_')*
+
+// *** KMD: disallowing dots for now, as this breaks a number of rules above.
+// Figure out a way to support them again.  Consider these cases:
+//   foo.bar
+//   foo.start
+//   foo.bar.start
+//   foo.start.start
+//   start
+//  (Letter|'_') (Letter|Digit|PERIOD|MINUS|'_')*
+  (Letter|'_') (Letter|Digit|MINUS|'_')*
   ;
 
 fragment Letter : 'a'..'z'|'A'..'Z' ;

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,27 +32,37 @@ import net.n3.nanoxml.*;
 
 public class GlobalDeclarationsNode extends PlexilTreeNode
 {
-	public GlobalDeclarationsNode(int ttype)
+    public GlobalDeclarationsNode(int ttype)
+    {
+        super(new CommonToken(ttype, "GLOBAL_DECLARATIONS"));
+    }
+
+	public GlobalDeclarationsNode(GlobalDeclarationsNode n)
 	{
-		super(new CommonToken(ttype, "GLOBAL_DECLARATIONS"));
+		super(n);
 	}
 
-	public void constructXML()
+	public Tree dupNode()
 	{
-		super.constructXML();
-		for (int i = 0; i < this.getChildCount(); i++) {
-			m_xml.addChild(this.getChild(i).getXML());
-		}
-
-		// set source locator to location of 1st child
-		IXMLElement firstChild = m_xml.getChildAtIndex(0);
-		if (firstChild != null) {
-			m_xml.setAttribute("LineNo", firstChild.getAttribute("LineNo", null));
-			m_xml.setAttribute("ColNo", firstChild.getAttribute("ColNo", null));
-		}
-
+		return new GlobalDeclarationsNode(this);
 	}
+
+    public void constructXML()
+    {
+        super.constructXML();
+        for (int i = 0; i < this.getChildCount(); i++) {
+            m_xml.addChild(this.getChild(i).getXML());
+        }
+
+        // set source locator to location of 1st child
+        IXMLElement firstChild = m_xml.getChildAtIndex(0);
+        if (firstChild != null) {
+            m_xml.setAttribute("LineNo", firstChild.getAttribute("LineNo", null));
+            m_xml.setAttribute("ColNo", firstChild.getAttribute("ColNo", null));
+        }
+
+    }
    
-	protected String getXMLElementName() { return "GlobalDeclarations"; }
+    protected String getXMLElementName() { return "GlobalDeclarations"; }
 
 }

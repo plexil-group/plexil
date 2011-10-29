@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,49 +34,60 @@ import net.n3.nanoxml.*;
 
 public class ReturnSpecNode extends PlexilTreeNode
 {
-	private Vector<VariableName> m_returnSpecs = new Vector<VariableName>();
+    private Vector<VariableName> m_returnSpecs = new Vector<VariableName>();
 
-	public ReturnSpecNode(Token t)
+    public ReturnSpecNode(Token t)
+    {
+        super(t);
+    }
+
+	public ReturnSpecNode(ReturnSpecNode n)
 	{
-		super(t);
+		super(n);
+		m_returnSpecs = n.m_returnSpecs;
 	}
 
-	public Vector<VariableName> getReturnVector() { return m_returnSpecs; }
-
-	public void earlyCheck(NodeContext context, CompilerState state)
+	public Tree dupNode()
 	{
-		for (int retnIdx = 0; retnIdx < this.getChildCount(); retnIdx++) {
-			PlexilTreeNode retn = this.getChild(retnIdx);
-			String nam = "_return_" + retnIdx;
-			if (retn.getType() == PlexilLexer.ARRAY_TYPE) {
-				String typeName = retn.getChild(0).getText();
-				PlexilTreeNode sizeSpec = retn.getChild(1);
-				int arySize = LiteralNode.parseIntegerValue(sizeSpec.getText());
-				if (arySize < 0) {
-					state.addDiagnostic(sizeSpec,
-										"Array size may not be negative",
-										Severity.ERROR);
-					arySize = 0; // to support further checking
-				}
-				m_returnSpecs.add(new VariableName(retn,
-												   nam,
-												   PlexilDataType.findByName(typeName).arrayType(),
-												   sizeSpec.getText(),
-												   null));
-			}
-			else {
-				String typeName = retn.getToken().getText();
-				m_returnSpecs.add(new VariableName(retn,
-												   nam,
-												   PlexilDataType.findByName(typeName)));
-			}
-		}
+		return new ReturnSpecNode(this);
 	}
 
-	public void constructReturnXML(IXMLElement parent)
-	{
-		for (VariableName vn : m_returnSpecs)
-			parent.addChild(vn.makeGlobalDeclarationElement("Return"));
-	}
+    public Vector<VariableName> getReturnVector() { return m_returnSpecs; }
+
+    public void earlyCheck(NodeContext context, CompilerState state)
+    {
+        for (int retnIdx = 0; retnIdx < this.getChildCount(); retnIdx++) {
+            PlexilTreeNode retn = this.getChild(retnIdx);
+            String nam = "_return_" + retnIdx;
+            if (retn.getType() == PlexilLexer.ARRAY_TYPE) {
+                String typeName = retn.getChild(0).getText();
+                PlexilTreeNode sizeSpec = retn.getChild(1);
+                int arySize = LiteralNode.parseIntegerValue(sizeSpec.getText());
+                if (arySize < 0) {
+                    state.addDiagnostic(sizeSpec,
+                                        "Array size may not be negative",
+                                        Severity.ERROR);
+                    arySize = 0; // to support further checking
+                }
+                m_returnSpecs.add(new VariableName(retn,
+                                                   nam,
+                                                   PlexilDataType.findByName(typeName).arrayType(),
+                                                   sizeSpec.getText(),
+                                                   null));
+            }
+            else {
+                String typeName = retn.getToken().getText();
+                m_returnSpecs.add(new VariableName(retn,
+                                                   nam,
+                                                   PlexilDataType.findByName(typeName)));
+            }
+        }
+    }
+
+    public void constructReturnXML(IXMLElement parent)
+    {
+        for (VariableName vn : m_returnSpecs)
+            parent.addChild(vn.makeGlobalDeclarationElement("Return"));
+    }
 
 }

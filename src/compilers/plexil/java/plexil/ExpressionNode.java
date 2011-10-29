@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,11 @@ public class ExpressionNode extends PlexilTreeNode
     {
         super(t);
     }
+
+	public Tree dupNode()
+	{
+		return new ExpressionNode(this);
+	}
 
     protected void setDataType(PlexilDataType dtype)
     {

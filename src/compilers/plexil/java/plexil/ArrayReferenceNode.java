@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,70 +32,80 @@ import net.n3.nanoxml.*;
 
 public class ArrayReferenceNode extends VariableNode
 {
-	public ArrayReferenceNode(Token t)
+    public ArrayReferenceNode(Token t)
+    {
+        super(t);
+    }
+
+	public ArrayReferenceNode(ArrayReferenceNode n)
 	{
-		super(t);
+		super(n);
 	}
 
-	// Override VariableNode method
-	public void earlyCheck(NodeContext context, CompilerState state)
+	public Tree dupNode()
 	{
-		earlyCheckChildren(context, state);
-
-		// Check that variable is declared array
-		VariableNode variableNode = (VariableNode) this.getChild(0);
-		PlexilDataType varType = variableNode.getDataType();
-		if (varType.isArray()) {
-			m_dataType = varType.arrayElementType();
-		}
-		else {
-			state.addDiagnostic(this.getChild(0),
-								"Variable \"" + variableNode.getText() + "\" is not an array variable",
-								Severity.ERROR);
-		}
+		return new ArrayReferenceNode(this);
 	}
 
-	public void checkTypeConsistency(NodeContext context, CompilerState state)
-	{
-		// Check index expression type
-		ExpressionNode index = (ExpressionNode) this.getChild(1);
-		if (!index.getDataType().isNumeric()) {
-			state.addDiagnostic(index,
-								"Array index expression is not numeric",
-								Severity.ERROR);
-		}
-	}
+    // Override VariableNode method
+    public void earlyCheck(NodeContext context, CompilerState state)
+    {
+        earlyCheckChildren(context, state);
 
-	// N.B. Can't use super.constructXML because of conflict with VariableNode method
-	protected void constructXML()
-	{
-		constructXMLBase();
+        // Check that variable is declared array
+        VariableNode variableNode = (VariableNode) this.getChild(0);
+        PlexilDataType varType = variableNode.getDataType();
+        if (varType.isArray()) {
+            m_dataType = varType.arrayElementType();
+        }
+        else {
+            state.addDiagnostic(this.getChild(0),
+                                "Variable \"" + variableNode.getText() + "\" is not an array variable",
+                                Severity.ERROR);
+        }
+    }
 
-		// Construct variable name element
-		IXMLElement var = new XMLElement("Name");
-		var.setContent(this.getChild(0).getText());
-		m_xml.addChild(var);
+    public void checkTypeConsistency(NodeContext context, CompilerState state)
+    {
+        // Check index expression type
+        ExpressionNode index = (ExpressionNode) this.getChild(1);
+        if (!index.getDataType().isNumeric()) {
+            state.addDiagnostic(index,
+                                "Array index expression is not numeric",
+                                Severity.ERROR);
+        }
+    }
 
-		// Construct index
-		IXMLElement idx = new XMLElement("Index");
-		idx.addChild(this.getChild(1).getXML());
-		m_xml.addChild(idx);
-	}
+    // N.B. Can't use super.constructXML because of conflict with VariableNode method
+    protected void constructXML()
+    {
+        constructXMLBase();
 
-	protected String getXMLElementName() { return "ArrayElement"; }
+        // Construct variable name element
+        IXMLElement var = new XMLElement("Name");
+        var.setContent(this.getChild(0).getText());
+        m_xml.addChild(var);
 
-	public boolean isAssignable()
-	{
-		// defer to the variable
-		VariableNode variableNode = (VariableNode) this.getChild(0);
-		return variableNode.isAssignable();
-	}
+        // Construct index
+        IXMLElement idx = new XMLElement("Index");
+        idx.addChild(this.getChild(1).getXML());
+        m_xml.addChild(idx);
+    }
 
-	public void checkAssignable(NodeContext context, CompilerState state)
-	{
-		// defer to the variable
-		VariableNode variableNode = (VariableNode) this.getChild(0);
-		variableNode.checkAssignable(context, state);
-	}
+    protected String getXMLElementName() { return "ArrayElement"; }
+
+    public boolean isAssignable()
+    {
+        // defer to the variable
+        VariableNode variableNode = (VariableNode) this.getChild(0);
+        return variableNode.isAssignable();
+    }
+
+    public void checkAssignable(NodeContext context, CompilerState state)
+    {
+        // defer to the variable
+        VariableNode variableNode = (VariableNode) this.getChild(0);
+        variableNode.checkAssignable(context, state);
+    }
 
 }

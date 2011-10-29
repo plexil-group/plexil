@@ -1,0 +1,33 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Sequence LineNo="1" ColNo="0">
+        <NodeId>Sequence__0</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="2" ColNo="2">
+                <Name>s</Name>
+                <Type>String</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <Node LineNo="3" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__1</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <StringVariable>s</StringVariable>
+                    <StringRHS>
+                        <StringValue>foo</StringValue>
+                    </StringRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="4" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__2</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <StringVariable>s</StringVariable>
+                    <StringRHS>
+                        <StringValue>bar</StringValue>
+                    </StringRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+    </Sequence>
+</PlexilPlan>

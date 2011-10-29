@@ -1,0 +1,15 @@
+<PlexilPlan LineNo="1" ColNo="2">
+    <Node NodeType="Empty" LineNo="3" ColNo="4">
+        <NodeId>VerifyTemp</NodeId>
+        <PostCondition LineNo="3" ColNo="4">
+            <GT LineNo="3" ColNo="45">
+                <Lookup LineNo="3" ColNo="18">
+                    <Name>
+                        <StringValue>engine_temperature</StringValue>
+                    </Name>
+                </Lookup>
+                <RealValue>100.0</RealValue>
+            </GT>
+        </PostCondition>
+    </Node>
+</PlexilPlan>

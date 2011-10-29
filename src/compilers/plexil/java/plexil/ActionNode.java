@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,57 +32,68 @@ import net.n3.nanoxml.*;
 
 public class ActionNode extends PlexilTreeNode
 {
-	protected String m_nodeId = null;
+    protected String m_nodeId = null;
 
-	//
-	// Constructors
-	//
+    //
+    // Constructors
+    //
 
-	public ActionNode(Token t)
+    public ActionNode(Token t)
+    {
+        super(t);
+    }
+
+	public ActionNode(ActionNode n)
 	{
-		super(t);
+		super(n);
+		m_nodeId = n.m_nodeId;
 	}
 
-	public String getNodeId()
+    public String getNodeId()
+    {
+        return m_nodeId; 
+    }
+
+	public Tree dupNode()
 	{
-		return m_nodeId; 
+		return new ActionNode(this);
 	}
 
-	public void earlyCheckSelf(NodeContext context, CompilerState state)
-	{
-		// If supplied, get the node ID
-		PlexilTreeNode firstChild = this.getChild(0);
-		if (firstChild.getType() == PlexilLexer.NCNAME) {
-			m_nodeId = firstChild.getText();
-			// Check that node ID is locally unique
-			if (context.isChildNodeId(m_nodeId)) {
-				state.addDiagnostic(firstChild,
-									"Node ID \"" + m_nodeId + "\" defined more than once in this context",
-									Severity.ERROR);
-				state.addDiagnostic(context.getChildNodeId(m_nodeId),
-									"Original definition of node ID \"" + m_nodeId + "\" is here",
-									Severity.NOTE);
-			}
-			else {
-				context.addChildNodeId(firstChild);
-			}
-		}
-		else {
-			// Gensym a name but don't log it, since it never appeared in the source
-			m_nodeId = context.generateChildNodeName(firstChild.getToken().getText());
-		}
-	}
+    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    {
+        // If supplied, get the node ID
+        PlexilTreeNode firstChild = this.getChild(0);
+        if (firstChild.getType() == PlexilLexer.NCNAME) {
+            m_nodeId = firstChild.getText();
+            // Check that node ID is locally unique
+            if (context.isChildNodeId(m_nodeId)) {
+                state.addDiagnostic(firstChild,
+                                    "Node ID \"" + m_nodeId + "\" defined more than once in this context",
+                                    Severity.ERROR);
+                state.addDiagnostic(context.getChildNodeId(m_nodeId),
+                                    "Original definition of node ID \"" + m_nodeId + "\" is here",
+                                    Severity.NOTE);
+            }
+            else {
+                context.addChildNodeId(firstChild);
+            }
+        }
+        else {
+            // Gensym a name but don't log it, since it never appeared in the source
+            m_nodeId = context.generateChildNodeName(firstChild.getToken().getText());
+        }
+    }
 
-	protected void constructXML()
-	{
-		// Get XML from last child
-		PlexilTreeNode child = this.getChild(this.getChildCount() - 1);
-		m_xml = child.getXML();
-		// Insert Node ID element
-		IXMLElement nodeIdElt = new XMLElement("NodeId");
-		nodeIdElt.setContent(m_nodeId);
-		((XMLElement) m_xml).insertChild(nodeIdElt, 0);
-	}
+    protected void constructXML()
+    {
+        // Get XML from last child
+        PlexilTreeNode child = this.getChild(this.getChildCount() - 1);
+        m_xml = child.getXML();
+        // Insert Node ID element
+        IXMLElement nodeIdElt = new XMLElement("NodeId");
+        nodeIdElt.setContent(m_nodeId);
+        ((XMLElement) m_xml).insertChild(nodeIdElt, 0);
+    }
 
 }
 

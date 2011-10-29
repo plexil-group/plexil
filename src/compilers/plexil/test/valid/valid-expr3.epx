@@ -1,0 +1,83 @@
+<PlexilPlan LineNo="2" ColNo="2">
+    <Sequence LineNo="2" ColNo="2">
+        <NodeId>BLOCK__0</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="2" ColNo="2">
+                <Name>i</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+            <DeclareVariable LineNo="2" ColNo="2">
+                <Name>j</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+            <DeclareVariable LineNo="3" ColNo="2">
+                <Name>p</Name>
+                <Type>Real</Type>
+                <InitialValue>
+                    <RealValue>4.3</RealValue>
+                </InitialValue>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <PostCondition LineNo="5" ColNo="2">
+            <EQNumeric LineNo="5" ColNo="9">
+                <RealVariable>p</RealVariable>
+                <RealValue>4.3</RealValue>
+            </EQNumeric>
+        </PostCondition>
+        <Node LineNo="7" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__1</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>i</IntegerVariable>
+                    <NumericRHS>
+                        <MOD LineNo="7" ColNo="8">
+                            <IntegerValue>3</IntegerValue>
+                            <IntegerValue>2</IntegerValue>
+                        </MOD>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="8" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__2</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>j</IntegerVariable>
+                    <NumericRHS>
+                        <MOD LineNo="8" ColNo="8">
+                            <IntegerValue>4</IntegerValue>
+                            <IntegerVariable>i</IntegerVariable>
+                        </MOD>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="9" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__3</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <RealVariable>p</RealVariable>
+                    <NumericRHS>
+                        <ADD LineNo="9" ColNo="25">
+                            <SUB LineNo="9" ColNo="21">
+                                <ADD LineNo="9" ColNo="17">
+                                    <SQRT LineNo="9" ColNo="6">
+                                        <ABS LineNo="9" ColNo="13">
+                                            <RealVariable>p</RealVariable>
+                                        </ABS>
+                                    </SQRT>
+                                    <IntegerVariable>i</IntegerVariable>
+                                </ADD>
+                                <IntegerVariable>j</IntegerVariable>
+                            </SUB>
+                            <MUL LineNo="9" ColNo="31">
+                                <RealValue>1.0</RealValue>
+                                <IntegerVariable>i</IntegerVariable>
+                            </MUL>
+                        </ADD>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+    </Sequence>
+</PlexilPlan>

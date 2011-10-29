@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,16 @@
 package plexil;
 
 public enum Severity {
-	NOTE("Note", -1),
+    NOTE("Note", -1),
 	WARNING("Warning", 0),
 	ERROR("Error", 1),
 	FATAL("Fatal error", 2);
 
-	private final String string;
-	public final int rank;
-	private Severity(String prettyName, int myRank) {
-		string = prettyName;  
-		rank = myRank;
-	}
-	public String toString() { return string; }
+    private final String string;
+    public final int rank;
+    private Severity(String prettyName, int myRank) {
+        string = prettyName;  
+        rank = myRank;
+    }
+    public String toString() { return string; }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,62 +30,72 @@ import org.antlr.runtime.tree.*;
 
 public class RelationalNode extends ExpressionNode
 {
-	public RelationalNode(Token t)
+    public RelationalNode(Token t)
+    {
+        super(t);
+        m_dataType = PlexilDataType.BOOLEAN_TYPE;
+    }
+
+	public RelationalNode(RelationalNode n)
 	{
-		super(t);
-		m_dataType = PlexilDataType.BOOLEAN_TYPE;
+		super(n);
 	}
 
-	/**
-	 * @brief Check the expression for type consistency.
-	 */
-	public void checkTypeConsistency(NodeContext context, CompilerState myState)
+	public Tree dupNode()
 	{
-		ExpressionNode lhs = (ExpressionNode) this.getChild(0);
-		ExpressionNode rhs = (ExpressionNode) this.getChild(1);
-		PlexilDataType lhsType = lhs.getDataType();
-		PlexilDataType rhsType = rhs.getDataType();
-		if (!lhsType.isNumeric()) {
-			myState.addDiagnostic(lhs,
-								  "The first operand to the " + this.getToken().getText() + " operator is not a numeric expression",
-								  Severity.ERROR);
-		}
-		if (!rhsType.isNumeric()) {
-			myState.addDiagnostic(rhs,
-								  "The second operand to the " + this.getToken().getText() + " operator is not a numeric expression",
-								  Severity.ERROR);
-		}
+		return new RelationalNode(this);
 	}
 
-	/**
-	 * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-	 */
-	protected void constructXML()
-	{
-		super.constructXML();
-		m_xml.addChild(this.getChild(0).getXML());
-		m_xml.addChild(this.getChild(1).getXML());
-	}
+    /**
+     * @brief Check the expression for type consistency.
+     */
+    public void checkTypeConsistency(NodeContext context, CompilerState myState)
+    {
+        ExpressionNode lhs = (ExpressionNode) this.getChild(0);
+        ExpressionNode rhs = (ExpressionNode) this.getChild(1);
+        PlexilDataType lhsType = lhs.getDataType();
+        PlexilDataType rhsType = rhs.getDataType();
+        if (!lhsType.isNumeric()) {
+            myState.addDiagnostic(lhs,
+                                  "The first operand to the " + this.getToken().getText() + " operator is not a numeric expression",
+                                  Severity.ERROR);
+        }
+        if (!rhsType.isNumeric()) {
+            myState.addDiagnostic(rhs,
+                                  "The second operand to the " + this.getToken().getText() + " operator is not a numeric expression",
+                                  Severity.ERROR);
+        }
+    }
 
-	protected String getXMLElementName()
-	{
-		int tokType = this.getToken().getType();
-		switch (tokType) {
-		case PlexilLexer.LEQ:
-			return "LE";
+    /**
+     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
+     */
+    protected void constructXML()
+    {
+        super.constructXML();
+        m_xml.addChild(this.getChild(0).getXML());
+        m_xml.addChild(this.getChild(1).getXML());
+    }
 
-		case PlexilLexer.LESS:
-			return "LT";
+    protected String getXMLElementName()
+    {
+        int tokType = this.getToken().getType();
+        switch (tokType) {
+        case PlexilLexer.LEQ:
+            return "LE";
 
-		case PlexilLexer.GEQ:
-			return "GE";
+        case PlexilLexer.LESS:
+            return "LT";
 
-		case PlexilLexer.GREATER:
-			return "GT";
+        case PlexilLexer.GEQ:
+            return "GE";
 
-		default:
-			return null;
-		}
-	}
+        case PlexilLexer.GREATER:
+            return "GT";
+
+        default:
+            return null;
+        }
+    }
 
 }

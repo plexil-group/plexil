@@ -1,0 +1,16 @@
+<PlexilPlan LineNo="2" ColNo="2">
+    <Node NodeType="Empty" LineNo="2" ColNo="2">
+        <NodeId>BLOCK__0</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="2" ColNo="2">
+                <Name>x</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <StartCondition LineNo="4" ColNo="2">
+            <IsKnown LineNo="4" ColNo="17">
+                <IntegerVariable>x</IntegerVariable>
+            </IsKnown>
+        </StartCondition>
+    </Node>
+</PlexilPlan>

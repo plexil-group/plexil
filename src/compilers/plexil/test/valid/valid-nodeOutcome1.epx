@@ -1,0 +1,18 @@
+<PlexilPlan LineNo="2" ColNo="4">
+    <Sequence LineNo="2" ColNo="4">
+        <NodeId>BLOCK__0</NodeId>
+        <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <NodeId>A</NodeId>
+        </Node>
+        <Node NodeType="Empty" LineNo="3" ColNo="9">
+            <NodeId>B</NodeId>
+            <StartCondition LineNo="3" ColNo="9">
+                <IsKnown LineNo="3" ColNo="24">
+                    <NodeOutcomeVariable>
+                        <NodeId>A</NodeId>
+                    </NodeOutcomeVariable>
+                </IsKnown>
+            </StartCondition>
+        </Node>
+    </Sequence>
+</PlexilPlan>

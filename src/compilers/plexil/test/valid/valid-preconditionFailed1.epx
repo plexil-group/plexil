@@ -1,0 +1,19 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Concurrence LineNo="1" ColNo="0">
+        <NodeId>Concurrence__0</NodeId>
+        <Node NodeType="Empty" LineNo="3" ColNo="7">
+            <NodeId>A</NodeId>
+            <PreCondition LineNo="3" ColNo="7">
+                <BooleanValue>false</BooleanValue>
+            </PreCondition>
+        </Node>
+        <Node NodeType="Empty" LineNo="4" ColNo="7">
+            <NodeId>B</NodeId>
+            <StartCondition LineNo="4" ColNo="7">
+                <PreconditionFailed LineNo="4" ColNo="13">
+                    <NodeId>A</NodeId>
+                </PreconditionFailed>
+            </StartCondition>
+        </Node>
+    </Concurrence>
+</PlexilPlan>

@@ -1,0 +1,28 @@
+<PlexilPlan LineNo="1" ColNo="8">
+    <GlobalDeclarations LineNo="1" ColNo="8">
+        <CommandDeclaration LineNo="1" ColNo="8">
+            <Name>get_speed</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Integer</Type>
+            </Return>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Node LineNo="5" ColNo="10" NodeType="Command">
+        <NodeId>GetSpeed</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="4" ColNo="2">
+                <Name>speed</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <NodeBody>
+            <Command>
+                <IntegerVariable>speed</IntegerVariable>
+                <Name>
+                    <StringValue>get_speed</StringValue>
+                </Name>
+            </Command>
+        </NodeBody>
+    </Node>
+</PlexilPlan>
