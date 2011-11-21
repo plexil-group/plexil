@@ -114,28 +114,25 @@ public class ArithmeticOperatorNode extends ExpressionNode
             // Implement numeric type contagion
             for (int i = 0; i < this.getChildCount(); i++) {
                 PlexilDataType childType = ((ExpressionNode) this.getChild(i)).getDataType();
-                if (workingType == null) {
-                    if (childType.isNumeric())
-                        workingType = childType; 
-                    else {
-                        workingType = PlexilDataType.ERROR_TYPE;
-                        break;
-                    }
-                }
-                else if (childType == PlexilDataType.REAL_TYPE
-                         && workingType == PlexilDataType.INTEGER_TYPE) 
-                    workingType = PlexilDataType.REAL_TYPE;
-                else if (childType != PlexilDataType.INTEGER_TYPE) {
+				if (!childType.isNumeric()) {
                     workingType = PlexilDataType.ERROR_TYPE;
                     break;
-                }
+                }   
+				if (workingType == null)
+					workingType = childType; 
+				else if (childType == workingType)
+					continue;
+                else if (childType == PlexilDataType.REAL_TYPE
+                         && workingType == PlexilDataType.INTEGER_TYPE)
+					// Contagion case - promote to REAL
+                    workingType = PlexilDataType.REAL_TYPE;
             }
         }
         // debug aid
         if (m_dataType == PlexilDataType.ERROR_TYPE) {
             state.addDiagnostic(this,
                                 "Internal error: ArithmeticOperatorNode.earlyCheck could not determine expression type",
-                                Severity.NOTE);
+                                Severity.ERROR);
         }
         m_dataType = workingType;
     }
