@@ -69,11 +69,13 @@ public class LibraryDeclarationNode extends PlexilTreeNode
         if (ifVarAST != null) {
             ifVarAST.earlyCheck(context, state); // for effect
             ifSpecs = ifVarAST.getParameterVector();
-            for (VariableName vn : ifSpecs) {
-                if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
-                    state.addDiagnostic(vn.getDeclaration(),
-                                        "Illegal type for library action interface variable",
-                                        Severity.ERROR);
+            if (ifSpecs != null) {
+                for (VariableName vn : ifSpecs) {
+                    if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
+                        state.addDiagnostic(vn.getDeclaration(),
+                                            "Illegal type for library action interface variable",
+                                            Severity.ERROR);
+                    }
                 }
             }
         }

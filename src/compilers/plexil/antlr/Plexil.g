@@ -395,7 +395,7 @@ libraryInterfaceSpec
 @after { m_paraphrases.pop(); }
  :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
-    -> ^(PARAMETERS libraryParamSpec+)
+    -> ^(PARAMETERS libraryParamSpec*)
  ;
 
 libraryParamSpec :
