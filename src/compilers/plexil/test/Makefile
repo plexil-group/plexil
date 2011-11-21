@@ -45,7 +45,8 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
           try1 update1 update2 update3 \
               resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
           invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
-          iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 inactive1
+          iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 inactive1 \
+          wait1
 
 BROKEN       =  array-library-call
 
