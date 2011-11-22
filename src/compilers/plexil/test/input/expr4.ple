@@ -1,0 +1,10 @@
+{
+  Integer i, j;
+  Real r;
+
+  i = 3 + 2;
+//  i = 3+2;  // illegal
+//  j = i-2;  // illegal
+  j = i - 2;
+  r = 1.0 - 0.0;
+}
