@@ -1,4 +1,4 @@
-basic-wait-test:
+root:
 {
   Real rtol = 0.5;
   Real rdelay = 1.414;
@@ -6,5 +6,5 @@ basic-wait-test:
   Wait 2;
   Wait 5, 1;
   Wait rdelay, rtol;
-  wait-with-nodeid: Wait 3.14, .1;
+  Wait 3.14, .1;
 }

@@ -3,7 +3,7 @@ Command print (...);
 Command test_udp_msg (String, Boolean, Integer, Real, Integer[3], Real[3], Boolean[3], String[3]);
 Command quit_msg (String);
 
-test-send: UncheckedSequence
+root: UncheckedSequence
 {
     String arg1 = "CA";                    // intentionally shorter than declared in udp.xml (for testing)
     //Boolean arg2 = false;                // set to "true" to request an "ack" from the other agent

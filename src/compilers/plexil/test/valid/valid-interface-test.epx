@@ -1,6 +1,6 @@
 <PlexilPlan LineNo="1" ColNo="0">
     <Sequence LineNo="3" ColNo="2">
-        <NodeId>interface-test</NodeId>
+        <NodeId>root</NodeId>
         <Interface>
             <In>
                 <DeclareVariable LineNo="3" ColNo="5">

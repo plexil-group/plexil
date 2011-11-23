@@ -17,8 +17,8 @@
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <UncheckedSequence LineNo="5" ColNo="11">
-        <NodeId>test-recv</NodeId>
+    <UncheckedSequence LineNo="5" ColNo="6">
+        <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="6" ColNo="2">
                 <Name>run_start_time</Name>

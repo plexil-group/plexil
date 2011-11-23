@@ -53,7 +53,9 @@ SYNTAX_ERROR_TESTS   = array-library-call
 
 SEMANTIC_ERROR_TESTS = on-message3
 
-TESTS	         := $(SMALL_TESTS)
+#TESTS	         := $(SMALL_TESTS)
+TESTS := array-complex
+
 
 # The VALID_TEST* macros are used by the original test framework.  
 
