@@ -1,10 +1,8 @@
-// Declare lookups (optional but recommended)
 Boolean Lookup at_school;
 Boolean Lookup no_passengers;
 Boolean Lookup car_started;
 Boolean Lookup raining;
 
-// Declare commands (required)
 Command depress_accelerator();
 Command depress_clutch();
 Command turn_key();
@@ -31,19 +29,19 @@ DriveToSchool:
             PressAccelerator: { depress_accelerator(); }
           }
         }
-      }
 
-      TurnKeyCombo: Concurrence 
-      {
-        // Depress clutch while turning key
-        DepressClutch: { depress_clutch(); }	      
-        TurnKey:  
+        TurnKeyCombo: Concurrence
         {
-          // NOTE: We'd like to add a time elapsed check to this end
-          // condition, but the Plexil compiler doesn't support this yet.
-          EndCondition LookupOnChange(car_started);
-          turn_key();
-        }	      	    
+          // Depress clutch while turning key
+          DepressClutch: { depress_clutch(); }	      
+          TurnKey:  
+          {
+            // NOTE: We'd like to add a time elapsed check to this end
+            // condition, but the Plexil compiler doesn't support this yet.
+            EndCondition LookupOnChange(car_started);
+            turn_key();
+          }	      	    
+        }
       }
 
       PushStart:
