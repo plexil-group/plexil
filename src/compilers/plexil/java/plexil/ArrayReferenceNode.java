@@ -69,9 +69,9 @@ public class ArrayReferenceNode extends VariableNode
     {
         // Check index expression type
         ExpressionNode index = (ExpressionNode) this.getChild(1);
-        if (!index.getDataType().isNumeric()) {
+        if (index.getDataType() != PlexilDataType.INTEGER_TYPE) {
             state.addDiagnostic(index,
-                                "Array index expression is not numeric",
+                                "Array index expression is not integral!",
                                 Severity.ERROR);
         }
     }
