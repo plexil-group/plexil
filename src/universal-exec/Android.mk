@@ -35,13 +35,14 @@ LOCAL_SRC_FILES := UniversalExec.cc
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := -D'LIB_EXT="$(SUFSHARE)"'
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/tinyxml \
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/pugixml/src \
  $(LOCAL_PATH)/../utils \
  $(LOCAL_PATH)/../exec \
  $(LOCAL_PATH)/../app-framework \
- $(LOCAL_PATH)/../interfaces/Sockets \
- $(LOCAL_PATH)/../interfaces/LuvListener
-LOCAL_STATIC_LIBRARIES := stdc++ tinyxml PlexilAppFramework PlexilExec PlexilUtils EssentialLuvListener PlexilSockets
+ $(LOCAL_PATH)/../interfaces/LuvListener \
+ $(LOCAL_PATH)/../interfaces/PlanDebugListener \
+ $(LOCAL_PATH)/../interfaces/Sockets
+LOCAL_STATIC_LIBRARIES := stdc++ pugixml PlexilAppFramework PlanDebugListener PlexilExec PlexilUtils LuvListener PlexilSockets
 LOCAL_LDLIBS := -ldl
 
 #include $(BUILD_STATIC_LIBRARY)

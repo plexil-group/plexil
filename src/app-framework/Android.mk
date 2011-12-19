@@ -38,32 +38,25 @@ LOCAL_SRC_FILES := AdapterConfiguration.cc \
  ControllerFactory.cc \
  DefaultAdapterConfiguration.cc \
  DummyAdapter.cc \
- DynamicLoader.cc \
  ExecApplication.cc \
  ExecListenerFactory.cc \
- ExecListenerFilterFactory.cc \
  InterfaceAdapter.cc \
  InterfaceManager.cc \
  InterfaceManagerBase.cc \
- InterfaceSchema.cc \
- ManagedExecListener.cc \
- ManagedExecListenerFilter.cc \
- PlanDebugListener.cc \
- NewLuvListener.cc \
  PosixTimeAdapter.cc \
- ValueQueue.cc \
- UtilityAdapter.cc
+ UtilityAdapter.cc \
+ ValueQueue.cc
 
 LOCAL_CPP_EXTENSION := .cc
-LOCAL_CPPFLAGS := -D'LIB_EXT="$(SUFSHARE)"'
+LOCAL_CPPFLAGS :=
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/tinyxml \
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/pugixml/src \
  $(LOCAL_PATH)/../utils \
  $(LOCAL_PATH)/../exec \
- $(LOCAL_PATH)/../interfaces/Sockets \
- $(LOCAL_PATH)/../interfaces/LuvListener
-#LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils PlexilExec PlexilSockets EssentialLuvListener
-LOCAL_STATIC_LIBRARIES := tinyxml PlexilUtils PlexilExec PlexilSockets EssentialLuvListener
+ $(LOCAL_PATH)/../interfaces/LuvListener \
+ $(LOCAL_PATH)/../interfaces/PlanDebugListener \
+ $(LOCAL_PATH)/../interfaces/Sockets
+LOCAL_STATIC_LIBRARIES := pugixml PlanDebugListener PlexilUtils PlexilExec PlexilSockets LuvListener
 LOCAL_LDLIBS := -ldl
 
 #include $(BUILD_SHARED_LIBRARY)

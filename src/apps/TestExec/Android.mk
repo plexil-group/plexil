@@ -31,18 +31,18 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := TestExec
-LOCAL_SRC_FILES := ExecTestRunner.cc exec-test-runner.cc TestLuvListener.cc
+LOCAL_SRC_FILES := ExecTestRunner.cc exec-test-runner.cc
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := 
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../third-party/tinyxml \
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../third-party/pugixml/src \
  $(LOCAL_PATH)/../../utils \
  $(LOCAL_PATH)/../../exec \
- $(LOCAL_PATH)/../../interfaces/Sockets \
  $(LOCAL_PATH)/../../interfaces/LuvListener \
+ $(LOCAL_PATH)/../../interfaces/PlanDebugListener \
+ $(LOCAL_PATH)/../../interfaces/Sockets \
  $(LOCAL_PATH)/../../app-framework
-#LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils PlexilExec PlexilSockets EssentialLuvListener
-LOCAL_STATIC_LIBRARIES := stdc++ tinyxml PlexilExec PlexilUtils EssentialLuvListener PlexilSockets PlexilAppFramework
+LOCAL_STATIC_LIBRARIES := stdc++ pugixml PlanDebugListener PlexilExec PlexilUtils LuvListener PlexilSockets PlexilAppFramework
 LOCAL_LDLIBS := 
 
 include $(BUILD_EXECUTABLE)
