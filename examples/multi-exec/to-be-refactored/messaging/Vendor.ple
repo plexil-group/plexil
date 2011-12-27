@@ -1,8 +1,0 @@
-Vendor:{
- NodeList:
- Dispense: {
-  StartCondition: MessageReceived("CoinInserted");
-  RepeatCondition: MessageReceived("CoinInserted");
-  Command: SendMessage("Candy");
- }
-}

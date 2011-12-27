@@ -1,7 +1,0 @@
-Heater:{
- NodeList:
- StartHeater: {
-  StartCondition: MessageReceived("StartHeater");
-  Command: SendMessage ("HeaterStarted");
- }
-}

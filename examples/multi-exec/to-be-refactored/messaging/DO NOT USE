@@ -1,3 +1,0 @@
-The messaging examples show the capabilities of exec communication using only the SendMessage and ReceiveMessage commands. 
-
-These examples need to be refactored, and do not currently work.
