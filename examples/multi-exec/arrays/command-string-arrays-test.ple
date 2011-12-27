@@ -1,24 +1,20 @@
-//The controlling plan
-//Subscription commands are sent using SendMessage("<command name>")
+// The controlling plan
+// Subscription commands are sent using SendMessage("<command name>")
+
+String[2] Command GetName;
+
 MasterPlan:
 {
-	String name = "n.a";
-	String ret[2];
-	Sequence
-		Action:
-		{
-			EndCondition: isKnown(ret[0]) && isKnown(ret[1]);
-			Command: ret = GetName();
-		}
-                NotifyViewer1: { Assignment: ret[0] = ret[0]; }
-                NotifyViewer2: { Assignment: ret[1] = ret[1]; }
-		Set:
-		{
-			Assignment: name = ret[0] + " " + ret[1];
-		}
-		Check:
-		{
-			InvariantCondition: isKnown(name);
-		}
-			
+  String name = "n.a";
+  String ret[2];
+
+  Action:
+  {
+    EndCondition isKnown(ret[0]) && isKnown(ret[1]);
+    ret = GetName();
+  }
+  NotifyViewer1: ret[0] = ret[0];
+  NotifyViewer2: ret[1] = ret[1];
+  Set: name = ret[0] + " " + ret[1];
+  Check: { InvariantCondition isKnown(name); }
 }

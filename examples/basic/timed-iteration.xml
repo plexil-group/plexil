@@ -1,0 +1,14 @@
+<Interfaces>
+  <Adapter AdapterType="Utility"/>
+  <Adapter AdapterType="OSNativeTime"/>
+  <!-- <Listener ListenerType="PlanDebugListener"/> -->
+  <!-- <Listener ListenerType="GanttListener"/> -->
+  <Adapter AdapterType="UdpAdapter" default_local_port="9876" default_peer="localhost" default_peer_port="9876">
+    <Message name="recv_test" local_port="8031" peer_port="8031">
+      <Parameter desc="message_id" type="string" bytes="3"/>
+      <Parameter desc="verified" type="bool" bytes="1"/>
+      <Parameter type="int" bytes="4"/>
+      <Parameter desc="arg3" type="float" bytes="4"/>
+    </Message>
+  </Adapter>
+</Interfaces>

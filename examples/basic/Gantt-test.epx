@@ -1,0 +1,73 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Sequence LineNo="3" ColNo="2">
+        <NodeId>GanttTest</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="3" ColNo="2">
+                <Name>x</Name>
+                <Type>Integer</Type>
+                <InitialValue>
+                    <IntegerValue>0</IntegerValue>
+                </InitialValue>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <Node LineNo="7" ColNo="4" NodeType="Assignment">
+            <NodeId>Activity1</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>x</IntegerVariable>
+                    <NumericRHS>
+                        <IntegerValue>1</IntegerValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="12" ColNo="4" NodeType="Assignment">
+            <NodeId>Activity2</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>x</IntegerVariable>
+                    <NumericRHS>
+                        <IntegerValue>2</IntegerValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Concurrence LineNo="15" ColNo="2">
+            <NodeId>Concurrence__2</NodeId>
+            <Node LineNo="20" ColNo="6" NodeType="Assignment">
+                <NodeId>Activity3</NodeId>
+                <Priority>0</Priority>
+                <NodeBody>
+                    <Assignment>
+                        <IntegerVariable>x</IntegerVariable>
+                        <NumericRHS>
+                            <IntegerValue>3</IntegerValue>
+                        </NumericRHS>
+                    </Assignment>
+                </NodeBody>
+            </Node>
+            <Node LineNo="25" ColNo="6" NodeType="Assignment">
+                <NodeId>Activity4</NodeId>
+                <NodeBody>
+                    <Assignment>
+                        <IntegerVariable>x</IntegerVariable>
+                        <NumericRHS>
+                            <IntegerValue>4</IntegerValue>
+                        </NumericRHS>
+                    </Assignment>
+                </NodeBody>
+            </Node>
+        </Concurrence>
+        <Node LineNo="31" ColNo="4" NodeType="Assignment">
+            <NodeId>Activity5</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>x</IntegerVariable>
+                    <NumericRHS>
+                        <IntegerValue>5</IntegerValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+    </Sequence>
+</PlexilPlan>

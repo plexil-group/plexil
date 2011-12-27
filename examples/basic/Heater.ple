@@ -1,0 +1,19 @@
+Command power_on_heater;
+Command turn_on_heater;
+
+HeaterPlan: 
+{
+ A:
+ {
+   Post AA.command_handle == COMMAND_SUCCESS;
+   AA: SynchronousCommand power_on_heater();
+ }
+
+ B:
+ {
+   Start Lookup (time) > 10.0;
+   Pre   Lookup (time) < 11.0;
+   Post  BB.command_handle == COMMAND_SUCCESS;
+   BB: SynchronousCommand turn_on_heater();
+ }
+}

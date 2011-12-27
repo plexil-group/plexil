@@ -1,0 +1,35 @@
+GanttTest:
+{
+  Integer x = 0;
+
+  Activity1:
+  { 
+    x = 1;  
+  }
+
+  Activity2:
+  { 
+    x = 2;  
+  }
+
+  Concurrence 
+  {
+    Activity3:
+    { 
+      Priority 0;
+      x = 3;  
+    }
+
+    Activity4:
+    { 
+      x = 4;  
+    }
+  }
+
+  Activity5:
+  { 
+    x = 5;  
+  }
+
+}
+
