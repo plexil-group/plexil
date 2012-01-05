@@ -185,17 +185,23 @@ function showTokenSet(tokens, parentDiv) {
 	tokenBorderOffset = getTokenBorderWidth(tokenLine);
 
 	// compute line width
-	//lineWidth = timeStepIncrement * (tokens[i].end - tokens[i].start);
-	//alert(tokens[i].endDomain + " && " + tokens[i].startDomain);
-	lineWidth = timeStepIncrement * (tokens[i].endDomain - tokens[i].startDomain);
-	//lineWidth = timeStepIncrement * (tokens[i].endDomain*plexilscaling - tokens[i].startDomain*plexilscaling);
-	lineWidth = lineWidth - (tokenBorderOffset * 2);
-	
-	lineWidth = lineWidth / myscaling;
+
+        // KMD: These were previously commented out.  Retaining in case they capture some useful (lost) insight.
+        // lineWidth = timeStepIncrement * (tokens[i].end - tokens[i].start);
+        // lineWidth = timeStepIncrement * (tokens[i].endDomain*plexilscaling - tokens[i].startDomain*plexilscaling);
+
+        // KMD: The applicaiton of abs works around an incorrect width
+        // seen in display when the line width is otherwise negative.
+        // Not sure if this entirely fixes the problem, or if there is a
+        // better approach.
+        lineWidth = Math.abs(((timeStepIncrement * (tokens[i].endDomain - tokens[i].startDomain)) -
+                              (tokenBorderOffset * 2))
+                             / myscaling);	
+
 	$(tokenLine).css("width", lineWidth);
 
 	// compute left offset
-	leftOffset = timeStepIncrement * tokens[i].start;
+//	leftOffset = timeStepIncrement * tokens[i].start;
 	leftOffset = timeStepIncrement * tokens[i].startDomain;
 	//leftOffset = timeStepIncrement * tokens[i].start *plexilscaling;
 	leftOffset = leftOffset / myscaling;
