@@ -1,6 +1,6 @@
 <PlexilPlan LineNo="1" ColNo="0">
     <Sequence LineNo="3" ColNo="2">
-        <NodeId>GanttTest</NodeId>
+        <NodeId>Root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="2">
                 <Name>x</Name>
@@ -32,8 +32,8 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Concurrence LineNo="15" ColNo="2">
-            <NodeId>Concurrence__2</NodeId>
+        <Concurrence LineNo="15" ColNo="8">
+            <NodeId>Sub</NodeId>
             <Node LineNo="20" ColNo="6" NodeType="Assignment">
                 <NodeId>Activity3</NodeId>
                 <Priority>0</Priority>

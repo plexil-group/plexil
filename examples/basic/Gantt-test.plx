@@ -2,7 +2,7 @@
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="Sequence" LineNo="3" ColNo="2">
-      <NodeId>GanttTest</NodeId>
+      <NodeId>Root</NodeId>
       <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="2">
                 <Name>x</Name>
@@ -30,7 +30,7 @@
                   </EQInternal>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Concurrence__2</NodeId>
+                        <NodeId>Sub</NodeId>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
@@ -78,8 +78,8 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="15" ColNo="2">
-               <NodeId>Concurrence__2</NodeId>
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="15" ColNo="8">
+               <NodeId>Sub</NodeId>
                <StartCondition>
                   <AND>
                      <EQInternal>
@@ -124,7 +124,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>Concurrence__2</NodeId>
+                           <NodeId>Sub</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
