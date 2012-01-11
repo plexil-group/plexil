@@ -183,12 +183,12 @@ namespace PLEXIL
     {
       RTMutexGuard guard(m_execMutex);
       debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Checking interface queue");
-      while (m_interface.processQueue()) {
-	debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Stepping exec");
-	m_exec.step();
+      while (m_interface.processQueue() || m_exec.needsStep()) {
+		debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Stepping exec");
+		m_exec.step();
       }
     }
-    debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") completed, interface queue empty.");
+    debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") completed, queue empty and Exec quiescent.");
 
     return true;
   }
