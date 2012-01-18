@@ -31,7 +31,7 @@ EXECUTABLE	:= PlexilSimulator
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
-LIBS		+= PlexilUtils standalonesimulator ipc IpcUtils
+LIBS		+= ipc pugixml PlexilUtils IpcUtils standalonesimulator
 
 INC_DIRS 	+= .. $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/third-party/ipc/src \

@@ -113,11 +113,13 @@ clean: clean-ipc
 	-$(MAKE) -C third-party/pugixml/src $@
 	-$(MAKE) -C src/utils $@
 	-$(MAKE) -C src/exec $@
+	-$(MAKE) -C src/interfaces/GanttListener $@
 	-$(MAKE) -C src/interfaces/IpcAdapter $@
 	-$(MAKE) -C src/interfaces/IpcUtils $@
 	-$(MAKE) -C src/interfaces/LuvListener $@
-	-$(MAKE) -C src/interfaces/GanttListener $@
+	-$(MAKE) -C src/interfaces/PlanDebugListener $@
 	-$(MAKE) -C src/interfaces/Sockets $@
+	-$(MAKE) -C src/interfaces/UdpAdapter $@
 	-$(MAKE) -C src/CORBA $@
 	-$(MAKE) -C src/app-framework $@
 	-$(MAKE) -C src/universal-exec $@
