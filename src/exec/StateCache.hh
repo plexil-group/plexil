@@ -46,47 +46,6 @@ namespace PLEXIL
 
   class CacheEntry;
   DECLARE_ID(CacheEntry);
-
-  //
-  // Helper class
-  //
-
-  class LookupDesc 
-  {
-  public:
-	LookupDesc(const CacheEntryId& _entry,
-			   const ExpressionId& _expr, 
-			   double _tolerance,
-			   bool isChangeLookup)
-	  : tolerance(_tolerance),
-		previousValue(Expression::UNKNOWN()),
-		entry(_entry),
-		dest(_expr),
-		changeLookup(isChangeLookup),
-		m_id(this)
-	{
-	}
-	
-	virtual ~LookupDesc()
-	{
-	  m_id.remove();
-	}
-
-	const LookupDescId& getId() const
-	{
-	  return m_id;
-	}
-
-	State state;
-	double tolerance;
-	double previousValue;
-	CacheEntryId entry;
-	ExpressionId dest;
-	bool changeLookup;
-
-  private:
-	LookupDescId m_id;
-  };
    
   /**
    * @brief The cache for state in the external world.  Handles

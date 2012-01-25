@@ -59,6 +59,74 @@ namespace PLEXIL
   // Helper classes
   //
 
+  class LookupDesc 
+  {
+  public:
+	LookupDesc(const CacheEntryId& _entry,
+			   const ExpressionId& _expr, 
+			   double _tolerance,
+			   bool isChangeLookup)
+	  : tolerance(_tolerance),
+		previousValue(Expression::UNKNOWN()),
+		entry(_entry),
+		dest(_expr),
+		changeLookup(isChangeLookup),
+		m_id(this)
+	{
+	}
+	
+	virtual ~LookupDesc()
+	{
+	  m_id.remove();
+	}
+
+	const LookupDescId& getId() const
+	{
+	  return m_id;
+	}
+
+    void update(double value)
+    {
+	  if (differenceMagnitude(previousValue, value) < tolerance) {
+		debugMsg("StateCache:updateState", 
+				 "Not updating. All changes are within the tolerance.");
+		return;
+	  }
+	  if (previousValue == Expression::UNKNOWN()
+		  && value != Expression::UNKNOWN()) {
+		  debugMsg("StateCache:updateState", "Updating because the previous value is UNKNOWN.");
+	  }
+	  else {
+		debugMsg("StateCache:updateState",
+				 "Updating because the change in value exceeds tolerance " << 
+				 Expression::valueToString(tolerance));
+	  }
+	  check_error(dest.isValid());
+	  debugMsg("StateCache:updateState",
+               "Updating " << (changeLookup ? "change " : "") << "lookup " <<
+			   dest->toString() << " from " <<
+			   Expression::valueToString(previousValue)
+			   << " to " << Expression::valueToString(value));
+	  dest->setValue(value);
+	  previousValue = value;
+    }
+
+	State state;
+	double tolerance;
+	double previousValue;
+	CacheEntryId entry;
+	ExpressionId dest;
+	bool changeLookup;
+
+  private:
+    // Not implemented
+    LookupDesc();
+    LookupDesc(const LookupDesc&);
+    LookupDesc& operator=(const LookupDesc&);
+
+	LookupDescId m_id;
+  };
+
   class CacheEntry
   {
   public:
@@ -111,38 +179,11 @@ namespace PLEXIL
 	  for (std::set<LookupDescId>::const_iterator lit = lookups.begin();
 		   lit != lookups.end();
 		   lit++) {
-		LookupDescId lookup = *lit;
-		// check_error(lookup.isValid()); // *** only if paranoid
-		updateLookup(lookup, value);
+		// check_error(lit->isValid()); // *** only if paranoid
+        (*lit)->update(value);
 	  }
 
 	  return calculateThresholds();
-	}
-
-	// N.B. Lookup need not be a change lookup.
-	void updateLookup(LookupDescId lookup, double value)
-	{
-	  if (differenceMagnitude(lookup->previousValue, value) < lookup->tolerance) {
-		debugMsg("StateCache:updateState", 
-				 "Not updating. All changes are within the tolerance.");
-		return;
-	  }
-	  if (lookup->previousValue == Expression::UNKNOWN()
-		  && value != Expression::UNKNOWN()) {
-		  debugMsg("StateCache:updateState", "Updating because the previous value is UNKNOWN.");
-	  }
-	  else {
-		debugMsg("StateCache:updateState",
-				 "Updating because the change in value exceeds tolerance " << 
-				 Expression::valueToString(lookup->tolerance));
-	  }
-	  check_error(lookup->dest.isValid());
-	  debugMsg("StateCache:updateState", "Updating change lookup " <<
-			   lookup->dest->toString() << " from " <<
-			   Expression::valueToString(lookup->previousValue)
-			   << " to " << Expression::valueToString(value));
-	  lookup->dest->setValue(value);
-	  lookup->previousValue = value;
 	}
 
 	bool calculateThresholds()
@@ -190,6 +231,8 @@ namespace PLEXIL
 		lowThreshold = newLo;
 		changed = true;
 	  }
+      debugMsg("CacheEntry:calculateThresholds",
+               " returning " << (changed ? "true" : "false"));
 	  return changed;
 	}
 
@@ -201,6 +244,11 @@ namespace PLEXIL
 	int lastQuiescence;
 
   private:
+    // Not implemented
+    CacheEntry();
+    CacheEntry(const CacheEntry&);
+    CacheEntry& operator=(const CacheEntry&);
+
 	CacheEntryId m_id;
   };
 
