@@ -63,14 +63,23 @@ namespace PLEXIL
   {
   public:
 	LookupDesc(const CacheEntryId& _entry,
+			   const ExpressionId& _expr)
+	  : tolerance(0.0),
+		previousValue(Expression::UNKNOWN()),
+		entry(_entry),
+		dest(_expr),
+		changeLookup(false),
+		m_id(this)
+	{
+	}
+	LookupDesc(const CacheEntryId& _entry,
 			   const ExpressionId& _expr, 
-			   double _tolerance,
-			   bool isChangeLookup)
+			   double _tolerance)
 	  : tolerance(_tolerance),
 		previousValue(Expression::UNKNOWN()),
 		entry(_entry),
 		dest(_expr),
-		changeLookup(isChangeLookup),
+		changeLookup(true),
 		m_id(this)
 	{
 	}
@@ -84,6 +93,26 @@ namespace PLEXIL
 	{
 	  return m_id;
 	}
+
+    inline const bool& isChangeLookup() const
+    {
+      return changeLookup;
+    }
+
+    inline const double& getTolerance() const
+    {
+      return tolerance;
+    }
+
+    inline const double& getPreviousValue() const
+    {
+      return previousValue;
+    }
+
+    inline void setPreviousValue(const double& value)
+    {
+      previousValue = value;
+    }
 
     void update(double value)
     {
@@ -111,12 +140,8 @@ namespace PLEXIL
 	  previousValue = value;
     }
 
-	State state;
-	double tolerance;
-	double previousValue;
-	CacheEntryId entry;
-	ExpressionId dest;
-	bool changeLookup;
+	CacheEntryId entry; //* Backpointer to CacheEntry instance
+	ExpressionId dest;  //* The Lookup expression
 
   private:
     // Not implemented
@@ -125,6 +150,9 @@ namespace PLEXIL
     LookupDesc& operator=(const LookupDesc&);
 
 	LookupDescId m_id;
+	double previousValue;
+	double tolerance;
+	bool changeLookup;  //* True if a change lookup, false otherwise
   };
 
   class CacheEntry
@@ -159,7 +187,7 @@ namespace PLEXIL
 	  for (std::set<LookupDescId>::const_iterator it = lookups.begin();
 		   it != lookups.end();
 		   it++) {
-		if ((*it)->changeLookup)
+		if ((*it)->isChangeLookup())
 		  return true;
 	  }
 	  return false;
@@ -198,19 +226,25 @@ namespace PLEXIL
 		   lit++) {
 		LookupDescId lookup = *lit;
 		// check_error(lookup.isValid()); // *** only if paranoid
-		condDebugMsg(!lookup->changeLookup,
+		condDebugMsg(!lookup->isChangeLookup(),
 					 "CacheEntry:calculateThresholds",
 					 " entry is not a change lookup");
-		if (lookup->changeLookup && lookup->tolerance != 0.0) {
+		if (lookup->isChangeLookup()) {
+          if (lookup->getTolerance() == 0.0) {
+            debugMsg("CacheEntry:calculateThresholds",
+                     " returning false; at least one change lookup w/ no tolerance");
+            highThreshold = lowThreshold = Expression::UNKNOWN();
+            return false;
+          }
 		  // Update thresholds based on lookup's last value
-		  double hi = lookup->previousValue + lookup->tolerance;
+		  double hi = lookup->getPreviousValue() + lookup->getTolerance();
 		  if (newHi == Expression::UNKNOWN()
 			  || hi < newHi) {
 			debugMsg("CacheEntry:calculateThresholds",
 					 " updating high threshold to " << Expression::valueToString(hi));
 			newHi = hi;
 		  }
-		  double lo = lookup->previousValue - lookup->tolerance;
+		  double lo = lookup->getPreviousValue() - lookup->getTolerance();
 		  if (newLo == Expression::UNKNOWN()
 			  || lo > newLo) {
 			debugMsg("CacheEntry:calculateThresholds",
@@ -297,7 +331,7 @@ namespace PLEXIL
 
 	// Register the lookup for updates as long as it's active
 	CacheEntryId entry = ensureCacheEntry(state);
-	LookupDescId lookup = (new LookupDesc(entry, expr, 0.0, false))->getId();
+	LookupDescId lookup = (new LookupDesc(entry, expr))->getId();
 	m_lookupsByExpression[expr] = lookup;
 	entry->lookups.insert(lookup);
 
@@ -332,7 +366,7 @@ namespace PLEXIL
 
 	CacheEntryId entry = ensureCacheEntry(state);
 	bool wasSubscribed = entry->activeChangeLookups();
-	LookupDescId lookup = (new LookupDesc(entry, expr, tolerance, true))->getId();
+	LookupDescId lookup = (new LookupDesc(entry, expr, tolerance))->getId();
 	m_lookupsByExpression[expr] = lookup;
 	entry->lookups.insert(lookup);
 	if (!wasSubscribed) {
@@ -354,7 +388,7 @@ namespace PLEXIL
 	  debugMsg("StateCache:registerChangeLookup",
 			   "Already have up-to-date value for state, so using that (" <<
 			   Expression::valueToString(entry->value) << ")");
-	  lookup->previousValue = entry->value;
+	  lookup->setPreviousValue(entry->value);
 	  expr->setValue(entry->value);
 	  thresholdUpdate = entry->calculateThresholds();
 	}
