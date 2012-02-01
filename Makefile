@@ -36,13 +36,16 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener standard-plexil checker plexilsim robosim
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim
 
 # convenience target for A4O project
 A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener plexilsim
 
 # convenience target for ASA project
 asa ASA: exec-core app-framework luv standard-plexil
+
+# convenience target for AMO project
+amo AMO: exec-core app-framework luv plexil-compiler
 
 TestExec: exec-core PlanDebugListener LuvListener luv
 	$(MAKE) -C src/apps/TestExec
@@ -64,6 +67,9 @@ luv:
 
 standard-plexil:
 	(cd src/standard-plexil && ant install)
+
+plexil-compiler:
+	$(MAKE) -C src/compilers/plexil
 
 pugixml:
 	$(MAKE) -C third-party/pugixml/src
