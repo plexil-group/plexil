@@ -341,8 +341,7 @@ namespace PLEXIL
 			   << " state, so performing external lookup.");
 	  // Perform the lookup and propagate to anyone else listening to this state
 	  // Tell interface if change thresholds moved in the process
-	  if (internalStateUpdate(entry, m_interface->lookupNow(entry->state))
-		  && entry->activeChangeLookups())
+	  if (internalStateUpdate(entry, m_interface->lookupNow(entry->state)))
 		m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
 	}
 	// state is known and the cached value is current - return it
@@ -446,7 +445,7 @@ namespace PLEXIL
 	  return;
 	}
 	CacheEntryId entry = it->second;
-	if (internalStateUpdate(entry, value) && entry->activeChangeLookups())
+	if (internalStateUpdate(entry, value))
 	  m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
   }
 
