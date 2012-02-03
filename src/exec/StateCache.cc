@@ -116,7 +116,7 @@ namespace PLEXIL
 
     void update(double value)
     {
-	  if (differenceMagnitude(previousValue, value) < tolerance) {
+	  if (differenceMagnitude(previousValue, value) <= tolerance) {
 		debugMsg("StateCache:updateState", 
 				 "Not updating. All changes are within the tolerance.");
 		return;
