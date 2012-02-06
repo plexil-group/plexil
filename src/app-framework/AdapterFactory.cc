@@ -30,11 +30,7 @@
 #include "Debug.hh"
 #include "DynamicLoader.hh"
 #include "InterfaceSchema.hh"
-
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -48,7 +44,7 @@ namespace PLEXIL
    */
 
   InterfaceAdapterId 
-  AdapterFactory::createInstance(const TiXmlElement* xml,
+  AdapterFactory::createInstance(const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface)
   {
     // Can't do anything without the spec
@@ -57,8 +53,8 @@ namespace PLEXIL
 
     // Get the kind of adapter to make
     const char* adapterType = 
-      xml->Attribute(InterfaceSchema::ADAPTER_TYPE_ATTR());
-    checkError(adapterType != 0,
+      xml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();
+    checkError(*adapterType != '\0',
 	       "AdapterFactory::createInstance: no "
 	       << InterfaceSchema::ADAPTER_TYPE_ATTR()
 	       << " attribute for adapter XML:\n"
@@ -80,7 +76,7 @@ namespace PLEXIL
 
   InterfaceAdapterId 
   AdapterFactory::createInstance(const LabelStr& name,
-                                 const TiXmlElement* xml,
+                                 const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface)
   {
     bool dummy;
@@ -100,7 +96,7 @@ namespace PLEXIL
 
   InterfaceAdapterId 
   AdapterFactory::createInstance(const LabelStr& name,
-                                 const TiXmlElement* xml,
+                                 const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface,
                                  bool& wasCreated)
   {
@@ -112,7 +108,7 @@ namespace PLEXIL
 				 << name.c_str() << "\"");
 		// Attempt to dynamically load library
 		const char* libCPath =
-		  xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
+		  xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
 		if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
 		  debugMsg("AdapterFactory::createInstance",
 				   " unable to load module for adapter type \""

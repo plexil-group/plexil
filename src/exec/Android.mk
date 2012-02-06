@@ -24,7 +24,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Android makefile for PlexilUtils module
+# Android makefile for PlexilExec module
 
 LOCAL_PATH := $(call my-dir)
 
@@ -33,33 +33,46 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := PlexilExec
 # doesn't seem to work
 # LOCAL_SRC_FILES := $(wildcard *.cc)
-LOCAL_SRC_FILES := ActionNodeStateManager.cc \
+LOCAL_SRC_FILES := Array.cc \
+ Assignment.cc \
+ AssignmentNode.cc \
+ BooleanVariable.cc \
+ Calculable.cc \
+ Calculables.cc \
+ Command.cc \
+ CommandNode.cc \
  CoreExpressions.cc \
- DefaultStateManager.cc \
- EmptyNodeStateManager.cc \
  ExecListener.cc \
+ ExecListenerFilter.cc \
+ ExecListenerFilterFactory.cc \
+ ExecListenerHub.cc \
  Expression.cc \
+ ExpressionFactory.cc \
  Expressions.cc \
- ExternalInterface.cc \
- LibraryNodeCallStateManager.cc \
- ListNodeStateManager.cc \
+ InterfaceSchema.cc \
+ LibraryCallNode.cc \
+ ListNode.cc \
+ Lookup.cc \
  Node.cc \
- NodeStateManager.cc \
+ NodeFactory.cc \
  PlexilExec.cc \
  PlexilPlan.cc \
  PlexilXmlParser.cc \
  ResourceArbiterInterface.cc \
  StateCache.cc \
- StateManagerInit.cc \
  TestExternalInterface.cc \
- VarBindingStateManager.cc \
- plan-utils.cc
+ Update.cc \
+ UpdateNode.cc \
+ Variable.cc \
+ Variables.cc \
+ plan-utils.cc \
+ resource-tags.cc
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := 
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/tinyxml $(LOCAL_PATH)/../utils
-#LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils
-LOCAL_STATIC_LIBRARIES := tinyxml PlexilUtils
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/pugixml/src $(LOCAL_PATH)/../utils
+#LOCAL_SHARED_LIBRARIES := pugixml PlexilUtils
+LOCAL_STATIC_LIBRARIES := pugixml PlexilUtils
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)

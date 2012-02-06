@@ -58,6 +58,4 @@ function sizeGantt () {
 		GRID_SETTINGS.columnBuffer +
 		parseInt($("div.tokenColumn").css("width"), 10);
 	$("#gantt").css("width", width);
-    var height = $("div.tokenColumn").height();
-    $("#gantt").css("height", height);
 }

@@ -30,12 +30,12 @@ include $(PLEXIL_HOME)/makeinclude/tao-defs.make
 LIBRARY		:= PlexilEventChannelReporter
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
 			   $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework \
 			   ../utils
 LIB_PATH	+= $(ACE_ROOT)/lib $(PLEXIL_HOME)/lib
 LIBS		+= TAO_CosEvent TAO_CosEvent_Skel TAO_CosNotification TAO_CosNotification_Skel \
-		   tinyxml PlexilUtils PlexilExec PlexilAppFramework \
+		   pugixml PlexilUtils PlexilExec PlexilAppFramework \
 		   PlexilCorbaUtils
 
 SRC		:= $(wildcard *.cc)

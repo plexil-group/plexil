@@ -32,9 +32,6 @@
 #include "LabelStr.hh"
 #include <map>
 
-// Forward reference w/o namespace
-class TiXmlElement;
-
 namespace PLEXIL
 {
   //
@@ -52,10 +49,9 @@ namespace PLEXIL
   public:
 
     /**
-     * @brief Creates a new InterfaceAdapter instance with the type associated with the name.
+     * @brief Creates a new AdapterConfiguration instance with the type associated with the name.
      * @param name The registered name for the factory.
-     * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
-     * @param execInterface Reference to the parent InterfaceManager instance.
+     * @param manager Reference to the parent InterfaceManager instance.
      * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
@@ -64,6 +60,7 @@ namespace PLEXIL
     /**
      * @brief Creates a new AdapterConfiguration instance with the type associated with the name.
      * @param name The registered name for the factory.
+     * @param manager Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.

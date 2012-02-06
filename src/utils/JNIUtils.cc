@@ -143,4 +143,27 @@ namespace PLEXIL {
 	return m_env->NewObjectArray(size, m_stringClass, NULL);
   }
 
+  /**
+   * @brief Given a Java String[], return an array of char*.
+   * @param The Java String[] object.
+   * @return A freshly allocated vector of strings.
+   */
+  std::vector<std::string>* JNIUtils::getJavaStringArray(jobjectArray ary)
+  {
+	assertTrue(ary != NULL);
+
+	jsize n = m_env->GetArrayLength(ary);
+	std::vector<std::string>* result = new std::vector<std::string>(n);
+	for (jsize i = 0; i < n; i++) {
+	  jstring javastr = (jstring) m_env->GetObjectArrayElement(ary, i);
+	  if (javastr != NULL) {
+		const char* utf = m_env->GetStringUTFChars(javastr, NULL);
+		(*result)[i] = utf;
+		m_env->ReleaseStringUTFChars(javastr, utf);
+	  }
+	  m_env->DeleteLocalRef(javastr);
+	}
+	return result;
+  }
+
 }

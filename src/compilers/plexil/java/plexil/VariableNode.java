@@ -39,6 +39,17 @@ public class VariableNode extends ExpressionNode
         super(t);
     }
 
+    public VariableNode(VariableNode n)
+    {
+        super(n);
+		m_variable = n.m_variable;
+    }
+
+	public Tree dupNode()
+	{
+		return new VariableNode(this);
+	}
+
     public VariableName getVariableName()
     {
         return m_variable;

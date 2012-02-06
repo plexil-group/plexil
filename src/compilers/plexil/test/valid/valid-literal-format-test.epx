@@ -1,6 +1,6 @@
 <PlexilPlan LineNo="1" ColNo="0">
     <Node NodeType="Empty" LineNo="3" ColNo="2">
-        <NodeId>literal-format-test</NodeId>
+        <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="2">
                 <Name>b0</Name>
@@ -55,7 +55,7 @@
                 <Name>i0</Name>
                 <Type>Integer</Type>
                 <InitialValue>
-                    <IntegerValue>0</IntegerValue>
+                    <IntegerValue>-0</IntegerValue>
                 </InitialValue>
             </DeclareVariable>
             <DeclareVariable LineNo="13" ColNo="2">
@@ -90,7 +90,7 @@
                 <Name>r4</Name>
                 <Type>Real</Type>
                 <InitialValue>
-                    <RealValue>0</RealValue>
+                    <RealValue>-0</RealValue>
                 </InitialValue>
             </DeclareVariable>
             <DeclareVariable LineNo="19" ColNo="2">
@@ -184,7 +184,7 @@
                 <Type>Real</Type>
                 <MaxSize>4</MaxSize>
                 <InitialValue>
-                    <RealValue>0.0</RealValue>
+                    <RealValue>-0.0</RealValue>
                 </InitialValue>
             </DeclareArray>
             <DeclareArray LineNo="36" ColNo="2">

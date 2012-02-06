@@ -39,8 +39,12 @@ public class LogicalOperatorNode extends ExpressionNode
     public LogicalOperatorNode(LogicalOperatorNode n)
     {
         super(n);
-        m_dataType = PlexilDataType.BOOLEAN_TYPE;
     }
+
+	public Tree dupNode()
+	{
+		return new LogicalOperatorNode(this);
+	}
 
     // May have 1 or more args; all must be boolean
     public void check(NodeContext context, CompilerState myState)

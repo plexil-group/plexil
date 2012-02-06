@@ -43,10 +43,21 @@ public class ActionNode extends PlexilTreeNode
         super(t);
     }
 
+	public ActionNode(ActionNode n)
+	{
+		super(n);
+		m_nodeId = n.m_nodeId;
+	}
+
     public String getNodeId()
     {
         return m_nodeId; 
     }
+
+	public Tree dupNode()
+	{
+		return new ActionNode(this);
+	}
 
     public void earlyCheckSelf(NodeContext context, CompilerState state)
     {

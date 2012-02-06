@@ -26,20 +26,20 @@
 
 #include "Logging.hh"
 #include "PlexilExec.hh"
-#include "ExecListener.hh"
+#include "ExecListenerHub.hh"
 #include "PlanDebugListener.hh"
 #include "TestExternalInterface.hh"
 #include "SocketException.h"
 #include "CoreExpressions.hh"
 #include "Expressions.hh"
 #include "Debug.hh"
-#include "StateManagerInit.hh"
 #include "PlexilXmlParser.hh"
-#include <time.h>
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "ExecTestRunner.hh"
-#include "TestLuvListener.hh"
+#include "LuvListener.hh"
+
+#include <cstring>
 #include <fstream>
 #include <string>
 
@@ -58,8 +58,8 @@ int ExecTestRunner::run(int argc, char** argv)
   vector<string> libraryNames;
   vector<string> libraryPaths;
   bool luvRequest = false;
-  string luvHost = EssentialLuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = EssentialLuvListener::LUV_DEFAULT_PORT();
+  string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
+  int luvPort = LuvListener::LUV_DEFAULT_PORT();
   bool luvBlock = false;
   string
     usage(
@@ -195,35 +195,34 @@ int ExecTestRunner::run(int argc, char** argv)
     DebugMessage::readConfigFile(config);
 
   initializeExpressions();
-  initializeStateManagers();
-
-  // always preserve white space in XML
-  TiXmlBase::SetCondenseWhiteSpace(false);
 
   // create the exec
 
   TestExternalInterface intf;
   PlexilExecId exec = (new PlexilExec())->getId();
   intf.setExec(exec);
+  ExecListenerHub hub;
+  exec->setExecListenerHub(hub.getId());
 
   // add the debug listener
 
   PlanDebugListener debug_listener;
-  exec->addListener (debug_listener.getId());
+  hub.addListener((new PlanDebugListener())->getId());
 
   // if a Plexil Viwer is to be attached
 
   if (luvRequest) {
     // create and add luv listener
-    TestLuvListener* ll = 
-      new TestLuvListener(luvHost, luvPort, luvBlock);
+    LuvListener* ll = 
+      new LuvListener(luvHost, luvPort, luvBlock);
     if (ll->isConnected()) {
-      exec->addListener(ll->getId());
+      hub.addListener(ll->getId());
     }
     else {
       warn("WARNING: Unable to connect to Plexil Viewer: " << endl
            << "  address: " << luvHost << ":" << luvPort << endl
            << "Execution will continue without the viewer.");
+	  delete ll;
     }
   }
 
@@ -232,19 +231,19 @@ int ExecTestRunner::run(int argc, char** argv)
   for (vector<string>::const_iterator libraryName = libraryNames.begin(); 
 	   libraryName != libraryNames.end();
 	   ++libraryName) {
-    TiXmlDocument libraryXml(*libraryName);
-	if (!libraryXml.LoadFile()) {
+	pugi::xml_document libraryXml;
+	pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+	if (parseResult.status != pugi::status_ok) {
 	  warn("XML error parsing library file '" << *libraryName
-		   << "' (line " << libraryXml.ErrorRow() << ", column " << libraryXml.ErrorCol()
-		   << "):\n" << libraryXml.ErrorDesc());
+		   << "' (offset " << parseResult.offset
+		   << "):\n" << parseResult.description());
 	  return -1;
 	}
 
     PlexilNodeId libnode;
     try {
       libnode =
-        PlexilXmlParser::parse(libraryXml.FirstChildElement("PlexilPlan")
-							   ->FirstChildElement("Node"));
+        PlexilXmlParser::parse(libraryXml.document_element().child("PlexilPlan").child("Node"));
     } 
 	catch (ParserException& e) {
 	  warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
@@ -255,20 +254,21 @@ int ExecTestRunner::run(int argc, char** argv)
   }
 
   // Load the plan
-  TiXmlDocument plan(planName);
-  if (!plan.LoadFile()) {
+  pugi::xml_document plan;
+  pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+  if (parseResult.status != pugi::status_ok) {
 	warn("XML error parsing plan file '" << planName
-		 << "' (line " << plan.ErrorRow() << ", column " << plan.ErrorCol()
-		 << "):\n" << plan.ErrorDesc());
+		 << "' (offset " << parseResult.offset
+		 << "):\n" << parseResult.description());
 	return -1;
   }
 
   PlexilNodeId root;
   try {
 	root =
-	  PlexilXmlParser::parse(plan.FirstChildElement("PlexilPlan")
-							 ->FirstChildElement("Node"));
-  } catch (ParserException& e) {
+	  PlexilXmlParser::parse(plan.document_element().child("Node"));
+  }
+  catch (ParserException& e) {
 	warn("XML error parsing plan '" << planName << "':\n" << e.what());
 	return -1;
   }
@@ -310,22 +310,24 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // load script
 
-  TiXmlDocument script(scriptName);
-  if (!script.LoadFile()) {
+  pugi::xml_document script;
+  parseResult = script.load_file(scriptName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+  if (parseResult.status != pugi::status_ok) {
     checkParserException(false,
-                         "(line " << script.ErrorRow() << ", column " << script.ErrorCol()
-                         << ") XML error parsing script '" << scriptName << "': " << script.ErrorDesc());
+                         "(offset " << parseResult.offset
+                         << ") XML error parsing script '" << scriptName << "': "
+						 << parseResult.description());
     return -1;
   }
   // execute plan
 
   clock_t time = clock();
-  TiXmlElement* scriptElement = script.FirstChildElement("PLEXILScript");
-  if (scriptElement == 0) {
+  pugi::xml_node scriptElement = script.child("PLEXILScript");
+  if (scriptElement.empty()) {
     warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
     return -1;
   }
-  intf.run(*scriptElement);
+  intf.run(scriptElement);
   debugMsg("Time", "Time spent in execution: " << clock() - time);
 
   // clean up

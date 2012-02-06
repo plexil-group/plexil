@@ -41,6 +41,17 @@ public class ReturnSpecNode extends PlexilTreeNode
         super(t);
     }
 
+	public ReturnSpecNode(ReturnSpecNode n)
+	{
+		super(n);
+		m_returnSpecs = n.m_returnSpecs;
+	}
+
+	public Tree dupNode()
+	{
+		return new ReturnSpecNode(this);
+	}
+
     public Vector<VariableName> getReturnVector() { return m_returnSpecs; }
 
     public void earlyCheck(NodeContext context, CompilerState state)

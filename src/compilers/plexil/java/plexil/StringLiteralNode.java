@@ -26,7 +26,8 @@
 
 package plexil;
 
-import org.antlr.runtime.Token;
+import org.antlr.runtime.*;
+import org.antlr.runtime.tree.*;
 
 import net.n3.nanoxml.*;
 
@@ -43,6 +44,16 @@ public class StringLiteralNode extends LiteralNode
     {
         super(t);
     }
+
+	public StringLiteralNode(StringLiteralNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new StringLiteralNode(this);
+	}
 
     public void constructXML()
     {

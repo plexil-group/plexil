@@ -39,6 +39,16 @@ public class LookupDeclarationNode extends PlexilTreeNode
         super(t);
     }
 
+    public LookupDeclarationNode(LookupDeclarationNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new LookupDeclarationNode(this);
+	}
+
     // structure is:
     // ^(LOOKUP_KYWD NCNAME returnsSpec paramsSpec?)
 
@@ -64,14 +74,16 @@ public class LookupDeclarationNode extends PlexilTreeNode
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
             parmSpecs = parmAST.getParameterVector();
-            for (VariableName vn : parmSpecs) {
-                if (vn instanceof InterfaceVariableName) {
-                    state.addDiagnostic(vn.getDeclaration(),
-                                        (vn.isAssignable() ? "InOut" : "In")
-                                        + " declaration is illegal in lookup parameter declarations",
-                                        Severity.ERROR);
-                }
-            }
+			if (parmSpecs != null) {
+				for (VariableName vn : parmSpecs) {
+					if (vn instanceof InterfaceVariableName) {
+						state.addDiagnostic(vn.getDeclaration(),
+											(vn.isAssignable() ? "InOut" : "In")
+											+ " declaration is illegal in lookup parameter declarations",
+											Severity.ERROR);
+					}
+				}
+			}
         }
 
         // Define in global environment

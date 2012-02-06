@@ -32,11 +32,7 @@
 #include "NameServiceHelper.hh"
 
 #include "Debug.hh"
-
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 #include <cstring>
 #include <cstdlib>
@@ -45,7 +41,7 @@ namespace PLEXIL {
 
   using namespace gov::nasa::plexil;
 
-  CorbaController::CorbaController(ExecApplication& app, const TiXmlElement * configXml)
+  CorbaController::CorbaController(ExecApplication& app, const pugi::xml_node& configXml)
 	: POA_gov::nasa::plexil::ExecCommander(),
 	  ExecController(app, configXml),
 	  m_name(NULL)
@@ -63,9 +59,9 @@ namespace PLEXIL {
   bool CorbaController::initialize() {
 	bool result = true;
 	// register self with name service if name provided
-	if (getXml() != NULL) {
-	  const char* myName = getXml()->Attribute(CONTROLLER_NAME_ATTR());
-	  if (myName != NULL) {
+	if (getXml()) {
+	  const char* myName = getXml().attribute(CONTROLLER_NAME_ATTR()).value();
+	  if (myName) {
 		result = registerWithNameService(myName);
 	  }
 	}
@@ -145,13 +141,13 @@ namespace PLEXIL {
 	  return WRONG_STATE;
 
 	// parse XML
-	TiXmlDocument* xdoc = new TiXmlDocument();
-	xdoc->Parse(planXml);
-	if (xdoc->Error())
+	pugi::xml_document xdoc;
+	pugi::xml_parse_result result = xdoc.load(planXml);
+	if (result.status != pugi::status_ok)
 	  return PLAN_PARSE_ERROR;
 
 	// pass it to exec
-	return (getApplication().addPlan(xdoc) ? OK : FAILED);
+	return (getApplication().addPlan(&xdoc) ? OK : FAILED);
   }
 
   CommandStatus CorbaController::loadPlanFile(const char* filename)
@@ -160,17 +156,18 @@ namespace PLEXIL {
 	  return WRONG_STATE;
 
 	// parse XML
-	TiXmlDocument* xdoc = new TiXmlDocument(filename);
-	if (!xdoc->LoadFile()) {
-	  int xmlErr = xdoc->ErrorId();
-	  if (xmlErr == TiXmlBase::TIXML_ERROR_OPENING_FILE)
+	pugi::xml_document xdoc;
+	pugi::xml_parse_result result = xdoc.load_file(filename);
+	if (result.status != pugi::status_ok) {
+	  if (result.status == pugi::status_file_not_found
+		  || result.status == pugi::status_io_error)
 		return IO_ERROR;
 	  else
 		return PLAN_PARSE_ERROR;
 	}
 
 	// pass it to exec
-	return (getApplication().addPlan(xdoc) ? OK : FAILED);
+	return (getApplication().addPlan(&xdoc) ? OK : FAILED);
   }
 
   CommandStatus CorbaController::loadLibrary(const char* libraryXml)
@@ -179,13 +176,13 @@ namespace PLEXIL {
 	  return WRONG_STATE;
 
 	// parse XML
-	TiXmlDocument* xdoc = new TiXmlDocument();
-	xdoc->Parse(libraryXml);
-	if (xdoc->Error())
+	pugi::xml_document xdoc;
+	pugi::xml_parse_result result = xdoc.load(libraryXml);
+	if (result.status != pugi::status_ok)
 	  return PLAN_PARSE_ERROR;
 
 	// pass it to exec
-	return (getApplication().addLibrary(xdoc) ? OK : FAILED);
+	return (getApplication().addLibrary(&xdoc) ? OK : FAILED);
   }
 
   CommandStatus CorbaController::loadLibraryFile(const char* filename)
@@ -194,17 +191,18 @@ namespace PLEXIL {
 	  return WRONG_STATE;
 
 	// parse XML
-	TiXmlDocument* xdoc = new TiXmlDocument(filename);
-	if (!xdoc->LoadFile()) {
-	  int xmlErr = xdoc->ErrorId();
-	  if (xmlErr == TiXmlBase::TIXML_ERROR_OPENING_FILE)
+	pugi::xml_document xdoc;
+	pugi::xml_parse_result result = xdoc.load_file(filename);
+	if (result.status != pugi::status_ok) {
+	  if (result.status == pugi::status_file_not_found
+		  || result.status == pugi::status_io_error)
 		return IO_ERROR;
 	  else
 		return PLAN_PARSE_ERROR;
 	}
 
 	// pass it to exec
-	return (getApplication().addLibrary(xdoc) ? OK : FAILED);
+	return (getApplication().addLibrary(&xdoc) ? OK : FAILED);
   }
 
   /**

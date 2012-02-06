@@ -39,8 +39,12 @@ public class IsKnownNode extends ExpressionNode
     public IsKnownNode(IsKnownNode n)
     {
         super(n);
-        m_dataType = PlexilDataType.BOOLEAN_TYPE;
     }
+
+	public Tree dupNode()
+	{
+		return new IsKnownNode(this);
+	}
 
     public void check(NodeContext context, CompilerState myState)
     {

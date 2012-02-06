@@ -1,10 +1,7 @@
-Receiver: {
-	RepeatCondition: true;
-	NodeList: 
-		{
-			OnCommand setTorque(Real torque)
-				{
-					Command: UpdateLookup("Torque", torque);
-				}
-		}
+Command UpdateLookup (String, Real);
+
+Receiver: Concurrence
+{
+  RepeatCondition true;
+  OnCommand "setTorque" (Real torque) UpdateLookup("Torque", torque);
 }

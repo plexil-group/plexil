@@ -28,9 +28,7 @@
 #define EXEC_CONTROLLER_H
 
 #include "Id.hh"
-
-// Forward references in global namespace
-class TiXmlElement;
+#include "pugixml.hpp"
 
 namespace PLEXIL {
 
@@ -43,7 +41,7 @@ namespace PLEXIL {
 
   class ExecController {
   public:
-	ExecController(ExecApplication & app, const TiXmlElement * configData)
+	ExecController(ExecApplication & app, const pugi::xml_node& configData)
 	  : m_application(app), m_xml(configData)
 	{}
 
@@ -52,7 +50,7 @@ namespace PLEXIL {
 	/**
      * @brief Get the configuration XML for this instance.
      */
-    const TiXmlElement* getXml()
+    const pugi::xml_node& getXml()
     {
       return m_xml;
     }
@@ -90,7 +88,7 @@ namespace PLEXIL {
 	ExecController& operator=(const ExecController&);
 	
 	ExecApplication & m_application;
-	const TiXmlElement * m_xml;
+	const pugi::xml_node m_xml;
 	Id<ExecController> m_id;
   };
 

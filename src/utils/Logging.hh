@@ -45,7 +45,7 @@ class Logging {
 		static void set_log_file_name(const char * file);
 		static void print_to_log(const char * fullmsg);	
 		static void print_to_log(char** run_command, int num);                
-		static int handle_message(int msg_type, const char * file, int line, const char * msg);
+		static int handle_message(int msg_type, const char * file, int offset, const char * msg);
 		static int handle_message(int msg_type, const char * file, int line, int col, const char * msg);
 	private:
 		static int print_error(const char * fullmsg);

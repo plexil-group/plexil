@@ -41,6 +41,17 @@ public class IfNode extends PlexilTreeNode
         super(t);
     }
 
+	public IfNode(IfNode n)
+	{
+		super(n);
+		m_bodyContexts = n.m_bodyContexts;
+	}
+
+	public Tree dupNode()
+	{
+		return new IfNode(this);
+	}
+
     //
     // N.B. The extra complexity in the checking logic is to ensure each consequent body
     // is contained in a separate name binding context from the if statement as a whole.

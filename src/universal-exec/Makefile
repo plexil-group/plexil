@@ -34,9 +34,9 @@ EXECUTABLE = universalExec
 SRC = UniversalExec.cc
 INC = 
 
-INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml \
+INC_DIRS += $(PLEXIL_HOME)/third-party/pugixml/src \
 	    ../utils ../exec ../app-framework ../interfaces/LuvListener
-LIBS     += tinyxml PlexilUtils PlexilExec PlexilSockets LuvListener dl PlexilAppFramework
+LIBS     += pugixml PlexilUtils PlexilExec PlexilSockets LuvListener PlanDebugListener dl PlexilAppFramework
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 UNIVERSALEXEC_TARGET = universalExec

@@ -1,0 +1,10 @@
+<PLEXILScript>
+  <Script>
+    <CommandAck name="power_on_heater" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <CommandAck name="turn_on_heater" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+  </Script>
+</PLEXILScript>

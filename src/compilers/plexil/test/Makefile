@@ -26,26 +26,26 @@
 # PLEXIL_HOME			?= ../../../..
 
 SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
-	      command0 command1 command2 command3 command4 \
-	      sequence0 sequence1 sequence2 sequence3 \
-	      assignment0 assignment1 assignment2 \
-		  comment1 concurrence0 concurrence1 concurrence1 concurrence2 concurrence3 \
-	      Fibs Fib PrintFib FibTest LibraryCall1 LibraryCall2 \
-	      array-copy CopyReals \
-              on-command1 on-command2 isKnown1 for1 for2 \
-	      on-message1 on-message2 concat1 nodeState1 nodeState2 \
-	      nodeOutcome1 command-handle1 interface-test interface-test1 \
-	      DriveToSchool SafeDrive CruiseControl sync-cmd-test \
-	      simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
+              command0 command1 command2 command3 command4 \
+              sequence0 sequence1 sequence2 sequence3 \
+              assignment0 assignment1 assignment2 \
+              comment1 concurrence0 concurrence1 concurrence1 concurrence2 concurrence3 \
+              Fibs Fib PrintFib FibTest LibraryCall1 LibraryCall2 LibraryCall3 \
+              array-copy CopyReals on-command1 on-command2 isKnown1 for1 for2 \
+              on-message1 on-message2 concat1 nodeState1 nodeState2 \
+              nodeOutcome1 command-handle1 interface-test interface-test1 \
+              DriveToSchool SafeDrive CruiseControl sync-cmd-test \
+              simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
               Decrement Increment Sum RoboSimSimple2 SimpleDrive \
               array-add array-complex array-copy  basic-wait-test boolean1 \
-	      duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
+              duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
               library-call1 library-node1 LibraryCallWithArray literal-format-test \
-	      if2 if3 test-recv test-send time-lookup-test expr1 expr2 expr3 \
-          try1 update1 update2 update3 \
+              if2 if3 test-recv test-send time-lookup-test expr1 expr2 expr3 expr4 \
+              try1 update1 update2 update3 \
               resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
-          invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
-          iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 inactive1
+              invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
+              iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 \
+	      inactive1 wait1
 
 BROKEN       =  array-library-call
 
@@ -54,7 +54,6 @@ SYNTAX_ERROR_TESTS   = array-library-call
 SEMANTIC_ERROR_TESTS = on-message3
 
 TESTS	         := $(SMALL_TESTS)
-#TESTS	         :=
 
 
 # The VALID_TEST* macros are used by the original test framework.  

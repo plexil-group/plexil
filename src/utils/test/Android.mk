@@ -35,10 +35,10 @@ LOCAL_SRC_FILES := util-test-module.cc module-tests.cc jni-adapter.cc
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := 
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../third-party/tinyxml \
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../third-party/pugixml/src \
  $(LOCAL_PATH)/..
-#LOCAL_SHARED_LIBRARIES := tinyxml PlexilUtils
-LOCAL_STATIC_LIBRARIES := tinyxml PlexilUtils stdc++
+#LOCAL_SHARED_LIBRARIES := pugixml PlexilUtils
+LOCAL_STATIC_LIBRARIES := pugixml PlexilUtils stdc++
 LOCAL_LDLIBS := 
 
 include $(BUILD_SHARED_LIBRARY)

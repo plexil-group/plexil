@@ -33,9 +33,9 @@ LIBRARY = SampleAdapter
 SRC = types.cc subscriber.cc sample_system.cc SampleAdapter.cc
 INC = types.hh subscriber.hh sample_system.hh SampleAdapter.hh
 
-INC_DIRS += $(PLEXIL_HOME)/third-party/tinyxml $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
+INC_DIRS += $(PLEXIL_HOME)/third-party/pugixml/src $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
 
-LIBS		+= dl tinyxml PlexilAppFramework PlexilUtils PlexilExec
+LIBS		+= dl pugixml PlexilAppFramework PlexilUtils PlexilExec
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 

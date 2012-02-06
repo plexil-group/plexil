@@ -1,17 +1,14 @@
-Main: {
-	Real fTorque;
-	Real bTorque;
-	Sequence
-		GetF: {
-			Assignment: fTorque = LookupNow(("front_engine:Torque"));
-		}
-		GetB: {
-			Assignment: bTorque = LookupNow(("rear_engine:Torque"));
-		}
-		SetF: {
-			Command: front_engine:setTorque(bTorque);
-		}
-		SetB: {
-			Command: rear_engine:setTorque(fTorque);
-		}
+Command front_engine_setTorque (Real);
+Command rear_engine_setTorque (Real);
+Real Lookup front_engine_Torque;
+Real Lookup rear_engine_Torque;
+
+Main:
+{
+  Real fTorque;
+  Real bTorque;
+  GetF: fTorque = Lookup (front_engine_Torque);
+  GetB: bTorque = Lookup (rear_engine_Torque);
+  SetF: front_engine_setTorque(bTorque);
+  SetB: rear_engine_setTorque(fTorque);
 }

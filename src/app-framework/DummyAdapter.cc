@@ -26,10 +26,12 @@
 
 #include "DummyAdapter.hh"
 
-#include "Debug.hh"
-#include "CoreExpressions.hh"
 #include "AdapterExecInterface.hh"
+#include "BooleanVariable.hh"
+#include "CoreExpressions.hh"
+#include "Debug.hh"
 #include "Node.hh"
+#include "StateCache.hh"
 
 namespace PLEXIL
 {
@@ -45,7 +47,7 @@ namespace PLEXIL
    * @brief Constructor w/ configuration XML.
    */
   DummyAdapter::DummyAdapter(AdapterExecInterface& execInterface,
-                             const TiXmlElement* xml)
+                             const pugi::xml_node& xml)
     : InterfaceAdapter(execInterface, xml)
   {
   }
@@ -103,23 +105,29 @@ namespace PLEXIL
   }
 
 
-  void DummyAdapter::registerChangeLookup(const LookupKey& /* uniqueId */,
-					  const StateKey& /* stateKey */,
-					  const std::vector<double>& /* tolerances */)
+  double DummyAdapter::lookupNow(const State& state)
   {
-    debugMsg("ExternalInterface:dummy", " registerChangeLookup called");
+    debugMsg("ExternalInterface:dummy", 
+			 " LookupNow of " << StateCache::toString(state) << " returning UNKNOWN");
+	return Expression::UNKNOWN();
   }
 
-  void DummyAdapter::unregisterChangeLookup(const LookupKey& /* uniqueId */)
+  void DummyAdapter::subscribe(const State& state)
   {
-    debugMsg("ExternalInterface:dummy", " unregisterChangeLookup called");
+    debugMsg("ExternalInterface:dummy",
+			 " subscribe of " << StateCache::toString(state) << " called, ignoring");
   }
 
-  void DummyAdapter::lookupNow(const StateKey& /* key */,
-			       std::vector<double>& dest)
+  void DummyAdapter::unsubscribe(const State& state)
   {
-    debugMsg("ExternalInterface:dummy", " lookupNow called; returning UNKNOWN");
-    dest[0] = Expression::UNKNOWN();
+    debugMsg("ExternalInterface:dummy",
+			 " unsubscribe of " << StateCache::toString(state) << " called, ignoring");
+  }
+
+  void DummyAdapter::setThresholds(const State& state, double /* hi */, double /* lo */)
+  {
+    debugMsg("ExternalInterface:dummy",
+			 " setThresholds of " << StateCache::toString(state) << " called, ignoring");
   }
 
   void DummyAdapter::sendPlannerUpdate(const NodeId& node,
@@ -134,7 +142,7 @@ namespace PLEXIL
 	     << node->getNodeId().toString()
 	     << "'");
     m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE());
+				      BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -157,7 +165,7 @@ namespace PLEXIL
   {
     debugMsg("ExternalInterface:dummy", " invokeAbort called");
     m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE());
+				      BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 

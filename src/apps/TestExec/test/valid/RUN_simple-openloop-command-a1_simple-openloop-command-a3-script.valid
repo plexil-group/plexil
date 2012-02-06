@@ -2,9 +2,9 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 SimpleDrive{
- State: (id_222[au](INACTIVE): state(INACTIVE)) (inf)
+ State: SimpleDrive (id_20[au](INACTIVE): state) (inf)
   Drive{
-   State: (id_262[au](INACTIVE): state(INACTIVE)) (inf)
+   State: Drive (id_75[au](INACTIVE): state) (inf)
   }
 }
 
@@ -51,44 +51,42 @@ SimpleDrive{
 [PlexilExec:unlock]Unlocking node Drive
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
-[Test:testOutput]Executing drive() into noId with ack anonymous (id_330[au](UNKNOWN): string)
+[PlexilExec:performAssignments] performing 0 assignments
+[Test:testOutput]Executing drive() into noId with ack Drive ack (id_116[au](UNKNOWN): string)
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
- State: (id_222[au](EXECUTING): state(EXECUTING)) (0)
- SkipCondition: Boolean constant false (id_257[au](0): boolean)
- StartCondition: Boolean constant true (id_258[au](1): boolean)
- EndCondition: (id_300[au](0): childrenFinished(0:1))
- InvariantCondition: Boolean constant true (id_258[au](1): boolean)
- PreCondition: Boolean constant true (id_258[au](1): boolean)
- PostCondition: Boolean constant true (id_258[au](1): boolean)
- RepeatCondition: Boolean constant false (id_257[au](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_258[au](1): boolean)
- AncestorEndCondition: Boolean constant false (id_257[au](0): boolean)
- ParentExecutingCondition: Boolean constant true (id_258[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_297[iu](UNKNOWN): childrenWaitingOrFinished(0:1))
- AbortCompleteCondition: Boolean constant unknown (id_259[au](UNKNOWN): boolean)
- ParentWaitingCondition: Boolean constant false (id_257[au](0): boolean)
- ParentFinishedCondition: Boolean constant false (id_257[au](0): boolean)
- CommandHandleReceivedCondition: Boolean constant true (id_258[au](1): boolean)
+ State: SimpleDrive (id_20[au](EXECUTING): state) (0)
+ AncestorEndCondition: Boolean constant false (id_58[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_60[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_60[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_58[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_58[au](0): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_120[iu](UNKNOWN): childrenWaitingOrFinished(0:1))
+ SkipCondition: Boolean constant false (id_58[au](0): boolean)
+ StartCondition: Boolean constant true (id_60[au](1): boolean)
+ EndCondition: (id_125[au](0): childrenFinished(0:1))
+ InvariantCondition: Boolean constant true (id_60[au](1): boolean)
+ PreCondition: Boolean constant true (id_60[au](1): boolean)
+ PostCondition: Boolean constant true (id_60[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_58[au](0): boolean)
   Drive{
-   State: (id_262[au](EXECUTING): state(EXECUTING)) (0)
-   SkipCondition: Boolean constant false (id_257[au](0): boolean)
-   StartCondition: Boolean constant true (id_258[au](1): boolean)
-   EndCondition: (id_337[au](0): ((id_331[au](0): interruptibleCommandHandleValues(anonymous (id_330[au](UNKNOWN): string))) || (id_335[au](0): ((id_333[au](0): isknown(anonymous (id_330[au](UNKNOWN): string))) && Boolean constant true (id_258[au](1): boolean)))
-   InvariantCondition: Boolean constant true (id_258[au](1): boolean)
-   PreCondition: Boolean constant true (id_258[au](1): boolean)
-   PostCondition: (id_324[au](UNKNOWN): (id_327[au](UNKNOWN): ((id_265[au](UNKNOWN):  command_handle) == (id_326[au](COMMAND_SENT_TO_SYSTEM):  command_handle))))
-   RepeatCondition: Boolean constant false (id_257[au](0): boolean)
-   AncestorInvariantCondition: (id_307[au](1): (TransparentWrapper(id_303[auT]{1}(Boolean constant true (id_258[au](1): boolean)) && TransparentWrapper(id_305[auT]{1}(Boolean constant true (id_258[au](1): boolean)))
-   AncestorEndCondition: (id_313[iu](UNKNOWN): (TransparentWrapper(id_309[iuT]{0}(Boolean constant false (id_257[au](0): boolean)) || TransparentWrapper(id_311[iuT]{0}((id_300[au](0): childrenFinished(0:1))))
-   ParentExecutingCondition: (id_316[iu](UNKNOWN): ((id_222[au](EXECUTING): state(EXECUTING)) == (id_315[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: Boolean constant unknown (id_259[au](UNKNOWN): boolean)
-   AbortCompleteCondition: anonymous (id_329[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_319[iu](UNKNOWN): ((id_222[au](EXECUTING): state(EXECUTING)) == (id_318[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_322[iu](UNKNOWN): ((id_222[au](EXECUTING): state(EXECUTING)) == (id_321[au](FINISHED): state(FINISHED))))
-   CommandHandleReceivedCondition: (id_339[au](0): allCommandHandleValues(anonymous (id_330[au](UNKNOWN): string)))
-   Command handle: (id_265[au](UNKNOWN):  command_handle)
+   State: Drive (id_75[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_125[au](0): childrenFinished(0:1))
+   AncestorInvariantCondition: Boolean constant true (id_60[au](1): boolean)
+   ParentExecutingCondition: (id_64[au](1): (SimpleDrive (id_20[au](EXECUTING): state) == anonymous (id_62[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_68[au](0): (SimpleDrive (id_20[au](EXECUTING): state) == anonymous (id_66[au](FINISHED): state)))
+   ParentWaitingCondition: (id_72[au](0): (SimpleDrive (id_20[au](EXECUTING): state) == anonymous (id_70[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_58[au](0): boolean)
+   StartCondition: Boolean constant true (id_60[au](1): boolean)
+   EndCondition: (id_152[au](0): ((id_146[au](0): interruptibleCommandHandleValues(Drive ack (id_116[au](UNKNOWN): string))) || (id_150[au](0): ((id_148[au](0): isknown(Drive ack (id_116[au](UNKNOWN): string))) && Boolean constant true (id_60[au](1): boolean)))))
+   InvariantCondition: Boolean constant true (id_60[au](1): boolean)
+   PreCondition: Boolean constant true (id_60[au](1): boolean)
+   PostCondition: (id_139[au](UNKNOWN): (id_143[au](UNKNOWN): (Drive (id_118[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_141[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   RepeatCondition: Boolean constant false (id_58[au](0): boolean)
+   AbortCompleteCondition: anonymous (id_132[iu](UNKNOWN): boolean)
+   CommandHandleReceivedCondition: (id_135[au](0): allCommandHandleValues(Drive ack (id_116[au](UNKNOWN): string)))
+   Command handle: Drive (id_118[au](UNKNOWN): command_handle)
   }
 }
 
@@ -113,8 +111,8 @@ SimpleDrive{
 [PlexilExec:lock]Locking node Drive
 [PlexilExec:step][2:1:0] Transitioning node Drive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:unlock]Unlocking node Drive
+[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
@@ -143,16 +141,17 @@ SimpleDrive{
 [PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleDrive' was previously eligible to transition but isn't now.
+[PlexilExec:performAssignments] performing 0 assignments
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleDrive{
- State: (id_222[au](FINISHED): state(FINISHED)) (0)
- Outcome: (id_223[au](SUCCESS):  outcome)
+ State: SimpleDrive (id_20[au](FINISHED): state) (0)
+ Outcome: SimpleDrive (id_22[au](SUCCESS): outcome)
   Drive{
-   State: (id_262[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_263[au](FAILURE):  outcome)
-   Failure type: (id_264[au](POST_CONDITION_FAILED):  failure)
-   Command handle: (id_265[au](COMMAND_DENIED):  command_handle)
+   State: Drive (id_75[au](FINISHED): state) (0)
+   Outcome: Drive (id_77[au](FAILURE): outcome)
+   Failure type: Drive (id_79[au](POST_CONDITION_FAILED): failure)
+   Command handle: Drive (id_118[au](COMMAND_DENIED): command_handle)
   }
 }
 

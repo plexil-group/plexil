@@ -37,6 +37,16 @@ public class NodeRefNode extends PlexilTreeNode
 		super(t);
 	}
 
+	public NodeRefNode(NodeRefNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new NodeRefNode(this);
+	}
+
 	public void earlyCheck(NodeContext context, CompilerState state)
 	{
 

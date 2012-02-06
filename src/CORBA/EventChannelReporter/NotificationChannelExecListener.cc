@@ -38,22 +38,20 @@
 
 namespace PLEXIL
 {
-  NotificationChannelExecListener::NotificationChannelExecListener(const TiXmlElement* xml,
-								   InterfaceManagerBase & mgr)
+  NotificationChannelExecListener::NotificationChannelExecListener(const pugi::xml_node& xml)
     : POA_CosNotifyComm::StructuredPushSupplier(),
-      BaseEventChannelExecListener(xml, mgr),
+      BaseEventChannelExecListener(xml),
       m_isConnectedToNotifyChannel(false)
   {
     // Get structured formatter spec from XML
-    if (this->getXml() == NULL)
+    if (this->getXml().empty())
       return;
-    const TiXmlElement* formatterXml = 
-      this->getXml()->FirstChildElement(EventFormatterSchema::STRUCTURED_FORMATTER_TAG());
-    if (formatterXml == NULL)
+    const pugi::xml_node formatterXml = 
+      this->getXml().child(EventFormatterSchema::STRUCTURED_FORMATTER_TAG());
+    if (formatterXml.empty())
       return;
     m_structuredFormatter =
-      StructuredEventFormatterFactory::createInstance(formatterXml,
-						      this->getManager());
+      StructuredEventFormatterFactory::createInstance(formatterXml);
   }
 
   NotificationChannelExecListener::~NotificationChannelExecListener()

@@ -43,6 +43,17 @@ public class ParameterSpecNode extends PlexilTreeNode
         super(t);
     }
 
+    public ParameterSpecNode(ParameterSpecNode n)
+    {
+        super(n);
+		m_parameterSpecs = n.m_parameterSpecs;
+    }
+
+	public Tree dupNode()
+	{
+		return new ParameterSpecNode(this);
+	}
+
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         boolean ellipsisSeen = false;

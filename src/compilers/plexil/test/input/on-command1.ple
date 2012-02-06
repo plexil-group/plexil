@@ -2,7 +2,7 @@ Command HaltAndCatchFire;
 Command ExecuteProgrammerImmediate;
 Command SendReturnValues (Any);
 
-on-command-test:
+root:
 Concurrence
 {
 

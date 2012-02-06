@@ -24,51 +24,69 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//
-// *** TODO ***
-// Resolve use of m_garbage with respect to conditions
-
 #include "Node.hh"
-#include "Expression.hh"
+#include "Array.hh"
+#include "BooleanVariable.hh"
+#include "Calculables.hh"
 #include "CoreExpressions.hh"
-#include "Expressions.hh"
-#include "XMLUtils.hh"
-#include "PlexilExec.hh"
-#include "ExternalInterface.hh"
 #include "Debug.hh"
-#include "NodeStateManager.hh"
-#include "CommandHandle.hh"
+#include "ExecConnector.hh"
+#include "Expressions.hh"
+#include "ExpressionFactory.hh"
+#include "ExternalInterface.hh"
+#include "NodeFactory.hh"
+#include "PlexilExec.hh"
+#include "Variables.hh"
+#include "XMLUtils.hh"
 
-#include <algorithm> // for find_if
+#include <algorithm> // for sort
 #include <vector>
 #include <sstream>
 #include <iomanip> // for setprecision
 
 namespace PLEXIL {
+
+  ConditionChangeListener::ConditionChangeListener(Node& node, const LabelStr& cond)
+	: ExpressionListener(), m_node(node), m_cond(cond) 
+  {
+  }
+
+  void ConditionChangeListener::notifyValueChanged(const ExpressionId& /* expression */) 
+  {
+	debugMsg("Node:conditionChange",
+			 m_cond.toString() << " may have changed value in " <<
+			 m_node.getNodeId().toString());
+	m_node.conditionChanged();
+  }
+
   const std::vector<double>& Node::ALL_CONDITIONS() {
     static std::vector<double>* sl_allConds = NULL;
     if (sl_allConds == NULL)
       {
-	// *** N.B.: Order MUST agree with enum conditionIndex!
-	sl_allConds = new std::vector<double>();
-	sl_allConds->push_back(SKIP_CONDITION());
-	sl_allConds->push_back(START_CONDITION());
-	sl_allConds->push_back(END_CONDITION());
-	sl_allConds->push_back(INVARIANT_CONDITION());
-	sl_allConds->push_back(PRE_CONDITION());
-	sl_allConds->push_back(POST_CONDITION());
-	sl_allConds->push_back(REPEAT_CONDITION());
-	sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
-	sl_allConds->push_back(ANCESTOR_END_CONDITION());
-	sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
-	sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
-	sl_allConds->push_back(ABORT_COMPLETE());
-	sl_allConds->push_back(PARENT_WAITING_CONDITION());
-	sl_allConds->push_back(PARENT_FINISHED_CONDITION());
-	sl_allConds->push_back(COMMAND_HANDLE_RECEIVED_CONDITION());
-	// inexpensive sanity check
-	assertTrue(sl_allConds->size() == conditionIndexMax,
-		   "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
+		// *** N.B.: Order MUST agree with enum ConditionIndex!
+		sl_allConds = new std::vector<double>();
+		// Conditions on parent
+		sl_allConds->push_back(ANCESTOR_END_CONDITION());
+		sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
+		sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
+		sl_allConds->push_back(PARENT_FINISHED_CONDITION());
+		sl_allConds->push_back(PARENT_WAITING_CONDITION());
+		// Only for list or library call nodes
+		sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
+		// User specified conditions
+		sl_allConds->push_back(SKIP_CONDITION());
+		sl_allConds->push_back(START_CONDITION());
+		sl_allConds->push_back(END_CONDITION());
+		sl_allConds->push_back(INVARIANT_CONDITION());
+		sl_allConds->push_back(PRE_CONDITION());
+		sl_allConds->push_back(POST_CONDITION());
+		sl_allConds->push_back(REPEAT_CONDITION());
+		// Only for command nodes
+		sl_allConds->push_back(ABORT_COMPLETE());
+		sl_allConds->push_back(COMMAND_HANDLE_RECEIVED_CONDITION());
+		// inexpensive sanity check
+		assertTrue(sl_allConds->size() == conditionIndexMax,
+				   "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
       }
     return *sl_allConds;
   }
@@ -78,10 +96,10 @@ namespace PLEXIL {
     const std::vector<double>& allConds = ALL_CONDITIONS();
     for (size_t i = 0; i < conditionIndexMax; i++) {
       if (allConds[i] == nameKey)
-	return i;
+		return i;
     }
     assertTrueMsg(ALWAYS_FAIL,
-		  cName.toString() << " is not a valid condition name");
+				  cName.toString() << " is not a valid condition name");
   }
 
   LabelStr Node::getConditionName(unsigned int idx)
@@ -89,294 +107,122 @@ namespace PLEXIL {
     return LabelStr(ALL_CONDITIONS()[idx]);
   }
 
-  class ConditionChangeListener : public ExpressionListener {
-  public:
-    ConditionChangeListener(NodeId node, const LabelStr& cond)
-      : ExpressionListener(), m_node(node), m_cond(cond) {}
-    void notifyValueChanged(const ExpressionId& /* expression */) {
-      debugMsg("Node:conditionChange",
-	       m_cond.toString() << " may have changed value in " <<
-	       m_node->getNodeId().toString());
-
-      m_node->conditionChanged();
-    }
-  protected:
-  private:
-    NodeId m_node;
-    const LabelStr& m_cond;
-  };
-
-  class RealNodeConnector : public NodeConnector {
-  public:
-    RealNodeConnector(const NodeId& node) 
-      : NodeConnector(), m_node(node) 
-    {
-    }
-
-    const ExpressionId& findVariable(const PlexilVarRef* ref)
-    {
-      return m_node->findVariable(ref);
-    }
-
-    const ExpressionId& findVariable(const LabelStr& name, bool recursive = false)
-    {
-      return m_node->findVariable(name, recursive);
-    }
-
-    const ExecConnectorId& getExec()
-    {
-      return m_node->getExec();
-    }
-
-    const NodeId& getNode() const
-    {
-      return m_node;
-    }
-
-  private:
-    NodeId m_node;
-  };
-
   const LabelStr& 
   Node::nodeTypeToLabelStr(PlexilNodeType nodeType)
   {
-    switch(nodeType)
-      {
-      case NodeType_NodeList:
-        return LIST();
-        break;
-      case NodeType_Command:
-        return COMMAND();
-        break;
-      case NodeType_Assignment:
-        return ASSIGNMENT();
-        break;
-      case NodeType_Update:
-        return UPDATE();
-        break;
-      case NodeType_Request:
-        return REQUEST();
-        break;
-      case NodeType_Empty:
-        return EMPTY();
-        break;
-      case NodeType_LibraryNodeCall:
-        return LIBRARYNODECALL();
-        break;
+    switch(nodeType) {
+	case NodeType_NodeList:
+	  return LIST();
 
-        // fall thru case
-      default:
-        checkError(ALWAYS_FAIL,
-                   "Invalid node type " << nodeType);
-        break;
-      }
+	case NodeType_Command:
+	  return COMMAND();
+
+	case NodeType_Assignment:
+	  return ASSIGNMENT();
+
+	case NodeType_Update:
+	  return UPDATE();
+
+	case NodeType_Empty:
+	  return EMPTY();
+
+	case NodeType_LibraryNodeCall:
+	  return LIBRARYNODECALL();
+
+	  // fall thru case
+	default:
+	  checkError(ALWAYS_FAIL,
+				 "Invalid node type " << nodeType);
+	  break;
+	}
     return EMPTY_LABEL();
   }
 
-
   Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
-    : m_id(this), m_exec(exec), m_parent(parent),
-      m_connector((new RealNodeConnector(m_id))->getId()), m_node(node),
-      m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
-      m_transitioning(false), m_checkConditionsPending(false),
-      m_priority(WORST_PRIORITY),
+    : NodeConnector(),
+	  m_id(this, NodeConnector::getId()),
+	  m_parent(parent),
+	  m_exec(exec),
+	  m_nodeId(node->nodeId()),
+	  m_nodeType(nodeTypeToLabelStr(node->nodeType())), // Can throw exception
 	  m_sortedVariableNames(new std::vector<double>()),
-      m_state(INACTIVE_STATE), m_lastQuery(NO_NODE_STATE)
+      m_state(INACTIVE_STATE),
+	  m_lastQuery(NO_NODE_STATE),
+      m_postInitCalled(false),
+	  m_cleanedConditions(false),
+	  m_cleanedVars(false),
+      m_transitioning(false),
+	  m_checkConditionsPending(false)
   {
-     m_nodeId = LabelStr(node->nodeId());
+	debugMsg("Node:node", "Creating node \"" << node->nodeId() << "\"");
 
-     m_priority = node->priority();
+	commonInit();
+	setConditionDefaults();
 
-     m_nodeType = nodeTypeToLabelStr(node->nodeType());
-     m_stateManager = NodeStateManager::getStateManager(m_nodeType);
+	// Instantiate declared variables
+	createDeclaredVars(node->declarations());
 
-     debugMsg("Node:node", "Creating node '" << m_nodeId.toString() << "'");
-     commonInit();
-	 setConditionDefaults();
-
-        //instantiate declared variables
-
-     createDeclaredVars(node->declarations());
-
-        //get interface variables
-
-     getVarsFromInterface(node->interface());
-
-        //instantiate child nodes, if any (have to create assignments and commands after
-        //everything else
-        //because they could refer to internal variables of other nodes)
-
-     if(m_nodeType == LIST()) 
-     {
-        debugMsg("Node:node", "Creating child nodes.");
-		// XML parser should have checked for this
-		checkError(Id<PlexilListBody>::convertable(node->body()),
-				   "Node " << m_nodeId.toString() << " is a list node but doesn't have a " <<
-				   "list body.");
-        createChildNodes((PlexilListBody*) node->body());
-     }
-        // create library call node
-
-     if(m_nodeType == LIBRARYNODECALL()) 
-     {
-        debugMsg("Node:node", "Creating library node call.");
-		// XML parser should have checked for this
-		checkError(Id<PlexilLibNodeCallBody>::convertable(node->body()),
-				   "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
-				   "library node call body.");
-        createLibraryNode(node);
-     }
+	// get interface variables
+	if (node->interface().isId())
+	  getVarsFromInterface(node->interface());
   }
 
   // Used only by module test
   Node::Node(const LabelStr& type, const LabelStr& name, const NodeState state,
-	     const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
-	     const bool end, const bool repeat, const bool ancestorInvariant,
-	     const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
-	     const bool commandAbort, const bool parentWaiting, 
-	     const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec)
-    : m_id(this), m_exec(exec), m_parent(NodeId::noId()), m_node(PlexilNodeId::noId()),
-      m_postInitCalled(false), m_cleanedConditions(false), m_cleanedVars(false),
-      m_transitioning(false), m_checkConditionsPending(false),
+			 const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
+			 const bool end, const bool repeat, const bool ancestorInvariant,
+			 const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
+			 const bool commandAbort, const bool parentWaiting, 
+			 const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec,
+			 const NodeId& parent)
+    : NodeConnector(),
+	  m_id(this, NodeConnector::getId()),
+	  m_parent(parent),
+	  m_exec(exec),
+	  m_nodeId(name),
+	  m_nodeType(type),
 	  m_sortedVariableNames(new std::vector<double>()),
-      m_state(state), m_lastQuery(NO_NODE_STATE)
+      m_state(state),
+	  m_lastQuery(NO_NODE_STATE),
+      m_postInitCalled(false), 
+	  m_cleanedConditions(false), 
+	  m_cleanedVars(false),
+      m_transitioning(false), 
+	  m_checkConditionsPending(false)
   {
-    m_nodeType = type;
-    m_stateManager = NodeStateManager::getStateManager(m_nodeType);
-    m_nodeId = name;
     commonInit();
+	activateInternalVariables();
+
 	// N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
-    bool values[15] = {skip, start, end, invariant, pre, post, repeat, ancestorInvariant,
-		       ancestorEnd, parentExecuting, childrenFinished, commandAbort,
-		       parentWaiting, parentFinished, cmdHdlRcvdCondition};
-    for (unsigned int i = 0; i < 15; i++) {
+    bool values[conditionIndexMax] =
+	  {ancestorEnd, ancestorInvariant, parentExecuting, parentFinished, parentWaiting, 
+	   childrenFinished,
+	   skip, start, end, invariant, pre, post, repeat,
+	   commandAbort, cmdHdlRcvdCondition};
+    for (size_t i = 0; i < conditionIndexMax; i++) {
       debugMsg("Node:node",
 			   "Creating internal variable " << LabelStr(ALL_CONDITIONS()[i]).toString() <<
-	       " with value " << values[i] << " for node " << m_nodeId.toString());
+			   " with value " << values[i] << " for node " << m_nodeId.toString());
       ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
       m_conditions[i] = expr;
-      expr->addListener(m_listeners[i]);
-      m_garbageConditions.insert(i);
+      m_garbageConditions[i] = true;
+      getCondition(i)->addListener(makeConditionListener(i)); // may not be same as expr for parent-state conditions
     }
-    if (m_nodeType == COMMAND())
-      m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
-    else
-      m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
-  }
-
-  // FIXME: Doesn't seem to delete local variables, command, update, or assignment
-  Node::~Node() {
-	delete m_sortedVariableNames;
-    delete (RealNodeConnector*) m_connector;
-    cleanUpConditions();
-    cleanUpVars();
-
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
-      delete (Node*) (*it);
-    }
-
-    m_id.remove();
-  }
-
-  void Node::cleanUpConditions() 
-  {
-    if (m_cleanedConditions)
-      return;
-
-	debugMsg("Node:cleanUpConditions", " for " << m_nodeId.toString());
-
-    // Clean up condition listeners
-    for (unsigned int i = 0; i < conditionIndexMax; i++) {
-      if (m_listeners[i].isId()) {
-		debugMsg("Node:cleanUpConds",
-				 "<" << m_nodeId.toString() << "> Removing condition listener for " <<
-				 getConditionName(i).toString());
-		m_conditions[i]->removeListener(m_listeners[i]);
-		delete (ExpressionListener*) m_listeners[i];
-		m_listeners[i] = ExpressionListenerId::noId();
-      }
-    }
- 
-    // Clean up children
-    for(std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->cleanUpConditions();
-
-    // Clean up conditions
-    for (std::set<unsigned int>::iterator it = m_garbageConditions.begin();
-		 it != m_garbageConditions.end();
-		 ++it) {
-      debugMsg("Node:cleanUpConds",
-			   "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(*it).toString());
-      delete (Expression*) m_conditions[*it];
-      m_conditions[*it] = ExpressionId::noId();
-    }
-
-    if(m_assignment.isValid()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing assignment.");
-      delete (Assignment*) m_assignment;
-    }
-    if(m_command.isValid()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing command.");
-      delete (Command*) m_command;
-    }
-    if(m_update.isValid()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing update.");
-      delete (Update*) m_update;
-    }
-
-    m_cleanedConditions = true;
-  }
-
-  void Node::cleanUpVars() {
-    checkError(m_cleanedConditions,
-	       "Have to clean up variables before conditions can be cleaned.");
-    if(m_cleanedVars)
-      return;
-
-	debugMsg("Node:cleanUpVars", " for " << m_nodeId.toString());
-
-    // unset state variable prior to variable-by-name cleanup
-    m_stateVariable = ExpressionId::noId();
-
-    for(std::set<double>::iterator it = m_garbage.begin(); it != m_garbage.end(); ++it) {
-      if(m_variablesByName.find(*it) != m_variablesByName.end()) {
-	debugMsg("Node:cleanUpVars",
-		 "<" << m_nodeId.toString() << "> Removing " << LabelStr(*it).toString());
-	delete (Expression*) m_variablesByName.find(*it)->second;
-	m_variablesByName.erase(*it);
-      }
-    }
-
-    if(m_ack.isValid())
-      delete (Expression*) m_ack;
-
-    m_cleanedVars = true;
   }
 
   void Node::commonInit() {
     debugMsg("Node:node", "Instantiating internal variables...");
     // Instantiate state/outcome/failure variables
 	// The contortions with getKey() are an attempt to minimize LabelStr copying
-    m_variablesByName[STATE().getKey()] = m_stateVariable = (new StateVariable())->getId();
-    m_stateVariable->activate();
+    m_variablesByName[STATE().getKey()] = m_stateVariable =
+	  (new StateVariable(m_nodeId.toString()))->getId();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
 
-	ExpressionId outcomeVariable = (new OutcomeVariable())->getId();
-    m_variablesByName[OUTCOME().getKey()] = outcomeVariable;
-    outcomeVariable->activate();
+	m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable =
+	  (new OutcomeVariable(m_nodeId.toString()))->getId();
 
-	ExpressionId failureVariable = (new FailureVariable())->getId();
-    m_variablesByName[FAILURE_TYPE().getKey()] = failureVariable;
-    failureVariable->activate();
-
-	ExpressionId commandHandle = (new CommandHandleVariable())->getId();
-    m_variablesByName[COMMAND_HANDLE().getKey()] = commandHandle;
-    commandHandle->activate();
-
-    m_garbage.insert(STATE().getKey());
-    m_garbage.insert(OUTCOME().getKey());
-    m_garbage.insert(FAILURE_TYPE().getKey());
-    m_garbage.insert(COMMAND_HANDLE().getKey());
+    m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable =
+	  (new FailureVariable(m_nodeId.toString()))->getId();
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
@@ -384,26 +230,23 @@ namespace PLEXIL {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
-      stp->activate();
-      m_garbage.insert(stpName);
 
       ExpressionId etp = (new RealVariable())->getId();
       const LabelStr& etpName = END_TIMEPOINT_NAMES()[s];
       m_endTimepoints[s] = m_variablesByName[etpName] = etp;
-      etp->activate();
-      m_garbage.insert(etpName);
     }
 
-	// construct condition listeners (but not conditions)
-	for (int i = 0; i < conditionIndexMax; i++) {
-	  m_listeners[i] = 
-		(new ConditionChangeListener(m_id, ALL_CONDITIONS()[i]))->getId();
+	// initialize m_garbageConditions
+	for (size_t i = 0; i < conditionIndexMax; i++) {
+	  m_garbageConditions[i] = false;
 	}
   }
 
   // Use existing Boolean constants for the condition defaults
-  void Node::setConditionDefaults() {
+  void Node::setConditionDefaults() 
+  {
 	// These may be user-specified
+	// End condition will be overridden 
     m_conditions[skipIdx] = BooleanVariable::FALSE_EXP();
     m_conditions[startIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[endIdx] = BooleanVariable::TRUE_EXP();
@@ -412,330 +255,231 @@ namespace PLEXIL {
     m_conditions[postIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[repeatIdx] = BooleanVariable::FALSE_EXP();
 
-	// These will be overridden in any non-root node
-    m_conditions[ancestorInvariantIdx] = BooleanVariable::TRUE_EXP();
-    m_conditions[ancestorEndIdx] = BooleanVariable::FALSE_EXP();
-    m_conditions[parentExecutingIdx] = BooleanVariable::TRUE_EXP();
-    m_conditions[parentWaitingIdx] = BooleanVariable::FALSE_EXP();
-    m_conditions[parentFinishedIdx] = BooleanVariable::FALSE_EXP();
+	// Install listeners for conditions from the parent
+	// Root node doesn't need them as the defaults are constant
+	if (m_parent.isId()) {
+	  ExpressionId parentExecuting = getCondition(parentExecutingIdx);
+	  assertTrueMsg(parentExecuting.isId(),
+					"Internal error: Parent-executing condition is null!");
+	  parentExecuting->addListener(makeConditionListener(parentExecutingIdx));
 
-	// This will be overridden in any node with children (List or LibraryNodeCall)
-    m_conditions[childrenWaitingOrFinishedIdx] = BooleanVariable::UNKNOWN_EXP();
+	  ExpressionId parentFinished = getCondition(parentFinishedIdx);
+	  assertTrueMsg(parentFinished.isId(),
+					"Internal error: Parent-finished condition is null!");
+	  parentFinished->addListener(makeConditionListener(parentFinishedIdx));
 
-	// This will be overridden in Command, Update, Request nodes
-    m_conditions[abortCompleteIdx] = BooleanVariable::UNKNOWN_EXP();
-
-	// This will be overridden in Command nodes
-    m_conditions[commandHandleReceivedIdx] = BooleanVariable::TRUE_EXP();
-
-	// These are the only conditions we care about in the INACTIVE state.
-	// See DefaultStateManager.cc, specifically DefaultInactiveStateComputer::getDestState().
-    m_listeners[parentExecutingIdx]->activate();
-    m_listeners[parentFinishedIdx]->activate();
+	  ExpressionId parentWaiting = getCondition(parentWaitingIdx);
+	  assertTrueMsg(parentWaiting.isId(),
+					"Internal error: Parent-waiting condition is null!");
+	  parentWaiting->addListener(makeConditionListener(parentWaitingIdx));
+	}
   }
 
-  void Node::postInit() {
-    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
-    m_postInitCalled = true;
-
-    debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
-    //create conditions and listeners
-    createConditions(m_node->conditions());
-
-    //create assignment/command
-    if(m_nodeType == COMMAND()) {
-      debugMsg("Node:postInit", "Creating command for node '" << m_nodeId.toString() << "'");
-	  // XML parser should have checked for this
-      checkError(Id<PlexilCommandBody>::convertable(m_node->body()),
-		 "Node is a command node but doesn't have a command body.");
-      createCommand((PlexilCommandBody*)m_node->body());
-    }
-    else if(m_nodeType == ASSIGNMENT()) {
-      debugMsg("Node:postInit",
-	       "Creating assignment for node '" << m_nodeId.toString() << "'");
-	  // XML parser should have checked for this
-      checkError(Id<PlexilAssignmentBody>::convertable(m_node->body()),
-		 "Node is an assignment node but doesn't have an assignment body.");
-      createAssignment((PlexilAssignmentBody*)m_node->body());
-    }
-    else if (m_nodeType == UPDATE()) {
-      debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
-	  // XML parser should have checked for this
-      checkError(Id<PlexilUpdateBody>::convertable(m_node->body()),
-		 "Node is an update node but doesn't have an update body.");
-      createUpdate((PlexilUpdateBody*)m_node->body());
-    }
-
-    //call postInit on all children
-    for (std::list<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
-      (*it)->postInit();
+  void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
+    for (std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it) {
+	  const PlexilVarId var = *it;
+	  // get the variable name
+	  const std::string& name = (*it)->name();
+	  LabelStr nameLabel(name);
+	  VariableId varId =
+		(VariableId)
+		ExpressionFactory::createInstance(PlexilParser::valueTypeString(var->type()), 
+										  var,
+										  NodeConnector::getId());
+	  // Check for duplicate names
+	  // FIXME: push up into XML parser
+	  assertTrueMsg(m_variablesByName.find(nameLabel.getKey()) == m_variablesByName.end(),
+					"Node \"" << m_nodeId.toString() << "\" already has a variable named \"" << name << "\"");
+	  m_variablesByName[nameLabel.getKey()] = varId;
+	  m_localVariables.push_back(varId);
+	  debugMsg("Node:createDeclaredVars",
+			   " for node '" << m_nodeId.toString()
+			   << "': created " 
+			   << (varId->getValueType() == ARRAY ? "array " : "")
+			   << "variable " 
+			   << varId->toString() << " as '"
+			   << name << "'");
+	}
   }
 
-
-  void Node::createAssignment(const PlexilAssignmentBody* body) 
+  void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
   {
-    //we still only support one variable on the LHS
-	// FIXME: push this check up into XML parser
-    checkError(body->dest().size() >= 1,
-	       "Need at least one destination variable in assignment.");
-    const PlexilExprId& destExpr = (body->dest())[0]->getId();
-    ExpressionId dest;
-    LabelStr destName;
-    bool deleteLhs = false;
-    if (Id<PlexilVarRef>::convertable(destExpr)) {
-      destName = destExpr->name();
-      dest = findVariable((Id<PlexilVarRef>) destExpr);
-	  // FIXME: push this check up into XML parser
-      checkError(dest.isValid(),
-                 "Dest variable '" << destName <<
-                 "' not found in assignment node '" << m_nodeId.toString() << "'");
-    }
-    else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-      dest = ExpressionFactory::createInstance(destExpr->name(),
-                                               destExpr,
-                                               m_connector);
-      // *** beef this up later ***
-	  PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
-	  debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-	  int e_index = dest->toString().find(": ", dest->toString().length()-15);
-	  int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
-	  int diff_index = e_index - b_index;
-	  std::string m_index = " ";
-	  if(e_index != std::string::npos)
-	  {
+	check_error(intf.isValid());
+	debugMsg("Node:getVarsFromInterface",
+			 "Getting interface vars for node '" << m_nodeId.toString() << "'");
+	assertTrueMsg(m_parent.isId(),
+				  "Node \"" << m_nodeId
+				  << "\" has an Interface but no parent; may be a library node without a caller.");
 
-		  m_index = dest->toString().substr(e_index-diff_index,diff_index);
+	bool parentIsLibCall = m_parent->getType() == LIBRARYNODECALL();
+
+	// Process In variables
+	for (std::vector<PlexilVarRef*>::const_iterator it = intf->in().begin();
+		 it != intf->in().end();
+		 ++it) {
+	  PlexilVarRef* varRef = *it;
+
+	  // Check for duplicate name
+	  double nameKey = LabelStr(varRef->name()).getKey();
+	  assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
+					"Node \"" << m_nodeId.toString()
+					<< ": 'In' variable name \"" << varRef->name() << "\" is already in use");
+
+	  VariableId expr = getInVariable(varRef, parentIsLibCall);
+	  check_error(expr.isValid());
+
+	  // make it accessible
+	  debugMsg("Node:getVarsFromInterface", 
+			   " for node \"" << m_nodeId.c_str()
+			   << "\": Adding In variable " << expr->toString()
+			   << " as \"" << varRef->name() << "\""); 
+	  m_variablesByName[nameKey] = expr;
+	}
+      
+	for (std::vector<PlexilVarRef*>::const_iterator it = intf->inOut().begin();
+		 it != intf->inOut().end();
+		 ++it) {
+	  PlexilVarRef* varRef = *it;
+
+	  // Check for duplicate name
+	  double nameKey = LabelStr(varRef->name()).getKey();
+	  assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
+					"Node \"" << m_nodeId.toString()
+					<< ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
+
+	  VariableId expr = getInOutVariable(varRef, parentIsLibCall);
+	  check_error(expr.isValid());
+         
+	  // make it accessible
+	  debugMsg("Node:getVarsFromInterface", 
+			   " for node \"" << m_nodeId.c_str()
+			   << "\": Adding InOut variable " << expr->toString()
+			   << " as \"" << varRef->name() << "\""); 
+	  m_variablesByName[nameKey] = expr;
+	}
+  }
+
+  VariableId Node::getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  {
+	// Get the variable from the parent
+	// findVariable(..., true) tells LibraryCallNode to only search alias vars
+	VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
+	if (expr.isId()) {
+	  // Try to avoid constructing alias var
+	  if (!parentIsLibCall && !expr->isConst()) {
+		// Construct const wrapper
+		if (expr->isArray()) {
+		  expr =
+			(new ArrayAliasVariable(varRef->name(), NodeConnector::getId(), expr, false, true))->getId();
+		}
+		else {
+		  expr =
+			(new AliasVariable(varRef->name(), NodeConnector::getId(), expr, false, true))->getId();
+		}
+		debugMsg("Node::getInVariable",
+				 " Node \"" << m_nodeId.toString()
+				 << "\": Constructed const alias wrapper for \"" << varRef->name()
+				 << "\" to variable " << *expr);
+		m_localVariables.push_back(expr);
 	  }
-	  debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
-	  const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
-	  destName = LabelStr(m_str);
-      deleteLhs = true;
-    }
-    else {
-	  // FIXME: push this check up into XML parser 
-	  checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
-    }
-
-    ExpressionId rhs;
-    bool deleteRhs = false;
-    if (Id<PlexilVarRef>::convertable(body->RHS())) {
-      rhs = findVariable(body->RHS());
-    }
-    else {
-      rhs = ExpressionFactory::createInstance(body->RHS()->name(), body->RHS(),
-					      m_connector);
-      deleteRhs = true;
-    }
-
-    m_assignment =
-      (new Assignment(dest, rhs, m_ack, destName, deleteLhs, deleteRhs))->getId();
-  }
-
-  void Node::createCommand(const PlexilCommandBody* command) 
-  {
-	checkError(command->state()->nameExpr().isValid(),
-			   "Attempt to create command with invalid name expression");
-
-    PlexilStateId state = command->state();
-    ExpressionId nameExpr = ExpressionFactory::createInstance(
-       state->nameExpr()->name(), state->nameExpr(), m_connector);
-    LabelStr name(nameExpr->getValue());
-    std::list<ExpressionId> args;
-    std::list<ExpressionId> garbage;
-    for(std::vector<PlexilExprId>::const_iterator it = state->args().begin();
-	it != state->args().end(); ++it) 
-    {
-       ExpressionId argExpr;
-       if(Id<PlexilVarRef>::convertable(*it)) 
-       {
-          argExpr = findVariable(*it);
-		  // FIXME: push this check up into XML parser
-          checkError(argExpr.isValid(),
-                     "Unknown variable '" << (*it)->name() <<
-                     "' in argument list for command '" << nameExpr->getValue() <<
-                     "' in node '" << m_nodeId.toString() << "'");
-       }
-       else 
-       {
-          argExpr = ExpressionFactory::createInstance((*it)->name(), *it, m_connector);
-          garbage.push_back(argExpr);
-          check_error(argExpr.isValid());
-       }
-       args.push_back(argExpr);
-    }
-    
-    ExpressionId dest;
-    LabelStr dest_name = "";
-    if (!command->dest().empty())
-      {
-        const PlexilExprId& destExpr = command->dest()[0]->getId();
-        dest_name = destExpr->name();
-        if (Id<PlexilVarRef>::convertable(destExpr))
-          {
-            dest = findVariable((Id<PlexilVarRef>) destExpr);
-			// FIXME: push this check up into XML parser
-            checkError(dest.isValid(),
-                       "Unknown destination variable '" << dest_name <<
-                       "' in command '" << name.toString() << "' in node '" <<
-                       m_nodeId.toString() << "'");
-          }
-        else if (Id<PlexilArrayElement>::convertable(destExpr))
-          {
-            dest = ExpressionFactory::createInstance(destExpr->name(),
-                                                     destExpr,
-                                                     m_connector);
-            garbage.push_back(dest);
-          }
-        else {
-          checkError(ALWAYS_FAIL, "Invalid left-hand side for a command");
-        }
-      }
-
-    // Resource
-    ResourceList resourceList;
-    const std::vector<PlexilResourceId>& plexilResourceList = command->getResource();
-    for(std::vector<PlexilResourceId>::const_iterator resListItr = plexilResourceList.begin();
-        resListItr != plexilResourceList.end(); ++resListItr)
-      {
-        ResourceMap resourceMap;
-
-        const PlexilResourceMap& resources = (*resListItr)->getResourceMap();
-        for (PlexilResourceMap::const_iterator resItr = resources.begin();
-			 resItr != resources.end();
-			 ++resItr) {
-		  ExpressionId resExpr;
-		  if (Id<PlexilVarRef>::convertable(resItr->second)) {
-			resExpr = findVariable(resItr->second);
-			// FIXME: push this check up into XML parser
-			checkError(resExpr.isValid(),
-					   "Unknown variable '" << resItr->second->name() <<
-					   "' in resource list for command '" << nameExpr->getValue() <<
-					   "' in node '" << m_nodeId.toString() << "'");
+	}
+	else {
+	  // FIXME: should we generate default even if not a library call?
+	  if (parentIsLibCall) {
+		// Get default, if any
+		PlexilExprId defaultVal = varRef->defaultValue();
+		if (defaultVal.isId()) {
+		  if (Id<PlexilVarRef>::convertable(defaultVal)) {
+			// Get a reference to the variable
+			expr = findVariable((PlexilVarRef*) defaultVal);
 		  }
 		  else {
-			resExpr = ExpressionFactory::createInstance(resItr->second->name(), 
-														resItr->second, m_connector);
-			garbage.push_back(resExpr);
-			check_error(resExpr.isValid());
+			// construct constant local "variable" with default value
+			bool wasConstructed = false;
+			expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Value"),
+													 defaultVal,
+													 NodeConnector::getId(),
+													 wasConstructed);
+			if (wasConstructed)
+			  m_localVariables.push_back(expr);
 		  }
-		  resourceMap[resItr->first] = resExpr;
 		}
-        resourceList.push_back(resourceMap);
-      }
+	  }
 
-    debugMsg("Node:createCommand",
-	     "Creating command '" << name.toString() << "' for node '" <<
-	     m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, dest, dest_name, m_ack, garbage, resourceList, getId()))->getId();
-    check_error(m_command.isValid());
-  }
-
-  void Node::createUpdate(const PlexilUpdateBody* body) 
-  {
-    PlexilUpdateId update = body->update();
-    ExpressionMap updatePairs;
-    std::list<ExpressionId> garbage;
-
-    if(update.isValid()) {
-      for(std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
-	    update->pairs().begin(); it != update->pairs().end(); ++it) {
-	LabelStr nameStr(it->first);
-	PlexilExprId foo = it->second;
-	debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
-	ExpressionId valueExpr = ExpressionId::noId();
-
-	if(Id<PlexilVarRef>::convertable(foo)) {
-	  valueExpr = findVariable(foo);
-	  // FIXME: push this check up into XML parser
-	  checkError(valueExpr.isValid(),
-		     "Unknown variable " << foo->name() << " in update for node " <<
-		     m_nodeId.toString());
-	}      
-	else {
-	  valueExpr =
-	    ExpressionFactory::createInstance(foo->name(), foo, m_connector);
-	  garbage.push_back(valueExpr);
-	  check_error(valueExpr.isValid());
+	  assertTrueMsg(expr.isId(),
+					"In node \"" << m_nodeId.toString()
+					<< "\" 'In' interface: Parent has no "
+					<< (parentIsLibCall ? "alias " : "variable ")
+					<< "named \"" << varRef->name() << "\""
+					<< (parentIsLibCall ? ", and no default value is defined" : ""));
 	}
-	updatePairs.insert(std::make_pair((double) nameStr, valueExpr));
-      }
-    }
-
-    m_update = (new Update(m_id, updatePairs, m_ack, garbage))->getId();
+	return expr;
   }
 
-  ExpressionId& Node::getCondition(const LabelStr& name) {
-    return m_conditions[getConditionIndex(name)];
-  }
-
-  double Node::getAcknowledgementValue() const 
+  VariableId Node::getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
   {
-    return ((Variable*)m_ack)->getValue();
+	// Get the variable from the parent
+	// findVariable(..., true) tells LibraryCallNode to only search alias vars
+	VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
+	if (expr.isId()) {
+	  assertTrueMsg(!expr->isConst(),
+					"In node \"" << m_nodeId.toString()
+					<< "\" 'InOut' interface: "
+					<< (parentIsLibCall ? "Alias for \"" : "Variable \"")
+					<< varRef->name() << "\", "
+					<< *expr << ", is read-only");
+	}
+	else {
+	  // FIXME: should we generate default even if not a library call?
+	  if (parentIsLibCall) {
+		// Get default, if any
+		PlexilExprId defaultVal = varRef->defaultValue();
+		if (defaultVal.isId()) {
+		  if (Id<PlexilVarRef>::convertable(defaultVal)) {
+			// Get a reference to the variable
+			expr = findVariable((PlexilVarRef*) defaultVal);
+		  }
+		  else {
+			// construct local "variable" with default value
+			bool wasConstructed = false;
+			expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Variable"),
+													 defaultVal,
+													 NodeConnector::getId(),
+													 wasConstructed);
+			if (wasConstructed)
+			  m_localVariables.push_back(expr);
+		  }
+		}
+	  }
+
+	  assertTrueMsg(expr.isId(),
+					"In node \"" << m_nodeId.toString()
+					<< "\" 'InOut' interface: Parent has no "
+					<< (parentIsLibCall ? "alias " : "variable ")
+					<< "named \"" << varRef->name() << "\""
+					<< (parentIsLibCall ? ", and no default value is defined" : ""));
+	}
+	return expr;
   }
 
   void Node::createConditions(const std::map<std::string, PlexilExprId>& conds) 
   {
-	if(m_parent.isId()) {
-	  ExpressionId ancestorInvariant =
-		(new Conjunction((new TransparentWrapper(m_parent->getCondition(ANCESTOR_INVARIANT_CONDITION()),
-												 m_connector))->getId(),
-						 true,
-						 (new TransparentWrapper(m_parent->getCondition(INVARIANT_CONDITION()),
-												 m_connector))->getId(),
-						 true))->getId();
-	  ExpressionId ancestorEnd =
-		(new Disjunction((new TransparentWrapper(m_parent->getCondition(ANCESTOR_END_CONDITION()),
-												 m_connector))->getId(),
-						 true,
-						 (new TransparentWrapper(m_parent->getCondition(END_CONDITION()),
-												 m_connector))->getId(),
-						 true))->getId();
-	  ExpressionId parentExecuting =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::EXECUTING_EXP()))->getId();
-	  ExpressionId parentWaiting =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::WAITING_EXP()))->getId();
-	  ExpressionId parentFinished =
-		(new Equality(m_parent->getStateVariable(),
-					  StateVariable::FINISHED_EXP()))->getId();
+	// Attach listeners to ancestor invariant and ancestor end conditions
+	// Root node doesn't need them because the default conditions are constants
+	if (m_parent.isId()) {
+	  ExpressionId ancestorEnd = getAncestorEndCondition();
+	  assertTrueMsg(ancestorEnd.isId(),
+					"Internal error: ancestor end condition is null!");
+	  ancestorEnd->addListener(makeConditionListener(ancestorEndIdx));
 
-	  ExpressionListenerId ancestorInvariantListener = m_listeners[ancestorInvariantIdx];
-	  ExpressionListenerId ancestorEndListener = m_listeners[ancestorEndIdx];
-	  ExpressionListenerId parentExecutingListener = m_listeners[parentExecutingIdx];
-	  ExpressionListenerId parentWaitingListener = m_listeners[parentWaitingIdx];
-	  ExpressionListenerId parentFinishedListener = m_listeners[parentFinishedIdx];
-
-	  // Replace default ancestor invariant condition with real one
-	  ancestorInvariant->addListener(ancestorInvariantListener);
-
-	  // Replace default ancestor end condition with real one
-	  ancestorEnd->addListener(ancestorEndListener);
-
-	  // Replace default parent executing condition with real one
-	  parentExecuting->activate(); //activate this right off so we can start executing
-	  parentExecuting->addListener(parentExecutingListener);
-
-	  // Replace default parent waiting condition with real one
-	  parentWaiting->addListener(parentWaitingListener);
-
-	  // Replace default parent finished condition with real one
-	  parentFinished->activate();
-	  parentFinished->addListener(parentFinishedListener);
-
-	  m_conditions[ancestorInvariantIdx] = ancestorInvariant;
-	  m_conditions[ancestorEndIdx] = ancestorEnd;
-	  m_conditions[parentExecutingIdx] = parentExecuting;
-	  m_conditions[parentWaitingIdx] = parentWaiting;
-	  m_conditions[parentFinishedIdx] = parentFinished;
-
-	  // Mark these for deletion
-	  m_garbageConditions.insert(ancestorInvariantIdx);
-	  m_garbageConditions.insert(parentExecutingIdx);
-	  m_garbageConditions.insert(parentWaitingIdx);
-	  m_garbageConditions.insert(parentFinishedIdx);
-	  m_garbageConditions.insert(ancestorEndIdx);
+	  ExpressionId ancestorInvariant = getAncestorInvariantCondition();
+	  assertTrueMsg(ancestorInvariant.isId(),
+					"Internal error: ancestor invariant condition is null!");
+	  ancestorInvariant->addListener(makeConditionListener(ancestorInvariantIdx));
 	}
+
+	// Let the derived class do its thing
+	createSpecializedConditions();
 
 	// Add user-specified conditions
 	for (std::map<std::string, PlexilExprId>::const_iterator it = conds.begin(); 
@@ -746,412 +490,235 @@ namespace PLEXIL {
 
 	  // Delete existing condition if required
 	  // (e.g. explicit override of default end condition for list or library call node)
-	  if (m_garbageConditions.find(condIdx) != m_garbageConditions.end()) {
+	  if (m_listeners[condIdx].isId())
 		m_conditions[condIdx]->removeListener(m_listeners[condIdx]);
+	  if (m_garbageConditions[condIdx]) {
 		delete (Expression*) m_conditions[condIdx];
+		m_garbageConditions[condIdx] = false;
 	  }
-	  ExpressionId expr = ExpressionId::noId();
-	  if(Id<PlexilVarRef>::convertable(it->second)) {
-		expr = findVariable(it->second);
-	  }
-	  else {
-		expr = ExpressionFactory::createInstance(it->second->name(), 
-												 it->second,
-												 m_connector);
-		m_garbageConditions.insert(condIdx);
-	  }
-	  ExpressionListenerId condListener = m_listeners[condIdx];
-	  m_conditions[condIdx] = expr;
-	  expr->addListener(condListener);
+
+	  if (m_listeners[condIdx].isNoId())
+		makeConditionListener(condIdx); // for effect
+	  m_conditions[condIdx] = 
+		ExpressionFactory::createInstance(it->second->name(), 
+										  it->second,
+										  NodeConnector::getId(), 
+										  m_garbageConditions[condIdx]);
+	  m_conditions[condIdx]->addListener(m_listeners[condIdx]);
 	}
 
-	if (m_nodeType == COMMAND()) {
-	  // Construct command-aborted condition
-	  ExpressionId commandAbort = (new BooleanVariable())->getId();
-	  ExpressionListenerId abortListener = m_listeners[abortCompleteIdx];
-	  commandAbort->addListener(abortListener);
-	  m_conditions[abortCompleteIdx] = commandAbort;
-	  m_ack = (new StringVariable(StringVariable::UNKNOWN()))->getId();
-          
-	  // Construct real end condition
-	  m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-	  ExpressionId interruptEndCond = (new InterruptibleCommandHandleValues(m_ack))->getId();
-	  ExpressionId conjunctCondition = (new Conjunction((new IsKnown(m_ack))->getId(),
-														true, 
-														m_conditions[endIdx],
-														m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
-	  ExpressionId realEndCondition =
-		(new Disjunction(interruptEndCond, true, conjunctCondition, true))->getId();
-	  realEndCondition->addListener(m_listeners[endIdx]);
-	  m_conditions[endIdx] = realEndCondition;
-	  m_garbageConditions.insert(endIdx);
-          
-	  // Listen to any change in the command handle so that the internal variable 
-	  // CommandHandleVariable can be updated
-	  ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
-	  commandHandleCondition->ignoreCachedValue();
-	  commandHandleCondition->addListener(m_listeners[commandHandleReceivedIdx]);
-	  m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
-	  m_garbageConditions.insert(commandHandleReceivedIdx);
-	}
-	else if (m_nodeType == ASSIGNMENT() || m_nodeType == UPDATE()) {
-	  // Construct real end condition
-	  m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-	  m_ack = (new BooleanVariable(BooleanVariable::UNKNOWN()))->getId();
-	  ExpressionId realEndCondition =
-		(new Conjunction(m_ack,
-						 false, 
-						 m_conditions[endIdx],
-						 m_garbageConditions.find(endIdx) != m_garbageConditions.end()))->getId();
-	  realEndCondition->addListener(m_listeners[endIdx]);
-	  m_conditions[endIdx] = realEndCondition;
-	  m_garbageConditions.insert(endIdx);
-	}
+	// Create conditions that may wrap user-defined conditions
+	createConditionWrappers();
   }
 
-  void Node::createChildNodes(const PlexilListBody* body) {
-    checkError(m_nodeType == LIST(), "Attempted to create child nodes for a non-list node.");
-    for(std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
-	it != body->children().end(); ++it)
-      m_children.push_back((new Node(*it, m_exec, m_id))->getId());
-
-    ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
-    cond->addListener(listener);
-    m_conditions[childrenWaitingOrFinishedIdx] = cond;
-    m_garbageConditions.insert(childrenWaitingOrFinishedIdx);
-
-    ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-    listener = m_listeners[endIdx];
-    endCond->addListener(listener);
-    m_conditions[endIdx] = endCond;
-    m_garbageConditions.insert(endIdx);
+  // Default method
+  void Node::createSpecializedConditions()
+  {
   }
 
-  // Check aliases against interfaceVars.
-  // Remove all that are found from aliases.
-  // If a variable exists in interfaceVars but not aliases:
-  //  - and it has a default value, generate the variable with the default value;
-  //  - and it doesn't have a default value, signal an error.
-  // libNode is only used for error message generation.
+  // Default method
+  void Node::createConditionWrappers()
+  {
+  }
 
-   void Node::testLibraryNodeParameters(
-      const PlexilNodeId& libNode, 
-      const std::vector<PlexilVarRef*>& interfaceVars,
-      PlexilAliasMap& aliases)
-   {
-      // check each variable in the interface to ensure it is
-      // referenced in the alias list
-      
-      for (std::vector<PlexilVarRef*>::const_iterator var = interfaceVars.begin();
-           var != interfaceVars.end(); ++var)
-      {
-	// get var label and matching value in alias list
-	LabelStr varLabel((*var)->name());
-	PlexilExprId& aliasValue = aliases[varLabel];
+  Node::~Node() 
+  {
+	debugMsg("Node:~Node", " base class destructor for " << m_nodeId.toString());
 
-	// check that variable referenced in alias list         
-	// if it is missing then check whether formal parameter has a default value
-	if (!aliasValue.isId())
-	  {
-	    if ((*var)->defaultValue().isId())
-	      {
-		// check that the default value is valid
-		checkError(Id<PlexilValue>::convertable((*var)->defaultValue()), 
-			   "Expected PlexilValue.");
-		const Id<PlexilValue>& defaultValue = 
-		  (Id<PlexilValue>&)(*var)->defaultValue();
-		checkError(defaultValue->value() != "UNKNOWN",
-			   "Interface variable '" << 
-			   varLabel.toString() <<
-			   "' in library node '" << libNode->nodeId() << 
-			   "' missing in call from '" << getNodeId().toString() <<
-			   "' and no default is specified");
-          
-		// construct variable with default value
-		debugMsg("Node:testLibraryNodeParameters", 
-				 "Constructing defaulted interface variable " << varLabel.c_str());
-		m_variablesByName[varLabel] = 
-		  ExpressionFactory::createInstance(PlexilParser::valueTypeString((*var)->type()) + "Value",
-						    defaultValue->getId(),
-						    m_connector);
-	      }
-	    else
-	      {
-                // no default value provided
-		checkError(ALWAYS_FAIL,
-			   "Interface variable '" << 
-			   varLabel.toString() <<
-			   "' in library node '" << libNode->nodeId() << 
-			   "' missing in call from '" << getNodeId().toString() <<
-			   "' and no default is specified");
-	      }
-	  }
+	// Remove anything that refers to variables, either ours or another node's
+    cleanUpConditions();
 
-	// remove value for alias copy for later checking
-	aliases.erase(varLabel);
+	// Now safe to delete variables
+    cleanUpVars();
+
+	delete m_sortedVariableNames;
+    m_id.removeDerived(NodeConnector::getId());
+  }
+
+  void Node::cleanUpConditions() 
+  {
+    if (m_cleanedConditions)
+      return;
+
+	debugMsg("Node:cleanUpConditions", " for " << m_nodeId.toString());
+
+    // Clean up condition listeners
+    for (size_t i = 0; i < conditionIndexMax; i++) {
+      if (m_listeners[i].isId()) {
+		debugMsg("Node:cleanUpConditions",
+				 "<" << m_nodeId.toString() << "> Removing condition listener for " <<
+				 getConditionName(i).toString());
+		ExpressionId cond = getCondition(i);
+		if (cond.isId())
+		  cond->removeListener(m_listeners[i]);
+		delete (ExpressionListener*) m_listeners[i];
+		m_listeners[i] = ExpressionListenerId::noId();
       }
-   }
-
-   void Node::createLibraryNode(const PlexilNodeId& node)
-   {
-      checkError(m_nodeType == LIBRARYNODECALL(),
-                 "Attempted to create library node in non-library node call in: " 
-                 << getNodeId().toString());
-      
-      // get node body
-      const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*)node->body();
-      
-      // get the lib node and its interface
-      const PlexilNodeId& libNode = body->libNode();
-      const PlexilInterfaceId& libInterface = libNode->interface();
-      
-      // if there is no interface, there must be no variables
-      if (libInterface.isNoId()) {
-         checkError(body->aliases().size() == 0,
-                    "Variable aliases in '" << getNodeId().toString() <<
-                    "' do not match interface in '" << 
-                    libNode->nodeId() << "'");
-      }
-      
-      // otherwise check variables in interface
-      else {
-         // make a copy of the alias map
-         PlexilAliasMap aliasesCopy(body->aliases());
-
-         // check whether all "In" variables in the interface are referenced in the alias list
-         testLibraryNodeParameters(libNode, libInterface->in(), aliasesCopy);
-
-         // check whether all "InOut" variables in the interface are referenced in the alias list
-         testLibraryNodeParameters(libNode, libInterface->inOut(), aliasesCopy);
-
-         // check that every veriable in alias list has been referenced
-         // or has a default value
-         checkError(aliasesCopy.size() == 0, "Unknown variable '"
-                    << LabelStr(aliasesCopy.begin()->first).toString() 
-                    << "' passed in call to '" << libNode->nodeId() << "' from '"
-                    << getNodeId().toString() << "'");
-      }
-
-      // link aliases to variables or values
-      for (PlexilAliasMap::const_iterator alias = body->aliases().begin();
-           alias != body->aliases().end();
-		   ++alias) {
-         LabelStr paramName(alias->first);
-         
-         // if this is a variable reference, look it up
-         if (Id<PlexilVarRef>::convertable(alias->second)) {
-            const PlexilVarRef* paramVar = alias->second;
-            
-            // find variable in interface
-            const PlexilVarRef* iVar = libInterface->findVar(paramName.toString());
-            checkError(iVar != NULL,
-                       "Variable '" << paramName.toString()
-                       << "' referenced in '" << getNodeId().toString()
-                       << "' does not appear in interface of '" 
-                       << libNode->nodeId() << "' ");
-            
-            // check type
-            checkError(iVar->type() == paramVar->type(), 
-                       "Variable type mismatch between formal parameter '" 
-                       << iVar->name() << "' (" << iVar->type() << ") and actual variable '" 
-                       << paramVar->name() << "' (" << paramVar->type() << ") "
-                       << "' referenced in '" << getNodeId().toString() << "'");
-
-            // find the expression form
-            const Id<Expression>& varExp = findVariable(alias->second);
-			// FIXME: push this check up into XML parser
-            checkError(varExp.isId(), "Unknown variable '" 
-                       << alias->second->name()
-                       << "' referenced in call to '" << libNode->nodeId() << "' from '"
-                       << getNodeId().toString() << "'");
-			// FIXME: push this check up into XML parser
-            checkError(Id<Variable>::convertable(varExp)
-					   || Id<AliasVariable>::convertable(varExp),
-					   "Expression not a variable '" 
-                       << alias->second->name()
-                       << "' referenced in call to '" << libNode->nodeId() << "' from '"
-                       << getNodeId().toString() << "'");
-
-            // convert expression to variable
-            const Id<EssentialVariable>& var = (const Id<EssentialVariable>&)varExp;
-
-			if (iVar->type() == ARRAY) {
-			  // check for array element type match
-			  // iVar should have variable definition
-			  const PlexilArrayVarId ivarDef = (const PlexilArrayVarId&) iVar->variable();
-			  checkError(ivarDef.isId(), 
-						 "Internal error: interface array variable '" << paramName.c_str()
-						 << "' is missing its variable definition");
-			  const Id<ArrayVariable> arrayVar = (const Id<ArrayVariable>&) var;
-			  checkError(arrayVar.isId(),
-						 "Internal error: variable '" << alias->second->name()
-						 << "' doesn't seem to be an array variable");
-			  checkError(arrayVar->getElementType() == ivarDef->elementType(),
-						 "Array variable type mismatch between formal parameter '"
-						 << iVar->name() << "' (" << ivarDef->elementType() 
-						 << ") and actual variable '" << paramVar->name()
-						 << "' (" << arrayVar->getElementType()
-						 << ") referenced in '" << getNodeId().toString() << "'");
-			}
-
-            // check that read only variables appear in the the In interface
-            checkError(!var->isConst() || libInterface->findInVar(paramName.toString()),
-                       "Constant variable '" << alias->second->name()
-                       << "' referenced in '" << getNodeId().toString() 
-                       << "' is aliased to '" <<  iVar->name()
-                       << "' declared as InOut in '" << libNode->nodeId() << "'");
-
-            // add this variable to node
-			debugMsg("Node:createLibraryNode",
-					 " aliasing parameter variable " << paramName.c_str() << " to actual variable " << paramVar->name());
-            m_variablesByName[paramName] = var;
-         }
-         
-		 // if this is a value, create a local variable for it
-         else if (Id<PlexilValue>::convertable(alias->second))
-         {
-            Id<PlexilValue> value = (Id<PlexilValue>)alias->second;
-            debugMsg("Node:createLibraryNode",
-                     " Constructing variable for " << value->name()
-                     << " literal with value " << value->value() 
-                     << " as library node interface variable " << paramName.c_str());
-            ExpressionId varId = 
-              ExpressionFactory::createInstance(value->name(),
-                                                value->getId(),
-                                                m_connector);
-            m_variablesByName[paramName] = varId;
-         }
-         else
-            checkError(false, 
-                       "Unexpected expression type '" << alias->second->name()
-                       << "' in: " << getNodeId().toString());
-      }
-      
-      m_children.push_back((new Node(body->libNode(), m_exec, m_id))->getId());
-
-      ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-      ExpressionListenerId listener = m_listeners[childrenWaitingOrFinishedIdx];
-      cond->addListener(listener);
-      m_conditions[childrenWaitingOrFinishedIdx] = cond;
-      m_garbageConditions.insert(childrenWaitingOrFinishedIdx);
-
-      ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-      listener = m_listeners[endIdx];
-      endCond->addListener(listener);
-      m_conditions[endIdx] = endCond;
-      m_garbageConditions.insert(endIdx);    
-   }
-
-   void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
-   {
-      if (!intf.isValid())
-         return;
-      
-      debugMsg("Node:getVarsFromInterface",
-               "Getting interface vars for node '" << m_nodeId.toString() << "'");
-      checkError(m_parent.isId(), "Bizarre.  An interface on a parentless node.");
-      //CHECK FOR DUPLICATE NAMES
-      for (std::vector<PlexilVarRef*>::const_iterator it = intf->in().begin();
-		   it != intf->in().end();
-		   ++it) 
-      {
-		PlexilVarRef* varRef = *it;
-		ExpressionId expr = m_parent->findVariable(varRef);
-		// FIXME: push this check up into XML parser
-		checkError(expr.isId(),
-				   "No variable named '" << varRef->name() <<
-				   "' in parent of node '" << m_nodeId.toString() << "'");
-		// FIXME: push this check up into XML parser
-		checkError(Id<Variable>::convertable(expr)
-				   || Id<AliasVariable>::convertable(expr),
-				   "Expression named '" << varRef->name() <<
-				   "' in parent of node '" << m_nodeId.toString() <<
-				   "' is not a variable.");
-
-
-		// Generate a constant alias for this variable
-		ExpressionId alias =
-		  (new AliasVariable(varRef->name(),
-							 m_connector,
-							 (Id<EssentialVariable>) expr,
-							 true))->getId();
-
-		// add alias to this node
-		debugMsg("Node:getVarsFromInterface", 
-				 " for node " << m_nodeId.c_str()
-				 << ": Adding In variable "
-				 << alias->toString()
-				 << " as '" << varRef->name()
-				 << "'"); 
-		m_variablesByName[LabelStr(varRef->name())] = alias;
-      }
-      
-      for(std::vector<PlexilVarRef*>::const_iterator it = intf->inOut().begin();
-          it != intf->inOut().end(); ++it) 
-      {
-         ExpressionId expr = m_parent->findVariable(*it);
-		 // FIXME: push this check up into XML parser
-         checkError(expr.isId(),
-                    "No variable named '" << (*it)->name() <<
-                    "' in parent of node '" << m_nodeId.toString() << "'");
-         
-         // add variable to this node
-		 debugMsg("Node:getVarsFromInterface", 
-				  " for node '" << m_nodeId.c_str()
-				  << "': Adding InOut variable "
-				  << expr->toString()
-				  << " as '" << (*it)->name()
-				  << "'"); 
-         m_variablesByName[LabelStr((*it)->name())] = expr;
-      }
-   }
-
-  void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
-    for(std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it)
-    {
-       // get the variable name
-
-	  const std::string& name = (*it)->name();
-	  LabelStr nameLabel(name);
-
-       // if it's an array, make me an array
-       
-       if (Id<PlexilArrayVar>::convertable((*it)->getId()))
-       {
-          PlexilValue* value = (*it)->value();
-          ExpressionId varId = ExpressionFactory::createInstance(value->name(), value->getId(),
-                                                                 m_connector);
-          //CHECK FOR DUPLICATE NAMES
-
-          m_variablesByName[nameLabel] = varId;
-		  ((Variable*) varId)->setName(name);
-          m_localVariables.push_back(varId);
-          debugMsg("Node:createDeclaredVars",
-                   " for node '" << m_nodeId.toString()
-				   << "': created array variable "
-                   << varId->toString()  << " as '"
-				   << name << "'");
-       }
-       // otherwise create a non-array variable
-
-       else
-       {
-          PlexilValue* value = (*it)->value();
-          ExpressionId varId = ExpressionFactory::createInstance(value->name(), value->getId(),
-                                                                 m_connector);
-          //CHECK FOR DUPLICATE NAMES
-
-          m_variablesByName[nameLabel] = varId;
-		  ((Variable*) varId)->setName(name);
-          m_localVariables.push_back(varId);
-          debugMsg("Node:createDeclaredVars",
-                   " for node '" << m_nodeId.toString()
-				   << "': created variable " 
-				   << varId->toString() << " as '"
-				   << name << "'");
-       }
     }
+
+    // Clean up conditions
+	// N.B.: Ancestor-end and ancestor-invariant MUST be cleaned up before
+	// end and invariant, respectively. 
+    for (size_t i = 0; i < conditionIndexMax; i++) {
+      if (m_garbageConditions[i]) {
+		debugMsg("Node:cleanUpConds",
+				 "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(i).toString());
+		delete (Expression*) m_conditions[i];
+	  }
+	  m_conditions[i] = ExpressionId::noId();
+	  m_garbageConditions[i] = false;
+	}
+
+    m_cleanedConditions = true;
+  }
+
+  // Default method.
+  void Node::cleanUpNodeBody()
+  {
+  }
+
+  void Node::cleanUpVars() 
+  {
+    if (m_cleanedVars)
+      return;
+    checkError(m_cleanedConditions,
+			   "Have to clean up variables before conditions can be cleaned.");
+
+	debugMsg("Node:cleanUpVars", " for " << m_nodeId.toString());
+
+	// Clear map
+	m_variablesByName.clear();
+
+	// Delete user-spec'd variables
+    for (std::vector<VariableId>::iterator it = m_localVariables.begin(); it != m_localVariables.end(); ++it) {
+	  debugMsg("Node:cleanUpVars",
+			   "<" << m_nodeId.toString() << "> Removing " << **it);
+	  delete (Variable*) (*it);
+    }
+	m_localVariables.clear();
+
+	// Delete timepoint variables
+	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+	  delete (Variable*) m_startTimepoints[s];
+	  delete (Variable*) m_endTimepoints[s];
+	  m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
+	}
+
+	// Delete internal variables
+	delete (Variable*) m_outcomeVariable;
+	m_outcomeVariable = VariableId::noId();
+	delete (Variable*) m_failureTypeVariable;
+	m_failureTypeVariable = VariableId::noId();
+	delete (Variable*) m_stateVariable;
+	m_stateVariable = VariableId::noId();
+
+    m_cleanedVars = true;
+  }
+
+  void Node::postInit(const PlexilNodeId& node) 
+  {
+    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
+    m_postInitCalled = true;
+
+    debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
+    //create conditions and listeners
+    createConditions(node->conditions());
+
+    //create assignment/command
+	specializedPostInit(node);
+  }
+
+  // Default method
+  void Node::specializedPostInit(const PlexilNodeId& node)
+  {
+  }
+
+  // Make the node (and its children, if any) active.
+  void Node::activate()
+  {
+	// Activate internal variables
+	activateInternalVariables();
+
+	// These are the only conditions we care about in the INACTIVE state.
+	// See getDestStateFromInactive().
+    activateParentExecutingCondition();
+    activateParentFinishedCondition();
+	
+	specializedActivate();
+  }
+
+  // Default method
+  void Node::specializedActivate()
+  {
+  }
+
+  void Node::activateInternalVariables()
+  {
+	// Activate internal variables
+    m_stateVariable->activate();
+	// TODO: figure out if these should be activated on entering EXECUTING state
+    m_outcomeVariable->activate();
+    m_failureTypeVariable->activate();
+
+	// Activate timepoints
+	// TODO: figure out if they should be inactive until entering the corresponding state
+	for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+	  m_startTimepoints[s]->activate();
+	  m_endTimepoints[s]->activate();
+	}
+
+	specializedActivateInternalVariables();
+  }
+
+  // Default method
+  void Node::specializedActivateInternalVariables()
+  {
+  }
+
+  const ExpressionId& Node::getCondition(size_t idx) const
+  {
+	switch (idx) {
+
+	case ancestorEndIdx:
+	case parentFinishedIdx:
+	case parentWaitingIdx:
+
+	  if (m_parent.isId())
+		return m_parent->m_conditions[idx];
+	  else
+		return BooleanVariable::FALSE_EXP();
+
+	case ancestorInvariantIdx:
+	case parentExecutingIdx:
+
+	  if (m_parent.isId())
+		return m_parent->m_conditions[idx];
+	  else
+		return BooleanVariable::TRUE_EXP();
+
+	default:
+	  return m_conditions[idx];
+	}
+  }
+
+  const ExpressionId& Node::getCondition(const LabelStr& name) const {
+    return getCondition(getConditionIndex(name));
+  }
+
+  ExpressionListenerId Node::makeConditionListener(size_t idx)
+  {
+	assertTrueMsg(m_listeners[idx].isNoId(),
+				  "Node::makeConditionListener: Node " << m_nodeId.toString()
+				  << " already has a listener for condition " << getConditionName(idx));
+	return m_listeners[idx] = 
+	  (new ConditionChangeListener(*this, ALL_CONDITIONS()[idx]))->getId();
+  }
+
+  // Default method.
+  const std::vector<NodeId>& Node::getChildren() const
+  {
+	static std::vector<NodeId> sl_emptyNodeVec;
+	return sl_emptyNodeVec;
   }
 
   /**
@@ -1171,82 +738,564 @@ namespace PLEXIL {
   void Node::checkConditions() {
     m_checkConditionsPending = false;
     checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
-	       "Node state not synchronized for node " << m_nodeId.toString()
-	       << "; node state = " << m_state
-	       << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
+			   "Node state not synchronized for node " << m_nodeId.toString()
+			   << "; node state = " << m_state
+			   << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
 
-    if(m_transitioning)
-      return;
+	// Should never happen
+    checkError(!m_transitioning,
+			   "Node::checkConditions called while node '" << m_nodeId.toString() << "' is transitioning!");
 
     debugMsg("Node:checkConditions",
-	     "Checking condition change for node " << m_nodeId.toString());
+			 "Checking condition change for node " << m_nodeId.toString());
     NodeState toState(getDestState());
     debugMsg("Node:checkConditions",
-	     "Can (possibly) transition to " << StateVariable::nodeStateName(toState).toString());
+			 "Can (possibly) transition to " << StateVariable::nodeStateName(toState).toString());
     if (toState != m_lastQuery) {
-      if (toState != NO_NODE_STATE ||
-	  (toState == NO_NODE_STATE &&
-	   m_lastQuery != NO_NODE_STATE))
-	m_exec->handleConditionsChanged(m_id);
+	  m_exec->handleConditionsChanged(m_id, toState);
       m_lastQuery = toState;
     }
   }
 
-  void Node::transition(const double time) {
+  NodeState Node::getDestState() 
+  {
+    debugMsg("Node:getDestState",
+			 "Getting destination state for " << m_nodeId.toString() << " from state " <<
+			 getStateName().toString());
+    // return m_stateManager->getDestState(m_id);
+	switch (m_state) {
+	case INACTIVE_STATE:
+	  return getDestStateFromInactive();
+
+	case WAITING_STATE:
+	  return getDestStateFromWaiting();
+
+	case EXECUTING_STATE:
+	  return getDestStateFromExecuting();
+
+	case FINISHING_STATE:
+	  return getDestStateFromFinishing();
+
+	case FINISHED_STATE:
+	  return getDestStateFromFinished();
+
+	case FAILING_STATE:
+	  return getDestStateFromFailing();
+
+	case ITERATION_ENDED_STATE:
+	  return getDestStateFromIterationEnded();
+
+	default:
+	  checkError(ALWAYS_FAIL,
+				 "Node::getDestState: invalid node state " << m_state);
+	  return NO_NODE_STATE;
+	}
+  }
+
+  //
+  // Next-state logic
+  //
+
+  // Default method
+  NodeState Node::getDestStateFromInactive()
+  {
+	checkError(isParentExecutingConditionActive(), 
+			   "Parent executing for " << m_nodeId.toString() << " is inactive.");
+	if (getParentFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  PARENT_FINISHED_CONDITION true.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isParentFinishedConditionActive(), 
+			   "Parent finished for " << m_nodeId.toString() << " is inactive.");
+	if (getParentExecutingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: WAITING.  PARENT_EXECUTING_CONDITION true");
+	  return WAITING_STATE;
+	}
+	debugMsg("Node:getDestState", 
+			 " '" << m_nodeId.toString() << "' destination: no state.");
+	return NO_NODE_STATE;
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromWaiting()
+  {
+	checkError(isAncestorInvariantConditionActive(), "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_INVARIANT_CONDITION false.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isAncestorEndConditionActive(), "Ancestor end for " << m_nodeId.toString() << " is inactive.");
+	if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_END_CONDITION true.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isSkipConditionActive(), "Skip for " << m_nodeId.toString() << " is inactive.");
+	if (getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  SKIP_CONDITION true.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isStartConditionActive(), "Start for " << m_nodeId.toString() << " is inactive.");
+	if (getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if (getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+		debugMsg("Node:getDestState",
+				 " '" << m_nodeId.toString() << "' destination: EXECUTING.  START_CONDITION and PRE_CONDITION are both true.");
+		return EXECUTING_STATE;
+	  }
+	  else {
+		debugMsg("Node:getDestState",
+				 " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
+		return ITERATION_ENDED_STATE;
+	  }
+	}
+	debugMsg("Node:getDestState",
+			 " '" << m_nodeId.toString() << "' destination: no state.  START_CONDITION false or unknown");
+	return NO_NODE_STATE;
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromExecuting()
+  {
+	checkError(isAncestorInvariantConditionActive(),
+			   "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  Ancestor invariant false.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isInvariantConditionActive(),
+			   "Invariant for " << m_nodeId.toString() << " is inactive.");
+	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED.  Invariant false.");
+	  return ITERATION_ENDED_STATE;
+	}
+
+	checkError(isEndConditionActive(),
+			   "End for " << m_nodeId.toString() << " is inactive.");
+	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED.  End condition true.");
+	  return ITERATION_ENDED_STATE;
+	}
+	return NO_NODE_STATE;
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromFinishing()
+  {
+    checkError(ALWAYS_FAIL,
+			   "Attempted to compute destination state for node " << m_nodeId.toString()
+			   << " of type " << getType());
+    return NO_NODE_STATE;
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromFinished()
+  {
+	checkError(isParentWaitingConditionActive(),
+			   "Parent waiting for " << m_nodeId.toString() << " is inactive.");
+
+	if (getParentWaitingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: INACTIVE.  PARENT_WAITING true.");
+	  return INACTIVE_STATE;
+	}
+	debugMsg("Node:getDestState",
+			 " '" << m_nodeId.toString() << "' destination: no state.  PARENT_WAITING false or unknown.");
+	return NO_NODE_STATE;
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromFailing()
+  {
+    checkError(ALWAYS_FAIL,
+			   "Attempted to compute destination state for node " << m_nodeId.toString()
+			   << " of type " << getType());
+    return NO_NODE_STATE;
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromIterationEnded()
+  {
+	checkError(isAncestorInvariantConditionActive(),
+			   "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+
+	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_INVARIANT false.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isAncestorEndConditionActive(),
+			   "Ancestor end for " << m_nodeId.toString() << " is inactive.");
+	if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_END true.");
+	  return FINISHED_STATE;
+	}
+
+	checkError(isRepeatConditionActive(),
+			   "Repeat for " << m_nodeId.toString() << " is inactive.");
+	double repeat = getRepeatCondition()->getValue();
+	if (repeat == BooleanVariable::FALSE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: FINISHED.  REPEAT_CONDITION false.");
+	  return FINISHED_STATE;
+	}
+	if (repeat == BooleanVariable::TRUE_VALUE()) {
+	  debugMsg("Node:getDestState",
+			   " '" << m_nodeId.toString() << "' destination: WAITING.  REPEAT_UNTIL true.");
+	  return WAITING_STATE;
+	}
+
+	debugMsg("Node:getDestState",
+			 " '" << m_nodeId.toString() << "' destination: no state.  ANCESTOR_END false or unknown and REPEAT unknown.");
+	return NO_NODE_STATE;
+  }
+
+  //
+  // State transition logic
+  //
+
+  // This method is currently used only by exec-test-module.
+  // Its logic has been absorbed into transition() below to avoid redundant calls to getDestState().
+  bool Node::canTransition()
+  {
+    NodeState toState = getDestState();
+    return toState != NO_NODE_STATE && toState != m_state;
+  }
+
+  void Node::transition(NodeState destState, const double time) 
+  {
+    checkError(destState != NO_NODE_STATE
+			   && destState != m_state,
+			   "Attempted to transition node " << m_nodeId.toString() <<
+			   " when it is ineligible.");
     checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
-	       "Node state not synchronized for node " << m_nodeId.toString()
-	       << "; node state = " << m_state
-	       << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
+			   "Node state not synchronized for node " << m_nodeId.toString()
+			   << "; node state = " << m_state
+			   << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
     checkError(!m_transitioning,
-	       "Node " << m_nodeId.toString() << " is already transitioning.");
+			   "Node " << m_nodeId.toString() << " is already transitioning.");
+
     m_transitioning = true;
-    NodeState prevState(getState());
-    m_stateManager->transition(m_id);
-    NodeState newState(getState());
+    NodeState prevState = m_state;
+	
+	transitionFrom(destState);
+	transitionTo(destState);
+
     debugMsg("Node:transition", "Transitioning '" << m_nodeId.toString() <<
-	     "' from " << StateVariable::nodeStateName(prevState).toString() <<
-	     " to " << StateVariable::nodeStateName(newState).toString());
-    condDebugMsg((newState == FINISHED_STATE),
+			 "' from " << StateVariable::nodeStateName(prevState).toString() <<
+			 " to " << StateVariable::nodeStateName(destState).toString());
+    condDebugMsg((destState == FINISHED_STATE),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
-    condDebugMsg((newState == FINISHED_STATE && getOutcome() == OutcomeVariable::FAILURE()),
+    condDebugMsg((destState == FINISHED_STATE && getOutcome() == OutcomeVariable::FAILURE()),
                  "Node:failure",
                  "Failure type of '" << m_nodeId.toString() <<
                  "' is " << getFailureType().toString());
-    condDebugMsg((newState == ITERATION_ENDED_STATE),
+    condDebugMsg((destState == ITERATION_ENDED_STATE),
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId.toString() <<
                  "' is " << getOutcome().toString());
     debugMsg("Node:times",
-	     "Setting end time " << LabelStr(END_TIMEPOINT_NAMES()[prevState]).toString()
-			 << " = " << std::setprecision(15) << time);
-    debugMsg("Node:times",
-	     "Setting start time " << LabelStr(START_TIMEPOINT_NAMES()[newState]).toString()
+			 "Setting '" << m_nodeId.toString()
+			 << "' end time " << LabelStr(END_TIMEPOINT_NAMES()[prevState]).toString()
+			 << " = start time " << LabelStr(START_TIMEPOINT_NAMES()[destState]).toString()
 			 << " = " << std::setprecision(15) << time);
     m_endTimepoints[prevState]->setValue(time);
-    m_startTimepoints[newState]->setValue(time);
+    m_startTimepoints[destState]->setValue(time);
     m_transitioning = false;
     conditionChanged(); // was checkConditions();
   }
 
-  const ExpressionId& Node::getInternalVariable(const LabelStr& name) const {
+  // Empty node method 
+  void Node::transitionFrom(NodeState destState)
+  {
+	switch (m_state) {
+	case INACTIVE_STATE:
+	  transitionFromInactive(destState);
+	  break;
+
+	case WAITING_STATE:
+	  transitionFromWaiting(destState);
+	  break;
+
+	case EXECUTING_STATE:
+	  transitionFromExecuting(destState);
+	  break;
+
+	case FINISHING_STATE:
+	  transitionFromFinishing(destState);
+	  break;
+
+	case FINISHED_STATE:
+	  transitionFromFinished(destState);
+	  break;
+
+	case FAILING_STATE:
+	  transitionFromFailing(destState);
+	  break;
+
+	case ITERATION_ENDED_STATE:
+	  transitionFromIterationEnded(destState);
+	  break;
+
+	default:
+	  checkError(ALWAYS_FAIL,
+				 "Node::transitionFrom: Invalid node state " << m_state);
+	}
+  }
+
+  // Empty node method 
+  void Node::transitionTo(NodeState destState)
+  {
+	switch (destState) {
+	case INACTIVE_STATE:
+	  transitionToInactive();
+	  break;
+
+	case WAITING_STATE:
+	  transitionToWaiting();
+	  break;
+
+	case EXECUTING_STATE:
+	  transitionToExecuting();
+	  break;
+
+	case FINISHING_STATE:
+	  transitionToFinishing();
+	  break;
+
+	case FINISHED_STATE:
+	  transitionToFinished();
+	  break;
+
+	case FAILING_STATE:
+	  transitionToFailing();
+	  break;
+
+	case ITERATION_ENDED_STATE:
+	  transitionToIterationEnded();
+	  break;
+
+	default:
+	  checkError(ALWAYS_FAIL,
+				 "Node::transitionTo: Invalid destination state " << destState);
+	}
+
+	setState(destState);
+  }
+
+  // Default method
+  void Node::transitionFromInactive(NodeState destState)
+  {
+	checkError(destState == WAITING_STATE ||
+			   destState == FINISHED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateParentExecutingCondition();
+	deactivateParentFinishedCondition();
+	if (destState == FINISHED_STATE)
+	  getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
+  }
+
+  // Default method
+  void Node::transitionFromWaiting(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == EXECUTING_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateStartCondition();
+	deactivateSkipCondition();
+	deactivateAncestorEndCondition();
+	deactivateAncestorInvariantCondition();
+	deactivatePreCondition();
+
+	if (destState == FINISHED_STATE)
+	  getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
+	else if (destState == ITERATION_ENDED_STATE) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PRE_CONDITION_FAILED());
+	}
+  }
+
+  // Empty node method
+  void Node::transitionFromExecuting(NodeState destState)
+  {
+	checkError(m_nodeType == Node::EMPTY(),
+			   "Expected empty node, got " <<
+			   m_nodeType.toString());
+	checkError(destState == FINISHED_STATE ||
+			   destState == ITERATION_ENDED_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+      }
+	else if (getInvariantCondition()->getValue() ==
+			 BooleanVariable::FALSE_VALUE()) {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+      }
+	else if(getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+	  if(getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE())
+		getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+	  else {
+		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+		getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+	  }
+	}
+	else {
+	  checkError(ALWAYS_FAIL, "Shouldn't get here.");
+	}
+
+	deactivateAncestorInvariantCondition();
+	deactivateInvariantCondition();
+	deactivateEndCondition();
+	deactivatePostCondition();
+  }
+
+  // Default method
+  void Node::transitionFromFinishing(NodeState destState)
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition from FINISHING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionFromFinished(NodeState destState)
+  {
+	checkError(destState == INACTIVE_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+	deactivateParentWaitingCondition();
+	reset();
+  }
+
+  // Default method
+  void Node::transitionFromFailing(NodeState destState)
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition from FAILING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionFromIterationEnded(NodeState destState)
+  {
+	checkError(destState == FINISHED_STATE ||
+			   destState == WAITING_STATE,
+			   "Attempting to transition to invalid state '"
+			   << StateVariable::nodeStateName(destState).toString() << "'");
+
+	if (getAncestorInvariantCondition()->getValue() ==
+		BooleanVariable::FALSE_VALUE()) {
+	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+	  getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+	}
+
+	deactivateRepeatCondition();
+	deactivateAncestorEndCondition();
+	deactivateAncestorInvariantCondition();
+
+	if (destState == WAITING_STATE)
+	  reset();
+  }
+
+
+  // Default method
+  void Node::transitionToInactive()
+  {
+	activateParentExecutingCondition();
+	activateParentFinishedCondition();
+  }
+
+  // Default method
+  void Node::transitionToWaiting()
+  {
+	activateStartCondition();
+	activatePreCondition();
+	activateSkipCondition();
+	activateAncestorEndCondition();
+	activateAncestorInvariantCondition();
+  }
+
+  // Empty node method
+  void Node::transitionToExecuting()
+  {
+	checkError(getType() == Node::EMPTY(),
+			   "Expected empty node, got " << getType().toString());
+
+	activateAncestorInvariantCondition();
+	activateInvariantCondition();
+	activateEndCondition();
+	activatePostCondition();
+  }
+
+  // Default method
+  void Node::transitionToFinishing()
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition to FINISHING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionToFinished()
+  {
+	activateParentWaitingCondition();
+  }
+
+  // Default method
+  void Node::transitionToFailing()
+  {
+	checkError(ALWAYS_FAIL,
+			   "No transition to FAILING state defined for this node");
+  }
+
+  // Default method
+  void Node::transitionToIterationEnded() 
+  {
+	activateRepeatCondition();
+	activateAncestorEndCondition();
+	activateAncestorInvariantCondition();
+  }
+
+  const VariableId& Node::getInternalVariable(const LabelStr& name) const{
     checkError(m_variablesByName.find(name) != m_variablesByName.end(),
-	       "No variable named " << name.toString() << " in " << m_nodeId.toString());
+			   "No variable named " << name.toString() << " in " << m_nodeId.toString());
     return m_variablesByName.find(name)->second;
   }
 
   const LabelStr& Node::getStateName() const {
-    return StateVariable::ALL_STATES()[m_state];
+    return StateVariable::nodeStateName(m_state);
   }
 
   NodeState Node::getState() const {
     return m_state;
   }
 
+  // Some transition handlers call this twice.
   void Node::setState(NodeState newValue) {
     checkError(newValue < NO_NODE_STATE,
-	       "Attempted to set an invalid NodeState value");
+			   "Attempted to set an invalid NodeState value");
+	if (newValue == m_state)
+	  return;
     m_state = newValue;
     ((StateVariable*) m_stateVariable)->setNodeState(newValue);
   }
@@ -1261,49 +1310,32 @@ namespace PLEXIL {
     return m_endTimepoints[m_state]->getValue();
   }
 
-  const ExpressionId& Node::getStateVariable() {
-    return m_stateVariable;
-  }
-
-  const LabelStr Node::getOutcome() {
-    return getOutcomeVariable()->getValue();
-  }
-
-  const ExpressionId& Node::getOutcomeVariable() const {
-    return getInternalVariable(OUTCOME());
+  const LabelStr Node::getOutcome() 
+  {
+	double key = m_outcomeVariable->getValue();
+	if (key != Expression::UNKNOWN())
+	  return LabelStr(key);
+	else {
+	  return LabelStr("UNKNOWN");
+	}
   }
 
   const LabelStr Node::getFailureType() {
-    return getFailureTypeVariable()->getValue();
+	double key = m_failureTypeVariable->getValue();
+	if (key != Expression::UNKNOWN())
+	  return LabelStr(key);
+	else {
+	  return LabelStr("UNKNOWN");
+	}
   }
-
-  const ExpressionId& Node::getFailureTypeVariable() const {
-    return getInternalVariable(FAILURE_TYPE());
-  }
-
-  const LabelStr Node::getCommandHandle() {
-    return getCommandHandleVariable()->getValue();
-  }
-
-  const ExpressionId& Node::getCommandHandleVariable() const {
-    return getInternalVariable(COMMAND_HANDLE());
-  }
-
-  class NodeIdEq {
-  public:
-    NodeIdEq(const double name) : m_name(name) {}
-    bool operator()(const NodeId& node) {return node->getNodeId() == m_name;}
-  private:
-    double m_name;
-  };
 
   // Searches ancestors when required
-  const ExpressionId& Node::findVariable(const LabelStr& name, bool recursive)
+  const VariableId& Node::findVariable(const LabelStr& name, bool recursive)
   {
     debugMsg("Node:findVariable",
 			 " for node '" << m_nodeId.toString()
 			 << "', searching by name for \"" << name.toString() << "\"");
-    ExpressionMap::const_iterator it = m_variablesByName.find(name.getKey());
+    VariableMap::const_iterator it = m_variablesByName.find(name.getKey());
 	if (it != m_variablesByName.end()) {
 	  debugMsg("Node:findVariable",
 			   " Returning " << it->second->toString());
@@ -1314,7 +1346,7 @@ namespace PLEXIL {
 	// Stop at library call nodes, as interfaces there are explicit
 	if (m_parent.isId()
 		&& m_parent->m_nodeType != LIBRARYNODECALL()) {
-	  const ExpressionId& result = m_parent->findVariable(name, true);
+	  const VariableId& result = m_parent->findVariable(name, true);
 	  if (result.isId()) {
 		// Found it - cache for later reuse
 		m_variablesByName[name.getKey()] = result;
@@ -1322,7 +1354,7 @@ namespace PLEXIL {
 	  }
 	  // Not found 
 	  else if (recursive)
-		return ExpressionId::noId(); // so that error happens at approriate level
+		return VariableId::noId(); // so that error happens at approriate level
 	  // else fall through to failure
 	}
 
@@ -1330,283 +1362,257 @@ namespace PLEXIL {
 	checkError(ALWAYS_FAIL,
 			   "No variable named \"" << name.toString() << "\" accessible from node " <<
 			   m_nodeId.toString());
-	return ExpressionId::noId();
-  }
-   
-   const ExpressionId& Node::findVariable(const PlexilVarRef* ref)
-   {
-	 debugMsg("Node:findVariable",
-			  " for node '" << m_nodeId.toString()
-			  << "', searching for variable '" << ref->name() << "'");
-      
-	 if (Id<PlexilInternalVar>::convertable(ref->getId())) {
-	   PlexilInternalVar* var = (PlexilInternalVar*) ref;
-	   PlexilNodeRef* nodeRef = var->ref();
-	   NodeId node = NodeId::noId();
-         
-	   switch(nodeRef->dir()) {
-	   case PlexilNodeRef::SELF:
-		 node = m_id;
-		 break;
-
-	   case PlexilNodeRef::PARENT:
-		 // FIXME: push this check up into XML parser
-		 checkError(m_parent.isValid(),
-					"Parent node reference in root node " << 
-					m_nodeId.toString());
-		 node = m_parent;
-		 break;
-
-	   case PlexilNodeRef::CHILD:
-		 {
-		   // FIXME: push this check up into XML parser
-		   checkError(m_nodeType == Node::LIST(),
-					  "Child internal variable reference in node " << 
-					  m_nodeId.toString() <<
-					  " which isn't a list node.");
-		   std::list<NodeId>::const_iterator it =
-			 std::find_if(m_children.begin(), m_children.end(),
-						  NodeIdEq(LabelStr(nodeRef->name())));
-		   // FIXME: push this check up into XML parser
-		   checkError(it != m_children.end(),
-					  "No child named '" << nodeRef->name() << 
-					  "' in " << m_nodeId.toString());
-		   node = *it;
-		   break;
-		 }
-
-	   case PlexilNodeRef::SIBLING: 
-		 {
-		   // FIXME: push this check up into XML parser
-		   checkError(m_parent.isValid(),
-					  "Sibling node reference in root node " << 
-					  m_nodeId.toString());
-		   std::list<NodeId>::const_iterator it =
-			 std::find_if(m_parent->m_children.begin(), 
-						  m_parent->m_children.end(),
-						  NodeIdEq(LabelStr(nodeRef->name())));
-		   // FIXME: push this check up into XML parser
-		   checkError(it != m_parent->m_children.end(),
-					  "No sibling named '" << nodeRef->name() << 
-					  "' of " << m_nodeId.toString());
-		   node = *it;
-		   break;
-		 }
-
-	   case PlexilNodeRef::NO_DIR:
-	   default:
-		 // FIXME: catch this error in XML parsing
-		 checkError(ALWAYS_FAIL,
-					"Invalid direction in node reference from " <<
-					m_nodeId.toString());
-		 return ExpressionId::noId();
-	   }
-
-	   std::string name;
-	   if(Id<PlexilTimepointVar>::convertable(var->getId())) {
-		 PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
-		 name = tp->state() + "." + tp->timepoint();
-	   }
-	   else
-		 name = var->name();
-	   debugMsg("Node:findVariable", 
-				" Found internal variable \"" << name << "\"");
-	   return node->getInternalVariable(LabelStr(name));
-	 }
-	 else {
-	   return findVariable(LabelStr(ref->name()));
-	 }
-   }
-
-  //cheesy hack?
-  CommandId& Node::getCommand() {
-    if(m_state == EXECUTING_STATE)
-      m_command->activate();
-    if(m_command.isValid()) {
-      m_command->fixValues();
-      m_command->fixResourceValues();
-    }
-    return m_command;
+	return VariableId::noId();
   }
 
-  UpdateId& Node::getUpdate() {
-    if(m_state == EXECUTING_STATE)
-      m_update->activate();
-    if(m_update.isValid())
-      m_update->fixValues();
-    return m_update;
-  }
-
-  const ExpressionId& Node::getAssignmentVariable() const {return m_assignment->getDest();}
-
-  AssignmentId& Node::getAssignment() {
-    check_error(getType() == ASSIGNMENT());
-    if(m_state == EXECUTING_STATE)
-      m_assignment->activate();
-    m_assignment->fixValue();
-    return m_assignment;
-  }
-
-  NodeState Node::getDestState() 
+  const VariableId& Node::findVariable(const PlexilVarRef* ref)
   {
-    debugMsg("Node:getDestState",
-	     "Getting destination state for " << m_nodeId.toString() << " from state " <<
-	     getStateName().toString());
-    return m_stateManager->getDestState(m_id);
+	debugMsg("Node:findVariable",
+			 " for node '" << m_nodeId.toString()
+			 << "', searching for variable '" << ref->name() << "'");
+      
+	if (Id<PlexilInternalVar>::convertable(ref->getId())) {
+	  PlexilInternalVar* var = (PlexilInternalVar*) ref;
+	  PlexilNodeRef* nodeRef = var->ref();
+	  NodeId node = NodeId::noId();
+         
+	  switch(nodeRef->dir()) {
+	  case PlexilNodeRef::SELF:
+		node = m_id;
+		break;
+
+	  case PlexilNodeRef::PARENT:
+		// FIXME: push this check up into XML parser
+		checkError(m_parent.isValid(),
+				   "Parent node reference in root node " << 
+				   m_nodeId.toString());
+		node = m_parent;
+		break;
+
+	  case PlexilNodeRef::CHILD:
+		{
+		  node = findChild(LabelStr(nodeRef->name()));
+		  // FIXME: push this check up into XML parser
+		  checkError(node.isId(),
+					 "No child named '" << nodeRef->name() << 
+					 "' in " << m_nodeId.toString());
+		  break;
+		}
+
+	  case PlexilNodeRef::SIBLING: 
+		{
+		  // FIXME: push this check up into XML parser
+		  checkError(m_parent.isValid(),
+					 "Sibling node reference in root node " << 
+					 m_nodeId.toString());
+		  node = m_parent->findChild(LabelStr(nodeRef->name()));
+		  // FIXME: push this check up into XML parser
+		  checkError(node.isId(),
+					 "No sibling named '" << nodeRef->name() << 
+					 "' of " << m_nodeId.toString());
+		  break;
+		}
+
+	  case PlexilNodeRef::NO_DIR:
+	  default:
+		// FIXME: catch this error in XML parsing
+		checkError(ALWAYS_FAIL,
+				   "Invalid direction in node reference from " <<
+				   m_nodeId.toString());
+		return VariableId::noId();
+	  }
+
+	  std::string name;
+	  if(Id<PlexilTimepointVar>::convertable(var->getId())) {
+		PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
+		name = tp->state() + "." + tp->timepoint();
+	  }
+	  else
+		name = var->name();
+	  debugMsg("Node:findVariable", 
+			   " Found internal variable \"" << name << "\"");
+	  return node->getInternalVariable(LabelStr(name));
+	}
+	else {
+	  return findVariable(LabelStr(ref->name()));
+	}
   }
 
-  void Node::activatePair(unsigned int idx) {
-    checkError(m_listeners[idx].isId() && m_conditions[idx].isId(),
-			   "No condition/listener pair exists for '" << getConditionName(idx).toString() << "'");
+  // Default method
+  NodeId Node::findChild(const LabelStr& childName) const
+  {
+	return NodeId::noId();
+  }
+
+  void Node::activatePair(unsigned int idx) 
+  {
+    // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
+    checkError(getCondition(idx).isId(),
+			   "No condition exists for '" << getConditionName(idx).toString() << "'");
     debugMsg("Node:activatePair",
 			 "Activating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString() << "'");
-    m_listeners[idx]->activate();
-    m_conditions[idx]->activate();
+	if (m_listeners[idx].isId())
+	  m_listeners[idx]->activate();
+    getCondition(idx)->activate();
   }
 
-  void Node::deactivatePair(unsigned int idx) {
-    checkError(m_listeners[idx].isId() && m_conditions[idx].isId(),
-			   "No condition/listener pair exists for '" << getConditionName(idx).toString() << "'");
+  void Node::deactivatePair(unsigned int idx) 
+  {
+    // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
+    checkError(getCondition(idx).isId(),
+			   "No condition exists for '" << getConditionName(idx).toString() << "'");
     debugMsg("Node:deactivatePair",
 			 "Deactivating '" << getConditionName(idx).toString() << "' in node '" << m_nodeId.toString() << "'");
-    m_conditions[idx]->deactivate();
-    if (m_listeners[idx]->isActive())
+    getCondition(idx)->deactivate();
+    if (m_listeners[idx].isId() && m_listeners[idx]->isActive())
       m_listeners[idx]->deactivate();
   }
 
-  bool Node::pairActive(unsigned int idx) {
-    checkError(idx < conditionIndexMax,
-	       "Invalid condition index " << idx);
+  bool Node::pairActive(unsigned int idx) 
+  {
+    // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
+	checkError(getCondition(idx).isId(),
+			   "Node " << m_nodeId.toString() << " has no condition for " << getConditionName(idx).toString());
+    bool condActive = getCondition(idx)->isActive();
+
+	if (m_listeners[idx].isNoId())
+	  return condActive;
     bool listenActive = m_listeners[idx]->isActive();
-    condDebugMsg(!listenActive, 
-		 "Node:pairActive",
-		 "Listener for " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
-		 " is inactive.");
-    bool condActive = m_conditions[idx]->isActive();
-    condDebugMsg(!condActive, 
-		 "Node:pairActive",
-		 "Condition " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
-		 " is inactive.");
-    return listenActive && condActive;
+    // condDebugMsg(!listenActive, 
+	// 			 "Node:pairActive",
+	// 			 "Listener for " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
+	// 			 " is inactive.");
+    // condDebugMsg(!condActive, 
+	// 			 "Node:pairActive",
+	// 			 "Condition " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
+	// 			 " is inactive.");
+    return condActive && listenActive;
   }
 
-  void Node::execute() {
+  void Node::execute() 
+  {
     debugMsg("Node:execute", "Executing node " << m_nodeId.toString());
     // activate local variables
-    for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
+    for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
-         vit++)
-      {
-        (*vit)->activate();
-      }
-    m_exec->handleNeedsExecution(m_id);
+         vit++) {
+	  (*vit)->activate();
+	}
+	handleExecution();
   }
 
-  void Node::reset() {
+  void Node::handleExecution()
+  {
+    checkError(m_state == EXECUTING_STATE,
+			   "Node \"" << m_nodeId.toString()
+			   << "\" told to handle execution, but it's in state '" <<
+			   getStateName().toString() << "'");
+	// legacy message for unit test
+    debugMsg("PlexilExec:handleNeedsExecution",
+			 "Storing action for node '" << m_nodeId.toString() <<
+			 "' of type '" << m_nodeType.toString() << 
+             "' to be executed.");
+
+	// Here only to placate the unit test
+	m_exec->notifyExecuted(getId());
+
+	specializedHandleExecution();
+  }
+
+  // default method
+  void Node::specializedHandleExecution()
+  {
+  }
+
+  void Node::reset()
+  {
     debugMsg("Node:reset", "Re-setting node " << m_nodeId.toString());
+
     //reset outcome and failure type
-    ((Variable*)m_variablesByName[OUTCOME()])->reset();
-    ((Variable*)m_variablesByName[FAILURE_TYPE()])->reset();
-    ((Variable*)m_variablesByName[COMMAND_HANDLE()])->reset();
+	m_outcomeVariable->reset();
+	m_failureTypeVariable->reset();
 
     //reset timepoints
     for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
-      ((Variable*) m_startTimepoints[s])->reset();
-      ((Variable*) m_endTimepoints[s])->reset();
+      m_startTimepoints[s]->reset();
+      m_endTimepoints[s]->reset();
     }
 
-    for(std::list<ExpressionId>::const_iterator it = m_localVariables.begin();
-	it != m_localVariables.end(); ++it) {
-      ((Variable*)(*it))->reset();
-    }
-    
-    if(getType() == COMMAND() || getType() == UPDATE() ||
-       getType() == REQUEST())
-      ((Variable*)m_ack)->reset();
+    for (std::vector<VariableId>::const_iterator it = m_localVariables.begin();
+		 it != m_localVariables.end();
+		 ++it)
+      (*it)->reset();
+
+	specializedReset();
   }
 
-  void Node::abort() {
+  // Default method
+  void Node::specializedReset()
+  {
+  }
+
+  // Default method
+  void Node::abort() 
+  {
     debugMsg("Node:abort", "Aborting node " << m_nodeId.toString());
-    if(getType() == Node::COMMAND() && m_command.isValid())
-      m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
-                                                  m_command->getArgValues(),
-                                                  m_conditions[abortCompleteIdx],
-                                                  m_command->m_ack);
-    else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
-      m_assignment->getDest()->setValue(Expression::UNKNOWN());
-    else {
-      condDebugMsg(getType() == Node::COMMAND() && m_command.isInvalid(),
-		   "Warning", "Invalid command id in " << m_nodeId.toString());
-      condDebugMsg(getType() == Node::ASSIGNMENT() && m_assignment.isInvalid(),
-		   "Warning", "Invalid assignment id in " << m_nodeId.toString());
-      debugMsg("Warning", "No abort for node type " << getType().toString() << " yet.");
-      //checkError(ALWAYS_FAIL, "No abort currently for node type " << getType().toString());
-    }
+	debugMsg("Warning", "No abort for node type " << getType().toString() << " yet.");
+	//checkError(ALWAYS_FAIL, "No abort currently for node type " << getType().toString());
   }
-
-  /* old version
-  void Node::lockConditions() {
-    for(ExpressionMap::iterator it = m_conditionsByName.begin();
-	it != m_conditionsByName.end(); ++it) {
-      ExpressionId expr = it->second;
-      check_error(expr.isValid());
-      if(pairActive(it->first) && !expr->isLocked()) {
-	debugMsg("Node:lockConditions",
-		 "In " << m_nodeId.toString() << ", locking " <<
-		 LabelStr(it->first).toString() << " " << expr->toString());
-	expr->lock();
-      }
-    }
-  }
-  */
 
   // Optimized version
   // N.B. we omit the validity check on the condition expression
   // because this is a critical path method in the inner loop of the Exec.
-  void Node::lockConditions() {
-    for (unsigned int i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId expr = m_conditions[i];
-      checkError(m_listeners[i].isId(), // isValid() ??
-		 "Node::lockConditions: no listener named " << getConditionName(i).toString());
-      if (m_listeners[i]->isActive()
-	  && expr->isActive()
-	  && !expr->isLocked()) {
-	debugMsg("Node:lockConditions",
-		 "In " << m_nodeId.toString() << ", locking " <<
-		 getConditionName(i).toString() << " " << expr->toString());
-	expr->lock();
-      }
-    }
+  void Node::lockConditions() 
+  {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
+	  ExpressionListenerId listener = m_listeners[i];
+      if (m_listeners[i].isId()
+		  && m_listeners[i]->isActive()) {
+		ExpressionId expr = getCondition(i);
+		checkError(expr.isId(),
+				   "Node::lockConditions: condition " << getConditionName(i).toString()
+				   << " is null in node " << m_nodeId.toString());
+		if (expr->isActive() && !expr->isLocked()) {
+		  debugMsg("Node:lockConditions",
+				   "In " << m_nodeId.toString() << ", locking " <<
+				   getConditionName(i).toString() << " " << expr->toString());
+		  expr->lock();
+		}
+	  }
+	}
   }
 
   // As above, skip the Id validity check because this is a critical path function.
-  void Node::unlockConditions() {
-    for (unsigned int i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId expr = m_conditions[i];
-      // check_error(expr.isValid());
-      if(expr->isLocked()) {
-	debugMsg("Node:unlockConditions",
-		 "In " << m_nodeId.toString() << ", unlocking " <<
-		 getConditionName(i).toString() << " " << expr->toString());
-	expr->unlock();
+  void Node::unlockConditions() 
+  {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
+      ExpressionId expr = getCondition(i);
+      if (expr.isId() && expr->isLocked()) {
+		debugMsg("Node:unlockConditions",
+				 "In " << m_nodeId.toString() << ", unlocking " <<
+				 getConditionName(i).toString() << " " << expr->toString());
+		expr->unlock();
       }
     }
   }
 
-  void Node::deactivateExecutable() {
-    if(getType() == Node::COMMAND() && m_command.isValid())
-      m_command->deactivate();
-    else if(getType() == Node::ASSIGNMENT() && m_assignment.isValid())
-      m_assignment->deactivate();
-    else if(getType() == Node::UPDATE() && m_update.isValid())
-      m_update->deactivate();
-    // deactivate local variables
-    for (std::list<ExpressionId>::iterator vit = m_localVariables.begin();
+  void Node::deactivateExecutable() 
+  {
+	specializedDeactivateExecutable();
+	deactivateLocalVariables();
+  }
+
+  // Default method
+  void Node::specializedDeactivateExecutable()
+  {
+  }
+
+  void Node::deactivateLocalVariables()
+  {
+    for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
          vit++)
-      {
-        (*vit)->deactivate();
-      }
+	  (*vit)->deactivate();
   }
 
   std::string Node::toString(const unsigned int indent)
@@ -1630,31 +1636,28 @@ namespace PLEXIL {
     stream << indentStr << " State: " << m_stateVariable->toString() <<
       " (" << m_startTimepoints[m_state]->getValue() << ")\n";
     if (m_state == FINISHED_STATE) {
-      stream << indentStr << " Outcome: " << getOutcomeVariable()->toString() << '\n';
-      if (getFailureTypeVariable()->getValue() != Expression::UNKNOWN())
+      stream << indentStr << " Outcome: " << m_outcomeVariable->toString() << '\n';
+      if (m_failureTypeVariable->getValue() != Expression::UNKNOWN())
 		stream << indentStr << " Failure type: " <<
-		  getFailureTypeVariable()->toString() << '\n';
+		  m_failureTypeVariable->toString() << '\n';
 	  // Print variables, starting with command handle
-      if (getCommandHandleVariable()->getValue() != Expression::UNKNOWN())
-		stream << indentStr << " Command handle: " <<
-		  getCommandHandleVariable()->toString() << '\n';
+	  printCommandHandle(stream, indent, false);
 	  printVariables(stream, indent);
     }
     else if (m_state != INACTIVE_STATE) {
 	  // Print conditions
-      for (unsigned int i = 0; i < conditionIndexMax; ++i) {
-		stream << indentStr << " " << getConditionName(i).toString() << ": " <<
-		  m_conditions[i]->toString() << '\n';
+      for (size_t i = 0; i < conditionIndexMax; ++i) {
+		if (getCondition(i).isId()) {
+		  stream << indentStr << " " << getConditionName(i).toString() << ": " <<
+			getCondition(i)->toString() << '\n';
+		}
       }
 	  // Print variables, starting with command handle (if appropriate)
-      if (getType() == COMMAND()) {
-		stream << indentStr << " Command handle: " <<
-		  getCommandHandleVariable()->toString() << '\n';
-	  }
+	  printCommandHandle(stream, indent, true);
 	  printVariables(stream, indent);
     }
 	// print children
-    for (std::list<NodeId>::const_iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for (std::vector<NodeId>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
       stream << (*it)->toString(indent + 2);
     }
     stream << indentStr << "}" << std::endl;
@@ -1669,8 +1672,23 @@ namespace PLEXIL {
 		 it != m_sortedVariableNames->end();
 		 it++) {
 	  stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
-		getInternalVariable(LabelStr(*it))->toString() << '\n';
+		*(getInternalVariable(LabelStr(*it))) << '\n';
 	}
+  }
+
+  // Default method does nothing
+  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent, bool always) const
+  {
+  }
+
+  const ExecListenerHubId& Node::getExecListenerHub() const
+  {
+	if (m_exec.isNoId()) {
+	  static ExecListenerHubId sl_hubNoId;
+	  return sl_hubNoId;
+	}
+	else
+	  return m_exec->getExecListenerHub();
   }
 
   // Helper used below
@@ -1685,7 +1703,7 @@ namespace PLEXIL {
 			   "Internal error: m_sortedVariableNames is null!");
 	if (m_sortedVariableNames->empty()) {
 	  // Collect the variable names
-	  for (ExpressionMap::const_iterator it = m_variablesByName.begin();
+	  for (VariableMap::const_iterator it = m_variablesByName.begin();
 		   it != m_variablesByName.end();
 		   it++) {
 		double nameKey = it->first;
@@ -1711,11 +1729,11 @@ namespace PLEXIL {
       startNames = new std::vector<double>();
       startNames->reserve(NODE_STATE_MAX);
       for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
-	   it != StateVariable::ALL_STATES().end(); 
-	   ++it) {
-	const std::string& state = it->toString();
-	LabelStr startName(state + ".START");
-	startNames->push_back(startName.getKey());
+		   it != StateVariable::ALL_STATES().end(); 
+		   ++it) {
+		const std::string& state = it->toString();
+		LabelStr startName(state + ".START");
+		startNames->push_back(startName.getKey());
       }
     }
     return *startNames;
@@ -1727,194 +1745,14 @@ namespace PLEXIL {
       endNames = new std::vector<double>();
       endNames->reserve(NODE_STATE_MAX);
       for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
-	   it != StateVariable::ALL_STATES().end(); 
-	   ++it) {
-	const std::string& state = it->toString();
-	LabelStr endName(state + ".END");
-	endNames->push_back(endName.getKey());
+		   it != StateVariable::ALL_STATES().end(); 
+		   ++it) {
+		const std::string& state = it->toString();
+		LabelStr endName(state + ".END");
+		endNames->push_back(endName.getKey());
       }
     }
     return *endNames;
   }
 
-
-  Command::Command(const ExpressionId nameExpr, 
-				   const std::list<ExpressionId>& args,
-				   const ExpressionId dest,
-                   const LabelStr& dest_name,
-				   const ExpressionId ack,
-				   const std::list<ExpressionId>& garbage,
-                   const ResourceList& resource,
-				   const NodeId& parent)
-    : m_id(this),
-	  m_nameExpr(nameExpr),
-	  m_args(args),
-	  m_dest(dest),
-      m_destName(dest_name),
-	  m_ack(ack), 
-      m_garbage(garbage),
-	  m_resourceList(resource),
-	  m_node(parent)
-  {}
-
-  Command::~Command() {
-    for (std::list<ExpressionId>::const_iterator it = m_garbage.begin();
-		 it != m_garbage.end();
-		 ++it)
-      delete (Expression*) (*it);
-    m_nameExpr.remove();
-    m_id.remove();
-  }
-
-  LabelStr Command::getName() const
-  {
-	return LabelStr(m_nameExpr->getValue()); 
-  }
-
-  void Command::fixValues() {
-    m_argValues.clear();
-    for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      m_argValues.push_back(expr->getValue());
-    }
-  }
-
-  void Command::fixResourceValues()
-  {
-    m_resourceValuesList.clear();
-    for(ResourceList::const_iterator resListIter = m_resourceList.begin();
-		resListIter != m_resourceList.end();
-		++resListIter)
-      {
-        ResourceValues resValues;
-        for(ResourceMap::const_iterator resIter = resListIter->begin();
-            resIter != resListIter->end();
-			++resIter) {
-		  ExpressionId expr = resIter->second;
-		  check_error(expr.isValid());
-		  resValues[resIter->first] = expr->getValue();
-		}
-        m_resourceValuesList.push_back(resValues);
-      }
-  }
-
-  //more error checking here
-  void Command::activate() {
-     m_nameExpr->activate();
-    if(m_dest != ExpressionId::noId())
-      m_dest->activate();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->activate();
-    }
-    for (ResourceList::const_iterator resListIter = m_resourceList.begin();
-		 resListIter != m_resourceList.end();
-		 ++resListIter) {
-	  for (ResourceMap::const_iterator resIter = resListIter->begin();
-		   resIter != resListIter->end();
-		   ++resIter) {
-		ExpressionId expr = resIter->second;
-		check_error(expr.isValid());
-		expr->activate();
-	  }
-	}
-  }
-
-  void Command::deactivate() {
-     m_nameExpr->deactivate();
-    if(m_dest != ExpressionId::noId())
-      m_dest->deactivate();
-    for(std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->deactivate();
-    }
-  }
-
-  const std::string& Command::getDestName() const {
-    return m_destName.toString();
-  }
-
-  Assignment::Assignment(const ExpressionId lhs, const ExpressionId rhs,
-			 const ExpressionId ack, const LabelStr& lhsName, 
-                         const bool deleteLhs, const bool deleteRhs)
-    : m_id(this), m_lhs(lhs), m_rhs(rhs), m_ack(ack), 
-      m_value(Expression::UNKNOWN()),
-      m_destName(lhsName),
-      m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
-  {
-  }
-
-  Assignment::~Assignment() {
-    if(m_deleteLhs)
-      delete (Expression*) m_lhs;
-    if(m_deleteRhs)
-      delete (Expression*) m_rhs;
-    m_id.remove();
-  }
-
-  void Assignment::fixValue() {
-    m_value = m_rhs->getValue();
-  }
-
-  void Assignment::activate() {
-    m_rhs->activate();
-    m_lhs->activate();
-  }
-
-  void Assignment::deactivate() {
-    m_rhs->deactivate();
-    m_lhs->deactivate();
-  }
-
-  const std::string& Assignment::getDestName() {
-    return m_destName.toString();
-  }
-
-  Update::Update(const NodeId& node, const ExpressionMap& pairs,
-		 const ExpressionId ack, const std::list<ExpressionId>& garbage)
-    : m_id(this), m_source(node), m_pairs(pairs), m_ack(ack), m_garbage(garbage) {}
-
-  Update::~Update() {
-    for(std::list<ExpressionId>::const_iterator it = m_garbage.begin(); it != m_garbage.end();
-	++it)
-      delete (Expression*) (*it);
-    m_id.remove();
-  }
-
-  void Update::fixValues() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end();
-	++it) {
-      check_error(it->second.isValid());
-      std::map<double, double>::iterator valuePairIt =
-	m_valuePairs.find(it->first);
-      if (valuePairIt == m_valuePairs.end())
-	{
-	  // new pair, safe to insert
-	  m_valuePairs.insert(std::make_pair(it->first, it->second->getValue()));
-	}
-      else
-	{
-	  // recycle old pair
-	  valuePairIt->second = it->second->getValue();
-	}
-      debugMsg("Update:fixValues",
-	       " fixing pair '" << LabelStr(it->first).toString() << "', "
-	       << it->second->getValue());
-    }
-  }
-
-  void Update::activate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      it->second->activate();
-    }
-  }
-
-  void Update::deactivate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      it->second->deactivate();
-    }
-  }
 }

@@ -32,35 +32,9 @@
 namespace PLEXIL
 {
 
-   
-   //to handle creation of the UNKNOWN label string
-   class LabelStrLocalStatic 
-   {
-      public:
-         LabelStrLocalStatic()
-         {
-            static bool sl_called = false;
-
-            //check_error(sl_called, "Should only register UNKNOWN string once.");
-            if(!sl_called) 
-            {
-	      StoredString::insertItemAtKey(new std::string("UNKNOWN"),
-					    KeySource<double>::infinity());
-	      sl_called = true;
-            }
-         }
-   };
-   
-   // create the UNKNOWN label string
-
-   LabelStrLocalStatic s_labelStr;
-
-   //LabelStr Unknown("UNKNOWN");
-
    // define the empty label
 
    DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
-   DEFINE_GLOBAL_CONST(LabelStr, UNKNOWN_STR, KeySource<double>::infinity());
 
    LabelStr::LabelStr()
    {

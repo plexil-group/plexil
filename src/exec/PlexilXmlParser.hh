@@ -28,12 +28,10 @@
 #define _H_PlexilXmlParser
 
 #include "PlexilPlan.hh"
+#include "ConstantMacros.hh"
 #include "PlexilResource.hh"
 #include "ParserException.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 #include <map>
 
 namespace PLEXIL
@@ -45,7 +43,7 @@ namespace PLEXIL
   public:
     PlexilElementParser() {}
 	virtual ~PlexilElementParser() {}
-    virtual Id<Ret> parse(const TiXmlElement* xml)
+    virtual Id<Ret> parse(const pugi::xml_node& xml)
       throw(ParserException)
       = 0;
 
@@ -64,6 +62,13 @@ namespace PLEXIL
   class PlexilXmlParser : public PlexilParser
   {
   public:
+	//
+	// Constants
+	//
+
+	// Ensure text consisting only of whitespace is preserved.
+	DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_PARSE_OPTIONS, pugi::parse_default | pugi::parse_ws_pcdata_single);
+
 	/*
 	 * @brief Load the named library node from a file on the given path.
 	 * @param name Name of the node.
@@ -101,11 +106,17 @@ namespace PLEXIL
 	static PlexilNodeId parse(const char* text)
 	  throw(ParserException);
 
-	// Presumes XML is a Node element.
-    static PlexilNodeId parse(const TiXmlElement* xml)
+	// Presumes XML is a PlexilPlan or Node element.
+    static PlexilNodeId parse(pugi::xml_node xml)
       throw(ParserException);
 
-    static TiXmlElement* toXml(const PlexilNodeId& node)
+	/**
+	 * @brief Turn the node back into an XML document.
+	 * @param node The node.
+	 * @return Pointer to a pugi::xml_document representing the node.
+	 * @note Caller is responsible for disposing of the result.
+	 */
+    static pugi::xml_document* toXml(const PlexilNodeId& node)
       throw(ParserException);
 
 	// These don't really need to be public,
@@ -115,20 +126,20 @@ namespace PLEXIL
 	// -- Chucko 12 Nov 2010
 
     //this is used to get around the old way of handling node references
-    static PlexilNodeRefId getNodeRef(const TiXmlElement* ref, 
-				      const TiXmlElement* node)
+    static PlexilNodeRefId getNodeRef(const pugi::xml_node& ref, 
+				      const pugi::xml_node& node)
       throw(ParserException);
-    static TiXmlElement* getNodeParent(const TiXmlElement* node);
+    static pugi::xml_node getNodeParent(const pugi::xml_node& node);
 
-    static PlexilExprId parseExpr(const TiXmlElement* xml)
+    static PlexilExprId parseExpr(const pugi::xml_node& xml)
       throw(ParserException);
-    static PlexilNodeId parseNode(const TiXmlElement* node)
+    static PlexilNodeId parseNode(const pugi::xml_node& node)
       throw(ParserException);
-    static PlexilNodeRefId parseNodeRef(const TiXmlElement* xml)
+    static PlexilNodeRefId parseNodeRef(const pugi::xml_node& xml)
       throw(ParserException);
-    static PlexilStateId parseState(const TiXmlElement* xml)
+    static PlexilStateId parseState(const pugi::xml_node& xml)
       throw(ParserException);
-    static std::vector<PlexilResourceId> parseResource(const TiXmlElement* xml)
+    static std::vector<PlexilResourceId> parseResource(const pugi::xml_node& xml)
       throw(ParserException);
 
   private:
@@ -141,77 +152,69 @@ namespace PLEXIL
 
 	static bool isValidConditionName(const std::string& name);
 
-    static PlexilInterfaceId parseDeprecatedInterface(const TiXmlElement* intf)
+    static PlexilInterfaceId parseDeprecatedInterface(const pugi::xml_node& intf)
       throw(ParserException);
-    static PlexilInterfaceId parseInterface(const TiXmlElement* intf)
+    static PlexilInterfaceId parseInterface(const pugi::xml_node& intf)
        throw(ParserException);
-    static void parseInOrInOut(const TiXmlElement* inOrInOut, 
+    static void parseInOrInOut(const pugi::xml_node& inOrInOut, 
                                PlexilInterfaceId& interface, bool isInOut)
       throw(ParserException);
-    static void parseDeclarations(const TiXmlElement* decls, PlexilNodeId& node)
+    static void parseDeclarations(const pugi::xml_node& decls, PlexilNodeId& node)
       throw(ParserException);
-    static PlexilVar* parseDeclaration(const TiXmlElement* decl)
+    static PlexilVar* parseDeclaration(const pugi::xml_node& decl)
       throw(ParserException);
-    static PlexilVar* parseArrayDeclaration(const TiXmlElement* decls)
+    static PlexilVar* parseArrayDeclaration(const pugi::xml_node& decls)
       throw(ParserException);
-    static PlexilVar* parseAtomicOrStringDeclaration(const TiXmlElement* decls)
+    static PlexilVar* parseAtomicOrStringDeclaration(const pugi::xml_node& decls)
       throw(ParserException);
-    static PlexilVar* parseDeprecatedDeclaration(const TiXmlElement* decls)
-      throw(ParserException);
-    static PlexilNodeBodyId parseBody(const TiXmlElement* body)
+    static PlexilNodeBodyId parseBody(const pugi::xml_node& body)
       throw(ParserException);
 
-    static void getNameOrValue(const TiXmlElement* xml, std::string& name, 
+    static void getNameOrValue(const pugi::xml_node& xml, std::string& name, 
 			       std::string& value);
 
-    static TiXmlElement* toXml(const PlexilInterfaceId& intf)
+    static void toXml(const PlexilNodeId& node, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilVarId& var)
+    static void toXml(const PlexilInterfaceId& intf, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilExprId& expr)
+    static void toXml(const PlexilVarId& var, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilExpr* expr)
+    static void toXml(const PlexilExprId& expr, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilNodeBodyId& body)
+    static void toXml(const PlexilExpr* expr, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilVarRef* ref)
+    static void toXml(const PlexilNodeBodyId& body, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilOp* op)
+    static void toXml(const PlexilVarRef* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilArrayElement* op)
+    static void toXml(const PlexilOp* op, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilLookup* ref)
+    static void toXml(const PlexilArrayElement* op, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilValue* ref)
+    static void toXml(const PlexilLookup* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilListBody* ref)
+    static pugi::xml_node toXml(const PlexilChangeLookup* lookup, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilRequestBody* ref)
+    static void toXml(const PlexilValue* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilUpdateBody* ref)
+    static void toXml(const PlexilListBody* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilAssignmentBody* ref)
+    static void toXml(const PlexilUpdateBody* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilCommandBody* ref)
+    static void toXml(const PlexilAssignmentBody* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilLibNodeCallBody* ref)
+    static void toXml(const PlexilCommandBody* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilInternalVar* ref)
+    static void toXml(const PlexilLibNodeCallBody* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static void toXml(const PlexilStateId& state, TiXmlElement* parent)
+    static void toXml(const PlexilInternalVar* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilChangeLookup* lookup)
+    static void toXml(const PlexilStateId& state, pugi::xml_node& parent)
       throw(ParserException);
-    static void toXml(const PlexilUpdateId& update, TiXmlElement* parent)
+    static void toXml(const PlexilUpdateId& update, pugi::xml_node& parent)
       throw(ParserException);
-    static void toXml(const std::vector<PlexilExpr*>& src, std::vector<TiXmlElement*>& dest)
+    static void toXml(const PlexilNodeRefId& ref, pugi::xml_node& parent)
       throw(ParserException);
-    static TiXmlElement* toXml(const PlexilNodeRefId& ref)
-      throw(ParserException);
-
-    static TiXmlElement* element(const std::string& name);
-    static TiXmlElement* namedTextElement(const std::string& name, const std::string& value);
-    static TiXmlElement* namedNumberElement(const std::string& name, const double value);
 
     static void registerParsers();
 

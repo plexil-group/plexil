@@ -29,11 +29,11 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= LuvListener
 
 # External dependencies
-INC_DIRS	+= ../Sockets ../../../third-party/tinyxml ../../utils ../../exec 
+INC_DIRS	+= ../Sockets ../../../third-party/pugixml/src ../../utils ../../exec 
 LIB_PATH	+=
-LIBS		+= PlexilSockets tinyxml PlexilUtils PlexilExec
+LIBS		+= PlexilSockets pugixml PlexilUtils PlexilExec
 
-SRC		:= LuvFormat.cc EssentialLuvListener.cc
+SRC		:= LuvFormat.cc LuvListener.cc
 INC		:= $(SRC:.cc=.hh)
 
 SVN_FILES       := Makefile $(SRC) $(INC)

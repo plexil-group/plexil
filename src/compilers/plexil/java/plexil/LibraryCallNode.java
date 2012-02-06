@@ -41,6 +41,16 @@ public class LibraryCallNode extends PlexilTreeNode
         super(t);
     }
 
+    public LibraryCallNode(LibraryCallNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new LibraryCallNode(this);
+	}
+
     //
     // format is:
     // ^(LIBRARY_CALL_KYWD NCNAME aliasSpecs?)
@@ -65,18 +75,19 @@ public class LibraryCallNode extends PlexilTreeNode
             Vector<VariableName> paramSpecs = libDecl.getParameterVariables();
 
             PlexilTreeNode aliases = this.getChild(1);
+            int argument_count = aliases.getChildCount();
             if (paramSpecs == null) {
-                if (aliases != null) {
-                    state.addDiagnostic(aliases,
-                                        "Library action \"" + libName
-                                        + "\" expects 0 parameters, but "
-                                        + Integer.toString(aliases.getChildCount()) 
-                                        + " were supplied",
-                                        Severity.ERROR);
-                }
+                    if (argument_count > 0) {
+                        state.addDiagnostic(aliases,
+                                            "Library action \"" + libName
+                                            + "\" expects 0 arguments, but "
+                                            + Integer.toString(argument_count)
+                                            + " were supplied",
+                                            Severity.ERROR);
+                    }
             }
             else {
-                if (aliases == null) {
+                if (argument_count == 0) {
                     // Count parameters w/o default values
                     int minArgs = 0;
                     for (VariableName v : paramSpecs)
@@ -87,7 +98,7 @@ public class LibraryCallNode extends PlexilTreeNode
                                             "Library action \"" + libName
                                             + "\" expects at least "
                                             + Integer.toString(minArgs) 
-                                            + " parameters, but 0 were supplied",
+                                            + " arguments, but 0 were supplied",
                                             Severity.ERROR);
                     }
                 }

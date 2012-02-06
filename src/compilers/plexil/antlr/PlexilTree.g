@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -476,7 +476,6 @@ binaryOp :
  ;
 
 unaryOp :
-    PLUS | MINUS // also binary ops
-  | NOT_KYWD
-  | SQRT_KYWD | ABS_KYWD
+ | NOT_KYWD
+ | SQRT_KYWD | ABS_KYWD
  ;

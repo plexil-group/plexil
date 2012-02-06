@@ -33,12 +33,22 @@ import net.n3.nanoxml.*;
 public class NodeStatePredicateNode extends ExpressionNode
 {
 	//
-	// Constructor
+	// Constructors
 	//
 	public NodeStatePredicateNode(Token t)
 	{
 		super(t);
 		this.setDataType(PlexilDataType.BOOLEAN_TYPE);
+	}
+
+	public NodeStatePredicateNode(NodeStatePredicateNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new NodeStatePredicateNode(this);
 	}
 
 	public void earlyCheck(NodeContext context, CompilerState state)

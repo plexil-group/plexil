@@ -42,6 +42,18 @@ public class CommandNode extends ExpressionNode
         super(new CommonToken(ttype, "COMMAND"));
     }
 
+    public CommandNode(CommandNode n)
+    {
+        super(n);
+		m_commandDeclaration = n.m_commandDeclaration;
+		m_parameters = n.m_parameters;
+    }
+
+	public Tree dupNode()
+	{
+		return new CommandNode(this);
+	}
+
     // N.B. Only valid after earlyCheckSelf()
     public GlobalDeclaration getCommand()
     {

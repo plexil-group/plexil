@@ -70,16 +70,28 @@
               (try "assign-rover-to-bay"
                 (action "use-bay1"
                   (skip-condition (not (= 0 (array-element "bay1" 1))))
-                  (library-call-node (call "setup-bay" (alias "bay" (arrayvar "bay1")))))
+                  (library-call-node (call "setup-bay"
+										   (alias "initial-distance" (realvar "initial-distance"))
+										   (alias "request" (arrayvar "request"))
+										   (alias "bay" (arrayvar "bay1")))))
                 (action "use-bay2"
                   (skip-condition (not (= 0 (array-element "bay2" 1))))
-                  (library-call-node (call "setup-bay" (alias "bay" (arrayvar "bay2")))))
+                  (library-call-node (call "setup-bay"
+										   (alias "initial-distance" (realvar "initial-distance"))
+										   (alias "request" (arrayvar "request"))
+										   (alias "bay" (arrayvar "bay2")))))
                 (action "use-bay3"
                   (skip-condition (not (= 0 (array-element "bay3" 1))))
-                  (library-call-node (call "setup-bay" (alias "bay" (arrayvar "bay3")))))
+                  (library-call-node (call "setup-bay"
+										   (alias "initial-distance" (realvar "initial-distance"))
+										   (alias "request" (arrayvar "request"))
+										   (alias "bay" (arrayvar "bay3")))))
                 (action "use-bay4"
                   (skip-condition (not (= 0 (array-element "bay4" 1))))
-                  (library-call-node (call "setup-bay" (alias "bay" (arrayvar "bay4")))))))))))
+                  (library-call-node (call "setup-bay"
+										   (alias "initial-distance" (realvar "initial-distance"))
+										   (alias "request" (arrayvar "request"))
+										   (alias "bay" (arrayvar "bay4")))))))))))
     ;; (2) the telemetry/status loop spins and services any/all registered docking
     ;; requests every "period" seconds
     (sequence "update-bays"
@@ -90,10 +102,26 @@
                           0.02)) ;twice the tolerance (i.e., 2 * latency), or wakeups will be skipped
       (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
       (command "print" "\n\n[" (stringvar "name") " (" (array-element "times" 1) ")]")
-      (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay1"))))
-      (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay2"))))
-      (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay3"))))
-      (library-call-node (call "update-bay" (alias "bay" (arrayvar "bay4"))))
+      (library-call-node (call "update-bay"
+							   (alias "name" (stringvar "name"))
+							   (alias "speeds" (arrayvar "speeds"))
+							   (alias "times" (arrayvar "times"))
+							   (alias "bay" (arrayvar "bay1"))))
+      (library-call-node (call "update-bay"
+							   (alias "name" (stringvar "name"))
+							   (alias "speeds" (arrayvar "speeds"))
+							   (alias "times" (arrayvar "times"))
+							   (alias "bay" (arrayvar "bay2"))))
+      (library-call-node (call "update-bay"
+							   (alias "name" (stringvar "name"))
+							   (alias "speeds" (arrayvar "speeds"))
+							   (alias "times" (arrayvar "times"))
+							   (alias "bay" (arrayvar "bay3"))))
+      (library-call-node (call "update-bay"
+							   (alias "name" (stringvar "name"))
+							   (alias "speeds" (arrayvar "speeds"))
+							   (alias "times" (arrayvar "times"))
+							   (alias "bay" (arrayvar "bay4"))))
       ;;remember when the last cycle finished -- used in update-bay.pli
       (assignment (array-element "times" 2) (array-element "times" 1))
       ;; Without this (2 * tolerance) wait, this sequence will run more than one iteration per "period"

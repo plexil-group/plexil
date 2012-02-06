@@ -24,9 +24,14 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//#define EXPRESSION_PRINT_STATISTICS 1
+
 #include "Expression.hh"
 #include "Debug.hh"
-#include "Node.hh"
+#include "ExpressionFactory.hh"
+#include "NodeConnector.hh"
+#include "StoredArray.hh"
+#include "Variable.hh"
 
 #include <limits>
 #include <algorithm>
@@ -50,56 +55,32 @@ namespace PLEXIL {
     m_activeCount--;
   }
 
-  SubexpressionListener::SubexpressionListener(const ExpressionId& exp)
-    : ExpressionListener(), m_exp(exp) {}
+  SubexpressionListener::SubexpressionListener(Expression& parent)
+    : ExpressionListener(), m_exp(parent) {}
 
   void SubexpressionListener::notifyValueChanged(const ExpressionId& exp) {
-    m_exp->handleChange(exp);
-  }
-
-  Expression::Expression(const NodeConnectorId& node)
-    : m_id(this),
-      m_activeCount(0), 
-      m_value(UNKNOWN()), 
-      m_savedValue(UNKNOWN()),
-      m_dirty(false), 
-      m_lock(false), 
-      m_ignoreCachedValue(false),
-      m_nodeConnector(node)
-  {
+    m_exp.handleChange(exp);
   }
 
   Expression::Expression()
     : m_id(this),
-      m_activeCount(0), 
       m_value(UNKNOWN()), 
       m_savedValue(UNKNOWN()),
+      m_activeCount(0), 
       m_dirty(false), 
       m_lock(false), 
-      m_ignoreCachedValue(false),
-      m_nodeConnector(NodeConnectorId::noId())
+      m_ignoreCachedValue(false)
   {
   }
 
   Expression::~Expression() {
     checkError(m_outgoingListeners.empty(),
 	       "Error: Expression '" << toString() << "' still has outgoing listeners.");
-    m_id.remove();
+	m_id.remove();
   }
 
   double Expression::getValue() const {
     return (isActive() ? m_value : UNKNOWN());
-  }
-
-  /**
-   * @brief Get the node that owns this expression.
-   * @return The NodeId of the parent node; may be noId.
-   */
-  const NodeId& Expression::getNode() const 
-  { 
-    if (m_nodeConnector.isNoId())
-      return NodeId::noId();
-    return m_nodeConnector->getNode();
   }
 
   void Expression::setValue(const double val) {
@@ -109,8 +90,16 @@ namespace PLEXIL {
   void Expression::activate() {
     bool changed = (m_activeCount == 0);
     m_activeCount++;
-    debugMsg("Expression:activate", "Activating " << getId());
+    // debugMsg("Expression:activate", "Activating " << getId());
     handleActivate(changed);
+#ifdef EXPRESSION_PRINT_STATISTICS
+	static int sl_highWaterMark = 0;
+	if (m_activeCount > sl_highWaterMark) {
+	  sl_highWaterMark = m_activeCount;
+	  std::cout << "Expression::activate: new max active count = " << sl_highWaterMark
+				<< " for " << toString() << std::endl;
+	}
+#endif
   }
 
   void Expression::deactivate() {
@@ -118,7 +107,7 @@ namespace PLEXIL {
 	       "Attempted to deactivate expression " << getId() << " too many times.");
     bool changed = (m_activeCount == 1);
     m_activeCount--;
-    debugMsg("Expression:deactivate", "Deactivating " << getId());
+    // debugMsg("Expression:deactivate", "Deactivating " << getId());
     handleDeactivate(changed);
   }
 
@@ -128,43 +117,93 @@ namespace PLEXIL {
        m_outgoingListeners.end())
       return;
     m_outgoingListeners.push_back(id);
+#ifdef EXPRESSION_PRINT_STATISTICS
+	static int sl_highWaterMark = 0;
+	if (m_outgoingListeners.size() > sl_highWaterMark) {
+	  sl_highWaterMark = m_outgoingListeners.size();
+	  std::cout << "Expression::addListener: new max # listeners = " << sl_highWaterMark
+				<< " for " << toString() << std::endl;
+	}
+#endif
   }
 
   void Expression::removeListener(ExpressionListenerId id) {
     check_error(id.isValid());
-    std::list<ExpressionListenerId>::iterator it = std::find(m_outgoingListeners.begin(),
-							     m_outgoingListeners.end(), id);
+    std::vector<ExpressionListenerId>::iterator it = 
+	  std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), id);
     if(it == m_outgoingListeners.end())
       return;
     m_outgoingListeners.erase(it);
   }
 
+  void Expression::print(std::ostream& s) const
+  {
+    s << "(" << getId()
+	  << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u")
+	  << "](";
+	printValue(s);
+	s << "): ";
+  }
+
   std::string Expression::toString() const {
     std::ostringstream str;
-    str << "(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
-      "](" << valueString() << "): ";
+	print(str);
     return str.str();
+  }
+
+  std::ostream& operator<<(std::ostream& s, const Expression& e)
+  {
+	e.print(s);
+	return s;
+  }
+
+  // Much-needed static member function to print the One True Printed Representation of a value.
+
+  void Expression::formatValue(std::ostream& s, const double val) 
+  {
+	if (val == UNKNOWN())
+	  s << "UNKNOWN";
+    else if (LabelStr::isString(val))
+      s << LabelStr(val).toString();
+    else if (StoredArray::isKey(val))
+	  s << StoredArray(val).toString();
+	// below this point must be a number
+    else if (val == REAL_PLUS_INFINITY)
+      s << "inf";
+    else if (val == REAL_MINUS_INFINITY)
+      s << "-inf";
+	else {
+	  // Print floats with max precision - they may be times.
+      s << std::setprecision(15) << val;
+	}
   }
 
   // Much-needed static member function to construct the One True Printed Representation of a value.
 
-  std::string Expression::valueToString(const double val) {
+  std::string Expression::valueToString(const double val)
+  {
 	if (val == UNKNOWN())
 	  return std::string("UNKNOWN");
     else if (LabelStr::isString(val))
-      return std::string(LabelStr(val).toString());
+	  return std::string(LabelStr(val).toString());
     else if (StoredArray::isKey(val))
-      return StoredArray(val).toString();
+	  return StoredArray(val).toString();
 	// below this point must be a number
     else if (val == REAL_PLUS_INFINITY)
       return std::string("inf");
     else if (val == REAL_MINUS_INFINITY)
       return std::string("-inf");
 	else {
-	  std::ostringstream str;
-      str << std::setprecision(15) << val;
-	  return str.str();
+	  std::ostringstream s;
+	  // Print floats with max precision - they may be times.
+      s << std::setprecision(15) << val;
+	  return s.str();
 	}
+  }
+
+  void Expression::printValue(std::ostream& s) const
+  {
+	formatValue(s, getValue());
   }
 
   std::string Expression::valueString() const {
@@ -208,7 +247,7 @@ namespace PLEXIL {
   void Expression::publishChange() {
     if(!isActive())
       return;
-    for(std::list<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
+    for(std::vector<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
 	it != m_outgoingListeners.end(); ++it) {
       check_error((*it).isValid());
       if((*it)->isActive())
@@ -216,458 +255,11 @@ namespace PLEXIL {
     }
   }
 
-
-  EssentialVariable::EssentialVariable()
-    : Expression()
-  {
-  }
-
-  EssentialVariable::EssentialVariable(const NodeConnectorId& node)
-    : Expression(node)
-  {
-  }
-
-  EssentialVariable::~EssentialVariable()
-  {
-  }
-
-  // Used in Expression::UNKNOWN_EXP(), and by various derived constructors
-
-  Variable::Variable(const bool isConst)
-    : EssentialVariable(), m_isConst(isConst), m_initialValue(UNKNOWN()), m_name("anonymous") 
-  {
-    if(this->isConst())
-      m_activeCount++;
-  }
-
-  // Used only in Lookup::Lookup(const StateCacheId&, const LabelStr&, std::list<double>&)
-
-  Variable::Variable(const double value, const bool isConst)
-    : EssentialVariable(), m_isConst(isConst), m_initialValue(value), m_name("anonymous") 
-  {
-    m_value = m_initialValue;
-    if(this->isConst())
-      m_activeCount++;
-  }
-
-  //
-  // ExpressionFactory constructor
-  // uses PlexilVar prototype
-  //
-
-  Variable::Variable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
-    : EssentialVariable(node), m_isConst(isConst), m_name(expr->name())
-  {
-    check_error(Id<PlexilValue>::convertable(expr));
-  }
-
-  Variable::~Variable() {}
-
-  std::string Variable::toString() const 
-  {
-    std::ostringstream str;
-    str << m_name << " (" << getId() << "[" 
-	<< (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") 
-	<< "](" 
-	<< valueToString(m_value) << "): ";
-    return str.str();
-  }
-
-  /**
-   * @brief Get a string representation of the value of this Variable.
-   * @return The string representation.
-   * @note This method always uses the stored value whether or not the variable is active,
-   *       unlike the base class method.
-   */
-  std::string Variable::valueString() const
-  {
-	return valueToString(m_value);
-  }
-
-  void Variable::reset() {
-    if(!isConst()) {
-      internalSetValue(m_initialValue);
-      handleReset();
-    }
-  }
-
-  /**
-   * @brief Ensure that, if a variable is constant, it is never really deactivated
-   */
-  void Variable::handleDeactivate(const bool changed) {
-    if(this->isConst() && changed)
-      m_activeCount++;
-  }
-
-  void Variable::setValue(const double value) {
-    checkError(!isConst(),
-			   "Attempted to assign value " << Expression::valueToString(value)
-			   << " to read-only variable " << toString());
-    internalSetValue(value);
-  }
-
-  void Variable::commonNumericInit(PlexilValue* val) {
-    if(val->value() == "UNKNOWN")
-      m_initialValue = m_value = Expression::UNKNOWN();
-    else if(val->value() == "INF" || val->value() == "Inf" ||
-	    val->value() == "inf") {
-      if(val->type() == INTEGER)
-	m_initialValue = m_value = PLUS_INFINITY;
-      else
-	m_initialValue = m_value = REAL_PLUS_INFINITY;
-    }
-    else if(val->value() == "-INF" || val->value() == "-Inf" ||
-	    val->value() == "-inf") {
-      if(val->type() == INTEGER)
-	m_initialValue = m_value == MINUS_INFINITY;
-      else
-	m_initialValue = m_value = REAL_MINUS_INFINITY;
-    }
-    else if(val->type() == BOOLEAN && val->value() == "true")
-	m_initialValue = m_value = true;
-    else if(val->type() == BOOLEAN && val->value() == "false")
-      m_initialValue = m_value = false;
-    else {
-      std::stringstream str;
-      str << val->value();
-      double value;
-      str >> value;
-      m_initialValue = m_value = value;
-      checkError(checkValue(m_value), 
-				 "Invalid " << PlexilParser::valueTypeString(val->type()) << " '" << Expression::valueToString(m_value) << "'");
-    }
-  }
-
-  /**
-   * @brief Add a listener for changes to this Expression's value.
-   * @param id The Id of the listener to notify.
-   * @note Overrides method on Expression base class.
-   * @note This is an optimization for heavily used constants, which by definition
-   * will never change value, thus don't need to propagate changes.
-   */
-  void Variable::addListener(ExpressionListenerId id)
-  {
-	if (!m_isConst)
-	  Expression::addListener(id);
-  }
-
-  /**
-   * @brief Remove a listener from this Expression.
-   * @param id The Id of the listener to remove.
-   * @note Overrides method on Expression base class.
-   * @note This is an optimization for heavily used constants, which by definition
-   * will never change value, thus don't need to propagate changes.
-   */
-  void Variable::removeListener(ExpressionListenerId id)
-  {
-	if (!m_isConst)
-	  Expression::removeListener(id);
-  }
-
-  Calculable::Calculable() : Expression(), m_listener(getId()) {}
-
-  Calculable::Calculable(const PlexilExprId& expr, const NodeConnectorId& node)
-    : Expression(node), m_listener(getId())
-  {
-    const std::vector<PlexilExprId>& subExprs = expr->subExprs();
-    for (std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); 
-		 it != subExprs.end();
-		 ++it) {
-      bool garbage = false;
-      ExpressionId subExpr = getSubexpression(*it, node, garbage);
-      addSubexpression(subExpr, garbage);
-    }
-  }
-
-  Calculable::~Calculable() {
-    for(ExpressionVectorIter it = m_subexpressions.begin();
-	it != m_subexpressions.end(); ++it) {
-      ExpressionId& expr = *it;
-      check_error(expr.isValid());
-      expr->removeListener(m_listener.getId());
-    }
-    cleanup(m_garbage);
-  }
-
-   bool Calculable::containsSubexpression(const ExpressionId& expr)
-   {
-      for(ExpressionVectorIter it = m_subexpressions.begin();
-          it != m_subexpressions.end(); ++it)
-      {
-         if (expr.equals(*it))
-            return true;
-      }
-      return false;
-   }
-   void Calculable::addSubexpression(const ExpressionId& expr,
-                                     const bool garbage)
-   {
-      expr->addListener(m_listener.getId());
-      m_subexpressions.push_back(expr);
-      if(garbage)
-         m_garbage.insert(expr);
-   }
-
-  void Calculable::removeSubexpression(const ExpressionId& expr) {
-    // this is necessary because std::vector doesn't have a find() method!
-    for (ExpressionVectorIter it = m_subexpressions.begin();
-	 it != m_subexpressions.end();
-	 it++) {
-      if (*it == expr) {
-	m_subexpressions.erase(it);
-	break;
-      }
-    }
-    m_garbage.erase(expr);
-    expr->removeListener(m_listener.getId());
-  }
-
-   ExpressionId Calculable::getSubexpression(const PlexilExprId& expr,
-                                             const NodeConnectorId& node,
-                                             bool& del)
-   {
-      return ExpressionFactory::createInstance(LabelStr(expr->name()), 
-                                               expr, 
-                                               node, 
-                                               del);
-   }
-
-  void Calculable::setValue(const double /* value */) {
-    checkError(ALWAYS_FAIL, "Shouldn't set the value of a calculable expression.");
-  }
-
-  void Calculable::handleChange(const ExpressionId& exp) {
-    internalSetValue(recalculate());
-    handleSubexpressionChange(exp);
-  }
-
-  //this could be optimized slightly more to check for dirtiness on subexpressions
-  //but that would require setting dirtiness when deactivated, not just when locked
-  void Calculable::handleActivate(const bool changed) {
-    if(!changed)
-      return;
-    m_listener.activate();
-    for(ExpressionVectorIter it = m_subexpressions.begin();
-	it != m_subexpressions.end(); ++it) {
-      ExpressionId& expr = *it;
-      check_error(expr.isValid());
-      expr->activate();
-    }
-    internalSetValue(recalculate());
-  }
-
-  void Calculable::handleDeactivate(const bool changed) {
-    if(!changed)
-      return;
-    m_listener.deactivate();
-    for(ExpressionVectorIter it = m_subexpressions.begin();
-	it != m_subexpressions.end(); ++it) {
-      ExpressionId& expr = *it;
-      check_error(expr.isValid());
-      expr->deactivate();
-    }
-  }
-
-  ConstVariableWrapper::ConstVariableWrapper(const ExpressionId& exp)
-    : Variable(true), m_exp(exp), m_listener(this) {
-    m_exp->addListener(m_listener.getId());
-  }
-
-  ConstVariableWrapper::ConstVariableWrapper()
-    : Variable(true), m_listener(this) {}
-
-  ConstVariableWrapper::~ConstVariableWrapper() {
-    checkError(m_exp.isValid(), "Got to destructor without a valid wrapped variable.");
-    m_exp->removeListener(m_listener.getId());
-  }
-
-  void ConstVariableWrapper::setWrapped(const ExpressionId& expr) {
-    checkError(m_exp.isInvalid(),
-	       "Attmpted to set wrapped variable to " << expr->toString() <<
-	       " when already wrapping " << m_exp->toString());
-    checkError(expr.isValid(),
-	       "Attempted to set an invalid wrapped variable.");
-    m_exp = expr;
-    m_exp->addListener(m_listener.getId());
-  }
-
-  double ConstVariableWrapper::getValue() const {
-    checkError(m_exp.isValid(), "Got to getValue without a valid wrapped variable.");
-    return m_exp->getValue();
-  }
-
-
-  std::string ConstVariableWrapper::valueString() const {
-    checkError(m_exp.isValid(), "Got to valueString without a valid wrapped variable.");
-    std::ostringstream str;
-    str << "const " << m_exp->valueString();
-    return str.str();
-  }
-
-  void ConstVariableWrapper::setValue(const double /* value */) {
-    checkError(ALWAYS_FAIL,
-	       "Attempted to set the value of a const expression.");
-  }
-
-  bool ConstVariableWrapper::checkValue(const double /* val */) {
-    checkError(ALWAYS_FAIL,
-	       "Attempted to check an incoming value for const expresssion " << toString());
-    return false;
-  }
-
-  void ConstVariableWrapper::handleActivate(const bool /* changed */) {
-    checkError(m_exp.isValid(), "Got to handleActivate without a valid wrapped variable.");
-    m_listener.activate();
-    m_exp->activate();
-  }
-  void ConstVariableWrapper::handleDeactivate(const bool /* changed */) {
-    checkError(m_exp.isValid(), "Got to handleDeactivate without a valid wrapped variable.");
-    m_listener.deactivate();
-    m_exp->deactivate();
-  }
-
-  void ConstVariableWrapper::handleChange(const ExpressionId& /* expr */) {
-    checkError(m_exp.isValid(), "Got to handleChange without a valid wrapped variable.");
-    publishChange();
-  }
-
-  // This variant used only in unit tests
-  TransparentWrapper::TransparentWrapper(const ExpressionId& exp)
-    : Expression(), m_listener(*this), m_exp(exp) 
-  {
-	commonInit(exp);
-  }
-
-  TransparentWrapper::TransparentWrapper(const ExpressionId& exp, const NodeConnectorId& node)
-    : Expression(node), m_listener(*this), m_exp(exp) 
-  {
-	commonInit(exp);
-  }
-
-  TransparentWrapper::~TransparentWrapper(){
-    m_exp->removeListener(m_listener.getId());
-  }
-
-  void TransparentWrapper::commonInit(const ExpressionId& exp)
-  {
-    debugMsg("TransparentWrapper:TransparentWrapper",
-	     "Constructing a transparent wrapper around " << exp->toString());
-    m_exp->addListener(m_listener.getId());
-       //m_listener.activate();
-    m_value = exp->getValue();
-    debugMsg("TransparentWrapper:TransparentWrapper",
-	     "Constructed " << toString());
-  }
-
-  void TransparentWrapper::setValue(const double value) {
-    debugMsg("TransparentWrapper:setValue",
-			 "Setting " << toString() << " to value " << Expression::valueToString(value));
-    internalSetValue(value);
-    m_exp->setValue(value);
-  }
-
-  bool TransparentWrapper::checkValue(const double value) {
-    debugMsg("TransparentWrapper:checkValue",
-			 "Checking " << toString() << " value " << Expression::valueToString(value));
-    return m_exp->checkValue(value);
-  }
-
-  std::string TransparentWrapper::toString() const {
-    std::ostringstream str;
-    str << "TransparentWrapper(" << getId() << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u") <<
-       "T]{" << valueString() <<"}(" << m_exp->toString() << ")";
-    return str.str();
-  }
-
-  std::string TransparentWrapper::valueString() const {
-    return m_exp->valueString();
-  }
-
-  void TransparentWrapper::handleActivate(const bool /* changed */) {
-    m_listener.activate();
-    m_exp->activate();
-    if(m_exp->isActive())
-      internalSetValue(m_exp->getValue());
-  }
-
-  void TransparentWrapper::handleDeactivate(const bool /* changed */) {
-    m_exp->deactivate();
-    m_listener.deactivate();
-  }
-
-  void TransparentWrapper::handleChange(const ExpressionId& expression) {
-    debugMsg("TransparentWrapper:handleChange",
-	     "Changing from wrapped value of " << toString() << " to " <<
-	     expression->toString());
-    internalSetValue(expression->getValue());
-  }
-
-  void ExpressionFactory::registerFactory(const LabelStr& name, ExpressionFactory* factory) {
-    check_error(factory != NULL);
-    checkError(factoryMap().find(name) == factoryMap().end(),
-	       "Error:  Attempted to register a factory for name '" << name.toString() <<
-	       "' twice.");
-    factoryMap()[name] = factory;
-    debugMsg("ExpressionFactory:registerFactory",
-	     "Registered factory for name '" << name.toString() << "'");
-  }
-
-
-   ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
-                                                  const PlexilExprId& expr,
-                                                  const NodeConnectorId& node)
-   {
-     bool dummy;
-     return createInstance(name, expr, node, dummy);
-   }
-
-   ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
-                                                  const PlexilExprId& expr,
-                                                  const NodeConnectorId& node,
-                                                  bool& wasCreated)
-   {
-      // if this is a variable ref, look it up
-      
-      if (Id<PlexilVarRef>::convertable(expr)) 
-      {
-         checkError(node.isValid(), "Need a valid Node argument to find a Variable");
-         ExpressionId retval = node->findVariable(expr);         
-	 checkError(retval.isValid(), "Unable to find variable '" << expr->name() << "'");
-         wasCreated = false;
-         return retval;
-      }
-
-      // otherwise look up factory
-      
-      std::map<double, ExpressionFactory*>::const_iterator it = factoryMap().find(name);
-      checkError(it != factoryMap().end(),
-                 "Error: No factory registered for name '" << name.toString() << "'.");
-      ExpressionId retval = it->second->create(expr, node);
-      debugMsg("ExpressionFactory:createInstance", "Created " << retval->toString());
-      wasCreated = true;
-      return retval;
-   }
-
-  std::map<double, ExpressionFactory*>& ExpressionFactory::factoryMap() {
-    static std::map<double, ExpressionFactory*>* sl_map = NULL;
-    if (sl_map == NULL)
-      sl_map = new std::map<double, ExpressionFactory*>();
-
-    return *sl_map;
-  }
-
-  void ExpressionFactory::purge() {
-    for(std::map<double, ExpressionFactory*>::iterator it = factoryMap().begin();
-	it != factoryMap().end(); ++it)
-      delete it->second;
-    factoryMap().clear();
-  }
-
   // Used below in Expression::UNKNOWN_EXP().
-  class UnknownVariable : public Variable
+  class UnknownVariable : public VariableImpl
   {
   public:
-	UnknownVariable() : Variable(true) {}
+	UnknownVariable() : VariableImpl(true) {}
 	~UnknownVariable() {}
 
 	// Don't assign to this variable!

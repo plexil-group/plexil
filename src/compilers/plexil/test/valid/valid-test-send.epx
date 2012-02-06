@@ -48,8 +48,8 @@
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <UncheckedSequence LineNo="6" ColNo="11">
-        <NodeId>test-send</NodeId>
+    <UncheckedSequence LineNo="6" ColNo="6">
+        <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="8" ColNo="4">
                 <Name>arg1</Name>

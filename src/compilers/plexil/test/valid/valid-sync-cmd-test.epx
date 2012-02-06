@@ -18,7 +18,7 @@
         </CommandDeclaration>
     </GlobalDeclarations>
     <Sequence LineNo="7" ColNo="2">
-        <NodeId>sync-cmd-test</NodeId>
+        <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="2">
                 <Name>i</Name>

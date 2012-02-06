@@ -141,6 +141,7 @@ function setupFooter(numberOfTokens) {
 						'<button id="reset">Resize</button>',
 						'<button id="defaultvals">Reset to default</button>',
 						'<button id="customNodes">Hide specific nodes</button></small></small>',
+						//'<button id="closeWindow">Close window</button>'
 						].join(''));
 	$('#closeDialogs').button();
 	$('#generatedNodes').button();
@@ -180,7 +181,6 @@ function setupFooter(numberOfTokens) {
 									});
 	$('#defaultvals').click(function() {
 								 deleteAllCookies();
-								 localStorage.clear();
 								 window.location.reload();
 								 });
 	$('#customNodes').click(function() {
@@ -202,19 +202,26 @@ function setupFooter(numberOfTokens) {
 									 $('#customNodesBox').dialog("open");
 									 $('#customNodesButton').click(function() {
 																			performCustomNodes();
-																			localStorage.clear();
 																			window.location.reload();
 																			});
 									 $('#customNodesClearButton').click(function() {
-																			deleteCookie("showCustomCookie"+myHTMLFilePathString);
+																			deleteCookie("showCustomCookie");
 																			window.location.reload();
 																			});
-									 $('#customNodesText').val(getCookie("showCustomCookie"+myHTMLFilePathString));
+									 $('#customNodesText').val(getCookie("showCustomCookie"));
 									 $('#listHiddenNodesButton').click(function() {	
 															$('#customNodesUnhideBox').dialog("open");
 																				});
 									 $('#customNodesBox').append('<div id="customNodesUnhideArea"></div>');
 									 }); 
+									
+	//only supported in Safari
+	$('#closeWindow').click(function() {
+									 deleteAllCookies();
+									 window.close();
+									 });
+														 
+
 }
 
 //get a global copy of the tokens
@@ -265,27 +272,27 @@ function loopTracker(tokens) {
 /** cookie togglers  (switch value back and forth) **/
 
 function toggleCookiesGenerated() {
-	var temp = getCookie("showGenCookie"+myHTMLFilePathString);
+	var temp = getCookie("showGenCookie");
 	if (temp == "true")
   	{
-  		setCookie("showGenCookie"+myHTMLFilePathString,"false",365);
+  		setCookie("showGenCookie","false",365);
   	}
 	else 
   	{
-    	setCookie("showGenCookie"+myHTMLFilePathString,"true",365);
+    	setCookie("showGenCookie","true",365);
 	}
 	window.location.reload();
 }
 
 function toggleCookiesExpanded() {
-	var temp = getCookie("showLineCookie"+myHTMLFilePathString);
+	var temp = getCookie("showLineCookie");
 	if (temp == "true")
   	{
-  		setCookie("showLineCookie"+myHTMLFilePathString,"false",365);
+  		setCookie("showLineCookie","false",365);
   	}
 	else 
   	{
-    	setCookie("showLineCookie"+myHTMLFilePathString,"true",365);
+    	setCookie("showLineCookie","true",365);
     }
 	window.location.reload();
 }
@@ -337,7 +344,7 @@ function unpackCSVString(copy) {
 	return valArray;
 }
 
-//set showCustomCookie+myHTMLFilePathString to CSV string of specific nodes
+//set showCustomCookie to CSV string of specific nodes
 function storeCustomNodesCookie(final) {
-	setCookie("showCustomCookie"+myHTMLFilePathString, final, 365);
+	setCookie("showCustomCookie", final, 365);
 }

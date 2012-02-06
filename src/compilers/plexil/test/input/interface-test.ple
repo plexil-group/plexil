@@ -1,4 +1,4 @@
-interface-test:
+root:
 {
   In Integer i1;
   In Integer i2 = 0;

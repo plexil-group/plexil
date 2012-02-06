@@ -40,6 +40,17 @@ public class VariableDeclNode extends PlexilTreeNode
         super(t);
     }
 
+	public VariableDeclNode(VariableDeclNode n)
+	{
+		super(n);
+		m_variable = n.m_variable;
+	}
+
+	public Tree dupNode()
+	{
+		return new VariableDeclNode(this);
+	}
+
     // Required by (e.g.) ForNode code generation
     public VariableName getVariableName() { return m_variable; }
 

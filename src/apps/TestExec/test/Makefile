@@ -40,7 +40,7 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  empty1 empty2 empty3 empty4 empty-string1 \
  failure-type1 failure-type2 failure-type3 failure-type4 \
  grandparent-access-plan \
- iteration-ended1 invariant1 isKnown1 \
+ interface1 iteration-ended1 invariant1 isKnown1 \
  modulo1 \
  repeat1 repeat3 repeat4 \
  simple-assignment skip1 skip2 \
@@ -51,14 +51,14 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  uninitialized-assignment \
  array-in-loop
 
-LIBRARY_TESTS	:= library-call-with-array
+LIBRARY_TESTS	:=  Increment-test Increment-test2 library-call-with-array
 
 # Tests which run to success and require a script of the same name
 SAME_NAME_SCRIPT_TESTS	:= array1 array3 array4 array8 atomic-assignment \
  boolean1 \
  change-lookup-test command1 command2 command3 command4 command5 concat2 conjuncts conjuncts1 \
  lookup1 lookup2 lookup3 \
- repeat2 repeat5 \
+ repeat2 repeat5 repeat7 repeat8 \
  site-survey \
  test-end-condition test-timepoint \
  update-lookup-test update-test

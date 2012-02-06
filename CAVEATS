@@ -23,18 +23,8 @@ Plexil to XML translator ('plexilc'):
 
  * Node timepoints cannot be assigned to variables.
 
-Multiple-executive applications: the Plexil executive
-sometimes crashes after completion of plan execution, with the
-following message:
+In multiple-executive applications, the Plexil executive sometimes crashes after
+completion of plan execution, with the following message:
 
   Assertion failed: (false), function handleAssert, file Error.cc, line 89.
   terminate called after throwing an instance of 'SocketException'
-
-Temporal/Gantt viewer:  When viewing plans that call library
-actions, whose child actions have the same name as those in
-the parent plan, these duplicate-named nodes may show
-incorrectly in the viewer: they are shown as a single
-"repeating" node rather than as separate nodes.  The problem
-has not been fully characterized.  Please report any unusual
-results you see in this new viewer.
-

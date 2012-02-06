@@ -31,17 +31,16 @@
 #include "Node.hh"
 #include "Debug.hh"
 #include "ExecListenerFactory.hh"
-#include <iostream>;
-#include <fstream>;
-#include <vector>;
-#include <cmath>;
-#include <stdio.h>;
-#include <stdlib.h>;
-#include "InterfaceManager.hh"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
 #include "ExecDefs.hh"
-#include <time.h>;
-#include <ctime>;
-#include <map>;
+#include <time.h>
+#include <ctime>
+#include <map>
 
 #include "AdapterFactory.hh"
 #include "CoreExpressions.hh"
@@ -72,9 +71,8 @@ namespace PLEXIL
 {
   GanttListener::GanttListener () { }
 
-  GanttListener::GanttListener (const TiXmlElement* xml,
-                                        InterfaceManagerBase& mgr)
-    : ManagedExecListener (xml, mgr)
+  GanttListener::GanttListener (const pugi::xml_node& xml)
+    : ExecListener(xml)
   { }
 
   GanttListener::~GanttListener () { }
@@ -248,7 +246,10 @@ namespace PLEXIL
                                             const LabelStr& parent) const 
   {
     getCurrentWorkingDirectory();
-    startTime = (int) ( (InterfaceManager&) getManager()).currentTime();
+	// FIXME: Get time from someplace!
+    startTime = 0;
+    int startTimeint = startTime;
+    startTime = (int) startTime;
     std::ostringstream uFileName;
     uFileName.precision(10);
     uFileName << startTime;
@@ -311,8 +312,8 @@ namespace PLEXIL
       vector<string> myLocalVariableMapValues;
       myLocalVars = " ";
       vector<string> myLocalVariableMap;
-      ExpressionMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
-      ExpressionMap::iterator it;
+      VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
+      VariableMap::iterator it;
       int tempSize = tempLocalVariablesMap.size();
       if(tempSize == 0) myLocalVars = "none";
       for(it=tempLocalVariablesMap.begin(); it!=tempLocalVariablesMap.end(); it++) {
@@ -331,9 +332,9 @@ namespace PLEXIL
       //get child nodes
       myChildren = " ";
       vector<string> myChildNodes;
-      const list<NodeId>& tempChildList = nodeId->getChildren();
+      const vector<NodeId>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) myChildren = "none";
-      else for (list<NodeId>::const_iterator i =  
+      else for (vector<NodeId>::const_iterator i =  
 		tempChildList.begin(); i != tempChildList.end(); i++) {
           string tempString = ((NodeId) *i)->getNodeId().toString();
           myChildNodes.push_back(tempString);
@@ -400,8 +401,8 @@ namespace PLEXIL
 	vector<string> thisLocalVarsVectorKeys;
 	vector<string> thisLocalVarsVectorValues;
 
-	ExpressionMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
-	ExpressionMap::iterator it;
+	VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
+	VariableMap::iterator it;
 	int tempSize = tempLocalVariableMapAfter.size();
 	if(tempSize == 0) myLocalVarsAfter = "none";
 	for(it = tempLocalVariableMapAfter.begin(); it != tempLocalVariableMapAfter.end(); it++) {

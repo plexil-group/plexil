@@ -43,6 +43,21 @@ public class ResourceNode extends PlexilTreeNode
 		super(t);
 	}
 
+	public ResourceNode(ResourceNode n)
+	{
+		super(n);
+		m_name = n.m_name;
+		m_lowerBound = n.m_lowerBound;
+		m_upperBound = n.m_upperBound;
+		m_releaseAtTermination = n.m_releaseAtTermination;
+		m_priority = n.m_priority;
+	}
+
+	public Tree dupNode()
+	{
+		return new ResourceNode(this);
+	}
+
 	public void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
 		// format is:

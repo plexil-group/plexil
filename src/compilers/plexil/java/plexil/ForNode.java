@@ -42,6 +42,17 @@ public class ForNode extends PlexilTreeNode
         super(t);
     }
 
+	public ForNode(ForNode n)
+	{
+		super(n);
+		m_context = n.m_context;
+	}
+
+	public Tree dupNode()
+	{
+		return new ForNode(this);
+	}
+
     /**
      * @brief Get the containing name binding context for this branch of the parse tree.
      * @return A NodeContext instance, or the global context.

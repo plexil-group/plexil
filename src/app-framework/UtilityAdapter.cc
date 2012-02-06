@@ -26,9 +26,8 @@
 
 #include <iostream>
 #include "AdapterFactory.hh"
-#include "CoreExpressions.hh"
 #include "AdapterExecInterface.hh"
-#include "Expression.hh"
+#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "UtilityAdapter.hh"
 #include "plan-utils.hh"
@@ -36,7 +35,7 @@
 namespace PLEXIL {
 
 UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-                     const TiXmlElement*& configXml) :
+							   const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("UtilityAdapter", " created.");
@@ -98,16 +97,6 @@ void UtilityAdapter::executeCommand (const LabelStr& command_name,
   }
 
   m_execInterface.notifyOfExternalEvent();
-}
-
-void UtilityAdapter::invokeAbort(const LabelStr& command_name, 
-                                 const std::list<double>& /* args */, 
-                                 ExpressionId /* cmd_ack */,
-                                 ExpressionId /* ack */)
-{
-  std::string name = command_name.toString();
-  debugMsg("UtilityAdapter", "Aborting " << name << " command!");  
-  std::cerr << "UtilityAdapter: Aborting " << name << " command!" << std::endl;
 }
 
 extern "C" {

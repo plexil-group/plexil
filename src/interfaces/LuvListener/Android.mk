@@ -30,17 +30,17 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := EssentialLuvListener
-LOCAL_SRC_FILES := EssentialLuvListener.cc LuvFormat.cc
+LOCAL_MODULE    := LuvListener
+LOCAL_SRC_FILES := LuvListener.cc LuvFormat.cc
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_CPPFLAGS := 
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../Sockets \
- $(LOCAL_PATH)/../../../third-party/tinyxml \
+ $(LOCAL_PATH)/../../../third-party/pugixml/src \
  $(LOCAL_PATH)/../../utils \
  $(LOCAL_PATH)/../../exec
-#LOCAL_SHARED_LIBRARIES := PlexilSockets tinyxml PlexilUtils PlexilExec
-LOCAL_STATIC_LIBRARIES := PlexilSockets tinyxml PlexilUtils PlexilExec
+#LOCAL_SHARED_LIBRARIES := PlexilSockets pugixml PlexilUtils PlexilExec
+LOCAL_STATIC_LIBRARIES := PlexilSockets pugixml PlexilUtils PlexilExec
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)

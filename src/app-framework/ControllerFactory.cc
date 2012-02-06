@@ -30,11 +30,8 @@
 #include "ExecController.hh"
 #include "ExecApplication.hh"
 #include "InterfaceSchema.hh"
-
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
+#include "XMLUtils.hh"
 
 namespace PLEXIL
 {
@@ -48,21 +45,21 @@ namespace PLEXIL
    */
 
   ExecControllerId 
-  ControllerFactory::createInstance(const TiXmlElement* xml,
+  ControllerFactory::createInstance(const pugi::xml_node& xml,
                                     ExecApplication& execInterface)
   {
     // Can't do anything without the spec
-    assertTrueMsg(xml != NULL,
+    assertTrueMsg(!xml.empty(),
                   "ControllerFactory::createInstance: null configuration XML");
 
     // Get the kind of controller to make
     const char* controllerType = 
-      xml->Attribute(InterfaceSchema::CONTROLLER_TYPE_ATTR());
-    checkError(controllerType != 0,
+      xml.attribute(InterfaceSchema::CONTROLLER_TYPE_ATTR()).value();
+    checkError(*controllerType != '\0',
                "ControllerFactory::createInstance: no "
                << InterfaceSchema::CONTROLLER_TYPE_ATTR()
                << " attribute for controller XML:\n"
-               << *xml);
+               << xml);
 
     // Make it
     bool dummy;
@@ -80,7 +77,7 @@ namespace PLEXIL
 
   ExecControllerId 
   ControllerFactory::createInstance(const LabelStr& name,
-                                    const TiXmlElement* xml,
+                                    const pugi::xml_node& xml,
                                     ExecApplication& execInterface)
   {
     bool dummy;
@@ -100,34 +97,33 @@ namespace PLEXIL
 
   ExecControllerId 
   ControllerFactory::createInstance(const LabelStr& name,
-                                    const TiXmlElement* xml,
+                                    const pugi::xml_node& xml,
                                     ExecApplication& execInterface,
                                     bool& wasCreated)
   {
     std::map<double, ControllerFactory*>::const_iterator it = factoryMap().find(name.getKey());
-    if (it == factoryMap().end())
-      {
-        debugMsg("ControllerFactory:createInstance", 
-                 "Attempting to dynamically load controller type \""
-                 << name.c_str() << "\"");
-        // Attempt to dynamically load library
-        const char* libCPath =
-          xml->Attribute(InterfaceSchema::LIB_PATH_ATTR());
-        if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-			debugMsg("ControllerFactory:createInstance", 
-					 " unable to load module for controller type \""
-                      << name.c_str() << "\"");
-			return ExecControllerId::noId();
-		  }
-        // See if it's registered now
-        it = factoryMap().find(name.getKey());
-      }
+    if (it == factoryMap().end()) {
+	  debugMsg("ControllerFactory:createInstance", 
+			   "Attempting to dynamically load controller type \""
+			   << name.c_str() << "\"");
+	  // Attempt to dynamically load library
+	  const char* libCPath =
+		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+		debugMsg("ControllerFactory:createInstance", 
+				 " unable to load module for controller type \""
+				 << name.c_str() << "\"");
+		return ExecControllerId::noId();
+	  }
+	  // See if it's registered now
+	  it = factoryMap().find(name.getKey());
+	}
 
-		if (it == factoryMap().end()) {
-		  debugMsg("ControllerFactory:createInstance",
-				   " No controller factory registered for name \"" << name.c_str() << "\".");
-		  return ExecControllerId::noId();
-		}
+	if (it == factoryMap().end()) {
+	  debugMsg("ControllerFactory:createInstance",
+			   " No controller factory registered for name \"" << name.c_str() << "\".");
+	  return ExecControllerId::noId();
+	}
     ExecControllerId retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("ControllerFactory:createInstance", " Created controller " << name.c_str());
     return retval;

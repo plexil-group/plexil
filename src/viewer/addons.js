@@ -41,7 +41,7 @@ function callReadyFunc() {
 	numtimes++;
 }
 
-/** COOKIES - myHTMLFilePathString has been added to all cookie identifiers in order to make each cookie unique per session
+/** COOKIES
 	* showGenCookie - boolean, toggle generated nodes
 	* showLineCookie - boolean, toggle timeline/expanded
 	* showFileCookie - string, file name of plan, deprecated and no longer in use
@@ -52,25 +52,25 @@ function callReadyFunc() {
 **/
 
 function provideGenCookie() {
-	var temp = getCookie("showGenCookie"+myHTMLFilePathString);
+	var temp = getCookie("showGenCookie");
 	if(temp != null && temp != "") {
 		return temp;
 	}
 	else {
-		setCookie("showGenCookie"+myHTMLFilePathString,"false",365);
-		var newtemp = getCookie("showGenCookie"+myHTMLFilePathString);
+		setCookie("showGenCookie","false",365);
+		var newtemp = getCookie("showGenCookie");
 		return newtemp;
 	}
 }
 
 function provideLineCookie() {
-	var temp = getCookie("showLineCookie"+myHTMLFilePathString);
+	var temp = getCookie("showLineCookie");
 	if(temp != null && temp != "") {
 		return temp;
 	}
 	else {
-		setCookie("showLineCookie"+myHTMLFilePathString,"true",365);
-		var newtemp = getCookie("showLineCookie"+myHTMLFilePathString);
+		setCookie("showLineCookie","true",365);
+		var newtemp = getCookie("showLineCookie");
 		return newtemp;
 	}
 }
@@ -106,17 +106,17 @@ document.cookie = name +
 }
 
 function deleteAllCookies() {
-	deleteCookie("showGenCookie"+myHTMLFilePathString);
-	deleteCookie("showLineCookie"+myHTMLFilePathString);
- 	deleteCookie("showFileCookie"+myHTMLFilePathString);
- 	deleteCookie("showPixelsCookie"+myHTMLFilePathString);
-	deleteCookie("showHeightCookie"+myHTMLFilePathString);
-	deleteCookie("showScaleCookie"+myHTMLFilePathString);
-	deleteCookie("showCustomCookie"+myHTMLFilePathString);
+	deleteCookie("showGenCookie");
+	deleteCookie("showLineCookie");
+ 	deleteCookie("showFileCookie");
+ 	deleteCookie("showPixelsCookie");
+	deleteCookie("showHeightCookie");
+	deleteCookie("showScaleCookie");
+	deleteCookie("showCustomCookie");
 }
 
 function initializeCustomNodesArray() {
-	customNodesArray = unpackCSVString(getCookie("showCustomCookie"+myHTMLFilePathString));
+	customNodesArray = unpackCSVString(getCookie("showCustomCookie"));
 	for(var i = 0; i < customNodesArray.length; i++) {
 		while(customNodesArray[i].charAt(0) == "\n") customNodesArray[i] = customNodesArray[i].substring(1);
 		while(customNodesArray[i].charAt(0) == " ") customNodesArray[i] = customNodesArray[i].substring(1);
@@ -136,16 +136,19 @@ function isCustomNode(temp, temp2, temp3) {
 /** checks custom node specifications for exact matches **/
 function doExactNode(temp, temp2, temp3) {
 	var isCustom = false;
-	if(getCookie("showCustomCookie"+myHTMLFilePathString) == null || getCookie("showCustomCookie"+myHTMLFilePathString) =='') return isCustom;
+	if(getCookie("showCustomCookie") == null || getCookie("showCustomCookie") =='') return isCustom;
 	else initializeCustomNodesArray();
 	for(var i = 0; i < customNodesArray.length; i++) {
 		if((customNodesArray[i].indexOf('*') == -1) && (customNodesArray[i].indexOf('+') == -1) && (customNodesArray[i].indexOf('?') == -1)) {
-			if(getCookie("showLineCookie"+myHTMLFilePathString) == "false") {
+			if(getCookie("showLineCookie") == "false") {
 				if(((temp == customNodesArray[i]) && (temp.length == customNodesArray[i].length))) 
 					isCustom = true;
 			}
 			else {
-				if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)))
+				if(((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
+																				 	 //|| ((temp2 == customNodesArray[i]) && (temp2.length == customNodesArray[i].length)) 
+																				  	 //|| ((temp3 == customNodesArray[i]) && (temp3.length == customNodesArray[i].length))
+																				 	 )
 					isCustom = true;
 			}
 		}
@@ -158,10 +161,10 @@ function doRegularExpression(temp,temp2,temp3) {
 	var isRegExp = false;
 	for(var i = 0; i < customNodesArray.length; i++) {
 		if(customNodesArray[i].indexOf('*') != -1) {
-			if(getCookie("showLineCookie"+myHTMLFilePathString) == "false")
-				isRegExp = handleRegularExpression(customNodesArray[i], temp, temp, temp3);
+			if(getCookie("showLineCookie") == "false")
+				isRegExp = handleReferenceString(customNodesArray[i], temp, temp, temp3);
 			else
-				isRegExp = handleRegularExpression(customNodesArray[i], temp, temp2, temp3);
+				isRegExp = handleReferenceString(customNodesArray[i], temp, temp2, temp3);
 			if(isRegExp) return isRegExp;
 		}
 	}
@@ -169,8 +172,7 @@ function doRegularExpression(temp,temp2,temp3) {
 }
 
 /** handles regular expression/wildcard * in custom node specifications **/
-function handleRegularExpression(string, temp, temp2, temp3) {
-	//alert(string);
+function handleReferenceString(string, temp, temp2, temp3) {
 	var stars = new Array();
 	var finalBool = true;
 	for(var i = 0; i < string.length; i++) {
@@ -178,43 +180,59 @@ function handleRegularExpression(string, temp, temp2, temp3) {
 			stars.push(i);
 		}
 	}
+	//stars.reverse();
+	//
+	//for(var i = 0; i < stars.length; i++) alert(stars[i]);
+	//
 	var start = 0;
+	//8/19/11
 	var constructStrings = new Array();
 	for(var i = 0; i < stars.length; i++) {
 		var newstring = string.substring(start, stars[i]);
 		start = stars[i]+1;
-		if(newstring != "" && newstring != null)
-			constructStrings.push(newstring);
+		constructStrings.push(newstring);
 	}
 	if(start != string.length) {
 		var newstring = string.substring(start);
 		constructStrings.push(newstring);
 	}
 	var tempBools = new Array();
-	//string must contain all construct strings for the function to return true, indicating a target node
 	if(temp2.length < string.length) tempBools.push(false);
 	for(var i = 0; i < constructStrings.length; i++) {
-		if((temp2.indexOf(constructStrings[i]) != -1)) {
+		if(temp2.indexOf(constructStrings[i]) != -1) {
 			tempBools.push(true);
-		} 
+		}
 		else tempBools.push(false);
-	}
-	for(var i = 0; i < constructStrings.length-1; i++) {
-		var tempString = constructStrings[i] + constructStrings[i+1];
-		if(temp2.indexOf(tempString) != -1)
-			tempBools.push(false);
-	}
-	if(string[string.length-1] != '*') {
-		if(string[string.length-1] != temp2[temp2.length-1])
-			tempBools.push(false);
 	}
 	for(var i = 0; i < tempBools.length; i++) {
 		if(tempBools[i] == false) finalBool = false;
 	}
 	return finalBool;
+	/**
+	var boolVals = new Array();
+	for(var i = 0; i < stars.length+1; i++) {
+		if(string.substring(start, stars[i]) != '') {
+			if((temp.indexOf(string.substring(start, stars[i])) != -1) || (temp2.indexOf(string.substring(start, stars[i])) != -1) || (temp3.indexOf(string.substring(start, stars[i])) != -1)) {
+				boolVals.push(true);
+			}
+			else {
+				boolVals.push(false);
+			}
+		}
+		start = stars[i]+1;
+	}
+	for(var i = 0; i < boolVals.length; i++) {
+		if(boolVals[i]) {
+			finalBool = true;
+		}
+		else {
+			finalBool = false;
+		}
+	}
+	return finalBool;
+	**/
 }
 
-/** lists nodes that are hidden **/
 function doCustomUnhide(temp, temp2) {
 	var isInc = false;
 	for(var i = 0; i < customNodesUnhideArray.length; i++) {
@@ -226,6 +244,7 @@ function doCustomUnhide(temp, temp2) {
 								 '<table border="0">',
 								 '<tr>',
 								 '<td width="150"><strong>Node name</td>',
+								 //'<td><strong>Unhide</td>',
 								 '</tr>',
 								 ].join(''));
 	for(var i = 0; i < customNodesUnhideArray.length; i++) {
@@ -235,6 +254,9 @@ function doCustomUnhide(temp, temp2) {
 									 customNodesUnhideArray[i],
 									 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 									 '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>',
+									 //'<td><input type="checkbox" value="',
+									 //customNodesUnhideArray[i],
+									 //'"/></td>',
 									 '</tr>',
 									 ].join(''));
 	}
@@ -242,6 +264,13 @@ function doCustomUnhide(temp, temp2) {
 								 '</table>',
 								 '</div>',
 								 ].join(''));
+	/**
+	$('#customNodesUnhideBox').append([
+									   '<button id="customNodesUnhideButton">',
+									   'Unhide selected',
+									   '</button>',
+									   ].join(''));
+	**/
 	$('#customNodesUnhideBox').dialog({
 								autoOpen:false,
 								height:250,
@@ -249,30 +278,33 @@ function doCustomUnhide(temp, temp2) {
 								title:'Hidden nodes',
 								});
 	$('#customNodesUnhideBox').dialog("close");
+	//$(":checkbox").click(keepUnhideChecks);
+	/**
+	$('#customNodesUnhideButton').click(function() {
+												 finishUnhideChecks();
+												 });
+	**/
 }
 
-/** return value to main for checked scale radio box **/
-function manageRadioScaleChecked(boxname) {
-	var desiredVal = getCookie("showScaleCookie"+myHTMLFilePathString);
-	if(desiredVal == null) {
-		if(boxname == 3)
-			return "checked = \"checked\"";
-		else
-			return " ";
+/**
+var customUnhideChecks = new Array();
+function keepUnhideChecks() {
+	var n = $("input:checkbox:checked").val();
+	customUnhideChecks.push(n);
+}
+
+function finishUnhideChecks() {
+	var cookie = getCookie("showCustomCookie");
+	for(var i = 0; i < customUnhideChecks.length; i++) {
+		//alert(customUnhideChecks[i]);
+		cookie = cookie.substring(0, cookie.indexOf(customUnhideChecks[i])) + cookie.substring(cookie.indexOf(customUnhideChecks[i])+customUnhideChecks[i].length+1);
 	}
-	else if(desiredVal == "1000" && boxname == 1)
-		return "checked = \"checked\"";
-	else if(desiredVal == "100" && boxname == 2)
-		return "checked = \"checked\"";
-	else if(desiredVal == "10" && boxname == 3)
-		return "checked = \"checked\"";
-	else if(desiredVal == "1" && boxname == 4)
-		return "checked = \"checked\"";
-	else
-		return " ";
+	setCookie("showCustomCookie",cookie);
+	//alertonce(getCookie("showCustomCookie"));
 }
+**/
 
-/** alerter for debugging **/
+/** alerters for debugging **/
 var alerter = 0;
 function alertonce(string) {
 	if(alerter == 0) {

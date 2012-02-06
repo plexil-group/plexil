@@ -31,14 +31,6 @@
 
 namespace PLEXIL {
 
-  const std::string RESOURCE_TAG("Resource");
-  const std::string RESOURCELIST_TAG("ResourceList");
-  const std::string RESOURCENAME_TAG("ResourceName");
-  const std::string RESOURCEPRIORITY_TAG("ResourcePriority");
-  const std::string RESOURCELOWERBOUND_TAG("ResourceLowerBound");
-  const std::string RESOURCEUPPERBOUND_TAG("ResourceUpperBound");
-  const std::string RESOURCERELEASEATTERMINATION_TAG("ResourceReleaseAtTermination");
-
   class PlexilResource;
   class PlexilExpr;
   

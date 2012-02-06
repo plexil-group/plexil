@@ -59,6 +59,11 @@ public class ExpressionNode extends PlexilTreeNode
         super(t);
     }
 
+	public Tree dupNode()
+	{
+		return new ExpressionNode(this);
+	}
+
     protected void setDataType(PlexilDataType dtype)
     {
         m_dataType = dtype;

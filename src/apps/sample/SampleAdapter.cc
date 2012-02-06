@@ -38,7 +38,7 @@
 #include "SampleAdapter.hh"
 
 using PLEXIL::LabelStr;
-using PLEXIL::StateKey;
+using PLEXIL::State;
 
 using std::cout;
 using std::cerr;
@@ -67,14 +67,6 @@ static vector<Any> EmptyArgs;
 
 
 ///////////////////////////// State support //////////////////////////////////
-
-// A cache for "state keys".  The key is an internal artifact
-// needed to determine whether a given state is currently
-// subscribed, via LookupOnChange.
-//
-typedef std::map<PLEXIL::State, PLEXIL::StateKey> StateToKeyMap;
-static StateToKeyMap StateKeys;
-
 
 // Queries the system for the value of a state and its arguments.
 //
@@ -116,38 +108,32 @@ static Any fetch (const string& state_name, const vector<Any>& args)
 // receive the name of the state whose value has changed in the system.  Then
 // they propagate the state's new value to the executive.
 
-static void propagate (const PLEXIL::State& state, const vector<Any>& value)
+static void propagate (const State& state, const vector<Any>& value)
 {
-  StateToKeyMap::const_iterator iter = StateKeys.find (state);
-  if (iter != StateKeys.end()) {
-    const StateKey& key = iter->second;
-    if (Adapter->isStateKeySubscribed (key)) {
-      Adapter->propagateValueChange (key, value);
-    }
-  }
+  Adapter->propagateValueChange (state, value);
 }
 
 static void receive (const string& state_name, int val)
 {
-  propagate (PLEXIL::State (LabelStr (state_name), EmptyArgs),
+  propagate (State (LabelStr (state_name), EmptyArgs),
              vector<Int> (1, encodeInt (val)));
 }
 
 static void receive (const string& state_name, float val)
 {
-  propagate (PLEXIL::State (LabelStr (state_name), EmptyArgs),
+  propagate (State (LabelStr (state_name), EmptyArgs),
              vector<Real> (1, encodeReal (val)));
 }
 
 static void receive (const string& state_name, const string& val)
 {
-  propagate (PLEXIL::State (LabelStr (state_name), EmptyArgs),
+  propagate (State (LabelStr (state_name), EmptyArgs),
              vector<String> (1, encodeString (val)));
 }
 
 static void receive (const string& state_name, bool val, const string& arg)
 {
-  PLEXIL::State state (LabelStr (state_name), vector<String> (encodeString (arg)));
+  State state (LabelStr (state_name), vector<String> (encodeString (arg)));
   propagate (state, vector<Bool> (1, encodeBool (val)));
 }
 
@@ -156,7 +142,7 @@ static void receive (const string& state_name, bool val, int arg1, int arg2)
   vector<Int> vec;
   vec.push_back (encodeInt (arg1));
   vec.push_back (encodeInt (arg2));
-  PLEXIL::State state (LabelStr (state_name), vec);
+  State state (LabelStr (state_name), vec);
   propagate (state, vector<Bool> (1, encodeBool (val)));
 }
 
@@ -165,7 +151,7 @@ static void receive (const string& state_name, bool val, int arg1, int arg2)
 
 
 SampleAdapter::SampleAdapter(PLEXIL::AdapterExecInterface& execInterface,
-                     const TiXmlElement*& configXml) :
+							 const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("SampleAdapter", " created.");
@@ -250,55 +236,52 @@ void SampleAdapter::executeCommand (const LabelStr& command_name,
 }
 
 
-void SampleAdapter::lookupNow (const StateKey& key, vector<Any>& dest)
+double SampleAdapter::lookupNow (const State& state)
 {
-  PLEXIL::State state;
-  assertTrueMsg (getState (key, state),
-                 error + "lookupNow: state not found!");
-
   // This is the name of the state as given in the plan's LookupNow
   LabelStr name (state.first);
   const vector<Any>& args = state.second;
-  dest.assign (1, fetch (name.toString(), args));
+  return fetch(name.toString(), args);
 }
 
 
-void SampleAdapter::registerChangeLookup(const PLEXIL::LookupKey& lkey,
-                                         const StateKey& skey,
-                                         const vector<Any>& /* tolerances */)
+void SampleAdapter::subscribe(const State& state)
 {
-  debugMsg("SampleAdapter:registerChangeLookup", " entered");
-  registerAsynchLookup (lkey, skey);
-
-  // The following serves to cache the state key so that we can easily retrieve
-  // it when the state's value is published from the external system (which
-  // knows nothing about Plexil or state keys).
-
-  PLEXIL::State state;
-  assertTrueMsg (getState (skey, state),
-                 error + "registerChangeLookup: state not found!");
   LabelStr nameLabel = LabelStr (state.first);
-  debugMsg("SampleAdapter:registerChangeLookup", " processing state "
+  debugMsg("SampleAdapter:subscribe", " processing state "
            << nameLabel.toString());
-  StateKeys [state] = skey;
+  m_subscribedStates.insert(state);
 }
 
 
-void SampleAdapter::unregisterChangeLookup (const PLEXIL::LookupKey& lkey)
+void SampleAdapter::unsubscribe (const State& state)
 {
-  unregisterAsynchLookup (lkey);
-  debugMsg("SampleAdapter:unregisterChangeLookup",
-           " unregistered lookup for " << lkey);
+  LabelStr nameLabel = LabelStr (state.first);
+  debugMsg("SampleAdapter:subscribe", " from state "
+           << nameLabel.toString());
+  m_subscribedStates.erase(state);
+}
+
+// Does nothing.
+void SampleAdapter::setThresholds (const State& state, double hi, double lo)
+{
 }
 
 
-void SampleAdapter::propagateValueChange (const StateKey& key,
+void SampleAdapter::propagateValueChange (const State& state,
                                           const vector<Any>& vals) const
 {
-  m_execInterface.handleValueChange (key, vals);
+  if (!isStateSubscribed(state))
+	return; 
+  m_execInterface.handleValueChange (state, vals.front());
   m_execInterface.notifyOfExternalEvent();
 }
 
+
+bool SampleAdapter::isStateSubscribed(const State& state) const
+{
+  return m_subscribedStates.find(state) != m_subscribedStates.end();
+}
 
 // Necessary boilerplate
 extern "C" {

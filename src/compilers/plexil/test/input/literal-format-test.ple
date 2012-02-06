@@ -1,4 +1,4 @@
-literal-format-test:
+root:
 {
   Boolean b0 = false;
   Boolean b1 = true;
@@ -32,7 +32,7 @@ literal-format-test:
   Integer ia3[4] = #(1 0b10 0o52 0x45);
 
   Real ra1[4];
-  Real ra2[4] = 0.0;
+  Real ra2[4] = -0.0;
   Real ra3[8] = #(0 -2.0 3e5 0x2a -0.0e-32);
 
 }

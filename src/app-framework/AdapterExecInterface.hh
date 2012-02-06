@@ -32,8 +32,11 @@
 #include "ParserException.hh"
 #include "InterfaceManagerBase.hh"
 
-// forward references w/o namespace
-class TiXmlElement;
+// forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -218,12 +221,11 @@ namespace PLEXIL
     virtual ResourceArbiterInterfaceId getResourceArbiterInterface() const = 0;
 
     /**
-     * @brief Notify of the availability of new values for a lookup.
-     * @param key The state key for the new values.
-     * @param values The new values.
+     * @brief Notify of the availability of a new value for a lookup.
+     * @param state The state for the new value.
+     * @param value The new value.
      */
-    virtual void handleValueChange(const StateKey& key,
-				   const std::vector<double>& values) = 0;
+    virtual void handleValueChange(const State& state, double value) = 0;
 
     /**
      * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
@@ -258,8 +260,8 @@ namespace PLEXIL
      * @return False if the plan references unloaded libraries, true otherwise.
      * @note This is deprecated, use the PlexilNodeId variant instead.
      */
-    virtual bool handleAddPlan(TiXmlElement * planXml,
-			       const LabelStr& parent)
+    virtual bool handleAddPlan(const pugi::xml_node& planXml,
+							   const LabelStr& parent)
       throw(ParserException)
       = 0;
 
@@ -339,33 +341,8 @@ namespace PLEXIL
 
     /**
      * @brief Get the state cache for this instance of the interface.
-     * @note This function is deprecated.  Use 
-    */
+	 */
     virtual StateCacheId getStateCache() const = 0;
-
-    /**
-     * @brief Find the unique key for a state.
-     * @param state The state.
-     * @param key The key associated with this state.
-     * @return True if the key was found.
-     */
-    virtual bool findStateKey(const State& state, StateKey& key) = 0;
-
-    /**
-     * @brief Get a unique key for a state, creating a new key for a new state.
-     * @param state The state.
-     * @param key The key associated with this state.
-     * @return True if a new key had to be generated.
-     */
-    virtual bool keyForState(const State& state, StateKey& key) = 0;
-
-    /**
-     * @brief Get (a copy of) the State for this StateKey.
-     * @param key The key to look up.
-     * @param state The state associated with the key.
-     * @return True if the key is found, false otherwise.
-     */
-    virtual bool stateForKey(const StateKey& key, State& state) const = 0;
 
     //
     // Static utility functions

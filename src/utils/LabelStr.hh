@@ -45,7 +45,6 @@ namespace PLEXIL
 {
   class LabelStr;
   DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
-  DECLARE_GLOBAL_CONST(LabelStr, UNKNOWN_STR);
 
 #if defined(PLATFORM_HAS_TR1_UNORDERED_MAP)
   // specialized hash function for pointers to string

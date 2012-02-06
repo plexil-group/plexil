@@ -30,11 +30,11 @@ include $(PLEXIL_HOME)/makeinclude/tao-defs.make
 LIBRARY		:= CorbaController
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
 		   $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework \
 		   ../../utils
 LIB_PATH	+= $(ACE_ROOT)/lib $(PLEXIL_HOME)/lib
-LIBS		+= tinyxml PlexilUtils PlexilExec PlexilAppFramework PlexilCorbaUtils
+LIBS		+= pugixml PlexilUtils PlexilExec PlexilAppFramework PlexilCorbaUtils
 
 IDL_DIR		:= ../IDL
 IDL_FILES	:= $(wildcard $(IDL_DIR)/*.idl)

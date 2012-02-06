@@ -45,7 +45,13 @@ public class WhileNode extends PlexilTreeNode
     public WhileNode(WhileNode n)
     {
         super(n);
+		m_bodyContext = n.m_bodyContext;
     }
+
+	public Tree dupNode()
+	{
+		return new WhileNode(this);
+	}
 
     //
     // N.B. The extra complexity in the checking logic is to ensure the body

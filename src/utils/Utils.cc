@@ -41,21 +41,6 @@ namespace PLEXIL {
     return(s.str());
   }
 
-  /**
-   * @brief Utility to convert PLEXIL internal representation to string
-   */
-  std::string plexilValueToString(double value) {
-    if (StoredArray::isKey(value))
-      return StoredArray(value).toString();
-    else if (LabelStr::isString(value))
-      return std::string(LabelStr(value).toString());
-    else if (value == UNKNOWN())
-      return std::string("UNKNOWN");
-    // must be a number...
-    return toString(value);
-  }
-
-
    bool compareIgnoreCase(const std::string & s1,
                           const std::string & s2)
    {

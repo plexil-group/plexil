@@ -38,7 +38,6 @@
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
 #include "PlexilPlan.hh"
-#include "StoredArray.hh"
 #include "Utils.hh"
 
 #include <list>
@@ -123,19 +122,12 @@ namespace PLEXIL {
 
     //redirects for old usage.
     DECLARE_STATIC_CLASS_CONST(double, UNKNOWN, PLEXIL::UNKNOWN());
-    DECLARE_STATIC_CLASS_CONST(LabelStr, UNKNOWN_STR, PLEXIL::UNKNOWN_STR());
 
     static ExpressionId& UNKNOWN_EXP();
 
     /**
      * @brief Generic constructor for Expressions.  Does nothing but initialze base data
      *        structures.  Expressions are inactive by default and must be activated.
-     * @param node Node connector to the owning node.
-     */
-    Expression(const NodeConnectorId& node);
-
-    /**
-     * @brief Default constructor for Expressions.
      */
     Expression();
 
@@ -147,19 +139,13 @@ namespace PLEXIL {
     const ExpressionId& getId() const {return m_id;}
 
     /**
-     * @brief Get the node that owns this expression.
-     * @return The NodeId of the parent node; may be noId.
-     */
-    const NodeId& getNode() const;
-
-    /**
      * @brief Retrieve the value of this Expression.  This may cause recalculation, lookup of
      *        a value, or something similar.  This is a double because it is easy to
      *        represent other values this way (integers cast freely, reals are doubles, and
      *        the LabelStr facility gives us strings as doubles).
      * @return The value of this Expression.
      */
-    double getValue() const;
+    virtual double getValue() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -167,6 +153,13 @@ namespace PLEXIL {
      * @note The default method returns UNKNOWN.
      */
     virtual PlexilType getValueType() const { return PLEXIL::UNKNOWN_TYPE; }
+
+	/**
+	 * @brief Report whether the expression is an array.
+	 * @return True if an array, false otherwise.
+	 * @note This default method returns false.
+	 */
+	virtual bool isArray() const { return false; }
 
     /**
      * @brief Set the value for this expression.  This may cause notifications to fire, which
@@ -216,17 +209,36 @@ namespace PLEXIL {
      */
     virtual void removeListener(ExpressionListenerId id);
 
+	/**
+	 * @brief Print the object to the given stream.
+	 * @param s The output stream.
+	 */
+	virtual void print(std::ostream& s) const;
+
     /**
      * @brief Get a string representation of this Expression.
      * @return The string representation.
      */
-    virtual std::string toString() const;
+	std::string toString() const;
 
     /**
      * @brief Get a string representation of the value of this Expression.
      * @return The string representation.
      */
     virtual std::string valueString() const;
+
+	/**
+	 * @brief Print the value to the given stream.
+	 * @param s The output stream.
+	 * @param value The value.
+	 */
+	static void formatValue(std::ostream& s, const double value);
+
+	/**
+	 * @brief Print the expression's value to the given stream.
+	 * @param s The output stream.
+	 */
+	virtual void printValue(std::ostream& s) const;
 
     /**
      * @brief Get a string representation of the double value.
@@ -305,189 +317,17 @@ namespace PLEXIL {
      */
     virtual void handleDeactivate(const bool /* changed */) {}
 
+    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
     ExpressionId m_id; /*<! The Id for this Expression */
-    unsigned int m_activeCount;
     double m_value; /*<! The value of this expression*/
     double m_savedValue; /*<! The latest value computed for this expression while it was locked. */
+    unsigned int m_activeCount;
     bool m_dirty; /*<! Marks whether or not this expression needs re-calculation.*/
     bool m_lock; /*<! The lock for this expression */
     bool m_ignoreCachedValue; /*<! Disregard the m_value that has been cached when deciding to publissh a change*/
-    std::list<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
-    const NodeConnectorId m_nodeConnector; /*<! Tracks the node that owns this expression */
   };
 
-  /**
-   *  An abstract base class representing anything that behaves like a variable,
-   *  including but not limited to actual variables, array elements, etc.
-   */
-
-  class EssentialVariable : public Expression
-  {
-  public:
-    /**
-     * @brief Constructor.
-     */
-    EssentialVariable();
-
-    EssentialVariable(const NodeConnectorId& node);
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~EssentialVariable();
-    
-    /**
-     * @brief Check to make sure a value is appropriate for this expression.
-     * @param value The new value for this variable.
-     */
-    virtual bool checkValue(const double value) = 0;
-
-    /**
-     * @brief Sets the value of this variable.  Will throw an error if the variable was
-     *        constructed with isConst == true.
-     * @param value The new value for this variable.
-     */
-    virtual void setValue(const double value) = 0;
-
-    /**
-     * @brief Gets the const-ness of this variable.
-     * @return True if this variable is const, false otherwise.
-     */
-    virtual bool isConst() const = 0;
-
-  protected:
-
-  private:
-
-  };
-
-  /**
-   * An abstract base class representing a variable with a single value.
-   * Derived classes are specialized by value type.
-   */
-  class Variable : public EssentialVariable {
-  public:
-
-    /**
-     * @brief Constructor.  Creates a variable that is initially UNKNOWN.
-     * @param isConst True if this variable should have a constant value, false otherwise.
-     */
-    Variable(const bool isConst = false);
-
-    /**
-     * @brief Constructor.  Creates a variable with a given value.
-     * @param value The initial value of the variable.
-     * @param isConst True if this variable should have a constant value, false otherwise.
-     */
-    Variable(const double value, const bool isConst = false);
-
-    /**
-     * @brief Constructor.  Creates a variable from XML.
-     * @param expr The PlexilExprId for this variable.
-     * @param node A connection back to the node that created this variable.
-     * @param isConst True if this variable should have a constant value, false otherwise.
-     */
-    Variable(const PlexilExprId& expr, const NodeConnectorId& node,
-			 const bool isConst = false);
-
-    virtual ~Variable();
-
-    /**
-     * @brief Get a string representation of this Expression.
-     * @return The string representation.
-     */
-    std::string toString() const;
-
-    /**
-     * @brief Get a string representation of the value of this Variable.
-     * @return The string representation.
-	 * @note This method always uses the stored value whether or not the variable is active,
-	 *       unlike the base class method.
-     */
-    virtual std::string valueString() const;
-
-    /**
-     * @brief Set the value of this expression back to the initial value with which it was
-     *        created.
-     */
-    virtual void reset();
-
-    /**
-     * @brief Sets the value of this variable.  Will throw an error if the variable was
-     *        constructed with isConst == true.
-     * @param value The new value for this variable.
-     */
-    virtual void setValue(const double value);
-
-    /**
-     * @brief Gets the const-ness of this variable.
-     * @return True if this variable is const, false otherwise.
-     */
-    bool isConst() const {return m_isConst;}
-
-    /**
-     * @brief Gets the initial value of this variable.
-     * @return The initial value of this variable.
-     */
-    double initialValue() const {return m_initialValue;}
-
-	/**
-	 * @brief Set the name of this variable.
-	 */
-	void setName(const std::string& name)
-	{
-	  m_name = name;
-	}
-
-    /**
-     * @brief Get the name of this variable, as declared in the node that owns it.
-     */
-    const std::string& getName() const
-    {
-      return m_name;
-    }
-
-    /**
-     * @brief Add a listener for changes to this Expression's value.
-     * @param id The Id of the listener to notify.
-	 * @note Overrides method on Expression base class.
-     */
-    virtual void addListener(ExpressionListenerId id);
-
-    /**
-     * @brief Remove a listener from this Expression.
-     * @param id The Id of the listener to remove.
-	 * @note Overrides method on Expression base class.
-     */
-    virtual void removeListener(ExpressionListenerId id);
-
-  protected:
-    /**
-     * @brief Handle additional behaviors for the reset() call.
-     */
-    virtual void handleReset() {}
-
-    /**
-     * @brief Ensure that, if a variable is constant, it is never really deactivated
-     */
-    virtual void handleDeactivate(const bool changed);
-
-    /**
-     * @brief Performs common initialization tasks (number parsing, translation from the
-     *        various forms of infinity, etc.) for numeric expressions.
-     * @param val The XML representing the value of this variable.
-     */
-    void commonNumericInit(PlexilValue* val);
-
-    //
-    // Private member variables
-    //
-
-    bool m_isConst; /*<! Flag indicating the const-ness of this variable */
-    double m_initialValue; /*<! The initial value of the expression */
-    const NodeId m_node; /*<! The node that owns this variable */
-    std::string m_name; /*<! The name under which this variable was declared */
-  };
+  std::ostream& operator<<(std::ostream& s, const Expression& e);
 
   /**
    *  A class for notifying expressions of changes in sub-expressions.
@@ -499,7 +339,7 @@ namespace PLEXIL {
      * @brief Constructor.
      * @param exp The expression to be notified of any changes.
      */
-    SubexpressionListener(const ExpressionId& exp);
+    SubexpressionListener(Expression& parent);
 
     /**
      * @brief Notifies the destination expression of a value change.
@@ -508,294 +348,15 @@ namespace PLEXIL {
     void notifyValueChanged(const ExpressionId& exp);
 
   private:
-    Expression* m_exp; /*<! The destination expression for notifications. */
+	// Deliberately unimplemented
+	SubexpressionListener();
+	SubexpressionListener(const SubexpressionListener&);
+	SubexpressionListener& operator=(const SubexpressionListener&);
+
+    Expression& m_exp; /*<! The destination expression for notifications. */
   };
 
-
-  /**
-   * A class representing expressions that require calculation.
-   */
-  class Calculable : public Expression {
-  public:
-
-    /**
-     * @brief Constructor.
-     */
-    Calculable();
-
-    /**
-     * @brief Constructor
-     * @param expr The PlexilExpr for this expression.
-     * @param node The scope in which this expression is evaluated.
-     */
-    Calculable(const PlexilExprId& expr, const NodeConnectorId& node);
-
-    virtual ~Calculable();
-
-    /**
-     * @brief By default, Calculables can't have their value set this way.  However,
-     *        it should be possible for subclasses to override this behavior.
-     */
-    virtual void setValue(const double value);
-
-    /**
-     * @brief Re-calculate the value of this expression.
-     */
-    virtual double recalculate() {return m_value;}
-
-    /**
-     * @brief Notify this expression that a subexpression's value has changed.
-     * @param exp The changed subexpression.
-     */
-    virtual void handleChange(const ExpressionId& exp);
-
-  protected:
-    /**
-     * @brief A utility function for accessing a variable in the current scope or creating
-     *        variable for a literal value.
-     * @param expr The PlexilExprId for the variable or value.
-     * @param node The node which delimits the scope of the variable search.
-     * @param del Set to true if the destination should be garbage collected along with this
-     *            expression (i.e. if a new variable had to be allocated.).
-     */
-    virtual ExpressionId getSubexpression(const PlexilExprId& expr, const NodeConnectorId& node,
-					  bool& del);
-
-    /**
-     * @brief Handles the activation of this expression, including activation of
-     *        subexpressions.  By default, when the expression goes from inactive to
-     *        active, it re-calculates its value.
-     * @param changed True if this expression has gone from inactive to active.
-     */
-    virtual void handleActivate(const bool changed);
-
-    /**
-     * @brief Handles the deactivation of this expression, including the deactivation of
-     *        subexpressions.
-     * @param changed True if this expression has gone from inactive to active.
-     */
-    virtual void handleDeactivate(const bool changed);
-
-    /**
-     * @brief A method for subclasses to handle the change of a subexpression's value.
-     * @param exp The subexpression whose value has changed.
-     * @note The default method is a no-op.
-     * @note As of 25 Nov 2008, there appear to be no other implementations of this method.
-     */
-    virtual void handleSubexpressionChange(const ExpressionId& /* exp */) {}
-
-    void addSubexpression(const ExpressionId& exp, const bool garbage);
-
-    bool containsSubexpression(const ExpressionId& expr);
-
-    void removeSubexpression(const ExpressionId& exp);
-
-    SubexpressionListener m_listener; /*<! For incoming message notifications (other expressions' values have changed) */
-    //std::list<ExpressionListenerId> m_incomingListeners;
-    ExpressionVector m_subexpressions; /*<! The subexpressions.*/
-    std::set<ExpressionId> m_garbage;
-  };
-
-
-  class WrapperListener;
-  /**
-   * Class to provide a constant interface over some other variable.
-   * Used in TimepointVariable.
-   */
-  class ConstVariableWrapper : public Variable {
-  public:
-    ConstVariableWrapper(const ExpressionId& exp);
-    ConstVariableWrapper();
-    ~ConstVariableWrapper();
-    double getValue() const;
-    void setValue(const double value);
-    std::string valueString() const;
-  protected:
-    friend class WrapperListener;
-    void handleChange(const ExpressionId& expr);
-    void setWrapped(const ExpressionId& expr);
-  private:
-    bool checkValue(const double val);
-    void handleActivate(const bool changed);
-    void handleDeactivate(const bool changed);
-
-    class WrapperListener : public ExpressionListener {
-    public:
-      WrapperListener(ConstVariableWrapper* wrapper)
-	: ExpressionListener(), m_wrapper(wrapper) {}
-      void notifyValueChanged(const ExpressionId& expression) {
-	m_wrapper->handleChange(expression);
-      }
-    private:
-      ConstVariableWrapper* m_wrapper;
-    };
-
-    ExpressionId m_exp;
-    WrapperListener m_listener;
-  };
-
-  /**
-   * Class to provide an interface that doesn't propagate activation/deactivation messages.
-   * Used in Node::createConditions().
-   */
-  class TransparentWrapper : public Expression {
-  public:
-
-    TransparentWrapper(const ExpressionId& exp, const NodeConnectorId& node);
-
-	// This variant used only in unit tests
-    TransparentWrapper(const ExpressionId& exp);
-
-    ~TransparentWrapper();
-    void setValue(const double value);
-    std::string toString() const;
-    std::string valueString() const;
-    bool checkValue(const double value);
-
-  private:
-
-	// Deliberately not implemented
-    TransparentWrapper();
-	TransparentWrapper& operator=(const TransparentWrapper&);
-
-	void commonInit(const ExpressionId& exp);
-
-    void handleActivate(const bool changed);
-    void handleDeactivate(const bool changed);
-    void handleChange(const ExpressionId& expression);
-
-    class WrapperListener : public ExpressionListener {
-    public:
-      WrapperListener(TransparentWrapper& wrapper) : ExpressionListener(), m_wrapper(wrapper) {}
-      void notifyValueChanged(const ExpressionId& expression) {
-	m_wrapper.handleChange(expression);
-      }
-    private:
-      TransparentWrapper& m_wrapper;
-    };
-
-    WrapperListener m_listener;
-    ExpressionId m_exp;
-  };
-
-  /**
-   * @brief Factory class for Expressions.  This allows you to write, for instance \<AND\>
-	    in XML and have the correct Expression instantiated.
-   */
-  class ExpressionFactory {
-  public:
-
-    /**
-     * @brief Creates a new Expression instance with the type associated with the name and
-     *        the given configuration XML.
-     * @param name The registered name for the factory.
-     * @param expr The PlexilExprId to be passed to the Expression constructor.
-     * @param node Node for name lookup.
-     * @return The Id for the new Expression.  May not be unique.
-     */
-
-    static ExpressionId createInstance(const LabelStr& name, const PlexilExprId& expr,
-				       const NodeConnectorId& node = NodeConnectorId::noId());
-
-    /**
-     * @brief Creates a new Expression instance with the type associated with the name and
-     *        the given configuration XML.
-     * @param name The registered name for the factory.
-     * @param expr The PlexilExprId to be passed to the Expression constructor.
-     * @param node Node for name lookup.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new Expression.  If wasCreated is set to false, is not unique.
-     */
-
-    static ExpressionId createInstance(const LabelStr& name,
-                                       const PlexilExprId& expr,
-				       const NodeConnectorId& node,
-                                       bool& wasCreated);
-
-    /**
-     * @brief Deallocate all factories
-     */
-    static void purge();
-
-    const LabelStr& getName() const {return m_name;}
-
-    void lock();
-
-    void unlock();
-
-  protected:
-    virtual ~ExpressionFactory(){}
-
-    /**
-     * @brief Registers an ExpressionFactory with the specific name.
-     * @param name The name by which the Expression shall be known.
-     * @param factory The ExpressionFactory instance.
-     */
-    static void registerFactory(const LabelStr& name, ExpressionFactory* factory);
-
-    static void registerFinder(const LabelStr& name, ExpressionFactory* factory);
-
-    virtual ExpressionId create(const PlexilExprId& expr,
-				const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
-    ExpressionFactory(const LabelStr& name)
-      : m_name(name) {registerFactory(m_name, this);}
-
-  private:
-    /**
-     * @brief The map from names (LabelStr/double) to ConcreteExpressionFactory instances.
-     * This pattern of wrapping static data in a static method is to ensure proper loading
-     * when used as a shared library.
-     */
-    static std::map<double, ExpressionFactory*>& factoryMap();
-
-    const LabelStr m_name; /*!< Name used for lookup */
-  };
-
-  /**
-   * @brief Concrete factory class, templated for each Expression type.
-   */
-  template<class FactoryType>
-  class ConcreteExpressionFactory : public ExpressionFactory {
-  public:
-    ConcreteExpressionFactory(const LabelStr& name) : ExpressionFactory(name) {}
-  private:
-    /**
-     * @brief Instantiates a new Expression of the appropriate type.
-     * @param expr The PlexilExprId for the instantiated Expression.
-     * @param node
-     * @return The Id for the new Expression.
-     */
-
-    ExpressionId create(const PlexilExprId& expr,
-			const NodeConnectorId& node = NodeConnectorId::noId()) const
-    {return (new FactoryType(expr, node))->getId();}
-  };
-
-
-  /**
-   * @brief Variant of above for constant values.
-   */
-  template<class FactoryType>
-  class ConstantExpressionFactory : public ExpressionFactory {
-  public:
-    ConstantExpressionFactory(const LabelStr& name) : ExpressionFactory(name) {}
-  private:
-    /**
-     * @brief Instantiates a new Expression of the appropriate type.
-     * @param expr The PlexilExprId for the instantiated Expression.
-     * @param node
-     * @return The Id for the new Expression.
-     */
-
-    ExpressionId create(const PlexilExprId& expr,
-			const NodeConnectorId& node = NodeConnectorId::noId()) const
-    {return (new FactoryType(expr, node, true))->getId();}
-  };
 
 }
-
-#define REGISTER_EXPRESSION(CLASS,NAME) {new PLEXIL::ConcreteExpressionFactory<CLASS>(#NAME);}
-#define REGISTER_CONSTANT_EXPRESSION(CLASS,NAME) {new PLEXIL::ConstantExpressionFactory<CLASS>(#NAME);}
 
 #endif

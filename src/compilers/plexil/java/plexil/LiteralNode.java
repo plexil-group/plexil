@@ -26,7 +26,8 @@
 
 package plexil;
 
-import org.antlr.runtime.Token;
+import org.antlr.runtime.*;
+import org.antlr.runtime.tree.*;
 
 import net.n3.nanoxml.*;
 
@@ -43,15 +44,27 @@ public class LiteralNode extends ExpressionNode
         setInitialDataTypeFromTokenType();
     }
 
+	public LiteralNode(LiteralNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new LiteralNode(this);
+	}
+
     private void setInitialDataTypeFromTokenType()
     {
         switch (this.getToken().getType()) {
 
         case PlexilLexer.INT:
+        case PlexilLexer.NEG_INT:
             m_dataType = PlexilDataType.INTEGER_TYPE;
             break;
 
         case PlexilLexer.DOUBLE:
+        case PlexilLexer.NEG_DOUBLE:
             m_dataType = PlexilDataType.REAL_TYPE;
             break;
 
@@ -228,12 +241,21 @@ public class LiteralNode extends ExpressionNode
     public void constructXML()
     {
         super.constructXML();
-        String txt = this.getToken().getText();
-        if (this.getType() == PlexilLexer.INT) {
-            m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
+
+        if (this.getType() == PlexilLexer.NEG_INT) {
+            String txt = this.getChild(0).getText();            
+            m_xml.setContent("-" + Integer.toString(parseIntegerValue(txt)));
+        }
+
+        else if (this.getType() == PlexilLexer.NEG_DOUBLE) {
+            String txt = this.getChild(0).getText();            
+            m_xml.setContent("-" + txt);
         }
         else {
-            m_xml.setContent(txt);
+            String txt = this.getToken().getText();
+            if (this.getType() == PlexilLexer.INT) {
+                m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
+            } else m_xml.setContent(txt);
         }
     }
 

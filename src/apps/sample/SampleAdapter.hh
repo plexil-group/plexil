@@ -38,7 +38,7 @@
 class SampleAdapter : public PLEXIL::InterfaceAdapter
 {
 public:
-  SampleAdapter (PLEXIL::AdapterExecInterface&, const TiXmlElement*&);
+  SampleAdapter (PLEXIL::AdapterExecInterface&, const pugi::xml_node&);
 
   bool initialize();
   bool start();
@@ -51,19 +51,39 @@ public:
                        PLEXIL::ExpressionId dest,
                        PLEXIL::ExpressionId ack);
 
-  void lookupNow (const PLEXIL::StateKey&, std::vector<double>& dest);
+  double lookupNow (const PLEXIL::State& state);
 
-  void registerChangeLookup(const PLEXIL::LookupKey& /* uniqueId */,
-                            const PLEXIL::StateKey& stateKey,
-                            const std::vector<double>& /* tolerances */);
+  /**
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
+   */
+  void subscribe(const PLEXIL::State& state);
 
-  void unregisterChangeLookup(const PLEXIL::LookupKey& uniqueId);
+  /**
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   * @param state The state.
+   */
+  void unsubscribe(const PLEXIL::State& state);
+
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   */
+  void setThresholds(const PLEXIL::State& state, double hi, double lo);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.
   //
-  void propagateValueChange (const PLEXIL::StateKey& key,
+  void propagateValueChange (const PLEXIL::State& state,
                              const std::vector<Any>& vals) const;
+
+private:
+  bool isStateSubscribed(const PLEXIL::State& state) const;
+
+  std::set<PLEXIL::State> m_subscribedStates;
+
 };
 
 extern "C" {

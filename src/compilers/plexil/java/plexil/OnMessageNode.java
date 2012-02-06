@@ -37,6 +37,16 @@ public class OnMessageNode extends PlexilTreeNode
         super(t);
     }
 
+    public OnMessageNode(OnMessageNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new OnMessageNode(this);
+	}
+
 	// Format is:
 	// ^(ON_MESSAGE_KYWD expression action)
 

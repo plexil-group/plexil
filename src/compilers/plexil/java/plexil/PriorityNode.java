@@ -35,14 +35,17 @@ public class PriorityNode extends PlexilTreeNode
     public PriorityNode(Token t)
     {
         super(t);
-        //        m_dataType = PlexilDataType.INTEGER_TYPE;
     }
 
     public PriorityNode(PriorityNode n)
     {
         super(n);
-        //        m_dataType = PlexilDataType.INTEGER_TYPE;
     }
+
+	public Tree dupNode()
+	{
+		return new PriorityNode(this);
+	}
 
     public void check(NodeContext context, CompilerState state)
     {

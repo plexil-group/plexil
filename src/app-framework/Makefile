@@ -29,9 +29,13 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= PlexilAppFramework
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml ../utils ../exec ../interfaces/Sockets ../interfaces/LuvListener
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
+ ../utils ../exec \
+ ../interfaces/Sockets \
+ ../interfaces/LuvListener \
+ ../interfaces/PlanDebugListener
 LIB_PATH	+=
-LIBS		+= tinyxml PlexilUtils PlexilExec dl PlexilSockets LuvListener $(PTHREAD_LIB)
+LIBS		+= pugixml PlexilUtils PlexilExec dl PlexilSockets LuvListener PlanDebugListener $(PTHREAD_LIB)
 
 ifneq ($(OSNAME),Darwin)
 LIBS		+= rt
@@ -41,8 +45,6 @@ SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh) TimeAdapter.hh ExecController.hh
 
 SVN_FILES       := Makefile $(SRC) $(INC)
-
-DEFINES += -D'LIB_EXT="$(SUFSHARE)"'
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)

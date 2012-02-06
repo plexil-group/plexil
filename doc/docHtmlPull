@@ -8,7 +8,7 @@ if [ "$1" = "clean" ]; then
 	if [ -e $bookTemplate ]; then
 		rm $bookTemplate
 	fi
-	echo "removed /$cleanFld and $bookTemplate"
+	echo "cleaned /$cleanFld and $bookTemplate"
 	exit 1
 fi
 
@@ -16,7 +16,7 @@ parse="./parse"
 if [ -e $parse ]; then
 	:
 else 
-	echo "$parse script does not exist"
+	echo "$parse does not exists"
 	exit 1
 fi 
 
@@ -24,7 +24,7 @@ process="./process"
 if [ -e $process ]; then
 	:
 else 
-	echo "$process script does not exist"
+	echo "$process does not exists"
 	exit 1
 fi 
 
@@ -40,14 +40,13 @@ wget -O intro -k http://sourceforge.net/apps/mediawiki/plexil/index.php?title=In
 touch plexil_links.txt
 echo 'http://sourceforge.net/apps/mediawiki/plexil/index.php?title=Introduction' >> plexil_links.txt
 
-# KMD: It looks like the output of the following is thrown away.
 sed -nf ./parse intro
 
 intro="./intro"
 if [ -e $intro ]; then
 	rm intro
 else 
-	echo "$intro does not exist"
+	echo "$intro does not exists"
 fi 
 
 #wget -A.jpg -x --cut-dirs=12 -r -l1 -np -i plexil_links.txt
@@ -63,7 +62,7 @@ if [ -e $links ]; then
 	rm plexil_links.txt
 	#echo "" > /dev/null
 else 
-	echo "$links does not exist"
+	echo "$links does not exists"
 fi 
 
 mkdir clean
@@ -86,7 +85,7 @@ if [ -d $sf ]; then
 		fi
 	done
 else 
-	echo "$sf does not exist"
+	echo "$sf does not exists"
 fi 
 
 names="./naming.txt"
@@ -94,7 +93,7 @@ if [ -e $names ]; then
 	sed 's/[:]* <a.*plexil[/]/|/g' $names > names.txt
 	rm $names
 else 
-	echo "$names does not exist"
+	echo "$names does not exists"
 fi 
 
 echo
@@ -103,9 +102,8 @@ echo "----Formatting links----"
 echo
 echo
 names="names.txt"
-
-# KMD: unused	
-#chapters=$(wc -l $names | sed 's/ .*//')
+	
+chapters=$(wc -l $names | sed 's/ .*//')
 
 if [ -d $cleanFld ]; then
 	while read line
@@ -116,7 +114,7 @@ if [ -d $cleanFld ]; then
 	    if [ -e $cleanFld/$messy ]; then
 		mv $cleanFld/$messy $cleanFld/"$clean".html
 	    else 
-		echo "Error: $messy does not exist"
+		echo "Error: $messy does not exists"
 	     fi 
 	done < $names
 	if [ -d $sf ]; then
@@ -124,7 +122,7 @@ if [ -d $cleanFld ]; then
 		rmdir $sf
 	fi
 else 
-	echo "Error: $cleanFld does not exist"
+	echo "Error: $cleanFld does not exists"
 fi 
 
 if [ -e $names ]; then

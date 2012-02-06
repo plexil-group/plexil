@@ -43,6 +43,19 @@ public class LookupNode extends ExpressionNode
         super(t);
     }
 
+    public LookupNode(LookupNode n)
+    {
+        super(n);
+		m_arguments = n.m_arguments;
+		m_tolerance = n.m_tolerance;
+		m_state = n.m_state;
+    }
+
+	public Tree dupNode()
+	{
+		return new LookupNode(this);
+	}
+
     // N.B. Only valid after earlyCheck().
     public GlobalDeclaration getState()
     {

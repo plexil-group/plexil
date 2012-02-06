@@ -11,7 +11,7 @@
         </CommandDeclaration>
     </GlobalDeclarations>
     <Concurrence LineNo="5" ColNo="0">
-        <NodeId>on-message-test</NodeId>
+        <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="4">
                 <Name>hcfName</Name>

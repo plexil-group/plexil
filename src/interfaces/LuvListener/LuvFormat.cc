@@ -26,14 +26,12 @@
 
 #include "LuvFormat.hh"
 #include "Expression.hh"
-#include "PlexilPlan.hh"
 #include "Node.hh"
+#include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
+#include "Variable.hh"
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
 
 #include <iostream>
 
@@ -117,9 +115,12 @@ namespace PLEXIL {
          conditionName != allConditions.end();
 		 ++conditionName) {
 	  LabelStr cname(*conditionName);
-	  simpleTextElement(s, 
-						cname.c_str(), 
-						node->getCondition(cname)->valueString().c_str());
+	  ExpressionId cond = node->getCondition(cname);
+	  if (cond.isId()) {
+		simpleTextElement(s, 
+						  cname.c_str(), 
+						  cond->valueString().c_str());
+	  }
 	}
 
 	endTag(s, LuvFormat::CONDITIONS_TAG());
@@ -187,7 +188,7 @@ namespace PLEXIL {
 	// format variable name
 	simpleStartTag(s, VARIABLE_TAG());
 	// get path to node, if any
-	const NodeId node = dest->getNode();
+	const NodeId node = ((VariableId) dest)->getNode();
 	if (node.isId()) 
 	  formatNodePath(s, node);
 
@@ -215,8 +216,8 @@ namespace PLEXIL {
 							 const LabelStr& /* parent */) {
 	// create a PLEXIL Plan wrapper and stick the plan in it
 	simpleStartTag(s, PLEXIL_PLAN_TAG());
-	TiXmlElement* planXml = PlexilXmlParser::toXml(plan);
-	s << *planXml;
+	pugi::xml_document* planXml = PlexilXmlParser::toXml(plan);
+	planXml->save(s, " ", PUGI_FORMAT_OPTIONS());
 	delete planXml;
 	endTag(s, PLEXIL_PLAN_TAG());
   }
@@ -230,8 +231,8 @@ namespace PLEXIL {
 								const PlexilNodeId& libNode) {
 	// create a PLEXIL Library wrapper and stick the library node in it
 	simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-	TiXmlElement* libXml = PlexilXmlParser::toXml(libNode);
-	s << *libXml;
+	pugi::xml_document* libXml = PlexilXmlParser::toXml(libNode);
+	libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
 	delete libXml;
 	endTag(s, PLEXIL_LIBRARY_TAG());
   }

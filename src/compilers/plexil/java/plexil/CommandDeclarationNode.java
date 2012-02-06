@@ -39,6 +39,16 @@ public class CommandDeclarationNode extends PlexilTreeNode
         super(t);
     }
 
+    public CommandDeclarationNode(CommandDeclarationNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new CommandDeclarationNode(this);
+	}
+
     // structure is:
     // ^(COMMAND_KYWD NCNAME paramsSpec? returnsSpec? resourcesList?)
 

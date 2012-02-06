@@ -26,8 +26,10 @@
 
 #include "ExecListener.hh"
 #include "ExecListenerFilter.hh"
+#include "ExecListenerFilterFactory.hh"
 #include "Debug.hh"
 #include "Expression.hh"
+#include "InterfaceSchema.hh"
 
 namespace PLEXIL
 {
@@ -36,9 +38,47 @@ namespace PLEXIL
    * @brief Default constructor.
    */
   ExecListener::ExecListener()
-    : m_id(this), 
+    : ExecListenerBase(),
+	  m_id(this, ExecListenerBase::getId()), 
       m_filter()
   {
+  }
+
+  /**
+   * @brief Constructor from configuration XML.
+   */
+  ExecListener::ExecListener(const pugi::xml_node& xml)
+    : ExecListenerBase(xml),
+	  m_id(this, ExecListenerBase::getId()), 
+      m_filter()
+  {
+    if (!xml.empty()) {
+	  pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
+	  if (!filterSpec.empty()) {
+		// Construct specified event filter
+              
+		pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+		assertTrueMsg(!filterTypeAttr.empty(),
+					  "ExecListener constructor: invalid XML: <"
+					  << InterfaceSchema::FILTER_TAG()
+					  << "> element missing a "
+					  << InterfaceSchema::FILTER_TYPE_ATTR()
+					  << " attribute");
+		const char* filterType = filterTypeAttr.value();
+		assertTrueMsg(*filterType != '\0',
+					  "ExecListener constructor: invalid XML: <"
+					  << InterfaceSchema::FILTER_TAG()
+					  << "> element's "
+					  << InterfaceSchema::FILTER_TYPE_ATTR()
+					  << " attribute is empty");
+		ExecListenerFilterId f = 
+		  ExecListenerFilterFactory::createInstance(LabelStr(filterType),
+													filterSpec);
+		assertTrue(f.isId(),
+				   "ExecListener constructor: failed to construct filter");
+		m_filter = f;
+	  }
+	}
   }
 
   /**
@@ -46,7 +86,7 @@ namespace PLEXIL
    */
   ExecListener::~ExecListener() 
   { 
-    m_id.remove(); 
+    m_id.removeDerived(ExecListenerBase::getId()); 
   }
 
   /**
@@ -178,14 +218,14 @@ namespace PLEXIL
 	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
 		   it != transitions.end();
 		   it++) 
-		this->implementNotifyNodeTransition(it->oldState, it->node);
+		this->implementNotifyNodeTransition(it->state, it->node);
 	}
 	else {
 	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
 		   it != transitions.end();
 		   it++)
-		if (m_filter->reportNodeTransition(it->oldState, it->node))
-		  this->implementNotifyNodeTransition(it->oldState, it->node);
+		if (m_filter->reportNodeTransition(it->state, it->node))
+		  this->implementNotifyNodeTransition(it->state, it->node);
 	}
   }
 

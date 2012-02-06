@@ -37,6 +37,16 @@ public class ArgumentListNode extends PlexilTreeNode
         super(t);
     }
 
+	public ArgumentListNode(ArgumentListNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new ArgumentListNode(this);
+	}
+
     public void earlyCheckArgumentList(NodeContext context,
                                        CompilerState state, 
                                        String callType,

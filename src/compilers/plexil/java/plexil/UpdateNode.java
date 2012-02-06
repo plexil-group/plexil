@@ -42,6 +42,16 @@ public class UpdateNode extends PlexilTreeNode
 		super(t);
 	}
 
+	public UpdateNode(UpdateNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new UpdateNode(this);
+	}
+
 	public void check(NodeContext context, CompilerState state)
 	{
 		// ? TODO: check that tags are unique?

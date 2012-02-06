@@ -43,7 +43,7 @@ else
 
     # Mac
     setenv DYLD_LIBRARY_PATH $_plexil_libpath
-	# Breaks Code TI's 'svn' installation
+	# Seems to clobber SG's svn binary
     #setenv DYLD_BIND_AT_LAUNCH YES
 
     unset _plexil_libpath

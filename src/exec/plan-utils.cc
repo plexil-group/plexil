@@ -40,7 +40,8 @@ static void print_aux (const list<double>& args, bool pretty)
   for (list<double>::const_iterator iter = args.begin();
        iter != args.end();
        iter++) {
-    cout << Expression::valueToString(*iter) << (pretty ? " " : "") << flush;
+	Expression::formatValue(cout, *iter);
+    cout << (pretty ? " " : "") << flush;
   }
   if (pretty) cout << endl << flush;
 }

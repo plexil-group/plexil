@@ -37,6 +37,16 @@ public class PlexilPlanNode extends PlexilTreeNode
         super(new CommonToken(ttype, "PLEXIL"));
     }
 
+	public PlexilPlanNode(PlexilPlanNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new PlexilPlanNode(this);
+	}
+
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
      */

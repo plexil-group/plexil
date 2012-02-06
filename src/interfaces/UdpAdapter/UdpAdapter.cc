@@ -27,15 +27,15 @@
 #include <limits.h>
 #include "UdpAdapter.hh"
 #include "Debug.hh"             // debugMsg
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"   // BooleanVariable, etc.
 #include "Node.hh"              // struct PLEXIL::Node
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"    // initUdpAdapter
+#include "stricmp.h"
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
+#include "pugixml.hpp"
+#include <cstring>
 
 namespace PLEXIL
 {
@@ -49,13 +49,13 @@ namespace PLEXIL
   }
 
   // Constructor
-  UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, const TiXmlElement* xml)
+  UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml)
     : InterfaceAdapter(execInterface, xml),
       m_messageQueues(execInterface),
       m_debug(false)
   {
-    assertTrue(xml != NULL, "XML config file not found in UdpAdapter::UdpAdapter constructor");
-    debugMsg("UdpAdapter::UdpAdapter", " Using " << xml->Attribute("AdapterType"));
+    assertTrue(!xml.empty(), "XML config file not found in UdpAdapter::UdpAdapter constructor");
+    debugMsg("UdpAdapter::UdpAdapter", " Using " << xml.attribute("AdapterType").value());
   }
 
   // Destructor
@@ -69,7 +69,7 @@ namespace PLEXIL
   {
     debugMsg("UdpAdapter::initialize", " called");
     // Parse the message definitions in the XML configuration
-    const TiXmlElement* xml = this->getXml();
+    const pugi::xml_node& xml = this->getXml();
     // parse the XML message definitions
     parseXmlMessageDefinitions(xml); // also calls registerCommandInterface for each message
     if (m_debug) printMessageDefinitions();
@@ -113,25 +113,23 @@ namespace PLEXIL
     return true;
   }
 
-  void UdpAdapter::registerChangeLookup(const LookupKey& /* uniqueId */,
-                                        const StateKey& /* stateKey */,
-                                        const std::vector<double>& /* tolerances */)
+  void UdpAdapter::subscribe(const State& /* state */)
   {
-    debugMsg("UdpAdapter::registerChangeLookup", " called");
-    debugMsg("ExternalInterface:udp", " registerChangeLookup called");
+    debugMsg("UdpAdapter::subscribe", " called");
+    debugMsg("ExternalInterface:udp", " subscribe called");
   }
 
-  void UdpAdapter::unregisterChangeLookup(const LookupKey& /* uniqueId */)
+  void UdpAdapter::unsubscribe(const State& /* state */)
   {
-    debugMsg("UdpAdapter::unregisterChangeLookup", " called");
-    debugMsg("ExternalInterface:udp", " unregisterChangeLookup called");
+    debugMsg("UdpAdapter::unsubscribe", " called");
+    debugMsg("ExternalInterface:udp", " unsubscribe called");
   }
 
-  void UdpAdapter::lookupNow(const StateKey& /* key */, std::vector<double>& dest)
+  double UdpAdapter::lookupNow(const State& /* state */)
   {
     debugMsg("UdpAdapter::lookupNow", " called");
     debugMsg("ExternalInterface:udp", " lookupNow called; returning UNKNOWN");
-    dest[0] = Expression::UNKNOWN();
+    return Expression::UNKNOWN();
   }
 
   void UdpAdapter::sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack)
@@ -140,7 +138,7 @@ namespace PLEXIL
     debugMsg("ExternalInterface:udp", " sendPlannerUpdate called");
     // acknowledge updates
     debugMsg("ExternalInterface:udp", " faking acknowledgment of update node '" << node->getNodeId().toString() << "'");
-    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE());
+    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -196,7 +194,7 @@ namespace PLEXIL
     m_activeSockets.erase(socket); // erase the closed socket
     // Let the exec know that we believe things are cleaned up
     m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmdAck);
-    m_execInterface.handleValueChange(dest, BooleanVariable::TRUE());
+    m_execInterface.handleValueChange(dest, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -378,43 +376,35 @@ namespace PLEXIL
   // XML Support
   //
 
-  void UdpAdapter::parseXmlMessageDefinitions(const TiXmlElement* xml)
+  void UdpAdapter::parseXmlMessageDefinitions(const pugi::xml_node& xml)
   // Parse and verify the given Adapter configuration
   {
     m_messages.clear();         // clear the old messages (if any)
     // First, set up the internal debugging output
-    const char* debug = NULL;
-    debug = xml->Attribute("debug");
-    assertTrueMsg((debug == NULL || strcasecmp(debug, "true") == 0 || strcasecmp(debug, "false") == 0),
+    const char* debug = xml.attribute("debug").value();
+    assertTrueMsg((*debug == '\0' || stricmp(debug, "true") == 0 || stricmp(debug, "false") == 0),
                   "parseXmlMessageDefinitions: debug must be a boolean, not " << debug);
-    if (debug && strcasecmp(debug, "true") == 0) m_debug = true;
+    if (*debug && stricmp(debug, "true") == 0) m_debug = true;
     // Now, do the real work of parsing the XML UDP Configuration
-    const char* default_local_port = NULL; // char* NULL allows for a boolean test below...
-    const char* default_peer_port = NULL;
-    const char* default_peer = NULL;
-    default_local_port = xml->Attribute("default_local_port");
-    default_peer_port = xml->Attribute("default_peer_port");
-    default_peer = xml->Attribute("default_peer");
-    if (default_local_port) m_default_local_port = atoi(default_local_port);
-    if (default_peer_port) m_default_peer_port = atoi(default_peer_port);
-    if (default_peer) m_default_peer = default_peer;
+    const pugi::xml_attribute default_local_port = xml.attribute("default_local_port");
+    const pugi::xml_attribute default_peer_port = xml.attribute("default_peer_port");
+    const char* default_peer = xml.attribute("default_peer").value();
+    if (default_local_port) m_default_local_port = default_local_port.as_uint();
+    if (default_peer_port) m_default_peer_port = default_peer_port.as_uint();
+    if (*default_peer) m_default_peer = default_peer;
     // Walk the messages
-    for (const TiXmlElement* child = xml->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
+    for (pugi::xml_node child = xml.first_child(); !child.empty(); child = child.next_sibling())
       {
         UdpMessage msg;
-        const char* name = NULL;       // the Plexil command name
-        const char* peer = NULL;       // needed for bool test below (i.e., it is optional)
-        const char* local_port = NULL;
-        const char* peer_port = NULL;
-        const char* len = NULL;
-        name = child->Attribute("name"); // name is required, hence...
-        assertTrueMsg(name, "parseXmlMessageDefinitions: no name given in <Message/>");
+        const char* name = child.attribute("name").value(); // name is required, hence...
+        assertTrueMsg(*name, "parseXmlMessageDefinitions: no name given in <Message/>");
         msg.name = name;
-        peer = child->Attribute("peer");
-        local_port = child->Attribute("local_port");
-        peer_port = child->Attribute("peer_port");
+        const char* peer = child.attribute("peer").value(); // needed for bool test below (i.e., it is optional)
+
+        pugi::xml_attribute local_port = child.attribute("local_port");
+        pugi::xml_attribute peer_port = child.attribute("peer_port");
         // Use either the given peer, the default_peer, or "localhost"
-        msg.peer = peer ? peer : (default_peer ? m_default_peer : "localhost");
+        msg.peer = *peer ? peer : (*default_peer ? m_default_peer : "localhost");
         // Warn about possible run time errors (planners may simply not use a message I suppose)
         if (!(default_local_port || local_port))
           std::cout << "Warning: no default or message specific local port given for <Message name=\""
@@ -424,38 +414,33 @@ namespace PLEXIL
           std::cout << "Warning: no default or message specific peer port given for <Message name=\""
                     << name << "\"/>\n         this will cause a run time error if "
                     << name << "it is called to receive an incoming command/message\n";
-        msg.local_port = local_port ? atoi(local_port) : m_default_local_port;
-        msg.peer_port = peer_port ? atoi(peer_port) : m_default_peer_port;
+        msg.local_port = local_port ? local_port.as_uint() : m_default_local_port;
+        msg.peer_port = peer_port ? peer_port.as_uint() : m_default_peer_port;
         // Walk the <Parameter/> elements of this <Message/>
-        for (const TiXmlElement* param = child->FirstChildElement(); param != NULL; param = param->NextSiblingElement())
+        for (pugi::xml_node param = child.first_child(); !param.empty(); param = param.next_sibling())
           {
             Parameter arg;
-            const char* param_desc = NULL;
-            const char* param_type = NULL;
-            const char* param_elements = NULL;
-            // const char* param_text = NULL;
-            // param_text = param->GetText();
-            // if (param_text) printf("\n\nparam_text: %s\n\n", param_text);
             // Get the description (if any)
-            param_desc = param->Attribute("desc");
-            if (param_desc) arg.desc = param_desc; // only assign it if it exists
+            pugi::xml_attribute param_desc = param.attribute("desc");
+            if (param_desc)
+              arg.desc = param_desc.value(); // only assign it if it exists
             // Get the (required) type
-            param_type = param->Attribute("type");
-            assertTrueMsg(param_type, "parseXmlMessageDefinitions: no type for parameter given in <Message name=\""
+            const char* param_type = param.attribute("type").value();
+            assertTrueMsg(*param_type, "parseXmlMessageDefinitions: no type for parameter given in <Message name=\""
                           << name << "\"/>");
             arg.type = param_type;
             // Get the length, which is required
-            len = param->Attribute("bytes");
+            pugi::xml_attribute len = param.attribute("bytes");
             assertTrueMsg(len, "parseXmlMessageDefinitions: no parameter length (in bytes) given in <Message name=\""
                           << name << "\"/>");
-            arg.len = atoi(len);
+            arg.len = len.as_uint();
             assertTrueMsg((arg.len > 0),
                           "parseXmlMessageDefinitions: zero length (in bytes) parameter given in <Message name=\""
                           << name << "\"/>");
             // Get the number of elements for the array types
             int size = 1;
-            param_elements = param->Attribute("elements");
-            if (param_elements) size = atoi(param_elements);
+            pugi::xml_attribute param_elements = param.attribute("elements");
+            if (param_elements) size = param_elements.as_uint();
             arg.elements = size;
             // Do some error checking for reasonable/usable encoding/decoding byte lengths
             if (arg.type.find("array") != -1)
@@ -498,7 +483,7 @@ namespace PLEXIL
             msg.len += arg.len * size; // only arrays are not of size 1
             msg.parameters.push_back(arg);
           }
-        m_messages[child->Attribute("name")]=msg; // record the message with the name as the key
+        m_messages[child.attribute("name").value()]=msg; // record the message with the name as the key
         m_execInterface.registerCommandInterface(LabelStr(name), getId()); // register name with executeCommand
       }
   }
@@ -895,7 +880,7 @@ namespace PLEXIL
                               ") used in the plan are not compatible");
                 encode_string(str, buffer, start_index);
                 start_index += len;
-              }                
+              }
           }
         else
           {

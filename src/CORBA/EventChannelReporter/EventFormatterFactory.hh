@@ -31,8 +31,11 @@
 #include "LabelStr.hh"
 #include <map>
 
-// Forward reference w/o namespace
-class TiXmlElement;
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL
 {
@@ -44,7 +47,6 @@ namespace PLEXIL
   typedef Id<EventFormatter> EventFormatterId;
   class StructuredEventFormatter;
   typedef Id<StructuredEventFormatter> StructuredEventFormatterId;
-  class InterfaceManagerBase;
 
   /**
    * @brief Factory class for EventFormatter instances.
@@ -58,12 +60,10 @@ namespace PLEXIL
      * @brief Creates a new EventFormatter instance with the type associated with the name and
      *        the given configuration XML.
      * @param xml The configuration XML specifying the EventFormatter.
-     * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
      * @return The Id for the new EventFormatter.
      */
 
-    static EventFormatterId createInstance(const TiXmlElement* xml,
-					   InterfaceManagerBase & mgr);
+    static EventFormatterId createInstance(const pugi::xml_node& xml);
 
     /**
      * @brief Checks whether or not the given EventFormatterFactory is registered.
@@ -95,11 +95,9 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new EventFormatter of the appropriate type.
      * @param xml The configuration XML for the instantiated formatter.
-     * @param mgr Reference to the owning InterfaceManager instance.
      * @return The Id for the new EventFormatter.
      */
-    virtual EventFormatterId create(const TiXmlElement* xml,
-					InterfaceManagerBase & mgr) const = 0;
+    virtual EventFormatterId create(const pugi::xml_node& xml) const = 0;
 
     EventFormatterFactory(const LabelStr& name)
       : m_name(name)
@@ -146,10 +144,9 @@ namespace PLEXIL
      * @return The Id for the new EventFormatter.
      */
 
-    EventFormatterId create(const TiXmlElement* xml,
-			    InterfaceManagerBase & mgr) const
+    EventFormatterId create(const pugi::xml_node& xml) const
     {
-      EventFormatterId result = (new FormatterType(xml, mgr))->getId();
+      EventFormatterId result = (new FormatterType(xml))->getId();
       return result;
     }
   };
@@ -166,12 +163,10 @@ namespace PLEXIL
      * @brief Creates a new StructuredEventFormatter instance with the type associated with the name and
      *        the given configuration XML.
      * @param xml The configuration XML specifying the StructuredEventFormatter.
-     * @param mgr A reference to the owning InterfaceManager (as an InterfaceManagerBase).
      * @return The Id for the new StructuredEventFormatter.
      */
 
-    static StructuredEventFormatterId createInstance(const TiXmlElement* xml,
-						     InterfaceManagerBase & mgr);
+    static StructuredEventFormatterId createInstance(const pugi::xml_node& xml);
 
     /**
      * @brief Checks whether or not the given StructuredEventFormatterFactory is registered.
@@ -203,11 +198,9 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new StructuredEventFormatter of the appropriate type.
      * @param xml The configuration XML for the instantiated formatter.
-     * @param mgr Reference to the owning InterfaceManager instance.
      * @return The Id for the new StructuredEventFormatter.
      */
-    virtual StructuredEventFormatterId create(const TiXmlElement* xml,
-					InterfaceManagerBase & mgr) const = 0;
+    virtual StructuredEventFormatterId create(const pugi::xml_node& xml) const = 0;
 
     StructuredEventFormatterFactory(const LabelStr& name)
       : m_name(name)
@@ -254,10 +247,9 @@ namespace PLEXIL
      * @return The Id for the new StructuredEventFormatter.
      */
 
-    StructuredEventFormatterId create(const TiXmlElement* xml,
-			    InterfaceManagerBase & mgr) const
+    StructuredEventFormatterId create(const pugi::xml_node& xml) const
     {
-      StructuredEventFormatterId result = (new FormatterType(xml, mgr))->getId();
+      StructuredEventFormatterId result = (new FormatterType(xml))->getId();
       return result;
     }
   };

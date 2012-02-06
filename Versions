@@ -1,12 +1,8 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
-1.7 (September 2011, SVN revision 2471)
+Latest changes:
  - Added support for Android operating system
  - refactored README file, added Versions file
- - new Gantt-style temporal viewer for executed plans
- - new UDP-based adapter for external communication
- - signficant code refactoring and performance enhancement
- - numerous bug fixes and minor enhancements throughout system
 
 1.6  (December 2010, SVN revision 1959)
  - Plexil executive and interface

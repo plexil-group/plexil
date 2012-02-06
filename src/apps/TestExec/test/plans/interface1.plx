@@ -11,8 +11,23 @@
       <DeclareVariable>
         <Name>bar</Name>
         <Type>Integer</Type>
+		<InitialValue>
+		  <IntegerValue>42</IntegerValue>
+		</InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
+	<PostCondition>
+	  <AND>
+		<EQNumeric>
+		  <IntegerVariable>foo</IntegerVariable>
+		  <IntegerValue>42</IntegerValue>
+		</EQNumeric>
+		<EQNumeric>
+		  <IntegerVariable>bar</IntegerVariable>
+		  <IntegerValue>55</IntegerValue>
+		</EQNumeric>
+	  </AND>
+	</PostCondition>
     <NodeBody>
       <NodeList>
         <Node NodeType="Assignment" >

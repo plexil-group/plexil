@@ -28,13 +28,12 @@
 #define INTERFACE_ADAPTER_H
 
 #include "ExecDefs.hh"
+#include "pugixml.hpp"
+
 #include <list>
 #include <map>
 #include <set>
 #include <vector>
-
-// forward references without namespace
-class TiXmlElement;
 
 namespace PLEXIL
 {
@@ -72,11 +71,11 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      * @param execInterface Reference to the parent AdapterExecInterface object.
-     * @param xml A const pointer to the TiXmlElement describing this adapter
-     * @note The instance maintains a shared pointer to the TiXmlElement.
+     * @param xml Const reference to the XML element describing this adapter
+     * @note The instance maintains a shared reference to the XML.
      */
     InterfaceAdapter(AdapterExecInterface& execInterface, 
-		     const TiXmlElement * xml);
+					 const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -120,34 +119,34 @@ namespace PLEXIL
     virtual bool shutdown() = 0;
 
     /**
-     * @brief Register one LookupOnChange.
-     * @param uniqueId The unique ID of this lookup.
-     * @param stateKey The state key for this lookup.
-     * @param tolerances A vector of tolerances for the LookupOnChange.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+     * @brief Perform an immediate lookup on an existing state.
+     * @param state The state.
+     * @return The current value for the state.
+     * @note Adapters should provide their own methods.  The default method raises an assertion.
      */
+    virtual double lookupNow(const State& state);
 
-    virtual void registerChangeLookup(const LookupKey& uniqueId,
-				      const StateKey& stateKey,
-				      const std::vector<double>& tolerances);
+	/**
+	 * @brief Inform the interface that it should report changes in value of this state.
+	 * @param state The state.
+     * @note Adapters should provide their own methods.  The default method raises an assertion.
+	 */
+	virtual void subscribe(const State& state);
 
     /**
-     * @brief Terminate one LookupOnChange.
-     * @param uniqueId The unique ID of the lookup to be terminated.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+     * @brief Inform the interface that a lookup should no longer receive updates.
+     * @note Adapters should provide their own methods.  The default method raises an assertion.
      */
+    virtual void unsubscribe(const State& state);
 
-    virtual void unregisterChangeLookup(const LookupKey& uniqueId);
-
-    /**
-     * @brief Perform an immediate lookup of the requested state.
-     * @param stateKey The state key for this lookup.
-     * @param dest A (reference to a) vector of doubles where the result is to be stored.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void lookupNow(const StateKey& stateKey,
-			   std::vector<double>& dest);
+	/**
+	 * @brief Advise the interface of the current thresholds to use when reporting this state.
+	 * @param state The state.
+	 * @param hi The upper threshold, at or above which to report changes.
+	 * @param lo The lower threshold, at or below which to report changes.
+     * @note Adapters should provide their own methods.  The default method raises an assertion.
+	 */
+	virtual void setThresholds(const State& state, double hi, double lo);
 
     /**
      * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
@@ -195,29 +194,6 @@ namespace PLEXIL
 			     const std::list<double>& args, 
 			     ExpressionId cmd_ack, ExpressionId ack);
 
-    //
-    // Methods provided by the base class to facilitate implementations
-    //
-
-    /**
-     * @brief Register one asynchronous lookup, so that other lookups using the same state will share data.
-     * @param uniqueId The unique ID of this lookup.
-     * @param stateKey The state key for this lookup.
-     */
-    void registerAsynchLookup(const LookupKey& uniqueId,
-			      const StateKey& stateKey);
-    
-    /**
-     * @brief Unregister one asynchronous lookup.
-     * @param uniqueId The unique ID of this lookup.
-     */
-    void unregisterAsynchLookup(const LookupKey& uniqueId);
-
-    /**
-     * @brief Is this state key subscribed for lookups (i.e. LookupOnChange)?
-     */
-    bool isStateKeySubscribed(const StateKey& key) const;
-
     /**
      * @brief Register this adapter based on its XML configuration data.
      * @note The adapter is presumed to be fully initialized and working at the time of this call.
@@ -236,7 +212,7 @@ namespace PLEXIL
     /**
      * @brief Get the configuration XML for this instance.
      */
-    const TiXmlElement* getXml()
+    const pugi::xml_node& getXml()
     {
       return m_xml;
     }
@@ -252,50 +228,8 @@ namespace PLEXIL
   protected:
 
     //
-    // Types provided by the base class to facilitate implementations
-
-    typedef std::map<StateKey, std::set<LookupKey> > StateToLookupMap;
-
-    //
     // API which all subclasses must implement
     //
-
-    //
-    // Methods provided by the base class to facilitate implementations
-    //
-
-    /**
-     * @brief Get an iterator that points to the start of the asynchronous lookup map.
-     */
-    StateToLookupMap::const_iterator getAsynchLookupsBegin();
-
-    /**
-     * @brief Get an iterator that points to the end of the asynchronous lookup map.
-     */
-    StateToLookupMap::const_iterator getAsynchLookupsEnd();
-
-    /**
-     * @brief Get an iterator that points to the given key, if found; else returns end.
-     */
-    StateToLookupMap::const_iterator findStateKey(const StateKey&);
-
-    /**
-     * @brief Get an iterator that points to the given key, if found; else returns end.
-     */
-    StateToLookupMap::const_iterator findLookupKey(const LookupKey&);
-
-
-    /**
-     * @brief Given a state key, fetch the corresponding state.
-     * @return True if the state was found, false otherwise.
-     */
-    bool getState(const StateKey& key, State& state);
-
-    /**
-     * @brief Given a state, fetch the corresponding state key.
-     * @return True if the key was found, false otherwise.
-     */
-    bool getStateKey(const State& state, StateKey& stateKey);
 
     AdapterExecInterface& m_execInterface;
 
@@ -310,11 +244,8 @@ namespace PLEXIL
     // Member variables
     //
 
-    const TiXmlElement * m_xml;
-
+    const pugi::xml_node m_xml;
     InterfaceAdapterId m_id;
-
-    StateToLookupMap m_asynchLookups;
   };
 
   typedef Id<InterfaceAdapter> InterfaceAdapterId;

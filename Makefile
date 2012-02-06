@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter GanttListener UdpAdapter standard-plexil checker plexilsim robosim
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim
 
 # convenience target for A4O project
 A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener plexilsim
@@ -44,7 +44,10 @@ A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener 
 # convenience target for ASA project
 asa ASA: exec-core app-framework luv standard-plexil
 
-TestExec: exec-core app-framework LuvListener luv
+# convenience target for AMO project
+amo AMO: exec-core app-framework luv plexil-compiler
+
+TestExec: exec-core PlanDebugListener LuvListener luv
 	$(MAKE) -C src/apps/TestExec
 
 plexilsim: utils ipc IpcUtils
@@ -53,7 +56,7 @@ plexilsim: utils ipc IpcUtils
 robosim: UniversalExec IpcAdapter
 	$(MAKE) -C src/apps/robosim
 
-UniversalExec: exec-core app-framework
+universal-exec UniversalExec: exec-core app-framework
 	$(MAKE) -C src/universal-exec
 
 checker:
@@ -65,10 +68,13 @@ luv:
 standard-plexil:
 	(cd src/standard-plexil && ant install)
 
-tinyxml:
-	$(MAKE) -C third-party/tinyxml -f Makefile.plexil
+plexil-compiler:
+	$(MAKE) -C src/compilers/plexil
 
-utils: tinyxml
+pugixml:
+	$(MAKE) -C third-party/pugixml/src
+
+utils: pugixml
 	$(MAKE) -C src/utils
 
 exec-core: utils
@@ -77,11 +83,11 @@ exec-core: utils
 IpcAdapter: app-framework IpcUtils
 	$(MAKE) -C src/interfaces/IpcAdapter
 
+UdpAdapter: app-framework
+	$(MAKE) -C src/interfaces/UdpAdapter
+
 GanttListener: utils exec-core app-framework
 	$(MAKE) -C src/interfaces/GanttListener
-
-UdpAdapter: utils exec-core app-framework
-	$(MAKE) -C src/interfaces/UdpAdapter
 
 IpcUtils: ipc
 	$(MAKE) -C src/interfaces/IpcUtils
@@ -89,7 +95,10 @@ IpcUtils: ipc
 LuvListener: exec-core sockets
 	$(MAKE) -C src/interfaces/LuvListener
 
-app-framework: exec-core sockets LuvListener
+PlanDebugListener: exec-core
+	$(MAKE) -C src/interfaces/PlanDebugListener
+
+app-framework: exec-core sockets LuvListener PlanDebugListener
 	$(MAKE) -C src/app-framework
 
 sockets:
@@ -107,14 +116,16 @@ clean-ipc:
 	-$(RM) lib/libipc.*
 
 clean: clean-ipc
-	-$(MAKE) -C third-party/tinyxml $@
+	-$(MAKE) -C third-party/pugixml/src $@
 	-$(MAKE) -C src/utils $@
 	-$(MAKE) -C src/exec $@
+	-$(MAKE) -C src/interfaces/GanttListener $@
 	-$(MAKE) -C src/interfaces/IpcAdapter $@
 	-$(MAKE) -C src/interfaces/IpcUtils $@
 	-$(MAKE) -C src/interfaces/LuvListener $@
-	-$(MAKE) -C src/interfaces/GanttListener $@
+	-$(MAKE) -C src/interfaces/PlanDebugListener $@
 	-$(MAKE) -C src/interfaces/Sockets $@
+	-$(MAKE) -C src/interfaces/UdpAdapter $@
 	-$(MAKE) -C src/CORBA $@
 	-$(MAKE) -C src/app-framework $@
 	-$(MAKE) -C src/universal-exec $@

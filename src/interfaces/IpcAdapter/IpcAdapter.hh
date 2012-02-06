@@ -36,7 +36,6 @@
 // Forward declarations outside of namespace
 struct PlexilMsgBase;
 struct PlexilStringValueMsg;
-class TiXmlElement;
 
 #define TRANSACTION_ID_SEPARATOR_CHAR ':'
 
@@ -72,10 +71,10 @@ public:
   /**
    * @brief Constructor from configuration XML.
    * @param execInterface Reference to the parent AdapterExecInterface object.
-   * @param xml A const pointer to the TiXmlElement describing this adapter
-   * @note The instance maintains a shared pointer to the TiXmlElement.
+   * @param xml A const reference to the XML element describing this adapter
+   * @note The instance maintains a shared pointer to the XML.
    */
-  IpcAdapter(AdapterExecInterface& execInterface, const TiXmlElement * xml);
+  IpcAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml);
 
   /**
    * @brief Destructor.
@@ -119,38 +118,37 @@ public:
   virtual bool shutdown();
 
   /**
-   * @brief Register one LookupOnChange.
-   * @param uniqueId The unique ID of this lookup.
-   * @param stateKey The state key for this lookup.
-   * @param tolerances A vector of tolerances for the LookupOnChange.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   * @brief Perform an immediate lookup on an existing state.
+   * @param state The state.
+   * @return The current value for the state.
    */
-
-  virtual void registerChangeLookup(const LookupKey& uniqueId, const StateKey& stateKey, const std::vector<double>& tolerances);
+  virtual double lookupNow(const State& state);
 
   /**
-   * @brief Terminate one LookupOnChange.
-   * @param uniqueId The unique ID of the lookup to be terminated.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
    */
-
-  virtual void unregisterChangeLookup(const LookupKey& uniqueId);
+  virtual void subscribe(const State& state);
 
   /**
-   * @brief Perform an immediate lookup of the requested state.
-   * @param stateKey The state key for this lookup.
-   * @param dest A (reference to a) vector of doubles where the result is to be stored.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   * @param state The state.
    */
+  virtual void unsubscribe(const State& state);
 
-  virtual void lookupNow(const StateKey& stateKey, std::vector<double>& dest);
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   */
+  virtual void setThresholds(const State& state, double hi, double lo);
 
   /**
    * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
    * @param node The Node requesting the update.
    * @param valuePairs A map of <LabelStr key, value> pairs.
    * @param ack The expression in which to store an acknowledgement of completion.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
   virtual void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
@@ -161,7 +159,6 @@ public:
    * @param args The command arguments expressed as doubles.
    * @param dest The expression in which to store any value returned from the command.
    * @param ack The expression in which to store an acknowledgement of command transmission.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
   virtual void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
@@ -172,7 +169,6 @@ public:
    * @param cmdArgs The command arguments expressed as doubles.
    * @param cmdAck The acknowledgment of the pending command
    * @param abrtAck The expression in which to store an acknowledgment of command abort.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
   virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
@@ -192,49 +188,49 @@ private:
    * @brief handles SEND_MESSAGE_COMMAND commands from the exec
    */
   void executeSendMessageCommand(const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+								 ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
   void executeSendReturnValueCommand(const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+									 ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
   void executeReceiveMessageCommand(const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+									ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
   void executeReceiveCommandCommand(const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+									ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles GET_PARAMETER_COMMAND commands from the exec
    */
   void executeGetParameterCommand(const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+								  ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles UPDATE_LOOKUP_COMMAND commands from the exec
    */
   void executeUpdateLookupCommand(const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+								  ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles all other commands from the exec
    */
   void executeDefaultCommand(const LabelStr& name, const std::list<double>& args,
-      ExpressionId dest, ExpressionId ack);
+							 ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief Parses external lookups from xml and puts them in the lookup map.
    * If external is NULL, does nothing.
    */
-  void parseExternalLookups(const TiXmlElement* external);
+  void parseExternalLookups(const pugi::xml_node& external);
 
   /**
    * @brief Handler function as seen by adapter.
@@ -302,17 +298,17 @@ private:
   /**
    * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
    */
-  static double parseReturnValues(const std::vector<const PlexilMsgBase*>& msgs);
+  static double parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs);
 
   //
   // Private data types
   //
 
   //* brief Associates serial numbers with active LookupOnChange instances
-  typedef std::map<uint32_t, StateKey> IpcChangeLookupMap;
+  typedef std::map<uint32_t, State> IpcChangeLookupMap;
 
   //* brief Cache of message/command/lookup names we're actively listening for
-  typedef std::map<std::string, StateKey> ActiveListenerMap;
+  typedef std::map<std::string, State> ActiveListenerMap;
 
   //* brief Cache of command serials and their corresponding ack and return value variables
   typedef std::map<uint32_t, std::pair<ExpressionId, ExpressionId> > PendingCommandsMap;
@@ -372,8 +368,8 @@ private:
   //* @brief Serial # of current pending LookupNow request, or 0
   uint32_t m_pendingLookupSerial;
 
-  //* @brief Pointer to destination of current pending LookupNow request, or NULL
-  std::vector<double>* m_pendingLookupDestination;
+  //* @brief Place to store result of current pending LookupNow request
+  double m_pendingLookupResult;
 
   //* @brief Map of external lookup values.
   ExternalLookupMap m_externalLookups;

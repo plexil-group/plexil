@@ -37,9 +37,9 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "StateCache.hh"
+#include "timespec-utils.hh"
+
 #include <cerrno>
-#include <cmath> // for modf
-#include <iomanip> // for setprecision()
 
 namespace PLEXIL
 {
@@ -48,8 +48,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface),
-      m_timeVector(1, 0.0)
+    : InterfaceAdapter(execInterface)
   {
     initSigevent();
   }
@@ -57,13 +56,12 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    * @param execInterface Reference to the parent AdapterExecInterface object.
-   * @param xml A const pointer to the TiXmlElement describing this adapter
-   * @note The instance maintains a shared pointer to the TiXmlElement.
+   * @param xml A const reference to the XML element describing this adapter
+   * @note The instance maintains a shared pointer to the XML.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface, 
-                                     const TiXmlElement * xml)
-    : InterfaceAdapter(execInterface, xml),
-      m_timeVector(1, 0.0)
+                                     const pugi::xml_node& xml)
+    : InterfaceAdapter(execInterface, xml)
   {
     initSigevent();
   }
@@ -92,7 +90,14 @@ namespace PLEXIL
    */
   bool PosixTimeAdapter::start()
   {
-    return true;
+    // Create a timer
+    int status = timer_create(CLOCK_REALTIME,
+                              &m_sigevent,
+                              &m_timer);
+    condDebugMsg(0 != status,
+		 "PosixTimeAdapter:start",
+		 " timer_create failed, errno = " << errno);
+    return (status == 0);
   }
 
   /**
@@ -101,21 +106,14 @@ namespace PLEXIL
    */
   bool PosixTimeAdapter::stop()
   {
-    // Delete all active timers
-    LookupTimerMap::const_iterator it = m_lookupTimerMap.begin();
-    while (it != m_lookupTimerMap.end())
-      {
-        // Delete the timer
-        int status = timer_delete(it->second);
-        assertTrueMsg(status == 0,
-                      "PosixTimeAdapter::stop: timer_delete failed, errno = " << errno);
-        it++;
-      }
-
-    // Clear the map
-    m_lookupTimerMap.clear();
-
-    return true;
+    // Disable the timer
+    stopTimer();
+    // Now delete it
+    int status = timer_delete(m_timer);
+    condDebugMsg(status != 0,
+		 "PosixTimeAdapter:stop",
+		 " timer_delete failed, errno = " << errno);
+    return (status == 0);
   }
 
   /**
@@ -137,81 +135,77 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Register one LookupOnChange.
-   * @param uniqueId The unique ID of this lookup.
-   * @param stateKey The state key for this lookup.
-   * @param tolerances A vector of tolerances for the LookupOnChange.
-   */
-  void PosixTimeAdapter::registerChangeLookup(const LookupKey& uniqueId,
-                                              const StateKey& stateKey,
-                                              const std::vector<double>& tolerances)
-  {
-    assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
-                  "PosixTimeAdaptor only implements lookups for \"time\"");
-    assertTrueMsg(tolerances.size() == 1,
-                  "Wrong number of tolerances for LookupOnChange(\"time\")");
-    assertTrueMsg(tolerances[0] > 0,
-                  "LookupOnChange(\"time\") requires a positive tolerance");
-    checkError(m_lookupTimerMap.find(uniqueId) == m_lookupTimerMap.end(),
-               "Internal error: lookup key already in use!");
-
-    // Create a timer
-    timer_t tymr;
-    int status = timer_create(CLOCK_REALTIME,
-                              &m_sigevent,
-                              &tymr);
-    assertTrueMsg(status == 0,
-                  "lookupOnChange: timer_create failed, errno = " << errno);
-
-    // Set up a timer to repeat at the specified tolerance
-    // *** N.B. Tolerance is assumed to be in seconds ***
-    itimerspec tymrSpec;
-    doubleToTimespec(tolerances[0], tymrSpec.it_interval);
-    tymrSpec.it_value = tymrSpec.it_interval;
-    status = timer_settime(tymr,
-                           0, // flags: ~TIMER_ABSTIME
-                           &tymrSpec,
-                           NULL);
-    assertTrueMsg(status == 0,
-                  "lookupOnChange: timer_settime failed, errno = " << errno);
-
-    // Add it to the map
-    m_lookupTimerMap[uniqueId] = tymr;
-  }
-
-  /**
-   * @brief Terminate one LookupOnChange.
-   * @param uniqueId The unique ID of the lookup to be terminated.
-   */
-  void PosixTimeAdapter::unregisterChangeLookup(const LookupKey& uniqueId)
-  {
-    LookupTimerMap::iterator where = m_lookupTimerMap.find(uniqueId);
-    if (where == m_lookupTimerMap.end())
-      {
-        return; // no such lookup, or already unregistered
-      }
-
-    // Delete the timer
-    int status = timer_delete(where->second);
-    assertTrueMsg(status == 0,
-                  "lookupOnChange: timer_delete failed, errno = " << errno);
-
-    // Delete the map entry
-    m_lookupTimerMap.erase(where);
-  }
-
-  /**
    * @brief Perform an immediate lookup of the requested state.
-   * @param stateKey The state key for this lookup.
-   * @param dest A (reference to a) vector of doubles where the result is to be stored.
+   * @param state The state for this lookup.
+   * @return The current value for this lookup.
    */
-  void PosixTimeAdapter::lookupNow(const StateKey& stateKey,
-                                   std::vector<double>& dest)
+  double PosixTimeAdapter::lookupNow(const State& state)
   {
-    assertTrueMsg(stateKey == m_execInterface.getStateCache()->getTimeStateKey(),
-                  "PosixTimeAdaptor only implements lookups for \"time\"");
-    dest.resize(1);
-    dest[0] = getCurrentTime();
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "PosixTimeAdapter only implements lookups for \"time\"");
+    return getCurrentTime();
+  }
+
+  /**
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
+   */
+
+  void PosixTimeAdapter::subscribe(const State& state)
+  {
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "PosixTimeAdapter only implements lookups for \"time\"");
+  }
+
+  /**
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   * @param state The state.
+   */
+  void PosixTimeAdapter::unsubscribe(const State& state)
+  {
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "PosixTimeAdapter only implements lookups for \"time\"");
+
+    // Disable the timer
+    stopTimer();
+  }
+
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   */
+  void PosixTimeAdapter::setThresholds(const State& state, double hi, double lo)
+  {
+    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
+                  "PosixTimeAdapter only implements lookups for \"time\"");
+
+    // Get the current time
+    timespec now;
+    assertTrueMsg(0 == clock_gettime(CLOCK_REALTIME, &now),
+		  "PosixTimeAdapter::setThresholds: clock_gettime() failed, errno = " << errno);
+
+    // Set up a timer to go off at the high time
+    itimerspec tymrSpec = {{0, 0}, {0, 0}};
+    tymrSpec.it_value = doubleToTimespec(hi) - now;
+    if (tymrSpec.it_value.tv_nsec < 0 || tymrSpec.it_value.tv_sec < 0) {
+      // Already past the scheduled time, submit wakeup
+      debugMsg("PosixTimeAdapter:setThresholds",
+	       " new value " << Expression::valueToString(hi) << " is in past, waking up Exec");
+      timerTimeout();
+      return;
+    }
+
+    tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 0; // no repeats
+    assertTrueMsg(0 == timer_settime(m_timer,
+				     0, // flags: ~TIMER_ABSTIME
+				     &tymrSpec,
+				     NULL),
+                  "PosixTimeAdapter::setThresholds: timer_settime failed, errno = " << errno);
+    debugMsg("PosixTimeAdapter:setThresholds",
+	     " timer set for " << Expression::valueToString(hi)
+	     << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);
   }
 
   //
@@ -225,39 +219,14 @@ namespace PLEXIL
   double PosixTimeAdapter::getCurrentTime()
   {
     timespec ts;
-    int status = clock_gettime(CLOCK_REALTIME, &ts);
-    assertTrueMsg(status == 0,
-                  "lookupNow: clock_gettime() failed, errno = " << errno);
+    if (0 != clock_gettime(CLOCK_REALTIME, &ts)) {
+      debugMsg("PosixTimeAdapter:getCurrentTime",
+	       " clock_gettime() failed, errno = " << errno << "; returning UNKNOWN");
+      return Expression::UNKNOWN();
+    }
     double tym = timespecToDouble(ts);
-    debugMsg("PosixTimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
+    debugMsg("PosixTimeAdapter:getCurrentTime", " returning " << Expression::valueToString(tym));
     return tym;
-  }
-
-
-  /**
-   * @brief Convert a timespec value into a double.
-   * @param ts Reference to a constant timespec instance.
-   * @return The timespec value converted to a double float.
-   */
-  double PosixTimeAdapter::timespecToDouble(const timespec& ts)
-  {
-    return ((double) ts.tv_sec) +
-      ((double) ts.tv_nsec) / 1.0e9;
-  }
-
-  /**
-   * @brief Convert a double value into a timespec.
-   * @param tym The double to be converted.
-   * @param result Reference to a writable timespec instance.
-   */
-
-  void PosixTimeAdapter::doubleToTimespec(double tym, timespec& result)
-  {
-    double seconds = 0;
-    double fraction = modf(tym, &seconds);
-
-    result.tv_sec = (time_t) seconds;
-    result.tv_nsec = (long) (fraction * 1.0e9);
   }
 
   //
@@ -293,10 +262,28 @@ namespace PLEXIL
    */
   void PosixTimeAdapter::timerTimeout()
   {
-    m_timeVector[0] = getCurrentTime();
-    m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeStateKey(),
-                                      m_timeVector);
+    double time = getCurrentTime();
+    debugMsg("PosixTimeAdapter:lookupOnChange",
+	     " timer timeout at " << Expression::valueToString(time));
+    m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(),
+                                      time);
     m_execInterface.notifyOfExternalEvent();
+  }
+
+  /**
+   * @brief Stop the timer.
+   */
+  void PosixTimeAdapter::stopTimer()
+  {
+    static itimerspec sl_tymrDisable = {{0, 0}, {0, 0}};
+    // tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 
+    //   tymrSpec.it_value.tv_sec = tymrSpec.it_value.tv_nsec = 0;
+    condDebugMsg(0 != timer_settime(m_timer,
+				    0, // flags: ~TIMER_ABSTIME
+				    &sl_tymrDisable,
+				    NULL),
+		 "PosixTimeAdapter:stopTimer",
+		 " timer_settime failed, errno = " << errno);
   }
 
 }

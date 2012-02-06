@@ -8,9 +8,9 @@
                 <MaxSize>4</MaxSize>
                 <InitialValue>
                     <RealValue>0.0</RealValue>
+                    <RealValue>-0.0</RealValue>
                     <RealValue>0.0</RealValue>
-                    <RealValue>0.0</RealValue>
-                    <RealValue>0.0</RealValue>
+                    <RealValue>-0.0</RealValue>
                 </InitialValue>
             </DeclareArray>
             <DeclareArray LineNo="4" ColNo="2">

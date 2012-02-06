@@ -29,6 +29,7 @@
 
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -54,9 +55,23 @@ namespace PLEXIL
     ExecListenerFilter();
 
     /**
+     * @brief Constructor from configuration XML.
+     */
+    ExecListenerFilter(const pugi::xml_node& xml);
+
+    /**
      * @brief Destructor.
      */
     virtual ~ExecListenerFilter();
+
+    /**
+     * @brief Get the configuration XML of this instance.
+     * @return A const reference to the XML element.
+     */
+    const pugi::xml_node& getXml() const
+    {
+      return m_xml;
+    }
 
     /**
      * @brief Determine whether this node transition event should be reported.
@@ -112,6 +127,11 @@ namespace PLEXIL
     // Member variables
     //
     ExecListenerFilterId m_id;
+
+    /**
+     * @brief The configuration XML used at construction time.
+     */
+    const pugi::xml_node m_xml;
   };
 
 }

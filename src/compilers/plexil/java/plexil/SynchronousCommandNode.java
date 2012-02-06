@@ -37,6 +37,16 @@ public class SynchronousCommandNode extends PlexilTreeNode
         super(t);
     }
 
+    public SynchronousCommandNode(SynchronousCommandNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new SynchronousCommandNode(this);
+	}
+
     //
     // Format is
     // (SYNCHRONOUS_COMMAND_KYWD (assignment | commandInvocation) (expression expression?)? )

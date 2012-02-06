@@ -33,32 +33,36 @@
 
 #include "InterfaceManager.hh"
 
+#include "AdapterConfiguration.hh"
 #include "AdapterConfigurationFactory.hh"
 #include "AdapterFactory.hh"
-#include "AdapterConfiguration.hh"
+#include "BooleanVariable.hh"
 #include "ControllerFactory.hh"
+#include "Command.hh"
+#include "CoreExpressions.hh"
 #include "Debug.hh"
+#include "DefaultAdapterConfiguration.hh"
 #include "DummyAdapter.hh"
-#include "UtilityAdapter.hh"
+#include "DynamicLoader.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecController.hh"
-#include "PlanDebugListener.hh"
 #include "ExecListenerFactory.hh"
+#include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "NewLuvListener.hh"
-#include "TimeAdapter.hh"
-#include "ResourceArbiterInterface.hh"
+#include "LuvListener.hh"
 #include "Node.hh"
+#include "PlanDebugListener.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
+#include "ResourceArbiterInterface.hh"
 #include "StateCache.hh"
-#include "CommandHandle.hh"
-#include "CoreExpressions.hh"
-#include "DynamicLoader.hh"
-#include "DefaultAdapterConfiguration.hh"
+#include "TimeAdapter.hh"
+#include "Update.hh"
+#include "UtilityAdapter.hh"
 
+#include <cstring>
 #include <limits>
 #include <sstream>
 
@@ -77,9 +81,8 @@ namespace PLEXIL
       m_application(app),
       m_adapterConfig(),
       m_valueQueue(),
-      m_listeners(),
+      m_listenerHub((new ExecListenerHub())->getId()),
       m_adapters(),
-      m_lookupAdapterMap(),
       m_ackToCmdMap(),
       m_destToCmdMap(),
       m_raInterface(),
@@ -87,7 +90,6 @@ namespace PLEXIL
       m_currentTime(std::numeric_limits<double>::min()),
 	  m_lastMark(0)
   {
-
     // Every application has access to the dummy and utility adapters
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
     REGISTER_ADAPTER(UtilityAdapter, "Utility");
@@ -97,7 +99,7 @@ namespace PLEXIL
 
     // Every application should have access to the Plexil Viewer (formerly LUV)
     // and Plan Debug Listeners
-    REGISTER_EXEC_LISTENER(NewLuvListener, "LuvListener");
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
     REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
 
     // Every application has access to the default adapter configuration
@@ -110,13 +112,8 @@ namespace PLEXIL
   InterfaceManager::~InterfaceManager()
   {
     // unregister and delete listeners
-    std::vector<ExecListenerId>::iterator lit = m_listeners.begin();
-    while (lit != m_listeners.end()) {
-      ExecListenerId l = *lit;
-      lit = m_listeners.erase(lit);
-      m_exec->removeListener(l);
-      delete (ExecListener*) l;
-    }
+	m_exec->setExecListenerHub(ExecListenerHubId::noId());
+	delete (ExecListenerHub*) m_listenerHub; // deletes listeners too
 
     // unregister and delete adapters
     // *** kludge for buggy std::set template ***
@@ -139,6 +136,12 @@ namespace PLEXIL
     }
   }
 
+  void InterfaceManager::setExec(const PlexilExecId& exec)
+  {
+	ExternalInterface::setExec(exec);
+	exec->setExecListenerHub(m_listenerHub);
+  }
+
   //
   // Top-level loop
   //
@@ -159,106 +162,105 @@ namespace PLEXIL
    * @param configXml The XML element used for interface configuration.
    * @return true if successful, false otherwise.
    */
-  bool InterfaceManager::constructInterfaces(const TiXmlElement * configXml)
+  bool InterfaceManager::constructInterfaces(const pugi::xml_node& configXml)
   {
-    if (configXml == NULL) {
+    if (configXml.empty()) {
       debugMsg("InterfaceManager:constructInterfaces", " configuration is NULL, nothing to construct");
       return true;
     }
 
-    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << *configXml);
-    const char* elementType = configXml->Value();
+    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << configXml);
+    const char* elementType = configXml.name();
     if (!strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0) {
       debugMsg("InterfaceManager:constructInterfaces",
                " invalid configuration XML: \n"
-               << *configXml);
+               << configXml);
       return false;
     }
     const char* configType =
-      configXml->Attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR());
-    if (configType == 0) {
+      configXml.attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR()).value();
+    if (*configType == '\0') {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
-    } else {
+    } 
+	else {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
     }
     m_adapterConfig->getId();
 
     // Walk the children of the configuration XML element
     // and register the adapter according to the data found there
-    const TiXmlElement* element = configXml->FirstChildElement();
-    while (element != 0) {
-        debugMsg("InterfaceManager:constructInterfaces", " found element " << *element);
-        const char* elementType = element->Value();
-        if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
-            // Construct the adapter
-            InterfaceAdapterId adapter = 
-              AdapterFactory::createInstance(element,
-                                             *((AdapterExecInterface*)this));
-            if (!adapter.isId()) {
-              debugMsg("InterfaceManager:constructInterfaces",
-                       " failed to construct adapter from XML:\n"
-                       << *element);
-              return false;
-            }
-            m_adapters.insert(adapter);
-          }
-        else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
-            // Construct an ExecListener instance and attach it to the Exec
-            ExecListenerId listener = 
-              ExecListenerFactory::createInstance(element,
-                                                  (AdapterExecInterface&) *this);
-            if (!listener.isId()) {
-              debugMsg("InterfaceManager:constructInterfaces",
-                       " failed to construct listener from XML:\n"
-                       << *element);
-              return false;
-            }
-            m_listeners.push_back(listener);
-          }
-        else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
-            // Construct an ExecController instance and attach it to the application
-            ExecControllerId controller = 
-              ControllerFactory::createInstance(element, m_application);
-            if (!controller.isId()) {
-              debugMsg("InterfaceManager:constructInterfaces", 
-                       " failed to construct controller from XML:\n"
-                       << *element);
-              return false;
-            }
-            m_execController = controller;
-          }
-		else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
-			// Add to library path
-			const char* pathstring = element->GetText();
-			if (pathstring != NULL) {
-			  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-			  for (std::vector<std::string>::const_iterator it = path->begin();
-				   it != path->end();
-				   it++)
-				m_libraryPath.push_back(*it);
-			  delete path;
-			}
-		  }
-		else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
-			// Add to plan path
-			const char* pathstring = element->GetText();
-			if (pathstring != NULL) {
-			  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-			  for (std::vector<std::string>::const_iterator it = path->begin();
-				   it != path->end();
-				   it++)
-				m_planPath.push_back(*it);
-			  delete path;
-			}
-		  }
-        else {
-            debugMsg("InterfaceManager:constructInterfaces",
-                     " ignoring unrecognized XML element \""
-                     << elementType << "\"");
-          }
+    pugi::xml_node element = configXml.first_child();
+    while (!element.empty()) {
+	  debugMsg("InterfaceManager:constructInterfaces", " found element " << element.name());
+	  const char* elementType = element.name();
+	  if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
+		// Construct the adapter
+		InterfaceAdapterId adapter = 
+		  AdapterFactory::createInstance(element,
+										 *((AdapterExecInterface*)this));
+		if (!adapter.isId()) {
+		  debugMsg("InterfaceManager:constructInterfaces",
+				   " failed to construct adapter type \""
+				   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+				   << "\"");
+		  return false;
+		}
+		m_adapters.insert(adapter);
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
+		// Construct an ExecListener instance and attach it to the Exec
+		ExecListenerId listener = 
+		  ExecListenerFactory::createInstance(element);
+		if (!listener.isId()) {
+		  debugMsg("InterfaceManager:constructInterfaces",
+				   " failed to construct listener from XML");
+		  return false;
+		}
+		m_listenerHub->addListener(listener);
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
+		// Construct an ExecController instance and attach it to the application
+		ExecControllerId controller = 
+		  ControllerFactory::createInstance(element, m_application);
+		if (!controller.isId()) {
+		  debugMsg("InterfaceManager:constructInterfaces", 
+				   " failed to construct controller from XML");
+		  return false;
+		}
+		m_execController = controller;
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
+		// Add to library path
+		const char* pathstring = element.child_value();
+		if (*pathstring != '\0') {
+		  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+		  for (std::vector<std::string>::const_iterator it = path->begin();
+			   it != path->end();
+			   it++)
+			m_libraryPath.push_back(*it);
+		  delete path;
+		}
+	  }
+	  else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
+		// Add to plan path
+		const char* pathstring = element.child_value();
+		if (pathstring != '\0') {
+		  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+		  for (std::vector<std::string>::const_iterator it = path->begin();
+			   it != path->end();
+			   it++)
+			m_planPath.push_back(*it);
+		  delete path;
+		}
+	  }
+	  else {
+		debugMsg("InterfaceManager:constructInterfaces",
+				 " ignoring unrecognized XML element \""
+				 << elementType << "\"");
+	  }
 
-        element = element->NextSiblingElement();
-      }
+	  element = element.next_sibling();
+	}
 
     debugMsg("InterfaceManager:constructInterfaces", " done.");
     return true;
@@ -280,8 +282,7 @@ namespace PLEXIL
    */
   void InterfaceManager::addExecListener(const ExecListenerId& listener)
   {
-    m_listeners.push_back(listener);
-    m_exec->addListener(listener);
+    m_listenerHub->addListener(listener);
   }
 
   /**
@@ -366,17 +367,10 @@ namespace PLEXIL
           return false;
 	  }
     }
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++) {
-	  ExecListenerId l = *it;
-      success = l->initialize();
-      if (!success) {
-		debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
-		m_listeners.erase(it);
-		delete (ExecListener*) l;
+	success = m_listenerHub->initialize();
+	if (!success) {
+	  debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
 		return false;
-	  }
     }
 
     if (m_execController.isId()) {
@@ -402,19 +396,12 @@ namespace PLEXIL
          success && it != m_adapters.end();
          it++)
       success = (*it)->start();
-    if (!success)
-      {
-        debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
-        return false;
-      }
+    if (!success) {
+	  debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
+	  return false;
+	}
 
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      {
-        if ((success = (*it)->start()))
-          m_exec->addListener(*it);
-      }
+	success = m_listenerHub->start();
     condDebugMsg(!success, 
                  "InterfaceManager:start", " failed to start all Exec listeners, returning false");
     return success;
@@ -431,13 +418,11 @@ namespace PLEXIL
     // halt adapters
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+         it != m_adapters.end();
          it++)
-      success = (*it)->stop();
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      success = (*it)->stop();
+      success = (*it)->stop() && success;
+
+	success = m_listenerHub->stop() && success;
 
 	debugMsg("InterfaceManager:stop", " completed");
     return success;
@@ -459,13 +444,11 @@ namespace PLEXIL
 
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+         it != m_adapters.end();
          it++)
-      success = (*it)->reset();
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      success = (*it)->reset();
+      success = (*it)->reset() && success;
+
+	success = m_listenerHub->reset() && success;
 	debugMsg("InterfaceManager:reset", " completed");
     return success;
   }
@@ -474,7 +457,6 @@ namespace PLEXIL
    * @brief Clears the interface adapter registry.
    */
   void InterfaceManager::clearAdapterRegistry() {
-    m_lookupAdapterMap.clear();
     m_adapterConfig->clearAdapterRegistry();
   }
 
@@ -490,13 +472,10 @@ namespace PLEXIL
 
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+         it != m_adapters.end();
          it++)
-      success = (*it)->shutdown();
-    for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-         success && it != m_listeners.end();
-         it++)
-      success = (*it)->shutdown();
+      success = (*it)->shutdown() && success;
+	success = m_listenerHub->shutdown() && success;
 
     // Clean up
     // *** NYI ***
@@ -516,9 +495,7 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:resetQueue", " entered");
     while (!m_valueQueue.isEmpty())
-      {
-        m_valueQueue.pop();
-      }
+	  m_valueQueue.pop();
   }
     
     
@@ -534,8 +511,8 @@ namespace PLEXIL
 
     // Potential optimization (?): these could be member variables
     // Can't use static as that would cause collisions between multiple instances
-    StateKey stateKey;
-    std::vector<double> newStateValues;
+    double newValue;
+    State state;
     ExpressionId exp;
     double newExpValue;
     PlexilNodeId plan;
@@ -549,9 +526,11 @@ namespace PLEXIL
 	  // get next entry
 	  debugMsg("InterfaceManager:processQueue",
 			   " (" << pthread_self() << ") Fetch next queue entry");
-	  typ = m_valueQueue.dequeue(stateKey, newStateValues,
-								 exp, newExpValue,
-								 plan, parent,
+	  typ = m_valueQueue.dequeue(newValue, 
+								 state,
+								 exp,
+								 plan,
+								 parent,
 								 sequence);
 	  switch (typ) {
 	  case queueEntry_EMPTY:
@@ -572,58 +551,34 @@ namespace PLEXIL
 	  case queueEntry_LOOKUP_VALUES:
 		// State -- update all listeners
 		{
-		  // state for debugging only
-		  State state;
-		  bool stateFound =
-			m_exec->getStateCache()->stateForKey(stateKey, state);
-		  if (stateFound) {
-			debugMsg("InterfaceManager:processQueue",
-					 " (" << pthread_self()
-					 << ") Handling state change for '"
-					 << getText(state)
-					 << "', " << newStateValues.size()
-					 << " new value(s)");
+		  debugMsg("InterfaceManager:processQueue",
+				   " (" << pthread_self()
+				   << ") Handling state change for "
+				   << StateCache::toString(state));
 
-			if (newStateValues.size() == 0) {
+		  // If this is a time state update message, check if it's stale
+		  if (state == m_exec->getStateCache()->getTimeState()) {
+			if (newValue <= m_currentTime) {
 			  debugMsg("InterfaceManager:processQueue",
-					   "(" << pthread_self()
-					   << ") Ignoring empty state change vector for '"
-					   << getText(state)
-					   << "'");
-			  break;
-			}
-
-			// If this is a time state update message, check if it's stale
-			if (stateKey == m_exec->getStateCache()->getTimeStateKey()) {
-			  if (newStateValues[0] <= m_currentTime) {
-				debugMsg("InterfaceManager:processQueue",
-						 " (" << pthread_self()
-						 << ") Ignoring stale time update - new value "
-						 << Expression::valueToString(newStateValues[0]) << " is not greater than cached value "
-						 << Expression::valueToString(m_currentTime));
-			  }
-			  else {
-				debugMsg("InterfaceManager:processQueue",
-						 " (" << pthread_self()
-						 << ") setting current time to "
-						 << Expression::valueToString(newStateValues[0]));
-				m_currentTime = newStateValues[0];
-				m_exec->getStateCache()->updateState(stateKey, newStateValues);
-			  }
+					   " (" << pthread_self()
+					   << ") Ignoring stale time update - new value "
+					   << Expression::valueToString(newValue) << " is not greater than cached value "
+					   << Expression::valueToString(m_currentTime));
 			}
 			else {
-			  // General case, update state cache
-			  m_exec->getStateCache()->updateState(stateKey, newStateValues);
+			  debugMsg("InterfaceManager:processQueue",
+					   " (" << pthread_self()
+					   << ") setting current time to "
+					   << Expression::valueToString(newValue));
+			  m_currentTime = newValue;
+			  m_exec->getStateCache()->updateState(state, newValue);
 			}
-			needsStep = true;
 		  }
 		  else {
-			// State not found -- possibly stale update
-			debugMsg("InterfaceManager:processQueue", 
-					 " (" << pthread_self()
-					 << ") ignoring lookup for nonexistent state, key = "
-					 << stateKey);
+			// General case, update state cache
+			m_exec->getStateCache()->updateState(state, newValue);
 		  }
+		  needsStep = true;
 		  break;
 		}
 
@@ -633,13 +588,12 @@ namespace PLEXIL
 		debugMsg("InterfaceManager:processQueue",
 				 " (" << pthread_self()
 				 << ") Updating expression " << exp
-				 << ", new value is '" << Expression::valueToString(newExpValue) << "'");
+				 << ", new value is '" << Expression::valueToString(newValue) << "'");
 
 		// Handle potential command return value.
-		this->maybePublishCommandReturnValue(exp, newExpValue);
 		this->releaseResourcesAtCommandTermination(exp);
 
-		exp->setValue(newExpValue);
+		exp->setValue(newValue);
 		needsStep = true;
 		break;
 
@@ -675,170 +629,86 @@ namespace PLEXIL
 	}
   }
 
-  void InterfaceManager::maybePublishCommandReturnValue(const ExpressionId& dest,
-														const double& value)
-  {
-    // If the destination is a command destination, publish it (as an
-    // assignment), otherwise do nothing.
-
-    std::map<ExpressionId, CommandId>::iterator iter;
-    if ((iter = m_destToCmdMap.find (dest)) != m_destToCmdMap.end()) {
-      CommandId cmdId = iter->second;
-      std::string destName = cmdId->getDestName();
-
-      for (std::vector<ExecListenerId>::iterator it = m_listeners.begin();
-           it != m_listeners.end();
-           ++it)
-        {
-          ExecListenerId listener = *it;
-          check_error(listener.isValid());
-          (*it)->notifyOfAssignment(dest, destName, value);
-        }
-    }
-  }
-
-
-  /**
-   * @brief Register a change lookup on a new state, expecting values back.
-   * @param source The unique key for this lookup.
-   * @param state The state
-   * @param key The key for the state to be used in future communications about the state.
-   * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-   * @param dest The destination for the current values for the state.
-   */
-
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void
-  InterfaceManager::registerChangeLookup(const LookupKey& source,
-                                         const State& state,
-                                         const StateKey& key,
-                                         const std::vector<double>& tolerances, 
-                                         std::vector<double>& dest)
-  {
-    // Do an immediate lookup for effect
-    lookupNow(state, key, dest);
-    // Defer to method below
-    registerChangeLookup(source, key, tolerances);
-  }
-
-  /**
-   * @brief Register a change lookup on an existing state.
-   * @param source The unique key for this lookup.
-   * @param key The key for the state.
-   * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-   */
-
-  // *** To do:
-  //  - optimize for multiple lookups on same state, e.g. time?
-  void
-  InterfaceManager::registerChangeLookup(const LookupKey& source,
-                                         const StateKey& key, 
-                                         const std::vector<double>& tolerances)
-  {
-    // Extract state name and arglist
-    State state;
-    m_exec->getStateCache()->stateForKey(key, state);
-    const LabelStr& stateName(state.first);
-    debugMsg("InterfaceManager:registerChangeLookup",
-			 " of '" << stateName.toString() << "'");
-    condDebugMsg(tolerances.at(0) != 0.0,
-				 "InterfaceManager:registerChangeLookup",
-				 " tolerance = " << Expression::valueToString(tolerances.at(0)));
-
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-                  "registerChangeLookup: No interface adapter found for lookup '"
-                  << stateName.toString() << "'");
-
-    m_lookupAdapterMap.insert(std::pair<LookupKey, InterfaceAdapterId>(source, adapter));
-    // for convenience of adapter implementors
-    adapter->registerAsynchLookup(source, key);
-    adapter->registerChangeLookup(source, key, tolerances);
-  }
-
   /**
    * @brief Perform an immediate lookup on a new state.
-   * @param state The state
    * @param key The key for the state to be used in future communications about the state.
-   * @param dest The destination for the current values for the state.
    */
 
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void 
-  InterfaceManager::lookupNow(const State& state,
-                              const StateKey& key,
-                              std::vector<double>& dest)
+  double
+  InterfaceManager::lookupNow(const State& state)
   {
     const LabelStr& stateName(state.first);
-    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "'");
+    debugMsg("InterfaceManager:lookupNow", " of " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
                   "lookupNow: No interface adapter found for lookup '"
                   << stateName.toString() << "'");
 
-    adapter->lookupNow(key, dest);
+    double result = adapter->lookupNow(state);
     // update internal idea of time if required
-    if (key == m_exec->getStateCache()->getTimeStateKey())
-      {
-        if (dest[0] <= m_currentTime)
-          {
-            debugMsg("InterfaceManager:verboseLookupNow",
-                     " Ignoring stale time update - new value "
-                     << Expression::valueToString(dest[0]) << " is not greater than cached value "
-                     << Expression::valueToString(m_currentTime));
-          }
-        else
-          {
-            debugMsg("InterfaceManager:verboseLookupNow",
-                     " setting current time to "
-                     << Expression::valueToString(dest[0]));
-            m_currentTime = dest[0];
-          }
+    if (state == m_exec->getStateCache()->getTimeState()) {
+        if (result <= m_currentTime) {
+		  debugMsg("InterfaceManager:verboseLookupNow",
+				   " Ignoring stale time update - new value "
+				   << Expression::valueToString(result) << " is not greater than cached value "
+				   << Expression::valueToString(m_currentTime));
+		}
+        else {
+		  debugMsg("InterfaceManager:verboseLookupNow",
+				   " setting current time to "
+				   << Expression::valueToString(result));
+		  m_currentTime = result;
+		}
       }
 
-    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' complete");
+    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' returning " << Expression::valueToString(result));
+	return result;
   }
 
   /**
-   * @brief Perform an immediate lookup on an existing state.
-   * @param key The key for the state.
-   * @param dest The destination for the current values for the state.
+   * @brief Inform the interface that it should report changes in value of this state.
+   * @param state The state.
    */
-
-  // *** N.B. dest is stack allocated, therefore pointers to it should not be stored!
-  void 
-  InterfaceManager::lookupNow(const StateKey& key, std::vector<double>& dest)
+  void InterfaceManager::subscribe(const State& state)
   {
-    // Extract state name and arglist
-    State state;
-    m_exec->getStateCache()->stateForKey(key, state);
-    // Defer to method above
-    lookupNow(state, key, dest);
-  }
-
-  /**
-   * @brief Inform the FL that a lookup should no longer receive updates.
-   */
-  void
-  InterfaceManager::unregisterChangeLookup(const LookupKey& dest)
-  {
-    debugMsg("InterfaceManager:unregisterChangeLookup", " for unique ID " << dest);
-    LookupAdapterMap::iterator it = m_lookupAdapterMap.find(dest);
-    if (it == m_lookupAdapterMap.end())
-      {
-        debugMsg("InterfaceManager:unregisterChangeLookup", 
-                 " no lookup found for key " << dest);
-        return;
-      }
-
-    InterfaceAdapterId adapter = (*it).second;
+    const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:subscribe", " to state " << StateCache::toString(state));
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
-                  "unregisterChangeLookup: Internal Error: No interface adapter found for lookup key '"
-                  << dest << "'");
+                  "subscribe: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
+	adapter->subscribe(state);
+  }
 
-    adapter->unregisterChangeLookup(dest);
-    adapter->unregisterAsynchLookup(dest);
-    m_lookupAdapterMap.erase(dest);
+  /**
+   * @brief Inform the interface that a lookup should no longer receive updates.
+   */
+  void InterfaceManager::unsubscribe(const State& state)
+  {
+    const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:unsubscribe", " to state " << StateCache::toString(state));
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+                  "unsubscribe: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
+	adapter->unsubscribe(state);
+  }
+
+  /**
+   * @brief Advise the interface of the current thresholds to use when reporting this state.
+   * @param state The state.
+   * @param hi The upper threshold, at or above which to report changes.
+   * @param lo The lower threshold, at or below which to report changes.
+   */
+  void InterfaceManager::setThresholds(const State& state, double hi, double lo)
+  {
+    const LabelStr& stateName(state.first);
+    debugMsg("InterfaceManager:setThresholds", " for state " << StateCache::toString(state));
+    InterfaceAdapterId adapter = getLookupInterface(stateName);
+    assertTrueMsg(!adapter.isNoId(),
+                  "setThresholds: No interface adapter found for lookup '"
+                  << stateName.toString() << "'");
+	adapter->setThresholds(state, hi, lo);
   }
 
   // this batches the set of commands from quiescence completion.
@@ -914,8 +784,8 @@ namespace PLEXIL
         for (std::list<UpdateId>::const_iterator it = updates.begin();
              it != updates.end();
              it++)
-          handleValueChange((*it)->getAck(),
-                            BooleanVariable::TRUE());
+          handleValueChange((ExpressionId) (*it)->getAck(),
+                            BooleanVariable::TRUE_VALUE());
         notifyOfExternalEvent();
       }
     else
@@ -1225,25 +1095,17 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Notify of the availability of new values for a lookup.
-   * @param key The state key for the new values.
-   * @param values The new values.
+   * @brief Notify of the availability of a new value for a lookup.
+   * @param state The state for the new value.
+   * @param value The new value.
    */
   void
-  InterfaceManager::handleValueChange(const StateKey& key, 
-                                      const std::vector<double>& values)
+  InterfaceManager::handleValueChange(const State& state, double value)
   {
-	State state;
-	bool found = stateForKey(key, state);
-	if (found) {
-	  debugMsg("InterfaceManager:handleValueChange",
-			   " for state " << LabelStr(state.first).toString()
-			   << ", new value = " << Expression::valueToString(values.front()));
-	}
-	else {
-	  debugMsg("InterfaceManager:handleValueChange", " for unknown lookup");
-	}
-    m_valueQueue.enqueue(key, values);
+	debugMsg("InterfaceManager:handleValueChange",
+			 " for state " << LabelStr(state.first).toString()
+			 << ", new value = " << Expression::valueToString(value));
+    m_valueQueue.enqueue(state, value);
   }
 
   /**
@@ -1287,28 +1149,27 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive of a new plan.
-   * @param planXml The TinyXML representation of the new plan.
+   * @param planXml The XML representation of the new plan.
    * @param parent Label string naming the parent node.
    * @return False if the plan references unloaded libraries, true otherwise.
    */
   bool
-  InterfaceManager::handleAddPlan(TiXmlElement * planXml,
+  InterfaceManager::handleAddPlan(const pugi::xml_node& planXml,
                                   const LabelStr& parent)
     throw(ParserException)
   {
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
-    checkParserException(planXml->FirstChild() != NULL
-                         && planXml->FirstChild()->Value() != NULL
-                         && !(std::string(planXml->FirstChild()->Value()).empty())
-                         && planXml->FirstChildElement() != NULL
-                         && planXml->FirstChildElement("Node") != NULL,
-                         "<" << planXml->Value() << "> is not a valid Plexil XML plan");
+	// Assumes we are starting from the PlexilPlan element.
+    checkParserException(!planXml.first_child().empty()
+                         && *(planXml.first_child().name()) != '\0'
+                         && planXml.child("Node") != NULL,
+                         "<" << planXml.name() << "> is not a valid Plexil XML plan");
 
     // parse the plan
     PlexilNodeId root =
-      PlexilXmlParser::parse(planXml->FirstChildElement("Node")); // can also throw ParserException
+      PlexilXmlParser::parse(planXml.child("Node")); // can also throw ParserException
 
     return this->handleAddPlan(root, parent);
   }
@@ -1430,42 +1291,6 @@ namespace PLEXIL
   InterfaceManager::getStateCache() const
   { 
     return m_exec->getStateCache(); 
-  }
-
-  /**
-   * @brief Look up the unique key for a state.
-   * @param state The state.
-   * @param key The key associated with this state.
-   * @return True if the key was found.
-   */
-  bool
-  InterfaceManager::findStateKey(const State& state, StateKey& key)
-  {
-    return m_exec->getStateCache()->findStateKey(state, key);
-  }
-
-  /**
-   * @brief Get a unique key for a state, creating a new key for a new state.
-   * @param state The state.
-   * @param key The key.
-   * @return True if a new key had to be generated.
-   */
-  bool
-  InterfaceManager::keyForState(const State& state, StateKey& key)
-  {
-    return m_exec->getStateCache()->keyForState(state, key);
-  }
-
-  /**
-   * @brief Get (a copy of) the State for this StateKey.
-   * @param key The key to look up.
-   * @param state The state associated with the key.
-   * @return True if the key is found, false otherwise.
-   */
-  bool
-  InterfaceManager::stateForKey(const StateKey& key, State& state) const
-  {
-    return m_exec->getStateCache()->stateForKey(key, state);
   }
 
   /**

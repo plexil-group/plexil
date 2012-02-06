@@ -30,14 +30,9 @@
 #include "ConstantMacros.hh"
 #include "Id.hh"
 #include "ExecDefs.hh" // for NodeState
+#include "pugixml.hpp" // for pugi::format_raw
 #include <iosfwd>
 #include <string>
-
-//
-// Forward references w/o namespace
-//
-
-class TiXmlNode;
 
 namespace PLEXIL {
 
@@ -60,6 +55,9 @@ namespace PLEXIL {
     //
     // Class constants
     //
+
+	// XML formatting options
+	DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_FORMAT_OPTIONS, pugi::format_raw | pugi::format_no_declaration);
 
     // Literal strings
     DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");

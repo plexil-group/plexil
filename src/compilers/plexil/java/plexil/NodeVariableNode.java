@@ -70,8 +70,13 @@ public class NodeVariableNode extends ExpressionNode
     public NodeVariableNode(NodeVariableNode n)
     {
         super(n);
-        setType();
     }
+
+	public Tree dupNode()
+	{
+		return new NodeVariableNode(this);
+	}
+
 
     // TBD
     //    public void check(NodeContext context, CompilerState myState)

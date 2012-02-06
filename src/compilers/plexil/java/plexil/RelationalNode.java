@@ -36,6 +36,16 @@ public class RelationalNode extends ExpressionNode
         m_dataType = PlexilDataType.BOOLEAN_TYPE;
     }
 
+	public RelationalNode(RelationalNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new RelationalNode(this);
+	}
+
     /**
      * @brief Check the expression for type consistency.
      */

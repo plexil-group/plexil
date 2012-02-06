@@ -42,6 +42,17 @@ public class OnCommandNode extends PlexilTreeNode
         super(t);
     }
 
+    public OnCommandNode(OnCommandNode n)
+    {
+        super(n);
+		m_context = n.m_context;
+    }
+
+	public Tree dupNode()
+	{
+		return new OnCommandNode(this);
+	}
+
     /**
      * @brief Get the containing name binding context for this branch of the parse tree.
      * @return A NodeContext instance, or the global context.

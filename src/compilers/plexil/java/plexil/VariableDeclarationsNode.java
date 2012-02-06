@@ -40,4 +40,14 @@ public class VariableDeclarationsNode extends PlexilTreeNode
         super(new CommonToken(ttype, "VARIABLE_DECLARATIONS"));
     }
 
+	public VariableDeclarationsNode(VariableDeclarationsNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new VariableDeclarationsNode(this);
+	}
+
 }

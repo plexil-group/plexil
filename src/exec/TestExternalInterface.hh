@@ -30,13 +30,15 @@
 #include "ExecDefs.hh"
 #include "ExternalInterface.hh"
 #include "ResourceArbiterInterface.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
 #include <iostream>
 #include <map>
 #include <set>
+
+// Forward reference
+namespace pugi
+{
+  class xml_node;
+}
 
 namespace PLEXIL {
 
@@ -52,22 +54,15 @@ namespace PLEXIL {
   class TestExternalInterface : public ExternalInterface {
   public:
     TestExternalInterface();
-    void run(const TiXmlElement& input)
+    void run(const pugi::xml_node& input)
       throw(ParserException);
 
-    //void registerChangeLookup(ExpressionId dest, const LabelStr& name, double tolerance, const std::list<double>& params);
-    void registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances, 
-				      std::vector<double>& dest);
-    void registerChangeLookup(const LookupKey& source, const StateKey& key, const std::vector<double>& tolerances);
+    double lookupNow(const State& state);
 
-
-    //void lookupNow(ExpressionId dest, const LabelStr& name, const std::list<double>& params);
-    void lookupNow(const State& state, const StateKey& key, std::vector<double>& dest);
-    void lookupNow(const StateKey& key, std::vector<double>& dest);
-
-
-    //void unregisterChangeLookup(ExpressionId dest);
-    void unregisterChangeLookup(const LookupKey& dest);
+	// LookupOnChange
+	void subscribe(const State& state);
+	void unsubscribe(const State& state);
+	void setThresholds(const State& state, double hi, double lo);
 
     void batchActions(std::list<CommandId>& commands);
     void updatePlanner(std::list<UpdateId>& updates);
@@ -84,9 +79,7 @@ namespace PLEXIL {
      */
 
     void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
-    void addPlan(const TiXmlElement& plan, const LabelStr& parent)
-      throw(ParserException);
-    
+
     double currentTime();
   protected:
   private:
@@ -94,38 +87,31 @@ namespace PLEXIL {
     std::string getText(const UniqueThing& c, double v);
     std::string getText(const UniqueThing& c,
                         const std::vector<double>& vals);
-    void handleInitialState(const TiXmlElement& input);
+    void handleInitialState(const pugi::xml_node& input);
 
-        void setVariableValue(std::string source,
-                              ExpressionId expr,
-                              double& value);
+	void setVariableValue(const std::string& source,
+						  ExpressionId expr,
+						  double& value);
         
-        void parseState(const TiXmlElement& state, 
-                        LabelStr& name, 
-                        std::vector<double>& args, 
-                        double& value);
+	void parseState(const pugi::xml_node& state, 
+					LabelStr& name, 
+					std::vector<double>& args, 
+					double& value);
 
-        void parseCommand(const TiXmlElement& cmd, 
-                          LabelStr& name, 
-                          std::vector<double>& args, 
-                          double& value);
+	void parseCommand(const pugi::xml_node& cmd, 
+					  LabelStr& name, 
+					  std::vector<double>& args, 
+					  double& value);
 
-    void parseParams(const TiXmlElement& root, std::vector<double>& dest);
-    double parseValues(std::string type, const TiXmlElement* valXml);
-    double parseValue(std::string type, std::string valStr);
-    //bool handleStateChange(const UniqueThing& state, double value);
-    //bool updateState(const LabelStr& name, const std::list<double>& args, const double value);
+    void parseParams(const pugi::xml_node& root, std::vector<double>& dest);
+    double parseValues(const std::string& type, pugi::xml_node valXml);
+    double parseValue(const std::string& type, const std::string& valStr);
 
     std::map<double, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables
     ExpressionUtMap m_commandAcks; //map from command to the acknowledgement variables
     ExpressionUtMap m_abortingCommands;
     StateMap m_states; //uniquely identified states and their values
-    //std::multimap<UniqueThing, ExpressionId> m_stateListeners; //map from states to lookup expressions
-    //std::map<ExpressionId, double> m_tolerances; //map from lookups to tolerances
-    //std::map<ExpressionId, std::pair<double, double> > m_frequencies;
-    //std::map<ExpressionId, double> m_cachedValues; //map from lookups to previously returned values or the time at which the last value was updated
-    std::map<StateKey, State> m_statesByKey;
     static UniqueThing& timeState();
     ResourceArbiterInterface raInterface;
     std::map<ExpressionId, CommandId> m_destToCmdMap;

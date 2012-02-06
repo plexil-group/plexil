@@ -26,6 +26,7 @@
 
 #include "Expression.hh"
 #include "LabelStr.hh"
+#include "StoredArray.hh"
 #include "types.hh"
 
 using std::string;

@@ -37,6 +37,16 @@ class WaitNode extends PlexilTreeNode
         super(t);
     }
 
+	public WaitNode(WaitNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new WaitNode(this);
+	}
+
     public void check(NodeContext context, CompilerState myState)
     {
         ExpressionNode delayExp = (ExpressionNode) this.getChild(0);

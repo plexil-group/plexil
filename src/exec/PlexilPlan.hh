@@ -70,12 +70,11 @@ namespace PLEXIL {
 
   enum PlexilNodeType
     {
-      NodeType_uninitialized,
+      NodeType_uninitialized = 0,
       NodeType_NodeList,
       NodeType_Command,
       NodeType_Assignment,
       NodeType_Update,
-      NodeType_Request,
       NodeType_Empty,
       NodeType_LibraryNodeCall,
       NodeType_error
@@ -89,7 +88,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND, "Command");
     DECLARE_STATIC_CLASS_CONST(std::string, ASSIGNMENT, "Assignment");
     DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(std::string, REQUEST, "Request");
     DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
     DECLARE_STATIC_CLASS_CONST(std::string, LIBRARYNODECALL, "LibraryNodeCall");
 
@@ -387,38 +385,32 @@ namespace PLEXIL {
          std::vector<std::string> m_values;
    };
 
-  class PlexilVar {
+  class PlexilVar : public PlexilExpr {
   public:
-    PlexilVar(const std::string& name, const PlexilType& type,
-	      const std::string& value = "UNKNOWN");
-    PlexilVar(const std::string& name, const PlexilType& type,
-	      PlexilValue* value);
+	PlexilVar(const std::string& name, const PlexilType& type);
+    PlexilVar(const std::string& name, const PlexilType& type, const std::string& value);
+    PlexilVar(const std::string& name, const PlexilType& type, PlexilValue* value);
     virtual ~PlexilVar();
 
     virtual bool isArray() const {return false;}
 
-    const PlexilVarId& getId() const {return m_id;}
-    const std::string& name() const {return m_name;}
+    const PlexilVarId& getId() const {return m_varId;}
     virtual const PlexilType& type() const {return m_type;}
-    PlexilValue* value() const {return m_value;}
-    int lineNo() const {return m_lineNo;}
-    int colNo() const {return m_colNo;}
-    void setLineNo(int n) {m_lineNo = n;}
-    void setColNo(int n) {m_colNo = n;}
+    const PlexilValue* value() const {return m_value;}
 
   protected:
     PlexilType m_type;
 
   private:
-    int m_lineNo;
-    int m_colNo;
-    PlexilVarId m_id;
-    std::string m_name;
+    PlexilVarId m_varId;
     PlexilValue* m_value;
   };
   
    class PlexilArrayVar : public PlexilVar {
    public:
+     PlexilArrayVar(const std::string& name, 
+		    const PlexilType& type, 
+		    const unsigned maxSize);
      PlexilArrayVar(const std::string& name, 
 		    const PlexilType& type, 
 		    const unsigned maxSize, 
@@ -599,19 +591,6 @@ namespace PLEXIL {
 
     void setUpdate(const PlexilUpdateId& update) {m_update = update;}
   private:
-    PlexilUpdateId m_update;
-  };
-
-  class PlexilRequestBody : public PlexilNodeBody {
-  public:
-    PlexilRequestBody() : PlexilNodeBody() {}
-    const PlexilNodeRefId& parent() const {return m_parent;}
-    const PlexilUpdateId& update() const {return m_update;}
-
-    void setParent(PlexilNodeRefId parent) {m_parent = parent;}
-    void setUpdate(PlexilUpdateId update) {m_update = update;}
-  private:
-    PlexilNodeRefId m_parent;
     PlexilUpdateId m_update;
   };
 

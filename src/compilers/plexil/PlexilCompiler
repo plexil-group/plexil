@@ -38,5 +38,6 @@ fi
 
 LIB_DIR=${PLEXIL_HOME}/lib
 JARS_DIR=${PLEXIL_HOME}/third-party/jars
+ANTLR_RUNTIME_JAR=antlr-3.4-complete-no-antlrv2.jar
 
-java -classpath $LIB_DIR/PlexilCompiler.jar:$JARS_DIR/antlr-runtime-3.2.jar:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler $@
+java -classpath $LIB_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler $@

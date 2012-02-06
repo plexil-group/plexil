@@ -1,18 +1,13 @@
-//This plan emulates a simulator that handles:
-//	The command 'GetName()', which returns an array of strings
+// This plan emulates a simulator that handles:
+//   The command 'GetName()', which returns an array of strings
 
-Interface:
+Command SendReturnValue (String[2]);
+
+Interface: Concurrence
 {
-	//The integer lookup, x
-	String a_name[2] = #("Jeff" "Gold");
-	NodeList:
-		//The handler for the command GetName()
-		RecGetName:
-		{
-			OnCommand GetName ( )
-				RespondMoveRight:
-				{
-					Command: SendReturnValue(a_name);
-				}
-		}
+  // The integer lookup, x
+  String a_name[2] = #("Jeff" "Gold");
+
+  // The handler for the command GetName()
+  RecGetName: OnCommand "GetName" ( ) RespondMoveRight: SendReturnValue(a_name);
 }

@@ -51,6 +51,22 @@ public class BlockNode extends PlexilTreeNode
         super(t);
     }
 
+    public BlockNode(BlockNode n)
+    {
+        super(n);
+		m_comment = n.m_comment;
+		m_declarations = n.m_declarations;
+		m_conditions = n.m_conditions;
+		m_attributes = n.m_attributes;
+		m_resources = n.m_resources;
+		m_body = n.m_body;
+    }
+
+	public Tree dupNode()
+	{
+		return new BlockNode(this);
+	}
+
     /**
      * @brief Get the containing name binding context for this branch of the parse tree.
      * @return A NodeContext instance, or the global context.

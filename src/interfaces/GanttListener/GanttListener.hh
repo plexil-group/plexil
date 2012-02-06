@@ -30,22 +30,18 @@
 #define _H_GanttListener
 
 #include "ExecDefs.hh"
-#include "ManagedExecListener.hh"
-
-class TiXmlElement;
+#include "ExecListener.hh"
 
 namespace PLEXIL
 {
-  class InterfaceManagerBase;
-
   // Provides output from execution useful for debugging a Plexil plan.
 
-  class GanttListener : public ManagedExecListener
+  class GanttListener : public ExecListener
   {
   public:
 
     GanttListener();
-    GanttListener (const TiXmlElement* xml, InterfaceManagerBase& mgr);
+    GanttListener (const pugi::xml_node& xml);
     virtual ~GanttListener();
 
     // These methods have no special function.

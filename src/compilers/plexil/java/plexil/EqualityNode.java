@@ -38,6 +38,16 @@ public class EqualityNode extends ExpressionNode
         m_dataType = PlexilDataType.BOOLEAN_TYPE;
     }
 
+	public EqualityNode(EqualityNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new EqualityNode(this);
+	}
+
     /**
      * @brief Check the expression for type consistency.
      */

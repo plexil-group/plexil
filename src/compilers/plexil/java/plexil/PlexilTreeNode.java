@@ -62,6 +62,11 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     //
     // Overrides
     //
+	public Tree dupNode()
+	{
+		return new PlexilTreeNode(this);
+	}
+
     public PlexilTreeNode getChild(int i)
     {
         return (PlexilTreeNode) super.getChild(i);

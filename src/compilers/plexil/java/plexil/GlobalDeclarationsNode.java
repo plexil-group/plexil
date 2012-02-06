@@ -37,6 +37,16 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
         super(new CommonToken(ttype, "GLOBAL_DECLARATIONS"));
     }
 
+	public GlobalDeclarationsNode(GlobalDeclarationsNode n)
+	{
+		super(n);
+	}
+
+	public Tree dupNode()
+	{
+		return new GlobalDeclarationsNode(this);
+	}
+
     public void constructXML()
     {
         super.constructXML();

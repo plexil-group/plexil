@@ -28,6 +28,8 @@
 #define PLEXIL_JNI_UTILS_HH
 
 #include <jni.h>
+#include <string>
+#include <vector>
 
 //
 // Utilities for accessing Java data
@@ -83,6 +85,13 @@ namespace PLEXIL {
 	 * @return A freshly allocated Java string array object.
 	 */
 	jobjectArray makeJavaStringArray(jsize size);
+
+	/**
+	 * @brief Given a Java String[], return an array of char*.
+	 * @param The Java String[] object.
+	 * @return A freshly allocated vector of strings.
+	 */
+	std::vector<std::string>* getJavaStringArray(jobjectArray ary);
 
 	//* Accessor.
 	JNIEnv* getEnv() { return m_env; }

@@ -2,7 +2,7 @@ Command A;
 Command B(Integer);
 Integer Command C;
 
-sync-cmd-test:
+root:
 {
   Integer i;
 

@@ -41,6 +41,17 @@ public class InterfaceDeclNode extends PlexilTreeNode
         super(t);
     }
 
+    public InterfaceDeclNode(InterfaceDeclNode n)
+    {
+        super(n);
+		m_variables = n.m_variables;
+    }
+
+	public Tree dupNode()
+	{
+		return new InterfaceDeclNode(this);
+	}
+
     //
     // Format is:
     // (IN_KYWD ncname*) - referencing existing decls only

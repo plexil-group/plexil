@@ -30,38 +30,7 @@
 #include "ExecDefs.hh"
 #include "Expression.hh"
 #include "ParserException.hh"
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
-
-//facade classes have the following naming scheme:
-//FooBarIntf is the interface from Foo to Bar
-
-// class ExecFLIntf {
-// public:
-//   void requestStateUpdate(const State& state, const StateKey& key);
-//   void requestStateUpdate(const StateKey& key);
-
-//   void registerChangeLookup(const double source, const State& state, StateKey& state, const std::vector<double>& tolerances);
-//   void registerChangeLookup(const double source, const StateKey& state, const std::vector<double>& tolerances);
-// };
-
-//implemented by us
-// class FLExecIntf {
-// public:
-//   void updateState(const StateKey& key, const std::vector<double>& values);
-
-//   //void enableChecks()
-//   //void disableChecks()
-// };
-
-// class ExecPlannerIntf {
-// };
-
-//implemented by us
-// class PlannerExecIntf {
-// };
+#include "PlexilExec.hh"
 
 /**
    TODO:
@@ -80,55 +49,36 @@ namespace PLEXIL {
     }
 
     /**
-     * @brief Register a change lookup on a new state, expecting values back.
-     * @param source The unique key for this lookup.
-     * @param state The state
-     * @param key The key for the state to be used in future communications about the state.
-     * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
-     */
-
-
-    virtual void registerChangeLookup(const LookupKey& source, const State& state, const StateKey& key, const std::vector<double>& tolerances, 
-									  std::vector<double>& dest);
-
-    /**
-     * @brief Register a change lookup on an existing state.
-     * @param source The unique key for this lookup.
-     * @param key The key for the state.
-     * @param tolerances The tolerances for the lookup.  May be used by the FL to reduce the number of updates sent to the exec.
-     */
-    virtual void registerChangeLookup(const LookupKey& source, const StateKey& key, const std::vector<double>& tolerances);
-
-    /**
-     * @brief Perform an immediate lookup on a new state.
-     * @param state The state
-     * @param key The key for the state to be used in future communications about the state.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
-     */
-    virtual void lookupNow(const State& state, const StateKey& key, std::vector<double>& dest);
-
-    /**
      * @brief Perform an immediate lookup on an existing state.
-     * @param key The key for the state.
-     * @param dest The destination for the current values for the state.
-     * @note dest is stack allocated, therefore pointers to it should not be stored!
+     * @param state The state.
+     * @return The current value for the state.
      */
-    virtual void lookupNow(const StateKey& key, std::vector<double>& dest);
+    virtual double lookupNow(const State& state) = 0;
+
+	/**
+	 * @brief Inform the interface that it should report changes in value of this state.
+	 * @param state The state.
+	 */
+	virtual void subscribe(const State& state) = 0;
 
     /**
-     * @brief Inform the FL that a lookup should no longer receive updates.
+     * @brief Inform the interface that a lookup should no longer receive updates.
      */
-    virtual void unregisterChangeLookup(const LookupKey& dest);
+    virtual void unsubscribe(const State& state) = 0;
+
+	/**
+	 * @brief Advise the interface of the current thresholds to use when reporting this state.
+	 * @param state The state.
+	 * @param hi The upper threshold, at or above which to report changes.
+	 * @param lo The lower threshold, at or below which to report changes.
+	 */
+	virtual void setThresholds(const State& state, double hi, double lo) = 0;
 
     //@ Perform the set of actions from quiescence completion.
     virtual void batchActions(std::list<CommandId>& commands) = 0;
 
 	// This batches planner updates.
-	// The default method does nothing.
-    virtual void updatePlanner(std::list<UpdateId>& updates);
+    virtual void updatePlanner(std::list<UpdateId>& updates) = 0;
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
@@ -139,23 +89,31 @@ namespace PLEXIL {
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
 
-    virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
-    //XML VERSION IS DEPRECATED
-    virtual void addPlan(const TiXmlElement& plan, const LabelStr& parent = EMPTY_LABEL())
-      throw(ParserException);
-    virtual void addPlan(PlexilNode* node, const LabelStr& parent = EMPTY_LABEL());
-    void setExec(const PlexilExecId exec);
+    virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck) = 0;
 
 	// Returns the current time.
-	// The default method always returns 0.
-    virtual double currentTime();
+    virtual double currentTime() = 0;
 
-    virtual ~ExternalInterface();
+    virtual void setExec(const PlexilExecId& exec)
+	{
+	  m_exec = exec;
+	  m_exec->setExternalInterface(m_id);
+	}
+
+    virtual ~ExternalInterface()   
+	{
+	  m_id.remove();
+	}
+
 
   protected:
 
     //this should eventually take a domain description as well
-    ExternalInterface();
+    ExternalInterface()
+	  : m_id(this) 
+	{
+	}
+
     PlexilExecId m_exec;
 
   private:

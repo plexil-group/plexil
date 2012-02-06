@@ -1,0 +1,10 @@
+// Heater script
+
+//initial-state {
+//}
+
+script {
+  command-success power_on_heater ();
+  command-success turn_on_heater ();
+}
+

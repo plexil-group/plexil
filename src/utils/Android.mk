@@ -32,8 +32,10 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := PlexilUtils
 LOCAL_SRC_FILES := Debug.cc \
+ DynamicLoader.cc \
  Error.cc \
  IdTable.cc \
+ JNIHelper.cc \
  JNIUtils.cc \
  LabelStr.cc \
  Logging.cc \
@@ -46,13 +48,15 @@ LOCAL_SRC_FILES := Debug.cc \
  ThreadSpawn.cc \
  Utils.cc \
  XMLUtils.cc \
- stricmp.c
+ stricmp.c \
+ timespec-utils.cc \
+ timeval-utils.cc
 LOCAL_CPP_EXTENSION := .cc
-LOCAL_CPPFLAGS := -DPLEXIL_USE_POSIX_SEMAPHORES -DPLATFORM_HAS_GNU_HASH_MAP -D__STDC_LIMIT_MACROS
+LOCAL_CPPFLAGS := -DPLEXIL_USE_POSIX_SEMAPHORES -DPLATFORM_HAS_GNU_HASH_MAP -D__STDC_LIMIT_MACROS -D'LIB_EXT="$(SUFSHARE)"'
 LOCAL_EXPORT_CPPFLAGS := $(LOCAL_CPPFLAGS)
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/tinyxml
-#LOCAL_SHARED_LIBRARIES := tinyxml
-LOCAL_STATIC_LIBRARIES := tinyxml
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../third-party/pugixml/src
+LOCAL_STATIC_LIBRARIES := pugixml
+LOCAL_LDLIBS := -ldl
 
 #include $(BUILD_SHARED_LIBRARY)
 include $(BUILD_STATIC_LIBRARY)

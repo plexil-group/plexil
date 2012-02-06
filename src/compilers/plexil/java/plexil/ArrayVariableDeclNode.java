@@ -38,6 +38,16 @@ public class ArrayVariableDeclNode extends VariableDeclNode
         super(t);
     }
 
+    public ArrayVariableDeclNode(ArrayVariableDeclNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new ArrayVariableDeclNode(this);
+	}
+
     public PlexilDataType getVariableType()
     {
         PlexilDataType eltType = PlexilDataType.findByName(this.getChild(0).getText());

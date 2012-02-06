@@ -26,27 +26,25 @@
 
 
 #include "XmlStringEventFormatter.hh"
-#include "Node.hh"
+#include "Command.hh"
+#include "CommandNode.hh"
 #include "CoreExpressions.hh"
-#include "AdapterExecInterface.hh"
 #include "Debug.hh"
-#include "PlexilXmlParser.hh"
 #include "event-support.hh"
+#include "PlexilXmlParser.hh"
+#include "pugixml.hpp"
+#include "Update.hh"
+#include "UpdateNode.hh"
 
 #include <iomanip>
 #include <cmath>
 #include <sstream>
 
-#ifndef TIXML_USE_STL
-#define TIXML_USE_STL
-#endif
-#include "tinyxml.h"
-
 namespace PLEXIL
 {
 
-  XmlStringEventFormatter::XmlStringEventFormatter(const TiXmlElement* xml, InterfaceManagerBase& mgr)
-    : EventFormatter(xml, mgr)
+  XmlStringEventFormatter::XmlStringEventFormatter(const pugi::xml_node& xml)
+    : EventFormatter(xml)
   {
   }
 
@@ -139,7 +137,7 @@ namespace PLEXIL
     if ((node->getType() == Node::COMMAND()) &&
 	(nodeFinished || nodeExecuting))
       {
-	CommandId cmd = node->getCommand();
+		CommandId cmd = ((CommandNode*) node)->getCommand();
 	checkError(!cmd.isNoId(),
 		   "transitionXmlString: command is null!");
 	// format parameters
@@ -162,7 +160,7 @@ namespace PLEXIL
     if ((node->getType() == Node::UPDATE()) && 
 	(nodeFinished || nodeExecuting))
       {
-	const std::map<double, double>& bindings = node->getUpdate()->getPairs();
+		const std::map<double, double>& bindings = ((UpdateNode*) node)->getUpdate()->getPairs();
 	body =
 	  body +
 	  element ("bindingDimension", to_string<int> (bindings.size())) +
@@ -185,8 +183,8 @@ namespace PLEXIL
   {
     std::ostringstream planStream;
     {
-      const TiXmlElement* xmlPlan = PlexilXmlParser::toXml(plan);
-      planStream << *xmlPlan;
+      const pugi::xml_document* xmlPlan = PlexilXmlParser::toXml(plan);
+      xmlPlan->save(planStream, "", pugi::format_raw | pugi::format_no_declaration);
       delete xmlPlan;
     }
     const std::string el =

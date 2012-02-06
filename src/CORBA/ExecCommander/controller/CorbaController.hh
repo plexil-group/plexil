@@ -51,7 +51,7 @@ namespace PLEXIL {
      * @brief Constructor from configuration XML.
      * @param app Reference to the parent ExecApplication object
      */
-	CorbaController(ExecApplication& app, const TiXmlElement* configXml = NULL);
+	CorbaController(ExecApplication& app, const pugi::xml_node& configXml);
 
     /**
      * @brief Destructor.

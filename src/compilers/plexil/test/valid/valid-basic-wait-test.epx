@@ -1,6 +1,6 @@
 <PlexilPlan LineNo="1" ColNo="0">
     <Sequence LineNo="3" ColNo="2">
-        <NodeId>basic-wait-test</NodeId>
+        <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="2">
                 <Name>rtol</Name>
@@ -41,8 +41,8 @@
                 <RealVariable>rtol</RealVariable>
             </Tolerance>
         </Wait>
-        <Wait LineNo="9" ColNo="20">
-            <NodeId>wait-with-nodeid</NodeId>
+        <Wait LineNo="9" ColNo="2">
+            <NodeId>Wait__3</NodeId>
             <Units>
                 <RealValue>3.14</RealValue>
             </Units>

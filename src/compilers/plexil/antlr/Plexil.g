@@ -235,7 +235,8 @@ STRING_COMPARISON;
 VARIABLE_ALIAS;
 VARIABLE_DECLARATION;
 VARIABLE_DECLARATIONS;
-
+NEG_INT;
+NEG_DOUBLE;
 }
 
 //
@@ -395,7 +396,7 @@ libraryInterfaceSpec
 @after { m_paraphrases.pop(); }
  :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
-    -> ^(PARAMETERS libraryParamSpec+)
+    -> ^(PARAMETERS libraryParamSpec*)
  ;
 
 libraryParamSpec :
@@ -643,7 +644,7 @@ arrayVariableDecl[Token typeName] :
   ;
 
 literalScalarValue : 
-    booleanLiteral | INT | DOUBLE | STRING ;
+    booleanLiteral | INT | DOUBLE | STRING | unaryMinus ;
 
 literalArrayValue :
     HASHPAREN literalScalarValue* RPAREN
@@ -890,16 +891,16 @@ multOp :
 
 // 15 prefix unary - arithmetic negation, plus, logical not
 
-unary :
-    unaryOp^ quantity
-    | quantity
- ;
+unary : unaryMinus
+      | unaryOp^ quantity
+      | quantity
+      ;
 
-unaryOp : 
-    PLUS
-  | MINUS
-  | NOT_KYWD
- ;
+unaryOp : NOT_KYWD ;
+
+unaryMinus : (MINUS i=INT) -> ^(NEG_INT $i)
+           | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
+           ;
 
 // 17 postincrement/decrement (x++, x--), indirect selection (->), function call
 // 	  - not in the Plexil language
@@ -1177,14 +1178,12 @@ INT_OR_DOUBLE
      )?
    )
    | 
-   ( (PLUS | MINUS)? PERIOD ) =>
-   ( (PLUS | MINUS)?
-     PERIOD { $type = DOUBLE; }
+   ( PERIOD ) =>
+   ( PERIOD { $type = DOUBLE; }
      Digit+ Exponent? 
    )
    |
-   ( (PLUS | MINUS)?
-     Digit+ { $type = INT; } 
+   ( Digit+ { $type = INT; } 
      (PERIOD (Digit)* { $type = DOUBLE; } )?
      (Exponent { $type = DOUBLE; } )?
    )
@@ -1207,8 +1206,8 @@ NCNAME :
 //   foo.bar.start
 //   foo.start.start
 //   start
-//  (Letter|'_') (Letter|Digit|PERIOD|MINUS|'_')*
-  (Letter|'_') (Letter|Digit|MINUS|'_')*
+//  (Letter|'_') (Letter|Digit|PERIOD|'_')*
+  (Letter|'_') (Letter|Digit|'_')*
   ;
 
 fragment Letter : 'a'..'z'|'A'..'Z' ;

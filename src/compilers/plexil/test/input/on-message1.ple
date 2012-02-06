@@ -1,7 +1,7 @@
 Command HaltAndCatchFire;
 Command ExecuteProgrammerImmediate (String);
 
-on-message-test:
+root:
 Concurrence
 {
     String hcfName = "HCF";

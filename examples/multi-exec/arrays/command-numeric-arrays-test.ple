@@ -1,22 +1,18 @@
-//The controlling plan
+// The controlling plan
+
+Integer[2] Command GetNums (Integer);
+
 MasterPlan:
 {
-	Integer iter = 0;
-	Integer ret[2];
-	Sequence
-		Action:
-		{
-			EndCondition: isKnown(ret[0]);
-			Command: ret = GetNums(5);
-		}
-		Set:
-		{
-			Assignment: iter = ret[0] + ret[1];
-		}
-                NotivyViewer1: { Assignment: ret[0] = ret[0]; }
-                NotivyViewer2: { Assignment: ret[1] = ret[1]; }
-		Check:
-		{
-			InvariantCondition: isKnown(iter);
-		}
+  Integer iter = 0;
+  Integer ret[2];
+  Action:
+  {
+    EndCondition isKnown(ret[0]);
+    ret = GetNums(5);
+  }
+  Set: iter = ret[0] + ret[1];
+  NotivyViewer1: ret[0] = ret[0];
+  NotivyViewer2: ret[1] = ret[1];
+  Check: { InvariantCondition isKnown(iter); }
 }

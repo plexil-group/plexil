@@ -38,6 +38,16 @@ public class ConditionNode extends PlexilTreeNode
         super(t);
     }
 
+    public ConditionNode(ConditionNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new ConditionNode(this);
+	}
+
     public void checkSelf(NodeContext context, CompilerState myState)
     {
         ExpressionNode exp = (ExpressionNode) this.getChild(0);

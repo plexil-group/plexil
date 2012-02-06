@@ -29,12 +29,12 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= IpcAdapter
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/tinyxml \
+INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
                    $(PLEXIL_HOME)/third-party/ipc/src \
                     ../../utils ../../exec ../../app-framework \
                     ../IpcUtils
 LIB_PATH	+=
-LIBS		+= tinyxml IpcUtils PlexilUtils PlexilExec PlexilAppFramework
+LIBS		+= pugixml IpcUtils PlexilUtils PlexilExec PlexilAppFramework
 
 SRC		:= IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc
 INC		:= IpcAdapter.hh MessageQueueMap.hh

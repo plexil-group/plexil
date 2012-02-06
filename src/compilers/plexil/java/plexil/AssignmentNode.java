@@ -37,6 +37,16 @@ public class AssignmentNode extends PlexilTreeNode
         super(t);
     }
 
+    public AssignmentNode(AssignmentNode n)
+    {
+        super(n);
+    }
+
+	public Tree dupNode()
+	{
+		return new AssignmentNode(this);
+	}
+
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         // N.B. LHS can be an array reference

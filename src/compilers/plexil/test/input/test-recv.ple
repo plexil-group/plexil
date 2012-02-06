@@ -2,7 +2,7 @@ Real Lookup time;
 Command print (...);
 Command ack_msg (String);
 
-test-recv: UncheckedSequence {
+root: UncheckedSequence {
   Real run_start_time;        // When this run started
   Integer timeout = 5;        // Time out the run
   Boolean continue = true;    // Repeat the HandleCommand node

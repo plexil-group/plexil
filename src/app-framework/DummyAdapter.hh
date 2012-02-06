@@ -29,12 +29,6 @@
 
 #include "InterfaceAdapter.hh"
 
-//
-// Forward references w/o namespace
-//
-
-class TiXmlElement;
-
 namespace PLEXIL
 {
   /*!
@@ -53,7 +47,7 @@ namespace PLEXIL
      * @brief Constructor w/ configuration XML.
      */
     DummyAdapter(AdapterExecInterface& execInterface,
-                 const TiXmlElement* xml);
+                 const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -90,14 +84,33 @@ namespace PLEXIL
      */
     bool shutdown();
 
-    virtual void registerChangeLookup(const LookupKey& uniqueId,
-				      const StateKey& stateKey,
-				      const std::vector<double>& tolerances);
 
-    virtual void unregisterChangeLookup(const LookupKey& uniqueId);
+    /**
+     * @brief Perform an immediate lookup on an existing state.
+     * @param state The state.
+     * @return The current value for the state.
+     */
+    double lookupNow(const State& state);
 
-    void lookupNow(const StateKey& stateKey,
-		   std::vector<double>& dest);
+	/**
+	 * @brief Inform the interface that it should report changes in value of this state.
+	 * @param state The state.
+	 */
+	void subscribe(const State& state);
+
+    /**
+     * @brief Inform the interface that a lookup should no longer receive updates.
+	 * @param state The state.
+     */
+    void unsubscribe(const State& state);
+
+	/**
+	 * @brief Advise the interface of the current thresholds to use when reporting this state.
+	 * @param state The state.
+	 * @param hi The upper threshold, at or above which to report changes.
+	 * @param lo The lower threshold, at or below which to report changes.
+	 */
+	void setThresholds(const State& state, double hi, double lo);
 
     void sendPlannerUpdate(const NodeId& node,
 			   const std::map<double, double>& valuePairs,

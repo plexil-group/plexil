@@ -55,17 +55,19 @@ PLEXILC_JAR		:= $(PLEXIL_HOME)/lib/PlexilCompiler.jar
 DIRT			+= $(PARSER_JAVA) $(PARSER_CLASSES) $(JAVA_CLASSES)
 
 # Invoking ANTLR 3
-ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.2.jar
+#ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.2.jar
+ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.4-complete-no-antlrv2.jar
 ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR)
 ANTLR			:= $(JAVA) -jar $(ANTLR3_TOOL_JAR)
 
 # Other necessities
-ANTLR3_RUNTIME_JAR	:= antlr-runtime-3.2.jar
-NANOXML_JAR			:= nanoxml.jar
-SAXON_JAR			:= saxon.jar
+#ANTLR3_RUNTIME_JAR	:= antlr-runtime-3.2.jar
+ANTLR3_RUNTIME_JAR	:= $(ANTLR3_TOOL_JAR)
+NANOXML_JAR			:= $(THIRD_PARTY_JAR_DIR)/nanoxml.jar
+SAXON_JAR			:= $(THIRD_PARTY_JAR_DIR)/saxon.jar
 
 # Classpath for Java compiler
-JAVAC_CLASSPATH	:= $(THIRD_PARTY_JAR_DIR)/$(ANTLR3_RUNTIME_JAR):$(THIRD_PARTY_JAR_DIR)/$(NANOXML_JAR):$(THIRD_PARTY_JAR_DIR)/$(SAXON_JAR):$(CLASSES_DIR)
+JAVAC_CLASSPATH	:= $(ANTLR3_RUNTIME_JAR):$(NANOXML_JAR):$(SAXON_JAR):$(CLASSES_DIR)
 
 # Java compiler options
 JAVAC_OPTIONS	:= -g

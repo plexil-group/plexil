@@ -27,9 +27,10 @@
 #ifndef _H_PlexilExec
 #define _H_PlexilExec
 
-#include "ExecDefs.hh"
-#include "PlexilPlan.hh"
+#include "ExecConnector.hh"
+#include "generic_hash_map.hh"
 #include "LabelStr.hh"
+#include "PlexilPlan.hh"
 
 #include <list>
 #include <set>
@@ -39,26 +40,10 @@ namespace PLEXIL
   // Forward references
   class ExternalInterface;
   typedef Id<ExternalInterface> ExternalInterfaceId;
-
-  // *** ExecListener now has its own file ***
-
-  /**
-   * @brief Class for managing the messages from nodes to the executive.  Primarily to facilitate testing.
-   */
-  class ExecConnector {
-  public:
-    ExecConnector() : m_id(this) {}
-    virtual ~ExecConnector() {m_id.remove();}
-    const ExecConnectorId& getId() const {return m_id;}
-    virtual void notifyNodeConditionChanged(NodeId node) = 0;
-    virtual void handleConditionsChanged(const NodeId& node) = 0;
-    virtual void handleNeedsExecution(const NodeId& node) = 0;
-    virtual const StateCacheId& getStateCache() = 0;
-    virtual const ExternalInterfaceId& getExternalInterface() = 0;
-  protected:
-  private:
-    ExecConnectorId m_id;
-  };
+  class ExecListenerBase;
+  typedef Id<ExecListenerBase> ExecListenerBaseId;
+  class ExecListenerHub;
+  typedef Id<ExecListenerHub> ExecListenerHubId;
 
   /**
    * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
@@ -71,7 +56,8 @@ namespace PLEXIL
    * @brief The core PLEXIL executive.  Instantiate it with the XML representation for a plan, instantiate
    * an external interface, and it should start doing things the moment an event comes in.
    */
-  class PlexilExec {
+  class PlexilExec : public ExecConnector
+  {
   public:
     /**
      * @brief Constructor.  Instantiates the entire plan from parsed XML.
@@ -140,15 +126,38 @@ namespace PLEXIL
      */
     void step();
 
+	/**
+	 * @brief Returns true if the Exec needs to be stepped.
+	 */
+	bool needsStep() const;
+
+	/**
+	 * @brief Set the ExecListenerHub instance.
+	 */
+	void setExecListenerHub(const ExecListenerHubId& hub)
+	{
+	  m_listener = hub;
+	}
+
+	/**
+	 * @brief Get the ExecListenerHub instance.
+	 */
+	const ExecListenerHubId& getExecListenerHub() const
+	{
+	  return m_listener;
+	}
+
     /**
      * @brief Adds an ExecListener for publication of node transition events.
+	 * @note Convenience method for backward compatibility.
      */
-    void addListener(const ExecListenerId& listener);
+    void addListener(const ExecListenerBaseId& listener);
 
     /**
      * @brief Removes an ExecListener.
+	 * @note Convenience method for backward compatibility.
      */
-    void removeListener(const ExecListenerId& listener);
+    void removeListener(const ExecListenerBaseId& listener);
 
     /**
      * @brief accessor for the state cache.
@@ -161,16 +170,31 @@ namespace PLEXIL
      */
     bool allPlansFinished() const;
 
-    /**
-     * @brief Publish a command's return value to the listeners.  This is a
-     * (temporary?) hack to work around the fact that some interfaces (in
-     * particular the TestExternalInterface) don't have access to the listeners,
-     * yet are responsible for assigning the return values of commands.
-     */
-    void publishCommandReturn (const ExpressionId& dest,
-                               const std::string& destName,
-                               const double& value);
+	//
+	// API to Node classes
+	//
 
+	/**
+	 * @brief Schedule this assignment for execution.
+	 */
+	void enqueueAssignment(const AssignmentId& assign);
+
+	/**
+	 * @brief Schedule this command for execution.
+	 */
+	void enqueueCommand(const CommandId& cmd);
+
+	/**
+	 * @brief Schedule this update for execution.
+	 */
+	void enqueueUpdate(const UpdateId& update);
+
+	/**
+	 * @brief Needed for stupid unit test
+	 */
+	virtual void notifyExecuted(const NodeId& node) 
+	{
+	}
 
   protected:
     friend class RealExecConnector;
@@ -186,17 +210,7 @@ namespace PLEXIL
      * Adds assignment nodes that are eligible for execution to the resource conflict map.
      * @param node The node which is eligible for state change.
      */
-    void handleConditionsChanged(const NodeId node);
-
-    /**
-     * @brief Handle the fact that a node has transitioned to EXECUTING.  Adds
-     * whatever the node is supposed to do (assign, execute a command) to a list to be batched to the external interface.
-     * @param node The node which has transitioned to state EXECUTING.
-     */
-    void handleNeedsExecution(const NodeId node);
-
-    //const ExpressionId& findVariable(const LabelStr& name);
-
+    void handleConditionsChanged(const NodeId& node, NodeState newState);
 
   private:
 
@@ -213,14 +227,14 @@ namespace PLEXIL
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
      * @param node The assignment node.
      */
-    void addToResourceContention(const NodeId node);
+    void addToResourceContention(const NodeId& node);
 
     /**
      * @brief Removes a node from consideration for resource contention.  This is usually because some condition has changed that makes the node no longer
      * eligible for execution.
      * @param node The assignment node.
      */
-    void removeFromResourceContention(const NodeId node);
+    void removeFromResourceContention(const NodeId& node);
 
     /**
      * @brief Gets a stringified version of the current state change queue.
@@ -238,31 +252,25 @@ namespace PLEXIL
      */
     int inQueue(const NodeId node) const;
 
-    void publishNodeTransitions(const std::vector<NodeTransition>& transitions) const;
-    void publishAddPlan(const PlexilNodeId& plan, const LabelStr& parent);
-    void publishAddLibrary(const PlexilNodeId& libNode);
-    void publishAssignment(const ExpressionId & dest,
-                           const std::string& destName,
-                           const double& value);
-
+	typedef std::map<unsigned int, NodeTransition> StateChangeQueue;
+	typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
+	typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
     PlexilExecId m_id; /*<! The Id for this executive.*/
     unsigned int m_cycleNum, m_queuePos;
-    ExecConnectorId m_connector;
     StateCacheId m_cache;
     ExternalInterfaceId m_interface;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     std::vector<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    //std::list<NodeId> m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
-    std::map<unsigned int, NodeId> m_stateChangeQueue;
+    StateChangeQueue m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
-    std::map<ExpressionId, std::multiset<NodeId, NodeConflictComparator> > m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
-                                                                                                  The nodes in the sets are assignment nodes which can assign values to the variable.
-                                                                                                  The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
-                                                                                                  Essentially, at each quiescence cycle, the first node in each set that isn't already
-                                                                                                  in state EXECUTING gets added to the end of the queue. */
-    std::vector<ExecListenerId> m_listeners;
+    VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
+											   The nodes in the sets are assignment nodes which can assign values to the variable.
+											   The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
+											   Essentially, at each quiescence cycle, the first node in each set that isn't already
+											   in state EXECUTING gets added to the end of the queue. */
+    ExecListenerHubId m_listener;
     std::map<std::string, PlexilNodeId> m_libraries;
   };
 }

@@ -28,6 +28,7 @@
 #define _H_ExecDefs
 
 #include "Id.hh"
+#include "generic_hash_map.hh"
 
 #include <vector>
 #include <list>
@@ -45,6 +46,12 @@ namespace PLEXIL {
   class ExpressionListener;
   typedef Id<ExpressionListener> ExpressionListenerId;
 
+  class Variable;
+  typedef Id<Variable> VariableId;
+
+  class ArrayVariableBase;
+  typedef Id<ArrayVariableBase> ArrayVariableId;
+
   class Node;
   typedef Id<Node> NodeId;
 
@@ -59,6 +66,9 @@ namespace PLEXIL {
 
   class ExecListener;
   typedef Id<ExecListener> ExecListenerId;
+
+  class ExecListenerHub;
+  typedef Id<ExecListenerHub> ExecListenerHubId;
 
   class ExecConnector;
   typedef Id<ExecConnector> ExecConnectorId;
@@ -80,8 +90,7 @@ namespace PLEXIL {
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
-  typedef double StateKey;
-  typedef double LookupKey;
+  typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
 
     /**
      * @brief Variable type enumerator.  An enumeration of plexil variable types.
@@ -115,7 +124,11 @@ namespace PLEXIL {
    */
   struct NodeTransition {
 	NodeId node;
-	NodeState oldState;
+	NodeState state;
+	// default constructor
+	NodeTransition() : node(), state(INACTIVE_STATE) {}
+	// trivial constructor
+	NodeTransition(const NodeId& nod, NodeState stat) : node(nod), state(stat) {}
   };
 
 }

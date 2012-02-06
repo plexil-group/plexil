@@ -32,8 +32,6 @@
 #include <time.h> // *** better be POSIX time.h! ***
 #include <map>
 
-// forward reference w/o namespace
-
 namespace PLEXIL
 {
 
@@ -53,11 +51,11 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      * @param execInterface Reference to the parent AdapterExecInterface object.
-     * @param xml A const pointer to the TiXmlElement describing this adapter
-     * @note The instance maintains a shared pointer to the TiXmlElement.
+     * @param xml A const reference to the XML element describing this adapter
+     * @note The instance maintains a shared pointer to the XML.
      */
     PosixTimeAdapter(AdapterExecInterface& execInterface, 
-                     const TiXmlElement * xml);
+                     const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -99,31 +97,32 @@ namespace PLEXIL
     bool shutdown();
 
     /**
-     * @brief Register one LookupOnChange.
-     * @param uniqueId The unique ID of this lookup.
-     * @param stateKey The state key for this lookup.
-     * @param tolerances A vector of tolerances for the LookupOnChange.
-     */
-
-    void registerChangeLookup(const LookupKey& uniqueId,
-                              const StateKey& stateKey,
-                              const std::vector<double>& tolerances);
-
-    /**
-     * @brief Terminate one LookupOnChange.
-     * @param uniqueId The unique ID of the lookup to be terminated.
-     */
-
-    void unregisterChangeLookup(const LookupKey& uniqueId);
-
-    /**
      * @brief Perform an immediate lookup of the requested state.
-     * @param stateKey The state key for this lookup.
-     * @param dest A (reference to a) vector of doubles where the result is to be stored.
+     * @param state The state for this lookup.
+     * @return The current value for this lookup.
      */
 
-    void lookupNow(const StateKey& stateKey,
-                   std::vector<double>& dest);
+    double lookupNow(const State& state);
+
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    void subscribe(const State& state);
+
+    /**
+     * @brief Inform the interface that a lookup should no longer receive updates.
+     * @param state The state.
+     */
+    void unsubscribe(const State& state);
+
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    void setThresholds(const State& state, double hi, double lo);
 
     //
     // Static member functions
@@ -135,32 +134,12 @@ namespace PLEXIL
      */
     static double getCurrentTime();
 
-    /**
-     * @brief Convert a timespec value into a double.
-     * @param ts Reference to a constant timespec instance.
-     * @return The timespec value converted to a double float.
-     */
-    static double timespecToDouble(const timespec& ts);
-
-    /**
-     * @brief Convert a double value into a timespec.
-     * @param tym The double to be converted.
-     * @param result Reference to a writable timespec instance.
-     */
-    static void doubleToTimespec(double tym, timespec& result);
-
   private:
 
     // Deliberately unimplemented
     PosixTimeAdapter();
     PosixTimeAdapter(const PosixTimeAdapter &);
     PosixTimeAdapter & operator=(const PosixTimeAdapter &);
-
-    //
-    // Types
-    //
-
-    typedef std::map<LookupKey, timer_t> LookupTimerMap;
 
     //
     // Internal member functions
@@ -182,15 +161,17 @@ namespace PLEXIL
      */
     void timerTimeout();
 
+    /**
+     * @brief Stop the timer.
+     */
+    void stopTimer();
+
     //
     // Member variables
     //
 
-    LookupTimerMap m_lookupTimerMap;
     sigevent m_sigevent;
-
-    // Speed hack for timerTimeout()
-    std::vector<double> m_timeVector;
+    timer_t m_timer;
   };
 
 }
