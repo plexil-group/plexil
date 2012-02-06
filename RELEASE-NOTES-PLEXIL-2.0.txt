@@ -1,0 +1,37 @@
+Welcome to Plexil 2.0!
+
+If you need the version prior to 06 February 2012, it may be checked out as:
+
+ https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-1.7.1
+
+New features in this release include:
+
+ - The Plexil executive is now significantly faster, with major
+ speedups in XML parsing (see below), construction of internal
+ representations, and execution proper.
+
+ - A new version of the Plexil language translator. We believe the
+ revised language will be much simpler to use. The example plans have
+ been updated to the new syntax. (The old translator remains, but is
+ deprecated, and will no longer be supported.)
+
+Changes include:
+
+ - New, simpler interfacing APIs.
+
+ - The TinyXML parser has been replaced by pugixml, which proved 20x
+ faster in our testing. This was a major contributor to the improved
+ performance of the executive.
+
+ - The Plexil executive's behavior conforms more closely to its
+ specification.
+
+Not changed:
+
+ - The Plexil XML representation has not changed. Old .plx files will
+ continue to work unmodified in Plexil 2.0.
+
+Thank you for using PLEXIL!
+
+-- The PLEXIL team
+
