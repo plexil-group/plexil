@@ -116,7 +116,7 @@ namespace PLEXIL
 
     void update(double value)
     {
-	  if (differenceMagnitude(previousValue, value) <= tolerance) {
+	  if (tolerance != 0.0 && differenceMagnitude(previousValue, value) < tolerance) {
 		debugMsg("StateCache:updateState", 
 				 "Not updating. All changes are within the tolerance.");
 		return;
@@ -125,6 +125,10 @@ namespace PLEXIL
 		  && value != Expression::UNKNOWN()) {
 		  debugMsg("StateCache:updateState", "Updating because the previous value is UNKNOWN.");
 	  }
+      else if (tolerance == 0.0) {
+		debugMsg("StateCache:updateState",
+				 "Updating because the value has changed and no tolerance specified");
+      }
 	  else {
 		debugMsg("StateCache:updateState",
 				 "Updating because the change in value exceeds tolerance " << 
