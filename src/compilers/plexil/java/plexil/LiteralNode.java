@@ -114,8 +114,6 @@ public class LiteralNode extends ExpressionNode
             m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
             break;
 
-        case PlexilLexer.COMMAND_ABORTED_KYWD:
-        case PlexilLexer.COMMAND_ABORT_FAILED_KYWD:
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
         case PlexilLexer.COMMAND_FAILED_KYWD:
