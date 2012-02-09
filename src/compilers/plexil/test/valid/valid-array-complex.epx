@@ -24,21 +24,21 @@
             <LoopVariable>
                 <DeclareVariable LineNo="6" ColNo="7">
                     <Name>i</Name>
-                    <Type>Real</Type>
+                    <Type>Integer</Type>
                     <InitialValue>
-                        <RealValue>0.0</RealValue>
+                        <IntegerValue>0</IntegerValue>
                     </InitialValue>
                 </DeclareVariable>
             </LoopVariable>
             <Condition>
-                <LT LineNo="6" ColNo="23">
-                    <RealVariable>i</RealVariable>
-                    <RealValue>30.0</RealValue>
+                <LT LineNo="6" ColNo="24">
+                    <IntegerVariable>i</IntegerVariable>
+                    <IntegerValue>30</IntegerValue>
                 </LT>
             </Condition>
             <LoopVariableUpdate>
-                <ADD LineNo="6" ColNo="33">
-                    <RealVariable>i</RealVariable>
+                <ADD LineNo="6" ColNo="32">
+                    <IntegerVariable>i</IntegerVariable>
                     <IntegerValue>1</IntegerValue>
                 </ADD>
             </LoopVariableUpdate>
@@ -50,7 +50,7 @@
                             <ArrayElement>
                                 <Name>bar</Name>
                                 <Index>
-                                    <RealVariable>i</RealVariable>
+                                    <IntegerVariable>i</IntegerVariable>
                                 </Index>
                             </ArrayElement>
                             <NumericRHS>

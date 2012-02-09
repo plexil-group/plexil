@@ -3,7 +3,7 @@ ArrayComplex:
   Real foo[4] = #(0.0 -0.0 0.0 -0.0);
   Real bar[30];
 
-  for (Real i = 0.0; i < 30.0; i + 1) {
+  for (Integer i = 0; i < 30; i + 1) {
     bar[i] = 0.0;
   }
 
