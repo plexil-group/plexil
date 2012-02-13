@@ -25,7 +25,14 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-test-send:
+Command print(...);
+Command test_udp_msg(...);
+Command ack_msg(String);
+Command quit_msg(String);
+Real Lookup time;
+
+test_send:
+UncheckedSequence
 {
     String arg1 = "CA";                    // intentionally shorter than declared in udp.xml (for testing)
     //Boolean arg2 = false;                // set to "true" to request an "ack" from the other agent
@@ -38,54 +45,52 @@ test-send:
     Real run_start_time;
     Boolean ackTimedOut = false;
 
-    UncheckedSequence:
-
     RecordStartTime:
     {
         Assignment: run_start_time = Lookup(time);
     }
 
     SendUdpCommand1:
+    Sequence
     {
-        Sequence:
         ReportParameters:
         {
-            Command print ("\ntest-send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
-                           ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+            print ("\ntest_send: sending arg1==", arg1, ", arg2==false, arg3==", arg3, ", arg4==", arg4,
+                   ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
         }
         SendCommand:
         {
-            Command test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
+            test_udp_msg (arg1, false, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, no ack
         }
     }
 
     SendUdpCommand2:
+    Concurrence
     {
-        StartCondition: Lookup(time, 1) > run_start_time + 2;
-        //StartCondition: Lookup(time, 1) > SendUdpCommand1.FINISHED.END + 2; // why doesn't this work?
-        InvariantCondition: ackTimedOut == false;
-        Concurrence:
+        StartCondition Lookup(time, 1) > run_start_time + 2;
+        //StartCondition Lookup(time, 1) > SendUdpCommand1.FINISHED.END + 2; // why doesn't this work?
+        InvariantCondition ackTimedOut == false;
         ReportParameters:
         {
-            Command print ("\ntest-send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
-                           ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
+            print ("\ntest_send: sending arg1==", arg1, ", arg2==true, arg3==", arg3, ", arg4==", arg4,
+                   ", arg5==", arg5, ", arg6==", arg6, ", arg7==", arg7, ", arg8==", arg8, "\n\n");
         }
         HandleAck:
         {
-            StartCondition: ReportParameters.state == FINISHED;
-            OnCommand ack_msg (String ack)
+            StartCondition ReportParameters.state == FINISHED;
+            OnCommand "ack_msg" (String ack)
             {
-                Command print ("\ntest-send: received ack\n\n");
+                print ("\ntest_send: received ack\n\n");
             }
         }
         HandleTimeout:
+        UncheckedSequence
         {
-            StartCondition: Lookup(time, 1) > run_start_time + 4;
-            SkipCondition: HandleAck.state == FINISHED;
-            UncheckedSequence:
+            StartCondition Lookup(time, 1) > run_start_time + 4;
+            SkipCondition HandleAck.state == FINISHED;
             ReportTimeout:
             {
-                Command print ("\ntest-send: ack timed out\n\n");
+                print ("\ntest_send: ack timed out\n\n");
             }
             SignalTimeout:
             {
@@ -94,22 +99,22 @@ test-send:
         }
         SendCommand:
         {
-            StartCondition: HandleAck.state == EXECUTING;
-            Command test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
+            StartCondition HandleAck.state == EXECUTING;
+            test_udp_msg (arg1, true, arg3, arg4, arg5, arg6, arg7, arg8); // Send the UDP message, ack requested
         }
     }
 
     SendQuitCommand:
+    Sequence
     {
-        StartCondition: SendUdpCommand2.state == FINISHED;
-        Sequence:
+        StartCondition SendUdpCommand2.state == FINISHED;
         ReportSendQuit:
         {
-            Command print ("\ntest-send: sending quit command\n\n");
+            print ("\ntest_send: sending quit command\n\n");
         }
         SendQuit:
         {
-            Command quit_msg ("quit");   // Send a Quit command
+            quit_msg ("quit");   // Send a Quit command
         }
     }
 }
