@@ -169,12 +169,11 @@ namespace PLEXIL
       return true;
     }
 
-    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML " << configXml);
+    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML");
     const char* elementType = configXml.name();
     if (!strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) == 0) {
       debugMsg("InterfaceManager:constructInterfaces",
-               " invalid configuration XML: \n"
-               << configXml);
+               " invalid configuration XML: no " << InterfaceSchema::INTERFACES_TAG() << " element");
       return false;
     }
     const char* configType =
@@ -191,10 +190,14 @@ namespace PLEXIL
     // and register the adapter according to the data found there
     pugi::xml_node element = configXml.first_child();
     while (!element.empty()) {
-	  debugMsg("InterfaceManager:constructInterfaces", " found element " << element.name());
+	  debugMsg("InterfaceManager:verboseConstructInterfaces", " found element " << element.name());
 	  const char* elementType = element.name();
 	  if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
 		// Construct the adapter
+		debugMsg("InterfaceManager:constructInterfaces",
+				 " constructing adapter type \""
+				   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+				   << "\"");
 		InterfaceAdapterId adapter = 
 		  AdapterFactory::createInstance(element,
 										 *((AdapterExecInterface*)this));
@@ -209,6 +212,9 @@ namespace PLEXIL
 	  }
 	  else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
 		// Construct an ExecListener instance and attach it to the Exec
+		debugMsg("InterfaceManager:constructInterfaces",
+				 " constructing listener type \""
+				 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value());
 		ExecListenerId listener = 
 		  ExecListenerFactory::createInstance(element);
 		if (!listener.isId()) {
@@ -262,7 +268,7 @@ namespace PLEXIL
 	  element = element.next_sibling();
 	}
 
-    debugMsg("InterfaceManager:constructInterfaces", " done.");
+    debugMsg("InterfaceManager:verboseConstructInterfaces", " done.");
     return true;
   }
 
