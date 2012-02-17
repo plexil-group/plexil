@@ -214,7 +214,8 @@ namespace PLEXIL
 		// Construct an ExecListener instance and attach it to the Exec
 		debugMsg("InterfaceManager:constructInterfaces",
 				 " constructing listener type \""
-				 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value());
+				 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
+				 << "\"");
 		ExecListenerId listener = 
 		  ExecListenerFactory::createInstance(element);
 		if (!listener.isId()) {
