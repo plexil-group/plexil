@@ -1,5 +1,4 @@
 // -*- Mode: java -*-
-// File: plexil/examples/multi-exec/agents/timed-iteration.ple
 
 Command pprint(...);
 Command recv_test(...);
@@ -8,7 +7,7 @@ Command SendUdpMessage(...);
 //Command ReceiveUdpMessage(...);
 Real Lookup time;
 
-Timed-iteration:
+TimedIteration:
 {
     Real run_start_time;
     Real period = 0.5;
@@ -17,27 +16,27 @@ Timed-iteration:
     Real tolerance = 0.01;
     String apt_id = "PDU";
     Boolean continue = true;
-    record-run-start-time: run_start_time = Lookup(time);
-    periodic-iteration:
+    recordRunStartTime: run_start_time = Lookup(time);
+    periodicIteration:
     {
         Real iteration_start_time;
         RepeatCondition continue;
-        // ((now - run-start-time) % period) < (2 * tolerance)
-        StartCondition ((LookupOnChange(time, tolerance) - run_start_time) % period) < (2 * tolerance);
-        record-iteration-start-time: iteration_start_time = Lookup(time);
-        record-elapsed-time: elapsed_time = iteration_start_time - run_start_time;
-        print-elapsed-time: pprint("elapsed_time: ", elapsed_time);
-        wait-a-bit: Wait (2 * tolerance), tolerance;
-        conditionally-end-iteration:
+        StartCondition ((Lookup(time, tolerance) - run_start_time) % period)
+                       < (2 * tolerance);
+        record_iteration_start_time: iteration_start_time = Lookup(time);
+        record_elapsed_time: elapsed_time = iteration_start_time - run_start_time;
+        print_elapsed_time: pprint("elapsed_time: ", elapsed_time);
+        wait_a_bit: Wait (2 * tolerance), tolerance;
+        conditionally_end_iteration:
         {
             SkipCondition elapsed_time <= run_length;
-            signal-end-of-iteration: continue = false;
-            notify-end-of-iteration: pprint("Ending periodic iteration");
+            signal_end_of_iteration: continue = false;
+            notify_end_of_iteration: pprint("Ending periodic iteration");
         }
     }
-    udp-send-test1: SendUdpMessage("recv_test", apt_id, false, run_length, tolerance);
-    udp-send-test2: recv_test (apt_id, true, run_length + 1, elapsed_time);
-    //temp-test: SendMessage("Quit");
-    //udp-recv-test: OnUdpMessage("recv_test", apt_id, run_length, tolerance);
-    //udp-recv-test: ReceiveUdpMessage("recv_test", run_length, tolerance);
+    udp_send_test1: SendUdpMessage("recv_test", apt_id, false, run_length, tolerance);
+    udp_send_test2: recv_test (apt_id, true, run_length + 1, elapsed_time);
+    //temp_test: SendMessage("Quit");
+    //udp_recv_test: OnUdpMessage("recv_test", apt_id, run_length, tolerance);
+    //udp_recv_test: ReceiveUdpMessage("recv_test", run_length, tolerance);
 }
