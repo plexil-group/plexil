@@ -21,7 +21,7 @@ DriveToSchool:
     {
       KeyStart:
       {
-        PostCondition Lookup (car_started);
+        PostCondition Lookup(car_started);
         PrimeAccelerator:
         {
           for ( Integer count = 0; count < 3; count + 1 )
@@ -38,7 +38,7 @@ DriveToSchool:
           {
             // NOTE: We'd like to add a time elapsed check to this end
             // condition, but the Plexil compiler doesn't support this yet.
-            EndCondition LookupOnChange(car_started);
+            EndCondition Lookup(car_started);
             turn_key();
           }	      	    
         }
@@ -46,7 +46,7 @@ DriveToSchool:
 
       PushStart:
       {
-        PostCondition Lookup (car_started);
+        PostCondition Lookup(car_started);
         push_start();
       }
     } // end of Try
@@ -54,19 +54,19 @@ DriveToSchool:
 
   SelectStation:
   {
-    if ( Lookup (no_passengers) ) Radio: { select_radio(); }
+    if ( Lookup(no_passengers) ) Radio: { select_radio(); }
     else CD: { select_CD(); }
     endif
   }
 
   DriveUntilAtSchool:
   {
-    while ( !Lookup (at_school) )
+    while ( !Lookup(at_school) )
     KeepDriving: Concurrence
     {
       HandleRain:
       {
-        if ( Lookup (raining) )
+        if ( Lookup(raining) )
           Concurrence
           {
             Wipers: { turn_on_wipers(); }
@@ -77,7 +77,7 @@ DriveToSchool:
 
       DriveABit:
       {
-        EndCondition Lookup (at_school);
+        EndCondition Lookup(at_school);
         drive_a_bit();
       }    
     }  // end of KeepDriving
