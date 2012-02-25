@@ -656,7 +656,8 @@
                    (if val
                        (list (xml "InitialValue" (xml "StringValue" val))))))))
 
-(pdefine pl (Duration duration) (name &optional val) 2 nil ; string * opt(ISO 8601 Duration) -> xml
+(pdefine pl (Duration duration) (name &optional val) 2 nil 
+  ;; string * opt(ISO 8601 Duration) -> xml
   "Declare an ISO 8601 duration variable, with optional initial value."
   (xml "DeclareVariable"
        (cons (xml "Name" name)
@@ -664,7 +665,8 @@
                    (if val
                        (list (xml "InitialValue" (xml "DurationValue" val))))))))
 
-(pdefine pl (Date date) (name &optional val) 2 nil ; string * opt(ISO 8601 Date) -> xml
+(pdefine pl (Date date) (name &optional val) 2 nil 
+  ;; string * opt(ISO 8601 Date) -> xml
   "Declare an ISO 8601  date variable, with optional initial value."
   (xml "DeclareVariable"
        (cons (xml "Name" name)
