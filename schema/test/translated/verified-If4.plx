@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!-- Tests Unknown result --><PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="If">
-      <NodeId>Root</NodeId>
+      <NodeId>ep2cp_If_d1e4</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
-            <Name>foo</Name>
+            <Name>test</Name>
             <Type>Boolean</Type>
-            <InitialValue>
-               <BooleanValue>true</BooleanValue>
-            </InitialValue>
          </DeclareVariable>
          <DeclareVariable>
             <Name>ep2cp_test</Name>
@@ -24,7 +21,7 @@
                   <Assignment>
                      <BooleanVariable>ep2cp_test</BooleanVariable>
                      <BooleanRHS>
-                        <BooleanVariable>foo</BooleanVariable>
+                        <BooleanVariable>test</BooleanVariable>
                      </BooleanRHS>
                   </Assignment>
                </NodeBody>

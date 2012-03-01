@@ -32,19 +32,6 @@
                      <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>
                </StartCondition>
-               <EndCondition>
-                  <OR>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ep2cp_IfThenCase</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                     <NOT>
-                        <BooleanVariable>ep2cp_test</BooleanVariable>
-                     </NOT>
-                  </OR>
-               </EndCondition>
                <NodeBody>
                   <NodeList>
                      <Node NodeType="NodeList" epx="Then">
@@ -52,6 +39,18 @@
                         <StartCondition>
                            <BooleanVariable>ep2cp_test</BooleanVariable>
                         </StartCondition>
+                        <SkipCondition>
+                           <OR>
+                              <NOT>
+                                 <IsKnown>
+                                    <BooleanVariable>ep2cp_test</BooleanVariable>
+                                 </IsKnown>
+                              </NOT>
+                              <NOT>
+                                 <BooleanVariable>ep2cp_test</BooleanVariable>
+                              </NOT>
+                           </OR>
+                        </SkipCondition>
                         <NodeBody>
                            <NodeList>
                               <Node NodeType="Empty">

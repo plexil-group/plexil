@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!-- Tests Unknown result, when there's no Else clause --><PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="If">
-      <NodeId>Root</NodeId>
+      <NodeId>ep2cp_If_d1e4</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
-            <Name>foo</Name>
+            <Name>test</Name>
             <Type>Boolean</Type>
-            <InitialValue>
-               <BooleanValue>true</BooleanValue>
-            </InitialValue>
          </DeclareVariable>
          <DeclareVariable>
             <Name>ep2cp_test</Name>
@@ -24,7 +21,7 @@
                   <Assignment>
                      <BooleanVariable>ep2cp_test</BooleanVariable>
                      <BooleanRHS>
-                        <BooleanVariable>foo</BooleanVariable>
+                        <BooleanVariable>test</BooleanVariable>
                      </BooleanRHS>
                   </Assignment>
                </NodeBody>
@@ -62,31 +59,6 @@
                            <NodeList>
                               <Node NodeType="Empty">
                                  <NodeId>One</NodeId>
-                              </Node>
-                           </NodeList>
-                        </NodeBody>
-                     </Node>
-                     <Node NodeType="NodeList" epx="Else">
-                        <NodeId>ep2cp_IfElseCase</NodeId>
-                        <StartCondition>
-                           <OR>
-                              <NOT>
-                                 <IsKnown>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </IsKnown>
-                              </NOT>
-                              <NOT>
-                                 <BooleanVariable>ep2cp_test</BooleanVariable>
-                              </NOT>
-                           </OR>
-                        </StartCondition>
-                        <SkipCondition>
-                           <BooleanVariable>ep2cp_test</BooleanVariable>
-                        </SkipCondition>
-                        <NodeBody>
-                           <NodeList>
-                              <Node NodeType="Empty">
-                                 <NodeId>Two</NodeId>
                               </Node>
                            </NodeList>
                         </NodeBody>

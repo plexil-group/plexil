@@ -1,17 +1,15 @@
+<!-- Tests Unknown result -->
+
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <If>
-    <NodeId>Root</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
-        <Name>foo</Name>
+        <Name>test</Name>
         <Type>Boolean</Type>
-        <InitialValue>
-            <BooleanValue>true</BooleanValue>
-        </InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
     <Condition>
-      <BooleanVariable>foo</BooleanVariable>
+      <BooleanVariable>test</BooleanVariable>
     </Condition>
     <Then>
       <Node NodeType="Empty">
@@ -22,6 +20,6 @@
       <Node NodeType="Empty">
         <NodeId>Two</NodeId>
       </Node>
-    </Else>
+    </Else>    
   </If>
 </PlexilPlan>

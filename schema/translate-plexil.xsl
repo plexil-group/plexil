@@ -320,27 +320,6 @@
               <xsl:with-param name="id" select="$setup-node-id" />
             </xsl:call-template>
           </StartCondition>
-          <EndCondition>
-            <OR>
-              <xsl:call-template name="node-finished">
-                <xsl:with-param name="id" select="$true-node-id" />
-              </xsl:call-template>
-              <xsl:choose>
-                <xsl:when test="Else">
-                  <xsl:call-template name="node-finished">
-                    <xsl:with-param name="id" select="$false-node-id" />
-                  </xsl:call-template>
-                </xsl:when>
-                <xsl:otherwise>
-                  <NOT>
-                    <BooleanVariable>
-                      <xsl:value-of select="tr:prefix('test')" />
-                    </BooleanVariable>
-                  </NOT>
-                </xsl:otherwise>
-              </xsl:choose>
-            </OR>
-          </EndCondition>
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="Then">
@@ -352,6 +331,11 @@
                     <xsl:value-of select="tr:prefix('test')" />
                   </BooleanVariable>
                 </StartCondition>
+                <SkipCondition>
+                  <xsl:call-template name= "variable-unknown-or-false">
+                    <xsl:with-param name= "var" select= "tr:prefix('test')"/>
+                  </xsl:call-template>
+                </SkipCondition>
                 <NodeBody>
                   <NodeList>
                     <xsl:apply-templates select="Then/*" />
@@ -364,12 +348,15 @@
                     <xsl:value-of select="$false-node-id" />
                   </NodeId>
                   <StartCondition>
-                    <NOT>
-                      <BooleanVariable>
-                        <xsl:value-of select="tr:prefix('test')" />
-                      </BooleanVariable>
-                    </NOT>
+                    <xsl:call-template name= "variable-unknown-or-false">
+                      <xsl:with-param name= "var" select= "tr:prefix('test')"/>
+                    </xsl:call-template>
                   </StartCondition>
+                  <SkipCondition>
+                    <BooleanVariable>
+                      <xsl:value-of select="tr:prefix('test')" />
+                    </BooleanVariable>
+                  </SkipCondition>
                   <NodeBody>
                     <NodeList>
                       <xsl:apply-templates select="Else/*" />
@@ -384,6 +371,23 @@
     </NodeBody>
   </xsl:template>
 
+  <xsl:template name= "variable-unknown-or-false">
+    <xsl:param name= "var"/>
+    <OR>
+      <NOT>
+        <IsKnown>
+          <BooleanVariable>
+            <xsl:value-of select="$var" />
+          </BooleanVariable>
+        </IsKnown>
+      </NOT>
+      <NOT>
+        <BooleanVariable>
+          <xsl:value-of select="$var" />
+        </BooleanVariable>
+      </NOT>
+    </OR>
+  </xsl:template>
 
   <xsl:template match="While">
     <Node NodeType="NodeList" epx="While">
