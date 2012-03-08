@@ -1,0 +1,24 @@
+Date Command getDate (Date d);
+Duration Command getDuration (Duration d);
+
+Date Lookup TheDate (Date d);
+Duration Lookup TheDuration (Duration d);
+
+
+{
+  Date da1;
+  Date da2 = "foo";
+  Duration du1;
+  Duration du2 = "bar";
+
+  Date das1[3] = #("foo" "bar" "baz");
+  Duration dus1[3] = #("foo" "bar" "baz");
+
+  da1 = getDate(da2);
+  du1 = getDuration(du2);
+
+  da1 = Lookup (TheDate (da2));
+  du1 = Lookup (TheDuration (du2));
+
+//  da1 = da1 + du1;
+}

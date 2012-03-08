@@ -160,20 +160,21 @@ public class ArithmeticOperatorNode extends ExpressionNode
                 ExpressionNode operand = (ExpressionNode) this.getChild(i);
                 PlexilDataType otype = operand.getDataType();
                 if (i == 0) {
-                    if (otype.isNumeric() || otype == PlexilDataType.STRING_TYPE) {
+                    if (otype.isNumeric() || otype.isTemporal() ||
+                        otype == PlexilDataType.STRING_TYPE) {
                         // any of these types is OK
                         m_dataType = operand.getDataType();
                     }
                     else {
                         state.addDiagnostic(operand,
                                             "The first operand to the " + this.getToken().getText()
-                                            + " operator is not a numeric type or a string",
+                                            + " operator is not a number, date, duration, or string",
                                             Severity.ERROR);
                     }
                 }
                 else {
                     // following parameters must match first op's type
-                    if (otype == m_dataType) {
+                    if (otype == m_dataType && m_dataType != PlexilDataType.DATE_TYPE) {
                         // no action needed
                     }
                     else if (otype.isNumeric() && m_dataType.isNumeric()) {
@@ -183,6 +184,9 @@ public class ArithmeticOperatorNode extends ExpressionNode
                             // Result is real
                             m_dataType = otype;
                         }
+                    }
+                    else if (otype == PlexilDataType.DURATION_TYPE && m_dataType == PlexilDataType.DATE_TYPE) {
+                        // you can add durations to dates, so this is fine
                     }
                     else {
                         state.addDiagnostic(operand,

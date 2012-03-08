@@ -93,7 +93,7 @@ public class ExpressionNode extends PlexilTreeNode
     // Lookup expressions can override this if needed (?)
     public String assignmentRHSElementName()
     {
-        if (m_dataType.isNumeric())
+        if (m_dataType.isNumeric() || m_dataType.isTemporal())
             return "NumericRHS";
         else if (m_dataType.isArray())
             return "ArrayRHS";

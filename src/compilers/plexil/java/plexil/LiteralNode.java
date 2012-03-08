@@ -169,6 +169,11 @@ public class LiteralNode extends ExpressionNode
             m_dataType = t;
             return true;
         }
+        else if (m_dataType == PlexilDataType.STRING_TYPE
+                 && t.isTemporal()) {
+            // do nothing: for now, all strings pass for dates and durations
+            return true;
+        }
         else if (t == PlexilDataType.BOOLEAN_TYPE
                  && m_dataType == PlexilDataType.INTEGER_TYPE) {
             int value = parseIntegerValue(this.getToken().getText());

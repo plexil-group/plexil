@@ -109,6 +109,8 @@ public final class PlexilDataType
     public boolean isPrimitive() { return m_isPrimitive; }
     public boolean isArray() { return m_isArray; }
     public boolean isNumeric() { return m_isNumeric; }
+    public boolean isTemporal() { return (m_id == "DURATION_TYPE" ||
+                                          m_id == "DATE_TYPE"); }
     public PlexilDataType arrayElementType() { return m_elementType; }
     public PlexilDataType arrayType() { return m_arrayType; }
     public static int size() { return s_upperBound; }
@@ -122,13 +124,22 @@ public final class PlexilDataType
     //
 
     // Invalid type
-    public static final PlexilDataType ERROR_TYPE = new PlexilDataType("ERROR_TYPE", "Error", false);
+    public static final PlexilDataType ERROR_TYPE =
+        new PlexilDataType("ERROR_TYPE", "Error", false);
 
     // Primitive types
-    public static final PlexilDataType BOOLEAN_TYPE = new PlexilDataType("BOOLEAN_TYPE", "Boolean", false);
-    public static final PlexilDataType INTEGER_TYPE = new PlexilDataType("INTEGER_TYPE", "Integer", true);
-    public static final PlexilDataType REAL_TYPE = new PlexilDataType("REAL_TYPE", "Real", true);
-    public static final PlexilDataType STRING_TYPE = new PlexilDataType("STRING_TYPE", "String", false);
+    public static final PlexilDataType BOOLEAN_TYPE =
+        new PlexilDataType("BOOLEAN_TYPE", "Boolean", false);
+    public static final PlexilDataType INTEGER_TYPE =
+        new PlexilDataType("INTEGER_TYPE", "Integer", true);
+    public static final PlexilDataType REAL_TYPE =
+        new PlexilDataType("REAL_TYPE", "Real", true);
+    public static final PlexilDataType STRING_TYPE =
+        new PlexilDataType("STRING_TYPE", "String", false);
+    public static final PlexilDataType DATE_TYPE =
+        new PlexilDataType("DATE_TYPE", "Date", false);
+    public static final PlexilDataType DURATION_TYPE =
+        new PlexilDataType("DURATION_TYPE", "Duration", false);
 
     // Internal data types - users can create literals, access, and compare,
     // but not store as variables or otherwise manipulate
@@ -154,6 +165,10 @@ public final class PlexilDataType
         new PlexilDataType("REAL_ARRAY_TYPE", "Array", REAL_TYPE);
     public static final PlexilDataType STRING_ARRAY_TYPE =
         new PlexilDataType("STRING_ARRAY_TYPE", "Array", STRING_TYPE);
+    public static final PlexilDataType DATE_ARRAY_TYPE =
+        new PlexilDataType("DATE_ARRAY_TYPE", "Array", DATE_TYPE);
+    public static final PlexilDataType DURATION_ARRAY_TYPE =
+        new PlexilDataType("DURATION_ARRAY_TYPE", "Array", DURATION_TYPE);
     // this is for use before semantic checking has determined the value type
     public static final PlexilDataType UNKNOWN_ARRAY_TYPE =
         new PlexilDataType("UNKNOWN_ARRAY_TYPE", "Array", ERROR_TYPE);

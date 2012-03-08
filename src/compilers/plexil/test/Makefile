@@ -45,7 +45,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
               resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
               invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
               iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 \
-	      inactive1 wait1
+	      inactive1 wait1 date1
 
 BROKEN       =  array-library-call
 
@@ -54,6 +54,8 @@ SYNTAX_ERROR_TESTS   = array-library-call
 SEMANTIC_ERROR_TESTS = on-message3
 
 TESTS	         := $(SMALL_TESTS)
+
+#TESTS := date1
 
 
 # The VALID_TEST* macros are used by the original test framework.  

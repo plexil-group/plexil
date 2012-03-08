@@ -1,0 +1,159 @@
+<PlexilPlan LineNo="1" ColNo="5">
+    <GlobalDeclarations LineNo="1" ColNo="5">
+        <CommandDeclaration LineNo="1" ColNo="5">
+            <Name>getDate</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Date</Type>
+            </Return>
+            <Parameter>
+                <Name>d</Name>
+                <Type>Date</Type>
+            </Parameter>
+        </CommandDeclaration>
+        <CommandDeclaration LineNo="2" ColNo="9">
+            <Name>getDuration</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Duration</Type>
+            </Return>
+            <Parameter>
+                <Name>d</Name>
+                <Type>Duration</Type>
+            </Parameter>
+        </CommandDeclaration>
+        <StateDeclaration LineNo="4" ColNo="5">
+            <Name>TheDate</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Date</Type>
+            </Return>
+            <Parameter>
+                <Name>d</Name>
+                <Type>Date</Type>
+            </Parameter>
+        </StateDeclaration>
+        <StateDeclaration LineNo="5" ColNo="9">
+            <Name>TheDuration</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Duration</Type>
+            </Return>
+            <Parameter>
+                <Name>d</Name>
+                <Type>Duration</Type>
+            </Parameter>
+        </StateDeclaration>
+    </GlobalDeclarations>
+    <Sequence LineNo="9" ColNo="2">
+        <NodeId>BLOCK__0</NodeId>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="9" ColNo="2">
+                <Name>da1</Name>
+                <Type>Date</Type>
+            </DeclareVariable>
+            <DeclareVariable LineNo="10" ColNo="2">
+                <Name>da2</Name>
+                <Type>Date</Type>
+                <InitialValue>
+                    <StringValue>foo</StringValue>
+                </InitialValue>
+            </DeclareVariable>
+            <DeclareVariable LineNo="11" ColNo="2">
+                <Name>du1</Name>
+                <Type>Duration</Type>
+            </DeclareVariable>
+            <DeclareVariable LineNo="12" ColNo="2">
+                <Name>du2</Name>
+                <Type>Duration</Type>
+                <InitialValue>
+                    <StringValue>bar</StringValue>
+                </InitialValue>
+            </DeclareVariable>
+            <DeclareArray LineNo="14" ColNo="2">
+                <Name>das1</Name>
+                <Type>Date</Type>
+                <MaxSize>3</MaxSize>
+                <InitialValue>
+                    <StringValue>foo</StringValue>
+                    <StringValue>bar</StringValue>
+                    <StringValue>baz</StringValue>
+                </InitialValue>
+            </DeclareArray>
+            <DeclareArray LineNo="15" ColNo="2">
+                <Name>dus1</Name>
+                <Type>Duration</Type>
+                <MaxSize>3</MaxSize>
+                <InitialValue>
+                    <StringValue>foo</StringValue>
+                    <StringValue>bar</StringValue>
+                    <StringValue>baz</StringValue>
+                </InitialValue>
+            </DeclareArray>
+        </VariableDeclarations>
+        <Node LineNo="17" ColNo="8" NodeType="Command">
+            <NodeId>ASSIGNMENT__1</NodeId>
+            <NodeBody>
+                <Command>
+                    <DateVariable>da1</DateVariable>
+                    <Name>
+                        <StringValue>getDate</StringValue>
+                    </Name>
+                    <Arguments LineNo="17" ColNo="16">
+                        <DateVariable>da2</DateVariable>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+        <Node LineNo="18" ColNo="8" NodeType="Command">
+            <NodeId>ASSIGNMENT__2</NodeId>
+            <NodeBody>
+                <Command>
+                    <DurationVariable>du1</DurationVariable>
+                    <Name>
+                        <StringValue>getDuration</StringValue>
+                    </Name>
+                    <Arguments LineNo="18" ColNo="20">
+                        <DurationVariable>du2</DurationVariable>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+        <Node LineNo="20" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__3</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <DateVariable>da1</DateVariable>
+                    <NumericRHS>
+                        <Lookup LineNo="20" ColNo="8">
+                            <Name>
+                                <StringValue>TheDate</StringValue>
+                            </Name>
+                            <Arguments LineNo="20" ColNo="25">
+                                <DateVariable>da2</DateVariable>
+                            </Arguments>
+                        </Lookup>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="21" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__4</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <DurationVariable>du1</DurationVariable>
+                    <NumericRHS>
+                        <Lookup LineNo="21" ColNo="8">
+                            <Name>
+                                <StringValue>TheDuration</StringValue>
+                            </Name>
+                            <Arguments LineNo="21" ColNo="29">
+                                <DurationVariable>du2</DurationVariable>
+                            </Arguments>
+                        </Lookup>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+    </Sequence>
+</PlexilPlan>

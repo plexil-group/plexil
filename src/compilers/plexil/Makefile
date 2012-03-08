@@ -78,6 +78,7 @@ $(PLEXILC_JAR): $(JAVA_CLASSES) $(PARSER_CLASSES) Makefile
 	$(RM) $@
 	$(JAR) cf $@ -C $(CLASSES_DIR) .
 
+# Hack: After initial build, comment out the following for incremental.
 $(JAVA_CLASSES): $(JAVA_SRCS) | $(PARSER_JAVA) $(CLASSES_DIR)
 
 $(PARSER_CLASSES): $(PARSER_JAVA) | $(CLASSES_DIR)

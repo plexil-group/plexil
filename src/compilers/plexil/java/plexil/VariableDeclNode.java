@@ -132,9 +132,12 @@ public class VariableDeclNode extends PlexilTreeNode
             if (initType == type
                 || (type == PlexilDataType.REAL_TYPE
                     && initType.isNumeric()
-                    && initValNode.assumeType(type, state)) // N.B. side effect on initial value type!
+                    // N.B. side effect on initial value type!
+                    && initValNode.assumeType(type, state)) 
                 || (type == PlexilDataType.BOOLEAN_TYPE
-                    && initValNode.assumeType(type, state)) // N.B. side effect on initial value type!
+                    // N.B. side effect on initial value type!
+                    && initValNode.assumeType(type, state))
+                || (type.isTemporal() && initType == PlexilDataType.STRING_TYPE)
                 ) {
                 // initial value type is consistent
             }

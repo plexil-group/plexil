@@ -262,7 +262,9 @@ typeName :
   | INTEGER_KYWD
   | REAL_KYWD
   | STRING_KYWD
-  | TIME_KYWD ;
+  | DURATION_KYWD 
+  | DATE_KYWD
+  ;
 
 nodeAttribute :
     nodeCondition

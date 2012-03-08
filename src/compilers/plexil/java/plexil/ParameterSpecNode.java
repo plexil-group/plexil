@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,13 +46,13 @@ public class ParameterSpecNode extends PlexilTreeNode
     public ParameterSpecNode(ParameterSpecNode n)
     {
         super(n);
-		m_parameterSpecs = n.m_parameterSpecs;
+        m_parameterSpecs = n.m_parameterSpecs;
     }
 
-	public Tree dupNode()
-	{
-		return new ParameterSpecNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new ParameterSpecNode(this);
+    }
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
@@ -72,18 +72,18 @@ public class ParameterSpecNode extends PlexilTreeNode
                 || parmType == PlexilLexer.IN_OUT_KYWD) {
                 // Library interface spec
                 // ^((In | InOut) typename NCNAME INT?)
-				typeName = parm.getChild(0).getText();
-				nameSpec = parm.getChild(1);
-				if (parm.getChild(2) != null) {
-					sizeSpec = parm.getChild(2).getText(); // array dimension
-					// check spec'd size
-					int arySiz = LiteralNode.parseIntegerValue(sizeSpec);
-					if (arySiz < 0) {
-						state.addDiagnostic(parm.getChild(1),
-											"Array size must not be negative",
-											Severity.ERROR);
-					}
-				}
+                typeName = parm.getChild(0).getText();
+                nameSpec = parm.getChild(1);
+                if (parm.getChild(2) != null) {
+                    sizeSpec = parm.getChild(2).getText(); // array dimension
+                    // check spec'd size
+                    int arySiz = LiteralNode.parseIntegerValue(sizeSpec);
+                    if (arySiz < 0) {
+                        state.addDiagnostic(parm.getChild(1),
+                                            "Array size must not be negative",
+                                            Severity.ERROR);
+                    }
+                }
             }
             else if (parmType == PlexilLexer.ARRAY_TYPE) {
                 // ^(ARRAY_TYPE eltTypeName INT NCNAME?)
@@ -134,23 +134,23 @@ public class ParameterSpecNode extends PlexilTreeNode
                 // In and InOut are only valid for library node declarations
             case PlexilLexer.IN_KYWD:
             case PlexilLexer.IN_OUT_KYWD:
-				if (sizeSpec != null) {
-					// Array case
-					newParmVar = 
-						new InterfaceVariableName(parm,
-												  nam,
-												  parmType == PlexilLexer.IN_OUT_KYWD,
-												  PlexilDataType.findByName(typeName).arrayType(),
-												  sizeSpec,
-												  null);
-				}
-				else {
-					newParmVar =
-						new InterfaceVariableName(parm,
-												  nam,
-												  parmType == PlexilLexer.IN_OUT_KYWD,
-												  PlexilDataType.findByName(typeName));
-				}
+                if (sizeSpec != null) {
+                    // Array case
+                    newParmVar = 
+                        new InterfaceVariableName(parm,
+                                                  nam,
+                                                  parmType == PlexilLexer.IN_OUT_KYWD,
+                                                  PlexilDataType.findByName(typeName).arrayType(),
+                                                  sizeSpec,
+                                                  null);
+                }
+                else {
+                    newParmVar =
+                        new InterfaceVariableName(parm,
+                                                  nam,
+                                                  parmType == PlexilLexer.IN_OUT_KYWD,
+                                                  PlexilDataType.findByName(typeName));
+                }
                 break;
 
             case PlexilLexer.ARRAY_TYPE:
@@ -159,13 +159,15 @@ public class ParameterSpecNode extends PlexilTreeNode
                                               PlexilDataType.findByName(typeName).arrayType(),
                                               sizeSpec,
                                               null);
-				break;
+                break;
 
             case PlexilLexer.ANY_KYWD:
             case PlexilLexer.BOOLEAN_KYWD:
             case PlexilLexer.INTEGER_KYWD:
             case PlexilLexer.REAL_KYWD:
             case PlexilLexer.STRING_KYWD:
+            case PlexilLexer.DATE_KYWD:
+            case PlexilLexer.DURATION_KYWD:
                 newParmVar = new VariableName(parm,
                                               nam,
                                               PlexilDataType.findByName(typeName));

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,8 @@ BOOLEAN_KYWD = 'Boolean';
 INTEGER_KYWD = 'Integer';
 REAL_KYWD = 'Real';
 STRING_KYWD = 'String';
+DATE_KYWD = 'Date';
+DURATION_KYWD = 'Duration';
 
 // node types
 UPDATE_KYWD = 'Update';
@@ -357,13 +359,15 @@ options { k = 2; }
   | paramTypeName^ NCNAME?
  ;
 
-paramTypeName : 
-    ANY_KYWD
-  | BOOLEAN_KYWD
-  | INTEGER_KYWD
-  | REAL_KYWD
-  | STRING_KYWD
- ;
+paramTypeName
+    : ANY_KYWD
+    | BOOLEAN_KYWD
+    | INTEGER_KYWD
+    | REAL_KYWD
+    | STRING_KYWD
+    | DATE_KYWD
+    | DURATION_KYWD
+    ;
 
 returnType :
     returnTypeSpec -> ^(RETURNS_KYWD returnTypeSpec)
@@ -380,7 +384,9 @@ baseTypeName :
   | INTEGER_KYWD
   | REAL_KYWD
   | STRING_KYWD
- ;
+  | DATE_KYWD
+  | DURATION_KYWD
+  ;
 
 libraryActionDeclaration
 @init { m_paraphrases.push("in library action declaration"); }
