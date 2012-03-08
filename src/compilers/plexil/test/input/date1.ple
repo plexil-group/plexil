@@ -1,3 +1,9 @@
+// Test plan for dates and durations.
+
+// NOTE: Dates and durations are represented as strings, and are assumed
+// to be in ISO-8061 format.  At present, the compiler does not check
+// the strings.
+
 Date Command getDate (Date d);
 Duration Command getDuration (Duration d);
 
@@ -6,19 +12,32 @@ Duration Lookup TheDuration (Duration d);
 
 
 {
-  Date da1;
-  Date da2 = "foo";
-  Duration du1;
-  Duration du2 = "bar";
+  // Scalar variables
+  Date dat1;
+  Date dat2 = "foo";
+  Duration dur1;
+  Duration dur2 = "bar";
 
+  // Array variables
   Date das1[3] = #("foo" "bar" "baz");
   Duration dus1[3] = #("foo" "bar" "baz");
 
-  da1 = getDate(da2);
-  du1 = getDuration(du2);
+  // Commands
+  dat1 = getDate(dat2);
+  dur1 = getDuration(dur2);
 
-  da1 = Lookup (TheDate (da2));
-  du1 = Lookup (TheDuration (du2));
+  // Lookups
+  dat1 = Lookup (TheDate (dat2));
+  dur1 = Lookup (TheDuration (dur2));
 
-//  da1 = da1 + du1;
+  // Assignment
+  dat1 = dat2;
+  dur1 = dur2;
+
+  // Arithmetic
+  dur1 = dur1 + dur2 + dur2;
+  dat1 = dat1 + dur1;
+  // Error.  When adding durations to a date, the date must occur first.
+  //  dat1 = dur1 + dat1;
+
 }
