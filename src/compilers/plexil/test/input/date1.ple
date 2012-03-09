@@ -10,8 +10,17 @@ Duration Command getDuration (Duration d);
 Date Lookup TheDate (Date d);
 Duration Lookup TheDuration (Duration d);
 
+LibraryAction f (In Date indat, In Duration indur,
+                 InOut Date outdat, InOut Date outdur);
 
+
+DateTest:
 {
+  // Interface
+
+  In Date dat0;
+  In Duration dur0;
+
   // Scalar variables
   Date dat1;
   Date dat2 = "foo";
@@ -19,8 +28,14 @@ Duration Lookup TheDuration (Duration d);
   Duration dur2 = "bar";
 
   // Array variables
-  Date das1[3] = #("foo" "bar" "baz");
-  Duration dus1[3] = #("foo" "bar" "baz");
+  Date dats1[3] = #("foo" "bar" "baz");
+  Date dats2[1];
+  Duration durs1[3] = #("foo" "bar" "baz");
+  Duration durs2[1];
+
+  // Temp, for regression testing
+  Integer x = 1, y = 2;
+  String s = "foo", t = "";
 
   // Commands
   dat1 = getDate(dat2);
@@ -33,11 +48,28 @@ Duration Lookup TheDuration (Duration d);
   // Assignment
   dat1 = dat2;
   dur1 = dur2;
-
+  dats1[0] = dat1;
+  durs1[1] = dur1;
+  
   // Arithmetic
   dur1 = dur1 + dur2 + dur2;
   dat1 = dat1 + dur1;
   // Error.  When adding durations to a date, the date must occur first.
+  // Is the operation commutative in XML?  If so, let's fix this.
   //  dat1 = dur1 + dat1;
+  dur1 = dur1 - dur2;
+  dur1 = dur1 - dur2 - dur1;
+  dat1 = dat1 - dur1 - dur2;
+  dat1 = dat1 - dat2;
+
+  // Boolean expressions
+  Sub1:
+  {
+    Start dat1 < dat2;
+    End dur1 > dur2;
+  }
+
+  // Libary Call
+  LibraryCall f (indat = dat1, indur = dur1, outdat = dat2, outdur = dur2);
 
 }

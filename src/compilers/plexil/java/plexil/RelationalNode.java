@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,15 @@ public class RelationalNode extends ExpressionNode
         m_dataType = PlexilDataType.BOOLEAN_TYPE;
     }
 
-	public RelationalNode(RelationalNode n)
-	{
-		super(n);
-	}
+    public RelationalNode(RelationalNode n)
+    {
+        super(n);
+    }
 
-	public Tree dupNode()
-	{
-		return new RelationalNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new RelationalNode(this);
+    }
 
     /**
      * @brief Check the expression for type consistency.
@@ -55,20 +55,30 @@ public class RelationalNode extends ExpressionNode
         ExpressionNode rhs = (ExpressionNode) this.getChild(1);
         PlexilDataType lhsType = lhs.getDataType();
         PlexilDataType rhsType = rhs.getDataType();
-        if (!lhsType.isNumeric()) {
+        if (!lhsType.isNumeric() && !lhsType.isTemporal()) {
             myState.addDiagnostic(lhs,
-                                  "The first operand to the " + this.getToken().getText() + " operator is not a numeric expression",
+                                  "The first operand to the " +
+                                  this.getToken().getText() +
+                                  " operator is not numeric or temporal",
                                   Severity.ERROR);
         }
-        if (!rhsType.isNumeric()) {
+        if (!rhsType.isNumeric() && !rhsType.isTemporal()) {
             myState.addDiagnostic(rhs,
-                                  "The second operand to the " + this.getToken().getText() + " operator is not a numeric expression",
+                                  "The second operand to the " +
+                                  this.getToken().getText() +
+                                  " operator is not numeric or temporal",
+                                  Severity.ERROR);
+        }
+        if (lhsType.isTemporal() && rhsType.isTemporal() && lhsType != rhsType) {
+            myState.addDiagnostic(rhs,
+                                  "Cannot compare dates with durations!",
                                   Severity.ERROR);
         }
     }
 
     /**
-     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
+     * @brief Construct the XML representing this part of the parse tree,
+     * and store it in m_xml.
      */
     protected void constructXML()
     {

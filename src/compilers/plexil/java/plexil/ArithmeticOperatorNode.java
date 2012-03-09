@@ -60,6 +60,46 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
+    private void maybeCoerceToReal (PlexilDataType t)
+    {
+        if (m_dataType == PlexilDataType.INTEGER_TYPE
+            && t == PlexilDataType.REAL_TYPE) {
+            // Result is real
+            m_dataType = t;
+        }
+    }
+
+    private void invalidateAux (CompilerState state,
+                                ExpressionNode operand,
+                                String s1, String s2)
+    {
+        state.addDiagnostic (operand, s1 + this.getToken().getText() +
+                             " operator " + s2, Severity.ERROR);
+        m_dataType = PlexilDataType.VOID_TYPE;
+    }
+
+    private void invalidateFirstOperand (CompilerState state,
+                                         ExpressionNode operand,
+                                         String desc)
+    {
+        invalidateAux (state, operand, "The first operand to the ", desc);
+    }
+
+    private void invalidateOnlyOperand (CompilerState state,
+                                        ExpressionNode operand,
+                                        String desc)
+    {
+        // TODO: improve message for things like absolute value
+        invalidateAux (state, operand, "The operand to the ", desc);
+    }
+
+    private void invalidateOperands (CompilerState state,
+                                     ExpressionNode operand,
+                                     String desc)
+    {
+        invalidateAux (state, operand, "The operands to the ", desc);
+    }
+
     // May have 1 or more args
     // Special cases:
     //  PLUS with 2 or more args can have strings
@@ -74,6 +114,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
             workingType = PlexilDataType.REAL_TYPE;
         else if (this.getType() == PlexilLexer.PLUS) {
             // Operands are either all string or all numeric
+            // or all temporal (with rules)
             for (int i = 0; i < this.getChildCount(); i++) {
                 PlexilDataType childType = ((ExpressionNode) this.getChild(i)).getDataType();
                 if (workingType == null) {
@@ -111,7 +152,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
             }
         }
         else {
-            // Implement numeric type contagion
+            // Implement numeric type coercion
             for (int i = 0; i < this.getChildCount(); i++) {
                 PlexilDataType childType = ((ExpressionNode) this.getChild(i)).getDataType();
 				if (!childType.isNumeric()) {
@@ -124,7 +165,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
 					continue;
                 else if (childType == PlexilDataType.REAL_TYPE
                          && workingType == PlexilDataType.INTEGER_TYPE)
-					// Contagion case - promote to REAL
+					// Coercion case - promote to REAL
                     workingType = PlexilDataType.REAL_TYPE;
             }
         }
@@ -145,10 +186,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
             // Unary + or - must be numeric
             ExpressionNode operand = (ExpressionNode) this.getChild(0);
             if (!operand.getDataType().isNumeric()) {
-                // TODO: improve message for things like absolute value
-                state.addDiagnostic(operand,
-                                    "The operand to the " + this.getToken().getText() + " operator is not numeric",
-                                    Severity.ERROR);
+                invalidateOnlyOperand (state, operand, "is not numeric");
             }
             if (this.getType() == PlexilLexer.SQRT_KYWD)
                 m_dataType = PlexilDataType.REAL_TYPE;
@@ -160,74 +198,74 @@ public class ArithmeticOperatorNode extends ExpressionNode
                 ExpressionNode operand = (ExpressionNode) this.getChild(i);
                 PlexilDataType otype = operand.getDataType();
                 if (i == 0) {
-                    if (otype.isNumeric() || otype.isTemporal() ||
+                    if (otype.isNumeric() ||
+                        otype.isTemporal() ||
                         otype == PlexilDataType.STRING_TYPE) {
                         // any of these types is OK
                         m_dataType = operand.getDataType();
                     }
-                    else {
-                        state.addDiagnostic(operand,
-                                            "The first operand to the " + this.getToken().getText()
-                                            + " operator is not a number, date, duration, or string",
-                                            Severity.ERROR);
-                    }
+                    else invalidateFirstOperand (state, operand,
+                                                 "is not a number, date, " +
+                                                 "duration, or string");
                 }
                 else {
-                    // following parameters must match first op's type
+                    // following parameters must match first op's type, unless it's a date
                     if (otype == m_dataType && m_dataType != PlexilDataType.DATE_TYPE) {
                         // no action needed
                     }
                     else if (otype.isNumeric() && m_dataType.isNumeric()) {
-                        // Perform type contagion
-                        if (m_dataType == PlexilDataType.INTEGER_TYPE
-                            && otype == PlexilDataType.REAL_TYPE) {
-                            // Result is real
-                            m_dataType = otype;
-                        }
+                        maybeCoerceToReal (otype);
                     }
-                    else if (otype == PlexilDataType.DURATION_TYPE && m_dataType == PlexilDataType.DATE_TYPE) {
+                    else if (otype == PlexilDataType.DURATION_TYPE &&
+                             m_dataType == PlexilDataType.DATE_TYPE) {
                         // you can add durations to dates, so this is fine
+                        // N. B. The date must be be the first argument!
+                        // Consider supporting commutativity.
                     }
-                    else {
-                        state.addDiagnostic(operand,
-                                            "Operands to the " + this.getToken().getText() + " operator have inconsistent types",
-                                            Severity.ERROR);
-                        m_dataType = PlexilDataType.VOID_TYPE;
-                    }
+                    else invalidateOperands (state, operand,
+                                             "have inconsistent types");
                 }
             }
         }
-        else {
-            // General case - all numeric
-            // Implement type contagion
+        else if (this.getType() == PlexilLexer.MINUS) {
+            // numeric or temporal arguments
             for (int i = 0; i < this.getChildCount(); i++) {
                 ExpressionNode operand = (ExpressionNode) this.getChild(i);
                 PlexilDataType otype = operand.getDataType();
                 if (i == 0) {
-                    if (otype.isNumeric()) {
+                    if (otype.isNumeric() || otype.isTemporal()) {
                         m_dataType = operand.getDataType();
                     }
-                    else {
-                        state.addDiagnostic(operand,
-                                            "The first operand to the " + this.getToken().getText()
-                                            + " operator is not a numeric type",
-                                            Severity.ERROR);
-                    }
+                    else invalidateFirstOperand (state, operand,
+                                                 "is not a number, " +
+                                                 "date, or duration");
                 }
                 else {
-                    // following parameters must all be numeric
-                    if (!otype.isNumeric()) {
-                        state.addDiagnostic(operand,
-                                            "The operand to the " + this.getToken().getText() + " operator is not a numeric type",
-                                            Severity.ERROR);
-                        m_dataType = PlexilDataType.VOID_TYPE;
+                    if (otype == m_dataType) {
+                        // no action needed
                     }
-                    else if (m_dataType == PlexilDataType.INTEGER_TYPE
-                             && otype == PlexilDataType.REAL_TYPE) {
-                        // Result is real
-                        m_dataType = otype;
+                    else if (otype.isNumeric() && m_dataType.isNumeric()) {
+                        maybeCoerceToReal (otype);
                     }
+                    else if (otype == PlexilDataType.DURATION_TYPE &&
+                             m_dataType == PlexilDataType.DATE_TYPE) {
+                        // you can subtract durations from a date
+                    }
+                    else invalidateOperands (state, operand,
+                                             "have inconsistent types");
                 }
+            }
+        }
+        else {
+            // only numeric arguments for all operators besides +/-
+            for (int i = 0; i < this.getChildCount(); i++) {
+                ExpressionNode operand = (ExpressionNode) this.getChild(i);
+                PlexilDataType otype = operand.getDataType();
+                if (otype.isNumeric() && m_dataType.isNumeric()) {
+                    maybeCoerceToReal (otype);
+                }
+                else invalidateOperands (state, operand,
+                                         "have non-numeric types");
             }
         }
     }
