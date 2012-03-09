@@ -1866,10 +1866,18 @@
   <!-- Dates and Durations (handled rather naively as real values) -->
 
   <!-- Some Epochs http://en.wikipedia.org/wiki/Epoch_(reference_date) -->
-  <xsl:variable name="UTC" select="xs:dateTime('1900-01-01T00:00:00Z')"/> <!-- Julian day 2415021 (DJD+1?) -->
-  <xsl:variable name="Unix" select="xs:dateTime('1970-01-01T00:00:00Z')"/> <!-- Julian day 2440587.5 -->
-  <xsl:variable name="CPS" select="xs:dateTime('1990-12-24T00:00:00Z')"/> <!-- Julian day 2448250 -->
-  <xsl:variable name="J2000" select="xs:dateTime('2000-01-01T11:58:55.816Z')"/> <!-- Julian date 2451545.0 TT -->
+
+  <!-- Julian day 2415021 (DJD+1?) -->
+  <xsl:variable name="UTC" select="xs:dateTime('1900-01-01T00:00:00Z')"/>
+
+  <!-- Julian day 2440587.5 -->
+  <xsl:variable name="Unix" select="xs:dateTime('1970-01-01T00:00:00Z')"/>
+
+  <!-- Julian day 2448250 -->
+  <xsl:variable name="CPS" select="xs:dateTime('1990-12-24T00:00:00Z')"/>
+
+  <!-- Julian date 2451545.0 TT -->
+  <xsl:variable name="J2000" select="xs:dateTime('2000-01-01T11:58:55.816Z')"/>
 
   <!-- Use this epoch -->
   <xsl:variable name="epoch" select="$Unix"/>
