@@ -93,7 +93,7 @@
                 <Name>dat2</Name>
                 <Type>Date</Type>
                 <InitialValue>
-                    <StringValue>foo</StringValue>
+                    <DateValue>2012-02-23T22:21:00.000</DateValue>
                 </InitialValue>
             </DeclareVariable>
             <DeclareVariable LineNo="27" ColNo="2">
@@ -104,7 +104,7 @@
                 <Name>dur2</Name>
                 <Type>Duration</Type>
                 <InitialValue>
-                    <StringValue>bar</StringValue>
+                    <DurationValue>PT0.5S</DurationValue>
                 </InitialValue>
             </DeclareVariable>
             <DeclareArray LineNo="31" ColNo="2">
@@ -112,53 +112,53 @@
                 <Type>Date</Type>
                 <MaxSize>3</MaxSize>
                 <InitialValue>
-                    <StringValue>foo</StringValue>
-                    <StringValue>bar</StringValue>
-                    <StringValue>baz</StringValue>
+                    <DateValue>2012-02-23T22:21:00.000</DateValue>
+                    <DateValue>2012-02-23T22:21:00.000</DateValue>
+                    <DateValue>2012-02-23T22:21:00.000</DateValue>
                 </InitialValue>
             </DeclareArray>
-            <DeclareArray LineNo="32" ColNo="2">
+            <DeclareArray LineNo="39" ColNo="2">
                 <Name>dats2</Name>
                 <Type>Date</Type>
                 <MaxSize>1</MaxSize>
             </DeclareArray>
-            <DeclareArray LineNo="33" ColNo="2">
+            <DeclareArray LineNo="40" ColNo="2">
                 <Name>durs1</Name>
                 <Type>Duration</Type>
                 <MaxSize>3</MaxSize>
                 <InitialValue>
-                    <StringValue>foo</StringValue>
-                    <StringValue>bar</StringValue>
-                    <StringValue>baz</StringValue>
+                    <DurationValue>PT0.5S</DurationValue>
+                    <DurationValue>PT0.5S</DurationValue>
+                    <DurationValue>PT0.5S</DurationValue>
                 </InitialValue>
             </DeclareArray>
-            <DeclareArray LineNo="34" ColNo="2">
+            <DeclareArray LineNo="41" ColNo="2">
                 <Name>durs2</Name>
                 <Type>Duration</Type>
                 <MaxSize>1</MaxSize>
             </DeclareArray>
-            <DeclareVariable LineNo="37" ColNo="2">
+            <DeclareVariable LineNo="44" ColNo="2">
                 <Name>x</Name>
                 <Type>Integer</Type>
                 <InitialValue>
                     <IntegerValue>1</IntegerValue>
                 </InitialValue>
             </DeclareVariable>
-            <DeclareVariable LineNo="37" ColNo="2">
+            <DeclareVariable LineNo="44" ColNo="2">
                 <Name>y</Name>
                 <Type>Integer</Type>
                 <InitialValue>
                     <IntegerValue>2</IntegerValue>
                 </InitialValue>
             </DeclareVariable>
-            <DeclareVariable LineNo="38" ColNo="2">
+            <DeclareVariable LineNo="45" ColNo="2">
                 <Name>s</Name>
                 <Type>String</Type>
                 <InitialValue>
                     <StringValue>foo</StringValue>
                 </InitialValue>
             </DeclareVariable>
-            <DeclareVariable LineNo="38" ColNo="2">
+            <DeclareVariable LineNo="45" ColNo="2">
                 <Name>t</Name>
                 <Type>String</Type>
                 <InitialValue>
@@ -166,7 +166,7 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <Node LineNo="41" ColNo="9" NodeType="Command">
+        <Node LineNo="48" ColNo="9" NodeType="Command">
             <NodeId>ASSIGNMENT__0</NodeId>
             <NodeBody>
                 <Command>
@@ -174,13 +174,13 @@
                     <Name>
                         <StringValue>getDate</StringValue>
                     </Name>
-                    <Arguments LineNo="41" ColNo="17">
+                    <Arguments LineNo="48" ColNo="17">
                         <DateVariable>dat2</DateVariable>
                     </Arguments>
                 </Command>
             </NodeBody>
         </Node>
-        <Node LineNo="42" ColNo="9" NodeType="Command">
+        <Node LineNo="49" ColNo="9" NodeType="Command">
             <NodeId>ASSIGNMENT__1</NodeId>
             <NodeBody>
                 <Command>
@@ -188,23 +188,23 @@
                     <Name>
                         <StringValue>getDuration</StringValue>
                     </Name>
-                    <Arguments LineNo="42" ColNo="21">
+                    <Arguments LineNo="49" ColNo="21">
                         <DurationVariable>dur2</DurationVariable>
                     </Arguments>
                 </Command>
             </NodeBody>
         </Node>
-        <Node LineNo="45" ColNo="2" NodeType="Assignment">
+        <Node LineNo="52" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__2</NodeId>
             <NodeBody>
                 <Assignment>
                     <DateVariable>dat1</DateVariable>
                     <NumericRHS>
-                        <Lookup LineNo="45" ColNo="9">
+                        <Lookup LineNo="52" ColNo="9">
                             <Name>
                                 <StringValue>TheDate</StringValue>
                             </Name>
-                            <Arguments LineNo="45" ColNo="26">
+                            <Arguments LineNo="52" ColNo="26">
                                 <DateVariable>dat2</DateVariable>
                             </Arguments>
                         </Lookup>
@@ -212,17 +212,17 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="46" ColNo="2" NodeType="Assignment">
+        <Node LineNo="53" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__3</NodeId>
             <NodeBody>
                 <Assignment>
                     <DurationVariable>dur1</DurationVariable>
                     <NumericRHS>
-                        <Lookup LineNo="46" ColNo="9">
+                        <Lookup LineNo="53" ColNo="9">
                             <Name>
                                 <StringValue>TheDuration</StringValue>
                             </Name>
-                            <Arguments LineNo="46" ColNo="30">
+                            <Arguments LineNo="53" ColNo="30">
                                 <DurationVariable>dur2</DurationVariable>
                             </Arguments>
                         </Lookup>
@@ -230,7 +230,7 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="49" ColNo="2" NodeType="Assignment">
+        <Node LineNo="56" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__4</NodeId>
             <NodeBody>
                 <Assignment>
@@ -241,8 +241,19 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="50" ColNo="2" NodeType="Assignment">
+        <Node LineNo="57" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__5</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <DateVariable>dat1</DateVariable>
+                    <NumericRHS>
+                        <DateValue>2012-02-23T22:21:00.000</DateValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="58" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__6</NodeId>
             <NodeBody>
                 <Assignment>
                     <DurationVariable>dur1</DurationVariable>
@@ -252,8 +263,19 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="51" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__6</NodeId>
+        <Node LineNo="59" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__7</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <DurationVariable>dur1</DurationVariable>
+                    <NumericRHS>
+                        <DurationValue>PT0.5S</DurationValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="60" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__8</NodeId>
             <NodeBody>
                 <Assignment>
                     <ArrayElement>
@@ -268,8 +290,24 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="52" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__7</NodeId>
+        <Node LineNo="61" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__9</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <ArrayElement>
+                        <Name>dats1</Name>
+                        <Index>
+                            <IntegerValue>1</IntegerValue>
+                        </Index>
+                    </ArrayElement>
+                    <NumericRHS>
+                        <DateValue>2012-02-23T22:21:00.000</DateValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="62" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__10</NodeId>
             <NodeBody>
                 <Assignment>
                     <ArrayElement>
@@ -284,16 +322,35 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="55" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__8</NodeId>
+        <Node LineNo="63" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__11</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <ArrayElement>
+                        <Name>durs1</Name>
+                        <Index>
+                            <IntegerValue>2</IntegerValue>
+                        </Index>
+                    </ArrayElement>
+                    <NumericRHS>
+                        <DurationValue>PT0.5S</DurationValue>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="66" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__12</NodeId>
             <NodeBody>
                 <Assignment>
                     <DurationVariable>dur1</DurationVariable>
                     <NumericRHS>
-                        <ADD LineNo="55" ColNo="21">
-                            <ADD LineNo="55" ColNo="14">
-                                <DurationVariable>dur1</DurationVariable>
-                                <DurationVariable>dur2</DurationVariable>
+                        <ADD LineNo="66" ColNo="42">
+                            <ADD LineNo="66" ColNo="21">
+                                <ADD LineNo="66" ColNo="14">
+                                    <DurationVariable>dur1</DurationVariable>
+                                    <DurationVariable>dur2</DurationVariable>
+                                </ADD>
+                                <DurationValue>PT0.5S</DurationValue>
                             </ADD>
                             <DurationVariable>dur2</DurationVariable>
                         </ADD>
@@ -301,27 +358,30 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="56" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__9</NodeId>
+        <Node LineNo="67" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__13</NodeId>
             <NodeBody>
                 <Assignment>
                     <DateVariable>dat1</DateVariable>
                     <NumericRHS>
-                        <ADD LineNo="56" ColNo="14">
-                            <DateVariable>dat1</DateVariable>
-                            <DurationVariable>dur1</DurationVariable>
+                        <ADD LineNo="67" ColNo="21">
+                            <ADD LineNo="67" ColNo="14">
+                                <DateVariable>dat1</DateVariable>
+                                <DurationVariable>dur1</DurationVariable>
+                            </ADD>
+                            <DurationValue>PT0.5S</DurationValue>
                         </ADD>
                     </NumericRHS>
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="60" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__10</NodeId>
+        <Node LineNo="71" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__14</NodeId>
             <NodeBody>
                 <Assignment>
                     <DurationVariable>dur1</DurationVariable>
                     <NumericRHS>
-                        <SUB LineNo="60" ColNo="14">
+                        <SUB LineNo="71" ColNo="14">
                             <DurationVariable>dur1</DurationVariable>
                             <DurationVariable>dur2</DurationVariable>
                         </SUB>
@@ -329,14 +389,45 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="61" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__11</NodeId>
+        <Node LineNo="72" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__15</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <DurationVariable>dur2</DurationVariable>
+                    <NumericRHS>
+                        <SUB LineNo="72" ColNo="14">
+                            <DateVariable>dat1</DateVariable>
+                            <DateVariable>dat2</DateVariable>
+                        </SUB>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="73" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__16</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <DurationVariable>dur2</DurationVariable>
+                    <NumericRHS>
+                        <SUB LineNo="73" ColNo="21">
+                            <SUB LineNo="73" ColNo="14">
+                                <DateVariable>dat1</DateVariable>
+                                <DateVariable>dat2</DateVariable>
+                            </SUB>
+                            <DurationVariable>dur1</DurationVariable>
+                        </SUB>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="74" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__17</NodeId>
             <NodeBody>
                 <Assignment>
                     <DurationVariable>dur1</DurationVariable>
                     <NumericRHS>
-                        <SUB LineNo="61" ColNo="21">
-                            <SUB LineNo="61" ColNo="14">
+                        <SUB LineNo="74" ColNo="21">
+                            <SUB LineNo="74" ColNo="14">
                                 <DurationVariable>dur1</DurationVariable>
                                 <DurationVariable>dur2</DurationVariable>
                             </SUB>
@@ -346,14 +437,14 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="62" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__12</NodeId>
+        <Node LineNo="75" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__18</NodeId>
             <NodeBody>
                 <Assignment>
                     <DateVariable>dat1</DateVariable>
                     <NumericRHS>
-                        <SUB LineNo="62" ColNo="21">
-                            <SUB LineNo="62" ColNo="14">
+                        <SUB LineNo="75" ColNo="21">
+                            <SUB LineNo="75" ColNo="14">
                                 <DateVariable>dat1</DateVariable>
                                 <DurationVariable>dur1</DurationVariable>
                             </SUB>
@@ -363,37 +454,35 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="63" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__13</NodeId>
-            <NodeBody>
-                <Assignment>
-                    <DateVariable>dat1</DateVariable>
-                    <NumericRHS>
-                        <SUB LineNo="63" ColNo="14">
-                            <DateVariable>dat1</DateVariable>
-                            <DateVariable>dat2</DateVariable>
-                        </SUB>
-                    </NumericRHS>
-                </Assignment>
-            </NodeBody>
-        </Node>
-        <Node NodeType="Empty" LineNo="68" ColNo="4">
+        <Node NodeType="Empty" LineNo="80" ColNo="4">
             <NodeId>Sub1</NodeId>
-            <StartCondition LineNo="68" ColNo="4">
-                <LT LineNo="68" ColNo="15">
+            <StartCondition LineNo="80" ColNo="4">
+                <LT LineNo="80" ColNo="15">
                     <DateVariable>dat1</DateVariable>
                     <DateVariable>dat2</DateVariable>
                 </LT>
             </StartCondition>
-            <EndCondition LineNo="69" ColNo="4">
-                <GT LineNo="69" ColNo="13">
+            <EndCondition LineNo="81" ColNo="4">
+                <GT LineNo="81" ColNo="13">
                     <DurationVariable>dur1</DurationVariable>
                     <DurationVariable>dur2</DurationVariable>
                 </GT>
             </EndCondition>
+            <PostCondition LineNo="82" ColNo="4">
+                <EQNumeric LineNo="82" ColNo="14">
+                    <DurationVariable>dur1</DurationVariable>
+                    <DurationValue>PT0.5S</DurationValue>
+                </EQNumeric>
+            </PostCondition>
+            <SkipCondition LineNo="83" ColNo="4">
+                <NENumeric LineNo="83" ColNo="14">
+                    <DateVariable>dat1</DateVariable>
+                    <DateValue>2012-02-23T22:21:00.000</DateValue>
+                </NENumeric>
+            </SkipCondition>
         </Node>
         <Node NodeType="LibraryNodeCall">
-            <NodeId>LibraryCall__14</NodeId>
+            <NodeId>LibraryCall__19</NodeId>
             <NodeBody>
                 <LibraryNodeCall>
                     <NodeId>f</NodeId>

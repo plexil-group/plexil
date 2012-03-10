@@ -74,6 +74,11 @@ public class RelationalNode extends ExpressionNode
                                   "Cannot compare dates with durations!",
                                   Severity.ERROR);
         }
+        if (lhsType.isTemporal() && !rhsType.isTemporal()) {
+            myState.addDiagnostic(rhs,
+                                  "Cannot compare temporal expression with anything else!",
+                                  Severity.ERROR);
+        }
     }
 
     /**

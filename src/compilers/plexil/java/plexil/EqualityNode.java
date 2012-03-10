@@ -85,16 +85,17 @@ public class EqualityNode extends ExpressionNode
             result = "NE";
 
         PlexilDataType lhsType = ((ExpressionNode) this.getChild(0)).getDataType();
-        if (lhsType == PlexilDataType.ANY_TYPE) 
+        if (lhsType == PlexilDataType.ANY_TYPE) {
             lhsType = ((ExpressionNode) this.getChild(1)).getDataType();
-        if (lhsType == PlexilDataType.INTEGER_TYPE
-            || lhsType == PlexilDataType.REAL_TYPE)
-            result = result + "Numeric";
+        }
+        if (lhsType == PlexilDataType.INTEGER_TYPE ||
+            lhsType == PlexilDataType.REAL_TYPE ||
+            lhsType.isTemporal()) result = result + "Numeric";
         else if (lhsType == PlexilDataType.STRING_TYPE
-                 || lhsType == PlexilDataType.BOOLEAN_TYPE)
+                 || lhsType == PlexilDataType.BOOLEAN_TYPE) {
             result = result + lhsType.typeName();
-        else
-            result = result + "Internal";
+        }
+        else result = result + "Internal";
         return result;
     }
 

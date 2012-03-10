@@ -189,6 +189,8 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.NEG_INT:
         case PlexilLexer.DOUBLE:
         case PlexilLexer.NEG_DOUBLE:
+        case PlexilLexer.DATE_LITERAL:
+        case PlexilLexer.DURATION_LITERAL:
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
         case PlexilLexer.COMMAND_FAILED_KYWD:

@@ -129,15 +129,16 @@ public class VariableDeclNode extends PlexilTreeNode
             // FIXME: any chance initValNode could be null?
             PlexilDataType initType = initValNode.getDataType();
             // Allow integer initial val for real var (but not the other way around)
-            if (initType == type
-                || (type == PlexilDataType.REAL_TYPE
-                    && initType.isNumeric()
-                    // N.B. side effect on initial value type!
-                    && initValNode.assumeType(type, state)) 
-                || (type == PlexilDataType.BOOLEAN_TYPE
-                    // N.B. side effect on initial value type!
-                    && initValNode.assumeType(type, state))
-                || (type.isTemporal() && initType == PlexilDataType.STRING_TYPE)
+            if (initType == type ||
+                (type == PlexilDataType.REAL_TYPE
+                 && initType.isNumeric()
+                 // N.B. side effect on initial value type!
+                 && initValNode.assumeType(type, state)) ||
+                (type == PlexilDataType.BOOLEAN_TYPE
+                 // N.B. side effect on initial value type!
+                 && initValNode.assumeType(type, state))
+                // N.B. Need to learn how to cast a string initializer to date/duration
+                // (type.isTemporal() && initType == PlexilDataType.STRING_TYPE)
                 ) {
                 // initial value type is consistent
             }

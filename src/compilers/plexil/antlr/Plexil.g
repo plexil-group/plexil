@@ -225,6 +225,8 @@ BOOLEAN_COMPARISON;
 COMMAND;
 CONCAT;
 CONST_ALIAS;
+DATE_LITERAL;
+DURATION_LITERAL;
 GLOBAL_DECLARATIONS;
 NODE_ID;
 NODE_TIMEPOINT_VALUE;
@@ -648,7 +650,8 @@ arrayVariableDecl[Token typeName] :
   ;
 
 literalScalarValue : 
-    booleanLiteral | INT | DOUBLE | STRING | unaryMinus ;
+    booleanLiteral | INT | DOUBLE | STRING | unaryMinus |
+    dateLiteral | durationLiteral ;
 
 literalArrayValue :
     HASHPAREN literalScalarValue* RPAREN
@@ -905,6 +908,11 @@ unaryOp : NOT_KYWD ;
 unaryMinus : (MINUS i=INT) -> ^(NEG_INT $i)
            | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
            ;
+
+dateLiteral : (DATE_KYWD LPAREN s=STRING RPAREN) -> ^(DATE_LITERAL $s) ;
+
+durationLiteral : (DURATION_KYWD LPAREN s=STRING RPAREN) -> ^(DURATION_LITERAL $s) ;
+
 
 // 17 postincrement/decrement (x++, x--), indirect selection (->), function call
 // 	  - not in the Plexil language

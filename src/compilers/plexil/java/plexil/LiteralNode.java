@@ -87,6 +87,14 @@ public class LiteralNode extends ExpressionNode
             m_dataType = PlexilDataType.STRING_TYPE;
             break;
 
+        case PlexilLexer.DATE_LITERAL:
+            m_dataType = PlexilDataType.DATE_TYPE;
+            break;
+
+        case PlexilLexer.DURATION_LITERAL:
+            m_dataType = PlexilDataType.DURATION_TYPE;
+            break;
+
             // internal data types
 
         case PlexilLexer.EXECUTING_STATE_KYWD:
@@ -254,6 +262,11 @@ public class LiteralNode extends ExpressionNode
             String txt = this.getChild(0).getText();            
             m_xml.setContent("-" + txt);
         }
+        else if (this.getType() == PlexilLexer.DATE_LITERAL ||
+                 this.getType() == PlexilLexer.DURATION_LITERAL) {
+            String txt = this.getChild(0).getText();            
+            m_xml.setContent(stripQuotes(txt));
+        }
         else {
             String txt = this.getToken().getText();
             if (this.getType() == PlexilLexer.INT) {
@@ -323,4 +336,13 @@ public class LiteralNode extends ExpressionNode
         return -1;
     }
 
+    static private String stripQuotes (String s)
+    {
+        // Hack alert!  I think we can safely assume the string begins
+        // and ends with a double quote, since it was parsed as a string
+        // literal.  Nevertheless, both this function, and its use,
+        // seem crufty at best.
+
+        return s.substring (1, s.length() - 1);
+    }
 }

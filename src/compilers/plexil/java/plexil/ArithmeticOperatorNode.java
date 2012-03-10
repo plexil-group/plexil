@@ -229,17 +229,27 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
         else if (this.getType() == PlexilLexer.MINUS) {
             // numeric or temporal arguments
+            Boolean dateDifference = false;
             for (int i = 0; i < this.getChildCount(); i++) {
                 ExpressionNode operand = (ExpressionNode) this.getChild(i);
                 PlexilDataType otype = operand.getDataType();
                 if (i == 0) {
-                    if (otype.isNumeric() || otype.isTemporal()) {
-                        m_dataType = operand.getDataType();
+                    // Special case: date - date = duration
+                    if (otype == PlexilDataType.DATE_TYPE &&
+                        this.getChildCount() > 1 &&
+                        ((ExpressionNode) this.getChild(1)).getDataType() ==
+                        PlexilDataType.DATE_TYPE) {
+                        dateDifference = true;
+                        m_dataType = PlexilDataType.DURATION_TYPE;
+                    }
+                    else if (otype.isNumeric() || otype.isTemporal()) {
+                        m_dataType = otype;
                     }
                     else invalidateFirstOperand (state, operand,
                                                  "is not a number, " +
                                                  "date, or duration");
                 }
+                else if (i == 1 && dateDifference) { /* fine */ }
                 else {
                     if (otype == m_dataType) {
                         // no action needed
