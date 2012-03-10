@@ -1087,20 +1087,9 @@
                 </element>
                 <optional>
                     <element name="InitialValue">
-                        <choice>
-                            <oneOrMore>
-                                <ref name="IntegerValue"/>
-                            </oneOrMore>
-                            <oneOrMore>
-                                <ref name="RealValue"/>
-                            </oneOrMore>
-                            <oneOrMore>
-                                <ref name="BooleanValue"/>
-                            </oneOrMore>
-                            <oneOrMore>
-                                <ref name="StringValue"/>
-                            </oneOrMore>
-                        </choice>
+                        <oneOrMore>
+                            <ref name="Value"/>
+                        </oneOrMore>
                     </element>
                 </optional>
             </element>
@@ -1408,7 +1397,10 @@
         </choice>
     </define>
     <define name="node-reference">
-        <ref name="NodeReference"/>
+        <group>
+            <ref name="SourceLocators"/>
+            <ref name="NodeReference"/>
+        </group>
         <empty/>
     </define>
     <define name="BooleanVariable">

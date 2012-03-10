@@ -492,9 +492,7 @@ DeclareArray =
       element Name { NCName },
       element Type { AtomicTypeValues },
       element MaxSize { nonNegativeInteger },
-      element InitialValue {
-        IntegerValue+ | RealValue+ | BooleanValue+ | StringValue+
-      }?
+      element InitialValue { Value+ }?
     }
 Interface =
   notAllowed
@@ -608,7 +606,7 @@ NEInternal =
 StringVariable =
   notAllowed
   | element StringVariable { NCName }
-node-reference = NodeReference, empty
+node-reference = (SourceLocators, NodeReference), empty
 BooleanVariable =
   notAllowed
   | element BooleanVariable { NCName }

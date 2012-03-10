@@ -425,12 +425,7 @@ element.  It is used as an included schema only.
         <xsd:element name="MaxSize" type="xsd:nonNegativeInteger"/>
         <xsd:element name="InitialValue" minOccurs="0">
           <xsd:complexType>
-            <xsd:choice>
-              <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
-              <xsd:element ref="RealValue" maxOccurs="unbounded"/>
-              <xsd:element ref="BooleanValue" maxOccurs="unbounded"/>
-              <xsd:element ref="StringValue" maxOccurs="unbounded"/>
-            </xsd:choice>
+            <xsd:group ref="Value" maxOccurs="unbounded"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
