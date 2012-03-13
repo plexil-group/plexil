@@ -161,7 +161,7 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:simpleType name="TypeValues">
+<!--  <xsd:simpleType name="TypeValues">
     <xsd:restriction base="xsd:NMTOKEN">
       <xsd:enumeration value="Integer"/>
       <xsd:enumeration value="Real"/>
@@ -170,15 +170,7 @@ element.  It is used as an included schema only.
       <xsd:enumeration value="Array"/>
     </xsd:restriction>
   </xsd:simpleType>
-
-  <xsd:simpleType name="AtomicTypeValues">
-    <xsd:restriction base="xsd:NMTOKEN">
-      <xsd:enumeration value="Integer"/>
-      <xsd:enumeration value="Real"/>
-      <xsd:enumeration value="Boolean"/>
-      <xsd:enumeration value="String"/>
-    </xsd:restriction>
-  </xsd:simpleType>
+ -->
 
   <xsd:simpleType name="NCNameOrEmpty">
     <xsd:union memberTypes="xsd:NCName">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@
 
 <!--
 This schema extends Core PLEXIL with syntactic sugar: convenient forms 
-that are translated into Core PLEXIL for execution.
+that are translated into Core PLEXIL for execution (see translate.xsl).
 -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
-  <xsd:include schemaLocation='core-plexil.xsd'/>
+  <xsd:include schemaLocation='plexil-base.xsd'/>
 
   <xsd:redefine schemaLocation='plexil-base.xsd'>
     <xsd:group name="Action">
@@ -121,28 +121,6 @@ that are translated into Core PLEXIL for execution.
         <xsd:element ref="DurationValue"/>
       </xsd:choice>
     </xsd:group>
-<!--    <xsd:simpleType name="TypeValues"> 
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="Integer"/>
-        <xsd:enumeration value="Real"/>
-        <xsd:enumeration value="Boolean"/>
-        <xsd:enumeration value="String"/>
-        <xsd:enumeration value="Array"/>
-        <xsd:enumeration value="Date"/>
-        <xsd:enumeration value="Duration"/>
-      </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="AtomicTypeValues">
-      <xsd:restriction base="xsd:NMTOKEN">
-        <xsd:enumeration value="Integer"/>
-        <xsd:enumeration value="Real"/>
-        <xsd:enumeration value="Boolean"/>
-        <xsd:enumeration value="String"/>
-        <xsd:enumeration value="Date"/>
-        <xsd:enumeration value="Duration"/>
-      </xsd:restriction>
-    </xsd:simpleType>
--->
     <xsd:group name="StringExpression">
       <xsd:choice>
         <xsd:element ref="StringVariable"/>
@@ -176,6 +154,24 @@ that are translated into Core PLEXIL for execution.
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
+
+  <xsd:element name="Name">
+    <xsd:complexType>
+      <xsd:group ref="StringExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="AtomicTypeValues">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="Integer"/>
+      <xsd:enumeration value="Real"/>
+      <xsd:enumeration value="Boolean"/>
+      <xsd:enumeration value="String"/>
+      <xsd:enumeration value="Date"/>
+      <xsd:enumeration value="Duration"/>
+    </xsd:restriction>
+  </xsd:simpleType>
 
   <xsd:element name="DurationVariable" type="xsd:NCName"/>
   <xsd:element name="DateVariable" type="xsd:NCName"/>

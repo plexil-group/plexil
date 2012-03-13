@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<!--  
-Schema for Core PLEXIL as implemented (i.e. supported by the UE).  This is
-distinct from the "blessed" schema found in plexil/schema/plexil.xsd, 
-which is the latest "official" Core PLEXIL specification at NASA.
--->
+<!-- Schema for Core PLEXIL as implemented by the Plexil Executive. -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xml:lang="en">
   <xsd:include schemaLocation='plexil-base.xsd' />
@@ -41,4 +37,12 @@ which is the latest "official" Core PLEXIL specification at NASA.
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
+  <xsd:simpleType name="AtomicTypeValues">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="Integer"/>
+      <xsd:enumeration value="Real"/>
+      <xsd:enumeration value="Boolean"/>
+      <xsd:enumeration value="String"/>
+    </xsd:restriction>
+  </xsd:simpleType>
 </xsd:schema>
