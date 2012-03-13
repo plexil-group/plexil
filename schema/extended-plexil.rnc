@@ -60,9 +60,7 @@ start =
          SourceLocators,
          attribute Type {
            xsd:NMTOKEN "Real"
-           | xsd:NMTOKEN "Date"
            | xsd:NMTOKEN "String"
-           | xsd:NMTOKEN "Duration"
            | xsd:NMTOKEN "Boolean"
            | xsd:NMTOKEN "Integer"
          },
@@ -195,16 +193,8 @@ SourceLocators =
   attribute ColNo { xsd:integer }?,
   attribute LineNo { xsd:integer }?,
   attribute FileName { xsd:string }?
-IsKnown =
-  notAllowed
-  | element IsKnown {
-      SourceLocators,
-      (DeclaredVariable
-       | LookupGroup
-       | NodeStateVariable
-       | NodeOutcomeVariable
-       | NodeTimepointValue)
-    }
+StringOperator = Concat
+ArithmeticOperator = ADD | SUB | MUL | DIV | MOD | SQRT | ABS
 SUB =
   notAllowed
   | element SUB { SourceLocators, NumericExpression, NumericExpression }
@@ -213,9 +203,7 @@ GE =
   | element GE { SourceLocators, NumericExpression, NumericExpression }
 AtomicTypeValues =
   xsd:NMTOKEN "Real"
-  | xsd:NMTOKEN "Date"
   | xsd:NMTOKEN "String"
-  | xsd:NMTOKEN "Duration"
   | xsd:NMTOKEN "Boolean"
   | xsd:NMTOKEN "Integer"
 LE =
@@ -241,6 +229,16 @@ LibraryNodeCall =
 MOD =
   notAllowed
   | element MOD { SourceLocators, NumericExpression, NumericExpression }
+IsKnown =
+  notAllowed
+  | element IsKnown {
+      SourceLocators,
+      (DeclaredVariable
+       | LookupGroup
+       | NodeStateVariable
+       | NodeOutcomeVariable
+       | NodeTimepointValue)
+    }
 InOut =
   notAllowed
   | element InOut { SourceLocators, (DeclareVariable | DeclareArray)+ }
@@ -345,7 +343,7 @@ While =
 RealVariable =
   notAllowed
   | element RealVariable { NCName }
-ArithmeticOperator = ADD | SUB | MUL | DIV | MOD | SQRT | ABS
+\string = xsd:string
 LookupNow =
   notAllowed
   | element LookupNow { SourceLocators, Name, Arguments? }
@@ -384,10 +382,40 @@ EQString =
   | element EQString {
       SourceLocators, StringExpression, StringExpression
     }
-LookupGroup = LookupOnChange | LookupNow | Lookup
 ABS =
   notAllowed
   | element ABS { SourceLocators, NumericExpression }
+Alias =
+  notAllowed
+  | element Alias {
+      SourceLocators,
+      element NodeParameter { NCName },
+      (Value
+       | DeclaredVariable
+       | LookupGroup
+       | OR
+       | XOR
+       | AND
+       | NOT
+       | EQBoolean
+       | EQNumeric
+       | EQInternal
+       | EQString
+       | NEBoolean
+       | NENumeric
+       | NEInternal
+       | NEString
+       | GT
+       | GE
+       | LT
+       | LE
+       | IsKnown
+       | ArithmeticOperator
+       | NodeTimepointValue
+       | element ArraySize { NCName }
+       | element ArrayMaxSize { NCName }
+       | StringOperator)
+    }
 Inactive =
   notAllowed
   | element Inactive { node-reference }
@@ -521,6 +549,7 @@ Resource =
        & element ResourceUpperBound { NumericExpression }?
        & element ResourceReleaseAtTermination { BooleanExpression }?)
     }
+LookupGroup = LookupOnChange | LookupNow | Lookup
 ResourceList =
   notAllowed
   | element ResourceList { SourceLocators, Resource* }
@@ -560,7 +589,11 @@ NodeStateValue =
 Interface =
   notAllowed
   | element Interface { SourceLocators, (In? & InOut?) }
-nonNegativeInteger = xsd:nonNegativeInteger
+NodeTimepointValue =
+  notAllowed
+  | element NodeTimepointValue {
+      SourceLocators, NodeReference, NodeStateValue, Timepoint
+    }
 BooleanValue =
   notAllowed
   | element BooleanValue { xsd:boolean }
@@ -587,48 +620,12 @@ Update =
 Failed =
   notAllowed
   | element Failed { node-reference }
-NodeTimepointValue =
-  notAllowed
-  | element NodeTimepointValue {
-      SourceLocators, NodeReference, NodeStateValue, Timepoint
-    }
-\string = xsd:string
-Alias =
-  notAllowed
-  | element Alias {
-      SourceLocators,
-      element NodeParameter { NCName },
-      (Value
-       | DeclaredVariable
-       | LookupGroup
-       | OR
-       | XOR
-       | AND
-       | NOT
-       | EQBoolean
-       | EQNumeric
-       | EQInternal
-       | EQString
-       | NEBoolean
-       | NENumeric
-       | NEInternal
-       | NEString
-       | GT
-       | GE
-       | LT
-       | LE
-       | IsKnown
-       | ArithmeticOperator
-       | NodeTimepointValue
-       | element ArraySize { NCName }
-       | element ArrayMaxSize { NCName }
-       | StringOperator)
-    }
 NEBoolean =
   notAllowed
   | element NEBoolean {
       SourceLocators, BooleanExpression, BooleanExpression
     }
+NCName = xsd:NCName
 LibraryNodeDeclaration =
   notAllowed
   | element LibraryNodeDeclaration {
@@ -681,11 +678,11 @@ LookupRHS =
 MessageReceived =
   notAllowed
   | element MessageReceived { SourceLocators, StringExpression }
-NCName = xsd:NCName
 IterationEnded =
   notAllowed
   | element IterationEnded { node-reference }
-StringOperator = Concat
+SequenceType = NodeClauses+, Action*
+nonNegativeInteger = xsd:nonNegativeInteger
 RealValue =
   notAllowed
   | element RealValue { xsd:double }
@@ -751,22 +748,6 @@ Parameter =
       element Type { AtomicTypeValues },
       element MaxSize { nonNegativeInteger }?
     }
-NodeClauses =
-  NodeId
-  | empty
-  | (notAllowed
-     | element Comment { \string })
-  | StartCondition
-  | RepeatCondition
-  | PreCondition
-  | PostCondition
-  | InvariantCondition
-  | EndCondition
-  | SkipCondition
-  | (notAllowed
-     | element Priority { nonNegativeInteger })
-  | Interface
-  | VariableDeclarations
 EQNumeric =
   notAllowed
   | element EQNumeric {
@@ -811,6 +792,22 @@ OnCommand =
 ParentFailed =
   notAllowed
   | element ParentFailed { node-reference }
+NodeClauses =
+  NodeId
+  | empty
+  | (notAllowed
+     | element Comment { \string })
+  | StartCondition
+  | RepeatCondition
+  | PreCondition
+  | PostCondition
+  | InvariantCondition
+  | EndCondition
+  | SkipCondition
+  | (notAllowed
+     | element Priority { nonNegativeInteger })
+  | Interface
+  | VariableDeclarations
 Wait =
   notAllowed
   | element Wait {
@@ -838,7 +835,6 @@ StringExpression =
   | StringOperator
   | LookupGroup
   | ArrayElement
-SequenceType = NodeClauses+, Action*
 DateVariable =
   notAllowed
   | element DateVariable { NCName }
