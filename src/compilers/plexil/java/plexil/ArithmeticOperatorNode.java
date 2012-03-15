@@ -114,14 +114,6 @@ public class ArithmeticOperatorNode extends ExpressionNode
             m_dataType = PlexilDataType.ERROR_TYPE;
         }
         }
-
-        // Push this message into subroutines -- it's rather vague here.
-        if (m_dataType == PlexilDataType.ERROR_TYPE) {
-            state.addDiagnostic(this,
-                                "Internal error: ArithmeticOperatorNode.earlyCheck" +
-                                " could not determine expression type",
-                                Severity.ERROR);
-        }
     }
 
 
