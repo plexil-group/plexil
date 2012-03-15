@@ -38,7 +38,7 @@ TimedIteration:
         Date iteration_start_time;
         Repeat continue;
 //        Start ((Lookup(time, tolerance) - run_start_time) mod period) < tolerance*2;
-        Start ((Lookup(time) - run_start_time)) < tolerance;
+        Start ((Lookup(time) - run_start_time) mod period) < tolerance*2;
 
         iteration_start_time = Lookup(time);
         elapsed_time = iteration_start_time - run_start_time;

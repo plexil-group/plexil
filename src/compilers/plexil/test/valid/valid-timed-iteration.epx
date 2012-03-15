@@ -189,16 +189,22 @@
                 <BooleanVariable>continue</BooleanVariable>
             </RepeatCondition>
             <StartCondition LineNo="41" ColNo="8">
-                <LT LineNo="41" ColNo="48">
-                    <SUB LineNo="41" ColNo="29">
-                        <Lookup LineNo="41" ColNo="16">
-                            <Name>
-                                <StringValue>time</StringValue>
-                            </Name>
-                        </Lookup>
-                        <DateVariable>run_start_time</DateVariable>
-                    </SUB>
-                    <DurationVariable>tolerance</DurationVariable>
+                <LT LineNo="41" ColNo="59">
+                    <MOD LineNo="41" ColNo="47">
+                        <SUB LineNo="41" ColNo="29">
+                            <Lookup LineNo="41" ColNo="16">
+                                <Name>
+                                    <StringValue>time</StringValue>
+                                </Name>
+                            </Lookup>
+                            <DateVariable>run_start_time</DateVariable>
+                        </SUB>
+                        <DurationVariable>period</DurationVariable>
+                    </MOD>
+                    <MUL LineNo="41" ColNo="70">
+                        <DurationVariable>tolerance</DurationVariable>
+                        <IntegerValue>2</IntegerValue>
+                    </MUL>
                 </LT>
             </StartCondition>
             <Node LineNo="43" ColNo="8" NodeType="Assignment">
