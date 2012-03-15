@@ -132,16 +132,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
         PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
         PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
 
-        // They can be any combination of integer and real...
+        // They can be numbers...
 
-        if (ltype == PlexilDataType.INTEGER_TYPE &&
-            rtype == PlexilDataType.INTEGER_TYPE) return ltype;
-        else if (ltype == PlexilDataType.INTEGER_TYPE &&
-                 rtype == PlexilDataType.REAL_TYPE) return rtype;
-        else if (ltype == PlexilDataType.REAL_TYPE &&
-                 rtype == PlexilDataType.REAL_TYPE) return rtype;
-        else if (ltype == PlexilDataType.REAL_TYPE &&
-                 rtype == PlexilDataType.INTEGER_TYPE) return ltype;
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
 
         // They can be certain combinations of duration and date...
 
@@ -176,16 +170,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
         PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
         PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
 
-        // They can be any combination of integer and real...
+        // They can be numbers...
 
-        if (ltype == PlexilDataType.INTEGER_TYPE &&
-            rtype == PlexilDataType.INTEGER_TYPE) return ltype;
-        else if (ltype == PlexilDataType.INTEGER_TYPE &&
-                 rtype == PlexilDataType.REAL_TYPE) return rtype;
-        else if (ltype == PlexilDataType.REAL_TYPE &&
-                 rtype == PlexilDataType.REAL_TYPE) return rtype;
-        else if (ltype == PlexilDataType.REAL_TYPE &&
-                 rtype == PlexilDataType.INTEGER_TYPE) return ltype;
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
 
         // They can be certain combinations of duration and date...
 
@@ -215,23 +203,15 @@ public class ArithmeticOperatorNode extends ExpressionNode
         PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
         PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
 
-        // They can be any combination of integer and real...
+        // They can be numbers...
 
-        if (ltype == PlexilDataType.INTEGER_TYPE &&
-            rtype == PlexilDataType.INTEGER_TYPE) return ltype;
-        else if (ltype == PlexilDataType.INTEGER_TYPE &&
-                 rtype == PlexilDataType.REAL_TYPE) return rtype;
-        else if (ltype == PlexilDataType.REAL_TYPE &&
-                 rtype == PlexilDataType.REAL_TYPE) return rtype;
-        else if (ltype == PlexilDataType.REAL_TYPE &&
-                 rtype == PlexilDataType.INTEGER_TYPE) return ltype;
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
 
         // They can be certain combinations of duration and number...
 
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype.isNumeric()) return ltype;
-        else if (ltype.isNumeric() &&
-                 rtype == PlexilDataType.DURATION_TYPE) return rtype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
+        else if (ltype.isNumeric() && rtype == PlexilDataType.DURATION_TYPE) return rtype;
 
         // Otherwise, no good...
 
@@ -258,10 +238,8 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
         // They can be certain combinations of duration and number...
 
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype.isNumeric()) return ltype;
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype == PlexilDataType.DURATION_TYPE) return ltype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype) return ltype;
 
         // Otherwise, no good...
 
@@ -284,17 +262,13 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
         // They can both be numbers...
 
-        if (ltype == PlexilDataType.INTEGER_TYPE &&
-            rtype == PlexilDataType.INTEGER_TYPE) return ltype;
-        else if (ltype.isNumeric() &&
-                 ltype.isNumeric()) return PlexilDataType.REAL_TYPE;
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && ltype.isNumeric()) return PlexilDataType.REAL_TYPE;
 
         // They can be certain combinations of duration and number...
 
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype.isNumeric()) return ltype;
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype == PlexilDataType.DURATION_TYPE) return ltype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype) return ltype;
 
         // Otherwise, no good...
 
