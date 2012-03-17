@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -84,8 +84,8 @@ public class AssignmentNode extends PlexilTreeNode
                                 Severity.ERROR);
         }
         else if (lhsType != null) {
-            if (lhsType == rhsType
-                || (lhsType.isNumeric() && rhsType.isNumeric())) {
+            if (lhsType == rhsType ||
+                (lhsType == PlexilDataType.REAL_TYPE && rhsType.isNumeric())) {
                 // All OK so far
                 if (lhsType.isArray()) {
                     // *** TODO *** Check array dimensions if applicable

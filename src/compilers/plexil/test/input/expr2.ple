@@ -2,9 +2,10 @@
   Integer i;
   Real r = 3.2;
 
-  i = abs (3);
+  // All illegal!
   i = |r|;
   i = sqrt (4);
   i = |sqrt(r)|;
-  i = 3 mod 2;
+  i = r mod 2;
+  i = 2 mod r;
 }

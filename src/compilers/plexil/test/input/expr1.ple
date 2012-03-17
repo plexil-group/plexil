@@ -8,4 +8,6 @@
   Invariant i + j + r > 2;
 
   i = i + j;
+  i = abs (3);
+  i = |j|;
 }
