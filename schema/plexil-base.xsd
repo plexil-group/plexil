@@ -953,6 +953,8 @@ element.  It is used as an included schema only.
       <xsd:element ref="MUL"/>
       <xsd:element ref="DIV"/>
       <xsd:element ref="MOD"/>
+      <xsd:element ref="MAX"/>
+      <xsd:element ref="MIN"/>
       <xsd:element ref="SQRT"/>
       <xsd:element ref="ABS"/>
 	</xsd:choice>
@@ -1001,6 +1003,20 @@ element.  It is used as an included schema only.
   </xsd:element>
 
   <xsd:element name="MOD">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="MAX">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="MIN">
     <xsd:complexType>
       <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
