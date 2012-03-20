@@ -41,7 +41,7 @@ EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
  failure-type1 failure-type2 failure-type3 failure-type4 \
  grandparent-access-plan \
  interface1 iteration-ended1 invariant1 isKnown1 \
- modulo1 \
+ maxTest minTest modulo1 \
  repeat1 repeat3 repeat4 \
  simple-assignment skip1 skip2 \
  test-abs-sqrt-plan test-node-name-scope-hack \
