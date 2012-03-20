@@ -133,6 +133,8 @@ XOR_KYWD = 'XOR';
 ABS_KYWD = 'abs';
 IS_KNOWN_KYWD = 'isKnown';
 SQRT_KYWD = 'sqrt';
+MAX_KYWD = 'max';
+MIN_KYWD = 'min';
 MOD_KYWD = 'mod';
 
 // NodeRef directions
@@ -923,6 +925,7 @@ quantity :
     LPAREN! expression RPAREN!
   | BAR expression BAR -> ^(ABS_KYWD expression)
   | oneArgFn^ LPAREN! expression RPAREN!
+  | twoArgFn^ LPAREN! expression COMMA! expression RPAREN!
   | isKnownExp
   | lookupExpr
   | messageReceivedExp
@@ -953,6 +956,10 @@ oneArgFn :
     SQRT_KYWD
   | ABS_KYWD
  ;
+
+twoArgFn :
+    MAX_KYWD
+  | MIN_KYWD;
 
 isKnownExp :
    IS_KNOWN_KYWD<IsKnownNode>^ LPAREN! quantity RPAREN! ;

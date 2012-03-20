@@ -44,6 +44,8 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
             // Arithmetic operators
         case PlexilLexer.ABS_KYWD:
         case PlexilLexer.ASTERISK:
+        case PlexilLexer.MAX_KYWD:
+        case PlexilLexer.MIN_KYWD:
         case PlexilLexer.MINUS:
         case PlexilLexer.MOD_KYWD:
         case PlexilLexer.PERCENT:

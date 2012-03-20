@@ -104,8 +104,14 @@ public class ArithmeticOperatorNode extends ExpressionNode
         case PlexilLexer.ASTERISK: m_dataType = earlyCheckMult (state); break;
         case PlexilLexer.SLASH: m_dataType = earlyCheckDiv (state); break;
         case PlexilLexer.ABS_KYWD: m_dataType = earlyCheckAbs (state); break;
+
+		case PlexilLexer.MAX_KYWD:
+		case PlexilLexer.MIN_KYWD:
+			m_dataType = earlyCheckMaxMin(state); break;
+
         case PlexilLexer.MOD_KYWD:
         case PlexilLexer.PERCENT: m_dataType = earlyCheckMod (state); break;
+
         case PlexilLexer.SQRT_KYWD: m_dataType = PlexilDataType.REAL_TYPE; break; 
         default: {
             state.addDiagnostic(this,
@@ -294,6 +300,33 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
+    private PlexilDataType earlyCheckMaxMin(CompilerState state)
+    {
+        // MIN and MAX have exactly two children
+        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
+        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+
+        // Two integers yield an integer
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype)
+			return ltype;
+		// Two numbers return a real
+        else if (ltype.isNumeric() && ltype.isNumeric())
+			return PlexilDataType.REAL_TYPE;
+		// Two durations return a duration
+		else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype)
+			return ltype;
+		// Two dates return a date
+		else if (ltype == PlexilDataType.DATE_TYPE && rtype == ltype)
+			return ltype;
+        // Otherwise, no good...
+        else {
+            state.addDiagnostic (this,
+                                 "Operator '" + this.getToken().getText() + "' given invalid argument pair: " +
+                                 ltype.toString() + ", " + rtype.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+	}
 
     public void constructXML()
     {
@@ -314,6 +347,12 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
         case PlexilLexer.MINUS:
             return "SUB";
+
+		case PlexilLexer.MAX_KYWD:
+			return "MAX";
+
+		case PlexilLexer.MIN_KYWD:
+			return "MIN";
 
         case PlexilLexer.MOD_KYWD:
         case PlexilLexer.PERCENT:

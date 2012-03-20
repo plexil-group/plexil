@@ -40,7 +40,8 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 \
               array-add array-complex array-copy  basic-wait-test boolean1 \
               duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
               library-call1 library-node1 LibraryCallWithArray literal-format-test \
-              if2 if3 test-recv test-send time-lookup-test mod1 expr1 expr3 expr4 \
+              if2 if3 test-recv test-send time-lookup-test \
+              maxTest minTest mod1 expr1 expr3 expr4 \
               try1 update1 update2 update3 \
               resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
               invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
