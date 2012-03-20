@@ -739,6 +739,8 @@ namespace PLEXIL
 	  s_exprParsers->insert(std::make_pair("MUL", op));
 	  s_exprParsers->insert(std::make_pair("DIV", op));
 	  s_exprParsers->insert(std::make_pair("MOD", op));
+	  s_exprParsers->insert(std::make_pair("MAX", op));
+	  s_exprParsers->insert(std::make_pair("MIN", op));
 	  s_exprParsers->insert(std::make_pair("SQRT", op));
 	  s_exprParsers->insert(std::make_pair("ABS", op));
 

@@ -135,6 +135,35 @@ namespace PLEXIL
     }
   }
 
+  void Calculable::printAsFnCall(std::ostream& s) const
+  {
+	Expression::print(s);
+	s << operatorString() << '(';
+	ExpressionVector::const_iterator it = m_subexpressions.begin();
+	while (it != m_subexpressions.end()) {
+	  s << **it;
+	  ++it;
+	  if (it != m_subexpressions.end())
+		s << ", ";
+	}
+	s << "))";
+  }
+
+  void Calculable::printAsInfix(std::ostream& s) const
+  {
+	Expression::print(s);
+	s << '(';
+	ExpressionVector::const_iterator it = m_subexpressions.begin();
+	while (it != m_subexpressions.end()) {
+	  s << **it;
+	  ++it;
+	  if (it != m_subexpressions.end())
+		s << ' ' << operatorString() << ' ';
+	  else
+		s << "))";
+	}
+  }
+
   //
   // Unary expressions
   //
@@ -182,8 +211,7 @@ namespace PLEXIL
 
   void BinaryExpression::print(std::ostream& s) const
   {
-	Expression::print(s);
-	s << "(" << *m_a << ' ' << operatorString() << ' ' << *m_b << "))";
+	printAsInfix(s);
   }
 
   //
@@ -213,17 +241,7 @@ namespace PLEXIL
 
   void NaryExpression::print(std::ostream& s) const
   {
-	Expression::print(s);
-	s << "(";
-    for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); 
-		 ++child) {
-	  s << **child;
-	  if (*child != m_subexpressions.back())
-		s << ' ' << operatorString() << ' ';
-	  else
-		s << "))";
-	}
+	printAsInfix(s);
   }
 
 }

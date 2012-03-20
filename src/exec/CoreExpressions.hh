@@ -192,7 +192,9 @@ namespace PLEXIL {
 	virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
+
 	friend class FinishedListener;
+	const char* operatorString() const { return "AllChildrenFinished"; }
 	void incrementCount();
 	void decrementCount();
 
@@ -235,6 +237,8 @@ namespace PLEXIL {
 
   protected:
     friend class WaitingOrFinishedListener;
+
+	const char* operatorString() const { return "AllChildrenWaitingOrFinished"; }
     void incrementCount();
     void decrementCount();
 
@@ -276,9 +280,11 @@ namespace PLEXIL {
      */
     virtual PlexilType getValueType() const { return BOOLEAN; }
   protected:
+	const char* operatorString() const { return "InternalCondition"; }
+
   private:
     bool checkValue(const double value);
-    ExpressionId m_first, m_second, m_expr;
+    ExpressionId m_expr;
   };
 
   class InterruptibleCommandHandleValues : public UnaryExpression {
@@ -297,7 +303,7 @@ namespace PLEXIL {
     virtual PlexilType getValueType() const { return BOOLEAN; }
     
   protected:
-  private:
+	const char* operatorString() const { return "InterruptibleCommandHandleValues"; }
   };
 
   class AllCommandHandleValues : public UnaryExpression {
@@ -316,7 +322,7 @@ namespace PLEXIL {
     virtual PlexilType getValueType() const { return BOOLEAN; }
     
   protected:
-  private:
+	const char* operatorString() const { return "AllCommandHandleValues"; }
   };
 
 }

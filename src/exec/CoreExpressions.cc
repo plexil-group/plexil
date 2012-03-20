@@ -588,34 +588,36 @@ namespace PLEXIL
     checkError(Id<PlexilOp>::convertable(expr), "Expected an op.");
     PlexilOp* op = (PlexilOp*) expr;
     checkError(op->getOp() == "EQInternal" || op->getOp() == "NEInternal",
-	       "Expected EQInternal or NEInternal");
+			   "Expected EQInternal or NEInternal");
 
-    bool first = true;
-    for(std::vector<PlexilExprId>::const_iterator it = op->subExprs().begin();
-	it != op->subExprs().end(); ++it) {
+    bool isFirst = true;
+	ExpressionId firstExpr, secondExpr;
+    for (std::vector<PlexilExprId>::const_iterator it = op->subExprs().begin();
+		 it != op->subExprs().end();
+		 ++it) {
       bool garbage = false;
       ExpressionId subExpr = getSubexpression(*it, node, garbage);
       debugMsg("InternalCondition:InternalCondition",
 			   "Adding " << *subExpr << " as " << (garbage ? "" : "non-") << " garbage.");
-      if(garbage)
-	m_garbage.insert(subExpr);
-      if(first) {
-	m_first = subExpr;
-	first = false;
+      if (garbage)
+		m_garbage.insert(subExpr);
+      if (isFirst) {
+		firstExpr = subExpr;
+		isFirst = false;
       }
       else
-	m_second = subExpr;
+		secondExpr = subExpr;
     }
 
-    checkError(m_first.isValid() && m_second.isValid(),
-	       "Expected two subexpressions in " << expr->name());
+    checkError(firstExpr.isValid() && secondExpr.isValid(),
+			   "Expected two subexpressions in " << expr->name());
 
     //m_subexpressions.clear();
 
     if(op->getOp() == "EQInternal")
-      m_expr = (new Equality(m_first, m_second))->getId();
+      m_expr = (new Equality(firstExpr, secondExpr))->getId();
     else if(op->getOp() == "NEInternal")
-      m_expr = (new Inequality(m_first, m_second))->getId();
+      m_expr = (new Inequality(firstExpr, secondExpr))->getId();
     addSubexpression(m_expr, false);
   }
 

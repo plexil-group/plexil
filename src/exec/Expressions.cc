@@ -64,6 +64,8 @@ namespace PLEXIL {
 	  REGISTER_EXPRESSION(Multiplication, MUL);
 	  REGISTER_EXPRESSION(Division, DIV);
 	  REGISTER_EXPRESSION(Modulo, MOD);        
+	  REGISTER_EXPRESSION(Maximum, MAX);
+	  REGISTER_EXPRESSION(Minimum, MIN);
 	  REGISTER_CONSTANT_EXPRESSION(BooleanVariable, BooleanValue);
 	  REGISTER_EXPRESSION(BooleanVariable, Boolean);
 	  REGISTER_CONSTANT_EXPRESSION(IntegerVariable, IntegerValue);

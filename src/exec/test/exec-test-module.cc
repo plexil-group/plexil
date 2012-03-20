@@ -209,6 +209,8 @@ public:
     runTest(testIntegerSubtraction);
     runTest(testIntegerMultiplication);
     runTest(testIntegerDivision);
+    runTest(testIntegerMaximum);
+    runTest(testIntegerMinimum);
 
     return true;
   }
@@ -848,6 +850,72 @@ private:
     assertTrue(d8.getValue() == IntegerVariable::UNKNOWN());
     d9.activate();
     assertTrue(d9.getValue() == IntegerVariable::UNKNOWN());
+    return true;
+  }
+
+  static bool testIntegerMaximum()
+  {
+    Maximum m1(IntegerVariable::ZERO_EXP(), IntegerVariable::ONE_EXP());
+    Maximum m2(IntegerVariable::ZERO_EXP(), IntegerVariable::MINUS_ONE_EXP());
+    Maximum m3(IntegerVariable::ONE_EXP(), IntegerVariable::ONE_EXP());
+    Maximum m4(IntegerVariable::MINUS_ONE_EXP(), IntegerVariable::ONE_EXP());
+    Maximum m5(IntegerVariable::ONE_EXP(), IntegerVariable::MINUS_ONE_EXP());
+    Maximum m6(IntegerVariable::MINUS_ONE_EXP(), IntegerVariable::MINUS_ONE_EXP());
+    Maximum m7(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::UNKNOWN_EXP());
+    Maximum m8(IntegerVariable::ZERO_EXP(), IntegerVariable::UNKNOWN_EXP());
+    Maximum m9(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ONE_EXP());
+
+    m1.activate();
+    assertTrue(m1.getValue() == 1.0);
+    m2.activate();
+    assertTrue(m2.getValue() == 0.0);
+    m3.activate();
+    assertTrue(m3.getValue() == 1.0);
+    m4.activate();
+    assertTrue(m4.getValue() == 1.0);
+    m5.activate();
+    assertTrue(m5.getValue() == 1.0);
+    m6.activate();
+    assertTrue(m6.getValue() == -1.0);
+    m7.activate();
+    assertTrue(m7.getValue() == IntegerVariable::UNKNOWN());
+    m8.activate();
+    assertTrue(m8.getValue() == IntegerVariable::UNKNOWN());
+    m9.activate();
+    assertTrue(m9.getValue() == IntegerVariable::UNKNOWN());
+    return true;
+  }
+
+  static bool testIntegerMinimum()
+  {
+    Minimum m1(IntegerVariable::ZERO_EXP(), IntegerVariable::ONE_EXP());
+    Minimum m2(IntegerVariable::ZERO_EXP(), IntegerVariable::MINUS_ONE_EXP());
+    Minimum m3(IntegerVariable::ONE_EXP(), IntegerVariable::ONE_EXP());
+    Minimum m4(IntegerVariable::MINUS_ONE_EXP(), IntegerVariable::ONE_EXP());
+    Minimum m5(IntegerVariable::ONE_EXP(), IntegerVariable::MINUS_ONE_EXP());
+    Minimum m6(IntegerVariable::MINUS_ONE_EXP(), IntegerVariable::MINUS_ONE_EXP());
+    Minimum m7(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::UNKNOWN_EXP());
+    Minimum m8(IntegerVariable::ZERO_EXP(), IntegerVariable::UNKNOWN_EXP());
+    Minimum m9(IntegerVariable::UNKNOWN_EXP(), IntegerVariable::ONE_EXP());
+
+    m1.activate();
+    assertTrue(m1.getValue() == 0.0);
+    m2.activate();
+    assertTrue(m2.getValue() == -1.0);
+    m3.activate();
+    assertTrue(m3.getValue() == 1.0);
+    m4.activate();
+    assertTrue(m4.getValue() == -1.0);
+    m5.activate();
+    assertTrue(m5.getValue() == -1.0);
+    m6.activate();
+    assertTrue(m6.getValue() == -1.0);
+    m7.activate();
+    assertTrue(m7.getValue() == IntegerVariable::UNKNOWN());
+    m8.activate();
+    assertTrue(m8.getValue() == IntegerVariable::UNKNOWN());
+    m9.activate();
+    assertTrue(m9.getValue() == IntegerVariable::UNKNOWN());
     return true;
   }
 

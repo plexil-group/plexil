@@ -111,6 +111,11 @@ namespace PLEXIL
 
     void removeSubexpression(const ExpressionId& exp);
 
+	// Printer utilities for use by subclasses
+	virtual void printAsFnCall(std::ostream& s) const;
+	virtual void printAsInfix(std::ostream& s) const;
+	virtual const char* operatorString() const = 0;
+
     SubexpressionListener m_listener; /*<! For incoming message notifications (other expressions' values have changed) */
     ExpressionVector m_subexpressions; /*<! The subexpressions.*/
     std::set<ExpressionId> m_garbage;
@@ -142,7 +147,6 @@ namespace PLEXIL
     UnaryExpression(const ExpressionId& e);
   protected:
     ExpressionId m_e;
-  private:
   };
 
   class BinaryExpression : public Calculable {
@@ -154,14 +158,11 @@ namespace PLEXIL
 	void print(std::ostream& s) const;
 
   protected:
-	virtual const char* operatorString() const = 0;
-	
     ExpressionId m_a;
     ExpressionId m_b;
-  private:
   };
-  // N-ary expression
 
+  // N-ary expression
   class NaryExpression : public Calculable
   {
   public:
@@ -171,9 +172,6 @@ namespace PLEXIL
     NaryExpression(const ExpressionId& a, bool aGarbage,
                    const ExpressionId& b, bool bGarbage);
 	void print(std::ostream& s) const;
-
-  protected:
-	virtual const char* operatorString() const = 0;
 
   private:
   };

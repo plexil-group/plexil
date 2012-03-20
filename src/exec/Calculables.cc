@@ -29,6 +29,7 @@
 #include "ExpressionFactory.hh"
 #include "Variables.hh"
 
+#include <algorithm> // for std::max(), std::min()
 #include <cmath>
 
 namespace PLEXIL
@@ -60,7 +61,7 @@ namespace PLEXIL
   void LogicalNegation::print(std::ostream& s) const
   {
     Expression::print(s);
-	s << "!" << *m_e << ")";
+	s << '!' << *m_e << ')';
   }
 
   AbsoluteValue::AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node)
@@ -83,8 +84,7 @@ namespace PLEXIL
 
   void AbsoluteValue::print(std::ostream& s) const 
   {
-	Expression::print(s);
-	s << "abs(" << *m_e << "))";
+	printAsFnCall(s);
   }
 
   PlexilType AbsoluteValue::getValueType() const
@@ -100,7 +100,7 @@ namespace PLEXIL
 
   double SquareRoot::recalculate() {
     double v = m_e->getValue();
-    checkError(v >= 0, "Tried to get the sqrt of a negative number.  We don't support complex values yet.");
+    checkError(v >= 0, "Tried to take square root of a negative number. Complex values are not yet implemented.");
     if(v == Expression::UNKNOWN())
       return Expression::UNKNOWN();
     return sqrt(v);
@@ -112,8 +112,7 @@ namespace PLEXIL
 
   void SquareRoot::print(std::ostream& s) const 
   {
-	Expression::print(s);
-    s << "sqrt(" << *m_e << "))";
+	printAsFnCall(s);
   }
 
 
@@ -134,9 +133,9 @@ namespace PLEXIL
     return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
   }
 
-  void IsKnown::print(std::ostream& s) const {
-	Expression::print(s);
-    s << "isknown(" << *m_e << "))";
+  void IsKnown::print(std::ostream& s) const
+  {
+	printAsFnCall(s);
   }
 
   //
@@ -540,6 +539,48 @@ namespace PLEXIL
   PlexilType Modulo::getValueType() const
   {
     return REAL;
+  }
+
+
+  double Maximum::recalculate()
+  {
+    double v1 = m_a->getValue();
+    double v2 = m_b->getValue();
+    if (v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
+
+	return std::max(v1, v2);
+  }
+
+  void Maximum::print(std::ostream& s) const
+  {
+	printAsFnCall(s);
+  }
+
+  PlexilType Maximum::getValueType() const
+  {
+	return REAL;
+  }
+
+
+  double Minimum::recalculate()
+  {
+    double v1 = m_a->getValue();
+    double v2 = m_b->getValue();
+    if (v1 == UNKNOWN() || v2 == UNKNOWN())
+      return UNKNOWN();
+
+	return std::min(v1, v2);
+  }
+
+  void Minimum::print(std::ostream& s) const
+  {
+	printAsFnCall(s);
+  }
+
+  PlexilType Minimum::getValueType() const
+  {
+	return REAL;
   }
 
 }

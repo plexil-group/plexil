@@ -76,6 +76,7 @@ namespace PLEXIL
     double recalculate();
 
   protected:
+	const char* operatorString() const { return "!"; }
 
   private:
     bool checkValue(const double val);
@@ -95,6 +96,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
+	const char* operatorString() const { return "abs"; }
+
   private:
   };
 
@@ -111,8 +114,9 @@ namespace PLEXIL
      * @return The value type of this Expression.
      */
     virtual PlexilType getValueType() const { return REAL; }
+
   protected:
-  private:
+	const char* operatorString() const { return "sqrt"; }
   };
 
   class IsKnown : public UnaryExpression {
@@ -130,7 +134,8 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
-  private:
+	const char* operatorString() const { return "isknown"; }
+
   };
 
   class Conjunction : public NaryExpression {
@@ -540,6 +545,64 @@ namespace PLEXIL
 
   protected:
     const char* operatorString() const { return "%"; }
+
+  private:
+    bool checkValue(const double /* value */) {return true;}
+  };
+
+  class Minimum : public BinaryExpression
+  {
+  public:
+    Minimum(const PlexilExprId& expr, const NodeConnectorId& node)
+      : BinaryExpression(expr, node)
+    {}
+
+    Minimum(const ExpressionId& a, const ExpressionId& b)
+      : BinaryExpression(a, b)
+    {}
+    Minimum(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
+      : BinaryExpression(a, aGarbage, b, bGarbage) {}
+
+    void print(std::ostream& s) const;
+    double recalculate();
+
+    /**
+     * @brief Retrieve the value type of this Expression.
+     * @return The value type of this Expression.
+     */
+    virtual PlexilType getValueType() const;
+
+  protected:
+    const char* operatorString() const { return "min"; }
+
+  private:
+    bool checkValue(const double /* value */) {return true;}
+  };
+
+  class Maximum : public BinaryExpression
+  {
+  public:
+    Maximum(const PlexilExprId& expr, const NodeConnectorId& node)
+      : BinaryExpression(expr, node)
+    {}
+
+    Maximum(const ExpressionId& a, const ExpressionId& b)
+      : BinaryExpression(a, b)
+    {}
+    Maximum(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
+      : BinaryExpression(a, aGarbage, b, bGarbage) {}
+
+    void print(std::ostream& s) const;
+    double recalculate();
+
+    /**
+     * @brief Retrieve the value type of this Expression.
+     * @return The value type of this Expression.
+     */
+    virtual PlexilType getValueType() const;
+
+  protected:
+    const char* operatorString() const { return "max"; }
 
   private:
     bool checkValue(const double /* value */) {return true;}
