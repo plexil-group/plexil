@@ -910,6 +910,14 @@
   ""
   (plexil-binary-numop "MOD" x y))
 
+(pdefine pl (Max max) (x y) 0 nil
+  ""
+  (plexil-binary-numop "MAX" x y))
+
+(pdefine pl (Min min) (x y) 0 nil
+  ""
+  (plexil-binary-numop "MIN" x y))
+
 (pdefine pl (Abs abs) (x) 2 nil
   ""
   (plexil-unary-numop "ABS" x))
