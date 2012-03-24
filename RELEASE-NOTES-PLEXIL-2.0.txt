@@ -26,6 +26,8 @@ Changes include:
  - The Plexil executive's behavior conforms more closely to its
  specification.
 
+ - New arithmetic functions: two-argument max() and min().
+
 Not changed:
 
  - The Plexil XML representation has not changed. Old .plx files will
