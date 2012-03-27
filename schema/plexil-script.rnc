@@ -13,9 +13,26 @@ start =
   | CommandAck
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
+CommandAbort =
+  notAllowed
+  | element CommandAbort { command-type }
 CommandAck =
   notAllowed
   | element CommandAck { command-type }
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
+\string = xsd:string
+Param =
+  notAllowed
+  | element Param { type?, xsd:string }
+Simultaneous =
+  notAllowed
+  | element Simultaneous {
+      (State | UpdateAck | Command | CommandAck | CommandAbort)*
+    }
 type =
   attribute type {
     xsd:NMTOKEN "real"
@@ -27,36 +44,6 @@ type =
     | xsd:NMTOKEN "bool-array"
     | xsd:NMTOKEN "real-array"
   }
-Script =
-  notAllowed
-  | element Script {
-      (State
-       | UpdateAck
-       | Command
-       | CommandAck
-       | CommandAbort
-       | Simultaneous)*
-    }
-Command =
-  notAllowed
-  | element Command { command-type }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
-    }
-\string = xsd:string
-Simultaneous =
-  notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-CommandAbort =
-  notAllowed
-  | element CommandAbort { command-type }
 command-type =
   (type?,
    attribute name { xsd:string }?,
@@ -67,14 +54,27 @@ command-type =
 InitialState =
   notAllowed
   | element InitialState { State* }
-Param =
+Script =
   notAllowed
-  | element Param { type?, xsd:string }
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
+  | element Script {
+      (State
+       | UpdateAck
+       | Command
+       | CommandAck
+       | CommandAbort
+       | Simultaneous)*
     }
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+Command =
+  notAllowed
+  | element Command { command-type }
 PlexilPlanAttributes = 
   notAllowed
   | attribute xsi:* { xsd:anyURI }*

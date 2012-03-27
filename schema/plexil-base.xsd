@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -160,17 +160,6 @@ element.  It is used as an included schema only.
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
-
-<!--  <xsd:simpleType name="TypeValues">
-    <xsd:restriction base="xsd:NMTOKEN">
-      <xsd:enumeration value="Integer"/>
-      <xsd:enumeration value="Real"/>
-      <xsd:enumeration value="Boolean"/>
-      <xsd:enumeration value="String"/>
-      <xsd:enumeration value="Array"/>
-    </xsd:restriction>
-  </xsd:simpleType>
- -->
 
   <xsd:simpleType name="NCNameOrEmpty">
     <xsd:union memberTypes="xsd:NCName">
