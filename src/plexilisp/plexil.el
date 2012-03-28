@@ -1,4 +1,4 @@
-;;; Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+;;; Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 ;;;  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -1362,6 +1362,7 @@
     (apply #'pl-list (cons ,form (mapcar #'eval ',forms)))))
 
 
+
 (insert-plexil-heading
  "== Resource Clauses =="
  "")
@@ -1459,6 +1460,23 @@
   (xml "IsKnown" v nil 'boolean))
 
 (defun plexil-nodeid (id) (xml "NodeId" id))
+
+
+;;; The beginning of an experimental set of temporal relations:
+
+(pdefine pl (starts-after-start StartsAfterStart) (d1 d2 id) 1 nil 
+  ;; real * real * string -> xml
+  ("A boolean expression stating a start time that is [d1 d2] after "
+   "the start of action named ID.")
+  (pl-and (pl-is-known (pl-start-time id))
+          (pl->= (pl-- (pl-current-time) (pl-start-time id)) d1)
+          (pl-<= (pl-- (pl-current-time) (pl-start-time id)) d2)))
+
+(pdefine pl (current-time CurrentTime) () 0 nil ; -> xml
+  "Lookup the time."
+  (pl-lookup "time"))
+
+
 
 ;;; -------------------- Simulation Script -------------------------------------
 
