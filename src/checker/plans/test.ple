@@ -1,41 +1,38 @@
 Command Drive(Integer, Boolean, Real, String);
 Boolean Command TakePicture(Integer, Integer, Real);
-String Function update(String s);
+String Command update(String s);
 Boolean Lookup X;
-LibraryNode LibTest(In Integer i, InOut String s);
+LibraryAction LibTest(In Integer i, InOut String s);
 
-
-ListNode:
+Test:
+Concurrence
 {
   Integer i = 5;
   Boolean b = true;
-  Integer j[4] = 5;
+  Real j[4] = 5.0;
+  String ess = "4";
   
-  Start: ANode.state == FINISHED;
-  End: i <= 7;
-  Repeat: i != 5;
-  Invariant: !b && isKnown(i) || false;
-  Pre: "hi" == "h" + "i";
-  Post: true != (false == true);
-  Skip: (WAITING == FAILING) || (ITERATION_ENDED == INACTIVE) || (EXECUTING == FINISHING);
+  Start ANode.state == FINISHED;
+  End i <= 7;
+  Repeat i != 5;
+  Invariant !b && isKnown(i) || false;
+  Pre "hi" == "h" + "i";
+  Post true != (false == true);
+  Skip (WAITING == FAILING) || (ITERATION_ENDED == INACTIVE) || (EXECUTING == FINISHING);
 //  Skip: true XOR false;
 
-  NodeList:
-    
   ANode:
   {
-    Start: j[1] > 3;
-    Assignment: j[2] = (3 + (2 * 1)) - (5 / sqrt (abs (7)));
+    Start j[1] > 3;
+    j[2] = (3 + (2 * 1)) - (5 / sqrt (abs (7)));
   }
   CNode:
   {
-    Start: LookupOnChange(X);
-    Command: Drive(1, false, 1.53, "31");
+    Start LookupOnChange(X);
+    Drive(1, false, 1.53, "31");
   }
   LNode:
-  {
-    LibraryCall: LibTest(i = i, s = "4");
-  }
-  
+      LibraryCall LibTest(i = i, s = ess);
+
   { }
 }
