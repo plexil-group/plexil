@@ -106,13 +106,14 @@ public class DeclReader {
 		
 		VarType type = null;
 		
-		String typeStr = xml.getAttribute(TypeDeclarationText, "Error");
-				
-		if (typeStr != null)
-			type = stringToVarType(typeStr);
-		
-		if (xml.getContent() != null)
-			return new Var(xml.getContent(), type, VarMod.None);
+		IXMLElement typeElt = xml.getFirstChildNamed(TypeDeclarationText);
+		if (typeElt != null) {
+			type = stringToVarType(typeElt.getContent());
+		}
+
+		IXMLElement nameElt = xml.getFirstChildNamed(NameDeclarationText);
+		if (nameElt != null)
+			return new Var(nameElt.getContent(), type, VarMod.None);
 		return new Var(type, VarMod.None);
 	}
 	
@@ -164,8 +165,13 @@ public class DeclReader {
 				if (child.getName().equals(TypeDeclarationText))
 				{
 					String typeStr = child.getContent();
-					if (typeStr != null)
+					if (typeStr != null) {
 						type = stringToVarType(typeStr);
+						// *** TEMPORARY ***
+						if (type == null) {
+							System.out.println(" In \"" + child.toString() + "\"");
+						}
+					}
 				}
 			}
 			
