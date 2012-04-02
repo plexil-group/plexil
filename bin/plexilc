@@ -78,7 +78,7 @@ LIB_DIR=${PLEXIL_HOME}/lib
 ANTLR_RUNTIME_JAR=antlr-3.4-complete-no-antlrv2.jar
 
 # Commands to execute
-plexil_compiler="java -classpath $LIB_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler $@"
+plexil_compiler="java -classpath $LIB_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler"
 plexilscript_compiler="java -cp ${LIB_DIR}/plexilscript.jar:${JARS_DIR}/antlr.jar plexilscript.PlexilScriptParse"
 plexil_checker="$PLEXIL_HOME/src/checker/checkDecls"
 
