@@ -2,5 +2,5 @@ Real Lookup time;
 
 time_lookup_test:
 {
-  EndCondition: LookupOnChange(time, 1) >= (time_lookup_test.EXECUTING.START + 5);
+  EndCondition Lookup(time, 1.0) >= (time_lookup_test.EXECUTING.START + 5);
 }
