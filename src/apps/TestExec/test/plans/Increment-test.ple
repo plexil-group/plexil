@@ -1,11 +1,11 @@
-LibraryNode Increment (In Integer x, InOut Integer result);
+LibraryAction Increment (In Integer x, InOut Integer result);
+Command pprint (...);
 
 LibraryCallTest:
 {
   Integer result;
-  Sequence:
-    { LibraryCall: Increment (x=1, result=result); }
-    { Command: pprint ("Increment(1) =", result); }
-    { LibraryCall: Increment (x=result, result=result); }
-    { Command: pprint ("Increment(2) =", result); }
+  LibraryCall Increment (x=1, result=result); 
+  pprint ("Increment(1) =", result);
+  LibraryCall Increment (x=result, result=result);
+  pprint ("Increment(2) =", result);
 }

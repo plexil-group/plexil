@@ -1,19 +1,16 @@
+Integer Lookup x;
+Command foo;
+
 Wrapper0:
 {
-  EndCondition: LookupOnChange(x) != 0;
-   
-  NodeList:
-  Wrapper1:
-   {
-     NodeList:
-     Wrapper1:
-      {
-        NodeList:
-        FooCall:
-         {
-           RepeatCondition: true;
-           Command: foo();
-         }
+  EndCondition Lookup(x) != 0;
+
+  Wrapper1: {
+    Wrapper2: {
+      FooCall: {
+        RepeatCondition true;
+        foo();
       }
-   }
+    }
+  }
 }

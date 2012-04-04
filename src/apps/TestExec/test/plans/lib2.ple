@@ -1,22 +1,17 @@
-LibraryNode LibTest1(In Boolean lb, In Integer li, In Real lr, In String ls); //, In Time lt); // In BLOB lbl,
-LibraryNode LibTest2(In Real y, In Real z);
+LibraryAction LibTest1 (In Boolean lb,
+                        In Integer li,
+                        In Real lr,
+                        In String ls); 
+LibraryAction LibTest2 (In Real y, In Real z);
+Command bar (Real, Real);
 
 LibTest2:
 {
-   In Real y;
-   In Real z;
-
+  In Real y;
+  In Real z;
    
-  NodeList:
+  BarCall2: bar(y, z);
 
-      // call command bar()
-   
-  BarCall2: {Command: bar(y, z);}
-
-      // call LibTest1 (from LibTest2) libraries calling libraries
-
-  Call2LibTest1:
-   {
-     LibraryCall: LibTest1(lb = false, li = 123, lr = y, ls = "what!");
-   }
+  // Note: this is a library action calling another library action
+  Call2LibTest1: LibraryCall LibTest1 (lb = false, li = 123, lr = y, ls = "what!");
 }

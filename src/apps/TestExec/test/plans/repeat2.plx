@@ -1,42 +1,102 @@
-  <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
-      <Node NodeType="NodeList">
-          <NodeId>Wrapper0</NodeId>
-          <EndCondition>
-              <NEBoolean>
-                  <LookupOnChange>
-                      <Name><StringValue>x</StringValue></Name>
-                  </LookupOnChange>
-                  <BooleanValue>0</BooleanValue>
-              </NEBoolean>
-          </EndCondition>
-          <NodeBody>
-              <NodeList>
-                  <Node NodeType="NodeList">
-                      <NodeId>Wrapper1</NodeId>
-                      <NodeBody>
-                          <NodeList>
-                              <Node NodeType="NodeList">
-                                  <NodeId>Wrapper1</NodeId>
-                                  <NodeBody>
-                                      <NodeList>
-                                          <Node NodeType="Command">
-                                              <NodeId>FooCall</NodeId>
-                                              <RepeatCondition>
-                                                  <BooleanValue>true</BooleanValue>
-                                              </RepeatCondition>
-                                              <NodeBody>
-                                                  <Command>
-                                                      <Name><StringValue>foo</StringValue></Name>
-                                                  </Command>
-                                              </NodeBody>
-                                          </Node>
-                                      </NodeList>
-                                  </NodeBody>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tr="extended-plexil-translator">
+   <GlobalDeclarations LineNo="1" ColNo="8">
+      <StateDeclaration LineNo="1" ColNo="8">
+         <Name>x</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </StateDeclaration>
+      <CommandDeclaration LineNo="2" ColNo="0">
+         <Name>foo</Name>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Node NodeType="NodeList" epx="Sequence" LineNo="6" ColNo="2">
+      <NodeId>Wrapper0</NodeId>
+      <InvariantCondition>
+         <AND>
+            <NOT>
+               <OR>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeId>Wrapper1</NodeId>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+               </OR>
+            </NOT>
+         </AND>
+      </InvariantCondition>
+      <EndCondition>
+         <NENumeric>
+            <LookupOnChange>
+               <Name>
+                  <StringValue>x</StringValue>
+               </Name>
+            </LookupOnChange>
+            <IntegerValue>0</IntegerValue>
+         </NENumeric>
+      </EndCondition>
+      <NodeBody>
+         <NodeList>
+            <Node NodeType="NodeList" epx="Sequence" LineNo="9" ColNo="4">
+               <NodeId>Wrapper1</NodeId>
+               <InvariantCondition>
+                  <AND>
+                     <NOT>
+                        <OR>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeId>Wrapper2</NodeId>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                        </OR>
+                     </NOT>
+                  </AND>
+               </InvariantCondition>
+               <NodeBody>
+                  <NodeList>
+                     <Node NodeType="NodeList" epx="Sequence" LineNo="10" ColNo="6">
+                        <NodeId>Wrapper2</NodeId>
+                        <InvariantCondition>
+                           <AND>
+                              <NOT>
+                                 <OR>
+                                    <EQInternal>
+                                       <NodeOutcomeVariable>
+                                          <NodeId>FooCall</NodeId>
+                                       </NodeOutcomeVariable>
+                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                    </EQInternal>
+                                 </OR>
+                              </NOT>
+                           </AND>
+                        </InvariantCondition>
+                        <NodeBody>
+                           <NodeList>
+                              <Node NodeType="Command" LineNo="12" ColNo="8">
+                                 <NodeId>FooCall</NodeId>
+                                 <RepeatCondition>
+                                    <BooleanValue>true</BooleanValue>
+                                 </RepeatCondition>
+                                 <NodeBody>
+                                    <Command>
+                                       <Name>
+                                          <StringValue>foo</StringValue>
+                                       </Name>
+                                    </Command>
+                                 </NodeBody>
                               </Node>
-                          </NodeList>
-                      </NodeBody>
-                  </Node>
-              </NodeList>
-          </NodeBody>
-      </Node>
-  </PlexilPlan>
+                           </NodeList>
+                        </NodeBody>
+                     </Node>
+                  </NodeList>
+               </NodeBody>
+            </Node>
+         </NodeList>
+      </NodeBody>
+   </Node>
+</PlexilPlan>
