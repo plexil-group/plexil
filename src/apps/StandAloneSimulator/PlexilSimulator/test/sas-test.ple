@@ -1,37 +1,30 @@
-//The controlling plan
-//Subscription commands are sent using SendMessage("<command name>")
+// The controlling plan.
+// Subscription commands are sent using SendMessage("<command name>").
+
+// NOTE: there's both a plan variable and an external state variable
+// named 'x'.  Legal but confusing.
+
+Integer Lookup x;
+Integer Command MoveRight (Integer units);
+Command SendMessage (String msg);
+
 Root:
 {
-	Integer rightIter = 4;
-	Integer x = 0;
-        StartCondition: LookupOnChange(x) > 10;
-	Invariant: x <= 21;
-	Sequence
-		Body:
-                {
-		NodeList:
-			Right:
-			{
-				Integer new_x;
-				RepeatCondition: rightIter > 0;
-			Sequence
-				Action:
-				{
-					EndCondition: isKnown(new_x);
-					Command: new_x = MoveRight(5);
-				}
-				SetX:
-				{
-					Assignment: x = new_x;
-				}
-				Set:
-				{
-					Assignment: rightIter = rightIter - 1;
-				}
-			}
-		}
-                Quit:
-		{
-			Command: SendMessage("Quit");
-		}
+  Integer rightIter = 4, x = 0;
+  StartCondition Lookup(x) > 10;
+  Invariant x <= 21;
+
+  Right: {
+    Integer new_x;
+    RepeatCondition rightIter > 0;
+
+    Action: {
+      EndCondition isKnown(new_x);
+      new_x = MoveRight(5);
+    }
+
+    SetX: x = new_x;
+    Set: rightIter = rightIter - 1;
+  }
+  Quit: SendMessage("Quit");
 }

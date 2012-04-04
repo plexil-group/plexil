@@ -1,31 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Sequence" FileName="sas-test.ple" LineNo="4" ColNo="1">
+   <GlobalDeclarations LineNo="7" ColNo="8">
+      <StateDeclaration LineNo="7" ColNo="8">
+         <Name>x</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </StateDeclaration>
+      <CommandDeclaration LineNo="8" ColNo="8">
+         <Name>MoveRight</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+         <Parameter>
+            <Name>units</Name>
+            <Type>Integer</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration LineNo="9" ColNo="0">
+         <Name>SendMessage</Name>
+         <Parameter>
+            <Name>msg</Name>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Node NodeType="NodeList" epx="Sequence" LineNo="13" ColNo="2">
       <NodeId>Root</NodeId>
       <VariableDeclarations>
-              <DeclareVariable>
-                  <Name>rightIter</Name>
-                  <Type>Integer</Type>
-                  <InitialValue>
-                      <IntegerValue>4</IntegerValue>
-                  </InitialValue>
-              </DeclareVariable>
-              <DeclareVariable>
-                  <Name>x</Name>
-                  <Type>Integer</Type>
-                  <InitialValue>
-                      <IntegerValue>0</IntegerValue>
-                  </InitialValue>
-              </DeclareVariable>
-          </VariableDeclarations>
+         <DeclareVariable LineNo="13" ColNo="2">
+            <Name>rightIter</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>4</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable LineNo="13" ColNo="2">
+            <Name>x</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
       <StartCondition>
          <GT>
             <LookupOnChange>
-                      <Name>
-                          <StringValue>x</StringValue>
-                      </Name>
-                  </LookupOnChange>
+               <Name>
+                  <StringValue>x</StringValue>
+               </Name>
+            </LookupOnChange>
             <IntegerValue>10</IntegerValue>
          </GT>
       </StartCondition>
@@ -39,7 +66,7 @@
                <OR>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Body</NodeId>
+                        <NodeId>Right</NodeId>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
@@ -55,130 +82,122 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" FileName="sas-test.ple" LineNo="11" ColNo="17">
-               <NodeId>Body</NodeId>
+            <Node NodeType="NodeList" epx="Sequence" LineNo="18" ColNo="4">
+               <NodeId>Right</NodeId>
+               <VariableDeclarations>
+                  <DeclareVariable LineNo="18" ColNo="4">
+                     <Name>new_x</Name>
+                     <Type>Integer</Type>
+                  </DeclareVariable>
+               </VariableDeclarations>
+               <RepeatCondition>
+                  <GT>
+                     <IntegerVariable>rightIter</IntegerVariable>
+                     <IntegerValue>0</IntegerValue>
+                  </GT>
+               </RepeatCondition>
+               <InvariantCondition>
+                  <AND>
+                     <NOT>
+                        <OR>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeId>Action</NodeId>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeId>SetX</NodeId>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeId>Set</NodeId>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                        </OR>
+                     </NOT>
+                  </AND>
+               </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                      <Node NodeType="NodeList" epx="Sequence" FileName="sas-test.ple" LineNo="14"
-                           ColNo="25">
-                        <NodeId>Right</NodeId>
-                        <VariableDeclarations>
-                              <DeclareVariable>
-                                  <Name>new_x</Name>
-                                  <Type>Integer</Type>
-                              </DeclareVariable>
-                          </VariableDeclarations>
-                        <RepeatCondition>
-                           <GT>
-                              <IntegerVariable>rightIter</IntegerVariable>
-                              <IntegerValue>0</IntegerValue>
-                           </GT>
-                        </RepeatCondition>
-                        <InvariantCondition>
-                           <AND>
-                              <NOT>
-                                 <OR>
-                                    <EQInternal>
-                                       <NodeOutcomeVariable>
-                                          <NodeId>Action</NodeId>
-                                       </NodeOutcomeVariable>
-                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                    </EQInternal>
-                                    <EQInternal>
-                                       <NodeOutcomeVariable>
-                                          <NodeId>SetX</NodeId>
-                                       </NodeOutcomeVariable>
-                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                    </EQInternal>
-                                    <EQInternal>
-                                       <NodeOutcomeVariable>
-                                          <NodeId>Set</NodeId>
-                                       </NodeOutcomeVariable>
-                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                    </EQInternal>
-                                 </OR>
-                              </NOT>
-                           </AND>
-                        </InvariantCondition>
+                     <Node NodeType="Command" LineNo="23" ColNo="14">
+                        <NodeId>Action</NodeId>
+                        <EndCondition>
+                           <IsKnown>
+                              <IntegerVariable>new_x</IntegerVariable>
+                           </IsKnown>
+                        </EndCondition>
                         <NodeBody>
-                           <NodeList>
-                              <Node NodeType="Command" FileName="sas-test.ple" LineNo="19" ColNo="33">
-                                 <NodeId>Action</NodeId>
-                                 <EndCondition>
-                                    <IsKnown>
-                                       <IntegerVariable>new_x</IntegerVariable>
-                                    </IsKnown>
-                                 </EndCondition>
-                                 <NodeBody>
-                                    <Command>
-                                      <IntegerVariable>new_x</IntegerVariable>
-                                      <Name>
-                                          <StringValue>MoveRight</StringValue>
-                                      </Name>
-                                      <Arguments>
-                                          <IntegerValue>5</IntegerValue>
-                                      </Arguments>
-                                    </Command>
-                                 </NodeBody>
-                              </Node>
-                              <Node NodeType="Assignment" FileName="sas-test.ple" LineNo="24" ColNo="33">
-                                 <NodeId>SetX</NodeId>
-                                 <StartCondition>
-                                    <AND>
-                                       <EQInternal>
-                                          <NodeStateVariable>
-                                             <NodeId>Action</NodeId>
-                                          </NodeStateVariable>
-                                          <NodeStateValue>FINISHED</NodeStateValue>
-                                       </EQInternal>
-                                    </AND>
-                                 </StartCondition>
-                                 <NodeBody>
-                                    <Assignment>
-                                      <IntegerVariable>x</IntegerVariable>
-                                      <NumericRHS>
-                                          <IntegerVariable>new_x</IntegerVariable>
-                                      </NumericRHS>
-                                    </Assignment>
-                                 </NodeBody>
-                              </Node>
-                              <Node NodeType="Assignment" FileName="sas-test.ple" LineNo="28" ColNo="33">
-                                 <NodeId>Set</NodeId>
-                                 <StartCondition>
-                                    <AND>
-                                       <EQInternal>
-                                          <NodeStateVariable>
-                                             <NodeId>SetX</NodeId>
-                                          </NodeStateVariable>
-                                          <NodeStateValue>FINISHED</NodeStateValue>
-                                       </EQInternal>
-                                    </AND>
-                                 </StartCondition>
-                                 <NodeBody>
-                                    <Assignment>
-                                      <IntegerVariable>rightIter</IntegerVariable>
-                                      <NumericRHS>
-                                          <SUB>
-                                              <IntegerVariable>rightIter</IntegerVariable>
-                                              <IntegerValue>1</IntegerValue>
-                                          </SUB>
-                                      </NumericRHS>
-                                    </Assignment>
-                                 </NodeBody>
-                              </Node>
-                           </NodeList>
+                           <Command>
+                              <IntegerVariable>new_x</IntegerVariable>
+                              <Name>
+                                 <StringValue>MoveRight</StringValue>
+                              </Name>
+                              <Arguments LineNo="23" ColNo="24">
+                                 <IntegerValue>5</IntegerValue>
+                              </Arguments>
+                           </Command>
+                        </NodeBody>
+                     </Node>
+                     <Node NodeType="Assignment" LineNo="26" ColNo="10">
+                        <NodeId>SetX</NodeId>
+                        <StartCondition>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeId>Action</NodeId>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                           </AND>
+                        </StartCondition>
+                        <NodeBody>
+                           <Assignment>
+                              <IntegerVariable>x</IntegerVariable>
+                              <NumericRHS>
+                                 <IntegerVariable>new_x</IntegerVariable>
+                              </NumericRHS>
+                           </Assignment>
+                        </NodeBody>
+                     </Node>
+                     <Node NodeType="Assignment" LineNo="27" ColNo="9">
+                        <NodeId>Set</NodeId>
+                        <StartCondition>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeId>SetX</NodeId>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                           </AND>
+                        </StartCondition>
+                        <NodeBody>
+                           <Assignment>
+                              <IntegerVariable>rightIter</IntegerVariable>
+                              <NumericRHS>
+                                 <SUB LineNo="27" ColNo="31">
+                                    <IntegerVariable>rightIter</IntegerVariable>
+                                    <IntegerValue>1</IntegerValue>
+                                 </SUB>
+                              </NumericRHS>
+                           </Assignment>
                         </NodeBody>
                      </Node>
                   </NodeList>
-              </NodeBody>
+               </NodeBody>
             </Node>
-            <Node NodeType="Command" FileName="sas-test.ple" LineNo="34" ColNo="17">
+            <Node NodeType="Command" LineNo="29" ColNo="8">
                <NodeId>Quit</NodeId>
                <StartCondition>
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>Body</NodeId>
+                           <NodeId>Right</NodeId>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
@@ -186,14 +205,14 @@
                </StartCondition>
                <NodeBody>
                   <Command>
-                      <Name>
-                          <StringValue>SendMessage</StringValue>
-                      </Name>
-                      <Arguments>
-                          <StringValue>Quit</StringValue>
-                      </Arguments>
+                     <Name>
+                        <StringValue>SendMessage</StringValue>
+                     </Name>
+                     <Arguments LineNo="29" ColNo="20">
+                        <StringValue>Quit</StringValue>
+                     </Arguments>
                   </Command>
-              </NodeBody>
+               </NodeBody>
             </Node>
          </NodeList>
       </NodeBody>
