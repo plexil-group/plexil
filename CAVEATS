@@ -12,10 +12,8 @@ Plexil Viewer:
    distinguish between "normal" and Core Plexil plan view, always showing the
    latter.
 
-Robosim: The (graphical) robot simulator does not always
-shut down cleanly.
 
-Plexil to XML translator ('plexilc'): 
+Plexil compiler ('plexilc'): 
 
  * File extensions included in the '-o' option are ignored:
    Extended and Core Plexil files are always written with the
@@ -23,8 +21,8 @@ Plexil to XML translator ('plexilc'):
 
  * Node timepoints cannot be assigned to variables.
 
-In multiple-executive applications, the Plexil executive sometimes crashes after
-completion of plan execution, with the following message:
 
-  Assertion failed: (false), function handleAssert, file Error.cc, line 89.
-  terminate called after throwing an instance of 'SocketException'
+Robosim application: 
+
+* The (graphical) robot simulator does not always shut down cleanly.
+
