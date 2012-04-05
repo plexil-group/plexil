@@ -32,7 +32,7 @@ Please note that the Core Plexil XML representation has not changed. Old
     formal specification.
 
  - New arithmetic functions: MOD, MAX, MIN
-
+ - Numerous misc bug fixes and enhancements througout system.
 
 =================================================================================
 
