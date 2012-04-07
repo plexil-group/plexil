@@ -651,7 +651,6 @@
         </Name>
         <xsl:choose>
           <xsl:when test= "Tolerance">
-            <!-- <xsl:copy-of select="Tolerance"/> -->
             <xsl:apply-templates select="Tolerance"/>
           </xsl:when>
           <xsl:otherwise>
@@ -1850,7 +1849,6 @@
           <Name>
             <xsl:apply-templates select= "Name/*"/>
           </Name>
-          <!-- <xsl:copy-of select="Tolerance"/> -->
           <xsl:apply-templates select="Tolerance"/>
           <xsl:if test= "Arguments">
             <Arguments>

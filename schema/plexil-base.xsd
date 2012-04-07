@@ -936,7 +936,7 @@ element.  It is used as an included schema only.
   </xsd:group>
 
   <xsd:group name="ArithmeticOperator">
-	<xsd:choice>
+    <xsd:choice>
       <xsd:element ref="ADD"/>
       <xsd:element ref="SUB"/>
       <xsd:element ref="MUL"/>
@@ -946,7 +946,7 @@ element.  It is used as an included schema only.
       <xsd:element ref="MIN"/>
       <xsd:element ref="SQRT"/>
       <xsd:element ref="ABS"/>
-	</xsd:choice>
+    </xsd:choice>
   </xsd:group>
 
   <xsd:element name="ArrayElement">
@@ -1044,15 +1044,6 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="Tolerance">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="RealValue"/>
-        <xsd:element ref="RealVariable"/>
-      </xsd:choice>
-    </xsd:complexType>
-  </xsd:element>
-
   <xsd:element name="LookupNow">
     <xsd:complexType>
       <xsd:sequence>
@@ -1062,5 +1053,20 @@ element.  It is used as an included schema only.
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
+
+  <xsd:element name="Tolerance">
+    <xsd:complexType>
+      <xsd:group ref="ToleranceGroup"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:group name="ToleranceGroup">
+    <xsd:choice>
+      <xsd:element ref="IntegerValue"/>
+      <xsd:element ref="IntegerVariable"/>
+      <xsd:element ref="RealValue"/>
+      <xsd:element ref="RealVariable"/>
+    </xsd:choice>
+  </xsd:group>
 
 </xsd:schema>

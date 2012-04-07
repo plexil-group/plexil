@@ -153,6 +153,16 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:element ref="ArrayElement"/>
       </xsd:choice>
     </xsd:group>
+    <xsd:group name="ToleranceGroup">
+      <xsd:choice>
+        <xsd:element ref="IntegerValue"/>
+        <xsd:element ref="IntegerVariable"/>
+        <xsd:element ref="RealValue"/>
+        <xsd:element ref="RealVariable"/>
+        <xsd:element ref="DurationValue"/>
+        <xsd:element ref="DurationVariable"/>
+      </xsd:choice>
+    </xsd:group>
   </xsd:redefine>
 
   <xsd:element name="Name">
