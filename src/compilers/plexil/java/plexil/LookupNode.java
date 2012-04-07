@@ -103,12 +103,19 @@ public class LookupNode extends ExpressionNode
             String stateName = invocation.getChild(0).getText();
             m_state = GlobalContext.getGlobalContext().getLookupDeclaration(stateName);
             if (m_state == null) {
-                // FIXME: should this be an error instead?
-                state.addDiagnostic(invocation.getChild(0),
-                                    "State name \"" + stateName + "\" has not been declared",
-                                    Severity.WARNING);
-                // FIXME: add implicit declaration?
-                m_dataType = PlexilDataType.ANY_TYPE;
+                // Time is "implicitly declared"
+                if (stateName.equals (state.timeKeyword)) {
+                    m_dataType = (state.timeIsReal ? PlexilDataType.REAL_TYPE :
+                                  PlexilDataType.DATE_TYPE);
+                }
+                else {
+                    // FIXME: should this be an error instead?
+                    state.addDiagnostic(invocation.getChild(0),
+                                        "State name \"" + stateName + "\" has not been declared",
+                                        Severity.WARNING);
+                    // FIXME: add implicit declaration?
+                    m_dataType = PlexilDataType.ANY_TYPE;
+                }
             }
             else {
                 // Set return value type
@@ -168,12 +175,19 @@ public class LookupNode extends ExpressionNode
 
             // Type check tolerance if supplied and if state name is known
             if (m_tolerance != null) {
-                if (!m_tolerance.assumeType(m_dataType, state)) {
+                if (m_dataType == PlexilDataType.DATE_TYPE &&
+                    !m_tolerance.assumeType (PlexilDataType.DURATION_TYPE, state)) {
                     state.addDiagnostic(m_tolerance,
                                         "Tolerance supplied for state \"" + m_state.getName()
                                         + "\" has type " + m_tolerance.getDataType().typeName()
-                                        + ", instead of state's return type " + m_dataType.typeName(),
-                                        Severity.ERROR);
+                                        + ", instead of Duration type ", Severity.ERROR);
+                    }
+                else if (m_dataType.isNumeric() && !m_tolerance.assumeType (m_dataType, state)) {
+                    state.addDiagnostic (m_tolerance,
+                                         "Tolerance supplied for state \"" + m_state.getName()
+                                         + "\" has type " + m_tolerance.getDataType().typeName()
+                                         + ", which doesn't match the lookup's type " +
+                                         m_dataType.typeName(), Severity.ERROR);
                 }
             }
         }

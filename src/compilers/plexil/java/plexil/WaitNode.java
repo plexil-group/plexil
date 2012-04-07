@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,50 +37,85 @@ class WaitNode extends PlexilTreeNode
         super(t);
     }
 
-	public WaitNode(WaitNode n)
-	{
-		super(n);
-	}
+    public WaitNode(WaitNode n)
+    {
+        super(n);
+    }
 
-	public Tree dupNode()
-	{
-		return new WaitNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new WaitNode(this);
+    }
 
-    public void check(NodeContext context, CompilerState myState)
+    public void check (NodeContext context, CompilerState state)
     {
         ExpressionNode delayExp = (ExpressionNode) this.getChild(0);
-        // Check whether delay can be persuaded to be numeric
-        if (!delayExp.assumeType(PlexilDataType.REAL_TYPE, myState)) {
-            myState.addDiagnostic(delayExp,
-                                  "The delay argument to the Wait builtin, \""
-                                  + delayExp.getText()
-                                  + "\", is not a numeric expression",
-                                  Severity.ERROR);
+        delayExp.check (context, state);
+        if (delayExp.assumeType(PlexilDataType.DURATION_TYPE, state)) {
+            checkForDuration (context, state);
         }
-        // check the delay expression for other faults
-        delayExp.check(context, myState);
+        else if (delayExp.assumeType (PlexilDataType.REAL_TYPE, state) ||
+                 delayExp.assumeType (PlexilDataType.INTEGER_TYPE, state)) {
+            checkForReal (context, state);
+        }
+        else state.addDiagnostic(delayExp,
+                                 "The delay argument to the Wait builtin, \""
+                                 + delayExp.getText()
+                                 + "\", is not a duration or number",
+                                 Severity.ERROR);
+    }
+    
 
+    public void checkForDuration (NodeContext context, CompilerState state)
+    {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
             if (toleranceExp instanceof LiteralNode
-                && toleranceExp.assumeType(PlexilDataType.REAL_TYPE, myState)) {
+                && toleranceExp.assumeType(PlexilDataType.DURATION_TYPE, state)) {
                 // it's good
             }
             else if (toleranceExp instanceof VariableNode
-                     && toleranceExp.getType() == PlexilLexer.NCNAME // i.e. a simple variable reference
+                     // simple variable reference:
+                     && toleranceExp.getType() == PlexilLexer.NCNAME 
+                     && toleranceExp.getDataType() == PlexilDataType.DURATION_TYPE) {
+                // that's good too
+            }
+            else {
+                state.addDiagnostic(toleranceExp,
+                                    "The tolerance argument to the Wait builtin, \""
+                                    + toleranceExp.getText()
+                                    + "\", is not a Duration value or variable.",
+                                    Severity.ERROR);
+            }
+            // check the delay expression for other faults
+            toleranceExp.check(context, state);
+        }
+    }
+
+
+    public void checkForReal (NodeContext context, CompilerState state)
+    {
+        if (this.getChildCount() > 1) {
+            ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
+            if (toleranceExp instanceof LiteralNode
+                && toleranceExp.assumeType(PlexilDataType.REAL_TYPE, state)) {
+                // it's good
+            }
+            else if (toleranceExp instanceof VariableNode
+                     // simple variable reference:
+                     && toleranceExp.getType() == PlexilLexer.NCNAME 
                      && toleranceExp.getDataType() == PlexilDataType.REAL_TYPE) {
                 // that's good too
             }
             else {
-                myState.addDiagnostic(toleranceExp,
-                                      "The tolerance argument to the Wait builtin, \""
-                                      + toleranceExp.getText()
-                                      + "\", is not a Real variable reference or a literal number",
-                                      Severity.ERROR);
+                state.addDiagnostic(toleranceExp,
+                                    "The tolerance argument to the Wait builtin, \""
+                                    + toleranceExp.getText()
+                                    + "\", is not a Real value or variable.",
+                                    Severity.ERROR);
             }
             // check the delay expression for other faults
-            toleranceExp.check(context, myState);
+            toleranceExp.check(context, state);
         }
     }
 

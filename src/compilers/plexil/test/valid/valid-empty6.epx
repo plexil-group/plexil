@@ -1,0 +1,28 @@
+<PlexilPlan LineNo="1" ColNo="5">
+    <GlobalDeclarations LineNo="1" ColNo="5">
+        <StateDeclaration LineNo="1" ColNo="5">
+            <Name>time</Name>
+            <Return>
+                <Name>_return_0</Name>
+                <Type>Real</Type>
+            </Return>
+        </StateDeclaration>
+    </GlobalDeclarations>
+    <Node NodeType="Empty" LineNo="5" ColNo="2">
+        <NodeId>VerifyTemp</NodeId>
+        <PostCondition LineNo="5" ColNo="2">
+            <GE LineNo="5" ColNo="29">
+                <Lookup LineNo="5" ColNo="16">
+                    <Name>
+                        <StringValue>time</StringValue>
+                    </Name>
+                </Lookup>
+                <NodeTimepointValue>
+                    <NodeRef dir="self"/>
+                    <NodeStateValue>EXECUTING</NodeStateValue>
+                    <Timepoint>START</Timepoint>
+                </NodeTimepointValue>
+            </GE>
+        </PostCondition>
+    </Node>
+</PlexilPlan>

@@ -119,13 +119,11 @@ public final class PlexilDataType
     public PlexilDataType next() { return m_next; }
     public PlexilDataType prev() { return m_prev; }
 
-    //
-    // Members of the class
-    //
-
-    // Invalid type
+    // Invalid/temporary types
     public static final PlexilDataType ERROR_TYPE =
         new PlexilDataType("ERROR_TYPE", "Error", false);
+    public static final PlexilDataType UNKNOWN_TYPE =
+        new PlexilDataType("UNKNOWN_TYPE", "Unknown", false);
 
     // Primitive types
     public static final PlexilDataType BOOLEAN_TYPE =
@@ -145,10 +143,14 @@ public final class PlexilDataType
     // but not store as variables or otherwise manipulate
     public static final PlexilDataType COMMAND_HANDLE_TYPE =
         new PlexilDataType("COMMAND_HANDLE_TYPE", "NodeCommandHandle", false);
-    public static final PlexilDataType NODE_STATE_TYPE = new PlexilDataType("NODE_STATE_TYPE", "NodeState", false);
-    public static final PlexilDataType NODE_OUTCOME_TYPE = new PlexilDataType("NODE_OUTCOME_TYPE", "NodeOutcome", false);
-    public static final PlexilDataType NODE_FAILURE_TYPE = new PlexilDataType("NODE_FAILURE_TYPE", "NodeFailure", false);
-    public static final PlexilDataType STATE_NAME_TYPE = new PlexilDataType("STATE_NAME_TYPE", "StateName", false);
+    public static final PlexilDataType NODE_STATE_TYPE =
+        new PlexilDataType("NODE_STATE_TYPE", "NodeState", false);
+    public static final PlexilDataType NODE_OUTCOME_TYPE =
+        new PlexilDataType("NODE_OUTCOME_TYPE", "NodeOutcome", false);
+    public static final PlexilDataType NODE_FAILURE_TYPE =
+        new PlexilDataType("NODE_FAILURE_TYPE", "NodeFailure", false);
+    public static final PlexilDataType STATE_NAME_TYPE =
+        new PlexilDataType("STATE_NAME_TYPE", "StateName", false);
 
     // Has no value at all, e.g. commands that return no value
     public static final PlexilDataType VOID_TYPE = new PlexilDataType("VOID_TYPE", "Void", false);

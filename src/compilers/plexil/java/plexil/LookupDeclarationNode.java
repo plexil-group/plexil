@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,15 +44,15 @@ public class LookupDeclarationNode extends PlexilTreeNode
         super(n);
     }
 
-	public Tree dupNode()
-	{
-		return new LookupDeclarationNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new LookupDeclarationNode(this);
+    }
 
     // structure is:
     // ^(LOOKUP_KYWD NCNAME returnsSpec paramsSpec?)
 
-    public void earlyCheck(NodeContext context, CompilerState state)
+    public void earlyCheck (NodeContext context, CompilerState state)
     {
         // check that name is not already defined
         String lookupName = this.getChild(0).getText();
@@ -62,6 +62,7 @@ public class LookupDeclarationNode extends PlexilTreeNode
                                 "Lookup \"" + lookupName + "\" is already defined",
                                 Severity.ERROR);
         }
+        else if (lookupName.equals (state.timeKeyword)) handleTime (context, state);
 
         // Parse return spec
         ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
@@ -74,21 +75,41 @@ public class LookupDeclarationNode extends PlexilTreeNode
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
             parmSpecs = parmAST.getParameterVector();
-			if (parmSpecs != null) {
-				for (VariableName vn : parmSpecs) {
-					if (vn instanceof InterfaceVariableName) {
-						state.addDiagnostic(vn.getDeclaration(),
-											(vn.isAssignable() ? "InOut" : "In")
-											+ " declaration is illegal in lookup parameter declarations",
-											Severity.ERROR);
-					}
-				}
-			}
+            if (parmSpecs != null) {
+                for (VariableName vn : parmSpecs) {
+                    if (vn instanceof InterfaceVariableName) {
+                        state.addDiagnostic(vn.getDeclaration(),
+                                            (vn.isAssignable() ? "InOut" : "In")
+                                            + " declaration is illegal in " +
+                                            "lookup parameter declarations",
+                                            Severity.ERROR);
+                    }
+                }
+            }
         }
 
         // Define in global environment
         GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
     }
+
+    private void handleTime (NodeContext context, CompilerState state)
+    {
+        ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
+        if (returnAST.getChildCount() == 1) {
+            String typeName = returnAST.getChild(0).getText();
+            if (typeName.equals (state.realKeyword)) state.timeIsReal = true;
+            else if (typeName.equals (state.dateKeyword)) state.timeIsReal = false;
+            else state.addDiagnostic (this.getChild(0),
+                                      "Illegal redefinition of reserved variable '" +
+                                      state.timeKeyword + "' as " + typeName,
+                                      Severity.ERROR);
+        }
+        else state.addDiagnostic (this.getChild(0),
+                                  "Illegal redefinition of reserved variable " +
+                                  state.timeKeyword,
+                                  Severity.ERROR);
+    }
+
 
     public void constructXML()
     {

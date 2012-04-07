@@ -43,12 +43,21 @@ public class CompilerState
     protected File m_infile = null; //* as supplied, may be null
     protected File m_outfile = null;
 
+    // Processing-related flags
     public boolean debug = false;
     public boolean epxOnly = false;
     public boolean keepEpx = false;
     public boolean prettyPrintEpx = false;
     public boolean semanticsOnly = false;
     public boolean syntaxOnly = false;
+
+    // Type checking
+    public String timeKeyword = "time";
+    static public boolean timeIsReal = true;
+    // The following are redundant.  Wish I could access the lexer
+    // strings, but don't see how.
+    public String dateKeyword = "Date";
+    public String realKeyword = "Real";
 
     protected CharStream m_instream; //* the stream to use initially
 

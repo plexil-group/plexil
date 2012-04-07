@@ -15,8 +15,7 @@ TimedIteration:
     
     SetupTimes:
     {
-//        run_start_time = TimedIteration.EXECUTING.START;
-        run_start_time = Lookup(time);
+        run_start_time = TimedIteration.EXECUTING.START;
         start_delta = earliest_start - run_start_time;
         latest_start = earliest_start + Duration("PT4.0S");
         run_length = run_length + start_delta;
@@ -26,8 +25,7 @@ TimedIteration:
 
     waitForStartTime:
     {
-//        Start earliest_start < Lookup(time, tolerance);
-        Start earliest_start < Lookup(time);
+        Start earliest_start < Lookup(time, tolerance);
         Invariant Lookup(time) < latest_start;
 
         pprint ("Plan starting...");
@@ -37,14 +35,12 @@ TimedIteration:
     {
         Date iteration_start_time;
         Repeat continue;
-//        Start ((Lookup(time, tolerance) - run_start_time) mod period) < tolerance*2;
-        Start ((Lookup(time) - run_start_time) mod period) < tolerance*2;
+        Start ((Lookup(time, tolerance) - run_start_time) mod period) < tolerance*2;
 
         iteration_start_time = Lookup(time);
         elapsed_time = iteration_start_time - run_start_time;
         pprint ("elapsed_time: ", elapsed_time);
-//        WaitABit: Wait (2 * tolerance);
-        WaitABit: Wait (2);
+        WaitABit: Wait (2*tolerance);
         ConditionallyEndIteration:
         {
             Skip elapsed_time <= run_length;

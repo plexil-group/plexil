@@ -45,10 +45,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
         super(new CommonToken(ttype, getTokenString(ttype)));
     }
 
-	public Tree dupNode()
-	{
-		return new ArithmeticOperatorNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new ArithmeticOperatorNode(this);
+    }
 
     private static String getTokenString(int ttype)
     {
@@ -60,70 +60,33 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
-    private void invalidateAux (CompilerState state,
-                                ExpressionNode operand,
-                                String s1, String s2)
+    public void check (NodeContext context, CompilerState state)
     {
-        state.addDiagnostic (operand, s1 + this.getToken().getText() +
-                             " operator " + s2, Severity.ERROR);
-        m_dataType = PlexilDataType.VOID_TYPE;
-    }
-
-    private void invalidateFirstOperand (CompilerState state,
-                                         ExpressionNode operand,
-                                         String desc)
-    {
-        invalidateAux (state, operand, "The first operand to the ", desc);
-    }
-
-    private void invalidateOnlyOperand (CompilerState state,
-                                        ExpressionNode operand,
-                                        String desc)
-    {
-        // TODO: improve message for things like absolute value
-        invalidateAux (state, operand, "The operand to the ", desc);
-    }
-
-    private void invalidateOperands (CompilerState state,
-                                     ExpressionNode operand,
-                                     String desc)
-    {
-        invalidateAux (state, operand, "The operands to the ", desc);
-    }
-
-
-    // First pass of type checking: make implicit type assignments
-    //
-    public void earlyCheck (NodeContext context, CompilerState state)
-    {
-        earlyCheckChildren (context, state);
+        checkChildren (context, state);
 
         switch (this.getType()) {
-        case PlexilLexer.PLUS: m_dataType = earlyCheckPlus (state); break;
-        case PlexilLexer.MINUS: m_dataType = earlyCheckMinus (state); break;
-        case PlexilLexer.ASTERISK: m_dataType = earlyCheckMult (state); break;
-        case PlexilLexer.SLASH: m_dataType = earlyCheckDiv (state); break;
-        case PlexilLexer.ABS_KYWD: m_dataType = earlyCheckAbs (state); break;
-
-		case PlexilLexer.MAX_KYWD:
-		case PlexilLexer.MIN_KYWD:
-			m_dataType = earlyCheckMaxMin(state); break;
-
+        case PlexilLexer.PLUS: m_dataType = checkPlus (state); break;
+        case PlexilLexer.MINUS: m_dataType = checkMinus (state); break;
+        case PlexilLexer.ASTERISK: m_dataType = checkMult (state); break;
+        case PlexilLexer.SLASH: m_dataType = checkDiv (state); break;
+        case PlexilLexer.ABS_KYWD: m_dataType = checkAbs (state); break;
+        case PlexilLexer.MAX_KYWD:
+        case PlexilLexer.MIN_KYWD: m_dataType = checkMaxMin(state); break;
         case PlexilLexer.MOD_KYWD:
-        case PlexilLexer.PERCENT: m_dataType = earlyCheckMod (state); break;
-
+        case PlexilLexer.PERCENT: m_dataType = checkMod (state); break;
         case PlexilLexer.SQRT_KYWD: m_dataType = PlexilDataType.REAL_TYPE; break; 
-        default: {
+        default: m_dataType = PlexilDataType.ERROR_TYPE;
+        }
+
+        if (m_dataType == PlexilDataType.ERROR_TYPE) {
             state.addDiagnostic(this,
                                 "Shouldn't happen! Unknown expression type.",
                                 Severity.ERROR);
-            m_dataType = PlexilDataType.ERROR_TYPE;
-        }
         }
     }
 
 
-    private PlexilDataType earlyCheckPlus (CompilerState state)
+    private PlexilDataType checkPlus (CompilerState state)
     {
         // PLUS has exactly two children
 
@@ -161,7 +124,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
     }
 
 
-    private PlexilDataType earlyCheckMinus (CompilerState state)
+    private PlexilDataType checkMinus (CompilerState state)
     {
         // MINUS has exactly two children
 
@@ -194,7 +157,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
     }
 
 
-    private PlexilDataType earlyCheckMult (CompilerState state)
+    private PlexilDataType checkMult (CompilerState state)
     {
         // MULT has exactly two children
 
@@ -223,7 +186,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
     }
 
 
-    private PlexilDataType earlyCheckDiv (CompilerState state)
+    private PlexilDataType checkDiv (CompilerState state)
     {
         // DIV has exactly two children
 
@@ -251,7 +214,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
     }
 
 
-    private PlexilDataType earlyCheckMod (CompilerState state)
+    private PlexilDataType checkMod (CompilerState state)
     {
         // MOD has exactly two children
 
@@ -279,7 +242,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
-    private PlexilDataType earlyCheckAbs (CompilerState state)
+    private PlexilDataType checkAbs (CompilerState state)
     {
         // ABS has exactly one child
 
@@ -300,7 +263,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
-    private PlexilDataType earlyCheckMaxMin(CompilerState state)
+    private PlexilDataType checkMaxMin(CompilerState state)
     {
         // MIN and MAX have exactly two children
         PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
@@ -308,16 +271,16 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
         // Two integers yield an integer
         if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype)
-			return ltype;
-		// Two numbers return a real
+            return ltype;
+        // Two numbers return a real
         else if (ltype.isNumeric() && ltype.isNumeric())
-			return PlexilDataType.REAL_TYPE;
-		// Two durations return a duration
-		else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype)
-			return ltype;
-		// Two dates return a date
-		else if (ltype == PlexilDataType.DATE_TYPE && rtype == ltype)
-			return ltype;
+            return PlexilDataType.REAL_TYPE;
+        // Two durations return a duration
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype)
+            return ltype;
+        // Two dates return a date
+        else if (ltype == PlexilDataType.DATE_TYPE && rtype == ltype)
+            return ltype;
         // Otherwise, no good...
         else {
             state.addDiagnostic (this,
@@ -326,7 +289,7 @@ public class ArithmeticOperatorNode extends ExpressionNode
                                  Severity.ERROR);
             return PlexilDataType.ERROR_TYPE;
         }
-	}
+    }
 
     public void constructXML()
     {
@@ -348,11 +311,11 @@ public class ArithmeticOperatorNode extends ExpressionNode
         case PlexilLexer.MINUS:
             return "SUB";
 
-		case PlexilLexer.MAX_KYWD:
-			return "MAX";
+        case PlexilLexer.MAX_KYWD:
+            return "MAX";
 
-		case PlexilLexer.MIN_KYWD:
-			return "MIN";
+        case PlexilLexer.MIN_KYWD:
+            return "MIN";
 
         case PlexilLexer.MOD_KYWD:
         case PlexilLexer.PERCENT:

@@ -33,32 +33,33 @@ public class NodeVariableNode extends ExpressionNode
 {
     private void setType ()
     {
-		switch (this.getToken().getType()) {
-		case PlexilLexer.COMMAND_HANDLE_KYWD:
-			m_dataType = PlexilDataType.COMMAND_HANDLE_TYPE;
-			break;
+        switch (this.getToken().getType()) {
+        case PlexilLexer.COMMAND_HANDLE_KYWD:
+            m_dataType = PlexilDataType.COMMAND_HANDLE_TYPE;
+            break;
 
-		case PlexilLexer.OUTCOME_KYWD:
-			m_dataType = PlexilDataType.NODE_OUTCOME_TYPE;
-			break;
+        case PlexilLexer.OUTCOME_KYWD:
+            m_dataType = PlexilDataType.NODE_OUTCOME_TYPE;
+            break;
 
-		case PlexilLexer.STATE_KYWD:
-			m_dataType = PlexilDataType.NODE_STATE_TYPE;
-			break;
+        case PlexilLexer.STATE_KYWD:
+            m_dataType = PlexilDataType.NODE_STATE_TYPE;
+            break;
 
-		case PlexilLexer.FAILURE_KYWD:
-			m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
-			break;
+        case PlexilLexer.FAILURE_KYWD:
+            m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
+            break;
 
-		case PlexilLexer.NODE_TIMEPOINT_VALUE:
-			// FIXME: need a time type
-			m_dataType = PlexilDataType.REAL_TYPE;
-			break;
+        case PlexilLexer.NODE_TIMEPOINT_VALUE:
+            // We can't know yet whether time is Real or Date
+            // This is determined in the type checking pass (check())
+            m_dataType = PlexilDataType.UNKNOWN_TYPE;
+            break;
 
-		default:
-			m_dataType = PlexilDataType.ERROR_TYPE;
-			break;
-		}
+        default:
+            m_dataType = PlexilDataType.ERROR_TYPE;
+            break;
+        }
     }
 
     public NodeVariableNode(Token t)
@@ -78,11 +79,15 @@ public class NodeVariableNode extends ExpressionNode
 	}
 
 
-    // TBD
-    //    public void check(NodeContext context, CompilerState myState)
-    //    {
-    //        super.check (context, myState);
-    //    }
+    public void check (NodeContext context, CompilerState state)
+    {
+        super.check (context, state);
+        if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE) {
+            m_dataType = (CompilerState.timeIsReal ?
+                          PlexilDataType.REAL_TYPE :
+                          PlexilDataType.DATE_TYPE);
+        }
+    }
 
     public void constructXML()
     {
