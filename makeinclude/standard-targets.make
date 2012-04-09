@@ -66,7 +66,7 @@ shlib $(LIB_DIR)/$(SHLIB): $(SHLIB)
 	$(LN) $(subst $(TOP_DIR),..,$(shell pwd))/$(SHLIB) $(LIB_DIR)/$(SHLIB)
 
 $(SHLIB): depend $(OBJ)
-	$(LD) $(SHARED_FLAGS) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ)
+	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
 
 localclean::
 	-$(RM) $(SHLIB) $(LIB_DIR)/$(SHLIB)
@@ -113,7 +113,7 @@ $(BIN_DIR):
 ## Build an executable
 # note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
 $(EXECUTABLE): depend $(OBJ)
-	$(LD) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ)
+	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
 
 localclean::
 	-$(RM) $(EXECUTABLE) $(foreach e,$(EXECUTABLE),$(BIN_DIR)/$(e))
