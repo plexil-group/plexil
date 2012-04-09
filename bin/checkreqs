@@ -18,6 +18,12 @@ BADJAVA=0
 BADENV=0
 MYOSTYPE=""
 
+# Some recent Linux distros don't provide this variable by default
+if [ -z "$OSTYPE" ]
+then
+    OSTYPE=`uname -o`
+fi
+
 #Treat all OSTYPE variants for linux as 'linux'
 # linux-gnu, gnu-linux, linux, Linux, and I think I once encountered rh-linux 
 if [ ! -z `echo $OSTYPE | grep -i linux` ]
@@ -31,12 +37,10 @@ else
 fi
 
 #Check OS type set to a known OS
-if [ $MYOSTYPE = darwin ]
+if [ "$MYOSTYPE" = darwin ]
 then
   BADOSTYPE=0
-fi
-
-if [ $MYOSTYPE = linux ]
+elif [ "$MYOSTYPE" = linux ]
 then
   BADOSTYPE=0
 fi
