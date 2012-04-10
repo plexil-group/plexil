@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
 #include "ParserException.hh"
-#include "InterfaceManagerBase.hh"
 
 // forward reference
 namespace pugi
@@ -60,7 +59,7 @@ namespace PLEXIL
    *       need not be aware of the implementation details of InterfaceManager.
    */
 
-  class AdapterExecInterface : public InterfaceManagerBase
+  class AdapterExecInterface
   {
   public:
 
@@ -77,30 +76,30 @@ namespace PLEXIL
 
     /**
      * @brief Register the given interface adapter for this command.  
-              Returns true if successful.  Fails and returns false 
-              iff the command name already has an adapter registered.
+     Returns true if successful.  Fails and returns false 
+     iff the command name already has an adapter registered.
      * @param commandName The command to map to this adapter.
      * @param intf The interface adapter to handle this command.
      * @return True if successful, false if there is already an adapter registered for this command.
      */
     virtual bool registerCommandInterface(const LabelStr & commandName,
-					  InterfaceAdapterId intf) = 0;
+                                          InterfaceAdapterId intf) = 0;
 
     /**
      * @brief Register the given interface adapter for lookups to this state.
-              Returns true if successful.  Fails and returns false 
-              iff the state name already has an adapter registered.
+     Returns true if successful.  Fails and returns false 
+     iff the state name already has an adapter registered.
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
      * @return True if successful, false if there is already an adapter registered for this state name.
      */
     virtual bool registerLookupInterface(const LabelStr & stateName,
-        const InterfaceAdapterId& intf) = 0;
+                                         const InterfaceAdapterId& intf) = 0;
 
     /**
      * @brief Register the given interface adapter for planner updates.
-              Returns true if successful.  Fails and returns false 
-              iff an adapter is already registered.
+     Returns true if successful.  Fails and returns false 
+     iff an adapter is already registered.
      * @param intf The interface adapter to handle planner updates.
      * @return True if successful, false if there is already an adapter registered for planner updates.
      */
@@ -108,10 +107,10 @@ namespace PLEXIL
 
     /**
      * @brief Register the given interface adapter as the default.
-              This interface will be used for all lookups, commands, and updates
-              which do not have a specific adapter.  
-              Returns true if successful.
-	      Fails and returns false if there is already a default adapter registered.
+     This interface will be used for all lookups, commands, and updates
+     which do not have a specific adapter.  
+     Returns true if successful.
+     Fails and returns false if there is already a default adapter registered.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -119,10 +118,10 @@ namespace PLEXIL
 
     /**
      * @brief Register the given interface adapter as the default for commands.
-              This interface will be used for all commands which do not have
-	      a specific adapter.  
-              Returns true if successful.
-	      Fails and returns false if there is already a default command adapter registered.
+     This interface will be used for all commands which do not have
+     a specific adapter.  
+     Returns true if successful.
+     Fails and returns false if there is already a default command adapter registered.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -130,10 +129,10 @@ namespace PLEXIL
 
     /**
      * @brief Register the given interface adapter as the default for lookups.
-              This interface will be used for all lookups which do not have
-	      a specific adapter.  
-              Returns true if successful.
-	      Fails and returns false if there is already a default lookup adapter registered.
+     This interface will be used for all lookups which do not have
+     a specific adapter.  
+     Returns true if successful.
+     Fails and returns false if there is already a default lookup adapter registered.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -180,8 +179,8 @@ namespace PLEXIL
 
     /**
      * @brief Return the current default interface adapter for commands.
-              May return NoId().
-     */
+     May return NoId().
+    */
     virtual InterfaceAdapterId getDefaultCommandInterface() = 0;
 
     /**
@@ -198,8 +197,8 @@ namespace PLEXIL
 
     /**
      * @brief Return the current default interface adapter for lookups.
-              May return NoId().
-     */
+     May return NoId().
+    */
     virtual InterfaceAdapterId getDefaultLookupInterface() = 0;
 
     /**
@@ -233,7 +232,7 @@ namespace PLEXIL
      * @param value The new value of the expression.
      */
     virtual void handleValueChange(const ExpressionId & exp,
-				   double value) = 0;
+                                   double value) = 0;
 
     /**
      * @brief Tells the external interface to expect a return value from this command.
@@ -243,8 +242,8 @@ namespace PLEXIL
      * @param params The parameters associated with this command.
      */
     virtual void registerCommandReturnValue(ExpressionId dest,
-					    const LabelStr & commandName,
-					    const std::list<double> & params) = 0;
+                                            const LabelStr & commandName,
+                                            const std::list<double> & params) = 0;
 
     /**
      * @brief Notify the external interface that this previously registered expression
@@ -261,7 +260,7 @@ namespace PLEXIL
      * @note This is deprecated, use the PlexilNodeId variant instead.
      */
     virtual bool handleAddPlan(const pugi::xml_node& planXml,
-							   const LabelStr& parent)
+                               const LabelStr& parent)
       throw(ParserException)
       = 0;
 
@@ -272,31 +271,31 @@ namespace PLEXIL
      * @return False if the plan references unloaded libraries, true otherwise.
      */
     virtual bool handleAddPlan(PlexilNodeId planStruct,
-			       const LabelStr& parent) = 0;
+                               const LabelStr& parent) = 0;
 
-	/**
-	 * @brief Get the search path for library nodes.
-	 * @return A reference to the library search path.
-	 */
-	virtual const std::vector<std::string>& getLibraryPath() const = 0;
+    /**
+     * @brief Get the search path for library nodes.
+     * @return A reference to the library search path.
+     */
+    virtual const std::vector<std::string>& getLibraryPath() const = 0;
 
-	/**
-	 * @brief Get the search path for plans.
-	 * @return A reference to the plan search path.
-	 */
-	virtual const std::vector<std::string>& getPlanPath() const = 0;
+    /**
+     * @brief Get the search path for plans.
+     * @return A reference to the plan search path.
+     */
+    virtual const std::vector<std::string>& getPlanPath() const = 0;
 
-	/**
-	 * @brief Add the specified directory name to the end of the library node loading path.
-	 * @param libdir The directory name.
-	 */
-	virtual void addLibraryPath(const std::string& libdir) = 0;
+    /**
+     * @brief Add the specified directory name to the end of the library node loading path.
+     * @param libdir The directory name.
+     */
+    virtual void addLibraryPath(const std::string& libdir) = 0;
 
-	/**
-	 * @brief Add the specified directory names to the end of the library node loading path.
-	 * @param libdirs The vector of directory names.
-	 */
-	virtual void addLibraryPath(const std::vector<std::string>& libdirs) = 0;
+    /**
+     * @brief Add the specified directory names to the end of the library node loading path.
+     * @param libdirs The vector of directory names.
+     */
+    virtual void addLibraryPath(const std::vector<std::string>& libdirs) = 0;
 
     /**
      * @brief Determine whether the named library is loaded.
@@ -304,17 +303,17 @@ namespace PLEXIL
      */
     virtual bool isLibraryLoaded(const std::string& libName) const = 0;
 
-	/**
-	 * @brief Add the specified directory name to the end of the plan loading path.
-	 * @param libdir The directory name.
-	 */
-	virtual void addPlanPath(const std::string& libdir) = 0;
+    /**
+     * @brief Add the specified directory name to the end of the plan loading path.
+     * @param libdir The directory name.
+     */
+    virtual void addPlanPath(const std::string& libdir) = 0;
 
-	/**
-	 * @brief Add the specified directory names to the end of the plan loading path.
-	 * @param libdirs The vector of directory names.
-	 */
-	virtual void addPlanPath(const std::vector<std::string>& libdirs) = 0;
+    /**
+     * @brief Add the specified directory names to the end of the plan loading path.
+     * @param libdirs The vector of directory names.
+     */
+    virtual void addPlanPath(const std::vector<std::string>& libdirs) = 0;
 
     /**
      * @brief Notify the executive of a new library node.
@@ -330,25 +329,48 @@ namespace PLEXIL
 
     /**
      * @brief Run the exec and wait until all events in the queue have been processed.
-	 */
-	virtual void notifyAndWaitForCompletion() = 0;
+     */
+    virtual void notifyAndWaitForCompletion() = 0;
 
-	/**
-	 * @brief Get the Exec's idea of the current time.
-	 * @return Seconds since the epoch as a double float.
-	 */
+    /**
+     * @brief Get the Exec's idea of the current time.
+     * @return Seconds since the epoch as a double float.
+     */
     virtual double currentTime() = 0;
 
     /**
      * @brief Get the state cache for this instance of the interface.
-	 */
+     */
     virtual StateCacheId getStateCache() const = 0;
+
+    //
+    // Property list API (formerly on InterfaceManagerBase)
+    //
+
+    /**
+     * @brief Associate an arbitrary object with a string.
+     * @param name The string naming the property.
+     * @param thing The property value as an untyped pointer.
+     */
+    virtual void setProperty(const std::string& name, void * thing) = 0;
+
+    /**
+     * @brief Fetch the named property.
+     * @param name The string naming the property.
+     * @return The property value as an untyped pointer.
+     */
+    virtual void* getProperty(const std::string& name) = 0;
 
     //
     // Static utility functions
     //
     
     static std::string getText(const State& c);
+
+    // Next two formerly provided by InterfaceManagerBase
+
+    static std::string valueToString(const double val);
+    static double stringToValue(const char * rawValue);
 
   protected:
 

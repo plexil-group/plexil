@@ -77,7 +77,7 @@ namespace PLEXIL
   InterfaceManager::InterfaceManager(ExecApplication & app)
     : ExternalInterface(),
       AdapterExecInterface(),
-      m_interfaceManagerId((InterfaceManagerId)m_baseId),
+      m_interfaceManagerId(this, ExternalInterface::getId()),
       m_application(app),
       m_adapterConfig(),
       m_valueQueue(),

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,9 @@
 
 #include "Debug.hh"
 #include "Expression.hh"
+
+#include <cstring>
+#include <iomanip>
 #include <sstream>
 
 namespace PLEXIL
@@ -64,6 +67,56 @@ namespace PLEXIL
       }
     retval << ")";
     return retval.str();
+  }
+
+  std::string AdapterExecInterface::valueToString(const double val) 
+  {
+    return Expression::valueToString(val);
+  }
+
+  double AdapterExecInterface::stringToValue(const char * rawValue)
+  {
+    // null / empty check first
+    if (rawValue == 0) {
+      debugMsg("ExternalInterface:stringToValue",
+               " raw value is null pointer");
+      return Expression::UNKNOWN();
+    }
+    else if (strlen(rawValue) == 0) {
+      debugMsg("ExternalInterface:stringToValue",
+               " raw value is empty string");
+      return Expression::UNKNOWN();
+    }
+
+    debugMsg("ExternalInterface:stringToValue", " input string = \"" << rawValue << "\"");
+
+    if (*rawValue != '\0') {
+      // try converting to integer first
+      char * endptr;
+      long longResult = strtol(rawValue, &endptr, 10);
+      if (*endptr == '\0') {
+        // string is valid integer
+        debugMsg("ExternalInterface:stringToValue", " result is integer " << longResult);
+        return (double) longResult;
+      }
+
+      debugMsg("ExternalInterface:stringToValue", " result is not valid integer");
+
+      // string is not valid integer --
+      // try converting to double
+      double doubleResult = strtod(rawValue, &endptr);
+      if (*endptr == '\0') {
+        // string is valid double
+        debugMsg("ExternalInterface:stringToValue", " result is double " << doubleResult);
+        return doubleResult;
+      }
+
+      debugMsg("ExternalInterface:stringToValue", " result is not valid double");
+    }
+
+    // if all else fails, turn it into a LabelStr
+    LabelStr labelResult(rawValue);
+    return (double) labelResult;
   }
 
 }
