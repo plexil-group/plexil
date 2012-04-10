@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,147 +34,148 @@
 #include <map>
 #include <utility>
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
-MessageQueueMap::MessageQueueMap(AdapterExecInterface& execInterface, bool allowDuplicateMessages) :
-  m_mutex(),
-  m_execInterface(execInterface),
-  m_allowDuplicateMessages(allowDuplicateMessages) {
-}
+  MessageQueueMap::MessageQueueMap(AdapterExecInterface& execInterface, bool allowDuplicateMessages) :
+    m_mutex(),
+    m_execInterface(execInterface),
+    m_allowDuplicateMessages(allowDuplicateMessages) {
+  }
 
-MessageQueueMap::~MessageQueueMap() {
-}
+  MessageQueueMap::~MessageQueueMap() {
+  }
 
-/**
- * @brief Adds the given recipient to the queue to receive the given message.
- * If a recipient already exists for this message, messages will be handed out in the order
- * of the adding of the recipients.
- * @param message The message the recipient is waiting for
- * @param dest The command destination
- * @param ack The command acknowledgment
- */
-void MessageQueueMap::addRecipient(const LabelStr& message, const ExpressionId& ack, const ExpressionId& dest) {
-  ThreadMutexGuard guard(m_mutex);
-  PairingQueue* que = getQueue(message);
-  que->m_recipientQueue.push_back(Recipient(ack, dest));
-  updateQueue(que);
-  debugMsg("MessageQueueMap:addRecipient", "Recipient for message \"" << que->m_name.c_str() << "\" added");
-}
+  /**
+   * @brief Adds the given recipient to the queue to receive the given message.
+   * If a recipient already exists for this message, messages will be handed out in the order
+   * of the adding of the recipients.
+   * @param message The message the recipient is waiting for
+   * @param dest The command destination
+   * @param ack The command acknowledgment
+   */
+  void MessageQueueMap::addRecipient(const LabelStr& message, const ExpressionId& ack, const ExpressionId& dest) {
+    ThreadMutexGuard guard(m_mutex);
+    PairingQueue* que = getQueue(message);
+    que->m_recipientQueue.push_back(Recipient(ack, dest));
+    updateQueue(que);
+    debugMsg("MessageQueueMap:addRecipient", "Recipient for message \"" << que->m_name.c_str() << "\" added");
+  }
 
-/**
- * @brief Removes all instances of the given recipient waiting on the given message string.
- */
-void MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionId ack) {
-  ThreadMutexGuard guard(m_mutex);
-  PairingQueue* pq = getQueue(message);
-  for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
-    if (it->m_ack.equals(ack)) {
-      it = pq->m_recipientQueue.erase(it);
-      //this increments the iterator, so check for the end immediately
-      if (it == pq->m_recipientQueue.end())
-        break;
+  /**
+   * @brief Removes all instances of the given recipient waiting on the given message string.
+   */
+  void MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionId ack) {
+    ThreadMutexGuard guard(m_mutex);
+    PairingQueue* pq = getQueue(message);
+    for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
+      if (it->m_ack.equals(ack)) {
+        it = pq->m_recipientQueue.erase(it);
+        //this increments the iterator, so check for the end immediately
+        if (it == pq->m_recipientQueue.end())
+          break;
+      }
     }
   }
-}
 
-/**
- * @brief Removes all recipients waiting on the given message string.
- */
-void MessageQueueMap::clearRecipientsForMessage(const LabelStr& message) {
-  ThreadMutexGuard guard(m_mutex);
-  PairingQueue* pq = getQueue(message);
-  pq->m_recipientQueue.clear();
-}
+  /**
+   * @brief Removes all recipients waiting on the given message string.
+   */
+  void MessageQueueMap::clearRecipientsForMessage(const LabelStr& message) {
+    ThreadMutexGuard guard(m_mutex);
+    PairingQueue* pq = getQueue(message);
+    pq->m_recipientQueue.clear();
+  }
 
-/**
- * @brief Adds the given message to its queue. If there is a recipient waiting for the message, it is sent immediately.
- * @param message The message string to be added
- */
-void MessageQueueMap::addMessage(const LabelStr& message) {
-  ThreadMutexGuard guard(m_mutex);
-  PairingQueue* pq = getQueue(message);
-  if (!pq->m_allowDuplicateMessages)
-    pq->m_messageQueue.clear();
-  pq->m_messageQueue.push_back(message.getKey());
-  updateQueue( pq);
-  debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
-}
+  /**
+   * @brief Adds the given message to its queue. If there is a recipient waiting for the message, it is sent immediately.
+   * @param message The message string to be added
+   */
+  void MessageQueueMap::addMessage(const LabelStr& message) {
+    ThreadMutexGuard guard(m_mutex);
+    PairingQueue* pq = getQueue(message);
+    if (!pq->m_allowDuplicateMessages)
+      pq->m_messageQueue.clear();
+    pq->m_messageQueue.push_back(message.getKey());
+    updateQueue( pq);
+    debugMsg("MessageQueueMap:addMessage", "Message \"" << pq->m_name.c_str() << "\" added");
+  }
 
-/**
- * @brief Adds the given message with the given parameters to its queue.
- * If there is a recipient waiting for the message, it is sent immediately.
- * @param message The message string to be added
- * @param params The parameters that are to be sent with the message
- */
-void MessageQueueMap::addMessage(const LabelStr& message, double param) {
-  ThreadMutexGuard guard(m_mutex);
-  PairingQueue* pq = getQueue(message);
-  if (!pq->m_allowDuplicateMessages)
-    pq->m_messageQueue.clear();
-  pq->m_messageQueue.push_back(param);
-  updateQueue( pq);
-  debugMsg("MessageQueueMap:addMessage",
-	   "Message \"" << pq->m_name.c_str() << "\" added, value = " << Expression::valueToString(param));
-}
+  /**
+   * @brief Adds the given message with the given parameters to its queue.
+   * If there is a recipient waiting for the message, it is sent immediately.
+   * @param message The message string to be added
+   * @param params The parameters that are to be sent with the message
+   */
+  void MessageQueueMap::addMessage(const LabelStr& message, double param) {
+    ThreadMutexGuard guard(m_mutex);
+    PairingQueue* pq = getQueue(message);
+    if (!pq->m_allowDuplicateMessages)
+      pq->m_messageQueue.clear();
+    pq->m_messageQueue.push_back(param);
+    updateQueue( pq);
+    debugMsg("MessageQueueMap:addMessage",
+             "Message \"" << pq->m_name.c_str() << "\" added, value = " << AdapterExecInterface::valueToString(param));
+  }
 
-/**
- * @brief Sets the flag that determines whether or not incoming messages
- * with duplicate strings are queued. If true, all incoming messages are
- * put into the queue. Oldest instances of the message are distributed first.
- * If false, new messages with duplicate strings replace older ones; this
- * will remove all oldest duplicates from the queue immediately as well
- * as set the behavior for future messages.
- * @param flag If false, duplicates will be replaced with the newest
- * message. If true, duplicates are queued.
- */
-void MessageQueueMap::setAllowDuplicateMessages(bool flag) {
-  ThreadMutexGuard guard(m_mutex);
-  for (std::map<LabelStr, PairingQueue*>::iterator it = m_map.begin(); it != m_map.end(); it++) {
-    MessageQueue mq = it->second->m_messageQueue;
-    //if setting flag from true to false, ensure all queues have at most one message
-    if (m_allowDuplicateMessages && !flag && mq.size() > 1) {
-      MessageQueue::iterator begin = mq.begin();
-      MessageQueue::iterator end = mq.end();
-      end-= 2;
-      mq.erase(begin, end);
+  /**
+   * @brief Sets the flag that determines whether or not incoming messages
+   * with duplicate strings are queued. If true, all incoming messages are
+   * put into the queue. Oldest instances of the message are distributed first.
+   * If false, new messages with duplicate strings replace older ones; this
+   * will remove all oldest duplicates from the queue immediately as well
+   * as set the behavior for future messages.
+   * @param flag If false, duplicates will be replaced with the newest
+   * message. If true, duplicates are queued.
+   */
+  void MessageQueueMap::setAllowDuplicateMessages(bool flag) {
+    ThreadMutexGuard guard(m_mutex);
+    for (std::map<LabelStr, PairingQueue*>::iterator it = m_map.begin(); it != m_map.end(); it++) {
+      MessageQueue mq = it->second->m_messageQueue;
+      //if setting flag from true to false, ensure all queues have at most one message
+      if (m_allowDuplicateMessages && !flag && mq.size() > 1) {
+        MessageQueue::iterator begin = mq.begin();
+        MessageQueue::iterator end = mq.end();
+        end-= 2;
+        mq.erase(begin, end);
+      }
+      it->second->m_allowDuplicateMessages = flag;
     }
-    it->second->m_allowDuplicateMessages = flag;
+    m_allowDuplicateMessages = flag;
   }
-  m_allowDuplicateMessages = flag;
-}
 
-MessageQueueMap::PairingQueue * MessageQueueMap::getQueue(const LabelStr& message) {
-  PairingQueue* result;
-  std::map<LabelStr, PairingQueue*>::iterator it = m_map.find(message);
-  if (m_map.end() == it) {
-    debugMsg("MessageQueueMap:getQueue", "Creating new queue with name " << message.c_str());
-    result = new PairingQueue(message, m_allowDuplicateMessages);
-    m_map.insert(it, std::pair<LabelStr, PairingQueue*> (message, result));
-  } else {
-    result = it->second;
+  MessageQueueMap::PairingQueue * MessageQueueMap::getQueue(const LabelStr& message) {
+    PairingQueue* result;
+    std::map<LabelStr, PairingQueue*>::iterator it = m_map.find(message);
+    if (m_map.end() == it) {
+      debugMsg("MessageQueueMap:getQueue", "Creating new queue with name " << message.c_str());
+      result = new PairingQueue(message, m_allowDuplicateMessages);
+      m_map.insert(it, std::pair<LabelStr, PairingQueue*> (message, result));
+    } else {
+      result = it->second;
+    }
+    return result;
   }
-  return result;
-}
-/**
- * @brief Resolves matches between messages and recipients. Should be called whenever updates occur to a queue.
- */
-void MessageQueueMap::updateQueue(PairingQueue* queue) {
-  debugMsg("MessageQueueMap:updateQueue", " entered");
-  MessageQueue& mq = queue->m_messageQueue;
-  RecipientQueue& rq = queue->m_recipientQueue;
-  MessageQueue::iterator mqIter = mq.begin();
-  RecipientQueue::iterator rqIter = rq.begin();
-  bool valChanged = !mq.empty() && !rq.empty();
-  while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
-    debugMsg("MessageQueueMap:updateQueue", " calling handleValueChange");
-    m_execInterface.handleValueChange(rqIter->m_dest, (*mqIter));
-    rqIter = rq.erase(rqIter);
-    mqIter = mq.erase(mqIter);
+  /**
+   * @brief Resolves matches between messages and recipients. Should be called whenever updates occur to a queue.
+   */
+  void MessageQueueMap::updateQueue(PairingQueue* queue) {
+    debugMsg("MessageQueueMap:updateQueue", " entered");
+    MessageQueue& mq = queue->m_messageQueue;
+    RecipientQueue& rq = queue->m_recipientQueue;
+    MessageQueue::iterator mqIter = mq.begin();
+    RecipientQueue::iterator rqIter = rq.begin();
+    bool valChanged = !mq.empty() && !rq.empty();
+    while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
+      debugMsg("MessageQueueMap:updateQueue", " calling handleValueChange");
+      m_execInterface.handleValueChange(rqIter->m_dest, (*mqIter));
+      rqIter = rq.erase(rqIter);
+      mqIter = mq.erase(mqIter);
+    }
+    if (valChanged) {
+      debugMsg("MessageQueueMap:updateQueue", "Message \"" << queue->m_name.c_str() << "\" paired and sent");
+      m_execInterface.notifyOfExternalEvent();
+    }
   }
-  if (valChanged) {
-    debugMsg("MessageQueueMap:updateQueue", "Message \"" << queue->m_name.c_str() << "\" paired and sent");
-    m_execInterface.notifyOfExternalEvent();
-  }
-}
 
 }
