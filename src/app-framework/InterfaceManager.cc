@@ -368,10 +368,13 @@ namespace PLEXIL
 	  InterfaceAdapterId a = *it;
       success = a->initialize();
       if (!success) {
-          debugMsg("InterfaceManager:initialize", " failed to initialize all interface adapters, returning false");
-		  m_adapters.erase(it);
-		  delete (InterfaceAdapter*) a;
-          return false;
+        const pugi::xml_node& adapterXml = a->getXml();
+        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
+        debugMsg("InterfaceManager:initialize",
+                 " adapter initialization failed for type \"" << adapterType << "\", returning false");
+        m_adapters.erase(it);
+        delete (InterfaceAdapter*) a;
+        return false;
 	  }
     }
 	success = m_listenerHub->initialize();
@@ -401,12 +404,16 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
-         it++)
+         it++) {
       success = (*it)->start();
-    if (!success) {
-	  debugMsg("InterfaceManager:start", " failed to start all interface adapters, returning false");
-	  return false;
-	}
+      if (!success) {
+        const pugi::xml_node& adapterXml = (*it)->getXml();
+        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
+        debugMsg("InterfaceManager:initialize",
+                 " adapter start failed for type \"" << adapterType << "\", returning false");
+        return false;
+      }
+    }
 
 	success = m_listenerHub->start();
     condDebugMsg(!success, 
