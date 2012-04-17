@@ -3,7 +3,7 @@
 
 Command recv_test (String, Boolean, Integer, Real);
 
-test-send:
+test_send:
 {
   String arg1 = "UDP";
   Boolean arg2 = false;
