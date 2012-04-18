@@ -783,14 +783,7 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="NodeCommandHandleVariable">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="NodeId" minOccurs="1" maxOccurs="1"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
+  <xsd:element name="NodeCommandHandleVariable" type="node-reference"/>
 
   <xsd:element name="NodeCommandHandleValue">
     <xsd:simpleType>
