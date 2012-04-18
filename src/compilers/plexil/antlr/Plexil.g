@@ -435,7 +435,7 @@ compoundAction : forAction | ifAction | onCommandAction | onMessageAction | whil
 // One-liner actions
 simpleAction :
     (NCNAME (LBRACKET | EQUALS)) => assignment
-  | ((NCNAME LPAREN) | (LPAREN NCNAME)) => commandInvocation SEMICOLON!
+  | ((NCNAME LPAREN) | LPAREN) => commandInvocation SEMICOLON!
   | libraryCall
   | request
   | update
