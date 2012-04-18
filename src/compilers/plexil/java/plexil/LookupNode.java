@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,15 +46,15 @@ public class LookupNode extends ExpressionNode
     public LookupNode(LookupNode n)
     {
         super(n);
-		m_arguments = n.m_arguments;
-		m_tolerance = n.m_tolerance;
-		m_state = n.m_state;
+        m_arguments = n.m_arguments;
+        m_tolerance = n.m_tolerance;
+        m_state = n.m_state;
     }
 
-	public Tree dupNode()
-	{
-		return new LookupNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new LookupNode(this);
+    }
 
     // N.B. Only valid after earlyCheck().
     public GlobalDeclaration getState()
@@ -152,6 +152,10 @@ public class LookupNode extends ExpressionNode
                 }
             } // end state is declared
         } // end state is a literal
+        else {
+            // no way to tell what type is, have to depend on context
+            m_dataType = PlexilDataType.ANY_TYPE;
+        }
 
         // Do recursive checks as well
         this.earlyCheckChildren(context, state);
@@ -181,7 +185,7 @@ public class LookupNode extends ExpressionNode
                                         "Tolerance supplied for state \"" + m_state.getName()
                                         + "\" has type " + m_tolerance.getDataType().typeName()
                                         + ", instead of Duration type ", Severity.ERROR);
-                    }
+                }
                 else if (m_dataType.isNumeric() && !m_tolerance.assumeType (m_dataType, state)) {
                     state.addDiagnostic (m_tolerance,
                                          "Tolerance supplied for state \"" + m_state.getName()
