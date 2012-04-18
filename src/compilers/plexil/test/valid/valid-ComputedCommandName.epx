@@ -1,0 +1,20 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <Node LineNo="4" ColNo="3" NodeType="Command">
+        <NodeId>ComputedCommandName</NodeId>
+        <EndCondition LineNo="3" ColNo="2">
+            <EQInternal LineNo="3" ColNo="35">
+                <NodeCommandHandleVariable>
+                    <NodeRef dir="self"/>
+                </NodeCommandHandleVariable>
+                <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+        </EndCondition>
+        <NodeBody>
+            <Command>
+                <Name>
+                    <StringValue>Arbitrary:Command:Name</StringValue>
+                </Name>
+            </Command>
+        </NodeBody>
+    </Node>
+</PlexilPlan>
