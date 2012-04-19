@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ namespace PLEXIL
    * @note The instance maintains a shared pointer to the XML.
    */
   DarwinTimeAdapter::DarwinTimeAdapter(AdapterExecInterface& execInterface, 
-									   const pugi::xml_node& xml)
+                                       const pugi::xml_node& xml)
     : InterfaceAdapter(execInterface, xml)
   {
   }
@@ -89,8 +89,8 @@ namespace PLEXIL
    */
   bool DarwinTimeAdapter::start()
   {
-	// Spawn the timer thread
-	threadSpawn(timerWaitThread, (void*) this, m_waitThread);
+    // Spawn the timer thread
+    threadSpawn(timerWaitThread, (void*) this, m_waitThread);
 
     return true;
   }
@@ -104,9 +104,9 @@ namespace PLEXIL
     // Disable the timer
     stopTimer();
 
-	// FIXME (?): stop the timer thread
+    // FIXME (?): stop the timer thread
 
-	debugMsg("DarwinTimeAdapter:stop", " complete");
+    debugMsg("DarwinTimeAdapter:stop", " complete");
     return true;
   }
 
@@ -136,9 +136,9 @@ namespace PLEXIL
   double DarwinTimeAdapter::lookupNow(const State& state)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "DarwinTimeAdaptor does not implement lookups for state "
-				  << LabelStr(state.first).toString());
-	return getCurrentTime();
+                  "DarwinTimeAdapter does not implement lookups for state "
+                  << LabelStr(state.first).toString());
+    return getCurrentTime();
   }
 
   /**
@@ -148,9 +148,9 @@ namespace PLEXIL
   void DarwinTimeAdapter::subscribe(const State& state)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "DarwinTimeAdaptor does not implement lookups for state "
-				  << LabelStr(state.first).toString());
-	debugMsg("DarwinTimeAdapter:subscribe", " complete");
+                  "DarwinTimeAdapter does not implement lookups for state "
+                  << LabelStr(state.first).toString());
+    debugMsg("DarwinTimeAdapter:subscribe", " complete");
   }
 
   /**
@@ -160,10 +160,10 @@ namespace PLEXIL
   void DarwinTimeAdapter::unsubscribe(const State& state)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "DarwinTimeAdaptor does not implement lookups for state "
-				  << LabelStr(state.first).toString());
-	stopTimer();
-	debugMsg("DarwinTimeAdapter:unsubscribe", " complete");
+                  "DarwinTimeAdapter does not implement lookups for state "
+                  << LabelStr(state.first).toString());
+    stopTimer();
+    debugMsg("DarwinTimeAdapter:unsubscribe", " complete");
   }
 
   /**
@@ -175,34 +175,13 @@ namespace PLEXIL
   void DarwinTimeAdapter::setThresholds(const State& state, double hi, double /* lo */)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "DarwinTimeAdaptor does not implement lookups for state "
-				  << LabelStr(state.first).toString());
+                  "DarwinTimeAdapter does not implement lookups for state "
+                  << LabelStr(state.first).toString());
 
-	// Get high threshold as a timeval
-	timeval hiTime = doubleToTimeval(hi);
-
-	// Get the current time
-    timeval now;
-    int status = gettimeofday(&now, NULL);
-    assertTrueMsg(status == 0,
-                  "DarwinTimeAdapter::setThresholds: gettimeofday() failed, errno = " << errno);
-
-	// Compute the interval
-	itimerval myItimerval = {{0, 0}, {0, 0}};
-	myItimerval.it_value = hiTime - now;
-	if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
-	  // Already past the scheduled time, submit wakeup
-	  debugMsg("DarwinTimeAdapter:setThresholds",
-			   " new value " << Expression::valueToString(hi) << " is in past, waking up Exec");
-	  timerTimeout();
-	  return;
-	}
-
-	// Set the timer 
-	assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
-				  "DarwinTimeAdapter::setThresholds: setitimer failed, errno = " << errno);
-	debugMsg("DarwinTimeAdapter:setThresholds",
-			 " timer set for " << Expression::valueToString(hi));
+    bool wasSet = setTimer(hi);
+    debugMsg("DarwinTimeAdapter:setThresholds",
+             (wasSet ? " timer set for " : " wakeup sent for missed timer at ")
+             << Expression::valueToString(hi));
   }
 
   //
@@ -228,21 +207,52 @@ namespace PLEXIL
   // Internal member functions
   //
 
-  // Dummy handler function for SIGALRM
-  // Should never actually be called
-  void dummyHandlerFunction(int /* signo */) {}
+
+  /**
+   * @brief Set the timer.
+   * @param date The Unix-epoch wakeup time, as a double.
+   * @return True if the timer was set, false if clock time had already passed the wakeup time.
+   */
+  bool DarwinTimeAdapter::setTimer(double date)
+  {
+    // Convert to timeval
+    timeval dateval = doubleToTimeval(date);
+
+    // Get the current time
+    timeval now;
+    int status = gettimeofday(&now, NULL);
+    assertTrueMsg(status == 0,
+                  "DarwinTimeAdapter::setTimer: gettimeofday() failed, errno = " << errno);
+
+    // Compute the interval
+    itimerval myItimerval = {{0, 0}, {0, 0}};
+    myItimerval.it_value = dateval - now;
+    if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
+      // Already past the scheduled time, submit wakeup
+      debugMsg("DarwinTimeAdapter:setTimer",
+               " new value " << Expression::valueToString(date) << " is in past, waking up Exec");
+      timerTimeout();
+      return false;
+    }
+
+    // Set the timer 
+    assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
+                  "DarwinTimeAdapter::setTimer: setitimer failed, errno = " << errno);
+    debugMsg("DarwinTimeAdapter:setTimer",
+             " timer set for " << Expression::valueToString(date));
+    return true;
+  }
 
   /**
    * @brief Stop the timer.
    */
   void DarwinTimeAdapter::stopTimer()
   {
-	static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
+    static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
     int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
     assertTrueMsg(status == 0,
-		  "DarwinTimeAdapter::stopTimer: call to setitimer() failed, errno = " << errno);
+                  "DarwinTimeAdapter::stopTimer: call to setitimer() failed, errno = " << errno);
   }
-
 
   /**
    * @brief Static member function which waits for timer wakeups.
@@ -250,73 +260,73 @@ namespace PLEXIL
    */
   void* DarwinTimeAdapter::timerWaitThread(void* this_as_void_ptr)
   {
-	DarwinTimeAdapter* myInstance = reinterpret_cast<DarwinTimeAdapter*>(this_as_void_ptr);
-	
-	//
-	// Set up signal handling environment.
-	//
+    DarwinTimeAdapter* myInstance = reinterpret_cast<DarwinTimeAdapter*>(this_as_void_ptr);
+    
+    //
+    // Set up signal handling environment.
+    //
 
-	// block SIGALRM for the process as a whole
-	sigset_t processSigset, originalSigset;
-	int errnum = sigemptyset(&processSigset);
-	errnum = errnum | sigaddset(&processSigset, SIGALRM);
-	assertTrueMsg(errnum == 0,
-				  "Fatal Error: signal mask initialization failed!");
-	errnum = sigprocmask(SIG_BLOCK, &processSigset, &originalSigset);
-	assertTrueMsg(errnum == 0,
-				  "Fatal Error: sigprocmask failed, result = " << errnum);
+    // block SIGALRM for the process as a whole
+    sigset_t processSigset, originalSigset;
+    int errnum = sigemptyset(&processSigset);
+    errnum = errnum | sigaddset(&processSigset, SIGALRM);
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: signal mask initialization failed!");
+    errnum = sigprocmask(SIG_BLOCK, &processSigset, &originalSigset);
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: sigprocmask failed, result = " << errnum);
 
-	// block most common signals for this thread
-	sigset_t threadSigset;
-	errnum = sigemptyset(&threadSigset);
-	errnum = sigaddset(&threadSigset, SIGALRM);
-	errnum = errnum | sigaddset(&threadSigset, SIGINT);
-	errnum = errnum | sigaddset(&threadSigset, SIGHUP);
-	errnum = errnum | sigaddset(&threadSigset, SIGQUIT);
-	errnum = errnum | sigaddset(&threadSigset, SIGTERM);
-	errnum = errnum | sigaddset(&threadSigset, SIGUSR1);
-	errnum = errnum | sigaddset(&threadSigset, SIGUSR2);
-	// FIXME: maybe more??
-	assertTrueMsg(errnum == 0,
-				  "Fatal Error: signal mask initialization failed!");
-	errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
-	assertTrueMsg(errnum == 0,
-				  "Fatal Error: pthread_sigmask failed, result = " << errnum);
+    // block most common signals for this thread
+    sigset_t threadSigset;
+    errnum = sigemptyset(&threadSigset);
+    errnum = sigaddset(&threadSigset, SIGALRM);
+    errnum = errnum | sigaddset(&threadSigset, SIGINT);
+    errnum = errnum | sigaddset(&threadSigset, SIGHUP);
+    errnum = errnum | sigaddset(&threadSigset, SIGQUIT);
+    errnum = errnum | sigaddset(&threadSigset, SIGTERM);
+    errnum = errnum | sigaddset(&threadSigset, SIGUSR1);
+    errnum = errnum | sigaddset(&threadSigset, SIGUSR2);
+    // FIXME: maybe more??
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: signal mask initialization failed!");
+    errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: pthread_sigmask failed, result = " << errnum);
 
-	//
-	// Wait loop
-	//
+    //
+    // Wait loop
+    //
 
-	// listen only for SIGALRM
-	sigset_t waitSigset;
-	errnum = sigemptyset(&waitSigset);
-	errnum = errnum | sigaddset(&waitSigset, SIGALRM);
-	assertTrueMsg(errnum == 0,
-				  "Fatal Error: signal mask initialization failed!");
+    // listen only for SIGALRM
+    sigset_t waitSigset;
+    errnum = sigemptyset(&waitSigset);
+    errnum = errnum | sigaddset(&waitSigset, SIGALRM);
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: signal mask initialization failed!");
 
-	while (true) {
-	  int signalReceived = 0;
-	  int errnum = sigwait(&waitSigset, &signalReceived);
-	  if (errnum == KERN_ABORTED) {
-		// should only happen on pthread_cancel (?)
-		debugMsg("DarwinTimeAdapter:timerWaitThread", " interrupted, exiting");
-		break;
-	  }
-	  assertTrueMsg(errnum == 0, 
-					"Fatal Error: sigwait failed, result = " << errnum);
-	  // wake up the Exec
-	  myInstance->timerTimeout();
-	}
+    while (true) {
+      int signalReceived = 0;
+      int errnum = sigwait(&waitSigset, &signalReceived);
+      if (errnum == KERN_ABORTED) {
+        // should only happen on pthread_cancel (?)
+        debugMsg("DarwinTimeAdapter:timerWaitThread", " interrupted, exiting");
+        break;
+      }
+      assertTrueMsg(errnum == 0, 
+                    "Fatal Error: sigwait failed, result = " << errnum);
+      // wake up the Exec
+      myInstance->timerTimeout();
+    }
 
-	//
-	// Clean up - 
-	//  restore previous process signal mask
-	//
-	errnum = sigprocmask(SIG_SETMASK, &originalSigset, NULL);
-	assertTrueMsg(errnum == 0,
-				  "Fatal Error: sigprocmask failed, result = " << errnum);
+    //
+    // Clean up - 
+    //  restore previous process signal mask
+    //
+    errnum = sigprocmask(SIG_SETMASK, &originalSigset, NULL);
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: sigprocmask failed, result = " << errnum);
 
-	return (void*) 0;
+    return (void*) 0;
   }
 
   /**
@@ -326,7 +336,7 @@ namespace PLEXIL
   {
     // report the current time and kick-start the Exec
     double time = getCurrentTime();
-	debugMsg("DarwinTimeAdapter:timerTimeout", " at " << Expression::valueToString(time));
+    debugMsg("DarwinTimeAdapter:timerTimeout", " at " << Expression::valueToString(time));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(), time);
     m_execInterface.notifyOfExternalEvent();
   }

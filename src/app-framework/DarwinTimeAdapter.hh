@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ namespace PLEXIL
      * @note The instance maintains a shared pointer to the XML element.
      */
     DarwinTimeAdapter(AdapterExecInterface& execInterface, 
-					  const pugi::xml_node& xml);
+                      const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -105,25 +105,25 @@ namespace PLEXIL
 
     double lookupNow(const State& state);
 
-	/**
-	 * @brief Inform the interface that it should report changes in value of this state.
-	 * @param state The state.
-	 */
-	void subscribe(const State& state);
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    void subscribe(const State& state);
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
-	 * @param state The state.
+     * @param state The state.
      */
     void unsubscribe(const State& state);
 
-	/**
-	 * @brief Advise the interface of the current thresholds to use when reporting this state.
-	 * @param state The state.
-	 * @param hi The upper threshold, at or above which to report changes.
-	 * @param lo The lower threshold, at or below which to report changes.
-	 */
-	void setThresholds(const State& state, double hi, double lo);
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    void setThresholds(const State& state, double hi, double lo);
 
     //
     // Static member functions
@@ -134,32 +134,6 @@ namespace PLEXIL
      * @return A double representing the current time.
      */
     static double getCurrentTime();
-
-    /**
-     * @brief Compare two timevals, return true iff they are equal.
-     */
-    inline static bool timevalEqual(const timeval& tv1, const timeval& tv2)
-    {
-      return tv1.tv_sec == tv2.tv_sec && tv1.tv_usec == tv2.tv_usec;
-    }
-
-    /**
-     * @brief Compare two timevals, return true iff the first is greater.
-     */
-    inline static bool timevalGreater(const timeval& tv1, const timeval& tv2)
-    {
-      return tv1.tv_sec > tv2.tv_sec
-	|| (tv1.tv_sec == tv2.tv_sec && tv1.tv_usec > tv2.tv_usec);
-    }
-
-    /**
-     * @brief Compare two timevals, return true iff the first is greater.
-     */
-    inline static bool timevalLess(const timeval& tv1, const timeval& tv2)
-    {
-      return tv1.tv_sec < tv2.tv_sec
-	|| (tv1.tv_sec == tv2.tv_sec && tv1.tv_usec < tv2.tv_usec);
-    }
 
   private:
 
@@ -173,13 +147,20 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Set the timer.
+     * @param date The Unix-epoch wakeup time, as a double.
+     * @return True if the timer was set, false if clock time had already passed the wakeup time.
+     */
+    bool setTimer(double date);
+
+    /**
      * @brief Stop the timer.
      */
     void stopTimer();
 
     /**
      * @brief Static member function which waits for timer wakeups.
-	 * @param this_as_void_ptr Pointer to the DarwinTimeAdapter instance, as a void *.
+     * @param this_as_void_ptr Pointer to the DarwinTimeAdapter instance, as a void *.
      */
     static void* timerWaitThread(void* this_as_void_ptr);
 
@@ -192,8 +173,8 @@ namespace PLEXIL
     // Member variables
     //
 
-	// Wait thread
-	pthread_t m_waitThread;
+    // Wait thread
+    pthread_t m_waitThread;
   };
 
 }
