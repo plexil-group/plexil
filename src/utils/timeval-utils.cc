@@ -80,6 +80,17 @@ bool operator<(const struct timeval& t1, const struct timeval& t2)
           ((t1.tv_sec == t2.tv_sec) && (t1.tv_usec < t2.tv_usec)));
 }
 
+bool operator>(const struct timeval& t1, const struct timeval& t2)
+{
+  return ((t1.tv_sec > t2.tv_sec) || 
+          ((t1.tv_sec == t2.tv_sec) && (t1.tv_usec > t2.tv_usec)));
+}
+
+bool operator==(const struct timeval& t1, const struct timeval& t2)
+{
+  return (t1.tv_sec == t2.tv_sec) && (t1.tv_usec == t2.tv_usec);
+}
+
 struct timeval operator+(const struct timeval& t1, const struct timeval& t2)
 {
   struct timeval time = {t1.tv_sec + t2.tv_sec,

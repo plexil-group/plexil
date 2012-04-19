@@ -33,6 +33,12 @@
 //* @brief Returns true if the first argument is less than the second, false otherwise.
 bool operator<(const struct timeval& t1, const struct timeval& t2);
 
+//* @brief Returns true if the first argument is greater than the second, false otherwise.
+bool operator>(const struct timeval& t1, const struct timeval& t2);
+
+//* @brief Returns true if the first argument is identical to the second, false otherwise.
+bool operator==(const struct timeval& t1, const struct timeval& t2);
+
 //* @brief Returns the arithmetic sum of its two arguments.
 struct timeval operator+ (const struct timeval& t1, const struct timeval& t2);
 
