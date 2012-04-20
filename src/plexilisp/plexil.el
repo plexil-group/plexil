@@ -1449,6 +1449,14 @@
   "Time when given node stopped executing."
   (pl-timepoint-value nodeid "FINISHED" "START"))
 
+(pdefine pl (PendingStart pending-start) (nodeid) 1 nil ; string -> xml
+  "Did the given node started executing?"
+  (pl-not (pl-is-known (pl-start-time nodeid))))
+
+(pdefine pl (PendingEnd pending-end) (nodeid) 1 nil ; string -> xml
+  "Did the given node finish?"
+  (pl-not (pl-is-known (pl-end-time nodeid))))
+
 (pdefine pl (NodeState node-state) (nodeid) 1 nil
   "Specifies the state of the node with the given ID."
   (xml "NodeStateVariable" (plexil-nodeid nodeid)))
