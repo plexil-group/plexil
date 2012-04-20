@@ -1445,6 +1445,10 @@
   "Time when given node started executing."
   (pl-timepoint-value nodeid "EXECUTING" "START"))
 
+(pdefine pl (EndTime end-time) (nodeid) 1 nil ; string -> xml
+  "Time when given node stopped executing."
+  (pl-timepoint-value nodeid "FINISHED" "START"))
+
 (pdefine pl (NodeState node-state) (nodeid) 1 nil
   "Specifies the state of the node with the given ID."
   (xml "NodeStateVariable" (plexil-nodeid nodeid)))
