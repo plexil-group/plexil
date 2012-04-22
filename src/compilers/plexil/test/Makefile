@@ -9,7 +9,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 \
               array-copy CopyReals on-command1 on-command2 isKnown1 for1 for2 \
               on-message1 on-message2 concat1 nodeState1 nodeState2 \
               nodeOutcome1 command-handle1 interface-test interface-test1 \
-              DriveToSchool SafeDrive CruiseControl sync-cmd-test \
+              DriveToSchool SafeDrive CruiseControl sync-cmd-test sync-cmd-test1 \
               simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
               Decrement Increment Sum RoboSimSimple2 SimpleDrive \
               array-add array-complex array-copy  basic-wait-test boolean1 \
@@ -29,7 +29,6 @@ SYNTAX_ERROR_TESTS   = array-library-call
 SEMANTIC_ERROR_TESTS = on-message3 expr5 expr2 lookup1
 
 TESTS	         := $(SMALL_TESTS)
-
 
 # The VALID_TEST* macros are used by the original test framework.  
 
