@@ -47,6 +47,8 @@ class WaitNode extends PlexilTreeNode
         return new WaitNode(this);
     }
 
+//  N.B. Refactor the following with SynchronousCommandNode.java!
+
     public void check (NodeContext context, CompilerState state)
     {
         ExpressionNode delayExp = (ExpressionNode) this.getChild(0);
@@ -66,7 +68,7 @@ class WaitNode extends PlexilTreeNode
     }
     
 
-    public void checkForDuration (NodeContext context, CompilerState state)
+    private void checkForDuration (NodeContext context, CompilerState state)
     {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
@@ -93,7 +95,7 @@ class WaitNode extends PlexilTreeNode
     }
 
 
-    public void checkForReal (NodeContext context, CompilerState state)
+    private void checkForReal (NodeContext context, CompilerState state)
     {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
