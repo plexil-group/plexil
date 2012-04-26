@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim
-
-# convenience target for A4O project
-A4O: exec-core app-framework corba luv standard-plexil IpcAdapter GanttListener plexilsim
-
-# convenience target for ASA project
-asa ASA: exec-core app-framework luv standard-plexil
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim sample
 
 # convenience target for AMO project
 amo AMO: exec-core app-framework luv plexil-compiler
@@ -55,6 +49,9 @@ plexilsim: utils ipc IpcUtils
 
 robosim: UniversalExec IpcAdapter
 	$(MAKE) -C src/apps/robosim
+
+sample: UniversalExec utils app-framework
+	$(MAKE) -C src/apps/sample
 
 universal-exec UniversalExec: exec-core app-framework
 	$(MAKE) -C src/universal-exec
