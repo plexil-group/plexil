@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim sample
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler standard-plexil checker plexilsim robosim sample
 
 # convenience target for AMO project
 amo AMO: exec-core app-framework luv plexil-compiler
