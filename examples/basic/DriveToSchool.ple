@@ -36,9 +36,9 @@ DriveToSchool:
           DepressClutch: { depress_clutch(); }	      
           TurnKey:  
           {
-            // NOTE: We'd like to add a time elapsed check to this end
-            // condition, but the Plexil compiler doesn't support this yet.
-            EndCondition Lookup(car_started);
+            // Ends when car starts or 60 seconds (assumed unit) has passed.
+            EndCondition Lookup(car_started) ||
+                         Lookup(time) >= TurnKey.EXECUTING.START + 60.0;
             turn_key();
           }	      	    
         }
@@ -49,8 +49,8 @@ DriveToSchool:
         PostCondition Lookup(car_started);
         push_start();
       }
-    } // end of Try
-  }  // end of StartCar
+    }
+  } 
 
   SelectStation:
   {
@@ -80,6 +80,6 @@ DriveToSchool:
         EndCondition Lookup(at_school);
         drive_a_bit();
       }    
-    }  // end of KeepDriving
-  } // end of DriveUntilAtSchool
-} // end of DriveToSchool
+    }  
+  } 
+} 
