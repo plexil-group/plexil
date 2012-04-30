@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,13 +42,13 @@ namespace PLEXIL
   {
   public:
     PlexilElementParser() {}
-	virtual ~PlexilElementParser() {}
+    virtual ~PlexilElementParser() {}
     virtual Id<Ret> parse(const pugi::xml_node& xml)
       throw(ParserException)
       = 0;
 
   private:
-	// deliberately not implemented
+    // deliberately not implemented
     PlexilElementParser(const PlexilElementParser&);
     PlexilElementParser& operator=(const PlexilElementParser&);
   };
@@ -62,72 +62,72 @@ namespace PLEXIL
   class PlexilXmlParser : public PlexilParser
   {
   public:
-	//
-	// Constants
-	//
+    //
+    // Constants
+    //
 
-	// Ensure text consisting only of whitespace is preserved.
-	DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_PARSE_OPTIONS, pugi::parse_default | pugi::parse_ws_pcdata_single);
+    // Ensure text consisting only of whitespace is preserved.
+    DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_PARSE_OPTIONS, pugi::parse_default | pugi::parse_ws_pcdata_single);
 
-	/*
-	 * @brief Load the named library node from a file on the given path.
-	 * @param name Name of the node.
-	 * @param path Vector of places to search for the file.
-	 * @return The loaded node, or noId() if not found or error.
-	 */
-	static PlexilNodeId findLibraryNode(const std::string& name,
-										const std::vector<std::string>& path);
+    /*
+     * @brief Load the named library node from a file on the given path.
+     * @param name Name of the node.
+     * @param path Vector of places to search for the file.
+     * @return The loaded node, or noId() if not found or error.
+     */
+    static PlexilNodeId findLibraryNode(const std::string& name,
+                                        const std::vector<std::string>& path);
 
-	/*
-	 * @brief Load the named plan from a file on the given path.
-	 * @param name Name of the node.
-	 * @param fileName Name of the file.
-	 * @param path Vector of places to search for the file.
-	 * @return The loaded node, or noId() if not found or error.
-	 */
-	static PlexilNodeId findPlan(const std::string& name,
-								 const std::string& fileName,
-								 const std::vector<std::string>& path);
+    /*
+     * @brief Load the named plan from a file on the given path.
+     * @param name Name of the node.
+     * @param fileName Name of the file.
+     * @param path Vector of places to search for the file.
+     * @return The loaded node, or noId() if not found or error.
+     */
+    static PlexilNodeId findPlan(const std::string& name,
+                                 const std::string& fileName,
+                                 const std::vector<std::string>& path);
 
-	/*
-	 * @brief Load the named plan from a file in the given directory.
-	 * @param name Name of the desired node.
-	 * @param filename Candidate file for this node.
-	 * @return The loaded node, or noId() if not found or error.
-	 */
-	static PlexilNodeId loadPlanNamed(const std::string& name,
-									  const std::string& filename)
-	  throw(ParserException);
+    /*
+     * @brief Load the named plan from a file in the given directory.
+     * @param name Name of the desired node.
+     * @param filename Candidate file for this node.
+     * @return The loaded node, or noId() if not found or error.
+     */
+    static PlexilNodeId loadPlanNamed(const std::string& name,
+                                      const std::string& filename)
+      throw(ParserException);
 
-	// Deprecated.
+    // Deprecated.
     static PlexilNodeId parse(const std::string& str, bool isFile)
       throw(ParserException);
 
-	static PlexilNodeId parse(const char* text)
-	  throw(ParserException);
+    static PlexilNodeId parse(const char* text)
+    throw(ParserException);
 
-	// Presumes XML is a PlexilPlan or Node element.
+    // Presumes XML is a PlexilPlan or Node element.
     static PlexilNodeId parse(pugi::xml_node xml)
       throw(ParserException);
 
-	/**
-	 * @brief Turn the node back into an XML document.
-	 * @param node The node.
-	 * @return Pointer to a pugi::xml_document representing the node.
-	 * @note Caller is responsible for disposing of the result.
-	 */
+    /**
+     * @brief Turn the node back into an XML document.
+     * @param node The node.
+     * @return Pointer to a pugi::xml_document representing the node.
+     * @note Caller is responsible for disposing of the result.
+     */
     static pugi::xml_document* toXml(const PlexilNodeId& node)
       throw(ParserException);
 
-	// These don't really need to be public,
-	// but the alternative is forward declaring the classes of their callers
-	// so that they can be declared friends.
-	// C++ sucks at encapsulation.
-	// -- Chucko 12 Nov 2010
+    // These don't really need to be public,
+    // but the alternative is forward declaring the classes of their callers
+    // so that they can be declared friends.
+    // C++ sucks at encapsulation.
+    // -- Chucko 12 Nov 2010
 
     //this is used to get around the old way of handling node references
     static PlexilNodeRefId getNodeRef(const pugi::xml_node& ref, 
-				      const pugi::xml_node& node)
+                                      const pugi::xml_node& node)
       throw(ParserException);
     static pugi::xml_node getNodeParent(const pugi::xml_node& node);
 
@@ -144,18 +144,18 @@ namespace PLEXIL
 
   private:
 
-	// Explicitly not implemented
-	PlexilXmlParser();
-	PlexilXmlParser(const PlexilXmlParser&);
-	PlexilXmlParser& operator=(const PlexilXmlParser&);
-	~PlexilXmlParser();
+    // Explicitly not implemented
+    PlexilXmlParser();
+    PlexilXmlParser(const PlexilXmlParser&);
+    PlexilXmlParser& operator=(const PlexilXmlParser&);
+    ~PlexilXmlParser();
 
-	static bool isValidConditionName(const std::string& name);
+    static bool isValidConditionName(const std::string& name);
 
     static PlexilInterfaceId parseDeprecatedInterface(const pugi::xml_node& intf)
       throw(ParserException);
     static PlexilInterfaceId parseInterface(const pugi::xml_node& intf)
-       throw(ParserException);
+      throw(ParserException);
     static void parseInOrInOut(const pugi::xml_node& inOrInOut, 
                                PlexilInterfaceId& interface, bool isInOut)
       throw(ParserException);
@@ -171,7 +171,13 @@ namespace PLEXIL
       throw(ParserException);
 
     static void getNameOrValue(const pugi::xml_node& xml, std::string& name, 
-			       std::string& value);
+                               std::string& value);
+
+    static PlexilNodeRefId getNodeRefInternal(const char* name, 
+                                              const pugi::xml_node& node,
+                                              const pugi::xml_node& originalNode,
+                                              const pugi::xml_node& ref)
+      throw(ParserException);
 
     static void toXml(const PlexilNodeId& node, pugi::xml_node& parent)
       throw(ParserException);

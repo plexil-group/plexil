@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,8 @@
 
 #define isType(p,type) (dynamic_cast<type*>(p) != NULL)
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
   class PlexilInterface;
   class PlexilVar;
@@ -104,14 +105,14 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, NODE_FAILURE_STR, "NodeFailure");
     DECLARE_STATIC_CLASS_CONST(std::string, NODE_COMMAND_HANDLE_STR, "NodeCommandHandle");
 
-	// condition names
-	DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION_TAG, "StartCondition");
-	DECLARE_STATIC_CLASS_CONST(std::string, REPEAT_CONDITION_TAG, "RepeatCondition");
-	DECLARE_STATIC_CLASS_CONST(std::string, PRE_CONDITION_TAG, "PreCondition");
-	DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION_TAG, "PostCondition");
-	DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION_TAG, "InvariantCondition");
-	DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION_TAG, "EndCondition");
-	DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION_TAG, "SkipCondition");
+    // condition names
+    DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION_TAG, "StartCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, REPEAT_CONDITION_TAG, "RepeatCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, PRE_CONDITION_TAG, "PreCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION_TAG, "PostCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION_TAG, "InvariantCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION_TAG, "EndCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION_TAG, "SkipCondition");
 
     DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
 
@@ -122,21 +123,21 @@ namespace PLEXIL {
     static const std::string& nodeTypeString(PlexilNodeType nodeType);
 
 
-	static PlexilType parseValueTypePrefix(const std::string & str, 
-										   std::string::size_type prefixLen);
+    static PlexilType parseValueTypePrefix(const std::string & str, 
+                                           std::string::size_type prefixLen);
     inline static PlexilType parseValueType(const std::string& typeStr)
-	{
-	  return parseValueTypePrefix(typeStr, typeStr.length());
-	}
+    {
+      return parseValueTypePrefix(typeStr, typeStr.length());
+    }
     static const std::string& valueTypeString(const PlexilType& type);
 
   private:
-	// Deliberately not implemented because this class can't be instantiated,
-	// only derived from.
-	PlexilParser();
-	PlexilParser(const PlexilParser&);
-	PlexilParser& operator=(const PlexilParser&);
-	~PlexilParser();
+    // Deliberately not implemented because this class can't be instantiated,
+    // only derived from.
+    PlexilParser();
+    PlexilParser(const PlexilParser&);
+    PlexilParser& operator=(const PlexilParser&);
+    ~PlexilParser();
 
   };
 
@@ -209,26 +210,26 @@ namespace PLEXIL {
   
   class PlexilInterface
   {
-     public:
-        PlexilInterface() : m_id(this) {}
-        ~PlexilInterface();
-        const PlexilInterfaceId& getId() const {return m_id;}
-        const std::vector<PlexilVarRef*>& in() const {return m_in;}
-        const std::vector<PlexilVarRef*>& inOut() const {return m_inOut;}
-        const PlexilVarRef* findVar(const PlexilVarRef* target);
-        const PlexilVarRef* findInVar(const PlexilVarRef* target);
-        const PlexilVarRef* findInOutVar(const PlexilVarRef* target);
-        const PlexilVarRef* findVar(const std::string& target);
-        const PlexilVarRef* findInVar(const std::string& target);
-        const PlexilVarRef* findInOutVar(const std::string& target);
+  public:
+    PlexilInterface() : m_id(this) {}
+    ~PlexilInterface();
+    const PlexilInterfaceId& getId() const {return m_id;}
+    const std::vector<PlexilVarRef*>& in() const {return m_in;}
+    const std::vector<PlexilVarRef*>& inOut() const {return m_inOut;}
+    const PlexilVarRef* findVar(const PlexilVarRef* target);
+    const PlexilVarRef* findInVar(const PlexilVarRef* target);
+    const PlexilVarRef* findInOutVar(const PlexilVarRef* target);
+    const PlexilVarRef* findVar(const std::string& target);
+    const PlexilVarRef* findInVar(const std::string& target);
+    const PlexilVarRef* findInOutVar(const std::string& target);
         
-        void addIn(PlexilVarRef* var) {m_in.push_back(var);}
-        void addInOut(PlexilVarRef* var) {m_inOut.push_back(var);}
+    void addIn(PlexilVarRef* var) {m_in.push_back(var);}
+    void addInOut(PlexilVarRef* var) {m_inOut.push_back(var);}
 
-     private:
-        PlexilInterfaceId m_id;
-        std::vector<PlexilVarRef*> m_in;
-        std::vector<PlexilVarRef*> m_inOut;
+  private:
+    PlexilInterfaceId m_id;
+    std::vector<PlexilVarRef*> m_in;
+    std::vector<PlexilVarRef*> m_inOut;
   };
 
   class PlexilExpr {
@@ -254,39 +255,39 @@ namespace PLEXIL {
     std::vector<PlexilExprId> m_subExprs;
   };
 
-   class PlexilVarRef : public PlexilExpr
-   {
-   public:
-     PlexilVarRef() :
-       PlexilExpr(),
-       m_typed(false),
-       m_type(PLEXIL::UNKNOWN_TYPE),
-       m_defaultValue(PlexilExprId::noId())
-     {}
+  class PlexilVarRef : public PlexilExpr
+  {
+  public:
+    PlexilVarRef() :
+      PlexilExpr(),
+      m_typed(false),
+      m_type(PLEXIL::UNKNOWN_TYPE),
+      m_defaultValue(PlexilExprId::noId())
+    {}
 
-	 bool typed() const {return m_typed;}
-	 const PlexilType& type() const {return m_type;}
-	 const PlexilExprId& defaultValue() const {return m_defaultValue;}
-	 const PlexilVarId& variable() const {return m_variable;}
+    bool typed() const {return m_typed;}
+    const PlexilType& type() const {return m_type;}
+    const PlexilExprId& defaultValue() const {return m_defaultValue;}
+    const PlexilVarId& variable() const {return m_variable;}
          
-	 void setDefaultValue(const PlexilExprId& defaultValue)
-	 {
-	   m_defaultValue = defaultValue;
-	 }
+    void setDefaultValue(const PlexilExprId& defaultValue)
+    {
+      m_defaultValue = defaultValue;
+    }
 
-	 void setType(const PlexilType& type)
-	 {
-	   m_type = type; 
-	   m_typed = true;
-	 }
-	 void setVariable(const PlexilVarId& var);
+    void setType(const PlexilType& type)
+    {
+      m_type = type; 
+      m_typed = true;
+    }
+    void setVariable(const PlexilVarId& var);
 
-   private:
-	 bool m_typed;
-	 PlexilType m_type;
-	 PlexilExprId m_defaultValue;
-	 PlexilVarId m_variable;
-   };
+  private:
+    bool m_typed;
+    PlexilType m_type;
+    PlexilExprId m_defaultValue;
+    PlexilVarId m_variable;
+  };
 
   class PlexilOp : public PlexilExpr {
   public:
@@ -316,7 +317,7 @@ namespace PLEXIL {
   class PlexilState {
   public:
     PlexilState() : m_lineNo(0), m_colNo(0), m_id(this) {}
-   ~PlexilState() {m_id.remove(); m_nameExpr.remove();}
+    ~PlexilState() {m_id.remove(); m_nameExpr.remove();}
     const PlexilStateId& getId() const {return m_id;}
     const std::vector<PlexilExprId>& args() const {return m_args;}
     const std::string& name() const;
@@ -373,21 +374,21 @@ namespace PLEXIL {
     std::string m_value;
   };
 
-   class PlexilArrayValue : public PlexilValue
-   {
-      public:
-         PlexilArrayValue(const PlexilType& type, unsigned maxSize,
-                          const std::vector<std::string>& values);
-         const std::vector<std::string>& values() const {return m_values;}
-         unsigned maxSize() const {return m_maxSize;}
-      private:
-         unsigned m_maxSize;
-         std::vector<std::string> m_values;
-   };
+  class PlexilArrayValue : public PlexilValue
+  {
+  public:
+    PlexilArrayValue(const PlexilType& type, unsigned maxSize,
+                     const std::vector<std::string>& values);
+    const std::vector<std::string>& values() const {return m_values;}
+    unsigned maxSize() const {return m_maxSize;}
+  private:
+    unsigned m_maxSize;
+    std::vector<std::string> m_values;
+  };
 
   class PlexilVar : public PlexilExpr {
   public:
-	PlexilVar(const std::string& name, const PlexilType& type);
+    PlexilVar(const std::string& name, const PlexilType& type);
     PlexilVar(const std::string& name, const PlexilType& type, const std::string& value);
     PlexilVar(const std::string& name, const PlexilType& type, PlexilValue* value);
     virtual ~PlexilVar();
@@ -406,31 +407,31 @@ namespace PLEXIL {
     PlexilValue* m_value;
   };
   
-   class PlexilArrayVar : public PlexilVar {
-   public:
-     PlexilArrayVar(const std::string& name, 
-		    const PlexilType& type, 
-		    const unsigned maxSize);
-     PlexilArrayVar(const std::string& name, 
-		    const PlexilType& type, 
-		    const unsigned maxSize, 
-		    std::vector<std::string>& values);
-     ~PlexilArrayVar();
+  class PlexilArrayVar : public PlexilVar {
+  public:
+    PlexilArrayVar(const std::string& name, 
+                   const PlexilType& type, 
+                   const unsigned maxSize);
+    PlexilArrayVar(const std::string& name, 
+                   const PlexilType& type, 
+                   const unsigned maxSize, 
+                   std::vector<std::string>& values);
+    ~PlexilArrayVar();
 
-	 // override PlexilVar method
-	 
-	 virtual const PlexilType& type() const
-	 { 
-	   static PlexilType s_arrayType = ARRAY;
-	   return s_arrayType;
-	 }
-     virtual bool isArray() const {return true;}
-	 const PlexilType& elementType() const {return m_type;}
-     virtual unsigned maxSize() const {return m_maxSize;}
+    // override PlexilVar method
+     
+    virtual const PlexilType& type() const
+    { 
+      static PlexilType s_arrayType = ARRAY;
+      return s_arrayType;
+    }
+    virtual bool isArray() const {return true;}
+    const PlexilType& elementType() const {return m_type;}
+    virtual unsigned maxSize() const {return m_maxSize;}
 
-   private:
-     unsigned m_maxSize;
-   };
+  private:
+    unsigned m_maxSize;
+  };
   
   class PlexilNodeBody {
   public:
@@ -463,7 +464,7 @@ namespace PLEXIL {
   public:
     PlexilAssignmentBody()
       : PlexilActionBody(),
-	m_type(PLEXIL::UNKNOWN_TYPE)
+        m_type(PLEXIL::UNKNOWN_TYPE)
     {}
 
     const PlexilExprId& RHS() const {return m_rhs;}
@@ -496,27 +497,56 @@ namespace PLEXIL {
       PARENT,
       CHILD,
       SIBLING,
+      // Used internally, not user-specified
+      GRANDPARENT,
+      UNCLE,
       NO_DIR
     };
-    PlexilNodeRef() :  m_lineNo(0), m_colNo(0), m_id(this), m_dir(NO_DIR) {}
+
+    PlexilNodeRef(Direction dir)
+      : m_id(this), m_name(), m_lineNo(0), m_colNo(0), m_generation(0), m_dir(dir)
+    {}
+    PlexilNodeRef(Direction dir, const char* name)
+      : m_id(this), m_name(name), m_lineNo(0), m_colNo(0), m_generation(0), m_dir(dir)
+    {}
+
     ~PlexilNodeRef() {m_id.remove();}
+
     const PlexilNodeRefId& getId() const {return m_id;}
     const Direction& dir() const {return m_dir;}
     const std::string& name() const {return m_name;}
+
+    int generation() const { return m_generation; }
+    void incrementGeneration() 
+    {
+      ++m_generation;
+      switch (m_dir) {
+        case SELF: m_dir = PARENT; break;
+        case PARENT: m_dir = GRANDPARENT; break;
+        case CHILD: m_dir = SIBLING; break;
+        case SIBLING: m_dir = UNCLE; break;
+
+        case GRANDPARENT:
+        case UNCLE:
+          break; // no change
+
+        default: // includes NO_DIR
+          assertTrueMsg(ALWAYS_FAIL, "PlexilNodeRef::incrementGeneration(): invalid direction");
+        }
+    }
+
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
-
-    void setDir(const Direction& dir) {m_dir = dir;}
-    void setName(const std::string& name) {m_name = name;}
     void setLineNo(int n) {m_lineNo = n;}
     void setColNo(int n) {m_colNo = n;}
 
   private:
+    PlexilNodeRefId m_id;
+    std::string m_name;
     int m_lineNo;
     int m_colNo;
-    PlexilNodeRefId m_id;
+    int m_generation;
     Direction m_dir;
-    std::string m_name;
   };
 
   class PlexilInternalVar : public PlexilVarRef {
@@ -596,78 +626,78 @@ namespace PLEXIL {
 
   class PlexilListBody : public PlexilNodeBody 
   {
-     public:
-        PlexilListBody() : PlexilNodeBody() {}
-        void addChild(const PlexilNodeId& child) {m_children.push_back(child);}
-        bool replaceChild(const PlexilNodeId& oldChild,
-                                   const PlexilNodeId& newChild)
+  public:
+    PlexilListBody() : PlexilNodeBody() {}
+    void addChild(const PlexilNodeId& child) {m_children.push_back(child);}
+    bool replaceChild(const PlexilNodeId& oldChild,
+                      const PlexilNodeId& newChild)
+    {
+      for(std::vector<PlexilNodeId>::iterator child = m_children.begin();
+          child != m_children.end(); ++child)
         {
-           for(std::vector<PlexilNodeId>::iterator child = m_children.begin();
-               child != m_children.end(); ++child)
-           {
-              if (*child == oldChild)
-              {
-                 *child = newChild;
-                 return true;
-              }
-           }
-           return false;
+          if (*child == oldChild)
+            {
+              *child = newChild;
+              return true;
+            }
         }
-        const std::vector<PlexilNodeId>& children() const {return m_children;}
-     private:
-        std::vector<PlexilNodeId> m_children;
+      return false;
+    }
+    const std::vector<PlexilNodeId>& children() const {return m_children;}
+  private:
+    std::vector<PlexilNodeId> m_children;
   };
-      // library node call body
+  // library node call body
 
   class PlexilLibNodeCallBody : public PlexilNodeBody 
   {
-     public:
+  public:
 
-           // construct a library node call body with the name of the
-           // library node
+    // construct a library node call body with the name of the
+    // library node
         
-        PlexilLibNodeCallBody(const std::string& libNodeName) : PlexilNodeBody() 
-        {
-           setLibNodeName(libNodeName);
-        }
-           // getter for library node name
+    PlexilLibNodeCallBody(const std::string& libNodeName) : PlexilNodeBody() 
+    {
+      setLibNodeName(libNodeName);
+    }
+    // getter for library node name
 
-        const std::string& libNodeName() const {return m_libNodeName;}
+    const std::string& libNodeName() const {return m_libNodeName;}
 
-           // getter for library node
+    // getter for library node
 
-        const PlexilNodeId& libNode() const {return m_libNode;}
+    const PlexilNodeId& libNode() const {return m_libNode;}
 
-           // getter for all aliases
+    // getter for all aliases
         
-        const PlexilAliasMap& aliases() const
-        {
-           return m_aliases;
-        }
-           // add an alias pair to the library call
+    const PlexilAliasMap& aliases() const
+    {
+      return m_aliases;
+    }
+    // add an alias pair to the library call
 
-        void addAlias(const std::string& param, PlexilExprId value)
-        {
-           PlexilExprId &alias = m_aliases[LabelStr(param)];
-           checkError(!alias.isId(), "Alias '" << param
-                      << "' apears more then once in call to "
-                      << m_libNodeName);
-           alias = value;
-        }
-           // setter for library node name
+    void addAlias(const std::string& param, PlexilExprId value)
+    {
+      PlexilExprId &alias = m_aliases[LabelStr(param)];
+      checkError(!alias.isId(), "Alias '" << param
+                 << "' apears more then once in call to "
+                 << m_libNodeName);
+      alias = value;
+    }
+    // setter for library node name
 
-        void setLibNodeName(const std::string& libNodeName) 
-        {
-           m_libNodeName = libNodeName;
-        }
-           // setter for the called library node
+    void setLibNodeName(const std::string& libNodeName) 
+    {
+      m_libNodeName = libNodeName;
+    }
+    // setter for the called library node
 
-        void setLibNode(const PlexilNodeId& libNode) {m_libNode = libNode;}
+    void setLibNode(const PlexilNodeId& libNode) {m_libNode = libNode;}
 
-     private:
-        std::string m_libNodeName;
-        PlexilNodeId m_libNode;
-        PlexilAliasMap m_aliases;
+  private:
+    std::string m_libNodeName;
+    PlexilNodeId m_libNode;
+    PlexilAliasMap m_aliases;
   };
 }
 #endif
