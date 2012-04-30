@@ -34,7 +34,7 @@ REGRESSION_PL	:= regression.pl
 # Tests which run to success and require no script
 EMPTY_SCRIPT		:= scripts/empty.psx
 
-EMPTY_SCRIPT_TESTS	:= array2 array5 array6 array9 \
+EMPTY_SCRIPT_TESTS	:= AncestorReferenceTest array2 array5 array6 array9 \
  concat1 contention1 contention3 \
  double-invariant-assignment \
  empty1 empty2 empty3 empty4 empty-string1 \
