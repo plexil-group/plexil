@@ -46,16 +46,15 @@
 
 namespace PLEXIL {
 
-  ConditionChangeListener::ConditionChangeListener(Node& node, const LabelStr& cond)
-    : ExpressionListener(), m_node(node), m_cond(cond) 
+  ConditionChangeListener::ConditionChangeListener(Node& node, size_t condIdx)
+    : ExpressionListener(), m_node(node), m_cond(Node::ALL_CONDITIONS()[condIdx])
   {
   }
 
   void ConditionChangeListener::notifyValueChanged(const ExpressionId& /* expression */) 
   {
     debugMsg("Node:conditionChange",
-             m_cond.toString() << " may have changed value in " <<
-             m_node.getNodeId().toString());
+             m_cond.toString() << " may have changed value in " << m_node.getNodeId().toString());
     m_node.conditionChanged();
   }
 
@@ -91,7 +90,7 @@ namespace PLEXIL {
     return *sl_allConds;
   }
 
-  unsigned int Node::getConditionIndex(const LabelStr& cName) {
+  size_t Node::getConditionIndex(const LabelStr& cName) {
     double nameKey = cName.getKey();
     const std::vector<double>& allConds = ALL_CONDITIONS();
     for (size_t i = 0; i < conditionIndexMax; i++) {
@@ -102,7 +101,7 @@ namespace PLEXIL {
                   cName.toString() << " is not a valid condition name");
   }
 
-  LabelStr Node::getConditionName(unsigned int idx)
+  LabelStr Node::getConditionName(size_t idx)
   {
     return LabelStr(ALL_CONDITIONS()[idx]);
   }
@@ -486,7 +485,7 @@ namespace PLEXIL {
          it != conds.end(); 
          ++it) {
       const LabelStr condName(it->first);
-      unsigned int condIdx = getConditionIndex(condName);
+      size_t condIdx = getConditionIndex(condName);
 
       // Delete existing condition if required
       // (e.g. explicit override of default end condition for list or library call node)
@@ -711,7 +710,7 @@ namespace PLEXIL {
                   "Node::makeConditionListener: Node " << m_nodeId.toString()
                   << " already has a listener for condition " << getConditionName(idx));
     return m_listeners[idx] = 
-      (new ConditionChangeListener(*this, ALL_CONDITIONS()[idx]))->getId();
+      (new ConditionChangeListener(*this, idx))->getId();
   }
 
   // Default method.
@@ -1477,7 +1476,7 @@ namespace PLEXIL {
     return NodeId::noId();
   }
 
-  void Node::activatePair(unsigned int idx) 
+  void Node::activatePair(size_t idx) 
   {
     // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
     checkError(getCondition(idx).isId(),
@@ -1489,7 +1488,7 @@ namespace PLEXIL {
     getCondition(idx)->activate();
   }
 
-  void Node::deactivatePair(unsigned int idx) 
+  void Node::deactivatePair(size_t idx) 
   {
     // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
     checkError(getCondition(idx).isId(),
@@ -1501,7 +1500,7 @@ namespace PLEXIL {
       m_listeners[idx]->deactivate();
   }
 
-  bool Node::pairActive(unsigned int idx) 
+  bool Node::pairActive(size_t idx) 
   {
     // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
     checkError(getCondition(idx).isId(),
