@@ -1,6 +1,6 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
-2.0
+2.0 (May 4, 2012; SVN revision 2759)
 
 IMPORTANT NOTE: This release has several features that are not
 compatible with 1.x based PLEXIL applications.  1.7.1 is the latest
