@@ -22,17 +22,17 @@ Please note that the Core Plexil XML representation has not changed. Old
    parsing (see below), construction of internal representations, and
    execution proper.
 
- - New, simpler interfacing APIs.
-
  - The TinyXML parser has been replaced by pugixml, which proved 20x
    faster in our testing. This was a major contributor to the improved
    performance of the executive.
+
+ - New, simpler interfacing APIs.
 
  - The Plexil executive's behavior conforms more closely to its
     formal specification.
 
  - New arithmetic functions: MOD, MAX, MIN
- - Numerous misc bug fixes and enhancements througout system.
+ - Numerous bug fixes and enhancements throughout system.
 
 =================================================================================
 
