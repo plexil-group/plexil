@@ -350,7 +350,8 @@ namespace PLEXIL
   void IpcAdapter::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck) {
     //TODO: implement unique command IDs for referencing command instances
     assertTrueMsg(cmdName == RECEIVE_MESSAGE_COMMAND() || cmdName == RECEIVE_COMMAND_COMMAND(),
-                  "IpcAdapter: Only ReceiveMessage and ReceiveCommand commands can be aborted");
+                  "IpcAdapter: Attempt to abort \"" << cmdName.toString()
+                  << "\" command.\n Only ReceiveMessage and ReceiveCommand commands can be aborted.");
     assertTrueMsg(cmdArgs.size() == 1,
                   "IpcAdapter: Aborting ReceiveMessage requires exactly one argument");
     assertTrueMsg(LabelStr::isString(cmdArgs.front()),
