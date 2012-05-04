@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,8 @@ import java.util.Vector;
 
 public class Constants
 {     
-	  public static final String PLEXIL_VERSION = "Version 1.5 (1.5.0)\n";
-	  public static final String PLEXIL_COPYRIGHT = "Copyright 2006-2010 Universities Space Research Association\n";
+	  public static final String PLEXIL_VERSION = "Version 2.0\n";
+	  public static final String PLEXIL_COPYRIGHT = "Copyright 2006-2012 Universities Space Research Association\n";
 	  public static final String PLEXIL_WEBSITE = "plexil.sourceforge.net";
       /** Represents the location of the Luv application properties file. */      
       public static final String    PROPERTIES_FILE_LOCATION = System.getProperty("user.home") + System.getProperty("file.separator") + ".luv";
