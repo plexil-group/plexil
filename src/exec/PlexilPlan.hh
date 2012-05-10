@@ -112,6 +112,7 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION_TAG, "PostCondition");
     DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION_TAG, "InvariantCondition");
     DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION_TAG, "EndCondition");
+    DECLARE_STATIC_CLASS_CONST(std::string, EXIT_CONDITION_TAG, "ExitCondition");
     DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION_TAG, "SkipCondition");
 
     DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
