@@ -68,8 +68,6 @@ namespace PLEXIL
       m_activeCount++;
   }
 
-  // Used only in Lookup::Lookup(const StateCacheId&, const LabelStr&, std::list<double>&)
-
   VariableImpl::VariableImpl(const double value, const bool isConst)
     : Variable(),
 	  m_isConst(isConst),
