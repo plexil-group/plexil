@@ -1702,11 +1702,8 @@ namespace PLEXIL {
     if (!condition->isActive())
       return false;
 
-    // *** TEMPORARY (?) ***
-    checkError(m_listeners[idx].isId(),
-               "Node::pairActive: Node " << m_nodeId.toString()
-               << " has no listener for condition " << getConditionName(idx).toString());
-    // *** either the TEMPORARY (?) above or the below needs to go away ***
+    // N.B. Root nodes may not have listeners on parent conditions,
+    // which are constants and thus cannot change.
     if (m_listeners[idx].isNoId())
       return true;
 
