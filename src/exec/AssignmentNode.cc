@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,97 +37,78 @@ namespace PLEXIL
 {
 
   AssignmentNode::AssignmentNode(const PlexilNodeId& nodeProto, 
-								 const ExecConnectorId& exec,
-								 const NodeId& parent)
-	: Node(nodeProto, exec, parent),
-	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
-	  m_priority(nodeProto->priority())
+                                 const ExecConnectorId& exec,
+                                 const NodeId& parent)
+    : Node(nodeProto, exec, parent),
+      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
+      m_priority(nodeProto->priority())
   {
-	checkError(nodeProto->nodeType() == NodeType_Assignment,
-			   "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
-			   << "\" for an AssignmentNode");
+    checkError(nodeProto->nodeType() == NodeType_Assignment,
+               "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
+               << "\" for an AssignmentNode");
 
-	// Make ack variable pretty
-	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+    // Make ack variable pretty
+    ((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
   }
 
   // Used only by module test
   AssignmentNode::AssignmentNode(const LabelStr& type,
-								 const LabelStr& name, 
-								 const NodeState state,
-								 const bool skip,
-								 const bool start,
-								 const bool pre,
-								 const bool invariant,
-								 const bool post,
-								 const bool end,
-								 const bool repeat,
-								 const bool ancestorInvariant,
-								 const bool ancestorEnd,
-								 const bool parentExecuting,
-								 const bool childrenFinished,
-								 const bool commandAbort,
-								 const bool parentWaiting, 
-								 const bool parentFinished,
-								 const bool cmdHdlRcvdCondition,
-								 const ExecConnectorId& exec,
-								 const NodeId& parent)
-	: Node(type, name, state, 
-		   skip, start, pre, invariant, post, end, repeat,
-		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
-		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec, parent),
-	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
+                                 const LabelStr& name, 
+                                 const NodeState state,
+                                 const ExecConnectorId& exec,
+                                 const NodeId& parent)
+    : Node(type, name, state, exec, parent),
+      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
-	checkError(type == ASSIGNMENT(),
-			   "Invalid node type \"" << type.toString() << "\" for an AssignmentNode");
+    checkError(type == ASSIGNMENT(),
+               "Invalid node type \"" << type.toString() << "\" for an AssignmentNode");
 
-	// Make ack variable pretty
-	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+    // Make ack variable pretty
+    ((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
 
-	// Create Assignment object
-	createDummyAssignment();
-	if (state == EXECUTING_STATE)
-	  m_assignment->activate();
+    // Create Assignment object
+    createDummyAssignment();
+    if (state == EXECUTING_STATE)
+      m_assignment->activate();
   }
 
   AssignmentNode::~AssignmentNode()
   {
-	cleanUpConditions();
-	cleanUpNodeBody();
-	delete (Variable*) m_ack;
-	m_ack = VariableId::noId();
+    cleanUpConditions();
+    cleanUpNodeBody();
+    delete (Variable*) m_ack;
+    m_ack = VariableId::noId();
   }
 
   void AssignmentNode::specializedPostInit(const PlexilNodeId& node)
   {
-	debugMsg("Node:postInit",
-			 "Creating assignment for node '" << m_nodeId.toString() << "'");
-	// XML parser should have checked for this
-	checkError(Id<PlexilAssignmentBody>::convertable(node->body()),
-			   "Node is an assignment node but doesn't have an assignment body.");
-	createAssignment((PlexilAssignmentBody*) node->body());
+    debugMsg("Node:postInit",
+             "Creating assignment for node '" << m_nodeId.toString() << "'");
+    // XML parser should have checked for this
+    checkError(Id<PlexilAssignmentBody>::convertable(node->body()),
+               "Node is an assignment node but doesn't have an assignment body.");
+    createAssignment((PlexilAssignmentBody*) node->body());
   }
 
   void AssignmentNode::createSpecializedConditions()
   {
-	// Construct default end condition
-	ExpressionId realEndCondition =
-	  (new Conjunction(m_ack,
-					   false, 
-					   m_conditions[endIdx],
-					   m_garbageConditions[endIdx]))->getId();
-	realEndCondition->addListener(makeConditionListener(endIdx));
-	m_conditions[endIdx] = realEndCondition;
-	m_garbageConditions[endIdx] = true;
+    // Construct default end condition
+    ExpressionId realEndCondition =
+      (new Conjunction(m_ack,
+                       false, 
+                       m_conditions[endIdx],
+                       m_garbageConditions[endIdx]))->getId();
+    realEndCondition->addListener(makeConditionListener(endIdx));
+    m_conditions[endIdx] = realEndCondition;
+    m_garbageConditions[endIdx] = true;
   }
 
   void AssignmentNode::createAssignment(const PlexilAssignmentBody* body) 
   {
     //we still only support one variable on the LHS
-	// FIXME: push this check up into XML parser
+    // FIXME: push this check up into XML parser
     checkError(body->dest().size() >= 1,
-			   "Need at least one destination variable in assignment.");
+               "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
     VariableId dest;
     LabelStr destName;
@@ -135,45 +116,45 @@ namespace PLEXIL
     if (Id<PlexilVarRef>::convertable(destExpr)) {
       destName = destExpr->name();
       dest = findVariable((Id<PlexilVarRef>) destExpr);
-	  // FIXME: push this check up into XML parser
+      // FIXME: push this check up into XML parser
       checkError(dest.isValid(),
                  "Dest variable '" << destName <<
                  "' not found in assignment node '" << m_nodeId.toString() << "'");
     }
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
       dest =
-		(VariableId)
-		ExpressionFactory::createInstance(destExpr->name(),
-										  destExpr,
-										  NodeConnector::getId());
+        (VariableId)
+        ExpressionFactory::createInstance(destExpr->name(),
+                                          destExpr,
+                                          NodeConnector::getId());
       // *** beef this up later ***
-	  PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
-	  debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-	  int e_index = dest->toString().find(": ", dest->toString().length()-15);
-	  int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
-	  int diff_index = e_index - b_index;
-	  std::string m_index = " ";
-	  if(e_index != std::string::npos)
-		{
+      PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
+      debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
+      int e_index = dest->toString().find(": ", dest->toString().length()-15);
+      int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
+      int diff_index = e_index - b_index;
+      std::string m_index = " ";
+      if(e_index != std::string::npos)
+        {
 
-		  m_index = dest->toString().substr(e_index-diff_index,diff_index);
-		}
-	  debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
-	  const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
-	  destName = LabelStr(m_str);
+          m_index = dest->toString().substr(e_index-diff_index,diff_index);
+        }
+      debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
+      const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
+      destName = LabelStr(m_str);
       deleteLhs = true;
     }
     else {
-	  // FIXME: push this check up into XML parser 
-	  checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
+      // FIXME: push this check up into XML parser 
+      checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
     }
 
     bool deleteRhs = false;
     ExpressionId rhs =
       ExpressionFactory::createInstance(body->RHS()->name(), 
-										body->RHS(),
-										NodeConnector::getId(),
-										deleteRhs);
+                                        body->RHS(),
+                                        NodeConnector::getId(),
+                                        deleteRhs);
     m_assignment =
       (new Assignment(dest, rhs, m_ack, destName, deleteLhs, deleteRhs))->getId();
   }
@@ -182,97 +163,105 @@ namespace PLEXIL
   void AssignmentNode::createDummyAssignment() 
   {
     VariableId dest = (new BooleanVariable(BooleanVariable::FALSE_VALUE()))->getId();
-	LabelStr destName("dummy");
+    LabelStr destName("dummy");
     m_assignment =
       (new Assignment(dest, BooleanVariable::TRUE_EXP(), m_ack, destName, true, false))->getId();
   }
 
   const VariableId& AssignmentNode::getAssignmentVariable() const
   {
-	return m_assignment->getDest();
+    return m_assignment->getDest();
   }
 
   //
   // Transition handlers
   //
 
-  void AssignmentNode::transitionFromExecuting(NodeState destState)
-  {
-	checkError(destState == ITERATION_ENDED_STATE ||
-			   destState == FINISHED_STATE,
-			   "Attempting to transition to invalid state '"
-			   << StateVariable::nodeStateName(destState).toString() << "'");
-
-	bool aborting = false;
-	if (getAncestorInvariantCondition()->getValue() ==
-		BooleanVariable::FALSE_VALUE()) {
-		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-		getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-		aborting = true;
-      }
-	else if (getInvariantCondition()->getValue() ==
-			 BooleanVariable::FALSE_VALUE()) {
-		getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-		getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-		aborting = true;
-      }
-	else if (getPostCondition()->getValue() ==
-			 BooleanVariable::TRUE_VALUE()) {
-	  getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
-	}
-	else {
-	  getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-	  getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
-	  aborting = true;
-	}
-
-	if (aborting)
-	  abort();
-
-	deactivateAncestorInvariantCondition();
-	deactivateInvariantCondition();
-	deactivateEndCondition();
-	deactivatePostCondition();
-	deactivateExecutable();
-  }
-
-  void AssignmentNode::transitionToExecuting()
-  {
-	activateAncestorInvariantCondition();
-	activateInvariantCondition();
-	activateEndCondition();
-	activatePostCondition();
-
-	setState(EXECUTING_STATE);
-	execute();
-  }
+  //
+  // EXECUTING 
+  // 
+  // Description and methods here are for Assignment node only
+  //
+  // Legal predecessor states: WAITING
+  // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
+  // Legal successor states: FINISHED, ITERATION_ENDED
 
   void AssignmentNode::specializedHandleExecution()
   {
-	checkError(m_assignment.isValid(),
-			   "Node::handleExecution: Assignment is invalid");
-	m_assignment->activate();
-	m_assignment->fixValue();
-	m_exec->enqueueAssignment(m_assignment);
+    checkError(m_assignment.isValid(),
+               "Node::handleExecution: Assignment is invalid");
+    m_assignment->activate();
+    m_assignment->fixValue();
+    m_exec->enqueueAssignment(m_assignment);
+  }
+
+  void AssignmentNode::transitionFromExecuting(NodeState destState)
+  {
+    checkError(destState == ITERATION_ENDED_STATE || destState == FINISHED_STATE,
+               "Attempting to transition AssignmentNode from EXECUTING to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
+      abort();
+    }
+    else if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::EXITED());
+      abort();
+    }
+    else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+      abort();
+    }
+    else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+      abort();
+    }
+    else if (getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+    }
+    else {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+      abort();
+    }
+
+    deactivateEndCondition();
+    deactivateExitCondition();
+    deactivateInvariantCondition();
+    deactivatePostCondition();
+    if (destState == FINISHED_STATE) {
+      deactivateAncestorExitCondition();
+      deactivateAncestorInvariantCondition();
+    }
+    else { // ITERATION_ENDED
+      activateAncestorEndCondition();
+    }
+
+    deactivateExecutable();
   }
 
   void AssignmentNode::abort()
   {
     debugMsg("Node:abort", "Aborting node " << m_nodeId.toString());
-	if (m_assignment.isValid())
+    if (m_assignment.isValid())
       m_assignment->getDest()->setValue(Expression::UNKNOWN());
-	else 
-	  debugMsg("Warning", "Invalid assignment id in " << m_nodeId.toString());
+    else 
+      debugMsg("Warning", "Invalid assignment id in " << m_nodeId.toString());
   }
 
   void AssignmentNode::specializedReset()
   {
-	m_ack->reset();
+    m_ack->reset();
   }
 
   void AssignmentNode::specializedDeactivateExecutable() 
   {
-	if (m_assignment.isValid())
+    if (m_assignment.isValid())
       m_assignment->deactivate();
   }
 
@@ -281,7 +270,7 @@ namespace PLEXIL
     if (m_assignment.isId()) {
       debugMsg("AssignmentNode:cleanUpNodeBody", "<" << m_nodeId.toString() << "> Removing assignment.");
       delete (Assignment*) m_assignment;
-	  m_assignment = AssignmentId::noId();
+      m_assignment = AssignmentId::noId();
     }
   }
 

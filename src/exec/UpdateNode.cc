@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,45 +42,51 @@ namespace PLEXIL
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   UpdateNode::UpdateNode(const PlexilNodeId& node, 
-						 const ExecConnectorId& exec, 
-						 const NodeId& parent)
-	: Node(node, exec, parent),
-	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
+                         const ExecConnectorId& exec, 
+                         const NodeId& parent)
+    : Node(node, exec, parent),
+      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
-	checkError(node->nodeType() == NodeType_Update,
-			   "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
-			   << "\" for an UpdateNode");
+    checkError(node->nodeType() == NodeType_Update,
+               "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
+               << "\" for an UpdateNode");
 
-	// Make ack variable pretty
-	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+    // Make ack variable pretty
+    ((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
   }
 
   /**
    * @brief Alternate constructor.  Used only by Exec test module.
    */
-  UpdateNode::UpdateNode(const LabelStr& type, const LabelStr& name, const NodeState state,
-						 const bool skip, const bool start, const bool pre,
-						 const bool invariant, const bool post, const bool end, const bool repeat,
-						 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-						 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-						 const bool parentFinished, const bool cmdHdlRcvdCondition,
-						 const ExecConnectorId& exec,
-						 const NodeId& parent)
-	: Node(type, name, state, 
-		   skip, start, pre, invariant, post, end, repeat,
-		   ancestorInvariant, ancestorEnd, parentExecuting, childrenFinished,
-		   commandAbort, parentWaiting, parentFinished, cmdHdlRcvdCondition,
-		   exec, parent),
-	  m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
+  UpdateNode::UpdateNode(const LabelStr& type,
+                         const LabelStr& name, 
+                         const NodeState state,
+                         const ExecConnectorId& exec,
+                         const NodeId& parent)
+    : Node(type, name, state, exec, parent),
+      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId())
   {
-	checkError(type == UPDATE(),
-			   "Invalid node type \"" << type.toString() << "\" for an UpdateNode");
+    checkError(type == UPDATE(),
+               "Invalid node type \"" << type.toString() << "\" for an UpdateNode");
 
-	// Make ack variable pretty
-	((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
+    // Make ack variable pretty
+    ((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
 
-	// Construct stuff as required for unit test
-	createDummyUpdate();
+    // Construct stuff as required for unit test
+    createDummyUpdate();
+
+    switch (m_state) {
+    case EXECUTING_STATE:
+      activateCommandHandleReceivedCondition();
+      break;
+
+    case FAILING_STATE:
+      activateAbortCompleteCondition();
+      break;
+
+    default:
+      break;
+    }
   }
 
   /**
@@ -88,11 +94,11 @@ namespace PLEXIL
    */
   UpdateNode::~UpdateNode()
   {
-	// Redundant with base class destructor
-	cleanUpConditions();
-	cleanUpNodeBody();
-	delete (Variable*) m_ack;
-	m_ack = VariableId::noId();
+    // Redundant with base class destructor
+    cleanUpConditions();
+    cleanUpNodeBody();
+    delete (Variable*) m_ack;
+    m_ack = VariableId::noId();
   }
 
   void UpdateNode::cleanUpNodeBody()
@@ -100,18 +106,18 @@ namespace PLEXIL
     if(m_update.isId()) {
       debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing update.");
       delete (Update*) m_update;
-	  m_update = UpdateId::noId();
+      m_update = UpdateId::noId();
     }
   }
 
   // Specific behaviors for derived classes
   void UpdateNode::specializedPostInit(const PlexilNodeId& node)
   {
-	debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
-	// XML parser should have checked for this
-	checkError(Id<PlexilUpdateBody>::convertable(node->body()),
-			   "Node is an update node but doesn't have an update body.");
-	createUpdate((PlexilUpdateBody*) node->body());
+    debugMsg("Node:postInit", "Creating update for node '" << m_nodeId.toString() << "'");
+    // XML parser should have checked for this
+    checkError(Id<PlexilUpdateBody>::convertable(node->body()),
+               "Node is an update node but doesn't have an update body.");
+    createUpdate((PlexilUpdateBody*) node->body());
   }
 
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
@@ -122,22 +128,22 @@ namespace PLEXIL
 
     if (update.isValid()) {
       for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
-			 update->pairs().begin();
-		   it != update->pairs().end();
-		   ++it) {
-		LabelStr nameStr(it->first);
-		debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
-		PlexilExprId foo = it->second;
-		bool wasCreated = false;
-		ExpressionId valueExpr = 
-		  ExpressionFactory::createInstance(foo->name(),
-											foo,
-											NodeConnector::getId(),
-											wasCreated);
-		check_error(valueExpr.isValid());
-		if (wasCreated)
-		  garbage.push_back(valueExpr);
-		updatePairs.insert(std::make_pair((double) nameStr, valueExpr));
+             update->pairs().begin();
+           it != update->pairs().end();
+           ++it) {
+        LabelStr nameStr(it->first);
+        debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
+        PlexilExprId foo = it->second;
+        bool wasCreated = false;
+        ExpressionId valueExpr = 
+          ExpressionFactory::createInstance(foo->name(),
+                                            foo,
+                                            NodeConnector::getId(),
+                                            wasCreated);
+        check_error(valueExpr.isValid());
+        if (wasCreated)
+          garbage.push_back(valueExpr);
+        updatePairs.insert(std::make_pair((double) nameStr, valueExpr));
       }
     }
 
@@ -154,179 +160,242 @@ namespace PLEXIL
 
   void UpdateNode::createSpecializedConditions()
   {
-	// Construct default end condition
-	ExpressionId realEndCondition =
-	  (new Conjunction(m_ack,
-					   false, 
-					   m_conditions[endIdx],
-					   m_garbageConditions[endIdx]))->getId();
-	realEndCondition->addListener(makeConditionListener(endIdx));
-	m_conditions[endIdx] = realEndCondition;
-	m_garbageConditions[endIdx] = true;
+    // Construct default end condition
+    ExpressionId realEndCondition =
+      (new Conjunction(m_ack,
+                       false, 
+                       m_conditions[endIdx],
+                       m_garbageConditions[endIdx]))->getId();
+    realEndCondition->addListener(makeConditionListener(endIdx));
+    m_conditions[endIdx] = realEndCondition;
+    m_garbageConditions[endIdx] = true;
   }
 
   //
-  // Next-state logic
+  // State transition logic
   //
+
+  //
+  // EXECUTING 
+  // 
+  // Legal predecessor states: WAITING
+  // Conditions active: AncestorExit, AncestorInvariant, CommandHandleReceived, End, Exit, Invariant, Post
+  // Legal successor states: FAILING, FINISHED, ITERATION_ENDED
 
   NodeState UpdateNode::getDestStateFromExecuting()
   {
-	checkError(isAncestorInvariantConditionActive(),
-			   "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-	checkError(isEndConditionActive(),
-			   "End for " << getNodeId().toString() << " is inactive.");
-
-	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-		debugMsg("Node:getDestState",
-				 " '" << m_nodeId.toString() << 
-				 "' destination: FINISHED.  Update node, ancestor invariant false and end true.");
-		return FINISHED_STATE;
-	  }
-	  else {
-		debugMsg("Node:getDestState",
-				 " '" << m_nodeId.toString() << 
-				 "' destination: FAILING.  Update node, ancestor invariant false and end false or unknown.");
-		return FAILING_STATE;
-	  }
-	}
-
-	checkError(isInvariantConditionActive(),
-			   "Invariant for " << getNodeId().toString() << " is inactive.");
-	if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-		if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-		  debugMsg("Node:getDestState",
-				   " '" << m_nodeId.toString() << 
-				   "' destination: ITERATION_ENDED.  Update node, invariant false and end true.");
-		  return ITERATION_ENDED_STATE;
-		}
-		else {
-            debugMsg("Node:getDestState",
-					 " '" << m_nodeId.toString() << 
-                     "' destination: FAILING.  Update node, invariant false and end false or unknown.");
-            return FAILING_STATE;
-		  }
+    checkError(isAncestorExitConditionActive(),
+               "Ancestor exit for " << getNodeId().toString() << " is inactive.");
+    checkError(isEndConditionActive(),
+               "End for " << getNodeId().toString() << " is inactive.");
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FINISHED. Update node, ancestor exit true and end true.");
+        return FINISHED_STATE;
       }
+      else {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FAILING. Update node, ancestor exit true and end false or unknown.");
+        return FAILING_STATE;
+      }
+    }
 
-	if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("Node:getDestState",
-			   " '" << m_nodeId.toString() << 
-			   "' destination: ITERATION_ENDED.  Update node, end condition true.");
-		return ITERATION_ENDED_STATE;
-	}
+    checkError(isExitConditionActive(),
+               "Exit for " << getNodeId().toString() << " is inactive.");
+    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: ITERATION_ENDED. Update node, exit true and end true.");
+        return ITERATION_ENDED_STATE;
+      }
+      else {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FAILING. Update node, exit true and end false or unknown.");
+        return FAILING_STATE;
+      }
+    }
+
+    checkError(isAncestorInvariantConditionActive(),
+               "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
+    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FINISHED. Update node, ancestor invariant false and end true.");
+        return FINISHED_STATE;
+      }
+      else {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FAILING. Update node, ancestor invariant false and end false or unknown.");
+        return FAILING_STATE;
+      }
+    }
+
+    checkError(isInvariantConditionActive(),
+               "Invariant for " << getNodeId().toString() << " is inactive.");
+    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: ITERATION_ENDED. Update node, invariant false and end true.");
+        return ITERATION_ENDED_STATE;
+      }
+      else {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FAILING. Update node, invariant false and end false or unknown.");
+        return FAILING_STATE;
+      }
+    }
+
+    if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: ITERATION_ENDED.  Update node, end condition true.");
+      return ITERATION_ENDED_STATE;
+    }
       
-	debugMsg("Node:getDestState",
-			 " '" << m_nodeId.toString() << 
-			 "' destination from EXECUTING: no state.\n  Ancestor invariant: " 
-			 << getAncestorInvariantCondition()->toString() 
-			 << "\n  Invariant: " << getInvariantCondition()->toString() 
-			 << "\n  End: " << getEndCondition()->toString());
-	return NO_NODE_STATE;
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId.toString() << 
+             "' destination from EXECUTING: no state.\n  Ancestor invariant: " 
+             << getAncestorInvariantCondition()->toString()
+             << "\n  Invariant: " << getInvariantCondition()->toString() 
+             << "\n  End: " << getEndCondition()->toString());
+    return NO_NODE_STATE;
+  }
+
+  void UpdateNode::transitionFromExecuting(NodeState destState)
+  {
+    checkError(destState == FINISHED_STATE ||
+               destState == FAILING_STATE ||
+               destState == ITERATION_ENDED_STATE,
+               "Attempting to transition Update node from EXECUTING to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
+      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+        abort();
+    }
+    else if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::EXITED());
+      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+        abort();
+    }
+    else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+      m_failureTypeVariable->setValue(FailureVariable::PARENT_FAILED());
+      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+        abort();
+    }
+    else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+      m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
+        abort();
+    }
+    else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      if (getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
+        m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+        m_failureTypeVariable->setValue(FailureVariable::POST_CONDITION_FAILED());
+      }
+      else
+        m_outcomeVariable->setValue(OutcomeVariable::SUCCESS());
+    }
+    else {
+      checkError(ALWAYS_FAIL, "Should never get here.");
+    }
+
+    deactivateEndCondition();
+    deactivateExitCondition();
+    deactivateInvariantCondition();
+    deactivatePostCondition();
+    if (destState == ITERATION_ENDED_STATE) {
+      activateAncestorEndCondition();
+    }
+    else { // FAILING, FINISHED
+      deactivateAncestorExitCondition();
+      deactivateAncestorInvariantCondition();
+    }
+
+    if (destState != FAILING_STATE)
+      deactivateExecutable();
+  }
+
+  //
+  // FAILING
+  //
+  // Legal predecessor states: EXECUTING
+  // Conditions active: AbortComplete
+  // Legal successor states: FINISHED, ITERATION_ENDED
+
+  void UpdateNode::transitionToFailing()
+  {
+    activateAbortCompleteCondition();
   }
 
   NodeState UpdateNode::getDestStateFromFailing()
   {
-	checkError(isAbortCompleteConditionActive(),
-			   "Abort complete for " << getNodeId().toString() << " is inactive.");
+    checkError(isAbortCompleteConditionActive(),
+               "Abort complete for " << getNodeId().toString() << " is inactive.");
 
-	if (getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_FAILED()) {
-		debugMsg("Node:getDestState",
-				 " '" << m_nodeId.toString() << 
-				 "' destination: FINISHED.  Update node abort complete, and parent failed.");
-		return FINISHED_STATE;
-	  }
-	  else {
-		debugMsg("Node:getDestState",
-				 " '" << m_nodeId.toString() << 
-				 "' destination: ITERATION_ENDED.  Update node abort complete.");
-		return ITERATION_ENDED_STATE;
-	  }
-	}
+    if (getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_FAILED()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FINISHED.  Update node abort complete, and parent failed.");
+        return FINISHED_STATE;
+      }
+      else {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: ITERATION_ENDED.  Update node abort complete.");
+        return ITERATION_ENDED_STATE;
+      }
+    }
 
-	debugMsg("Node:getDestState",
-			 " '" << m_nodeId.toString() << 
-			 "' destination: no state.");
-	return NO_NODE_STATE;
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId.toString() << 
+             "' destination: no state.");
+    return NO_NODE_STATE;
+  }
+
+  void UpdateNode::transitionFromFailing(NodeState destState)
+  {
+    checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
+               "Attempting to transition Update node from FAILING to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+
+    deactivateAbortCompleteCondition();
+    if (destState == ITERATION_ENDED_STATE) {
+      activateAncestorEndCondition();
+      activateAncestorExitCondition();
+      activateAncestorInvariantCondition();
+    }
+
+    deactivateExecutable();
   }
 
   //
   // Transition handlers
   //
 
-  void UpdateNode::transitionFromExecuting(NodeState destState)
-  {
-	checkError(destState == FINISHED_STATE ||
-			   destState == FAILING_STATE ||
-			   destState == ITERATION_ENDED_STATE,
-			   "Attempting to transition to invalid state '"
-			   << StateVariable::nodeStateName(destState).toString() << "'");
-
-	if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
-	  m_failureTypeVariable->setValue(FailureVariable::PARENT_FAILED());
-	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
-		abort();
-	}
-	else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-	  m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
-	  m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-	  if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
-		abort();
-	}
-	else if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-	  if (getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
-		m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
-		m_failureTypeVariable->setValue(FailureVariable::POST_CONDITION_FAILED());
-	  }
-	  else
-		m_outcomeVariable->setValue(OutcomeVariable::SUCCESS());
-	}
-	else {
-	  checkError(ALWAYS_FAIL, "Should never get here.");
-	}
-
-	deactivateEndCondition();
-	deactivateInvariantCondition();
-	deactivateAncestorInvariantCondition();
-	deactivatePostCondition();
-	deactivateExecutable();
-  }
-
-  void UpdateNode::transitionFromFailing(NodeState destState)
-  {
-	checkError(destState == FINISHED_STATE ||
-			   destState == ITERATION_ENDED_STATE,
-			   "Attempting to transition to invalid state '"
-			   << StateVariable::nodeStateName(destState).toString() << "'");
-
-	deactivateAbortCompleteCondition();
-  }
-
-  void UpdateNode::transitionToExecuting()
-  {
-	activateAncestorInvariantCondition();
-	activateInvariantCondition();
-	activateEndCondition();
-	activatePostCondition();
-
-	setState(EXECUTING_STATE);
-	execute();
-  }
-
-  void UpdateNode::transitionToFailing()
-  {
-	activateAbortCompleteCondition();
-  }
-
 
   void UpdateNode::specializedHandleExecution()
   {
-	checkError(m_update.isValid(),
-			   "Node::handleExecution: Update is invalid");
-	m_update->activate();
-	m_update->fixValues();
-	m_exec->enqueueUpdate(m_update);
+    checkError(m_update.isValid(),
+               "Node::handleExecution: Update is invalid");
+    m_update->activate();
+    m_update->fixValues();
+    m_exec->enqueueUpdate(m_update);
   }
 
   void UpdateNode::specializedDeactivateExecutable()
@@ -337,7 +406,7 @@ namespace PLEXIL
 
   void UpdateNode::specializedReset()
   {
-	m_ack->reset();
+    m_ack->reset();
   }
 
 }

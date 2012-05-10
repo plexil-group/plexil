@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,11 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    ListNode(const LabelStr& type, const LabelStr& name, const NodeState state,
-			 const bool skip, const bool start, const bool pre,
-			 const bool invariant, const bool post, const bool end, const bool repeat,
-			 const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-			 const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-			 const bool parentFinished, const bool cmdHdlRcvdCondition,
-			 const ExecConnectorId& exec = ExecConnectorId::noId(),
-			 const NodeId& parent = NodeId::noId());
+    ListNode(const LabelStr& type,
+             const LabelStr& name,
+             const NodeState state,
+             const ExecConnectorId& exec = ExecConnectorId::noId(),
+             const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -65,36 +62,36 @@ namespace PLEXIL
 
   protected:
 
-	virtual NodeId findChild(const LabelStr& childName) const;
+    virtual NodeId findChild(const LabelStr& childName) const;
 
-	// Specific behaviors for derived classes
-	virtual void specializedPostInit(const PlexilNodeId& node);
-	virtual void createSpecializedConditions();
-	virtual void createConditionWrappers();
-	virtual void specializedActivate();
+    // Specific behaviors for derived classes
+    virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void createSpecializedConditions();
+    virtual void createConditionWrappers();
+    virtual void specializedActivate();
 
-	virtual void cleanUpConditions();
-	virtual void cleanUpChildConditions();
-	virtual void cleanUpNodeBody();
+    virtual void cleanUpConditions();
+    virtual void cleanUpChildConditions();
+    virtual void cleanUpNodeBody();
 
-	virtual NodeState getDestStateFromExecuting();
-	virtual NodeState getDestStateFromFailing();
-	virtual NodeState getDestStateFromFinishing();
+    virtual NodeState getDestStateFromExecuting();
+    virtual NodeState getDestStateFromFailing();
+    virtual NodeState getDestStateFromFinishing();
 
-	virtual void transitionFromExecuting(NodeState toState);
-	virtual void transitionFromFinishing(NodeState toState);
-	virtual void transitionFromFailing(NodeState toState);
+    virtual void transitionFromExecuting(NodeState toState);
+    virtual void transitionFromFinishing(NodeState toState);
+    virtual void transitionFromFailing(NodeState toState);
 
-	virtual void transitionToExecuting();
-	virtual void transitionToFinishing();
-	virtual void transitionToFailing();
+    virtual void transitionToExecuting();
+    virtual void transitionToFinishing();
+    virtual void transitionToFailing();
 
-	// Shared with derived class LibraryCallNode
+    // Shared with derived class LibraryCallNode
     std::vector<NodeId> m_children; /*<! Vector of child nodes. */
 
   private:
 
-	void createChildNodes(const PlexilListBody* body);
+    void createChildNodes(const PlexilListBody* body);
 
   };
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,46 +47,42 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    UpdateNode(const LabelStr& type, const LabelStr& name, const NodeState state,
-			   const bool skip, const bool start, const bool pre,
-			   const bool invariant, const bool post, const bool end, const bool repeat,
-			   const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-			   const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-			   const bool parentFinished, const bool cmdHdlRcvdCondition,
-			   const ExecConnectorId& exec = ExecConnectorId::noId(),
-			   const NodeId& parent = NodeId::noId());
+    UpdateNode(const LabelStr& type,
+               const LabelStr& name,
+               const NodeState state,
+               const ExecConnectorId& exec = ExecConnectorId::noId(),
+               const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~UpdateNode();
 
-	/**
-	 * @brief Get the node's update structure.
-	 */
-	const UpdateId& getUpdate()
-	{
-	  return m_update; 
-	}
+    /**
+     * @brief Get the node's update structure.
+     */
+    const UpdateId& getUpdate()
+    {
+      return m_update; 
+    }
 
   protected:
 
-	// Specific behaviors for derived classes
-	virtual void specializedPostInit(const PlexilNodeId& node);
-	virtual void createSpecializedConditions();
-	virtual void specializedHandleExecution();
-	virtual void specializedDeactivateExecutable();
-	virtual void specializedReset();
-	virtual void cleanUpNodeBody();
+    // Specific behaviors for derived classes
+    virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void createSpecializedConditions();
+    virtual void specializedHandleExecution();
+    virtual void specializedDeactivateExecutable();
+    virtual void specializedReset();
+    virtual void cleanUpNodeBody();
 
-	virtual NodeState getDestStateFromExecuting();
-	virtual NodeState getDestStateFromFailing();
+    virtual NodeState getDestStateFromExecuting();
+    virtual NodeState getDestStateFromFailing();
 
-	virtual void transitionFromExecuting(NodeState toState);
-	virtual void transitionFromFailing(NodeState toState);
+    virtual void transitionFromExecuting(NodeState toState);
+    virtual void transitionFromFailing(NodeState toState);
 
-	virtual void transitionToExecuting();
-	virtual void transitionToFailing();
+    virtual void transitionToFailing();
 
   private:
 
