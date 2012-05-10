@@ -168,7 +168,7 @@ namespace PLEXIL
                          false,
                          getEndCondition(),
                          false))->getId();
-      m_conditions[ancestorEndIdx] =
+      m_conditions[ancestorExitIdx] =
         (new Disjunction(getAncestorExitCondition(), // from parent
                          false,
                          getExitCondition(),
@@ -185,7 +185,7 @@ namespace PLEXIL
     else {
       // Simply reuse existing conditions
       m_conditions[ancestorEndIdx] = m_conditions[endIdx];
-      m_conditions[ancestorExitIdx] = m_conditions[endIdx];
+      m_conditions[ancestorExitIdx] = m_conditions[exitIdx];
       m_conditions[ancestorInvariantIdx] = m_conditions[invariantIdx];
     }
   }
