@@ -222,7 +222,7 @@ namespace PLEXIL
   }
 
   bool OutcomeVariable::checkValue(const double val) {
-    return (val == UNKNOWN() || val == SUCCESS() || val == FAILURE() || val == SKIPPED());
+    return (val == UNKNOWN() || val == SUCCESS() || val == FAILURE() || val == SKIPPED() || val == INTERRUPTED());
   }
 
   void OutcomeVariable::print(std::ostream& s) const
@@ -267,7 +267,9 @@ namespace PLEXIL
 	  || val == PRE_CONDITION_FAILED()
 	  || val == POST_CONDITION_FAILED()
 	  || val == INVARIANT_CONDITION_FAILED()
-	  || val == PARENT_FAILED();
+	  || val == PARENT_FAILED()
+	  || val == PARENT_EXITED()
+	  || val == EXITED();
   }
 
   // Called only from CommandNode constructors.
