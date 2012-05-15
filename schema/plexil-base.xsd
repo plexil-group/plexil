@@ -182,6 +182,7 @@ element.  It is used as an included schema only.
         <xsd:element ref="PostCondition" minOccurs="0"/>
         <xsd:element ref="InvariantCondition" minOccurs="0"/>
         <xsd:element ref="EndCondition" minOccurs="0"/>
+        <xsd:element ref="ExitCondition" minOccurs="0"/>
         <xsd:element ref="SkipCondition" minOccurs="0"/>
         <xsd:element name="Priority" type="xsd:nonNegativeInteger" minOccurs="0"/>
         <xsd:element ref="Interface" minOccurs="0"/>
@@ -269,6 +270,13 @@ element.  It is used as an included schema only.
   </xsd:element>
 
   <xsd:element name="EndCondition">
+    <xsd:complexType>
+      <xsd:group ref="BooleanExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ExitCondition">
     <xsd:complexType>
       <xsd:group ref="BooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
@@ -845,6 +853,7 @@ element.  It is used as an included schema only.
         <xsd:enumeration value="SUCCESS"/>
         <xsd:enumeration value="FAILURE"/>
         <xsd:enumeration value="SKIPPED"/>
+        <xsd:enumeration value="INTERRUPTED"/>
       </xsd:restriction>
     </xsd:simpleType>
   </xsd:element>
@@ -865,6 +874,8 @@ element.  It is used as an included schema only.
         <xsd:enumeration value="POST_CONDITION_FAILED"/>
         <xsd:enumeration value="INVARIANT_CONDITION_FAILED"/>
         <xsd:enumeration value="PARENT_FAILED"/>
+        <xsd:enumeration value="PARENT_EXITED"/>
+        <xsd:enumeration value="EXITED"/>
       </xsd:restriction>
     </xsd:simpleType>
   </xsd:element>
