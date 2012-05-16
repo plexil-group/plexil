@@ -1,0 +1,527 @@
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:addPlan]Added plan: 
+NonLocalExit{
+ State: NonLocalExit (id_33[au](INACTIVE): state) (inf)
+  theLoop{
+   State: theLoop (id_92[au](INACTIVE): state) (inf)
+  }
+  theSpoiler{
+   State: theSpoiler (id_134[au](INACTIVE): state) (inf)
+  }
+}
+
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 1
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'NonLocalExit' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'NonLocalExit' on the state change queue in position 1
+[PlexilExec:step][1:0] State change queue: NonLocalExit 
+[PlexilExec:lock]Locking node NonLocalExit
+[PlexilExec:step][1:0:0] Transitioning node NonLocalExit
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[PlexilExec:unlock]Unlocking node NonLocalExit
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'NonLocalExit' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'NonLocalExit' on the state change queue in position 2
+[PlexilExec:step][1:1] State change queue: NonLocalExit 
+[PlexilExec:lock]Locking node NonLocalExit
+[PlexilExec:step][1:1:0] Transitioning node NonLocalExit
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[PlexilExec:handleNeedsExecution]Storing action for node 'NonLocalExit' of type 'NodeList' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[PlexilExec:unlock]Unlocking node NonLocalExit
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 3
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theSpoiler' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theSpoiler' on the state change queue in position 4
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'NonLocalExit' was previously eligible to transition but isn't now.
+[PlexilExec:step][1:2] State change queue: theLoop theSpoiler 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:lock]Locking node theSpoiler
+[PlexilExec:step][1:2:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:step][1:2:1] Transitioning node theSpoiler
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:unlock]Unlocking node theSpoiler
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that could be executing.  Adding it to the resource contention list 
+[PlexilExec:addToResourceContention]Adding node 'theLoop' to resource contention.
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Removing node from resource contention.
+[PlexilExec:resolveResourceConflicts]Node 'theLoop' has best priority.  Adding it to be executed in position 5
+[PlexilExec:step][1:3] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][1:3:0] Transitioning node theLoop
+[PlexilExec:handleNeedsExecution]Storing action for node 'theLoop' of type 'Assignment' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' was previously eligible to transition but isn't now.
+[PlexilExec:resolveResourceConflicts]Node for id_78 already executing.  Nothing to resolve.
+[PlexilExec:performAssignments] performing 1 assignments and 0 retractions
+[Test:testOutput]Assigning 'loopCount' (loopCount (id_77[au](0): int)) to 1
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:cycle]==>End cycle 1
+[PlexilExec:printPlan]
+NonLocalExit{
+ State: NonLocalExit (id_33[au](EXECUTING): state) (0)
+ AncestorEndCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_71[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_71[au](0): boolean)
+ SkipCondition: Boolean constant false (id_71[au](0): boolean)
+ StartCondition: Boolean constant true (id_73[au](1): boolean)
+ EndCondition: (id_181[au](0): childrenFinished(0:2))
+ ExitCondition: Boolean constant false (id_71[au](0): boolean)
+ InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ PreCondition: Boolean constant true (id_73[au](1): boolean)
+ PostCondition: Boolean constant true (id_73[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+ ActionCompleteCondition: (id_175[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ loopCount: loopCount (id_77[au](1): int)
+ quitLooping: quitLooping (id_75[au](0): boolean)
+  theLoop{
+   State: theLoop (id_92[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: Boolean constant true (id_73[au](1): boolean)
+   EndCondition: theLoop ack (id_192[au](1): boolean)
+   ExitCondition: quitLooping (id_75[au](0): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: (id_202[iu](UNKNOWN): (loopCount (id_77[au](1): int) < IntegerValue (id_204[iu](5): int)))
+   AbortCompleteCondition: theLoop abortComplete (id_194[iu](UNKNOWN): boolean)
+   loopCount: loopCount (id_77[au](1): int)
+   quitLooping: quitLooping (id_75[au](0): boolean)
+  }
+  theSpoiler{
+   State: theSpoiler (id_134[au](WAITING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: (id_219[au](0): (loopCount (id_77[au](1): int) == IntegerValue (id_221[au](2): int)))
+   EndCondition: theSpoiler ack (id_210[iu](UNKNOWN): boolean)
+   ExitCondition: Boolean constant false (id_71[au](0): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+   AbortCompleteCondition: theSpoiler abortComplete (id_212[iu](UNKNOWN): boolean)
+   loopCount: loopCount (id_77[au](1): int)
+   quitLooping: quitLooping (id_75[au](0): boolean)
+  }
+}
+
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 6
+[PlexilExec:step][2:0] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][2:0:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 7
+[PlexilExec:step][2:1] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][2:1:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that could be executing.  Adding it to the resource contention list 
+[PlexilExec:addToResourceContention]Adding node 'theLoop' to resource contention.
+[PlexilExec:resolveResourceConflicts]Node 'theLoop' has best priority.  Adding it to be executed in position 8
+[PlexilExec:step][2:2] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][2:2:0] Transitioning node theLoop
+[PlexilExec:handleNeedsExecution]Storing action for node 'theLoop' of type 'Assignment' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' was previously eligible to transition but isn't now.
+[PlexilExec:resolveResourceConflicts]Node for id_78 already executing.  Nothing to resolve.
+[PlexilExec:performAssignments] performing 1 assignments and 0 retractions
+[Test:testOutput]Assigning 'loopCount' (loopCount (id_77[au](1): int)) to 2
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:printPlan]
+NonLocalExit{
+ State: NonLocalExit (id_33[au](EXECUTING): state) (0)
+ AncestorEndCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_71[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_71[au](0): boolean)
+ SkipCondition: Boolean constant false (id_71[au](0): boolean)
+ StartCondition: Boolean constant true (id_73[au](1): boolean)
+ EndCondition: (id_181[au](0): childrenFinished(0:2))
+ ExitCondition: Boolean constant false (id_71[au](0): boolean)
+ InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ PreCondition: Boolean constant true (id_73[au](1): boolean)
+ PostCondition: Boolean constant true (id_73[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+ ActionCompleteCondition: (id_175[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ loopCount: loopCount (id_77[au](2): int)
+ quitLooping: quitLooping (id_75[au](0): boolean)
+  theLoop{
+   State: theLoop (id_92[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: Boolean constant true (id_73[au](1): boolean)
+   EndCondition: theLoop ack (id_192[au](1): boolean)
+   ExitCondition: quitLooping (id_75[au](0): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: (id_202[iu](UNKNOWN): (loopCount (id_77[au](2): int) < IntegerValue (id_204[au](5): int)))
+   AbortCompleteCondition: theLoop abortComplete (id_194[iu](UNKNOWN): boolean)
+   loopCount: loopCount (id_77[au](2): int)
+   quitLooping: quitLooping (id_75[au](0): boolean)
+  }
+  theSpoiler{
+   State: theSpoiler (id_134[au](WAITING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: (id_219[au](1): (loopCount (id_77[au](2): int) == IntegerValue (id_221[au](2): int)))
+   EndCondition: theSpoiler ack (id_210[iu](UNKNOWN): boolean)
+   ExitCondition: Boolean constant false (id_71[au](0): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+   AbortCompleteCondition: theSpoiler abortComplete (id_212[iu](UNKNOWN): boolean)
+   loopCount: loopCount (id_77[au](2): int)
+   quitLooping: quitLooping (id_75[au](0): boolean)
+  }
+}
+
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 3
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theSpoiler' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' is an assignment node that could be executing.  Adding it to the resource contention list 
+[PlexilExec:addToResourceContention]Adding node 'theSpoiler' to resource contention.
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 9
+[PlexilExec:resolveResourceConflicts]Node 'theSpoiler' has best priority.  Adding it to be executed in position 10
+[PlexilExec:step][3:0] State change queue: theLoop theSpoiler 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:lock]Locking node theSpoiler
+[PlexilExec:step][3:0:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:step][3:0:1] Transitioning node theSpoiler
+[PlexilExec:handleNeedsExecution]Storing action for node 'theSpoiler' of type 'Assignment' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:unlock]Unlocking node theSpoiler
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 11
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' was previously eligible to transition but isn't now.
+[PlexilExec:resolveResourceConflicts]Node for id_76 already executing.  Nothing to resolve.
+[PlexilExec:step][3:1] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][3:1:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that could be executing.  Adding it to the resource contention list 
+[PlexilExec:addToResourceContention]Adding node 'theLoop' to resource contention.
+[PlexilExec:resolveResourceConflicts]Node for id_76 already executing.  Nothing to resolve.
+[PlexilExec:resolveResourceConflicts]Node 'theLoop' has best priority.  Adding it to be executed in position 12
+[PlexilExec:step][3:2] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][3:2:0] Transitioning node theLoop
+[PlexilExec:handleNeedsExecution]Storing action for node 'theLoop' of type 'Assignment' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' was previously eligible to transition but isn't now.
+[PlexilExec:resolveResourceConflicts]Node for id_76 already executing.  Nothing to resolve.
+[PlexilExec:resolveResourceConflicts]Node for id_78 already executing.  Nothing to resolve.
+[PlexilExec:performAssignments] performing 2 assignments and 0 retractions
+[Test:testOutput]Assigning 'quitLooping' (quitLooping (id_75[au](0): boolean)) to 1
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[Test:testOutput]Assigning 'loopCount' (loopCount (id_77[au](2): int)) to 3
+[PlexilExec:cycle]==>End cycle 3
+[PlexilExec:printPlan]
+NonLocalExit{
+ State: NonLocalExit (id_33[au](EXECUTING): state) (0)
+ AncestorEndCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_71[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_71[au](0): boolean)
+ SkipCondition: Boolean constant false (id_71[au](0): boolean)
+ StartCondition: Boolean constant true (id_73[au](1): boolean)
+ EndCondition: (id_181[au](0): childrenFinished(0:2))
+ ExitCondition: Boolean constant false (id_71[au](0): boolean)
+ InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ PreCondition: Boolean constant true (id_73[au](1): boolean)
+ PostCondition: Boolean constant true (id_73[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+ ActionCompleteCondition: (id_175[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ loopCount: loopCount (id_77[au](3): int)
+ quitLooping: quitLooping (id_75[au](1): boolean)
+  theLoop{
+   State: theLoop (id_92[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: Boolean constant true (id_73[au](1): boolean)
+   EndCondition: theLoop ack (id_192[au](1): boolean)
+   ExitCondition: quitLooping (id_75[au](1): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: (id_202[iu](UNKNOWN): (loopCount (id_77[au](3): int) < IntegerValue (id_204[au](5): int)))
+   AbortCompleteCondition: theLoop abortComplete (id_194[iu](UNKNOWN): boolean)
+   loopCount: loopCount (id_77[au](3): int)
+   quitLooping: quitLooping (id_75[au](1): boolean)
+  }
+  theSpoiler{
+   State: theSpoiler (id_134[au](EXECUTING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: (id_219[iu](UNKNOWN): (loopCount (id_77[au](3): int) == IntegerValue (id_221[au](2): int)))
+   EndCondition: theSpoiler ack (id_210[au](1): boolean)
+   ExitCondition: Boolean constant false (id_71[au](0): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+   AbortCompleteCondition: theSpoiler abortComplete (id_212[iu](UNKNOWN): boolean)
+   loopCount: loopCount (id_77[au](3): int)
+   quitLooping: quitLooping (id_75[au](1): boolean)
+  }
+}
+
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 4
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 13
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theSpoiler' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theSpoiler' on the state change queue in position 14
+[PlexilExec:step][4:0] State change queue: theLoop theSpoiler 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:lock]Locking node theSpoiler
+[PlexilExec:step][4:0:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:step][4:0:1] Transitioning node theSpoiler
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:unlock]Unlocking node theSpoiler
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Removing node from resource contention.
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theSpoiler' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theSpoiler' on the state change queue in position 15
+[PlexilExec:step][4:1] State change queue: theSpoiler 
+[PlexilExec:lock]Locking node theSpoiler
+[PlexilExec:step][4:1:0] Transitioning node theSpoiler
+[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
+[PlexilExec:unlock]Unlocking node theSpoiler
+[PlexilExec:handleConditionsChanged]Node theSpoiler had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theSpoiler' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Removing node from resource contention.
+[PlexilExec:performAssignments] performing 0 assignments and 1 retractions
+[Test:testOutput]Restoring 'loopCount' (loopCount (id_77[au](3): int)) to 2
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:cycle]==>End cycle 4
+[PlexilExec:printPlan]
+NonLocalExit{
+ State: NonLocalExit (id_33[au](EXECUTING): state) (0)
+ AncestorEndCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_73[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_71[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_71[au](0): boolean)
+ SkipCondition: Boolean constant false (id_71[au](0): boolean)
+ StartCondition: Boolean constant true (id_73[au](1): boolean)
+ EndCondition: (id_181[au](0): childrenFinished(1:2))
+ ExitCondition: Boolean constant false (id_71[au](0): boolean)
+ InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+ PreCondition: Boolean constant true (id_73[au](1): boolean)
+ PostCondition: Boolean constant true (id_73[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_71[au](0): boolean)
+ ActionCompleteCondition: (id_175[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
+ loopCount: loopCount (id_77[au](2): int)
+ quitLooping: quitLooping (id_75[au](1): boolean)
+  theLoop{
+   State: theLoop (id_92[au](FAILING): state) (0)
+   AncestorEndCondition: (id_181[au](0): childrenFinished(1:2))
+   AncestorExitCondition: Boolean constant false (id_71[au](0): boolean)
+   AncestorInvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   ParentExecutingCondition: (id_81[au](1): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_79[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_85[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_83[au](FINISHED): state)))
+   ParentWaitingCondition: (id_89[au](0): (NonLocalExit (id_33[au](EXECUTING): state) == anonymous (id_87[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_71[au](0): boolean)
+   StartCondition: Boolean constant true (id_73[au](1): boolean)
+   EndCondition: theLoop ack (id_192[iu](1): boolean)
+   ExitCondition: quitLooping (id_75[au](1): boolean)
+   InvariantCondition: Boolean constant true (id_73[au](1): boolean)
+   PreCondition: Boolean constant true (id_73[au](1): boolean)
+   PostCondition: Boolean constant true (id_73[au](1): boolean)
+   RepeatCondition: (id_202[iu](UNKNOWN): (loopCount (id_77[au](2): int) < IntegerValue (id_204[au](5): int)))
+   AbortCompleteCondition: theLoop abortComplete (id_194[au](1): boolean)
+   loopCount: loopCount (id_77[au](2): int)
+   quitLooping: quitLooping (id_75[au](1): boolean)
+  }
+  theSpoiler{
+   State: theSpoiler (id_134[au](FINISHED): state) (0)
+   Outcome: theSpoiler (id_136[au](SUCCESS): outcome)
+   loopCount: loopCount (id_77[au](2): int)
+   quitLooping: quitLooping (id_75[au](1): boolean)
+  }
+}
+
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 5
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 16
+[PlexilExec:step][5:0] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][5:0:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 17
+[PlexilExec:step][5:1] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][5:1:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'theLoop' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'theLoop' on the state change queue in position 18
+[PlexilExec:step][5:2] State change queue: theLoop 
+[PlexilExec:lock]Locking node theLoop
+[PlexilExec:step][5:2:0] Transitioning node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node theLoop
+[PlexilExec:unlock]Unlocking node theLoop
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[PlexilExec:handleConditionsChanged]Node theLoop had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'theLoop' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Removing node from resource contention.
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'NonLocalExit' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'NonLocalExit' on the state change queue in position 19
+[PlexilExec:step][5:3] State change queue: NonLocalExit 
+[PlexilExec:lock]Locking node NonLocalExit
+[PlexilExec:step][5:3:0] Transitioning node NonLocalExit
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[PlexilExec:unlock]Unlocking node NonLocalExit
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'NonLocalExit' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'NonLocalExit' on the state change queue in position 20
+[PlexilExec:step][5:4] State change queue: NonLocalExit 
+[PlexilExec:lock]Locking node NonLocalExit
+[PlexilExec:step][5:4:0] Transitioning node NonLocalExit
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[PlexilExec:unlock]Unlocking node NonLocalExit
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'NonLocalExit' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'NonLocalExit' on the state change queue in position 21
+[PlexilExec:step][5:5] State change queue: NonLocalExit 
+[PlexilExec:lock]Locking node NonLocalExit
+[PlexilExec:step][5:5:0] Transitioning node NonLocalExit
+[PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
+[PlexilExec:unlock]Unlocking node NonLocalExit
+[PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'NonLocalExit' was previously eligible to transition but isn't now.
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
+[PlexilExec:cycle]==>End cycle 5
+[PlexilExec:printPlan]
+NonLocalExit{
+ State: NonLocalExit (id_33[au](FINISHED): state) (0)
+ Outcome: NonLocalExit (id_35[au](SUCCESS): outcome)
+ loopCount: loopCount (id_77[iu](2): int)
+ quitLooping: quitLooping (id_75[iu](1): boolean)
+  theLoop{
+   State: theLoop (id_92[au](FINISHED): state) (0)
+   Outcome: theLoop (id_94[au](SKIPPED): outcome)
+   loopCount: loopCount (id_77[iu](2): int)
+   quitLooping: quitLooping (id_75[iu](1): boolean)
+  }
+  theSpoiler{
+   State: theSpoiler (id_134[au](FINISHED): state) (0)
+   Outcome: theSpoiler (id_136[au](SUCCESS): outcome)
+   loopCount: loopCount (id_77[iu](2): int)
+   quitLooping: quitLooping (id_75[iu](1): boolean)
+  }
+}
+
